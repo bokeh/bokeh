@@ -1,0 +1,14 @@
+These are random notes as I'm understanding how ggplot is put together (and
+also learn a bit more concretely about GG itself).
+
+The geom_abline example shows how if the data supplied to the geom function is vector with regards to the dimensionality of the geom, then it broadcasts.  I wonder how R is implementing this under the hood, or if it's some special case code.
+
+Some functions have parameters that control the widget's appearance, and which can oftentimes accept any aesthetic.
+
+
+-----------
+
+
+
+
+
