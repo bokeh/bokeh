@@ -1,7 +1,7 @@
 Bokeh 
 =====
 
-Bokeh is an implementation of (Grammar of Graphics)[http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html] for Python.  Its primary
+Bokeh is an implementation of [Grammar of Graphics](http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html) for Python.  Its primary
 output backend is HTML5 Canvas.
 
 There are many excellent plotting packages for Python, but they generally 
@@ -19,24 +19,25 @@ Technology
 
 Bokeh has a function-oriented interface that closely resembles ggplot.  These
 functions can be used interactively from the Python prompt, or from within a
-script (a la Matplotlib).  Behind the scenes, these functions construct a
-scenegraph and data transformation pipeline that consists of nodes which can
-export their state into JSON.
+script (a la [Matplotlib](http://matplotlib.sourceforge.net/)).  Behind the
+scenes, these functions construct a scenegraph and data transformation pipeline
+that consists of nodes which can export their state into JSON.
 
 The JSON representation of the graphic is then embedded in an HTML document
 which also contains the Bokeh JS runtime.  This runtime is built on a port of
-Protovis to HTML5 Canvas, and consists of some higher-level canned plot layouts
-built on top of the Protovis framework.
+[Protovis](http://mbostock.github.com/protovis/) to HTML5 Canvas, and consists
+of some higher-level canned plot layouts built on top of the Protovis
+framework.
 
 
 Status
 ======
 
 Bokeh is a new project (March 2012), but is under active development by
-contributors at Continuum Analytics.  Our goal is to get a 0.1 release that
-will consist of the basic data processing and backend rendering, and then
-solicit examples from users and help from other developers to start rounding
-out the features, defaults, and overall usability.
+contributors at [Continuum Analytics](http://continuum.io).  Our goal is to get
+a 0.1 release that will consist of the basic data processing and backend
+rendering, and then solicit examples from users and help from other developers
+to start rounding out the features, defaults, and overall usability.
 
 
 
