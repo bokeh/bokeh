@@ -32,4 +32,52 @@
     });
     Bokeh.HasParent = HasParent;
 
+    var Component = HasParent.extend({
+	defaults : {
+	    width : 0,
+	    height : 0,
+	    position : 0,
+	    parent : null
+	}
+    });
+    Bokeh.Component = Component;
+    
+    var Plot = Component.extend({
+	defaults : {
+	    data_sources : {}
+	}
+    });
+    _.extend({'data_sources' : [0,0],
+	      'renderers' : [],
+	      'legends' : [],
+	      'tools' : [],
+	      'overlays' : []
+	     }, Plot.prototype.defaults);
+    Bokeh.Plot = Plot;
+
+
+    var GridPlotContainer = Component.extend({
+	defaults : {
+	    rows: 0,
+	    columns : 0,
+	    children : [[]]
+	}
+    });
+    _.extend({'shape' : [0,0]}, GridPlotContainer.prototype.defaults);
+
+    Bokeh.GridPlotContainerView = Backbone.View.extend({
+	render: function(){
+	    var self = this;
+	    var row;
+	    self.$el = $(self.el);
+	    self.$el.append("<table></table>");
+	    _.each(_.range(self.model.get('rows')), function(xidx){
+		row = $("<tr></tr>");
+		_.each(_.range(self.model.get('columns')), function(yidx){
+		    
+		});
+	    });
+
+	}
+    });
 })();
