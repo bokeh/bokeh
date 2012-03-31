@@ -11,10 +11,44 @@
 	Bokeh.Collections[key] = value;
 	value.bokeh_key = key;
     }
-    var HasParent = Backbone.Model.extend({
+
+    //BokehView
+    var BokehView = Backbone.View.extend({
+	initialize : function(options){
+	    var self = this;
+	    if (!_(options).has('id')){
+		self.id = _.uniqueId('BokehView');
+	    }
+	},
+	tag_id : function(tag){
+	    return "tag" + "-" + this.id;
+	},
+	tag_el : function(tag){
+	    return $("#" + this.tag_id());
+	},
+	tag_d3 : function(tag){
+	    return d3.select("#" + this.tag_id());
+	},
+    });
+
+
+    //ObjectArrayDataSource (may want general data source later)
+    var HasReference = Backbone.Model.extend({
+	type : null,
+	ref : function(){
+	    return {'type' : this.type,
+		    'id' : this.id};
+	}
+    });
+
+    var ObjectArrayDataSource = HasReference.extend({	
+    });
+
+    //hasparent
+    var HasParent = HasReference.extend({
 	initialize : function(attrs, options){
 	    var self = this;
-	    if (_.has(attrs, 'parent')){
+	    if (!_.isNullOrUndefined(attrs['parent'])){
 		self.parent_id = attrs['parent']['id'];
 		self.parent_type = attrs['parent']['type'];
 		var parent = self.get_parent();
@@ -30,42 +64,91 @@
 	    return Bokeh.Collections[self.parent_type].get(self.parent_id);
 	}
     });
-    Bokeh.HasParent = HasParent;
 
+
+    //Component
     var Component = HasParent.extend({
 	defaults : {
-	    width : 0,
-	    height : 0,
+	    width : 200,
+	    height : 200,
 	    position : 0,
 	    parent : null
 	}
     });
-    Bokeh.Component = Component;
+
     
+    //Plot
     var Plot = Component.extend({
-	defaults : {
-	    data_sources : {}
-	}
+	type : Plot,
     });
-    _.extend({'data_sources' : [0,0],
+    _.extend(Plot.prototype.defaults, 
+	     {'data_sources' : {},
 	      'renderers' : [],
 	      'legends' : [],
 	      'tools' : [],
-	      'overlays' : []
-	     }, Plot.prototype.defaults);
-    Bokeh.Plot = Plot;
+	      'overlays' : [],
+	      'background-color' : "#fff",
+	      'neutral-color' : "#aaa"
+	     });
 
 
+    //PlotView
+    var PlotView = BokehView.extend({
+	initialize : function(){
+	    var self = this;
+	    var view, model, model_id, options;
+	    self.renderers = {};
+	    _(self.model.renderers).each(function(spec){
+		model_id = spec['id'];
+		model = Bokeh.Collections[spec['type']].get(model_id);
+		options = _.clone(spec['options'])['el'] = self.el;
+		view = new Bokeh.Views[spec['type']](options);
+		self.renderers[view.id] = view;
+	    });
+	},
+	render : function(){
+	    var self = this;
+	    var width = self.model.get('width')
+	    var height = self.model.get('height')
+	    console.log([width, height]);
+
+	    d3.select(self.el).append('svg')
+	    	.attr("width", width)
+		.attr("height", height)
+		.append('rect')
+		.attr('fill', self.model.get('background-color'))
+		.attr('stroke', self.model.get('neutral-color'))
+		.attr("width", width)
+		.attr("height", height);
+	    	    
+	    	// .attr("width", self.model.get('width'))
+		// .attr("height", self.model.get('height'));
+	    _(self.renderers).each(function(view){view.render()});
+	    if (!self.model.get('parent')){
+		self.$el.dialog();
+	    }
+	    console.log('ok');
+	}
+    });
+    
+    //ScatterRenderer
+    var ScatterRenderer = Component.extend({
+	type : 'ScatterRenderer'
+    });
+
+    //GridPlotContainer
     var GridPlotContainer = Component.extend({
+	type : "GridPlotContainer",
 	defaults : {
 	    rows: 0,
 	    columns : 0,
 	    children : [[]]
 	}
     });
-    _.extend({'shape' : [0,0]}, GridPlotContainer.prototype.defaults);
+    _.extend(GridPlotContainer.prototype.defaults, 
+	     {'shape' : [0,0]});
 
-    Bokeh.GridPlotContainerView = Backbone.View.extend({
+    var GridPlotContainerView = BokehView.extend({
 	render: function(){
 	    var self = this;
 	    var row;
@@ -80,4 +163,35 @@
 
 	}
     });
+
+    //RegisterModels
+    var Plots = Backbone.Collection.extend({
+	model : Plot,
+	url : "/",
+    });
+
+    var ScatterRenderers = Backbone.Collection.extend({
+	model : ScatterRenderer,
+	url : "/",
+    });
+
+    var ObjectArrayDataSources = Backbone.Collection.extend({
+	model : ObjectArrayDataSource,
+	url : "/",
+    });
+
+    Bokeh.register_collection('Plot', new Plots());
+    Bokeh.register_collection('ScatterRenderer', new ScatterRenderers());
+    Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources());
+
+
+    Bokeh.ObjectArrayDataSource = ObjectArrayDataSource;
+    Bokeh.HasParent = HasParent;
+    Bokeh.Component = Component;
+    Bokeh.Plot = Plot;
+
+    Bokeh.BokehView = BokehView;
+    Bokeh.PlotView = PlotView;
+    
+    
 })();

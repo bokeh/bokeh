@@ -20,7 +20,11 @@ _.templateSettings = {
 
 Backbone.sync = function(method, model, options){
     if (method === 'create' && !model.id){
-	mode.id = _.uniqueId('model');
+	model.id = _.uniqueId('model');
     }
     options.success(model);
+}
+
+_.isNullOrUndefined = function(x){
+    return _.isNull(x) || _.isUndefined(x);
 }
