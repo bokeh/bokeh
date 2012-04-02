@@ -13,6 +13,10 @@
     }
 
     //BokehView
+    //Regular backbone view, except, it gets assigned an id.
+    //this id can be used to auto-create html ids, and pull out
+    //d3, and jquery nodes based on those dom elements
+
     var BokehView = Backbone.View.extend({
 	initialize : function(options){
 	    var self = this;
