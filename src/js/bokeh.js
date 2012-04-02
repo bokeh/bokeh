@@ -67,14 +67,11 @@
     //the get function, will resolve an instances defaults first
     //then check the parents actual val, and finally check class defaults.
     //display options cannot go into defaults
-
     var HasParent = HasReference.extend({
 	initialize : function(attrs, options){
 	    var self = this;
 	    if (!_.isNullOrUndefined(attrs['parent'])){
-		self.parent_id = attrs['parent']['id'];
-		self.parent_type = attrs['parent']['type'];
-		self.parent = self.get_parent();
+		self.parent = self.resolve_ref(self.get('parent'));
 	    }
 	},
 	get_parent : function(){
