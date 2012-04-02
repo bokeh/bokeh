@@ -35,16 +35,24 @@
 	},
     });
 
-
-    //ObjectArrayDataSource (may want general data source later)
+    //HasReference
+    //Backbone model, which can output a reference (combination of type, and id)
+    //also auto creates an id on init, if one isn't passed in.
     var HasReference = Backbone.Model.extend({
 	type : null,
+	initialize : function(attrs, options){
+	    var self = this;
+	    if (!_(attrs).has('id')){
+		self.id = _.uniqueId(self.type);
+	    }
+	},
 	ref : function(){
 	    return {'type' : this.type,
 		    'id' : this.id};
 	}
     });
 
+    //ObjectArrayDataSource (may want general data source later)
     var ObjectArrayDataSource = HasReference.extend({	
     });
 
@@ -88,12 +96,6 @@
 
     //Component
     var Component = HasParent.extend({
-	initialize : function(attrs, options){
-	    var self =  this;
-	    if (!_(attrs).has('id')){
-		self.id = _.uniqueId('BokehView');
-	    }
-	},
 	defaults : {
 	    parent : null
 	},
