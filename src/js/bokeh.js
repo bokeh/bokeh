@@ -49,6 +49,10 @@
 	ref : function(){
 	    return {'type' : this.type,
 		    'id' : this.id};
+	},
+	resolve_ref : function(ref){
+	    var self = this;
+	    return Bokeh.Collections[ref['type']].get(ref['id']);
 	}
     });
 
