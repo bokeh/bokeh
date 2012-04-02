@@ -26,7 +26,7 @@ test('test_simple_plot', function(){
 
     var plot_model = Bokeh.Collections['Plot'].create({
 	'data_sources' : {test : data_source.ref()},
-	'renderers' : [{'id' : scatter_plot.ref()}]
+	'renderers' : [scatter_plot.ref()]
     });
     
     var plot_view = new Bokeh.PlotView({'model' : plot_model});

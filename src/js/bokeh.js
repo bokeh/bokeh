@@ -45,35 +45,60 @@
     });
 
     //hasparent
+    //display_options can be passed down to children
+    //defaults for display_options should be placed 
+    //in a class var display_defaults
+    //the get function, will resolve an instances defaults first
+    //then check the parents actual val, and finally check class defaults.
+    //display options cannot go into defaults
+
     var HasParent = HasReference.extend({
 	initialize : function(attrs, options){
 	    var self = this;
 	    if (!_.isNullOrUndefined(attrs['parent'])){
 		self.parent_id = attrs['parent']['id'];
 		self.parent_type = attrs['parent']['type'];
-		var parent = self.get_parent();
-		_.each(parent.parent_properties, function(prop_name){
-		    if (parent.get(prop_name) && !_.has(attrs, prop_name)){
-			self.set(prop_name, parent.get(prop_name));
-		    }
-		});
+		self.parent = self.get_parent();
 	    }
 	},
 	get_parent : function(){
 	    var self = this;
 	    return Bokeh.Collections[self.parent_type].get(self.parent_id);
-	}
+	},
+	get : function(attr){
+	    var self = this
+	    if (_.has(self.attributes, attr)){
+		return self.attributes[attr];
+	    }else if (
+		!_.isUndefined(self.parent) &&
+		_.indexOf(self.parent.parent_properties, attr) >= 0 && 
+		    !_.isUndefined(self.parent.get(attr))){
+		return self.parent.get(attr);
+	    }else if (_.has(self.display_defaults, attr)){
+		return self.display_defaults[attr];
+	    }
+	},
+	display_defaults: {}
     });
 
 
     //Component
     var Component = HasParent.extend({
+	initialize : function(attrs, options){
+	    var self =  this;
+	    if (!_(attrs).has('id')){
+		self.id = _.uniqueId('BokehView');
+	    }
+	},
 	defaults : {
+	    parent : null
+	},
+	display_defaults : {
 	    width : 200,
 	    height : 200,
 	    position : 0,
-	    parent : null
-	}
+	},
+	default_view : null
     });
 
     
@@ -82,27 +107,32 @@
 	type : Plot,
     });
     _.extend(Plot.prototype.defaults, 
-	     {'data_sources' : {},
-	      'renderers' : [],
-	      'legends' : [],
-	      'tools' : [],
-	      'overlays' : [],
-	      'background-color' : "#fff",
-	      'neutral-color' : "#aaa"
+	     {
+		 'data_sources' : {},
+		 'renderers' : [],
+		 'legends' : [],
+		 'tools' : [],
+		 'overlays' : []
+	     });
+    _.extend(Plot.prototype.display_defaults, 
+	     {
+		 'background-color' : "#fff",
+		 'foreground-color' : "#aaa"
 	     });
 
 
     //PlotView
     var PlotView = BokehView.extend({
-	initialize : function(){
+	initialize : function(options){
 	    var self = this;
+	    BokehView.prototype.initialize.call(self, options);
 	    var view, model, model_id, options;
 	    self.renderers = {};
-	    _(self.model.renderers).each(function(spec){
+	    _(self.model.get('renderers')).each(function(spec){
 		model_id = spec['id'];
 		model = Bokeh.Collections[spec['type']].get(model_id);
-		options = _.clone(spec['options'])['el'] = self.el;
-		view = new Bokeh.Views[spec['type']](options);
+		options = _.extend({}, spec['options'], {'el' : self.el});
+		view = new model.default_view(options);
 		self.renderers[view.id] = view;
 	    });
 	},
@@ -111,18 +141,14 @@
 	    var width = self.model.get('width')
 	    var height = self.model.get('height')
 	    console.log([width, height]);
-
 	    d3.select(self.el).append('svg')
 	    	.attr("width", width)
 		.attr("height", height)
 		.append('rect')
 		.attr('fill', self.model.get('background-color'))
-		.attr('stroke', self.model.get('neutral-color'))
+		.attr('stroke', self.model.get('foreground-color'))
 		.attr("width", width)
 		.attr("height", height);
-	    	    
-	    	// .attr("width", self.model.get('width'))
-		// .attr("height", self.model.get('height'));
 	    _(self.renderers).each(function(view){view.render()});
 	    if (!self.model.get('parent')){
 		self.$el.dialog();
@@ -132,10 +158,26 @@
     });
     
     //ScatterRenderer
-    var ScatterRenderer = Component.extend({
-	type : 'ScatterRenderer'
+    var ScatterRendererView = BokehView.extend({
+	render : function(){
+	    var self =  this;
+	    var svg = d3.select(self.el).select('svg').append('g')
+		.attr('id', self.tag_id('g'))
+		.append('circle').attr('cx');
+	}
     });
 
+    var ScatterRenderer = Component.extend({
+	defaults : {
+	    data_source : null,
+	    xfield : '',
+	    yfield : '',
+	    mark : 'circle',
+	},
+	type : 'ScatterRenderer',
+	default_view : ScatterRendererView
+    });
+    
     //GridPlotContainer
     var GridPlotContainer = Component.extend({
 	type : "GridPlotContainer",

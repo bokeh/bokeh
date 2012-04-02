@@ -20,7 +20,7 @@ _.templateSettings = {
 
 Backbone.sync = function(method, model, options){
     if (method === 'create' && !model.id){
-	model.id = _.uniqueId('model');
+	model.id = model.attributes.id = _.uniqueId('model');
     }
     options.success(model);
 }
