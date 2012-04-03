@@ -63,6 +63,9 @@
     //ObjectArrayDataSource (may want general data source later)
     var ObjectArrayDataSource = HasReference.extend({	
 	type : 'ObjectArrayDataSource'
+	defaults : {
+	    'data' : [{}]
+	}
     });
 
     //hasparent
@@ -249,7 +252,7 @@
 		 radius : 3
 	     });
     
-    //GridPlotContainer
+    //GridPlotContainer - doesn't work yet
     var GridPlotContainer = Component.extend({
 	type : "GridPlotContainer",
 	defaults : {
