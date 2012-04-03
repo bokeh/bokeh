@@ -62,7 +62,7 @@
 
     //ObjectArrayDataSource (may want general data source later)
     var ObjectArrayDataSource = HasReference.extend({	
-	type : 'ObjectArrayDataSource'
+	type : 'ObjectArrayDataSource',
 	defaults : {
 	    'data' : [{}]
 	}
