@@ -44,6 +44,7 @@
 	    var self = this;
 	    if (!_(attrs).has('id')){
 		self.id = _.uniqueId(self.type);
+		self.attributes['id'] = self.id;
 	    }
 	},
 	ref : function(){
@@ -53,11 +54,15 @@
 	resolve_ref : function(ref){
 	    var self = this;
 	    return Bokeh.Collections[ref['type']].get(ref['id']);
+	},
+	get_ref : function(ref_name){
+	    return this.resolve_ref(this.get(ref_name));
 	}
     });
 
     //ObjectArrayDataSource (may want general data source later)
     var ObjectArrayDataSource = HasReference.extend({	
+	type : 'ObjectArrayDataSource'
     });
 
     //hasparent
@@ -70,8 +75,9 @@
     var HasParent = HasReference.extend({
 	initialize : function(attrs, options){
 	    var self = this;
+	    HasReference.prototype.initialize.call(self, attrs, options);
 	    if (!_.isNullOrUndefined(attrs['parent'])){
-		self.parent = self.resolve_ref(self.get('parent'));
+		self.parent = self.get_ref('parent');
 	    }
 	},
 	get_parent : function(){
@@ -111,7 +117,7 @@
     
     //Plot
     var Plot = Component.extend({
-	type : Plot,
+	type : 'Plot',
     });
     _.extend(Plot.prototype.defaults, 
 	     {
@@ -138,7 +144,8 @@
 	    _(self.model.get('renderers')).each(function(spec){
 		model_id = spec['id'];
 		model = Bokeh.Collections[spec['type']].get(model_id);
-		options = _.extend({}, spec['options'], {'el' : self.el});
+		options = _.extend({}, spec['options'], {'el' : self.el,
+							 'model' : model});
 		view = new model.default_view(options);
 		self.renderers[view.id] = view;
 	    });
@@ -163,27 +170,84 @@
 	    console.log('ok');
 	}
     });
+
+    var Range1d = HasReference.extend({
+	type : 'Range1d',
+	defaults:{
+	    start : 0,
+	    end : 1
+	}
+    });
     
+    var Mapper = HasReference.extend({
+	defaults : {},
+	display_defaults : {},
+	map_screen : function(data){
+	}
+    });
+    
+    var LinearMapper = Mapper.extend({
+	type : 'LinearMapper',
+	defaults : {
+	    //both should be Range1d objects
+	    data_range : null,
+	    screen_range : null
+	},
+	initialize : function(attrs, options){
+	    Mapper.prototype.initialize.call(this, attrs, options);
+	    var data_range = this.get_ref('data_range');
+	    var screen_range = this.get_ref('screen_range');
+	    this.scale = d3.scale
+		.linear()
+		.domain([data_range.get('start'), data_range.get('end')])
+		.range([screen_range.get('start'), screen_range.get('end')]);
+	},
+	map_screen : function(data){
+	    return this.scale(data);
+	}
+    });
+
     //ScatterRenderer
     var ScatterRendererView = BokehView.extend({
 	render : function(){
 	    var self =  this;
+	    var model = this.model;
 	    var svg = d3.select(self.el).select('svg').append('g')
-		.attr('id', self.tag_id('g'))
-		.append('circle').attr('cx');
+	    	.attr('id', self.tag_id('g'))
+		.selectAll(model.get('mark'))
+		.data(model.get_ref('data_source').get('data'))
+		.enter()
+		.append(model.get('mark'))
+		.attr('cx', function(d){
+		    return model.resolve_ref(model.get('xmapper'))
+			.map_screen(d[model.get('xfield')]);
+		})
+		.attr('cy', function(d){
+		    return model.resolve_ref(model.get('ymapper'))
+			.map_screen(d[model.get('yfield')]);
+		})
+		.attr('r', model.get('radius'))
+		.attr('fill', model.get('foreground-color'));
 	}
     });
 
     var ScatterRenderer = Component.extend({
-	defaults : {
-	    data_source : null,
-	    xfield : '',
-	    yfield : '',
-	    mark : 'circle',
-	},
 	type : 'ScatterRenderer',
 	default_view : ScatterRendererView
     });
+    _.extend(ScatterRenderer.prototype.defaults,
+	     {
+		 data_source : null,
+		 xmapper : null,
+		 ymapper: null,
+		 xfield : '',
+		 yfield : '',
+		 mark : 'circle',
+	     });
+    _.extend(ScatterRenderer.prototype.display_defaults, 
+	     {
+		 radius : 3
+	     });
     
     //GridPlotContainer
     var GridPlotContainer = Component.extend({
@@ -229,16 +293,26 @@
 	url : "/",
     });
 
+    var Range1ds = Backbone.Collection.extend({
+	model : Range1d,
+	url: "/"
+    });
+    var LinearMappers = Backbone.Collection.extend({
+	model : LinearMapper,
+	url : "/"
+    });
+    
     Bokeh.register_collection('Plot', new Plots());
     Bokeh.register_collection('ScatterRenderer', new ScatterRenderers());
     Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources());
-
+    Bokeh.register_collection('Range1d', new Range1ds());
+    Bokeh.register_collection('LinearMapper', new LinearMappers());
 
     Bokeh.ObjectArrayDataSource = ObjectArrayDataSource;
     Bokeh.HasParent = HasParent;
     Bokeh.Component = Component;
     Bokeh.Plot = Plot;
-
+    Bokeh.ScatterRenderer = ScatterRenderer;
     Bokeh.BokehView = BokehView;
     Bokeh.PlotView = PlotView;
     

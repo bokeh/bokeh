@@ -16,12 +16,41 @@ test('test_simple_plot', function(){
 		{x : 4, y : -5},
 		{x : 5, y : -6}]
     });
-    
+    var width = 200;
+    var height = 200;
+    var xdatarange = Bokeh.Collections['Range1d'].create({
+	'start' : 1,
+	'end' : 5
+    });
+    var ydatarange = Bokeh.Collections['Range1d'].create({
+	'start' : -6,
+	'end' :  -2
+    });
+    var xscreenrange = Bokeh.Collections['Range1d'].create({
+	'start' : 0,
+	'end' : width
+    });
+    var yscreenrange = Bokeh.Collections['Range1d'].create({
+	'start' : 0,
+	'end' : height
+    });
+
+    var xmapper = Bokeh.Collections['LinearMapper'].create({
+	data_range : xdatarange.ref(),
+	screen_range: xscreenrange.ref()
+    });
+    var ymapper = Bokeh.Collections['LinearMapper'].create({
+	data_range : ydatarange.ref(),
+	screen_range: yscreenrange.ref()
+    });
+
     var scatter_plot = Bokeh.Collections['ScatterRenderer'].create({
 	data_source : data_source.ref(),
 	xfield : 'x',
 	yfield : 'y',
 	mark : 'circle',
+	xmapper : xmapper.ref(),
+	ymapper:  ymapper.ref()
     });
 
     var plot_model = Bokeh.Collections['Plot'].create({
