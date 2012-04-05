@@ -174,6 +174,14 @@ _.extend(Plot::display_defaults, {
 class PlotView extends BokehView
   initialize : (options) ->
     super(options)
+    @get_renderers()
+    @model.on('change:renderers', @get_renderers, this);
+    @model.on('change', @render, this);
+
+  remove : ->
+    @model.off(null, null, this)
+
+  get_renderers : ->
     @renderers = {}
     for spec in @model.get('renderers')
       model = Collections[spec.type].get(spec.id)
@@ -184,8 +192,9 @@ class PlotView extends BokehView
       )
       view = new model.default_view(options)
       @renderers[view.id] = view;
-    null
+
   render : ->
+    @$el.html("");
     [height, width] = [@model.get('height'), @model.get('width')]
     d3.select(@el).append('svg')
       .attr('width', width)
