@@ -107,6 +107,7 @@ class HasProperties extends Backbone.Model
 class HasReference extends HasProperties
   type : null
   initialize : (attrs, options) ->
+    super(attrs, options)
     if not _.has(attrs, 'id')
       this.id = _.uniqueId(this.type)
       this.attributes['id'] = this.id
