@@ -117,7 +117,9 @@ class HasReference extends HasProperties
   resolve_ref : (ref) ->
     Collections[ref['type']].get(ref['id'])
   get_ref : (ref_name) ->
-    this.resolve_ref(this.get(ref_name))
+    ref = @get(ref_name)
+    if ref
+      return @resolve_ref(ref)
 
 # hasparent
 # display_options can be passed down to children
@@ -128,20 +130,19 @@ class HasReference extends HasProperties
 # display options cannot go into defaults
 
 class HasParent extends HasReference
-  initialize : (attrs, options) ->
-    super(attrs, options)
-    if not _.isNullOrUndefined(attrs['parent'])
-      @parent = @get_ref('parent')
-
-  get : (attr) ->
-    if _.has(@attributes, attr)
-      return @attributes[attr]
-    else if (not _.isUndefined(@parent) and
-            _.indexOf(@parent.parent_properties, attr) >= 0 and
-            not _.isUndefined(@parent.get(attr)))
-      return @parent.get(attr)
+  get_fallback : (attr) ->
+    if (@get_ref('parent') and
+        _.indexOf(@get_ref('parent').parent_properties, attr) >= 0 and
+        not _.isUndefined(@get_ref('parent').get(attr)))
+      return @get_ref('parent').get(attr)
     else
       return @display_defaults[attr]
+  get : (attr) ->
+    ## no fallback for 'parent'
+    if not _.isUndefined(super(attr))
+      return super(attr)
+    else if not (attr == 'parent')
+      return @get_fallback(attr)
 
   display_defaults : {}
 
@@ -196,7 +197,7 @@ class PlotView extends BokehView
   		.attr("height", height);
     for own key, view of @renderers
       view.render()
-    if not @model.parent
+    if not @model.get_ref('parent')
       @$el.dialog()
 
 class DiscreteColorMapper extends HasReference
