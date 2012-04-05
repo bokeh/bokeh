@@ -104,7 +104,7 @@ class HasProperties extends Backbone.Model
     else
       return super(prop_name)
 
-class HasReference extends Backbone.Model
+class HasReference extends HasProperties
   type : null
   initialize : (attrs, options) ->
     if not _.has(attrs, 'id')
