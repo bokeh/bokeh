@@ -201,17 +201,24 @@ class PlotView extends BokehView
       view = new model.default_view(options)
       @renderers[view.id] = view;
 
-  render : ->
-    @$el.html("");
-    [height, width] = [@model.get('height'), @model.get('width')]
-    d3.select(@el).append('svg')
-      .attr('width', width)
-      .attr("height", height)
-  		.append('rect')
-  		.attr('fill', @model.get('background-color'))
+  render_mainsvg : ->
+    node = @tag_d3('mainbox')
+    if  node == null
+      node = d3.select(@el).append('svg')
+        .attr('id', @tag_id('mainsvg'))
+    node.attr('width', @mget('width')).attr("height", @mget('height'))
+
+  render_mainbox : ->
+    node = @tag_d3('mainbox')
+    if node == null
+      node = @tag_d3('mainsvg').append('rect').attr('id', @tag_id('mainbox'))
+    node.attr('fill', @model.get('background-color'))
   		.attr('stroke', @model.get('foreground-color'))
-  		.attr("width", width)
-  		.attr("height", height);
+      .attr('width', @mget('width')).attr("height", @mget('height'))
+
+  render : ->
+    @render_mainsvg();
+    @render_mainbox();
     for own key, view of @renderers
       view.render()
     if not @model.get_ref('parent')
