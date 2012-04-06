@@ -334,6 +334,14 @@ class Renderer extends BokehView
     super(options)
 
 class ScatterRendererView extends Renderer
+  render_marks : (marks) ->
+    marks.attr('cx', (d) =>
+          return @model.get_ref('xmapper').map_screen(d[@model.get('xfield')]))
+      .attr('cy', (d) =>
+          return @model.get_ref('ymapper').map_screen(d[@model.get('yfield')]))
+      .attr('r', @model.get('radius'))
+      .attr('fill', @model.get('foreground-color'))
+
   render : ->
     plotcontent = @tag_d3('plotcontent', this.plot_id)
     node = @tag_d3('scatter')
@@ -344,21 +352,8 @@ class ScatterRendererView extends Renderer
     circles = node.selectAll(@model.get('mark'))
       .data(@model.get_ref('data_source').get('data'),
           ((d) => return d[@model.get('xfield')]))
-      .attr('cx', (d) =>
-          return @model.get_ref('xmapper').map_screen(d[@model.get('xfield')]))
-      .attr('cy', (d) =>
-          return @model.get_ref('ymapper').map_screen(d[@model.get('yfield')]))
-      .attr('r', @model.get('radius'))
-      .attr('fill', @model.get('foreground-color'))
-
-    circles.enter().append(@model.get('mark'))
-      .attr('cx', (d) =>
-          return @model.get_ref('xmapper').map_screen(d[@model.get('xfield')]))
-      .attr('cy', (d) =>
-          return @model.get_ref('ymapper').map_screen(d[@model.get('yfield')]))
-      .attr('r', @model.get('radius'))
-      .attr('fill', @model.get('foreground-color'))
-
+    @render_marks(circles)
+    @render_marks(circles.enter().append(@model.get('mark')))
     circles.exit().remove();
 
 class ScatterRenderer extends Component
