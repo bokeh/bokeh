@@ -202,7 +202,7 @@ class PlotView extends BokehView
       @renderers[view.id] = view;
 
   render_mainsvg : ->
-    node = @tag_d3('mainbox')
+    node = @tag_d3('mainsvg')
     if  node == null
       node = d3.select(@el).append('svg')
         .attr('id', @tag_id('mainsvg'))
