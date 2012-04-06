@@ -176,7 +176,7 @@ _.extend(Plot::defaults , {
 
 _.extend(Plot::display_defaults, {
   'background-color' : "#fff",
-  'foreground-color' : "#aaa"
+  'foreground-color' : "#333"
 })
 
 class PlotView extends BokehView
