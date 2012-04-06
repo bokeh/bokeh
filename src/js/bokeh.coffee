@@ -350,8 +350,7 @@ class ScatterRendererView extends Renderer
       .attr('id', @tag_id('scatter'))
 
     circles = node.selectAll(@model.get('mark'))
-      .data(@model.get_ref('data_source').get('data'),
-          ((d) => return d[@model.get('xfield')]))
+      .data(@model.get_ref('data_source').get('data'))
     @render_marks(circles)
     @render_marks(circles.enter().append(@model.get('mark')))
     circles.exit().remove();
