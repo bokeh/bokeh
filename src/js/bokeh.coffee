@@ -185,11 +185,12 @@ class Plot extends Component
 _.extend(Plot::defaults , {
   'data_sources' : {},
   'renderers' : [],
+  'axes' : [],
   'legends' : [],
   'tools' : [],
   'overlays' : []
   #axes fit here
-  'border_space' : 30
+  'border_space' : 50
 })
 
 _.extend(Plot::display_defaults, {
@@ -201,37 +202,42 @@ class PlotView extends BokehView
   initialize : (options) ->
     super(options)
     @renderers = {}
-    @build_views()
-    @model.on('change:renderers', @build_views, this);
+    @axes = {}
+    @model.on('change:renderers', @build_renderers, this);
+    @model.on('change:axes', @build_axes, this);
     @model.on('change', @render, this);
-
 
   remove : ->
     @model.off(null, null, this)
 
-  build_views : ->
+  build_renderers : ->
+    @build_views('renderers', 'renderers')
+
+  build_axes : ->
+    @build_views('axes', 'axes')
+
+  build_views : (storage_attr, spec_attr)->
+    old_renderers = this[storage_attr]
     _renderers = {}
-    for spec in @model.get('renderers')
-      model = Collections[spec.type].get(spec.id)
-      if @renderers[model.id]
-        _renderers[model.id] = @renderers[model.id]
+    specs = @model.get(spec_attr)
+    for spec in specs
+      model = @model.resolve_ref(spec)
+      if old_renderers[model.id]
+        _renderers[model.id] = old_renderers[model.id]
         continue
-      options = _.extend({},
-        spec.options,
+      options = _.extend({}, spec.options,
         {'el' : @el,
-        'model' : model,
-        'plot_id' : @id}
-      )
+        'model' : model, 'plot_id' : @id, 'plot_model' : @model})
       view = new model.default_view(options)
       _renderers[model.id] = view;
     for own key, value in @renderers
       if not _.has(renderers, key)
         value.remove()
-    @renderers = _renderers
+    this[storage_attr] = _renderers
 
   render_mainsvg : ->
     node = @tag_d3('mainsvg')
-    if  node == null
+    if node == null
       node = d3.select(@el).append('svg')
         .attr('id', @tag_id('mainsvg'))
       node.append('g')
@@ -243,7 +249,7 @@ class PlotView extends BokehView
     #svg puts origin in the top left, we want it on the bottom left
     @tag_d3('flipY')
       .attr('transform',
-        _.template('translate(0, {{h}} scale(1, -1)',
+        _.template('translate(0, {{h}}) scale(1, -1)',
           {'h' : @mget('outerheight')}))
     @tag_d3('plotcontent').attr('transform',
       _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
@@ -269,6 +275,8 @@ class PlotView extends BokehView
     @render_mainsvg();
     @render_frames();
     for own key, view of @renderers
+      view.render()
+    for own key, view of @axes
       view.render()
     if not @model.get_ref('parent')
       @$el.dialog()
@@ -328,10 +336,51 @@ class LinearMapper extends Mapper
   map_screen : (data) ->
     return @scale(data)
 
+
 class Renderer extends BokehView
   initialize : (options) ->
     this.plot_id = options['plot_id']
+    this.plot_model = options['plot_model']
     super(options)
+
+class D3LinearAxisView extends Renderer
+  get_offsets : (position) ->
+    offsets =
+      'x' : @plot_model.get('border_space')
+      'y' : @plot_model.get('border_space')
+    if position == 'bottom'
+      offsets['y'] += @plot_model.get('height')
+    return offsets
+
+  render : ->
+    base = @tag_d3('mainsvg', @plot_id)
+    node = @tag_d3('axis')
+    if not node
+      node = base.append('g')
+        .attr('id', @tag_id('axis'))
+    offsets = @get_offsets(@mget('orientation'))
+    node.attr('transform',
+      _.template('translate({{x}}, {{y}})', offsets))
+    axis = d3.svg.axis()
+    axis.scale(@mget_ref('mapper').scale)
+      .orient(@mget('orientation'))
+      .ticks(@mget('ticks'))
+      .tickSubdivide(@mget('tickSubdivide'))
+      .tickSize(@mget('tickSize'))
+      .tickPadding(@mget('tickPadding'))
+    node.call(axis)
+    console.log('AXIS')
+
+class D3LinearAxis extends Component
+  type : 'D3LinearAxis'
+  default_view : D3LinearAxisView
+  defaults :
+    mapper : null
+    orientation : 'bottom'
+    ticks : 10
+    ticksSubdivide : 1
+    tickSize : 6
+    tickPadding : 3
 
 class ScatterRendererView extends Renderer
   render_marks : (marks) ->
@@ -387,7 +436,7 @@ class ObjectArrayDataSource extends HasReference
 
   get_range : (field) ->
     if not _.has(@ranges, field)
-      [max, min] = @compute_range(field)
+      [min, max] = @compute_range(field)
       @ranges[field] = Collections['Range1d'].create({
         'start' : min,
         'end' : max})
@@ -413,11 +462,15 @@ class Range1ds extends Backbone.Collection
 class LinearMappers extends Backbone.Collection
   model : LinearMapper
 
+class D3LinearAxes extends Backbone.Collection
+  model : D3LinearAxis
+
 Bokeh.register_collection('Plot', new Plots)
 Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
 Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('Range1d', new Range1ds)
 Bokeh.register_collection('LinearMapper', new LinearMappers)
+Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
 
 Bokeh.Collections = Collections
 Bokeh.HasReference = HasReference
@@ -430,3 +483,4 @@ Bokeh.BokehView = BokehView
 Bokeh.PlotView = PlotView
 Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.HasProperties = HasProperties
+Bokeh.D3LinaerAxis = D3LinearAxis
