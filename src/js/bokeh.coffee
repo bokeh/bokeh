@@ -14,17 +14,25 @@ Bokeh.register_collection = (key, value) ->
 # Regular backbone view, except, it gets assigned an id.
 # this id can be used to auto-create html ids, and pull out
 # d3, and jquery nodes based on those dom elements
+
 class BokehView extends Backbone.View
   initialize : (options) ->
     if not _.has(options, 'id')
       this.id = _.uniqueId('BokehView')
   tag_id : (tag) ->
-    "tag" + "-" + this.id
+    tag + "-" + this.id
   tag_el : (tag) ->
-    $("#" + this.tag_id())
+    @$el.find("#" + this.tag_id(tag))
   tag_d3 : (tag) ->
-    d3.select("#" + this.tag_id())
-
+    val = d3.select(this.el).select("#" + this.tag_id(tag))
+    if val[0][0] == null
+      return null
+    else
+      return val
+  mget : (fld)->
+    return @model.get(fld)
+  mget_ref : (fld) ->
+    return @model.get_ref(fld)
 # HasReference
 # Backbone model, which can output a reference (combination of type, and id)
 # also auto creates an id on init, if one isn't passed in.
