@@ -19,12 +19,14 @@ class BokehView extends Backbone.View
   initialize : (options) ->
     if not _.has(options, 'id')
       this.id = _.uniqueId('BokehView')
-  tag_id : (tag) ->
-    tag + "-" + this.id
-  tag_el : (tag) ->
-    @$el.find("#" + this.tag_id(tag))
-  tag_d3 : (tag) ->
-    val = d3.select(this.el).select("#" + this.tag_id(tag))
+  tag_id : (tag, id) ->
+    if not id
+      id = this.id
+    tag + "-" + id
+  tag_el : (tag, id) ->
+    @$el.find("#" + this.tag_id(tag, id))
+  tag_d3 : (tag, id) ->
+    val = d3.select(this.el).select("#" + this.tag_id(tag, id))
     if val[0][0] == null
       return null
     else
@@ -165,13 +167,29 @@ class Component extends HasParent
 
 class Plot extends Component
   type : Plot
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @register_property('outerwidth', ['width', 'border_space'],
+      (width, border_space) -> width + 2 *border_space
+      false)
+    @register_property('outerheight', ['height', 'border_space'],
+      (height, border_space) -> height + 2 *border_space
+      false)
+    @xrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('height')})
+    @yrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('width')})
+    @on('change:width', =>
+      @xrange.set('end', @get('width'))
+    @on('change:height', =>
+      @xrange.set('end', @get('height'))
 
 _.extend(Plot::defaults , {
-    'data_sources' : {},
-    'renderers' : [],
-    'legends' : [],
-    'tools' : [],
-    'overlays' : []
+  'data_sources' : {},
+  'renderers' : [],
+  'legends' : [],
+  'tools' : [],
+  'overlays' : []
+  #axes fit here
+  'border_space' : 30
 })
 
 _.extend(Plot::display_defaults, {
@@ -196,7 +214,8 @@ class PlotView extends BokehView
       options = _.extend({},
         spec.options,
         {'el' : @el,
-        'model' : model}
+        'model' : model,
+        'plot_id' : @id}
       )
       view = new model.default_view(options)
       @renderers[view.id] = view;
@@ -206,19 +225,40 @@ class PlotView extends BokehView
     if  node == null
       node = d3.select(@el).append('svg')
         .attr('id', @tag_id('mainsvg'))
-    node.attr('width', @mget('width')).attr("height", @mget('height'))
+      node.append('g')
+          .attr('id', @tag_id('flipY'))
+          .append('g')
+          .attr('id', @tag_id('plotcontent'))
 
-  render_mainbox : ->
-    node = @tag_d3('mainbox')
-    if node == null
-      node = @tag_d3('mainsvg').append('rect').attr('id', @tag_id('mainbox'))
-    node.attr('fill', @model.get('background-color'))
+    node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
+    #svg puts origin in the top left, we want it on the bottom left
+    @tag_d3('flipY')
+      .attr('transform',
+        _.template('translate(0, {{h}} scale(1, -1)',
+          {'h' : @mget('outerheight')}))
+    @tag_d3('plotcontent').attr('transform',
+      _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
+
+  render_frames : ->
+    innernode = @tag_d3('innerbox')
+    outernode = @tag_d3('outerbox')
+    if innernode == null
+      innernode = @tag_d3('plotcontent')
+        .append('rect').attr('id', @tag_id('innerbox'))
+      outernode = @tag_d3('flipY')
+        .append('rect').attr('id', @tag_id('outerbox'))
+
+    outernode.attr('fill', 'none')
+  		.attr('stroke', @model.get('foreground-color'))
+      .attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
+
+    innernode.attr('fill', 'none')
   		.attr('stroke', @model.get('foreground-color'))
       .attr('width', @mget('width')).attr("height", @mget('height'))
 
   render : ->
     @render_mainsvg();
-    @render_mainbox();
+    @render_frames();
     for own key, view of @renderers
       view.render()
     if not @model.get_ref('parent')
@@ -272,9 +312,15 @@ class LinearMapper extends Mapper
   map_screen : (data) ->
     return @scale(data)
 
-class ScatterRendererView extends BokehView
+class Renderer extends BokehView
+  initialize : (options) ->
+    this.plot_id = options['plot_id']
+    super(options)
+
+class ScatterRendererView extends Renderer
   render : ->
-    svg = d3.select(@el).select('svg').append('g')
+    plotcontent = @tag_d3('plotcontent', this.plot_id)
+    plotcontent.append('g')
       .attr('id', @tag_id('g'))
       .selectAll(@model.get('mark'))
       .data(@model.get_ref('data_source').get('data'))
