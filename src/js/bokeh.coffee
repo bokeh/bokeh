@@ -178,9 +178,9 @@ class Plot extends Component
     @xrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('height')})
     @yrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('width')})
     @on('change:width', =>
-      @xrange.set('end', @get('width'))
+      @xrange.set('end', @get('width')))
     @on('change:height', =>
-      @xrange.set('end', @get('height'))
+      @yrange.set('end', @get('height')))
 
 _.extend(Plot::defaults , {
   'data_sources' : {},
@@ -200,17 +200,22 @@ _.extend(Plot::display_defaults, {
 class PlotView extends BokehView
   initialize : (options) ->
     super(options)
+    @renderers = {}
     @get_renderers()
     @model.on('change:renderers', @get_renderers, this);
     @model.on('change', @render, this);
+
 
   remove : ->
     @model.off(null, null, this)
 
   get_renderers : ->
-    @renderers = {}
+    _renderers = {}
     for spec in @model.get('renderers')
       model = Collections[spec.type].get(spec.id)
+      if @renderers[model.id]
+        _renderers[model.id] = @renderers[model.id]
+        continue
       options = _.extend({},
         spec.options,
         {'el' : @el,
@@ -218,7 +223,11 @@ class PlotView extends BokehView
         'plot_id' : @id}
       )
       view = new model.default_view(options)
-      @renderers[view.id] = view;
+      _renderers[model.id] = view;
+    for own key, value in @renderers
+      if not _.has(renderers, key)
+        value.remove()
+    @renderers = _renderers
 
   render_mainsvg : ->
     node = @tag_d3('mainsvg')
@@ -301,13 +310,20 @@ class LinearMapper extends Mapper
   defaults :
     data_range : null
     screen_range : null
-  initialize : (attrs, options) ->
-    super(attrs, options)
+
+  calc_scale : ->
     domain = [@get_ref('data_range').get('start'),
       @get_ref('data_range').get('end')]
     range = [@get_ref('screen_range').get('start'),
       @get_ref('screen_range').get('end')]
+    console.log([domain, range]);
     @scale = d3.scale.linear().domain(domain).range(range)
+
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @calc_scale()
+    @get_ref('data_range').on('change', @calc_scale, this)
+    @get_ref('screen_range').on('change', @calc_scale, this)
 
   map_screen : (data) ->
     return @scale(data)
@@ -320,18 +336,30 @@ class Renderer extends BokehView
 class ScatterRendererView extends Renderer
   render : ->
     plotcontent = @tag_d3('plotcontent', this.plot_id)
-    plotcontent.append('g')
-      .attr('id', @tag_id('g'))
-      .selectAll(@model.get('mark'))
-      .data(@model.get_ref('data_source').get('data'))
-      .enter()
-      .append(@model.get('mark'))
+    node = @tag_d3('scatter')
+    if not node
+      node = plotcontent.append('g')
+      .attr('id', @tag_id('scatter'))
+
+    circles = node.selectAll(@model.get('mark'))
+      .data(@model.get_ref('data_source').get('data'),
+          ((d) => return d[@model.get('xfield')]))
       .attr('cx', (d) =>
           return @model.get_ref('xmapper').map_screen(d[@model.get('xfield')]))
       .attr('cy', (d) =>
           return @model.get_ref('ymapper').map_screen(d[@model.get('yfield')]))
       .attr('r', @model.get('radius'))
       .attr('fill', @model.get('foreground-color'))
+
+    circles.enter().append(@model.get('mark'))
+      .attr('cx', (d) =>
+          return @model.get_ref('xmapper').map_screen(d[@model.get('xfield')]))
+      .attr('cy', (d) =>
+          return @model.get_ref('ymapper').map_screen(d[@model.get('yfield')]))
+      .attr('r', @model.get('radius'))
+      .attr('fill', @model.get('foreground-color'))
+
+    circles.exit().remove();
 
 class ScatterRenderer extends Component
   type : 'ScatterRenderer'
@@ -354,6 +382,26 @@ class ObjectArrayDataSource extends HasReference
   type : 'ObjectArrayDataSource'
   defaults :
     data : [{}]
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @ranges = {}
+
+  compute_range : (field) ->
+    max = _.max((x[field] for x in @get('data')))
+    min = _.min((x[field] for x in @get('data')))
+    return [min, max]
+
+  get_range : (field) ->
+    if not _.has(@ranges, field)
+      [max, min] = @compute_range(field)
+      @ranges[field] = Collections['Range1d'].create({
+        'start' : min,
+        'end' : max})
+      @on('change:data', =>
+        [max, min] = @compute_range(field)
+        @ranges[field].set('start', min)
+        @ranges[field].set('end', max))
+    return @ranges[field]
 
 class Plots extends Backbone.Collection
    model : Plot
