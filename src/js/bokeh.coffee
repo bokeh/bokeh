@@ -201,15 +201,15 @@ class PlotView extends BokehView
   initialize : (options) ->
     super(options)
     @renderers = {}
-    @get_renderers()
-    @model.on('change:renderers', @get_renderers, this);
+    @build_views()
+    @model.on('change:renderers', @build_views, this);
     @model.on('change', @render, this);
 
 
   remove : ->
     @model.off(null, null, this)
 
-  get_renderers : ->
+  build_views : ->
     _renderers = {}
     for spec in @model.get('renderers')
       model = Collections[spec.type].get(spec.id)
