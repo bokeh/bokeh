@@ -249,6 +249,7 @@ class ObjectArrayDataSource extends HasReference
   type : 'ObjectArrayDataSource'
   defaults :
     data : [{}]
+    name : 'data'
   initialize : (attrs, options) ->
     super(attrs, options)
     @ranges = {}
@@ -287,6 +288,11 @@ class PlotView extends BokehView
     super(options)
     @renderers = {}
     @axes = {}
+
+    @build_renderers()
+    @build_axes()
+    @render()
+
     @model.on('change:renderers', @build_renderers, this);
     @model.on('change:axes', @build_axes, this);
     @model.on('change', @render, this);
@@ -348,11 +354,11 @@ class PlotView extends BokehView
         .append('rect').attr('id', @tag_id('outerbox'))
 
     outernode.attr('fill', 'none')
-  		.attr('stroke', @model.get('foreground_color'))
+      .attr('stroke', @model.get('foreground_color'))
       .attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
 
     innernode.attr('fill', 'none')
-  		.attr('stroke', @model.get('foreground_color'))
+      .attr('stroke', @model.get('foreground_color'))
       .attr('width', @mget('width')).attr("height", @mget('height'))
 
   render : ->
@@ -457,7 +463,12 @@ class ScatterRendererView extends Renderer
       .attr('cy', (d) =>
           return @model.get_ref('ymapper').map_screen(d[@model.get('yfield')]))
       .attr('r', @model.get('radius'))
-      .attr('fill', @model.get('foreground_color'))
+      .attr('fill', (d) =>
+        if @model.get('color_field')
+          return @model.get_ref('color_mapper')
+            .map_screen(d[@model.get('color_field')])
+        else
+          return @model.get('foreground_color'))
 
   render : ->
     plotcontent = @tag_d3('plotcontent', this.plot_id)
@@ -480,8 +491,9 @@ _.extend(ScatterRenderer::defaults, {
     data_source : null,
     xmapper : null,
     ymapper: null,
-    xfield : '',
-    yfield : '',
+    xfield : null,
+    yfield : null,
+    colorfield : null,
     mark : 'circle',
 })
 
@@ -491,6 +503,53 @@ _.extend(ScatterRenderer::display_defaults, {
 
 class ScatterRenderers extends Backbone.Collection
   model : ScatterRenderer
+"""
+  Convenience plotting functions
+"""
+Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, colormapper) ->
+  if _.isUndefined(mark)
+    mark = 'circle'
+  if _.isUndefined(color_field)
+    color_field = null
+  source_name = data_source.get('name')
+  plot_attrs =
+    data_sources :
+      source_name : data_source.ref()
+  if (parent)
+    plot_attrs['parent'] = parent.get_ref()
+
+  plot_model = Collections['Plot'].create(plot_attrs)
+  xmapper = Collections['LinearMapper'].create({
+    data_range : data_source.get_range(xfield)
+    screen_range : plot_model.xrange.ref()
+  })
+  ymapper = Collections['LinearMapper'].create({
+    data_range : data_source.get_range(yfield)
+    screen_range : plot_model.yrange.ref()
+  })
+  scatter_plot = Collections["ScatterRenderer"].create({
+    data_source: data_source.ref(),
+    xfield: xfield,
+    yfield: yfield,
+    color_field: color_field,
+    mark: mark,
+    xmapper: xmapper.ref(),
+    ymapper: ymapper.ref()
+  })
+  xaxis = Collections['D3LinearAxis'].create({
+    'orientation' : 'bottom',
+    'mapper' : xmapper.ref()
+  })
+  yaxis = Collections['D3LinearAxis'].create({
+    'orientation' : 'left',
+    'mapper' : ymapper.ref()
+  })
+  plot_model.set({
+    'renderers' : [scatter_plot.ref()],
+    'axes' : [xaxis.ref(), yaxis.ref()]
+  })
+  plot_view = new PlotView({'model' : plot_model});
+  return plot_view
 
 #Preparing the name space
 Bokeh.register_collection('Plot', new Plots)
