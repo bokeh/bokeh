@@ -7,6 +7,9 @@ Collections = {}
 Bokeh.register_collection = (key, value) ->
   Collections[key] = value
   value.bokeh_key = key
+"""
+  MAIN BOKEH CLASSES
+"""
 # backbone assumes that valid attrs are any non-null, or non-defined value
 # thats dumb, we only check for undefined, because null is perfectly valid
 
@@ -35,6 +38,13 @@ class BokehView extends Backbone.View
     return @model.get(fld)
   mget_ref : (fld) ->
     return @model.get_ref(fld)
+
+class Renderer extends BokehView
+  initialize : (options) ->
+    @plot_id = options.plot_id
+    @plot_model = options.plot_model
+    super(options)
+
 # HasReference
 # Backbone model, which can output a reference (combination of type, and id)
 # also auto creates an id on init, if one isn't passed in.
@@ -165,40 +175,112 @@ class Component extends HasParent
     position : 0
   default_view : null
 
-class Plot extends Component
-  type : Plot
-  parent_properties : ['backround_color', 'foreground_color',
-    'width', 'height', 'border_space']
+"""
+Utility Classes for vis
+"""
+"""
+Discrete Color Mapper
+"""
+class DiscreteColorMapper extends HasReference
+  defaults :
+    #d3_category20
+    colors : [
+      "#1f77b4", "#aec7e8",
+      "#ff7f0e", "#ffbb78",
+      "#2ca02c", "#98df8a",
+      "#d62728", "#ff9896",
+      "#9467bd", "#c5b0d5",
+      "#8c564b", "#c49c94",
+      "#e377c2", "#f7b6d2",
+      "#7f7f7f", "#c7c7c7",
+      "#bcbd22", "#dbdb8d",
+      "#17becf", "#9edae5"
+    ],
+    range : []
+  initialize : ->
+
+  map_screen : (data) ->
+
+
+class Range1d extends HasReference
+  type : 'Range1d'
+  defaults :
+    start : 0
+    end : 1
+
+class Range1ds extends Backbone.Collection
+  model : Range1d
+
+class Mapper extends HasReference
+  defaults : {}
+  display_defaults : {}
+  map_screen : (data) ->
+
+class LinearMapper extends Mapper
+  type : 'LinearMapper'
+  defaults :
+    data_range : null
+    screen_range : null
+
+  calc_scale : ->
+    domain = [@get_ref('data_range').get('start'),
+      @get_ref('data_range').get('end')]
+    range = [@get_ref('screen_range').get('start'),
+      @get_ref('screen_range').get('end')]
+    console.log([domain, range]);
+    @scale = d3.scale.linear().domain(domain).range(range)
+
   initialize : (attrs, options) ->
     super(attrs, options)
-    @register_property('outerwidth', ['width', 'border_space'],
-      (width, border_space) -> width + 2 *border_space
-      false)
-    @register_property('outerheight', ['height', 'border_space'],
-      (height, border_space) -> height + 2 *border_space
-      false)
-    @xrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('height')})
-    @yrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('width')})
-    @on('change:width', =>
-      @xrange.set('end', @get('width')))
-    @on('change:height', =>
-      @yrange.set('end', @get('height')))
+    @calc_scale()
+    @get_ref('data_range').on('change', @calc_scale, this)
+    @get_ref('screen_range').on('change', @calc_scale, this)
 
-_.extend(Plot::defaults , {
-  'data_sources' : {},
-  'renderers' : [],
-  'axes' : [],
-  'legends' : [],
-  'tools' : [],
-  'overlays' : []
-  #axes fit here
-})
+  map_screen : (data) ->
+    return @scale(data)
 
-_.extend(Plot::display_defaults, {
-  'backround_color' : "#fff",
-  'foreground_color' : "#333",
-  'border_space' : 50
-})
+class LinearMappers extends Backbone.Collection
+  model : LinearMapper
+
+"""
+Data Sources
+"""
+class ObjectArrayDataSource extends HasReference
+  type : 'ObjectArrayDataSource'
+  defaults :
+    data : [{}]
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @ranges = {}
+
+  compute_range : (field) ->
+    max = _.max((x[field] for x in @get('data')))
+    min = _.min((x[field] for x in @get('data')))
+    return [min, max]
+
+  get_range : (field) ->
+    if not _.has(@ranges, field)
+      [min, max] = @compute_range(field)
+      @ranges[field] = Collections['Range1d'].create({
+        'start' : min,
+        'end' : max})
+      @on('change:data', =>
+        [max, min] = @compute_range(field)
+        @ranges[field].set('start', min)
+        @ranges[field].set('end', max))
+    return @ranges[field]
+
+class ObjectArrayDataSources extends Backbone.Collection
+  model : ObjectArrayDataSource
+
+"""
+  Individual Components below.
+  we first define the default view for a component,
+  the model for the component, and the collection
+"""
+"""
+  Plot Container
+"""
 
 class PlotView extends BokehView
   initialize : (options) ->
@@ -283,68 +365,47 @@ class PlotView extends BokehView
     if not @model.get_ref('parent')
       @$el.dialog()
 
-class DiscreteColorMapper extends HasReference
-  defaults :
-    #d3_category20
-    colors : [
-      "#1f77b4", "#aec7e8",
-      "#ff7f0e", "#ffbb78",
-      "#2ca02c", "#98df8a",
-      "#d62728", "#ff9896",
-      "#9467bd", "#c5b0d5",
-      "#8c564b", "#c49c94",
-      "#e377c2", "#f7b6d2",
-      "#7f7f7f", "#c7c7c7",
-      "#bcbd22", "#dbdb8d",
-      "#17becf", "#9edae5"
-    ],
-    range : []
-  initialize : ->
-
-  map_screen : (data) ->
-
-
-class Range1d extends HasReference
-  type : 'Range1d'
-  defaults :
-    start : 0
-    end : 1
-
-class Mapper extends HasReference
-  defaults : {}
-  display_defaults : {}
-  map_screen : (data) ->
-
-class LinearMapper extends Mapper
-  type : 'LinearMapper'
-  defaults :
-    data_range : null
-    screen_range : null
-
-  calc_scale : ->
-    domain = [@get_ref('data_range').get('start'),
-      @get_ref('data_range').get('end')]
-    range = [@get_ref('screen_range').get('start'),
-      @get_ref('screen_range').get('end')]
-    console.log([domain, range]);
-    @scale = d3.scale.linear().domain(domain).range(range)
-
+class Plot extends Component
+  type : Plot
+  parent_properties : ['backround_color', 'foreground_color',
+    'width', 'height', 'border_space']
   initialize : (attrs, options) ->
     super(attrs, options)
-    @calc_scale()
-    @get_ref('data_range').on('change', @calc_scale, this)
-    @get_ref('screen_range').on('change', @calc_scale, this)
+    @register_property('outerwidth', ['width', 'border_space'],
+      (width, border_space) -> width + 2 *border_space
+      false)
+    @register_property('outerheight', ['height', 'border_space'],
+      (height, border_space) -> height + 2 *border_space
+      false)
+    @xrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('height')})
+    @yrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('width')})
+    @on('change:width', =>
+      @xrange.set('end', @get('width')))
+    @on('change:height', =>
+      @yrange.set('end', @get('height')))
 
-  map_screen : (data) ->
-    return @scale(data)
+_.extend(Plot::defaults , {
+  'data_sources' : {},
+  'renderers' : [],
+  'axes' : [],
+  'legends' : [],
+  'tools' : [],
+  'overlays' : []
+  #axes fit here
+})
 
+_.extend(Plot::display_defaults, {
+  'backround_color' : "#fff",
+  'foreground_color' : "#333",
+  'border_space' : 50
+})
 
-class Renderer extends BokehView
-  initialize : (options) ->
-    @plot_id = options.plot_id
-    @plot_model = options.plot_model
-    super(options)
+class Plots extends Backbone.Collection
+   model : Plot
 
+"""
+D3LinearAxisView
+"""
 class D3LinearAxisView extends Renderer
   get_offsets : (position) ->
     offsets =
@@ -386,6 +447,9 @@ class D3LinearAxis extends Component
     tickSize : 6
     tickPadding : 3
 
+class D3LinearAxes extends Backbone.Collection
+  model : D3LinearAxis
+
 class ScatterRendererView extends Renderer
   render_marks : (marks) ->
     marks.attr('cx', (d) =>
@@ -425,50 +489,10 @@ _.extend(ScatterRenderer::display_defaults, {
   radius : 3
 })
 
-class ObjectArrayDataSource extends HasReference
-  type : 'ObjectArrayDataSource'
-  defaults :
-    data : [{}]
-  initialize : (attrs, options) ->
-    super(attrs, options)
-    @ranges = {}
-
-  compute_range : (field) ->
-    max = _.max((x[field] for x in @get('data')))
-    min = _.min((x[field] for x in @get('data')))
-    return [min, max]
-
-  get_range : (field) ->
-    if not _.has(@ranges, field)
-      [min, max] = @compute_range(field)
-      @ranges[field] = Collections['Range1d'].create({
-        'start' : min,
-        'end' : max})
-      @on('change:data', =>
-        [max, min] = @compute_range(field)
-        @ranges[field].set('start', min)
-        @ranges[field].set('end', max))
-    return @ranges[field]
-
-class Plots extends Backbone.Collection
-   model : Plot
-   url : "/"
-
 class ScatterRenderers extends Backbone.Collection
   model : ScatterRenderer
 
-class ObjectArrayDataSources extends Backbone.Collection
-  model : ObjectArrayDataSource
-
-class Range1ds extends Backbone.Collection
-  model : Range1d
-
-class LinearMappers extends Backbone.Collection
-  model : LinearMapper
-
-class D3LinearAxes extends Backbone.Collection
-  model : D3LinearAxis
-
+#Preparing the name space
 Bokeh.register_collection('Plot', new Plots)
 Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
 Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
