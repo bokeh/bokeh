@@ -1,0 +1,9 @@
+svg {
+  font: 10px sans-serif;
+  margin: 0;
+}
+.D3LinearAxisView {
+  fill: none;
+  stroke-width: 1.5px;
+  shape-rendering: crispEdges;
+}

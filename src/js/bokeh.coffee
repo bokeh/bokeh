@@ -167,6 +167,8 @@ class Component extends HasParent
 
 class Plot extends Component
   type : Plot
+  parent_properties : ['backround_color', 'foreground_color',
+    'width', 'height', 'border_space']
   initialize : (attrs, options) ->
     super(attrs, options)
     @register_property('outerwidth', ['width', 'border_space'],
@@ -190,12 +192,12 @@ _.extend(Plot::defaults , {
   'tools' : [],
   'overlays' : []
   #axes fit here
-  'border_space' : 50
 })
 
 _.extend(Plot::display_defaults, {
-  'background-color' : "#fff",
-  'foreground-color' : "#333"
+  'backround_color' : "#fff",
+  'foreground_color' : "#333",
+  'border_space' : 50
 })
 
 class PlotView extends BokehView
@@ -264,11 +266,11 @@ class PlotView extends BokehView
         .append('rect').attr('id', @tag_id('outerbox'))
 
     outernode.attr('fill', 'none')
-  		.attr('stroke', @model.get('foreground-color'))
+  		.attr('stroke', @model.get('foreground_color'))
       .attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
 
     innernode.attr('fill', 'none')
-  		.attr('stroke', @model.get('foreground-color'))
+  		.attr('stroke', @model.get('foreground_color'))
       .attr('width', @mget('width')).attr("height", @mget('height'))
 
   render : ->
@@ -339,8 +341,8 @@ class LinearMapper extends Mapper
 
 class Renderer extends BokehView
   initialize : (options) ->
-    this.plot_id = options['plot_id']
-    this.plot_model = options['plot_model']
+    @plot_id = options.plot_id
+    @plot_model = options.plot_model
     super(options)
 
 class D3LinearAxisView extends Renderer
@@ -358,6 +360,8 @@ class D3LinearAxisView extends Renderer
     if not node
       node = base.append('g')
         .attr('id', @tag_id('axis'))
+        .attr('class', 'D3LinearAxisView')
+        .attr('stroke', @mget('foreground_color'))
     offsets = @get_offsets(@mget('orientation'))
     node.attr('transform',
       _.template('translate({{x}}, {{y}})', offsets))
@@ -389,7 +393,7 @@ class ScatterRendererView extends Renderer
       .attr('cy', (d) =>
           return @model.get_ref('ymapper').map_screen(d[@model.get('yfield')]))
       .attr('r', @model.get('radius'))
-      .attr('fill', @model.get('foreground-color'))
+      .attr('fill', @model.get('foreground_color'))
 
   render : ->
     plotcontent = @tag_d3('plotcontent', this.plot_id)
