@@ -178,29 +178,6 @@ class Component extends HasParent
 """
 Utility Classes for vis
 """
-"""
-Discrete Color Mapper
-"""
-class DiscreteColorMapper extends HasReference
-  defaults :
-    #d3_category20
-    colors : [
-      "#1f77b4", "#aec7e8",
-      "#ff7f0e", "#ffbb78",
-      "#2ca02c", "#98df8a",
-      "#d62728", "#ff9896",
-      "#9467bd", "#c5b0d5",
-      "#8c564b", "#c49c94",
-      "#e377c2", "#f7b6d2",
-      "#7f7f7f", "#c7c7c7",
-      "#bcbd22", "#dbdb8d",
-      "#17becf", "#9edae5"
-    ],
-    range : []
-  initialize : ->
-
-  map_screen : (data) ->
-
 
 class Range1d extends HasReference
   type : 'Range1d'
@@ -211,11 +188,22 @@ class Range1d extends HasReference
 class Range1ds extends Backbone.Collection
   model : Range1d
 
+class FactorRange extends HasReference
+  type : 'FactorRange'
+  defaults :
+    values : []
+
+class FactorRanges extends Backbone.Collection
+  model : FactorRange
+
 class Mapper extends HasReference
   defaults : {}
   display_defaults : {}
   map_screen : (data) ->
 
+"""
+  LinearMapper
+"""
 class LinearMapper extends Mapper
   type : 'LinearMapper'
   defaults :
@@ -243,6 +231,44 @@ class LinearMappers extends Backbone.Collection
   model : LinearMapper
 
 """
+Discrete Color Mapper
+"""
+class DiscreteColorMapper extends HasReference
+  type : 'DiscreteColorMapper'
+  defaults :
+    #d3_category20
+    colors : [
+      "#1f77b4", "#aec7e8",
+      "#ff7f0e", "#ffbb78",
+      "#2ca02c", "#98df8a",
+      "#d62728", "#ff9896",
+      "#9467bd", "#c5b0d5",
+      "#8c564b", "#c49c94",
+      "#e377c2", "#f7b6d2",
+      "#7f7f7f", "#c7c7c7",
+      "#bcbd22", "#dbdb8d",
+      "#17becf", "#9edae5"
+    ],
+    data_range : null
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @get('data_range')
+    @register_property('factor_map', ['data_range'],
+      (data_range) ->
+        domain_map = {}
+        for val, index in data_range.get('values')
+          domain_map[val] = index
+        return domain_map
+      , true)
+    @scale = d3.scale.ordinal().range(@get('colors'));
+
+  map_screen : (data) ->
+    @scale(@get('factor_map')[data]);
+
+class DiscreteColorMappers extends Backbone.Collection
+  model : DiscreteColorMapper
+
+"""
 Data Sources
 """
 class ObjectArrayDataSource extends HasReference
@@ -252,24 +278,44 @@ class ObjectArrayDataSource extends HasReference
     name : 'data'
   initialize : (attrs, options) ->
     super(attrs, options)
-    @ranges = {}
+    @cont_ranges = {}
+    @discrete_ranges = {}
 
-  compute_range : (field) ->
+  compute_cont_range : (field) ->
     max = _.max((x[field] for x in @get('data')))
     min = _.min((x[field] for x in @get('data')))
     return [min, max]
 
-  get_range : (field) ->
-    if not _.has(@ranges, field)
-      [min, max] = @compute_range(field)
-      @ranges[field] = Collections['Range1d'].create({
+  compute_discrete_factor : (field) ->
+    temp = {}
+    for val in (x[field] for x in @get('data'))
+      temp[val] = true
+    uniques = _.keys(temp)
+    uniques = _.sortBy(uniques, ((x) -> return x))
+
+  get_cont_range : (field) ->
+    if not _.has(@cont_ranges, field)
+      [min, max] = @compute_cont_range(field)
+      @cont_ranges[field] = Collections['Range1d'].create({
         'start' : min,
         'end' : max})
       @on('change:data', =>
-        [max, min] = @compute_range(field)
-        @ranges[field].set('start', min)
-        @ranges[field].set('end', max))
-    return @ranges[field]
+        [max, min] = @compute_cont_range(field)
+        @cont_ranges[field].set('start', min)
+        @cont_ranges[field].set('end', max))
+    return @cont_ranges[field]
+
+  get_discrete_range : (field) ->
+    if not _.has(@discrete_ranges, field)
+      factors = @compute_discrete_factor(field)
+      @discrete_ranges[field] = Collections['FactorRange'].create({
+        values : factors
+      })
+      @on('change:data', =>
+        factors = @compute_discrete_factor(field)
+        @discrete_ranges[field] = Collections['FactorRange'].set('values', factors)
+      )
+    return @discrete_ranges[field]
 
 class ObjectArrayDataSources extends Backbone.Collection
   model : ObjectArrayDataSource
@@ -511,31 +557,37 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     mark = 'circle'
   if _.isUndefined(color_field)
     color_field = null
+  if _.isUndefined(color_mapper) and color_field
+    color_mapper = Collections['DiscreteColorMapper'].create({
+      data_range : data_source.get_discrete_range(color_field)
+    }).ref()
+
   source_name = data_source.get('name')
   plot_attrs =
+  plot_model = Collections['Plot'].create(
     data_sources :
       source_name : data_source.ref()
-  if (parent)
-    plot_attrs['parent'] = parent.get_ref()
-
-  plot_model = Collections['Plot'].create(plot_attrs)
+    parent : parent
+  )
   xmapper = Collections['LinearMapper'].create({
-    data_range : data_source.get_range(xfield)
+    data_range : data_source.get_cont_range(xfield)
     screen_range : plot_model.xrange.ref()
   })
   ymapper = Collections['LinearMapper'].create({
-    data_range : data_source.get_range(yfield)
+    data_range : data_source.get_cont_range(yfield)
     screen_range : plot_model.yrange.ref()
   })
-  scatter_plot = Collections["ScatterRenderer"].create({
-    data_source: data_source.ref(),
-    xfield: xfield,
-    yfield: yfield,
-    color_field: color_field,
-    mark: mark,
-    xmapper: xmapper.ref(),
+  scatter_attrs =
+  scatter_plot = Collections["ScatterRenderer"].create(
+    data_source: data_source.ref()
+    xfield: xfield
+    yfield: yfield
+    color_field: color_field
+    color_mapper : color_mapper
+    mark: mark
+    xmapper: xmapper.ref()
     ymapper: ymapper.ref()
-  })
+  )
   xaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'bottom',
     'mapper' : xmapper.ref()
@@ -558,6 +610,8 @@ Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('Range1d', new Range1ds)
 Bokeh.register_collection('LinearMapper', new LinearMappers)
 Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
+Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
+Bokeh.register_collection('FactorRange', new FactorRanges)
 
 Bokeh.Collections = Collections
 Bokeh.HasReference = HasReference
