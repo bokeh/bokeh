@@ -22,6 +22,10 @@ class BokehView extends Backbone.View
   initialize : (options) ->
     if not _.has(options, 'id')
       this.id = _.uniqueId('BokehView')
+
+  tag_selector : (tag, id) ->
+    return "#" + @tag_id(tag, id)
+
   tag_id : (tag, id) ->
     if not id
       id = this.id
@@ -377,49 +381,50 @@ class PlotView extends BokehView
       node = d3.select(@el).append('svg')
         .attr('id', @tag_id('mainsvg'))
       node.append('g')
-          .attr('id', @tag_id('flipY'))
-          .append('g')
-          .attr('id', @tag_id('plotcontent'))
+        .attr('id', @tag_id('center'))
+        .append('g')
+        .attr('id', @tag_id('flipY'))
+        .append('g')
+        .attr('id', @tag_id('plotcontent'))
 
     node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
     #svg puts origin in the top left, we want it on the bottom left
+    @tag_d3('center').attr('transform',
+      _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
     @tag_d3('flipY')
       .attr('transform',
         _.template('translate(0, {{h}}) scale(1, -1)',
-          {'h' : @mget('outerheight')}))
-    @tag_d3('plotcontent').attr('transform',
-      _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
-
+          {'h' : @mget('height')}))
   render_frames : ->
     innernode = @tag_d3('innerbox')
     outernode = @tag_d3('outerbox')
     if innernode == null
-      innernode = @tag_d3('plotcontent')
-        .append('rect').attr('id', @tag_id('innerbox'))
-      outernode = @tag_d3('flipY')
-        .append('rect').attr('id', @tag_id('outerbox'))
+      innernode = @tag_d3('center').insert('rect', @tag_selector('flipY'))
+        .attr('id', @tag_id('innerbox'))
+      outernode = @tag_d3('mainsvg').append('rect')
+        .attr('id', @tag_id('outerbox'))
 
     outernode.attr('fill', 'none')
       .attr('stroke', @model.get('foreground_color'))
       .attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
 
-    innernode.attr('fill', 'none')
+    innernode.attr('fill', @mget('background_color'))
       .attr('stroke', @model.get('foreground_color'))
       .attr('width', @mget('width')).attr("height", @mget('height'))
 
   render : ->
     @render_mainsvg();
     @render_frames();
-    for own key, view of @renderers
-      view.render()
     for own key, view of @axes
+      view.render()
+    for own key, view of @renderers
       view.render()
     if not @model.get_ref('parent')
       @$el.dialog()
 
 class Plot extends Component
-  type : Plot
-  parent_properties : ['backround_color', 'foreground_color',
+  type : 'Plot'
+  parent_properties : ['background_color', 'foreground_color',
     'width', 'height', 'border_space']
   initialize : (attrs, options) ->
     super(attrs, options)
@@ -447,7 +452,7 @@ _.extend(Plot::defaults , {
 })
 
 _.extend(Plot::display_defaults, {
-  'backround_color' : "#fff",
+  'background_color' : "#ddd",
   'foreground_color' : "#333",
   'border_space' : 50
 })
@@ -459,19 +464,27 @@ class Plots extends Backbone.Collection
 D3LinearAxisView
 """
 class D3LinearAxisView extends Renderer
-  get_offsets : (position) ->
+  get_offsets : (orientation) ->
     offsets =
-      'x' : @plot_model.get('border_space')
-      'y' : @plot_model.get('border_space')
-    if position == 'bottom'
+      'x' : 0
+      'y' : 0
+    if orientation == 'bottom'
       offsets['y'] += @plot_model.get('height')
     return offsets
+  get_tick_size : (orientation) ->
+    if (not _.isNull(@mget('tickSize')))
+      return @mget('tickSize')
+    else
+      if orientation == 'bottom'
+        return -@plot_model.get('height')
+      else
+        return -@plot_model.get('width')
 
   render : ->
-    base = @tag_d3('mainsvg', @plot_id)
+    base = @tag_d3('center', @plot_id)
     node = @tag_d3('axis')
     if not node
-      node = base.append('g')
+      node = base.insert('g', @tag_selector('flipY', @plot_id))
         .attr('id', @tag_id('axis'))
         .attr('class', 'D3LinearAxisView')
         .attr('stroke', @mget('foreground_color'))
@@ -479,13 +492,15 @@ class D3LinearAxisView extends Renderer
     node.attr('transform',
       _.template('translate({{x}}, {{y}})', offsets))
     axis = d3.svg.axis()
+    ticksize = @get_tick_size(@mget('orientation'))
     axis.scale(@mget_ref('mapper').scale)
       .orient(@mget('orientation'))
       .ticks(@mget('ticks'))
       .tickSubdivide(@mget('tickSubdivide'))
-      .tickSize(@mget('tickSize'))
+      .tickSize(ticksize)
       .tickPadding(@mget('tickPadding'))
     node.call(axis)
+    node.selectAll('.tick').attr('stroke', @mget('tick_color'))
     console.log('AXIS')
 
 class D3LinearAxis extends Component
@@ -496,8 +511,10 @@ class D3LinearAxis extends Component
     orientation : 'bottom'
     ticks : 10
     ticksSubdivide : 1
-    tickSize : 6
+    tickSize : null
     tickPadding : 3
+  display_defaults :
+    tick_color : '#fff'
 
 class D3LinearAxes extends Backbone.Collection
   model : D3LinearAxis
@@ -587,14 +604,17 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     mark: mark
     xmapper: xmapper.ref()
     ymapper: ymapper.ref()
+    parent : plot_model.ref()
   )
   xaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'bottom',
     'mapper' : xmapper.ref()
+    'parent' : plot_model.ref()
   })
   yaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'left',
     'mapper' : ymapper.ref()
+    'parent' : plot_model.ref()
   })
   plot_model.set({
     'renderers' : [scatter_plot.ref()],
