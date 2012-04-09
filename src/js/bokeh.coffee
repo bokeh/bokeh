@@ -219,7 +219,6 @@ class LinearMapper extends Mapper
       @get_ref('data_range').get('end')]
     range = [@get_ref('screen_range').get('start'),
       @get_ref('screen_range').get('end')]
-    console.log([domain, range]);
     @scale = d3.scale.linear().domain(domain).range(range)
 
   initialize : (attrs, options) ->
@@ -348,8 +347,9 @@ class PlotView extends BokehView
     @model.on('change', @render, this);
 
   remove : ->
+    console.log('REMOVE')
     @model.off(null, null, this)
-
+    super()
   build_renderers : ->
     @build_views('renderers', 'renderers')
 
@@ -420,7 +420,11 @@ class PlotView extends BokehView
     for own key, view of @renderers
       view.render()
     if not @model.get_ref('parent')
-      @$el.dialog()
+      @$el.dialog(
+        close :  () =>
+          @remove()
+      )
+
 
 class Plot extends Component
   type : 'Plot'
@@ -471,6 +475,7 @@ class D3LinearAxisView extends Renderer
     if orientation == 'bottom'
       offsets['y'] += @plot_model.get('height')
     return offsets
+
   get_tick_size : (orientation) ->
     if (not _.isNull(@mget('tickSize')))
       return @mget('tickSize')
@@ -501,7 +506,6 @@ class D3LinearAxisView extends Renderer
       .tickPadding(@mget('tickPadding'))
     node.call(axis)
     node.selectAll('.tick').attr('stroke', @mget('tick_color'))
-    console.log('AXIS')
 
 class D3LinearAxis extends Component
   type : 'D3LinearAxis'
