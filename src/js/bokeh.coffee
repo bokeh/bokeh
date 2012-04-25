@@ -23,6 +23,10 @@ class BokehView extends Backbone.View
     if not _.has(options, 'id')
       this.id = _.uniqueId('BokehView')
 
+  remove : ->
+    @model.off(null, null, this)
+    super()
+
   tag_selector : (tag, id) ->
     return "#" + @tag_id(tag, id)
 
@@ -65,7 +69,8 @@ class HasProperties extends Backbone.Model
 
   register_property : (prop_name, dependencies, property, use_cache) ->
     # remove a property before registering it if we arleady have it
-    # store the property function, it's dependencies, whetehr we want to cache it
+    # store the property function, it's dependencies, whetehr
+    # we want to cache it
     # and a callback, which invalidates the cache
     # hook up dependencies data structure,
     # if we're using the cache, register attribute changes on
@@ -171,12 +176,21 @@ class HasParent extends HasReference
   display_defaults : {}
 
 class Component extends HasParent
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @register_property('outerwidth', ['width', 'border_space'],
+      (width, border_space) -> width + 2 *border_space
+      false)
+    @register_property('outerheight', ['height', 'border_space'],
+      (height, border_space) -> height + 2 *border_space
+      false)
   defaults :
     parent : null
   display_defaults:
     width : 200
     height : 200
     position : 0
+    offset : []
   default_view : null
 
 """
@@ -331,6 +345,30 @@ class ObjectArrayDataSources extends Backbone.Collection
 """
   Plot Container
 """
+class GraphicsContext extends Component
+  parent_properties : ['width', 'height']
+
+class GraphicsContexts extends Backbone.Collection
+  model : GraphicsContext
+
+class GraphicsContextView extends BokehView
+  render : ->
+    node = @tag_d3('mainsvg')
+    if node == null
+      node = d3.select(@el).append('svg')
+        .attr('id', @tag_id('mainsvg'))
+      node.append('g')
+        .attr('id', @tag_id('visualization'))
+    node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
+    @tag_d3('visualization')
+      .attr('transform',
+        _.template('translate(0, {{h}}) scale(1, -1)',
+          {'h' : @mget('outerheight')}))
+    if not @model.get_ref('parent')
+      @$el.dialog(
+        close :  () =>
+          @remove()
+      )
 
 class PlotView extends BokehView
   initialize : (options) ->
@@ -346,10 +384,6 @@ class PlotView extends BokehView
     @model.on('change:axes', @build_axes, this);
     @model.on('change', @render, this);
 
-  remove : ->
-    console.log('REMOVE')
-    @model.off(null, null, this)
-    super()
   build_renderers : ->
     @build_views('renderers', 'renderers')
 
@@ -376,54 +410,31 @@ class PlotView extends BokehView
     this[storage_attr] = _renderers
 
   render_mainsvg : ->
-    node = @tag_d3('mainsvg')
+    node = @tag_d3('plot')
     if node == null
-      node = d3.select(@el).append('svg')
-        .attr('id', @tag_id('mainsvg'))
-      node.append('g')
-        .attr('id', @tag_id('center'))
-        .append('g')
-        .attr('id', @tag_id('flipY'))
-        .append('g')
-        .attr('id', @tag_id('plotcontent'))
-
+      node = d3.select(@el).append('g')
+        .attr('id', @tag_id('plot'))
     node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
     #svg puts origin in the top left, we want it on the bottom left
-    @tag_d3('center').attr('transform',
+    @tag_d3('plot').attr('transform',
       _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
-    @tag_d3('flipY')
-      .attr('transform',
-        _.template('translate(0, {{h}}) scale(1, -1)',
-          {'h' : @mget('height')}))
-  render_frames : ->
+
+  render_frame : ->
     innernode = @tag_d3('innerbox')
-    outernode = @tag_d3('outerbox')
     if innernode == null
-      innernode = @tag_d3('center').insert('rect', @tag_selector('flipY'))
+      innernode = @tag_d3('plot').append('rect')
         .attr('id', @tag_id('innerbox'))
-      outernode = @tag_d3('mainsvg').append('rect')
-        .attr('id', @tag_id('outerbox'))
-
-    outernode.attr('fill', 'none')
-      .attr('stroke', @model.get('foreground_color'))
-      .attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
-
     innernode.attr('fill', @mget('background_color'))
       .attr('stroke', @model.get('foreground_color'))
       .attr('width', @mget('width')).attr("height", @mget('height'))
 
   render : ->
     @render_mainsvg();
-    @render_frames();
+    @render_frame();
     for own key, view of @axes
       view.render()
     for own key, view of @renderers
       view.render()
-    if not @model.get_ref('parent')
-      @$el.dialog(
-        close :  () =>
-          @remove()
-      )
 
 
 class Plot extends Component
@@ -486,14 +497,18 @@ class D3LinearAxisView extends Renderer
         return -@plot_model.get('width')
 
   render : ->
-    base = @tag_d3('center', @plot_id)
+    base = @tag_d3('plot', @plot_id)
     node = @tag_d3('axis')
     if not node
-      node = base.insert('g', @tag_selector('flipY', @plot_id))
+      node = base.append('g')
+        .attr('id', @tag_id('flip'))
+        .append('g', @tag_selector('plot', @plot_id))
         .attr('id', @tag_id('axis'))
         .attr('class', 'D3LinearAxisView')
         .attr('stroke', @mget('foreground_color'))
     offsets = @get_offsets(@mget('orientation'))
+    offsets['h'] = @plot_model.get('height')
+    # @tag_d3('flip').attr('transform', _.template('translate(0, {{h}}) scale(1, -1)', offsets))
     node.attr('transform',
       _.template('translate({{x}}, {{y}})', offsets))
     axis = d3.svg.axis()
@@ -538,10 +553,10 @@ class ScatterRendererView extends Renderer
           return @model.get('foreground_color'))
 
   render : ->
-    plotcontent = @tag_d3('plotcontent', this.plot_id)
+    plot = @tag_d3('plot', this.plot_id)
     node = @tag_d3('scatter')
     if not node
-      node = plotcontent.append('g')
+      node = plot.append('g')
       .attr('id', @tag_id('scatter'))
 
     circles = node.selectAll(@model.get('mark'))
@@ -584,7 +599,9 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     }).ref()
 
   source_name = data_source.get('name')
-  plot_attrs =
+  context = Collections['GraphicsContext'].create()
+  contextview = new GraphicsContextView({'model' : context})
+  contextview.render()
   plot_model = Collections['Plot'].create(
     data_sources :
       source_name : data_source.ref()
@@ -624,7 +641,10 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     'renderers' : [scatter_plot.ref()],
     'axes' : [xaxis.ref(), yaxis.ref()]
   })
-  plot_view = new PlotView({'model' : plot_model});
+  plot_view = new PlotView({
+    'model' : plot_model,
+    'el' : contextview.tag_el('visualization')
+  });
   return plot_view
 
 #Preparing the name space
@@ -636,6 +656,7 @@ Bokeh.register_collection('LinearMapper', new LinearMappers)
 Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
 Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
 Bokeh.register_collection('FactorRange', new FactorRanges)
+Bokeh.register_collection('GraphicsContext', new GraphicsContexts)
 
 Bokeh.Collections = Collections
 Bokeh.HasReference = HasReference
