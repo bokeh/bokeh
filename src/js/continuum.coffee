@@ -168,31 +168,30 @@ class TableView extends ContinuumView
 
   render_pagination : ->
     if @mget('offset') > 0
-      node = $("<a> << </a>").css({'cursor' : 'pointer'})
+      node = $("<button>first</button>").css({'cursor' : 'pointer'})
       @$el.append(node)
       node.click(=>
         @model.load(0)
         return false
       )
-    node = $("<a> < </a>").css({'cursor' : 'pointer'})
-    @$el.append(node)
-    node.click(=>
-      @model.load(_.max([@mget('offset') - @mget('chunksize'), 0]))
-      return false
-    )
+      node = $("<button>previous</button>").css({'cursor' : 'pointer'})
+      @$el.append(node)
+      node.click(=>
+        @model.load(_.max([@mget('offset') - @mget('chunksize'), 0]))
+        return false
+      )
 
     maxoffset = @mget('total_rows') - @mget('chunksize')
-    node = $("<a> > </a>").css({'cursor' : 'pointer'})
-    @$el.append(node)
-    node.click(=>
-      @model.load(_.min([
-        @mget('offset') + @mget('chunksize'),
-        maxoffset]))
-      return false
-    )
-
     if @mget('offset') < maxoffset
-      node = $("<a> >> </a>").css({'cursor' : 'pointer'})
+      node = $("<button>next</button>").css({'cursor' : 'pointer'})
+      @$el.append(node)
+      node.click(=>
+        @model.load(_.min([
+          @mget('offset') + @mget('chunksize'),
+          maxoffset]))
+        return false
+      )
+      node = $("<button>last</button>").css({'cursor' : 'pointer'})
       @$el.append(node)
       node.click(=>
         @model.load(maxoffset)
