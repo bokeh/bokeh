@@ -12,40 +12,10 @@ Bokeh.register_collection = (key, value) ->
 """
 # backbone assumes that valid attrs are any non-null, or non-defined value
 # thats dumb, we only check for undefined, because null is perfectly valid
-
-# BokehView
-# Regular backbone view, except, it gets assigned an id.
-# this id can be used to auto-create html ids, and pull out
-# d3, and jquery nodes based on those dom elements
-
-class BokehView extends Backbone.View
-  initialize : (options) ->
-    if not _.has(options, 'id')
-      this.id = _.uniqueId('BokehView')
-
-  remove : ->
-    @model.off(null, null, this)
-    super()
-
-  tag_selector : (tag, id) ->
-    return "#" + @tag_id(tag, id)
-
-  tag_id : (tag, id) ->
-    if not id
-      id = this.id
-    tag + "-" + id
-  tag_el : (tag, id) ->
-    @$el.find("#" + this.tag_id(tag, id))
-  tag_d3 : (tag, id) ->
-    val = d3.select(this.el).select("#" + this.tag_id(tag, id))
-    if val[0][0] == null
-      return null
-    else
-      return val
-  mget : (fld)->
-    return @model.get(fld)
-  mget_ref : (fld) ->
-    return @model.get_ref(fld)
+BokehView = Continuum.ContinuumView
+HasProperties = Continuum.HasProperties
+class HasReference extends Continuum.HasReference
+  collections : Collections
 
 class Renderer extends BokehView
   initialize : (options) ->
@@ -53,102 +23,6 @@ class Renderer extends BokehView
     @plot_model = options.plot_model
     super(options)
 
-# HasReference
-# Backbone model, which can output a reference (combination of type, and id)
-# also auto creates an id on init, if one isn't passed in.
-
-class HasProperties extends Backbone.Model
-  initialize : (attrs, options) ->
-    super(attrs, options)
-    #property, key is prop name, value is list of dependencies
-    #depdencies, key is backbone attribute, multidict value is list of
-    #properties that depend on it
-    @properties = {}
-    @dependencies = new buckets.MultiDictionary
-    @property_cache = {}
-
-  register_property : (prop_name, dependencies, property, use_cache) ->
-    # remove a property before registering it if we arleady have it
-    # store the property function, it's dependencies, whetehr
-    # we want to cache it
-    # and a callback, which invalidates the cache
-    # hook up dependencies data structure,
-    # if we're using the cache, register attribute changes on
-    # property to invalidate cache for it
-    if _.has(@properties, prop_name)
-      @remove_property(prop_name)
-    prop_spec=
-      'property' : property,
-      'dependencies' : dependencies,
-      'use_cache' : use_cache
-      'invalidate_cache_callback' : =>
-        @clear_cache(prop_name)
-    @properties[prop_name] = prop_spec
-    for dep in dependencies
-      @dependencies.set(dep, prop_name)
-      if prop_spec.use_cache
-        @on("change:" + dep, @properties[prop_name].invalidate_cache_callback)
-
-  remove_property : (prop_name) ->
-    # remove property from dependency data structure
-    # unbind change callbacks if we're using the cache
-    # delete the property object from the @properties object
-    # clear the cache if we were using it
-
-    prop_spec = @properties[prop_name]
-    dependencies = prop_spec.dependencies
-    for dep in dependencies
-      @dependencies.remove(dep, prop_name)
-      if prop_spec.use_cache
-        @off("change:" + dep, prop_spec['invalidate_cache_callback'])
-    delete @properties[prop_name]
-    if prop_spec.use_cache
-      @clear_cache(prop_name)
-
-  has_cache : (prop_name) ->
-    return _.has(@property_cache, prop_name)
-
-  add_cache : (prop_name, val) ->
-    @property_cache[prop_name] = val
-
-  clear_cache : (prop_name, val) ->
-    delete @property_cache[prop_name]
-
-  get_cache : (prop_name) ->
-    return @property_cache[prop_name]
-
-  get : (prop_name) ->
-    if _.has(@properties, prop_name)
-      prop_spec = @properties[prop_name]
-      if prop_spec.use_cache and @has_cache(prop_name)
-        return @property_cache[prop_name]
-      else
-        dependencies = prop_spec.dependencies
-        property = prop_spec.property
-        dependencies = (@get(x) for x in dependencies)
-        computed = property.apply(this, dependencies)
-        if @properties[prop_name].use_cache
-          @add_cache(prop_name, computed)
-        return computed
-    else
-      return super(prop_name)
-
-class HasReference extends HasProperties
-  type : null
-  initialize : (attrs, options) ->
-    super(attrs, options)
-    if not _.has(attrs, 'id')
-      this.id = _.uniqueId(this.type)
-      this.attributes['id'] = this.id
-  ref : ->
-    'type' : this.type
-    'id' : this.id
-  resolve_ref : (ref) ->
-    Collections[ref['type']].get(ref['id'])
-  get_ref : (ref_name) ->
-    ref = @get(ref_name)
-    if ref
-      return @resolve_ref(ref)
 
 # hasparent
 # display_options can be passed down to children

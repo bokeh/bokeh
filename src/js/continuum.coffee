@@ -90,6 +90,7 @@ class HasProperties extends Backbone.Model
       return super(prop_name)
 
 class HasReference extends HasProperties
+  collections : Collections
   type : null
   initialize : (attrs, options) ->
     super(attrs, options)
@@ -100,7 +101,7 @@ class HasReference extends HasProperties
     'type' : this.type
     'id' : this.id
   resolve_ref : (ref) ->
-    Collections[ref['type']].get(ref['id'])
+    @collections[ref['type']].get(ref['id'])
   get_ref : (ref_name) ->
     ref = @get(ref_name)
     if ref
@@ -233,3 +234,8 @@ class Tables extends Backbone.Collection
   url : "/"
 
 Continuum.register_collection('Table', new Tables())
+
+Continuum.ContinuumView = ContinuumView
+Continuum.HasReference = HasReference
+Continuum.HasProperties = HasProperties
+
