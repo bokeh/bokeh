@@ -240,29 +240,16 @@ class PlotView extends BokehView
     @model.on('change', @render, this);
 
   build_renderers : ->
-    @build_views('renderers', 'renderers')
+    build_views(@model, @renderers, @mget('renderers'),
+      {'el' : @el,
+      'plot_id' : @id,
+      'plot_model' : @model})
 
   build_axes : ->
-    @build_views('axes', 'axes')
-
-  build_views : (storage_attr, spec_attr)->
-    old_renderers = this[storage_attr]
-    _renderers = {}
-    specs = @model.get(spec_attr)
-    for spec in specs
-      model = @model.resolve_ref(spec)
-      if old_renderers[model.id]
-        _renderers[model.id] = old_renderers[model.id]
-        continue
-      options = _.extend({}, spec.options,
-        {'el' : @el,
-        'model' : model, 'plot_id' : @id, 'plot_model' : @model})
-      view = new model.default_view(options)
-      _renderers[model.id] = view;
-    for own key, value in @renderers
-      if not _.has(renderers, key)
-        value.remove()
-    this[storage_attr] = _renderers
+    build_views(@model, @axes, @mget('axes'),
+      {'el' : @el,
+      'plot_id' : @id,
+      'plot_model' : @model})
 
   render_mainsvg : ->
     node = @tag_d3('mainsvg')
@@ -297,6 +284,62 @@ class PlotView extends BokehView
         close :  () =>
           @remove()
       )
+
+build_views = (builder, view_storage, view_specs, options) ->
+  #create a view for each view spec, store it in view_storage
+  #remove anything from view_storage which isn't present in view_spec
+  #option parameter are passed to views
+  found = {}
+  for spec in view_specs
+    model = builder.resolve_ref(spec)
+    found[model.id] = true
+    if view_storage[model.id]
+      continue
+    options = _.extend({}, spec.options, options, {'model' : model})
+    view_storage[model.id] = new model.default_view(options)
+  for own key, value in view_storage
+    if not _.has(found, key)
+      value.remove()
+      delete view_storage[key]
+
+class GridPlotContainer extends Component
+  type : 'GridPlotContainer'
+
+_.extend(GridPlotContainer::defaults , {
+  'resize_children' : false
+  'children' : [[]]
+})
+
+class GridPlotContainerView extends BokehView
+  layout_dimensions : ->
+    maxdim = (dim, row) -> (_.max((x.mget(dim) for x in row)))
+    row_heights = (maxdim('height', row) for row in @mget('children'))
+    num_cols = @mget('children')[0].length
+    columns = ((row(n) for row in @mget('children')) for n in _.range(num_cols))
+    col_widths = (maxdim('width', col) for col in columns)
+    return [row_heights, col_widths]
+
+  # render : ->
+  #   node = @tag_d3('svg')
+  #   if node == null
+  #     node = d3.select(@el).append('svg').attr('id', @tag_id('mainsvg'))
+
+  #   row_heights, col_widths = @layout_dimensions()
+  #   y_coords = _.reduceRight(row_heights, (x, y) -> return x + y)
+  #   x_coords = _.reduce(col_widths, (x,y) -> return x + y)
+  #   for row, ridx in @mget('children')
+  #     for plotspec, cidx in row
+  #       plot = @resolve_ref(plotspec)
+  #       options = _.extend({}, plotspec.options)
+  #       view = new plot.default_view({
+  #         'el' : @el,
+  #         'model' : plot
+  #       })
+
+
+
+
+
 
 
 class Plot extends Component
