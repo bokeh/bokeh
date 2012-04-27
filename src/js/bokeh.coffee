@@ -12,7 +12,9 @@ Bokeh.register_collection = (key, value) ->
 """
 # backbone assumes that valid attrs are any non-null, or non-defined value
 # thats dumb, we only check for undefined, because null is perfectly valid
-BokehView = Continuum.ContinuumView
+class BokehView extends Continuum.ContinuumView
+
+
 HasProperties = Continuum.HasProperties
 class HasReference extends Continuum.HasReference
   collections : Collections
@@ -50,6 +52,10 @@ class HasParent extends HasReference
   display_defaults : {}
 
 class Component extends HasParent
+  xpos : (x) ->
+    return x
+  ypos : (y) ->
+    return @get('height') - y
   initialize : (attrs, options) ->
     super(attrs, options)
     @register_property('outerwidth', ['width', 'border_space'],
@@ -264,20 +270,11 @@ class PlotView extends BokehView
       node = d3.select(@el).append('svg')
         .attr('id', @tag_id('mainsvg'))
       node.append('g')
-        .attr('id', @tag_id('center'))
-        .append('g')
-        .attr('id', @tag_id('flipY'))
-        .append('g')
         .attr('id', @tag_id('plot'))
-
     node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
     #svg puts origin in the top left, we want it on the bottom left
-    @tag_d3('center').attr('transform',
+    @tag_d3('plot').attr('transform',
       _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
-    @tag_d3('flipY')
-      .attr('transform',
-        _.template('translate(0, {{h}}) scale(1, -1)',
-          {'h' : @mget('height')}))
 
   render_frame : ->
     innernode = @tag_d3('innerbox')
@@ -361,25 +358,34 @@ class D3LinearAxisView extends Renderer
       else
         return -@plot_model.get('width')
 
+  convert_scale : (scale) ->
+    domain = scale.domain()
+    range = scale.range()
+    if @mget('orientation') in ['bottom', 'top']
+      func = 'xpos'
+    else
+      func = 'ypos'
+    range = [@plot_model[func](range[0]), @plot_model[func](range[1])]
+    scale = d3.scale.linear().domain(domain).range(range)
+    return scale
+
   render : ->
     base = @tag_d3('plot', @plot_id)
     node = @tag_d3('axis')
     if not node
-      node = base.append('g')
-        .attr('id', @tag_id('flip'))
-        .append('g', @tag_selector('plot', @plot_id))
+      node = base.append('g', @tag_selector('plot', @plot_id))
         .attr('id', @tag_id('axis'))
         .attr('class', 'D3LinearAxisView')
         .attr('stroke', @mget('foreground_color'))
     offsets = @get_offsets(@mget('orientation'))
     offsets['h'] = @plot_model.get('height')
-    # @tag_d3('flip').attr('transform', _.template('translate(0, {{h}}) scale(1, -1)', offsets))
     node.attr('transform',
       _.template('translate({{x}}, {{y}})', offsets))
     axis = d3.svg.axis()
     ticksize = @get_tick_size(@mget('orientation'))
-    axis.scale(@mget_ref('mapper').scale)
-      .orient(@mget('orientation'))
+    scale_converted = @convert_scale(@mget_ref('mapper').scale)
+    temp = axis.scale(scale_converted)
+    temp.orient(@mget('orientation'))
       .ticks(@mget('ticks'))
       .tickSubdivide(@mget('tickSubdivide'))
       .tickSize(ticksize)
@@ -405,10 +411,19 @@ class D3LinearAxes extends Backbone.Collection
 
 class ScatterRendererView extends Renderer
   render_marks : (marks) ->
+    xmapper = @model.get_ref('xmapper')
+    ymapper = @model.get_ref('ymapper')
+    xfield = @model.get('xfield')
+    yfield = @model.get('yfield')
+
     marks.attr('cx', (d) =>
-          return @model.get_ref('xmapper').map_screen(d[@model.get('xfield')]))
+        pos = xmapper.map_screen(d[xfield])
+        return @model.xpos(pos)
+      )
       .attr('cy', (d) =>
-          return @model.get_ref('ymapper').map_screen(d[@model.get('yfield')]))
+        pos = ymapper.map_screen(d[yfield])
+        return @model.ypos(pos)
+      )
       .attr('r', @model.get('radius'))
       .attr('fill', (d) =>
         if @model.get('color_field')
