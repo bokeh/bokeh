@@ -219,31 +219,6 @@ class ObjectArrayDataSources extends Backbone.Collection
 """
   Plot Container
 """
-class GraphicsContext extends Component
-  parent_properties : ['width', 'height']
-
-class GraphicsContexts extends Backbone.Collection
-  model : GraphicsContext
-
-class GraphicsContextView extends BokehView
-  render : ->
-    node = @tag_d3('mainsvg')
-    if node == null
-      node = d3.select(@el).append('svg')
-        .attr('id', @tag_id('mainsvg'))
-      node.append('g')
-        .attr('id', @tag_id('visualization'))
-    node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
-    @tag_d3('visualization')
-      .attr('transform',
-        _.template('translate(0, {{h}}) scale(1, -1)',
-          {'h' : @mget('outerheight')}))
-    if not @model.get_ref('parent')
-      @$el.dialog(
-        close :  () =>
-          @remove()
-      )
-
 class PlotView extends BokehView
   initialize : (options) ->
     super(options)
@@ -284,14 +259,25 @@ class PlotView extends BokehView
     this[storage_attr] = _renderers
 
   render_mainsvg : ->
-    node = @tag_d3('plot')
+    node = @tag_d3('mainsvg')
     if node == null
-      node = d3.select(@el).append('g')
+      node = d3.select(@el).append('svg')
+        .attr('id', @tag_id('mainsvg'))
+      node.append('g')
+        .attr('id', @tag_id('center'))
+        .append('g')
+        .attr('id', @tag_id('flipY'))
+        .append('g')
         .attr('id', @tag_id('plot'))
+
     node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
     #svg puts origin in the top left, we want it on the bottom left
-    @tag_d3('plot').attr('transform',
+    @tag_d3('center').attr('transform',
       _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
+    @tag_d3('flipY')
+      .attr('transform',
+        _.template('translate(0, {{h}}) scale(1, -1)',
+          {'h' : @mget('height')}))
 
   render_frame : ->
     innernode = @tag_d3('innerbox')
@@ -309,6 +295,11 @@ class PlotView extends BokehView
       view.render()
     for own key, view of @renderers
       view.render()
+    if not @model.get_ref('parent')
+      @$el.dialog(
+        close :  () =>
+          @remove()
+      )
 
 
 class Plot extends Component
@@ -473,9 +464,6 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     }).ref()
 
   source_name = data_source.get('name')
-  context = Collections['GraphicsContext'].create()
-  contextview = new GraphicsContextView({'model' : context})
-  contextview.render()
   plot_model = Collections['Plot'].create(
     data_sources :
       source_name : data_source.ref()
@@ -517,7 +505,6 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
   })
   plot_view = new PlotView({
     'model' : plot_model,
-    'el' : contextview.tag_el('visualization')
   });
   return plot_view
 
@@ -530,7 +517,6 @@ Bokeh.register_collection('LinearMapper', new LinearMappers)
 Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
 Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
 Bokeh.register_collection('FactorRange', new FactorRanges)
-Bokeh.register_collection('GraphicsContext', new GraphicsContexts)
 
 Bokeh.Collections = Collections
 Bokeh.HasReference = HasReference
