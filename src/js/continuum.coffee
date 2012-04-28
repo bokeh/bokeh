@@ -63,13 +63,14 @@ class HasProperties extends Backbone.Model
       'use_cache' : use_cache
       'invalidate_cache_callback' : =>
         @clear_cache(prop_name)
+      'event_generator' : =>
         @trigger('change:' + prop_name, this, @get(prop_name))
     @properties[prop_name] = prop_spec
     for dep in dependencies
       @dependencies.set(dep, prop_name)
       if prop_spec.use_cache
-        @on("change:" + dep, @properties[prop_name].invalidate_cache_callback)
-
+        safebind(this, this, "change:" + dep, @properties[prop_name].invalidate_cache_callback)
+      safebind(this, this, "change:" + dep, @properties[prop_name].event_generator)
   remove_property : (prop_name) ->
     # remove property from dependency data structure
     # unbind change callbacks if we're using the cache
