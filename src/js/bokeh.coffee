@@ -12,9 +12,8 @@ Bokeh.register_collection = (key, value) ->
 """
 # backbone assumes that valid attrs are any non-null, or non-defined value
 # thats dumb, we only check for undefined, because null is perfectly valid
-class BokehView extends Continuum.ContinuumView
-
-
+safebind = Continuum.safebind
+BokehView = Continuum.ContinuumView
 HasProperties = Continuum.HasProperties
 class HasReference extends Continuum.HasReference
   collections : Collections
@@ -118,8 +117,8 @@ class LinearMapper extends Mapper
   initialize : (attrs, options) ->
     super(attrs, options)
     @calc_scale()
-    @get_ref('data_range').on('change', @calc_scale, this)
-    @get_ref('screen_range').on('change', @calc_scale, this)
+    safebind(this, @get_ref('data_range'), 'change', @calc_scale)
+    safebind(this, @get_ref('screen_range'), 'change', @calc_scale)
 
   map_screen : (data) ->
     return @scale(data)
@@ -234,10 +233,9 @@ class PlotView extends BokehView
     @build_renderers()
     @build_axes()
     @render()
-
-    @model.on('change:renderers', @build_renderers, this);
-    @model.on('change:axes', @build_axes, this);
-    @model.on('change', @render, this);
+    safebind(this, @model, 'change:renderers', @build_renderers)
+    safebind(this, @model, 'change:axes', @build_axes)
+    safebind(this, @model, 'change', @render)
 
   build_renderers : ->
     build_views(@model, @renderers, @mget('renderers'),

@@ -160,8 +160,8 @@ class ContinuumView extends Backbone.View
 
 class TableView extends ContinuumView
   delegateEvents: ->
-    @model.on('destroy', @remove, this)
-    @model.on('change', @render, this)
+    safebind(this, @model, 'destroy', @remove)
+    safebind(this, @model, 'change', @render)
 
   render : ->
     @$el.empty()
