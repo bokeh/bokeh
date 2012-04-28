@@ -9,11 +9,32 @@ Continuum.register_collection = (key, value) ->
   Collections[key] = value
   value.bokeh_key = key
 
-# HasReference
-# Backbone model, which can output a reference (combination of type, and id)
-# also auto creates an id on init, if one isn't passed in.
+safebind = (binder, target, event, callback) ->
+  # stores objects we are binding events on, so that if we go away,
+  # we can unbind all our events
+  # currently, we require that the context being used is the binders context
+  # this is because we currently unbind on a per context basis.  this can
+  # be changed later if we need it
+  if not _.has(binder, 'eventers')
+    binder['eventers'] = {}
+  binder['eventers'][target.id] = target
+  target.on(event, callback, binder)
+  # also need to bind destroy to remove obj from eventers.
+  # no special logic needed to manage this life cycle, because
+  # we will already unbind all listeners on target when binder goes away
+  target.on('destroy',
+    () =>
+      delete binder['eventers'][target]
+    ,binder)
 
+## data driven properties
+## also has infrastructure for auto removing events bound via safebind
 class HasProperties extends Backbone.Model
+  destroy : ->
+    if _.has(this, 'eventers')
+      for own target, val of @eventers
+        val.off(null, null, this)
+    super()
   initialize : (attrs, options) ->
     super(attrs, options)
     #property, key is prop name, value is list of dependencies
@@ -22,6 +43,9 @@ class HasProperties extends Backbone.Model
     @properties = {}
     @dependencies = new buckets.MultiDictionary
     @property_cache = {}
+    if not _.has(attrs, 'id')
+      this.id = _.uniqueId(this.type)
+      this.attributes['id'] = this.id
 
   register_property : (prop_name, dependencies, property, use_cache) ->
     # remove a property before registering it if we arleady have it
@@ -89,14 +113,11 @@ class HasProperties extends Backbone.Model
     else
       return super(prop_name)
 
+# HasReference
+# Backbone model, which can output a reference (combination of type, and id)
 class HasReference extends HasProperties
   collections : Collections
   type : null
-  initialize : (attrs, options) ->
-    super(attrs, options)
-    if not _.has(attrs, 'id')
-      this.id = _.uniqueId(this.type)
-      this.attributes['id'] = this.id
   ref : ->
     'type' : this.type
     'id' : this.id
@@ -111,9 +132,10 @@ class ContinuumView extends Backbone.View
   initialize : (options) ->
     if not _.has(options, 'id')
       this.id = _.uniqueId('ContinuumView')
-
   remove : ->
-    @model.off(null, null, this)
+    if _.has(this, 'eventers')
+      for own target, val of @eventers
+        val.off(null, null, this)
     super()
 
   tag_selector : (tag, id) ->
@@ -238,4 +260,4 @@ Continuum.register_collection('Table', new Tables())
 Continuum.ContinuumView = ContinuumView
 Continuum.HasReference = HasReference
 Continuum.HasProperties = HasProperties
-
+Continuum.safebind = safebind
