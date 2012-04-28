@@ -191,9 +191,14 @@ class ObjectArrayDataSource extends HasReference
     uniques = _.keys(temp)
     uniques = _.sortBy(uniques, ((x) -> return x))
 
-  get_cont_range : (field) ->
+  get_cont_range : (field, padding) ->
+    padding = 1.0 if _.isUndefined(padding)
     if not _.has(@cont_ranges, field)
       [min, max] = @compute_cont_range(field)
+      span = (max - min) * (1 + padding)
+      center = (max + min) / 2.0
+      [min, max] = [center - span/2.0, center + span/2.0]
+
       @cont_ranges[field] = Collections['Range1d'].create({
         'start' : min,
         'end' : max})
@@ -605,11 +610,11 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     parent : parent
   )
   xmapper = Collections['LinearMapper'].create({
-    data_range : data_source.get_cont_range(xfield)
+    data_range : data_source.get_cont_range(xfield, 0.1)
     screen_range : plot_model.xrange.ref()
   })
   ymapper = Collections['LinearMapper'].create({
-    data_range : data_source.get_cont_range(yfield)
+    data_range : data_source.get_cont_range(yfield, 0.1)
     screen_range : plot_model.yrange.ref()
   })
   scatter_attrs =
