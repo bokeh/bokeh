@@ -534,6 +534,48 @@ class D3LinearAxis extends Component
 class D3LinearAxes extends Backbone.Collection
   model : D3LinearAxis
 
+class LineRendererView extends Renderer
+  render_line : (node) ->
+    xmapper = @model.get_ref('xmapper')
+    ymapper = @model.get_ref('ymapper')
+    xfield = @model.get('xfield')
+    yfield = @model.get('yfield')
+    line = d3.svg.line()
+      .x((d) =>
+        pos = xmapper.map_screen(d[xfield])
+        return @model.xpos(pos)
+      )
+      .y((d) =>
+        pos = ymapper.map_screen(d[yfield])
+        return @model.ypos(pos)
+      )
+    node.attr('stroke', @mget('color'))
+      .attr('d', line)
+
+  render : ->
+    plot = @tag_d3('plot', this.plot_id)
+    node = @tag_d3('line')
+    if not node
+      node = plot.append('g').attr('id', @tag_id('line'))
+    path = node.selectAll('path').data([@model.get_ref('data_source').get('data')])
+    @render_line(path)
+    @render_line(path.enter().append('path'))
+
+class LineRenderer extends Component
+  type : 'LineRenderer'
+  default_view : LineRendererView
+
+_.extend(LineRenderer::defaults, {
+    xmapper : null,
+    ymapper: null,
+    xfield : null,
+    yfield : null,
+    color : "#000",
+})
+
+class LineRenderers extends Backbone.Collection
+  model : LineRenderer
+
 class ScatterRendererView extends Renderer
   render_marks : (marks) ->
     xmapper = @model.get_ref('xmapper')
@@ -617,7 +659,6 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     data_range : data_source.get_cont_range(yfield, 0.1)
     screen_range : plot_model.yrange.ref()
   })
-  scatter_attrs =
   scatter_plot = Collections["ScatterRenderer"].create(
     data_source: data_source.ref()
     xfield: xfield
@@ -644,9 +685,48 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     'axes' : [xaxis.ref(), yaxis.ref()]
   })
 
+Bokeh.line_plot = (parent, data_source, xfield, yfield) ->
+  source_name = data_source.get('name')
+  plot_model = Collections['Plot'].create(
+    data_sources :
+      source_name : data_source.ref()
+    parent : parent
+  )
+  xmapper = Collections['LinearMapper'].create({
+    data_range : data_source.get_cont_range(xfield, 0.1)
+    screen_range : plot_model.xrange.ref()
+  })
+  ymapper = Collections['LinearMapper'].create({
+    data_range : data_source.get_cont_range(yfield, 0.1)
+    screen_range : plot_model.yrange.ref()
+  })
+  line_plot = Collections["LineRenderer"].create(
+    data_source: data_source.ref()
+    xfield: xfield
+    yfield: yfield
+    xmapper: xmapper.ref()
+    ymapper: ymapper.ref()
+    parent : plot_model.ref()
+  )
+  xaxis = Collections['D3LinearAxis'].create({
+    'orientation' : 'bottom',
+    'mapper' : xmapper.ref()
+    'parent' : plot_model.ref()
+  })
+  yaxis = Collections['D3LinearAxis'].create({
+    'orientation' : 'left',
+    'mapper' : ymapper.ref()
+    'parent' : plot_model.ref()
+  })
+  plot_model.set({
+    'renderers' : [line_plot.ref()],
+    'axes' : [xaxis.ref(), yaxis.ref()]
+  })
+
 #Preparing the name space
 Bokeh.register_collection('Plot', new Plots)
 Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
+Bokeh.register_collection('LineRenderer', new LineRenderers)
 Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('Range1d', new Range1ds)
 Bokeh.register_collection('LinearMapper', new LinearMappers)
@@ -665,6 +745,10 @@ Bokeh.BokehView = BokehView
 Bokeh.PlotView = PlotView
 Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.D3LinearAxis = D3LinearAxis
+
+Bokeh.LineRendererView = LineRendererView
+Bokeh.LineRenderers = LineRenderers
+Bokeh.LineRenderer = LineRenderer
 
 Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.GridPlotContainers = GridPlotContainers
