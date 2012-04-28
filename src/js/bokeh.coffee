@@ -55,11 +55,34 @@ class HasParent extends HasReference
 
   display_defaults : {}
 
+
 class Component extends HasParent
+  #transform our coordinate space to the underlying device (svg)
   xpos : (x) ->
     return x
   ypos : (y) ->
     return @get('height') - y
+
+  #compute a child components position in the underlying device
+  position_child_x : (child, offset) ->
+    return  @xpos(offset)
+  position_child_y : (child, offset) ->
+    return @ypos(offset) - child.get('height')
+
+  #compute your position in the underlying device
+  position_x : ->
+    parent = @get_ref('parent')
+    if not parent
+      return 0
+    return @position_child_x(this, @get('offset')[0])
+
+  position_y : ->
+    parent = @get_ref('parent')
+    if not parent
+      return 0
+    val = @position_child_y(this, @get('offset')[1])
+    return val
+
   initialize : (attrs, options) ->
     super(attrs, options)
     @register_property('outerwidth', ['width', 'border_space'],
@@ -232,25 +255,52 @@ class ObjectArrayDataSources extends Backbone.Collection
 
 class GridPlotContainerView extends BokehView
   initialize : (options) ->
+    super(options)
     @childviews = {}
     @build_children()
     @model.on('change:children', @build_children, this);
     @model.on('change', @render, this);
 
   build_children : ->
+    node = @build_node()
     childspecs = []
     for row in @mget('children')
       for x in row
         childspecs.push(x)
-    build_views(@model, @childviews, childspecs, {'el' : @el})
+    build_views(@model, @childviews, childspecs, {'el' : @tag_d3('plot')[0][0]})
 
-  render : ->
-    node = @tag_d3('svg')
+  build_node : ->
+    node = @tag_d3('mainsvg')
     if node == null
       node = d3.select(@el).append('svg').attr('id', @tag_id('mainsvg'))
-    [row_heights, col_widths] = @layout_dimensions()
-    y_coords = _.reduceRight(row_heights, (x, y) -> return x + y)
-    x_coords = _.reduce(col_widths, (x,y) -> return x + y)
+      node.append('g')
+        .attr('id', @tag_id('plot'))
+    return node
+
+  render : ->
+    node = @build_node()
+    @tag_d3('plot').attr('transform',
+      _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
+
+    node.attr('width', @mget('outerwidth'))
+      .attr('height', @mget('outerheight'))
+      .attr('x', @model.position_x())
+      .attr('y', @model.position_y())
+    row_heights =  @model.layout_heights()
+    col_widths =  @model.layout_widths()
+    y_coords = [0]
+    _.reduceRight(row_heights[1..], (x, y) ->
+        val = x + y
+        y_coords.push(val)
+        return val
+      , 0)
+    y_coords.reverse()
+    x_coords = [0]
+    _.reduce(col_widths[1..], (x,y) ->
+        val = x + y
+        x_coords.push(val)
+        return val
+      , 0)
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         plot = @model.resolve_ref(plotspec)
@@ -260,25 +310,56 @@ class GridPlotContainerView extends BokehView
 class GridPlotContainer extends Component
   type : 'GridPlotContainer'
   default_view : GridPlotContainerView
+  trigger_layout : () ->
+    @trigger('change:layout',
+             this,
+             [@layout_heights(), @layout_widths()])
+
   initialize : (attrs, options) ->
     super(attrs, options)
-    @register_property('row_heights', ['children'], (children) =>
-      return @layout_heights())
-    @register_property('col_widths', ['children'], (children) =>
-      return @layout_widths())
+    safebind(this, this, 'change:children',
+      () =>
+        @unbind_child_dependencies(@previous('children'))
+        @bind_child_dependencies(@get('children'))
+        @trigger_layout())
+    safebind(this, this, 'change:layout', @set_dims)
+    @set_dims()
 
-  autoset_height : ->
+  set_dims : () ->
+    layout_heights = @layout_heights()
+    layout_widths = @layout_widths()
+    @set(
+      'height' : _.reduce(layout_heights, ((x,y) -> x+y), 0),
+      'width' : _.reduce(layout_widths, ((x,y) -> x+y), 0)
+    )
 
+  bind_child_dependencies : (children) ->
+    for row, ridx in children
+      for plotspec, cidx in row
+        plot = @resolve_ref(plotspec)
+        safebind(this, plot, 'change:outerwidth', @trigger_layout)
+        safebind(this, plot, 'change:outerheight', @trigger_layout)
+
+  unbind_child_dependencies : (children) ->
+    for row, ridx in children
+      for plotspec, cidx in row
+        plot = @resolve_ref(plotspec)
+        plot.off('change:outerwidth', null, this)
+        plot.off('change:outerheight', null, this)
+  maxdim : (dim, row) =>
+    if row.length == 0
+      return 0
+    else
+      return (_.max((@resolve_ref(x).get(dim) for x in row)))
   layout_heights : ->
-    maxdim = (dim, row) => (_.max((@resolve_ref(x).get(dim) for x in row)))
-    row_heights = (maxdim('outerheight', row) for row in @get('children'))
+    row_heights = (@maxdim('outerheight', row) for row in @get('children'))
     return row_heights
 
   layout_widths : ->
     maxdim = (dim, row) => (_.max((@resolve_ref(x).get(dim) for x in row)))
     num_cols = @get('children')[0].length
     columns = ((row[n] for row in @get('children')) for n in _.range(num_cols))
-    col_widths = (maxdim('outerwidth', col) for col in columns)
+    col_widths = (@maxdim('outerwidth', col) for col in columns)
     return col_widths
 
 _.extend(GridPlotContainer::defaults , {
@@ -319,10 +400,10 @@ class PlotView extends BokehView
     if node == null
       node = d3.select(@el).append('svg')
         .attr('id', @tag_id('mainsvg'))
-        .attr('x', @model.xpos(@mget('offset')[0]))
-        .attr('y', @model.ypos(@mget('offset')[1]))
       node.append('g')
         .attr('id', @tag_id('plot'))
+    node.attr('x', @model.position_x())
+     .attr('y', @model.position_y())
     node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
     #svg puts origin in the top left, we want it on the bottom left
     @tag_d3('plot').attr('transform',

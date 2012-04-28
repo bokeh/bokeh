@@ -63,6 +63,7 @@ class HasProperties extends Backbone.Model
       'use_cache' : use_cache
       'invalidate_cache_callback' : =>
         @clear_cache(prop_name)
+        @trigger('change:' + prop_name, this, @get(prop_name))
     @properties[prop_name] = prop_spec
     for dep in dependencies
       @dependencies.set(dep, prop_name)
