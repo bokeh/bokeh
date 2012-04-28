@@ -19,7 +19,6 @@ class BokehView extends Continuum.ContinuumView
       close :  () =>
           @remove()
     )
-HasProperties = Continuum.HasProperties
 class HasReference extends Continuum.HasReference
   collections : Collections
 
@@ -30,33 +29,8 @@ class Renderer extends BokehView
     super(options)
 
 
-# hasparent
-# display_options can be passed down to children
-# defaults for display_options should be placed
-# in a class var display_defaults
-# the get function, will resolve an instances defaults first
-# then check the parents actual val, and finally check class defaults.
-# display options cannot go into defaults
-
-class HasParent extends HasReference
-  get_fallback : (attr) ->
-    if (@get_ref('parent') and
-        _.indexOf(@get_ref('parent').parent_properties, attr) >= 0 and
-        not _.isUndefined(@get_ref('parent').get(attr)))
-      return @get_ref('parent').get(attr)
-    else
-      return @display_defaults[attr]
-  get : (attr) ->
-    ## no fallback for 'parent'
-    if not _.isUndefined(super(attr))
-      return super(attr)
-    else if not (attr == 'parent')
-      return @get_fallback(attr)
-
-  display_defaults : {}
-
-
-class Component extends HasParent
+class Component extends Continuum.HasParent
+  collections : Collections
   #transform our coordinate space to the underlying device (svg)
   xpos : (x) ->
     return x
@@ -678,7 +652,6 @@ Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)
 
 Bokeh.Collections = Collections
 Bokeh.HasReference = HasReference
-Bokeh.HasParent = HasParent
 Bokeh.ObjectArrayDataSource = ObjectArrayDataSource
 Bokeh.Plot = Plot
 Bokeh.Component = Component
@@ -686,7 +659,6 @@ Bokeh.ScatterRenderer = ScatterRenderer
 Bokeh.BokehView = BokehView
 Bokeh.PlotView = PlotView
 Bokeh.ScatterRendererView = ScatterRendererView
-Bokeh.HasProperties = HasProperties
 Bokeh.D3LinearAxis = D3LinearAxis
 
 Bokeh.GridPlotContainerView = GridPlotContainerView

@@ -159,6 +159,32 @@ class ContinuumView extends Backbone.View
   mget_ref : (fld) ->
     return @model.get_ref(fld)
 
+# hasparent
+# display_options can be passed down to children
+# defaults for display_options should be placed
+# in a class var display_defaults
+# the get function, will resolve an instances defaults first
+# then check the parents actual val, and finally check class defaults.
+# display options cannot go into defaults
+
+class HasParent extends HasReference
+  get_fallback : (attr) ->
+    if (@get_ref('parent') and
+        _.indexOf(@get_ref('parent').parent_properties, attr) >= 0 and
+        not _.isUndefined(@get_ref('parent').get(attr)))
+      return @get_ref('parent').get(attr)
+    else
+      return @display_defaults[attr]
+  get : (attr) ->
+    ## no fallback for 'parent'
+    if not _.isUndefined(super(attr))
+      return super(attr)
+    else if not (attr == 'parent')
+      return @get_fallback(attr)
+
+  display_defaults : {}
+
+
 class TableView extends ContinuumView
   delegateEvents: ->
     safebind(this, @model, 'destroy', @remove)
@@ -261,4 +287,5 @@ Continuum.register_collection('Table', new Tables())
 Continuum.ContinuumView = ContinuumView
 Continuum.HasReference = HasReference
 Continuum.HasProperties = HasProperties
+Continuum.HasParent = HasParent
 Continuum.safebind = safebind
