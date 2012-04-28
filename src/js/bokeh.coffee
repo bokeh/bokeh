@@ -48,13 +48,13 @@ class Component extends Continuum.HasParent
     parent = @get_ref('parent')
     if not parent
       return 0
-    return @position_child_x(this, @get('offset')[0])
+    return parent.position_child_x(this, @get('offset')[0])
 
   position_y : ->
     parent = @get_ref('parent')
     if not parent
       return 0
-    val = @position_child_y(this, @get('offset')[1])
+    val = parent.position_child_y(this, @get('offset')[1])
     return val
 
   initialize : (attrs, options) ->
