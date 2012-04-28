@@ -41,7 +41,7 @@ class Component extends Continuum.HasParent
   position_child_x : (child, offset) ->
     return  @xpos(offset)
   position_child_y : (child, offset) ->
-    return @ypos(offset) - child.get('height')
+    return @ypos(offset) - child.get('outerheight')
 
   #compute your position in the underlying device
   position_x : ->
