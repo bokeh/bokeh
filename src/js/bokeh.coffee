@@ -13,7 +13,12 @@ Bokeh.register_collection = (key, value) ->
 # backbone assumes that valid attrs are any non-null, or non-defined value
 # thats dumb, we only check for undefined, because null is perfectly valid
 safebind = Continuum.safebind
-BokehView = Continuum.ContinuumView
+class BokehView extends Continuum.ContinuumView
+  add_dialog : ->
+    @$el.dialog(
+      close :  () =>
+          @remove()
+    )
 HasProperties = Continuum.HasProperties
 class HasReference extends Continuum.HasReference
   collections : Collections
@@ -69,7 +74,7 @@ class Component extends HasParent
     width : 200
     height : 200
     position : 0
-    offset : []
+    offset : [0,0]
   default_view : null
 
 """
@@ -224,6 +229,66 @@ class ObjectArrayDataSources extends Backbone.Collection
 """
   Plot Container
 """
+
+class GridPlotContainerView extends BokehView
+  initialize : (options) ->
+    @childviews = {}
+    @build_children()
+    @model.on('change:children', @build_children, this);
+    @model.on('change', @render, this);
+
+  build_children : ->
+    childspecs = []
+    for row in @mget('children')
+      for x in row
+        childspecs.push(x)
+    build_views(@model, @childviews, childspecs, {'el' : @el})
+
+  render : ->
+    node = @tag_d3('svg')
+    if node == null
+      node = d3.select(@el).append('svg').attr('id', @tag_id('mainsvg'))
+    [row_heights, col_widths] = @layout_dimensions()
+    y_coords = _.reduceRight(row_heights, (x, y) -> return x + y)
+    x_coords = _.reduce(col_widths, (x,y) -> return x + y)
+    for row, ridx in @mget('children')
+      for plotspec, cidx in row
+        plot = @model.resolve_ref(plotspec)
+        @childviews[plot.id].render()
+        plot.set({'offset' : [x_coords[cidx], y_coords[ridx]]})
+
+class GridPlotContainer extends Component
+  type : 'GridPlotContainer'
+  default_view : GridPlotContainerView
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @register_property('row_heights', ['children'], (children) =>
+      return @layout_heights())
+    @register_property('col_widths', ['children'], (children) =>
+      return @layout_widths())
+
+  autoset_height : ->
+
+  layout_heights : ->
+    maxdim = (dim, row) => (_.max((@resolve_ref(x).get(dim) for x in row)))
+    row_heights = (maxdim('outerheight', row) for row in @get('children'))
+    return row_heights
+
+  layout_widths : ->
+    maxdim = (dim, row) => (_.max((@resolve_ref(x).get(dim) for x in row)))
+    num_cols = @get('children')[0].length
+    columns = ((row[n] for row in @get('children')) for n in _.range(num_cols))
+    col_widths = (maxdim('outerwidth', col) for col in columns)
+    return col_widths
+
+_.extend(GridPlotContainer::defaults , {
+  'resize_children' : false
+  'children' : [[]]
+})
+
+class GridPlotContainers extends Backbone.Collection
+  model : GridPlotContainer
+
 class PlotView extends BokehView
   initialize : (options) ->
     super(options)
@@ -254,6 +319,8 @@ class PlotView extends BokehView
     if node == null
       node = d3.select(@el).append('svg')
         .attr('id', @tag_id('mainsvg'))
+        .attr('x', @model.xpos(@mget('offset')[0]))
+        .attr('y', @model.ypos(@mget('offset')[1]))
       node.append('g')
         .attr('id', @tag_id('plot'))
     node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
@@ -277,19 +344,14 @@ class PlotView extends BokehView
       view.render()
     for own key, view of @renderers
       view.render()
-    if not @model.get_ref('parent')
-      @$el.dialog(
-        close :  () =>
-          @remove()
-      )
 
-build_views = (builder, view_storage, view_specs, options) ->
+build_views = (mainmodel, view_storage, view_specs, options) ->
   #create a view for each view spec, store it in view_storage
   #remove anything from view_storage which isn't present in view_spec
   #option parameter are passed to views
   found = {}
   for spec in view_specs
-    model = builder.resolve_ref(spec)
+    model = mainmodel.resolve_ref(spec)
     found[model.id] = true
     if view_storage[model.id]
       continue
@@ -300,48 +362,10 @@ build_views = (builder, view_storage, view_specs, options) ->
       value.remove()
       delete view_storage[key]
 
-class GridPlotContainer extends Component
-  type : 'GridPlotContainer'
-
-_.extend(GridPlotContainer::defaults , {
-  'resize_children' : false
-  'children' : [[]]
-})
-
-class GridPlotContainerView extends BokehView
-  layout_dimensions : ->
-    maxdim = (dim, row) -> (_.max((x.mget(dim) for x in row)))
-    row_heights = (maxdim('height', row) for row in @mget('children'))
-    num_cols = @mget('children')[0].length
-    columns = ((row(n) for row in @mget('children')) for n in _.range(num_cols))
-    col_widths = (maxdim('width', col) for col in columns)
-    return [row_heights, col_widths]
-
-  # render : ->
-  #   node = @tag_d3('svg')
-  #   if node == null
-  #     node = d3.select(@el).append('svg').attr('id', @tag_id('mainsvg'))
-
-  #   row_heights, col_widths = @layout_dimensions()
-  #   y_coords = _.reduceRight(row_heights, (x, y) -> return x + y)
-  #   x_coords = _.reduce(col_widths, (x,y) -> return x + y)
-  #   for row, ridx in @mget('children')
-  #     for plotspec, cidx in row
-  #       plot = @resolve_ref(plotspec)
-  #       options = _.extend({}, plotspec.options)
-  #       view = new plot.default_view({
-  #         'el' : @el,
-  #         'model' : plot
-  #       })
-
-
-
-
-
-
 
 class Plot extends Component
   type : 'Plot'
+  default_view : PlotView
   parent_properties : ['background_color', 'foreground_color',
     'width', 'height', 'border_space']
   initialize : (attrs, options) ->
@@ -559,10 +583,6 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     'renderers' : [scatter_plot.ref()],
     'axes' : [xaxis.ref(), yaxis.ref()]
   })
-  plot_view = new PlotView({
-    'model' : plot_model,
-  });
-  return plot_view
 
 #Preparing the name space
 Bokeh.register_collection('Plot', new Plots)
@@ -573,6 +593,7 @@ Bokeh.register_collection('LinearMapper', new LinearMappers)
 Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
 Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
 Bokeh.register_collection('FactorRange', new FactorRanges)
+Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)
 
 Bokeh.Collections = Collections
 Bokeh.HasReference = HasReference
@@ -585,4 +606,8 @@ Bokeh.BokehView = BokehView
 Bokeh.PlotView = PlotView
 Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.HasProperties = HasProperties
-Bokeh.D3LinaerAxis = D3LinearAxis
+Bokeh.D3LinearAxis = D3LinearAxis
+
+Bokeh.GridPlotContainerView = GridPlotContainerView
+Bokeh.GridPlotContainers = GridPlotContainers
+Bokeh.GridPlotContainer = GridPlotContainer
