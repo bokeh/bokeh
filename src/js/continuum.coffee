@@ -47,30 +47,50 @@ class HasProperties extends Backbone.Model
       this.id = _.uniqueId(this.type)
       this.attributes['id'] = this.id
 
-  register_property : (prop_name, dependencies, property, use_cache) ->
-    # remove a property before registering it if we arleady have it
-    # store the property function, it's dependencies, whetehr
-    # we want to cache it
-    # and a callback, which invalidates the cache
-    # hook up dependencies data structure,
-    # if we're using the cache, register attribute changes on
-    # property to invalidate cache for it
-    if _.has(@properties, prop_name)
-      @remove_property(prop_name)
-    prop_spec=
-      'property' : property,
-      'dependencies' : dependencies,
-      'use_cache' : use_cache
-      'invalidate_cache_callback' : =>
-        @clear_cache(prop_name)
-      'event_generator' : =>
-        @trigger('change:' + prop_name, this, @get(prop_name))
-    @properties[prop_name] = prop_spec
-    for dep in dependencies
-      @dependencies.set(dep, prop_name)
-      if prop_spec.use_cache
-        safebind(this, this, "change:" + dep, @properties[prop_name].invalidate_cache_callback)
-      safebind(this, this, "change:" + dep, @properties[prop_name].event_generator)
+  set : (key, value, options) ->
+    if _.isObject(key) or key == null
+      attrs = key
+      options = value
+    else
+      attrs = {}
+      attrs[key] = value
+    toremove  = []
+    for own key, val of attrs
+      if _.has(this, 'properties') and
+         _.has(@properties, key) and
+         @properties[key]['setter']
+        @properties[key]['setter'](this, val)
+    for key in toremove
+      delete attrs[key]
+    if not _.isEmpty(attrs)
+      super(attrs, options)
+
+  register_property : \
+    (prop_name, dependencies, property, use_cache, setter) ->
+      # remove a property before registering it if we arleady have it
+      # store the property function, it's dependencies, whetehr
+      # we want to cache it
+      # and a callback, which invalidates the cache
+      # hook up dependencies data structure,
+      # if we're using the cache, register attribute changes on
+      # property to invalidate cache for it
+      if _.has(@properties, prop_name)
+        @remove_property(prop_name)
+      prop_spec=
+        'property' : property,
+        'dependencies' : dependencies,
+        'use_cache' : use_cache
+        'setter' : setter
+        'invalidate_cache_callback' : =>
+          @clear_cache(prop_name)
+        'event_generator' : =>
+          @trigger('change:' + prop_name, this, @get(prop_name))
+      @properties[prop_name] = prop_spec
+      for dep in dependencies
+        @dependencies.set(dep, prop_name)
+        if prop_spec.use_cache
+          safebind(this, this, "change:" + dep, @properties[prop_name].invalidate_cache_callback)
+        safebind(this, this, "change:" + dep, @properties[prop_name].event_generator)
   remove_property : (prop_name) ->
     # remove property from dependency data structure
     # unbind change callbacks if we're using the cache
