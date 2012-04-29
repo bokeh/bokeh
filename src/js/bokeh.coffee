@@ -87,6 +87,15 @@ class Range1d extends HasProperties
 class Range1ds extends Backbone.Collection
   model : Range1d
 
+class DataRange1d extends Range1d
+  type : 'DataRange1d'
+  defaults :
+    start : 0
+    end : 1
+
+class Range1ds extends Backbone.Collection
+  model : Range1d
+
 class FactorRange extends HasProperties
   type : 'FactorRange'
   defaults :
@@ -431,20 +440,40 @@ class Plot extends Component
     'width', 'height', 'border_space']
   initialize : (attrs, options) ->
     super(attrs, options)
+    if 'xrange' not in attrs
+      @set('xrange', Collections['Range1d'].create({'start' : 0, 'end' : 1})
+    if 'yrange' not in attrs
+      @set('yrange', Collections['Range1d'].create({'start' : 0, 'end' : 1})
+    @register_property('width', ['xrange'], (xrange) ->
+          if xrange
+            return xrange.get('end') - xrange.get('start')
+          else
+            return 0
+      , false
+      , (width) ->
+        xrange = @get('xrange')
+        xrange.set('end', xrange.get('start') + width)
+    )
+    @register_property('height', ['xrange'], (yrange) ->
+          if yrange
+            return yrange.get('end') - yrange.get('start')
+          else
+            return 0
+      , false
+      , (height) ->
+        yrange = @get('xrange')
+        yrange.set('end', yrange.get('start') + height)
+    )
     @register_property('outerwidth', ['width', 'border_space'],
       () -> @get('width') + 2 * @get('border_space')
       false)
     @register_property('outerheight', ['height', 'border_space'],
       () -> @get('height') + 2 * @get('border_space')
       false)
-    @xrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('height')})
-    @yrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('width')})
-    @on('change:width', =>
-      @xrange.set('end', @get('width')))
-    @on('change:height', =>
-      @yrange.set('end', @get('height')))
 
 _.extend(Plot::defaults , {
+  'xrange' : null,
+  'yrange' : null,
   'data_sources' : {},
   'renderers' : [],
   'axes' : [],
