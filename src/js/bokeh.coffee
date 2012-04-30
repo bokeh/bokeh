@@ -19,7 +19,7 @@ class BokehView extends Continuum.ContinuumView
       close :  () =>
           @remove()
     )
-class HasReference extends Continuum.HasReference
+class HasProperties extends Continuum.HasProperties
   collections : Collections
 
 class Renderer extends BokehView
@@ -60,10 +60,10 @@ class Component extends Continuum.HasParent
   initialize : (attrs, options) ->
     super(attrs, options)
     @register_property('outerwidth', ['width', 'border_space'],
-      (width, border_space) -> width + 2 *border_space
+      () -> @get('width') + 2 * @get('border_space')
       false)
     @register_property('outerheight', ['height', 'border_space'],
-      (height, border_space) -> height + 2 *border_space
+      () -> @get('height') + 2 * @get('border_space')
       false)
   defaults :
     parent : null
@@ -78,7 +78,7 @@ class Component extends Continuum.HasParent
 Utility Classes for vis
 """
 
-class Range1d extends HasReference
+class Range1d extends HasProperties
   type : 'Range1d'
   defaults :
     start : 0
@@ -87,7 +87,7 @@ class Range1d extends HasReference
 class Range1ds extends Backbone.Collection
   model : Range1d
 
-class FactorRange extends HasReference
+class FactorRange extends HasProperties
   type : 'FactorRange'
   defaults :
     values : []
@@ -95,7 +95,8 @@ class FactorRange extends HasReference
 class FactorRanges extends Backbone.Collection
   model : FactorRange
 
-class Mapper extends HasReference
+class Mapper extends HasProperties
+  type : 'Mapper'
   defaults : {}
   display_defaults : {}
   map_screen : (data) ->
@@ -131,7 +132,7 @@ class LinearMappers extends Backbone.Collection
 """
 Discrete Color Mapper
 """
-class DiscreteColorMapper extends HasReference
+class DiscreteColorMapper extends HasProperties
   type : 'DiscreteColorMapper'
   defaults :
     #d3_category20
@@ -152,9 +153,9 @@ class DiscreteColorMapper extends HasReference
     super(attrs, options)
     @get('data_range')
     @register_property('factor_map', ['data_range'],
-      (data_range) ->
+      () ->
         domain_map = {}
-        for val, index in data_range.get('values')
+        for val, index in @get('data_range').get('values')
           domain_map[val] = index
         return domain_map
       , true)
@@ -169,7 +170,7 @@ class DiscreteColorMappers extends Backbone.Collection
 """
 Data Sources
 """
-class ObjectArrayDataSource extends HasReference
+class ObjectArrayDataSource extends HasProperties
   type : 'ObjectArrayDataSource'
   defaults :
     data : [{}]
@@ -431,10 +432,10 @@ class Plot extends Component
   initialize : (attrs, options) ->
     super(attrs, options)
     @register_property('outerwidth', ['width', 'border_space'],
-      (width, border_space) -> width + 2 *border_space
+      () -> @get('width') + 2 * @get('border_space')
       false)
     @register_property('outerheight', ['height', 'border_space'],
-      (height, border_space) -> height + 2 *border_space
+      () -> @get('height') + 2 * @get('border_space')
       false)
     @xrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('height')})
     @yrange = Collections['Range1d'].create({'start' : 0, 'end' : @get('width')})
@@ -736,7 +737,7 @@ Bokeh.register_collection('FactorRange', new FactorRanges)
 Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)
 
 Bokeh.Collections = Collections
-Bokeh.HasReference = HasReference
+Bokeh.HasProperties = HasProperties
 Bokeh.ObjectArrayDataSource = ObjectArrayDataSource
 Bokeh.Plot = Plot
 Bokeh.Component = Component

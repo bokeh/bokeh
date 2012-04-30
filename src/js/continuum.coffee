@@ -30,18 +30,17 @@ safebind = (binder, target, event, callback) ->
 ## data driven properties
 ## also has infrastructure for auto removing events bound via safebind
 class HasProperties extends Backbone.Model
+  collections : Collections
   destroy : ->
     if _.has(this, 'eventers')
       for own target, val of @eventers
         val.off(null, null, this)
     super()
+
   initialize : (attrs, options) ->
     super(attrs, options)
-    #property, key is prop name, value is list of dependencies
-    #depdencies, key is backbone attribute, multidict value is list of
-    #properties that depend on it
+
     @properties = {}
-    @dependencies = new buckets.MultiDictionary
     @property_cache = {}
     if not _.has(attrs, 'id')
       this.id = _.uniqueId(this.type)
@@ -65,44 +64,62 @@ class HasProperties extends Backbone.Model
     if not _.isEmpty(attrs)
       super(attrs, options)
 
+  structure_dependencies : (dependencies) ->
+    other_deps = (x for x in dependencies when _.isObject(x))
+    local_deps = (x for x in dependencies when not _.isObject(x))
+    if local_deps.length > 0
+      deps = [{'ref' : this.ref(), 'fields' : local_deps}]
+    deps = deps.concat(other_deps)
+    return deps
+
   register_property : \
     (prop_name, dependencies, property, use_cache, setter) ->
-      # remove a property before registering it if we arleady have it
-      # store the property function, it's dependencies, whetehr
-      # we want to cache it
-      # and a callback, which invalidates the cache
-      # hook up dependencies data structure,
-      # if we're using the cache, register attribute changes on
-      # property to invalidate cache for it
+      # property, key is prop name, value is list of dependencies
+      # dependencies is a list [{'ref' : ref, 'fields' : fields}]
+      # if you pass a string in for dependency, we assume that
+      # it is a field name on this object
+      # if any obj in dependencies is destroyed, we automatically remove the property
+      # dependency changes trigger a changedep:propname event
+      # in response to that event, we will invalidate the cache if we are caching
+      # we will trigger a change:propname event
+      # registering properties creates circular references, the other object
+      # has a refernece to this because of how callbacks are stored, and we need to
+      # store a refrence to that object
       if _.has(@properties, prop_name)
         @remove_property(prop_name)
+      dependencies = @structure_dependencies(dependencies)
       prop_spec=
         'property' : property,
         'dependencies' : dependencies,
         'use_cache' : use_cache
         'setter' : setter
-        'invalidate_cache_callback' : =>
-          @clear_cache(prop_name)
-        'event_generator' : =>
-          @trigger('change:' + prop_name, this, @get(prop_name))
+        'callbacks':
+          'changedep' : =>
+            @trigger('changedep:' + prop_name)
+          'invalidate_cache' : =>
+            @clear_cache(prop_name)
+          'eventgen' : =>
+            @trigger('change:' + prop_name, this, @get(prop_name))
+
       @properties[prop_name] = prop_spec
       for dep in dependencies
-        @dependencies.set(dep, prop_name)
-        if prop_spec.use_cache
-          safebind(this, this, "change:" + dep, @properties[prop_name].invalidate_cache_callback)
-        safebind(this, this, "change:" + dep, @properties[prop_name].event_generator)
-  remove_property : (prop_name) ->
-    # remove property from dependency data structure
-    # unbind change callbacks if we're using the cache
-    # delete the property object from the @properties object
-    # clear the cache if we were using it
+        obj = @resolve_ref(dep['ref'])
+        for fld in dep['fields']
+          safebind(this, obj, "change:" + fld, prop_spec['callbacks']['changedep'])
+      if prop_spec['use_cache']
+        safebind(this, this, "changedep:" + prop_name,
+          prop_spec['callbacks']['invalidate_cache'])
+      safebind(this, this, "changedep:" + prop_name,
+          prop_spec['callbacks']['eventgen'])
 
+  remove_property : (prop_name) ->
     prop_spec = @properties[prop_name]
     dependencies = prop_spec.dependencies
     for dep in dependencies
-      @dependencies.remove(dep, prop_name)
-      if prop_spec.use_cache
-        @off("change:" + dep, prop_spec['invalidate_cache_callback'])
+      obj = @resolve_ref(dep['ref'])
+      for fld in dep['fields']
+        obj.off('change:' + fld, prop_spec['callbacks']['changedep'], this)
+    @off("changedep:" + dep)
     delete @properties[prop_name]
     if prop_spec.use_cache
       @clear_cache(prop_name)
@@ -125,26 +142,26 @@ class HasProperties extends Backbone.Model
       if prop_spec.use_cache and @has_cache(prop_name)
         return @property_cache[prop_name]
       else
-        dependencies = prop_spec.dependencies
         property = prop_spec.property
-        dependencies = (@get(x) for x in dependencies)
-        computed = property.apply(this, dependencies)
+        computed = property.apply(this, this)
         if @properties[prop_name].use_cache
           @add_cache(prop_name, computed)
         return computed
     else
       return super(prop_name)
 
-# HasReference
-# Backbone model, which can output a reference (combination of type, and id)
-class HasReference extends HasProperties
-  collections : Collections
-  type : null
   ref : ->
     'type' : this.type
     'id' : this.id
+
   resolve_ref : (ref) ->
-    @collections[ref['type']].get(ref['id'])
+    #this way we can reference ourselves
+    # even though we are not in any collection yet
+    if ref['type'] == this.type and ref['id'] == this.id
+      return this
+    else
+      @collections[ref['type']].get(ref['id'])
+
   get_ref : (ref_name) ->
     ref = @get(ref_name)
     if ref
@@ -188,7 +205,7 @@ class ContinuumView extends Backbone.View
 # then check the parents actual val, and finally check class defaults.
 # display options cannot go into defaults
 
-class HasParent extends HasReference
+class HasParent extends HasProperties
   get_fallback : (attr) ->
     if (@get_ref('parent') and
         _.indexOf(@get_ref('parent').parent_properties, attr) >= 0 and
@@ -270,17 +287,16 @@ class TableView extends ContinuumView
       )
 
 
-class Table extends HasReference
+class Table extends HasProperties
+  type : 'Table'
   initialize : (attrs, options)->
     super(attrs, options)
     @register_property('offset', ['data_slice'],
-      (data_slice) ->
-        return data_slice[0]
-      ,false)
+      () -> return @get('data_slice')[0],
+      false)
     @register_property('chunksize', ['data_slice'],
-      (data_slice) ->
-        return data_slice[1] - data_slice[0]
-      ,false)
+      () -> return @get('data_slice')[1] - @get('data_slice')[0],
+      false)
 
   defaults :
     url : ""
@@ -306,7 +322,6 @@ class Tables extends Backbone.Collection
 Continuum.register_collection('Table', new Tables())
 
 Continuum.ContinuumView = ContinuumView
-Continuum.HasReference = HasReference
 Continuum.HasProperties = HasProperties
 Continuum.HasParent = HasParent
 Continuum.safebind = safebind

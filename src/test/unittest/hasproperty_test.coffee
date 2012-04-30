@@ -1,5 +1,5 @@
 class TestObject extends Continuum.HasProperties
-
+  type : 'TestObject'
 class TestObjects extends Backbone.Collection
   model : TestObject
   url : "/"
@@ -7,7 +7,8 @@ class TestObjects extends Backbone.Collection
 test('computed_properties', ->
   Continuum.register_collection('TestObject', new TestObjects())
   model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
-  model.register_property('c', ['a', 'b'], (a,b) -> a + b)
+  model.register_property('c', ['a', 'b'],
+    () -> @get('a') + @get('b'))
   temp =  model.get('c')
   ok(temp == 2)
 )
@@ -15,8 +16,9 @@ test('computed_properties', ->
 test('cached_properties_react_changes', ->
   Continuum.register_collection('TestObject', new TestObjects())
   model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
-  prop =  (a,b) -> a + b
-  model.register_property('c', ['a', 'b'], prop, true)
+  model.register_property('c', ['a', 'b'],
+    () -> @get('a') + @get('b'),
+    true)
   temp =  model.get('c')
   ok(temp == 2)
   temp = model.get_cache('c')
@@ -67,7 +69,7 @@ test('property_setters', ->
   # dummy model2 to be the default model for continuumview
   # we mostly want to test how we react to other models, which is why
   # @model for a view is already handleed
-  prop =  (a,b) -> a + b
+  prop =  () -> @get('a') + @get('b')
   setter = (model, val) ->
     model.set('a', val/2, {silent:true})
     model.set('b', val/2)
