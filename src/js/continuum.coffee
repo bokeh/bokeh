@@ -93,6 +93,8 @@ class HasProperties extends Backbone.Model
     if not _.has(attrs, 'id')
       this.id = _.uniqueId(this.type)
       this.attributes['id'] = this.id
+    _.defer(() => @dinitialize(attrs, options))
+  dinitialize : (attrs, options) ->
 
   set : (key, value, options) ->
     if _.isObject(key) or key == null

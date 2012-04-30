@@ -90,8 +90,33 @@ class Range1ds extends Backbone.Collection
 class DataRange1d extends Range1d
   type : 'DataRange1d'
   defaults :
-    start : 0
-    end : 1
+    data_source : null
+    columns : []
+    rangepadding : 0.1
+  initialize : (attrs, options)->
+    super(attrs, options)
+    @register_property('minmax',
+      ['data_source', 'columns', 'padding',
+        {
+          'ref' : @get('data_source'),
+          'fields' : ['data']
+        }
+      ],
+      () ->
+        columns = (@get_ref('data_source').getcolumn(x) for x in @get('columns'))
+        columns = _.reduce(columns, (x, y) -> return x.concat(y))
+        [min, max] = [_.min(columns), _.max(columns)]
+        span = (max - min) * (1 + @get('rangepadding'))
+        center = (max + min) / 2.0
+        [min, max] = [center - span/2.0, center + span/2.0]
+        return [min, max]
+      ,true
+    )
+    @register_property('start', ['minmax'], () -> return @get('minmax')[0])
+    @register_property('end', ['minmax'], () -> return @get('minmax')[1])
+
+class DataRange1ds extends Backbone.Collection
+  model : DataRange1d
 
 class Range1ds extends Backbone.Collection
   model : Range1d
@@ -188,6 +213,9 @@ class ObjectArrayDataSource extends HasProperties
     super(attrs, options)
     @cont_ranges = {}
     @discrete_ranges = {}
+
+  getcolumn: (colname) ->
+    return (x[colname] for x in @get('data'))
 
   compute_cont_range : (field) ->
     max = _.max((x[field] for x in @get('data')))
@@ -691,11 +719,17 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     parent : parent
   )
   xmapper = Collections['LinearMapper'].create({
-    data_range : data_source.get_cont_range(xfield, 0.1)
+    data_range : Collections['DataRange1d'].create({
+        'data_source' : data_source.ref(),
+        'columns' : ['x']
+      })
     screen_range : plot_model.get('xrange')
   })
   ymapper = Collections['LinearMapper'].create({
-    data_range : data_source.get_cont_range(yfield, 0.1)
+    data_range : Collections['DataRange1d'].create({
+        'data_source' : data_source.ref(),
+        'columns' : ['y']
+      })
     screen_range : plot_model.get('yrange')
   })
   scatter_plot = Collections["ScatterRenderer"].create(
@@ -773,6 +807,7 @@ Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
 Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
 Bokeh.register_collection('FactorRange', new FactorRanges)
 Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)
+Bokeh.register_collection('DataRange1d', new DataRange1ds)
 
 Bokeh.Collections = Collections
 Bokeh.HasProperties = HasProperties
