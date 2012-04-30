@@ -266,6 +266,7 @@ class HasParent extends HasProperties
       if _.isObject(retval) and _.has(retval, 'type')
         attrs = if _.has(retval, 'attrs') then retval['attrs'] else {}
         retval =  @collections[retval['type']].create(attrs).ref()
+        @set(attr, retval)
       return retval
 
   get : (attr) ->

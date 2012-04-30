@@ -488,13 +488,6 @@ class Plot extends Component
         range = @get_ref('yrange')
         range.set('end', range.get('start') + height)
     )
-    @set({'width' : attrs['width'], 'height' : attrs['height']})
-    @register_property('outerwidth', ['width', 'border_space'],
-      () -> @get('width') + 2 * @get('border_space')
-      false)
-    @register_property('outerheight', ['height', 'border_space'],
-      () -> @get('height') + 2 * @get('border_space')
-      false)
 
 _.extend(Plot::defaults , {
   'data_sources' : {},
