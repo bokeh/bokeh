@@ -440,30 +440,27 @@ class Plot extends Component
     'width', 'height', 'border_space']
   initialize : (attrs, options) ->
     super(attrs, options)
-    if 'xrange' not in attrs
-      @set('xrange', Collections['Range1d'].create({'start' : 0, 'end' : 1})
-    if 'yrange' not in attrs
-      @set('yrange', Collections['Range1d'].create({'start' : 0, 'end' : 1})
-    @register_property('width', ['xrange'], (xrange) ->
-          if xrange
-            return xrange.get('end') - xrange.get('start')
-          else
-            return 0
-      , false
-      , (width) ->
-        xrange = @get('xrange')
-        xrange.set('end', xrange.get('start') + width)
+    @register_property('width',
+      ['xrange', {'ref' : @get('xrange'), 'fields' : ['start', 'end']}],
+      () ->
+        range = @get_ref('xrange')
+        return range.get('end') - range.get('start')
+      ,false
+      ,(width) ->
+        range = @get_ref('xrange')
+        range.set('end', range.get('start') + width)
     )
-    @register_property('height', ['xrange'], (yrange) ->
-          if yrange
-            return yrange.get('end') - yrange.get('start')
-          else
-            return 0
-      , false
-      , (height) ->
-        yrange = @get('xrange')
-        yrange.set('end', yrange.get('start') + height)
+    @register_property('height',
+      ['yrange', {'ref' : @get('yrange'), 'fields' : ['start', 'end']}],
+      () ->
+        range = @get_ref('yrange')
+        return range.get('end') - range.get('start')
+      ,false
+      ,(height) ->
+        range = @get_ref('yrange')
+        range.set('end', range.get('start') + height)
     )
+    @set({'width' : attrs['width'], 'height' : attrs['height']})
     @register_property('outerwidth', ['width', 'border_space'],
       () -> @get('width') + 2 * @get('border_space')
       false)
@@ -472,8 +469,6 @@ class Plot extends Component
       false)
 
 _.extend(Plot::defaults , {
-  'xrange' : null,
-  'yrange' : null,
   'data_sources' : {},
   'renderers' : [],
   'axes' : [],
@@ -486,7 +481,21 @@ _.extend(Plot::defaults , {
 _.extend(Plot::display_defaults, {
   'background_color' : "#ddd",
   'foreground_color' : "#333",
-  'border_space' : 50
+  'border_space' : 50,
+  'xrange' : {
+    'type' : 'Range1d',
+    'attrs' : {
+      'start' : 0
+      'end' : 200
+    }
+  },
+  'yrange' : {
+    'type' : 'Range1d',
+    'attrs' : {
+      'start' : 0
+      'end' : 200
+    }
+  }
 })
 
 class Plots extends Backbone.Collection
@@ -683,11 +692,11 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
   )
   xmapper = Collections['LinearMapper'].create({
     data_range : data_source.get_cont_range(xfield, 0.1)
-    screen_range : plot_model.xrange.ref()
+    screen_range : plot_model.get('xrange')
   })
   ymapper = Collections['LinearMapper'].create({
     data_range : data_source.get_cont_range(yfield, 0.1)
-    screen_range : plot_model.yrange.ref()
+    screen_range : plot_model.get('yrange')
   })
   scatter_plot = Collections["ScatterRenderer"].create(
     data_source: data_source.ref()
@@ -724,11 +733,11 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield) ->
   )
   xmapper = Collections['LinearMapper'].create({
     data_range : data_source.get_cont_range(xfield, 0.1)
-    screen_range : plot_model.xrange.ref()
+    screen_range : plot_model.get('xrange')
   })
   ymapper = Collections['LinearMapper'].create({
     data_range : data_source.get_cont_range(yfield, 0.1)
-    screen_range : plot_model.yrange.ref()
+    screen_range : plot_model.get('yrange')
   })
   line_plot = Collections["LineRenderer"].create(
     data_source: data_source.ref()

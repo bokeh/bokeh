@@ -9,6 +9,55 @@ Continuum.register_collection = (key, value) ->
   Collections[key] = value
   value.bokeh_key = key
 
+"""
+  continuum refrence system
+    reference : {'type' : type name, 'id' : object id}
+    each class has a collections class var, and type class var.
+    references are resolved by looking up collections[type] to get a collection
+    and then retrieving the correct id.  The one exception is that an object
+    can resolve a reference to itself even if it has not yet been added to
+    any collections.
+
+  our property system
+  1. Has Properties
+    we support python style computed properties, with getters as well as setters.
+    we also support caching of these properties, and notifications of property
+    changes
+
+    @register_property(name, dependencies, getter, use_cache, setter)
+
+    dependencies:
+      ['height', {'ref' : objectreference, 'fields' : ['first', 'second']}
+      for dependencies, strings are interpreted as backbone attrs
+      on the current object.
+      an object of the form {'ref' : ref, 'fields' :[a,b,c]}
+      specifies that this property is dependent on backbone attrs a,b,c on
+      object that you can get via ref
+    getter:
+      function which takes no arguments, but is called with the object that has
+      the property as the context, so getter.call(this)
+    setter:
+      function whch takes the value being set, called with the object as the
+      context
+      setter.call(this, val)
+  2.  defaults vs display_defaults
+    backbone already has a system for attribute defaults, however we wanted to
+    impose a secondary inheritance system for attributes based on GUI hierarchies
+    the idea being that you generally want to inherit UI attributes from
+    your container/parent.  Here is how we do this.
+    HasParent models can have a parent attribute, which is our
+    continuum reference.  when we try to get an attribute, first we try to
+    get the attribute via super (so try properties, and if not that, normal
+    backbone resolution) if that results in something which is undefined,
+    then try to grab the attribute from the parent.
+
+    the reason why we need to segregate display_defaults into a separate object
+    form backbones normal default is because backbone defaults are automatically
+    set on the object, so you have no way of knowing whether the attr exists
+    because it was a default, or whether it was intentionally set.  In the
+    parent case, we want to try parent settings BEFORE we rely on
+    display defaults.
+"""
 safebind = (binder, target, event, callback) ->
   # stores objects we are binding events on, so that if we go away,
   # we can unbind all our events
@@ -39,7 +88,6 @@ class HasProperties extends Backbone.Model
 
   initialize : (attrs, options) ->
     super(attrs, options)
-
     @properties = {}
     @property_cache = {}
     if not _.has(attrs, 'id')
@@ -58,7 +106,7 @@ class HasProperties extends Backbone.Model
       if _.has(this, 'properties') and
          _.has(@properties, key) and
          @properties[key]['setter']
-        @properties[key]['setter'](this, val)
+        @properties[key]['setter'].call(this, val)
     for key in toremove
       delete attrs[key]
     if not _.isEmpty(attrs)
@@ -212,7 +260,12 @@ class HasParent extends HasProperties
         not _.isUndefined(@get_ref('parent').get(attr)))
       return @get_ref('parent').get(attr)
     else
-      return @display_defaults[attr]
+      retval = @display_defaults[attr]
+      if _.isObject(retval) and _.has(retval, 'type')
+        attrs = if _.has(retval, 'attrs') then retval['attrs'] else {}
+        retval =  @collections[retval['type']].create(attrs).ref()
+      return retval
+
   get : (attr) ->
     ## no fallback for 'parent'
     if not _.isUndefined(super(attr))
