@@ -9,6 +9,16 @@ Continuum.register_collection = (key, value) ->
   Collections[key] = value
   value.bokeh_key = key
 
+window.logger = new Backbone.Model()
+window.logger.on('all',
+  ()->
+    msg = 'LOGGER:' + JSON.stringify(arguments)
+    if msg.indexOf('setcache') > 0 and msg.indexOf('Grid') > 0
+      console.log(msg)
+    console.log(msg))
+Continuum.logger = window.logger
+logger = Continuum.logger
+logger.log = logger.trigger
 """
   continuum refrence system
     reference : {'type' : type name, 'id' : object id}
@@ -119,11 +129,13 @@ class HasProperties extends Backbone.Model
     local_deps = (x for x in dependencies when not _.isObject(x))
     if local_deps.length > 0
       deps = [{'ref' : this.ref(), 'fields' : local_deps}]
-    deps = deps.concat(other_deps)
+      deps = deps.concat(other_deps)
+    else
+      deps = other_deps
     return deps
 
   register_property : \
-    (prop_name, dependencies, property, use_cache, setter) ->
+    (prop_name, dependencies, getter, use_cache, setter) ->
       # property, key is prop name, value is list of dependencies
       # dependencies is a list [{'ref' : ref, 'fields' : fields}]
       # if you pass a string in for dependency, we assume that
@@ -139,16 +151,19 @@ class HasProperties extends Backbone.Model
         @remove_property(prop_name)
       dependencies = @structure_dependencies(dependencies)
       prop_spec=
-        'property' : property,
+        'getter' : getter,
         'dependencies' : dependencies,
         'use_cache' : use_cache
         'setter' : setter
         'callbacks':
           'changedep' : =>
+            logger.log('changedep:' + prop_name + @id)
             @trigger('changedep:' + prop_name)
           'invalidate_cache' : =>
+            logger.log('clearcache:' + prop_name + @id)
             @clear_cache(prop_name)
           'eventgen' : =>
+            logger.log('propchange:' + prop_name + @id)
             @trigger('change:' + prop_name, this, @get(prop_name))
 
       @properties[prop_name] = prop_spec
@@ -161,6 +176,8 @@ class HasProperties extends Backbone.Model
           prop_spec['callbacks']['invalidate_cache'])
       safebind(this, this, "changedep:" + prop_name,
           prop_spec['callbacks']['eventgen'])
+      prop_spec['callbacks']['eventgen'].call(this)
+      return prop_spec
 
   remove_property : (prop_name) ->
     prop_spec = @properties[prop_name]
@@ -178,6 +195,7 @@ class HasProperties extends Backbone.Model
     return _.has(@property_cache, prop_name)
 
   add_cache : (prop_name, val) ->
+    logger.log('setcache:' + prop_name + val + @id)
     @property_cache[prop_name] = val
 
   clear_cache : (prop_name, val) ->
@@ -187,13 +205,15 @@ class HasProperties extends Backbone.Model
     return @property_cache[prop_name]
 
   get : (prop_name) ->
+    if prop_name == 'layout'
+      console.log('sdsdf')
     if _.has(@properties, prop_name)
       prop_spec = @properties[prop_name]
       if prop_spec.use_cache and @has_cache(prop_name)
         return @property_cache[prop_name]
       else
-        property = prop_spec.property
-        computed = property.apply(this, this)
+        getter = prop_spec.getter
+        computed = getter.apply(this, this)
         if @properties[prop_name].use_cache
           @add_cache(prop_name, computed)
         return computed
@@ -271,8 +291,9 @@ class HasParent extends HasProperties
 
   get : (attr) ->
     ## no fallback for 'parent'
-    if not _.isUndefined(super(attr))
-      return super(attr)
+    normalval = super(attr)
+    if not _.isUndefined(normalval)
+      return normalval
     else if not (attr == 'parent')
       return @get_fallback(attr)
 
@@ -345,7 +366,7 @@ class TableView extends ContinuumView
 
 class Table extends HasProperties
   type : 'Table'
-  initialize : (attrs, options)->
+  dinitialize : (attrs, options)->
     super(attrs, options)
     @register_property('offset', ['data_slice'],
       () -> return @get('data_slice')[0],

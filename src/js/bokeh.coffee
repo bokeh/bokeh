@@ -56,8 +56,7 @@ class Component extends Continuum.HasParent
       return 0
     val = parent.position_child_y(this, @get('offset')[1])
     return val
-
-  initialize : (attrs, options) ->
+  dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property('outerwidth', ['width', 'border_space'],
       () -> @get('width') + 2 * @get('border_space')
@@ -65,6 +64,7 @@ class Component extends Continuum.HasParent
     @register_property('outerheight', ['height', 'border_space'],
       () -> @get('height') + 2 * @get('border_space')
       false)
+
   defaults :
     parent : null
   display_defaults:
@@ -72,6 +72,7 @@ class Component extends Continuum.HasParent
     height : 200
     position : 0
     offset : [0,0]
+    border_space : 50
   default_view : null
 
 """
@@ -93,7 +94,7 @@ class DataRange1d extends Range1d
     data_source : null
     columns : []
     rangepadding : 0.1
-  initialize : (attrs, options)->
+  dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property('minmax',
       ['data_source', 'columns', 'padding',
@@ -112,8 +113,10 @@ class DataRange1d extends Range1d
         return [min, max]
       ,true
     )
-    @register_property('start', ['minmax'], () -> return @get('minmax')[0])
-    @register_property('end', ['minmax'], () -> return @get('minmax')[1])
+    @register_property('start', ['minmax'],
+      (() -> return @get('minmax')[0]), true)
+    @register_property('end', ['minmax'],
+      (() -> return @get('minmax')[1]), true)
 
 class DataRange1ds extends Backbone.Collection
   model : DataRange1d
@@ -121,10 +124,41 @@ class DataRange1ds extends Backbone.Collection
 class Range1ds extends Backbone.Collection
   model : Range1d
 
+
 class FactorRange extends HasProperties
   type : 'FactorRange'
   defaults :
     values : []
+
+class DataFactorRange extends FactorRange
+  type : 'DataFactorRange'
+  defaults :
+    values : []
+    columns : []
+    data_source : null
+  dinitialize : (attrs, options) ->
+    super(attrs, options)
+    @register_property('values',
+      ['data_source', 'columns',
+        {
+          'ref' : @get('data_source'),
+          'fields' : ['data']
+        },
+      ],
+      () ->
+        columns = (@get_ref('data_source').getcolumn(x) for x in @get('columns'))
+        columns = _.reduce(columns, (x, y) -> return x.concat(y))
+        temp = {}
+        for val in columns
+          temp[val] = true
+        uniques = _.keys(temp)
+        uniques = _.sortBy(uniques, ((x) -> return x))
+        return uniques
+      , true
+    )
+
+class DataFactorRanges extends Backbone.Collection
+  model : DataFactorRange
 
 class FactorRanges extends Backbone.Collection
   model : FactorRange
@@ -149,16 +183,24 @@ class LinearMapper extends Mapper
       @get_ref('data_range').get('end')]
     range = [@get_ref('screen_range').get('start'),
       @get_ref('screen_range').get('end')]
-    @scale = d3.scale.linear().domain(domain).range(range)
+    return d3.scale.linear().domain(domain).range(range)
 
-  initialize : (attrs, options) ->
+  dinitialize : (attrs, options) ->
     super(attrs, options)
-    @calc_scale()
-    safebind(this, @get_ref('data_range'), 'change', @calc_scale)
-    safebind(this, @get_ref('screen_range'), 'change', @calc_scale)
-
+    @register_property('scale',
+      ['data_range', 'screen_range',
+        {
+          'ref' : @get_ref('data_range')
+          'fields' : ['start', 'end']
+        } , {
+          'ref' : @get_ref('screen_range'),
+          'fields' : ['start', 'end']
+        }],
+      () ->
+        return @calc_scale()
+      , true)
   map_screen : (data) ->
-    return @scale(data)
+    return @get('scale')(data)
 
 class LinearMappers extends Backbone.Collection
   model : LinearMapper
@@ -183,9 +225,8 @@ class DiscreteColorMapper extends HasProperties
       "#17becf", "#9edae5"
     ],
     data_range : null
-  initialize : (attrs, options) ->
+  dinitialize : (attrs, options) ->
     super(attrs, options)
-    @get('data_range')
     @register_property('factor_map', ['data_range'],
       () ->
         domain_map = {}
@@ -193,10 +234,15 @@ class DiscreteColorMapper extends HasProperties
           domain_map[val] = index
         return domain_map
       , true)
-    @scale = d3.scale.ordinal().range(@get('colors'));
+    @register_property('scale', ['colors', 'factor_map'],
+      () ->
+        return d3.scale.ordinal().domain(_.values(@get('factor_map')))
+          .range(@get('colors'))
+      , true
+    )
 
   map_screen : (data) ->
-    @scale(@get('factor_map')[data]);
+    @get('scale')(@get('factor_map')[data]);
 
 class DiscreteColorMappers extends Backbone.Collection
   model : DiscreteColorMapper
@@ -327,42 +373,39 @@ class GridPlotContainerView extends BokehView
 class GridPlotContainer extends Component
   type : 'GridPlotContainer'
   default_view : GridPlotContainerView
-  trigger_layout : () ->
-    @trigger('change:layout',
-             this,
-             [@layout_heights(), @layout_widths()])
+  setup_layout_property : () ->
+    dependencies = []
+    for row in @get('children')
+      for child in row
+        dependencies.push({
+          'ref' : child,
+          'fields' : ['outerheight', 'outerwidth']
+        })
+    @register_property('layout', dependencies,
+      () ->
+        return [@layout_heights(), @layout_widths()]
+      , true)
 
-  initialize : (attrs, options) ->
+  dinitialize : (attrs, options) ->
     super(attrs, options)
+    @setup_layout_property()
+    # layout is a special property, if children change, it's dependencies
+    # actually change, so we hook it up to outerheight, width changes
+    # on the children, and add an additional callback to re-register the prop
+    # if children changes
     safebind(this, this, 'change:children',
-      () =>
-        @unbind_child_dependencies(@previous('children'))
-        @bind_child_dependencies(@get('children'))
-        @trigger_layout())
-    safebind(this, this, 'change:layout', @set_dims)
-    @set_dims()
-
-  set_dims : () ->
-    layout_heights = @layout_heights()
-    layout_widths = @layout_widths()
-    @set(
-      'height' : _.reduce(layout_heights, ((x,y) -> x+y), 0),
-      'width' : _.reduce(layout_widths, ((x,y) -> x+y), 0)
-    )
-
-  bind_child_dependencies : (children) ->
-    for row, ridx in children
-      for plotspec, cidx in row
-        plot = @resolve_ref(plotspec)
-        safebind(this, plot, 'change:outerwidth', @trigger_layout)
-        safebind(this, plot, 'change:outerheight', @trigger_layout)
-
-  unbind_child_dependencies : (children) ->
-    for row, ridx in children
-      for plotspec, cidx in row
-        plot = @resolve_ref(plotspec)
-        plot.off('change:outerwidth', null, this)
-        plot.off('change:outerheight', null, this)
+      ()->
+        @remove_property('layout')
+        @setup_layout_property()
+        @trigger('change:layout', this, @get('layout')))
+    @register_property('height', ['layout'],
+      () ->
+        return _.reduce(@get('layout')[0], ((x,y) -> x+y), 0)
+      , true)
+    @register_property('width', ['layout'],
+      () ->
+        return _.reduce(@get('layout')[1], ((x,y) -> x+y), 0)
+      , true)
   maxdim : (dim, row) =>
     if row.length == 0
       return 0
@@ -379,6 +422,7 @@ class GridPlotContainer extends Component
     col_widths = (@maxdim('outerwidth', col) for col in columns)
     return col_widths
 
+GridPlotContainer::defaults = _.clone(GridPlotContainer::defaults)
 _.extend(GridPlotContainer::defaults , {
   'resize_children' : false
   'children' : [[]]
@@ -466,14 +510,14 @@ class Plot extends Component
   default_view : PlotView
   parent_properties : ['background_color', 'foreground_color',
     'width', 'height', 'border_space']
-  initialize : (attrs, options) ->
+  dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property('width',
       ['xrange', {'ref' : @get('xrange'), 'fields' : ['start', 'end']}],
       () ->
         range = @get_ref('xrange')
         return range.get('end') - range.get('start')
-      ,false
+      ,true
       ,(width) ->
         range = @get_ref('xrange')
         range.set('end', range.get('start') + width)
@@ -483,12 +527,13 @@ class Plot extends Component
       () ->
         range = @get_ref('yrange')
         return range.get('end') - range.get('start')
-      ,false
+      ,true
       ,(height) ->
         range = @get_ref('yrange')
         range.set('end', range.get('start') + height)
     )
 
+Plot::defaults = _.clone(Plot::defaults)
 _.extend(Plot::defaults , {
   'data_sources' : {},
   'renderers' : [],
@@ -498,11 +543,10 @@ _.extend(Plot::defaults , {
   'overlays' : []
   #axes fit here
 })
-
+Plot::display_defaults = _.clone(Plot::display_defaults)
 _.extend(Plot::display_defaults, {
   'background_color' : "#ddd",
   'foreground_color' : "#333",
-  'border_space' : 50,
   'xrange' : {
     'type' : 'Range1d',
     'attrs' : {
@@ -568,7 +612,7 @@ class D3LinearAxisView extends Renderer
       _.template('translate({{x}}, {{y}})', offsets))
     axis = d3.svg.axis()
     ticksize = @get_tick_size(@mget('orientation'))
-    scale_converted = @convert_scale(@mget_ref('mapper').scale)
+    scale_converted = @convert_scale(@mget_ref('mapper').get('scale'))
     temp = axis.scale(scale_converted)
     temp.orient(@mget('orientation'))
       .ticks(@mget('ticks'))
@@ -624,7 +668,7 @@ class LineRendererView extends Renderer
 class LineRenderer extends Component
   type : 'LineRenderer'
   default_view : LineRendererView
-
+LineRenderer::defaults = _.clone(LineRenderer::defaults)
 _.extend(LineRenderer::defaults, {
     xmapper : null,
     ymapper: null,
@@ -676,6 +720,7 @@ class ScatterRenderer extends Component
   type : 'ScatterRenderer'
   default_view : ScatterRendererView
 
+ScatterRenderer::defaults = _.clone(ScatterRenderer::defaults)
 _.extend(ScatterRenderer::defaults, {
     data_source : null,
     xmapper : null,
@@ -686,6 +731,7 @@ _.extend(ScatterRenderer::defaults, {
     mark : 'circle',
 })
 
+ScatterRenderer::display_defaults = _.clone(ScatterRenderer::display_defaults)
 _.extend(ScatterRenderer::display_defaults, {
   radius : 3
 })
@@ -702,8 +748,11 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     color_field = null
   if _.isUndefined(color_mapper) and color_field
     color_mapper = Collections['DiscreteColorMapper'].create({
-      data_range : data_source.get_discrete_range(color_field)
-    }).ref()
+      data_range : Collections['DataFactorRange'].create({
+        data_source : data_source.ref()
+        columns : ['x']
+      })
+    })
 
   source_name = data_source.get('name')
   plot_model = Collections['Plot'].create(
@@ -801,6 +850,7 @@ Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
 Bokeh.register_collection('FactorRange', new FactorRanges)
 Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)
 Bokeh.register_collection('DataRange1d', new DataRange1ds)
+Bokeh.register_collection('DataFactorRange', new DataFactorRanges)
 
 Bokeh.Collections = Collections
 Bokeh.HasProperties = HasProperties
