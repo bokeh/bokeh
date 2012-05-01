@@ -12,13 +12,12 @@ Continuum.register_collection = (key, value) ->
 window.logger = new Backbone.Model()
 window.logger.on('all',
   ()->
-    msg = 'LOGGER:' + JSON.stringify(arguments)
-    if msg.indexOf('setcache') > 0 and msg.indexOf('Grid') > 0
-      console.log(msg)
+    msg = 'LOGGER:' + JSON.stringify(arguments[1][0])
     console.log(msg))
 Continuum.logger = window.logger
 logger = Continuum.logger
-logger.log = logger.trigger
+logger.log = () ->
+  logger.trigger('LOG', arguments)
 """
   continuum refrence system
     reference : {'type' : type name, 'id' : object id}
@@ -104,6 +103,7 @@ class HasProperties extends Backbone.Model
       this.id = _.uniqueId(this.type)
       this.attributes['id'] = this.id
     _.defer(() => @dinitialize(attrs, options))
+    #@dinitialize(attrs, options)
   dinitialize : (attrs, options) ->
 
   set : (key, value, options) ->
@@ -157,13 +157,13 @@ class HasProperties extends Backbone.Model
         'setter' : setter
         'callbacks':
           'changedep' : =>
-            logger.log('changedep:' + prop_name + @id)
+            #logger.log('changedep:' + prop_name + @id)
             @trigger('changedep:' + prop_name)
           'invalidate_cache' : =>
-            logger.log('clearcache:' + prop_name + @id)
+            #logger.log('clearcache:' + prop_name + @id)
             @clear_cache(prop_name)
           'eventgen' : =>
-            logger.log('propchange:' + prop_name + @id)
+            #logger.log('propchange:' + prop_name + @id)
             @trigger('change:' + prop_name, this, @get(prop_name))
 
       @properties[prop_name] = prop_spec
@@ -205,8 +205,6 @@ class HasProperties extends Backbone.Model
     return @property_cache[prop_name]
 
   get : (prop_name) ->
-    if prop_name == 'layout'
-      console.log('sdsdf')
     if _.has(@properties, prop_name)
       prop_spec = @properties[prop_name]
       if prop_spec.use_cache and @has_cache(prop_name)

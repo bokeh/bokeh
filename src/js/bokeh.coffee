@@ -588,6 +588,9 @@ class D3LinearAxisView extends Renderer
         return -@plot_model.get('width')
 
   convert_scale : (scale) ->
+    if not scale
+      console.log 'sdfasdf'
+
     domain = scale.domain()
     range = scale.range()
     if @mget('orientation') in ['bottom', 'top']

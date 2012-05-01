@@ -70,9 +70,9 @@ test('property_setters', ->
   # we mostly want to test how we react to other models, which is why
   # @model for a view is already handleed
   prop =  () -> @get('a') + @get('b')
-  setter = (model, val) ->
-    model.set('a', val/2, {silent:true})
-    model.set('b', val/2)
+  setter = (val) ->
+    @set('a', val/2, {silent:true})
+    @set('b', val/2)
   model.register_property('c', ['a', 'b'], prop, true, setter)
   model.set('c', 100)
   ok(model.get('a') == 50)
