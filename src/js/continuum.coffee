@@ -381,12 +381,14 @@ class Table extends HasProperties
     total_rows : 0
   default_view : TableView
   load : (offset) ->
-    @set('data_slice', [offset, offset + @get('chunksize')], {silent:true})
     $.get(@get('url'),
       {
         'data_slice' : JSON.stringify(@get('data_slice'))
       },
       (data) =>
+        @set('data_slice',
+          [offset, offset + @get('chunksize')],
+          {silent:true})
         @set({'data' : JSON.parse(data)['data']})
     )
 
