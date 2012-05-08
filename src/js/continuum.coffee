@@ -67,6 +67,23 @@ logger.log = () ->
     parent case, we want to try parent settings BEFORE we rely on
     display defaults.
 """
+get_collections = (names) ->
+  last = window
+  for n in names
+    last = last[n]
+  return last
+
+resolve_ref = (collections, type, id) ->
+  #collections are a dictionary of type->collection mappings,
+  # we pass in collections, as either an array of strings,
+  # which tell us how to traverse namespaces to find collections, or
+  # we pass in the mapping itself
+  if _.isArray(collections)
+    collections = get_collections(collections)
+  return collections[type].get(id)
+Continuum.resolve_ref = resolve_ref
+Continuum.get_collections = get_collections
+
 safebind = (binder, target, event, callback) ->
   # stores objects we are binding events on, so that if we go away,
   # we can unbind all our events
@@ -223,12 +240,14 @@ class HasProperties extends Backbone.Model
     'id' : this.id
 
   resolve_ref : (ref) ->
+    if not ref
+      console.log('ERROR, null reference')
     #this way we can reference ourselves
     # even though we are not in any collection yet
     if ref['type'] == this.type and ref['id'] == this.id
       return this
     else
-      @collections[ref['type']].get(ref['id'])
+      return resolve_ref(@collections, ref['type'], ref['id'])
 
   get_ref : (ref_name) ->
     ref = @get(ref_name)
@@ -396,9 +415,17 @@ class Tables extends Backbone.Collection
   model : Table
   url : "/"
 
+Continuum.load_models = (models)->
+  for model in models
+    colls = get_collections(model['collections'])
+    attrs = model['attributes']
+    type = model['type']
+    colls[type].create(attrs)
+
 Continuum.register_collection('Table', new Tables())
 
 Continuum.ContinuumView = ContinuumView
 Continuum.HasProperties = HasProperties
 Continuum.HasParent = HasParent
 Continuum.safebind = safebind
+

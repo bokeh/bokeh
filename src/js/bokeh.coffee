@@ -3,7 +3,7 @@ if this.Bokeh
 else
   Bokeh = {}
   this.Bokeh = Bokeh
-Collections = {}
+Collections = Continuum.Collections
 Bokeh.register_collection = (key, value) ->
   Collections[key] = value
   value.bokeh_key = key
@@ -730,6 +730,8 @@ _.extend(ScatterRenderer::defaults, {
     ymapper: null,
     xfield : null,
     yfield : null,
+    #if colorfield, we use a color mapper
+    colormapper : null,
     colorfield : null,
     mark : 'circle',
 })
