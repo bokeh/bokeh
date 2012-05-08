@@ -359,7 +359,7 @@ class GridPlotContainerView extends BokehView
       , 0)
     y_coords.reverse()
     x_coords = [0]
-    _.reduce(col_widths[1..], (x,y) ->
+    _.reduce(col_widths[..-1], (x,y) ->
         val = x + y
         x_coords.push(val)
         return val
@@ -658,6 +658,7 @@ class LineRendererView extends Renderer
       )
     node.attr('stroke', @mget('color'))
       .attr('d', line)
+    node.attr('fill', 'none')
 
   render : ->
     plot = @tag_d3('plot', this.plot_id)
