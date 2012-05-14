@@ -9,6 +9,27 @@ Continuum.register_collection = (key, value) ->
   Collections[key] = value
   value.bokeh_key = key
 
+Continuum.load_models = (modelspecs)->
+  for model in modelspecs
+    colls = get_collections(model['collections'])
+    attrs = model['attributes']
+    type = model['type']
+    colls[type].add(attrs)
+
+Continuum.submodels = (ws_conn_string, topic) ->
+  try
+    s = new WebSocket(ws_conn_string)
+  catch
+    s = new MozWebSocket(ws_conn_string)
+  s.onopen = () ->
+    s.send(JSON.stringify({msgtype : 'subscribe', topic : topic}))
+  s.onmessage = (msg) ->
+    msgobj = JSON.parse(msg.data)
+    if msgobj['msgtype'] == 'modelpush'
+      Continuum.load_models(msgobj['modelspecs'])
+  return s
+
+
 window.logger = new Backbone.Model()
 window.logger.on('all',
   ()->
@@ -415,12 +436,6 @@ class Tables extends Backbone.Collection
   model : Table
   url : "/"
 
-Continuum.load_models = (models)->
-  for model in models
-    colls = get_collections(model['collections'])
-    attrs = model['attributes']
-    type = model['type']
-    colls[type].create(attrs)
 
 Continuum.register_collection('Table', new Tables())
 
