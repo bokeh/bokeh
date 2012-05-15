@@ -88,6 +88,24 @@ class Range1d extends HasProperties
 class Range1ds extends Backbone.Collection
   model : Range1d
 
+class PlotRange1d extends Range1d
+  type : 'PlotRange1d'
+  defaults :
+    start : 0
+    end : 200
+    plot : null
+    attribute : 'width'
+  dinitialize : (attrs, options) ->
+    super(attrs, options)
+    @register_property(
+      'end', {'ref' : @get('plot'), 'fields' : [@get('attribute')]},
+      () ->
+        return @get_ref('plot').get(@get('attribute'))
+      ,true
+    )
+class PlotRange1ds extends Backbone.Collection
+  model : PlotRange1d
+
 class DataRange1d extends Range1d
   type : 'DataRange1d'
   defaults :
@@ -510,28 +528,6 @@ class Plot extends Component
   default_view : PlotView
   parent_properties : ['background_color', 'foreground_color',
     'width', 'height', 'border_space']
-  dinitialize : (attrs, options) ->
-    super(attrs, options)
-    @register_property('width',
-      ['xrange', {'ref' : @get('xrange'), 'fields' : ['start', 'end']}],
-      () ->
-        range = @get_ref('xrange')
-        return range.get('end') - range.get('start')
-      ,true
-      ,(width) ->
-        range = @get_ref('xrange')
-        range.set('end', range.get('start') + width)
-    )
-    @register_property('height',
-      ['yrange', {'ref' : @get('yrange'), 'fields' : ['start', 'end']}],
-      () ->
-        range = @get_ref('yrange')
-        return range.get('end') - range.get('start')
-      ,true
-      ,(height) ->
-        range = @get_ref('yrange')
-        range.set('end', range.get('start') + height)
-    )
 
 Plot::defaults = _.clone(Plot::defaults)
 _.extend(Plot::defaults , {
@@ -547,20 +543,8 @@ Plot::display_defaults = _.clone(Plot::display_defaults)
 _.extend(Plot::display_defaults, {
   'background_color' : "#ddd",
   'foreground_color' : "#333",
-  'xrange' : {
-    'type' : 'Range1d',
-    'attrs' : {
-      'start' : 0
-      'end' : 200
-    }
-  },
-  'yrange' : {
-    'type' : 'Range1d',
-    'attrs' : {
-      'start' : 0
-      'end' : 200
-    }
-  }
+  'width' : 200,
+  'height' : 200
 })
 
 class Plots extends Backbone.Collection
@@ -766,19 +750,27 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
       source_name : data_source.ref()
     parent : parent
   )
+  xr = Collections['PlotRange1d'].create({
+    'plot' : plot_model.ref(),
+    'attribute' : 'width'
+  })
+  yr = Collections['PlotRange1d'].create({
+    'plot' : plot_model.ref(),
+    'attribute' : 'height'
+  })
   xmapper = Collections['LinearMapper'].create({
     data_range : Collections['DataRange1d'].create({
         'data_source' : data_source.ref(),
         'columns' : ['x']
       })
-    screen_range : plot_model.get('xrange')
+    screen_range : xr.ref()
   })
   ymapper = Collections['LinearMapper'].create({
     data_range : Collections['DataRange1d'].create({
         'data_source' : data_source.ref(),
         'columns' : ['y']
       })
-    screen_range : plot_model.get('yrange')
+    screen_range : yr.ref()
   })
   scatter_plot = Collections["ScatterRenderer"].create(
     data_source: data_source.ref()
@@ -813,13 +805,21 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield) ->
       source_name : data_source.ref()
     parent : parent
   )
+  xr = Collections['PlotRange1d'].create({
+    'plot' : plot_model.ref(),
+    'attribute' : 'width'
+  })
+  yr = Collections['PlotRange1d'].create({
+    'plot' : plot_model.ref(),
+    'attribute' : 'height'
+  })
   xmapper = Collections['LinearMapper'].create({
     data_range : data_source.get_cont_range(xfield, 0.1)
-    screen_range : plot_model.get('xrange')
+    screen_range : xr.ref()
   })
   ymapper = Collections['LinearMapper'].create({
     data_range : data_source.get_cont_range(yfield, 0.1)
-    screen_range : plot_model.get('yrange')
+    screen_range : yr.ref()
   })
   line_plot = Collections["LineRenderer"].create(
     data_source: data_source.ref()
@@ -850,6 +850,7 @@ Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
 Bokeh.register_collection('LineRenderer', new LineRenderers)
 Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('Range1d', new Range1ds)
+Bokeh.register_collection('PlotRange1d', new PlotRange1ds)
 Bokeh.register_collection('LinearMapper', new LinearMappers)
 Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
 Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
