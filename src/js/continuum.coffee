@@ -12,21 +12,34 @@ Continuum.register_collection = (key, value) ->
 Continuum.load_models = (modelspecs)->
   for model in modelspecs
     colls = get_collections(model['collections'])
+    coll = colls[model['type']]
     attrs = model['attributes']
-    type = model['type']
-    colls[type].add(attrs)
+    if coll.get(attrs['id'])
+      coll.get(attrs['id']).set(attrs)
+    else
+      coll.add(attrs)
+  return
+
 
 Continuum.submodels = (ws_conn_string, topic) ->
   try
     s = new WebSocket(ws_conn_string)
-  catch
+  catch error
     s = new MozWebSocket(ws_conn_string)
   s.onopen = () ->
     s.send(JSON.stringify({msgtype : 'subscribe', topic : topic}))
   s.onmessage = (msg) ->
+    console.log(msg.data)
     msgobj = JSON.parse(msg.data)
     if msgobj['msgtype'] == 'modelpush'
       Continuum.load_models(msgobj['modelspecs'])
+    else if msgobj['msgtype'] == 'renderpush'
+      ref = msgobj['ref']
+      model = Continuum.resolve_ref(ref['collections'], ref['type'], ref['id'])
+      view = new model.default_view({'model' : model})
+      view.render()
+      view.add_dialog()
+      window.view = view
   return s
 
 
