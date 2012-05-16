@@ -13,66 +13,15 @@ Bokeh.register_collection = (key, value) ->
 # backbone assumes that valid attrs are any non-null, or non-defined value
 # thats dumb, we only check for undefined, because null is perfectly valid
 safebind = Continuum.safebind
-class BokehView extends Continuum.ContinuumView
-  add_dialog : ->
-    @$el.dialog(
-      close :  () =>
-          @remove()
-    )
-class HasProperties extends Continuum.HasProperties
-  collections : Collections
+Component = Continuum.Component
+BokehView = Continuum.ContinuumView
+HasProperties = Continuum.HasProperties
 
 class Renderer extends BokehView
   initialize : (options) ->
     @plot_id = options.plot_id
     @plot_model = options.plot_model
     super(options)
-
-
-class Component extends Continuum.HasParent
-  collections : Collections
-  #transform our coordinate space to the underlying device (svg)
-  xpos : (x) ->
-    return x
-  ypos : (y) ->
-    return @get('height') - y
-
-  #compute a child components position in the underlying device
-  position_child_x : (child, offset) ->
-    return  @xpos(offset)
-  position_child_y : (child, offset) ->
-    return @ypos(offset) - child.get('outerheight')
-
-  #compute your position in the underlying device
-  position_x : ->
-    parent = @get_ref('parent')
-    if not parent
-      return 0
-    return parent.position_child_x(this, @get('offset')[0])
-
-  position_y : ->
-    parent = @get_ref('parent')
-    if not parent
-      return 0
-    val = parent.position_child_y(this, @get('offset')[1])
-    return val
-  dinitialize : (attrs, options) ->
-    super(attrs, options)
-    @register_property('outerwidth', ['width', 'border_space'],
-      () -> @get('width') + 2 * @get('border_space')
-      false)
-    @register_property('outerheight', ['height', 'border_space'],
-      () -> @get('height') + 2 * @get('border_space')
-      false)
-  defaults :
-    parent : null
-  display_defaults:
-    width : 200
-    height : 200
-    position : 0
-    offset : [0,0]
-    border_space : 50
-  default_view : null
 
 """
 Utility Classes for vis

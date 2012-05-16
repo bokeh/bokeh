@@ -101,6 +101,8 @@ logger.log = () ->
     parent case, we want to try parent settings BEFORE we rely on
     display defaults.
 """
+
+
 get_collections = (names) ->
   last = window
   for n in names
@@ -316,6 +318,17 @@ class ContinuumView extends Backbone.View
     return @model.get(fld)
   mget_ref : (fld) ->
     return @model.get_ref(fld)
+  add_dialog : ->
+    @$el.dialog(
+      width : @mget('outerwidth'),
+      height : @mget('outerheight'),
+      close :  () =>
+        @remove()
+    )
+    safebind(this, @model, 'change:outerwidth', ()->
+      @$el.dialog('option', 'width', @mget('outerwidth')))
+    safebind(this, @model, 'change:outerheight', ()->
+      @$el.dialog('option', 'height', @mget('outerheight')))
 
 # hasparent
 # display_options can be passed down to children
@@ -349,6 +362,52 @@ class HasParent extends HasProperties
 
   display_defaults : {}
 
+#move into continuum namespace
+class Component extends HasParent
+  collections : Collections
+  #transform our coordinate space to the underlying device (svg)
+  xpos : (x) ->
+    return x
+  ypos : (y) ->
+    return @get('height') - y
+
+  #compute a child components position in the underlying device
+  position_child_x : (child, offset) ->
+    return  @xpos(offset)
+  position_child_y : (child, offset) ->
+    return @ypos(offset) - child.get('outerheight')
+
+  #compute your position in the underlying device
+  position_x : ->
+    parent = @get_ref('parent')
+    if not parent
+      return 0
+    return parent.position_child_x(this, @get('offset')[0])
+
+  position_y : ->
+    parent = @get_ref('parent')
+    if not parent
+      return 0
+    val = parent.position_child_y(this, @get('offset')[1])
+    return val
+  dinitialize : (attrs, options) ->
+    super(attrs, options)
+    @register_property('outerwidth', ['width', 'border_space'],
+      () -> @get('width') + 2 * @get('border_space')
+      false)
+    @register_property('outerheight', ['height', 'border_space'],
+      () -> @get('height') + 2 * @get('border_space')
+      false)
+  defaults :
+    parent : null
+  display_defaults:
+    width : 200
+    height : 200
+    position : 0
+    offset : [0,0]
+    border_space : 50
+  default_view : null
+
 
 class TableView extends ContinuumView
   delegateEvents: ->
@@ -372,14 +431,8 @@ class TableView extends ContinuumView
           {'val':data}))
         row_elem.append(elem)
       @$el.find('table').append(row_elem)
-
     @render_pagination()
-
-    if !@$el.is(":visible")
-      @$el.dialog(
-        close :  () =>
-          @remove()
-      )
+    @add_dialog()
 
   render_pagination : ->
     if @mget('offset') > 0
@@ -414,7 +467,7 @@ class TableView extends ContinuumView
       )
 
 
-class Table extends HasProperties
+class Table extends Component
   type : 'Table'
   dinitialize : (attrs, options)->
     super(attrs, options)
