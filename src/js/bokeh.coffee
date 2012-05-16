@@ -335,7 +335,12 @@ class GridPlotContainerView extends BokehView
       for plotspec, cidx in row
         plot = @model.resolve_ref(plotspec)
         @childviews[plot.id].render()
-        plot.set({'offset' : [x_coords[cidx], y_coords[ridx]]})
+        plot.set({
+          'offset' : [x_coords[cidx], y_coords[ridx]],
+          'usedialog' : false
+        })
+    if @mget('usedialog') and not @$el.is(":visible")
+      @add_dialog()
 
 class GridPlotContainer extends Component
   type : 'GridPlotContainer'
@@ -393,6 +398,7 @@ GridPlotContainer::defaults = _.clone(GridPlotContainer::defaults)
 _.extend(GridPlotContainer::defaults , {
   'resize_children' : false
   'children' : [[]]
+  'usedialog' : false
 })
 
 class GridPlotContainers extends Backbone.Collection
@@ -430,8 +436,9 @@ class PlotView extends BokehView
         .attr('id', @tag_id('mainsvg'))
       node.append('g')
         .attr('id', @tag_id('plot'))
-    node.attr('x', @model.position_x())
-     .attr('y', @model.position_y())
+    if not @mget('usedialog')
+      node.attr('x', @model.position_x())
+       .attr('y', @model.position_y())
     node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
     #svg puts origin in the top left, we want it on the bottom left
     @tag_d3('plot').attr('transform',
@@ -453,6 +460,8 @@ class PlotView extends BokehView
       view.render()
     for own key, view of @renderers
       view.render()
+    if @mget('usedialog') and not @$el.is(":visible")
+      @add_dialog()
 
 build_views = (mainmodel, view_storage, view_specs, options) ->
   #create a view for each view spec, store it in view_storage
@@ -485,7 +494,8 @@ _.extend(Plot::defaults , {
   'axes' : [],
   'legends' : [],
   'tools' : [],
-  'overlays' : []
+  'overlays' : [],
+  'usedialog' : false
   #axes fit here
 })
 Plot::display_defaults = _.clone(Plot::display_defaults)

@@ -325,6 +325,10 @@ class ContinuumView extends Backbone.View
       close :  () =>
         @remove()
     )
+    @$el.dialog('widget').css({
+      'top' : @model.position_y() + "px",
+      'left' : @model.position_x() + "px"
+    })
     safebind(this, @model, 'change:outerwidth', ()->
       @$el.dialog('option', 'width', @mget('outerwidth')))
     safebind(this, @model, 'change:outerheight', ()->
@@ -405,7 +409,7 @@ class Component extends HasParent
     height : 200
     position : 0
     offset : [0,0]
-    border_space : 50
+    border_space : 20
   default_view : null
 
 
@@ -501,8 +505,25 @@ class Tables extends Backbone.Collection
   model : Table
   url : "/"
 
+class InteractiveContextView extends ContinuumView
+  render : () ->
+    for spec in @mget('children')
+      model = @model.resolve_ref(spec)
+      model.set({'usedialog' : true})
+      view = new model.default_view({'model' : model})
 
+class InteractiveContext extends Component
+  type : 'InteractiveContext',
+  default_view : InteractiveContextView
+  defaults :
+    children : []
+    width : $(window).width();
+    height : $(window).height();
+
+class InteractiveContexts extends Backbone.Collection
+  model : InteractiveContext
 Continuum.register_collection('Table', new Tables())
+Continuum.register_collection('InteractiveContext', new InteractiveContexts())
 
 Continuum.ContinuumView = ContinuumView
 Continuum.HasProperties = HasProperties
