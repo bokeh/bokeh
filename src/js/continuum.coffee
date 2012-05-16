@@ -507,5 +507,6 @@ Continuum.register_collection('Table', new Tables())
 Continuum.ContinuumView = ContinuumView
 Continuum.HasProperties = HasProperties
 Continuum.HasParent = HasParent
+Continuum.Component = Component
 Continuum.safebind = safebind
 
