@@ -64,7 +64,6 @@ class Component extends Continuum.HasParent
     @register_property('outerheight', ['height', 'border_space'],
       () -> @get('height') + 2 * @get('border_space')
       false)
-
   defaults :
     parent : null
   display_defaults:
@@ -98,11 +97,12 @@ class PlotRange1d extends Range1d
   dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property(
-      'end', {'ref' : @get('plot'), 'fields' : [@get('attribute')]},
+      'end', [{'ref' : @get('plot'), 'fields' : [@get('attribute')]}],
       () ->
         return @get_ref('plot').get(@get('attribute'))
       ,true
     )
+    return this
 class PlotRange1ds extends Backbone.Collection
   model : PlotRange1d
 

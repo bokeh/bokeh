@@ -210,24 +210,23 @@ class HasProperties extends Backbone.Model
           'changedep' : =>
             #logger.log('changedep:' + prop_name + @id)
             @trigger('changedep:' + prop_name)
-          'invalidate_cache' : =>
-            #logger.log('clearcache:' + prop_name + @id)
-            @clear_cache(prop_name)
-          'eventgen' : =>
-            #logger.log('propchange:' + prop_name + @id)
-            @trigger('change:' + prop_name, this, @get(prop_name))
-
+          'propchange' : =>
+            firechange = true
+            if prop_spec['use_cache']
+              old_val = @get_cache(prop_name)
+              @clear_cache(prop_name)
+              new_val = @get(prop_name)
+              firechange = new_val != old_val
+            if firechange
+              @trigger('change:' + prop_name, this, @get(prop_name))
+              @trigger('change', this)
       @properties[prop_name] = prop_spec
       for dep in dependencies
         obj = @resolve_ref(dep['ref'])
         for fld in dep['fields']
           safebind(this, obj, "change:" + fld, prop_spec['callbacks']['changedep'])
-      if prop_spec['use_cache']
-        safebind(this, this, "changedep:" + prop_name,
-          prop_spec['callbacks']['invalidate_cache'])
       safebind(this, this, "changedep:" + prop_name,
-          prop_spec['callbacks']['eventgen'])
-      prop_spec['callbacks']['eventgen'].call(this)
+        prop_spec['callbacks']['propchange'])
       return prop_spec
 
   remove_property : (prop_name) ->
@@ -246,7 +245,7 @@ class HasProperties extends Backbone.Model
     return _.has(@property_cache, prop_name)
 
   add_cache : (prop_name, val) ->
-    logger.log('setcache:' + prop_name + val + @id)
+    #logger.log('setcache:' + prop_name + val + @id)
     @property_cache[prop_name] = val
 
   clear_cache : (prop_name, val) ->
