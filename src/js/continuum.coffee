@@ -10,16 +10,30 @@ Continuum.register_collection = (key, value) ->
   value.bokeh_key = key
 
 Continuum.load_models = (modelspecs)->
+  # add all models
+  # call dinit
+  # set updates
+  newspecs = []
+  oldspecs = []
   for model in modelspecs
-    colls = get_collections(model['collections'])
-    coll = colls[model['type']]
+    coll = get_collections(model['collections'])[model['type']]
     attrs = model['attributes']
     if coll.get(attrs['id'])
-      coll.get(attrs['id']).set(attrs)
+      oldspecs.push([coll, attrs])
     else
-      coll.add(attrs)
-  return
-
+      newspecs.push([coll, attrs])
+  console.log('LOADING', newspecs)
+  for coll_attrs in newspecs
+    [coll, attrs] = coll_attrs
+    coll.add(attrs)
+  console.log('dinit', newspecs)
+  for coll_attrs in newspecs
+    [coll, attrs] = coll_attrs
+    coll.get(attrs['id']).dinitialize(attrs)
+  console.log('updating', oldspecs)
+  for coll_attrs in oldspecs
+    [coll, attrs] = coll_attrs
+    coll.get(attrs['id']).set(attrs)
 
 Continuum.submodels = (ws_conn_string, topic) ->
   try
@@ -33,13 +47,13 @@ Continuum.submodels = (ws_conn_string, topic) ->
     msgobj = JSON.parse(msg.data)
     if msgobj['msgtype'] == 'modelpush'
       Continuum.load_models(msgobj['modelspecs'])
-    else if msgobj['msgtype'] == 'renderpush'
-      ref = msgobj['ref']
-      model = Continuum.resolve_ref(ref['collections'], ref['type'], ref['id'])
-      view = new model.default_view({'model' : model})
-      view.render()
-      view.add_dialog()
-      window.view = view
+    # else if msgobj['msgtype'] == 'renderpush'
+    #   ref = msgobj['ref']
+    #   model = Continuum.resolve_ref(ref['collections'], ref['type'], ref['id'])
+    #   view = new model.default_view({'model' : model})
+    #   view.render()
+    #   view.add_dialog()
+    #   window.view = view
   return s
 
 
@@ -155,9 +169,12 @@ class HasProperties extends Backbone.Model
     if not _.has(attrs, 'id')
       this.id = _.uniqueId(this.type)
       this.attributes['id'] = this.id
-    _.defer(() => @dinitialize(attrs, options))
-    #@dinitialize(attrs, options)
+    _.defer(() =>
+      if not @inited
+        @dinitialize(attrs, options))
+
   dinitialize : (attrs, options) ->
+    @inited = true
 
   set : (key, value, options) ->
     if _.isObject(key) or key == null
@@ -538,12 +555,22 @@ class Tables extends Backbone.Collection
   url : "/"
 
 class InteractiveContextView extends ContinuumView
+  initialize : (options) ->
+    super(options)
+    @views = {}
+
+  delegateEvents: ->
+    safebind(this, @model, 'destroy', @remove)
+    safebind(this, @model, 'change', @render)
+
   render : () ->
     for spec in @mget('children')
       model = @model.resolve_ref(spec)
       model.set({'usedialog' : true})
       view = new model.default_view({'model' : model})
-
+      view.render()
+      @views[model.id] = view
+    return null
 class InteractiveContext extends Component
   type : 'InteractiveContext',
   default_view : InteractiveContextView
