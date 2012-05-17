@@ -305,6 +305,13 @@ class HasProperties extends Backbone.Model
     ref = @get(ref_name)
     if ref
       return @resolve_ref(ref)
+  url : () ->
+      base = "/bb/" + window.topic + "/" + @type + "/"
+      if (@isNew())
+        return base
+      return base + @get('id')
+
+
 
 class ContinuumView extends Backbone.View
   initialize : (options) ->
@@ -347,6 +354,7 @@ class ContinuumView extends Backbone.View
         xoff = @model.reverse_position_x(left);
         yoff = @model.reverse_position_y(top);
         @model.set({'offset' : [xoff, yoff]})
+        @model.save()
     )
     position = () =>
       @$el.dialog('widget').css({
@@ -380,6 +388,7 @@ class HasParent extends HasProperties
         attrs = if _.has(retval, 'attrs') then retval['attrs'] else {}
         retval =  @collections[retval['type']].create(attrs).ref()
         @set(attr, retval)
+        @save()
       return retval
 
   get : (attr) ->
@@ -552,7 +561,7 @@ class Table extends Component
 
 class Tables extends Backbone.Collection
   model : Table
-  url : "/"
+  url : "/bb"
 
 class InteractiveContextView extends ContinuumView
   initialize : (options) ->
@@ -567,6 +576,7 @@ class InteractiveContextView extends ContinuumView
     for spec in @mget('children')
       model = @model.resolve_ref(spec)
       model.set({'usedialog' : true})
+      model.save()
       view = new model.default_view({'model' : model})
       view.render()
       @views[model.id] = view
