@@ -29,6 +29,6 @@ test('test_interactive', ()->
     view.render()
     plot3.set({'height' : 300})
     window.plot3 = plot3
-
+    window.view = view
   _.defer(window.myrender)
 )

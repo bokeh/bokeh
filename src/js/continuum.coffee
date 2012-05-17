@@ -331,10 +331,13 @@ class ContinuumView extends Backbone.View
         yoff = @model.reverse_position_y(top);
         @model.set({'offset' : [xoff, yoff]})
     )
-    @$el.dialog('widget').css({
-      'top' : @model.position_y() + "px",
-      'left' : @model.position_x() + "px"
-    })
+    position = () =>
+      @$el.dialog('widget').css({
+        'top' : @model.position_y() + "px",
+        'left' : @model.position_x() + "px"
+      })
+    position()
+    safebind(this, @model, 'change:offset', position)
     safebind(this, @model, 'change:outerwidth', ()->
       @$el.dialog('option', 'width', @mget('outerwidth')))
     safebind(this, @model, 'change:outerheight', ()->
