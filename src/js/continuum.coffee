@@ -324,6 +324,12 @@ class ContinuumView extends Backbone.View
       height : @mget('outerheight'),
       close :  () =>
         @remove()
+      dragStop : (event, ui) =>
+        top = parseInt(@$el.dialog('widget').css('top').split('px')[0])
+        left = parseInt(@$el.dialog('widget').css('left').split('px')[0])
+        xoff = @model.reverse_position_x(left);
+        yoff = @model.reverse_position_y(top);
+        @model.set({'offset' : [xoff, yoff]})
     )
     @$el.dialog('widget').css({
       'top' : @model.position_y() + "px",
@@ -376,6 +382,15 @@ class Component extends HasParent
     return @get('height') - y
 
   #compute a child components position in the underlying device
+  child_position_to_offset_x : (child, position) ->
+    offset = position
+    return offset
+
+  child_position_to_offset_y : (child, position) ->
+    ypos = position + child.get('outerheight')
+    offset = @get('height') - ypos
+    return offset
+
   position_child_x : (child, offset) ->
     return  @xpos(offset)
   position_child_y : (child, offset) ->
@@ -394,6 +409,19 @@ class Component extends HasParent
       return 0
     val = parent.position_child_y(this, @get('offset')[1])
     return val
+
+  reverse_position_x : (input) ->
+    parent = @get_ref('parent')
+    if not parent
+      return 0
+    return parent.child_position_to_offset_x(this, input)
+
+  reverse_position_y : (input) ->
+    parent = @get_ref('parent')
+    if not parent
+      return 0
+    return parent.child_position_to_offset_y(this, input)
+
   dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property('outerwidth', ['width', 'border_space'],

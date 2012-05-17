@@ -22,12 +22,13 @@ test('test_interactive', ()->
   container.set({'children' : [plot1.ref(), plot2.ref(), plot3.ref(), plot4.ref()]})
   plot1.set('offset', [100, 100])
   plot2.set('offset', [400, 100])
-  plot3.set('offset', [100, 500])
-  plot4.set('offset', [500, 500])
+  plot3.set('offset', [100, 300])
+  plot4.set('offset', [500, 300])
   window.myrender = () ->
-  	view = new container.default_view({'model' : container});
-  	view.render()
-  	plot3.set({'height' : 300})
+    view = new container.default_view({'model' : container});
+    view.render()
+    plot3.set({'height' : 300})
+    window.plot3 = plot3
 
   _.defer(window.myrender)
 )
