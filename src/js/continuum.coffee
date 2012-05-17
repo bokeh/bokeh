@@ -436,7 +436,8 @@ class TableView extends ContinuumView
         row_elem.append(elem)
       @$el.find('table').append(row_elem)
     @render_pagination()
-    @add_dialog()
+    if @mget('usedialog') and not @$el.is(":visible")
+      @add_dialog()
 
   render_pagination : ->
     if @mget('offset') > 0

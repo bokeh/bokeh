@@ -4,7 +4,8 @@ test('test_table', ->
     'data' : [[1,2],[3,4],[4,5]]
     'chunksize' : 3,
     'offset' : 0,
-    'total_rows' : 3
+    'total_rows' : 3,
+    'usedialog' : true
   })
   view = new table.default_view({'model':table})
   view.render()
