@@ -7,3 +7,7 @@ svg {
   stroke-width: 1.5px;
   shape-rendering: crispEdges;
 }
+
+.ui-dialog-titlebar {
+  height : 16px 
+}
