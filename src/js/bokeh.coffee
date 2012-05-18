@@ -396,9 +396,10 @@ class GridPlotContainer extends Component
 
 GridPlotContainer::defaults = _.clone(GridPlotContainer::defaults)
 _.extend(GridPlotContainer::defaults , {
-  'resize_children' : false
-  'children' : [[]]
-  'usedialog' : false
+  resize_children : false
+  children : [[]]
+  usedialog : false
+  border_space : 0
 })
 
 class GridPlotContainers extends Backbone.Collection

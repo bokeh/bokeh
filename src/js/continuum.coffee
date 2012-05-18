@@ -344,8 +344,8 @@ class ContinuumView extends Backbone.View
     return @model.get_ref(fld)
   add_dialog : ->
     @$el.dialog(
-      width : @mget('outerwidth'),
-      height : @mget('outerheight'),
+      width : @mget('outerwidth') + 50,
+      maxHeight : $(window).height(),
       close :  () =>
         @remove()
       dragStop : (event, ui) =>
@@ -356,6 +356,8 @@ class ContinuumView extends Backbone.View
         @model.set({'offset' : [xoff, yoff]})
         @model.save()
     )
+    #for some reason setting height at init time does not work!!
+    _.defer(() => @$el.dialog('option', 'height', @mget('outerheight') + 70))
     position = () =>
       @$el.dialog('widget').css({
         'top' : @model.position_y() + "px",
