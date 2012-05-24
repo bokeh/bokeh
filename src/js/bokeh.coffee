@@ -465,23 +465,7 @@ class PlotView extends BokehView
     if @mget('usedialog') and not @$el.is(":visible")
       @add_dialog()
 
-build_views = (mainmodel, view_storage, view_specs, options) ->
-  #create a view for each view spec, store it in view_storage
-  #remove anything from view_storage which isn't present in view_spec
-  #option parameter are passed to views
-  found = {}
-  for spec in view_specs
-    model = mainmodel.resolve_ref(spec)
-    found[model.id] = true
-    if view_storage[model.id]
-      continue
-    options = _.extend({}, spec.options, options, {'model' : model})
-    view_storage[model.id] = new model.default_view(options)
-  for own key, value in view_storage
-    if not _.has(found, key)
-      value.remove()
-      delete view_storage[key]
-
+build_views = Continuum.build_views
 
 class Plot extends Component
   type : 'Plot'

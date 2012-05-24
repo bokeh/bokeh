@@ -56,6 +56,24 @@ Continuum.submodels = (ws_conn_string, topic) ->
     #   window.view = view
   return s
 
+build_views = (mainmodel, view_storage, view_specs, options) ->
+  #create a view for each view spec, store it in view_storage
+  #remove anything from view_storage which isn't present in view_spec
+  #option parameter are passed to views
+  found = {}
+  for spec in view_specs
+    model = mainmodel.resolve_ref(spec)
+    found[model.id] = true
+    if view_storage[model.id]
+      continue
+    options = _.extend({}, spec.options, options, {'model' : model})
+    view_storage[model.id] = new model.default_view(options)
+  for own key, value of view_storage
+    if not _.has(found, key)
+      value.remove()
+      delete view_storage[key]
+
+Continuum.build_views = build_views
 
 window.logger = new Backbone.Model()
 window.logger.on('all',
@@ -574,15 +592,17 @@ class InteractiveContextView extends ContinuumView
     safebind(this, @model, 'destroy', @remove)
     safebind(this, @model, 'change', @render)
 
-  render : () ->
+  build_children : () ->
     for spec in @mget('children')
       model = @model.resolve_ref(spec)
       model.set({'usedialog' : true})
       model.save()
-      view = new model.default_view({'model' : model})
-      view.render()
-      @views[model.id] = view
+    build_views(@model, @views, @mget('children'))
+
+  render : () ->
+    @build_children()
     return null
+
 class InteractiveContext extends Component
   type : 'InteractiveContext',
   default_view : InteractiveContextView
