@@ -58,20 +58,21 @@ class PlotRange1ds extends Backbone.Collection
 class DataRange1d extends Range1d
   type : 'DataRange1d'
   defaults :
-    data_source : null
-    columns : []
+    sources : []
     rangepadding : 0.1
   dinitialize : (attrs, options) ->
     super(attrs, options)
+    deps = ['sources', 'rangepadding']
+    for source in @get('sources')
+      deps.push({'ref' : source['ref'], 'fields' : ['data']})
     @register_property('minmax',
-      ['data_source', 'columns', 'padding',
-        {
-          'ref' : @get('data_source'),
-          'fields' : ['data']
-        }
-      ],
+      deps
       () ->
-        columns = (@get_ref('data_source').getcolumn(x) for x in @get('columns'))
+        columns = []
+        for source in @get('sources')
+          sourceobj = @resolve_ref(source['ref'])
+          for colname in source['columns']
+            columns.push(sourceobj.getcolumn(colname))
         columns = _.reduce(columns, (x, y) -> return x.concat(y))
         [min, max] = [_.min(columns), _.max(columns)]
         span = (max - min) * (1 + @get('rangepadding'))
@@ -718,18 +719,18 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     'plot' : plot_model.ref(),
     'attribute' : 'height'
   })
+  xdr = Collections['DataRange1d'].create({
+    'sources' : [{'ref' : data_source.ref(), 'columns' : [xfield]}]
+  })
+  ydr = Collections['DataRange1d'].create({
+    'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
+  })
   xmapper = Collections['LinearMapper'].create({
-    data_range : Collections['DataRange1d'].create({
-        'data_source' : data_source.ref(),
-        'columns' : ['x']
-      })
+    data_range : xdr.ref()
     screen_range : xr.ref()
   })
   ymapper = Collections['LinearMapper'].create({
-    data_range : Collections['DataRange1d'].create({
-        'data_source' : data_source.ref(),
-        'columns' : ['y']
-      })
+    data_range : ydr.ref()
     screen_range : yr.ref()
   })
   scatter_plot = Collections["ScatterRenderer"].create(
@@ -773,12 +774,18 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield) ->
     'plot' : plot_model.ref(),
     'attribute' : 'height'
   })
+  xdr = Collections['DataRange1d'].create({
+    'sources' : [{'ref' : data_source.ref(), 'columns' : [xfield]}]
+  })
+  ydr = Collections['DataRange1d'].create({
+    'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
+  })
   xmapper = Collections['LinearMapper'].create({
-    data_range : data_source.get_cont_range(xfield, 0.1)
+    data_range : xdr.ref()
     screen_range : xr.ref()
   })
   ymapper = Collections['LinearMapper'].create({
-    data_range : data_source.get_cont_range(yfield, 0.1)
+    data_range : ydr.ref()
     screen_range : yr.ref()
   })
   line_plot = Collections["LineRenderer"].create(
