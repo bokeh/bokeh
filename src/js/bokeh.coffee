@@ -291,12 +291,14 @@ class GridPlotContainerView extends BokehView
     @build_children()
     @model.on('change:children', @build_children, this);
     @model.on('change', @render, this);
+    @render()
 
   build_children : ->
     node = @build_node()
     childspecs = []
     for row in @mget('children')
       for x in row
+        @model.resolve_ref(x).set('usedialog', false)
         childspecs.push(x)
     build_views(@model, @childviews, childspecs, {'el' : @tag_d3('plot')[0][0]})
 
