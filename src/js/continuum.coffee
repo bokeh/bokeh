@@ -33,7 +33,7 @@ Continuum.load_models = (modelspecs)->
   console.log('updating', oldspecs)
   for coll_attrs in oldspecs
     [coll, attrs] = coll_attrs
-    coll.get(attrs['id']).set(attrs)
+    coll.get(attrs['id']).set(attrs, {'local' : true})
 
 Continuum.submodels = (ws_conn_string, topic) ->
   try
@@ -51,7 +51,7 @@ Continuum.submodels = (ws_conn_string, topic) ->
       for ref in msgobj['modelspecs']
         model = Continuum.resolve_ref(ref['collections'], ref['type'], ref['id'])
         if model
-          model.destroy()
+          model.destroy({'local' : true})
       return null
   return s
 
@@ -173,8 +173,8 @@ safebind = (binder, target, event, callback) ->
 ## also has infrastructure for auto removing events bound via safebind
 class HasProperties extends Backbone.Model
   collections : Collections
-  destroy : ->
-    super()
+  destroy : (options)->
+    super(options)
     if _.has(this, 'eventers')
       for own target, val of @eventers
         val.off(null, null, this)
