@@ -6,15 +6,16 @@ test('test_interactive', ()->
       {x : 3, y : -4},
       {x : 4, y : -5},
       {x : 5, y : -6}]
-  })
+  }, {'local' : true})
   data_source2 = Bokeh.Collections['ObjectArrayDataSource'].create({
     data : [{x : 1, y : 2},
       {x : 2, y : 3},
       {x : 3, y : 1},
       {x : 4, y : 5},
       {x : 5, y : 6}]
-    })
-  container = Bokeh.Collections['InteractiveContext'].create();
+    }, {'local' : true})
+  container = Bokeh.Collections['InteractiveContext'].create(
+    {}, {'local' : true});
   plot1 = Bokeh.scatter_plot(container, data_source1, 'x', 'y', 'x', 'circle')
   plot2 = Bokeh.scatter_plot(container, data_source2, 'x', 'y', 'x', 'circle')
   plot3 = Bokeh.scatter_plot(container, data_source2, 'x', 'y', 'x', 'circle')
@@ -41,15 +42,16 @@ test('test_remove_from_interactive', ()->
       {x : 3, y : -4},
       {x : 4, y : -5},
       {x : 5, y : -6}]
-  })
+  }, {'local' : true})
   data_source2 = Bokeh.Collections['ObjectArrayDataSource'].create({
     data : [{x : 1, y : 2},
       {x : 2, y : 3},
       {x : 3, y : 1},
       {x : 4, y : 5},
       {x : 5, y : 6}]
-    })
-  container = Bokeh.Collections['InteractiveContext'].create();
+    }, {'local' : true})
+  container = Bokeh.Collections['InteractiveContext'].create(
+    {}, {'local' : true});
   plot1 = Bokeh.scatter_plot(container, data_source1, 'x', 'y', 'x', 'circle')
   plot2 = Bokeh.scatter_plot(container, data_source2, 'x', 'y', 'x', 'circle')
   plot3 = Bokeh.scatter_plot(container, data_source2, 'x', 'y', 'x', 'circle')

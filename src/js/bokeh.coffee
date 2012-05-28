@@ -291,7 +291,10 @@ class GridPlotContainerView extends BokehView
     @build_children()
     @model.on('change:children', @build_children, this);
     @model.on('change', @render, this);
+    safebind(this, @model, 'destroy', () =>
+      @remove())
     @render()
+    return this
 
   build_children : ->
     node = @build_node()
@@ -420,6 +423,9 @@ class PlotView extends BokehView
     safebind(this, @model, 'change:renderers', @build_renderers)
     safebind(this, @model, 'change:axes', @build_axes)
     safebind(this, @model, 'change', @render)
+    safebind(this, @model, 'destroy', () =>
+      @remove())
+    return this
 
   build_renderers : ->
     build_views(@model, @renderers, @mget('renderers'),
@@ -688,37 +694,38 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
       data_range : Collections['DataFactorRange'].create({
         data_source : data_source.ref()
         columns : ['x']
-      })
-    })
+      }, {'local' : true})
+    }, {'local' : true})
 
   source_name = data_source.get('name')
   plot_model = Collections['Plot'].create(
     data_sources :
       source_name : data_source.ref()
     parent : parent
+    , {'local' : true}
   )
   xr = Collections['PlotRange1d'].create({
     'plot' : plot_model.ref(),
     'attribute' : 'width'
-  })
+  }, {'local' : true})
   yr = Collections['PlotRange1d'].create({
     'plot' : plot_model.ref(),
     'attribute' : 'height'
-  })
+  }, {'local' : true})
   xdr = Collections['DataRange1d'].create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [xfield]}]
-  })
+  }, {'local' : true})
   ydr = Collections['DataRange1d'].create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
-  })
+  }, {'local' : true})
   xmapper = Collections['LinearMapper'].create({
     data_range : xdr.ref()
     screen_range : xr.ref()
-  })
+  }, {'local' : true})
   ymapper = Collections['LinearMapper'].create({
     data_range : ydr.ref()
     screen_range : yr.ref()
-  })
+  }, {'local' : true})
   scatter_plot = Collections["ScatterRenderer"].create(
     data_source: data_source.ref()
     xfield: xfield
@@ -729,21 +736,23 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     xmapper: xmapper.ref()
     ymapper: ymapper.ref()
     parent : plot_model.ref()
+    , {'local' : true}
   )
   xaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'bottom',
     'mapper' : xmapper.ref()
     'parent' : plot_model.ref()
-  })
+
+  }, {'local' : true})
   yaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'left',
     'mapper' : ymapper.ref()
     'parent' : plot_model.ref()
-  })
+  }, {'local' : true})
   plot_model.set({
     'renderers' : [scatter_plot.ref()],
     'axes' : [xaxis.ref(), yaxis.ref()]
-  })
+  }, {'local' : true})
 
 Bokeh.line_plot = (parent, data_source, xfield, yfield) ->
   source_name = data_source.get('name')
@@ -751,29 +760,30 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield) ->
     data_sources :
       source_name : data_source.ref()
     parent : parent
+    , {'local' : true}
   )
   xr = Collections['PlotRange1d'].create({
     'plot' : plot_model.ref(),
     'attribute' : 'width'
-  })
+  }, {'local' : true})
   yr = Collections['PlotRange1d'].create({
     'plot' : plot_model.ref(),
     'attribute' : 'height'
-  })
+  }, {'local' : true})
   xdr = Collections['DataRange1d'].create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [xfield]}]
-  })
+  }, {'local' : true})
   ydr = Collections['DataRange1d'].create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
-  })
+  }, {'local' : true})
   xmapper = Collections['LinearMapper'].create({
     data_range : xdr.ref()
     screen_range : xr.ref()
-  })
+  }, {'local' : true})
   ymapper = Collections['LinearMapper'].create({
     data_range : ydr.ref()
     screen_range : yr.ref()
-  })
+  }, {'local' : true})
   line_plot = Collections["LineRenderer"].create(
     data_source: data_source.ref()
     xfield: xfield
@@ -781,21 +791,22 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield) ->
     xmapper: xmapper.ref()
     ymapper: ymapper.ref()
     parent : plot_model.ref()
+    , {'local' : true}
   )
   xaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'bottom',
     'mapper' : xmapper.ref()
     'parent' : plot_model.ref()
-  })
+  }, {'local' : true})
   yaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'left',
     'mapper' : ymapper.ref()
     'parent' : plot_model.ref()
-  })
+  }, {'local' : true})
   plot_model.set({
     'renderers' : [line_plot.ref()],
     'axes' : [xaxis.ref(), yaxis.ref()]
-  })
+  }, {'local' : true})
 
 #Preparing the name space
 Bokeh.register_collection('Plot', new Plots)

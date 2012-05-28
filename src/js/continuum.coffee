@@ -47,13 +47,12 @@ Continuum.submodels = (ws_conn_string, topic) ->
     msgobj = JSON.parse(msg.data)
     if msgobj['msgtype'] == 'modelpush'
       Continuum.load_models(msgobj['modelspecs'])
-    # else if msgobj['msgtype'] == 'renderpush'
-    #   ref = msgobj['ref']
-    #   model = Continuum.resolve_ref(ref['collections'], ref['type'], ref['id'])
-    #   view = new model.default_view({'model' : model})
-    #   view.render()
-    #   view.add_dialog()
-    #   window.view = view
+    else if msgobj['msgtype'] == 'modeldel'
+      for ref in msgobj['modelspecs']
+        model = Continuum.resolve_ref(ref['collections'], ref['type'], ref['id'])
+        if model
+          model.destroy()
+      return null
   return s
 
 build_views = (mainmodel, view_storage, view_specs, options) ->
@@ -175,10 +174,11 @@ safebind = (binder, target, event, callback) ->
 class HasProperties extends Backbone.Model
   collections : Collections
   destroy : ->
+    super()
     if _.has(this, 'eventers')
       for own target, val of @eventers
         val.off(null, null, this)
-    super()
+
 
   initialize : (attrs, options) ->
     super(attrs, options)
@@ -323,12 +323,18 @@ class HasProperties extends Backbone.Model
     ref = @get(ref_name)
     if ref
       return @resolve_ref(ref)
+
   url : () ->
       base = "/bb/" + window.topic + "/" + @type + "/"
       if (@isNew())
         return base
       return base + @get('id')
 
+  sync : (method, model, options) ->
+    if options.local
+      return options.success(model)
+    else
+      return Backbone.sync(method, model, options)
 
 
 class ContinuumView extends Backbone.View
@@ -596,7 +602,6 @@ class InteractiveContextView extends ContinuumView
     for spec in @mget('children')
       model = @model.resolve_ref(spec)
       model.set({'usedialog' : true})
-      model.save()
     build_views(@model, @views, @mget('children'))
 
   render : () ->
