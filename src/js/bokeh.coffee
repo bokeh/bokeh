@@ -36,25 +36,6 @@ class Range1d extends HasProperties
 class Range1ds extends Backbone.Collection
   model : Range1d
 
-class PlotRange1d extends Range1d
-  type : 'PlotRange1d'
-  defaults :
-    start : 0
-    end : 200
-    plot : null
-    attribute : 'width'
-  dinitialize : (attrs, options) ->
-    super(attrs, options)
-    @register_property(
-      'end', [{'ref' : @get('plot'), 'fields' : [@get('attribute')]}],
-      () ->
-        return @get_ref('plot').get(@get('attribute'))
-      ,true
-    )
-    return this
-class PlotRange1ds extends Backbone.Collection
-  model : PlotRange1d
-
 class DataRange1d extends Range1d
   type : 'DataRange1d'
   defaults :
@@ -476,6 +457,39 @@ class PlotView extends BokehView
 build_views = Continuum.build_views
 
 class Plot extends Component
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    if 'xrange' not of attrs
+      @set('xrange',
+        @collections['Range1d'].create({'start' : 0, 'end' : 200}, options).ref())
+    if 'yrange' not of attrs
+      @set('yrange',
+        @collections['Range1d'].create({'start' : 0, 'end' : 200}, options).ref())
+
+  dinitialize : (attrs, options) ->
+    super(attrs, options)
+    @register_property('width',
+      ['xrange', {'ref' : @get('xrange'), 'fields' : ['start', 'end']}],
+      () ->
+        range = @get_ref('xrange')
+        return range.get('end') - range.get('start')
+      , true
+      , (width) =>
+          range = @get_ref('xrange')
+          range.set('end', range.get('start') + width)
+          return null
+    )
+    @register_property('height',
+      ['yrange', {'ref' : @get('yrange'), 'fields' : ['start', 'end']}],
+      () ->
+        range = @get_ref('yrange')
+        return range.get('end') - range.get('start')
+      , true
+      , (height) =>
+          range = @get_ref('yrange')
+          range.set('end', range.get('start') + height)
+          return null
+    )
   type : 'Plot'
   default_view : PlotView
   parent_properties : ['background_color', 'foreground_color',
@@ -496,8 +510,6 @@ Plot::display_defaults = _.clone(Plot::display_defaults)
 _.extend(Plot::display_defaults, {
   'background_color' : "#ddd",
   'foreground_color' : "#333",
-  'width' : 200,
-  'height' : 200
 })
 
 class Plots extends Backbone.Collection
@@ -684,7 +696,10 @@ class ScatterRenderers extends Backbone.Collection
 """
   Convenience plotting functions
 """
-Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, colormapper) ->
+Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
+  if _.isUndefined(local)
+    local = true
+  options = {'local' : local}
   if _.isUndefined(mark)
     mark = 'circle'
   if _.isUndefined(color_field)
@@ -694,38 +709,30 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
       data_range : Collections['DataFactorRange'].create({
         data_source : data_source.ref()
         columns : ['x']
-      }, {'local' : true})
-    }, {'local' : true})
+      }, options)
+    }, options)
 
   source_name = data_source.get('name')
   plot_model = Collections['Plot'].create(
     data_sources :
       source_name : data_source.ref()
     parent : parent
-    , {'local' : true}
+    , options
   )
-  xr = Collections['PlotRange1d'].create({
-    'plot' : plot_model.ref(),
-    'attribute' : 'width'
-  }, {'local' : true})
-  yr = Collections['PlotRange1d'].create({
-    'plot' : plot_model.ref(),
-    'attribute' : 'height'
-  }, {'local' : true})
   xdr = Collections['DataRange1d'].create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [xfield]}]
-  }, {'local' : true})
+  }, options)
   ydr = Collections['DataRange1d'].create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
-  }, {'local' : true})
+  }, options)
   xmapper = Collections['LinearMapper'].create({
     data_range : xdr.ref()
-    screen_range : xr.ref()
-  }, {'local' : true})
+    screen_range : plot_model.get('xrange')
+  }, options)
   ymapper = Collections['LinearMapper'].create({
     data_range : ydr.ref()
-    screen_range : yr.ref()
-  }, {'local' : true})
+    screen_range : plot_model.get('yrange')
+  }, options)
   scatter_plot = Collections["ScatterRenderer"].create(
     data_source: data_source.ref()
     xfield: xfield
@@ -736,54 +743,49 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     xmapper: xmapper.ref()
     ymapper: ymapper.ref()
     parent : plot_model.ref()
-    , {'local' : true}
+    , options
   )
   xaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'bottom',
     'mapper' : xmapper.ref()
     'parent' : plot_model.ref()
 
-  }, {'local' : true})
+  }, options)
   yaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'left',
     'mapper' : ymapper.ref()
     'parent' : plot_model.ref()
-  }, {'local' : true})
+  }, options)
   plot_model.set({
     'renderers' : [scatter_plot.ref()],
     'axes' : [xaxis.ref(), yaxis.ref()]
-  }, {'local' : true})
+  }, options)
 
-Bokeh.line_plot = (parent, data_source, xfield, yfield) ->
+Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
+  if _.isUndefined(local)
+    local = true
+  options = {'local' : local}
   source_name = data_source.get('name')
   plot_model = Collections['Plot'].create(
     data_sources :
       source_name : data_source.ref()
     parent : parent
-    , {'local' : true}
+    , options
   )
-  xr = Collections['PlotRange1d'].create({
-    'plot' : plot_model.ref(),
-    'attribute' : 'width'
-  }, {'local' : true})
-  yr = Collections['PlotRange1d'].create({
-    'plot' : plot_model.ref(),
-    'attribute' : 'height'
-  }, {'local' : true})
   xdr = Collections['DataRange1d'].create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [xfield]}]
-  }, {'local' : true})
+  }, options)
   ydr = Collections['DataRange1d'].create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
-  }, {'local' : true})
+  }, options)
   xmapper = Collections['LinearMapper'].create({
     data_range : xdr.ref()
-    screen_range : xr.ref()
-  }, {'local' : true})
+    screen_range : plot_model.get('xrange')
+  }, options)
   ymapper = Collections['LinearMapper'].create({
     data_range : ydr.ref()
-    screen_range : yr.ref()
-  }, {'local' : true})
+    screen_range : plot_model.get('yrange')
+  }, options)
   line_plot = Collections["LineRenderer"].create(
     data_source: data_source.ref()
     xfield: xfield
@@ -791,22 +793,22 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield) ->
     xmapper: xmapper.ref()
     ymapper: ymapper.ref()
     parent : plot_model.ref()
-    , {'local' : true}
+    , options
   )
   xaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'bottom',
     'mapper' : xmapper.ref()
     'parent' : plot_model.ref()
-  }, {'local' : true})
+  }, options)
   yaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'left',
     'mapper' : ymapper.ref()
     'parent' : plot_model.ref()
-  }, {'local' : true})
+  }, options)
   plot_model.set({
     'renderers' : [line_plot.ref()],
     'axes' : [xaxis.ref(), yaxis.ref()]
-  }, {'local' : true})
+  }, options)
 
 #Preparing the name space
 Bokeh.register_collection('Plot', new Plots)
@@ -814,7 +816,6 @@ Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
 Bokeh.register_collection('LineRenderer', new LineRenderers)
 Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('Range1d', new Range1ds)
-Bokeh.register_collection('PlotRange1d', new PlotRange1ds)
 Bokeh.register_collection('LinearMapper', new LinearMappers)
 Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
 Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)

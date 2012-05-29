@@ -366,7 +366,13 @@ class ContinuumView extends Backbone.View
     return @model.get(fld)
   mget_ref : (fld) ->
     return @model.get_ref(fld)
+
   add_dialog : ->
+    position = () =>
+      @$el.dialog('widget').css({
+        'top' : @model.position_y() + "px",
+        'left' : @model.position_x() + "px"
+      })
     @$el.dialog(
       width : @mget('outerwidth') + 50,
       maxHeight : $(window).height(),
@@ -380,14 +386,9 @@ class ContinuumView extends Backbone.View
         @model.set({'offset' : [xoff, yoff]})
         @model.save()
     )
+    position()
     #for some reason setting height at init time does not work!!
     _.defer(() => @$el.dialog('option', 'height', @mget('outerheight') + 70))
-    position = () =>
-      @$el.dialog('widget').css({
-        'top' : @model.position_y() + "px",
-        'left' : @model.position_x() + "px"
-      })
-    position()
     safebind(this, @model, 'change:offset', position)
     safebind(this, @model, 'change:outerwidth', ()->
       @$el.dialog('option', 'width', @mget('outerwidth')))
@@ -410,6 +411,8 @@ class HasParent extends HasProperties
       return @get_ref('parent').get(attr)
     else
       retval = @display_defaults[attr]
+      # this is ugly, we should take this out and not support object specs
+      # in defaults
       if _.isObject(retval) and _.has(retval, 'type')
         attrs = if _.has(retval, 'attrs') then retval['attrs'] else {}
         retval =  @collections[retval['type']].create(attrs).ref()
