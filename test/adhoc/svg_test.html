@@ -38,7 +38,37 @@
     
     path.attr('stroke', '#000').attr('fill', 'none').attr('d', line);
     path.enter().append('path').attr('stroke', '#000').attr('fill', 'none').attr('d', line);
+    d3.select('#rendercontainer').attr("pointer-events", "all")
+    d3.select('#rendercontainer').on("mousedown.drag", function(){
+    console.log('MOUSEDOWNDRAG')
+    });
+    d3.select('#rendercontainer').on("mouseup.drag", function(){
+    console.log('MOUSEUPDRAG')
+    });
+    d3.select('#rendercontainer').on("mousedown.brush", function(){
+    console.log('MOUSEDOWNBRUSH')
+    });
+    d3.select('#rendercontainer').on("mouseup.brush", function(){
+    console.log('MOUSEUPBRUSH')
+    });
+
+    <!-- drag = d3.behavior.drag() -->
+    <!-- .on('dragstart', function(){ -->
+    <!-- console.log('dragstart') -->
+    <!-- }) -->
+    <!-- .on('dragend', function(){ -->
+    <!-- console.log('dragend') -->
+    <!-- }); -->
     
+    <!-- d3.select('#rendercontainer').call(drag) -->
+    <!-- brush = d3.svg.brush() -->
+    <!-- .on('brushstart', function(){ -->
+    <!-- console.log('brushstart') -->
+    <!-- }) -->
+    <!-- .on('brushend', function(){ -->
+    <!-- console.log('brushend') -->
+    <!-- }); -->
+    <!-- d3.select('#rendercontainer').call(brush) -->
     });
   </script>
 </head>
