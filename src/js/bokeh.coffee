@@ -41,31 +41,48 @@ class DataRange1d extends Range1d
   defaults :
     sources : []
     rangepadding : 0.1
+
+  _get_minmax : () ->
+    columns = []
+    for source in @get('sources')
+      sourceobj = @resolve_ref(source['ref'])
+      for colname in source['columns']
+        columns.push(sourceobj.getcolumn(colname))
+    columns = _.reduce(columns, (x, y) -> return x.concat(y))
+    [min, max] = [_.min(columns), _.max(columns)]
+    span = (max - min) * (1 + @get('rangepadding'))
+    center = (max + min) / 2.0
+    [min, max] = [center - span/2.0, center + span/2.0]
+    return [min, max]
+
+  _get_start : () ->
+    if not _.isNullOrUndefined(@get('_start'))
+      return @get('_start')
+    else
+      return @get('minmax')[0]
+
+  _set_start : (start) ->
+    @set('_start', start)
+
+  _get_end : () ->
+    if not _.isNullOrUndefined(@get('_end'))
+      return @get('_end')
+    else
+      return @get('minmax')[1]
+
+  _set_end : (end) ->
+    @set('_end', end)
+
   dinitialize : (attrs, options) ->
     super(attrs, options)
     deps = ['sources', 'rangepadding']
     for source in @get('sources')
       deps.push({'ref' : source['ref'], 'fields' : ['data']})
-    @register_property('minmax',
-      deps
-      () ->
-        columns = []
-        for source in @get('sources')
-          sourceobj = @resolve_ref(source['ref'])
-          for colname in source['columns']
-            columns.push(sourceobj.getcolumn(colname))
-        columns = _.reduce(columns, (x, y) -> return x.concat(y))
-        [min, max] = [_.min(columns), _.max(columns)]
-        span = (max - min) * (1 + @get('rangepadding'))
-        center = (max + min) / 2.0
-        [min, max] = [center - span/2.0, center + span/2.0]
-        return [min, max]
-      ,true
-    )
-    @register_property('start', ['minmax'],
-      (() -> return @get('minmax')[0]), true)
-    @register_property('end', ['minmax'],
-      (() -> return @get('minmax')[1]), true)
+    @register_property('minmax', deps, @_get_minmax, true)
+    @register_property('start', ['minmax', '_start'],
+      @_get_start, true, @_set_start)
+    @register_property('end', ['minmax', '_end'],
+      @_get_end, true, @_set_end)
 
 class DataRange1ds extends Backbone.Collection
   model : DataRange1d
