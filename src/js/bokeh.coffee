@@ -17,7 +17,7 @@ Component = Continuum.Component
 BokehView = Continuum.ContinuumView
 HasProperties = Continuum.HasProperties
 
-class Renderer extends BokehView
+class PlotWidget extends BokehView
   initialize : (options) ->
     @plot_id = options.plot_id
     @plot_model = options.plot_model
@@ -194,6 +194,7 @@ class DiscreteColorMapper extends HasProperties
       "#17becf", "#9edae5"
     ],
     data_range : null
+
   dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property('factor_map', ['data_range'],
@@ -417,12 +418,16 @@ class PlotView extends BokehView
     super(options)
     @renderers = {}
     @axes = {}
+    @tools = {}
 
     @build_renderers()
     @build_axes()
+    @build_tools()
+
     @render()
     safebind(this, @model, 'change:renderers', @build_renderers)
     safebind(this, @model, 'change:axes', @build_axes)
+    safebind(this, @model, 'change:tools', @build_tools)
     safebind(this, @model, 'change', @render)
     safebind(this, @model, 'destroy', () =>
       @remove())
@@ -440,6 +445,12 @@ class PlotView extends BokehView
       'plot_id' : @id,
       'plot_model' : @model})
 
+  build_tools : ->
+    build_views(@model, @tools, @mget('tools'),
+      {'el' : @el,
+      'plot_id' : @id,
+      'plot_model' : @model})
+
   render_mainsvg : ->
     node = @tag_d3('mainsvg')
     if node == null
@@ -447,29 +458,40 @@ class PlotView extends BokehView
         .attr('id', @tag_id('mainsvg'))
       node.append('g')
         .attr('id', @tag_id('plot'))
+      @tag_d3('plot').append('g').attr('id', @tag_id('bg'))
+      @tag_d3('plot').append('g').attr('id', @tag_id('fg'))
+      @tag_d3('bg')
+        .append('rect')
+        .attr('id', @tag_id('innerbox'))
+      @tag_d3('fg').append('svg').attr('id', @tag_id('plotwindow'))
+
     if not @mget('usedialog')
       node.attr('x', @model.position_x())
        .attr('y', @model.position_y())
+    @tag_d3('innerbox')
+      .attr('fill', @mget('background_color'))
+      .attr('stroke', @model.get('foreground_color'))
+      .attr('width', @mget('width'))
+      .attr("height", @mget('height'))
+    @tag_d3('plotwindow')
+        .attr('height', @mget('height'))
+        .attr('width', @mget('width'))
     node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
     #svg puts origin in the top left, we want it on the bottom left
     @tag_d3('plot').attr('transform',
       _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
 
   render_frame : ->
-    innernode = @tag_d3('innerbox')
-    if innernode == null
-      innernode = @tag_d3('plot').append('rect')
-        .attr('id', @tag_id('innerbox'))
-    innernode.attr('fill', @mget('background_color'))
-      .attr('stroke', @model.get('foreground_color'))
-      .attr('width', @mget('width')).attr("height", @mget('height'))
 
   render : ->
+    console.log('RENDER')
     @render_mainsvg();
     @render_frame();
     for own key, view of @axes
       view.render()
     for own key, view of @renderers
+      view.render()
+    for own key, view of @tools
       view.render()
     if @mget('usedialog') and not @$el.is(":visible")
       @add_dialog()
@@ -538,7 +560,11 @@ class Plots extends Backbone.Collection
 """
 D3LinearAxisView
 """
-class D3LinearAxisView extends Renderer
+class D3LinearAxisView extends PlotWidget
+  delegateEvents : () ->
+    safebind(this, @model, 'change', @render)
+    safebind(this, @mget_ref('mapper'), 'change', @render)
+
   get_offsets : (orientation) ->
     offsets =
       'x' : 0
@@ -571,10 +597,10 @@ class D3LinearAxisView extends Renderer
     return scale
 
   render : ->
-    base = @tag_d3('plot', @plot_id)
+    base = @tag_d3('bg', @plot_id)
     node = @tag_d3('axis')
     if not node
-      node = base.append('g', @tag_selector('plot', @plot_id))
+      node = base.append('g')
         .attr('id', @tag_id('axis'))
         .attr('class', 'D3LinearAxisView')
         .attr('stroke', @mget('foreground_color'))
@@ -610,7 +636,7 @@ class D3LinearAxis extends Component
 class D3LinearAxes extends Backbone.Collection
   model : D3LinearAxis
 
-class LineRendererView extends Renderer
+class LineRendererView extends PlotWidget
   render_line : (node) ->
     xmapper = @model.get_ref('xmapper')
     ymapper = @model.get_ref('ymapper')
@@ -630,7 +656,7 @@ class LineRendererView extends Renderer
     node.attr('fill', 'none')
 
   render : ->
-    plot = @tag_d3('plot', this.plot_id)
+    plot = @tag_d3('fg', this.plot_id)
     node = @tag_d3('line')
     if not node
       node = plot.append('g').attr('id', @tag_id('line'))
@@ -653,7 +679,13 @@ _.extend(LineRenderer::defaults, {
 class LineRenderers extends Backbone.Collection
   model : LineRenderer
 
-class ScatterRendererView extends Renderer
+class ScatterRendererView extends PlotWidget
+  delegateEvents : () ->
+    safebind(this, @model, 'change', @render)
+    safebind(this, @mget_ref('xmapper'), 'change', @render)
+    safebind(this, @mget_ref('ymapper'), 'change', @render)
+    safebind(this, @mget_ref('data_source'), 'change', @render)
+
   render_marks : (marks) ->
     xmapper = @model.get_ref('xmapper')
     ymapper = @model.get_ref('ymapper')
@@ -677,7 +709,7 @@ class ScatterRendererView extends Renderer
           return @model.get('foreground_color'))
 
   render : ->
-    plot = @tag_d3('plot', this.plot_id)
+    plot = @tag_d3('plotwindow', this.plot_id)
     node = @tag_d3('scatter')
     if not node
       node = plot.append('g')
@@ -713,6 +745,80 @@ _.extend(ScatterRenderer::display_defaults, {
 
 class ScatterRenderers extends Backbone.Collection
   model : ScatterRenderer
+
+"""
+  tools
+"""
+class PanToolView extends PlotWidget
+  mouse_coords : () ->
+    plot = @tag_d3('plotwindow', @plot_id)
+    [x, y] = d3.mouse(plot[0][0])
+    [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    return [x, y]
+
+  _start_drag_mapper : (mapper) ->
+    range = mapper.get_ref('data_range')
+    range[@tag_id('start')] = range.get('start')
+    range[@tag_id('end')] = range.get('end')
+
+  _start_drag : () ->
+    [@x, @y] = @mouse_coords()
+    xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
+    ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
+    for xmap in xmappers
+      @_start_drag_mapper(xmap)
+    for ymap in ymappers
+      @_start_drag_mapper(ymap)
+
+  _drag_mapper : (mapper, diff) ->
+    screen_range = mapper.get_ref('screen_range')
+    data_range = mapper.get_ref('data_range')
+    screenlow = screen_range.get('start') - diff
+    screenhigh = screen_range.get('end') - diff
+    [start, end] = [mapper.map_data(screenlow), mapper.map_data(screenhigh)]
+    data_range.set({
+      'start' : start
+      'end' : end
+    }, {'local' : true})
+
+  _drag : () ->
+    plot = @tag_d3('plotwindow', @plot_id)
+    [x, y] = @mouse_coords()
+    xdiff = x - @x
+    ydiff = y - @y
+    [@x, @y] = [x, y]
+    xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
+    ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
+    for xmap in xmappers
+      @_drag_mapper(xmap, xdiff)
+    for ymap in ymappers
+      @_drag_mapper(ymap, ydiff)
+  render : () ->
+    node = d3.select(@el)
+    node.attr("pointer-events", "all")
+    node.on("mousedown.drag",
+      () =>
+        if d3.event.shiftKey
+          @_start_drag()
+        return null
+    )
+    node.on("mousemove.drag",
+      () =>
+        if d3.event.shiftKey
+          @_drag()
+        return null
+    )
+
+class PanTool extends Continuum.HasParent
+  type : "PanTool"
+  default_view : PanToolView
+  defaults :
+    xmappers : []
+    ymappers : []
+
+class PanTools extends Backbone.Collection
+  model : PanTool
+
 """
   Convenience plotting functions
 """
@@ -843,6 +949,7 @@ Bokeh.register_collection('FactorRange', new FactorRanges)
 Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)
 Bokeh.register_collection('DataRange1d', new DataRange1ds)
 Bokeh.register_collection('DataFactorRange', new DataFactorRanges)
+Bokeh.register_collection('PanTool', new PanTools)
 
 Bokeh.Collections = Collections
 Bokeh.HasProperties = HasProperties
@@ -862,3 +969,7 @@ Bokeh.LineRenderer = LineRenderer
 Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.GridPlotContainers = GridPlotContainers
 Bokeh.GridPlotContainer = GridPlotContainer
+
+Bokeh.PanTools = PanTools
+Bokeh.PanTool = PanTool
+Bokeh.PanToolView = PanToolView

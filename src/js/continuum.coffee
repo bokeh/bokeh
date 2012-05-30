@@ -439,15 +439,21 @@ class Component extends HasParent
   ypos : (y) ->
     return @get('height') - y
 
+  #transform underlying device (svg) to our coordinate space
+  rxpos : (x) ->
+    return x
+
+  rypos : (y) ->
+    return @get('height') - y
+
   #compute a child components position in the underlying device
   child_position_to_offset_x : (child, position) ->
     offset = position
-    return offset
+    return @rxpos(offset)
 
   child_position_to_offset_y : (child, position) ->
-    ypos = position + child.get('outerheight')
-    offset = @get('height') - ypos
-    return offset
+    offset = position + child.get('outerheight')
+    return @rypos(offset)
 
   position_child_x : (child, offset) ->
     return  @xpos(offset)
