@@ -484,7 +484,6 @@ class PlotView extends BokehView
   render_frame : ->
 
   render : ->
-    console.log('RENDER')
     @render_mainsvg();
     @render_frame();
     for own key, view of @axes
@@ -583,9 +582,6 @@ class D3LinearAxisView extends PlotWidget
         return -@plot_model.get('width')
 
   convert_scale : (scale) ->
-    if not scale
-      console.log 'sdfasdf'
-
     domain = scale.domain()
     range = scale.range()
     if @mget('orientation') in ['bottom', 'top']
