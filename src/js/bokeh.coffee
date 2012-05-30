@@ -633,6 +633,12 @@ class D3LinearAxes extends Backbone.Collection
   model : D3LinearAxis
 
 class LineRendererView extends PlotWidget
+  delegateEvents : () ->
+    safebind(this, @model, 'change', @render)
+    safebind(this, @mget_ref('xmapper'), 'change', @render)
+    safebind(this, @mget_ref('ymapper'), 'change', @render)
+    safebind(this, @mget_ref('data_source'), 'change', @render)
+
   render_line : (node) ->
     xmapper = @model.get_ref('xmapper')
     ymapper = @model.get_ref('ymapper')
@@ -652,7 +658,7 @@ class LineRendererView extends PlotWidget
     node.attr('fill', 'none')
 
   render : ->
-    plot = @tag_d3('fg', this.plot_id)
+    plot = @tag_d3('plotwindow', this.plot_id)
     node = @tag_d3('line')
     if not node
       node = plot.append('g').attr('id', @tag_id('line'))
