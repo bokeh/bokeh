@@ -102,4 +102,20 @@ asyncTest('test_datarange1d_can_be_overriden', ->
   )
 )
 
+test('test_linear_mapper', ->
+  range1 = Bokeh.Collections['Range1d'].create({'start' : 0, 'end' : 1})
+  range2 = Bokeh.Collections['Range1d'].create({'start' : 0, 'end' : 2})
+  mapper = Bokeh.Collections['LinearMapper'].create({
+    'data_range' : range1.ref(),
+    'screen_range' : range2.ref()
+  })
+  mapper.dinitialize()
+  ok(mapper.map_screen(0.5) == 1)
+  ok(mapper.map_screen(0) == 0)
+  ok(mapper.map_screen(1) == 2)
+  ok(mapper.map_data(1) == 0.5)
+  ok(mapper.map_data(0) == 0)
+  ok(mapper.map_data(2) == 1)
+)
+
 

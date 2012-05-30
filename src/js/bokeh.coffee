@@ -168,6 +168,9 @@ class LinearMapper extends Mapper
   map_screen : (data) ->
     return @get('scale')(data)
 
+  map_data : (screen) ->
+    return @get('scale').invert(screen)
+
 class LinearMappers extends Backbone.Collection
   model : LinearMapper
 
