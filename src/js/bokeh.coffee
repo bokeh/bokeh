@@ -481,11 +481,8 @@ class PlotView extends BokehView
     @tag_d3('plot').attr('transform',
       _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
 
-  render_frame : ->
-
   render : ->
     @render_mainsvg();
-    @render_frame();
     for own key, view of @axes
       view.render()
     for own key, view of @renderers
@@ -752,6 +749,9 @@ class ScatterRenderers extends Backbone.Collection
   tools
 """
 class PanToolView extends PlotWidget
+  initialize : (options) ->
+    @dragging = false
+    super(options)
   mouse_coords : () ->
     plot = @tag_d3('plotwindow', @plot_id)
     [x, y] = d3.mouse(plot[0][0])
@@ -764,6 +764,7 @@ class PanToolView extends PlotWidget
     range[@tag_id('end')] = range.get('end')
 
   _start_drag : () ->
+    @dragging = true
     [@x, @y] = @mouse_coords()
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
@@ -795,19 +796,24 @@ class PanToolView extends PlotWidget
       @_drag_mapper(xmap, xdiff)
     for ymap in ymappers
       @_drag_mapper(ymap, ydiff)
+
   render : () ->
-    node = d3.select(@el)
-    node.attr("pointer-events", "all")
-    node.on("mousedown.drag",
+    node = @tag_d3('mainsvg', @plot_id)
+    node.attr('pointer-events' , 'all')
+    # node = @tag_d3('plotwindow', @plot_id)
+    # node.attr('pointer-events' , 'all')
+    node.on("mouseup.drag",
       () =>
-        if d3.event.shiftKey
-          @_start_drag()
+        @dragging = false
         return null
     )
     node.on("mousemove.drag",
       () =>
         if d3.event.shiftKey
-          @_drag()
+          if not @dragging
+            @_start_drag()
+          else
+            @_drag()
         return null
     )
 
