@@ -804,13 +804,6 @@ class PanToolView extends PlotWidget
   render : () ->
     node = @tag_d3('mainsvg', @plot_id)
     node.attr('pointer-events' , 'all')
-    # node = @tag_d3('plotwindow', @plot_id)
-    # node.attr('pointer-events' , 'all')
-    node.on("mouseup.drag",
-      () =>
-        @dragging = false
-        return null
-    )
     node.on("mousemove.drag",
       () =>
         if d3.event.shiftKey
@@ -820,6 +813,8 @@ class PanToolView extends PlotWidget
             @_drag()
           d3.event.preventDefault()
           d3.event.stopPropagation()
+        else
+          @dragging = false
         return null
     )
 
