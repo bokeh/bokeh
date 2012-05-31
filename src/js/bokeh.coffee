@@ -23,6 +23,18 @@ class PlotWidget extends BokehView
     @plot_model = options.plot_model
     super(options)
 
+class XYRenderer extends Component
+
+XYRenderer::defaults = _.clone(XYRenderer::defaults)
+_.extend(XYRenderer::defaults , {
+  xmapper : null
+  ymapper : null
+  xfield : null
+  yfield : null
+  data_source : null
+  #axes fit here
+})
+
 """
 Utility Classes for vis
 """
@@ -665,7 +677,7 @@ class LineRendererView extends PlotWidget
     @render_line(path)
     @render_line(path.enter().append('path'))
 
-class LineRenderer extends Component
+class LineRenderer extends XYRenderer
   type : 'LineRenderer'
   default_view : LineRendererView
 LineRenderer::defaults = _.clone(LineRenderer::defaults)
@@ -723,7 +735,7 @@ class ScatterRendererView extends PlotWidget
     @render_marks(circles.enter().append(@model.get('mark')))
     circles.exit().remove();
 
-class ScatterRenderer extends Component
+class ScatterRenderer extends XYRenderer
   type : 'ScatterRenderer'
   default_view : ScatterRendererView
 
