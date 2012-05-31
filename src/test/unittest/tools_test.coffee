@@ -17,7 +17,11 @@ test('test_interactive', ()->
     {'xmappers' : [scatterrenderer.get('xmapper')],
     'ymappers' : [scatterrenderer.get('ymapper')]}
     , {'local':true})
-  plot1.set('tools', [pantool.ref()])
+  zoomtool = Bokeh.Collections['ZoomTool'].create(
+    {'xmappers' : [scatterrenderer.get('xmapper')],
+    'ymappers' : [scatterrenderer.get('ymapper')]}
+    , {'local':true})
+  plot1.set('tools', [pantool.ref(), zoomtool.ref()])
   window.plot1 = plot1
   window.myrender = () ->
     view = new container.default_view({'model' : container});

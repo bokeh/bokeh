@@ -557,9 +557,10 @@ class Plots extends Backbone.Collection
 D3LinearAxisView
 """
 class D3LinearAxisView extends PlotWidget
-  delegateEvents : () ->
+  initialize : (options) ->
     safebind(this, @model, 'change', @render)
     safebind(this, @mget_ref('mapper'), 'change', @render)
+    super(options)
 
   get_offsets : (orientation) ->
     offsets =
@@ -630,11 +631,12 @@ class D3LinearAxes extends Backbone.Collection
   model : D3LinearAxis
 
 class LineRendererView extends PlotWidget
-  delegateEvents : () ->
+  initialize : (options) ->
     safebind(this, @model, 'change', @render)
     safebind(this, @mget_ref('xmapper'), 'change', @render)
     safebind(this, @mget_ref('ymapper'), 'change', @render)
     safebind(this, @mget_ref('data_source'), 'change', @render)
+    super(options)
 
   render_line : (node) ->
     xmapper = @model.get_ref('xmapper')
@@ -679,7 +681,8 @@ class LineRenderers extends Backbone.Collection
   model : LineRenderer
 
 class ScatterRendererView extends PlotWidget
-  delegateEvents : () ->
+  initialize : (options) ->
+    super(options)
     safebind(this, @model, 'change', @render)
     safebind(this, @mget_ref('xmapper'), 'change', @render)
     safebind(this, @mget_ref('ymapper'), 'change', @render)
@@ -752,6 +755,7 @@ class PanToolView extends PlotWidget
   initialize : (options) ->
     @dragging = false
     super(options)
+
   mouse_coords : () ->
     plot = @tag_d3('plotwindow', @plot_id)
     [x, y] = d3.mouse(plot[0][0])
@@ -814,6 +818,8 @@ class PanToolView extends PlotWidget
             @_start_drag()
           else
             @_drag()
+          d3.event.preventDefault()
+          d3.event.stopPropagation()
         return null
     )
 
@@ -826,6 +832,62 @@ class PanTool extends Continuum.HasParent
 
 class PanTools extends Backbone.Collection
   model : PanTool
+
+
+class ZoomToolView extends PlotWidget
+  initialize : (options) ->
+    super(options)
+
+  mouse_coords : () ->
+    plot = @tag_d3('plotwindow', @plot_id)
+    [x, y] = d3.mouse(plot[0][0])
+    [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    return [x, y]
+
+  _zoom_mapper : (mapper, eventpos, factor) ->
+    screen_range = mapper.get_ref('screen_range')
+    data_range = mapper.get_ref('data_range')
+    screenlow = screen_range.get('start')
+    screenhigh = screen_range.get('end')
+    start = screenlow - (eventpos - screenlow) * factor
+    end = screenhigh + (screenhigh - eventpos) * factor
+    [start, end] = [mapper.map_data(start), mapper.map_data(end)]
+    console.log([screenlow, screenhigh, start, end])
+    data_range.set({
+      'start' : start
+      'end' : end
+    }, {'local' : true})
+
+  _zoom : () ->
+    [x, y] = @mouse_coords()
+    factor = @mget('speed') * d3.event.wheelDelta
+    xmappers = (@model.resolve_ref(mapper) for mapper in @mget('xmappers'))
+    ymappers = (@model.resolve_ref(mapper) for mapper in @mget('ymappers'))
+    for xmap in xmappers
+      @_zoom_mapper(xmap, x, factor)
+    for ymap in ymappers
+      @_zoom_mapper(ymap, y, factor)
+
+  render : () ->
+    node = @tag_d3('mainsvg', @plot_id)
+    node.attr('pointer-events' , 'all')
+    node.on("mousewheel.zoom",
+      () =>
+        @_zoom()
+        d3.event.preventDefault()
+        d3.event.stopPropagation()
+    )
+
+class ZoomTool extends Continuum.HasParent
+  type : "ZoomTool"
+  default_view : ZoomToolView
+  defaults :
+    xmappers : []
+    ymappers : []
+    speed : 1/600
+
+class ZoomTools extends Backbone.Collection
+  model : ZoomTool
 
 """
   Convenience plotting functions
@@ -958,7 +1020,7 @@ Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)
 Bokeh.register_collection('DataRange1d', new DataRange1ds)
 Bokeh.register_collection('DataFactorRange', new DataFactorRanges)
 Bokeh.register_collection('PanTool', new PanTools)
-
+Bokeh.register_collection('ZoomTool', new ZoomTools)
 Bokeh.Collections = Collections
 Bokeh.HasProperties = HasProperties
 Bokeh.ObjectArrayDataSource = ObjectArrayDataSource
@@ -981,3 +1043,7 @@ Bokeh.GridPlotContainer = GridPlotContainer
 Bokeh.PanTools = PanTools
 Bokeh.PanTool = PanTool
 Bokeh.PanToolView = PanToolView
+
+Bokeh.ZoomTools = ZoomTools
+Bokeh.ZoomTool = ZoomTool
+Bokeh.ZoomToolView = ZoomToolView
