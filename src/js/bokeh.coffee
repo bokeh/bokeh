@@ -860,7 +860,7 @@ class ZoomToolView extends PlotWidget
 
   _zoom : () ->
     [x, y] = @mouse_coords()
-    factor = @mget('speed') * d3.event.wheelDelta
+    factor = - @mget('speed') * d3.event.wheelDelta
     xmappers = (@model.resolve_ref(mapper) for mapper in @mget('xmappers'))
     ymappers = (@model.resolve_ref(mapper) for mapper in @mget('ymappers'))
     for xmap in xmappers
