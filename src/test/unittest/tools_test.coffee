@@ -21,7 +21,17 @@ test('test_interactive', ()->
     {'xmappers' : [scatterrenderer.get('xmapper')],
     'ymappers' : [scatterrenderer.get('ymapper')]}
     , {'local':true})
-  plot1.set('tools', [pantool.ref(), zoomtool.ref()])
+  selecttool = Bokeh.Collections['SelectionTool'].create(
+    {'renderers' : [scatterrenderer.ref()]
+    'data_source_options' : {'local' : true}}
+    , {'local':true})
+  selectoverlay = Bokeh.Collections['ScatterSelectionOverlay'].create(
+    {'renderers' : [scatterrenderer.ref()]}
+    , {'local':true})
+
+  plot1.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref()])
+  plot1.set('overlays', [selectoverlay.ref()])
+
   window.plot1 = plot1
   window.myrender = () ->
     view = new container.default_view({'model' : container});

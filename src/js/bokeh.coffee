@@ -25,6 +25,37 @@ class PlotWidget extends BokehView
 
 class XYRenderer extends Component
 
+  select : (xscreenbounds, yscreenbounds, options) ->
+    if xscreenbounds
+      mapper = @get_ref('xmapper')
+      xdatabounds = [mapper.map_data(xscreenbounds[0]),
+        mapper.map_data(xscreenbounds[1])]
+    else
+      xdatabounds = null
+    if yscreenbounds
+      mapper = @get_ref('ymapper')
+      ydatabounds = [mapper.map_data(yscreenbounds[0]),
+        mapper.map_data(yscreenbounds[1])]
+    else
+      ydatabounds = null
+
+
+    func = (xval, yval) ->
+      val = ((xdatabounds is null) or
+        (xval > xdatabounds[0] and xval < xdatabounds[1])) and
+          ((ydatabounds is null) or
+          (yval > ydatabounds[0] and yval < ydatabounds[1]))
+      return val
+
+    source = @get_ref('data_source')
+    source.select([@get('xfield'), @get('yfield')], func, options)
+    return null
+
+  unselect : (options) ->
+    source = @get_ref('data_source')
+    source.unselect(options)
+    return null
+
 XYRenderer::defaults = _.clone(XYRenderer::defaults)
 _.extend(XYRenderer::defaults , {
   xmapper : null
@@ -237,6 +268,7 @@ class ObjectArrayDataSource extends HasProperties
   defaults :
     data : [{}]
     name : 'data'
+    selected : null
   initialize : (attrs, options) ->
     super(attrs, options)
     @cont_ranges = {}
@@ -285,6 +317,23 @@ class ObjectArrayDataSource extends HasProperties
         @discrete_ranges[field] = Collections['FactorRange'].set('values', factors)
       )
     return @discrete_ranges[field]
+
+  select : (fields, func,  options) ->
+    selected = @get('selected')
+    if selected is null
+      selected = []
+    for val, idx in @get('data')
+      args = (val[x] for x in fields)
+      if func.apply(func, args)
+        selected.push(idx)
+    selected.sort()
+    selected = _.uniq(selected)
+    @set('selected', selected)
+    @save(null, options)
+
+  unselect : (options) ->
+    @set('selected', null)
+    @save(null, options)
 
 class ObjectArrayDataSources extends Backbone.Collection
   model : ObjectArrayDataSource
@@ -431,10 +480,12 @@ class PlotView extends BokehView
     @renderers = {}
     @axes = {}
     @tools = {}
+    @overlays = {}
 
     @build_renderers()
     @build_axes()
     @build_tools()
+    @build_overlays()
 
     @render()
     safebind(this, @model, 'change:renderers', @build_renderers)
@@ -459,6 +510,21 @@ class PlotView extends BokehView
 
   build_tools : ->
     build_views(@model, @tools, @mget('tools'),
+      {'el' : @el,
+      'plot_id' : @id,
+      'plot_model' : @model})
+
+  build_overlays : ->
+    #add ids of renderer views into the overlay spec
+    overlays = (_.clone(x) for x in @mget('overlays'))
+    for overlayspec in overlays
+      overlay = @model.resolve_ref(overlayspec)
+      if not overlayspec['options']
+        overlayspec['options'] = {}
+      overlayspec['options']['renderer_ids'] = []
+      for renderer in overlay.get('renderers')
+        overlayspec['options']['renderer_ids'].push(@renderers[renderer.id].id)
+    build_views(@model, @overlays, overlays,
       {'el' : @el,
       'plot_id' : @id,
       'plot_model' : @model})
@@ -558,7 +624,7 @@ _.extend(Plot::defaults , {
 })
 Plot::display_defaults = _.clone(Plot::display_defaults)
 _.extend(Plot::display_defaults, {
-  'background_color' : "#ddd",
+  'background_color' : "#eee",
   'foreground_color' : "#333",
 })
 
@@ -896,6 +962,141 @@ class ZoomTool extends Continuum.HasParent
 class ZoomTools extends Backbone.Collection
   model : ZoomTool
 
+class SelectionToolView extends PlotWidget
+  initialize : (options) ->
+    super(options)
+    @selecting = false
+
+  mouse_coords : () ->
+    plot = @tag_d3('plotwindow', @plot_id)
+    [x, y] = d3.mouse(plot[0][0])
+    [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    return [x, y]
+
+  _stop_selecting : () ->
+    for renderer in @mget('renderers')
+      @model.resolve_ref(renderer).unselect(@mget('data_source_options'))
+    @selecting = false
+    node = @tag_d3('rect')
+    if not(node is null)
+      node.remove()
+  _start_selecting : () ->
+    [x, y] = @mouse_coords()
+    [@start_x, @start_y] = [x, y]
+    for renderer in @mget('renderers')
+      @model.resolve_ref(renderer).unselect(@mget('data_source_options'))
+    @selecting = true
+
+  _selecting : () ->
+    [x, y] = @mouse_coords()
+    if @mget('select_x')
+      xrange = [d3.min([@start_x, x]), d3.max([@start_x, x])]
+    else
+      xrange = null
+    if @mget('select_y')
+      yrange = [d3.min([@start_y, y]), d3.max([@start_y, y])]
+    else
+      yrange = null
+    for renderer in @mget('renderers')
+      @model.resolve_ref(renderer).select(xrange, yrange,
+        @mget('data_source_options'))
+    node = @tag_d3('rect')
+    if node is null
+      node = @tag_d3('plotwindow', @plot_id).append('rect')
+        .attr('id', @tag_id('rect'))
+    if xrange
+      width = xrange[1] - xrange[0]
+      node.attr('x', @plot_model.position_child_x(width, xrange[0]))
+        .attr('width', width)
+    else
+      width = @plot_model.get('width')
+      node.attr('x',  @plot_model.position_child_x(xrange[0]))
+        .attr('width', width)
+    if yrange
+      height = yrange[1] - yrange[0]
+      node.attr('y', @plot_model.position_child_y(height, yrange[0]))
+        .attr('height', height)
+    else
+      height = @plot_model.get('height')
+      node.attr('y', @plot_model.position_child_y(height, yrange[0]))
+        .attr('height', height)
+    node.attr('fill', '#000').attr('fill-opacity', 0.1)
+
+  render : () ->
+    node = @tag_d3('mainsvg', @plot_id)
+    node.attr('pointer-events' , 'all')
+    node.on("mousedown.selection",
+      () =>
+        @_stop_selecting()
+    )
+    node.on("mousemove.selection",
+      () =>
+        if d3.event.ctrlKey
+          if not @selecting
+            @_start_selecting()
+          else
+            @_selecting()
+          d3.event.preventDefault()
+          d3.event.stopPropagation()
+        return null
+    )
+
+class SelectionTool extends Continuum.HasParent
+  type : "SelectionTool"
+  default_view : SelectionToolView
+  defaults :
+    renderers : []
+    select_x : true
+    select_y : true
+    data_source_options : {} #backbone options for save on datasource
+
+class SelectionTools extends Backbone.Collection
+  model : SelectionTool
+
+class OverlayView extends PlotWidget
+  initialize : (options) ->
+    @renderer_ids = options['renderer_ids']
+    super(options)
+
+class ScatterSelectionOverlayView extends OverlayView
+  initialize : (options) ->
+    super(options)
+    for renderer in @mget('renderers')
+      renderer = @model.resolve_ref(renderer)
+      safebind(this, renderer, 'change', @render)
+      safebind(this, renderer.get_ref('xmapper'), 'change', @render)
+      safebind(this, renderer.get_ref('ymapper'), 'change', @render)
+      safebind(this, renderer.get_ref('data_source'), 'change', @render)
+
+  render : () ->
+    for temp in _.zip(@mget('renderers'), @renderer_ids)
+      [renderer, viewid] = temp
+      renderer = @model.resolve_ref(renderer)
+      selected = {}
+      if renderer.get_ref('data_source').get('selected') is null
+        continue
+      for idx in renderer.get_ref('data_source').get('selected')
+        selected[idx] = true
+      node = @tag_d3('scatter', viewid)
+      node.selectAll(renderer.get('mark')).filter((d, i) =>
+        return not selected[i]
+      ).attr('fill', @mget('unselected_color'))
+      if renderer.get_ref('data_source').get('selected').length > 0
+        console.log(node.selectAll(renderer.get('mark')).filter((d, i) =>
+            return not selected[i]
+          ))
+    return null
+
+class ScatterSelectionOverlay extends Continuum.HasParent
+  type : "ScatterSelectionOverlay"
+  default_view : ScatterSelectionOverlayView
+  defaults :
+    renderers : []
+    unselected_color : "#ccc"
+
+class ScatterSelectionOverlays extends Backbone.Collection
+  model : ScatterSelectionOverlay
+
 """
   Convenience plotting functions
 """
@@ -1028,6 +1229,9 @@ Bokeh.register_collection('DataRange1d', new DataRange1ds)
 Bokeh.register_collection('DataFactorRange', new DataFactorRanges)
 Bokeh.register_collection('PanTool', new PanTools)
 Bokeh.register_collection('ZoomTool', new ZoomTools)
+Bokeh.register_collection('SelectionTool', new SelectionTools)
+Bokeh.register_collection('ScatterSelectionOverlay', new ScatterSelectionOverlays)
+
 Bokeh.Collections = Collections
 Bokeh.HasProperties = HasProperties
 Bokeh.ObjectArrayDataSource = ObjectArrayDataSource
@@ -1054,3 +1258,13 @@ Bokeh.PanToolView = PanToolView
 Bokeh.ZoomTools = ZoomTools
 Bokeh.ZoomTool = ZoomTool
 Bokeh.ZoomToolView = ZoomToolView
+
+Bokeh.SelectionTools = SelectionTools
+Bokeh.SelectionTool = SelectionTool
+Bokeh.SelectionToolView = SelectionToolView
+
+Bokeh.ScatterSelectionOverlays = ScatterSelectionOverlays
+Bokeh.ScatterSelectionOverlay = ScatterSelectionOverlay
+Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
+
+

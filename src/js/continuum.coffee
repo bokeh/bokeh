@@ -455,23 +455,23 @@ class Component extends HasParent
     offset = position + child.get('outerheight')
     return @rypos(offset)
 
-  position_child_x : (child, offset) ->
+  position_child_x : (size, offset) ->
     return  @xpos(offset)
-  position_child_y : (child, offset) ->
-    return @ypos(offset) - child.get('outerheight')
+  position_child_y : (size, offset) ->
+    return @ypos(offset) - size
 
   #compute your position in the underlying device
   position_x : ->
     parent = @get_ref('parent')
     if not parent
       return 0
-    return parent.position_child_x(this, @get('offset')[0])
+    return parent.position_child_x(this.get('outerwidth'), @get('offset')[0])
 
   position_y : ->
     parent = @get_ref('parent')
     if not parent
       return 0
-    val = parent.position_child_y(this, @get('offset')[1])
+    val = parent.position_child_y(this.get('outerheight'), @get('offset')[1])
     return val
 
   reverse_position_x : (input) ->
