@@ -362,8 +362,12 @@ class ContinuumView extends Backbone.View
       return null
     else
       return val
-  mget : (fld)->
-    return @model.get(fld)
+  mget : ()->
+    return @model.get.apply(@model, arguments)
+
+  mset : ()->
+    return @model.set.apply(@model, arguments)
+
   mget_ref : (fld) ->
     return @model.get_ref(fld)
 

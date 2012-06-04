@@ -966,6 +966,13 @@ class SelectionToolView extends PlotWidget
   initialize : (options) ->
     super(options)
     @selecting = false
+    safebind(this, @model, 'change', @render)
+    for renderer in @mget('renderers')
+      renderer = @model.resolve_ref(renderer)
+      safebind(this, renderer, 'change', @render)
+      safebind(this, renderer.get_ref('xmapper'), 'change', @render)
+      safebind(this, renderer.get_ref('ymapper'), 'change', @render)
+      safebind(this, renderer.get_ref('data_source'), 'change:data', @render)
 
   mouse_coords : () ->
     plot = @tag_d3('plotwindow', @plot_id)
@@ -974,32 +981,54 @@ class SelectionToolView extends PlotWidget
     return [x, y]
 
   _stop_selecting : () ->
+    @mset({
+      'start_x' : null, 'start_y' : null,
+      'current_x' : null, 'current_y' : null
+    })
     for renderer in @mget('renderers')
       @model.resolve_ref(renderer).unselect(@mget('data_source_options'))
     @selecting = false
     node = @tag_d3('rect')
     if not(node is null)
       node.remove()
+
   _start_selecting : () ->
     [x, y] = @mouse_coords()
-    [@start_x, @start_y] = [x, y]
+    @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
     for renderer in @mget('renderers')
       @model.resolve_ref(renderer).unselect(@mget('data_source_options'))
     @selecting = true
 
-  _selecting : () ->
-    [x, y] = @mouse_coords()
+  _get_selection_range : ->
+    xrange = [@mget('start_x'), @mget('current_x')]
+    yrange = [@mget('start_y'), @mget('current_y')]
     if @mget('select_x')
-      xrange = [d3.min([@start_x, x]), d3.max([@start_x, x])]
+      xrange = [d3.min(xrange), d3.max(xrange)]
     else
       xrange = null
     if @mget('select_y')
-      yrange = [d3.min([@start_y, y]), d3.max([@start_y, y])]
+      yrange = [d3.min(yrange), d3.max(yrange)]
     else
       yrange = null
+    return [xrange, yrange]
+
+  _selecting : () ->
+    [x, y] = @mouse_coords()
+    @mset({'current_x' : x, 'current_y' : y})
+
+  _select_data : () ->
+    [xrange, yrange] = @_get_selection_range()
+    for renderer in @mget('renderers')
+      @model.resolve_ref(renderer).unselect(@mget('data_source_options'))
     for renderer in @mget('renderers')
       @model.resolve_ref(renderer).select(xrange, yrange,
         @mget('data_source_options'))
+
+  _render_shading : () ->
+    [xrange, yrange] = @_get_selection_range()
+    if _.any(_.map(xrange, _.isNullOrUndefined)) or
+      _.any(_.map(yrange, _.isNullOrUndefined))
+        return
     node = @tag_d3('rect')
     if node is null
       node = @tag_d3('plotwindow', @plot_id).append('rect')
@@ -1040,6 +1069,9 @@ class SelectionToolView extends PlotWidget
           d3.event.stopPropagation()
         return null
     )
+    @_render_shading()
+    if @selecting
+      @_select_data()
 
 class SelectionTool extends Continuum.HasParent
   type : "SelectionTool"
