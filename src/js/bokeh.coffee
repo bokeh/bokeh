@@ -925,7 +925,6 @@ class ZoomToolView extends PlotWidget
     start = screenlow - (eventpos - screenlow) * factor
     end = screenhigh + (screenhigh - eventpos) * factor
     [start, end] = [mapper.map_data(start), mapper.map_data(end)]
-    console.log([screenlow, screenhigh, start, end])
     data_range.set({
       'start' : start
       'end' : end
@@ -1113,10 +1112,7 @@ class ScatterSelectionOverlayView extends OverlayView
       node.selectAll(renderer.get('mark')).filter((d, i) =>
         return not selected[i]
       ).attr('fill', @mget('unselected_color'))
-      if renderer.get_ref('data_source').get('selected').length > 0
-        console.log(node.selectAll(renderer.get('mark')).filter((d, i) =>
-            return not selected[i]
-          ))
+
     return null
 
 class ScatterSelectionOverlay extends Continuum.HasParent

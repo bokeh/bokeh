@@ -65,15 +65,12 @@ Continuum.load_models = (modelspecs)->
       oldspecs.push([coll, attrs])
     else
       newspecs.push([coll, attrs])
-  console.log('LOADING', newspecs)
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
     coll.add(attrs)
-  console.log('dinit', newspecs)
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
     coll.get(attrs['id']).dinitialize(attrs)
-  console.log('updating', oldspecs)
   for coll_attrs in oldspecs
     [coll, attrs] = coll_attrs
     coll.get(attrs['id']).set(attrs, {'local' : true})
@@ -97,7 +94,6 @@ Continuum.submodels = (ws_conn_string, topic) ->
   s.onopen = () ->
     s.send(JSON.stringify({msgtype : 'subscribe', topic : topic}))
   s.onmessage = (msg) ->
-    console.log(msg.data)
     msgobj = JSON.parse(msg.data)
     if msgobj['msgtype'] == 'modelpush'
       Continuum.load_models(msgobj['modelspecs'])
