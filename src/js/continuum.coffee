@@ -102,7 +102,12 @@ Continuum.submodels = (ws_conn_string, topic) ->
         model = Continuum.resolve_ref(ref['collections'], ref['type'], ref['id'])
         if model
           model.destroy({'local' : true})
-      return null
+    else if msgobj['msgtype'] == 'status' and
+      msgobj['status'][0] == 'subscribesuccess'
+        clientid = msgobj['status'][2]
+        Continuum.clientid = clientid
+        $.ajaxSetup({'headers' : {'continuum_clientiD' : clientid}})
+    return null
   return s
 
 build_views = (mainmodel, view_storage, view_specs, options) ->
