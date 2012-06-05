@@ -106,7 +106,7 @@ Continuum.submodels = (ws_conn_string, topic) ->
       msgobj['status'][0] == 'subscribesuccess'
         clientid = msgobj['status'][2]
         Continuum.clientid = clientid
-        $.ajaxSetup({'headers' : {'continuum_clientiD' : clientid}})
+        $.ajaxSetup({'headers' : {'Continuum-Clientid' : clientid}})
     return null
   return s
 
