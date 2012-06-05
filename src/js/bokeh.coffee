@@ -56,6 +56,11 @@ class XYRenderer extends Component
     source.unselect(options)
     return null
 
+  stopselect : (options) ->
+    source = @get_ref('data_source')
+    source.stopselect(options)
+    return null
+
 XYRenderer::defaults = _.clone(XYRenderer::defaults)
 _.extend(XYRenderer::defaults , {
   xmapper : null
@@ -319,7 +324,7 @@ class ObjectArrayDataSource extends HasProperties
     return @discrete_ranges[field]
 
   select : (fields, func,  options) ->
-    selected = @get('selected')
+    selected = []
     if selected is null
       selected = []
     for val, idx in @get('data')
@@ -330,10 +335,17 @@ class ObjectArrayDataSource extends HasProperties
     selected = _.uniq(selected)
     @set('selected', selected)
     @save(null, options)
+    return null
 
   unselect : (options) ->
+    @set('selected', [])
+    @save(null, options)
+    return null
+
+  stopselect : (options) ->
     @set('selected', null)
     @save(null, options)
+    return null
 
 class ObjectArrayDataSources extends Backbone.Collection
   model : ObjectArrayDataSource
@@ -529,6 +541,14 @@ class PlotView extends BokehView
       'plot_id' : @id,
       'plot_model' : @model})
 
+  bind_overlays : ->
+    for overlayspec in @mget('overlays')
+      @overlays[overlayspec.id].bind_events(this)
+
+  bind_tools : ->
+    for toolspec in   @mget('tools')
+      @tools[toolspec.id].bind_events(this)
+
   render_mainsvg : ->
     node = @tag_d3('mainsvg')
     if node == null
@@ -542,6 +562,8 @@ class PlotView extends BokehView
         .append('rect')
         .attr('id', @tag_id('innerbox'))
       @tag_d3('fg').append('svg').attr('id', @tag_id('plotwindow'))
+      @bind_tools()
+      @bind_overlays()
 
     if not @mget('usedialog')
       node.attr('x', @model.position_x())
@@ -713,7 +735,7 @@ class LineRendererView extends PlotWidget
     safebind(this, @model, 'change', @render)
     safebind(this, @mget_ref('xmapper'), 'change', @render)
     safebind(this, @mget_ref('ymapper'), 'change', @render)
-    safebind(this, @mget_ref('data_source'), 'change', @render)
+    safebind(this, @mget_ref('data_source'), 'change:data', @render)
     super(options)
 
   render_line : (node) ->
@@ -762,11 +784,40 @@ class ScatterRendererView extends PlotWidget
   initialize : (options) ->
     super(options)
     safebind(this, @model, 'change', @render)
-    safebind(this, @mget_ref('xmapper'), 'change', @render)
+    safebind(this, @mget_ref('xmapper'), 'change', () =>
+      circles = @get_marks()
+      @position_marks(circles)
+      newcircles = @get_new_marks(circles)
+      @position_marks(newcircles)
+      return null
+    )
     safebind(this, @mget_ref('ymapper'), 'change', @render)
-    safebind(this, @mget_ref('data_source'), 'change', @render)
+    safebind(this, @mget_ref('data_source'), 'change:data', @render)
+    safebind(this, @mget_ref('data_source'), 'change:selected', () =>
+      if @mget_ref('data_source').get('selected') is null
+        circles = @get_marks()
+        @fill_marks(circles)
+        newcircles = @get_new_marks(circles)
+        @fill_marks(newcircles)
+      return null
+    )
 
-  render_marks : (marks) ->
+  fill_marks : (marks) ->
+    color_field = @model.get('color_field')
+    if color_field
+      color_mapper = @model.get_ref('color_mapper')
+      marks.attr('fill', (d) =>
+        return color_mapper.map_screen(d[color_field]))
+    else
+      color = @model.get('foreground_color')
+      marks.attr('fill', color)
+    return null
+
+  size_marks : (marks) ->
+    marks.attr('r', @model.get('radius'))
+    return null
+
+  position_marks : (marks) ->
     xmapper = @model.get_ref('xmapper')
     ymapper = @model.get_ref('ymapper')
     xfield = @model.get('xfield')
@@ -780,26 +831,31 @@ class ScatterRendererView extends PlotWidget
         pos = ymapper.map_screen(d[yfield])
         return @model.ypos(pos)
       )
-      .attr('r', @model.get('radius'))
-      .attr('fill', (d) =>
-        if @model.get('color_field')
-          return @model.get_ref('color_mapper')
-            .map_screen(d[@model.get('color_field')])
-        else
-          return @model.get('foreground_color'))
+    return null
 
-  render : ->
+  get_marks : () ->
     plot = @tag_d3('plotwindow', this.plot_id)
     node = @tag_d3('scatter')
     if not node
       node = plot.append('g')
       .attr('id', @tag_id('scatter'))
-
     circles = node.selectAll(@model.get('mark'))
       .data(@model.get_ref('data_source').get('data'))
-    @render_marks(circles)
-    @render_marks(circles.enter().append(@model.get('mark')))
+
+  get_new_marks : (marks) ->
+    return marks.enter().append(@model.get('mark'))
+
+  render : ->
+    circles = @get_marks()
+    @position_marks(circles)
+    @size_marks(circles)
+    @fill_marks(circles)
+    newcircles = @get_new_marks(circles)
+    @position_marks(newcircles)
+    @size_marks(newcircles)
+    @fill_marks(newcircles)
     circles.exit().remove();
+    return null
 
 class ScatterRenderer extends XYRenderer
   type : 'ScatterRenderer'
@@ -879,7 +935,8 @@ class PanToolView extends PlotWidget
     for ymap in ymappers
       @_drag_mapper(ymap, ydiff)
 
-  render : () ->
+  bind_events : (plotview) ->
+    @plotview = plotview
     node = @tag_d3('mainsvg', @plot_id)
     node.attr('pointer-events' , 'all')
     node.on("mousemove.drag",
@@ -940,7 +997,8 @@ class ZoomToolView extends PlotWidget
     for ymap in ymappers
       @_zoom_mapper(ymap, y, factor)
 
-  render : () ->
+  bind_events : (plotview) ->
+    @plotview = plotview
     node = @tag_d3('mainsvg', @plot_id)
     node.attr('pointer-events' , 'all')
     node.on("mousewheel.zoom",
@@ -973,6 +1031,26 @@ class SelectionToolView extends PlotWidget
       safebind(this, renderer.get_ref('ymapper'), 'change', @render)
       safebind(this, renderer.get_ref('data_source'), 'change:data', @render)
 
+  bind_events : (plotview) ->
+    @plotview = plotview
+    node = @tag_d3('mainsvg', @plot_id)
+    node.attr('pointer-events' , 'all')
+    node.on("mousedown.selection",
+      () =>
+        @_stop_selecting()
+    )
+    node.on("mousemove.selection",
+      () =>
+        if d3.event.ctrlKey
+          if not @selecting
+            @_start_selecting()
+          else
+            @_selecting()
+          d3.event.preventDefault()
+          d3.event.stopPropagation()
+        return null
+    )
+
   mouse_coords : () ->
     plot = @tag_d3('plotwindow', @plot_id)
     [x, y] = d3.mouse(plot[0][0])
@@ -985,7 +1063,7 @@ class SelectionToolView extends PlotWidget
       'current_x' : null, 'current_y' : null
     })
     for renderer in @mget('renderers')
-      @model.resolve_ref(renderer).unselect(@mget('data_source_options'))
+      @model.resolve_ref(renderer).stopselect(@mget('data_source_options'))
     @selecting = false
     node = @tag_d3('rect')
     if not(node is null)
@@ -1014,14 +1092,19 @@ class SelectionToolView extends PlotWidget
   _selecting : () ->
     [x, y] = @mouse_coords()
     @mset({'current_x' : x, 'current_y' : y})
+    return null
 
   _select_data : () ->
     [xrange, yrange] = @_get_selection_range()
-    for renderer in @mget('renderers')
-      @model.resolve_ref(renderer).unselect(@mget('data_source_options'))
+    # for renderer in @mget('renderers')
+    #   options = _.extend({}, @mget('data_source_options'))
+    #   # options['local'] = true
+    #   # options['silent'] = true
+    #   @model.resolve_ref(renderer).unselect(options)
     for renderer in @mget('renderers')
       @model.resolve_ref(renderer).select(xrange, yrange,
         @mget('data_source_options'))
+    return null
 
   _render_shading : () ->
     [xrange, yrange] = @_get_selection_range()
@@ -1051,26 +1134,11 @@ class SelectionToolView extends PlotWidget
     node.attr('fill', '#000').attr('fill-opacity', 0.1)
 
   render : () ->
-    node = @tag_d3('mainsvg', @plot_id)
-    node.attr('pointer-events' , 'all')
-    node.on("mousedown.selection",
-      () =>
-        @_stop_selecting()
-    )
-    node.on("mousemove.selection",
-      () =>
-        if d3.event.ctrlKey
-          if not @selecting
-            @_start_selecting()
-          else
-            @_selecting()
-          d3.event.preventDefault()
-          d3.event.stopPropagation()
-        return null
-    )
     @_render_shading()
     if @selecting
       @_select_data()
+    return null
+
 
 class SelectionTool extends Continuum.HasParent
   type : "SelectionTool"
@@ -1088,6 +1156,10 @@ class OverlayView extends PlotWidget
   initialize : (options) ->
     @renderer_ids = options['renderer_ids']
     super(options)
+
+  bind_events : (plotview) ->
+    @plotview = plotview
+    return null
 
 class ScatterSelectionOverlayView extends OverlayView
   initialize : (options) ->
@@ -1113,6 +1185,10 @@ class ScatterSelectionOverlayView extends OverlayView
         return not selected[i]
       ).attr('fill', @mget('unselected_color'))
 
+      marks = node.selectAll(renderer.get('mark')).filter((d, i) =>
+        return selected[i]
+      )
+      @plotview.renderers[renderer.id].fill_marks(marks)
     return null
 
 class ScatterSelectionOverlay extends Continuum.HasParent
