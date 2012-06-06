@@ -25,7 +25,7 @@ class PlotWidget extends BokehView
 
 class XYRenderer extends Component
 
-  select : (xscreenbounds, yscreenbounds, options) ->
+  select : (xscreenbounds, yscreenbounds) ->
     if xscreenbounds
       mapper = @get_ref('xmapper')
       xdatabounds = [mapper.map_data(xscreenbounds[0]),
@@ -38,28 +38,15 @@ class XYRenderer extends Component
         mapper.map_data(yscreenbounds[1])]
     else
       ydatabounds = null
-
-
     func = (xval, yval) ->
       val = ((xdatabounds is null) or
         (xval > xdatabounds[0] and xval < xdatabounds[1])) and
           ((ydatabounds is null) or
           (yval > ydatabounds[0] and yval < ydatabounds[1]))
       return val
-
     source = @get_ref('data_source')
-    source.select([@get('xfield'), @get('yfield')], func, options)
-    return null
+    return source.select([@get('xfield'), @get('yfield')], func)
 
-  unselect : (options) ->
-    source = @get_ref('data_source')
-    source.unselect(options)
-    return null
-
-  stopselect : (options) ->
-    source = @get_ref('data_source')
-    source.stopselect(options)
-    return null
 
 XYRenderer::defaults = _.clone(XYRenderer::defaults)
 _.extend(XYRenderer::defaults , {
@@ -273,7 +260,7 @@ class ObjectArrayDataSource extends HasProperties
   defaults :
     data : [{}]
     name : 'data'
-    selected : null
+    selected : []
   initialize : (attrs, options) ->
     super(attrs, options)
     @cont_ranges = {}
@@ -323,29 +310,14 @@ class ObjectArrayDataSource extends HasProperties
       )
     return @discrete_ranges[field]
 
-  select : (fields, func,  options) ->
+  select : (fields, func) ->
     selected = []
-    if selected is null
-      selected = []
     for val, idx in @get('data')
       args = (val[x] for x in fields)
       if func.apply(func, args)
         selected.push(idx)
     selected.sort()
-    selected = _.uniq(selected)
-    @set('selected', selected)
-    @save(null, options)
-    return null
-
-  unselect : (options) ->
-    @set('selected', [])
-    @save(null, options)
-    return null
-
-  stopselect : (options) ->
-    @set('selected', null)
-    @save(null, options)
-    return null
+    return selected
 
 class ObjectArrayDataSources extends Backbone.Collection
   model : ObjectArrayDataSource
@@ -794,7 +766,7 @@ class ScatterRendererView extends PlotWidget
     safebind(this, @mget_ref('ymapper'), 'change', @render)
     safebind(this, @mget_ref('data_source'), 'change:data', @render)
     safebind(this, @mget_ref('data_source'), 'change:selected', () =>
-      if @mget_ref('data_source').get('selected') is null
+      if @mget_ref('data_source').get('selecting') == false
         circles = @get_marks()
         @fill_marks(circles)
         newcircles = @get_new_marks(circles)
@@ -1063,7 +1035,8 @@ class SelectionToolView extends PlotWidget
       'current_x' : null, 'current_y' : null
     })
     for renderer in @mget('renderers')
-      @model.resolve_ref(renderer).stopselect(@mget('data_source_options'))
+      @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
+      @model.resolve_ref(renderer).get_ref('data_source').save()
     @selecting = false
     node = @tag_d3('rect')
     if not(node is null)
@@ -1073,7 +1046,9 @@ class SelectionToolView extends PlotWidget
     [x, y] = @mouse_coords()
     @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
     for renderer in @mget('renderers')
-      @model.resolve_ref(renderer).unselect(@mget('data_source_options'))
+      data_source = @model.resolve_ref(renderer).get_ref('data_source')
+      data_source.set('selecting', true)
+      data_source.save()
     @selecting = true
 
   _get_selection_range : ->
@@ -1096,14 +1071,24 @@ class SelectionToolView extends PlotWidget
 
   _select_data : () ->
     [xrange, yrange] = @_get_selection_range()
-    # for renderer in @mget('renderers')
-    #   options = _.extend({}, @mget('data_source_options'))
-    #   # options['local'] = true
-    #   # options['silent'] = true
-    #   @model.resolve_ref(renderer).unselect(options)
+    datasources = {}
+    datasource_selections = {}
+
     for renderer in @mget('renderers')
-      @model.resolve_ref(renderer).select(xrange, yrange,
-        @mget('data_source_options'))
+      datasource = @model.resolve_ref(renderer).get_ref('data_source')
+      datasources[datasource.id] = datasource
+
+    for renderer in @mget('renderers')
+      datasource_id = @model.resolve_ref(renderer).get_ref('data_source').id
+      _.setdefault(datasource_selections, datasource_id, [])
+      selected = @model.resolve_ref(renderer).select(xrange, yrange)
+      datasource_selections[datasource.id].push(selected)
+
+    for own k,v of datasource_selections
+      selected = _.intersect.apply(_, v)
+      datasources[k].set('selected', selected)
+      datasources[k].save()
+
     return null
 
   _render_shading : () ->
@@ -1176,17 +1161,17 @@ class ScatterSelectionOverlayView extends OverlayView
       [renderer, viewid] = temp
       renderer = @model.resolve_ref(renderer)
       selected = {}
-      if renderer.get_ref('data_source').get('selected') is null
+      if renderer.get_ref('data_source').get('selecting') == false
         continue
       for idx in renderer.get_ref('data_source').get('selected')
-        selected[idx] = true
+        selected[String(idx)] = true
       node = @tag_d3('scatter', viewid)
       node.selectAll(renderer.get('mark')).filter((d, i) =>
-        return not selected[i]
+        return not selected[String(i)]
       ).attr('fill', @mget('unselected_color'))
 
       marks = node.selectAll(renderer.get('mark')).filter((d, i) =>
-        return selected[i]
+        return selected[String(i)]
       )
       @plotview.renderers[renderer.id].fill_marks(marks)
     return null
