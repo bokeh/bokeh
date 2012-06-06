@@ -1172,6 +1172,8 @@ class ScatterSelectionOverlayView extends OverlayView
       renderer = @model.resolve_ref(renderer)
       selected = {}
       if renderer.get_ref('data_source').get('selecting') == false
+        marks = @tag_d3('scatter', viewid).selectAll(renderer.get('mark'))
+        @plotview.renderers[renderer.id].fill_marks(marks)
         continue
       for idx in renderer.get_ref('data_source').get('selected')
         selected[String(idx)] = true
