@@ -310,6 +310,7 @@ class HasProperties extends Backbone.Model
          _.has(@properties, key) and
          @properties[key]['setter']
         @properties[key]['setter'].call(this, val)
+        toremove.push(key)
     for key in toremove
       delete attrs[key]
     if not _.isEmpty(attrs)
