@@ -261,6 +261,7 @@ class ObjectArrayDataSource extends HasProperties
     data : [{}]
     name : 'data'
     selected : []
+
   initialize : (attrs, options) ->
     super(attrs, options)
     @cont_ranges = {}
@@ -727,6 +728,7 @@ class LineRendererView extends PlotWidget
     node.attr('stroke', @mget('color'))
       .attr('d', line)
     node.attr('fill', 'none')
+    return null
 
   render : ->
     plot = @tag_d3('plotwindow', this.plot_id)
@@ -736,6 +738,7 @@ class LineRendererView extends PlotWidget
     path = node.selectAll('path').data([@model.get_ref('data_source').get('data')])
     @render_line(path)
     @render_line(path.enter().append('path'))
+    return null
 
 class LineRenderer extends XYRenderer
   type : 'LineRenderer'
@@ -763,7 +766,13 @@ class ScatterRendererView extends PlotWidget
       @position_marks(newcircles)
       return null
     )
-    safebind(this, @mget_ref('ymapper'), 'change', @render)
+    safebind(this, @mget_ref('ymapper'), 'change', () =>
+      circles = @get_marks()
+      @position_marks(circles)
+      newcircles = @get_new_marks(circles)
+      @position_marks(newcircles)
+      return null
+    )
     safebind(this, @mget_ref('data_source'), 'change:data', @render)
     safebind(this, @mget_ref('data_source'), 'change:selected', () =>
       if @mget_ref('data_source').get('selecting') == false
