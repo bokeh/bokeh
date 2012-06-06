@@ -903,12 +903,13 @@ class PanToolView extends PlotWidget
       'end' : end
     }, {'local' : true})
 
-  _drag : () ->
+  _drag : (xdiff, ydiff) ->
     plot = @tag_d3('plotwindow', @plot_id)
-    [x, y] = @mouse_coords()
-    xdiff = x - @x
-    ydiff = y - @y
-    [@x, @y] = [x, y]
+    if _.isUndefined(xdiff) or _.isUndefined(ydiff)
+      [x, y] = @mouse_coords()
+      xdiff = x - @x
+      ydiff = y - @y
+      [@x, @y] = [x, y]
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
     for xmap in xmappers
