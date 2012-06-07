@@ -706,6 +706,64 @@ class Component extends HasParent
     border_space : 20
   default_view : null
 
+class DataTableView extends ContinuumView
+  initialize : (options) ->
+    super(options)
+    @render()
+    safebind(this, @model, 'change', @render)
+
+
+  render : () ->
+    table_template = """
+    <div class='table' id='{{ tableid }}'>
+    </div>
+
+    """
+    header_template = """
+      <div class='headerrow' id = '{{headerrowid}}'>
+      </div>
+    """
+    header_column = """
+      <div class='header'>
+        {{column_name}}
+      </div>
+    """
+
+    row_template = """
+      <div class='datarow'>
+      </div>
+    """
+    datacell_template = """
+      <div class='datacell'> {{ data}} </div>
+    """
+    header_html = _.template(header_template,
+      {'headerrowid' : @tag_id('headerrow')})
+    header = $(header_html)
+    for colname in @mget('columns')
+      html = _.template(header_column, {'column_name' : colname})
+      header.append($(html))
+    table = $(_.template(table_template, {'tableid' : @tag_id('table')}))
+    table.append(header)
+    for rowdata in @mget_ref('data_source').get('data')
+      row = $(row_template)
+      for colname in @mget('columns')
+        datacell = $(_.template(datacell_template,
+          {'data' : rowdata[colname]}))
+        row.append(datacell)
+        table.append(row)
+    @$el.html(table)
+    if @mget('usedialog') and not @$el.is(":visible")
+      @add_dialog()
+
+class DataTable extends Component
+  type : 'DataTable'
+  default_view : DataTableView
+  defaults :
+    data_source : null
+    columns : []
+
+class DataTables extends Backbone.Collection
+  model : DataTable
 
 class TableView extends ContinuumView
   delegateEvents: ->
@@ -834,6 +892,7 @@ class InteractiveContexts extends Backbone.Collection
   model : InteractiveContext
 Continuum.register_collection('Table', new Tables())
 Continuum.register_collection('InteractiveContext', new InteractiveContexts())
+Continuum.register_collection('DataTable', new DataTables())
 
 Continuum.ContinuumView = ContinuumView
 Continuum.HasProperties = HasProperties
