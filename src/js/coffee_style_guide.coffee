@@ -1,4 +1,7 @@
 """
+start of continuum CS style guide. our code does not follow this yet.
+"""
+"""
 2 spaces per indent
 80 characters per line
 """
@@ -7,10 +10,13 @@
 underscores to separate variables names
 CamelCase for class names
 underscores preceding functions show what we think is private
+coffeescript makes it easy to pass instance methods as callbacks.
+try to use that instead of writing lots of inline functions as callbacks
 """
 class MyBigClass extends Backbone.Model
   set_my_field : () ->
     @set('hello')
+    super()
 
   _dont_call_func : () ->
     console.log('you should not be calling this')
@@ -99,3 +105,4 @@ return values
 coffee script always returns the last value in a function.  don't rely on this.
 always return something, or null
 """
+
