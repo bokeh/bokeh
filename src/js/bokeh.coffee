@@ -140,21 +140,21 @@ class DataFactorRange extends FactorRange
   dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property('values',
-      ['data_source', 'columns',
-        {
-          'ref' : @get('data_source'),
-          'fields' : ['data']
-        },
-      ],
-      () ->
-        columns = (@get_ref('data_source').getcolumn(x) for x in @get('columns'))
-        columns = _.reduce(columns, (x, y) -> return x.concat(y))
-        temp = {}
-        for val in columns
-          temp[val] = true
-        uniques = _.keys(temp)
-        uniques = _.sortBy(uniques, ((x) -> return x))
-        return uniques
+        ['data_source', 'columns'
+          ,
+            ref : @get('data_source'),
+            fields : ['data']
+        ]
+      ,
+        () ->
+          columns = (@get_ref('data_source').getcolumn(x) for x in @get('columns'))
+          columns = _.reduce(columns, (x, y) -> return x.concat(y))
+          temp = {}
+          for val in columns
+            temp[val] = true
+          uniques = _.keys(temp)
+          uniques = _.sortBy(uniques, ((x) -> return x))
+          return uniques
       , true
     )
 
@@ -189,16 +189,16 @@ class LinearMapper extends Mapper
   dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property('scale',
-      ['data_range', 'screen_range',
-        {
-          'ref' : @get_ref('data_range')
-          'fields' : ['start', 'end']
-        } , {
-          'ref' : @get_ref('screen_range'),
-          'fields' : ['start', 'end']
-        }],
-      () ->
-        return @calc_scale()
+        ['data_range', 'screen_range',
+            ref : @get_ref('data_range')
+            fields : ['start', 'end']
+          ,
+            ref : @get_ref('screen_range'),
+            fields : ['start', 'end']
+        ]
+      ,
+        () ->
+          return @calc_scale()
       , true)
   map_screen : (data) ->
     return @get('scale')(data)
@@ -232,17 +232,19 @@ class DiscreteColorMapper extends HasProperties
 
   dinitialize : (attrs, options) ->
     super(attrs, options)
-    @register_property('factor_map', ['data_range'],
-      () ->
-        domain_map = {}
-        for val, index in @get('data_range').get('values')
-          domain_map[val] = index
-        return domain_map
+    @register_property('factor_map', ['data_range']
+      ,
+        () ->
+          domain_map = {}
+          for val, index in @get('data_range').get('values')
+            domain_map[val] = index
+          return domain_map
       , true)
-    @register_property('scale', ['colors', 'factor_map'],
-      () ->
-        return d3.scale.ordinal().domain(_.values(@get('factor_map')))
-          .range(@get('colors'))
+    @register_property('scale', ['colors', 'factor_map']
+      ,
+        () ->
+          return d3.scale.ordinal().domain(_.values(@get('factor_map')))
+            .range(@get('colors'))
       , true
     )
 
@@ -290,24 +292,31 @@ class ObjectArrayDataSource extends HasProperties
       center = (max + min) / 2.0
       [min, max] = [center - span/2.0, center + span/2.0]
 
-      @cont_ranges[field] = Collections['Range1d'].create({
-        'start' : min,
-        'end' : max})
-      @on('change:data', =>
-        [max, min] = @compute_cont_range(field)
-        @cont_ranges[field].set('start', min)
-        @cont_ranges[field].set('end', max))
+      @cont_ranges[field] = Collections['Range1d'].create(
+          start : min
+          end : max
+      )
+      @on('change:data'
+        ,
+        () =>
+          [max, min] = @compute_cont_range(field)
+          @cont_ranges[field].set('start', min)
+          @cont_ranges[field].set('end', max)
+      )
     return @cont_ranges[field]
 
   get_discrete_range : (field) ->
     if not _.has(@discrete_ranges, field)
       factors = @compute_discrete_factor(field)
-      @discrete_ranges[field] = Collections['FactorRange'].create({
-        values : factors
-      })
-      @on('change:data', =>
-        factors = @compute_discrete_factor(field)
-        @discrete_ranges[field] = Collections['FactorRange'].set('values', factors)
+      @discrete_ranges[field] = Collections['FactorRange'].create(
+          values : factors
+      )
+      @on('change:data'
+        ,
+          () =>
+            factors = @compute_discrete_factor(field)
+            @discrete_ranges[field] = Collections['FactorRange'].set(
+              'values', factors)
       )
     return @discrete_ranges[field]
 
@@ -339,8 +348,7 @@ class GridPlotContainerView extends Continuum.DeferredParent
     @build_children()
     safebind(this, @model, 'change:children', @build_children)
     safebind(this, @model, 'change', @request_render)
-    safebind(this, @model, 'destroy', () =>
-      @remove())
+    safebind(this, @model, 'destroy', () => @remove())
     super(options)
     return this
 
@@ -357,8 +365,7 @@ class GridPlotContainerView extends Continuum.DeferredParent
     node = @tag_d3('mainsvg')
     if node == null
       node = d3.select(@el).append('svg').attr('id', @tag_id('mainsvg'))
-      node.append('g')
-        .attr('id', @tag_id('plot'))
+      node.append('g').attr('id', @tag_id('plot'))
     return node
 
   render_deferred_components : (force) ->
@@ -379,25 +386,31 @@ class GridPlotContainerView extends Continuum.DeferredParent
     row_heights =  @model.layout_heights()
     col_widths =  @model.layout_widths()
     y_coords = [0]
-    _.reduceRight(row_heights[1..], (x, y) ->
-        val = x + y
-        y_coords.push(val)
-        return val
-      , 0)
+    _.reduceRight(row_heights[1..]
+      ,
+        (x, y) ->
+          val = x + y
+          y_coords.push(val)
+          return val
+      , 0
+    )
     y_coords.reverse()
     x_coords = [0]
-    _.reduce(col_widths[..-1], (x,y) ->
-        val = x + y
-        x_coords.push(val)
-        return val
-      , 0)
+    _.reduce(col_widths[..-1]
+      ,
+        (x,y) ->
+          val = x + y
+          x_coords.push(val)
+          return val
+      , 0
+    )
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         plot = @model.resolve_ref(plotspec)
-        plot.set({
-          'offset' : [x_coords[cidx], y_coords[ridx]],
-          'usedialog' : false
-        })
+        plot.set(
+          offset : [x_coords[cidx], y_coords[ridx]]
+          usedialog : false
+        )
     if @mget('usedialog') and not @$el.is(":visible")
       @add_dialog()
 
@@ -408,13 +421,14 @@ class GridPlotContainer extends Component
     dependencies = []
     for row in @get('children')
       for child in row
-        dependencies.push({
-          'ref' : child,
-          'fields' : ['outerheight', 'outerwidth']
-        })
-    @register_property('layout', dependencies,
-      () ->
-        return [@layout_heights(), @layout_widths()]
+        dependencies.push(
+          ref : child
+          fields : ['outerheight', 'outerwidth']
+        )
+    @register_property('layout', dependencies
+      ,
+        () ->
+          return [@layout_heights(), @layout_widths()]
       , true)
 
   dinitialize : (attrs, options) ->
@@ -424,24 +438,31 @@ class GridPlotContainer extends Component
     # actually change, so we hook it up to outerheight, width changes
     # on the children, and add an additional callback to re-register the prop
     # if children changes
-    safebind(this, this, 'change:children',
-      ()->
-        @remove_property('layout')
-        @setup_layout_property()
-        @trigger('change:layout', this, @get('layout')))
-    @register_property('height', ['layout'],
-      () ->
-        return _.reduce(@get('layout')[0], ((x,y) -> x+y), 0)
-      , true)
-    @register_property('width', ['layout'],
-      () ->
-        return _.reduce(@get('layout')[1], ((x,y) -> x+y), 0)
-      , true)
+    safebind(this, this, 'change:children'
+      ,
+        ()->
+          @remove_property('layout')
+          @setup_layout_property()
+          @trigger('change:layout', this, @get('layout'))
+    )
+    @register_property('height', ['layout']
+      ,
+        () ->
+          return _.reduce(@get('layout')[0], ((x,y) -> x+y), 0)
+      , true
+    )
+    @register_property('width', ['layout']
+      ,
+        () ->
+          return _.reduce(@get('layout')[1], ((x,y) -> x+y), 0)
+      , true
+    )
   maxdim : (dim, row) =>
     if row.length == 0
       return 0
     else
       return (_.max((@resolve_ref(x).get(dim) for x in row)))
+
   layout_heights : ->
     row_heights = (@maxdim('outerheight', row) for row in @get('children'))
     return row_heights
@@ -454,12 +475,13 @@ class GridPlotContainer extends Component
     return col_widths
 
 GridPlotContainer::defaults = _.clone(GridPlotContainer::defaults)
-_.extend(GridPlotContainer::defaults , {
-  resize_children : false
-  children : [[]]
-  usedialog : false
-  border_space : 0
-})
+_.extend(GridPlotContainer::defaults
+  ,
+    resize_children : false
+    children : [[]]
+    usedialog : false
+    border_space : 0
+)
 
 class GridPlotContainers extends Backbone.Collection
   model : GridPlotContainer
@@ -482,27 +504,32 @@ class PlotView extends Continuum.DeferredParent
     safebind(this, @model, 'change:axes', @build_axes)
     safebind(this, @model, 'change:tools', @build_tools)
     safebind(this, @model, 'change', @render)
-    safebind(this, @model, 'destroy', () =>
-      @remove())
+    safebind(this, @model, 'destroy', () => @remove())
     return this
 
   build_renderers : ->
-    build_views(@model, @renderers, @mget('renderers'),
-      {'el' : @el,
-      'plot_id' : @id,
-      'plot_model' : @model})
+    build_views(@model, @renderers, @mget('renderers')
+      ,
+        el : @el,
+        plot_id : @id,
+        plot_model : @model
+    )
 
   build_axes : ->
-    build_views(@model, @axes, @mget('axes'),
-      {'el' : @el,
-      'plot_id' : @id,
-      'plot_model' : @model})
+    build_views(@model, @axes, @mget('axes')
+      ,
+        el : @el
+        plot_id : @id
+        plot_model : @model
+    )
 
   build_tools : ->
-    build_views(@model, @tools, @mget('tools'),
-      {'el' : @el,
-      'plot_id' : @id,
-      'plot_model' : @model})
+    build_views(@model, @tools, @mget('tools')
+      ,
+        el : @el,
+        plot_id : @id,
+        plot_model : @model
+    )
 
   build_overlays : ->
     #add ids of renderer views into the overlay spec
@@ -514,10 +541,12 @@ class PlotView extends Continuum.DeferredParent
       overlayspec['options']['renderer_ids'] = []
       for renderer in overlay.get('renderers')
         overlayspec['options']['renderer_ids'].push(@renderers[renderer.id].id)
-    build_views(@model, @overlays, overlays,
-      {'el' : @el,
-      'plot_id' : @id,
-      'plot_model' : @model})
+    build_views(@model, @overlays, overlays
+      ,
+        el : @el,
+        plot_id : @id,
+        plot_model : @model
+    )
 
   bind_overlays : ->
     for overlayspec in @mget('overlays')
@@ -603,12 +632,14 @@ class Plot extends Component
           return null
     )
     @register_property('height',
-      ['yrange', {'ref' : @get('yrange'), 'fields' : ['start', 'end']}],
-      () ->
-        range = @get_ref('yrange')
-        return range.get('end') - range.get('start')
+      ['yrange', {'ref' : @get('yrange'), 'fields' : ['start', 'end']}]
+      ,
+        () ->
+          range = @get_ref('yrange')
+          return range.get('end') - range.get('start')
       , true
-      , (height) =>
+      ,
+        (height) =>
           range = @get_ref('yrange')
           range.set('end', range.get('start') + height)
           return null
@@ -630,10 +661,11 @@ _.extend(Plot::defaults , {
   #axes fit here
 })
 Plot::display_defaults = _.clone(Plot::display_defaults)
-_.extend(Plot::display_defaults, {
-  'background_color' : "#eee",
-  'foreground_color' : "#333",
-})
+_.extend(Plot::display_defaults
+  ,
+    background_color : "#eee"
+    foreground_color : "#333"
+)
 
 class Plots extends Backbone.Collection
    model : Plot
@@ -651,8 +683,8 @@ class D3LinearAxisView extends PlotWidget
 
   get_offsets : (orientation) ->
     offsets =
-      'x' : 0
-      'y' : 0
+      x : 0
+      y : 0
     if orientation == 'bottom'
       offsets['y'] += @plot_model.get('height')
     return offsets
@@ -732,13 +764,15 @@ class LineRendererView extends PlotWidget
     xfield = @model.get('xfield')
     yfield = @model.get('yfield')
     line = d3.svg.line()
-      .x((d) =>
-        pos = xmapper.map_screen(d[xfield])
-        return @model.xpos(pos)
+      .x(
+        (d) =>
+          pos = xmapper.map_screen(d[xfield])
+          return @model.xpos(pos)
       )
-      .y((d) =>
-        pos = ymapper.map_screen(d[yfield])
-        return @model.ypos(pos)
+      .y(
+        (d) =>
+          pos = ymapper.map_screen(d[yfield])
+          return @model.ypos(pos)
       )
     node.attr('stroke', @mget('color'))
       .attr('d', line)
@@ -760,13 +794,14 @@ class LineRenderer extends XYRenderer
   type : 'LineRenderer'
   default_view : LineRendererView
 LineRenderer::defaults = _.clone(LineRenderer::defaults)
-_.extend(LineRenderer::defaults, {
+_.extend(LineRenderer::defaults
+  ,
     xmapper : null,
     ymapper: null,
     xfield : null,
     yfield : null,
     color : "#000",
-})
+)
 
 class LineRenderers extends Backbone.Collection
   model : LineRenderer
@@ -775,36 +810,45 @@ class ScatterRendererView extends PlotWidget
   initialize : (options) ->
     super(options)
     safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('xmapper'), 'change', () =>
-      circles = @get_marks()
-      @position_marks(circles)
-      newcircles = @get_new_marks(circles)
-      @position_marks(newcircles)
-      return null
+    safebind(this, @mget_ref('xmapper'), 'change'
+      ,
+        () =>
+          circles = @get_marks()
+          @position_marks(circles)
+          newcircles = @get_new_marks(circles)
+          @position_marks(newcircles)
+          return null
     )
-    safebind(this, @mget_ref('ymapper'), 'change', () =>
-      circles = @get_marks()
-      @position_marks(circles)
-      newcircles = @get_new_marks(circles)
-      @position_marks(newcircles)
-      return null
+    safebind(this, @mget_ref('ymapper'), 'change'
+      ,
+        () =>
+          circles = @get_marks()
+          @position_marks(circles)
+          newcircles = @get_new_marks(circles)
+          @position_marks(newcircles)
+          return null
     )
     safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
-    safebind(this, @mget_ref('data_source'), 'change:selected', () =>
-      if @mget_ref('data_source').get('selecting') == false
-        circles = @get_marks()
-        @fill_marks(circles)
-        newcircles = @get_new_marks(circles)
-        @fill_marks(newcircles)
-      return null
+    safebind(this, @mget_ref('data_source'), 'change:selected'
+      ,
+        () =>
+          if @mget_ref('data_source').get('selecting') == false
+            circles = @get_marks()
+            @fill_marks(circles)
+            newcircles = @get_new_marks(circles)
+            @fill_marks(newcircles)
+          return null
     )
 
   fill_marks : (marks) ->
     color_field = @model.get('color_field')
     if color_field
       color_mapper = @model.get_ref('color_mapper')
-      marks.attr('fill', (d) =>
-        return color_mapper.map_screen(d[color_field]))
+      marks.attr('fill'
+        ,
+          (d) =>
+            return color_mapper.map_screen(d[color_field])
+      )
     else
       color = @model.get('foreground_color')
       marks.attr('fill', color)
@@ -820,14 +864,17 @@ class ScatterRendererView extends PlotWidget
     xfield = @model.get('xfield')
     yfield = @model.get('yfield')
 
-    marks.attr('cx', (d) =>
-        pos = xmapper.map_screen(d[xfield])
-        return @model.xpos(pos)
-      )
-      .attr('cy', (d) =>
-        pos = ymapper.map_screen(d[yfield])
-        return @model.ypos(pos)
-      )
+    marks.attr('cx'
+      ,
+        (d) =>
+          pos = xmapper.map_screen(d[xfield])
+          return @model.xpos(pos)
+    ).attr('cy'
+      ,
+        (d) =>
+          pos = ymapper.map_screen(d[yfield])
+          return @model.ypos(pos)
+    )
     return null
 
   get_marks : () ->
@@ -938,18 +985,19 @@ class PanToolView extends PlotWidget
     @plotview = plotview
     node = @tag_d3('mainsvg', @plot_id)
     node.attr('pointer-events' , 'all')
-    node.on("mousemove.drag",
-      () =>
-        if d3.event.shiftKey
-          if not @dragging
-            @_start_drag()
+    node.on("mousemove.drag"
+      ,
+        () =>
+          if d3.event.shiftKey
+            if not @dragging
+              @_start_drag()
+            else
+              @_drag()
+            d3.event.preventDefault()
+            d3.event.stopPropagation()
           else
-            @_drag()
-          d3.event.preventDefault()
-          d3.event.stopPropagation()
-        else
-          @dragging = false
-        return null
+            @dragging = false
+          return null
     )
 
 class PanTool extends Continuum.HasParent
@@ -1000,11 +1048,12 @@ class ZoomToolView extends PlotWidget
     @plotview = plotview
     node = @tag_d3('mainsvg', @plot_id)
     node.attr('pointer-events' , 'all')
-    node.on("mousewheel.zoom",
-      () =>
-        @_zoom()
-        d3.event.preventDefault()
-        d3.event.stopPropagation()
+    node.on("mousewheel.zoom"
+      ,
+        () =>
+          @_zoom()
+          d3.event.preventDefault()
+          d3.event.stopPropagation()
     )
 
 class ZoomTool extends Continuum.HasParent
@@ -1034,20 +1083,22 @@ class SelectionToolView extends PlotWidget
     @plotview = plotview
     node = @tag_d3('mainsvg', @plot_id)
     node.attr('pointer-events' , 'all')
-    node.on("mousedown.selection",
-      () =>
-        @_stop_selecting()
+    node.on("mousedown.selection"
+      ,
+        () =>
+          @_stop_selecting()
     )
-    node.on("mousemove.selection",
-      () =>
-        if d3.event.ctrlKey
-          if not @selecting
-            @_start_selecting()
-          else
-            @_selecting()
-          d3.event.preventDefault()
-          d3.event.stopPropagation()
-        return null
+    node.on("mousemove.selection"
+      ,
+        () =>
+          if d3.event.ctrlKey
+            if not @selecting
+              @_start_selecting()
+            else
+              @_selecting()
+            d3.event.preventDefault()
+            d3.event.stopPropagation()
+          return null
     )
 
   mouse_coords : () ->
@@ -1057,10 +1108,12 @@ class SelectionToolView extends PlotWidget
     return [x, y]
 
   _stop_selecting : () ->
-    @mset({
-      'start_x' : null, 'start_y' : null,
-      'current_x' : null, 'current_y' : null
-    })
+    @mset(
+      start_x : null
+      start_y : null
+      current_x : null
+      current_y : null
+    )
     for renderer in @mget('renderers')
       @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
       @model.resolve_ref(renderer).get_ref('data_source').save()

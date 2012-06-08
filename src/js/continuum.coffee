@@ -258,9 +258,10 @@ safebind = (binder, target, event, callback) ->
   # no special logic needed to manage this life cycle, because
   # we will already unbind all listeners on target when binder goes away
   target.on('destroy remove',
-    () =>
-      delete binder['eventers'][target]
-    ,binder)
+      () =>
+        delete binder['eventers'][target]
+    ,
+      binder)
   return null
 
 class HasProperties extends Backbone.Model
@@ -272,7 +273,6 @@ class HasProperties extends Backbone.Model
     if _.has(this, 'eventers')
       for own target, val of @eventers
         val.off(null, null, this)
-
 
   initialize : (attrs, options) ->
     """auto generates ids if we need to, calls deferred initialize if we have
@@ -702,6 +702,12 @@ class Component extends HasParent
     return @get('height') - y
 
   #compute a child components position in the underlying device
+  position_child_x : (size, offset) ->
+    return  @xpos(offset)
+  position_child_y : (size, offset) ->
+    return @ypos(offset) - size
+
+  #reverse a child components position to the equivalent offset
   child_position_to_offset_x : (child, position) ->
     offset = position
     return @rxpos(offset)
@@ -709,11 +715,6 @@ class Component extends HasParent
   child_position_to_offset_y : (child, position) ->
     offset = position + child.get('outerheight')
     return @rypos(offset)
-
-  position_child_x : (size, offset) ->
-    return  @xpos(offset)
-  position_child_y : (size, offset) ->
-    return @ypos(offset) - size
 
   #compute your position in the underlying device
   position_x : ->
@@ -749,14 +750,17 @@ class Component extends HasParent
     @register_property('outerheight', ['height', 'border_space'],
       () -> @get('height') + 2 * @get('border_space')
       false)
+
   defaults :
     parent : null
+
   display_defaults:
     width : 200
     height : 200
     position : 0
     offset : [0,0]
     border_space : 20
+
   default_view : null
 
 class DataTableView extends ContinuumView
@@ -883,11 +887,12 @@ class Table extends Component
   dinitialize : (attrs, options)->
     super(attrs, options)
     @register_property('offset', ['data_slice'],
-      () -> return @get('data_slice')[0],
-      false)
+      (() -> return @get('data_slice')[0]), false
+    )
     @register_property('chunksize', ['data_slice'],
-      () -> return @get('data_slice')[1] - @get('data_slice')[0],
-      false)
+      (() -> return @get('data_slice')[1] - @get('data_slice')[0]),
+      false
+    )
 
   defaults :
     url : ""
@@ -898,14 +903,13 @@ class Table extends Component
   default_view : TableView
   load : (offset) ->
     $.get(@get('url'),
-      {
-        'data_slice' : JSON.stringify(@get('data_slice'))
-      },
-      (data) =>
-        @set('data_slice',
-          [offset, offset + @get('chunksize')],
-          {silent:true})
-        @set({'data' : JSON.parse(data)['data']})
+        data_slice : JSON.stringify(@get('data_slice'))
+      ,
+        (data) =>
+          @set('data_slice',
+            [offset, offset + @get('chunksize')],
+            {silent:true})
+          @set({'data' : JSON.parse(data)['data']})
     )
 
 class Tables extends Backbone.Collection
