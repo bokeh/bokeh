@@ -17,11 +17,11 @@ Component = Continuum.Component
 BokehView = Continuum.ContinuumView
 HasProperties = Continuum.HasProperties
 
-class PlotWidget extends BokehView
+class PlotWidget extends Continuum.DeferredView
   initialize : (options) ->
+    super(options)
     @plot_id = options.plot_id
     @plot_model = options.plot_model
-    super(options)
 
 class XYRenderer extends Component
 
@@ -332,16 +332,16 @@ class ObjectArrayDataSources extends Backbone.Collection
   Plot Container
 """
 
-class GridPlotContainerView extends BokehView
+class GridPlotContainerView extends Continuum.DeferredParent
   initialize : (options) ->
-    super(options)
     @childviews = {}
+    @request_render()
     @build_children()
-    @model.on('change:children', @build_children, this);
-    @model.on('change', @render, this);
+    safebind(this, @model, 'change:children', @build_children)
+    safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'destroy', () =>
       @remove())
-    @render()
+    super(options)
     return this
 
   build_children : ->
@@ -361,7 +361,13 @@ class GridPlotContainerView extends BokehView
         .attr('id', @tag_id('plot'))
     return node
 
+  render_deferred_components : (force) ->
+    for row, ridx in @mget('children')
+      for plotspec, cidx in row
+        @childviews[plotspec.id].render_deferred_components(force)
+
   render : ->
+    super()
     node = @build_node()
     @tag_d3('plot').attr('transform',
       _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
@@ -388,7 +394,6 @@ class GridPlotContainerView extends BokehView
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         plot = @model.resolve_ref(plotspec)
-        @childviews[plot.id].render()
         plot.set({
           'offset' : [x_coords[cidx], y_coords[ridx]],
           'usedialog' : false
@@ -459,7 +464,7 @@ _.extend(GridPlotContainer::defaults , {
 class GridPlotContainers extends Backbone.Collection
   model : GridPlotContainer
 
-class PlotView extends BokehView
+class PlotView extends Continuum.DeferredParent
   initialize : (options) ->
     super(options)
     @renderers = {}
@@ -554,16 +559,23 @@ class PlotView extends BokehView
     @tag_d3('plot').attr('transform',
       _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
 
-  render : ->
+  render : () ->
+    super()
     @render_mainsvg();
-    for own key, view of @axes
-      view.render()
-    for own key, view of @renderers
-      view.render()
-    for own key, view of @tools
-      view.render()
     if @mget('usedialog') and not @$el.is(":visible")
       @add_dialog()
+
+  render_deferred_components: (force) ->
+    if force or @_dirty
+      @render()
+    for own key, view of @axes
+      view.render_deferred_components(force)
+    for own key, view of @renderers
+      view.render_deferred_components(force)
+    for own key, view of @tools
+      view.render_deferred_components(force)
+    for own key, view of @overlays
+      view.render_deferred_components(force)
 
 build_views = Continuum.build_views
 
@@ -631,9 +643,11 @@ D3LinearAxisView
 """
 class D3LinearAxisView extends PlotWidget
   initialize : (options) ->
-    safebind(this, @model, 'change', @render)
-    safebind(this, @mget_ref('mapper'), 'change', @render)
     super(options)
+    safebind(this, @plot_model, 'change', @request_render)
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @mget_ref('mapper'), 'change', @request_render)
+
 
   get_offsets : (orientation) ->
     offsets =
@@ -664,6 +678,7 @@ class D3LinearAxisView extends PlotWidget
     return scale
 
   render : ->
+    super()
     base = @tag_d3('bg', @plot_id)
     node = @tag_d3('axis')
     if not node
@@ -705,10 +720,10 @@ class D3LinearAxes extends Backbone.Collection
 
 class LineRendererView extends PlotWidget
   initialize : (options) ->
-    safebind(this, @model, 'change', @render)
-    safebind(this, @mget_ref('xmapper'), 'change', @render)
-    safebind(this, @mget_ref('ymapper'), 'change', @render)
-    safebind(this, @mget_ref('data_source'), 'change:data', @render)
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
+    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
+    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
     super(options)
 
   render_line : (node) ->
@@ -731,6 +746,7 @@ class LineRendererView extends PlotWidget
     return null
 
   render : ->
+    super()
     plot = @tag_d3('plotwindow', this.plot_id)
     node = @tag_d3('line')
     if not node
@@ -758,7 +774,7 @@ class LineRenderers extends Backbone.Collection
 class ScatterRendererView extends PlotWidget
   initialize : (options) ->
     super(options)
-    safebind(this, @model, 'change', @render)
+    safebind(this, @model, 'change', @request_render)
     safebind(this, @mget_ref('xmapper'), 'change', () =>
       circles = @get_marks()
       @position_marks(circles)
@@ -773,7 +789,7 @@ class ScatterRendererView extends PlotWidget
       @position_marks(newcircles)
       return null
     )
-    safebind(this, @mget_ref('data_source'), 'change:data', @render)
+    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
     safebind(this, @mget_ref('data_source'), 'change:selected', () =>
       if @mget_ref('data_source').get('selecting') == false
         circles = @get_marks()
@@ -827,6 +843,7 @@ class ScatterRendererView extends PlotWidget
     return marks.enter().append(@model.get('mark'))
 
   render : ->
+    super()
     circles = @get_marks()
     @position_marks(circles)
     @size_marks(circles)
@@ -1005,13 +1022,13 @@ class SelectionToolView extends PlotWidget
   initialize : (options) ->
     super(options)
     @selecting = false
-    safebind(this, @model, 'change', @render)
+    safebind(this, @model, 'change', @request_render)
     for renderer in @mget('renderers')
       renderer = @model.resolve_ref(renderer)
-      safebind(this, renderer, 'change', @render)
-      safebind(this, renderer.get_ref('xmapper'), 'change', @render)
-      safebind(this, renderer.get_ref('ymapper'), 'change', @render)
-      safebind(this, renderer.get_ref('data_source'), 'change:data', @render)
+      safebind(this, renderer, 'change', @request_render)
+      safebind(this, renderer.get_ref('xmapper'), 'change', @request_render)
+      safebind(this, renderer.get_ref('ymapper'), 'change', @request_render)
+      safebind(this, renderer.get_ref('data_source'), 'change:data', @request_render)
 
   bind_events : (plotview) ->
     @plotview = plotview
@@ -1129,6 +1146,7 @@ class SelectionToolView extends PlotWidget
     node.attr('fill', '#000').attr('fill-opacity', 0.1)
 
   render : () ->
+    super()
     @_render_shading()
     if @selecting
       @_select_data()
@@ -1161,12 +1179,13 @@ class ScatterSelectionOverlayView extends OverlayView
     super(options)
     for renderer in @mget('renderers')
       renderer = @model.resolve_ref(renderer)
-      safebind(this, renderer, 'change', @render)
-      safebind(this, renderer.get_ref('xmapper'), 'change', @render)
-      safebind(this, renderer.get_ref('ymapper'), 'change', @render)
-      safebind(this, renderer.get_ref('data_source'), 'change', @render)
+      safebind(this, renderer, 'change', @request_render)
+      safebind(this, renderer.get_ref('xmapper'), 'change', @request_render)
+      safebind(this, renderer.get_ref('ymapper'), 'change', @request_render)
+      safebind(this, renderer.get_ref('data_source'), 'change', @request_render)
 
   render : () ->
+    super()
     for temp in _.zip(@mget('renderers'), @renderer_ids)
       [renderer, viewid] = temp
       renderer = @model.resolve_ref(renderer)
