@@ -200,6 +200,15 @@ class LinearMapper extends Mapper
         () ->
           return @calc_scale()
       , true)
+    @register_property('scale_factor', ['scale'], @_scale_factor, true)
+
+  _scale_factor : () ->
+    range = @get('scale').range()
+    range_width = range[1] - range[0]
+    domain = @get('scale').domain()
+    domain_width = domain[1] - domain[0]
+    return range_width / domain_width
+
   map_screen : (data) ->
     return @get('scale')(data)
 
@@ -749,6 +758,118 @@ class D3LinearAxis extends Component
 
 class D3LinearAxes extends Backbone.Collection
   model : D3LinearAxis
+
+class BarRendererView extends PlotWidget
+  initialize : (options) ->
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
+    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
+    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
+    super(options)
+
+  render_bars : (node, orientation) ->
+    if orientation == 'vertical'
+      index_mapper = @mget_ref('xmapper')
+      value_mapper = @mget_ref('ymapper')
+      value_field = @mget('yfield')
+      index_field = @mget('xfield')
+      index_coord = 'x'
+      value_coord = 'y'
+      index_dimension = 'width'
+      value_dimension = 'height'
+      indexpos = (x, width) =>
+        @model.position_object_x(x, @mget('width'), width)
+      valuepos = (y, height) =>
+        @model.position_object_y(y, @mget('height'), height)
+    else
+      index_mapper = @mget_ref('ymapper')
+      value_mapper = @mget_ref('xmapper')
+      value_field = @mget('xfield')
+      index_field = @mget('yfield')
+      index_coord = 'y'
+      value_coord = 'x'
+      index_dimension = 'height'
+      value_dimension = 'width'
+      valuepos = (x, width) =>
+        @model.position_object_x(x, @mget('width'), width)
+      indexpos = (y, height) =>
+        @model.position_object_y(y, @mget('height'), height)
+
+    if not _.isObject(index_field)
+      index_field = {'field' : index_field}
+    data_source = @mget_ref('data_source')
+    if _.has(index_field, 'field')
+      if _.has(index_field, index_dimension)
+        thickness = index_field[index_dimension]
+      else
+        thickness = 0.95 * @plot_model.get(index_dimension)
+        thickness = thickness / data_source.get('data').length
+
+      node.attr(index_coord,
+            (d) =>
+              ctr = index_mapper.map_screen(d[index_field['field']])
+              return indexpos(ctr - thickness / 2.0, 0))
+        .attr(index_dimension, thickness)
+    else
+      node
+        .attr(index_coord,
+          (d) =>
+            [start, end] = [index_mapper.map_screen(d[index_field['start']]),
+              index_mapper.map_screen(d[index_field['end']])]
+            [start, end] = [indexpos(start, 0), indexpos(end, 0)]
+            return d3.min([xstart, end]))
+        .attr(index_dimension,
+          (d) =>
+            [start, end] = [index_mapper.map_screen(d[index_field['start']]),
+              index_mapper.map_screen(d[index_field['end']])]
+            [start, end] = [indexpos(start, 0), indexpos(end, 0)]
+            return d3.abs(end -start))
+    node
+      .attr(value_coord,
+          (d) =>
+            length = value_mapper.map_screen(d[value_field])
+            return valuepos(0, length))
+      .attr(value_dimension,
+          (d) =>
+            return value_mapper.get('scale_factor') * d[value_field])
+    node
+      .attr('stroke', @mget('foreground_color'))
+      .attr('fill', @mget('foreground_color'))
+    return null
+
+  render : () ->
+    super()
+    plot = @tag_d3('plotwindow', this.plot_id)
+    node = @tag_d3('bar')
+    if not node
+      node = plot.append('g').attr('id', @tag_id('bar'))
+    bars = node.selectAll('rect').data(@model.get_ref('data_source').get('data'))
+    @render_bars(bars, @mget('orientation'))
+    @render_bars(bars.enter().append('rect'), @mget('orientation'))
+    return null
+
+class BarRenderer extends XYRenderer
+  type : 'BarRenderer'
+  default_view : BarRendererView
+
+BarRenderer::defaults = _.clone(BarRenderer::defaults)
+_.extend(BarRenderer::defaults
+  ,
+    xmapper : null
+    ymapper: null
+    orientation : 'vertical'
+    # orientation determines whether xfield, or yfield will be treated as a domain
+    # for continuous fields, we support specifying a field name, the width of
+    # the bar in screen space can be specified, or we can calculate a width
+    # xstart and xend can be used to specify the width of each bar in data space
+    # xfield : {'start' : 'start', 'end' : 'yend'},
+    # xfield : {'field' : 'x', width : 10}
+    xfield : 'x'
+    yfield : 'y'
+    color : "#000"
+)
+class BarRenderers extends Backbone.Collection
+  model : BarRenderer
 
 class LineRendererView extends PlotWidget
   initialize : (options) ->
@@ -1338,6 +1459,70 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     'axes' : [xaxis.ref(), yaxis.ref()]
   }, options)
 
+Bokeh.bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
+  if _.isUndefined(local)
+    local = true
+  options = {'local' : local}
+  plot_model = Collections['Plot'].create(
+    data_sources :
+      source_name : data_source.ref()
+    parent : parent
+    , options
+  )
+  xdr = Collections['DataRange1d'].create(
+      sources : [
+          ref : data_source.ref()
+          columns : [xfield]
+      ]
+      rangepadding : d3.max([1 / data_source.get('data').length, 0.1])
+    , options
+  )
+  ydr = Collections['DataRange1d'].create(
+      sources : [
+        ref : data_source.ref()
+        columns : [yfield]
+      ]
+      rangepadding : d3.max([1 / data_source.get('data'), 0.1])
+    , options
+  )
+  xmapper = Collections['LinearMapper'].create(
+      data_range : xdr.ref()
+      screen_range : plot_model.get('xrange')
+    , options
+  )
+  ymapper = Collections['LinearMapper'].create(
+      data_range : ydr.ref()
+      screen_range : plot_model.get('yrange')
+    , options
+  )
+  bar_plot = Collections["BarRenderer"].create(
+      data_source: data_source.ref()
+      xfield : xfield
+      yfield : yfield
+      xmapper: xmapper.ref()
+      ymapper: ymapper.ref()
+      parent : plot_model.ref()
+    , options
+  )
+  xaxis = Collections['D3LinearAxis'].create(
+      orientation : 'bottom'
+      mapper : xmapper.ref()
+      parent : plot_model.ref()
+    , options
+  )
+  yaxis = Collections['D3LinearAxis'].create(
+      orientation : 'left',
+      mapper : ymapper.ref()
+      parent : plot_model.ref()
+    , options
+  )
+  plot_model.set(
+      renderers : [bar_plot.ref()],
+      axes : [xaxis.ref(), yaxis.ref()]
+    , options
+  )
+
+
 Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
   if _.isUndefined(local)
     local = true
@@ -1391,6 +1576,7 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
 Bokeh.register_collection('Plot', new Plots)
 Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
 Bokeh.register_collection('LineRenderer', new LineRenderers)
+Bokeh.register_collection('BarRenderer', new BarRenderers)
 Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('Range1d', new Range1ds)
 Bokeh.register_collection('LinearMapper', new LinearMappers)
@@ -1419,6 +1605,10 @@ Bokeh.D3LinearAxis = D3LinearAxis
 Bokeh.LineRendererView = LineRendererView
 Bokeh.LineRenderers = LineRenderers
 Bokeh.LineRenderer = LineRenderer
+
+Bokeh.BarRendererView = BarRendererView
+Bokeh.BarRenderers = BarRenderers
+Bokeh.BarRenderer = BarRenderer
 
 Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.GridPlotContainers = GridPlotContainers

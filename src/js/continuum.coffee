@@ -688,6 +688,10 @@ class Component extends HasParent
   as positioning any children that are inside them
   """
   collections : Collections
+  position_object_x : (offset, container_width, object_width) ->
+    return offset
+  position_object_y : (offset, container_height, object_height) ->
+    return container_height - (object_height - offset)
   #transform our coordinate space to the underlying device (svg)
   xpos : (x) ->
     return x
@@ -759,7 +763,7 @@ class Component extends HasParent
     height : 200
     position : 0
     offset : [0,0]
-    border_space : 20
+    border_space : 30
 
   default_view : null
 
