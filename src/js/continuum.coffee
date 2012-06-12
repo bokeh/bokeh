@@ -691,7 +691,7 @@ class Component extends HasParent
   position_object_x : (offset, container_width, object_width) ->
     return offset
   position_object_y : (offset, container_height, object_height) ->
-    return container_height - (object_height - offset)
+    return container_height - object_height - offset
   #transform our coordinate space to the underlying device (svg)
   xpos : (x) ->
     return x

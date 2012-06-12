@@ -802,13 +802,13 @@ class BarRendererView extends PlotWidget
       if _.has(index_field, index_dimension)
         thickness = index_field[index_dimension]
       else
-        thickness = 0.95 * @plot_model.get(index_dimension)
+        thickness = 0.85 * @plot_model.get(index_dimension)
         thickness = thickness / data_source.get('data').length
 
       node.attr(index_coord,
             (d) =>
               ctr = index_mapper.map_screen(d[index_field['field']])
-              return indexpos(ctr - thickness / 2.0, 0))
+              return indexpos(ctr - thickness / 2.0, thickness))
         .attr(index_dimension, thickness)
     else
       node
@@ -827,8 +827,9 @@ class BarRendererView extends PlotWidget
     node
       .attr(value_coord,
           (d) =>
-            length = value_mapper.map_screen(d[value_field])
-            return valuepos(0, length))
+            length = value_mapper.get('scale_factor') * d[value_field]
+            location = value_mapper.map_screen(0)
+            return valuepos(location, length))
       .attr(value_dimension,
           (d) =>
             return value_mapper.get('scale_factor') * d[value_field])
@@ -1474,7 +1475,7 @@ Bokeh.bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
           ref : data_source.ref()
           columns : [xfield]
       ]
-      rangepadding : d3.max([1 / data_source.get('data').length, 0.1])
+      rangepadding : d3.max([1 / (data_source.get('data').length - 1), 0.1])
     , options
   )
   ydr = Collections['DataRange1d'].create(
@@ -1482,7 +1483,7 @@ Bokeh.bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
         ref : data_source.ref()
         columns : [yfield]
       ]
-      rangepadding : d3.max([1 / data_source.get('data'), 0.1])
+      rangepadding : d3.max([1 / (data_source.get('data').length - 1), 0.1])
     , options
   )
   xmapper = Collections['LinearMapper'].create(
@@ -1502,6 +1503,7 @@ Bokeh.bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
       xmapper: xmapper.ref()
       ymapper: ymapper.ref()
       parent : plot_model.ref()
+      orientation : orientation
     , options
   )
   xaxis = Collections['D3LinearAxis'].create(
