@@ -272,7 +272,7 @@ class ObjectArrayDataSource extends HasProperties
     data : [{}]
     name : 'data'
     selected : []
-
+    selecting : false
   initialize : (attrs, options) ->
     super(attrs, options)
     @cont_ranges = {}
@@ -512,7 +512,7 @@ class PlotView extends Continuum.DeferredParent
     safebind(this, @model, 'change:renderers', @build_renderers)
     safebind(this, @model, 'change:axes', @build_axes)
     safebind(this, @model, 'change:tools', @build_tools)
-    safebind(this, @model, 'change', @render)
+    safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
     return this
 
@@ -928,41 +928,20 @@ _.extend(LineRenderer::defaults
 class LineRenderers extends Backbone.Collection
   model : LineRenderer
 
+window.scatter_render = 0
 class ScatterRendererView extends PlotWidget
+  request_render : () ->
+    super()
+
   initialize : (options) ->
     super(options)
     safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('xmapper'), 'change'
-      ,
-        () =>
-          circles = @get_marks()
-          @position_marks(circles)
-          newcircles = @get_new_marks(circles)
-          @position_marks(newcircles)
-          return null
-    )
-    safebind(this, @mget_ref('ymapper'), 'change'
-      ,
-        () =>
-          circles = @get_marks()
-          @position_marks(circles)
-          newcircles = @get_new_marks(circles)
-          @position_marks(newcircles)
-          return null
-    )
-    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
-    safebind(this, @mget_ref('data_source'), 'change:selected'
-      ,
-        () =>
-          if @mget_ref('data_source').get('selecting') == false
-            circles = @get_marks()
-            @fill_marks(circles)
-            newcircles = @get_new_marks(circles)
-            @fill_marks(newcircles)
-          return null
-    )
+    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
+    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
+    safebind(this, @mget_ref('data_source'), 'change', @request_render)
 
   fill_marks : (marks) ->
+    window.scatter_render += 1
     color_field = @model.get('color_field')
     if color_field
       color_mapper = @model.get_ref('color_mapper')
@@ -1193,13 +1172,19 @@ class SelectionToolView extends PlotWidget
   initialize : (options) ->
     super(options)
     @selecting = false
+    select_callback = _.debounce((() => @_select_data()),50)
     safebind(this, @model, 'change', @request_render)
+    safebind(this, @model, 'change', select_callback)
     for renderer in @mget('renderers')
       renderer = @model.resolve_ref(renderer)
       safebind(this, renderer, 'change', @request_render)
       safebind(this, renderer.get_ref('xmapper'), 'change', @request_render)
       safebind(this, renderer.get_ref('ymapper'), 'change', @request_render)
-      safebind(this, renderer.get_ref('data_source'), 'change:data', @request_render)
+      safebind(this, renderer.get_ref('data_source'), 'change', @request_render)
+      safebind(this, renderer, 'change', select_callback)
+      safebind(this, renderer.get_ref('xmapper'), 'change', select_callback)
+      safebind(this, renderer.get_ref('ymapper'), 'change', select_callback)
+
 
   bind_events : (plotview) ->
     @plotview = plotview
@@ -1272,6 +1257,8 @@ class SelectionToolView extends PlotWidget
     return null
 
   _select_data : () ->
+    if not @selecting
+      return
     [xrange, yrange] = @_get_selection_range()
     datasources = {}
     datasource_selections = {}
@@ -1290,7 +1277,6 @@ class SelectionToolView extends PlotWidget
       selected = _.intersect.apply(_, v)
       datasources[k].set('selected', selected)
       datasources[k].save()
-
     return null
 
   _render_shading : () ->
@@ -1323,8 +1309,6 @@ class SelectionToolView extends PlotWidget
   render : () ->
     super()
     @_render_shading()
-    if @selecting
-      @_select_data()
     return null
 
 
@@ -1349,7 +1333,10 @@ class OverlayView extends PlotWidget
     @plotview = plotview
     return null
 
+window.overlay_render = 0
 class ScatterSelectionOverlayView extends OverlayView
+  request_render : () ->
+    super()
   initialize : (options) ->
     super(options)
     for renderer in @mget('renderers')
@@ -1360,14 +1347,14 @@ class ScatterSelectionOverlayView extends OverlayView
       safebind(this, renderer.get_ref('data_source'), 'change', @request_render)
 
   render : () ->
+    window.overlay_render += 1
     super()
     for temp in _.zip(@mget('renderers'), @renderer_ids)
       [renderer, viewid] = temp
       renderer = @model.resolve_ref(renderer)
       selected = {}
       if renderer.get_ref('data_source').get('selecting') == false
-        marks = @tag_d3('scatter', viewid).selectAll(renderer.get('mark'))
-        @plotview.renderers[renderer.id].fill_marks(marks)
+        #skip data sources which are not selecting'
         continue
       for idx in renderer.get_ref('data_source').get('selected')
         selected[String(idx)] = true
@@ -1631,5 +1618,3 @@ Bokeh.SelectionToolView = SelectionToolView
 Bokeh.ScatterSelectionOverlays = ScatterSelectionOverlays
 Bokeh.ScatterSelectionOverlay = ScatterSelectionOverlay
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
-
-
