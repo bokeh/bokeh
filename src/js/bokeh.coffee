@@ -64,18 +64,18 @@ Utility Classes for vis
 
 class Range1d extends HasProperties
   type : 'Range1d'
-  defaults :
+Range1d::defaults = _.clone(Range1d::defaults)
+_.extend(Range1d::defaults
+  ,
     start : 0
     end : 1
+)
 
-class Range1ds extends Backbone.Collection
+class Range1ds extends Continuum.Collection
   model : Range1d
 
 class DataRange1d extends Range1d
   type : 'DataRange1d'
-  defaults :
-    sources : []
-    rangepadding : 0.1
 
   _get_minmax : () ->
     columns = []
@@ -119,24 +119,32 @@ class DataRange1d extends Range1d
     @register_property('end', ['minmax', '_end'],
       @_get_end, true, @_set_end)
 
-class DataRange1ds extends Backbone.Collection
+DataRange1d::defaults = _.clone(DataRange1d::defaults)
+_.extend(DataRange1d::defaults
+  ,
+    sources : []
+    rangepadding : 0.1
+)
+
+class DataRange1ds extends Continuum.Collection
   model : DataRange1d
 
-class Range1ds extends Backbone.Collection
+class Range1ds extends Continuum.Collection
   model : Range1d
 
 
 class FactorRange extends HasProperties
   type : 'FactorRange'
-  defaults :
+
+FactorRange::defaults = _.clone(FactorRange::defaults)
+_.extend(FactorRange::defaults
+  ,
     values : []
+)
+
 
 class DataFactorRange extends FactorRange
   type : 'DataFactorRange'
-  defaults :
-    values : []
-    columns : []
-    data_source : null
   dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property('values',
@@ -157,27 +165,31 @@ class DataFactorRange extends FactorRange
           return uniques
       , true
     )
+DataFactorRange::defaults = _.clone(DataFactorRange::defaults)
+_.extend(DataFactorRange::defaults
+  ,
+    values : []
+    columns : []
+    data_source : null
+)
 
-class DataFactorRanges extends Backbone.Collection
+class DataFactorRanges extends Continuum.Collection
   model : DataFactorRange
 
-class FactorRanges extends Backbone.Collection
+class FactorRanges extends Continuum.Collection
   model : FactorRange
 
 class Mapper extends HasProperties
   type : 'Mapper'
-  defaults : {}
-  display_defaults : {}
   map_screen : (data) ->
 
 """
   LinearMapper
 """
+
+
 class LinearMapper extends Mapper
   type : 'LinearMapper'
-  defaults :
-    data_range : null
-    screen_range : null
 
   calc_scale : ->
     domain = [@get_ref('data_range').get('start'),
@@ -215,7 +227,14 @@ class LinearMapper extends Mapper
   map_data : (screen) ->
     return @get('scale').invert(screen)
 
-class LinearMappers extends Backbone.Collection
+LinearMapper::defaults = _.clone(LinearMapper::defaults)
+_.extend(LinearMapper::defaults
+  ,
+    data_range : null
+    screen_range : null
+)
+
+class LinearMappers extends Continuum.Collection
   model : LinearMapper
 
 """
@@ -223,22 +242,6 @@ Discrete Color Mapper
 """
 class DiscreteColorMapper extends HasProperties
   type : 'DiscreteColorMapper'
-  defaults :
-    #d3_category20
-    colors : [
-      "#1f77b4", "#aec7e8",
-      "#ff7f0e", "#ffbb78",
-      "#2ca02c", "#98df8a",
-      "#d62728", "#ff9896",
-      "#9467bd", "#c5b0d5",
-      "#8c564b", "#c49c94",
-      "#e377c2", "#f7b6d2",
-      "#7f7f7f", "#c7c7c7",
-      "#bcbd22", "#dbdb8d",
-      "#17becf", "#9edae5"
-    ],
-    data_range : null
-
   dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property('factor_map', ['data_range']
@@ -259,8 +262,25 @@ class DiscreteColorMapper extends HasProperties
 
   map_screen : (data) ->
     @get('scale')(@get('factor_map')[data]);
+DiscreteColorMapper::defaults = _.clone(DiscreteColorMapper::defaults)
+_.extend(DiscreteColorMapper::defaults
+  ,
+    colors : [
+      "#1f77b4", "#aec7e8",
+      "#ff7f0e", "#ffbb78",
+      "#2ca02c", "#98df8a",
+      "#d62728", "#ff9896",
+      "#9467bd", "#c5b0d5",
+      "#8c564b", "#c49c94",
+      "#e377c2", "#f7b6d2",
+      "#7f7f7f", "#c7c7c7",
+      "#bcbd22", "#dbdb8d",
+      "#17becf", "#9edae5"
+    ],
+    data_range : null
+)
 
-class DiscreteColorMappers extends Backbone.Collection
+class DiscreteColorMappers extends Continuum.Collection
   model : DiscreteColorMapper
 
 """
@@ -268,11 +288,6 @@ Data Sources
 """
 class ObjectArrayDataSource extends HasProperties
   type : 'ObjectArrayDataSource'
-  defaults :
-    data : [{}]
-    name : 'data'
-    selected : []
-    selecting : false
   initialize : (attrs, options) ->
     super(attrs, options)
     @cont_ranges = {}
@@ -337,8 +352,16 @@ class ObjectArrayDataSource extends HasProperties
         selected.push(idx)
     selected.sort()
     return selected
+ObjectArrayDataSource::defaults = _.clone(ObjectArrayDataSource::defaults)
+_.extend(ObjectArrayDataSource::defaults
+  ,
+    data : [{}]
+    name : 'data'
+    selected : []
+    selecting : false
+)
 
-class ObjectArrayDataSources extends Backbone.Collection
+class ObjectArrayDataSources extends Continuum.Collection
   model : ObjectArrayDataSource
 
 """
@@ -492,7 +515,7 @@ _.extend(GridPlotContainer::defaults
     border_space : 0
 )
 
-class GridPlotContainers extends Backbone.Collection
+class GridPlotContainers extends Continuum.Collection
   model : GridPlotContainer
 
 class PlotView extends Continuum.DeferredParent
@@ -676,7 +699,7 @@ _.extend(Plot::display_defaults
     foreground_color : "#333"
 )
 
-class Plots extends Backbone.Collection
+class Plots extends Continuum.Collection
    model : Plot
 
 """
@@ -746,17 +769,21 @@ class D3LinearAxisView extends PlotWidget
 class D3LinearAxis extends Component
   type : 'D3LinearAxis'
   default_view : D3LinearAxisView
-  defaults :
+  display_defaults :
+    tick_color : '#fff'
+
+D3LinearAxis::defaults = _.clone(D3LinearAxis::defaults)
+_.extend(D3LinearAxis::defaults
+  ,
     mapper : null
     orientation : 'bottom'
     ticks : 10
     ticksSubdivide : 1
     tickSize : null
     tickPadding : 3
-  display_defaults :
-    tick_color : '#fff'
+)
 
-class D3LinearAxes extends Backbone.Collection
+class D3LinearAxes extends Continuum.Collection
   model : D3LinearAxis
 
 class BarRendererView extends PlotWidget
@@ -869,7 +896,7 @@ _.extend(BarRenderer::defaults
     yfield : 'y'
     color : "#000"
 )
-class BarRenderers extends Backbone.Collection
+class BarRenderers extends Continuum.Collection
   model : BarRenderer
 
 class LineRendererView extends PlotWidget
@@ -925,7 +952,7 @@ _.extend(LineRenderer::defaults
     color : "#000",
 )
 
-class LineRenderers extends Backbone.Collection
+class LineRenderers extends Continuum.Collection
   model : LineRenderer
 
 window.scatter_render = 0
@@ -1025,7 +1052,7 @@ _.extend(ScatterRenderer::display_defaults, {
   radius : 3
 })
 
-class ScatterRenderers extends Backbone.Collection
+class ScatterRenderers extends Continuum.Collection
   model : ScatterRenderer
 
 """
@@ -1104,11 +1131,16 @@ class PanToolView extends PlotWidget
 class PanTool extends Continuum.HasParent
   type : "PanTool"
   default_view : PanToolView
-  defaults :
+
+PanTool::defaults = _.clone(PanTool::defaults)
+_.extend(PanTool::defaults
+  ,
     xmappers : []
     ymappers : []
+)
 
-class PanTools extends Backbone.Collection
+
+class PanTools extends Continuum.Collection
   model : PanTool
 
 
@@ -1160,12 +1192,15 @@ class ZoomToolView extends PlotWidget
 class ZoomTool extends Continuum.HasParent
   type : "ZoomTool"
   default_view : ZoomToolView
-  defaults :
+ZoomTool::defaults = _.clone(ZoomTool::defaults)
+_.extend(ZoomTool::defaults
+  ,
     xmappers : []
     ymappers : []
     speed : 1/600
+)
 
-class ZoomTools extends Backbone.Collection
+class ZoomTools extends Continuum.Collection
   model : ZoomTool
 
 class SelectionToolView extends PlotWidget
@@ -1315,13 +1350,19 @@ class SelectionToolView extends PlotWidget
 class SelectionTool extends Continuum.HasParent
   type : "SelectionTool"
   default_view : SelectionToolView
-  defaults :
+
+SelectionTool::defaults = _.clone(SelectionTool::defaults)
+_.extend(SelectionTool::defaults
+  ,
     renderers : []
     select_x : true
     select_y : true
     data_source_options : {} #backbone options for save on datasource
+)
 
-class SelectionTools extends Backbone.Collection
+
+
+class SelectionTools extends Continuum.Collection
   model : SelectionTool
 
 class OverlayView extends PlotWidget
@@ -1376,7 +1417,9 @@ class ScatterSelectionOverlay extends Continuum.HasParent
     renderers : []
     unselected_color : "#ccc"
 
-class ScatterSelectionOverlays extends Backbone.Collection
+
+
+class ScatterSelectionOverlays extends Continuum.Collection
   model : ScatterSelectionOverlay
 
 """

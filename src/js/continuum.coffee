@@ -7,6 +7,18 @@ else
 
 # we create a dictionary of collections, for all types that we know,
 # we use these when models are pushed down from the server
+class Continuum.Collection extends Backbone.Collection
+  create : (model, options) ->
+    if not options
+      options = {}
+    success = options.success
+    wrapped = (resp, status, xhr) ->
+      if success
+        success(resp, status, xhr)
+      model.set('created', true, {'silent' : true})
+    options.success = wrapped
+    model = super(model, options)
+    return model
 
 Collections = {}
 Continuum.Collections = Collections
@@ -274,6 +286,9 @@ class HasProperties extends Backbone.Model
       for own target, val of @eventers
         val.off(null, null, this)
 
+  isNew : () ->
+    return not this.get('created')
+
   initialize : (attrs, options) ->
     """auto generates ids if we need to, calls deferred initialize if we have
     not done so already.   sets up datastructures for computed properties
@@ -489,7 +504,8 @@ class HasProperties extends Backbone.Model
       return options.success(model)
     else
       return Backbone.sync(method, model, options)
-
+  defaults :
+    docs : [window.topic]
 
 class ContinuumView extends Backbone.View
   initialize : (options) ->
