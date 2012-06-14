@@ -375,13 +375,13 @@ class ObjectArrayDataSources extends Continuum.Collection
 
 class GridPlotContainerView extends Continuum.DeferredParent
   initialize : (options) ->
+    super(options)
     @childviews = {}
-    @request_render()
     @build_children()
+    @request_render()
     safebind(this, @model, 'change:children', @build_children)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
-    super(options)
     return this
 
   build_children : ->
@@ -401,6 +401,7 @@ class GridPlotContainerView extends Continuum.DeferredParent
     return node
 
   render_deferred_components : (force) ->
+    super(force)
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         @childviews[plotspec.id].render_deferred_components(force)
@@ -627,8 +628,7 @@ class PlotView extends Continuum.DeferredParent
       @add_dialog()
 
   render_deferred_components: (force) ->
-    if force or @_dirty
-      @render()
+    super(force)
     for own key, view of @axes
       view.render_deferred_components(force)
     for own key, view of @renderers

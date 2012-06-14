@@ -616,7 +616,8 @@ class DeferredParent extends DeferredView
   initialize : (options) ->
     super(options)
     if @mget('render_loop')
-      @render_loop()
+      console.log('loop')
+      _.defer(() => @render_loop())
     safebind(this, @model, 'change:render_loop',
         () =>
           if @mget('render_loop') and not @looping
