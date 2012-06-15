@@ -16,49 +16,50 @@ Continuum.register_collection = (key, value) ->
   Collections[key] = value
   value.bokeh_key = key
 
-"""
-  continuum refrence system
-    reference : {'type' : type name, 'id' : object id}
-    each class has a collections class var, and type class var.
-    references are resolved by looking up collections[type]
-    to get a collection
-    and then retrieving the correct id.  The one exception is that an object
-    can resolve a reference to itself even if it has not yet been added to
-    any collections.
-"""
 
-"""
-backbone note - we're sort of using defaults in the code to tell the user
-what attributes are expected, so please specify defaults for
-all attributes you plan on usign
-"""
+# continuum refrence system
+#   reference : {'type' : type name, 'id' : object id}
+#   each class has a collections class var, and type class var.
+#   references are resolved by looking up collections[type]
+#   to get a collection
+#   and then retrieving the correct id.  The one exception is that an object
+#   can resolve a reference to itself even if it has not yet been added to
+#   any collections.
+
+
+
+# backbone note - we're sort of using defaults in the code to tell the user
+# what attributes are expected, so please specify defaults for
+# all attributes you plan on usign
+
 
 Continuum.load_models = (modelspecs)->
-  """load models.  First we identify which model specs correspond to new models,
-  and which ones are updates.  For new models we instantiate the models, add them
-  to their collections and call dinitialize.  For existing models we update
-  their attributes
+  # ##function : load models.
+  # First we identify which model specs correspond to new models,
+  # and which ones are updates.  For new models we instantiate the models, add them
+  # to their collections and call dinitialize.  For existing models we update
+  # their attributes
 
-  Parameters
-  ---------
-  modelspects : list of models in json form, looking like this
-    type : 'Plot'
-    collections : ['Continuum', 'Collections']
-    id : '2390-23-23'
-    attributes:
-      name : 'myplot'
-      renderers : []
+  # ####Parameters
+  # * modelspecs : list of models in json form, looking like this
 
-    collections tells us where to find the dictionary of collections used to
-    construct the model
-    type is the key of the in collections for this model
-    id is the id of this model
-    attributes are the attributes of the model
+  #         type : 'Plot'
+  #         collections : ['Continuum', 'Collections']
+  #         id : '2390-23-23'
+  #         attributes:
+  #         name : 'myplot'
+  #         renderers : []
 
-  Returns
-  ---------
-  null
-  """
+  #   collections tells us where to find the dictionary of collections used to
+  #   construct the model
+  #   type is the key of the in collections for this model
+  #   id is the id of this model
+  #   attributes are the attributes of the model
+
+  # ####Returns
+  #
+  # * null
+
   newspecs = []
   oldspecs = []
   for model in modelspecs
@@ -80,16 +81,17 @@ Continuum.load_models = (modelspecs)->
   return null
 
 Continuum.submodels = (ws_conn_string, topic) ->
-  """creates a websocket which subscribes and listens for model changes
-  Parameters
-  ---------
-  ws_conn_string : path of the web socket to subscribe
-  topic : topic to listen on (send to the server on connect)
+  # ##function : Continuum.submodels
+  # creates a websocket which subscribes and listens for model changes
+  # #####Parameters
 
-  Returns
-  ---------
-  the websocket
-  """
+  # * ws_conn_string : path of the web socket to subscribe
+  # * topic : topic to listen on (send to the server on connect)
+
+  # #####Returns
+  #
+  # * the websocket
+
   try
     s = new WebSocket(ws_conn_string)
   catch error
@@ -113,22 +115,22 @@ Continuum.submodels = (ws_conn_string, topic) ->
     return null
   return s
 
-build_views = (mainmodel, view_storage, view_specs, options) ->
-  """convenience function for creating a bunch of views from a spec
-  and storing them in a dictionary keyed off of model id.
-  views are automatically passed the model that they represent
+build_views = (mainmodel, view_storage, view_specs,
+  # ## function : build_views
+  # convenience function for creating a bunch of views from a spec
+  # and storing them in a dictionary keyed off of model id.
+  # views are automatically passed the model that they represent
 
-  Parameters
-  ---------
-  mainmodel : model which is constructing the views, this is used to resolve
-    specs into other model objects
-  view_storage : where you want the new views stored.  this is a dictionary
-    views will be keyed by the id of the underlying model
-  view_specs : list of view specs.  view specs are continuum references, with
-    a typename and an id.  you can also pass options you want to feed into
-    the views constructor here, as an 'options' field in the dict
-  options : any additional option to be used in the construction of views
-  """
+  # ####Parameters
+  # * mainmodel : model which is constructing the views, this is used to resolve
+  #   specs into other model objects
+  # * view_storage : where you want the new views stored.  this is a dictionary
+  #   views will be keyed by the id of the underlying model
+  # * view_specs : list of view specs.  view specs are continuum references, with
+  #   a typename and an id.  you can also pass options you want to feed into
+  #   the views constructor here, as an 'options' field in the dict
+  # * options : any additional option to be used in the construction of views
+
   created_views = []
   valid_viewmodels = {}
   for spec in view_specs
@@ -149,7 +151,7 @@ build_views = (mainmodel, view_storage, view_specs, options) ->
 
 Continuum.build_views = build_views
 
-##garbage logging experiment that I should remove
+#garbage logging experiment that I should remove
 window.logger = new Backbone.Model()
 window.logger.on('all',
   ()->
@@ -160,70 +162,46 @@ logger = Continuum.logger
 logger.log = () ->
   logger.trigger('LOG', arguments)
 
-"""
-  Our property system
-  1. Has Properties
-    we support python style computed properties, with getters as well as setters.
-    we also support caching of these properties, and notifications of property
-    changes
 
-    @register_property(name, dependencies, getter, use_cache, setter)
-
-    dependencies:
-      ['height', {'ref' : objectreference, 'fields' : ['first', 'second']}
-      for dependencies, strings are interpreted as backbone attrs
-      on the current object.
-      an object of the form {'ref' : ref, 'fields' :[a,b,c]}
-      specifies that this property is dependent on backbone attrs a,b,c on
-      object that you can get via ref
-    getter:
-      function which takes no arguments, but is called with the object that has
-      the property as the context, so getter.call(this)
-    use_cache : boolean, whether to cache values or not
-    setter:
-      function whch takes the value being set, called with the object as the
-      context
-      setter.call(this, val)
-
-"""
 
 get_collections = (names) ->
-  """finds a group of collections, at the location specified by names
-  Parameters
-  ---------
-  names : list of strings - we start at the global name spaces and descend
-    through each string.  the last value should refer to the group of
-    collections you want
+  # ## function : get_collections
 
-  Returns
-  ---------
-  group of collections
-  """
+  # finds a group of collections, at the location specified by names
+
+  # ####Parameters
+
+  # * names : list of strings - we start at the global name spaces and descend
+  #   through each string.  the last value should refer to the group of
+  #   collections you want
+
+  # ####Returns
+
+  # * collections
+
   last = window
   for n in names
     last = last[n]
   return last
 
 resolve_ref = (collections, type, id) ->
-  """Takes a group of collections, type and id, and returns the backbone model
-  which corresponds
-  Parameters
-  ---------
-  collections : group of collections (as a dict), the collection for type should
-    be present here.  Alternatively, one can specify this as an array of strings,
-    in which case we descend through the global namespace looking for this, using
-    get_collections.
-  type : type of the object
-  id : id of the object
+  # ##funcion : resolve_ref
+  # Takes a group of collections, type and id, and returns the backbone model
+  # which corresponds
+  # ####Parameters
 
-  Returns
-  ---------
-  backbone model
-  """
-  #collections are a dictionary of type->collection mappings,
-  # we pass in collections, as either an array of strings,
-  # which tell us how to traverse namespaces to find collections, or
-  # we pass in the mapping itself
+  # * collections : group of collections (as a dict),
+  #   the collection for type should
+  #   be present here.  Alternatively, one can specify this as an array of strings,
+  #   in which case we descend through the global namespace looking for this, using
+  #   get_collections.
+  # * type : type of the object
+  # * id : id of the object
+
+  # ####Returns
+
+  # * backbone model
+
   if _.isArray(collections)
     collections = get_collections(collections)
   return collections[type].get(id)
@@ -231,22 +209,23 @@ Continuum.resolve_ref = resolve_ref
 Continuum.get_collections = get_collections
 
 safebind = (binder, target, event, callback) ->
-  """safebind, binder binds to an event on target, which triggers callback.
-  Safe means that when the binder is destroyed, all callbacks are unbound.
-  callbacks are bound and evaluated in the context of binder
+  # ##function : safebind
+  # safebind, binder binds to an event on target, which triggers callback.
+  # Safe means that when the binder is destroyed, all callbacks are unbound.
+  # callbacks are bound and evaluated in the context of binder
 
-  Parameters
-  ---------
-  binder : some backbone model - when this is destroyed, the callback will be
-    unbound
-  target : object triggering the event we want to bind to
-  event : string, name of the event
-  callback : callback for the event
+  # ####Parameters
 
-  Returns
-  ---------
-  null
-  """
+  # * binder : some backbone model - when this is destroyed, the callback will be
+  #   unbound
+  # * target : object triggering the event we want to bind to
+  # * event : string, name of the event
+  # * callback : callback for the event
+
+  # ####Returns
+
+  # * null
+
   # stores objects we are binding events on, so that if we go away,
   # we can unbind all our events
   # currently, we require that the context being used is the binders context
@@ -267,10 +246,17 @@ safebind = (binder, target, event, callback) ->
   return null
 
 class HasProperties extends Backbone.Model
+# ##class : HasProperties
+#   Our property system
+#   we support python style computed properties, with getters as well as setters.
+#   we also support caching of these properties, and notifications of property
+#   changes
+#
+#   @register_property(name, dependencies, getter, use_cache, setter)
+
   collections : Collections
   destroy : (options)->
-    """calls super, also unbinds any events bound by safebind
-    """
+    #calls super, also unbinds any events bound by safebind
     super(options)
     if _.has(this, 'eventers')
       for own target, val of @eventers
@@ -280,9 +266,8 @@ class HasProperties extends Backbone.Model
     return not this.get('created')
 
   initialize : (attrs, options) ->
-    """auto generates ids if we need to, calls deferred initialize if we have
-    not done so already.   sets up datastructures for computed properties
-    """
+    # auto generates ids if we need to, calls deferred initialize if we have
+    # not done so already.   sets up datastructures for computed properties
     super(attrs, options)
     @properties = {}
     @property_cache = {}
@@ -294,18 +279,17 @@ class HasProperties extends Backbone.Model
         @dinitialize(attrs, options))
 
   dinitialize : (attrs, options) ->
-    """deferred initialization - this is important so we can separate object
-    creation from object initialization.  We need this if we receive a group
-    of objects, that need to bind events to each other.  Then we create them all
-    first, and then call deferred intialization so they can setup dependencies
-    on each other
-    """
+    # deferred initialization - this is important so we can separate object
+    # creation from object initialization.  We need this if we receive a group
+    # of objects, that need to bind events to each other.  Then we create them all
+    # first, and then call deferred intialization so they can setup dependencies
+    # on each other
     @inited = true
 
   set : (key, value, options) ->
-    """checks for setters, if setters are present, call setters first
-    then remove the computed property from the dict of attrs, and call super
-    """
+    # checks for setters, if setters are present, call setters first
+    # then remove the computed property from the dict of attrs, and call super
+
     # backbones set function supports 2 call signatures, either a dictionary of
     # key value pairs, and then options, or one key, one value, and then options.
     # replicating that logic here
@@ -328,22 +312,29 @@ class HasProperties extends Backbone.Model
       super(attrs, options)
 
   structure_dependencies : (dependencies) ->
-    """our structure for specing out dependencies of properties look like this
-    [{'ref' : {'type' : type, 'id' : id}, 'fields : ['a', 'b', 'c']}]
-    for convenience, we allow people to refer to this objects attributes
-    as strings, only using the formal structure for other objets attributes.
-    this function converts everything into that formal structure. SO:
-    this :
-    ['myprop1, 'myprop2',
-      {'ref' : {'type' : 'otherobj', 'id' : 'otherobj'}
-      'fields' : 'otherfield'}]
+    # ### method : HasProperties::structure_dependencies
+    # ####Parameters
+    # * dependencies : our structure for specing out
+    #   dependencies of properties look like this
+    #   `[{'ref' : {'type' : type, 'id' : id}, 'fields : ['a', 'b', 'c']}]`
+    #   for convenience, we allow people to refer to this objects attributes
+    #   as strings, only using the formal structure for other objets attributes.
+    #   this function converts everything into that formal structure.
+    #   SO this :
 
-    to :
-    [{'ref' : {'type' : 'mytype', 'id' : 'myid'},
-      'fields' : ['myprop1, 'myprop2'],
-      {'ref' : {'type' : 'otherobj', 'id' : 'otherobj'}
-      'fields' : 'otherfield'}]
-    """
+    #       ['myprop1, 'myprop2',
+    #       {'ref' : {'type' : 'otherobj', 'id' : 'otherobj'},
+    #        'fields' : 'otherfield'}]
+
+    #   is equivalent to :
+
+    #       [{'ref' : {'type' : 'mytype', 'id' : 'myid'},
+    #       'fields' : ['myprop1, 'myprop2'],
+    #       {'ref' : {'type' : 'otherobj', 'id' : 'otherobj'}
+    #       'fields' : 'otherfield'}]
+    # ####Returns
+    # * deps : the verbose form of dependencies where references are explicitly
+    # identified
     other_deps = (x for x in dependencies when _.isObject(x))
     local_deps = (x for x in dependencies when not _.isObject(x))
     if local_deps.length > 0
@@ -355,18 +346,22 @@ class HasProperties extends Backbone.Model
 
   register_property : \
     (prop_name, dependencies, getter, use_cache, setter) ->
-      """ register a computed property
-      Parameters
-      ---------
-      prop_name : name of property
-      dependencies : something like this
-        ['myprop1, 'myprop2',
-          {'ref' : {'type' : 'otherobj', 'id' : 'otherobj'}
-          'fields' : 'otherfield'}]
-      getter : function, calculates computed value
-      use_cache : whether to cache or not
-      setter : function, called on set.  can be null
-      """
+      # ###method : HasProperties::register_property
+      # register a computed property
+      # ####Parameters
+
+      # * prop_name : name of property
+      # * dependencies : something like this
+      #   ['myprop1, 'myprop2',
+      #     {'ref' : {'type' : 'otherobj', 'id' : 'otherobj'}
+      #     'fields' : 'otherfield'}]
+      # * getter : function, calculates computed value, takes no arguments
+      # * use_cache : whether to cache or not
+      # * setter : function, takes new value as parametercalled on set.
+      # can be null
+      # #### Returns
+      # * prop_spec : specification of the property, with the getter,
+      # setter, dependenices, and callbacks associated with the prop
       if _.has(@properties, prop_name)
         @remove_property(prop_name)
       dependencies = @structure_dependencies(dependencies)
@@ -424,7 +419,6 @@ class HasProperties extends Backbone.Model
     return _.has(@property_cache, prop_name)
 
   add_cache : (prop_name, val) ->
-    #logger.log('setcache:' + prop_name + val + @id)
     @property_cache[prop_name] = val
 
   clear_cache : (prop_name, val) ->
@@ -434,9 +428,10 @@ class HasProperties extends Backbone.Model
     return @property_cache[prop_name]
 
   get : (prop_name) ->
-    """overrides backbone get.  checks properties, calls getter, or goes to cache
-    if necessary.  If it's not a property, then just call super
-    """
+    # ### method : HasProperties::get
+    # overrides backbone get.  checks properties, calls getter, or goes to cache
+    # if necessary.  If it's not a property, then just call super
+
     if _.has(@properties, prop_name)
       prop_spec = @properties[prop_name]
       if prop_spec.use_cache and @has_cache(prop_name)
@@ -451,14 +446,14 @@ class HasProperties extends Backbone.Model
       return super(prop_name)
 
   ref : ->
-    """generates a reference to this model
-    """
+    # ### method : HasProperties::ref
+    #generates a reference to this model
     'type' : this.type
     'id' : this.id
 
   resolve_ref : (ref) ->
-    """converts a reference into an object
-    """
+    # ### method : HasProperties::resolve_ref
+    #converts a reference into an object
     if not ref
       console.log('ERROR, null reference')
     #this way we can reference ourselves
@@ -469,27 +464,29 @@ class HasProperties extends Backbone.Model
       return resolve_ref(@collections, ref['type'], ref['id'])
 
   get_ref : (ref_name) ->
-    """convenience function, gets the backbone attribute ref_name, which is assumed
-    to be a reference, then resolves the reference and returns the model
-    """
+    # ### method : HasProperties::get_ref
+    #convenience function, gets the backbone attribute ref_name, which is assumed
+    #to be a reference, then resolves the reference and returns the model
+
     ref = @get(ref_name)
     if ref
       return @resolve_ref(ref)
 
   url : () ->
-    """model where our API processes this model
-    """
+    # ### method HasProperties::url
+    #model where our API processes this model
+
     base = "/bb/" + window.topic + "/" + @type + "/"
     if (@isNew())
       return base
     return base + @get('id')
 
   sync : (method, model, options) ->
-    """override sync, so that if we pass in a 'local' option,
-    we don't involve the server.  This is necessary, ex.  Object is created on
-    the server, pushed down.  you want to create it locally, but you don't want
-    the client to try to make an API call to create this on the server.
-    """
+    # override sync, so that if we pass in a 'local' option,
+    # we don't involve the server.  This is necessary, ex.  Object is created on
+    # the server, pushed down.  you want to create it locally, but you don't want
+    # the client to try to make an API call to create this on the server.
+
     if options.local
       return options.success(model)
     else
@@ -499,13 +496,12 @@ class HasProperties extends Backbone.Model
 
 class ContinuumView extends Backbone.View
   initialize : (options) ->
-    """autogenerates id
-    """
+    #autogenerates id
     if not _.has(options, 'id')
       this.id = _.uniqueId('ContinuumView')
   remove : ->
-    """handles lifecycle of events bound by safebind
-    """
+    #handles lifecycle of events bound by safebind
+
     if _.has(this, 'eventers')
       for own target, val of @eventers
         val.off(null, null, this)
@@ -513,50 +509,51 @@ class ContinuumView extends Backbone.View
     super()
 
   tag_selector : (tag, id) ->
-    """jquery style selector given a string, and an id.
-    We name DOM nodes using this convention
-    <div id='name-2342342'>hugo</div>
-    """
+    # jquery style selector given a string, and an id.
+    # We name DOM nodes using this convention
+    # <div id='name-2342342'>hugo</div>
+
     return "#" + @tag_id(tag, id)
 
   tag_id : (tag, id) ->
-    """convention for naming our nodes, tag-id. if ID is not specified,
-    we use the id of the current view.
-    """
+    # convention for naming our nodes, tag-id. if ID is not specified,
+    # we use the id of the current view.
+
     if not id
       id = this.id
     tag + "-" + id
+
   tag_el : (tag, id) ->
-    """returns jquery node matching this tag/id combo
-    """
+    # returns jquery node matching this tag/id combo
+
     @$el.find("#" + this.tag_id(tag, id))
   tag_d3 : (tag, id) ->
-    """returns d3 node matching this tag/id combo.  null if it does not exist
-    """
+    #returns d3 node matching this tag/id combo.  null if it does not exist
+
     val = d3.select(this.el).select("#" + this.tag_id(tag, id))
     if val[0][0] == null
       return null
     else
       return val
   mget : ()->
-    """convenience function, calls get on the associated model
-    """
+    # convenience function, calls get on the associated model
+
     return @model.get.apply(@model, arguments)
 
   mset : ()->
-    """convenience function, calls set on the associated model
-    """
+    # convenience function, calls set on the associated model
+
     return @model.set.apply(@model, arguments)
 
   mget_ref : (fld) ->
-    """convenience function, calls get_ref on the associated model
-    """
+    # convenience function, calls get_ref on the associated model
+
     return @model.get_ref(fld)
 
   add_dialog : ->
-    """wraps a dialog window around this view.  This function assumes that the
-    underlying model is a Component, so our OO hierarchy may be a bit leaky here.
-    """
+    # wraps a dialog window around this view.  This function assumes that the
+    # underlying model is a Component, so our OO hierarchy may be a bit leaky here.
+
     position = () =>
       @$el.dialog('widget').css({
         'top' : @model.position_y() + "px",
@@ -630,37 +627,37 @@ class DeferredParent extends DeferredView
 Continuum.DeferredView = DeferredView
 Continuum.DeferredParent = DeferredParent
 
-"""
-  hasparent
-  display_options can be passed down to children
-  defaults for display_options should be placed
-  in a class var display_defaults
-  the get function, will resolve an instances defaults first
-  then check the parents actual val, and finally check class defaults.
-  display options cannot go into defaults
 
-  defaults vs display_defaults
-  backbone already has a system for attribute defaults, however we wanted to
-  impose a secondary inheritance system for attributes based on GUI hierarchies
-  the idea being that you generally want to inherit UI attributes from
-  your container/parent.  Here is how we do this.
-  HasParent models can have a parent attribute, which is our
-  continuum reference.  when we try to get an attribute, first we try to
-  get the attribute via super (so try properties, and if not that, normal
-  backbone resolution) if that results in something which is undefined,
-  then try to grab the attribute from the parent.
+  # hasparent
+  # display_options can be passed down to children
+  # defaults for display_options should be placed
+  # in a class var display_defaults
+  # the get function, will resolve an instances defaults first
+  # then check the parents actual val, and finally check class defaults.
+  # display options cannot go into defaults
 
-  the reason why we need to segregate display_defaults into a separate object
-  form backbones normal default is because backbone defaults are automatically
-  set on the object, so you have no way of knowing whether the attr exists
-  because it was a default, or whether it was intentionally set.  In the
-  parent case, we want to try parent settings BEFORE we rely on
-  display defaults.
+  # defaults vs display_defaults
+  # backbone already has a system for attribute defaults, however we wanted to
+  # impose a secondary inheritance system for attributes based on GUI hierarchies
+  # the idea being that you generally want to inherit UI attributes from
+  # your container/parent.  Here is how we do this.
+  # HasParent models can have a parent attribute, which is our
+  # continuum reference.  when we try to get an attribute, first we try to
+  # get the attribute via super (so try properties, and if not that, normal
+  # backbone resolution) if that results in something which is undefined,
+  # then try to grab the attribute from the parent.
 
-  functionally, since this is mostly there to facilitate deferred lookups,
-  perhaps a name besides display_defaults would be appropriate, we might want
-  to store non-display related defaults here.
-"""
+  # the reason why we need to segregate display_defaults into a separate object
+  # form backbones normal default is because backbone defaults are automatically
+  # set on the object, so you have no way of knowing whether the attr exists
+  # because it was a default, or whether it was intentionally set.  In the
+  # parent case, we want to try parent settings BEFORE we rely on
+  # display defaults.
+
+  # functionally, since this is mostly there to facilitate deferred lookups,
+  # perhaps a name besides display_defaults would be appropriate, we might want
+  # to store non-display related defaults here.
+
 class HasParent extends HasProperties
   get_fallback : (attr) ->
     if (@get_ref('parent') and
@@ -690,10 +687,10 @@ class HasParent extends HasProperties
 
 
 class Component extends HasParent
-  """component class, has height, width, outerheight, outerwidth, and offsets.
-  components understand positioning themselves within other components, as well
-  as positioning any children that are inside them
-  """
+  # component class, has height, width, outerheight, outerwidth, and offsets.
+  # components understand positioning themselves within other components, as well
+  # as positioning any children that are inside them
+
   collections : Collections
   position_object_x : (offset, container_width, object_width) ->
     return offset
@@ -928,9 +925,9 @@ class Tables extends Backbone.Collection
   url : "/bb"
 
 class InteractiveContextView extends DeferredParent
-  """Interactive context keeps track of a bunch of components that we render
-  into dialogs
-  """
+  # Interactive context keeps track of a bunch of components that we render
+  # into dialogs
+
   initialize : (options) ->
     @views = {}
     super(options)

@@ -7,9 +7,9 @@ Collections = Continuum.Collections
 Bokeh.register_collection = (key, value) ->
   Collections[key] = value
   value.bokeh_key = key
-"""
-  MAIN BOKEH CLASSES
-"""
+
+# MAIN BOKEH CLASSES
+
 # backbone assumes that valid attrs are any non-null, or non-defined value
 # thats dumb, we only check for undefined, because null is perfectly valid
 safebind = Continuum.safebind
@@ -58,9 +58,9 @@ _.extend(XYRenderer::defaults , {
   #axes fit here
 })
 
-"""
-Utility Classes for vis
-"""
+
+# Utility Classes for vis
+
 
 class Range1d extends HasProperties
   type : 'Range1d'
@@ -183,9 +183,9 @@ class Mapper extends HasProperties
   type : 'Mapper'
   map_screen : (data) ->
 
-"""
-  LinearMapper
-"""
+
+#  LinearMapper
+
 
 
 class LinearMapper extends Mapper
@@ -237,9 +237,9 @@ _.extend(LinearMapper::defaults
 class LinearMappers extends Continuum.Collection
   model : LinearMapper
 
-"""
-Discrete Color Mapper
-"""
+
+# Discrete Color Mapper
+
 class DiscreteColorMapper extends HasProperties
   type : 'DiscreteColorMapper'
   dinitialize : (attrs, options) ->
@@ -283,9 +283,9 @@ _.extend(DiscreteColorMapper::defaults
 class DiscreteColorMappers extends Continuum.Collection
   model : DiscreteColorMapper
 
-"""
-Data Sources
-"""
+
+# Data Sources
+
 class ObjectArrayDataSource extends HasProperties
   type : 'ObjectArrayDataSource'
   initialize : (attrs, options) ->
@@ -364,14 +364,13 @@ _.extend(ObjectArrayDataSource::defaults
 class ObjectArrayDataSources extends Continuum.Collection
   model : ObjectArrayDataSource
 
-"""
-  Individual Components below.
-  we first define the default view for a component,
-  the model for the component, and the collection
-"""
-"""
-  Plot Container
-"""
+
+# Individual Components below.
+# we first define the default view for a component,
+# the model for the component, and the collection
+
+#  Plot Container
+
 
 class GridPlotContainerView extends Continuum.DeferredParent
   initialize : (options) ->
@@ -702,9 +701,9 @@ _.extend(Plot::display_defaults
 class Plots extends Continuum.Collection
    model : Plot
 
-"""
-D3LinearAxisView
-"""
+
+# D3LinearAxisView
+
 class D3LinearAxisView extends PlotWidget
   initialize : (options) ->
     super(options)
@@ -1055,9 +1054,9 @@ _.extend(ScatterRenderer::display_defaults, {
 class ScatterRenderers extends Continuum.Collection
   model : ScatterRenderer
 
-"""
-  tools
-"""
+
+#  tools
+
 class PanToolView extends PlotWidget
   initialize : (options) ->
     @dragging = false
@@ -1422,9 +1421,9 @@ class ScatterSelectionOverlay extends Continuum.HasParent
 class ScatterSelectionOverlays extends Continuum.Collection
   model : ScatterSelectionOverlay
 
-"""
-  Convenience plotting functions
-"""
+
+#  Convenience plotting functions
+
 Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
   if _.isUndefined(local)
     local = true
