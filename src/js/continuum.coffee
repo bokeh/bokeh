@@ -8,18 +8,8 @@ else
 # we create a dictionary of collections, for all types that we know,
 # we use these when models are pushed down from the server
 class Continuum.Collection extends Backbone.Collection
-  create : (model, options) ->
-    if not options
-      options = {}
-    success = options.success
-    wrapped = (resp, status, xhr) ->
-      if success
-        success(resp, status, xhr)
-      model.set('created', true, {'silent' : true})
-    options.success = wrapped
-    model = super(model, options)
-    return model
-
+  # at some point, I thought we needed to override create... we don't anymore...
+  # can switch back to Backbone.Collection later
 Collections = {}
 Continuum.Collections = Collections
 Continuum.register_collection = (key, value) ->
