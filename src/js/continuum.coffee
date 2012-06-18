@@ -834,7 +834,7 @@ class DataTables extends Backbone.Collection
 class TableView extends ContinuumView
   delegateEvents: ->
     safebind(this, @model, 'destroy', @remove)
-    safebind(this, @model, 'change', @request_render)
+    safebind(this, @model, 'change', @render)
 
   render : ->
     super()
