@@ -115,7 +115,7 @@ Continuum.submodels = (ws_conn_string, topic) ->
     return null
   return s
 
-build_views = (mainmodel, view_storage, view_specs,
+build_views = (mainmodel, view_storage, view_specs, options) ->
   # ## function : build_views
   # convenience function for creating a bunch of views from a spec
   # and storing them in a dictionary keyed off of model id.
@@ -491,7 +491,8 @@ class HasProperties extends Backbone.Model
       return options.success(model)
     else
       return Backbone.sync(method, model, options)
-  defaults :
+
+  defaults : {}
 
 
 class ContinuumView extends Backbone.View
