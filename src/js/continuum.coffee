@@ -492,7 +492,7 @@ class HasProperties extends Backbone.Model
     else
       return Backbone.sync(method, model, options)
   defaults :
-    docs : [window.topic]
+
 
 class ContinuumView extends Backbone.View
   initialize : (options) ->
