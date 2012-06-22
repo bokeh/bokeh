@@ -778,30 +778,27 @@ class DataTableView extends ContinuumView
     @render()
     safebind(this, @model, 'change', @render)
 
+  el: 'div'
+
+  className: 'table table-striped table-bordered table-condensed' 
 
   render : () ->
     table_template = """
-    <div class='table' id='{{ tableid }}'>
-    </div>
-
+		<table class='table table-striped table-bordered table-condensed' id='{{ tableid }}'></table>
     """
     header_template = """
-      <div class='headerrow' id = '{{headerrowid}}'>
-      </div>
+      <thead id = '{{headerrowid}}'></thead>
     """
     header_column = """
-      <div class='header'>
-        {{column_name}}
-      </div>
+      <th><a href="javascript:cdxSortByColumn()" class='link'>{{column_name}}</a></th>
     """
-
     row_template = """
-      <div class='datarow'>
-      </div>
+      <tr></tr>
     """
     datacell_template = """
-      <div class='datacell'> {{ data}} </div>
+      <td>{{data}}</td>
     """
+
     header_html = _.template(header_template,
       {'headerrowid' : @tag_id('headerrow')})
     header = $(header_html)

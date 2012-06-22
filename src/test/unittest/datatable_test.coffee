@@ -15,7 +15,6 @@ test('test_interactive', ()->
     view = new tablemodel.default_view({'model' : tablemodel})
     $('body').append(view.$el)
     window.view = view
-    tablemodel.set('columns', ['x'])
-    tablemodel.set('columns', ['y'])
+    tablemodel.set('columns', ['x','y'])
   _.defer(window.myrender)
 )
