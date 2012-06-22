@@ -1489,6 +1489,35 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     'axes' : [xaxis.ref(), yaxis.ref()]
   }, options)
 
+make_range_and_mapper = (data_source, datafields, padding, screen_range, ordinal, options) ->
+    if not ordinal
+      range = Collections['DataRange1d'].create(
+          sources : [
+              ref : data_source.ref()
+              columns : datafields
+          ]
+          rangepadding : padding
+        , options
+      )
+      mapper = Collections['LinearMapper'].create(
+          data_range : range.ref()
+          screen_range : screen_range.ref()
+        , options
+      )
+    else
+      range = Collections['DataFactorRange'].create(
+          data_source : data_source.ref()
+          columns : [field]
+        , options
+      )
+      mapper = Collections['FactorMapper'].create(
+          data_range : range.ref()
+          screen_range : screen_range.ref()
+        , options
+      )
+    return [range, mapper]
+Bokeh.make_range_and_mapper = make_range_and_mapper
+
 Bokeh.bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
   if _.isUndefined(local)
     local = true
@@ -1499,32 +1528,14 @@ Bokeh.bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
     parent : parent
     , options
   )
-  xdr = Collections['DataRange1d'].create(
-      sources : [
-          ref : data_source.ref()
-          columns : [xfield]
-      ]
-      rangepadding : d3.max([1 / (data_source.get('data').length - 1), 0.1])
-    , options
-  )
-  ydr = Collections['DataRange1d'].create(
-      sources : [
-        ref : data_source.ref()
-        columns : [yfield]
-      ]
-      rangepadding : d3.max([1 / (data_source.get('data').length - 1), 0.1])
-    , options
-  )
-  xmapper = Collections['LinearMapper'].create(
-      data_range : xdr.ref()
-      screen_range : plot_model.get('xrange')
-    , options
-  )
-  ymapper = Collections['LinearMapper'].create(
-      data_range : ydr.ref()
-      screen_range : plot_model.get('yrange')
-    , options
-  )
+  [xdr, xmapper] = Bokeh.make_range_and_mapper(data_source, [xfield],
+    d3.max([1 / (data_source.get('data').length - 1), 0.1]),
+    plot_model.get_ref('xrange'), false, options)
+
+  [ydr, ymapper] = Bokeh.make_range_and_mapper(data_source, [yfield],
+    d3.max([1 / (data_source.get('data').length - 1), 0.1]),
+    plot_model.get_ref('yrange'), false, options)
+
   bar_plot = Collections["BarRenderer"].create(
       data_source: data_source.ref()
       xfield : xfield
