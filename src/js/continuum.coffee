@@ -115,7 +115,7 @@ Continuum.submodels = (ws_conn_string, topic) ->
     return null
   return s
 
-build_views = (mainmodel, view_storage, view_specs, options) ->
+build_views = (mainmodel, view_storage, view_specs, options, view_options) ->
   # ## function : build_views
   # convenience function for creating a bunch of views from a spec
   # and storing them in a dictionary keyed off of model id.
@@ -130,18 +130,22 @@ build_views = (mainmodel, view_storage, view_specs, options) ->
   #   a typename and an id.  you can also pass options you want to feed into
   #   the views constructor here, as an 'options' field in the dict
   # * options : any additional option to be used in the construction of views
-
+  # * view_option : array, optional view specific options passed in to the construction of the view
+  "use strict";
   created_views = []
   valid_viewmodels = {}
   for spec in view_specs
     valid_viewmodels[spec.id] = true
-
-  for spec in view_specs
+  for spec, idx in view_specs
     if view_storage[spec.id]
       continue
     model = mainmodel.resolve_ref(spec)
-    options = _.extend({}, spec.options, options, {'model' : model})
-    view_storage[model.id] = new model.default_view(options)
+    if view_options
+      view_specific_option = view_options[idx]
+    else
+      view_specific_option = {}
+    temp = _.extend({}, view_specific_option, spec.options, options, {'model' : model})
+    view_storage[model.id] = new model.default_view(temp)
     created_views.push(view_storage[model.id])
   for own key, value of view_storage
     if not valid_viewmodels[key]
@@ -922,6 +926,57 @@ class Tables extends Backbone.Collection
   model : Table
   url : "/bb"
 
+class CDXPlotContextView extends DeferredParent
+  initialize : (options) ->
+    @views = {}
+    super(options)
+
+  delegateEvents: ->
+    safebind(this, @model, 'destroy', @remove)
+    safebind(this, @model, 'change', @request_render)
+
+  generate_remove_child_callback : (view) ->
+    callback = () =>
+      newchildren = (x for x in @mget('children') when x.id != view.model.id)
+      @mset('children', newchildren)
+      return null
+    return callback
+
+  build_children : () ->
+    @mainlist = $("<ul></ul>")
+    @$el.append(@mainlist)
+    view_specific_options = []
+    for spec, counter in @mget('children')
+      model = @model.resolve_ref(spec)
+      model.set({'usedialog' : false})
+      plotelem = $("<li id='li" + counter  + "'></li>")
+      @mainlist.append(plotelem)
+      view_specific_options.push({'el' : plotelem})
+    created_views = build_views(@model, @views, @mget('children'), {}, view_specific_options)
+    for view in created_views
+      safebind(this, view, 'remove', @generate_remove_child_callback(view))
+    return null
+
+  render_deferred_components : (force) ->
+    super(force)
+    for view in _.values(@views)
+      view.render_deferred_components(force)
+
+  render : () ->
+    super()
+    @build_children()
+    return null
+    
+class CDXPlotContext extends Component
+  type : 'CDXPlotContext',
+  default_view : CDXPlotContextView
+  defaults :
+    children : []
+    render_loop : true
+    
+class CDXPlotContexts extends Backbone.Collection
+  model : CDXPlotContext
+  
 class InteractiveContextView extends DeferredParent
   # Interactive context keeps track of a bunch of components that we render
   # into dialogs
@@ -973,6 +1028,7 @@ class InteractiveContexts extends Backbone.Collection
 Continuum.register_collection('Table', new Tables())
 Continuum.register_collection('InteractiveContext', new InteractiveContexts())
 Continuum.register_collection('DataTable', new DataTables())
+Continuum.register_collection('CDXPlotContext', new CDXPlotContexts())
 
 Continuum.ContinuumView = ContinuumView
 Continuum.HasProperties = HasProperties

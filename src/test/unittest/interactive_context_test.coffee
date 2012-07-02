@@ -25,8 +25,9 @@ test('test_interactive', ()->
   plot2.set('offset', [400, 100])
   plot3.set('offset', [100, 300])
   plot4.set('offset', [500, 300])
+  $('body').append("<div id='mychart'></div>")
   window.myrender = () ->
-    view = new container.default_view({'model' : container});
+    view = new container.default_view({'model' : container, 'el':$('#mychart')})
     view.render()
     plot3.set({'height' : 300})
     window.plot3 = plot3
