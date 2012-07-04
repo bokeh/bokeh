@@ -519,8 +519,13 @@ class GridPlotContainers extends Continuum.Collection
   model : GridPlotContainer
 
 class PlotView extends Continuum.DeferredParent
+
+  default_options : {
+    scale:1.0
+  }
+
   initialize : (options) ->
-    super(options)
+    super(_.defaults(options, @default_options))
     @renderers = {}
     @axes = {}
     @tools = {}
@@ -611,14 +616,21 @@ class PlotView extends Continuum.DeferredParent
       .attr('fill', @mget('background_color'))
       .attr('stroke', @model.get('foreground_color'))
       .attr('width', @mget('width'))
-      .attr("height", @mget('height'))
+      .attr("height",  @mget('height'))  
+
+
     @tag_d3('plotwindow')
-        .attr('height', @mget('height'))
-        .attr('width', @mget('width'))
-    node.attr('width', @mget('outerwidth')).attr("height", @mget('outerheight'))
+      .attr('width',  @mget('width')) 
+      .attr('height', @mget('height'))
+
+    node.attr("width", @options.scale * @mget('outerwidth'))
+      .attr('height', @options.scale * @mget('outerheight'))
     #svg puts origin in the top left, we want it on the bottom left
-    @tag_d3('plot').attr('transform',
-      _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
+    #
+    trans_string = "scale(#{@options.scale}, #{@options.scale})"
+    trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
+
+    @tag_d3('plot').attr('transform', trans_string)
 
   render : () ->
     super()
