@@ -19,8 +19,12 @@ class DataTableView extends ContinuumView
     table_template = """
 		<table class='table table-striped table-bordered table-condensed' id='{{ tableid }}'></table>
     """
+    table_template = """
+		<table class='table table-striped table-bordered table-condensed' id='tableid_na'></table>
+    """
+
     header_template = """
-      <thead id = '{{headerrowid}}'></thead>
+      <thead id ='header_id_na'></thead>
     """
     header_column = """
       <th><a href="javascript:cdxSortByColumn()" class='link'>{{column_name}}</a></th>
@@ -32,13 +36,11 @@ class DataTableView extends ContinuumView
       <td>{{data}}</td>
     """
 
-    header_html = _.template(header_template,
-      {'headerrowid' : @tag_id('headerrow')})
-    header = $(header_html)
+    header = $(header_template)
     for colname in @mget('columns')
       html = _.template(header_column, {'column_name' : colname})
       header.append($(html))
-    table = $(_.template(table_template, {'tableid' : @tag_id('table')}))
+    table = $(table_template);
     table.append(header)
     for rowdata in @mget_ref('data_source').get('data')
       row = $(row_template)
@@ -63,15 +65,13 @@ class TableView extends ContinuumView
     @$el.find('table').append("<tr></tr>")
     headerrow = $(@$el.find('table').find('tr')[0])
     for column, idx in ['row'].concat(@mget('columns'))
-      elem = $(_.template('<th class="tableelem tableheader">{{ name }}</th>',
-        {'name' : column}))
+      elem = $("<th class='tableelem tableheader'>#{column}/th>")
       headerrow.append(elem)
     for row, idx in @mget('data')
       row_elem = $("<tr class='tablerow'></tr>")
       rownum = idx + @mget('data_slice')[0]
       for data in [rownum].concat(row)
-        elem = $(_.template("<td class='tableelem'>{{val}}</td>",
-          {'val':data}))
+        elem = $("<td class='tableelem'>#{data}</td>")
         row_elem.append(elem)
       @$el.find('table').append(row_elem)
     @render_pagination()
@@ -190,3 +190,5 @@ class InteractiveContextView extends DeferredParent
     super()
     @build_children()
     return null
+
+
