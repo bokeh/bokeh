@@ -949,10 +949,12 @@ class CDXPlotContextView extends DeferredParent
     for spec, counter in @mget('children')
       model = @model.resolve_ref(spec)
       model.set({'usedialog' : false})
-      plotelem = $("<li id='li" + counter  + "'></li>")
+      plotelem = $("<li id='li#{counter}'></li>")
       @mainlist.append(plotelem)
       view_specific_options.push({'el' : plotelem})
     created_views = build_views(@model, @views, @mget('children'), {}, view_specific_options)
+    window.pc_created_views = created_views
+    window.pc_views = @views
     for view in created_views
       safebind(this, view, 'remove', @generate_remove_child_callback(view))
     return null
@@ -1035,4 +1037,5 @@ Continuum.HasProperties = HasProperties
 Continuum.HasParent = HasParent
 Continuum.Component = Component
 Continuum.safebind = safebind
+
 
