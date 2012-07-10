@@ -184,6 +184,10 @@ class HasProperties extends Backbone.Model
   initialize : (attrs, options) ->
     # auto generates ids if we need to, calls deferred initialize if we have
     # not done so already.   sets up datastructures for computed properties
+    if not attrs
+       attrs = {}
+    if not options
+      options = {}
     super(attrs, options)
     @properties = {}
     @property_cache = {}
@@ -554,4 +558,3 @@ class Component extends HasParent
     border_space : 30
 
   default_view : null
-
