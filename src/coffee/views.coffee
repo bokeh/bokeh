@@ -134,6 +134,7 @@ class CDXPlotContextView extends DeferredParent
         model: s_pc, render_loop:true,
         el: $CDX.main_tab_set.add_tab_el(
           tab_name:"plot#{plot_num}",  view: {}, route:"plot#{plot_num}"))
+      $CDX.main_tab_set.activate("plot#{plot_num}")
 
   build_children : () ->
     @mainlist = $("<ul></ul>")
