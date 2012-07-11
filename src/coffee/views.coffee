@@ -126,17 +126,29 @@ class CDXPlotContextView extends DeferredParent
       return null
     return callback
 
+  make_click_handler: (model, plot_num) ->
+    ->
+      s_pc = model
+      s_pc.set('render_loop', true)
+      plotcontextview = new s_pc.default_view(
+        model: s_pc, render_loop:true,
+        el: $CDX.main_tab_set.add_tab_el(
+          tab_name:"plot#{plot_num}",  view: {}, route:"plot#{plot_num}"))
+      $CDX.main_tab_set.activate("plot#{plot_num}")
+
   build_children : () ->
     @mainlist = $("<ul></ul>")
     @$el.append(@mainlist)
     view_specific_options = []
-    for spec, counter in @mget('children')
+    for spec, plot_num in @mget('children')
       model = @model.resolve_ref(spec)
       model.set({'usedialog' : false})
-      plotelem = $("<li id='li#{counter}'></li>")
+      plotelem = $("<li id='li#{plot_num}'></li>")
+      plotelem.click(@make_click_handler(model, plot_num))
       @mainlist.append(plotelem)
       view_specific_options.push({'el' : plotelem})
-    created_views = build_views(@model, @views, @mget('children'), {}, view_specific_options)
+    created_views = build_views(
+      @model, @views, @mget('children'), {}, view_specific_options)
     window.pc_created_views = created_views
     window.pc_views = @views
     for view in created_views
