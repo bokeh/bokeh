@@ -115,6 +115,9 @@ class CDXPlotContextView extends DeferredParent
     @views = {}
     super(options)
 
+  #events :
+  #  "click js-plot_holder" : "open_plot_tab"
+
   delegateEvents: ->
     safebind(this, @model, 'destroy', @remove)
     safebind(this, @model, 'change', @request_render)
@@ -126,6 +129,11 @@ class CDXPlotContextView extends DeferredParent
       return null
     return callback
 
+
+  open_plot_tab: (e) ->
+    window.e = e
+    console.log(' open plot tab ')
+    
   make_click_handler: (model, plot_num) ->
     ->
       s_pc = model
@@ -145,8 +153,9 @@ class CDXPlotContextView extends DeferredParent
       model.set({'usedialog' : false})
       plotelem = $("<li id='li#{plot_num}'></li>")
       plotelem.click(@make_click_handler(model, plot_num))
-      @mainlist.append(plotelem)
+      #@mainlist.append(plotelem)
       view_specific_options.push({'el' : plotelem})
+      
     created_views = build_views(
       @model, @views, @mget('children'), {}, view_specific_options)
     window.pc_created_views = created_views
@@ -157,9 +166,15 @@ class CDXPlotContextView extends DeferredParent
 
   render_deferred_components : (force) ->
     super(force)
-    for view in _.values(@views)
-      view.render_deferred_components(force)
-
+    @mainlist.html('')
+    for view, view_num in _.values(@views)
+      view.render_deferred_components(true)
+      $.when(view.to_png_daturl()).then((data_url) =>
+        console.log('to_png_dataurl called?')
+        @mainlist.append("""<li class='js-plot_holder' data-plot_num='#{view_num}'><img width='50' height='50' src='#{data_url}'/></li>"""))
+        
+    view.render_deferred_components(force)
+    
   render : () ->
     super()
     @build_children()

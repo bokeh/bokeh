@@ -120,15 +120,19 @@ class PlotView extends Continuum.DeferredParent
     safebind(this, @model, 'change:tools', @build_tools)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
+
+    @png_data_url_deferred = $.Deferred()
     return this
 
   to_png_daturl: () ->
+    if @png_data_url_deferred.isResolved()
+      return @png_data_url_deferred
     svg_el = $(@el).find('svg')[0]
-    data_url_deferred = $.Deferred()
-    SVGToCanvas.exportPNGcanvg(svg_el, (dataUrl) ->
+
+    SVGToCanvas.exportPNGcanvg(svg_el, (dataUrl) =>
       console.log(dataUrl.length, dataUrl[0..100])
-      data_url_deferred.resolve(dataUrl))
-    return data_url_deferred.promise()
+      @png_data_url_deferred.resolve(dataUrl))
+    return @png_data_url_deferred.promise()
 
   build_renderers : ->
     build_views(@model, @renderers, @mget('renderers')
@@ -217,13 +221,15 @@ class PlotView extends Continuum.DeferredParent
     trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
 
     @tag_d3('plot').attr('transform', trans_string)
-
+    
   render : () ->
     super()
-    @render_mainsvg();
+    ret_val = @render_mainsvg();
     if @mget('usedialog') and not @$el.is(":visible")
-      @add_dialog()
+      ret_val = @add_dialog()
 
+    return ret_val
+    
   render_deferred_components: (force) ->
     super(force)
     for own key, view of @axes
@@ -234,6 +240,8 @@ class PlotView extends Continuum.DeferredParent
       view.render_deferred_components(force)
     for own key, view of @overlays
       view.render_deferred_components(force)
+    if force
+      @to_png_daturl()
 
 build_views = Continuum.build_views
 
