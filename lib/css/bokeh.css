@@ -2,6 +2,10 @@ svg {
   font: 12px sans-serif;
   margin: 0;
 }
+
+/* 
+Do not use classes to style svgs, they don't work properly with png persistence
+ */
 .D3LinearAxisView {
   fill: none;
   stroke-width: 1.5px;

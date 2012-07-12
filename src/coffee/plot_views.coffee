@@ -122,6 +122,14 @@ class PlotView extends Continuum.DeferredParent
     safebind(this, @model, 'destroy', () => @remove())
     return this
 
+  to_png_daturl: () ->
+    svg_el = $(@el).find('svg')[0]
+    data_url_deferred = $.Deferred()
+    SVGToCanvas.exportPNGcanvg(svg_el, (dataUrl) ->
+      console.log(dataUrl.length, dataUrl[0..100])
+      data_url_deferred.resolve(dataUrl))
+    return data_url_deferred.promise()
+
   build_renderers : ->
     build_views(@model, @renderers, @mget('renderers')
       ,
@@ -274,7 +282,7 @@ class D3LinearAxisView extends PlotWidget
     if not node
       node = base.append('g')
         .attr('id', @tag_id('axis'))
-        .attr('class', 'D3LinearAxisView')
+        .attr('style', '  font: 12px sans-serif; fill:none; stroke-width:1.5px; shape-rendering:crispEdges')
         .attr('stroke', @mget('foreground_color'))
     offsets = @get_offsets(@mget('orientation'))
     offsets['h'] = @plot_model.get('height')
