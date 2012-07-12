@@ -10,11 +10,7 @@ class DataTableView extends ContinuumView
     super(options)
     @render()
     safebind(this, @model, 'change', @render)
-
-  el: 'div'
-
-  className: 'table table-striped table-bordered table-condensed' 
-
+  className: 'table table-striped table-bordered table-condensed'
   render : () ->
     table_template = """
 		<table class='table table-striped table-bordered table-condensed' id='{{ tableid }}'></table>
@@ -164,7 +160,7 @@ class CDXPlotContextView extends DeferredParent
     super()
     @build_children()
     return null
-  
+
 class InteractiveContextView extends DeferredParent
   # Interactive context keeps track of a bunch of components that we render
   # into dialogs
@@ -202,5 +198,3 @@ class InteractiveContextView extends DeferredParent
     super()
     @build_children()
     return null
-
-
