@@ -113,10 +113,10 @@ class TableView extends ContinuumView
 class CDXPlotContextView extends DeferredParent
   initialize : (options) ->
     @views = {}
+    @views_rendered = [false]
+    @child_models = []
     super(options)
 
-  #events :
-  #  "click js-plot_holder" : "open_plot_tab"
 
   delegateEvents: ->
     safebind(this, @model, 'destroy', @remove)
@@ -129,20 +129,13 @@ class CDXPlotContextView extends DeferredParent
       return null
     return callback
 
-
+  events : {
+    "click ul " : "open_plot_tab"
+  }
+  
   open_plot_tab: (e) ->
     window.e = e
     console.log(' open plot tab ')
-    
-  make_click_handler: (model, plot_num) ->
-    ->
-      s_pc = model
-      s_pc.set('render_loop', true)
-      plotcontextview = new s_pc.default_view(
-        model: s_pc, render_loop:true,
-        el: $CDX.main_tab_set.add_tab_el(
-          tab_name:"plot#{plot_num}",  view: {}, route:"plot#{plot_num}"))
-      $CDX.main_tab_set.activate("plot#{plot_num}")
 
   build_children : () ->
     @mainlist = $("<ul></ul>")
@@ -150,6 +143,7 @@ class CDXPlotContextView extends DeferredParent
     view_specific_options = []
     for spec, plot_num in @mget('children')
       model = @model.resolve_ref(spec)
+      @child_models[plot_num] = model
       model.set({'usedialog' : false})
       plotelem = $("<li id='li#{plot_num}'></li>")
       plotelem.click(@make_click_handler(model, plot_num))
@@ -165,16 +159,30 @@ class CDXPlotContextView extends DeferredParent
     return null
 
   render_deferred_components : (force) ->
+    if _.all(@views_rendered, _.identity)
+      return
     super(force)
     @mainlist.html('')
     for view, view_num in _.values(@views)
       view.render_deferred_components(true)
+      @views_rendered[view_num] = false
       $.when(view.to_png_daturl()).then((data_url) =>
-        console.log('to_png_dataurl called?')
-        @mainlist.append("""<li class='js-plot_holder' data-plot_num='#{view_num}'><img width='50' height='50' src='#{data_url}'/></li>"""))
+        #console.log('to_png_dataurl called?')
+        
+        @mainlist.append("""<li class='jsp' data-plot_num='#{view_num}'><img width='50' height='50' src='#{data_url}'/></li>""")
+        @views_rendered[view_num]=true)
         
     view.render_deferred_components(force)
-    
+    pcv = @
+    $(@el).find('.jsp').click((e)->
+      plot_num = parseInt($(@).attr('data-plot_num'))
+      s_pc = pcv.child_models[plot_num]
+      s_pc.set('render_loop', true)
+      plotview = new s_pc.default_view(model: s_pc, render_loop:true)
+      $CDX.main_tab_set.add_tab_el(
+          tab_name:"plot#{plot_num}",  view: plotview, route:"plot#{plot_num}")
+      $CDX.main_tab_set.activate("plot#{plot_num}"))
+
   render : () ->
     super()
     @build_children()
