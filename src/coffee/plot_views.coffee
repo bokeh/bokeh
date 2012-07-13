@@ -127,6 +127,7 @@ class PlotView extends Continuum.DeferredParent
   to_png_daturl: () ->
     if @png_data_url_deferred.isResolved()
       return @png_data_url_deferred
+    @render_deferred_components(true)
     svg_el = $(@el).find('svg')[0]
 
     SVGToCanvas.exportPNGcanvg(svg_el, (dataUrl) =>
@@ -206,11 +207,11 @@ class PlotView extends Continuum.DeferredParent
       .attr('fill', @mget('background_color'))
       .attr('stroke', @model.get('foreground_color'))
       .attr('width', @mget('width'))
-      .attr("height",  @mget('height'))  
+      .attr("height",  @mget('height'))
 
 
     @tag_d3('plotwindow')
-      .attr('width',  @mget('width')) 
+      .attr('width',  @mget('width'))
       .attr('height', @mget('height'))
 
     node.attr("width", @options.scale * @mget('outerwidth'))
@@ -221,7 +222,7 @@ class PlotView extends Continuum.DeferredParent
     trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
 
     @tag_d3('plot').attr('transform', trans_string)
-    
+
   render : () ->
     super()
     ret_val = @render_mainsvg();
@@ -229,7 +230,7 @@ class PlotView extends Continuum.DeferredParent
       ret_val = @add_dialog()
 
     return ret_val
-    
+
   render_deferred_components: (force) ->
     super(force)
     for own key, view of @axes
@@ -240,8 +241,6 @@ class PlotView extends Continuum.DeferredParent
       view.render_deferred_components(force)
     for own key, view of @overlays
       view.render_deferred_components(force)
-    if force
-      @to_png_daturl()
 
 build_views = Continuum.build_views
 

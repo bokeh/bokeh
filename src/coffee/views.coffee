@@ -135,7 +135,7 @@ class CDXPlotContextView extends DeferredParent
       @child_models[plot_num] = model
       model.set({'usedialog' : false})
       view_specific_options.push({'el' : $("<div/>")})
-      
+
     created_views = build_views(
       @model, @views, @mget('children'), {}, view_specific_options)
     window.pc_created_views = created_views
@@ -145,19 +145,17 @@ class CDXPlotContextView extends DeferredParent
     return null
 
   render_deferred_components : (force) ->
-    if _.all(@views_rendered, _.identity) and @views_rendered.length == @views.length
-      return
-    @mainlist.html('')
     super(force)
+    for view  in _.values(@views)
+      view.render_deferred_components(force)
 
+  render : () ->
+    super()
+    @build_children()
+    @mainlist.html('')
     for view, view_num in _.values(@views)
-      view.render_deferred_components(true)
-      @views_rendered[view_num] = false
       $.when(view.to_png_daturl()).then((data_url) =>
-        @mainlist.append("""<li class='jsp' data-plot_num='#{view_num}'><img width='50' height='50' src='#{data_url}'/></li>""")
-        @views_rendered[view_num]=true)
-        
-    view.render_deferred_components(force)
+        @mainlist.append("""<li class='jsp' data-plot_num='#{view_num}'><img width='50' height='50' src='#{data_url}'/></li>"""))
     pcv = @
     $(@el).find('.jsp').click((e)->
       plot_num = parseInt($(@).attr('data-plot_num'))
@@ -167,10 +165,6 @@ class CDXPlotContextView extends DeferredParent
       $CDX.main_tab_set.add_tab_el(
           tab_name:"plot#{plot_num}",  view: plotview, route:"plot#{plot_num}")
       $CDX.main_tab_set.activate("plot#{plot_num}"))
-
-  render : () ->
-    super()
-    @build_children()
     return null
 
 class InteractiveContextView extends DeferredParent
