@@ -112,6 +112,9 @@ class CDXPlotContextView extends DeferredParent
     @views_rendered = [false]
     @child_models = []
     super(options)
+    @mainlist = $("<ul></ul>")
+    @$el.append(@mainlist)
+
 
 
   delegateEvents: ->
@@ -126,8 +129,6 @@ class CDXPlotContextView extends DeferredParent
     return callback
 
   build_children : () ->
-    @mainlist = $("<ul></ul>")
-    @$el.append(@mainlist)
     view_specific_options = []
     for spec, plot_num in @mget('children')
       model = @model.resolve_ref(spec)
@@ -144,10 +145,11 @@ class CDXPlotContextView extends DeferredParent
     return null
 
   render_deferred_components : (force) ->
-    if _.all(@views_rendered, _.identity)
+    if _.all(@views_rendered, _.identity) and @views_rendered.length == @views.length
       return
-    super(force)
     @mainlist.html('')
+    super(force)
+
     for view, view_num in _.values(@views)
       view.render_deferred_components(true)
       @views_rendered[view_num] = false
