@@ -133,10 +133,7 @@ class CDXPlotContextView extends DeferredParent
       model = @model.resolve_ref(spec)
       @child_models[plot_num] = model
       model.set({'usedialog' : false})
-      plotelem = $("<li id='li#{plot_num}'></li>")
-      plotelem.click(@make_click_handler(model, plot_num))
-      #@mainlist.append(plotelem)
-      view_specific_options.push({'el' : plotelem})
+      view_specific_options.push({'el' : $("<div/>")})
       
     created_views = build_views(
       @model, @views, @mget('children'), {}, view_specific_options)
