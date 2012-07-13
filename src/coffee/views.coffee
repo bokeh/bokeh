@@ -152,8 +152,6 @@ class CDXPlotContextView extends DeferredParent
       view.render_deferred_components(true)
       @views_rendered[view_num] = false
       $.when(view.to_png_daturl()).then((data_url) =>
-        #console.log('to_png_dataurl called?')
-        
         @mainlist.append("""<li class='jsp' data-plot_num='#{view_num}'><img width='50' height='50' src='#{data_url}'/></li>""")
         @views_rendered[view_num]=true)
         
