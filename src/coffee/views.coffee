@@ -106,7 +106,7 @@ class TableView extends ContinuumView
         return false
       )
 
-class CDXPlotContextView extends DeferredParent
+class CDXPlotContextView extends ContinuumView
   initialize : (options) ->
     @views = {}
     @views_rendered = [false]
@@ -114,12 +114,11 @@ class CDXPlotContextView extends DeferredParent
     super(options)
     @mainlist = $("<ul></ul>")
     @$el.append(@mainlist)
-
-
+    @render()
 
   delegateEvents: ->
     safebind(this, @model, 'destroy', @remove)
-    safebind(this, @model, 'change', @request_render)
+    safebind(this, @model, 'change', @render)
 
   generate_remove_child_callback : (view) ->
     callback = () =>
@@ -144,11 +143,6 @@ class CDXPlotContextView extends DeferredParent
       safebind(this, view, 'remove', @generate_remove_child_callback(view))
     return null
 
-  render_deferred_components : (force) ->
-    super(force)
-    for view  in _.values(@views)
-      view.render_deferred_components(force)
-
   render : () ->
     super()
     @build_children()
@@ -160,7 +154,6 @@ class CDXPlotContextView extends DeferredParent
     $(@el).find('.jsp').click((e)->
       plot_num = parseInt($(@).attr('data-plot_num'))
       s_pc = pcv.child_models[plot_num]
-      s_pc.set('render_loop', true)
       plotview = new s_pc.default_view(model: s_pc, render_loop:true)
       $CDX.main_tab_set.add_tab_el(
           tab_name:"plot#{plot_num}",  view: plotview, route:"plot#{plot_num}")
