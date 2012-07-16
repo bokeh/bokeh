@@ -480,7 +480,8 @@ _.extend(Plot::defaults , {
   'legends' : [],
   'tools' : [],
   'overlays' : [],
-  'usedialog' : false
+  'usedialog' : false,
+  'title' : 'Plot'
   #axes fit here
 })
 Plot::display_defaults = _.clone(Plot::display_defaults)
