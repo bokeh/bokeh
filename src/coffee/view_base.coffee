@@ -191,19 +191,15 @@ class DeferredView extends ContinuumView
 class DeferredParent extends DeferredView
   initialize : (options) ->
     super(options)
-    if @mget('render_loop')
+    @use_render_loop = options['render_loop']
+    if @use_render_loop
       console.log('loop')
       _.defer(() => @render_loop())
-    safebind(this, @model, 'change:render_loop',
-        () =>
-          if @mget('render_loop') and not @looping
-            @render_loop()
-    )
+
 
   render_loop : () ->
-    @looping = true
     @render_deferred_components()
-    if not @removed and @mget('render_loop')
+    if not @removed and @use_render_loop
       setTimeout((() => @render_loop()), 100)
     else
       @looping = false
@@ -215,4 +211,3 @@ class DeferredParent extends DeferredView
 
 Continuum.DeferredView = DeferredView
 Continuum.DeferredParent = DeferredParent
-

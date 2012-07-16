@@ -13,12 +13,16 @@ test('test_interactive', ()->
   $('body').append("<div class='chartholder' id='mychart2'></div>")
 
   window.myrender = () ->
-    view_orig = new plot1.default_view({'model' : plot1, 'el':$('#mychart')})
+    view_orig = new plot1.default_view(
+      model : plot1,
+      el:$('#mychart'),
+      render_loop : true
+    )
     view_orig.render()
     window.view_orig = view_orig
 
     view = new plot1.default_view(
-      {'model' : plot1, 'el':$('#mychart2'), 'scale': 0.5})
+      {'model' : plot1, 'el':$('#mychart2'), 'scale': 0.5, 'render_loop' : true})
 
     view.render()
     d3.select($('#mychart2 g')).attr('transform', 'scale(0.3, 0.3)');
@@ -26,4 +30,3 @@ test('test_interactive', ()->
 
   _.defer(window.myrender)
 )
-  

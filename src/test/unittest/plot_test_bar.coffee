@@ -25,7 +25,7 @@ test('test_vbar', ()->
 
   window.plot1 = plot1
   window.myrender = () ->
-    view = new container.default_view({'model' : container});
+    view = new container.default_view({'model' : container, 'render_loop' : true});
     view.render()
     # plot1.set({'width' : 300})
     # plot1.set({'height' : 300})
@@ -60,7 +60,7 @@ test('test_hbar', ()->
 
   window.plot1 = plot1
   window.myrender = () ->
-    view = new container.default_view({'model' : container});
+    view = new container.default_view({'model' : container, 'render_loop' : true});
     view.render()
     # plot1.set({'width' : 300})
     # plot1.set({'height' : 300})
@@ -95,7 +95,7 @@ test('test_ordinalbar', ()->
 
   window.plot1 = plot1
   window.myrender = () ->
-    view = new container.default_view({'model' : container});
+    view = new container.default_view({'model' : container, 'render_loop' : true});
     view.render()
     # plot1.set({'width' : 300})
     # plot1.set({'height' : 300})

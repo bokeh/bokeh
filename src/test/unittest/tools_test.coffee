@@ -34,7 +34,7 @@ test('test_interactive', ()->
 
   window.plot1 = plot1
   window.myrender = () ->
-    view = new container.default_view({'model' : container});
+    view = new container.default_view({'model' : container, 'render_loop' : true});
     view.render()
     plot1.set({'width' : 300})
     plot1.set({'height' : 300})
