@@ -1,10 +1,32 @@
 
 class DataTable extends Component
   type : 'DataTable'
-  default_view : DataTableView
+  initialize : (attrs, options)->
+    super(attrs, options)
+    #console.log('init in DataTable')
+    @register_property('offset', ['data_slice'],
+      (() -> return @get('data_slice')[0]), false
+    )
+    @register_property('chunksize', ['data_slice'],
+      (() -> return @get('data_slice')[1] - @get('data_slice')[0]),
+      false
+    )
   defaults :
     data_source : null
     columns : []
+    data_slice : [0, 100]
+    total_rows : 0
+  default_view : DataTableView
+  load : (offset) ->
+    console.log('DTV load: url='+@get('url'))
+    $.get("/data" + @get('url'),
+      data_slice : JSON.stringify(@get('data_slice')) ,
+      (data) =>
+          @set('data_slice',
+            [offset, offset + @get('chunksize')],
+            {silent:true})
+          @set({'data' : JSON.parse(data)['data']})
+    )
 
 class DataTables extends Backbone.Collection
   model : DataTable
