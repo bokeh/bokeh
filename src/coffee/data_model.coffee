@@ -3,7 +3,6 @@ class DataTable extends Component
   type : 'DataTable'
   initialize : (attrs, options)->
     super(attrs, options)
-    #console.log('init in DataTable')
     @register_property('offset', ['data_slice'],
       (() -> return @get('data_slice')[0]), false
     )
@@ -18,7 +17,6 @@ class DataTable extends Component
     total_rows : 0
   default_view : DataTableView
   load : (offset) ->
-    console.log('DTV load: url='+@get('url'))
     $.get("/data" + @get('url'),
       data_slice : JSON.stringify(@get('data_slice')) ,
       (data) =>
@@ -83,8 +81,8 @@ class InteractiveContext extends Component
   default_view : InteractiveContextView
   defaults :
     children : []
-    width : $(window).width();
-    height : $(window).height();
+    width : $(window).width()
+    height : $(window).height()
     render_loop : true
 class InteractiveContexts extends Backbone.Collection
   model : InteractiveContext
