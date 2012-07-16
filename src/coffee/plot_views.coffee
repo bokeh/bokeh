@@ -29,7 +29,18 @@ class GridPlotContainerView extends Continuum.DeferredParent
     safebind(this, @model, 'change:children', @build_children)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
+    @png_data_url_deferred = $.Deferred()
     return this
+
+  to_png_daturl: () ->
+    if @png_data_url_deferred.isResolved()
+      return @png_data_url_deferred
+    @render_deferred_components(true)
+    svg_el = $(@el).find('svg')[0]
+    SVGToCanvas.exportPNGcanvg(svg_el, (dataUrl) =>
+      console.log(dataUrl.length, dataUrl[0..100])
+      @png_data_url_deferred.resolve(dataUrl))
+    return @png_data_url_deferred.promise()
 
   build_children : ->
     node = @build_node()
