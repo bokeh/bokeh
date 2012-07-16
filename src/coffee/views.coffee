@@ -10,6 +10,7 @@ class DataTableView extends ContinuumView
     super(options)
     safebind(this, @model, 'destroy', @remove)
     safebind(this, @model, 'change', @render)
+    @render()
 
   className: 'div'
 
