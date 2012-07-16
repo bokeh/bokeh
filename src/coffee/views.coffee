@@ -14,17 +14,9 @@ class DataTableView extends ContinuumView
   className: 'div'
 
   render : () ->
-    console.log('data_source='+@mget('data_source'))
-    console.log('url='+@mget('url'))
-    console.log('total_rows='+@mget('total_rows'))
-    console.log('offset='+@mget('offset'))
-    console.log('chunksize='+@mget('chunksize'))
-    console.log('data_slice='+@mget('data_slice'))
-
     table_template = """
 		<table class='table table-striped table-bordered table-condensed' id='tableid_na'></table>
     """
-
     header_template = """
       <thead id ='header_id_na'></thead>
     """
@@ -56,19 +48,22 @@ class DataTableView extends ContinuumView
         row.append(datacell)
         table.append(row)
 
+    @$el.empty()
     @render_pagination()
     @$el.append(table)
     if @mget('usedialog') and not @$el.is(":visible")
       @add_dialog()
 
   render_pagination : ->
-    console.log('render_pagination')
     table_hdr_template = """
-        <div class="pull-right">
+      <div>
+        <div class="pull-left">
+          <span>Total Rows: {{total_rows}}</span>
         </div>
+        <div class="pull-right"></div>
+      </div>
     """
     btn_group = $('<div class="btn-group"></div>')
-    console.log('offset='+@mget('offset'))
     if @mget('offset') > 0
       node = $('<a class="btn" title="First Page" href="#"><i class="icon-fast-backward"></i></a>')
       btn_group.append(node)
@@ -84,7 +79,6 @@ class DataTableView extends ContinuumView
       )
 
     maxoffset = @mget('total_rows') - @mget('chunksize')
-    console.log('maxoffset='+maxoffset)
 
     if @mget('offset') < maxoffset
       node = $('<a class="btn" title="Next Page" href="#"><i class="icon-step-forward"></i></a>')
@@ -101,9 +95,11 @@ class DataTableView extends ContinuumView
         @model.load(maxoffset)
         return false
       )
-      table_hdr = $(table_hdr_template)
-      table_hdr.append(btn_group)
-      @$el.append(table_hdr)
+
+    table_hdr = $(_.template(table_hdr_template, {'total_rows' : @mget('total_rows')}))
+    btn_group = $('<div class="pull-right"></div>').append(btn_group)
+    @$el.append(btn_group)
+    @$el.append(table_hdr)
 
 
 class TableView extends ContinuumView
