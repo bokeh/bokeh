@@ -21,8 +21,11 @@ class PlotWidget extends Continuum.DeferredView
 
 
 class GridPlotContainerView extends Continuum.DeferredParent
+  default_options : {
+    scale:1.0
+  }
   initialize : (options) ->
-    super(options)
+    super(_.defaults(options, @default_options))
     @childviews = {}
     @build_children()
     @request_render()
@@ -67,11 +70,11 @@ class GridPlotContainerView extends Continuum.DeferredParent
   render : ->
     super()
     node = @build_node()
-    @tag_d3('plot').attr('transform',
-      _.template('translate({{s}}, {{s}})', {'s' : @mget('border_space')}))
-
-    node.attr('width', @mget('outerwidth'))
-      .attr('height', @mget('outerheight'))
+    trans_string = "scale(#{@options.scale}, #{@options.scale})"
+    trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
+    @tag_d3('plot').attr('transform', trans_string)
+    node.attr('width', @options.scale * @mget('outerwidth'))
+      .attr('height', @options.scale * @mget('outerheight'))
       .attr('x', @model.position_x())
       .attr('y', @model.position_y())
     row_heights =  @model.layout_heights()
@@ -108,7 +111,6 @@ class GridPlotContainerView extends Continuum.DeferredParent
 
 
 class PlotView extends Continuum.DeferredParent
-
   default_options : {
     scale:1.0
   }
