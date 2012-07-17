@@ -19,7 +19,7 @@ class DataTable extends Component
   default_view : DataTableView
   convert_raw_data : (arraydata) ->
     #converts raw data from blaze into object array data source data,
-    # raw : {'data' : [[1,2,3],[2,3,4]] #2d array, 'cols' : ['a', 'b', 'c']}
+    # raw : {'data' : [[1,2,3],[2,3,4]] #2d array, 'colnames' : ['a', 'b', 'c']}
     # converted : [{'a': 1, 'b' : 2, 'c' :3}, {'a' : 2, 'b' : 3, 'c': 4}]
     transformed = []
     for row in arraydata['data']
@@ -32,16 +32,17 @@ class DataTable extends Component
 
   load : (offset) ->
     slice = [offset, offset + @get('chunksize')]
-    $.get("/data" + @get('url'),
-        data_slice : JSON.stringify(slice)
-      ,
-        (data) =>
-          @set(
-            data_slice : slice
-          )
-          transformed = @convert_raw_data(JSON.parse(data))
-          @get_ref('data_source').set('data', transformed)
-          return null
+    $.get("/data" + @get('url'), {data_slice : JSON.stringify(slice)},
+      (data) =>
+        arraydata = JSON.parse(data)
+        transformed = @convert_raw_data(arraydata)
+        @set(
+          data_slice : slice
+          columns : arraydata['colnames']
+          total_rows: arraydata['shape'][0]
+        )
+        @get_ref('data_source').set('data', transformed)
+        return null
     )
 class DataTables extends Backbone.Collection
   model : DataTable
