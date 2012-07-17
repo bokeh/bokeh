@@ -160,60 +160,6 @@ class TableView extends ContinuumView
         return false
       )
 
-class CDXPlotContextView extends ContinuumView
-  initialize : (options) ->
-    @views = {}
-    @views_rendered = [false]
-    @child_models = []
-    super(options)
-    @mainlist = $("<ul></ul>")
-    @$el.append(@mainlist)
-    @render()
-
-  delegateEvents: ->
-    safebind(this, @model, 'destroy', @remove)
-    safebind(this, @model, 'change', @render)
-
-  generate_remove_child_callback : (view) ->
-    callback = () =>
-      newchildren = (x for x in @mget('children') when x.id != view.model.id)
-      @mset('children', newchildren)
-      return null
-    return callback
-
-  build_children : () ->
-    view_specific_options = []
-    for spec, plot_num in @mget('children')
-      model = @model.resolve_ref(spec)
-      @child_models[plot_num] = model
-      model.set({'usedialog' : false})
-      view_specific_options.push({'el' : $("<div/>")})
-
-    created_views = build_views(
-      @model, @views, @mget('children'), {}, view_specific_options)
-    window.pc_created_views = created_views
-    window.pc_views = @views
-    for view in created_views
-      safebind(this, view, 'remove', @generate_remove_child_callback(view))
-    return null
-
-  render : () ->
-    super()
-    @build_children()
-    @mainlist.html('')
-    for view, view_num in _.values(@views)
-      $.when(view.to_png_daturl()).then((data_url) =>
-        @mainlist.append("""<li class='jsp' data-plot_num='#{view_num}'><img width='50' height='50' src='#{data_url}'/></li>"""))
-    pcv = @
-    $(@el).find('.jsp').click((e)->
-      plot_num = parseInt($(@).attr('data-plot_num'))
-      s_pc = pcv.child_models[plot_num]
-      plotview = new s_pc.default_view(model: s_pc, render_loop:true)
-      $CDX.main_tab_set.add_tab_el(
-          tab_name:"plot#{plot_num}",  view: plotview, route:"plot#{plot_num}")
-      $CDX.main_tab_set.activate("plot#{plot_num}"))
-    return null
-
 class InteractiveContextView extends DeferredParent
   # Interactive context keeps track of a bunch of components that we render
   # into dialogs

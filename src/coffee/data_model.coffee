@@ -64,16 +64,6 @@ class Tables extends Backbone.Collection
   model : Table
   url : "/bb"
 
-    
-class CDXPlotContext extends Component
-  type : 'CDXPlotContext',
-  default_view : CDXPlotContextView
-  defaults :
-    children : []
-    render_loop : true
-    
-class CDXPlotContexts extends Backbone.Collection
-  model : CDXPlotContext
 
 
 class InteractiveContext extends Component
@@ -91,4 +81,3 @@ Continuum.register_collection('Table', new Tables())
 Continuum.register_collection('InteractiveContext', new InteractiveContexts())
 Continuum.register_collection('DataTable', new DataTables())
 Continuum.register_collection('CDXPlotContext', new CDXPlotContexts())
-
