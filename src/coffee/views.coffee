@@ -10,6 +10,7 @@ class DataTableView extends ContinuumView
     super(options)
     safebind(this, @model, 'destroy', @remove)
     safebind(this, @model, 'change', @render)
+    safebind(this, @mget_ref('data_source'), 'change', @render)
     @render()
 
   className: 'div'
@@ -22,7 +23,7 @@ class DataTableView extends ContinuumView
       <thead id ='header_id_na'></thead>
     """
     header_column = """
-      <th><a href="#" onClick="cdxSortByColumn()" class='link'>{{column_name}}</a></th>
+      <th><a href='#' onClick='cdxSortByColumn()' class='link'>{{column_name}}</a></th>
     """
     row_template = """
       <tr></tr>
@@ -47,7 +48,7 @@ class DataTableView extends ContinuumView
       for colname in @mget('columns')
         datacell = $(_.template(datacell_template, {'data' : rowdata[colname]}))
         row.append(datacell)
-        table.append(row)
+      table.append(row)
 
     @$el.empty()
     @render_pagination()

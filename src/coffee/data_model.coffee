@@ -15,17 +15,34 @@ class DataTable extends Component
     columns : []
     data_slice : [0, 100]
     total_rows : 0
+    url : ''
   default_view : DataTableView
-  load : (offset) ->
-    $.get("/data" + @get('url'),
-      data_slice : JSON.stringify(@get('data_slice')) ,
-      (data) =>
-          @set('data_slice',
-            [offset, offset + @get('chunksize')],
-            {silent:true})
-          @set({'data' : JSON.parse(data)['data']})
-    )
+  convert_raw_data : (arraydata) ->
+    #converts raw data from blaze into object array data source data,
+    # raw : {'data' : [[1,2,3],[2,3,4]] #2d array, 'cols' : ['a', 'b', 'c']}
+    # converted : [{'a': 1, 'b' : 2, 'c' :3}, {'a' : 2, 'b' : 3, 'c': 4}]
+    transformed = []
+    for row in arraydata['data']
+      transformedrow = {}
+      for temp in _.zip(row, arraydata['colnames'])
+        [val, colname] = temp
+        transformedrow[colname] = val
+      transformed.push(transformedrow)
+    return transformed
 
+  load : (offset) ->
+    slice = [offset, offset + @get('chunksize')]
+    $.get("/data" + @get('url'),
+        data_slice : JSON.stringify(slice)
+      ,
+        (data) =>
+          @set(
+            data_slice : slice
+          )
+          transformed = @convert_raw_data(JSON.parse(data))
+          @get_ref('data_source').set('data', transformed)
+          return null
+    )
 class DataTables extends Backbone.Collection
   model : DataTable
 
@@ -80,4 +97,3 @@ class InteractiveContexts extends Backbone.Collection
 Continuum.register_collection('Table', new Tables())
 Continuum.register_collection('InteractiveContext', new InteractiveContexts())
 Continuum.register_collection('DataTable', new DataTables())
-Continuum.register_collection('CDXPlotContext', new CDXPlotContexts())
