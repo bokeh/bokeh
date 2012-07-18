@@ -176,6 +176,8 @@ class FactorRanges extends Continuum.Collection
 class Mapper extends HasProperties
   type : 'Mapper'
   map_screen : (data) ->
+  #vectorized screen mapping
+  v_map_screen : (datav) ->
 
 
 #  LinearMapper
@@ -217,6 +219,11 @@ class LinearMapper extends Mapper
 
   map_screen : (data) ->
     return @get('scale')(data)
+
+  v_map_screen : (datav) ->
+    scale = @get('scale')
+    for data, idx in datav
+      datav[idx] = scale(data)
 
   map_data : (screen) ->
     return @get('scale').invert(screen)
@@ -304,7 +311,7 @@ class ObjectArrayDataSource extends HasProperties
 
   get_cont_range : (field, padding) ->
     padding = 1.0 if _.isUndefined(padding)
-    if not _.has(@cont_ranges, field)
+    if not _.exists(@cont_ranges, field)
       [min, max] = @compute_cont_range(field)
       span = (max - min) * (1 + padding)
       center = (max + min) / 2.0
@@ -324,7 +331,7 @@ class ObjectArrayDataSource extends HasProperties
     return @cont_ranges[field]
 
   get_discrete_range : (field) ->
-    if not _.has(@discrete_ranges, field)
+    if not _.exists(@discrete_ranges, field)
       factors = @compute_discrete_factor(field)
       @discrete_ranges[field] = Collections['FactorRange'].create(
           values : factors

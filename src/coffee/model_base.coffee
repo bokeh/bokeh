@@ -490,6 +490,15 @@ class Component extends HasParent
   ypos : (y) ->
     return @get('height') - y
 
+  #vectorized versions of xpos/ypos, operates in place
+  v_xpos : (xx) ->
+    return xx
+  v_ypos : (yy) ->
+    height = @get('height')
+    for y, idx in yy
+       yy[idx] = height - y
+    return yy
+
   #transform underlying device (svg) to our coordinate space
   rxpos : (x) ->
     return x

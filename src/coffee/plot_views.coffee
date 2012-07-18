@@ -485,22 +485,8 @@ class ScatterRendererView extends PlotWidget
     return null
 
   position_marks : (marks) ->
-    xmapper = @model.get_ref('xmapper')
-    ymapper = @model.get_ref('ymapper')
-    xfield = @model.get('xfield')
-    yfield = @model.get('yfield')
-
-    marks.attr('cx'
-      ,
-        (d) =>
-          pos = xmapper.map_screen(d[xfield])
-          return @model.xpos(pos)
-    ).attr('cy'
-      ,
-        (d) =>
-          pos = ymapper.map_screen(d[yfield])
-          return @model.ypos(pos)
-    )
+    marks.attr('cx', ((d, i) => return @screenx[i]))
+      .attr('cy', ((d, i) => return @screeny[i]))
     return null
 
   get_marks : () ->
@@ -515,9 +501,25 @@ class ScatterRendererView extends PlotWidget
   get_new_marks : (marks) ->
     return marks.enter().append(@model.get('mark'))
 
+  calc_buffer : (data) ->
+    xmapper = @model.get_ref('xmapper')
+    ymapper = @model.get_ref('ymapper')
+    xfield = @model.get('xfield')
+    yfield = @model.get('yfield')
+    datax = (x[xfield] for x in data)
+    screenx = xmapper.v_map_screen(datax)
+    screenx = @model.v_xpos(screenx)
+    datay = (y[yfield] for y in data)
+    screeny = ymapper.v_map_screen(datay)
+    screeny = @model.v_ypos(screeny)
+    @screenx = screenx
+    @screeny = screeny
+
   render : ->
+    a = new Date()
     super()
     circles = @get_marks()
+    @calc_buffer(@model.get_ref('data_source').get('data'))
     @position_marks(circles)
     @size_marks(circles)
     @fill_marks(circles)
@@ -526,6 +528,8 @@ class ScatterRendererView extends PlotWidget
     @size_marks(newcircles)
     @fill_marks(newcircles)
     circles.exit().remove();
+    b = new Date()
+    console.log(b-a)
     return null
 
 
