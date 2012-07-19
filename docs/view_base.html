@@ -1,0 +1,175 @@
+<!DOCTYPE html>  <html> <head>   <title>view_base.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="bokeh.html">                 bokeh.coffee               </a>                                           <a class="source" href="coffee_style_guide.html">                 coffee_style_guide.coffee               </a>                                           <a class="source" href="continuum.html">                 continuum.coffee               </a>                                           <a class="source" href="data_model.html">                 data_model.coffee               </a>                                           <a class="source" href="model_base.html">                 model_base.coffee               </a>                                           <a class="source" href="plot_views.html">                 plot_views.coffee               </a>                                           <a class="source" href="view_base.html">                 view_base.coffee               </a>                                           <a class="source" href="views.html">                 views.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               view_base.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>module setup stuff</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="k">this</span><span class="p">.</span><span class="nx">Continuum</span>
+  <span class="nv">Continuum = </span><span class="k">this</span><span class="p">.</span><span class="nx">Continuum</span>
+<span class="k">else</span>
+  <span class="nv">Continuum = </span><span class="p">{}</span>
+  <span class="k">this</span><span class="p">.</span><span class="nv">Continuum = </span><span class="nx">Continuum</span>
+
+<span class="nv">safebind = </span><span class="nf">(binder, target, event, callback) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>function : safebind</h2>
+
+<p>safebind, binder binds to an event on target, which triggers callback.
+Safe means that when the binder is destroyed, all callbacks are unbound.
+callbacks are bound and evaluated in the context of binder</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h4>Parameters</h4>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <ul>
+<li>binder : some backbone model - when this is destroyed, the callback will be
+unbound</li>
+<li>target : object triggering the event we want to bind to</li>
+<li>event : string, name of the event</li>
+<li>callback : callback for the event</li>
+</ul>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h4>Returns</h4>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <ul>
+<li>null</li>
+</ul>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <p>stores objects we are binding events on, so that if we go away,
+we can unbind all our events
+currently, we require that the context being used is the binders context
+this is because we currently unbind on a per context basis.  this can
+be changed later if we need it</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">if</span> <span class="o">not</span> <span class="nx">_</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">binder</span><span class="p">,</span> <span class="s1">&#39;eventers&#39;</span><span class="p">)</span>
+    <span class="nx">binder</span><span class="p">[</span><span class="s1">&#39;eventers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="nx">binder</span><span class="p">[</span><span class="s1">&#39;eventers&#39;</span><span class="p">][</span><span class="nx">target</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="nx">target</span>
+  <span class="nx">target</span><span class="p">.</span><span class="kc">on</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">binder</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>also need to bind destroy to remove obj from eventers.
+no special logic needed to manage this life cycle, because
+we will already unbind all listeners on target when binder goes away</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">target</span><span class="p">.</span><span class="kc">on</span><span class="p">(</span><span class="s1">&#39;destroy remove&#39;</span><span class="p">,</span>
+      <span class="p">()</span> <span class="o">=&gt;</span>
+        <span class="k">delete</span> <span class="nx">binder</span><span class="p">[</span><span class="s1">&#39;eventers&#39;</span><span class="p">][</span><span class="nx">target</span><span class="p">]</span>
+    <span class="p">,</span>
+      <span class="nx">binder</span><span class="p">)</span>
+  <span class="k">return</span> <span class="kc">null</span>
+<span class="nv">Continuum.safebind = </span><span class="nx">safebind</span>
+
+<span class="nv">build_views = </span><span class="nf">(mainmodel, view_storage, view_specs, options, view_options) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <h2>function : build_views</h2>
+
+<p>convenience function for creating a bunch of views from a spec
+and storing them in a dictionary keyed off of model id.
+views are automatically passed the model that they represent</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <h4>Parameters</h4>
+
+<ul>
+<li>mainmodel : model which is constructing the views, this is used to resolve
+specs into other model objects</li>
+<li>view_storage : where you want the new views stored.  this is a dictionary
+views will be keyed by the id of the underlying model</li>
+<li>view_specs : list of view specs.  view specs are continuum references, with
+a typename and an id.  you can also pass options you want to feed into
+the views constructor here, as an 'options' field in the dict</li>
+<li>options : any additional option to be used in the construction of views</li>
+<li>view_option : array, optional view specific options passed in to the construction of the view</li>
+</ul>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="s2">&quot;use strict&quot;</span><span class="p">;</span>
+  <span class="nv">created_views = </span><span class="p">[]</span>
+  <span class="nv">valid_viewmodels = </span><span class="p">{}</span>
+  <span class="k">for</span> <span class="nx">spec</span> <span class="k">in</span> <span class="nx">view_specs</span>
+    <span class="nx">valid_viewmodels</span><span class="p">[</span><span class="nx">spec</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="kc">true</span>
+  <span class="k">for</span> <span class="nx">spec</span><span class="p">,</span> <span class="nx">idx</span> <span class="k">in</span> <span class="nx">view_specs</span>
+    <span class="k">if</span> <span class="nx">view_storage</span><span class="p">[</span><span class="nx">spec</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span>
+      <span class="k">continue</span>
+    <span class="nv">model = </span><span class="nx">mainmodel</span><span class="p">.</span><span class="nx">resolve_ref</span><span class="p">(</span><span class="nx">spec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">view_options</span>
+      <span class="nv">view_specific_option = </span><span class="nx">view_options</span><span class="p">[</span><span class="nx">idx</span><span class="p">]</span>
+    <span class="k">else</span>
+      <span class="nv">view_specific_option = </span><span class="p">{}</span>
+    <span class="nv">temp = </span><span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">({},</span> <span class="nx">view_specific_option</span><span class="p">,</span> <span class="nx">spec</span><span class="p">.</span><span class="nx">options</span><span class="p">,</span> <span class="nx">options</span><span class="p">,</span> <span class="p">{</span><span class="s1">&#39;model&#39;</span> <span class="o">:</span> <span class="nx">model</span><span class="p">})</span>
+    <span class="nx">view_storage</span><span class="p">[</span><span class="nx">model</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">model</span><span class="p">.</span><span class="nx">default_view</span><span class="p">(</span><span class="nx">temp</span><span class="p">)</span>
+    <span class="nx">created_views</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">view_storage</span><span class="p">[</span><span class="nx">model</span><span class="p">.</span><span class="nx">id</span><span class="p">])</span>
+  <span class="k">for</span> <span class="nx">own</span> <span class="nx">key</span><span class="p">,</span> <span class="nx">value</span> <span class="k">of</span> <span class="nx">view_storage</span>
+    <span class="k">if</span> <span class="o">not</span> <span class="nx">valid_viewmodels</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+      <span class="nx">value</span><span class="p">.</span><span class="nx">remove</span><span class="p">()</span>
+      <span class="k">delete</span> <span class="nx">view_storage</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span>
+  <span class="k">return</span> <span class="nx">created_views</span>
+
+<span class="nv">Continuum.build_views = </span><span class="nx">build_views</span>
+
+<span class="k">class</span> <span class="nx">ContinuumView</span> <span class="k">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">View</span>
+  <span class="nv">initialize : </span><span class="nf">(options) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-11">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-11">&#182;</a>               </div>               <p>autogenerates id</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span> <span class="o">not</span> <span class="nx">_</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">options</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">)</span>
+      <span class="k">this</span><span class="p">.</span><span class="nv">id = </span><span class="nx">_</span><span class="p">.</span><span class="nx">uniqueId</span><span class="p">(</span><span class="s1">&#39;ContinuumView&#39;</span><span class="p">)</span>
+  <span class="nv">remove : </span><span class="o">-&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-12">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-12">&#182;</a>               </div>               <p>handles lifecycle of events bound by safebind</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="s1">&#39;eventers&#39;</span><span class="p">)</span>
+      <span class="k">for</span> <span class="nx">own</span> <span class="nx">target</span><span class="p">,</span> <span class="nx">val</span> <span class="k">of</span> <span class="nx">@eventers</span>
+        <span class="nx">val</span><span class="p">.</span><span class="kc">off</span><span class="p">(</span><span class="kc">null</span><span class="p">,</span> <span class="kc">null</span><span class="p">,</span> <span class="k">this</span><span class="p">)</span>
+    <span class="nx">@trigger</span><span class="p">(</span><span class="s1">&#39;remove&#39;</span><span class="p">)</span>
+    <span class="k">super</span><span class="p">()</span>
+
+  <span class="nv">tag_selector : </span><span class="nf">(tag, id) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-13">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-13">&#182;</a>               </div>               <p>jquery style selector given a string, and an id.
+We name DOM nodes using this convention</p>
+
+<div id='name-2342342'>hugo</div>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">return</span> <span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="nx">@tag_id</span><span class="p">(</span><span class="nx">tag</span><span class="p">,</span> <span class="nx">id</span><span class="p">)</span>
+
+  <span class="nv">tag_id : </span><span class="nf">(tag, id) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-14">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-14">&#182;</a>               </div>               <p>convention for naming our nodes, tag-id. if ID is not specified,
+we use the id of the current view.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">if</span> <span class="o">not</span> <span class="nx">id</span>
+      <span class="nv">id = </span><span class="k">this</span><span class="p">.</span><span class="nx">id</span>
+    <span class="nx">tag</span> <span class="o">+</span> <span class="s2">&quot;-&quot;</span> <span class="o">+</span> <span class="nx">id</span>
+
+  <span class="nv">tag_el : </span><span class="nf">(tag, id) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-15">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-15">&#182;</a>               </div>               <p>returns jquery node matching this tag/id combo</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">@$el</span><span class="p">.</span><span class="nx">find</span><span class="p">(</span><span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">tag_id</span><span class="p">(</span><span class="nx">tag</span><span class="p">,</span> <span class="nx">id</span><span class="p">))</span>
+  <span class="nv">tag_d3 : </span><span class="nf">(tag, id) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <p>returns d3 node matching this tag/id combo.  null if it does not exist</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">val = </span><span class="nx">d3</span><span class="p">.</span><span class="nx">select</span><span class="p">(</span><span class="k">this</span><span class="p">.</span><span class="nx">el</span><span class="p">).</span><span class="nx">select</span><span class="p">(</span><span class="s2">&quot;#&quot;</span> <span class="o">+</span> <span class="k">this</span><span class="p">.</span><span class="nx">tag_id</span><span class="p">(</span><span class="nx">tag</span><span class="p">,</span> <span class="nx">id</span><span class="p">))</span>
+    <span class="k">if</span> <span class="nx">val</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="kc">null</span>
+      <span class="k">return</span> <span class="kc">null</span>
+    <span class="k">else</span>
+      <span class="k">return</span> <span class="nx">val</span>
+  <span class="nv">mget : </span><span class="nf">()-&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <p>convenience function, calls get on the associated model</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">return</span> <span class="nx">@model</span><span class="p">.</span><span class="nx">get</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">@model</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">)</span>
+
+  <span class="nv">mset : </span><span class="nf">()-&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <p>convenience function, calls set on the associated model</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">return</span> <span class="nx">@model</span><span class="p">.</span><span class="nx">set</span><span class="p">.</span><span class="nx">apply</span><span class="p">(</span><span class="nx">@model</span><span class="p">,</span> <span class="nx">arguments</span><span class="p">)</span>
+
+  <span class="nv">mget_ref : </span><span class="nf">(fld) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <p>convenience function, calls get_ref on the associated model</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="k">return</span> <span class="nx">@model</span><span class="p">.</span><span class="nx">get_ref</span><span class="p">(</span><span class="nx">fld</span><span class="p">)</span>
+
+  <span class="nv">add_dialog : </span><span class="o">-&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <p>wraps a dialog window around this view.  This function assumes that the
+underlying model is a Component, so our OO hierarchy may be a bit leaky here.</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">position = </span><span class="p">()</span> <span class="o">=&gt;</span>
+      <span class="nx">@$el</span><span class="p">.</span><span class="nx">dialog</span><span class="p">(</span><span class="s1">&#39;widget&#39;</span><span class="p">).</span><span class="nx">css</span><span class="p">({</span>
+        <span class="s1">&#39;top&#39;</span> <span class="o">:</span> <span class="nx">@model</span><span class="p">.</span><span class="nx">position_y</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span><span class="p">,</span>
+        <span class="s1">&#39;left&#39;</span> <span class="o">:</span> <span class="nx">@model</span><span class="p">.</span><span class="nx">position_x</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;px&quot;</span>
+      <span class="p">})</span>
+    <span class="nx">@$el</span><span class="p">.</span><span class="nx">dialog</span><span class="p">(</span>
+      <span class="nv">width : </span><span class="nx">@mget</span><span class="p">(</span><span class="s1">&#39;outerwidth&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">50</span><span class="p">,</span>
+      <span class="nv">maxHeight : </span><span class="nx">$</span><span class="p">(</span><span class="nb">window</span><span class="p">).</span><span class="nx">height</span><span class="p">(),</span>
+      <span class="nv">close : </span> <span class="p">()</span> <span class="o">=&gt;</span>
+        <span class="nx">@remove</span><span class="p">()</span>
+      <span class="nv">dragStop : </span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">ui</span><span class="p">)</span> <span class="o">=&gt;</span>
+        <span class="nv">top = </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">@$el</span><span class="p">.</span><span class="nx">dialog</span><span class="p">(</span><span class="s1">&#39;widget&#39;</span><span class="p">).</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;top&#39;</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;px&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="nv">left = </span><span class="nb">parseInt</span><span class="p">(</span><span class="nx">@$el</span><span class="p">.</span><span class="nx">dialog</span><span class="p">(</span><span class="s1">&#39;widget&#39;</span><span class="p">).</span><span class="nx">css</span><span class="p">(</span><span class="s1">&#39;left&#39;</span><span class="p">).</span><span class="nx">split</span><span class="p">(</span><span class="s1">&#39;px&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="nv">xoff = </span><span class="nx">@model</span><span class="p">.</span><span class="nx">reverse_position_x</span><span class="p">(</span><span class="nx">left</span><span class="p">);</span>
+        <span class="nv">yoff = </span><span class="nx">@model</span><span class="p">.</span><span class="nx">reverse_position_y</span><span class="p">(</span><span class="nx">top</span><span class="p">);</span>
+        <span class="nx">@model</span><span class="p">.</span><span class="nx">set</span><span class="p">({</span><span class="s1">&#39;offset&#39;</span> <span class="o">:</span> <span class="p">[</span><span class="nx">xoff</span><span class="p">,</span> <span class="nx">yoff</span><span class="p">]})</span>
+        <span class="nx">@model</span><span class="p">.</span><span class="nx">save</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="nx">position</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <p>for some reason setting height at init time does not work!!</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nx">_</span><span class="p">.</span><span class="nx">defer</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">@$el</span><span class="p">.</span><span class="nx">dialog</span><span class="p">(</span><span class="s1">&#39;option&#39;</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">,</span> <span class="nx">@mget</span><span class="p">(</span><span class="s1">&#39;outerheight&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">70</span><span class="p">))</span>
+    <span class="nx">safebind</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">@model</span><span class="p">,</span> <span class="s1">&#39;change:offset&#39;</span><span class="p">,</span> <span class="nx">position</span><span class="p">)</span>
+    <span class="nx">safebind</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">@model</span><span class="p">,</span> <span class="s1">&#39;change:outerwidth&#39;</span><span class="p">,</span> <span class="nf">()-&gt;</span>
+      <span class="nx">@$el</span><span class="p">.</span><span class="nx">dialog</span><span class="p">(</span><span class="s1">&#39;option&#39;</span><span class="p">,</span> <span class="s1">&#39;width&#39;</span><span class="p">,</span> <span class="nx">@mget</span><span class="p">(</span><span class="s1">&#39;outerwidth&#39;</span><span class="p">)))</span>
+    <span class="nx">safebind</span><span class="p">(</span><span class="k">this</span><span class="p">,</span> <span class="nx">@model</span><span class="p">,</span> <span class="s1">&#39;change:outerheight&#39;</span><span class="p">,</span> <span class="nf">()-&gt;</span>
+      <span class="nx">@$el</span><span class="p">.</span><span class="nx">dialog</span><span class="p">(</span><span class="s1">&#39;option&#39;</span><span class="p">,</span> <span class="s1">&#39;height&#39;</span><span class="p">,</span> <span class="nx">@mget</span><span class="p">(</span><span class="s1">&#39;outerheight&#39;</span><span class="p">)))</span>
+
+<span class="k">class</span> <span class="nx">DeferredView</span> <span class="k">extends</span> <span class="nx">ContinuumView</span>
+  <span class="nv">initialize : </span><span class="nf">(options) -&gt;</span>
+    <span class="vi">@deferred_parent = </span><span class="nx">options</span><span class="p">[</span><span class="s1">&#39;deferred_parent&#39;</span><span class="p">]</span>
+    <span class="nx">@request_render</span><span class="p">()</span>
+    <span class="k">super</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+
+  <span class="nv">render : </span><span class="nf">() -&gt;</span>
+    <span class="k">super</span><span class="p">()</span>
+    <span class="vi">@_dirty = </span><span class="kc">false</span>
+    <span class="k">super</span><span class="p">()</span>
+
+  <span class="nv">request_render : </span><span class="nf">() -&gt;</span>
+    <span class="vi">@_dirty = </span><span class="kc">true</span>
+
+  <span class="nv">render_deferred_components : </span><span class="nf">(force) -&gt;</span>
+    <span class="k">if</span> <span class="nx">force</span> <span class="o">or</span> <span class="nx">@_dirty</span>
+      <span class="nx">@render</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nx">DeferredParent</span> <span class="k">extends</span> <span class="nx">DeferredView</span>
+  <span class="nv">initialize : </span><span class="nf">(options) -&gt;</span>
+    <span class="k">super</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+    <span class="vi">@use_render_loop = </span><span class="nx">options</span><span class="p">[</span><span class="s1">&#39;render_loop&#39;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nx">@use_render_loop</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;loop&#39;</span><span class="p">)</span>
+      <span class="nx">_</span><span class="p">.</span><span class="nx">defer</span><span class="p">(()</span> <span class="o">=&gt;</span> <span class="nx">@render_loop</span><span class="p">())</span>
+
+
+  <span class="nv">render_loop : </span><span class="nf">() -&gt;</span>
+    <span class="nx">@render_deferred_components</span><span class="p">()</span>
+    <span class="k">if</span> <span class="o">not</span> <span class="nx">@removed</span> <span class="o">and</span> <span class="nx">@use_render_loop</span>
+      <span class="nx">setTimeout</span><span class="p">((()</span> <span class="o">=&gt;</span> <span class="nx">@render_loop</span><span class="p">()),</span> <span class="mi">100</span><span class="p">)</span>
+    <span class="k">else</span>
+      <span class="vi">@looping = </span><span class="kc">false</span>
+
+  <span class="nv">remove : </span><span class="nf">() -&gt;</span>
+    <span class="k">super</span><span class="p">()</span>
+    <span class="vi">@removed = </span><span class="kc">true</span>
+
+
+<span class="nv">Continuum.DeferredView = </span><span class="nx">DeferredView</span>
+<span class="nv">Continuum.DeferredParent = </span><span class="nx">DeferredParent</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

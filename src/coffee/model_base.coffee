@@ -34,7 +34,7 @@ Continuum.register_collection = (key, value) ->
 
 
 Continuum.load_models = (modelspecs)->
-  # ##function : load models.
+  # ###function : load models.
   # First we identify which model specs correspond to new models,
   # and which ones are updates.  For new models we instantiate the models, add them
   # to their collections and call dinitialize.  For existing models we update
@@ -62,6 +62,10 @@ Continuum.load_models = (modelspecs)->
 
   newspecs = []
   oldspecs = []
+
+  # split out old and new models into arrays of
+  # `[[collection, attributes], [collection, attributes]]`
+
   for model in modelspecs
     coll = get_collections(model['collections'])[model['type']]
     attrs = model['attributes']
@@ -69,19 +73,37 @@ Continuum.load_models = (modelspecs)->
       oldspecs.push([coll, attrs])
     else
       newspecs.push([coll, attrs])
+
+  # add new objects to collections silently
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
-    coll.add(attrs)
+    coll.add(attrs, {'silent' : true})
+
+  # call deferred initialize on all new models
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
     coll.get(attrs['id']).dinitialize(attrs)
+
+  # set attributes on old models silently
   for coll_attrs in oldspecs
     [coll, attrs] = coll_attrs
-    coll.get(attrs['id']).set(attrs, {'local' : true})
+    coll.get(attrs['id']).set(attrs, {'local' : true, 'silent' : true})
+
+  # trigger add events on all new models
+  for coll_attrs in newspecs
+    [coll, attrs] = coll_attrs
+    model = coll.get(attrs.id)
+    model.trigger('add', model, coll, {});
+
+  # trigger change events on all old models
+  for coll_attrs in oldspecs
+    [coll, attrs] = coll_attrs
+    coll.get(attrs['id']).change()
+
   return null
 
 Continuum.submodels = (ws_conn_string, topic) ->
-  # ##function : Continuum.submodels
+  # ###function : Continuum.submodels
   # creates a websocket which subscribes and listens for model changes
   # #####Parameters
 
@@ -116,7 +138,7 @@ Continuum.submodels = (ws_conn_string, topic) ->
   return s
 
 resolve_ref = (collections, type, id) ->
-  # ##funcion : resolve_ref
+  # ###funcion : resolve_ref
   # Takes a group of collections, type and id, and returns the backbone model
   # which corresponds
   # ####Parameters
@@ -162,7 +184,7 @@ Continuum.get_collections = get_collections
 
 
 class HasProperties extends Backbone.Model
-# ##class : HasProperties
+# ###class : HasProperties
 #   Our property system
 #   we support python style computed properties, with getters as well as setters.
 #   we also support caching of these properties, and notifications of property
