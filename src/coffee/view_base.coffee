@@ -211,3 +211,4 @@ class DeferredParent extends DeferredView
 
 Continuum.DeferredView = DeferredView
 Continuum.DeferredParent = DeferredParent
+Continuum.ContinuumView = ContinuumView

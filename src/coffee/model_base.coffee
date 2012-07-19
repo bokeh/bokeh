@@ -589,3 +589,7 @@ class Component extends HasParent
     border_space : 30
 
   default_view : null
+
+Continuum.HasParent = HasParent
+Continuum.Component = Component
+Continuum.HasProperties = HasProperties
