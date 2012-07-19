@@ -4,6 +4,8 @@ if this.Continuum
 else
   Continuum = {}
   this.Continuum = Continuum
+if not Continuum.ui
+  Continuum.ui = {}
 
 class DataTableView extends ContinuumView
   initialize : (options) ->
@@ -160,41 +162,4 @@ class TableView extends ContinuumView
         @model.load(maxoffset)
         return false
       )
-
-class InteractiveContextView extends DeferredParent
-  # Interactive context keeps track of a bunch of components that we render
-  # into dialogs
-
-  initialize : (options) ->
-    @views = {}
-    super(options)
-
-  delegateEvents: ->
-    safebind(this, @model, 'destroy', @remove)
-    safebind(this, @model, 'change', @request_render)
-
-  generate_remove_child_callback : (view) ->
-    callback = () =>
-      newchildren = (x for x in @mget('children') when x.id != view.model.id)
-      @mset('children', newchildren)
-      return null
-    return callback
-
-  build_children : () ->
-    for spec in @mget('children')
-      model = @model.resolve_ref(spec)
-      model.set({'usedialog' : true})
-    created_views = build_views(@model, @views, @mget('children'))
-    for view in created_views
-      safebind(this, view, 'remove', @generate_remove_child_callback(view))
-    return null
-
-  render_deferred_components : (force) ->
-    super(force)
-    for view in _.values(@views)
-      view.render_deferred_components(force)
-
-  render : () ->
-    super()
-    @build_children()
-    return null
+Continuum.ui.DataTableView = DataTableView

@@ -127,9 +127,7 @@ test('renderer_selection', ->
       {x : 4, y : -5},
       {x : 5, y : -6}]
   }, {'local' : true})
-  container = Bokeh.Collections['InteractiveContext'].create(
-    {}, {'local' : true});
-  plot = Bokeh.scatter_plot(container, data_source, 'x', 'y', 'x', 'circle')
+  plot = Bokeh.scatter_plot(null, data_source, 'x', 'y', 'x', 'circle')
   scatterrenderer = plot.resolve_ref(plot.get('renderers')[0])
   plot.dinitialize()
   scatterrenderer.dinitialize()
