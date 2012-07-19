@@ -7,10 +7,7 @@ test('test_interactive', ()->
       {x : 4, y : -5},
       {x : 5, y : -6}]
   }, {'local' : true})
-  container = Bokeh.Collections['InteractiveContext'].create(
-    {}, {'local' : true});
-  plot1 = Bokeh.scatter_plot(container, data_source1, 'x', 'y', 'x', 'circle')
-  container.set({'children' : [plot1.ref()]})
+  plot1 = Bokeh.scatter_plot(null, data_source1, 'x', 'y', 'x', 'circle')
   plot1.set('offset', [100, 100])
   scatterrenderer = plot1.resolve_ref(plot1.get('renderers')[0])
   pantool = Bokeh.Collections['PanTool'].create(
@@ -33,8 +30,14 @@ test('test_interactive', ()->
   plot1.set('overlays', [selectoverlay.ref()])
 
   window.plot1 = plot1
+  div = $('<div style="border:1px solid black"></div>')
+  $('body').append(div)
   window.myrender = () ->
-    view = new container.default_view({'model' : container, 'render_loop' : true});
+    view = new plot1.default_view(
+      model : plot1,
+      render_loop : true,
+      el : div
+    )
     view.render()
     plot1.set({'width' : 300})
     plot1.set({'height' : 300})
