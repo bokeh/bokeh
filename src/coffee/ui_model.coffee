@@ -1,5 +1,5 @@
 
-class DataTable extends Component
+class DataTable extends Continuum.Component
   type : 'DataTable'
   initialize : (attrs, options)->
     super(attrs, options)
@@ -16,7 +16,7 @@ class DataTable extends Component
     data_slice : [0, 100]
     total_rows : 0
     url : ''
-  default_view : DataTableView
+  default_view : Continuum.ui.DataTableView
   convert_raw_data : (arraydata) ->
     #converts raw data from blaze into object array data source data,
     # raw : {'data' : [[1,2,3],[2,3,4]] #2d array, 'colnames' : ['a', 'b', 'c']}

@@ -3,7 +3,7 @@ if this.Bokeh
 else
   Bokeh = {}
   this.Bokeh = Bokeh
-
+safebind = Continuum.safebind
 
 class PlotWidget extends Continuum.DeferredView
   initialize : (options) ->
@@ -747,3 +747,106 @@ class SelectionToolView extends PlotWidget
     super()
     @_render_shading()
     return null
+
+class OverlayView extends PlotWidget
+  initialize : (options) ->
+    @renderer_ids = options['renderer_ids']
+    super(options)
+
+  bind_events : (plotview) ->
+    @plotview = plotview
+    return null
+
+class ScatterSelectionOverlayView extends OverlayView
+  request_render : () ->
+    super()
+  initialize : (options) ->
+    super(options)
+    for renderer in @mget('renderers')
+      renderer = @model.resolve_ref(renderer)
+      safebind(this, renderer, 'change', @request_render)
+      safebind(this, renderer.get_ref('xmapper'), 'change', @request_render)
+      safebind(this, renderer.get_ref('ymapper'), 'change', @request_render)
+      safebind(this, renderer.get_ref('data_source'), 'change', @request_render)
+
+  render : () ->
+    window.overlay_render += 1
+    super()
+    for temp in _.zip(@mget('renderers'), @renderer_ids)
+      [renderer, viewid] = temp
+      renderer = @model.resolve_ref(renderer)
+      selected = {}
+      if renderer.get_ref('data_source').get('selecting') == false
+        #skip data sources which are not selecting'
+        continue
+      for idx in renderer.get_ref('data_source').get('selected')
+        selected[String(idx)] = true
+      node = @tag_d3('scatter', viewid)
+      node.selectAll(renderer.get('mark')).filter((d, i) =>
+        return not selected[String(i)]
+      ).attr('fill', @mget('unselected_color'))
+
+      marks = node.selectAll(renderer.get('mark')).filter((d, i) =>
+        return selected[String(i)]
+      )
+      @plotview.renderers[renderer.id].fill_marks(marks)
+    return null
+
+
+window.overlay_render = 0
+class ZoomToolView extends PlotWidget
+  initialize : (options) ->
+    super(options)
+
+  mouse_coords : () ->
+    plot = @tag_d3('plotwindow', @plot_id)
+    [x, y] = d3.mouse(plot[0][0])
+    [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    return [x, y]
+
+  _zoom_mapper : (mapper, eventpos, factor) ->
+    screen_range = mapper.get_ref('screen_range')
+    data_range = mapper.get_ref('data_range')
+    screenlow = screen_range.get('start')
+    screenhigh = screen_range.get('end')
+    start = screenlow - (eventpos - screenlow) * factor
+    end = screenhigh + (screenhigh - eventpos) * factor
+    [start, end] = [mapper.map_data(start), mapper.map_data(end)]
+    data_range.set({
+      'start' : start
+      'end' : end
+    }, {'local' : true})
+
+  _zoom : () ->
+    [x, y] = @mouse_coords()
+    factor = - @mget('speed') * d3.event.wheelDelta
+    xmappers = (@model.resolve_ref(mapper) for mapper in @mget('xmappers'))
+    ymappers = (@model.resolve_ref(mapper) for mapper in @mget('ymappers'))
+    for xmap in xmappers
+      @_zoom_mapper(xmap, x, factor)
+    for ymap in ymappers
+      @_zoom_mapper(ymap, y, factor)
+
+  bind_events : (plotview) ->
+    @plotview = plotview
+    node = @tag_d3('mainsvg', @plot_id)
+    node.attr('pointer-events' , 'all')
+    node.on("mousewheel.zoom"
+      ,
+        () =>
+          @_zoom()
+          d3.event.preventDefault()
+          d3.event.stopPropagation()
+    )
+
+Bokeh.PlotWidget = PlotWidget
+Bokeh.PlotView = PlotView
+Bokeh.ScatterRendererView = ScatterRendererView
+Bokeh.LineRendererView = LineRendererView
+Bokeh.BarRendererView = BarRendererView
+Bokeh.GridPlotContainerView = GridPlotContainerView
+Bokeh.PanToolView = PanToolView
+Bokeh.ZoomToolView = ZoomToolView
+Bokeh.SelectionToolView = SelectionToolView
+Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
+Bokeh.D3LinearAxisView = D3LinearAxisView

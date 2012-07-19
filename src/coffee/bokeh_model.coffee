@@ -368,7 +368,7 @@ class ObjectArrayDataSources extends Continuum.Collection
 
 class GridPlotContainer extends Component
   type : 'GridPlotContainer'
-  default_view : GridPlotContainerView
+  default_view : Bokeh.GridPlotContainerView
   setup_layout_property : () ->
     dependencies = []
     for row in @get('children')
@@ -475,7 +475,7 @@ class Plot extends Component
           return null
     )
   type : 'Plot'
-  default_view : PlotView
+  default_view : Bokeh.PlotView
   parent_properties : ['background_color', 'foreground_color',
     'width', 'height', 'border_space']
 
@@ -505,7 +505,7 @@ class Plots extends Continuum.Collection
 
 class D3LinearAxis extends Component
   type : 'D3LinearAxis'
-  default_view : D3LinearAxisView
+  default_view : Bokeh.D3LinearAxisView
   display_defaults :
     tick_color : '#fff'
 
@@ -526,7 +526,7 @@ class D3LinearAxes extends Continuum.Collection
 
 class BarRenderer extends XYRenderer
   type : 'BarRenderer'
-  default_view : BarRendererView
+  default_view : Bokeh.BarRendererView
 
 BarRenderer::defaults = _.clone(BarRenderer::defaults)
 _.extend(BarRenderer::defaults
@@ -550,7 +550,7 @@ class BarRenderers extends Continuum.Collection
 
 class LineRenderer extends XYRenderer
   type : 'LineRenderer'
-  default_view : LineRendererView
+  default_view : Bokeh.LineRendererView
 LineRenderer::defaults = _.clone(LineRenderer::defaults)
 _.extend(LineRenderer::defaults
   ,
@@ -567,7 +567,7 @@ class LineRenderers extends Continuum.Collection
 
 class ScatterRenderer extends XYRenderer
   type : 'ScatterRenderer'
-  default_view : ScatterRendererView
+  default_view : Bokeh.ScatterRendererView
 
 ScatterRenderer::defaults = _.clone(ScatterRenderer::defaults)
 _.extend(ScatterRenderer::defaults, {
@@ -594,7 +594,7 @@ class ScatterRenderers extends Continuum.Collection
 
 class PanTool extends Continuum.HasParent
   type : "PanTool"
-  default_view : PanToolView
+  default_view : Bokeh.PanToolView
 
 PanTool::defaults = _.clone(PanTool::defaults)
 _.extend(PanTool::defaults
@@ -608,54 +608,10 @@ class PanTools extends Continuum.Collection
   model : PanTool
 
 
-class ZoomToolView extends PlotWidget
-  initialize : (options) ->
-    super(options)
-
-  mouse_coords : () ->
-    plot = @tag_d3('plotwindow', @plot_id)
-    [x, y] = d3.mouse(plot[0][0])
-    [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
-    return [x, y]
-
-  _zoom_mapper : (mapper, eventpos, factor) ->
-    screen_range = mapper.get_ref('screen_range')
-    data_range = mapper.get_ref('data_range')
-    screenlow = screen_range.get('start')
-    screenhigh = screen_range.get('end')
-    start = screenlow - (eventpos - screenlow) * factor
-    end = screenhigh + (screenhigh - eventpos) * factor
-    [start, end] = [mapper.map_data(start), mapper.map_data(end)]
-    data_range.set({
-      'start' : start
-      'end' : end
-    }, {'local' : true})
-
-  _zoom : () ->
-    [x, y] = @mouse_coords()
-    factor = - @mget('speed') * d3.event.wheelDelta
-    xmappers = (@model.resolve_ref(mapper) for mapper in @mget('xmappers'))
-    ymappers = (@model.resolve_ref(mapper) for mapper in @mget('ymappers'))
-    for xmap in xmappers
-      @_zoom_mapper(xmap, x, factor)
-    for ymap in ymappers
-      @_zoom_mapper(ymap, y, factor)
-
-  bind_events : (plotview) ->
-    @plotview = plotview
-    node = @tag_d3('mainsvg', @plot_id)
-    node.attr('pointer-events' , 'all')
-    node.on("mousewheel.zoom"
-      ,
-        () =>
-          @_zoom()
-          d3.event.preventDefault()
-          d3.event.stopPropagation()
-    )
 
 class ZoomTool extends Continuum.HasParent
   type : "ZoomTool"
-  default_view : ZoomToolView
+  default_view : Bokeh.ZoomToolView
 ZoomTool::defaults = _.clone(ZoomTool::defaults)
 _.extend(ZoomTool::defaults
   ,
@@ -670,7 +626,7 @@ class ZoomTools extends Continuum.Collection
 
 class SelectionTool extends Continuum.HasParent
   type : "SelectionTool"
-  default_view : SelectionToolView
+  default_view : Bokeh.SelectionToolView
 
 SelectionTool::defaults = _.clone(SelectionTool::defaults)
 _.extend(SelectionTool::defaults
@@ -686,54 +642,10 @@ _.extend(SelectionTool::defaults
 class SelectionTools extends Continuum.Collection
   model : SelectionTool
 
-class OverlayView extends PlotWidget
-  initialize : (options) ->
-    @renderer_ids = options['renderer_ids']
-    super(options)
-
-  bind_events : (plotview) ->
-    @plotview = plotview
-    return null
-
-window.overlay_render = 0
-class ScatterSelectionOverlayView extends OverlayView
-  request_render : () ->
-    super()
-  initialize : (options) ->
-    super(options)
-    for renderer in @mget('renderers')
-      renderer = @model.resolve_ref(renderer)
-      safebind(this, renderer, 'change', @request_render)
-      safebind(this, renderer.get_ref('xmapper'), 'change', @request_render)
-      safebind(this, renderer.get_ref('ymapper'), 'change', @request_render)
-      safebind(this, renderer.get_ref('data_source'), 'change', @request_render)
-
-  render : () ->
-    window.overlay_render += 1
-    super()
-    for temp in _.zip(@mget('renderers'), @renderer_ids)
-      [renderer, viewid] = temp
-      renderer = @model.resolve_ref(renderer)
-      selected = {}
-      if renderer.get_ref('data_source').get('selecting') == false
-        #skip data sources which are not selecting'
-        continue
-      for idx in renderer.get_ref('data_source').get('selected')
-        selected[String(idx)] = true
-      node = @tag_d3('scatter', viewid)
-      node.selectAll(renderer.get('mark')).filter((d, i) =>
-        return not selected[String(i)]
-      ).attr('fill', @mget('unselected_color'))
-
-      marks = node.selectAll(renderer.get('mark')).filter((d, i) =>
-        return selected[String(i)]
-      )
-      @plotview.renderers[renderer.id].fill_marks(marks)
-    return null
 
 class ScatterSelectionOverlay extends Continuum.HasParent
   type : "ScatterSelectionOverlay"
-  default_view : ScatterSelectionOverlayView
+  default_view : Bokeh.ScatterSelectionOverlayView
   defaults :
     renderers : []
     unselected_color : "#ccc"
@@ -956,40 +868,29 @@ Bokeh.register_collection('SelectionTool', new SelectionTools)
 Bokeh.register_collection('ScatterSelectionOverlay', new ScatterSelectionOverlays)
 
 Bokeh.Collections = Collections
-Bokeh.HasProperties = HasProperties
 Bokeh.ObjectArrayDataSource = ObjectArrayDataSource
 Bokeh.Plot = Plot
 Bokeh.Component = Component
 Bokeh.ScatterRenderer = ScatterRenderer
-Bokeh.BokehView = BokehView
-Bokeh.PlotView = PlotView
-Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.D3LinearAxis = D3LinearAxis
 
-Bokeh.LineRendererView = LineRendererView
 Bokeh.LineRenderers = LineRenderers
 Bokeh.LineRenderer = LineRenderer
 
-Bokeh.BarRendererView = BarRendererView
 Bokeh.BarRenderers = BarRenderers
 Bokeh.BarRenderer = BarRenderer
 
-Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.GridPlotContainers = GridPlotContainers
 Bokeh.GridPlotContainer = GridPlotContainer
 
 Bokeh.PanTools = PanTools
 Bokeh.PanTool = PanTool
-Bokeh.PanToolView = PanToolView
 
 Bokeh.ZoomTools = ZoomTools
 Bokeh.ZoomTool = ZoomTool
-Bokeh.ZoomToolView = ZoomToolView
 
 Bokeh.SelectionTools = SelectionTools
 Bokeh.SelectionTool = SelectionTool
-Bokeh.SelectionToolView = SelectionToolView
 
 Bokeh.ScatterSelectionOverlays = ScatterSelectionOverlays
 Bokeh.ScatterSelectionOverlay = ScatterSelectionOverlay
-Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView

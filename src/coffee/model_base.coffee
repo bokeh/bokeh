@@ -1,9 +1,3 @@
-# module setup stuff
-if this.Continuum
-  Continuum = this.Continuum
-else
-  Continuum = {}
-  this.Continuum = Continuum
 
 # we create a dictionary of collections, for all types that we know,
 # we use these when models are pushed down from the server
@@ -15,7 +9,7 @@ Continuum.Collections = Collections
 Continuum.register_collection = (key, value) ->
   Collections[key] = value
   value.bokeh_key = key
-
+safebind = Continuum.safebind
 
 # continuum refrence system
 #   reference : {'type' : type name, 'id' : object id}

@@ -7,7 +7,7 @@ else
 if not Continuum.ui
   Continuum.ui = {}
 
-class DataTableView extends ContinuumView
+class DataTableView extends Continuum.ContinuumView
   initialize : (options) ->
     super(options)
     safebind(this, @model, 'destroy', @remove)
@@ -106,60 +106,4 @@ class DataTableView extends ContinuumView
     @$el.append(table_hdr)
 
 
-class TableView extends ContinuumView
-  delegateEvents: ->
-    safebind(this, @model, 'destroy', @remove)
-    safebind(this, @model, 'change', @render)
-
-  render : ->
-    super()
-    @$el.empty()
-    @$el.append("<table></table>")
-    @$el.find('table').append("<tr></tr>")
-    headerrow = $(@$el.find('table').find('tr')[0])
-    for column, idx in ['row'].concat(@mget('columns'))
-      elem = $("<th class='tableelem tableheader'>#{column}/th>")
-      headerrow.append(elem)
-    for row, idx in @mget('data')
-      row_elem = $("<tr class='tablerow'></tr>")
-      rownum = idx + @mget('data_slice')[0]
-      for data in [rownum].concat(row)
-        elem = $("<td class='tableelem'>#{data}</td>")
-        row_elem.append(elem)
-      @$el.find('table').append(row_elem)
-    @render_pagination()
-    if @mget('usedialog') and not @$el.is(":visible")
-      @add_dialog()
-
-  render_pagination : ->
-    if @mget('offset') > 0
-      node = $("<button>first</button>").css({'cursor' : 'pointer'})
-      @$el.append(node)
-      node.click(=>
-        @model.load(0)
-        return false
-      )
-      node = $("<button>previous</button>").css({'cursor' : 'pointer'})
-      @$el.append(node)
-      node.click(=>
-        @model.load(_.max([@mget('offset') - @mget('chunksize'), 0]))
-        return false
-      )
-
-    maxoffset = @mget('total_rows') - @mget('chunksize')
-    if @mget('offset') < maxoffset
-      node = $("<button>next</button>").css({'cursor' : 'pointer'})
-      @$el.append(node)
-      node.click(=>
-        @model.load(_.min([
-          @mget('offset') + @mget('chunksize'),
-          maxoffset]))
-        return false
-      )
-      node = $("<button>last</button>").css({'cursor' : 'pointer'})
-      @$el.append(node)
-      node.click(=>
-        @model.load(maxoffset)
-        return false
-      )
 Continuum.ui.DataTableView = DataTableView
