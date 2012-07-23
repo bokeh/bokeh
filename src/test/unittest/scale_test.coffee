@@ -1,4 +1,4 @@
-test('test_interactive', ()->
+test('test_scale', ()->
   expect(0)
   data_source1 = Bokeh.Collections['ObjectArrayDataSource'].create({
     data : [{x : 1, y : -2},
@@ -15,15 +15,15 @@ test('test_interactive', ()->
   window.myrender = () ->
     view_orig = new plot1.default_view(
       model : plot1,
-      el:$('#mychart'),
       render_loop : true
     )
+    $('#mychart').append(view_orig.el)
     view_orig.render()
     window.view_orig = view_orig
 
     view = new plot1.default_view(
-      {'model' : plot1, 'el':$('#mychart2'), 'scale': 0.5, 'render_loop' : true})
-
+      {'model' : plot1, 'scale': 0.5, 'render_loop' : true})
+    $('#mychart2').append(view.el)
     view.render()
     d3.select($('#mychart2 g')).attr('transform', 'scale(0.3, 0.3)');
     window.view = view
