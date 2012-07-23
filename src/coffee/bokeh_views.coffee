@@ -5,13 +5,29 @@ else
   this.Bokeh = Bokeh
 safebind = Continuum.safebind
 
-class PlotWidget extends Continuum.DeferredView
+class DeferredSVGView extends Continuum.DeferredView
+  # ###class : DeferredSVGView
+  # overrides make, so we create SVG elements with the appropriate namespaceURI
+  # instances of this class should have some svg tagName
+  tagName : 'svg'
+  make: (tagName, attributes, content) ->
+    el = document.createElementNS("http://www.w3.org/2000/svg", tagName)
+    if (attributes)
+      $(el).attr(attributes)
+    if (content)
+      $(el).html(content)
+    return el
+
+class PlotWidget extends DeferredSVGView
+  tagName : 'g'
   initialize : (options) ->
     super(options)
     @plot_id = options.plot_id
     @plot_model = options.plot_model
+    @plot_view = options.plot_view
 
-
+tojq = (d3selection) ->
+  return $(d3selection[0][0])
 
 # Individual Components below.
 # we first define the default view for a component,
@@ -20,7 +36,8 @@ class PlotWidget extends Continuum.DeferredView
 #  Plot Container
 
 
-class GridPlotContainerView extends Continuum.DeferredView
+class GridPlotContainerView extends DeferredSVGView
+  tagName : 'svg'
   default_options : {
     scale:1.0
   }
@@ -52,14 +69,12 @@ class GridPlotContainerView extends Continuum.DeferredView
       for x in row
         @model.resolve_ref(x).set('usedialog', false)
         childspecs.push(x)
-    build_views(@model, @childviews, childspecs, {'el' : @tag_d3('plot')[0][0]})
+    build_views(@model, @childviews, childspecs)
 
   build_node : ->
-    node = @tag_d3('mainsvg')
-    if node == null
-      node = d3.select(@el).append('svg').attr('id', @tag_id('mainsvg'))
-      node.append('g').attr('id', @tag_id('plot'))
-    return node
+    d3el = d3.select(@el)
+    @d3plot = d3el.append('g')
+    return @d3plot
 
   render_deferred_components : (force) ->
     super(force)
@@ -69,11 +84,11 @@ class GridPlotContainerView extends Continuum.DeferredView
 
   render : ->
     super()
-    node = @build_node()
     trans_string = "scale(#{@options.scale}, #{@options.scale})"
     trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
-    @tag_d3('plot').attr('transform', trans_string)
-    node.attr('width', @options.scale * @mget('outerwidth'))
+    @d3plot.attr('transform', trans_string)
+    d3el = d3.select(@el)
+    d3el.attr('width', @options.scale * @mget('outerwidth'))
       .attr('height', @options.scale * @mget('outerheight'))
       .attr('x', @model.position_x())
       .attr('y', @model.position_y())
@@ -105,15 +120,17 @@ class GridPlotContainerView extends Continuum.DeferredView
           offset : [x_coords[cidx], y_coords[ridx]]
           usedialog : false
         )
-    if @mget('usedialog') and not @$el.is(":visible")
-      @add_dialog()
+
+    for own key, view of @childviews
+      tojq(@d3plot).append(view.$el)
 
 
-
-class PlotView extends Continuum.DeferredView
+class PlotView extends DeferredSVGView
   default_options : {
     scale:1.0
   }
+
+  tagName : 'svg'
 
   initialize : (options) ->
     super(_.defaults(options, @default_options))
@@ -137,39 +154,28 @@ class PlotView extends Continuum.DeferredView
     @png_data_url_deferred = $.Deferred()
     return this
 
-  to_png_daturl: () ->
-    if @png_data_url_deferred.isResolved()
-      return @png_data_url_deferred
-    @render_deferred_components(true)
-    svg_el = $(@el).find('svg')[0]
-
-    SVGToCanvas.exportPNGcanvg(svg_el, (dataUrl) =>
-      console.log(dataUrl.length, dataUrl[0..100])
-      @png_data_url_deferred.resolve(dataUrl))
-    return @png_data_url_deferred.promise()
-
   build_renderers : ->
     build_views(@model, @renderers, @mget('renderers')
       ,
-        el : @el,
         plot_id : @id,
         plot_model : @model
+        plot_view : @
     )
 
   build_axes : ->
     build_views(@model, @axes, @mget('axes')
       ,
-        el : @el
         plot_id : @id
         plot_model : @model
+        plot_view : @
     )
 
   build_tools : ->
     build_views(@model, @tools, @mget('tools')
       ,
-        el : @el,
         plot_id : @id,
         plot_model : @model
+        plot_view : @
     )
 
   build_overlays : ->
@@ -179,14 +185,14 @@ class PlotView extends Continuum.DeferredView
       overlay = @model.resolve_ref(overlayspec)
       if not overlayspec['options']
         overlayspec['options'] = {}
-      overlayspec['options']['renderer_ids'] = []
+      overlayspec['options']['rendererviews'] = []
       for renderer in overlay.get('renderers')
-        overlayspec['options']['renderer_ids'].push(@renderers[renderer.id].id)
+        overlayspec['options']['rendererviews'].push(@renderers[renderer.id])
     build_views(@model, @overlays, overlays
       ,
-        el : @el,
         plot_id : @id,
         plot_model : @model
+        plot_view : @
     )
 
   bind_overlays : ->
@@ -197,56 +203,50 @@ class PlotView extends Continuum.DeferredView
     for toolspec in   @mget('tools')
       @tools[toolspec.id].bind_events(this)
 
-  render_mainsvg : ->
-    node = @tag_d3('mainsvg')
-    if node == null
-      node = d3.select(@el).append('svg')
-        .attr('id', @tag_id('mainsvg'))
-      node.append('g')
-        .attr('id', @tag_id('plot'))
-      @tag_d3('plot').append('g').attr('id', @tag_id('bg'))
-      @tag_d3('plot').append('g').attr('id', @tag_id('fg'))
-      @tag_d3('fg').append('text')
-        .text(@mget('title'))
-        .attr('x', 0)
-        .attr('y', -15)
-      @tag_d3('bg')
-        .append('rect')
-        .attr('id', @tag_id('innerbox'))
-      @tag_d3('fg').append('svg').attr('id', @tag_id('plotwindow'))
-      @bind_tools()
-      @bind_overlays()
+  tagName : 'svg'
 
-    if not @mget('usedialog')
-      node.attr('x', @model.position_x())
-       .attr('y', @model.position_y())
-    @tag_d3('innerbox')
+  render_mainsvg : ->
+    @$el.children().detach()
+    d3el = d3.select(@el)
+    @d3plot = d3el.append('g')
+    @d3bg = @d3plot.append('g')
+    @d3fg = @d3plot.append('g')
+    @d3fg.append('text')
+      .text(@mget('title'))
+      .attr('x', 0)
+      .attr('y', -15)
+    innerbox = @d3bg
+      .append('rect')
+    @d3plotwindow = @d3fg.append('svg')
+    @bind_tools()
+    @bind_overlays()
+    @$el.attr('x', @model.position_x())
+      .attr('y', @model.position_y())
+    innerbox
       .attr('fill', @mget('background_color'))
       .attr('stroke', @model.get('foreground_color'))
       .attr('width', @mget('width'))
       .attr("height",  @mget('height'))
-
-
-    @tag_d3('plotwindow')
+    @d3plotwindow
       .attr('width',  @mget('width'))
       .attr('height', @mget('height'))
 
-    node.attr("width", @options.scale * @mget('outerwidth'))
+    @$el.attr("width", @options.scale * @mget('outerwidth'))
       .attr('height', @options.scale * @mget('outerheight'))
     #svg puts origin in the top left, we want it on the bottom left
     #
     trans_string = "scale(#{@options.scale}, #{@options.scale})"
     trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
-
-    @tag_d3('plot').attr('transform', trans_string)
+    @d3plot.attr('transform', trans_string)
+    null
 
   render : () ->
     super()
-    ret_val = @render_mainsvg();
-    if @mget('usedialog') and not @$el.is(":visible")
-      ret_val = @add_dialog()
-
-    return ret_val
+    @render_mainsvg();
+    for own key, view of @axes
+      tojq(@d3bg).append(view.$el)
+    for own key, view of @renderers
+      tojq(@d3plotwindow).append(view.$el)
 
   render_deferred_components: (force) ->
     super(force)
@@ -266,10 +266,12 @@ build_views = Continuum.build_views
 class D3LinearAxisView extends PlotWidget
   initialize : (options) ->
     super(options)
+    @plotview = options.plotview
     safebind(this, @plot_model, 'change', @request_render)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @mget_ref('mapper'), 'change', @request_render)
 
+  tagName : 'g'
 
   get_offsets : (orientation) ->
     offsets =
@@ -301,13 +303,10 @@ class D3LinearAxisView extends PlotWidget
 
   render : ->
     super()
-    base = @tag_d3('bg', @plot_id)
-    node = @tag_d3('axis')
-    if not node
-      node = base.append('g')
-        .attr('id', @tag_id('axis'))
-        .attr('style', '  font: 12px sans-serif; fill:none; stroke-width:1.5px; shape-rendering:crispEdges')
-        .attr('stroke', @mget('foreground_color'))
+    node = d3.select(@el)
+    node
+      .attr('style', '  font: 12px sans-serif; fill:none; stroke-width:1.5px; shape-rendering:crispEdges')
+      .attr('stroke', @mget('foreground_color'))
     offsets = @get_offsets(@mget('orientation'))
     offsets['h'] = @plot_model.get('height')
     node.attr('transform',
@@ -402,12 +401,11 @@ class BarRendererView extends PlotWidget
       .attr('fill', @mget('foreground_color'))
     return null
 
+  tagName : 'g'
+
   render : () ->
     super()
-    plot = @tag_d3('plotwindow', this.plot_id)
-    node = @tag_d3('bar')
-    if not node
-      node = plot.append('g').attr('id', @tag_id('bar'))
+    node = d3.select(@el)
     bars = node.selectAll('rect').data(@model.get_ref('data_source').get('data'))
     @render_bars(bars, @mget('orientation'))
     @render_bars(bars.enter().append('rect'), @mget('orientation'))
@@ -415,6 +413,7 @@ class BarRendererView extends PlotWidget
 
 
 class LineRendererView extends PlotWidget
+  tagName : 'g'
   initialize : (options) ->
     safebind(this, @model, 'change', @request_render)
     safebind(this, @mget_ref('xmapper'), 'change', @request_render)
@@ -445,16 +444,15 @@ class LineRendererView extends PlotWidget
 
   render : ->
     super()
-    plot = @tag_d3('plotwindow', this.plot_id)
-    node = @tag_d3('line')
-    if not node
-      node = plot.append('g').attr('id', @tag_id('line'))
+    node = d3.select(@el)
     path = node.selectAll('path').data([@model.get_ref('data_source').get('data')])
     @render_line(path)
     @render_line(path.enter().append('path'))
     return null
-window.scatter_render = 0
+
+
 class ScatterRendererView extends PlotWidget
+  tagName : 'g'
   request_render : () ->
     super()
 
@@ -466,7 +464,6 @@ class ScatterRendererView extends PlotWidget
     safebind(this, @mget_ref('data_source'), 'change', @request_render)
 
   fill_marks : (marks) ->
-    window.scatter_render += 1
     color_field = @model.get('color_field')
     if color_field
       color_mapper = @model.get_ref('color_mapper')
@@ -490,12 +487,7 @@ class ScatterRendererView extends PlotWidget
     return null
 
   get_marks : () ->
-    plot = @tag_d3('plotwindow', this.plot_id)
-    node = @tag_d3('scatter')
-    if not node
-      node = plot.append('g')
-      .attr('id', @tag_id('scatter'))
-    circles = node.selectAll(@model.get('mark'))
+    circles = d3.select(@el).selectAll(@model.get('mark'))
       .data(@model.get_ref('data_source').get('data'))
 
   get_new_marks : (marks) ->
@@ -541,25 +533,16 @@ class PanToolView extends PlotWidget
     super(options)
 
   mouse_coords : () ->
-    plot = @tag_d3('plotwindow', @plot_id)
+    plot = @plot_view.d3plotwindow
     [x, y] = d3.mouse(plot[0][0])
     [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x, y]
-
-  _start_drag_mapper : (mapper) ->
-    range = mapper.get_ref('data_range')
-    range[@tag_id('start')] = range.get('start')
-    range[@tag_id('end')] = range.get('end')
 
   _start_drag : () ->
     @dragging = true
     [@x, @y] = @mouse_coords()
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
-    for xmap in xmappers
-      @_start_drag_mapper(xmap)
-    for ymap in ymappers
-      @_start_drag_mapper(ymap)
 
   _drag_mapper : (mapper, diff) ->
     screen_range = mapper.get_ref('screen_range')
@@ -573,7 +556,7 @@ class PanToolView extends PlotWidget
     }, {'local' : true})
 
   _drag : (xdiff, ydiff) ->
-    plot = @tag_d3('plotwindow', @plot_id)
+    plot = @plot_view.d3plotwindow
     if _.isUndefined(xdiff) or _.isUndefined(ydiff)
       [x, y] = @mouse_coords()
       xdiff = x - @x
@@ -588,7 +571,7 @@ class PanToolView extends PlotWidget
 
   bind_events : (plotview) ->
     @plotview = plotview
-    node = @tag_d3('mainsvg', @plot_id)
+    node = d3.select(@plot_view.el)
     node.attr('pointer-events' , 'all')
     node.on("mousemove.drag"
       ,
@@ -625,7 +608,7 @@ class SelectionToolView extends PlotWidget
 
   bind_events : (plotview) ->
     @plotview = plotview
-    node = @tag_d3('mainsvg', @plot_id)
+    node = d3.select(@plot_view.el)
     node.attr('pointer-events' , 'all')
     node.on("mousedown.selection"
       ,
@@ -646,7 +629,7 @@ class SelectionToolView extends PlotWidget
     )
 
   mouse_coords : () ->
-    plot = @tag_d3('plotwindow', @plot_id)
+    plot = @plot_view.d3plotwindow
     [x, y] = d3.mouse(plot[0][0])
     [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x, y]
@@ -662,9 +645,9 @@ class SelectionToolView extends PlotWidget
       @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
       @model.resolve_ref(renderer).get_ref('data_source').save()
     @selecting = false
-    node = @tag_d3('rect')
-    if not(node is null)
-      node.remove()
+    if @shading
+      @shading.remove()
+      @shading = null
 
   _start_selecting : () ->
     [x, y] = @mouse_coords()
@@ -721,27 +704,25 @@ class SelectionToolView extends PlotWidget
     if _.any(_.map(xrange, _.isNullOrUndefined)) or
       _.any(_.map(yrange, _.isNullOrUndefined))
         return
-    node = @tag_d3('rect')
-    if node is null
-      node = @tag_d3('plotwindow', @plot_id).append('rect')
-        .attr('id', @tag_id('rect'))
+    if not @shading
+      @shading = @plot_view.d3plotwindow.append('rect')
     if xrange
       width = xrange[1] - xrange[0]
-      node.attr('x', @plot_model.position_child_x(width, xrange[0]))
+      @shading.attr('x', @plot_model.position_child_x(width, xrange[0]))
         .attr('width', width)
     else
       width = @plot_model.get('width')
-      node.attr('x',  @plot_model.position_child_x(xrange[0]))
+      @shading.attr('x',  @plot_model.position_child_x(xrange[0]))
         .attr('width', width)
     if yrange
       height = yrange[1] - yrange[0]
-      node.attr('y', @plot_model.position_child_y(height, yrange[0]))
+      @shading.attr('y', @plot_model.position_child_y(height, yrange[0]))
         .attr('height', height)
     else
       height = @plot_model.get('height')
-      node.attr('y', @plot_model.position_child_y(height, yrange[0]))
+      @shading.attr('y', @plot_model.position_child_y(height, yrange[0]))
         .attr('height', height)
-    node.attr('fill', '#000').attr('fill-opacity', 0.1)
+    @shading.attr('fill', '#000').attr('fill-opacity', 0.1)
 
   render : () ->
     super()
@@ -750,7 +731,7 @@ class SelectionToolView extends PlotWidget
 
 class OverlayView extends PlotWidget
   initialize : (options) ->
-    @renderer_ids = options['renderer_ids']
+    @rendererviews = options['rendererviews']
     super(options)
 
   bind_events : (plotview) ->
@@ -772,8 +753,8 @@ class ScatterSelectionOverlayView extends OverlayView
   render : () ->
     window.overlay_render += 1
     super()
-    for temp in _.zip(@mget('renderers'), @renderer_ids)
-      [renderer, viewid] = temp
+    for temp in _.zip(@mget('renderers'), @rendererviews)
+      [renderer, rendererview] = temp
       renderer = @model.resolve_ref(renderer)
       selected = {}
       if renderer.get_ref('data_source').get('selecting') == false
@@ -781,7 +762,7 @@ class ScatterSelectionOverlayView extends OverlayView
         continue
       for idx in renderer.get_ref('data_source').get('selected')
         selected[String(idx)] = true
-      node = @tag_d3('scatter', viewid)
+      node = d3.select(rendererview.el)
       node.selectAll(renderer.get('mark')).filter((d, i) =>
         return not selected[String(i)]
       ).attr('fill', @mget('unselected_color'))
@@ -799,7 +780,7 @@ class ZoomToolView extends PlotWidget
     super(options)
 
   mouse_coords : () ->
-    plot = @tag_d3('plotwindow', @plot_id)
+    plot = @plot_view.d3plotwindow
     [x, y] = d3.mouse(plot[0][0])
     [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x, y]
@@ -829,7 +810,7 @@ class ZoomToolView extends PlotWidget
 
   bind_events : (plotview) ->
     @plotview = plotview
-    node = @tag_d3('mainsvg', @plot_id)
+    node = d3.select(@plot_view.el)
     node.attr('pointer-events' , 'all')
     node.on("mousewheel.zoom"
       ,

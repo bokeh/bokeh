@@ -60,33 +60,6 @@ class ContinuumView extends Backbone.View
     @trigger('remove')
     super()
 
-  tag_selector : (tag, id) ->
-    # jquery style selector given a string, and an id.
-    # We name DOM nodes using this convention
-    # <div id='name-2342342'>hugo</div>
-
-    return "#" + @tag_id(tag, id)
-
-  tag_id : (tag, id) ->
-    # convention for naming our nodes, tag-id. if ID is not specified,
-    # we use the id of the current view.
-
-    if not id
-      id = this.id
-    tag + "-" + id
-
-  tag_el : (tag, id) ->
-    # returns jquery node matching this tag/id combo
-
-    @$el.find("#" + this.tag_id(tag, id))
-  tag_d3 : (tag, id) ->
-    #returns d3 node matching this tag/id combo.  null if it does not exist
-
-    val = d3.select(this.el).select("#" + this.tag_id(tag, id))
-    if val[0][0] == null
-      return null
-    else
-      return val
   mget : ()->
     # convenience function, calls get on the associated model
 

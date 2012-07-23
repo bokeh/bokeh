@@ -36,8 +36,8 @@ test('test_interactive', ()->
     view = new plot1.default_view(
       model : plot1,
       render_loop : true,
-      el : div
     )
+    div.append(view.$el)
     view.render()
     plot1.set({'width' : 300})
     plot1.set({'height' : 300})
