@@ -20,7 +20,7 @@ class PlotWidget extends Continuum.DeferredView
 #  Plot Container
 
 
-class GridPlotContainerView extends Continuum.DeferredParent
+class GridPlotContainerView extends Continuum.DeferredView
   default_options : {
     scale:1.0
   }
@@ -110,7 +110,7 @@ class GridPlotContainerView extends Continuum.DeferredParent
 
 
 
-class PlotView extends Continuum.DeferredParent
+class PlotView extends Continuum.DeferredView
   default_options : {
     scale:1.0
   }

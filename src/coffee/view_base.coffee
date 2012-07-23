@@ -138,11 +138,14 @@ class DeferredView extends ContinuumView
     @deferred_parent = options['deferred_parent']
     @request_render()
     super(options)
+    @use_render_loop = options['render_loop']
+    if @use_render_loop
+      console.log('loop')
+      _.defer(() => @render_loop())
 
   render : () ->
     super()
     @_dirty = false
-    super()
 
   request_render : () ->
     @_dirty = true
@@ -151,14 +154,9 @@ class DeferredView extends ContinuumView
     if force or @_dirty
       @render()
 
-class DeferredParent extends DeferredView
-  initialize : (options) ->
-    super(options)
-    @use_render_loop = options['render_loop']
-    if @use_render_loop
-      console.log('loop')
-      _.defer(() => @render_loop())
-
+  remove : () ->
+    super()
+    @removed = true
 
   render_loop : () ->
     @render_deferred_components()
@@ -167,11 +165,6 @@ class DeferredParent extends DeferredView
     else
       @looping = false
 
-  remove : () ->
-    super()
-    @removed = true
-
 
 Continuum.DeferredView = DeferredView
-Continuum.DeferredParent = DeferredParent
 Continuum.ContinuumView = ContinuumView
