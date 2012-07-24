@@ -10,9 +10,9 @@ if not Continuum.ui
 class DataTableView extends Continuum.ContinuumView
   initialize : (options) ->
     super(options)
-    safebind(this, @model, 'destroy', @remove)
-    safebind(this, @model, 'change', @render)
-    safebind(this, @mget_ref('data_source'), 'change', @render)
+    Continuum.safebind(this, @model, 'destroy', @remove)
+    Continuum.safebind(this, @model, 'change', @render)
+    Continuum.safebind(this, @mget_ref('data_source'), 'change', @render)
     @render()
 
   className: 'div'
