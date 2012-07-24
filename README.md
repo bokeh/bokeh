@@ -8,7 +8,7 @@ There are many excellent plotting packages for Python, but they generally
 do not optimize for the particular needs of statistical plotting (easy faceting,
 bulk application of aesthetic and visual parameters across categorical variables,
 pleasing default color palettes for categorical data, etc.).  The goal of Bokeh
-is to provide a compelling Python equivalent of [ggplot](http://ggplot.had.co.nz) in R.
+is to provide a compelling Python equivalent of [ggplot](http://had.co.nz/ggplot/) in R.
 
 A related project is [Pandas](http://pandas.pydata.org), whose [DataFrame](http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe) objects are directly
 used by Bokeh.
