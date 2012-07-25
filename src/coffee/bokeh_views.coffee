@@ -539,8 +539,19 @@ class ScatterRendererView extends PlotWidget
     safebind(this, @mget_ref('ymapper'), 'change', @request_render)
     safebind(this, @mget_ref('data_source'), 'change', @request_render)
     console.log("creating the stage")
-    @$el.append($('<canvas></canvas>'))
-    @canvas = 
+    @canvas = $('<canvas></canvas>')
+    @canvas.attr('height', @mget('height'))
+    @canvas.attr('width', @mget('width'))
+    @$el.attr('height', @mget('height'))
+    @$el.attr('width', @mget('width'))
+    @$el.append(@canvas)
+    @stage = new Kinetic.Stage
+      container: @canvas[0]
+      width: @mget('height')
+      height: @mget('width')
+    @layer = new Kinetic.Layer()
+    @stage.add(@layer)
+
   addPolygon: (x,y) ->
     
     @layer.add(new Kinetic.RegularPolygon(
@@ -588,12 +599,6 @@ class ScatterRendererView extends PlotWidget
     #debugger;
     #$(@el).addClass('container')
     #window.el = @el
-    @stage = new Kinetic.Stage
-      container: $(@el).parents('div')[0]
-      width: 200
-      height: 200
-    @layer = new Kinetic.Layer()
-    @stage.add(@layer)
 
     circles = @get_marks()
     data = @model.get_ref('data_source').get('data')
