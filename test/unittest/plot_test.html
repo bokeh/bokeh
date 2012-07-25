@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
   <title>QUnit Test Suite</title>
   <link rel="stylesheet" href="../../vendor/qunit/css/qunit.css" type="text/css" media="screen">
   <script type="text/javascript" src="../../vendor/qunit/js/qunit.js"></script>
@@ -13,6 +14,7 @@
   <script type="text/javascript" src="../../vendor/underscore/underscore.js"></script>
   <script type="text/javascript" src="../../vendor/backbone/backbone.js"></script>
   <script type="text/javascript" src="../../vendor/buckets/buckets.js"></script>
+  <script type="text/javascript" src=" ../../vendor/KineticJS/kinetic-v3.10.3.js "></script>
 
   <script type="text/javascript" src="../../lib/js/base.js"></script>    
   <script type="text/javascript" src="../../lib/js/view_base.js"></script>  
@@ -24,10 +26,19 @@
   <script type="text/javascript" src="../../lib/js/custom.js"></script>
   
   <script type="text/javascript" src="../../lib/test/unittest/plot_test_simple.js"></script>  
+  <!--
   <script type="text/javascript" src="../../lib/test/unittest/plot_test_grid.js"></script>
   <script type="text/javascript" src="../../lib/test/unittest/tools_test.js"></script>    
   <script type="text/javascript" src="../../lib/test/unittest/plot_test_bar.js"></script>
   <script type="text/javascript" src="../../lib/test/unittest/scale_test.js"></script>  
+-->
+    <style>
+      .container {
+     
+        height: 200px;
+        width: 200px;
+      }
+    </style>  
   
 </head>
 <body>
@@ -36,5 +47,6 @@
   <div id="qunit-testrunner-toolbar"></div>
   <h2 id="qunit-userAgent"></h2>
   <ol id="qunit-tests"></ol>
+<div id="container"></div>
 </body>
 </html>

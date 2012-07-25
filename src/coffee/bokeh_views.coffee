@@ -525,6 +525,92 @@ class ScatterRendererView extends PlotWidget
     return null
 
 
+
+#class ScatterRendererCanvasView extends PlotWidget
+class ScatterRendererView extends PlotWidget  
+  tagName : 'foreignObject'
+  request_render : () ->
+    super()
+
+  initialize : (options) ->
+    super(options)
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
+    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
+    safebind(this, @mget_ref('data_source'), 'change', @request_render)
+    console.log("creating the stage")
+    @$el.append($('<canvas></canvas>'))
+    @canvas = 
+  addPolygon: (x,y) ->
+    
+    @layer.add(new Kinetic.RegularPolygon(
+      fill: 'red'
+      sides: 10
+      x:x
+      y:y
+      radius: 3
+      strokeWidth: 3))
+    console.log("addPolygon called with ", x,y)
+   
+
+  fill_marks : (marks) ->
+    return null
+
+  position_marks : (marks) ->
+    marks.attr('cx', ((d, i) => return @screenx[i]))
+      .attr('cy', ((d, i) => return @screeny[i]))
+    return null
+
+  get_marks : () ->
+    circles = d3.select(@el).selectAll(@model.get('mark'))
+      .data(@model.get_ref('data_source').get('data'))
+
+  get_new_marks : (marks) ->
+    return marks.enter().append(@model.get('mark'))
+
+  calc_buffer : (data) ->
+    xmapper = @model.get_ref('xmapper')
+    ymapper = @model.get_ref('ymapper')
+    xfield = @model.get('xfield')
+    yfield = @model.get('yfield')
+    datax = (x[xfield] for x in data)
+    screenx = xmapper.v_map_screen(datax)
+    screenx = @model.v_xpos(screenx)
+    datay = (y[yfield] for y in data)
+    screeny = ymapper.v_map_screen(datay)
+    screeny = @model.v_ypos(screeny)
+    @screenx = screenx
+    @screeny = screeny
+
+  render : ->
+    a = new Date()
+    super()
+    #debugger;
+    #$(@el).addClass('container')
+    #window.el = @el
+    @stage = new Kinetic.Stage
+      container: $(@el).parents('div')[0]
+      width: 200
+      height: 200
+    @layer = new Kinetic.Layer()
+    @stage.add(@layer)
+
+    circles = @get_marks()
+    data = @model.get_ref('data_source').get('data')
+    @calc_buffer(data)
+
+    
+    _.each(@screenx, (val, i) =>
+      @addPolygon(@screenx[i], @screeny[i])
+    )
+    @layer.draw()
+    return null
+
+
+
+
+
+
 #  tools
 
 class PanToolView extends PlotWidget
