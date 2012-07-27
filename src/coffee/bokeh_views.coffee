@@ -132,12 +132,33 @@ class PlotView extends DeferredSVGView
 
   tagName : 'svg'
 
+  initialize_tag : () ->
+    console.log("creating the stage")
+    @canvas = $('<canvas></canvas>')
+    @canvas.attr('height', @mget('height'))
+    @canvas.attr('width', @mget('width'))
+    @$el.attr('height', @mget('height'))
+    @$el.attr('width', @mget('width'))
+    @$el.append(@canvas)
+    hopeful_el = $('#container')
+    console.log('hopeful el ', hopeful_el)
+    @stage = new Kinetic.Stage
+      #container: @canvas[0]
+      container: hopeful_el[0]
+      width: @mget('height')
+      height: @mget('width')
+    @layer = new Kinetic.Layer()
+    @stage.add(@layer)
+    window.stage = @stage
+
   initialize : (options) ->
     super(_.defaults(options, @default_options))
     @renderers = {}
     @axes = {}
     @tools = {}
     @overlays = {}
+    @initialize_tag()
+
 
     @build_renderers()
     @build_axes()
@@ -301,8 +322,87 @@ class D3LinearAxisView extends PlotWidget
     scale = d3.scale.linear().domain(domain).range(range)
     return scale
 
+  draw_line : (x1, y1, x2, y2) ->
+    """
+    @plot_view.layer.add(new Kinetic.Line(
+      points: [x1, y1, x2, y2]
+      fill: 'red'
+      x:x1
+      y:y1
+      radius: 3
+      strokeWidth: .5))
+    
+    @plot_view.layer.draw()
+    """
+
+  write_text: (x1, y1, text) ->
+    """
+    @plot_view.layer.add( new Kinetic.Text({
+          x: x1,
+          y: y1,
+          stroke: '#000',
+          strokeWidth: 1,
+
+          text: text,
+          fontSize: 10,
+          fontFamily: 'Calibri',
+          textFill: '#555',
+          width: 50,
+          align: 'center',
+          fontStyle: 'italic',
+    }))
+    """
+
   render : ->
     super()
+    #
+    if @mget('orientation') == "left"
+      scale = @mget_ref('mapper').get('scale')
+      window.scale = scale
+      window.domain = scale.domain()
+      window.range = scale.range()
+
+      #domain are the real numbers being graphed
+      # nominals are the screen postions
+      origin = domain[0]
+      tick_step = (domain[1] - origin)  / @mget('ticks')
+
+      truncate = (val, decimal_places) ->
+        exp = Math.pow(10, decimal_places)
+        raised = val * exp
+        rounded = Math.round(raised)
+        return rounded / exp
+      
+      for i in [0..@mget('ticks')]
+        realX = (tick_step * i) + origin
+        screenX = scale(realX)
+        @draw_line(screenX, 0, screenX, scale(domain[1]))
+        @write_text(screenX, 0,  truncate(realX, 2).toString())
+    else
+      scale = @mget_ref('mapper').get('scale')
+      window.scale = scale
+      window.domain = scale.domain()
+      window.range = scale.range()
+
+      #domain are the real numbers being graphed
+      # nominals are the screen postions
+      origin = domain[0]
+      tick_step = (domain[1] - origin)  / @mget('ticks')
+
+      truncate = (val, decimal_places) ->
+        exp = Math.pow(10, decimal_places)
+        raised = val * exp
+        rounded = Math.round(raised)
+        return rounded / exp
+      
+      for i in [0..@mget('ticks')]
+        realY = (tick_step * i) + origin
+        screenY = scale(realY)
+        @draw_line(30, screenY, scale(domain[1]), screenY)
+        @write_text(0, screenY, truncate(realY, 2).toString())
+      
+        
+    window.axisview = @
     node = d3.select(@el)
     node
       .attr('style', '  font: 12px sans-serif; fill:none; stroke-width:1.5px; shape-rendering:crispEdges')
@@ -322,6 +422,9 @@ class D3LinearAxisView extends PlotWidget
       .tickPadding(@mget('tickPadding'))
     node.call(axis)
     node.selectAll('.tick').attr('stroke', @mget('tick_color'))
+
+    
+
 class BarRendererView extends PlotWidget
   initialize : (options) ->
     safebind(this, @model, 'change', @request_render)
@@ -538,6 +641,7 @@ class ScatterRendererView extends PlotWidget
     safebind(this, @mget_ref('xmapper'), 'change', @request_render)
     safebind(this, @mget_ref('ymapper'), 'change', @request_render)
     safebind(this, @mget_ref('data_source'), 'change', @request_render)
+    """
     console.log("creating the stage")
     @canvas = $('<canvas></canvas>')
     @canvas.attr('height', @mget('height'))
@@ -545,24 +649,26 @@ class ScatterRendererView extends PlotWidget
     @$el.attr('height', @mget('height'))
     @$el.attr('width', @mget('width'))
     @$el.append(@canvas)
+    hopeful_el = $('#container')
+    console.log('hopeful el ', hopeful_el)
+    ab = @plot_view.stage
     @stage = new Kinetic.Stage
-      container: @canvas[0]
+      #container: @canvas[0]
+      container: hopeful_el[0]
       width: @mget('height')
       height: @mget('width')
     @layer = new Kinetic.Layer()
     @stage.add(@layer)
-
+    """
   addPolygon: (x,y) ->
     
-    @layer.add(new Kinetic.RegularPolygon(
+    @plot_view.layer.add(new Kinetic.RegularPolygon(
       fill: 'red'
       sides: 10
       x:x
       y:y
       radius: 3
       strokeWidth: 3))
-    console.log("addPolygon called with ", x,y)
-   
 
   fill_marks : (marks) ->
     return null
@@ -596,6 +702,11 @@ class ScatterRendererView extends PlotWidget
   render : ->
     a = new Date()
     super()
+    window.pl = @plot_view.layer
+    @plot_view.layer.clear()
+    @plot_view.layer = new Kinetic.Layer()
+    @plot_view.stage.add(@plot_view.layer)
+  
     #debugger;
     #$(@el).addClass('container')
     #window.el = @el
@@ -608,7 +719,9 @@ class ScatterRendererView extends PlotWidget
     _.each(@screenx, (val, i) =>
       @addPolygon(@screenx[i], @screeny[i])
     )
-    @layer.draw()
+
+    #console.log("just called clear")
+    @plot_view.layer.draw()
     return null
 
 

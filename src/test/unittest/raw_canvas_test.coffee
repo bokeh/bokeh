@@ -7,21 +7,24 @@ make_range = (num_points) ->
   data = ({'x' : pt, 'y' : pt} for pt in _.range(0, side_length, step))
   return data
 
-data_set = make_range(1000)
+data_set = make_range(100000)
 
 
 
 canvas_t =  ()->
   expect(0)
-  
   can1 = $('canvas#can1')[0]
+  $(can1).attr('height', side_length.toString())
+  $(can1).attr('width', side_length.toString())
   ctx = can1.getContext('2d')
+  st = new Date()
   point = (pt) ->
      ctx.fillRect(pt.x, pt.y, 5, 5)
   for pt in data_set
     point(pt)
   ctx.stroke()
-
+  ed = new Date()
+  console.log('canvas', ed-st)
 
 kinetic_t = ()->
   expect(0)
@@ -63,16 +66,25 @@ kinetic_t2 = ()->
   window.pts=pts
   stage.add(layer)
   window.doMove = ->
-    layer.clear()
+    #layer.clear()
     #layer = new Kinetic.Layer()
+    #
+    st = new Date()
     for pt in pts
       pos = pt.getPosition()
       pt.setPosition(pos.x+30, pos.y)
-      layer.add(pt)
+      #layer.add(pt)
     ""
     #stage.add(layer)
-    layer.draw()
-
+    st2 = new Date()
+    #layer.draw()
+    ed = new Date()
+    console.log('total', ed-st, 'adding', st2 - st, 'drawing', ed-st2)
+  $(document).keypress(()->
+    st = new Date()
+    doMove()
+    ed = new Date()
+  )
   
 
 window.canvas_t = canvas_t
