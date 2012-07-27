@@ -134,13 +134,16 @@ class PlotView extends DeferredSVGView
 
   initialize_tag : () ->
     console.log("creating the stage")
-    @canvas = $('<canvas></canvas>')
-    @canvas.attr('height', @mget('height'))
-    @canvas.attr('width', @mget('width'))
-    @$el.attr('height', @mget('height'))
-    @$el.attr('width', @mget('width'))
-    @$el.append(@canvas)
+    #@canvas = $('<canvas></canvas>')
+    
+    """       
     hopeful_el = $('#container')
+    hopeful_el.append(@canvas)
+
+    @canvas = @canvas[0]
+    window.can = @canvas
+
+
     console.log('hopeful el ', hopeful_el)
     @stage = new Kinetic.Stage
       #container: @canvas[0]
@@ -150,7 +153,7 @@ class PlotView extends DeferredSVGView
     @layer = new Kinetic.Layer()
     @stage.add(@layer)
     window.stage = @stage
-
+    """
   initialize : (options) ->
     super(_.defaults(options, @default_options))
     @renderers = {}
@@ -264,6 +267,27 @@ class PlotView extends DeferredSVGView
   render : () ->
     super()
     @render_mainsvg();
+    can_holder = $("""<foreignObject style='border:1px solid red' height=><body xmlns="http://www.w3.org/1999/xhtml"><canvas></canvas></body></foreignObject>""")
+    @d3fg.append("foreignObject")
+    window.d3fg = @d3fg
+    jq_d = $(d3fg[0][0])
+    can_holder = jq_d.find('foreignObject')
+    sub_body = can_holder.append('<body xmlns="http://www.w3.org/1999/xhtml"><canvas></canvas></body>')
+    
+    
+    window.can_holder = can_holder
+    @canvas = can_holder.find('canvas')
+    @canvas.attr('height', @mget('height'))
+    @canvas.attr('width', @mget('width'))
+    can_holder.attr('height', @mget('height'))
+    can_holder.attr('width', @mget('width'))
+    can_holder.attr('width', @mget('width'))
+    @$el.attr('height', @mget('height'))
+    @$el.attr('width', @mget('width'))
+
+    #@$el.append(can_holder)
+    @ctx = @canvas[0].getContext('2d')
+
     for own key, view of @axes
       tojq(@d3bg).append(view.$el)
     for own key, view of @renderers
@@ -554,80 +578,6 @@ class LineRendererView extends PlotWidget
     return null
 
 
-class ScatterRendererView extends PlotWidget
-  tagName : 'g'
-  request_render : () ->
-    super()
-
-  initialize : (options) ->
-    super(options)
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
-    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
-    safebind(this, @mget_ref('data_source'), 'change', @request_render)
-
-  fill_marks : (marks) ->
-    color_field = @model.get('color_field')
-    if color_field
-      color_mapper = @model.get_ref('color_mapper')
-      marks.attr('fill'
-        ,
-          (d) =>
-            return color_mapper.map_screen(d[color_field])
-      )
-    else
-      color = @model.get('foreground_color')
-      marks.attr('fill', color)
-    return null
-
-  size_marks : (marks) ->
-    marks.attr('r', @model.get('radius'))
-    return null
-
-  position_marks : (marks) ->
-    marks.attr('cx', ((d, i) => return @screenx[i]))
-      .attr('cy', ((d, i) => return @screeny[i]))
-    return null
-
-  get_marks : () ->
-    circles = d3.select(@el).selectAll(@model.get('mark'))
-      .data(@model.get_ref('data_source').get('data'))
-
-  get_new_marks : (marks) ->
-    return marks.enter().append(@model.get('mark'))
-
-  calc_buffer : (data) ->
-    xmapper = @model.get_ref('xmapper')
-    ymapper = @model.get_ref('ymapper')
-    xfield = @model.get('xfield')
-    yfield = @model.get('yfield')
-    datax = (x[xfield] for x in data)
-    screenx = xmapper.v_map_screen(datax)
-    screenx = @model.v_xpos(screenx)
-    datay = (y[yfield] for y in data)
-    screeny = ymapper.v_map_screen(datay)
-    screeny = @model.v_ypos(screeny)
-    @screenx = screenx
-    @screeny = screeny
-
-  render : ->
-    a = new Date()
-    super()
-    circles = @get_marks()
-    @calc_buffer(@model.get_ref('data_source').get('data'))
-    @position_marks(circles)
-    @size_marks(circles)
-    @fill_marks(circles)
-    newcircles = @get_new_marks(circles)
-    @position_marks(newcircles)
-    @size_marks(newcircles)
-    @fill_marks(newcircles)
-    circles.exit().remove();
-    b = new Date()
-    console.log(b-a)
-    return null
-
-
 
 #class ScatterRendererCanvasView extends PlotWidget
 class ScatterRendererView extends PlotWidget  
@@ -641,34 +591,9 @@ class ScatterRendererView extends PlotWidget
     safebind(this, @mget_ref('xmapper'), 'change', @request_render)
     safebind(this, @mget_ref('ymapper'), 'change', @request_render)
     safebind(this, @mget_ref('data_source'), 'change', @request_render)
-    """
-    console.log("creating the stage")
-    @canvas = $('<canvas></canvas>')
-    @canvas.attr('height', @mget('height'))
-    @canvas.attr('width', @mget('width'))
-    @$el.attr('height', @mget('height'))
-    @$el.attr('width', @mget('width'))
-    @$el.append(@canvas)
-    hopeful_el = $('#container')
-    console.log('hopeful el ', hopeful_el)
-    ab = @plot_view.stage
-    @stage = new Kinetic.Stage
-      #container: @canvas[0]
-      container: hopeful_el[0]
-      width: @mget('height')
-      height: @mget('width')
-    @layer = new Kinetic.Layer()
-    @stage.add(@layer)
-    """
+
   addPolygon: (x,y) ->
-    
-    @plot_view.layer.add(new Kinetic.RegularPolygon(
-      fill: 'red'
-      sides: 10
-      x:x
-      y:y
-      radius: 3
-      strokeWidth: 3))
+    @plot_view.ctx.fillRect(x,y,5,5)
 
   fill_marks : (marks) ->
     return null
@@ -702,15 +627,7 @@ class ScatterRendererView extends PlotWidget
   render : ->
     a = new Date()
     super()
-    window.pl = @plot_view.layer
-    @plot_view.layer.clear()
-    @plot_view.layer = new Kinetic.Layer()
-    @plot_view.stage.add(@plot_view.layer)
-  
-    #debugger;
-    #$(@el).addClass('container')
-    #window.el = @el
-
+    @plot_view.ctx.clearRect(0,0, @plot_view.mget('height'), @plot_view.mget('width'))
     circles = @get_marks()
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
@@ -719,9 +636,8 @@ class ScatterRendererView extends PlotWidget
     _.each(@screenx, (val, i) =>
       @addPolygon(@screenx[i], @screeny[i])
     )
-
-    #console.log("just called clear")
-    @plot_view.layer.draw()
+    
+    @plot_view.ctx.stroke()
     return null
 
 

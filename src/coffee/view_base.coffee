@@ -134,7 +134,7 @@ class DeferredView extends ContinuumView
   render_loop : () ->
     @render_deferred_components()
     if not @removed and @use_render_loop
-      setTimeout((() => @render_loop()), 100)
+      setTimeout((() => @render_loop()), 10)
     else
       @looping = false
 
