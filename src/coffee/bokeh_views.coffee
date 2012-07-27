@@ -25,6 +25,8 @@ class PlotWidget extends DeferredSVGView
     @plot_id = options.plot_id
     @plot_model = options.plot_model
     @plot_view = options.plot_view
+  addPolygon: (x,y) ->
+    @plot_view.ctx.fillRect(x,y,5,5)
 
 tojq = (d3selection) ->
   return $(d3selection[0][0])
@@ -592,8 +594,6 @@ class ScatterRendererView extends PlotWidget
     safebind(this, @mget_ref('ymapper'), 'change', @request_render)
     safebind(this, @mget_ref('data_source'), 'change', @request_render)
 
-  addPolygon: (x,y) ->
-    @plot_view.ctx.fillRect(x,y,5,5)
 
   fill_marks : (marks) ->
     return null
@@ -631,6 +631,8 @@ class ScatterRendererView extends PlotWidget
     circles = @get_marks()
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
+    @plot_view.ctx.fillStyle = 'blue'
+    @plot_view.ctx.strokeStyle = 'blue'
 
     
     _.each(@screenx, (val, i) =>
@@ -891,6 +893,26 @@ class ScatterSelectionOverlayView extends OverlayView
         return selected[String(i)]
       )
       @plotview.renderers[renderer.id].fill_marks(marks)
+    return null
+
+  addPolygon: (x,y) ->
+    @plot_view.ctx.fillRect(x,y,5,5)
+
+  render : () ->
+    window.overlay_render += 1
+    super()
+    for temp in _.zip(@mget('renderers'), @rendererviews)
+      [renderer, rendererview] = temp
+      renderer = @model.resolve_ref(renderer)
+      selected = {}
+      if renderer.get_ref('data_source').get('selecting') == false
+        #skip data sources which are not selecting'
+        continue
+      @plot_view.ctx.fillStyle = 'orange'
+      @plot_view.ctx.strokeStyle = 'orange'
+      for idx in renderer.get_ref('data_source').get('selected')
+        @addPolygon(rendererview.screenx[idx], rendererview.screeny[idx])
+      @plot_view.ctx.stroke()
     return null
 
 
