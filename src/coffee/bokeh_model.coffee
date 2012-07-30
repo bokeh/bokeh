@@ -519,9 +519,15 @@ _.extend(D3LinearAxis::defaults
     tickSize : null
     tickPadding : 3
 )
-
 class D3LinearAxes extends Continuum.Collection
   model : D3LinearAxis
+
+class D3LinearDateAxis extends D3LinearAxis
+  type : "D3LinearDateAxis"
+  default_view : Bokeh.D3LinearDateAxisView
+
+class D3LinearDateAxes extends Continuum.Collection
+  model : D3LinearDateAxis
 
 
 class BarRenderer extends XYRenderer
@@ -666,6 +672,7 @@ Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('Range1d', new Range1ds)
 Bokeh.register_collection('LinearMapper', new LinearMappers)
 Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
+Bokeh.register_collection('D3LinearDateAxis', new D3LinearDateAxes)
 Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
 Bokeh.register_collection('FactorRange', new FactorRanges)
 Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)

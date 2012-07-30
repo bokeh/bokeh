@@ -322,6 +322,20 @@ class D3LinearAxisView extends PlotWidget
       .tickPadding(@mget('tickPadding'))
     node.call(axis)
     node.selectAll('.tick').attr('stroke', @mget('tick_color'))
+
+class D3LinearDateAxisView extends D3LinearAxisView
+  convert_scale : (scale) ->
+    domain = scale.domain()
+    range = scale.range()
+    if @mget('orientation') in ['bottom', 'top']
+      func = 'xpos'
+    else
+      func = 'ypos'
+    range = [@plot_model[func](range[0]), @plot_model[func](range[1])]
+    domain = [new Date(domain[0]), new Date(domain[1])]
+    scale = d3.time.scale().domain(domain).range(range)
+    return scale
+
 class BarRendererView extends PlotWidget
   initialize : (options) ->
     safebind(this, @model, 'change', @request_render)
@@ -831,3 +845,4 @@ Bokeh.ZoomToolView = ZoomToolView
 Bokeh.SelectionToolView = SelectionToolView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
 Bokeh.D3LinearAxisView = D3LinearAxisView
+Bokeh.D3LinearDateAxisView = D3LinearDateAxisView

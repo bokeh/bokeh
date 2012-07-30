@@ -190,3 +190,8 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
     'renderers' : [line_plot.ref()],
     'axes' : [xaxis.ref(), yaxis.ref()]
   }, options)
+
+
+window.bokehprettyprint = (obj) ->
+  for own key, val of obj
+    console.log(key, val)
