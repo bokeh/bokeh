@@ -271,8 +271,8 @@ class PlotView extends DeferredSVGView
     @render_mainsvg();
     can_holder = $("""<foreignObject style='border:1px solid red' height=><body xmlns="http://www.w3.org/1999/xhtml"><canvas></canvas></body></foreignObject>""")
     @d3fg.append("foreignObject")
-    window.d3fg = @d3fg
-    jq_d = $(d3fg[0][0])
+
+    jq_d = $(@d3fg[0][0])
     can_holder = jq_d.find('foreignObject')
     sub_body = can_holder.append('<body xmlns="http://www.w3.org/1999/xhtml"><canvas></canvas></body>')
     
