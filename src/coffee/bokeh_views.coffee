@@ -468,33 +468,36 @@ class LineRendererView extends PlotWidget
     safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
     super(options)
 
-  render_line : (node) ->
+  calc_buffer : (data) ->
     xmapper = @model.get_ref('xmapper')
     ymapper = @model.get_ref('ymapper')
     xfield = @model.get('xfield')
     yfield = @model.get('yfield')
-    line = d3.svg.line()
-      .x(
-        (d) =>
-          pos = xmapper.map_screen(d[xfield])
-          return @model.xpos(pos)
-      )
-      .y(
-        (d) =>
-          pos = ymapper.map_screen(d[yfield])
-          return @model.ypos(pos)
-      )
-    node.attr('stroke', @mget('color'))
-      .attr('d', line)
-    node.attr('fill', 'none')
-    return null
+    datax = (x[xfield] for x in data)
+    screenx = xmapper.v_map_screen(datax)
+    screenx = @model.v_xpos(screenx)
+    datay = (y[yfield] for y in data)
+    screeny = ymapper.v_map_screen(datay)
+    screeny = @model.v_ypos(screeny)
+    @screenx = screenx
+    @screeny = screeny
 
   render : ->
     super()
-    node = d3.select(@el)
-    path = node.selectAll('path').data([@model.get_ref('data_source').get('data')])
-    @render_line(path)
-    @render_line(path.enter().append('path'))
+
+    data = @model.get_ref('data_source').get('data')
+    @calc_buffer(data)
+
+    @plot_view.ctx.fillStyle = 'blue'
+    @plot_view.ctx.strokeStyle = @mget('color')
+    
+
+    @plot_view.ctx.beginPath()
+    @plot_view.ctx.moveTo(@screenx[0], @screeny[0])
+    for idx in [1..@screenx.length]
+      @plot_view.ctx.lineTo(@screenx[idx], @screeny[idx])
+    @plot_view.ctx.stroke()
+
     return null
 
 
