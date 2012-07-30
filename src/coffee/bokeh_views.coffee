@@ -28,6 +28,13 @@ class PlotWidget extends DeferredSVGView
   addPolygon: (x,y) ->
     @plot_view.ctx.fillRect(x,y,5,5)
 
+  addCircle: (x,y) ->
+    @plot_view.ctx.beginPath()
+    @plot_view.ctx.arc(x, y, 5, 0, Math.PI*2)
+    @plot_view.ctx.closePath()
+    @plot_view.ctx.fill()
+    @plot_view.ctx.stroke()
+
 tojq = (d3selection) ->
   return $(d3selection[0][0])
 
@@ -569,14 +576,18 @@ class ScatterRendererView extends PlotWidget
     if color_field
       color_mapper = @model.get_ref('color_mapper')
       color_arr = @model.get('color_field')
-
+    mark_type = @mget('mark')
     for idx in [0..@screeny.length]
       if color_field
         comp_color = color_mapper.map_screen(idx)
         #console.log("comp_color #{comp_color}")
         @plot_view.ctx.strokeStyle = comp_color
         @plot_view.ctx.fillStyle = comp_color
-      @addPolygon(@screenx[idx], @screeny[idx])
+      if mark_type == "square"
+        @addPolygon(@screenx[idx], @screeny[idx])
+      else
+        @addCircle(@screenx[idx], @screeny[idx])
+
 
 
     @plot_view.ctx.stroke()
