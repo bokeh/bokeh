@@ -276,18 +276,15 @@ class PlotView extends DeferredSVGView
     can_holder = jq_d.find('foreignObject')
     sub_body = can_holder.append('<body xmlns="http://www.w3.org/1999/xhtml"><canvas></canvas></body>')
     
-    
-    window.can_holder = can_holder
-    @canvas = can_holder.find('canvas')
-    @canvas.attr('height', @mget('height'))
-    @canvas.attr('width', @mget('width'))
-    can_holder.attr('height', @mget('height'))
-    can_holder.attr('width', @mget('width'))
-    can_holder.attr('width', @mget('width'))
-    @$el.attr('height', @mget('height'))
-    @$el.attr('width', @mget('width'))
 
-    #@$el.append(can_holder)
+    wh = (el, w, h) ->
+      el.attr('width', w)
+      el.attr('height', h)
+    @canvas = can_holder.find('canvas')
+    wh(@canvas, @mget('width'), @mget('height'))
+    wh(can_holder, @mget('width'), @mget('height'))
+
+
     @ctx = @canvas[0].getContext('2d')
 
     for own key, view of @axes
@@ -359,8 +356,7 @@ class D3LinearAxisView extends PlotWidget
       .attr('stroke', @mget('foreground_color'))
     offsets = @get_offsets(@mget('orientation'))
     offsets['h'] = @plot_model.get('height')
-    node.attr('transform',
-      _.template('translate({{x}}, {{y}})', offsets))
+    node.attr('transform', "translate(#{offsets.x}, #{offsets.y})")
     axis = d3.svg.axis()
     ticksize = @get_tick_size(@mget('orientation'))
     scale_converted = @convert_scale(@mget_ref('mapper').get('scale'))
