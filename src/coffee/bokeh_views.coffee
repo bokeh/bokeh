@@ -544,16 +544,38 @@ class ScatterRendererView extends PlotWidget
     @screenx = screenx
     @screeny = screeny
 
+  fill_marks : (marks) ->
+    color_field = @model.get('color_field')
+    if color_field
+      color_mapper = @model.get_ref('color_mapper')
+      marks.attr('fill',
+          (d) =>
+            return color_mapper.map_screen(d[color_field])
+      )
+    else
+      color = @model.get('foreground_color')
+      marks.attr('fill', color)
+    return null
+ 
   render : ->
     a = new Date()
     super()
     @plot_view.ctx.clearRect(0,0, @plot_view.mget('height'), @plot_view.mget('width'))
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
-    @plot_view.ctx.fillStyle = @mget('color')
-    @plot_view.ctx.strokeStyle = @mget('color')
+    @plot_view.ctx.fillStyle = @mget('foreground_color')
+    @plot_view.ctx.strokeStyle = @mget('foreground_color')
+    color_field = @mget('color_field')
+    if color_field
+      color_mapper = @model.get_ref('color_mapper')
+      color_arr = @model.get('color_field')
 
     for idx in [0..@screeny.length]
+      if color_field
+        comp_color = color_mapper.map_screen(idx)
+        #console.log("comp_color #{comp_color}")
+        @plot_view.ctx.strokeStyle = comp_color
+        @plot_view.ctx.fillStyle = comp_color
       @addPolygon(@screenx[idx], @screeny[idx])
 
 
