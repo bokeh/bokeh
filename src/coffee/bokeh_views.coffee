@@ -516,20 +516,6 @@ class ScatterRendererView extends PlotWidget
     safebind(this, @mget_ref('data_source'), 'change', @request_render)
 
 
-  fill_marks : (marks) ->
-    return null
-
-  position_marks : (marks) ->
-    marks.attr('cx', ((d, i) => return @screenx[i]))
-      .attr('cy', ((d, i) => return @screeny[i]))
-    return null
-
-  get_marks : () ->
-    circles = d3.select(@el).selectAll(@model.get('mark'))
-      .data(@model.get_ref('data_source').get('data'))
-
-  get_new_marks : (marks) ->
-    return marks.enter().append(@model.get('mark'))
 
   calc_buffer : (data) ->
     xmapper = @model.get_ref('xmapper')
@@ -549,17 +535,15 @@ class ScatterRendererView extends PlotWidget
     a = new Date()
     super()
     @plot_view.ctx.clearRect(0,0, @plot_view.mget('height'), @plot_view.mget('width'))
-    circles = @get_marks()
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
-    @plot_view.ctx.fillStyle = 'blue'
-    @plot_view.ctx.strokeStyle = 'blue'
+    @plot_view.ctx.fillStyle = @mget('color')
+    @plot_view.ctx.strokeStyle = @mget('color')
 
-    
-    _.each(@screenx, (val, i) =>
-      @addPolygon(@screenx[i], @screeny[i])
-    )
-    
+    for idx in [0..@screeny.length]
+      @addPolygon(@screenx[idx], @screeny[idx])
+
+
     @plot_view.ctx.stroke()
     return null
 
