@@ -301,14 +301,16 @@ class PlotView extends DeferredSVGView
 
   render_deferred_components: (force) ->
     super(force)
-    for own key, view of @axes
-      view.render_deferred_components(force)
-    for own key, view of @renderers
-      view.render_deferred_components(force)
-    for own key, view of @tools
-      view.render_deferred_components(force)
-    for own key, view of @overlays
-      view.render_deferred_components(force)
+
+
+    all_views = _.flatten(_.map([@axes, @renderers, @tools, @overlays], _.values))
+
+    window.av = all_views
+    if _.any(all_views, (v) -> v._dirty)
+      @ctx.clearRect(0,0,  @mget('width'), @mget('height'))      
+      for v in all_views
+        v._dirty = true
+        v.render_deferred_components(true)
 
 build_views = Continuum.build_views
 
@@ -567,7 +569,7 @@ class ScatterRendererView extends PlotWidget
   render : ->
     a = new Date()
     super()
-    @plot_view.ctx.clearRect(0,0, @plot_view.mget('height'), @plot_view.mget('width'))
+    
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
     @plot_view.ctx.fillStyle = @mget('foreground_color')
