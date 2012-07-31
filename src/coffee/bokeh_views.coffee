@@ -33,7 +33,6 @@ class PlotWidget extends DeferredSVGView
     @plot_view.ctx.arc(x, y, 5, 0, Math.PI*2)
     @plot_view.ctx.closePath()
     @plot_view.ctx.fill()
-    @plot_view.ctx.stroke()
 
 tojq = (d3selection) ->
   return $(d3selection[0][0])
@@ -589,8 +588,6 @@ class ScatterRendererView extends PlotWidget
         @addPolygon(@screenx[idx], @screeny[idx])
       else
         @addCircle(@screenx[idx], @screeny[idx])
-
-
 
     @plot_view.ctx.stroke()
     return null
