@@ -417,16 +417,14 @@ class HasProperties extends Backbone.Model
       return base
     return base + @get('id')
 
-  sync : (method, model, options) ->
-    # override sync, so that if we pass in a 'local' option,
-    # we don't involve the server.  This is necessary, ex.  Object is created on
-    # the server, pushed down.  you want to create it locally, but you don't want
-    # the client to try to make an API call to create this on the server.
 
-    if options.local
-      return options.success(model)
-    else
-      return Backbone.sync(method, model, options)
+  sync : (method, model, options) ->
+    # this should be fixed via monkey patching when extended by an
+    # environment that implements the model backend,
+    # to enable normal beaviour, add this line
+    #
+    # HasProperties.prototype.sync = Backbone.sync
+    return options.success(model)
 
   defaults : {}
 
