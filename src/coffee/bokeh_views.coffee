@@ -581,7 +581,6 @@ class ScatterRendererView extends PlotWidget
     for idx in [0..@screeny.length]
       if color_field
         comp_color = color_mapper.map_screen(idx)
-        #console.log("comp_color #{comp_color}")
         @plot_view.ctx.strokeStyle = comp_color
         @plot_view.ctx.fillStyle = comp_color
       if mark_type == "square"
@@ -828,37 +827,37 @@ class ScatterSelectionOverlayView extends OverlayView
       if renderer.get_ref('data_source').get('selecting') == false
         #skip data sources which are not selecting'
         continue
-      for idx in renderer.get_ref('data_source').get('selected')
-        selected[String(idx)] = true
-      node = d3.select(rendererview.el)
-      node.selectAll(renderer.get('mark')).filter((d, i) =>
-        return not selected[String(i)]
-      ).attr('fill', @mget('unselected_color'))
-
-      marks = node.selectAll(renderer.get('mark')).filter((d, i) =>
-        return selected[String(i)]
-      )
-      @plotview.renderers[renderer.id].fill_marks(marks)
-    return null
-
-  addPolygon: (x,y) ->
-    @plot_view.ctx.fillRect(x,y,5,5)
-
-  render : () ->
-    window.overlay_render += 1
-    super()
-    for temp in _.zip(@mget('renderers'), @rendererviews)
-      [renderer, rendererview] = temp
-      renderer = @model.resolve_ref(renderer)
-      selected = {}
-      if renderer.get_ref('data_source').get('selecting') == false
-        #skip data sources which are not selecting'
-        continue
-      @plot_view.ctx.fillStyle = 'orange'
-      @plot_view.ctx.strokeStyle = 'orange'
-      for idx in renderer.get_ref('data_source').get('selected')
-        @addPolygon(rendererview.screenx[idx], rendererview.screeny[idx])
-      @plot_view.ctx.stroke()
+      sel_idxs = renderer.get_ref('data_source').get('selected')
+      ds = renderer.get_ref('data_source')
+      data = ds.get('data')
+      fcolor = @mget('foreground_color')
+      rvm = rendererview.model
+      
+      fcolor = rvm.get('foreground_color')
+      unselected_color = @mget('unselected_color')
+      color_field = rvm.get('color_field')
+      if color_field
+        color_mapper = rvm.get_ref('color_mapper')
+      color_arr = rvm.get('color_field')
+      mark_type = @mget('mark')
+      for idx in [0..data.length]
+        if idx in sel_idxs
+          if color_field
+            comp_color = color_mapper.map_screen(idx)
+            @plot_view.ctx.strokeStyle = comp_color
+            @plot_view.ctx.fillStyle = comp_color
+          else
+            @plot_view.ctx.strokeStyle = fcolor
+            @plot_view.ctx.fillStyle = fcolor
+            
+        else
+          @plot_view.ctx.fillStyle = unselected_color
+          @plot_view.ctx.strokeStyle = unselected_color
+        if mark_type == "square"
+          @addPolygon(rendererview.screenx[idx], rendererview.screeny[idx])
+        else
+          @addCircle(rendererview.screenx[idx], rendererview.screeny[idx])
+        @plot_view.ctx.stroke()
     return null
 
 
