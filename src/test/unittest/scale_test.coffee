@@ -25,7 +25,6 @@ test('test_scale', ()->
       {'model' : plot1, 'scale': 0.5, 'render_loop' : true})
     $('#mychart2').append(view.el)
     view.render()
-    d3.select($('#mychart2 g')).attr('transform', 'scale(0.3, 0.3)');
     window.view = view
 
   _.defer(window.myrender)
