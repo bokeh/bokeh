@@ -585,3 +585,4 @@ class Component extends HasParent
 Continuum.HasParent = HasParent
 Continuum.Component = Component
 Continuum.HasProperties = HasProperties
+#HasProperties.prototype.sync = Backbone.sync

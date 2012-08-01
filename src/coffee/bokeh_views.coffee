@@ -131,6 +131,7 @@ class GridPlotContainerView extends DeferredSVGView
 
     for own key, view of @childviews
       tojq(@d3plot).append(view.$el)
+    @render_end()
 
 
 class PlotView extends DeferredSVGView
@@ -297,7 +298,8 @@ class PlotView extends DeferredSVGView
       tojq(@d3bg).append(view.$el)
     for own key, view of @renderers
       tojq(@d3plotwindow).append(view.$el)
-
+    @render_end()
+    
   render_deferred_components: (force) ->
     super(force)
 
@@ -376,6 +378,7 @@ class D3LinearAxisView extends PlotWidget
       .tickPadding(@mget('tickPadding'))
     node.call(axis)
     node.selectAll('.tick').attr('stroke', @mget('tick_color'))
+    @render_end()
 
 class D3LinearDateAxisView extends D3LinearAxisView
   convert_scale : (scale) ->
@@ -477,6 +480,7 @@ class BarRendererView extends PlotWidget
     bars = node.selectAll('rect').data(@model.get_ref('data_source').get('data'))
     @render_bars(bars, @mget('orientation'))
     @render_bars(bars.enter().append('rect'), @mget('orientation'))
+    @render_end()
     return null
 
 
@@ -518,6 +522,7 @@ class LineRendererView extends PlotWidget
     for idx in [1..@screenx.length]
       @plot_view.ctx.lineTo(@screenx[idx], @screeny[idx])
     @plot_view.ctx.stroke()
+    @render_end()
 
     return null
 
@@ -589,6 +594,7 @@ class ScatterRendererView extends PlotWidget
         @addCircle(@screenx[idx], @screeny[idx])
 
     @plot_view.ctx.stroke()
+    @render_end()
     return null
 
 
@@ -794,6 +800,7 @@ class SelectionToolView extends PlotWidget
   render : () ->
     super()
     @_render_shading()
+    @render_end()
     return null
 
 class OverlayView extends PlotWidget
@@ -805,9 +812,8 @@ class OverlayView extends PlotWidget
     @plotview = plotview
     return null
 
+window.sel_debug = false
 class ScatterSelectionOverlayView extends OverlayView
-  request_render : () ->
-    super()
   initialize : (options) ->
     super(options)
     for renderer in @mget('renderers')
@@ -821,6 +827,8 @@ class ScatterSelectionOverlayView extends OverlayView
     window.overlay_render += 1
     super()
     for temp in _.zip(@mget('renderers'), @rendererviews)
+      if window.sel_debug
+        debugger;
       [renderer, rendererview] = temp
       renderer = @model.resolve_ref(renderer)
       selected = {}
@@ -858,6 +866,7 @@ class ScatterSelectionOverlayView extends OverlayView
         else
           @addCircle(rendererview.screenx[idx], rendererview.screeny[idx])
         @plot_view.ctx.stroke()
+    @render_end()
     return null
 
 

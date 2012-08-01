@@ -108,18 +108,29 @@ class ContinuumView extends Backbone.View
 
 class DeferredView extends ContinuumView
   initialize : (options) ->
+    @start_render = new Date()
+    @end_render = new Date()
+    @render_time = 50
     @deferred_parent = options['deferred_parent']
     @request_render()
     super(options)
+    
     @use_render_loop = options['render_loop']
     if @use_render_loop
       console.log('loop')
       _.defer(() => @render_loop())
 
   render : () ->
+    @start_render = new Date()
     super()
     @_dirty = false
 
+
+  render_end : () ->
+    @end_render = new Date()
+
+    @render_time = @end_render - @start_render
+    
   request_render : () ->
     @_dirty = true
 
@@ -132,9 +143,14 @@ class DeferredView extends ContinuumView
     @removed = true
 
   render_loop : () ->
+    console.log("render_time #{@render_time} removed #{@removed}, use_render_loop #{@use_render_loop}")
+    #debugger;
     @render_deferred_components()
     if not @removed and @use_render_loop
-      setTimeout((() => @render_loop()), 10)
+      console.log("render_time #{@render_time}")
+ 
+      #setTimeout((() => @render_loop()), (@render_time * 2))
+      setTimeout((() => @render_loop()), 20)
     else
       @looping = false
 
