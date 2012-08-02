@@ -393,7 +393,9 @@ class D3LinearDateAxisView extends D3LinearAxisView
     scale = d3.time.scale().domain(domain).range(range)
     return scale
 
-class BarRendererView extends PlotWidget
+
+
+class XYRendererView extends PlotWidget
   initialize : (options) ->
     safebind(this, @model, 'change', @request_render)
     safebind(this, @mget_ref('xmapper'), 'change', @request_render)
@@ -401,189 +403,30 @@ class BarRendererView extends PlotWidget
     safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
     super(options)
 
-  render_bars : (node, orientation) ->
-    if orientation == 'vertical'
-      index_mapper = @mget_ref('xmapper')
-      value_mapper = @mget_ref('ymapper')
-      value_field = @mget('yfield')
-      index_field = @mget('xfield')
-      index_coord = 'x'
-      value_coord = 'y'
-      index_dimension = 'width'
-      value_dimension = 'height'
-      indexpos = (x, width) =>
-        @model.position_object_x(x, @mget('width'), width)
-      valuepos = (y, height) =>
-        @model.position_object_y(y, @mget('height'), height)
-    else
-      index_mapper = @mget_ref('ymapper')
-      value_mapper = @mget_ref('xmapper')
-      value_field = @mget('xfield')
-      index_field = @mget('yfield')
-      index_coord = 'y'
-      value_coord = 'x'
-      index_dimension = 'height'
-      value_dimension = 'width'
-      valuepos = (x, width) =>
-        @model.position_object_x(x, @mget('width'), width)
-      indexpos = (y, height) =>
-        @model.position_object_y(y, @mget('height'), height)
 
-    if not _.isObject(index_field)
-      index_field = {'field' : index_field}
-    data_source = @mget_ref('data_source')
-    if _.has(index_field, 'field')
-      if _.has(index_field, index_dimension)
-        thickness = index_field[index_dimension]
-      else
-        thickness = 0.85 * @plot_model.get(index_dimension)
-        thickness = thickness / data_source.get('data').length
+  calc_buffer : (data) ->
+    "use strict";
+    xmapper = @model.get_ref('xmapper')
+    ymapper = @model.get_ref('ymapper')
+    xfield = @model.get('xfield')
+    yfield = @model.get('yfield')
+    datax = (x[xfield] for x in data)
+    screenx = xmapper.v_map_screen(datax)
+    screenx = @model.v_xpos(screenx)
+    datay = (y[yfield] for y in data)
+    screeny = ymapper.v_map_screen(datay)
+    screeny = @model.v_ypos(screeny)
+    #fix me figure out how to feature test for this so it doesn't use
+    #typed arrays for browsers that don't support that
 
-      node.attr(index_coord,
-            (d) =>
-              ctr = index_mapper.map_screen(d[index_field['field']])
-              return indexpos(ctr - thickness / 2.0, thickness))
-        .attr(index_dimension, thickness)
-    else
-      node
-        .attr(index_coord,
-          (d) =>
-            [start, end] = [index_mapper.map_screen(d[index_field['start']]),
-              index_mapper.map_screen(d[index_field['end']])]
-            [start, end] = [indexpos(start, 0), indexpos(end, 0)]
-            return d3.min([xstart, end]))
-        .attr(index_dimension,
-          (d) =>
-            [start, end] = [index_mapper.map_screen(d[index_field['start']]),
-              index_mapper.map_screen(d[index_field['end']])]
-            [start, end] = [indexpos(start, 0), indexpos(end, 0)]
-            return d3.abs(end -start))
-    node
-      .attr(value_coord,
-          (d) =>
-            length = value_mapper.get('scale_factor') * d[value_field]
-            location = value_mapper.map_screen(0)
-            return valuepos(location, length))
-      .attr(value_dimension,
-          (d) =>
-            return value_mapper.get('scale_factor') * d[value_field])
-    node
-      .attr('stroke', @mget('foreground_color'))
-      .attr('fill', @mget('foreground_color'))
-    return null
-
-  tagName : 'g'
-
-  render : () ->
-    super()
-    node = d3.select(@el)
-    bars = node.selectAll('rect').data(@model.get_ref('data_source').get('data'))
-    @render_bars(bars, @mget('orientation'))
-    @render_bars(bars.enter().append('rect'), @mget('orientation'))
-    @render_end()
-    return null
+    @screeny = new Float32Array(screeny)
+    @screenx = new Float32Array(screenx)
+    #@screenx = screenx
+    #@screeny = screeny
 
 
-class BarRendererView extends PlotWidget
-  initialize : (options) ->
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
-    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
-    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
-    super(options)
-
-  render_bars_svg : (node, orientation) ->
-    index_mapper = @mget_ref('xmapper')
-    value_mapper = @mget_ref('ymapper')
-    value_field = @mget('yfield')
-    index_field = @mget('xfield')
-    index_coord = 'x'
-    value_coord = 'y'
-    index_dimension = 'width'
-    value_dimension = 'height'
-    indexpos = (x, width) =>
-      @model.position_object_x(x, @mget('width'), width)
-    valuepos = (y, height) =>
-      @model.position_object_y(y, @mget('height'), height)
-    if not _.isObject(index_field)
-      index_field = {'field' : index_field}
-    data_source = @mget_ref('data_source')
-
-    if _.has(index_field, index_dimension)
-      thickness = index_field[index_dimension]
-    else
-      thickness = 0.85 * @plot_model.get(index_dimension)
-      thickness = thickness / data_source.get('data').length
-
-    node.attr(index_coord,
-          (d) =>
-            ctr = index_mapper.map_screen(d[index_field['field']])
-            return indexpos(ctr - thickness / 2.0, thickness))
-      .attr(index_dimension, thickness)
-    
-    node
-      .attr(value_coord,
-          (d) =>
-            length = value_mapper.get('scale_factor') * d[value_field]
-            location = value_mapper.map_screen(0)
-            return valuepos(location, length))
-      .attr(value_dimension,
-          (d) =>
-            return value_mapper.get('scale_factor') * d[value_field])
-    node
-      .attr('stroke', @mget('foreground_color'))
-      .attr('fill', @mget('foreground_color'))
-    return null
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  render_bars : (node, orientation) ->
+class BarRendererView extends XYRendererView
+  render_bars : (orientation) ->
     if orientation == 'vertical'
       index_mapper = @mget_ref('xmapper')
       value_mapper = @mget_ref('ymapper')
@@ -652,51 +495,14 @@ class BarRendererView extends PlotWidget
         @plot_view.ctx.fillRect(0, left_points[i], value_pos(heights[i]), thickness)
     
     @plot_view.ctx.stroke()
-    node
-      .attr('stroke', @mget('foreground_color'))
-      .attr('fill', @mget('foreground_color'))
     return null
 
-  tagName : 'g'
 
   render : () ->
     super()
-    node = d3.select(@el)
-    bars = node.selectAll('rect').data(@model.get_ref('data_source').get('data'))
-    @render_bars(bars, @mget('orientation'))
-    @render_bars(bars.enter().append('rect'), @mget('orientation'))
+    @render_bars(@mget('orientation'))
     @render_end()
     return null
-
-
-class XYRendererView extends PlotWidget
-  initialize : (options) ->
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
-    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
-    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
-    super(options)
-
-
-  calc_buffer : (data) ->
-    "use strict";
-    xmapper = @model.get_ref('xmapper')
-    ymapper = @model.get_ref('ymapper')
-    xfield = @model.get('xfield')
-    yfield = @model.get('yfield')
-    datax = (x[xfield] for x in data)
-    screenx = xmapper.v_map_screen(datax)
-    screenx = @model.v_xpos(screenx)
-    datay = (y[yfield] for y in data)
-    screeny = ymapper.v_map_screen(datay)
-    screeny = @model.v_ypos(screeny)
-    #fix me figure out how to feature test for this so it doesn't use
-    #typed arrays for browsers that don't support that
-
-    @screeny = new Float32Array(screeny)
-    @screenx = new Float32Array(screenx)
-    #@screenx = screenx
-    #@screeny = screeny
 
 
 class LineRendererView extends XYRendererView
