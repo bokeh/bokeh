@@ -304,7 +304,7 @@ class PlotView extends DeferredSVGView
     super(force)
 
 
-    all_views = _.flatten(_.map([@axes, @renderers, @tools, @overlays], _.values))
+    all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
 
     window.av = all_views
     if _.any(all_views, (v) -> v._dirty)
@@ -484,8 +484,7 @@ class BarRendererView extends PlotWidget
     return null
 
 
-class LineRendererView extends PlotWidget
-  tagName : 'g'
+class XYRendererView extends PlotWidget
   initialize : (options) ->
     safebind(this, @model, 'change', @request_render)
     safebind(this, @mget_ref('xmapper'), 'change', @request_render)
@@ -493,7 +492,9 @@ class LineRendererView extends PlotWidget
     safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
     super(options)
 
+
   calc_buffer : (data) ->
+    "use strict";
     xmapper = @model.get_ref('xmapper')
     ymapper = @model.get_ref('ymapper')
     xfield = @model.get('xfield')
@@ -504,19 +505,25 @@ class LineRendererView extends PlotWidget
     datay = (y[yfield] for y in data)
     screeny = ymapper.v_map_screen(datay)
     screeny = @model.v_ypos(screeny)
-    @screenx = screenx
-    @screeny = screeny
+    #fix me figure out how to feature test for this so it doesn't use
+    #typed arrays for browsers that don't support that
+
+    @screeny = new Float32Array(screeny)
+    @screenx = new Float32Array(screenx)
+    #@screenx = screenx
+    #@screeny = screeny
+
+
+class LineRendererView extends XYRendererView
 
   render : ->
     super()
-
+    
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
 
     @plot_view.ctx.fillStyle = 'blue'
     @plot_view.ctx.strokeStyle = @mget('color')
-    
-
     @plot_view.ctx.beginPath()
     @plot_view.ctx.moveTo(@screenx[0], @screeny[0])
     for idx in [1..@screenx.length]
@@ -526,59 +533,24 @@ class LineRendererView extends PlotWidget
 
     return null
 
-
-
-#class ScatterRendererCanvasView extends PlotWidget
-class ScatterRendererView extends PlotWidget  
-  tagName : 'foreignObject'
-  request_render : () ->
-    super()
-
-  initialize : (options) ->
-    super(options)
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
-    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
-    safebind(this, @mget_ref('data_source'), 'change', @request_render)
-
-
-
-  calc_buffer : (data) ->
-    xmapper = @model.get_ref('xmapper')
-    ymapper = @model.get_ref('ymapper')
-    xfield = @model.get('xfield')
-    yfield = @model.get('yfield')
-    datax = (x[xfield] for x in data)
-    screenx = xmapper.v_map_screen(datax)
-    screenx = @model.v_xpos(screenx)
-    datay = (y[yfield] for y in data)
-    screeny = ymapper.v_map_screen(datay)
-    screeny = @model.v_ypos(screeny)
-    @screenx = screenx
-    @screeny = screeny
-
-  fill_marks : (marks) ->
-    color_field = @model.get('color_field')
-    if color_field
-      color_mapper = @model.get_ref('color_mapper')
-      marks.attr('fill',
-          (d) =>
-            return color_mapper.map_screen(d[color_field])
-      )
-    else
-      color = @model.get('foreground_color')
-      marks.attr('fill', color)
-    return null
- 
+class ScatterRendererView extends XYRendererView
   render : ->
-    a = new Date()
+    "use strict";
     super()
+    if @model.get_ref('data_source').get('selecting') == true
+        #skip data sources which are not selecting'
+        @render_end()
+        return null
     
     data = @model.get_ref('data_source').get('data')
+    a = new Date()
     @calc_buffer(data)
+
     @plot_view.ctx.fillStyle = @mget('foreground_color')
     @plot_view.ctx.strokeStyle = @mget('foreground_color')
     color_field = @mget('color_field')
+    ctx = @plot_view.ctx
+    m2pi = Math.PI*2
     if color_field
       color_mapper = @model.get_ref('color_mapper')
       color_arr = @model.get('color_field')
@@ -595,6 +567,9 @@ class ScatterRendererView extends PlotWidget
 
     @plot_view.ctx.stroke()
     @render_end()
+    b = new Date()
+    render_time = b-a
+    $('#timer').html( "render time #{render_time}")
     return null
 
 
@@ -848,24 +823,31 @@ class ScatterSelectionOverlayView extends OverlayView
         color_mapper = rvm.get_ref('color_mapper')
       color_arr = rvm.get('color_field')
       mark_type = @mget('mark')
+      last_color_field = fcolor
+      @plot_view.ctx.strokeStyle = fcolor
+      @plot_view.ctx.fillStyle = fcolor
+      
+      last_color_field = false
+      ctx = @plotview.ctx
       for idx in [0..data.length]
+        
         if idx in sel_idxs
           if color_field
             comp_color = color_mapper.map_screen(idx)
-            @plot_view.ctx.strokeStyle = comp_color
-            @plot_view.ctx.fillStyle = comp_color
+            ctx.strokeStyle = comp_color
+            ctx.fillStyle = comp_color
           else
-            @plot_view.ctx.strokeStyle = fcolor
-            @plot_view.ctx.fillStyle = fcolor
+            ctx.strokeStyle = fcolor
+            ctx.fillStyle = fcolor
             
         else
-          @plot_view.ctx.fillStyle = unselected_color
-          @plot_view.ctx.strokeStyle = unselected_color
+          ctx.fillStyle = unselected_color
+          ctx.strokeStyle = unselected_color
         if mark_type == "square"
           @addPolygon(rendererview.screenx[idx], rendererview.screeny[idx])
         else
           @addCircle(rendererview.screenx[idx], rendererview.screeny[idx])
-        @plot_view.ctx.stroke()
+    @plot_view.ctx.stroke()
     @render_end()
     return null
 
