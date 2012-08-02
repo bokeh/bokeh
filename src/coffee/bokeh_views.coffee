@@ -484,6 +484,191 @@ class BarRendererView extends PlotWidget
     return null
 
 
+class BarRendererView extends PlotWidget
+  initialize : (options) ->
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
+    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
+    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
+    super(options)
+
+  render_bars_svg : (node, orientation) ->
+    index_mapper = @mget_ref('xmapper')
+    value_mapper = @mget_ref('ymapper')
+    value_field = @mget('yfield')
+    index_field = @mget('xfield')
+    index_coord = 'x'
+    value_coord = 'y'
+    index_dimension = 'width'
+    value_dimension = 'height'
+    indexpos = (x, width) =>
+      @model.position_object_x(x, @mget('width'), width)
+    valuepos = (y, height) =>
+      @model.position_object_y(y, @mget('height'), height)
+    if not _.isObject(index_field)
+      index_field = {'field' : index_field}
+    data_source = @mget_ref('data_source')
+
+    if _.has(index_field, index_dimension)
+      thickness = index_field[index_dimension]
+    else
+      thickness = 0.85 * @plot_model.get(index_dimension)
+      thickness = thickness / data_source.get('data').length
+
+    node.attr(index_coord,
+          (d) =>
+            ctr = index_mapper.map_screen(d[index_field['field']])
+            return indexpos(ctr - thickness / 2.0, thickness))
+      .attr(index_dimension, thickness)
+    
+    node
+      .attr(value_coord,
+          (d) =>
+            length = value_mapper.get('scale_factor') * d[value_field]
+            location = value_mapper.map_screen(0)
+            return valuepos(location, length))
+      .attr(value_dimension,
+          (d) =>
+            return value_mapper.get('scale_factor') * d[value_field])
+    node
+      .attr('stroke', @mget('foreground_color'))
+      .attr('fill', @mget('foreground_color'))
+    return null
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  render_bars : (node, orientation) ->
+    if orientation == 'vertical'
+      index_mapper = @mget_ref('xmapper')
+      value_mapper = @mget_ref('ymapper')
+      value_field = @mget('yfield')
+      index_field = @mget('xfield')
+      index_coord = 'x'
+      value_coord = 'y'
+      index_dimension = 'width'
+      value_dimension = 'height'
+      indexpos = (x, width) =>
+        @model.position_object_x(x, @mget('width'), width)
+      valuepos = (y, height) =>
+        @model.position_object_y(y, @mget('height'), height)
+    else
+      index_mapper = @mget_ref('ymapper')
+      value_mapper = @mget_ref('xmapper')
+      value_field = @mget('xfield')
+      index_field = @mget('yfield')
+      index_coord = 'y'
+      value_coord = 'x'
+      index_dimension = 'height'
+      value_dimension = 'width'
+      valuepos = (x, width) =>
+        @model.position_object_x(x, @mget('width'), width)
+      indexpos = (y, height) =>
+        @model.position_object_y(y, @mget('height'), height)
+
+    if not _.isObject(index_field)
+      index_field = {'field' : index_field}
+    data_source = @mget_ref('data_source')
+
+    if _.has(index_field, index_dimension)
+      thickness = index_field[index_dimension]
+    else
+      thickness = 0.85 * @plot_model.get(index_dimension)
+      thickness = thickness / data_source.get('data').length
+
+    left_points = []
+    data_arr = @model.get_ref('data_source').get('data')
+    for d, idx in data_arr
+      ctr = index_mapper.map_screen(d[index_field['field']])
+      left_points[idx] = indexpos(ctr - thickness / 2.0, thickness)
+
+    height_base = value_mapper.map_screen(0)
+    heights = []
+
+    for d, idx in data_arr
+      heights[idx] = value_mapper.map_screen(d[value_field])
+
+
+
+    if orientation == "vertical"
+      value_pos = (y) =>
+        vp =  (@mget('height') - y)
+        console.log("vp for y of #{y} is #{vp}")
+        return vp
+      for i in [0..heights.length]
+        @plot_view.ctx.fillRect(left_points[i], value_pos(heights[i]), thickness, value_pos(0))
+    else
+      value_pos = (x) =>
+        vp =  (@mget('width') - x)
+        console.log("vp for y of #{x} is #{vp}")
+        return vp
+    
+      for i in [0..heights.length]
+        @plot_view.ctx.fillRect(0, left_points[i], value_pos(heights[i]), thickness)
+    
+    @plot_view.ctx.stroke()
+    node
+      .attr('stroke', @mget('foreground_color'))
+      .attr('fill', @mget('foreground_color'))
+    return null
+
+  tagName : 'g'
+
+  render : () ->
+    super()
+    node = d3.select(@el)
+    bars = node.selectAll('rect').data(@model.get_ref('data_source').get('data'))
+    @render_bars(bars, @mget('orientation'))
+    @render_bars(bars.enter().append('rect'), @mget('orientation'))
+    @render_end()
+    return null
+
+
 class XYRendererView extends PlotWidget
   initialize : (options) ->
     safebind(this, @model, 'change', @request_render)
