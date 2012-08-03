@@ -141,35 +141,12 @@ class PlotView extends DeferredSVGView
 
   tagName : 'svg'
 
-  initialize_tag : () ->
-    console.log("creating the stage")
-    #@canvas = $('<canvas></canvas>')
-    
-    """       
-    hopeful_el = $('#container')
-    hopeful_el.append(@canvas)
-
-    @canvas = @canvas[0]
-    window.can = @canvas
-
-
-    console.log('hopeful el ', hopeful_el)
-    @stage = new Kinetic.Stage
-      #container: @canvas[0]
-      container: hopeful_el[0]
-      width: @mget('height')
-      height: @mget('width')
-    @layer = new Kinetic.Layer()
-    @stage.add(@layer)
-    window.stage = @stage
-    """
   initialize : (options) ->
     super(_.defaults(options, @default_options))
     @renderers = {}
     @axes = {}
     @tools = {}
     @overlays = {}
-    @initialize_tag()
 
 
     @build_renderers()
@@ -270,24 +247,38 @@ class PlotView extends DeferredSVGView
     #
     trans_string = "scale(#{@options.scale}, #{@options.scale})"
     trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
+    
     @d3plot.attr('transform', trans_string)
     null
 
   render : () ->
     super()
     @render_mainsvg();
-    can_holder = $("""<foreignObject style='border:1px solid red' height=><body xmlns="http://www.w3.org/1999/xhtml"><canvas></canvas></body></foreignObject>""")
     @d3fg.append("foreignObject")
 
     jq_d = $(@d3fg[0][0])
     can_holder = jq_d.find('foreignObject')
-    sub_body = can_holder.append('<body xmlns="http://www.w3.org/1999/xhtml"><canvas></canvas></body>')
+    bord = @mget('border_space')
+    sub_body = can_holder.append('''
+      <body xmlns="http://www.w3.org/1999/xhtml">
+        <div style="position:relative;">
+          <canvas ></canvas>
+        </div>
+      </body>''')
     
 
     wh = (el, w, h) ->
       el.attr('width', w)
       el.attr('height', h)
+
+    # due to bugs in positioning foreignObjects inside of svg elements
+    # in webkit, the canvas must be pushed via css
+
+    # http://stackoverflow.com/questions/8185845/svg-foreignobject-behaves-as-though-absolutely-positioned-in-webkit-browsers https://bugs.webkit.org/show_bug.cgi?id=71819 http://code.google.com/p/chromium/issues/detail?id=116566 https://bugs.webkit.org/show_bug.cgi?id=48745
+
     @canvas = can_holder.find('canvas')
+    if navigator.userAgent.indexOf("WebKit") != -1
+      @canvas.attr('style', "position:absolute; left:#{bord}px; top:#{bord}px;")
     wh(@canvas, @mget('width'), @mget('height'))
     wh(can_holder, @mget('width'), @mget('height'))
 
@@ -367,6 +358,7 @@ class D3LinearAxisView extends PlotWidget
     offsets = @get_offsets(@mget('orientation'))
     offsets['h'] = @plot_model.get('height')
     node.attr('transform', "translate(#{offsets.x}, #{offsets.y})")
+    
     axis = d3.svg.axis()
     ticksize = @get_tick_size(@mget('orientation'))
     scale_converted = @convert_scale(@mget_ref('mapper').get('scale'))
@@ -481,14 +473,12 @@ class BarRendererView extends XYRendererView
     if orientation == "vertical"
       value_pos = (y) =>
         vp =  (@mget('height') - y)
-        console.log("vp for y of #{y} is #{vp}")
         return vp
       for i in [0..heights.length]
         @plot_view.ctx.fillRect(left_points[i], value_pos(heights[i]), thickness, value_pos(0))
     else
       value_pos = (x) =>
         vp =  (@mget('width') - x)
-        console.log("vp for y of #{x} is #{vp}")
         return vp
     
       for i in [0..heights.length]
