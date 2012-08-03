@@ -117,7 +117,6 @@ class DeferredView extends ContinuumView
     
     @use_render_loop = options['render_loop']
     if @use_render_loop
-      console.log('loop')
       _.defer(() => @render_loop())
 
   render : () ->
@@ -143,13 +142,9 @@ class DeferredView extends ContinuumView
     @removed = true
 
   render_loop : () ->
-    console.log("render_time #{@render_time} removed #{@removed}, use_render_loop #{@use_render_loop}")
     #debugger;
     @render_deferred_components()
     if not @removed and @use_render_loop
-      console.log("render_time #{@render_time}")
- 
-      #setTimeout((() => @render_loop()), (@render_time * 2))
       setTimeout((() => @render_loop()), 20)
     else
       @looping = false
