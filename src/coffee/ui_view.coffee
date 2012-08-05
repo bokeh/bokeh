@@ -43,7 +43,13 @@ class DataTableView extends Continuum.ContinuumView
       header.append($(html))
     table.append(header)
     rowCount = data_source.get('offset')
-    for rowdata in @mget_ref('data_source').get('data')
+    rawdata = @mget_ref('data_source').get('data')
+    if not data_source.get('selecting')
+      toiter = _.range(rawdata.length)
+    else
+      toiter = data_source.get('selected')
+    for idx in toiter
+      rowdata = rawdata[idx]
       row = $(row_template)
       datacell = $(_.template(datacell_template, {'data' : ++rowCount}))
       row.append(datacell)
