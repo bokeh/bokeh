@@ -8,11 +8,14 @@ class DataTable extends Continuum.Component
     columns : []
   default_view : Continuum.ui.DataTableView
   load : (offset) ->
+    @loaddeferred = $.Deferred()
     data_source = @get_ref('data_source')
     $.when(data_source.loaddeferred).then(() =>
+      console.log('setting columns', data_source.get('columns'))
       @set('columns', data_source.get('columns'))
+      @loaddeferred.resolve()
     )
-    return null
+    return @loaddeferred
 
 class DataTables extends Backbone.Collection
   model : DataTable
