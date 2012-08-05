@@ -365,6 +365,56 @@ _.extend(ObjectArrayDataSource::defaults
 class ObjectArrayDataSources extends Continuum.Collection
   model : ObjectArrayDataSource
 
+class ArrayServerObjectArrayDataSource extends ObjectArrayDataSource
+  type : 'ArrayServerObjectArrayDataSource'
+  initialize : (options) ->
+    super(options)
+    @register_property('url', ['id'], (() -> return @get('id')))
+    @register_property('offset', ['data_slice'],
+      (() -> return @get('data_slice')[0]), false
+    )
+    @register_property('chunksize', ['data_slice'],
+      (() -> return @get('data_slice')[1] - @get('data_slice')[0]),
+      false
+    )
+  convert_raw_data : (arraydata) ->
+    #converts raw data from blaze into object array data source data,
+    # raw : {'data' : [[1,2,3],[2,3,4]] #2d array, 'colnames' : ['a', 'b', 'c']}
+    # converted : [{'a': 1, 'b' : 2, 'c' :3}, {'a' : 2, 'b' : 3, 'c': 4}]
+    transformed = []
+    for row in arraydata['data']
+      transformedrow = {}
+      for temp in _.zip(row, arraydata['colnames'])
+        [val, colname] = temp
+        transformedrow[colname] = val
+      transformed.push(transformedrow)
+    return transformed
+  load : (offset) ->
+    slice = [offset, offset + @get('chunksize')]
+    $.get("/data" + @get('url'), {data_slice : JSON.stringify(slice)},
+      (data) =>
+        arraydata = JSON.parse(data)
+        transformed = @convert_raw_data(arraydata)
+        @set(
+          data_slice : slice
+          columns : arraydata['colnames']
+          total_rows: arraydata['shape'][0]
+        )
+        @set('data', transformed)
+        return null
+    )
+
+ArrayServerObjectArrayDataSource::defaults = _.clone(
+  ArrayServerObjectArrayDataSource::defaults)
+_.extend(ArrayServerObjectArrayDataSource::defaults
+  ,
+    url : ""
+    data_slice : [0, 100]
+    total_rows : 0
+)
+
+class ArrayServerObjectArrayDataSources extends Continuum.Collection
+  model : ArrayServerObjectArrayDataSource
 
 class GridPlotContainer extends Component
   type : 'GridPlotContainer'
@@ -669,6 +719,8 @@ Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
 Bokeh.register_collection('LineRenderer', new LineRenderers)
 Bokeh.register_collection('BarRenderer', new BarRenderers)
 Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
+Bokeh.register_collection('ArrayServerObjectArrayDataSource',
+  new ArrayServerObjectArrayDataSources)
 Bokeh.register_collection('Range1d', new Range1ds)
 Bokeh.register_collection('LinearMapper', new LinearMappers)
 Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
@@ -683,8 +735,11 @@ Bokeh.register_collection('ZoomTool', new ZoomTools)
 Bokeh.register_collection('SelectionTool', new SelectionTools)
 Bokeh.register_collection('ScatterSelectionOverlay', new ScatterSelectionOverlays)
 
+
 Bokeh.Collections = Collections
 Bokeh.ObjectArrayDataSource = ObjectArrayDataSource
+Bokeh.ArrayServerObjectArrayDataSource = ArrayServerObjectArrayDataSource
+Bokeh.ArrayServerObjectArrayDataSources = ArrayServerObjectArrayDataSources
 Bokeh.Plot = Plot
 Bokeh.Component = Component
 Bokeh.ScatterRenderer = ScatterRenderer

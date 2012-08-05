@@ -18,6 +18,7 @@ class DataTableView extends Continuum.ContinuumView
   className: 'div'
 
   render : () ->
+    data_source = @mget_ref('data_source')
     table_template = """
 		<table class='table table-striped table-bordered table-condensed' id='tableid_na'></table>
     """
@@ -33,7 +34,6 @@ class DataTableView extends Continuum.ContinuumView
     datacell_template = """
       <td>{{data}}</td>
     """
-
     table = $(table_template)
     header = $(header_template)
     html = _.template(header_column, {'column_name' : '#'})
@@ -42,7 +42,7 @@ class DataTableView extends Continuum.ContinuumView
       html = _.template(header_column, {'column_name' : colname})
       header.append($(html))
     table.append(header)
-    rowCount = @mget('offset')
+    rowCount = data_source.get('offset')
     for rowdata in @mget_ref('data_source').get('data')
       row = $(row_template)
       datacell = $(_.template(datacell_template, {'data' : ++rowCount}))
@@ -51,7 +51,6 @@ class DataTableView extends Continuum.ContinuumView
         datacell = $(_.template(datacell_template, {'data' : rowdata[colname]}))
         row.append(datacell)
       table.append(row)
-
     @$el.empty()
     @render_pagination()
     @$el.append(table)
@@ -59,6 +58,7 @@ class DataTableView extends Continuum.ContinuumView
       @add_dialog()
 
   render_pagination : ->
+    data_source = @mget_ref('data_source')
     table_hdr_template = """
       <div>
         <div class="pull-left">
@@ -68,28 +68,26 @@ class DataTableView extends Continuum.ContinuumView
       </div>
     """
     btn_group = $('<div class="btn-group"></div>')
-    if @mget('offset') > 0
+    if data_source.get('offset') > 0
       node = $('<a class="btn" title="First Page" href="#"><i class="icon-fast-backward"></i></a>')
       btn_group.append(node)
       node.click(=>
-        @model.load(0)
+        data_source.load(0)
         return false
       )
       node = $('<a class="btn" title="Previous Page" href="#"><i class="icon-step-backward"></i></a>')
       btn_group.append(node)
       node.click(=>
-        @model.load(_.max([@mget('offset') - @mget('chunksize'), 0]))
+        data_source.load(_.max([data_source.get('offset') - data_source.get('chunksize'), 0]))
         return false
       )
-
-    maxoffset = @mget('total_rows') - @mget('chunksize')
-
-    if @mget('offset') < maxoffset
+    maxoffset = data_source.get('total_rows') - data_source.get('chunksize')
+    if data_source.get('offset') < maxoffset
       node = $('<a class="btn" title="Next Page" href="#"><i class="icon-step-forward"></i></a>')
       btn_group.append(node)
       node.click(=>
         @model.load(_.min([
-          @mget('offset') + @mget('chunksize'),
+          data_source.get('offset') + data_source.get('chunksize'),
           maxoffset]))
         return false
       )
@@ -100,10 +98,9 @@ class DataTableView extends Continuum.ContinuumView
         return false
       )
 
-    table_hdr = $(_.template(table_hdr_template, {'total_rows' : @mget('total_rows')}))
+    table_hdr = $(_.template(table_hdr_template, {'total_rows' : data_source.get('total_rows')}))
     btn_group = $('<div class="pull-right"></div>').append(btn_group)
     @$el.append(btn_group)
     @$el.append(table_hdr)
-
 
 Continuum.ui.DataTableView = DataTableView

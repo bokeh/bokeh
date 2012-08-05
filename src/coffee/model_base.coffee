@@ -151,7 +151,11 @@ resolve_ref = (collections, type, id) ->
 
   if _.isArray(collections)
     collections = get_collections(collections)
-  return collections[type].get(id)
+  try
+    model = collections[type].get(id)
+  catch error
+    console.log(type, id)
+  return  model
 Continuum.resolve_ref = resolve_ref
 
 get_collections = (names) ->
