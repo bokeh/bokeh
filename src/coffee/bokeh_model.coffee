@@ -377,6 +377,8 @@ class ArrayServerObjectArrayDataSource extends ObjectArrayDataSource
       (() -> return @get('data_slice')[1] - @get('data_slice')[0]),
       false
     )
+    @load(0)
+
   convert_raw_data : (arraydata) ->
     #converts raw data from blaze into object array data source data,
     # raw : {'data' : [[1,2,3],[2,3,4]] #2d array, 'colnames' : ['a', 'b', 'c']}
@@ -389,9 +391,11 @@ class ArrayServerObjectArrayDataSource extends ObjectArrayDataSource
         transformedrow[colname] = val
       transformed.push(transformedrow)
     return transformed
+
   load : (offset) ->
+    @loading = true
     slice = [offset, offset + @get('chunksize')]
-    $.get("/data" + @get('url'), {data_slice : JSON.stringify(slice)},
+    deferred = $.get("/data" + @get('url'), {data_slice : JSON.stringify(slice)},
       (data) =>
         arraydata = JSON.parse(data)
         transformed = @convert_raw_data(arraydata)
@@ -401,8 +405,11 @@ class ArrayServerObjectArrayDataSource extends ObjectArrayDataSource
           total_rows: arraydata['shape'][0]
         )
         @set('data', transformed)
+        @loaded = true
+        @loading = false
         return null
     )
+    @loaddeferred = deferred
 
 ArrayServerObjectArrayDataSource::defaults = _.clone(
   ArrayServerObjectArrayDataSource::defaults)

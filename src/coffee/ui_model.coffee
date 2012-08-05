@@ -9,8 +9,7 @@ class DataTable extends Continuum.Component
   default_view : Continuum.ui.DataTableView
   load : (offset) ->
     data_source = @get_ref('data_source')
-    deferred = data_source.load(offset)
-    $.when(deferred).then(() =>
+    $.when(data_source.loaddeferred).then(() =>
       @set('columns', data_source.get('columns'))
     )
     return null
