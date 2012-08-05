@@ -369,7 +369,6 @@ class ArrayServerObjectArrayDataSource extends ObjectArrayDataSource
   type : 'ArrayServerObjectArrayDataSource'
   initialize : (options) ->
     super(options)
-    @register_property('url', ['id'], (() -> return @get('id')))
     @register_property('offset', ['data_slice'],
       (() -> return @get('data_slice')[0]), false
     )
