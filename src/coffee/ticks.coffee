@@ -372,8 +372,8 @@ auto_interval = (data_low, data_high) ->
     # so we subtract a small, index dependent amount from each difference
     # to force correct ordering.
     sh    = shape( differences )
-    small = 2.2e-16 * arange( sh[1] ) * arange( sh[0] )[:,newaxis]
-    small = small[::-1,::-1] #reverse the order
+    #small = 2.2e-16 * arange( sh[1] ) * arange( sh[0] )[:,newaxis]
+    #small = small[::-1,::-1] #reverse the order
     differences = differences - small
 
     # ? Numeric should allow keyword "axis" ? comment out for now
@@ -419,7 +419,7 @@ tick_intervals =  ( data_low, data_high, intervals ) ->
     if range == 0.0
         range = 1.0
     interval  = range / intervals
-    factor    = 10.0 ** Math.floor( log10( interval ) )
+    factor    = Math.exp(10, Math.floor( log10( interval ) ))
     interval = interval / factor
 
     if interval < 2.0
@@ -445,33 +445,34 @@ tick_intervals =  ( data_low, data_high, intervals ) ->
         interval  = interval *  [2.0, 1.25, 2.0, 2.0] [ index ]
 
 
-
-def log_auto_ticks(data_low, data_high,
+"""
+I'll worry about this after getting linear ticks working
+log_auto_ticks = (data_low, data_high,
                    bound_low, bound_high,
-                   tick_interval, use_endpoints = true):
-    """Like auto_ticks(), but for log scales."""
+                   tick_interval, use_endpoints=true) ->
+    #Like auto_ticks(), but for log scales.
     tick_goal = 15
     magic_numbers = [1, 2, 5]
     explicit_ticks = false
 
-    if data_low<=0.0:
+    if data_low <= 0.0
         return []
 
-    if tick_interval != 'auto':
-        if tick_interval < 0:
+    if tick_interval != 'auto'
+        if tick_interval < 0
             tick_goal = -tick_interval
-        else:
+        else
             magic_numbers = [tick_interval]
             explicit_ticks = true
 
-    if data_low>data_high:
-        data_low, data_high = data_high, data_low
+    if data_low>data_high
+        [data_low, data_high] = data_high, data_low
 
     log_low = log10(data_low)
     log_high = log10(data_high)
     log_interval = log_high-log_low
 
-    if log_interval < 1.0:
+    if log_interval < 1.0
         # If less than a factor of 10 separates the data, just use the normal
         # linear approach
         return auto_ticks(data_low, data_high,
@@ -479,17 +480,17 @@ def log_auto_ticks(data_low, data_high,
                           tick_interval,
                           use_endpoints = false)
 
-    else if log_interval < (tick_goal+1)/2 or explicit_ticks:
+    else if log_interval < (tick_goal+1)/2 or explicit_ticks
         # If there's enough space, try to put lines at the magic number multipliers
         # inside each power of ten
 
         # Try each interval to see how many ticks we get
-        for interval in magic_numbers:
+        for interval in magic_numbers
             ticklist = []
-            for exp in range(int(Math.floor(log_low)), int(Math.ceil(log_high))):
+            for exp in [Math.floor(log_low).,Math.ceil(log_high)]
                 for multiplier in linspace(interval, 10.0, round(10.0/interval),
-                                           endpoint=1):
-                    tick = 10**exp*multiplier
+                                           endpoint=1)
+                    tick = Math.exp(10, exp*multiplier)
                     if tick >= data_low and tick <= data_high:
                         ticklist.append(tick)
             if len(ticklist)<tick_goal+3 or explicit_ticks:
@@ -505,27 +506,27 @@ def log_auto_ticks(data_low, data_high,
         if (endlog-startlog) % interval == 0.0:
             expticks = concatenate([expticks, [endlog]])
         return 10**expticks
-
+"""
 
 #-------------------------------------------------------------------------------
 #  Compute the best lower and upper axis bounds for a range of data:
 #-------------------------------------------------------------------------------
 
-def auto_bounds ( data_low, data_high, tick_interval ):
+auto_bounds = ( data_low, data_high, tick_interval ) ->
     """ Calculates appropriate upper and lower bounds for the axis from
         the data bounds and the given axis interval.
 
         The boundaries  hit either exactly on the lower and upper values
         or on the tick mark just beyond the lower and upper values.
     """
-    return ( calc_bound( data_low,  tick_interval, false ),
-             calc_bound( data_high, tick_interval, true  ) )
+    return [calc_bound( data_low,  tick_interval, false ),
+             calc_bound( data_high, tick_interval, true  ) ]
 
 #-------------------------------------------------------------------------------
 #  Compute the best axis endpoint for a specified data value:
 #-------------------------------------------------------------------------------
 
-def calc_bound ( end_point, tick_interval, is_upper ):
+calc_bound =  ( end_point, tick_interval, is_upper ) ->
     """ Finds an axis end point that includes the value *end_point*.
 
     If the tick mark interval results in a tick mark hitting directly on the
@@ -534,13 +535,15 @@ def calc_bound ( end_point, tick_interval, is_upper ):
     specifies whether *end_point* is at the upper (True) or lower (false)
     end of the axis.
     """
-    quotient, remainder = divmod( end_point, tick_interval )
-    if ((remainder == 0.0) or
-        (((tick_interval - remainder) / tick_interval) < 0.00001)):
+    [quotient, remainder] = divmod( end_point, tick_interval )
+    rem_p = remainder == 0.0
+    tick_p = ((tick_interval - remainder) / tick_interval) < 0.00001
+    if rem_p or tick_p
         return end_point
 
     c1 = (quotient + 1.0) * tick_interval
     c2 = quotient         * tick_interval
-    if is_upper:
+    if is_upper
         return max( c1, c2 )
     return min( c1, c2 )
+
