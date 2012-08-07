@@ -30,10 +30,11 @@ class PlotWidget extends DeferredSVGView
 
   addCircle: (x,y) ->
     @plot_view.ctx.beginPath()
+
     @plot_view.ctx.arc(x, y, 5, 0, Math.PI*2)
     @plot_view.ctx.closePath()
     @plot_view.ctx.fill()
-
+    @plot_view.ctx.stroke()
 tojq = (d3selection) ->
   return $(d3selection[0][0])
 
@@ -277,13 +278,17 @@ class PlotView extends DeferredSVGView
     # http://stackoverflow.com/questions/8185845/svg-foreignobject-behaves-as-though-absolutely-positioned-in-webkit-browsers https://bugs.webkit.org/show_bug.cgi?id=71819 http://code.google.com/p/chromium/issues/detail?id=116566 https://bugs.webkit.org/show_bug.cgi?id=48745
 
     @canvas = can_holder.find('canvas')
+    @ctx = @canvas[0].getContext('2d')
     if navigator.userAgent.indexOf("WebKit") != -1
       @canvas.attr('style', "position:absolute; left:#{bord}px; top:#{bord}px;")
+      #@canvas.attr('style', "position:absolute; left:#{bord}px; top:#{bord}px;")
+      #@ctx.scale(@options.scale, @options.scale)
+      @ctx.scale(0.5, 0.5)
     wh(@canvas, @mget('width'), @mget('height'))
     wh(can_holder, @mget('width'), @mget('height'))
 
 
-    @ctx = @canvas[0].getContext('2d')
+
 
     for own key, view of @axes
       tojq(@d3bg).append(view.$el)
@@ -506,6 +511,9 @@ class LineRendererView extends XYRendererView
     @plot_view.ctx.fillStyle = 'blue'
     @plot_view.ctx.strokeStyle = @mget('color')
     @plot_view.ctx.beginPath()
+    if navigator.userAgent.indexOf("WebKit") != -1
+      @ctx.scale(0.5, 0.5)
+
     @plot_view.ctx.moveTo(@screenx[0], @screeny[0])
     for idx in [1..@screenx.length]
       @plot_view.ctx.lineTo(@screenx[idx], @screeny[idx])
@@ -526,6 +534,11 @@ class ScatterRendererView extends XYRendererView
     data = @model.get_ref('data_source').get('data')
     a = new Date()
     @calc_buffer(data)
+    @plot_view.ctx.beginPath()
+    #if navigator.userAgent.indexOf("WebKit") != -1
+      #@ctx.scale(0.5, 0.5)
+    if navigator.userAgent.indexOf("WebKit") != -1
+      @plot_view.ctx.scale(@options.scale, @options.scale)
 
     @plot_view.ctx.fillStyle = @mget('foreground_color')
     @plot_view.ctx.strokeStyle = @mget('foreground_color')

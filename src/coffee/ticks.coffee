@@ -240,6 +240,12 @@ is_base2 = (range) ->
         lg = log2(range)
         return ((lg == Math.floor( lg )) and (lg > 0.0))
 
+log10 = (num) ->
+  if num == 0.0
+    num += 1.0e-16
+
+  return (Math.log(num)/ Math.log(10))
+
 #--------------------------------------------------------------------------------
 #  Compute n log 2:
 #--------------------------------------------------------------------------------
@@ -253,7 +259,8 @@ log2 = (num) ->
         num += 1.0e-16
     #elif type( num ) is ndarray:
     #    putmask( num, equal( num, 0.0), 1.0e-16 )
-    return log10( num ) / log10( 2 )
+    return Math.log(num)
+    #return log10( num ) / log10( 2 )
 
 #--------------------------------------------------------------------------------
 #  Compute the best tick interval for a specified data range:
@@ -397,8 +404,9 @@ auto_interval = (data_low, data_high) ->
 #  Compute the best tick interval length to achieve a specified number of tick
 #  intervals:
 #--------------------------------------------------------------------------------
-
-tick_intervals =  ( data_low, data_high, intervals ) ->
+window.float = (x) ->
+  return x + 0.0
+window.tick_intervals =  ( data_low, data_high, intervals ) ->
     """ Computes the best tick interval length to achieve a specified number of
     tick intervals.
 
@@ -419,9 +427,12 @@ tick_intervals =  ( data_low, data_high, intervals ) ->
     if range == 0.0
         range = 1.0
     interval  = range / intervals
-    factor    = Math.exp(10, Math.floor( log10( interval ) ))
-    interval = interval / factor
+    exp_ = Math.floor( log10( interval ) )
 
+    factor    = Math.pow(10, exp_)
+    console.log("exp_ #{exp_}  pre_factor #{factor} pre_interval #{interval}")
+    interval = interval / factor
+    console.log(" factor #{factor} initial_interval #{interval}")
     if interval < 2.0
         interval = 2.0
         index    = 0
@@ -435,11 +446,11 @@ tick_intervals =  ( data_low, data_high, intervals ) ->
         interval = 10.0
         index    = 3
 
-    interval_multipl
     while true
+
         result = interval * factor
-        if ((Math.floor( data_low / result ) * result) + (intervals * result) >=
-             data_high)
+        console.log("result #{result} index #{index} interval #{interval}")
+        if (Math.floor( data_low / result ) * result) + (intervals * result) >= data_high
             return result
         index     = (index + 1) % 4
         interval  = interval *  [2.0, 1.25, 2.0, 2.0] [ index ]
@@ -525,8 +536,13 @@ auto_bounds = ( data_low, data_high, tick_interval ) ->
 #-------------------------------------------------------------------------------
 #  Compute the best axis endpoint for a specified data value:
 #-------------------------------------------------------------------------------
+window.divmod = (x,y) ->
+  quot = Math.floor(x/y)
+  rem = x % y
 
-calc_bound =  ( end_point, tick_interval, is_upper ) ->
+  return [quot, rem]
+  
+window.calc_bound =  ( end_point, tick_interval, is_upper ) ->
     """ Finds an axis end point that includes the value *end_point*.
 
     If the tick mark interval results in a tick mark hitting directly on the
@@ -544,6 +560,6 @@ calc_bound =  ( end_point, tick_interval, is_upper ) ->
     c1 = (quotient + 1.0) * tick_interval
     c2 = quotient         * tick_interval
     if is_upper
-        return max( c1, c2 )
-    return min( c1, c2 )
+        return Math.max( c1, c2 )
+    return Math.min( c1, c2 )
 
