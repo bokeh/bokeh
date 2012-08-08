@@ -615,3 +615,6 @@ window.calc_bound =  ( end_point, tick_interval, is_upper ) ->
         return Math.max( c1, c2 )
     return Math.min( c1, c2 )
 
+window.ticks = {}
+ticks.auto_interval = auto_interval
+ticks.auto_bounds = auto_bounds

@@ -266,8 +266,11 @@ class PlotView extends DeferredSVGView
           <canvas ></canvas>
         </div>
       </body>''')
-    
 
+    @x_can = $("<canvas height='30' width='#{@mget('width')}' />")[0]
+    @x_can_ctx = @x_can.getContext('2d')
+    $(@x_can).attr('style', 'border:1px solid red')
+    $(document.body).append(@x_can)
     wh = (el, w, h) ->
       el.attr('width', w)
       el.attr('height', h)
@@ -313,6 +316,37 @@ build_views = Continuum.build_views
 
 # D3LinearAxisView
 
+
+
+class XYRendererView extends PlotWidget
+  initialize : (options) ->
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
+    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
+    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
+    super(options)
+
+
+  calc_buffer : (data) ->
+    "use strict";
+    xmapper = @model.get_ref('xmapper')
+    ymapper = @model.get_ref('ymapper')
+    xfield = @model.get('xfield')
+    yfield = @model.get('yfield')
+    datax = (x[xfield] for x in data)
+    screenx = xmapper.v_map_screen(datax)
+    screenx = @model.v_xpos(screenx)
+    datay = (y[yfield] for y in data)
+    screeny = ymapper.v_map_screen(datay)
+    screeny = @model.v_ypos(screeny)
+    #fix me figure out how to feature test for this so it doesn't use
+    #typed arrays for browsers that don't support that
+
+    @screeny = new Float32Array(screeny)
+    @screenx = new Float32Array(screenx)
+    #@screenx = screenx
+    #@screeny = screeny
+
 class D3LinearAxisView extends PlotWidget
   initialize : (options) ->
     super(options)
@@ -354,6 +388,42 @@ class D3LinearAxisView extends PlotWidget
 
   render : ->
     super()
+    if not  @mget('orientation') in ['bottom', 'top']
+      @render_end()
+      return
+    xmapper = @mget_ref('mapper')
+  
+    data_range = xmapper.get_ref('data_range')
+    interval = ticks.auto_interval(
+      data_range.get('start'), data_range.get('end'))
+
+    [first_tick, last_tick] = ticks.auto_bounds(
+      data_range.get('start'), data_range.get('end'), interval)
+
+
+
+    
+    current_tick = first_tick
+    x_ticks = []
+    while current_tick <= last_tick
+      x_ticks.push(current_tick)
+      
+      current_tick += interval
+
+    
+    screenxs = xmapper.v_map_screen(x_ticks)
+    screenxs = @model.v_xpos(screenxs)
+
+    for screen_x in screenxs
+      @plot_view.x_can_ctx.moveTo(screen_x, 0)
+      @plot_view.x_can_ctx.lineTo(screen_x, 30)
+    @plot_view.x_can_ctx.stroke()
+    
+
+    @render_end()
+
+  render_old : ->
+    super()
 
     window.axisview = @
     node = d3.select(@el)
@@ -389,37 +459,6 @@ class D3LinearDateAxisView extends D3LinearAxisView
     domain = [new Date(domain[0]), new Date(domain[1])]
     scale = d3.time.scale().domain(domain).range(range)
     return scale
-
-
-
-class XYRendererView extends PlotWidget
-  initialize : (options) ->
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
-    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
-    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
-    super(options)
-
-
-  calc_buffer : (data) ->
-    "use strict";
-    xmapper = @model.get_ref('xmapper')
-    ymapper = @model.get_ref('ymapper')
-    xfield = @model.get('xfield')
-    yfield = @model.get('yfield')
-    datax = (x[xfield] for x in data)
-    screenx = xmapper.v_map_screen(datax)
-    screenx = @model.v_xpos(screenx)
-    datay = (y[yfield] for y in data)
-    screeny = ymapper.v_map_screen(datay)
-    screeny = @model.v_ypos(screeny)
-    #fix me figure out how to feature test for this so it doesn't use
-    #typed arrays for browsers that don't support that
-
-    @screeny = new Float32Array(screeny)
-    @screenx = new Float32Array(screenx)
-    #@screenx = screenx
-    #@screeny = screeny
 
 
 class BarRendererView extends XYRendererView
