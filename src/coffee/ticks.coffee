@@ -357,11 +357,17 @@ arr_pow2 = (base, exponents) ->
   return output_arr
 
 
+num_comp = (x, y) ->
+  if (x > y)
+    return 1
+  if (y < x)
+    return -1
+  return 0
 window.argsort = (arr) ->
   sorted_arr = []
   for x in arr
     sorted_arr.push(x)
-  sorted_arr.sort()
+  sorted_arr.sort(num_comp)
   #debugger
   ret_arr = []
   for y, i in arr
@@ -372,6 +378,9 @@ window.argsort = (arr) ->
     #ret_arr.push(sorted_arr.indexOf(y))
   ret_arr
 
+#window.argsort = (arr) ->
+#  arr.map((x) -> _.sortedIndex(arr, x))
+  #_.sortedIndex
 
 window.auto_interval = (data_low, data_high) ->
     """ Calculates the tick interval for a range.
