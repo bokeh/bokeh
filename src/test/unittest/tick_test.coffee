@@ -1,5 +1,6 @@
 calc_bound = window.calc_bound
 tick_intervals = window.tick_intervals
+auto_interval = window.auto_interval
 test('test_calc_bound', ()->
   expect(4)
   equal(calc_bound(3.0, 2, true), 4)
@@ -16,5 +17,9 @@ test('test_tick_intervals', ()->
   equal(tick_intervals(0.0, 100.0, 5), 25)
 
   )
+test('auto_interval', ->
+  equal(auto_interval(0.0, 100.0), 20)
+  equal(auto_interval(0.0, 130.0), 25)
+  equal(auto_interval(30.0, 50.0), 2.5))
 
 

@@ -330,8 +330,41 @@ arange = (start, end=false, step=false) ->
       ret_arr.push(i)
       i += step
   return ret_arr
-  
-auto_interval = (data_low, data_high) ->
+
+arr_div = (numerators, denominator) ->
+  output_arr = []
+  for val in numerators
+    output_arr.push(val/denominator)
+  return output_arr
+
+arr_div2 = (numerator, denominators) ->
+  output_arr = []
+  for val in denominators
+    output_arr.push(numerator/val)
+  return output_arr
+
+
+arr_div3 = (numerators, denominators) ->
+  output_arr = []
+  for val, i in denominators
+    output_arr.push(numerators[i]/val)
+  return output_arr
+
+arr_pow2 = (base, exponents) ->
+  output_arr = []
+  for val in exponents
+    output_arr.push(Math.pow(base, val))
+  return output_arr
+
+
+argsort = (arr) ->
+  sorted_arr = arr.sort()
+  ret_arr = []
+  for x in sorted_arr
+    ret_arr.push(arr.indexOf(x))
+  ret_arr
+
+window.auto_interval = (data_low, data_high) ->
     """ Calculates the tick interval for a range.
 
         The boundaries for the data to be plotted on the axis are::
@@ -352,52 +385,53 @@ auto_interval = (data_low, data_high) ->
     # We'll choose from between 2 and 8 tick marks.
     # Preference is given to more ticks:
     #   Note reverse order and see kludge below...
-    divisions = arange( 8.0, 2.0, -1.0 ) # ( 7, 6, ..., 3 )
-
+    #divisions = arange( 8.0, 2.0, -1.0 ) # ( 7, 6, ..., 3 )
+    divisions = [8.0, 7.0, 6.0, 5.0, 4.0, 3.0]
     # Calculate the intervals for the divisions:
-    candidate_intervals = range / divisions
+    #candidate_intervals = range / divisions
+    candidate_intervals = arr_div2(range, divisions)
 
     # Get magnitudes and mantissas for each candidate:
-    magnitudes = Math.exp(10.0, Math.floor(log10(candidate_intervals)))
-    mantissas  = candidate_intervals / magnitudes
+    #magnitudes = Math.pow(10.0, Math.floor(log10(candidate_intervals)))
+    magnitudes = candidate_intervals.map((candidate) ->
+      return Math.pow(10.0, Math.floor(log10(candidate))))
+    
+    #mantissas  = candidate_intervals / magnitudes
+    mantissas  = arr_div3(candidate_intervals, magnitudes)
+
 
     # List of "pleasing" intervals between ticks on graph.
     # Only the first magnitude are listed, higher mags others are inferred:
-    magic_intervals = array( [1.0, 2.0, 2.5, 5.0, 10.0 ])
+    magic_intervals = [1.0, 2.0, 2.5, 5.0, 10.0 ]
 
+
+    best_mantissas = []
+    best_magics = []
+    for mi in magic_intervals
+      diff_arr = mantissas.map((x) -> Math.abs(mi - x))
+      best_magics.push(Math.min.apply(diff_arr))
+    for ma in mantissas
+      diff_arr = magic_intervals.map((x) -> Math.abs(ma - x))
+      best_mantissas.push(Math.min.apply(diff_arr))
+      
     # Calculate the absolute differences between the candidates
     # (with magnitude removed) and the magic intervals:
 
-    #FIXME
-    # 
-    #differences = Math.abs( magic_intervals[:,newaxis] - mantissas )
 
     # Find the division and magic interval combo that produce the
     # smallest differences:
+    magic_index    = argsort(best_magics )[0]
+    mantissa_index = argsort(best_mantissas )[0]
 
-    # KLUDGE: 'argsort' doesn't preserve the order of equal values,
-    # so we subtract a small, index dependent amount from each difference
-    # to force correct ordering.
-    sh    = shape( differences )
-    #small = 2.2e-16 * arange( sh[1] ) * arange( sh[0] )[:,newaxis]
-    #small = small[::-1,::-1] #reverse the order
-    differences = differences - small
 
-    # ? Numeric should allow keyword "axis" ? comment out for now
-    #best_mantissa = minimum.reduce(differences,axis=0)
-    #best_magic = minimum.reduce(differences,axis=-1)
-    best_mantissa  = minimum.reduce( differences,  0 )
-    best_magic     = minimum.reduce( differences, -1 )
-    magic_index    = argsort( best_magic )[0]
-    mantissa_index = argsort( best_mantissa )[0]
 
     # The best interval is the magic_interval multiplied by the magnitude
     # of the best mantissa:
     interval  = magic_intervals[ magic_index ]
     magnitude = magnitudes[ mantissa_index ]
     result    = interval * magnitude
-    if result == 0.0
-        result = finfo(float).eps
+    #if result == 0.0
+    #    result = finfo(float).eps
     return result
 
 #--------------------------------------------------------------------------------
