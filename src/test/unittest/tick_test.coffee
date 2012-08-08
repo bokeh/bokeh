@@ -18,9 +18,9 @@ test('test_tick_intervals', ()->
 
   )
 test('auto_interval', ->
-  #equal(auto_interval(0.0, 100.0), 20)
-  #equal(auto_interval(0.0, 130.0), 25)
-  #equal(auto_interval(30.0, 50.0), 2.5)
+  equal(auto_interval(0.0, 100.0), 20)
+  equal(auto_interval(0.0, 130.0), 25)
+  equal(auto_interval(30.0, 50.0), 2.5)
   )
 test('argsort', ->
   

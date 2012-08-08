@@ -370,13 +370,13 @@ window.argsort = (arr) ->
   sorted_arr.sort(num_comp)
   #debugger
   ret_arr = []
-  for y, i in arr
-    ret_arr[i] = sorted_arr.indexOf(y)
-  #for y, i in sorted_arr
-  #  ret_arr[i] = arr.indexOf(y)
+  #for y, i in arr
+  #  ret_arr[i] = sorted_arr.indexOf(y)
+  for y, i in sorted_arr
+    #ret_arr[i] = arr.indexOf(y)
   
-    #ret_arr.push(sorted_arr.indexOf(y))
-  ret_arr
+    ret_arr.push(sorted_arr.indexOf(y))
+  return ret_arr
 
 #window.argsort = (arr) ->
 #  arr.map((x) -> _.sortedIndex(arr, x))
