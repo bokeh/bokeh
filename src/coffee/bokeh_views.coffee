@@ -392,11 +392,19 @@ class D3LinearAxisView extends PlotWidget
       @render_end()
       return
     xmapper = @mget_ref('mapper')
-  
+
+
+    
     data_range = xmapper.get_ref('data_range')
     interval = ticks.auto_interval(
       data_range.get('start'), data_range.get('end'))
 
+    range = data_range.get('end') - data_range.get('start')
+    minX = data_range.get('start')
+    x_scale = range/@mget('width')
+    xpos = (realX) ->
+      (realX - minX)/x_scale
+      
     [first_tick, last_tick] = ticks.auto_bounds(
       data_range.get('start'), data_range.get('end'), interval)
 
@@ -407,7 +415,9 @@ class D3LinearAxisView extends PlotWidget
     x_ticks = []
     while current_tick <= last_tick
       x_ticks.push(current_tick)
-      
+      @plot_view.x_can_ctx.moveTo(xpos(current_tick), 0)
+      @plot_view.x_can_ctx.lineTo(xpos(current_tick), 30)
+      console.log(current_tick, xpos(current_tick))
       current_tick += interval
 
     
