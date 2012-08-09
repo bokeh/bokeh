@@ -140,7 +140,7 @@ class PlotView extends DeferredSVGView
     scale:1.0
   }
 
-  tagName : 'svg'
+
 
   initialize : (options) ->
     super(_.defaults(options, @default_options))
@@ -155,14 +155,14 @@ class PlotView extends DeferredSVGView
     @build_tools()
     @build_overlays()
 
-    @render()
+
     safebind(this, @model, 'change:renderers', @build_renderers)
     safebind(this, @model, 'change:axes', @build_axes)
     safebind(this, @model, 'change:tools', @build_tools)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
 
-    @png_data_url_deferred = $.Deferred()
+    @render()
     return this
 
   build_renderers : ->
@@ -214,10 +214,20 @@ class PlotView extends DeferredSVGView
     for toolspec in   @mget('tools')
       @tools[toolspec.id].bind_events(this)
 
-  tagName : 'svg'
-
+  tagName : 'div'
   render_mainsvg : ->
-    @$el.children().detach()
+    #@$el.children().detach()
+    @$el.attr("width", @options.scale * @mget('outerwidth'))
+      .attr('height', @options.scale * @mget('outerheight'))
+
+    w = @options.scale * @mget('outerwidth')
+    h = @options.scale * @mget('outerheight')
+    
+    @$el.attr("style", "height:#{h}px; width:#{w}px")
+    @bind_tools()
+    @bind_overlays()
+    if true
+      return
     d3el = d3.select(@el)
     @d3plot = d3el.append('g')
     @d3bg = @d3plot.append('g')
@@ -229,8 +239,6 @@ class PlotView extends DeferredSVGView
     innerbox = @d3bg
       .append('rect')
     @d3plotwindow = @d3fg.append('svg')
-    @bind_tools()
-    @bind_overlays()
     @$el.attr('x', @model.position_x())
       .attr('y', @model.position_y())
     innerbox
@@ -242,8 +250,6 @@ class PlotView extends DeferredSVGView
       .attr('width',  @mget('width'))
       .attr('height', @mget('height'))
 
-    @$el.attr("width", @options.scale * @mget('outerwidth'))
-      .attr('height', @options.scale * @mget('outerheight'))
     #svg puts origin in the top left, we want it on the bottom left
     #
     trans_string = "scale(#{@options.scale}, #{@options.scale})"
@@ -251,8 +257,50 @@ class PlotView extends DeferredSVGView
     
     @d3plot.attr('transform', trans_string)
     null
-
+    
   render : () ->
+    super()
+    @render_mainsvg();
+    #@d3fg.append("foreignObject")
+    @$el.attr('style', "display:block; height:300px; width:400px;")
+    bord = @mget('border_space')
+    window.plot_el = @$el
+    @$el.append($("<h3>paddy</h3>"))
+    #@$el.append($('<div class="foo" style="display:block; height:30px; width:50px; border:2px solid green; position:relative;"><canvas ></canvas></div>'))
+    @$el.append($('<div class="foo" style="display:block; height:30px; width:50px; border:2px solid green; "><canvas ></canvas></div>'))
+    can_holder=@$el.find('div')
+
+    @x_can = $("<canvas height='30' width='#{@mget('width')}' />")[0]
+    @x_can_ctx = @x_can.getContext('2d')
+    $(@x_can).attr('style', 'border:1px solid red')
+    $(document.body).append(@x_can)
+    wh = (el, w, h) ->
+      el.attr('width', w)
+      el.attr('height', h)
+
+    # due to bugs in positioning foreignObjects inside of svg elements
+    # in webkit, the canvas must be pushed via css
+
+    # http://stackoverflow.com/questions/8185845/svg-foreignobject-behaves-as-though-absolutely-positioned-in-webkit-browsers https://bugs.webkit.org/show_bug.cgi?id=71819 http://code.google.com/p/chromium/issues/detail?id=116566 https://bugs.webkit.org/show_bug.cgi?id=48745
+
+    @canvas = @$el.find('canvas')
+    @ctx = @canvas[0].getContext('2d')
+    wh(@canvas, @mget('width'), @mget('height'))
+    wh(can_holder, @mget('width'), @mget('height'))
+
+
+
+    
+    for own key, view of @axes
+      #tojq(@d3bg).append(view.$el)
+      @$el.append(view.$el)
+    for own key, view of @renderers
+      #tojq(@d3plotwindow).append(view.$el)
+      @$el.append(view.$el)
+
+    @render_end()
+
+  render_ : () ->
     super()
     @render_mainsvg();
     @d3fg.append("foreignObject")
@@ -311,6 +359,8 @@ class PlotView extends DeferredSVGView
       for v in all_views
         v._dirty = true
         v.render_deferred_components(true)
+  render_deferred_components : () ->
+    return null
 
 build_views = Continuum.build_views
 
