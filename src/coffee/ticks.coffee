@@ -420,7 +420,7 @@ window.auto_interval = (data_low, data_high) ->
 
     # List of "pleasing" intervals between ticks on graph.
     # Only the first magnitude are listed, higher mags others are inferred:
-    magic_intervals = [2.5, 1.0, 2.0, 5.0, 10.0 ]
+    magic_intervals = [5.0, 1.0, 2.0, 2.5, 10.0 ]
 
 
     best_mantissas = []

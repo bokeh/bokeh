@@ -387,12 +387,14 @@ class D3LinearAxisView extends PlotWidget
 
 
   render : ->
+
     super()
     if not  @mget('orientation') in ['bottom', 'top']
       @render_end()
       return
+    console.log("start render")
     xmapper = @mget_ref('mapper')
-
+    @plot_view.x_can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
 
     
     data_range = xmapper.get_ref('data_range')
@@ -413,22 +415,26 @@ class D3LinearAxisView extends PlotWidget
     
     current_tick = first_tick
     x_ticks = []
+    last_tick_end = 0
     while current_tick <= last_tick
       x_ticks.push(current_tick)
-      @plot_view.x_can_ctx.moveTo(xpos(current_tick), 0)
-      @plot_view.x_can_ctx.lineTo(xpos(current_tick), 30)
+      #@plot_view.x_can_ctx.moveTo(xpos(current_tick), 0)
+      text_width = @plot_view.x_can_ctx.measureText(current_tick.toString()).width
+      x = (xpos(current_tick) - (text_width/2))
+      console.log(text_width, current_tick.toString(), x, 20)
+      if x > last_tick_end
+        @plot_view.x_can_ctx.fillText(
+          current_tick.toString(), x, 20)
+        last_tick_end = (x + text_width) + 10
+      else
+        console.log("skipping")
+      @plot_view.ctx.moveTo(xpos(current_tick),0)
+      @plot_view.ctx.lineTo(xpos(current_tick),@mget('height'))
       console.log(current_tick, xpos(current_tick))
       current_tick += interval
 
-    
-    screenxs = xmapper.v_map_screen(x_ticks)
-    screenxs = @model.v_xpos(screenxs)
-
-    for screen_x in screenxs
-      @plot_view.x_can_ctx.moveTo(screen_x, 0)
-      @plot_view.x_can_ctx.lineTo(screen_x, 30)
     @plot_view.x_can_ctx.stroke()
-    
+    @plot_view.ctx.stroke()
 
     @render_end()
 
