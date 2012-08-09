@@ -11,7 +11,7 @@ test('test_simple_plot',  ->
       }, {'local' : true})
     plotmodel = Bokeh.scatter_plot(null, data_source, 'x', 'y', null, 'circle');
     window.plot = plotmodel
-    div = $('<div style="border:1px solid black"><h3>blah</h3></div>')    
+    div = $('<div/>')
     $('body').append(div)
     myrender  =  ->
     	view = new Bokeh.PlotView('model' : plotmodel, 'render_loop' : true)

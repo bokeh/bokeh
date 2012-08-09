@@ -10,6 +10,7 @@ class DeferredSVGView extends Continuum.DeferredView
   # overrides make, so we create SVG elements with the appropriate namespaceURI
   # instances of this class should have some svg tagName
   tagName : 'svg'
+
   make: (tagName, attributes, content) ->
     el = document.createElementNS("http://www.w3.org/2000/svg", tagName)
     if (attributes)
@@ -135,35 +136,11 @@ class GridPlotContainerView extends DeferredSVGView
     @render_end()
 
 
-class PlotView extends DeferredSVGView
+#class PlotView extends DeferredSVG
+class PlotView extends Continuum.DeferredView
   default_options : {
     scale:1.0
   }
-
-
-
-  initialize : (options) ->
-    super(_.defaults(options, @default_options))
-    @renderers = {}
-    @axes = {}
-    @tools = {}
-    @overlays = {}
-
-
-    @build_renderers()
-    @build_axes()
-    @build_tools()
-    @build_overlays()
-
-
-    safebind(this, @model, 'change:renderers', @build_renderers)
-    safebind(this, @model, 'change:axes', @build_axes)
-    safebind(this, @model, 'change:tools', @build_tools)
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @model, 'destroy', () => @remove())
-
-    @render()
-    return this
 
   build_renderers : ->
     build_views(@model, @renderers, @mget('renderers')
@@ -215,17 +192,92 @@ class PlotView extends DeferredSVGView
       @tools[toolspec.id].bind_events(this)
 
   tagName : 'div'
-  render_mainsvg : ->
-    #@$el.children().detach()
+
+
+  initialize : (options) ->
+    super(_.defaults(options, @default_options))
+    @renderers = {}
+    @axes = {}
+    @tools = {}
+    @overlays = {}
+
+
+    @build_renderers()
+    @build_axes()
+    @build_tools()
+    @build_overlays()
+
+
+    safebind(this, @model, 'change:renderers', @build_renderers)
+    safebind(this, @model, 'change:axes', @build_axes)
+    safebind(this, @model, 'change:tools', @build_tools)
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @model, 'destroy', () => @remove())
+    #@$el.attr('style', "display:block; height:300px; width:400px;")
+
+    window.plot_el = @$el
+    @$el.append($("""
+      <div class='all_can_wrapper'>
+        <div class='main_can_wrapper'>
+          <canvas class='main_can'></canvas>
+        </div>
+        <div class='x_can_wrapper'>
+            <canvas class='x_can'></canvas>
+        </div>
+        <div class='y_can_wrapper'>
+          <canvas class='y_can'></canvas>
+        </div>
+      </div>
+      """))
+    @canvas = @$el.find('canvas.main_can')
+    @x_can = @$el.find('canvas.x_can')[0]
+    @main_can_wrapper = @$el.find('.main_can_wrapper')
+    @x_can_wrapper = @$el.find('.x_can_wrapper')
+    @render()
+    return this
+
+
+    
+  render : () ->
+    super()
+    #@render_mainsvg();
     @$el.attr("width", @options.scale * @mget('outerwidth'))
       .attr('height', @options.scale * @mget('outerheight'))
-
+    bord = @mget('border_space')
+    @main_can_wrapper.attr('style', "left:#{bord}px")
+    height = @mget('height')
+    xcw = @x_can_wrapper
+    @x_can_wrapper.attr(
+      'style', "left:#{bord}px; top:#{height}px;")
+    #debugger;
     w = @options.scale * @mget('outerwidth')
     h = @options.scale * @mget('outerheight')
     
     @$el.attr("style", "height:#{h}px; width:#{w}px")
     @bind_tools()
     @bind_overlays()
+
+    @x_can_ctx = @x_can.getContext('2d')
+    $(@x_can).attr('style', 'border:1px solid red')
+    wh = (el, w, h) ->
+      el.attr('width', w)
+      el.attr('height', h)
+
+
+    @ctx = @canvas[0].getContext('2d')
+    wh(@canvas, @mget('width'), @mget('height'))
+
+
+    
+    for own key, view of @axes
+      @$el.append(view.$el)
+    for own key, view of @renderers
+      @$el.append(view.$el)
+
+    @render_end()
+  render_mainsvg : ->
+    #@$el.children().detach()
+
     if true
       return
     d3el = d3.select(@el)
@@ -257,48 +309,7 @@ class PlotView extends DeferredSVGView
     
     @d3plot.attr('transform', trans_string)
     null
-    
-  render : () ->
-    super()
-    @render_mainsvg();
-    #@d3fg.append("foreignObject")
-    @$el.attr('style', "display:block; height:300px; width:400px;")
-    bord = @mget('border_space')
-    window.plot_el = @$el
-    @$el.append($("<h3>paddy</h3>"))
-    #@$el.append($('<div class="foo" style="display:block; height:30px; width:50px; border:2px solid green; position:relative;"><canvas ></canvas></div>'))
-    @$el.append($('<div class="foo" style="display:block; height:30px; width:50px; border:2px solid green; "><canvas ></canvas></div>'))
-    can_holder=@$el.find('div')
 
-    @x_can = $("<canvas height='30' width='#{@mget('width')}' />")[0]
-    @x_can_ctx = @x_can.getContext('2d')
-    $(@x_can).attr('style', 'border:1px solid red')
-    $(document.body).append(@x_can)
-    wh = (el, w, h) ->
-      el.attr('width', w)
-      el.attr('height', h)
-
-    # due to bugs in positioning foreignObjects inside of svg elements
-    # in webkit, the canvas must be pushed via css
-
-    # http://stackoverflow.com/questions/8185845/svg-foreignobject-behaves-as-though-absolutely-positioned-in-webkit-browsers https://bugs.webkit.org/show_bug.cgi?id=71819 http://code.google.com/p/chromium/issues/detail?id=116566 https://bugs.webkit.org/show_bug.cgi?id=48745
-
-    @canvas = @$el.find('canvas')
-    @ctx = @canvas[0].getContext('2d')
-    wh(@canvas, @mget('width'), @mget('height'))
-    wh(can_holder, @mget('width'), @mget('height'))
-
-
-
-    
-    for own key, view of @axes
-      #tojq(@d3bg).append(view.$el)
-      @$el.append(view.$el)
-    for own key, view of @renderers
-      #tojq(@d3plotwindow).append(view.$el)
-      @$el.append(view.$el)
-
-    @render_end()
 
   render_ : () ->
     super()
@@ -359,8 +370,7 @@ class PlotView extends DeferredSVGView
       for v in all_views
         v._dirty = true
         v.render_deferred_components(true)
-  render_deferred_components : () ->
-    return null
+
 
 build_views = Continuum.build_views
 
