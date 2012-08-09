@@ -357,25 +357,20 @@ arr_pow2 = (base, exponents) ->
   return output_arr
 
 
-num_comp = (x, y) ->
-  if (x > y)
-    return 1
-  if (y < x)
-    return -1
-  return 0
+
+window._.sorted = (arr) ->
+  return _.sortBy(arr, _.identity)
+
+
 window.argsort = (arr) ->
-  sorted_arr = []
-  for x in arr
-    sorted_arr.push(x)
-  sorted_arr.sort(num_comp)
-  #debugger
+  sorted_arr =   _.sortBy(arr, _.identity)
   ret_arr = []
   #for y, i in arr
   #  ret_arr[i] = sorted_arr.indexOf(y)
   for y, i in sorted_arr
-    #ret_arr[i] = arr.indexOf(y)
+    ret_arr[i] = arr.indexOf(y)
   
-    ret_arr.push(sorted_arr.indexOf(y))
+    #ret_arr.push(sorted_arr.indexOf(y))
   return ret_arr
 
 #window.argsort = (arr) ->

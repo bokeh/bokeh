@@ -23,14 +23,34 @@ test('auto_interval', ->
   equal(auto_interval(30.0, 50.0), 2.5)
   )
 test('argsort', ->
-  
-  equal(argsort([-3, -2, -1]), [0,1,2])
-  equal(
-    argsort([3, -2, -1]),
-      [1,2, 0])
+
+  orig = [-3, -2, -1]
+  argsorted = argsort(orig)
+  expected = [0,1,2]
+  deepEqual(argsorted, expected)
+  orig2 = [3, -2, -1]
+  argsorted2 = argsort(orig2)
+  expected2 = [1,2, 0]
+  deepEqual(argsorted2, expected2)
+
+  true
+
   )
       
 
+test('_sorted', ->
+  ab = [2, 4, 7]
+  deepEqual(_.sorted(ab), [2, 4, 7])
+  ab = [2, 4, 7]
+  bc = _.sorted(ab)
+  bc[0] = 'a'
+  deepEqual(ab, [2, 4, 7])
+
+  ab = [2, -4, 7]
+  deepEqual([-4, 2, 7], _.sorted(ab))
+  null
+  )
+      
   
 
 
