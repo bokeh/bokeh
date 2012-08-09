@@ -405,28 +405,24 @@ window.auto_interval = (data_low, data_high) ->
     candidate_intervals = arr_div2(range, divisions)
 
     # Get magnitudes and mantissas for each candidate:
-    #magnitudes = Math.pow(10.0, Math.floor(log10(candidate_intervals)))
+
     magnitudes = candidate_intervals.map((candidate) ->
       return Math.pow(10.0, Math.floor(log10(candidate))))
-    
-    #mantissas  = candidate_intervals / magnitudes
     mantissas  = arr_div3(candidate_intervals, magnitudes)
-
 
     # List of "pleasing" intervals between ticks on graph.
     # Only the first magnitude are listed, higher mags others are inferred:
-    magic_intervals = [5.0, 1.0, 2.0, 2.5, 10.0 ]
+    magic_intervals = [1.0, 2.0, 2.5, 5.0, 10.0 ]
 
 
     best_mantissas = []
     best_magics = []
     for mi in magic_intervals
       diff_arr = mantissas.map((x) -> Math.abs(mi - x))
-      best_magics.push(Math.min.apply(diff_arr))
+      best_magics.push(_.min(diff_arr))
     for ma in mantissas
       diff_arr = magic_intervals.map((x) -> Math.abs(ma - x))
-      best_mantissas.push(Math.min.apply(diff_arr))
-      
+      best_mantissas.push(_.min(diff_arr))
     # Calculate the absolute differences between the candidates
     # (with magnitude removed) and the magic intervals:
 
@@ -434,9 +430,9 @@ window.auto_interval = (data_low, data_high) ->
     # Find the division and magic interval combo that produce the
     # smallest differences:
     magic_index    = argsort(best_magics )[0]
+
     mantissa_index = argsort(best_mantissas )[0]
-
-
+    
 
     # The best interval is the magic_interval multiplied by the magnitude
     # of the best mantissa:
