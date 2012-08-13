@@ -634,19 +634,16 @@ class PanToolView extends PlotWidget
 
           @_start_drag(e, x, y)
         else
-          @_drag(e, x, y)
+          @_drag(e.foo, e.foo, e, x, y)
           e.preventDefault()
           e.stopPropagation())
 
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
-    console.log(x, x_, y, y_)
-    #return [x_, y_]
-    return [x, y]
+    return [x_, y_]
     
 
   _start_drag : (e, x, y) ->
-    console.log("_start_drag")
     @dragging = true
     [@x, @y] = @mouse_coords(e, x, y)
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
@@ -668,7 +665,6 @@ class PanToolView extends PlotWidget
       [x, y] = @mouse_coords(e, x__, y__)
       xdiff = x - @x
       ydiff = y - @y
-      console.log("diff", @x, x, xdiff)
       [@x, @y] = [x, y]
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
