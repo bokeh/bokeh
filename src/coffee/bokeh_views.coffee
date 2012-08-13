@@ -237,22 +237,24 @@ class PlotView extends Continuum.DeferredView
     @$el.append($("""
       <div class='all_can_wrapper'>
         
-        <div class='main_can_wrapper'>
+        <div class='main_can_wrapper can_wrapper'>
           <div class='_shader' />
           <canvas class='main_can'></canvas>
         </div>
-        <div class='x_can_wrapper'>
+        <div class='x_can_wrapper can_wrapper'>
             <canvas class='x_can'></canvas>
         </div>
-        <div class='y_can_wrapper'>
+        <div class='y_can_wrapper can_wrapper'>
           <canvas class='y_can'></canvas>
         </div>
       </div>
       """))
     @canvas = @$el.find('canvas.main_can')
     @x_can = @$el.find('canvas.x_can')[0]
+    @y_can = @$el.find('canvas.y_can')[0]
     @main_can_wrapper = @$el.find('.main_can_wrapper')
     @x_can_wrapper = @$el.find('.x_can_wrapper')
+    @y_can_wrapper = @$el.find('.y_can_wrapper')
     @render()
     return this
 
@@ -266,8 +268,9 @@ class PlotView extends Continuum.DeferredView
     @main_can_wrapper.attr('style', "left:#{bord}px")
     height = @mget('height')
     xcw = @x_can_wrapper
-    @x_can_wrapper.attr(
-      'style', "left:#{bord}px; top:#{height}px;")
+    @x_can_wrapper.attr('style', "left:#{bord}px; top:#{height}px;")
+    @y_can_wrapper.attr('style', "width:#{bord}px; height:#{height}px;")
+    @$el.find('canvas.y_can').attr('height', height).attr('width', bord)
     w = @options.scale * @mget('outerwidth')
     h = @options.scale * @mget('outerheight')
     
@@ -276,12 +279,13 @@ class PlotView extends Continuum.DeferredView
     @bind_overlays()
 
     @x_can_ctx = @x_can.getContext('2d')
+
     $(@x_can).attr('style', 'border:1px solid red')
     wh = (el, w, h) ->
       el.attr('width', w)
       el.attr('height', h)
 
-
+    @y_can_ctx = @y_can.getContext('2d')
     @ctx = @canvas[0].getContext('2d')
     wh(@canvas, @mget('width'), @mget('height'))
     
@@ -388,13 +392,19 @@ class D3LinearAxisView extends PlotWidget
   render : ->
 
     super()
-    if not  @mget('orientation') in ['bottom', 'top']
+    if @mget('orientation') in ['bottom', 'top']
+      @render_x()
       @render_end()
       return
-    xmapper = @mget_ref('mapper')
-    @plot_view.x_can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
+    @render_y()
+    @render_end()
+    return
 
-    
+  render_x : ->
+    xmapper = @mget_ref('mapper')
+
+    can_ctx = @plot_view.x_can_ctx
+
     data_range = xmapper.get_ref('data_range')
     interval = ticks.auto_interval(
       data_range.get('start'), data_range.get('end'))
@@ -408,28 +418,64 @@ class D3LinearAxisView extends PlotWidget
     [first_tick, last_tick] = ticks.auto_bounds(
       data_range.get('start'), data_range.get('end'), interval)
 
-
-
-    
     current_tick = first_tick
     x_ticks = []
     last_tick_end = 0
+    can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
     while current_tick <= last_tick
       x_ticks.push(current_tick)
       #@plot_view.x_can_ctx.moveTo(xpos(current_tick), 0)
-      text_width = @plot_view.x_can_ctx.measureText(current_tick.toString()).width
+      text_width = can_ctx.measureText(current_tick.toString()).width
       x = (xpos(current_tick) - (text_width/2))
       if x > last_tick_end
-        @plot_view.x_can_ctx.fillText(
+        can_ctx.fillText(
           current_tick.toString(), x, 20)
         last_tick_end = (x + text_width) + 10
       @plot_view.ctx.moveTo(xpos(current_tick),0)
       @plot_view.ctx.lineTo(xpos(current_tick),@mget('height'))
       current_tick += interval
 
-    @plot_view.x_can_ctx.stroke()
+    can_ctx.stroke()
     @plot_view.ctx.stroke()
+    @render_end()
 
+  render_y : ->
+    ymapper = @mget_ref('mapper')
+    can_ctx = @plot_view.y_can_ctx
+
+    data_range = ymapper.get_ref('data_range')
+    interval = ticks.auto_interval(
+      data_range.get('start'), data_range.get('end'))
+
+    range = data_range.get('end') - data_range.get('start')
+    min_y = data_range.get('start')
+    HEIGHT = @mget('height')
+    y_scale = HEIGHT/range
+    ypos = (real_y) ->
+      HEIGHT - ((real_y - min_y)*y_scale) 
+      
+    [first_tick, last_tick] = ticks.auto_bounds(
+      data_range.get('start'), data_range.get('end'), interval)
+
+    current_tick = first_tick
+    y_ticks = []
+    last_tick_end = 10000
+    can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
+    while current_tick <= last_tick
+      y_ticks.push(current_tick)
+      #@plot_view.x_can_ctx.moveTo(xpos(current_tick), 0)
+      #text_width = can_ctx.measureText(current_tick.toString()).width
+      text_width = 14
+      y = (ypos(current_tick) - (text_width/2))
+      if y < last_tick_end
+        can_ctx.fillText(current_tick.toString(), 0, y)
+        last_tick_end = (y + text_width) + 10
+      @plot_view.ctx.moveTo(0, ypos(current_tick))
+      @plot_view.ctx.lineTo(@mget('width'), ypos(current_tick))
+      current_tick += interval
+
+    can_ctx.stroke()
+    @plot_view.ctx.stroke()
     @render_end()
 
   render_old : ->
@@ -737,6 +783,7 @@ class SelectionToolView extends PlotWidget
       current_x : null
       current_y : null
     )
+    @plotview.$el.removeClass("shading")
     for renderer in @mget('renderers')
       @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
       @model.resolve_ref(renderer).get_ref('data_source').save()
