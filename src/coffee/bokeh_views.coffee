@@ -236,7 +236,9 @@ class PlotView extends Continuum.DeferredView
     window.plot_el = @$el
     @$el.append($("""
       <div class='all_can_wrapper'>
+        
         <div class='main_can_wrapper'>
+          <div class='_shader' />
           <canvas class='main_can'></canvas>
         </div>
         <div class='x_can_wrapper'>
@@ -389,7 +391,6 @@ class D3LinearAxisView extends PlotWidget
     if not  @mget('orientation') in ['bottom', 'top']
       @render_end()
       return
-    console.log("start render")
     xmapper = @mget_ref('mapper')
     @plot_view.x_can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
 
@@ -796,30 +797,27 @@ class SelectionToolView extends PlotWidget
 
   _render_shading : () ->
     [xrange, yrange] = @_get_selection_range()
-    if true
-      return
     if _.any(_.map(xrange, _.isNullOrUndefined)) or
       _.any(_.map(yrange, _.isNullOrUndefined))
         return
     if not @shading
-      @shading = @plot_view.d3plotwindow.append('rect')
+      @plotview.$el.addClass("shading")
+    style_string = ""
+    xpos = @plot_model.rxpos(Math.min(xrange[0], xrange[1]))
     if xrange
-      width = xrange[1] - xrange[0]
-      @shading.attr('x', @plot_model.position_child_x(width, xrange[0]))
-        .attr('width', width)
+      width = Math.abs(xrange[1] - xrange[0])
     else
       width = @plot_model.get('width')
-      @shading.attr('x',  @plot_model.position_child_x(xrange[0]))
-        .attr('width', width)
+    style_string += "; left:#{xpos}px; width:#{width}px; "
+    ypos = @plot_model.rypos(Math.max(yrange[0], yrange[1]))
     if yrange
       height = yrange[1] - yrange[0]
-      @shading.attr('y', @plot_model.position_child_y(height, yrange[0]))
-        .attr('height', height)
     else
       height = @plot_model.get('height')
-      @shading.attr('y', @plot_model.position_child_y(height, yrange[0]))
-        .attr('height', height)
-    @shading.attr('fill', '#000').attr('fill-opacity', 0.1)
+    style_string += "top:#{ypos}px; height:#{height}px"
+    @plotview.$el.find("._shader").attr('style', style_string)
+
+    #@shading.attr('fill', '#000').attr('fill-opacity', 0.1)
 
   render : () ->
     super()
