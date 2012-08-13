@@ -166,6 +166,8 @@ class PlotView extends Continuum.DeferredView
         plot_view : @
     )
 
+  
+
   build_overlays : ->
     #add ids of renderer views into the overlay spec
     overlays = (_.clone(x) for x in @mget('overlays'))
@@ -193,6 +195,20 @@ class PlotView extends Continuum.DeferredView
 
   tagName : 'div'
 
+  events :
+    "mousemove .main_can_wrapper" : "_mousemove"
+    "mousedown .main_can_wrapper" : "_mousedown"
+
+  _mousedown : (e) ->
+    window.e = e
+    for f in @mousedownCallbacks
+      f(e, e.layerX, e.layerY)
+
+
+  _mousemove : (e) ->
+    window.e = e
+    for f in @moveCallbacks
+      f(e, e.layerX, e.layerY)
 
   initialize : (options) ->
     super(_.defaults(options, @default_options))
@@ -207,6 +223,8 @@ class PlotView extends Continuum.DeferredView
     @build_tools()
     @build_overlays()
 
+    @moveCallbacks = []
+    @mousedownCallbacks = []
 
     safebind(this, @model, 'change:renderers', @build_renderers)
     safebind(this, @model, 'change:axes', @build_axes)
@@ -240,7 +258,6 @@ class PlotView extends Continuum.DeferredView
     
   render : () ->
     super()
-    #@render_mainsvg();
     @$el.attr("width", @options.scale * @mget('outerwidth'))
       .attr('height', @options.scale * @mget('outerheight'))
     bord = @mget('border_space')
@@ -249,7 +266,6 @@ class PlotView extends Continuum.DeferredView
     xcw = @x_can_wrapper
     @x_can_wrapper.attr(
       'style', "left:#{bord}px; top:#{height}px;")
-    #debugger;
     w = @options.scale * @mget('outerwidth')
     h = @options.scale * @mget('outerheight')
     
@@ -266,8 +282,6 @@ class PlotView extends Continuum.DeferredView
 
     @ctx = @canvas[0].getContext('2d')
     wh(@canvas, @mget('width'), @mget('height'))
-
-
     
     for own key, view of @axes
       @$el.append(view.$el)
@@ -280,83 +294,6 @@ class PlotView extends Continuum.DeferredView
 
     if true
       return
-    d3el = d3.select(@el)
-    @d3plot = d3el.append('g')
-    @d3bg = @d3plot.append('g')
-    @d3fg = @d3plot.append('g')
-    @d3fg.append('text')
-      .text(@mget('title'))
-      .attr('x', 0)
-      .attr('y', -15)
-    innerbox = @d3bg
-      .append('rect')
-    @d3plotwindow = @d3fg.append('svg')
-    @$el.attr('x', @model.position_x())
-      .attr('y', @model.position_y())
-    innerbox
-      .attr('fill', @mget('background_color'))
-      .attr('stroke', @model.get('foreground_color'))
-      .attr('width', @mget('width'))
-      .attr("height",  @mget('height'))
-    @d3plotwindow
-      .attr('width',  @mget('width'))
-      .attr('height', @mget('height'))
-
-    #svg puts origin in the top left, we want it on the bottom left
-    #
-    trans_string = "scale(#{@options.scale}, #{@options.scale})"
-    trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
-    
-    @d3plot.attr('transform', trans_string)
-    null
-
-
-  render_ : () ->
-    super()
-    @render_mainsvg();
-    @d3fg.append("foreignObject")
-
-    jq_d = $(@d3fg[0][0])
-    can_holder = jq_d.find('foreignObject')
-    bord = @mget('border_space')
-    sub_body = can_holder.append('''
-      <body xmlns="http://www.w3.org/1999/xhtml">
-        <div style="position:relative;">
-          <canvas ></canvas>
-        </div>
-      </body>''')
-
-    @x_can = $("<canvas height='30' width='#{@mget('width')}' />")[0]
-    @x_can_ctx = @x_can.getContext('2d')
-    $(@x_can).attr('style', 'border:1px solid red')
-    $(document.body).append(@x_can)
-    wh = (el, w, h) ->
-      el.attr('width', w)
-      el.attr('height', h)
-
-    # due to bugs in positioning foreignObjects inside of svg elements
-    # in webkit, the canvas must be pushed via css
-
-    # http://stackoverflow.com/questions/8185845/svg-foreignobject-behaves-as-though-absolutely-positioned-in-webkit-browsers https://bugs.webkit.org/show_bug.cgi?id=71819 http://code.google.com/p/chromium/issues/detail?id=116566 https://bugs.webkit.org/show_bug.cgi?id=48745
-
-    @canvas = can_holder.find('canvas')
-    @ctx = @canvas[0].getContext('2d')
-    if navigator.userAgent.indexOf("WebKit") != -1
-      @canvas.attr('style', "position:absolute; left:#{bord}px; top:#{bord}px;")
-      #@canvas.attr('style', "position:absolute; left:#{bord}px; top:#{bord}px;")
-      #@ctx.scale(@options.scale, @options.scale)
-      @ctx.scale(0.5, 0.5)
-    wh(@canvas, @mget('width'), @mget('height'))
-    wh(can_holder, @mget('width'), @mget('height'))
-
-
-
-
-    for own key, view of @axes
-      tojq(@d3bg).append(view.$el)
-    for own key, view of @renderers
-      tojq(@d3plotwindow).append(view.$el)
-    @render_end()
     
   render_deferred_components: (force) ->
     super(force)
@@ -481,16 +418,12 @@ class D3LinearAxisView extends PlotWidget
       #@plot_view.x_can_ctx.moveTo(xpos(current_tick), 0)
       text_width = @plot_view.x_can_ctx.measureText(current_tick.toString()).width
       x = (xpos(current_tick) - (text_width/2))
-      console.log(text_width, current_tick.toString(), x, 20)
       if x > last_tick_end
         @plot_view.x_can_ctx.fillText(
           current_tick.toString(), x, 20)
         last_tick_end = (x + text_width) + 10
-      else
-        console.log("skipping")
       @plot_view.ctx.moveTo(xpos(current_tick),0)
       @plot_view.ctx.lineTo(xpos(current_tick),@mget('height'))
-      console.log(current_tick, xpos(current_tick))
       current_tick += interval
 
     @plot_view.x_can_ctx.stroke()
@@ -689,15 +622,33 @@ class PanToolView extends PlotWidget
     @dragging = false
     super(options)
 
-  mouse_coords : () ->
-    plot = @plot_view.d3plotwindow
-    [x, y] = d3.mouse(plot[0][0])
-    [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
-    return [x, y]
+  bind_events : (plotview) ->
+    @plotview = plotview
+    @plotview.mousedownCallbacks.push((e, x, y) =>
+      console.log('mousedown callback')
+      @dragging = false)
+      
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if e.shiftKey
+        if not @dragging
 
-  _start_drag : () ->
+          @_start_drag(e, x, y)
+        else
+          @_drag(e, x, y)
+          e.preventDefault()
+          e.stopPropagation())
+
+  mouse_coords : (e, x, y) ->
+    [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    console.log(x, x_, y, y_)
+    #return [x_, y_]
+    return [x, y]
+    
+
+  _start_drag : (e, x, y) ->
+    console.log("_start_drag")
     @dragging = true
-    [@x, @y] = @mouse_coords()
+    [@x, @y] = @mouse_coords(e, x, y)
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
 
@@ -712,12 +663,12 @@ class PanToolView extends PlotWidget
       'end' : end
     }, {'local' : true})
 
-  _drag : (xdiff, ydiff) ->
-    plot = @plot_view.d3plotwindow
+  _drag : (xdiff, ydiff, e, x__, y__) ->
     if _.isUndefined(xdiff) or _.isUndefined(ydiff)
-      [x, y] = @mouse_coords()
+      [x, y] = @mouse_coords(e, x__, y__)
       xdiff = x - @x
       ydiff = y - @y
+      console.log("diff", @x, x, xdiff)
       [@x, @y] = [x, y]
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
@@ -726,24 +677,6 @@ class PanToolView extends PlotWidget
     for ymap in ymappers
       @_drag_mapper(ymap, ydiff)
 
-  bind_events : (plotview) ->
-    @plotview = plotview
-    node = d3.select(@plot_view.el)
-    node.attr('pointer-events' , 'all')
-    node.on("mousemove.drag"
-      ,
-        () =>
-          if d3.event.shiftKey
-            if not @dragging
-              @_start_drag()
-            else
-              @_drag()
-            d3.event.preventDefault()
-            d3.event.stopPropagation()
-          else
-            @dragging = false
-          return null
-    )
 
 class SelectionToolView extends PlotWidget
   initialize : (options) ->
@@ -764,30 +697,21 @@ class SelectionToolView extends PlotWidget
 
 
   bind_events : (plotview) ->
+    if true
+      return
     @plotview = plotview
-    node = d3.select(@plot_view.el)
-    node.attr('pointer-events' , 'all')
-    node.on("mousedown.selection"
-      ,
-        () =>
-          @_stop_selecting()
-    )
-    node.on("mousemove.selection"
-      ,
-        () =>
-          if d3.event.ctrlKey
-            if not @selecting
-              @_start_selecting()
-            else
-              @_selecting()
-            d3.event.preventDefault()
-            d3.event.stopPropagation()
-          return null
-    )
-
-  mouse_coords : () ->
-    plot = @plot_view.d3plotwindow
-    [x, y] = d3.mouse(plot[0][0])
+    @plotview.mousedownCallbacks.push((e, x, y) =>
+      @_stop_selecting)
+      
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if e.ctrlKey
+        if not @selecting
+          @_start_selecting()
+        else
+          @_selecting()
+          e.preventDefault()
+          e.stopPropagation())
+  mouse_coords : (e, x, y) ->
     [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x, y]
 

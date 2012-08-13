@@ -1,5 +1,5 @@
 
-MAX_SIZE = 500
+MAX_SIZE = 50
 test('test_interactive', ()->
   expect(0)
   data = ({'x' : pt, 'y' : pt} for pt in _.range(MAX_SIZE))
