@@ -693,8 +693,26 @@ class SelectionToolView extends PlotWidget
 
 
   bind_events : (plotview) ->
-    if true
-      return
+    @plotview = plotview
+    @plotview.mousedownCallbacks.push((e, x, y) =>
+      console.log('mousedown callback')
+      @dragging = false)
+      
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if e.shiftKey
+        if not @dragging
+
+          @_start_drag(e, x, y)
+        else
+          @_drag(e.foo, e.foo, e, x, y)
+          e.preventDefault()
+          e.stopPropagation())
+
+  mouse_coords : (e, x, y) ->
+    [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    return [x_, y_]
+
+  bind_events : (plotview) ->
     @plotview = plotview
     @plotview.mousedownCallbacks.push((e, x, y) =>
       @_stop_selecting)
@@ -702,9 +720,9 @@ class SelectionToolView extends PlotWidget
     @plotview.moveCallbacks.push((e, x, y) =>
       if e.ctrlKey
         if not @selecting
-          @_start_selecting()
+          @_start_selecting(e, x, y)
         else
-          @_selecting()
+          @_selecting(e, x, y)
           e.preventDefault()
           e.stopPropagation())
   mouse_coords : (e, x, y) ->
@@ -726,8 +744,8 @@ class SelectionToolView extends PlotWidget
       @shading.remove()
       @shading = null
 
-  _start_selecting : () ->
-    [x, y] = @mouse_coords()
+  _start_selecting : (e, x_, y_) ->
+    [x, y] = @mouse_coords(e, x_, y_)
     @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
     for renderer in @mget('renderers')
       data_source = @model.resolve_ref(renderer).get_ref('data_source')
@@ -748,8 +766,8 @@ class SelectionToolView extends PlotWidget
       yrange = null
     return [xrange, yrange]
 
-  _selecting : () ->
-    [x, y] = @mouse_coords()
+  _selecting : (e, x_, y_) ->
+    [x, y] = @mouse_coords(e, x_, y_)
     @mset({'current_x' : x, 'current_y' : y})
     return null
 
@@ -778,6 +796,8 @@ class SelectionToolView extends PlotWidget
 
   _render_shading : () ->
     [xrange, yrange] = @_get_selection_range()
+    if true
+      return
     if _.any(_.map(xrange, _.isNullOrUndefined)) or
       _.any(_.map(yrange, _.isNullOrUndefined))
         return
