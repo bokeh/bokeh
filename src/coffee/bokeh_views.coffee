@@ -235,6 +235,7 @@ class PlotView extends Continuum.DeferredView
 
     window.plot_el = @$el
     @$el.append($("""
+      <div class='button_bar'/>
       <div class='all_can_wrapper'>
         
         <div class='main_can_wrapper can_wrapper'>
@@ -256,6 +257,9 @@ class PlotView extends Continuum.DeferredView
     @x_can_wrapper = @$el.find('.x_can_wrapper')
     @y_can_wrapper = @$el.find('.y_can_wrapper')
     @render()
+    @bind_tools()
+    @bind_overlays()
+
     return this
 
 
@@ -275,8 +279,6 @@ class PlotView extends Continuum.DeferredView
     h = @options.scale * @mget('outerheight')
     
     @$el.attr("style", "height:#{h}px; width:#{w}px")
-    @bind_tools()
-    @bind_overlays()
 
     @x_can_ctx = @x_can.getContext('2d')
 
@@ -740,38 +742,29 @@ class SelectionToolView extends PlotWidget
 
 
   bind_events : (plotview) ->
+    console.log("SelectionToolView bind_events")
     @plotview = plotview
     @plotview.mousedownCallbacks.push((e, x, y) =>
-      console.log('mousedown callback')
-      @dragging = false)
+      @_stop_selecting())
       
     @plotview.moveCallbacks.push((e, x, y) =>
-      if e.shiftKey
-        if not @dragging
-
-          @_start_drag(e, x, y)
-        else
-          @_drag(e.foo, e.foo, e, x, y)
-          e.preventDefault()
-          e.stopPropagation())
-
-  mouse_coords : (e, x, y) ->
-    [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
-    return [x_, y_]
-
-  bind_events : (plotview) ->
-    @plotview = plotview
-    @plotview.mousedownCallbacks.push((e, x, y) =>
-      @_stop_selecting)
-      
-    @plotview.moveCallbacks.push((e, x, y) =>
-      if e.ctrlKey
+      if e.ctrlKey or @button_selecting
         if not @selecting
           @_start_selecting(e, x, y)
         else
           @_selecting(e, x, y)
           e.preventDefault()
           e.stopPropagation())
+    select_button = $('<button> Selction Tool </button>')
+    @plotview.$el.find('.button_bar').append(select_button)
+    select_button.click(=>
+      if @button_selecting
+        @stop_drag()
+      else
+        @_start_selecting("foo", 0, 0)
+        @button_selecting = true)
+
+
   mouse_coords : (e, x, y) ->
     [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x, y]
@@ -788,9 +781,11 @@ class SelectionToolView extends PlotWidget
       @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
       @model.resolve_ref(renderer).get_ref('data_source').save()
     @selecting = false
+    @button_selecting = false
     if @shading
       @shading.remove()
       @shading = null
+   
 
   _start_selecting : (e, x_, y_) ->
     [x, y] = @mouse_coords(e, x_, y_)
