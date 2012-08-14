@@ -723,7 +723,7 @@ class PanToolView extends PlotWidget
       @_drag_mapper(ymap, ydiff)
 
 
-class SelectionToolView extends PlotWidget
+class SelectionToolView_ extends PlotWidget
   initialize : (options) ->
     super(options)
     @selecting = false
@@ -866,6 +866,54 @@ class SelectionToolView extends PlotWidget
     @_render_shading()
     @render_end()
     return null
+
+class SelectionToolView extends SelectionToolView_
+  """this version only works via the toolbar button   """
+  initialize : (options) ->
+    super(options)
+    @selecting = false
+    @select_button_clicked = false
+    
+
+  bind_events : (plotview) ->
+    console.log("SelectionToolView bind_events")
+    @plotview = plotview
+    @plotview.mousedownCallbacks.push((e, x, y) =>
+      if @button_selecting
+        if not @selecting
+          @_start_selecting(e, x, y)
+        else 
+          @_stop_selecting())
+      
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if @button_selecting and @selecting
+          @_selecting(e, x, y)
+          e.preventDefault()
+          e.stopPropagation())
+    select_button = $('<button> Selction Tool </button>')
+    @plotview.$el.find('.button_bar').append(select_button)
+    select_button.click(=>
+      if @button_selecting
+        @stop_selecting()
+      else
+        @button_selecting = true)
+  _stop_selecting : () ->
+    @mset(
+      start_x : null
+      start_y : null
+      current_x : null
+      current_y : null
+    )
+    @plotview.$el.removeClass("shading")
+    for renderer in @mget('renderers')
+      @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
+      @model.resolve_ref(renderer).get_ref('data_source').save()
+    @selecting = false
+    @button_selecting = false
+    if @shading
+      @shading.remove()
+      @shading = null
+   
 
 class OverlayView extends PlotWidget
   initialize : (options) ->
