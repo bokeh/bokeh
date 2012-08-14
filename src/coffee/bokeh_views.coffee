@@ -666,7 +666,7 @@ class ScatterRendererView extends XYRendererView
 
 #  tools
 
-class PanToolView extends PlotWidget
+class PanToolView_ extends PlotWidget
   initialize : (options) ->
     @dragging = false
     super(options)
@@ -755,14 +755,6 @@ class SelectionToolView_ extends PlotWidget
           @_selecting(e, x, y)
           e.preventDefault()
           e.stopPropagation())
-    select_button = $('<button> Selction Tool </button>')
-    @plotview.$el.find('.button_bar').append(select_button)
-    select_button.click(=>
-      if @button_selecting
-        @stop_drag()
-      else
-        @_start_selecting("foo", 0, 0)
-        @button_selecting = true)
 
 
   mouse_coords : (e, x, y) ->
@@ -867,13 +859,46 @@ class SelectionToolView_ extends PlotWidget
     @render_end()
     return null
 
+class PanToolView extends PanToolView_
+  initialize : (options) ->
+    super(options)
+    @selecting = false
+    @button_clicked = false
+
+  bind_events : (plotview) ->
+    console.log("pantoolview bind_events")
+    @plotview = plotview
+    @plotview.mousedownCallbacks.push((e, x, y) =>
+      if @button_panning
+        @dragging = false
+        @button_panning = false
+      else
+        @
+        @_start_drag(e, x, y))
+
+      
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if @button_panning and @dragging
+        @_drag(e.foo, e.foo, e, x, y)
+        e.preventDefault()
+        e.stopPropagation())
+    pantool_button = $('<button> Pan Tool </button>')
+    @plotview.$el.find('.button_bar').append(pantool_button)
+    pantool_button.click(=>
+      if @button_panning
+        @dragging = false
+        @button_panning = false
+      else
+        #@_start_drag("foo", 0, 0)
+        @button_panning = true)
+
+
+
 class SelectionToolView extends SelectionToolView_
   """this version only works via the toolbar button   """
   initialize : (options) ->
     super(options)
     @selecting = false
-    @select_button_clicked = false
-    
 
   bind_events : (plotview) ->
     console.log("SelectionToolView bind_events")
