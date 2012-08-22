@@ -5,22 +5,9 @@ else
   this.Bokeh = Bokeh
 safebind = Continuum.safebind
 
-class DeferredSVGView extends Continuum.DeferredView
-  # ###class : DeferredSVGView
-  # overrides make, so we create SVG elements with the appropriate namespaceURI
-  # instances of this class should have some svg tagName
-  tagName : 'svg'
 
-  make: (tagName, attributes, content) ->
-    el = document.createElementNS("http://www.w3.org/2000/svg", tagName)
-    if (attributes)
-      $(el).attr(attributes)
-    if (content)
-      $(el).html(content)
-    return el
-
-class PlotWidget extends DeferredSVGView
-  tagName : 'g'
+class PlotWidget extends Continuum.DeferredView
+  tagName : 'div'
   initialize : (options) ->
     super(options)
     @plot_id = options.plot_id
@@ -123,16 +110,6 @@ class GridPlotContainerView extends Continuum.DeferredView
 
   render : ->
     super()
-    '''
-    trans_string = "scale(#{@options.scale}, #{@options.scale})"
-    trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
-    @d3plot.attr('transform', trans_string)
-    d3el = d3.select(@el)
-    d3el.attr('width', @options.scale * @mget('outerwidth'))
-      .attr('height', @options.scale * @mget('outerheight'))
-      .attr('x', @model.position_x())
-      .attr('y', @model.position_y())
-    '''
     
     row_heights =  @model.layout_heights()
     col_widths =  @model.layout_widths()
