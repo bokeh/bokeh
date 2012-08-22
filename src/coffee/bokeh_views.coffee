@@ -23,8 +23,6 @@ class PlotWidget extends Continuum.DeferredView
     @plot_view.ctx.closePath()
     @plot_view.ctx.fill()
     @plot_view.ctx.stroke()
-tojq = (d3selection) ->
-  return $(d3selection[0][0])
 
 # Individual Components below.
 # we first define the default view for a component,
@@ -139,7 +137,6 @@ class GridPlotContainerView extends Continuum.DeferredView
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         plot = @model.resolve_ref(plotspec)
-
         last_plot = plot
         plot.set(
           offset : [x_coords[cidx], y_coords[ridx]]
@@ -159,7 +156,6 @@ class GridPlotContainerView extends Continuum.DeferredView
     @render_end()
 
 
-#class PlotView extends DeferredSVG
 class PlotView extends Continuum.DeferredView
   default_options : {
     scale:1.0
@@ -188,8 +184,6 @@ class PlotView extends Continuum.DeferredView
         plot_model : @model
         plot_view : @
     )
-
-  
 
   build_overlays : ->
     #add ids of renderer views into the overlay spec
@@ -227,7 +221,6 @@ class PlotView extends Continuum.DeferredView
     for f in @mousedownCallbacks
       f(e, e.layerX, e.layerY)
 
-
   _mousemove : (e) ->
     window.e = e
     for f in @moveCallbacks
@@ -239,7 +232,6 @@ class PlotView extends Continuum.DeferredView
     @axes = {}
     @tools = {}
     @overlays = {}
-
 
     @build_renderers()
     @build_axes()
@@ -282,10 +274,7 @@ class PlotView extends Continuum.DeferredView
     @render()
     @bind_tools()
     @bind_overlays()
-
     return this
-
-
     
   render : () ->
     super()
@@ -305,8 +294,6 @@ class PlotView extends Continuum.DeferredView
     @$el.attr("style", "height:#{h}px; width:#{w}px")
 
     @x_can_ctx = @x_can.getContext('2d')
-
-
     wh = (el, w, h) ->
       el.attr('width', w)
       el.attr('height', h)
@@ -322,15 +309,11 @@ class PlotView extends Continuum.DeferredView
 
     @render_end()
   render_mainsvg : ->
-    #@$el.children().detach()
-
     if true
       return
     
   render_deferred_components: (force) ->
     super(force)
-
-
     all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
 
     window.av = all_views
@@ -343,10 +326,6 @@ class PlotView extends Continuum.DeferredView
 
 build_views = Continuum.build_views
 
-# D3LinearAxisView
-
-
-
 class XYRendererView extends PlotWidget
   initialize : (options) ->
     safebind(this, @model, 'change', @request_render)
@@ -354,7 +333,6 @@ class XYRendererView extends PlotWidget
     safebind(this, @mget_ref('ymapper'), 'change', @request_render)
     safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
     super(options)
-
 
   calc_buffer : (data) ->
     "use strict";
@@ -414,9 +392,7 @@ class D3LinearAxisView extends PlotWidget
     scale = d3.scale.linear().domain(domain).range(range)
     return scale
 
-
   render : ->
-
     super()
     if @mget('orientation') in ['bottom', 'top']
       @render_x()
@@ -529,6 +505,7 @@ class D3LinearAxisView extends PlotWidget
     node.selectAll('.tick').attr('stroke', @mget('tick_color'))
     @render_end()
 
+
 class D3LinearDateAxisView extends D3LinearAxisView
   convert_scale : (scale) ->
     domain = scale.domain()
@@ -594,8 +571,6 @@ class BarRendererView extends XYRendererView
     for d, idx in data_arr
       heights[idx] = value_mapper.map_screen(d[value_field])
 
-
-
     if orientation == "vertical"
       value_pos = (y) =>
         vp =  (@mget('height') - y)
@@ -613,7 +588,6 @@ class BarRendererView extends XYRendererView
     @plot_view.ctx.stroke()
     return null
 
-
   render : () ->
     super()
     @render_bars(@mget('orientation'))
@@ -622,10 +596,8 @@ class BarRendererView extends XYRendererView
 
 
 class LineRendererView extends XYRendererView
-
   render : ->
     super()
-    
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
 
@@ -640,8 +612,8 @@ class LineRendererView extends XYRendererView
       @plot_view.ctx.lineTo(@screenx[idx], @screeny[idx])
     @plot_view.ctx.stroke()
     @render_end()
-
     return null
+
 
 class ScatterRendererView extends XYRendererView
   render : ->
@@ -689,7 +661,6 @@ class ScatterRendererView extends XYRendererView
 
 
 #  tools
-
 class PanToolView_ extends PlotWidget
   initialize : (options) ->
     @dragging = false
@@ -764,7 +735,6 @@ class SelectionToolView_ extends PlotWidget
       safebind(this, renderer.get_ref('xmapper'), 'change', select_callback)
       safebind(this, renderer.get_ref('ymapper'), 'change', select_callback)
 
-
   bind_events : (plotview) ->
     console.log("SelectionToolView bind_events")
     @plotview = plotview
@@ -779,7 +749,6 @@ class SelectionToolView_ extends PlotWidget
           @_selecting(e, x, y)
           e.preventDefault()
           e.stopPropagation())
-
 
   mouse_coords : (e, x, y) ->
     [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
@@ -801,7 +770,6 @@ class SelectionToolView_ extends PlotWidget
     if @shading
       @shading.remove()
       @shading = null
-   
 
   _start_selecting : (e, x_, y_) ->
     [x, y] = @mouse_coords(e, x_, y_)
@@ -874,7 +842,6 @@ class SelectionToolView_ extends PlotWidget
       height = @plot_model.get('height')
     style_string += "top:#{ypos}px; height:#{height}px"
     @plotview.$el.find("._shader").attr('style', style_string)
-
     #@shading.attr('fill', '#000').attr('fill-opacity', 0.1)
 
   render : () ->
@@ -882,6 +849,7 @@ class SelectionToolView_ extends PlotWidget
     @_render_shading()
     @render_end()
     return null
+
 
 class PanToolView extends PanToolView_
   initialize : (options) ->
@@ -900,7 +868,6 @@ class PanToolView extends PanToolView_
         @
         @_start_drag(e, x, y))
 
-      
     @plotview.moveCallbacks.push((e, x, y) =>
       if @button_panning and @dragging
         @_drag(e.foo, e.foo, e, x, y)
@@ -913,9 +880,7 @@ class PanToolView extends PanToolView_
         @dragging = false
         @button_panning = false
       else
-        #@_start_drag("foo", 0, 0)
         @button_panning = true)
-
 
 
 class SelectionToolView extends SelectionToolView_
@@ -973,7 +938,6 @@ class OverlayView extends PlotWidget
     @plotview = plotview
     return null
 
-window.sel_debug = false
 class ScatterSelectionOverlayView extends OverlayView
   initialize : (options) ->
     super(options)
@@ -988,8 +952,6 @@ class ScatterSelectionOverlayView extends OverlayView
     window.overlay_render += 1
     super()
     for temp in _.zip(@mget('renderers'), @rendererviews)
-      if window.sel_debug
-        debugger;
       [renderer, rendererview] = temp
       renderer = @model.resolve_ref(renderer)
       selected = {}
