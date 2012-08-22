@@ -46,8 +46,8 @@ tojq = (d3selection) ->
 #  Plot Container
 
 
-class GridPlotContainerView extends DeferredSVGView
-  tagName : 'svg'
+class GridPlotContainerView extends Continuum.DeferredView
+  tagName : 'div'
   default_options : {
     scale:1.0
   }
@@ -59,21 +59,9 @@ class GridPlotContainerView extends DeferredSVGView
     safebind(this, @model, 'change:children', @build_children)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
-    @png_data_url_deferred = $.Deferred()
     return this
 
-  to_png_daturl: () ->
-    if @png_data_url_deferred.isResolved()
-      return @png_data_url_deferred
-    @render_deferred_components(true)
-    svg_el = $(@el).find('svg')[0]
-    SVGToCanvas.exportPNGcanvg(svg_el, (dataUrl) =>
-      console.log(dataUrl.length, dataUrl[0..100])
-      @png_data_url_deferred.resolve(dataUrl))
-    return @png_data_url_deferred.promise()
-
   build_children : ->
-    node = @build_node()
     childspecs = []
     for row in @mget('children')
       for x in row
@@ -81,18 +69,13 @@ class GridPlotContainerView extends DeferredSVGView
         childspecs.push(x)
     build_views(@model, @childviews, childspecs)
 
-  build_node : ->
-    d3el = d3.select(@el)
-    @d3plot = d3el.append('g')
-    return @d3plot
-
   render_deferred_components : (force) ->
     super(force)
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         @childviews[plotspec.id].render_deferred_components(force)
 
-  render : ->
+  render_old  : ->
     super()
     trans_string = "scale(#{@options.scale}, #{@options.scale})"
     trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
@@ -133,6 +116,56 @@ class GridPlotContainerView extends DeferredSVGView
 
     for own key, view of @childviews
       tojq(@d3plot).append(view.$el)
+    @render_end()
+
+  render : ->
+    super()
+    '''
+    trans_string = "scale(#{@options.scale}, #{@options.scale})"
+    trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
+    @d3plot.attr('transform', trans_string)
+    d3el = d3.select(@el)
+    d3el.attr('width', @options.scale * @mget('outerwidth'))
+      .attr('height', @options.scale * @mget('outerheight'))
+      .attr('x', @model.position_x())
+      .attr('y', @model.position_y())
+    '''
+
+    row_heights =  @model.layout_heights()
+    col_widths =  @model.layout_widths()
+    y_coords = [0]
+    _.reduceRight(row_heights[1..]
+      ,
+        (x, y) ->
+          val = x + y
+          y_coords.push(val)
+          return val
+      , 0
+    )
+
+    y_coords.reverse()
+    x_coords = [0]
+    _.reduce(col_widths[..-1]
+      ,
+        (x,y) ->
+          val = x + y
+          x_coords.push(val)
+          return val
+      , 0
+    )
+    console.log(x_coords, y_coords)
+    for row, ridx in @mget('children')
+      for plotspec, cidx in row
+        plot = @model.resolve_ref(plotspec)
+        plot.set(
+          offset : [x_coords[cidx], y_coords[ridx]]
+          usedialog : false
+        )
+
+    for own key, view of @childviews
+      #tojq(@d3plot).append(view.$el)
+      @$el.append(view.$el)
+    ab = @$el
     @render_end()
 
 
@@ -271,8 +304,9 @@ class PlotView extends Continuum.DeferredView
     bord = @mget('border_space')
     @main_can_wrapper.attr('style', "left:#{bord}px")
     height = @mget('height')
+    width = @mget('width')
     xcw = @x_can_wrapper
-    @x_can_wrapper.attr('style', "left:#{bord}px; top:#{height}px;")
+    @x_can_wrapper.attr('style', "left:#{bord}px; top:#{height}px; height:#{bord}px; width:#{width}px")
     @y_can_wrapper.attr('style', "width:#{bord}px; height:#{height}px;")
     @$el.find('canvas.y_can').attr('height', height).attr('width', bord)
     w = @options.scale * @mget('outerwidth')
@@ -282,7 +316,7 @@ class PlotView extends Continuum.DeferredView
 
     @x_can_ctx = @x_can.getContext('2d')
 
-    $(@x_can).attr('style', 'border:1px solid red')
+
     wh = (el, w, h) ->
       el.attr('width', w)
       el.attr('height', h)
