@@ -458,8 +458,8 @@ class D3LinearAxisView extends PlotWidget
       y_ticks.push(current_tick)
       #@plot_view.x_can_ctx.moveTo(xpos(current_tick), 0)
       #text_width = can_ctx.measureText(current_tick.toString()).width
-      text_width = 14
-      y = (ypos(current_tick) - (text_width/2))
+      text_width = 8
+      y = (ypos(current_tick) + (text_width/2))
       if y < last_tick_end
         can_ctx.fillText(current_tick.toString(), 0, y)
         last_tick_end = (y + text_width) + 10
