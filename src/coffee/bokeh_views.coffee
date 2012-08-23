@@ -153,37 +153,32 @@ class GridPlotContainerView extends Continuum.DeferredView
         "left:#{offset[0]}px; top:#{ypos}px")
       plot_wrapper.append(view.$el)
       @$el.append(plot_wrapper)
+      @$el.attr(
+        'style',
+        "height:#{@mget('height')}px; width:#{@mget('width')}px;")
     @render_end()
 
 
 class PlotView extends Continuum.DeferredView
-  default_options : {
-    scale:1.0
-  }
+  default_options : {scale:1.0}
 
   build_renderers : ->
-    build_views(@model, @renderers, @mget('renderers')
-      ,
+    build_views(@model, @renderers, @mget('renderers'),
         plot_id : @id,
         plot_model : @model
-        plot_view : @
-    )
+        plot_view : @)
 
   build_axes : ->
-    build_views(@model, @axes, @mget('axes')
-      ,
+    build_views(@model, @axes, @mget('axes'),
         plot_id : @id
         plot_model : @model
-        plot_view : @
-    )
+        plot_view : @)
 
   build_tools : ->
-    build_views(@model, @tools, @mget('tools')
-      ,
+    build_views(@model, @tools, @mget('tools'),
         plot_id : @id,
         plot_model : @model
-        plot_view : @
-    )
+        plot_view : @)
 
   build_overlays : ->
     #add ids of renderer views into the overlay spec
@@ -195,12 +190,10 @@ class PlotView extends Continuum.DeferredView
       overlayspec['options']['rendererviews'] = []
       for renderer in overlay.get('renderers')
         overlayspec['options']['rendererviews'].push(@renderers[renderer.id])
-    build_views(@model, @overlays, overlays
-      ,
+    build_views(@model, @overlays, overlays,
         plot_id : @id,
         plot_model : @model
-        plot_view : @
-    )
+        plot_view : @)
 
   bind_overlays : ->
     for overlayspec in @mget('overlays')
@@ -248,7 +241,6 @@ class PlotView extends Continuum.DeferredView
     safebind(this, @model, 'destroy', () => @remove())
     #@$el.attr('style', "display:block; height:300px; width:400px;")
 
-    window.plot_el = @$el
     @$el.append($("""
       <div class='button_bar'/>
       <div class='all_can_wrapper'>
@@ -316,7 +308,6 @@ class PlotView extends Continuum.DeferredView
     super(force)
     all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
 
-    window.av = all_views
     if _.any(all_views, (v) -> v._dirty)
       @ctx.clearRect(0,0,  @mget('width'), @mget('height'))      
       for v in all_views
@@ -362,7 +353,7 @@ class D3LinearAxisView extends PlotWidget
     safebind(this, @model, 'change', @request_render)
     safebind(this, @mget_ref('mapper'), 'change', @request_render)
 
-  tagName : 'g'
+  tagName : 'div'
 
   get_offsets : (orientation) ->
     offsets =
@@ -685,7 +676,6 @@ class PanToolView_ extends PlotWidget
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x_, y_]
-    
 
   _start_drag : (e, x, y) ->
     @dragging = true
@@ -865,7 +855,6 @@ class PanToolView extends PanToolView_
         @dragging = false
         @button_panning = false
       else
-        @
         @_start_drag(e, x, y))
 
     @plotview.moveCallbacks.push((e, x, y) =>
