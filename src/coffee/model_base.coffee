@@ -63,7 +63,7 @@ Continuum.load_models = (modelspecs)->
   for model in modelspecs
     coll = get_collections(model['collections'])[model['type']]
     attrs = model['attributes']
-    if coll.get(attrs['id'])
+    if coll and  coll.get(attrs['id'])
       oldspecs.push([coll, attrs])
     else
       newspecs.push([coll, attrs])
@@ -71,28 +71,33 @@ Continuum.load_models = (modelspecs)->
   # add new objects to collections silently
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
-    coll.add(attrs, {'silent' : true})
+    if coll
+      coll.add(attrs, {'silent' : true})
 
   # call deferred initialize on all new models
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
-    coll.get(attrs['id']).dinitialize(attrs)
+    if coll
+      coll.get(attrs['id']).dinitialize(attrs)
 
   # set attributes on old models silently
   for coll_attrs in oldspecs
     [coll, attrs] = coll_attrs
-    coll.get(attrs['id']).set(attrs, {'local' : true, 'silent' : true})
+    if coll
+      coll.get(attrs['id']).set(attrs, {'local' : true, 'silent' : true})
 
   # trigger add events on all new models
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
-    model = coll.get(attrs.id)
-    model.trigger('add', model, coll, {});
+    if coll 
+      model = coll.get(attrs.id)
+      model.trigger('add', model, coll, {});
 
   # trigger change events on all old models
   for coll_attrs in oldspecs
     [coll, attrs] = coll_attrs
-    coll.get(attrs['id']).change()
+    if coll
+      coll.get(attrs['id']).change()
 
   return null
 
@@ -151,7 +156,12 @@ resolve_ref = (collections, type, id) ->
 
   if _.isArray(collections)
     collections = get_collections(collections)
-  return collections[type].get(id)
+  try
+    model = collections[type].get(id)
+  catch error
+    console.log(type, id)
+  #return collections[type].get(id)
+  return  model
 Continuum.resolve_ref = resolve_ref
 
 get_collections = (names) ->
