@@ -276,7 +276,7 @@ class PlotView extends Continuum.DeferredView
     @$el.attr("width", @options.scale * @mget('outerwidth'))
       .attr('height', @options.scale * @mget('outerheight'))
     bord = @mget('border_space')
-    @main_can_wrapper.attr('style', "left:#{bord}px")
+
     height = @mget('height')
     width = @mget('width')
     xcw = @x_can_wrapper
@@ -285,21 +285,22 @@ class PlotView extends Continuum.DeferredView
 
     o_w = @options.scale * @mget('outerwidth')
     o_h = @options.scale * @mget('outerheight')
+    @main_can_wrapper.attr('style', "left:#{bord}px; height:#{h}px; width:#{w}px")
     @x_can_wrapper.attr('style', "left:#{bord}px; top:#{h}px; height:#{bord}px; width:#{w}px")
     @y_can_wrapper.attr('style', "width:#{bord}px; height:#{h}px;")
-    @$el.find('canvas.y_can').attr('height', h).attr('w', bord)
-    @$el.find('canvas.x_can').attr('height', bord).attr('w', w)
-    @$el.attr("style", "height:#{h}px; width:#{w}px")
+
+
+    @$el.attr("style", "height:#{o_h}px; width:#{o_w}px")
+    wh = (el, w, h) ->
+      $(el).attr('width', w)
+      $(el).attr('height',h)
+    wh(@canvas, w, h)
+    wh(@x_can, w, bord)
+    wh(@y_can, bord, h)
 
     @x_can_ctx = @x_can.getContext('2d')
-    wh = (el, w, h) ->
-      el.attr('width', w)
-      el.attr('height',h)
-
     @y_can_ctx = @y_can.getContext('2d')
     @ctx = @canvas[0].getContext('2d')
-    wh(@canvas, @mget('width'), @mget('height'))
-    
     for own key, view of @axes
       @$el.append(view.$el)
     for own key, view of @renderers
