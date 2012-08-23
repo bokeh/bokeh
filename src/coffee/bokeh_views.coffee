@@ -147,7 +147,7 @@ class GridPlotContainerView extends Continuum.DeferredView
       #tojq(@d3plot).append(view.$el)
       plot_wrapper = $("<div class='gp_plotwrapper'></div>")
       offset = view.model.get('offset')
-      ypos = @model.ypos(offset[1]) - view.model.get('height')
+      ypos = @model.ypos(offset[1]) - view.model.get('outerheight')
       plot_wrapper.attr(
         'style',
         "left:#{offset[0]}px; top:#{ypos}px")
