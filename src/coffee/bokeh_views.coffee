@@ -164,15 +164,20 @@ class PlotView extends Continuum.DeferredView
 
   build_renderers : ->
     build_views(@model, @renderers, @mget('renderers'),
+      {
         plot_id : @id,
         plot_model : @model
-        plot_view : @)
+        plot_view : @},
+      @options)
 
   build_axes : ->
     build_views(@model, @axes, @mget('axes'),
+      {
         plot_id : @id
         plot_model : @model
-        plot_view : @)
+        plot_view : @},
+      @options)
+        
 
   build_tools : ->
     build_views(@model, @tools, @mget('tools'),
@@ -239,8 +244,6 @@ class PlotView extends Continuum.DeferredView
     safebind(this, @model, 'change:tools', @build_tools)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
-    #@$el.attr('style', "display:block; height:300px; width:400px;")
-
     @$el.append($("""
       <div class='button_bar'/>
       <div class='all_can_wrapper'>
@@ -277,18 +280,21 @@ class PlotView extends Continuum.DeferredView
     height = @mget('height')
     width = @mget('width')
     xcw = @x_can_wrapper
-    @x_can_wrapper.attr('style', "left:#{bord}px; top:#{height}px; height:#{bord}px; width:#{width}px")
-    @y_can_wrapper.attr('style', "width:#{bord}px; height:#{height}px;")
-    @$el.find('canvas.y_can').attr('height', height).attr('width', bord)
-    w = @options.scale * @mget('outerwidth')
-    h = @options.scale * @mget('outerheight')
-    
+    w = @options.scale * @mget('width')
+    h = @options.scale * @mget('height')
+
+    o_w = @options.scale * @mget('outerwidth')
+    o_h = @options.scale * @mget('outerheight')
+    @x_can_wrapper.attr('style', "left:#{bord}px; top:#{h}px; height:#{bord}px; width:#{w}px")
+    @y_can_wrapper.attr('style', "width:#{bord}px; height:#{h}px;")
+    @$el.find('canvas.y_can').attr('height', h).attr('w', bord)
+    @$el.find('canvas.x_can').attr('height', bord).attr('w', w)
     @$el.attr("style", "height:#{h}px; width:#{w}px")
 
     @x_can_ctx = @x_can.getContext('2d')
     wh = (el, w, h) ->
       el.attr('width', w)
-      el.attr('height', h)
+      el.attr('height',h)
 
     @y_can_ctx = @y_can.getContext('2d')
     @ctx = @canvas[0].getContext('2d')
@@ -323,10 +329,15 @@ class XYRendererView extends PlotWidget
     safebind(this, @mget_ref('xmapper'), 'change', @request_render)
     safebind(this, @mget_ref('ymapper'), 'change', @request_render)
     safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
+
     super(options)
 
   calc_buffer : (data) ->
     "use strict";
+    pv = @plot_view
+    pvo = @plot_view.options
+    own_options = @options
+    #debugger;
     xmapper = @model.get_ref('xmapper')
     ymapper = @model.get_ref('ymapper')
     xfield = @model.get('xfield')
@@ -334,9 +345,12 @@ class XYRendererView extends PlotWidget
     datax = (x[xfield] for x in data)
     screenx = xmapper.v_map_screen(datax)
     screenx = @model.v_xpos(screenx)
+    screenx = _.map(screenx, (x) => @plot_view.options.scale * x)
     datay = (y[yfield] for y in data)
     screeny = ymapper.v_map_screen(datay)
+    sca = @options.scale
     screeny = @model.v_ypos(screeny)
+    screeny = _.map(screeny, (y) => @plot_view.options.scale * y)
     #fix me figure out how to feature test for this so it doesn't use
     #typed arrays for browsers that don't support that
 
@@ -405,9 +419,13 @@ class D3LinearAxisView extends PlotWidget
     range = data_range.get('end') - data_range.get('start')
     minX = data_range.get('start')
     x_scale = range/@mget('width')
+
+    op_scale = @plot_view.options.scale
+    last_tick_end = 10000
+
     xpos = (realX) ->
-      (realX - minX)/x_scale
-      
+      (((realX - minX)/x_scale) * op_scale)
+
     [first_tick, last_tick] = ticks.auto_bounds(
       data_range.get('start'), data_range.get('end'), interval)
 
@@ -417,21 +435,21 @@ class D3LinearAxisView extends PlotWidget
     can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
     while current_tick <= last_tick
       x_ticks.push(current_tick)
-      #@plot_view.x_can_ctx.moveTo(xpos(current_tick), 0)
       text_width = can_ctx.measureText(current_tick.toString()).width
       x = (xpos(current_tick) - (text_width/2))
       if x > last_tick_end
         can_ctx.fillText(
           current_tick.toString(), x, 20)
         last_tick_end = (x + text_width) + 10
-      @plot_view.ctx.moveTo(xpos(current_tick),0)
-      @plot_view.ctx.lineTo(xpos(current_tick),@mget('height'))
+      @plot_view.ctx.moveTo(xpos(current_tick), 0)
+      @plot_view.ctx.lineTo(xpos(current_tick), @mget('height') * op_scale)
       current_tick += interval
 
     can_ctx.stroke()
     @plot_view.ctx.stroke()
     @render_end()
 
+  DEFAULT_TEXT_HEIGHT : 8
   render_y : ->
     ymapper = @mget_ref('mapper')
     can_ctx = @plot_view.y_can_ctx
@@ -444,8 +462,9 @@ class D3LinearAxisView extends PlotWidget
     min_y = data_range.get('start')
     HEIGHT = @mget('height')
     y_scale = HEIGHT/range
+    op_scale = @plot_view.options.scale
     ypos = (real_y) ->
-      HEIGHT - ((real_y - min_y)*y_scale) 
+      (op_scale * (HEIGHT - ((real_y - min_y)*y_scale)))
       
     [first_tick, last_tick] = ticks.auto_bounds(
       data_range.get('start'), data_range.get('end'), interval)
@@ -453,18 +472,16 @@ class D3LinearAxisView extends PlotWidget
     current_tick = first_tick
     y_ticks = []
     last_tick_end = 10000
+
     can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
     while current_tick <= last_tick
       y_ticks.push(current_tick)
-      #@plot_view.x_can_ctx.moveTo(xpos(current_tick), 0)
-      #text_width = can_ctx.measureText(current_tick.toString()).width
-      text_width = 8
-      y = (ypos(current_tick) + (text_width/2))
+      y = (ypos(current_tick) + (@DEFAULT_TEXT_HEIGHT/2))
       if y < last_tick_end
         can_ctx.fillText(current_tick.toString(), 0, y)
-        last_tick_end = (y + text_width) + 10
+        last_tick_end = (y + @DEFAULT_TEXT_HEIGHT) + 10
       @plot_view.ctx.moveTo(0, ypos(current_tick))
-      @plot_view.ctx.lineTo(@mget('width'), ypos(current_tick))
+      @plot_view.ctx.lineTo(@mget('width') * op_scale, ypos(current_tick))
       current_tick += interval
 
     can_ctx.stroke()
