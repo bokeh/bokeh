@@ -5,21 +5,9 @@ else
   this.Bokeh = Bokeh
 safebind = Continuum.safebind
 
-class DeferredSVGView extends Continuum.DeferredView
-  # ###class : DeferredSVGView
-  # overrides make, so we create SVG elements with the appropriate namespaceURI
-  # instances of this class should have some svg tagName
-  tagName : 'svg'
-  make: (tagName, attributes, content) ->
-    el = document.createElementNS("http://www.w3.org/2000/svg", tagName)
-    if (attributes)
-      $(el).attr(attributes)
-    if (content)
-      $(el).html(content)
-    return el
 
-class PlotWidget extends DeferredSVGView
-  tagName : 'g'
+class PlotWidget extends Continuum.DeferredView
+  tagName : 'div'
   initialize : (options) ->
     super(options)
     @plot_id = options.plot_id
@@ -30,12 +18,11 @@ class PlotWidget extends DeferredSVGView
 
   addCircle: (x,y) ->
     @plot_view.ctx.beginPath()
+
     @plot_view.ctx.arc(x, y, 5, 0, Math.PI*2)
     @plot_view.ctx.closePath()
     @plot_view.ctx.fill()
-
-tojq = (d3selection) ->
-  return $(d3selection[0][0])
+    @plot_view.ctx.stroke()
 
 # Individual Components below.
 # we first define the default view for a component,
@@ -44,8 +31,10 @@ tojq = (d3selection) ->
 #  Plot Container
 
 
-class GridPlotContainerView extends DeferredSVGView
-  tagName : 'svg'
+class GridPlotContainerView extends Continuum.DeferredView
+  tagName : 'div'
+  className:"gridplot_container"
+  
   default_options : {
     scale:1.0
   }
@@ -57,32 +46,15 @@ class GridPlotContainerView extends DeferredSVGView
     safebind(this, @model, 'change:children', @build_children)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
-    @png_data_url_deferred = $.Deferred()
     return this
 
-  to_png_daturl: () ->
-    if @png_data_url_deferred.isResolved()
-      return @png_data_url_deferred
-    @render_deferred_components(true)
-    svg_el = $(@el).find('svg')[0]
-    SVGToCanvas.exportPNGcanvg(svg_el, (dataUrl) =>
-      console.log(dataUrl.length, dataUrl[0..100])
-      @png_data_url_deferred.resolve(dataUrl))
-    return @png_data_url_deferred.promise()
-
   build_children : ->
-    node = @build_node()
     childspecs = []
     for row in @mget('children')
       for x in row
         @model.resolve_ref(x).set('usedialog', false)
         childspecs.push(x)
-    build_views(@model, @childviews, childspecs)
-
-  build_node : ->
-    d3el = d3.select(@el)
-    @d3plot = d3el.append('g')
-    return @d3plot
+    build_views(@model, @childviews, childspecs, {'scale': @options.scale})
 
   render_deferred_components : (force) ->
     super(force)
@@ -90,7 +62,7 @@ class GridPlotContainerView extends DeferredSVGView
       for plotspec, cidx in row
         @childviews[plotspec.id].render_deferred_components(force)
 
-  render : ->
+  render_old  : ->
     super()
     trans_string = "scale(#{@options.scale}, #{@options.scale})"
     trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
@@ -121,6 +93,7 @@ class GridPlotContainerView extends DeferredSVGView
           return val
       , 0
     )
+
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         plot = @model.resolve_ref(plotspec)
@@ -134,59 +107,83 @@ class GridPlotContainerView extends DeferredSVGView
     @render_end()
 
 
-class PlotView extends DeferredSVGView
-  default_options : {
-    scale:1.0
-  }
+  render : ->
+    super()
+    
+    row_heights =  @model.layout_heights()
+    col_widths =  @model.layout_widths()
+    y_coords = [0]
+    _.reduceRight(row_heights[1..]
+      ,
+        (x, y) ->
+          val = x + y
+          y_coords.push(val)
+          return val
+      , 0
+    )
 
-  tagName : 'svg'
+    y_coords.reverse()
+    x_coords = [0]
+    _.reduce(col_widths[..-1]
+      ,
+        (x,y) ->
+          val = x + y
+          x_coords.push(val)
+          return val
+      , 0
+    )
+    plot_divs = []
+    last_plot = null
+    for row, ridx in @mget('children')
+      for plotspec, cidx in row
+        plot = @model.resolve_ref(plotspec)
+        last_plot = plot
+        plot.set(
+          offset : [x_coords[cidx], y_coords[ridx]]
+          usedialog : false
+        )
+    for own_key, view of @childviews
+      #tojq(@d3plot).append(view.$el)
+      plot_wrapper = $("<div class='gp_plotwrapper'></div>")
+      offset = view.model.get('offset')
+      ypos = @options.scale * (@model.ypos(offset[1]) - view.model.get('outerheight'))
+      xpos = @options.scale * offset[0]
+      plot_wrapper.attr(
+        'style',
+        "left:#{xpos}px; top:#{ypos}px")
+      plot_wrapper.append(view.$el)
+      @$el.append(plot_wrapper)
+      @$el.attr(
+        'style',
+        "height:#{@mget('height')}px; width:#{@mget('width')}px;")
+    @render_end()
 
-  initialize : (options) ->
-    super(_.defaults(options, @default_options))
-    @renderers = {}
-    @axes = {}
-    @tools = {}
-    @overlays = {}
 
-
-    @build_renderers()
-    @build_axes()
-    @build_tools()
-    @build_overlays()
-
-    @render()
-    safebind(this, @model, 'change:renderers', @build_renderers)
-    safebind(this, @model, 'change:axes', @build_axes)
-    safebind(this, @model, 'change:tools', @build_tools)
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @model, 'destroy', () => @remove())
-
-    @png_data_url_deferred = $.Deferred()
-    return this
+class PlotView extends Continuum.DeferredView
+  default_options : {scale:1.0}
 
   build_renderers : ->
-    build_views(@model, @renderers, @mget('renderers')
-      ,
+    build_views(@model, @renderers, @mget('renderers'),
+      {
         plot_id : @id,
         plot_model : @model
-        plot_view : @
-    )
+        plot_view : @},
+      @options)
 
   build_axes : ->
-    build_views(@model, @axes, @mget('axes')
-      ,
+    build_views(@model, @axes, @mget('axes'),
+      {
         plot_id : @id
         plot_model : @model
-        plot_view : @
-    )
+        plot_view : @},
+      @options)
+        
 
   build_tools : ->
-    build_views(@model, @tools, @mget('tools')
-      ,
+    build_views(@model, @tools, @mget('tools'),
         plot_id : @id,
         plot_model : @model
-        plot_view : @
-    )
+        plot_view : @)
 
   build_overlays : ->
     #add ids of renderer views into the overlay spec
@@ -198,12 +195,10 @@ class PlotView extends DeferredSVGView
       overlayspec['options']['rendererviews'] = []
       for renderer in overlay.get('renderers')
         overlayspec['options']['rendererviews'].push(@renderers[renderer.id])
-    build_views(@model, @overlays, overlays
-      ,
+    build_views(@model, @overlays, overlays,
         plot_id : @id,
         plot_model : @model
-        plot_view : @
-    )
+        plot_view : @)
 
   bind_overlays : ->
     for overlayspec in @mget('overlays')
@@ -213,100 +208,157 @@ class PlotView extends DeferredSVGView
     for toolspec in   @mget('tools')
       @tools[toolspec.id].bind_events(this)
 
-  tagName : 'svg'
+  tagName : 'div'
 
-  render_mainsvg : ->
-    @$el.children().detach()
-    d3el = d3.select(@el)
-    @d3plot = d3el.append('g')
-    @d3bg = @d3plot.append('g')
-    @d3fg = @d3plot.append('g')
-    @d3fg.append('text')
-      .text(@mget('title'))
-      .attr('x', 0)
-      .attr('y', -15)
-    innerbox = @d3bg
-      .append('rect')
-    @d3plotwindow = @d3fg.append('svg')
+  events :
+    "mousemove .main_can_wrapper" : "_mousemove"
+    "mousedown .main_can_wrapper" : "_mousedown"
+
+  _mousedown : (e) ->
+    window.e = e
+    for f in @mousedownCallbacks
+      f(e, e.layerX, e.layerY)
+
+  _mousemove : (e) ->
+    window.e = e
+    for f in @moveCallbacks
+      f(e, e.layerX, e.layerY)
+
+  initialize : (options) ->
+    super(_.defaults(options, @default_options))
+    @renderers = {}
+    @axes = {}
+    @tools = {}
+    @overlays = {}
+
+    @build_renderers()
+    @build_axes()
+    @build_tools()
+    @build_overlays()
+
+    @moveCallbacks = []
+    @mousedownCallbacks = []
+
+    safebind(this, @model, 'change:renderers', @build_renderers)
+    safebind(this, @model, 'change:axes', @build_axes)
+    safebind(this, @model, 'change:tools', @build_tools)
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @model, 'destroy', () => @remove())
+    @$el.append($("""
+      <div class='button_bar'/>
+      <div class='all_can_wrapper'>
+        
+        <div class='main_can_wrapper can_wrapper'>
+          <div class='_shader' />
+          <canvas class='main_can'></canvas>
+        </div>
+        <div class='x_can_wrapper can_wrapper'>
+            <canvas class='x_can'></canvas>
+        </div>
+        <div class='y_can_wrapper can_wrapper'>
+          <canvas class='y_can'></canvas>
+        </div>
+      </div>
+      """))
+    @canvas = @$el.find('canvas.main_can')
+    @x_can = @$el.find('canvas.x_can')[0]
+    @y_can = @$el.find('canvas.y_can')[0]
+    @main_can_wrapper = @$el.find('.main_can_wrapper')
+    @x_can_wrapper = @$el.find('.x_can_wrapper')
+    @y_can_wrapper = @$el.find('.y_can_wrapper')
+    @render()
     @bind_tools()
     @bind_overlays()
-    @$el.attr('x', @model.position_x())
-      .attr('y', @model.position_y())
-    innerbox
-      .attr('fill', @mget('background_color'))
-      .attr('stroke', @model.get('foreground_color'))
-      .attr('width', @mget('width'))
-      .attr("height",  @mget('height'))
-    @d3plotwindow
-      .attr('width',  @mget('width'))
-      .attr('height', @mget('height'))
-
-    @$el.attr("width", @options.scale * @mget('outerwidth'))
-      .attr('height', @options.scale * @mget('outerheight'))
-    #svg puts origin in the top left, we want it on the bottom left
-    #
-    trans_string = "scale(#{@options.scale}, #{@options.scale})"
-    trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
+    return this
     
-    @d3plot.attr('transform', trans_string)
-    null
-
   render : () ->
     super()
-    @render_mainsvg();
-    @d3fg.append("foreignObject")
-
-    jq_d = $(@d3fg[0][0])
-    can_holder = jq_d.find('foreignObject')
+    @$el.attr("width", @options.scale * @mget('outerwidth'))
+      .attr('height', @options.scale * @mget('outerheight'))
     bord = @mget('border_space')
-    sub_body = can_holder.append('''
-      <body xmlns="http://www.w3.org/1999/xhtml">
-        <div style="position:relative;">
-          <canvas ></canvas>
-        </div>
-      </body>''')
-    
 
+    height = @mget('height')
+    width = @mget('width')
+    xcw = @x_can_wrapper
+    w = @options.scale * @mget('width')
+    h = @options.scale * @mget('height')
+
+    o_w = @options.scale * @mget('outerwidth')
+    o_h = @options.scale * @mget('outerheight')
+    @main_can_wrapper.attr('style', "left:#{bord}px; height:#{h}px; width:#{w}px")
+    @x_can_wrapper.attr('style', "left:#{bord}px; top:#{h}px; height:#{bord}px; width:#{w}px")
+    @y_can_wrapper.attr('style', "width:#{bord}px; height:#{h}px;")
+
+
+    @$el.attr("style", "height:#{o_h}px; width:#{o_w}px")
     wh = (el, w, h) ->
-      el.attr('width', w)
-      el.attr('height', h)
+      $(el).attr('width', w)
+      $(el).attr('height',h)
+    wh(@canvas, w, h)
+    wh(@x_can, w, bord)
+    wh(@y_can, bord, h)
 
-    # due to bugs in positioning foreignObjects inside of svg elements
-    # in webkit, the canvas must be pushed via css
-
-    # http://stackoverflow.com/questions/8185845/svg-foreignobject-behaves-as-though-absolutely-positioned-in-webkit-browsers https://bugs.webkit.org/show_bug.cgi?id=71819 http://code.google.com/p/chromium/issues/detail?id=116566 https://bugs.webkit.org/show_bug.cgi?id=48745
-
-    @canvas = can_holder.find('canvas')
-    if navigator.userAgent.indexOf("WebKit") != -1
-      @canvas.attr('style', "position:absolute; left:#{bord}px; top:#{bord}px;")
-    wh(@canvas, @mget('width'), @mget('height'))
-    wh(can_holder, @mget('width'), @mget('height'))
-
-
+    @x_can_ctx = @x_can.getContext('2d')
+    @y_can_ctx = @y_can.getContext('2d')
     @ctx = @canvas[0].getContext('2d')
-
     for own key, view of @axes
-      tojq(@d3bg).append(view.$el)
+      @$el.append(view.$el)
     for own key, view of @renderers
-      tojq(@d3plotwindow).append(view.$el)
+      @$el.append(view.$el)
+
     @render_end()
+  render_mainsvg : ->
+    if true
+      return
     
   render_deferred_components: (force) ->
     super(force)
-
-
     all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
 
-    window.av = all_views
     if _.any(all_views, (v) -> v._dirty)
       @ctx.clearRect(0,0,  @mget('width'), @mget('height'))      
       for v in all_views
         v._dirty = true
         v.render_deferred_components(true)
 
+
 build_views = Continuum.build_views
 
-# D3LinearAxisView
+class XYRendererView extends PlotWidget
+  initialize : (options) ->
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
+    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
+    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
+
+    super(options)
+
+  calc_buffer : (data) ->
+    "use strict";
+    pv = @plot_view
+    pvo = @plot_view.options
+    own_options = @options
+    #debugger;
+    xmapper = @model.get_ref('xmapper')
+    ymapper = @model.get_ref('ymapper')
+    xfield = @model.get('xfield')
+    yfield = @model.get('yfield')
+    datax = (x[xfield] for x in data)
+    screenx = xmapper.v_map_screen(datax)
+    screenx = @model.v_xpos(screenx)
+    screenx = _.map(screenx, (x) => @plot_view.options.scale * x)
+    datay = (y[yfield] for y in data)
+    screeny = ymapper.v_map_screen(datay)
+    sca = @options.scale
+    screeny = @model.v_ypos(screeny)
+    screeny = _.map(screeny, (y) => @plot_view.options.scale * y)
+    #fix me figure out how to feature test for this so it doesn't use
+    #typed arrays for browsers that don't support that
+
+    @screeny = new Float32Array(screeny)
+    @screenx = new Float32Array(screenx)
+    #@screenx = screenx
+    #@screeny = screeny
 
 class D3LinearAxisView extends PlotWidget
   initialize : (options) ->
@@ -316,7 +368,7 @@ class D3LinearAxisView extends PlotWidget
     safebind(this, @model, 'change', @request_render)
     safebind(this, @mget_ref('mapper'), 'change', @request_render)
 
-  tagName : 'g'
+  tagName : 'div'
 
   get_offsets : (orientation) ->
     offsets =
@@ -346,8 +398,98 @@ class D3LinearAxisView extends PlotWidget
     scale = d3.scale.linear().domain(domain).range(range)
     return scale
 
-
   render : ->
+    super()
+    if @mget('orientation') in ['bottom', 'top']
+      @render_x()
+      @render_end()
+      return
+    @render_y()
+    @render_end()
+    return
+
+  render_x : ->
+    xmapper = @mget_ref('mapper')
+
+    can_ctx = @plot_view.x_can_ctx
+
+    data_range = xmapper.get_ref('data_range')
+    interval = ticks.auto_interval(
+      data_range.get('start'), data_range.get('end'))
+
+    range = data_range.get('end') - data_range.get('start')
+    minX = data_range.get('start')
+    x_scale = range/@mget('width')
+
+    op_scale = @plot_view.options.scale
+    last_tick_end = 10000
+
+    xpos = (realX) ->
+      (((realX - minX)/x_scale) * op_scale)
+
+    [first_tick, last_tick] = ticks.auto_bounds(
+      data_range.get('start'), data_range.get('end'), interval)
+
+    current_tick = first_tick
+    x_ticks = []
+    last_tick_end = 0
+    can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
+    while current_tick <= last_tick
+      x_ticks.push(current_tick)
+      text_width = can_ctx.measureText(current_tick.toString()).width
+      x = (xpos(current_tick) - (text_width/2))
+      if x > last_tick_end
+        can_ctx.fillText(
+          current_tick.toString(), x, 20)
+        last_tick_end = (x + text_width) + 10
+      @plot_view.ctx.moveTo(xpos(current_tick), 0)
+      @plot_view.ctx.lineTo(xpos(current_tick), @mget('height') * op_scale)
+      current_tick += interval
+
+    can_ctx.stroke()
+    @plot_view.ctx.stroke()
+    @render_end()
+
+  DEFAULT_TEXT_HEIGHT : 8
+  render_y : ->
+    ymapper = @mget_ref('mapper')
+    can_ctx = @plot_view.y_can_ctx
+
+    data_range = ymapper.get_ref('data_range')
+    interval = ticks.auto_interval(
+      data_range.get('start'), data_range.get('end'))
+
+    range = data_range.get('end') - data_range.get('start')
+    min_y = data_range.get('start')
+    HEIGHT = @mget('height')
+    y_scale = HEIGHT/range
+    op_scale = @plot_view.options.scale
+    ypos = (real_y) ->
+      (op_scale * (HEIGHT - ((real_y - min_y)*y_scale)))
+      
+    [first_tick, last_tick] = ticks.auto_bounds(
+      data_range.get('start'), data_range.get('end'), interval)
+
+    current_tick = first_tick
+    y_ticks = []
+    last_tick_end = 10000
+
+    can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
+    while current_tick <= last_tick
+      y_ticks.push(current_tick)
+      y = (ypos(current_tick) + (@DEFAULT_TEXT_HEIGHT/2))
+      if y < last_tick_end
+        can_ctx.fillText(current_tick.toString(), 0, y)
+        last_tick_end = (y + @DEFAULT_TEXT_HEIGHT) + 10
+      @plot_view.ctx.moveTo(0, ypos(current_tick))
+      @plot_view.ctx.lineTo(@mget('width') * op_scale, ypos(current_tick))
+      current_tick += interval
+
+    can_ctx.stroke()
+    @plot_view.ctx.stroke()
+    @render_end()
+
+  render_old : ->
     super()
 
     window.axisview = @
@@ -372,6 +514,7 @@ class D3LinearAxisView extends PlotWidget
     node.selectAll('.tick').attr('stroke', @mget('tick_color'))
     @render_end()
 
+
 class D3LinearDateAxisView extends D3LinearAxisView
   convert_scale : (scale) ->
     domain = scale.domain()
@@ -384,37 +527,6 @@ class D3LinearDateAxisView extends D3LinearAxisView
     domain = [new Date(domain[0]), new Date(domain[1])]
     scale = d3.time.scale().domain(domain).range(range)
     return scale
-
-
-
-class XYRendererView extends PlotWidget
-  initialize : (options) ->
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
-    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
-    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
-    super(options)
-
-
-  calc_buffer : (data) ->
-    "use strict";
-    xmapper = @model.get_ref('xmapper')
-    ymapper = @model.get_ref('ymapper')
-    xfield = @model.get('xfield')
-    yfield = @model.get('yfield')
-    datax = (x[xfield] for x in data)
-    screenx = xmapper.v_map_screen(datax)
-    screenx = @model.v_xpos(screenx)
-    datay = (y[yfield] for y in data)
-    screeny = ymapper.v_map_screen(datay)
-    screeny = @model.v_ypos(screeny)
-    #fix me figure out how to feature test for this so it doesn't use
-    #typed arrays for browsers that don't support that
-
-    @screeny = new Float32Array(screeny)
-    @screenx = new Float32Array(screenx)
-    #@screenx = screenx
-    #@screeny = screeny
 
 
 class BarRendererView extends XYRendererView
@@ -468,8 +580,6 @@ class BarRendererView extends XYRendererView
     for d, idx in data_arr
       heights[idx] = value_mapper.map_screen(d[value_field])
 
-
-
     if orientation == "vertical"
       value_pos = (y) =>
         vp =  (@mget('height') - y)
@@ -487,7 +597,6 @@ class BarRendererView extends XYRendererView
     @plot_view.ctx.stroke()
     return null
 
-
   render : () ->
     super()
     @render_bars(@mget('orientation'))
@@ -496,23 +605,24 @@ class BarRendererView extends XYRendererView
 
 
 class LineRendererView extends XYRendererView
-
   render : ->
     super()
-    
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
 
     @plot_view.ctx.fillStyle = 'blue'
     @plot_view.ctx.strokeStyle = @mget('color')
     @plot_view.ctx.beginPath()
+    if navigator.userAgent.indexOf("WebKit") != -1
+      @ctx.scale(0.5, 0.5)
+
     @plot_view.ctx.moveTo(@screenx[0], @screeny[0])
     for idx in [1..@screenx.length]
       @plot_view.ctx.lineTo(@screenx[idx], @screeny[idx])
     @plot_view.ctx.stroke()
     @render_end()
-
     return null
+
 
 class ScatterRendererView extends XYRendererView
   render : ->
@@ -526,6 +636,11 @@ class ScatterRendererView extends XYRendererView
     data = @model.get_ref('data_source').get('data')
     a = new Date()
     @calc_buffer(data)
+    @plot_view.ctx.beginPath()
+    #if navigator.userAgent.indexOf("WebKit") != -1
+      #@ctx.scale(0.5, 0.5)
+    if navigator.userAgent.indexOf("WebKit") != -1
+      @plot_view.ctx.scale(@options.scale, @options.scale)
 
     @plot_view.ctx.fillStyle = @mget('foreground_color')
     @plot_view.ctx.strokeStyle = @mget('foreground_color')
@@ -555,21 +670,34 @@ class ScatterRendererView extends XYRendererView
 
 
 #  tools
-
-class PanToolView extends PlotWidget
+class PanToolView_ extends PlotWidget
   initialize : (options) ->
     @dragging = false
     super(options)
 
-  mouse_coords : () ->
-    plot = @plot_view.d3plotwindow
-    [x, y] = d3.mouse(plot[0][0])
-    [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
-    return [x, y]
+  bind_events : (plotview) ->
+    @plotview = plotview
+    @plotview.mousedownCallbacks.push((e, x, y) =>
+      console.log('mousedown callback')
+      @dragging = false)
+      
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if e.shiftKey
+        if not @dragging
 
-  _start_drag : () ->
+          @_start_drag(e, x, y)
+        else
+          @_drag(e.foo, e.foo, e, x, y)
+          e.preventDefault()
+          e.stopPropagation())
+
+  mouse_coords : (e, x, y) ->
+    [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    return [x_, y_]
+
+  _start_drag : (e, x, y) ->
     @dragging = true
-    [@x, @y] = @mouse_coords()
+    [@x, @y] = @mouse_coords(e, x, y)
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
 
@@ -584,10 +712,9 @@ class PanToolView extends PlotWidget
       'end' : end
     }, {'local' : true})
 
-  _drag : (xdiff, ydiff) ->
-    plot = @plot_view.d3plotwindow
+  _drag : (xdiff, ydiff, e, x__, y__) ->
     if _.isUndefined(xdiff) or _.isUndefined(ydiff)
-      [x, y] = @mouse_coords()
+      [x, y] = @mouse_coords(e, x__, y__)
       xdiff = x - @x
       ydiff = y - @y
       [@x, @y] = [x, y]
@@ -598,26 +725,8 @@ class PanToolView extends PlotWidget
     for ymap in ymappers
       @_drag_mapper(ymap, ydiff)
 
-  bind_events : (plotview) ->
-    @plotview = plotview
-    node = d3.select(@plot_view.el)
-    node.attr('pointer-events' , 'all')
-    node.on("mousemove.drag"
-      ,
-        () =>
-          if d3.event.shiftKey
-            if not @dragging
-              @_start_drag()
-            else
-              @_drag()
-            d3.event.preventDefault()
-            d3.event.stopPropagation()
-          else
-            @dragging = false
-          return null
-    )
 
-class SelectionToolView extends PlotWidget
+class SelectionToolView_ extends PlotWidget
   initialize : (options) ->
     super(options)
     @selecting = false
@@ -634,32 +743,22 @@ class SelectionToolView extends PlotWidget
       safebind(this, renderer.get_ref('xmapper'), 'change', select_callback)
       safebind(this, renderer.get_ref('ymapper'), 'change', select_callback)
 
-
   bind_events : (plotview) ->
+    console.log("SelectionToolView bind_events")
     @plotview = plotview
-    node = d3.select(@plot_view.el)
-    node.attr('pointer-events' , 'all')
-    node.on("mousedown.selection"
-      ,
-        () =>
-          @_stop_selecting()
-    )
-    node.on("mousemove.selection"
-      ,
-        () =>
-          if d3.event.ctrlKey
-            if not @selecting
-              @_start_selecting()
-            else
-              @_selecting()
-            d3.event.preventDefault()
-            d3.event.stopPropagation()
-          return null
-    )
+    @plotview.mousedownCallbacks.push((e, x, y) =>
+      @_stop_selecting())
+      
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if e.ctrlKey or @button_selecting
+        if not @selecting
+          @_start_selecting(e, x, y)
+        else
+          @_selecting(e, x, y)
+          e.preventDefault()
+          e.stopPropagation())
 
-  mouse_coords : () ->
-    plot = @plot_view.d3plotwindow
-    [x, y] = d3.mouse(plot[0][0])
+  mouse_coords : (e, x, y) ->
     [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x, y]
 
@@ -670,16 +769,18 @@ class SelectionToolView extends PlotWidget
       current_x : null
       current_y : null
     )
+    @plotview.$el.removeClass("shading")
     for renderer in @mget('renderers')
       @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
       @model.resolve_ref(renderer).get_ref('data_source').save()
     @selecting = false
+    @button_selecting = false
     if @shading
       @shading.remove()
       @shading = null
 
-  _start_selecting : () ->
-    [x, y] = @mouse_coords()
+  _start_selecting : (e, x_, y_) ->
+    [x, y] = @mouse_coords(e, x_, y_)
     @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
     for renderer in @mget('renderers')
       data_source = @model.resolve_ref(renderer).get_ref('data_source')
@@ -700,8 +801,8 @@ class SelectionToolView extends PlotWidget
       yrange = null
     return [xrange, yrange]
 
-  _selecting : () ->
-    [x, y] = @mouse_coords()
+  _selecting : (e, x_, y_) ->
+    [x, y] = @mouse_coords(e, x_, y_)
     @mset({'current_x' : x, 'current_y' : y})
     return null
 
@@ -734,30 +835,106 @@ class SelectionToolView extends PlotWidget
       _.any(_.map(yrange, _.isNullOrUndefined))
         return
     if not @shading
-      @shading = @plot_view.d3plotwindow.append('rect')
+      @plotview.$el.addClass("shading")
+    style_string = ""
+    xpos = @plot_model.rxpos(Math.min(xrange[0], xrange[1]))
     if xrange
-      width = xrange[1] - xrange[0]
-      @shading.attr('x', @plot_model.position_child_x(width, xrange[0]))
-        .attr('width', width)
+      width = Math.abs(xrange[1] - xrange[0])
     else
       width = @plot_model.get('width')
-      @shading.attr('x',  @plot_model.position_child_x(xrange[0]))
-        .attr('width', width)
+    style_string += "; left:#{xpos}px; width:#{width}px; "
+    ypos = @plot_model.rypos(Math.max(yrange[0], yrange[1]))
     if yrange
       height = yrange[1] - yrange[0]
-      @shading.attr('y', @plot_model.position_child_y(height, yrange[0]))
-        .attr('height', height)
     else
       height = @plot_model.get('height')
-      @shading.attr('y', @plot_model.position_child_y(height, yrange[0]))
-        .attr('height', height)
-    @shading.attr('fill', '#000').attr('fill-opacity', 0.1)
+    style_string += "top:#{ypos}px; height:#{height}px"
+    @plotview.$el.find("._shader").attr('style', style_string)
+    #@shading.attr('fill', '#000').attr('fill-opacity', 0.1)
 
   render : () ->
     super()
     @_render_shading()
     @render_end()
     return null
+
+
+class PanToolView extends PanToolView_
+  initialize : (options) ->
+    super(options)
+    @selecting = false
+    @button_clicked = false
+
+  bind_events : (plotview) ->
+    console.log("pantoolview bind_events")
+    @plotview = plotview
+    @plotview.mousedownCallbacks.push((e, x, y) =>
+      if @button_panning
+        @dragging = false
+        @button_panning = false
+      else
+        @_start_drag(e, x, y))
+
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if @button_panning and @dragging
+        @_drag(e.foo, e.foo, e, x, y)
+        e.preventDefault()
+        e.stopPropagation())
+    pantool_button = $('<button> Pan Tool </button>')
+    @plotview.$el.find('.button_bar').append(pantool_button)
+    pantool_button.click(=>
+      if @button_panning
+        @dragging = false
+        @button_panning = false
+      else
+        @button_panning = true)
+
+
+class SelectionToolView extends SelectionToolView_
+  """this version only works via the toolbar button   """
+  initialize : (options) ->
+    super(options)
+    @selecting = false
+
+  bind_events : (plotview) ->
+    console.log("SelectionToolView bind_events")
+    @plotview = plotview
+    @plotview.mousedownCallbacks.push((e, x, y) =>
+      if @button_selecting
+        if not @selecting
+          @_start_selecting(e, x, y)
+        else 
+          @_stop_selecting())
+      
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if @button_selecting and @selecting
+          @_selecting(e, x, y)
+          e.preventDefault()
+          e.stopPropagation())
+    select_button = $('<button> Selction Tool </button>')
+    @plotview.$el.find('.button_bar').append(select_button)
+    select_button.click(=>
+      if @button_selecting
+        @stop_selecting()
+      else
+        @button_selecting = true)
+  _stop_selecting : () ->
+    @mset(
+      start_x : null
+      start_y : null
+      current_x : null
+      current_y : null
+    )
+    @plotview.$el.removeClass("shading")
+    for renderer in @mget('renderers')
+      @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
+      @model.resolve_ref(renderer).get_ref('data_source').save()
+    @selecting = false
+    @button_selecting = false
+    if @shading
+      @shading.remove()
+      @shading = null
+   
 
 class OverlayView extends PlotWidget
   initialize : (options) ->
@@ -768,7 +945,6 @@ class OverlayView extends PlotWidget
     @plotview = plotview
     return null
 
-window.sel_debug = false
 class ScatterSelectionOverlayView extends OverlayView
   initialize : (options) ->
     super(options)
@@ -783,8 +959,6 @@ class ScatterSelectionOverlayView extends OverlayView
     window.overlay_render += 1
     super()
     for temp in _.zip(@mget('renderers'), @rendererviews)
-      if window.sel_debug
-        debugger;
       [renderer, rendererview] = temp
       renderer = @model.resolve_ref(renderer)
       selected = {}
