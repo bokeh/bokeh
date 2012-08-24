@@ -613,8 +613,6 @@ class LineRendererView extends XYRendererView
     @plot_view.ctx.fillStyle = 'blue'
     @plot_view.ctx.strokeStyle = @mget('color')
     @plot_view.ctx.beginPath()
-    if navigator.userAgent.indexOf("WebKit") != -1
-      @ctx.scale(0.5, 0.5)
 
     @plot_view.ctx.moveTo(@screenx[0], @screeny[0])
     for idx in [1..@screenx.length]
