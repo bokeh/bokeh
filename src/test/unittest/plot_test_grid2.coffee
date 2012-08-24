@@ -62,5 +62,10 @@ test('line_plot_grid_test', ->
       {'model' : container, 'render_loop' : true})
   	div.append(view.$el)		
   	view.render()
-  	plot3.set({'height' : 300})))
+  	plot3.set({'height' : 300})
+  	view2 = new Bokeh.GridPlotContainerView(
+      {'model' : container, 'scale':0.75, 'render_loop' : true})
+  	div.append(view2.$el)		
+  	view2.render()))
+
 

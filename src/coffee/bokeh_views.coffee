@@ -54,7 +54,7 @@ class GridPlotContainerView extends Continuum.DeferredView
       for x in row
         @model.resolve_ref(x).set('usedialog', false)
         childspecs.push(x)
-    build_views(@model, @childviews, childspecs)
+    build_views(@model, @childviews, childspecs, {'scale': @options.scale})
 
   render_deferred_components : (force) ->
     super(force)
@@ -132,7 +132,6 @@ class GridPlotContainerView extends Continuum.DeferredView
           return val
       , 0
     )
-    console.log(x_coords, y_coords)
     plot_divs = []
     last_plot = null
     for row, ridx in @mget('children')
@@ -143,15 +142,15 @@ class GridPlotContainerView extends Continuum.DeferredView
           offset : [x_coords[cidx], y_coords[ridx]]
           usedialog : false
         )
-        console.log(plot.get('offset'))
     for own_key, view of @childviews
       #tojq(@d3plot).append(view.$el)
       plot_wrapper = $("<div class='gp_plotwrapper'></div>")
       offset = view.model.get('offset')
-      ypos = @model.ypos(offset[1]) - view.model.get('outerheight')
+      ypos = @options.scale * (@model.ypos(offset[1]) - view.model.get('outerheight'))
+      xpos = @options.scale * offset[0]
       plot_wrapper.attr(
         'style',
-        "left:#{offset[0]}px; top:#{ypos}px")
+        "left:#{xpos}px; top:#{ypos}px")
       plot_wrapper.append(view.$el)
       @$el.append(plot_wrapper)
       @$el.attr(
