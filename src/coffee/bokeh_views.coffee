@@ -93,6 +93,7 @@ class GridPlotContainerView extends Continuum.DeferredView
           return val
       , 0
     )
+
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         plot = @model.resolve_ref(plotspec)
@@ -131,7 +132,7 @@ class GridPlotContainerView extends Continuum.DeferredView
           return val
       , 0
     )
-    #console.log(x_coords, y_coords)
+    console.log(x_coords, y_coords)
     plot_divs = []
     last_plot = null
     for row, ridx in @mget('children')
