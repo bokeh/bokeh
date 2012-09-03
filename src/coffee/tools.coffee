@@ -120,16 +120,19 @@ class SelectionToolView_ extends Bokeh.PlotWidget
       safebind(this, renderer, 'change', select_callback)
       safebind(this, renderer.get_ref('xmapper'), 'change', select_callback)
       safebind(this, renderer.get_ref('ymapper'), 'change', select_callback)
-    @draggin_2 = false
-    
+    @selecting_2 = false
+    @basepoint_set = false
+    @button_activated = false
 
   bind_events : (plotview) ->
-    console.log("SelectionToolView bind_events")
     @plotview = plotview
+    """
     @plotview.mousedownCallbacks.push((e, x, y) =>
       @_stop_selecting())
-      
+
+    
     @plotview.moveCallbacks.push((e, x, y) =>
+     
       if e.ctrlKey or @button_selecting
         if not @selecting
           @_start_selecting(e, x, y)
@@ -137,6 +140,58 @@ class SelectionToolView_ extends Bokeh.PlotWidget
           @_selecting(e, x, y)
           e.preventDefault()
           e.stopPropagation())
+    """
+
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if not @selecting_2
+        return
+      if not @basepoint_set
+        @_start_selecting(e, x, y)
+      else
+        @_selecting(e, x, y)
+        e.preventDefault()
+        e.stopPropagation())
+
+    $(document).bind('keydown', (e) =>
+      if e.ctrlKey
+        @_start_drag2())
+
+    $(document).bind('keyup', (e) =>
+      if not e.ctrlKey
+        @_stop_drag2())
+
+    @plotview.main_can_wrapper.bind('mousedown', (e) =>
+      if @button_activated
+        @_start_drag2())
+
+    @plotview.main_can_wrapper.bind('mouseup', (e) =>
+      if @button_activated
+        @_stop_drag2())
+
+    @pan_button = $('<button> Selection Tool </button>')
+    @plotview.$el.find('.button_bar').append(@pan_button)
+    @pan_button.click(=>
+      if @button_activated
+        @button_activated = false
+        @pan_button.removeClass('active')
+      else
+        @pan_button.addClass('active')
+        @button_activated = true)
+
+    
+  _start_drag2 : ->
+    if not @selecting_2
+      @selecting_2 = true
+      if not @button_activated
+        @pan_button.addClass('active')
+   
+  _stop_drag2 : ->
+    @basepoint_set = false
+    if @selecting_2
+      @selecting_2 = false
+      if not @button_activated
+        @pan_button.removeClass('active')
+
 
   mouse_coords : (e, x, y) ->
     [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
@@ -153,7 +208,8 @@ class SelectionToolView_ extends Bokeh.PlotWidget
     for renderer in @mget('renderers')
       @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
       @model.resolve_ref(renderer).get_ref('data_source').save()
-    @selecting = false
+    #@selecting = false
+    @basepoint_set = false
     @button_selecting = false
     if @shading
       @shading.remove()
@@ -166,8 +222,10 @@ class SelectionToolView_ extends Bokeh.PlotWidget
       data_source = @model.resolve_ref(renderer).get_ref('data_source')
       data_source.set('selecting', true)
       data_source.save()
-    @selecting = true
+    #@selecting = true
 
+    @basepoint_set = true
+    
   _get_selection_range : ->
     xrange = [@mget('start_x'), @mget('current_x')]
     yrange = [@mget('start_y'), @mget('current_y')]
@@ -187,7 +245,8 @@ class SelectionToolView_ extends Bokeh.PlotWidget
     return null
 
   _select_data : () ->
-    if not @selecting
+    #if not @selecting
+    if not @basepoint_set
       return
     [xrange, yrange] = @_get_selection_range()
     datasources = {}
@@ -236,6 +295,6 @@ class SelectionToolView_ extends Bokeh.PlotWidget
     @_render_shading()
     @render_end()
     return null
-Bokeh.SelectionToolView = SelectionToolView_
 
+Bokeh.SelectionToolView = SelectionToolView_
 Bokeh.PanToolView = PanToolView_
