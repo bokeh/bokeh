@@ -215,12 +215,10 @@ class PlotView extends Continuum.DeferredView
     "mousedown .main_can_wrapper" : "_mousedown"
 
   _mousedown : (e) ->
-    window.e = e
     for f in @mousedownCallbacks
       f(e, e.layerX, e.layerY)
 
   _mousemove : (e) ->
-    window.e = e
     for f in @moveCallbacks
       f(e, e.layerX, e.layerY)
 
@@ -238,6 +236,7 @@ class PlotView extends Continuum.DeferredView
 
     @moveCallbacks = []
     @mousedownCallbacks = []
+    @keydownCallbacks = []
 
     safebind(this, @model, 'change:renderers', @build_renderers)
     safebind(this, @model, 'change:axes', @build_axes)
@@ -667,62 +666,6 @@ class ScatterRendererView extends XYRendererView
     return null
 
 
-#  tools
-class PanToolView_ extends PlotWidget
-  initialize : (options) ->
-    @dragging = false
-    super(options)
-
-  bind_events : (plotview) ->
-    @plotview = plotview
-    @plotview.mousedownCallbacks.push((e, x, y) =>
-      console.log('mousedown callback')
-      @dragging = false)
-      
-    @plotview.moveCallbacks.push((e, x, y) =>
-      if e.shiftKey
-        if not @dragging
-
-          @_start_drag(e, x, y)
-        else
-          @_drag(e.foo, e.foo, e, x, y)
-          e.preventDefault()
-          e.stopPropagation())
-
-  mouse_coords : (e, x, y) ->
-    [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
-    return [x_, y_]
-
-  _start_drag : (e, x, y) ->
-    @dragging = true
-    [@x, @y] = @mouse_coords(e, x, y)
-    xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
-    ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
-
-  _drag_mapper : (mapper, diff) ->
-    screen_range = mapper.get_ref('screen_range')
-    data_range = mapper.get_ref('data_range')
-    screenlow = screen_range.get('start') - diff
-    screenhigh = screen_range.get('end') - diff
-    [start, end] = [mapper.map_data(screenlow), mapper.map_data(screenhigh)]
-    data_range.set({
-      'start' : start
-      'end' : end
-    }, {'local' : true})
-
-  _drag : (xdiff, ydiff, e, x__, y__) ->
-    if _.isUndefined(xdiff) or _.isUndefined(ydiff)
-      [x, y] = @mouse_coords(e, x__, y__)
-      xdiff = x - @x
-      ydiff = y - @y
-      [@x, @y] = [x, y]
-    xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
-    ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
-    for xmap in xmappers
-      @_drag_mapper(xmap, xdiff)
-    for ymap in ymappers
-      @_drag_mapper(ymap, ydiff)
-
 
 class SelectionToolView_ extends PlotWidget
   initialize : (options) ->
@@ -855,37 +798,6 @@ class SelectionToolView_ extends PlotWidget
     @_render_shading()
     @render_end()
     return null
-
-
-class PanToolView extends PanToolView_
-  initialize : (options) ->
-    super(options)
-    @selecting = false
-    @button_clicked = false
-
-  bind_events : (plotview) ->
-    console.log("pantoolview bind_events")
-    @plotview = plotview
-    @plotview.mousedownCallbacks.push((e, x, y) =>
-      if @button_panning
-        @dragging = false
-        @button_panning = false
-      else
-        @_start_drag(e, x, y))
-
-    @plotview.moveCallbacks.push((e, x, y) =>
-      if @button_panning and @dragging
-        @_drag(e.foo, e.foo, e, x, y)
-        e.preventDefault()
-        e.stopPropagation())
-    pantool_button = $('<button> Pan Tool </button>')
-    @plotview.$el.find('.button_bar').append(pantool_button)
-    pantool_button.click(=>
-      if @button_panning
-        @dragging = false
-        @button_panning = false
-      else
-        @button_panning = true)
 
 
 class SelectionToolView extends SelectionToolView_
@@ -1057,7 +969,7 @@ Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.LineRendererView = LineRendererView
 Bokeh.BarRendererView = BarRendererView
 Bokeh.GridPlotContainerView = GridPlotContainerView
-Bokeh.PanToolView = PanToolView
+#Bokeh.PanToolView = PanToolView
 Bokeh.ZoomToolView = ZoomToolView
 Bokeh.SelectionToolView = SelectionToolView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
