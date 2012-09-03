@@ -10,7 +10,6 @@ class PanToolView_ extends Bokeh.PlotWidget
   initialize : (options) ->
     @dragging2 = false
     @started_dragging = false
-    #debugger;
     super(options)
     @dragging = false
     @started_dragging = false
@@ -18,12 +17,8 @@ class PanToolView_ extends Bokeh.PlotWidget
 
   bind_events : (plotview) ->
     @plotview = plotview
-    window.ptv = @
     @plotview.moveCallbacks.push((e, x, y) =>
-      the = @
-      #debugger;
       if not @dragging2
-        #console.log('returning because not dragging')
         return
       if not @started_dragging
         @_start_drag(e, x, y)
@@ -32,16 +27,12 @@ class PanToolView_ extends Bokeh.PlotWidget
         @_drag(e.foo, e.foo, e, x, y)
         e.preventDefault()
         e.stopPropagation())
-
   
     $(document).bind('keydown', (e) =>
-      console.log(' keydown event ')
       if e.shiftKey
         @_start_drag2())
-          
 
     $(document).bind('keyup', (e) =>
-      console.log('keyup event')
       if not e.shiftKey
         @_stop_drag2())
 
@@ -66,7 +57,6 @@ class PanToolView_ extends Bokeh.PlotWidget
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x_, y_]
-    
 
   _start_drag : (e, x, y) ->
     @dragging2 = true
