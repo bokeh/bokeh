@@ -6,6 +6,7 @@ else
   this.Bokeh = Bokeh
 safebind = Continuum.safebind
 
+
 class PanToolView_ extends Bokeh.PlotWidget
   # draggin2 is used because having a variable named @dragging causes some sort of naming conflict.
   # I need to look through this and figure out what is going on
@@ -13,7 +14,7 @@ class PanToolView_ extends Bokeh.PlotWidget
   initialize : (options) ->
     super(options)
     @draggin2 = false
-    @started_dragging = false
+    @basepoint_set = false
     @button_activated = false
 
   bind_events : (plotview) ->
@@ -21,9 +22,8 @@ class PanToolView_ extends Bokeh.PlotWidget
     @plotview.moveCallbacks.push((e, x, y) =>
       if not @draggin2
         return
-      if not @started_dragging
-        @_start_drag(e, x, y)
-        @started_dragging = true
+      if not @basepoint_set
+        @_set_base_point(e, x, y)
       else
         @_drag(e.foo, e.foo, e, x, y)
         e.preventDefault()
@@ -56,15 +56,14 @@ class PanToolView_ extends Bokeh.PlotWidget
         @button_activated = true)
 
   _start_drag2 : ->
-    if not @draggin2 
-      @started_dragging = false
+    if not @draggin2
       @draggin2 = true
       if not @button_activated
         @pan_button.addClass('active')
    
   _stop_drag2 : ->
+    @basepoint_set = false
     if @draggin2
-      @started_dragging = false
       @draggin2 = false
       if not @button_activated
         @pan_button.removeClass('active')
@@ -73,9 +72,9 @@ class PanToolView_ extends Bokeh.PlotWidget
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x_, y_]
 
-  #_set_base_point
-  _start_drag : (e, x, y) ->
+  _set_base_point : (e, x, y) ->
     @draggin2 = true
+    @basepoint_set = true
     [@x, @y] = @mouse_coords(e, x, y)
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
