@@ -7,8 +7,10 @@ else
 safebind = Continuum.safebind
 
 class PanToolView_ extends Bokeh.PlotWidget
+  # draggin2 is used because having a variable named @dragging causes some sort of naming conflict.
+  # I need to look through this and figure out what is going on
+
   initialize : (options) ->
-    @started_dragging = false
     super(options)
     @draggin2 = false
     @started_dragging = false
@@ -53,7 +55,6 @@ class PanToolView_ extends Bokeh.PlotWidget
         @pan_button.addClass('active')
         @button_activated = true)
 
-
   _start_drag2 : ->
     if not @draggin2 
       @started_dragging = false
@@ -72,6 +73,7 @@ class PanToolView_ extends Bokeh.PlotWidget
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x_, y_]
 
+  #_set_base_point
   _start_drag : (e, x, y) ->
     @draggin2 = true
     [@x, @y] = @mouse_coords(e, x, y)
