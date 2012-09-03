@@ -8,7 +8,6 @@ safebind = Continuum.safebind
 
 class PanToolView_ extends Bokeh.PlotWidget
   initialize : (options) ->
-    @dragging2 = false
     @started_dragging = false
     super(options)
     @dragging = false
@@ -18,7 +17,7 @@ class PanToolView_ extends Bokeh.PlotWidget
   bind_events : (plotview) ->
     @plotview = plotview
     @plotview.moveCallbacks.push((e, x, y) =>
-      if not @dragging2
+      if not @dragging
         return
       if not @started_dragging
         @_start_drag(e, x, y)
@@ -45,21 +44,21 @@ class PanToolView_ extends Bokeh.PlotWidget
         @_stop_drag2())
     
   _start_drag2 : ->
-    if not @dragging2 
+    if not @dragging 
       @started_dragging = false
-      @dragging2 = true
+      @dragging = true
    
   _stop_drag2 : ->
-    if @dragging2
+    if @dragging
       @started_dragging = false
-      @dragging2 = false
+      @dragging = false
   
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x_, y_]
 
   _start_drag : (e, x, y) ->
-    @dragging2 = true
+    @dragging = true
     [@x, @y] = @mouse_coords(e, x, y)
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
