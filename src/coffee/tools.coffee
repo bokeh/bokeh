@@ -10,14 +10,14 @@ class PanToolView_ extends Bokeh.PlotWidget
   initialize : (options) ->
     @started_dragging = false
     super(options)
-    @dragging = false
+    @draggin2 = false
     @started_dragging = false
     @button_activated = false
 
   bind_events : (plotview) ->
     @plotview = plotview
     @plotview.moveCallbacks.push((e, x, y) =>
-      if not @dragging
+      if not @draggin2
         return
       if not @started_dragging
         @_start_drag(e, x, y)
@@ -42,23 +42,38 @@ class PanToolView_ extends Bokeh.PlotWidget
     @plotview.main_can_wrapper.bind('mouseup', (e) =>
       if @button_activated
         @_stop_drag2())
-    
+
+    @pan_button = $('<button> Pan Tool </button>')
+    @plotview.$el.find('.button_bar').append(@pan_button)
+    @pan_button.click(=>
+      if @button_activated
+        @button_activated = false
+        @pan_button.removeClass('active')
+      else
+        @pan_button.addClass('active')
+        @button_activated = true)
+
+
   _start_drag2 : ->
-    if not @dragging 
+    if not @draggin2 
       @started_dragging = false
-      @dragging = true
+      @draggin2 = true
+      if not @button_activated
+        @pan_button.addClass('active')
    
   _stop_drag2 : ->
-    if @dragging
+    if @draggin2
       @started_dragging = false
-      @dragging = false
-  
+      @draggin2 = false
+      if not @button_activated
+        @pan_button.removeClass('active')
+
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x_, y_]
 
   _start_drag : (e, x, y) ->
-    @dragging = true
+    @draggin2 = true
     [@x, @y] = @mouse_coords(e, x, y)
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
