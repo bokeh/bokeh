@@ -103,4 +103,139 @@ class PanToolView_ extends Bokeh.PlotWidget
     for ymap in ymappers
       @_drag_mapper(ymap, ydiff)
 
+
+class SelectionToolView_ extends Bokeh.PlotWidget
+  initialize : (options) ->
+    super(options)
+    @selecting = false
+    select_callback = _.debounce((() => @_select_data()),50)
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @model, 'change', select_callback)
+    for renderer in @mget('renderers')
+      renderer = @model.resolve_ref(renderer)
+      safebind(this, renderer, 'change', @request_render)
+      safebind(this, renderer.get_ref('xmapper'), 'change', @request_render)
+      safebind(this, renderer.get_ref('ymapper'), 'change', @request_render)
+      safebind(this, renderer.get_ref('data_source'), 'change', @request_render)
+      safebind(this, renderer, 'change', select_callback)
+      safebind(this, renderer.get_ref('xmapper'), 'change', select_callback)
+      safebind(this, renderer.get_ref('ymapper'), 'change', select_callback)
+    @draggin_2 = false
+    
+
+  bind_events : (plotview) ->
+    console.log("SelectionToolView bind_events")
+    @plotview = plotview
+    @plotview.mousedownCallbacks.push((e, x, y) =>
+      @_stop_selecting())
+      
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if e.ctrlKey or @button_selecting
+        if not @selecting
+          @_start_selecting(e, x, y)
+        else
+          @_selecting(e, x, y)
+          e.preventDefault()
+          e.stopPropagation())
+
+  mouse_coords : (e, x, y) ->
+    [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    return [x, y]
+
+  _stop_selecting : () ->
+    @mset(
+      start_x : null
+      start_y : null
+      current_x : null
+      current_y : null
+    )
+    @plotview.$el.removeClass("shading")
+    for renderer in @mget('renderers')
+      @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
+      @model.resolve_ref(renderer).get_ref('data_source').save()
+    @selecting = false
+    @button_selecting = false
+    if @shading
+      @shading.remove()
+      @shading = null
+
+  _start_selecting : (e, x_, y_) ->
+    [x, y] = @mouse_coords(e, x_, y_)
+    @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
+    for renderer in @mget('renderers')
+      data_source = @model.resolve_ref(renderer).get_ref('data_source')
+      data_source.set('selecting', true)
+      data_source.save()
+    @selecting = true
+
+  _get_selection_range : ->
+    xrange = [@mget('start_x'), @mget('current_x')]
+    yrange = [@mget('start_y'), @mget('current_y')]
+    if @mget('select_x')
+      xrange = [d3.min(xrange), d3.max(xrange)]
+    else
+      xrange = null
+    if @mget('select_y')
+      yrange = [d3.min(yrange), d3.max(yrange)]
+    else
+      yrange = null
+    return [xrange, yrange]
+
+  _selecting : (e, x_, y_) ->
+    [x, y] = @mouse_coords(e, x_, y_)
+    @mset({'current_x' : x, 'current_y' : y})
+    return null
+
+  _select_data : () ->
+    if not @selecting
+      return
+    [xrange, yrange] = @_get_selection_range()
+    datasources = {}
+    datasource_selections = {}
+
+    for renderer in @mget('renderers')
+      datasource = @model.resolve_ref(renderer).get_ref('data_source')
+      datasources[datasource.id] = datasource
+
+    for renderer in @mget('renderers')
+      datasource_id = @model.resolve_ref(renderer).get_ref('data_source').id
+      _.setdefault(datasource_selections, datasource_id, [])
+      selected = @model.resolve_ref(renderer).select(xrange, yrange)
+      datasource_selections[datasource.id].push(selected)
+
+    for own k,v of datasource_selections
+      selected = _.intersect.apply(_, v)
+      datasources[k].set('selected', selected)
+      datasources[k].save()
+    return null
+
+  _render_shading : () ->
+    [xrange, yrange] = @_get_selection_range()
+    if _.any(_.map(xrange, _.isNullOrUndefined)) or
+      _.any(_.map(yrange, _.isNullOrUndefined))
+        return
+    if not @shading
+      @plotview.$el.addClass("shading")
+    style_string = ""
+    xpos = @plot_model.rxpos(Math.min(xrange[0], xrange[1]))
+    if xrange
+      width = Math.abs(xrange[1] - xrange[0])
+    else
+      width = @plot_model.get('width')
+    style_string += "; left:#{xpos}px; width:#{width}px; "
+    ypos = @plot_model.rypos(Math.max(yrange[0], yrange[1]))
+    if yrange
+      height = yrange[1] - yrange[0]
+    else
+      height = @plot_model.get('height')
+    style_string += "top:#{ypos}px; height:#{height}px"
+    @plotview.$el.find("._shader").attr('style', style_string)
+
+  render : () ->
+    super()
+    @_render_shading()
+    @render_end()
+    return null
+Bokeh.SelectionToolView = SelectionToolView_
+
 Bokeh.PanToolView = PanToolView_
