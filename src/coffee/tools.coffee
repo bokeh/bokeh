@@ -31,7 +31,7 @@ class PanToolEventGenerator
   constructor : (options) ->
     @options = options
     @toolName = @options.eventBasename
-    @draggin2 = false
+    @dragging = false
     @basepoint_set = false
     @button_activated = false
     @tool_active = false
@@ -41,12 +41,12 @@ class PanToolEventGenerator
     @plotview = plotview
     @eventSink = eventSink
     @plotview.moveCallbacks.push((e, x, y) =>
-      if not @draggin2
+      if not @dragging
         return
       if not @tool_active
         return
       if not @basepoint_set
-        @draggin2 = true
+        @dragging = true
         @basepoint_set = true
         eventSink.trigger("#{toolName}:SetBasepoint", e)
       else
@@ -95,23 +95,21 @@ class PanToolEventGenerator
 
   _start_drag2 : ->
     @eventSink.trigger("active_tool", @toolName)
-    if not @draggin2
-      @draggin2 = true
+    if not @dragging
+      @dragging = true
       if not @button_activated
         @pan_button.addClass('active')
         
   _stop_drag2 : ->
     @basepoint_set = false
-    if @draggin2
-      @draggin2 = false
+    if @dragging
+      @dragging = false
       if not @button_activated
         @pan_button.removeClass('active')
       @eventSink.trigger("#{@options.eventBasename}:DragEnd")
 
 
 class PanToolView_ extends Bokeh.PlotWidget
-  # draggin2 is used because having a variable named @dragging causes some sort of naming conflict.
-  # I need to look through this and figure out what is going on
 
   initialize : (options) ->
     super(options)
@@ -212,7 +210,6 @@ class SelectionToolView_ extends Bokeh.PlotWidget
       @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
       @model.resolve_ref(renderer).get_ref('data_source').save()
     @basepoint_set = false
-    @button_selecting = false
     if @shading
       @shading.remove()
       @shading = null
