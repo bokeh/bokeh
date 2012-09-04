@@ -70,7 +70,7 @@ class PanToolEventGenerator
       @draggin2 = false
       if not @button_activated
         @pan_button.removeClass('active')
-
+      eventSink.trigger("#{@options.eventBasename}:DragEnd")
 
 
 class PanToolView_ extends Bokeh.PlotWidget
@@ -81,7 +81,8 @@ class PanToolView_ extends Bokeh.PlotWidget
     super(options)
 
   bind_events : (plotview) ->
-    evgen = new PanToolEventGenerator(eventBasename:"PanTool", keyName:"shiftKey", buttonText:"Pan Tool")
+    evgen = new PanToolEventGenerator(
+      eventBasename:"PanTool", keyName:"shiftKey", buttonText:"Pan Tool")
     eventSink = evgen.bind_events(plotview)
     
     eventSink.on('PanTool:UpdatingMouseMove', (e) =>
