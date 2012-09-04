@@ -228,6 +228,8 @@ class PlotView extends Continuum.DeferredView
     @axes = {}
     @tools = {}
     @overlays = {}
+    @eventSink = _.extend({}, Backbone.Events)
+
 
     @build_renderers()
     @build_axes()
