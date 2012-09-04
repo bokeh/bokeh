@@ -794,7 +794,7 @@ Bokeh.LineRendererView = LineRendererView
 Bokeh.BarRendererView = BarRendererView
 Bokeh.GridPlotContainerView = GridPlotContainerView
 #Bokeh.PanToolView = PanToolView
-Bokeh.ZoomToolView = ZoomToolView
+
 #Bokeh.SelectionToolView = SelectionToolView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
 Bokeh.D3LinearAxisView = D3LinearAxisView

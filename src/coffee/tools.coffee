@@ -292,5 +292,46 @@ class SelectionToolView_ extends Bokeh.PlotWidget
     @render_end()
     return null
 
+class ZoomToolView extends Bokeh.PlotWidget
+  initialize : (options) ->
+    super(options)
+
+
+  bind_events : (plotview) ->
+    @plotview = plotview
+    $(@plotview.main_can_wrapper).bind("mousewheel",
+      (e, delta, dX, dY) =>
+        @_zoom(e, delta, e.layerX, e.layerY))
+
+  mouse_coords : (e, x, y) ->
+    [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    return [x_, y_]
+
+  _zoom_mapper : (mapper, eventpos, factor) ->
+    screen_range = mapper.get_ref('screen_range')
+    data_range = mapper.get_ref('data_range')
+    screenlow = screen_range.get('start')
+    screenhigh = screen_range.get('end')
+    start = screenlow - (eventpos - screenlow) * factor
+    end = screenhigh + (screenhigh - eventpos) * factor
+    [start, end] = [mapper.map_data(start), mapper.map_data(end)]
+    data_range.set({
+      'start' : start
+      'end' : end
+    }, {'local' : true})
+
+  _zoom : (e, delta, screenX, screenY) ->
+    [x, y] = @mouse_coords(e, screenX, screenY)
+    speed = @mget('speed')
+    factor = - speed  * (delta * 50)
+    #debugger
+    xmappers = (@model.resolve_ref(mapper) for mapper in @mget('xmappers'))
+    ymappers = (@model.resolve_ref(mapper) for mapper in @mget('ymappers'))
+    for xmap in xmappers
+      @_zoom_mapper(xmap, x, factor)
+    for ymap in ymappers
+      @_zoom_mapper(ymap, y, factor)
+
 Bokeh.SelectionToolView = SelectionToolView_
 Bokeh.PanToolView = PanToolView_
+Bokeh.ZoomToolView = ZoomToolView
