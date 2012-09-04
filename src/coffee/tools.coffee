@@ -25,9 +25,9 @@ class PanToolEventGenerator
       if not @basepoint_set
         @draggin2 = true
         @basepoint_set = true
-        eventSink.trigger('PanTool:SetBasepoint', e)
+        eventSink.trigger("#{@options.eventBasename}:SetBasepoint", e)
       else
-        eventSink.trigger('PanTool:UpdatingMouseMove', e)
+        eventSink.trigger("#{@options.eventBasename}:UpdatingMouseMove", e)
         e.preventDefault()
         e.stopPropagation())
   
@@ -47,7 +47,6 @@ class PanToolEventGenerator
       if @button_activated
         @_stop_drag2())
 
-    #@pan_button = $('<button> Pan Tool </button>')
     @pan_button = $("<button> #{@options.buttonText} </button>")
     @plotview.$el.find('.button_bar').append(@pan_button)
     @pan_button.click(=>
@@ -82,7 +81,7 @@ class PanToolView_ extends Bokeh.PlotWidget
     super(options)
 
   bind_events : (plotview) ->
-    evgen = new PanToolEventGenerator(keyName:"shiftKey", buttonText:"Pan Tool")
+    evgen = new PanToolEventGenerator(eventBasename:"PanTool", keyName:"shiftKey", buttonText:"Pan Tool")
     eventSink = evgen.bind_events(plotview)
     
     eventSink.on('PanTool:UpdatingMouseMove', (e) =>
@@ -141,37 +140,18 @@ class SelectionToolView_ extends Bokeh.PlotWidget
       safebind(this, renderer, 'change', select_callback)
       safebind(this, renderer.get_ref('xmapper'), 'change', select_callback)
       safebind(this, renderer.get_ref('ymapper'), 'change', select_callback)
-    @selecting_2 = false
-    @basepoint_set = false
-    @button_activated = false
-
-  #bind_events : (plotview) ->
-  #  @plotview = plotview
 
   bind_events : (plotview) ->
     @plotview = plotview
-    evgen = new PanToolEventGenerator(keyName:"ctrlKey", buttonText:"Selection Tool")
+    evgen = new PanToolEventGenerator(
+      eventBasename:"SelectionTool", keyName:"ctrlKey", buttonText:"Selection Tool")
     eventSink = evgen.bind_events(plotview)
     
-    eventSink.on('PanTool:UpdatingMouseMove', (e) =>
+    eventSink.on('SelectionTool:UpdatingMouseMove', (e) =>
       @_selecting(e, e.layerX, e.layerY))
 
-    eventSink.on('PanTool:SetBasepoint', (e) =>
+    eventSink.on('SelectionTool:SetBasepoint', (e) =>
       @_start_selecting(e, e.layerX, e.layerY))
-    
-  _start_drag2 : ->
-    if not @selecting_2
-      @selecting_2 = true
-      if not @button_activated
-        @pan_button.addClass('active')
-   
-  _stop_drag2 : ->
-    @basepoint_set = false
-    if @selecting_2
-      @selecting_2 = false
-      if not @button_activated
-        @pan_button.removeClass('active')
-
 
   mouse_coords : (e, x, y) ->
     [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
