@@ -126,22 +126,6 @@ class SelectionToolView_ extends Bokeh.PlotWidget
 
   bind_events : (plotview) ->
     @plotview = plotview
-    """
-    @plotview.mousedownCallbacks.push((e, x, y) =>
-      @_stop_selecting())
-
-    
-    @plotview.moveCallbacks.push((e, x, y) =>
-     
-      if e.ctrlKey or @button_selecting
-        if not @selecting
-          @_start_selecting(e, x, y)
-        else
-          @_selecting(e, x, y)
-          e.preventDefault()
-          e.stopPropagation())
-    """
-
     @plotview.moveCallbacks.push((e, x, y) =>
       if not @selecting_2
         return
@@ -208,7 +192,6 @@ class SelectionToolView_ extends Bokeh.PlotWidget
     for renderer in @mget('renderers')
       @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
       @model.resolve_ref(renderer).get_ref('data_source').save()
-    #@selecting = false
     @basepoint_set = false
     @button_selecting = false
     if @shading
@@ -222,8 +205,6 @@ class SelectionToolView_ extends Bokeh.PlotWidget
       data_source = @model.resolve_ref(renderer).get_ref('data_source')
       data_source.set('selecting', true)
       data_source.save()
-    #@selecting = true
-
     @basepoint_set = true
     
   _get_selection_range : ->
@@ -245,7 +226,6 @@ class SelectionToolView_ extends Bokeh.PlotWidget
     return null
 
   _select_data : () ->
-    #if not @selecting
     if not @basepoint_set
       return
     [xrange, yrange] = @_get_selection_range()
