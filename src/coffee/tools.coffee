@@ -9,8 +9,8 @@ safebind = Continuum.safebind
 
 class PanToolEventGenerator 
 
-  initialize : (options) ->
-    super(options)
+  constructor : (options) ->
+    @options = options
     @draggin2 = false
     @basepoint_set = false
     @button_activated = false
@@ -18,7 +18,6 @@ class PanToolEventGenerator
   bind_events : (plotview) ->
 
     eventSink = _.extend({}, Backbone.Events)
-    
     @plotview = plotview
     @plotview.moveCallbacks.push((e, x, y) =>
       if not @draggin2
@@ -33,11 +32,11 @@ class PanToolEventGenerator
         e.stopPropagation())
   
     $(document).bind('keydown', (e) =>
-      if e.shiftKey
+      if e[@options.keyName]
         @_start_drag2())
 
     $(document).bind('keyup', (e) =>
-      if not e.shiftKey
+      if not e[@options.keyName]
         @_stop_drag2())
 
     @plotview.main_can_wrapper.bind('mousedown', (e) =>
@@ -48,7 +47,8 @@ class PanToolEventGenerator
       if @button_activated
         @_stop_drag2())
 
-    @pan_button = $('<button> Pan Tool </button>')
+    #@pan_button = $('<button> Pan Tool </button>')
+    @pan_button = $("<button> #{@options.buttonText} </button>")
     @plotview.$el.find('.button_bar').append(@pan_button)
     @pan_button.click(=>
       if @button_activated
@@ -82,7 +82,7 @@ class PanToolView_ extends Bokeh.PlotWidget
     super(options)
 
   bind_events : (plotview) ->
-    evgen = new PanToolEventGenerator()
+    evgen = new PanToolEventGenerator(keyName:"shiftKey", buttonText:"Pan Tool")
     eventSink = evgen.bind_events(plotview)
     
     eventSink.on('PanTool:UpdatingMouseMove', (e) =>
@@ -145,44 +145,19 @@ class SelectionToolView_ extends Bokeh.PlotWidget
     @basepoint_set = false
     @button_activated = false
 
+  #bind_events : (plotview) ->
+  #  @plotview = plotview
+
   bind_events : (plotview) ->
     @plotview = plotview
-    @plotview.moveCallbacks.push((e, x, y) =>
-      if not @selecting_2
-        return
-      if not @basepoint_set
-        @_start_selecting(e, x, y)
-      else
-        @_selecting(e, x, y)
-        e.preventDefault()
-        e.stopPropagation())
+    evgen = new PanToolEventGenerator(keyName:"ctrlKey", buttonText:"Selection Tool")
+    eventSink = evgen.bind_events(plotview)
+    
+    eventSink.on('PanTool:UpdatingMouseMove', (e) =>
+      @_selecting(e, e.layerX, e.layerY))
 
-    $(document).bind('keydown', (e) =>
-      if e.ctrlKey
-        @_start_drag2())
-
-    $(document).bind('keyup', (e) =>
-      if not e.ctrlKey
-        @_stop_drag2())
-
-    @plotview.main_can_wrapper.bind('mousedown', (e) =>
-      if @button_activated
-        @_start_drag2())
-
-    @plotview.main_can_wrapper.bind('mouseup', (e) =>
-      if @button_activated
-        @_stop_drag2())
-
-    @pan_button = $('<button> Selection Tool </button>')
-    @plotview.$el.find('.button_bar').append(@pan_button)
-    @pan_button.click(=>
-      if @button_activated
-        @button_activated = false
-        @pan_button.removeClass('active')
-      else
-        @pan_button.addClass('active')
-        @button_activated = true)
-
+    eventSink.on('PanTool:SetBasepoint', (e) =>
+      @_start_selecting(e, e.layerX, e.layerY))
     
   _start_drag2 : ->
     if not @selecting_2
