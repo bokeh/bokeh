@@ -7,9 +7,7 @@ else
 safebind = Continuum.safebind
 
 
-class PanToolView_ extends Bokeh.PlotWidget
-  # draggin2 is used because having a variable named @dragging causes some sort of naming conflict.
-  # I need to look through this and figure out what is going on
+class PanToolEventGenerator 
 
   initialize : (options) ->
     super(options)
@@ -18,14 +16,19 @@ class PanToolView_ extends Bokeh.PlotWidget
     @button_activated = false
 
   bind_events : (plotview) ->
+
+    eventSink = _.extend({}, Backbone.Events)
+    
     @plotview = plotview
     @plotview.moveCallbacks.push((e, x, y) =>
       if not @draggin2
         return
       if not @basepoint_set
-        @_set_base_point(e, x, y)
+        @draggin2 = true
+        @basepoint_set = true
+        eventSink.trigger('PanTool:SetBasepoint', e)
       else
-        @_drag(e.foo, e.foo, e, x, y)
+        eventSink.trigger('PanTool:UpdatingMouseMove', e)
         e.preventDefault()
         e.stopPropagation())
   
@@ -54,6 +57,7 @@ class PanToolView_ extends Bokeh.PlotWidget
       else
         @pan_button.addClass('active')
         @button_activated = true)
+    return eventSink
 
   _start_drag2 : ->
     if not @draggin2
@@ -68,13 +72,30 @@ class PanToolView_ extends Bokeh.PlotWidget
       if not @button_activated
         @pan_button.removeClass('active')
 
+
+
+class PanToolView_ extends Bokeh.PlotWidget
+  # draggin2 is used because having a variable named @dragging causes some sort of naming conflict.
+  # I need to look through this and figure out what is going on
+
+  initialize : (options) ->
+    super(options)
+
+  bind_events : (plotview) ->
+    evgen = new PanToolEventGenerator()
+    eventSink = evgen.bind_events(plotview)
+    
+    eventSink.on('PanTool:UpdatingMouseMove', (e) =>
+      @_drag(e.foo, e.foo, e, e.layerX, e.layerY))
+
+    eventSink.on('PanTool:SetBasepoint', (e) =>
+      @_set_base_point(e, e.layerX, e.layerY))
+
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x_, y_]
 
   _set_base_point : (e, x, y) ->
-    @draggin2 = true
-    @basepoint_set = true
     [@x, @y] = @mouse_coords(e, x, y)
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
