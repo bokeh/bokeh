@@ -35,9 +35,7 @@ class GridPlotContainerView extends Continuum.DeferredView
   tagName : 'div'
   className:"gridplot_container"
   
-  default_options : {
-    scale:1.0
-  }
+  default_options : { scale:1.0}
   initialize : (options) ->
     super(_.defaults(options, @default_options))
     @childviews = {}
@@ -61,51 +59,6 @@ class GridPlotContainerView extends Continuum.DeferredView
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         @childviews[plotspec.id].render_deferred_components(force)
-
-  render_old  : ->
-    super()
-    trans_string = "scale(#{@options.scale}, #{@options.scale})"
-    trans_string += "translate(#{@mget('border_space')}, #{@mget('border_space')})"
-    @d3plot.attr('transform', trans_string)
-    d3el = d3.select(@el)
-    d3el.attr('width', @options.scale * @mget('outerwidth'))
-      .attr('height', @options.scale * @mget('outerheight'))
-      .attr('x', @model.position_x())
-      .attr('y', @model.position_y())
-    row_heights =  @model.layout_heights()
-    col_widths =  @model.layout_widths()
-    y_coords = [0]
-    _.reduceRight(row_heights[1..]
-      ,
-        (x, y) ->
-          val = x + y
-          y_coords.push(val)
-          return val
-      , 0
-    )
-    y_coords.reverse()
-    x_coords = [0]
-    _.reduce(col_widths[..-1]
-      ,
-        (x,y) ->
-          val = x + y
-          x_coords.push(val)
-          return val
-      , 0
-    )
-
-    for row, ridx in @mget('children')
-      for plotspec, cidx in row
-        plot = @model.resolve_ref(plotspec)
-        plot.set(
-          offset : [x_coords[cidx], y_coords[ridx]]
-          usedialog : false
-        )
-
-    for own key, view of @childviews
-      tojq(@d3plot).append(view.$el)
-    @render_end()
-
 
   render : ->
     super()
@@ -162,28 +115,17 @@ class GridPlotContainerView extends Continuum.DeferredView
 class PlotView extends Continuum.DeferredView
   default_options : {scale:1.0}
 
+  model_specs : ->
+   {plot_id : @id, plot_model : @model, plot_view : @}
+
   build_renderers : ->
-    build_views(@model, @renderers, @mget('renderers'),
-      {
-        plot_id : @id,
-        plot_model : @model
-        plot_view : @},
-      @options)
+    build_views(@model, @renderers, @mget('renderers'), @model_specs(), @options)
 
   build_axes : ->
-    build_views(@model, @axes, @mget('axes'),
-      {
-        plot_id : @id
-        plot_model : @model
-        plot_view : @},
-      @options)
-        
+    build_views(@model, @axes, @mget('axes'), @model_specs(), @options)
 
   build_tools : ->
-    build_views(@model, @tools, @mget('tools'),
-        plot_id : @id,
-        plot_model : @model
-        plot_view : @)
+    build_views(@model, @tools, @mget('tools'), @model_specs())
 
   build_overlays : ->
     #add ids of renderer views into the overlay spec
@@ -195,10 +137,7 @@ class PlotView extends Continuum.DeferredView
       overlayspec['options']['rendererviews'] = []
       for renderer in overlay.get('renderers')
         overlayspec['options']['rendererviews'].push(@renderers[renderer.id])
-    build_views(@model, @overlays, overlays,
-        plot_id : @id,
-        plot_model : @model
-        plot_view : @)
+    build_views(@model, @overlays, overlays, @model_specs())
 
   bind_overlays : ->
     for overlayspec in @mget('overlays')
@@ -306,25 +245,18 @@ class PlotView extends Continuum.DeferredView
       @$el.append(view.$el)
     for own key, view of @renderers
       @$el.append(view.$el)
-
     @render_end()
-  render_mainsvg : ->
-    if true
-      return
     
   render_deferred_components: (force) ->
     super(force)
     all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
-
     if _.any(all_views, (v) -> v._dirty)
       @ctx.clearRect(0,0,  @mget('width'), @mget('height'))      
       for v in all_views
         v._dirty = true
         v.render_deferred_components(true)
 
-
 build_views = Continuum.build_views
-
 class XYRendererView extends PlotWidget
   initialize : (options) ->
     safebind(this, @model, 'change', @request_render)
@@ -339,7 +271,7 @@ class XYRendererView extends PlotWidget
     pv = @plot_view
     pvo = @plot_view.options
     own_options = @options
-    #debugger;
+
     xmapper = @model.get_ref('xmapper')
     ymapper = @model.get_ref('ymapper')
     xfield = @model.get('xfield')
@@ -411,9 +343,7 @@ class D3LinearAxisView extends PlotWidget
 
   render_x : ->
     xmapper = @mget_ref('mapper')
-
     can_ctx = @plot_view.x_can_ctx
-
     data_range = xmapper.get_ref('data_range')
     interval = ticks.auto_interval(
       data_range.get('start'), data_range.get('end'))
@@ -488,31 +418,6 @@ class D3LinearAxisView extends PlotWidget
 
     can_ctx.stroke()
     @plot_view.ctx.stroke()
-    @render_end()
-
-  render_old : ->
-    super()
-
-    window.axisview = @
-    node = d3.select(@el)
-    node
-      .attr('style', '  font: 12px sans-serif; fill:none; stroke-width:1.5px; shape-rendering:crispEdges')
-      .attr('stroke', @mget('foreground_color'))
-    offsets = @get_offsets(@mget('orientation'))
-    offsets['h'] = @plot_model.get('height')
-    node.attr('transform', "translate(#{offsets.x}, #{offsets.y})")
-    
-    axis = d3.svg.axis()
-    ticksize = @get_tick_size(@mget('orientation'))
-    scale_converted = @convert_scale(@mget_ref('mapper').get('scale'))
-    temp = axis.scale(scale_converted)
-    temp.orient(@mget('orientation'))
-      .ticks(@mget('ticks'))
-      .tickSubdivide(@mget('tickSubdivide'))
-      .tickSize(ticksize)
-      .tickPadding(@mget('tickPadding'))
-    node.call(axis)
-    node.selectAll('.tick').attr('stroke', @mget('tick_color'))
     @render_end()
 
 
@@ -636,8 +541,6 @@ class ScatterRendererView extends XYRendererView
     a = new Date()
     @calc_buffer(data)
     @plot_view.ctx.beginPath()
-    #if navigator.userAgent.indexOf("WebKit") != -1
-      #@ctx.scale(0.5, 0.5)
     if navigator.userAgent.indexOf("WebKit") != -1
       @plot_view.ctx.scale(@options.scale, @options.scale)
 
@@ -659,16 +562,12 @@ class ScatterRendererView extends XYRendererView
         @addPolygon(@screenx[idx], @screeny[idx])
       else
         @addCircle(@screenx[idx], @screeny[idx])
-
     @plot_view.ctx.stroke()
     @render_end()
     b = new Date()
     render_time = b-a
     $('#timer').html( "render time #{render_time}")
     return null
-
-
-
 
 class OverlayView extends PlotWidget
   initialize : (options) ->
@@ -739,53 +638,7 @@ class ScatterSelectionOverlayView extends OverlayView
     @plot_view.ctx.stroke()
     @render_end()
     return null
-
-
 window.overlay_render = 0
-class ZoomToolView extends PlotWidget
-  initialize : (options) ->
-    super(options)
-
-  mouse_coords : () ->
-    plot = @plot_view.d3plotwindow
-    [x, y] = d3.mouse(plot[0][0])
-    [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
-    return [x, y]
-
-  _zoom_mapper : (mapper, eventpos, factor) ->
-    screen_range = mapper.get_ref('screen_range')
-    data_range = mapper.get_ref('data_range')
-    screenlow = screen_range.get('start')
-    screenhigh = screen_range.get('end')
-    start = screenlow - (eventpos - screenlow) * factor
-    end = screenhigh + (screenhigh - eventpos) * factor
-    [start, end] = [mapper.map_data(start), mapper.map_data(end)]
-    data_range.set({
-      'start' : start
-      'end' : end
-    }, {'local' : true})
-
-  _zoom : () ->
-    [x, y] = @mouse_coords()
-    factor = - @mget('speed') * d3.event.wheelDelta
-    xmappers = (@model.resolve_ref(mapper) for mapper in @mget('xmappers'))
-    ymappers = (@model.resolve_ref(mapper) for mapper in @mget('ymappers'))
-    for xmap in xmappers
-      @_zoom_mapper(xmap, x, factor)
-    for ymap in ymappers
-      @_zoom_mapper(ymap, y, factor)
-
-  bind_events : (plotview) ->
-    @plotview = plotview
-    node = d3.select(@plot_view.el)
-    node.attr('pointer-events' , 'all')
-    node.on("mousewheel.zoom"
-      ,
-        () =>
-          @_zoom()
-          d3.event.preventDefault()
-          d3.event.stopPropagation()
-    )
 
 Bokeh.PlotWidget = PlotWidget
 Bokeh.PlotView = PlotView
@@ -793,9 +646,6 @@ Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.LineRendererView = LineRendererView
 Bokeh.BarRendererView = BarRendererView
 Bokeh.GridPlotContainerView = GridPlotContainerView
-#Bokeh.PanToolView = PanToolView
-
-#Bokeh.SelectionToolView = SelectionToolView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
 Bokeh.D3LinearAxisView = D3LinearAxisView
 Bokeh.D3LinearDateAxisView = D3LinearDateAxisView
