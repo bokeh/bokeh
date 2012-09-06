@@ -90,25 +90,43 @@ class TwoPointEventGenerator
       @eventSink.trigger("#{@options.eventBasename}:DragEnd")
 
 
-class PanToolView extends Bokeh.PlotWidget
+
+class ToolView extends Bokeh.PlotWidget
   initialize : (options) ->
     super(options)
   bind_events : (plotview) ->
     eventSink = plotview.eventSink
-    evgen = new TwoPointEventGenerator(
-      eventBasename:"PanTool", keyName:"shiftKey", buttonText:"Pan Tool")
+    @plotview = plotview
+
+
+    evgen_options = { eventBasename:@cid }
+
+    evgen_options2 = _.extend(evgen_options, @evgen_options)
+    evgen = new @eventGeneratorClass(evgen_options2)
     evgen.bind_events(plotview, eventSink)
-    eventSink.on('PanTool:UpdatingMouseMove', (e) =>
-      @_drag(e.foo, e.foo, e, e.layerX, e.layerY))
-    eventSink.on('PanTool:SetBasepoint', (e) =>
-      @_set_base_point(e, e.layerX, e.layerY))
+
+    _.each(@tool_events, (handler_f, event_name) =>
+      full_event_name = "#{@cid}:#{event_name}"
+      wrap = (e) =>
+        @[handler_f](e)
+      eventSink.on(full_event_name, wrap))
+
+
+class PanToolView extends ToolView
+
+    
+  eventGeneratorClass : TwoPointEventGenerator
+  evgen_options : {keyName:"shiftKey", buttonText:"Pan Tool"}
+  tool_events : {
+    UpdatingMouseMove: "_drag",
+    SetBasepoint : "_set_base_point"}
 
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
     return [x_, y_]
 
-  _set_base_point : (e, x, y) ->
-    [@x, @y] = @mouse_coords(e, x, y)
+  _set_base_point : (e) ->
+    [@x, @y] = @mouse_coords(e, e.layerX, e.layerY)
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
 
@@ -123,12 +141,11 @@ class PanToolView extends Bokeh.PlotWidget
       'end' : end
     }, {'local' : true})
 
-  _drag : (xdiff, ydiff, e, x__, y__) ->
-    if _.isUndefined(xdiff) or _.isUndefined(ydiff)
-      [x, y] = @mouse_coords(e, x__, y__)
-      xdiff = x - @x
-      ydiff = y - @y
-      [@x, @y] = [x, y]
+  _drag : (e) ->
+    [x, y] = @mouse_coords(e, e.layerX, e.layerY)
+    xdiff = x - @x
+    ydiff = y - @y
+    [@x, @y] = [x, y]
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
     for xmap in xmappers
@@ -137,7 +154,7 @@ class PanToolView extends Bokeh.PlotWidget
       @_drag_mapper(ymap, ydiff)
 
 
-class SelectionToolView extends Bokeh.PlotWidget
+class SelectionToolView extends ToolView
   initialize : (options) ->
     super(options)
     select_callback = _.debounce((() => @_select_data()),50)
@@ -153,20 +170,14 @@ class SelectionToolView extends Bokeh.PlotWidget
       safebind(this, renderer.get_ref('xmapper'), 'change', select_callback)
       safebind(this, renderer.get_ref('ymapper'), 'change', select_callback)
 
-  bind_events : (plotview) ->
-    @plotview = plotview
-    eventSink = plotview.eventSink
-    evgen = new TwoPointEventGenerator(
-      eventBasename:"SelectionTool", keyName:"ctrlKey", buttonText:"Selection Tool")
-    evgen.bind_events(plotview, eventSink)
-    eventSink.on('SelectionTool:UpdatingMouseMove', (e) =>
-      @_selecting(e, e.layerX, e.layerY))
+    
+  eventGeneratorClass : TwoPointEventGenerator
+  evgen_options : {keyName:"ctrlKey", buttonText:"Selection Tool"}
+  tool_events : {
+    UpdatingMouseMove: "_selecting",
+    SetBasepoint : "_start_selecting",
+    deactivated : "_stop_selecting"}
 
-    eventSink.on('SelectionTool:SetBasepoint', (e) =>
-      @_start_selecting(e, e.layerX, e.layerY))
-
-    eventSink.on('SelectionTool:deactivated', (e) =>
-      @_stop_selecting())
 
   mouse_coords : (e, x, y) ->
     [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
@@ -188,8 +199,8 @@ class SelectionToolView extends Bokeh.PlotWidget
       @shading.remove()
       @shading = null
 
-  _start_selecting : (e, x_, y_) ->
-    [x, y] = @mouse_coords(e, x_, y_)
+  _start_selecting : (e) ->
+    [x, y] = @mouse_coords(e, e.layerX, e.layerY)
     @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
     for renderer in @mget('renderers')
       data_source = @model.resolve_ref(renderer).get_ref('data_source')
@@ -211,7 +222,7 @@ class SelectionToolView extends Bokeh.PlotWidget
     return [xrange, yrange]
 
   _selecting : (e, x_, y_) ->
-    [x, y] = @mouse_coords(e, x_, y_)
+    [x, y] = @mouse_coords(e, e.layerX, e.layerY)
     @mset({'current_x' : x, 'current_y' : y})
     return null
 
