@@ -111,6 +111,22 @@ class GridPlotContainerView extends Continuum.DeferredView
         "height:#{@mget('height')}px; width:#{@mget('width')}px;")
     @render_end()
 
+class ActiveToolManager
+  """ This makes sure that only one tool is active at a time """
+  constructor : (eventSink) ->
+    @eventSink = eventSink
+    @eventSink.active = true
+    @bind_events()
+
+  bind_events : () ->  
+    @eventSink.on("clear_active_tool", () =>
+      @eventSink.trigger("#{@eventSink.active}:deactivated")
+      @eventSink.active = true)
+    @eventSink.on("active_tool", (toolName) =>
+      if toolName != @eventSink.active
+        @eventSink.trigger("#{toolName}:activated")
+        @eventSink.trigger("#{@eventSink.active}:deactivated")
+        @eventSink.active = toolName)
 
 class PlotView extends Continuum.DeferredView
   default_options : {scale:1.0}
@@ -168,6 +184,7 @@ class PlotView extends Continuum.DeferredView
     @tools = {}
     @overlays = {}
     @eventSink = _.extend({}, Backbone.Events)
+    atm = new ActiveToolManager(@eventSink)
 
 
     @build_renderers()
@@ -255,6 +272,9 @@ class PlotView extends Continuum.DeferredView
       for v in all_views
         v._dirty = true
         v.render_deferred_components(true)
+
+
+
 
 build_views = Continuum.build_views
 class XYRendererView extends PlotWidget

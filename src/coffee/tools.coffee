@@ -7,26 +7,8 @@ else
 safebind = Continuum.safebind
 
 
-class ActiveToolManager
-  constructor : (eventSink) ->
-    @eventSink = eventSink
-    if not  @eventSink.active
-      @eventSink.active = true
-      @bind_events()
-
-  bind_events : () ->  
-    @eventSink.on("clear_active_tool", () =>
-      
-      @eventSink.trigger("#{@eventSink.active}:deactivated")
-      @eventSink.active = true)
-    @eventSink.on("active_tool", (toolName) =>
-      if toolName != @eventSink.active
-        @eventSink.trigger("#{toolName}:activated")
-        @eventSink.trigger("#{@eventSink.active}:deactivated")
-        @eventSink.active = toolName)
-
     
-class PanToolEventGenerator 
+class TwoPointEventGenerator 
 
   constructor : (options) ->
     @options = options
@@ -56,21 +38,20 @@ class PanToolEventGenerator
 
 
     $(document).bind('keydown', (e) =>
-      
       if e[@options.keyName]
-        @_start_drag2())
+        @_start_drag())
 
     $(document).bind('keyup', (e) =>
       if not e[@options.keyName]
-        @_stop_drag2())
+        @_stop_drag())
 
     @plotview.main_can_wrapper.bind('mousedown', (e) =>
       if @button_activated
-        @_start_drag2())
+        @_start_drag())
 
     @plotview.main_can_wrapper.bind('mouseup', (e) =>
       if @button_activated
-        @_stop_drag2())
+        @_stop_drag())
 
     @pan_button = $("<button> #{@options.buttonText} </button>")
     @plotview.$el.find('.button_bar').append(@pan_button)
@@ -93,14 +74,14 @@ class PanToolEventGenerator
     return eventSink
 
 
-  _start_drag2 : ->
+  _start_drag : ->
     @eventSink.trigger("active_tool", @toolName)
     if not @dragging
       @dragging = true
       if not @button_activated
         @pan_button.addClass('active')
         
-  _stop_drag2 : ->
+  _stop_drag : ->
     @basepoint_set = false
     if @dragging
       @dragging = false
@@ -109,17 +90,13 @@ class PanToolEventGenerator
       @eventSink.trigger("#{@options.eventBasename}:DragEnd")
 
 
-class PanToolView_ extends Bokeh.PlotWidget
-
+class PanToolView extends Bokeh.PlotWidget
   initialize : (options) ->
     super(options)
-
   bind_events : (plotview) ->
     eventSink = plotview.eventSink
-    atm = new ActiveToolManager(eventSink)
-    evgen = new PanToolEventGenerator(
+    evgen = new TwoPointEventGenerator(
       eventBasename:"PanTool", keyName:"shiftKey", buttonText:"Pan Tool")
-
     evgen.bind_events(plotview, eventSink)
     eventSink.on('PanTool:UpdatingMouseMove', (e) =>
       @_drag(e.foo, e.foo, e, e.layerX, e.layerY))
@@ -160,10 +137,9 @@ class PanToolView_ extends Bokeh.PlotWidget
       @_drag_mapper(ymap, ydiff)
 
 
-class SelectionToolView_ extends Bokeh.PlotWidget
+class SelectionToolView extends Bokeh.PlotWidget
   initialize : (options) ->
     super(options)
-    @selecting = false
     select_callback = _.debounce((() => @_select_data()),50)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'change', select_callback)
@@ -180,9 +156,7 @@ class SelectionToolView_ extends Bokeh.PlotWidget
   bind_events : (plotview) ->
     @plotview = plotview
     eventSink = plotview.eventSink
-    atm = new ActiveToolManager(eventSink)
-
-    evgen = new PanToolEventGenerator(
+    evgen = new TwoPointEventGenerator(
       eventBasename:"SelectionTool", keyName:"ctrlKey", buttonText:"Selection Tool")
     evgen.bind_events(plotview, eventSink)
     eventSink.on('SelectionTool:UpdatingMouseMove', (e) =>
@@ -332,6 +306,6 @@ class ZoomToolView extends Bokeh.PlotWidget
     for ymap in ymappers
       @_zoom_mapper(ymap, y, factor)
 
-Bokeh.SelectionToolView = SelectionToolView_
-Bokeh.PanToolView = PanToolView_
+Bokeh.SelectionToolView = SelectionToolView
+Bokeh.PanToolView = PanToolView
 Bokeh.ZoomToolView = ZoomToolView
