@@ -559,6 +559,70 @@ class Plots extends Continuum.Collection
 
 
 
+class Table extends Component
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    if 'xrange' not of attrs
+      @set('xrange',
+        @collections['Range1d'].create({'start' : 0, 'end' : 200}, options).ref())
+    if 'yrange' not of attrs
+      @set('yrange',
+        @collections['Range1d'].create({'start' : 0, 'end' : 200}, options).ref())
+
+  dinitialize : (attrs, options) ->
+    super(attrs, options)
+    @register_property('width',
+      ['xrange', {'ref' : @get('xrange'), 'fields' : ['start', 'end']}],
+      () ->
+        range = @get_ref('xrange')
+        return range.get('end') - range.get('start')
+      , true
+      , (width) =>
+          range = @get_ref('xrange')
+          range.set('end', range.get('start') + width)
+          return null
+    )
+    @register_property('height',
+      ['yrange', {'ref' : @get('yrange'), 'fields' : ['start', 'end']}]
+      ,
+        () ->
+          range = @get_ref('yrange')
+          return range.get('end') - range.get('start')
+      , true
+      ,
+        (height) =>
+          range = @get_ref('yrange')
+          range.set('end', range.get('start') + height)
+          return null
+    )
+  type : 'Table'
+  default_view : Bokeh.TableView
+  parent_properties : ['background_color', 'foreground_color',
+    'width', 'height', 'border_space']
+
+Table::defaults = _.clone(Table::defaults)
+_.extend(Table::defaults , {
+  'data_sources' : {},
+  'renderers' : [],
+  'axes' : [],
+  'legends' : [],
+  'tools' : [],
+  'overlays' : [],
+  'usedialog' : false,
+  'title' : 'Plot'
+  #axes fit here
+})
+Table::display_defaults = _.clone(Table::display_defaults)
+_.extend(Plot::display_defaults
+  ,
+    background_color : "#eee"
+    foreground_color : "#333"
+)
+
+class Tables extends Continuum.Collection
+   model : Table
+
+
 class D3LinearAxis extends Component
   type : 'D3LinearAxis'
   default_view : Bokeh.D3LinearAxisView
@@ -738,6 +802,7 @@ class ScatterSelectionOverlays extends Continuum.Collection
 
 #Preparing the name space
 Bokeh.register_collection('Plot', new Plots)
+Bokeh.register_collection('Table', new Tables)
 Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
 Bokeh.register_collection('LineRenderer', new LineRenderers)
 Bokeh.register_collection('TableRenderer', new TableRenderers)
@@ -765,6 +830,7 @@ Bokeh.ObjectArrayDataSource = ObjectArrayDataSource
 Bokeh.ArrayServerObjectArrayDataSource = ArrayServerObjectArrayDataSource
 Bokeh.ArrayServerObjectArrayDataSources = ArrayServerObjectArrayDataSources
 Bokeh.Plot = Plot
+Bokeh.Table = Table
 Bokeh.Component = Component
 Bokeh.ScatterRenderer = ScatterRenderer
 Bokeh.D3LinearAxis = D3LinearAxis

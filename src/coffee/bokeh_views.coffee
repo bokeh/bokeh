@@ -277,6 +277,99 @@ class PlotView extends Continuum.DeferredView
 
 
 
+
+class TableView extends Continuum.DeferredView
+  default_options : {scale:1.0}
+
+  model_specs : ->
+   {plot_id : @id, plot_model : @model, plot_view : @}
+
+  build_renderers : ->
+    build_views(@model, @renderers, @mget('renderers'), @model_specs(), @options)
+
+  build_axes : ->
+    build_views(@model, @axes, @mget('axes'), @model_specs(), @options)
+
+  build_tools : ->
+    build_views(@model, @tools, @mget('tools'), @model_specs())
+
+  build_overlays : ->
+    #add ids of renderer views into the overlay spec
+    overlays = (_.clone(x) for x in @mget('overlays'))
+    for overlayspec in overlays
+      overlay = @model.resolve_ref(overlayspec)
+      if not overlayspec['options']
+        overlayspec['options'] = {}
+      overlayspec['options']['rendererviews'] = []
+      for renderer in overlay.get('renderers')
+        overlayspec['options']['rendererviews'].push(@renderers[renderer.id])
+    build_views(@model, @overlays, overlays, @model_specs())
+
+  bind_overlays : ->
+    for overlayspec in @mget('overlays')
+      @overlays[overlayspec.id].bind_events(this)
+
+  bind_tools : ->
+    for toolspec in   @mget('tools')
+      @tools[toolspec.id].bind_events(this)
+  tagName : 'div'
+
+  initialize : (options) ->
+    super(_.defaults(options, @default_options))
+    @renderers = {}
+    @axes = {}
+    @tools = {}
+    @overlays = {}
+    @eventSink = _.extend({}, Backbone.Events)
+    atm = new ActiveToolManager(@eventSink)
+
+    @build_renderers()
+    @build_axes()
+    @build_tools()
+    @build_overlays()
+
+    @moveCallbacks = []
+    @mousedownCallbacks = []
+    @keydownCallbacks = []
+
+    safebind(this, @model, 'change:renderers', @build_renderers)
+    safebind(this, @model, 'change:axes', @build_axes)
+    safebind(this, @model, 'change:tools', @build_tools)
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @model, 'destroy', () => @remove())
+
+    @render()
+    @bind_tools()
+    @bind_overlays()
+    return this
+    
+  render : () ->
+    super()
+    o_w = @mget('outerwidth')
+    o_h = @mget('outerheight')
+    @$el.attr("width", @options.scale * o_w)
+      .attr('height', @options.scale * o_h)
+    bord = @mget('border_space')
+
+    height = @mget('height')
+    width = @mget('width')
+
+
+    @$el.attr("style", "height:#{o_h}px; width:#{o_w}px")
+
+    for own key, view of @renderers
+      @$el.append(view.$el)
+    @render_end()
+    
+  render_deferred_components: (force) ->
+    super(force)
+    all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
+    if _.any(all_views, (v) -> v._dirty)
+      for v in all_views
+        v._dirty = true
+        v.render_deferred_components(true)
+
+
 build_views = Continuum.build_views
 class XYRendererView extends PlotWidget
   initialize : (options) ->
@@ -590,8 +683,8 @@ class TableRendererView extends XYRendererView
           #{tbody_content}
         </tbody>
     </table>"""
-    @plot_view.$el.remove("table.table_renderer")
-    console.log(table_template)
+    @plot_view.$el.empty()
+    #console.log(table_template)
     $(table_template).appendTo(@plot_view.$el)
     
     @render_end()
@@ -712,6 +805,7 @@ window.overlay_render = 0
 
 Bokeh.PlotWidget = PlotWidget
 Bokeh.PlotView = PlotView
+Bokeh.TableView = TableView
 Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.LineRendererView = LineRendererView
 Bokeh.TableRendererView = TableRendererView

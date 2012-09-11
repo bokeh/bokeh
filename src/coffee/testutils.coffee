@@ -83,7 +83,7 @@ Bokeh.data_table = (parent, data_source, xfield, yfield, color_field, mark, colo
     }, options)
 
   source_name = data_source.get('name')
-  plot_model = Collections['Plot'].create(
+  table_model = Collections['Table'].create(
     data_sources :
       source_name : data_source.ref()
     parent : parent
@@ -97,11 +97,11 @@ Bokeh.data_table = (parent, data_source, xfield, yfield, color_field, mark, colo
   }, options)
   xmapper = Collections['LinearMapper'].create({
     data_range : xdr.ref()
-    screen_range : plot_model.get('xrange')
+    screen_range : table_model.get('xrange')
   }, options)
   ymapper = Collections['LinearMapper'].create({
     data_range : ydr.ref()
-    screen_range : plot_model.get('yrange')
+    screen_range : table_model.get('yrange')
   }, options)
   scatter_plot = Collections["TableRenderer"].create(
     data_source: data_source.ref()
@@ -112,23 +112,11 @@ Bokeh.data_table = (parent, data_source, xfield, yfield, color_field, mark, colo
     mark: mark
     xmapper: xmapper.ref()
     ymapper: ymapper.ref()
-    parent : plot_model.ref()
+    parent : table_model.ref()
     , options
   )
-  xaxis = Collections['D3LinearAxis'].create({
-    'orientation' : 'bottom',
-    'mapper' : xmapper.ref()
-    'parent' : plot_model.ref()
-
-  }, options)
-  yaxis = Collections['D3LinearAxis'].create({
-    'orientation' : 'left',
-    'mapper' : ymapper.ref()
-    'parent' : plot_model.ref()
-  }, options)
-  plot_model.set({
+  table_model.set({
     'renderers' : [scatter_plot.ref()],
-    'axes' : [xaxis.ref(), yaxis.ref()]
   }, options)
 
 make_range_and_mapper = (data_source, datafields, padding, screen_range, ordinal, options) ->
