@@ -627,6 +627,23 @@ class LineRenderers extends Continuum.Collection
   model : LineRenderer
 
 
+class TableRenderer extends XYRenderer
+  type : 'TableRenderer'
+  default_view : Bokeh.TableRendererView
+TableRenderer::defaults = _.clone(TableRenderer::defaults)
+_.extend(TableRenderer::defaults
+  ,
+    xmapper : null,
+    ymapper: null,
+    xfield : null,
+    yfield : null,
+    color : "#000",
+)
+
+class TableRenderers extends Continuum.Collection
+  model : TableRenderer
+
+
 class ScatterRenderer extends XYRenderer
   type : 'ScatterRenderer'
   default_view : Bokeh.ScatterRendererView
@@ -723,6 +740,7 @@ class ScatterSelectionOverlays extends Continuum.Collection
 Bokeh.register_collection('Plot', new Plots)
 Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
 Bokeh.register_collection('LineRenderer', new LineRenderers)
+Bokeh.register_collection('TableRenderer', new TableRenderers)
 Bokeh.register_collection('BarRenderer', new BarRenderers)
 Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('ArrayServerObjectArrayDataSource',

@@ -36,7 +36,14 @@ build_views = (mainmodel, view_storage, view_specs, options, view_options) ->
     else
       view_specific_option = {}
     temp = _.extend({}, view_specific_option, spec.options, options, {'model' : model})
-    view_storage[model.id] = new model.default_view(temp)
+    try
+      view_storage[model.id] = new model.default_view(temp)
+      #console.log("no error for ", temp, "model of ", model)
+      console.log("model of ", model)
+    catch error
+      #console.log("error on temp of", temp, "model of", model, error)
+      console.log("error on model of", model, error)
+      throw error
     created_views.push(view_storage[model.id])
   for own key, value of view_storage
     if not valid_viewmodels[key]

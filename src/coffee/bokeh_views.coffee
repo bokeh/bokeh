@@ -242,6 +242,7 @@ class PlotView extends Continuum.DeferredView
 
     o_w = @options.scale * @mget('outerwidth')
     o_h = @options.scale * @mget('outerheight')
+    #debugger;
     @main_can_wrapper.attr('style', "left:#{bord}px; height:#{h}px; width:#{w}px")
     @x_can_wrapper.attr('style', "left:#{bord}px; top:#{h}px; height:#{bord}px; width:#{w}px")
     @y_can_wrapper.attr('style', "width:#{bord}px; height:#{h}px;")
@@ -548,6 +549,55 @@ class LineRendererView extends XYRendererView
     return null
 
 
+class TableRendererView extends XYRendererView
+
+  calc_buffer : (data) ->
+    "use strict";
+    pv = @plot_view
+    pvo = @plot_view.options
+    own_options = @options
+
+
+    xfield = @model.get('xfield')
+    yfield = @model.get('yfield')
+    @dataX = (x[xfield] for x in data)
+    @dataY = (y[yfield] for y in data)
+    
+    #@screeny = new Float32Array(screeny)
+    #@screenx = new Float32Array(screenx)
+    #@screenx = screenx
+    #@screeny = screeny
+
+  render : ->
+    super()
+    data = @model.get_ref('data_source').get('data')
+    @calc_buffer(data)
+
+
+    table_rows = []
+    for idx in [0..@dataX.length]
+      table_rows.push(
+        "<tr><td>#{idx}</td><td>#{@dataX[idx]}</td><td>#{@dataY[idx]}</td></tr>")
+    tbody_content = table_rows.join("")
+    table_template = """
+      <table class='table_renderer'>
+        <thead>
+          <tr>
+            <td>idx</td><td>dataX</td><td>dataY</td>
+          </tr>
+        </thead>
+        <tbody>
+          #{tbody_content}
+        </tbody>
+    </table>"""
+    @plot_view.$el.remove("table.table_renderer")
+    console.log(table_template)
+    $(table_template).appendTo(@plot_view.$el)
+    
+    @render_end()
+    return null
+
+
 class ScatterRendererView extends XYRendererView
   render : ->
     "use strict";
@@ -664,6 +714,7 @@ Bokeh.PlotWidget = PlotWidget
 Bokeh.PlotView = PlotView
 Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.LineRendererView = LineRendererView
+Bokeh.TableRendererView = TableRendererView
 Bokeh.BarRendererView = BarRendererView
 Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView

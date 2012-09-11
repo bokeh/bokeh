@@ -66,6 +66,71 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     'axes' : [xaxis.ref(), yaxis.ref()]
   }, options)
 
+Bokeh.data_table = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
+  if _.isUndefined(local)
+    local = true
+  options = {'local' : local}
+  if _.isUndefined(mark)
+    mark = 'circle'
+  if _.isUndefined(color_field)
+    color_field = null
+  if _.isUndefined(color_mapper) and color_field
+    color_mapper = Collections['DiscreteColorMapper'].create({
+      data_range : Collections['DataFactorRange'].create({
+        data_source : data_source.ref()
+        columns : ['x']
+      }, options)
+    }, options)
+
+  source_name = data_source.get('name')
+  plot_model = Collections['Plot'].create(
+    data_sources :
+      source_name : data_source.ref()
+    parent : parent
+    , options
+  )
+  xdr = Collections['DataRange1d'].create({
+    'sources' : [{'ref' : data_source.ref(), 'columns' : [xfield]}]
+  }, options)
+  ydr = Collections['DataRange1d'].create({
+    'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
+  }, options)
+  xmapper = Collections['LinearMapper'].create({
+    data_range : xdr.ref()
+    screen_range : plot_model.get('xrange')
+  }, options)
+  ymapper = Collections['LinearMapper'].create({
+    data_range : ydr.ref()
+    screen_range : plot_model.get('yrange')
+  }, options)
+  scatter_plot = Collections["TableRenderer"].create(
+    data_source: data_source.ref()
+    xfield: xfield
+    yfield: yfield
+    color_field: color_field
+    color_mapper : color_mapper
+    mark: mark
+    xmapper: xmapper.ref()
+    ymapper: ymapper.ref()
+    parent : plot_model.ref()
+    , options
+  )
+  xaxis = Collections['D3LinearAxis'].create({
+    'orientation' : 'bottom',
+    'mapper' : xmapper.ref()
+    'parent' : plot_model.ref()
+
+  }, options)
+  yaxis = Collections['D3LinearAxis'].create({
+    'orientation' : 'left',
+    'mapper' : ymapper.ref()
+    'parent' : plot_model.ref()
+  }, options)
+  plot_model.set({
+    'renderers' : [scatter_plot.ref()],
+    'axes' : [xaxis.ref(), yaxis.ref()]
+  }, options)
+
 make_range_and_mapper = (data_source, datafields, padding, screen_range, ordinal, options) ->
     if not ordinal
       range = Collections['DataRange1d'].create(
