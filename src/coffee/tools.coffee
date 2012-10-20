@@ -7,8 +7,8 @@ else
 safebind = Continuum.safebind
 
 
-    
-class TwoPointEventGenerator 
+
+class TwoPointEventGenerator
 
   constructor : (options) ->
     @options = options
@@ -80,7 +80,7 @@ class TwoPointEventGenerator
       @dragging = true
       if not @button_activated
         @pan_button.addClass('active')
-        
+
   _stop_drag : ->
     @basepoint_set = false
     if @dragging
@@ -114,9 +114,9 @@ class ToolView extends Bokeh.PlotWidget
 
 class PanToolView extends ToolView
 
-    
+
   eventGeneratorClass : TwoPointEventGenerator
-  evgen_options : {keyName:"shiftKey", buttonText:"Pan Tool"}
+  evgen_options : {keyName:"shiftKey", buttonText:"Pan"}
   tool_events : {
     UpdatingMouseMove: "_drag",
     SetBasepoint : "_set_base_point"}
@@ -170,9 +170,9 @@ class SelectionToolView extends ToolView
       safebind(this, renderer.get_ref('xmapper'), 'change', select_callback)
       safebind(this, renderer.get_ref('ymapper'), 'change', select_callback)
 
-    
+
   eventGeneratorClass : TwoPointEventGenerator
-  evgen_options : {keyName:"ctrlKey", buttonText:"Selection Tool"}
+  evgen_options : {keyName:"ctrlKey", buttonText:"Select"}
   tool_events : {
     UpdatingMouseMove: "_selecting",
     SetBasepoint : "_start_selecting",
@@ -207,7 +207,7 @@ class SelectionToolView extends ToolView
       data_source.set('selecting', true)
       data_source.save()
     @basepoint_set = true
-    
+
   _get_selection_range : ->
     xrange = [@mget('start_x'), @mget('current_x')]
     yrange = [@mget('start_y'), @mget('current_y')]
