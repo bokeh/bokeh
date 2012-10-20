@@ -15,3 +15,11 @@ Do not use classes to style svgs, they don't work properly with png persistence
 .ui-dialog-titlebar {
   height : 16px 
 }
+
+.button_bar{
+    width : 200px;
+    overflow : hidden;
+}
+.button_bar > button{
+    float : left;
+}
