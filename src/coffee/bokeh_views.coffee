@@ -769,9 +769,9 @@ class ScatterSelectionOverlayView extends OverlayView
       sel_idxs = renderer.get_ref('data_source').get('selected')
       ds = renderer.get_ref('data_source')
       data = ds.get('data')
-      #hugo - there must be a better way
-      if (not rendererview.screenx) or (not rendererview.screeny)
-        rendererview.calc_buffer(data)
+      # hugo - i think we need to do this each time....
+      # or else panning does not work
+      rendererview.calc_buffer(data)
       fcolor = @mget('foreground_color')
       rvm = rendererview.model
 
