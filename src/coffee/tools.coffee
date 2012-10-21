@@ -27,6 +27,9 @@ class TwoPointEventGenerator
         return
       if not @tool_active
         return
+      offset = $(e.currentTarget).offset()
+      e.bokehX = e.pageX - offset.left
+      e.bokehY = e.pageY - offset.top
       if not @basepoint_set
         @dragging = true
         @basepoint_set = true
@@ -129,7 +132,7 @@ class PanToolView extends ToolView
     return [x_, y_]
 
   _set_base_point : (e) ->
-    [@x, @y] = @mouse_coords(e, e.originalEvent.layerX, e.originalEvent.layerY)
+    [@x, @y] = @mouse_coords(e, e.bokehX, e.bokehY)
     return null
 
   _drag_mapper : (mapper, diff) ->
@@ -144,7 +147,7 @@ class PanToolView extends ToolView
     }, {'local' : true})
 
   _drag : (e) ->
-    [x, y] = @mouse_coords(e, e.originalEvent.layerX, e.originalEvent.layerY)
+    [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     xdiff = x - @x
     ydiff = y - @y
     [@x, @y] = [x, y]
@@ -202,7 +205,7 @@ class SelectionToolView extends ToolView
       @shading = null
 
   _start_selecting : (e) ->
-    [x, y] = @mouse_coords(e, e.originalEvent.layerX, e.originalEvent.layerY)
+    [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
     for renderer in @mget('renderers')
       data_source = @model.resolve_ref(renderer).get_ref('data_source')
@@ -224,7 +227,7 @@ class SelectionToolView extends ToolView
     return [xrange, yrange]
 
   _selecting : (e, x_, y_) ->
-    [x, y] = @mouse_coords(e, e.originalEvent.layerX, e.originalEvent.layerY)
+    [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     @mset({'current_x' : x, 'current_y' : y})
     return null
 
@@ -286,7 +289,7 @@ class ZoomToolView extends Bokeh.PlotWidget
   bind_events : (plotview) ->
     @plotview = plotview
     $(@plotview.main_can_wrapper).bind("mousewheel", (e, delta, dX, dY) =>
-        @_zoom(e, delta, e.originalEvent.layerX, e.originalEvent.layerY)
+        @_zoom(e, delta, e.bokehX, e.bokehY)
         e.preventDefault()
         e.stopPropagation()
     )
