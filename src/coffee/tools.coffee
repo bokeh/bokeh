@@ -39,20 +39,27 @@ class TwoPointEventGenerator
 
     $(document).bind('keydown', (e) =>
       if e[@options.keyName]
-        @_start_drag())
+        @_start_drag()
+        return false
+    )
+
 
     $(document).bind('keyup', (e) =>
       if not e[@options.keyName]
-        @_stop_drag())
+        @_stop_drag()
+        return false
+    )
 
     @plotview.main_can_wrapper.bind('mousedown', (e) =>
       if @button_activated
-        @_start_drag())
-
+        @_start_drag()
+        return false
+    )
     @plotview.main_can_wrapper.bind('mouseup', (e) =>
       if @button_activated
-        @_stop_drag())
-
+        @_stop_drag()
+        return false
+    )
     @pan_button = $("<button> #{@options.buttonText} </button>")
     @plotview.$el.find('.button_bar').append(@pan_button)
 
@@ -282,12 +289,13 @@ class ZoomToolView extends Bokeh.PlotWidget
   initialize : (options) ->
     super(options)
 
-
   bind_events : (plotview) ->
     @plotview = plotview
-    $(@plotview.main_can_wrapper).bind("mousewheel",
-      (e, delta, dX, dY) =>
-        @_zoom(e, delta, e.originalEvent.layerX, e.originalEvent.layerY))
+    $(@plotview.main_can_wrapper).bind("mousewheel", (e, delta, dX, dY) =>
+        @_zoom(e, delta, e.originalEvent.layerX, e.originalEvent.layerY)
+        e.preventDefault()
+        e.stopPropagation()
+    )
 
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
@@ -316,6 +324,7 @@ class ZoomToolView extends Bokeh.PlotWidget
       @_zoom_mapper(xmap, x, factor)
     for ymap in ymappers
       @_zoom_mapper(ymap, y, factor)
+    return null
 
 Bokeh.SelectionToolView = SelectionToolView
 Bokeh.PanToolView = PanToolView
