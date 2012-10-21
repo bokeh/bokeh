@@ -38,8 +38,6 @@ build_views = (mainmodel, view_storage, view_specs, options, view_options) ->
     temp = _.extend({}, view_specific_option, spec.options, options, {'model' : model})
     try
       view_storage[model.id] = new model.default_view(temp)
-      #console.log("no error for ", temp, "model of ", model)
-      console.log("model of ", model)
     catch error
       #console.log("error on temp of", temp, "model of", model, error)
       console.log("error on model of", model, error)
@@ -121,7 +119,7 @@ class DeferredView extends ContinuumView
     @deferred_parent = options['deferred_parent']
     @request_render()
     super(options)
-    
+
     @use_render_loop = options['render_loop']
     if @use_render_loop
       _.defer(() => @render_loop())
@@ -136,7 +134,7 @@ class DeferredView extends ContinuumView
     @end_render = new Date()
 
     @render_time = @end_render - @start_render
-    
+
   request_render : () ->
     @_dirty = true
 
