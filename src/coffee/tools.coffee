@@ -126,11 +126,12 @@ class PanToolView extends ToolView
     return [x_, y_]
 
   _set_base_point : (e) ->
-    [@x, @y] = @mouse_coords(e, e.layerX, e.layerY)
+    [@x, @y] = @mouse_coords(e, e.originalEvent.layerX, e.originalEvent.layerY)
     xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
     ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
 
   _drag_mapper : (mapper, diff) ->
+    console.log(diff)
     screen_range = mapper.get_ref('screen_range')
     data_range = mapper.get_ref('data_range')
     screenlow = screen_range.get('start') - diff
@@ -142,7 +143,7 @@ class PanToolView extends ToolView
     }, {'local' : true})
 
   _drag : (e) ->
-    [x, y] = @mouse_coords(e, e.layerX, e.layerY)
+    [x, y] = @mouse_coords(e, e.originalEvent.layerX, e.originalEvent.layerY)
     xdiff = x - @x
     ydiff = y - @y
     [@x, @y] = [x, y]
@@ -200,7 +201,7 @@ class SelectionToolView extends ToolView
       @shading = null
 
   _start_selecting : (e) ->
-    [x, y] = @mouse_coords(e, e.layerX, e.layerY)
+    [x, y] = @mouse_coords(e, e.originalEvent.layerX, e.originalEvent.layerY)
     @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
     for renderer in @mget('renderers')
       data_source = @model.resolve_ref(renderer).get_ref('data_source')
@@ -222,7 +223,7 @@ class SelectionToolView extends ToolView
     return [xrange, yrange]
 
   _selecting : (e, x_, y_) ->
-    [x, y] = @mouse_coords(e, e.layerX, e.layerY)
+    [x, y] = @mouse_coords(e, e.originalEvent.layerX, e.originalEvent.layerY)
     @mset({'current_x' : x, 'current_y' : y})
     return null
 
@@ -286,7 +287,7 @@ class ZoomToolView extends Bokeh.PlotWidget
     @plotview = plotview
     $(@plotview.main_can_wrapper).bind("mousewheel",
       (e, delta, dX, dY) =>
-        @_zoom(e, delta, e.layerX, e.layerY))
+        @_zoom(e, delta, e.originalEvent.layerX, e.originalEvent.layerY))
 
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
@@ -309,7 +310,6 @@ class ZoomToolView extends Bokeh.PlotWidget
     [x, y] = @mouse_coords(e, screenX, screenY)
     speed = @mget('speed')
     factor = - speed  * (delta * 50)
-    #debugger
     xmappers = (@model.resolve_ref(mapper) for mapper in @mget('xmappers'))
     ymappers = (@model.resolve_ref(mapper) for mapper in @mget('ymappers'))
     for xmap in xmappers
