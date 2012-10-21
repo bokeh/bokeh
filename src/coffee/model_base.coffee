@@ -89,7 +89,7 @@ Continuum.load_models = (modelspecs)->
   # trigger add events on all new models
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
-    if coll 
+    if coll
       model = coll.get(attrs.id)
       model.trigger('add', model, coll, {});
 
@@ -423,7 +423,7 @@ class HasProperties extends Backbone.Model
     # ### method HasProperties::url
     #model where our API processes this model
 
-    base = "/bb/" + Continuum.docid + "/" + @type + "/"
+    base = "/cdx/bb/" + Continuum.docid + "/" + @type + "/"
     if (@isNew())
       return base
     return base + @get('id')
