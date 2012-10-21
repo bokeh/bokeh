@@ -31,8 +31,8 @@ Do not use classes to style svgs, they don't work properly with png persistence
 .x_can_wrapper { }
 .y_can_wrapper {}
 .y_can {}
+._shader {display:none; } 
 .shading ._shader {display:block; border:1px dashed green; position: absolute; z-index:100;}
-
 .gridplot_container {position: relative;}
 .gridplot_container .gp_plotwrapper { position:absolute; } 
 button.active {  }
