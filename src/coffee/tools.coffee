@@ -40,25 +40,21 @@ class TwoPointEventGenerator
     $(document).bind('keydown', (e) =>
       if e[@options.keyName]
         @_start_drag()
-        return false
     )
 
 
     $(document).bind('keyup', (e) =>
       if not e[@options.keyName]
         @_stop_drag()
-        return false
     )
 
     @plotview.main_can_wrapper.bind('mousedown', (e) =>
       if @button_activated
         @_start_drag()
-        return false
     )
     @plotview.main_can_wrapper.bind('mouseup', (e) =>
       if @button_activated
         @_stop_drag()
-        return false
     )
     @pan_button = $("<button> #{@options.buttonText} </button>")
     @plotview.$el.find('.button_bar').append(@pan_button)
@@ -120,8 +116,6 @@ class ToolView extends Bokeh.PlotWidget
 
 
 class PanToolView extends ToolView
-
-
   eventGeneratorClass : TwoPointEventGenerator
   evgen_options : {keyName:"shiftKey", buttonText:"Pan"}
   tool_events : {
@@ -134,11 +128,9 @@ class PanToolView extends ToolView
 
   _set_base_point : (e) ->
     [@x, @y] = @mouse_coords(e, e.originalEvent.layerX, e.originalEvent.layerY)
-    xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
-    ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
+    return null
 
   _drag_mapper : (mapper, diff) ->
-    console.log(diff)
     screen_range = mapper.get_ref('screen_range')
     data_range = mapper.get_ref('data_range')
     screenlow = screen_range.get('start') - diff
