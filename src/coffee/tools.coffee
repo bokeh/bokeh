@@ -51,10 +51,12 @@ class TwoPointEventGenerator
     @plotview.main_can_wrapper.bind('mousedown', (e) =>
       if @button_activated
         @_start_drag()
+        return false
     )
     @plotview.main_can_wrapper.bind('mouseup', (e) =>
       if @button_activated
         @_stop_drag()
+       return false
     )
     @pan_button = $("<button> #{@options.buttonText} </button>")
     @plotview.$el.find('.button_bar').append(@pan_button)
