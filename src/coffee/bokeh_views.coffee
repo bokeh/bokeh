@@ -287,7 +287,6 @@ class XYRendererView extends PlotWidget
     safebind(this, @mget_ref('xmapper'), 'change', @request_render)
     safebind(this, @mget_ref('ymapper'), 'change', @request_render)
     safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
-
     super(options)
 
   calc_buffer : (data) ->
@@ -397,8 +396,10 @@ class D3LinearAxisView extends PlotWidget
         can_ctx.fillText(
           current_tick.toString(), x, 20)
         last_tick_end = (x + text_width) + 10
+      @plot_view.ctx.beginPath()
       @plot_view.ctx.moveTo(xpos(current_tick), 0)
       @plot_view.ctx.lineTo(xpos(current_tick), @mget('height') * op_scale)
+      @plot_view.ctx.stroke()
       current_tick += interval
 
     can_ctx.stroke()
@@ -436,8 +437,10 @@ class D3LinearAxisView extends PlotWidget
       if y < last_tick_end
         can_ctx.fillText(current_tick.toString(), 0, y)
         last_tick_end = (y + @DEFAULT_TEXT_HEIGHT) + 10
+      @plot_view.ctx.beginPath()
       @plot_view.ctx.moveTo(0, ypos(current_tick))
       @plot_view.ctx.lineTo(@mget('width') * op_scale, ypos(current_tick))
+      @plot_view.ctx.stroke()
       current_tick += interval
 
     can_ctx.stroke()
@@ -709,9 +712,9 @@ class ScatterRendererView extends XYRendererView
     a = new Date()
     @calc_buffer(data)
     @plot_view.ctx.beginPath()
-    if navigator.userAgent.indexOf("WebKit") != -1
-      @plot_view.ctx.scale(@options.scale, @options.scale)
-
+#     if navigator.userAgent.indexOf("WebKit") != -1
+#       @plot_view.ctx.scale(@options.scale, @options.scale)
+#
     @plot_view.ctx.fillStyle = @mget('foreground_color')
     @plot_view.ctx.strokeStyle = @mget('foreground_color')
     color_field = @mget('color_field')
@@ -732,9 +735,6 @@ class ScatterRendererView extends XYRendererView
         @addCircle(@screenx[idx], @screeny[idx])
     @plot_view.ctx.stroke()
     @render_end()
-    b = new Date()
-    render_time = b-a
-    $('#timer').html( "render time #{render_time}")
     return null
 
 class OverlayView extends PlotWidget
@@ -789,7 +789,6 @@ class ScatterSelectionOverlayView extends OverlayView
       last_color_field = false
       ctx = @plotview.ctx
       for idx in [0..data.length]
-
         if idx in sel_idxs
           if color_field
             comp_color = color_mapper.map_screen(idx)
@@ -798,7 +797,6 @@ class ScatterSelectionOverlayView extends OverlayView
           else
             ctx.strokeStyle = fcolor
             ctx.fillStyle = fcolor
-
         else
           ctx.fillStyle = unselected_color
           ctx.strokeStyle = unselected_color
