@@ -289,6 +289,10 @@ class ZoomToolView extends Bokeh.PlotWidget
   bind_events : (plotview) ->
     @plotview = plotview
     $(@plotview.main_can_wrapper).bind("mousewheel", (e, delta, dX, dY) =>
+        # cut and paste.. should refactor zoomtool or something
+        offset = $(e.currentTarget).offset()
+        e.bokehX = e.pageX - offset.left
+        e.bokehY = e.pageY - offset.top
         @_zoom(e, delta, e.bokehX, e.bokehY)
         e.preventDefault()
         e.stopPropagation()
