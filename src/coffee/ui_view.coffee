@@ -26,7 +26,7 @@ class DataTableView extends Continuum.ContinuumView
     <thead></thead>
     """
     header_column = """
-      <th><%= column_name%></th>
+      <th><%= column_name %></th>
     """
     row_template = """
       <tr></tr>
@@ -54,6 +54,8 @@ class DataTableView extends Continuum.ContinuumView
       table.append(row)
     @$el.empty()
     @$el.html(table)
-
+    @$el.height(300)
+    @$el.width(300)
+    @$el.addClass("bokehtable")
 
 Continuum.ui.DataTableView = DataTableView
