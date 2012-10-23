@@ -17,6 +17,96 @@ HasParent = Continuum.HasParent
 BokehView = Continuum.ContinuumView
 HasProperties = Continuum.HasProperties
 
+class Bokeh.ViewState extends HasParent
+  collections : Collections
+  position_object_x : (offset, container_width, object_width) ->
+    return offset
+  position_object_y : (offset, container_height, object_height) ->
+    return container_height - object_height - offset
+  #transform our coordinate space to the underlying device (svg)
+  xpos : (x) ->
+    return x
+  ypos : (y) ->
+    return @get('height') - y
+
+  #vectorized versions of xpos/ypos, operates in place
+  v_xpos : (xx) ->
+    return xx
+  v_ypos : (yy) ->
+    height = @get('height')
+    for y, idx in yy
+       yy[idx] = height - y
+    return yy
+
+  #transform underlying device (svg) to our coordinate space
+  rxpos : (x) ->
+    return x
+
+  rypos : (y) ->
+    return @get('height') - y
+
+  #compute a childs position in the underlying device
+  position_child_x : (size, offset) ->
+    return  @xpos(offset)
+  position_child_y : (size, offset) ->
+    return @ypos(offset) - size
+
+  #reverse a childs  position to the equivalent offset
+  child_position_to_offset_x : (child, position) ->
+    offset = position
+    return @rxpos(offset)
+
+  child_position_to_offset_y : (child, position) ->
+    offset = position + child.get('outerheight')
+    return @rypos(offset)
+
+  #compute your position in the underlying device
+  position_x : ->
+    parent = @get_ref('parent')
+    if not parent
+      return 0
+    return parent.position_child_x(this.get('outerwidth'), @get('offset')[0])
+
+  position_y : ->
+    parent = @get_ref('parent')
+    if not parent
+      return 0
+    val = parent.position_child_y(this.get('outerheight'), @get('offset')[1])
+    return val
+
+  reverse_position_x : (input) ->
+    parent = @get_ref('parent')
+    if not parent
+      return 0
+    return parent.child_position_to_offset_x(this, input)
+
+  reverse_position_y : (input) ->
+    parent = @get_ref('parent')
+    if not parent
+      return 0
+    return parent.child_position_to_offset_y(this, input)
+
+  dinitialize : (attrs, options) ->
+    super(attrs, options)
+    @register_property('outerwidth', ['width', 'border_space'],
+      () -> @get('width') + 2 * @get('border_space')
+      false)
+    @register_property('outerheight', ['height', 'border_space'],
+      () -> @get('height') + 2 * @get('border_space')
+      false)
+
+  defaults :
+    parent : null
+
+  display_defaults:
+    width : 200
+    height : 200
+    position : 0
+    offset : [0,0]
+    border_space : 30
+
+  default_view : null
+
 class XYRenderer extends HasParent
   select : (xscreenbounds, yscreenbounds) ->
     if xscreenbounds
@@ -625,23 +715,6 @@ class LineRenderers extends Continuum.Collection
   model : LineRenderer
 
 
-class TableRenderer extends XYRenderer
-  type : 'TableRenderer'
-  default_view : Bokeh.TableRendererView
-TableRenderer::defaults = _.clone(TableRenderer::defaults)
-_.extend(TableRenderer::defaults
-  ,
-    xmapper : null,
-    ymapper: null,
-    xfield : null,
-    yfield : null,
-    color : "#000",
-)
-
-class TableRenderers extends Continuum.Collection
-  model : TableRenderer
-
-
 class ScatterRenderer extends XYRenderer
   type : 'ScatterRenderer'
   default_view : Bokeh.ScatterRendererView
@@ -736,10 +809,8 @@ class ScatterSelectionOverlays extends Continuum.Collection
 
 #Preparing the name space
 Bokeh.register_collection('Plot', new Plots)
-Bokeh.register_collection('Table', new Tables)
 Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
 Bokeh.register_collection('LineRenderer', new LineRenderers)
-Bokeh.register_collection('TableRenderer', new TableRenderers)
 Bokeh.register_collection('BarRenderer', new BarRenderers)
 Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('ArrayServerObjectArrayDataSource',
@@ -764,7 +835,6 @@ Bokeh.ObjectArrayDataSource = ObjectArrayDataSource
 Bokeh.ArrayServerObjectArrayDataSource = ArrayServerObjectArrayDataSource
 Bokeh.ArrayServerObjectArrayDataSources = ArrayServerObjectArrayDataSources
 Bokeh.Plot = Plot
-Bokeh.Table = Table
 Bokeh.ScatterRenderer = ScatterRenderer
 Bokeh.D3LinearAxis = D3LinearAxis
 

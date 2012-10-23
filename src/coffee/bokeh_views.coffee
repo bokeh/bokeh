@@ -297,12 +297,12 @@ class XYRendererView extends PlotWidget
     yfield = @model.get('yfield')
     datax = (x[xfield] for x in data)
     screenx = xmapper.v_map_screen(datax)
-    screenx = @model.v_xpos(screenx)
+    screenx = @viewstate.v_xpos(screenx)
     screenx = _.map(screenx, (x) => @plot_view.options.scale * x)
     datay = (y[yfield] for y in data)
     screeny = ymapper.v_map_screen(datay)
     sca = @options.scale
-    screeny = @model.v_ypos(screeny)
+    screeny = @viewstate.v_ypos(screeny)
     screeny = _.map(screeny, (y) => @plot_view.options.scale * y)
     #fix me figure out how to feature test for this so it doesn't use
     #typed arrays for browsers that don't support that
@@ -346,7 +346,7 @@ class D3LinearAxisView extends PlotWidget
       func = 'xpos'
     else
       func = 'ypos'
-    range = [@plot_model[func](range[0]), @plot_model[func](range[1])]
+    range = [@viewstate[func](range[0]), @viewstate[func](range[1])]
     scale = d3.scale.linear().domain(domain).range(range)
     return scale
 

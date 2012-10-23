@@ -80,7 +80,25 @@ class ContinuumView extends Backbone.View
 
     return @model.get_ref(fld)
 
-class DeferredView extends ContinuumView
+class ComponentView extends ContinuumView
+  initialize : (options) ->
+    # height width border_space offset
+    height = if options.height then options.height else @mget('height')
+    width = if options.width then options.width else @mget('width')
+    offset = if options.offset then options.offset else @mget('offset')
+    if options.border_space
+      border_space = options.border_space
+    else
+      border_space = @mget('border_space')
+    @viewstate = new Bokeh.ViewState(
+      height : height
+      width : width
+      offset : offset
+      border_space : border_space
+    )
+
+
+class DeferredView extends ComponentView
   initialize : (options) ->
     @start_render = new Date()
     @end_render = new Date()
