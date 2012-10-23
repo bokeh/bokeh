@@ -61,7 +61,7 @@ class TwoPointEventGenerator
         @_stop_drag()
         return false
     )
-    @pan_button = $("<button> #{@options.buttonText} </button>")
+    @pan_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
     @plotview.$el.find('.button_bar').append(@pan_button)
 
     @pan_button.click(=>
