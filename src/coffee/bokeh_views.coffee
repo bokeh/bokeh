@@ -196,7 +196,8 @@ class PlotView extends Continuum.DeferredView
    {plot_id : @id, plot_model : @model, plot_view : @}
 
   build_renderers : ->
-    build_views(@model, @renderers, @mget('renderers'), @model_specs(), @options)
+    build_views(@model, @renderers, @mget('renderers'),
+        @model_specs(), @options)
 
   build_axes : ->
     build_views(@model, @axes, @mget('axes'), @model_specs(), @options)
@@ -291,20 +292,21 @@ class PlotView extends Continuum.DeferredView
     return this
 
   render : () ->
+    height = @viewstate.get('height')
+    width = @viewstate.get('width')
+    border_space = @viewstate.get('border_space')
+    outerheight = @viewstate.get('outerheight')
+    outerwidth = @viewstate.get('outerwidth')
     super()
-    @$el.attr("width", @options.scale * @mget('outerwidth'))
-      .attr('height', @options.scale * @mget('outerheight'))
-    bord = @mget('border_space')
-
-    height = @mget('height')
-    width = @mget('width')
+    @$el.attr("width", outerwidth)
+      .attr('height', outerheight)
+    bord = border_space
     xcw = @x_can_wrapper
-    w = @options.scale * @mget('width')
-    h = @options.scale * @mget('height')
+    w = height
+    h = width
 
-    o_w = @options.scale * @mget('outerwidth')
-    o_h = @options.scale * @mget('outerheight')
-    #debugger;
+    o_w = outerwidth
+    o_h = outerheight
     @main_can_wrapper.attr('style', "left:#{bord}px; height:#{h}px; width:#{w}px")
     @x_can_wrapper.attr('style', "left:#{bord}px; top:#{h}px; height:#{bord}px; width:#{w}px")
     @y_can_wrapper.attr('style', "width:#{bord}px; height:#{h}px;")

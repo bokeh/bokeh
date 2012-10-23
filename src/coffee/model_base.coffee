@@ -512,6 +512,14 @@ else
   this.Bokeh = Bokeh
 
 class Bokeh.ViewState extends HasParent
+  initialize : (attrs, options)->
+    super(attrs, options)
+    @register_property('outerwidth', ['width', 'border_space'],
+      () -> @get('width') + 2 * @get('border_space')
+      false)
+    @register_property('outerheight', ['height', 'border_space'],
+      () -> @get('height') + 2 * @get('border_space')
+      false)
   collections : Collections
   position_object_x : (offset, container_width, object_width) ->
     return offset
@@ -579,15 +587,6 @@ class Bokeh.ViewState extends HasParent
     if not parent
       return 0
     return parent.child_position_to_offset_y(this, input)
-
-  dinitialize : (attrs, options) ->
-    super(attrs, options)
-    @register_property('outerwidth', ['width', 'border_space'],
-      () -> @get('width') + 2 * @get('border_space')
-      false)
-    @register_property('outerheight', ['height', 'border_space'],
-      () -> @get('height') + 2 * @get('border_space')
-      false)
 
   defaults :
     parent : null
