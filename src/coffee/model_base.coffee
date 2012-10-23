@@ -101,7 +101,7 @@ Continuum.load_models = (modelspecs)->
 
   return null
 
-Continuum.submodels = (ws_conn_string, topic) ->
+Continuum.submodels = (ws_conn_string, topic, apikey) ->
   # ###function : Continuum.submodels
   # creates a websocket which subscribes and listens for model changes
   # #####Parameters
@@ -118,7 +118,13 @@ Continuum.submodels = (ws_conn_string, topic) ->
   catch error
     s = new MozWebSocket(ws_conn_string)
   s.onopen = () ->
-    s.send(JSON.stringify({msgtype : 'subscribe', topic : topic}))
+    s.send(
+      JSON.stringify(
+        msgtype : 'subscribe'
+        topic : topic
+        auth : apikey
+      )
+    )
   s.onmessage = (msg) ->
     msgobj = JSON.parse(msg.data)
     if msgobj['msgtype'] == 'modelpush'
@@ -133,6 +139,8 @@ Continuum.submodels = (ws_conn_string, topic) ->
         clientid = msgobj['status'][2]
         Continuum.clientid = clientid
         $.ajaxSetup({'headers' : {'Continuum-Clientid' : clientid}})
+    else
+      console.log(msgobj)
     return null
   return s
 
