@@ -5,6 +5,71 @@ else
   this.Bokeh = Bokeh
 safebind = Continuum.safebind
 
+class ComponentView extends Continuum.ContinuumView
+  viewstateclass : Bokeh.ViewState
+  initialize : (options) ->
+    # height width border_space offset
+    height = if options.height then options.height else @mget('height')
+    width = if options.width then options.width else @mget('width')
+    offset = if options.offset then options.offset else @mget('offset')
+    if options.border_space
+      border_space = options.border_space
+    else
+      border_space = @mget('border_space')
+    @viewstate = new @viewstateclass(
+      height : height
+      width : width
+      offset : offset
+      border_space : border_space
+    )
+
+
+class DeferredView extends ComponentView
+  initialize : (options) ->
+    @start_render = new Date()
+    @end_render = new Date()
+    @render_time = 50
+    @deferred_parent = options['deferred_parent']
+    @request_render()
+    super(options)
+
+    @use_render_loop = options['render_loop']
+    if @use_render_loop
+      _.defer(() => @render_loop())
+
+  render : () ->
+    @start_render = new Date()
+    super()
+    @_dirty = false
+
+
+  render_end : () ->
+    @end_render = new Date()
+
+    @render_time = @end_render - @start_render
+
+  request_render : () ->
+    @_dirty = true
+
+  render_deferred_components : (force) ->
+    if force or @_dirty
+      @render()
+
+  remove : () ->
+    super()
+    @removed = true
+
+  render_loop : () ->
+    #debugger;
+    @render_deferred_components()
+    if not @removed and @use_render_loop
+      setTimeout((() => @render_loop()), 20)
+    else
+      @looping = false
+
+
+Continuum.DeferredView = DeferredView
+
 
 class PlotWidget extends Continuum.DeferredView
   tagName : 'div'
@@ -359,6 +424,7 @@ class D3LinearAxisView extends PlotWidget
     @render_y()
     @render_end()
     return
+
 
   render_x : ->
     xmapper = @mget_ref('mapper')
