@@ -499,10 +499,7 @@ class HasParent extends HasProperties
   display_defaults : {}
 
 
-class Component extends HasParent
-  # component class, has height, width, outerheight, outerwidth, and offsets.
-  # components understand positioning themselves within other components, as well
-  # as positioning any children that are inside them
+class ViewState extends HasParent
 
   collections : Collections
   position_object_x : (offset, container_width, object_width) ->
@@ -531,13 +528,13 @@ class Component extends HasParent
   rypos : (y) ->
     return @get('height') - y
 
-  #compute a child components position in the underlying device
+  #compute a childs position in the underlying device
   position_child_x : (size, offset) ->
     return  @xpos(offset)
   position_child_y : (size, offset) ->
     return @ypos(offset) - size
 
-  #reverse a child components position to the equivalent offset
+  #reverse a childs  position to the equivalent offset
   child_position_to_offset_x : (child, position) ->
     offset = position
     return @rxpos(offset)
@@ -594,6 +591,5 @@ class Component extends HasParent
   default_view : null
 
 Continuum.HasParent = HasParent
-Continuum.Component = Component
 Continuum.HasProperties = HasProperties
 #HasProperties.prototype.sync = Backbone.sync

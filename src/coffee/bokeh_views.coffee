@@ -24,12 +24,8 @@ class PlotWidget extends Continuum.DeferredView
     @plot_view.ctx.fill()
     @plot_view.ctx.stroke()
 
-# Individual Components below.
-# we first define the default view for a component,
-# the model for the component, and the collection
 
 #  Plot Container
-
 
 class GridPlotContainerView extends Continuum.DeferredView
   tagName : 'div'

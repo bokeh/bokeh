@@ -80,37 +80,6 @@ class ContinuumView extends Backbone.View
 
     return @model.get_ref(fld)
 
-  add_dialog : ->
-    # wraps a dialog window around this view.  This function assumes that the
-    # underlying model is a Component, so our OO hierarchy may be a bit leaky here.
-
-    position = () =>
-      @$el.dialog('widget').css({
-        'top' : @model.position_y() + "px",
-        'left' : @model.position_x() + "px"
-      })
-    @$el.dialog(
-      width : @mget('outerwidth') + 50,
-      maxHeight : $(window).height(),
-      close :  () =>
-        @remove()
-      dragStop : (event, ui) =>
-        top = parseInt(@$el.dialog('widget').css('top').split('px')[0])
-        left = parseInt(@$el.dialog('widget').css('left').split('px')[0])
-        xoff = @model.reverse_position_x(left);
-        yoff = @model.reverse_position_y(top);
-        @model.set({'offset' : [xoff, yoff]})
-        @model.save()
-    )
-    position()
-    #for some reason setting height at init time does not work!!
-    _.defer(() => @$el.dialog('option', 'height', @mget('outerheight') + 70))
-    safebind(this, @model, 'change:offset', position)
-    safebind(this, @model, 'change:outerwidth', ()->
-      @$el.dialog('option', 'width', @mget('outerwidth')))
-    safebind(this, @model, 'change:outerheight', ()->
-      @$el.dialog('option', 'height', @mget('outerheight')))
-
 class DeferredView extends ContinuumView
   initialize : (options) ->
     @start_render = new Date()
