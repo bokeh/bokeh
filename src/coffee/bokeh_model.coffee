@@ -77,7 +77,7 @@ class DataRange1d extends Range1d
       sourceobj = @resolve_ref(source['ref'])
       for colname in source['columns']
         columns.push(sourceobj.getcolumn(colname))
-    columns = _.reduce(columns, (x, y) -> return x.concat(y))
+    columns = _.reduce(columns, ((x, y) -> return x.concat(y)), [])
     [min, max] = [_.min(columns), _.max(columns)]
     span = (max - min) * (1 + @get('rangepadding'))
     center = (max + min) / 2.0
@@ -150,7 +150,7 @@ class DataFactorRange extends FactorRange
       ,
         () ->
           columns = (@get_ref('data_source').getcolumn(x) for x in @get('columns'))
-          columns = _.reduce(columns, (x, y) -> return x.concat(y))
+          columns = _.reduce(columns, ((x, y) -> return x.concat(y)), [])
           temp = {}
           for val in columns
             temp[val] = true
