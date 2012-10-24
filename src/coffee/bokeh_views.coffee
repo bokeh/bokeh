@@ -506,11 +506,14 @@ class D3LinearDateAxisView extends PlotWidget
     console.log(2* one_day, "two_day")
     while current_tick <= last_tick
       x_ticks.push(current_tick)
-      text_width = can_ctx.measureText(current_tick.toString()).width
+      date_tick = new Date(current_tick)
+      if time_string
+        text_width = can_ctx.measureText(date_tick.toLocaleTimeString()).width
+      else
+        text_width = can_ctx.measureText(date_tick.toLocaleDateString()).width
       x = (xpos(current_tick) - (text_width/2))
       if x > last_tick_end
         ab = current_tick
-        date_tick = new Date(current_tick)
         if time_string
           can_ctx.fillText(
             date_tick.toLocaleTimeString(), x, 20)
