@@ -659,8 +659,8 @@ class LineRendererView extends XYRendererView
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
 
-    @plot_view.ctx.fillStyle = 'blue'
-    @plot_view.ctx.strokeStyle = @mget('color')
+    @plot_view.ctx.fillStyle = @mget('foreground-color')
+    @plot_view.ctx.strokeStyle = @mget('foreground-color')
     @plot_view.ctx.beginPath()
 
     @plot_view.ctx.moveTo(@screenx[0], @screeny[0])
