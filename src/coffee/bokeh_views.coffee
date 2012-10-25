@@ -344,6 +344,9 @@ class D3LinearAxisView extends PlotWidget
 
   render : ->
     super()
+    unselected_color = "#ccc"
+    @plot_view.ctx.fillStyle = unselected_color
+    @plot_view.ctx.strokeStyle = unselected_color
     if @mget('orientation') in ['bottom', 'top']
       @render_x()
       @render_end()
@@ -391,7 +394,6 @@ class D3LinearAxisView extends PlotWidget
       current_tick += interval
 
     can_ctx.stroke()
-    @plot_view.ctx.stroke()
     @render_end()
 
   DEFAULT_TEXT_HEIGHT : 8
@@ -417,7 +419,6 @@ class D3LinearAxisView extends PlotWidget
     current_tick = first_tick
     y_ticks = []
     last_tick_end = 10000
-
     can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
     while current_tick <= last_tick
       y_ticks.push(current_tick)
@@ -432,7 +433,6 @@ class D3LinearAxisView extends PlotWidget
       current_tick += interval
 
     can_ctx.stroke()
-    @plot_view.ctx.stroke()
     @render_end()
 
 
