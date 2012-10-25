@@ -465,6 +465,9 @@ class D3LinearDateAxisView extends PlotWidget
 
   render : ->
     super()
+    unselected_color = "#ccc"
+    @plot_view.ctx.fillStyle = unselected_color
+    @plot_view.ctx.strokeStyle = unselected_color
     if @mget('orientation') in ['bottom', 'top']
       @render_x()
       @render_end()
