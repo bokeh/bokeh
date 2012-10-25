@@ -521,7 +521,7 @@ class D3LinearDateAxisView extends PlotWidget
           can_ctx.fillText(
             date_tick.toLocaleDateString(), x, 20)
         last_tick_end = (x + text_width) + 10
-        
+
       @plot_view.ctx.beginPath()
       @plot_view.ctx.moveTo(xpos(current_tick), 0)
       @plot_view.ctx.lineTo(xpos(current_tick), @mget('height') * op_scale)
@@ -871,8 +871,8 @@ class ScatterSelectionOverlayView extends OverlayView
   render : () ->
     window.overlay_render += 1
     super()
-    for temp in _.zip(@mget('renderers'), @rendererviews)
-      [renderer, rendererview] = temp
+    for renderer in @mget('renderers')
+      rendererview = @plot_view.renderers[renderer.id]
       renderer = @model.resolve_ref(renderer)
       selected = {}
       if renderer.get_ref('data_source').get('selecting') == false
