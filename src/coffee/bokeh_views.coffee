@@ -14,12 +14,12 @@ class PlotWidget extends Continuum.DeferredView
     @plot_model = options.plot_model
     @plot_view = options.plot_view
   addPolygon: (x,y) ->
-    @plot_view.ctx.fillRect(x,y,5,5)
+    @plot_view.ctx.fillRect(x,y,2,2)
 
   addCircle: (x,y) ->
     @plot_view.ctx.beginPath()
 
-    @plot_view.ctx.arc(x, y, 5, 0, Math.PI*2)
+    @plot_view.ctx.arc(x, y, 2, 0, Math.PI*2)
     @plot_view.ctx.closePath()
     @plot_view.ctx.fill()
     @plot_view.ctx.stroke()
