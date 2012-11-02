@@ -15,11 +15,14 @@ class PlotWidget extends Continuum.DeferredView
     @plot_model = options.plot_model
     @plot_view = options.plot_view
   addPolygon: (x,y) ->
+    if isNaN(x) or isNaN(y)
+      return null
     @plot_view.ctx.fillRect(x,y,@marksize,@marksize)
 
   addCircle: (x,y) ->
+    if isNaN(x) or isNaN(y)
+      return null
     @plot_view.ctx.beginPath()
-
     @plot_view.ctx.arc(x, y, @marksize, 0, Math.PI*2)
     @plot_view.ctx.closePath()
     @plot_view.ctx.fill()
@@ -35,7 +38,6 @@ class PlotWidget extends Continuum.DeferredView
 class GridPlotContainerView extends Continuum.DeferredView
   tagName : 'div'
   className:"gridplot_container"
-
   default_options : { scale:1.0}
   initialize : (options) ->
     super(_.defaults(options, @default_options))
@@ -665,7 +667,13 @@ class LineRendererView extends XYRendererView
 
     @plot_view.ctx.moveTo(@screenx[0], @screeny[0])
     for idx in [1..@screenx.length]
-      @plot_view.ctx.lineTo(@screenx[idx], @screeny[idx])
+      x = @screenx[idx]
+      y = @screeny[idx]
+      if isNaN(x) or isNaN(y)
+        @plot_view.ctx.stroke()
+        @plot_view.ctx.beginPath()
+        continue
+      @plot_view.ctx.lineTo(x, y)
     @plot_view.ctx.stroke()
     @render_end()
     return null

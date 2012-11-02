@@ -78,6 +78,7 @@ class DataRange1d extends Range1d
       for colname in source['columns']
         columns.push(sourceobj.getcolumn(colname))
     columns = _.reduce(columns, ((x, y) -> return x.concat(y)), [])
+    columns = _.filter(columns, (x) -> typeof(x) != "string")
     [min, max] = [_.min(columns), _.max(columns)]
     span = (max - min) * (1 + @get('rangepadding'))
     center = (max + min) / 2.0
