@@ -1,23 +1,52 @@
+============================
+GGPlot Architecture & Design
+============================
 
-The basic structure of the GGPlot package is that there is a data
-definition and basic visual parameter configuration (aka a "template")
-which can be attached to a "ggplot" object.  Then various geometry
-specifications are added to it, like geom_point and geom_line, and they
-inherit the definition from their upstream pipeline node, and potentially
-override any parameter with arguments they were given.
+The basic structure of the GGPlot package is that there is a data definition
+and basic visual parameter configuration (aka a "template") which can be
+attached to a "ggplot" object.  Then various geometry specifications are added
+to it, like geom_point and geom_line, and they inherit the definition from
+their upstream pipeline node, and potentially override any parameter with
+arguments they were given.
 
 Data parameters and visual parameters are both encapsulated in the "aesthetic"
 (which makes sense in kind of a bizarre way), and are injected into the
-pipeline by passing the return value of a call to aes() as an argument
-into either the ggplot() or geom_*() functions.
+pipeline by passing the return value of a call to aes() as an argument into
+either the ggplot() or geom_*() functions.
 
-It should be noted that different kind of geoms can have different 
-aesthetic parameters.  So the aesthetic parameters that don't apply to
-a given geom is just ignored.
+It should be noted that different kind of geoms can have different aesthetic
+parameters.  So the aesthetic parameters that don't apply to a given geom is
+just ignored.  The aesthetic can be thought of as a stylesheet on which
+geometry just looks up visual attributes.
 
-From http://www.ling.upenn.edu/~joseff/rstudy/summer2010_ggplot2_intro.html
+Useful information can be found in:
+http://www.ling.upenn.edu/~joseff/rstudy/summer2010_ggplot2_intro.html
 
-Plots convey information through various aspects of their aesthetics. Some aesthetics that plots use are:
+
+Aesthetics ----------
+
+Whereas facets are data-driven layout, the Aesthetic specification system in
+ggplot is a data-driven stylesheet mechanism.  Renderers that reference the
+aesthetic will use its visual parameters.  Additionally, by assigning
+categorical data nodes out of the datagraph to visual parameters, the Aesthetic
+hierarchy further expands the number of unique renderer configurations that
+appear in the plot, just as giving a categorical data node to facet_wrap causes
+a multiplicity of renderers to be invoked.
+
+The same group= argument for aes() doesn't apply to facet() because whereas
+there is an obvious way to visually merge two aesthetically different
+renderers/geoms in the same panel, there is not a similar kind of guidance on
+how two panels should always line up.  Hence, facet_grid and facet_wrap
+hardcode particular kinds of inter-panel alignment.
+
+Recognizing that the role of aes() is two fold, we can tackle one of its roles,
+the rendering generation part, by using list comprehensions or some other
+vectorial expression.  This same vectorial expression/expansion mechanism can
+then be used to specify a multiplicity of panels, in a way that is more
+flexible than just facet_grid and facet_wrap.
+
+Plots convey information through various aspects of their aesthetics. Some
+aesthetics that plots use are:
     x position
     y position
     size of elements
@@ -46,17 +75,21 @@ Some of these geometries have their own particular aesthetics. For instance:
     text
         label value
 
-There are other basics of these graphics that you can adjust, like the scaling of the aesthetics, and the positions of the geometries.
+There are other basics of these graphics that you can adjust, like the scaling
+of the aesthetics, and the positions of the geometries.
 
-The values represented in the plot are the product of various statistics. If you just plot the raw data, you can think of each point representing the identity statistic. Many bar charts represent the mean or median statistic. Histograms are bar charts where the bars represent the binned count or density statistic.
+Statistics
+----------
 
-Stats
------
+The values represented in the plot are the product of various statistics. If
+you just plot the raw data, you can think of each point representing the
+identity statistic. Many bar charts represent the mean or median statistic.
+Histograms are bar charts where the bars represent the binned count or density
+statistic.
 
 To add stats annotations to a plot, you use the stats_*() functions. These
-process the input data and then render them with a default geom, which can
-be changed.
-
+process the input data and then render them with a default geom, which can be
+changed.
 
 Grouping
 --------
@@ -72,7 +105,6 @@ groups are defined as unique combinations of each set of factors.
 A grouping can also be explicitly created with the group= parameter for aes().
 In this case, no visual attributes are being specified, but the geoms and
 stats are being vectorially created over some sharding of the dataset.
-
 
 Faceting
 --------

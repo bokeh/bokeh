@@ -1,7 +1,7 @@
 import pandas
 import bokeh
 
-from bokeh.functional import *
+from bokeh.chaco_gg.functional import *
 
 df = pandas.read_csv("auto-mpg.csv")
 
