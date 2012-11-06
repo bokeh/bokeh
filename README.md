@@ -1,8 +1,11 @@
 Bokeh 
 =====
 
-Bokeh is an implementation of [Grammar of Graphics](http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html) for Python.  Its primary
-output backend is HTML5 Canvas.
+Bokeh is an implementation of [Grammar of
+Graphics](http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html) for
+Python, that also supports the customized rendering flexibility of Protovis and
+d3.  Although it is a Python library, its primary output backend is HTML5
+Canvas.
 
 There are many excellent plotting packages for Python, but they generally 
 do not optimize for the particular needs of statistical plotting (easy faceting,
@@ -11,7 +14,7 @@ pleasing default color palettes for categorical data, etc.).  The goal of Bokeh
 is to provide a compelling Python equivalent of [ggplot](http://ggplot.had.co.nz) in R.
 
 A related project is [Pandas](http://pandas.pydata.org), whose [DataFrame](http://pandas.pydata.org/pandas-docs/stable/dsintro.html#dataframe) objects are directly
-used by Bokeh.
+used by Bokeh.  Bokeh will also interface with the NDTable objects in [Blaze](https://github.com/ContinuumIO/blaze).
 
 
 Technology
@@ -50,11 +53,11 @@ then you already have them installed.
 Status
 ======
 
-Bokeh is a new project (March 2012), but is under active development by
-contributors at [Continuum Analytics](http://continuum.io).  Our goal is to get
-a 0.1 release that will consist of the basic data processing and backend
-rendering, and then solicit examples from users and help from other developers
-to start rounding out the features, defaults, and overall usability.
+Bokeh was started in March 2012, and still remains in the
+experimental/prototype stage.  It is under active development by contributors
+at [Continuum Analytics](http://continuum.io), and with the recent award of a
+grant from DARPA, we are able to devote more resources into it, along with
+collaborators from Indiana University.  
 
 
 
