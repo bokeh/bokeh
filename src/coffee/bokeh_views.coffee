@@ -73,18 +73,22 @@ Continuum.DeferredView = DeferredView
 
 class PlotWidget extends Continuum.DeferredView
   tagName : 'div'
+  marksize : 3
   initialize : (options) ->
     super(options)
     @plot_id = options.plot_id
     @plot_model = options.plot_model
     @plot_view = options.plot_view
   addPolygon: (x,y) ->
-    @plot_view.ctx.fillRect(x,y,5,5)
+    if isNaN(x) or isNaN(y)
+      return null
+    @plot_view.ctx.fillRect(x,y,@marksize,@marksize)
 
   addCircle: (x,y) ->
+    if isNaN(x) or isNaN(y)
+      return null
     @plot_view.ctx.beginPath()
-
-    @plot_view.ctx.arc(x, y, 5, 0, Math.PI*2)
+    @plot_view.ctx.arc(x, y, @marksize, 0, Math.PI*2)
     @plot_view.ctx.closePath()
     @plot_view.ctx.fill()
     @plot_view.ctx.stroke()
@@ -95,7 +99,6 @@ class PlotWidget extends Continuum.DeferredView
 class GridPlotContainerView extends Continuum.DeferredView
   tagName : 'div'
   className:"gridplot_container"
-
   default_options : { scale:1.0}
   initialize : (options) ->
     super(_.defaults(options, @default_options))
@@ -157,7 +160,6 @@ class GridPlotContainerView extends Continuum.DeferredView
           usedialog : false
         )
     for own_key, view of @childviews
-      #tojq(@d3plot).append(view.$el)
       plot_wrapper = $("<div class='gp_plotwrapper'></div>")
       offset = view.model.get('offset')
       ypos = @options.scale * (@model.ypos(offset[1]) - view.model.get('outerheight'))
@@ -419,6 +421,9 @@ class D3LinearAxisView extends PlotWidget
 
   render : ->
     super()
+    unselected_color = "#ccc"
+    @plot_view.ctx.fillStyle = unselected_color
+    @plot_view.ctx.strokeStyle = unselected_color
     if @mget('orientation') in ['bottom', 'top']
       @render_x()
       @render_end()
@@ -460,6 +465,144 @@ class D3LinearAxisView extends PlotWidget
         can_ctx.fillText(
           current_tick.toString(), x, 20)
         last_tick_end = (x + text_width) + 10
+      @plot_view.ctx.beginPath()
+      @plot_view.ctx.moveTo(xpos(current_tick), 0)
+      @plot_view.ctx.lineTo(xpos(current_tick), @mget('height') * op_scale)
+      @plot_view.ctx.stroke()
+      current_tick += interval
+
+    can_ctx.stroke()
+    @render_end()
+
+  DEFAULT_TEXT_HEIGHT : 8
+  render_y : ->
+    ymapper = @mget_ref('mapper')
+    can_ctx = @plot_view.y_can_ctx
+
+    data_range = ymapper.get_ref('data_range')
+    interval = ticks.auto_interval(
+      data_range.get('start'), data_range.get('end'))
+
+    range = data_range.get('end') - data_range.get('start')
+    min_y = data_range.get('start')
+    HEIGHT = @mget('height')
+    y_scale = HEIGHT/range
+    op_scale = @plot_view.options.scale
+    ypos = (real_y) ->
+      (op_scale * (HEIGHT - ((real_y - min_y)*y_scale)))
+
+    [first_tick, last_tick] = ticks.auto_bounds(
+      data_range.get('start'), data_range.get('end'), interval)
+
+    current_tick = first_tick
+    y_ticks = []
+    last_tick_end = 10000
+    can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
+    while current_tick <= last_tick
+      y_ticks.push(current_tick)
+      y = (ypos(current_tick) + (@DEFAULT_TEXT_HEIGHT/2))
+      if y < last_tick_end
+        can_ctx.fillText(current_tick.toString(), 0, y)
+        last_tick_end = (y + @DEFAULT_TEXT_HEIGHT) + 10
+      @plot_view.ctx.beginPath()
+      @plot_view.ctx.moveTo(0, ypos(current_tick))
+      @plot_view.ctx.lineTo(@mget('width') * op_scale, ypos(current_tick))
+      @plot_view.ctx.stroke()
+      current_tick += interval
+
+    can_ctx.stroke()
+    @render_end()
+
+
+class D3LinearDateAxisView extends PlotWidget
+  initialize : (options) ->
+    super(options)
+    @plotview = options.plotview
+    safebind(this, @plot_model, 'change', @request_render)
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @mget_ref('mapper'), 'change', @request_render)
+
+  tagName : 'div'
+
+  get_offsets : (orientation) ->
+    offsets =
+      x : 0
+      y : 0
+    if orientation == 'bottom'
+      offsets['y'] += @plot_model.get('height')
+    return offsets
+
+  get_tick_size : (orientation) ->
+    if (not _.isNull(@mget('tickSize')))
+      return @mget('tickSize')
+    else
+      if orientation == 'bottom'
+        return -@plot_model.get('height')
+      else
+        return -@plot_model.get('width')
+
+  render : ->
+    super()
+    unselected_color = "#ccc"
+    @plot_view.ctx.fillStyle = unselected_color
+    @plot_view.ctx.strokeStyle = unselected_color
+    if @mget('orientation') in ['bottom', 'top']
+      @render_x()
+      @render_end()
+      return
+    @render_y()
+    @render_end()
+    return
+
+  render_x : ->
+    xmapper = @mget_ref('mapper')
+    can_ctx = @plot_view.x_can_ctx
+    data_range = xmapper.get_ref('data_range')
+    interval = ticks.auto_interval(
+      data_range.get('start'), data_range.get('end'))
+
+    range = data_range.get('end') - data_range.get('start')
+    minX = data_range.get('start')
+    x_scale = range/@mget('width')
+
+    op_scale = @plot_view.options.scale
+    last_tick_end = 10000
+
+    xpos = (realX) ->
+      (((realX - minX)/x_scale) * op_scale)
+
+    [first_tick, last_tick] = ticks.auto_bounds(
+      data_range.get('start'), data_range.get('end'), interval)
+
+    current_tick = first_tick
+    x_ticks = []
+    last_tick_end = 0
+    can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
+    one_day = 3600 * 24 *1000
+    time_string = true
+    if (last_tick - first_tick)  > (one_day * 2)
+      time_string = false
+    console.log((last_tick - first_tick), "diff ")
+    console.log(one_day, "one_day")
+    console.log(2* one_day, "two_day")
+    while current_tick <= last_tick
+      x_ticks.push(current_tick)
+      date_tick = new Date(current_tick)
+      if time_string
+        text_width = can_ctx.measureText(date_tick.toLocaleTimeString()).width
+      else
+        text_width = can_ctx.measureText(date_tick.toLocaleDateString()).width
+      x = (xpos(current_tick) - (text_width/2))
+      if x > last_tick_end
+        ab = current_tick
+        if time_string
+          can_ctx.fillText(
+            date_tick.toLocaleTimeString(), x, 20)
+        else
+          can_ctx.fillText(
+            date_tick.toLocaleDateString(), x, 20)
+        last_tick_end = (x + text_width) + 10
+
       @plot_view.ctx.beginPath()
       @plot_view.ctx.moveTo(xpos(current_tick), 0)
       @plot_view.ctx.lineTo(xpos(current_tick), @mget('height') * op_scale)
@@ -510,20 +653,6 @@ class D3LinearAxisView extends PlotWidget
     can_ctx.stroke()
     @plot_view.ctx.stroke()
     @render_end()
-
-
-class D3LinearDateAxisView extends D3LinearAxisView
-  convert_scale : (scale) ->
-    domain = scale.domain()
-    range = scale.range()
-    if @mget('orientation') in ['bottom', 'top']
-      func = 'xpos'
-    else
-      func = 'ypos'
-    range = [@plot_model[func](range[0]), @plot_model[func](range[1])]
-    domain = [new Date(domain[0]), new Date(domain[1])]
-    scale = d3.time.scale().domain(domain).range(range)
-    return scale
 
 
 class BarRendererView extends XYRendererView
@@ -607,13 +736,19 @@ class LineRendererView extends XYRendererView
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
 
-    @plot_view.ctx.fillStyle = 'blue'
-    @plot_view.ctx.strokeStyle = @mget('color')
+    @plot_view.ctx.fillStyle = @mget('foreground-color')
+    @plot_view.ctx.strokeStyle = @mget('foreground-color')
     @plot_view.ctx.beginPath()
 
     @plot_view.ctx.moveTo(@screenx[0], @screeny[0])
     for idx in [1..@screenx.length]
-      @plot_view.ctx.lineTo(@screenx[idx], @screeny[idx])
+      x = @screenx[idx]
+      y = @screeny[idx]
+      if isNaN(x) or isNaN(y)
+        @plot_view.ctx.stroke()
+        @plot_view.ctx.beginPath()
+        continue
+      @plot_view.ctx.lineTo(x, y)
     @plot_view.ctx.stroke()
     @render_end()
     return null
@@ -823,8 +958,8 @@ class ScatterSelectionOverlayView extends OverlayView
   render : () ->
     window.overlay_render += 1
     super()
-    for temp in _.zip(@mget('renderers'), @rendererviews)
-      [renderer, rendererview] = temp
+    for renderer in @mget('renderers')
+      rendererview = @plot_view.renderers[renderer.id]
       renderer = @model.resolve_ref(renderer)
       selected = {}
       if renderer.get_ref('data_source').get('selecting') == false

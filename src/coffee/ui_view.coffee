@@ -54,8 +54,8 @@ class DataTableView extends Continuum.ContinuumView
       table.append(row)
     @$el.empty()
     @$el.html(table)
-    @$el.height(300)
-    @$el.width(300)
+    @$el.height(@mget('height'))
+    @$el.width(@mget('width'))
     @$el.addClass("bokehtable")
 
 Continuum.ui.DataTableView = DataTableView

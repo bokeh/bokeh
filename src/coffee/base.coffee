@@ -33,7 +33,7 @@ safebind = (binder, target, event, callback) ->
   try
     binder['eventers'][target.id] = target
   catch error
-    debugger;
+
   target.on(event, callback, binder)
   # also need to bind destroy to remove obj from eventers.
   # no special logic needed to manage this life cycle, because

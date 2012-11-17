@@ -246,7 +246,7 @@ class SelectionToolView extends ToolView
       datasource_id = @model.resolve_ref(renderer).get_ref('data_source').id
       _.setdefault(datasource_selections, datasource_id, [])
       selected = @model.resolve_ref(renderer).select(xrange, yrange)
-      datasource_selections[datasource.id].push(selected)
+      datasource_selections[datasource_id].push(selected)
 
     for own k,v of datasource_selections
       selected = _.intersect.apply(_, v)
