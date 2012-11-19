@@ -266,50 +266,33 @@ class HasProperties extends Backbone.Model
     if not _.isEmpty(attrs)
       super(attrs, options)
 
-  structure_dependencies : (dependencies) ->
-    # ### method : HasProperties::structure_dependencies
-    # ####Parameters
-    # * dependencies : our structure for specing out
-    #   dependencies of properties look like this
-    #   `[{'ref' : {'type' : type, 'id' : id}, 'fields : ['a', 'b', 'c']}]`
-    #   for convenience, we allow people to refer to this objects attributes
-    #   as strings, only using the formal structure for other objets attributes.
-    #   this function converts everything into that formal structure.
-    #   SO this :
+  add_dependencies:  (prop_name, object, fields) ->
+    # prop_name - name of property
+    # object - object on which dependencies reside
+    # fields - attributes on that object
+    # at some future date, we should support a third arg, events
+    if not _.isArray(fields)
+      fields = [fields]
+    prop_spec = @properties[prop_name]
+    prop_spec.dependencies = prop_spec.dependencies.concat(
+      obj : object
+      fields : fields
+    )
+    # bind depdencies to change dep callback
+    for fld in fields
+      safebind(this, object, "change:" + fld,
+          prop_spec['callbacks']['changedep'])
 
-    #       ['myprop1, 'myprop2',
-    #       {'ref' : {'type' : 'otherobj', 'id' : 'otherobj'},
-    #        'fields' : 'otherfield'}]
-
-    #   is equivalent to :
-
-    #       [{'ref' : {'type' : 'mytype', 'id' : 'myid'},
-    #       'fields' : ['myprop1, 'myprop2'],
-    #       {'ref' : {'type' : 'otherobj', 'id' : 'otherobj'}
-    #       'fields' : 'otherfield'}]
-    # ####Returns
-    # * deps : the verbose form of dependencies where references are explicitly
-    # identified
-    other_deps = (x for x in dependencies when _.isObject(x))
-    local_deps = (x for x in dependencies when not _.isObject(x))
-    if local_deps.length > 0
-      deps = [{'ref' : this.ref(), 'fields' : local_deps}]
-      deps = deps.concat(other_deps)
-    else
-      deps = other_deps
-    return deps
+  register_setter : (prop_name, setter) ->
+    prop_spec = @properties[prop_name]
+    prop_spec.setter = setter
 
   register_property : \
-    (prop_name, dependencies, getter, use_cache, setter) ->
+    (prop_name, getter, use_cache) ->
       # ###method : HasProperties::register_property
       # register a computed property
       # ####Parameters
-
       # * prop_name : name of property
-      # * dependencies : something like this
-      #   ['myprop1, 'myprop2',
-      #     {'ref' : {'type' : 'otherobj', 'id' : 'otherobj'}
-      #     'fields' : 'otherfield'}]
       # * getter : function, calculates computed value, takes no arguments
       # * use_cache : whether to cache or not
       # * setter : function, takes new value as parametercalled on set.
@@ -317,52 +300,46 @@ class HasProperties extends Backbone.Model
       # #### Returns
       # * prop_spec : specification of the property, with the getter,
       # setter, dependenices, and callbacks associated with the prop
+      if _.isUndefined(use_cache)
+        use_cache = true
       if _.has(@properties, prop_name)
         @remove_property(prop_name)
-      dependencies = @structure_dependencies(dependencies)
-
       # we store a prop_spec, which has the getter, setter, dependencies
       # we also store the callbacks used to implement the computed property,
       # we do this so we can remove them later if the property is removed
-
+      changedep = () =>
+        @trigger('changedep:' + prop_name)
+      propchange = () =>
+        firechange = true
+        if prop_spec['use_cache']
+          old_val = @get_cache(prop_name)
+          @clear_cache(prop_name)
+          new_val = @get(prop_name)
+          firechange = new_val != old_val
+        if firechange
+          @trigger('change:' + prop_name, this, @get(prop_name))
+          @trigger('change', this)
       prop_spec=
         'getter' : getter,
-        'dependencies' : dependencies,
+        'dependencies' : [],
         'use_cache' : use_cache
-        'setter' : setter
+        'setter' : null
         'callbacks':
-          # we call this changedep call back when any of our dependecies
-          # are changed
-          'changedep' : =>
-            @trigger('changedep:' + prop_name)
-          # we call propchange when we receive a changedep event for this prop
-          'propchange' : =>
-            firechange = true
-            if prop_spec['use_cache']
-              old_val = @get_cache(prop_name)
-              @clear_cache(prop_name)
-              new_val = @get(prop_name)
-              firechange = new_val != old_val
-            if firechange
-              @trigger('change:' + prop_name, this, @get(prop_name))
-              @trigger('change', this)
+          changedep : changedep
+          propchange : propchange
       @properties[prop_name] = prop_spec
-      # bind depdencies to change dep callback
-      for dep in dependencies
-        obj = @resolve_ref(dep['ref'])
-        for fld in dep['fields']
-          safebind(this, obj, "change:" + fld, prop_spec['callbacks']['changedep'])
       # bind propchange callback to change dep event
       safebind(this, this, "changedep:" + prop_name,
         prop_spec['callbacks']['propchange'])
       return prop_spec
 
   remove_property : (prop_name) ->
-    #removes the property, unbinding all associated callbacks that implemented it
+    # removes the property,
+    # unbinding all associated callbacks that implemented it
     prop_spec = @properties[prop_name]
     dependencies = prop_spec.dependencies
     for dep in dependencies
-      obj = @resolve_ref(dep['ref'])
+      obj = dep.obj
       for fld in dep['fields']
         obj.off('change:' + fld, prop_spec['callbacks']['changedep'], this)
     @off("changedep:" + dep)
@@ -520,14 +497,18 @@ else
   this.Bokeh = Bokeh
 
 class Bokeh.ViewState extends HasParent
+  # This Viewstate has height/width/border_space information
+  # Primarily used by PlotViews
   initialize : (attrs, options)->
     super(attrs, options)
-    @register_property('outerwidth', ['width', 'border_space'],
-      () -> @get('width') + 2 * @get('border_space')
-      false)
-    @register_property('outerheight', ['height', 'border_space'],
-      () -> @get('height') + 2 * @get('border_space')
-      false)
+    @register_property('outerwidth',
+        () -> @get('width') + 2 * @get('border_space')
+      , false)
+    @add_dependencies('outerwidth', this, ['width', 'border_space'])
+    @register_property('outerheight',
+       () -> @get('height') + 2 * @get('border_space')
+      , false)
+    @add_dependencies('outerheight', this, ['height', 'border_space'])
   collections : Collections
   position_object_x : (offset, container_width, object_width) ->
     return offset
@@ -605,3 +586,48 @@ class Bokeh.ViewState extends HasParent
     position : 0
     offset : [0,0]
     border_space : 30
+
+#should move to bokeh_model.coffee
+class Bokeh.LinearMapper extends HasParent
+  # XY View state - handles mapper functionality
+  # along 2 axes
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @model = options.model
+    @rangename = options.rangename #xdata_range, ydata_range, data_range
+    @viewstate = options.viewstate
+    @screendim = options.screendim #height or width
+
+    @register_property('scalestate', @_get_scale, true)
+    #if height/width changes, updated mapper
+    @add_dependencies('scalestate', @viewstate, @screendim)
+    #if spec for datarange changes, point to different datarange
+    @add_dependencies('scalestate', @model, @rangename)
+    #if range limits change, update
+    @add_dependencies('scalestate', @model.get_ref(@rangename),
+      ['start', 'end'])
+
+  data_range : () ->
+    return @model.get_ref(@rangename)
+
+  _get_scale : () ->
+    screendim = @viewstate.get(@screendim)
+    datarange = @model.get_ref(@rangename)
+    scale_factor = @viewstate.get(@screendim)
+    scale_factor = scale_factor/(datarange.get('end')-datarange.get('start'))
+    offset = -(scale_factor * datarange.get('start'))
+    return [scale_factor, offset]
+
+  v_map_screen : (datav) ->
+    [scale_factor, offset] = @get('scalestate')
+    for data, idx in datav
+      datav[idx] = scale_factor * data + offset
+    return datav
+
+  map_screen : (data) ->
+    [scale_factor, offset] = @get('scalestate')
+    return scale_factor * data + offset
+
+  map_data : (screen) ->
+    [scale_factor, offset] = @get('scalestate')
+    return (screen - offset) / scale_factor

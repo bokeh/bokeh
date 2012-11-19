@@ -104,12 +104,17 @@ asyncTest('test_datarange1d_can_be_overriden', ->
 
 test('test_linear_mapper', ->
   range1 = Bokeh.Collections['Range1d'].create({'start' : 0, 'end' : 1})
-  range2 = Bokeh.Collections['Range1d'].create({'start' : 0, 'end' : 2})
-  mapper = Bokeh.Collections['LinearMapper'].create({
-    'data_range' : range1.ref(),
-    'screen_range' : range2.ref()
-  })
-  mapper.dinitialize()
+  dummyrender = new Continuum.HasProperties(
+    xdata_range : range1.ref()
+  )
+  dummyrender.collections = Bokeh.Collections
+  viewstate = new Bokeh.ViewState({'height' : 2})
+  mapper = new Bokeh.LinearMapper({},
+    model : dummyrender
+    rangename : 'xdata_range'
+    viewstate : viewstate
+    screendim : 'height'
+  )
   ok(mapper.map_screen(0.5) == 1)
   ok(mapper.map_screen(0) == 0)
   ok(mapper.map_screen(1) == 2)
@@ -127,21 +132,22 @@ test('renderer_selection', ->
       {x : 4, y : -5},
       {x : 5, y : -6}]
   }, {'local' : true})
-  plot = Bokeh.scatter_plot(null, data_source, 'x', 'y', 'x', 'circle')
+  plot = Bokeh.scatter_plot(null, data_source, 'x', 'y', null, 'circle')
   scatterrenderer = plot.resolve_ref(plot.get('renderers')[0])
+  view = new plot.default_view(model : plot)
   plot.dinitialize()
   scatterrenderer.dinitialize()
-  scatterrenderer.get_ref('xmapper').get_ref('data_range').dinitialize()
-  scatterrenderer.get_ref('xmapper').dinitialize()
-  scatterrenderer.get_ref('ymapper').get_ref('data_range').dinitialize()
-  scatterrenderer.get_ref('ymapper').dinitialize()
-  selected = scatterrenderer.select([0, 200], null)
+  scatterrenderer.get_ref('xdata_range').dinitialize()
+  scatterrenderer.get_ref('ydata_range').dinitialize()
+  view.render_deferred_components(true)
+  scatterrendererview = view.renderers[scatterrenderer.id]
+  selected = scatterrendererview.select([0, 200], null)
   deepEqual(selected, _.range(5))
-  selected = scatterrenderer.select(null, [0, 200])
+  selected = scatterrendererview.select(null, [0, 200])
   deepEqual(selected, _.range(5))
-  select = scatterrenderer.select([0, 120], null)
+  select = scatterrendererview.select([0, 120], null)
   deepEqual(select, _.range(3))
-  select = scatterrenderer.select([0, 120], [80, 200])
+  select = scatterrendererview.select([0, 120], [80, 200])
   deepEqual(select, _.range(3))
 
 )

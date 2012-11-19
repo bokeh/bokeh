@@ -30,36 +30,30 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
   ydr = Collections['DataRange1d'].create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
   }, options)
-  xmapper = Collections['LinearMapper'].create({
-    data_range : xdr.ref()
-    screen_range : plot_model.get('xrange')
-  }, options)
-  ymapper = Collections['LinearMapper'].create({
-    data_range : ydr.ref()
-    screen_range : plot_model.get('yrange')
-  }, options)
   scatter_plot = Collections["ScatterRenderer"].create(
     data_source: data_source.ref()
+    xdata_range : xdr.ref()
+    ydata_range : ydr.ref()
     xfield: xfield
     yfield: yfield
     color_field: color_field
     color_mapper : color_mapper
     mark: mark
-    xmapper: xmapper.ref()
-    ymapper: ymapper.ref()
+    xmapper: 'linear'
+    ymapper: 'linear'
     parent : plot_model.ref()
     , options
   )
   xaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'bottom',
-    'mapper' : xmapper.ref()
     'parent' : plot_model.ref()
+    'data_range' : xdr.ref()
 
   }, options)
   yaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'left',
-    'mapper' : ymapper.ref()
     'parent' : plot_model.ref()
+    'data_range' : ydr.ref()
   }, options)
   plot_model.set({
     'renderers' : [scatter_plot.ref()],
@@ -212,31 +206,28 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
   ydr = Collections['DataRange1d'].create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
   }, options)
-  xmapper = Collections['LinearMapper'].create({
-    data_range : xdr.ref()
-    screen_range : plot_model.get('xrange')
-  }, options)
-  ymapper = Collections['LinearMapper'].create({
-    data_range : ydr.ref()
-    screen_range : plot_model.get('yrange')
-  }, options)
+
   line_plot = Collections["LineRenderer"].create(
     data_source: data_source.ref()
     xfield: xfield
     yfield: yfield
-    xmapper: xmapper.ref()
-    ymapper: ymapper.ref()
+    xmapper: 'linear'
+    ymapper: 'linear'
+    xdata_range : xdr.ref()
+    ydata_range : ydr.ref()
     parent : plot_model.ref()
     , options
   )
   xaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'bottom',
-    'mapper' : xmapper.ref()
+    'data_range' : xdr.ref()
+    'mapper' : 'linear'
     'parent' : plot_model.ref()
   }, options)
   yaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'left',
-    'mapper' : ymapper.ref()
+    'screen_range' : ydr.ref()
+    'mapper' : 'linear'
     'parent' : plot_model.ref()
   }, options)
   plot_model.set({

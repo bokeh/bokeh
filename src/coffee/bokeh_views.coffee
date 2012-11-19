@@ -5,26 +5,8 @@ else
   this.Bokeh = Bokeh
 safebind = Continuum.safebind
 
-class ComponentView extends Continuum.ContinuumView
-  viewstateclass : Bokeh.ViewState
-  initialize : (options) ->
-    # height width border_space offset
-    height = if options.height then options.height else @mget('height')
-    width = if options.width then options.width else @mget('width')
-    offset = if options.offset then options.offset else @mget('offset')
-    if options.border_space
-      border_space = options.border_space
-    else
-      border_space = @mget('border_space')
-    @viewstate = new @viewstateclass(
-      height : height
-      width : width
-      offset : offset
-      border_space : border_space
-    )
 
-
-class DeferredView extends ComponentView
+class DeferredView extends Continuum.ContinuumView
   initialize : (options) ->
     @start_render = new Date()
     @end_render = new Date()
@@ -79,6 +61,11 @@ class PlotWidget extends Continuum.DeferredView
     @plot_id = options.plot_id
     @plot_model = options.plot_model
     @plot_view = options.plot_view
+    safebind(this, @plot_view.viewstate, 'change', ()->
+        console.log('CHANGE')
+        @request_render()
+    )
+
   addPolygon: (x,y) ->
     if isNaN(x) or isNaN(y)
       return null
@@ -243,14 +230,25 @@ class PlotView extends Continuum.DeferredView
 
   initialize : (options) ->
     super(_.defaults(options, @default_options))
+    height = if options.height then options.height else @mget('height')
+    width = if options.width then options.width else @mget('width')
+    offset = if options.offset then options.offset else @mget('offset')
+    if options.border_space
+      border_space = options.border_space
+    else
+      border_space = @mget('border_space')
+    @viewstate = new Bokeh.ViewState(
+      height : height
+      width : width
+      offset : offset
+      border_space : border_space
+    )
     @renderers = {}
     @axes = {}
     @tools = {}
     @overlays = {}
     @eventSink = _.extend({}, Backbone.Events)
     atm = new ActiveToolManager(@eventSink)
-
-
     @build_renderers()
     @build_axes()
     @build_tools()
@@ -259,11 +257,12 @@ class PlotView extends Continuum.DeferredView
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
-
+    safebind(this, @viewstate, 'change', @request_render)
     safebind(this, @model, 'change:renderers', @build_renderers)
     safebind(this, @model, 'change:axes', @build_axes)
     safebind(this, @model, 'change:tools', @build_tools)
     safebind(this, @model, 'change', @request_render)
+    safebind(this, @viewstate, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
     @$el.append($("""
       <div class='button_bar'/>
@@ -340,63 +339,94 @@ class PlotView extends Continuum.DeferredView
         v._dirty = true
         v.render_deferred_components(true)
 
-
-
-
-
-
 build_views = Continuum.build_views
 class XYRendererView extends PlotWidget
   initialize : (options) ->
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('xmapper'), 'change', @request_render)
-    safebind(this, @mget_ref('ymapper'), 'change', @request_render)
-    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
     super(options)
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @plot_view.viewstate, 'change', @request_render)
+    safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
+    if @mget('xmapper') == 'linear'
+      @xmapper = new Bokeh.LinearMapper({},
+        model : @model
+        rangename : 'xdata_range'
+        viewstate : @plot_view.viewstate
+        screendim : 'width'
+      )
+    if @mget('ymapper') == 'linear'
+      @ymapper = new Bokeh.LinearMapper({},
+        model : @model
+        rangename : 'ydata_range'
+        viewstate : @plot_view.viewstate
+        screendim : 'height'
+      )
+
+  select : (xscreenbounds, yscreenbounds) ->
+    if xscreenbounds
+      mapper = @xmapper
+      xdatabounds = [mapper.map_data(xscreenbounds[0]),
+        mapper.map_data(xscreenbounds[1])]
+    else
+      xdatabounds = null
+    if yscreenbounds
+      mapper = @ymapper
+      ydatabounds = [mapper.map_data(yscreenbounds[0]),
+        mapper.map_data(yscreenbounds[1])]
+    else
+      ydatabounds = null
+    func = (xval, yval) ->
+      val = ((xdatabounds is null) or
+        (xval > xdatabounds[0] and xval < xdatabounds[1])) and
+          ((ydatabounds is null) or
+          (yval > ydatabounds[0] and yval < ydatabounds[1]))
+      return val
+    source = @mget_ref('data_source')
+    return source.select([@mget('xfield'), @mget('yfield')], func)
 
   calc_buffer : (data) ->
     "use strict";
     pv = @plot_view
     pvo = @plot_view.options
     own_options = @options
-
-    xmapper = @model.get_ref('xmapper')
-    ymapper = @model.get_ref('ymapper')
     xfield = @model.get('xfield')
     yfield = @model.get('yfield')
+
     datax = (x[xfield] for x in data)
-    screenx = xmapper.v_map_screen(datax)
-    screenx = @viewstate.v_xpos(screenx)
-    screenx = _.map(screenx, (x) => @plot_view.options.scale * x)
+    screenx = @xmapper.v_map_screen(datax)
+    screenx = pv.viewstate.v_xpos(screenx)
+
     datay = (y[yfield] for y in data)
-    screeny = ymapper.v_map_screen(datay)
-    sca = @options.scale
-    screeny = @viewstate.v_ypos(screeny)
-    screeny = _.map(screeny, (y) => @plot_view.options.scale * y)
+    screeny = @ymapper.v_map_screen(datax)
+    screeny = pv.viewstate.v_ypos(screeny)
+
     #fix me figure out how to feature test for this so it doesn't use
     #typed arrays for browsers that don't support that
-
     @screeny = new Float32Array(screeny)
     @screenx = new Float32Array(screenx)
-    #@screenx = screenx
-    #@screeny = screeny
 
 class D3LinearAxisView extends PlotWidget
   initialize : (options) ->
     super(options)
-    @plotview = options.plotview
+    @plot_view = options.plot_view
     safebind(this, @plot_model, 'change', @request_render)
     safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('mapper'), 'change', @request_render)
-
+    if @mget('orientation') == 'top' or @mget('orientation') == 'bottom'
+      @screendim = 'width'
+    else
+      @screendim = 'height'
+    @mapper = new Bokeh.LinearMapper({},
+      model : @model
+      rangename : 'data_range'
+      viewstate : @plot_view.viewstate
+      screendim : 'height'
+    )
   tagName : 'div'
-
   get_offsets : (orientation) ->
     offsets =
       x : 0
       y : 0
     if orientation == 'bottom'
-      offsets['y'] += @plot_model.get('height')
+      offsets['y'] += @plot_view.viewstate.get('height')
     return offsets
 
   get_tick_size : (orientation) ->
@@ -404,9 +434,9 @@ class D3LinearAxisView extends PlotWidget
       return @mget('tickSize')
     else
       if orientation == 'bottom'
-        return -@plot_model.get('height')
+        return -@plot_view.viewstate.get('height')
       else
-        return -@plot_model.get('width')
+        return -@plot_view.viewstate.get('width')
 
   convert_scale : (scale) ->
     domain = scale.domain()
@@ -415,7 +445,8 @@ class D3LinearAxisView extends PlotWidget
       func = 'xpos'
     else
       func = 'ypos'
-    range = [@viewstate[func](range[0]), @viewstate[func](range[1])]
+    range = [@plot_view.viewstate[func](range[0]),
+      @plot_view.viewstate[func](range[1])]
     scale = d3.scale.linear().domain(domain).range(range)
     return scale
 
@@ -434,82 +465,65 @@ class D3LinearAxisView extends PlotWidget
 
 
   render_x : ->
-    xmapper = @mget_ref('mapper')
     can_ctx = @plot_view.x_can_ctx
-    data_range = xmapper.get_ref('data_range')
+    data_range = @mapper.data_range()
     interval = ticks.auto_interval(
-      data_range.get('start'), data_range.get('end'))
-
+      data_range.get('start'), data_range.get('end')
+    )
     range = data_range.get('end') - data_range.get('start')
-    minX = data_range.get('start')
-    x_scale = range/@mget('width')
-
-    op_scale = @plot_view.options.scale
+    x_scale = @mapper.get('scalestate')[0]
     last_tick_end = 10000
-
-    xpos = (realX) ->
-      (((realX - minX)/x_scale) * op_scale)
-
     [first_tick, last_tick] = ticks.auto_bounds(
       data_range.get('start'), data_range.get('end'), interval)
-
     current_tick = first_tick
     x_ticks = []
     last_tick_end = 0
-    can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
+    can_ctx.clearRect(0, 0,  @plot_view.viewstate.get('width'),
+      @plot_view.viewstate.get('height'))
     while current_tick <= last_tick
       x_ticks.push(current_tick)
       text_width = can_ctx.measureText(current_tick.toString()).width
-      x = (xpos(current_tick) - (text_width/2))
-      if x > last_tick_end
+      x = @plot_view.viewstate.xpos(@mapper.map_data(current_tick))
+      txtpos = ( x - (text_width/2))
+      if txtpos > last_tick_end
         can_ctx.fillText(
-          current_tick.toString(), x, 20)
-        last_tick_end = (x + text_width) + 10
+          current_tick.toString(), txtpos, 20)
+        last_tick_end = (txtpos + text_width) + 10
       @plot_view.ctx.beginPath()
-      @plot_view.ctx.moveTo(xpos(current_tick), 0)
-      @plot_view.ctx.lineTo(xpos(current_tick), @mget('height') * op_scale)
+      @plot_view.ctx.moveTo(x, 0)
+      @plot_view.ctx.lineTo(x, @plot_view.viewstate.get('height'))
       @plot_view.ctx.stroke()
       current_tick += interval
-
     can_ctx.stroke()
     @render_end()
 
   DEFAULT_TEXT_HEIGHT : 8
   render_y : ->
-    ymapper = @mget_ref('mapper')
     can_ctx = @plot_view.y_can_ctx
-
-    data_range = ymapper.get_ref('data_range')
+    data_range = @mapper.data_range()
     interval = ticks.auto_interval(
       data_range.get('start'), data_range.get('end'))
-
     range = data_range.get('end') - data_range.get('start')
-    min_y = data_range.get('start')
-    HEIGHT = @mget('height')
-    y_scale = HEIGHT/range
-    op_scale = @plot_view.options.scale
-    ypos = (real_y) ->
-      (op_scale * (HEIGHT - ((real_y - min_y)*y_scale)))
-
+    y_scale = @mapper.get('scalestate')[0]
     [first_tick, last_tick] = ticks.auto_bounds(
       data_range.get('start'), data_range.get('end'), interval)
-
     current_tick = first_tick
     y_ticks = []
     last_tick_end = 10000
-    can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
+    can_ctx.clearRect(0, 0,  @plot_view.viewstate.get('width'),
+      @plot_view.viewstate.get('height'))
     while current_tick <= last_tick
       y_ticks.push(current_tick)
-      y = (ypos(current_tick) + (@DEFAULT_TEXT_HEIGHT/2))
+      y = @plot_view.viewstate.ypos(@mapper.map_data(current_tick))
+      txtpos = (y + (@DEFAULT_TEXT_HEIGHT/2))
       if y < last_tick_end
         can_ctx.fillText(current_tick.toString(), 0, y)
         last_tick_end = (y + @DEFAULT_TEXT_HEIGHT) + 10
       @plot_view.ctx.beginPath()
-      @plot_view.ctx.moveTo(0, ypos(current_tick))
-      @plot_view.ctx.lineTo(@mget('width') * op_scale, ypos(current_tick))
+      @plot_view.ctx.moveTo(0, y)
+      @plot_view.ctx.lineTo(@plot_view.viewstate.get('width'), y)
       @plot_view.ctx.stroke()
       current_tick += interval
-
     can_ctx.stroke()
     @render_end()
 
@@ -517,7 +531,7 @@ class D3LinearAxisView extends PlotWidget
 class D3LinearDateAxisView extends PlotWidget
   initialize : (options) ->
     super(options)
-    @plotview = options.plotview
+    @plot_view = options.plot_view
     safebind(this, @plot_model, 'change', @request_render)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @mget_ref('mapper'), 'change', @request_render)
@@ -736,10 +750,9 @@ class LineRendererView extends XYRendererView
     data = @model.get_ref('data_source').get('data')
     @calc_buffer(data)
 
-    @plot_view.ctx.fillStyle = @mget('foreground-color')
-    @plot_view.ctx.strokeStyle = @mget('foreground-color')
+    @plot_view.ctx.fillStyle = @mget('foreground_color')
+    @plot_view.ctx.strokeStyle = @mget('foreground_color')
     @plot_view.ctx.beginPath()
-
     @plot_view.ctx.moveTo(@screenx[0], @screeny[0])
     for idx in [1..@screenx.length]
       x = @screenx[idx]
@@ -753,154 +766,10 @@ class LineRendererView extends XYRendererView
     @render_end()
     return null
 
-class TableView extends Continuum.DeferredView
-  default_options : {scale:1.0}
-
-  model_specs : ->
-   {plot_id : @id, plot_model : @model, plot_view : @}
-
-  build_renderers : ->
-    build_views(@model, @renderers, @mget('renderers'), @model_specs(), @options)
-
-  build_axes : ->
-    build_views(@model, @axes, @mget('axes'), @model_specs(), @options)
-
-  build_tools : ->
-    build_views(@model, @tools, @mget('tools'), @model_specs())
-
-  build_overlays : ->
-    #add ids of renderer views into the overlay spec
-    overlays = (_.clone(x) for x in @mget('overlays'))
-    for overlayspec in overlays
-      overlay = @model.resolve_ref(overlayspec)
-      if not overlayspec['options']
-        overlayspec['options'] = {}
-      overlayspec['options']['rendererviews'] = []
-      for renderer in overlay.get('renderers')
-        overlayspec['options']['rendererviews'].push(@renderers[renderer.id])
-    build_views(@model, @overlays, overlays, @model_specs())
-
-  bind_overlays : ->
-    for overlayspec in @mget('overlays')
-      @overlays[overlayspec.id].bind_events(this)
-
-  bind_tools : ->
-    for toolspec in   @mget('tools')
-      @tools[toolspec.id].bind_events(this)
-  tagName : 'div'
-
-  initialize : (options) ->
-    super(_.defaults(options, @default_options))
-    @renderers = {}
-    @axes = {}
-    @tools = {}
-    @overlays = {}
-    @eventSink = _.extend({}, Backbone.Events)
-    atm = new ActiveToolManager(@eventSink)
-
-    @build_renderers()
-    @build_axes()
-    @build_tools()
-    @build_overlays()
-
-    @moveCallbacks = []
-    @mousedownCallbacks = []
-    @keydownCallbacks = []
-
-    safebind(this, @model, 'change:renderers', @build_renderers)
-    safebind(this, @model, 'change:axes', @build_axes)
-    safebind(this, @model, 'change:tools', @build_tools)
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @model, 'destroy', () => @remove())
-
-    @render()
-    @bind_tools()
-    @bind_overlays()
-    @$el.addClass('table_wrap')
-    return this
-
-  render : () ->
-    super()
-    o_w = @mget('outerwidth')
-    o_h = @mget('outerheight')
-    @$el.attr("width", @options.scale * o_w)
-      .attr('height', @options.scale * o_h)
-    bord = @mget('border_space')
-
-    height = @mget('height')
-    width = @mget('width')
-
-    @mset('table_height', height - 30)
-    @$el.attr("style", "height:#{o_h}px; width:#{o_w}px")
-
-    for own key, view of @renderers
-      @$el.append(view.$el)
-    @render_end()
-
-  render_deferred_components: (force) ->
-    super(force)
-    all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
-    if _.any(all_views, (v) -> v._dirty)
-      for v in all_views
-        v._dirty = true
-        v.render_deferred_components(true)
-
-
-class TableRendererView extends XYRendererView
-
-  calc_buffer : (data) ->
-    "use strict";
-    pv = @plot_view
-    pvo = @plot_view.options
-    own_options = @options
-
-
-    xfield = @model.get('xfield')
-    yfield = @model.get('yfield')
-    @dataX = (x[xfield] for x in data)
-    @dataY = (y[yfield] for y in data)
-
-    #@screeny = new Float32Array(screeny)
-    #@screenx = new Float32Array(screenx)
-    #@screenx = screenx
-    #@screeny = screeny
-
-  render : ->
-    super()
-    data = @model.get_ref('data_source').get('data')
-    @calc_buffer(data)
-
-
-    table_rows = []
-    for idx in [0..@dataX.length]
-      table_rows.push(
-        "<tr><td>#{idx}</td><td>#{@dataX[idx]}</td><td>#{@dataY[idx]}</td></tr>")
-    tbody_content = table_rows.join("")
-    table_el = $("""
-      <table class='table_renderer'>
-        <thead>
-          <tr>
-            <td>idx</td><td>dataX</td><td>dataY</td>
-          </tr>
-        </thead>
-        <tbody>
-          #{tbody_content}
-        </tbody>
-    </table>""")
-    @plot_view.$el.empty()
-    $(table_el).appendTo(@plot_view.$el)
-    height = @mget('height')
-    width = @mget('width')
-
-    @mset('table_height', height - 30)
-    table_el.attr('style', "height:#{@mget('table_height')}px")
-    @render_end()
-    return null
-
-
 class ScatterRendererView extends XYRendererView
   render : ->
     "use strict";
+    console.log('scatter renderer render')
     super()
     if @model.get_ref('data_source').get('selecting') == true
         #skip data sources which are not selecting'
@@ -911,9 +780,6 @@ class ScatterRendererView extends XYRendererView
     a = new Date()
     @calc_buffer(data)
     @plot_view.ctx.beginPath()
-#     if navigator.userAgent.indexOf("WebKit") != -1
-#       @plot_view.ctx.scale(@options.scale, @options.scale)
-#
     @plot_view.ctx.fillStyle = @mget('foreground_color')
     @plot_view.ctx.strokeStyle = @mget('foreground_color')
     color_field = @mget('color_field')
@@ -941,8 +807,8 @@ class OverlayView extends PlotWidget
     @rendererviews = options['rendererviews']
     super(options)
 
-  bind_events : (plotview) ->
-    @plotview = plotview
+  bind_events : (plot_view) ->
+    @plot_view = plot_view
     return null
 
 class ScatterSelectionOverlayView extends OverlayView
@@ -986,7 +852,7 @@ class ScatterSelectionOverlayView extends OverlayView
       @plot_view.ctx.fillStyle = fcolor
 
       last_color_field = false
-      ctx = @plotview.ctx
+      ctx = @plot_view.ctx
       for idx in [0..data.length]
         if idx in sel_idxs
           if color_field
@@ -1010,10 +876,8 @@ window.overlay_render = 0
 
 Bokeh.PlotWidget = PlotWidget
 Bokeh.PlotView = PlotView
-Bokeh.TableView = TableView
 Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.LineRendererView = LineRendererView
-Bokeh.TableRendererView = TableRendererView
 Bokeh.BarRendererView = BarRendererView
 Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
