@@ -165,29 +165,22 @@ class Bokeh.LinearMapper extends HasParent
   # along 2 axes
   initialize : (attrs, options) ->
     super(attrs, options)
-    @model = options.model
-    @rangename = options.rangename #xdata_range, ydata_range, data_range
+    @data_range = options.data_range
     @viewstate = options.viewstate
     @screendim = options.screendim #height or width
 
     @register_property('scalestate', @_get_scale, true)
     #if height/width changes, updated mapper
     @add_dependencies('scalestate', @viewstate, @screendim)
-    #if spec for datarange changes, point to different datarange
-    @add_dependencies('scalestate', @model, @rangename)
     #if range limits change, update
-    @add_dependencies('scalestate', @model.get_ref(@rangename),
+    @add_dependencies('scalestate', @data_range,
       ['start', 'end'])
-
-  data_range : () ->
-    return @model.get_ref(@rangename)
 
   _get_scale : () ->
     screendim = @viewstate.get(@screendim)
-    datarange = @model.get_ref(@rangename)
     scale_factor = @viewstate.get(@screendim)
-    scale_factor = scale_factor/(datarange.get('end')-datarange.get('start'))
-    offset = -(scale_factor * datarange.get('start'))
+    scale_factor = scale_factor/(@data_range.get('end')-@data_range.get('start'))
+    offset = -(scale_factor * @data_range.get('start'))
     return [scale_factor, offset]
 
   v_map_screen : (datav) ->
@@ -526,8 +519,8 @@ class PanTool extends Continuum.HasParent
 PanTool::defaults = _.clone(PanTool::defaults)
 _.extend(PanTool::defaults
   ,
-    xmappers : []
-    ymappers : []
+    dimensions : [] #height/width
+    dataranges : [] #references of datarange objects
 )
 
 

@@ -346,20 +346,28 @@ class XYRendererView extends PlotWidget
     safebind(this, @model, 'change', @request_render)
     safebind(this, @plot_view.viewstate, 'change', @request_render)
     safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
+    @set_xmapper()
+    @set_ymapper()
+    safebind(this, @model, 'change:xdata_range', @set_xmapper)
+    safebind(this, @model, 'change:ydata_range', @set_ymapper)
+
+  set_xmapper : () ->
     if @mget('xmapper') == 'linear'
       @xmapper = new Bokeh.LinearMapper({},
-        model : @model
-        rangename : 'xdata_range'
+        data_range : @mget_ref('xdata_range')
         viewstate : @plot_view.viewstate
         screendim : 'width'
       )
+    @request_render()
+
+  set_ymapper: () ->
     if @mget('ymapper') == 'linear'
       @ymapper = new Bokeh.LinearMapper({},
-        model : @model
-        rangename : 'ydata_range'
+        data_range : @mget_ref('ydata_range')
         viewstate : @plot_view.viewstate
         screendim : 'height'
       )
+    @request_render()
 
   select : (xscreenbounds, yscreenbounds) ->
     if xscreenbounds
@@ -414,12 +422,17 @@ class D3LinearAxisView extends PlotWidget
       @screendim = 'width'
     else
       @screendim = 'height'
+    @set_mapper()
+    safebind(this, @model, 'change:data_range', @set_mapper)
+
+  set_mapper : () ->
     @mapper = new Bokeh.LinearMapper({},
-      model : @model
-      rangename : 'data_range'
+      data_range : @mget_ref('data_range')
       viewstate : @plot_view.viewstate
       screendim : 'height'
     )
+    @request_render()
+
   tagName : 'div'
   get_offsets : (orientation) ->
     offsets =
@@ -466,7 +479,7 @@ class D3LinearAxisView extends PlotWidget
 
   render_x : ->
     can_ctx = @plot_view.x_can_ctx
-    data_range = @mapper.data_range()
+    data_range = @mapper.data_range
     interval = ticks.auto_interval(
       data_range.get('start'), data_range.get('end')
     )
@@ -500,7 +513,7 @@ class D3LinearAxisView extends PlotWidget
   DEFAULT_TEXT_HEIGHT : 8
   render_y : ->
     can_ctx = @plot_view.y_can_ctx
-    data_range = @mapper.data_range()
+    data_range = @mapper.data_range
     interval = ticks.auto_interval(
       data_range.get('start'), data_range.get('end'))
     range = data_range.get('end') - data_range.get('start')

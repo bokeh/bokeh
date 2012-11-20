@@ -10,24 +10,27 @@ test('test_interactive', ()->
   plot1 = Bokeh.scatter_plot(null, data_source1, 'x', 'y', 'x', 'circle')
   plot1.set('offset', [100, 100])
   scatterrenderer = plot1.resolve_ref(plot1.get('renderers')[0])
-  pantool = Bokeh.Collections['PanTool'].create(
-    {'xmappers' : [scatterrenderer.get('xmapper')],
-    'ymappers' : [scatterrenderer.get('ymapper')]}
-    , {'local':true})
-  zoomtool = Bokeh.Collections['ZoomTool'].create(
-    {'xmappers' : [scatterrenderer.get('xmapper')],
-    'ymappers' : [scatterrenderer.get('ymapper')]}
-    , {'local':true})
-  selecttool = Bokeh.Collections['SelectionTool'].create(
-    {'renderers' : [scatterrenderer.ref()]
-    'data_source_options' : {'local' : true}}
-    , {'local':true})
-  selectoverlay = Bokeh.Collections['ScatterSelectionOverlay'].create(
-    {'renderers' : [scatterrenderer.ref()]}
-    , {'local':true})
+  # pantool = Bokeh.Collections['PanTool'].create(
+  #     dataranges : [
+  #         scatterrenderer.get('xdata_range'),
+  #         scatterrenderer.get('ydata_range')
+  #       ]
+  #     dimensions : ['width', 'height']
+  #   , {'local':true})
+  # zoomtool = Bokeh.Collections['ZoomTool'].create(
+  #   {'xmappers' : [scatterrenderer.get('xmapper')],
+  #   'ymappers' : [scatterrenderer.get('ymapper')]}
+  #   , {'local':true})
+  # selecttool = Bokeh.Collections['SelectionTool'].create(
+  #   {'renderers' : [scatterrenderer.ref()]
+  #   'data_source_options' : {'local' : true}}
+  #   , {'local':true})
+  # selectoverlay = Bokeh.Collections['ScatterSelectionOverlay'].create(
+  #   {'renderers' : [scatterrenderer.ref()]}
+  #   , {'local':true})
 
-  plot1.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref()])
-  plot1.set('overlays', [selectoverlay.ref()])
+  plot1.set('tools', [pantool.ref()])#, zoomtool.ref(), selecttool.ref()])
+  plot1.set('overlays', [])#selectoverlay.ref()])
 
   window.plot1 = plot1
   div = $('<div style="border:1px solid black"></div>')
@@ -38,27 +41,30 @@ test('test_interactive', ()->
       data : data
     , {'local' : true}
   )
-  plot2 = Bokeh.scatter_plot(null, data_source2, 'x', 'y', 'x', 'circle')
-  plot2.set('offset', [100, 100])
-  scatterrenderer2 = plot1.resolve_ref(plot2.get('renderers')[0])
-  pantool2 = Bokeh.Collections['PanTool'].create(
-    {'xmappers' : [scatterrenderer2.get('xmapper')],
-    'ymappers' : [scatterrenderer2.get('ymapper')]}
-    , {'local':true})
-  zoomtool2 = Bokeh.Collections['ZoomTool'].create(
-    {'xmappers' : [scatterrenderer2.get('xmapper')],
-    'ymappers' : [scatterrenderer2.get('ymapper')]}
-    , {'local':true})
-  selecttool2 = Bokeh.Collections['SelectionTool'].create(
-    {'renderers' : [scatterrenderer2.ref()]
-    'data_source_options' : {'local' : true}}
-    , {'local':true})
-  selectoverlay2 = Bokeh.Collections['ScatterSelectionOverlay'].create(
-    {'renderers' : [scatterrenderer2.ref()]}
-    , {'local':true})
+  # plot2 = Bokeh.scatter_plot(null, data_source2, 'x', 'y', 'x', 'circle')
+  # plot2.set('offset', [100, 100])
+  # scatterrenderer2 = plot1.resolve_ref(plot2.get('renderers')[0])
+  # pantool2 = Bokeh.Collections['PanTool'].create(
+  #   dataranges :
+  #     [scatterrenderer2.get_ref('xdata_range').ref(),
+  #      scatterrenderer2.get_ref('xdata_range').ref(),
 
-  plot2.set('tools', [pantool2.ref(), zoomtool2.ref(), selecttool2.ref()])
-  plot2.set('overlays', [selectoverlay2.ref()])
+  #   'ymappers' : [scatterrenderer2.get('ymapper')]}
+  #   , {'local':true})
+  # # zoomtool2 = Bokeh.Collections['ZoomTool'].create(
+  #   {'xmappers' : [scatterrenderer2.get('xmapper')],
+  #   'ymappers' : [scatterrenderer2.get('ymapper')]}
+  #   , {'local':true})
+  # selecttool2 = Bokeh.Collections['SelectionTool'].create(
+  #   {'renderers' : [scatterrenderer2.ref()]
+  #   'data_source_options' : {'local' : true}}
+  #   , {'local':true})
+  # selectoverlay2 = Bokeh.Collections['ScatterSelectionOverlay'].create(
+  #   {'renderers' : [scatterrenderer2.ref()]}
+  #   , {'local':true})
+
+  plot2.set('tools', [pantool2.ref()])#, zoomtool2.ref(), selecttool2.ref()])
+  plot2.set('overlays', [])#selectoverlay2.ref()])
 
   window.plot2 = plot2
   div2 = $('<div style="border:1px solid black"></div>')

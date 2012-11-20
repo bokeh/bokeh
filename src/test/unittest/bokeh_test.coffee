@@ -104,14 +104,9 @@ asyncTest('test_datarange1d_can_be_overriden', ->
 
 test('test_linear_mapper', ->
   range1 = Bokeh.Collections['Range1d'].create({'start' : 0, 'end' : 1})
-  dummyrender = new Continuum.HasProperties(
-    xdata_range : range1.ref()
-  )
-  dummyrender.collections = Bokeh.Collections
   viewstate = new Bokeh.ViewState({'height' : 2})
   mapper = new Bokeh.LinearMapper({},
-    model : dummyrender
-    rangename : 'xdata_range'
+    data_range : range1
     viewstate : viewstate
     screendim : 'height'
   )
