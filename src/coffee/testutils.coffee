@@ -226,7 +226,7 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
   }, options)
   yaxis = Collections['D3LinearAxis'].create({
     'orientation' : 'left',
-    'screen_range' : ydr.ref()
+    'data_range' : ydr.ref()
     'mapper' : 'linear'
     'parent' : plot_model.ref()
   }, options)

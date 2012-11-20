@@ -396,7 +396,7 @@ class XYRendererView extends PlotWidget
     screenx = pv.viewstate.v_xpos(screenx)
 
     datay = (y[yfield] for y in data)
-    screeny = @ymapper.v_map_screen(datax)
+    screeny = @ymapper.v_map_screen(datay)
     screeny = pv.viewstate.v_ypos(screeny)
 
     #fix me figure out how to feature test for this so it doesn't use
@@ -483,7 +483,7 @@ class D3LinearAxisView extends PlotWidget
     while current_tick <= last_tick
       x_ticks.push(current_tick)
       text_width = can_ctx.measureText(current_tick.toString()).width
-      x = @plot_view.viewstate.xpos(@mapper.map_data(current_tick))
+      x = @plot_view.viewstate.xpos(@mapper.map_screen(current_tick))
       txtpos = ( x - (text_width/2))
       if txtpos > last_tick_end
         can_ctx.fillText(
@@ -514,7 +514,7 @@ class D3LinearAxisView extends PlotWidget
       @plot_view.viewstate.get('height'))
     while current_tick <= last_tick
       y_ticks.push(current_tick)
-      y = @plot_view.viewstate.ypos(@mapper.map_data(current_tick))
+      y = @plot_view.viewstate.ypos(@mapper.map_screen(current_tick))
       txtpos = (y + (@DEFAULT_TEXT_HEIGHT/2))
       if y < last_tick_end
         can_ctx.fillText(current_tick.toString(), 0, y)
