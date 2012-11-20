@@ -18,50 +18,6 @@ BokehView = Continuum.ContinuumView
 HasProperties = Continuum.HasProperties
 
 
-#should move to bokeh_model.coffee
-class Bokeh.LinearMapper extends HasParent
-  # XY View state - handles mapper functionality
-  # along 2 axes
-  initialize : (attrs, options) ->
-    super(attrs, options)
-    @model = options.model
-    @rangename = options.rangename #xdata_range, ydata_range, data_range
-    @viewstate = options.viewstate
-    @screendim = options.screendim #height or width
-
-    @register_property('scalestate', @_get_scale, true)
-    #if height/width changes, updated mapper
-    @add_dependencies('scalestate', @viewstate, @screendim)
-    #if spec for datarange changes, point to different datarange
-    @add_dependencies('scalestate', @model, @rangename)
-    #if range limits change, update
-    @add_dependencies('scalestate', @model.get_ref(@rangename),
-      ['start', 'end'])
-
-  data_range : () ->
-    return @model.get_ref(@rangename)
-
-  _get_scale : () ->
-    screendim = @viewstate.get(@screendim)
-    datarange = @model.get_ref(@rangename)
-    scale_factor = @viewstate.get(@screendim)
-    scale_factor = scale_factor/(datarange.get('end')-datarange.get('start'))
-    offset = -(scale_factor * datarange.get('start'))
-    return [scale_factor, offset]
-
-  v_map_screen : (datav) ->
-    [scale_factor, offset] = @get('scalestate')
-    for data, idx in datav
-      datav[idx] = scale_factor * data + offset
-    return datav
-
-  map_screen : (data) ->
-    [scale_factor, offset] = @get('scalestate')
-    return scale_factor * data + offset
-
-  map_data : (screen) ->
-    [scale_factor, offset] = @get('scalestate')
-    return (screen - offset) / scale_factor
 
 class XYRenderer extends HasParent
 
@@ -170,7 +126,7 @@ _.extend(FactorRange::defaults
 class DataFactorRange extends FactorRange
   type : 'DataFactorRange'
 
-  _get_values : () ->
+  _get_values : () =>
     columns = (@get_ref('data_source').getcolumn(x) for x in @get('columns'))
     columns = _.reduce(columns, ((x, y) -> return x.concat(y)), [])
     temp = {}
@@ -183,7 +139,7 @@ class DataFactorRange extends FactorRange
   dinitialize : (attrs, options) ->
     super(attrs, options)
     @register_property
-    @register_property('values', @_get_vales, true)
+    @register_property('values', @_get_values, true)
     @add_dependencies('values', this, ['data_source', 'columns'])
     @add_dependencies('values', @get_ref('data_source'),
       ['data_source', 'columns'])
@@ -202,6 +158,96 @@ class DataFactorRanges extends Continuum.Collection
 
 class FactorRanges extends Continuum.Collection
   model : FactorRange
+
+#should move to bokeh_model.coffee
+class Bokeh.LinearMapper extends HasParent
+  # XY View state - handles mapper functionality
+  # along 2 axes
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @model = options.model
+    @rangename = options.rangename #xdata_range, ydata_range, data_range
+    @viewstate = options.viewstate
+    @screendim = options.screendim #height or width
+
+    @register_property('scalestate', @_get_scale, true)
+    #if height/width changes, updated mapper
+    @add_dependencies('scalestate', @viewstate, @screendim)
+    #if spec for datarange changes, point to different datarange
+    @add_dependencies('scalestate', @model, @rangename)
+    #if range limits change, update
+    @add_dependencies('scalestate', @model.get_ref(@rangename),
+      ['start', 'end'])
+
+  data_range : () ->
+    return @model.get_ref(@rangename)
+
+  _get_scale : () ->
+    screendim = @viewstate.get(@screendim)
+    datarange = @model.get_ref(@rangename)
+    scale_factor = @viewstate.get(@screendim)
+    scale_factor = scale_factor/(datarange.get('end')-datarange.get('start'))
+    offset = -(scale_factor * datarange.get('start'))
+    return [scale_factor, offset]
+
+  v_map_screen : (datav) ->
+    [scale_factor, offset] = @get('scalestate')
+    for data, idx in datav
+      datav[idx] = scale_factor * data + offset
+    return datav
+
+  map_screen : (data) ->
+    [scale_factor, offset] = @get('scalestate')
+    return scale_factor * data + offset
+
+  map_data : (screen) ->
+    [scale_factor, offset] = @get('scalestate')
+    return (screen - offset) / scale_factor
+
+
+class DiscreteColorMapper extends HasProperties
+  type : 'DiscreteColorMapper'
+
+  _get_factor_map : () =>
+    domain_map = {}
+    for val, index in @get_ref('data_range').get('values')
+      domain_map[val] = index
+    return domain_map
+
+  _get_scale : () =>
+    return d3.scale.ordinal().domain(_.values(@get('factor_map')))
+      .range(@get('colors'))
+
+  dinitialize : (attrs, options) ->
+    super(attrs, options)
+    @register_property('factor_map', @_get_factor_map, true)
+    @add_dependencies('factor_map', this, 'data_range')
+    @register_property('scale', @_get_scale, true)
+    @add_dependencies('scale', this, ['colors', 'factor_map'])
+
+  map_screen : (data) ->
+    @get('scale')(@get('factor_map')[data]);
+
+DiscreteColorMapper::defaults = _.clone(DiscreteColorMapper::defaults)
+_.extend(DiscreteColorMapper::defaults
+  ,
+    colors : [
+      "#1f77b4", "#aec7e8",
+      "#ff7f0e", "#ffbb78",
+      "#2ca02c", "#98df8a",
+      "#d62728", "#ff9896",
+      "#9467bd", "#c5b0d5",
+      "#8c564b", "#c49c94",
+      "#e377c2", "#f7b6d2",
+      "#7f7f7f", "#c7c7c7",
+      "#bcbd22", "#dbdb8d",
+      "#17becf", "#9edae5"
+    ],
+    data_range : null
+)
+
+class DiscreteColorMappers extends Continuum.Collection
+  model : DiscreteColorMapper
 
 # Data Sources
 class ObjectArrayDataSource extends HasProperties
@@ -547,7 +593,7 @@ Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('Range1d', new Range1ds)
 Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
 Bokeh.register_collection('D3LinearDateAxis', new D3LinearDateAxes)
-#Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
+Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
 Bokeh.register_collection('FactorRange', new FactorRanges)
 Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)
 Bokeh.register_collection('DataRange1d', new DataRange1ds)
