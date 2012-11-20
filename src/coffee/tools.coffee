@@ -121,6 +121,24 @@ class ToolView extends Bokeh.PlotWidget
 
 
 class PanToolView extends ToolView
+  initialize : (options) ->
+    super(options)
+    @build_mappers()
+    safebind(this, @model, 'change:dataranges', @build_mappers)
+
+  build_mappers : () =>
+    @mappers = []
+    for temp in _.zip(@mget('dataranges'), @mget('dimensions'))
+      [drref, dim] = temp
+      datarange = @model.resolve_ref(drref)
+      mapper = new Bokeh.LinearMapper({},
+        data_range : datarange
+        viewstate : @plot_view.viewstate
+        screendim : dim
+      )
+      @mappers.push(mapper)
+    return @mappers
+
   eventGeneratorClass : TwoPointEventGenerator
   evgen_options : {keyName:"shiftKey", buttonText:"Pan"}
   tool_events : {
@@ -128,36 +146,33 @@ class PanToolView extends ToolView
     SetBasepoint : "_set_base_point"}
 
   mouse_coords : (e, x, y) ->
-    [x_, y_] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    [x_, y_] = [@plot_view.viewstate.rxpos(x), @plot_view.viewstate.rypos(y)]
     return [x_, y_]
 
   _set_base_point : (e) ->
     [@x, @y] = @mouse_coords(e, e.bokehX, e.bokehY)
     return null
 
-  _drag_mapper : (mapper, diff) ->
-    screen_range = mapper.get_ref('screen_range')
-    data_range = mapper.get_ref('data_range')
-    screenlow = screen_range.get('start') - diff
-    screenhigh = screen_range.get('end') - diff
-    [start, end] = [mapper.map_data(screenlow), mapper.map_data(screenhigh)]
-    data_range.set({
-      'start' : start
-      'end' : end
-    }, {'local' : true})
-
   _drag : (e) ->
     [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     xdiff = x - @x
     ydiff = y - @y
     [@x, @y] = [x, y]
-    xmappers = (@model.resolve_ref(x) for x in @mget('xmappers'))
-    ymappers = (@model.resolve_ref(x) for x in @mget('ymappers'))
-    for xmap in xmappers
-      @_drag_mapper(xmap, xdiff)
-    for ymap in ymappers
-      @_drag_mapper(ymap, ydiff)
-
+    for mapper in @mappers
+      if mapper.screendim == 'width'
+        diff = xdiff
+      else
+        diff = ydiff
+      screenlow = 0 - diff
+      screenhigh = @plot_view.viewstate.get(mapper.screendim) - diff
+      [start, end] = [mapper.map_data(screenlow),
+        mapper.map_data(screenhigh)]
+      mapper.data_range.set(
+        start : start
+        end : end
+      )
+      console.log('set', start, end)
+    return null
 
 class SelectionToolView extends ToolView
   initialize : (options) ->

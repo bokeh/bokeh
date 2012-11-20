@@ -350,7 +350,8 @@ class XYRendererView extends PlotWidget
     @set_ymapper()
     safebind(this, @model, 'change:xdata_range', @set_xmapper)
     safebind(this, @model, 'change:ydata_range', @set_ymapper)
-
+    safebind(this, @mget_ref('xdata_range'), 'change', @request_render)
+    safebind(this, @mget_ref('ydata_range'), 'change', @request_render)
   set_xmapper : () ->
     if @mget('xmapper') == 'linear'
       @xmapper = new Bokeh.LinearMapper({},
@@ -424,7 +425,7 @@ class D3LinearAxisView extends PlotWidget
       @screendim = 'height'
     @set_mapper()
     safebind(this, @model, 'change:data_range', @set_mapper)
-
+    safebind(this, @mget_ref('data_range'), 'change', @request_render)
   set_mapper : () ->
     @mapper = new Bokeh.LinearMapper({},
       data_range : @mget_ref('data_range')

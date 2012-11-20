@@ -10,13 +10,10 @@ test('test_interactive', ()->
   plot1 = Bokeh.scatter_plot(null, data_source1, 'x', 'y', 'x', 'circle')
   plot1.set('offset', [100, 100])
   scatterrenderer = plot1.resolve_ref(plot1.get('renderers')[0])
-  # pantool = Bokeh.Collections['PanTool'].create(
-  #     dataranges : [
-  #         scatterrenderer.get('xdata_range'),
-  #         scatterrenderer.get('ydata_range')
-  #       ]
-  #     dimensions : ['width', 'height']
-  #   , {'local':true})
+  pantool = Bokeh.Collections['PanTool'].create(
+     dataranges : [scatterrenderer.get('xdata_range'), scatterrenderer.get('ydata_range')],
+     dimensions : ['width', 'height']
+  )
   # zoomtool = Bokeh.Collections['ZoomTool'].create(
   #   {'xmappers' : [scatterrenderer.get('xmapper')],
   #   'ymappers' : [scatterrenderer.get('ymapper')]}
@@ -63,30 +60,30 @@ test('test_interactive', ()->
   #   {'renderers' : [scatterrenderer2.ref()]}
   #   , {'local':true})
 
-  plot2.set('tools', [pantool2.ref()])#, zoomtool2.ref(), selecttool2.ref()])
-  plot2.set('overlays', [])#selectoverlay2.ref()])
+  # plot2.set('tools', [pantool2.ref()])#, zoomtool2.ref(), selecttool2.ref()])
+  # plot2.set('overlays', [])#selectoverlay2.ref()])
 
-  window.plot2 = plot2
+  # window.plot2 = plot2
   div2 = $('<div style="border:1px solid black"></div>')
   $('body').append(div2)
   window.myrender = () ->
     view = new plot1.default_view(
       model : plot1,
       render_loop : true)
-    view2 = new plot2.default_view(
-      model : plot2,
-      render_loop : true)
+    # view2 = new plot2.default_view(
+    #   model : plot2,
+    #   render_loop : true)
     div.append(view.$el)
-    div2.append(view2.$el)
+    # div2.append(view2.$el)
     view.render()
-    view2.render()
+    # view2.render()
     plot1.set({'width' : 300})
     plot1.set({'height' : 300})
-    plot2.set({'width' : 300})
-    plot2.set({'height' : 300})
+    # plot2.set({'width' : 300})
+    # plot2.set({'height' : 300})
 
     window.view = view
-    window.view2 = view2
+    # window.view2 = view2
   _.defer(window.myrender)
 )
 
