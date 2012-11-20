@@ -18,6 +18,51 @@ BokehView = Continuum.ContinuumView
 HasProperties = Continuum.HasProperties
 
 
+#should move to bokeh_model.coffee
+class Bokeh.LinearMapper extends HasParent
+  # XY View state - handles mapper functionality
+  # along 2 axes
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @model = options.model
+    @rangename = options.rangename #xdata_range, ydata_range, data_range
+    @viewstate = options.viewstate
+    @screendim = options.screendim #height or width
+
+    @register_property('scalestate', @_get_scale, true)
+    #if height/width changes, updated mapper
+    @add_dependencies('scalestate', @viewstate, @screendim)
+    #if spec for datarange changes, point to different datarange
+    @add_dependencies('scalestate', @model, @rangename)
+    #if range limits change, update
+    @add_dependencies('scalestate', @model.get_ref(@rangename),
+      ['start', 'end'])
+
+  data_range : () ->
+    return @model.get_ref(@rangename)
+
+  _get_scale : () ->
+    screendim = @viewstate.get(@screendim)
+    datarange = @model.get_ref(@rangename)
+    scale_factor = @viewstate.get(@screendim)
+    scale_factor = scale_factor/(datarange.get('end')-datarange.get('start'))
+    offset = -(scale_factor * datarange.get('start'))
+    return [scale_factor, offset]
+
+  v_map_screen : (datav) ->
+    [scale_factor, offset] = @get('scalestate')
+    for data, idx in datav
+      datav[idx] = scale_factor * data + offset
+    return datav
+
+  map_screen : (data) ->
+    [scale_factor, offset] = @get('scalestate')
+    return scale_factor * data + offset
+
+  map_data : (screen) ->
+    [scale_factor, offset] = @get('scalestate')
+    return (screen - offset) / scale_factor
+
 class XYRenderer extends HasParent
 
 
