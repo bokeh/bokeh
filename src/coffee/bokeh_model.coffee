@@ -535,8 +535,8 @@ class ZoomTool extends Continuum.HasParent
 ZoomTool::defaults = _.clone(ZoomTool::defaults)
 _.extend(ZoomTool::defaults
   ,
-    xmappers : []
-    ymappers : []
+    dimensions : []
+    dataranges : []
     speed : 1/600
 )
 

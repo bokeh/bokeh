@@ -14,10 +14,10 @@ test('test_interactive', ()->
      dataranges : [scatterrenderer.get('xdata_range'), scatterrenderer.get('ydata_range')],
      dimensions : ['width', 'height']
   )
-  # zoomtool = Bokeh.Collections['ZoomTool'].create(
-  #   {'xmappers' : [scatterrenderer.get('xmapper')],
-  #   'ymappers' : [scatterrenderer.get('ymapper')]}
-  #   , {'local':true})
+  zoomtool = Bokeh.Collections['ZoomTool'].create(
+     dataranges : [scatterrenderer.get('xdata_range'), scatterrenderer.get('ydata_range')],
+     dimensions : ['width', 'height']
+  )
   # selecttool = Bokeh.Collections['SelectionTool'].create(
   #   {'renderers' : [scatterrenderer.ref()]
   #   'data_source_options' : {'local' : true}}
@@ -26,7 +26,7 @@ test('test_interactive', ()->
   #   {'renderers' : [scatterrenderer.ref()]}
   #   , {'local':true})
 
-  plot1.set('tools', [pantool.ref()])#, zoomtool.ref(), selecttool.ref()])
+  plot1.set('tools', [pantool.ref(), zoomtool.ref()])#, selecttool.ref()])
   plot1.set('overlays', [])#selectoverlay.ref()])
 
   window.plot1 = plot1
