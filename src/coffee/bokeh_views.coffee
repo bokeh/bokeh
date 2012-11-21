@@ -831,9 +831,12 @@ class ScatterSelectionOverlayView extends OverlayView
     for renderer in @mget('renderers')
       renderer = @model.resolve_ref(renderer)
       safebind(this, renderer, 'change', @request_render)
-      safebind(this, renderer.get_ref('xmapper'), 'change', @request_render)
-      safebind(this, renderer.get_ref('ymapper'), 'change', @request_render)
-      safebind(this, renderer.get_ref('data_source'), 'change', @request_render)
+      safebind(this, renderer.get_ref('xdata_range'), 'change',
+        @request_render)
+      safebind(this, renderer.get_ref('xdata_range'), 'change',
+        @request_render)
+      safebind(this, renderer.get_ref('data_source'), 'change',
+        @request_render)
 
   render : () ->
     window.overlay_render += 1

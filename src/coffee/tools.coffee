@@ -183,14 +183,17 @@ class SelectionToolView extends ToolView
     for renderer in @mget('renderers')
       renderer = @model.resolve_ref(renderer)
       safebind(this, renderer, 'change', @request_render)
-      safebind(this, renderer.get_ref('xmapper'), 'change', @request_render)
-      safebind(this, renderer.get_ref('ymapper'), 'change', @request_render)
-      safebind(this, renderer.get_ref('data_source'), 'change', @request_render)
+      safebind(this, renderer.get_ref('xdata_range'), 'change',
+        @request_render)
+      safebind(this, renderer.get_ref('ydata_range'), 'change',
+        @request_render)
+      safebind(this, renderer.get_ref('data_source'), 'change',
+        @request_render)
       safebind(this, renderer, 'change', select_callback)
-      safebind(this, renderer.get_ref('xmapper'), 'change', select_callback)
-      safebind(this, renderer.get_ref('ymapper'), 'change', select_callback)
-
-
+      safebind(this, renderer.get_ref('xdata_range'), 'change',
+        select_callback)
+      safebind(this, renderer.get_ref('ydata_range'), 'change',
+        select_callback)
   eventGeneratorClass : TwoPointEventGenerator
   evgen_options : {keyName:"ctrlKey", buttonText:"Select"}
   tool_events : {
@@ -200,7 +203,7 @@ class SelectionToolView extends ToolView
 
 
   mouse_coords : (e, x, y) ->
-    [x, y] = [@plot_model.rxpos(x), @plot_model.rypos(y)]
+    [x, y] = [@plot_view.viewstate.rxpos(x), @plot_view.viewstate.rypos(y)]
     return [x, y]
 
   _stop_selecting : () ->
@@ -260,7 +263,7 @@ class SelectionToolView extends ToolView
     for renderer in @mget('renderers')
       datasource_id = @model.resolve_ref(renderer).get_ref('data_source').id
       _.setdefault(datasource_selections, datasource_id, [])
-      selected = @model.resolve_ref(renderer).select(xrange, yrange)
+      selected = @plot_view.renderers[renderer.id].select(xrange, yrange)
       datasource_selections[datasource_id].push(selected)
 
     for own k,v of datasource_selections
@@ -277,17 +280,17 @@ class SelectionToolView extends ToolView
     if not @shading
       @plotview.$el.addClass("shading")
     style_string = ""
-    xpos = @plot_model.rxpos(Math.min(xrange[0], xrange[1]))
+    xpos = @plot_view.viewstate.rxpos(Math.min(xrange[0], xrange[1]))
     if xrange
       width = Math.abs(xrange[1] - xrange[0])
     else
-      width = @plot_model.get('width')
+      width = @plot_view.viewstate.get('width')
     style_string += "; left:#{xpos}px; width:#{width}px; "
-    ypos = @plot_model.rypos(Math.max(yrange[0], yrange[1]))
+    ypos = @plot_view.viewstate.rypos(Math.max(yrange[0], yrange[1]))
     if yrange
       height = yrange[1] - yrange[0]
     else
-      height = @plot_model.get('height')
+      height = @plot_view.viewstate.get('height')
     style_string += "top:#{ypos}px; height:#{height}px"
     @plotview.$el.find("._shader").attr('style', style_string)
 

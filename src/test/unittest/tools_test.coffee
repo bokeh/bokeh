@@ -18,16 +18,14 @@ test('test_interactive', ()->
      dataranges : [scatterrenderer.get('xdata_range'), scatterrenderer.get('ydata_range')],
      dimensions : ['width', 'height']
   )
-  # selecttool = Bokeh.Collections['SelectionTool'].create(
-  #   {'renderers' : [scatterrenderer.ref()]
-  #   'data_source_options' : {'local' : true}}
-  #   , {'local':true})
-  # selectoverlay = Bokeh.Collections['ScatterSelectionOverlay'].create(
-  #   {'renderers' : [scatterrenderer.ref()]}
-  #   , {'local':true})
-
-  plot1.set('tools', [pantool.ref(), zoomtool.ref()])#, selecttool.ref()])
-  plot1.set('overlays', [])#selectoverlay.ref()])
+  selecttool = Bokeh.Collections['SelectionTool'].create(
+    {'renderers' : [scatterrenderer.ref()]}
+  )
+  selectoverlay = Bokeh.Collections['ScatterSelectionOverlay'].create(
+    {'renderers' : [scatterrenderer.ref()]}
+  )
+  plot1.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref()])
+  plot1.set('overlays', [selectoverlay.ref()])
 
   window.plot1 = plot1
   div = $('<div style="border:1px solid black"></div>')
