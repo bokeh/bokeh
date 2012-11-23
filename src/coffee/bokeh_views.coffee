@@ -334,7 +334,7 @@ class PlotView extends Continuum.DeferredView
     super(force)
     all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
     if _.any(all_views, (v) -> v._dirty)
-      @ctx.clearRect(0,0,  @mget('width'), @mget('height'))
+      @ctx.clearRect(0,0,  @viewstate.get('width'), @viewstate.get('height'))
       for v in all_views
         v._dirty = true
         v.render_deferred_components(true)
