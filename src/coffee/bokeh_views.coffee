@@ -303,8 +303,8 @@ class PlotView extends Continuum.DeferredView
       .attr('height', outerheight)
     bord = border_space
     xcw = @x_can_wrapper
-    w = height
-    h = width
+    w = width
+    h = height
 
     o_w = outerwidth
     o_h = outerheight

@@ -70,6 +70,32 @@ test('test_pan_tool', ()->
   _.defer(window.myrender)
 )
 
+test('test_two_views', () ->
+  expect(0)
+  plot1 = setup_interactive()
+  div = $('<div style="border:1px solid black"></div>')
+  $('body').append(div)
+  window.myrender = () ->
+    view = new plot1.default_view(
+      model : plot1,
+      render_loop : true,
+    )
+    view2 = new plot1.default_view(
+      model : plot1,
+      render_loop : true,
+    )
+    div.append(view.$el)
+    div.append(view2.$el)
+    view.render()
+    view2.render()
+    window.view = view
+    window.view2 = view2
+    view.viewstate.set('height', 300)
+    view.viewstate.set('width', 300)
+    view2.viewstate.set('height', 300)
+    view2.viewstate.set('width', 400)
+  _.defer(window.myrender)
+)
 
 # MAX_SIZE = 500
 # test('test_tool_multisource', ()->
