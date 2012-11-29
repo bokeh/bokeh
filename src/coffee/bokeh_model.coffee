@@ -85,15 +85,17 @@ class Bokeh.GridViewState extends Bokeh.ViewState
     @register_property('height', () ->
         return _.reduce(@get('layout_heights'), ((x, y) -> x + y), 0)
       , true)
+    @add_dependencies('height', @, 'layout_heights')
     @register_property('width', () ->
         return _.reduce(@get('layout_widths'), ((x, y) -> x + y), 0)
       , true)
+    @add_dependencies('width', @, 'layout_widths')
 
   maxdim : (dim, row) ->
     if row.length == 0
       return 0
     else
-      return _.max(_.map(row, ((x) -> return x.get('outerheight'))))
+      return _.max(_.map(row, ((x) -> return x.get(dim))))
 
   layout_heights : () =>
     row_heights=(@maxdim('outerheight',row) for row in @get('childviewstates'))

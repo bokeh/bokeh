@@ -102,6 +102,7 @@ class GridPlotContainerView extends Continuum.DeferredView
     @request_render()
     safebind(this, @model, 'change:children', @build_children)
     safebind(this, @model, 'change', @request_render)
+    safebind(this, @viewstate, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
     return this
 
@@ -125,8 +126,8 @@ class GridPlotContainerView extends Continuum.DeferredView
     for view in _.values(@childviews)
       view.$el.detach()
     @$el.html('')
-    row_heights =  @viewstate.layout_heights()
-    col_widths =  @viewstate.layout_widths()
+    row_heights =  @viewstate.get('layout_heights')
+    col_widths =  @viewstate.get('layout_widths')
     y_coords = [0]
     _.reduceRight(row_heights[1..]
       ,
