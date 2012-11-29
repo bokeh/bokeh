@@ -158,6 +158,9 @@ class GridPlotContainerView extends Continuum.DeferredView
           "left:#{xpos}px; top:#{ypos}px")
         plot_wrapper.append(view.$el)
         @$el.append(plot_wrapper)
+    height = @viewstate.get('outerheight')
+    width = @viewstate.get('outerwidth')
+    @$el.attr('style', "height:#{height}px;width:#{width}px")
     @render_end()
 
 class ActiveToolManager
