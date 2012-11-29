@@ -8,9 +8,9 @@ test('simple_grid_test', ->
   		{x : 5, y : -6}]
       }, {'local' : true});
   container = Bokeh.Collections['GridPlotContainer'].create(
-  	{'render_loop' : true}, 
+  	{'render_loop' : true},
   	{'local' : true})
-  div = $('<div style="border:1px solid black"></div>')    
+  div = $('<div style="border:1px solid black"></div>')
   $('body').append(div)
   $('body').append($('<br/>'))
   plot1 = Bokeh.scatter_plot(container, data_source, 'x', 'y', 'x', 'circle');
@@ -18,13 +18,13 @@ test('simple_grid_test', ->
   window.plot = container
   window.plot1 = plot1
   window.plot2 = plot2
-        
-  container.set({'children' : [[plot1.ref(), plot2.ref()]]})	    
+
+  container.set({'children' : [[plot1.ref(), plot2.ref()]]})
   view = new Bokeh.GridPlotContainerView(
     {'model' : container, 'render_loop' : true})
-
+  window.view = view
   _.defer(->
-  	div.append(view.$el)		
+  	div.append(view.$el)
   	view.render()))
 
 
@@ -49,7 +49,7 @@ test('line_plot_grid_test', ->
   	{'local' : true});
   div = $('<div style="border:1px solid black"></div>')
   $('body').append(div)
-  $('body').append($('<br/>'))    
+  $('body').append($('<br/>'))
 
   plot1 = Bokeh.scatter_plot(container, data_source1, 'x', 'y', 'x', 'circle');
   plot2 = Bokeh.scatter_plot(container, data_source2, 'x', 'y', 'x', 'circle');
@@ -60,12 +60,10 @@ test('line_plot_grid_test', ->
   _.defer(->
   	view = new Bokeh.GridPlotContainerView(
       {'model' : container, 'render_loop' : true})
-  	div.append(view.$el)		
+  	div.append(view.$el)
   	view.render()
   	plot3.set({'height' : 300})
   	view2 = new Bokeh.GridPlotContainerView(
       {'model' : container, 'scale':0.75, 'render_loop' : true})
-  	div.append(view2.$el)		
+  	div.append(view2.$el)
   	view2.render()))
-
-

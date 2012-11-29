@@ -87,8 +87,16 @@ class GridPlotContainerView extends Continuum.DeferredView
   tagName : 'div'
   className:"gridplot_container"
   default_options : { scale:1.0}
+  set_child_view_states : () ->
+    viewstates = []
+    for row in @mget('children')
+      viewstaterow = (@childviews[x.id].viewstate for x in row)
+      viewstates.push(viewstaterow)
+    @viewstate.set('childviewstates', viewstates)
+
   initialize : (options) ->
     super(_.defaults(options, @default_options))
+    @viewstate = new Bokeh.GridViewState();
     @childviews = {}
     @build_children()
     @request_render()
@@ -104,6 +112,7 @@ class GridPlotContainerView extends Continuum.DeferredView
         @model.resolve_ref(x).set('usedialog', false)
         childspecs.push(x)
     build_views(@model, @childviews, childspecs, {'scale': @options.scale})
+    @set_child_view_states()
 
   render_deferred_components : (force) ->
     super(force)
@@ -113,9 +122,8 @@ class GridPlotContainerView extends Continuum.DeferredView
 
   render : ->
     super()
-
-    row_heights =  @model.layout_heights()
-    col_widths =  @model.layout_widths()
+    row_heights =  @viewstate.layout_heights()
+    col_widths =  @viewstate.layout_widths()
     y_coords = [0]
     _.reduceRight(row_heights[1..]
       ,
@@ -125,7 +133,6 @@ class GridPlotContainerView extends Continuum.DeferredView
           return val
       , 0
     )
-
     y_coords.reverse()
     x_coords = [0]
     _.reduce(col_widths[..-1]
@@ -140,25 +147,17 @@ class GridPlotContainerView extends Continuum.DeferredView
     last_plot = null
     for row, ridx in @mget('children')
       for plotspec, cidx in row
-        plot = @model.resolve_ref(plotspec)
-        last_plot = plot
-        plot.set(
-          offset : [x_coords[cidx], y_coords[ridx]]
-          usedialog : false
-        )
-    for own_key, view of @childviews
-      plot_wrapper = $("<div class='gp_plotwrapper'></div>")
-      offset = view.model.get('offset')
-      ypos = @options.scale * (@model.ypos(offset[1]) - view.model.get('outerheight'))
-      xpos = @options.scale * offset[0]
-      plot_wrapper.attr(
-        'style',
-        "left:#{xpos}px; top:#{ypos}px")
-      plot_wrapper.append(view.$el)
-      @$el.append(plot_wrapper)
-      @$el.attr(
-        'style',
-        "height:#{@mget('height')}px; width:#{@mget('width')}px;")
+        view = @childviews[plotspec.id]
+        ypos = @viewstate.position_child_y(view.viewstate.get('outerheight'),
+          y_coords[ridx])
+        xpos = @viewstate.position_child_x(view.viewstate.get('outerwidth'),
+          x_coords[cidx])
+        plot_wrapper = $("<div class='gp_plotwrapper'></div>")
+        plot_wrapper.attr(
+          'style',
+          "left:#{xpos}px; top:#{ypos}px")
+        plot_wrapper.append(view.$el)
+        @$el.append(plot_wrapper)
     @render_end()
 
 class ActiveToolManager
@@ -682,82 +681,6 @@ class D3LinearDateAxisView extends PlotWidget
     @plot_view.ctx.stroke()
     @render_end()
 
-
-class BarRendererView extends XYRendererView
-  render_bars : (orientation) ->
-    if orientation == 'vertical'
-      index_mapper = @mget_ref('xmapper')
-      value_mapper = @mget_ref('ymapper')
-      value_field = @mget('yfield')
-      index_field = @mget('xfield')
-      index_coord = 'x'
-      value_coord = 'y'
-      index_dimension = 'width'
-      value_dimension = 'height'
-      indexpos = (x, width) =>
-        @model.position_object_x(x, @mget('width'), width)
-      valuepos = (y, height) =>
-        @model.position_object_y(y, @mget('height'), height)
-    else
-      index_mapper = @mget_ref('ymapper')
-      value_mapper = @mget_ref('xmapper')
-      value_field = @mget('xfield')
-      index_field = @mget('yfield')
-      index_coord = 'y'
-      value_coord = 'x'
-      index_dimension = 'height'
-      value_dimension = 'width'
-      valuepos = (x, width) =>
-        @model.position_object_x(x, @mget('width'), width)
-      indexpos = (y, height) =>
-        @model.position_object_y(y, @mget('height'), height)
-
-    if not _.isObject(index_field)
-      index_field = {'field' : index_field}
-    data_source = @mget_ref('data_source')
-
-    if _.has(index_field, index_dimension)
-      thickness = index_field[index_dimension]
-    else
-      thickness = 0.85 * @plot_model.get(index_dimension)
-      thickness = thickness / data_source.get('data').length
-
-    left_points = []
-    data_arr = @model.get_ref('data_source').get('data')
-    for d, idx in data_arr
-      ctr = index_mapper.map_screen(d[index_field['field']])
-      left_points[idx] = indexpos(ctr - thickness / 2.0, thickness)
-
-    height_base = value_mapper.map_screen(0)
-    heights = []
-
-    for d, idx in data_arr
-      heights[idx] = value_mapper.map_screen(d[value_field])
-
-    if orientation == "vertical"
-      value_pos = (y) =>
-        vp =  (@mget('height') - y)
-        return vp
-      for i in [0..heights.length]
-        @plot_view.ctx.fillRect(left_points[i], value_pos(heights[i]), thickness, value_pos(0))
-    else
-      value_pos = (x) =>
-        vp =  (@mget('width') - x)
-        return vp
-
-      for i in [0..heights.length]
-        @plot_view.ctx.fillRect(0, left_points[i], value_pos(heights[i]), thickness)
-
-    @plot_view.ctx.stroke()
-    return null
-
-  render : () ->
-    super()
-    @render_bars(@mget('orientation'))
-    @render_end()
-    return null
-
-
 class LineRendererView extends XYRendererView
   render : ->
     super()
@@ -895,7 +818,6 @@ Bokeh.PlotWidget = PlotWidget
 Bokeh.PlotView = PlotView
 Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.LineRendererView = LineRendererView
-Bokeh.BarRendererView = BarRendererView
 Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
 Bokeh.D3LinearAxisView = D3LinearAxisView

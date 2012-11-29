@@ -31,10 +31,6 @@ class Bokeh.ViewState extends HasParent
       , false)
     @add_dependencies('outerheight', this, ['height', 'border_space'])
   collections : Collections
-  position_object_x : (offset, container_width, object_width) ->
-    return offset
-  position_object_y : (offset, container_height, object_height) ->
-    return container_height - object_height - offset
   #transform our coordinate space to the underlying device (svg)
   xpos : (x) ->
     return x
@@ -58,45 +54,10 @@ class Bokeh.ViewState extends HasParent
     return @get('height') - y
 
   #compute a childs position in the underlying device
-  position_child_x : (size, offset) ->
+  position_child_x : (childsize, offset) ->
     return  @xpos(offset)
-  position_child_y : (size, offset) ->
-    return @ypos(offset) - size
-
-  #reverse a childs  position to the equivalent offset
-  child_position_to_offset_x : (child, position) ->
-    offset = position
-    return @rxpos(offset)
-
-  child_position_to_offset_y : (child, position) ->
-    offset = position + child.get('outerheight')
-    return @rypos(offset)
-
-  #compute your position in the underlying device
-  position_x : ->
-    parent = @get_ref('parent')
-    if not parent
-      return 0
-    return parent.position_child_x(this.get('outerwidth'), @get('offset')[0])
-
-  position_y : ->
-    parent = @get_ref('parent')
-    if not parent
-      return 0
-    val = parent.position_child_y(this.get('outerheight'), @get('offset')[1])
-    return val
-
-  reverse_position_x : (input) ->
-    parent = @get_ref('parent')
-    if not parent
-      return 0
-    return parent.child_position_to_offset_x(this, input)
-
-  reverse_position_y : (input) ->
-    parent = @get_ref('parent')
-    if not parent
-      return 0
-    return parent.child_position_to_offset_y(this, input)
+  position_child_y : (childsize, offset) ->
+    return @ypos(offset)
 
   defaults :
     parent : null
@@ -108,6 +69,48 @@ class Bokeh.ViewState extends HasParent
     offset : [0,0]
     border_space : 30
 
+class Bokeh.GridViewState extends Bokeh.ViewState
+  setup_layout_properties : () =>
+    @register_property('layout_heights', @layout_heights, true)
+    @register_property('layout_widths', @layout_widths, true)
+    for row in @get('childviewstates')
+      for viewstate in row
+        @add_dependencies('layout_heights', viewstate, 'outerheight')
+        @add_dependencies('layout_widths', viewstate, 'outerwidth')
+
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @setup_layout_properties()
+    safebind(this, this, 'change:childviewstates', @setup_layout_properties)
+    @register_property('height', () ->
+        return _.reduce(@get('layout_heights'), ((x, y) -> x + y), 0)
+      , true)
+    @register_property('width', () ->
+        return _.reduce(@get('layout_widths'), ((x, y) -> x + y), 0)
+      , true)
+
+  maxdim : (dim, row) ->
+    if row.length == 0
+      return 0
+    else
+      return _.max(_.map(row, ((x) -> return x.get('outerheight'))))
+
+  layout_heights : () =>
+    row_heights=(@maxdim('outerheight',row) for row in @get('childviewstates'))
+    return row_heights
+
+  layout_widths : () =>
+    num_cols = @get('childviewstates')[0].length
+    columns = ((row[n] for row in @get('childviewstates')) for n in _.range(num_cols))
+    col_widths = (@maxdim('outerwidth', col) for col in columns)
+    return col_widths
+
+Bokeh.GridViewState::defaults = _.clone(Bokeh.GridViewState::defaults)
+_.extend(Bokeh.GridViewState::defaults
+  ,
+    childviewstates : [[]]
+    border_space : 0
+)
 
 class XYRenderer extends HasParent
 
@@ -414,63 +417,11 @@ class ObjectArrayDataSources extends Continuum.Collection
 class GridPlotContainer extends HasParent
   type : 'GridPlotContainer'
   default_view : Bokeh.GridPlotContainerView
-  setup_layout_property : () ->
-    @register_property('layout', () ->
-        return [@layout_heights(), @layout_widths()]
-      , true)
-    dependencies = []
-    for row in @get('children')
-      for child in row
-        @add_dependencies('layout', @resolv_ref(child),
-          ['outerheight', 'outerwidth'])
-
-  dinitialize : (attrs, options) ->
-    super(attrs, options)
-    @setup_layout_property()
-    # layout is a special property, if children change, it's dependencies
-    # actually change, so we hook it up to outerheight, width changes
-    # on the children, and add an additional callback to re-register the prop
-    # if children changes
-    safebind(this, this, 'change:children'
-      ,
-        ()->
-          @remove_property('layout')
-          @setup_layout_property()
-          @trigger('change:layout', this, @get('layout'))
-    )
-    @register_property('height', () ->
-        return _.reduce(@get('layout')[0], ((x,y) -> x+y), 0)
-      , true
-    )
-    @add_dependencies('height', this, 'layout')
-    @register_property('width', () ->
-        return _.reduce(@get('layout')[1], ((x,y) -> x+y), 0)
-      , true
-    )
-    @add_dependencies('width', this, 'layout')
-  maxdim : (dim, row) =>
-    if row.length == 0
-      return 0
-    else
-      return (_.max((@resolve_ref(x).get(dim) for x in row)))
-
-  layout_heights : ->
-    row_heights = (@maxdim('outerheight', row) for row in @get('children'))
-    return row_heights
-
-  layout_widths : ->
-    maxdim = (dim, row) => (_.max((@resolve_ref(x).get(dim) for x in row)))
-    num_cols = @get('children')[0].length
-    columns = ((row[n] for row in @get('children')) for n in _.range(num_cols))
-    col_widths = (@maxdim('outerwidth', col) for col in columns)
-    return col_widths
 
 GridPlotContainer::defaults = _.clone(GridPlotContainer::defaults)
 _.extend(GridPlotContainer::defaults
   ,
-    resize_children : false
     children : [[]]
-    usedialog : false
     border_space : 0
 )
 
