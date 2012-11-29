@@ -432,6 +432,7 @@ class D3LinearAxisView extends PlotWidget
     @set_mapper()
     safebind(this, @model, 'change:data_range', @set_mapper)
     safebind(this, @mget_ref('data_range'), 'change', @request_render)
+
   set_mapper : () ->
     @mapper = new Bokeh.LinearMapper({},
       data_range : @mget_ref('data_range')
@@ -483,6 +484,8 @@ class D3LinearAxisView extends PlotWidget
     @render_end()
     return
 
+  tick_label : (tick) ->
+    return tick.toString()
 
   render_x : ->
     can_ctx = @plot_view.x_can_ctx
@@ -502,12 +505,11 @@ class D3LinearAxisView extends PlotWidget
       @plot_view.viewstate.get('height'))
     while current_tick <= last_tick
       x_ticks.push(current_tick)
-      text_width = can_ctx.measureText(current_tick.toString()).width
+      text_width = can_ctx.measureText(@tick_label(current_tick)).width
       x = @plot_view.viewstate.xpos(@mapper.map_screen(current_tick))
       txtpos = ( x - (text_width/2))
       if txtpos > last_tick_end
-        can_ctx.fillText(
-          current_tick.toString(), txtpos, 20)
+        can_ctx.fillText(@tick_label(current_tick), txtpos, 20)
         last_tick_end = (txtpos + text_width) + 10
       @plot_view.ctx.beginPath()
       @plot_view.ctx.moveTo(x, 0)
@@ -537,7 +539,7 @@ class D3LinearAxisView extends PlotWidget
       y = @plot_view.viewstate.ypos(@mapper.map_screen(current_tick))
       txtpos = (y + (@DEFAULT_TEXT_HEIGHT/2))
       if y < last_tick_end
-        can_ctx.fillText(current_tick.toString(), 0, y)
+        can_ctx.fillText(@tick_label(current_tick), 0, y)
         last_tick_end = (y + @DEFAULT_TEXT_HEIGHT) + 10
       @plot_view.ctx.beginPath()
       @plot_view.ctx.moveTo(0, y)
@@ -548,145 +550,16 @@ class D3LinearAxisView extends PlotWidget
     @render_end()
 
 
-class D3LinearDateAxisView extends PlotWidget
-  initialize : (options) ->
-    super(options)
-    @plot_view = options.plot_view
-    safebind(this, @plot_model, 'change', @request_render)
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_ref('mapper'), 'change', @request_render)
-
-  tagName : 'div'
-
-  get_offsets : (orientation) ->
-    offsets =
-      x : 0
-      y : 0
-    if orientation == 'bottom'
-      offsets['y'] += @plot_model.get('height')
-    return offsets
-
-  get_tick_size : (orientation) ->
-    if (not _.isNull(@mget('tickSize')))
-      return @mget('tickSize')
-    else
-      if orientation == 'bottom'
-        return -@plot_model.get('height')
-      else
-        return -@plot_model.get('width')
-
-  render : ->
-    super()
-    unselected_color = "#ccc"
-    @plot_view.ctx.fillStyle = unselected_color
-    @plot_view.ctx.strokeStyle = unselected_color
-    if @mget('orientation') in ['bottom', 'top']
-      @render_x()
-      @render_end()
-      return
-    @render_y()
-    @render_end()
-    return
-
-  render_x : ->
-    xmapper = @mget_ref('mapper')
-    can_ctx = @plot_view.x_can_ctx
-    data_range = xmapper.get_ref('data_range')
-    interval = ticks.auto_interval(
-      data_range.get('start'), data_range.get('end'))
-
-    range = data_range.get('end') - data_range.get('start')
-    minX = data_range.get('start')
-    x_scale = range/@mget('width')
-
-    op_scale = @plot_view.options.scale
-    last_tick_end = 10000
-
-    xpos = (realX) ->
-      (((realX - minX)/x_scale) * op_scale)
-
-    [first_tick, last_tick] = ticks.auto_bounds(
-      data_range.get('start'), data_range.get('end'), interval)
-
-    current_tick = first_tick
-    x_ticks = []
-    last_tick_end = 0
-    can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
+class D3LinearDateAxisView extends D3LinearAxisView
+  tick_label : (tick) ->
+    start = @mget_ref('data_range').get('start')
+    end = @mget_ref('data_range').get('end')
     one_day = 3600 * 24 *1000
-    time_string = true
-    if (last_tick - first_tick)  > (one_day * 2)
-      time_string = false
-    console.log((last_tick - first_tick), "diff ")
-    console.log(one_day, "one_day")
-    console.log(2* one_day, "two_day")
-    while current_tick <= last_tick
-      x_ticks.push(current_tick)
-      date_tick = new Date(current_tick)
-      if time_string
-        text_width = can_ctx.measureText(date_tick.toLocaleTimeString()).width
-      else
-        text_width = can_ctx.measureText(date_tick.toLocaleDateString()).width
-      x = (xpos(current_tick) - (text_width/2))
-      if x > last_tick_end
-        ab = current_tick
-        if time_string
-          can_ctx.fillText(
-            date_tick.toLocaleTimeString(), x, 20)
-        else
-          can_ctx.fillText(
-            date_tick.toLocaleDateString(), x, 20)
-        last_tick_end = (x + text_width) + 10
-
-      @plot_view.ctx.beginPath()
-      @plot_view.ctx.moveTo(xpos(current_tick), 0)
-      @plot_view.ctx.lineTo(xpos(current_tick), @mget('height') * op_scale)
-      @plot_view.ctx.stroke()
-      current_tick += interval
-
-    can_ctx.stroke()
-    @plot_view.ctx.stroke()
-    @render_end()
-
-  DEFAULT_TEXT_HEIGHT : 8
-  render_y : ->
-    ymapper = @mget_ref('mapper')
-    can_ctx = @plot_view.y_can_ctx
-
-    data_range = ymapper.get_ref('data_range')
-    interval = ticks.auto_interval(
-      data_range.get('start'), data_range.get('end'))
-
-    range = data_range.get('end') - data_range.get('start')
-    min_y = data_range.get('start')
-    HEIGHT = @mget('height')
-    y_scale = HEIGHT/range
-    op_scale = @plot_view.options.scale
-    ypos = (real_y) ->
-      (op_scale * (HEIGHT - ((real_y - min_y)*y_scale)))
-
-    [first_tick, last_tick] = ticks.auto_bounds(
-      data_range.get('start'), data_range.get('end'), interval)
-
-    current_tick = first_tick
-    y_ticks = []
-    last_tick_end = 10000
-
-    can_ctx.clearRect(0, 0,  @mget('width'), @mget('height'))
-    while current_tick <= last_tick
-      y_ticks.push(current_tick)
-      y = (ypos(current_tick) + (@DEFAULT_TEXT_HEIGHT/2))
-      if y < last_tick_end
-        can_ctx.fillText(current_tick.toString(), 0, y)
-        last_tick_end = (y + @DEFAULT_TEXT_HEIGHT) + 10
-      @plot_view.ctx.beginPath()
-      @plot_view.ctx.moveTo(0, ypos(current_tick))
-      @plot_view.ctx.lineTo(@mget('width') * op_scale, ypos(current_tick))
-      @plot_view.ctx.stroke()
-      current_tick += interval
-
-    can_ctx.stroke()
-    @plot_view.ctx.stroke()
-    @render_end()
+    tick = new Date(tick)
+    if (Math.abs(end - start))  > (one_day * 2)
+      return tick.toLocaleDateString()
+    else
+      return tick.toLocaleTimeString()
 
 class LineRendererView extends XYRendererView
   render : ->
