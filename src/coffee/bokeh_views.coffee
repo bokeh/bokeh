@@ -122,6 +122,9 @@ class GridPlotContainerView extends Continuum.DeferredView
 
   render : ->
     super()
+    for view in _.values(@childviews)
+      view.$el.detach()
+    @$el.html('')
     row_heights =  @viewstate.layout_heights()
     col_widths =  @viewstate.layout_widths()
     y_coords = [0]
