@@ -57,7 +57,7 @@ class Bokeh.ViewState extends HasParent
   position_child_x : (childsize, offset) ->
     return  @xpos(offset)
   position_child_y : (childsize, offset) ->
-    return @ypos(offset)
+    return @ypos(offset) - childsize
 
   defaults :
     parent : null
