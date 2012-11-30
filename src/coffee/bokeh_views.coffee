@@ -359,21 +359,19 @@ class XYRendererView extends PlotWidget
     safebind(this, @mget_ref('xdata_range'), 'change', @request_render)
     safebind(this, @mget_ref('ydata_range'), 'change', @request_render)
   set_xmapper : () ->
-    if @mget('xmapper') == 'linear'
-      @xmapper = new Bokeh.LinearMapper({},
-        data_range : @mget_ref('xdata_range')
-        viewstate : @plot_view.viewstate
-        screendim : 'width'
-      )
+    @xmapper = new Bokeh.LinearMapper({},
+      data_range : @mget_ref('xdata_range')
+      viewstate : @plot_view.viewstate
+      screendim : 'width'
+    )
     @request_render()
 
   set_ymapper: () ->
-    if @mget('ymapper') == 'linear'
-      @ymapper = new Bokeh.LinearMapper({},
-        data_range : @mget_ref('ydata_range')
-        viewstate : @plot_view.viewstate
-        screendim : 'height'
-      )
+    @ymapper = new Bokeh.LinearMapper({},
+      data_range : @mget_ref('ydata_range')
+      viewstate : @plot_view.viewstate
+      screendim : 'height'
+    )
     @request_render()
 
   select : (xscreenbounds, yscreenbounds) ->
