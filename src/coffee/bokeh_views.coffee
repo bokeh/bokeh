@@ -210,12 +210,12 @@ class PlotView extends Continuum.ContinuumView
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
-    safebind(this, @viewstate, 'change', @request_render)
+    safebind(this, @viewstate, 'change', @render)
     safebind(this, @model, 'change:renderers', @build_renderers)
     safebind(this, @model, 'change:axes', @build_axes)
     safebind(this, @model, 'change:tools', @build_tools)
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @viewstate, 'change', @request_render)
+    safebind(this, @model, 'change', @render)
+    safebind(this, @viewstate, 'change', @render)
     safebind(this, @model, 'destroy', () => @remove())
     @$el.append($("""
       <div class='button_bar'/>
