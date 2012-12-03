@@ -62,6 +62,16 @@ class GridPlotContainerView extends Continuum.ContinuumView
     safebind(this, @model, 'destroy', () => @remove())
     return this
 
+  #FIXME make binding of this style equivalent to above safebind calls
+  # document semantics of when these events should be bound
+  #bokeh events
+  b_events : {
+    "change:children model" : "build_children",
+    "change model":           "request_render",
+    "change viewstate"      : "request_render",
+    "destroy model"         : "remove"}
+
+
   build_children : ->
     childspecs = []
     for row in @mget('children')
@@ -217,6 +227,7 @@ class PlotView extends Continuum.ContinuumView
     safebind(this, @model, 'change', @request_render)
     safebind(this, @viewstate, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
+    #FIXME template
     @$el.append($("""
       <div class='button_bar'/>
       <div class='all_can_wrapper'>
@@ -249,6 +260,13 @@ class PlotView extends Continuum.ContinuumView
     @bind_overlays()
     return this
 
+
+  # FIXME document throughly when render is called vs render_deferred
+  # should we have a "render_init" "render" and a
+  # "render_canvas" function add_dom is called at instatiation.
+  # "render" is called for plot resizing.  render_canvas is called
+  # when changes to the canvas are desired.  A ScatterRendererView
+  # would only have a "render_canvas function
 
   render : () ->
     height = @viewstate.get('height')
@@ -358,11 +376,16 @@ class XYRendererView extends PlotWidget
     screeny = @ymapper.v_map_screen(datay)
     screeny = pv.viewstate.v_ypos(screeny)
 
+
+    #FIXME
+    # shim function for translation
+    # 
     #fix me figure out how to feature test for this so it doesn't use
     #typed arrays for browsers that don't support that
     @screeny = new Float32Array(screeny)
     @screenx = new Float32Array(screenx)
 
+#FIXME remove d3
 class D3LinearAxisView extends PlotWidget
   initialize : (options) ->
     super(options)
@@ -402,18 +425,6 @@ class D3LinearAxisView extends PlotWidget
         return -@plot_view.viewstate.get('height')
       else
         return -@plot_view.viewstate.get('width')
-
-  convert_scale : (scale) ->
-    domain = scale.domain()
-    range = scale.range()
-    if @mget('orientation') in ['bottom', 'top']
-      func = 'xpos'
-    else
-      func = 'ypos'
-    range = [@plot_view.viewstate[func](range[0]),
-      @plot_view.viewstate[func](range[1])]
-    scale = d3.scale.linear().domain(domain).range(range)
-    return scale
 
   render : ->
     super()
@@ -493,7 +504,7 @@ class D3LinearAxisView extends PlotWidget
     can_ctx.stroke()
     @render_end()
 
-
+#FIXME remove D3
 class D3LinearDateAxisView extends D3LinearAxisView
   tick_label : (tick) ->
     start = @mget_ref('data_range').get('start')
@@ -528,6 +539,7 @@ class LineRendererView extends XYRendererView
     return null
 
 class ScatterRendererView extends XYRendererView
+  #FIXME: render_canvas
   render : ->
     "use strict";
     console.log('scatter renderer render')
@@ -585,6 +597,7 @@ class ScatterSelectionOverlayView extends OverlayView
       safebind(this, renderer.get_ref('data_source'), 'change',
         @request_render)
 
+  #FIXME integrate into ScatterRenderer
   render : () ->
     window.overlay_render += 1
     super()
@@ -646,3 +659,4 @@ Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
 Bokeh.D3LinearAxisView = D3LinearAxisView
 Bokeh.D3LinearDateAxisView = D3LinearDateAxisView
+

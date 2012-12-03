@@ -22,6 +22,9 @@ build_views = (mainmodel, view_storage, view_specs, options, view_options) ->
   #   the views constructor here, as an 'options' field in the dict
   # * options : any additional option to be used in the construction of views
   # * view_option : array, optional view specific options passed in to the construction of the view
+  #
+  # FIXME
+  # 
   "use strict";
   created_views = []
   valid_viewmodels = {}
@@ -82,3 +85,4 @@ class ContinuumView extends Backbone.View
   render_end : () ->
     "pass"
 Continuum.ContinuumView = ContinuumView
+
