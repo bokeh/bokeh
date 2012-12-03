@@ -171,7 +171,6 @@ class PanToolView extends ToolView
         start : start
         end : end
       )
-      console.log('set', start, end)
     return null
 
 class SelectionToolView extends ToolView

@@ -79,5 +79,6 @@ class ContinuumView extends Backbone.View
     # convenience function, calls get_ref on the associated model
 
     return @model.get_ref(fld)
-
+  render_end : () ->
+    "pass"
 Continuum.ContinuumView = ContinuumView

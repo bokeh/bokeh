@@ -6,58 +6,10 @@ else
 safebind = Continuum.safebind
 
 
-class DeferredView extends Continuum.ContinuumView
-  initialize : (options) ->
-    @start_render = new Date()
-    @end_render = new Date()
-    @render_time = 50
-    @deferred_parent = options['deferred_parent']
-    @request_render()
-    super(options)
-
-    @use_render_loop = options['render_loop']
-    if @use_render_loop
-      _.defer(() => @render_loop())
-
-  render : () ->
-    @start_render = new Date()
-    super()
-    @_dirty = false
-
-
-  render_end : () ->
-    @end_render = new Date()
-
-    @render_time = @end_render - @start_render
-
-  request_render : () ->
-    @_dirty = true
-
-  render_deferred_components : (force) ->
-    if force or @_dirty
-      @render()
-
-  remove : () ->
-    super()
-    @removed = true
-
-  render_loop : () ->
-    #debugger;
-    @render_deferred_components()
-    if not @removed and @use_render_loop
-      setTimeout((() => @render_loop()), 20)
-    else
-      @looping = false
-
-
-Continuum.DeferredView = DeferredView
-
-
-class PlotWidget extends Continuum.DeferredView
+class PlotWidget extends Continuum.ContinuumView
   tagName : 'div'
   marksize : 3
   initialize : (options) ->
-    super(options)
     @plot_id = options.plot_id
     @plot_model = options.plot_model
     @plot_view = options.plot_view
@@ -65,6 +17,7 @@ class PlotWidget extends Continuum.DeferredView
         console.log('CHANGE')
         @request_render()
     )
+    super(options)
 
   addPolygon: (x,y) ->
     if isNaN(x) or isNaN(y)
@@ -80,10 +33,13 @@ class PlotWidget extends Continuum.DeferredView
     @plot_view.ctx.fill()
     @plot_view.ctx.stroke()
 
+  request_render : () ->
+    @plot_view.throttled()
+
 
 #  Plot Container
 
-class GridPlotContainerView extends Continuum.DeferredView
+class GridPlotContainerView extends Continuum.ContinuumView
   tagName : 'div'
   className:"gridplot_container"
   default_options : { scale:1.0}
@@ -99,7 +55,7 @@ class GridPlotContainerView extends Continuum.DeferredView
     @viewstate = new Bokeh.GridViewState();
     @childviews = {}
     @build_children()
-    @request_render()
+    @render()
     safebind(this, @model, 'change:children', @build_children)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @viewstate, 'change', @request_render)
@@ -114,12 +70,6 @@ class GridPlotContainerView extends Continuum.DeferredView
         childspecs.push(x)
     build_views(@model, @childviews, childspecs, {'scale': @options.scale})
     @set_child_view_states()
-
-  render_deferred_components : (force) ->
-    super(force)
-    for row, ridx in @mget('children')
-      for plotspec, cidx in row
-        @childviews[plotspec.id].render_deferred_components(force)
 
   render : ->
     super()
@@ -184,7 +134,7 @@ class ActiveToolManager
         @eventSink.trigger("#{@eventSink.active}:deactivated")
         @eventSink.active = toolName)
 
-class PlotView extends Continuum.DeferredView
+class PlotView extends Continuum.ContinuumView
   default_options : {scale:1.0}
 
   model_specs : ->
@@ -235,6 +185,7 @@ class PlotView extends Continuum.DeferredView
       f(e, e.layerX, e.layerY)
 
   initialize : (options) ->
+    @throttled = _.throttle(@render_deferred_components, 50)
     super(_.defaults(options, @default_options))
     height = if options.height then options.height else @mget('height')
     width = if options.width then options.width else @mget('width')
@@ -255,10 +206,6 @@ class PlotView extends Continuum.DeferredView
     @overlays = {}
     @eventSink = _.extend({}, Backbone.Events)
     atm = new ActiveToolManager(@eventSink)
-    @build_renderers()
-    @build_axes()
-    @build_tools()
-    @build_overlays()
 
     @moveCallbacks = []
     @mousedownCallbacks = []
@@ -294,9 +241,14 @@ class PlotView extends Continuum.DeferredView
     @x_can_wrapper = @$el.find('.x_can_wrapper')
     @y_can_wrapper = @$el.find('.y_can_wrapper')
     @render()
+    @build_renderers()
+    @build_axes()
+    @build_tools()
+    @build_overlays()
     @bind_tools()
     @bind_overlays()
     return this
+
 
   render : () ->
     height = @viewstate.get('height')
@@ -330,20 +282,14 @@ class PlotView extends Continuum.DeferredView
     @x_can_ctx = @x_can.getContext('2d')
     @y_can_ctx = @y_can.getContext('2d')
     @ctx = @canvas[0].getContext('2d')
-    for own key, view of @axes
-      @$el.append(view.$el)
-    for own key, view of @renderers
-      @$el.append(view.$el)
     @render_end()
 
   render_deferred_components: (force) ->
-    super(force)
+    console.log("plotview render deferred components", @constructor, new Date() - 1)
     all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
-    if _.any(all_views, (v) -> v._dirty)
-      @ctx.clearRect(0,0,  @viewstate.get('width'), @viewstate.get('height'))
-      for v in all_views
-        v._dirty = true
-        v.render_deferred_components(true)
+    @ctx.clearRect(0,0,  @viewstate.get('width'), @viewstate.get('height'))
+    for v in all_views
+      v.render()
 
 build_views = Continuum.build_views
 class XYRendererView extends PlotWidget
