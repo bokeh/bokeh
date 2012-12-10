@@ -14,7 +14,6 @@ class PlotWidget extends Continuum.ContinuumView
     @plot_model = options.plot_model
     @plot_view = options.plot_view
     safebind(this, @plot_view.viewstate, 'change', ()->
-        console.log('CHANGE')
         @request_render()
     )
     super(options)
@@ -303,7 +302,7 @@ class PlotView extends Continuum.ContinuumView
     @render_end()
 
   render_deferred_components: (force) ->
-    console.log("plotview render deferred components", @constructor, new Date() - 1)
+    #console.log("plotview render deferred components", @constructor, new Date() - 1)
     all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
     @ctx.clearRect(0,0,  @viewstate.get('width'), @viewstate.get('height'))
     for v in all_views
@@ -379,7 +378,7 @@ class XYRendererView extends PlotWidget
 
     #FIXME
     # shim function for translation
-    # 
+    #
     #fix me figure out how to feature test for this so it doesn't use
     #typed arrays for browsers that don't support that
     @screeny = new Float32Array(screeny)
@@ -659,4 +658,3 @@ Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
 Bokeh.D3LinearAxisView = D3LinearAxisView
 Bokeh.D3LinearDateAxisView = D3LinearDateAxisView
-
