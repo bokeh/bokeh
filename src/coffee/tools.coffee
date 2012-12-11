@@ -61,10 +61,10 @@ class TwoPointEventGenerator
         @_stop_drag()
         return false
     )
-    @pan_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
-    @plotview.$el.find('.button_bar').append(@pan_button)
+    @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
+    @plotview.$el.find('.button_bar').append(@$tool_button)
 
-    @pan_button.click(=>
+    @$tool_button.click(=>
       if @button_activated
         eventSink.trigger("clear_active_tool")
       else
@@ -74,11 +74,11 @@ class TwoPointEventGenerator
     eventSink.on("#{toolName}:deactivated", =>
       @tool_active=false;
       @button_activated = false;
-      @pan_button.removeClass('active'))
+      @$tool_button.removeClass('active'))
 
     eventSink.on("#{toolName}:activated", =>
       @tool_active=true;
-      @pan_button.addClass('active'))
+      @$tool_button.addClass('active'))
     return eventSink
 
 
@@ -87,14 +87,14 @@ class TwoPointEventGenerator
     if not @dragging
       @dragging = true
       if not @button_activated
-        @pan_button.addClass('active')
+        @$tool_button.addClass('active')
 
   _stop_drag : ->
     @basepoint_set = false
     if @dragging
       @dragging = false
       if not @button_activated
-        @pan_button.removeClass('active')
+        @$tool_button.removeClass('active')
       @eventSink.trigger("#{@options.eventBasename}:DragEnd")
 
 
@@ -124,7 +124,9 @@ class PanToolView extends ToolView
   initialize : (options) ->
     super(options)
     @build_mappers()
-    safebind(this, @model, 'change:dataranges', @build_mappers)
+
+  bind_bokeh_events : () ->
+    safebind(this, @model, 'change:dataranges', @build_mappers)    
 
   build_mappers : () =>
     @mappers = []

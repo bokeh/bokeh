@@ -13,10 +13,11 @@ class PlotWidget extends Continuum.ContinuumView
     @plot_id = options.plot_id
     @plot_model = options.plot_model
     @plot_view = options.plot_view
-    safebind(this, @plot_view.viewstate, 'change', ()->
-        @request_render()
-    )
     super(options)
+
+  bind_bokeh_events : ->
+    safebind(this, @plot_view.viewstate, 'change', ()->
+        @request_render())
 
   addPolygon: (x,y) ->
     if isNaN(x) or isNaN(y)
@@ -55,11 +56,13 @@ class GridPlotContainerView extends Continuum.ContinuumView
     @childviews = {}
     @build_children()
     @render()
+    return this
+
+  bind_bokeh_events : ->
     safebind(this, @model, 'change:children', @build_children)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @viewstate, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
-    return this
 
   #FIXME make binding of this style equivalent to above safebind calls
   # document semantics of when these events should be bound
@@ -193,6 +196,7 @@ class PlotView extends Continuum.ContinuumView
     for f in @moveCallbacks
       f(e, e.layerX, e.layerY)
 
+
   initialize : (options) ->
     @throttled = _.throttle(@render_deferred_components, 50)
     super(_.defaults(options, @default_options))
@@ -219,13 +223,6 @@ class PlotView extends Continuum.ContinuumView
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
-    safebind(this, @viewstate, 'change', @render)
-    safebind(this, @model, 'change:renderers', @build_renderers)
-    safebind(this, @model, 'change:axes', @build_axes)
-    safebind(this, @model, 'change:tools', @build_tools)
-    safebind(this, @model, 'change', @render)
-    safebind(this, @viewstate, 'change', @render)
-    safebind(this, @model, 'destroy', () => @remove())
     #FIXME template
     @$el.append($("""
       <div class='button_bar'/>
@@ -258,6 +255,15 @@ class PlotView extends Continuum.ContinuumView
     @bind_tools()
     @bind_overlays()
     return this
+
+  bind_bokeh_events : () ->
+    safebind(this, @viewstate, 'change', @render)
+    safebind(this, @model, 'change:renderers', @build_renderers)
+    safebind(this, @model, 'change:axes', @build_axes)
+    safebind(this, @model, 'change:tools', @build_tools)
+    safebind(this, @model, 'change', @render)
+    safebind(this, @viewstate, 'change', @render)
+    safebind(this, @model, 'destroy', () => @remove())
 
 
   # FIXME document throughly when render is called vs render_deferred
@@ -312,15 +318,18 @@ build_views = Continuum.build_views
 class XYRendererView extends PlotWidget
   initialize : (options) ->
     super(options)
+    @set_xmapper()
+    @set_ymapper()
+
+  bind_bokeh_events : () ->
     safebind(this, @model, 'change', @request_render)
     safebind(this, @plot_view.viewstate, 'change', @request_render)
     safebind(this, @mget_ref('data_source'), 'change:data', @request_render)
-    @set_xmapper()
-    @set_ymapper()
     safebind(this, @model, 'change:xdata_range', @set_xmapper)
     safebind(this, @model, 'change:ydata_range', @set_ymapper)
     safebind(this, @mget_ref('xdata_range'), 'change', @request_render)
     safebind(this, @mget_ref('ydata_range'), 'change', @request_render)
+
   set_xmapper : () ->
     @xmapper = new Bokeh.LinearMapper({},
       data_range : @mget_ref('xdata_range')
@@ -376,7 +385,7 @@ class XYRendererView extends PlotWidget
     screeny = pv.viewstate.v_ypos(screeny)
 
 
-    #FIXME
+    # FIXME
     # shim function for translation
     #
     #fix me figure out how to feature test for this so it doesn't use
@@ -389,13 +398,15 @@ class D3LinearAxisView extends PlotWidget
   initialize : (options) ->
     super(options)
     @plot_view = options.plot_view
-    safebind(this, @plot_model, 'change', @request_render)
-    safebind(this, @model, 'change', @request_render)
     if @mget('orientation') == 'top' or @mget('orientation') == 'bottom'
       @screendim = 'width'
     else
       @screendim = 'height'
     @set_mapper()
+
+  bind_bokeh_events : () ->
+    safebind(this, @plot_model, 'change', @request_render)
+    safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'change:data_range', @set_mapper)
     safebind(this, @mget_ref('data_range'), 'change', @request_render)
 
@@ -584,17 +595,15 @@ class OverlayView extends PlotWidget
     return null
 
 class ScatterSelectionOverlayView extends OverlayView
-  initialize : (options) ->
-    super(options)
+
+  bind_bokeh_events  : () ->
+    #add logic so that if the number of renderers change, the new renderers are bound
     for renderer in @mget('renderers')
       renderer = @model.resolve_ref(renderer)
-      safebind(this, renderer, 'change', @request_render)
-      safebind(this, renderer.get_ref('xdata_range'), 'change',
-        @request_render)
-      safebind(this, renderer.get_ref('xdata_range'), 'change',
-        @request_render)
-      safebind(this, renderer.get_ref('data_source'), 'change',
-        @request_render)
+      safebind(@, renderer, 'change', @request_render)
+      safebind(@, renderer.get_ref('xdata_range'), 'change', @request_render)
+      safebind(@, renderer.get_ref('xdata_range'), 'change', @request_render)
+      safebind(@, renderer.get_ref('data_source'), 'change', @request_render)
 
   #FIXME integrate into ScatterRenderer
   render : () ->

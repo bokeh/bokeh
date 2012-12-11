@@ -59,6 +59,15 @@ class ContinuumView extends Backbone.View
     #autogenerates id
     if not _.has(options, 'id')
       this.id = _.uniqueId('ContinuumView')
+
+  #bind_bokeh_events is always called after initialize has run
+  bind_bokeh_events : () ->
+    'pass'
+    
+  delegateEvents : (events) ->
+    super(events)
+    @bind_bokeh_events()
+    
   remove : ->
     #handles lifecycle of events bound by safebind
 
