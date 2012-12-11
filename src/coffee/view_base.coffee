@@ -6,7 +6,7 @@ else
   this.Continuum = Continuum
 
 
-build_views = (mainmodel, view_storage, view_specs, options, view_options) ->
+build_views = (view_storage, view_models, options) ->
   # ## function : build_views
   # convenience function for creating a bunch of views from a spec
   # and storing them in a dictionary keyed off of model id.
@@ -27,29 +27,26 @@ build_views = (mainmodel, view_storage, view_specs, options, view_options) ->
   # 
   "use strict";
   created_views = []
-  valid_viewmodels = {}
-  for spec in view_specs
-    valid_viewmodels[spec.id] = true
-  for spec, idx in view_specs
-    if view_storage[spec.id]
-      continue
-    model = mainmodel.resolve_ref(spec)
-    if view_options
-      view_specific_option = view_options[idx]
-    else
-      view_specific_option = {}
-    temp = _.extend({}, view_specific_option, spec.options, options, {'model' : model})
+  #debugger
+  try
+    newmodels = _.filter(view_models, (x) -> return not _.has(view_storage, x.id))
+  catch error
+    debugger
+    console.log(error)
+    throw error
+  console.log('success ')
+  for model in newmodels
+    view_specific_option = _.extend({}, options, {'model' : model})
     try
-      view_storage[model.id] = new model.default_view(temp)
+      view_storage[model.id] = new model.default_view(view_specific_option)
     catch error
-      #console.log("error on temp of", temp, "model of", model, error)
       console.log("error on model of", model, error)
       throw error
     created_views.push(view_storage[model.id])
-  for own key, value of view_storage
-    if not valid_viewmodels[key]
-      value.remove()
-      delete view_storage[key]
+  to_remove = _.difference(_.keys(view_storage), _.pluck(view_models, 'id'))
+  for key in to_remove
+    view_storage[key].remove()
+    delete view_storage[key]
   return created_views
 
 Continuum.build_views = build_views
@@ -63,7 +60,9 @@ class ContinuumView extends Backbone.View
   #bind_bokeh_events is always called after initialize has run
   bind_bokeh_events : () ->
     'pass'
-    
+
+
+            
   delegateEvents : (events) ->
     super(events)
     @bind_bokeh_events()
@@ -77,9 +76,13 @@ class ContinuumView extends Backbone.View
     @trigger('remove')
     super()
 
+  v_get_ref: (model_key) ->
+    keys = @mget(model_key)
+    retval = _.map(keys, (key) => @model.resolve_ref(key))
+    return retval
+
   mget : ()->
     # convenience function, calls get on the associated model
-
     return @model.get.apply(@model, arguments)
 
   mset : ()->

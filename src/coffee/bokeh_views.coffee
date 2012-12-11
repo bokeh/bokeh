@@ -75,12 +75,11 @@ class GridPlotContainerView extends Continuum.ContinuumView
 
 
   build_children : ->
-    childspecs = []
+    childmodels = []
     for row in @mget('children')
       for x in row
-        @model.resolve_ref(x).set('usedialog', false)
-        childspecs.push(x)
-    build_views(@model, @childviews, childspecs, {'scale': @options.scale})
+        childmodels.push(@model.resolve_ref(x))
+    build_views(@childviews, childmodels, {})
     @set_child_view_states()
 
   render : ->
@@ -149,18 +148,20 @@ class ActiveToolManager
 class PlotView extends Continuum.ContinuumView
   default_options : {scale:1.0}
 
-  model_specs : ->
-   {plot_id : @id, plot_model : @model, plot_view : @}
+  view_options : ->
+    _.extend({plot_id : @id, plot_model : @model, plot_view : @}, @options)
 
   build_renderers : ->
-    build_views(@model, @renderers, @mget('renderers'),
-        @model_specs(), @options)
+    console.log('before')
+    build_views(@renderers, @v_get_ref('renderers'), @view_options())
+    console.log('after')
 
   build_axes : ->
-    build_views(@model, @axes, @mget('axes'), @model_specs(), @options)
+    build_views(@axes, @v_get_ref('axes'), @view_options())
 
   build_tools : ->
-    build_views(@model, @tools, @mget('tools'), @model_specs())
+    #build_views(@model, @tools, @mget('tools'), @model_specs())
+    build_views(@tools, @v_get_ref('tools'), @view_options())
 
   build_overlays : ->
     #add ids of renderer views into the overlay spec
@@ -172,7 +173,8 @@ class PlotView extends Continuum.ContinuumView
       overlayspec['options']['rendererviews'] = []
       for renderer in overlay.get('renderers')
         overlayspec['options']['rendererviews'].push(@renderers[renderer.id])
-    build_views(@model, @overlays, overlays, @model_specs())
+
+    build_views(@overlays, @v_get_ref('overlays'), @view_options())
 
   bind_overlays : ->
     for overlayspec in @mget('overlays')
@@ -544,7 +546,6 @@ class ScatterRendererView extends XYRendererView
   #FIXME: render_canvas
   render : ->
     "use strict";
-    console.log('scatter renderer render')
     super()
     if @model.get_ref('data_source').get('selecting') == true
         #skip data sources which are not selecting'
@@ -552,14 +553,12 @@ class ScatterRendererView extends XYRendererView
         return null
 
     data = @model.get_ref('data_source').get('data')
-    a = new Date()
     @calc_buffer(data)
     @plot_view.ctx.beginPath()
     @plot_view.ctx.fillStyle = @mget('foreground_color')
     @plot_view.ctx.strokeStyle = @mget('foreground_color')
     color_field = @mget('color_field')
     ctx = @plot_view.ctx
-    m2pi = Math.PI*2
     if color_field
       color_mapper = @model.get_ref('color_mapper')
       color_arr = @model.get('color_field')
