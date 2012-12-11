@@ -44,13 +44,13 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     parent : plot_model.ref()
     , options
   )
-  xaxis = Collections['D3LinearAxis'].create({
+  xaxis = Collections['LinearAxis'].create({
     'orientation' : 'bottom',
     'parent' : plot_model.ref()
     'data_range' : xdr.ref()
 
   }, options)
-  yaxis = Collections['D3LinearAxis'].create({
+  yaxis = Collections['LinearAxis'].create({
     'orientation' : 'left',
     'parent' : plot_model.ref()
     'data_range' : ydr.ref()
@@ -170,13 +170,13 @@ Bokeh.bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
       orientation : orientation
     , options
   )
-  xaxis = Collections['D3LinearAxis'].create(
+  xaxis = Collections['LinearAxis'].create(
       orientation : 'bottom'
       mapper : xmapper.ref()
       parent : plot_model.ref()
     , options
   )
-  yaxis = Collections['D3LinearAxis'].create(
+  yaxis = Collections['LinearAxis'].create(
       orientation : 'left',
       mapper : ymapper.ref()
       parent : plot_model.ref()
@@ -218,13 +218,13 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
     parent : plot_model.ref()
     , options
   )
-  xaxis = Collections['D3LinearAxis'].create({
+  xaxis = Collections['LinearAxis'].create({
     'orientation' : 'bottom',
     'data_range' : xdr.ref()
     'mapper' : 'linear'
     'parent' : plot_model.ref()
   }, options)
-  yaxis = Collections['D3LinearAxis'].create({
+  yaxis = Collections['LinearAxis'].create({
     'orientation' : 'left',
     'data_range' : ydr.ref()
     'mapper' : 'linear'

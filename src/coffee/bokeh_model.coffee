@@ -458,14 +458,14 @@ class Plots extends Continuum.Collection
    model : Plot
 
 
-class D3LinearAxis extends HasParent
-  type : 'D3LinearAxis'
-  default_view : Bokeh.D3LinearAxisView
+class LinearAxis extends HasParent
+  type : 'LinearAxis'
+  default_view : Bokeh.LinearAxisView
   display_defaults :
     tick_color : '#fff'
 
-D3LinearAxis::defaults = _.clone(D3LinearAxis::defaults)
-_.extend(D3LinearAxis::defaults
+LinearAxis::defaults = _.clone(LinearAxis::defaults)
+_.extend(LinearAxis::defaults
   ,
     data_range : null
     orientation : 'bottom'
@@ -474,15 +474,15 @@ _.extend(D3LinearAxis::defaults
     tickSize : null
     tickPadding : 3
 )
-class D3LinearAxes extends Continuum.Collection
-  model : D3LinearAxis
+class LinearAxes extends Continuum.Collection
+  model : LinearAxis
 
-class D3LinearDateAxis extends D3LinearAxis
-  type : "D3LinearDateAxis"
-  default_view : Bokeh.D3LinearDateAxisView
+class LinearDateAxis extends LinearAxis
+  type : "LinearDateAxis"
+  default_view : Bokeh.LinearDateAxisView
 
-class D3LinearDateAxes extends Continuum.Collection
-  model : D3LinearDateAxis
+class LinearDateAxes extends Continuum.Collection
+  model : LinearDateAxis
 
 
 class BarRenderer extends XYRenderer
@@ -627,8 +627,8 @@ Bokeh.register_collection('LineRenderer', new LineRenderers)
 Bokeh.register_collection('BarRenderer', new BarRenderers)
 Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
 Bokeh.register_collection('Range1d', new Range1ds)
-Bokeh.register_collection('D3LinearAxis', new D3LinearAxes)
-Bokeh.register_collection('D3LinearDateAxis', new D3LinearDateAxes)
+Bokeh.register_collection('LinearAxis', new LinearAxes)
+Bokeh.register_collection('LinearDateAxis', new LinearDateAxes)
 Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
 Bokeh.register_collection('FactorRange', new FactorRanges)
 Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)
@@ -644,7 +644,7 @@ Bokeh.Collections = Collections
 Bokeh.ObjectArrayDataSource = ObjectArrayDataSource
 Bokeh.Plot = Plot
 Bokeh.ScatterRenderer = ScatterRenderer
-Bokeh.D3LinearAxis = D3LinearAxis
+Bokeh.LinearAxis = LinearAxis
 
 Bokeh.LineRenderers = LineRenderers
 Bokeh.LineRenderer = LineRenderer

@@ -60,8 +60,8 @@ class GridPlotContainerView extends Continuum.ContinuumView
 
   bind_bokeh_events : ->
     safebind(this, @model, 'change:children', @build_children)
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @viewstate, 'change', @request_render)
+    safebind(this, @model, 'change', @render)
+    safebind(this, @viewstate, 'change', @render)
     safebind(this, @model, 'destroy', () => @remove())
 
   #FIXME make binding of this style equivalent to above safebind calls
@@ -69,8 +69,8 @@ class GridPlotContainerView extends Continuum.ContinuumView
   #bokeh events
   b_events : {
     "change:children model" : "build_children",
-    "change model":           "request_render",
-    "change viewstate"      : "request_render",
+    "change model":           "render",
+    "change viewstate"      : "render",
     "destroy model"         : "remove"}
 
 
@@ -384,17 +384,10 @@ class XYRendererView extends PlotWidget
     screeny = @ymapper.v_map_screen(datay)
     screeny = pv.viewstate.v_ypos(screeny)
 
+    @screeny = screeny
+    @screenx = screenx
 
-    # FIXME
-    # shim function for translation
-    #
-    #fix me figure out how to feature test for this so it doesn't use
-    #typed arrays for browsers that don't support that
-    @screeny = new Float32Array(screeny)
-    @screenx = new Float32Array(screenx)
-
-#FIXME remove d3
-class D3LinearAxisView extends PlotWidget
+class LinearAxisView extends PlotWidget
   initialize : (options) ->
     super(options)
     @plot_view = options.plot_view
@@ -514,8 +507,7 @@ class D3LinearAxisView extends PlotWidget
     can_ctx.stroke()
     @render_end()
 
-#FIXME remove D3
-class D3LinearDateAxisView extends D3LinearAxisView
+class LinearDateAxisView extends LinearAxisView
   tick_label : (tick) ->
     start = @mget_ref('data_range').get('start')
     end = @mget_ref('data_range').get('end')
@@ -665,5 +657,5 @@ Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.LineRendererView = LineRendererView
 Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
-Bokeh.D3LinearAxisView = D3LinearAxisView
-Bokeh.D3LinearDateAxisView = D3LinearDateAxisView
+Bokeh.LinearAxisView = LinearAxisView
+Bokeh.LinearDateAxisView = LinearDateAxisView

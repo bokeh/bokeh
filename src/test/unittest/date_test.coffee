@@ -12,7 +12,7 @@ test('test_date_hour_intervals', ()->
   }, {'local' : true})
   plot1 = Bokeh.scatter_plot(null, data_source1, 'x', 'y', 'x', 'circle')
   old_axis = plot1.resolve_ref(plot1.get('axes')[0])
-  date_axis = Bokeh.Collections['D3LinearDateAxis'].create(
+  date_axis = Bokeh.Collections['LinearDateAxis'].create(
       old_axis.attributes
     , {'local' : true}
   )
@@ -68,7 +68,7 @@ test('test_date_day_intervals', ()->
   }, {'local' : true})
   plot1 = Bokeh.scatter_plot(null, data_source1, 'x', 'y', 'x', 'circle')
   old_axis = plot1.resolve_ref(plot1.get('axes')[0])
-  date_axis = Bokeh.Collections['D3LinearDateAxis'].create(
+  date_axis = Bokeh.Collections['LinearDateAxis'].create(
       old_axis.attributes
     , {'local' : true}
   )
