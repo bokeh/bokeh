@@ -132,8 +132,8 @@ test('renderer_selection', ->
   view = new plot.default_view(model : plot)
   plot.dinitialize()
   scatterrenderer.dinitialize()
-  scatterrenderer.get_ref('xdata_range').dinitialize()
-  scatterrenderer.get_ref('ydata_range').dinitialize()
+  scatterrenderer.get_obj('xdata_range').dinitialize()
+  scatterrenderer.get_obj('ydata_range').dinitialize()
   view.render_deferred_components(true)
   scatterrendererview = view.renderers[scatterrenderer.id]
   selected = scatterrendererview.select([0, 200], null)

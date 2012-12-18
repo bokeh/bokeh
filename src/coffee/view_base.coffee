@@ -73,7 +73,7 @@ class ContinuumView extends Backbone.View
     @trigger('remove')
     super()
 
-  v_get_ref: (model_key) ->
+  v_get_obj: (model_key) ->
     keys = @mget(model_key)
     retval = _.map(keys, (key) => @model.resolve_ref(key))
     return retval
@@ -87,10 +87,10 @@ class ContinuumView extends Backbone.View
 
     return @model.set.apply(@model, arguments)
 
-  mget_ref : (fld) ->
-    # convenience function, calls get_ref on the associated model
+  mget_obj : (fld) ->
+    # convenience function, calls get_obj on the associated model
 
-    return @model.get_ref(fld)
+    return @model.get_obj(fld)
   render_end : () ->
     "pass"
 Continuum.ContinuumView = ContinuumView

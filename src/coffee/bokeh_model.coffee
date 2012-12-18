@@ -222,7 +222,7 @@ class DataFactorRange extends FactorRange
   type : 'DataFactorRange'
 
   _get_values : () =>
-    columns = (@get_ref('data_source').getcolumn(x) for x in @get('columns'))
+    columns = (@get_obj('data_source').getcolumn(x) for x in @get('columns'))
     columns = _.reduce(columns, ((x, y) -> return x.concat(y)), [])
     temp = {}
     for val in columns
@@ -236,7 +236,7 @@ class DataFactorRange extends FactorRange
     @register_property
     @register_property('values', @_get_values, true)
     @add_dependencies('values', this, ['data_source', 'columns'])
-    @add_dependencies('values', @get_ref('data_source'),
+    @add_dependencies('values', @get_obj('data_source'),
       ['data_source', 'columns'])
 
 
@@ -298,7 +298,7 @@ class DiscreteColorMapper extends HasProperties
 
   _get_factor_map : () =>
     domain_map = {}
-    for val, index in @get_ref('data_range').get('values')
+    for val, index in @get_obj('data_range').get('values')
       domain_map[val] = index
     return domain_map
 

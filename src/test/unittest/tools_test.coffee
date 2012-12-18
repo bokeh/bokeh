@@ -119,13 +119,13 @@ test('test_two_views', () ->
 #     )
 #   )
 #   scatterrenderer = plot1.resolve_ref(plot1.get('renderers')[0])
-#   xmapper = scatterrenderer.get_ref('xmapper')
+#   xmapper = scatterrenderer.get_obj('xmapper')
 #   xdr = plot1.resolve_ref(xmapper.get('data_range'))
 #   xdr.get('sources').push(
 #     ref : data_source2.ref()
 #     columns : ['x2']
 #   )
-#   ymapper = scatterrenderer.get_ref('ymapper')
+#   ymapper = scatterrenderer.get_obj('ymapper')
 #   ydr = plot1.resolve_ref(ymapper.get('data_range'))
 #   ydr.get('sources').push(
 #     ref : data_source2.ref()

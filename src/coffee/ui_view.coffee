@@ -12,13 +12,13 @@ class DataTableView extends Continuum.ContinuumView
     super(options)
     Continuum.safebind(this, @model, 'destroy', @remove)
     Continuum.safebind(this, @model, 'change', @render)
-    Continuum.safebind(this, @mget_ref('data_source'), 'change', @render)
+    Continuum.safebind(this, @mget_obj('data_source'), 'change', @render)
     @render()
 
   className: 'div'
 
   render : () ->
-    data_source = @mget_ref('data_source')
+    data_source = @mget_obj('data_source')
     table_template = """
 		<table class='table table-striped table-bordered table-condensed' id='tableid_na'></table>
     """
@@ -40,7 +40,7 @@ class DataTableView extends Continuum.ContinuumView
       html = _.template(header_column, {'column_name' : colname})
       header.append($(html))
     table.append(header)
-    rawdata = @mget_ref('data_source').get('data')
+    rawdata = @mget_obj('data_source').get('data')
     if not data_source.get('selecting')
       toiter = _.range(rawdata.length)
     else

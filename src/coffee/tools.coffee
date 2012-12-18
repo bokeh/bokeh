@@ -184,16 +184,16 @@ class SelectionToolView extends ToolView
     for renderer in @mget('renderers')
       renderer = @model.resolve_ref(renderer)
       safebind(this, renderer, 'change', @request_render)
-      safebind(this, renderer.get_ref('xdata_range'), 'change',
+      safebind(this, renderer.get_obj('xdata_range'), 'change',
         @request_render)
-      safebind(this, renderer.get_ref('ydata_range'), 'change',
+      safebind(this, renderer.get_obj('ydata_range'), 'change',
         @request_render)
-      safebind(this, renderer.get_ref('data_source'), 'change',
+      safebind(this, renderer.get_obj('data_source'), 'change',
         @request_render)
       safebind(this, renderer, 'change', select_callback)
-      safebind(this, renderer.get_ref('xdata_range'), 'change',
+      safebind(this, renderer.get_obj('xdata_range'), 'change',
         select_callback)
-      safebind(this, renderer.get_ref('ydata_range'), 'change',
+      safebind(this, renderer.get_obj('ydata_range'), 'change',
         select_callback)
   eventGeneratorClass : TwoPointEventGenerator
   evgen_options : {keyName:"ctrlKey", buttonText:"Select"}
@@ -216,8 +216,8 @@ class SelectionToolView extends ToolView
     )
     @plotview.$el.removeClass("shading")
     for renderer in @mget('renderers')
-      @model.resolve_ref(renderer).get_ref('data_source').set('selecting', false)
-      @model.resolve_ref(renderer).get_ref('data_source').save()
+      @model.resolve_ref(renderer).get_obj('data_source').set('selecting', false)
+      @model.resolve_ref(renderer).get_obj('data_source').save()
     @basepoint_set = false
     if @shading
       @shading.remove()
@@ -227,7 +227,7 @@ class SelectionToolView extends ToolView
     [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
     for renderer in @mget('renderers')
-      data_source = @model.resolve_ref(renderer).get_ref('data_source')
+      data_source = @model.resolve_ref(renderer).get_obj('data_source')
       data_source.set('selecting', true)
       data_source.save()
     @basepoint_set = true
@@ -258,11 +258,11 @@ class SelectionToolView extends ToolView
     datasource_selections = {}
 
     for renderer in @mget('renderers')
-      datasource = @model.resolve_ref(renderer).get_ref('data_source')
+      datasource = @model.resolve_ref(renderer).get_obj('data_source')
       datasources[datasource.id] = datasource
 
     for renderer in @mget('renderers')
-      datasource_id = @model.resolve_ref(renderer).get_ref('data_source').id
+      datasource_id = @model.resolve_ref(renderer).get_obj('data_source').id
       _.setdefault(datasource_selections, datasource_id, [])
       selected = @plot_view.renderers[renderer.id].select(xrange, yrange)
       datasource_selections[datasource_id].push(selected)

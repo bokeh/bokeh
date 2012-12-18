@@ -395,8 +395,8 @@ class HasProperties extends Backbone.Model
     else
       return resolve_ref(@collections, ref['type'], ref['id'])
 
-  get_ref : (ref_name) ->
-    # ### method : HasProperties::get_ref
+  get_obj : (ref_name) ->
+    # ### method : HasProperties::get_obj
     #convenience function, gets the backbone attribute ref_name, which is assumed
     #to be a reference, then resolves the reference and returns the model
 
@@ -458,10 +458,10 @@ class HasProperties extends Backbone.Model
 
 class HasParent extends HasProperties
   get_fallback : (attr) ->
-    if (@get_ref('parent') and
-        _.indexOf(@get_ref('parent').parent_properties, attr) >= 0 and
-        not _.isUndefined(@get_ref('parent').get(attr)))
-      return @get_ref('parent').get(attr)
+    if (@get_obj('parent') and
+        _.indexOf(@get_obj('parent').parent_properties, attr) >= 0 and
+        not _.isUndefined(@get_obj('parent').get(attr)))
+      return @get_obj('parent').get(attr)
     else
       retval = @display_defaults[attr]
       # this is ugly, we should take this out and not support object specs
