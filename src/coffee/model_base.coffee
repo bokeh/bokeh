@@ -241,6 +241,17 @@ class HasProperties extends Backbone.Model
     # on each other
     @inited = true
 
+  set_obj : (key, value, options) ->
+    if _.isObject(key) or key == null
+      attrs = key
+      options = value
+    else
+      attrs = {}
+      attrs[key] = value
+    for own key, val of attrs
+      attrs[key] = @convert_to_ref(val)
+    return @set(attrs, options)
+
   set : (key, value, options) ->
     # checks for setters, if setters are present, call setters first
     # then remove the computed property from the dict of attrs, and call super
@@ -265,6 +276,15 @@ class HasProperties extends Backbone.Model
       delete attrs[key]
     if not _.isEmpty(attrs)
       super(attrs, options)
+
+  convert_to_ref : (value) =>
+    # converts value into a refrence if necessary
+    # works vectorized
+    if _.isArray(value)
+      return _.map(value, @convert_to_ref)
+    else
+      if value instanceof HasProperties
+        return value.ref()
 
   add_dependencies:  (prop_name, object, fields) ->
     # prop_name - name of property
