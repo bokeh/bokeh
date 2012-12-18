@@ -383,9 +383,12 @@ class HasProperties extends Backbone.Model
     'type' : this.type
     'id' : this.id
 
-  resolve_ref : (ref) ->
+  resolve_ref : (ref) =>
     # ### method : HasProperties::resolve_ref
     #converts a reference into an object
+    #also works vectorized now
+    if _.isArray(ref)
+      return _.map(ref, @resolve_ref)
     if not ref
       console.log('ERROR, null reference')
     #this way we can reference ourselves
@@ -395,7 +398,7 @@ class HasProperties extends Backbone.Model
     else
       return resolve_ref(@collections, ref['type'], ref['id'])
 
-  get_obj : (ref_name) ->
+  get_obj : (ref_name) =>
     # ### method : HasProperties::get_obj
     #convenience function, gets the backbone attribute ref_name, which is assumed
     #to be a reference, then resolves the reference and returns the model
