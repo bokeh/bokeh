@@ -221,10 +221,14 @@ class PlotView extends Continuum.ContinuumView
     @overlays = {}
     @eventSink = _.extend({}, Backbone.Events)
     atm = new ActiveToolManager(@eventSink)
-
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
+    @render_init()
+    @render()
+    @build_subviews()
+    return this
+  render_init : () ->
     #FIXME template
     @$el.append($("""
       <div class='button_bar'/>
@@ -249,14 +253,15 @@ class PlotView extends Continuum.ContinuumView
     @main_can_wrapper = @$el.find('.main_can_wrapper')
     @x_can_wrapper = @$el.find('.x_can_wrapper')
     @y_can_wrapper = @$el.find('.y_can_wrapper')
-    @render()
+
+  build_subviews : ()->
     @build_renderers()
     @build_axes()
     @build_tools()
     @build_overlays()
     @bind_tools()
     @bind_overlays()
-    return this
+
 
   bind_bokeh_events : () ->
     safebind(this, @viewstate, 'change', @render)
