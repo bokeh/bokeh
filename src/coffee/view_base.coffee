@@ -73,11 +73,6 @@ class ContinuumView extends Backbone.View
     @trigger('remove')
     super()
 
-  v_get_obj: (model_key) ->
-    keys = @mget(model_key)
-    retval = _.map(keys, (key) => @model.resolve_ref(key))
-    return retval
-
   mget : ()->
     # convenience function, calls get on the associated model
     return @model.get.apply(@model, arguments)

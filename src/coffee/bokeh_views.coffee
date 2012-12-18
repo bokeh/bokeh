@@ -153,15 +153,15 @@ class PlotView extends Continuum.ContinuumView
 
   build_renderers : ->
     console.log('before')
-    build_views(@renderers, @v_get_obj('renderers'), @view_options())
+    build_views(@renderers, @mget_obj('renderers'), @view_options())
     console.log('after')
 
   build_axes : ->
-    build_views(@axes, @v_get_obj('axes'), @view_options())
+    build_views(@axes, @mget_obj('axes'), @view_options())
 
   build_tools : ->
     #build_views(@model, @tools, @mget('tools'), @model_specs())
-    build_views(@tools, @v_get_obj('tools'), @view_options())
+    build_views(@tools, @mget_obj('tools'), @view_options())
 
   build_overlays : ->
     #add ids of renderer views into the overlay spec
@@ -174,7 +174,7 @@ class PlotView extends Continuum.ContinuumView
       for renderer in overlay.get('renderers')
         overlayspec['options']['rendererviews'].push(@renderers[renderer.id])
 
-    build_views(@overlays, @v_get_obj('overlays'), @view_options())
+    build_views(@overlays, @mget_obj('overlays'), @view_options())
 
   bind_overlays : ->
     for overlayspec in @mget('overlays')
