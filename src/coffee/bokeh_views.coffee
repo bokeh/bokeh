@@ -76,9 +76,9 @@ class GridPlotContainerView extends Continuum.ContinuumView
 
   build_children : ->
     childmodels = []
-    for row in @mget('children')
-      for x in row
-        childmodels.push(@model.resolve_ref(x))
+    for row in @mget_obj('children')
+      for plot in row
+        childmodels.push(plot)
     build_views(@childviews, childmodels, {})
     @set_child_view_states()
 
@@ -165,15 +165,6 @@ class PlotView extends Continuum.ContinuumView
 
   build_overlays : ->
     #add ids of renderer views into the overlay spec
-    overlays = (_.clone(x) for x in @mget('overlays'))
-    for overlayspec in overlays
-      overlay = @model.resolve_ref(overlayspec)
-      if not overlayspec['options']
-        overlayspec['options'] = {}
-      overlayspec['options']['rendererviews'] = []
-      for renderer in overlay.get('renderers')
-        overlayspec['options']['rendererviews'].push(@renderers[renderer.id])
-
     build_views(@overlays, @mget_obj('overlays'), @view_options())
 
   bind_overlays : ->
@@ -581,21 +572,12 @@ class ScatterRendererView extends XYRendererView
     @render_end()
     return null
 
-class OverlayView extends PlotWidget
-  initialize : (options) ->
-    @rendererviews = options['rendererviews']
-    super(options)
-
-  bind_events : (plot_view) ->
-    @plot_view = plot_view
-    return null
-
-class ScatterSelectionOverlayView extends OverlayView
-
+class ScatterSelectionOverlayView extends PlotWidget
+  bind_events : () ->
+    'pass'
   bind_bokeh_events  : () ->
     #add logic so that if the number of renderers change, the new renderers are bound
-    for renderer in @mget('renderers')
-      renderer = @model.resolve_ref(renderer)
+    for renderer in @mget_obj('renderers')
       safebind(@, renderer, 'change', @request_render)
       safebind(@, renderer.get_obj('xdata_range'), 'change', @request_render)
       safebind(@, renderer.get_obj('xdata_range'), 'change', @request_render)
@@ -605,9 +587,8 @@ class ScatterSelectionOverlayView extends OverlayView
   render : () ->
     window.overlay_render += 1
     super()
-    for renderer in @mget('renderers')
+    for renderer in @mget_obj('renderers')
       rendererview = @plot_view.renderers[renderer.id]
-      renderer = @model.resolve_ref(renderer)
       selected = {}
       if renderer.get_obj('data_source').get('selecting') == false
         #skip data sources which are not selecting'

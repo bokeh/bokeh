@@ -130,9 +130,8 @@ class PanToolView extends ToolView
 
   build_mappers : () =>
     @mappers = []
-    for temp in _.zip(@mget('dataranges'), @mget('dimensions'))
-      [drref, dim] = temp
-      datarange = @model.resolve_ref(drref)
+    for temp in _.zip(@mget_obj('dataranges'), @mget('dimensions'))
+      [datarange, dim] = temp
       mapper = new Bokeh.LinearMapper({},
         data_range : datarange
         viewstate : @plot_view.viewstate
@@ -181,8 +180,7 @@ class SelectionToolView extends ToolView
     select_callback = _.debounce((() => @_select_data()),50)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'change', select_callback)
-    for renderer in @mget('renderers')
-      renderer = @model.resolve_ref(renderer)
+    for renderer in @mget_obj('renderers')
       safebind(this, renderer, 'change', @request_render)
       safebind(this, renderer.get_obj('xdata_range'), 'change',
         @request_render)
@@ -215,9 +213,9 @@ class SelectionToolView extends ToolView
       current_y : null
     )
     @plotview.$el.removeClass("shading")
-    for renderer in @mget('renderers')
-      @model.resolve_ref(renderer).get_obj('data_source').set('selecting', false)
-      @model.resolve_ref(renderer).get_obj('data_source').save()
+    for renderer in @mget_obj('renderers')
+      renderer.get_obj('data_source').set('selecting', false)
+      renderer.get_obj('data_source').save()
     @basepoint_set = false
     if @shading
       @shading.remove()
@@ -226,8 +224,8 @@ class SelectionToolView extends ToolView
   _start_selecting : (e) ->
     [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
-    for renderer in @mget('renderers')
-      data_source = @model.resolve_ref(renderer).get_obj('data_source')
+    for renderer in @mget_obj('renderers')
+      data_source = renderer.get_obj('data_source')
       data_source.set('selecting', true)
       data_source.save()
     @basepoint_set = true
@@ -257,12 +255,12 @@ class SelectionToolView extends ToolView
     datasources = {}
     datasource_selections = {}
 
-    for renderer in @mget('renderers')
-      datasource = @model.resolve_ref(renderer).get_obj('data_source')
+    for renderer in @mget_obj('renderers')
+      datasource = renderer.get_obj('data_source')
       datasources[datasource.id] = datasource
 
-    for renderer in @mget('renderers')
-      datasource_id = @model.resolve_ref(renderer).get_obj('data_source').id
+    for renderer in @mget_obj('renderers')
+      datasource_id = renderer.get_obj('data_source').id
       _.setdefault(datasource_selections, datasource_id, [])
       selected = @plot_view.renderers[renderer.id].select(xrange, yrange)
       datasource_selections[datasource_id].push(selected)
@@ -309,9 +307,8 @@ class ZoomToolView extends Bokeh.PlotWidget
 
   build_mappers : () =>
     @mappers = []
-    for temp in _.zip(@mget('dataranges'), @mget('dimensions'))
-      [drref, dim] = temp
-      datarange = @model.resolve_ref(drref)
+    for temp in _.zip(@mget_obj('dataranges'), @mget('dimensions'))
+      [datarange, dim] = temp
       mapper = new Bokeh.LinearMapper({},
         data_range : datarange
         viewstate : @plot_view.viewstate
