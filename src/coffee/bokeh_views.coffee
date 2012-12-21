@@ -538,6 +538,70 @@ class LineRendererView extends XYRendererView
     @render_end()
     return null
 
+class GlyphRendererView extends XYRendererView
+  # glpyph_defaults =
+  #   r : 3
+  # glpyh =
+  #   type : circle
+  #   x : 'date'
+  #   y : 'price'
+  #   color : 'red'
+  #   index : 2 # which datavalue does this correspond to
+  # glpyh =
+  #    type : line
+  #    x : 'date' # can be [field, dataoffset, screenoffset]
+  #    y : 'price'
+  #    start : 2 #which datapoint is the start
+  #    end : 3 #which datapoint is the end, defaults to start + 1
+  addSquare: (x, y, size, color) ->
+    if isNaN(x) or isNaN(y)
+      return null
+    @plot_view.ctx.fillStyle = color
+    @plot_view.ctx.strokeStyle = color
+    @plot_view.ctx.fillRect(x - size / 2, y - size / 2, size, size)
+
+  addCircle: (x, y, size, color) ->
+    if isNaN(x) or isNaN(y)
+      return null
+    @plot_view.ctx.fillStyle = color
+    @plot_view.ctx.strokeStyle = color
+    @plot_view.ctx.beginPath()
+    @plot_view.ctx.arc(x, y, size/2, 0, Math.PI*2)
+    @plot_view.ctx.closePath()
+    @plot_view.ctx.fill()
+    @plot_view.ctx.stroke()
+
+  calc_screen : (glyph, dim, datapoint, mapper) ->
+    dim = if glyph[dim] then glyph[dim] else @mget(dim)
+    if _.isArray(dim)
+      data = datapoint[dim[0]]
+      data = if dim[1] then dim[1] + data else data
+      screenoffset = if dim[2] then dim[2] else 0
+    else
+      data = datapoint[dim]
+      screenoffset = 0
+    screen = mapper.map_screen(data) + screenoffset
+
+  render_scatter : (glyph, data) ->
+    datapoint = data[glyph.index]
+    screenx = @calc_screen(glyph, 'x', datapoint, @xmapper)
+    screeny = @calc_screen(glyph, 'y', datapoint, @ymapper)
+    size = if glyph.size then glyph.size else @mget('scatter_size')
+    color = if glyph.color then glyph.color else @mget('color')
+    if glyph.type == 'circle'
+      @addCircle(screenx, screeny, size, color)
+    if glyph.type == 'square'
+      @addSquare(screenx, screeny, size, color)
+
+  render : ->
+    screen_glpyhs = []
+    data = @mget_obj('data_source').get('data')
+    for glyph in @mget('glyphs')
+      if glyph.type == 'circle' or glyph.type == 'square'
+        @render_scatter(glyph, data)
+      else if glyph.type == 'line'
+        'pass'
+
 class ScatterRendererView extends XYRendererView
   #FIXME: render_canvas
   render : ->
@@ -640,6 +704,7 @@ Bokeh.PlotWidget = PlotWidget
 Bokeh.PlotView = PlotView
 Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.LineRendererView = LineRendererView
+Bokeh.GlyphRendererView = GlyphRendererView
 Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
 Bokeh.LinearAxisView = LinearAxisView
