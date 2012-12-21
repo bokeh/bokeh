@@ -34,6 +34,16 @@ test('simple_glyph', () ->
         type : 'square'
         index : 2
         color : 'red'
+      ,
+        type : 'square'
+        index : 2
+        color : 'green'
+        x : ['x', 0, 0.1]
+      ,
+        type : 'square'
+        index : 2
+        color : 'green'
+        x : ['x', 0, -0.1]
     ]
   )
   xaxis = Bokeh.Collections['LinearAxis'].create(

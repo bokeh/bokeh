@@ -580,6 +580,10 @@ class GlyphRendererView extends XYRendererView
     else
       data = datapoint[dim]
       screenoffset = 0
+    if dim == 'x'
+      screenoffset = screenoffset * @plot_view.viewstate.get('width')
+    else
+      screenoffset = screenoffset * @plot_view.viewstate.get('height')
     screen = mapper.map_screen(data) + screenoffset
 
   render_scatter : (glyph, data) ->
