@@ -1,12 +1,11 @@
+#Setup Bokeh Module
 if this.Bokeh
   Bokeh = this.Bokeh
 else
   Bokeh = {}
   this.Bokeh = Bokeh
+
 Collections = Continuum.Collections
-Bokeh.register_collection = (key, value) ->
-  Collections[key] = value
-  value.bokeh_key = key
 
 # MAIN BOKEH CLASSES
 
@@ -635,24 +634,24 @@ class ScatterSelectionOverlays extends Continuum.Collection
 
 
 #Preparing the name space
-Bokeh.register_collection('Plot', new Plots)
-Bokeh.register_collection('ScatterRenderer', new ScatterRenderers)
-Bokeh.register_collection('GlyphRenderer', new GlyphRenderers)
-Bokeh.register_collection('LineRenderer', new LineRenderers)
-Bokeh.register_collection('BarRenderer', new BarRenderers)
-Bokeh.register_collection('ObjectArrayDataSource', new ObjectArrayDataSources)
-Bokeh.register_collection('Range1d', new Range1ds)
-Bokeh.register_collection('LinearAxis', new LinearAxes)
-Bokeh.register_collection('LinearDateAxis', new LinearDateAxes)
-Bokeh.register_collection('DiscreteColorMapper', new DiscreteColorMappers)
-Bokeh.register_collection('FactorRange', new FactorRanges)
-Bokeh.register_collection('GridPlotContainer', new GridPlotContainers)
-Bokeh.register_collection('DataRange1d', new DataRange1ds)
-Bokeh.register_collection('DataFactorRange', new DataFactorRanges)
-Bokeh.register_collection('PanTool', new PanTools)
-Bokeh.register_collection('ZoomTool', new ZoomTools)
-Bokeh.register_collection('SelectionTool', new SelectionTools)
-Bokeh.register_collection('ScatterSelectionOverlay', new ScatterSelectionOverlays)
+Continuum.Collections.Plot = new Plots
+Continuum.Collections.ScatterRenderer = new ScatterRenderers
+Continuum.Collections.GlyphRenderer = new GlyphRenderers
+Continuum.Collections.LineRenderer = new LineRenderers
+Continuum.Collections.BarRenderer = new BarRenderers
+Continuum.Collections.ObjectArrayDataSource = new ObjectArrayDataSources
+Continuum.Collections.Range1d = new Range1ds
+Continuum.Collections.LinearAxis = new LinearAxes
+Continuum.Collections.LinearDateAxis = new LinearDateAxes
+Continuum.Collections.DiscreteColorMapper = new DiscreteColorMappers
+Continuum.Collections.FactorRange = new FactorRanges
+Continuum.Collections.GridPlotContainer = new GridPlotContainers
+Continuum.Collections.DataRange1d = new DataRange1ds
+Continuum.Collections.DataFactorRange = new DataFactorRanges
+Continuum.Collections.PanTool = new PanTools
+Continuum.Collections.ZoomTool = new ZoomTools
+Continuum.Collections.SelectionTool = new SelectionTools
+Continuum.Collections.ScatterSelectionOverlay = new ScatterSelectionOverlays
 
 
 Bokeh.Collections = Collections

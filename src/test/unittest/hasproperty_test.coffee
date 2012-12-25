@@ -5,7 +5,7 @@ class TestObjects extends Backbone.Collection
   url : "/"
 
 test('computed_properties', ->
-  Continuum.register_collection('TestObject', new TestObjects())
+  Continuum.Collections.TestObject = new TestObjects()
   model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
   model.register_property('c', () -> @get('a') + @get('b'))
   model.add_dependencies('c', model, ['a', 'b'])
@@ -14,7 +14,7 @@ test('computed_properties', ->
 )
 
 test('cached_properties_react_changes', ->
-  Continuum.register_collection('TestObject', new TestObjects())
+  Continuum.Collections.TestObject = new TestObjects()
   model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
   model.register_property('c',
     () -> @get('a') + @get('b'),
@@ -32,7 +32,7 @@ test('cached_properties_react_changes', ->
 
 
 test('has_prop_manages_event_lifcycle', ->
-  Continuum.register_collection('TestObject', new TestObjects())
+  Continuum.Collections.TestObject = new TestObjects()
   model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
   model2 = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
   triggered = false
@@ -46,7 +46,7 @@ test('has_prop_manages_event_lifcycle', ->
 )
 
 test('has_prop_manages_event_for_views', ->
-  Continuum.register_collection('TestObject', new TestObjects())
+  Continuum.Collections.TestObject = new TestObjects()
   model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
   # dummy model2 to be the default model for continuumview
   # we mostly want to test how we react to other models, which is why
@@ -65,7 +65,7 @@ test('has_prop_manages_event_for_views', ->
 )
 
 test('property_setters', ->
-  Continuum.register_collection('TestObject', new TestObjects())
+  Continuum.Collections.TestObject = new TestObjects()
   model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
   # dummy model2 to be the default model for continuumview
   # we mostly want to test how we react to other models, which is why
@@ -83,7 +83,7 @@ test('property_setters', ->
 )
 
 test('test_vectorized_ref', () ->
-  Continuum.register_collection('TestObject', new TestObjects())
+  Continuum.Collections.TestObject = new TestObjects()
   model1 = Continuum.Collections['TestObject'].create(
     a : 1
     b : 1

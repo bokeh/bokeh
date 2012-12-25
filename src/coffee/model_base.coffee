@@ -6,9 +6,6 @@ class Continuum.Collection extends Backbone.Collection
   # can switch back to Backbone.Collection later
 Collections = {}
 Continuum.Collections = Collections
-Continuum.register_collection = (key, value) ->
-  Collections[key] = value
-  value.bokeh_key = key
 safebind = Continuum.safebind
 Bokeh = window.Bokeh
 # continuum refrence system
