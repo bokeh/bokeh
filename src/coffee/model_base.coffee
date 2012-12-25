@@ -2,45 +2,52 @@
 # we create a dictionary of collections, for all types that we know,
 # we use these when models are pushed down from the server
 class Continuum.Collection extends Backbone.Collection
-  # at some point, I thought we needed to override create... we don't anymore...
+  # at some point, I thought we needed to override create...
+  # we don't anymore...
   # can switch back to Backbone.Collection later
 Collections = {}
 Continuum.Collections = Collections
 safebind = Continuum.safebind
 Bokeh = window.Bokeh
-# continuum refrence system
-#   reference : {'type' : type name, 'id' : object id}
-#   each class has a collections class var, and type class var.
-#   references are resolved by looking up collections[type]
-#   to get a collection
-#   and then retrieving the correct id.  The one exception is that an object
-#   can resolve a reference to itself even if it has not yet been added to
-#   any collections.
-
-
 
 # backbone note - we're sort of using defaults in the code to tell the user
 # what attributes are expected, so please specify defaults for
 # all attributes you plan on usign
 
+# Reference System
+# we enable models to refer to other models using the following json
+#
+#     collections : ['Continuum', 'Collections']
+#     type : 'Plot'
+#     id : '239009203923'
+#
+# The collections and type field tell us that
+# window.Continuum.Collections.Plot is the collection which has the model id
+# '239009203923'.  Currently we only use the collections field when the
+# models are being broadcast from the server.  This is overly complex,
+# we should unify collections and type so that collections looks like
+#
+#     collections : ['Continuum', 'Collections', 'Plot']
 
+# ###function : load models.
 Continuum.load_models = (modelspecs)->
-  # ###function : load models.
-  # First we identify which model specs correspond to new models,
-  # and which ones are updates.  For new models we instantiate the models, add them
-  # to their collections and call dinitialize.  For existing models we update
+  # First we identify which model jsons correspond to new models,
+  # and which ones are updates.
+  # For new models we instantiate the models, add them
+  # to their collections and call dinitialize.
+  # For existing models we update
   # their attributes
-
   # ####Parameters
   # * modelspecs : list of models in json form, looking like this
-
+  #
   #         type : 'Plot'
   #         collections : ['Continuum', 'Collections']
   #         id : '2390-23-23'
-  #         attributes:
+  #         attributes :
+  #           firstattr : 'one'
   #         name : 'myplot'
   #         renderers : []
-
+  #
   #   collections tells us where to find the dictionary of collections used to
   #   construct the model
   #   type is the key of the in collections for this model
@@ -98,18 +105,15 @@ Continuum.load_models = (modelspecs)->
 
   return null
 
+# ###function : Continuum.submodels
 Continuum.submodels = (ws_conn_string, topic, apikey) ->
-  # ###function : Continuum.submodels
   # creates a websocket which subscribes and listens for model changes
-  # #####Parameters
-
+  # ##### Parameters
   # * ws_conn_string : path of the web socket to subscribe
   # * topic : topic to listen on (send to the server on connect)
-
-  # #####Returns
+  # ##### Returns
   #
   # * the websocket
-
   try
     s = new WebSocket(ws_conn_string)
   catch error
@@ -141,22 +145,22 @@ Continuum.submodels = (ws_conn_string, topic, apikey) ->
     return null
   return s
 
+# ### function : resolve_ref
 resolve_ref = (collections, type, id) ->
-  # ###funcion : resolve_ref
+
   # Takes a group of collections, type and id, and returns the backbone model
   # which corresponds
   # ####Parameters
-
+  #
   # * collections : group of collections (as a dict),
-  #   the collection for type should
-  #   be present here.  Alternatively, one can specify this as an array of strings,
-  #   in which case we descend through the global namespace looking for this, using
-  #   get_collections.
+  #   the collection for type should be present here.
+  #   Alternatively, one can specify this as an array of strings,
+  #   in which case we descend through the global namespace
+  #   looking for this, using  get_collections.
   # * type : type of the object
   # * id : id of the object
 
   # ####Returns
-
   # * backbone model
 
   if _.isArray(collections)
@@ -170,21 +174,15 @@ resolve_ref = (collections, type, id) ->
 
 Continuum.resolve_ref = resolve_ref
 
+# ### function : get_collections
 get_collections = (names) ->
-  # ## function : get_collections
-
   # finds a group of collections, at the location specified by names
-
-  # ####Parameters
-
+  # #### Parameters
   # * names : list of strings - we start at the global name spaces and descend
   #   through each string.  the last value should refer to the group of
   #   collections you want
-
-  # ####Returns
-
+  # #### Returns
   # * collections
-
   last = window
   for n in names
     last = last[n]
@@ -192,15 +190,13 @@ get_collections = (names) ->
 
 Continuum.get_collections = get_collections
 
-
-class HasProperties extends Backbone.Model
 # ###class : HasProperties
-#   Our property system
-#   we support python style computed properties, with getters as well as setters.
-#   we also support caching of these properties, and notifications of property
-#   changes
-#
-#   @register_property(name, dependencies, getter, use_cache, setter)
+class HasProperties extends Backbone.Model
+  # Our property system
+  # we support python style computed properties, with getters
+  # as well as setters. We also support caching of these properties,
+  # and notifications of property. We also support weak references
+  # to other models using the reference system described above.
 
   collections : Collections
   destroy : (options)->
@@ -283,10 +279,11 @@ class HasProperties extends Backbone.Model
       if value instanceof HasProperties
         return value.ref()
 
+  # ### method : HasProperties::add_dependencies
   add_dependencies:  (prop_name, object, fields) ->
-    # prop_name - name of property
-    # object - object on which dependencies reside
-    # fields - attributes on that object
+    # * prop_name - name of property
+    # * object - object on which dependencies reside
+    # * fields - attributes on that object
     # at some future date, we should support a third arg, events
     if not _.isArray(fields)
       fields = [fields]
@@ -300,20 +297,19 @@ class HasProperties extends Backbone.Model
       safebind(this, object, "change:" + fld,
           prop_spec['callbacks']['changedep'])
 
+  # ### method : HasProperties::register_setter
   register_setter : (prop_name, setter) ->
     prop_spec = @properties[prop_name]
     prop_spec.setter = setter
 
-  register_property : \
-    (prop_name, getter, use_cache) ->
-      # ###method : HasProperties::register_property
-      # register a computed property
-      # ####Parameters
+  # ### method : HasProperties::register_property
+  register_property :  (prop_name, getter, use_cache) ->
+      # register a computed property. Setters, and dependencies
+      # can be added with `@add_dependencies` and `@register_setter`
+      # #### Parameters
       # * prop_name : name of property
       # * getter : function, calculates computed value, takes no arguments
       # * use_cache : whether to cache or not
-      # * setter : function, takes new value as parametercalled on set.
-      # can be null
       # #### Returns
       # * prop_spec : specification of the property, with the getter,
       # setter, dependenices, and callbacks associated with the prop
@@ -378,9 +374,9 @@ class HasProperties extends Backbone.Model
 
   get : (prop_name) ->
     # ### method : HasProperties::get
-    # overrides backbone get.  checks properties, calls getter, or goes to cache
+    # overrides backbone get.  checks properties,
+    # calls getter, or goes to cache
     # if necessary.  If it's not a property, then just call super
-
     if _.has(@properties, prop_name)
       prop_spec = @properties[prop_name]
       if prop_spec.use_cache and @has_cache(prop_name)
