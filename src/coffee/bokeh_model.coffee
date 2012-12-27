@@ -118,8 +118,6 @@ class XYRenderer extends HasParent
 
 XYRenderer::defaults = _.clone(XYRenderer::defaults)
 _.extend(XYRenderer::defaults , {
-  xmappertype : "linear"
-  ymappertype : "linear"
   xdata_range : null
   ydata_range : null
   xfield : null
@@ -546,8 +544,39 @@ _.extend(ScatterRenderer::defaults, {
 
 class ScatterRenderers extends Continuum.Collection
   model : ScatterRenderer
-
+# ### class : GlyphRenderer
 class GlyphRenderer extends HasParent
+  # Example definition
+  #
+  #     data_source : data_source.ref()
+  #     xdata_range : xdr.ref()
+  #     ydata_range : ydr.ref()
+  #     scatter_size : 10
+  #     color : 'black'
+  #     x : 'x'
+  #     y : 'y'
+  #     glyphs : [
+  #         type : 'circle'
+  #         index : 0
+  #       ,
+  #         type : 'square'
+  #         index : 1
+  #       ,
+  #         type : 'square'
+  #         index : 2
+  #         color : 'red'
+  #       ,
+  #         type : 'square'
+  #         index : 2
+  #         color : 'green'
+  #         x : ['x', 0, 0.1]
+  #       ,
+  #         type : 'square'
+  #         index : 2
+  #         color : 'green'
+  #         x : ['x', 0, -0.1]
+  #     ]
+
   type : 'GlyphRenderer'
   default_view : Bokeh.GlyphRendererView
 

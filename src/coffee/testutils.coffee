@@ -39,8 +39,6 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     color_field: color_field
     color_mapper : color_mapper
     mark: mark
-    xmapper: 'linear'
-    ymapper: 'linear'
     parent : plot_model.ref()
     , options
   )
@@ -211,8 +209,6 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
     data_source: data_source.ref()
     xfield: xfield
     yfield: yfield
-    xmapper: 'linear'
-    ymapper: 'linear'
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
     parent : plot_model.ref()

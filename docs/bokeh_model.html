@@ -99,8 +99,6 @@ Primarily used by PlotViews</p>             </td>             <td class="code"> 
 
 <span class="nv">XYRenderer::defaults = </span><span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">XYRenderer</span><span class="o">::</span><span class="nx">defaults</span><span class="p">)</span>
 <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">XYRenderer</span><span class="o">::</span><span class="nx">defaults</span> <span class="p">,</span> <span class="p">{</span>
-  <span class="nv">xmappertype : </span><span class="s">&quot;linear&quot;</span>
-  <span class="nv">ymappertype : </span><span class="s">&quot;linear&quot;</span>
   <span class="nv">xdata_range : </span><span class="kc">null</span>
   <span class="nv">ydata_range : </span><span class="kc">null</span>
   <span class="nv">xfield : </span><span class="kc">null</span>
@@ -500,10 +498,37 @@ xfield : {'field' : 'x', width : 10}</p>             </td>             <td class
 <span class="p">})</span>
 
 <span class="k">class</span> <span class="nx">ScatterRenderers</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collection</span>
-  <span class="nv">model : </span><span class="nx">ScatterRenderer</span>
+  <span class="nv">model : </span><span class="nx">ScatterRenderer</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <h3>class : GlyphRenderer</h3>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">GlyphRenderer</span> <span class="k">extends</span> <span class="nx">HasParent</span></pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <p>Example definition</p>
 
-<span class="k">class</span> <span class="nx">GlyphRenderer</span> <span class="k">extends</span> <span class="nx">HasParent</span>
-  <span class="nv">type : </span><span class="s">&#39;GlyphRenderer&#39;</span>
+<pre><code>data_source : data_source.ref()
+xdata_range : xdr.ref()
+ydata_range : ydr.ref()
+scatter_size : 10
+color : 'black'
+x : 'x'
+y : 'y'
+glyphs : [
+    type : 'circle'
+    index : 0
+  ,
+    type : 'square'
+    index : 1
+  ,
+    type : 'square'
+    index : 2
+    color : 'red'
+  ,
+    type : 'square'
+    index : 2
+    color : 'green'
+    x : ['x', 0, 0.1]
+  ,
+    type : 'square'
+    index : 2
+    color : 'green'
+    x : ['x', 0, -0.1]
+]
+</code></pre>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">type : </span><span class="s">&#39;GlyphRenderer&#39;</span>
   <span class="nv">default_view : </span><span class="nx">Bokeh</span><span class="p">.</span><span class="nx">GlyphRendererView</span>
 
 <span class="nv">GlyphRenderer::defaults = </span><span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">GlyphRenderer</span><span class="o">::</span><span class="nx">defaults</span><span class="p">)</span>
@@ -584,7 +609,7 @@ xfield : {'field' : 'x', width : 10}</p>             </td>             <td class
 
 
 <span class="k">class</span> <span class="nx">ScatterSelectionOverlays</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collection</span>
-  <span class="nv">model : </span><span class="nx">ScatterSelectionOverlay</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <p>Preparing the name space</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">Continuum.Collections.Plot = </span><span class="k">new</span> <span class="nx">Plots</span>
+  <span class="nv">model : </span><span class="nx">ScatterSelectionOverlay</span></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <p>Preparing the name space</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">Continuum.Collections.Plot = </span><span class="k">new</span> <span class="nx">Plots</span>
 <span class="nv">Continuum.Collections.ScatterRenderer = </span><span class="k">new</span> <span class="nx">ScatterRenderers</span>
 <span class="nv">Continuum.Collections.GlyphRenderer = </span><span class="k">new</span> <span class="nx">GlyphRenderers</span>
 <span class="nv">Continuum.Collections.LineRenderer = </span><span class="k">new</span> <span class="nx">LineRenderers</span>
