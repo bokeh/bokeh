@@ -634,7 +634,56 @@ class GlyphRendererView extends XYRendererView
       else if glyph.type == 'circles'
         @render_circles(glyph, data)
       else if glyph.type == 'line'
-        'pass'
+        @render_line(glyph, data)
+
+
+  render_line : (glyph, data) ->
+    # ### Fields of the 'line' glyph:
+    # These values are all in *data* space
+    # * x, y : field names for coordinates
+    # * xval, yval : scalars to use as defaults, if field names are not found on the datapoint
+    # * line_width
+    # * line_color
+    # * line_alpha
+
+    xfield = if glyph.x? then glyph.x else @mget('xfield')
+    yfield = if glyph.y? then glyph.y else @mget('yfield')
+
+    line_width = if glyph.line_width? then glyph.line_width else @mget('line_width')
+    line_color = if glyph.line_color? then glyph.line_color else @mget('line_color')
+    line_alpha = if glyph.line_alpha? then glyph.line_alpha else @mget('line_alpha')
+
+    @plot_view.ctx.save()
+
+    @plot_view.ctx.lineWidth = line_width
+    @plot_view.ctx.strokeStyle = line_color
+    @plot_view.ctx.globalAlpha = line_alpha
+
+    @plot_view.ctx.beginPath()
+
+    sx = @xmapper.map_screen(data[0][xfield])
+    sy = @ymapper.map_screen(data[0][yfield])
+    sx = @plot_view.viewstate.xpos(sx) #noop
+    sy = @plot_view.viewstate.ypos(sy)
+    @plot_view.ctx.moveTo(sx, sy)
+
+    for idx in [1..data.length-1]
+      sx = @xmapper.map_screen(data[idx][xfield])
+      sy = @ymapper.map_screen(data[idx][yfield])
+      sx = @plot_view.viewstate.xpos(sx) #noop
+      sy = @plot_view.viewstate.ypos(sy)
+
+      if isNaN(sx) or isNaN(sy)
+        @plot_view.ctx.stroke()
+        @plot_view.ctx.beginPath()
+        continue
+      @plot_view.ctx.lineTo(sx, sy)
+
+    @plot_view.ctx.stroke()
+
+    @plot_view.ctx.restore()
+
+
 
   render_circles : (glyph, data) ->
     # ### Fields of the 'circles' glyph:
