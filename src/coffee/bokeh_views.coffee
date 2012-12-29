@@ -631,8 +631,54 @@ class GlyphRendererView extends XYRendererView
     for glyph in @mget('glyphs')
       if glyph.type == 'circle' or glyph.type == 'square'
         @render_scatter(glyph, data)
+      else if glyph.type == 'circles'
+        @render_circles(glyph, data)
       else if glyph.type == 'line'
         'pass'
+
+  render_circles : (glyph, data) ->
+    # ### Fields of the 'circles' glyph:
+    # * xfield, yfield: names of the data fields that contain the center
+    #     positions. Defaults to 'x' and 'y'.
+    # * radiusfield: name of the data field indicating the radius (in screen pixels). 
+    #     Defaults to 'radius'.
+    # * colorfield: name of data field indicating the color of each point. Defaults
+    #     to 'color'.
+    # * radius: a fixed radius (in screen pixels) to use for every point. Used
+    #     if a particular datapoint does not define the property named by
+    #     'radiusfield'.
+    # * color: a fixed color to use for every point. Use if a particular
+    #     datapoint does not define the property named by 'colorfield'.
+    #
+    # Only one of 'radius' and 'radiusfield' need to be specified.  If both are
+    # specified, then the value from 'radiusfield' for each datapoint overrides
+    # the constant value in 'radius'. The same applies to 'color'/'colorfield'.
+    
+    # Look up the field names from the glyph spec or the GlyphRenderer model
+    # defaults, and cache them
+    radiusfield = if glyph.radiusfield? then glyph.radiusfield else @mget('radiusfield')
+    colorfield = if glyph.colorfield? then glyph.colorfield else @mget('colorfield')
+
+    for datapoint in data
+      # Instead of calling @calc_screen and supporting offsets, we just bake
+      # that logic into the loop here.
+      screenx = @xmapper.map_screen(datapoint[glyph.xfield])
+      screeny = @ymapper.map_screen(datapoint[glyph.yfield])
+      if radiusfield of datapoint
+        # Look up the radius to use from this datapoint
+        size = datapoint[radiusfield]
+      else
+        # Use a default radius (either from the glyph or the glyph defaults)
+        size = if glyph.radius? then glyph.radius else @mget('radius')
+
+      if colorfield of datapoint
+        # Look up the color to use from this datapoint
+        color = datapoint[colorfield]
+      else
+        # Use a default color (either from the glyph or the glyph defaults)
+        color = if glyph.color? then glyph.color else @mget('color')
+      @addCircle(screenx, screeny, size, color)
+
 
 class ScatterRendererView extends XYRendererView
   #FIXME: render_canvas

@@ -2,9 +2,9 @@ test('simple_glyph', () ->
   expect(0)
   data_source = Bokeh.Collections.ObjectArrayDataSource.create(
     data : [
-      {x : 1, y : 5, z:3},
+      {x : 1, y : 5, z:3, radius:10},
       {x : 2, y : 4, z:3},
-      {x : 3, y : 3, z:3},
+      {x : 3, y : 3, z:3, color:"red"},
       {x : 4, y : 2, z:3},
       {x : 5, y : 1, z:3},
     ]
@@ -25,16 +25,23 @@ test('simple_glyph', () ->
     x : 'x'
     y : 'y'
     glyphs : [
-        type : 'circle'
-        index : 0
+        type : 'circles'
+        xfield: 'x'
+        yfield: 'y'
+        #radiusfield: "radius"
+        #radius: 5
+        color: 'blue'
       ,
-        type : 'square'
-        index : 1
-      ,
-        type : 'square'
-        index : 2
-        color : 'red'
-      ,
+        #  type : 'circle'
+        #  index : 0
+        #,
+        #  type : 'square'
+        #  index : 1
+        #,
+        #  type : 'square'
+        #  index : 2
+        #  color : 'red'
+        #,
         type : 'square'
         index : 2
         color : 'green'
@@ -45,6 +52,7 @@ test('simple_glyph', () ->
         color : 'green'
         x : ['x', 0, -0.1]
     ]
+
   )
   xaxis = Bokeh.Collections['LinearAxis'].create(
     orientation : 'bottom'

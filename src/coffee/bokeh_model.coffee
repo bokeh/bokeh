@@ -590,12 +590,12 @@ _.extend(GlyphRenderer::defaults,
 GlyphRenderer::display_defaults = _.clone(GlyphRenderer::display_defaults)
 _.extend(GlyphRenderer::display_defaults, {
   radius : 3
+  radiusfield: "radius"
+  colorfield: "color"
 })
 
 class GlyphRenderers extends Continuum.Collection
   model : GlyphRenderer
-
-
 
 class PanTool extends Continuum.HasParent
   type : "PanTool"
