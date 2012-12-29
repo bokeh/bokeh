@@ -590,6 +590,9 @@ _.extend(GlyphRenderer::defaults,
 GlyphRenderer::display_defaults = _.clone(GlyphRenderer::display_defaults)
 _.extend(GlyphRenderer::display_defaults, {
   radius : 3
+  color : "gray"
+  xfield: "x"
+  yfield: "y"
   radiusfield: "radius"
   colorfield: "color"
 })

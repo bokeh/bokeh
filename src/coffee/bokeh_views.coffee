@@ -658,12 +658,14 @@ class GlyphRendererView extends XYRendererView
     # defaults, and cache them
     radiusfield = if glyph.radiusfield? then glyph.radiusfield else @mget('radiusfield')
     colorfield = if glyph.colorfield? then glyph.colorfield else @mget('colorfield')
+    xfield = if glyph.xfield? then glyph.xfield else @mget('xfield')
+    yfield = if glyph.yfield? then glyph.yfield else @mget('yfield')
 
     for datapoint in data
       # Instead of calling @calc_screen and supporting offsets, we just bake
       # that logic into the loop here.
-      screenx = @xmapper.map_screen(datapoint[glyph.xfield])
-      screeny = @ymapper.map_screen(datapoint[glyph.yfield])
+      screenx = @xmapper.map_screen(datapoint[xfield])
+      screeny = @ymapper.map_screen(datapoint[yfield])
       if radiusfield of datapoint
         # Look up the radius to use from this datapoint
         size = datapoint[radiusfield]

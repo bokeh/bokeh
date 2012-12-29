@@ -26,8 +26,8 @@ test('simple_glyph', () ->
     y : 'y'
     glyphs : [
         type : 'circles'
-        xfield: 'x'
-        yfield: 'y'
+        #xfield: 'x'
+        #yfield: 'y'
         #radiusfield: "radius"
         #radius: 5
         color: 'blue'
