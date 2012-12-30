@@ -595,6 +595,16 @@ _.extend(GlyphRenderer::display_defaults, {
   yfield: "y"
   radiusfield: "radius"
   colorfield: "color"
+
+  # Rects glyph
+  height: 1
+  width: 1
+  top: 1
+  bottom: 0
+  left: 0
+  right: 1
+
+  bordercolor: "black"
 })
 
 class GlyphRenderers extends Continuum.Collection

@@ -562,6 +562,83 @@ class LineRendererView extends XYRendererView
     @render_end()
     return null
 
+
+class MetaGlyph
+  constructor: (@attrnames, @glyphspec, @styleprovider) ->
+    # * attrnames: a list of attribute names. They can have an optional type
+    #     suffix, separated by a colon, where the type string can be
+    #     `'number'`, `'string'`, or `'array'`. The default is `'number'`.
+    #     These types determine how to interpret values in the glyphspec.
+    #     For `number` and `array` fields, if a string is provided, then it is
+    #     treated as a field name specifier. For `string` fields, a string is
+    #     treated as a default value. For `array` fields, any non-array literal
+    #     value is wrapped into a single-element array.
+    # * glyphspec: the glyph specification object, usually defined in the
+    #     `glyphs` field of a GlyphRenderer
+    # * styleprovider: something with an `.mget()` method that can produce
+    #     a concrete value (or fieldname) for each of the attributes
+
+  make_glyph: (datapoint) ->
+    # Returns an object that has properties corresponding all of the named
+    # attributes in `attrnames`, as well as $NAME_units. (The latter is a
+    # string, usually `'data'` or `'screen'`, but in some cases can be actual
+    # mathematical units like deg/rad.)
+    glyph = {}
+    for attrname in @attrnames
+      if attrname.indexOf(":") > -1
+        [attrname, attrtype] = attrname.split(":")
+      else
+        attrtype = "number"
+
+      if not (attrname of @glyphspec)
+        # The field is absent from the glyph specification.
+        # Just read defaults from the styleprovider. The default value of
+        # `units` is always `'data'`.
+        glyph[attrname] = @styleprovider.mget(attrname)
+        glyph[attrname+'_units'] = 'data'
+        continue
+      
+      else if _.isNumber(@glyphspec[attrname])
+        # The glyph specification provided a number. This is always a
+        # default value.
+        glyph[attrname] = if attrname of datapoint then datapoint[attrname] else @glyphspec[attrname]
+        glyph[attrname+'_units'] = 'data'
+        continue
+
+      else
+        if _.isString(@glyphspec[attrname])
+          # The glyph specification provided a string for this field; how we
+          # interpret it depends on the type of the field.
+          # For string fields, this becomes the field value.  For all others,
+          # treat this as customizing the name of the field.
+          if attrtype == 'string'
+            default_value = @glyphspec[attrname]
+            fieldname = attrname
+          else
+            default_value = @styleprovider.mget(attrname)
+            fieldname = @glyphspec[attrname]
+          # In either case, use the default units
+          glyph[attrname+'_units'] = 'data'
+        
+        else if _.isObject(@glyphspec[attrname])
+          obj = @glyphspec[attrname]
+          fieldname = if obj.field? then obj.field else attrname
+          default_value = if obj.default? then obj.default else @styleprovider.mget(attrname)
+          glyph[attrname+'_units'] = if obj.units? then obj.units else 'data'
+
+        else 
+          # This is an error down here...
+          console.log("Unknown glyph specification value type.")
+          continue
+
+        # Both string and object glyphspecs share this logic
+        if fieldname of datapoint
+          glyph[attrname] = datapoint[fieldname]
+        else
+          glyph[attrname] = default_value
+
+    return glyph
+
 # ###class : GlyphRendererView
 class GlyphRendererView extends XYRendererView
   addSquare: (x, y, size, color) ->
@@ -633,6 +710,8 @@ class GlyphRendererView extends XYRendererView
         @render_scatter(glyph, data)
       else if glyph.type == 'circles'
         @render_circles(glyph, data)
+      else if glyph.type == 'rects'
+        @new_render_rects(glyph, data)
       else if glyph.type == 'line'
         'pass'
 
@@ -680,6 +759,284 @@ class GlyphRendererView extends XYRendererView
         # Use a default color (either from the glyph or the glyph defaults)
         color = if glyph.color? then glyph.color else @mget('color')
       @addCircle(screenx, screeny, size, color)
+
+  new_render_rects : (glyphspec, data) ->
+    # Create custom getter functions for each parameter
+    # TODO: Replace this and @_build_getters with a Glyph class
+    if glyphspec.x?   # use centers, widths, heights
+      params = ['x','y','width','height']
+    else if glyphspec.left?   # use bounds
+      params = ['left','right','bottom','top']
+    
+    params.push.apply(params, ["angle","color:color", "bordercolor:color","alpha"])
+    metaglyph = new MetaGlyph(params, glyphspec, this)
+
+    @plot_view.ctx.save()
+    for datapoint in data
+      glyph = metaglyph.make_glyph(datapoint)
+      if glyphspec.x?
+        [left,right,h_units] = @_span2bounds(glyph.x, glyph.x_units, glyph.width, glyph.width_units, @xmapper)
+        if h_units == 'data'
+          left = @xmapper.map_screen(left)
+          right = @xmapper.map_screen(right)
+        [bottom,top,v_units] = @_span2bounds(glyph.y, glyph.y_units, glyph.height, glyph.height_units, @ymapper)
+        if v_units == 'data'
+          bottom = @ymapper.map_screen(bottom)
+          top = @ymapper.map_screen(top)
+      else
+        # Glyph is specifying bounds, so transform to screen space (if
+        # necessary)
+        if glyph.left_units == 'data'
+          left = @xmapper.map_screen(glyph.left)
+        if glyph.right_units == 'data'
+          right = @xmapper.map_screen(glyph.right)
+        if glyph.bottom_units == 'data'
+          bottom = @ymapper.map_screen(glyph.bottom)
+        if glyph.top_units == 'data'
+          top = @ymapper.map_screen(glyph.top)
+      
+      # At this point, we have the box boundaries (left, right, bottom, top)
+      # in screen space coordinates, and should be ready to draw.
+      
+      # In the following, we need to grab the first element of the returned
+      # valued b/c getter functions always return (val, units) and we don't
+      # care about units for color.
+      ctx = @plot_view.ctx
+      ctx.globalAlpha = glyph.alpha
+      if glyph.fillcolor != "none"
+        ctx.fillStyle = glyph.fillcolor
+        ctx.fillRect(left, bottom, right-left, top-bottom)
+      if glyph.strokecolor != "none"
+        ctx.strokeStyle = glyph.strokecolor
+        ctx.rect(left, bottom, right-left, top-bottom)
+      # End per-datapoint loop
+
+    # Done with all drawing, restore the graphics state
+    @plot_view.ctx.restore()
+    return      # render_rects()
+
+
+  render_rects : (glyphspec, data) ->
+    # ### Fields of the 'rects' glyph
+    # There are two ways to specify rects: Centers & widths & heights, or 
+    # boundaries.  If both types are specified, then the behavior is 
+    # implementation dependent and should not be relied upon.
+    #
+    # ## Spatial parameters
+    # * x, y, width, height
+    # * left, right, bottom, top
+    # * angle
+    #
+    # For each of these spatial parameters, the full specification in the
+    # glyph is an embedded object with the following properties:
+    # * field: the name of the field in each data point; this defaults to
+    #     the name of the spatial parameter itself (e.g. 'height', 'bottom', 'x')
+    # * default: a numerical default value to use if the field does not exist
+    #     on a datapoint.  Each spatial parameter also has a global default
+    #     value (defined in GlyphRenderer::display_defaults)
+    # * units: For all parameters except 'angle', this specifies the coordinate
+    #     space in which to interpret data values, either 'data' (default) or
+    #     'screen'. For the 'angle' parameter, this property is either 'deg' or
+    #     'rad'.
+    #
+    # Example:
+    #   type: 'rects'
+    #   x:
+    #     field: 'var1'
+    #     units: 'data'
+    #   y:
+    #     field: 'var2'
+    #     default: 10
+    #     units: screen
+    #
+    # However, a shorthand can be used if only the field name needs to be
+    # specified, or a constant default numerical value is to be used.  
+    #
+    # Example:
+    #   type: 'rects'
+    #   width: 'var3' # shorthand for field:'var3'
+    #   height: 8     # shorthand for default:8, units:'data'
+    #
+    # If a numerical default value is specified, it can still be overridden on
+    # a per-datapoint basis since the GlyphRenderer::display_defaults specify
+    # default field names for each of these properties.  In the example above,
+    # if a datapoint had an additional field named 'height', which is the default
+    # field name for the height parameter, then it would override the constant
+    # value of 8.
+    #
+    # For colors and other properties which can accept string values, there is
+    # potential ambiguity in the shorthand form: 
+    #   type: 'rects'
+    #   color: 'red'
+    #
+    # Does this mean that the default value of `color` should be `'red'`, or
+    # that the field named `'red'` should be used to determine the color of
+    # each datapoint?  To resolve this, for colors, the shorthand is 
+    # interpreted to mean the former, because this is such a common case.  To
+    # specify the fieldname for color-related properties, use the long form:
+    #
+    #   type: 'rects'
+    #   color:
+    #     field: 'colorfieldname'
+    # 
+    # ## Other parameters
+    # * color: field name for fill color
+    # * colorval: default color value if no field is specified or if the specified
+    #     field does not exist on a datapoint
+    # * bordercolor: field name for the border to draw around each rect
+    # * bcolorval: default border color value
+    # * alpha: field name for alpha value
+    # * alphaval: default alpha value (0..1)
+
+    # Gather up the defaults so we can pass them in to @get_datapt_attr
+    default_color = @mget('color')
+    default_bordercolor = @mget('bordercolor')
+    default_alpha = @mget('alpha')
+
+    # Create custom getter functions for each parameter
+    # TODO: Replace this and @_build_getters with a Glyph class
+    if glyphspec.x?   # use centers, widths, heights
+      params = ['x','y','width','height']
+    else if glyphspec.left?   # use bounds
+      params = ['left','right','bottom','top']
+    
+    params.push.apply(params, ["angle","color","bordercolor","alpha"])
+    getters = @_build_getters(params, glyph)
+
+    @plot_view.ctx.save()
+    for datapoint in data
+      if glyphspec.x?
+        # Glyph is specifying center and extent, so compute screen-space
+        # top/bottom/left/right based on these.
+        
+        [x, x_units] = getters['x'](datapoint)
+        [width, width_units] = getters['width'](datapoint)
+        [left, right, h_units] = @_span2bounds(x, x_units, width, width_units, @xmapper)
+        if h_units == 'data'
+          left = @xmapper.map_screen(left)
+          right = @xmapper.map_screen(right)
+        
+        [y, y_units] = getters['y'](datapoint)
+        [height, height_units] = getters['height'](datapoint)
+        [bottom, top, v_units] = @_span2bounds(y, y_units, height, height_units, @ymapper)
+        if v_units == 'data'
+          bottom = @ymapper.map_screen(bottom)
+          top = @ymapper.map_screen(top)
+
+      else
+        # Glyph is specifying bounds, so transform to screen space (if
+        # necessary)
+        [left, units] = getters['left'](datapoint)
+        if units == 'data'
+          left = @xmapper.map_screen(left)
+        [right, units] = getters['right'](datapoint)
+        if units == 'data'
+          right = @xmapper.map_screen(right)
+        [bottom, units] = getters['bottom'](datapoint)
+        if units == 'data'
+          bottom = @ymapper.map_screen(bottom)
+        [top, units] = getters['top'](datapoint)
+        if units == 'data'
+          top = @ymapper.map_screen(top)
+
+      # At this point, we have the box boundaries (left, right, bottom, top)
+      # in screen space coordinates, and should be ready to draw.
+      
+      # In the following, we need to grab the first element of the returned
+      # valued b/c getter functions always return (val, units) and we don't
+      # care about units for color.
+      fillcolor = getters['color'](datapoint)[0]
+      strokecolor = getters['bordercolor'](datapoint)[0]
+      alpha = getters['alpha'](datapoint)[0]
+      ctx = @plot_view.ctx
+      ctx.globalAlpha = alpha
+      if fillcolor != "none"
+        ctx.fillStyle = fillcolor
+        ctx.fillRect(left, bottom, right-left, top-bottom)
+      if strokecolor != "none"
+        ctx.strokeStyle = strokecolor
+        ctx.rect(left, bottom, right-left, top-bottom)
+      # End per-datapoint loop
+
+    # Done with all drawing, restore the graphics state
+    @plot_view.ctx.restore()
+    return      # render_rects()
+
+  _span2bounds : (center, center_units, span, span_units, mapper) ->
+    # Given a center value and a span value of potentially different
+    # spaces, returns an tuple (min, max, units) normalizing them
+    # into the space space ('data' or 'screen'), via the given mapper.
+    # NB: The mapper must be able to map from screen to data space.
+    # TODO: This function should probably be moved onto the Mappers.
+    halfspan = span / 2
+    if center_units == 'data' and span_units == 'data'
+      return [center-halfspan, center+halfspan, 'data']
+    else if center_units == 'data' and span_units == 'screen'
+      center_s = mapper.map_screen(center)
+      return [center_s-halfspan, center_s+halfspan, 'screen']
+    else if center_units == 'screen' and span_units == 'data'
+      center_d = mapper.map_data(center)
+      return [center_d-halfspan, centerd+halfspan, 'data']
+    else if center_units == 'screen' and span_units == 'screen'
+      return [center-halfspan, center+halfspan, 'screen']
+
+  _build_getters : (params, glyph) ->
+    # Builds a dictionary of getter functions which performs attribute
+    # value lookup (and resolves default values) at each datapoint.
+    #
+    # TODO: This is really a design hack. It should be replaced with a
+    # MetaGlyph metaclass which builds in the logic of delegation into its
+    # attribute lookup facility.  Then, each type of glyph renderer would
+    # create a Glyph class, passing in the list of attribute names. In the
+    # _render_GLYPHNAME() function, a Glyph would be instantiated for each
+    # datapoint, with the ctor taking arguments such as 'this' (which for
+    # now serves as a stylesheet).  Then the drawing logic would be very
+    # concise, and the concerns of delegated attribute lookup would be
+    # separated cleanly from the concern of drawing.
+    #
+    # To handle the concept of 'units', which only exists for some kinds
+    # of parameters, a separate .units() function could be used.
+    #
+    # ### Parameters
+    # * params: a list of strings, e.g. ['x', 'y' ,'size', 'color'], which
+    #     represent the attributes that we are building setters for. These
+    #     names are significant; they should have default values in
+    #     GlyphRenderer::display_defaults, and these names will be used
+    #     verbatim as the default field names to look for in each datapoint.
+    getters = {}
+    for paramname in params
+      units = 'data'
+      if paramname of glyph
+        if _.isString(glyph[paramname])
+          units = 'data'
+          default_value = @mget(paramname)
+          attrname = glyph[paramname]
+        else if _.isObject(glyph[paramname])
+          # 'units' is probably not relevant for non-spatial 
+          { default: default_value, field: attrname, units: units } = glyph[paramname]
+        else
+          units = 'data'
+          default_value = glyph[paramname]
+          # The default field name to look for on each datapoint is just the
+          # parameter name, e.g. we look for 'height' or 'bottom' on each
+          # datapoint.
+          attrname = paramname
+      else
+        # If this parameter is absent from the glyph altogether
+        units = 'data'
+        attrname = paramname
+        default_value = @mget(paramname)
+
+      getters[paramname] = do (attrname, default_value, units) ->
+        # Bake these loop variables into the closure
+        (datapoint) ->
+          # Returns (value, units) for the actual value for a given
+          # parameter at a datapoint.
+          if attrname of datapoint
+            return [datapoint[attrname], units]
+          else
+            return [default_value, units]
+    return getters
 
 
 class ScatterRendererView extends XYRendererView
