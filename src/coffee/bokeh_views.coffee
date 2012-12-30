@@ -592,9 +592,13 @@ class MetaGlyph
 
       if not (attrname of @glyphspec)
         # The field is absent from the glyph specification.
-        # Just read defaults from the styleprovider. The default value of
-        # `units` is always `'data'`.
-        glyph[attrname] = @styleprovider.mget(attrname)
+        # Use the default field name and check for its existence on the
+        # datapoint. If it doesn't exist, then read the defaults from the
+        # styleprovider. The default value of `units` is always `'data'`.
+        if attrname of datapoint
+          glyph[attrname] = datapoint[attrname]
+        else
+          glyph[attrname] = @styleprovider.mget(attrname)
         glyph[attrname+'_units'] = 'data'
         continue
       
@@ -768,7 +772,7 @@ class GlyphRendererView extends XYRendererView
     else if glyphspec.left?   # use bounds
       params = ['left','right','bottom','top']
     
-    params.push.apply(params, ["angle","color:color", "bordercolor:color","alpha"])
+    params.push.apply(params, ["angle","color:string", "bordercolor:string","alpha"])
     metaglyph = new MetaGlyph(params, glyphspec, this)
 
     @plot_view.ctx.save()
@@ -804,10 +808,10 @@ class GlyphRendererView extends XYRendererView
       ctx = @plot_view.ctx
       ctx.globalAlpha = glyph.alpha
       if glyph.fillcolor != "none"
-        ctx.fillStyle = glyph.fillcolor
+        ctx.fillStyle = glyph.color
         ctx.fillRect(left, bottom, right-left, top-bottom)
       if glyph.strokecolor != "none"
-        ctx.strokeStyle = glyph.strokecolor
+        ctx.strokeStyle = glyph.bordercolor
         ctx.rect(left, bottom, right-left, top-bottom)
       # End per-datapoint loop
 
