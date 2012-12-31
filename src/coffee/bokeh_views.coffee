@@ -589,6 +589,7 @@ class MetaGlyph
         [attrname, attrtype] = attrname.split(":")
       else
         attrtype = "number"
+      unitsname = attrname + "_units"
 
       if not (attrname of @glyphspec)
         # The field is absent from the glyph specification.
@@ -599,14 +600,17 @@ class MetaGlyph
           glyph[attrname] = datapoint[attrname]
         else
           glyph[attrname] = @styleprovider.mget(attrname)
-        glyph[attrname+'_units'] = 'data'
+        
+        units = @styleprovider.mget(unitsname)
+        glyph[unitsname] = units ? 'data'
         continue
       
       else if _.isNumber(@glyphspec[attrname])
         # The glyph specification provided a number. This is always a
         # default value.
         glyph[attrname] = if attrname of datapoint then datapoint[attrname] else @glyphspec[attrname]
-        glyph[attrname+'_units'] = 'data'
+        units = @styleprovider.mget(unitsname)
+        glyph[unitsname] = units ? 'data'
         continue
 
       else
@@ -622,13 +626,18 @@ class MetaGlyph
             default_value = @styleprovider.mget(attrname)
             fieldname = @glyphspec[attrname]
           # In either case, use the default units
-          glyph[attrname+'_units'] = 'data'
+          units = @styleprovider.mget(unitsname)
+          glyph[unitsname] = units ? 'data'
         
         else if _.isObject(@glyphspec[attrname])
           obj = @glyphspec[attrname]
           fieldname = if obj.field? then obj.field else attrname
           default_value = if obj.default? then obj.default else @styleprovider.mget(attrname)
-          glyph[attrname+'_units'] = if obj.units? then obj.units else 'data'
+          if obj.units?
+            glyph[unitsname] = obj.units
+          else
+            units = @styleprovider.mget(unitsname)
+            glyph[unitsname] = units ? 'data'
 
         else 
           # This is an error down here...
@@ -768,23 +777,13 @@ class GlyphRendererView extends XYRendererView
 
 
 
-  render_circles : (glyph, data) ->
+  render_circles : (glyphspec, data) ->
     # ### Fields of the 'circles' glyph:
-    # * xfield, yfield: names of the data fields that contain the center
-    #     positions. Defaults to 'x' and 'y'.
-    # * radiusfield: name of the data field indicating the radius (in screen pixels).
-    #     Defaults to 'radius'.
-    # * colorfield: name of data field indicating the color of each point. Defaults
-    #     to 'color'.
-    # * radius: a fixed radius (in screen pixels) to use for every point. Used
-    #     if a particular datapoint does not define the property named by
-    #     'radiusfield'.
-    # * color: a fixed color to use for every point. Use if a particular
-    #     datapoint does not define the property named by 'colorfield'.
-    #
-    # Only one of 'radius' and 'radiusfield' need to be specified.  If both are
-    # specified, then the value from 'radiusfield' for each datapoint overrides
-    # the constant value in 'radius'. The same applies to 'color'/'colorfield'.
+    # * x, y: the center of the glyph
+    # * radius: radius in data or screen coords
+    # * color
+    # * outline_color
+    # 
 
     # Look up the field names from the glyph spec or the GlyphRenderer model
     # defaults, and cache them
@@ -878,13 +877,10 @@ class GlyphRendererView extends XYRendererView
     #     field: 'colorfieldname'
     # 
     # ## Other parameters
-    # * color: field name for fill color
-    # * colorval: default color value if no field is specified or if the specified
-    #     field does not exist on a datapoint
-    # * bordercolor: field name for the border to draw around each rect
-    # * bcolorval: default border color value
-    # * alpha: field name for alpha value
-    # * alphaval: default alpha value (0..1)
+    # * color: fill color
+    # * outline_color: outline/stroke color
+    # * outline_width: outline thickness in screen pixels
+    # * alpha: alpha value (0..1) for entire glyph.
 
 
     # TODO: This checking for the 'x' or 'left' parameter of the Glyph spec
@@ -896,7 +892,7 @@ class GlyphRendererView extends XYRendererView
     else if glyphspec.left?   # use bounds
       params = ['left','right','bottom','top']
     
-    params.push.apply(params, ["angle","color:string", "bordercolor:string","alpha"])
+    params.push.apply(params, ["angle", "color:string", "outline_color:string","alpha", "outline_width"])
     metaglyph = new MetaGlyph(params, glyphspec, this)
 
     @plot_view.ctx.save()
@@ -934,13 +930,29 @@ class GlyphRendererView extends XYRendererView
       # valued b/c getter functions always return (val, units) and we don't
       # care about units for color.
       ctx = @plot_view.ctx
+      old_alpha = ctx.globalAlpha
+      old_linewidth = ctx.lineWidth
       ctx.globalAlpha = glyph.alpha
-      if glyph.fillcolor != "none"
+      ctx.lineWidth = glyph.outline_width
+      if glyph.angle != 0
+        # TODO: Fix angle handling. We need to translate, then rotate, then
+        # reset the ctm. Probably best to do this with save() and restore()
+        # b/c there doesn't seem to be a way to read out the current ctm.
+        if glyph.angle_units == 'deg'
+          angle = glyph.angle * Math.PI / 180
+        else
+          angle = glyph.angle
+        ctx.rotate(angle)
+      if glyph.color? and glyph.color != "none"
         ctx.fillStyle = glyph.color
         ctx.fillRect(left, bottom, right-left, top-bottom)
-      if glyph.strokecolor != "none"
-        ctx.strokeStyle = glyph.bordercolor
-        ctx.rect(left, bottom, right-left, top-bottom)
+      if glyph.outline_color? and glyph.outline_color != "none"
+        ctx.strokeStyle = glyph.outline_color
+        ctx.strokeRect(left, bottom, right-left, top-bottom)
+      if angle?
+        ctx.rotate(-angle)
+      ctx.globalAlpha = old_alpha
+      ctx.lineWidth = old_linewidth
       # End per-datapoint loop
 
     # Done with all drawing, restore the graphics state

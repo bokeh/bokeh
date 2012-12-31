@@ -1,4 +1,4 @@
-test('simple_glyph', () ->
+test('circles_glyph', () ->
   expect(0)
   data_source = Bokeh.Collections.ObjectArrayDataSource.create(
     data : [
@@ -42,15 +42,15 @@ test('simple_glyph', () ->
         #  index : 2
         #  color : 'red'
         #,
-        type : 'square'
-        index : 2
-        color : 'green'
-        x : ['x', 0, 0.1]
-      ,
-        type : 'square'
-        index : 2
-        color : 'green'
-        x : ['x', 0, -0.1]
+          #  type : 'square'
+          #  index : 2
+          #  color : 'green'
+          #  x : ['x', 0, 0.1]
+          #,
+          #  type : 'square'
+          #  index : 2
+          #  color : 'green'
+          #  x : ['x', 0, -0.1]
     ]
 
   )
@@ -74,7 +74,7 @@ test('simple_glyph', () ->
     view = new Bokeh.PlotView(model : plot_model)
     div.append(view.$el)
     view.render()
-  console.log('test_glyph')
+  console.log('Test circles_glyph')
   _.defer(myrender)
 )
 
@@ -132,7 +132,7 @@ test('line_glyph', () ->
     view = new Bokeh.PlotView(model : plot_model)
     div.append(view.$el)
     view.render()
-  console.log('test_glyph')
+  console.log('Test line_glyph')
   _.defer(myrender)
 )
 
@@ -142,8 +142,9 @@ test('rects_glyph', () ->
     data : [
       {x : 1, y : 2, height: 0.5, width: 0.25}
       {x : 2, y : 3, height: 0.3, width: 0.3, color: "blue"}
-      {x : 3, y : 4, height: 0.2, width: 0.35}
-      {x : 4, y : 3, height: 0.6, width: 0.4}
+      {x : 3, y : 4, height: 0.2, width: 0.35, outline_color: "none"}
+      {x : 4, y : 3, height: 0.6, width: 0.4 }
+      {x: 4.5, y: 3, height: 0.3, width: 0.4, angle: 20 }
       {x : 5, y : 5, height: 0.15, width: 0.4, alpha: 0.4}
     ]
   )
@@ -163,9 +164,8 @@ test('rects_glyph', () ->
     glyphs : [
         type : 'rects'
         x : 'x'
-        y : 'y'
         color: 'red'
-        bordercolor: 'black'
+        outline_color: 'black'
       ,
 
         type : 'rects'
@@ -214,7 +214,7 @@ test('rects_glyph', () ->
     view = new Bokeh.PlotView(model : plot_model)
     div.append(view.$el)
     view.render()
-  console.log('test_rects')
+  console.log('Test rects_glyph')
   _.defer(myrender)
 )
 
