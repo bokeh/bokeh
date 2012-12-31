@@ -717,13 +717,62 @@ class GlyphRendererView extends XYRendererView
       else if glyph.type == 'rects'
         @new_render_rects(glyph, data)
       else if glyph.type == 'line'
-        'pass'
+        @render_line(glyph, data)
+
+
+  render_line : (glyph, data) ->
+    # ### Fields of the 'line' glyph:
+    # These values are all in *data* space
+    # * x, y : field names for coordinates
+    # * xval, yval : scalars to use as defaults, if field names are not found on the datapoint
+    # * line_width
+    # * line_color
+    # * line_alpha
+
+    xfield = if glyph.x? then glyph.x else @mget('xfield')
+    yfield = if glyph.y? then glyph.y else @mget('yfield')
+
+    line_width = if glyph.line_width? then glyph.line_width else @mget('line_width')
+    line_color = if glyph.line_color? then glyph.line_color else @mget('line_color')
+    line_alpha = if glyph.line_alpha? then glyph.line_alpha else @mget('line_alpha')
+
+    @plot_view.ctx.save()
+
+    @plot_view.ctx.lineWidth = line_width
+    @plot_view.ctx.strokeStyle = line_color
+    @plot_view.ctx.globalAlpha = line_alpha
+
+    @plot_view.ctx.beginPath()
+
+    sx = @xmapper.map_screen(data[0][xfield])
+    sy = @ymapper.map_screen(data[0][yfield])
+    sx = @plot_view.viewstate.xpos(sx) #noop
+    sy = @plot_view.viewstate.ypos(sy)
+    @plot_view.ctx.moveTo(sx, sy)
+
+    for idx in [1..data.length-1]
+      sx = @xmapper.map_screen(data[idx][xfield])
+      sy = @ymapper.map_screen(data[idx][yfield])
+      sx = @plot_view.viewstate.xpos(sx) #noop
+      sy = @plot_view.viewstate.ypos(sy)
+
+      if isNaN(sx) or isNaN(sy)
+        @plot_view.ctx.stroke()
+        @plot_view.ctx.beginPath()
+        continue
+      @plot_view.ctx.lineTo(sx, sy)
+
+    @plot_view.ctx.stroke()
+
+    @plot_view.ctx.restore()
+
+
 
   render_circles : (glyph, data) ->
     # ### Fields of the 'circles' glyph:
     # * xfield, yfield: names of the data fields that contain the center
     #     positions. Defaults to 'x' and 'y'.
-    # * radiusfield: name of the data field indicating the radius (in screen pixels). 
+    # * radiusfield: name of the data field indicating the radius (in screen pixels).
     #     Defaults to 'radius'.
     # * colorfield: name of data field indicating the color of each point. Defaults
     #     to 'color'.
@@ -736,7 +785,7 @@ class GlyphRendererView extends XYRendererView
     # Only one of 'radius' and 'radiusfield' need to be specified.  If both are
     # specified, then the value from 'radiusfield' for each datapoint overrides
     # the constant value in 'radius'. The same applies to 'color'/'colorfield'.
-    
+
     # Look up the field names from the glyph spec or the GlyphRenderer model
     # defaults, and cache them
     radiusfield = if glyph.radiusfield? then glyph.radiusfield else @mget('radiusfield')
@@ -749,6 +798,8 @@ class GlyphRendererView extends XYRendererView
       # that logic into the loop here.
       screenx = @xmapper.map_screen(datapoint[xfield])
       screeny = @ymapper.map_screen(datapoint[yfield])
+      screenx = @plot_view.viewstate.xpos(screenx) #noop
+      screeny = @plot_view.viewstate.ypos(screeny)
       if radiusfield of datapoint
         # Look up the radius to use from this datapoint
         size = datapoint[radiusfield]
