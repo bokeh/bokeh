@@ -849,6 +849,10 @@ class GlyphRendererView extends XYRendererView
           bottom = @ymapper.map_screen(glyph.bottom)
         if glyph.top_units == 'data'
           top = @ymapper.map_screen(glyph.top)
+
+      # TODO: We need to manually flip the Y axis coordinates
+      bottom = @plot_view.viewstate.ypos(bottom)
+      top = @plot_view.viewstate.ypos(top)
       
       # At this point, we have the box boundaries (left, right, bottom, top)
       # in screen space coordinates, and should be ready to draw.
