@@ -83,34 +83,56 @@ test('line_glyph', () ->
   expect(0)
   data_source = Bokeh.Collections.ObjectArrayDataSource.create(
     data : [
-      {x : 1, y : 4},
-      {x : 2, y : 4},
-      {x : 3, y : 3},
-      {x : 4, y : 2},
-      {x : 5, y : 2},
+      {x : 1, y : 4}
+      {x : 2, y : 4}
+      {x : 3, y : 3}
+      {x : 4, y : 2}
+      {x : 5, y : 2}
+    ]
+  )
+  ds2 = Bokeh.Collections.ObjectArrayDataSource.create(
+    data: [
+      {x2: 1, y2: 1}
+      {x2: 2, y2: 1.5}
+      {x2: 2.5, y2: 3}
+      {x2: 3, y2: 3.5}
+      {x2: 3.5, y2: 2.8}
+      {x2: 4, y2: 2.9}
+      {x2: 5, y2: 3.5}
     ]
   )
   plot_model = Bokeh.Collections.Plot.create()
   xdr = Bokeh.Collections.DataRange1d.create(
-    sources : [{ref : data_source.ref(), columns : ['x']}]
+    sources : [{ref : data_source.ref(), columns : ['x']},
+               {ref : ds2.ref(), columns : ['x2']}]
   )
   ydr = Bokeh.Collections.DataRange1d.create(
-    sources : [{ref : data_source.ref(), columns : ['y']}]
+    sources : [{ref : data_source.ref(), columns : ['y']},
+               {ref : ds2.ref(), columns: ['y2']}]
   )
   glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
-    color : 'black'
-    x : 'x'
-    y : 'y'
     glyphs : [
-      type : 'line'
-      line_width: 3
-      line_color: 'red'
-      line_alpha: 0.5
+        type : 'line'
+        line_width: 4
+        line_color: 'red'
+        alpha: 1
     ]
-
+  )
+  renderer2 = Bokeh.Collections.GlyphRenderer.create(
+    data_source: ds2.ref()
+    xdata_range : xdr.ref()
+    ydata_range : ydr.ref()
+    glyphs : [
+        type : 'line'
+        x: "x2"
+        y: "y2"
+        line_width: 2
+        line_color: 'blue'
+        alpha: 0.5
+    ]
   )
   xaxis = Bokeh.Collections['LinearAxis'].create(
     orientation : 'bottom'
@@ -123,7 +145,7 @@ test('line_glyph', () ->
     data_range : ydr.ref()
   )
   plot_model.set(
-    renderers : [glyph_renderer.ref()],
+    renderers : [glyph_renderer.ref(), renderer2.ref()],
     axes : [xaxis.ref(), yaxis.ref()]
   )
   div = $('<div></div>')

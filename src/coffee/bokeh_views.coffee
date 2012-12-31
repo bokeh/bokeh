@@ -737,56 +737,57 @@ class GlyphRendererView extends XYRendererView
         @render_line(glyph, data)
 
 
-  render_line : (glyph, data) ->
-    # ### Fields of the 'line' glyph:
-    # These values are all in *data* space
-    # * x, y : field names for coordinates
-    # * xval, yval : scalars to use as defaults, if field names are not found on the datapoint
+  render_line : (glyphspec, data) ->
+    # ### Fields of the `line` glyph:
+    # * x, y
     # * line_width
     # * line_color
-    # * line_alpha
+    # * alpha
+    #
+    # Note that unlike other glyphs, the aesthetic parameters canont be
+    # changed on a per-datapoint basis.
 
-    xfield = if glyph.x? then glyph.x else @mget('xfield')
-    yfield = if glyph.y? then glyph.y else @mget('yfield')
+    metaglyph = new MetaGlyph(this, glyphspec, ['x','y','line_width:string', 'line_color:string', 'alpha'])
 
-    line_width = if glyph.line_width? then glyph.line_width else @mget('line_width')
-    line_color = if glyph.line_color? then glyph.line_color else @mget('line_color')
-    line_alpha = if glyph.line_alpha? then glyph.line_alpha else @mget('line_alpha')
+    ctx = @plot_view.ctx
+    ctx.save()
 
-    @plot_view.ctx.save()
+    # Since we do not allow override of any of the aesthetic parameters
+    # from point to point, we just take the values off of the first_glyph.
+    first_glyph = metaglyph.make_glyph(data[0])
+    ctx.lineWidth = first_glyph.line_width
+    ctx.strokeStyle = first_glyph.line_color
+    ctx.globalAlpha = first_glyph.alpha
 
-    @plot_view.ctx.lineWidth = line_width
-    @plot_view.ctx.strokeStyle = line_color
-    @plot_view.ctx.globalAlpha = line_alpha
-
-    @plot_view.ctx.beginPath()
-
-    sx = @xmapper.map_screen(data[0][xfield])
-    sy = @ymapper.map_screen(data[0][yfield])
-    sx = @plot_view.viewstate.xpos(sx) #noop
-    sy = @plot_view.viewstate.ypos(sy)
-    @plot_view.ctx.moveTo(sx, sy)
-
-    for idx in [1..data.length-1]
-      sx = @xmapper.map_screen(data[idx][xfield])
-      sy = @ymapper.map_screen(data[idx][yfield])
-      sx = @plot_view.viewstate.xpos(sx) #noop
-      sy = @plot_view.viewstate.ypos(sy)
-
-      if isNaN(sx) or isNaN(sy)
-        @plot_view.ctx.stroke()
-        @plot_view.ctx.beginPath()
+    for idx in [0..data.length-1]
+      glyph = metaglyph.make_glyph(data[idx])
+      if not (glyph.x? and glyph.y?)
         continue
-      @plot_view.ctx.lineTo(sx, sy)
+      if glyph.x_units == 'data'
+        sx = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.x))
+      else
+        sx = glyph.x
+      if glyph.y_units == 'data'
+        sy = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.y))
+      else
+        sy = glyph.y
 
-    @plot_view.ctx.stroke()
-
-    @plot_view.ctx.restore()
-
-
+      if idx == 0
+        # First glyph, start the path
+        ctx.beginPath()
+        ctx.moveTo(sx, sy)
+        continue
+      else if isNaN(sx) or isNaN(sy)
+        ctx.stroke()
+        ctx.beginPath()
+        continue
+      else
+        ctx.lineTo(sx, sy)
+    ctx.stroke()
+    ctx.restore()
 
   render_circles : (glyphspec, data) ->
-    # ### Fields of the 'circles' glyph:
+    # ### Fields of the `circles` glyph:
     # * x, y: the center of the glyph
     # * radius: radius in data or screen coords
     # * color
