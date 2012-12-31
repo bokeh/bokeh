@@ -564,7 +564,7 @@ class LineRendererView extends XYRendererView
 
 
 class MetaGlyph
-  constructor: (@attrnames, @glyphspec, @styleprovider) ->
+  constructor: (@styleprovider, @glyphspec, @attrnames) ->
     # * attrnames: a list of attribute names. They can have an optional type
     #     suffix, separated by a colon, where the type string can be
     #     `'number'`, `'string'`, or `'array'`. The default is `'number'`.
@@ -661,16 +661,24 @@ class GlyphRendererView extends XYRendererView
     @plot_view.ctx.strokeStyle = color
     @plot_view.ctx.fillRect(x - size / 2, y - size / 2, size, size)
 
-  addCircle: (x, y, size, color) ->
+  addCircle: (x, y, size, color, outline_color, alpha) ->
+    ctx = @plot_view.ctx
     if isNaN(x) or isNaN(y)
       return null
-    @plot_view.ctx.fillStyle = color
-    @plot_view.ctx.strokeStyle = color
-    @plot_view.ctx.beginPath()
-    @plot_view.ctx.arc(x, y, size/2, 0, Math.PI*2)
-    @plot_view.ctx.closePath()
-    @plot_view.ctx.fill()
-    @plot_view.ctx.stroke()
+    if not (outline_color?)
+      outline_color = color
+    if alpha? and (alpha != ctx.globalAlpha)
+      old_alpha = ctx.globalAlpha
+      ctx.globalAlpha  = alpha
+    ctx.fillStyle = color
+    ctx.strokeStyle = outline_color
+    ctx.beginPath()
+    ctx.arc(x, y, size/2, 0, Math.PI*2)
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
+    if alpha?
+      ctx.globalAlpha = old_alpha
 
   # ### method : GlyphRendererView::calc_screen
   calc_screen : (glyph, direction, datapoint, mapper) ->
@@ -783,36 +791,38 @@ class GlyphRendererView extends XYRendererView
     # * radius: radius in data or screen coords
     # * color
     # * outline_color
-    # 
+    # * outline_width
+    # * alpha
 
-    # Look up the field names from the glyph spec or the GlyphRenderer model
-    # defaults, and cache them
-    radiusfield = if glyph.radiusfield? then glyph.radiusfield else @mget('radiusfield')
-    colorfield = if glyph.colorfield? then glyph.colorfield else @mget('colorfield')
-    xfield = if glyph.xfield? then glyph.xfield else @mget('xfield')
-    yfield = if glyph.yfield? then glyph.yfield else @mget('yfield')
+    metaglyph = new MetaGlyph(this, glyphspec, ["x", "y", "radius", "color:string", "outline_color:string", "outline_width", "alpha"])
 
+    @plot_view.ctx.save()
     for datapoint in data
+      glyph = metaglyph.make_glyph(datapoint)
       # Instead of calling @calc_screen and supporting offsets, we just bake
       # that logic into the loop here.
-      screenx = @xmapper.map_screen(datapoint[xfield])
-      screeny = @ymapper.map_screen(datapoint[yfield])
-      screenx = @plot_view.viewstate.xpos(screenx) #noop
-      screeny = @plot_view.viewstate.ypos(screeny)
-      if radiusfield of datapoint
-        # Look up the radius to use from this datapoint
-        size = datapoint[radiusfield]
-      else
-        # Use a default radius (either from the glyph or the glyph defaults)
-        size = if glyph.radius? then glyph.radius else @mget('radius')
+      sx = @plot_view.viewstate.xpos(if glyph.x_units == 'screen' then glyph.x else @xmapper.map_screen(glyph.x))
+      sy = @plot_view.viewstate.ypos(if glyph.y_units == 'screen' then glyph.y else @ymapper.map_screen(glyph.y))
 
-      if colorfield of datapoint
-        # Look up the color to use from this datapoint
-        color = datapoint[colorfield]
+      if glyph.radius_units == 'data'
+        # Use of span2bounds is a tiny bit hackish, because it assumes the
+        # span is specified as (center,width). In our case, we don't care
+        # about center.
+        [left, right, units] = @_span2bounds(glyph.x, glyph.x_units, glyph.radius, glyph.radius_units)
+        if units == 'data'
+          left = @xmapper.map_screen(left)
+          right = @xmapper.map_screen(right)
+        size = right - left
       else
-        # Use a default color (either from the glyph or the glyph defaults)
-        color = if glyph.color? then glyph.color else @mget('color')
-      @addCircle(screenx, screeny, size, color)
+        size = glyph.radius
+
+      ctx = @plot_view.ctx
+      old_linewidth = ctx.lineWidth
+      ctx.lineWidth = glyph.outline_width
+      @addCircle(sx, sy, size, glyph.color, glyph.outline_color, glyph.alpha)
+      ctx.lineWidth = old_linewidth
+
+    @plot_view.ctx.restore()
 
   render_rects : (glyphspec, data) ->
     # There are two ways to specify rects: Centers & widths & heights, or 
@@ -893,7 +903,7 @@ class GlyphRendererView extends XYRendererView
       params = ['left','right','bottom','top']
     
     params.push.apply(params, ["angle", "color:string", "outline_color:string","alpha", "outline_width"])
-    metaglyph = new MetaGlyph(params, glyphspec, this)
+    metaglyph = new MetaGlyph(this, glyphspec, params)
 
     @plot_view.ctx.save()
     for datapoint in data
@@ -943,12 +953,14 @@ class GlyphRendererView extends XYRendererView
         else
           angle = glyph.angle
         ctx.rotate(angle)
+
       if glyph.color? and glyph.color != "none"
         ctx.fillStyle = glyph.color
         ctx.fillRect(left, bottom, right-left, top-bottom)
       if glyph.outline_color? and glyph.outline_color != "none"
         ctx.strokeStyle = glyph.outline_color
         ctx.strokeRect(left, bottom, right-left, top-bottom)
+
       if angle?
         ctx.rotate(-angle)
       ctx.globalAlpha = old_alpha

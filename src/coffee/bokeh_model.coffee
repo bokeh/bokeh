@@ -589,7 +589,7 @@ _.extend(GlyphRenderer::defaults,
 
 GlyphRenderer::display_defaults = _.clone(GlyphRenderer::display_defaults)
 _.extend(GlyphRenderer::display_defaults, {
-  radius : 3
+  radius : 5
   radius_units: 'screen'
   color : 'gray'
   outline_color: 'none'

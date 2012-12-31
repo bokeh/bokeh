@@ -5,7 +5,7 @@ test('circles_glyph', () ->
       {x : 1, y : 5, z:3, radius:10},
       {x : 2, y : 4, z:3},
       {x : 3, y : 3, z:3, color:"red"},
-      {x : 4, y : 2, z:3},
+      {x : 4, y : 2, z:3, radius:8, alpha:0.5},
       {x : 5, y : 1, z:3},
     ]
   )
