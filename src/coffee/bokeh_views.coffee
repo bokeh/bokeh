@@ -600,11 +600,11 @@ class MetaGlyph
           glyph[attrname] = datapoint[attrname]
         else
           glyph[attrname] = @styleprovider.mget(attrname)
-        
+
         units = @styleprovider.mget(unitsname)
         glyph[unitsname] = units ? 'data'
         continue
-      
+
       else if _.isNumber(@glyphspec[attrname])
         # The glyph specification provided a number. This is always a
         # default value.
@@ -628,7 +628,7 @@ class MetaGlyph
           # In either case, use the default units
           units = @styleprovider.mget(unitsname)
           glyph[unitsname] = units ? 'data'
-        
+
         else if _.isObject(@glyphspec[attrname])
           obj = @glyphspec[attrname]
           fieldname = if obj.field? then obj.field else attrname
@@ -639,7 +639,7 @@ class MetaGlyph
             units = @styleprovider.mget(unitsname)
             glyph[unitsname] = units ? 'data'
 
-        else 
+        else
           # This is an error down here...
           console.log("Unknown glyph specification value type.")
           continue
@@ -656,7 +656,7 @@ class MetaGlyph
 class GlyphRendererView extends XYRendererView
   addSquare: (x, y, size, color) ->
     if isNaN(x) or isNaN(y)
-      return null
+      reqturn null
     @plot_view.ctx.fillStyle = color
     @plot_view.ctx.strokeStyle = color
     @plot_view.ctx.fillRect(x - size / 2, y - size / 2, size, size)
@@ -735,6 +735,8 @@ class GlyphRendererView extends XYRendererView
         @render_rects(glyph, data)
       else if glyph.type == 'line'
         @render_line(glyph, data)
+      else if glyph.type == 'stacked_lines'
+        @render_stacked_lines(glyph, data)
 
 
   render_line : (glyphspec, data) ->
@@ -786,6 +788,55 @@ class GlyphRendererView extends XYRendererView
     ctx.stroke()
     ctx.restore()
 
+  render_stacked_lines : (glyphspec, data) ->
+    # ### Fields of the `line` glyph:
+
+    ctx = @plot_view.ctx
+    ctx.save()
+
+    accum = []
+    for pt in data
+      accum.push(0)
+
+    for yidx in [0..(glyphspec.y.length-1)]
+      # render the area
+      ctx.lineWidth = 0
+      ctx.fillStyle = glyphspec.fills[glyphspec.y[yidx]].fill_color
+      ctx.globalAlpha = glyphspec.fills[glyphspec.y[yidx]].fill_alpha
+      for idx in [0..data.length-1]
+        sx = @plot_view.viewstate.xpos(@xmapper.map_screen(data[idx].x))
+        sy = @plot_view.viewstate.ypos(@ymapper.map_screen(accum[idx]))
+        if idx == 0
+          ctx.beginPath()
+          ctx.moveTo(sx, sy)
+        else
+          ctx.lineTo(sx, sy)
+      for idx in [(data.length-1)..0]
+        y = accum[idx] + data[idx][glyphspec.y[yidx]]
+        sx = @plot_view.viewstate.xpos(@xmapper.map_screen(data[idx].x))
+        sy = @plot_view.viewstate.ypos(@ymapper.map_screen(y))
+        accum[idx] = y
+        ctx.lineTo(sx, sy)
+      ctx.closePath()
+      ctx.fill()
+
+      # render the line
+      ctx.lineWidth = glyphspec.lines[glyphspec.y[yidx]].line_width
+      ctx.strokeStyle = glyphspec.lines[glyphspec.y[yidx]].line_color
+      ctx.globalAlpha = glyphspec.lines[glyphspec.y[yidx]].line_alpha
+      for idx in [0..data.length-1]
+        sx = @plot_view.viewstate.xpos(@xmapper.map_screen(data[idx].x))
+        sy = @plot_view.viewstate.ypos(@ymapper.map_screen(accum[idx]))
+        if idx == 0
+          ctx.beginPath()
+          ctx.moveTo(sx, sy)
+          continue
+        else
+          ctx.lineTo(sx, sy)
+      ctx.stroke()
+
+    ctx.restore()
+
   render_circles : (glyphspec, data) ->
     # ### Fields of the `circles` glyph:
     # * x, y: the center of the glyph
@@ -826,8 +877,8 @@ class GlyphRendererView extends XYRendererView
     @plot_view.ctx.restore()
 
   render_rects : (glyphspec, data) ->
-    # There are two ways to specify rects: Centers & widths & heights, or 
-    # boundaries.  If both types are specified, then the behavior is 
+    # There are two ways to specify rects: Centers & widths & heights, or
+    # boundaries.  If both types are specified, then the behavior is
     # implementation dependent and should not be relied upon.
     #
     # ## Spatial parameters
@@ -858,7 +909,7 @@ class GlyphRendererView extends XYRendererView
     #     units: screen
     #
     # However, a shorthand can be used if only the field name needs to be
-    # specified, or a constant default numerical value is to be used.  
+    # specified, or a constant default numerical value is to be used.
     #
     # Example:
     #   type: 'rects'
@@ -873,20 +924,20 @@ class GlyphRendererView extends XYRendererView
     # value of 8.
     #
     # For colors and other properties which can accept string values, there is
-    # potential ambiguity in the shorthand form: 
+    # potential ambiguity in the shorthand form:
     #   type: 'rects'
     #   color: 'red'
     #
     # Does this mean that the default value of `color` should be `'red'`, or
     # that the field named `'red'` should be used to determine the color of
-    # each datapoint?  To resolve this, for colors, the shorthand is 
+    # each datapoint?  To resolve this, for colors, the shorthand is
     # interpreted to mean the former, because this is such a common case.  To
     # specify the fieldname for color-related properties, use the long form:
     #
     #   type: 'rects'
     #   color:
     #     field: 'colorfieldname'
-    # 
+    #
     # ## Other parameters
     # * color: fill color
     # * outline_color: outline/stroke color
@@ -902,7 +953,7 @@ class GlyphRendererView extends XYRendererView
       params = ['x','y','width','height']
     else if glyphspec.left?   # use bounds
       params = ['left','right','bottom','top']
-    
+
     params.push.apply(params, ["angle", "color:string", "outline_color:string","alpha", "outline_width"])
     metaglyph = new MetaGlyph(this, glyphspec, params)
 
@@ -933,10 +984,10 @@ class GlyphRendererView extends XYRendererView
       # TODO: We need to manually flip the Y axis coordinates
       bottom = @plot_view.viewstate.ypos(bottom)
       top = @plot_view.viewstate.ypos(top)
-      
+
       # At this point, we have the box boundaries (left, right, bottom, top)
       # in screen space coordinates, and should be ready to draw.
-      
+
       # In the following, we need to grab the first element of the returned
       # valued b/c getter functions always return (val, units) and we don't
       # care about units for color.

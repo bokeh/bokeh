@@ -83,11 +83,11 @@ test('line_glyph', () ->
   expect(0)
   data_source = Bokeh.Collections.ObjectArrayDataSource.create(
     data : [
-      {x : 1, y : 4}
-      {x : 2, y : 4}
-      {x : 3, y : 3}
-      {x : 4, y : 2}
-      {x : 5, y : 2}
+      {x: 1, y: 4}
+      {x: 2, y: 4}
+      {x: 3, y: 3}
+      {x: 4, y: 2}
+      {x: 5, y: 2}
     ]
   )
   ds2 = Bokeh.Collections.ObjectArrayDataSource.create(
@@ -158,16 +158,87 @@ test('line_glyph', () ->
   _.defer(myrender)
 )
 
+test('stacked_lines_glyph', () ->
+  expect(0)
+  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+    data : [
+      {x: 1, y0: 1, y1: 3}
+      {x: 2, y0: 1.5, y1: 2}
+      {x: 3, y0: 3.5, y1: 0}
+      {x: 4, y0: 1.5, y1: 0.5}
+      {x: 5, y0: 2.5, y1: 0.5}
+    ]
+  )
+  plot_model = Bokeh.Collections.Plot.create()
+  xdr = Bokeh.Collections.DataRange1d.create(
+    sources : [{ref : data_source.ref(), columns : ['x']}]
+  )
+  ydr = Bokeh.Collections.DataRange1d.create(
+    sources : [{ref : data_source.ref(), columns : ['y0','y1']}]
+  )
+  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+    data_source : data_source.ref()
+    xdata_range : xdr.ref()
+    ydata_range : ydr.ref()
+    glyphs : [
+        type : 'stacked_lines'
+        x: 'x',
+        y: ['y0', 'y1']
+        fills: {
+          y0:
+            fill_color: "red"
+            fill_alpha: 0.5
+          y1:
+            fill_color: "blue"
+            fill_alpha: 0.5
+        }
+        lines: {
+          y0:
+            line_width: 1
+            line_color: "black"
+            line_alpha: 0.8
+          y1:
+            line_width: 1
+            line_color: "black"
+            line_alpha: 0.8
+        }
+    ]
+  )
+  xaxis = Bokeh.Collections['LinearAxis'].create(
+    orientation : 'bottom'
+    parent : plot_model.ref()
+    data_range : xdr.ref()
+  )
+  yaxis = Bokeh.Collections['LinearAxis'].create(
+    orientation : 'left',
+    parent : plot_model.ref()
+    data_range : ydr.ref()
+  )
+  plot_model.set(
+    renderers : [glyph_renderer.ref()],
+    axes : [xaxis.ref(), yaxis.ref()]
+  )
+  div = $('<div></div>')
+  $('body').append(div)
+  myrender  =  ->
+    view = new Bokeh.PlotView(model : plot_model)
+    div.append(view.$el)
+    view.render()
+  console.log('Test stacked_lines_glyph')
+  _.defer(myrender)
+)
+
+
 test('rects_glyph', () ->
   expect(0)
   data_source = Bokeh.Collections.ObjectArrayDataSource.create(
     data : [
-      {x : 1, y : 2, height: 0.5, width: 0.25}
-      {x : 2, y : 3, height: 0.3, width: 0.3, color: "blue"}
-      {x : 3, y : 4, height: 0.2, width: 0.35, outline_color: "none"}
-      {x : 4, y : 3, height: 0.6, width: 0.4 }
+      {x: 1, y: 2, height: 0.5, width: 0.25}
+      {x: 2, y: 3, height: 0.3, width: 0.3, color: "blue"}
+      {x: 3, y: 4, height: 0.2, width: 0.35, outline_color: "none"}
+      {x: 4, y: 3, height: 0.6, width: 0.4 }
       {x: 4.5, y: 3, height: 0.3, width: 0.4, angle: 20 }
-      {x : 5, y : 5, height: 0.15, width: 0.4, alpha: 0.4}
+      {x: 5, y: 5, height: 0.15, width: 0.4, alpha: 0.4}
     ]
   )
   plot_model = Bokeh.Collections.Plot.create()
@@ -182,7 +253,7 @@ test('rects_glyph', () ->
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
     scatter_size : 10
-    
+
     glyphs : [
         type : 'rects'
         x : 'x'
@@ -193,7 +264,7 @@ test('rects_glyph', () ->
         type : 'rects'
         color: 'gray'
         x: 'x'
-        
+
         # Uncommenting the following block will cause all of the
         # Y values to be set to 2.5
         #y:
