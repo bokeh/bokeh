@@ -105,8 +105,43 @@ Continuum.load_models = (modelspecs)->
 
   return null
 
+# ###class : Continuum.WebsocketWrapper
+# wraps websockets, provides a @connected promise, which
+# you can wait on before sending subscription messages
+# also triggers "msg:topic" events, with an arg of the msg
+# data.  We assume that msg data over this websocket
+# channel are sent in "topic:data" form, where data can
+# be any arbitrary string. note that since topic is prefixed with :,
+# in practice a message looks like cdxplot:docid:jsondata
+class Continuum.WebSocketWrapper
+  _.extend(@prototype, Backbone.Events)
+  # ### method :
+  constructor : (ws_conn_string) ->
+    @ws_conn_string = ws_conn_string
+    @_connected = $.Deferred()
+    @connected = @_connected.promise()
+    try
+      @s = new WebSocket(ws_conn_string)
+    catch error
+      @s = new MozWebSocket(ws_conn_string)
+    @s.onopen = () =>
+      @_connected.resolve()
+    @s.onmessage = @onmessage
+    return @
+
+  onmessage : (msg) =>
+    data = msg.data
+    index = data.indexOf(":") #first colon marks topic namespace
+    index = data.indexOf(":", index + 1) #second colon marks the topic
+    topic = data.substring(0, index)
+    data = data.substring(index + 1)
+    @trigger("msg:" + topic, data)
+    return null
+
+
 # ###function : Continuum.submodels
-Continuum.submodels = (ws_conn_string, topic, apikey) ->
+
+Continuum.submodels = (wswrapper, topic, apikey) ->
   # creates a websocket which subscribes and listens for model changes
   # ##### Parameters
   # * ws_conn_string : path of the web socket to subscribe
@@ -114,25 +149,21 @@ Continuum.submodels = (ws_conn_string, topic, apikey) ->
   # ##### Returns
   #
   # * the websocket
-  try
-    s = new WebSocket(ws_conn_string)
-  catch error
-    s = new MozWebSocket(ws_conn_string)
-  s.onopen = () ->
-    s.send(
-      JSON.stringify(
-        msgtype : 'subscribe'
-        topic : topic
-        auth : apikey
-      )
+  $.when(wswrapper.connected).then(() ->
+    msg = JSON.stringify(
+      {msgtype : 'subscribe', topic : topic, auth : apikey}
     )
-  s.onmessage = (msg) ->
-    msgobj = JSON.parse(msg.data)
+    wswrapper.s.send(msg)
+  )
+  wswrapper.on("msg:" + topic, (msg) ->
+    msgobj = JSON.parse(msg)
     if msgobj['msgtype'] == 'modelpush'
       Continuum.load_models(msgobj['modelspecs'])
     else if msgobj['msgtype'] == 'modeldel'
       for ref in msgobj['modelspecs']
-        model = Continuum.resolve_ref(ref['collections'], ref['type'], ref['id'])
+        model = Continuum.resolve_ref(
+          ref['collections'], ref['type'], ref['id']
+        )
         if model
           model.destroy({'local' : true})
     else if msgobj['msgtype'] == 'status' and
@@ -143,7 +174,7 @@ Continuum.submodels = (ws_conn_string, topic, apikey) ->
     else
       console.log(msgobj)
     return null
-  return s
+  )
 
 # ### function : resolve_ref
 resolve_ref = (collections, type, id) ->
