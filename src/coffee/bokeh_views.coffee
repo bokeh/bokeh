@@ -737,6 +737,8 @@ class GlyphRendererView extends XYRendererView
         @render_line(glyph, data)
       else if glyph.type == 'stacked_lines'
         @render_stacked_lines(glyph, data)
+      else if glyph.type == 'stacked_rects'
+        @render_stacked_rects(glyph, data)
 
 
   render_line : (glyphspec, data) ->
@@ -836,6 +838,41 @@ class GlyphRendererView extends XYRendererView
       ctx.stroke()
 
     ctx.restore()
+
+  render_stacked_rects : (glyphspec, data) ->
+    # ### Fields of the `line` glyph:
+
+    rectdata = []
+
+    glyph = {
+      type: 'rects'
+      x: 'x'
+      color:
+        field: 'color'
+    }
+
+    accum = []
+    for pt in data
+      accum.push(0)
+
+    width = 0.2 # TODO
+
+    for yidx in [0..(glyphspec.y.length-1)]
+      color = glyphspec.fills[glyphspec.y[yidx]].fill_color
+      for idx in [0..data.length-1]
+        x = data[idx].x
+        height = data[idx][glyphspec.y[yidx]]
+        y = accum[idx] + height/2
+        accum[idx] = accum[idx] + height
+        pt = {}
+        pt['x'] = x
+        pt['y'] = y
+        pt['width'] = width
+        pt['height'] = height
+        pt['color'] = color
+        rectdata.push(pt)
+
+    @render_rects(glyph, rectdata)
 
   render_circles : (glyphspec, data) ->
     # ### Fields of the `circles` glyph:
