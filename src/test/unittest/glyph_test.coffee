@@ -438,7 +438,6 @@ test('rects_glyph2', () ->
 
   #Bokeh.glyph_plot(data_source, renderer, $('body'))
   plot_model = Bokeh.glyph_plot(data_source, renderer)
-
   div = $('<div></div>')
   $('body').append(div)
   myrender = ->

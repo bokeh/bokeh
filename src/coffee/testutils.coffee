@@ -236,6 +236,7 @@ Bokeh.glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatan
   # Creates a new plot using a data source and a renderer, and optionally
   # adds it to a DOM element
   plot_model = Bokeh.Collections.Plot.create()
+
   xdr = Bokeh.Collections.DataRange1d.create(
     # should be xdatanames; simplifying for testing
     sources : [{ref : data_source.ref(), columns : ['x']}]  
@@ -243,6 +244,9 @@ Bokeh.glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatan
   ydr = Bokeh.Collections.DataRange1d.create(
     sources : [{ref : data_source.ref(), columns : ['y']}]  # should be ydatanames
   )
+
+  renderer.set('xdata_range', xdr.ref())
+  renderer.set('ydata_range', ydr.ref())
   xaxis = Bokeh.Collections['LinearAxis'].create(
     orientation : 'bottom'
     parent : plot_model.ref()
@@ -258,8 +262,6 @@ Bokeh.glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatan
     axes : [xaxis.ref(), yaxis.ref()]
   )
 
-  renderer.xdata_range = xdr.ref()
-  renderer.ydata_range = ydr.ref()
 
   #if dom_element?
   #  div = $('<div></div>')

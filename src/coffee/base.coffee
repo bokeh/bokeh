@@ -35,14 +35,21 @@ safebind = (binder, target, event, callback) ->
   try
     binder['eventers'][target.id] = target
   catch error
-  target.on(event, callback, binder)
+
   # also need to bind destroy to remove obj from eventers.
   # no special logic needed to manage this life cycle, because
   # we will already unbind all listeners on target when binder goes away
-  target.on('destroy remove',
+  if target?
+    target.on(event, callback, binder)
+    target.on('destroy remove',
       () =>
         delete binder['eventers'][target]
-    ,
-      binder)
+      ,
+        binder)
+   else
+    debugger;
+    console.log("error with binder", binder, event)
   return null
 Continuum.safebind = safebind
+
+
