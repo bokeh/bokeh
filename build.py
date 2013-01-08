@@ -1,8 +1,26 @@
 import subprocess
 import sys
 import time
-from watchdog.observers import Observer
 from watchdog.events import PatternMatchingEventHandler
+
+import subprocess
+import sys
+import time
+#from watchdog.observers import Observer
+
+# the KQueueObserver intermitently fails, so we use the polling
+# observer if the FSEventObserver (linux) isn't available
+try: # pragma: no cover
+    from watchdog.observers.inotify import InotifyObserver as Observer
+    print "InotifyObserver"
+except ImportError: # pragma: no cover
+    try: # pragma: no cover
+        from watchdog.observers.fsevents import FSEventsObserver_BUGGY_TODO as Observer
+        print "FSEventObserver"
+    except ImportError: # pragma: no cover
+        from watchdog.observers.polling import PollingObserver as Observer
+        print "PollingObserver"
+
 
 projects = {
     'bokehjs':{
@@ -38,7 +56,7 @@ class MyHandler(PatternMatchingEventHandler):
             patterns=["*.coffee"], case_sensitive=True)
         self.inputs = inputs
         self.outputs = outputs
-        
+
     def on_any_event(self, event):
         if "#" in event.src_path:
             return
@@ -54,15 +72,15 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2 and  sys.argv[1] == "build":
         build_all()
     else:
-        build_all()        
-        observer = Observer()        
+        build_all()
+        observer = Observer()
         for project in projects:
             inputs = projects[project]['input']
             outputs = projects[project]['output']
             event_handler = MyHandler(inputs, outputs)
             print inputs
             observer.schedule(event_handler, path=inputs, recursive=True)
-        observer.start()            
+        observer.start()
         try:
             print "Watching for changes & auto-rebuilding..."
             while True:
@@ -70,6 +88,3 @@ if __name__ == "__main__":
         except KeyboardInterrupt:
             observer.stop()
         observer.join()
-        
-            
-        
