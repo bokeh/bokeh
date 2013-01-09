@@ -232,6 +232,47 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
   }, options)
 
 
+Bokeh.glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatanames=['y']) ->
+  # Creates a new plot using a data source and a renderer, and optionally
+  # adds it to a DOM element
+  plot_model = Bokeh.Collections.Plot.create()
+
+  xdr = Bokeh.Collections.DataRange1d.create(
+    # should be xdatanames; simplifying for testing
+    sources : [{ref : data_source.ref(), columns : ['x']}]  
+  )
+  ydr = Bokeh.Collections.DataRange1d.create(
+    sources : [{ref : data_source.ref(), columns : ['y']}]  # should be ydatanames
+  )
+
+  renderer.set('xdata_range', xdr.ref())
+  renderer.set('ydata_range', ydr.ref())
+  xaxis = Bokeh.Collections['LinearAxis'].create(
+    orientation : 'bottom'
+    parent : plot_model.ref()
+    data_range : xdr.ref()
+  )
+  yaxis = Bokeh.Collections['LinearAxis'].create(
+    orientation : 'left',
+    parent : plot_model.ref()
+    data_range : ydr.ref()
+  )
+  plot_model.set(
+    renderers : [renderer.ref()],
+    axes : [xaxis.ref(), yaxis.ref()]
+  )
+
+
+  #if dom_element?
+  #  div = $('<div></div>')
+  #  dom_element.append(div)
+  #  #myrender = () ->
+  #  view = new Bokeh.PlotView(model: plot_model)
+  #  div.append(view.$el)
+  #  view.render()
+  #  #_.defer(myrender)
+  return plot_model
+
 window.bokehprettyprint = (obj) ->
   for own key, val of obj
     console.log(key, val)

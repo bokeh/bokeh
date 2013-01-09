@@ -387,4 +387,66 @@ test('rects_glyph', () ->
   _.defer(myrender)
 )
 
+test('rects_glyph2', () ->
+  expect(0)
+  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+    data : [
+      {x : 1, y : 2, height: 0.5, width: 0.25}
+      {x : 2, y : 3, height: 0.3, width: 0.3, color: "blue"}
+      {x : 3, y : 4, height: 0.2, width: 0.35, outline_color: "none"}
+      {x : 4, y : 3, height: 0.6, width: 0.4 }
+      {x: 4.5, y: 3, height: 0.3, width: 0.4, angle: 20 }
+      {x : 5, y : 5, height: 0.15, width: 0.4, alpha: 0.4}
+    ]
+  )
+  renderer = Bokeh.Collections.GlyphRenderer.create(
+    data_source : data_source.ref()
+    
+    glyphs : [
+        type : 'rects'
+        x : 'x'
+        color: 'blue'
+        outline_color: 'black'
+      ,
+
+        type : 'rects'
+        color: 'gray'
+        x: 'x'
+        
+        # Uncommenting the following block will cause all of the
+        # Y values to be set to 2.5
+        #y:
+        #  field: 'bogus'
+        #  default: 2.5
+        #  units: 'data'
+
+        # Uncommenting the following will set a fixed height and width
+        # for every rect.(By specifying the name 'bogus' for the field,
+        # we can be certain that none of the datapoints will override
+        # this height value, and the default will always be used.)
+        height:
+          field: 'bogus'
+          default: 12
+          units: 'screen'
+        width:
+          field: 'bogus'
+          default: 0.25
+          units: 'data'
+    ]
+
+  )
+
+  #Bokeh.glyph_plot(data_source, renderer, $('body'))
+  plot_model = Bokeh.glyph_plot(data_source, renderer)
+  div = $('<div></div>')
+  $('body').append(div)
+  myrender = ->
+    div.append("<h2>TEST OUTPUT 1</h2>")
+    view = new Bokeh.PlotView(model: plot_model)
+    div.append(view.$el)
+    div.append("<h2>TEST OUTPUT 2</h2>")
+    view.render()
+  _.defer(myrender)
+
+)
 
