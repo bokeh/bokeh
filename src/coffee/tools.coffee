@@ -124,13 +124,20 @@ class OnePointWheelEventGenerator
         e.preventDefault()
         e.stopPropagation())
 
-    $(document).bind('keydown', (e) =>
-      if e[@options.keyName]
-        @_activate_tool())
 
-    $(document).bind('keyup', (e) =>
-      if not e[@options.keyName]
-        @_deactivate_tool())
+
+
+    @mouseover_count = 0
+    @plotview.$el.bind("mouseout", (e) =>
+      @mouseover_count -=1
+      _.delay((=>
+        if @mouseover_count == 0
+          eventSink.trigger("clear_active_tool")), 50)
+      console.log("mouseout", @mouseover_count))
+
+    @plotview.$el.bind("mouseover", (e) =>
+      @mouseover_count += 1
+      console.log("mouseover", @mouseover_count))
 
     @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
     @plotview.$el.find('.button_bar').append(@$tool_button)

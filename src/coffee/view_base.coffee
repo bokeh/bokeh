@@ -31,7 +31,6 @@ build_views = (view_storage, view_models, options) ->
     debugger
     console.log(error)
     throw error
-  console.log('success ')
   for model in newmodels
     view_specific_option = _.extend({}, options, {'model' : model})
     try

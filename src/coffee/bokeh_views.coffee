@@ -157,9 +157,7 @@ class PlotView extends Continuum.ContinuumView
     _.extend({plot_model : @model, plot_view : @}, @options)
 
   build_renderers : ->
-    console.log('before')
     build_views(@renderers, @mget_obj('renderers'), @view_options())
-    console.log('after')
 
   build_axes : ->
     build_views(@axes, @mget_obj('axes'), @view_options())
