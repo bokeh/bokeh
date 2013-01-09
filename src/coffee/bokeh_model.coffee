@@ -666,24 +666,42 @@ class ScatterSelectionOverlays extends Continuum.Collection
 
 
 #Preparing the name space
-Continuum.Collections.Plot = new Plots
-Continuum.Collections.ScatterRenderer = new ScatterRenderers
-Continuum.Collections.GlyphRenderer = new GlyphRenderers
-Continuum.Collections.LineRenderer = new LineRenderers
-Continuum.Collections.BarRenderer = new BarRenderers
-Continuum.Collections.ObjectArrayDataSource = new ObjectArrayDataSources
-Continuum.Collections.Range1d = new Range1ds
-Continuum.Collections.LinearAxis = new LinearAxes
-Continuum.Collections.LinearDateAxis = new LinearDateAxes
-Continuum.Collections.DiscreteColorMapper = new DiscreteColorMappers
-Continuum.Collections.FactorRange = new FactorRanges
-Continuum.Collections.GridPlotContainer = new GridPlotContainers
-Continuum.Collections.DataRange1d = new DataRange1ds
-Continuum.Collections.DataFactorRange = new DataFactorRanges
-Continuum.Collections.PanTool = new PanTools
-Continuum.Collections.ZoomTool = new ZoomTools
-Continuum.Collections.SelectionTool = new SelectionTools
-Continuum.Collections.ScatterSelectionOverlay = new ScatterSelectionOverlays
+if not Continuum.Collections.Plot
+  Continuum.Collections.Plot = new Plots
+if not Continuum.Collections.ScatterRenderer
+  Continuum.Collections.ScatterRenderer = new ScatterRenderers
+if not Continuum.Collections.GlyphRenderer
+  Continuum.Collections.GlyphRenderer = new GlyphRenderers
+if not Continuum.Collections.LineRenderer
+  Continuum.Collections.LineRenderer = new LineRenderers
+if not Continuum.Collections.BarRenderer
+  Continuum.Collections.BarRenderer = new BarRenderers
+if not Continuum.Collections.ObjectArrayDataSource
+  Continuum.Collections.ObjectArrayDataSource = new ObjectArrayDataSources
+if not Continuum.Collections.Range1d
+  Continuum.Collections.Range1d = new Range1ds
+if not Continuum.Collections.LinearAxis
+  Continuum.Collections.LinearAxis = new LinearAxes
+if not Continuum.Collections.LinearDateAxis
+  Continuum.Collections.LinearDateAxis = new LinearDateAxes
+if not Continuum.Collections.DiscreteColorMapper
+  Continuum.Collections.DiscreteColorMapper = new DiscreteColorMappers
+if not Continuum.Collections.FactorRange
+  Continuum.Collections.FactorRange = new FactorRanges
+if not Continuum.Collections.GridPlotContainer
+  Continuum.Collections.GridPlotContainer = new GridPlotContainers
+if not Continuum.Collections.DataRange1d
+  Continuum.Collections.DataRange1d = new DataRange1ds
+if not Continuum.Collections.DataFactorRange
+  Continuum.Collections.DataFactorRange = new DataFactorRanges
+if not Continuum.Collections.PanTool
+  Continuum.Collections.PanTool = new PanTools
+if not Continuum.Collections.ZoomTool
+  Continuum.Collections.ZoomTool = new ZoomTools
+if not Continuum.Collections.SelectionTool
+  Continuum.Collections.SelectionTool = new SelectionTools
+if not Continuum.Collections.ScatterSelectionOverlay
+  Continuum.Collections.ScatterSelectionOverlay = new ScatterSelectionOverlays
 
 
 Bokeh.Collections = Collections

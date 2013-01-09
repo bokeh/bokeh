@@ -5,8 +5,12 @@ class Continuum.Collection extends Backbone.Collection
   # at some point, I thought we needed to override create...
   # we don't anymore...
   # can switch back to Backbone.Collection later
-Collections = {}
-Continuum.Collections = Collections
+if not Continuum.Collections
+  Collections = {}
+  Continuum.Collections = Collections
+else
+  Collections = Continuum.Collections
+
 safebind = Continuum.safebind
 Bokeh = window.Bokeh
 

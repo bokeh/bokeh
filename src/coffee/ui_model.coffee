@@ -10,6 +10,9 @@ class DataTable extends Continuum.HasParent
 
 class DataTables extends Backbone.Collection
   model : DataTable
-Continuum.Collections.DataTable = new DataTables()
+
+if not Continuum.Collections.DataTable
+  Continuum.Collections.DataTable = new DataTables()
+
 Continuum.ui.DataTable = DataTable
 Continuum.ui.DataTables = DataTables
