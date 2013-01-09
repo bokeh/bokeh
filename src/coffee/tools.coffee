@@ -124,20 +124,18 @@ class OnePointWheelEventGenerator
         e.preventDefault()
         e.stopPropagation())
 
-
-
-
     @mouseover_count = 0
+    #waiting 500 ms and testing mouseover countmakes sure that
+    #mouseouts that occur because of going over element borders don't
+    #trigger the mouseout
     @plotview.$el.bind("mouseout", (e) =>
       @mouseover_count -=1
       _.delay((=>
         if @mouseover_count == 0
-          eventSink.trigger("clear_active_tool")), 50)
-      console.log("mouseout", @mouseover_count))
+          eventSink.trigger("clear_active_tool")), 500))
 
     @plotview.$el.bind("mouseover", (e) =>
-      @mouseover_count += 1
-      console.log("mouseover", @mouseover_count))
+      @mouseover_count += 1)
 
     @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
     @plotview.$el.find('.button_bar').append(@$tool_button)
@@ -158,9 +156,6 @@ class OnePointWheelEventGenerator
       @tool_active=true;
       @$tool_button.addClass('active'))
     return eventSink
-
-
-
 
 class ToolView extends Bokeh.PlotWidget
   initialize : (options) ->
