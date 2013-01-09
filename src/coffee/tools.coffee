@@ -356,39 +356,6 @@ class SelectionToolView extends ToolView
     return null
 
 class ZoomToolView extends ToolView
-  bind_events_orig : (plotview) ->
-    @plotview = plotview
-    $(@plotview.main_can_wrapper).bind("mousewheel", (e, delta, dX, dY) =>
-        # cut and paste.. should refactor zoomtool or something
-
-        if @button_activated
-          offset = $(e.currentTarget).offset()
-          e.bokehX = e.pageX - offset.left
-          e.bokehY = e.pageY - offset.top
-          @_zoom(e, delta, e.bokehX, e.bokehY)
-          e.preventDefault()
-          e.stopPropagation()
-    )
-    @button_activated = false
-    @$tool_button = $("<button class='btn btn-small'> Zoom </button>")
-    @plotview.$el.find('.button_bar').append(@$tool_button)
-    
-    @plotview.$el.bind('mouseout', =>
-      @$tool_button.removeClass("active")
-      @button_activated = false)
-
-    @plotview.$el.bind('mouseout', =>
-      @$tool_button.removeClass("active")
-      @button_activated = false)
-    pv = @plotview.$el
-
-    @$tool_button.click(=>
-      if @button_activated
-        @$tool_button.removeClass("active")
-        @button_activated = false
-      else
-        @$tool_button.addClass("active")
-        @button_activated = true)
 
   initialize : (options) ->
     super(options)
