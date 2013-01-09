@@ -98,6 +98,62 @@ class TwoPointEventGenerator
       @eventSink.trigger("#{@options.eventBasename}:DragEnd")
 
 
+class OnePointWheelEventGenerator
+
+  constructor : (options) ->
+    @options = options
+    @toolName = @options.eventBasename
+    @dragging = false
+    @basepoint_set = false
+    @button_activated = false
+    @tool_active = false
+
+  bind_events : (plotview, eventSink) ->
+    toolName = @toolName
+    @plotview = plotview
+    @eventSink = eventSink
+    @plotview.main_can_wrapper.bind("mousewheel",
+      (e, delta, dX, dY) =>
+        if not @tool_active
+          return 
+        offset = $(e.currentTarget).offset()
+        e.bokehX = e.pageX - offset.left
+        e.bokehY = e.pageY - offset.top
+        e.delta = delta
+        eventSink.trigger("#{toolName}:zoom", e)
+        e.preventDefault()
+        e.stopPropagation())
+
+    $(document).bind('keydown', (e) =>
+      if e[@options.keyName]
+        @_activate_tool())
+
+    $(document).bind('keyup', (e) =>
+      if not e[@options.keyName]
+        @_deactivate_tool())
+
+    @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
+    @plotview.$el.find('.button_bar').append(@$tool_button)
+
+    @$tool_button.click(=>
+      if @button_activated
+        eventSink.trigger("clear_active_tool")
+      else
+        eventSink.trigger("active_tool", toolName)
+        @button_activated = true)
+
+    eventSink.on("#{toolName}:deactivated", =>
+      @tool_active=false;
+      @button_activated = false;
+      @$tool_button.removeClass('active'))
+
+    eventSink.on("#{toolName}:activated", =>
+      @tool_active=true;
+      @$tool_button.addClass('active'))
+    return eventSink
+
+
+
 
 class ToolView extends Bokeh.PlotWidget
   initialize : (options) ->
@@ -299,11 +355,51 @@ class SelectionToolView extends ToolView
     @render_end()
     return null
 
-class ZoomToolView extends Bokeh.PlotWidget
+class ZoomToolView extends ToolView
+  bind_events_orig : (plotview) ->
+    @plotview = plotview
+    $(@plotview.main_can_wrapper).bind("mousewheel", (e, delta, dX, dY) =>
+        # cut and paste.. should refactor zoomtool or something
+
+        if @button_activated
+          offset = $(e.currentTarget).offset()
+          e.bokehX = e.pageX - offset.left
+          e.bokehY = e.pageY - offset.top
+          @_zoom(e, delta, e.bokehX, e.bokehY)
+          e.preventDefault()
+          e.stopPropagation()
+    )
+    @button_activated = false
+    @$tool_button = $("<button class='btn btn-small'> Zoom </button>")
+    @plotview.$el.find('.button_bar').append(@$tool_button)
+    
+    @plotview.$el.bind('mouseout', =>
+      @$tool_button.removeClass("active")
+      @button_activated = false)
+
+    @plotview.$el.bind('mouseout', =>
+      @$tool_button.removeClass("active")
+      @button_activated = false)
+    pv = @plotview.$el
+
+    @$tool_button.click(=>
+      if @button_activated
+        @$tool_button.removeClass("active")
+        @button_activated = false
+      else
+        @$tool_button.addClass("active")
+        @button_activated = true)
+
   initialize : (options) ->
     super(options)
     safebind(this, @model, 'change:dataranges', @build_mappers)
     @build_mappers()
+
+  eventGeneratorClass : OnePointWheelEventGenerator
+  evgen_options : {buttonText:"Zoom"}
+  tool_events : {
+    zoom: "_zoom"}
+
 
   build_mappers : () =>
     @mappers = []
@@ -312,28 +408,18 @@ class ZoomToolView extends Bokeh.PlotWidget
       mapper = new Bokeh.LinearMapper({},
         data_range : datarange
         viewstate : @plot_view.viewstate
-        screendim : dim
-      )
+        screendim : dim)
       @mappers.push(mapper)
     return @mappers
-
-  bind_events : (plotview) ->
-    @plotview = plotview
-    $(@plotview.main_can_wrapper).bind("mousewheel", (e, delta, dX, dY) =>
-        # cut and paste.. should refactor zoomtool or something
-        offset = $(e.currentTarget).offset()
-        e.bokehX = e.pageX - offset.left
-        e.bokehY = e.pageY - offset.top
-        @_zoom(e, delta, e.bokehX, e.bokehY)
-        e.preventDefault()
-        e.stopPropagation()
-    )
 
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_view.viewstate.rxpos(x), @plot_view.viewstate.rypos(y)]
     return [x_, y_]
 
-  _zoom : (e, delta, screenX, screenY) ->
+  _zoom : (e) ->
+    delta = e.delta
+    screenX = e.bokehX
+    scrrenY = e.bokehY
     [x, y] = @mouse_coords(e, screenX, screenY)
     speed = @mget('speed')
     factor = - speed  * (delta * 50)
