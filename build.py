@@ -1,8 +1,6 @@
 import subprocess
 import sys
 import time
-from watchdog.observers import Observer
-from watchdog.events import PatternMatchingEventHandler
 
 projects = {
     'bokehjs':{
@@ -32,18 +30,6 @@ def build_all():
         outputs = projects[project]['output']
         build(inputs, outputs)
 
-class MyHandler(PatternMatchingEventHandler):
-    def __init__(self, inputs, outputs):
-        super(MyHandler, self).__init__(
-            patterns=["*.coffee"], case_sensitive=True)
-        self.inputs = inputs
-        self.outputs = outputs
-        
-    def on_any_event(self, event):
-        if "#" in event.src_path:
-            return
-        print event
-        build(self.inputs, self.outputs)
 
 if __name__ == "__main__":
     """
@@ -54,6 +40,22 @@ if __name__ == "__main__":
     if len(sys.argv) >= 2 and  sys.argv[1] == "build":
         build_all()
     else:
+        from watchdog.observers import Observer
+        from watchdog.events import PatternMatchingEventHandler
+
+        class MyHandler(PatternMatchingEventHandler):
+            def __init__(self, inputs, outputs):
+                super(MyHandler, self).__init__(
+                    patterns=["*.coffee"], case_sensitive=True)
+                self.inputs = inputs
+                self.outputs = outputs
+                
+            def on_any_event(self, event):
+                if "#" in event.src_path:
+                    return
+                print event
+                build(self.inputs, self.outputs)
+
         build_all()        
         observer = Observer()        
         for project in projects:

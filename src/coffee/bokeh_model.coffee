@@ -589,12 +589,22 @@ _.extend(GlyphRenderer::defaults,
 
 GlyphRenderer::display_defaults = _.clone(GlyphRenderer::display_defaults)
 _.extend(GlyphRenderer::display_defaults, {
-  radius : 3
-  color : "gray"
-  xfield: "x"
-  yfield: "y"
-  radiusfield: "radius"
-  colorfield: "color"
+  radius : 5
+  radius_units: 'screen'
+  color : 'gray'
+  outline_color: 'none'
+  outline_width: 1
+
+  angle_units: 'deg'
+
+  # Rects glyph
+  height: 1
+  width: 1
+  top: 1
+  bottom: 0
+  left: 0
+  right: 1
+
 })
 
 class GlyphRenderers extends Continuum.Collection
