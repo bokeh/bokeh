@@ -43,13 +43,13 @@ class TwoPointEventGenerator
     $(document).bind('keydown', (e) =>
       if e[@options.keyName]
         @_start_drag()
-    )
+      if e.keyCode == 27
+        eventSink.trigger("clear_active_tool"))
 
 
     $(document).bind('keyup', (e) =>
       if not e[@options.keyName]
-        @_stop_drag()
-    )
+        @_stop_drag())
 
     @plotview.main_can_wrapper.bind('mousedown', (e) =>
       if @button_activated
@@ -123,6 +123,10 @@ class OnePointWheelEventGenerator
         eventSink.trigger("#{toolName}:zoom", e)
         e.preventDefault()
         e.stopPropagation())
+
+    $(document).bind('keydown', (e) =>
+      if e.keyCode == 27
+        eventSink.trigger("clear_active_tool"))
 
     @mouseover_count = 0
     #waiting 500 ms and testing mouseover countmakes sure that
