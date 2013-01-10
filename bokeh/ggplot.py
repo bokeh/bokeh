@@ -56,12 +56,9 @@ class Aesthetic(HasTraits):
     line_weight = Trait(None, Int)
 
     #binwidth = Float()
-
     #label = Str()
-
     #ymin = Float()
     #ymax = Float()
-
     #group = Str()
 
     def __init__(self, x=None, y=None, **kwtraits):
@@ -104,7 +101,7 @@ class Geom(Aesthetic):
     def __init__(self, **kwtraits):
         HasTraits.__init__(self, **kwtraits)
 
-    def plot(self, plot, data, aes):
+    def plot(self, plot, aes):
         raise NotImplementedError
 
 
@@ -118,7 +115,7 @@ class GeomPoint(Geom):
         p = plot.plot((aes.x, aes.y), type="scatter", color=aes.fill,
                 outline_color=aes.color, marker_size=aes.size,
                 line_width=aes.line_weight, )
-        print "GeomPoint plot of", aes.x, ",", aes.y
+        #print "GeomPoint plot of", aes.x, ",", aes.y
         self._renderer = p[0]
 
 
@@ -132,7 +129,7 @@ class GeomLine(Geom):
         p = plot.plot((aes.x, aes.y), type="line", color=aes.fill,
                 line_width=aes.line_weight, 
                 line_style=self._convert_line_style(aes.line_type))
-        print "GeomLine plot of", aes.x, ",", aes.y
+        #print "GeomLine plot of", aes.x, ",", aes.y
         self._renderer = p[0]
 
     def _convert_line_style(self, line_style):
@@ -151,6 +148,7 @@ class GeomLine(Geom):
 
 class Tool(HasTraits):
     type = Enum("pan", "zoom", "regression")
+    button = Enum(None, "left", "right")
 
 class GGPlot(HasTraits):
     """ Represents a Grammar of Graphics plot.
@@ -173,7 +171,7 @@ class GGPlot(HasTraits):
     # graph itself
     geoms = List()
     
-    facets = List()
+    facet_layout = Any()
 
     # The window object in the current session that contains the plot
     # corresponding to this plot
@@ -193,10 +191,11 @@ class GGPlot(HasTraits):
         if isinstance(obj, Geom):
             print "added geom:", obj
             self.geoms.append(obj)
-            self._update_plot()
+            if self.window is not None:
+                self._update_plot()
         elif isinstance(obj, Facet):
-            print "added facet:", obj
-            self.facets.append(obj)
+            print "setting facet:", obj
+            self.facet_layout = obj
         elif isinstance(obj, Aesthetic):
             if self.aes is None:
                 self.aes = obj
@@ -207,7 +206,8 @@ class GGPlot(HasTraits):
                 self.aes + obj
         elif isinstance(obj, Tool):
             self._add_tool(obj)
-        self._redraw()
+        if self.window is not None:
+            self._redraw()
         return self
 
     def show_plot(self):
@@ -223,13 +223,57 @@ class GGPlot(HasTraits):
         else:
             self._update_plot()
         
-    def _initialize_plot(self, plot):
+    def _initialize_plot(self, plotcontainer):
         # Create the data source
         ppd = PandasPlotData(self.dataset)
-        plot.data = ppd
+        plotcontainer.data = ppd
 
-        # Create the geoms
-        plots = [g.plot(plot, self.aes) for g in self.geoms]
+        if self.facet_layout is None:
+            [g.plot(plotcontainer, self.aes) for g in self.geoms]
+
+        else:
+            # Use the PandasPlotData to create a list of faceted data sources
+            facet_pds = ppd.facet(self.facet_layout.factors)
+
+            container = None
+            if self.facet_layout.ftype == "grid":
+                # Determine the shape by looking at the first faceted datasource.
+                # Reaching into the facet_pds is sort of gorpy; need to think
+                # of a better interface for PandasPlotData.
+                levels = facet_pds[0]._groupby.grouper.levels
+                grid_shape = (len(levels[0]), len(levels[1]))
+                print "Factors:", self.facet_layout.factors
+                print "Grid of shape:", grid_shape
+                print "Levels:", levels[0], levels[1]
+
+                container = chaco.GridContainer(padding=20, fill_padding=True,
+                        bgcolor="lightgray", use_backbuffer=False,
+                        shape=grid_shape, spacing=(10,10))
+                pd_dict = dict((pd.group_key, pd) for pd in facet_pds)
+                factors = self.facet_layout.factors
+                title = factors[0] + "=%d, " + factors[1] + "=%d"
+                for i in levels[0]:
+                    for j in levels[1]:
+                        if (i,j) in pd_dict:
+                            plot = chaco.Plot(pd_dict[(i,j)], title=title%(i,j),
+                                    padding=15)
+                            plot.index_range.tight_bounds = False
+                            plot.value_range.tight_bounds = False
+                            [g.plot(plot, self.aes) for g in self.geoms]
+                        else:
+                            plot = chaco.OverlayPlotContainer(bgcolor="lightgray")
+                        container.add(plot)
+
+            
+            elif self.facet_layout.ftype == "wrap":
+                # This is not really wrapping, instead just using a horizontal
+                # plot container.
+                container = chaco.HPlotContainer(padding=40, fill_padding=True,
+                        bgcolor="lightgray", use_backbuffer=True, spacing=20)
+
+            self.window.set_container(container)
+            container.request_redraw()
+
 
     def _update_plot(self):
         # Very simple right now: check our list of Geoms and if they
@@ -259,7 +303,10 @@ class GGPlot(HasTraits):
 
         elif toolspec.type == "pan":
             cont = self.window.get_container()
-            cont.tools.append(PanTool(cont))
+            tool = PanTool(cont)
+            if toolspec.button is not None:
+                tool.drag_button = toolspec.button
+            cont.tools.append(tool)
 
         elif toolspec.type == "zoom":
             cont = self.window.get_container()
@@ -279,17 +326,16 @@ class GGPlot(HasTraits):
 
 
 class Facet(HasTraits):
-    left = Str()
-    right = Str()
+    factors = List()
     ftype = Enum("wrap", "grid")
 
     @classmethod
     def grid(cls, left="", right=""):
-        return cls(left=left, right=right, ftype="grid")
+        return cls(factors=[left, right], ftype="grid")
 
     @classmethod
-    def wrap(cls, left="", right=""):
-        return cls(left=left, right=right, ftype="wrap")
+    def wrap(cls, factor=""):
+        return cls(factors=[factor], ftype="wrap")
 
 
 class Factor(HasTraits):
