@@ -150,11 +150,14 @@ class OnePointWheelEventGenerator
     eventSink.on("#{toolName}:deactivated", =>
       @tool_active=false;
       @button_activated = false;
-      @$tool_button.removeClass('active'))
+      @$tool_button.removeClass('active')
+      document.body.style.overflow = @old_overflow)
 
     eventSink.on("#{toolName}:activated", =>
       @tool_active=true;
-      @$tool_button.addClass('active'))
+      @$tool_button.addClass('active')
+      @old_overflow = document.body.style.overflow
+      document.body.style.overflow = "hidden")
     return eventSink
 
 class ToolView extends Bokeh.PlotWidget
@@ -163,10 +166,7 @@ class ToolView extends Bokeh.PlotWidget
   bind_events : (plotview) ->
     eventSink = plotview.eventSink
     @plotview = plotview
-
-
     evgen_options = { eventBasename:@cid }
-
     evgen_options2 = _.extend(evgen_options, @evgen_options)
     evgen = new @eventGeneratorClass(evgen_options2)
     evgen.bind_events(plotview, eventSink)
