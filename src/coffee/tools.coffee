@@ -147,17 +147,32 @@ class OnePointWheelEventGenerator
         eventSink.trigger("active_tool", toolName)
         @button_activated = true)
 
+    no_scroll = (el) ->
+      el.setAttribute("old_overflow", el.style.overflow)
+      el.style.overflow = "hidden"
+      if el == document.body
+        return
+      else
+        no_scroll(el.parentNode)
+    restore_scroll = (el) ->
+      el.style.overflow = el.getAttribute("old_overflow")
+      if el == document.body
+        return
+      else
+        restore_scroll(el.parentNode)
+
     eventSink.on("#{toolName}:deactivated", =>
       @tool_active=false;
       @button_activated = false;
       @$tool_button.removeClass('active')
+      restore_scroll(@plotview.$el[0])
       document.body.style.overflow = @old_overflow)
 
     eventSink.on("#{toolName}:activated", =>
       @tool_active=true;
       @$tool_button.addClass('active')
-      @old_overflow = document.body.style.overflow
-      document.body.style.overflow = "hidden")
+      no_scroll(@plotview.$el[0]))
+
     return eventSink
 
 class ToolView extends Bokeh.PlotWidget
