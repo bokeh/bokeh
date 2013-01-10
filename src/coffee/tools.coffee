@@ -39,13 +39,12 @@ class TwoPointEventGenerator
         e.preventDefault()
         e.stopPropagation())
 
-
     $(document).bind('keydown', (e) =>
       if e[@options.keyName]
         @_start_drag()
+      #disable the tool when ESC is pressed
       if e.keyCode == 27
         eventSink.trigger("clear_active_tool"))
-
 
     $(document).bind('keyup', (e) =>
       if not e[@options.keyName]
@@ -54,13 +53,13 @@ class TwoPointEventGenerator
     @plotview.main_can_wrapper.bind('mousedown', (e) =>
       if @button_activated
         @_start_drag()
-        return false
-    )
+        return false)
+
     @plotview.main_can_wrapper.bind('mouseup', (e) =>
       if @button_activated
         @_stop_drag()
-        return false
-    )
+        return false)
+
     @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
     @plotview.$el.find('.button_bar').append(@$tool_button)
 
@@ -80,7 +79,6 @@ class TwoPointEventGenerator
       @tool_active=true;
       @$tool_button.addClass('active'))
     return eventSink
-
 
   _start_drag : ->
     @eventSink.trigger("active_tool", @toolName)
@@ -125,6 +123,7 @@ class OnePointWheelEventGenerator
         e.stopPropagation())
 
     $(document).bind('keydown', (e) =>
+      #disable the tool when ESC is pressed
       if e.keyCode == 27
         eventSink.trigger("clear_active_tool"))
 
@@ -212,8 +211,7 @@ class PanToolView extends ToolView
       mapper = new Bokeh.LinearMapper({},
         data_range : datarange
         viewstate : @plot_view.viewstate
-        screendim : dim
-      )
+        screendim : dim)
       @mappers.push(mapper)
     return @mappers
 
@@ -247,8 +245,7 @@ class PanToolView extends ToolView
         mapper.map_data(screenhigh)]
       mapper.data_range.set(
         start : start
-        end : end
-      )
+        end : end)
     return null
 
 class SelectionToolView extends ToolView
@@ -277,7 +274,6 @@ class SelectionToolView extends ToolView
     SetBasepoint : "_start_selecting",
     deactivated : "_stop_selecting"}
 
-
   mouse_coords : (e, x, y) ->
     [x, y] = [@plot_view.viewstate.rxpos(x), @plot_view.viewstate.rypos(y)]
     return [x, y]
@@ -287,8 +283,8 @@ class SelectionToolView extends ToolView
       start_x : null
       start_y : null
       current_x : null
-      current_y : null
-    )
+      current_y : null)
+
     @plotview.$el.removeClass("shading")
     for renderer in @mget_obj('renderers')
       renderer.get_obj('data_source').set('selecting', false)
@@ -423,8 +419,7 @@ class ZoomToolView extends ToolView
       [start, end] = [mapper.map_data(start), mapper.map_data(end)]
       mapper.data_range.set(
         start : start
-        end : end
-      )
+        end : end)
     return null
 
 Bokeh.SelectionToolView = SelectionToolView
