@@ -48,3 +48,9 @@ button.active { border:1px solid blue }
 .bokehtable{ 
     overflow : scroll;
 }
+
+
+.plot_wrap .button_bar {height:30px}
+.plot_wrap .button_bar * {display:none}
+.plot_wrap:hover  .button_bar *  {display:inherit}
+
