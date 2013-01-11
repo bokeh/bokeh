@@ -723,7 +723,11 @@ class GlyphRendererView extends XYRendererView
 
   render : ->
     screen_glpyhs = []
-    data = @mget_obj('data_source').get('data')
+    source = @mget_obj('data_source')
+    if source.type == "ObjectArrayDataSource"
+      data = source.get('data')
+    else if source.type == "ColumnDataSource"
+      data = source.datapoints()
     for glyph in @mget('glyphs')
       if glyph.type == 'circle' or glyph.type == 'square'
         @render_scatter(glyph, data)

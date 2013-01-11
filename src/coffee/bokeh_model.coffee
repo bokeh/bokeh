@@ -413,6 +413,33 @@ class ObjectArrayDataSources extends Continuum.Collection
   model : ObjectArrayDataSource
 
 
+class ColumnDataSource extends ObjectArrayDataSource
+  # Datasource where the data is defined column-wise, i.e. each key in the
+  # the data attribute is a column name, and its value is an array of scalars.
+  # Each column should be the same length.
+  type : 'ColumnDataSource'
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    @cont_ranges = {}
+    @discrete_ranges = {}
+
+  getcolumn: (colname) ->
+    return @get('data')[colname]
+
+  datapoints: () ->
+    data = @get('data')
+    fields = _.keys(data)
+    points = []
+    for i in [0..data[fields[0]].length-1]
+      point = {}
+      for field in fields
+        point[field] = data[field][i]
+      points.push(point)
+    return points
+
+
+class ColumnDataSources extends Continuum.Collection
+  model : ColumnDataSource
 
 class GridPlotContainer extends HasParent
   type : 'GridPlotContainer'
@@ -689,6 +716,8 @@ if not Continuum.Collections.BarRenderer
   Continuum.Collections.BarRenderer = new BarRenderers
 if not Continuum.Collections.ObjectArrayDataSource
   Continuum.Collections.ObjectArrayDataSource = new ObjectArrayDataSources
+if not Continuum.Collections.ColumnDataSource
+  Continuum.Collections.ColumnDataSource = new ColumnDataSources
 if not Continuum.Collections.Range1d
   Continuum.Collections.Range1d = new Range1ds
 if not Continuum.Collections.LinearAxis
