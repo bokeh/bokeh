@@ -346,13 +346,12 @@ class ObjectArrayDataSource extends HasProperties
     return (x[colname] for x in @get('data'))
 
   compute_cont_range : (field) ->
-    max = _.max((x[field] for x in @get('data')))
-    min = _.min((x[field] for x in @get('data')))
-    return [min, max]
+    data = @getcolumn(field)
+    return [_.max(data), _.min(data)]
 
   compute_discrete_factor : (field) ->
     temp = {}
-    for val in (x[field] for x in @get('data'))
+    for val in @getcolumn(field)
       temp[val] = true
     uniques = _.keys(temp)
     uniques = _.sortBy(uniques, ((x) -> return x))
@@ -412,6 +411,8 @@ _.extend(ObjectArrayDataSource::defaults
 
 class ObjectArrayDataSources extends Continuum.Collection
   model : ObjectArrayDataSource
+
+
 
 class GridPlotContainer extends HasParent
   type : 'GridPlotContainer'
