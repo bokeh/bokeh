@@ -4,16 +4,12 @@ Python using Chaco.  Uses other Bokeh classes to represent the pipeline
 and constructs a session-level object using the Chaco shell.
 """
 
-import chaco.shell
-from chaco.shell import *
-
 from ggplot import GGPlot, Aesthetic, GeomPoint, GeomLine, Facet, Factor, Tool
 
 def ggplot(data=None, aes=None):
     obj = GGPlot(dataset=data)
     if aes:
         obj += aes
-    obj.show_plot()
     return obj
 
 def aes(x=None, y=None, **kw):

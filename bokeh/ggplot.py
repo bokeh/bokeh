@@ -8,10 +8,9 @@ is constructed.
 """
 
 from traits import api as traits
-from traits.api import HasTraits, Any, Enum, Float, Function, Int, List, Str, Trait
+from traits.api import HasTraits, Any, Enum, Int, List, Str, Trait
 
 from chaco import api as chaco
-from chaco.tools.api import PanTool, ZoomTool, RegressionLasso, RegressionOverlay
 
 from pandas_plot_data import PandasPlotData
 
@@ -101,7 +100,7 @@ class Geom(Aesthetic):
     def __init__(self, **kwtraits):
         HasTraits.__init__(self, **kwtraits)
 
-    def plot(self, plot, aes):
+    def plot(self, plotclient, datasource, aes, title=None):
         raise NotImplementedError
 
 
@@ -109,42 +108,36 @@ class GeomPoint(Geom):
     
     _renderer = Any()
 
-    def plot(self, plot, aes):
+    def plot(self, plotclient, datasource, aes, title=None):
         aes = aes + self
         aes.merge_defaults()
-        p = plot.plot((aes.x, aes.y), type="scatter", color=aes.fill,
-                outline_color=aes.color, marker_size=aes.size,
-                line_width=aes.line_weight, )
+        #p = plotclient.scatter((aes.x, aes.y), type="scatter", color=aes.fill,
+        #        outline_color=aes.color, marker_size=aes.size,
+        #        line_width=aes.line_weight, )
+        p = plotclient.scatter(aes.x, aes.y, color=aes.color, data_source=datasource)
+        if title:
+            p.plotmodel.set('title', title)
         #print "GeomPoint plot of", aes.x, ",", aes.y
-        self._renderer = p[0]
+        self._renderer = p
+        return p
 
 
 class GeomLine(Geom):
     
     _renderer = Any()
 
-    def plot(self, plot, aes):
+    def plot(self, plotclient, datasource, aes, title=None):
         aes = aes + self
         aes.merge_defaults()
-        p = plot.plot((aes.x, aes.y), type="line", color=aes.fill,
-                line_width=aes.line_weight, 
-                line_style=self._convert_line_style(aes.line_type))
+        #p = plot.plot((aes.x, aes.y), type="line", color=aes.fill,
+        #        line_width=aes.line_weight, 
+        #        line_style=self._convert_line_style(aes.line_type))
+        p = plotclient.plot(aes.x, aes.y, color=aes.color, data_source=datasource)
+        if title:
+            p.set('title', title)
         #print "GeomLine plot of", aes.x, ",", aes.y
-        self._renderer = p[0]
-
-    def _convert_line_style(self, line_style):
-        # For now this is just an enum map, but ggplot's line_type can
-        # also define the dash pattern numerically, and we will need to
-        # convert them to Kiva-style dash patterns.
-        return {"blank": None,  # Not correct; what do with this?
-                "solid": "solid",
-                "dashed": "dash",
-                "dotted": "dot",
-                "dotdash": "dot dash",
-                "longdash": "long dash", 
-                "twodash": "long dash"   # Not correct
-                }[line_style]
-
+        self._renderer = p
+        return p
 
 class Tool(HasTraits):
     type = Enum("pan", "zoom", "regression")
@@ -173,13 +166,8 @@ class GGPlot(HasTraits):
     
     facet_layout = Any()
 
-    # The window object in the current session that contains the plot
-    # corresponding to this plot
-    window = Any()
-    
-    # The redraw function to call 
-    display_hook = Function()
-    
+    _plot_title = Str()
+
     def __init__(self, dataset, **kw):
         super(GGPlot, self).__init__(dataset=dataset, **kw)
 
@@ -191,8 +179,6 @@ class GGPlot(HasTraits):
         if isinstance(obj, Geom):
             print "added geom:", obj
             self.geoms.append(obj)
-            if self.window is not None:
-                self._update_plot()
         elif isinstance(obj, Facet):
             print "setting facet:", obj
             self.facet_layout = obj
@@ -200,37 +186,44 @@ class GGPlot(HasTraits):
             if self.aes is None:
                 self.aes = obj
                 # Use the first aesthetic we get to set the window title
-                if self.window:
-                    self.window.set_title(obj.x + " * " + obj.y)
+                self.set_title(obj.x + " * " + obj.y)
             else:
                 self.aes + obj
-        elif isinstance(obj, Tool):
-            self._add_tool(obj)
-        if self.window is not None:
-            self._redraw()
+        #elif isinstance(obj, Tool):
+        #    self._add_tool(obj)
         return self
 
-    def show_plot(self):
-        from chaco import shell
-        if self.window is None:
-            win_num = shell.session.new_window()
-            self.window = shell.session.get_window(win_num)
-            if self.aes is not None:
-                self.window.set_title(self.aes.x + " * " + self.aes.y)
-            plot = self.window.get_container()
-            self._initialize_plot(plot)
-            plot.request_redraw()
-        else:
-            self._update_plot()
+    def set_title(self, title):
+        """ Sets the title of this plot to **title** """
+        self._plot_title = title
         
-    def _initialize_plot(self, plotcontainer):
+    def to_html(self, notebook=False):
+        """ Returns HTML representing the plot. Does not include any headers
+        or javascript dependencies, etc.
+
+        If **notebook** is True, then does the right things for producing
+        output that can be embedded in IPython notebook.
+        """
+
+        from cdxlib import mpl
+        client = mpl.PlotClient()
+
+        if notebook:
+            client.notebooksources()
+
         # Create the data source
         ppd = PandasPlotData(self.dataset)
-        plotcontainer.data = ppd
 
         if self.facet_layout is None:
-            [g.plot(plotcontainer, self.aes) for g in self.geoms]
-
+            #[g.plot(plotcontainer, self.aes) for g in self.geoms]
+            datasource = client.make_source(**dict((dataname, ppd.get_data(dataname)) for dataname in ppd.list_data()))
+            for g in self.geoms:
+                p = g.plot(client, datasource, self.aes)
+            if notebook:
+                return p.notebook()
+            else:
+                return client.htmldump()
+            
         else:
             # Use the PandasPlotData to create a list of faceted data sources
             facet_pds = ppd.facet(self.facet_layout.factors)
@@ -242,87 +235,47 @@ class GGPlot(HasTraits):
                 # of a better interface for PandasPlotData.
                 levels = facet_pds[0]._groupby.grouper.levels
                 grid_shape = (len(levels[0]), len(levels[1]))
-                print "Factors:", self.facet_layout.factors
-                print "Grid of shape:", grid_shape
-                print "Levels:", levels[0], levels[1]
+                #print "Factors:", self.facet_layout.factors
+                #print "Grid of shape:", grid_shape
+                #print "Levels:", levels[0], levels[1]
 
-                container = chaco.GridContainer(padding=20, fill_padding=True,
-                        bgcolor="lightgray", use_backbuffer=False,
-                        shape=grid_shape, spacing=(10,10))
+                plots = []
                 pd_dict = dict((pd.group_key, pd) for pd in facet_pds)
                 factors = self.facet_layout.factors
                 title = factors[0] + "=%d, " + factors[1] + "=%d"
                 for i in levels[0]:
+                    plotrow = []
                     for j in levels[1]:
                         if (i,j) in pd_dict:
-                            plot = chaco.Plot(pd_dict[(i,j)], title=title%(i,j),
-                                    padding=15)
-                            plot.index_range.tight_bounds = False
-                            plot.value_range.tight_bounds = False
-                            [g.plot(plot, self.aes) for g in self.geoms]
-                        else:
-                            plot = chaco.OverlayPlotContainer(bgcolor="lightgray")
-                        container.add(plot)
+                            pd = pd_dict[(i,j)]
+                            datasource = client.make_source(
+                                            **dict((dataname, pd.get_data(dataname)) for dataname in pd.list_data()))
 
+                            plot = self.geoms[0].plot(client, datasource, self.aes, title=title%(i,j))
+                            if len(self.geoms) > 1:
+                                [g.plot(client, datasource, self.aes) for g in self.geoms[1:]]
+                        else:
+                            #raise NotImplementedError("Emtpy facets currently unsupported")
+                            print "Empty facet for", i, j
+                            plot = client._newxyplot()
+                        plotrow.append(plot)
+                        client.figure()
+                    plots.append(plotrow)
+
+                container = client.grid(plots)
             
             elif self.facet_layout.ftype == "wrap":
                 # This is not really wrapping, instead just using a horizontal
                 # plot container.
-                container = chaco.HPlotContainer(padding=40, fill_padding=True,
-                        bgcolor="lightgray", use_backbuffer=True, spacing=20)
+                #container = chaco.HPlotContainer(padding=40, fill_padding=True,
+                #        bgcolor="lightgray", use_backbuffer=True, spacing=20)
+                pass
 
-            self.window.set_container(container)
-            container.request_redraw()
-
-
-    def _update_plot(self):
-        # Very simple right now: check our list of Geoms and if they
-        # don't have a renderer, then plot them.
-        for g in self.geoms:
-            if g._renderer is None:
-                print "Updating plot with geom", g
-                g.plot(self.window.get_container(), self.aes)
-        self._redraw()
-
-    def _add_tool(self, toolspec):
-        # depending on the kind of tool, we have to attach it to different
-        # things in the plot component hierarchy.
-        if toolspec.type == "regression":
-            # Find the first scatterplot
-            for g in self.geoms:
-                if isinstance(g._renderer, chaco.ScatterPlot):
-                    plot = g._renderer
-                    tool = RegressionLasso(plot,
-                            selection_datasource=plot.index)
-                    plot.tools.append(tool)
-                    plot.overlays.append(RegressionOverlay(plot, 
-                                        lasso_selection=tool))
-                    break
+            if notebook:
+                return container.notebook()
             else:
-                print "Unable to find a suitable scatterplot for regression tool"
+                return container.htmldump()
 
-        elif toolspec.type == "pan":
-            cont = self.window.get_container()
-            tool = PanTool(cont)
-            if toolspec.button is not None:
-                tool.drag_button = toolspec.button
-            cont.tools.append(tool)
-
-        elif toolspec.type == "zoom":
-            cont = self.window.get_container()
-            zoom = ZoomTool(cont, tool_mode="box", always_on=False)
-            cont.overlays.append(zoom)
-                
-    
-    def _redraw(self):
-        """ Private method that is called whenever a change is made 
-        that should cause an interactive display update.
-        By default this is a NOP so that this module can be used in
-        library form, and not merely in interactive mode.
-        """
-        if self.window:
-            self.window.get_container().invalidate_and_redraw()
-        return
 
 
 class Facet(HasTraits):
