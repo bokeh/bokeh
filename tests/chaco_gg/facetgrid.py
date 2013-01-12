@@ -3,7 +3,7 @@ import bokeh
 
 from bokeh.chaco_gg.functional import *
 
-df = pandas.read_csv("auto-mpg2.csv")
+df = pandas.read_csv("../auto-mpg2.csv")
 
 auto_show(False)
 
