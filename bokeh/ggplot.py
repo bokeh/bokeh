@@ -10,8 +10,6 @@ is constructed.
 from traits import api as traits
 from traits.api import HasTraits, Any, Enum, Int, List, Str, Trait
 
-from chaco import api as chaco
-
 from pandas_plot_data import PandasPlotData
 
 DefaultStyle = dict(
@@ -235,9 +233,6 @@ class GGPlot(HasTraits):
                 # of a better interface for PandasPlotData.
                 levels = facet_pds[0]._groupby.grouper.levels
                 grid_shape = (len(levels[0]), len(levels[1]))
-                #print "Factors:", self.facet_layout.factors
-                #print "Grid of shape:", grid_shape
-                #print "Levels:", levels[0], levels[1]
 
                 plots = []
                 pd_dict = dict((pd.group_key, pd) for pd in facet_pds)
@@ -255,7 +250,6 @@ class GGPlot(HasTraits):
                             if len(self.geoms) > 1:
                                 [g.plot(client, datasource, self.aes) for g in self.geoms[1:]]
                         else:
-                            #raise NotImplementedError("Emtpy facets currently unsupported")
                             print "Empty facet for", i, j
                             plot = client._newxyplot()
                         plotrow.append(plot)
@@ -265,10 +259,6 @@ class GGPlot(HasTraits):
                 container = client.grid(plots)
             
             elif self.facet_layout.ftype == "wrap":
-                # This is not really wrapping, instead just using a horizontal
-                # plot container.
-                #container = chaco.HPlotContainer(padding=40, fill_padding=True,
-                #        bgcolor="lightgray", use_backbuffer=True, spacing=20)
                 pass
 
             if notebook:

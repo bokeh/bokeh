@@ -1,8 +1,26 @@
 
 import numpy as np
 
-from chaco.api import AbstractPlotData
-from traits.api import Any, Dict, Tuple
+from traits.api import Any, Bool, Dict, Event, HasTraits, Tuple
+
+class AbstractPlotData(HasTraits):
+    """ Copied from Chaco, to avoid introducing a dependency just to define
+    an interface.
+    """
+
+    data_changed = Event
+    writable = Bool(True)
+    selectable = Bool(True)
+
+    def list_data(self):
+        raise NotImplementedError
+    def get_data(self, name):
+        raise NotImplementedError
+    def set_data(self, name, new_data, generate_name=False):
+        raise NotImplementedError
+    def set_selection(self, name, selection):
+        raise NotImplementedError
+
 
 class PandasPlotData(AbstractPlotData):
     
