@@ -1,10 +1,9 @@
-#!/Users/pwang/anaconda/python.app/Contents/MacOS/python
 import pandas
 import bokeh
 
 from bokeh.functional import *
 
-df = pandas.read_csv("auto-mpg.csv")
+df = pandas.read_csv("../auto-mpg.csv")
 
 s = ggplot(df, aes("displ", "mpg", color="red")) + geom_point()
 
