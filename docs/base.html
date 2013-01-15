@@ -1,0 +1,46 @@
+<!DOCTYPE html>  <html> <head>   <title>base.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="base.html">                 base.coffee               </a>                                           <a class="source" href="bokeh_model.html">                 bokeh_model.coffee               </a>                                           <a class="source" href="bokeh_views.html">                 bokeh_views.coffee               </a>                                           <a class="source" href="coffee_style_guide.html">                 coffee_style_guide.coffee               </a>                                           <a class="source" href="model_base.html">                 model_base.coffee               </a>                                           <a class="source" href="testutils.html">                 testutils.coffee               </a>                                           <a class="source" href="ticks.html">                 ticks.coffee               </a>                                           <a class="source" href="tools.html">                 tools.coffee               </a>                                           <a class="source" href="ui_model.html">                 ui_model.coffee               </a>                                           <a class="source" href="ui_view.html">                 ui_view.coffee               </a>                                           <a class="source" href="view_base.html">                 view_base.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               base.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Module setup stuff</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="k">this</span><span class="p">.</span><span class="nx">Continuum</span>
+  <span class="nv">Continuum = </span><span class="k">this</span><span class="p">.</span><span class="nx">Continuum</span>
+<span class="k">else</span>
+  <span class="nv">Continuum = </span><span class="p">{}</span>
+  <span class="k">this</span><span class="p">.</span><span class="nv">Continuum = </span><span class="nx">Continuum</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>function : safebind</h2>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">safebind = </span><span class="nf">(binder, target, event, callback) -&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>safebind, binder binds to an event on target, which triggers callback.
+Safe means that when the binder is destroyed, all callbacks are unbound.
+callbacks are bound and evaluated in the context of binder.  Now that
+backbone 0.99 is out, with listenTo and stopListening functions, which
+manage event lifecycles, we probably don't need this function</p>
+
+<h4>Parameters</h4>
+
+<ul>
+<li>binder : backbone model or view - when this is destroyed or removed, the callback
+unbound</li>
+<li>target : object triggering the event we want to bind to</li>
+<li>event : string, name of the event</li>
+<li>callback : callback for the event</li>
+</ul>
+
+<h4>Returns</h4>
+
+<ul>
+<li>null</li>
+</ul>
+
+<p>stores objects we are binding events on, so that if we go away,
+we can unbind all our events
+currently, we require that the context being used is the binders context
+this is because we currently unbind on a per context basis.  this can
+be changed later if we need it</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="k">if</span> <span class="o">not</span> <span class="nx">_</span><span class="p">.</span><span class="nx">has</span><span class="p">(</span><span class="nx">binder</span><span class="p">,</span> <span class="s">&#39;eventers&#39;</span><span class="p">)</span>
+    <span class="nx">binder</span><span class="p">[</span><span class="s">&#39;eventers&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+  <span class="k">try</span>
+    <span class="nx">binder</span><span class="p">[</span><span class="s">&#39;eventers&#39;</span><span class="p">][</span><span class="nx">target</span><span class="p">.</span><span class="nx">id</span><span class="p">]</span> <span class="o">=</span> <span class="nx">target</span>
+  <span class="k">catch</span> <span class="nx">error</span>
+  <span class="nx">target</span><span class="p">.</span><span class="kc">on</span><span class="p">(</span><span class="nx">event</span><span class="p">,</span> <span class="nx">callback</span><span class="p">,</span> <span class="nx">binder</span><span class="p">)</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>also need to bind destroy to remove obj from eventers.
+no special logic needed to manage this life cycle, because
+we will already unbind all listeners on target when binder goes away</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">target</span><span class="p">.</span><span class="kc">on</span><span class="p">(</span><span class="s">&#39;destroy remove&#39;</span><span class="p">,</span>
+      <span class="p">()</span> <span class="o">=&gt;</span>
+        <span class="k">delete</span> <span class="nx">binder</span><span class="p">[</span><span class="s">&#39;eventers&#39;</span><span class="p">][</span><span class="nx">target</span><span class="p">]</span>
+    <span class="p">,</span>
+      <span class="nx">binder</span><span class="p">)</span>
+  <span class="k">return</span> <span class="kc">null</span>
+<span class="nv">Continuum.safebind = </span><span class="nx">safebind</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
