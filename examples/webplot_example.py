@@ -1,4 +1,5 @@
-from webplot import p
+from bokeh import mpl
+p = mpl.PlotClient('defaultdoc', 'http://localhost:5006', 'nokey')
 import numpy as np
 import datetime
 import time
