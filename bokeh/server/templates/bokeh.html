@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>Continuum Analytics</title>
+	<!-- Vendor Styles -->
+    <script type=text/javascript src="{{ url_for('static', filename='vendor/jquery.1.7.2.min.js') }}"></script>
+    <script type=text/javascript src="{{ url_for('static', filename='vendor/underscore/underscore.js') }}"></script>
+    <script type=text/javascript src="{{ url_for('static', filename='vendor/backbone/backbone.js') }}"></script>
+    
+	<!-- Continuum Styles -->
+    <link href="{{ url_for('static', filename='vendor/bokehjs/css/bokeh.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bokehjs/css/continuum.css') }}" rel="stylesheet">
+
+    <script type="text/javascript" src="/bokeh/static/vendor/jquery/js/jquery.mousewheel.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/buckets/buckets.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/d3/d3.v2.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/base.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/view_base.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/model_base.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/ui_view.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/ui_model.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/bokeh_views.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/ticks.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/tools.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/bokeh_model.js"></script>
+    <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/custom.js"></script>
+    <script type=text/javascript src="/bokeh/static/js/serverutils.js"></script>
+    <script type=text/javascript src="/bokeh/static/js/serverrun.js"></script>
+  </head>
+  <body>
+    <div>Your Plots Go Here</div>
+    <div id="PlotPane">Plots</div>
+  </body>
+</html>

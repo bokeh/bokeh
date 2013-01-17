@@ -701,7 +701,24 @@ class ScatterSelectionOverlay extends Continuum.HasParent
 class ScatterSelectionOverlays extends Continuum.Collection
   model : ScatterSelectionOverlay
 
+class CDXPlotContext extends Continuum.HasParent
+  type : 'PlotContext',
+  default_view : Bokeh.PlotContextView
+  url : () ->
+    return super()
+  defaults :
+    children : []
+    render_loop : true
 
+class PlotContexts extends Backbone.Collection
+  model : CDXPlotContext
+
+if not Continuum.Collections.PlotContext
+  Continuum.Collections.PlotContext = new PlotContexts()
+
+#backwards compatability
+if not Continuum.Collections.CDXPlotContext
+  Continuum.Collections.CDXPlotContext = Continuum.Collections.PlotContext
 
 #Preparing the name space
 if not Continuum.Collections.Plot

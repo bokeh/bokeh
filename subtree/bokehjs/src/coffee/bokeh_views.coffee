@@ -1177,6 +1177,238 @@ class ScatterSelectionOverlayView extends PlotWidget
     @plot_view.ctx.stroke()
     @render_end()
     return null
+
+
+class PlotContextView extends Continuum.ContinuumView
+  initialize : (options) ->
+    @views = {}
+    @views_rendered = [false]
+    @child_models = []
+    super(options)
+    @render()
+
+  delegateEvents: ->
+    Continuum.safebind(this, @model, 'destroy', @remove)
+    Continuum.safebind(this, @model, 'change', @render)
+    super()
+
+  generate_remove_child_callback : (view) ->
+    callback = () =>
+      return null
+    return callback
+
+  build_children : () ->
+    # created_views = Continuum.build_views(
+    #   @model, @views, @mget('children'),
+    #   {'render_loop': true, 'scale' : 1.0})
+    created_views = Continuum.build_views(
+      @views, @mget_obj('children'), {})
+
+    window.pc_created_views = created_views
+    window.pc_views = @views
+    return null
+
+  events :
+    #'click .jsp' : 'newtab'
+    'click .plotclose' : 'removeplot'
+    'click .closeall' : 'closeall'
+    'keydown .plottitle' : 'savetitle'
+  size_textarea : (textarea) ->
+    scrollHeight = $(textarea).height(0).prop('scrollHeight')
+    $(textarea).height(scrollHeight)
+
+  savetitle : (e) =>
+    if e.keyCode == 13 #enter
+      e.preventDefault()
+      plotnum = parseInt($(e.currentTarget).parent().attr('data-plot_num'))
+      s_pc = @model.resolve_ref(@mget('children')[plotnum])
+      s_pc.set('title', $(e.currentTarget).val())
+      s_pc.save()
+      $(e.currentTarget).blur()
+      return false
+    @size_textarea($(e.currentTarget))
+
+  closeall : (e) =>
+    @mset('children', [])
+    @model.save()
+
+  removeplot : (e) =>
+    plotnum = parseInt($(e.currentTarget).parent().attr('data-plot_num'))
+    s_pc = @model.resolve_ref(@mget('children')[plotnum])
+    view = @views[s_pc.get('id')]
+    view.remove();
+    newchildren = (x for x in @mget('children') when x.id != view.model.id)
+    @mset('children', newchildren)
+    @model.save()
+    return false
+
+  render : () ->
+    super()
+    @build_children()
+    for own key, val of @views
+      val.$el.detach()
+    @$el.html('')
+    @$el.append("<div><a class='closeall' href='#'>Close All Plots</a></div>")
+    @$el.append("<br/>")
+    to_render = []
+    tab_names = {}
+    for modelref, index in @mget('children')
+      view = @views[modelref.id]
+      node = $("<div class='jsp' data-plot_num='#{index}'></div>"  )
+      @$el.append(node)
+      title = view.model.get('title')
+      node.append($("<textarea class='plottitle'>#{title}</textarea>"))
+      node.append($("<a class='plotclose'>[close]</a>"))
+      node.append(view.el)
+    _.defer(() =>
+      for textarea in @$el.find('.plottitle')
+        @size_textarea($(textarea))
+    )
+    return null
+
+class PlotContextViewState extends Continuum.HasProperties
+  defaults :
+    maxheight : 600
+    maxwidth : 600
+    selected : 0
+
+class PlotContextViewWithMaximized extends PlotContextView
+  initialize : (options) ->
+    @selected = 0
+    @viewstate = new PlotContextViewState(
+      maxheight : options.maxheight
+      maxwidth : options.maxwidth
+    )
+    super(options)
+    Continuum.safebind(this, @viewstate, 'change', @render)
+    Continuum.safebind(this, @model, 'change:children', () =>
+      selected = @viewstate.get('selected')
+      if selected > @model.get('children') - 1
+        @viewstate.set('selected', 0)
+    )
+  events :
+    'click .maximize' : 'maximize'
+    'click .plotclose' : 'removeplot'
+    'click .closeall' : 'closeall'
+    'keydown .plottitle' : 'savetitle'
+
+  maximize : (e) ->
+    plotnum = parseInt($(e.currentTarget).parent().attr('data-plot_num'))
+    @viewstate.set('selected', plotnum)
+
+  render : () ->
+    super()
+    @build_children()
+    for own key, val of @views
+      val.$el.detach()
+    @$el.html('')
+    main = $("<div class='plotsidebar'><div>")
+    @$el.append(main)
+    @$el.append("<div class='maxplot'>")
+    main.append("<div><a class='closeall' href='#'>Close All Plots</a></div>")
+    main.append("<br/>")
+    to_render = []
+    tab_names = {}
+    for modelref, index in @mget('children')
+      view = @views[modelref.id]
+      node = $("<div class='jsp' data-plot_num='#{index}'></div>"  )
+      main.append(node)
+      title = view.model.get('title')
+      node.append($("<textarea class='plottitle'>#{title}</textarea>"))
+      node.append($("<a class='maximize'>[max]</a>"))
+      node.append($("<a class='plotclose'>[close]</a>"))
+      node.append(view.el)
+    if @mget('children').length > 0
+      modelref = @mget('children')[@viewstate.get('selected')]
+      model = @model.resolve_ref(modelref)
+      @maxview = new model.default_view(
+        model : model
+      )
+      @$el.find('.maxplot').append(@maxview.$el)
+    else
+      @maxview = null
+
+    _.defer(() =>
+      for textarea in main.find('.plottitle')
+        @size_textarea($(textarea))
+      if @maxview
+        width = model.get('width')
+        height = model.get('height')
+        maxwidth = @viewstate.get('maxwidth')
+        maxheight = @viewstate.get('maxheight')
+        widthratio = maxwidth/width
+        heightratio = maxheight/height
+        ratio = _.min([widthratio, heightratio])
+        newwidth = ratio * width
+        newheight = ratio * height
+        @maxview.viewstate.set('height', newheight)
+        @maxview.viewstate.set('width', newwidth)
+
+    )
+    return null
+
+
+#we should take this out, don't need plot context for single plot
+class SinglePlotContextView extends Continuum.ContinuumView
+  initialize : (options) ->
+    @views = {}
+    @views_rendered = [false]
+    @child_models = []
+    @target_model_id = options.target_model_id
+    super(options)
+    @render()
+
+  delegateEvents: ->
+    Continuum.safebind(this, @model, 'destroy', @remove)
+    Continuum.safebind(this, @model, 'change', @render)
+    super()
+
+  generate_remove_child_callback : (view) ->
+    callback = () =>
+      return null
+    return callback
+
+  single_plot_children : () ->
+    return _.filter(@mget_obj('children'), (child) => child.id == @target_model_id)
+
+  build_children : () ->
+    created_views = Continuum.build_views(@views, @single_plot_children(), {})
+    window.pc_created_views = created_views
+    window.pc_views = @views
+    return null
+
+  events :
+    #'click .jsp' : 'newtab'
+    'click .plotclose' : 'removeplot'
+
+  removeplot : (e) =>
+    plotnum = parseInt($(e.currentTarget).parent().attr('data-plot_num'))
+    s_pc = @model.resolve_ref(@mget('children')[plotnum])
+    view = @views[s_pc.get('id')]
+    view.remove();
+    newchildren = (x for x in @mget('children') when x.id != view.model.id)
+    @mset('children', newchildren)
+    @model.save()
+    return false
+
+  render : () ->
+    super()
+    @build_children()
+    for own key, val of @views
+      val.$el.detach()
+    @$el.html('')
+    to_render = []
+    tab_names = {}
+    for modelref, index in @single_plot_children()
+      console.log("modelref.id ", modelref.id)
+      view = @views[modelref.id]
+      node = $("<div class='jsp' data-plot_num='#{index}'></div>"  )
+      @$el.append(node)
+      title = view.model.get('title')
+      node.append($("<p>#{title}</p>"))
+      node.append(view.el)
+    return null
+
 window.overlay_render = 0
 
 Bokeh.PlotWidget = PlotWidget
@@ -1188,3 +1420,6 @@ Bokeh.GridPlotContainerView = GridPlotContainerView
 Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
 Bokeh.LinearAxisView = LinearAxisView
 Bokeh.LinearDateAxisView = LinearDateAxisView
+Bokeh.SinglePlotContextView = SinglePlotContextView
+Bokeh.PlotContextViewWithMaximized = PlotContextViewWithMaximized
+Bokeh.PlotContextView = PlotContextView

@@ -1,0 +1,26 @@
+<div>
+  <p>Bokeh Sources</p>
+  {{ script_block }}
+  {{ css_block }}
+  {{ joint_block }}
+  {% if connect %}
+  <script type="text/javascript">
+    window.host = "{{ host }}";
+    window.docid = "{{ docid }}";
+    window.protocol = "{{ protocol }}";
+    window.wsprotocol = "{{ wsprotocol }}";        
+    url = protocol + "://" + host + "/" + "/cdx/cdxinfo/" + docid;
+    wsurl = wsprotocol + "://" + host + "/sub";
+    $.get(url, {}, function(data){
+    Continuum.urlroot = protocol + "://" + host;
+    data = JSON.parse(data);
+    Continuum.load_models(data['all_models']);
+    Continuum.HasProperties.prototype.sync = Backbone.sync
+    Continuum.docid=data['docid'];
+    $CDX.apikey = data['apikey'];
+    $CDX.wswrapper = new Continuum.WebSocketWrapper(wsurl);
+    Continuum.submodels($CDX.wswrapper, "cdxplot:" + docid, $CDX.apikey);
+    });
+  </script>
+  {% endif %}
+</div>

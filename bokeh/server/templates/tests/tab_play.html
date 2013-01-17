@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block main %}
+
+
+<script 
+   type=text/javascript src="{{
+   url_for('static',filename='js/tab_lib_test.js') }}">
+</script>
+
+<div id="layout-root"></div>
+<script type="text/javascript">
+  
+  //alert('bokeh script block');
+  window.$SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+
+  // Adjust layout / pane sizes.
+  function resizeRoot() {
+    var winHeight = $(window).height();
+    var winWidth = $(window).width();
+    var bokehRootHeight=(winHeight * .95);
+    var midPanelHeight = (bokehRootHeight * .65);
+    var pyEdPaneHeight = (bokehRootHeight * .20);
+    //alert('resize'+bokehRootHeight);
+    $('#bokehRoot').height(bokehRootHeight);
+    $('.midPanel').height(midPanelHeight);
+    $('#bokehMidContainer').width(winWidth * .95);
+    $('.bokeh-py-pane').width(winWidth * .85);
+    $('.bokeh-py-pane').height(pyEdPaneHeight);
+  };
+
+  $(window).resize(function() {
+    var resizeTimer;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(resizeRoot, 500);
+  });
+
+  // Init root pane size.
+  resizeRoot();
+</script>
+
+{% endblock %}
