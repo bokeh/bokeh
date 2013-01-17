@@ -3,15 +3,6 @@ svg {
   margin: 0;
 }
 
-/* 
-Do not use classes to style svgs, they don't work properly with png persistence
- */
-.D3LinearAxisView {
-  fill: none;
-  stroke-width: 1.5px;
-  shape-rendering: crispEdges;
-}
-
 .ui-dialog-titlebar {
   height : 16px 
 }
@@ -54,3 +45,42 @@ button.active { border:1px solid blue }
 .plot_wrap .button_bar * {display:none}
 .plot_wrap:hover  .button_bar *  {display:inherit}
 
+.maximize {
+    display : none;
+    float : right;
+}
+
+.jsp:hover > .maximize{
+    display : inline;
+    float : right;
+    vertical-align : top;
+}
+
+.plotclose {
+    display : none;
+    float : right;
+}
+
+.jsp:hover > .plotclose{
+    display : inline;
+    float : right;
+    vertical-align : top;
+}
+
+.plottitle{
+  height: 1em;
+  border : none;
+  resize : none;
+  width : 200;
+  overflow : hidden;
+}
+
+.plotsidebar{
+    overflow-x : auto;
+    width : 350;
+    float : left;
+}
+
+.maxplot{
+    float : left;
+}
