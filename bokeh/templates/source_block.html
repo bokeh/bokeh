@@ -9,7 +9,7 @@
     window.docid = "{{ docid }}";
     window.protocol = "{{ protocol }}";
     window.wsprotocol = "{{ wsprotocol }}";        
-    url = protocol + "://" + host + "/" + "/cdx/cdxinfo/" + docid;
+    url = protocol + "://" + host + "/" + "/bokeh/bokehinfo/" + docid;
     wsurl = wsprotocol + "://" + host + "/sub";
     $.get(url, {}, function(data){
     Continuum.urlroot = protocol + "://" + host;
@@ -17,9 +17,9 @@
     Continuum.load_models(data['all_models']);
     Continuum.HasProperties.prototype.sync = Backbone.sync
     Continuum.docid=data['docid'];
-    $CDX.apikey = data['apikey'];
-    $CDX.wswrapper = new Continuum.WebSocketWrapper(wsurl);
-    Continuum.submodels($CDX.wswrapper, "cdxplot:" + docid, $CDX.apikey);
+    $Bokeh.apikey = data['apikey'];
+    $Bokeh.wswrapper = new Continuum.WebSocketWrapper(wsurl);
+    Continuum.submodels($Bokeh.wswrapper, "bokehplot:" + docid, $Bokeh.apikey);
     });
   </script>
   {% endif %}
