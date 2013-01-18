@@ -116,7 +116,7 @@ Continuum.load_models = (modelspecs)->
 # data.  We assume that msg data over this websocket
 # channel are sent in "topic:data" form, where data can
 # be any arbitrary string. note that since topic is prefixed with :,
-# in practice a message looks like cdxplot:docid:jsondata
+# in practice a message looks like bokehplot:docid:jsondata
 class Continuum.WebSocketWrapper
   _.extend(@prototype, Backbone.Events)
   # ### method :
