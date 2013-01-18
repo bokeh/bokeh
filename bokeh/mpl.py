@@ -5,6 +5,7 @@ import requests
 import uuid
 import bbmodel
 import protocol
+from protocol import serialize_json
 import os
 import dump
 import json
@@ -37,14 +38,20 @@ class GridPlot(object):
                 models.extend(plot.allmodels())
         return models
     
-    def htmldump(self, path, inline=True):
+    def htmldump(self, path=None, inline=True):
+        """ If **path** is provided, then writes output to a file,
+        else returns the output as a string.
+        """
         html = self.plotclient.make_html(self.allmodels(),
                                          model=self.gridmodel,
                                          inline=True,
                                          template="bokeh.html"
                                          )
-        with open(path, "w+") as f:
-            f.write(html.encode("utf-8"))
+        if path:
+            with open(path, "w+") as f:
+                f.write(html.encode("utf-8"))
+        else:
+            return html.encode("utf-8")
         
     def notebook(self):
         import IPython.core.displaypub as displaypub
@@ -250,14 +257,20 @@ class XYPlot(object):
             self.plotclient.bbclient.upsert_all(update)
         self.plotclient.show(self.plotmodel)
 
-    def htmldump(self, path, inline=True):
+    def htmldump(self, path=None, inline=True):
+        """ If **path** is provided, then writes output to a file,
+        else returns the output as a string.
+        """
         html = self.plotclient.make_html(self.allmodels(),
                                          model=self.plotmodel,
                                          inline=True,
                                          template="bokeh.html"
                                          )
-        with open(path, "w+") as f:
-            f.write(html.encode("utf-8"))
+        if path:
+            with open(path, "w+") as f:
+                f.write(html.encode("utf-8"))
+        else:
+            return html.encode("utf-8")
         
     def notebook(self):
         import IPython.core.displaypub as displaypub
@@ -549,7 +562,7 @@ class PlotClient(object):
             result = template.render(
                 script_block=jsstr.decode('utf8'),
                 css_block=cssstr.decode('utf8'),
-                all_models=json.dumps([x.to_broadcast_json() \
+                all_models=serialize_json([x.to_broadcast_json() \
                                        for x in all_models]),
                 modelid=model.id,
                 modeltype=model.typename,
@@ -557,14 +570,16 @@ class PlotClient(object):
                 )
 
             return result
-    def htmldump(self, path, inline=True):
+    def htmldump(self, path=None, inline=True):
         """if inline, path is a filepath, otherwise,
         path is a dir
         """
         html = self.make_html(self.models.values(), inline=inline)
-        print 'dumping too', path
-        with open(path, 'w') as f:
-            f.write(str(html.encode('utf8')))
+        if path:
+            with open(path, "w+") as f:
+                f.write(html.encode("utf-8"))
+        else:
+            return html.encode("utf-8")
 
 
 def get_template(filename):

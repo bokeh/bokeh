@@ -24,14 +24,13 @@ script_paths = [
 notebook_script_paths = script_paths
 
 css_paths = [
-    'css/cdx.css',
     'vendor/bokehjs/css/bokeh.css',
     'vendor/bokehjs/css/continuum.css',
     ]
 
 def static_join(*dirs):
     root = os.path.dirname(__file__)
-    return os.path.join(root, "static", *dirs)
+    return os.path.join(root, "server", "static", *dirs)
 
 def css_str(paths):
     retval = ""

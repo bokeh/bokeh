@@ -203,7 +203,7 @@ class GGPlot(HasTraits):
         output that can be embedded in IPython notebook.
         """
 
-        from cdxlib import mpl
+        import mpl
         client = mpl.PlotClient()
 
         if notebook:
