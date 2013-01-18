@@ -59,27 +59,26 @@ def transform_models(models):
     return [x for x in models if x.id not in to_delete]
 
 
-def prune_and_get_valid_models(flaskapp, docid, delete=False):
-    doc = Doc.load(flaskapp.model_redis, docid)
-    plot_context = flaskapp.collections.get(doc.plot_context_ref['type'],
+def prune_and_get_valid_models(model_redis, collections, docid, delete=False):
+    doc = Doc.load(model_redis, docid)
+    plot_context = collections.get(doc.plot_context_ref['type'],
                                             doc.plot_context_ref['id'])
     toplevelmodels = [plot_context]
     marked = set()
-    temp = flaskapp.collections.get_bulk(docid)
+    temp = collections.get_bulk(docid)
     print "num models", len(temp)
     all_models = {}
     all_models_json = {}
     for x in temp:
         all_models_json[x.id] = x.attributes
         all_models[x.id] = x
-
     mark_recursive_models(all_models_json, marked, plot_context.attributes)
 
     for v in all_models_json.values():
         if v['id'] not in marked:
             typename = all_models[v['id']].typename
             if delete:
-                flaskapp.collections.delete(typename, v['id'])
+                collections.delete(typename, v['id'])
     valid_models = [x for x in all_models.values() if x.id in marked]
     valid_models = transform_models(valid_models)
     return valid_models

@@ -49,7 +49,9 @@ def get_bokeh_info(docid):
     if not mconv.can_write_doc(doc, bokehuser):
         return null
     plot_context_ref = doc.plot_context_ref
-    all_models = docs.prune_and_get_valid_models(current_app, docid)
+    all_models = docs.prune_and_get_valid_models(current_app.model_redis,
+                                                 current_app.collections,
+                                                 docid)
     print "num models", len(all_models)
     all_models = [x.to_broadcast_json() for x in all_models]
     returnval = {'plot_context_ref' : plot_context_ref,
@@ -65,7 +67,9 @@ def get_bokeh_info(docid):
 def get_public_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     plot_context_ref = doc.plot_context_ref
-    all_models = docs.prune_and_get_valid_models(current_app, docid)
+    all_models = docs.prune_and_get_valid_models(current_app.model_redis,
+                                                 current_app.collections,
+                                                 docid)
     public_models = [x for x in all_models if x.get('public', False)]
     if len(public_models) == 0:
         return False

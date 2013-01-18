@@ -40,7 +40,9 @@ def rungc(docid):
             {'msgtype' : 'error',
              'msg' : 'unauthorized'}
             )
-    all_models = docs.prune_and_get_valid_models(current_app, docid, delete=True)
+    all_models = docs.prune_and_get_valid_models(current_app.model_redis,
+                                                 current_app.collections,
+                                                 docid, delete=True)
     return 'success'
 @app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
 def bulk_upsert(docid):
