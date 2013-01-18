@@ -68,7 +68,7 @@ class ContinuumModelsClient(object):
         self.docid = docid
         session = requests.session()
         session.headers.update({'content-type':'application/json'})
-        session.cookies.update({'Bokeh-api-key' : self.apikey})
+        session.cookies.update({'bokeh-api-key' : self.apikey})
         session.verify = False
         self.s = session 
         super(ContinuumModelsClient, self).__init__()
