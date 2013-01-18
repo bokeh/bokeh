@@ -459,7 +459,7 @@ class HasProperties extends Backbone.Model
     # ### method HasProperties::url
     #model where our API processes this model
 
-    base = "/cdx/bb/" + Continuum.docid + "/" + @type + "/"
+    base = "/bokeh/bb/" + Continuum.docid + "/" + @type + "/"
     if (@isNew())
       return base
     return base + @get('id')
