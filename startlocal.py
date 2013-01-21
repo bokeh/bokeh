@@ -3,5 +3,5 @@ start.prepare_app()
 start.prepare_local()
 
 if __name__ == "__main__":
-    start.start_app()
+    start.start_app(verbose=True)
 

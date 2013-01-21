@@ -64,8 +64,10 @@ def prepare_local():
 
 http_server = None
 
-def start_app():
+def start_app(verbose=False):
     global http_server
+    if verbose:
+        print "Starting server on port 5006..."
     http_server = WSGIServer(('', 5006), app,
                              handler_class=WebSocketHandler,
                              )
