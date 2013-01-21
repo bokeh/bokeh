@@ -7,8 +7,10 @@ is constructed.
 
 """
 
-from traits import api as traits
-from traits.api import HasTraits, Any, Enum, Int, List, Str, Trait
+#from traits import api as traits
+#from traits.api import HasTraits, Any, Enum, Int, List, Str, Trait
+
+from .properties import HasProps, Any, Either, Enum, Int, List, String
 
 from pandas_plot_data import PandasPlotData
 
@@ -22,16 +24,16 @@ DefaultStyle = dict(
     line_weight = 1
     )
 
-class Aesthetic(HasTraits):
+class Aesthetic(HasProps):
     """ Acts as a data and visual configuration template which is
     passed in to gpplot()
     """
 
-    x = Trait(None, Str)
-    y = Trait(None, Str)
+    x = String(None)
+    y = String(None)
 
-    color = Trait(None, Str)
-    fill = Trait(None, Str)
+    color = String(None)
+    fill = String(None)
 
     # Shape can be:
     #   an integer in 0..25 for the various symbols
@@ -39,50 +41,50 @@ class Aesthetic(HasTraits):
     #   a "." to draw the smallest rectangle
     #   None, to draw nothing
     # All symbols have a foreground color; symbols 19-25 also have bgcolor
-    shape = Trait(None, Str, Int)
+    shape = Either(String, Int, default=0)
 
     # Size in millimeters
-    size = Trait(None, Int)
+    size = Int(1)
 
     # Justification can also be a number between 0..1, giving position
     # within the string
     #justification = Enum("left", "right", "center", "bottom", "top")
 
-    line_type = Trait(None, Enum("solid", "dashed", "dotted", "dotdash",
-                     "longdash", "twodash", "blank"))
-    line_weight = Trait(None, Int)
+    line_type = Enum("solid", "dashed", "dotted", "dotdash",
+                     "longdash", "twodash", "blank")
+    line_weight = Int(None)
 
     #binwidth = Float()
-    #label = Str()
+    #label = String()
     #ymin = Float()
     #ymax = Float()
-    #group = Str()
+    #group = String()
 
     def __init__(self, x=None, y=None, **kwtraits):
-        super(Aesthetic, self).__init__(**kwtraits)
         if x:
             self.x = x
         if y:
             self.y = y
+        super(Aesthetic, self).__init__(**kwtraits)
 
     def __add__(self, aes):
         """ Returns a new Aesthetic class that represents the merger of this
         instance with another one.  This instance (LHS) takes lower 
         precedence, and its values are masked by ones in RHS argument.
         """
-        newaes = self.clone_traits()
-        for trait_name in set(aes.trait_names()) - set(("trait_modified", "trait_added")):
-            if getattr(aes, trait_name) is not None:
-                setattr(self, trait_name, getattr(aes, trait_name))
+        newaes = self.clone()
+        for prop_name in aes.properties():
+            if getattr(aes, prop_name) is not None:
+                setattr(newaes, prop_name, getattr(aes, prop_name))
         return newaes
 
     def merge_defaults(self):
         """ Fills in all trait values that are None with values from the
         DefaultStyle dictionary.
         """
-        for trait_name in set(self.trait_names()) - set(("trait_modified", "trait_added")):
-            if getattr(self, trait_name) is None:
-                setattr(self, trait_name, DefaultStyle[trait_name])
+        for prop_name in self.properties():
+            if getattr(self, prop_name) is None:
+                setattr(self, prop_name, DefaultStyle[prop_name])
 
 
 class Geom(Aesthetic):
@@ -95,18 +97,13 @@ class Geom(Aesthetic):
 
     position = Enum("identity", "dodge", "jitter", "fill", "stack")
 
-    def __init__(self, **kwtraits):
-        HasTraits.__init__(self, **kwtraits)
-
     def plot(self, plotclient, datasource, aes, title=None):
         raise NotImplementedError
 
-
 class GeomPoint(Geom):
     
-    _renderer = Any()
-
     def plot(self, plotclient, datasource, aes, title=None):
+        props = self.properties()
         aes = aes + self
         aes.merge_defaults()
         #p = plotclient.scatter((aes.x, aes.y), type="scatter", color=aes.fill,
@@ -115,15 +112,11 @@ class GeomPoint(Geom):
         p = plotclient.scatter(aes.x, aes.y, color=aes.color, data_source=datasource)
         if title:
             p.plotmodel.set('title', title)
-        #print "GeomPoint plot of", aes.x, ",", aes.y
-        self._renderer = p
         return p
 
 
 class GeomLine(Geom):
     
-    _renderer = Any()
-
     def plot(self, plotclient, datasource, aes, title=None):
         aes = aes + self
         aes.merge_defaults()
@@ -133,15 +126,13 @@ class GeomLine(Geom):
         p = plotclient.plot(aes.x, aes.y, color=aes.color, data_source=datasource)
         if title:
             p.set('title', title)
-        #print "GeomLine plot of", aes.x, ",", aes.y
-        self._renderer = p
         return p
 
-class Tool(HasTraits):
+class Tool(HasProps):
     type = Enum("pan", "zoom", "regression")
     button = Enum(None, "left", "right")
 
-class GGPlot(HasTraits):
+class GGPlot(HasProps):
     """ Represents a Grammar of Graphics plot.
 
     Most of the ggplot functions extend or manipulate this object, by adding
@@ -164,9 +155,9 @@ class GGPlot(HasTraits):
     
     facet_layout = Any()
 
-    _plot_title = Str()
+    _plot_title = String()
 
-    def __init__(self, dataset, **kw):
+    def __init__(self, dataset=None, **kw):
         super(GGPlot, self).__init__(dataset=dataset, **kw)
 
     def __add__(self, obj):
@@ -186,9 +177,7 @@ class GGPlot(HasTraits):
                 # Use the first aesthetic we get to set the window title
                 self.set_title(obj.x + " * " + obj.y)
             else:
-                self.aes + obj
-        #elif isinstance(obj, Tool):
-        #    self._add_tool(obj)
+                self.aes = self.aes + obj
         return self
 
     def set_title(self, title):
@@ -213,7 +202,6 @@ class GGPlot(HasTraits):
         ppd = PandasPlotData(self.dataset)
 
         if self.facet_layout is None:
-            #[g.plot(plotcontainer, self.aes) for g in self.geoms]
             datasource = client.make_source(**dict((dataname, ppd.get_data(dataname)) for dataname in ppd.list_data()))
             for g in self.geoms:
                 p = g.plot(client, datasource, self.aes)
@@ -250,7 +238,7 @@ class GGPlot(HasTraits):
                             if len(self.geoms) > 1:
                                 [g.plot(client, datasource, self.aes) for g in self.geoms[1:]]
                         else:
-                            print "Empty facet for", i, j
+                            # Create a new empty plot area
                             plot = client._newxyplot()
                         plotrow.append(plot)
                         client.figure()
@@ -268,7 +256,7 @@ class GGPlot(HasTraits):
 
 
 
-class Facet(HasTraits):
+class Facet(HasProps):
     factors = List()
     ftype = Enum("wrap", "grid")
 
@@ -280,15 +268,14 @@ class Facet(HasTraits):
     def wrap(cls, factor=""):
         return cls(factors=[factor], ftype="wrap")
 
-
-class Factor(HasTraits):
+class Factor(HasProps):
     """ Represents a factorization ("uniquification") of a particular 
     column.  This is typically used to generate the unique set of values
     for a categorical dimension, to feed in to things like facets and 
     color scales.
     """
 
-    attr = Str()
+    attr = String()
 
     def __init__(self, attr):
         self.attr = attr

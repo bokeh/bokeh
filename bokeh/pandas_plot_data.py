@@ -1,9 +1,9 @@
 
 import numpy as np
 
-from traits.api import Any, Bool, Dict, Event, HasTraits, Tuple
+from .properties import HasProps, Any, Bool, Dict, Event, Tuple
 
-class AbstractPlotData(HasTraits):
+class AbstractPlotData(HasProps):
     """ Copied from Chaco, to avoid introducing a dependency just to define
     an interface.
     """
@@ -20,7 +20,6 @@ class AbstractPlotData(HasTraits):
         raise NotImplementedError
     def set_selection(self, name, selection):
         raise NotImplementedError
-
 
 class PandasPlotData(AbstractPlotData):
     
@@ -41,7 +40,7 @@ class PandasPlotData(AbstractPlotData):
     def __init__(self, dataframe, **kwargs):
         """ PandasPlotData exposes a PlotData interface from a DataFrame.
         """
-        AbstractPlotData.__init__(self, **kwargs)
+        super(PandasPlotData, self).__init__(**kwargs)
         self.df = dataframe
 
     def facet(self, facets):
