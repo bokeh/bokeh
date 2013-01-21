@@ -85,9 +85,8 @@ $BokehServer.utility =
       $BokehServer.plot_context_ref['type'],
       $BokehServer.plot_context_ref['id']
     )
-    plotcontextview = new Bokeh.SinglePlotContext(
+    plotcontextview = new Bokeh.SinglePlotContextView(
       model : plotcontext,
-      render_loop: true,
       target_model_id:view_model_id
     )
     $BokehServer.plotcontext = plotcontext
