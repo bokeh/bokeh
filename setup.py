@@ -10,17 +10,17 @@ import sys
 __version__ = (0, 0, 1)
 
 package_data_dirs = []
-for dirname, _, files in os.walk('bokeh/server/static', follow_links=True):
+for dirname, _, files in os.walk('bokeh/server/static', followlinks=True):
     dirname = os.path.relpath(dirname, 'bokeh')
     for f in files:
         package_data_dirs.append(os.path.join(dirname, f))
         
-for dirname, _, files in os.walk('bokeh/server/templates', follow_links=True):
+for dirname, _, files in os.walk('bokeh/server/templates', followlinks=True):
     dirname = os.path.relpath(dirname, 'bokeh')
     for f in files:
         package_data_dirs.append(os.path.join(dirname, f))
 
-for dirname, _, files in os.walk('bokeh/templates', follow_links=True):
+for dirname, _, files in os.walk('bokeh/templates', followlinks=True):
     dirname = os.path.relpath(dirname, 'bokeh')
     for f in files:
         package_data_dirs.append(os.path.join(dirname, f))
