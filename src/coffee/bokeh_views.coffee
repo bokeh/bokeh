@@ -729,6 +729,7 @@ class GlyphRendererView extends XYRendererView
     else if source.type == "ColumnDataSource"
       data = source.datapoints()
     for glyph in @mget('glyphs')
+      console.log("DLGJFLGJLGJDLGJLDGJLDJG")
       if glyph.type == 'circle' or glyph.type == 'square'
         @render_scatter(glyph, data)
       else if glyph.type == 'circles'
@@ -737,6 +738,8 @@ class GlyphRendererView extends XYRendererView
         @render_rects(glyph, data)
       else if glyph.type == 'line'
         @render_line(glyph, data)
+      else if glyph.type == 'area'
+        @render_area(glyph, data)
       else if glyph.type == 'stacked_lines'
         @render_stacked_lines(glyph, data)
       else if glyph.type == 'stacked_rects'
@@ -752,7 +755,6 @@ class GlyphRendererView extends XYRendererView
     #
     # Note that unlike other glyphs, the aesthetic parameters canont be
     # changed on a per-datapoint basis.
-
     metaglyph = new MetaGlyph(this, glyphspec, ['x','y','line_width:string', 'line_color:string', 'alpha'])
 
     ctx = @plot_view.ctx
@@ -914,6 +916,46 @@ class GlyphRendererView extends XYRendererView
       ctx.lineWidth = old_linewidth
 
     @plot_view.ctx.restore()
+
+  render_area : (glyphspec, data) ->
+    metaglyph = new MetaGlyph(this, glyphspec, ['x','y','color:string', 'outline_width:string', 'outline_color:string', 'alpha'])
+
+    ctx = @plot_view.ctx
+    ctx.save()
+
+    # Since we do not allow override of any of the aesthetic parameters
+    # from point to point, we just take the values off of the first_glyph.
+    first_glyph = metaglyph.make_glyph(data[0])
+    ctx.fillStyle = first_glyph.color
+    ctx.lineWidth = first_glyph.outline_width
+    ctx.strokeStyle = first_glyph.outline_color
+    ctx.globalAlpha = first_glyph.alpha
+
+    for idx in [0..data.length-1]
+      glyph = metaglyph.make_glyph(data[idx])
+      if not (glyph.x? and glyph.y?)
+        continue
+      if glyph.x_units == 'data'
+        sx = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.x))
+      else
+        sx = glyph.x
+      if glyph.y_units == 'data'
+        sy = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.y))
+      else
+        sy = glyph.y
+
+      if idx == 0
+        # First glyph, start the path
+        ctx.beginPath()
+        ctx.moveTo(sx, sy)
+        continue
+
+      ctx.lineTo(sx, sy)
+
+    ctx.closePath()
+    ctx.fill()
+    ctx.stroke()
+    ctx.restore()
 
   render_rects : (glyphspec, data) ->
     # There are two ways to specify rects: Centers & widths & heights, or
