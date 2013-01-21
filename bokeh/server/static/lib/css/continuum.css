@@ -1,0 +1,13 @@
+.tableelem{
+    padding-left : 10px;
+    padding-right : 10px;
+    padding-bottom : 2;
+    padding-top : 2px;
+    border-width : 2px;
+    border-color : white;
+    background-color : #E0E0E0;    
+}
+.tableheader{
+    background-color : #C0C0C0;    
+}
+
