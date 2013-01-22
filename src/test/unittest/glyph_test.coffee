@@ -450,6 +450,67 @@ test('rects_glyph2', () ->
 )
 
 
+test('rect_regions_glyph_test', () ->
+  expect(0)
+  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+    data : [
+      {left: 1, right: 1.5, top: 1.5, bottom: 1.0}
+      {left: 2, right: 2.6, top: 2.3, color: "blue"}
+      {left: 3, right: 3.2, top: 3.2, outline_color: "none"}
+      {left: 4, right: 4.2, top: 2.6, bottom: 1.0}
+      {left: 4.8, right: 5.2, top: 2.6, alpha: 0.4}
+    ]
+  )
+  plot_model = Bokeh.Collections.Plot.create()
+  xdr = Bokeh.Collections.DataRange1d.create(
+    sources : [{ref : data_source.ref(), columns : ['left', 'right']}]
+  )
+  ydr = Bokeh.Collections.DataRange1d.create(
+    sources : [{ref : data_source.ref(), columns : ['bottom', 'top']}]
+  )
+  renderer = Bokeh.Collections.GlyphRenderer.create(
+    data_source: data_source.ref()
+    xdata_range: xdr.ref()
+    ydata_range: ydr.ref()
+    glyphs : [
+      type : 'rectregions'
+      left: 'left'
+      right: 'right'
+      bottom:
+        field: 'bogus'
+        default: 1.0
+        units: 'data'
+
+      color: 'red'
+      outline_color: 'black'
+    ]
+  )
+  xaxis = Bokeh.Collections['LinearAxis'].create(
+    orientation : 'bottom'
+    parent : plot_model.ref()
+    data_range : xdr.ref()
+  )
+  yaxis = Bokeh.Collections['LinearAxis'].create(
+    orientation : 'left',
+    parent : plot_model.ref()
+    data_range : ydr.ref()
+  )
+  plot_model.set(
+    renderers : [renderer.ref()],
+    axes : [xaxis.ref(), yaxis.ref()]
+  )
+
+  div = $('<div></div>')
+  $('body').append(div)
+  myrender = ->
+    div.append("<h2>rect_regions_glyph_test</h2>")
+    view = new Bokeh.PlotView(model: plot_model)
+    div.append(view.$el)
+    view.render()
+  _.defer(myrender)
+)
+
+
 test('vector_data_test', () ->
   expect(0)
   data_source = Bokeh.Collections.ColumnDataSource.create(

@@ -678,6 +678,49 @@ class GlyphRendererView extends XYRendererView
     if alpha?
       ctx.globalAlpha = old_alpha
 
+  addRect : (glyph, plot_view, left, right, bottom, top) ->
+    # Internal method for actually drawing a rectangle
+    # **glyph** contains some visual attributes, and **plot_view**
+    # is typically @plot_view.
+
+    # TODO: We need to manually flip the Y axis coordinates
+    bottom = plot_view.viewstate.ypos(bottom)
+    top = plot_view.viewstate.ypos(top)
+
+    # At this point, we have the box boundaries (left, right, bottom, top)
+    # in screen space coordinates, and should be ready to draw.
+
+    # In the following, we need to grab the first element of the returned
+    # valued b/c getter functions always return (val, units) and we don't
+    # care about units for color.
+    ctx = plot_view.ctx
+    old_alpha = ctx.globalAlpha
+    old_linewidth = ctx.lineWidth
+    ctx.globalAlpha = glyph.alpha
+    ctx.lineWidth = glyph.outline_width
+    if glyph.angle != 0
+      # TODO: Fix angle handling. We need to translate, then rotate, then
+      # reset the ctm. Probably best to do this with save() and restore()
+      # b/c there doesn't seem to be a way to read out the current ctm.
+      if glyph.angle_units == 'deg'
+        angle = glyph.angle * Math.PI / 180
+      else
+        angle = glyph.angle
+      ctx.rotate(angle)
+
+    if glyph.color? and glyph.color != "none"
+      ctx.fillStyle = glyph.color
+      ctx.fillRect(left, bottom, right-left, top-bottom)
+    if glyph.outline_color? and glyph.outline_color != "none"
+      ctx.strokeStyle = glyph.outline_color
+      ctx.strokeRect(left, bottom, right-left, top-bottom)
+
+    if angle?
+      ctx.rotate(-angle)
+    ctx.globalAlpha = old_alpha
+    ctx.lineWidth = old_linewidth
+
+
   # ### method : GlyphRendererView::calc_screen
   calc_screen : (glyph, direction, datapoint, mapper) ->
     # #### Parameters
@@ -729,13 +772,14 @@ class GlyphRendererView extends XYRendererView
     else if source.type == "ColumnDataSource"
       data = source.datapoints()
     for glyph in @mget('glyphs')
-      console.log("DLGJFLGJLGJDLGJLDGJLDJG")
       if glyph.type == 'circle' or glyph.type == 'square'
         @render_scatter(glyph, data)
       else if glyph.type == 'circles'
         @render_circles(glyph, data)
       else if glyph.type == 'rects'
         @render_rects(glyph, data)
+      else if glyph.type == 'rectregions'
+        @render_rectregions(glyph, data)
       else if glyph.type == 'line'
         @render_line(glyph, data)
       else if glyph.type == 'area'
@@ -958,13 +1002,10 @@ class GlyphRendererView extends XYRendererView
     ctx.restore()
 
   render_rects : (glyphspec, data) ->
-    # There are two ways to specify rects: Centers & widths & heights, or
-    # boundaries.  If both types are specified, then the behavior is
-    # implementation dependent and should not be relied upon.
+    # A rectangle, specified by a center and width & height.
     #
     # ## Spatial parameters
     # * x, y, width, height
-    # * left, right, bottom, top
     # * angle
     #
     # For each of these spatial parameters, the full specification in the
@@ -1030,10 +1071,7 @@ class GlyphRendererView extends XYRendererView
     # is brittle and behaves poorly; perhaps the user omits these fields
     # altogether?  Need a better way to specify this, perhaps an explicit
     # parameter.
-    if glyphspec.x?   # use centers, widths, heights
-      params = ['x','y','width','height']
-    else if glyphspec.left?   # use bounds
-      params = ['left','right','bottom','top']
+    params = ['x','y','width','height']
 
     params.push.apply(params, ["angle", "color:string", "outline_color:string","alpha", "outline_width"])
     metaglyph = new MetaGlyph(this, glyphspec, params)
@@ -1041,68 +1079,64 @@ class GlyphRendererView extends XYRendererView
     @plot_view.ctx.save()
     for datapoint in data
       glyph = metaglyph.make_glyph(datapoint)
-      if glyphspec.x?
-        [left,right,h_units] = @_span2bounds(glyph.x, glyph.x_units, glyph.width, glyph.width_units, @xmapper)
-        if h_units == 'data'
-          left = @xmapper.map_screen(left)
-          right = @xmapper.map_screen(right)
-        [bottom,top,v_units] = @_span2bounds(glyph.y, glyph.y_units, glyph.height, glyph.height_units, @ymapper)
-        if v_units == 'data'
-          bottom = @ymapper.map_screen(bottom)
-          top = @ymapper.map_screen(top)
-      else
-        # Glyph is specifying bounds, so transform to screen space (if
-        # necessary)
-        if glyph.left_units == 'data'
-          left = @xmapper.map_screen(glyph.left)
-        if glyph.right_units == 'data'
-          right = @xmapper.map_screen(glyph.right)
-        if glyph.bottom_units == 'data'
-          bottom = @ymapper.map_screen(glyph.bottom)
-        if glyph.top_units == 'data'
-          top = @ymapper.map_screen(glyph.top)
-
-      # TODO: We need to manually flip the Y axis coordinates
-      bottom = @plot_view.viewstate.ypos(bottom)
-      top = @plot_view.viewstate.ypos(top)
-
-      # At this point, we have the box boundaries (left, right, bottom, top)
-      # in screen space coordinates, and should be ready to draw.
-
-      # In the following, we need to grab the first element of the returned
-      # valued b/c getter functions always return (val, units) and we don't
-      # care about units for color.
-      ctx = @plot_view.ctx
-      old_alpha = ctx.globalAlpha
-      old_linewidth = ctx.lineWidth
-      ctx.globalAlpha = glyph.alpha
-      ctx.lineWidth = glyph.outline_width
-      if glyph.angle != 0
-        # TODO: Fix angle handling. We need to translate, then rotate, then
-        # reset the ctm. Probably best to do this with save() and restore()
-        # b/c there doesn't seem to be a way to read out the current ctm.
-        if glyph.angle_units == 'deg'
-          angle = glyph.angle * Math.PI / 180
-        else
-          angle = glyph.angle
-        ctx.rotate(angle)
-
-      if glyph.color? and glyph.color != "none"
-        ctx.fillStyle = glyph.color
-        ctx.fillRect(left, bottom, right-left, top-bottom)
-      if glyph.outline_color? and glyph.outline_color != "none"
-        ctx.strokeStyle = glyph.outline_color
-        ctx.strokeRect(left, bottom, right-left, top-bottom)
-
-      if angle?
-        ctx.rotate(-angle)
-      ctx.globalAlpha = old_alpha
-      ctx.lineWidth = old_linewidth
+      [left,right,h_units] = @_span2bounds(glyph.x, glyph.x_units, glyph.width, glyph.width_units, @xmapper)
+      if h_units == 'data'
+        left = @xmapper.map_screen(left)
+        right = @xmapper.map_screen(right)
+      [bottom,top,v_units] = @_span2bounds(glyph.y, glyph.y_units, glyph.height, glyph.height_units, @ymapper)
+      if v_units == 'data'
+        bottom = @ymapper.map_screen(bottom)
+        top = @ymapper.map_screen(top)
+      
+      @addRect(glyph, @plot_view, left, right, bottom, top)
       # End per-datapoint loop
 
     # Done with all drawing, restore the graphics state
     @plot_view.ctx.restore()
     return      # render_rects()
+
+  render_rectregions : (glyphspec, data) ->
+    # Rectangles, specified by their edges (left, right, bottom, top).
+    #
+    # ## Spatial parameters
+    # * left, right, bottom, top
+    # * angle
+    #
+    # The treatment of these parameters is the same as in render_rects,
+    # that is, there is a full object specification in the glyph, with a
+    # shorthand if only the field name or a constant numerical value needs
+    # to be used.
+    #
+    # Example:
+    #   type: 'rectregions'
+    #   left: 'left'
+    #   bottom:
+    #     field: "foo"
+    #     default: 1.8
+    #     units: "data"
+    #
+    # ## Other parameters
+    # These are identical to the parameters of the "rects" glyph.
+    params = ['left', 'right', 'bottom', 'top']
+
+    params.push.apply(params, ["angle", "color:string", "outline_color:string","alpha", "outline_width"])
+    metaglyph = new MetaGlyph(this, glyphspec, params)
+
+    @plot_view.ctx.save()
+    for datapoint in data
+      glyph = metaglyph.make_glyph(datapoint)
+      if glyph.left_units == 'data'
+        left = @xmapper.map_screen(glyph.left)
+      if glyph.right_units == 'data'
+        right = @xmapper.map_screen(glyph.right)
+      if glyph.bottom_units == 'data'
+        bottom = @ymapper.map_screen(glyph.bottom)
+      if glyph.top_units == 'data'
+        top = @ymapper.map_screen(glyph.top)
+      @addRect(glyph, @plot_view, left, right, bottom, top)
+    # Done with all drawing, restore the graphics state
+    @plot_view.ctx.restore()
+    return      # render_rect_regions()
 
   _span2bounds : (center, center_units, span, span_units, mapper) ->
     # Given a center value and a span value of potentially different
