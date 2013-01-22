@@ -42,7 +42,9 @@ backend.
 
 You can install the following with easy_install, "pip install", or they may
 be available for your Linux system via the system package management.  If you
-are using a distribution like the [Enthought Python Distribution](http://enthought.com/epd) or [Python(X,Y)](http://code.google.com/p/pythonxy),
+are using a distribution like [Anaconda Community Edition](https://store.continuum.io/cshop/anaconda),
+[Enthought Python Distribution](http://enthought.com/epd), or
+[Python(X,Y)](http://code.google.com/p/pythonxy),
 then you already have them installed.
 
  * [Chaco](https://github.com/enthought/chaco)
@@ -59,6 +61,36 @@ at [Continuum Analytics](http://continuum.io), and with the recent award of a
 grant from DARPA, we are able to devote more resources into it, along with
 collaborators from Indiana University.  
 
+Coffeescript
+============
+We're developing most of the javascript using coffeescript, in the 
+[bokehjs github repository](https://github.com/ContinuumIO/bokehjs)
+which has been included as a subtree.  To execute the code, you will need 
+to [install coffeescript](http://coffeescript.org/#installation), 
+which depends on [node.js](http://nodejs.org/).  I recommend using npm -g
+to install coffeescript globally.  
+ * We have a build script, which you can execute calling `$ python coffeebuild.py`
+ * We have a watcher script, which you can execute calling `$ python coffeewatch.py`.  
+   This will watch for changes in the coffeescript sources, and rebuild if you change 
+   any of them.  If you use this option, you should pay attention to the watcher output
+   coffeescript compiler errors.
 
+Web based plotting
+==================
+Bokeh can currently output to chaco, as well as dumping html, or interfacing with
+our bokeh web server, which will push plots out to a browser window using websockets.
+The following examples assume you have bokeh installed
 
+Server Based Web Plotting Examples
+==================================
+ * start a redis-server anywhere, using `$ redis-server &`
+ * build the coffeescript code as described above.
+ * execute `$ python startlocaldebug.py `
+ * navigate to `http://localhost:5006/bokeh`
+ * execute `$ python examples/webplot_example.py`
+
+Static html dump based web plotting examples
+============================================
+ * `$ python tests/web/facetgrid.py`
+ * open up the generated `grid.html` in a web browser
 
