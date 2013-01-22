@@ -33,6 +33,14 @@ class MetaHasProps(type):
             if isinstance(prop, BaseProperty):
                 prop.name = name
                 names.append(name)
+            elif isinstance(prop, type) and issubclass(prop, BaseProperty):
+                # Support the user adding a property without using parens,
+                # i.e. using just the BaseProperty subclass instead of an
+                # instance of the subclass
+                newprop = prop()
+                class_dict[name] = newprop
+                newprop.name = name
+                names.append(name)
         class_dict["__properties__"] = names
         return type.__new__(cls, class_name, bases, class_dict)
 
@@ -183,7 +191,11 @@ Sequence = _dummy
 Mapping = _dummy
 Iterable = _dummy
 
-# Other useful classes for visualization and UIs
-Color = _dummy
+# Properties useful for defining visual attributes
+class Color(BaseProperty): pass
+class Align(BaseProperty): pass
+class Pattern(BaseProperty): pass
+class Size(Float): pass
+class Angle(Float): pass
 
 

@@ -70,6 +70,27 @@ class Basictest(unittest.TestCase):
         with self.assertRaises(ValueError):
             f.set(y="orange")
 
+    def test_no_parens(self):
+        class Foo(HasProps):
+            x = Int
+            y = Int()
+        f = Foo()
+        self.assertEqual(f.x, f.y)
+        f.x = 13
+        self.assertEqual(f.x, 13)
+
+    def test_kwargs_init(self):
+        class Foo(HasProps):
+            x = String
+            y = Int
+            z = Float
+        f = Foo(x = "hello", y = 14)
+        self.assertEqual(f.x, "hello")
+        self.assertEqual(f.y, 14)
+
+        with self.assertRaises(TypeError):
+            # This should raise a TypeError: object.__init__() takes no parameters
+            g = Foo(z = 3.14, q = "blah")
 
 
 if __name__ == "__main__":
