@@ -52,6 +52,18 @@ then you already have them installed.
  * [Pandas](https://github.com/pydata/pandas)
 
 
+Installation
+============
+
+After installing the dependencies (coffeescript, chaco, etc.), run the following:
+
+```
+git clone git://github.com/ContinuumIO/Bokeh.git
+cd Bokeh
+python coffeebuild.py
+pip install .
+```
+
 Status
 ======
 
