@@ -16,6 +16,14 @@ class BaseProperty(object):
         # This gets set by the class decorator at class creation time
         self.name = "unnamed"  
 
+    @classmethod
+    def autocreate(cls, name=None):
+        """ Called by the metaclass to create a new instance of this descriptor
+        if the user just assigned it to a property without trailing
+        parentheses.
+        """
+        return cls()
+
     def __get__(self, obj, type=None):
         return getattr(obj, "_"+self.name, self.default)
 
@@ -37,7 +45,7 @@ class MetaHasProps(type):
                 # Support the user adding a property without using parens,
                 # i.e. using just the BaseProperty subclass instead of an
                 # instance of the subclass
-                newprop = prop()
+                newprop = prop.autocreate(name=name)
                 class_dict[name] = newprop
                 newprop.name = name
                 names.append(name)
@@ -197,5 +205,5 @@ class Align(BaseProperty): pass
 class Pattern(BaseProperty): pass
 class Size(Float): pass
 class Angle(Float): pass
-
+class Percent(Float): pass
 

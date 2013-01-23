@@ -1,6 +1,6 @@
 
-from attributes import (Attribute, Enum, Float, Int, Color, Size, Percent,
-        Bool, Pattern, Align, Angle, Text)
+from .properties import (BaseProperty, HasProps, Enum, Float, Int, Color,
+        Percent, Size, Bool, Pattern, Align, Angle, String)
 
 # Size is a way to preserve a data-space-related metric all the way until
 #   render time, when the screen dimensions are known
@@ -10,29 +10,93 @@ from attributes import (Attribute, Enum, Float, Int, Color, Size, Percent,
 #   of a random distribution to draw random samples from. Defaults to uniform
 #   but gaussian could certainly be useful.
 
-class Scene(object):
-    """ A set of related plots, each with their own panel(s) and each 
-    panel representing some coherent coordinate space onto which Glyphs
-    are positioned and rendered.
+#class Scene(object):
+#    """ A set of related plots, each with their own panel(s) and each 
+#    panel representing some coherent coordinate space onto which Glyphs
+#    are positioned and rendered.
+#    """
+
+
+class DataSpec(BaseProperty):
+    """ Because the BokehJS glyphs support a fixed value or a named
+    field for most data fields, we capture that in this property.
+
+    We mirror the JS convention in this Python descriptor.  There are
+    multiple ways to set a DataSpec, illustrated below with comments
+    and example code.
+
+    class Foo(HasProps):
+        x = DataSpec("x", units="data")
+
+    f = Foo()
+    f.x = "fieldname"   # Sets x to a field named "fieldname"
+    f.x = 12            # Sets x to a default value of 12
+    f.x = {"name": "foo", "default": 12}
+    
+    Just reading out "f.x" will always retrieve what has been set.
     """
 
-class _MetaGlyph(type):
-    
-    def __new__(cls, classname, bases, class_dict):
-        # Look through the class_dict for all Attributes and make sure they
-        # are properly set up as descriptors.  We support Attribute 
-        # declaration with or without parentheses.
-        all_attributes = []
-        for name,val in class_dict.items():
-            if isinstance(val, type) and issubclass(val, Attribute):
-                class_dict[name] = val()
-                all_attributes.append(name)
-        class_dict["all_attributes"] = all_attributes
+    def __init__(self, field=None, units="data", default=None):
+        """
+        Parameters
+        ==========
+        **field** is the string name of a data column to look up.
+        **units** is either "data" or "screen"
+        **default** is the default value to use if a datapoint is
+        missing the field specified in **name**
 
-        return type.__new__(cls, classname, bases, class_dict)
+        If a constant value is desired, then leave **field** as None and
+        set **default** to the fixed value.
+        """
+        # Don't use .name because the HasProps metaclass uses that to 
+        # store the attribute name on this descriptor.
+        self.field = field
+        self.units = units
+        self.default = default
+
+    @classmethod
+    def autocreate(cls, name=None):
+        # In this case, use the name the user assigned this DataSpec to
+        # as the default field name.
+        d = cls(field=name)
+        return d
+
+    def __get__(self, obj, type=None):
+        # It's kind of an open question what we should return here if the
+        # user hasn't set anything yet.  We use our best heuristic and
+        # return a name, a default, or a dict with both, depending on
+        # what is None.
+        if hasattr(obj, "_"+self.name):
+            return getattr(obj, "_"+self.name)
+        else:
+            if self.field is None:
+                return self.default
+            elif self.default is None:
+                return self.field
+            else:
+                return {"field": self.field, "default": self.default}
+
+    #def __set__(self, obj, value):
+    #    setattr(obj, "_"+self.name, value)
+        # Build the complete dict
+        #if type(value) == str:
+        #    d = {"name": value, "units": self.units, "default": self.default}
+        #elif isinstance(value, dict):
+        #    d = {"name": self.field, "units": self.units, "default": self.default}
+        #    d.update(value)
+        #else:
+        #    # Assume value is a numeric type and is the default value.
+        #    # We explicitly set the field name to None.
+        #    d = {"name": None, "units": self.units, "default": value}
+        #setattr(obj, self.name + "_dict", d)
+
+    def __delete__(self, obj):
+        if hasattr(obj, self.name + "_dict"):
+            delattr(obj, self.name + "_dict")
+        BaseProperty.__delete__(self, obj)
 
 
-class Glyph(object):
+class Glyph(HasProps):
     """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
 
     Instead of using fancy AST parsing tricks and deferred nodes, we set
@@ -40,8 +104,6 @@ class Glyph(object):
     capture dataflow relationships (usually expressed as mathematical
     expressions) between each others' attributes.
     """
-
-    __metaclass__ = _MetaGlyph
 
     # Common attributes for all glyphs
     color = Color
@@ -68,8 +130,8 @@ class Glyph(object):
 
 class Marker(Glyph):
 
-    x = Float
-    y = Float
+    x = DataSpec
+    y = DataSpec
     size = Size
 
     # TODO: Remove this and use the color attributes in Glyph instead
@@ -77,7 +139,7 @@ class Marker(Glyph):
     fill_color = Color
     fill_pattern = Pattern
     shape = Enum("dot", "square", "tri", "diamond", "x", "+", "char")
-    char_value = Text
+    char_value = String
 
     jstypename = "marker"
 
@@ -92,29 +154,29 @@ class Triangle(Marker):
 
 class Circles(Glyph):
     jstypename = "circles"
-    x = Float
-    y = Float
-    radius = Float
+    x = DataSpec
+    y = DataSpec
+    radius = DataSpec
     outline_color = Color
     outline_width = Size
 
 class Rects(Glyph):
     jstypename = "rects"
-    x = Float
-    y = Float
-    width = Float
-    height = Float
-    angle = Float
+    x = DataSpec
+    y = DataSpec
+    width = DataSpec
+    height = DataSpec
+    angle = DataSpec
     outline_color = Color
     outline_width = Size
 
 class RectRegion(Glyph):
-    jstypename = "rectregion"
-    left = Float
-    right = Float
-    bottom = Float
-    top = Float
-    angle = Float
+    jstypename = "rectregions"
+    left = DataSpec
+    right = DataSpec
+    bottom = DataSpec
+    top = DataSpec
+    angle = DataSpec
     outline_color = Color
     outline_width = Size
 
