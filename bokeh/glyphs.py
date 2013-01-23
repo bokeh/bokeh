@@ -124,7 +124,7 @@ class Glyph(HasProps):
         # Use the all_attributes variable to generate the list...
         # TODO: should we use setters to detect when something has been overriden
         # relative to defaults?
-        d = dict((name, getattr(self, name)) for name in self.all_attributes)
+        d = dict((name, getattr(self, name)) for name in self.__properties__)
         d["type"] = self.jstypename
         return d
 
@@ -167,6 +167,7 @@ class Rects(Glyph):
     width = DataSpec
     height = DataSpec
     angle = DataSpec
+    color = Color
     outline_color = Color
     outline_width = Size
 
