@@ -1,5 +1,5 @@
 
-import .plot_expr_graph as peg
+from . import plot_expr_graph as peg
 from .data_graph import FactorExprNode
 
 def ggplot(data=None, aes=None):
