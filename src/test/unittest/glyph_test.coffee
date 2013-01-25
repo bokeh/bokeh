@@ -627,7 +627,7 @@ test('area_glyph', () ->
 
 test('boxplots_test', () ->
   expect(0)
-  data_source = Bokeh.Collections.ColumnDataSource.create(
+  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
     # style ['plain', 'notched', 'tufte']
     # x, median, width, q1, q3
     # fill, upper_fill, lower_fill
@@ -643,22 +643,22 @@ test('boxplots_test', () ->
     # mean
     # mean_glyph, mean_size, mean_fill, mean_outline, mean_alpha
     data : [
-      {x: 1, median: 4.0, size: 0.2, q1: 3.0, q3: 5.2 }
-      {x: 2, median: 4.2, size: 0.3, q1: 3.0, q3: 5.0 }
-      {x: 4, median: 3.7, size: 0.9, q1: 2.9, q3: 4.5 }
-      {x: 6, median: 3.5, size: 0.3, q1: 1.6, q3: 6.1 }
+      {x: 1, median: 4.0, size: 0.4, q1: 3.0, q3: 5.2 }
+      {x: 2, median: 4.2, size: 0.6, q1: 3.0, q3: 5.0 }
+      {x: 4, median: 3.7, size: 1.4, q1: 2.9, q3: 4.5 }
+      {x: 6, median: 3.5, size: 0.5, q1: 2.6, q3: 4.1 }
     ]
   )
 
   plot_model = Bokeh.Collections.Plot.create()
 
-  xdr = Bokeh.Collections.DataRange1d.create()
-  #xdr.set('start', 0)
-  #xdr.set('end', 10)
+  xdr = Bokeh.Collections.Range1d.create()
+  xdr.set('start', 0)
+  xdr.set('end', 7)
 
-  ydr = Bokeh.Collections.DataRange1d.create()
-  #ydr.set('start', 0)
-  #ydr.set('end', 10)
+  ydr = Bokeh.Collections.Range1d.create()
+  ydr.set('start', -2)
+  ydr.set('end', 10)
 
   glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
     data_source : data_source.ref()

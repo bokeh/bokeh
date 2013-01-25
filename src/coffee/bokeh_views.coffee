@@ -1147,24 +1147,24 @@ class GlyphRendererView extends XYRendererView
     ctx.save()
 
     ctx.fillStyle = 'lightblue'
-    ctx.lineWidth = 1.5
-    ctx.strokeStyle = 'white'
+    ctx.lineWidth = 1.0
+    ctx.strokeStyle = 'orange'
     ctx.globalAlpha = 1.0
 
     for datapoint in data
       glyph = metaglyph.make_glyph(datapoint)
 
-      iqr = glyph.q3 - qlyph.q1
+      iqr = glyph.q3 - glyph.q1
 
       x = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.x))
-      ym = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.median))
-      yq1 = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.q1))
-      yq3 = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.q3))
-      yl = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.q1 - 1.5*iqr))
-      yu = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.q3 + 1.5*iqr))
+      ym = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.median))
+      yq1 = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.q1))
+      yq3 = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.q3))
+      yl = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.q1 - 1.5*iqr))
+      yu = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.q3 + 1.5*iqr))
 
       half_size = glyph.size/2.0
-      whisker_half_size = half_size*0.3
+      whisker_half_size = half_size*0.8
       if glyph.size_units == 'data'
         x0 = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.x-half_size))
         x1 = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.x+half_size))
@@ -1214,7 +1214,7 @@ class GlyphRendererView extends XYRendererView
 
       # lower whisker
       ctx.moveTo(xw0, yl)
-      ctx.lineTo(xw0, yl)
+      ctx.lineTo(xw1, yl)
       ctx.stroke()
 
     ctx.restore()
