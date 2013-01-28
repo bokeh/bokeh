@@ -579,9 +579,9 @@ class LegendRendererView extends PlotWidget
     if y < 0
       start_y = @plot_view.viewstate.get('height') + y
     else
-      start_y = y 
+      start_y = y
 
-    
+
     #width = can_ctx.measureText("blahblah").width
     text_height = 20
 
@@ -606,7 +606,7 @@ class LegendRendererView extends PlotWidget
       console.log("l.name", l.name, l, legend_offset_x, legend_offset_y)
       can_ctx.strokeStyle = l.color
       can_ctx.fillStyle = l.color
-      
+
       can_ctx.fillText(l.name, legend_offset_x, legend_offset_y)
       legend_offset_y += text_height
     can_ctx.stroke()
@@ -1296,27 +1296,36 @@ class ScatterRendererView extends XYRendererView
   render : ->
     "use strict";
     super()
-    if @model.get_obj('data_source').get('selecting') == true
-        #skip data sources which are not selecting'
-        @render_end()
-        return null
-
+    selected = {}
+    if not @model.get_obj('data_source').get('selecting')
+      selected = null
+    else
+      sel_idxs = @model.get_obj('data_source').get('selected')
+      for idx in sel_idxs
+        selected[idx] = true
     data = @model.get_obj('data_source').get('data')
     @calc_buffer(data)
     @plot_view.ctx.beginPath()
-    @plot_view.ctx.fillStyle = @mget('foreground_color')
-    @plot_view.ctx.strokeStyle = @mget('foreground_color')
+    foreground_color = @mget('foreground_color')
+    unselected_color = @mget('unselected_color')
     color_field = @mget('color_field')
     ctx = @plot_view.ctx
     if color_field
       color_mapper = @model.get_obj('color_mapper')
       color_arr = @model.get('color_field')
     mark_type = @mget('mark')
-    for idx in [0..@screeny.length]
-      if color_field
+    for idx in [0..data.length]
+      if selected and not selected[idx]
+        unselected_color = @mget('unselected_color')
+        @plot_view.ctx.strokeStyle = unselected_color
+        @plot_view.ctx.fillStyle = unselected_color
+      else if color_field
         comp_color = color_mapper.map_screen(idx)
         @plot_view.ctx.strokeStyle = comp_color
         @plot_view.ctx.fillStyle = comp_color
+      else
+        @plot_view.ctx.strokeStyle = foreground_color
+        @plot_view.ctx.fillStyle = foreground_color
       if mark_type == "square"
         @addPolygon(@screenx[idx], @screeny[idx])
       else
@@ -1324,70 +1333,6 @@ class ScatterRendererView extends XYRendererView
     @plot_view.ctx.stroke()
     @render_end()
     return null
-
-class ScatterSelectionOverlayView extends PlotWidget
-  bind_events : () ->
-    'pass'
-  bind_bokeh_events  : () ->
-    #add logic so that if the number of renderers change, the new renderers are bound
-    for renderer in @mget_obj('renderers')
-      safebind(@, renderer, 'change', @request_render)
-      safebind(@, renderer.get_obj('xdata_range'), 'change', @request_render)
-      safebind(@, renderer.get_obj('xdata_range'), 'change', @request_render)
-      safebind(@, renderer.get_obj('data_source'), 'change', @request_render)
-
-  #FIXME integrate into ScatterRenderer
-  render : () ->
-    window.overlay_render += 1
-    super()
-    for renderer in @mget_obj('renderers')
-      rendererview = @plot_view.renderers[renderer.id]
-      selected = {}
-      if renderer.get_obj('data_source').get('selecting') == false
-        #skip data sources which are not selecting'
-        continue
-      sel_idxs = renderer.get_obj('data_source').get('selected')
-      ds = renderer.get_obj('data_source')
-      data = ds.get('data')
-      # hugo - i think we need to do this each time....
-      # or else panning does not work
-      rendererview.calc_buffer(data)
-      fcolor = @mget('foreground_color')
-      rvm = rendererview.model
-
-      fcolor = rvm.get('foreground_color')
-      unselected_color = @mget('unselected_color')
-      color_field = rvm.get('color_field')
-      if color_field
-        color_mapper = rvm.get_obj('color_mapper')
-      color_arr = rvm.get('color_field')
-      mark_type = @mget('mark')
-      last_color_field = fcolor
-      @plot_view.ctx.strokeStyle = fcolor
-      @plot_view.ctx.fillStyle = fcolor
-
-      last_color_field = false
-      ctx = @plot_view.ctx
-      for idx in [0..data.length]
-        if idx in sel_idxs
-          if color_field
-            comp_color = color_mapper.map_screen(idx)
-            ctx.strokeStyle = comp_color
-            ctx.fillStyle = comp_color
-          else
-            ctx.strokeStyle = fcolor
-            ctx.fillStyle = fcolor
-        else
-          ctx.fillStyle = unselected_color
-          ctx.strokeStyle = unselected_color
-        if mark_type == "square"
-          @addPolygon(rendererview.screenx[idx], rendererview.screeny[idx])
-        else
-          @addCircle(rendererview.screenx[idx], rendererview.screeny[idx])
-    @plot_view.ctx.stroke()
-    @render_end()
-    return null
-
 
 class PlotContextView extends Continuum.ContinuumView
   initialize : (options) ->
@@ -1627,7 +1572,6 @@ Bokeh.ScatterRendererView = ScatterRendererView
 Bokeh.LineRendererView = LineRendererView
 Bokeh.GlyphRendererView = GlyphRendererView
 Bokeh.GridPlotContainerView = GridPlotContainerView
-Bokeh.ScatterSelectionOverlayView = ScatterSelectionOverlayView
 Bokeh.LinearAxisView = LinearAxisView
 Bokeh.LinearDateAxisView = LinearDateAxisView
 Bokeh.SinglePlotContextView = SinglePlotContextView
