@@ -580,14 +580,33 @@ class LegendRendererView extends PlotWidget
       start_y = @plot_view.viewstate.get('height') + y
     else
       start_y = y 
+
     
-    #style_obj = can_ctx.measureText("blahblah")
+    #width = can_ctx.measureText("blahblah").width
     text_height = 20
 
-    legend_offset_y = start_y
+    legend_height = text_height * @model.get('legends').length
+    legend_width = 100
+
+
     legend_offset_x = start_x
+    legend_offset_y = start_y
+
+    can_ctx.strokeStyle = 'black'
+    can_ctx.strokeRect(legend_offset_x, legend_offset_y, legend_width, legend_height)
+    can_ctx.fillStyle = 'white'
+    can_ctx.fillRect(legend_offset_x, legend_offset_y, legend_width, legend_height)
+    can_ctx.strokeStyle = 'black'
+    can_ctx.fillStyle = 'black'
+
+    legend_offset_x += 5
+    legend_offset_y += 10
+
     for l in @model.get('legends')
       console.log("l.name", l.name, l, legend_offset_x, legend_offset_y)
+      can_ctx.strokeStyle = l.color
+      can_ctx.fillStyle = l.color
+      
       can_ctx.fillText(l.name, legend_offset_x, legend_offset_y)
       legend_offset_y += text_height
     can_ctx.stroke()
