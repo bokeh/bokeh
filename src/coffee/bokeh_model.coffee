@@ -696,10 +696,40 @@ class ScatterSelectionOverlay extends Continuum.HasParent
     renderers : []
     unselected_color : "#ccc"
 
-
-
 class ScatterSelectionOverlays extends Continuum.Collection
   model : ScatterSelectionOverlay
+
+
+
+
+###############################
+class Legend extends Continuum.HasParent
+  type : "Legend"
+  default_view : Bokeh.LegendRendererView
+  defaults :
+    renderers : []
+    unselected_color : "#ccc"
+    positions :
+      top_left     : [ 20,  20]
+      top_right    : [-80,  20]
+      bottom_left  : [ 20, -60]
+      bottom_right : [-80, -60]
+    position : "top_left"
+
+  initialize : (options) ->
+    super(options)
+    console.log("options", options)
+    ptype = typeof options.position
+    if ptype == "string"
+      @set('coords', @defaults.positions[options.position])
+    else if ptype == "object"
+      @set('coords',  options.position)
+
+class Legends extends Continuum.Collection
+  model : Legend
+
+
+###############################
 
 class PlotContext extends Continuum.HasParent
   type : 'PlotContext',
@@ -759,6 +789,8 @@ if not Continuum.Collections.SelectionTool
   Continuum.Collections.SelectionTool = new SelectionTools
 if not Continuum.Collections.ScatterSelectionOverlay
   Continuum.Collections.ScatterSelectionOverlay = new ScatterSelectionOverlays
+if not Continuum.Collections.Legend
+  Continuum.Collections.Legend = new Legends
 
 
 Bokeh.Collections = Collections
@@ -786,4 +818,9 @@ Bokeh.SelectionTools = SelectionTools
 Bokeh.SelectionTool = SelectionTool
 
 Bokeh.ScatterSelectionOverlays = ScatterSelectionOverlays
+Bokeh.ScatterSelectionOverlay = ScatterSelectionOverlay
+
+Bokeh.Legends = Legends
+Bokeh.Legend = Legend
+
 Bokeh.ScatterSelectionOverlay = ScatterSelectionOverlay

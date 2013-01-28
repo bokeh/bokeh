@@ -510,7 +510,7 @@ class LinearAxisView extends PlotWidget
     current_tick = first_tick
     y_ticks = []
     last_tick_end = 10000
-    can_ctx.clearRect(0, 0,  @plot_view.viewstate.get('width'),
+    can_ctx.clearRect(0, 0, @plot_view.viewstate.get('width'),
       @plot_view.viewstate.get('height'))
     while current_tick <= last_tick
       y_ticks.push(current_tick)
@@ -557,6 +557,40 @@ class LineRendererView extends XYRendererView
         continue
       @plot_view.ctx.lineTo(x, y)
     @plot_view.ctx.stroke()
+    @render_end()
+    return null
+
+
+class LegendRendererView extends PlotWidget
+  render : ->
+    super()
+    #data = @model.get_obj('data_source').get('data')
+    #@calc_buffer(data)
+    can_ctx = @plot_view.ctx
+
+
+    coords = @model.get('coords')
+    [x, y] = coords
+    if x < 0
+      start_x = @plot_view.viewstate.get('width') + x
+    else
+      start_x = x
+
+    if y < 0
+      start_y = @plot_view.viewstate.get('height') + y
+    else
+      start_y = y 
+    
+    #style_obj = can_ctx.measureText("blahblah")
+    text_height = 20
+
+    legend_offset_y = start_y
+    legend_offset_x = start_x
+    for l in @model.get('legends')
+      console.log("l.name", l.name, l, legend_offset_x, legend_offset_y)
+      can_ctx.fillText(l.name, legend_offset_x, legend_offset_y)
+      legend_offset_y += text_height
+    can_ctx.stroke()
     @render_end()
     return null
 
@@ -1499,3 +1533,4 @@ Bokeh.LinearDateAxisView = LinearDateAxisView
 Bokeh.SinglePlotContextView = SinglePlotContextView
 Bokeh.PlotContextViewWithMaximized = PlotContextViewWithMaximized
 Bokeh.PlotContextView = PlotContextView
+Bokeh.LegendRendererView = LegendRendererView
