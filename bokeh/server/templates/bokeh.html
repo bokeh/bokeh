@@ -27,9 +27,17 @@
     <script type=text/javascript src="/bokeh/static/vendor/bokehjs/js/custom.js"></script>
     <script type=text/javascript src="/bokeh/static/js/serverutils.js"></script>
     <script type=text/javascript src="/bokeh/static/js/serverrun.js"></script>
+    <style>
+      body {height:100%; margin:0; padding:0; background:orange}
+      #PlotPane, #PlotPane > div, #PlotPane .plotsidebar {height:100%;}
+      #PlotPane {background:pink}
+      #PlotPane > div {background: green; }
+      
+      .plotsidebar { overflow-y: scroll; height; background: blue } 
+      .maxplot { overflow-y: scroll; height; background: blue } 
+    </style>
   </head>
   <body>
-    <div>Your Plots Go Here</div>
     <div id="PlotPane">Plots</div>
   </body>
 </html>
