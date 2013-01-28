@@ -788,6 +788,8 @@ class GlyphRendererView extends XYRendererView
         @render_stacked_lines(glyph, data)
       else if glyph.type == 'stacked_rects'
         @render_stacked_rects(glyph, data)
+      else if glyph.type == 'boxplots'
+        @render_boxplots(glyph, data)
 
 
   render_line : (glyphspec, data) ->
@@ -1087,7 +1089,7 @@ class GlyphRendererView extends XYRendererView
       if v_units == 'data'
         bottom = @ymapper.map_screen(bottom)
         top = @ymapper.map_screen(top)
-      
+
       @addRect(glyph, @plot_view, left, right, bottom, top)
       # End per-datapoint loop
 
@@ -1137,6 +1139,85 @@ class GlyphRendererView extends XYRendererView
     # Done with all drawing, restore the graphics state
     @plot_view.ctx.restore()
     return      # render_rect_regions()
+
+  render_boxplots : (glyphspec, data) ->
+    metaglyph = new MetaGlyph(this, glyphspec, ['x', 'median', 'size', 'q1', 'q3'])
+
+    ctx = @plot_view.ctx
+    ctx.save()
+
+    ctx.fillStyle = 'lightblue'
+    ctx.lineWidth = 1.0
+    ctx.strokeStyle = 'orange'
+    ctx.globalAlpha = 1.0
+
+    for datapoint in data
+      glyph = metaglyph.make_glyph(datapoint)
+
+      iqr = glyph.q3 - glyph.q1
+
+      x = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.x))
+      ym = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.median))
+      yq1 = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.q1))
+      yq3 = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.q3))
+      yl = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.q1 - 1.5*iqr))
+      yu = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.q3 + 1.5*iqr))
+
+      half_size = glyph.size/2.0
+      whisker_half_size = half_size*0.8
+      if glyph.size_units == 'data'
+        x0 = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.x-half_size))
+        x1 = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.x+half_size))
+        xw0 = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.x-whisker_half_size))
+        xw1 = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.x+whisker_half_size))
+      else
+        x0 = x - half_size
+        x1 = x + half_size
+        xw0 = x - whisker_half_size
+        xw1 = x + whisker_half_size
+
+      # upper box
+      ctx.moveTo(x0, yq3)
+      ctx.lineTo(x1, yq3)
+      ctx.lineTo(x1, ym)
+      ctx.lineTo(x0, ym)
+      ctx.closePath()
+      ctx.stroke()
+
+      # lower box
+      ctx.moveTo(x0, yq1)
+      ctx.lineTo(x1, yq1)
+      ctx.lineTo(x1, ym)
+      ctx.lineTo(x0, ym)
+      ctx.closePath()
+      ctx.stroke()
+
+      # centerline
+      ctx.moveTo(x0, ym)
+      ctx.lineTo(x1, ym)
+      ctx.stroke()
+
+      # upper line
+      ctx.moveTo(x, yq3)
+      ctx.lineTo(x, yu)
+      ctx.stroke()
+
+      # lower line
+      ctx.moveTo(x, yq1)
+      ctx.lineTo(x, yl)
+      ctx.stroke()
+
+      # upper whisker
+      ctx.moveTo(xw0, yu)
+      ctx.lineTo(xw1, yu)
+      ctx.stroke()
+
+      # lower whisker
+      ctx.moveTo(xw0, yl)
+      ctx.lineTo(xw1, yl)
+      ctx.stroke()
+
+    ctx.restore()
 
   _span2bounds : (center, center_units, span, span_units, mapper) ->
     # Given a center value and a span value of potentially different

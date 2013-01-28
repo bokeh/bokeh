@@ -624,3 +624,71 @@ test('area_glyph', () ->
   _.defer(myrender)
 )
 
+
+test('boxplots_test', () ->
+  expect(0)
+  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+    # style ['plain', 'notched', 'tufte']
+    # x, median, width, q1, q3
+    # fill, upper_fill, lower_fill
+    # center_line_width, center_line_color, center_line_alpha, center_line_dash
+    # outline_width, outline_color, outline_alpha, outline_dash
+    # upper_line_width, upper_line_color, upper_line_alpha, upper_line_dash
+    # lower_line_width, lower_line_color, lower_line_alpha, lower_line_dash
+    # whisker_size, whisker_line_width, whisker_line_alphe
+    # upper_whisker_size, upper_whisker_line_width, upper_whisker_line_alphe
+    # lower_whisker_size, lower_whisker_line_width, lower_whisker_line_alphe
+    # outliers
+    # outliers_glyph, outliers_size, outliers_fill, outliers_outline, outliers_alpha
+    # mean
+    # mean_glyph, mean_size, mean_fill, mean_outline, mean_alpha
+    data : [
+      {x: 1, median: 4.0, size: 0.4, q1: 3.0, q3: 5.2 }
+      {x: 2, median: 4.2, size: 0.6, q1: 3.0, q3: 5.0 }
+      {x: 4, median: 3.7, size: 1.4, q1: 2.9, q3: 4.5 }
+      {x: 6, median: 3.5, size: 0.5, q1: 2.6, q3: 4.1 }
+    ]
+  )
+
+  plot_model = Bokeh.Collections.Plot.create()
+
+  xdr = Bokeh.Collections.Range1d.create()
+  xdr.set('start', 0)
+  xdr.set('end', 7)
+
+  ydr = Bokeh.Collections.Range1d.create()
+  ydr.set('start', -2)
+  ydr.set('end', 10)
+
+  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+    data_source : data_source.ref()
+    xdata_range : xdr.ref()
+    ydata_range : ydr.ref()
+    glyphs : [
+        type: 'boxplots'
+    ]
+  )
+  xaxis = Bokeh.Collections['LinearAxis'].create(
+    orientation : 'bottom'
+    parent : plot_model.ref()
+    data_range : xdr.ref()
+  )
+  yaxis = Bokeh.Collections['LinearAxis'].create(
+    orientation : 'left',
+    parent : plot_model.ref()
+    data_range : ydr.ref()
+  )
+  plot_model.set(
+    renderers : [glyph_renderer.ref()],
+    axes : [xaxis.ref(), yaxis.ref()]
+  )
+  div = $('<div></div>')
+  $('body').append(div)
+  myrender  =  ->
+    view = new Bokeh.PlotView(model : plot_model)
+    div.append(view.$el)
+    view.render()
+  console.log('Test boxplots_glyph')
+  _.defer(myrender)
+
+)
