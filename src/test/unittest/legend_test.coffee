@@ -70,7 +70,7 @@ test_f =  ->
     legend = Collections['Legend'].create(
       legends: [{name: "widgets", color:"#888", source_field:"x"},
                 {name: "quxbits", color:"#00F", source_field:"Y"}],
-      position: "bottom_right",
+      position: "top_right",
       parent : plotmodel.ref())
     old_renderers = plotmodel.get('renderers')
     old_renderers.push(legend.ref())
@@ -90,4 +90,3 @@ test_f =  ->
     expect(0)
 
 test('legend_test', test_f)
-#$(test_f)
