@@ -459,7 +459,7 @@ class Plot extends HasParent
   type : 'Plot'
   default_view : Bokeh.PlotView
   parent_properties : ['background_color', 'foreground_color',
-    'width', 'height', 'border_space']
+    'width', 'height', 'border_space', 'unselected_color']
 Plot::defaults = _.clone(Plot::defaults)
 _.extend(Plot::defaults , {
   'data_sources' : {},
@@ -477,6 +477,7 @@ _.extend(Plot::display_defaults
   ,
     background_color : "#eee"
     foreground_color : "#333"
+    unselected_color : "#ccc"
 )
 
 class Plots extends Continuum.Collection
@@ -683,22 +684,8 @@ _.extend(SelectionTool::defaults
     data_source_options : {} #backbone options for save on datasource
 )
 
-
-
 class SelectionTools extends Continuum.Collection
   model : SelectionTool
-
-
-class ScatterSelectionOverlay extends Continuum.HasParent
-  type : "ScatterSelectionOverlay"
-  default_view : Bokeh.ScatterSelectionOverlayView
-  defaults :
-    renderers : []
-    unselected_color : "#ccc"
-
-class ScatterSelectionOverlays extends Continuum.Collection
-  model : ScatterSelectionOverlay
-
 
 
 
@@ -787,8 +774,6 @@ if not Continuum.Collections.ZoomTool
   Continuum.Collections.ZoomTool = new ZoomTools
 if not Continuum.Collections.SelectionTool
   Continuum.Collections.SelectionTool = new SelectionTools
-if not Continuum.Collections.ScatterSelectionOverlay
-  Continuum.Collections.ScatterSelectionOverlay = new ScatterSelectionOverlays
 if not Continuum.Collections.Legend
   Continuum.Collections.Legend = new Legends
 
@@ -817,10 +802,5 @@ Bokeh.ZoomTool = ZoomTool
 Bokeh.SelectionTools = SelectionTools
 Bokeh.SelectionTool = SelectionTool
 
-Bokeh.ScatterSelectionOverlays = ScatterSelectionOverlays
-Bokeh.ScatterSelectionOverlay = ScatterSelectionOverlay
-
 Bokeh.Legends = Legends
 Bokeh.Legend = Legend
-
-Bokeh.ScatterSelectionOverlay = ScatterSelectionOverlay
