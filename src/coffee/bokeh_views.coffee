@@ -222,6 +222,7 @@ class PlotView extends Continuum.ContinuumView
     @render()
     @build_subviews()
     return this
+
   render_init : () ->
     #FIXME template
     @$el.append($("""
@@ -336,7 +337,7 @@ class XYRendererView extends PlotWidget
   bind_bokeh_events : () ->
     safebind(this, @model, 'change', @request_render)
     safebind(this, @plot_view.viewstate, 'change', @request_render)
-    safebind(this, @mget_obj('data_source'), 'change:data', @request_render)
+    safebind(this, @mget_obj('data_source'), 'change', @request_render)
     safebind(this, @model, 'change:xdata_range', @set_xmapper)
     safebind(this, @model, 'change:ydata_range', @set_ymapper)
     safebind(this, @mget_obj('xdata_range'), 'change', @request_render)
@@ -1297,12 +1298,14 @@ class ScatterRendererView extends XYRendererView
     "use strict";
     super()
     selected = {}
-    if not @model.get_obj('data_source').get('selecting')
-      selected = null
+    sel_idxs = @model.get_obj('data_source').get('selected')
+    console.log('sel_idxs', sel_idxs)
+    if sel_idxs.length == 0
+      selecting = false
     else
-      sel_idxs = @model.get_obj('data_source').get('selected')
-      for idx in sel_idxs
-        selected[idx] = true
+      selecting = true
+    for idx in sel_idxs
+      selected[idx] = true
     data = @model.get_obj('data_source').get('data')
     @calc_buffer(data)
     @plot_view.ctx.beginPath()
@@ -1315,7 +1318,7 @@ class ScatterRendererView extends XYRendererView
       color_arr = @model.get('color_field')
     mark_type = @mget('mark')
     for idx in [0..data.length]
-      if selected and not selected[idx]
+      if selecting and not selected[idx]
         unselected_color = @mget('unselected_color')
         @plot_view.ctx.strokeStyle = unselected_color
         @plot_view.ctx.fillStyle = unselected_color
