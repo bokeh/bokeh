@@ -20,11 +20,11 @@ setup_interactive = () ->
   selecttool = Bokeh.Collections['SelectionTool'].create(
     {'renderers' : [scatterrenderer.ref()]}
   )
-  selectoverlay = Bokeh.Collections['ScatterSelectionOverlay'].create(
-    {'renderers' : [scatterrenderer.ref()]}
+  boxoverlay = Bokeh.Collections.BoxSelectionOverlay.create(
+    {'tool' : selecttool.ref()}
   )
   plot1.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref()])
-  plot1.set('overlays', [selectoverlay.ref()])
+  plot1.set('overlays', [boxoverlay.ref()])
   window.plot1 = plot1
   return plot1
 
