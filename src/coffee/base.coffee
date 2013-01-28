@@ -47,7 +47,7 @@ safebind = (binder, target, event, callback) ->
       ,
         binder)
    else
-    debugger;
+    #debugger;
     console.log("error with binder", binder, event)
   return null
 Continuum.safebind = safebind

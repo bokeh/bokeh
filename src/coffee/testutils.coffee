@@ -57,6 +57,8 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     'renderers' : [scatter_plot.ref()],
     'axes' : [xaxis.ref(), yaxis.ref()]
   }, options)
+  plot_model
+  
 
 Bokeh.data_table = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
   if _.isUndefined(local)
