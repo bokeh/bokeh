@@ -3,21 +3,30 @@ class Bokeh.BoxSelectionOverlayView extends Bokeh.PlotWidget
 
   initialize : (options) ->
     @selecting = false
+    @xrange = [null, null]
+    @yrange = [null, null]
     super(options)
     @toolview = @plot_view.tools[@mget('tool').id]
+    @plot_view.$el.find('.main_can_wrapper').append(@$el)
 
   boxselect : (xrange, yrange) ->
     @xrange = xrange
     @yrange = yrange
     @request_render()
-
+    console.log('valchange')
   startselect : () ->
     @selecting = true
+    @xrange = [null, null]
+    @yrange = [null, null]
     @request_render()
+    console.log('selecting')
 
   stopselect : () ->
     @selecting = false
+    @xrange = [null, null]
+    @yrange = [null, null]
     @request_render()
+    console.log('not selecting')
 
   bind_bokeh_events : (options) ->
     Continuum.safebind(this, @toolview, 'boxselect', @boxselect)
