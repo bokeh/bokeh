@@ -97,7 +97,7 @@ Server Based Web Plotting Examples
 ==================================
  * start a redis-server anywhere, using `$ redis-server &`
  * build the coffeescript code as described above.
- * install the bokeh module `$ python seutp.py develop`
+ * install the bokeh module `$ python setup.py develop`
  * execute `$ python startlocaldebug.py `
  * navigate to `http://localhost:5006/bokeh`
  * execute `$ python examples/webplot_example.py`
