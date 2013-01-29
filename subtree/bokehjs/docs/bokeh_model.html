@@ -1,4 +1,4 @@
-<!DOCTYPE html>  <html> <head>   <title>bokeh_model.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="base.html">                 base.coffee               </a>                                           <a class="source" href="bokeh_model.html">                 bokeh_model.coffee               </a>                                           <a class="source" href="bokeh_views.html">                 bokeh_views.coffee               </a>                                           <a class="source" href="coffee_style_guide.html">                 coffee_style_guide.coffee               </a>                                           <a class="source" href="model_base.html">                 model_base.coffee               </a>                                           <a class="source" href="testutils.html">                 testutils.coffee               </a>                                           <a class="source" href="ticks.html">                 ticks.coffee               </a>                                           <a class="source" href="tools.html">                 tools.coffee               </a>                                           <a class="source" href="ui_model.html">                 ui_model.coffee               </a>                                           <a class="source" href="ui_view.html">                 ui_view.coffee               </a>                                           <a class="source" href="view_base.html">                 view_base.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               bokeh_model.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Setup Bokeh Module</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="k">this</span><span class="p">.</span><span class="nx">Bokeh</span>
+<!DOCTYPE html>  <html> <head>   <title>bokeh_model.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="base.html">                 base.coffee               </a>                                           <a class="source" href="bokeh_model.html">                 bokeh_model.coffee               </a>                                           <a class="source" href="coffee_style_guide.html">                 coffee_style_guide.coffee               </a>                                           <a class="source" href="container.html">                 container.coffee               </a>                                           <a class="source" href="datasource.html">                 datasource.coffee               </a>                                           <a class="source" href="glyph_renderers.html">                 glyph_renderers.coffee               </a>                                           <a class="source" href="guides.html">                 guides.coffee               </a>                                           <a class="source" href="mapper.html">                 mapper.coffee               </a>                                           <a class="source" href="overlays.html">                 overlays.coffee               </a>                                           <a class="source" href="ranges.html">                 ranges.coffee               </a>                                           <a class="source" href="schema_renderers.html">                 schema_renderers.coffee               </a>                                           <a class="source" href="table.html">                 table.coffee               </a>                                           <a class="source" href="testutils.html">                 testutils.coffee               </a>                                           <a class="source" href="ticks.html">                 ticks.coffee               </a>                                           <a class="source" href="tools.html">                 tools.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               bokeh_model.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Setup Bokeh Module</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="k">this</span><span class="p">.</span><span class="nx">Bokeh</span>
   <span class="nv">Bokeh = </span><span class="k">this</span><span class="p">.</span><span class="nx">Bokeh</span>
 <span class="k">else</span>
   <span class="nv">Bokeh = </span><span class="p">{}</span>
@@ -307,13 +307,12 @@ along 2 axes</p>             </td>             <td class="code">               <
     <span class="k">return</span> <span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">colname</span><span class="p">]</span> <span class="k">for</span> <span class="nx">x</span> <span class="k">in</span> <span class="nx">@get</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">))</span>
 
   <span class="nv">compute_cont_range : </span><span class="nf">(field) -&gt;</span>
-    <span class="nv">max = </span><span class="nx">_</span><span class="p">.</span><span class="nx">max</span><span class="p">((</span><span class="nx">x</span><span class="p">[</span><span class="nx">field</span><span class="p">]</span> <span class="k">for</span> <span class="nx">x</span> <span class="k">in</span> <span class="nx">@get</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">)))</span>
-    <span class="nv">min = </span><span class="nx">_</span><span class="p">.</span><span class="nx">min</span><span class="p">((</span><span class="nx">x</span><span class="p">[</span><span class="nx">field</span><span class="p">]</span> <span class="k">for</span> <span class="nx">x</span> <span class="k">in</span> <span class="nx">@get</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">)))</span>
-    <span class="k">return</span> <span class="p">[</span><span class="nx">min</span><span class="p">,</span> <span class="nx">max</span><span class="p">]</span>
+    <span class="nv">data = </span><span class="nx">@getcolumn</span><span class="p">(</span><span class="nx">field</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">[</span><span class="nx">_</span><span class="p">.</span><span class="nx">max</span><span class="p">(</span><span class="nx">data</span><span class="p">),</span> <span class="nx">_</span><span class="p">.</span><span class="nx">min</span><span class="p">(</span><span class="nx">data</span><span class="p">)]</span>
 
   <span class="nv">compute_discrete_factor : </span><span class="nf">(field) -&gt;</span>
     <span class="nv">temp = </span><span class="p">{}</span>
-    <span class="k">for</span> <span class="nx">val</span> <span class="k">in</span> <span class="p">(</span><span class="nx">x</span><span class="p">[</span><span class="nx">field</span><span class="p">]</span> <span class="k">for</span> <span class="nx">x</span> <span class="k">in</span> <span class="nx">@get</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="nx">val</span> <span class="k">in</span> <span class="nx">@getcolumn</span><span class="p">(</span><span class="nx">field</span><span class="p">)</span>
       <span class="nx">temp</span><span class="p">[</span><span class="nx">val</span><span class="p">]</span> <span class="o">=</span> <span class="kc">true</span>
     <span class="nv">uniques = </span><span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">temp</span><span class="p">)</span>
     <span class="nv">uniques = </span><span class="nx">_</span><span class="p">.</span><span class="nx">sortBy</span><span class="p">(</span><span class="nx">uniques</span><span class="p">,</span> <span class="p">(</span><span class="nf">(x) -&gt;</span> <span class="k">return</span> <span class="nx">x</span><span class="p">))</span>
@@ -374,6 +373,33 @@ along 2 axes</p>             </td>             <td class="code">               <
 <span class="k">class</span> <span class="nx">ObjectArrayDataSources</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collection</span>
   <span class="nv">model : </span><span class="nx">ObjectArrayDataSource</span>
 
+
+<span class="k">class</span> <span class="nx">ColumnDataSource</span> <span class="k">extends</span> <span class="nx">ObjectArrayDataSource</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <p>Datasource where the data is defined column-wise, i.e. each key in the
+the data attribute is a column name, and its value is an array of scalars.
+Each column should be the same length.</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">type : </span><span class="s">&#39;ColumnDataSource&#39;</span>
+  <span class="nv">initialize : </span><span class="nf">(attrs, options) -&gt;</span>
+    <span class="k">super</span><span class="p">(</span><span class="nx">attrs</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+    <span class="vi">@cont_ranges = </span><span class="p">{}</span>
+    <span class="vi">@discrete_ranges = </span><span class="p">{}</span>
+
+  <span class="nv">getcolumn: </span><span class="nf">(colname) -&gt;</span>
+    <span class="k">return</span> <span class="nx">@get</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">)[</span><span class="nx">colname</span><span class="p">]</span>
+
+  <span class="nv">datapoints: </span><span class="nf">() -&gt;</span>
+    <span class="nv">data = </span><span class="nx">@get</span><span class="p">(</span><span class="s">&#39;data&#39;</span><span class="p">)</span>
+    <span class="nv">fields = </span><span class="nx">_</span><span class="p">.</span><span class="nx">keys</span><span class="p">(</span><span class="nx">data</span><span class="p">)</span>
+    <span class="nv">points = </span><span class="p">[]</span>
+    <span class="k">for</span> <span class="nx">i</span> <span class="k">in</span> <span class="p">[</span><span class="mi">0</span><span class="p">..</span><span class="nx">data</span><span class="p">[</span><span class="nx">fields</span><span class="p">[</span><span class="mi">0</span><span class="p">]].</span><span class="nx">length</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+      <span class="nv">point = </span><span class="p">{}</span>
+      <span class="k">for</span> <span class="nx">field</span> <span class="k">in</span> <span class="nx">fields</span>
+        <span class="nx">point</span><span class="p">[</span><span class="nx">field</span><span class="p">]</span> <span class="o">=</span> <span class="nx">data</span><span class="p">[</span><span class="nx">field</span><span class="p">][</span><span class="nx">i</span><span class="p">]</span>
+      <span class="nx">points</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">point</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nx">points</span>
+
+
+<span class="k">class</span> <span class="nx">ColumnDataSources</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collection</span>
+  <span class="nv">model : </span><span class="nx">ColumnDataSource</span>
+
 <span class="k">class</span> <span class="nx">GridPlotContainer</span> <span class="k">extends</span> <span class="nx">HasParent</span>
   <span class="nv">type : </span><span class="s">&#39;GridPlotContainer&#39;</span>
   <span class="nv">default_view : </span><span class="nx">Bokeh</span><span class="p">.</span><span class="nx">GridPlotContainerView</span>
@@ -392,7 +418,7 @@ along 2 axes</p>             </td>             <td class="code">               <
   <span class="nv">type : </span><span class="s">&#39;Plot&#39;</span>
   <span class="nv">default_view : </span><span class="nx">Bokeh</span><span class="p">.</span><span class="nx">PlotView</span>
   <span class="nv">parent_properties : </span><span class="p">[</span><span class="s">&#39;background_color&#39;</span><span class="p">,</span> <span class="s">&#39;foreground_color&#39;</span><span class="p">,</span>
-    <span class="s">&#39;width&#39;</span><span class="p">,</span> <span class="s">&#39;height&#39;</span><span class="p">,</span> <span class="s">&#39;border_space&#39;</span><span class="p">]</span>
+    <span class="s">&#39;width&#39;</span><span class="p">,</span> <span class="s">&#39;height&#39;</span><span class="p">,</span> <span class="s">&#39;border_space&#39;</span><span class="p">,</span> <span class="s">&#39;unselected_color&#39;</span><span class="p">]</span>
 <span class="nv">Plot::defaults = </span><span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">Plot</span><span class="o">::</span><span class="nx">defaults</span><span class="p">)</span>
 <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">Plot</span><span class="o">::</span><span class="nx">defaults</span> <span class="p">,</span> <span class="p">{</span>
   <span class="s">&#39;data_sources&#39;</span> <span class="o">:</span> <span class="p">{},</span>
@@ -402,12 +428,13 @@ along 2 axes</p>             </td>             <td class="code">               <
   <span class="s">&#39;tools&#39;</span> <span class="o">:</span> <span class="p">[],</span>
   <span class="s">&#39;overlays&#39;</span> <span class="o">:</span> <span class="p">[],</span>
   <span class="s">&#39;usedialog&#39;</span> <span class="o">:</span> <span class="kc">false</span><span class="p">,</span>
-  <span class="s">&#39;title&#39;</span> <span class="o">:</span> <span class="s">&#39;Plot&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-16">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-16">&#182;</a>               </div>               <p>axes fit here</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">})</span>
+  <span class="s">&#39;title&#39;</span> <span class="o">:</span> <span class="s">&#39;Plot&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <p>axes fit here</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">})</span>
 <span class="nv">Plot::display_defaults = </span><span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">Plot</span><span class="o">::</span><span class="nx">display_defaults</span><span class="p">)</span>
 <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">Plot</span><span class="o">::</span><span class="nx">display_defaults</span>
   <span class="p">,</span>
     <span class="nv">background_color : </span><span class="s">&quot;</span><span class="err">#</span><span class="s">eee&quot;</span>
     <span class="nv">foreground_color : </span><span class="s">&quot;</span><span class="err">#</span><span class="s">333&quot;</span>
+    <span class="nv">unselected_color : </span><span class="s">&quot;</span><span class="err">#</span><span class="s">ccc&quot;</span>
 <span class="p">)</span>
 
 <span class="k">class</span> <span class="nx">Plots</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collection</span>
@@ -450,7 +477,7 @@ along 2 axes</p>             </td>             <td class="code">               <
   <span class="p">,</span>
     <span class="nv">xmapper : </span><span class="kc">null</span>
     <span class="nv">ymapper: </span><span class="kc">null</span>
-    <span class="nv">orientation : </span><span class="s">&#39;vertical&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-17">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-17">&#182;</a>               </div>               <p>orientation determines whether xfield, or
+    <span class="nv">orientation : </span><span class="s">&#39;vertical&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <p>orientation determines whether xfield, or
 yfield will be treated as a domain
 for continuous fields, we support specifying a field name, the width of
 the bar in screen space can be specified, or we can calculate a width
@@ -492,13 +519,13 @@ xfield : {'field' : 'x', width : 10}</p>             </td>             <td class
     <span class="nv">xmapper : </span><span class="kc">null</span><span class="p">,</span>
     <span class="nv">ymapper: </span><span class="kc">null</span><span class="p">,</span>
     <span class="nv">xfield : </span><span class="kc">null</span><span class="p">,</span>
-    <span class="nv">yfield : </span><span class="kc">null</span><span class="p">,</span></pre></div>             </td>           </tr>                               <tr id="section-18">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-18">&#182;</a>               </div>               <p>if colorfield, we use a color mapper</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">colormapper : </span><span class="kc">null</span><span class="p">,</span>
+    <span class="nv">yfield : </span><span class="kc">null</span><span class="p">,</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <p>if colorfield, we use a color mapper</p>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="nv">colormapper : </span><span class="kc">null</span><span class="p">,</span>
     <span class="nv">colorfield : </span><span class="kc">null</span><span class="p">,</span>
     <span class="nv">mark : </span><span class="s">&#39;circle&#39;</span><span class="p">,</span>
 <span class="p">})</span>
 
 <span class="k">class</span> <span class="nx">ScatterRenderers</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collection</span>
-  <span class="nv">model : </span><span class="nx">ScatterRenderer</span></pre></div>             </td>           </tr>                               <tr id="section-19">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-19">&#182;</a>               </div>               <h3>class : GlyphRenderer</h3>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">GlyphRenderer</span> <span class="k">extends</span> <span class="nx">HasParent</span></pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <p>Example definition</p>
+  <span class="nv">model : </span><span class="nx">ScatterRenderer</span></pre></div>             </td>           </tr>                               <tr id="section-20">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-20">&#182;</a>               </div>               <h3>class : GlyphRenderer</h3>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">GlyphRenderer</span> <span class="k">extends</span> <span class="nx">HasParent</span></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <p>Example definition</p>
 
 <pre><code>data_source : data_source.ref()
 xdata_range : xdr.ref()
@@ -540,13 +567,23 @@ glyphs : [
 
 <span class="nv">GlyphRenderer::display_defaults = </span><span class="nx">_</span><span class="p">.</span><span class="nx">clone</span><span class="p">(</span><span class="nx">GlyphRenderer</span><span class="o">::</span><span class="nx">display_defaults</span><span class="p">)</span>
 <span class="nx">_</span><span class="p">.</span><span class="nx">extend</span><span class="p">(</span><span class="nx">GlyphRenderer</span><span class="o">::</span><span class="nx">display_defaults</span><span class="p">,</span> <span class="p">{</span>
-  <span class="nv">radius : </span><span class="mi">3</span>
+  <span class="nv">radius : </span><span class="mi">5</span>
+  <span class="nv">radius_units: </span><span class="s">&#39;screen&#39;</span>
+  <span class="nv">color : </span><span class="s">&#39;gray&#39;</span>
+  <span class="nv">outline_color: </span><span class="s">&#39;none&#39;</span>
+  <span class="nv">outline_width: </span><span class="mi">1</span>
+
+  <span class="nv">angle_units: </span><span class="s">&#39;deg&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-22">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-22">&#182;</a>               </div>               <p>Rects glyph</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nv">height: </span><span class="mi">1</span>
+  <span class="nv">width: </span><span class="mi">1</span>
+  <span class="nv">top: </span><span class="mi">1</span>
+  <span class="nv">bottom: </span><span class="mi">0</span>
+  <span class="nv">left: </span><span class="mi">0</span>
+  <span class="nv">right: </span><span class="mi">1</span>
+
 <span class="p">})</span>
 
 <span class="k">class</span> <span class="nx">GlyphRenderers</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collection</span>
   <span class="nv">model : </span><span class="nx">GlyphRenderer</span>
-
-
 
 <span class="k">class</span> <span class="nx">PanTool</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">HasParent</span>
   <span class="nv">type : </span><span class="s">&quot;PanTool&quot;</span>
@@ -593,40 +630,82 @@ glyphs : [
     <span class="nv">data_source_options : </span><span class="p">{}</span> <span class="c1">#backbone options for save on datasource</span>
 <span class="p">)</span>
 
-
-
 <span class="k">class</span> <span class="nx">SelectionTools</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collection</span>
-  <span class="nv">model : </span><span class="nx">SelectionTool</span>
-
-
-<span class="k">class</span> <span class="nx">ScatterSelectionOverlay</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">HasParent</span>
-  <span class="nv">type : </span><span class="s">&quot;ScatterSelectionOverlay&quot;</span>
-  <span class="nv">default_view : </span><span class="nx">Bokeh</span><span class="p">.</span><span class="nx">ScatterSelectionOverlayView</span>
+  <span class="nv">model : </span><span class="nx">SelectionTool</span></pre></div>             </td>           </tr>                               <tr id="section-23">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-23">&#182;</a>               </div>               <h6>#</h6>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">Legend</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">HasParent</span>
+  <span class="nv">type : </span><span class="s">&quot;Legend&quot;</span>
+  <span class="nv">default_view : </span><span class="nx">Bokeh</span><span class="p">.</span><span class="nx">LegendRendererView</span>
   <span class="nv">defaults :</span>
     <span class="nv">renderers : </span><span class="p">[]</span>
     <span class="nv">unselected_color : </span><span class="s">&quot;</span><span class="err">#</span><span class="s">ccc&quot;</span>
+    <span class="nv">positions :</span>
+      <span class="nv">top_left     : </span><span class="p">[</span> <span class="mi">20</span><span class="p">,</span>  <span class="mi">20</span><span class="p">]</span>
+      <span class="nv">top_right    : </span><span class="p">[</span><span class="o">-</span><span class="mi">80</span><span class="p">,</span>  <span class="mi">20</span><span class="p">]</span>
+      <span class="nv">bottom_left  : </span><span class="p">[</span> <span class="mi">20</span><span class="p">,</span> <span class="o">-</span><span class="mi">60</span><span class="p">]</span>
+      <span class="nv">bottom_right : </span><span class="p">[</span><span class="o">-</span><span class="mi">80</span><span class="p">,</span> <span class="o">-</span><span class="mi">60</span><span class="p">]</span>
+    <span class="nv">position : </span><span class="s">&quot;top_left&quot;</span>
 
+  <span class="nv">initialize : </span><span class="nf">(options) -&gt;</span>
+    <span class="k">super</span><span class="p">(</span><span class="nx">options</span><span class="p">)</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s">&quot;options&quot;</span><span class="p">,</span> <span class="nx">options</span><span class="p">)</span>
+    <span class="nv">ptype = </span><span class="k">typeof</span> <span class="nx">options</span><span class="p">.</span><span class="nx">position</span>
+    <span class="k">if</span> <span class="nx">ptype</span> <span class="o">==</span> <span class="s">&quot;string&quot;</span>
+      <span class="nx">@set</span><span class="p">(</span><span class="s">&#39;coords&#39;</span><span class="p">,</span> <span class="nx">@defaults</span><span class="p">.</span><span class="nx">positions</span><span class="p">[</span><span class="nx">options</span><span class="p">.</span><span class="nx">position</span><span class="p">])</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="nx">ptype</span> <span class="o">==</span> <span class="s">&quot;object&quot;</span>
+      <span class="nx">@set</span><span class="p">(</span><span class="s">&#39;coords&#39;</span><span class="p">,</span>  <span class="nx">options</span><span class="p">.</span><span class="nx">position</span><span class="p">)</span>
 
+<span class="k">class</span> <span class="nx">Legends</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collection</span>
+  <span class="nv">model : </span><span class="nx">Legend</span></pre></div>             </td>           </tr>                               <tr id="section-24">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-24">&#182;</a>               </div>               <h6>#</h6>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">class</span> <span class="nx">PlotContext</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">HasParent</span>
+  <span class="nv">type : </span><span class="s">&#39;PlotContext&#39;</span><span class="p">,</span>
+  <span class="nv">default_view : </span><span class="nx">Bokeh</span><span class="p">.</span><span class="nx">PlotContextView</span>
+  <span class="nv">url : </span><span class="nf">() -&gt;</span>
+    <span class="k">return</span> <span class="k">super</span><span class="p">()</span>
+  <span class="nv">defaults :</span>
+    <span class="nv">children : </span><span class="p">[]</span>
+    <span class="nv">render_loop : </span><span class="kc">true</span>
 
-<span class="k">class</span> <span class="nx">ScatterSelectionOverlays</span> <span class="k">extends</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collection</span>
-  <span class="nv">model : </span><span class="nx">ScatterSelectionOverlay</span></pre></div>             </td>           </tr>                               <tr id="section-21">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-21">&#182;</a>               </div>               <p>Preparing the name space</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">Continuum.Collections.Plot = </span><span class="k">new</span> <span class="nx">Plots</span>
-<span class="nv">Continuum.Collections.ScatterRenderer = </span><span class="k">new</span> <span class="nx">ScatterRenderers</span>
-<span class="nv">Continuum.Collections.GlyphRenderer = </span><span class="k">new</span> <span class="nx">GlyphRenderers</span>
-<span class="nv">Continuum.Collections.LineRenderer = </span><span class="k">new</span> <span class="nx">LineRenderers</span>
-<span class="nv">Continuum.Collections.BarRenderer = </span><span class="k">new</span> <span class="nx">BarRenderers</span>
-<span class="nv">Continuum.Collections.ObjectArrayDataSource = </span><span class="k">new</span> <span class="nx">ObjectArrayDataSources</span>
-<span class="nv">Continuum.Collections.Range1d = </span><span class="k">new</span> <span class="nx">Range1ds</span>
-<span class="nv">Continuum.Collections.LinearAxis = </span><span class="k">new</span> <span class="nx">LinearAxes</span>
-<span class="nv">Continuum.Collections.LinearDateAxis = </span><span class="k">new</span> <span class="nx">LinearDateAxes</span>
-<span class="nv">Continuum.Collections.DiscreteColorMapper = </span><span class="k">new</span> <span class="nx">DiscreteColorMappers</span>
-<span class="nv">Continuum.Collections.FactorRange = </span><span class="k">new</span> <span class="nx">FactorRanges</span>
-<span class="nv">Continuum.Collections.GridPlotContainer = </span><span class="k">new</span> <span class="nx">GridPlotContainers</span>
-<span class="nv">Continuum.Collections.DataRange1d = </span><span class="k">new</span> <span class="nx">DataRange1ds</span>
-<span class="nv">Continuum.Collections.DataFactorRange = </span><span class="k">new</span> <span class="nx">DataFactorRanges</span>
-<span class="nv">Continuum.Collections.PanTool = </span><span class="k">new</span> <span class="nx">PanTools</span>
-<span class="nv">Continuum.Collections.ZoomTool = </span><span class="k">new</span> <span class="nx">ZoomTools</span>
-<span class="nv">Continuum.Collections.SelectionTool = </span><span class="k">new</span> <span class="nx">SelectionTools</span>
-<span class="nv">Continuum.Collections.ScatterSelectionOverlay = </span><span class="k">new</span> <span class="nx">ScatterSelectionOverlays</span>
+<span class="k">class</span> <span class="nx">PlotContexts</span> <span class="k">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Collection</span>
+  <span class="nv">model : </span><span class="nx">PlotContext</span>
+
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">PlotContext</span>
+  <span class="nv">Continuum.Collections.PlotContext = </span><span class="k">new</span> <span class="nx">PlotContexts</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-25">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-25">&#182;</a>               </div>               <p>backwards compatability</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">CDXPlotContext</span>
+  <span class="nv">Continuum.Collections.CDXPlotContext = </span><span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">PlotContext</span></pre></div>             </td>           </tr>                               <tr id="section-26">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-26">&#182;</a>               </div>               <p>Preparing the name space</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">Plot</span>
+  <span class="nv">Continuum.Collections.Plot = </span><span class="k">new</span> <span class="nx">Plots</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">ScatterRenderer</span>
+  <span class="nv">Continuum.Collections.ScatterRenderer = </span><span class="k">new</span> <span class="nx">ScatterRenderers</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">GlyphRenderer</span>
+  <span class="nv">Continuum.Collections.GlyphRenderer = </span><span class="k">new</span> <span class="nx">GlyphRenderers</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">LineRenderer</span>
+  <span class="nv">Continuum.Collections.LineRenderer = </span><span class="k">new</span> <span class="nx">LineRenderers</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">BarRenderer</span>
+  <span class="nv">Continuum.Collections.BarRenderer = </span><span class="k">new</span> <span class="nx">BarRenderers</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">ObjectArrayDataSource</span>
+  <span class="nv">Continuum.Collections.ObjectArrayDataSource = </span><span class="k">new</span> <span class="nx">ObjectArrayDataSources</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">ColumnDataSource</span>
+  <span class="nv">Continuum.Collections.ColumnDataSource = </span><span class="k">new</span> <span class="nx">ColumnDataSources</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">Range1d</span>
+  <span class="nv">Continuum.Collections.Range1d = </span><span class="k">new</span> <span class="nx">Range1ds</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">LinearAxis</span>
+  <span class="nv">Continuum.Collections.LinearAxis = </span><span class="k">new</span> <span class="nx">LinearAxes</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">LinearDateAxis</span>
+  <span class="nv">Continuum.Collections.LinearDateAxis = </span><span class="k">new</span> <span class="nx">LinearDateAxes</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">DiscreteColorMapper</span>
+  <span class="nv">Continuum.Collections.DiscreteColorMapper = </span><span class="k">new</span> <span class="nx">DiscreteColorMappers</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">FactorRange</span>
+  <span class="nv">Continuum.Collections.FactorRange = </span><span class="k">new</span> <span class="nx">FactorRanges</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">GridPlotContainer</span>
+  <span class="nv">Continuum.Collections.GridPlotContainer = </span><span class="k">new</span> <span class="nx">GridPlotContainers</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">DataRange1d</span>
+  <span class="nv">Continuum.Collections.DataRange1d = </span><span class="k">new</span> <span class="nx">DataRange1ds</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">DataFactorRange</span>
+  <span class="nv">Continuum.Collections.DataFactorRange = </span><span class="k">new</span> <span class="nx">DataFactorRanges</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">PanTool</span>
+  <span class="nv">Continuum.Collections.PanTool = </span><span class="k">new</span> <span class="nx">PanTools</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">ZoomTool</span>
+  <span class="nv">Continuum.Collections.ZoomTool = </span><span class="k">new</span> <span class="nx">ZoomTools</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">SelectionTool</span>
+  <span class="nv">Continuum.Collections.SelectionTool = </span><span class="k">new</span> <span class="nx">SelectionTools</span>
+<span class="k">if</span> <span class="o">not</span> <span class="nx">Continuum</span><span class="p">.</span><span class="nx">Collections</span><span class="p">.</span><span class="nx">Legend</span>
+  <span class="nv">Continuum.Collections.Legend = </span><span class="k">new</span> <span class="nx">Legends</span>
 
 
 <span class="nv">Bokeh.Collections = </span><span class="nx">Collections</span>
@@ -653,7 +732,7 @@ glyphs : [
 <span class="nv">Bokeh.SelectionTools = </span><span class="nx">SelectionTools</span>
 <span class="nv">Bokeh.SelectionTool = </span><span class="nx">SelectionTool</span>
 
-<span class="nv">Bokeh.ScatterSelectionOverlays = </span><span class="nx">ScatterSelectionOverlays</span>
-<span class="nv">Bokeh.ScatterSelectionOverlay = </span><span class="nx">ScatterSelectionOverlay</span>
+<span class="nv">Bokeh.Legends = </span><span class="nx">Legends</span>
+<span class="nv">Bokeh.Legend = </span><span class="nx">Legend</span>
 
 </pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
