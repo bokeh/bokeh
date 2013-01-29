@@ -217,7 +217,6 @@ class XYPlot(object):
             self.data_sources.append(data_source)
         self.plotmodel.get('renderers').append(scatterrenderer.ref())
         self.selectiontool.get('renderers').append(scatterrenderer.ref())
-        self.selectionoverlay.get('renderers').append(scatterrenderer.ref())
         update.append(scatterrenderer)
         update.append(self.plotmodel)
         update.append(self.selectiontool)
