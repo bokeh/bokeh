@@ -4,7 +4,29 @@ if this.Bokeh
 else
   Bokeh = {}
   this.Bokeh = Bokeh
+
+Collections = Continuum.Collections
 safebind = Continuum.safebind
+HasParent = Continuum.HasParent
+BokehView = Continuum.ContinuumView
+HasProperties = Continuum.HasProperties
+
+class Bokeh.ActiveToolManager
+  """ This makes sure that only one tool is active at a time """
+  constructor : (eventSink) ->
+    @eventSink = eventSink
+    @eventSink.active = true
+    @bind_events()
+
+  bind_events : () ->
+    @eventSink.on("clear_active_tool", () =>
+      @eventSink.trigger("#{@eventSink.active}:deactivated")
+      @eventSink.active = true)
+    @eventSink.on("active_tool", (toolName) =>
+      if toolName != @eventSink.active
+        @eventSink.trigger("#{toolName}:activated")
+        @eventSink.trigger("#{@eventSink.active}:deactivated")
+        @eventSink.active = toolName)
 
 # FIXME : I'm not sure we need this special bind_events stuff.. I think
 # we could hook in on bind_bokeh_events which is being automatically called
@@ -382,6 +404,62 @@ class ZoomToolView extends ToolView
         end : end)
     return null
 
+class PanTool extends Continuum.HasParent
+  type : "PanTool"
+  default_view : PanToolView
+
+PanTool::defaults = _.clone(PanTool::defaults)
+_.extend(PanTool::defaults
+  ,
+    dimensions : [] #height/width
+    dataranges : [] #references of datarange objects
+)
+
+
+class PanTools extends Continuum.Collection
+  model : PanTool
+
+
+
+class ZoomTool extends Continuum.HasParent
+  type : "ZoomTool"
+  default_view : ZoomToolView
+ZoomTool::defaults = _.clone(ZoomTool::defaults)
+_.extend(ZoomTool::defaults
+  ,
+    dimensions : []
+    dataranges : []
+    speed : 1/600
+)
+
+class ZoomTools extends Continuum.Collection
+  model : ZoomTool
+
+
+class SelectionTool extends Continuum.HasParent
+  type : "SelectionTool"
+  default_view : SelectionToolView
+
+SelectionTool::defaults = _.clone(SelectionTool::defaults)
+_.extend(SelectionTool::defaults
+  ,
+    renderers : []
+    select_x : true
+    select_y : true
+    data_source_options : {} #backbone options for save on datasource
+)
+
+class SelectionTools extends Continuum.Collection
+  model : SelectionTool
+
+
+
 Bokeh.SelectionToolView = SelectionToolView
 Bokeh.PanToolView = PanToolView
 Bokeh.ZoomToolView = ZoomToolView
+if not Continuum.Collections.PanTool
+  Continuum.Collections.PanTool = new PanTools
+if not Continuum.Collections.ZoomTool
+  Continuum.Collections.ZoomTool = new ZoomTools
+if not Continuum.Collections.SelectionTool
+  Continuum.Collections.SelectionTool = new SelectionTools
