@@ -489,7 +489,7 @@ class GridPlotContainerView extends Continuum.ContinuumView
 
 class GridPlotContainer extends Continuum.HasParent
   type : 'GridPlotContainer'
-  default_view : Bokeh.GridPlotContainerView
+  default_view : GridPlotContainerView
 
 GridPlotContainer::defaults = _.clone(GridPlotContainer::defaults)
 _.extend(GridPlotContainer::defaults
