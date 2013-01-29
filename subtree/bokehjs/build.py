@@ -24,12 +24,12 @@ except ImportError: # pragma: no cover
 
 projects = {
     'bokehjs':{
-        'input' : 'src/coffee',
-        'output' : 'lib/js',
+        'input' : 'static/coffee',
+        'output' : 'static/js',
         },
     'bokehjstest':{
-        'input' : 'src/test/unittest',
-        'output' : 'lib/test/unittest',
+        'input' : 'static/coffee/unittest',
+        'output' : 'static/js/unittest',
         }
     }
 

@@ -1,3 +1,69 @@
+# Module setup stuff
+if this.Bokeh
+  Bokeh = this.Bokeh
+else
+  Bokeh = {}
+  this.Bokeh = Bokeh
+if this.Continuum
+  Continuum = this.Continuum
+else
+  Continuum = {}
+  this.Continuum = Continuum
+if not Continuum.Collections
+  Collections = {}
+  Continuum.Collections = Collections
+else
+  Collections = Continuum.Collections
+Bokeh.Collections = Continuum.Collections
+
+# ## function : safebind
+safebind = (binder, target, event, callback) ->
+  # safebind, binder binds to an event on target, which triggers callback.
+  # Safe means that when the binder is destroyed, all callbacks are unbound.
+  # callbacks are bound and evaluated in the context of binder.  Now that
+  # backbone 0.99 is out, with listenTo and stopListening functions, which
+  # manage event lifecycles, we probably don't need this function
+  #
+  # #### Parameters
+  #
+  # * binder : backbone model or view - when this is destroyed or removed,
+  #   the callback
+  #   unbound
+  # * target : object triggering the event we want to bind to
+  # * event : string, name of the event
+  # * callback : callback for the event
+  #
+  # #### Returns
+  #
+  # * null
+  #
+  # stores objects we are binding events on, so that if we go away,
+  # we can unbind all our events
+  # currently, we require that the context being used is the binders context
+  # this is because we currently unbind on a per context basis.  this can
+  # be changed later if we need it
+  if not _.has(binder, 'eventers')
+    binder['eventers'] = {}
+  try
+    binder['eventers'][target.id] = target
+  catch error
+
+  # also need to bind destroy to remove obj from eventers.
+  # no special logic needed to manage this life cycle, because
+  # we will already unbind all listeners on target when binder goes away
+  if target?
+    target.on(event, callback, binder)
+    target.on('destroy remove',
+      () =>
+        delete binder['eventers'][target]
+      ,
+        binder)
+   else
+    #debugger;
+    console.log("error with binder", binder, event)
+  return null
+
+
 
 # we create a dictionary of collections, for all types that we know,
 # we use these when models are pushed down from the server
@@ -5,14 +71,8 @@ class Continuum.Collection extends Backbone.Collection
   # at some point, I thought we needed to override create...
   # we don't anymore...
   # can switch back to Backbone.Collection later
-if not Continuum.Collections
-  Collections = {}
-  Continuum.Collections = Collections
-else
-  Collections = Continuum.Collections
 
-safebind = Continuum.safebind
-Bokeh = window.Bokeh
+
 
 # backbone note - we're sort of using defaults in the code to tell the user
 # what attributes are expected, so please specify defaults for
@@ -507,7 +567,7 @@ class HasProperties extends Backbone.Model
   # perhaps a name besides display_defaults would be appropriate, we might want
   # to store non-display related defaults here.
 
-class HasParent extends HasProperties
+class Continuum.HasParent extends HasProperties
   get_fallback : (attr) ->
     if (@get_obj('parent') and
         _.indexOf(@get_obj('parent').parent_properties, attr) >= 0 and
@@ -535,7 +595,125 @@ class HasParent extends HasProperties
   display_defaults : {}
 
 
+build_views = (view_storage, view_models, options) ->
+  # ## function : build_views
+  # convenience function for creating a bunch of views from a spec
+  # and storing them in a dictionary keyed off of model id.
+  # views are automatically passed the model that they represent
 
-Continuum.HasParent = HasParent
+  # ####Parameters
+  # * mainmodel : model which is constructing the views, this is used to resolve
+  #   specs into other model objects
+  # * view_storage : where you want the new views stored.  this is a dictionary
+  #   views will be keyed by the id of the underlying model
+  # * view_specs : list of view specs.  view specs are continuum references, with
+  #   a typename and an id.  you can also pass options you want to feed into
+  #   the views constructor here, as an 'options' field in the dict
+  # * options : any additional option to be used in the construction of views
+  # * view_option : array, optional view specific options passed in to the construction of the view
+  "use strict";
+  created_views = []
+  #debugger
+  try
+    newmodels = _.filter(view_models, (x) -> return not _.has(view_storage, x.id))
+  catch error
+    debugger
+    console.log(error)
+    throw error
+  for model in newmodels
+    view_specific_option = _.extend({}, options, {'model' : model})
+    try
+      view_storage[model.id] = new model.default_view(view_specific_option)
+    catch error
+      console.log("error on model of", model, error)
+      throw error
+    created_views.push(view_storage[model.id])
+  to_remove = _.difference(_.keys(view_storage), _.pluck(view_models, 'id'))
+  for key in to_remove
+    view_storage[key].remove()
+    delete view_storage[key]
+  return created_views
+
+
+
+class Continuum.ContinuumView extends Backbone.View
+  initialize : (options) ->
+    #autogenerates id
+    if not _.has(options, 'id')
+      this.id = _.uniqueId('ContinuumView')
+
+  #bind_bokeh_events is always called after initialize has run
+  bind_bokeh_events : () ->
+    'pass'
+
+
+
+  delegateEvents : (events) ->
+    super(events)
+    @bind_bokeh_events()
+
+  remove : ->
+    #handles lifecycle of events bound by safebind
+
+    if _.has(this, 'eventers')
+      for own target, val of @eventers
+        val.off(null, null, this)
+    @trigger('remove')
+    super()
+
+  mget : ()->
+    # convenience function, calls get on the associated model
+    return @model.get.apply(@model, arguments)
+
+  mset : ()->
+    # convenience function, calls set on the associated model
+
+    return @model.set.apply(@model, arguments)
+
+  mget_obj : (fld) ->
+    # convenience function, calls get_obj on the associated model
+
+    return @model.get_obj(fld)
+  render_end : () ->
+    "pass"
+
+
+class PlotWidget extends Continuum.ContinuumView
+  # Everything that lives inside a plot container should
+  # inherit from this class.  All plot widgets are
+  # passed in the plot model and view
+  # This class also contains some basic canvas rendering primitives
+  # we also include the request_render function, which
+  # calls a throttled version of the plot canvas rendering function
+  tagName : 'div'
+  marksize : 3
+  initialize : (options) ->
+    @plot_model = options.plot_model
+    @plot_view = options.plot_view
+    super(options)
+
+  bind_bokeh_events : ->
+    safebind(this, @plot_view.viewstate, 'change', ()->
+        @request_render())
+
+  addPolygon: (x,y) ->
+    if isNaN(x) or isNaN(y)
+      return null
+    @plot_view.ctx.fillRect(x,y,@marksize,@marksize)
+
+  addCircle: (x,y) ->
+    if isNaN(x) or isNaN(y)
+      return null
+    @plot_view.ctx.beginPath()
+    @plot_view.ctx.arc(x, y, @marksize, 0, Math.PI*2)
+    @plot_view.ctx.closePath()
+    @plot_view.ctx.fill()
+    @plot_view.ctx.stroke()
+
+  request_render : () ->
+    @plot_view.throttled()
+
+Bokeh.PlotWidget = PlotWidget
+Continuum.safebind = safebind
 Continuum.HasProperties = HasProperties
-#HasProperties.prototype.sync = Backbone.sync
+Continuum.build_views = build_views
