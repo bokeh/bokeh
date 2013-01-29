@@ -4,9 +4,32 @@ if this.Bokeh
 else
   Bokeh = {}
   this.Bokeh = Bokeh
+
+Collections = Continuum.Collections
 safebind = Continuum.safebind
+HasParent = Continuum.HasParent
+BokehView = Continuum.ContinuumView
+HasProperties = Continuum.HasProperties
 
+class Bokeh.ActiveToolManager
+  """ This makes sure that only one tool is active at a time """
+  constructor : (eventSink) ->
+    @eventSink = eventSink
+    @eventSink.active = true
+    @bind_events()
 
+  bind_events : () ->
+    @eventSink.on("clear_active_tool", () =>
+      @eventSink.trigger("#{@eventSink.active}:deactivated")
+      @eventSink.active = true)
+    @eventSink.on("active_tool", (toolName) =>
+      if toolName != @eventSink.active
+        @eventSink.trigger("#{toolName}:activated")
+        @eventSink.trigger("#{@eventSink.active}:deactivated")
+        @eventSink.active = toolName)
+
+# FIXME : I'm not sure we need this special bind_events stuff.. I think
+# we could hook in on bind_bokeh_events which is being automatically called
 
 class TwoPointEventGenerator
 
@@ -113,7 +136,7 @@ class OnePointWheelEventGenerator
     @plotview.main_can_wrapper.bind("mousewheel",
       (e, delta, dX, dY) =>
         if not @tool_active
-          return 
+          return
         offset = $(e.currentTarget).offset()
         e.bokehX = e.pageX - offset.left
         e.bokehY = e.pageY - offset.top
@@ -251,7 +274,7 @@ class PanToolView extends ToolView
 class SelectionToolView extends ToolView
   initialize : (options) ->
     super(options)
-    select_callback = _.debounce((() => @_select_data()),50)
+    select_callback = _.debounce((() => @_select_data()), 50)
     safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'change', select_callback)
     for renderer in @mget_obj('renderers')
@@ -279,28 +302,13 @@ class SelectionToolView extends ToolView
     return [x, y]
 
   _stop_selecting : () ->
-    @mset(
-      start_x : null
-      start_y : null
-      current_x : null
-      current_y : null)
-
-    @plotview.$el.removeClass("shading")
-    for renderer in @mget_obj('renderers')
-      renderer.get_obj('data_source').set('selecting', false)
-      renderer.get_obj('data_source').save()
+    @trigger('stopselect')
     @basepoint_set = false
-    if @shading
-      @shading.remove()
-      @shading = null
 
   _start_selecting : (e) ->
+    @trigger('startselect')
     [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     @mset({'start_x' : x, 'start_y' : y, 'current_x' : null, 'current_y' : null})
-    for renderer in @mget_obj('renderers')
-      data_source = renderer.get_obj('data_source')
-      data_source.set('selecting', true)
-      data_source.save()
     @basepoint_set = true
 
   _get_selection_range : ->
@@ -319,15 +327,15 @@ class SelectionToolView extends ToolView
   _selecting : (e, x_, y_) ->
     [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     @mset({'current_x' : x, 'current_y' : y})
+    [@xrange, @yrange] = @_get_selection_range()
+    @trigger('boxselect', @xrange, @yrange)
     return null
 
   _select_data : () ->
     if not @basepoint_set
       return
-    [xrange, yrange] = @_get_selection_range()
     datasources = {}
     datasource_selections = {}
-
     for renderer in @mget_obj('renderers')
       datasource = renderer.get_obj('data_source')
       datasources[datasource.id] = datasource
@@ -335,42 +343,16 @@ class SelectionToolView extends ToolView
     for renderer in @mget_obj('renderers')
       datasource_id = renderer.get_obj('data_source').id
       _.setdefault(datasource_selections, datasource_id, [])
-      selected = @plot_view.renderers[renderer.id].select(xrange, yrange)
+      selected = @plot_view.renderers[renderer.id].select(@xrange, @yrange)
       datasource_selections[datasource_id].push(selected)
 
     for own k,v of datasource_selections
       selected = _.intersect.apply(_, v)
       datasources[k].set('selected', selected)
+      console.log('selected', selected)
       datasources[k].save()
     return null
 
-  _render_shading : () ->
-    [xrange, yrange] = @_get_selection_range()
-    if _.any(_.map(xrange, _.isNullOrUndefined)) or
-      _.any(_.map(yrange, _.isNullOrUndefined))
-        return
-    if not @shading
-      @plotview.$el.addClass("shading")
-    style_string = ""
-    xpos = @plot_view.viewstate.rxpos(Math.min(xrange[0], xrange[1]))
-    if xrange
-      width = Math.abs(xrange[1] - xrange[0])
-    else
-      width = @plot_view.viewstate.get('width')
-    style_string += "; left:#{xpos}px; width:#{width}px; "
-    ypos = @plot_view.viewstate.rypos(Math.max(yrange[0], yrange[1]))
-    if yrange
-      height = yrange[1] - yrange[0]
-    else
-      height = @plot_view.viewstate.get('height')
-    style_string += "top:#{ypos}px; height:#{height}px"
-    @plotview.$el.find("._shader").attr('style', style_string)
-
-  render : () ->
-    super()
-    @_render_shading()
-    @render_end()
-    return null
 
 class ZoomToolView extends ToolView
 
@@ -422,6 +404,62 @@ class ZoomToolView extends ToolView
         end : end)
     return null
 
+class PanTool extends Continuum.HasParent
+  type : "PanTool"
+  default_view : PanToolView
+
+PanTool::defaults = _.clone(PanTool::defaults)
+_.extend(PanTool::defaults
+  ,
+    dimensions : [] #height/width
+    dataranges : [] #references of datarange objects
+)
+
+
+class PanTools extends Continuum.Collection
+  model : PanTool
+
+
+
+class ZoomTool extends Continuum.HasParent
+  type : "ZoomTool"
+  default_view : ZoomToolView
+ZoomTool::defaults = _.clone(ZoomTool::defaults)
+_.extend(ZoomTool::defaults
+  ,
+    dimensions : []
+    dataranges : []
+    speed : 1/600
+)
+
+class ZoomTools extends Continuum.Collection
+  model : ZoomTool
+
+
+class SelectionTool extends Continuum.HasParent
+  type : "SelectionTool"
+  default_view : SelectionToolView
+
+SelectionTool::defaults = _.clone(SelectionTool::defaults)
+_.extend(SelectionTool::defaults
+  ,
+    renderers : []
+    select_x : true
+    select_y : true
+    data_source_options : {} #backbone options for save on datasource
+)
+
+class SelectionTools extends Continuum.Collection
+  model : SelectionTool
+
+
+
 Bokeh.SelectionToolView = SelectionToolView
 Bokeh.PanToolView = PanToolView
 Bokeh.ZoomToolView = ZoomToolView
+if not Continuum.Collections.PanTool
+  Continuum.Collections.PanTool = new PanTools
+if not Continuum.Collections.ZoomTool
+  Continuum.Collections.ZoomTool = new ZoomTools
+if not Continuum.Collections.SelectionTool
+  Continuum.Collections.SelectionTool = new SelectionTools

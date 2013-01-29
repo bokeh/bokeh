@@ -459,7 +459,7 @@ class Plot extends HasParent
   type : 'Plot'
   default_view : Bokeh.PlotView
   parent_properties : ['background_color', 'foreground_color',
-    'width', 'height', 'border_space']
+    'width', 'height', 'border_space', 'unselected_color']
 Plot::defaults = _.clone(Plot::defaults)
 _.extend(Plot::defaults , {
   'data_sources' : {},
@@ -477,6 +477,7 @@ _.extend(Plot::display_defaults
   ,
     background_color : "#eee"
     foreground_color : "#333"
+    unselected_color : "#ccc"
 )
 
 class Plots extends Continuum.Collection
@@ -683,23 +684,39 @@ _.extend(SelectionTool::defaults
     data_source_options : {} #backbone options for save on datasource
 )
 
-
-
 class SelectionTools extends Continuum.Collection
   model : SelectionTool
 
 
-class ScatterSelectionOverlay extends Continuum.HasParent
-  type : "ScatterSelectionOverlay"
-  default_view : Bokeh.ScatterSelectionOverlayView
+
+###############################
+class Legend extends Continuum.HasParent
+  type : "Legend"
+  default_view : Bokeh.LegendRendererView
   defaults :
     renderers : []
     unselected_color : "#ccc"
+    positions :
+      top_left     : [ 20,  20]
+      top_right    : [-80,  20]
+      bottom_left  : [ 20, -60]
+      bottom_right : [-80, -60]
+    position : "top_left"
+
+  initialize : (options) ->
+    super(options)
+    console.log("options", options)
+    ptype = typeof options.position
+    if ptype == "string"
+      @set('coords', @defaults.positions[options.position])
+    else if ptype == "object"
+      @set('coords',  options.position)
+
+class Legends extends Continuum.Collection
+  model : Legend
 
 
-
-class ScatterSelectionOverlays extends Continuum.Collection
-  model : ScatterSelectionOverlay
+###############################
 
 class PlotContext extends Continuum.HasParent
   type : 'PlotContext',
@@ -757,8 +774,8 @@ if not Continuum.Collections.ZoomTool
   Continuum.Collections.ZoomTool = new ZoomTools
 if not Continuum.Collections.SelectionTool
   Continuum.Collections.SelectionTool = new SelectionTools
-if not Continuum.Collections.ScatterSelectionOverlay
-  Continuum.Collections.ScatterSelectionOverlay = new ScatterSelectionOverlays
+if not Continuum.Collections.Legend
+  Continuum.Collections.Legend = new Legends
 
 
 Bokeh.Collections = Collections
@@ -785,5 +802,5 @@ Bokeh.ZoomTool = ZoomTool
 Bokeh.SelectionTools = SelectionTools
 Bokeh.SelectionTool = SelectionTool
 
-Bokeh.ScatterSelectionOverlays = ScatterSelectionOverlays
-Bokeh.ScatterSelectionOverlay = ScatterSelectionOverlay
+Bokeh.Legends = Legends
+Bokeh.Legend = Legend
