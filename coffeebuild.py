@@ -3,17 +3,17 @@ import sys
 import time
 
 projects = {
-    'cdx':{
+    'bokeh':{
         'input' : 'bokeh/server/static/coffee',
         'output' : 'bokeh/server/static/js',
         },
     'bokehjs':{
-        'input' : 'subtree/bokehjs/src/coffee',
-        'output' : 'subtree/bokehjs/lib/js',
+        'input' : 'subtree/bokehjs/static/coffee',
+        'output' : 'subtree/bokehjs/static/js',
         },
     'bokehjstest':{
-        'input' : 'subtree/bokehjs/src/test/unittest',
-        'output' : 'subtree/bokehjs/lib/test/unittest',
+        'input' : 'subtree/bokehjs/static/coffee/unittest',
+        'output' : 'subtree/bokehjs/static/js/unittest',
         }
     }
 
