@@ -531,7 +531,7 @@ class Plots extends Continuum.Collection
 
 class PlotContext extends Continuum.HasParent
   type : 'PlotContext',
-  default_view : Bokeh.PlotContextView
+  default_view : PlotContextView
   url : () ->
     return super()
   defaults :
