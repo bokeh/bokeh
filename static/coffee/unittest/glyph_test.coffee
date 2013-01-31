@@ -764,6 +764,89 @@ test('lines_test', () ->
 )
 
 
+test('areas_glyph', () ->
+  expect(0)
+  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+    data : [
+      {
+        xs: [1, 3, 5],
+        ys: [1, 3.4, 1],
+        color: "red",
+      }
+      {
+        xs: [6, 4, 6, 8],
+        ys: [2, 4, 6, 4],
+        color: "blue",
+        alpha: 0.3,
+        outline_width: 0.1,
+      }
+      {
+        xs: [6, 6.5, 8.5, 9],
+        ys: [0, 1, 1, 0],
+        color: "green",
+        alpha: 0.6,
+        outline_width: 3,
+      }
+      {
+        xs: [2.0, 1.7, 3.0, 4.3, 4.0],
+        ys: [6.0, 7.4, 8.7, 7.4, 6.0],
+        color: "orange",
+        alpha: 0.8,
+        outline_color: "#df4f4f",
+      }
+      {
+        xs: [7,6,7,9,9.5,7.8],
+        ys: [6,7,9,9,8.2,8],
+        color: "#df4f7f"
+      }
+    ]
+  )
+  plot_model = Bokeh.Collections.Plot.create()
+
+  xdr = Bokeh.Collections.Range1d.create()
+  xdr.set('start', 0)
+  xdr.set('end', 10)
+
+  ydr = Bokeh.Collections.Range1d.create()
+  ydr.set('start', -2)
+  ydr.set('end', 10)
+
+  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+    data_source : data_source.ref()
+    xdata_range : xdr.ref()
+    ydata_range : ydr.ref()
+    glyphs : [
+        type: 'areas'
+        outline_width: 1
+        outline_color: 'black'
+        alpha: 0.8
+    ]
+  )
+
+  xaxis = Bokeh.Collections['LinearAxis'].create(
+    orientation : 'bottom'
+    parent : plot_model.ref()
+    data_range : xdr.ref()
+  )
+  yaxis = Bokeh.Collections['LinearAxis'].create(
+    orientation : 'left',
+    parent : plot_model.ref()
+    data_range : ydr.ref()
+  )
+  plot_model.set(
+    renderers : [glyph_renderer.ref()],
+    axes : [xaxis.ref(), yaxis.ref()]
+  )
+  div = $('<div></div>')
+  $('body').append(div)
+  myrender  =  ->
+    view = new Bokeh.PlotView(model : plot_model)
+    div.append(view.$el)
+    view.render()
+  console.log('Test areas_glyph')
+  _.defer(myrender)
+)
+
 
 
 
