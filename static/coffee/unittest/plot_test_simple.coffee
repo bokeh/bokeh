@@ -89,3 +89,26 @@ test('test_colors_plot', ->
   console.log("test_colors_plot")
   _.defer(myrender)
 );
+
+test('rectangular_plot_test', ->
+  expect(0)
+  data_source = Bokeh.Collections['ObjectArrayDataSource'].create({
+    data : [{x : 1, y : -2},
+      {x : 2, y : -3},
+      {x : 3, y : -4},
+      {x : 4, y : -5},
+      {x : 5, y : -6}]
+      }, {'local' : true});
+  div = $('<div style="border:1px solid black"></div>')
+  $('body').append(div)
+  $('body').append($('<br/>'))
+  plot1 = Bokeh.scatter_plot(null, data_source, 'x', 'y', 'x', 'circle');
+  plot1.set('width' , 500)
+  window.plot = container
+  window.plot1 = plot1
+  view = new Bokeh.PlotView(model : plot1)
+  window.view = view
+  _.defer(->
+    div.append(view.$el)
+    view.render())
+)

@@ -233,8 +233,12 @@ class GlyphRendererView extends Bokeh.XYRendererView
         @render_rectregions(glyph, data)
       else if glyph.type == 'line'
         @render_line(glyph, data)
+      else if glyph.type == 'lines'
+        @render_lines(glyph, data)
       else if glyph.type == 'area'
         @render_area(glyph, data)
+      else if glyph.type == 'areas'
+        @render_areas(glyph, data)
       else if glyph.type == 'stacked_lines'
         @render_stacked_lines(glyph, data)
       else if glyph.type == 'stacked_rects'
@@ -289,6 +293,52 @@ class GlyphRendererView extends Bokeh.XYRendererView
       else
         ctx.lineTo(sx, sy)
     ctx.stroke()
+    ctx.restore()
+
+  render_lines : (glyphspec, data) ->
+    # ### Fields of the `line` glyph:
+    # * xs, ys
+    # * line_width
+    # * line_color
+    # * alpha
+    #
+    metaglyph = new MetaGlyph(this, glyphspec, ['xs','ys','line_width:string', 'line_color:string', 'alpha'])
+
+    ctx = @plot_view.ctx
+    ctx.save()
+
+    for datapoint in data
+      glyph = metaglyph.make_glyph(datapoint)
+      ctx.lineWidth = glyph.line_width
+      ctx.strokeStyle = glyph.line_color
+      ctx.globalAlpha = glyph.alpha
+
+      if not (glyph.xs? and glyph.ys?)
+          continue
+      if glyph.xs.length != glyph.ys.length
+        continue
+      for idx in [0..glyph.xs.length-1]
+        if glyph.xs_units == 'data'
+          sx = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.xs[idx]))
+        else
+          sx = glyph.xs[idx]
+        if glyph.ys_units == 'data'
+          sy = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.ys[idx]))
+        else
+          sy = glyph.ys[idx]
+
+        if idx == 0
+          # First glyph, start the path
+          ctx.beginPath()
+          ctx.moveTo(sx, sy)
+          continue
+        else if isNaN(sx) or isNaN(sy)
+          ctx.stroke()
+          ctx.beginPath()
+          continue
+        else
+          ctx.lineTo(sx, sy)
+      ctx.stroke()
     ctx.restore()
 
   render_stacked_lines : (glyphspec, data) ->
@@ -452,6 +502,46 @@ class GlyphRendererView extends Bokeh.XYRendererView
     ctx.closePath()
     ctx.fill()
     ctx.stroke()
+    ctx.restore()
+
+  render_areas : (glyphspec, data) ->
+    metaglyph = new MetaGlyph(this, glyphspec, ['xs','ys','color:string', 'outline_width:string', 'outline_color:string', 'alpha'])
+
+    ctx = @plot_view.ctx
+    ctx.save()
+
+    for datapoint in data
+      glyph = metaglyph.make_glyph(datapoint)
+      ctx.fillStyle = glyph.color
+      ctx.lineWidth = glyph.outline_width
+      ctx.strokeStyle = glyph.outline_color
+      ctx.globalAlpha = glyph.alpha
+
+      if not (glyph.xs? and glyph.ys?)
+          continue
+      if glyph.xs.length != glyph.ys.length
+        continue
+      for idx in [0..glyph.xs.length-1]
+        if glyph.xs_units == 'data'
+          sx = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.xs[idx]))
+        else
+          sx = glyph.xs[idx]
+        if glyph.ys_units == 'data'
+          sy = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.ys[idx]))
+        else
+          sy = glyph.ys[idx]
+
+        if idx == 0
+          # First glyph, start the path
+          ctx.beginPath()
+          ctx.moveTo(sx, sy)
+          continue
+
+        ctx.lineTo(sx, sy)
+
+      ctx.closePath()
+      ctx.fill()
+      ctx.stroke()
     ctx.restore()
 
   render_rects : (glyphspec, data) ->

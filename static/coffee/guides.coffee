@@ -32,7 +32,7 @@ class LinearAxisView extends Bokeh.PlotWidget
     @mapper = new Bokeh.LinearMapper({},
       data_range : @mget_obj('data_range')
       viewstate : @plot_view.viewstate
-      screendim : 'height'
+      screendim : @screendim
     )
     @request_render()
 
