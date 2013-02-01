@@ -690,6 +690,14 @@ class PlotWidget extends Continuum.ContinuumView
   initialize : (options) ->
     @plot_model = options.plot_model
     @plot_view = options.plot_view
+    ctx = @plot_view.ctx
+    if (!ctx.setLineDash)
+      ctx.setLineDash = (dash) ->
+        ctx.mozDash = dash
+        ctx.webkitLineDash = dash
+    if (!ctx.getLineDash)
+      ctx.getLineDash = () ->
+        return ctx.mozDash
     super(options)
 
   bind_bokeh_events : ->
