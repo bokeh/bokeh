@@ -302,7 +302,7 @@ class GlyphRendererView extends Bokeh.XYRendererView
     # * line_color
     # * alpha
     #
-    metaglyph = new MetaGlyph(this, glyphspec, ['xs','ys','line_width:string', 'line_color:string', 'alpha'])
+    metaglyph = new MetaGlyph(this, glyphspec, ['xs','ys','line_width:string', 'line_color:string', 'line_dash', 'alpha'])
 
     ctx = @plot_view.ctx
     ctx.save()
@@ -312,6 +312,7 @@ class GlyphRendererView extends Bokeh.XYRendererView
       ctx.lineWidth = glyph.line_width
       ctx.strokeStyle = glyph.line_color
       ctx.globalAlpha = glyph.alpha
+      ctx.setLineDash(glyph.line_dash)
 
       if not (glyph.xs? and glyph.ys?)
           continue
@@ -505,7 +506,7 @@ class GlyphRendererView extends Bokeh.XYRendererView
     ctx.restore()
 
   render_areas : (glyphspec, data) ->
-    metaglyph = new MetaGlyph(this, glyphspec, ['xs','ys','color:string', 'outline_width:string', 'outline_color:string', 'alpha'])
+    metaglyph = new MetaGlyph(this, glyphspec, ['xs','ys','color:string', 'outline_width:string', 'outline_color:string', 'outline_dash', 'alpha'])
 
     ctx = @plot_view.ctx
     ctx.save()
@@ -516,6 +517,7 @@ class GlyphRendererView extends Bokeh.XYRendererView
       ctx.lineWidth = glyph.outline_width
       ctx.strokeStyle = glyph.outline_color
       ctx.globalAlpha = glyph.alpha
+      ctx.setLineDash(glyph.outline_dash)
 
       if not (glyph.xs? and glyph.ys?)
           continue
