@@ -851,7 +851,63 @@ test('areas_glyph', () ->
   _.defer(myrender)
 )
 
-
-
-
-
+test('rect_glyph_performance', () ->
+  expect(0)
+  x = ( (x/30) for x in _.range(600) )
+  y = (Math.sin(y) for y in x)
+  widths = (0.02 for i in x)
+  heights = (0.2 for i in x)
+  source = Continuum.Collections.ColumnDataSource.create(
+    data :
+      x : x
+      y : y
+      width : widths
+      height : heights
+  )
+  plot = Continuum.Collections.Plot.create(height : 400, width:800)
+  xdr = Continuum.Collections.DataRange1d.create(
+    sources : [{ref : source.ref(), columns : ['x']}]
+  )
+  ydr = Continuum.Collections.DataRange1d.create(
+    sources : [{ref : source.ref(), columns : ['y']}]
+  )
+  pantool = Bokeh.Collections['PanTool'].create(
+     dataranges : [xdr.ref(), ydr.ref()]
+     dimensions : ['width', 'height']
+  )
+  rectglyph = {
+    'color': 'red',
+    'height': 'height',
+    'outline_color': null,
+    'outline_width': null,
+    'type': 'rects',
+    'width': 'width',
+    'x': 'x',
+    'y': 'y'}
+  glyph_renderer = Continuum.Collections.GlyphRenderer.create(
+    data_source : source.ref()
+    xdata_range : xdr.ref()
+    ydata_range : ydr.ref()
+    glyphs : [rectglyph]
+  )
+  xaxis = Continuum.Collections.LinearAxis.create(
+    orientation : 'bottom'
+    parent : plot.ref()
+    data_range : xdr.ref()
+  )
+  yaxis = Continuum.Collections.LinearAxis.create(
+    orientation : 'left'
+    parent : plot.ref()
+    data_range : ydr.ref()
+  )
+  plot.set('renderers', [glyph_renderer.ref()])
+  plot.set('axes', [xaxis.ref(), yaxis.ref()])
+  plot.set('tools', [pantool])
+  myrender  =  ->
+    div = $('<div></div>')
+    $('body').append(div)
+    view = new plot.default_view(model : plot)
+    div.append(view.$el)
+    view.render()
+  _.defer(myrender)
+)
