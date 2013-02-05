@@ -1,19 +1,15 @@
-line properties
-===============
-    - line_color
-    - line_alpha
-    - line_width
-    - line_join
-        - miter, round, bevel
-    - line_cap
-        - butt, square, round
-    - line_dash
-    - line_dash_offset (no support currently)
+## line properties
+ - line_color
+ - line_alpha
+ - line_width
+ - line_join ``miter, round, bevel``
+ - line_cap ``butt, square, round``
+ - line_dash
+ - line_dash_offset (no support currently)
 
-fill properties
-===============
-    - fill
-    - fill_alpha
+## fill properties
+ - fill
+ - fill_alpha
 
 
 vectorized primitive glyphs
