@@ -12,60 +12,59 @@
  - fill_alpha
 
 
-vectorized primitive glyphs
-===========================
+#vectorized primitive glyphs
 
-### circle
+## circle
  - x, y, radius
  - *fill properties*
  - *line properties*
 
-### arc
+## arc
  - x, y, start_radius, end_radius
  - *line properties*
 
-### quadratic
+## quadratic
  - x0, y0, x1, y1, cx, cy
  - *line properties*
 
-### bezier
+## bezier
  - x0, y0, x1, y1, cx1, cy1, cx2, cy2
  - *line properties*
 
-### image
+## image
  - image
  - dx, dy, dw, dh
  - sx, sy, sw, sh  # in-image crop
 
-### rect
+## rect
  - x, y, width, height, angle
  - *fill properties*
  - *line properties*
 
-### quad
+## quad
  - left, right, bottom, top
  - *fill properties*
  - *line properties*
 
-### wedge
+## wedge
  - x, y, start_radius, end_radius, start_angle, end_angle
  - *fill properties*
  - *line properties*
 
-### segment
+## segment
  - x, y, angle, length OR x0, y0, x1, y1
  - *line properties*
 
-### text
+## text
  - x, y, angle, anchor: (ll, lr, ul, ur)
  - text
  - font, stroke_color, fill_color, align, baseline, alpha
 
-### line
+## line
  - xs, ys OR pts    # nans finish strokes, "missing" parts of lines
  - *line properties*
 
-### area
+## area
  - xs, ys OR pts    # nans finish strokes, "multi-part" areas
  - *fill properties*
  - *line properties*
