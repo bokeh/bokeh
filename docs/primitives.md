@@ -20,7 +20,7 @@
  - *line properties*
 
 ## arc
- - x, y, start_angle, end_angle ``(clock, anticlock)``
+ - x, y, start_angle, end_angle, direction ``(clock, anticlock)``
  - *line properties*
 
 ## quadcurve
