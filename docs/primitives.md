@@ -2,8 +2,8 @@
  - line_color
  - line_alpha
  - line_width
- - line_join ``miter, round, bevel``
- - line_cap ``butt, square, round``
+ - line_join ``(miter, round, bevel)``
+ - line_cap ``(butt, square, round)``
  - line_dash
  - line_dash_offset (no support currently)
 
@@ -20,10 +20,10 @@
  - *line properties*
 
 ## arc
- - x, y, start_radius, end_radius
+ - x, y, start_angle, end_angle ``(clock, anticlock)``
  - *line properties*
 
-## quadratic
+## quadcurve
  - x0, y0, x1, y1, cx, cy
  - *line properties*
 
