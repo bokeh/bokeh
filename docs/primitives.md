@@ -71,7 +71,7 @@ vectorized primitive glyphs
     - *line properties*
 
 ### area
-    - xs, ys OR pts    # nans finish strokes, "multi-part" areas
-    - *fill properties*
-    - *line properties*
+ - xs, ys OR pts    # nans finish strokes, "multi-part" areas
+ - *fill properties*
+ - *line properties*
 
