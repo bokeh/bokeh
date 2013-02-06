@@ -1,18 +1,14 @@
-#Setup Bokeh Module
-if this.Bokeh
-  Bokeh = this.Bokeh
-else
-  Bokeh = {}
-  this.Bokeh = Bokeh
+base = require("./base")
+ticks = require("./ticks")
 
-Collections = Continuum.Collections
+safebind = base.safebind
+HasParent = base.HasParent
+PlotWidget = base.PlotWidget
 
-safebind = Continuum.safebind
-HasParent = Continuum.HasParent
-BokehView = Continuum.ContinuumView
-HasProperties = Continuum.HasProperties
+mapper = require("./mapper")
+LinearMapper = mapper.LinearMapper
 
-class LinearAxisView extends Bokeh.PlotWidget
+class LinearAxisView extends PlotWidget
   initialize : (options) ->
     super(options)
     @plot_view = options.plot_view
@@ -29,7 +25,7 @@ class LinearAxisView extends Bokeh.PlotWidget
     safebind(this, @mget_obj('data_range'), 'change', @request_render)
 
   set_mapper : () ->
-    @mapper = new Bokeh.LinearMapper({},
+    @mapper = new LinearMapper({},
       data_range : @mget_obj('data_range')
       viewstate : @plot_view.viewstate
       screendim : @screendim
@@ -144,7 +140,7 @@ class LinearDateAxisView extends LinearAxisView
       return tick.toLocaleTimeString()
 
 
-class LegendRendererView extends Bokeh.PlotWidget
+class LegendRendererView extends PlotWidget
   render : ->
     super()
     #data = @model.get_obj('data_source').get('data')
@@ -213,17 +209,17 @@ _.extend(LinearAxis::defaults
     tickSize : null
     tickPadding : 3
 )
-class LinearAxes extends Continuum.Collection
+class LinearAxes extends Backbone.Collection
   model : LinearAxis
 
 class LinearDateAxis extends LinearAxis
   type : "LinearDateAxis"
   default_view : LinearDateAxisView
 
-class LinearDateAxes extends Continuum.Collection
+class LinearDateAxes extends Backbone.Collection
   model : LinearDateAxis
 
-class Legend extends Continuum.HasParent
+class Legend extends HasParent
   type : "Legend"
   default_view : LegendRendererView
   defaults :
@@ -245,16 +241,13 @@ class Legend extends Continuum.HasParent
     else if ptype == "object"
       @set('coords',  options.position)
 
-class Legends extends Continuum.Collection
+class Legends extends Backbone.Collection
   model : Legend
 
-Bokeh.LinearAxisView = LinearAxisView
-Bokeh.LinearDateAxisView = LinearDateAxisView
-Bokeh.LegendRendererView = LegendRendererView
+exports.linearaxes = new LinearAxes
+exports.lineardateaxes = new LinearDateAxes
+exports.legends = new Legends
 
-if not Continuum.Collections.LinearAxis
-  Continuum.Collections.LinearAxis = new LinearAxes
-if not Continuum.Collections.LinearDateAxis
-  Continuum.Collections.LinearDateAxis = new LinearDateAxes
-if not Continuum.Collections.Legend
-  Continuum.Collections.Legend = new Legends
+exports.LinearAxisView = LinearAxisView
+exports.LinearDateAxisView = LinearDateAxisView
+exports.LegendRendererView = LegendRendererView

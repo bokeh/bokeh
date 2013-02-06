@@ -1,20 +1,4 @@
-# Module setup stuff
-if this.Bokeh
-  Bokeh = this.Bokeh
-else
-  Bokeh = {}
-  this.Bokeh = Bokeh
-if this.Continuum
-  Continuum = this.Continuum
-else
-  Continuum = {}
-  this.Continuum = Continuum
-if not Continuum.Collections
-  Collections = {}
-  Continuum.Collections = Collections
-else
-  Collections = Continuum.Collections
-Bokeh.Collections = Continuum.Collections
+Config = {}
 
 # ## function : safebind
 safebind = (binder, target, event, callback) ->
@@ -63,17 +47,6 @@ safebind = (binder, target, event, callback) ->
     console.log("error with binder", binder, event)
   return null
 
-
-
-# we create a dictionary of collections, for all types that we know,
-# we use these when models are pushed down from the server
-class Continuum.Collection extends Backbone.Collection
-  # at some point, I thought we needed to override create...
-  # we don't anymore...
-  # can switch back to Backbone.Collection later
-
-
-
 # backbone note - we're sort of using defaults in the code to tell the user
 # what attributes are expected, so please specify defaults for
 # all attributes you plan on usign
@@ -81,20 +54,15 @@ class Continuum.Collection extends Backbone.Collection
 # Reference System
 # we enable models to refer to other models using the following json
 #
-#     collections : ['Continuum', 'Collections']
 #     type : 'Plot'
 #     id : '239009203923'
 #
-# The collections and type field tell us that
-# window.Continuum.Collections.Plot is the collection which has the model id
-# '239009203923'.  Currently we only use the collections field when the
-# models are being broadcast from the server.  This is overly complex,
-# we should unify collections and type so that collections looks like
-#
-#     collections : ['Continuum', 'Collections', 'Plot']
+# The type field tell us that
+# Collections.Plot is the collection which has the model id
+# '239009203923'.
 
 # ###function : load models.
-Continuum.load_models = (modelspecs)->
+load_models = (modelspecs)->
   # First we identify which model jsons correspond to new models,
   # and which ones are updates.
   # For new models we instantiate the models, add them
@@ -105,15 +73,12 @@ Continuum.load_models = (modelspecs)->
   # * modelspecs : list of models in json form, looking like this
   #
   #         type : 'Plot'
-  #         collections : ['Continuum', 'Collections']
   #         id : '2390-23-23'
   #         attributes :
   #           firstattr : 'one'
   #         name : 'myplot'
   #         renderers : []
   #
-  #   collections tells us where to find the dictionary of collections used to
-  #   construct the model
   #   type is the key of the in collections for this model
   #   id is the id of this model
   #   attributes are the attributes of the model
@@ -129,7 +94,7 @@ Continuum.load_models = (modelspecs)->
   # `[[collection, attributes], [collection, attributes]]`
 
   for model in modelspecs
-    coll = get_collections(model['collections'])[model['type']]
+    coll = Collections(model['type'])
     attrs = model['attributes']
     if coll and  coll.get(attrs['id'])
       oldspecs.push([coll, attrs])
@@ -169,7 +134,8 @@ Continuum.load_models = (modelspecs)->
 
   return null
 
-# ###class : Continuum.WebsocketWrapper
+
+# ###class : WebsocketWrapper
 # wraps websockets, provides a @connected promise, which
 # you can wait on before sending subscription messages
 # also triggers "msg:topic" events, with an arg of the msg
@@ -177,7 +143,7 @@ Continuum.load_models = (modelspecs)->
 # channel are sent in "topic:data" form, where data can
 # be any arbitrary string. note that since topic is prefixed with :,
 # in practice a message looks like bokehplot:docid:jsondata
-class Continuum.WebSocketWrapper
+class WebSocketWrapper
   _.extend(@prototype, Backbone.Events)
   # ### method :
   constructor : (ws_conn_string) ->
@@ -203,16 +169,14 @@ class Continuum.WebSocketWrapper
     return null
 
 
-# ###function : Continuum.submodels
+# ###function : submodels
 
-Continuum.submodels = (wswrapper, topic, apikey) ->
-  # creates a websocket which subscribes and listens for model changes
+submodels = (wswrapper, topic, apikey) ->
+  # subscribes and listens for model changes on a WebSocketWrapper
   # ##### Parameters
-  # * ws_conn_string : path of the web socket to subscribe
+  # * wswrapper : WebSocketWrapper
   # * topic : topic to listen on (send to the server on connect)
-  # ##### Returns
-  #
-  # * the websocket
+  # * apikey : apikey for server
   $.when(wswrapper.connected).then(() ->
     msg = JSON.stringify(
       {msgtype : 'subscribe', topic : topic, auth : apikey}
@@ -222,68 +186,21 @@ Continuum.submodels = (wswrapper, topic, apikey) ->
   wswrapper.on("msg:" + topic, (msg) ->
     msgobj = JSON.parse(msg)
     if msgobj['msgtype'] == 'modelpush'
-      Continuum.load_models(msgobj['modelspecs'])
+      load_models(msgobj['modelspecs'])
     else if msgobj['msgtype'] == 'modeldel'
       for ref in msgobj['modelspecs']
-        model = Continuum.resolve_ref(
-          ref['collections'], ref['type'], ref['id']
-        )
+        model = resolve_ref(ref['type'], ref['id'])
         if model
           model.destroy({'local' : true})
     else if msgobj['msgtype'] == 'status' and
       msgobj['status'][0] == 'subscribesuccess'
         clientid = msgobj['status'][2]
-        Continuum.clientid = clientid
+        Config.clientid = clientid
         $.ajaxSetup({'headers' : {'Continuum-Clientid' : clientid}})
     else
       console.log(msgobj)
     return null
   )
-
-# ### function : resolve_ref
-resolve_ref = (collections, type, id) ->
-
-  # Takes a group of collections, type and id, and returns the backbone model
-  # which corresponds
-  # ####Parameters
-  #
-  # * collections : group of collections (as a dict),
-  #   the collection for type should be present here.
-  #   Alternatively, one can specify this as an array of strings,
-  #   in which case we descend through the global namespace
-  #   looking for this, using  get_collections.
-  # * type : type of the object
-  # * id : id of the object
-
-  # ####Returns
-  # * backbone model
-
-  if _.isArray(collections)
-    collections = get_collections(collections)
-  try
-    model = collections[type].get(id)
-  catch error
-    console.log(type, id)
-  #return collections[type].get(id)
-  return  model
-
-Continuum.resolve_ref = resolve_ref
-
-# ### function : get_collections
-get_collections = (names) ->
-  # finds a group of collections, at the location specified by names
-  # #### Parameters
-  # * names : list of strings - we start at the global name spaces and descend
-  #   through each string.  the last value should refer to the group of
-  #   collections you want
-  # #### Returns
-  # * collections
-  last = window
-  for n in names
-    last = last[n]
-  return last
-
-Continuum.get_collections = get_collections
 
 # ###class : HasProperties
 class HasProperties extends Backbone.Model
@@ -293,7 +210,6 @@ class HasProperties extends Backbone.Model
   # and notifications of property. We also support weak references
   # to other models using the reference system described above.
 
-  collections : Collections
   destroy : (options)->
     #calls super, also unbinds any events bound by safebind
     super(options)
@@ -504,7 +420,7 @@ class HasProperties extends Backbone.Model
     if ref['type'] == this.type and ref['id'] == this.id
       return this
     else
-      return resolve_ref(@collections, ref['type'], ref['id'])
+      return Collections(ref['type']).get(ref['id'])
 
   get_obj : (ref_name) =>
     # ### method : HasProperties::get_obj
@@ -519,7 +435,7 @@ class HasProperties extends Backbone.Model
     # ### method HasProperties::url
     #model where our API processes this model
 
-    base = "/bokeh/bb/" + Continuum.docid + "/" + @type + "/"
+    base = "/bokeh/bb/" + Config.docid + "/" + @type + "/"
     if (@isNew())
       return base
     return base + @get('id')
@@ -567,7 +483,7 @@ class HasProperties extends Backbone.Model
   # perhaps a name besides display_defaults would be appropriate, we might want
   # to store non-display related defaults here.
 
-class Continuum.HasParent extends HasProperties
+class HasParent extends HasProperties
   get_fallback : (attr) ->
     if (@get_obj('parent') and
         _.indexOf(@get_obj('parent').parent_properties, attr) >= 0 and
@@ -575,13 +491,6 @@ class Continuum.HasParent extends HasProperties
       return @get_obj('parent').get(attr)
     else
       retval = @display_defaults[attr]
-      # this is ugly, we should take this out and not support object specs
-      # in defaults
-      if _.isObject(retval) and _.has(retval, 'type')
-        attrs = if _.has(retval, 'attrs') then retval['attrs'] else {}
-        retval =  @collections[retval['type']].create(attrs).ref()
-        @set(attr, retval)
-        @save()
       return retval
 
   get : (attr) ->
@@ -636,7 +545,7 @@ build_views = (view_storage, view_models, options) ->
 
 
 
-class Continuum.ContinuumView extends Backbone.View
+class ContinuumView extends Backbone.View
   initialize : (options) ->
     #autogenerates id
     if not _.has(options, 'id')
@@ -678,7 +587,7 @@ class Continuum.ContinuumView extends Backbone.View
     "pass"
 
 
-class PlotWidget extends Continuum.ContinuumView
+class PlotWidget extends ContinuumView
   # Everything that lives inside a plot container should
   # inherit from this class.  All plot widgets are
   # passed in the plot model and view
@@ -721,7 +630,45 @@ class PlotWidget extends Continuum.ContinuumView
   request_render : () ->
     @plot_view.throttled()
 
-Bokeh.PlotWidget = PlotWidget
-Continuum.safebind = safebind
-Continuum.HasProperties = HasProperties
-Continuum.build_views = build_views
+locations =
+  Plot : ['./container', 'plots']
+  PanTool : ['./tools', 'pantools']
+  ZoomTool : ['./tools', 'zoomtools']
+  SelectionTool : ['./tools', 'selectiontools']
+  LinearAxis : ['./guides', 'linearaxes']
+  LinearDateAxis : ['./guides', 'lineardateaxes']
+  Legend : ['./guides', 'legends']
+  GlyphRenderer : ['./glyph_renderers', 'glyphrenderers']
+  BoxSelectionOverlay : ['./overlays', 'boxselectionoverlays']
+  ObjectArrayDataSource : ['./datasource', 'objectarraydatasources']
+  ColumnDataSource : ['./datasource', 'columndatasources']
+  Range1d : ['./ranges', 'range1ds']
+  DataRange1d :['./ranges', 'datarange1ds']
+  DataFactorRange : ['./ranges', 'datafactorranges']
+  Plot : ['./container', 'plots']
+  GridPlotContainer : ['./container', 'gridplotcontainers']
+  CDXPlotContext : ['./container', 'plotcontexts']
+  PlotContext : ['./container', 'plotcontexts']
+  ScatterRenderer: ['./schema_renderers', 'scatterrenderers']
+  LineRenderer: ['./schema_renderers', 'linerenderers']
+  DiscreteColorMapper :['./mapper', 'discretecolormappers']
+  DataTable :['./table', 'datatables']
+exports.locations = locations
+
+Collections = (typename) ->
+  if not locations[typename]
+    throw "./base: Unknown Collection #{typename}"
+  [modulename, collection] = locations[typename]
+  return require(modulename)[collection]
+
+exports.Collections = Collections
+exports.Config = Config
+exports.safebind = safebind
+exports.load_models = load_models
+exports.WebSocketWrapper = WebSocketWrapper
+exports.submodels = submodels
+exports.HasProperties = HasProperties
+exports.HasParent = HasParent
+exports.build_views = build_views
+exports.ContinuumView = ContinuumView
+exports.PlotWidget = PlotWidget

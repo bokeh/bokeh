@@ -1,4 +1,7 @@
-class ObjectArrayDataSource extends Continuum.HasProperties
+base = require("./base")
+HasProperties = base.HasProperties
+
+class ObjectArrayDataSource extends HasProperties
   type : 'ObjectArrayDataSource'
   initialize : (attrs, options) ->
     super(attrs, options)
@@ -27,7 +30,7 @@ class ObjectArrayDataSource extends Continuum.HasProperties
       center = (max + min) / 2.0
       [min, max] = [center - span/2.0, center + span/2.0]
 
-      @cont_ranges[field] = Collections['Range1d'].create(
+      @cont_ranges[field] = Collections('Range1d').create(
           start : min
           end : max
       )
@@ -43,14 +46,14 @@ class ObjectArrayDataSource extends Continuum.HasProperties
   get_discrete_range : (field) ->
     if not _.exists(@discrete_ranges, field)
       factors = @compute_discrete_factor(field)
-      @discrete_ranges[field] = Collections['FactorRange'].create(
+      @discrete_ranges[field] = Collections('FactorRange').create(
           values : factors
       )
       @on('change:data'
         ,
           () =>
             factors = @compute_discrete_factor(field)
-            @discrete_ranges[field] = Collections['FactorRange'].set(
+            @discrete_ranges[field] = Collections('FactorRange').set(
               'values', factors)
       )
     return @discrete_ranges[field]
@@ -72,7 +75,7 @@ _.extend(ObjectArrayDataSource::defaults
     selecting : false
 )
 
-class ObjectArrayDataSources extends Continuum.Collection
+class ObjectArrayDataSources extends Backbone.Collection
   model : ObjectArrayDataSource
 
 
@@ -101,10 +104,11 @@ class ColumnDataSource extends ObjectArrayDataSource
     return points
 
 
-class ColumnDataSources extends Continuum.Collection
+class ColumnDataSources extends Backbone.Collection
   model : ColumnDataSource
 
-if not Continuum.Collections.ObjectArrayDataSource
-  Continuum.Collections.ObjectArrayDataSource = new ObjectArrayDataSources
-if not Continuum.Collections.ColumnDataSource
-  Continuum.Collections.ColumnDataSource = new ColumnDataSources
+exports.objectarraydatasources = new ObjectArrayDataSources
+exports.columndatasources = new ColumnDataSources
+
+exports.ObjectArrayDataSource = ObjectArrayDataSource
+exports.ColumnDataSource = ColumnDataSource

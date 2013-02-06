@@ -24,7 +24,7 @@ tick-related values (i.e., bounds and intervals).
 class AbstractTickGenerator
     """ Abstract class for tick generators.
     """
-    get_ticks: 
+    get_ticks:
       (data_low, data_high, bounds_low, bounds_high, interval,\
       use_endpoints=False, scale='linear') ->
         """ Returns a list of ticks points in data space.
@@ -69,7 +69,7 @@ class AbstractTickGenerator
             [3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5]
         """
 
-      
+
 
 
 class DefaultTickGenerator extends AbstractTickGenerator
@@ -88,9 +88,9 @@ class DefaultTickGenerator extends AbstractTickGenerator
             #FIXME
             #return array(log_auto_ticks(data_low, data_high, bounds_low, bounds_high,
             #                                  interval, use_endpoints=False), float64)
-            # 
+            #
 
-class ShowAllTickGenerator extends AbstractTickGenerator 
+class ShowAllTickGenerator extends AbstractTickGenerator
     """ Uses the abstract interface, but returns all "positions" instead
         of decimating the ticks.
 
@@ -162,7 +162,7 @@ auto_ticks =  ( data_low, data_high, bound_low, bound_high, tick_interval,\
     if typeof(bound_high) == "string"
         upper = data_high
     else
-        upper = bound_high 
+        upper = bound_high
 
     if (tick_interval == 'auto') or (tick_interval == 0.0)
         rng = Math.abs( upper - lower )
@@ -369,7 +369,7 @@ window.argsort = (arr) ->
   #  ret_arr[i] = sorted_arr.indexOf(y)
   for y, i in sorted_arr
     ret_arr[i] = arr.indexOf(y)
-  
+
     #ret_arr.push(sorted_arr.indexOf(y))
   return ret_arr
 
@@ -432,7 +432,7 @@ window.auto_interval = (data_low, data_high) ->
     magic_index    = argsort(best_magics )[0]
 
     mantissa_index = argsort(best_mantissas )[0]
-    
+
 
     # The best interval is the magic_interval multiplied by the magnitude
     # of the best mantissa:
@@ -584,7 +584,7 @@ window.divmod = (x,y) ->
   rem = x % y
 
   return [quot, rem]
-  
+
 window.calc_bound =  ( end_point, tick_interval, is_upper ) ->
     """ Finds an axis end point that includes the value *end_point*.
 
@@ -606,6 +606,5 @@ window.calc_bound =  ( end_point, tick_interval, is_upper ) ->
         return Math.max( c1, c2 )
     return Math.min( c1, c2 )
 
-window.ticks = {}
-ticks.auto_interval = auto_interval
-ticks.auto_bounds = auto_bounds
+exports.auto_interval = auto_interval
+exports.auto_bounds = auto_bounds

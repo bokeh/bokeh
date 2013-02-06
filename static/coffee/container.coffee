@@ -1,6 +1,14 @@
-Collections = Continuum.Collections
-safebind = Continuum.safebind
-class PlotContextView extends Continuum.ContinuumView
+base = require("./base")
+HasParent = base.HasParent
+HasProperties = base.HasProperties
+ContinuumView = base.ContinuumView
+safebind = base.safebind
+build_views = base.build_views
+
+tools = require("./tools")
+ActiveToolManager = tools.ActiveToolManager
+
+class PlotContextView extends ContinuumView
   initialize : (options) ->
     @views = {}
     @views_rendered = [false]
@@ -19,10 +27,7 @@ class PlotContextView extends Continuum.ContinuumView
     return callback
 
   build_children : () ->
-    # created_views = Continuum.build_views(
-    #   @model, @views, @mget('children'),
-    #   {'render_loop': true, 'scale' : 1.0})
-    created_views = Continuum.build_views(
+    created_views = build_views(
       @views, @mget_obj('children'), {})
 
     window.pc_created_views = created_views
@@ -87,7 +92,7 @@ class PlotContextView extends Continuum.ContinuumView
     )
     return null
 
-class PlotContextViewState extends Continuum.HasProperties
+class PlotContextViewState extends HasProperties
   defaults :
     maxheight : 600
     maxwidth : 600
@@ -170,7 +175,7 @@ class PlotContextViewWithMaximized extends PlotContextView
 
 
 #we should take this out, don't need plot context for single plot
-class SinglePlotContextView extends Continuum.ContinuumView
+class SinglePlotContextView extends ContinuumView
   initialize : (options) ->
     @views = {}
     @views_rendered = [false]
@@ -193,7 +198,7 @@ class SinglePlotContextView extends Continuum.ContinuumView
     return _.filter(@mget_obj('children'), (child) => child.id == @target_model_id)
 
   build_children : () ->
-    created_views = Continuum.build_views(@views, @single_plot_children(), {})
+    created_views = build_views(@views, @single_plot_children(), {})
     window.pc_created_views = created_views
     window.pc_views = @views
     return null
@@ -231,25 +236,25 @@ class SinglePlotContextView extends Continuum.ContinuumView
     return null
 
 
-class Bokeh.PlotView extends Continuum.ContinuumView
+class PlotView extends ContinuumView
   default_options : {scale:1.0}
 
   view_options : ->
     _.extend({plot_model : @model, plot_view : @}, @options)
 
   build_renderers : ->
-    Continuum.build_views(@renderers, @mget_obj('renderers'), @view_options())
+    build_views(@renderers, @mget_obj('renderers'), @view_options())
 
   build_axes : ->
-    Continuum.build_views(@axes, @mget_obj('axes'), @view_options())
+    build_views(@axes, @mget_obj('axes'), @view_options())
 
   build_tools : ->
     #build_views(@model, @tools, @mget('tools'), @model_specs())
-    Continuum.build_views(@tools, @mget_obj('tools'), @view_options())
+    build_views(@tools, @mget_obj('tools'), @view_options())
 
   build_overlays : ->
     #add ids of renderer views into the overlay spec
-    Continuum.build_views(@overlays, @mget_obj('overlays'), @view_options())
+    build_views(@overlays, @mget_obj('overlays'), @view_options())
 
   bind_overlays : ->
     for overlayspec in @mget('overlays')
@@ -284,7 +289,7 @@ class Bokeh.PlotView extends Continuum.ContinuumView
       border_space = options.border_space
     else
       border_space = @mget('border_space')
-    @viewstate = new Bokeh.ViewState(
+    @viewstate = new ViewState(
       height : height
       width : width
       offset : offset
@@ -295,7 +300,7 @@ class Bokeh.PlotView extends Continuum.ContinuumView
     @tools = {}
     @overlays = {}
     @eventSink = _.extend({}, Backbone.Events)
-    atm = new Bokeh.ActiveToolManager(@eventSink)
+    atm = new ActiveToolManager(@eventSink)
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
@@ -398,7 +403,7 @@ class Bokeh.PlotView extends Continuum.ContinuumView
       v.render()
 
 
-class GridPlotContainerView extends Continuum.ContinuumView
+class GridPlotContainerView extends ContinuumView
   tagName : 'div'
   className:"gridplot_container"
   default_options : { scale:1.0}
@@ -411,7 +416,7 @@ class GridPlotContainerView extends Continuum.ContinuumView
 
   initialize : (options) ->
     super(_.defaults(options, @default_options))
-    @viewstate = new Bokeh.GridViewState();
+    @viewstate = new GridViewState();
     @childviews = {}
     @build_children()
     @render()
@@ -438,7 +443,7 @@ class GridPlotContainerView extends Continuum.ContinuumView
     for row in @mget_obj('children')
       for plot in row
         childmodels.push(plot)
-    Continuum.build_views(@childviews, childmodels, {})
+    build_views(@childviews, childmodels, {})
     @set_child_view_states()
 
   render : ->
@@ -487,7 +492,7 @@ class GridPlotContainerView extends Continuum.ContinuumView
     @$el.attr('style', "height:#{height}px;width:#{width}px")
     @render_end()
 
-class GridPlotContainer extends Continuum.HasParent
+class GridPlotContainer extends HasParent
   type : 'GridPlotContainer'
   default_view : GridPlotContainerView
 
@@ -498,12 +503,12 @@ _.extend(GridPlotContainer::defaults
     border_space : 0
 )
 
-class GridPlotContainers extends Continuum.Collection
+class GridPlotContainers extends Backbone.Collection
   model : GridPlotContainer
 
-class Plot extends Continuum.HasParent
+class Plot extends HasParent
   type : 'Plot'
-  default_view : Bokeh.PlotView
+  default_view : PlotView
   parent_properties : ['background_color', 'foreground_color',
     'width', 'height', 'border_space', 'unselected_color']
 Plot::defaults = _.clone(Plot::defaults)
@@ -526,10 +531,10 @@ _.extend(Plot::display_defaults
     unselected_color : "#ccc"
 )
 
-class Plots extends Continuum.Collection
+class Plots extends Backbone.Collection
    model : Plot
 
-class PlotContext extends Continuum.HasParent
+class PlotContext extends HasParent
   type : 'PlotContext',
   default_view : PlotContextView
   url : () ->
@@ -541,7 +546,7 @@ class PlotContext extends Continuum.HasParent
 class PlotContexts extends Backbone.Collection
   model : PlotContext
 
-class Bokeh.ViewState extends Continuum.HasParent
+class ViewState extends HasParent
   # This Viewstate has height/width/border_space information
   # Primarily used by PlotViews
   initialize : (attrs, options)->
@@ -554,7 +559,6 @@ class Bokeh.ViewState extends Continuum.HasParent
        () -> @get('height') + 2 * @get('border_space')
       , false)
     @add_dependencies('outerheight', this, ['height', 'border_space'])
-  collections : Collections
   #transform our coordinate space to the underlying device (svg)
   xpos : (x) ->
     return x
@@ -593,7 +597,7 @@ class Bokeh.ViewState extends Continuum.HasParent
     offset : [0,0]
     border_space : 30
 
-class Bokeh.GridViewState extends Bokeh.ViewState
+class GridViewState extends ViewState
   setup_layout_properties : () =>
     @register_property('layout_heights', @layout_heights, true)
     @register_property('layout_widths', @layout_widths, true)
@@ -631,27 +635,25 @@ class Bokeh.GridViewState extends Bokeh.ViewState
     col_widths = (@maxdim('outerwidth', col) for col in columns)
     return col_widths
 
-Bokeh.GridViewState::defaults = _.clone(Bokeh.GridViewState::defaults)
-_.extend(Bokeh.GridViewState::defaults
+GridViewState::defaults = _.clone(GridViewState::defaults)
+_.extend(GridViewState::defaults
   ,
     childviewstates : [[]]
     border_space : 0
 )
 
-if not Continuum.Collections.GridPlotContainer
-  Continuum.Collections.GridPlotContainer = new GridPlotContainers
+exports.gridplotcontainers = new GridPlotContainers
+exports.plots = new Plots
+exports.plotcontexts = new PlotContexts()
 
-if not Continuum.Collections.Plot
-  Continuum.Collections.Plot = new Plots
-
-if not Continuum.Collections.PlotContext
-  Continuum.Collections.PlotContext = new PlotContexts()
-
-#backwards compatability
-if not Continuum.Collections.CDXPlotContext
-  Continuum.Collections.CDXPlotContext = Continuum.Collections.PlotContext
-
-Bokeh.GridPlotContainerView = GridPlotContainerView
-Bokeh.SinglePlotContextView = SinglePlotContextView
-Bokeh.PlotContextViewWithMaximized = PlotContextViewWithMaximized
-Bokeh.PlotContextView = PlotContextView
+exports.PlotContextView = PlotContextView
+exports.PlotContextViewState = PlotContextViewState
+exports.PlotContextViewWithMaximized = PlotContextViewWithMaximized
+exports.SinglePlotContextView = SinglePlotContextView
+exports.PlotView = PlotView
+exports.GridPlotContainerView = GridPlotContainerView
+exports.GridPlotContainer = GridPlotContainer
+exports.Plot = Plot
+exports.PlotContext = PlotContext
+exports.ViewState = ViewState
+exports.GridViewState = GridViewState

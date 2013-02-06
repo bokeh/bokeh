@@ -1,17 +1,15 @@
+base = require("./base")
+Collections = base.Collections
+safebind = base.safebind
+HasParent = base.HasParent
+HasProperties = base.HasProperties
+PlotWidget = base.PlotWidget
 
-if this.Bokeh
-  Bokeh = this.Bokeh
-else
-  Bokeh = {}
-  this.Bokeh = Bokeh
+mapper = require("./mapper")
+LinearMapper = mapper.LinearMapper
 
-Collections = Continuum.Collections
-safebind = Continuum.safebind
-HasParent = Continuum.HasParent
-BokehView = Continuum.ContinuumView
-HasProperties = Continuum.HasProperties
 
-class Bokeh.ActiveToolManager
+class ActiveToolManager
   """ This makes sure that only one tool is active at a time """
   constructor : (eventSink) ->
     @eventSink = eventSink
@@ -201,7 +199,7 @@ class OnePointWheelEventGenerator
 
     return eventSink
 
-class ToolView extends Bokeh.PlotWidget
+class ToolView extends PlotWidget
   initialize : (options) ->
     super(options)
   bind_events : (plotview) ->
@@ -231,7 +229,7 @@ class PanToolView extends ToolView
     @mappers = []
     for temp in _.zip(@mget_obj('dataranges'), @mget('dimensions'))
       [datarange, dim] = temp
-      mapper = new Bokeh.LinearMapper({},
+      mapper = new LinearMapper({},
         data_range : datarange
         viewstate : @plot_view.viewstate
         screendim : dim)
@@ -371,7 +369,7 @@ class ZoomToolView extends ToolView
     @mappers = []
     for temp in _.zip(@mget_obj('dataranges'), @mget('dimensions'))
       [datarange, dim] = temp
-      mapper = new Bokeh.LinearMapper({},
+      mapper = new LinearMapper({},
         data_range : datarange
         viewstate : @plot_view.viewstate
         screendim : dim)
@@ -404,7 +402,7 @@ class ZoomToolView extends ToolView
         end : end)
     return null
 
-class PanTool extends Continuum.HasParent
+class PanTool extends HasParent
   type : "PanTool"
   default_view : PanToolView
 
@@ -416,12 +414,12 @@ _.extend(PanTool::defaults
 )
 
 
-class PanTools extends Continuum.Collection
+class PanTools extends Backbone.Collection
   model : PanTool
 
 
 
-class ZoomTool extends Continuum.HasParent
+class ZoomTool extends HasParent
   type : "ZoomTool"
   default_view : ZoomToolView
 ZoomTool::defaults = _.clone(ZoomTool::defaults)
@@ -432,11 +430,11 @@ _.extend(ZoomTool::defaults
     speed : 1/600
 )
 
-class ZoomTools extends Continuum.Collection
+class ZoomTools extends Backbone.Collection
   model : ZoomTool
 
 
-class SelectionTool extends Continuum.HasParent
+class SelectionTool extends HasParent
   type : "SelectionTool"
   default_view : SelectionToolView
 
@@ -449,17 +447,16 @@ _.extend(SelectionTool::defaults
     data_source_options : {} #backbone options for save on datasource
 )
 
-class SelectionTools extends Continuum.Collection
+class SelectionTools extends Backbone.Collection
   model : SelectionTool
 
 
 
-Bokeh.SelectionToolView = SelectionToolView
-Bokeh.PanToolView = PanToolView
-Bokeh.ZoomToolView = ZoomToolView
-if not Continuum.Collections.PanTool
-  Continuum.Collections.PanTool = new PanTools
-if not Continuum.Collections.ZoomTool
-  Continuum.Collections.ZoomTool = new ZoomTools
-if not Continuum.Collections.SelectionTool
-  Continuum.Collections.SelectionTool = new SelectionTools
+exports.SelectionToolView = SelectionToolView
+exports.PanToolView = PanToolView
+exports.ZoomToolView = ZoomToolView
+exports.ActiveToolManager = ActiveToolManager
+
+exports.pantools = new PanTools
+exports.zoomtools = new ZoomTools
+exports.selectiontools = new SelectionTools

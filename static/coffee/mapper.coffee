@@ -1,18 +1,11 @@
-#Setup Bokeh Module
-if this.Bokeh
-  Bokeh = this.Bokeh
-else
-  Bokeh = {}
-  this.Bokeh = Bokeh
+base = require("./base")
 
-Collections = Continuum.Collections
+Collections = base.Collections
+safebind = base.safebind
+HasParent = base.HasParent
+HasProperties = base.HasProperties
 
-safebind = Continuum.safebind
-HasParent = Continuum.HasParent
-BokehView = Continuum.ContinuumView
-HasProperties = Continuum.HasProperties
-
-class Bokeh.LinearMapper extends HasParent
+class LinearMapper extends HasParent
   # XY View state - handles mapper functionality
   # along 2 axes
   initialize : (attrs, options) ->
@@ -91,9 +84,11 @@ _.extend(DiscreteColorMapper::defaults
     data_range : null
 )
 
-class DiscreteColorMappers extends Continuum.Collection
+class DiscreteColorMappers extends Backbone.Collection
   model : DiscreteColorMapper
 
 
-if not Continuum.Collections.DiscreteColorMapper
-  Continuum.Collections.DiscreteColorMapper = new DiscreteColorMappers
+exports.discretecolormappers = new DiscreteColorMappers
+
+exports.LinearMapper = LinearMapper
+exports.DiscreteColorMapper = DiscreteColorMapper

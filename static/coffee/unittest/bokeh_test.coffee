@@ -1,15 +1,27 @@
+base = require("../base")
+Collections = base.Collections
+
+container = require("../container")
+ViewState = container.ViewState
+
+mapper = require("../mapper")
+LinearMapper = mapper.LinearMapper
+
+testutils = require("../testutils")
+scatter_plot = testutils.scatter_plot
+
 asyncTest('test_datarange1d', ->
-  # Bokeh.Collections['ObjectArrayDataSource'].on('create', () ->
+  # Collections('ObjectArrayDataSource'].on('create', () ->
   #   console.log('create'))
 
-  data_source = Bokeh.Collections['ObjectArrayDataSource'].create({
+  data_source = Collections('ObjectArrayDataSource').create({
   	data : [{x : 1, y : -2},
     	{x : 2, y : -3},
   		{x : 3, y : -4},
   		{x : 4, y : -5},
   		{x : 5, y : -6}]
   });
-  datarange = Bokeh.Collections['DataRange1d'].create({
+  datarange = Collections('DataRange1d').create({
       'sources' : [{'ref' : data_source.ref(), 'columns' : ['x', 'y']}]
       'rangepadding' : 0.0
   })
@@ -28,24 +40,24 @@ asyncTest('test_datarange1d', ->
 )
 
 asyncTest('test_datarange1d_multiple_sources', ->
-  # Bokeh.Collections['ObjectArrayDataSource'].on('create', () ->
+  # Collections('ObjectArrayDataSource'].on('create', () ->
   #   console.log('create'))
 
-  data_source = Bokeh.Collections['ObjectArrayDataSource'].create({
+  data_source = Collections('ObjectArrayDataSource').create({
   	data : [{x : 1, y : -2},
     	{x : 2, y : -3},
   		{x : 3, y : -4},
   		{x : 4, y : -5},
   		{x : 5, y : -6}]
   });
-  data_source2 = Bokeh.Collections['ObjectArrayDataSource'].create({
+  data_source2 = Collections('ObjectArrayDataSource').create({
   	data : [{xx : 10, yy : -20},
     	{xx : 20, yy : -30},
   		{xx : 30, yy : -40},
   		{xx : 40, yy : -50},
   		{xx : 50, yy : -60}]
   });
-  datarange = Bokeh.Collections['DataRange1d'].create({
+  datarange = Collections('DataRange1d').create({
       'sources' : [
         {'ref' : data_source.ref(), 'columns' : ['x', 'y']},
         {'ref' : data_source2.ref(), 'columns' : ['yy']},
@@ -68,24 +80,24 @@ asyncTest('test_datarange1d_multiple_sources', ->
 )
 
 asyncTest('test_datarange1d_can_be_overriden', ->
-  # Bokeh.Collections['ObjectArrayDataSource'].on('create', () ->
+  # Collections('ObjectArrayDataSource'].on('create', () ->
   #   console.log('create'))
 
-  data_source = Bokeh.Collections['ObjectArrayDataSource'].create({
+  data_source = Collections('ObjectArrayDataSource').create({
   	data : [{x : 1, y : -2},
     	{x : 2, y : -3},
   		{x : 3, y : -4},
   		{x : 4, y : -5},
   		{x : 5, y : -6}]
   });
-  data_source2 = Bokeh.Collections['ObjectArrayDataSource'].create({
+  data_source2 = Collections('ObjectArrayDataSource').create({
   	data : [{xx : 10, yy : -20},
     	{xx : 20, yy : -30},
   		{xx : 30, yy : -40},
   		{xx : 40, yy : -50},
   		{xx : 50, yy : -60}]
   });
-  datarange = Bokeh.Collections['DataRange1d'].create({
+  datarange = Collections('DataRange1d').create({
       'sources' : [
         {'ref' : data_source.ref(), 'columns' : ['x', 'y']},
         {'ref' : data_source2.ref(), 'columns' : ['yy']},
@@ -103,9 +115,9 @@ asyncTest('test_datarange1d_can_be_overriden', ->
 )
 
 test('test_linear_mapper', ->
-  range1 = Bokeh.Collections['Range1d'].create({'start' : 0, 'end' : 1})
-  viewstate = new Bokeh.ViewState({'height' : 2})
-  mapper = new Bokeh.LinearMapper({},
+  range1 = Collections('Range1d').create({'start' : 0, 'end' : 1})
+  viewstate = new ViewState({'height' : 2})
+  mapper = new LinearMapper({},
     data_range : range1
     viewstate : viewstate
     screendim : 'height'
@@ -120,14 +132,14 @@ test('test_linear_mapper', ->
 
 
 test('renderer_selection', ->
-  data_source = Bokeh.Collections['ObjectArrayDataSource'].create({
+  data_source = Collections('ObjectArrayDataSource').create({
     data : [{x : 1, y : -2},
       {x : 2, y : -3},
       {x : 3, y : -4},
       {x : 4, y : -5},
       {x : 5, y : -6}]
   }, {'local' : true})
-  plot = Bokeh.scatter_plot(null, data_source, 'x', 'y', null, 'circle')
+  plot = scatter_plot(null, data_source, 'x', 'y', null, 'circle')
   scatterrenderer = plot.resolve_ref(plot.get('renderers')[0])
   view = new plot.default_view(model : plot)
   plot.dinitialize()

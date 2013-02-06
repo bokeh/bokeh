@@ -1,16 +1,14 @@
 #Setup Bokeh Module
-
-Collections = Continuum.Collections
+base = require("./base")
+schema_renderers = require("./schema_renderers")
+XYRendererView = schema_renderers.XYRendererView
+HasParent = base.HasParent
+safebind = base.safebind
 
 # MAIN BOKEH CLASSES
 
 # backbone assumes that valid attrs are any non-null, or non-defined value
 # thats dumb, we only check for undefined, because null is perfectly valid
-safebind = Continuum.safebind
-HasParent = Continuum.HasParent
-BokehView = Continuum.ContinuumView
-HasProperties = Continuum.HasProperties
-
 
 class MetaGlyph
   constructor: (@styleprovider, @glyphspec, @attrnames) ->
@@ -102,7 +100,7 @@ class MetaGlyph
     return glyph
 
 # ###class : GlyphRendererView
-class GlyphRendererView extends Bokeh.XYRendererView
+class GlyphRendererView extends XYRendererView
   addSquare: (x, y, size, color) ->
     if isNaN(x) or isNaN(y)
       reqturn null
@@ -844,9 +842,9 @@ _.extend(GlyphRenderer::display_defaults, {
 
 })
 
-class GlyphRenderers extends Continuum.Collection
+class GlyphRenderers extends Backbone.Collection
   model : GlyphRenderer
 
-if not Continuum.Collections.GlyphRenderer
-  Continuum.Collections.GlyphRenderer = new GlyphRenderers
-Bokeh.GlyphRendererView = GlyphRendererView
+exports.glyphrenderers = new GlyphRenderers
+exports.GlyphRendererView = GlyphRendererView
+exports.GlyphRenderer = GlyphRenderer
