@@ -12,6 +12,9 @@
   {% for jsfile in jsfiles %}
   <script type="text/javascript" src="{{jsfile}}"></script>
   {% endfor %}
+  {% for jsfile in hemfiles %}
+  <script type="text/javascript" src="{{jsfile}}"></script>
+  {% endfor %}
   <script>
     {% for testscript in tests %}
     require("{{ testscript }}");

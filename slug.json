@@ -2,15 +2,13 @@
     "libs": ["./static/vendor/d3/d3.v2.js", 
              "./static/vendor/jquery/js/jquery-1.6.4.min.js", 
              "./static/vendor/jquery/js/jquery.mousewheel.js", 
-             "./static/vendor/jquery/js/jquery-ui.min.js", 
              "./static/vendor/underscore/underscore.js", 
              "./static/vendor/backbone/backbone.js", 
              "./static/vendor/buckets/buckets.js",
              "./static/js/custom.js"],
     "paths" : ["./static/coffee"],
     "public" : "./static/js",
-    "css_public" : "./static/css",
-    "css" : "./static/css",
-    "build_specs" : false
+    "css" : false,
+    "specs" : false
 
 }

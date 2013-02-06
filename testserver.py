@@ -1,15 +1,23 @@
 import flask
 import json
-import os
+import sys
+import hemlib
+
 app = flask.Flask(__name__)
+
+
 @app.route("/test/<testname>")
 def test(testname):
-    with open("static/js/targets.json") as f:
-        targets = json.load(f)
-    targets = [os.path.relpath(x, app.static_folder) for x in targets]
-    targets = [flask.url_for('static', filename=x) for x in targets]
+    if app.debug:
+        with open("slug.json") as f:
+            slug = json.load(f)
+        static_js = hemlib.slug_libs(app, slug['libs'])
+        hem_js = hemlib.coffee_assets("static/coffee", "localhost", 9294)
+    else:
+        static_js = ['/static/js/application.js']
+        hem_js = []
     tests = alltests[testname]
-    return flask.render_template("tests.html", jsfiles=targets, tests=tests)
+    return flask.render_template("tests.html", jsfiles=static_js, hemfiles=hem_js, tests=tests)
 
 alltests = {
     'allplots' : ["unittest/plot_test_simple",
@@ -26,5 +34,6 @@ alltests = {
     }
 
 if __name__ == "__main__":
-    app.debug = True
+    if sys.argv[1] == 'debug':
+        app.debug = True
     app.run()
