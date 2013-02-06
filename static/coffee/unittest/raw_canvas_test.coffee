@@ -62,7 +62,7 @@ kinetic_t2 = ()->
       strokeWidth: 3)
     pts.push(pt)
     layer.add(pt)
-    
+
   window.pts=pts
   stage.add(layer)
   window.doMove = ->
@@ -85,7 +85,7 @@ kinetic_t2 = ()->
     doMove()
     ed = new Date()
   )
-  
+
 
 window.canvas_t = canvas_t
 window.kinetic_t = kinetic_t

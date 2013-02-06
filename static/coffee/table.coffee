@@ -1,18 +1,14 @@
-# module setup stuff
-if this.Continuum
-  Continuum = this.Continuum
-else
-  Continuum = {}
-  this.Continuum = Continuum
-if not Continuum.ui
-  Continuum.ui = {}
+base = require("./base")
+ContinuumView = base.ContinuumView
+safebind = base.safebind
+HasParent = base.HasParent
 
-class DataTableView extends Continuum.ContinuumView
+class DataTableView extends ContinuumView
   initialize : (options) ->
     super(options)
-    Continuum.safebind(this, @model, 'destroy', @remove)
-    Continuum.safebind(this, @model, 'change', @render)
-    Continuum.safebind(this, @mget_obj('data_source'), 'change', @render)
+    safebind(this, @model, 'destroy', @remove)
+    safebind(this, @model, 'change', @render)
+    safebind(this, @mget_obj('data_source'), 'change', @render)
     @render()
 
   className: 'div'
@@ -58,21 +54,18 @@ class DataTableView extends Continuum.ContinuumView
     @$el.width(@mget('width'))
     @$el.addClass("bokehtable")
 
-Continuum.ui.DataTableView = DataTableView
-class DataTable extends Continuum.HasParent
+class DataTable extends HasParent
   type : 'DataTable'
   initialize : (attrs, options)->
     super(attrs, options)
   defaults :
     data_source : null
     columns : []
-  default_view : Continuum.ui.DataTableView
+  default_view : DataTableView
 
 class DataTables extends Backbone.Collection
   model : DataTable
 
-if not Continuum.Collections.DataTable
-  Continuum.Collections.DataTable = new DataTables()
-
-Continuum.ui.DataTable = DataTable
-Continuum.ui.DataTables = DataTables
+exports.datatables = new DataTables()
+exports.DataTable = DataTable
+exports.DataTableView = DataTableView
