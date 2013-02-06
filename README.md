@@ -10,7 +10,7 @@ combine js files, and support node.js require syntax on the client side
 
 install it by executing
 
-`$ npm install; npm link` inside the repo.  
+`$ sudo npm link` inside the repo.  
 
 This will link hem to your working copy so you get hem changes as we push it out
 
