@@ -1,26 +1,29 @@
+base = require("../base")
+testutils = require("../testutils")
+Collections = base.Collections
 
 MAX_SIZE = 500
 setup_interactive = () ->
   data = ({'x' : pt, 'y' : pt} for pt in _.range(MAX_SIZE))
-  data_source1 = Bokeh.Collections['ObjectArrayDataSource'].create(
+  data_source1 = Collections('ObjectArrayDataSource').create(
       data : data
     , {'local' : true}
   )
-  plot1 = Bokeh.scatter_plot(null, data_source1, 'x', 'y', 'x', 'circle')
+  plot1 = testutils.scatter_plot(null, data_source1, 'x', 'y', 'x', 'circle')
   plot1.set('offset', [100, 100])
   scatterrenderer = plot1.resolve_ref(plot1.get('renderers')[0])
-  pantool = Bokeh.Collections['PanTool'].create(
+  pantool = Collections('PanTool').create(
      dataranges : [scatterrenderer.get('xdata_range'), scatterrenderer.get('ydata_range')],
      dimensions : ['width', 'height']
   )
-  zoomtool = Bokeh.Collections['ZoomTool'].create(
+  zoomtool = Collections('ZoomTool').create(
      dataranges : [scatterrenderer.get('xdata_range'), scatterrenderer.get('ydata_range')],
      dimensions : ['width', 'height']
   )
-  selecttool = Bokeh.Collections['SelectionTool'].create(
+  selecttool = Collections('SelectionTool').create(
     {'renderers' : [scatterrenderer.ref()]}
   )
-  boxoverlay = Bokeh.Collections.BoxSelectionOverlay.create(
+  boxoverlay = Collections('BoxSelectionOverlay').create(
     {'tool' : selecttool.ref()}
   )
   plot1.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref()])
@@ -104,16 +107,16 @@ test('test_two_views', () ->
 #   """ when this test runs you should see only one line, not an
 #   artifact from an earlier line """
 #   data = ({'x' : pt, 'y' : pt} for pt in _.range(MAX_SIZE))
-#   data_source1 = Bokeh.Collections['ObjectArrayDataSource'].create(
+#   data_source1 = Collections('ObjectArrayDataSource').create(
 #       data : data
 #   )
 #   data = ({'x2' : 2 * pt, 'y2' : pt} for pt in _.range(MAX_SIZE))
-#   data_source2 = Bokeh.Collections['ObjectArrayDataSource'].create(
+#   data_source2 = Collections('ObjectArrayDataSource').create(
 #       data : data
 #   )
-#   plot1 = Bokeh.scatter_plot(null, data_source1, 'x', 'y', 'x', 'circle')
-#   color_mapper = Bokeh.Collections['DiscreteColorMapper'].create(
-#     data_range : Bokeh.Collections['DataFactorRange'].create(
+#   plot1 = testutils.scatter_plot(null, data_source1, 'x', 'y', 'x', 'circle')
+#   color_mapper = Collections('DiscreteColorMapper').create(
+#     data_range : Collections('DataFactorRange').create(
 #         data_source : data_source2.ref()
 #         columns : ['x2']
 #     )
@@ -133,7 +136,7 @@ test('test_two_views', () ->
 #   )
 
 
-#   scatterrenderer2 = Bokeh.Collections["ScatterRenderer"].create(
+#   scatterrenderer2 = Collections("ScatterRenderer").create(
 #     data_source : data_source2.ref()
 #     xfield : 'x2'
 #     yfield : 'y2'
@@ -145,19 +148,19 @@ test('test_two_views', () ->
 #     parent : plot1.ref()
 #   )
 #   plot1.get('renderers').push(scatterrenderer2)
-#   pantool = Bokeh.Collections['PanTool'].create(
+#   pantool = Collections('PanTool').create(
 #     {'xmappers' : [scatterrenderer.get('xmapper')],
 #     'ymappers' : [scatterrenderer.get('ymapper')]}
 #     , {'local':true})
-#   zoomtool = Bokeh.Collections['ZoomTool'].create(
+#   zoomtool = Collections('ZoomTool').create(
 #     {'xmappers' : [scatterrenderer.get('xmapper')],
 #     'ymappers' : [scatterrenderer.get('ymapper')]}
 #     , {'local':true})
-#   selecttool = Bokeh.Collections['SelectionTool'].create(
+#   selecttool = Collections('SelectionTool').create(
 #     {'renderers' : [scatterrenderer.ref(), scatterrenderer2.ref()]
 #     'data_source_options' : {'local' : true}}
 #     , {'local':true})
-#   selectoverlay = Bokeh.Collections['ScatterSelectionOverlay'].create(
+#   selectoverlay = Collections('ScatterSelectionOverlay').create(
 #     {'renderers' : [scatterrenderer.ref(), scatterrenderer2.ref()]}
 #     , {'local':true})
 #   plot1.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref()])

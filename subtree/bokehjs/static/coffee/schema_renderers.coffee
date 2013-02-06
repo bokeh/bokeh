@@ -1,6 +1,14 @@
-safebind = Continuum.safebind
+base = require("./base")
+Collections = base.Collections
+HasParent = base.HasParent
+PlotWidget = base.PlotWidget
+safebind = base.safebind
+
+mapper = require("./mapper")
+LinearMapper = mapper.LinearMapper
+
 # ###class : XYRendererView
-class Bokeh.XYRendererView extends Bokeh.PlotWidget
+class XYRendererView extends PlotWidget
   # This class is the base class for  all 2d renderers
   # half of it is for setting up mappers,
   # The other half (`@select`,  and `@calc_buffer`)
@@ -25,7 +33,7 @@ class Bokeh.XYRendererView extends Bokeh.PlotWidget
     safebind(this, @mget_obj('ydata_range'), 'change', @request_render)
 
   set_xmapper : () ->
-    @xmapper = new Bokeh.LinearMapper({},
+    @xmapper = new LinearMapper({},
       data_range : @mget_obj('xdata_range')
       viewstate : @plot_view.viewstate
       screendim : 'width'
@@ -33,7 +41,7 @@ class Bokeh.XYRendererView extends Bokeh.PlotWidget
     @request_render()
 
   set_ymapper: () ->
-    @ymapper = new Bokeh.LinearMapper({},
+    @ymapper = new LinearMapper({},
       data_range : @mget_obj('ydata_range')
       viewstate : @plot_view.viewstate
       screendim : 'height'
@@ -89,7 +97,7 @@ class Bokeh.XYRendererView extends Bokeh.PlotWidget
     @screeny = screeny
     @screenx = screenx
 
-class LineRendererView extends Bokeh.XYRendererView
+class LineRendererView extends XYRendererView
   render : ->
     super()
     data = @model.get_obj('data_source').get('data')
@@ -112,7 +120,7 @@ class LineRendererView extends Bokeh.XYRendererView
     return null
 
 
-class ScatterRendererView extends Bokeh.XYRendererView
+class ScatterRendererView extends XYRendererView
   #FIXME: render_canvas
   render : ->
     "use strict";
@@ -157,7 +165,7 @@ class ScatterRendererView extends Bokeh.XYRendererView
     @render_end()
     return null
 
-class XYRenderer extends Continuum.HasParent
+class XYRenderer extends HasParent
 
 XYRenderer::defaults = _.clone(XYRenderer::defaults)
 _.extend(XYRenderer::defaults , {
@@ -168,34 +176,6 @@ _.extend(XYRenderer::defaults , {
   data_source : null
   #axes fit here
 })
-
-
-
-class BarRenderer extends XYRenderer
-  type : 'BarRenderer'
-  default_view : Bokeh.BarRendererView
-
-BarRenderer::defaults = _.clone(BarRenderer::defaults)
-_.extend(BarRenderer::defaults
-  ,
-    xmapper : null
-    ymapper: null
-    orientation : 'vertical'
-    # orientation determines whether xfield, or
-    # yfield will be treated as a domain
-    # for continuous fields, we support specifying a field name, the width of
-    # the bar in screen space can be specified, or we can calculate a width
-    # xstart and xend can be used to specify the width of
-    # each bar in data space
-    # xfield : {'start' : 'start', 'end' : 'yend'},
-    # xfield : {'field' : 'x', width : 10}
-    xfield : 'x'
-    yfield : 'y'
-    color : "#000"
-)
-class BarRenderers extends Continuum.Collection
-  model : BarRenderer
-
 
 class LineRenderer extends XYRenderer
   type : 'LineRenderer'
@@ -210,7 +190,7 @@ _.extend(LineRenderer::defaults
     color : "#000",
 )
 
-class LineRenderers extends Continuum.Collection
+class LineRenderers extends Backbone.Collection
   model : LineRenderer
 
 
@@ -231,21 +211,15 @@ _.extend(ScatterRenderer::defaults, {
     mark : 'circle',
 })
 
-class ScatterRenderers extends Continuum.Collection
+class ScatterRenderers extends Backbone.Collection
   model : ScatterRenderer
 
-if not Continuum.Collections.ScatterRenderer
-  Continuum.Collections.ScatterRenderer = new ScatterRenderers
-if not Continuum.Collections.LineRenderer
-  Continuum.Collections.LineRenderer = new LineRenderers
-if not Continuum.Collections.BarRenderer
-  Continuum.Collections.BarRenderer = new BarRenderers
+exports.scatterrenderers = new ScatterRenderers
+exports.linerenderers = new LineRenderers
 
-Bokeh.ScatterRenderer = ScatterRenderer
-Bokeh.ScatterRenderers = ScatterRenderers
-Bokeh.LineRenderers = LineRenderers
-Bokeh.LineRenderer = LineRenderer
-Bokeh.BarRenderers = BarRenderers
-Bokeh.BarRenderer = BarRenderer
-Bokeh.ScatterRendererView = ScatterRendererView
-Bokeh.LineRendererView = LineRendererView
+exports.ScatterRenderer = ScatterRenderer
+exports.ScatterRendererView = ScatterRendererView
+exports.LineRenderer = LineRenderer
+exports.LineRendererView = LineRendererView
+exports.XYRenderer = XYRenderer
+exports.XYRendererView = XYRendererView

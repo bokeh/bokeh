@@ -1,6 +1,9 @@
-calc_bound = window.calc_bound
-tick_intervals = window.tick_intervals
-auto_interval = window.auto_interval
+ticks = require("../ticks")
+calc_bound = ticks.calc_bound
+tick_intervals = ticks.tick_intervals
+auto_interval = ticks.auto_interval
+argsort = ticks.argsort
+
 test('test_calc_bound', ()->
   expect(4)
   equal(calc_bound(3.0, 2, true), 4)
@@ -36,7 +39,7 @@ test('argsort', ->
   true
 
   )
-      
+
 
 test('_sorted', ->
   ab = [2, 4, 7]
@@ -50,7 +53,3 @@ test('_sorted', ->
   deepEqual([-4, 2, 7], _.sorted(ab))
   null
   )
-      
-  
-
-
