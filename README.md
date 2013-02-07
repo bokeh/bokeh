@@ -1,7 +1,7 @@
 Bokeh 
 =====
 
-Bokeh is an implementation of [Grammar of
+Bokeh (pronounced boh-Kay) is an implementation of [Grammar of
 Graphics](http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html) for
 Python, that also supports the customized rendering flexibility of Protovis and
 d3.  Although it is a Python library, its primary output backend is HTML5
@@ -106,4 +106,13 @@ Static html dump based web plotting examples
 ============================================
  * `$ python tests/web/facetgrid.py`
  * open up the generated `grid.html` in a web browser
+
+
+What Does the Name "Bokeh" Mean?
+================================
+
+"Bokeh" is a [photography term](http://en.wikipedia.org/wiki/Bokeh) for the
+aesthetic quality of blurring of an image's background, to focus attention on a
+foreground subject.
+
 
