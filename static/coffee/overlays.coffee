@@ -1,4 +1,9 @@
-class Bokeh.BoxSelectionOverlayView extends Bokeh.PlotWidget
+base = require("./base")
+safebind = base.safebind
+PlotWidget = base.PlotWidget
+HasParent = base.HasParent
+
+class BoxSelectionOverlayView extends PlotWidget
   bind_events : () ->
 
   initialize : (options) ->
@@ -29,9 +34,9 @@ class Bokeh.BoxSelectionOverlayView extends Bokeh.PlotWidget
     console.log('not selecting')
 
   bind_bokeh_events : (options) ->
-    Continuum.safebind(this, @toolview, 'boxselect', @boxselect)
-    Continuum.safebind(this, @toolview, 'startselect', @startselect)
-    Continuum.safebind(this, @toolview, 'stopselect', @stopselect)
+    safebind(this, @toolview, 'boxselect', @boxselect)
+    safebind(this, @toolview, 'startselect', @startselect)
+    safebind(this, @toolview, 'stopselect', @stopselect)
 
   render : () ->
     if not @selecting
@@ -59,16 +64,18 @@ class Bokeh.BoxSelectionOverlayView extends Bokeh.PlotWidget
     style_string += "top:#{ypos}px; height:#{height}px"
     @$el.attr('style', style_string)
 
-class Bokeh.BoxSelectionOverlay extends Continuum.HasParent
+class BoxSelectionOverlay extends HasParent
   type : 'BoxSelectionOverlay'
-  default_view : Bokeh.BoxSelectionOverlayView
-_.extend(Bokeh.BoxSelectionOverlay::defaults
+  default_view : BoxSelectionOverlayView
+_.extend(BoxSelectionOverlay::defaults
   ,
     tool : null
 )
 
-class Bokeh.BoxSelectionOverlays extends Continuum.Collection
-  model : Bokeh.BoxSelectionOverlay
+class BoxSelectionOverlays extends Backbone.Collection
+  model : BoxSelectionOverlay
 
-if not Continuum.Collections.BoxSelectionOverlay
-  Continuum.Collections.BoxSelectionOverlay = new Bokeh.BoxSelectionOverlays
+exports.boxselectionoverlays = new BoxSelectionOverlays
+
+exports.BoxSelectionOverlayView = BoxSelectionOverlayView
+exports.BoxSelectionOverlay = BoxSelectionOverlay

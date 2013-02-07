@@ -1,6 +1,13 @@
+base = require("../base")
+Collections = base.Collections
+testutils = require("../testutils")
+line_plot = testutils.line_plot
+scatter_plot = testutils.scatter_plot
+glyph_plot = testutils.glyph_plot
+
 test('circles_glyph', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {x : 1, y : 5, z:3, radius:10},
       {x : 2, y : 4, z:3},
@@ -9,14 +16,14 @@ test('circles_glyph', () ->
       {x : 5, y : 1, z:3},
     ]
   )
-  plot_model = Bokeh.Collections.Plot.create()
-  xdr = Bokeh.Collections.DataRange1d.create(
+  plot_model = Collections('Plot').create()
+  xdr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['x']}]
   )
-  ydr = Bokeh.Collections.DataRange1d.create(
+  ydr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['y']}]
   )
-  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+  glyph_renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -54,12 +61,12 @@ test('circles_glyph', () ->
     ]
 
   )
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -71,7 +78,7 @@ test('circles_glyph', () ->
   div = $('<div></div>')
   $('body').append(div)
   myrender  =  ->
-    view = new Bokeh.PlotView(model : plot_model)
+    view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
   console.log('Test circles_glyph')
@@ -81,7 +88,7 @@ test('circles_glyph', () ->
 
 test('line_glyph', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {x: 1, y: 4}
       {x: 2, y: 4}
@@ -90,7 +97,7 @@ test('line_glyph', () ->
       {x: 5, y: 2}
     ]
   )
-  ds2 = Bokeh.Collections.ObjectArrayDataSource.create(
+  ds2 = Collections('ObjectArrayDataSource').create(
     data: [
       {x2: 1, y2: 1}
       {x2: 2, y2: 1.5}
@@ -101,16 +108,16 @@ test('line_glyph', () ->
       {x2: 5, y2: 3.5}
     ]
   )
-  plot_model = Bokeh.Collections.Plot.create()
-  xdr = Bokeh.Collections.DataRange1d.create(
+  plot_model = Collections('Plot').create()
+  xdr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['x']},
                {ref : ds2.ref(), columns : ['x2']}]
   )
-  ydr = Bokeh.Collections.DataRange1d.create(
+  ydr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['y']},
                {ref : ds2.ref(), columns: ['y2']}]
   )
-  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+  glyph_renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -121,7 +128,7 @@ test('line_glyph', () ->
         alpha: 1
     ]
   )
-  renderer2 = Bokeh.Collections.GlyphRenderer.create(
+  renderer2 = Collections('GlyphRenderer').create(
     data_source: ds2.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -134,12 +141,12 @@ test('line_glyph', () ->
         alpha: 0.5
     ]
   )
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -151,7 +158,7 @@ test('line_glyph', () ->
   div = $('<div></div>')
   $('body').append(div)
   myrender  =  ->
-    view = new Bokeh.PlotView(model : plot_model)
+    view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
   console.log('Test line_glyph')
@@ -160,7 +167,7 @@ test('line_glyph', () ->
 
 test('stacked_lines_glyph', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {x: 1, y0: 1, y1: 3}
       {x: 2, y0: 1.5, y1: 2}
@@ -169,14 +176,14 @@ test('stacked_lines_glyph', () ->
       {x: 5, y0: 2.5, y1: 0.5}
     ]
   )
-  plot_model = Bokeh.Collections.Plot.create()
-  xdr = Bokeh.Collections.DataRange1d.create(
+  plot_model = Collections('Plot').create()
+  xdr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['x']}]
   )
-  ydr = Bokeh.Collections.DataRange1d.create(
+  ydr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['y0','y1']}]
   )
-  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+  glyph_renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -204,12 +211,12 @@ test('stacked_lines_glyph', () ->
         }
     ]
   )
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -221,7 +228,7 @@ test('stacked_lines_glyph', () ->
   div = $('<div></div>')
   $('body').append(div)
   myrender  =  ->
-    view = new Bokeh.PlotView(model : plot_model)
+    view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
   console.log('Test stacked_lines_glyph')
@@ -230,7 +237,7 @@ test('stacked_lines_glyph', () ->
 
 test('stacked_rects_glyph', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {x: 1, y0: 1, y1: 3, y2: 1.5}
       {x: 2, y0: 1.5, y1: 2, y2: 1}
@@ -239,14 +246,14 @@ test('stacked_rects_glyph', () ->
       {x: 5, y0: 2.5, y1: 0.5, y2: 1}
     ]
   )
-  plot_model = Bokeh.Collections.Plot.create()
-  xdr = Bokeh.Collections.DataRange1d.create(
+  plot_model = Collections('Plot').create()
+  xdr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['x']}]
   )
-  ydr = Bokeh.Collections.DataRange1d.create(
+  ydr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['y0','y1','y2']}]
   )
-  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+  glyph_renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -281,12 +288,12 @@ test('stacked_rects_glyph', () ->
         }
     ]
   )
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -298,7 +305,7 @@ test('stacked_rects_glyph', () ->
   div = $('<div></div>')
   $('body').append(div)
   myrender  =  ->
-    view = new Bokeh.PlotView(model : plot_model)
+    view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
   console.log('Test stacked_rects_glyph')
@@ -307,7 +314,7 @@ test('stacked_rects_glyph', () ->
 
 test('rects_glyph', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {x: 1, y: 2, height: 0.5, width: 0.25}
       {x: 2, y: 3, height: 0.3, width: 0.3, color: "blue"}
@@ -317,14 +324,14 @@ test('rects_glyph', () ->
       {x: 5, y: 5, height: 0.15, width: 0.4, alpha: 0.4}
     ]
   )
-  plot_model = Bokeh.Collections.Plot.create()
-  xdr = Bokeh.Collections.DataRange1d.create(
+  plot_model = Collections('Plot').create()
+  xdr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['x']}]
   )
-  ydr = Bokeh.Collections.DataRange1d.create(
+  ydr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['y']}]
   )
-  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+  glyph_renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -363,12 +370,12 @@ test('rects_glyph', () ->
     ]
 
   )
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -380,7 +387,7 @@ test('rects_glyph', () ->
   div = $('<div></div>')
   $('body').append(div)
   myrender  =  ->
-    view = new Bokeh.PlotView(model : plot_model)
+    view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
   console.log('Test rects_glyph')
@@ -389,7 +396,7 @@ test('rects_glyph', () ->
 
 test('rects_glyph2', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {x : 1, y : 2, height: 0.5, width: 0.25}
       {x : 2, y : 3, height: 0.3, width: 0.3, color: "blue"}
@@ -399,7 +406,7 @@ test('rects_glyph2', () ->
       {x : 5, y : 5, height: 0.15, width: 0.4, alpha: 0.4}
     ]
   )
-  renderer = Bokeh.Collections.GlyphRenderer.create(
+  renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
 
     glyphs : [
@@ -436,13 +443,13 @@ test('rects_glyph2', () ->
 
   )
 
-  #Bokeh.glyph_plot(data_source, renderer, $('body'))
-  plot_model = Bokeh.glyph_plot(data_source, renderer)
+  #glyph_plot(data_source, renderer, $('body'))
+  plot_model = glyph_plot(data_source, renderer)
   div = $('<div></div>')
   $('body').append(div)
   myrender = ->
     div.append("<h2>rects_glyph_2</h2>")
-    view = new Bokeh.PlotView(model: plot_model)
+    view = new plot_model.default_view(model: plot_model)
     div.append(view.$el)
     view.render()
   _.defer(myrender)
@@ -452,7 +459,7 @@ test('rects_glyph2', () ->
 
 test('rect_regions_glyph_test', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {left: 1, right: 1.5, top: 1.5, bottom: 1.0}
       {left: 2, right: 2.6, top: 2.3, color: "blue"}
@@ -461,14 +468,14 @@ test('rect_regions_glyph_test', () ->
       {left: 4.8, right: 5.2, top: 2.6, alpha: 0.4}
     ]
   )
-  plot_model = Bokeh.Collections.Plot.create()
-  xdr = Bokeh.Collections.DataRange1d.create(
+  plot_model = Collections('Plot').create()
+  xdr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['left', 'right']}]
   )
-  ydr = Bokeh.Collections.DataRange1d.create(
+  ydr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['bottom', 'top']}]
   )
-  renderer = Bokeh.Collections.GlyphRenderer.create(
+  renderer = Collections('GlyphRenderer').create(
     data_source: data_source.ref()
     xdata_range: xdr.ref()
     ydata_range: ydr.ref()
@@ -485,12 +492,12 @@ test('rect_regions_glyph_test', () ->
       outline_color: 'black'
     ]
   )
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -504,7 +511,7 @@ test('rect_regions_glyph_test', () ->
   $('body').append(div)
   myrender = ->
     div.append("<h2>rect_regions_glyph_test</h2>")
-    view = new Bokeh.PlotView(model: plot_model)
+    view = new plot_model.default_view(model: plot_model)
     div.append(view.$el)
     view.render()
   _.defer(myrender)
@@ -513,7 +520,7 @@ test('rect_regions_glyph_test', () ->
 
 test('vector_data_test', () ->
   expect(0)
-  data_source = Bokeh.Collections.ColumnDataSource.create(
+  data_source = Collections('ColumnDataSource').create(
     data : {
       x : [1, 2, 3, 4, 4.5, 5]
       y : [2, 3, 4, 3, 3, 5]
@@ -521,7 +528,7 @@ test('vector_data_test', () ->
       width : [0.25, 0.3, 0.35, 0.4, 0.4, 0.4]
     }
   )
-  renderer = Bokeh.Collections.GlyphRenderer.create(
+  renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
 
     glyphs : [
@@ -558,13 +565,13 @@ test('vector_data_test', () ->
 
   )
 
-  #Bokeh.glyph_plot(data_source, renderer, $('body'))
-  plot_model = Bokeh.glyph_plot(data_source, renderer)
+  #glyph_plot(data_source, renderer, $('body'))
+  plot_model = glyph_plot(data_source, renderer)
   div = $('<div></div>')
   $('body').append(div)
   myrender = ->
     div.append("<h2>vector_data_test</h2>")
-    view = new Bokeh.PlotView(model: plot_model)
+    view = new plot_model.default_view(model: plot_model)
     div.append(view.$el)
     view.render()
   _.defer(myrender)
@@ -572,7 +579,7 @@ test('vector_data_test', () ->
 
 test('area_glyph', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {x: 1, y: 1}
       {x: 2, y: 2}
@@ -581,14 +588,14 @@ test('area_glyph', () ->
       {x: 0.5, y: 2}
     ]
   )
-  plot_model = Bokeh.Collections.Plot.create()
-  xdr = Bokeh.Collections.DataRange1d.create(
+  plot_model = Collections('Plot').create()
+  xdr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['x']}]
   )
-  ydr = Bokeh.Collections.DataRange1d.create(
+  ydr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['y']}]
   )
-  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+  glyph_renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -600,12 +607,12 @@ test('area_glyph', () ->
         alpha: 0.6
     ]
   )
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -617,7 +624,7 @@ test('area_glyph', () ->
   div = $('<div></div>')
   $('body').append(div)
   myrender  =  ->
-    view = new Bokeh.PlotView(model : plot_model)
+    view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
   console.log('Test area_glyph')
@@ -627,7 +634,7 @@ test('area_glyph', () ->
 
 test('boxplots_test', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     # style ['plain', 'notched', 'tufte']
     # x, median, width, q1, q3
     # fill, upper_fill, lower_fill
@@ -650,17 +657,17 @@ test('boxplots_test', () ->
     ]
   )
 
-  plot_model = Bokeh.Collections.Plot.create()
+  plot_model = Collections('Plot').create()
 
-  xdr = Bokeh.Collections.Range1d.create()
+  xdr = Collections('Range1d').create()
   xdr.set('start', 0)
   xdr.set('end', 7)
 
-  ydr = Bokeh.Collections.Range1d.create()
+  ydr = Collections('Range1d').create()
   ydr.set('start', -2)
   ydr.set('end', 10)
 
-  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+  glyph_renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -668,12 +675,12 @@ test('boxplots_test', () ->
         type: 'boxplots'
     ]
   )
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -685,7 +692,7 @@ test('boxplots_test', () ->
   div = $('<div></div>')
   $('body').append(div)
   myrender  =  ->
-    view = new Bokeh.PlotView(model : plot_model)
+    view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
   console.log('Test boxplots_glyph')
@@ -695,7 +702,7 @@ test('boxplots_test', () ->
 
 test('lines_test', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {
         xs: [1, 3, 7, 9],
@@ -720,17 +727,17 @@ test('lines_test', () ->
     ]
   )
 
-  plot_model = Bokeh.Collections.Plot.create()
+  plot_model = Collections('Plot').create()
 
-  xdr = Bokeh.Collections.Range1d.create()
+  xdr = Collections('Range1d').create()
   xdr.set('start', 0)
   xdr.set('end', 10)
 
-  ydr = Bokeh.Collections.Range1d.create()
+  ydr = Collections('Range1d').create()
   ydr.set('start', -2)
   ydr.set('end', 10)
 
-  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+  glyph_renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -739,12 +746,12 @@ test('lines_test', () ->
         line_dash: []
     ]
   )
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -756,7 +763,7 @@ test('lines_test', () ->
   div = $('<div></div>')
   $('body').append(div)
   myrender  =  ->
-    view = new Bokeh.PlotView(model : plot_model)
+    view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
   console.log('Test lines_glyph')
@@ -767,7 +774,7 @@ test('lines_test', () ->
 
 test('areas_glyph', () ->
   expect(0)
-  data_source = Bokeh.Collections.ObjectArrayDataSource.create(
+  data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {
         xs: [1, 3, 5],
@@ -804,17 +811,17 @@ test('areas_glyph', () ->
       }
     ]
   )
-  plot_model = Bokeh.Collections.Plot.create()
+  plot_model = Collections('Plot').create()
 
-  xdr = Bokeh.Collections.Range1d.create()
+  xdr = Collections('Range1d').create()
   xdr.set('start', 0)
   xdr.set('end', 10)
 
-  ydr = Bokeh.Collections.Range1d.create()
+  ydr = Collections('Range1d').create()
   ydr.set('start', -2)
   ydr.set('end', 10)
 
-  glyph_renderer = Bokeh.Collections.GlyphRenderer.create(
+  glyph_renderer = Collections('GlyphRenderer').create(
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -827,12 +834,12 @@ test('areas_glyph', () ->
     ]
   )
 
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -844,7 +851,7 @@ test('areas_glyph', () ->
   div = $('<div></div>')
   $('body').append(div)
   myrender  =  ->
-    view = new Bokeh.PlotView(model : plot_model)
+    view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
   console.log('Test areas_glyph')
@@ -857,21 +864,21 @@ test('rect_glyph_performance', () ->
   y = (Math.sin(y) for y in x)
   widths = (0.02 for i in x)
   heights = (0.2 for i in x)
-  source = Continuum.Collections.ColumnDataSource.create(
+  source = Collections('ColumnDataSource').create(
     data :
       x : x
       y : y
       width : widths
       height : heights
   )
-  plot = Continuum.Collections.Plot.create(height : 400, width:800)
-  xdr = Continuum.Collections.DataRange1d.create(
+  plot = Collections('Plot').create(height : 400, width:800)
+  xdr = Collections('DataRange1d').create(
     sources : [{ref : source.ref(), columns : ['x']}]
   )
-  ydr = Continuum.Collections.DataRange1d.create(
+  ydr = Collections('DataRange1d').create(
     sources : [{ref : source.ref(), columns : ['y']}]
   )
-  pantool = Bokeh.Collections['PanTool'].create(
+  pantool = Collections('PanTool').create(
      dataranges : [xdr.ref(), ydr.ref()]
      dimensions : ['width', 'height']
   )
@@ -884,18 +891,18 @@ test('rect_glyph_performance', () ->
     'width': 'width',
     'x': 'x',
     'y': 'y'}
-  glyph_renderer = Continuum.Collections.GlyphRenderer.create(
+  glyph_renderer = Collections('GlyphRenderer').create(
     data_source : source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
     glyphs : [rectglyph]
   )
-  xaxis = Continuum.Collections.LinearAxis.create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot.ref()
     data_range : xdr.ref()
   )
-  yaxis = Continuum.Collections.LinearAxis.create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left'
     parent : plot.ref()
     data_range : ydr.ref()
