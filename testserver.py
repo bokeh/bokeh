@@ -20,17 +20,18 @@ def test(testname):
     return flask.render_template("tests.html", jsfiles=static_js, hemfiles=hem_js, tests=tests)
 
 alltests = {
-    'allplots' : ["unittest/plot_test_simple",
-                  "unittest/tools_test",
-                  "unittest/plot_test_grid",
-                  "unittest/date_test",
-                  "unittest/glyph_test",
-                  "unittest/legend_test"],
-    'allunit' : ["unittest/bokeh_test",
-                 "unittest/hasparent_test",
-                 "unittest/hasproperty_test"],
-    'tick' : ['unittest/tick_test'],
-    'glyph' : ['unittest/glyph_test'],
+    # 'allplots' : ["unittest/plot_test_simple",
+    #               "unittest/tools_test",
+    #               "unittest/plot_test_grid",
+    #               "unittest/date_test",
+    #               "unittest/glyph_test",
+    #               "unittest/legend_test"],
+    # 'allunit' : ["unittest/bokeh_test",
+    #              "unittest/hasparent_test",
+    #              "unittest/hasproperty_test"],
+    # 'tick' : ['unittest/tick_test'],
+    # 'glyph' : ['unittest/glyph_test'],
+    'prim' : ['unittest/primitives_test'],
     }
 
 if __name__ == "__main__":

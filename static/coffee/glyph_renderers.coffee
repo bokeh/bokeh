@@ -87,8 +87,8 @@ class MetaGlyph
             glyph[unitsname] = units ? 'data'
 
         else
-          # This is an error down here...
-          console.log("Unknown glyph specification value type.")
+          # this is an error down here...
+          console.log("unknown glyph specification value type.")
           continue
 
         # Both string and object glyphspecs share this logic
