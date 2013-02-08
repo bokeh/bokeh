@@ -48,7 +48,6 @@ def make_default_user(app):
     return bokehuser
     
 def prepare_local():
-    app.debug = True
     #monkeypatching
     def current_user(request):
         bokehuser = user.User.load(app.model_redis, "defaultuser")
