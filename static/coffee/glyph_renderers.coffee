@@ -87,14 +87,14 @@ class GlyphRendererView extends XYRendererView
         sx[i] = glyph.select(xname, data[i])
     else
       for i in [0..data.length-1]
-        sx[i] = @xmapper.map_screen(glyph.select(xname, data[i]))
+        sx[i] = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.select(xname, data[i])))
 
     if y_units == "screen"
       for i in [0..data.length-1]
         sy[i] = glyph.select(yname, data[i])
     else
       for i in [0..data.length-1]
-        sy[i] = @ymapper.map_screen(glyph.select(yname, data[i]))
+        sy[i] = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.select(yname, data[i])))
 
     return [sx, sy]
 
