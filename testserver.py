@@ -46,15 +46,17 @@ alltests = {
         'unittest/primitives/oval_test',
         'unittest/primitives/quad_test',
         'unittest/primitives/rect_test',
+        'unittest/primitives/segment_test',
         'unittest/primitives/wedge_test',
     ],
 
-    'arc'    : ['unittest/primitives/arc_test'],
-    'circle' : ['unittest/primitives/circle_test'],
-    'oval'   : ['unittest/primitives/oval_test'],
-    'quad'   : ['unittest/primitives/quad_test'],
-    'rect'   : ['unittest/primitives/rect_test'],
-    'wedge'  : ['unittest/primitives/wedge_test'],
+    'arc'     : ['unittest/primitives/arc_test'],
+    'circle'  : ['unittest/primitives/circle_test'],
+    'oval'    : ['unittest/primitives/oval_test'],
+    'quad'    : ['unittest/primitives/quad_test'],
+    'rect'    : ['unittest/primitives/rect_test'],
+    'segment' : ['unittest/primitives/segment_test'],
+    'wedge'   : ['unittest/primitives/wedge_test'],
 }
 
 if __name__ == "__main__":

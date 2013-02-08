@@ -52,7 +52,7 @@
  - *line properties*
 
 ## segment
- - x, y, angle, length OR x0, y0, x1, y1
+ - x0, y0, x1, y1
  - *line properties*
 
 ## text
