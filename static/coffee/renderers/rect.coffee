@@ -8,7 +8,7 @@ fill_properties = glyph.fill_properties
 
 
 rect = (view, glyphspec, data) ->
-  ctx = view.ctx
+  ctx = view.plot_view.ctx
 
   ctx.save()
 
@@ -17,7 +17,7 @@ rect = (view, glyphspec, data) ->
   [sx, sy] = view.map_to_screen(glyph, data)
   sw = view.distance(glyph, data, "x", "width", "center")
   sh = view.distance(glyph, data, "y", "height", "center")
-  angle = (angle if glyph.select("angle_units", obj) == "radians" else angle * 2 * Math.PI / 360.0 for obj in data)
+  angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad
 
   for i in [0..sx.length-1]
 
@@ -44,4 +44,4 @@ rect = (view, glyphspec, data) ->
   ctx.restore()
 
 
-  exports.rect = rect
+exports.rect = rect

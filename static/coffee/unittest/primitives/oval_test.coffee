@@ -1,15 +1,15 @@
-base = require("../base")
+base = require("../../base")
 Collections = base.Collections
 
 
-test('circle_glyph', () ->
+test('oval_glyph', () ->
   expect(0)
   data_source = Collections('ObjectArrayDataSource').create(
     data : [
-      {x : 1, y : 5, radius:10},
+      {x : 1, y : 5},
       {x : 2, y : 4},
       {x : 3, y : 3, fill: "red"},
-      {x : 4, y : 2, radius: 8, fill_alpha: 0.3},
+      {x : 4, y : 2, fill_alpha: 0.3},
       {x : 5, y : 1},
     ]
   )
@@ -27,13 +27,17 @@ test('circle_glyph', () ->
     data_source : data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
-    radius:
-      units: "screen"
-      default: 5
     x : 'x'
     y : 'y'
+    width:
+      units: "screen"
+      default: 10
+    height:
+      units: "screen"
+      default: 14
+    angle: 0
     glyphs : [
-        type : 'circle'
+        type : 'oval'
         fill: 'blue'
       ,
     ]
@@ -58,7 +62,7 @@ test('circle_glyph', () ->
     view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
-  console.log('Test circles_glyph')
+  console.log('Test oval_glyph')
   _.defer(myrender)
 )
 
