@@ -638,7 +638,7 @@ locations =
   LinearAxis : ['./guides', 'linearaxes']
   LinearDateAxis : ['./guides', 'lineardateaxes']
   Legend : ['./guides', 'legends']
-  GlyphRenderer : ['./primitive_glyphs', 'glyphrenderers']
+  GlyphRenderer : ['./glyph_renderers', 'glyphrenderers']
   BoxSelectionOverlay : ['./overlays', 'boxselectionoverlays']
   ObjectArrayDataSource : ['./datasource', 'objectarraydatasources']
   ColumnDataSource : ['./datasource', 'columndatasources']

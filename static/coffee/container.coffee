@@ -307,6 +307,7 @@ class PlotView extends ContinuumView
     @render_init()
     @render()
     @build_subviews()
+    @throttled()
     return this
 
   render_init : () ->
@@ -396,7 +397,6 @@ class PlotView extends ContinuumView
     @render_end()
 
   render_deferred_components: (force) ->
-    console.log "DLGJLGJJL"
     #console.log("plotview render deferred components", @constructor, new Date() - 1)
     all_views = _.flatten(_.map([@tools, @axes, @renderers, @overlays], _.values))
     @ctx.clearRect(0,0,  @viewstate.get('width'), @viewstate.get('height'))
