@@ -73,26 +73,26 @@ class GlyphRendererView extends XYRendererView
 
     return results
 
-  map_to_screen : (glyph, data) ->
+  map_to_screen : (glyph, xname, yname, data) ->
     sx = new Array(data.length)
     sy = new Array(data.length)
 
-    x_units = glyph["x"].units
-    y_units = glyph["y"].units
+    x_units = glyph[xname].units
+    y_units = glyph[yname].units
 
     if x_units == "screen"
       for i in [0..data.length-1]
-        sx[i] = glyph.select("x", data[i])
+        sx[i] = glyph.select(xname, data[i])
     else
       for i in [0..data.length-1]
-        sx[i] = @xmapper.map_screen(glyph.select("x", data[i]))
+        sx[i] = @xmapper.map_screen(glyph.select(xname, data[i]))
 
     if y_units == "screen"
       for i in [0..data.length-1]
-        sy[i] = glyph.select("y", data[i])
+        sy[i] = glyph.select(yname, data[i])
     else
       for i in [0..data.length-1]
-        sy[i] = @ymapper.map_screen(glyph.select("y", data[i]))
+        sy[i] = @ymapper.map_screen(glyph.select(yname, data[i]))
 
     return [sx, sy]
 

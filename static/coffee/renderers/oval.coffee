@@ -13,7 +13,7 @@ oval = (view, glyphspec, data) ->
 
   glyph = new Glyph(view, glyphspec, ["x", "y", "width", "height", "angle"], [fill_properties])
 
-  [sx, sy] = view.map_to_screen(glyph, data)
+  [sx, sy] = view.map_to_screen(glyph, "x", "y", data)
   sw = view.distance(glyph, data, "x", "width", "center")
   sh = view.distance(glyph, data, "y", "height", "center")
   angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad

@@ -13,7 +13,7 @@ circle = (view, glyphspec, data) ->
   ctx.save()
   glyph = new Glyph(view, glyphspec, ["x", "y", "radius"], [fill_properties, line_properties])
 
-  [sx, sy] = view.map_to_screen(glyph, data)
+  [sx, sy] = view.map_to_screen(glyph, "x", "y", data)
   radius = view.distance(glyph, data, "x", "radius", "edge")
 
   for i in [0..sx.length-1]
