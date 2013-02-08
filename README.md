@@ -120,7 +120,9 @@ install it by executing
 `$ sudo npm link` inside the repo.  
 
 This will link hem to your working copy so you get hem changes as we push it out
- * If you are developing Bokeh, I you should use the debug webserver.  start it by executing `$ python startlocaldebug.py`.
+ * If you are developing Bokeh, you should use the debug webserver.  
+   start it by executing `$ python startlocaldebug.py`.  The debug webserver is configured
+   to ask the hem server for compiled javascript, rather than read the pre-compiled js off of disk.
  * Inside bokeh/server, execute `$ hem server`.  The hem server will
    serve up coffeescript, compiling them on the fly.
  * For the embedded plotting examples, or the production server, you will
