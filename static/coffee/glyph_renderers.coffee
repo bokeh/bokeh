@@ -11,9 +11,11 @@ HasParent = base.HasParent
 class GlyphRendererView extends XYRendererView
   initialize: (options) ->
     super(options)
+    @arc    = primitive.arc
     @circle = primitive.circle
-    @oval = primitive.oval
-    @rect = primitive.rect
+    @oval   = primitive.oval
+    @quad   = primitive.quad
+    @rect   = primitive.rect
 
   render: () ->
     source = @mget_obj('data_source')
@@ -126,6 +128,10 @@ _.extend(GlyphRenderer::display_defaults, {
     units: "screen"
 
   angle:
+    units: 'deg'
+  start_angle:
+    units: 'deg'
+  end_angle:
     units: 'deg'
 
 })

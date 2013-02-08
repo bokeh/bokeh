@@ -41,13 +41,17 @@ alltests = {
     'tick' : ['unittest/tick_test'],
 
     'prim' : [
+        'unittest/primitives/arc_test',
         'unittest/primitives/circle_test',
         'unittest/primitives/oval_test',
-        'unittest/primitives/rect_test'
+        'unittest/primitives/quad_test',
+        'unittest/primitives/rect_test',
     ],
 
+    'arc'    : ['unittest/primitives/arc_test'],
     'circle' : ['unittest/primitives/circle_test'],
     'oval'   : ['unittest/primitives/oval_test'],
+    'quad'   : ['unittest/primitives/quad_test'],
     'rect'   : ['unittest/primitives/rect_test'],
 }
 

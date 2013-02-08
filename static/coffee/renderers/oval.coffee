@@ -33,6 +33,8 @@ oval = (view, glyphspec, data) ->
     glyph.fill_properties.set(ctx, data[i])
     ctx.fill()
 
+    # I don't like this inverse scaling method at all, but strangely
+    # a full context save/restore does not work at all.
     ctx.rotate(-angle[i])
     ctx.scale(1/sw[i], 1/sh[i])
     ctx.translate(-sx[i], -sy[i])

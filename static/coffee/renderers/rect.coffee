@@ -29,7 +29,7 @@ rect = (view, glyphspec, data) ->
       ctx.rotate(angle[i])
 
     ctx.beginPath()
-    ctx.rect(sx[i], sy[i], sw[i], sh[i])
+    ctx.rect(sx[i], sy[i], sw[i], sh[i]) # TODO rect is top left
 
     glyph.fill_properties.set(ctx, data[i])
     ctx.fill()
