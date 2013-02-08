@@ -7,7 +7,7 @@ test('rect_glyph', () ->
   data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {x : 1, y : 5},
-      {x : 2, y : 4},
+      {x : 2, y : 4, angle: 0.7},
       {x : 3, y : 3, fill: "red"},
       {x : 4, y : 2, fill_alpha: 0.3},
       {x : 5, y : 1},
@@ -29,13 +29,13 @@ test('rect_glyph', () ->
     ydata_range : ydr.ref()
     x : 'x'
     y : 'y'
+    angle: 0.4
     width:
       units: "screen"
       default: 12
     height:
       units: "screen"
       default: 15
-    angle: 0
     glyphs : [
         type : 'rect'
         fill: 'blue'
