@@ -16,6 +16,7 @@ class GlyphRendererView extends XYRendererView
     @oval   = primitive.oval
     @quad   = primitive.quad
     @rect   = primitive.rect
+    @wedge  = primitive.wedge
 
   render: () ->
     source = @mget_obj('data_source')
