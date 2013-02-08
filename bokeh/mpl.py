@@ -308,29 +308,12 @@ class PlotClient(object):
         self._hold = True
         
     def notebooksources(self):
-        import IPython.core.displaypub as displaypub        
-        jsstr = inline_scripts(dump.notebook_script_paths)
-        cssstr = inline_css(dump.css_paths)
+        import IPython.core.displaypub as displaypub
         template = get_template('source_block.html')
-        if self.bbclient:
-            split = urlparse.urlsplit(self.root_url)
-            host = split.netloc
-            protocol = split.scheme
-            html = template.render(
-                script_block=jsstr.decode('utf-8'),
-                css_block=cssstr.decode('utf-8'),
-                connect=True,
-                host=host,
-                protocol=protocol,
-                wsprotocol="wss" if protocol == 'https' else "ws",
-                docid=self.bbclient.docid
-                )
-        else:
-            html = template.render(script_block=jsstr.decode('utf-8'),
-                                   css_block=cssstr.decode('utf-8'),
-                                   connect=False
-                                   )
-            
+        html = template.render(
+            rawjs = dump.inline_scripts(dump.script_paths).decode('utf8'),
+            rawcss = dump.inline_css(dump.css_paths).decode('utf8')
+            )
         displaypub.publish_display_data('bokeh', {'text/html': html})
         return None
 
@@ -556,11 +539,9 @@ class PlotClient(object):
         template = get_template(template)
         elementid = str(uuid.uuid4())
         if inline:
-            jsstr = inline_scripts(script_paths)
-            cssstr = inline_css(css_paths)
             result = template.render(
-                script_block=jsstr.decode('utf8'),
-                css_block=cssstr.decode('utf8'),
+                rawjs = dump.inline_scripts(script_paths).decode('utf8'),
+                rawcss = dump.inline_css(css_paths).decode('utf8'),
                 all_models=serialize_json([x.to_broadcast_json() \
                                        for x in all_models]),
                 modelid=model.id,
@@ -590,22 +571,3 @@ def get_template(filename):
     with open(template) as f:
         return jinja2.Template(f.read())
 
-def inline_scripts(script_paths):
-    js = dump.concat_scripts(script_paths)
-    jsstr = """
-<script type=text/javascript>
-%s
-</script>
-"""
-    jsstr = jsstr % js
-    return jsstr
-
-def inline_css(css_paths):
-    css = dump.concat_css(css_paths)
-    cssstr = """
-<style>
-%s
-</style>
-"""
-    cssstr = cssstr % css
-    return cssstr

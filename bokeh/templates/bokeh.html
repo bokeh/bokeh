@@ -3,9 +3,19 @@
   <head>
     <meta charset="utf-8">
     <title>Continuum Analytics</title>
-	<!-- Vendor Styles -->
-    {{ script_block }}
-    {{ css_block }}
+    
+    {% if rawcss %}
+    <style>
+      {{ rawcss }}
+    </style>
+    {% endif %}
+    
+    {% if rawjs %}
+    <script type="text/javascript">
+      {{ rawjs }}
+    </script>
+    {% endif %}
+    
     <script type="text/javascript">
       $(function(){
       var all_models = {{ all_models }};
@@ -15,11 +25,9 @@
       var modeltype = "{{ modeltype }}";
       
       var elementid = "{{ elementid }}";
-      
-      Continuum.load_models(all_models);
-      model = Continuum.resolve_ref(
-      Continuum.Collections, modeltype, modelid
-      );
+      base = require("./bokehjs/base")
+      base.load_models(all_models);
+      model = base.Collections(modeltype).get(modelid);
       view = new model.default_view(
       {model : model}
       )
