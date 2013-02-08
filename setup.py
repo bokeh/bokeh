@@ -8,7 +8,12 @@ from distutils.core import setup
 import os
 import sys
 __version__ = (0, 0, 1)
-
+import requests
+print "downloading compiled javascript from github"
+jssource = requests.get("http://raw.github.com/ContinuumIO/bokehjs-build/master/application.min.js").content
+with open("bokeh/server/static/js/application.js", "w+") as f:
+    f.write(jssource)
+print "downloading completed"
 package_data_dirs = []
 for dirname, _, files in os.walk('bokeh/server/static', followlinks=True):
     dirname = os.path.relpath(dirname, 'bokeh')
