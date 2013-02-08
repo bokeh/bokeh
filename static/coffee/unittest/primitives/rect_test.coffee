@@ -31,10 +31,10 @@ test('rect_glyph', () ->
     y : 'y'
     width:
       units: "screen"
-      default: 8
+      default: 12
     height:
       units: "screen"
-      default: 12
+      default: 15
     angle: 0
     glyphs : [
         type : 'rect'

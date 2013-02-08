@@ -23,7 +23,6 @@ quad = (view, glyphspec, data) ->
       continue
 
     ctx.beginPath()
-    console.log sy0[i]-sy1[i]
     ctx.rect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
 
     glyph.fill_properties.set(ctx, data[i])
