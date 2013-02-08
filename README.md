@@ -126,5 +126,6 @@ This will link hem to your working copy so you get hem changes as we push it out
  * Inside bokeh/server, execute `$ hem server`.  The hem server will
    serve up coffeescript, compiling them on the fly.
  * For the embedded plotting examples, or the production server, you will
-   need to compile the js yourself, by executing `$ hem build`, 
-   or `$ hem build -d` if you do not want to have the javascript minified
+   need to compile the js yourself, by executing `$ hem build -d`, the `-d` 
+   option will prevent hem from uglifying the js, which breaks the notebook
+   export at the moment.

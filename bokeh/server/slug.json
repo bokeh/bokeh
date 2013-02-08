@@ -6,7 +6,7 @@
              "./static/vendor/backbone/backbone.js", 
              "./static/vendor/buckets/buckets.js",
              "./static/vendor/bokehjs/js/custom.js"],
-    "paths" : ["./static/coffee"],
+    "paths" : ["./static/coffee", "./static/vendor/bokehjs/coffee"],
     "public" : "./static/js",
     "css" : false,
     "specs" : false

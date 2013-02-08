@@ -1,6 +1,6 @@
 utils = require("./serverutils")
-base = require("./bokehjs/base")
-container = require("./bokehjs/container")
+base = require("./base")
+container = require("./container")
 Config = base.Config
 utility = utils.utility
 Promises = utils.Promises

@@ -6,7 +6,7 @@
     var modeltype = "{{ modeltype }}";
     var elementid = "{{ elementid }}";
     var view;
-    base = require("./bokehjs/base")
+    base = require("./base")
     console.log(modelid, modeltype, elementid);
     base.load_models(all_models);
     var model = base.Collections(modeltype).get(modelid)

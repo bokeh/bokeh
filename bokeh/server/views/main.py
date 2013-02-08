@@ -24,6 +24,9 @@ def index(*unused_all, **kwargs):
         static_js = hemlib.slug_libs(app, slug['libs'])
         hemsource = os.path.join(app.static_folder, "coffee")
         hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hemsource = os.path.join(app.static_folder, "vendor",
+                                 "bokehjs", "coffee")
+        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
     else:
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []

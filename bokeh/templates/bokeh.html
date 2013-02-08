@@ -25,7 +25,7 @@
       var modeltype = "{{ modeltype }}";
       
       var elementid = "{{ elementid }}";
-      base = require("./bokehjs/base")
+      base = require("./base")
       base.load_models(all_models);
       model = base.Collections(modeltype).get(modelid);
       view = new model.default_view(
