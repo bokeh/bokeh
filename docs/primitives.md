@@ -51,6 +51,10 @@
  - *fill properties*
  - *line properties*
 
+## ray
+ - x0, y0, angle, length
+ - *line properties*
+
 ## segment
  - x0, y0, x1, y1
  - *line properties*
