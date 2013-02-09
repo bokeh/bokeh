@@ -42,23 +42,27 @@ alltests = {
 
     'prim' : [
         'unittest/primitives/arc_test',
+        'unittest/primitives/bezier_test',
         'unittest/primitives/circle_test',
         'unittest/primitives/oval_test',
         'unittest/primitives/quad_test',
+        'unittest/primitives/quadcurve_test',
         'unittest/primitives/ray_test',
         'unittest/primitives/rect_test',
         'unittest/primitives/segment_test',
         'unittest/primitives/wedge_test',
     ],
 
-    'arc'     : ['unittest/primitives/arc_test'],
-    'circle'  : ['unittest/primitives/circle_test'],
-    'oval'    : ['unittest/primitives/oval_test'],
-    'quad'    : ['unittest/primitives/quad_test'],
-    'rect'    : ['unittest/primitives/ray_test'],
-    'rect'    : ['unittest/primitives/rect_test'],
-    'segment' : ['unittest/primitives/segment_test'],
-    'wedge'   : ['unittest/primitives/wedge_test'],
+    'arc'       : ['unittest/primitives/arc_test'],
+    'bezier'    : ['unittest/primitives/bezier_test'],
+    'circle'    : ['unittest/primitives/circle_test'],
+    'oval'      : ['unittest/primitives/oval_test'],
+    'quad'      : ['unittest/primitives/quad_test'],
+    'quadcurve' : ['unittest/primitives/quadcurve_test'],
+    'rect'      : ['unittest/primitives/ray_test'],
+    'rect'      : ['unittest/primitives/rect_test'],
+    'segment'   : ['unittest/primitives/segment_test'],
+    'wedge'     : ['unittest/primitives/wedge_test'],
 }
 
 if __name__ == "__main__":

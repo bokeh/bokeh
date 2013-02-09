@@ -11,14 +11,16 @@ HasParent = base.HasParent
 class GlyphRendererView extends XYRendererView
   initialize: (options) ->
     super(options)
-    @arc     = primitive.arc
-    @circle  = primitive.circle
-    @oval    = primitive.oval
-    @quad    = primitive.quad
-    @ray     = primitive.ray
-    @rect    = primitive.rect
-    @segment = primitive.segment
-    @wedge   = primitive.wedge
+    @arc       = primitive.arc
+    @bezier    = primitive.bezier
+    @circle    = primitive.circle
+    @oval      = primitive.oval
+    @quad      = primitive.quad
+    @quadcurve = primitive.quadcurve
+    @ray       = primitive.ray
+    @rect      = primitive.rect
+    @segment   = primitive.segment
+    @wedge     = primitive.wedge
 
   render: () ->
     source = @mget_obj('data_source')
