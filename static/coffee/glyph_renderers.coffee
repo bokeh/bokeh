@@ -12,8 +12,10 @@ class GlyphRendererView extends XYRendererView
   initialize: (options) ->
     super(options)
     @arc       = primitive.arc
+    @area      = primitive.area
     @bezier    = primitive.bezier
     @circle    = primitive.circle
+    @line      = primitive.line
     @oval      = primitive.oval
     @quad      = primitive.quad
     @quadcurve = primitive.quadcurve
@@ -101,6 +103,25 @@ class GlyphRendererView extends XYRendererView
     else
       for i in [0..data.length-1]
         sy[i] = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.select(yname, data[i])))
+
+    return [sx, sy]
+
+
+  map_to_screen2 : (x, x_units, y, y_units) ->
+    sx = new Array(x.length)
+    sy = new Array(y.length)
+
+    if x_units == "screen"
+      sx = x
+    else
+      for i in [0..x.length-1]
+        sx[i] = @plot_view.viewstate.xpos(@xmapper.map_screen(x[i]))
+
+    if y_units == "screen"
+      sy = y
+    else
+      for i in [0..y.length-1]
+        sy[i] = @plot_view.viewstate.ypos(@ymapper.map_screen(y[i]))
 
     return [sx, sy]
 

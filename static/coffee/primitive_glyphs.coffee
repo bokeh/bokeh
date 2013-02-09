@@ -1,7 +1,9 @@
 
 arc       = require("./renderers/arc")
+area      = require("./renderers/area")
 bezier    = require("./renderers/bezier")
 circle    = require("./renderers/circle")
+line      = require("./renderers/line")
 oval      = require("./renderers/oval")
 quad      = require("./renderers/quad")
 quadcurve = require("./renderers/quadcurve")
@@ -13,8 +15,10 @@ wedge     = require("./renderers/wedge")
 
 
 exports.arc       = arc.arc
+exports.area      = area.area
 exports.bezier    = bezier.bezier
 exports.circle    = circle.circle
+exports.line      = line.line
 exports.oval      = oval.oval
 exports.quad      = quad.quad
 exports.quadcurve = quadcurve.quadcurve

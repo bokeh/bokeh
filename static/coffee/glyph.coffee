@@ -69,7 +69,7 @@ class properties
 
 class line_properties extends properties
   constructor: (styleprovider, glyphspec) ->
-    attrnames = ["line_color:string", "line_width", "line_alpha", "line_join:string", "line_cap:string", "line_dash:string"]
+    attrnames = ["line_color:string", "line_width", "line_alpha", "line_join:string", "line_cap:string", "line_dash"]
     for attrname in attrnames
       @setattr(styleprovider, glyphspec, attrname)
 
