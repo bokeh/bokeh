@@ -20,6 +20,7 @@ class GlyphRendererView extends XYRendererView
     @ray       = primitive.ray
     @rect      = primitive.rect
     @segment   = primitive.segment
+    @text      = primitive.text
     @wedge     = primitive.wedge
 
   render: () ->
@@ -119,14 +120,22 @@ GlyphRenderer::display_defaults = _.clone(GlyphRenderer::display_defaults)
 _.extend(GlyphRenderer::display_defaults, {
 
   fill: "gray"
-  fill_alpha: 1
+  fill_alpha: 1.0
 
   line_color: 'red'
   line_width: 1
-  line_alpha: 1
+  line_alpha: 1.0
   line_join: "miter"
   line_cap: "butt"
   line_dash: ""
+
+  font: "helvetica"
+  font_size: "12px"
+  font_style: "normal"
+  font_color: "gray"
+  font_alpha: 1.0
+  text_align: "left"
+  text_baseline: "bottom"
 
   radius : 5
   radius:

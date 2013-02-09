@@ -7,8 +7,9 @@ quad      = require("./renderers/quad")
 quadcurve = require("./renderers/quadcurve")
 ray       = require("./renderers/ray")
 rect      = require("./renderers/rect")
-wedge     = require("./renderers/wedge")
 segment   = require("./renderers/segment")
+text      = require("./renderers/text")
+wedge     = require("./renderers/wedge")
 
 
 exports.arc       = arc.arc
@@ -20,5 +21,6 @@ exports.quadcurve = quadcurve.quadcurve
 exports.ray       = ray.ray
 exports.rect      = rect.rect
 exports.segment   = segment.segment
+exports.text      = text.text
 exports.wedge     = wedge.wedge
 

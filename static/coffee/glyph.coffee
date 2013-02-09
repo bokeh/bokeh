@@ -96,6 +96,24 @@ class fill_properties extends properties
 
 
 
+class text_properties extends properties
+  constructor: (styleprovider, glyphspec) ->
+    attrnames = ["font:string", "font_size:string", "font_style:string", "font_color", "font_alpha", "text_align:string", "text_baseline:string"]
+    for attrname in attrnames
+      @setattr(styleprovider, glyphspec, attrname)
+
+  set: (ctx, obj) ->
+    font = @select("font", obj)
+    font_size = @select("font_size", obj)
+    font_style = @select("font_style", obj)
+
+    ctx.font         = font_style + " " + font_size + " " + font
+    ctx.fillStyle    = @select("font_color", obj)
+    ctx.globalAlpha  = @select("text_alpha", obj)
+    ctx.textAlign    = @select("text_align", obj)
+    ctx.textBaseline = @select("text_baseline", obj)
+
+
 
 class Glyph extends properties
   constructor: (styleprovider, glyphspec, attrnames, properties) ->
@@ -107,6 +125,7 @@ class Glyph extends properties
 
 
 exports.Glyph = Glyph
-exports.line_properties = line_properties
 exports.fill_properties = fill_properties
+exports.line_properties = line_properties
+exports.text_properties = text_properties
 
