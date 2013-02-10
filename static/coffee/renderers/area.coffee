@@ -15,8 +15,6 @@ area = (view, glyphspec, data) ->
   glyph = new Glyph(view, glyphspec, ["xs", "ys"], [fill_properties, line_properties])
 
   for pt in data
-    ctx.save()
-
     x = glyph.select("xs", pt)
     y = glyph.select("ys", pt)
 
@@ -53,8 +51,6 @@ area = (view, glyphspec, data) ->
         ctx.lineTo(sx[i], sy[i])
     ctx.closePath()
     ctx.stroke()
-
-    ctx.restore()
 
   ctx.restore()
 

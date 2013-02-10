@@ -149,7 +149,7 @@ _.extend(GlyphRenderer::display_defaults, {
   line_alpha: 1.0
   line_join: "miter"
   line_cap: "butt"
-  line_dash: ""
+  line_dash: []
 
   font: "helvetica"
   font_size: "1em"

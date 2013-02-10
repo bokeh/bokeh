@@ -16,19 +16,36 @@ circle = (view, glyphspec, data) ->
   [sx, sy] = view.map_to_screen(glyph, "x", "y", data)
   radius = view.distance(glyph, data, "x", "radius", "edge")
 
-  for i in [0..sx.length-1]
+  if false # TODO fast path switching
+    glyph.fill_properties.set(ctx, glyph)
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + radius[i])
+        continue
+      ctx.beginPath()
+      ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI*2, false)
+      ctx.fill()
 
-    if isNaN(sx[i] + sy[i] + radius[i])
-      continue
+    glyph.line_properties.set(ctx, glyph)
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + radius[i])
+        continue
+      ctx.beginPath()
+      ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI*2, false)
+      ctx.stroke()
 
-    ctx.beginPath()
-    ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI*2, false)
+  else
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + radius[i])
+        continue
 
-    glyph.fill_properties.set(ctx, data[i])
-    ctx.fill()
+      ctx.beginPath()
+      ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI*2, false)
 
-    glyph.line_properties.set(ctx, data[i])
-    ctx.stroke()
+      glyph.fill_properties.set(ctx, data[i])
+      ctx.fill()
+
+      glyph.line_properties.set(ctx, data[i])
+      ctx.stroke()
 
   ctx.restore()
 

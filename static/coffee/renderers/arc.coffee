@@ -19,18 +19,26 @@ arc = (view, glyphspec, data) ->
   end_angle = (glyph.select("end_angle", obj) for obj in data) # TODO deg/rad
   # TODO direction
 
-  for i in [0..sx.length-1]
+  if false  # TODO fast path switching
+    glyph.line_properties.set(ctx, glyph)
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
+        continue
+      ctx.beginPath()
+      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false) # TODO direction
+      ctx.stroke()
 
-    if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
-      continue
+  else
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
+        continue
 
-    ctx.beginPath()
-    ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false) # TODO direction
+      ctx.beginPath()
+      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false) # TODO direction
 
-    glyph.line_properties.set(ctx, data[i])
-    ctx.stroke()
+      glyph.line_properties.set(ctx, data[i])
+      ctx.stroke()
 
   ctx.restore()
-
 
 exports.arc = arc

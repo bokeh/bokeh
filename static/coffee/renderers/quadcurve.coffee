@@ -17,17 +17,29 @@ quadcurve = (view, glyphspec, data) ->
   [sx1, sy1] = view.map_to_screen(glyph, "x1", "y1", data)
   [scx, scy] = view.map_to_screen(glyph, "cx", "cy", data)
 
-  for i in [0..sx0.length-1]
-
-    if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx[i] + scy[i])
-      continue
-
+  if false # TODO fast path switching
+    glyph.line_properties.set(ctx, glyph)
     ctx.beginPath()
-    ctx.moveTo(sx0[i], sy0[i])
-    ctx.quadraticCurveTo(scx[i], scy[i], sx1[i], sy1[i])
+    for i in [0..sx0.length-1]
+      if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx[i] + scy[i])
+        continue
 
-    glyph.line_properties.set(ctx, data[i])
+      ctx.moveTo(sx0[i], sy0[i])
+      ctx.quadraticCurveTo(scx[i], scy[i], sx1[i], sy1[i])
+
     ctx.stroke()
+
+  else
+    for i in [0..sx0.length-1]
+      if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx[i] + scy[i])
+        continue
+
+      ctx.beginPath()
+      ctx.moveTo(sx0[i], sy0[i])
+      ctx.quadraticCurveTo(scx[i], scy[i], sx1[i], sy1[i])
+
+      glyph.line_properties.set(ctx, data[i])
+      ctx.stroke()
 
   ctx.restore()
 

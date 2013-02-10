@@ -18,17 +18,27 @@ bezier = (view, glyphspec, data) ->
   [scx0, scy0] = view.map_to_screen(glyph, "cx0", "cy0", data)
   [scx1, scy1] = view.map_to_screen(glyph, "cx1", "cy1", data)
 
-  for i in [0..sx0.length-1]
-
-    if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx0[i] + scy0[i] + scx1[i] + scy1[i])
-      continue
-
+  if false # TODO fast path switching
+    glyph.line_properties.set(ctx, glyph)
     ctx.beginPath()
-    ctx.moveTo(sx0[i], sy0[i])
-    ctx.bezierCurveTo(scx0[i], scy0[i], scx1[i], scy1[i], sx1[i], sy1[i])
-
-    glyph.line_properties.set(ctx, data[i])
+    for i in [0..sx0.length-1]
+      if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx0[i] + scy0[i] + scx1[i] + scy1[i])
+        continue
+      ctx.moveTo(sx0[i], sy0[i])
+      ctx.bezierCurveTo(scx0[i], scy0[i], scx1[i], scy1[i], sx1[i], sy1[i])
     ctx.stroke()
+
+  else
+    for i in [0..sx0.length-1]
+      if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx0[i] + scy0[i] + scx1[i] + scy1[i])
+        continue
+
+      ctx.beginPath()
+      ctx.moveTo(sx0[i], sy0[i])
+      ctx.bezierCurveTo(scx0[i], scy0[i], scx1[i], scy1[i], sx1[i], sy1[i])
+
+      glyph.line_properties.set(ctx, data[i])
+      ctx.stroke()
 
   ctx.restore()
 

@@ -19,28 +19,64 @@ oval = (view, glyphspec, data) ->
   sh = view.distance(glyph, data, "y", "height", "center")
   angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad
 
-  for i in [0..sx.length-1]
+  if false # TODO fast path switching
+    glyph.fill_properties.set(ctx, glyph)
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
+        continue
 
-    if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
-      continue
+      ctx.translate(sx[i], sy[i])
+      ctx.rotate(angle[i])
 
-    ctx.translate(sx[i], sy[i])
-    ctx.rotate(angle[i])
+      ctx.beginPath()
+      ctx.moveTo(0, -sh[i]/2)
+      ctx.bezierCurveTo( sw[i]/2, -sh[i]/2,  sw[i]/2,  sh[i]/2, 0,  sh[i]/2);
+      ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2);
+      ctx.closePath()
+      ctx.fill()
 
+      ctx.rotate(-angle[i])
+      ctx.translate(-sx[i], -sy[i])
+
+    glyph.line_properties.set(ctx, glyph)
     ctx.beginPath()
-    ctx.moveTo(0, -sh[i]/2)
-    ctx.bezierCurveTo( sw[i]/2, -sh[i]/2,  sw[i]/2,  sh[i]/2, 0,  sh[i]/2);
-    ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2);
-    ctx.closePath()
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
+        continue
 
-    glyph.fill_properties.set(ctx, data[i])
-    ctx.fill()
+      ctx.translate(sx[i], sy[i])
+      ctx.rotate(angle[i])
 
-    glyph.line_properties.set(ctx, data[i])
+      ctx.moveTo(0, -sh[i]/2)
+      ctx.bezierCurveTo( sw[i]/2, -sh[i]/2,  sw[i]/2,  sh[i]/2, 0,  sh[i]/2);
+      ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2);
+
+      ctx.rotate(-angle[i])
+      ctx.translate(-sx[i], -sy[i])
     ctx.stroke()
 
-    ctx.rotate(-angle[i])
-    ctx.translate(-sx[i], -sy[i])
+  else
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
+        continue
+
+      ctx.translate(sx[i], sy[i])
+      ctx.rotate(angle[i])
+
+      ctx.beginPath()
+      ctx.moveTo(0, -sh[i]/2)
+      ctx.bezierCurveTo( sw[i]/2, -sh[i]/2,  sw[i]/2,  sh[i]/2, 0,  sh[i]/2);
+      ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2);
+      ctx.closePath()
+
+      glyph.fill_properties.set(ctx, data[i])
+      ctx.fill()
+
+      glyph.line_properties.set(ctx, data[i])
+      ctx.stroke()
+
+      ctx.rotate(-angle[i])
+      ctx.translate(-sx[i], -sy[i])
 
   ctx.restore()
 

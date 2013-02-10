@@ -19,21 +19,44 @@ wedge = (view, glyphspec, data) ->
   start_angle = (glyph.select("start_angle", obj) for obj in data) # TODO deg/rad
   end_angle = (glyph.select("end_angle", obj) for obj in data) # TODO deg/rad
 
-  for i in [0..sx.length-1]
+  if false # TODO fast path switching
+    glyph.fill_properties.set(ctx, glyph)
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
+        continue
 
-    if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
-      continue
+      ctx.beginPath()
+      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
+      ctx.lineTo(sx[i], sy[i])
+      ctx.closePath()
+      ctx.fill()
 
-    ctx.beginPath()
-    ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
-    ctx.lineTo(sx[i], sy[i])
-    ctx.closePath()
+    glyph.line_properties.set(ctx, glyph)
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
+        continue
 
-    glyph.fill_properties.set(ctx, data[i])
-    ctx.fill()
+      ctx.beginPath()
+      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
+      ctx.lineTo(sx[i], sy[i])
+      ctx.closePath()
+      ctx.stroke()
 
-    glyph.line_properties.set(ctx, data[i])
-    ctx.stroke()
+  else
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
+        continue
+
+      ctx.beginPath()
+      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
+      ctx.lineTo(sx[i], sy[i])
+      ctx.closePath()
+
+      glyph.fill_properties.set(ctx, data[i])
+      ctx.fill()
+
+      glyph.line_properties.set(ctx, data[i])
+      ctx.stroke()
 
   ctx.restore()
 

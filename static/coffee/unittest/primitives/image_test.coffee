@@ -17,6 +17,7 @@ defaults = {
   x : 'x'
   y : 'y'
   image : 'http://localhost:5000/static/glad.png'
+  angle: 0.3
 }
 
 glyphs = [

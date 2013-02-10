@@ -21,6 +21,8 @@ class properties
           obj.field = default_value
       else if _.isNumber(default_value)
         obj.default = default_value
+      else if _.isArray(default_value)
+        obj.default = default_value
       else if _.isObject(default_value)
         obj = default_value
         if not obj.units?
@@ -39,6 +41,10 @@ class properties
 
     # if the attribute is a number use its value as the default
     else if _.isNumber(glyph_value)
+      obj.default = glyph_value
+
+    # if the attribute is a number use its value as the default
+    else if _.isArray(glyph_value)
       obj.default = glyph_value
 
     # if the attribute is an object, use it as-is, adding defaults and units if needed
@@ -80,6 +86,7 @@ class line_properties extends properties
     ctx.lineJoin    = @select("line_join", obj)
     ctx.lineCap     = @select("line_cap", obj)
     ctx.setLineDash(@select("line_dash", obj))
+    console.log @select("line_dash", obj)
     # dash offset/phase unimplemented
 
 

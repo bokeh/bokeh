@@ -16,19 +16,31 @@ text = (view, glyphspec, data) ->
   angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad
   text = (glyph.select("text", obj) for obj in data)
 
-  for i in [0..sx.length-1]
+  if false # TODO fast path switching
+    glyph.text_properties.set(ctx, glyph)
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i])
+        continue
 
-    if isNaN(sx[i] + sy[i])
-      continue
+      ctx.translate(sx[i], sy[i])
+      ctx.rotate(angle[i])
+      ctx.fillText(text[i], 0, 0)
+      ctx.rotate(-angle[i])
+      ctx.translate(-sx[i], -sy[i])
 
-    ctx.translate(sx[i], sy[i])
-    ctx.rotate(angle[i])
+  else
+    for i in [0..sx.length-1]
+      if isNaN(sx[i] + sy[i])
+        continue
 
-    glyph.text_properties.set(ctx, data[i])
-    ctx.fillText(text[i], 0, 0)
+      ctx.translate(sx[i], sy[i])
+      ctx.rotate(angle[i])
 
-    ctx.rotate(-angle[i])
-    ctx.translate(-sx[i], -sy[i])
+      glyph.text_properties.set(ctx, data[i])
+      ctx.fillText(text[i], 0, 0)
+
+      ctx.rotate(-angle[i])
+      ctx.translate(-sx[i], -sy[i])
 
   ctx.restore()
 
