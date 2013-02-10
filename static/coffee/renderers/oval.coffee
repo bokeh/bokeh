@@ -4,6 +4,7 @@ glyph = require("../glyph")
 
 Glyph = glyph.Glyph
 fill_properties = glyph.fill_properties
+line_properties = glyph.line_properties
 
 
 oval = (view, glyphspec, data) ->
@@ -11,7 +12,7 @@ oval = (view, glyphspec, data) ->
 
   ctx.save()
 
-  glyph = new Glyph(view, glyphspec, ["x", "y", "width", "height", "angle"], [fill_properties])
+  glyph = new Glyph(view, glyphspec, ["x", "y", "width", "height", "angle"], [fill_properties, line_properties])
 
   [sx, sy] = view.map_to_screen(glyph, "x", "y", data)
   sw = view.distance(glyph, data, "x", "width", "center")
@@ -24,19 +25,21 @@ oval = (view, glyphspec, data) ->
       continue
 
     ctx.translate(sx[i], sy[i])
-    ctx.scale(sw[i], sh[i])
     ctx.rotate(angle[i])
 
     ctx.beginPath()
-    ctx.arc(0, 0, 1, 0, 2*Math.PI, false);
+    ctx.moveTo(0, -sh[i]/2)
+    ctx.bezierCurveTo( sw[i]/2, -sh[i]/2,  sw[i]/2,  sh[i]/2, 0,  sh[i]/2);
+    ctx.bezierCurveTo(-sw[i]/2,  sh[i]/2, -sw[i]/2, -sh[i]/2, 0, -sh[i]/2);
+    ctx.closePath()
 
     glyph.fill_properties.set(ctx, data[i])
     ctx.fill()
 
-    # I don't like this inverse scaling method at all, but strangely
-    # a full context save/restore does not work at all.
+    glyph.line_properties.set(ctx, data[i])
+    ctx.stroke()
+
     ctx.rotate(-angle[i])
-    ctx.scale(1/sw[i], 1/sh[i])
     ctx.translate(-sx[i], -sy[i])
 
   ctx.restore()

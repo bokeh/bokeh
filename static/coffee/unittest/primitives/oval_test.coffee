@@ -7,7 +7,7 @@ test('oval_glyph', () ->
   data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {x : 1, y : 5},
-      {x : 2, y : 4},
+      {x : 2, y : 4, angle: 0.2},
       {x : 3, y : 3, fill: "red"},
       {x : 4, y : 2, fill_alpha: 0.3},
       {x : 5, y : 1},
@@ -31,10 +31,10 @@ test('oval_glyph', () ->
     y : 'y'
     width:
       units: "screen"
-      default: 10
+      default: 20
     height:
       units: "screen"
-      default: 14
+      default: 28
     angle: 0
     glyphs : [
         type : 'oval'
