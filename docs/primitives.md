@@ -19,6 +19,11 @@
  - *fill properties*
  - *line properties*
 
+ ## oval
+ - x, y, width, height
+ - *fill properties*
+ - *line properties*
+
 ## arc
  - x, y, start_angle, end_angle, direction ``(clock, anticlock)``
  - *line properties*
