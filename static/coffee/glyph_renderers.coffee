@@ -152,9 +152,9 @@ _.extend(GlyphRenderer::display_defaults, {
   line_dash: ""
 
   font: "helvetica"
-  font_size: "12px"
+  font_size: "1em"
   font_style: "normal"
-  font_color: "gray"
+  font_color: "#444444"
   font_alpha: 1.0
   text_align: "left"
   text_baseline: "bottom"
