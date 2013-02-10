@@ -86,7 +86,6 @@ class line_properties extends properties
     ctx.lineJoin    = @select("line_join", obj)
     ctx.lineCap     = @select("line_cap", obj)
     ctx.setLineDash(@select("line_dash", obj))
-    console.log @select("line_dash", obj)
     # dash offset/phase unimplemented
 
 

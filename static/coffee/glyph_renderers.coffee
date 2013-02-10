@@ -84,31 +84,7 @@ class GlyphRendererView extends XYRendererView
 
     return results
 
-  map_to_screen : (glyph, xname, yname, data) ->
-    sx = new Array(data.length)
-    sy = new Array(data.length)
-
-    x_units = glyph[xname].units
-    y_units = glyph[yname].units
-
-    if x_units == "screen"
-      for i in [0..data.length-1]
-        sx[i] = glyph.select(xname, data[i])
-    else
-      for i in [0..data.length-1]
-        sx[i] = @plot_view.viewstate.xpos(@xmapper.map_screen(glyph.select(xname, data[i])))
-
-    if y_units == "screen"
-      for i in [0..data.length-1]
-        sy[i] = glyph.select(yname, data[i])
-    else
-      for i in [0..data.length-1]
-        sy[i] = @plot_view.viewstate.ypos(@ymapper.map_screen(glyph.select(yname, data[i])))
-
-    return [sx, sy]
-
-
-  map_to_screen2 : (x, x_units, y, y_units) ->
+  map_to_screen : (x, x_units, y, y_units) ->
     sx = new Array(x.length)
     sy = new Array(y.length)
 

@@ -12,7 +12,9 @@ image = (view, glyphspec, data) ->
   ctx.save()
   glyph = new Glyph(view, glyphspec, ["image:string", "x", "y", "angle"], [])
 
-  [sx, sy] = view.map_to_screen(glyph, "x", "y", data)
+  x = (glyph.select("x", obj) for obj in data)
+  y = (glyph.select("y", obj) for obj in data)
+  [sx, sy] = view.map_to_screen(x, x.units, y, y.units)
   image = (glyph.select("image", obj) for obj in data)
   angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad
   text = (glyph.select("text", obj) for obj in data)

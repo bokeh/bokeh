@@ -14,8 +14,13 @@ quad = (view, glyphspec, data) ->
 
   glyph = new Glyph(view, glyphspec, ["left", "right", "bottom", "top"], [fill_properties, line_properties])
 
-  [sx0, sy0] = view.map_to_screen(glyph, "left", "top", data)
-  [sx1, sy1] = view.map_to_screen(glyph, "right", "bottom", data)
+  left = (glyph.select("left", obj) for obj in data)
+  top  = (glyph.select("top", obj) for obj in data)
+  [sx0, sy0] = view.map_to_screen(left, left.units, top, top.units)
+
+  right  = (glyph.select("right", obj) for obj in data)
+  bottom = (glyph.select("bottom", obj) for obj in data)
+  [sx1, sy1] = view.map_to_screen(right, right.units, bottom, bottom.units)
 
   if false # TODO fast path switching
     glyph.fill_properties.set(ctx, glyph)

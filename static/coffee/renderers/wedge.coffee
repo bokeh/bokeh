@@ -14,7 +14,9 @@ wedge = (view, glyphspec, data) ->
 
   glyph = new Glyph(view, glyphspec, ["x", "y", "radius", "start_angle", "end_angle"], [fill_properties, line_properties])
 
-  [sx, sy] = view.map_to_screen(glyph, "x", "y", data)
+  x = (glyph.select("x", obj) for obj in data)
+  y = (glyph.select("y", obj) for obj in data)
+  [sx, sy] = view.map_to_screen(x, x.units, y, y.units)
   radius = view.distance(glyph, data, "x", "radius", "edge")
   start_angle = (glyph.select("start_angle", obj) for obj in data) # TODO deg/rad
   end_angle = (glyph.select("end_angle", obj) for obj in data) # TODO deg/rad

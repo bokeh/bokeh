@@ -13,8 +13,13 @@ segment = (view, glyphspec, data) ->
 
   glyph = new Glyph(view, glyphspec, ["x0", "y0", "x1", "y1"], [line_properties])
 
-  [sx0, sy0] = view.map_to_screen(glyph, "x0", "y0", data)
-  [sx1, sy1] = view.map_to_screen(glyph, "x1", "y1", data)
+  x0 = (glyph.select("x0", obj) for obj in data)
+  y0 = (glyph.select("y0", obj) for obj in data)
+  [sx0, sy0] = view.map_to_screen(x0, x0.units, y0, y0.units)
+
+  x1 = (glyph.select("x1", obj) for obj in data)
+  y1 = (glyph.select("y1", obj) for obj in data)
+  [sx1, sy1] = view.map_to_screen(x1, x1.units, y1, y1.units)
 
   if false # TODO fast patch switching
     glyph.line_properties.set(ctx, glyph)
