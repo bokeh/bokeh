@@ -2,12 +2,12 @@ base = require("../../base")
 Collections = base.Collections
 
 
-test('text_glyph', () ->
+test('image_glyph', () ->
   expect(0)
   data_source = Collections('ObjectArrayDataSource').create(
     data : [
       {x : 1, y : 5},
-      {x : 2, y : 4},
+      {x : 2, y : 4, image : 'http://localhost:5000/static/sad.png'},
       {x : 3, y : 3},
       {x : 4, y : 2},
       {x : 5, y : 1},
@@ -29,10 +29,9 @@ test('text_glyph', () ->
     ydata_range : ydr.ref()
     x : 'x'
     y : 'y'
-    text : 'foo'
-    angle : -0.2
+    image : 'http://localhost:5000/static/glad.png'
     glyphs : [
-        type : "text"
+        type : "image"
       ,
     ]
   )
@@ -56,7 +55,7 @@ test('text_glyph', () ->
     view = new plot_model.default_view(model : plot_model)
     div.append(view.$el)
     view.render()
-  console.log('Test text_glyph')
+  console.log('Test image_glyph')
   _.defer(myrender)
 )
 

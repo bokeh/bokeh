@@ -15,6 +15,7 @@ class GlyphRendererView extends XYRendererView
     @area      = primitive.area
     @bezier    = primitive.bezier
     @circle    = primitive.circle
+    @image     = primitive.image
     @line      = primitive.line
     @oval      = primitive.oval
     @quad      = primitive.quad

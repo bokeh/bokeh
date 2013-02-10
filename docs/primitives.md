@@ -33,6 +33,8 @@
 
 ## image
  - image
+ - image_src ``(url)``
+ - angle
  - dx, dy, dw, dh
  - sx, sy, sw, sh  # in-image crop
 
