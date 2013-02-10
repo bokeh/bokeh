@@ -98,7 +98,7 @@ class fill_properties extends properties
 
 class text_properties extends properties
   constructor: (styleprovider, glyphspec) ->
-    attrnames = ["font:string", "font_size:string", "font_style:string", "font_color", "font_alpha", "text_align:string", "text_baseline:string"]
+    attrnames = ["font:string", "font_size:string", "font_style:string", "font_color:string", "font_alpha", "text_align:string", "text_baseline:string"]
     for attrname in attrnames
       @setattr(styleprovider, glyphspec, attrname)
 
