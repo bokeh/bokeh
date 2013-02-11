@@ -23,6 +23,8 @@ class properties
         obj.default = default_value
       else if _.isArray(default_value)
         obj.default = default_value
+      else if default_value == null
+        obj.default = default_value
       else if _.isObject(default_value)
         obj = default_value
         if not obj.units?
@@ -43,8 +45,12 @@ class properties
     else if _.isNumber(glyph_value)
       obj.default = glyph_value
 
-    # if the attribute is a number use its value as the default
+    # if the attribute is an array use its value as the default
     else if _.isArray(glyph_value)
+      obj.default = glyph_value
+
+    # if the attribute is null use its value as the default
+    else if glyph_value == null
       obj.default = glyph_value
 
     # if the attribute is an object, use it as-is, adding defaults and units if needed
@@ -78,6 +84,7 @@ class line_properties extends properties
     attrnames = ["line_color:string", "line_width", "line_alpha", "line_join:string", "line_cap:string", "line_dash"]
     for attrname in attrnames
       @setattr(styleprovider, glyphspec, attrname)
+    @do_stroke = not (@line_color.default == null)
 
   set: (ctx, obj) ->
     ctx.strokeStyle = @select("line_color", obj)
@@ -95,6 +102,7 @@ class fill_properties extends properties
     attrnames = ["fill:string", "fill_alpha"]
     for attrname in attrnames
       @setattr(styleprovider, glyphspec, attrname)
+    @do_fill = not (@fill.default == null)
 
   set: (ctx, obj) ->
     ctx.fillStyle   = @select("fill", obj)

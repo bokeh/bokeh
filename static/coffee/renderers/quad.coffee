@@ -22,22 +22,27 @@ quad = (view, glyphspec, data) ->
   bottom = (glyph.select("bottom", obj) for obj in data)
   [sx1, sy1] = view.map_to_screen(right, glyph.right.units, bottom, glyph.bottom.units)
 
-  if glyph.fast_path
-    glyph.fill_properties.set(ctx, glyph)
-    ctx.beginPath()
-    for i in [0..sx0.length-1]
-      if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i])
-        continue
-      ctx.rect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
-    ctx.fill()
+  do_fill = glyph.fill_properties.do_fill
+  do_stroke = glyph.line_properties.do_stroke
 
-    glyph.line_properties.set(ctx, glyph)
-    ctx.beginPath()
-    for i in [0..sx0.length-1]
-      if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i])
-        continue
-      ctx.rect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
-    ctx.stroke()
+  if glyph.fast_path
+    if do_fill
+      glyph.fill_properties.set(ctx, glyph)
+      ctx.beginPath()
+      for i in [0..sx0.length-1]
+        if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i])
+          continue
+        ctx.rect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
+      ctx.fill()
+
+    if do_stroke
+      glyph.line_properties.set(ctx, glyph)
+      ctx.beginPath()
+      for i in [0..sx0.length-1]
+        if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i])
+          continue
+        ctx.rect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
+      ctx.stroke()
 
   else
     for i in [0..sx0.length-1]
@@ -47,11 +52,13 @@ quad = (view, glyphspec, data) ->
       ctx.beginPath()
       ctx.rect(sx0[i], sy0[i], sx1[i]-sx0[i], sy1[i]-sy0[i])
 
-      glyph.fill_properties.set(ctx, data[i])
-      ctx.fill()
+      if do_fill
+        glyph.fill_properties.set(ctx, data[i])
+        ctx.fill()
 
-      glyph.line_properties.set(ctx, data[i])
-      ctx.stroke()
+      if do_stroke
+        glyph.line_properties.set(ctx, data[i])
+        ctx.stroke()
 
   ctx.restore()
 

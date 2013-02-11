@@ -21,28 +21,33 @@ wedge = (view, glyphspec, data) ->
   start_angle = (glyph.select("start_angle", obj) for obj in data) # TODO deg/rad
   end_angle = (glyph.select("end_angle", obj) for obj in data) # TODO deg/rad
 
+  do_fill = glyph.fill_properties.do_fill
+  do_stroke = glyph.line_properties.do_stroke
+
   if glyph.fast_path
-    glyph.fill_properties.set(ctx, glyph)
-    for i in [0..sx.length-1]
-      if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
-        continue
+    if do_fill
+      glyph.fill_properties.set(ctx, glyph)
+      for i in [0..sx.length-1]
+        if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
+          continue
 
-      ctx.beginPath()
-      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
-      ctx.lineTo(sx[i], sy[i])
-      ctx.closePath()
-      ctx.fill()
+        ctx.beginPath()
+        ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
+        ctx.lineTo(sx[i], sy[i])
+        ctx.closePath()
+        ctx.fill()
 
-    glyph.line_properties.set(ctx, glyph)
-    for i in [0..sx.length-1]
-      if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
-        continue
+    if do_stroke
+      glyph.line_properties.set(ctx, glyph)
+      for i in [0..sx.length-1]
+        if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
+          continue
 
-      ctx.beginPath()
-      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
-      ctx.lineTo(sx[i], sy[i])
-      ctx.closePath()
-      ctx.stroke()
+        ctx.beginPath()
+        ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
+        ctx.lineTo(sx[i], sy[i])
+        ctx.closePath()
+        ctx.stroke()
 
   else
     for i in [0..sx.length-1]
@@ -54,11 +59,13 @@ wedge = (view, glyphspec, data) ->
       ctx.lineTo(sx[i], sy[i])
       ctx.closePath()
 
-      glyph.fill_properties.set(ctx, data[i])
-      ctx.fill()
+      if do_fill
+        glyph.fill_properties.set(ctx, data[i])
+        ctx.fill()
 
-      glyph.line_properties.set(ctx, data[i])
-      ctx.stroke()
+      if do_stroke
+        glyph.line_properties.set(ctx, data[i])
+        ctx.stroke()
 
   ctx.restore()
 

@@ -21,38 +21,43 @@ rect = (view, glyphspec, data) ->
   sh = view.distance(glyph, data, "y", "height", "center")
   angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad
 
-  if glyph.fast_path
-    glyph.fill_properties.set(ctx, glyph)
-    ctx.beginPath()
-    for i in [0..sx.length-1]
-      if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
-        continue
+  do_fill = glyph.fill_properties.do_fill
+  do_stroke = glyph.line_properties.do_stroke
 
-      if angle[i]
-        ctx.translate(sx[i], sy[i])
-        ctx.rotate(angle[i])
-        ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-        ctx.rotate(-angle[i])
-        ctx.translate(-sx[i], -sy[i])
-      else
-        ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+  if glyph.fast_path
+    if do_fill
+      glyph.fill_properties.set(ctx, glyph)
+      ctx.beginPath()
+      for i in [0..sx.length-1]
+        if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
+          continue
+
+        if angle[i]
+          ctx.translate(sx[i], sy[i])
+          ctx.rotate(angle[i])
+          ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+          ctx.rotate(-angle[i])
+          ctx.translate(-sx[i], -sy[i])
+        else
+          ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
     ctx.fill()
 
-    glyph.line_properties.set(ctx, glyph)
-    ctx.beginPath()
-    for i in [0..sx.length-1]
-      if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
-        continue
+    if do_stroke
+      glyph.line_properties.set(ctx, glyph)
+      ctx.beginPath()
+      for i in [0..sx.length-1]
+        if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
+          continue
 
-      if angle[i]
-        ctx.translate(sx[i], sy[i])
-        ctx.rotate(angle[i])
-        ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-        ctx.rotate(-angle[i])
-        ctx.translate(-sx[i], -sy[i])
-      else
-        ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+        if angle[i]
+          ctx.translate(sx[i], sy[i])
+          ctx.rotate(angle[i])
+          ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+          ctx.rotate(-angle[i])
+          ctx.translate(-sx[i], -sy[i])
+        else
+          ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
       ctx.stroke()
 
@@ -67,11 +72,13 @@ rect = (view, glyphspec, data) ->
       ctx.beginPath()
       ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
 
-      glyph.fill_properties.set(ctx, data[i])
-      ctx.fill()
+      if do_fill
+        glyph.fill_properties.set(ctx, data[i])
+        ctx.fill()
 
-      glyph.line_properties.set(ctx, data[i])
-      ctx.stroke()
+      if do_stroke
+        glyph.line_properties.set(ctx, data[i])
+        ctx.stroke()
 
       ctx.rotate(-angle[i])
       ctx.translate(-sx[i], -sy[i])

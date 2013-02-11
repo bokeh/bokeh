@@ -14,42 +14,47 @@ area = (view, glyphspec, data) ->
 
   glyph = new Glyph(view, glyphspec, ["xs", "ys"], [fill_properties, line_properties])
 
+  do_fill = glyph.fill_properties.do_fill
+  do_stroke = glyph.line_properties.do_stroke
+
   for pt in data
     x = glyph.select("xs", pt)
     y = glyph.select("ys", pt)
     [sx, sy] = view.map_to_screen(x, glyph.xs.units, y, glyph.ys.units)
 
-    glyph.fill_properties.set(ctx, pt)
-    for i in [0..sx.length-1]
-      if i == 0
-        ctx.beginPath()
-        ctx.moveTo(sx[i], sy[i])
-        continue
-      else if isNaN(sx[i]) or isNaN(sy[i])
-        ctx.closePath()
-        ctx.fill()
-        ctx.beginPath()
-        continue
-      else
-        ctx.lineTo(sx[i], sy[i])
-    ctx.closePath()
-    ctx.fill()
+    if do_fill
+      glyph.fill_properties.set(ctx, pt)
+      for i in [0..sx.length-1]
+        if i == 0
+          ctx.beginPath()
+          ctx.moveTo(sx[i], sy[i])
+          continue
+        else if isNaN(sx[i]) or isNaN(sy[i])
+          ctx.closePath()
+          ctx.fill()
+          ctx.beginPath()
+          continue
+        else
+          ctx.lineTo(sx[i], sy[i])
+      ctx.closePath()
+      ctx.fill()
 
-    glyph.line_properties.set(ctx, pt)
-    for i in [0..sx.length-1]
-      if i == 0
-        ctx.beginPath()
-        ctx.moveTo(sx[i], sy[i])
-        continue
-      else if isNaN(sx[i]) or isNaN(sy[i])
-        ctx.closePath()
-        ctx.stroke()
-        ctx.beginPath()
-        continue
-      else
-        ctx.lineTo(sx[i], sy[i])
-    ctx.closePath()
-    ctx.stroke()
+    if do_stroke
+      glyph.line_properties.set(ctx, pt)
+      for i in [0..sx.length-1]
+        if i == 0
+          ctx.beginPath()
+          ctx.moveTo(sx[i], sy[i])
+          continue
+        else if isNaN(sx[i]) or isNaN(sy[i])
+          ctx.closePath()
+          ctx.stroke()
+          ctx.beginPath()
+          continue
+        else
+          ctx.lineTo(sx[i], sy[i])
+      ctx.closePath()
+      ctx.stroke()
 
   ctx.restore()
 
