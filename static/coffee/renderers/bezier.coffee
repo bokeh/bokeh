@@ -15,19 +15,19 @@ bezier = (view, glyphspec, data) ->
 
   x0 = (glyph.select("x0", obj) for obj in data)
   y0 = (glyph.select("y0", obj) for obj in data)
-  [sx0, sy0] = view.map_to_screen(x0, x0.units, y0, y0.units)
+  [sx0, sy0] = view.map_to_screen(x0, glyph.x0.units, y0, glyph.y0.units)
 
   x1 = (glyph.select("x1", obj) for obj in data)
   y1 = (glyph.select("y1", obj) for obj in data)
-  [sx1, sy1] = view.map_to_screen(x1, x1.units, y1, y1.units)
+  [sx1, sy1] = view.map_to_screen(x1, glyph.x1.units, y1, glyph.y1.units)
 
   cx0 = (glyph.select("cx0", obj) for obj in data)
   cy0 = (glyph.select("cy0", obj) for obj in data)
-  [scx0, scy0] = view.map_to_screen(cx0, cx0.units, cy0, cy0.units)
+  [scx0, scy0] = view.map_to_screen(cx0, glyph.cx0.units, cy0, glyph.cy0.units)
 
   cx1 = (glyph.select("cx1", obj) for obj in data)
   cy1 = (glyph.select("cy1", obj) for obj in data)
-  [scx1, scy1] = view.map_to_screen(cx1, cx1.units, cy1, cy1.units)
+  [scx1, scy1] = view.map_to_screen(cx1, glyph.cx1.units, cy1, glyph.cy1.units)
 
   if glyph.fast_path
     glyph.line_properties.set(ctx, glyph)

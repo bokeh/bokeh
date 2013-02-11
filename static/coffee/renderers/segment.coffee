@@ -15,11 +15,11 @@ segment = (view, glyphspec, data) ->
 
   x0 = (glyph.select("x0", obj) for obj in data)
   y0 = (glyph.select("y0", obj) for obj in data)
-  [sx0, sy0] = view.map_to_screen(x0, x0.units, y0, y0.units)
+  [sx0, sy0] = view.map_to_screen(x0, glyph.x0.units, y0, glyph.y0.units)
 
   x1 = (glyph.select("x1", obj) for obj in data)
   y1 = (glyph.select("y1", obj) for obj in data)
-  [sx1, sy1] = view.map_to_screen(x1, x1.units, y1, y1.units)
+  [sx1, sy1] = view.map_to_screen(x1, glyph.x1.units, y1, glyph.y1.units)
 
   if glyph.fast_path
     glyph.line_properties.set(ctx, glyph)

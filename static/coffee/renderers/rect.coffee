@@ -16,7 +16,7 @@ rect = (view, glyphspec, data) ->
 
   x = (glyph.select("x", obj) for obj in data)
   y = (glyph.select("y", obj) for obj in data)
-  [sx, sy] = view.map_to_screen(x, x.units, y, y.units)
+  [sx, sy] = view.map_to_screen(x, glyph.x.units, y, glyph.y.units)
   sw = view.distance(glyph, data, "x", "width", "center")
   sh = view.distance(glyph, data, "y", "height", "center")
   angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad
@@ -30,7 +30,7 @@ rect = (view, glyphspec, data) ->
 
       ctx.translate(sx[i], sy[i])
       ctx.rotate(angle[i])
-      ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i]) # TODO rect is top left
+      ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
       ctx.rotate(-angle[i])
       ctx.translate(-sx[i], -sy[i])
 
@@ -44,11 +44,11 @@ rect = (view, glyphspec, data) ->
 
       ctx.translate(sx[i], sy[i])
       ctx.rotate(angle[i])
-      ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i]) # TODO rect is top left
+      ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
       ctx.rotate(-angle[i])
       ctx.translate(-sx[i], -sy[i])
 
-    ctx.stroke()
+      ctx.stroke()
 
   else
     for i in [0..sx.length-1]
@@ -59,7 +59,7 @@ rect = (view, glyphspec, data) ->
       ctx.rotate(angle[i])
 
       ctx.beginPath()
-      ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i]) # TODO rect is top left
+      ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
 
       glyph.fill_properties.set(ctx, data[i])
       ctx.fill()

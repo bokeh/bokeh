@@ -18,7 +18,7 @@ ray = (view, glyphspec, data) ->
 
   x = (glyph.select("x", obj) for obj in data)
   y = (glyph.select("y", obj) for obj in data)
-  [sx, sy] = view.map_to_screen(x, x.units, y, y.units)
+  [sx, sy] = view.map_to_screen(x, glyph.x.units, y, glyph.y.units)
   angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad
   length = (glyph.select("length", obj) for obj in data)
   for i in [0..sx.length-1]

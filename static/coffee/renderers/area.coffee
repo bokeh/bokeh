@@ -17,7 +17,7 @@ area = (view, glyphspec, data) ->
   for pt in data
     x = glyph.select("xs", pt)
     y = glyph.select("ys", pt)
-    [sx, sy] = view.map_to_screen(x, x.units, y, y.units)
+    [sx, sy] = view.map_to_screen(x, glyph.xs.units, y, glyph.ys.units)
 
     glyph.fill_properties.set(ctx, pt)
     for i in [0..sx.length-1]
