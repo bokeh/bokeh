@@ -39,6 +39,8 @@ alltests = {
 
     'tick' : ['unittest/tick_test'],
 
+    'perf' : ['unittest/perf_test'],
+
     'prim' : [
         'unittest/primitives/arc_test',
         'unittest/primitives/area_test',

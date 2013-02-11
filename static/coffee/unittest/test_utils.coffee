@@ -2,9 +2,20 @@ base = require("../../base")
 Collections = base.Collections
 
 
-make_glyph_test = (test_name, data_source, defaults, glyphs, xrange, yrange) ->
+make_glyph_test = (test_name, data_source, defaults, glyphs, xrange, yrange, tools=false, dims=[200, 200]) ->
   return () ->
     expect(0)
+    plot_tools = []
+    if tools
+      pantool = Collections('PanTool').create(
+        dataranges : [xrange.ref(), yrange.ref()]
+        dimensions : ['width', 'height']
+      )
+      zoomtool = Collections('ZoomTool').create(
+        dataranges : [xrange.ref(), yrange.ref()]
+        dimensions : ['width', 'height']
+      )
+      plot_tools = [pantool, zoomtool]
     glyph_renderer = Collections('GlyphRenderer').create(
       data_source : data_source.ref()
       xdata_range : xrange.ref()
@@ -26,6 +37,9 @@ make_glyph_test = (test_name, data_source, defaults, glyphs, xrange, yrange) ->
     plot_model.set(
       renderers : [glyph_renderer.ref()],
       axes : [xaxis.ref(), yaxis.ref()]
+      tools : plot_tools
+      width : dims[0]
+      height : dims[1]
     )
     div = $('<div></div>')
     $('body').append(div)
