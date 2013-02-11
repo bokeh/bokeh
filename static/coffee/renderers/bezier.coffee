@@ -29,7 +29,7 @@ bezier = (view, glyphspec, data) ->
   cy1 = (glyph.select("cy1", obj) for obj in data)
   [scx1, scy1] = view.map_to_screen(cx1, cx1.units, cy1, cy1.units)
 
-  if false # TODO fast path switching
+  if glyph.fast_path
     glyph.line_properties.set(ctx, glyph)
     ctx.beginPath()
     for i in [0..sx0.length-1]

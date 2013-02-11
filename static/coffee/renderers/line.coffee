@@ -13,7 +13,7 @@ line = (view, glyphspec, data) ->
 
   glyph = new Glyph(view, glyphspec, ["xs", "ys"], [line_properties])
 
-  if false # TODO fast path switching
+  if glyph.fast_path
     glyph.line_properties.set(ctx, glyph)
     for pt in data
       x = glyph.select("xs", pt)

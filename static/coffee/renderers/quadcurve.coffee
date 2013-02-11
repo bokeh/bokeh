@@ -25,7 +25,7 @@ quadcurve = (view, glyphspec, data) ->
   cy = (glyph.select("cy", obj) for obj in data)
   [scx, scy] = view.map_to_screen(cx, cx.units, cy, cy.units)
 
-  if false # TODO fast path switching
+  if glyph.fast_path
     glyph.line_properties.set(ctx, glyph)
     ctx.beginPath()
     for i in [0..sx0.length-1]

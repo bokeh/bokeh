@@ -18,7 +18,7 @@ circle = (view, glyphspec, data) ->
   [sx, sy] = view.map_to_screen(x, x.units, y, y.units)
   radius = view.distance(glyph, data, "x", "radius", "edge")
 
-  if false # TODO fast path switching
+  if glyph.fast_path
     glyph.fill_properties.set(ctx, glyph)
     for i in [0..sx.length-1]
       if isNaN(sx[i] + sy[i] + radius[i])

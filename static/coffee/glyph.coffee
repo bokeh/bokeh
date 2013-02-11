@@ -129,6 +129,11 @@ class Glyph extends properties
     for prop in properties
       @[prop.name] = new prop(styleprovider, glyphspec)
 
+    @fast_path = false
+    if ('fast_path' of glyphspec)
+      @fast_path = glyphspec.fast_path
+
+
 
 exports.Glyph = Glyph
 exports.fill_properties = fill_properties

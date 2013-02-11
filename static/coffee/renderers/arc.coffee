@@ -26,7 +26,7 @@ arc = (view, glyphspec, data) ->
     else if dir == "anticlock" then direction[i] = true
     else direction[i] = NaN
 
-  if false  # TODO fast path switching
+  if glyph.fast_path
     glyph.line_properties.set(ctx, glyph)
     for i in [0..sx.length-1]
       if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])

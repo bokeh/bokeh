@@ -22,7 +22,7 @@ quad = (view, glyphspec, data) ->
   bottom = (glyph.select("bottom", obj) for obj in data)
   [sx1, sy1] = view.map_to_screen(right, right.units, bottom, bottom.units)
 
-  if false # TODO fast path switching
+  if glyph.fast_path
     glyph.fill_properties.set(ctx, glyph)
     ctx.beginPath()
     for i in [0..sx0.length-1]

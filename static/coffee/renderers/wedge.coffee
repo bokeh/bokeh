@@ -21,7 +21,7 @@ wedge = (view, glyphspec, data) ->
   start_angle = (glyph.select("start_angle", obj) for obj in data) # TODO deg/rad
   end_angle = (glyph.select("end_angle", obj) for obj in data) # TODO deg/rad
 
-  if false # TODO fast path switching
+  if glyph.fast_path
     glyph.fill_properties.set(ctx, glyph)
     for i in [0..sx.length-1]
       if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])

@@ -18,7 +18,7 @@ text = (view, glyphspec, data) ->
   angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad
   text = (glyph.select("text", obj) for obj in data)
 
-  if false # TODO fast path switching
+  if glyph.fast_path
     glyph.text_properties.set(ctx, glyph)
     for i in [0..sx.length-1]
       if isNaN(sx[i] + sy[i])

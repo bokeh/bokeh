@@ -21,7 +21,7 @@ segment = (view, glyphspec, data) ->
   y1 = (glyph.select("y1", obj) for obj in data)
   [sx1, sy1] = view.map_to_screen(x1, x1.units, y1, y1.units)
 
-  if false # TODO fast patch switching
+  if glyph.fast_path
     glyph.line_properties.set(ctx, glyph)
     ctx.beginPath()
     for i in [0..sx0.length-1]
