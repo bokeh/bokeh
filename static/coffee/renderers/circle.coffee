@@ -24,19 +24,19 @@ circle = (view, glyphspec, data) ->
   if glyph.fast_path
     if do_fill
       glyph.fill_properties.set(ctx, glyph)
-      ctx.beginPath()
       for i in [0..sx.length-1]
         if isNaN(sx[i] + sy[i] + radius[i])
           continue
+        ctx.beginPath()
         ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI*2, false)
-      ctx.fill()
+        ctx.fill()
 
     if do_stroke
       glyph.line_properties.set(ctx, glyph)
       for i in [0..sx.length-1]
-        ctx.beginPath()
         if isNaN(sx[i] + sy[i] + radius[i])
           continue
+        ctx.beginPath()
         ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI*2, false)
         ctx.stroke()
 
