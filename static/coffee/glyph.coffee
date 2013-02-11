@@ -80,70 +80,87 @@ class properties
 
 
 class line_properties extends properties
-  constructor: (styleprovider, glyphspec) ->
+  constructor: (styleprovider, glyphspec, prefix="") ->
+    @line_color_name = "#{ prefix }line_color"
+    @line_width_name = "#{ prefix }line_width"
+    @line_alpha_name = "#{ prefix }line_alpha"
+    @line_join_name  = "#{ prefix }line_join"
+    @line_cap_name   = "#{ prefix }line_cap"
+    @line_dash_name  = "#{ prefix }line_dash"
+
     attrnames = [
-      "line_color:string",
-      "line_width",
-      "line_alpha",
-      "line_join:string",
-      "line_cap:string",
-      "line_dash"
+      @line_color_name + ":string",
+      @line_width_name,
+      @line_alpha_name,
+      @line_join_name + ":string",
+      @line_cap_name + ":string",
+      @line_dash_name
     ]
     for attrname in attrnames
       @setattr(styleprovider, glyphspec, attrname)
     @do_stroke = not (@line_color.default == null)
 
   set: (ctx, obj) ->
-    ctx.strokeStyle = @select("line_color", obj)
-    ctx.globalAlpha = @select("line_alpha", obj)
-    ctx.lineWidth   = @select("line_width", obj)
-    ctx.lineJoin    = @select("line_join", obj)
-    ctx.lineCap     = @select("line_cap", obj)
-    ctx.setLineDash(@select("line_dash", obj))
+    ctx.strokeStyle = @select(@line_color_name, obj)
+    ctx.globalAlpha = @select(@line_alpha_name, obj)
+    ctx.lineWidth   = @select(@line_width_name, obj)
+    ctx.lineJoin    = @select(@line_join_name,  obj)
+    ctx.lineCap     = @select(@line_cap_name,   obj)
+    ctx.setLineDash(@select(@line_dash_name, obj))
     # dash offset/phase unimplemented
 
 
 
 class fill_properties extends properties
-  constructor: (styleprovider, glyphspec) ->
+  constructor: (styleprovider, glyphspec, prefix="") ->
+    @fill_name       = "#{ prefix }fill"
+    @fill_alpha_name = "#{ prefix }fill_alpha"
+
     attrnames = [
-      "fill:string",
-      "fill_alpha"
+      @fill_name + ":string",
+      @fill_alpha_name
     ]
     for attrname in attrnames
       @setattr(styleprovider, glyphspec, attrname)
     @do_fill = not (@fill.default == null)
 
   set: (ctx, obj) ->
-    ctx.fillStyle   = @select("fill", obj)
-    ctx.globalAlpha = @select("fill_alpha", obj)
+    ctx.fillStyle   = @select(@fill_name,       obj)
+    ctx.globalAlpha = @select(@fill_alpha_name, obj)
 
 
 
 class text_properties extends properties
-  constructor: (styleprovider, glyphspec) ->
+  constructor: (styleprovider, glyphspec, prefix="") ->
+    @text_font_name       = "#{ prefix }text_font:string"
+    @text_font_size_name  = "#{ prefix }text_font_size:string"
+    @text_font_style_name = "#{ prefix }text_font_style:string"
+    @text_font_color_name = "#{ prefix }text_font_color:string"
+    @text_font_alpha_name = "#{ prefix }text_font_alpha"
+    @text_align_name      = "#{ prefix }text_align:string"
+    @text_baseline_name   = "#{ prefix }text_baseline:string"
     attrnames = [
-      "text_font:string",
-      "text_font_size:string",
-      "text_font_style:string",
-      "text_font_color:string",
-      "text_font_alpha",
-      "text_align:string",
-      "text_baseline:string"
+      @text_font_name + ":string",
+      @text_font_size_name + ":string",
+      @text_font_style_name + ":string",
+      @text_font_color_name + ":string",
+      @text_font_alpha_name,
+      @text_align_name + ":string",
+      @text_baseline_name + ":string"
     ]
     for attrname in attrnames
       @setattr(styleprovider, glyphspec, attrname)
 
   set: (ctx, obj) ->
-    font = @select("text_font", obj)
-    font_size = @select("text_font_size", obj)
-    font_style = @select("text_font_style", obj)
+    font       = @select(@text_font_name,       obj)
+    font_size  = @select(@text_font_size_name,  obj)
+    font_style = @select(@text_font_style_name, obj)
 
     ctx.font         = font_style + " " + font_size + " " + font
-    ctx.fillStyle    = @select("text_font_color", obj)
-    ctx.globalAlpha  = @select("text_alpha", obj)
-    ctx.textAlign    = @select("text_align", obj)
-    ctx.textBaseline = @select("text_baseline", obj)
+    ctx.fillStyle    = @select(@text_font_color_name, obj)
+    ctx.globalAlpha  = @select(@text_alpha_name,      obj)
+    ctx.textAlign    = @select(@text_align_name,      obj)
+    ctx.textBaseline = @select(@text_baseline_name,   obj)
 
 
 
