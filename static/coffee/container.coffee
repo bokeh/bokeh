@@ -307,6 +307,7 @@ class PlotView extends ContinuumView
     @render_init()
     @render()
     @build_subviews()
+    @throttled()
     return this
 
   render_init : () ->
