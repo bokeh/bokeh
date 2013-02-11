@@ -81,7 +81,14 @@ class properties
 
 class line_properties extends properties
   constructor: (styleprovider, glyphspec) ->
-    attrnames = ["line_color:string", "line_width", "line_alpha", "line_join:string", "line_cap:string", "line_dash"]
+    attrnames = [
+      "line_color:string",
+      "line_width",
+      "line_alpha",
+      "line_join:string",
+      "line_cap:string",
+      "line_dash"
+    ]
     for attrname in attrnames
       @setattr(styleprovider, glyphspec, attrname)
     @do_stroke = not (@line_color.default == null)
@@ -99,7 +106,10 @@ class line_properties extends properties
 
 class fill_properties extends properties
   constructor: (styleprovider, glyphspec) ->
-    attrnames = ["fill:string", "fill_alpha"]
+    attrnames = [
+      "fill:string",
+      "fill_alpha"
+    ]
     for attrname in attrnames
       @setattr(styleprovider, glyphspec, attrname)
     @do_fill = not (@fill.default == null)
@@ -112,17 +122,25 @@ class fill_properties extends properties
 
 class text_properties extends properties
   constructor: (styleprovider, glyphspec) ->
-    attrnames = ["font:string", "font_size:string", "font_style:string", "font_color:string", "font_alpha", "text_align:string", "text_baseline:string"]
+    attrnames = [
+      "text_font:string",
+      "text_font_size:string",
+      "text_font_style:string",
+      "text_font_color:string",
+      "text_font_alpha",
+      "text_align:string",
+      "text_baseline:string"
+    ]
     for attrname in attrnames
       @setattr(styleprovider, glyphspec, attrname)
 
   set: (ctx, obj) ->
-    font = @select("font", obj)
-    font_size = @select("font_size", obj)
-    font_style = @select("font_style", obj)
+    font = @select("text_font", obj)
+    font_size = @select("text_font_size", obj)
+    font_style = @select("text_font_style", obj)
 
     ctx.font         = font_style + " " + font_size + " " + font
-    ctx.fillStyle    = @select("font_color", obj)
+    ctx.fillStyle    = @select("text_font_color", obj)
     ctx.globalAlpha  = @select("text_alpha", obj)
     ctx.textAlign    = @select("text_align", obj)
     ctx.textBaseline = @select("text_baseline", obj)
@@ -137,6 +155,7 @@ class Glyph extends properties
     for prop in properties
       @[prop.name] = new prop(styleprovider, glyphspec)
 
+    # TODO auto detect fast path cases
     @fast_path = false
     if ('fast_path' of glyphspec)
       @fast_path = glyphspec.fast_path

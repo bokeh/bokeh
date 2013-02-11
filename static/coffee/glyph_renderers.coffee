@@ -127,11 +127,11 @@ _.extend(GlyphRenderer::display_defaults, {
   line_cap: "butt"
   line_dash: []
 
-  font: "helvetica"
-  font_size: "1em"
-  font_style: "normal"
-  font_color: "#444444"
-  font_alpha: 1.0
+  text_font: "helvetica"
+  text_font_size: "1em"
+  text_font_style: "normal"
+  text_font_color: "#444444"
+  text_font_alpha: 1.0
   text_align: "left"
   text_baseline: "bottom"
 
