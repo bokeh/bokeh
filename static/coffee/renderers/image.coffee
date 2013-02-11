@@ -27,11 +27,14 @@ image = (view, glyphspec, data) ->
     img = new Image()
     img.onload = do (img, sx, sy, i) ->
       return () ->
-        ctx.translate(sx[i], sy[i])
-        ctx.rotate(angle[i])
-        ctx.drawImage(img, 0, 0);
-        ctx.rotate(-angle[i])
-        ctx.translate(-sx[i], -sy[i])
+        if angle[i]
+          ctx.translate(sx[i], sy[i])
+          ctx.rotate(angle[i])
+          ctx.drawImage(img, 0, 0);
+          ctx.rotate(-angle[i])
+          ctx.translate(-sx[i], -sy[i])
+        else
+          ctx.drawImage(img, sx[i], sy[i]);
     img.src = image[i]
 
   ctx.restore()

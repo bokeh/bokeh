@@ -24,11 +24,14 @@ text = (view, glyphspec, data) ->
       if isNaN(sx[i] + sy[i])
         continue
 
-      ctx.translate(sx[i], sy[i])
-      ctx.rotate(angle[i])
-      ctx.fillText(text[i], 0, 0)
-      ctx.rotate(-angle[i])
-      ctx.translate(-sx[i], -sy[i])
+      if angle[i]
+        ctx.translate(sx[i], sy[i])
+        ctx.rotate(angle[i])
+        ctx.fillText(text[i], 0, 0)
+        ctx.rotate(-angle[i])
+        ctx.translate(-sx[i], -sy[i])
+      else
+        ctx.fillText(text[i], sx[i], sy[i])
 
   else
     for i in [0..sx.length-1]

@@ -28,11 +28,14 @@ rect = (view, glyphspec, data) ->
       if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
         continue
 
-      ctx.translate(sx[i], sy[i])
-      ctx.rotate(angle[i])
-      ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-      ctx.rotate(-angle[i])
-      ctx.translate(-sx[i], -sy[i])
+      if angle[i]
+        ctx.translate(sx[i], sy[i])
+        ctx.rotate(angle[i])
+        ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+        ctx.rotate(-angle[i])
+        ctx.translate(-sx[i], -sy[i])
+      else
+        ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
     ctx.fill()
 
@@ -42,11 +45,14 @@ rect = (view, glyphspec, data) ->
       if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + angle[i])
         continue
 
-      ctx.translate(sx[i], sy[i])
-      ctx.rotate(angle[i])
-      ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
-      ctx.rotate(-angle[i])
-      ctx.translate(-sx[i], -sy[i])
+      if angle[i]
+        ctx.translate(sx[i], sy[i])
+        ctx.rotate(angle[i])
+        ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+        ctx.rotate(-angle[i])
+        ctx.translate(-sx[i], -sy[i])
+      else
+        ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
       ctx.stroke()
 
