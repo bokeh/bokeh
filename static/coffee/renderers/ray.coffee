@@ -33,9 +33,8 @@ ray = (view, glyphspec, data) ->
 
       ctx.translate(sx[i], sy[i])
       ctx.rotate(angle[i])
-      ctx.moveTo(0,0)
-      ctx.lineTo(0, -length[i])  # TODO handle y flip elsewhere?
-                                 # TODO handle length in data units
+      ctx.moveTo(0,  0)
+      ctx.lineTo(length[i], 0) # TODO handle length in data units?
       ctx.rotate(-angle[i])
       ctx.translate(-sx[i], -sy[i])
 
@@ -50,9 +49,8 @@ ray = (view, glyphspec, data) ->
       ctx.rotate(angle[i])
 
       ctx.beginPath()
-      ctx.moveTo(0,0)
-      ctx.lineTo(0, -length[i])  # TODO handle y flip elsewhere?
-                                 # TODO handle length in data units
+      ctx.moveTo(0, 0)
+      ctx.lineTo(length[i], 0) # TODO handle length in data units?
 
       glyph.line_properties.set(ctx, data[i])
       ctx.stroke()
