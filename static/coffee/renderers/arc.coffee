@@ -11,7 +11,7 @@ arc = (view, glyphspec, data) ->
 
   ctx.save()
 
-  glyph = new Glyph(view, glyphspec, ["x", "y", "radius", "start_angle", "end_angle", "direction"], [line_properties])
+  glyph = new Glyph(view, glyphspec, ["x", "y", "radius", "start_angle", "end_angle", "direction:string"], [line_properties])
 
   x = (glyph.select("x", obj) for obj in data)
   y = (glyph.select("y", obj) for obj in data)
@@ -19,7 +19,12 @@ arc = (view, glyphspec, data) ->
   radius = view.distance(glyph, data, "x", "radius", "edge")
   start_angle = (glyph.select("start_angle", obj) for obj in data) # TODO deg/rad
   end_angle = (glyph.select("end_angle", obj) for obj in data) # TODO deg/rad
-  # TODO direction
+  direction = new Array(sx.length)
+  for i in [0..sx.length-1]
+    dir = glyph.select("direction", data[i])
+    if dir == "clock" then direction[i] = false
+    else if dir == "anticlock" then direction[i] = true
+    else direction[i] = NaN
 
   if false  # TODO fast path switching
     glyph.line_properties.set(ctx, glyph)
@@ -27,7 +32,7 @@ arc = (view, glyphspec, data) ->
       if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
         continue
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false) # TODO direction
+      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], direction[i])
       ctx.stroke()
 
   else
@@ -36,7 +41,7 @@ arc = (view, glyphspec, data) ->
         continue
 
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false) # TODO direction
+      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], direction[i])
 
       glyph.line_properties.set(ctx, data[i])
       ctx.stroke()
