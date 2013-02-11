@@ -7,7 +7,7 @@ x = ( (x/30) for x in _.range(600) )
 y = (Math.sin(y) for y in x)
 widths = (0.01 for i in x)
 heights = (0.2 for i in x)
-colors = ("rgb(#{ Math.floor(155+100*val) }, #{ Math.floor(180-50*val) }, #{ Math.floor(100+50*val) })" for val in y)
+colors = ("rgb(#{ Math.floor(155+100*val) }, #{ Math.floor(100+50*val) }, #{ Math.floor(120-50*val) })" for val in y)
 source = Collections('ColumnDataSource').create(
   data:
     x: x
