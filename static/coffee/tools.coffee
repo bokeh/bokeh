@@ -383,7 +383,7 @@ class ZoomToolView extends ToolView
   _zoom : (e) ->
     delta = e.delta
     screenX = e.bokehX
-    scrrenY = e.bokehY
+    screenY = e.bokehY
     [x, y] = @mouse_coords(e, screenX, screenY)
     speed = @mget('speed')
     factor = - speed  * (delta * 50)
