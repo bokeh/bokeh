@@ -1,6 +1,37 @@
 base = require("../../base")
 Collections = base.Collections
 
+class Rand
+  # if created without a seed, uses current time as seed
+  constructor: (@seed) ->
+    # Knuth and Lewis' improvements to Park and Miller's LCPRNG
+    @multiplier = 1664525
+    @modulo = 4294967296 # 2**32-1;
+    @offset = 1013904223
+    unless @seed? && 0 <= seed < @modulo
+      @seed = (new Date().valueOf() * new Date().getMilliseconds()) % @modulo
+
+  # sets new seed value
+  seed: (seed) ->
+    @seed = seed
+
+  # return a random integer 0 <= n < @modulo
+  randn: ->
+    # new_seed = (a * seed + c) % m
+    @seed = (@multiplier*@seed + @offset) % @modulo
+
+ # return a random float 0 <= f < 1.0
+  randf: ->
+    this.randn() / @modulo
+
+  # return a random int 0 <= f < n
+  rand: (n) ->
+    Math.floor(this.randf() * n)
+
+  # return a random int min <= f < max
+  rand2: (min, max) ->
+    min + this.rand(max-min)
+
 
 make_glyph_test = (test_name, data_source, defaults, glyphs, xrange, yrange, tools=false, dims=[200, 200]) ->
   return () ->
@@ -52,3 +83,4 @@ make_glyph_test = (test_name, data_source, defaults, glyphs, xrange, yrange, too
 
 
 exports.make_glyph_test = make_glyph_test
+exports.Rand = Rand
