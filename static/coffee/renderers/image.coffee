@@ -3,7 +3,6 @@ glyph = require("../glyph")
 
 
 Glyph = glyph.Glyph
-text_properties = glyph.text_properties
 
 
 image = (view, glyphspec, data) ->
@@ -17,7 +16,6 @@ image = (view, glyphspec, data) ->
   [sx, sy] = view.map_to_screen(x, glyph.x.units, y, glyph.y.units)
   image = (glyph.select("image", obj) for obj in data)
   angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad
-  text = (glyph.select("text", obj) for obj in data)
 
   # fast and slow paths are the same
   for i in [0..sx.length-1]
