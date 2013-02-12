@@ -17,12 +17,10 @@ data_source = Collections('ObjectArrayDataSource').create(
 defaults = {
   x : 'x'
   y : 'y'
-  width:
-    units: "screen"
-    default: 20
-  height:
-    units: "screen"
-    default: 28
+  width: 20
+  width_units: "screen"
+  height: 28
+  height_units: "screen"
   angle: 0
 }
 

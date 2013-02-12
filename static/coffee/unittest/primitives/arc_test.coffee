@@ -14,9 +14,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 )
 
 defaults = {
-  radius:
-    units: "screen"
-    default: 10
+  radius: 10
   x : 'x'
   y : 'y'
   start_angle: 0.8
@@ -26,6 +24,8 @@ defaults = {
 
 glyphs = [
     type : 'arc'
+    line_color:
+      field: 'line_color'
   ,
 ]
 

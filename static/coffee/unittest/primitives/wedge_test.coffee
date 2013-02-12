@@ -14,9 +14,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 )
 
 defaults = {
-  radius:
-    units: "screen"
-    default: 10
+  radius: 10
   x : 'x'
   y : 'y'
   start_angle: 0.1

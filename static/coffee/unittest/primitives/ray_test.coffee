@@ -16,12 +16,8 @@ data_source = Collections('ObjectArrayDataSource').create(
 defaults = {
   x : 'x'
   y : 'y'
-  angle :
-    field: 'angle'
-    units: 'rad'
-  length :
-    field : 'length'
-    units : 'screen'
+  angle : 'angle'
+  length : 'length'
 }
 
 glyphs = [

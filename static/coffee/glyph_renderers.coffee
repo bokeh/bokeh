@@ -130,21 +130,19 @@ _.extend(GlyphRenderer::display_defaults, {
   text_font: "helvetica"
   text_font_size: "1em"
   text_font_style: "normal"
-  text_font_color: "#444444"
-  text_font_alpha: 1.0
+  text_color: "#444444"
+  text_alpha: 1.0
   text_align: "left"
   text_baseline: "bottom"
 
   radius : 5
-  radius:
-    units: "screen"
+  radius_units: "screen"
 
-  angle:
-    units: 'deg'
-  start_angle:
-    units: 'deg'
-  end_angle:
-    units: 'deg'
+  length_units: 'screen'
+
+  angle_units: 'deg'
+  start_angle_units: 'deg'
+  end_angle_units: 'deg'
 
 })
 

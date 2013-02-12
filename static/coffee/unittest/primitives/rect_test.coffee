@@ -17,12 +17,10 @@ defaults = {
   x : 'x'
   y : 'y'
   angle: 0.4
-  width:
-    units: "screen"
-    default: 12
-  height:
-    units: "screen"
-    default: 15
+  width: 12
+  width_units: "screen"
+  height: 15
+  height_units: "screen"
 }
 
 glyphs = [

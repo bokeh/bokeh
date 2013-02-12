@@ -15,8 +15,9 @@ data_source = Collections('ObjectArrayDataSource').create(
 
 defaults = {
   radius:
-    units: "screen"
+    field: 'radius'
     default: 5
+    units: 'screen'
   x : 'x'
   y : 'y'
 }
