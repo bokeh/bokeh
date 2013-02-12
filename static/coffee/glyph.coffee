@@ -8,7 +8,7 @@ class properties
 
     if not (attrname of glyphspec)
       if _.isString(default_value)
-        @[attrname] = {value: default_value}
+        @[attrname] = {default: default_value}
       else if _.isObject(default_value)
         @[attrname] = default_value
       else
@@ -17,7 +17,7 @@ class properties
 
     glyph_value = glyphspec[attrname]
     if _.isString(glyph_value)
-      @[attrname] = {value: glyph_value}
+      @[attrname] = {default: glyph_value}
     else if _.isObject(glyph_value)
       @[attrname] = glyph_value
       if not @[attrname].default?
@@ -34,7 +34,7 @@ class properties
       if _.isString(default_value)
         @[attrname] = {field: default_value, units: default_units} # no default value
       else if _.isNumber(default_value)
-        @[attrname] = {value: default_value, units: default_units}
+        @[attrname] = {default: default_value, units: default_units}
       else if _.isObject(default_value)
         @[attrname] = default_value
         if not @[attrname].units?
@@ -47,7 +47,7 @@ class properties
     if _.isString(glyph_value)
       @[attrname] = {field: glyph_value, default: default_value, units: default_units}
     else if _.isNumber(glyph_value)
-      @[attrname] = {value: glyph_value, units: default_units}
+      @[attrname] = {default: glyph_value, units: default_units}
     else if _.isObject(glyph_value)
       @[attrname] = glyph_value
       if not @[attrname].default?
@@ -62,7 +62,7 @@ class properties
 
     if not (attrname of glyphspec)
       if _.isString(default_value) or _.isNull(default_value)
-        @[attrname] = {value: default_value}
+        @[attrname] = {default: default_value}
       else if _.isObject(default_value)
         @[attrname] = default_value
       else
@@ -71,7 +71,7 @@ class properties
 
     glyph_value = glyphspec[attrname]
     if _.isString(glyph_value) or _.isNull(glyph_value)
-      @[attrname] = {value: glyph_value}
+      @[attrname] = {default: glyph_value}
     else if _.isObject(glyph_value)
       @[attrname] = glyph_value
       if not @[attrname].default?
@@ -87,7 +87,7 @@ class properties
       if _.isString(default_value)
         @[attrname] = {field: default_value, units: default_units} # no default value
       else if _.isArray(default_value)
-        @[attrname] = {value: default_value, units: default_units}
+        @[attrname] = {default: default_value, units: default_units}
       else if _.isObject(default_value)
         @[attrname] = default_value
       else
@@ -98,7 +98,7 @@ class properties
     if _.isString(glyph_value)
       @[attrname] = {field: glyph_value, default: default_value, units: default_units}
     else if _.isArray(glyph_value)
-      @[attrname] = {value: glyph_value, units: default_units}
+      @[attrname] = {default: glyph_value, units: default_units}
     else if _.isObject(glyph_value)
       @[attrname] = glyph_value
       if not @[attrname].default?
@@ -113,7 +113,7 @@ class properties
     if not (attrname of glyphspec)
       if _.isString(default_value)
         if default_value in levels_value
-          @[attrname] = {value: default_value}
+          @[attrname] = {default: default_value}
         else
           @[attrname] = {field: default_value} # no default value
       else if _.isObject(default_value)
@@ -126,7 +126,7 @@ class properties
     glyph_value = glyphspec[attrname]
     if _.isString(glyph_value)
       if glyph_value in levels_value
-        @[attrname] = {value: glyph_value}
+        @[attrname] = {default: glyph_value}
       else
         @[attrname] = {field: glyph_value, default: default_value}
     else if _.isObject(glyph_value)
@@ -152,18 +152,19 @@ class properties
       console.log("Unknown type '#{ attrtype }' for glyph property: " + attrname)
 
   select: (attrname, obj) ->
+
+    # if the attribute is not on this object at all, just report
     if not (attrname of @)
       console.log("requested unknown property '#{ attrname } on object: " + obj)
       return
+
     if @[attrname].field?
       if (@[attrname].field of obj)
         return obj[@[attrname].field]
-      else if @[attrname].default?
-        return @[attrname].default
     if obj[attrname]
       return obj[attrname]
-    if @[attrname].value?
-      return @[attrname].value
+    if @[attrname].default?
+      return @[attrname].default
     else
       console.log "UNK", attrname, @, obj
 
@@ -184,7 +185,7 @@ class line_properties extends properties
     @enum(styleprovider, glyphspec, @line_cap_name, "butt round square")
     @array(styleprovider, glyphspec, @line_dash_name)
 
-    @do_stroke = not (@line_color.value == null)
+    @do_stroke = not (@line_color.default == null)
 
   set: (ctx, obj) ->
     ctx.strokeStyle = @select(@line_color_name, obj)
@@ -205,7 +206,7 @@ class fill_properties extends properties
     @color(styleprovider, glyphspec, @fill_name)
     @number(styleprovider, glyphspec, @fill_alpha_name)
 
-    @do_fill = not (@fill.value == null)
+    @do_fill = not (@fill.default == null)
 
   set: (ctx, obj) ->
     ctx.fillStyle   = @select(@fill_name,       obj)
