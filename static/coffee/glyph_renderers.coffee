@@ -1,30 +1,19 @@
-
 base = require("./base")
-primitive = require("./primitive_glyphs")
-schema_renderers = require("./schema_renderers")
-
-XYRendererView = schema_renderers.XYRendererView
+Collections = base.Collections
 HasParent = base.HasParent
+PlotWidget = base.PlotWidget
+safebind = base.safebind
+
+mapper = require("./mapper")
+LinearMapper = mapper.LinearMapper
 
 
 
-class GlyphRendererView extends XYRendererView
+class GlyphRendererView extends PlotWidget
   initialize: (options) ->
     super(options)
-    @arc       = primitive.arc
-    @area      = primitive.area
-    @bezier    = primitive.bezier
-    @circle    = primitive.circle
-    @image     = primitive.image
-    @line      = primitive.line
-    @oval      = primitive.oval
-    @quad      = primitive.quad
-    @quadcurve = primitive.quadcurve
-    @ray       = primitive.ray
-    @rect      = primitive.rect
-    @segment   = primitive.segment
-    @text      = primitive.text
-    @wedge     = primitive.wedge
+    @set_xmapper()
+    @set_ymapper()
 
   render: () ->
     source = @mget_obj('data_source')
@@ -35,33 +24,54 @@ class GlyphRendererView extends XYRendererView
     else
       console.log("Unknown data source type: " + source.type)
 
-    for glyph in @mget('glyphs')
-      if @[glyph.type]?
-        @[glyph.type](@, glyph, data)
-      else
-        console.log("Unknown glyph type: " + glyph.type)
+    @_render(data)
 
-  distance: (glyph, data, pt, span, position) ->
-    pt_units = glyph[pt].units
-    span_units = glyph[span].units
+  bind_bokeh_events: () ->
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @plot_view.viewstate, 'change', @request_render)
+    safebind(this, @mget_obj('data_source'), 'change', @request_render)
+    safebind(this, @model, 'change:xdata_range', @set_xmapper)
+    safebind(this, @model, 'change:ydata_range', @set_ymapper)
+    safebind(this, @mget_obj('xdata_range'), 'change', @request_render)
+    safebind(this, @mget_obj('ydata_range'), 'change', @request_render)
+
+  set_xmapper: () ->
+    @xmapper = new LinearMapper({},
+      data_range : @mget_obj('xdata_range')
+      viewstate : @plot_view.viewstate
+      screendim : 'width'
+    )
+    @request_render()
+
+  set_ymapper: () ->
+    @ymapper = new LinearMapper({},
+      data_range : @mget_obj('ydata_range')
+      viewstate : @plot_view.viewstate
+      screendim : 'height'
+    )
+    @request_render()
+
+  distance: (data, pt, span, position) ->
+    pt_units = @glyph[pt].units
+    span_units = @glyph[span].units
 
     if      pt == "x" then mapper = @xmapper
     else if pt == "y" then mapper = @ymapper
 
-    span = (glyph.select(span, x) for x in data)
+    span = (@glyph.select(span, x) for x in data)
     if span_units == "screen"
       return span
 
     if position == "center"
       halfspan = (d / 2 for d in span)
-      ptc = (glyph.select(pt, x) for x in data)
+      ptc = (@glyph.select(pt, x) for x in data)
       if pt_units == "screen"
         ptc = mapper.v_map_data(ptc)
       pt0 = (ptc[i] - halfspan[i] for i in [0..ptc.length-1])
       pt1 = (ptc[i] + halfspan[i] for i in [0..ptc.length-1])
 
     else
-      pt0 = (glyph.select(pt, x) for x in data)
+      pt0 = (@glyph.select(pt, x) for x in data)
       if pt_units == "screen"
         pt0 = mapper.v_map_data(pt0)
       pt1 = (pt0[i] + span[i] for i in [0..pt0.length-1])

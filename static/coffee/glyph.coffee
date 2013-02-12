@@ -2,7 +2,6 @@
 
 class properties
 
-
   string: (styleprovider, glyphspec, attrname) ->
     default_value = styleprovider.mget(attrname)
 
@@ -153,20 +152,27 @@ class properties
 
   select: (attrname, obj) ->
 
-    # if the attribute is not on this object at all, just report
+    # if the attribute is not on this property object at all, log a bad request
     if not (attrname of @)
       console.log("requested unknown property '#{ attrname } on object: " + obj)
       return
 
+    # if the attribute specifies a field, and the field exists on the object, return that value
     if @[attrname].field?
       if (@[attrname].field of obj)
         return obj[@[attrname].field]
+
+    # otherwise, if the attribute exists on the object, return that value
     if obj[attrname]
       return obj[attrname]
+
+    # finally, check for a default value on this property object that could be returned
     if @[attrname].default?
       return @[attrname].default
+
+    # failing that, just log a problem
     else
-      console.log "UNK", attrname, @, obj
+      console.log "selection for attribute '#{ attrname } failed on object: #{ obj }"
 
 
 class line_properties extends properties
@@ -254,7 +260,7 @@ class Glyph extends properties
       @setattr(styleprovider, glyphspec, attrname, attrtype)
 
     for prop in properties
-      @[prop.name] = new prop(styleprovider, glyphspec)
+      @[prop.name] = prop
 
     # TODO auto detect fast path cases
     @fast_path = false
