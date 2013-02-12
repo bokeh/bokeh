@@ -16,7 +16,7 @@ zip = () ->
 x = ( (x/30) for x in _.range(600) )
 y = (Math.sin(y) for y in x)
 widths = (0.01 for i in x)
-heights = (0.2 for i in x)
+heights = (0.4 for i in x)
 colors = ("rgb(#{ Math.floor(155+100*val) }, #{ Math.floor(100+50*val) }, #{ Math.floor(120-50*val) })" for val in y)
 source = Collections('ColumnDataSource').create(
   data:
@@ -81,9 +81,9 @@ test('rect_perf_slow', make_glyph_test('rect_perf_slow', source, defaults, [rect
 
 r = new Rand(123456789)
 
-x = (r.randf()*100 for i in _.range(1000))
-y = (r.randf()*100 for i in _.range(1000))
-radii = (r.randf()*2+0.5 for i in _.range(1000))
+x = (r.randf()*100 for i in _.range(4000))
+y = (r.randf()*100 for i in _.range(4000))
+radii = (r.randf()+0.5 for i in _.range(4000))
 colors = ("rgb(#{ Math.floor(50+2*val[0]) }, #{ Math.floor(30+2*val[1]) }, 150)" for val in zip(x, y))
 source = Collections('ColumnDataSource').create(
   data:
