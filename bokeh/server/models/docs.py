@@ -11,6 +11,46 @@ def transform_models(models):
     for m in models:
         model_cache[m.id] = m
     for m in models:
+        if 'Mapper' in m.typename:
+            to_delete.add(m.id)
+        if 'Renderer' in m.typename:
+            xmapper = m.get('xmapper')
+            if xmapper != 'linear' and xmapper is not None:
+                xmapper = model_cache[xmapper['id']]
+                m.set('xdata_range', xmapper.get('data_range'))
+            ymapper = m.get('ymapper')
+            if ymapper != 'linear' and ymapper is not None:
+                ymapper = model_cache[ymapper['id']]
+                m.set('ydata_range', ymapper.get('data_range'))
+
+        if 'D3LinearAxis' in m.typename:
+            m.typename = 'LinearAxis'
+        elif 'D3LinearDateAxis' in m.typename:
+            m.typename = 'LinearDateAxis'
+
+        if 'Axis' in m.typename:
+            mapper = m.get('mapper')
+            if mapper != 'linear' and mapper is not None:
+                mapper = model_cache[mapper['id']]
+                m.set('data_range', mapper.get('data_range'))
+        elif m.typename == 'PanTool' or m.typename=='ZoomTool':
+            xmappers = m.get('xmappers', [])
+            ymappers = m.get('ymappers', [])
+            if len(xmappers) == 0 and len(ymappers) == 0:
+                continue
+            dataranges = []
+            dimensions = []
+            for xmapper in xmappers:
+                xmapper = model_cache[xmapper['id']]
+                dataranges.append(xmapper.get('data_range'))
+                dimensions.append('width')
+            for ymapper in ymappers:
+                ymapper = model_cache[ymapper['id']]
+                dataranges.append(ymapper.get('data_range'))
+                dimensions.append('height')
+            m.set('dataranges', dataranges)
+            m.set('dimensions', dimensions)
+
         if m.typename == 'Plot':
             #delete all existing overlays
             overlays = m.get('overlays')
@@ -31,6 +71,11 @@ def transform_models(models):
                 m.set('overlays', [overlay.ref()])
                 model_cache[overlay.id] = overlay
                 models.append(overlay)
+            axes = m.get('axes')
+            for x in axes:
+                if 'D3' in x['type']:
+                    x['type'] = x['type'][2:]
+                
     return [x for x in models if x.id not in to_delete]
 
 
