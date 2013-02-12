@@ -42,47 +42,34 @@ class GlyphRendererView extends XYRendererView
         console.log("Unknown glyph type: " + glyph.type)
 
   distance: (glyph, data, pt, span, position) ->
-    results = new Array(data.length)
-
     pt_units = glyph[pt].units
     span_units = glyph[span].units
-    if pt == "x"
-      mapper = @xmapper
-    else if pt == "y"
-      mapper = @ymapper
+
+    if      pt == "x" then mapper = @xmapper
+    else if pt == "y" then mapper = @ymapper
+
+    span = (glyph.select(span, x) for x in data)
+    if span_units == "screen"
+      return span
 
     if position == "center"
-
-      for i in [0..data.length-1]
-        halfspan = glyph.select(span, data[i]) / 2
-        if span_units == "screen"
-          results[i] = 2 * halfspan
-          continue
-        ptc = glyph.select(pt, data[i])
-        if pt_units == "screen"
-          ptc = mapper.map_data(ptc)
-        pt0 = ptc - halfspan
-        pt1 = ptc + halfspan
-        spt0 = mapper.map_screen(pt0)
-        spt1 = mapper.map_screen(pt1)
-        results[i] = spt1 - spt0
+      halfspan = (d / 2 for d in span)
+      ptc = (glyph.select(pt, x) for x in data)
+      if pt_units == "screen"
+        ptc = mapper.v_map_data(ptc)
+      pt0 = (ptc[i] - halfspan[i] for i in [0..ptc.length-1])
+      pt1 = (ptc[i] + halfspan[i] for i in [0..ptc.length-1])
 
     else
+      pt0 = (glyph.select(pt, x) for x in data)
+      if pt_units == "screen"
+        pt0 = mapper.v_map_data(pt0)
+      pt1 = (pt0[i] + span[i] for i in [0..pt0.length-1])
 
-      for i in [0..data.length-1]
-        halfspan = glyph.select(span, data[i])
-        if span_units == "screen"
-          results[i] = halfspan
-          continue
-        pt0 = glyph.select(pt, data[i])
-        if pt_units == "screen"
-          pt0 = mapper.map_data(pt0)
-        pt1 = pt0 + halfspan
-        spt0 = mapper.map_screen(pt0)
-        spt1 = mapper.map_screen(pt1)
-        results[i] = spt1 - spt0
+    spt0 = mapper.v_map_screen(pt0)
+    spt1 = mapper.v_map_screen(pt1)
 
-    return results
+    return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
 
   map_to_screen : (x, x_units, y, y_units) ->
     sx = new Array(x.length)
@@ -91,14 +78,14 @@ class GlyphRendererView extends XYRendererView
     if x_units == "screen"
       sx = x
     else
-      for i in [0..x.length-1]
-        sx[i] = @plot_view.viewstate.xpos(@xmapper.map_screen(x[i]))
+      sx = @xmapper.v_map_screen(x)
+      sx = @plot_view.viewstate.v_xpos(sx)
 
     if y_units == "screen"
       sy = y
     else
-      for i in [0..y.length-1]
-        sy[i] = @plot_view.viewstate.ypos(@ymapper.map_screen(y[i]))
+      sy = @ymapper.v_map_screen(y)
+      sy = @plot_view.viewstate.v_ypos(sy)
 
     return [sx, sy]
 
