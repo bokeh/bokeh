@@ -67,7 +67,7 @@ alltests = {
     'oval'      : ['unittest/primitives/oval_test'],
     'quad'      : ['unittest/primitives/quad_test'],
     'quadcurve' : ['unittest/primitives/quadcurve_test'],
-    'rect'      : ['unittest/primitives/ray_test'],
+    'ray'       : ['unittest/primitives/ray_test'],
     'rect'      : ['unittest/primitives/rect_test'],
     'segment'   : ['unittest/primitives/segment_test'],
     'text'      : ['unittest/primitives/text_test'],
