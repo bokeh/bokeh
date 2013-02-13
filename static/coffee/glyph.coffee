@@ -8,8 +8,6 @@ class properties
     if not (attrname of glyphspec)
       if _.isString(default_value)
         @[attrname] = {default: default_value}
-      else if _.isObject(default_value)
-        @[attrname] = default_value
       else
         console.log("string property'#{ attrname }' given invalid default value: " + default_value)
       return
@@ -30,14 +28,8 @@ class properties
     default_units = styleprovider.mget(attrname+"_units") ? 'data'
 
     if not (attrname of glyphspec)
-      if _.isString(default_value)
-        @[attrname] = {field: default_value, units: default_units} # no default value
-      else if _.isNumber(default_value)
+      if _.isNumber(default_value)
         @[attrname] = {default: default_value, units: default_units}
-      else if _.isObject(default_value)
-        @[attrname] = default_value
-        if not @[attrname].units?
-          @[attrname].units = default_units
       else
         console.log("number property'#{ attrname }' given invalid default value: " + default_value)
       return
@@ -62,8 +54,6 @@ class properties
     if not (attrname of glyphspec)
       if _.isString(default_value) or _.isNull(default_value)
         @[attrname] = {default: default_value}
-      else if _.isObject(default_value)
-        @[attrname] = default_value
       else
         console.log("color property'#{ attrname }' given invalid default value: " + default_value)
       return
@@ -83,12 +73,8 @@ class properties
     default_units = styleprovider.mget(attrname+"_units") ? 'data'
 
     if not (attrname of glyphspec)
-      if _.isString(default_value)
-        @[attrname] = {field: default_value, units: default_units} # no default value
-      else if _.isArray(default_value)
+      if _.isArray(default_value)
         @[attrname] = {default: default_value, units: default_units}
-      else if _.isObject(default_value)
-        @[attrname] = default_value
       else
         console.log("array property'#{ attrname }' given invalid default value: " + default_value)
       return
@@ -110,13 +96,8 @@ class properties
     levels_value = vals.split(" ")
 
     if not (attrname of glyphspec)
-      if _.isString(default_value)
-        if default_value in levels_value
-          @[attrname] = {default: default_value}
-        else
-          @[attrname] = {field: default_value} # no default value
-      else if _.isObject(default_value)
-        @[attrname] = default_value
+      if _.isString(default_value) and default_value in levels_value
+        @[attrname] = {default: default_value}
       else
         console.log("enum property'#{ attrname }' given invalid default value: " + default_value)
         console.log("    acceptable values:" + levels_value)

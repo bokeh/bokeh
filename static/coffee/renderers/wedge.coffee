@@ -1,12 +1,15 @@
 
 glyph = require("../glyph")
-
 Glyph = glyph.Glyph
 fill_properties = glyph.fill_properties
 line_properties = glyph.line_properties
 
+glyph_renderer = require("../glyph_renderer")
+GlyphRenderer = glyph_renderer.GlyphRenderer
+GlyphRendererView = glyph_renderer.GlyphRendererView
 
-class wedge extends GlyphRendererView
+
+class WedgeRendererView extends GlyphRendererView
 
   constructor: (styleprovider, glyphspec) ->
     @glyph = new Glyph(
@@ -19,6 +22,7 @@ class wedge extends GlyphRendererView
       ]
     )
 
+  initialize: () ->
     @do_fill   = @glyph.fill_properties.do_fill
     @do_stroke = @glyph.line_properties.do_stroke
 
@@ -86,5 +90,26 @@ class wedge extends GlyphRendererView
         ctx.stroke()
 
 
+class wedge extends GlyphRenderer
+  type : 'WedgeRendererView'
+  default_view : WedgeRendererView
+
+
+wedge::display_defaults = _.clone(wedge::display_defaults)
+_.extend(wedge::display_defaults, {
+
+  fill: "gray"
+  fill_alpha: 1.0
+
+  line_color: 'red'
+  line_width: 1
+  line_alpha: 1.0
+  line_join: "miter"
+  line_cap: "butt"
+  line_dash: []
+
+})
+
 
 exports.wedge = wedge
+exports.WedgeRendererView = WedgeRendererView
