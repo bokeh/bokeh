@@ -22,11 +22,11 @@ defaults = {
   direction: 'clock'
 }
 
-glyphs = [
-    type : 'wedge'
-    fill : 'blue'
-  ,
-]
+glyph = {
+  type : 'wedge'
+  fill : 'blue'
+}
 
 
-test('wedge_glyph', make_glyph_test('wedge_glyph', data_source, defaults, glyphs, range, range))
+
+test('wedge_glyph', make_glyph_test('wedge_glyph', data_source, defaults, glyph, range, range))

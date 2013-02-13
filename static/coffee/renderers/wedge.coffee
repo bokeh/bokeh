@@ -4,31 +4,32 @@ Glyph = glyph.Glyph
 fill_properties = glyph.fill_properties
 line_properties = glyph.line_properties
 
-glyph_renderer = require("../glyph_renderer")
+glyph_renderer = require("../glyph_renderers")
 GlyphRenderer = glyph_renderer.GlyphRenderer
 GlyphRendererView = glyph_renderer.GlyphRendererView
 
 
 class WedgeRendererView extends GlyphRendererView
 
-  constructor: (styleprovider, glyphspec) ->
+  initialize: (options) ->
     @glyph = new Glyph(
-      styleprovider,
-      glyphspec,
+      @,
+      @get('glyphspec'),
       ["x", "y", "radius", "start_angle", "end_angle"],
       [
-        new fill_properties(styleprovider, glyphspec),
-        new line_properties(styleprovider, glyphspec)
+        new fill_properties(@, glyphspec),
+        new line_properties(@, glyphspec)
       ]
     )
 
-  initialize: () ->
-    @do_fill   = @glyph.fill_properties.do_fill
-    @do_stroke = @glyph.line_properties.do_stroke
+    glyph = @get('glyph')
+    @do_fill   = glyph.fill_properties.do_fill
+    @do_stroke = glyph.line_properties.do_stroke
+    super(options)
 
   _render: (data) ->
     ctx = @plot_view.ctx
-    glyph = @glyph
+    glyph = @get('glyph')
 
     ctx.save()
 
@@ -90,13 +91,12 @@ class WedgeRendererView extends GlyphRendererView
         ctx.stroke()
 
 
-class wedge extends GlyphRenderer
-  type : 'WedgeRendererView'
+class WedgeRenderer extends GlyphRenderer
   default_view : WedgeRendererView
 
 
-wedge::display_defaults = _.clone(wedge::display_defaults)
-_.extend(wedge::display_defaults, {
+WedgeRenderer::display_defaults = _.clone(WedgeRenderer::display_defaults)
+_.extend(WedgeRenderer::display_defaults, {
 
   fill: "gray"
   fill_alpha: 1.0
@@ -110,6 +110,9 @@ _.extend(wedge::display_defaults, {
 
 })
 
+class WedgeRenderers extends Backbone.Collection
+  model : WedgeRenderer
 
-exports.wedge = wedge
+exports.wedgerenderers = new WedgeRenderers
+exports.WedgeRenderer = WedgeRenderer
 exports.WedgeRendererView = WedgeRendererView

@@ -33,7 +33,8 @@ class Rand
     min + this.rand(max-min)
 
 
-make_glyph_test = (test_name, data_source, defaults, glyphs, xrange, yrange, tools=false, dims=[200, 200]) ->
+
+make_glyph_test = (test_name, data_source, defaults, glyph, xrange, yrange, tools=false, dims=[200, 200]) ->
   return () ->
     expect(0)
     plot_tools = []
@@ -47,13 +48,14 @@ make_glyph_test = (test_name, data_source, defaults, glyphs, xrange, yrange, too
         dimensions : ['width', 'height']
       )
       plot_tools = [pantool, zoomtool]
-    glyph_renderer = Collections('GlyphRenderer').create(
+    glyph_renderer = Collections('WedgeRenderer').create({
       data_source : data_source.ref()
       xdata_range : xrange.ref()
       ydata_range : yrange.ref()
-    )
+      glyphspec : glyph
+    })
     glyph_renderer.set(defaults)
-    glyph_renderer.set("glyphs", glyphs)
+    glyph_renderer.set("glyphs", [glyph])
     plot_model = Collections('Plot').create()
     xaxis = Collections('LinearAxis').create(
       orientation : 'bottom'
