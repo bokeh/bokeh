@@ -1,26 +1,14 @@
 <div>
   <p>Bokeh Sources</p>
-  {{ script_block }}
-  {{ css_block }}
-  {{ joint_block }}
-  {% if connect %}
+  {% if rawcss %}
+  <style>
+    {{ rawcss }}
+  </style>
+  {% endif %}
+  {% if rawjs %}
   <script type="text/javascript">
-    window.host = "{{ host }}";
-    window.docid = "{{ docid }}";
-    window.protocol = "{{ protocol }}";
-    window.wsprotocol = "{{ wsprotocol }}";        
-    url = protocol + "://" + host + "/" + "/bokeh/bokehinfo/" + docid;
-    wsurl = wsprotocol + "://" + host + "/sub";
-    $.get(url, {}, function(data){
-    Continuum.urlroot = protocol + "://" + host;
-    data = JSON.parse(data);
-    Continuum.load_models(data['all_models']);
-    Continuum.HasProperties.prototype.sync = Backbone.sync
-    Continuum.docid=data['docid'];
-    $Bokeh.apikey = data['apikey'];
-    $Bokeh.wswrapper = new Continuum.WebSocketWrapper(wsurl);
-    Continuum.submodels($Bokeh.wswrapper, "bokehplot:" + docid, $Bokeh.apikey);
-    });
+    {{ rawjs }}
   </script>
   {% endif %}
+
 </div>

@@ -13,14 +13,24 @@ from .. import wsmanager
 from ..models import user
 from ..models import docs
 from ..models import convenience as mconv
-
+from .. import hemlib
 #main pages
 
 @app.route('/bokeh/')
 @app.route('/bokeh/<path:unused>/')
 def index(*unused_all, **kwargs):
-    return render_template('bokeh.html')
-
+    if app.debug:
+        slug = hemlib.slug_json()
+        static_js = hemlib.slug_libs(app, slug['libs'])
+        hemsource = os.path.join(app.static_folder, "coffee")
+        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hemsource = os.path.join(app.static_folder, "vendor",
+                                 "bokehjs", "coffee")
+        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
+    else:
+        static_js = ['/bokeh/static/js/application.js']
+        hem_js = []
+    return render_template('bokeh.html', jsfiles=static_js, hemfiles=hem_js)
 
 @app.route('/bokeh/favicon.ico')
 def favicon():

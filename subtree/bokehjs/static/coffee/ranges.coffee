@@ -1,16 +1,5 @@
-#Setup Bokeh Module
-if this.Bokeh
-  Bokeh = this.Bokeh
-else
-  Bokeh = {}
-  this.Bokeh = Bokeh
-
-Collections = Continuum.Collections
-
-safebind = Continuum.safebind
-HasParent = Continuum.HasParent
-BokehView = Continuum.ContinuumView
-HasProperties = Continuum.HasProperties
+base = require("./base")
+HasProperties = base.HasProperties
 
 class Range1d extends HasProperties
   type : 'Range1d'
@@ -21,7 +10,7 @@ _.extend(Range1d::defaults
     end : 1
 )
 
-class Range1ds extends Continuum.Collection
+class Range1ds extends Backbone.Collection
   model : Range1d
 
 class DataRange1d extends Range1d
@@ -80,10 +69,10 @@ _.extend(DataRange1d::defaults
     rangepadding : 0.1
 )
 
-class DataRange1ds extends Continuum.Collection
+class DataRange1ds extends Backbone.Collection
   model : DataRange1d
 
-class Range1ds extends Continuum.Collection
+class Range1ds extends Backbone.Collection
   model : Range1d
 
 
@@ -127,15 +116,12 @@ _.extend(DataFactorRange::defaults
     data_source : null
 )
 
-class DataFactorRanges extends Continuum.Collection
+class DataFactorRanges extends Backbone.Collection
   model : DataFactorRange
 
-class FactorRanges extends Continuum.Collection
+class FactorRanges extends Backbone.Collection
   model : FactorRange
 
-if not Continuum.Collections.Range1d
-  Continuum.Collections.Range1d = new Range1ds
-if not Continuum.Collections.DataRange1d
-  Continuum.Collections.DataRange1d = new DataRange1ds
-if not Continuum.Collections.DataFactorRange
-  Continuum.Collections.DataFactorRange = new DataFactorRanges
+exports.range1ds = new Range1ds
+exports.datarange1ds = new DataRange1ds
+exports.datafactorranges = new DataFactorRanges

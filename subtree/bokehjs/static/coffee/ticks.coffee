@@ -24,7 +24,7 @@ tick-related values (i.e., bounds and intervals).
 class AbstractTickGenerator
     """ Abstract class for tick generators.
     """
-    get_ticks: 
+    get_ticks:
       (data_low, data_high, bounds_low, bounds_high, interval,\
       use_endpoints=False, scale='linear') ->
         """ Returns a list of ticks points in data space.
@@ -69,7 +69,7 @@ class AbstractTickGenerator
             [3.5, 4.0, 4.5, 5.0, 5.5, 6.0, 6.5]
         """
 
-      
+
 
 
 class DefaultTickGenerator extends AbstractTickGenerator
@@ -88,9 +88,9 @@ class DefaultTickGenerator extends AbstractTickGenerator
             #FIXME
             #return array(log_auto_ticks(data_low, data_high, bounds_low, bounds_high,
             #                                  interval, use_endpoints=False), float64)
-            # 
+            #
 
-class ShowAllTickGenerator extends AbstractTickGenerator 
+class ShowAllTickGenerator extends AbstractTickGenerator
     """ Uses the abstract interface, but returns all "positions" instead
         of decimating the ticks.
 
@@ -162,7 +162,7 @@ auto_ticks =  ( data_low, data_high, bound_low, bound_high, tick_interval,\
     if typeof(bound_high) == "string"
         upper = data_high
     else
-        upper = bound_high 
+        upper = bound_high
 
     if (tick_interval == 'auto') or (tick_interval == 0.0)
         rng = Math.abs( upper - lower )
@@ -358,26 +358,28 @@ arr_pow2 = (base, exponents) ->
 
 
 
-window._.sorted = (arr) ->
+_.sorted = (arr) ->
   return _.sortBy(arr, _.identity)
 
 
-window.argsort = (arr) ->
-  sorted_arr =   _.sortBy(arr, _.identity)
+argsort = (arr) ->
+  sorted_arr =
+    _.sortBy(arr, _.identity)
   ret_arr = []
   #for y, i in arr
   #  ret_arr[i] = sorted_arr.indexOf(y)
   for y, i in sorted_arr
     ret_arr[i] = arr.indexOf(y)
-  
+
     #ret_arr.push(sorted_arr.indexOf(y))
   return ret_arr
 
-#window.argsort = (arr) ->
+exports.argsort = argsort
+#exports.argsort = (arr) ->
 #  arr.map((x) -> _.sortedIndex(arr, x))
   #_.sortedIndex
 
-window.auto_interval = (data_low, data_high) ->
+auto_interval = (data_low, data_high) ->
     """ Calculates the tick interval for a range.
 
         The boundaries for the data to be plotted on the axis are::
@@ -432,7 +434,7 @@ window.auto_interval = (data_low, data_high) ->
     magic_index    = argsort(best_magics )[0]
 
     mantissa_index = argsort(best_mantissas )[0]
-    
+
 
     # The best interval is the magic_interval multiplied by the magnitude
     # of the best mantissa:
@@ -442,14 +444,16 @@ window.auto_interval = (data_low, data_high) ->
     #if result == 0.0
     #    result = finfo(float).eps
     return result
+exports.auto_interval = auto_interval
 
 #--------------------------------------------------------------------------------
 #  Compute the best tick interval length to achieve a specified number of tick
 #  intervals:
 #--------------------------------------------------------------------------------
-window.float = (x) ->
+float = (x) ->
   return x + 0.0
-window.tick_intervals =  ( data_low, data_high, intervals ) ->
+exports.float = float
+tick_intervals =  ( data_low, data_high, intervals ) ->
     """ Computes the best tick interval length to achieve a specified number of
     tick intervals.
 
@@ -497,7 +501,7 @@ window.tick_intervals =  ( data_low, data_high, intervals ) ->
             return result
         index     = (index + 1) % 4
         interval  = interval *  [2.0, 1.25, 2.0, 2.0] [ index ]
-
+exports.tick_intervals = tick_intervals
 
 """
 I'll worry about this after getting linear ticks working
@@ -575,17 +579,18 @@ auto_bounds = ( data_low, data_high, tick_interval ) ->
     """
     return [calc_bound( data_low,  tick_interval, false ),
              calc_bound( data_high, tick_interval, true  ) ]
+exports.auto_bounds = auto_bounds
 
 #-------------------------------------------------------------------------------
 #  Compute the best axis endpoint for a specified data value:
 #-------------------------------------------------------------------------------
-window.divmod = (x,y) ->
+divmod = (x,y) ->
   quot = Math.floor(x/y)
   rem = x % y
 
   return [quot, rem]
-  
-window.calc_bound =  ( end_point, tick_interval, is_upper ) ->
+exports.divmod = divmod
+calc_bound =  ( end_point, tick_interval, is_upper ) ->
     """ Finds an axis end point that includes the value *end_point*.
 
     If the tick mark interval results in a tick mark hitting directly on the
@@ -605,7 +610,4 @@ window.calc_bound =  ( end_point, tick_interval, is_upper ) ->
     if is_upper
         return Math.max( c1, c2 )
     return Math.min( c1, c2 )
-
-window.ticks = {}
-ticks.auto_interval = auto_interval
-ticks.auto_bounds = auto_bounds
+exports.calc_bound = calc_bound

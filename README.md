@@ -45,24 +45,27 @@ be available for your Linux system via the system package management.  If you
 are using a distribution like [Anaconda Community Edition](https://store.continuum.io/cshop/anaconda),
 [Enthought Python Distribution](http://enthought.com/epd), or
 [Python(X,Y)](http://code.google.com/p/pythonxy),
-then you already have them installed.
+then you already have most of them installed.
 
  * [Chaco](https://github.com/enthought/chaco)
  * [Traits](https://github.com/enthought/traits)
  * [Pandas](https://github.com/pydata/pandas)
+ * [flask]
+ * [redis]
+ * [requests]
 
 
 Installation
 ============
 
-After installing the dependencies (coffeescript, chaco, etc.), run the following:
+After installing the dependencies (chaco, etc.), run the following:
 
 ```
 git clone git://github.com/ContinuumIO/Bokeh.git
 cd Bokeh
-python coffeebuild.py
 pip install .
 ```
+The setup.py will automatically grab the latest compiled javascript from github, so you don't need coffeescript in order to use Bokeh.
 
 Status
 ======
@@ -73,23 +76,11 @@ at [Continuum Analytics](http://continuum.io), and with the recent award of a
 grant from DARPA, we are able to devote more resources into it, along with
 collaborators from Indiana University.  
 
-Coffeescript
-============
-We're developing most of the javascript using coffeescript, in the 
-[bokehjs github repository](https://github.com/ContinuumIO/bokehjs)
-which has been included as a subtree.  To execute the code, you will need 
-to [install coffeescript](http://coffeescript.org/#installation), 
-which depends on [node.js](http://nodejs.org/).  I recommend using npm -g
-to install coffeescript globally.  
- * We have a build script, which you can execute calling `$ python coffeebuild.py`
- * We have a watcher script, which you can execute calling `$ python coffeewatch.py`.  
-   This will watch for changes in the coffeescript sources, and rebuild if you change 
-   any of them.  If you use this option, you should pay attention to the watcher output
-   coffeescript compiler errors.
 
 Web based plotting
 ==================
-Bokeh can currently output to chaco, as well as dumping html, or interfacing with
+Bokeh can currently output to chaco, as well as dumping html, 
+or interfacing with
 our bokeh web server, which will push plots out to a browser window using websockets.
 The following examples assume you have bokeh installed
 
@@ -98,7 +89,7 @@ Server Based Web Plotting Examples
  * start a redis-server anywhere, using `$ redis-server &`
  * build the coffeescript code as described above.
  * install the bokeh module `$ python setup.py develop`
- * execute `$ python startlocaldebug.py `
+ * execute `$ python startlocal.py `
  * navigate to `http://localhost:5006/bokeh`
  * execute `$ python examples/webplot_example.py`
 
@@ -115,4 +106,34 @@ What Does the Name "Bokeh" Mean?
 aesthetic quality of blurring of an image's background, to focus attention on a
 foreground subject.
 
+Coffeescript
+============
+We're developing most of the javascript using coffeescript, in the 
+[bokehjs github repository](https://github.com/ContinuumIO/bokehjs)
+which has been included as a subtree.  To develop Bokeh you will need
+to [install coffeescript](http://coffeescript.org/#installation), 
+which depends on [node.js](http://nodejs.org/).  I recommend using npm -g
+to install coffeescript globally.  
+
+Hem
+===
+
+We're using our own fork of hem to 
+manage the build process.  Please clone this repo: https://github.com/ContinuumIO/hem. hem will compile coffeescript, combine js files, and support 
+node.js require syntax on the client side
+
+install it by executing
+
+`$ sudo npm link` inside the repo.  
+
+This will link hem to your working copy so you get hem changes as we push it out
+ * If you are developing Bokeh, you should use the debug webserver.  
+   start it by executing `$ python startlocaldebug.py`.  The debug webserver is configured
+   to ask the hem server for compiled javascript, rather than read the pre-compiled js off of disk.
+ * Inside bokeh/server, execute `$ hem server`.  The hem server will
+   serve up coffeescript, compiling them on the fly.
+ * For the embedded plotting examples, or the production server, you will
+   need to compile the js yourself, by executing `$ hem build -d`, the `-d` 
+   option will prevent hem from uglifying the js, which breaks the notebook
+   export at the moment.
 

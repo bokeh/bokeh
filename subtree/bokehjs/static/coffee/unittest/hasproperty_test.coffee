@@ -1,12 +1,24 @@
-class TestObject extends Continuum.HasProperties
+base = require("../base")
+ContinuumView = base.ContinuumView
+safebind = base.safebind
+Collections = base.Collections
+HasProperties = base.HasParent
+
+class TestObject extends HasProperties
   type : 'TestObject'
+
 class TestObjects extends Backbone.Collection
   model : TestObject
   url : "/"
 
+# registering this test collection with Collections function
+testobjects = new TestObjects()
+exports.testobjects = testobjects
+base.locations['TestObject'] = ['./unittest/hasproperty_test', 'testobjects']
+
 test('computed_properties', ->
-  Continuum.Collections.TestObject = new TestObjects()
-  model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
+  testobjects.reset()
+  model = Collections('TestObject').create({'a' : 1, 'b': 1})
   model.register_property('c', () -> @get('a') + @get('b'))
   model.add_dependencies('c', model, ['a', 'b'])
   temp =  model.get('c')
@@ -14,8 +26,8 @@ test('computed_properties', ->
 )
 
 test('cached_properties_react_changes', ->
-  Continuum.Collections.TestObject = new TestObjects()
-  model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
+  testobjects.reset()
+  model = testobjects.create({'a' : 1, 'b': 1})
   model.register_property('c',
     () -> @get('a') + @get('b'),
     true)
@@ -32,11 +44,11 @@ test('cached_properties_react_changes', ->
 
 
 test('has_prop_manages_event_lifcycle', ->
-  Continuum.Collections.TestObject = new TestObjects()
-  model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
-  model2 = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
+  testobjects.reset()
+  model = testobjects.create({'a' : 1, 'b': 1})
+  model2 = testobjects.create({'a' : 1, 'b': 1})
   triggered = false
-  Continuum.safebind(model, model2, 'change', () -> triggered = true)
+  safebind(model, model2, 'change', () -> triggered = true)
   model2.set({'a' : 2})
   ok(triggered)
   triggered = false
@@ -46,16 +58,16 @@ test('has_prop_manages_event_lifcycle', ->
 )
 
 test('has_prop_manages_event_for_views', ->
-  Continuum.Collections.TestObject = new TestObjects()
-  model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
+  testobjects.reset()
+  model = testobjects.create({'a' : 1, 'b': 1})
   # dummy model2 to be the default model for continuumview
   # we mostly want to test how we react to other models, which is why
   # @model for a view is already handleed
-  model2 = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
-  view = new Continuum.ContinuumView({'model' : model2})
+  model2 = testobjects.create({'a' : 1, 'b': 1})
+  view = new ContinuumView({'model' : model2})
 
   triggered = false
-  Continuum.safebind(view, model, 'change', () -> triggered = true)
+  safebind(view, model, 'change', () -> triggered = true)
   model.set({'a' : 2})
   ok(triggered)
   triggered = false
@@ -64,9 +76,10 @@ test('has_prop_manages_event_for_views', ->
   ok(not triggered)
 )
 
+
 test('property_setters', ->
-  Continuum.Collections.TestObject = new TestObjects()
-  model = Continuum.Collections['TestObject'].create({'a' : 1, 'b': 1})
+  testobjects.reset()
+  model = testobjects.create({'a' : 1, 'b': 1})
   # dummy model2 to be the default model for continuumview
   # we mostly want to test how we react to other models, which is why
   # @model for a view is already handleed
@@ -83,16 +96,16 @@ test('property_setters', ->
 )
 
 test('test_vectorized_ref', () ->
-  Continuum.Collections.TestObject = new TestObjects()
-  model1 = Continuum.Collections['TestObject'].create(
+  testobjects.reset()
+  model1 = testobjects.create(
     a : 1
     b : 1
   )
-  model2 = Continuum.Collections['TestObject'].create(
+  model2 = testobjects.create(
     a : 2
     b : 2
   )
-  model3 = Continuum.Collections['TestObject'].create(
+  model3 = testobjects.create(
     a : 1
     b : 1
     vectordata : [model1.ref(), model2.ref()]
@@ -105,6 +118,6 @@ test('test_vectorized_ref', () ->
   ok(output[0].id == model1.ref().id)
   ok(output[1].id == model1.ref().id)
   ok(output[2].id == model2.ref().id)
-  ok (not (output[0] instanceof Continuum.HasProperties))
+  ok (not (output[0] instanceof HasProperties))
   return null
 )

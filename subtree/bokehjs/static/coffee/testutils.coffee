@@ -1,7 +1,7 @@
 #  Convenience plotting functions
-Collections = Bokeh.Collections
-
-Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
+base = require("./base")
+Collections = base.Collections
+scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
   if _.isUndefined(local)
     local = true
   options = {'local' : local}
@@ -10,27 +10,27 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
   if _.isUndefined(color_field)
     color_field = null
   if _.isUndefined(color_mapper) and color_field
-    color_mapper = Collections['DiscreteColorMapper'].create({
-      data_range : Collections['DataFactorRange'].create({
+    color_mapper = Collections('DiscreteColorMapper').create({
+      data_range : Collections('DataFactorRange').create({
         data_source : data_source.ref()
         columns : ['x']
       }, options)
     }, options)
 
   source_name = data_source.get('name')
-  plot_model = Collections['Plot'].create(
+  plot_model = Collections('Plot').create(
     data_sources :
       source_name : data_source.ref()
     parent : parent
     , options
   )
-  xdr = Collections['DataRange1d'].create({
+  xdr = Collections('DataRange1d').create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [xfield]}]
   }, options)
-  ydr = Collections['DataRange1d'].create({
+  ydr = Collections('DataRange1d').create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
   }, options)
-  scatter_plot = Collections["ScatterRenderer"].create(
+  scatter_plot = Collections("ScatterRenderer").create(
     data_source: data_source.ref()
     xdata_range : xdr.ref()
     ydata_range : ydr.ref()
@@ -42,13 +42,13 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     parent : plot_model.ref()
     , options
   )
-  xaxis = Collections['LinearAxis'].create({
+  xaxis = Collections('LinearAxis').create({
     'orientation' : 'bottom',
     'parent' : plot_model.ref()
     'data_range' : xdr.ref()
 
   }, options)
-  yaxis = Collections['LinearAxis'].create({
+  yaxis = Collections('LinearAxis').create({
     'orientation' : 'left',
     'parent' : plot_model.ref()
     'data_range' : ydr.ref()
@@ -58,9 +58,9 @@ Bokeh.scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, co
     'axes' : [xaxis.ref(), yaxis.ref()]
   }, options)
   plot_model
-  
 
-Bokeh.data_table = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
+
+data_table = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
   if _.isUndefined(local)
     local = true
   options = {'local' : local}
@@ -69,35 +69,35 @@ Bokeh.data_table = (parent, data_source, xfield, yfield, color_field, mark, colo
   if _.isUndefined(color_field)
     color_field = null
   if _.isUndefined(color_mapper) and color_field
-    color_mapper = Collections['DiscreteColorMapper'].create({
-      data_range : Collections['DataFactorRange'].create({
+    color_mapper = Collections('DiscreteColorMapper').create({
+      data_range : Collections('DataFactorRange').create({
         data_source : data_source.ref()
         columns : ['x']
       }, options)
     }, options)
 
   source_name = data_source.get('name')
-  table_model = Collections['Table'].create(
+  table_model = Collections('Table').create(
     data_sources :
       source_name : data_source.ref()
     parent : parent
     , options
   )
-  xdr = Collections['DataRange1d'].create({
+  xdr = Collections('DataRange1d').create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [xfield]}]
   }, options)
-  ydr = Collections['DataRange1d'].create({
+  ydr = Collections('DataRange1d').create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
   }, options)
-  xmapper = Collections['LinearMapper'].create({
+  xmapper = Collections('LinearMapper').create({
     data_range : xdr.ref()
     screen_range : table_model.get('xrange')
   }, options)
-  ymapper = Collections['LinearMapper'].create({
+  ymapper = Collections('LinearMapper').create({
     data_range : ydr.ref()
     screen_range : table_model.get('yrange')
   }, options)
-  scatter_plot = Collections["TableRenderer"].create(
+  scatter_plot = Collections("TableRenderer").create(
     data_source: data_source.ref()
     xfield: xfield
     yfield: yfield
@@ -115,7 +115,7 @@ Bokeh.data_table = (parent, data_source, xfield, yfield, color_field, mark, colo
 
 make_range_and_mapper = (data_source, datafields, padding, screen_range, ordinal, options) ->
     if not ordinal
-      range = Collections['DataRange1d'].create(
+      range = Collections('DataRange1d').create(
           sources : [
               ref : data_source.ref()
               columns : datafields
@@ -123,44 +123,43 @@ make_range_and_mapper = (data_source, datafields, padding, screen_range, ordinal
           rangepadding : padding
         , options
       )
-      mapper = Collections['LinearMapper'].create(
+      mapper = Collections('LinearMapper').create(
           data_range : range.ref()
           screen_range : screen_range.ref()
         , options
       )
     else
-      range = Collections['DataFactorRange'].create(
+      range = Collections('DataFactorRange').create(
           data_source : data_source.ref()
           columns : [field]
         , options
       )
-      mapper = Collections['FactorMapper'].create(
+      mapper = Collections('FactorMapper').create(
           data_range : range.ref()
           screen_range : screen_range.ref()
         , options
       )
     return [range, mapper]
-Bokeh.make_range_and_mapper = make_range_and_mapper
 
-Bokeh.bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
+bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
   if _.isUndefined(local)
     local = true
   options = {'local' : local}
-  plot_model = Collections['Plot'].create(
+  plot_model = Collections('Plot').create(
     data_sources :
       source_name : data_source.ref()
     parent : parent
     , options
   )
-  [xdr, xmapper] = Bokeh.make_range_and_mapper(data_source, [xfield],
+  [xdr, xmapper] = make_range_and_mapper(data_source, [xfield],
     d3.max([1 / (data_source.get('data').length - 1), 0.1]),
     plot_model.get_obj('xrange'), false, options)
 
-  [ydr, ymapper] = Bokeh.make_range_and_mapper(data_source, [yfield],
+  [ydr, ymapper] = make_range_and_mapper(data_source, [yfield],
     d3.max([1 / (data_source.get('data').length - 1), 0.1]),
     plot_model.get_obj('yrange'), false, options)
 
-  bar_plot = Collections["BarRenderer"].create(
+  bar_plot = Collections("BarRenderer").create(
       data_source: data_source.ref()
       xfield : xfield
       yfield : yfield
@@ -170,13 +169,13 @@ Bokeh.bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
       orientation : orientation
     , options
   )
-  xaxis = Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
       orientation : 'bottom'
       mapper : xmapper.ref()
       parent : plot_model.ref()
     , options
   )
-  yaxis = Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
       orientation : 'left',
       mapper : ymapper.ref()
       parent : plot_model.ref()
@@ -189,25 +188,25 @@ Bokeh.bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
   )
 
 
-Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
+line_plot = (parent, data_source, xfield, yfield, local) ->
   if _.isUndefined(local)
     local = true
   options = {'local' : local}
   source_name = data_source.get('name')
-  plot_model = Collections['Plot'].create(
+  plot_model = Collections('Plot').create(
     data_sources :
       source_name : data_source.ref()
     parent : parent
     , options
   )
-  xdr = Collections['DataRange1d'].create({
+  xdr = Collections('DataRange1d').create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [xfield]}]
   }, options)
-  ydr = Collections['DataRange1d'].create({
+  ydr = Collections('DataRange1d').create({
     'sources' : [{'ref' : data_source.ref(), 'columns' : [yfield]}]
   }, options)
 
-  line_plot = Collections["LineRenderer"].create(
+  line_plot = Collections("LineRenderer").create(
     data_source: data_source.ref()
     xfield: xfield
     yfield: yfield
@@ -216,13 +215,13 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
     parent : plot_model.ref()
     , options
   )
-  xaxis = Collections['LinearAxis'].create({
+  xaxis = Collections('LinearAxis').create({
     'orientation' : 'bottom',
     'data_range' : xdr.ref()
     'mapper' : 'linear'
     'parent' : plot_model.ref()
   }, options)
-  yaxis = Collections['LinearAxis'].create({
+  yaxis = Collections('LinearAxis').create({
     'orientation' : 'left',
     'data_range' : ydr.ref()
     'mapper' : 'linear'
@@ -234,27 +233,27 @@ Bokeh.line_plot = (parent, data_source, xfield, yfield, local) ->
   }, options)
 
 
-Bokeh.glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatanames=['y']) ->
+glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatanames=['y']) ->
   # Creates a new plot using a data source and a renderer, and optionally
   # adds it to a DOM element
-  plot_model = Bokeh.Collections.Plot.create()
+  plot_model = Collections('Plot').create()
 
-  xdr = Bokeh.Collections.DataRange1d.create(
+  xdr = Collections('DataRange1d').create(
     # should be xdatanames; simplifying for testing
-    sources : [{ref : data_source.ref(), columns : ['x']}]  
+    sources : [{ref : data_source.ref(), columns : ['x']}]
   )
-  ydr = Bokeh.Collections.DataRange1d.create(
+  ydr = Collections('DataRange1d').create(
     sources : [{ref : data_source.ref(), columns : ['y']}]  # should be ydatanames
   )
 
   renderer.set('xdata_range', xdr.ref())
   renderer.set('ydata_range', ydr.ref())
-  xaxis = Bokeh.Collections['LinearAxis'].create(
+  xaxis = Collections('LinearAxis').create(
     orientation : 'bottom'
     parent : plot_model.ref()
     data_range : xdr.ref()
   )
-  yaxis = Bokeh.Collections['LinearAxis'].create(
+  yaxis = Collections('LinearAxis').create(
     orientation : 'left',
     parent : plot_model.ref()
     data_range : ydr.ref()
@@ -269,7 +268,7 @@ Bokeh.glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatan
   #  div = $('<div></div>')
   #  dom_element.append(div)
   #  #myrender = () ->
-  #  view = new Bokeh.PlotView(model: plot_model)
+  #  view = new PlotView(model: plot_model)
   #  div.append(view.$el)
   #  view.render()
   #  #_.defer(myrender)
@@ -278,3 +277,11 @@ Bokeh.glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatan
 window.bokehprettyprint = (obj) ->
   for own key, val of obj
     console.log(key, val)
+
+
+exports.scatter_plot = scatter_plot
+exports.data_table = data_table
+exports.make_range_and_mapper = make_range_and_mapper
+exports.bar_plot = bar_plot
+exports.line_plot = line_plot
+exports.glyph_plot = glyph_plot

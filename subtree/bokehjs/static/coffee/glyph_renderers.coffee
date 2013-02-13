@@ -1,16 +1,14 @@
 #Setup Bokeh Module
-
-Collections = Continuum.Collections
+base = require("./base")
+schema_renderers = require("./schema_renderers")
+XYRendererView = schema_renderers.XYRendererView
+HasParent = base.HasParent
+safebind = base.safebind
 
 # MAIN BOKEH CLASSES
 
 # backbone assumes that valid attrs are any non-null, or non-defined value
 # thats dumb, we only check for undefined, because null is perfectly valid
-safebind = Continuum.safebind
-HasParent = Continuum.HasParent
-BokehView = Continuum.ContinuumView
-HasProperties = Continuum.HasProperties
-
 
 class MetaGlyph
   constructor: (@styleprovider, @glyphspec, @attrnames) ->
@@ -102,7 +100,7 @@ class MetaGlyph
     return glyph
 
 # ###class : GlyphRendererView
-class GlyphRendererView extends Bokeh.XYRendererView
+class GlyphRendererView extends XYRendererView
   addSquare: (x, y, size, color) ->
     if isNaN(x) or isNaN(y)
       reqturn null
@@ -302,7 +300,7 @@ class GlyphRendererView extends Bokeh.XYRendererView
     # * line_color
     # * alpha
     #
-    metaglyph = new MetaGlyph(this, glyphspec, ['xs','ys','line_width:string', 'line_color:string', 'alpha'])
+    metaglyph = new MetaGlyph(this, glyphspec, ['xs','ys','line_width:string', 'line_color:string', 'line_dash', 'alpha'])
 
     ctx = @plot_view.ctx
     ctx.save()
@@ -312,6 +310,7 @@ class GlyphRendererView extends Bokeh.XYRendererView
       ctx.lineWidth = glyph.line_width
       ctx.strokeStyle = glyph.line_color
       ctx.globalAlpha = glyph.alpha
+      ctx.setLineDash(glyph.line_dash)
 
       if not (glyph.xs? and glyph.ys?)
           continue
@@ -505,7 +504,7 @@ class GlyphRendererView extends Bokeh.XYRendererView
     ctx.restore()
 
   render_areas : (glyphspec, data) ->
-    metaglyph = new MetaGlyph(this, glyphspec, ['xs','ys','color:string', 'outline_width:string', 'outline_color:string', 'alpha'])
+    metaglyph = new MetaGlyph(this, glyphspec, ['xs','ys','color:string', 'outline_width:string', 'outline_color:string', 'outline_dash', 'alpha'])
 
     ctx = @plot_view.ctx
     ctx.save()
@@ -516,6 +515,7 @@ class GlyphRendererView extends Bokeh.XYRendererView
       ctx.lineWidth = glyph.outline_width
       ctx.strokeStyle = glyph.outline_color
       ctx.globalAlpha = glyph.alpha
+      ctx.setLineDash(glyph.outline_dash)
 
       if not (glyph.xs? and glyph.ys?)
           continue
@@ -842,9 +842,9 @@ _.extend(GlyphRenderer::display_defaults, {
 
 })
 
-class GlyphRenderers extends Continuum.Collection
+class GlyphRenderers extends Backbone.Collection
   model : GlyphRenderer
 
-if not Continuum.Collections.GlyphRenderer
-  Continuum.Collections.GlyphRenderer = new GlyphRenderers
-Bokeh.GlyphRendererView = GlyphRendererView
+exports.glyphrenderers = new GlyphRenderers
+exports.GlyphRendererView = GlyphRendererView
+exports.GlyphRenderer = GlyphRenderer
