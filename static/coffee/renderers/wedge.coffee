@@ -1,10 +1,10 @@
 
-glyph = require("../glyph")
+glyph = require('../glyph')
 Glyph = glyph.Glyph
 fill_properties = glyph.fill_properties
 line_properties = glyph.line_properties
 
-glyph_renderer = require("../glyph_renderers")
+glyph_renderer = require('../glyph_renderers')
 GlyphRenderer = glyph_renderer.GlyphRenderer
 GlyphRendererView = glyph_renderer.GlyphRendererView
 
@@ -16,7 +16,7 @@ class WedgeRendererView extends GlyphRendererView
     @glyph = new Glyph(
       @,
       glyphspec,
-      ["x", "y", "radius", "start_angle", "end_angle"],
+      ['x', 'y', 'radius', 'start_angle', 'end_angle'],
       [
         new fill_properties(@, glyphspec),
         new line_properties(@, glyphspec)
@@ -29,21 +29,21 @@ class WedgeRendererView extends GlyphRendererView
 
   _render: (data) ->
     ctx = @plot_view.ctx
-    glyph = @mget('glyph')
+    glyph = @glyph
 
     ctx.save()
 
-    x = (@glyph.select("x", obj) for obj in data)
-    y = (@glyph.select("y", obj) for obj in data)
+    x = (@glyph.select('x', obj) for obj in data)
+    y = (@glyph.select('y', obj) for obj in data)
     [@sx, @sy] = @map_to_screen(x, @glyph.x.units, y, @glyph.y.units)
-    @radius = @distance(data, "x", "radius", "edge")
-    @start_angle = (@glyph.select("start_angle", obj) for obj in data) # TODO deg/rad
-    @end_angle = (@glyph.select("end_angle", obj) for obj in data) # TODO deg/rad
+    @radius = @distance(data, 'x', 'radius', 'edge')
+    @start_angle = (@glyph.select('start_angle', obj) for obj in data) # TODO deg/rad
+    @end_angle = (@glyph.select('end_angle', obj) for obj in data) # TODO deg/rad
 
     if @glyph.fast_path
-      @_fast_path(ctx, @glyph)
+      @_fast_path(ctx, glyph)
     else
-      @_full_path(ctx, @glyph, data)
+      @_full_path(ctx, glyph, data)
 
     ctx.restore()
 
@@ -92,27 +92,27 @@ class WedgeRendererView extends GlyphRendererView
 
 
 class WedgeRenderer extends GlyphRenderer
-  default_view : WedgeRendererView
-  type : 'WedgeRenderer'
+  default_view: WedgeRendererView
+  type: 'WedgeRenderer'
 
 
 WedgeRenderer::display_defaults = _.clone(WedgeRenderer::display_defaults)
 _.extend(WedgeRenderer::display_defaults, {
 
-  fill: "gray"
+  fill: 'gray'
   fill_alpha: 1.0
 
   line_color: 'red'
   line_width: 1
   line_alpha: 1.0
-  line_join: "miter"
-  line_cap: "butt"
+  line_join: 'miter'
+  line_cap: 'butt'
   line_dash: []
 
 })
 
 class WedgeRenderers extends Backbone.Collection
-  model : WedgeRenderer
+  model: WedgeRenderer
 
 exports.wedgerenderers = new WedgeRenderers
 exports.WedgeRenderer = WedgeRenderer

@@ -48,7 +48,7 @@ make_glyph_test = (test_name, data_source, defaults, glyph, xrange, yrange, tool
         dimensions : ['width', 'height']
       )
       plot_tools = [pantool, zoomtool]
-    glyph_renderer = Collections('WedgeRenderer').create({
+    glyph_renderer = Collections('RayRenderer').create({
       data_source : data_source.ref()
       xdata_range : xrange.ref()
       ydata_range : yrange.ref()
