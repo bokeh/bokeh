@@ -10,7 +10,15 @@ import sys
 __version__ = (0, 0, 1)
 import requests
 print "downloading compiled javascript from github"
-jssource = requests.get("http://raw.github.com/ContinuumIO/bokehjs-build/master/application.js").content
+# Compatibility with old Requests package (prior to 0.10.0). Check for .text
+# attribute, and lacking that
+response = requests.get("http://raw.github.com/ContinuumIO/bokehjs-build/master/application.js")
+if hasattr(response, 'text'):
+    # New Requests library; .text contains Unicode
+    jssource = response.text
+else:
+    # Old Requests library; .content should be properly encoded
+    jssource = response.content
 with open("bokeh/server/static/js/application.js", "w+") as f:
     f.write(jssource)
 print "downloading completed"
