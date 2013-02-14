@@ -12,9 +12,10 @@ GlyphRendererView = glyph_renderer.GlyphRendererView
 class WedgeRendererView extends GlyphRendererView
 
   initialize: (options) ->
+    glyphspec = @mget('glyphspec')
     @glyph = new Glyph(
       @,
-      @get('glyphspec'),
+      glyphspec,
       ["x", "y", "radius", "start_angle", "end_angle"],
       [
         new fill_properties(@, glyphspec),
@@ -22,28 +23,27 @@ class WedgeRendererView extends GlyphRendererView
       ]
     )
 
-    glyph = @get('glyph')
-    @do_fill   = glyph.fill_properties.do_fill
-    @do_stroke = glyph.line_properties.do_stroke
+    @do_fill   = true #@glyph.fill_properties.do_fill
+    @do_stroke = true #@glyph.line_properties.do_stroke
     super(options)
 
   _render: (data) ->
     ctx = @plot_view.ctx
-    glyph = @get('glyph')
+    glyph = @mget('glyph')
 
     ctx.save()
 
     x = (@glyph.select("x", obj) for obj in data)
     y = (@glyph.select("y", obj) for obj in data)
     [@sx, @sy] = @map_to_screen(x, @glyph.x.units, y, @glyph.y.units)
-    @radius = @distance(@glyph, data, "x", "radius", "edge")
+    @radius = @distance(data, "x", "radius", "edge")
     @start_angle = (@glyph.select("start_angle", obj) for obj in data) # TODO deg/rad
     @end_angle = (@glyph.select("end_angle", obj) for obj in data) # TODO deg/rad
 
     if @glyph.fast_path
       @_fast_path(ctx, @glyph)
     else
-      @_fill_path(ctx, @glyph, data)
+      @_full_path(ctx, @glyph, data)
 
     ctx.restore()
 
@@ -62,7 +62,7 @@ class WedgeRendererView extends GlyphRendererView
 
     if @do_stroke
       glyph.line_properties.set(ctx, glyph)
-      for i in [0..sx.length-1]
+      for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
           continue
 
@@ -73,7 +73,7 @@ class WedgeRendererView extends GlyphRendererView
         ctx.stroke()
 
   _full_path: (ctx, glyph, data) ->
-    for i in [0..sx.length-1]
+    for i in [0..@sx.length-1]
       if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
         continue
 
@@ -93,6 +93,7 @@ class WedgeRendererView extends GlyphRendererView
 
 class WedgeRenderer extends GlyphRenderer
   default_view : WedgeRendererView
+  type : 'WedgeRenderer'
 
 
 WedgeRenderer::display_defaults = _.clone(WedgeRenderer::display_defaults)

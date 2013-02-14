@@ -9,7 +9,7 @@ class properties
       if _.isString(default_value)
         @[attrname] = {default: default_value}
       else
-        console.log("string property'#{ attrname }' given invalid default value: " + default_value)
+        console.log("string property '#{ attrname }' given invalid default value: " + default_value)
       return
 
     glyph_value = glyphspec[attrname]
@@ -21,7 +21,7 @@ class properties
         @[attrname].default = default_value
       console.log @[attrname]
     else
-      console.log("string property'#{ attrname }' given invalid glyph value: " + glyph_value)
+      console.log("string property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
   number: (styleprovider, glyphspec, attrname) ->
     default_value = styleprovider.mget(attrname)
@@ -31,7 +31,7 @@ class properties
       if _.isNumber(default_value)
         @[attrname] = {default: default_value, units: default_units}
       else
-        console.log("number property'#{ attrname }' given invalid default value: " + default_value)
+        console.log("number property '#{ attrname }' given invalid default value: " + default_value)
       return
 
     glyph_value = glyphspec[attrname]
@@ -46,7 +46,7 @@ class properties
       if not @[attrname].units?
         @[attrname].units = default_units
     else
-      console.log("number property'#{ attrname }' given invalid glyph value: " + glyph_value)
+      console.log("number property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
   color: (styleprovider, glyphspec, attrname) ->
     default_value = styleprovider.mget(attrname)
@@ -55,7 +55,7 @@ class properties
       if _.isString(default_value) or _.isNull(default_value)
         @[attrname] = {default: default_value}
       else
-        console.log("color property'#{ attrname }' given invalid default value: " + default_value)
+        console.log("color property '#{ attrname }' given invalid default value: " + default_value)
       return
 
     glyph_value = glyphspec[attrname]
@@ -66,7 +66,7 @@ class properties
       if not @[attrname].default?
         @[attrname].default = default_value
     else
-      console.log("color property'#{ attrname }' given invalid glyph value: " + glyph_value)
+      console.log("color property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
   array: (styleprovider, glyphspec, attrname) ->
     default_value = styleprovider.mget(attrname)
@@ -76,7 +76,7 @@ class properties
       if _.isArray(default_value)
         @[attrname] = {default: default_value, units: default_units}
       else
-        console.log("array property'#{ attrname }' given invalid default value: " + default_value)
+        console.log("array property '#{ attrname }' given invalid default value: " + default_value)
       return
 
     glyph_value = glyphspec[attrname]
@@ -89,7 +89,7 @@ class properties
       if not @[attrname].default?
         @[attrname].default = default_value
     else
-      console.log("array property'#{ attrname }' given invalid glyph value: " + glyph_value)
+      console.log("array property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
   enum: (styleprovider, glyphspec, attrname, vals) ->
     default_value = styleprovider.mget(attrname)
@@ -99,7 +99,7 @@ class properties
       if _.isString(default_value) and default_value in levels_value
         @[attrname] = {default: default_value}
       else
-        console.log("enum property'#{ attrname }' given invalid default value: " + default_value)
+        console.log("enum property '#{ attrname }' given invalid default value: " + default_value)
         console.log("    acceptable values:" + levels_value)
       return
 
@@ -114,7 +114,7 @@ class properties
       if not @[attrname].default?
         @[attrname].default = default_value
     else
-      console.log("enum property'#{ attrname }' given invalid glyph value: " + glyph_value)
+      console.log("enum property '#{ attrname }' given invalid glyph value: " + glyph_value)
       console.log("    acceptable values:" + levels_value)
 
   setattr: (styleprovider, glyphspec, attrname, attrtype) ->
@@ -241,7 +241,7 @@ class Glyph extends properties
       @setattr(styleprovider, glyphspec, attrname, attrtype)
 
     for prop in properties
-      @[prop.name] = prop
+      @[prop.constructor.name] = prop
 
     # TODO auto detect fast path cases
     @fast_path = false

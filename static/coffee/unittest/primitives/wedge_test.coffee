@@ -15,8 +15,6 @@ data_source = Collections('ObjectArrayDataSource').create(
 
 defaults = {
   radius: 10
-  x : 'x'
-  y : 'y'
   start_angle: 0.1
   end_angle: 3.9
   direction: 'clock'
@@ -25,6 +23,8 @@ defaults = {
 glyph = {
   type : 'wedge'
   fill : 'blue'
+  x : 'x'
+  y : 'y'
 }
 
 
