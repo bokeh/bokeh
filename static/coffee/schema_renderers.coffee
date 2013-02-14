@@ -127,7 +127,6 @@ class ScatterRendererView extends XYRendererView
     super()
     selected = {}
     sel_idxs = @model.get_obj('data_source').get('selected')
-    console.log('sel_idxs', sel_idxs)
     if sel_idxs.length == 0
       selecting = false
     else

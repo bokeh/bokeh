@@ -74,6 +74,11 @@ alltests = {
     'wedge'     : ['unittest/primitives/wedge_test'],
 }
 
+allpossibletests = set()
+for v in alltests.values():
+    allpossibletests.update(v)
+alltests['allpossibletests'] = alltests
+
 if __name__ == "__main__":
 
     if sys.argv[1] == 'debug':

@@ -632,9 +632,9 @@ class PlotWidget extends ContinuumView
 
 locations =
   Plot : ['./container', 'plots']
-  PanTool : ['./tools', 'pantools']
-  ZoomTool : ['./tools', 'zoomtools']
-  SelectionTool : ['./tools', 'selectiontools']
+  PanTool : ['./tools/pantool', 'pantools']
+  ZoomTool : ['./tools/zoomtool', 'zoomtools']
+  SelectionTool : ['./tools/selecttool', 'selectiontools']
   LinearAxis : ['./guides', 'linearaxes']
   LinearDateAxis : ['./guides', 'lineardateaxes']
   Legend : ['./guides', 'legends']
