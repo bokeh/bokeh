@@ -20,7 +20,7 @@ else:
     # Old Requests library; .content should be properly encoded
     jssource = response.content
 with open("bokeh/server/static/js/application.js", "w+") as f:
-    f.write(jssource)
+    f.write(jssource.encode('UTF-8'))
 print "downloading completed"
 package_data_dirs = []
 for dirname, _, files in os.walk('bokeh/server/static', followlinks=True):
