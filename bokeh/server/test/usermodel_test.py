@@ -6,11 +6,11 @@ import redis
 import requests
 
 import test_utils
-from .. import app
+from ..app import app
 from ..models import user
 from .. import models
 
-class TestUser(test_utils.CDXServerTestCase):
+class TestUser(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestUser, self).setUp()
         self.client = app.model_redis
