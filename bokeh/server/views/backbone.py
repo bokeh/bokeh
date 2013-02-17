@@ -8,7 +8,7 @@ import uuid
 import urlparse
 from ..app import app
 from .. import serverbb
-from ...bbmodel import ContinuumModel
+from ...bbmodel import make_model
 from .. import wsmanager
 from ..models import convenience
 from ..models import docs
@@ -52,7 +52,7 @@ def bulk_upsert(docid):
              'msg' : 'unauthorized'}
             )
     data = current_app.ph.deserialize_web(request.data)
-    models = [ContinuumModel(x['type'], **x['attributes']) \
+    models = [make_model(x['type'], **x['attributes']) \
               for x in data]
     for m in models:
         if m.get('docs') is None:
@@ -83,7 +83,7 @@ def create(docid, typename):
             )
     log.debug("create, %s, %s", docid, typename)
     modeldata = current_app.ph.deserialize_web(request.data)
-    model = ContinuumModel(typename, **modeldata)
+    model = make_model(typename, **modeldata)
     if model.get('docs') is None:
         model.set('docs', [docid])
     model.set('created', True)
@@ -108,7 +108,7 @@ def put(docid, typename, id):
             )
     modeldata = current_app.ph.deserialize_web(request.data)
     log.debug("put, %s, %s", docid, typename)
-    model = ContinuumModel(typename, **modeldata)
+    model = make_model(typename, **modeldata)
     if model.get('docs') is None:
         model.set('docs', [docid])
     current_app.collections.add(model)

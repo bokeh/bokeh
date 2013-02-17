@@ -5,7 +5,7 @@ import uuid
 import logging
 import cPickle as pickle
 import redis
-from bokeh.bbmodel import ContinuumModel
+from bokeh.bbmodel import make_model
 import numpy as np
 log = logging.getLogger(__name__)
 """
@@ -39,7 +39,7 @@ class ContinuumModelsStorage(object):
 
         else:
             attrs = self.ph.deserialize_web(attrs)
-            return ContinuumModel(typename, **attrs)
+            return make_model(typename, **attrs)
 
     def bbset(self, client, key, model):
         return client.set(key, self.ph.serialize_web(model.attributes))

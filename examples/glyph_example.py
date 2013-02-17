@@ -1,11 +1,11 @@
 from bokeh import mpl
-from bokeh.bbmodel import ContinuumModel
+from bokeh.bbmodel import make_model
 p = mpl.PlotClient('defaultdoc', 'http://localhost:5006', 'nokey')
 import numpy as np
 import datetime
 import time
 
-source = ContinuumModel(
+source = make_model(
     'ObjectArrayDataSource',
     data = [
         {'x' : 1, 'y' : 5, 'z':3, 'radius':10},
@@ -15,17 +15,17 @@ source = ContinuumModel(
         {'x' : 5, 'y' : 1, 'z':3},
         ]
     )
-plot = ContinuumModel('Plot')
-xdr = ContinuumModel(
+plot = make_model('Plot')
+xdr = make_model(
     'DataRange1d', 
     sources = [{'ref' : source.ref(), 'columns' : ['x']}]
     )
 
-ydr = ContinuumModel(
+ydr = make_model(
     'DataRange1d', 
     sources=[{'ref' : source.ref(), 'columns' : ['y']}],
     )
-glyph_renderer = ContinuumModel(
+glyph_renderer = make_model(
     'GlyphRenderer',
     data_source = source.ref(),
     xdata_range = xdr.ref(),
@@ -38,14 +38,14 @@ glyph_renderer = ContinuumModel(
                'color' : 'blue'}]
     )         
 
-xaxis = ContinuumModel(
+xaxis = make_model(
     'LinearAxis', 
     orientation='bottom',
     parent=plot.ref(),
     data_range=xdr.ref()
     )
 
-yaxis = ContinuumModel(
+yaxis = make_model(
     'LinearAxis', 
     orientation='left',
     parent=plot.ref(),

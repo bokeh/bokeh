@@ -10,7 +10,17 @@ import redis
 
 import numpy as np
 log = logging.getLogger(__name__)
+special_types = {}
 
+def register_type(typename, cls):
+    special_types[typename] = cls
+    
+def make_model(typename, **kwargs):
+    if typename in special_types:
+        return special_types[typename](typename, **kwargs)
+    else:
+        return ContinuumModel(typename, **kwargs)
+    
 class ContinuumModel(object):
     collections = ['Continuum', 'Collections']    
     def __init__(self, typename, **kwargs):
@@ -120,20 +130,20 @@ class ContinuumModelsClient(object):
             url = utils.urljoin(self.baseurl, self.docid)
             data = self.s.get(url).content
             specs = self.ph.deserialize_web(data)
-            models =  [ContinuumModel(
+            models =  [make_model(
                 x['type'], **x['attributes']) for x in specs]
             return models
         elif typename is not None and id is None:
             url = utils.urljoin(self.baseurl, self.docid +"/", typename)
             attrs = self.ph.deserialize_web(self.s.get(url).content)
-            models = [ContinuumModel(typename, **x) for x in attrs]
+            models = [make_model(typename, **x) for x in attrs]
             return models
         elif typename is not None and id is not None:
             url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/", id)
             attr = self.ph.deserialize_web(self.s.get(url).content)
             if attr is None:
                 return None
-            model = ContinuumModel(typename, **attr)
+            model = make_model(typename, **attr)
             return model
         
     def upsert_all(self, models):

@@ -318,7 +318,7 @@ class PlotClient(object):
         return None
 
     def model(self, typename, **kwargs):
-        model = bbmodel.ContinuumModel(typename, **kwargs)
+        model = bbmodel.make_model(typename, **kwargs)
         self.models[model.id] = model
         return model
     
