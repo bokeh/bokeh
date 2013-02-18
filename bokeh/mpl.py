@@ -449,7 +449,23 @@ class PlotClient(object):
                         scatter=scatter
                         )
         return self._plot
-
+    
+    def pandastable(self, fpath, sort=[], groups=[],
+                    agg='sum', width=300, offset=0, length=100,
+                    height=300):
+        if container is None:
+            parent = self.ic
+        else:
+            parent = container
+        table = self.model('Pandas', path=fpath
+                           sort=sort, groups=groups,agg=agg
+                           offset=offset,length=length,
+                           width=width, height=height)
+        if self.bbclient:
+            self.bbclient.update(table)
+        if container is None:
+            self.show(table)
+        
     def table(self, data_source, columns, title=None,
               width=300, height=300, container=None):
         if container is None:

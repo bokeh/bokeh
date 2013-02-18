@@ -2,8 +2,8 @@ from ..bbmodel import ContinuumModel, register_type
 from ..data import make_source
 
 import cPickle as pickle
-class PandasModel(ContinuumModel):
-    """Pandas class
+class PandasPivotModel(ContinuumModel):
+    """Pandas Pivot table class
     attributes:
         path : filesystem path of pickled pandas data
         sort : list of columns to sort by
@@ -44,4 +44,4 @@ class PandasModel(ContinuumModel):
         self.set('data', data)
         return self.attributes
 
-register_type('Pandas', PandasModel)
+register_type('PandasPivot', PandasPivotModel)
