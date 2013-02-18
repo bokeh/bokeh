@@ -3,7 +3,6 @@ make_glyph_test = require('../test_utils').make_glyph_test
 
 range = Collections('Range1d').create({start: 0, end: 10})
 
-
 data_source = Collections('ObjectArrayDataSource').create(
   data : [
     {x : 1, y : 5},
@@ -15,8 +14,6 @@ data_source = Collections('ObjectArrayDataSource').create(
 )
 
 defaults = {
-  x : 'x'
-  y : 'y'
   width: 20
   width_units: "screen"
   height: 28
@@ -24,10 +21,11 @@ defaults = {
   angle: 0
 }
 
-glyphs = [
-    type : 'oval'
-    fill: 'blue'
-  ,
-]
+glyph = {
+  type : 'oval'
+  fill: 'blue'
+  x : 'x'
+  y : 'y'
+}
 
-test('oval_glyph', make_glyph_test('oval_glyph', data_source, defaults, glyphs, range, range))
+test('oval_glyph', make_glyph_test('oval_glyph', data_source, defaults, glyph, range, range))

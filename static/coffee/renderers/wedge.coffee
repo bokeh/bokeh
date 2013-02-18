@@ -1,73 +1,119 @@
 
-glyph = require("../glyph")
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+line_properties = properties.line_properties
+fill_properties = properties.fill_properties
 
-
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-fill_properties = glyph.fill_properties
-line_properties = glyph.line_properties
+GlyphView = glyph.GlyphView
 
 
-wedge = (view, glyphspec, data) ->
-  ctx = view.plot_view.ctx
+class WedgeView extends GlyphView
 
-  ctx.save()
+  initialize: (options) ->
+    glyphspec = @mget('glyphspec')
+    @glyph_props = new glyph_properties(
+      @,
+      glyphspec,
+      ['x', 'y', 'radius', 'start_angle', 'end_angle'],
+      [
+        new fill_properties(@, glyphspec),
+        new line_properties(@, glyphspec)
+      ]
+    )
 
-  glyph = new Glyph(view, glyphspec, ["x", "y", "radius", "start_angle", "end_angle"], [fill_properties, line_properties])
+    @do_fill   = @glyph_props.fill_properties.do_fill
+    @do_stroke = @glyph_props.line_properties.do_stroke
+    super(options)
 
-  x = (glyph.select("x", obj) for obj in data)
-  y = (glyph.select("y", obj) for obj in data)
-  [sx, sy] = view.map_to_screen(x, glyph.x.units, y, glyph.y.units)
-  radius = view.distance(glyph, data, "x", "radius", "edge")
-  start_angle = (glyph.select("start_angle", obj) for obj in data) # TODO deg/rad
-  end_angle = (glyph.select("end_angle", obj) for obj in data) # TODO deg/rad
+  _render: (data) ->
+    ctx = @plot_view.ctx
+    glyph_props = @glyph_props
 
-  do_fill = glyph.fill_properties.do_fill
-  do_stroke = glyph.line_properties.do_stroke
+    ctx.save()
 
-  if glyph.fast_path
-    if do_fill
-      glyph.fill_properties.set(ctx, glyph)
-      for i in [0..sx.length-1]
-        if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
+    x = (@glyph_props.select('x', obj) for obj in data)
+    y = (@glyph_props.select('y', obj) for obj in data)
+    [@sx, @sy] = @map_to_screen(x, @glyph_props.x.units, y, @glyph_props.y.units)
+    @radius = @distance(data, 'x', 'radius', 'edge')
+    @start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
+    @end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
+
+    if @glyph_props.fast_path
+      @_fast_path(ctx, glyph_props)
+    else
+      @_full_path(ctx, glyph_props, data)
+
+    ctx.restore()
+
+  _fast_path: (ctx, glyph_props) ->
+    if @do_fill
+      glyph_props.fill_properties.set(ctx, glyph)
+      for i in [0..@sx.length-1]
+        if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
           continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
-        ctx.lineTo(sx[i], sy[i])
+        ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], false)
+        ctx.lineTo(@sx[i], @sy[i])
         ctx.closePath()
         ctx.fill()
 
-    if do_stroke
-      glyph.line_properties.set(ctx, glyph)
-      for i in [0..sx.length-1]
-        if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
+    if @do_stroke
+      glyph_props.line_properties.set(ctx, glyph)
+      for i in [0..@sx.length-1]
+        if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
           continue
 
         ctx.beginPath()
-        ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
-        ctx.lineTo(sx[i], sy[i])
+        ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], false)
+        ctx.lineTo(@sx[i], @sy[i])
         ctx.closePath()
         ctx.stroke()
 
-  else
-    for i in [0..sx.length-1]
-      if isNaN(sx[i] + sy[i] + radius[i] + start_angle[i] + end_angle[i])
+  _full_path: (ctx, glyph_props, data) ->
+    for i in [0..@sx.length-1]
+      if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
         continue
 
       ctx.beginPath()
-      ctx.arc(sx[i], sy[i], radius[i], start_angle[i], end_angle[i], false)
-      ctx.lineTo(sx[i], sy[i])
+      ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], false)
+      ctx.lineTo(@sx[i], @sy[i])
       ctx.closePath()
 
-      if do_fill
-        glyph.fill_properties.set(ctx, data[i])
+      if @do_fill
+        glyph_props.fill_properties.set(ctx, data[i])
         ctx.fill()
 
-      if do_stroke
-        glyph.line_properties.set(ctx, data[i])
+      if @do_stroke
+        glyph_props.line_properties.set(ctx, data[i])
         ctx.stroke()
 
-  ctx.restore()
+
+class Wedge extends Glyph
+  default_view: WedgeView
+  type: 'GlyphRenderer'
 
 
-exports.wedge = wedge
+Wedge::display_defaults = _.clone(Wedge::display_defaults)
+_.extend(Wedge::display_defaults, {
+
+  fill: 'gray'
+  fill_alpha: 1.0
+
+  line_color: 'red'
+  line_width: 1
+  line_alpha: 1.0
+  line_join: 'miter'
+  line_cap: 'butt'
+  line_dash: []
+
+})
+
+class Wedges extends Backbone.Collection
+  model: Wedge
+
+exports.wedges = new Wedges
+exports.Wedge = Wedge
+exports.WedgeView = WedgeView

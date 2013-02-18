@@ -1,62 +1,106 @@
 
-glyph = require("../glyph")
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+line_properties = properties.line_properties
+fill_properties = properties.fill_properties
 
-
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-line_properties = glyph.line_properties
-fill_properties = glyph.fill_properties
+GlyphView = glyph.GlyphView
 
 
-area = (view, glyphspec, data) ->
-  ctx = view.plot_view.ctx
+class AreaView extends GlyphView
 
-  ctx.save()
+  initialize: (options) ->
+    glyphspec = @mget('glyphspec')
+    @glyph_props = new glyph_properties(
+      @,
+      glyphspec,
+      ['xs', 'ys']
+      [
+        new fill_properties(@, glyphspec),
+        new line_properties(@, glyphspec)
+      ]
+    )
 
-  glyph = new Glyph(view, glyphspec, ["xs", "ys"], [fill_properties, line_properties])
+    @do_fill = @glyph_props.fill_properties.do_fill
+    @do_stroke = @glyph_props.line_properties.do_stroke
+    super(options)
 
-  do_fill = glyph.fill_properties.do_fill
-  do_stroke = glyph.line_properties.do_stroke
+  # TODO store screen coords
 
-  for pt in data
-    x = glyph.select("xs", pt)
-    y = glyph.select("ys", pt)
-    [sx, sy] = view.map_to_screen(x, glyph.xs.units, y, glyph.ys.units)
+  _render: (data) ->
+    ctx = @plot_view.ctx
+    glyph_props = @glyph_props
 
-    if do_fill
-      glyph.fill_properties.set(ctx, pt)
-      for i in [0..sx.length-1]
-        if i == 0
-          ctx.beginPath()
-          ctx.moveTo(sx[i], sy[i])
-          continue
-        else if isNaN(sx[i]) or isNaN(sy[i])
-          ctx.closePath()
-          ctx.fill()
-          ctx.beginPath()
-          continue
-        else
-          ctx.lineTo(sx[i], sy[i])
-      ctx.closePath()
-      ctx.fill()
+    ctx.save()
 
-    if do_stroke
-      glyph.line_properties.set(ctx, pt)
-      for i in [0..sx.length-1]
-        if i == 0
-          ctx.beginPath()
-          ctx.moveTo(sx[i], sy[i])
-          continue
-        else if isNaN(sx[i]) or isNaN(sy[i])
-          ctx.closePath()
-          ctx.stroke()
-          ctx.beginPath()
-          continue
-        else
-          ctx.lineTo(sx[i], sy[i])
-      ctx.closePath()
-      ctx.stroke()
+    for pt in data
+      x = glyph_props.select('xs', pt)
+      y = glyph_props.select('ys', pt)
+      [sx, sy] = @map_to_screen(x, glyph_props.xs.units, y, glyph_props.ys.units)
 
-  ctx.restore()
+      if @do_fill
+        glyph_props.fill_properties.set(ctx, pt)
+        for i in [0..sx.length-1]
+          if i == 0
+            ctx.beginPath()
+            ctx.moveTo(sx[i], sy[i])
+            continue
+          else if isNaN(sx[i] + sy[i])
+            ctx.closePath()
+            ctx.fill()
+            ctx.beginPath()
+            continue
+          else
+            ctx.lineTo(sx[i], sy[i])
+        ctx.closePath()
+        ctx.fill()
+
+      if @do_stroke
+        glyph_props.line_properties.set(ctx, pt)
+        for i in [0..sx.length-1]
+          if i == 0
+            ctx.beginPath()
+            ctx.moveTo(sx[i], sy[i])
+            continue
+          else if isNaN(sx[i] + sy[i])
+            ctx.closePath()
+            ctx.stroke()
+            ctx.beginPath()
+            continue
+          else
+            ctx.lineTo(sx[i], sy[i])
+        ctx.closePath()
+        ctx.stroke()
+
+    ctx.restore()
 
 
-exports.area = area
+class Area extends Glyph
+  default_view: AreaView
+  type: 'GlyphRenderer'
+
+
+Area::display_defaults = _.clone(Area::display_defaults)
+_.extend(Area::display_defaults, {
+
+  fill: 'gray'
+  fill_alpha: 1.0
+
+  line_color: 'red'
+  line_width: 1
+  line_alpha: 1.0
+  line_join: 'miter'
+  line_cap: 'butt'
+  line_dash: []
+
+})
+
+class Areas extends Backbone.Collection
+  model: Area
+
+exports.areas = new Areas
+exports.Area = Area
+exports.AreaView = AreaView
+

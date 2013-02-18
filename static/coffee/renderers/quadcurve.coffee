@@ -1,55 +1,101 @@
 
-glyph = require("../glyph")
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+line_properties = properties.line_properties
 
-
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-line_properties = glyph.line_properties
+GlyphView = glyph.GlyphView
 
 
-quadcurve = (view, glyphspec, data) ->
-  ctx = view.plot_view.ctx
+class QuadcurveView extends GlyphView
 
-  ctx.save()
+  initialize: (options) ->
+    glyphspec = @mget('glyphspec')
+    @glyph_props = new glyph_properties(
+      @,
+      glyphspec,
+      ['x0', 'y0', 'x1', 'y1', 'cx', 'cy'],
+      [
+        new line_properties(@, glyphspec)
+      ]
+    )
 
-  glyph = new Glyph(view, glyphspec, ["x0", "y0", "x1", "y1", "cx", "cy"], [line_properties])
+    @do_stroke = @glyph_props.line_properties.do_stroke
+    super(options)
 
-  x0 = (glyph.select("x0", obj) for obj in data)
-  y0 = (glyph.select("y0", obj) for obj in data)
-  [sx0, sy0] = view.map_to_screen(x0, glyph.x0.units, y0, glyph.y0.units)
+  _render: (data) ->
+    ctx = @plot_view.ctx
+    glyph_props = @glyph_props
 
-  x1 = (glyph.select("x1", obj) for obj in data)
-  y1 = (glyph.select("y1", obj) for obj in data)
-  [sx1, sy1] = view.map_to_screen(x1, glyph.x1.units, y1, glyph.y1.units)
+    ctx.save()
 
-  cx = (glyph.select("cx", obj) for obj in data)
-  cy = (glyph.select("cy", obj) for obj in data)
-  [scx, scy] = view.map_to_screen(cx, glyph.cx.units, cy, glyph.cy.units)
+    x0 = (glyph_props.select('x0', obj) for obj in data)
+    y0 = (glyph_props.select('y0', obj) for obj in data)
+    [@sx0, @sy0] = @map_to_screen(x0, glyph_props.x0.units, y0, glyph_props.y0.units)
 
-  if glyph.fast_path
-    glyph.line_properties.set(ctx, glyph)
-    ctx.beginPath()
-    for i in [0..sx0.length-1]
-      if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx[i] + scy[i])
-        continue
+    x1 = (glyph_props.select('x1', obj) for obj in data)
+    y1 = (glyph_props.select('y1', obj) for obj in data)
+    [@sx1, @sy1] = @map_to_screen(x1, glyph_props.x1.units, y1, glyph_props.y1.units)
 
-      ctx.moveTo(sx0[i], sy0[i])
-      ctx.quadraticCurveTo(scx[i], scy[i], sx1[i], sy1[i])
+    cx = (glyph_props.select('cx', obj) for obj in data)
+    cy = (glyph_props.select('cy', obj) for obj in data)
+    [@scx, @scy] = @map_to_screen(cx, glyph_props.cx.units, cy, glyph_props.cy.units)
 
-    ctx.stroke()
+    if @glyph_props.fast_path
+      @_fast_path(ctx, glyph_props)
+    else
+      @_full_path(ctx, glyph_props, data)
 
-  else
-    for i in [0..sx0.length-1]
-      if isNaN(sx0[i] + sy0[i] + sx1[i] + sy1[i] + scx[i] + scy[i])
-        continue
+    ctx.restore()
 
+  _fast_path: (ctx, glyph_props) ->
+    if @do_stroke
+      glyph_props.line_properties.set(ctx, glyph)
       ctx.beginPath()
-      ctx.moveTo(sx0[i], sy0[i])
-      ctx.quadraticCurveTo(scx[i], scy[i], sx1[i], sy1[i])
+      for i in [0..@sx0.length-1]
+        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx[i] + @scy[i])
+          continue
 
-      glyph.line_properties.set(ctx, data[i])
+        ctx.moveTo(@sx0[i], @sy0[i])
+        ctx.quadraticCurveTo(@scx[i], @scy[i], @sx1[i], @sy1[i])
+
       ctx.stroke()
 
-  ctx.restore()
+  _full_path: (ctx, glyph_props, data) ->
+    if @do_stroke
+      for i in [0..@sx0.length-1]
+        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx[i] + @scy[i])
+          continue
+
+        ctx.beginPath()
+        ctx.moveTo(@sx0[i], @sy0[i])
+        ctx.quadraticCurveTo(@scx[i], @scy[i], @sx1[i], @sy1[i])
+
+        glyph_props.line_properties.set(ctx, data[i])
+        ctx.stroke()
 
 
-exports.quadcurve = quadcurve
+class Quadcurve extends Glyph
+  default_view: QuadcurveView
+  type: 'GlyphRenderer'
+
+
+Quadcurve::display_defaults = _.clone(Quadcurve::display_defaults)
+_.extend(Quadcurve::display_defaults, {
+
+  line_color: 'red'
+  line_width: 1
+  line_alpha: 1.0
+  line_join: 'miter'
+  line_cap: 'butt'
+  line_dash: []
+
+})
+
+class Quadcurves extends Backbone.Collection
+  model: Quadcurve
+
+exports.quadcurves = new Quadcurves
+exports.Quadcurve = Quadcurve
+exports.QuadcurveView = QuadcurveView
