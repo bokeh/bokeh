@@ -13,7 +13,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 )
 
 defaults = {
-  fill_alpha : 0.5
+  fill_alpha: 0.5
 }
 
 glyph = {

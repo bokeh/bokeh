@@ -1,18 +1,18 @@
 
-glyph = require('../glyph')
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+line_properties = properties.line_properties
+
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-line_properties = glyph.line_properties
-
-glyph_renderer = require('../glyph_renderers')
-GlyphRenderer = glyph_renderer.GlyphRenderer
-GlyphRendererView = glyph_renderer.GlyphRendererView
+GlyphView = glyph.GlyphView
 
 
-class RayRendererView extends GlyphRendererView
+class RayView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
-    @glyph = new Glyph(
+    @glyph_props = new glyph_properties(
       @,
       glyphspec,
       ['x', 'y', 'angle', 'length'],
@@ -21,12 +21,12 @@ class RayRendererView extends GlyphRendererView
       ]
     )
 
-    @do_stroke = true #@glyph.line_properties.do_stroke
+    @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
   _render: (data) ->
     ctx = @plot_view.ctx
-    glyph = @glyph
+    glyph_props = @glyph_props
 
     ctx.save()
 
@@ -34,24 +34,24 @@ class RayRendererView extends GlyphRendererView
     height = @plot_view.viewstate.get('height')
     inf_len = 2 * (width + height)
 
-    x = (glyph.select('x', obj) for obj in data)
-    y = (glyph.select('y', obj) for obj in data)
-    [@sx, @sy] = @map_to_screen(x, glyph.x.units, y, glyph.y.units)
-    @angle = (glyph.select('angle', obj) for obj in data) # TODO deg/rad
-    @length = (glyph.select('length', obj) for obj in data)
+    x = (glyph_props.select('x', obj) for obj in data)
+    y = (glyph_props.select('y', obj) for obj in data)
+    [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
+    @angle = (glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
+    @length = (glyph_props.select('length', obj) for obj in data)
     for i in [0..@sx.length-1]
       if @length[i] == 0 then @length[i] = inf_len
 
-    if @glyph.fast_path
-      @_fast_path(ctx, glyph)
+    if @glyph_props.fast_path
+      @_fast_path(ctx, glyph_props)
     else
-      @_full_path(ctx, glyph, data)
+      @_full_path(ctx, glyph_props, data)
 
     ctx.restore()
 
-  _fast_path: (ctx, glyph) ->
+  _fast_path: (ctx, glyph_props) ->
     if @do_stroke
-      glyph.line_properties.set(ctx, glyph)
+      glyph_props.line_properties.set(ctx, glyph)
       ctx.beginPath()
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
@@ -66,7 +66,7 @@ class RayRendererView extends GlyphRendererView
 
       ctx.stroke()
 
-  _full_path: (ctx, glyph, data) ->
+  _full_path: (ctx, glyph_props, data) ->
     if @do_stroke
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
@@ -79,20 +79,20 @@ class RayRendererView extends GlyphRendererView
         ctx.moveTo(0, 0)
         ctx.lineTo(@length[i], 0) # TODO handle @length in data units?
 
-        glyph.line_properties.set(ctx, data[i])
+        glyph_props.line_properties.set(ctx, data[i])
         ctx.stroke()
 
         ctx.rotate(-@angle[i])
         ctx.translate(-@sx[i], -@sy[i])
 
 
-class RayRenderer extends GlyphRenderer
-  default_view: RayRendererView
-  type: 'RayRenderer'
+class Ray extends Glyph
+  default_view: RayView
+  type: 'GlyphRenderer'
 
 
-RayRenderer::display_defaults = _.clone(RayRenderer::display_defaults)
-_.extend(RayRenderer::display_defaults, {
+Ray::display_defaults = _.clone(Ray::display_defaults)
+_.extend(Ray::display_defaults, {
 
   line_color: 'red'
   line_width: 1
@@ -103,10 +103,10 @@ _.extend(RayRenderer::display_defaults, {
 
 })
 
-class RayRenderers extends Backbone.Collection
-  model: RayRenderer
+class Rays extends Backbone.Collection
+  model: Ray
 
-exports.rayrenderers = new RayRenderers
-exports.RayRenderer = RayRenderer
-exports.RayRendererView = RayRendererView
+exports.rays = new Rays
+exports.Ray = Ray
+exports.RayView = RayView
 

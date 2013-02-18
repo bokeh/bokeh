@@ -1,19 +1,19 @@
 
-glyph = require('../glyph')
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+line_properties = properties.line_properties
+fill_properties = properties.fill_properties
+
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-line_properties = glyph.line_properties
-fill_properties = glyph.fill_properties
-
-glyph_renderer = require('../glyph_renderers')
-GlyphRenderer = glyph_renderer.GlyphRenderer
-GlyphRendererView = glyph_renderer.GlyphRendererView
+GlyphView = glyph.GlyphView
 
 
-class AreaRendererView extends GlyphRendererView
+class AreaView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
-    @glyph = new Glyph(
+    @glyph_props = new glyph_properties(
       @,
       glyphspec,
       ['xs', 'ys']
@@ -23,25 +23,25 @@ class AreaRendererView extends GlyphRendererView
       ]
     )
 
-    @do_fill = true #@glyph.line_properties.do_fill
-    @do_stroke = true #@glyph.line_properties.do_stroke
+    @do_fill = @glyph_props.fill_properties.do_fill
+    @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
   # TODO store screen coords
 
   _render: (data) ->
     ctx = @plot_view.ctx
-    glyph = @glyph
+    glyph_props = @glyph_props
 
     ctx.save()
 
     for pt in data
-      x = glyph.select('xs', pt)
-      y = glyph.select('ys', pt)
-      [sx, sy] = @map_to_screen(x, glyph.xs.units, y, glyph.ys.units)
+      x = glyph_props.select('xs', pt)
+      y = glyph_props.select('ys', pt)
+      [sx, sy] = @map_to_screen(x, glyph_props.xs.units, y, glyph_props.ys.units)
 
       if @do_fill
-        glyph.fill_properties.set(ctx, pt)
+        glyph_props.fill_properties.set(ctx, pt)
         for i in [0..sx.length-1]
           if i == 0
             ctx.beginPath()
@@ -58,7 +58,7 @@ class AreaRendererView extends GlyphRendererView
         ctx.fill()
 
       if @do_stroke
-        glyph.line_properties.set(ctx, pt)
+        glyph_props.line_properties.set(ctx, pt)
         for i in [0..sx.length-1]
           if i == 0
             ctx.beginPath()
@@ -77,13 +77,13 @@ class AreaRendererView extends GlyphRendererView
     ctx.restore()
 
 
-class AreaRenderer extends GlyphRenderer
-  default_view: AreaRendererView
-  type: 'AreaRenderer'
+class Area extends Glyph
+  default_view: AreaView
+  type: 'GlyphRenderer'
 
 
-AreaRenderer::display_defaults = _.clone(AreaRenderer::display_defaults)
-_.extend(AreaRenderer::display_defaults, {
+Area::display_defaults = _.clone(Area::display_defaults)
+_.extend(Area::display_defaults, {
 
   fill: 'gray'
   fill_alpha: 1.0
@@ -97,10 +97,10 @@ _.extend(AreaRenderer::display_defaults, {
 
 })
 
-class AreaRenderers extends Backbone.Collection
-  model: AreaRenderer
+class Areas extends Backbone.Collection
+  model: Area
 
-exports.arearenderers = new AreaRenderers
-exports.AreaRenderer = AreaRenderer
-exports.AreaRendererView = AreaRendererView
+exports.areas = new Areas
+exports.Area = Area
+exports.AreaView = AreaView
 

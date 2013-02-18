@@ -25,7 +25,10 @@ class properties
 
   number: (styleprovider, glyphspec, attrname) ->
     default_value = styleprovider.mget(attrname)
-    default_units = styleprovider.mget(attrname+"_units") ? 'data'
+    default_units = styleprovider.mget(attrname+'_units') ? 'data'
+
+    if (attrname+'_units' of glyphspec)
+      default_units = glyphspec[attrname+'_units']
 
     if not (attrname of glyphspec)
       if _.isNumber(default_value)
@@ -71,6 +74,9 @@ class properties
   array: (styleprovider, glyphspec, attrname) ->
     default_value = styleprovider.mget(attrname)
     default_units = styleprovider.mget(attrname+"_units") ? 'data'
+
+    if (attrname+'_units' of glyphspec)
+      default_units = glyphspec[attrname+'units']
 
     if not (attrname of glyphspec)
       if _.isArray(default_value)
@@ -232,7 +238,7 @@ class text_properties extends properties
 
 
 
-class Glyph extends properties
+class glyph_properties extends properties
   constructor: (styleprovider, glyphspec, attrnames, properties) ->
     for attrname in attrnames
       attrtype = "number"
@@ -250,7 +256,7 @@ class Glyph extends properties
 
 
 
-exports.Glyph = Glyph
+exports.glyph_properties = glyph_properties
 exports.fill_properties = fill_properties
 exports.line_properties = line_properties
 exports.text_properties = text_properties

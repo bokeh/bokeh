@@ -1,19 +1,19 @@
 
-glyph = require('../glyph')
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+line_properties = properties.line_properties
+fill_properties = properties.fill_properties
+
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-fill_properties = glyph.fill_properties
-line_properties = glyph.line_properties
-
-glyph_renderer = require('../glyph_renderers')
-GlyphRenderer = glyph_renderer.GlyphRenderer
-GlyphRendererView = glyph_renderer.GlyphRendererView
+GlyphView = glyph.GlyphView
 
 
-class OvalRendererView extends GlyphRendererView
+class OvalView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
-    @glyph = new Glyph(
+    @glyph_props = new glyph_properties(
       @,
       glyphspec,
       ['x', 'y', 'width', 'height', 'angle'],
@@ -23,33 +23,33 @@ class OvalRendererView extends GlyphRendererView
       ]
     )
 
-    @do_fill   = true #@glyph.fill_properties.do_fill
-    @do_stroke = true #@glyph.line_properties.do_stroke
+    @do_fill   = @glyph_props.fill_properties.do_fill
+    @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
   _render: (data) ->
     ctx = @plot_view.ctx
-    glyph = @glyph
+    glyph_props = @glyph_props
 
     ctx.save()
 
-    x = (glyph.select('x', obj) for obj in data)
-    y = (glyph.select('y', obj) for obj in data)
-    [@sx, @sy] = @map_to_screen(x, glyph.x.units, y, glyph.y.units)
+    x = (glyph_props.select('x', obj) for obj in data)
+    y = (glyph_props.select('y', obj) for obj in data)
+    [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
     @sw = @distance(data, 'x', 'width', 'center')
     @sh = @distance(data, 'y', 'height', 'center')
-    @angle = (glyph.select('angle', obj) for obj in data) # TODO deg/rad
+    @angle = (glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
 
-    if @glyph.fast_path
-      @_fast_path(ctx, glyph)
+    if @glyph_props.fast_path
+      @_fast_path(ctx, glyph_props)
     else
-      @_full_path(ctx, glyph, data)
+      @_full_path(ctx, glyph_props, data)
 
     ctx.restore()
 
-  _fast_path: (ctx, glyph) ->
+  _fast_path: (ctx, glyph_props) ->
     if @do_fill
-      glyph.fill_properties.set(ctx, glyph)
+      glyph_props.fill_properties.set(ctx, glyph)
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
           continue
@@ -68,7 +68,7 @@ class OvalRendererView extends GlyphRendererView
         ctx.translate(-@sx[i], -@sy[i])
 
     if @do_fill
-      glyph.line_properties.set(ctx, glyph)
+      glyph_props.line_properties.set(ctx, glyph)
       ctx.beginPath()
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
@@ -85,7 +85,7 @@ class OvalRendererView extends GlyphRendererView
         ctx.translate(-@sx[i], -@sy[i])
       ctx.stroke()
 
-  _full_path: (ctx, glyph, data) ->
+  _full_path: (ctx, glyph_props, data) ->
     for i in [0..@sx.length-1]
       if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
         continue
@@ -100,24 +100,24 @@ class OvalRendererView extends GlyphRendererView
       ctx.closePath()
 
       if @do_fill
-        glyph.fill_properties.set(ctx, data[i])
+        glyph_props.fill_properties.set(ctx, data[i])
         ctx.fill()
 
       if @do_stroke
-        glyph.line_properties.set(ctx, data[i])
+        glyph_props.line_properties.set(ctx, data[i])
         ctx.stroke()
 
       ctx.rotate(-@angle[i])
       ctx.translate(-@sx[i], -@sy[i])
 
 
-class OvalRenderer extends GlyphRenderer
-  default_view: OvalRendererView
-  type: 'OvalRenderer'
+class Oval extends Glyph
+  default_view: OvalView
+  type: 'GlyphRenderer'
 
 
-OvalRenderer::display_defaults = _.clone(OvalRenderer::display_defaults)
-_.extend(OvalRenderer::display_defaults, {
+Oval::display_defaults = _.clone(Oval::display_defaults)
+_.extend(Oval::display_defaults, {
 
   fill: 'gray'
   fill_alpha: 1.0
@@ -133,9 +133,9 @@ _.extend(OvalRenderer::display_defaults, {
 
 })
 
-class OvalRenderers extends Backbone.Collection
-  model: OvalRenderer
+class Ovals extends Backbone.Collection
+  model: Oval
 
-exports.ovalrenderers = new OvalRenderers
-exports.OvalRenderer = OvalRenderer
-exports.OvalRendererView = OvalRendererView
+exports.ovals = new Ovals
+exports.Oval = Oval
+exports.OvalView = OvalView

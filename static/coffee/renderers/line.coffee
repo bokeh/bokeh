@@ -1,18 +1,18 @@
 
-glyph = require('../glyph')
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+line_properties = properties.line_properties
+
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-line_properties = glyph.line_properties
-
-glyph_renderer = require('../glyph_renderers')
-GlyphRenderer = glyph_renderer.GlyphRenderer
-GlyphRendererView = glyph_renderer.GlyphRendererView
+GlyphView = glyph.GlyphView
 
 
-class LineRendererView extends GlyphRendererView
+class LineView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
-    @glyph = new Glyph(
+    @glyph_props = new glyph_properties(
       @,
       glyphspec,
       ['xs', 'ys'],
@@ -21,31 +21,32 @@ class LineRendererView extends GlyphRendererView
       ]
     )
 
-    @do_stroke = true #glyph.line_properties.do_stroke
+    @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
   _render: (data) ->
     ctx = @plot_view.ctx
+    glyph_props = @glyph_props
 
     ctx.save()
 
-    if @glyph.fast_path
-      @_fast_path(ctx, @glyph)
+    if @glyph_props.fast_path
+      @_fast_path(ctx, glyph_props)
     else
-      @_full_path(ctx, @glyph, data)
+      @_full_path(ctx, glyph_props, data)
 
     ctx.restore()
 
   # TODO save screen coords
 
-  _fast_path: (ctx, glyph) ->
+  _fast_path: (ctx, glyph_props) ->
     if @do_stroke
-      glyph.line_properties.set(ctx, glyph)
+      glyph_props.line_properties.set(ctx, glyph)
       for pt in data
-        x = glyph.select('xs', pt)
-        y = glyph.select('ys', pt)
+        x = glyph_props.select('xs', pt)
+        y = glyph_props.select('ys', pt)
 
-        [sx, sy] = @map_to_screen(x, glyph.xs.units, y, glyph.ys.units)
+        [sx, sy] = @map_to_screen(x, glyph_props.xs.units, y, glyph_props.ys.units)
 
         for i in [0..sx.length-1]
           if i == 0
@@ -60,15 +61,15 @@ class LineRendererView extends GlyphRendererView
             ctx.lineTo(sx[i], sy[i])
         ctx.stroke()
 
-  _full_path: (ctx, glyph, data) ->
+  _full_path: (ctx, glyph_props, data) ->
     if @do_stroke
       for pt in data
-        x = glyph.select('xs', pt)
-        y = glyph.select('ys', pt)
+        x = glyph_props.select('xs', pt)
+        y = glyph_props.select('ys', pt)
 
-        [sx, sy] = @map_to_screen(x, glyph.xs.units, y, glyph.ys.units)
+        [sx, sy] = @map_to_screen(x, glyph_props.xs.units, y, glyph_props.ys.units)
 
-        glyph.line_properties.set(ctx, pt)
+        glyph_props.line_properties.set(ctx, pt)
         for i in [0..sx.length-1]
           if i == 0
             ctx.beginPath()
@@ -83,13 +84,13 @@ class LineRendererView extends GlyphRendererView
         ctx.stroke()
 
 
-class LineRenderer extends GlyphRenderer
-  default_view: LineRendererView
-  type: 'LineRenderer'
+class Line extends Glyph
+  default_view: LineView
+  type: 'GlyphRenderer'
 
 
-LineRenderer::display_defaults = _.clone(LineRenderer::display_defaults)
-_.extend(LineRenderer::display_defaults, {
+Line::display_defaults = _.clone(Line::display_defaults)
+_.extend(Line::display_defaults, {
 
   line_color: 'red'
   line_width: 1
@@ -100,10 +101,10 @@ _.extend(LineRenderer::display_defaults, {
 
 })
 
-class LineRenderers extends Backbone.Collection
-  model: LineRenderer
+class Lines extends Backbone.Collection
+  model: Line
 
-exports.linerenderers = new LineRenderers
-exports.LineRenderer = LineRenderer
-exports.LineRendererView = LineRendererView
+exports.lines = new Lines
+exports.Line = Line
+exports.LineView = LineView
 

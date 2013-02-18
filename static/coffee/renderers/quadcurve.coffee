@@ -1,18 +1,18 @@
 
-glyph = require('../glyph')
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+line_properties = properties.line_properties
+
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-line_properties = glyph.line_properties
-
-glyph_renderer = require('../glyph_renderers')
-GlyphRenderer = glyph_renderer.GlyphRenderer
-GlyphRendererView = glyph_renderer.GlyphRendererView
+GlyphView = glyph.GlyphView
 
 
-class QuadcurveRendererView extends GlyphRendererView
+class QuadcurveView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
-    @glyph = new Glyph(
+    @glyph_props = new glyph_properties(
       @,
       glyphspec,
       ['x0', 'y0', 'x1', 'y1', 'cx', 'cy'],
@@ -21,37 +21,37 @@ class QuadcurveRendererView extends GlyphRendererView
       ]
     )
 
-    @do_stroke = true #@glyph.line_properties.do_stroke
+    @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
   _render: (data) ->
     ctx = @plot_view.ctx
-    glyph = @glyph
+    glyph_props = @glyph_props
 
     ctx.save()
 
-    x0 = (glyph.select('x0', obj) for obj in data)
-    y0 = (glyph.select('y0', obj) for obj in data)
-    [@sx0, @sy0] = @map_to_screen(x0, glyph.x0.units, y0, glyph.y0.units)
+    x0 = (glyph_props.select('x0', obj) for obj in data)
+    y0 = (glyph_props.select('y0', obj) for obj in data)
+    [@sx0, @sy0] = @map_to_screen(x0, glyph_props.x0.units, y0, glyph_props.y0.units)
 
-    x1 = (glyph.select('x1', obj) for obj in data)
-    y1 = (glyph.select('y1', obj) for obj in data)
-    [@sx1, @sy1] = @map_to_screen(x1, glyph.x1.units, y1, glyph.y1.units)
+    x1 = (glyph_props.select('x1', obj) for obj in data)
+    y1 = (glyph_props.select('y1', obj) for obj in data)
+    [@sx1, @sy1] = @map_to_screen(x1, glyph_props.x1.units, y1, glyph_props.y1.units)
 
-    cx = (glyph.select('cx', obj) for obj in data)
-    cy = (glyph.select('cy', obj) for obj in data)
-    [@scx, @scy] = @map_to_screen(cx, glyph.cx.units, cy, glyph.cy.units)
+    cx = (glyph_props.select('cx', obj) for obj in data)
+    cy = (glyph_props.select('cy', obj) for obj in data)
+    [@scx, @scy] = @map_to_screen(cx, glyph_props.cx.units, cy, glyph_props.cy.units)
 
-    if @glyph.fast_path
-      @_fast_path(ctx, glyph)
+    if @glyph_props.fast_path
+      @_fast_path(ctx, glyph_props)
     else
-      @_full_path(ctx, glyph, data)
+      @_full_path(ctx, glyph_props, data)
 
     ctx.restore()
 
-  _fast_path: (ctx, glyph) ->
+  _fast_path: (ctx, glyph_props) ->
     if @do_stroke
-      glyph.line_properties.set(ctx, glyph)
+      glyph_props.line_properties.set(ctx, glyph)
       ctx.beginPath()
       for i in [0..@sx0.length-1]
         if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx[i] + @scy[i])
@@ -62,7 +62,7 @@ class QuadcurveRendererView extends GlyphRendererView
 
       ctx.stroke()
 
-  _full_path: (ctx, glyph, data) ->
+  _full_path: (ctx, glyph_props, data) ->
     if @do_stroke
       for i in [0..@sx0.length-1]
         if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx[i] + @scy[i])
@@ -72,17 +72,17 @@ class QuadcurveRendererView extends GlyphRendererView
         ctx.moveTo(@sx0[i], @sy0[i])
         ctx.quadraticCurveTo(@scx[i], @scy[i], @sx1[i], @sy1[i])
 
-        glyph.line_properties.set(ctx, data[i])
+        glyph_props.line_properties.set(ctx, data[i])
         ctx.stroke()
 
 
-class QuadcurveRenderer extends GlyphRenderer
-  default_view: QuadcurveRendererView
-  type: 'QuadcurveRenderer'
+class Quadcurve extends Glyph
+  default_view: QuadcurveView
+  type: 'GlyphRenderer'
 
 
-QuadcurveRenderer::display_defaults = _.clone(QuadcurveRenderer::display_defaults)
-_.extend(QuadcurveRenderer::display_defaults, {
+Quadcurve::display_defaults = _.clone(Quadcurve::display_defaults)
+_.extend(Quadcurve::display_defaults, {
 
   line_color: 'red'
   line_width: 1
@@ -93,9 +93,9 @@ _.extend(QuadcurveRenderer::display_defaults, {
 
 })
 
-class QuadcurveRenderers extends Backbone.Collection
-  model: QuadcurveRenderer
+class Quadcurves extends Backbone.Collection
+  model: Quadcurve
 
-exports.quadcurverenderers = new QuadcurveRenderers
-exports.QuadcurveRenderer = QuadcurveRenderer
-exports.QuadcurveRendererView = QuadcurveRendererView
+exports.quadcurves = new Quadcurves
+exports.Quadcurve = Quadcurve
+exports.QuadcurveView = QuadcurveView

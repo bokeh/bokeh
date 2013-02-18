@@ -1,18 +1,18 @@
 
-glyph = require("../glyph")
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+text_properties = properties.text_properties
+
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-text_properties = glyph.text_properties
-
-glyph_renderer = require("../glyph_renderers")
-GlyphRenderer = glyph_renderer.GlyphRenderer
-GlyphRendererView = glyph_renderer.GlyphRendererView
+GlyphView = glyph.GlyphView
 
 
-class TextRendererView extends GlyphRendererView
+class TextView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
-    @glyph = new Glyph(
+    @glyph_props = new glyph_properties(
       @,
       glyphspec,
       ['x', 'y', 'angle', 'text:string'],
@@ -25,25 +25,25 @@ class TextRendererView extends GlyphRendererView
 
   _render: (data) ->
     ctx = @plot_view.ctx
-    glyph = @glyph
+    glyph_props = @glyph_props
 
     ctx.save()
 
-    x = (glyph.select("x", obj) for obj in data)
-    y = (glyph.select("y", obj) for obj in data)
-    [@sx, @sy] = @map_to_screen(x, glyph.x.units, y, glyph.y.units)
-    @angle = (glyph.select("angle", obj) for obj in data) # TODO deg/rad
-    @text = (glyph.select("text", obj) for obj in data)
+    x = (glyph_props.select("x", obj) for obj in data)
+    y = (glyph_props.select("y", obj) for obj in data)
+    [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
+    @angle = (glyph_props.select("angle", obj) for obj in data) # TODO deg/rad
+    @text = (glyph_props.select("text", obj) for obj in data)
 
-    if @glyph.fast_path
-      @_fast_path(ctx, glyph)
+    if @glyph_props.fast_path
+      @_fast_path(ctx, glyph_props)
     else
-      @_full_path(ctx, glyph, data)
+      @_full_path(ctx, glyph_props, data)
 
     ctx.restore()
 
-  _fast_path: (ctx, glyph) ->
-    glyph.text_properties.set(ctx, glyph)
+  _fast_path: (ctx, glyph_props) ->
+    glyph_props.text_properties.set(ctx, glyph)
     for i in [0..@sx.length-1]
       if isNaN(@sx[i] + @sy[i] + @angle[i])
         continue
@@ -57,7 +57,7 @@ class TextRendererView extends GlyphRendererView
       else
         ctx.fillText(text[i], @sx[i], @sy[i])
 
-  _full_path: (ctx, glyph, data) ->
+  _full_path: (ctx, glyph_props, data) ->
     for i in [0..@sx.length-1]
       if isNaN(@sx[i] + @sy[i] + @angle[i])
         continue
@@ -65,20 +65,20 @@ class TextRendererView extends GlyphRendererView
       ctx.translate(@sx[i], @sy[i])
       ctx.rotate(@angle[i])
 
-      glyph.text_properties.set(ctx, data[i])
+      glyph_props.text_properties.set(ctx, data[i])
       ctx.fillText(@text[i], 0, 0)
 
       ctx.rotate(-@angle[i])
       ctx.translate(-@sx[i], -@sy[i])
 
 
-class TextRenderer extends GlyphRenderer
-  default_view: TextRendererView
-  type: 'TextRenderer'
+class Text extends Glyph
+  default_view: TextView
+  type: 'GlyphRenderer'
 
 
-TextRenderer::display_defaults = _.clone(TextRenderer::display_defaults)
-_.extend(TextRenderer::display_defaults, {
+Text::display_defaults = _.clone(Text::display_defaults)
+_.extend(Text::display_defaults, {
 
   text_font: "helvetica"
   text_font_size: "1em"
@@ -90,10 +90,10 @@ _.extend(TextRenderer::display_defaults, {
 
 })
 
-class TextRenderers extends Backbone.Collection
-  model: TextRenderer
+class Texts extends Backbone.Collection
+  model: Text
 
-exports.textrenderers = new TextRenderers
-exports.TextRenderer = TextRenderer
-exports.TextRendererView = TextRendererView
+exports.texts = new Texts
+exports.Text = Text
+exports.TextView = TextView
 

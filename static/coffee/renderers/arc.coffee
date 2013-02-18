@@ -1,18 +1,18 @@
 
-glyph = require('../glyph')
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+line_properties = properties.line_properties
+
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-line_properties = glyph.line_properties
-
-glyph_renderer = require('../glyph_renderers')
-GlyphRenderer = glyph_renderer.GlyphRenderer
-GlyphRendererView = glyph_renderer.GlyphRendererView
+GlyphView = glyph.GlyphView
 
 
-class ArcRendererView extends GlyphRendererView
+class ArcView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
-    @glyph = new Glyph(
+    @glyph_props = new glyph_properties(
       @,
       glyphspec,
       ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string'],
@@ -21,38 +21,38 @@ class ArcRendererView extends GlyphRendererView
       ]
     )
 
-    @do_stroke = true #@glyph.line_properties.do_stroke
+    @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
   _render: (data) ->
     ctx = @plot_view.ctx
-    glyph = @glyph
+    glyph_props = @glyph_props
 
     ctx.save()
 
-    x = (glyph.select('x', obj) for obj in data)
-    y = (glyph.select('y', obj) for obj in data)
-    [@sx, @sy] = @map_to_screen(x, glyph.x.units, y, glyph.y.units)
+    x = (glyph_props.select('x', obj) for obj in data)
+    y = (glyph_props.select('y', obj) for obj in data)
+    [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
     @radius = @distance(data, 'x', 'radius', 'edge')
-    @start_angle = (glyph.select('start_angle', obj) for obj in data) # TODO deg/rad
-    @end_angle = (glyph.select('end_angle', obj) for obj in data) # TODO deg/rad
+    @start_angle = (glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
+    @end_angle = (glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
     @direction = new Array(@sx.length)
     for i in [0..@sx.length-1]
-      dir = glyph.select('direction', data[i])
+      dir = glyph_props.select('direction', data[i])
       if dir == 'clock' then @direction[i] = false
       else if dir == 'anticlock' then @direction[i] = true
       else @direction[i] = NaN
 
-    if @glyph.fast_path
-      @_fast_path(ctx, glyph)
+    if @glyph_props.fast_path
+      @_fast_path(ctx, glyph_props)
     else
-      @_full_path(ctx, glyph, data)
+      @_full_path(ctx, glyph_props, data)
 
     ctx.restore()
 
-  _fast_path: (ctx, glyph) ->
+  _fast_path: (ctx, glyph_props) ->
     if @do_stroke
-      glyph.line_properties.set(ctx, glyph)
+      glyph_props.line_properties.set(ctx, glyph_props)
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
           continue
@@ -60,7 +60,7 @@ class ArcRendererView extends GlyphRendererView
         ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
         ctx.stroke()
 
-  _full_path: (ctx, glyph, data) ->
+  _full_path: (ctx, glyph_props, data) ->
     if @do_stroke
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
@@ -69,17 +69,17 @@ class ArcRendererView extends GlyphRendererView
         ctx.beginPath()
         ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
 
-        glyph.line_properties.set(ctx, data[i])
+        glyph_props.line_properties.set(ctx, data[i])
         ctx.stroke()
 
 
-class ArcRenderer extends GlyphRenderer
-  default_view: ArcRendererView
-  type: 'ArcRenderer'
+class Arc extends Glyph
+  default_view: ArcView
+  type: 'GlyphRenderer'
 
 
-ArcRenderer::display_defaults = _.clone(ArcRenderer::display_defaults)
-_.extend(ArcRenderer::display_defaults, {
+Arc::display_defaults = _.clone(Arc::display_defaults)
+_.extend(Arc::display_defaults, {
 
   line_color: 'red'
   line_width: 1
@@ -91,11 +91,11 @@ _.extend(ArcRenderer::display_defaults, {
 })
 
 
-class ArcRenderers extends Backbone.Collection
-  model: ArcRenderer
+class Arcs extends Backbone.Collection
+  model: Arc
 
 
-exports.arcrenderers = new ArcRenderers
-exports.ArcRenderer = ArcRenderer
-exports.ArcRendererView = ArcRendererView
+exports.arcs = new Arcs
+exports.Arc = Arc
+exports.ArcView = ArcView
 

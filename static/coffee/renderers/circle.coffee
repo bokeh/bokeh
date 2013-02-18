@@ -1,19 +1,19 @@
 
-glyph = require('../glyph')
+properties = require('./properties')
+glyph_properties = properties.glyph_properties
+line_properties = properties.line_properties
+fill_properties = properties.fill_properties
+
+glyph = require('./glyph')
 Glyph = glyph.Glyph
-fill_properties = glyph.fill_properties
-line_properties = glyph.line_properties
-
-glyph_renderer = require('../glyph_renderers')
-GlyphRenderer = glyph_renderer.GlyphRenderer
-GlyphRendererView = glyph_renderer.GlyphRendererView
+GlyphView = glyph.GlyphView
 
 
-class CircleRendererView extends GlyphRendererView
+class CircleView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
-    @glyph = new Glyph(
+    @glyph_props = new glyph_properties(
       @,
       glyphspec,
       ['x', 'y', 'radius']
@@ -23,31 +23,31 @@ class CircleRendererView extends GlyphRendererView
       ]
     )
 
-    @do_fill   = true #@glyph.fill_properties.do_fill
-    @do_stroke = true #@glyph.line_properties.do_stroke
+    @do_fill   = @glyph_props.fill_properties.do_fill
+    @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
   _render: (data) ->
     ctx = @plot_view.ctx
-    glyph = @glyph
+    glyph_props = @glyph_props
 
     ctx.save()
 
-    x = (glyph.select('x', obj) for obj in data)
-    y = (glyph.select('y', obj) for obj in data)
-    [@sx, @sy] = @map_to_screen(x, glyph.x.units, y, glyph.y.units)
+    x = (glyph_props.select('x', obj) for obj in data)
+    y = (glyph_props.select('y', obj) for obj in data)
+    [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
     @radius = @distance(data, 'x', 'radius', 'edge')
 
-    if @glyph.fast_path
-      @_fast_path(ctx, glyph)
+    if @glyph_props.fast_path
+      @_fast_path(ctx, glyph_props)
     else
-      @_full_path(ctx, glyph, data)
+      @_full_path(ctx, glyph_props, data)
 
     ctx.restore()
 
-  _fast_path: (ctx, glyph) ->
+  _fast_path: (ctx, glyph_props) ->
     if @do_fill
-      glyph.fill_properties.set(ctx, glyph)
+      glyph_props.fill_properties.set(ctx, glyph)
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i])
           continue
@@ -56,7 +56,7 @@ class CircleRendererView extends GlyphRendererView
         ctx.fill()
 
     if @do_stroke
-      glyph.line_properties.set(ctx, glyph)
+      glyph_props.line_properties.set(ctx, glyph)
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i])
           continue
@@ -64,7 +64,7 @@ class CircleRendererView extends GlyphRendererView
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI*2, false)
         ctx.stroke()
 
-  _full_path: (ctx, glyph, data) ->
+  _full_path: (ctx, glyph_props, data) ->
     for i in [0..@sx.length-1]
       if isNaN(@sx[i] + @sy[i] + @radius[i])
         continue
@@ -73,21 +73,21 @@ class CircleRendererView extends GlyphRendererView
       ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI*2, false)
 
       if @do_fill
-        glyph.fill_properties.set(ctx, data[i])
+        glyph_props.fill_properties.set(ctx, data[i])
         ctx.fill()
 
       if @do_stroke
-        glyph.line_properties.set(ctx, data[i])
+        glyph_props.line_properties.set(ctx, data[i])
         ctx.stroke()
 
 
-class CircleRenderer extends GlyphRenderer
-  default_view: CircleRendererView
-  type: 'CircleRenderer'
+class Circle extends Glyph
+  default_view: CircleView
+  type: 'GlyphRenderer'
 
 
-CircleRenderer::display_defaults = _.clone(CircleRenderer::display_defaults)
-_.extend(CircleRenderer::display_defaults, {
+Circle::display_defaults = _.clone(Circle::display_defaults)
+_.extend(Circle::display_defaults, {
 
   fill: 'gray'
   fill_alpha: 1.0
@@ -102,11 +102,11 @@ _.extend(CircleRenderer::display_defaults, {
 })
 
 
-class CircleRenderers extends Backbone.Collection
-  model: CircleRenderer
+class Circles extends Backbone.Collection
+  model: Circle
 
 
-exports.circlerenderers = new CircleRenderers
-exports.CircleRenderer = CircleRenderer
-exports.CircleRendererView = CircleRendererView
+exports.circles = new Circles
+exports.Circle = Circle
+exports.CircleView = CircleView
 

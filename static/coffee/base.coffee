@@ -77,7 +77,7 @@ load_models = (modelspecs)->
   #         attributes :
   #           firstattr : 'one'
   #         name : 'myplot'
-  #         renderers : []
+  #         s : []
   #
   #   type is the key of the in collections for this model
   #   id is the id of this model
@@ -632,28 +632,32 @@ class PlotWidget extends ContinuumView
 
 locations =
   Plot : ['./container', 'plots']
-  PanTool : ['./tools', 'pantools']
-  ZoomTool : ['./tools', 'zoomtools']
-  SelectionTool : ['./tools', 'selectiontools']
-  LinearAxis : ['./guides', 'linearaxes']
-  LinearDateAxis : ['./guides', 'lineardateaxes']
-  Legend : ['./guides', 'legends']
 
-  GlyphRenderer : ['./glyph_renderers', 'glyphrenderers']
-  ArcRenderer : ['./renderers/arc', 'arcrenderers']
-  AreaRenderer : ['./renderers/area', 'arearenderers']
-  BezierRenderer : ['./renderers/bezier', 'bezierrenderers']
-  CircleRenderer : ['./renderers/circle', 'circlerenderers']
-  ImageRenderer : ['./renderers/image', 'imagerenderers']
-  LineRenderer : ['./renderers/line', 'linerenderers']
-  OvalRenderer : ['./renderers/oval', 'ovalrenderers']
-  QuadRenderer : ['./renderers/quad', 'quadrenderers']
-  QuadcurveRenderer : ['./renderers/quadcurve', 'quadcurverenderers']
-  RayRenderer : ['./renderers/ray', 'rayrenderers']
-  RectRenderer : ['./renderers/rect', 'rectrenderers']
-  SegmentRenderer : ['./renderers/segment', 'segmentrenderers']
-  TextRenderer : ['./renderers/text', 'textrenderers']
-  WedgeRenderer : ['./renderers/wedge', 'wedgerenderers']
+  PanTool :       ['./tools', 'pantools']
+  ZoomTool :      ['./tools', 'zoomtools']
+  SelectionTool : ['./tools', 'selectiontools']
+
+  LinearAxis :     ['./guides', 'linearaxes']
+  LinearDateAxis : ['./guides', 'lineardateaxes']
+  Legend :         ['./guides', 'legends']
+
+  GlyphRenderer : ['./renderers/glyph_renderer',     'glyphrenderers']
+
+  Glyph :     ['./renderers/glyph',     'glyphs']
+  Arc :       ['./renderers/arc',       'arcs']
+  Area :      ['./renderers/area',      'areas']
+  Bezier :    ['./renderers/bezier',    'beziers']
+  Circle :    ['./renderers/circle',    'circles']
+  Image :     ['./renderers/image',     'images']
+  Line :      ['./renderers/line',      'lines']
+  Oval :      ['./renderers/oval',      'ovals']
+  Quad :      ['./renderers/quad',      'quads']
+  Quadcurve : ['./renderers/quadcurve', 'quadcurves']
+  Ray :       ['./renderers/ray',       'rays']
+  Rect :      ['./renderers/rect',      'rects']
+  Segment :   ['./renderers/segment',   'segments']
+  Text :      ['./renderers/text',      'texts']
+  Wedge :     ['./renderers/wedge',     'wedges']
 
   BoxSelectionOverlay : ['./overlays', 'boxselectionoverlays']
   ObjectArrayDataSource : ['./datasource', 'objectarraydatasources']

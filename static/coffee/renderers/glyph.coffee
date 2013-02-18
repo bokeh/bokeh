@@ -1,15 +1,15 @@
-base = require("./base")
+base = require('../base')
 Collections = base.Collections
 HasParent = base.HasParent
 PlotWidget = base.PlotWidget
 safebind = base.safebind
 
-mapper = require("./mapper")
+mapper = require('../mapper')
 LinearMapper = mapper.LinearMapper
 
 
+class GlyphView extends PlotWidget
 
-class GlyphRendererView extends PlotWidget
   initialize: (options) ->
     super(options)
     @set_xmapper()
@@ -17,12 +17,12 @@ class GlyphRendererView extends PlotWidget
 
   render: () ->
     source = @mget_obj('data_source')
-    if source.type == "ObjectArrayDataSource"
+    if source.type == 'ObjectArrayDataSource'
       data = source.get('data')
-    else if source.type == "ColumnDataSource"
+    else if source.type == 'ColumnDataSource'
       data = source.datapoints()
     else
-      console.log("Unknown data source type: " + source.type)
+      console.log('Unknown data source type: ' + source.type)
 
     @_render(data)
 
@@ -52,27 +52,27 @@ class GlyphRendererView extends PlotWidget
     @request_render()
 
   distance: (data, pt, span, position) ->
-    pt_units = @glyph[pt].units
-    span_units = @glyph[span].units
+    pt_units = @glyph_props[pt].units
+    span_units = @glyph_props[span].units
 
-    if      pt == "x" then mapper = @xmapper
-    else if pt == "y" then mapper = @ymapper
+    if      pt == 'x' then mapper = @xmapper
+    else if pt == 'y' then mapper = @ymapper
 
-    span = (@glyph.select(span, x) for x in data)
-    if span_units == "screen"
+    span = (@glyph_props.select(span, x) for x in data)
+    if span_units == 'screen'
       return span
 
-    if position == "center"
+    if position == 'center'
       halfspan = (d / 2 for d in span)
-      ptc = (@glyph.select(pt, x) for x in data)
-      if pt_units == "screen"
+      ptc = (@glyph_props.select(pt, x) for x in data)
+      if pt_units == 'screen'
         ptc = mapper.v_map_data(ptc)
       pt0 = (ptc[i] - halfspan[i] for i in [0..ptc.length-1])
       pt1 = (ptc[i] + halfspan[i] for i in [0..ptc.length-1])
 
     else
-      pt0 = (@glyph.select(pt, x) for x in data)
-      if pt_units == "screen"
+      pt0 = (@glyph_props.select(pt, x) for x in data)
+      if pt_units == 'screen'
         pt0 = mapper.v_map_data(pt0)
       pt1 = (pt0[i] + span[i] for i in [0..pt0.length-1])
 
@@ -85,13 +85,13 @@ class GlyphRendererView extends PlotWidget
     sx = new Array(x.length)
     sy = new Array(y.length)
 
-    if x_units == "screen"
+    if x_units == 'screen'
       sx = x
     else
       sx = @xmapper.v_map_screen(x)
       sx = @plot_view.viewstate.v_xpos(sx)
 
-    if y_units == "screen"
+    if y_units == 'screen'
       sy = y
     else
       sy = @ymapper.v_map_screen(y)
@@ -100,43 +100,20 @@ class GlyphRendererView extends PlotWidget
     return [sx, sy]
 
 
-class GlyphRenderer extends HasParent
-  type : 'GlyphRenderer'
-  default_view : GlyphRendererView
+class Glyph extends HasParent
 
 
-GlyphRenderer::defaults = _.clone(GlyphRenderer::defaults)
-_.extend(GlyphRenderer::defaults,
-  data_source : null
+Glyph::defaults = _.clone(Glyph::defaults)
+_.extend(Glyph::defaults,
+  data_source: null
 )
 
 
-GlyphRenderer::display_defaults = _.clone(GlyphRenderer::display_defaults)
-_.extend(GlyphRenderer::display_defaults, {
+Glyph::display_defaults = _.clone(Glyph::display_defaults)
+_.extend(Glyph::display_defaults, {
 
-  fill: "gray"
-  fill_alpha: 1.0
-
-  line_color: 'red'
-  line_width: 1
-  line_alpha: 1.0
-  line_join: "miter"
-  line_cap: "butt"
-  line_dash: []
-
-  text_font: "helvetica"
-  text_font_size: "1em"
-  text_font_style: "normal"
-  text_color: "#444444"
-  text_alpha: 1.0
-  text_align: "left"
-  text_baseline: "bottom"
-
-  radius : 5
-  radius_units: "screen"
-
+  radius_units: 'screen'
   length_units: 'screen'
-
   angle_units: 'deg'
   start_angle_units: 'deg'
   end_angle_units: 'deg'
@@ -144,9 +121,10 @@ _.extend(GlyphRenderer::display_defaults, {
 })
 
 
-class GlyphRenderers extends Backbone.Collection
-  model : GlyphRenderer
+class Glyphs extends Backbone.Collection
+  model: Glyph
 
-exports.glyphrenderers = new GlyphRenderers
-exports.GlyphRendererView = GlyphRendererView
-exports.GlyphRenderer = GlyphRenderer
+
+exports.glyphs = new Glyphs
+exports.GlyphView = GlyphView
+exports.Glyph = Glyph
