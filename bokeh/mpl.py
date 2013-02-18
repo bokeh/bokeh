@@ -5,6 +5,7 @@ import requests
 import uuid
 import bbmodel
 import protocol
+import data
 from protocol import serialize_json
 import os
 import dump
@@ -341,20 +342,7 @@ class PlotClient(object):
         return obj
 
     def make_source(self, **kwargs):
-        output = []
-        flds = kwargs.keys()
-        for idx in range(len(kwargs.values()[0])):
-            point = {}
-            for f in flds:
-                val = kwargs[f][idx]
-                if isinstance(val, float) and  np.isnan(val):
-                    val = "NaN"
-                elif isinstance(val, np.ndarray):
-                    val = val.tolist()
-                else:
-                    val = kwargs[f][idx]
-                point[f] = val
-            output.append(point)
+        output = data.make_source(**kwargs)
         model = self.model(
             'ObjectArrayDataSource',
             data=output
