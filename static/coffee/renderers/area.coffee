@@ -94,6 +94,7 @@ _.extend(Area::display_defaults, {
   line_join: 'miter'
   line_cap: 'butt'
   line_dash: []
+  line_dash_offset: 0
 
 })
 

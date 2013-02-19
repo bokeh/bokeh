@@ -44,7 +44,6 @@ class ImageView extends GlyphView
             ctx.translate(@sx[i], @sy[i])
             ctx.rotate(@angle[i])
             ctx.drawImage(img, 0, 0);
-            console.log @sx[i], @sy[i]
             ctx.rotate(-@angle[i])
             ctx.translate(-@sx[i], -@sy[i])
           else

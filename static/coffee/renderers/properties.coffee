@@ -197,12 +197,13 @@ class properties
 
 class line_properties extends properties
   constructor: (styleprovider, glyphspec, prefix="") ->
-    @line_color_name = "#{ prefix }line_color"
-    @line_width_name = "#{ prefix }line_width"
-    @line_alpha_name = "#{ prefix }line_alpha"
-    @line_join_name  = "#{ prefix }line_join"
-    @line_cap_name   = "#{ prefix }line_cap"
-    @line_dash_name  = "#{ prefix }line_dash"
+    @line_color_name        = "#{ prefix }line_color"
+    @line_width_name        = "#{ prefix }line_width"
+    @line_alpha_name        = "#{ prefix }line_alpha"
+    @line_join_name         = "#{ prefix }line_join"
+    @line_cap_name          = "#{ prefix }line_cap"
+    @line_dash_name         = "#{ prefix }line_dash"
+    @line_dash_offset_name  = "#{ prefix }line_dash_offset"
 
     @color(styleprovider, glyphspec, @line_color_name)
     @number(styleprovider, glyphspec, @line_width_name)
@@ -210,6 +211,7 @@ class line_properties extends properties
     @enum(styleprovider, glyphspec, @line_join_name, "miter round bevel")
     @enum(styleprovider, glyphspec, @line_cap_name, "butt round square")
     @array(styleprovider, glyphspec, @line_dash_name)
+    @number(styleprovider, glyphspec, @line_dash_offset_name)
 
     @do_stroke = not (@line_color.default == null)
 
@@ -220,8 +222,7 @@ class line_properties extends properties
     ctx.lineJoin    = @select(@line_join_name,  obj)
     ctx.lineCap     = @select(@line_cap_name,   obj)
     ctx.setLineDash(@select(@line_dash_name, obj))
-    # dash offset/phase unimplemented
-
+    ctx.setLineDashOffset(@select(@line_dash_offset_name, obj))
 
 
 class fill_properties extends properties

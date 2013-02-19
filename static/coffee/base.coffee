@@ -607,6 +607,10 @@ class PlotWidget extends ContinuumView
     if (!ctx.getLineDash)
       ctx.getLineDash = () ->
         return ctx.mozDash
+    ctx.setLineDashOffset = (dash_offset) ->
+      ctx.lineDashOffset = dash_offset
+      ctx.mozDashOffset = dash_offset
+      ctx.webkitLineDashOffset = dash_offset
     super(options)
 
   bind_bokeh_events : ->
