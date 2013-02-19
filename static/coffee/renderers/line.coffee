@@ -15,7 +15,7 @@ class LineView extends GlyphView
     @glyph_props = new glyph_properties(
       @,
       glyphspec,
-      ['xs', 'ys'],
+      ['xs:array', 'ys:array'],
       [
         new line_properties(@, glyphspec)
       ]

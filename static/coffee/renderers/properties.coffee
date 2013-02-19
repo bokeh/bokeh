@@ -161,6 +161,39 @@ class properties
     else
       console.log "selection for attribute '#{ attrname } failed on object: #{ obj }"
 
+  v_select: (attrname, objs) ->
+
+    # if the attribute is not on this property object at all, log a bad request
+    if not (attrname of @)
+      console.log("requested unknown property '#{ attrname } on objects")
+      return
+
+    result = new Array(objs.length)
+
+    for i in [0..objs.length-1]
+
+      obj = objs[i]
+
+      # if the attribute specifies a field, and the field exists on the object, return that value
+      if @[attrname].field?
+        if (@[attrname].field of obj)
+          result[i] = obj[@[attrname].field]
+
+      # otherwise, if the attribute exists on the object, return that value
+      else if obj[attrname]
+        result[i] = obj[attrname]
+
+      # finally, check for a default value on this property object that could be returned
+      else if @[attrname].default?
+        result[i] = @[attrname].default
+
+      # failing that, just log a problem
+      else
+        console.log "vector selection for attribute '#{ attrname } failed on object: #{ obj }"
+        return
+
+    return result
+
 
 class line_properties extends properties
   constructor: (styleprovider, glyphspec, prefix="") ->

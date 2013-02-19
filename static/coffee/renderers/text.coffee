@@ -29,11 +29,11 @@ class TextView extends GlyphView
 
     ctx.save()
 
-    x = (glyph_props.select("x", obj) for obj in data)
-    y = (glyph_props.select("y", obj) for obj in data)
+    x = glyph_props.v_select('x', data)
+    y = glyph_props.v_select('y', data)
     [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
     @angle = (glyph_props.select("angle", obj) for obj in data) # TODO deg/rad
-    @text = (glyph_props.select("text", obj) for obj in data)
+    @text = glyph_props.v_select("text", data)
 
     if @glyph_props.fast_path
       @_fast_path(ctx, glyph_props)

@@ -26,8 +26,8 @@ class ImageView extends GlyphView
 
     ctx.save()
 
-    x = (glyph_props.select('x', obj) for obj in data)
-    y = (glyph_props.select('y', obj) for obj in data)
+    x = glyph_props.v_select('x', data)
+    y = glyph_props.v_select('y', data)
     [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
     @image = (glyph_props.select('image', obj) for obj in data)
     @angle = (glyph_props.select('angle', obj) for obj in data) # TODO deg/rad

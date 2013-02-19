@@ -34,11 +34,11 @@ class RayView extends GlyphView
     height = @plot_view.viewstate.get('height')
     inf_len = 2 * (width + height)
 
-    x = (glyph_props.select('x', obj) for obj in data)
-    y = (glyph_props.select('y', obj) for obj in data)
+    x = glyph_props.v_select('x', data)
+    y = glyph_props.v_select('y', data)
     [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
     @angle = (glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
-    @length = (glyph_props.select('length', obj) for obj in data)
+    @length = glyph_props.v_select('length', data)
     for i in [0..@sx.length-1]
       if @length[i] == 0 then @length[i] = inf_len
 

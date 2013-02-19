@@ -30,16 +30,16 @@ class QuadcurveView extends GlyphView
 
     ctx.save()
 
-    x0 = (glyph_props.select('x0', obj) for obj in data)
-    y0 = (glyph_props.select('y0', obj) for obj in data)
+    x0 = glyph_props.v_select('x0', data)
+    y0 = glyph_props.v_select('y0', data)
     [@sx0, @sy0] = @map_to_screen(x0, glyph_props.x0.units, y0, glyph_props.y0.units)
 
-    x1 = (glyph_props.select('x1', obj) for obj in data)
-    y1 = (glyph_props.select('y1', obj) for obj in data)
+    x1 = glyph_props.v_select('x1', data)
+    y1 = glyph_props.v_select('y1', data)
     [@sx1, @sy1] = @map_to_screen(x1, glyph_props.x1.units, y1, glyph_props.y1.units)
 
-    cx = (glyph_props.select('cx', obj) for obj in data)
-    cy = (glyph_props.select('cy', obj) for obj in data)
+    cx = glyph_props.v_select('cx', data)
+    cy = glyph_props.v_select('cy', data)
     [@scx, @scy] = @map_to_screen(cx, glyph_props.cx.units, cy, glyph_props.cy.units)
 
     if @glyph_props.fast_path

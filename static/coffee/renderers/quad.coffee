@@ -33,12 +33,12 @@ class QuadView extends GlyphView
 
     ctx.save()
 
-    left = (glyph_props.select('left', obj) for obj in data)
-    top  = (glyph_props.select('top', obj) for obj in data)
+    left = glyph_props.v_select('left', data)
+    top  = glyph_props.v_select('top', data)
     [@sx0, @sy0] = @map_to_screen(left, glyph_props.left.units, top, glyph_props.top.units)
 
-    right  = (glyph_props.select('right', obj) for obj in data)
-    bottom = (glyph_props.select('bottom', obj) for obj in data)
+    right  = glyph_props.v_select('right', data)
+    bottom = glyph_props.v_select('bottom', data)
     [@sx1, @sy1] = @map_to_screen(right, glyph_props.right.units, bottom, glyph_props.bottom.units)
 
     if @glyph_props.fast_path

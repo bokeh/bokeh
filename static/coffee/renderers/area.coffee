@@ -16,7 +16,7 @@ class AreaView extends GlyphView
     @glyph_props = new glyph_properties(
       @,
       glyphspec,
-      ['xs', 'ys']
+      ['xs:array', 'ys:array']
       [
         new fill_properties(@, glyphspec),
         new line_properties(@, glyphspec)
