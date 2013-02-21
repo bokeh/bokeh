@@ -13,6 +13,9 @@ from app import app
 import wsmanager
 from .. import protocol
 from serverbb import ContinuumModelsStorage
+from .. import bbmodel
+bbmodel.load_special_types()
+
 import models.user as user
 import models.convenience as mconv
 import models.docs as docs

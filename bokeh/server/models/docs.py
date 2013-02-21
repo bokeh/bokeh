@@ -4,6 +4,7 @@ from ... import bbmodel
 import logging
 log = logging.getLogger(__name__)
 
+#backwards compatability code for data migrations
 def transform_models(models):
     print 'transforming!'
     model_cache = {}
@@ -73,7 +74,6 @@ def prune_and_get_valid_models(model_redis, collections, docid, delete=False):
         all_models_json[x.id] = x.attributes
         all_models[x.id] = x
     mark_recursive_models(all_models_json, marked, plot_context.attributes)
-
     for v in all_models_json.values():
         if v['id'] not in marked:
             typename = all_models[v['id']].typename

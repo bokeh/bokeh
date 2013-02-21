@@ -25,10 +25,13 @@ class PandasPivotModel(ContinuumModel):
     def agg(self):
         return self.get('agg', 'sum')
     
-    def get_data(self):
+    def ensure_data(self):
         if not hasattr(self, 'data'):
             with open(self.get('path')) as f:
                 self.data = pickle.load(f)
+                
+    def get_data(self):
+        self.ensure_data()
         data = self.data
         if self.groups() and self.agg():
             data = data.groupby(self.groups())
@@ -36,12 +39,14 @@ class PandasPivotModel(ContinuumModel):
         if self.get('sort'):
             data = data.sort(self.get('sort'))
         data = data[self.offset():self.length()]
-        return make_source(index=data.index, **data)
-        
+        return data
     
     def to_json(self):
         data = self.get_data()
+        columns =  ['index'] + data.columns.tolist()
+        data = make_source(index=data.index, **data)
         self.set('data', data)
+        self.set('columns', columns)
         return self.attributes
 
 register_type('PandasPivot', PandasPivotModel)

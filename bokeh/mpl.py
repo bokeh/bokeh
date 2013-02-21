@@ -24,7 +24,32 @@ colors = [
       "#bcbd22", "#dbdb8d",
       "#17becf", "#9edae5"
     ]
-
+class PandasTable(object):
+    def __init__(self, pandasmodel, plotclient=None):
+        self.plotclient = plotclient
+        self.pandasmodel = pandasmodel
+        
+    def groupby(self, columns):
+        self.pandasmodel.set('groups', columns)
+        self.plotclient.bbclient.update(self.pandasmodel)
+        
+    def agg(self, agg):
+        self.pandasmodel.set('agg', agg)
+        self.plotclient.bbclient.update(self.pandasmodel)
+        
+    def sort(self, sort):
+        self.pandasmodel.set('sort', sort)
+        self.plotclient.bbclient.update(self.pandasmodel)
+        
+    def paginate(self, offset, length):
+        self.pandasmodel.set('offset', offset)
+        self.pandasmodel.set('length', length)
+        self.plotclient.bbclient.update(self.pandasmodel)
+        
+    def data(self):
+        return self.pandasmodel.get_data()
+        
+    
 class GridPlot(object):
     def __init__(self, container, children, title, plotclient=None):
         self.gridmodel = container
@@ -452,20 +477,21 @@ class PlotClient(object):
     
     def pandastable(self, fpath, sort=[], groups=[],
                     agg='sum', width=300, offset=0, length=100,
-                    height=300):
+                    height=300, container=None):
         if container is None:
             parent = self.ic
         else:
             parent = container
-        table = self.model('Pandas', path=fpath
-                           sort=sort, groups=groups,agg=agg
+        table = self.model('PandasPivot', path=fpath,
+                           sort=sort, groups=groups,agg=agg,
                            offset=offset,length=length,
                            width=width, height=height)
         if self.bbclient:
             self.bbclient.update(table)
         if container is None:
             self.show(table)
-        
+        return PandasTable(table, self)
+    
     def table(self, data_source, columns, title=None,
               width=300, height=300, container=None):
         if container is None:
@@ -575,3 +601,4 @@ def get_template(filename):
     with open(template) as f:
         return jinja2.Template(f.read())
 
+bbmodel.load_special_types()

@@ -1,4 +1,3 @@
-
 import protocol
 import requests
 import urlparse
@@ -11,6 +10,9 @@ import redis
 import numpy as np
 log = logging.getLogger(__name__)
 special_types = {}
+
+def load_special_types():
+    import specialmodels.pandasmodel
 
 def register_type(typename, cls):
     special_types[typename] = cls
@@ -56,7 +58,7 @@ class ContinuumModel(object):
         #more verbose json, which includes collection/type info necessary
         #for recon on the JS side.
         json = self.ref()
-        json['attributes'] = self.attributes
+        json['attributes'] = self.to_json()
         return json
     
     def to_json(self):
