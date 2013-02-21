@@ -25,29 +25,29 @@ colors = [
       "#17becf", "#9edae5"
     ]
 class PandasTable(object):
-    def __init__(self, pandasmodel, plotclient=None):
+    def __init__(self, pivotmodel, plotclient=None):
         self.plotclient = plotclient
-        self.pandasmodel = pandasmodel
+        self.pivotmodel = pivotmodel
         
     def groupby(self, columns):
-        self.pandasmodel.set('groups', columns)
-        self.plotclient.bbclient.update(self.pandasmodel)
+        self.pivotmodel.set('groups', columns)
+        self.plotclient.bbclient.update(self.pivotmodel)
         
     def agg(self, agg):
-        self.pandasmodel.set('agg', agg)
-        self.plotclient.bbclient.update(self.pandasmodel)
+        self.pivotmodel.set('agg', agg)
+        self.plotclient.bbclient.update(self.pivotmodel)
         
     def sort(self, sort):
-        self.pandasmodel.set('sort', sort)
-        self.plotclient.bbclient.update(self.pandasmodel)
+        self.pivotmodel.set('sort', sort)
+        self.plotclient.bbclient.update(self.pivotmodel)
         
     def paginate(self, offset, length):
-        self.pandasmodel.set('offset', offset)
-        self.pandasmodel.set('length', length)
-        self.plotclient.bbclient.update(self.pandasmodel)
+        self.pivotmodel.set('offset', offset)
+        self.pivotmodel.set('length', length)
+        self.plotclient.bbclient.update(self.pivotmodel)
         
     def data(self):
-        return self.pandasmodel.get_data()
+        return self.pivotmodel.get_data()
         
     
 class GridPlot(object):
