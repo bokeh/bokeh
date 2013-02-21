@@ -1,5 +1,5 @@
 import unittest
-from ...specialmodels.pandasmodel import PandasPivotModel
+from ...specialmodels.pandasmodel import PandasPivotModel, PandasDataSource
 from ...bbmodel import make_model, ContinuumModel
 import tempfile
 import cPickle as pickle
@@ -12,21 +12,24 @@ class PandasModelTestCase(unittest.TestCase):
             'vals' : [5,4,3,2,1],
             'types' : ['b','b','a','a','a']
             })
-        pickle.dump(df, self.tempfile)
-        self.tempfile.flush()
+        self.datasource = PandasDataSource(
+            'PandasDataSource', df=df, path=self.tempfile.name)
         
     def test_pandas_instantiation(self):
         temp = make_model('newtype', x=1)
         assert isinstance(temp, ContinuumModel)
         assert not isinstance(temp, PandasPivotModel)
-        temp = PandasPivotModel('PandasPivot', x=1)
+        temp = PandasPivotModel('PandasPivot',
+                                pandassourceobj=self.datasource)
         assert isinstance(temp, PandasPivotModel)
-        temp = make_model('PandasPivot', x=1)
+        temp = make_model('PandasPivot',
+                          pandassourceobj=self.datasource)
         assert isinstance(temp, PandasPivotModel)
         
     def test_data_to_json(self):
-        data = make_model('PandasPivot', path=self.tempfile.name)
-        temp = data.to_json()
+        model = make_model('PandasPivot',
+                          pandassourceobj=self.datasource)
+        temp = model.to_json()
         data = [{'vals': 5, 'index': 0, 'types': 'b'},
                 {'vals': 4, 'index': 1, 'types': 'b'},
                 {'vals': 3, 'index': 2, 'types': 'a'},
@@ -35,15 +38,20 @@ class PandasModelTestCase(unittest.TestCase):
         assert data == temp['data']
         
     def test_data_sorting(self):
-        data = make_model('PandasPivot', path=self.tempfile.name,
-                          sort=['vals'])
-        temp = data.to_json()
+        model = make_model('PandasPivot',
+                          pandassourceobj=self.datasource,
+                          sort=['vals']
+                          )
+        temp = model.to_json()
         assert temp['data'][0]['vals'] == 1
         
     def test_data_groupby(self):
-        data = make_model('PandasPivot', path=self.tempfile.name,
-                          sort=['vals'], groups=['types'])
-        temp = data.to_json()        
+        model = make_model('PandasPivot',
+                          pandassourceobj=self.datasource,
+                          sort=['vals'],
+                          groups=['types']
+                          )
+        temp = model.to_json()        
         data = [{'vals': 6.0, 'index': 'a'}, {'vals': 9.0, 'index': 'b'}]
         assert temp['data'] == data
         

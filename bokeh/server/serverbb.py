@@ -116,6 +116,6 @@ class ContinuumModelsStorage(object):
 
     def fetch(self, docid, typename=None, id=None):
         if id is None:
-            return self.get_bulk(self, docid, typename=None):
+            return self.get_bulk(self, docid, typename=None)
         else:
             return self.get(typename, id)
