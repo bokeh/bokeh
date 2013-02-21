@@ -24,7 +24,6 @@ def make_model(typename, **kwargs):
         return ContinuumModel(typename, **kwargs)
     
 class ContinuumModel(object):
-    collections = ['Continuum', 'Collections']    
     def __init__(self, typename, **kwargs):
         self.attributes = kwargs
         self.typename = typename
@@ -33,7 +32,6 @@ class ContinuumModel(object):
         
     def ref(self):
         return {
-            'collections' : self.collections,
             'type' : self.typename,
             'id' : self.attributes['id']
             }
