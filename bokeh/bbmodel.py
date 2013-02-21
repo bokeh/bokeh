@@ -86,16 +86,25 @@ class ContinuumModelsClient(object):
         super(ContinuumModelsClient, self).__init__()
         self.buffer = []
         
-    def delete(self, typename, id):
-        url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/", id)
-        self.s.delete(url)
-        
     def buffer_sync(self):
+        """bulk upsert of everything in self.buffer
+        """
         data = self.ph.serialize_web([x.to_broadcast_json() \
                                       for x in self.buffer])
         url = utils.urljoin(self.baseurl, self.docid + "/", 'bulkupsert')
         self.s.post(url, data=data)
         self.buffer = []
+        
+    def upsert_all(self, models):
+        for m in models:
+            self.update(m, defer=True)
+        self.buffer_sync()
+        
+    #backbone API calls
+    def delete(self, typename, id):
+        url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/", id)
+        self.s.delete(url)
+        
         
     def create(self, model, defer=False):
         if not model.get('docs'):
@@ -124,7 +133,7 @@ class ContinuumModelsClient(object):
             self.s.put(url, data=self.ph.serialize_web(model.to_json()))
         return model
     
-    def get(self, typename=None, id=None):
+    def get(self, typename, id):
         return self.fetch(typename=typename, id=id)
     
     def fetch(self, typename=None, id=None):
@@ -148,8 +157,4 @@ class ContinuumModelsClient(object):
             model = make_model(typename, **attr)
             return model
         
-    def upsert_all(self, models):
-        for m in models:
-            self.update(m, defer=True)
-        self.buffer_sync()
         

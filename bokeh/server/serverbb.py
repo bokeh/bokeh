@@ -54,9 +54,6 @@ class ContinuumModelsStorage(object):
                 result.append(m)
         return result
     
-    def get(self, typename, id):
-        return self.bbget(self.client, modelkey(typename, id))
-    
     def add(self, model, retries=10):
         try:
             with self.client.pipeline() as pipe:
@@ -98,6 +95,10 @@ class ContinuumModelsStorage(object):
             self._upsert(pipe, model)
             pipe.execute()
         return model
+
+    #backbone api functions
+    def get(self, typename, id):
+        return self.bbget(self.client, modelkey(typename, id))
     
     def delete(self, typename, id):
         mkey = modelkey(typename, id)
@@ -107,3 +108,14 @@ class ContinuumModelsStorage(object):
             self.client.srem(dockey(doc), mkey)
         self.client.delete(mkey)
         
+    def create(self, model):
+        self.add(model)
+        
+    def update(self, model):
+        self.add(model)
+
+    def fetch(self, docid, typename=None, id=None):
+        if id is None:
+            return self.get_bulk(self, docid, typename=None):
+        else:
+            return self.get(typename, id)
