@@ -40,11 +40,11 @@ class ContinuumModel(object):
     def get(self, key, default=None):
         return self.attributes.get(key, default)
     
-    def get_ref(self, field, client):
+    def get_obj(self, field, client):
         ref = self.get(field)
         return client.get(ref['type'], ref['id'])
     
-    def vget_ref(self, field, client):
+    def vget_obj(self, field, client):
         return [client.get(ref['type'], ref['id']) for ref in \
                 self.attributes.get(field)]
     
