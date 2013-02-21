@@ -1,0 +1,14 @@
+<table class="table table-striped table-bordered table-condensed">
+  <thead>
+    <% for column in @columns: %>
+    <th><%= column %></th>
+    <% end %>
+  </thead>
+  <% for datapoint in @data: %>
+  <tr>
+    <% for column in @columns: %>
+    <td> <%= datapoint[column] %> </td>
+    <% end %>
+  </tr>
+  <% end %>
+</table>

@@ -653,6 +653,7 @@ locations =
   LineRenderer: ['./schema_renderers', 'linerenderers']
   DiscreteColorMapper :['./mapper', 'discretecolormappers']
   DataTable :['./table', 'datatables']
+  PandasPivot :['./pandas/pandas', 'pandaspivots']
 exports.locations = locations
 
 Collections = (typename) ->
