@@ -10,7 +10,6 @@ import tempfile
 types = ['a','a','b','c','c','d','d']
 vals = [4,5,2,3,10,9,8]
 df = pandas.DataFrame(dict(types=types, vals=vals))
-tempfile = tempfile.NamedTemporaryFile()
-pickle.dump(df, tempfile)
-tempfile.flush()
-table = p.pandastable(tempfile.name)
+p.clearic()
+table = p.pandastable(df)
+

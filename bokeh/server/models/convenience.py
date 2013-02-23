@@ -27,5 +27,8 @@ def can_read_from_request(doc, request, app):
     if can_write_from_request(doc, request, app):
         return True
     else:
-        user = app.current_user(request)
-        return can_read_doc(doc, user)
+        if request.cookies.get('bokeh-api-key'):
+            return doc.readonlyapikey == request.cookies['bokeh-api-key']
+        else:
+            user = app.current_user(request)
+            return can_read_doc(doc, user)

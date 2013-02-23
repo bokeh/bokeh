@@ -1,8 +1,9 @@
+import uuid
+import base64
+import cPickle as pickle
+
 from ..bbmodel import ContinuumModel, LazyModel, register_type
 from ..data import make_source
-import uuid
-
-import cPickle as pickle
 class PandasDataSource(LazyModel):
     # FIXME: this is a little redundant with pandas_plot_data.py..
     # we should figure out how to unify this later
@@ -15,13 +16,13 @@ class PandasDataSource(LazyModel):
     def __init__(self, typename, **kwargs):
         if 'df' in kwargs:
             df = kwargs.pop('df')
-            kwargs['pickled'] = pickle.dumps(df, -1)
+            kwargs['encoded'] = base64.b64encode(pickle.dumps(df, -1))
             self.data = df
         super(PandasDataSource, self).__init__(typename, **kwargs)
         
     def ensure_data(self):
         if not hasattr(self, 'data'):
-            self.data = pickle.loads(self.get('pickled'))
+            self.data = pickle.loads(base64.b64decode(self.get('encoded')))
         
 
 class PandasPivotModel(ContinuumModel):

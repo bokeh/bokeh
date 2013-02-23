@@ -134,7 +134,7 @@ def client_for_request(doc, app, request, mode):
     else:
         key = doc.apikey
     return ContinuumModelsClient(doc.docid,
-                                 request.url_root,
+                                 request.url_root + "bokeh/bb/",
                                  key,
                                  app.ph)
     

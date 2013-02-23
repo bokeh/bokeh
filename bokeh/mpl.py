@@ -10,6 +10,7 @@ from protocol import serialize_json
 import os
 import dump
 import json
+import pandas
 
 log = logging.getLogger(__name__)
 colors = [
@@ -475,14 +476,18 @@ class PlotClient(object):
                         )
         return self._plot
     
-    def pandastable(self, fpath, sort=[], groups=[],
+    def pandastable(self, source, sort=[], groups=[],
                     agg='sum', width=300, offset=0, length=100,
                     height=300, container=None):
         if container is None:
             parent = self.ic
         else:
             parent = container
-        table = self.model('PandasPivot', path=fpath,
+        if isinstance(source, pandas.DataFrame):
+            source = self.model('PandasDataSource', df=source)
+            self.bbclient.create(source)
+        table = self.model('PandasPivot',
+                           pandassourceobj=source,
                            sort=sort, groups=groups,agg=agg,
                            offset=offset,length=length,
                            width=width, height=height)
