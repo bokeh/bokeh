@@ -55,3 +55,4 @@ class PandasModelTestCase(unittest.TestCase):
         data = [{'vals': 6.0, 'index': 'a'}, {'vals': 9.0, 'index': 'b'}]
         assert temp['data'] == data
         
+    

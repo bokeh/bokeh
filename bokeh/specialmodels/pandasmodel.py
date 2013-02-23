@@ -1,30 +1,27 @@
-from ..bbmodel import ContinuumModel, register_type
+from ..bbmodel import ContinuumModel, LazyModel, register_type
 from ..data import make_source
 import uuid
 
 import cPickle as pickle
-class PandasDataSource(ContinuumModel):
+class PandasDataSource(LazyModel):
     # FIXME: this is a little redundant with pandas_plot_data.py..
     # we should figure out how to unify this later
     """PandasDataSource
     attributes:
-        path : 
+        pickled : pickled dataframe.
+    you can also pass in df, which will be pickled, but df will not be
+    stored as a backbone attribute
     """
     def __init__(self, typename, **kwargs):
         if 'df' in kwargs:
             df = kwargs.pop('df')
-            if 'path' not in kwargs:
-                kwargs['path'] = str(uuid.uuid4()) + ".pandas"
-            with open(kwargs.get('path'), "w+") as f:
-                pickle.dump(df, f, -1)
+            kwargs['pickled'] = pickle.dumps(df, -1)
             self.data = df
-        self.ensure_data()
         super(PandasDataSource, self).__init__(typename, **kwargs)
         
     def ensure_data(self):
         if not hasattr(self, 'data'):
-            with open(self.get('path')) as f:
-                self.data = pickle.load(f)
+            self.data = pickle.loads(self.get('pickled'))
         
 
 class PandasPivotModel(ContinuumModel):
@@ -51,11 +48,8 @@ class PandasPivotModel(ContinuumModel):
         elif 'pandassourceobj' in kwargs:
             self.pandassource = kwargs.pop('pandassourceobj')
             kwargs['pandassource'] = self.pandassource.ref()
-        else:
-            raise Exception, 'need to pass client, or pandas source obj'
         super(PandasPivotModel, self).__init__(typename, **kwargs)
-
-            
+        
     def offset(self):
         return self.get('offset', 0)
     
@@ -67,7 +61,6 @@ class PandasPivotModel(ContinuumModel):
     
     def agg(self):
         return self.get('agg', 'sum')
-    
                 
     def get_data(self):
         self.pandassource.ensure_data()
