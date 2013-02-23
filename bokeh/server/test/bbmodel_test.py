@@ -77,3 +77,9 @@ class TestBBModel(test_utils.BokehServerTestCase):
         assert client.get('Test', 'foo') is None
         assert client.get('Test', 'foo2') is not None
         
+    def test_auth(self):
+        # should test read auth via user fails if user not in r_user
+        # should test read auth via user passes if user not in rw_user
+        # read auth via api token fails if invalid api token
+        # write auth via user fails if user not in rw_user
+        pass

@@ -25,9 +25,16 @@ class ServerModel(object):
         client.set(self.mykey(), json.dumps(self.to_json()))
         
     @classmethod
-    def load(cls, client, objid):
+    def load_json(cls, client, objid):
         data = client.get(cls.modelkey(objid))
         if data is None:
             return None
         attrs = json.loads(data)
+        return attrs
+    
+    @classmethod
+    def load(cls, client, objid):
+        attrs = cls.load_json(client, objid)
+        if attrs is None:
+            return None
         return cls.from_json(attrs)

@@ -25,6 +25,8 @@ def make_model(typename, **kwargs):
     
 class ContinuumModel(object):
     def __init__(self, typename, **kwargs):
+        if 'client'in kwargs:
+            self.client = kwargs.pop('client')
         self.attributes = kwargs
         self.typename = typename
         self.attributes.setdefault('id', str(uuid.uuid4()))
@@ -139,20 +141,26 @@ class ContinuumModelsClient(object):
             url = utils.urljoin(self.baseurl, self.docid)
             data = self.s.get(url).content
             specs = self.ph.deserialize_web(data)
-            models =  [make_model(
-                x['type'], **x['attributes']) for x in specs]
+            models =  [make_model(x['type'], client=self, **x['attributes'])\
+                       for x in specs]
             return models
         elif typename is not None and id is None:
             url = utils.urljoin(self.baseurl, self.docid +"/", typename)
             attrs = self.ph.deserialize_web(self.s.get(url).content)
-            models = [make_model(typename, **x) for x in attrs]
+            models = [make_model(typename, client=self, **x) for x in attrs]
             return models
         elif typename is not None and id is not None:
             url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/", id)
             attr = self.ph.deserialize_web(self.s.get(url).content)
             if attr is None:
                 return None
-            model = make_model(typename, **attr)
+            model = make_model(typename, client=self, **attr)
             return model
         
         
+class LazyModel(ContinuumModel):
+    def __init__(self, typename, **kwargs):
+        kwargs['lazy'] = True
+        super(LazyModel, self).__init__(typename, **kwargs)
+
+    

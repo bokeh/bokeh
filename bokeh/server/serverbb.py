@@ -5,7 +5,8 @@ import uuid
 import logging
 import cPickle as pickle
 import redis
-from bokeh.bbmodel import make_model
+import bokeh.bbmodel as bbmodel
+from bokeh.bbmodel import ContinuumModelsClient
 import numpy as np
 log = logging.getLogger(__name__)
 """
@@ -19,6 +20,9 @@ def dockey(docid):
 
 def modelkey(typename, modelid):
     return 'bbmodel:%s:%s' % (typename, modelid)
+
+def pandaskey(modelid):
+    return 'pandas:%s' % (modelid)
 
 def parse_modelkey(modelkey):
     _, typename, modelid = modelkey.split(":")
@@ -119,3 +123,30 @@ class ContinuumModelsStorage(object):
             return self.get_bulk(self, docid, typename=None)
         else:
             return self.get(typename, id)
+        
+
+
+
+
+def client_for_request(doc, app, request, mode):
+    if mode =='r':
+        key = doc.readonlyapikey
+    else:
+        key = doc.apikey
+    return ContinuumModelsClient(doc.docid,
+                                 request.url_root,
+                                 key,
+                                 app.ph)
+    
+def make_model(typename, **kwargs):
+    """the server should use this make_model function,
+    it automatically passes in a model client to all models
+    too much magic? (@hugo)
+    """
+    from flask import g
+    if 'client' not in kwargs and hasattr(g, 'client'):
+        return bbmodel.make_model(typename, client=g.client, **kwargs)
+    return bbmodel.make_model(typename, **kwargs)
+
+    
+        

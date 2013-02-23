@@ -30,7 +30,8 @@ def prepare_app(rhost='127.0.0.1', rport=6379):
     import views.deps
     app.wsmanager = wsmanager.WebSocketManager()
     def auth(auth, docid):
-        status = mconv.can_write_doc_api(docid, auth, current_app)
+        doc = docs.Doc.load(current_app.model_redis, docid)
+        status = mconv.can_write_doc_api(doc, auth, current_app)
         return status
     app.wsmanager.register_auth("bokehplot", auth)
     app.ph = protocol.ProtocolHelper()
