@@ -157,7 +157,6 @@ class WebSocketWrapper
     @s.onopen = () =>
       @_connected.resolve()
     @s.onmessage = @onmessage
-    return @
 
   onmessage : (msg) =>
     data = msg.data
