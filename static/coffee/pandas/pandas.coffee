@@ -96,6 +96,7 @@ class PandasPivotView extends ContinuumView
       offset : @mget('offset')
       length : @mget('length')
       maxlength : @mget('maxlength')
+      counts : @mget('counts')
 
     @$el.empty()
     html = pandas_template(template_data)

@@ -66,12 +66,18 @@ through <%=@offset + @length%> of
        style="max-height:<%= @height %>px;max-width:<%= @width %>px"
        >
   <thead>
+    <% if @counts: %>
+    <th class="pandascolumn">counts</th>
+    <% end %>
     <% for column in @columns: %>
     <th class="pandascolumn"><%= column %></th>
     <% end %>
   </thead>
-  <% for datapoint in @data: %>
+  <% for datapoint, idx in @data: %>
   <tr>
+    <% if @counts: %>
+    <td> <%= @counts[idx] %> </td>
+    <% end %>
     <% for column in @columns: %>
     <td> <%= datapoint[column] %> </td>
     <% end %>
