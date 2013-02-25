@@ -6,10 +6,32 @@ import time
 import pandas
 import cPickle as pickle
 import tempfile
+import random
+length = 10000
 
 types = ['a','a','b','c','c','d','d']
+types2 = ['cat','dog','cat','dog','cat','dog','cat']
 vals = [4,5,2,3,10,9,8]
-df = pandas.DataFrame(dict(types=types, vals=vals))
+alphabet = ['a','b','c','d','e','f','g','h','i','j']
+def word(index):
+    index = str(index)
+    output = ""
+    for ind in index:
+        output += alphabet[int(ind)]
+    return output
+
+df = pandas.DataFrame(
+    dict(
+        types=[random.choice(types) for x in range(length)],
+        types2=[random.choice(types2) for x in range(length)],
+        types3=[random.choice(types2) for x in range(length)],
+        vals=[random.choice(vals) for x in range(length)],
+        vals2=np.random.randn(length),
+        ),
+    index=[word(x) for x in range(length)]
+    )
+                      
+                      
 p.clearic()
 table = p.pandastable(df)
 

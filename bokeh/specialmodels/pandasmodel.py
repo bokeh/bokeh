@@ -86,6 +86,7 @@ class PandasPivotModel(ContinuumModel):
         data = self.get_data()
         if self.groupobj:
             counts = self.groupobj.count().ix[:,0].to_dict()
+            counts = [counts[x] for x in data.index]
         else:
             counts = None
         columns =  ['index'] + data.columns.tolist()
