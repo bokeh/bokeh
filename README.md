@@ -4,13 +4,17 @@ bokehjs
 Development
 ===========
 You need to have node.js installed.
-clone this repo: https://github.com/ContinuumIO/hem
+
+clone the hem repo: 
+
+`$ git clone https://github.com/ContinuumIO/hem`
+
 We're using hem for our build tool, hem will compile coffeescript, 
 combine js files, and support node.js require syntax on the client side
 
 install it by executing
 
-`$ sudo npm link` inside the repo.  
+`$ sudo npm link` inside the hem repo.  
 
 This will link hem to your working copy so you get hem changes as we push it out
 
