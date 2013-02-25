@@ -48,6 +48,7 @@ class PandasTable(object):
         self.plotclient.bbclient.update(self.pivotmodel)
         
     def data(self):
+        self.plotclient.bbclient.update(self.pivotmodel)
         return self.pivotmodel.get_data()
         
     

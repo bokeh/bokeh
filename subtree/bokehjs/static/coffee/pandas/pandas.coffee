@@ -4,10 +4,36 @@ safebind = base.safebind
 HasParent = base.HasParent
 pandas_template = require("./pandaspivot")
 
+ENTER = 13
+
 # cut and paste from table.coffee for now... we'll probably eliminate
 # have to refactor later
-
 class PandasPivotView extends ContinuumView
+  events :
+    "keyup .pandasgroup" : 'pandasgroup'
+    "keyup .pandassort" : 'pandassort'
+    "change .pandasagg" : 'pandasagg'
+
+  pandasagg : () ->
+    @mset('agg', @$el.find('.pandasagg').val())
+    @model.save()
+
+  fromcsv : (str) ->
+    #string of csvs, to list of those values
+    if not str
+      return []
+    return _.map(str.split(","), (x) -> return x.trim())
+
+  pandasgroup : (e) ->
+    if e.keyCode == ENTER
+     @mset('groups', @fromcsv(@$el.find(".pandasgroup").val()))
+     @model.save()
+
+  pandassort : (e) ->
+    if e.keyCode == ENTER
+     @mset('sort', @fromcsv(@$el.find(".pandassort").val()))
+     @model.save()
+
   initialize : (options) ->
     super(options)
     safebind(this, @model, 'destroy', @remove)
@@ -15,14 +41,24 @@ class PandasPivotView extends ContinuumView
     @render()
 
   render : () ->
+    groups = @mget('groups')
+    if _.isArray(groups)
+      groups = groups.join(",")
+    sort = @mget('sort')
+    if _.isArray(sort)
+      sort = sort.join(",")
+
     template_data =
       columns : @mget('columns')
       data : @mget('data')
+      groups : groups
+      sort : sort
+      height : @mget('height')
+      width : @mget('width')
+
     @$el.empty()
     html = pandas_template(template_data)
     @$el.html(html)
-    @$el.height(@mget('height'))
-    @$el.width(@mget('width'))
     @$el.addClass("bokehtable")
 
 class PandasPivot extends HasParent

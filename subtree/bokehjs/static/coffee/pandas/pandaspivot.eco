@@ -1,7 +1,33 @@
-<table class="table table-striped table-bordered table-condensed">
+<form class="form">
+
+<label>
+Group By
+</label>
+<input type="text" class="pandasgroup" value="<%= @groups %>"/>
+
+<label>
+Sort
+</label>
+<input type="text" class="pandassort" value="<%= @sort %>"/>
+
+<label>
+Aggregation
+</label>
+<select class="pandasagg">
+  <option value="sum">sum</option>
+  <option value="mean">mean</option>
+  <option value="std">std</option>
+  <option value="max">max</option>
+  <option value="min">min</option>
+</select>
+</form>
+<table class="table table-striped 
+              table-bordered table-condensed"
+       style="max-height:<%= @height %>px;max-width:<%= @width %>px"
+       >
   <thead>
     <% for column in @columns: %>
-    <th><%= column %></th>
+    <th class="pandascolumn"><%= column %></th>
     <% end %>
   </thead>
   <% for datapoint in @data: %>
