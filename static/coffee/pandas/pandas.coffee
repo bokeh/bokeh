@@ -55,6 +55,9 @@ class PandasPivotView extends ContinuumView
       sort : sort
       height : @mget('height')
       width : @mget('width')
+      offset : @mget('offset')
+      length : @mget('length')
+      maxlength : @mget('maxlength')
 
     @$el.empty()
     html = pandas_template(template_data)
@@ -65,6 +68,28 @@ class PandasPivot extends HasParent
   type : 'PandasPivot'
   initialize : (attrs, options)->
     super(attrs, options)
+  go_beginning : () ->
+    @set('offset', 0)
+
+  go_back : () ->
+    offset = @get('offset')
+    offset = offset - @get('length')
+    if offset < 0
+      offset = 0
+    @set('offset', offset)
+
+  go_forward : () ->
+    offset = @get('offset')
+    offset = offset + @get('length')
+    maxoffset = @get('maxlength') - @get('length')
+    if offset > maxfoffset
+      offset = maxoffset
+    @set('offset', offset)
+
+  go_end : () ->
+    maxoffset = @get('maxlength') - @get('length')
+    @set('offset', maxoffset)
+
   defaults :
     path : ''
     sort : []
@@ -72,8 +97,10 @@ class PandasPivot extends HasParent
     agg : 'sum'
     offset : 0
     length : 100
+    maxlength : 1000
     data : null
     columns : []
+    width : 400
   default_view : PandasPivotView
 
 class PandasPivots extends Backbone.Collection
