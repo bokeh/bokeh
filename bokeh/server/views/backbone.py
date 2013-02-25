@@ -106,17 +106,24 @@ def put(docid, typename, id):
 @app.route("/bokeh/bb/<docid>/<typename>/<id>", methods=['GET'])
 @check_read_authentication_and_create_client
 def get(docid, typename=None, id=None):
+    include_hidden = request.values.get('include_hidden', '').lower() == 'true'
     if typename is not None and id is not None:
         model = current_app.collections.get(typename, id)
         if model is not None and docid in model.get('docs'):
-            return app.ph.serialize_web(model.to_json())
+            return app.ph.serialize_web(model.to_json(
+                include_hidden=include_hidden))
         return app.ph.serialize_web(None)
     else:
         models = current_app.collections.get_bulk(docid, typename=typename)
         if typename is not None:
-            return app.ph.serialize_web([x.to_json() for x in models])
+            return app.ph.serialize_web(
+                [x.to_json(include_hidden=include_hidden) for x in models]
+                )
         else:
-            return app.ph.serialize_web([x.to_broadcast_json() for x in models])
+            return app.ph.serialize_web(
+                [x.to_broadcast_json(include_hidden=include_hidden) \
+                 for x in models]
+                )
 
 @app.route("/bokeh/bb/<docid>/<typename>/<id>", methods=['DELETE'])
 @check_write_authentication_and_create_client

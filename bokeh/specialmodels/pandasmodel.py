@@ -2,9 +2,9 @@ import uuid
 import base64
 import cPickle as pickle
 
-from ..bbmodel import ContinuumModel, LazyModel, register_type
+from ..bbmodel import ContinuumModel, register_type
 from ..data import make_source
-class PandasDataSource(LazyModel):
+class PandasDataSource(ContinuumModel):
     # FIXME: this is a little redundant with pandas_plot_data.py..
     # we should figure out how to unify this later
     """PandasDataSource
@@ -13,6 +13,7 @@ class PandasDataSource(LazyModel):
     you can also pass in df, which will be pickled, but df will not be
     stored as a backbone attribute
     """
+    hidden_fields = ('encoded',)
     def __init__(self, typename, **kwargs):
         if 'df' in kwargs:
             df = kwargs.pop('df')
@@ -42,10 +43,6 @@ class PandasPivotModel(ContinuumModel):
     def __init__(self, typename, **kwargs):
         if 'client' in kwargs:
             self.client = kwargs.pop('client')
-            self.pandassource = self.client.get(
-                kwargs.get('pandassource')['type'],
-                kwargs.get('pandassource')['id']
-                )
         elif 'pandassourceobj' in kwargs:
             self.pandassource = kwargs.pop('pandassourceobj')
             kwargs['pandassource'] = self.pandassource.ref()
@@ -64,6 +61,12 @@ class PandasPivotModel(ContinuumModel):
         return self.get('agg', 'sum')
                 
     def get_data(self):
+        if not hasattr(self, 'pandassource'):
+            self.pandassource = self.client.get(
+                self.get('pandassource')['type'],
+                self.get('pandassource')['id'],
+                include_hidden=True
+                )
         self.pandassource.ensure_data()
         data = self.pandassource.data
         if self.groups() and self.agg():
@@ -74,7 +77,7 @@ class PandasPivotModel(ContinuumModel):
         data = data[self.offset():self.length()]
         return data
     
-    def to_json(self):
+    def to_json(self, include_hidden=False):
         data = self.get_data()
         columns =  ['index'] + data.columns.tolist()
         data = make_source(index=data.index, **data)

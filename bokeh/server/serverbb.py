@@ -46,7 +46,8 @@ class ContinuumModelsStorage(object):
             return make_model(typename, **attrs)
 
     def bbset(self, client, key, model):
-        return client.set(key, self.ph.serialize_web(model.attributes))
+        return client.set(key, self.ph.serialize_web(
+            model.to_json(include_hidden=True)))
         
     def get_bulk(self, docid, typename=None):
         doc_keys = self.client.smembers(dockey(docid))

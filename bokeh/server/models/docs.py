@@ -64,8 +64,7 @@ def transform_models(models):
 def prune_and_get_valid_models(model_redis, collections, docid, delete=False):
     """retrieve all models that the plot_context points to.  if delete is True,
     wipe out any models that are orphaned.  Also call transform_models, which
-    performs any backwards compatability data transformations.  Also
-    excludes any lazy models.
+    performs any backwards compatability data transformations.  
     """
     doc = Doc.load(model_redis, docid)
     plot_context = collections.get(doc.plot_context_ref['type'],
@@ -87,7 +86,6 @@ def prune_and_get_valid_models(model_redis, collections, docid, delete=False):
                 collections.delete(typename, v['id'])
     valid_models = [x for x in all_models.values() if x.id in marked]
     valid_models = transform_models(valid_models)
-    valid_models = [x for x in valid_models if not x.get('lazy', False)]
     return valid_models
 
 def mark_recursive_models(all_models, marked, model):

@@ -43,7 +43,20 @@ class PandasPivot extends HasParent
 class PandasPivots extends Backbone.Collection
   model : PandasPivot
 
+class PandasDataSource extends HasParent
+  type : 'PandasDataSource'
+  initialize : (attrs, options)->
+    super(attrs, options)
+  defaults :
+    selected : [] #pandas index of selected values
+
+class PandasDataSources extends Backbone.Collection
+  model : PandasDataSource
+
 pandaspivots = new PandasPivots
 exports.pandaspivots = pandaspivots
 exports.PandasPivot = PandasPivot
 exports.PandasPivotView = PandasPivotView
+
+exports.PandasDataSource = PandasDataSource
+exports.pandasdatasources = new PandasDataSources
