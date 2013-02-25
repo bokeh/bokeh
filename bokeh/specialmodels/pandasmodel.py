@@ -88,6 +88,7 @@ class PandasPivotModel(ContinuumModel):
         columns =  ['index'] + data.columns.tolist()
         data = make_source(index=data.index, **data)
         self.set('data', data)
+        self.set('maxlength', len(data))
         self.set('columns', columns)
         self.set('counts', counts)
         return self.attributes

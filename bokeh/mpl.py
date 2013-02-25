@@ -478,8 +478,8 @@ class PlotClient(object):
         return self._plot
     
     def pandastable(self, source, sort=[], groups=[],
-                    agg='sum', width=300, offset=0, length=100,
-                    height=300, container=None):
+                    agg='sum', width=400, offset=0, length=100,
+                    height=400, container=None):
         if container is None:
             parent = self.ic
         else:

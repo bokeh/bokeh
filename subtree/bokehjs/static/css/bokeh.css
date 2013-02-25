@@ -35,10 +35,6 @@ button.active { border:1px solid blue }
   .table_outer table td { border-left:1px solid black; border-right:1px solid black; }
 */
 
-.bokehtable{ 
-    overflow : auto;
-}
-
 
 .plot_wrap .button_bar {height:30px}
 .plot_wrap .button_bar * {display:none}
@@ -82,4 +78,16 @@ button.active { border:1px solid blue }
 
 .maxplot{
     float : left;
+}
+
+/* pandas */
+
+.bokehtable{ 
+    overflow : auto;
+}
+.pandassize{
+    width : 40px;
+}
+.pandasoffset{
+    width : 40px;
 }
