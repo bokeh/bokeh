@@ -37,7 +37,7 @@
     </td>
     <td>
       <label>Size</label>
-      <input type="text" class="pandassize" value="<%= @size %>"/>
+      <input type="text" class="pandassize" value="<%= @length %>"/>
     </td>
     <td>
       <a href="#" class="pandasbeginning">
@@ -56,9 +56,11 @@
     </td>
   </tr>
 </table>
-
-
 </form>
+<p>Displaying entries <%= @offset %> 
+through <%=@offset + @length%> of 
+<%= @maxlength %>
+</p>
 <table class="table table-striped 
               table-bordered table-condensed"
        style="max-height:<%= @height %>px;max-width:<%= @width %>px"

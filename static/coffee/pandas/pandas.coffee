@@ -12,11 +12,50 @@ class PandasPivotView extends ContinuumView
   events :
     "keyup .pandasgroup" : 'pandasgroup'
     "keyup .pandassort" : 'pandassort'
+    "keyup .pandasoffset" : 'pandasoffset'
+    "keyup .pandassize" : 'pandassize'
     "change .pandasagg" : 'pandasagg'
+    "click .pandasbeginning" : 'pandasbeginning'
+    "click .pandasback" : 'pandasback'
+    "click .pandasnext" : 'pandasnext'
+    "click .pandasend" : 'pandasend'
+
+  pandasbeginning : () =>
+    @model.go_beginning()
+
+  pandasback : () =>
+    @model.go_back()
+
+  pandasnext : () =>
+    @model.go_forward()
+
+  pandasend : () =>
+    @model.go_end()
+
+  pandasoffset : (e) ->
+    if e.keyCode == ENTER
+      offset = @$el.find('.pandasoffset').val()
+      offset = Number(offset)
+      if _.isNaN(offset)
+        offset = @model.defaults.offset
+      @mset('offset', offset)
+      @model.save()
+
+  pandassize : (e) ->
+    if e.keyCode == ENTER
+      sizetxt = @$el.find('.pandassize').val()
+      size = Number(sizetxt)
+      if _.isNaN(size) or sizetxt == ""
+        size = @model.defaults.length
+      if size + @mget('offset') > @mget('maxlength')
+        size = @mget('maxlength') - @mget('offset')
+      @mset('length', size)
+      @model.save()
 
   pandasagg : () ->
-    @mset('agg', @$el.find('.pandasagg').val())
-    @model.save()
+    if e.keyCode == ENTER
+      @mset('agg', @$el.find('.pandasagg').val())
+      @model.save()
 
   fromcsv : (str) ->
     #string of csvs, to list of those values
@@ -47,7 +86,6 @@ class PandasPivotView extends ContinuumView
     sort = @mget('sort')
     if _.isArray(sort)
       sort = sort.join(",")
-
     template_data =
       columns : @mget('columns')
       data : @mget('data')
@@ -70,26 +108,26 @@ class PandasPivot extends HasParent
     super(attrs, options)
   go_beginning : () ->
     @set('offset', 0)
-
+    @save()
   go_back : () ->
     offset = @get('offset')
     offset = offset - @get('length')
     if offset < 0
       offset = 0
     @set('offset', offset)
-
+    @save()
   go_forward : () ->
     offset = @get('offset')
     offset = offset + @get('length')
     maxoffset = @get('maxlength') - @get('length')
-    if offset > maxfoffset
+    if offset > maxoffset
       offset = maxoffset
     @set('offset', offset)
-
+    @save()
   go_end : () ->
     maxoffset = @get('maxlength') - @get('length')
     @set('offset', maxoffset)
-
+    @save()
   defaults :
     path : ''
     sort : []
