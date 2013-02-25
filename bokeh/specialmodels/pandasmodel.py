@@ -60,7 +60,7 @@ class PandasPivotModel(ContinuumModel):
     def agg(self):
         return self.get('agg', 'sum')
                 
-    def get_data(self, return_counts=False):
+    def get_data(self):
         if not hasattr(self, 'pandassource'):
             self.pandassource = self.client.get(
                 self.get('pandassource')['type'],
@@ -70,25 +70,28 @@ class PandasPivotModel(ContinuumModel):
         self.pandassource.ensure_data()
         data = self.pandassource.data
         data.groupby('types')
-        counts = None
         if self.groups() and self.agg():
-            data = data.groupby(self.groups())
-            counts = data.count().ix[:,0].to_dict()
-            data = getattr(data, self.agg())()
+            self.groupobj = data.groupby(self.groups())
+            data = getattr(self.groupobj, self.agg())()
+        else:
+            self.groupobj = None
         if self.get('sort'):
             data = data.sort(self.get('sort'))
-        data = data[self.offset():self.length()]
-        if return_counts:
-            return data, counts
-        else:
-            return data
+        self.fulldata = data
+        data = data[self.offset():self.offset() + self.length()]
+        self.data = data
+        return data
     
     def to_json(self, include_hidden=False):
-        data, counts = self.get_data(return_counts=True)
+        data = self.get_data()
+        if self.groupobj:
+            counts = self.groupobj.count().ix[:,0].to_dict()
+        else:
+            counts = None
         columns =  ['index'] + data.columns.tolist()
         data = make_source(index=data.index, **data)
         self.set('data', data)
-        self.set('maxlength', len(data))
+        self.set('maxlength', len(self.fulldata))
         self.set('columns', columns)
         self.set('counts', counts)
         return self.attributes
