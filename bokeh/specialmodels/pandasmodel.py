@@ -106,8 +106,14 @@ class PandasPivotModel(PandasPlotSource):
             data = getattr(self.groupobj, self.agg())()
         else:
             self.groupobj = None
-        if self.get('sort'):
-            data = data.sort(self.get('sort'))
+        sort = self.get('sort')
+        if sort:
+            columns = [x['column'] for x in sort]
+            direction = [x['direction'] for x in sort]
+            data = data.sort(
+                columns=columns,
+                ascending=direction
+                )
         self.fulldata = data
         if np.sum(data._selected) > 1 and not self.groupobj:
             # in the non group by case, we filter on selection
@@ -141,8 +147,9 @@ class PandasPivotModel(PandasPlotSource):
         else:
             counts = None
             selected = self.get_slice(self.fulldata)['_selected']
-        columns = ['index'] + data.columns.tolist()
-        data = make_source(index=data.index, **data)
+        self.set('index', data.index.tolist())
+        columns = data.columns.tolist()
+        data = make_source(**data)
         self.set('selected', selected)
         self.set('data', data)
         self.set('columns', columns)

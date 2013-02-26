@@ -77,8 +77,9 @@ through <%=@offset + @length%> of
        >
   <thead>
     <% if @counts: %>
-    <th class="pandascolumn">counts</th>
+    <th>counts</th>
     <% end %>
+    <th>index</th>
     <% for column in @columns: %>
     <th class="pandascolumn"><%= column %></th>
     <% end %>
@@ -98,7 +99,7 @@ through <%=@offset + @length%> of
     <td> <%= @counts[idx] %> </td>
       <% end %>
     <% end %>
-
+    <td> <%= @index[idx] %> </td>
     <% for column in @columns: %>
     <td> <%= datapoint[column] %> </td>
     <% end %>
