@@ -81,6 +81,6 @@ alltests['allpossibletests'] = alltests
 
 if __name__ == "__main__":
 
-    if sys.argv[1] == 'debug':
+    if len(sys.argv) > 1 and sys.argv[1] == 'debug':
         app.debug = True
     app.run()
