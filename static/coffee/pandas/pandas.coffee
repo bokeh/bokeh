@@ -119,6 +119,7 @@ class PandasPivotView extends ContinuumView
       selected : @mget('selected')
       controls_hide : @controls_hide
       colors : colors
+      index : @mget('index')
     @$el.empty()
     html = pandas_template(template_data)
     @$el.html(html)
@@ -155,6 +156,27 @@ class PandasPivot extends HasParent
 
   fetch : (options) ->
     super(options)
+
+  toggle_column_sort : (colname) =>
+    sorting = @get('sort')
+    sorting = _.clone(sorting)#clone so set triggers an event...
+    sort = _.filter(sorting, (x) -> return x['column'] == colname)
+    if sort.length > 0
+      sort = sort[0]
+    else
+      sorting = _.clone(sorting)
+      sorting.push(column : colname, direction : true)
+      @set('sort', sorting)
+      return
+    if sort['direction']
+      sort['direction'] = false
+      @set('sort', sorting)
+      return
+    else
+      sorting = _.filter(sorting, (x) -> return x['column'] != colname)
+      @set('sort', sorting)
+      return
+
   go_beginning : () ->
     @set('offset', 0)
     @save()
