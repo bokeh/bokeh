@@ -345,7 +345,7 @@ class SelectionToolView extends ToolView
       datasource_selections[datasource_id].push(selected)
 
     for own k,v of datasource_selections
-      selected = _.intersect.apply(_, v)
+      selected = _.intersection.apply(_, v)
       datasources[k].set('selected', selected)
       console.log('selected', selected)
       datasources[k].save()

@@ -76,7 +76,9 @@ through <%=@offset + @length%> of
   <% for datapoint, idx in @data: %>
   <tr>
     <% if @counts: %>
-    <td> <%= @counts[idx] %> </td>
+    <% if @selected and @selected[idx]: %>
+    <td> <%= @selected[idx] %> / <%= @counts[idx] %> </td>
+    <% end %>
     <% end %>
     <% for column in @columns: %>
     <td> <%= datapoint[column] %> </td>
