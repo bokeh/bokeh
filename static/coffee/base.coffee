@@ -675,6 +675,9 @@ locations =
   ScatterRenderer: ['./schema_renderers', 'scatterrenderers']
   DiscreteColorMapper :['./mapper', 'discretecolormappers']
   DataTable :['./table', 'datatables']
+  PandasPivot :['./pandas/pandas', 'pandaspivots']
+  PandasDataSource :['./pandas/pandas', 'pandasdatasources']
+  PandasPlotSource :['./pandas/pandas', 'pandasplotsources']
 exports.locations = locations
 
 Collections = (typename) ->
