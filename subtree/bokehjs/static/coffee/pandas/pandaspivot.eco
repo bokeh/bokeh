@@ -46,14 +46,6 @@ through <%=@offset + @length%> of
       <input type="text" class="pandasgroup" value="<%= @groups %>"/>
     </td>
   </tr>
-  <tr class="<%= if @controls_hide then 'hide' else ''%>">  
-    <td>
-      <label>Sort</label>
-    </td>
-    <td colspan="3">
-      <input type="text" class="pandassort" value="<%= @sort %>"/>
-    </td>
-  </tr>
   <tr class="<%= if @controls_hide then 'hide' else ''%>">    
     <td>
       <label>Aggregation</label>
@@ -81,7 +73,13 @@ through <%=@offset + @length%> of
     <% end %>
     <th>index</th>
     <% for column in @columns: %>
-    <th class="pandascolumn"><%= column %></th>
+    <th><a class="pandascolumn"><%= column %></a>
+        <% if @sort_directions[column] == true: %>
+        <i class="icon-chevron-up"></i>
+        <% else if @sort_directions[column] == false: %>
+        <i class="icon-chevron-down"></i>
+        <% end %>
+    </th>
     <% end %>
   </thead>
   <% for datapoint, idx in @data: %>

@@ -18,7 +18,6 @@ class PandasPivotView extends ContinuumView
 
   events :
     "keyup .pandasgroup" : 'pandasgroup'
-    "keyup .pandassort" : 'pandassort'
     "keyup .pandasoffset" : 'pandasoffset'
     "keyup .pandassize" : 'pandassize'
     "change .pandasagg" : 'pandasagg'
@@ -27,6 +26,11 @@ class PandasPivotView extends ContinuumView
     "click .pandasnext" : 'pandasnext'
     "click .pandasend" : 'pandasend'
     "click .controlsmore" : 'toggle_more_controls'
+    "click .pandascolumn" : 'sort'
+
+  sort : (e) =>
+    colname = $(e.currentTarget).text()
+    @model.toggle_column_sort(colname)
 
   toggle_more_controls : () =>
     if @controls_hide
@@ -53,8 +57,7 @@ class PandasPivotView extends ContinuumView
       offset = Number(offset)
       if _.isNaN(offset)
         offset = @model.defaults.offset
-      @mset('offset', offset)
-      @model.save()
+      @model.save('offset', offset, {wait : true})
 
   pandassize : (e) ->
     if e.keyCode == ENTER
@@ -64,12 +67,10 @@ class PandasPivotView extends ContinuumView
         size = @model.defaults.length
       if size + @mget('offset') > @mget('maxlength')
         size = @mget('maxlength') - @mget('offset')
-      @mset('length', size)
-      @model.save()
+      @model.save('length', size, {wait:true})
 
   pandasagg : () ->
-    @mset('agg', @$el.find('.pandasagg').val())
-    @model.save()
+    @model.save('agg', @$el.find('.pandasagg').val(), {'wait':true})
 
   fromcsv : (str) ->
     #string of csvs, to list of those values
@@ -79,13 +80,8 @@ class PandasPivotView extends ContinuumView
 
   pandasgroup : (e) ->
     if e.keyCode == ENTER
-     @mset('groups', @fromcsv(@$el.find(".pandasgroup").val()))
-     @model.save()
-
-  pandassort : (e) ->
-    if e.keyCode == ENTER
-     @mset('sort', @fromcsv(@$el.find(".pandassort").val()))
-     @model.save()
+     @model.save('groups', @fromcsv(@$el.find(".pandasgroup").val()),
+      {'wait':true})
 
   colors : () =>
     if @mget('counts') and @mget('selected')
@@ -105,11 +101,15 @@ class PandasPivotView extends ContinuumView
     if _.isArray(sort)
       sort = sort.join(",")
     colors = @colors()
+    sort_directions = {}
+    for obj in  @mget('sort')
+      sort_directions[obj['column']] = obj['direction']
+
     template_data =
       columns : @mget('columns')
       data : @mget('data')
       groups : groups
-      sort : sort
+      sort_directions : sort_directions
       height : @mget('height')
       width : @mget('width')
       offset : @mget('offset')
@@ -159,22 +159,22 @@ class PandasPivot extends HasParent
 
   toggle_column_sort : (colname) =>
     sorting = @get('sort')
-    sorting = _.clone(sorting)#clone so set triggers an event...
+    @unset('sort', {'silent' : true})
     sort = _.filter(sorting, (x) -> return x['column'] == colname)
     if sort.length > 0
       sort = sort[0]
     else
       sorting = _.clone(sorting)
       sorting.push(column : colname, direction : true)
-      @set('sort', sorting)
+      @save('sort', sorting, {'wait':true})
       return
     if sort['direction']
       sort['direction'] = false
-      @set('sort', sorting)
+      @save('sort', sorting, {'wait':true})
       return
     else
       sorting = _.filter(sorting, (x) -> return x['column'] != colname)
-      @set('sort', sorting)
+      @save('sort', sorting, {'wait':true})
       return
 
   go_beginning : () ->
