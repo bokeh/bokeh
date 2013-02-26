@@ -135,9 +135,6 @@ class PandasPivotModel(PandasPlotSource):
         self.set('maxlength', self.totallength)
         if self.get('offset') > self.get('maxlength'):
             self.set('offset', 0)
-        self.set('length', min(self.get('length'),
-                               self.get('maxlength') - self.get('offset'))
-                 )
         self.set('columns', columns)
         self.set('counts', counts)
         return self.attributes
