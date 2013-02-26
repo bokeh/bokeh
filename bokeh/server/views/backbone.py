@@ -46,7 +46,6 @@ def bulk_upsert(docid):
     for m in models:
         if m.get('docs') is None:
             m.set('docs', [docid])
-        m.set('created', True)
         current_app.collections.add(m)
     docs = set()
     for m in models:
@@ -69,7 +68,6 @@ def create(docid, typename):
     model = make_model(typename, **modeldata)
     if model.get('docs') is None:
         model.set('docs', [docid])
-    model.set('created', True)
     current_app.collections.add(model)
     if model.typename == 'ObjectArrayDataSource':
         print current_app.collections.get(model.typename, model.id)
