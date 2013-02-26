@@ -63,7 +63,6 @@ def bulk_upsert(docid):
          'modelspecs' : [x.to_broadcast_json() for x in relevant_models]})
 
 @app.route("/bokeh/bb/<docid>/<typename>", methods=['POST'])
-@app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @check_write_authentication_and_create_client
 def create(docid, typename):
     modeldata = current_app.ph.deserialize_web(request.data)

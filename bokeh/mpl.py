@@ -493,7 +493,7 @@ class PlotClient(object):
                            offset=offset,length=length,
                            width=width, height=height)
         if self.bbclient:
-            self.bbclient.update(table)
+            self.bbclient.create(table)
         if container is None:
             self.show(table)
         return PandasTable(table, self)

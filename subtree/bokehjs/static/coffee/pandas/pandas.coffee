@@ -132,7 +132,7 @@ class PandasPlotSource extends datasource.ObjectArrayDataSource
   initialize : (attrs, options) ->
     super(attrs, options)
     @select_serverside = _.throttle(@_select_serverside, 500)
-    #safebind(this, this, 'change:selected', @select_serverside)
+    safebind(this, this, 'change:selected', @select_serverside)
 
   _select_serverside : () ->
     pandassource = @get_obj('pandassource')
