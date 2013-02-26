@@ -91,3 +91,11 @@ button.active { border:1px solid blue }
 .pandasoffset{
     width : 40px;
 }
+
+.hide{
+    display : none; 
+}
+.pandasicons {
+    position:relative;
+    top:5px;
+}

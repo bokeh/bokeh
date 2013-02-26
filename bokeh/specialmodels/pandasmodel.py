@@ -113,6 +113,7 @@ class PandasPivotModel(PandasPlotSource):
             # in the non group by case, we filter on selection
             # otherwise we output the # of selected items
             data = data.ix[data._selected==1, :]
+        self.totallength = len(data)
         self.data = self.get_slice(data)
         self.data.pop('_counts')
         self.data.pop('_selected')
@@ -131,7 +132,12 @@ class PandasPivotModel(PandasPlotSource):
         data = make_source(index=data.index, **data)
         self.set('selected', selected)
         self.set('data', data)
-        self.set('maxlength', len(self.fulldata))
+        self.set('maxlength', self.totallength)
+        if self.get('offset') > self.get('maxlength'):
+            self.set('offset', 0)
+        self.set('length', min(self.get('length'),
+                               self.get('maxlength') - self.get('offset'))
+                 )
         self.set('columns', columns)
         self.set('counts', counts)
         return self.attributes
