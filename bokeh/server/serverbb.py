@@ -60,6 +60,7 @@ class ContinuumModelsStorage(object):
         return result
     
     def add(self, model, retries=10):
+        model.set('created', True)
         try:
             with self.client.pipeline() as pipe:
                 self._upsert(pipe, model)
