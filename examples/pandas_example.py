@@ -7,7 +7,8 @@ import pandas
 import cPickle as pickle
 import tempfile
 import random
-length = 10000
+
+length = 1000
 
 types = ['a','a','b','c','c','d','d']
 types2 = ['cat','dog','cat','dog','cat','dog','cat']
@@ -30,8 +31,13 @@ df = pandas.DataFrame(
         ),
     index=[word(x) for x in range(length)]
     )
-                      
-                      
 p.clearic()
 table = p.pandastable(df)
+pandassource = table.pivotmodel.pandassource
+
+plotsource = p.model('PandasPlotSource', pandassourceobj=pandassource)
+p.bbclient.create(plotsource)
+plot = p.scatter('vals', 'vals2', data_source=plotsource)
+
+
 

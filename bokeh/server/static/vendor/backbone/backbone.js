@@ -1395,7 +1395,6 @@
     if (!options.url) {
       params.url = _.result(model, 'url') || urlError();
     }
-
     // Ensure that we have the appropriate request data.
     if (options.data == null && model && (method === 'create' || method === 'update' || method === 'patch')) {
       params.contentType = 'application/json';

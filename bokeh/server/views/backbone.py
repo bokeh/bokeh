@@ -62,8 +62,8 @@ def bulk_upsert(docid):
         {'msgtype' : 'modelpush',
          'modelspecs' : [x.to_broadcast_json() for x in relevant_models]})
 
-@app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @app.route("/bokeh/bb/<docid>/<typename>", methods=['POST'])
+@app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @check_write_authentication_and_create_client
 def create(docid, typename):
     modeldata = current_app.ph.deserialize_web(request.data)
@@ -82,6 +82,26 @@ def create(docid, typename):
              'modelspecs' : [model.to_broadcast_json()]}),
             exclude={clientid})
     return app.ph.serialize_web(model.to_json())
+
+@app.route("/bokeh/bb/<docid>/<typename>/<id>", methods=['PATCH'])
+@check_write_authentication_and_create_client
+def patch(docid, typename, id):
+    modeldata = current_app.ph.deserialize_web(request.data)
+    modeldata['id'] = id
+    model = current_app.collections.attrupdate(typename, modeldata)
+    log.debug("patch, %s, %s", docid, typename)
+    if model.get('docs') is None:
+        model.set('docs', [docid])
+    current_app.collections.add(model)
+    clientid=request.headers.get('Continuum-Clientid', None)
+    for doc in model.get('docs'):
+        current_app.wsmanager.send("bokehplot:" + doc, app.ph.serialize_web(
+            {'msgtype' : 'modelpush',
+             'modelspecs' : [model.to_broadcast_json()]}),
+                                   exclude={clientid})
+    return (app.ph.serialize_web(model.to_json()), "200",
+            {"Access-Control-Allow-Origin": "*"})
+    
 
 @app.route("/bokeh/bb/<docid>/<typename>/<id>", methods=['PUT'])
 @check_write_authentication_and_create_client

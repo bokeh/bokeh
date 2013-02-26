@@ -53,9 +53,8 @@ class PandasPivotView extends ContinuumView
       @model.save()
 
   pandasagg : () ->
-    if e.keyCode == ENTER
-      @mset('agg', @$el.find('.pandasagg').val())
-      @model.save()
+    @mset('agg', @$el.find('.pandasagg').val())
+    @model.save()
 
   fromcsv : (str) ->
     #string of csvs, to list of those values
@@ -97,19 +96,47 @@ class PandasPivotView extends ContinuumView
       length : @mget('length')
       maxlength : @mget('maxlength')
       counts : @mget('counts')
+      selected : @mget('selected')
 
     @$el.empty()
     html = pandas_template(template_data)
     @$el.html(html)
+    @$el.find("option[value=\"#{@mget('agg')}\"]").attr('selected', 'selected')
     @$el.addClass("bokehtable")
+
+datasource = require("../datasource")
+
+class PandasPlotSource extends datasource.ObjectArrayDataSource
+  type : 'PandasPlotSource'
+  initialize : (attrs, options) ->
+    super(attrs, options)
+    safebind(this, this, 'change:selected', @select_serverside)
+
+  select_serverside : () ->
+    pandassource = @get_obj('pandassource')
+    pandassource.save({selected : @get('selected')}, {wait : true})
+    return null
+
+class PandasPlotSources extends Backbone.Collection
+  model : PandasPlotSource
+
 
 class PandasPivot extends HasParent
   type : 'PandasPivot'
   initialize : (attrs, options)->
     super(attrs, options)
+    @throttled_fetch = _.throttle((() => @fetch()), 500)
+
+  dinitialize : (attrs, options) =>
+    super(attrs, options)
+    safebind(this, @get_obj('pandassource'), 'change', @throttled_fetch)
+
+  fetch : (options) ->
+    super(options)
   go_beginning : () ->
     @set('offset', 0)
     @save()
+
   go_back : () ->
     offset = @get('offset')
     offset = offset - @get('length')
@@ -117,6 +144,7 @@ class PandasPivot extends HasParent
       offset = 0
     @set('offset', offset)
     @save()
+
   go_forward : () ->
     offset = @get('offset')
     offset = offset + @get('length')
@@ -125,10 +153,12 @@ class PandasPivot extends HasParent
       offset = maxoffset
     @set('offset', offset)
     @save()
+
   go_end : () ->
     maxoffset = @get('maxlength') - @get('length')
     @set('offset', maxoffset)
     @save()
+
   defaults :
     path : ''
     sort : []
@@ -151,6 +181,19 @@ class PandasDataSource extends HasParent
     super(attrs, options)
   defaults :
     selected : [] #pandas index of selected values
+  save : (key, val, options) ->
+    # Handle both `"key", value` and `{key: value}` -style arguments.
+    if key == null or _.isObject(key)
+      attrs = key
+      options = val
+    else
+      attrs = {}
+      attrs[key] = val
+    #must patch for this model
+    if not options
+      options = {}
+    options.patch = true
+    super(attrs, options)
 
 class PandasDataSources extends Backbone.Collection
   model : PandasDataSource
@@ -162,3 +205,6 @@ exports.PandasPivotView = PandasPivotView
 
 exports.PandasDataSource = PandasDataSource
 exports.pandasdatasources = new PandasDataSources
+
+exports.PandasPlotSource = PandasPlotSource
+exports.pandasplotsources = new PandasPlotSources
