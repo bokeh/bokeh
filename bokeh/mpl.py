@@ -38,7 +38,16 @@ class PandasTable(object):
         self.pivotmodel.set('agg', agg)
         self.plotclient.bbclient.update(self.pivotmodel)
         
-    def sort(self, sort):
+    def sort(self, sort=None, direction=None):
+        if sort is None:
+            sort = []
+        elif isinstance(sort, basestring):
+            if direction is None: direction = True
+            sort = [{'column' : sort, 'direction' : direction}]
+        else:
+            if direction is None: direction = [True for x in sort]
+            sort = [{'column' : s, 'direction' : d} for
+                    s, d in zip(sort, direction)]
         self.pivotmodel.set('sort', sort)
         self.plotclient.bbclient.update(self.pivotmodel)
         
