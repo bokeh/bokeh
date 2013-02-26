@@ -146,7 +146,6 @@ class ScatterRendererView extends XYRendererView
     mark_type = @mget('mark')
     for idx in [0..data.length]
       if selecting and not selected[idx]
-        unselected_color = @mget('unselected_color')
         @plot_view.ctx.strokeStyle = unselected_color
         @plot_view.ctx.fillStyle = unselected_color
       else if color_field
