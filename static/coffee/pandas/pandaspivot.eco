@@ -84,14 +84,21 @@ through <%=@offset + @length%> of
     <% end %>
   </thead>
   <% for datapoint, idx in @data: %>
+  
+  <% if @colors: %>
+  <tr style="background-color:<%= @colors[idx] %>">
+  <% else: %>
   <tr>
+  <% end %>
+  
     <% if @counts: %>
-    <% if @selected and @selected[idx]: %>
+      <% if @selected and @selected[idx]: %>
     <td> <%= @selected[idx] %>/<%= @counts[idx] %> </td>
-    <% else: %>
+      <% else: %>
     <td> <%= @counts[idx] %> </td>
+      <% end %>
     <% end %>
-    <% end %>
+
     <% for column in @columns: %>
     <td> <%= datapoint[column] %> </td>
     <% end %>
