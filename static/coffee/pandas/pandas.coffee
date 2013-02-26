@@ -9,6 +9,13 @@ ENTER = 13
 # cut and paste from table.coffee for now... we'll probably eliminate
 # have to refactor later
 class PandasPivotView extends ContinuumView
+  initialize : (options) ->
+    super(options)
+    safebind(this, @model, 'destroy', @remove)
+    safebind(this, @model, 'change', @render)
+    @controls_hide = true
+    @render()
+
   events :
     "keyup .pandasgroup" : 'pandasgroup'
     "keyup .pandassort" : 'pandassort'
@@ -19,6 +26,14 @@ class PandasPivotView extends ContinuumView
     "click .pandasback" : 'pandasback'
     "click .pandasnext" : 'pandasnext'
     "click .pandasend" : 'pandasend'
+    "click .controlsmore" : 'toggle_more_controls'
+
+  toggle_more_controls : () =>
+    if @controls_hide
+      @controls_hide = false
+    else
+      @controls_hide = true
+    @render()
 
   pandasbeginning : () =>
     @model.go_beginning()
@@ -72,12 +87,6 @@ class PandasPivotView extends ContinuumView
      @mset('sort', @fromcsv(@$el.find(".pandassort").val()))
      @model.save()
 
-  initialize : (options) ->
-    super(options)
-    safebind(this, @model, 'destroy', @remove)
-    safebind(this, @model, 'change', @render)
-    @render()
-
   render : () ->
     groups = @mget('groups')
     if _.isArray(groups)
@@ -85,6 +94,7 @@ class PandasPivotView extends ContinuumView
     sort = @mget('sort')
     if _.isArray(sort)
       sort = sort.join(",")
+
     template_data =
       columns : @mget('columns')
       data : @mget('data')
@@ -97,6 +107,7 @@ class PandasPivotView extends ContinuumView
       maxlength : @mget('maxlength')
       counts : @mget('counts')
       selected : @mget('selected')
+      controls_hide : @controls_hide
 
     @$el.empty()
     html = pandas_template(template_data)
