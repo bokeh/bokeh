@@ -87,6 +87,16 @@ class PandasPivotView extends ContinuumView
      @mset('sort', @fromcsv(@$el.find(".pandassort").val()))
      @model.save()
 
+  colors : () =>
+    if @mget('counts') and @mget('selected')
+      return _.map(_.zip(@mget('counts'), @mget('selected')), (temp) ->
+        [count, selected] = temp
+        alpha = selected / count
+        return "rgba(0,0,255,#{alpha})"
+      )
+    else
+      return null
+
   render : () ->
     groups = @mget('groups')
     if _.isArray(groups)
@@ -94,7 +104,7 @@ class PandasPivotView extends ContinuumView
     sort = @mget('sort')
     if _.isArray(sort)
       sort = sort.join(",")
-
+    colors = @colors()
     template_data =
       columns : @mget('columns')
       data : @mget('data')
@@ -108,7 +118,7 @@ class PandasPivotView extends ContinuumView
       counts : @mget('counts')
       selected : @mget('selected')
       controls_hide : @controls_hide
-
+      colors : colors
     @$el.empty()
     html = pandas_template(template_data)
     @$el.html(html)
@@ -121,9 +131,10 @@ class PandasPlotSource extends datasource.ObjectArrayDataSource
   type : 'PandasPlotSource'
   initialize : (attrs, options) ->
     super(attrs, options)
-    safebind(this, this, 'change:selected', @select_serverside)
+    @select_serverside = _.throttle(@_select_serverside, 500)
+    #safebind(this, this, 'change:selected', @select_serverside)
 
-  select_serverside : () ->
+  _select_serverside : () ->
     pandassource = @get_obj('pandassource')
     pandassource.save({selected : @get('selected')}, {wait : true})
     return null
