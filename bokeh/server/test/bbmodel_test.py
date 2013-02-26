@@ -6,7 +6,7 @@ import gevent
 
 import test_utils
 from ..app import app
-from ...bbmodel import ContinuumModelsClient, ContinuumModel
+from ...bbmodel import ContinuumModelsClient, make_model
 from ..models import docs
 from .. import start
 
@@ -29,7 +29,7 @@ class TestBBModel(test_utils.BokehServerTestCase):
     def test_create(self):
         test_utils.wait_until(lambda : start.http_server.started)
         client = self.client
-        client.create(ContinuumModel('Test', testval=1, id='foo'))
+        client.create(make_model('Test', testval=1, id='foo'))
         test_utils.wait_until(lambda : app.collections.get('Test', 'foo'))
         assert app.collections.get('Test', 'foo').get('testval') == 1
         assert client.fetch('Test', 'foo').get('testval') == 1
@@ -37,7 +37,7 @@ class TestBBModel(test_utils.BokehServerTestCase):
     def test_update(self):
         test_utils.wait_until(lambda : start.http_server.started)
         client = self.client
-        m = ContinuumModel('Test', testval=1, id='foo')
+        m = make_model('Test', testval=1, id='foo')
         client.create(m)
         m.set('testval', 2)
         client.update(m)
@@ -50,8 +50,8 @@ class TestBBModel(test_utils.BokehServerTestCase):
     def test_fetch_type(self):
         test_utils.wait_until(lambda : start.http_server.started)
         client = self.client
-        client.create(ContinuumModel('Test', testval=1, id='foo'))
-        client.create(ContinuumModel('Test2', testval=1, id='foo2'))
+        client.create(make_model('Test', testval=1, id='foo'))
+        client.create(make_model('Test2', testval=1, id='foo2'))
         models = client.fetch(typename='Test')
         assert len(models) == 1 and models[0].get('id') == 'foo'
         
@@ -59,10 +59,10 @@ class TestBBModel(test_utils.BokehServerTestCase):
         test_utils.wait_until(lambda : start.http_server.started)
         client = self.client
         client2 = self.client2
-        client.create(ContinuumModel('Test', testval=1, id='foo'))
-        client.create(ContinuumModel('Test2', testval=1, id='foo2'))
-        client2.create(ContinuumModel('Test', testval=1, id='foo3'))
-        client2.create(ContinuumModel('Test2', testval=1, id='foo4'))
+        client.create(make_model('Test', testval=1, id='foo'))
+        client.create(make_model('Test2', testval=1, id='foo2'))
+        client2.create(make_model('Test', testval=1, id='foo3'))
+        client2.create(make_model('Test2', testval=1, id='foo4'))
         assert client.get('Test', 'foo').get('testval') == 1
         assert client.get('Test', 'foo3') is None
         assert client2.get('Test2', 'foo2') is None
@@ -71,9 +71,15 @@ class TestBBModel(test_utils.BokehServerTestCase):
     def test_delete(self):
         test_utils.wait_until(lambda : start.http_server.started)
         client = self.client                
-        client.create(ContinuumModel('Test', testval=1, id='foo'))
-        client.create(ContinuumModel('Test', testval=1, id='foo2'))
+        client.create(make_model('Test', testval=1, id='foo'))
+        client.create(make_model('Test', testval=1, id='foo2'))
         client.delete('Test', 'foo')
         assert client.get('Test', 'foo') is None
         assert client.get('Test', 'foo2') is not None
         
+    def test_auth(self):
+        # should test read auth via user fails if user not in r_user
+        # should test read auth via user passes if user not in rw_user
+        # read auth via api token fails if invalid api token
+        # write auth via user fails if user not in rw_user
+        pass

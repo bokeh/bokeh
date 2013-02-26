@@ -77,7 +77,7 @@ load_models = (modelspecs)->
   #         attributes :
   #           firstattr : 'one'
   #         name : 'myplot'
-  #         renderers : []
+  #         s : []
   #
   #   type is the key of the in collections for this model
   #   id is the id of this model
@@ -113,12 +113,6 @@ load_models = (modelspecs)->
     if coll
       coll.get(attrs['id']).dinitialize(attrs)
 
-  # set attributes on old models silently
-  for coll_attrs in oldspecs
-    [coll, attrs] = coll_attrs
-    if coll
-      coll.get(attrs['id']).set(attrs, {'local' : true, 'silent' : true})
-
   # trigger add events on all new models
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
@@ -126,12 +120,11 @@ load_models = (modelspecs)->
       model = coll.get(attrs.id)
       model.trigger('add', model, coll, {});
 
-  # trigger change events on all old models
+  # set attributes on old models silently
   for coll_attrs in oldspecs
     [coll, attrs] = coll_attrs
     if coll
-      coll.get(attrs['id']).change()
-
+      coll.get(attrs['id']).set(attrs)
   return null
 
 
@@ -157,7 +150,6 @@ class WebSocketWrapper
     @s.onopen = () =>
       @_connected.resolve()
     @s.onmessage = @onmessage
-    return @
 
   onmessage : (msg) =>
     data = msg.data
@@ -607,6 +599,10 @@ class PlotWidget extends ContinuumView
     if (!ctx.getLineDash)
       ctx.getLineDash = () ->
         return ctx.mozDash
+    ctx.setLineDashOffset = (dash_offset) ->
+      ctx.lineDashOffset = dash_offset
+      ctx.mozDashOffset = dash_offset
+      ctx.webkitLineDashOffset = dash_offset
     super(options)
 
   bind_bokeh_events : ->
@@ -632,13 +628,33 @@ class PlotWidget extends ContinuumView
 
 locations =
   Plot : ['./container', 'plots']
-  PanTool : ['./tools', 'pantools']
-  ZoomTool : ['./tools', 'zoomtools']
-  SelectionTool : ['./tools', 'selectiontools']
-  LinearAxis : ['./guides', 'linearaxes']
+
+  PanTool :       ['./tools/pantool',   'pantools']
+  ZoomTool :      ['./tools/zoomtool',   'zoomtools']
+  SelectionTool : ['./tools/selecttool', 'selectiontools']
+
+  LinearAxis :     ['./guides', 'linearaxes']
   LinearDateAxis : ['./guides', 'lineardateaxes']
-  Legend : ['./guides', 'legends']
-  GlyphRenderer : ['./glyph_renderers', 'glyphrenderers']
+  Legend :         ['./guides', 'legends']
+
+  GlyphRenderer : ['./renderers/glyph_renderer',     'glyphrenderers']
+
+  Glyph :     ['./renderers/glyph',     'glyphs']
+  Arc :       ['./renderers/arc',       'arcs']
+  Area :      ['./renderers/area',      'areas']
+  Bezier :    ['./renderers/bezier',    'beziers']
+  Circle :    ['./renderers/circle',    'circles']
+  Image :     ['./renderers/image',     'images']
+  Line :      ['./renderers/line',      'lines']
+  Oval :      ['./renderers/oval',      'ovals']
+  Quad :      ['./renderers/quad',      'quads']
+  Quadcurve : ['./renderers/quadcurve', 'quadcurves']
+  Ray :       ['./renderers/ray',       'rays']
+  Rect :      ['./renderers/rect',      'rects']
+  Segment :   ['./renderers/segment',   'segments']
+  Text :      ['./renderers/text',      'texts']
+  Wedge :     ['./renderers/wedge',     'wedges']
+
   BoxSelectionOverlay : ['./overlays', 'boxselectionoverlays']
   ObjectArrayDataSource : ['./datasource', 'objectarraydatasources']
   ColumnDataSource : ['./datasource', 'columndatasources']
@@ -653,6 +669,9 @@ locations =
   LineRenderer: ['./schema_renderers', 'linerenderers']
   DiscreteColorMapper :['./mapper', 'discretecolormappers']
   DataTable :['./table', 'datatables']
+  PandasPivot :['./pandas/pandas', 'pandaspivots']
+  PandasDataSource :['./pandas/pandas', 'pandasdatasources']
+  PandasPlotSource :['./pandas/pandas', 'pandasplotsources']
 exports.locations = locations
 
 Collections = (typename) ->

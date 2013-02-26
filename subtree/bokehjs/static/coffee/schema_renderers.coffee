@@ -127,7 +127,6 @@ class ScatterRendererView extends XYRendererView
     super()
     selected = {}
     sel_idxs = @model.get_obj('data_source').get('selected')
-    console.log('sel_idxs', sel_idxs)
     if sel_idxs.length == 0
       selecting = false
     else
@@ -147,7 +146,6 @@ class ScatterRendererView extends XYRendererView
     mark_type = @mget('mark')
     for idx in [0..data.length]
       if selecting and not selected[idx]
-        unselected_color = @mget('unselected_color')
         @plot_view.ctx.strokeStyle = unselected_color
         @plot_view.ctx.fillStyle = unselected_color
       else if color_field

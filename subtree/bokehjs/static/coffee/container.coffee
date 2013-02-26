@@ -5,8 +5,7 @@ ContinuumView = base.ContinuumView
 safebind = base.safebind
 build_views = base.build_views
 
-tools = require("./tools")
-ActiveToolManager = tools.ActiveToolManager
+ActiveToolManager = require("./tools/activetoolmanager").ActiveToolManager
 
 class PlotContextView extends ContinuumView
   initialize : (options) ->
@@ -307,6 +306,7 @@ class PlotView extends ContinuumView
     @render_init()
     @render()
     @build_subviews()
+    @throttled()
     return this
 
   render_init : () ->

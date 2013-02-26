@@ -5,7 +5,8 @@ import uuid
 import logging
 import cPickle as pickle
 import redis
-from bokeh.bbmodel import ContinuumModel
+import bokeh.bbmodel as bbmodel
+from bokeh.bbmodel import ContinuumModelsClient
 import numpy as np
 log = logging.getLogger(__name__)
 """
@@ -19,6 +20,9 @@ def dockey(docid):
 
 def modelkey(typename, modelid):
     return 'bbmodel:%s:%s' % (typename, modelid)
+
+def pandaskey(modelid):
+    return 'pandas:%s' % (modelid)
 
 def parse_modelkey(modelkey):
     _, typename, modelid = modelkey.split(":")
@@ -39,10 +43,11 @@ class ContinuumModelsStorage(object):
 
         else:
             attrs = self.ph.deserialize_web(attrs)
-            return ContinuumModel(typename, **attrs)
+            return make_model(typename, **attrs)
 
     def bbset(self, client, key, model):
-        return client.set(key, self.ph.serialize_web(model.attributes))
+        return client.set(key, self.ph.serialize_web(
+            model.to_json(include_hidden=True)))
         
     def get_bulk(self, docid, typename=None):
         doc_keys = self.client.smembers(dockey(docid))
@@ -54,10 +59,8 @@ class ContinuumModelsStorage(object):
                 result.append(m)
         return result
     
-    def get(self, typename, id):
-        return self.bbget(self.client, modelkey(typename, id))
-    
     def add(self, model, retries=10):
+        model.set('created', True)
         try:
             with self.client.pipeline() as pipe:
                 self._upsert(pipe, model)
@@ -98,6 +101,10 @@ class ContinuumModelsStorage(object):
             self._upsert(pipe, model)
             pipe.execute()
         return model
+
+    #backbone api functions
+    def get(self, typename, id):
+        return self.bbget(self.client, modelkey(typename, id))
     
     def delete(self, typename, id):
         mkey = modelkey(typename, id)
@@ -106,4 +113,42 @@ class ContinuumModelsStorage(object):
         for doc in olddocs:
             self.client.srem(dockey(doc), mkey)
         self.client.delete(mkey)
+        
+    def create(self, model):
+        self.add(model)
+        
+    def update(self, model):
+        self.add(model)
+
+    def fetch(self, docid, typename=None, id=None):
+        if id is None:
+            return self.get_bulk(self, docid, typename=None)
+        else:
+            return self.get(typename, id)
+        
+
+
+
+
+def client_for_request(doc, app, request, mode):
+    if mode =='r':
+        key = doc.readonlyapikey
+    else:
+        key = doc.apikey
+    return ContinuumModelsClient(doc.docid,
+                                 request.url_root + "bokeh/bb/",
+                                 key,
+                                 app.ph)
+    
+def make_model(typename, **kwargs):
+    """the server should use this make_model function,
+    it automatically passes in a model client to all models
+    too much magic? (@hugo)
+    """
+    from flask import g
+    if 'client' not in kwargs and hasattr(g, 'client'):
+        return bbmodel.make_model(typename, client=g.client, **kwargs)
+    return bbmodel.make_model(typename, **kwargs)
+
+    
         

@@ -4,6 +4,7 @@ Promises = {}
 Deferreds._doc_loaded = $.Deferred()
 Deferreds._doc_requested = $.Deferred()
 Promises.doc_loaded = Deferreds._doc_loaded.promise()
+Promises.doc_requested = Deferreds._doc_requested.promise()
 base = require("./base")
 Collections = base.Collections
 container = require("./container")
@@ -64,7 +65,7 @@ utility =
   bokeh_connection : (host, docid, protocol) ->
     if _.isUndefined(protocol)
       protocol="https"
-    if not Deferreds._doc_requested.isResolved()
+    if  Promises.doc_requested.state() == "pending"
       Deferreds._doc_requested.resolve()
       $.get("#{protocol}://#{host}/bokeh/publicbokehinfo/#{docid}", {}, (data) ->
         console.log('instatiate_doc_single, docid', docid)
@@ -74,9 +75,10 @@ utility =
       )
   instantiate_doc_single_plot : (docid, view_model_id, target_el="#PlotPane", host="www.wakari.io") ->
     #this should not use plot contexts!
-    utility.bokeh_connection(host, docid)
+    utility.bokeh_connection(host, docid, "https")
     Deferreds._doc_loaded.done((data) ->
       utility.render_plots(data.plot_context_ref,
+        container.SinglePlotContextView,
         {target_model_id : view_model_id}
       )
       $(target_el).empty().append(exports.plotcontextview.el)
