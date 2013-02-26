@@ -1,19 +1,35 @@
-
 import protocol
 import requests
 import urlparse
+import urllib
 import utils
 import uuid
 import logging
+import copy
 import cPickle as pickle
 import redis
 
 import numpy as np
 log = logging.getLogger(__name__)
+special_types = {}
 
+def load_special_types():
+    import specialmodels.pandasmodel
+
+def register_type(typename, cls):
+    special_types[typename] = cls
+    
+def make_model(typename, **kwargs):
+    if typename in special_types:
+        return special_types[typename](typename, **kwargs)
+    else:
+        return ContinuumModel(typename, **kwargs)
+    
 class ContinuumModel(object):
-    collections = ['Continuum', 'Collections']    
+    hidden_fields = ()
     def __init__(self, typename, **kwargs):
+        if 'client'in kwargs:
+            self.client = kwargs.pop('client')
         self.attributes = kwargs
         self.typename = typename
         self.attributes.setdefault('id', str(uuid.uuid4()))
@@ -21,18 +37,17 @@ class ContinuumModel(object):
         
     def ref(self):
         return {
-            'collections' : self.collections,
             'type' : self.typename,
             'id' : self.attributes['id']
             }
     def get(self, key, default=None):
         return self.attributes.get(key, default)
     
-    def get_ref(self, field, client):
+    def get_obj(self, field, client):
         ref = self.get(field)
         return client.get(ref['type'], ref['id'])
     
-    def vget_ref(self, field, client):
+    def vget_obj(self, field, client):
         return [client.get(ref['type'], ref['id']) for ref in \
                 self.attributes.get(field)]
     
@@ -42,15 +57,21 @@ class ContinuumModel(object):
     def unset(self, key):
         del self.attributes[key]
            
-    def to_broadcast_json(self):
+    def to_broadcast_json(self, include_hidden=False):
         #more verbose json, which includes collection/type info necessary
         #for recon on the JS side.
         json = self.ref()
-        json['attributes'] = self.attributes
+        json['attributes'] = self.to_json(include_hidden=include_hidden)
         return json
     
-    def to_json(self):
-        return self.attributes
+    def to_json(self, include_hidden=False):
+        attrs = copy.copy(self.attributes)
+        if include_hidden:
+            return attrs
+        for field in self.hidden_fields:
+            if field in attrs:
+                attrs.pop(field)
+        return attrs                
 
     def __str__(self):
         return "Model:%s" % self.typename
@@ -74,16 +95,25 @@ class ContinuumModelsClient(object):
         super(ContinuumModelsClient, self).__init__()
         self.buffer = []
         
-    def delete(self, typename, id):
-        url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/", id)
-        self.s.delete(url)
-        
     def buffer_sync(self):
-        data = self.ph.serialize_web([x.to_broadcast_json() \
+        """bulk upsert of everything in self.buffer
+        """
+        data = self.ph.serialize_web([x.to_broadcast_json(include_hidden=True) \
                                       for x in self.buffer])
         url = utils.urljoin(self.baseurl, self.docid + "/", 'bulkupsert')
         self.s.post(url, data=data)
         self.buffer = []
+        
+    def upsert_all(self, models):
+        for m in models:
+            self.update(m, defer=True)
+        self.buffer_sync()
+        
+    #backbone API calls
+    def delete(self, typename, id):
+        url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/", id)
+        self.s.delete(url)
+        
         
     def create(self, model, defer=False):
         if not model.get('docs'):
@@ -95,7 +125,8 @@ class ContinuumModelsClient(object):
                                 self.docid + "/",
                                 model.typename)
             log.debug("create %s", url)
-            self.s.post(url, data=self.ph.serialize_msg(model.to_json()))
+            self.s.post(url, data=self.ph.serialize_msg(
+                model.to_json(include_hidden=True)))
         return model
 
     def update(self, model, defer=False):
@@ -109,35 +140,35 @@ class ContinuumModelsClient(object):
                                 model.typename + "/",
                                 model.id)
             log.debug("create %s", url)
-            self.s.put(url, data=self.ph.serialize_web(model.to_json()))
+            self.s.put(url, data=self.ph.serialize_web(
+                model.to_json(include_hidden=True)))
         return model
     
-    def get(self, typename=None, id=None):
-        return self.fetch(typename=typename, id=id)
+    def get(self, typename, id, include_hidden=False):
+        return self.fetch(typename=typename, id=id,
+                          include_hidden=include_hidden)
     
-    def fetch(self, typename=None, id=None):
+    def fetch(self, typename=None, id=None, include_hidden=False):
+        query = urllib.urlencode({'include_hidden' : include_hidden})
         if typename is None:
-            url = utils.urljoin(self.baseurl, self.docid)
+            url = utils.urljoin(self.baseurl, self.docid) + "?" + query
             data = self.s.get(url).content
             specs = self.ph.deserialize_web(data)
-            models =  [ContinuumModel(
-                x['type'], **x['attributes']) for x in specs]
+            models =  [make_model(x['type'], client=self, **x['attributes'])\
+                       for x in specs]
             return models
         elif typename is not None and id is None:
             url = utils.urljoin(self.baseurl, self.docid +"/", typename)
+            url += "?" + query
             attrs = self.ph.deserialize_web(self.s.get(url).content)
-            models = [ContinuumModel(typename, **x) for x in attrs]
+            models = [make_model(typename, client=self, **x) for x in attrs]
             return models
         elif typename is not None and id is not None:
             url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/", id)
+            url += "?" + query            
             attr = self.ph.deserialize_web(self.s.get(url).content)
             if attr is None:
                 return None
-            model = ContinuumModel(typename, **attr)
+            model = make_model(typename, client=self, **attr)
             return model
-        
-    def upsert_all(self, models):
-        for m in models:
-            self.update(m, defer=True)
-        self.buffer_sync()
         

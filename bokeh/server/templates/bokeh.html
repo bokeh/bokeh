@@ -6,6 +6,7 @@
 	<!-- Vendor Styles -->
     <link href="{{ url_for('static', filename='vendor/bokehjs/css/bokeh.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='vendor/bokehjs/css/continuum.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap.css') }}" rel="stylesheet">    
     {% for jsfile in jsfiles %}
     <script type="text/javascript" src="{{jsfile}}"></script>
     {% endfor %}

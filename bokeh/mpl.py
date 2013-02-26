@@ -5,10 +5,12 @@ import requests
 import uuid
 import bbmodel
 import protocol
+import data
 from protocol import serialize_json
 import os
 import dump
 import json
+import pandas
 
 log = logging.getLogger(__name__)
 colors = [
@@ -23,7 +25,33 @@ colors = [
       "#bcbd22", "#dbdb8d",
       "#17becf", "#9edae5"
     ]
-
+class PandasTable(object):
+    def __init__(self, pivotmodel, plotclient=None):
+        self.plotclient = plotclient
+        self.pivotmodel = pivotmodel
+        
+    def groupby(self, columns):
+        self.pivotmodel.set('groups', columns)
+        self.plotclient.bbclient.update(self.pivotmodel)
+        
+    def agg(self, agg):
+        self.pivotmodel.set('agg', agg)
+        self.plotclient.bbclient.update(self.pivotmodel)
+        
+    def sort(self, sort):
+        self.pivotmodel.set('sort', sort)
+        self.plotclient.bbclient.update(self.pivotmodel)
+        
+    def paginate(self, offset, length):
+        self.pivotmodel.set('offset', offset)
+        self.pivotmodel.set('length', length)
+        self.plotclient.bbclient.update(self.pivotmodel)
+        
+    def data(self):
+        self.plotclient.bbclient.update(self.pivotmodel)
+        return self.pivotmodel.get_data()
+        
+    
 class GridPlot(object):
     def __init__(self, container, children, title, plotclient=None):
         self.gridmodel = container
@@ -318,7 +346,7 @@ class PlotClient(object):
         return None
 
     def model(self, typename, **kwargs):
-        model = bbmodel.ContinuumModel(typename, **kwargs)
+        model = bbmodel.make_model(typename, **kwargs)
         self.models[model.id] = model
         return model
     
@@ -341,20 +369,7 @@ class PlotClient(object):
         return obj
 
     def make_source(self, **kwargs):
-        output = []
-        flds = kwargs.keys()
-        for idx in range(len(kwargs.values()[0])):
-            point = {}
-            for f in flds:
-                val = kwargs[f][idx]
-                if isinstance(val, float) and  np.isnan(val):
-                    val = "NaN"
-                elif isinstance(val, np.ndarray):
-                    val = val.tolist()
-                else:
-                    val = kwargs[f][idx]
-                point[f] = val
-            output.append(point)
+        output = data.make_source(**kwargs)
         model = self.model(
             'ObjectArrayDataSource',
             data=output
@@ -461,7 +476,28 @@ class PlotClient(object):
                         scatter=scatter
                         )
         return self._plot
-
+    
+    def pandastable(self, source, sort=[], groups=[],
+                    agg='sum', width=400, offset=0, length=100,
+                    height=400, container=None):
+        if container is None:
+            parent = self.ic
+        else:
+            parent = container
+        if isinstance(source, pandas.DataFrame):
+            source = self.model('PandasDataSource', df=source)
+            self.bbclient.create(source)
+        table = self.model('PandasPivot',
+                           pandassourceobj=source,
+                           sort=sort, groups=groups,agg=agg,
+                           offset=offset,length=length,
+                           width=width, height=height)
+        if self.bbclient:
+            self.bbclient.create(table)
+        if container is None:
+            self.show(table)
+        return PandasTable(table, self)
+    
     def table(self, data_source, columns, title=None,
               width=300, height=300, container=None):
         if container is None:
@@ -571,3 +607,4 @@ def get_template(filename):
     with open(template) as f:
         return jinja2.Template(f.read())
 
+bbmodel.load_special_types()

@@ -19,6 +19,11 @@
  - *fill properties*
  - *line properties*
 
+ ## oval
+ - x, y, width, height
+ - *fill properties*
+ - *line properties*
+
 ## arc
  - x, y, start_angle, end_angle, direction ``(clock, anticlock)``
  - *line properties*
@@ -33,6 +38,8 @@
 
 ## image
  - image
+ - image_src ``(url)``
+ - angle
  - dx, dy, dw, dh
  - sx, sy, sw, sh  # in-image crop
 
@@ -51,8 +58,12 @@
  - *fill properties*
  - *line properties*
 
+## ray
+ - x0, y0, angle, length
+ - *line properties*
+
 ## segment
- - x, y, angle, length OR x0, y0, x1, y1
+ - x0, y0, x1, y1
  - *line properties*
 
 ## text

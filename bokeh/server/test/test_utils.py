@@ -8,7 +8,7 @@ from requests.exceptions import ConnectionError
 import requests
 
 from .. import redisutils
-from .. import app
+from ..app import app
 from .. import start
 
 def wait_flask():

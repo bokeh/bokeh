@@ -6,7 +6,7 @@ import gevent
 
 from .. import wsmanager
 import test_utils
-from .. import app
+from ..app import app
 from .. import start
 from ..models import docs
 
@@ -25,8 +25,8 @@ class WSmanagerTestCase(unittest.TestCase):
         assert s2.send.call_count == 2
         assert s1.send.call_count == 1
         
-ws_address = "ws://localhost:5006/cdx/sub"
-class TestSubscribeWebSocket(test_utils.CDXServerTestCase):
+ws_address = "ws://localhost:5006/bokeh/sub"
+class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestSubscribeWebSocket, self).setUp()
         doc2 = docs.new_doc(app, "defaultdoc2",
@@ -35,22 +35,22 @@ class TestSubscribeWebSocket(test_utils.CDXServerTestCase):
     def test_basic_subscribe(self):
         ph = start.app.ph
         sock = websocket.WebSocket()
-        connect(sock, ws_address, 'cdxplot:defaultdoc', 'nokey')
-        app.wsmanager.send('cdxplot:defaultdoc', 'hello!')
+        connect(sock, ws_address, 'bokehplot:defaultdoc', 'nokey')
+        app.wsmanager.send('bokehplot:defaultdoc', 'hello!')
         msg = sock.recv()
-        assert msg == 'cdxplot:defaultdoc:hello!'
+        assert msg == 'bokehplot:defaultdoc:hello!'
         sock2 = websocket.WebSocket()
-        connect(sock2, ws_address, 'cdxplot:defaultdoc', 'nokey')
+        connect(sock2, ws_address, 'bokehplot:defaultdoc', 'nokey')
         sock3 = websocket.WebSocket()
-        connect(sock3, ws_address, 'cdxplot:defaultdoc2', 'nokey')
-        app.wsmanager.send('cdxplot:defaultdoc', 'hello2!')        
-        app.wsmanager.send('cdxplot:defaultdoc2', 'hello3!')
+        connect(sock3, ws_address, 'bokehplot:defaultdoc2', 'nokey')
+        app.wsmanager.send('bokehplot:defaultdoc', 'hello2!')        
+        app.wsmanager.send('bokehplot:defaultdoc2', 'hello3!')
         msg = sock.recv()
-        assert msg == 'cdxplot:defaultdoc:hello2!'
+        assert msg == 'bokehplot:defaultdoc:hello2!'
         msg = sock2.recv()
-        assert msg == 'cdxplot:defaultdoc:hello2!'
+        assert msg == 'bokehplot:defaultdoc:hello2!'
         msg = sock3.recv()
-        assert msg == 'cdxplot:defaultdoc2:hello3!'
+        assert msg == 'bokehplot:defaultdoc2:hello3!'
         
 def connect(sock, addr, topic, auth):
     ph = start.app.ph
@@ -62,5 +62,6 @@ def connect(sock, addr, topic, auth):
                   )
     sock.send(ph.serialize_msg(msgobj))
     msg = sock.recv()
+    msg = msg.split(":", 2)[-1]
     msgobj = ph.deserialize_msg(msg)
     assert msgobj['status'][:2] == ['subscribesuccess', topic]

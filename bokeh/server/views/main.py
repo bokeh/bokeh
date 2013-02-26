@@ -14,6 +14,9 @@ from ..models import user
 from ..models import docs
 from ..models import convenience as mconv
 from .. import hemlib
+from bbauth import (check_read_authentication_and_create_client,
+                    check_write_authentication_and_create_client)
+
 #main pages
 
 @app.route('/bokeh/')
@@ -53,11 +56,9 @@ def write_plot_file(docid, apikey, url):
     app.write_plot_file(bokehuser.username, codedata)
 
 @app.route('/bokeh/bokehinfo/<docid>')
+@check_read_authentication_and_create_client
 def get_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
-    bokehuser = app.current_user(request)
-    if not mconv.can_write_doc(doc, bokehuser):
-        return null
     plot_context_ref = doc.plot_context_ref
     all_models = docs.prune_and_get_valid_models(current_app.model_redis,
                                                  current_app.collections,

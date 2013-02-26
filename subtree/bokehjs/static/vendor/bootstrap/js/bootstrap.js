@@ -566,7 +566,7 @@
 
   , show: function () {
       var $this = this.element
-        , $ul = $this.closest('ul:not(.dropdown-menu)')
+      , $ul = $this.closest('ul:not(.dropdown-menu)')
         , selector = $this.attr('data-target')
         , previous
         , $target

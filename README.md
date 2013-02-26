@@ -1,7 +1,7 @@
 Bokeh 
 =====
 
-Bokeh is an implementation of [Grammar of
+Bokeh (pronounced boh-Kay) is an implementation of [Grammar of
 Graphics](http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html) for
 Python, that also supports the customized rendering flexibility of Protovis and
 d3.  Although it is a Python library, its primary output backend is HTML5
@@ -99,6 +99,13 @@ Static html dump based web plotting examples
  * open up the generated `grid.html` in a web browser
 
 
+What Does the Name "Bokeh" Mean?
+================================
+
+"Bokeh" is a [photography term](http://en.wikipedia.org/wiki/Bokeh) for the
+aesthetic quality of blurring of an image's background, to focus attention on a
+foreground subject.
+
 Coffeescript
 ============
 We're developing most of the javascript using coffeescript, in the 
@@ -129,3 +136,4 @@ This will link hem to your working copy so you get hem changes as we push it out
    need to compile the js yourself, by executing `$ hem build -d`, the `-d` 
    option will prevent hem from uglifying the js, which breaks the notebook
    export at the moment.
+
