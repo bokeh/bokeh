@@ -33,6 +33,8 @@ df = pandas.DataFrame(
     )
 p.clearic()
 table = p.pandastable(df)
+table.pivotmodel.set('precision', {'vals2' : 5})
+p.bbclient.update(table.pivotmodel)
 pandassource = table.pivotmodel.pandassource
 
 plotsource = p.model('PandasPlotSource', pandassourceobj=pandassource)
