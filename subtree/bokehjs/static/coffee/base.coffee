@@ -113,12 +113,6 @@ load_models = (modelspecs)->
     if coll
       coll.get(attrs['id']).dinitialize(attrs)
 
-  # set attributes on old models silently
-  for coll_attrs in oldspecs
-    [coll, attrs] = coll_attrs
-    if coll
-      coll.get(attrs['id']).set(attrs, {'local' : true, 'silent' : true})
-
   # trigger add events on all new models
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
@@ -126,12 +120,11 @@ load_models = (modelspecs)->
       model = coll.get(attrs.id)
       model.trigger('add', model, coll, {});
 
-  # trigger change events on all old models
+  # set attributes on old models silently
   for coll_attrs in oldspecs
     [coll, attrs] = coll_attrs
     if coll
-      coll.get(attrs['id']).change()
-
+      coll.get(attrs['id']).set(attrs)
   return null
 
 
@@ -673,6 +666,7 @@ locations =
   CDXPlotContext : ['./container', 'plotcontexts']
   PlotContext : ['./container', 'plotcontexts']
   ScatterRenderer: ['./schema_renderers', 'scatterrenderers']
+  LineRenderer: ['./schema_renderers', 'linerenderers']
   DiscreteColorMapper :['./mapper', 'discretecolormappers']
   DataTable :['./table', 'datatables']
   PandasPivot :['./pandas/pandas', 'pandaspivots']
