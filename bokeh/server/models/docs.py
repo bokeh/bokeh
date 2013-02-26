@@ -66,7 +66,7 @@ def transform_models(models):
             #if we have a selection tool, create a box select overlay
             if len(selecttoolrefs) > 0:
                 selecttoolref = selecttoolrefs[0]
-                overlay = bbmodel.ContinuumModel(
+                overlay = serverbb.make_model(
                     'BoxSelectionOverlay', docs=m.get('docs'),
                     tool=selecttoolref
                     )
