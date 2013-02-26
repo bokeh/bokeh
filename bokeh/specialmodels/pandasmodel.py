@@ -2,6 +2,7 @@ import uuid
 import base64
 import cPickle as pickle
 import numpy as np
+import datetime as dt
 
 from ..bbmodel import ContinuumModel, register_type
 from ..data import make_source
@@ -73,6 +74,7 @@ class PandasPivotModel(PandasPlotSource):
         offset : offset for pagination
         length : length of data for pagination
         data : dataframe output
+        precision : column names to precision mapping
     """
     def offset(self):
         return self.get('offset', 0)
@@ -92,6 +94,17 @@ class PandasPivotModel(PandasPlotSource):
     def get_slice(self, data):
         data = data[self.offset():self.offset() + self.length()]
         return data
+    
+    def format_data(self, jsondata):
+        """inplace manipulation of jsondata
+        """
+        precision = self.get('precision', {})
+        for dp in jsondata:
+            for k in dp:
+                if isinstance(dp[k], float):
+                    dp[k] = "%%.%df" % precision.get(k,2) % dp[k]
+                elif isinstance(dp[k], (dt.date, dt.datetime)):
+                    dp[k] = dp[k].isoformat()
         
     def get_data(self):
         data = super(PandasPivotModel, self).get_data()
@@ -150,6 +163,8 @@ class PandasPivotModel(PandasPlotSource):
         self.set('index', data.index.tolist())
         columns = data.columns.tolist()
         data = make_source(**data)
+        self.format_data(data)
+        
         self.set('selected', selected)
         self.set('data', data)
         self.set('columns', columns)
