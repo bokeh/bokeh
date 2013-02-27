@@ -30,6 +30,9 @@ alltests = {
     'vector'    : ['demo/vector'],
     'group'     : ['demo/group'],
     'stack'     : ['demo/stack'],
+    'lorenz10'  : ['demo/lorenz10'],
+    'lorenz50'  : ['demo/lorenz50'],
+    'lorenz100' : ['demo/lorenz100'],
 
     'arc'       : ['unittest/primitives/arc_test'],
     'area'      : ['unittest/primitives/area_test'],
