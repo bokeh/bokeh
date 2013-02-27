@@ -19,7 +19,6 @@ class properties
       @[attrname] = glyph_value
       if not @[attrname].default?
         @[attrname].default = default_value
-      console.log @[attrname]
     else
       console.log("string property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
