@@ -23,6 +23,19 @@ def test(testname):
 
 alltests = {
 
+    'all' : [
+        'demo/scatter',
+        'demo/bars',
+        'demo/map',
+        'demo/candle',
+        'demo/vector',
+        'demo/group',
+        'demo/stack',
+        'demo/lorenz10',
+        'demo/lorenz50',
+        'demo/lorenz100',
+    ],
+
     'scatter'   : ['demo/scatter'],
     'bars'      : ['demo/bars'],
     'map'       : ['demo/map'],
