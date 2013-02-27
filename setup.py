@@ -35,7 +35,7 @@ setup(
     version = '.'.join([str(x) for x in __version__]),
     packages = ['bokeh', 'bokeh.chaco_gg', 'bokeh.server',
                 'bokeh.server.models', 'bokeh.server.views',
-                'bokeh.server.test'],
+                'bokeh.server.test', 'bokeh.specialmodels'],
     package_data = {'bokeh' : package_data_dirs},
     author = 'Continuum Analytics',
     author_email = 'info@continuum.io',
