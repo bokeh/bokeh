@@ -82,17 +82,14 @@ class GlyphView extends PlotWidget
     return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
 
   map_to_screen : (x, x_units, y, y_units) ->
-    sx = new Array(x.length)
-    sy = new Array(y.length)
-
     if x_units == 'screen'
-      sx = x
+      sx = x[..]
     else
       sx = @xmapper.v_map_screen(x)
       sx = @plot_view.viewstate.v_xpos(sx)
 
     if y_units == 'screen'
-      sy = y
+      sy = y[..]
     else
       sy = @ymapper.v_map_screen(y)
       sy = @plot_view.viewstate.v_ypos(sy)
