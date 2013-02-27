@@ -28,6 +28,8 @@ alltests = {
     'map'       : ['demo/map'],
     'candle'    : ['demo/candle'],
     'vector'    : ['demo/vector'],
+    'group'     : ['demo/group'],
+    'stack'     : ['demo/stack'],
 
     'arc'       : ['unittest/primitives/arc_test'],
     'area'      : ['unittest/primitives/area_test'],
