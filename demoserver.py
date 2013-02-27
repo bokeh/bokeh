@@ -18,7 +18,7 @@ def test(testname):
         static_js = ['/static/js/application.js']
         hem_js = []
     tests = alltests[testname]
-    return flask.render_template("tests.html", jsfiles=static_js, hemfiles=hem_js, tests=tests)
+    return flask.render_template("demos.html", jsfiles=static_js, hemfiles=hem_js, tests=tests)
 
 
 alltests = {
