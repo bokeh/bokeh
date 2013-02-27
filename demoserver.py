@@ -25,6 +25,7 @@ alltests = {
 
     'scatter'   : ['demo/scatter'],
     'bars'      : ['demo/bars'],
+    'map'       : ['demo/map'],
     'candle'    : ['demo/candle'],
     'vector'    : ['demo/vector'],
 

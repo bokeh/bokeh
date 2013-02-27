@@ -34,7 +34,7 @@ class Rand
 
 
 
-make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[200, 200]) ->
+make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[200, 200], axes=true) ->
   return () ->
     expect(0)
     plot_tools = []
@@ -59,23 +59,32 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
       glyph.set(defaults)
       glyphs.push(glyph)
     plot_model = Collections('Plot').create()
-    xaxis = Collections('LinearAxis').create(
-      orientation: 'bottom'
-      parent: plot_model.ref()
-      data_range: xrange.ref()
-    )
-    yaxis = Collections('LinearAxis').create(
-      orientation: 'left',
-      parent: plot_model.ref()
-      data_range: yrange.ref()
-    )
-    plot_model.set(
-      renderers: (g.ref() for g in glyphs)
-      axes: [xaxis.ref(), yaxis.ref()]
-      tools: plot_tools
-      width: dims[0]
-      height: dims[1]
-    )
+    if axes
+      xaxis = Collections('LinearAxis').create(
+        orientation: 'bottom'
+        parent: plot_model.ref()
+        data_range: xrange.ref()
+      )
+      yaxis = Collections('LinearAxis').create(
+        orientation: 'left',
+        parent: plot_model.ref()
+        data_range: yrange.ref()
+      )
+      plot_model.set(
+        renderers: (g.ref() for g in glyphs)
+        axes: [xaxis.ref(), yaxis.ref()]
+        tools: plot_tools
+        width: dims[0]
+        height: dims[1]
+      )
+    else
+      plot_model.set(
+        renderers: (g.ref() for g in glyphs)
+        axes: []
+        tools: plot_tools
+        width: dims[0]
+        height: dims[1]
+      )
     div = $('<div></div>')
     $('body').append(div)
     myrender  =  ->
