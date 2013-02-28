@@ -20,17 +20,17 @@ class ImageView extends GlyphView
 
     super(options)
 
-  _render: (data) ->
+  set_data: (@data) ->
+    x = @glyph_props.v_select('x', data)
+    y = @glyph_props.v_select('y', data)
+    [@sx, @sy] = @map_to_screen(x, @glyph_props.x.units, y, @glyph_props.y.units)
+    @image = (@glyph_props.select('image', obj) for obj in data)
+    @angle = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
+
+  _render: () ->
     ctx = @plot_view.ctx
-    glyph_props = @glyph_props
 
     ctx.save()
-
-    x = glyph_props.v_select('x', data)
-    y = glyph_props.v_select('y', data)
-    [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
-    @image = (glyph_props.select('image', obj) for obj in data)
-    @angle = (glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
 
     # fast and slow paths are the same
     for i in [0..@sx.length-1]

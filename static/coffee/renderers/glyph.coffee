@@ -24,7 +24,8 @@ class GlyphView extends PlotWidget
     else
       console.log('Unknown data source type: ' + source.type)
 
-    @_render(data)
+    @set_data(data)
+    @_render()
 
   bind_bokeh_events: () ->
     safebind(this, @model, 'change', @request_render)
