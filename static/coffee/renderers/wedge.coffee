@@ -28,14 +28,15 @@ class WedgeView extends GlyphView
     super(options)
 
   set_data: (@data) ->
-    x = @glyph_props.v_select('x', data)
-    y = @glyph_props.v_select('y', data)
-    [@sx, @sy] = @map_to_screen(x, @glyph_props.x.units, y, @glyph_props.y.units)
-    @radius = @distance(data, 'x', 'radius', 'edge')
+    @x = @glyph_props.v_select('x', data)
+    @y = @glyph_props.v_select('y', data)
     @start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
     @end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
 
   _render: () ->
+    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+    @radius = @distance(@data, 'x', 'radius', 'edge')
+
     ctx = @plot_view.ctx
 
     ctx.save()

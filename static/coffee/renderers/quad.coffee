@@ -28,15 +28,15 @@ class QuadView extends GlyphView
     super(options)
 
   set_data: (@data) ->
-    left = @glyph_props.v_select('left', data)
-    top  = @glyph_props.v_select('top', data)
-    [@sx0, @sy0] = @map_to_screen(left, @glyph_props.left.units, top, @glyph_props.top.units)
-
-    right  = @glyph_props.v_select('right', data)
-    bottom = @glyph_props.v_select('bottom', data)
-    [@sx1, @sy1] = @map_to_screen(right, @glyph_props.right.units, bottom, @glyph_props.bottom.units)
+    @left = @glyph_props.v_select('left', data)
+    @top  = @glyph_props.v_select('top', data)
+    @right  = @glyph_props.v_select('right', data)
+    @bottom = @glyph_props.v_select('bottom', data)
 
   _render: () ->
+    [@sx0, @sy0] = @map_to_screen(@left,  @glyph_props.left.units,  @top,    @glyph_props.top.units)
+    [@sx1, @sy1] = @map_to_screen(@right, @glyph_props.right.units, @bottom, @glyph_props.bottom.units)
+
     ctx = @plot_view.ctx
 
     ctx.save()

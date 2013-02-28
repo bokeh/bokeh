@@ -24,13 +24,14 @@ class TextView extends GlyphView
     super(options)
 
   set_data: (@data) ->
-    x = @glyph_props.v_select('x', data)
-    y = @glyph_props.v_select('y', data)
-    [@sx, @sy] = @map_to_screen(x, @glyph_props.x.units, y, @glyph_props.y.units)
+    @x = @glyph_props.v_select('x', data)
+    @y = @glyph_props.v_select('y', data)
     @angle = (@glyph_props.select("angle", obj) for obj in data) # TODO deg/rad
     @text = @glyph_props.v_select("text", data)
 
   _render: () ->
+    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+
     ctx = @plot_view.ctx
 
     ctx.save()

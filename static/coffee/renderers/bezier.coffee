@@ -25,23 +25,24 @@ class BezierView extends GlyphView
     super(options)
 
   set_data: (@data) ->
-    x0 = @glyph_props.v_select('x0', data)
-    y0 = @glyph_props.v_select('y0', data)
-    [@sx0, @sy0] = @map_to_screen(x0, @glyph_props.x0.units, y0, @glyph_props.y0.units)
+    @x0 = @glyph_props.v_select('x0', data)
+    @y0 = @glyph_props.v_select('y0', data)
 
-    x1 = @glyph_props.v_select('x1', data)
-    y1 = @glyph_props.v_select('y1', data)
-    [@sx1, @sy1] = @map_to_screen(x1, @glyph_props.x1.units, y1, @glyph_props.y1.units)
+    @x1 = @glyph_props.v_select('x1', data)
+    @y1 = @glyph_props.v_select('y1', data)
 
-    cx0 = @glyph_props.v_select('cx0', data)
-    cy0 = @glyph_props.v_select('cy0', data)
-    [@scx0, @scy0] = @map_to_screen(cx0, @glyph_props.cx0.units, cy0, @glyph_props.cy0.units)
+    @cx0 = @glyph_props.v_select('cx0', data)
+    @cy0 = @glyph_props.v_select('cy0', data)
 
-    cx1 = @glyph_props.v_select('cx1', data)
-    cy1 = @glyph_props.v_select('cy1', data)
-    [@scx1, @scy1] = @map_to_screen(cx1, @glyph_props.cx1.units, cy1, @glyph_props.cy1.units)
+    @cx1 = @glyph_props.v_select('cx1', data)
+    @cy1 = @glyph_props.v_select('cy1', data)
 
   _render: () ->
+    [@sx0,  @sy0]  = @map_to_screen(@x0,  @glyph_props.x0.units,  @y0, @glyph_props.y0.units)
+    [@sx1,  @sy1]  = @map_to_screen(@x1,  @glyph_props.x1.units,  @y1, @glyph_props.y1.units)
+    [@scx0, @scy0] = @map_to_screen(@cx0, @glyph_props.cx0.units, @cy0, @glyph_props.cy0.units)
+    [@scx1, @scy1] = @map_to_screen(@cx1, @glyph_props.cx1.units, @cy1, @glyph_props.cy1.units)
+
     ctx = @plot_view.ctx
 
     ctx.save()

@@ -25,20 +25,21 @@ class ArcView extends GlyphView
     super(options)
 
   set_data: (@data) ->
-    x = @glyph_props.v_select('x', data)
-    y = @glyph_props.v_select('y', data)
-    [@sx, @sy] = @map_to_screen(x, @glyph_props.x.units, y, @glyph_props.y.units)
-    @radius = @distance(data, 'x', 'radius', 'edge')
+    @x = @glyph_props.v_select('x', data)
+    @y = @glyph_props.v_select('y', data)
     @start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
     @end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
-    @direction = new Array(@sx.length)
-    for i in [0..@sx.length-1]
+    @direction = new Array(@data.length)
+    for i in [0..@data.length-1]
       dir = @glyph_props.select('direction', data[i])
       if dir == 'clock' then @direction[i] = false
       else if dir == 'anticlock' then @direction[i] = true
       else @direction[i] = NaN
 
   _render: () ->
+    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+    @radius = @distance(@data, 'x', 'radius', 'edge')
+
     ctx = @plot_view.ctx
 
     ctx.save()

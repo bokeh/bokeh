@@ -25,19 +25,20 @@ class QuadcurveView extends GlyphView
     super(options)
 
   set_data: (@data) ->
-    x0 = @glyph_props.v_select('x0', data)
-    y0 = @glyph_props.v_select('y0', data)
-    [@sx0, @sy0] = @map_to_screen(x0, @glyph_props.x0.units, y0, @glyph_props.y0.units)
+    @x0 = @glyph_props.v_select('x0', data)
+    @y0 = @glyph_props.v_select('y0', data)
 
-    x1 = @glyph_props.v_select('x1', data)
-    y1 = @glyph_props.v_select('y1', data)
-    [@sx1, @sy1] = @map_to_screen(x1, @glyph_props.x1.units, y1, @glyph_props.y1.units)
+    @x1 = @glyph_props.v_select('x1', data)
+    @y1 = @glyph_props.v_select('y1', data)
 
-    cx = @glyph_props.v_select('cx', data)
-    cy = @glyph_props.v_select('cy', data)
-    [@scx, @scy] = @map_to_screen(cx, @glyph_props.cx.units, cy, @glyph_props.cy.units)
+    @cx = @glyph_props.v_select('cx', data)
+    @cy = @glyph_props.v_select('cy', data)
 
   _render: () ->
+    [@sx0, @sy0] = @map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units)
+    [@sx1, @sy1] = @map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units)
+    [@scx, @scy] = @map_to_screen(@cx, @glyph_props.cx.units, @cy, @glyph_props.cy.units)
+
     ctx = @plot_view.ctx
 
     ctx.save()
