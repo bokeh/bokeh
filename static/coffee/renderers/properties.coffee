@@ -252,7 +252,7 @@ class text_properties extends properties
 
     @string(styleprovider, glyphspec, @text_font_name)
     @string(styleprovider, glyphspec, @text_font_size_name)
-    @string(styleprovider, glyphspec, @text_font_style_name)
+    @enum(styleprovider, glyphspec, @text_font_style_name, "normal italic bold")
     @color(styleprovider, glyphspec, @text_color_name)
     @number(styleprovider, glyphspec, @text_alpha_name)
     @enum(styleprovider, glyphspec, @text_align_name, "left right center")
