@@ -25,8 +25,9 @@ utility =
     user = $.get('/bokeh/userinfo/', {}, (data) ->
       console.log(data)
       docs = JSON.parse(data)['docs']
+      docid = docs[0]['docid']
       console.log(docs)
-      utility.instantiate_doc(docs[0])
+      utility.instantiate_doc(docid)
     )
   instantiate_doc : (docid, viewclass=null, viewoptions={}) ->
     $.get("/bokeh/bokehinfo/#{docid}", {}, (data) ->

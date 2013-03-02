@@ -1,6 +1,8 @@
 from flask import (
     render_template, request, current_app,
-    send_from_directory, make_response)
+    send_from_directory, make_response, abort,
+    jsonify
+    )
 import flask
 import os
 import logging
@@ -39,7 +41,17 @@ def index(*unused_all, **kwargs):
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/x-icon')
-
+@app.route('/bokeh/getdocapikey/<docid>')
+def get_doc_api_key(docid):
+    bokehuser = app.current_user(request)
+    doc = docs.Doc.load(app.model_redis, docid)
+    if mconv.can_write_from_request(doc, request, app):
+        return jsonify({'apikey' : doc.apikey})
+    elif mconv.can_write_from_request(doc, request, app):
+        return jsonify({'readonlyapikey' : doc.readonlyapikey})
+    else:
+        return abort(401)
+    
 @app.route('/bokeh/userinfo/')
 def get_user():
     bokehuser = app.current_user(request)

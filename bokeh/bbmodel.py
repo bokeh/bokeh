@@ -81,13 +81,14 @@ class ContinuumModel(object):
     
         
 class ContinuumModelsClient(object):
-    def __init__(self, docid, baseurl, apikey, ph):
+    def __init__(self, docid, baseurl, apikey, ph, session=None):
         self.apikey = apikey
         self.ph = ph
         self.baseurl = baseurl
         parsed = urlparse.urlsplit(baseurl)
         self.docid = docid
-        session = requests.session()
+        if session is None:
+            session = requests.session()
         session.headers.update({'content-type':'application/json'})
         session.cookies.update({'bokeh-api-key' : self.apikey})
         session.verify = False
@@ -98,8 +99,8 @@ class ContinuumModelsClient(object):
     def buffer_sync(self):
         """bulk upsert of everything in self.buffer
         """
-        data = self.ph.serialize_web([x.to_broadcast_json(include_hidden=True) \
-                                      for x in self.buffer])
+        data = self.ph.serialize_web(
+            [x.to_broadcast_json(include_hidden=True) for x in self.buffer])
         url = utils.urljoin(self.baseurl, self.docid + "/", 'bulkupsert')
         self.s.post(url, data=data)
         self.buffer = []

@@ -323,26 +323,62 @@ class XYPlot(object):
         return None
         
 class PlotClient(object):
-    def __init__(self, docid=None, serverloc=None, apikey="nokey", ph=None):
+    def __init__(self, username, serverloc=None, userapikey="nokey", ph=None):
         #the root url should be just protocol://domain
-        self.models = {}
+        self.username = username
+        self.root_url = serverloc        
+        if self.root_url:
+            self.session = requests.session()
+            self.session.headers.update({'content-type':'application/json'})
+            self.session.cookies.update({'bokehuser-api-key' : userapikey})
+            self.session.cookies.update({'bokehuser' : username})
+            url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
+            self.userinfo = requests.get(url).json
+        else:
+            print 'Not using a server, plots will only work in embedded mode'
         if not ph:
             ph = protocol.ProtocolHelper()
+        self.models = {}            
         self.ph = ph
-        if docid:
-            self.root_url = serverloc
-            url = urlparse.urljoin(serverloc, "/bokeh/bb/")
-            self.bbclient = bbmodel.ContinuumModelsClient(
-                docid, url, apikey, self.ph)
-            interactive_contexts = self.bbclient.fetch(
-                typename='PlotContext')
-            self.ic = interactive_contexts[0]
-        else:
-            self.root_url = None
-            self.bbclient = None
-            self.ic = self.model('PlotContext', children=[])
         self.clf()
         self._hold = True
+        self.bbclient = None
+        self.ic = self.model('PlotContext', children=[])
+        
+    def load_doc(self, docid):
+        url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
+        resp = self.session.get(url)
+        if resp.status_code == 401:
+            raise Exception, 'unauthorized'
+        apikey = resp.json
+        if 'apikey' in apikey:
+            self.docid = docid
+            self.apikey = apikey['apikey']
+            print 'got read write apikey'
+        else:
+            self.docid = docid
+            self.apikey = apikey['readonlyapikey']
+            print 'got read only apikey'
+        self.models = {}
+        url = urlparse.urljoin(self.root_url, "/bokeh/bb/")        
+        self.bbclient = bbmodel.ContinuumModelsClient(
+            docid, url, self.apikey, self.ph
+            )
+        interactive_contexts = self.bbclient.fetch(
+            typename='PlotContext')
+        self.ic = interactive_contexts[0]
+
+    def use_doc(self, name):
+        docs = self.userinfo.get('docs')
+        matching = [x for x in docs if x.get('title') == name]
+        if len(matching) > 1:
+            print 'warning, multiple documents with that title'
+        if len(matching) == 0:
+            print 'no documents found'
+        self.load_doc(matching[0]['docid'])
+        
+        # 
+        
         
     def notebooksources(self):
         import IPython.core.displaypub as displaypub
