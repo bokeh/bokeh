@@ -446,7 +446,7 @@ class HasProperties extends Backbone.Model
     # to enable normal beaviour, add this line
     #
     # HasProperties.prototype.sync = Backbone.sync
-    return options.success(model)
+    return options.success(model, null, {})
 
   defaults : {}
 
