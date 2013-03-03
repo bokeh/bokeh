@@ -366,8 +366,10 @@ class PlotClient(object):
             )
         interactive_contexts = self.bbclient.fetch(
             typename='PlotContext')
+        if len(interactive_contexts) > 1:
+            print 'warning, multiple plot contexts here...'
         self.ic = interactive_contexts[0]
-
+        
     def use_doc(self, name):
         docs = self.userinfo.get('docs')
         matching = [x for x in docs if x.get('title') == name]
@@ -376,8 +378,6 @@ class PlotClient(object):
         if len(matching) == 0:
             print 'no documents found'
         self.load_doc(matching[0]['docid'])
-        
-        # 
         
         
     def notebooksources(self):

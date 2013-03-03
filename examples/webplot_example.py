@@ -1,5 +1,9 @@
 from bokeh import mpl
-p = mpl.PlotClient('defaultdoc', 'http://localhost:5006', 'nokey')
+p = mpl.PlotClient('defaultuser',
+                   serverloc='http://localhost:5006',
+                   userapikey='nokey')
+p.use_doc('main')
+
 import numpy as np
 import datetime
 import time
