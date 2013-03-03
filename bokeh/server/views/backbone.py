@@ -51,10 +51,8 @@ def bulk_upsert(docid):
         'msgtype' : 'modelpush',
         'modelspecs' : [x.to_broadcast_json() for x in models]
         })
-    current_app.wsmanager.send("bokehplot:" + doc, msg,  exclude={clientid})
-    return app.ph.serialize_web(
-        {'msgtype' : 'modelpush',
-         'modelspecs' : [x.to_broadcast_json() for x in relevant_models]})
+    current_app.wsmanager.send("bokehplot:" + docid, msg,  exclude={clientid})
+    return msg
 
 @app.route("/bokeh/bb/<docid>/<typename>", methods=['POST'])
 @check_write_authentication_and_create_client

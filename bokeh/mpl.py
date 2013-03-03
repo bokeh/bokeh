@@ -338,6 +338,7 @@ class PlotClient(object):
             print 'Not using a server, plots will only work in embedded mode'
         if not ph:
             ph = protocol.ProtocolHelper()
+        self.docid = None
         self.models = {}            
         self.ph = ph
         self.clf()

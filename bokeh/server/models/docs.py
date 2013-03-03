@@ -13,8 +13,10 @@ def transform_models(models):
     for m in models:
         model_cache[m.id] = m
     for m in models:
-        docs = m.get('docs')
-        m.set('doc', docs[0])
+        if not m.get('doc'):
+            docs = m.get('docs')
+            m.set('doc', docs[0])
+            m.unset('docs')
         if 'Mapper' in m.typename:
             to_delete.add(m.id)
         if 'Renderer' in m.typename:
@@ -107,7 +109,7 @@ def prune_and_get_valid_models(model_redis, collections, docid, delete=False):
         if v['id'] not in marked:
             typename = all_models[v['id']].typename
             if delete:
-                collections.delete(typename, v['id'])
+                collections.delete(typename, docid, v['id'])
     valid_models = [x for x in all_models.values() if x.id in marked]
     valid_models = transform_models(valid_models)
     return valid_models
@@ -192,6 +194,8 @@ class Doc(models.ServerModel):
     @classmethod
     def load(cls, client, objid):
         attrs = cls.load_json(client, objid)
+        if attrs is None:
+            import pdb;pdb.set_trace()
         #adding readonly api key if it's not there
         if 'readonlyapikey' not in attrs:
             attrs['readonlyapikey'] = str(uuid.uuid4())
