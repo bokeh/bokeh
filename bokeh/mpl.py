@@ -392,6 +392,7 @@ class PlotClient(object):
 
     def model(self, typename, **kwargs):
         model = bbmodel.make_model(typename, **kwargs)
+        model.set('doc', self.docid)
         self.models[model.id] = model
         return model
     

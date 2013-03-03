@@ -120,8 +120,7 @@ class ContinuumModelsClient(object):
         
         
     def create(self, model, defer=False):
-        if not model.get('docs'):
-            model.set('docs', [self.docid])
+        model.set('doc', self.docid)
         if defer:
             self.buffer.append(model)
         else:
@@ -134,8 +133,7 @@ class ContinuumModelsClient(object):
         return model
 
     def update(self, model, defer=False):
-        if not model.get('docs'):
-            model.set('docs', [self.docid])
+        model.set('doc', self.docid)        
         if defer:
             self.buffer.append(model)
         else:
