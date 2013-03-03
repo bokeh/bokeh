@@ -30,29 +30,29 @@ class PandasModelTestCase(unittest.TestCase):
         model = make_model('PandasPivot',
                           pandassourceobj=self.datasource)
         temp = model.to_json()
-        data = [{'vals': 5, 'index': 0, 'types': 'b'},
-                {'vals': 4, 'index': 1, 'types': 'b'},
-                {'vals': 3, 'index': 2, 'types': 'a'},
-                {'vals': 2, 'index': 3, 'types': 'a'},
-                {'vals': 1, 'index': 4, 'types': 'a'}]
+        data = [{'vals': 5, 'types': 'b'},
+                {'vals': 4, 'types': 'b'},
+                {'vals': 3, 'types': 'a'},
+                {'vals': 2, 'types': 'a'},
+                {'vals': 1, 'types': 'a'}]
         assert data == temp['data']
         
     def test_data_sorting(self):
         model = make_model('PandasPivot',
                           pandassourceobj=self.datasource,
-                          sort=['vals']
+                          sort=[{'column' : 'vals', 'ascending' : True}]
                           )
         temp = model.to_json()
         assert temp['data'][0]['vals'] == 1
         
     def test_data_groupby(self):
         model = make_model('PandasPivot',
-                          pandassourceobj=self.datasource,
-                          sort=['vals'],
-                          groups=['types']
-                          )
+                           pandassourceobj=self.datasource,
+                           sort=[{'column' : 'vals', 'ascending' : True}],
+                           groups=['types']
+                           )
         temp = model.to_json()        
-        data = [{'vals': 6.0, 'index': 'a'}, {'vals': 9.0, 'index': 'b'}]
+        data = [{'vals': '6.00'}, {'vals': '9.00'}]
         assert temp['data'] == data
         
     

@@ -27,10 +27,13 @@ def make_model(typename, **kwargs):
     
 class ContinuumModel(object):
     hidden_fields = ()
+    defaults = {}
     def __init__(self, typename, **kwargs):
         if 'client'in kwargs:
             self.client = kwargs.pop('client')
-        self.attributes = kwargs
+        attrs = copy.copy(self.defaults)
+        attrs.update(kwargs)
+        self.attributes = attrs
         self.typename = typename
         self.attributes.setdefault('id', str(uuid.uuid4()))
         self.id = self.get('id')
