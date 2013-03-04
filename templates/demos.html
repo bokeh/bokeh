@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>QUnit Test Suite</title>
+  <title>BokehJS Demos</title>
   <link rel="stylesheet" href="/static/vendor/qunit/css/qunit.css" type="text/css" media="screen">
   <script type="text/javascript" src="/static/vendor/qunit/js/qunit.js"></script>
   <link type="text/css" rel="stylesheet" href="/static/vendor/jquery/css/themes/base/jquery-ui.min.css"/>
@@ -23,8 +23,8 @@
   {% endfor %}
 
   <script>
-    {% for testscript in tests %}
-    require("{{ testscript }}");
+    {% for demoscript in demos %}
+    require("{{ demoscript }}");
     {% endfor %}
   </script>
 <style> 
