@@ -23,16 +23,20 @@ usercontext = require("usercontext/usercontext")
 HasProperties.prototype.sync = Backbone.sync
 
 utility =
-  load_user : (viewclass=null, viewoptions={}) ->
+  load_user : () ->
     user = $.get('/bokeh/userinfo/', {}, (data) ->
       console.log(data)
-      data = JSON.parse(data)
       docs = data['docs']
       userdocs = new usercontext.UserDocs()
       userdocs.reset(docs)
       userdocsview = new usercontext.UserDocsView(collection : userdocs)
       $('#PlotPane').append(userdocsview.el)
     )
+  load_doc : () ->
+    $.get("/bokeh/bokehinfo/#{docid}", {})
+      .done((data) -> console.log(data))
+
+
   instantiate_doc : (docid, viewclass=null, viewoptions={}) ->
     $.get("/bokeh/bokehinfo/#{docid}", {}, (data) ->
       data = JSON.parse(data)

@@ -64,7 +64,6 @@ class UserDoc extends HasParent
       return
     docid = @get('docid')
     $.get("/bokeh/bokehinfo/#{docid}", {}, (data) =>
-      data = JSON.parse(data)
       all_models = data['all_models']
       load_models(all_models)
       @set('apikey', data['apikey'])
