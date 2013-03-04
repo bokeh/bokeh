@@ -11,6 +11,7 @@ import os
 import dump
 import json
 import pandas
+from exceptions import DataIntegrityException
 
 log = logging.getLogger(__name__)
 colors = [
@@ -375,6 +376,8 @@ class PlotClient(object):
         url = urlparse.urljoin(self.root_url,"/bokeh/makedoc/")
         data = self.ph.serialize_web({'title' : title})
         response = self.session.post(url, data=data)
+        if response.status_code == 409:
+            raise DataIntegrityException
         self.userinfo = response.json
         
     def use_doc(self, name):
@@ -385,6 +388,7 @@ class PlotClient(object):
         if len(matching) == 0:
             print 'no documents found, creating new document'
             self.make_doc(name)
+            return self.use_doc(name)
             docs = self.userinfo.get('docs')
             matching = [x for x in docs if x.get('title') == name]
         self.load_doc(matching[0]['docid'])

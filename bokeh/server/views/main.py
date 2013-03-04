@@ -52,13 +52,14 @@ def makedoc():
     else:
         title = request.values['title']
     bokehuser = app.current_user(request)
-    doc = docs.new_doc(app, str(uuid.uuid4()),
-                       title,
-                       rw_users=[bokehuser.username])
     try:
-        bokehuser.add_doc(doc.docid, doc.title)
+        docid = str(uuid.uuid4())
+        bokehuser.add_doc(docid, title)        
+        doc = docs.new_doc(app, docid,
+                           title,
+                           rw_users=[bokehuser.username])
         bokehuser.save(app.model_redis)
-    except DataIntegrityError as e:
+    except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = current_app.ph.serialize_web(bokehuser.to_public_json())
     return make_json(jsonstring)

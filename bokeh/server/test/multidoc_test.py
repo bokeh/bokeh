@@ -10,6 +10,7 @@ from ...bbmodel import ContinuumModelsClient, make_model
 from ..models import docs
 from .. import start
 from ...mpl import PlotClient
+from ...exceptions import DataIntegrityException
 
 class TestMultiDoc(test_utils.BokehServerTestCase):
     def setUp(self):
@@ -40,3 +41,9 @@ class TestMultiDoc(test_utils.BokehServerTestCase):
         document = docs.Doc.load(app.model_redis, docid)
         assert 'defaultuser' in document.rw_users
         assert docid == document.docid
+        
+    def test_create_doc_conflict(self):
+        self.assertRaises(DataIntegrityException,
+                          self.client.make_doc,
+                          'main')
+        
