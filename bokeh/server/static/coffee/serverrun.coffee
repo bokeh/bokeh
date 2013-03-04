@@ -9,6 +9,7 @@ Config.ws_conn_string = "ws://#{window.location.host}/bokeh/sub"
 usercontext = require("usercontext/usercontext")
 
 $(()->
+  wswrapper = utility.make_websocket()
   user_load = utility.load_user()
   user_load.done((data) ->
     docs = data['docs']
