@@ -31,4 +31,12 @@ class TestMultiDoc(test_utils.BokehServerTestCase):
             self.client.load_doc('defaultdoc2')
         assert e.exception.message == 'unauthorized'
         
-        
+    def test_create_doc(self):
+        self.client.use_doc('newdoc')
+        userdocs = self.client.userinfo.get('docs')
+        matching = [x for x in userdocs if x['title'] == 'newdoc']
+        matching = matching[0]
+        docid = matching['docid']
+        document = docs.Doc.load(app.model_redis, docid)
+        assert 'defaultuser' in document.rw_users
+        assert docid == document.docid

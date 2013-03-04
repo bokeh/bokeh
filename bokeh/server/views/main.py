@@ -16,8 +16,10 @@ from ..models import user
 from ..models import docs
 from ..models import convenience as mconv
 from .. import hemlib
+from ..exceptions import DataIntegrityException
 from bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
+from ..views import make_json
 
 #main pages
 
@@ -41,6 +43,26 @@ def index(*unused_all, **kwargs):
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/x-icon')
+
+@app.route('/bokeh/makedoc', methods=['POST'])
+@app.route('/bokeh/makedoc/', methods=['POST'])
+def makedoc():
+    if request.json:
+        title = request.json['title']
+    else:
+        title = request.values['title']
+    bokehuser = app.current_user(request)
+    doc = docs.new_doc(app, str(uuid.uuid4()),
+                       title,
+                       rw_users=[bokehuser.username])
+    try:
+        bokehuser.add_doc(doc.docid, doc.title)
+        bokehuser.save(app.model_redis)
+    except DataIntegrityError as e:
+        return abort(409, e.message)
+    jsonstring = current_app.ph.serialize_web(bokehuser.to_public_json())
+    return make_json(jsonstring)
+
 @app.route('/bokeh/getdocapikey/<docid>')
 def get_doc_api_key(docid):
     bokehuser = app.current_user(request)

@@ -1,4 +1,5 @@
 from .. import models
+from ..exceptions import DataIntegrityException
 from docs import Doc
 import uuid
 from werkzeug import generate_password_hash, check_password_hash
@@ -63,7 +64,13 @@ class User(models.ServerModel):
         if changed:
             obj.save(client)
         return obj
-        
+    
+    def add_doc(self, docid, title):
+        matching = [x for x in self.docs if x.get('title') == title]
+        if len(matching) > 0:
+            raise DataIntegrityException, 'title already exists'
+        self.docs.append({'docid' : docid, 'title' : title})
+            
     def to_public_json(self):
         return {'username' : self.username,
                 'docs' : self.docs}

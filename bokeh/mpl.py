@@ -371,13 +371,22 @@ class PlotClient(object):
             print 'warning, multiple plot contexts here...'
         self.ic = interactive_contexts[0]
         
+    def make_doc(self, title):
+        url = urlparse.urljoin(self.root_url,"/bokeh/makedoc/")
+        data = self.ph.serialize_web({'title' : title})
+        response = self.session.post(url, data=data)
+        self.userinfo = response.json
+        
     def use_doc(self, name):
         docs = self.userinfo.get('docs')
         matching = [x for x in docs if x.get('title') == name]
         if len(matching) > 1:
             print 'warning, multiple documents with that title'
         if len(matching) == 0:
-            print 'no documents found'
+            print 'no documents found, creating new document'
+            self.make_doc(name)
+            docs = self.userinfo.get('docs')
+            matching = [x for x in docs if x.get('title') == name]
         self.load_doc(matching[0]['docid'])
         
         
