@@ -19,23 +19,20 @@ exports.wswrapper = null
 exports.plotcontext = null
 exports.plotcontextview = null
 exports.Promises = Promises
-usercontext = require("usercontext/usercontext")
 HasProperties.prototype.sync = Backbone.sync
 
 utility =
   load_user : () ->
-    user = $.get('/bokeh/userinfo/', {}, (data) ->
-      console.log(data)
-      docs = data['docs']
-      userdocs = new usercontext.UserDocs()
-      userdocs.reset(docs)
-      userdocsview = new usercontext.UserDocsView(collection : userdocs)
-      $('#PlotPane').append(userdocsview.el)
-    )
-  load_doc : () ->
-    $.get("/bokeh/bokehinfo/#{docid}", {})
-      .done((data) -> console.log(data))
+    response = $.get('/bokeh/userinfo/', {})
+    return response
 
+  load_doc : (docid) ->
+    response = $.get("/bokeh/bokehinfo/#{docid}", {})
+      .done((data) ->
+        all_models = data['all_models']
+        load_models(all_models)
+      )
+    return response
 
   instantiate_doc : (docid, viewclass=null, viewoptions={}) ->
     $.get("/bokeh/bokehinfo/#{docid}", {}, (data) ->

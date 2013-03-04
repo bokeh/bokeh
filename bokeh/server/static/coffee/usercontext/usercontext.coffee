@@ -3,6 +3,7 @@ ContinuumView = base.ContinuumView
 HasParent = base.HasParent
 load_models = base.load_models
 template = require("./wrappertemplate")
+utility = require("../serverutils").utility
 build_views = base.build_views
 
 class PlotContextWrapper extends ContinuumView
@@ -63,9 +64,8 @@ class UserDoc extends HasParent
     if @loaded
       return
     docid = @get('docid')
-    $.get("/bokeh/bokehinfo/#{docid}", {}, (data) =>
-      all_models = data['all_models']
-      load_models(all_models)
+    resp = utility.load_doc(docid)
+    resp.done((data) =>
       @set('apikey', data['apikey'])
       @set('plot_context', data['plot_context_ref'])
       @trigger('loaded')

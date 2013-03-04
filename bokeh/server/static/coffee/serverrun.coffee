@@ -10,4 +10,11 @@ usercontext = require("usercontext/usercontext")
 
 $(()->
   user_load = utility.load_user()
+  user_load.done((data) ->
+    docs = data['docs']
+    userdocs = new usercontext.UserDocs()
+    userdocs.reset(docs)
+    userdocsview = new usercontext.UserDocsView(collection : userdocs)
+    $('#PlotPane').append(userdocsview.el)
+  )
 )
