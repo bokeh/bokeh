@@ -74,9 +74,9 @@ through <%=@offset + @length%> of
     <th>index</th>
     <% for column in @columns: %>
     <th><a class="pandascolumn"><%= column %></a>
-        <% if @sort_directions[column] == true: %>
+        <% if @sort_ascendings[column] == true: %>
         <i class="icon-chevron-up"></i>
-        <% else if @sort_directions[column] == false: %>
+        <% else if @sort_ascendings[column] == false: %>
         <i class="icon-chevron-down"></i>
         <% end %>
     </th>

@@ -101,15 +101,15 @@ class PandasPivotView extends ContinuumView
     if _.isArray(sort)
       sort = sort.join(",")
     colors = @colors()
-    sort_directions = {}
+    sort_ascendings = {}
     for obj in  @mget('sort')
-      sort_directions[obj['column']] = obj['direction']
+      sort_ascendings[obj['column']] = obj['ascending']
 
     template_data =
       columns : @mget('columns')
       data : @mget('data')
       groups : groups
-      sort_directions : sort_directions
+      sort_ascendings : sort_ascendings
       height : @mget('height')
       width : @mget('width')
       offset : @mget('offset')
@@ -165,11 +165,11 @@ class PandasPivot extends HasParent
       sort = sort[0]
     else
       sorting = _.clone(sorting)
-      sorting.push(column : colname, direction : true)
+      sorting.push(column : colname, ascending : true)
       @save('sort', sorting, {'wait':true})
       return
-    if sort['direction']
-      sort['direction'] = false
+    if sort['ascending']
+      sort['ascending'] = false
       @save('sort', sorting, {'wait':true})
       return
     else

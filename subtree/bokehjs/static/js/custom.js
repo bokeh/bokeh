@@ -12,7 +12,11 @@ _.uniqueId = function (prefix) {
     s[16] = hexDigits.substr((s[16] & 0x3) | 0x8, 1);  // bits 6-7 of the clock_seq_hi_and_reserved to 01
 
     var uuid = s.join("");
-    return prefix + "-" + uuid;
+    if (prefix){
+        return prefix + "-" + uuid;
+    }else{
+        return uuid;
+    }
 };
 
 _.isNullOrUndefined = function(x){

@@ -76,8 +76,8 @@ load_models = (modelspecs)->
   #         id : '2390-23-23'
   #         attributes :
   #           firstattr : 'one'
-  #         name : 'myplot'
-  #         s : []
+  #           name : 'myplot'
+  #           s : []
   #
   #   type is the key of the in collections for this model
   #   id is the id of this model
@@ -222,9 +222,9 @@ class HasProperties extends Backbone.Model
     super(attrs, options)
     @properties = {}
     @property_cache = {}
-    if not _.has(attrs, 'id')
+    if not _.has(attrs, @idAttribute)
       this.id = _.uniqueId(this.type)
-      this.attributes['id'] = this.id
+      this.attributes[@idAttribute] = this.id
     _.defer(() =>
       if not @inited
         @dinitialize(attrs, options))
@@ -427,7 +427,7 @@ class HasProperties extends Backbone.Model
     # ### method HasProperties::url
     #model where our API processes this model
 
-    base = "/bokeh/bb/" + Config.docid + "/" + @type + "/"
+    base = "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
     if (@isNew())
       return base
     return base + @get('id')

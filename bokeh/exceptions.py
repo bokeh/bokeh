@@ -1,0 +1,2 @@
+class DataIntegrityException(Exception):
+    pass

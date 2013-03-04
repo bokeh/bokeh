@@ -76,23 +76,19 @@ class PandasPivotModel(PandasPlotSource):
         data : dataframe output
         precision : column names to precision mapping
     """
-    def offset(self):
-        return self.get('offset', 0)
-    
-    def length(self):
-        return self.get('length', None)
-    
-    def groups(self):
-        return self.get('groups', [])
-    
-    def agg(self):
-        return self.get('agg', 'sum')
-    
+    defaults = {
+        'offset' : 0,
+        'length' : 100,
+        'groups' : [],
+        'sort' : [],
+        'agg' : 'sum',
+        'selection' : [],
+        }
     def get_selection(self):
         """computes selection of aggregated data from pandassourceobj
         """
     def get_slice(self, data):
-        data = data[self.offset():self.offset() + self.length()]
+        data = data[self.get('offset'):self.get('offset')+self.get('length')]
         return data
     
     def format_data(self, jsondata):
@@ -114,18 +110,18 @@ class PandasPivotModel(PandasPlotSource):
         data['_selected'] = np.zeros(len(data))
         raw_selected = self.pandassource.get('selected', []) # integer list
         data.ix[raw_selected, '_selected'] = 1
-        if self.groups() and self.agg():
-            self.groupobj = data.groupby(self.groups())
-            data = getattr(self.groupobj, self.agg())()
+        if self.get('groups') and self.get('agg'):
+            self.groupobj = data.groupby(self.get('groups'))
+            data = getattr(self.groupobj, self.get('agg'))()
         else:
             self.groupobj = None
         sort = self.get('sort')
         if sort:
             columns = [x['column'] for x in sort]
-            direction = [x['direction'] for x in sort]
+            ascending = [x['ascending'] for x in sort]
             data = data.sort(
                 columns=columns,
-                ascending=direction
+                ascending=ascending
                 )
         self.fulldata = data
         if np.sum(data._selected) > 1 and not self.groupobj:

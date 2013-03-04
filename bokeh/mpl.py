@@ -11,6 +11,7 @@ import os
 import dump
 import json
 import pandas
+from exceptions import DataIntegrityException
 
 log = logging.getLogger(__name__)
 colors = [
@@ -323,26 +324,91 @@ class XYPlot(object):
         return None
         
 class PlotClient(object):
-    def __init__(self, docid=None, serverloc=None, apikey="nokey", ph=None):
+    def __init__(self, username=None,
+                 serverloc=None,
+                 userapikey="nokey",
+                 ph=None):
         #the root url should be just protocol://domain
-        self.models = {}
+        self.username = username
+        self.root_url = serverloc
+        self.session = requests.session()
+        self.session.headers.update({'content-type':'application/json'})
+        self.session.cookies.update({'bokehuser-api-key' : userapikey})
+        self.session.cookies.update({'bokehuser' : username})
+        if self.root_url:
+            self.update_userinfo()
+        else:
+            print 'Not using a server, plots will only work in embedded mode'
         if not ph:
             ph = protocol.ProtocolHelper()
+        self.docid = None
+        self.models = {}            
         self.ph = ph
-        if docid:
-            self.root_url = serverloc
-            url = urlparse.urljoin(serverloc, "/bokeh/bb/")
-            self.bbclient = bbmodel.ContinuumModelsClient(
-                docid, url, apikey, self.ph)
-            interactive_contexts = self.bbclient.fetch(
-                typename='PlotContext')
-            self.ic = interactive_contexts[0]
-        else:
-            self.root_url = None
-            self.bbclient = None
-            self.ic = self.model('PlotContext', children=[])
         self.clf()
         self._hold = True
+        self.bbclient = None
+        self.ic = self.model('PlotContext', children=[])
+        
+    def update_userinfo(self):
+        url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
+        self.userinfo = requests.get(url).json
+        
+    def load_doc(self, docid):
+        url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
+        resp = self.session.get(url)
+        if resp.status_code == 401:
+            raise Exception, 'unauthorized'
+        apikey = resp.json
+        if 'apikey' in apikey:
+            self.docid = docid
+            self.apikey = apikey['apikey']
+            print 'got read write apikey'
+        else:
+            self.docid = docid
+            self.apikey = apikey['readonlyapikey']
+            print 'got read only apikey'
+        self.models = {}
+        url = urlparse.urljoin(self.root_url, "/bokeh/bb/")        
+        self.bbclient = bbmodel.ContinuumModelsClient(
+            docid, url, self.apikey, self.ph
+            )
+        interactive_contexts = self.bbclient.fetch(
+            typename='PlotContext')
+        if len(interactive_contexts) > 1:
+            print 'warning, multiple plot contexts here...'
+        self.ic = interactive_contexts[0]
+        
+    def make_doc(self, title):
+        url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
+        data = self.ph.serialize_web({'title' : title})
+        response = self.session.post(url, data=data)
+        if response.status_code == 409:
+            raise DataIntegrityException
+        self.userinfo = response.json
+
+    def remove_doc(self, title):
+        matching = [x for x in self.userinfo['docs'] \
+                    if x.get('title') == title]
+        docid = matching[0]['docid']
+        url = urlparse.urljoin(self.root_url,"/bokeh/doc/%s/" % docid)
+        response = self.session.delete(url)
+        if response.status_code == 409:
+            raise DataIntegrityException
+        self.userinfo = response.json
+        
+    def use_doc(self, name):
+        docs = self.userinfo.get('docs')
+        matching = [x for x in docs if x.get('title') == name]
+        if len(matching) > 1:
+            print 'warning, multiple documents with that title'
+        if len(matching) == 0:
+            print 'no documents found, creating new document'
+            self.make_doc(name)
+            return self.use_doc(name)
+            docs = self.userinfo.get('docs')
+            matching = [x for x in docs if x.get('title') == name]
+        self.load_doc(matching[0]['docid'])
+        
         
     def notebooksources(self):
         import IPython.core.displaypub as displaypub
@@ -356,6 +422,7 @@ class PlotClient(object):
 
     def model(self, typename, **kwargs):
         model = bbmodel.make_model(typename, **kwargs)
+        model.set('doc', self.docid)
         self.models[model.id] = model
         return model
     

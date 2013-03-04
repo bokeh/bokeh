@@ -19,36 +19,28 @@ exports.wswrapper = null
 exports.plotcontext = null
 exports.plotcontextview = null
 exports.Promises = Promises
+HasProperties.prototype.sync = Backbone.sync
 
 utility =
-  load_default_document : (viewclass=null, viewoptions={}) ->
-    user = $.get('/bokeh/userinfo/', {}, (data) ->
-      console.log(data)
-      docs = JSON.parse(data)['docs']
-      console.log(docs)
-      utility.instantiate_doc(docs[0])
-    )
-  instantiate_doc : (docid, viewclass=null, viewoptions={}) ->
-    $.get("/bokeh/bokehinfo/#{docid}", {}, (data) ->
-      data = JSON.parse(data)
-      Config.plot_context_ref = data['plot_context_ref']
-      docid = data['docid'] # in case the server returns a different docid
-      Config.docid = docid
-      $('.resetlink').click(()->
-        $.get("/bokeh/bb/#{docid}/reset")
+  load_user : () ->
+    response = $.get('/bokeh/userinfo/', {})
+    return response
+
+  load_doc : (docid) ->
+    response = $.get("/bokeh/bokehinfo/#{docid}", {})
+      .done((data) ->
+        all_models = data['all_models']
+        load_models(all_models)
+        apikey = data['apikey']
+        submodels(exports.wswrapper, "bokehplot:#{docid}", apikey)
       )
-      all_models = data['all_models']
-      load_models(all_models)
-      HasProperties.prototype.sync = Backbone.sync
-      apikey = data['apikey']
-      Config.apikey = apikey
-      #up to the user to stuff the ws_conn_string into base.Config
-      wswrapper = new WebSocketWrapper(Config.ws_conn_string)
-      exports.wswrapper = wswrapper
-      submodels(wswrapper, "bokehplot:#{docid}", apikey)
-      utility.render_plots(data.plot_context_ref, viewclass, viewoptions)
-      Deferreds._doc_loaded.resolve(docid)
-    )
+    return response
+
+  make_websocket : () ->
+    wswrapper = new WebSocketWrapper(Config.ws_conn_string)
+    exports.wswrapper = wswrapper
+    return wswrapper
+
   render_plots : (plot_context_ref, viewclass=null, viewoptions={}) ->
     plotcontext = Collections(plot_context_ref.type).get(plot_context_ref.id)
     if not viewclass

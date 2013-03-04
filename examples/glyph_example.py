@@ -1,6 +1,11 @@
+"""this example has been broken with the new bokehjs glyph stuff
+"""
 from bokeh import mpl
 from bokeh.bbmodel import make_model
-p = mpl.PlotClient('defaultdoc', 'http://localhost:5006', 'nokey')
+p = mpl.PlotClient('defaultuser',
+                   serverloc='http://localhost:5006',
+                   userapikey='nokey')
+p.use_doc('glyph')
 import numpy as np
 import datetime
 import time
