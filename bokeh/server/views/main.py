@@ -94,14 +94,16 @@ def get_user():
     content = current_app.ph.serialize_web(bokehuser.to_public_json())
     return make_json(content)
 
-def _make_plot_file(docid, apikey, url):
+def _make_plot_file(username, userapikey, url):
     lines = ["from bokeh import mpl",
-             "p = mpl.PlotClient('%s', '%s', '%s')" % (docid, url, apikey)]
+             "p = mpl.PlotClient(username='%s', serverloc='%s', userapikey='%s')" % (docid, url, apikey)]
     return "\n".join(lines)
 
-def write_plot_file(docid, apikey, url):
+def write_plot_file(url):
     bokehuser = app.current_user(request)
-    codedata = _make_plot_file(docid, apikey, url)
+    codedata = _make_plot_file(bokehuser.username,
+                               bokehuser.apikey,
+                               url)
     app.write_plot_file(bokehuser.username, codedata)
     
 @app.route('/bokeh/doc/<docid>', methods=['GET'])
@@ -121,7 +123,7 @@ def get_bokeh_info(docid):
                  'all_models' : all_models,
                  'apikey' : doc.apikey}
     returnval = current_app.ph.serialize_web(returnval)
-    write_plot_file(docid, doc.apikey, request.scheme + "://" + request.host)
+    write_plot_file(request.scheme + "://" + request.host)
     return make_json(returnval,
                      headers={"Access-Control-Allow-Origin": "*"})
 
