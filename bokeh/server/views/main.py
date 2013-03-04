@@ -95,7 +95,7 @@ def get_user():
 
 def _make_plot_file(username, userapikey, url):
     lines = ["from bokeh import mpl",
-             "p = mpl.PlotClient(username='%s', serverloc='%s', userapikey='%s')" % (docid, url, apikey)]
+             "p = mpl.PlotClient(username='%s', serverloc='%s', userapikey='%s')" % (username, url, userapikey)]
     return "\n".join(lines)
 
 def write_plot_file(url):
