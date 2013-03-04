@@ -4,11 +4,11 @@ HasParent = base.HasParent
 HasProperties = base.HasProperties
 load_models = base.load_models
 template = require("./wrappertemplate")
+userdocstemplate = require("./userdocstemplate")
 utility = require("../serverutils").utility
 build_views = base.build_views
 
 class PlotContextWrapper extends ContinuumView
-
   events :
     "click .bokehdoclabel" : "loaddoc"
 
@@ -42,17 +42,19 @@ class UserDocsView extends ContinuumView
     @views = {}
     super(options)
     @render()
+  events :
+    'click .bokehrefresh' : () -> @collection.fetch({update:true})
   delegateEvents : (events) ->
     super(events)
     @listenTo(@collection, 'add', @render)
     @listenTo(@collection, 'remove', @render)
   render : ->
-    @$el.addClass('accordion')
+    html = userdocstemplate()
     _.map(_.values(@views), (view) -> view.$el.detach())
     build_views(@views, @collection.models, {})
-    @$el.html('')
+    @$el.html(html)
     for model in @collection.models
-      @$el.append(@views[model.id].el)
+      @$el.find(".accordion").append(@views[model.id].el)
     return @
 
 class UserDoc extends HasParent

@@ -386,7 +386,7 @@ class PlotClient(object):
             raise DataIntegrityException
         self.userinfo = response.json
 
-    def del_doc(self, title):
+    def remove_doc(self, title):
         matching = [x for x in self.userinfo['docs'] \
                     if x.get('title') == title]
         docid = matching[0]['docid']

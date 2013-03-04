@@ -73,7 +73,7 @@ class User(models.ServerModel):
         
     def remove_doc(self, docid):
         matching = [x for x in self.docs if x.get('docid') == docid]
-        if len(matching) > 0:
+        if len(matching) == 0:
             raise DataIntegrityException, 'no document found'
         self.docs = [x for x in self.docs if x.get('docid') != docid]
         

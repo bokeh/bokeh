@@ -69,7 +69,6 @@ def makedoc():
 def deletedoc(docid):
     bokehuser = app.current_user(request)
     try:
-        docid = str(uuid.uuid4())
         bokehuser.remove_doc(docid)        
         bokehuser.save(app.model_redis)
     except DataIntegrityException as e:
