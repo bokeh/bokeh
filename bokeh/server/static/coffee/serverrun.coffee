@@ -5,9 +5,16 @@ Config = base.Config
 utility = utils.utility
 Promises = utils.Promises
 Config.ws_conn_string = "ws://#{window.location.host}/bokeh/sub"
+
+usercontext = require("usercontext/usercontext")
+
 $(()->
-  utility.load_default_document()
-)
-$.when(Promises.doc_loaded).then(()->
-  $('#PlotPane').empty().append(utils.plotcontextview.el)
+  wswrapper = utility.make_websocket()
+  userdocs = new usercontext.UserDocs()
+  window.userdocs = userdocs
+  load = userdocs.fetch()
+  load.done(() ->
+    userdocsview = new usercontext.UserDocsView(collection : userdocs)
+    $('#PlotPane').append(userdocsview.el)
+  )
 )

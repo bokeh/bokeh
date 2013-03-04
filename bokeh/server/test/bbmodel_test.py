@@ -29,29 +29,34 @@ class TestBBModel(test_utils.BokehServerTestCase):
     def test_create(self):
         test_utils.wait_until(lambda : start.http_server.started)
         client = self.client
-        client.create(make_model('Test', testval=1, id='foo'))
-        test_utils.wait_until(lambda : app.collections.get('Test', 'foo'))
-        assert app.collections.get('Test', 'foo').get('testval') == 1
+        model = make_model('Test', doc='defaultdoc',
+                           testval=1, id='foo')
+        client.create(model)
+        test_utils.wait_until(lambda : app.collections.get('Test', 'defaultdoc', 'foo'))
+        assert app.collections.get('Test', 'defaultdoc', 'foo').get('testval') == 1
         assert client.fetch('Test', 'foo').get('testval') == 1
 
     def test_update(self):
         test_utils.wait_until(lambda : start.http_server.started)
         client = self.client
-        m = make_model('Test', testval=1, id='foo')
+        m = make_model('Test', doc='defaultdoc', testval=1, id='foo')
         client.create(m)
         m.set('testval', 2)
         client.update(m)
         test_utils.wait_until(
-            lambda : app.collections.get('Test', 'foo').get('testval') == 2
+            lambda : app.collections.get('Test', 'defaultdoc', 'foo').get('testval') == 2
             )
-        assert app.collections.get('Test', 'foo').get('testval') == 2
+        assert app.collections.get('Test', 'defaultdoc', 'foo').get('testval') == 2
         assert client.get('Test', 'foo').get('testval') == 2
         
     def test_fetch_type(self):
         test_utils.wait_until(lambda : start.http_server.started)
         client = self.client
-        client.create(make_model('Test', testval=1, id='foo'))
-        client.create(make_model('Test2', testval=1, id='foo2'))
+        models = client.fetch(typename='Test')
+        client.create(make_model('Test', doc='defaultdoc',
+                                 testval=1, id='foo'))
+        client.create(make_model('Test2', doc='defaultdoc',
+                                 testval=1, id='foo2'))
         models = client.fetch(typename='Test')
         assert len(models) == 1 and models[0].get('id') == 'foo'
         
@@ -59,10 +64,14 @@ class TestBBModel(test_utils.BokehServerTestCase):
         test_utils.wait_until(lambda : start.http_server.started)
         client = self.client
         client2 = self.client2
-        client.create(make_model('Test', testval=1, id='foo'))
-        client.create(make_model('Test2', testval=1, id='foo2'))
-        client2.create(make_model('Test', testval=1, id='foo3'))
-        client2.create(make_model('Test2', testval=1, id='foo4'))
+        client.create(make_model('Test', doc='defaultdoc',
+                                 testval=1, id='foo'))
+        client.create(make_model('Test2', doc='defaultdoc',
+                                 testval=1, id='foo2'))
+        client2.create(make_model('Test', doc='defaultdoc',
+                                  testval=1, id='foo3'))
+        client2.create(make_model('Test2', doc='defaultdoc',
+                                  testval=1, id='foo4'))
         assert client.get('Test', 'foo').get('testval') == 1
         assert client.get('Test', 'foo3') is None
         assert client2.get('Test2', 'foo2') is None
@@ -71,8 +80,10 @@ class TestBBModel(test_utils.BokehServerTestCase):
     def test_delete(self):
         test_utils.wait_until(lambda : start.http_server.started)
         client = self.client                
-        client.create(make_model('Test', testval=1, id='foo'))
-        client.create(make_model('Test', testval=1, id='foo2'))
+        client.create(make_model('Test', doc='defaultdoc',
+                                 testval=1, id='foo'))
+        client.create(make_model('Test', doc='defaultdoc',
+                                 testval=1, id='foo2'))
         client.delete('Test', 'foo')
         assert client.get('Test', 'foo') is None
         assert client.get('Test', 'foo2') is not None

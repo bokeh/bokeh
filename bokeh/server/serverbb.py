@@ -18,15 +18,12 @@ In applications, we would use a class that combines both
 def dockey(docid):
     return 'doc:' + docid
 
-def modelkey(typename, modelid):
-    return 'bbmodel:%s:%s' % (typename, modelid)
-
-def pandaskey(modelid):
-    return 'pandas:%s' % (modelid)
+def modelkey(typename, docid, modelid):
+    return 'bbmodel:%s:%s:%s' % (typename, docid, modelid)
 
 def parse_modelkey(modelkey):
-    _, typename, modelid = modelkey.split(":")
-    return (typename, modelid)
+    _, typename, docid, modelid = modelkey.split(":")
+    return (typename, docid, modelid)
 
 class ContinuumModelsStorage(object):
     def __init__(self, client, ph=None):
@@ -36,7 +33,7 @@ class ContinuumModelsStorage(object):
         self.client = client
         
     def bbget(self, client, key):
-        typename, modelid = parse_modelkey(key)
+        typename, docid, modelid = parse_modelkey(key)
         attrs = client.get(key)
         if attrs is None:
             return None
@@ -54,8 +51,7 @@ class ContinuumModelsStorage(object):
         result = []
         for k in doc_keys:
             m = self.bbget(self.client, k)
-            if docid in m.get('docs') and \
-               (typename is None or m.typename == typename):
+            if typename is None or m.typename==typename:
                 result.append(m)
         return result
     
@@ -74,25 +70,15 @@ class ContinuumModelsStorage(object):
     def _upsert(self, pipe, model):
         # I don't think the document level locking I wrote here
         # is necessary
-        mkey = modelkey(model.typename, model.id)
+        mkey = modelkey(model.typename, model.get('doc'), model.id)
         pipe.watch(mkey)
-        oldmodel = self.bbget(self.client, mkey)
-        if oldmodel is None:
-            olddocs = []
-        else:
-            olddocs = oldmodel.get('docs')
         pipe.multi()
-        self.bbset(pipe, mkey, model)        
-        docs_to_remove = set(olddocs).difference(model.get('docs'))        
-        for doc in docs_to_remove:
-            pipe.srem(dockey(doc), mkey)
-        docs_to_add = set(model.get('docs')).difference(olddocs)
-        for doc in docs_to_add:
-            pipe.sadd(dockey(doc), mkey)
+        pipe.sadd(dockey(model.get('doc')), mkey)
+        self.bbset(pipe, mkey, model)
             
-    def attrupdate(self, typename, attributes):
+    def attrupdate(self, typename, docid, attributes):
         id = attributes['id']
-        mkey = modelkey(typename, id)        
+        mkey = modelkey(typename, docid, id)
         with self.client.pipeline() as pipe:
             pipe.watch(mkey)
             model = self.get(typename, id)
@@ -103,15 +89,13 @@ class ContinuumModelsStorage(object):
         return model
 
     #backbone api functions
-    def get(self, typename, id):
-        return self.bbget(self.client, modelkey(typename, id))
+    def get(self, typename, docid, id):
+        return self.bbget(self.client, modelkey(typename, docid, id))
     
-    def delete(self, typename, id):
-        mkey = modelkey(typename, id)
+    def delete(self, typename, docid, id):
+        mkey = modelkey(typename, docid, id)
         oldmodel = self.bbget(self.client, mkey)
-        olddocs = oldmodel.get('docs')
-        for doc in olddocs:
-            self.client.srem(dockey(doc), mkey)
+        self.client.srem(dockey(docid), mkey)
         self.client.delete(mkey)
         
     def create(self, model):
@@ -124,9 +108,7 @@ class ContinuumModelsStorage(object):
         if id is None:
             return self.get_bulk(self, docid, typename=None)
         else:
-            return self.get(typename, id)
-        
-
+            return self.get(typename, docid, id)
 
 
 

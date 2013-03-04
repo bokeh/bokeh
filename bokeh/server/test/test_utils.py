@@ -1,4 +1,5 @@
 import unittest
+import tempfile
 import gevent
 import redis
 import time
@@ -60,8 +61,9 @@ class BokehServerTestCase(unittest.TestCase):
     def setUp(self):
         start.prepare_app(rport=6899)
         start.prepare_local()
-        self.servert = gevent.spawn(start.start_app)        
-        self.redisproc = redisutils.RedisProcess(6899, '/tmp', save=False)
+        self.servert = gevent.spawn(start.start_app)
+        fname = tempfile.NamedTemporaryFile().name
+        self.redisproc = redisutils.RedisProcess(6899, '/tmp', data_file=fname, save=False)
         wait_redis_start(6899)
         redis.Redis(port=6899).flushall()
         start.make_default_user(app)

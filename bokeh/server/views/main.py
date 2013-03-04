@@ -1,6 +1,8 @@
 from flask import (
     render_template, request, current_app,
-    send_from_directory, make_response)
+    send_from_directory, make_response, abort,
+    jsonify
+    )
 import flask
 import os
 import logging
@@ -14,8 +16,10 @@ from ..models import user
 from ..models import docs
 from ..models import convenience as mconv
 from .. import hemlib
+from ...exceptions import DataIntegrityException
 from bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
+from ..views import make_json
 
 #main pages
 
@@ -40,21 +44,69 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/x-icon')
 
+@app.route('/bokeh/doc', methods=['POST'])    
+@app.route('/bokeh/doc/', methods=['POST'])
+def makedoc():
+    if request.json:
+        title = request.json['title']
+    else:
+        title = request.values['title']
+    bokehuser = app.current_user(request)
+    try:
+        docid = str(uuid.uuid4())
+        bokehuser.add_doc(docid, title)        
+        doc = docs.new_doc(app, docid,
+                           title,
+                           rw_users=[bokehuser.username])
+        bokehuser.save(app.model_redis)
+    except DataIntegrityException as e:
+        return abort(409, e.message)
+    jsonstring = current_app.ph.serialize_web(bokehuser.to_public_json())
+    return make_json(jsonstring)
+
+@app.route('/bokeh/doc/<docid>', methods=['delete'])
+@app.route('/bokeh/doc/<docid>/', methods=['delete'])
+def deletedoc(docid):
+    bokehuser = app.current_user(request)
+    try:
+        bokehuser.remove_doc(docid)        
+        bokehuser.save(app.model_redis)
+    except DataIntegrityException as e:
+        return abort(409, e.message)
+    jsonstring = current_app.ph.serialize_web(bokehuser.to_public_json())
+    return make_json(jsonstring)
+    
+@app.route('/bokeh/getdocapikey/<docid>')
+def get_doc_api_key(docid):
+    bokehuser = app.current_user(request)
+    doc = docs.Doc.load(app.model_redis, docid)
+    if mconv.can_write_from_request(doc, request, app):
+        return jsonify({'apikey' : doc.apikey})
+    elif mconv.can_write_from_request(doc, request, app):
+        return jsonify({'readonlyapikey' : doc.readonlyapikey})
+    else:
+        return abort(401)
+    
 @app.route('/bokeh/userinfo/')
 def get_user():
     bokehuser = app.current_user(request)
-    return current_app.ph.serialize_web(bokehuser.to_public_json())
+    content = current_app.ph.serialize_web(bokehuser.to_public_json())
+    return make_json(content)
 
-def _make_plot_file(docid, apikey, url):
+def _make_plot_file(username, userapikey, url):
     lines = ["from bokeh import mpl",
-             "p = mpl.PlotClient('%s', '%s', '%s')" % (docid, url, apikey)]
+             "p = mpl.PlotClient(username='%s', serverloc='%s', userapikey='%s')" % (username, url, userapikey)]
     return "\n".join(lines)
 
-def write_plot_file(docid, apikey, url):
+def write_plot_file(url):
     bokehuser = app.current_user(request)
-    codedata = _make_plot_file(docid, apikey, url)
+    codedata = _make_plot_file(bokehuser.username,
+                               bokehuser.apikey,
+                               url)
     app.write_plot_file(bokehuser.username, codedata)
-
+    
+@app.route('/bokeh/doc/<docid>', methods=['GET'])
+@app.route('/bokeh/doc/<docid>/', methods=['GET'])    
 @app.route('/bokeh/bokehinfo/<docid>')
 @check_read_authentication_and_create_client
 def get_bokeh_info(docid):
@@ -70,9 +122,9 @@ def get_bokeh_info(docid):
                  'all_models' : all_models,
                  'apikey' : doc.apikey}
     returnval = current_app.ph.serialize_web(returnval)
-    write_plot_file(docid, doc.apikey, request.scheme + "://" + request.host)
-    return (returnval, "200",
-            {"Access-Control-Allow-Origin": "*"})
+    write_plot_file(request.scheme + "://" + request.host)
+    return make_json(returnval,
+                     headers={"Access-Control-Allow-Origin": "*"})
 
 @app.route('/bokeh/publicbokehinfo/<docid>')
 def get_public_bokeh_info(docid):
