@@ -1,0 +1,12 @@
+<div class="accordion-heading">
+  <a class="accordion-toggle bokehdoclabel" data-toggle="collapse" 
+     href="#<%= @bodyid %>">
+    <%= @model.get('title') %>
+  </a>
+</div>
+<div id="<%= @bodyid %>" class="accordion-body collapse">
+  <div class="accordion-inner">
+  </div>
+</div>
+
+
