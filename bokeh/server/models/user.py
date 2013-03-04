@@ -1,5 +1,5 @@
 from .. import models
-from ..exceptions import DataIntegrityException
+from ...exceptions import DataIntegrityException
 from docs import Doc
 import uuid
 from werkzeug import generate_password_hash, check_password_hash

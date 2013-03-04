@@ -16,7 +16,7 @@ from ..models import user
 from ..models import docs
 from ..models import convenience as mconv
 from .. import hemlib
-from ..exceptions import DataIntegrityException
+from ...exceptions import DataIntegrityException
 from bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
 from ..views import make_json
