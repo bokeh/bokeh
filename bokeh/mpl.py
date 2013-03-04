@@ -324,7 +324,10 @@ class XYPlot(object):
         return None
         
 class PlotClient(object):
-    def __init__(self, username, serverloc=None, userapikey="nokey", ph=None):
+    def __init__(self, username=None,
+                 serverloc=None,
+                 userapikey="nokey",
+                 ph=None):
         #the root url should be just protocol://domain
         self.username = username
         self.root_url = serverloc
