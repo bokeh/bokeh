@@ -44,8 +44,8 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/x-icon')
 
-@app.route('/bokeh/makedoc', methods=['POST'])
-@app.route('/bokeh/makedoc/', methods=['POST'])
+@app.route('/bokeh/doc', methods=['POST'])    
+@app.route('/bokeh/doc/', methods=['POST'])
 def makedoc():
     if request.json:
         title = request.json['title']
@@ -64,6 +64,19 @@ def makedoc():
     jsonstring = current_app.ph.serialize_web(bokehuser.to_public_json())
     return make_json(jsonstring)
 
+@app.route('/bokeh/doc/<docid>', methods=['delete'])
+@app.route('/bokeh/doc/<docid>/', methods=['delete'])
+def deletedoc(docid):
+    bokehuser = app.current_user(request)
+    try:
+        docid = str(uuid.uuid4())
+        bokehuser.remove_doc(docid)        
+        bokehuser.save(app.model_redis)
+    except DataIntegrityException as e:
+        return abort(409, e.message)
+    jsonstring = current_app.ph.serialize_web(bokehuser.to_public_json())
+    return make_json(jsonstring)
+    
 @app.route('/bokeh/getdocapikey/<docid>')
 def get_doc_api_key(docid):
     bokehuser = app.current_user(request)
@@ -90,7 +103,9 @@ def write_plot_file(docid, apikey, url):
     bokehuser = app.current_user(request)
     codedata = _make_plot_file(docid, apikey, url)
     app.write_plot_file(bokehuser.username, codedata)
-
+    
+@app.route('/bokeh/doc/<docid>', methods=['GET'])
+@app.route('/bokeh/doc/<docid>/', methods=['GET'])    
 @app.route('/bokeh/bokehinfo/<docid>')
 @check_read_authentication_and_create_client
 def get_bokeh_info(docid):

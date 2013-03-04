@@ -373,9 +373,16 @@ class PlotClient(object):
         self.ic = interactive_contexts[0]
         
     def make_doc(self, title):
-        url = urlparse.urljoin(self.root_url,"/bokeh/makedoc/")
+        url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
         data = self.ph.serialize_web({'title' : title})
         response = self.session.post(url, data=data)
+        if response.status_code == 409:
+            raise DataIntegrityException
+        self.userinfo = response.json
+
+    def del_doc(self, docid):
+        url = urlparse.urljoin(self.root_url,"/bokeh/doc/%s/" % docid)
+        response = self.session.delete(url)
         if response.status_code == 409:
             raise DataIntegrityException
         self.userinfo = response.json

@@ -70,7 +70,14 @@ class User(models.ServerModel):
         if len(matching) > 0:
             raise DataIntegrityException, 'title already exists'
         self.docs.append({'docid' : docid, 'title' : title})
-            
+        
+    def remove_doc(self, docid):
+        matching = [x for x in self.docs if x.get('docid') == docid]
+        if len(matching) > 0:
+            raise DataIntegrityException, 'no document found'
+        self.docs = [x for x in self.docs if x.get('docid') != docid]
+        
+        
     def to_public_json(self):
         return {'username' : self.username,
                 'docs' : self.docs}
