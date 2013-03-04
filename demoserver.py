@@ -1,24 +1,41 @@
 import flask
 import hemlib
 import json
+import os
+from os.path import join
+import subprocess
 import sys
-
 
 app = flask.Flask(__name__)
 
+SRCDIR = "static/coffee"
+EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
+            join(SRCDIR,"unittest/primitives")]
 
 @app.route("/test/<testname>")
 def test(testname):
+
     if app.debug:
         with open("slug.json") as f:
             slug = json.load(f)
-        static_js = hemlib.slug_libs(app, slug['libs'])
-        hem_js = hemlib.coffee_assets("static/coffee", "localhost", 9294)
+        jslibs = hemlib.slug_libs(app, slug['libs'])
+        hemfiles = hemlib.coffee_assets(SRCDIR, "localhost", 9294,
+                    excludes=EXCLUDES)
     else:
-        static_js = ['/static/js/application.js']
-        hem_js = []
+        jslibs = ['/static/js/application.js']
+        hemfiles = []
+
     tests = alltests[testname]
-    return flask.render_template("demos.html", jsfiles=static_js, hemfiles=hem_js, tests=tests)
+    testfiles = [os.path.join(SRCDIR, name+".coffee") for name in tests]
+
+    for test in testfiles:
+        if not os.path.isfile(test):
+            raise RuntimeError("Cannot find test named '%s'"%test)
+
+    hemfiles.extend(hemlib.make_urls(testfiles, "localhost", 9294))
+    
+    return flask.render_template("demos.html", jslibs = jslibs,
+            hemfiles=hemfiles, tests=tests)
 
 
 alltests = {

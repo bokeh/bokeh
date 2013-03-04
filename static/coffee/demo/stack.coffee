@@ -1,5 +1,5 @@
 Collections = require('../base').Collections
-make_glyph_test = require('./test_utils').make_glyph_test
+make_glyph_test = require('../demo_utils').make_glyph_test
 
 
 source = Collections('ColumnDataSource').create(
