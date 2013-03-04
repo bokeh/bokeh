@@ -1,6 +1,6 @@
 Collections = require('../base').Collections
-make_glyph_test = require('../demo_utils').make_glyph_test
-Rand = require('../demo_utils').Rand
+make_glyph_test = require('../testutils').make_glyph_test
+Rand = require('../testutils').Rand
 
 zip = () ->
   lengthArray = (arr.length for arr in arguments)

@@ -1,5 +1,5 @@
 Collections = require('../base').Collections
-make_glyph_test = require('../demo_utils').make_glyph_test
+make_glyph_test = require('../testutils').make_glyph_test
 
 
 colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B",]
