@@ -48,7 +48,7 @@ class TestMultiDoc(test_utils.BokehServerTestCase):
                           'main')
         
     def test_delete_doc(self):
-        self.client.del_doc('defaultdoc')
+        self.client.del_doc('main')
         userdocs = self.client.userinfo.get('docs')
         matching = [x for x in userdocs if x['title'] == 'newdoc']
         assert len(matching) == 0

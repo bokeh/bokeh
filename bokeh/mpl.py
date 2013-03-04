@@ -380,7 +380,10 @@ class PlotClient(object):
             raise DataIntegrityException
         self.userinfo = response.json
 
-    def del_doc(self, docid):
+    def del_doc(self, title):
+        matching = [x for x in self.userinfo['docs'] \
+                    if x.get('title') == title]
+        docid = matching[0]['docid']
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/%s/" % docid)
         response = self.session.delete(url)
         if response.status_code == 409:
