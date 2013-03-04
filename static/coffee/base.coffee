@@ -222,9 +222,9 @@ class HasProperties extends Backbone.Model
     super(attrs, options)
     @properties = {}
     @property_cache = {}
-    if not _.has(attrs, 'id')
+    if not _.has(attrs, @idAttribute)
       this.id = _.uniqueId(this.type)
-      this.attributes['id'] = this.id
+      this.attributes[@idAttribute] = this.id
     _.defer(() =>
       if not @inited
         @dinitialize(attrs, options))
