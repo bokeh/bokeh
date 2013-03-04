@@ -76,8 +76,8 @@ load_models = (modelspecs)->
   #         id : '2390-23-23'
   #         attributes :
   #           firstattr : 'one'
-  #         name : 'myplot'
-  #         s : []
+  #           name : 'myplot'
+  #           s : []
   #
   #   type is the key of the in collections for this model
   #   id is the id of this model
