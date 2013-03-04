@@ -12,33 +12,58 @@ SRCDIR = "static/coffee"
 EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
             join(SRCDIR,"unittest/primitives")]
 
-@app.route("/test/<testname>")
-def test(testname):
+HOST = "localhost"
+PORT = 9294
+
+@app.route("/demo/<demoname>")
+def demo(demoname):
 
     if app.debug:
         with open("slug.json") as f:
             slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, "localhost", 9294,
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT,
                     excludes=EXCLUDES)
     else:
         jslibs = ['/static/js/application.js']
         hemfiles = []
 
-    tests = alltests[testname]
-    testfiles = [os.path.join(SRCDIR, name+".coffee") for name in tests]
+    demos = alldemos[demoname]
+    demofiles = [os.path.join(SRCDIR, name+".coffee") for name in demos]
 
-    for test in testfiles:
-        if not os.path.isfile(test):
-            raise RuntimeError("Cannot find test named '%s'"%test)
+    for demo in demofiles:
+        if not os.path.isfile(demo):
+            raise RuntimeError("Cannot find demo named '%s'"%demo)
 
-    hemfiles.extend(hemlib.make_urls(testfiles, "localhost", 9294))
+    hemfiles.extend(hemlib.make_urls(demofiles, HOST, PORT))
     
     return flask.render_template("demos.html", jslibs = jslibs,
+            hemfiles=hemfiles, demos=demos)
+
+@app.route("/test/<testname>")
+def test(testname):
+    if app.debug:
+        with open("slug.json") as f:
+            slug = json.load(f)
+        jslibs = hemlib.slug_libs(app, slug['libs'])
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT,
+                    excludes=EXCLUDES)
+    else:
+        jslibs= ['/static/js/application.js']
+        hemfiles = []
+    tests = alltests[testname]
+    testfiles = [os.path.join(SRCDIR, name+".coffee") for name in tests]
+    for test in testfiles:
+        if not os.path.isfile(test):
+            raise RuntimeError("Cannot find test named '%s'"%demo)
+    
+    hemfiles.extend(hemlib.make_urls(testfiles, HOST, PORT))
+
+    return flask.render_template("tests.html", jslibs=jslibs,
             hemfiles=hemfiles, tests=tests)
 
 
-alltests = {
+alldemos = {
 
     'all' : [
         'demo/scatter',
@@ -63,6 +88,44 @@ alltests = {
     'lorenz10'  : ['demo/lorenz10'],
     'lorenz50'  : ['demo/lorenz50'],
     'lorenz100' : ['demo/lorenz100'],
+}
+
+alltests = {
+
+    'allplots' : [
+        "unittest/plot_test_simple",
+        "unittest/tools_test",
+        "unittest/plot_test_grid",
+        "unittest/date_test",
+        "unittest/legend_test"
+    ],
+
+    'allunit' : [
+        "unittest/bokeh_test",
+        "unittest/hasparent_test",
+        "unittest/hasproperty_test"
+    ],
+
+    'tick' : ['unittest/tick_test'],
+
+    'perf' : ['unittest/perf_test'],
+
+    'prim' : [
+        'unittest/primitives/arc_test',
+        'unittest/primitives/area_test',
+        'unittest/primitives/bezier_test',
+        'unittest/primitives/circle_test',
+        'unittest/primitives/image_test',
+        'unittest/primitives/line_test',
+        'unittest/primitives/oval_test',
+        'unittest/primitives/quad_test',
+        'unittest/primitives/quadcurve_test',
+        'unittest/primitives/ray_test',
+        'unittest/primitives/rect_test',
+        'unittest/primitives/segment_test',
+        'unittest/primitives/text_test',
+        'unittest/primitives/wedge_test',
+    ],
 
     'arc'       : ['unittest/primitives/arc_test'],
     'area'      : ['unittest/primitives/area_test'],
@@ -87,6 +150,6 @@ alltests['allpossibletests'] = alltests
 
 if __name__ == "__main__":
 
-    if sys.argv[1] == 'debug':
+    if len(sys.argv)>1 and sys.argv[1] == 'debug':
         app.debug = True
     app.run()
