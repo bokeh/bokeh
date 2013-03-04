@@ -10,11 +10,10 @@ usercontext = require("usercontext/usercontext")
 
 $(()->
   wswrapper = utility.make_websocket()
-  user_load = utility.load_user()
-  user_load.done((data) ->
-    docs = data['docs']
-    userdocs = new usercontext.UserDocs()
-    userdocs.reset(docs)
+  userdocs = new usercontext.UserDocs()
+  window.userdocs = userdocs
+  load = userdocs.fetch()
+  load.done(() ->
     userdocsview = new usercontext.UserDocsView(collection : userdocs)
     $('#PlotPane').append(userdocsview.el)
   )

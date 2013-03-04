@@ -1,6 +1,7 @@
 base = require("../base")
 ContinuumView = base.ContinuumView
 HasParent = base.HasParent
+HasProperties = base.HasProperties
 load_models = base.load_models
 template = require("./wrappertemplate")
 utility = require("../serverutils").utility
@@ -41,10 +42,13 @@ class UserDocsView extends ContinuumView
     @views = {}
     super(options)
     @render()
-
+  delegateEvents : (events) ->
+    super(events)
+    @listenTo(@collection, 'add', @render)
+    @listenTo(@collection, 'remove', @render)
   render : ->
     @$el.addClass('accordion')
-    _.map(_.values(@views), (view) -> view.detach())
+    _.map(_.values(@views), (view) -> view.$el.detach())
     build_views(@views, @collection.models, {})
     @$el.html('')
     for model in @collection.models
@@ -75,6 +79,18 @@ class UserDoc extends HasParent
 
 class UserDocs extends Backbone.Collection
   model : UserDoc
+  fetch : (options) ->
+    if _.isUndefined(options )
+      options = {}
+    resp = response = $.get('/bokeh/userinfo/', {})
+    resp.done((data) =>
+      docs = data['docs']
+      if options.update
+        @update(docs, options)
+      else
+        @reset(docs, options)
+    )
+    return resp
 
 exports.UserDocs = UserDocs
 exports.UserDocsView = UserDocsView
