@@ -19,7 +19,7 @@ defaults = {
 }
 
 glyph = {
-  type: 'image'
+  type: 'imageurl'
   x: 'x'
   y: 'y'
 }
