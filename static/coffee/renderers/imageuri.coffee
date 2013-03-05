@@ -7,7 +7,7 @@ Glyph = glyph.Glyph
 GlyphView = glyph.GlyphView
 
 
-class ImageURLView extends GlyphView
+class ImageURIView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
@@ -54,20 +54,20 @@ class ImageURLView extends GlyphView
     ctx.restore()
 
 # name Image conflicts with js Image
-class ImageURLGlyph extends Glyph
-  default_view: ImageURLView
+class ImageURIGlyph extends Glyph
+  default_view: ImageURIView
   type: 'GlyphRenderer'
 
 
-ImageURLGlyph::display_defaults = _.clone(ImageURLGlyph::display_defaults)
-_.extend(ImageURLGlyph::display_defaults, {})
+ImageURIGlyph::display_defaults = _.clone(ImageURIGlyph::display_defaults)
+_.extend(ImageURIGlyph::display_defaults, {})
 
 
-class ImageURLs extends Backbone.Collection
-  model: ImageURLGlyph
+class ImageURIs extends Backbone.Collection
+  model: ImageURIGlyph
 
 
-exports.imageurlss = new ImageURLs
-exports.ImageURL = ImageURLGlyph
-exports.ImageURLView = ImageURLView
+exports.imageuriss = new ImageURIs
+exports.ImageURI = ImageURIGlyph
+exports.ImageURIView = ImageURIView
 
