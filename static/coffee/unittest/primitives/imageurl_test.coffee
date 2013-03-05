@@ -6,7 +6,7 @@ range = Collections('Range1d').create({start: 0, end: 10})
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
     {x: 1, y: 5},
-    {x: 2, y: 4, image: 'http://localhost:5000/static/sad.png'},
+    {x: 2, y: 4, url: 'http://localhost:5000/static/sad.png'},
     {x: 3, y: 3},
     {x: 4, y: 2},
     {x: 5, y: 1},
@@ -14,7 +14,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 )
 
 defaults = {
-  image: 'http://localhost:5000/static/glad.png'
+  url: 'http://localhost:5000/static/glad.png'
   angle: 0.3
 }
 
@@ -24,4 +24,4 @@ glyph = {
   y: 'y'
 }
 
-test('image_glyph', make_glyph_test('image_glyph', data_source, defaults, glyph, range, range))
+test('imageurl_glyph', make_glyph_test('imageurl_glyph', data_source, defaults, glyph, range, range))

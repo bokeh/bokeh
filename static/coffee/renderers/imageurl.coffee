@@ -14,7 +14,7 @@ class ImageURLView extends GlyphView
     @glyph_props = new glyph_properties(
       @,
       glyphspec,
-      ['image:string', 'x', 'y', 'angle'],
+      ['url:string', 'x', 'y', 'angle'],
       []
     )
 
@@ -23,7 +23,7 @@ class ImageURLView extends GlyphView
   set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    @image = (@glyph_props.select('image', obj) for obj in data)
+    @image = (@glyph_props.select('url', obj) for obj in data)
     @angle = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
 
   _render: () ->
