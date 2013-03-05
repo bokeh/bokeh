@@ -87,7 +87,6 @@ The following examples assume you have bokeh installed
 Server Based Web Plotting Examples
 ==================================
  * start a redis-server anywhere, using `$ redis-server &`
- * build the coffeescript code as described above.
  * install the bokeh module `$ python setup.py develop`
  * execute `$ python startlocal.py `
  * navigate to `http://localhost:5006/bokeh`
@@ -118,20 +117,20 @@ to install coffeescript globally.
 Hem
 ===
 
-We're using our own fork of hem to 
-manage the build process.  Please clone this repo: https://github.com/ContinuumIO/hem. hem will compile coffeescript, combine js files, and support 
-node.js require syntax on the client side
+We're using our own fork of hem to manage the build process.  
+Please clone this repo: https://github.com/ContinuumIO/hem as a subdirectory of the Bokeh repo. 
+hem will compile coffeescript, combine js files, and support node.js require syntax on the client side
 
 install it by executing
 
-`$ sudo npm link` inside the repo.  
+`$ sudo npm link` inside the hem repo.  
 
 This will link hem to your working copy so you get hem changes as we push it out
+ * Inside bokeh/server of the Bokeh repo, execute `$ hem server &`.  The hem server will
+   serve up coffeescript, compiling them on the fly.
  * If you are developing Bokeh, you should use the debug webserver.  
    start it by executing `$ python startlocaldebug.py`.  The debug webserver is configured
    to ask the hem server for compiled javascript, rather than read the pre-compiled js off of disk.
- * Inside bokeh/server, execute `$ hem server`.  The hem server will
-   serve up coffeescript, compiling them on the fly.
  * For the embedded plotting examples, or the production server, you will
    need to compile the js yourself, by executing `$ hem build -d`, the `-d` 
    option will prevent hem from uglifying the js, which breaks the notebook
