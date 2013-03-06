@@ -610,6 +610,13 @@ class PlotWidget extends ContinuumView
       ctx.lineDashOffset = dash_offset
       ctx.mozDashOffset = dash_offset
       ctx.webkitLineDashOffset = dash_offset
+    ctx.setImageSmoothingEnabled = (value) ->
+      ctx.imageSmoothingEnabled = value;
+      ctx.mozImageSmoothingEnabled = value;
+      ctx.oImageSmoothingEnabled = value;
+      ctx.webkitImageSmoothingEnabled = value;
+    ctx.getImageSmoothingEnabled = () ->
+      return ctx.imageSmoothingEnabled ? true
     super(options)
 
   bind_bokeh_events : ->

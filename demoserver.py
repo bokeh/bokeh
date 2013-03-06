@@ -36,7 +36,7 @@ def demo(demoname):
             raise RuntimeError("Cannot find demo named '%s'"%demo)
 
     hemfiles.extend(hemlib.make_urls(demofiles, HOST, PORT))
-    
+
     return flask.render_template("demos.html", jslibs = jslibs,
             hemfiles=hemfiles, demos=demos)
 
@@ -56,7 +56,7 @@ def test(testname):
     for test in testfiles:
         if not os.path.isfile(test):
             raise RuntimeError("Cannot find test named '%s'"%demo)
-    
+
     hemfiles.extend(hemlib.make_urls(testfiles, HOST, PORT))
 
     return flask.render_template("tests.html", jslibs=jslibs,
@@ -67,6 +67,7 @@ alldemos = {
 
     'all' : [
         'demo/scatter',
+        'demo/image',
         'demo/bars',
         'demo/map',
         'demo/candle',
@@ -79,6 +80,7 @@ alldemos = {
     ],
 
     'scatter'   : ['demo/scatter'],
+    'image'     : ['demo/image'],
     'bars'      : ['demo/bars'],
     'map'       : ['demo/map'],
     'candle'    : ['demo/candle'],
