@@ -2,7 +2,7 @@
 properties = require('./properties')
 glyph_properties = properties.glyph_properties
 
-colorbrewer = require('../palettes/colorbrewer').colorbrewer
+all_palettes = require('../palettes/palettes').all_palettes
 ColorMapper = require('../color_mapper').ColorMapper
 
 glyph = require('./glyph')
@@ -17,7 +17,7 @@ class ImageView extends GlyphView
     @glyph_props = new glyph_properties(
       @,
       glyphspec,
-      ['image:array', 'width', 'height', 'x', 'y', 'dw', 'dh'],
+      ['image:array', 'width', 'height', 'x', 'y', 'dw', 'dh', 'palette:string'],
       []
     )
 
@@ -29,6 +29,7 @@ class ImageView extends GlyphView
     h = @glyph_props.v_select('dh', data)
     for i in [0..@y.length-1]
       @y[i] += h[i]
+    @pal = @glyph_props.v_select('palette', data)
 
     width = @glyph_props.v_select('width', data)
     height = @glyph_props.v_select('height', data)
@@ -41,7 +42,8 @@ class ImageView extends GlyphView
       canvas.height = height[i];
       ctx = canvas.getContext('2d');
       image_data = ctx.getImageData(0, 0, width[i], height[i]);
-      cmap = new ColorMapper(colorbrewer.Blues[8])
+      console.log all_palettes
+      cmap = new ColorMapper(all_palettes[@pal[i]])
       buf = cmap.v_map_screen(img[i])
       buf8 = new Uint8ClampedArray(buf);
       image_data.data.set(buf8)
