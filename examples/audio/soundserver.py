@@ -45,8 +45,8 @@ def get_audio_data():
 
 @app.route("/data")
 def data():
-    """ Returns the current fft data sample as an array of floating-
-    point values.
+    """ Returns the current audio data sample as a JSON list of two
+    arrays of floating-point values: (fft values, audio sample values)
     """
     data = None
     starttime = time.time()
@@ -57,7 +57,7 @@ def data():
     if data is None:
         return json.dumps({})
     else:
-        return json.dumps(data[0].tolist())
+        return json.dumps([data[0].tolist(), data[1].tolist()])
 
 def main():
     """ Starts the sound server, which retains the audio data inside
