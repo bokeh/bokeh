@@ -53,6 +53,8 @@ image = {
   width: 'width',
   height: 'height',
   type: 'image',
+  palette:
+    default: 'Spectral-10'
 }
 
 test('image', make_glyph_test('image', source, {}, [image], xdr, ydr, true, [600, 600]))
