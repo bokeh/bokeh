@@ -45,9 +45,9 @@ class ColorMapper
           d = min
         value = @palette[Math.floor(d*scale+offset)]
         color[i] =
-           (0xff << 24)              | # alpha
+          (0xff << 24)               | # alpha
           ((value & 0xff0000) >> 16) | # blue
-           (value & 0xff00)          | # green
+          (value & 0xff00)           | # green
           ((value & 0xff) << 16);      # red
 
     else
