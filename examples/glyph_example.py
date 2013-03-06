@@ -1,5 +1,3 @@
-"""this example has been broken with the new bokehjs glyph stuff
-"""
 from bokeh import mpl
 from bokeh.bbmodel import make_model
 p = mpl.PlotClient('defaultuser',
@@ -35,12 +33,17 @@ glyph_renderer = make_model(
     data_source = source.ref(),
     xdata_range = xdr.ref(),
     ydata_range = ydr.ref(),
-    scatter_size = 10,
-    color = 'black',
-    x = 'x',
-    y = 'y',
-    glyphs = [{'type' : 'circles',
-               'color' : 'blue'}]
+    glyphspec = {
+        'type' : 'circle',
+        'fill' : 'blue',
+        'radius' : {
+            'field' : 'radius',
+            'default' : 5,
+            },
+        'units' : 'screen',
+        'x' : 'x',
+        'y' : 'y'
+        }
     )         
 
 xaxis = make_model(

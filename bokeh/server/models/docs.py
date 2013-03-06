@@ -60,13 +60,14 @@ def transform_models(models):
         if m.typename == 'Plot':
             #delete all existing overlays
             overlays = m.get('overlays')
-            if len(overlays) > 0:
+            if overlays and len(overlays) > 0:
                 to_delete.update([x['id'] for x in overlays])
             #remove them from plots
             m.set('overlays', [])
-            
-            selecttoolrefs = [x for x in m.get('tools') \
-                             if x['type'] == 'SelectionTool']
+            selecttoolrefs = []
+            if m.get('tools'):
+                selecttoolrefs = [x for x in m.get('tools') \
+                                 if x['type'] == 'SelectionTool']
             #if we have a selection tool, create a box select overlay
             if len(selecttoolrefs) > 0:
                 selecttoolref = selecttoolrefs[0]
