@@ -28,7 +28,7 @@ class AreaView extends GlyphView
     super(options)
 
 
-  set_data: (@data) ->
+  _set_data: (@data) ->
     # TODO store screen coords
 
   _render: () ->

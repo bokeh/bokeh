@@ -23,7 +23,7 @@ class TextView extends GlyphView
 
     super(options)
 
-  set_data: (@data) ->
+  _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
     @angle = (@glyph_props.select("angle", obj) for obj in data) # TODO deg/rad

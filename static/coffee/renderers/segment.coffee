@@ -24,7 +24,7 @@ class SegmentView extends GlyphView
     @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
-  set_data: (@data) ->
+  _set_data: (@data) ->
     @x0 = @glyph_props.v_select('x0', data)
     @y0 = @glyph_props.v_select('y0', data)
 

@@ -14,8 +14,9 @@ class GlyphView extends PlotWidget
     super(options)
     @set_xmapper()
     @set_ymapper()
+    @need_set_data = true
 
-  render: () ->
+  set_data: (request_render=true) ->
     source = @mget_obj('data_source')
     if source.type == 'ObjectArrayDataSource'
       data = source.get('data')
@@ -24,13 +25,20 @@ class GlyphView extends PlotWidget
     else
       console.log('Unknown data source type: ' + source.type)
 
-    @set_data(data)
+    @_set_data(data)
+    if request_render
+      @request_render()
+
+  render: () ->
+    if @need_set_data
+      @set_data(false)
+      @need_set_data = false
     @_render()
 
   bind_bokeh_events: () ->
     safebind(this, @model, 'change', @request_render)
     safebind(this, @plot_view.viewstate, 'change', @request_render)
-    safebind(this, @mget_obj('data_source'), 'change', @request_render)
+    safebind(this, @mget_obj('data_source'), 'change', @set_data)
     safebind(this, @model, 'change:xdata_range', @set_xmapper)
     safebind(this, @model, 'change:ydata_range', @set_ymapper)
     safebind(this, @mget_obj('xdata_range'), 'change', @request_render)

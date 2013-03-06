@@ -24,7 +24,7 @@ class LineView extends GlyphView
     @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
-  set_data: (@data) ->
+  _set_data: (@data) ->
     # TODO save screen coords
 
   _render: () ->

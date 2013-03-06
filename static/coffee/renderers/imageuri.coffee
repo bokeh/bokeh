@@ -20,7 +20,7 @@ class ImageURIView extends GlyphView
 
     super(options)
 
-  set_data: (@data) ->
+  _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
     @image = (@glyph_props.select('url', obj) for obj in data)

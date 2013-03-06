@@ -27,7 +27,7 @@ class QuadView extends GlyphView
     @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
-  set_data: (@data) ->
+  _set_data: (@data) ->
     @left = @glyph_props.v_select('left', data)
     @top  = @glyph_props.v_select('top', data)
     @right  = @glyph_props.v_select('right', data)
