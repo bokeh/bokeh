@@ -42,6 +42,8 @@ class UserDocsView extends ContinuumView
     @views = {}
     super(options)
     @render()
+  attributes :
+    class : 'usercontext'
   events :
     'click .bokehrefresh' : () -> @collection.fetch({update:true})
   delegateEvents : (events) ->
