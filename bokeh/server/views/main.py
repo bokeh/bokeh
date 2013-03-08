@@ -62,6 +62,8 @@ def makedoc():
     except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = current_app.ph.serialize_web(bokehuser.to_public_json())
+    msg = app.ph.serialize_web({'msgtype' : 'docchange'})
+    current_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
 
 @app.route('/bokeh/doc/<docid>', methods=['delete'])
@@ -74,6 +76,8 @@ def deletedoc(docid):
     except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = current_app.ph.serialize_web(bokehuser.to_public_json())
+    msg = app.ph.serialize_web({'msgtype' : 'docchange'})
+    current_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
     
 @app.route('/bokeh/getdocapikey/<docid>')

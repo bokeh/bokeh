@@ -83,6 +83,13 @@ class UserDoc extends HasParent
 
 class UserDocs extends Backbone.Collection
   model : UserDoc
+  subscribe : (wswrapper, username) ->
+    wswrapper.subscribe("bokehuser:#{username}", null)
+    @listenTo(wswrapper, "msg:bokehuser:#{username}", (msg) ->
+      if msg['msgtype'] == 'docchange'
+        @fetch(update : true)
+    )
+
   fetch : (options) ->
     if _.isUndefined(options )
       options = {}
