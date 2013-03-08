@@ -46,10 +46,22 @@ class UserDocsView extends ContinuumView
     class : 'usercontext'
   events :
     'click .bokehrefresh' : () -> @collection.fetch({update:true})
+
   delegateEvents : (events) ->
     super(events)
     @listenTo(@collection, 'add', @render)
     @listenTo(@collection, 'remove', @render)
+    @listenTo(@collection, 'add', (model, collection, options) =>
+      @listenTo(model, 'loaded', () =>
+        @listenTo(model.get_obj('plot_context'), 'change', () =>
+          @trigger('show')
+        )
+      )
+    )
+    @listenTo(@collection, 'remove', (model, collection, options) =>
+      @stopListening(model)
+    )
+
   render : ->
     html = userdocstemplate()
     _.map(_.values(@views), (view) -> view.$el.detach())
