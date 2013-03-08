@@ -140,6 +140,7 @@ class WebSocketWrapper
   _.extend(@prototype, Backbone.Events)
   # ### method :
   constructor : (ws_conn_string) ->
+    @auth = {}
     @ws_conn_string = ws_conn_string
     @_connected = $.Deferred()
     @connected = @_connected.promise()
@@ -160,6 +161,17 @@ class WebSocketWrapper
     @trigger("msg:" + topic, data)
     return null
 
+  send : (msg) ->
+    $.when(@connected).done(() =>
+      @s.send(msg)
+    )
+
+  subscribe : (topic, auth) ->
+    @auth[topic] = auth
+    msg = JSON.stringify(
+      {msgtype : 'subscribe', topic : topic, auth : auth}
+    )
+    @send(msg)
 
 # ###function : submodels
 
@@ -169,12 +181,7 @@ submodels = (wswrapper, topic, apikey) ->
   # * wswrapper : WebSocketWrapper
   # * topic : topic to listen on (send to the server on connect)
   # * apikey : apikey for server
-  $.when(wswrapper.connected).then(() ->
-    msg = JSON.stringify(
-      {msgtype : 'subscribe', topic : topic, auth : apikey}
-    )
-    wswrapper.s.send(msg)
-  )
+  wswrapper.subscribe(topic, apikey)
   wswrapper.on("msg:" + topic, (msg) ->
     msgobj = JSON.parse(msg)
     if msgobj['msgtype'] == 'modelpush'
