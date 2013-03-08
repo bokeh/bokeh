@@ -351,7 +351,7 @@ class PlotClient(object):
         
     def update_userinfo(self):
         url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
-        self.userinfo = requests.get(url).json
+        self.userinfo = self.session.get(url).json
         
     def load_doc(self, docid):
         url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
