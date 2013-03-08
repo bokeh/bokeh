@@ -91,6 +91,7 @@ def get_doc_api_key(docid):
 def get_user():
     bokehuser = app.current_user(request)
     content = current_app.ph.serialize_web(bokehuser.to_public_json())
+    write_plot_file(request.scheme + "://" + request.host)
     return make_json(content)
 
 def _make_plot_file(username, userapikey, url):
@@ -122,7 +123,6 @@ def get_bokeh_info(docid):
                  'all_models' : all_models,
                  'apikey' : doc.apikey}
     returnval = current_app.ph.serialize_web(returnval)
-    write_plot_file(request.scheme + "://" + request.host)
     return make_json(returnval,
                      headers={"Access-Control-Allow-Origin": "*"})
 

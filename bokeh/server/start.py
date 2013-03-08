@@ -45,7 +45,6 @@ def prepare_app(rhost='127.0.0.1', rport=6379):
 
 def make_default_user(app):
     docid = "defaultdoc"
-    doc = docs.new_doc(app, docid, 'main', ["defaultuser"], apikey='nokey')
     bokehuser = user.new_user(app.model_redis, "defaultuser",
                             str(uuid.uuid4()),
                             docs=[doc.docid])
@@ -59,9 +58,7 @@ def prepare_local():
             bokehuser = make_default_user(app)
         return bokehuser
     def write_plot_file(username, codedata):
-        fpath = 'webplot.py'
-        with open(fpath, "w+") as f:
-            f.write(codedata)
+        return
     app.current_user = current_user
     app.write_plot_file = write_plot_file
 
