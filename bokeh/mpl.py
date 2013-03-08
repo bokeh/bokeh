@@ -351,11 +351,11 @@ class PlotClient(object):
         
     def update_userinfo(self):
         url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
-        self.userinfo = self.session.get(url).json
+        self.userinfo = self.session.get(url, verify=False).json
         
     def load_doc(self, docid):
         url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
-        resp = self.session.get(url)
+        resp = self.session.get(url, verify=False)
         if resp.status_code == 401:
             raise Exception, 'unauthorized'
         apikey = resp.json
@@ -381,7 +381,7 @@ class PlotClient(object):
     def make_doc(self, title):
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
         data = self.ph.serialize_web({'title' : title})
-        response = self.session.post(url, data=data)
+        response = self.session.post(url, data=data, verify=False)
         if response.status_code == 409:
             raise DataIntegrityException
         self.userinfo = response.json
@@ -391,7 +391,7 @@ class PlotClient(object):
                     if x.get('title') == title]
         docid = matching[0]['docid']
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/%s/" % docid)
-        response = self.session.delete(url)
+        response = self.session.delete(url, verify=False)
         if response.status_code == 409:
             raise DataIntegrityException
         self.userinfo = response.json
