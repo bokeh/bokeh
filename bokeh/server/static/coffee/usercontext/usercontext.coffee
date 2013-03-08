@@ -53,9 +53,10 @@ class UserDocsView extends ContinuumView
   render : ->
     html = userdocstemplate()
     _.map(_.values(@views), (view) -> view.$el.detach())
-    build_views(@views, @collection.models, {})
+    models = @collection.models.slice().reverse() # we want backwards
+    build_views(@views, models, {})
     @$el.html(html)
-    for model in @collection.models
+    for model in models
       @$el.find(".accordion").append(@views[model.id].el)
     return @
 
@@ -86,6 +87,7 @@ class UserDocs extends Backbone.Collection
   subscribe : (wswrapper, username) ->
     wswrapper.subscribe("bokehuser:#{username}", null)
     @listenTo(wswrapper, "msg:bokehuser:#{username}", (msg) ->
+      msg = JSON.parse(msg)
       if msg['msgtype'] == 'docchange'
         @fetch(update : true)
     )
