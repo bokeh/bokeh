@@ -99,3 +99,6 @@ button.active { border:1px solid blue }
     position:relative;
     top:5px;
 }
+.bokehdoclabel{
+    background-color : #ccc;
+}
