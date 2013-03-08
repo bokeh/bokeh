@@ -195,8 +195,6 @@ class Doc(models.ServerModel):
     @classmethod
     def load(cls, client, objid):
         attrs = cls.load_json(client, objid)
-        if attrs is None:
-            import pdb;pdb.set_trace()
         #adding readonly api key if it's not there
         if 'readonlyapikey' not in attrs:
             attrs['readonlyapikey'] = str(uuid.uuid4())
