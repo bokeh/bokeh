@@ -4,6 +4,17 @@ from docs import Doc
 import uuid
 from werkzeug import generate_password_hash, check_password_hash
 
+def apiuser_from_request(app, request):
+    apikey = request.cookies.get('bokehuser-api-key')
+    if not apikey:
+        return None
+    username = request.cookies['bokehuser']
+    bokehuser = User.load(app.model_redis, username)
+    if bokehuser.apikey == apikey:
+        return bokehuser
+    else:
+        return None
+
 def new_user(client, username, password, apikey=None, docs=None):
     if apikey is None:
         apikey = str(uuid.uuid4())
