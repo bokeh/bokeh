@@ -11,6 +11,13 @@ build_views = base.build_views
 class PlotContextWrapper extends ContinuumView
   events :
     "click .bokehdoclabel" : "loaddoc"
+    "click .bokehdelete" : "deldoc"
+
+  deldoc : (e) ->
+    console.log('foo')
+    e.preventDefault()
+    @model.destroy()
+    return false
 
   loaddoc : () ->
     @model.load()
@@ -80,6 +87,15 @@ class UserDoc extends HasParent
     title : null
     plot_context : null
     apikey : null
+
+  sync : () ->
+
+  destroy : (options) ->
+    super(options)
+    $.ajax(
+      url: "/bokeh/doc/#{@get('docid')}/",
+      type : 'delete'
+    )
 
   load : () ->
     if @loaded

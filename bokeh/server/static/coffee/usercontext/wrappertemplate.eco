@@ -1,7 +1,8 @@
-<div class="accordion-heading">
+<div class="accordion-heading bokehdocheading">
   <a class="accordion-toggle bokehdoclabel" data-toggle="collapse" 
      href="#<%= @bodyid %>">
-    <%= @model.get('title') %>
+    Document: <%= @model.get('title') %>
+    <i class="bokehdelete icon-trash"></i>
   </a>
 </div>
 <div id="<%= @bodyid %>" class="accordion-body collapse">
