@@ -5,6 +5,7 @@ HasProperties = base.HasProperties
 load_models = base.load_models
 template = require("./wrappertemplate")
 userdocstemplate = require("./userdocstemplate")
+documentationtemplate = require("./documentationtemplate")
 utility = require("../serverutils").utility
 build_views = base.build_views
 
@@ -45,6 +46,7 @@ class PlotContextWrapper extends ContinuumView
 
 class UserDocsView extends ContinuumView
   initialize : (options) ->
+    @docs = options.docs
     @collection = options.collection
     @views = {}
     super(options)
@@ -53,7 +55,6 @@ class UserDocsView extends ContinuumView
     class : 'usercontext'
   events :
     'click .bokehrefresh' : () -> @collection.fetch({update:true})
-
   delegateEvents : (events) ->
     super(events)
     @listenTo(@collection, 'add', @render)
@@ -68,8 +69,13 @@ class UserDocsView extends ContinuumView
     @listenTo(@collection, 'remove', (model, collection, options) =>
       @stopListening(model)
     )
+  render_docs : ->
+    @$el.html(documentationtemplate())
+    @$el.append(@docs)
 
   render : ->
+    if @collection.models.length == 0 and @docs
+      return @render_docs()
     html = userdocstemplate()
     _.map(_.values(@views), (view) -> view.$el.detach())
     models = @collection.models.slice().reverse() # we want backwards
