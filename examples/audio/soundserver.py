@@ -43,6 +43,14 @@ def get_audio_data():
 #     spectrogram_data = hstack((spectrogram_data[:,1:],
 #                                transpose([spectrum])))
 
+
+@app.route("/")
+def root():
+    """ Returns the spectrogram of audio data served from /data
+    """
+
+    return flask.render_template("spectrogram.html")
+
 @app.route("/data")
 def data():
     """ Returns the current audio data sample as a JSON list of two
