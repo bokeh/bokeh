@@ -1,0 +1,22 @@
+<div>
+  {% if rawcss %}
+  <style>
+    {{ rawcss }}
+  </style>
+  {% endif %}
+  {% if rawjs %}
+  <script type="text/javascript">
+    {{ rawjs }}
+  </script>
+  {% endif %}
+  <script type="text/javascript">
+    $(function(){      
+    {% for snippet in js_snippets %}
+    {{ snippet }}
+    {% endfor %}
+    });
+  </script>
+  {% for snippet in html_snippets %}
+  {{ snippet }}
+  {% endfor %}
+</div>

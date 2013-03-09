@@ -20,6 +20,7 @@ from ...exceptions import DataIntegrityException
 from bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
 from ..views import make_json
+from ..crossdomain import crossdomain
 
 #main pages
 
@@ -110,9 +111,8 @@ def write_plot_file(url):
                                url)
     app.write_plot_file(bokehuser.username, codedata)
     
-@app.route('/bokeh/doc/<docid>', methods=['GET'])
-@app.route('/bokeh/doc/<docid>/', methods=['GET'])    
-@app.route('/bokeh/bokehinfo/<docid>')
+@app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
+@crossdomain(origin="*", headers=['BOKEH-API-KEY'])
 @check_read_authentication_and_create_client
 def get_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
@@ -127,8 +127,9 @@ def get_bokeh_info(docid):
                  'all_models' : all_models,
                  'apikey' : doc.apikey}
     returnval = current_app.ph.serialize_web(returnval)
-    return make_json(returnval,
-                     headers={"Access-Control-Allow-Origin": "*"})
+    result = make_json(returnval,
+                       headers={"Access-Control-Allow-Origin": "*"})
+    return result
 
 @app.route('/bokeh/publicbokehinfo/<docid>')
 def get_public_bokeh_info(docid):

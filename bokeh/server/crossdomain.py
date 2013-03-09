@@ -17,7 +17,6 @@ def crossdomain(origin=None, methods=None, headers=None,
 
     def get_methods():
         return methods
-
         options_resp = current_app.make_default_options_response()
         return options_resp.headers['allow']
 

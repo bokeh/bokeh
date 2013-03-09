@@ -1,0 +1,16 @@
+<div>
+  <p>
+    Connecting to Document.  Credentials for these Bokeh Plots are here.  
+    Only share with people you trust
+  </p>
+  <script type="text/javascript">
+    window.docid = {{ docid }};
+    utility = require("../serverutils").utility;
+    headers = {'bokeh-api-key' : '{{ docapikey }}' };
+    
+    BokehConfig = require("./base").Config;
+    BokehConfig.ws_conn_string = {{ ws_conn_string }};
+    utility.load_doc(docid);
+    wswrapper = bokehutils.utility.make_websocket();
+  </script>
+</div>

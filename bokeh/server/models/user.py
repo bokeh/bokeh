@@ -5,10 +5,10 @@ import uuid
 from werkzeug import generate_password_hash, check_password_hash
 
 def apiuser_from_request(app, request):
-    apikey = request.cookies.get('bokehuser-api-key')
+    apikey = request.headers.get('BOKEHUSER-API-KEY')
     if not apikey:
         return None
-    username = request.cookies['bokehuser']
+    username = request.headers['BOKEHUSER']
     bokehuser = User.load(app.model_redis, username)
     if bokehuser.apikey == apikey:
         return bokehuser

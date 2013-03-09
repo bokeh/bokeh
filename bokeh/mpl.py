@@ -12,6 +12,8 @@ import dump
 import json
 import pandas
 from exceptions import DataIntegrityException
+import IPython.core.displaypub as displaypub
+
 
 log = logging.getLogger(__name__)
 colors = [
@@ -333,8 +335,8 @@ class PlotClient(object):
         self.root_url = serverloc
         self.session = requests.session()
         self.session.headers.update({'content-type':'application/json'})
-        self.session.cookies.update({'bokehuser-api-key' : userapikey})
-        self.session.cookies.update({'bokehuser' : username})
+        self.session.headers.update({'BOKEHUSER-API-KEY' : userapikey})
+        self.session.headers.update({'BOKEHUSER' : username})
         if self.root_url:
             self.update_userinfo()
         else:
@@ -348,6 +350,13 @@ class PlotClient(object):
         self._hold = True
         self.bbclient = None
         self.ic = self.model('PlotContext', children=[])
+    @property
+    def ws_conn_string(self):
+        split = urlparse.urlsplit(self.root_url)
+        if split.scheme == 'http':
+            return "ws://%s:5006/bokeh/sub" % split.netloc
+        else:
+            return "wss://%s:5006/bokeh/sub" % split.netloc
         
     def update_userinfo(self):
         url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
@@ -397,6 +406,7 @@ class PlotClient(object):
         self.userinfo = response.json
         
     def use_doc(self, name):
+        self.docname = name
         docs = self.userinfo.get('docs')
         matching = [x for x in docs if x.get('title') == name]
         if len(matching) > 1:
@@ -409,14 +419,28 @@ class PlotClient(object):
             matching = [x for x in docs if x.get('title') == name]
         self.load_doc(matching[0]['docid'])
         
+    def notebook_connect(self):
+        js = get_template('connect.js').render(
+            username=self.username,
+            root_url = self.root_url,
+            docid=self.docid,
+            docapikey=self.apikey,
+            ws_conn_string=self.ws_conn_string
+            )
+        msg = """ <p>Connection Information for this %s document, only share with people you trust </p> """  % self.docname
+        html = self.html(
+            script_paths=[],
+            css_paths=[],
+            js_snippets=[js],
+            html_snippets=[msg],
+            template="basediv.html"
+            )
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
         
     def notebooksources(self):
-        import IPython.core.displaypub as displaypub
-        template = get_template('source_block.html')
-        html = template.render(
-            rawjs = dump.inline_scripts(dump.script_paths).decode('utf8'),
-            rawcss = dump.inline_css(dump.css_paths).decode('utf8')
-            )
+        html = self.html(template="basediv.html",
+                         html_snippets=["<p>Bokeh Sources</p>"])
         displaypub.publish_display_data('bokeh', {'text/html': html})
         return None
 
@@ -637,31 +661,43 @@ class PlotClient(object):
         self.ic.set('children', [])
         if self.bbclient:
             self.bbclient.update(self.ic)
-    
-    def make_html(self, all_models, model=None, inline=True,
-                  template="bokeh.html", script_paths=None,
-                  css_paths=None):
+            
+    def html(self, script_paths=None,
+             css_paths=None, js_snippets=[],
+             html_snippets=[], template="base.html",
+             ):
         import jinja2
         if script_paths is None:
             script_paths = dump.script_paths
         if css_paths is None:
             css_paths=dump.css_paths
+        template = get_template(template)
+        result = template.render(
+            rawjs=dump.inline_scripts(script_paths).decode('utf8'),
+            rawcss=dump.inline_css(css_paths).decode('utf8'),
+            js_snippets=js_snippets,
+            html_snippets=html_snippets
+            )
+        return result
+    
+    def make_html(self, all_models, model=None,
+                  script_paths=None, css_paths=None):
         if model is None:
             model = self.ic
-        template = get_template(template)
-        elementid = str(uuid.uuid4())
-        if inline:
-            result = template.render(
-                rawjs = dump.inline_scripts(script_paths).decode('utf8'),
-                rawcss = dump.inline_css(css_paths).decode('utf8'),
-                all_models=serialize_json([x.to_broadcast_json() \
+        elementid = str(uuid.uuid4())            
+        plot_js = get_template('plots.js').render(
+            elementid=elementid,
+            modelid=model.id,
+            all_models=serialize_json([x.to_broadcast_json()\
                                        for x in all_models]),
-                modelid=model.id,
-                modeltype=model.typename,
-                elementid=elementid
-                )
-
-            return result
+            modeltype=model.typename,
+            )
+        plot_div = get_template('plots.html').render(
+            elementid=elementid
+            )
+        result = self.html(js_snippets=[plot_js], html_snippets=[plot_div])
+        return result
+    
     def htmldump(self, path=None, inline=True):
         """if inline, path is a filepath, otherwise,
         path is a dir

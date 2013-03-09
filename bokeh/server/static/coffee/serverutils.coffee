@@ -27,7 +27,7 @@ utility =
     return response
 
   load_doc : (docid) ->
-    response = $.get("/bokeh/bokehinfo/#{docid}", {})
+    response = $.get(Config.prefix + "/bokeh/bokehinfo/#{docid}/", {})
       .done((data) ->
         all_models = data['all_models']
         load_models(all_models)
