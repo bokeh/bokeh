@@ -25,7 +25,6 @@ from ..crossdomain import crossdomain
 #main pages
 
 @app.route('/bokeh/')
-@app.route('/bokeh/<path:unused>/')
 def index(*unused_all, **kwargs):
     if app.debug:
         slug = hemlib.slug_json()
@@ -112,7 +111,7 @@ def write_plot_file(url):
     app.write_plot_file(bokehuser.username, codedata)
     
 @app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
-@crossdomain(origin="*", headers=['BOKEH-API-KEY'])
+@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 @check_read_authentication_and_create_client
 def get_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)

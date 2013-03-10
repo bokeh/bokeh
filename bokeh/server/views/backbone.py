@@ -13,7 +13,10 @@ from ..models import convenience
 from ..models import docs
 from bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
+from ..crossdomain import crossdomain
+from ..views import make_json
 log = logging.getLogger(__name__)
+
 
 #backbone model apis
 @app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
@@ -69,12 +72,50 @@ def create(docid, typename):
     current_app.wsmanager.send("bokehplot:" + docid, msg, exclude={clientid})
     return app.ph.serialize_web(model.to_json())
 
-@app.route("/bokeh/bb/<docid>/<typename>/<id>", methods=['PATCH'])
+
+@app.route("/bokeh/bb/<docid>/", methods=['GET'])
+@app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
+@check_read_authentication_and_create_client
+def get(docid, typename, id=None):
+    include_hidden = request.values.get('include_hidden', '').lower() == 'true'
+    models = current_app.collections.get_bulk(docid, typename=typename)
+    if typename is not None:
+        return app.ph.serialize_web(
+            [x.to_json(include_hidden=include_hidden) for x in models]
+            )
+    else:
+        return app.ph.serialize_web(
+            [x.to_broadcast_json(include_hidden=include_hidden) \
+             for x in models]
+            )
+@app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['GET', 'OPTIONS', 'PUT','PATCH'])
+@crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'],
+             headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
+def handle_specific_model(docid, typename, id):
+    if request.method == 'PUT':
+        return put(docid, typename, id)
+    elif request.method == 'PATCH':
+        return patch(docid, typename, id)
+    elif request.method == 'GET':
+        return getbyid(docid, typename, id)
+        
+@check_read_authentication_and_create_client
+def getbyid(docid, typename, id):
+    include_hidden = request.values.get('include_hidden', '').lower() == 'true'    
+    model = current_app.collections.get(typename, docid, id)
+    if model:
+        returnval = app.ph.serialize_web(
+            model.to_json(include_hidden=include_hidden))
+        return make_json(returnval,
+                         headers={"Access-Control-Allow-Origin": "*"})
+    if model is None:
+        return app.ph.serialize_web(None)
+
 @check_write_authentication_and_create_client
 def patch(docid, typename, id):
     modeldata = current_app.ph.deserialize_web(request.data)
     modeldata['id'] = id
-    modeldata['doc'] = doc
+    modeldata['doc'] = docid
     model = current_app.collections.attrupdate(typename, docid, modeldata)
     log.debug("patch, %s, %s", docid, typename)
     current_app.collections.add(model)
@@ -88,7 +129,6 @@ def patch(docid, typename, id):
             {"Access-Control-Allow-Origin": "*"})
     
 
-@app.route("/bokeh/bb/<docid>/<typename>/<id>", methods=['PUT'])
 @check_write_authentication_and_create_client
 def put(docid, typename, id):
     modeldata = current_app.ph.deserialize_web(request.data)
@@ -104,31 +144,6 @@ def put(docid, typename, id):
     current_app.wsmanager.send("bokehplot:" + docid, msg, exclude={clientid})
     return (app.ph.serialize_web(model.to_json()), "200",
             {"Access-Control-Allow-Origin": "*"})
-
-@app.route("/bokeh/bb/<docid>/", methods=['GET'])
-@app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
-@app.route("/bokeh/bb/<docid>/<typename>/<id>", methods=['GET'])
-@check_read_authentication_and_create_client
-def get(docid, typename=None, id=None):
-    include_hidden = request.values.get('include_hidden', '').lower() == 'true'
-    if typename is not None and id is not None:
-        model = current_app.collections.get(typename, docid, id)
-        if model:
-            return app.ph.serialize_web(
-                model.to_json(include_hidden=include_hidden))
-        if model is None:
-            return app.ph.serialize_web(None)
-    else:
-        models = current_app.collections.get_bulk(docid, typename=typename)
-        if typename is not None:
-            return app.ph.serialize_web(
-                [x.to_json(include_hidden=include_hidden) for x in models]
-                )
-        else:
-            return app.ph.serialize_web(
-                [x.to_broadcast_json(include_hidden=include_hidden) \
-                 for x in models]
-                )
 
 @app.route("/bokeh/bb/<docid>/<typename>/<id>", methods=['DELETE'])
 @check_write_authentication_and_create_client

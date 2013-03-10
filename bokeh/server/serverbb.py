@@ -81,7 +81,7 @@ class ContinuumModelsStorage(object):
         mkey = modelkey(typename, docid, id)
         with self.client.pipeline() as pipe:
             pipe.watch(mkey)
-            model = self.get(typename, id)
+            model = self.get(typename, docid, id)
             for k,v in attributes.iteritems():
                 model.set(k, v)
             self._upsert(pipe, model)

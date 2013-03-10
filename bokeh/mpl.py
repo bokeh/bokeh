@@ -78,13 +78,12 @@ class GridPlot(object):
                 models.extend(plot.allmodels())
         return models
     
-    def htmldump(self, path=None, inline=True):
+    def htmldump(self, path=None):
         """ If **path** is provided, then writes output to a file,
         else returns the output as a string.
         """
         html = self.plotclient.make_html(self.allmodels(),
                                          model=self.gridmodel,
-                                         inline=True,
                                          template="bokeh.html"
                                          )
         if path:
@@ -98,8 +97,7 @@ class GridPlot(object):
         html = self.plotclient.make_html(
             self.allmodels(),
             model=self.gridmodel,
-            inline=True,
-            template="plot.html",
+            template="basediv.html",
             script_paths=[],
             css_paths=[]
             )
@@ -133,17 +131,23 @@ class XYPlot(object):
             self.update()
             
     def allmodels(self):
-        return [self.plotmodel,
-                self.xdata_range,
-                self.ydata_range,
-                self.pantool,
-                self.zoomtool,
-                self.selectiontool,
-                self.selectionoverlay,
-                self.xaxis,
-                self.yaxis] + self.renderers + self.data_sources
+        models =  [self.plotmodel,
+                   self.xdata_range,
+                   self.ydata_range,
+                   self.pantool,
+                   self.zoomtool,
+                   self.selectiontool,
+                   self.selectionoverlay,
+                   self.xaxis,
+                   self.yaxis]
+        models += self.renderers
+        models += self.data_sources
+        for source in self.data_sources:
+            if source.typename == 'PandasPlotSource' and \
+                   hasattr(self, 'pandassource'):
+                models.append(source.pandassource)
+        return models
     
-
     def update(self):
         self.plotclient.bbclient.upsert_all(self.allmodels())
         
@@ -296,13 +300,12 @@ class XYPlot(object):
             self.plotclient.bbclient.upsert_all(update)
         self.plotclient.show(self.plotmodel)
 
-    def htmldump(self, path=None, inline=True):
+    def htmldump(self, path=None):
         """ If **path** is provided, then writes output to a file,
         else returns the output as a string.
         """
         html = self.plotclient.make_html(self.allmodels(),
                                          model=self.plotmodel,
-                                         inline=True,
                                          template="bokeh.html"
                                          )
         if path:
@@ -316,8 +319,7 @@ class XYPlot(object):
         html = self.plotclient.make_html(
             self.allmodels(),
             model=self.plotmodel,
-            inline=True,
-            template="plot.html",
+            template="basediv.html",
             script_paths=[],
             css_paths=[]
             )
@@ -464,7 +466,8 @@ class PlotClient(object):
     def updateobj(self, obj):
         if not self.bbclient:
             raise Exception, "cannot perform operation without a bb client"
-        newobj = self.bbclient.fetch(obj.typename, obj.get('id'))
+        newobj = self.bbclient.fetch(typename=obj.typename,
+                                     id=obj.get('id'))
         obj.attributes = newobj.attributes
         return obj
 
@@ -680,7 +683,7 @@ class PlotClient(object):
             )
         return result
     
-    def make_html(self, all_models, model=None,
+    def make_html(self, all_models, model=None, template="base.html",
                   script_paths=None, css_paths=None):
         if model is None:
             model = self.ic
@@ -695,14 +698,16 @@ class PlotClient(object):
         plot_div = get_template('plots.html').render(
             elementid=elementid
             )
-        result = self.html(js_snippets=[plot_js], html_snippets=[plot_div])
+        result = self.html(js_snippets=[plot_js],
+                           template=template,
+                           html_snippets=[plot_div])
         return result
     
-    def htmldump(self, path=None, inline=True):
+    def htmldump(self, path=None):
         """if inline, path is a filepath, otherwise,
         path is a dir
         """
-        html = self.make_html(self.models.values(), inline=inline)
+        html = self.make_html(self.models.values())
         if path:
             with open(path, "w+") as f:
                 f.write(html.encode("utf-8"))
