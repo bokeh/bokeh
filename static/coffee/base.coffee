@@ -1,4 +1,6 @@
-Config = {}
+Config = {
+    prefix : ''
+  }
 
 # ## function : safebind
 safebind = (binder, target, event, callback) ->
@@ -434,10 +436,10 @@ class HasProperties extends Backbone.Model
     # ### method HasProperties::url
     #model where our API processes this model
 
-    base = "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
+    base = Config.prefix + "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
     if (@isNew())
       return base
-    return base + @get('id')
+    return base + @get('id') + "/"
 
 
   sync : (method, model, options) ->

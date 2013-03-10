@@ -137,6 +137,7 @@ class PandasPlotSource extends datasource.ObjectArrayDataSource
 
   _select_serverside : () ->
     pandassource = @get_obj('pandassource')
+    console.log('selecting', @get('selected'), pandassource)
     pandassource.save({selected : @get('selected')}, {wait : true})
     return null
 
