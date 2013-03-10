@@ -30012,7 +30012,6 @@ _.setdefault = function(obj, key, value){
         canvas.height = height[i];
         ctx = canvas.getContext('2d');
         image_data = ctx.getImageData(0, 0, width[i], height[i]);
-        console.log(all_palettes);
         cmap = new ColorMapper(all_palettes[this.pal[i]]);
         buf = cmap.v_map_screen(img[i]);
         buf8 = new Uint8ClampedArray(buf);
@@ -38206,10 +38205,22 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "spectrogram": function(exports, require, module) {(function() {
-  var Collections, Spectrogram,
+  var Collections, FREQ_SAMPLES, MAX_FREQ, NGRAMS, NUM_SAMPLES, SAMPLING_RATE, SPECTROGRAM_LENGTH, Spectrogram,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   Collections = require('base').Collections;
+
+  NUM_SAMPLES = 1024;
+
+  SAMPLING_RATE = 44100;
+
+  MAX_FREQ = SAMPLING_RATE / 8;
+
+  FREQ_SAMPLES = NUM_SAMPLES / 8;
+
+  SPECTROGRAM_LENGTH = 400;
+
+  NGRAMS = 600;
 
   Spectrogram = (function() {
 
@@ -38217,8 +38228,28 @@ _.setdefault = function(obj, key, value){
       this.on_data = __bind(this.on_data, this);
 
       this.request_data = __bind(this.request_data, this);
-      console.log("initialize");
+
+      var i, _i, _ref;
+      this.canvas_width = SPECTROGRAM_LENGTH;
+      this.canvas_height = NGRAMS;
+      this.y = [0];
+      this.dh = [NGRAMS];
+      this.image = [new Uint32Array(this.canvas_width * this.canvas_height)];
+      for (i = _i = 0, _ref = this.image[0].length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.image[0][i] = i;
+      }
+      this.data_source = Collections('ColumnDataSource').create({
+        data: {
+          y: this.y,
+          dh: this.dh,
+          image: this.image
+        }
+      });
+      this.glyphspec = this.create_glyphspec();
       this.plot_model = this.create_plot();
+      this.plot_view = new this.plot_model.default_view({
+        model: this.plot_model
+      });
       this.render();
     }
 
@@ -38236,37 +38267,61 @@ _.setdefault = function(obj, key, value){
       });
     };
 
-    Spectrogram.prototype.on_data = function(data) {};
+    Spectrogram.prototype.on_data = function(data) {
+      var i, _i, _j, _ref, _results;
+      for (i = _i = _ref = this.image[0].length - 1; _ref <= SPECTROGRAM_LENGTH ? _i <= SPECTROGRAM_LENGTH : _i >= SPECTROGRAM_LENGTH; i = _ref <= SPECTROGRAM_LENGTH ? ++_i : --_i) {
+        this.image[0][i] = this.image[0][i - SPECTROGRAM_LENGTH];
+      }
+      _results = [];
+      for (i = _j = 0; 0 <= SPECTROGRAM_LENGTH ? _j <= SPECTROGRAM_LENGTH : _j >= SPECTROGRAM_LENGTH; i = 0 <= SPECTROGRAM_LENGTH ? ++_j : --_j) {
+        _results.push(this.image[0][i] = 0);
+      }
+      return _results;
+    };
 
     Spectrogram.prototype.render = function() {
       var div, myrender,
         _this = this;
-      console.log("render");
       div = $('<div></div>');
       $('body').append(div);
       myrender = function() {
-        var view;
-        view = new _this.plot_model.default_view({
-          model: _this.plot_model
-        });
-        div.append(view.$el);
-        return view.render();
+        div.append(_this.plot_view.$el);
+        return _this.plot_view.render();
       };
       return _.defer(myrender);
     };
 
+    Spectrogram.prototype.create_glyphspec = function() {
+      var glyphspec;
+      glyphspec = {
+        type: 'image',
+        x: 0,
+        y: 'y',
+        dw: MAX_FREQ,
+        dh: 'dh',
+        width: this.canvas_width,
+        width_units: 'screen',
+        height: this.canvas_height,
+        height_units: 'screen',
+        image: 'image',
+        palette: {
+          "default": 'YlGnBu-9'
+        }
+      };
+      return glyphspec;
+    };
+
     Spectrogram.prototype.create_plot = function() {
-      var xaxis, xrange, yaxis, yrange;
-      console.log("create_plot");
+      var glyph, xaxis, xrange, yaxis, yrange;
+      this.plot_model = Collections('Plot').create();
       xrange = Collections('Range1d').create({
         start: 0,
-        end: 10
+        end: MAX_FREQ
       });
       yrange = Collections('Range1d').create({
         start: 0,
-        end: 10
+        end: NGRAMS
       });
-      this.plot_model = Collections('Plot').create();
       xaxis = Collections('LinearAxis').create({
         orientation: 'bottom',
         parent: this.plot_model.ref(),
@@ -38277,12 +38332,18 @@ _.setdefault = function(obj, key, value){
         parent: this.plot_model.ref(),
         data_range: yrange.ref()
       });
+      glyph = Collections('GlyphRenderer').create({
+        data_source: this.data_source.ref(),
+        xdata_range: xrange.ref(),
+        ydata_range: yrange.ref(),
+        glyphspec: this.glyphspec
+      });
       return this.plot_model.set({
-        renderers: [],
+        renderers: [glyph.ref()],
         axes: [xaxis.ref(), yaxis.ref()],
         tools: [],
-        width: 400,
-        height: 600
+        width: this.canvas_width,
+        height: this.canvas_height
       });
     };
 
