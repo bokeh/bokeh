@@ -62,8 +62,24 @@ class PandasTable(object):
     def data(self):
         self.plotclient.bbclient.update(self.pivotmodel)
         return self.pivotmodel.get_data()
-        
     
+    def allmodels(self):
+        models = [self.pivotmodel, self.pivotmodel.pandassource]
+        return models
+    
+    def notebook(self):
+        import IPython.core.displaypub as displaypub
+        html = self.plotclient.make_html(
+            self.allmodels(),
+            model=self.pivotmodel,
+            template="basediv.html",
+            script_paths=[],
+            css_paths=[]
+            )
+        html = html.encode('utf-8')
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
+        
 class GridPlot(object):
     def __init__(self, container, children, title, plotclient=None):
         self.gridmodel = container
