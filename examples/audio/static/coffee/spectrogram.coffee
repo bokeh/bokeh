@@ -1,3 +1,4 @@
+Collections = require('base').Collections
 
 class Spectrogram
   constructor: () ->
@@ -10,49 +11,47 @@ class Spectrogram
     type: 'GET'
     dataType: 'json'
     error: (jqXHR, textStatus, errorThrown) =>
-      $('body').append "AJAX Error: #{textStatus}"
+      console.log "AJAX Error: #{textStatus}"
     success: (data, textStatus, jqXHR) =>
       @on_data(data)
 
   on_data: (data) =>
     #console.log "foo"
 
-  render: (plot_model) ->
+  render: () ->
     console.log "render"
     div = $('<div></div>')
     $('body').append(div)
-    myrender  =  ->
-      view = new plot_model.default_view(model: @plot_model)
+    myrender  =  =>
+      view = new @plot_model.default_view(model: @plot_model)
       div.append(view.$el)
       view.render()
     _.defer(myrender)
 
   create_plot: () ->
     console.log "create_plot"
-    xrange = foo.Collections('Range1d').create({start: 0, end: 10})
-    yrange = foo.Collections('Range1d').create({start: 0, end: 10})
-    @plot_model = foo.Collections('Plot').create()
-    xaxis = foo.Collections('LinearAxis').create(
+    xrange = Collections('Range1d').create({start: 0, end: 10})
+    yrange = Collections('Range1d').create({start: 0, end: 10})
+    @plot_model = Collections('Plot').create()
+    xaxis = Collections('LinearAxis').create(
       orientation: 'bottom'
-      parent: plot_model.ref()
+      parent: @plot_model.ref()
       data_range: xrange.ref()
     )
-    yaxis = foo.Collections('LinearAxis').create(
+    yaxis = Collections('LinearAxis').create(
       orientation: 'left',
-      parent: plot_model.ref()
+      parent: @plot_model.ref()
       data_range: yrange.ref()
     )
-    plot_model.set(
-      renderers: (g.ref() for g in glyphs)
+    @plot_model.set(
+      renderers: []
       axes: [xaxis.ref(), yaxis.ref()]
-      tools: plot_tools
-      width: dims[0]
-      height: dims[1]
+      tools: []
+      width: 400
+      height: 600
     )
 
-
-
-$(document).ready ->
+$(document).ready () ->
   spec = new Spectrogram()
   setInterval(spec.request_data, 30)
 

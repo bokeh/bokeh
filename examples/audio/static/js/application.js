@@ -38205,6 +38205,98 @@ _.setdefault = function(obj, key, value){
   });
 
 }).call(this);
+}, "spectrogram": function(exports, require, module) {(function() {
+  var Collections, Spectrogram,
+    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+
+  Collections = require('base').Collections;
+
+  Spectrogram = (function() {
+
+    function Spectrogram() {
+      this.on_data = __bind(this.on_data, this);
+
+      this.request_data = __bind(this.request_data, this);
+      console.log("initialize");
+      this.plot_model = this.create_plot();
+      this.render();
+    }
+
+    Spectrogram.prototype.request_data = function() {
+      var _this = this;
+      return $.ajax('http://localhost:5000/data', {
+        type: 'GET',
+        dataType: 'json',
+        error: function(jqXHR, textStatus, errorThrown) {
+          return console.log("AJAX Error: " + textStatus);
+        },
+        success: function(data, textStatus, jqXHR) {
+          return _this.on_data(data);
+        }
+      });
+    };
+
+    Spectrogram.prototype.on_data = function(data) {};
+
+    Spectrogram.prototype.render = function() {
+      var div, myrender,
+        _this = this;
+      console.log("render");
+      div = $('<div></div>');
+      $('body').append(div);
+      myrender = function() {
+        var view;
+        view = new _this.plot_model.default_view({
+          model: _this.plot_model
+        });
+        div.append(view.$el);
+        return view.render();
+      };
+      return _.defer(myrender);
+    };
+
+    Spectrogram.prototype.create_plot = function() {
+      var xaxis, xrange, yaxis, yrange;
+      console.log("create_plot");
+      xrange = Collections('Range1d').create({
+        start: 0,
+        end: 10
+      });
+      yrange = Collections('Range1d').create({
+        start: 0,
+        end: 10
+      });
+      this.plot_model = Collections('Plot').create();
+      xaxis = Collections('LinearAxis').create({
+        orientation: 'bottom',
+        parent: this.plot_model.ref(),
+        data_range: xrange.ref()
+      });
+      yaxis = Collections('LinearAxis').create({
+        orientation: 'left',
+        parent: this.plot_model.ref(),
+        data_range: yrange.ref()
+      });
+      return this.plot_model.set({
+        renderers: [],
+        axes: [xaxis.ref(), yaxis.ref()],
+        tools: [],
+        width: 400,
+        height: 600
+      });
+    };
+
+    return Spectrogram;
+
+  })();
+
+  $(document).ready(function() {
+    var spec;
+    spec = new Spectrogram();
+    return setInterval(spec.request_data, 30);
+  });
+
+}).call(this);
 }
 });
 
