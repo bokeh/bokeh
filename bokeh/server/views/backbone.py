@@ -57,7 +57,7 @@ def bulk_upsert(docid):
     current_app.wsmanager.send("bokehplot:" + docid, msg,  exclude={clientid})
     return msg
 
-@app.route("/bokeh/bb/<docid>/<typename>", methods=['POST'])
+@app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @check_write_authentication_and_create_client
 def create(docid, typename):
     modeldata = current_app.ph.deserialize_web(request.data)
@@ -76,7 +76,7 @@ def create(docid, typename):
 @app.route("/bokeh/bb/<docid>/", methods=['GET'])
 @app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
 @check_read_authentication_and_create_client
-def get(docid, typename, id=None):
+def get(docid, typename=None):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
     models = current_app.collections.get_bulk(docid, typename=typename)
     if typename is not None:
