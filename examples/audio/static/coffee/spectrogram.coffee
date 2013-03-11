@@ -6,11 +6,11 @@ MAX_FREQ = SAMPLING_RATE / 8
 FREQ_SAMPLES = NUM_SAMPLES / 8
 SPECTROGRAM_LENGTH = 512
 
-NGRAMS = 600
+NGRAMS = 960
 
 class Spectrogram
   constructor: () ->
-    @canvas_width = SPECTROGRAM_LENGTH
+    @canvas_width = 1024
     @canvas_height = NGRAMS
 
     @y = [0]
@@ -39,7 +39,6 @@ class Spectrogram
   on_data: (data) =>
     if not data[0]?
       return
-    console.log "FOOOOOOOOOO", data[0].length
     for i in [(@image[0].length-1)..SPECTROGRAM_LENGTH]
       @image[0][i] = @image[0][i-SPECTROGRAM_LENGTH]
     for i in [0..SPECTROGRAM_LENGTH-1]
@@ -62,7 +61,7 @@ class Spectrogram
       y: 'y'
       dw: MAX_FREQ
       dh: 'dh'
-      width: @canvas_width,
+      width: SPECTROGRAM_LENGTH,
       height: @canvas_height,
       image: 'image'
       palette:
