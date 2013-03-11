@@ -115,7 +115,8 @@ class ContinuumModelsClient(object):
         
     #backbone API calls
     def delete(self, typename, id):
-        url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/", id)
+        url = utils.urljoin(self.baseurl, self.docid +"/",
+                            typename + "/", id + "/")
         self.s.delete(url)
         
         
@@ -126,7 +127,7 @@ class ContinuumModelsClient(object):
         else:
             url = utils.urljoin(self.baseurl,
                                 self.docid + "/",
-                                model.typename)
+                                model.typename +"/")
             log.debug("create %s", url)
             self.s.post(url, data=self.ph.serialize_msg(
                 model.to_json(include_hidden=True)))
@@ -140,7 +141,7 @@ class ContinuumModelsClient(object):
             url = utils.urljoin(self.baseurl,
                                 self.docid + "/",
                                 model.typename + "/",
-                                model.id)
+                                model.id +"/")
             log.debug("create %s", url)
             self.s.put(url, data=self.ph.serialize_web(
                 model.to_json(include_hidden=True)))
@@ -153,20 +154,21 @@ class ContinuumModelsClient(object):
     def fetch(self, typename=None, id=None, include_hidden=False):
         query = urllib.urlencode({'include_hidden' : include_hidden})
         if typename is None:
-            url = utils.urljoin(self.baseurl, self.docid) + "?" + query
+            url = utils.urljoin(self.baseurl, self.docid +"/") + "?" + query
             data = self.s.get(url).content
             specs = self.ph.deserialize_web(data)
             models =  [make_model(x['type'], client=self, **x['attributes'])\
                        for x in specs]
             return models
         elif typename is not None and id is None:
-            url = utils.urljoin(self.baseurl, self.docid +"/", typename)
+            url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/")
             url += "?" + query
             attrs = self.ph.deserialize_web(self.s.get(url).content)
             models = [make_model(typename, client=self, **x) for x in attrs]
             return models
         elif typename is not None and id is not None:
-            url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/", id)
+            url = utils.urljoin(self.baseurl, self.docid +"/",
+                                typename + "/", id +"/")
             url += "?" + query            
             attr = self.ph.deserialize_web(self.s.get(url).content)
             if attr is None:
