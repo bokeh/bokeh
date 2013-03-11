@@ -597,7 +597,7 @@ class PlotClient(object):
         return self._plot
     
     def pandastable(self, source, sort=[], groups=[],
-                    agg='sum', width=400, offset=0, length=100,
+                    agg='sum', width=600, offset=0, length=100,
                     height=400, container=None):
         if container is None:
             parent = self.ic
@@ -618,7 +618,7 @@ class PlotClient(object):
         return PandasTable(table, self)
     
     def table(self, data_source, columns, title=None,
-              width=300, height=300, container=None):
+              width=600, height=300, container=None):
         if container is None:
             parent = self.ic
         else:
