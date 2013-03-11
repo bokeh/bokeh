@@ -1,7 +1,7 @@
 
 class ColorMapper
 
-  constructor: (@palette, @low, @high) ->
+  constructor: (palette, @low, @high) ->
 
     # Determine whether Uint32 is little- or big-endian.
     buf = new ArrayBuffer(4);
@@ -12,6 +12,11 @@ class ColorMapper
     @little_endian = true;
     if (buf8[4]==0x0a && buf8[5]==0x0b && buf8[6]==0x0c && buf8[7]==0x0d)
       @little_endian = false;
+
+    @palette = new Uint32Array(palette.length+1)
+    for i in [0..palette.length-1]
+      @palette[i] = palette[i]
+    @palette[@palette.length-1] = palette[palette.length-1]
 
   map_screen: (data) ->
 
@@ -32,8 +37,8 @@ class ColorMapper
     low = @low ? min
     high = @high ? max
 
-    N = @palette.length
-    scale = N/(high-low) - Number.MIN_VALUE
+    N = @palette.length - 1
+    scale = N/(high-low)
     offset = -scale*low
 
     if @little_endian
