@@ -4,7 +4,7 @@ NUM_SAMPLES = 1024
 SAMPLING_RATE = 44100
 MAX_FREQ = SAMPLING_RATE / 8
 FREQ_SAMPLES = NUM_SAMPLES / 8
-SPECTROGRAM_LENGTH = 400
+SPECTROGRAM_LENGTH = 512
 
 NGRAMS = 600
 
@@ -15,11 +15,7 @@ class Spectrogram
 
     @y = [0]
     @dh = [NGRAMS]
-    @image = [new Uint32Array(@canvas_width * @canvas_height)]
-
-    # TODO this is just for test
-    for i in [0..@image[0].length-1]
-      @image[0][i] = i
+    @image = [new Float32Array(SPECTROGRAM_LENGTH * @canvas_height)]
 
     @data_source = Collections('ColumnDataSource').create(
       data: {y: @y, dh: @dh, image: @image}
@@ -41,11 +37,15 @@ class Spectrogram
       @on_data(data)
 
   on_data: (data) =>
+    if not data[0]?
+      return
+    console.log "FOOOOOOOOOO", data[0].length
     for i in [(@image[0].length-1)..SPECTROGRAM_LENGTH]
       @image[0][i] = @image[0][i-SPECTROGRAM_LENGTH]
-    for i in [0..SPECTROGRAM_LENGTH]
-      @image[0][i] = 0
-    #@plot_view.request_render() # TODO what to call request render on?
+    for i in [0..SPECTROGRAM_LENGTH-1]
+      @image[0][i] = data[0][i]
+    @data_source.set('data', {y: @y, dh: @dh, image: @image})
+    @data_source.trigger('change', @data_source, {})
 
   render: () ->
     div = $('<div></div>')
@@ -63,9 +63,7 @@ class Spectrogram
       dw: MAX_FREQ
       dh: 'dh'
       width: @canvas_width,
-      width_units: 'screen'
       height: @canvas_height,
-      height_units: 'screen'
       image: 'image'
       palette:
         default: 'YlGnBu-9'
@@ -106,5 +104,5 @@ class Spectrogram
 
 $(document).ready () ->
   spec = new Spectrogram()
-  setInterval(spec.request_data, 30)
+  setInterval(spec.request_data, 50)
 

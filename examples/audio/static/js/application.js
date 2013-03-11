@@ -24988,11 +24988,11 @@ _.setdefault = function(obj, key, value){
       if (this.little_endian) {
         for (i = _j = 0, _ref3 = data.length - 1; 0 <= _ref3 ? _j <= _ref3 : _j >= _ref3; i = 0 <= _ref3 ? ++_j : --_j) {
           d = data[i];
-          if (d > max) {
-            d = max;
+          if (d > high) {
+            d = high;
           }
-          if (d < min) {
-            d = min;
+          if (d < low) {
+            d = low;
           }
           value = this.palette[Math.floor(d * scale + offset)];
           color[i] = (0xff << 24) | ((value & 0xff0000) >> 16) | (value & 0xff00) | ((value & 0xff) << 16);
@@ -25000,11 +25000,11 @@ _.setdefault = function(obj, key, value){
       } else {
         for (i = _k = 0, _ref4 = data.length - 1; 0 <= _ref4 ? _k <= _ref4 : _k >= _ref4; i = 0 <= _ref4 ? ++_k : --_k) {
           d = data[i];
-          if (d > max) {
-            d = max;
+          if (d > high) {
+            d = high;
           }
-          if (d < min) {
-            d = min;
+          if (d < low) {
+            d = low;
           }
           value = this.palette[Math.floor(d * scale + offset)];
           color[i] = (value << 8) | 0xff;
@@ -30012,7 +30012,7 @@ _.setdefault = function(obj, key, value){
         canvas.height = height[i];
         ctx = canvas.getContext('2d');
         image_data = ctx.getImageData(0, 0, width[i], height[i]);
-        cmap = new ColorMapper(all_palettes[this.pal[i]]);
+        cmap = new ColorMapper(all_palettes[this.pal[i]], 0, 10);
         buf = cmap.v_map_screen(img[i]);
         buf8 = new Uint8ClampedArray(buf);
         image_data.data.set(buf8);
@@ -38218,7 +38218,7 @@ _.setdefault = function(obj, key, value){
 
   FREQ_SAMPLES = NUM_SAMPLES / 8;
 
-  SPECTROGRAM_LENGTH = 400;
+  SPECTROGRAM_LENGTH = 512;
 
   NGRAMS = 600;
 
@@ -38228,16 +38228,11 @@ _.setdefault = function(obj, key, value){
       this.on_data = __bind(this.on_data, this);
 
       this.request_data = __bind(this.request_data, this);
-
-      var i, _i, _ref;
       this.canvas_width = SPECTROGRAM_LENGTH;
       this.canvas_height = NGRAMS;
       this.y = [0];
       this.dh = [NGRAMS];
-      this.image = [new Uint32Array(this.canvas_width * this.canvas_height)];
-      for (i = _i = 0, _ref = this.image[0].length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-        this.image[0][i] = i;
-      }
+      this.image = [new Float32Array(SPECTROGRAM_LENGTH * this.canvas_height)];
       this.data_source = Collections('ColumnDataSource').create({
         data: {
           y: this.y,
@@ -38268,15 +38263,23 @@ _.setdefault = function(obj, key, value){
     };
 
     Spectrogram.prototype.on_data = function(data) {
-      var i, _i, _j, _ref, _results;
+      var i, _i, _j, _ref, _ref1;
+      if (!(data[0] != null)) {
+        return;
+      }
+      console.log("FOOOOOOOOOO", data[0].length);
       for (i = _i = _ref = this.image[0].length - 1; _ref <= SPECTROGRAM_LENGTH ? _i <= SPECTROGRAM_LENGTH : _i >= SPECTROGRAM_LENGTH; i = _ref <= SPECTROGRAM_LENGTH ? ++_i : --_i) {
         this.image[0][i] = this.image[0][i - SPECTROGRAM_LENGTH];
       }
-      _results = [];
-      for (i = _j = 0; 0 <= SPECTROGRAM_LENGTH ? _j <= SPECTROGRAM_LENGTH : _j >= SPECTROGRAM_LENGTH; i = 0 <= SPECTROGRAM_LENGTH ? ++_j : --_j) {
-        _results.push(this.image[0][i] = 0);
+      for (i = _j = 0, _ref1 = SPECTROGRAM_LENGTH - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+        this.image[0][i] = data[0][i];
       }
-      return _results;
+      this.data_source.set('data', {
+        y: this.y,
+        dh: this.dh,
+        image: this.image
+      });
+      return this.data_source.trigger('change', this.data_source, {});
     };
 
     Spectrogram.prototype.render = function() {
@@ -38300,9 +38303,7 @@ _.setdefault = function(obj, key, value){
         dw: MAX_FREQ,
         dh: 'dh',
         width: this.canvas_width,
-        width_units: 'screen',
         height: this.canvas_height,
-        height_units: 'screen',
         image: 'image',
         palette: {
           "default": 'YlGnBu-9'
@@ -38354,7 +38355,7 @@ _.setdefault = function(obj, key, value){
   $(document).ready(function() {
     var spec;
     spec = new Spectrogram();
-    return setInterval(spec.request_data, 30);
+    return setInterval(spec.request_data, 50);
   });
 
 }).call(this);

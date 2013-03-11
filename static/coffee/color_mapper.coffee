@@ -30,7 +30,7 @@ class ColorMapper
         min = value;
 
     low = @low ? min
-    high = (@high ? max)
+    high = @high ? max
 
     N = @palette.length
     scale = N/(high-low) - Number.MIN_VALUE
@@ -39,10 +39,10 @@ class ColorMapper
     if @little_endian
       for i in [0..data.length-1]
         d = data[i]
-        if (d > max)
-          d = max
-        if (d < min)
-          d = min
+        if (d > high)
+          d = high
+        if (d < low)
+          d = low
         value = @palette[Math.floor(d*scale+offset)]
         color[i] =
           (0xff << 24)               | # alpha
@@ -53,10 +53,10 @@ class ColorMapper
     else
       for i in [0..data.length-1]
         d = data[i]
-        if (d > max)
-          d = max
-        if (d < min)
-          d = min
+        if (d > high)
+          d = high
+        if (d < low)
+          d = low
         value = @palette[Math.floor(d*scale+offset)]
         color[i] = (value << 8) | 0xff
 
