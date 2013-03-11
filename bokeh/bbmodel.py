@@ -106,6 +106,8 @@ class ContinuumModelsClient(object):
             [x.to_broadcast_json(include_hidden=True) for x in self.buffer])
         url = utils.urljoin(self.baseurl, self.docid + "/", 'bulkupsert')
         self.s.post(url, data=data)
+        for m in self.buffer:
+            m.set('created', True)
         self.buffer = []
         
     def upsert_all(self, models):
@@ -131,6 +133,7 @@ class ContinuumModelsClient(object):
             log.debug("create %s", url)
             self.s.post(url, data=self.ph.serialize_msg(
                 model.to_json(include_hidden=True)))
+            model.set('created', True)
         return model
 
     def update(self, model, defer=False):
