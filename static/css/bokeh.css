@@ -112,3 +112,9 @@ button.active { border:1px solid blue }
 .bokehdelete{
     float : right;
 }
+.pandasgroup{
+    width : auto;
+}
+.pandasagg{
+    width : auto;
+}
