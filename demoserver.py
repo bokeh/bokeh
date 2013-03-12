@@ -113,6 +113,7 @@ alltests = {
     'perf' : ['unittest/perf_test'],
 
     'prim' : [
+        'unittest/primitives/annular_wedge_test',
         'unittest/primitives/arc_test',
         'unittest/primitives/area_test',
         'unittest/primitives/bezier_test',
@@ -129,20 +130,21 @@ alltests = {
         'unittest/primitives/wedge_test',
     ],
 
-    'arc'       : ['unittest/primitives/arc_test'],
-    'area'      : ['unittest/primitives/area_test'],
-    'bezier'    : ['unittest/primitives/bezier_test'],
-    'circle'    : ['unittest/primitives/circle_test'],
-    'imageuri'  : ['unittest/primitives/imageuri_test'],
-    'line'      : ['unittest/primitives/line_test'],
-    'oval'      : ['unittest/primitives/oval_test'],
-    'quad'      : ['unittest/primitives/quad_test'],
-    'quadcurve' : ['unittest/primitives/quadcurve_test'],
-    'ray'       : ['unittest/primitives/ray_test'],
-    'rect'      : ['unittest/primitives/rect_test'],
-    'segment'   : ['unittest/primitives/segment_test'],
-    'text'      : ['unittest/primitives/text_test'],
-    'wedge'     : ['unittest/primitives/wedge_test'],
+    'annular_wedge' : ['unittest/primitives/annular_wedge_test'],
+    'arc'           : ['unittest/primitives/arc_test'],
+    'area'          : ['unittest/primitives/area_test'],
+    'bezier'        : ['unittest/primitives/bezier_test'],
+    'circle'        : ['unittest/primitives/circle_test'],
+    'imageuri'      : ['unittest/primitives/imageuri_test'],
+    'line'          : ['unittest/primitives/line_test'],
+    'oval'          : ['unittest/primitives/oval_test'],
+    'quad'          : ['unittest/primitives/quad_test'],
+    'quadcurve'     : ['unittest/primitives/quadcurve_test'],
+    'ray'           : ['unittest/primitives/ray_test'],
+    'rect'          : ['unittest/primitives/rect_test'],
+    'segment'       : ['unittest/primitives/segment_test'],
+    'text'          : ['unittest/primitives/text_test'],
+    'wedge'         : ['unittest/primitives/wedge_test'],
 }
 
 allpossibletests = set()
