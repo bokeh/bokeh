@@ -20,18 +20,18 @@ class Spectrogram
     @image = [new Float32Array(SPECTROGRAM_LENGTH * NGRAMS)]
     @power = [new Float32Array(NUM_SAMPLES)]
     @idx = [new Array(NUM_SAMPLES)]
+    for i in [0..@idx[0].length-1]
+      @idx[0][i] = (i/(@idx[0].length-1))*TIMESLICE
 
     @data_source = Collections('ColumnDataSource').create(
       data: {image: @image, power: @power, idx: @idx}
     )
-    for i in [0..@idx[0].length-1]
-      @idx[0][i] = (i/(@idx[0].length-1))*TIMESLICE
 
     spec_model = @create_spec()
-    @spec_view = new @plot_model.default_view(model: spec_model)
+    @spec_view = new spec_model.default_view(model: spec_model)
 
     power_model = @create_power()
-    @power_view = new @plot_model.default_view(model: power_model)
+    @power_view = new power_model.default_view(model: power_model)
 
     @render()
 
@@ -67,19 +67,19 @@ class Spectrogram
     _.defer(myrender)
 
   create_spec: () ->
-    @plot_model = Collections('Plot').create()
+    plot_model = Collections('Plot').create()
 
     xrange = Collections('Range1d').create({start: 0, end: NGRAMS})
     yrange = Collections('Range1d').create({start: 0, end: MAX_FREQ})
 
     xaxis = Collections('LinearAxis').create(
       orientation: 'bottom'
-      parent: @plot_model.ref()
+      parent: plot_model.ref()
       data_range: xrange.ref()
     )
     yaxis = Collections('LinearAxis').create(
       orientation: 'left'
-      parent: @plot_model.ref()
+      parent: plot_model.ref()
       data_range: yrange.ref()
     )
 
@@ -102,7 +102,7 @@ class Spectrogram
         glyphspec: glyphspec
       })
 
-    @plot_model.set(
+    plot_model.set(
       renderers: [glyph.ref()]
       axes: [xaxis.ref(), yaxis.ref()]
       tools: []
@@ -110,20 +110,22 @@ class Spectrogram
       height: @canvas_height
     )
 
+    return plot_model
+
   create_power: () ->
-    @plot_model = Collections('Plot').create()
+    plot_model = Collections('Plot').create()
 
     xrange = Collections('Range1d').create({start: 0, end: TIMESLICE})
     yrange = Collections('Range1d').create({start: -0.25, end: 0.25})
 
     xaxis = Collections('LinearAxis').create(
       orientation: 'bottom'
-      parent: @plot_model.ref()
+      parent: plot_model.ref()
       data_range: xrange.ref()
     )
     yaxis = Collections('LinearAxis').create(
       orientation: 'left'
-      parent: @plot_model.ref()
+      parent: plot_model.ref()
       data_range: yrange.ref()
     )
 
@@ -139,13 +141,15 @@ class Spectrogram
         glyphspec: glyphspec
       })
 
-    @plot_model.set(
+    plot_model.set(
       renderers: [glyph.ref()]
       axes: [xaxis.ref(), yaxis.ref()]
       tools: []
       width: @canvas_width
       height: 200
     )
+
+    return plot_model
 
 $(document).ready () ->
   spec = new Spectrogram()
