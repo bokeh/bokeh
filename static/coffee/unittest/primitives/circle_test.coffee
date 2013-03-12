@@ -123,7 +123,7 @@ glyph = {
   y: 'y'
 }
 
-test('rect_glyph_line_alpha', make_glyph_test('rect_glyph_line_alpha', data_source, defaults, glyph, range, range))
+test('circle_glyph_line_alpha', make_glyph_test('circle_glyph_line_alpha', data_source, defaults, glyph, range, range))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -145,7 +145,7 @@ glyph = {
   y: 'y'
 }
 
-test('rect_glyph_fill', make_glyph_test('rect_glyph_fill', data_source, defaults, glyph, range, range))
+test('circle_glyph_fill', make_glyph_test('circle_glyph_fill', data_source, defaults, glyph, range, range))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
