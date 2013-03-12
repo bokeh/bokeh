@@ -114,6 +114,7 @@ alltests = {
 
     'prim' : [
         'unittest/primitives/annular_wedge_test',
+        'unittest/primitives/annulus_test',
         'unittest/primitives/arc_test',
         'unittest/primitives/area_test',
         'unittest/primitives/bezier_test',
@@ -131,6 +132,7 @@ alltests = {
     ],
 
     'annular_wedge' : ['unittest/primitives/annular_wedge_test'],
+    'annulus'       : ['unittest/primitives/annulus_test'],
     'arc'           : ['unittest/primitives/arc_test'],
     'area'          : ['unittest/primitives/area_test'],
     'bezier'        : ['unittest/primitives/bezier_test'],

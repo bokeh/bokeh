@@ -1,5 +1,6 @@
 
 annular_wedge = require("./annular_wedge")
+annulus       = require("./annulus")
 arc           = require("./arc")
 area          = require("./area")
 bezier        = require("./bezier")
@@ -18,6 +19,7 @@ wedge         = require("./wedge")
 
 
 exports.annular_wedge = annular_wedge.AnnularWedge
+exports.annulus       = annulus.Annulus
 exports.arc           = arc.Arc
 exports.area          = area.Area
 exports.bezier        = bezier.Bezier
