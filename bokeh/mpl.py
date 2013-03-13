@@ -343,10 +343,11 @@ class PlotClient(object):
     @property
     def ws_conn_string(self):
         split = urlparse.urlsplit(self.root_url)
+        #how to fix this in bokeh and wakari?
         if split.scheme == 'http':
-            return "ws://%s:5006/bokeh/sub" % split.netloc
+            return "ws://%s/bokeh/sub" % split.netloc
         else:
-            return "wss://%s:5006/bokeh/sub" % split.netloc
+            return "wss://%s/bokeh/sub" % split.netloc
         
     def update_userinfo(self):
         url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
