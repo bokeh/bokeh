@@ -46,8 +46,8 @@ def prepare_app(rhost='127.0.0.1', rport=6379):
 def make_default_user(app):
     docid = "defaultdoc"
     bokehuser = user.new_user(app.model_redis, "defaultuser",
-                            str(uuid.uuid4()),
-                            docs=[doc.docid])
+                              str(uuid.uuid4()), apikey='nokey', docs=[])
+         
     return bokehuser
     
 def prepare_local():
