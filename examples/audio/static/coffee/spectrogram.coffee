@@ -106,11 +106,17 @@ class Spectrogram
 
     # update the radial histogram data
     hist = new Float32Array(NUM_BINS)
-    bin_start = 0
-    bin_size = Math.ceil(HISTSIZE / NUM_BINS)
+    if @fft_xrange
+      bin_min = Math.round(@fft_xrange.get('start'))
+      bin_max = Math.round(@fft_xrange.get('end'))
+    else
+      bin_min = 0
+      bin_max = 256
+    bin_start = bin_min
+    bin_size = Math.ceil(bin_max - bin_min / NUM_BINS)
     for i in [0..NUM_BINS-1]
       hist[i] = 0
-      bin_end = Math.min(bin_start+bin_size-1, data[0].length)
+      bin_end = Math.min(bin_start+bin_size-1, bin_max)
       for j in [bin_start..bin_end]
         hist[i] += data[0][j]
       bin_start += bin_size
