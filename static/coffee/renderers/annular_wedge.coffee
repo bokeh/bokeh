@@ -42,8 +42,6 @@ class AnnularWedgeView extends GlyphView
       else if dir == 'anticlock' then @direction[i] = true
       else @direction[i] = NaN
 
-    console.log @direction
-
   _render: () ->
     [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
     @inner_radius = @distance(@data, 'x', 'inner_radius', 'edge')
