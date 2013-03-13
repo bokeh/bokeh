@@ -108,7 +108,7 @@ class Spectrogram
     hist = new Float32Array(NUM_BINS)
     if @fft_xrange
       bin_min = Math.round(@fft_xrange.get('start'))
-      bin_max = Math.round(@fft_xrange.get('end'))
+      bin_max = Math.round(@fft_xrange.get('end') / 2.0)
     else
       bin_min = 0
       bin_max = 256
