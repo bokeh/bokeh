@@ -32,7 +32,12 @@ class PandasTable(object):
     def __init__(self, pivotmodel, plotclient=None):
         self.plotclient = plotclient
         self.pivotmodel = pivotmodel
-        
+        if hasattr(self.pivotmodel, 'pandassource'):
+            self.pandassource = self.pivotmodel.pandassource
+            
+    def update(self):
+        self.plotclient.bbclient.upsert_all(self.pivotmodel)
+            
     def groupby(self, columns):
         self.pivotmodel.set('groups', columns)
         self.plotclient.bbclient.update(self.pivotmodel)
@@ -186,6 +191,15 @@ class XYPlot(object):
 
     def plot(self, x, y=None, color=None, data_source=None,
              scatter=False):
+        if data_source.typename == 'PandasDataSource':
+            if self.plotclient.plot_sources.get(data_source.id):
+                data_source = self.plotclient.plot_sources.get(data_source.id)
+            else:
+                plotsource = self.plotclient.model(
+                    'PandasPlotSource', pandassourceobj=data_source)
+                self.plotclient.plot_sources[data_source.id] = plotsource
+                plotsource.update()
+                data_source = plotsource
         def source_from_array(x, y):
             if y.ndim == 1:
                 source = self.plotclient.make_source(x=x, y=y)
@@ -368,6 +382,10 @@ class PlotClient(object):
         self._hold = True
         self.bbclient = None
         self.ic = self.model('PlotContext', children=[])
+ 
+        # Caching pandas plot source so we can be smart about reusing them
+        self.plot_sources = {}
+        
     @property
     def ws_conn_string(self):
         split = urlparse.urlsplit(self.root_url)
@@ -463,6 +481,8 @@ class PlotClient(object):
         return None
 
     def model(self, typename, **kwargs):
+        if 'client' not in kwargs and hasattr(self, 'bbclient'):
+            kwargs['client'] = self.bbclient
         model = bbmodel.make_model(typename, **kwargs)
         model.set('doc', self.docid)
         self.models[model.id] = model
@@ -476,23 +496,17 @@ class PlotClient(object):
         else:
             self._hold = val
 
-    def updateic(self):
-        self.updateobj(self.ic)
-
-    def updateobj(self, obj):
-        if not self.bbclient:
-            raise Exception, "cannot perform operation without a bb client"
-        newobj = self.bbclient.fetch(typename=obj.typename,
-                                     id=obj.get('id'))
-        obj.attributes = newobj.attributes
-        return obj
-
-    def make_source(self, **kwargs):
-        output = data.make_source(**kwargs)
-        model = self.model(
-            'ObjectArrayDataSource',
-            data=output
-            )
+    def make_source(self, *args, **kwargs):
+        """call this with either kwargs of vectors, or a pandas dataframe
+        """
+        if len(args) > 0:
+            model = self.model('PandasDataSource', df=df)
+        else:
+            output = data.make_source(**kwargs)
+            model = self.model(
+                'ObjectArrayDataSource',
+                data=output
+                )
         if self.bbclient:
             self.bbclient.create(model)
         return model
@@ -605,7 +619,7 @@ class PlotClient(object):
             parent = container
         if isinstance(source, pandas.DataFrame):
             source = self.model('PandasDataSource', df=source)
-            self.bbclient.create(source)
+            source.update()
         table = self.model('PandasPivot',
                            pandassourceobj=source,
                            sort=sort, groups=groups,agg=agg,
@@ -667,7 +681,7 @@ class PlotClient(object):
 
     def show(self, plot):
         if self.bbclient:
-            self.updateic()
+            self.ic.pull()
         children = self.ic.get('children')
         if children is None: children = []
         if plot.get('id') not in [x['id'] for x in children]:

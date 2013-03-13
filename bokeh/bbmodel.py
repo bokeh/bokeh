@@ -54,8 +54,20 @@ class ContinuumModel(object):
         return [client.get(ref['type'], ref['id']) for ref in \
                 self.attributes.get(field)]
     
-    def set(self, key, val):
-        self.attributes[key] = val
+    def set(self, *args):
+        # if passed key, value, set those
+        # if passed an object, replace our attrs with the new object
+        # except for hidden fields, for hidden fields aren't always specified
+        # so we default to leaving ours in place if they're not specified in args
+        if len(args) == 2:
+            key, val = args
+            self.attributes[key] = val
+        else:
+            newattrs = args[0]
+            for k in self.attributes:
+                if k in self.hidden_fields and k not in newattrs:
+                    newattrs[k] = self.attributes[k]
+            self.attributes = newattrs
         
     def unset(self, key):
         del self.attributes[key]
@@ -82,6 +94,21 @@ class ContinuumModel(object):
     def __repr__(self):
         return self.__str__()
     
+    def pull(self):
+        if not hasattr(self, 'client'):
+            print "can't fetch, not connected to the server"
+            return
+        newobj = self.client.fetch(typename=self.typename,
+                                   id=self.id,
+                                   include_hidden=True
+                                   )
+        self.set(newobj.attributes)
+        
+    def update(self):
+        if not hasattr(self, 'client'):
+            print "can't update, not connected to the server"
+            return
+        self.client.update(self)
         
 class ContinuumModelsClient(object):
     def __init__(self, docid, baseurl, apikey, ph, session=None):

@@ -39,7 +39,7 @@ class PandasPlotSource(ContinuumModel):
     def __init__(self, typename, **kwargs):
         if 'client' in kwargs:
             self.client = kwargs.pop('client')
-        elif 'pandassourceobj' in kwargs:
+        if 'pandassourceobj' in kwargs:
             self.pandassource = kwargs.pop('pandassourceobj')
             kwargs['pandassource'] = self.pandassource.ref()
         super(PandasPlotSource, self).__init__(typename, **kwargs)
