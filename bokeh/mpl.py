@@ -500,6 +500,7 @@ class PlotClient(object):
         """call this with either kwargs of vectors, or a pandas dataframe
         """
         if len(args) > 0:
+            df = args[0]
             model = self.model('PandasDataSource', df=df)
         else:
             output = data.make_source(**kwargs)
