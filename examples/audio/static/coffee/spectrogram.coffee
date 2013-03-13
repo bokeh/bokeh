@@ -113,7 +113,7 @@ class Spectrogram
       bin_min = 0
       bin_max = 256
     bin_start = bin_min
-    bin_size = Math.ceil(bin_max - bin_min / NUM_BINS)
+    bin_size = Math.ceil((bin_max - bin_min) / NUM_BINS)
     for i in [0..NUM_BINS-1]
       hist[i] = 0
       bin_end = Math.min(bin_start+bin_size-1, bin_max)
