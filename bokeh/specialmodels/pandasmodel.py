@@ -37,8 +37,6 @@ class PandasPlotSource(ContinuumModel):
         data : dataframe output
     """
     def __init__(self, typename, **kwargs):
-        if 'client' in kwargs:
-            self.client = kwargs.pop('client')
         if 'pandassourceobj' in kwargs:
             self.pandassource = kwargs.pop('pandassourceobj')
             kwargs['pandassource'] = self.pandassource.ref()
