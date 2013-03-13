@@ -5,6 +5,8 @@ SAMPLING_RATE = 44100
 MAX_FREQ = SAMPLING_RATE / 2
 FREQ_SAMPLES = NUM_SAMPLES / 8
 SPECTROGRAM_LENGTH = 512
+FREQ_MAX=512
+FREQ_MIN=0
 
 NGRAMS = 1020
 
@@ -135,7 +137,23 @@ class Spectrogram
     })
     @hist_source.trigger('change', @power_source, {})
 
+  set_freq_range : (event, ui) =>
+    [min, max] = ui.values
+    @fft_xrange.set({'start': min, 'end' : max})
+    return null
+
   render: () ->
+    slider_div = $('<div id="freq-range-slider" style="margin: 50px; width: 200px;"></div>')
+    slider_div.slider({
+      animate: "fast",
+      step: 0.1
+      min: 0
+      max: 512
+      values: [0, 512]
+      slide: ( event, ui ) =>
+        @set_freq_range(event, ui)
+    });
+    $('body').append(slider_div)
     slider_div = $('<div id="gain-slider" style="margin: 50px; width: 200px;"></div>')
     slider_div.slider({
       animate: "fast",
@@ -258,6 +276,7 @@ class Spectrogram
     plot_model = Collections('Plot').create()
 
     xrange = Collections('Range1d').create({start: 0, end: SPECTROGRAM_LENGTH})
+    @fft_xrange = xrange
     yrange = Collections('Range1d').create({start: -1.75, end: 1.75})
 
     xaxis = Collections('LinearAxis').create(
@@ -331,4 +350,3 @@ class Spectrogram
 $(document).ready () ->
   spec = new Spectrogram()
   setInterval(spec.request_data, TIMESLICE)
-
