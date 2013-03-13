@@ -19,33 +19,45 @@ GAIN_MAX = 20
 
 class Spectrogram
   constructor: () ->
-    @canvas_width = NGRAMS
-    @canvas_height = 512
 
     @gain = GAIN_DEFAULT
 
+    # Set up image plot for the spectrogram
+    @image_width = NGRAMS
+    @image_height = SPECTROGRAM_LENGTH
     @image = [new Float32Array(SPECTROGRAM_LENGTH * NGRAMS)]
-    @power = [new Float32Array(NUM_SAMPLES)]
-    @idx = [new Array(NUM_SAMPLES)]
-    for i in [0..@idx[0].length-1]
-      @idx[0][i] = (i/(@idx[0].length-1))*TIMESLICE
-
     @spec_source = Collections('ColumnDataSource').create(
       data:{image: @image}
     )
-    @power_source = Collections('ColumnDataSource').create(
-      data:{power: @power, idx: @idx}
-    )
-    @hist_source = Collections('ColumnDataSource').create(
-      data: {inner_radius:[], outer_radius:[], start_angle:[], end_angle:[], fill_alpha: []}
-    )
-
     spec_model = @create_spec()
     @spec_view = new spec_model.default_view(model: spec_model)
 
+    # Set up the power waveform plot
+    @power = [new Float32Array(NUM_SAMPLES)]
+    @power_idx = [new Array(NUM_SAMPLES)]
+    for i in [0..@power_idx[0].length-1]
+      @power_idx[0][i] = (i/(@power_idx[0].length-1))*TIMESLICE
+    @power_source = Collections('ColumnDataSource').create(
+      data:{power: @power, idx: @power_idx}
+    )
     power_model = @create_power()
     @power_view = new power_model.default_view(model: power_model)
 
+    # Set up the single FFT plot
+    @fft = [new Float32Array(SPECTROGRAM_LENGTH)]
+    @fft_idx = [new Array(SPECTROGRAM_LENGTH)]
+    for i in [0..@fft_idx[0].length-1]
+      @fft_idx[0][i] = i
+    @fft_source = Collections('ColumnDataSource').create(
+      data:{fft: @fft, idx: @fft_idx}
+    )
+    fft_model = @create_fft()
+    @fft_view = new fft_model.default_view(model: fft_model)
+
+    # Set up the radial histogram
+    @hist_source = Collections('ColumnDataSource').create(
+      data: {inner_radius:[], outer_radius:[], start_angle:[], end_angle:[], fill_alpha: []}
+    )
     hist_model = @create_hist()
     @hist_view = new hist_model.default_view(model: hist_model)
 
@@ -64,12 +76,13 @@ class Spectrogram
     if not data[0]?
       return
 
+    # apply the gain
     for i in [0..(data[0].length-1)]
       data[0][i] *= @gain
-
     for i in [0..(data[1].length-1)]
       data[1][i] *= @gain
 
+    # update the spectrogram
     for i in [0..(SPECTROGRAM_LENGTH-1)]
       for j in [(NGRAMS-1)..1]
         @image[0][i*NGRAMS + j] = @image[0][i*NGRAMS + j - 1]
@@ -77,11 +90,19 @@ class Spectrogram
     @spec_source.set('data', {image: @image})
     @spec_source.trigger('change', @spec_source, {})
 
+    # update the power waveform data
     for i in [0..@power[0].length-1]
       @power[0][i] = data[1][i]
-    @power_source.set('data', {power: @power, idx: @idx})
+    @power_source.set('data', {power: @power, idx: @power_idx})
     @power_source.trigger('change', @power_source, {})
 
+    # update the single fft data
+    for i in [0..@fft[0].length-1]
+      @fft[0][i] = data[0][i]
+    @fft_source.set('data', {fft: @fft, idx: @fft_idx})
+    @fft_source.trigger('change', @fft_source, {})
+
+    # update the radial histogram data
     hist = new Float32Array(NUM_BINS)
     bin_start = 0
     bin_size = Math.ceil(HISTSIZE / NUM_BINS)
@@ -109,7 +130,6 @@ class Spectrogram
         end.push((i+0.95)*angle)
         fill_alpha.push(1-0.08*j)
 
-
     @hist_source.set('data', {
       inner_radius: inner, outer_radius: outer, start_angle: start, end_angle: end, fill_alpha: fill_alpha
     })
@@ -134,12 +154,19 @@ class Spectrogram
     myrender  =  =>
       div.append(@spec_view.$el)
       @spec_view.render()
+
       span = $('<span></span>').append(@power_view.$el)
       div.append(span)
       @power_view.render()
+
+      span = $('<span></span>').append(@fft_view.$el)
+      div.append(span)
+      @fft_view.render()
+
       span = $('<span></span>').append(@hist_view.$el)
       div.append(span)
       @hist_view.render()
+
     _.defer(myrender)
 
   create_spec: () ->
@@ -182,8 +209,8 @@ class Spectrogram
       renderers: [glyph.ref()]
       axes: [xaxis.ref(), yaxis.ref()]
       tools: []
-      width: @canvas_width
-      height: @canvas_height
+      width: @image_width
+      height: @image_height
     )
 
     return plot_model
@@ -206,7 +233,7 @@ class Spectrogram
     )
 
     glyphspec = {
-      type: 'line',
+      type: 'line'
       xs: 'idx'
       ys: 'power'
     }
@@ -221,7 +248,46 @@ class Spectrogram
       renderers: [glyph.ref()]
       axes: [xaxis.ref(), yaxis.ref()]
       tools: []
-      width: @canvas_width - 600
+      width: @image_width
+      height: 200
+    )
+
+    return plot_model
+
+  create_fft: () ->
+    plot_model = Collections('Plot').create()
+
+    xrange = Collections('Range1d').create({start: 0, end: SPECTROGRAM_LENGTH})
+    yrange = Collections('Range1d').create({start: -1.75, end: 1.75})
+
+    xaxis = Collections('LinearAxis').create(
+      orientation: 'bottom'
+      parent: plot_model.ref()
+      data_range: xrange.ref()
+    )
+    yaxis = Collections('LinearAxis').create(
+      orientation: 'left'
+      parent: plot_model.ref()
+      data_range: yrange.ref()
+    )
+
+    glyphspec = {
+      type: 'line'
+      xs: 'idx'
+      ys: 'fft'
+    }
+    glyph = Collections('GlyphRenderer').create({
+      data_source: @fft_source.ref()
+      xdata_range: xrange.ref()
+      ydata_range: yrange.ref()
+      glyphspec: glyphspec
+    })
+
+    plot_model.set(
+      renderers: [glyph.ref()]
+      axes: [xaxis.ref(), yaxis.ref()]
+      tools: []
+      width: @image_width
       height: 200
     )
 
