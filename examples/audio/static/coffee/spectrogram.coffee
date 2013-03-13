@@ -26,7 +26,7 @@ class Spectrogram
 
     # Set up image plot for the spectrogram
     @image_width = NGRAMS
-    @image_height = SPECTROGRAM_LENGTH
+    @image_height = 256
     @image = [new Float32Array(SPECTROGRAM_LENGTH * NGRAMS)]
     @spec_source = Collections('ColumnDataSource').create(
       data:{image: @image}
@@ -108,7 +108,7 @@ class Spectrogram
     hist = new Float32Array(NUM_BINS)
     if @fft_xrange
       bin_min = Math.round(@fft_xrange.get('start'))
-      bin_max = Math.round(@fft_xrange.get('end') / 2.0)
+      bin_max = Math.round(@fft_xrange.get('end'))
     else
       bin_min = 0
       bin_max = 256
@@ -149,18 +149,30 @@ class Spectrogram
     return null
 
   render: () ->
-    slider_div = $('<div id="freq-range-slider" style="margin: 50px; width: 200px;"></div>')
+    sliders = $('<div></div>')
+
+    slider = $('<div></div>')
+    label = $("<p style>frequency range:</p>")
+    slider.append(label)
+    slider_div = $('<div id="freq-range-slider" style="width: 200px;"></div>')
     slider_div.slider({
       animate: "fast",
-      step: 0.1
+      step: 1
       min: 0
       max: 512
       values: [0, 512]
       slide: ( event, ui ) =>
         @set_freq_range(event, ui)
     });
-    $('body').append(slider_div)
-    slider_div = $('<div id="gain-slider" style="margin: 50px; width: 200px;"></div>')
+    slider.append(slider_div)
+    slider.css('float', 'left')
+    slider.css('margin', '30px')
+
+    sliders.append(slider)
+
+    slider = $('<div></div>')
+    slider.append($("<p>gain:</p>"))
+    slider_div = $('<div id="gain-slider" style="width: 200px;"></div>')
     slider_div.slider({
       animate: "fast",
       step: 0.1
@@ -171,26 +183,34 @@ class Spectrogram
         $( "#gain" ).val( ui.value );
         @gain = ui.value
     });
+    slider.append(slider_div)
+    slider.css('float', 'left')
+    slider.css('margin', '30px')
+
+    sliders.append(slider)
+
+    sliders.css('clear', 'both')
+    sliders.css('overflow', 'hidden')
     $( "#gain" ).val( $( "#gain-slider" ).slider( "value" ) );
-    $('body').append(slider_div)
+    $('body').append(sliders)
+
     div = $('<div></div>')
     $('body').append(div)
     myrender  =  =>
       div.append(@spec_view.$el)
       @spec_view.render()
 
-      span = $('<span></span>').append(@power_view.$el)
-      div.append(span)
+      div.append(@power_view.$el)
+      foo = $('<div></div>')
       @power_view.render()
-
-      span = $('<span></span>').append(@fft_view.$el)
-      div.append(span)
       @fft_view.render()
-
-      span = $('<span></span>').append(@hist_view.$el)
-      div.append(span)
+      foo.append(@power_view.$el)
+      foo.append(@fft_view.$el)
+      foo.css('float', 'left')
+      div.append(foo)
+      div.append(@hist_view.$el)
       @hist_view.render()
-
+      @hist_view.$el.css('float', 'left')
     _.defer(myrender)
 
   create_spec: () ->
@@ -272,8 +292,8 @@ class Spectrogram
       renderers: [glyph.ref()]
       axes: [xaxis.ref(), yaxis.ref()]
       tools: []
-      width: @image_width
-      height: 200
+      width: 500
+      height: 220
     )
 
     return plot_model
@@ -283,7 +303,7 @@ class Spectrogram
 
     xrange = Collections('Range1d').create({start: 0, end: SPECTROGRAM_LENGTH})
     @fft_xrange = xrange
-    yrange = Collections('Range1d').create({start: -1.75, end: 1.75})
+    yrange = Collections('Range1d').create({start: -1.75, end: 3.75})
 
     xaxis = Collections('LinearAxis').create(
       orientation: 'bottom'
@@ -312,8 +332,8 @@ class Spectrogram
       renderers: [glyph.ref()]
       axes: [xaxis.ref(), yaxis.ref()]
       tools: []
-      width: @image_width
-      height: 200
+      width: 500
+      height: 220
     )
 
     return plot_model
