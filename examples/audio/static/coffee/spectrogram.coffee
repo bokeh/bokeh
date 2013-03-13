@@ -6,17 +6,23 @@ MAX_FREQ = SAMPLING_RATE / 2
 FREQ_SAMPLES = NUM_SAMPLES / 8
 SPECTROGRAM_LENGTH = 512
 
-NGRAMS = 1620
+NGRAMS = 1020
 
 HISTSIZE = 256
 NUM_BINS = 16
 
 TIMESLICE = 35 # ms
 
+GAIN_DEFAULT = 1
+GAIN_MIN = 1
+GAIN_MAX = 20
+
 class Spectrogram
   constructor: () ->
     @canvas_width = NGRAMS
     @canvas_height = 512
+
+    @gain = GAIN_DEFAULT
 
     @image = [new Float32Array(SPECTROGRAM_LENGTH * NGRAMS)]
     @power = [new Float32Array(NUM_SAMPLES)]
@@ -57,6 +63,12 @@ class Spectrogram
   on_data: (data) =>
     if not data[0]?
       return
+
+    for i in [0..(data[0].length-1)]
+      data[0][i] *= @gain
+
+    for i in [0..(data[1].length-1)]
+      data[1][i] *= @gain
 
     for i in [0..(SPECTROGRAM_LENGTH-1)]
       for j in [(NGRAMS-1)..1]
@@ -104,14 +116,29 @@ class Spectrogram
     @hist_source.trigger('change', @power_source, {})
 
   render: () ->
+    slider_div = $('<div id="gain-slider" style="margin: 50px; width: 200px;"></div>')
+    slider_div.slider({
+      animate: "fast",
+      step: 0.1
+      min: GAIN_MIN,
+      max: GAIN_MAX,
+      value: GAIN_DEFAULT,
+      slide: ( event, ui ) =>
+        $( "#gain" ).val( ui.value );
+        @gain = ui.value
+    });
+    $( "#gain" ).val( $( "#gain-slider" ).slider( "value" ) );
+    $('body').append(slider_div)
     div = $('<div></div>')
     $('body').append(div)
     myrender  =  =>
       div.append(@spec_view.$el)
       @spec_view.render()
-      div.append(@power_view.$el)
+      span = $('<span></span>').append(@power_view.$el)
+      div.append(span)
       @power_view.render()
-      div.append(@hist_view.$el)
+      span = $('<span></span>').append(@hist_view.$el)
+      div.append(span)
       @hist_view.render()
     _.defer(myrender)
 
@@ -194,7 +221,7 @@ class Spectrogram
       renderers: [glyph.ref()]
       axes: [xaxis.ref(), yaxis.ref()]
       tools: []
-      width: @canvas_width
+      width: @canvas_width - 600
       height: 200
     )
 
