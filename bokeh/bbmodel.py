@@ -31,6 +31,8 @@ class ContinuumModel(object):
     def __init__(self, typename, **kwargs):
         if 'client'in kwargs:
             self.client = kwargs.pop('client')
+        else:
+            self.client = None
         attrs = copy.copy(self.defaults)
         attrs.update(kwargs)
         self.attributes = attrs
@@ -95,7 +97,7 @@ class ContinuumModel(object):
         return self.__str__()
     
     def pull(self):
-        if not hasattr(self, 'client'):
+        if not self.client:
             print "can't fetch, not connected to the server"
             return
         newobj = self.client.fetch(typename=self.typename,
@@ -105,7 +107,8 @@ class ContinuumModel(object):
         self.set(newobj.attributes)
         
     def update(self):
-        if not hasattr(self, 'client'):
+        if not self.client:
+            import pdb;pdb.set_trace()
             print "can't update, not connected to the server"
             return
         self.client.update(self)

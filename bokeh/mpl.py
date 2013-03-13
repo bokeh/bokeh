@@ -28,15 +28,47 @@ colors = [
       "#bcbd22", "#dbdb8d",
       "#17becf", "#9edae5"
     ]
-class PandasTable(object):
+class BokehMPLBase(object):
+    def __init__(self, *args, **kwargs):
+        if 'plotclient' in kwargs:
+            self.plotclient = kwargs['plotclient']
+            
+    def update(self):
+        if self.plotclient.bbclient:
+            self.plotclient.bbclient.upsert_all(self.allmodels())
+    def _repr_html_(self):
+        
+        html = self.plotclient.make_html(
+            self.allmodels(),
+            model=getattr(self, self.topmodel),
+            template="basediv.html",
+            script_paths=[],
+            css_paths=[]
+            )
+        html = html.encode('utf-8')
+        return html
+    
+    def htmldump(self, path=None):
+        """ If **path** is provided, then writes output to a file,
+        else returns the output as a string.
+        """
+        html = self.plotclient.make_html(self.allmodels(),
+                                         model=getattr(self, self.topmodel),
+                                         template="bokeh.html"
+                                         )
+        if path:
+            with open(path, "w+") as f:
+                f.write(html.encode("utf-8"))
+        else:
+            return html.encode("utf-8")
+        
+class PandasTable(BokehMPLBase):
+    topmodel = 'pivotmodel'
     def __init__(self, pivotmodel, plotclient=None):
-        self.plotclient = plotclient
+        super(PandasTable, self).__init__(pivotmodel, plotclient=plotclient)
         self.pivotmodel = pivotmodel
         if hasattr(self.pivotmodel, 'pandassource'):
             self.pandassource = self.pivotmodel.pandassource
-            
-    def update(self):
-        self.plotclient.bbclient.upsert_all(self.pivotmodel)
             
     def groupby(self, columns):
         self.pivotmodel.set('groups', columns)
@@ -72,25 +104,15 @@ class PandasTable(object):
         models = [self.pivotmodel, self.pivotmodel.pandassource]
         return models
     
-    def notebook(self):
-        import IPython.core.displaypub as displaypub
-        html = self.plotclient.make_html(
-            self.allmodels(),
-            model=self.pivotmodel,
-            template="basediv.html",
-            script_paths=[],
-            css_paths=[]
-            )
-        html = html.encode('utf-8')
-        displaypub.publish_display_data('bokeh', {'text/html': html})
-        return None
-        
-class GridPlot(object):
+    
+class GridPlot(BokehMPLBase):
+    topmodel = 'gridmodel'    
     def __init__(self, container, children, title, plotclient=None):
         self.gridmodel = container
         self.children = children
         self.title = title
-        self.plotclient = plotclient
+        super(GridPlot, self).__init__(container, children, title,
+                                       plotclient=plotclient)
         
     def allmodels(self):
         models = [self.gridmodel]
@@ -99,40 +121,16 @@ class GridPlot(object):
                 models.extend(plot.allmodels())
         return models
     
-    def htmldump(self, path=None):
-        """ If **path** is provided, then writes output to a file,
-        else returns the output as a string.
-        """
-        html = self.plotclient.make_html(self.allmodels(),
-                                         model=self.gridmodel,
-                                         template="bokeh.html"
-                                         )
-        if path:
-            with open(path, "w+") as f:
-                f.write(html.encode("utf-8"))
-        else:
-            return html.encode("utf-8")
-        
-    def notebook(self):
-        import IPython.core.displaypub as displaypub
-        html = self.plotclient.make_html(
-            self.allmodels(),
-            model=self.gridmodel,
-            template="basediv.html",
-            script_paths=[],
-            css_paths=[]
-            )
-        html = html.encode('utf-8')
-        displaypub.publish_display_data('bokeh', {'text/html': html})
-        return None
 
-
-class XYPlot(object):
-    def __init__(self, plot,
-                 xdata_range, ydata_range,
-                 xaxis, yaxis,
-                 pantool, zoomtool, selectiontool, selectionoverlay,
-                 parent, plotclient=None):
+class XYPlot(BokehMPLBase):
+    topmodel = 'plotmodel'
+    def __init__(self, plot, xdata_range, ydata_range,
+                 xaxis, yaxis, pantool, zoomtool, selectiontool,
+                 selectionoverlay, parent, plotclient=None):
+        super(XYPlot, self).__init__(
+            plot, xdata_range, ydata_range, xaxis, yaxis,
+            pantool, zoomtool, selectiontool, selectionoverlay, parent,
+            plotclient=plotclient)
         self.plotmodel = plot
         self.xdata_range = xdata_range
         self.ydata_range = ydata_range
@@ -145,12 +143,10 @@ class XYPlot(object):
         self.parent = parent
         self.last_source = None
         self.color_index = 0
-        self.plotclient = plotclient
         self.renderers = []
         self.data_sources = []
-        if self.plotclient.bbclient:
-            self.update()
-            
+        self.update()
+        
     def allmodels(self):
         models =  [self.plotmodel,
                    self.xdata_range,
@@ -168,22 +164,6 @@ class XYPlot(object):
                    hasattr(self, 'pandassource'):
                 models.append(source.pandassource)
         return models
-    
-    def update(self):
-        self.plotclient.bbclient.upsert_all(self.allmodels())
-        
-    def iframe_url(self):
-        f_str = "%(root_url)s/iframe#plots/%(doc_id)s/%(plot_id)s"
-        return f_str % dict(
-            root_url=self.plotclient.root_url,
-            doc_id=self.plotclient.docid,
-            plot_id=self.plotmodel.id)
-
-    def make_public(self):
-        if not self.plotclient.bbclient:
-            raise Exception, "cannot perform operation without a bb client"
-        self.plotmodel.set('public', True)
-        self.plotclient.bbclient.update(self.plotmodel)
 
     def scatter(self, *args, **kwargs):
         kwargs['scatter'] = True
@@ -330,32 +310,6 @@ class XYPlot(object):
             self.plotclient.bbclient.upsert_all(update)
         self.plotclient.show(self.plotmodel)
 
-    def htmldump(self, path=None):
-        """ If **path** is provided, then writes output to a file,
-        else returns the output as a string.
-        """
-        html = self.plotclient.make_html(self.allmodels(),
-                                         model=self.plotmodel,
-                                         template="bokeh.html"
-                                         )
-        if path:
-            with open(path, "w+") as f:
-                f.write(html.encode("utf-8"))
-        else:
-            return html.encode("utf-8")
-        
-    def notebook(self):
-        import IPython.core.displaypub as displaypub
-        html = self.plotclient.make_html(
-            self.allmodels(),
-            model=self.plotmodel,
-            template="basediv.html",
-            script_paths=[],
-            css_paths=[]
-            )
-        html = html.encode('utf-8')
-        displaypub.publish_display_data('bokeh', {'text/html': html})
-        return None
         
 class PlotClient(object):
     def __init__(self, username=None,
@@ -481,7 +435,7 @@ class PlotClient(object):
         return None
 
     def model(self, typename, **kwargs):
-        if 'client' not in kwargs and hasattr(self, 'bbclient'):
+        if 'client' not in kwargs and self.bbclient:
             kwargs['client'] = self.bbclient
         model = bbmodel.make_model(typename, **kwargs)
         model.set('doc', self.docid)
@@ -500,6 +454,7 @@ class PlotClient(object):
         """call this with either kwargs of vectors, or a pandas dataframe
         """
         if len(args) > 0:
+            df = args[0]
             model = self.model('PandasDataSource', df=df)
         else:
             output = data.make_source(**kwargs)
