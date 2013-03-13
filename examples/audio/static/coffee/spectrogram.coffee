@@ -8,23 +8,30 @@ SPECTROGRAM_LENGTH = 512
 
 NGRAMS = 1620
 
-TIMESLICE = 50 # ms
+HISTSIZE = 256
+NUM_BINS = 16
+
+TIMESLICE = 35 # ms
 
 class Spectrogram
   constructor: () ->
     @canvas_width = NGRAMS
     @canvas_height = 512
 
-    @y = [0]
-    @dh = [NGRAMS]
     @image = [new Float32Array(SPECTROGRAM_LENGTH * NGRAMS)]
     @power = [new Float32Array(NUM_SAMPLES)]
     @idx = [new Array(NUM_SAMPLES)]
     for i in [0..@idx[0].length-1]
       @idx[0][i] = (i/(@idx[0].length-1))*TIMESLICE
 
-    @data_source = Collections('ColumnDataSource').create(
-      data: {image: @image, power: @power, idx: @idx}
+    @spec_source = Collections('ColumnDataSource').create(
+      data:{image: @image}
+    )
+    @power_source = Collections('ColumnDataSource').create(
+      data:{power: @power, idx: @idx}
+    )
+    @hist_source = Collections('ColumnDataSource').create(
+      data: {inner_radius:[], outer_radius:[], start_angle:[], end_angle:[], fill_alpha: []}
     )
 
     spec_model = @create_spec()
@@ -32,6 +39,9 @@ class Spectrogram
 
     power_model = @create_power()
     @power_view = new power_model.default_view(model: power_model)
+
+    hist_model = @create_hist()
+    @hist_view = new hist_model.default_view(model: hist_model)
 
     @render()
 
@@ -47,14 +57,51 @@ class Spectrogram
   on_data: (data) =>
     if not data[0]?
       return
+
     for i in [0..(SPECTROGRAM_LENGTH-1)]
       for j in [(NGRAMS-1)..1]
         @image[0][i*NGRAMS + j] = @image[0][i*NGRAMS + j - 1]
       @image[0][i*NGRAMS] = data[0][i]
+    @spec_source.set('data', {image: @image})
+    @spec_source.trigger('change', @spec_source, {})
+
     for i in [0..@power[0].length-1]
       @power[0][i] = data[1][i]
-    @data_source.set('data', {image: @image, power: @power, idx: @idx})
-    @data_source.trigger('change', @data_source, {})
+    @power_source.set('data', {power: @power, idx: @idx})
+    @power_source.trigger('change', @power_source, {})
+
+    hist = new Float32Array(NUM_BINS)
+    bin_start = 0
+    bin_size = Math.ceil(HISTSIZE / NUM_BINS)
+    for i in [0..NUM_BINS-1]
+      hist[i] = 0
+      bin_end = Math.min(bin_start+bin_size-1, data[0].length)
+      for j in [bin_start..bin_end]
+        hist[i] += data[0][j]
+      bin_start += bin_size
+
+    inner = []
+    outer = []
+    start = []
+    end = []
+    fill_alpha = []
+    vals = []
+    angle = 2*Math.PI/NUM_BINS
+    for i in [0..(hist.length-1)]
+      n = hist[i]/16
+      for j in [0..n]
+        vals.push(j)
+        inner.push(2+j)
+        outer.push(2+j+0.95)
+        start.push((i+0.05)*angle)
+        end.push((i+0.95)*angle)
+        fill_alpha.push(1-0.08*j)
+
+
+    @hist_source.set('data', {
+      inner_radius: inner, outer_radius: outer, start_angle: start, end_angle: end, fill_alpha: fill_alpha
+    })
+    @hist_source.trigger('change', @power_source, {})
 
   render: () ->
     div = $('<div></div>')
@@ -64,6 +111,8 @@ class Spectrogram
       @spec_view.render()
       div.append(@power_view.$el)
       @power_view.render()
+      div.append(@hist_view.$el)
+      @hist_view.render()
     _.defer(myrender)
 
   create_spec: () ->
@@ -96,11 +145,11 @@ class Spectrogram
         default: 'YlGnBu-9'
     }
     glyph = Collections('GlyphRenderer').create({
-        data_source: @data_source.ref()
-        xdata_range: xrange.ref()
-        ydata_range: yrange.ref()
-        glyphspec: glyphspec
-      })
+      data_source: @spec_source.ref()
+      xdata_range: xrange.ref()
+      ydata_range: yrange.ref()
+      glyphspec: glyphspec
+    })
 
     plot_model.set(
       renderers: [glyph.ref()]
@@ -135,11 +184,11 @@ class Spectrogram
       ys: 'power'
     }
     glyph = Collections('GlyphRenderer').create({
-        data_source: @data_source.ref()
-        xdata_range: xrange.ref()
-        ydata_range: yrange.ref()
-        glyphspec: glyphspec
-      })
+      data_source: @power_source.ref()
+      xdata_range: xrange.ref()
+      ydata_range: yrange.ref()
+      glyphspec: glyphspec
+    })
 
     plot_model.set(
       renderers: [glyph.ref()]
@@ -147,6 +196,41 @@ class Spectrogram
       tools: []
       width: @canvas_width
       height: 200
+    )
+
+    return plot_model
+
+  create_hist: () ->
+    plot_model = Collections('Plot').create()
+
+    range = Collections('Range1d').create({start: -20, end: 20})
+
+    glyphspec = {
+      type: 'annular_wedge',
+      line_color: null
+      x: 0
+      y: 0
+      fill: '#688AB9'
+      fill_alpha: 'fill_alpha'
+      inner_radius: 'inner_radius'
+      outer_radius: 'outer_radius'
+      start_angle: 'start_angle'
+      end_angle: 'end_angle'
+      direction: 'clock'
+    }
+    glyph = Collections('GlyphRenderer').create({
+      data_source: @hist_source.ref()
+      xdata_range: range.ref()
+      ydata_range: range.ref()
+      glyphspec: glyphspec
+    })
+
+    plot_model.set(
+      renderers: [glyph.ref()]
+      axes: []
+      tools: []
+      width: 500
+      height: 500
     )
 
     return plot_model
