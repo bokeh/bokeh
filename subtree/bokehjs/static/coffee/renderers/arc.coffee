@@ -24,35 +24,34 @@ class ArcView extends GlyphView
     @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
-  _render: (data) ->
-    ctx = @plot_view.ctx
-    glyph_props = @glyph_props
-
-    ctx.save()
-
-    x = glyph_props.v_select('x', data)
-    y = glyph_props.v_select('y', data)
-    [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
-    @radius = @distance(data, 'x', 'radius', 'edge')
-    @start_angle = (glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
-    @end_angle = (glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
-    @direction = new Array(@sx.length)
-    for i in [0..@sx.length-1]
-      dir = glyph_props.select('direction', data[i])
+  _set_data: (@data) ->
+    @x = @glyph_props.v_select('x', data)
+    @y = @glyph_props.v_select('y', data)
+    @start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
+    @end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
+    @direction = new Array(@data.length)
+    for i in [0..@data.length-1]
+      dir = @glyph_props.select('direction', data[i])
       if dir == 'clock' then @direction[i] = false
       else if dir == 'anticlock' then @direction[i] = true
       else @direction[i] = NaN
 
-    if @glyph_props.fast_path
-      @_fast_path(ctx, glyph_props)
-    else
-      @_full_path(ctx, glyph_props, data)
+  _render: () ->
+    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+    @radius = @distance(@data, 'x', 'radius', 'edge')
 
+    ctx = @plot_view.ctx
+
+    ctx.save()
+    if @glyph_props.fast_path
+      @_fast_path(ctx)
+    else
+      @_full_path(ctx)
     ctx.restore()
 
-  _fast_path: (ctx, glyph_props) ->
+  _fast_path: (ctx) ->
     if @do_stroke
-      glyph_props.line_properties.set(ctx, glyph_props)
+      @glyph_props.line_properties.set(ctx, @glyph_props)
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
           continue
@@ -60,7 +59,7 @@ class ArcView extends GlyphView
         ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
         ctx.stroke()
 
-  _full_path: (ctx, glyph_props, data) ->
+  _full_path: (ctx) ->
     if @do_stroke
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
@@ -69,7 +68,7 @@ class ArcView extends GlyphView
         ctx.beginPath()
         ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
 
-        glyph_props.line_properties.set(ctx, data[i])
+        @glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
 

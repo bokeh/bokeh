@@ -19,7 +19,6 @@ class properties
       @[attrname] = glyph_value
       if not @[attrname].default?
         @[attrname].default = default_value
-      console.log @[attrname]
     else
       console.log("string property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
@@ -253,7 +252,7 @@ class text_properties extends properties
 
     @string(styleprovider, glyphspec, @text_font_name)
     @string(styleprovider, glyphspec, @text_font_size_name)
-    @string(styleprovider, glyphspec, @text_font_style_name)
+    @enum(styleprovider, glyphspec, @text_font_style_name, "normal italic bold")
     @color(styleprovider, glyphspec, @text_color_name)
     @number(styleprovider, glyphspec, @text_alpha_name)
     @enum(styleprovider, glyphspec, @text_align_name, "left right center")

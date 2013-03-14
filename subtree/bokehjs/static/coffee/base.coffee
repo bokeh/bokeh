@@ -448,7 +448,7 @@ class HasProperties extends Backbone.Model
     # to enable normal beaviour, add this line
     #
     # HasProperties.prototype.sync = Backbone.sync
-    return options.success(model)
+    return options.success(model, null, {})
 
   defaults : {}
 
@@ -612,6 +612,13 @@ class PlotWidget extends ContinuumView
       ctx.lineDashOffset = dash_offset
       ctx.mozDashOffset = dash_offset
       ctx.webkitLineDashOffset = dash_offset
+    ctx.setImageSmoothingEnabled = (value) ->
+      ctx.imageSmoothingEnabled = value;
+      ctx.mozImageSmoothingEnabled = value;
+      ctx.oImageSmoothingEnabled = value;
+      ctx.webkitImageSmoothingEnabled = value;
+    ctx.getImageSmoothingEnabled = () ->
+      return ctx.imageSmoothingEnabled ? true
     super(options)
 
   bind_bokeh_events : ->

@@ -27,29 +27,28 @@ class WedgeView extends GlyphView
     @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
-  _render: (data) ->
-    ctx = @plot_view.ctx
-    glyph_props = @glyph_props
-
-    ctx.save()
-
-    x = glyph_props.v_select('x', data)
-    y = glyph_props.v_select('y', data)
-    [@sx, @sy] = @map_to_screen(x, @glyph_props.x.units, y, @glyph_props.y.units)
-    @radius = @distance(data, 'x', 'radius', 'edge')
+  _set_data: (@data) ->
+    @x = @glyph_props.v_select('x', data)
+    @y = @glyph_props.v_select('y', data)
     @start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
     @end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
 
-    if @glyph_props.fast_path
-      @_fast_path(ctx, glyph_props)
-    else
-      @_full_path(ctx, glyph_props, data)
+  _render: () ->
+    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+    @radius = @distance(@data, 'x', 'radius', 'edge')
 
+    ctx = @plot_view.ctx
+
+    ctx.save()
+    if @glyph_props.fast_path
+      @_fast_path(ctx)
+    else
+      @_full_path(ctx)
     ctx.restore()
 
-  _fast_path: (ctx, glyph_props) ->
+  _fast_path: (ctx) ->
     if @do_fill
-      glyph_props.fill_properties.set(ctx, glyph)
+      @glyph_props.fill_properties.set(ctx, @glyph_props)
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
           continue
@@ -61,7 +60,7 @@ class WedgeView extends GlyphView
         ctx.fill()
 
     if @do_stroke
-      glyph_props.line_properties.set(ctx, glyph)
+      @glyph_props.line_properties.set(ctx, @glyph_props)
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
           continue
@@ -72,7 +71,7 @@ class WedgeView extends GlyphView
         ctx.closePath()
         ctx.stroke()
 
-  _full_path: (ctx, glyph_props, data) ->
+  _full_path: (ctx) ->
     for i in [0..@sx.length-1]
       if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
         continue
@@ -83,11 +82,11 @@ class WedgeView extends GlyphView
       ctx.closePath()
 
       if @do_fill
-        glyph_props.fill_properties.set(ctx, data[i])
+        @glyph_props.fill_properties.set(ctx, @data[i])
         ctx.fill()
 
       if @do_stroke
-        glyph_props.line_properties.set(ctx, data[i])
+        @glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
 

@@ -23,27 +23,26 @@ class TextView extends GlyphView
 
     super(options)
 
-  _render: (data) ->
+  _set_data: (@data) ->
+    @x = @glyph_props.v_select('x', data)
+    @y = @glyph_props.v_select('y', data)
+    @angle = (@glyph_props.select("angle", obj) for obj in data) # TODO deg/rad
+    @text = @glyph_props.v_select("text", data)
+
+  _render: () ->
+    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+
     ctx = @plot_view.ctx
-    glyph_props = @glyph_props
 
     ctx.save()
-
-    x = glyph_props.v_select('x', data)
-    y = glyph_props.v_select('y', data)
-    [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
-    @angle = (glyph_props.select("angle", obj) for obj in data) # TODO deg/rad
-    @text = glyph_props.v_select("text", data)
-
     if @glyph_props.fast_path
-      @_fast_path(ctx, glyph_props)
+      @_fast_path(ctx)
     else
-      @_full_path(ctx, glyph_props, data)
-
+      @_full_path(ctx)
     ctx.restore()
 
-  _fast_path: (ctx, glyph_props) ->
-    glyph_props.text_properties.set(ctx, glyph)
+  _fast_path: (ctx) ->
+    @glyph_props.text_properties.set(ctx, @glyph_props)
     for i in [0..@sx.length-1]
       if isNaN(@sx[i] + @sy[i] + @angle[i])
         continue
@@ -57,7 +56,7 @@ class TextView extends GlyphView
       else
         ctx.fillText(text[i], @sx[i], @sy[i])
 
-  _full_path: (ctx, glyph_props, data) ->
+  _full_path: (ctx) ->
     for i in [0..@sx.length-1]
       if isNaN(@sx[i] + @sy[i] + @angle[i])
         continue
@@ -65,7 +64,7 @@ class TextView extends GlyphView
       ctx.translate(@sx[i], @sy[i])
       ctx.rotate(@angle[i])
 
-      glyph_props.text_properties.set(ctx, data[i])
+      @glyph_props.text_properties.set(ctx, @data[i])
       ctx.fillText(@text[i], 0, 0)
 
       ctx.rotate(-@angle[i])

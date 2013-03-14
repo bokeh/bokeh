@@ -27,30 +27,28 @@ class QuadView extends GlyphView
     @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
-  _render: (data) ->
+  _set_data: (@data) ->
+    @left = @glyph_props.v_select('left', data)
+    @top  = @glyph_props.v_select('top', data)
+    @right  = @glyph_props.v_select('right', data)
+    @bottom = @glyph_props.v_select('bottom', data)
+
+  _render: () ->
+    [@sx0, @sy0] = @map_to_screen(@left,  @glyph_props.left.units,  @top,    @glyph_props.top.units)
+    [@sx1, @sy1] = @map_to_screen(@right, @glyph_props.right.units, @bottom, @glyph_props.bottom.units)
+
     ctx = @plot_view.ctx
-    glyph_props = @glyph_props
 
     ctx.save()
-
-    left = glyph_props.v_select('left', data)
-    top  = glyph_props.v_select('top', data)
-    [@sx0, @sy0] = @map_to_screen(left, glyph_props.left.units, top, glyph_props.top.units)
-
-    right  = glyph_props.v_select('right', data)
-    bottom = glyph_props.v_select('bottom', data)
-    [@sx1, @sy1] = @map_to_screen(right, glyph_props.right.units, bottom, glyph_props.bottom.units)
-
     if @glyph_props.fast_path
-      @_fast_path(ctx, glyph_props)
+      @_fast_path(ctx)
     else
-      @_full_path(ctx, glyph_props, data)
-
+      @_full_path(ctx)
     ctx.restore()
 
-  _fast_path: (ctx, glyph_props) ->
+  _fast_path: (ctx) ->
     if @do_fill
-      glyph_props.fill_properties.set(ctx, glyph)
+      @glyph_props.fill_properties.set(ctx, @glyph_props)
       ctx.beginPath()
       for i in [0..@sx0.length-1]
         if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
@@ -59,7 +57,7 @@ class QuadView extends GlyphView
       ctx.fill()
 
     if @do_stroke
-      glyph_props.line_properties.set(ctx, glyph)
+      @glyph_props.line_properties.set(ctx, @glyph_props)
       ctx.beginPath()
       for i in [0..@sx0.length-1]
         if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
@@ -67,7 +65,7 @@ class QuadView extends GlyphView
         ctx.rect(@sx0[i], @sy0[i], @sx1[i]-@sx0[i], @sy1[i]-@sy0[i])
       ctx.stroke()
 
-  _full_path: (ctx, glyph_props, data) ->
+  _full_path: (ctx) ->
     for i in [0..@sx0.length-1]
       if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
         continue
@@ -76,11 +74,11 @@ class QuadView extends GlyphView
       ctx.rect(@sx0[i], @sy0[i], @sx1[i]-@sx0[i], @sy1[i]-@sy0[i])
 
       if @do_fill
-        glyph_props.fill_properties.set(ctx, data[i])
+        @glyph_props.fill_properties.set(ctx, @data[i])
         ctx.fill()
 
       if @do_stroke
-        glyph_props.line_properties.set(ctx, data[i])
+        @glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
 

@@ -569,12 +569,13 @@ class ViewState extends HasParent
 
   #vectorized versions of xpos/ypos, operates in place
   v_xpos : (xx) ->
-    return xx
+    return xx[..]
   v_ypos : (yy) ->
     height = @get('height')
+    res = new Array(yy.length)
     for y, idx in yy
-       yy[idx] = height - y
-    return yy
+       res[idx] = height - y
+    return res
 
   #transform underlying device (svg) to our coordinate space
   rxpos : (x) ->
