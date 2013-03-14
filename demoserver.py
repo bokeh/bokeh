@@ -18,11 +18,13 @@ EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
 HOST = "localhost"
 PORT = 9294
 
+# TODO: Add route handlers for index urls: /, /demos, and /tests
+
 @app.route("/demo/<demoname>")
 def demo(demoname):
 
     if app.debug:
-        with open("slug.json") as f:
+        with open("slug.demo.json") as f:
             slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
         hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT)
@@ -45,13 +47,13 @@ def demo(demoname):
 @app.route("/test/<testname>")
 def test(testname):
     if app.debug:
-        with open("slug.json") as f:
+        with open("slug.tests.json") as f:
             slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
         hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT,
                     excludes=EXCLUDES)
     else:
-        jslibs= ['/static/js/application.js']
+        jslibs= ['/static/js/tests/application.js']
         hemfiles = []
     tests = alltests[testname]
     testfiles = [os.path.join(SRCDIR, name+".coffee") for name in tests]
