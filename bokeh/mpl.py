@@ -15,6 +15,7 @@ from exceptions import DataIntegrityException
 import IPython.core.displaypub as displaypub
 
 
+
 log = logging.getLogger(__name__)
 colors = [
       "#1f77b4",
@@ -171,7 +172,7 @@ class XYPlot(BokehMPLBase):
 
     def plot(self, x, y=None, color=None, data_source=None,
              scatter=False):
-        if data_source.typename == 'PandasDataSource':
+        if data_source and data_source.typename == 'PandasDataSource':
             if self.plotclient.plot_sources.get(data_source.id):
                 data_source = self.plotclient.plot_sources.get(data_source.id)
             else:
