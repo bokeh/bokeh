@@ -18,7 +18,6 @@ class PandasPivotView extends ContinuumView
 
   events :
     "keyup .pandasgroup" : 'pandasgroup'
-    "keyup .pandassort" : 'pandassort'
     "keyup .pandasoffset" : 'pandasoffset'
     "keyup .pandassize" : 'pandassize'
     "change .pandasagg" : 'pandasagg'
@@ -27,6 +26,11 @@ class PandasPivotView extends ContinuumView
     "click .pandasnext" : 'pandasnext'
     "click .pandasend" : 'pandasend'
     "click .controlsmore" : 'toggle_more_controls'
+    "click .pandascolumn" : 'sort'
+
+  sort : (e) =>
+    colname = $(e.currentTarget).text()
+    @model.toggle_column_sort(colname)
 
   toggle_more_controls : () =>
     if @controls_hide
@@ -53,8 +57,7 @@ class PandasPivotView extends ContinuumView
       offset = Number(offset)
       if _.isNaN(offset)
         offset = @model.defaults.offset
-      @mset('offset', offset)
-      @model.save()
+      @model.save('offset', offset, {wait : true})
 
   pandassize : (e) ->
     if e.keyCode == ENTER
@@ -64,12 +67,10 @@ class PandasPivotView extends ContinuumView
         size = @model.defaults.length
       if size + @mget('offset') > @mget('maxlength')
         size = @mget('maxlength') - @mget('offset')
-      @mset('length', size)
-      @model.save()
+      @model.save('length', size, {wait:true})
 
   pandasagg : () ->
-    @mset('agg', @$el.find('.pandasagg').val())
-    @model.save()
+    @model.save('agg', @$el.find('.pandasagg').val(), {'wait':true})
 
   fromcsv : (str) ->
     #string of csvs, to list of those values
@@ -79,13 +80,8 @@ class PandasPivotView extends ContinuumView
 
   pandasgroup : (e) ->
     if e.keyCode == ENTER
-     @mset('groups', @fromcsv(@$el.find(".pandasgroup").val()))
-     @model.save()
-
-  pandassort : (e) ->
-    if e.keyCode == ENTER
-     @mset('sort', @fromcsv(@$el.find(".pandassort").val()))
-     @model.save()
+     @model.save('groups', @fromcsv(@$el.find(".pandasgroup").val()),
+      {'wait':true})
 
   colors : () =>
     if @mget('counts') and @mget('selected')
@@ -105,11 +101,15 @@ class PandasPivotView extends ContinuumView
     if _.isArray(sort)
       sort = sort.join(",")
     colors = @colors()
+    sort_ascendings = {}
+    for obj in  @mget('sort')
+      sort_ascendings[obj['column']] = obj['ascending']
+
     template_data =
       columns : @mget('columns')
       data : @mget('data')
       groups : groups
-      sort : sort
+      sort_ascendings : sort_ascendings
       height : @mget('height')
       width : @mget('width')
       offset : @mget('offset')
@@ -119,6 +119,7 @@ class PandasPivotView extends ContinuumView
       selected : @mget('selected')
       controls_hide : @controls_hide
       colors : colors
+      index : @mget('index')
     @$el.empty()
     html = pandas_template(template_data)
     @$el.html(html)
@@ -136,6 +137,7 @@ class PandasPlotSource extends datasource.ObjectArrayDataSource
 
   _select_serverside : () ->
     pandassource = @get_obj('pandassource')
+    console.log('selecting', @get('selected'), pandassource)
     pandassource.save({selected : @get('selected')}, {wait : true})
     return null
 
@@ -155,6 +157,27 @@ class PandasPivot extends HasParent
 
   fetch : (options) ->
     super(options)
+
+  toggle_column_sort : (colname) =>
+    sorting = @get('sort')
+    @unset('sort', {'silent' : true})
+    sort = _.filter(sorting, (x) -> return x['column'] == colname)
+    if sort.length > 0
+      sort = sort[0]
+    else
+      sorting = _.clone(sorting)
+      sorting.push(column : colname, ascending : true)
+      @save('sort', sorting, {'wait':true})
+      return
+    if sort['ascending']
+      sort['ascending'] = false
+      @save('sort', sorting, {'wait':true})
+      return
+    else
+      sorting = _.filter(sorting, (x) -> return x['column'] != colname)
+      @save('sort', sorting, {'wait':true})
+      return
+
   go_beginning : () ->
     @set('offset', 0)
     @save()
