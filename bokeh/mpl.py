@@ -97,7 +97,7 @@ class PandasTable(BokehMPLBase):
         self.plotclient.bbclient.update(self.pivotmodel)
         
     def data(self):
-        self.plotclient.bbclient.update(self.pivotmodel)
+        self.pivotmodel.pull()
         return self.pivotmodel.get_data()
     
     def allmodels(self):
