@@ -30,9 +30,10 @@ class LinearMapper extends HasParent
 
   v_map_screen : (datav) ->
     [scale_factor, offset] = @get('scalestate')
+    result = new Array(datav.length)
     for data, idx in datav
-      datav[idx] = scale_factor * data + offset
-    return datav
+      result[idx] = scale_factor * data + offset
+    return result
 
   map_screen : (data) ->
     [scale_factor, offset] = @get('scalestate')

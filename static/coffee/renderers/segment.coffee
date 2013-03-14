@@ -24,31 +24,29 @@ class SegmentView extends GlyphView
     @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
-  _render: (data) ->
+  _set_data: (@data) ->
+    @x0 = @glyph_props.v_select('x0', data)
+    @y0 = @glyph_props.v_select('y0', data)
+
+    @x1 = @glyph_props.v_select('x1', data)
+    @y1 = @glyph_props.v_select('y1', data)
+
+  _render: () ->
+    [@sx0, @sy0] = @map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units)
+    [@sx1, @sy1] = @map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units)
+
     ctx = @plot_view.ctx
-    glyph_props = @glyph_props
 
     ctx.save()
-
-    x0 = glyph_props.v_select('x0', data)
-    y0 = glyph_props.v_select('y0', data)
-    [@sx0, @sy0] = @map_to_screen(x0, glyph_props.x0.units, y0, glyph_props.y0.units)
-
-    x1 = glyph_props.v_select('x1', data)
-    y1 = glyph_props.v_select('y1', data)
-    [@sx1, @sy1] = @map_to_screen(x1, glyph_props.x1.units, y1, glyph_props.y1.units)
-
-
     if @glyph_props.fast_path
-      @_fast_path(ctx, glyph_props)
+      @_fast_path(ctx)
     else
-      @_full_path(ctx, glyph_props, data)
-
+      @_full_path(ctx)
     ctx.restore()
 
-  _fast_path: (ctx, glyph_props) ->
+  _fast_path: (ctx) ->
     if @do_stroke
-      glyph_props.line_properties.set(ctx, glyph)
+      @glyph_props.line_properties.set(ctx, @glyph_props)
       ctx.beginPath()
       for i in [0..@sx0.length-1]
         if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
@@ -59,7 +57,7 @@ class SegmentView extends GlyphView
 
       ctx.stroke()
 
-  _full_path: (ctx, glyph_props, data) ->
+  _full_path: (ctx) ->
     if @do_stroke
       for i in [0..@sx0.length-1]
         if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
@@ -69,7 +67,7 @@ class SegmentView extends GlyphView
         ctx.moveTo(@sx0[i], @sy0[i])
         ctx.lineTo(@sx1[i], @sy1[i])
 
-        glyph_props.line_properties.set(ctx, data[i])
+        @glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
 

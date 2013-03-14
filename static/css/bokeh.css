@@ -99,3 +99,22 @@ button.active { border:1px solid blue }
     position:relative;
     top:5px;
 }
+.bokehdocheading{
+    background-color : #ccc;
+}
+.bokehdoclabel{
+
+}
+.bokehdocheading:hover > .bokehdelete{
+    display : none; 
+    float : right;
+}
+.bokehdelete{
+    float : right;
+}
+.pandasgroup{
+    width : auto;
+}
+.pandasagg{
+    width : auto;
+}

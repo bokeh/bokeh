@@ -1,4 +1,6 @@
-Config = {}
+Config = {
+    prefix : ''
+  }
 
 # ## function : safebind
 safebind = (binder, target, event, callback) ->
@@ -76,8 +78,8 @@ load_models = (modelspecs)->
   #         id : '2390-23-23'
   #         attributes :
   #           firstattr : 'one'
-  #         name : 'myplot'
-  #         s : []
+  #           name : 'myplot'
+  #           s : []
   #
   #   type is the key of the in collections for this model
   #   id is the id of this model
@@ -113,12 +115,6 @@ load_models = (modelspecs)->
     if coll
       coll.get(attrs['id']).dinitialize(attrs)
 
-  # set attributes on old models silently
-  for coll_attrs in oldspecs
-    [coll, attrs] = coll_attrs
-    if coll
-      coll.get(attrs['id']).set(attrs, {'local' : true, 'silent' : true})
-
   # trigger add events on all new models
   for coll_attrs in newspecs
     [coll, attrs] = coll_attrs
@@ -126,12 +122,11 @@ load_models = (modelspecs)->
       model = coll.get(attrs.id)
       model.trigger('add', model, coll, {});
 
-  # trigger change events on all old models
+  # set attributes on old models silently
   for coll_attrs in oldspecs
     [coll, attrs] = coll_attrs
     if coll
-      coll.get(attrs['id']).change()
-
+      coll.get(attrs['id']).set(attrs)
   return null
 
 
@@ -147,6 +142,7 @@ class WebSocketWrapper
   _.extend(@prototype, Backbone.Events)
   # ### method :
   constructor : (ws_conn_string) ->
+    @auth = {}
     @ws_conn_string = ws_conn_string
     @_connected = $.Deferred()
     @connected = @_connected.promise()
@@ -167,6 +163,17 @@ class WebSocketWrapper
     @trigger("msg:" + topic, data)
     return null
 
+  send : (msg) ->
+    $.when(@connected).done(() =>
+      @s.send(msg)
+    )
+
+  subscribe : (topic, auth) ->
+    @auth[topic] = auth
+    msg = JSON.stringify(
+      {msgtype : 'subscribe', topic : topic, auth : auth}
+    )
+    @send(msg)
 
 # ###function : submodels
 
@@ -176,12 +183,7 @@ submodels = (wswrapper, topic, apikey) ->
   # * wswrapper : WebSocketWrapper
   # * topic : topic to listen on (send to the server on connect)
   # * apikey : apikey for server
-  $.when(wswrapper.connected).then(() ->
-    msg = JSON.stringify(
-      {msgtype : 'subscribe', topic : topic, auth : apikey}
-    )
-    wswrapper.s.send(msg)
-  )
+  wswrapper.subscribe(topic, apikey)
   wswrapper.on("msg:" + topic, (msg) ->
     msgobj = JSON.parse(msg)
     if msgobj['msgtype'] == 'modelpush'
@@ -229,9 +231,9 @@ class HasProperties extends Backbone.Model
     super(attrs, options)
     @properties = {}
     @property_cache = {}
-    if not _.has(attrs, 'id')
+    if not _.has(attrs, @idAttribute)
       this.id = _.uniqueId(this.type)
-      this.attributes['id'] = this.id
+      this.attributes[@idAttribute] = this.id
     _.defer(() =>
       if not @inited
         @dinitialize(attrs, options))
@@ -434,10 +436,10 @@ class HasProperties extends Backbone.Model
     # ### method HasProperties::url
     #model where our API processes this model
 
-    base = "/bokeh/bb/" + Config.docid + "/" + @type + "/"
+    base = Config.prefix + "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
     if (@isNew())
       return base
-    return base + @get('id')
+    return base + @get('id') + "/"
 
 
   sync : (method, model, options) ->
@@ -446,7 +448,7 @@ class HasProperties extends Backbone.Model
     # to enable normal beaviour, add this line
     #
     # HasProperties.prototype.sync = Backbone.sync
-    return options.success(model)
+    return options.success(model, null, {})
 
   defaults : {}
 
@@ -610,6 +612,13 @@ class PlotWidget extends ContinuumView
       ctx.lineDashOffset = dash_offset
       ctx.mozDashOffset = dash_offset
       ctx.webkitLineDashOffset = dash_offset
+    ctx.setImageSmoothingEnabled = (value) ->
+      ctx.imageSmoothingEnabled = value;
+      ctx.mozImageSmoothingEnabled = value;
+      ctx.oImageSmoothingEnabled = value;
+      ctx.webkitImageSmoothingEnabled = value;
+    ctx.getImageSmoothingEnabled = () ->
+      return ctx.imageSmoothingEnabled ? true
     super(options)
 
   bind_bokeh_events : ->
@@ -673,6 +682,7 @@ locations =
   CDXPlotContext : ['./container', 'plotcontexts']
   PlotContext : ['./container', 'plotcontexts']
   ScatterRenderer: ['./schema_renderers', 'scatterrenderers']
+  LineRenderer: ['./schema_renderers', 'linerenderers']
   DiscreteColorMapper :['./mapper', 'discretecolormappers']
   DataTable :['./table', 'datatables']
   PandasPivot :['./pandas/pandas', 'pandaspivots']

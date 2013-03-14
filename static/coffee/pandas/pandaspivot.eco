@@ -1,74 +1,50 @@
 <form class="form-inline">
-<p>Displaying entries <%= @offset %> 
-through <%=@offset + @length%> of 
-<%= @maxlength %>
-</p>
+  <p>Displaying entries <%= @offset %> 
+    through <%=@offset + @length%> of 
+    <%= @maxlength %>
+  </p>
   
-<table class="table" style="max-width:<%= @width %>px">
-  <tr>
-    <td>
-      <a href="#" class="controlsmore">
-        <% if @controls_hide: %>
-        <i class="pandasicons icon-plus-sign"></i>
-        <% else: %>
-        <i class="pandasicons icon-minus-sign"></i>
-        <% end %>
-      </a>
-    </td>
-    <td>
-      <label>Offset</label>
-      <input type="text" class="pandasoffset" value="<%= @offset %>"/>
-    </td>
-    <td>
-      <label>Size</label>
-      <input type="text" class="pandassize" value="<%= @length %>"/>
-    </td>
-    <td>
-      <a href="#" class="pandasbeginning">
-        <i class="pandasicons icon-fast-backward"></i>
-      </a>
-      <a href="#" class="pandasback">
-        <i class="pandasicons icon-backward"></i>
-      </a>
-      <a href="#" class="pandasnext">
-        <i class="pandasicons icon-forward"></i>
-      </a>
-      <a href="#" class="pandasend">
-        <i class="pandasicons icon-fast-forward"></i>
-      </a>
-    </td>
-  </tr>
-  <tr class="<%= if @controls_hide then 'hide' else ''%>">
-    <td>
-      <label>GroupBy </label>
-    </td>
-    <td colspan="3">
-      <input type="text" class="pandasgroup" value="<%= @groups %>"/>
-    </td>
-  </tr>
-  <tr class="<%= if @controls_hide then 'hide' else ''%>">  
-    <td>
-      <label>Sort</label>
-    </td>
-    <td colspan="3">
-      <input type="text" class="pandassort" value="<%= @sort %>"/>
-    </td>
-  </tr>
-  <tr class="<%= if @controls_hide then 'hide' else ''%>">    
-    <td>
-      <label>Aggregation</label>
-    </td>
-    <td colspan="3">
-      <select class="pandasagg">
-        <option value="sum">sum</option>
-        <option value="mean">mean</option>
-        <option value="std">std</option>
-        <option value="max">max</option>
-        <option value="min">min</option>
-      </select>
-    </td>
-  </tr>
-</table>
+  <table class="table" style="max-width:<%= @width %>px">
+    <tr>
+      <td colspan="1">
+        <label>Offset</label>
+        <input type="text" class="pandasoffset" value="<%= @offset %>"/>
+      </td>
+      <td colspan="1">
+        <label>Size</label>
+        <input type="text" class="pandassize" value="<%= @length %>"/>
+      </td>
+      <td>
+        <a href="#" class="pandasbeginning">
+          <i class="pandasicons icon-fast-backward"></i>
+        </a>
+        <a href="#" class="pandasback">
+          <i class="pandasicons icon-backward"></i>
+        </a>
+        <a href="#" class="pandasnext">
+          <i class="pandasicons icon-forward"></i>
+        </a>
+        <a href="#" class="pandasend">
+          <i class="pandasicons icon-fast-forward"></i>
+        </a>
+      </td>
+    <tr>
+      <td colspan="2">
+        <label>GroupBy </label>
+        <input type="text" class="pandasgroup" value="<%= @groups %>"/>
+      </td>
+      <td colspan="2">
+        <label>Aggregation</label>
+        <select class="pandasagg">
+          <option value="sum">sum</option>
+          <option value="mean">mean</option>
+          <option value="std">std</option>
+          <option value="max">max</option>
+          <option value="min">min</option>
+        </select>
+      </td>
+    </tr>
+  </table>
 </form>
 
 <table class="table
@@ -77,10 +53,17 @@ through <%=@offset + @length%> of
        >
   <thead>
     <% if @counts: %>
-    <th class="pandascolumn">counts</th>
+    <th>counts</th>
     <% end %>
+    <th>index</th>
     <% for column in @columns: %>
-    <th class="pandascolumn"><%= column %></th>
+    <th><a class="pandascolumn"><%= column %></a>
+        <% if @sort_ascendings[column] == true: %>
+        <i class="icon-chevron-up"></i>
+        <% else if @sort_ascendings[column] == false: %>
+        <i class="icon-chevron-down"></i>
+        <% end %>
+    </th>
     <% end %>
   </thead>
   <% for datapoint, idx in @data: %>
@@ -98,7 +81,7 @@ through <%=@offset + @length%> of
     <td> <%= @counts[idx] %> </td>
       <% end %>
     <% end %>
-
+    <td> <%= @index[idx] %> </td>
     <% for column in @columns: %>
     <td> <%= datapoint[column] %> </td>
     <% end %>

@@ -24,52 +24,51 @@ class RayView extends GlyphView
     @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
-  _render: (data) ->
-    ctx = @plot_view.ctx
-    glyph_props = @glyph_props
+  _set_data: (@data) ->
+    @x = @glyph_props.v_select('x', data)
+    @y = @glyph_props.v_select('y', data)
+    @angle = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
+    @length = @glyph_props.v_select('length', data)
 
-    ctx.save()
-
+  _render: () ->
+    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
     width = @plot_view.viewstate.get('width')
     height = @plot_view.viewstate.get('height')
     inf_len = 2 * (width + height)
+    @slength = @length[..]
+    for i in [0..@slength.length-1]
+      if @slength[i] == 0 then @slength[i] = inf_len
 
-    x = glyph_props.v_select('x', data)
-    y = glyph_props.v_select('y', data)
-    [@sx, @sy] = @map_to_screen(x, glyph_props.x.units, y, glyph_props.y.units)
-    @angle = (glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
-    @length = glyph_props.v_select('length', data)
-    for i in [0..@sx.length-1]
-      if @length[i] == 0 then @length[i] = inf_len
+    ctx = @plot_view.ctx
 
+    ctx.save()
     if @glyph_props.fast_path
-      @_fast_path(ctx, glyph_props)
+      @_fast_path(ctx)
     else
-      @_full_path(ctx, glyph_props, data)
-
+      @_full_path(ctx)
     ctx.restore()
 
-  _fast_path: (ctx, glyph_props) ->
+  _fast_path: (ctx) ->
     if @do_stroke
-      glyph_props.line_properties.set(ctx, glyph)
+      @glyph_props.line_properties.set(ctx, @glyph_props)
       ctx.beginPath()
       for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
+        if isNaN(@sx[i] + @sy[i] + @angle[i] + @slength[i])
           continue
 
         ctx.translate(@sx[i], @sy[i])
         ctx.rotate(@angle[i])
         ctx.moveTo(0,  0)
-        ctx.lineTo(@length[i], 0) # TODO handle @length in data units?
+        ctx.lineTo(@slength[i], 0) # TODO handle @length in data units?
         ctx.rotate(-@angle[i])
         ctx.translate(-@sx[i], -@sy[i])
 
       ctx.stroke()
 
-  _full_path: (ctx, glyph_props, data) ->
+  _full_path: (ctx) ->
     if @do_stroke
       for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
+        if isNaN(@sx[i] + @sy[i] + @angle[i] + @slength[i])
           continue
 
         ctx.translate(@sx[i], @sy[i])
@@ -77,9 +76,9 @@ class RayView extends GlyphView
 
         ctx.beginPath()
         ctx.moveTo(0, 0)
-        ctx.lineTo(@length[i], 0) # TODO handle @length in data units?
+        ctx.lineTo(@slength[i], 0) # TODO handle @length in data units?
 
-        glyph_props.line_properties.set(ctx, data[i])
+        @glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
         ctx.rotate(-@angle[i])

@@ -27,21 +27,20 @@ class AreaView extends GlyphView
     @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
-  # TODO store screen coords
 
-  _render: (data) ->
+  _set_data: (@data) ->
+    # TODO store screen coords
+
+  _render: () ->
     ctx = @plot_view.ctx
-    glyph_props = @glyph_props
 
     ctx.save()
-
-    for pt in data
-      x = glyph_props.select('xs', pt)
-      y = glyph_props.select('ys', pt)
-      [sx, sy] = @map_to_screen(x, glyph_props.xs.units, y, glyph_props.ys.units)
-
+    for pt in @data
+      x = @glyph_props.select('xs', pt)
+      y = @glyph_props.select('ys', pt)
+      [sx, sy] = @map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
       if @do_fill
-        glyph_props.fill_properties.set(ctx, pt)
+        @glyph_props.fill_properties.set(ctx, pt)
         for i in [0..sx.length-1]
           if i == 0
             ctx.beginPath()
@@ -58,7 +57,7 @@ class AreaView extends GlyphView
         ctx.fill()
 
       if @do_stroke
-        glyph_props.line_properties.set(ctx, pt)
+        @glyph_props.line_properties.set(ctx, pt)
         for i in [0..sx.length-1]
           if i == 0
             ctx.beginPath()

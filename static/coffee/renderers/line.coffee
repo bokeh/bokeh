@@ -24,29 +24,27 @@ class LineView extends GlyphView
     @do_stroke = @glyph_props.line_properties.do_stroke
     super(options)
 
-  _render: (data) ->
+  _set_data: (@data) ->
+    # TODO save screen coords
+
+  _render: () ->
     ctx = @plot_view.ctx
-    glyph_props = @glyph_props
 
     ctx.save()
-
     if @glyph_props.fast_path
-      @_fast_path(ctx, glyph_props)
+      @_fast_path(ctx)
     else
-      @_full_path(ctx, glyph_props, data)
-
+      @_full_path(ctx)
     ctx.restore()
 
-  # TODO save screen coords
-
-  _fast_path: (ctx, glyph_props) ->
+  _fast_path: (ctx) ->
     if @do_stroke
-      glyph_props.line_properties.set(ctx, glyph)
-      for pt in data
-        x = glyph_props.select('xs', pt)
-        y = glyph_props.select('ys', pt)
+      @glyph_props.line_properties.set(ctx, @glyph_props)
+      for pt in @data
+        x = @glyph_props.select('xs', pt)
+        y = @glyph_props.select('ys', pt)
 
-        [sx, sy] = @map_to_screen(x, glyph_props.xs.units, y, glyph_props.ys.units)
+        [sx, sy] = @map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
 
         for i in [0..sx.length-1]
           if i == 0
@@ -61,15 +59,15 @@ class LineView extends GlyphView
             ctx.lineTo(sx[i], sy[i])
         ctx.stroke()
 
-  _full_path: (ctx, glyph_props, data) ->
+  _full_path: (ctx) ->
     if @do_stroke
-      for pt in data
-        x = glyph_props.select('xs', pt)
-        y = glyph_props.select('ys', pt)
+      for pt in @data
+        x = @glyph_props.select('xs', pt)
+        y = @glyph_props.select('ys', pt)
 
-        [sx, sy] = @map_to_screen(x, glyph_props.xs.units, y, glyph_props.ys.units)
+        [sx, sy] = @map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
 
-        glyph_props.line_properties.set(ctx, pt)
+        @glyph_props.line_properties.set(ctx, pt)
         for i in [0..sx.length-1]
           if i == 0
             ctx.beginPath()
