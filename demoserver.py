@@ -9,6 +9,9 @@ import sys
 app = flask.Flask(__name__)
 
 SRCDIR = "static/coffee"
+DEMO_SRCDIR = "demo/coffee"
+# TODO: Should be able to remove EXCLUDES now that demo and tests have
+# been moved out.
 EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
             join(SRCDIR,"unittest/primitives")]
 
@@ -22,14 +25,13 @@ def demo(demoname):
         with open("slug.json") as f:
             slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT,
-                    excludes=EXCLUDES)
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT)
     else:
-        jslibs = ['/static/js/application.js']
+        jslibs = ['/static/js/demo/application.js']
         hemfiles = []
 
     demos = alldemos[demoname]
-    demofiles = [os.path.join(SRCDIR, name+".coffee") for name in demos]
+    demofiles = [os.path.join(DEMO_SRCDIR, name+".coffee") for name in demos]
 
     for demo in demofiles:
         if not os.path.isfile(demo):
@@ -66,30 +68,30 @@ def test(testname):
 alldemos = {
 
     'all' : [
-        'demo/scatter',
-        'demo/image',
-        'demo/bars',
-        'demo/map',
-        'demo/candle',
-        'demo/vector',
-        'demo/group',
-        'demo/stack',
-        'demo/lorenz10',
-        'demo/lorenz50',
-        'demo/lorenz100',
+        'scatter',
+        'image',
+        'bars',
+        'map',
+        'candle',
+        'vector',
+        'group',
+        'stack',
+        'lorenz10',
+        'lorenz50',
+        'lorenz100',
     ],
 
-    'scatter'   : ['demo/scatter'],
-    'image'     : ['demo/image'],
-    'bars'      : ['demo/bars'],
-    'map'       : ['demo/map'],
-    'candle'    : ['demo/candle'],
-    'vector'    : ['demo/vector'],
-    'group'     : ['demo/group'],
-    'stack'     : ['demo/stack'],
-    'lorenz10'  : ['demo/lorenz10'],
-    'lorenz50'  : ['demo/lorenz50'],
-    'lorenz100' : ['demo/lorenz100'],
+    'scatter'   : ['scatter'],
+    'image'     : ['image'],
+    'bars'      : ['bars'],
+    'map'       : ['map'],
+    'candle'    : ['candle'],
+    'vector'    : ['vector'],
+    'group'     : ['group'],
+    'stack'     : ['stack'],
+    'lorenz10'  : ['lorenz10'],
+    'lorenz50'  : ['lorenz50'],
+    'lorenz100' : ['lorenz100'],
 }
 
 alltests = {
