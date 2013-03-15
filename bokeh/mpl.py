@@ -32,12 +32,12 @@ class BokehMPLBase(object):
     def __init__(self, *args, **kwargs):
         if 'plotclient' in kwargs:
             self.plotclient = kwargs['plotclient']
-            
+
     def update(self):
         if self.plotclient.bbclient:
             self.plotclient.bbclient.upsert_all(self.allmodels())
     def _repr_html_(self):
-        
+
         html = self.plotclient.make_html(
             self.allmodels(),
             model=getattr(self, self.topmodel),
@@ -47,7 +47,7 @@ class BokehMPLBase(object):
             )
         html = html.encode('utf-8')
         return html
-    
+
     def htmldump(self, path=None):
         """ If **path** is provided, then writes output to a file,
         else returns the output as a string.
@@ -61,7 +61,7 @@ class BokehMPLBase(object):
                 f.write(html.encode("utf-8"))
         else:
             return html.encode("utf-8")
-        
+
 class PandasTable(BokehMPLBase):
     topmodel = 'pivotmodel'
     def __init__(self, pivotmodel, plotclient=None):
@@ -69,15 +69,15 @@ class PandasTable(BokehMPLBase):
         self.pivotmodel = pivotmodel
         if hasattr(self.pivotmodel, 'pandassource'):
             self.pandassource = self.pivotmodel.pandassource
-            
+
     def groupby(self, columns):
         self.pivotmodel.set('groups', columns)
         self.plotclient.bbclient.update(self.pivotmodel)
-        
+
     def agg(self, agg):
         self.pivotmodel.set('agg', agg)
         self.plotclient.bbclient.update(self.pivotmodel)
-        
+
     def sort(self, sort=None, direction=None):
         if sort is None:
             sort = []
@@ -90,37 +90,37 @@ class PandasTable(BokehMPLBase):
                     s, d in zip(sort, direction)]
         self.pivotmodel.set('sort', sort)
         self.plotclient.bbclient.update(self.pivotmodel)
-        
+
     def paginate(self, offset, length):
         self.pivotmodel.set('offset', offset)
         self.pivotmodel.set('length', length)
         self.plotclient.bbclient.update(self.pivotmodel)
-        
+
     def data(self):
         self.pivotmodel.pull()
         return self.pivotmodel.get_data()
-    
+
     def allmodels(self):
         models = [self.pivotmodel, self.pivotmodel.pandassource]
         return models
-    
-    
+
+
 class GridPlot(BokehMPLBase):
-    topmodel = 'gridmodel'    
+    topmodel = 'gridmodel'
     def __init__(self, container, children, title, plotclient=None):
         self.gridmodel = container
         self.children = children
         self.title = title
         super(GridPlot, self).__init__(container, children, title,
                                        plotclient=plotclient)
-        
+
     def allmodels(self):
         models = [self.gridmodel]
         for row in self.children:
             for plot in row:
                 models.extend(plot.allmodels())
         return models
-    
+
 
 class XYPlot(BokehMPLBase):
     topmodel = 'plotmodel'
@@ -146,7 +146,7 @@ class XYPlot(BokehMPLBase):
         self.renderers = []
         self.data_sources = []
         self.update()
-        
+
     def allmodels(self):
         models =  [self.plotmodel,
                    self.xdata_range,
@@ -160,8 +160,9 @@ class XYPlot(BokehMPLBase):
         models += self.renderers
         models += self.data_sources
         for source in self.data_sources:
-            if source.typename == 'PandasPlotSource' and \
-                   hasattr(self, 'pandassource'):
+            if hasattr(source, 'typename') and \
+                    source.typename == 'PandasPlotSource' and \
+                    hasattr(self, 'pandassource'):
                 models.append(source.pandassource)
         return models
 
@@ -171,7 +172,8 @@ class XYPlot(BokehMPLBase):
 
     def plot(self, x, y=None, color=None, data_source=None,
              scatter=False):
-        if data_source.typename == 'PandasDataSource':
+        if hasattr(data_source, 'typename') and \
+                data_source.typename == 'PandasDataSource':
             if self.plotclient.plot_sources.get(data_source.id):
                 data_source = self.plotclient.plot_sources.get(data_source.id)
             else:
@@ -310,7 +312,7 @@ class XYPlot(BokehMPLBase):
             self.plotclient.bbclient.upsert_all(update)
         self.plotclient.show(self.plotmodel)
 
-        
+
 class PlotClient(object):
     def __init__(self, username=None,
                  serverloc=None,
@@ -330,16 +332,16 @@ class PlotClient(object):
         if not ph:
             ph = protocol.ProtocolHelper()
         self.docid = None
-        self.models = {}            
+        self.models = {}
         self.ph = ph
         self.clf()
         self._hold = True
         self.bbclient = None
         self.ic = self.model('PlotContext', children=[])
- 
+
         # Caching pandas plot source so we can be smart about reusing them
         self.plot_sources = {}
-        
+
     @property
     def ws_conn_string(self):
         split = urlparse.urlsplit(self.root_url)
@@ -347,11 +349,11 @@ class PlotClient(object):
             return "ws://%s:5006/bokeh/sub" % split.netloc
         else:
             return "wss://%s:5006/bokeh/sub" % split.netloc
-        
+
     def update_userinfo(self):
         url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
         self.userinfo = self.session.get(url, verify=False).json
-        
+
     def load_doc(self, docid):
         url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
         resp = self.session.get(url, verify=False)
@@ -367,7 +369,7 @@ class PlotClient(object):
             self.apikey = apikey['readonlyapikey']
             print 'got read only apikey'
         self.models = {}
-        url = urlparse.urljoin(self.root_url, "/bokeh/bb/")        
+        url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
         self.bbclient = bbmodel.ContinuumModelsClient(
             docid, url, self.apikey, self.ph
             )
@@ -376,7 +378,7 @@ class PlotClient(object):
         if len(interactive_contexts) > 1:
             print 'warning, multiple plot contexts here...'
         self.ic = interactive_contexts[0]
-        
+
     def make_doc(self, title):
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
         data = self.ph.serialize_web({'title' : title})
@@ -394,7 +396,7 @@ class PlotClient(object):
         if response.status_code == 409:
             raise DataIntegrityException
         self.userinfo = response.json
-        
+
     def use_doc(self, name):
         self.docname = name
         docs = self.userinfo.get('docs')
@@ -408,7 +410,7 @@ class PlotClient(object):
             docs = self.userinfo.get('docs')
             matching = [x for x in docs if x.get('title') == name]
         self.load_doc(matching[0]['docid'])
-        
+
     def notebook_connect(self):
         js = get_template('connect.js').render(
             username=self.username,
@@ -427,7 +429,7 @@ class PlotClient(object):
             )
         displaypub.publish_display_data('bokeh', {'text/html': html})
         return None
-        
+
     def notebooksources(self):
         html = self.html(template="basediv.html",
                          html_snippets=["<p>Bokeh Sources</p>"])
@@ -441,7 +443,7 @@ class PlotClient(object):
         model.set('doc', self.docid)
         self.models[model.id] = model
         return model
-    
+
     def hold(self, val):
         if val == 'on':
             self._hold = True
@@ -564,7 +566,7 @@ class PlotClient(object):
                         scatter=scatter
                         )
         return self._plot
-    
+
     def pandastable(self, source, sort=[], groups=[],
                     agg='sum', width=600, offset=0, length=100,
                     height=400, container=None):
@@ -585,7 +587,7 @@ class PlotClient(object):
         if container is None:
             self.show(table)
         return PandasTable(table, self)
-    
+
     def table(self, data_source, columns, title=None,
               width=600, height=300, container=None):
         if container is None:
@@ -627,7 +629,7 @@ class PlotClient(object):
             plot.set('parent', container.ref())
         plotrefs = [[x.plotmodel.ref() for x in row] for row in plots]
         container.set('children', plotrefs)
-        if self.bbclient:        
+        if self.bbclient:
             to_update = [self.ic, container]
             to_update.extend(flatplots)
             self.bbclient.upsert_all(to_update)
@@ -649,7 +651,7 @@ class PlotClient(object):
         self.ic.set('children', [])
         if self.bbclient:
             self.bbclient.update(self.ic)
-            
+
     def html(self, script_paths=None,
              css_paths=None, js_snippets=[],
              html_snippets=[], template="base.html",
@@ -667,12 +669,12 @@ class PlotClient(object):
             html_snippets=html_snippets
             )
         return result
-    
+
     def make_html(self, all_models, model=None, template="base.html",
                   script_paths=None, css_paths=None):
         if model is None:
             model = self.ic
-        elementid = str(uuid.uuid4())            
+        elementid = str(uuid.uuid4())
         plot_js = get_template('plots.js').render(
             elementid=elementid,
             modelid=model.id,
@@ -687,7 +689,7 @@ class PlotClient(object):
                            template=template,
                            html_snippets=[plot_div])
         return result
-    
+
     def htmldump(self, path=None):
         """if inline, path is a filepath, otherwise,
         path is a dir
