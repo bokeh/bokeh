@@ -687,7 +687,10 @@ class PlotClient(object):
             )
         result = self.html(js_snippets=[plot_js],
                            template=template,
-                           html_snippets=[plot_div])
+                           html_snippets=[plot_div],
+                           script_paths=script_paths,
+                           css_paths=css_paths
+                           )
         return result
 
     def htmldump(self, path=None):
