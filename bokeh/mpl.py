@@ -171,7 +171,7 @@ class XYPlot(BokehMPLBase):
 
     def plot(self, x, y=None, color=None, data_source=None,
              scatter=False):
-        if data_source.typename == 'PandasDataSource':
+        if data_source and (data_source.typename == 'PandasDataSource'):
             if self.plotclient.plot_sources.get(data_source.id):
                 data_source = self.plotclient.plot_sources.get(data_source.id)
             else:
@@ -351,14 +351,14 @@ class PlotClient(object):
         
     def update_userinfo(self):
         url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
-        self.userinfo = self.session.get(url, verify=False).json
+        self.userinfo = self.session.get(url, verify=False).json()
         
     def load_doc(self, docid):
         url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
         resp = self.session.get(url, verify=False)
         if resp.status_code == 401:
             raise Exception, 'unauthorized'
-        apikey = resp.json
+        apikey = resp.json()
         if 'apikey' in apikey:
             self.docid = docid
             self.apikey = apikey['apikey']
@@ -384,7 +384,7 @@ class PlotClient(object):
         response = self.session.post(url, data=data, verify=False)
         if response.status_code == 409:
             raise DataIntegrityException
-        self.userinfo = response.json
+        self.userinfo = response.json()
 
     def remove_doc(self, title):
         matching = [x for x in self.userinfo['docs'] \
