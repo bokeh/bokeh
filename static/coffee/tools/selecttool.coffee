@@ -30,8 +30,9 @@ class SelectionToolView extends ToolView
   eventGeneratorClass : TwoPointEventGenerator
   evgen_options : {keyName:"ctrlKey", buttonText:"Select"}
   tool_events : {
-    UpdatingMouseMove: "_selecting",
+    UpdatingMouseMove: "box_selecting",
     SetBasepoint : "_start_selecting",
+    DragEnd: "_selecting",
     deactivated : "_stop_selecting"}
 
   mouse_coords : (e, x, y) ->
@@ -61,10 +62,29 @@ class SelectionToolView extends ToolView
       yrange = null
     return [xrange, yrange]
 
+  _get_selection_range_fast : (current_x, current_y)->
+    xrange = [@mget('start_x'), current_x]
+    yrange = [@mget('start_y'), current_y]
+    if @mget('select_x')
+      xrange = [d3.min(xrange), d3.max(xrange)]
+    else
+      xrange = null
+    if @mget('select_y')
+      yrange = [d3.min(yrange), d3.max(yrange)]
+    else
+      yrange = null
+    return [xrange, yrange]
+
   _selecting : (e, x_, y_) ->
     [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     @mset({'current_x' : x, 'current_y' : y})
-    [@xrange, @yrange] = @_get_selection_range()
+    [@xrange, @yrange] = @_get_selection_range_fast(x, y)
+    @trigger('boxselect', @xrange, @yrange)
+    return null
+
+  box_selecting : (e, x_, y_) ->
+    [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
+    [@xrange, @yrange] = @_get_selection_range_fast(x, y)
     @trigger('boxselect', @xrange, @yrange)
     return null
 
