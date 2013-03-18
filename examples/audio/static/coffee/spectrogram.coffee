@@ -354,7 +354,6 @@ class Spectrogram
       outer_radius: 'outer_radius'
       start_angle: 'start_angle'
       end_angle: 'end_angle'
-      direction: 'clock'
     }
     glyph = Collections('GlyphRenderer').create({
       data_source: @hist_source.ref()
