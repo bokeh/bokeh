@@ -30,8 +30,10 @@ class AnnularWedgeView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    @start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
-    @end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
+    start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
+    @start_angle = (-angle for angle in start_angle)
+    end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
+    @end_angle = (-angle for angle in end_angle)
     @angle = new Array(@start_angle.length)
     for i in [0..@start_angle.length-1]
       @angle[i] = @end_angle[i] - @start_angle[i]
@@ -136,6 +138,8 @@ class AnnularWedge extends Glyph
 
 AnnularWedge::display_defaults = _.clone(AnnularWedge::display_defaults)
 _.extend(AnnularWedge::display_defaults, {
+
+  direction: 'anticlock'
 
   fill: 'gray'
   fill_alpha: 1.0

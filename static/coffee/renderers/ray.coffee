@@ -27,7 +27,8 @@ class RayView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    @angle = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
+    angles = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
+    @angle = (-angle for angle in angles)
     @length = @glyph_props.v_select('length', data)
 
   _render: () ->

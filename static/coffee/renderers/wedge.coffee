@@ -16,7 +16,7 @@ class WedgeView extends GlyphView
     @glyph_props = new glyph_properties(
       @,
       glyphspec,
-      ['x', 'y', 'radius', 'start_angle', 'end_angle'],
+      ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string'],
       [
         new fill_properties(@, glyphspec),
         new line_properties(@, glyphspec)
@@ -30,8 +30,16 @@ class WedgeView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    @start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
-    @end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
+    start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
+    @start_angle = (-angle for angle in start_angle)
+    end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
+    @end_angle = (-angle for angle in end_angle)
+    @direction = new Array(@data.length)
+    for i in [0..@data.length-1]
+      dir = @glyph_props.select('direction', data[i])
+      if dir == 'clock' then @direction[i] = false
+      else if dir == 'anticlock' then @direction[i] = true
+      else @direction[i] = NaN
 
   _render: () ->
     [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
@@ -50,11 +58,11 @@ class WedgeView extends GlyphView
     if @do_fill
       @glyph_props.fill_properties.set(ctx, @glyph_props)
       for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
+        if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
           continue
 
         ctx.beginPath()
-        ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], false)
+        ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
         ctx.lineTo(@sx[i], @sy[i])
         ctx.closePath()
         ctx.fill()
@@ -62,22 +70,22 @@ class WedgeView extends GlyphView
     if @do_stroke
       @glyph_props.line_properties.set(ctx, @glyph_props)
       for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
+        if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
           continue
 
         ctx.beginPath()
-        ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], false)
+        ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
         ctx.lineTo(@sx[i], @sy[i])
         ctx.closePath()
         ctx.stroke()
 
   _full_path: (ctx) ->
     for i in [0..@sx.length-1]
-      if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i])
+      if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
         continue
 
       ctx.beginPath()
-      ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], false)
+      ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
       ctx.lineTo(@sx[i], @sy[i])
       ctx.closePath()
 
@@ -97,6 +105,8 @@ class Wedge extends Glyph
 
 Wedge::display_defaults = _.clone(Wedge::display_defaults)
 _.extend(Wedge::display_defaults, {
+
+  direction: 'anticlock'
 
   fill: 'gray'
   fill_alpha: 1.0

@@ -6,7 +6,7 @@ range = Collections('Range1d').create({start: 0, end: 10})
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
     {x: 1, y: 5},
-    {x: 2, y: 4, direction: 'anticlock', line_color: 'orange'},
+    {x: 2, y: 4, direction: 'clock', line_color: 'orange'},
     {x: 3, y: 3},
     {x: 4, y: 2},
     {x: 5, y: 1},
@@ -17,7 +17,7 @@ defaults = {
   radius: 10
   start_angle: 0.8
   end_angle: 3.8
-  direction: 'clock'
+  direction: 'anticlock'
 }
 
 glyph = {
