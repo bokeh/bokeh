@@ -1,5 +1,4 @@
 
-<<<<<<< Updated upstream
 annular_wedge = require("./annular_wedge")
 annulus       = require("./annulus")
 arc           = require("./arc")
