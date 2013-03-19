@@ -67,7 +67,7 @@ class ImageURIs extends Backbone.Collection
   model: ImageURIGlyph
 
 
-exports.imageuriss = new ImageURIs
+exports.image_uriss = new ImageURIs
 exports.ImageURI = ImageURIGlyph
 exports.ImageURIView = ImageURIView
 

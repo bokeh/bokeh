@@ -19,9 +19,9 @@ defaults = {
 }
 
 glyph = {
-  type: 'imageuri'
+  type: 'image_uri'
   x: 'x'
   y: 'y'
 }
 
-test('imageuri_glyph', make_glyph_test('imageuri_glyph', data_source, defaults, glyph, range, range))
+test('image_uri_glyph', make_glyph_test('image_uri_glyph', data_source, defaults, glyph, range, range))
