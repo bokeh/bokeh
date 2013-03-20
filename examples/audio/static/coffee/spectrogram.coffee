@@ -47,7 +47,7 @@ class Spectrogram
     @power = [new Float32Array(NUM_SAMPLES)]
     @power_idx = [new Array(NUM_SAMPLES)]
     for i in [0..@power_idx[0].length-1]
-      @power_idx[0][i] = (i/(@power_idx[0].length-1))*TIMESLICE
+      @power_idx[0][i] = (i/(@power_idx[0].length-1))*window.TIMESLICE
     @power_source = Collections('ColumnDataSource').create(
       data:{power: @power, idx: @power_idx}
     )
@@ -292,7 +292,7 @@ class Spectrogram
   create_power: () ->
     plot_model = Collections('Plot').create()
 
-    xrange = Collections('Range1d').create({start: 0, end: TIMESLICE})
+    xrange = Collections('Range1d').create({start: 0, end: window.TIMESLICE})
     yrange = Collections('Range1d').create({start: -0.25, end: 0.25})
 
     xaxis = Collections('LinearAxis').create(
