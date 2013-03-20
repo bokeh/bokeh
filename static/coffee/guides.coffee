@@ -66,20 +66,19 @@ class LinearAxisView extends PlotWidget
   tick_label : (tick) ->
     return tick.toString()
 
+
   render_x : ->
     can_ctx = @plot_view.x_can_ctx
     data_range = @mapper.data_range
     interval = ticks.auto_interval(
-      data_range.get('start'), data_range.get('end')
-    )
+      data_range.get('start'), data_range.get('end'))
     range = data_range.get('end') - data_range.get('start')
     x_scale = @mapper.get('scalestate')[0]
-    last_tick_end = 10000
+    last_tick_end = 0
     [first_tick, last_tick] = ticks.auto_bounds(
       data_range.get('start'), data_range.get('end'), interval)
     current_tick = first_tick
     x_ticks = []
-    last_tick_end = 0
     can_ctx.clearRect(0, 0,  @plot_view.viewstate.get('width'),
       @plot_view.viewstate.get('height'))
     while current_tick <= last_tick
@@ -106,11 +105,11 @@ class LinearAxisView extends PlotWidget
       data_range.get('start'), data_range.get('end'))
     range = data_range.get('end') - data_range.get('start')
     y_scale = @mapper.get('scalestate')[0]
+    last_tick_end = 10000
     [first_tick, last_tick] = ticks.auto_bounds(
       data_range.get('start'), data_range.get('end'), interval)
     current_tick = first_tick
     y_ticks = []
-    last_tick_end = 10000
     can_ctx.clearRect(0, 0, @plot_view.viewstate.get('width'),
       @plot_view.viewstate.get('height'))
     while current_tick <= last_tick
@@ -161,7 +160,6 @@ class LegendRendererView extends PlotWidget
       start_y = y
 
 
-    #width = can_ctx.measureText("blahblah").width
     text_height = 20
 
     legend_height = text_height * @model.get('legends').length
@@ -185,7 +183,6 @@ class LegendRendererView extends PlotWidget
       console.log("l.name", l.name, l, legend_offset_x, legend_offset_y)
       can_ctx.strokeStyle = l.color
       can_ctx.fillStyle = l.color
-
       can_ctx.fillText(l.name, legend_offset_x, legend_offset_y)
       legend_offset_y += text_height
     can_ctx.stroke()
