@@ -82,8 +82,9 @@ class Spectrogram
       #console.log "AJAX Error: #{textStatus}"
     success: (data, textStatus, jqXHR) =>
       @on_data(data)
-      requestAnimationFrame(
-        => @request_data())
+      if not @paused
+        requestAnimationFrame(
+          => @request_data())
 
     new_render = new Date()
     console.log("render_time", new_render - @last_render)
@@ -216,8 +217,8 @@ class Spectrogram
       else
         button.text('pause')
         @paused = false
-        @request_data()
-    )
+        @request_data())
+
     controls.append(button)
 
     controls.css('clear', 'both')
