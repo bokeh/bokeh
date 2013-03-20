@@ -75,6 +75,8 @@ class Spectrogram
     @render()
 
   request_data: () ->
+    if @paused
+      return
     $.ajax 'http://localhost:5000/data',
     type: 'GET'
     dataType: 'json'
@@ -83,9 +85,8 @@ class Spectrogram
       #console.log "AJAX Error: #{textStatus}"
     success: (data, textStatus, jqXHR) =>
       @on_data(data)
-      if not @paused
-        requestAnimationFrame(
-          => @throttled_request_data())
+      requestAnimationFrame(
+        => @throttled_request_data())
 
     new_render = new Date()
     #console.log("render_time", new_render - @last_render)
