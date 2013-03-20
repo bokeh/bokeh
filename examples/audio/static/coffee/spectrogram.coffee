@@ -32,7 +32,7 @@ class Spectrogram
     @last_render = new Date()
 
     @paused = false
-
+    @throttled_request_data = _.throttle((=> @request_data()), 10)
     # Set up image plot for the spectrogram
     @image_width = NGRAMS
     @image_height = 256
@@ -79,15 +79,16 @@ class Spectrogram
     type: 'GET'
     dataType: 'json'
     error: (jqXHR, textStatus, errorThrown) =>
+
       #console.log "AJAX Error: #{textStatus}"
     success: (data, textStatus, jqXHR) =>
       @on_data(data)
       if not @paused
         requestAnimationFrame(
-          => @request_data())
+          => @throttled_request_data())
 
     new_render = new Date()
-    console.log("render_time", new_render - @last_render)
+    #console.log("render_time", new_render - @last_render)
     @last_render = new_render
 
   on_data: (data) ->
@@ -406,5 +407,8 @@ class Spectrogram
 
 $(document).ready () ->
   spec = new Spectrogram()
-  spec.request_data()
+  setInterval((() ->
+    spec.request_data()),
+    400)
+    
 
