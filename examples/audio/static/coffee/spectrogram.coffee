@@ -74,7 +74,7 @@ class Spectrogram
 
     @render()
 
-  request_data: () =>
+  request_data: () ->
     $.ajax 'http://localhost:5000/data',
     type: 'GET'
     dataType: 'json'
@@ -82,13 +82,14 @@ class Spectrogram
       #console.log "AJAX Error: #{textStatus}"
     success: (data, textStatus, jqXHR) =>
       @on_data(data)
+      requestAnimationFrame(
+        => @request_data())
+
     new_render = new Date()
     console.log("render_time", new_render - @last_render)
     @last_render = new_render
-    requestAnimationFrame(
-      => @request_data())
 
-  on_data: (data) =>
+  on_data: (data) ->
     if not data[0]?
       return
 
@@ -163,7 +164,7 @@ class Spectrogram
     })
     @hist_source.trigger('change', @power_source, {})
 
-  set_freq_range : (event, ui) =>
+  set_freq_range : (event, ui) ->
     [min, max] = ui.values
     @fft_xrange.set({'start': min, 'end' : max})
     return null
