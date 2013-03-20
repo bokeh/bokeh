@@ -18,7 +18,7 @@ class BoxSelectionOverlayView extends PlotWidget
     @xrange = xrange
     @yrange = yrange
     @request_render()
-    console.log('valchange')
+    #console.log('valchange')
   startselect : () ->
     @selecting = true
     @xrange = [null, null]
