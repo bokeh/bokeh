@@ -18,12 +18,15 @@ TIMESLICE = 35 # ms
 GAIN_DEFAULT = 1
 GAIN_MIN = 1
 GAIN_MAX = 20
-
+requestAnimationFrame = window.requestAnimationFrame || \
+  window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||\
+  window.msRequestAnimationFrame
+ 
 class Spectrogram
   constructor: () ->
 
     @gain = GAIN_DEFAULT
-
+    @last_render = new Date()
     # Set up image plot for the spectrogram
     @image_width = NGRAMS
     @image_height = 256
@@ -73,6 +76,11 @@ class Spectrogram
       console.log "AJAX Error: #{textStatus}"
     success: (data, textStatus, jqXHR) =>
       @on_data(data)
+    new_render = new Date()
+    console.log("render_time", new_render - @last_render)
+    @last_render = new_render
+    requestAnimationFrame(
+      => @request_data())
 
   on_data: (data) =>
     if not data[0]?
@@ -374,4 +382,5 @@ class Spectrogram
 
 $(document).ready () ->
   spec = new Spectrogram()
-  setInterval(spec.request_data, TIMESLICE)
+  #setInterval(spec.request_data, TIMESLICE)
+  spec.request_data()
