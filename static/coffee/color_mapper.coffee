@@ -65,8 +65,6 @@ class ColorMapper
         value = @palette[Math.floor(d*scale+offset)]
         color[i] = (value << 8) | 0xff
 
-
-
     return buf
 
 exports.ColorMapper = ColorMapper
