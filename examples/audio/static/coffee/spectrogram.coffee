@@ -84,9 +84,13 @@ class Spectrogram
 
       #console.log "AJAX Error: #{textStatus}"
     success: (data, textStatus, jqXHR) =>
-      @on_data(data)
-      requestAnimationFrame(
-        => @throttled_request_data())
+      if not data[0]?
+        _.delay((=> @throttled_request_data), 130)
+      else  
+        @on_data(data)
+        requestAnimationFrame(
+          => @throttled_request_data())
+
 
     new_render = new Date()
     #console.log("render_time", new_render - @last_render)
