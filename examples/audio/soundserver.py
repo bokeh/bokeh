@@ -52,7 +52,7 @@ def get_audio_data():
 #                                transpose([spectrum])))
 
 #SRCDIR = "../../static/coffee"
-SRCDIR = "bokejs_static/coffee"
+SRCDIR = "static/bokehjs_static/coffee"
 EXAMPLE_SRCDIR = "static/coffee"
 EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
             join(SRCDIR,"unittest/primitives")]
