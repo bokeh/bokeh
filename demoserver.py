@@ -43,7 +43,7 @@ def demo(demoname):
     hemfiles.extend(hemlib.make_urls(demofiles, HOST, PORT))
 
     return flask.render_template("demos.html", jslibs = jslibs,
-            hemfiles=hemfiles, demos=demos)
+                                 hemfiles=hemfiles, demos=demos)
 
 @app.route("/test/<testname>")
 def test(testname):
@@ -52,10 +52,11 @@ def test(testname):
             slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
         hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT,
-                    excludes=EXCLUDES)
+                                        excludes=EXCLUDES)
     else:
         jslibs= ['/static/js/tests/application.js']
         hemfiles = []
+    print "demoserver hemfiles", hemfiles
     tests = alltests[testname]
     testfiles = [os.path.join(TEST_SRCDIR, name+".coffee") for name in tests]
     for test in testfiles:
