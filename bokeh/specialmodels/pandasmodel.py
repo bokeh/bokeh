@@ -29,7 +29,11 @@ class PandasDataSource(ContinuumModel):
     def ensure_data(self):
         if not hasattr(self, 'data'):
             self.data = pickle.loads(base64.b64decode(self.get('encoded')))
-        
+            
+    def selected(self):
+        self.pull()
+        return self.get('selected')
+    
 class PandasPlotSource(ContinuumModel):
     """
     attributes:
