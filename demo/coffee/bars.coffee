@@ -1,13 +1,5 @@
 Collections = require('../base').Collections
 make_glyph_test = require('../testutils').make_glyph_test
-Rand = require('../testutils').Rand
-
-zip = () ->
-  lengthArray = (arr.length for arr in arguments)
-  length = Math.min(lengthArray...)
-  for i in [0...length]
-    arr[i] for arr in arguments
-
 
 xs = ( (x/50) for x in _.range(630) )
 ys = (Math.sin(x) for x in xs)
