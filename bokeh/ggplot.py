@@ -206,7 +206,7 @@ class GGPlot(HasProps):
             for g in self.geoms:
                 p = g.plot(client, datasource, self.aes)
             if notebook:
-                return p.notebook()
+                return p
             else:
                 return client.htmldump()
             
@@ -234,7 +234,7 @@ class GGPlot(HasProps):
                             datasource = client.make_source(
                                             **dict((dataname, pd.get_data(dataname)) for dataname in pd.list_data()))
 
-                            plot = self.geoms[0].plot(client, datasource, self.aes, title=title%(i,j))
+                            plot = self.geoms[0].plot(client, datasource, self.aes)
                             if len(self.geoms) > 1:
                                 [g.plot(client, datasource, self.aes) for g in self.geoms[1:]]
                         else:
@@ -250,7 +250,7 @@ class GGPlot(HasProps):
                 pass
 
             if notebook:
-                return container.notebook()
+                return container
             else:
                 return container.htmldump()
 
