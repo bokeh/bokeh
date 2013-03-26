@@ -1,8 +1,8 @@
 
-properties = require('./properties')
+properties = require('../properties')
 glyph_properties = properties.glyph_properties
 
-glyph = require('./glyph')
+glyph = require('../glyph')
 Glyph = glyph.Glyph
 GlyphView = glyph.GlyphView
 

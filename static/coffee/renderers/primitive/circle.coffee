@@ -1,22 +1,22 @@
 
-properties = require('./properties')
+properties = require('../properties')
 glyph_properties = properties.glyph_properties
 line_properties = properties.line_properties
 fill_properties = properties.fill_properties
 
-glyph = require('./glyph')
+glyph = require('../glyph')
 Glyph = glyph.Glyph
 GlyphView = glyph.GlyphView
 
 
-class RectView extends GlyphView
+class CircleView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
     @glyph_props = new glyph_properties(
       @,
       glyphspec,
-      ['x', 'y', 'width', 'height', 'angle'],
+      ['x', 'y', 'radius']
       [
         new fill_properties(@, glyphspec),
         new line_properties(@, glyphspec)
@@ -30,13 +30,10 @@ class RectView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    angles = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
-    @angle = (-angle for angle in angles)
 
   _render: () ->
     [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-    @sw = @distance(@data, 'x', 'width', 'center')
-    @sh = @distance(@data, 'y', 'height', 'center')
+    @radius = @distance(@data, 'x', 'radius', 'edge')
 
     ctx = @plot_view.ctx
 
@@ -50,50 +47,29 @@ class RectView extends GlyphView
   _fast_path: (ctx) ->
     if @do_fill
       @glyph_props.fill_properties.set(ctx, @glyph_props)
-      ctx.beginPath()
       for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
+        if isNaN(@sx[i] + @sy[i] + @radius[i])
           continue
-
-        if @angle[i]
-          ctx.translate(@sx[i], @sy[i])
-          ctx.rotate(@angle[i])
-          ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
-          ctx.rotate(-@angle[i])
-          ctx.translate(-@sx[i], -@sy[i])
-        else
-          ctx.rect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
-
-      ctx.fill()
+        ctx.beginPath()
+        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI*2, false)
+        ctx.fill()
 
     if @do_stroke
       @glyph_props.line_properties.set(ctx, @glyph_props)
-      ctx.beginPath()
       for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
+        if isNaN(@sx[i] + @sy[i] + @radius[i])
           continue
-
-        if @angle[i]
-          ctx.translate(@sx[i], @sy[i])
-          ctx.rotate(@angle[i])
-          ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
-          ctx.rotate(-@angle[i])
-          ctx.translate(-@sx[i], -@sy[i])
-        else
-          ctx.rect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
-
-      ctx.stroke()
+        ctx.beginPath()
+        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI*2, false)
+        ctx.stroke()
 
   _full_path: (ctx) ->
     for i in [0..@sx.length-1]
-      if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
+      if isNaN(@sx[i] + @sy[i] + @radius[i])
         continue
 
-      ctx.translate(@sx[i], @sy[i])
-      ctx.rotate(@angle[i])
-
       ctx.beginPath()
-      ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
+      ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI*2, false)
 
       if @do_fill
         @glyph_props.fill_properties.set(ctx, @data[i])
@@ -103,17 +79,14 @@ class RectView extends GlyphView
         @glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
-      ctx.rotate(-@angle[i])
-      ctx.translate(-@sx[i], -@sy[i])
 
-
-class Rect extends Glyph
-  default_view: RectView
+class Circle extends Glyph
+  default_view: CircleView
   type: 'GlyphRenderer'
 
 
-Rect::display_defaults = _.clone(Rect::display_defaults)
-_.extend(Rect::display_defaults, {
+Circle::display_defaults = _.clone(Circle::display_defaults)
+_.extend(Circle::display_defaults, {
 
   fill: 'gray'
   fill_alpha: 1.0
@@ -126,10 +99,9 @@ _.extend(Rect::display_defaults, {
   line_dash: []
   line_dash_offset: 0
 
-  angle: 0.0
-
 })
 
 
-exports.Rect = Rect
-exports.RectView = RectView
+exports.Circle = Circle
+exports.CircleView = CircleView
+

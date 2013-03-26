@@ -1,23 +1,20 @@
 
-properties = require('./properties')
+properties = require('../properties')
 glyph_properties = properties.glyph_properties
 
-all_palettes = require('../palettes/palettes').all_palettes
-ColorMapper = require('../color_mapper').ColorMapper
-
-glyph = require('./glyph')
+glyph = require('../glyph')
 Glyph = glyph.Glyph
 GlyphView = glyph.GlyphView
 
 
-class ImageView extends GlyphView
+class ImageRGBAView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
     @glyph_props = new glyph_properties(
       @,
       glyphspec,
-      ['image:array', 'width', 'height', 'x', 'y', 'dw', 'dh', 'palette:string'],
+      ['image:array', 'width', 'height', 'x', 'y', 'dw', 'dh'],
       []
     )
 
@@ -29,25 +26,24 @@ class ImageView extends GlyphView
     h = @glyph_props.v_select('dh', data)
     for i in [0..@y.length-1]
       @y[i] += h[i]
-    @pal = @glyph_props.v_select('palette', data)
 
     width = @glyph_props.v_select('width', data)
     height = @glyph_props.v_select('height', data)
     img = (@glyph_props.select('image', obj) for obj in data)
 
-    @image_data = new Array(data.length)
+    if not @image_data? or @image_data.length != data.length
+      @image_data = new Array(data.length)
+
     for i in [0..data.length-1]
-      canvas = document.createElement('canvas');
-      canvas.width = width[i];
-      canvas.height = height[i];
-      ctx = canvas.getContext('2d');
-      image_data = ctx.getImageData(0, 0, width[i], height[i]);
-      cmap = new ColorMapper(all_palettes[@pal[i]])
-      buf = cmap.v_map_screen(img[i])
-      buf8 = new Uint8ClampedArray(buf);
-      image_data.data.set(buf8)
-      ctx.putImageData(image_data, 0, 0);
-      @image_data[i] = canvas
+      if not @image_data[i]?
+        @image_data[i] = document.createElement('canvas')
+      if @image_data[i].width != width[i] or @image_data[i].height != height[i]
+        @image_data[i].width = width[i];
+        @image_data[i].height = height[i];
+      ctx = @image_data[i].getContext('2d');
+      img_data = ctx.createImageData(width[i], height[i])
+      img_data.data.set(new Uint8ClampedArray(img[i]))
+      ctx.putImageData(img_data, 0, 0);
 
   _render: () ->
     [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
@@ -77,15 +73,15 @@ class ImageView extends GlyphView
     ctx.restore()
 
 # name Image conflicts with js Image
-class ImageGlyph extends Glyph
-  default_view: ImageView
+class ImageRGBAGlyph extends Glyph
+  default_view: ImageRGBAView
   type: 'GlyphRenderer'
 
 
-ImageGlyph::display_defaults = _.clone(ImageGlyph::display_defaults)
-_.extend(ImageGlyph::display_defaults, {})
+ImageRGBAGlyph::display_defaults = _.clone(ImageRGBAGlyph::display_defaults)
+_.extend(ImageRGBAGlyph::display_defaults, {})
 
 
-exports.Image = ImageGlyph
-exports.ImageView = ImageView
+exports.ImageRGBA = ImageRGBAGlyph
+exports.ImageRGBAView = ImageRGBAView
 

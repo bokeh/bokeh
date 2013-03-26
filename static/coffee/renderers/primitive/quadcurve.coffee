@@ -1,21 +1,21 @@
 
-properties = require('./properties')
+properties = require('../properties')
 glyph_properties = properties.glyph_properties
 line_properties = properties.line_properties
 
-glyph = require('./glyph')
+glyph = require('../glyph')
 Glyph = glyph.Glyph
 GlyphView = glyph.GlyphView
 
 
-class SegmentView extends GlyphView
+class QuadcurveView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
     @glyph_props = new glyph_properties(
       @,
       glyphspec,
-      ['x0', 'y0', 'x1', 'y1'],
+      ['x0', 'y0', 'x1', 'y1', 'cx', 'cy'],
       [
         new line_properties(@, glyphspec)
       ]
@@ -31,9 +31,13 @@ class SegmentView extends GlyphView
     @x1 = @glyph_props.v_select('x1', data)
     @y1 = @glyph_props.v_select('y1', data)
 
+    @cx = @glyph_props.v_select('cx', data)
+    @cy = @glyph_props.v_select('cy', data)
+
   _render: () ->
     [@sx0, @sy0] = @map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units)
     [@sx1, @sy1] = @map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units)
+    [@scx, @scy] = @map_to_screen(@cx, @glyph_props.cx.units, @cy, @glyph_props.cy.units)
 
     ctx = @plot_view.ctx
 
@@ -49,35 +53,35 @@ class SegmentView extends GlyphView
       @glyph_props.line_properties.set(ctx, @glyph_props)
       ctx.beginPath()
       for i in [0..@sx0.length-1]
-        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
+        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx[i] + @scy[i])
           continue
 
         ctx.moveTo(@sx0[i], @sy0[i])
-        ctx.lineTo(@sx1[i], @sy1[i])
+        ctx.quadraticCurveTo(@scx[i], @scy[i], @sx1[i], @sy1[i])
 
       ctx.stroke()
 
   _full_path: (ctx) ->
     if @do_stroke
       for i in [0..@sx0.length-1]
-        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
+        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx[i] + @scy[i])
           continue
 
         ctx.beginPath()
         ctx.moveTo(@sx0[i], @sy0[i])
-        ctx.lineTo(@sx1[i], @sy1[i])
+        ctx.quadraticCurveTo(@scx[i], @scy[i], @sx1[i], @sy1[i])
 
         @glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
 
-class Segment extends Glyph
-  default_view: SegmentView
+class Quadcurve extends Glyph
+  default_view: QuadcurveView
   type: 'GlyphRenderer'
 
 
-Segment::display_defaults = _.clone(Segment::display_defaults)
-_.extend(Segment::display_defaults, {
+Quadcurve::display_defaults = _.clone(Quadcurve::display_defaults)
+_.extend(Quadcurve::display_defaults, {
 
   line_color: 'red'
   line_width: 1
@@ -90,5 +94,5 @@ _.extend(Segment::display_defaults, {
 })
 
 
-exports.Segment = Segment
-exports.SegmentView = SegmentView
+exports.Quadcurve = Quadcurve
+exports.QuadcurveView = QuadcurveView
