@@ -595,12 +595,22 @@ class PlotWidget extends ContinuumView
   # This class also contains some basic canvas rendering primitives
   # we also include the request_render function, which
   # calls a throttled version of the plot canvas rendering function
+
   tagName : 'div'
   marksize : 3
-  initialize : (options) ->
+
+  initialize: (options) ->
     @plot_model = options.plot_model
     @plot_view = options.plot_view
-    ctx = @plot_view.ctx
+
+    # work around canvas incompatibilities
+    @_fixup_line_dash(@plot_view.ctx)
+    @_fixup_line_dash_offset(@plot_view.ctx)
+    @_fixup_image_smoothing(@plot_view.ctx)
+
+    super(options)
+
+  _fixup_line_dash: (ctx) ->
     if (!ctx.setLineDash)
       ctx.setLineDash = (dash) ->
         ctx.mozDash = dash
@@ -608,10 +618,14 @@ class PlotWidget extends ContinuumView
     if (!ctx.getLineDash)
       ctx.getLineDash = () ->
         return ctx.mozDash
+
+  _fixup_line_dash_offset: (ctx) ->
     ctx.setLineDashOffset = (dash_offset) ->
       ctx.lineDashOffset = dash_offset
       ctx.mozDashOffset = dash_offset
       ctx.webkitLineDashOffset = dash_offset
+
+  _fixup_image_smoothing: (ctx) ->
     ctx.setImageSmoothingEnabled = (value) ->
       ctx.imageSmoothingEnabled = value;
       ctx.mozImageSmoothingEnabled = value;
@@ -619,9 +633,8 @@ class PlotWidget extends ContinuumView
       ctx.webkitImageSmoothingEnabled = value;
     ctx.getImageSmoothingEnabled = () ->
       return ctx.imageSmoothingEnabled ? true
-    super(options)
 
-  bind_bokeh_events : ->
+  bind_bokeh_events: () ->
     safebind(this, @plot_view.viewstate, 'change', ()->
         @request_render())
 
@@ -639,7 +652,7 @@ class PlotWidget extends ContinuumView
     @plot_view.ctx.fill()
     @plot_view.ctx.stroke()
 
-  request_render : () ->
+  request_render: () ->
     @plot_view.throttled()
 
 locations =
