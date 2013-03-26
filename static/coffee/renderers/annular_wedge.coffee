@@ -154,9 +154,6 @@ _.extend(AnnularWedge::display_defaults, {
 
 })
 
-class AnnularWedges extends Backbone.Collection
-  model: AnnularWedge
 
-exports.annular_wedges = new AnnularWedges
 exports.AnnularWedge = AnnularWedge
 exports.AnnularWedgeView = AnnularWedgeView

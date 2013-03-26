@@ -94,11 +94,6 @@ _.extend(Arc::display_defaults, {
 })
 
 
-class Arcs extends Backbone.Collection
-  model: Arc
-
-
-exports.arcs = new Arcs
 exports.Arc = Arc
 exports.ArcView = ArcView
 

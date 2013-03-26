@@ -86,11 +86,6 @@ ImageGlyph::display_defaults = _.clone(ImageGlyph::display_defaults)
 _.extend(ImageGlyph::display_defaults, {})
 
 
-class Images extends Backbone.Collection
-  model: ImageGlyph
-
-
-exports.images = new Images
 exports.Image = ImageGlyph
 exports.ImageView = ImageView
 

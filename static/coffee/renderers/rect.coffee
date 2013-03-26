@@ -130,9 +130,6 @@ _.extend(Rect::display_defaults, {
 
 })
 
-class Rects extends Backbone.Collection
-  model: Rect
 
-exports.rects = new Rects
 exports.Rect = Rect
 exports.RectView = RectView

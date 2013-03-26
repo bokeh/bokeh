@@ -100,10 +100,7 @@ _.extend(Line::display_defaults, {
 
 })
 
-class Lines extends Backbone.Collection
-  model: Line
 
-exports.lines = new Lines
 exports.Line = Line
 exports.LineView = LineView
 

@@ -134,9 +134,6 @@ _.extend(Oval::display_defaults, {
 
 })
 
-class Ovals extends Backbone.Collection
-  model: Oval
 
-exports.ovals = new Ovals
 exports.Oval = Oval
 exports.OvalView = OvalView

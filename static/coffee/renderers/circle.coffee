@@ -102,11 +102,6 @@ _.extend(Circle::display_defaults, {
 })
 
 
-class Circles extends Backbone.Collection
-  model: Circle
-
-
-exports.circles = new Circles
 exports.Circle = Circle
 exports.CircleView = CircleView
 

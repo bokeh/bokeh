@@ -121,9 +121,6 @@ _.extend(Wedge::display_defaults, {
 
 })
 
-class Wedges extends Backbone.Collection
-  model: Wedge
 
-exports.wedges = new Wedges
 exports.Wedge = Wedge
 exports.WedgeView = WedgeView

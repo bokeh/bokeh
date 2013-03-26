@@ -103,9 +103,6 @@ _.extend(Quad::display_defaults, {
 
 })
 
-class Quads extends Backbone.Collection
-  model: Quad
 
-exports.quads = new Quads
 exports.Quad = Quad
 exports.QuadView = QuadView

@@ -104,10 +104,7 @@ _.extend(Ray::display_defaults, {
 
 })
 
-class Rays extends Backbone.Collection
-  model: Ray
 
-exports.rays = new Rays
 exports.Ray = Ray
 exports.RayView = RayView
 

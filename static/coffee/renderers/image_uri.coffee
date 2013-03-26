@@ -63,11 +63,6 @@ ImageURIGlyph::display_defaults = _.clone(ImageURIGlyph::display_defaults)
 _.extend(ImageURIGlyph::display_defaults, {})
 
 
-class ImageURIs extends Backbone.Collection
-  model: ImageURIGlyph
-
-
-exports.image_uriss = new ImageURIs
 exports.ImageURI = ImageURIGlyph
 exports.ImageURIView = ImageURIView
 

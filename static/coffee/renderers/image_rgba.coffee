@@ -82,11 +82,6 @@ ImageRGBAGlyph::display_defaults = _.clone(ImageRGBAGlyph::display_defaults)
 _.extend(ImageRGBAGlyph::display_defaults, {})
 
 
-class ImageRGBAs extends Backbone.Collection
-  model: ImageRGBAGlyph
-
-
-exports.image_rgbas = new ImageRGBAs
 exports.ImageRGBA = ImageRGBAGlyph
 exports.ImageRGBAView = ImageRGBAView
 

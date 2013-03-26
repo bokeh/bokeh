@@ -90,10 +90,7 @@ _.extend(Text::display_defaults, {
 
 })
 
-class Texts extends Backbone.Collection
-  model: Text
 
-exports.texts = new Texts
 exports.Text = Text
 exports.TextView = TextView
 

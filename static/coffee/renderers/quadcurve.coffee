@@ -93,9 +93,6 @@ _.extend(Quadcurve::display_defaults, {
 
 })
 
-class Quadcurves extends Backbone.Collection
-  model: Quadcurve
 
-exports.quadcurves = new Quadcurves
 exports.Quadcurve = Quadcurve
 exports.QuadcurveView = QuadcurveView

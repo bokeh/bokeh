@@ -97,11 +97,6 @@ _.extend(Bezier::display_defaults, {
 })
 
 
-class Beziers extends Backbone.Collection
-  model: Bezier
-
-
-exports.beziers = new Beziers
 exports.Bezier = Bezier
 exports.BezierView = BezierView
 

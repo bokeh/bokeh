@@ -97,10 +97,7 @@ _.extend(Area::display_defaults, {
 
 })
 
-class Areas extends Backbone.Collection
-  model: Area
 
-exports.areas = new Areas
 exports.Area = Area
 exports.AreaView = AreaView
 

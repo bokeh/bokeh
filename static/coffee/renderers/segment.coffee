@@ -89,9 +89,6 @@ _.extend(Segment::display_defaults, {
 
 })
 
-class Segments extends Backbone.Collection
-  model: Segment
 
-exports.segments = new Segments
 exports.Segment = Segment
 exports.SegmentView = SegmentView

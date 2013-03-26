@@ -127,10 +127,5 @@ _.extend(Glyph::display_defaults, {
 })
 
 
-class Glyphs extends Backbone.Collection
-  model: Glyph
-
-
-exports.glyphs = new Glyphs
 exports.GlyphView = GlyphView
 exports.Glyph = Glyph

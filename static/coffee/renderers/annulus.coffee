@@ -108,9 +108,6 @@ _.extend(Annulus::display_defaults, {
 
 })
 
-class Annuli extends Backbone.Collection
-  model: Annulus
 
-exports.annuli = new Annuli
 exports.Annulus = Annulus
 exports.AnnulusView = AnnulusView
