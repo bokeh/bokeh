@@ -638,20 +638,6 @@ class PlotWidget extends ContinuumView
     safebind(this, @plot_view.viewstate, 'change', ()->
         @request_render())
 
-  addPolygon: (x,y) ->
-    if isNaN(x) or isNaN(y)
-      return null
-    @plot_view.ctx.fillRect(x,y,@marksize,@marksize)
-
-  addCircle: (x,y) ->
-    if isNaN(x) or isNaN(y)
-      return null
-    @plot_view.ctx.beginPath()
-    @plot_view.ctx.arc(x, y, @marksize, 0, Math.PI*2)
-    @plot_view.ctx.closePath()
-    @plot_view.ctx.fill()
-    @plot_view.ctx.stroke()
-
   request_render: () ->
     @plot_view.throttled()
 
@@ -679,8 +665,6 @@ locations =
   GridPlotContainer: ['./container', 'gridplotcontainers']
   CDXPlotContext: ['./container', 'plotcontexts']
   PlotContext: ['./container', 'plotcontexts']
-  ScatterRenderer: ['./schema_renderers', 'scatterrenderers']
-  LineRenderer: ['./schema_renderers', 'linerenderers']
   DiscreteColorMapper: ['./mapper', 'discretecolormappers']
   DataTable: ['./table', 'datatables']
   PandasPivot: ['./pandas/pandas', 'pandaspivots']
