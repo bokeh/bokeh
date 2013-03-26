@@ -3,7 +3,8 @@ ticks = require("./ticks")
 
 safebind = base.safebind
 HasParent = base.HasParent
-PlotWidget = base.PlotWidget
+
+PlotWidget = require('./common/plot_widget').PlotWidget
 
 mapper = require("./mapper")
 LinearMapper = mapper.LinearMapper

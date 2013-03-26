@@ -1,7 +1,9 @@
 base = require("./base")
 safebind = base.safebind
-PlotWidget = base.PlotWidget
 HasParent = base.HasParent
+
+PlotWidget = require('./common/plot_widget').PlotWidget
+
 
 class BoxSelectionOverlayView extends PlotWidget
   bind_events : () ->

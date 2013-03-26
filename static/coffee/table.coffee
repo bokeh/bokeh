@@ -1,7 +1,9 @@
 base = require("./base")
-ContinuumView = base.ContinuumView
 safebind = base.safebind
 HasParent = base.HasParent
+
+ContinuumView = require('./common/continuum_view').ContinuumView
+
 
 class DataTableView extends ContinuumView
   initialize : (options) ->

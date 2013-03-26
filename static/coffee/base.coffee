@@ -1,3 +1,5 @@
+
+
 Config = {
     prefix : ''
   }
@@ -545,103 +547,7 @@ build_views = (view_storage, view_models, options) ->
   return created_views
 
 
-
-class ContinuumView extends Backbone.View
-  initialize : (options) ->
-    #autogenerates id
-    if not _.has(options, 'id')
-      this.id = _.uniqueId('ContinuumView')
-
-  #bind_bokeh_events is always called after initialize has run
-  bind_bokeh_events : () ->
-    'pass'
-
-  delegateEvents : (events) ->
-    super(events)
-    @bind_bokeh_events()
-
-  remove : ->
-    #handles lifecycle of events bound by safebind
-
-    if _.has(this, 'eventers')
-      for own target, val of @eventers
-        val.off(null, null, this)
-    @trigger('remove')
-    super()
-
-  mget : ()->
-    # convenience function, calls get on the associated model
-    return @model.get.apply(@model, arguments)
-
-  mset : ()->
-    # convenience function, calls set on the associated model
-
-    return @model.set.apply(@model, arguments)
-
-  mget_obj : (fld) ->
-    # convenience function, calls get_obj on the associated model
-
-    return @model.get_obj(fld)
-  render_end : () ->
-    "pass"
-
-
-class PlotWidget extends ContinuumView
-  # Everything that lives inside a plot container should
-  # inherit from this class.  All plot widgets are
-  # passed in the plot model and view
-  # This class also contains some basic canvas rendering primitives
-  # we also include the request_render function, which
-  # calls a throttled version of the plot canvas rendering function
-
-  tagName : 'div'
-  marksize : 3
-
-  initialize: (options) ->
-    @plot_model = options.plot_model
-    @plot_view = options.plot_view
-
-    # work around canvas incompatibilities
-    @_fixup_line_dash(@plot_view.ctx)
-    @_fixup_line_dash_offset(@plot_view.ctx)
-    @_fixup_image_smoothing(@plot_view.ctx)
-
-    super(options)
-
-  _fixup_line_dash: (ctx) ->
-    if (!ctx.setLineDash)
-      ctx.setLineDash = (dash) ->
-        ctx.mozDash = dash
-        ctx.webkitLineDash = dash
-    if (!ctx.getLineDash)
-      ctx.getLineDash = () ->
-        return ctx.mozDash
-
-  _fixup_line_dash_offset: (ctx) ->
-    ctx.setLineDashOffset = (dash_offset) ->
-      ctx.lineDashOffset = dash_offset
-      ctx.mozDashOffset = dash_offset
-      ctx.webkitLineDashOffset = dash_offset
-
-  _fixup_image_smoothing: (ctx) ->
-    ctx.setImageSmoothingEnabled = (value) ->
-      ctx.imageSmoothingEnabled = value;
-      ctx.mozImageSmoothingEnabled = value;
-      ctx.oImageSmoothingEnabled = value;
-      ctx.webkitImageSmoothingEnabled = value;
-    ctx.getImageSmoothingEnabled = () ->
-      return ctx.imageSmoothingEnabled ? true
-
-  bind_bokeh_events: () ->
-    safebind(this, @plot_view.viewstate, 'change', ()->
-        @request_render())
-
-  request_render: () ->
-    @plot_view.throttled()
-
 locations =
-  Plot: ['./container', 'plots']
-
   PanTool:       ['./tools/pantool',    'pantools']
   ZoomTool:      ['./tools/zoomtool',   'zoomtools']
   SelectionTool: ['./tools/selecttool', 'selectiontools']
@@ -654,18 +560,24 @@ locations =
   GlyphRenderer: ['./renderers/glyph_renderer', 'glyphrenderers']
 
   BoxSelectionOverlay: ['./overlays', 'boxselectionoverlays']
+
   ObjectArrayDataSource: ['./datasource', 'objectarraydatasources']
-  ColumnDataSource: ['./datasource', 'columndatasources']
-  Range1d: ['./ranges', 'range1ds']
-  DataRange1d: ['./ranges', 'datarange1ds']
+  ColumnDataSource:      ['./datasource', 'columndatasources']
+
+  Range1d:         ['./ranges', 'range1ds']
+  DataRange1d:     ['./ranges', 'datarange1ds']
   DataFactorRange: ['./ranges', 'datafactorranges']
-  Plot: ['./container', 'plots']
-  GridPlotContainer: ['./container', 'gridplotcontainers']
-  CDXPlotContext: ['./container', 'plotcontexts']
-  PlotContext: ['./container', 'plotcontexts']
+
+  Plot:              ['./common/plot',         'plots']
+  GridPlotContainer: ['./common/grid_plot',    'gridplotcontainers']
+  CDXPlotContext:    ['./common/plot_context', 'plotcontexts']
+  PlotContext:       ['./common/plot_context', 'plotcontexts']
+
   DiscreteColorMapper: ['./mapper', 'discretecolormappers']
+
   DataTable: ['./table', 'datatables']
-  PandasPivot: ['./pandas/pandas', 'pandaspivots']
+
+  PandasPivot:      ['./pandas/pandas', 'pandaspivots']
   PandasDataSource: ['./pandas/pandas', 'pandasdatasources']
   PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
 exports.locations = locations
@@ -685,5 +597,3 @@ exports.submodels = submodels
 exports.HasProperties = HasProperties
 exports.HasParent = HasParent
 exports.build_views = build_views
-exports.ContinuumView = ContinuumView
-exports.PlotWidget = PlotWidget

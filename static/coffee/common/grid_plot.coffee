@@ -1,9 +1,10 @@
 base = require("../base")
 HasParent = base.HasParent
 HasProperties = base.HasProperties
-ContinuumView = base.ContinuumView
 safebind = base.safebind
 build_views = base.build_views
+
+ContinuumView = require('./continuum_view').ContinuumView
 
 PlotViewState = require('./plot').PlotViewState
 

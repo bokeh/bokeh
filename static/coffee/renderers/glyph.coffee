@@ -1,8 +1,9 @@
 base = require('../base')
 Collections = base.Collections
 HasParent = base.HasParent
-PlotWidget = base.PlotWidget
 safebind = base.safebind
+
+PlotWidget = require('../common/plot_widget').PlotWidget
 
 mapper = require('../mapper')
 LinearMapper = mapper.LinearMapper

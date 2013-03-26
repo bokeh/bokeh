@@ -1,8 +1,9 @@
 base = require("../base")
 HasParent = base.HasParent
-ContinuumView = base.ContinuumView
 safebind = base.safebind
 build_views = base.build_views
+
+ContinuumView = require('./continuum_view').ContinuumView
 
 ActiveToolManager = require("../tools/activetoolmanager").ActiveToolManager
 
