@@ -556,8 +556,6 @@ class ContinuumView extends Backbone.View
   bind_bokeh_events : () ->
     'pass'
 
-
-
   delegateEvents : (events) ->
     super(events)
     @bind_bokeh_events()
