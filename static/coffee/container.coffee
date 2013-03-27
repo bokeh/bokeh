@@ -380,7 +380,7 @@ class PlotView extends ContinuumView
     o_w = outerwidth
     o_h = outerheight
     @main_can_wrapper.attr('style', "left:#{bord}px; height:#{h}px; width:#{w}px")
-    @x_can_wrapper.attr('style', "left:#{bord}px; top:#{h}px; height:#{bord}px; width:#{w}px")
+    @x_can_wrapper.attr('style', "left:0px; top:#{h}px; height:#{bord}px; width:#{w+2*bord}px")
     @y_can_wrapper.attr('style', "width:#{bord}px; height:#{h}px;")
 
 
@@ -389,7 +389,7 @@ class PlotView extends ContinuumView
       $(el).attr('width', w)
       $(el).attr('height',h)
     wh(@canvas, w, h)
-    wh(@x_can, w, bord)
+    wh(@x_can, w+2*bord, bord)
     wh(@y_can, bord, h)
 
     @x_can_ctx = @x_can.getContext('2d')

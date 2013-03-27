@@ -55,7 +55,8 @@ class ZoomToolView extends ToolView
       [start, end] = [mapper.map_data(start), mapper.map_data(end)]
       mapper.data_range.set(
         start : start
-        end : end)
+        end : end
+      )
     return null
 
 

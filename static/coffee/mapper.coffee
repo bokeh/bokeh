@@ -13,6 +13,7 @@ class LinearMapper extends HasParent
     @data_range = options.data_range
     @viewstate = options.viewstate
     @screendim = options.screendim #height or width
+    @border_offset = options.border_offset ? 0
 
     @register_property('scalestate', @_get_scale, true)
     #if height/width changes, updated mapper
@@ -32,12 +33,12 @@ class LinearMapper extends HasParent
     [scale_factor, offset] = @get('scalestate')
     result = new Array(datav.length)
     for data, idx in datav
-      result[idx] = scale_factor * data + offset
+      result[idx] = scale_factor * data + offset + @border_offset
     return result
 
   map_screen : (data) ->
     [scale_factor, offset] = @get('scalestate')
-    return scale_factor * data + offset
+    return scale_factor * data + offset + @border_offset
 
   map_data : (screen) ->
     [scale_factor, offset] = @get('scalestate')

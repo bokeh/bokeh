@@ -29,6 +29,12 @@ class LinearAxisView extends PlotWidget
       data_range : @mget_obj('data_range')
       viewstate : @plot_view.viewstate
       screendim : @screendim
+      border_offset : 40
+    )
+    @main_mapper = new LinearMapper({},
+      data_range : @mget_obj('data_range')
+      viewstate : @plot_view.viewstate
+      screendim : @screendim
     )
     @request_render()
 
@@ -79,25 +85,31 @@ class LinearAxisView extends PlotWidget
       data_range.get('start'), data_range.get('end'), interval)
     current_tick = first_tick
     x_ticks = []
-    can_ctx.clearRect(0, 0,  @plot_view.viewstate.get('width'),
+    can_ctx.clearRect(0, 0,  @plot_view.viewstate.get('outerwidth'),
       @plot_view.viewstate.get('height'))
     oldfont = can_ctx.font
     can_ctx.font = "14px Arial"
+    can_ctx.save()
+    can_ctx.rect(27,0,@plot_view.viewstate.get('width')+26,@plot_view.viewstate.get('height'))
+    can_ctx.clip()
+    can_ctx.beginPath()
     while current_tick <= last_tick
       x_ticks.push(current_tick)
       text_width = can_ctx.measureText(@tick_label(current_tick)).width
       x = @plot_view.viewstate.xpos(@mapper.map_screen(current_tick))
+      xmain = @plot_view.viewstate.xpos(@main_mapper.map_screen(current_tick))
       txtpos = ( x - (text_width/2))
       if txtpos > last_tick_end
         can_ctx.fillText(@tick_label(current_tick), txtpos, 20)
         last_tick_end = (txtpos + text_width) + 10
       @plot_view.ctx.beginPath()
-      @plot_view.ctx.moveTo(x, 0)
-      @plot_view.ctx.lineTo(x, @plot_view.viewstate.get('height'))
+      @plot_view.ctx.moveTo(xmain, 0)
+      @plot_view.ctx.lineTo(xmain, @plot_view.viewstate.get('height'))
       @plot_view.ctx.stroke()
       current_tick += interval
     can_ctx.stroke()
     can_ctx.font = oldfont
+    can_ctx.restore()
     @render_end()
 
   DEFAULT_TEXT_HEIGHT : 8
