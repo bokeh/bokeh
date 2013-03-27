@@ -81,6 +81,8 @@ class LinearAxisView extends PlotWidget
     x_ticks = []
     can_ctx.clearRect(0, 0,  @plot_view.viewstate.get('width'),
       @plot_view.viewstate.get('height'))
+    oldfont = can_ctx.font
+    can_ctx.font = "14px Arial"
     while current_tick <= last_tick
       x_ticks.push(current_tick)
       text_width = can_ctx.measureText(@tick_label(current_tick)).width
@@ -95,6 +97,7 @@ class LinearAxisView extends PlotWidget
       @plot_view.ctx.stroke()
       current_tick += interval
     can_ctx.stroke()
+    can_ctx.font = oldfont
     @render_end()
 
   DEFAULT_TEXT_HEIGHT : 8
@@ -112,6 +115,8 @@ class LinearAxisView extends PlotWidget
     y_ticks = []
     can_ctx.clearRect(0, 0, @plot_view.viewstate.get('width'),
       @plot_view.viewstate.get('height'))
+    oldfont = can_ctx.font
+    can_ctx.font = "14px Arial"
     while current_tick <= last_tick
       y_ticks.push(current_tick)
       y = @plot_view.viewstate.ypos(@mapper.map_screen(current_tick))
@@ -125,6 +130,7 @@ class LinearAxisView extends PlotWidget
       @plot_view.ctx.stroke()
       current_tick += interval
     can_ctx.stroke()
+    can_ctx.font = oldfont
     @render_end()
 
 class LinearDateAxisView extends LinearAxisView
