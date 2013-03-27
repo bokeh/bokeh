@@ -66,7 +66,7 @@ text = {
   type: 'text',
   text_align: 'center'
   text_baseline: 'middle'
-  text_font_size: 6
+  text_font_size: '0.5em'
 }
 
 test('map', make_glyph_test('map', source, {}, [area, text], xdr, ydr, true, [1200, 600], false))
