@@ -4,11 +4,17 @@ if len(sys.argv)>1 and sys.argv[1] == 'develop':
     # Only import setuptools if we have to
     import setuptools
 else:
-    import requests
-    print "downloading compiled javascript from github"
-    jssource = requests.get("http://raw.github.com/ContinuumIO/bokehjs-build/master/application.js").content
-    with open("bokeh/server/static/js/application.js", "w+") as f:
-        f.write(jssource)
+    import subprocess
+    import shutil
+    from os.path import join
+    def add_js(fname):
+        if os.path.exists(fname):
+            os.remove(fname)
+        url = "http://raw.github.com/ContinuumIO/bokehjs-build/master/%s" % fname
+        subprocess.check_call("wget %s" % url)
+        shutil.move(fname, join("bokeh/server/static/js/", fname))
+    add_js("application.js")
+    add_js("bokehnotebook.js")
     print "downloading completed"
     
 from distutils.core import setup
