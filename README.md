@@ -53,6 +53,8 @@ then you already have most of them installed.
  * [flask]
  * [redis]
  * [requests]
+ * [gevent-websocket]
+ * [gevent]
 
 
 Installation
@@ -79,22 +81,26 @@ collaborators from Indiana University.
 
 Web based plotting
 ==================
-Bokeh can currently output to chaco, as well as dumping html, 
-or interfacing with
-our bokeh web server, which will push plots out to a browser window using websockets.
-The following examples assume you have bokeh installed
+Bokeh can currently output to chaco, and publish to the web via a few mechanisms.
+ * Bokeh can output static html, which you can load into a browser
+ * Bokeh can output static html to the ipython notebook
+ * Bokeh can output static html to the ipython notebook, AND connect the notebook to the bokeh web server
+ * by navigating to http://localhost:5006/bokeh, you can view Bokeh plots as they are pushed out via websockets
+   by the webserver
 
+Static html dump based web plotting examples
+============================================
+ * `$ python tests/web/facetgrid.py`
+ * open up the generated `grid.html` in a web browser
+ * open up bokehnotebook.ipynb in the ipython notebook, execute the cells.
+ 
 Server Based Web Plotting Examples
 ==================================
  * start a redis-server anywhere, using `$ redis-server &`
  * execute `$ python startlocal.py `
  * navigate to `http://localhost:5006/bokeh`
  * execute `$ python examples/webplot_example.py`
-
-Static html dump based web plotting examples
-============================================
- * `$ python tests/web/facetgrid.py`
- * open up the generated `grid.html` in a web browser
+ * open up an ipython notebook.  open up cars.ipynb.  Execute that notebook.
 
 
 What Does the Name "Bokeh" Mean?
@@ -104,8 +110,12 @@ What Does the Name "Bokeh" Mean?
 aesthetic quality of blurring of an image's background, to focus attention on a
 foreground subject.
 
+Developing Bokeh
+================
+
 Coffeescript
-============
+------------
+
 We're developing most of the javascript using coffeescript, in the 
 [bokehjs github repository](https://github.com/ContinuumIO/bokehjs)
 which has been included as a subtree.  To develop Bokeh you will need
@@ -114,10 +124,10 @@ which depends on [node.js](http://nodejs.org/).  I recommend using npm -g
 to install coffeescript globally.  
 
 Hem
-===
+---
 
 We're using our own fork of hem to manage the build process.  
-Please clone this repo: https://github.com/ContinuumIO/hem as a subdirectory of the Bokeh repo. 
+Please clone this repo: https://github.com/ContinuumIO/hem. 
 hem will compile coffeescript, combine js files, and support node.js require syntax on the client side
 
 install it by executing
@@ -131,7 +141,9 @@ This will link hem to your working copy so you get hem changes as we push it out
    start it by executing `$ python startlocaldebug.py`.  The debug webserver is configured
    to ask the hem server for compiled javascript, rather than read the pre-compiled js off of disk.
  * For the embedded plotting examples, or the production server, you will
-   need to compile the js yourself, by executing `$ hem build -d`, the `-d` 
-   option will prevent hem from uglifying the js, which breaks the notebook
+   need to compile the js yourself,
+   * `$ hem build -d`, will build the Bokeh application.js file
+   * `$ hem build -d -s slug.notebook.json` will build bokehnotebook.js, which is used for all the notebook examples
+   * the `-d` option will prevent hem from uglifying the js, which breaks the notebook
    export at the moment.
 
