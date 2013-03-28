@@ -11,6 +11,7 @@ usercontext = require("usercontext/usercontext")
 $(()->
   wswrapper = utility.make_websocket()
   userdocs = new usercontext.UserDocs()
+  userdocs.subscribe(wswrapper, 'defaultuser')
   window.userdocs = userdocs
   load = userdocs.fetch()
   load.done(() ->
