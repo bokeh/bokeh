@@ -1,4 +1,4 @@
-def json(request):
+def get_json(request):
     """request from requests library handles backwards compatability for
     requests < 1.0
     """
