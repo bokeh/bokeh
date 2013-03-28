@@ -12,19 +12,19 @@ subprocess.check_call("hem build -d -s slug.json",
                  shell=True, cwd="bokeh/server")
 shutil.copy("bokeh/server/static/js/application.js", args.path)
 
-subprocess.check_call("hem build -s slug.json",
-                 shell=True, cwd="bokeh/server")
-shutil.copy("bokeh/server/static/js/application.js",
-            join(args.path, "application.min.js"))
+# subprocess.check_call("hem build -s slug.json",
+#                  shell=True, cwd="bokeh/server")
+# shutil.copy("bokeh/server/static/js/application.js",
+#             join(args.path, "application.min.js"))
             
 subprocess.check_call("hem build -d -s slug.notebook.json",
                  shell=True, cwd="bokeh/server")
 shutil.copy("bokeh/server/static/js/bokehnotebook.js", args.path)
 
-subprocess.check_call("hem build -s slug.notebook.json",
-                 shell=True, cwd="bokeh/server")
-shutil.copy("bokeh/server/static/js/bokehnotebook.js",
-            join(args.path, "bokehnotebook.min.js"))
+# subprocess.check_call("hem build -s slug.notebook.json",
+#                  shell=True, cwd="bokeh/server")
+# shutil.copy("bokeh/server/static/js/bokehnotebook.js",
+#             join(args.path, "bokehnotebook.min.js"))
 
 
 
