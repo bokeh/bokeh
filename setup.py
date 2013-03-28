@@ -8,12 +8,13 @@ else:
     import shutil
     from os.path import join, exists
     import os
+    import requests
     def add_js(fname):
-        if exists(fname):
-            os.remove(fname)
-        url = "http://raw.github.com/ContinuumIO/bokehjs-build/master/%s" % fname
-        subprocess.check_call("wget %s" % url, shell=True)
-        shutil.move(fname, join("bokeh/server/static/js/", fname))
+        url = "http://s3.amazonaws.com/bokeh-builds/%s" % fname
+        print "downloading %s from %s" % (fname, url)
+        data = requests.get(url).content
+        with open(join("bokeh/server/static/js/", fname), "w+") as f:
+            f.write(data)
     add_js("application.js")
     add_js("bokehnotebook.js")
     print "downloading completed"
