@@ -55,6 +55,7 @@ then you already have most of them installed.
  * [requests]
  * [gevent-websocket]
  * [gevent]
+ * [pandas]
 
 
 Installation
