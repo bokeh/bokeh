@@ -5,6 +5,9 @@ import os
 script_paths = [
     'js/application.js'
     ]
+notebookscript_paths = [
+    'js/bokehnotebook.js'
+    ]
 
 css_paths = [
     'vendor/bokehjs/css/bokeh.css',

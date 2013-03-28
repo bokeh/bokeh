@@ -432,6 +432,7 @@ class PlotClient(object):
 
     def notebooksources(self):
         html = self.html(template="basediv.html",
+                         script_paths = dump.notebookscript_paths,
                          html_snippets=["<p>Bokeh Sources</p>"])
         displaypub.publish_display_data('bokeh', {'text/html': html})
         return None
