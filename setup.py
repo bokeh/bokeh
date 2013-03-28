@@ -6,12 +6,13 @@ if len(sys.argv)>1 and sys.argv[1] == 'develop':
 else:
     import subprocess
     import shutil
-    from os.path import join
+    from os.path import join, exists
+    import os
     def add_js(fname):
-        if os.path.exists(fname):
+        if exists(fname):
             os.remove(fname)
         url = "http://raw.github.com/ContinuumIO/bokehjs-build/master/%s" % fname
-        subprocess.check_call("wget %s" % url)
+        subprocess.check_call("wget %s" % url, shell=True)
         shutil.move(fname, join("bokeh/server/static/js/", fname))
     add_js("application.js")
     add_js("bokehnotebook.js")

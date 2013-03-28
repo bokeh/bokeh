@@ -63,7 +63,7 @@ After installing the dependencies (chaco, etc.), run the following:
 ```
 git clone git://github.com/ContinuumIO/Bokeh.git
 cd Bokeh
-pip install .
+python setup.py install
 ```
 The setup.py will automatically grab the latest compiled javascript from github, so you don't need coffeescript in order to use Bokeh.
 
@@ -87,7 +87,6 @@ The following examples assume you have bokeh installed
 Server Based Web Plotting Examples
 ==================================
  * start a redis-server anywhere, using `$ redis-server &`
- * install the bokeh module `$ python setup.py develop`
  * execute `$ python startlocal.py `
  * navigate to `http://localhost:5006/bokeh`
  * execute `$ python examples/webplot_example.py`
