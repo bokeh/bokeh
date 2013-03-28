@@ -98,11 +98,10 @@ Static html dump based web plotting examples
 Server Based Web Plotting Examples
 ==================================
  * start a redis-server anywhere, using `$ redis-server &`
- * execute `$ python startlocal.py `
- * navigate to `http://localhost:5006/bokeh`
- * execute `$ python examples/webplot_example.py`
- * open up an ipython notebook.  open up cars.ipynb.  Execute that notebook.
-
+ * execute `$ python startlocal.py ` in a terminal, this will start a webserver which will block the terminal
+ * execute `$ python examples/pandas_example.py`  This will make a few plots 
+ * navigate to `http://localhost:5006/bokeh`.  The bokeh client plots to named plot namespaces, called 'documents'.  You should see a list of documents on this page in an accordion view, clicking on one should load the plots for that document
+ * To do the same plots in an ipython notebook, open up an ipython notebook.  open up cars.ipynb.  Execute that notebook.
 
 What Does the Name "Bokeh" Mean?
 ================================
