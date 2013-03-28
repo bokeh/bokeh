@@ -7,7 +7,11 @@ import json
 import boto
     
 parser = argparse.ArgumentParser("export js to your s3")
-parser.add_argument("path", help="path to s3 keys")
+parser.add_argument("path",
+                    help=('path to s3 keys should look like '
+                          '{"AWS_ACCESS_KEY" : "xxxxxxx",'
+                          '"AWS_SECRET_KEY": "xxxxxxx"}')
+                    )
 args = parser.parse_args()
 with open(args.path) as f:
     keys = json.load(f)
