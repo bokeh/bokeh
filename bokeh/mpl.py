@@ -13,7 +13,6 @@ import dump
 import json
 import pandas
 from exceptions import DataIntegrityException
-import IPython.core.displaypub as displaypub
 
 
 log = logging.getLogger(__name__)
@@ -37,8 +36,8 @@ class BokehMPLBase(object):
     def update(self):
         if self.plotclient.bbclient:
             self.plotclient.bbclient.upsert_all(self.allmodels())
+            
     def _repr_html_(self):
-
         html = self.plotclient.make_html(
             self.allmodels(),
             model=getattr(self, self.topmodel),
@@ -412,6 +411,7 @@ class PlotClient(object):
         self.load_doc(matching[0]['docid'])
 
     def notebook_connect(self):
+        import IPython.core.displaypub as displaypub
         js = get_template('connect.js').render(
             username=self.username,
             root_url = self.root_url,
@@ -431,6 +431,7 @@ class PlotClient(object):
         return None
 
     def notebooksources(self):
+        import IPython.core.displaypub as displaypub        
         html = self.html(template="basediv.html",
                          script_paths = dump.notebookscript_paths,
                          html_snippets=["<p>Bokeh Sources</p>"])
