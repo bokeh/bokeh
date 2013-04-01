@@ -1,6 +1,6 @@
 base = require("../base")
 Collections = base.Collections
-testutils = require("../testutils")
+testutils = require("./testutils")
 line_plot = testutils.line_plot
 scatter_plot = testutils.scatter_plot
 glyph_plot = testutils.glyph_plot

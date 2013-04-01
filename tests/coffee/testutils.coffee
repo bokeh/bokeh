@@ -1,5 +1,5 @@
 #  Convenience plotting functions
-base = require("./base")
+base = require("common/base")
 Collections = base.Collections
 
 class Rand

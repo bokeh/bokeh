@@ -133,6 +133,12 @@ class GridPlotViewState extends PlotViewState
       , true)
     @add_dependencies('width', @, 'layout_widths')
 
+  #compute a childs position in the underlying device
+  position_child_x: (childsize, offset) ->
+    return  @xpos(offset)
+  position_child_y: (childsize, offset) ->
+    return @ypos(offset) - childsize
+
   maxdim: (dim, row) ->
     if row.length == 0
       return 0

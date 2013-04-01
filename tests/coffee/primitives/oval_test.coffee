@@ -1,5 +1,5 @@
 Collections = require('../../base').Collections
-make_glyph_test = require('../../testutils').make_glyph_test
+make_glyph_test = require('../testutils').make_glyph_test
 
 range = Collections('Range1d').create({start: 0, end: 10})
 
