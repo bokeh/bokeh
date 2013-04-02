@@ -5,9 +5,9 @@ class LinearMapper extends Mapper1D
     super(attrs, options)
 
     @register_property('mapper_state', @_scale, true)
-    @add_dependencies('mapper_state', @source_range, @target_range)
-    @add_dependencies('mapper_state', @source_range, ['start', 'end'])
-    @add_dependencies('mapper_state', @target_range, ['start', 'end'])
+    @add_dependencies('mapper_state', @get('source_range'), @target_range)
+    @add_dependencies('mapper_state', @get('source_range'), ['start', 'end'])
+    @add_dependencies('mapper_state', @get('target_range'), ['start', 'end'])
 
   map_to_target: (x) ->
     [scale_factor, offset] = @get('mapper_state')

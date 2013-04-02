@@ -61,6 +61,8 @@ class PlotView extends ContinuumView
       canvas_height: options.canvas_width  ? @mget('canvas_width')
       x_offset:      options.x_offset      ? @mget('x_offset')
       y_offset:      options.y_offset      ? @mget('y_offset')
+      outer_width:   options.outer_height  ? @mget('outer_height')
+      outer_height:  options.outer_width   ? @mget('outer_width')
       border_top:    options.border_top    ? @mget('border_top')    ? @mget('border')
       border_bottom: options.border_bottom ? @mget('border_bottom') ? @mget('border')
       border_left:   options.border_left   ? @mget('border_left')   ? @mget('border')
@@ -160,8 +162,8 @@ class PlotView extends ContinuumView
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
 
-    @canvas.attr('style', 'width:#{ow}px; height:#{oh}px')
-    @canvas_wrapper.attr('style', 'width:#{ow}px; height:#{oh}px')
+    @canvas.attr('style', "width:#{ow}px; height:#{oh}px")
+    @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
 
     @ctx = @canvas[0].getContext('2d')
 
@@ -180,6 +182,8 @@ class Plot extends HasParent
   parent_properties: [
     'background_fill',
     'border_fill',
+    'canvas_width',
+    'canvas_height',
     'outer_width',
     'outer_height',
     'border',
@@ -206,6 +210,10 @@ _.extend(Plot::display_defaults
     border: 30,
     x_offset: 0,
     y_offset: 0,
+    canvas_width: 300,
+    canvas_height: 300,
+    outer_width: 300,
+    outer_height: 300
 )
 
 class Plots extends Backbone.Collection

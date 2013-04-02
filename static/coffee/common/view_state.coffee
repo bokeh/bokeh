@@ -1,7 +1,7 @@
-HasParent = require('../base').HasParent
+HasProperties = require('../base').HasProperties
 
 
-class ViewState extends HasParent
+class ViewState extends HasProperties
 
   initialize: (attrs, options)->
     super(attrs, options)
@@ -61,13 +61,6 @@ class ViewState extends HasParent
     for y, idx in yy
       yy[idx] = canvas_height - y
     return yy
-
-  defaults:
-    parent: null
-
-  display_defaults:
-    outer_width: 300
-    outer_height: 300
 
 
 exports.ViewState = ViewState
