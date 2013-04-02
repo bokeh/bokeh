@@ -1,7 +1,7 @@
 HasProperties = require('../../base').HasProperties
 
 
-class ColorMapper extends HasProperties
+class LinearColorMapper extends HasProperties
 
   initialize: (attrs, options) ->
     super(attrs, options)

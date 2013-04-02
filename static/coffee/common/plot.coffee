@@ -1,11 +1,13 @@
 base = require('../base')
+Collections = base.Collections
 HasParent = base.HasParent
 safebind = base.safebind
 build_views = base.build_views
 
-ActiveToolManager = require('../tools/activetoolmanager').ActiveToolManager
-
 ContinuumView = require('./continuum_view').ContinuumView
+
+LinearMapper = require('../mappers/1d/linear_mapper').LinearMapper
+GridMapper = require('../mappers/2d/grid_mapper').GridMapper
 
 ViewState = require('./view_state').ViewState
 
@@ -54,30 +56,37 @@ class PlotView extends ContinuumView
 
     super(_.defaults(options, @default_options))
 
-    canvas_height = options.canvas_height ? @mget('canvas_height')
-    canvas_width = options.canvas_width  ? @mget('canvas_width')
+    @view_state = new ViewState({
+      canvas_width:  options.canvas_height ? @mget('canvas_height')
+      canvas_height: options.canvas_width  ? @mget('canvas_width')
+      x_offset:      options.x_offset      ? @mget('x_offset')
+      y_offset:      options.y_offset      ? @mget('y_offset')
+      border_top:    options.border_top    ? @mget('border_top')    ? @mget('border')
+      border_bottom: options.border_bottom ? @mget('border_bottom') ? @mget('border')
+      border_left:   options.border_left   ? @mget('border_left')   ? @mget('border')
+      border_right:  options.border_right  ? @mget('border_right')  ? @mget('border')
+    })
 
-    offset = if options.offset then options.offset else @mget('offset')
+    xmapper = new LinearMapper({
+      source_range: Collections('Range1d').create({start: 0, end: @view_state.inner_width})
+      target_range: Collections('Range1d').create({start: 0, end: 10})
+    })
 
-    @view_state = new ViewState(
-      canvas_width: canvas_width
-      canvas_height: canvas_height
-      x_offset: x_offset
-      y_offset: y_offset
-      inner_width: width
-      inner_height: height
-      border_top: border_top
-      border_bottom: border_bottom
-      border_left: border_left
-      border_right: border_right
-    )
+    ymapper = new LinearMapper({
+      source_range: Collections('Range1d').create({start: 0, end: @view_state.inner_height})
+      target_range: Collections('Range1d').create({start: 0, end: 10})
+    })
+
+    @mapper = new GridMapper({
+      domain_mapper: xmapper
+      codomain_mapper: ymapper
+    })
 
     @renderers = {}
     @axes = {}
     @tools = {}
     @overlays = {}
     @eventSink = _.extend({}, Backbone.Events)
-    atm = new ActiveToolManager(@eventSink)
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
@@ -87,8 +96,8 @@ class PlotView extends ContinuumView
     @throttled()
     return this
 
-  map_to_screen : (x, y, units) ->
-    if units == 'screen'
+  map_to_screen : (x, x_units, y, y_units, units) ->
+    if x_units == 'screen'
       sx = x[..]
       sy = y[..]
     else
@@ -162,7 +171,7 @@ class PlotView extends ContinuumView
     @ctx.clearRect(0,0,  @view_state.get('width'), @view_state.get('height'))
     all_views = _.flatten(_.map([@renderers, @overlays, @tools], _.values))
     for v in all_views
-      v.render(@)
+      v.render()
 
 
 class Plot extends HasParent
@@ -194,7 +203,9 @@ _.extend(Plot::display_defaults
   ,
     background_fill: "#eee",
     border_fill: "#eee",
-    border: 30
+    border: 30,
+    x_offset: 0,
+    y_offset: 0,
 )
 
 class Plots extends Backbone.Collection

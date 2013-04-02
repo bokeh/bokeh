@@ -1,5 +1,5 @@
 #  Convenience plotting functions
-base = require("common/base")
+base = require("./base")
 Collections = base.Collections
 
 class Rand
@@ -320,7 +320,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
     expect(0)
 
     plot_tools = []
-    if tools
+    if false #tools
       pantool = Collections('PanTool').create(
         dataranges: [xrange.ref(), yrange.ref()]
         dimensions: ['width', 'height']
@@ -343,7 +343,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
       glyph.set(defaults)
       glyphs.push(glyph)
     plot_model = Collections('Plot').create()
-    if axes
+    if false #axes
       xaxis = Collections('LinearAxis').create(
         orientation: 'bottom'
         parent: plot_model.ref()

@@ -32,10 +32,10 @@ class LinearMapper extends Mapper1D
     return result
 
   _scale: () ->
-    source_start = @source_range.get('start')
-    source_end   = @source_range.get('end')
-    target_start = @target_range.get('start')
-    target_end   = @target_range.get('end')
+    source_start = @get('source_range').get('start')
+    source_end   = @get('source_range').get('end')
+    target_start = @get('target_range').get('start')
+    target_end   = @get('target_range').get('end')
     scale = (target_end - target_start)/(source_end - source_start)
     offset = -(scale * source_start)
     return [scale, offset]

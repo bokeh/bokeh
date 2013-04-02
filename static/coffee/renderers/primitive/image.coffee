@@ -3,7 +3,7 @@ properties = require('../properties')
 glyph_properties = properties.glyph_properties
 
 all_palettes = require('../../palettes/palettes').all_palettes
-ColorMapper = require('../../color_mapper').ColorMapper
+ColorMapper = require('../../mappers/color/linear_color_mapper').LinearColorMapper
 
 glyph = require('../glyph')
 Glyph = glyph.Glyph

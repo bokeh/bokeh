@@ -561,12 +561,12 @@ locations =
 
   BoxSelectionOverlay: ['./overlays', 'boxselectionoverlays']
 
-  ObjectArrayDataSource: ['./datasource', 'objectarraydatasources']
-  ColumnDataSource:      ['./datasource', 'columndatasources']
+  ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources']
+  ColumnDataSource:      ['./common/datasource', 'columndatasources']
 
-  Range1d:         ['./ranges', 'range1ds']
-  DataRange1d:     ['./ranges', 'datarange1ds']
-  DataFactorRange: ['./ranges', 'datafactorranges']
+  Range1d:         ['./common/ranges', 'range1ds']
+  DataRange1d:     ['./common/ranges', 'datarange1ds']
+  DataFactorRange: ['./common/ranges', 'datafactorranges']
 
   Plot:              ['./common/plot',         'plots']
   GridPlotContainer: ['./common/grid_plot',    'gridplotcontainers']
@@ -575,7 +575,7 @@ locations =
 
   DiscreteColorMapper: ['./mapper', 'discretecolormappers']
 
-  DataTable: ['./table', 'datatables']
+  DataTable: ['./widgets/table', 'datatables']
 
   PandasPivot:      ['./pandas/pandas', 'pandaspivots']
   PandasDataSource: ['./pandas/pandas', 'pandasdatasources']

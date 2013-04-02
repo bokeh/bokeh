@@ -43,8 +43,8 @@ class ViewState extends HasParent
   v_sy_to_device: (yy) ->
     canvas_height = @get('canvas_height')
     res = new Array(yy.length)
-    for yy, idx in yy
-      yy[idx] = height - y
+    for y, idx in yy
+      yy[idx] = canvas_height - y
     return yy
 
   # transform underlying device (svg) to our coordinate space
@@ -57,9 +57,9 @@ class ViewState extends HasParent
   v_device_to_sx: (xx) ->
     return xx
   v_device_to_sy: (yy) ->
-    height = @get('canvas_height')
+    canvas_height = @get('canvas_height')
     for y, idx in yy
-      yy[idx] = height - y
+      yy[idx] = canvas_height - y
     return yy
 
   defaults:
@@ -70,4 +70,4 @@ class ViewState extends HasParent
     outer_height: 300
 
 
-exports.iewState = ViewState
+exports.ViewState = ViewState

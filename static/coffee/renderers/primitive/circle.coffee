@@ -31,8 +31,8 @@ class CircleView extends GlyphView
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
 
-  _render: () ->
-    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+  _render: (plot_view) ->
+    [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
     @radius = @distance(@data, 'x', 'radius', 'edge')
 
     ctx = @plot_view.ctx

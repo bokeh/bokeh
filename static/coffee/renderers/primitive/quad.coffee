@@ -34,8 +34,8 @@ class QuadView extends GlyphView
     @bottom = @glyph_props.v_select('bottom', data)
 
   _render: () ->
-    [@sx0, @sy0] = @map_to_screen(@left,  @glyph_props.left.units,  @top,    @glyph_props.top.units)
-    [@sx1, @sy1] = @map_to_screen(@right, @glyph_props.right.units, @bottom, @glyph_props.bottom.units)
+    [@sx0, @sy0] = @plot_view.map_to_screen(@left,  @glyph_props.left.units,  @top,    @glyph_props.top.units)
+    [@sx1, @sy1] = @plot_view.map_to_screen(@right, @glyph_props.right.units, @bottom, @glyph_props.bottom.units)
 
     ctx = @plot_view.ctx
 

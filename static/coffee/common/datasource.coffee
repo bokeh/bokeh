@@ -1,4 +1,4 @@
-base = require("./base")
+base = require("../base")
 HasProperties = base.HasProperties
 
 class ObjectArrayDataSource extends HasProperties

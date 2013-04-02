@@ -5,16 +5,11 @@ safebind = base.safebind
 
 PlotWidget = require('../common/plot_widget').PlotWidget
 
-mapper = require('../mapper')
-LinearMapper = mapper.LinearMapper
-
 
 class GlyphView extends PlotWidget
 
   initialize: (options) ->
     super(options)
-    @set_xmapper()
-    @set_ymapper()
     @need_set_data = true
 
   set_data: (request_render=true) ->
@@ -38,28 +33,6 @@ class GlyphView extends PlotWidget
 
   bind_bokeh_events: () ->
     safebind(this, @model, 'change', @request_render)
-    safebind(this, @plot_view.viewstate, 'change', @request_render)
-    safebind(this, @mget_obj('data_source'), 'change', @set_data)
-    safebind(this, @model, 'change:xdata_range', @set_xmapper)
-    safebind(this, @model, 'change:ydata_range', @set_ymapper)
-    safebind(this, @mget_obj('xdata_range'), 'change', @request_render)
-    safebind(this, @mget_obj('ydata_range'), 'change', @request_render)
-
-  set_xmapper: () ->
-    @xmapper = new LinearMapper({},
-      data_range : @mget_obj('xdata_range')
-      viewstate : @plot_view.viewstate
-      screendim : 'width'
-    )
-    @request_render()
-
-  set_ymapper: () ->
-    @ymapper = new LinearMapper({},
-      data_range : @mget_obj('ydata_range')
-      viewstate : @plot_view.viewstate
-      screendim : 'height'
-    )
-    @request_render()
 
   distance: (data, pt, span, position) ->
     pt_units = @glyph_props[pt].units
@@ -91,20 +64,6 @@ class GlyphView extends PlotWidget
 
     return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
 
-  map_to_screen : (x, x_units, y, y_units) ->
-    if x_units == 'screen'
-      sx = x[..]
-    else
-      sx = @xmapper.v_map_screen(x)
-      sx = @plot_view.viewstate.v_xpos(sx)
-
-    if y_units == 'screen'
-      sy = y[..]
-    else
-      sy = @ymapper.v_map_screen(y)
-      sy = @plot_view.viewstate.v_ypos(sy)
-
-    return [sx, sy]
 
 
 class Glyph extends HasParent
