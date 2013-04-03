@@ -69,7 +69,7 @@ class PlotView extends ContinuumView
       border_right:  options.border_right  ? @mget('border_right')  ? @mget('border')
     })
 
-    xmapper = new LinearMapper(
+    xmapper = new LinearMapper({
       source_range: Collections('Range1d').create({start: 0, end: 10})
       target_range: @view_state.get('inner_range_horizontal')
     })
