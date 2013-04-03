@@ -1,5 +1,60 @@
 HasProperties = require('../base').HasProperties
 
+# ViewState objects encapsulate all the information needed to translate to and from
+# raw device coordinates and screen coordinates for a plot subregion with (0,0) in
+# the lower left hand corner.
+#
+# The location of the data origin is controlled upstream by ranges and mappers that
+# translate from data coordinates to screen coordinates.
+#
+# The border values control the padding around the main plot region. This space can
+# be used to draw axes, titles, or other guides.
+#
+# x_offset and y_offset can be used if there are multiple plot-like objects embedded
+# on a single canvas. The common case of one plot-like object with a border will have
+# x_offset and y_offset both zero.
+#
+#
+#                                      .---------------------------- inner_width
+#                                      .
+#                                      .
+#                                      .     .---------------------- outer_width
+#                                      .     .
+#                                      .     .
+#                                      .     .       .-------------- canvas_width
+#                                      .     .       .
+#                                      .     .       V
+#              ==================================================
+#              |                       .     .                  |
+#              |                       .     .                  |
+#              |                       .     V                  |
+#              |       ===================================      |
+#              |       |        *      .                 |      |
+# border_top --|-------|------->*      .              .--|------|--- border right
+#              |       |        *      V              .  |      |
+#              |       |     -----------------------  .  |      |
+#              |       |     |                     |  V  |      |
+#              |       |     |                     |* * *|      |<-- canvas_height
+#              |       |     |                     |     |      |
+#              |       |     |     inner           |     |      |
+# border_left -|-------|--.  |     clip            |     |<-----|--- inner_height
+#              |       |  .  |                     |     |      |
+#              |       |  V  |                     |     |      |
+#              |       |* * *|                     |     |      |
+#              |       |     |                     |<----|------|--- outer_height
+#              |       |     |                     |     |      |
+#              |       |     -----------------------     |      |
+#              |       |                      *          |      |
+# x_offset ----|---.   |          outer       *<---------|------|---- border_bottom
+#              |   .   |          clip        *          |      |
+#              |   V   |(0,0)                 *          |      |
+#              | * * * ===================================      |
+#              |       *                                        |
+# y_offset ----|------>*          canvas                        |
+#              |       *                                        |
+#              ==================================================
+#
+#
 
 class ViewState extends HasProperties
 
