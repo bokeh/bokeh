@@ -44,7 +44,7 @@ class LineView extends GlyphView
         x = @glyph_props.select('xs', pt)
         y = @glyph_props.select('ys', pt)
 
-        [sx, sy] = @map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
+        [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
 
         for i in [0..sx.length-1]
           if i == 0
@@ -65,7 +65,7 @@ class LineView extends GlyphView
         x = @glyph_props.select('xs', pt)
         y = @glyph_props.select('ys', pt)
 
-        [sx, sy] = @map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
+        [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
 
         @glyph_props.line_properties.set(ctx, pt)
         for i in [0..sx.length-1]

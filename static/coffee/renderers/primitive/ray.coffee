@@ -32,9 +32,9 @@ class RayView extends GlyphView
     @length = @glyph_props.v_select('length', data)
 
   _render: () ->
-    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-    width = @plot_view.viewstate.get('width')
-    height = @plot_view.viewstate.get('height')
+    [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+    width = @plot_view.view_state.get('width')
+    height = @plot_view.view_state.get('height')
     inf_len = 2 * (width + height)
     @slength = @length[..]
     for i in [0..@slength.length-1]

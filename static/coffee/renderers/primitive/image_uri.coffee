@@ -27,7 +27,7 @@ class ImageURIView extends GlyphView
     @angle = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
 
   _render: () ->
-    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+    [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
     ctx = @plot_view.ctx
 

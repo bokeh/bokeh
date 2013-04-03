@@ -109,9 +109,9 @@ data_source = Collections('ObjectArrayDataSource').create(
   data: [
     {x: 1, y: 5, text_font_size: '7px'},
     {x: 2, y: 4, text: 'bar', text_font_size: "20px"},
-    {x: 3, y: 3, text_font_size: 4},
-    {x: 4, y: 2, text_font_size: 6},
-    {x: 5, y: 1, text_font_size: '20px'},
+    {x: 3, y: 3, text_font_size: "4px"},
+    {x: 4, y: 2, text_font_size: "6px"},
+    {x: 5, y: 1, text_font_size: '1em'},
   ]
 )
 

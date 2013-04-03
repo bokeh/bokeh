@@ -15,8 +15,8 @@ svg {
     float : left;
 }
 
-.bokeh_canvas_wrapper {position:relative; border:1px dashed green;}
-.bokeh_canvas {position:absolute; border:1px solid red;}
+.bokeh_canvas_wrapper {position:relative;}
+.bokeh_canvas {position:relative; border:1px solid red;}
 .shading {display:block; border:1px dashed green; position: absolute; z-index:100;}
 .gridplot_container {position: relative;}
 .gridplot_container .gp_plotwrapper {position:absolute;}

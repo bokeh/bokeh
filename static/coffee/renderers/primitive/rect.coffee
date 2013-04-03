@@ -34,7 +34,7 @@ class RectView extends GlyphView
     @angle = (-angle for angle in angles)
 
   _render: () ->
-    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+    [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
     @sw = @distance(@data, 'x', 'width', 'center')
     @sh = @distance(@data, 'y', 'height', 'center')
 

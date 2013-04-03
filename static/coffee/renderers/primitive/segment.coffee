@@ -32,8 +32,8 @@ class SegmentView extends GlyphView
     @y1 = @glyph_props.v_select('y1', data)
 
   _render: () ->
-    [@sx0, @sy0] = @map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units)
-    [@sx1, @sy1] = @map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units)
+    [@sx0, @sy0] = @plot_view.map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units)
+    [@sx1, @sy1] = @plot_view.map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units)
 
     ctx = @plot_view.ctx
 

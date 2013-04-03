@@ -263,6 +263,7 @@ class text_properties extends properties
     font_size  = @select(@text_font_size_name,  obj)
     font_style = @select(@text_font_style_name, obj)
 
+    console.log font_style + " " + font_size + " " + font
     ctx.font         = font_style + " " + font_size + " " + font
     ctx.fillStyle    = @select(@text_color_name,    obj)
     ctx.globalAlpha  = @select(@text_alpha_name,    obj)

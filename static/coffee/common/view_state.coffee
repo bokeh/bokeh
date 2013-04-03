@@ -39,12 +39,15 @@ class ViewState extends HasProperties
 
   # vectorized versions of xpos/ypos, these are mutating, in-place operations
   v_sx_to_device: (xx) ->
+    border_left = @get('border_left')
+    for x, idx in xx
+      xx[idx] += border_left
     return xx
   v_sy_to_device: (yy) ->
     canvas_height = @get('canvas_height')
-    res = new Array(yy.length)
+    border_bottom = @get('border_bottom')
     for y, idx in yy
-      yy[idx] = canvas_height - y
+      yy[idx] = canvas_height - (y+border_bottom)
     return yy
 
   # transform underlying device (svg) to our coordinate space

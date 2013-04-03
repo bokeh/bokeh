@@ -31,7 +31,7 @@ class TextView extends GlyphView
     @text = @glyph_props.v_select("text", data)
 
   _render: () ->
-    [@sx, @sy] = @map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+    [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
     ctx = @plot_view.ctx
 
@@ -81,7 +81,7 @@ Text::display_defaults = _.clone(Text::display_defaults)
 _.extend(Text::display_defaults, {
 
   text_font: "helvetica"
-  text_font_size: "1em"
+  text_font_size: "1.5em"
   text_font_style: "normal"
   text_color: "#444444"
   text_alpha: 1.0

@@ -70,13 +70,19 @@ class PlotView extends ContinuumView
     })
 
     xmapper = new LinearMapper({
-      source_range: Collections('Range1d').create({start: 0, end: @view_state.inner_width})
-      target_range: Collections('Range1d').create({start: 0, end: 10})
+      source_range: Collections('Range1d').create({start: 0, end: 10})
+      target_range: Collections('Range1d').create({
+        start: @view_state.get('border_left'),
+        end: @view_state.get('border_left') + @view_state.get('inner_width')
+      })
     })
 
     ymapper = new LinearMapper({
-      source_range: Collections('Range1d').create({start: 0, end: @view_state.inner_height})
-      target_range: Collections('Range1d').create({start: 0, end: 10})
+      source_range: Collections('Range1d').create({start: 0, end: 10})
+      target_range: Collections('Range1d').create({
+        start: @view_state.get('border_bottom'),
+        end: @view_state.get('border_bottom') + @view_state.get('inner_height')
+      })
     })
 
     @mapper = new GridMapper({
@@ -130,8 +136,8 @@ class PlotView extends ContinuumView
         <canvas class='bokeh_canvas'></canvas>
       </div>
       """))
-    @canvas = @$el.find('canvas.bokeh_canvas')
     @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
+    @canvas = @$el.find('canvas.bokeh_canvas')
 
   build_subviews: ()->
     @build_renderers()
@@ -162,15 +168,16 @@ class PlotView extends ContinuumView
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
 
-    @canvas.attr('style', "width:#{ow}px; height:#{oh}px")
     @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
+    @canvas.attr('width', ow).attr('height', oh)
+    @$el.attr("width", ow).attr('height', oh)
 
     @ctx = @canvas[0].getContext('2d')
 
     @render_end()
 
   render_deferred_components: (force) ->
-    @ctx.clearRect(0,0,  @view_state.get('width'), @view_state.get('height'))
+    @ctx.clearRect(0,0,  @view_state.get('canvas_width'), @view_state.get('canvas_height'))
     all_views = _.flatten(_.map([@renderers, @overlays, @tools], _.values))
     for v in all_views
       v.render()
@@ -207,7 +214,7 @@ _.extend(Plot::display_defaults
   ,
     background_fill: "#eee",
     border_fill: "#eee",
-    border: 30,
+    border: 50,
     x_offset: 0,
     y_offset: 0,
     canvas_width: 300,

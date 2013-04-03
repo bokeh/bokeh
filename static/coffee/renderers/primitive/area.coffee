@@ -38,7 +38,7 @@ class AreaView extends GlyphView
     for pt in @data
       x = @glyph_props.select('xs', pt)
       y = @glyph_props.select('ys', pt)
-      [sx, sy] = @map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
+      [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
       if @do_fill
         @glyph_props.fill_properties.set(ctx, pt)
         for i in [0..sx.length-1]

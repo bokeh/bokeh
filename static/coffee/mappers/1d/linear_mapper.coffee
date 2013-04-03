@@ -21,11 +21,11 @@ class LinearMapper extends Mapper1D
     return result
 
   map_from_target: (xprime) ->
-    [scale_factor, offset] = @get('mapper_state')
+    [scale, offset] = @get('mapper_state')
     return (xprime - offset) / scale
 
   v_map_from_target: (xprimes) ->
-    [scale_factor, offset] = @get('mapper_state')
+    [scale, offset] = @get('mapper_state')
     result = new Array(xprimes.length)
     for xprime, idx in xprimes
       result[idx] = (xprime - offset) / scale
