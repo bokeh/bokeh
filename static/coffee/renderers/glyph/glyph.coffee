@@ -1,9 +1,9 @@
-base = require('../base')
+base = require('../../base')
 Collections = base.Collections
 HasParent = base.HasParent
 safebind = base.safebind
 
-PlotWidget = require('../common/plot_widget').PlotWidget
+PlotWidget = require('../../common/plot_widget').PlotWidget
 
 
 class GlyphView extends PlotWidget
