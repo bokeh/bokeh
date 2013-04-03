@@ -374,7 +374,6 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
     myrender  =  ->
       view = new plot_model.default_view(model: plot_model)
       div.append(view.$el)
-      #view.render()
       console.log('Test ' + test_name)
     _.defer(myrender)
 
