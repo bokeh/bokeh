@@ -81,7 +81,7 @@ Text::display_defaults = _.clone(Text::display_defaults)
 _.extend(Text::display_defaults, {
 
   text_font: "helvetica"
-  text_font_size: "1.5em"
+  text_font_size: "12pt"
   text_font_style: "normal"
   text_color: "#444444"
   text_alpha: 1.0
