@@ -7,13 +7,13 @@ glyphs = require('./glyphs')
 class GlyphRenderers extends Backbone.Collection
   model: (attrs, options) ->
     if not attrs.glyphspec?.type?
-      console.log "missing type"
+      console.log "missing glyph type"
       return
 
     type = attrs.glyphspec.type
 
     if not (type of glyphs)
-      console.log "Unknown type '" + attrs.type + "'"
+      console.log "unknown glyph type '" + type + "'"
       return
 
     model = glyphs[type]
