@@ -1,5 +1,4 @@
 base = require('../../base')
-Collections = base.Collections
 HasParent = base.HasParent
 safebind = base.safebind
 
