@@ -1,4 +1,7 @@
-HasProperties = require('../base').HasProperties
+base = require('../base')
+Collections   = base.Collections
+HasProperties = base.HasProperties
+
 
 # ViewState objects encapsulate all the information needed to translate to and from
 # raw device coordinates and screen coordinates for a plot subregion with (0,0) in
@@ -63,28 +66,46 @@ class ViewState extends HasProperties
 
     @register_property('canvas_aspect',
        () -> @get('canvas_height') / @get('canvas_width')
-      , false)
+      , true)
     @add_dependencies('canvas_aspect', this, ['canvas_height', 'canvas_width'])
 
     @register_property('outer_aspect',
        () -> @get('outer_height') / @get('outer_width')
-      , false)
+      , true)
     @add_dependencies('outer_aspect', this, ['outer_height', 'outer_width'])
 
     @register_property('inner_width',
         () -> @get('outer_width') - @get('border_left') - @get('border_right')
-      , false)
+      , true)
     @add_dependencies('inner_width', this, ['outer_width', 'border_left', 'border_right'])
 
     @register_property('inner_height',
        () -> @get('outer_height') - @get('border_top') - @get('border_bottom')
-      , false)
+      , true)
     @add_dependencies('inner_height', this, ['outer_height', 'border_top', 'border_bottom'])
 
     @register_property('inner_aspect',
        () -> @get('inner_height') / @get('inner_width')
-      , false)
+      , true)
     @add_dependencies('inner_aspect', this, ['inner_height', 'inner_width'])
+
+    @register_property('inner_range_horizontal',
+      () ->
+        Collections('Range1d').create({
+          start: @get('border_left'),
+          end:   @get('border_left') + @get('inner_width')
+        })
+      , true)
+    @add_dependencies('inner_range_horizontal', this, ['border_left', 'inner_width'])
+
+    @register_property('inner_range_vertical',
+      () ->
+        Collections('Range1d').create({
+          start: @get('border_bottom'),
+          end:   @get('border_bottom') + @get('inner_height')
+        })
+      , true)
+    @add_dependencies('inner_range_vertical', this, ['border_bottom', 'inner_height'])
 
   # transform our coordinate space to the underlying device (svg)
   sx_to_device: (x) ->
