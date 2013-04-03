@@ -1,6 +1,7 @@
-Mapper1D = require('./mapper1d').Mapper1D
+HasProperties = require('../../base').HasProperties
 
-class LinearMapper extends Mapper1D
+
+class LinearMapper extends HasProperties
   initialize: (attrs, options) ->
     super(attrs, options)
 
