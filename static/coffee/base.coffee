@@ -552,14 +552,8 @@ locations =
   ZoomTool:      ['./tools/zoomtool',   'zoomtools']
   SelectionTool: ['./tools/selecttool', 'selectiontools']
 
-  LinearAxis:     ['./guides', 'linearaxes']
-  LinearDateAxis: ['./guides', 'lineardateaxes']
-  Legend:         ['./guides', 'legends']
-
-  Glyph:         ['./renderers/glyph',          'glyphs']
+  AxisRenderer:  ['./guides/axis_renderer', 'axisrenderers']
   GlyphRenderer: ['./renderers/glyph_renderer', 'glyphrenderers']
-
-  BoxSelectionOverlay: ['./overlays', 'boxselectionoverlays']
 
   ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources']
   ColumnDataSource:      ['./common/datasource', 'columndatasources']
@@ -572,8 +566,6 @@ locations =
   GridPlotContainer: ['./common/grid_plot',    'gridplotcontainers']
   CDXPlotContext:    ['./common/plot_context', 'plotcontexts']
   PlotContext:       ['./common/plot_context', 'plotcontexts']
-
-  DiscreteColorMapper: ['./mapper', 'discretecolormappers']
 
   DataTable: ['./widgets/table', 'datatables']
 

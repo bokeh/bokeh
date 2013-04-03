@@ -1,7 +1,7 @@
 base = require('../base')
 Collections = base.Collections
 
-prim = require('./primitives')
+glyphs = require('./glyphs')
 
 
 class GlyphRenderers extends Backbone.Collection
@@ -12,11 +12,11 @@ class GlyphRenderers extends Backbone.Collection
 
     type = attrs.glyphspec.type
 
-    if not (type of prim)
+    if not (type of glyphs)
       console.log "Unknown type '" + attrs.type + "'"
       return
 
-    model = prim[type]
+    model = glyphs[type]
     return new model(attrs, options)
 
 
