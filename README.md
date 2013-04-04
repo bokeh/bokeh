@@ -91,15 +91,15 @@ Bokeh can currently output to chaco, and publish to the web via a few mechanisms
 
 Static html dump based web plotting examples
 ============================================
- * `$ python tests/web/facetgrid.py`
- * open up the generated `grid.html` in a web browser
+ * `$ python facetgrid.py` in `tests/web/`.
+ * open up the generated `grid.html` in a web browser.
  * open up bokehnotebook.ipynb in the ipython notebook, execute the cells.
  
 Server Based Web Plotting Examples
 ==================================
  * start a redis-server anywhere, using `$ redis-server &`
  * execute `$ python startlocal.py ` in a terminal, this will start a webserver which will block the terminal
- * execute `$ python examples/pandas_example.py`  This will make a few plots 
+ * execute `$ python pandas_example.py` in `examples/` This will make a few plots.
  * navigate to `http://localhost:5006/bokeh`.  The bokeh client plots to named plot namespaces, called 'documents'.  You should see a list of documents on this page in an accordion view, clicking on one should load the plots for that document
  * To do the same plots in an ipython notebook, open up an ipython notebook.  open up cars.ipynb.  Execute that notebook.
 
