@@ -19,18 +19,20 @@ This should create a `static/js/application.js` file.
 Running the Demo
 ================
 
-Run the server:
+Run the hem server:
+`$ hem server `
 
-`$ python demoserver.py`
+Run the python server:
+`$ python soundserver.py`
 
-View the web page by visiting http://localhost:5000/.  If you want to just see the raw JSON data dump, visit http://localhost:5000/data.  You can keep refreshing on the latter.
+View the web page by visiting http://localhost:5000/ (or http://.  If you want to just see the raw JSON data dump, visit http://localhost:5000/data.  You can keep refreshing on the latter.
 
 Helpful Demo Tips
 =================
 
 If you want to suppress all the chatty "HTTP/1.1 200" status codes, dump the output:
 
-`$ python demoserver.py 2> /dev/null`
+`$ python soundserver.py 2> /dev/null`
 
 This is actually pretty useful because if your terminal program is set to use unlimited scrollback, and you leave the demo running a long time, you can actually chew through quite a bit of memory.
 
