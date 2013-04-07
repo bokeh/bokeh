@@ -342,7 +342,10 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
       })
       glyph.set(defaults)
       glyphs.push(glyph)
-    plot_model = Collections('Plot').create()
+    plot_model = Collections('Plot').create(
+      x_range: xrange
+      y_range: yrange
+    )
     if false #axes
       xaxis = Collections('LinearAxis').create(
         orientation: 'bottom'

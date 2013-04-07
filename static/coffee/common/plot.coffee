@@ -69,13 +69,16 @@ class PlotView extends ContinuumView
       border_right:  options.border_right  ? @mget('border_right')  ? @mget('border')
     })
 
+    @x_range = options.x_range ? @mget('x_range')
+    @y_range = options.y_range ? @mget('y_range')
+
     xmapper = new LinearMapper({
-      source_range: Collections('Range1d').create({start: 0, end: 10})
+      source_range: @x_range
       target_range: @view_state.get('inner_range_horizontal')
     })
 
     ymapper = new LinearMapper({
-      source_range: Collections('Range1d').create({start: 0, end: 10})
+      source_range: @x_range
       target_range: @view_state.get('inner_range_vertical')
     })
 
@@ -172,6 +175,13 @@ class PlotView extends ContinuumView
 
   render_deferred_components: (force) ->
     @ctx.clearRect(0,0,  @view_state.get('canvas_width'), @view_state.get('canvas_height'))
+    @ctx.beginPath()
+    @ctx.rect(
+      @view_state.get('border_left'), @view_state.get('border_top'),
+      @view_state.get('inner_width'), @view_state.get('inner_height'),
+    )
+    @ctx.clip()
+    @ctx.beginPath()
     all_views = _.flatten(_.map([@renderers, @overlays, @tools], _.values))
     for v in all_views
       v.render()
