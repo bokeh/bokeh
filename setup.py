@@ -4,20 +4,9 @@ if len(sys.argv)>1 and sys.argv[1] == 'develop':
     # Only import setuptools if we have to
     import setuptools
 else:
-    import subprocess
     import shutil
-    from os.path import join, exists
-    import os
-    import requests
-    def add_js(fname):
-        url = "http://s3.amazonaws.com/bokeh-builds/%s" % fname
-        print "downloading %s from %s" % (fname, url)
-        data = requests.get(url).content
-        with open(join("bokeh/server/static/js/", fname), "w+") as f:
-            f.write(data)
-    add_js("application.js")
-    add_js("bokehnotebook.js")
-    print "downloading completed"
+    shutil.copy("jsbuild/application.js", "bokeh/server/static/js/application.js")
+    shutil.copy("jsbuild/bokehnotebook.js", "bokeh/server/static/js/bokehnotebook.js")
     
 from distutils.core import setup
 import os
