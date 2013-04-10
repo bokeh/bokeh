@@ -107,8 +107,7 @@ What Does the Name "Bokeh" Mean?
 ================================
 
 "Bokeh" is a [photography term](http://en.wikipedia.org/wiki/Bokeh) for the
-aesthetic quality of blurring of an image's background, to focus attention on a
-foreground subject.
+aesthetic quality of the out-of-focus regions of an image's background.
 
 Developing Bokeh
 ================
