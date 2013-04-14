@@ -175,6 +175,9 @@ class PlotView extends ContinuumView
 
   render_deferred_components: (force) ->
     @ctx.clearRect(0,0,  @view_state.get('canvas_width'), @view_state.get('canvas_height'))
+
+    @ctx.save()
+
     @ctx.beginPath()
     @ctx.rect(
       @view_state.get('border_left'), @view_state.get('border_top'),
@@ -182,9 +185,16 @@ class PlotView extends ContinuumView
     )
     @ctx.clip()
     @ctx.beginPath()
-    all_views = _.flatten(_.map([@renderers, @axes, @tools], _.values))
-    for v in all_views
+
+    for v in _.flatten(_.map([@renderers], _.values))
       v.render()
+
+    @ctx.restore()
+
+    for v in _.flatten(_.map([@axes, @tools], _.values))
+      v.render()
+
+
 
 
 class Plot extends HasParent
