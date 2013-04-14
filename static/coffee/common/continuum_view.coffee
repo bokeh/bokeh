@@ -1,19 +1,19 @@
 
 class ContinuumView extends Backbone.View
-  initialize : (options) ->
+  initialize: (options) ->
     #autogenerates id
     if not _.has(options, 'id')
       this.id = _.uniqueId('ContinuumView')
 
   #bind_bokeh_events is always called after initialize has run
-  bind_bokeh_events : () ->
+  bind_bokeh_events: () ->
     'pass'
 
-  delegateEvents : (events) ->
+  delegateEvents: (events) ->
     super(events)
     @bind_bokeh_events()
 
-  remove : ->
+  remove: ->
     #handles lifecycle of events bound by safebind
 
     if _.has(this, 'eventers')
@@ -22,20 +22,21 @@ class ContinuumView extends Backbone.View
     @trigger('remove')
     super()
 
-  mget : ()->
+  mget: ()->
     # convenience function, calls get on the associated model
     return @model.get.apply(@model, arguments)
 
-  mset : ()->
+  mset: ()->
     # convenience function, calls set on the associated model
 
     return @model.set.apply(@model, arguments)
 
-  mget_obj : (fld) ->
+  mget_obj: (fld) ->
     # convenience function, calls get_obj on the associated model
 
     return @model.get_obj(fld)
-  render_end : () ->
+
+  render_end: () ->
     "pass"
 
 
