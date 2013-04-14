@@ -2,12 +2,18 @@ base = require('../../base')
 HasParent = base.HasParent
 safebind = base.safebind
 
+properties = require('../properties')
+line_properties = properties.line_properties
+
 PlotWidget = require('../../common/plot_widget').PlotWidget
 
 
 class LinearAxisView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
+
+    debugger
+    @rule_props = new line_properties(@, {}, 'rule_')
 
   render: () ->
 
@@ -18,6 +24,7 @@ class LinearAxisView extends PlotWidget
 
     ctx.save()
 
+    #@rule_props.set(@ctx, @)
     ctx.beginPath()
     ctx.moveTo(sx[0], sy[0])
     for i in [1..sx.length-1]
