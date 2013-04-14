@@ -548,12 +548,13 @@ build_views = (view_storage, view_models, options) ->
 
 
 locations =
+  AnnotationRenderer: ['./renderers/annotation_renderer', 'annotationrenderers']
+  GlyphRenderer:      ['./renderers/glyph_renderer',      'glyphrenderers']
+  GuideRenderer:      ['./renderers/guide_renderer',      'guiderenderers']
+
   PanTool:       ['./tools/pantool',    'pantools']
   ZoomTool:      ['./tools/zoomtool',   'zoomtools']
   SelectionTool: ['./tools/selecttool', 'selectiontools']
-
-  AxisRenderer:  ['./guides/axis_renderer', 'axisrenderers']
-  GlyphRenderer: ['./renderers/glyph_renderer', 'glyphrenderers']
 
   ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources']
   ColumnDataSource:      ['./common/datasource', 'columndatasources']

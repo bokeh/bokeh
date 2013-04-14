@@ -2,37 +2,6 @@
 base = require("./base")
 Collections = base.Collections
 
-class Rand
-  # if created without a seed, uses current time as seed
-  constructor: (@seed) ->
-    # Knuth and Lewis' improvements to Park and Miller's LCPRNG
-    @multiplier = 1664525
-    @modulo = 4294967296 # 2**32-1;
-    @offset = 1013904223
-    unless @seed? && 0 <= seed < @modulo
-      @seed = (new Date().valueOf() * new Date().getMilliseconds()) % @modulo
-
-  # sets new seed value
-  seed: (seed) ->
-    @seed = seed
-
-  # return a random integer 0 <= n < @modulo
-  randn: ->
-    # new_seed = (a * seed + c) % m
-    @seed = (@multiplier*@seed + @offset) % @modulo
-
- # return a random float 0 <= f < 1.0
-  randf: ->
-    this.randn() / @modulo
-
-  # return a random int 0 <= f < n
-  rand: (n) ->
-    Math.floor(this.randf() * n)
-
-  # return a random int min <= f < max
-  rand2: (min, max) ->
-    min + this.rand(max-min)
-
 
 scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
   if _.isUndefined(local)
@@ -345,32 +314,42 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
     plot_model = Collections('Plot').create(
       x_range: xrange
       y_range: yrange
+      canvas_width: dims[0]
+      canvas_height: dims[1]
+      outer_width: dims[0]
+      outer_height: dims[1]
     )
-    if false #axes
-      xaxis = Collections('LinearAxis').create(
-        orientation: 'bottom'
+    if axes
+      xaxis = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'linear_axis'
+        }
         parent: plot_model.ref()
-        data_range: xrange.ref()
+        bounds: xrange.ref()
+        location: 'max'
+        dimension: 0
+        cross_range: yrange.ref()
       )
-      yaxis = Collections('LinearAxis').create(
-        orientation: 'left',
+      yaxis = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'linear_axis'
+        }
         parent: plot_model.ref()
-        data_range: yrange.ref()
+        bounds: yrange.ref()
+        location: 'max'
+        dimension: 1
+        cross_range: xrange.ref()
       )
       plot_model.set(
         renderers: (g.ref() for g in glyphs)
         axes: [xaxis.ref(), yaxis.ref()]
         tools: plot_tools
-        width: dims[0]
-        height: dims[1]
       )
     else
       plot_model.set(
         renderers: (g.ref() for g in glyphs)
         axes: []
         tools: plot_tools
-        width: dims[0]
-        height: dims[1]
       )
     div = $('<div></div>')
     $('body').append(div)
@@ -395,4 +374,3 @@ exports.bar_plot = bar_plot
 exports.line_plot = line_plot
 exports.glyph_plot = glyph_plot
 exports.make_glyph_test = make_glyph_test
-exports.Rand = Rand

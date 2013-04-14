@@ -65,12 +65,12 @@ class ViewState extends HasProperties
     super(attrs, options)
 
     @register_property('canvas_aspect',
-       () -> @get('canvas_height') / @get('canvas_width')
+        () -> @get('canvas_height') / @get('canvas_width')
       , true)
     @add_dependencies('canvas_aspect', this, ['canvas_height', 'canvas_width'])
 
     @register_property('outer_aspect',
-       () -> @get('outer_height') / @get('outer_width')
+        () -> @get('outer_height') / @get('outer_width')
       , true)
     @add_dependencies('outer_aspect', this, ['outer_height', 'outer_width'])
 
@@ -80,12 +80,12 @@ class ViewState extends HasProperties
     @add_dependencies('inner_width', this, ['outer_width', 'border_left', 'border_right'])
 
     @register_property('inner_height',
-       () -> @get('outer_height') - @get('border_top') - @get('border_bottom')
+        () -> @get('outer_height') - @get('border_top') - @get('border_bottom')
       , true)
     @add_dependencies('inner_height', this, ['outer_height', 'border_top', 'border_bottom'])
 
     @register_property('inner_aspect',
-       () -> @get('inner_height') / @get('inner_width')
+        () -> @get('inner_height') / @get('inner_width')
       , true)
     @add_dependencies('inner_aspect', this, ['inner_height', 'inner_width'])
 

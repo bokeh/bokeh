@@ -72,19 +72,19 @@ class PlotView extends ContinuumView
     @x_range = options.x_range ? @mget('x_range')
     @y_range = options.y_range ? @mget('y_range')
 
-    xmapper = new LinearMapper({
+    @xmapper = new LinearMapper({
       source_range: @x_range
       target_range: @view_state.get('inner_range_horizontal')
     })
 
-    ymapper = new LinearMapper({
+    @ymapper = new LinearMapper({
       source_range: @x_range
       target_range: @view_state.get('inner_range_vertical')
     })
 
     @mapper = new GridMapper({
-      domain_mapper: xmapper
-      codomain_mapper: ymapper
+      domain_mapper: @xmapper
+      codomain_mapper: @ymapper
     })
 
     @renderers = {}
@@ -182,7 +182,7 @@ class PlotView extends ContinuumView
     )
     @ctx.clip()
     @ctx.beginPath()
-    all_views = _.flatten(_.map([@renderers, @overlays, @tools], _.values))
+    all_views = _.flatten(_.map([@renderers, @axes, @tools], _.values))
     for v in all_views
       v.render()
 
@@ -218,7 +218,7 @@ _.extend(Plot::display_defaults
   ,
     background_fill: "#eee",
     border_fill: "#eee",
-    border: 50,
+    border: 30,
     x_offset: 0,
     y_offset: 0,
     canvas_width: 300,

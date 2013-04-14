@@ -37,8 +37,8 @@ class GlyphView extends PlotWidget
     pt_units = @glyph_props[pt].units
     span_units = @glyph_props[span].units
 
-    if      pt == 'x' then mapper = @xmapper
-    else if pt == 'y' then mapper = @ymapper
+    if      pt == 'x' then mapper = @plot_view.xmapper
+    else if pt == 'y' then mapper = @plot_view.ymapper
 
     span = (@glyph_props.select(span, x) for x in data)
     if span_units == 'screen'
@@ -48,18 +48,18 @@ class GlyphView extends PlotWidget
       halfspan = (d / 2 for d in span)
       ptc = (@glyph_props.select(pt, x) for x in data)
       if pt_units == 'screen'
-        ptc = mapper.v_map_source(ptc)
+        ptc = mapper.v_map_from_target(ptc)
       pt0 = (ptc[i] - halfspan[i] for i in [0..ptc.length-1])
       pt1 = (ptc[i] + halfspan[i] for i in [0..ptc.length-1])
 
     else
       pt0 = (@glyph_props.select(pt, x) for x in data)
       if pt_units == 'screen'
-        pt0 = mapper.v_map_source(pt0)
+        pt0 = mapper.v_map_from_target(pt0)
       pt1 = (pt0[i] + span[i] for i in [0..pt0.length-1])
 
-    spt0 = mapper.v_map_target(pt0)
-    spt1 = mapper.v_map_target(pt1)
+    spt0 = mapper.v_map_to_target(pt0)
+    spt1 = mapper.v_map_to_target(pt1)
 
     return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
 
