@@ -212,7 +212,7 @@ _.extend(LinearAxis::display_defaults, {
 
     major_label_standoff: 15
     major_label_text_font: "helvetica"
-    major_label_text_font_size: "12pt"
+    major_label_text_font_size: "10pt"
     major_label_text_font_style: "normal"
     major_label_text_color: "#444444"
     major_label_text_alpha: 1.0
