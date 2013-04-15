@@ -5,8 +5,8 @@ class LinearColorMapper extends HasProperties
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @low           = options.low?
-    @high          = options.high?
+    @low           = options.low? options.low
+    @high          = options.high? options.high
     @palette       = @_build_palette(options.palette)
     @little_endian = @_is_little_endian()
 
@@ -72,7 +72,7 @@ class LinearColorMapper extends HasProperties
     new_palette = new Uint32Array(palette.length+1)
     for i in [0..palette.length-1]
       new_palette[i] = palette[i]
-    new_palette[@palette.length-1] = palette[palette.length-1]
+    new_palette[palette.length-1] = palette[palette.length-1]
     return new_palette
 
 exports.LinearColorMapper = LinearColorMapper

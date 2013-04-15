@@ -42,7 +42,9 @@ class ImageView extends GlyphView
       canvas.height = height[i];
       ctx = canvas.getContext('2d');
       image_data = ctx.getImageData(0, 0, width[i], height[i]);
-      cmap = new ColorMapper(all_palettes[@pal[i]])
+      cmap = new ColorMapper({}, {
+        palette: all_palettes[@pal[i]]
+      })
       buf = cmap.v_map_screen(img[i])
       buf8 = new Uint8ClampedArray(buf);
       image_data.data.set(buf8)
