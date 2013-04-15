@@ -57,12 +57,12 @@ class PlotView extends ContinuumView
     super(_.defaults(options, @default_options))
 
     @view_state = new ViewState({
-      canvas_width:  options.canvas_height ? @mget('canvas_height')
-      canvas_height: options.canvas_width  ? @mget('canvas_width')
+      canvas_width:  options.canvas_width  ? @mget('canvas_width')
+      canvas_height: options.canvas_height ? @mget('canvas_height')
       x_offset:      options.x_offset      ? @mget('x_offset')
       y_offset:      options.y_offset      ? @mget('y_offset')
-      outer_width:   options.outer_height  ? @mget('outer_height')
-      outer_height:  options.outer_width   ? @mget('outer_width')
+      outer_width:   options.outer_width   ? @mget('outer_width')
+      outer_height:  options.outer_height  ? @mget('outer_height')
       border_top:    options.border_top    ? @mget('border_top')    ? @mget('border')
       border_bottom: options.border_bottom ? @mget('border_bottom') ? @mget('border')
       border_left:   options.border_left   ? @mget('border_left')   ? @mget('border')
@@ -78,7 +78,7 @@ class PlotView extends ContinuumView
     })
 
     @ymapper = new LinearMapper({
-      source_range: @x_range
+      source_range: @y_range
       target_range: @view_state.get('inner_range_vertical')
     })
 
