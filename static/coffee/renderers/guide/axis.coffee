@@ -191,34 +191,34 @@ LinearAxis::defaults = _.clone(LinearAxis::defaults)
 LinearAxis::display_defaults = _.clone(LinearAxis::display_defaults)
 _.extend(LinearAxis::display_defaults, {
 
+  level: 'overlay'
 
-    rule_line_color: 'black'
-    rule_line_width: 1
-    rule_line_alpha: 1.0
-    rule_line_join: 'miter'
-    rule_line_cap: 'butt'
-    rule_line_dash: []
-    rule_line_dash_offset: 0
+  rule_line_color: 'black'
+  rule_line_width: 1
+  rule_line_alpha: 1.0
+  rule_line_join: 'miter'
+  rule_line_cap: 'butt'
+  rule_line_dash: []
+  rule_line_dash_offset: 0
 
-    major_tick_in: 2
-    major_tick_out: 4
-    major_tick_line_color: 'black'
-    major_tick_line_width: 1
-    major_tick_line_alpha: 1.0
-    major_tick_line_join: 'miter'
-    major_tick_line_cap: 'butt'
-    major_tick_line_dash: []
-    major_tick_line_dash_offset: 0
+  major_tick_in: 2
+  major_tick_out: 4
+  major_tick_line_color: 'black'
+  major_tick_line_width: 1
+  major_tick_line_alpha: 1.0
+  major_tick_line_join: 'miter'
+  major_tick_line_cap: 'butt'
+  major_tick_line_dash: []
+  major_tick_line_dash_offset: 0
 
-    major_label_standoff: 15
-    major_label_text_font: "helvetica"
-    major_label_text_font_size: "10pt"
-    major_label_text_font_style: "normal"
-    major_label_text_color: "#444444"
-    major_label_text_alpha: 1.0
-    major_label_text_align: "center"
-    major_label_text_baseline: "middle"
-
+  major_label_standoff: 15
+  major_label_text_font: "helvetica"
+  major_label_text_font_size: "10pt"
+  major_label_text_font_style: "normal"
+  major_label_text_color: "#444444"
+  major_label_text_alpha: 1.0
+  major_label_text_align: "center"
+  major_label_text_baseline: "middle"
 
 })
 

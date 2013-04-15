@@ -318,7 +318,9 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
       canvas_height: dims[1]
       outer_width: dims[0]
       outer_height: dims[1]
+      tools: plot_tools
     )
+    plot_model.add_renderers(g.ref() for g in glyphs)
     if axes
       xaxis1 = Collections('GuideRenderer').create(
         guidespec: {
@@ -360,16 +362,26 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
         cross_range: xrange.ref()
         location: 'max'
       )
-      plot_model.set(
-        renderers: (g.ref() for g in glyphs)
-        axes: [xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
-        tools: plot_tools
+      xrule = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'rule'
+        }
+        parent: plot_model.ref()
+        bounds: xrange.ref()
+        dimension: 0
+        cross_range: yrange.ref()
       )
-    else
-      plot_model.set(
-        renderers: (g.ref() for g in glyphs)
-        axes: []
-        tools: plot_tools
+      yrule = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'rule'
+        }
+        parent: plot_model.ref()
+        bounds: yrange.ref()
+        dimension: 1
+        cross_range: xrange.ref()
+      )
+      plot_model.add_renderers(
+        [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
       )
     div = $('<div></div>')
     $('body').append(div)
@@ -378,8 +390,6 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
       div.append(view.$el)
       console.log('Test ' + test_name)
     _.defer(myrender)
-
-
 
 
 window.bokehprettyprint = (obj) ->

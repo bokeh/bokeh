@@ -17,22 +17,8 @@ class PlotView extends ContinuumView
   view_options: () ->
     _.extend({plot_model: @model, plot_view: @}, @options)
 
-  build_renderers: () ->
-    build_views(@renderers, @mget_obj('renderers'), @view_options())
-
-  build_axes: () ->
-    build_views(@axes, @mget_obj('axes'), @view_options())
-
   build_tools: () ->
-    build_views(@tools, @mget_obj('tools'), @view_options())
-
-  build_overlays: () ->
-    #add ids of renderer views into the overlay spec
-    build_views(@overlays, @mget_obj('overlays'), @view_options())
-
-  bind_overlays: () ->
-    for overlayspec in @mget('overlays')
-      @overlays[overlayspec.id].bind_events(this)
+    build_views(@tools, @mget_obj('tool'), @view_options())
 
   bind_tools: () ->
     for toolspec in @mget('tools')
@@ -88,16 +74,15 @@ class PlotView extends ContinuumView
     })
 
     @renderers = {}
-    @axes = {}
     @tools = {}
-    @overlays = {}
+
     @eventSink = _.extend({}, Backbone.Events)
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
     @render_init()
     @render()
-    @build_subviews()
+    @build_views()
     @throttled()
     return this
 
@@ -136,19 +121,35 @@ class PlotView extends ContinuumView
     @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
     @canvas = @$el.find('canvas.bokeh_canvas')
 
-  build_subviews: ()->
-    @build_renderers()
-    @build_axes()
+  build_views: ()->
+    build_views(@renderers, @mget_obj('renderers'), @view_options())
+
+    @images = {}
+    @underlays = {}
+    @glyphs = {}
+    @overlays = {}
+    @annotations = {}
+    for k,v of @renderers
+      if v.mget('level') == 'image'
+        @images[k] = v
+      if v.mget('level') == 'underlay'
+        @underlays[k] = v
+      if v.mget('level') == 'glyph'
+        @glyphs[k] = v
+      if v.mget('level') == 'overlay'
+        @overlays[k] = v
+        #@overlays[k].bind_events(this)
+      if v.mget('level') == 'annotation'
+        @annotations[k] = v
+        #@annotations[k].bind_events(this)
+
     @build_tools()
-    @build_overlays()
     @bind_tools()
-    @bind_overlays()
 
   bind_bokeh_events: () ->
     safebind(this, @view_state, 'change', @render)
-    safebind(this, @model, 'change:renderers', @build_renderers)
-    safebind(this, @model, 'change:axes', @build_axes)
-    safebind(this, @model, 'change:tools', @build_tools)
+    safebind(this, @model, 'change:renderers', @build_views)
+    safebind(this, @model, 'change:tool', @build_tools)
     safebind(this, @model, 'change', @render)
     safebind(this, @model, 'destroy', () => @remove())
 
@@ -186,20 +187,30 @@ class PlotView extends ContinuumView
     @ctx.clip()
     @ctx.beginPath()
 
-    for v in _.flatten(_.map([@renderers], _.values))
+    for k, v of @images
+      v.render()
+    for k, v of @underlays
+      v.render()
+    for k, v of @glyphs
       v.render()
 
     @ctx.restore()
 
-    for v in _.flatten(_.map([@axes, @tools], _.values))
+    for k, v of @overlays
       v.render()
-
-
+    for k, v of @annotations
+      v.render()
 
 
 class Plot extends HasParent
   type: 'Plot'
   default_view: PlotView
+
+  add_renderers: (new_renderers) ->
+    renderers = @get('renderers')
+    renderers = renderers.concat(new_renderers)
+    @set('renderers', renderers)
+
   parent_properties: [
     'background_fill',
     'border_fill',
@@ -213,16 +224,15 @@ class Plot extends HasParent
     'border_left'
     'border_right'
   ]
+
 Plot::defaults = _.clone(Plot::defaults)
 _.extend(Plot::defaults , {
   'data_sources': {},
   'renderers': [],
-  'axes': [],
-  'legends': [],
   'tools': [],
-  'overlays': [],
   'title': 'Plot'
 })
+
 Plot::display_defaults = _.clone(Plot::display_defaults)
 _.extend(Plot::display_defaults
   ,

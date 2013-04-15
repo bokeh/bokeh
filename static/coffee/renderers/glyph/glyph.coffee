@@ -77,6 +77,7 @@ _.extend(Glyph::defaults,
 Glyph::display_defaults = _.clone(Glyph::display_defaults)
 _.extend(Glyph::display_defaults, {
 
+  level: 'glyph'
   radius_units: 'screen'
   length_units: 'screen'
   angle_units: 'deg'
