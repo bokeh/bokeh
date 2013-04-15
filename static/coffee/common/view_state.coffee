@@ -109,21 +109,21 @@ class ViewState extends HasProperties
 
   # transform screen coordinates to underlying device coordinates
   sx_to_device: (x) ->
-    return x
+    return x + @get('border_left') #+ 0.5
   sy_to_device: (y) ->
-    return @get('canvas_height') - y
+    return @get('canvas_height') - y #+ 0.5
 
   # vectorized versions of xpos/ypos, these are mutating, in-place operations
   v_sx_to_device: (xx) ->
     border_left = @get('border_left')
     for x, idx in xx
-      xx[idx] += border_left
+      xx[idx] += border_left #+ 0.5
     return xx
   v_sy_to_device: (yy) ->
     canvas_height = @get('canvas_height')
     border_bottom = @get('border_bottom')
     for y, idx in yy
-      yy[idx] = canvas_height - (y+border_bottom)
+      yy[idx] = canvas_height - (y+border_bottom) #+ 0.5
     return yy
 
   # transform underlying device coordinates to screen coordinates

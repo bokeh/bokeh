@@ -212,7 +212,7 @@ class line_properties extends properties
     @array(styleprovider, glyphspec, @line_dash_name)
     @number(styleprovider, glyphspec, @line_dash_offset_name)
 
-    @do_stroke = not (@line_color.default == null)
+    @do_stroke = @[@line_color_name].default?
 
   set: (ctx, obj) ->
     ctx.strokeStyle = @select(@line_color_name, obj)
@@ -232,7 +232,7 @@ class fill_properties extends properties
     @color(styleprovider, glyphspec, @fill_name)
     @number(styleprovider, glyphspec, @fill_alpha_name)
 
-    @do_fill = not (@fill.default == null)
+    @do_fill = @[@fill_name].default?
 
   set: (ctx, obj) ->
     ctx.fillStyle   = @select(@fill_name,       obj)

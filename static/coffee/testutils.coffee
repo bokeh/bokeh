@@ -284,7 +284,7 @@ typeIsArray = ( value ) ->
         typeof value.splice is 'function' and
         not ( value.propertyIsEnumerable 'length' )
 
-make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[200, 200], axes=true) ->
+make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[400, 400], axes=true) ->
   return () ->
     expect(0)
 
@@ -320,29 +320,49 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
       outer_height: dims[1]
     )
     if axes
-      xaxis = Collections('GuideRenderer').create(
+      xaxis1 = Collections('GuideRenderer').create(
         guidespec: {
           type: 'linear_axis'
         }
         parent: plot_model.ref()
         bounds: xrange.ref()
-        location: 'max'
         dimension: 0
         cross_range: yrange.ref()
+        location: 'min'
       )
-      yaxis = Collections('GuideRenderer').create(
+      yaxis1 = Collections('GuideRenderer').create(
         guidespec: {
           type: 'linear_axis'
         }
         parent: plot_model.ref()
         bounds: yrange.ref()
-        location: 'max'
         dimension: 1
         cross_range: xrange.ref()
+        location: 'min'
+      )
+      xaxis2 = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'linear_axis'
+        }
+        parent: plot_model.ref()
+        bounds: xrange.ref()
+        dimension: 0
+        cross_range: yrange.ref()
+        location: 'max'
+      )
+      yaxis2 = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'linear_axis'
+        }
+        parent: plot_model.ref()
+        bounds: yrange.ref()
+        dimension: 1
+        cross_range: xrange.ref()
+        location: 'max'
       )
       plot_model.set(
         renderers: (g.ref() for g in glyphs)
-        axes: [xaxis.ref(), yaxis.ref()]
+        axes: [xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
         tools: plot_tools
       )
     else

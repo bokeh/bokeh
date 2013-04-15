@@ -228,7 +228,7 @@ _.extend(Plot::display_defaults
   ,
     background_fill: "#eee",
     border_fill: "#eee",
-    border: 30,
+    border: 40,
     x_offset: 0,
     y_offset: 0,
     canvas_width: 300,
