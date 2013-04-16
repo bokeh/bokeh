@@ -289,7 +289,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
     expect(0)
 
     plot_tools = []
-    if false #tools
+    if tools
       pantool = Collections('PanTool').create(
         dataranges: [xrange.ref(), yrange.ref()]
         dimensions: ['width', 'height']

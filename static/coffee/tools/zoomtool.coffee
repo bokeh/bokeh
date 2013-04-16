@@ -2,8 +2,7 @@ toolview = require("./toolview")
 ToolView = toolview.ToolView
 eventgenerators = require("./eventgenerators")
 OnePointWheelEventGenerator = eventgenerators.OnePointWheelEventGenerator
-mapper = require("../mapper")
-LinearMapper = mapper.LinearMapper
+LinearMapper = require("../mappers/1d/linear_mapper").LinearMapper
 base = require("../base")
 safebind = base.safebind
 HasParent = base.HasParent
@@ -22,14 +21,20 @@ class ZoomToolView extends ToolView
 
 
   build_mappers : () =>
-    @mappers = []
+    @mappers = {}
     for temp in _.zip(@mget_obj('dataranges'), @mget('dimensions'))
       [datarange, dim] = temp
-      mapper = new LinearMapper({},
-        data_range : datarange
-        viewstate : @plot_view.viewstate
-        screendim : dim)
-      @mappers.push(mapper)
+      if dim == 'width'
+        mapper = new LinearMapper({
+          source_range: datarange
+          target_range: @plot_view.view_state.get('inner_range_horizontal')
+        })
+      else
+        mapper = new LinearMapper({
+          source_range: datarange
+          target_range: @plot_view.view_state.get('inner_range_vertical')
+        })
+      @mappers[dim] = mapper
     return @mappers
 
   mouse_coords : (e, x, y) ->
@@ -43,8 +48,8 @@ class ZoomToolView extends ToolView
     [x, y] = @mouse_coords(e, screenX, screenY)
     speed = @mget('speed')
     factor = - speed  * (delta * 50)
-    for mapper in @mappers
-      if mapper.screendim == 'width'
+    for dim, mapper in @mappers
+      if dim == 'width'
         eventpos = x
       else
         eventpos = y

@@ -79,7 +79,9 @@ class ImageRGBAGlyph extends Glyph
 
 
 ImageRGBAGlyph::display_defaults = _.clone(ImageRGBAGlyph::display_defaults)
-_.extend(ImageRGBAGlyph::display_defaults, {})
+_.extend(ImageRGBAGlyph::display_defaults, {
+  level: 'underlay'
+})
 
 
 exports.ImageRGBA = ImageRGBAGlyph

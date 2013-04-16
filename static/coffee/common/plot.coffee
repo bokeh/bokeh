@@ -11,6 +11,9 @@ GridMapper = require('../mappers/2d/grid_mapper').GridMapper
 
 ViewState = require('./view_state').ViewState
 
+ActiveToolManager = require("../tools/activetoolmanager").ActiveToolManager
+
+
 
 class PlotView extends ContinuumView
 
@@ -18,15 +21,15 @@ class PlotView extends ContinuumView
     _.extend({plot_model: @model, plot_view: @}, @options)
 
   build_tools: () ->
-    build_views(@tools, @mget_obj('tool'), @view_options())
+    build_views(@tools, @mget_obj('tools'), @view_options())
 
   bind_tools: () ->
     for toolspec in @mget('tools')
       @tools[toolspec.id].bind_events(this)
 
   events:
-    "mousemove .canvas_wrapper": "_mousemove"
-    "mousedown .canvas_wrapper": "_mousedown"
+    "mousemove .bokeh_canvas_wrapper": "_mousemove"
+    "mousedown .bokeh_canvas_wrapper": "_mousedown"
 
   _mousedown: (e) ->
     for f in @mousedownCallbacks
@@ -77,6 +80,7 @@ class PlotView extends ContinuumView
     @tools = {}
 
     @eventSink = _.extend({}, Backbone.Events)
+    atm = new ActiveToolManager(@eventSink)
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
@@ -148,6 +152,8 @@ class PlotView extends ContinuumView
 
   bind_bokeh_events: () ->
     safebind(this, @view_state, 'change', @render)
+    safebind(this, @x_range, 'change', @throttled)
+    safebind(this, @y_range, 'change', @throttled)
     safebind(this, @model, 'change:renderers', @build_views)
     safebind(this, @model, 'change:tool', @build_tools)
     safebind(this, @model, 'change', @render)

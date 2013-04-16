@@ -49,8 +49,7 @@ class PlotWidget extends ContinuumView
       return ctx.imageSmoothingEnabled ? true
 
   bind_bokeh_events: () ->
-    safebind(this, @plot_view.viewstate, 'change', ()->
-        @request_render())
+    #safebind(this, @plot_view.viewstate, 'change', ()-> @request_render())
 
   request_render: () ->
     @plot_view.throttled()

@@ -86,7 +86,7 @@ class ImageGlyph extends Glyph
 
 ImageGlyph::display_defaults = _.clone(ImageGlyph::display_defaults)
 _.extend(ImageGlyph::display_defaults, {
-  level: 'glyph'
+  level: 'underlay'
 })
 
 

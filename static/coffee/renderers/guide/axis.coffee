@@ -80,13 +80,13 @@ class LinearAxis extends HasParent
   initialize: (attrs, options)->
     super(attrs, options)
 
-    @register_property('rule_coords', @_rule_coords, true)
+    @register_property('rule_coords', @_rule_coords, false)
     @add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location'])
 
-    @register_property('major_coords', @_major_coords, true)
+    @register_property('major_coords', @_major_coords, false)
     @add_dependencies('major_coords', this, ['bounds', 'dimension', 'location'])
 
-    @register_property('normals', @_normals, true)
+    @register_property('normals', @_normals, false)
     @add_dependencies('normals', this, ['dimension', 'location'])
 
   _rule_coords: () ->

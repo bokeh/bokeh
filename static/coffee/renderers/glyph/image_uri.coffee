@@ -60,7 +60,9 @@ class ImageURIGlyph extends Glyph
 
 
 ImageURIGlyph::display_defaults = _.clone(ImageURIGlyph::display_defaults)
-_.extend(ImageURIGlyph::display_defaults, {})
+_.extend(ImageURIGlyph::display_defaults, {
+  level: 'underlay'
+})
 
 
 exports.ImageURI = ImageURIGlyph
