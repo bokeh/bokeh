@@ -38,7 +38,7 @@ class ZoomToolView extends ToolView
     return @mappers
 
   mouse_coords : (e, x, y) ->
-    [x_, y_] = [@plot_view.viewstate.rxpos(x), @plot_view.viewstate.rypos(y)]
+    [x_, y_] = [@plot_view.view_state.device_to_sx(x), @plot_view.view_state.device_to_sy(y)]
     return [x_, y_]
 
   _zoom : (e) ->
@@ -48,19 +48,34 @@ class ZoomToolView extends ToolView
     [x, y] = @mouse_coords(e, screenX, screenY)
     speed = @mget('speed')
     factor = - speed  * (delta * 50)
-    for dim, mapper in @mappers
-      if dim == 'width'
-        eventpos = x
-      else
-        eventpos = y
-      screenlow = 0
-      screenhigh = @plot_view.viewstate.get(mapper.screendim)
-      start = screenlow - (eventpos - screenlow) * factor
-      end = screenhigh + (screenhigh - eventpos) * factor
-      [start, end] = [mapper.map_data(start), mapper.map_data(end)]
-      mapper.data_range.set(
-        start : start
-        end : end)
+
+    sx_low = 0
+    sx_high = @plot_view.view_state.get('inner_width')
+    sy_low = 0
+    sy_high = @plot_view.view_state.get('inner_height')
+
+    xstart = @plot_view.xmapper.map_from_target(sx_low-(x-sx_low)*factor)
+    xend   = @plot_view.xmapper.map_from_target(sx_high+(sx_high-x)*factor)
+    ystart = @plot_view.ymapper.map_from_target(sy_low-(y-sy_low)*factor)
+    yend   = @plot_view.ymapper.map_from_target(sy_high+(sy_high-y)*factor)
+
+    @plot_view.x_range.set({start: xstart, end: xend})
+    @plot_view.y_range.set({start: ystart, end: yend})
+
+
+    # for dim, mapper in @mappers
+    #   if dim == 'width'
+    #     eventpos = x
+    #   else
+    #     eventpos = y
+    #   screenlow = 0
+    #   screenhigh = @plot_view.viewstate.get(mapper.screendim)
+    #   start = screenlow - (eventpos - screenlow) * factor
+    #   end = screenhigh + (screenhigh - eventpos) * factor
+    #   [start, end] = [mapper.map_data(start), mapper.map_data(end)]
+    #   mapper.data_range.set(
+    #     start : start
+    #     end : end)
     return null
 
 
