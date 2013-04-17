@@ -42,22 +42,25 @@ class ZoomToolView extends ToolView
     return [x_, y_]
 
   _zoom : (e) ->
-    delta = e.delta
+    delta   = e.delta
     screenX = e.bokehX
     screenY = e.bokehY
-    [x, y] = @mouse_coords(e, screenX, screenY)
-    speed = @mget('speed')
-    factor = - speed  * (delta * 50)
+    [x, y]  = @mouse_coords(e, screenX, screenY)
+    speed   = @mget('speed')
+    factor  = -speed * (delta * 50)
 
-    sx_low = 0
-    sx_high = @plot_view.view_state.get('inner_width')
-    sy_low = 0
-    sy_high = @plot_view.view_state.get('inner_height')
+    xr = @plot_view.view_state.get('inner_range_horizontal')
+    sx_low  = xr.get('start')
+    sx_high = xr.get('end')
 
-    xstart = @plot_view.xmapper.map_from_target(sx_low-(x-sx_low)*factor)
-    xend   = @plot_view.xmapper.map_from_target(sx_high+(sx_high-x)*factor)
-    ystart = @plot_view.ymapper.map_from_target(sy_low-(y-sy_low)*factor)
-    yend   = @plot_view.ymapper.map_from_target(sy_high+(sy_high-y)*factor)
+    yr = @plot_view.view_state.get('inner_range_vertical')
+    sy_low  = yr.get('start')
+    sy_high = yr.get('end')
+
+    xstart = @plot_view.xmapper.map_from_target(sx_low  - (sx_low  - x)*factor)
+    xend   = @plot_view.xmapper.map_from_target(sx_high - (sx_high - x)*factor)
+    ystart = @plot_view.ymapper.map_from_target(sy_low  - (sy_low  - y)*factor)
+    yend   = @plot_view.ymapper.map_from_target(sy_high - (sy_high - y)*factor)
 
     @plot_view.x_range.set({start: xstart, end: xend})
     @plot_view.y_range.set({start: ystart, end: yend})

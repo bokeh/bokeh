@@ -194,7 +194,7 @@ _.extend(LinearAxis::display_defaults, {
   level: 'overlay'
 
   rule_line_color: 'black'
-  rule_line_width: 1
+  rule_line_width: 2
   rule_line_alpha: 1.0
   rule_line_join: 'miter'
   rule_line_cap: 'butt'

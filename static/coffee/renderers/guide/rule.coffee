@@ -45,7 +45,7 @@ class Rule extends HasParent
   initialize: (attrs, options)->
     super(attrs, options)
 
-    @register_property('rule_coords', @_rule_coords, true)
+    @register_property('rule_coords', @_rule_coords, false)
     @add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location'])
 
   _rule_coords: () ->

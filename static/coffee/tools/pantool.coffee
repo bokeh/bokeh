@@ -52,10 +52,13 @@ class PanToolView extends ToolView
     ydiff = y - @y
     [@x, @y] = [x, y]
 
-    sx_low = 0 - xdiff
-    sx_high = @plot_view.view_state.get('inner_width') - xdiff
-    sy_low = 0 - ydiff
-    sy_high = @plot_view.view_state.get('inner_height') - ydiff
+    xr = @plot_view.view_state.get('inner_range_horizontal')
+    sx_low  = xr.get('start') - xdiff
+    sx_high = xr.get('end') - xdiff
+
+    yr = @plot_view.view_state.get('inner_range_vertical')
+    sy_low  = yr.get('start') - ydiff
+    sy_high = yr.get('end') - ydiff
 
     xstart = @plot_view.xmapper.map_from_target(sx_low)
     xend   = @plot_view.xmapper.map_from_target(sx_high)
