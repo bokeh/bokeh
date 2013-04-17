@@ -40,6 +40,8 @@ class LinearMapper extends HasProperties
     #  --------- * x - --------- * s0 + t0
     #  (s1 - s0)       (s1 - s0)
     #
+    # [  scale  ]     [    offset    ]
+    #
     source_start = @get('source_range').get('start')
     source_end   = @get('source_range').get('end')
     target_start = @get('target_range').get('start')
