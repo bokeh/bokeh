@@ -32,6 +32,7 @@ class GlyphView extends PlotWidget
 
   bind_bokeh_events: () ->
     safebind(this, @model, 'change', @request_render)
+    safebind(this, @mget_obj('data_source'), 'change', @set_data)
 
   distance: (data, pt, span, position) ->
     pt_units = @glyph_props[pt].units
