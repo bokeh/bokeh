@@ -156,3 +156,7 @@ def get_public_bokeh_info(docid):
 def sampleerror():
     return 1 + "sdf"
 
+
+@app.route("/embed_test/")
+def embed_test():
+    return render_template("embed_test.html")
