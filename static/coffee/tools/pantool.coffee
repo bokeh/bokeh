@@ -47,6 +47,7 @@ class PanToolView extends ToolView
     return null
 
   _drag: (e) ->
+    @plot_view.pause()
     [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     xdiff = x - @x
     ydiff = y - @y
@@ -67,7 +68,7 @@ class PanToolView extends ToolView
 
     @plot_view.x_range.set({start: xstart, end: xend})
     @plot_view.y_range.set({start: ystart, end: yend})
-
+    @plot_view.unpause()
     return null
 
 

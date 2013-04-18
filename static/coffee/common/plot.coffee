@@ -39,6 +39,17 @@ class PlotView extends ContinuumView
     for f in @moveCallbacks
       f(e, e.layerX, e.layerY)
 
+  pause : () ->
+    @is_paused = true
+
+  unpause : () ->
+    @is_paused = false
+    @request_render()
+
+  request_render : () ->
+    if not @is_paused
+      @throttled()
+    return
 
   initialize: (options) ->
     @throttled = _.throttle(@render_deferred_components, 50)
@@ -87,7 +98,7 @@ class PlotView extends ContinuumView
     @render_init()
     @render()
     @build_views()
-    @throttled()
+    @request_render()
     return this
 
   map_to_screen : (x, x_units, y, y_units, units) ->
@@ -152,8 +163,8 @@ class PlotView extends ContinuumView
 
   bind_bokeh_events: () ->
     safebind(this, @view_state, 'change', @render)
-    safebind(this, @x_range, 'change', @throttled)
-    safebind(this, @y_range, 'change', @throttled)
+    safebind(this, @x_range, 'change', @request_render)
+    safebind(this, @y_range, 'change', @request_render)
     safebind(this, @model, 'change:renderers', @build_views)
     safebind(this, @model, 'change:tool', @build_tools)
     safebind(this, @model, 'change', @render)

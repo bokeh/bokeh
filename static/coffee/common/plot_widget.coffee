@@ -52,7 +52,7 @@ class PlotWidget extends ContinuumView
     #safebind(this, @plot_view.viewstate, 'change', ()-> @request_render())
 
   request_render: () ->
-    @plot_view.throttled()
+    @plot_view.request_render()
 
 
 exports.PlotWidget = PlotWidget

@@ -42,6 +42,7 @@ class ZoomToolView extends ToolView
     return [x_, y_]
 
   _zoom : (e) ->
+    @plot_view.pause()
     delta   = e.delta
     screenX = e.bokehX
     screenY = e.bokehY
@@ -64,7 +65,7 @@ class ZoomToolView extends ToolView
 
     @plot_view.x_range.set({start: xstart, end: xend})
     @plot_view.y_range.set({start: ystart, end: yend})
-
+    @plot_view.unpause()
 
     # for dim, mapper in @mappers
     #   if dim == 'width'
