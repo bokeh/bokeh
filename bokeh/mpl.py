@@ -473,10 +473,9 @@ class PlotClient(object):
         model = bbmodel.make_model(typename, **kwargs)
 
         model.set('doc', self.docid)
-        #import pdb
-        #pdb.set_trace()
-        #model.set('script_inject', script_inject(
-        #    self, model.id, typename))
+        if hasattr(self, "apikey"):
+            model.set('script_inject', script_inject(
+                self, model.id, typename))
         self.models[model.id] = model
         return model
 
