@@ -1,3 +1,8 @@
+/*
+
+
+*/
+
 (function(global) {
 
     //var silpUrl = '//s3-eu-west-1.amazonaws.com/silp.shootitlive.com/js/silp.min.js';
@@ -22,7 +27,25 @@
     if(!Bokeh.settings) {
         Bokeh.settings = [];
         var settings = Bokeh.settings;
-
+        var parseEl = function(el){
+            var attrs = el.attributes;
+            var bokehRe = /bokeh.*/
+            var info = {};
+            var bokehCount = 0;
+            window.attrs = attrs;
+            for(var i=0; i < attrs.length; i++){
+                var attr = attrs[i];
+                if(attrs[i].name.match(bokehRe)){
+                    info[attrs[i].name] = attrs[i].value;
+                    bokehCount++;
+                }
+            }
+            if(bokehCount > 0){
+                return info;}
+            else {
+                return false;
+            }
+        }
         var findInjections = function() {
             var els = document.getElementsByTagName('script');
             window.els2= els;
@@ -55,16 +78,7 @@
                     window.addDirectPlotWrap(conf);}
             }
         };
-         
-        var addOnload = function(func){
-            if (window.attachEvent){
-                window.attachEvent('onload', func);}
-            else {
-                window.addEventListener('load', func, false);}
-        };
-        addOnload(findInjections);
-        addOnload(callFuncs);
-        // Load main javascript
+
         var s = document.createElement('script');
         s.async = true; s.src = bokehUrl;
         document.body.appendChild(s);
@@ -78,27 +92,25 @@
         for(var i=0; i <cssUrls.length; i++){
             loadCss(cssUrls[i]);
         };
-
-    };
-    var parseEl = function(el){
-        var attrs = el.attributes;
-        var bokehRe = /bokeh.*/
-        var info = {};
-        var bokehCount = 0;
-        window.attrs = attrs;
-        for(var i=0; i < attrs.length; i++){
-            var attr = attrs[i];
-            if(attrs[i].name.match(bokehRe)){
-                info[attrs[i].name] = attrs[i].value;
-                bokehCount++;
+        
+        var addOnload = function(func){
+            if((document.readyState == "complete" ||
+               document.readyState == "loaded"){
+                
+                console.log("calling func document.readyState", document.readyState);
+                if(
+                    func();
             }
-        }
-        if(bokehCount > 0){
-            return info;}
-        else {
-            return false;
-        }
-    }
+            else if (window.attachEvent){
+                window.attachEvent('onload', func);}
+            else {
+                window.addEventListener('load', func, false);}
+        };
+        addOnload(findInjections);
+        addOnload(callFuncs);
+        // Load main javascript
+    };
+
 
  
 }(this));

@@ -161,6 +161,10 @@ def sampleerror():
 def embed_test():
     return render_template("embed_test.html")
 
+@app.route("/bokeh/dynamic_embed_test/")
+def dynamic_embed_test():
+    return render_template("dynamic_embed_test.html")
+
 @app.route("/bokeh/embed.js")
 def embed_js():
     return render_template("embed.js", host=request.host)
