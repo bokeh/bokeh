@@ -3,7 +3,7 @@
     //var silpUrl = '//s3-eu-west-1.amazonaws.com/silp.shootitlive.com/js/silp.min.js';
     //var silpUrl = 'https://localhost:5000/static/js/embed.js';
     //var bokehUrl = 'http://localhost:5000/static/js/embed2.js';
-    var bokehUrl = 'http://localhost:5006//bokeh/static/js/application.js';
+    var bokehUrl = 'http://{{host}}/bokeh/static/js/application.js';
     // Globals
     if(!global.Bokeh) { global.Bokeh = {}; };
     var Bokeh = global.Bokeh;
@@ -49,7 +49,7 @@
                     window.addDirectPlotWrap(conf);}
             }
         };
-        
+         
         var addOnload = function(func){
             if (window.attachEvent){
                 window.attachEvent('onload', func);}
@@ -83,6 +83,6 @@
     s.async = true; s.src = bokehUrl;
     document.body.appendChild(s);
 
-
+ 
 }(this));
 

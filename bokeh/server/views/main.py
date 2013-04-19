@@ -157,6 +157,10 @@ def sampleerror():
     return 1 + "sdf"
 
 
-@app.route("/embed_test/")
+@app.route("/bokeh/embed_test/")
 def embed_test():
     return render_template("embed_test.html")
+
+@app.route("/bokeh/embed.js")
+def embed_js():
+    return render_template("embed.js", host=request.host)
