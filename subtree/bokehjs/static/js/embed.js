@@ -42,7 +42,11 @@
         var callFuncs = function() {
             var base = require('./base');
             for(var i=0; i < settings.length; i++){
-                window.addPlotWrap(settings[i]);
+                var conf = settings[i];
+                if(conf.bokeh_plottype == 'embeddata'){
+                    window.addPlotWrap(conf);}
+                else {
+                    window.addDirectPlotWrap(conf);}
             }
         };
         
