@@ -48,6 +48,23 @@ class BokehMPLBase(object):
         html = html.encode('utf-8')
         return html
 
+    def script_inject(self):
+        pc = self.plotclient
+        f_dict = dict(
+            docid = pc.docid,
+            ws_conn_string = pc.ws_conn_string,
+            docapikey = pc.apikey,
+            root_url = pc.root_url,
+            modelid = self.plotmodel.id,
+            modeltype = self.plotmodel.typename,
+            script_url = pc.root_url + "/bokeh/static/vendor/bokehjs/js/embed.js")
+        e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
+bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
+bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
+bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>        
+        '''
+        return e_str % f_dict
+
     def htmldump(self, path=None):
         """ If **path** is provided, then writes output to a file,
         else returns the output as a string.
