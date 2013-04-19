@@ -599,6 +599,7 @@ class PlotWidget extends ContinuumView
   marksize : 3
   initialize : (options) ->
     @plot_model = options.plot_model
+    console.log("script_inject", @plot_model.get('script_inject'))
     @plot_view = options.plot_view
     ctx = @plot_view.ctx
     if (!ctx.setLineDash)
