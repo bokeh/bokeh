@@ -19,11 +19,10 @@ class TestBBModel(test_utils.BokehServerTestCase):
                             apikey='nokey')
         self.client = ContinuumModelsClient(
             "defaultdoc", "http://localhost:5006/bokeh/bb/",
-            'nokey', app.ph
+            'nokey'
             )
         self.client2 = ContinuumModelsClient(
             "defaultdoc2", "http://localhost:5006/bokeh/bb/", "nokey",
-            app.ph,
             )
 
     def test_create(self):

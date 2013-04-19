@@ -17,6 +17,5 @@ def sub():
         ws = request.environ['wsgi.websocket']
         wsmanager.run_socket(
             ws,
-            current_app.wsmanager,
-            current_app.ph)
+            current_app.wsmanager)
     return "done"

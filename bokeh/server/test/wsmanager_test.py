@@ -9,6 +9,7 @@ import test_utils
 from ..app import app
 from .. import start
 from ..models import docs
+from ... import protocol
 
 class WSmanagerTestCase(unittest.TestCase):
     def test_some_topics(self):
@@ -33,7 +34,6 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
                             'main', rw_users=["defaultuser"],
                             apikey='nokey')
     def test_basic_subscribe(self):
-        ph = start.app.ph
         sock = websocket.WebSocket()
         connect(sock, ws_address, 'bokehplot:defaultdoc', 'nokey')
         app.wsmanager.send('bokehplot:defaultdoc', 'hello!')
@@ -53,15 +53,14 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         assert msg == 'bokehplot:defaultdoc2:hello3!'
         
 def connect(sock, addr, topic, auth):
-    ph = start.app.ph
     sock.io_sock.settimeout(1.0)
     sock.connect(addr)
     msgobj = dict(msgtype='subscribe',
                   topic=topic,
                   auth=auth
                   )
-    sock.send(ph.serialize_msg(msgobj))
+    sock.send(protocol.serialize_msg(msgobj))
     msg = sock.recv()
     msg = msg.split(":", 2)[-1]
-    msgobj = ph.deserialize_msg(msg)
+    msgobj = protocol.deserialize_msg(msg)
     assert msgobj['status'][:2] == ['subscribesuccess', topic]

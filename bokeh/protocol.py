@@ -105,6 +105,11 @@ def default_deserialize_data(input):
         curr_index += 2
     return output
 
+serialize_web = serialize_json
+
+deserialize_web = deserialize_json
+
+
 class ProtocolHelper(object):
     """
     collections of functions to assist in working with protocols

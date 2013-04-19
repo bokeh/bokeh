@@ -34,7 +34,6 @@ def prepare_app(rhost='127.0.0.1', rport=6379):
         status = mconv.can_write_doc_api(doc, auth, current_app)
         return status
     app.wsmanager.register_auth("bokehplot", auth)
-    app.ph = protocol.ProtocolHelper()
     app.collections = ContinuumModelsStorage(
         redis.Redis(host=rhost, port=rport, db=2)
         )

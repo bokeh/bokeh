@@ -15,6 +15,7 @@ from .. import wsmanager
 from ..models import user
 from ..models import docs
 from ..models import convenience as mconv
+from ... import protocol
 from .. import hemlib
 from ...exceptions import DataIntegrityException
 from bbauth import (check_read_authentication_and_create_client,
@@ -61,8 +62,8 @@ def makedoc():
         bokehuser.save(app.model_redis)
     except DataIntegrityException as e:
         return abort(409, e.message)
-    jsonstring = current_app.ph.serialize_web(bokehuser.to_public_json())
-    msg = app.ph.serialize_web({'msgtype' : 'docchange'})
+    jsonstring = protocol.serialize_web(bokehuser.to_public_json())
+    msg = protocol.serialize_web({'msgtype' : 'docchange'})
     current_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
 
@@ -75,8 +76,8 @@ def deletedoc(docid):
         bokehuser.save(app.model_redis)
     except DataIntegrityException as e:
         return abort(409, e.message)
-    jsonstring = current_app.ph.serialize_web(bokehuser.to_public_json())
-    msg = app.ph.serialize_web({'msgtype' : 'docchange'})
+    jsonstring = protocol.serialize_web(bokehuser.to_public_json())
+    msg = protocol.serialize_web({'msgtype' : 'docchange'})
     current_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
     
@@ -94,7 +95,7 @@ def get_doc_api_key(docid):
 @app.route('/bokeh/userinfo/')
 def get_user():
     bokehuser = app.current_user(request)
-    content = current_app.ph.serialize_web(bokehuser.to_public_json())
+    content = protocol.serialize_web(bokehuser.to_public_json())
     write_plot_file(request.scheme + "://" + request.host)
     return make_json(content)
 
@@ -125,7 +126,7 @@ def get_bokeh_info(docid):
                  'docid' : docid,
                  'all_models' : all_models,
                  'apikey' : doc.apikey}
-    returnval = current_app.ph.serialize_web(returnval)
+    returnval = protocol.serialize_web(returnval)
     result = make_json(returnval,
                        headers={"Access-Control-Allow-Origin": "*"})
     return result
@@ -145,7 +146,7 @@ def get_public_bokeh_info(docid):
                  'docid' : docid,
                  'all_models' : all_models_json,
                  }
-    returnval = current_app.ph.serialize_web(returnval)
+    returnval = protocol.serialize_web(returnval)
     #return returnval
 
     return (returnval, "200",
