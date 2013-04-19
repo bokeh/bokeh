@@ -5,6 +5,8 @@ Deferreds._doc_loaded = $.Deferred()
 Deferreds._doc_requested = $.Deferred()
 Promises.doc_loaded = Deferreds._doc_loaded.promise()
 Promises.doc_requested = Deferreds._doc_requested.promise()
+Promises.doc_promises = {};
+
 base = require("./base")
 Collections = base.Collections
 container = require("./container")
@@ -21,12 +23,24 @@ exports.plotcontextview = null
 exports.Promises = Promises
 HasProperties.prototype.sync = Backbone.sync
 
+
 utility =
   load_user : () ->
     response = $.get('/bokeh/userinfo/', {})
     return response
 
+  load_doc_once : (docid) ->
+    if _.has(Promises.doc_promises, docid)
+      console.log("already found #{docid} in promises")
+      return Promises.doc_promises[docid]
+    else
+      console.log("#{docid} not in promises, loading it")
+      doc_prom = utility.load_doc(docid)
+      Promises.doc_promises[docid] = doc_prom
+      return doc_prom
+
   load_doc : (docid) ->
+    wswrapper = utility.make_websocket();
     response = $.get(Config.prefix + "/bokeh/bokehinfo/#{docid}/", {})
       .done((data) ->
         all_models = data['all_models']

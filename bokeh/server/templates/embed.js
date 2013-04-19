@@ -8,7 +8,7 @@
     var cssUrls = [
         'http://' + host + '/bokeh/static/vendor/bokehjs/css/bokeh.css',
         'http://' + host + '/bokeh/static/vendor/bokehjs/css/continuum.css',
-        'http://' + host + '/bokeh/static/vendor/bokehjs/vendor/bootstrap/css/continuum.css',
+        'http://' + host + '/bokeh/static/vendor/bokehjs/vendor/bootstrap/css/bootstrap.css',
     ];
     // Globals
     if(!global.Bokeh) { global.Bokeh = {}; };
