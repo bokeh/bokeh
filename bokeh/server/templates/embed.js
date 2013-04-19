@@ -3,7 +3,13 @@
     //var silpUrl = '//s3-eu-west-1.amazonaws.com/silp.shootitlive.com/js/silp.min.js';
     //var silpUrl = 'https://localhost:5000/static/js/embed.js';
     //var bokehUrl = 'http://localhost:5000/static/js/embed2.js';
-    var bokehUrl = 'http://{{host}}/bokeh/static/js/application.js';
+    var host = "{{host}}";
+    var bokehUrl = 'http://' + host +'/bokeh/static/js/application.js';
+    var cssUrls = [
+        'http://' + host + '/bokeh/static/vendor/bokehjs/css/bokeh.css',
+        'http://' + host + '/bokeh/static/vendor/bokehjs/css/continuum.css',
+        'http://' + host + '/bokeh/static/vendor/bokehjs/vendor/bootstrap/css/continuum.css',
+    ];
     // Globals
     if(!global.Bokeh) { global.Bokeh = {}; };
     var Bokeh = global.Bokeh;
@@ -58,6 +64,21 @@
         };
         addOnload(findInjections);
         addOnload(callFuncs);
+        // Load main javascript
+        var s = document.createElement('script');
+        s.async = true; s.src = bokehUrl;
+        document.body.appendChild(s);
+
+        var loadCss = function(url){
+            var link = document.createElement('link');
+            link.href = url; link.rel="stylesheet";
+            link.type = "text/css";
+            document.body.appendChild(link);
+        };
+        for(var i=0; i <cssUrls.length; i++){
+            loadCss(cssUrls[i]);
+        };
+
     };
     var parseEl = function(el){
         var attrs = el.attributes;
@@ -78,10 +99,6 @@
             return false;
         }
     }
-    // Load main javascript
-    var s = document.createElement('script');
-    s.async = true; s.src = bokehUrl;
-    document.body.appendChild(s);
 
  
 }(this));

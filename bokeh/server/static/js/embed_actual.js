@@ -1,6 +1,7 @@
 
-
+(function() {
 function addPlotWrap(settings){
+
     addPlot(settings.bokeh_modelid, settings.bokeh_modeltype, settings.element);
 };
 function addPlot(modelid, modeltype, element) {
@@ -66,3 +67,4 @@ function addDirectPlot(
 
 window.addPlotWrap = addPlotWrap;
 window.addDirectPlotWrap = addDirectPlotWrap;
+}());
