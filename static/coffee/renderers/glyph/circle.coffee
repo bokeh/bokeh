@@ -51,7 +51,7 @@ class CircleView extends GlyphView
         if isNaN(@sx[i] + @sy[i] + @radius[i])
           continue
         ctx.beginPath()
-        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI*2, false)
+        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
         ctx.fill()
 
     if @do_stroke
@@ -60,7 +60,7 @@ class CircleView extends GlyphView
         if isNaN(@sx[i] + @sy[i] + @radius[i])
           continue
         ctx.beginPath()
-        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI*2, false)
+        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
         ctx.stroke()
 
   _full_path: (ctx) ->
@@ -69,7 +69,7 @@ class CircleView extends GlyphView
         continue
 
       ctx.beginPath()
-      ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI*2, false)
+      ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
 
       if @do_fill
         @glyph_props.fill_properties.set(ctx, @data[i])
