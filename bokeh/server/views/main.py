@@ -167,4 +167,5 @@ def dynamic_embed_test():
 
 @app.route("/bokeh/embed.js")
 def embed_js():
-    return render_template("embed.js", host=request.host)
+    return (render_template("embed.js", host=request.host), "200", 
+            {'Content-Type':'application/javascript'})

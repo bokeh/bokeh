@@ -45,3 +45,4 @@ window.addPlotWrap = addPlotWrap;
 window.addDirectPlotWrap = addDirectPlotWrap;
 window.Bokeh.loadFinished=true;
 
+console.log('embed_core');

@@ -1,7 +1,4 @@
-/*
-
-
-*/
+console.log("embed.js");
 
 (function(global) {
 
@@ -22,9 +19,12 @@
     // To keep track of which embeds we have already processed
     if(!Bokeh.foundEls) Bokeh.foundEls = [];
     var foundEls = Bokeh.foundEls;
-
     // This is read by silp.min.js and a player is created for each one
     if(!Bokeh.settings) {
+        var s = document.createElement('script');
+        s.async = true; s.src = bokehUrl;
+        document.body.appendChild(s);
+
         Bokeh.settings = [];
         var settings = Bokeh.settings;
         var parseEl = function(el){
@@ -79,9 +79,6 @@
             }
         };
 
-        var s = document.createElement('script');
-        s.async = true; s.src = bokehUrl;
-        document.body.appendChild(s);
 
         var loadCss = function(url){
             var link = document.createElement('link');
@@ -92,10 +89,10 @@
         for(var i=0; i <cssUrls.length; i++){
             loadCss(cssUrls[i]);
         };
-        
+        /*
         var addOnload = function(func){
             if((document.readyState == "complete" ||
-               document.readyState == "loaded"){
+               document.readyState == "loaded")){
                 
                 console.log("calling func document.readyState", document.readyState);
                 if(
@@ -106,6 +103,7 @@
             else {
                 window.addEventListener('load', func, false);}
         };
+            */
         addOnload(findInjections);
         addOnload(callFuncs);
         // Load main javascript

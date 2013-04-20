@@ -7,7 +7,8 @@
              "./static/vendor/bokehjs/vendor/buckets/buckets.js",
              "./static/vendor/bokehjs/vendor/bootstrap/js/bootstrap.js",
              "./static/vendor/bokehjs/js/custom.js",
-             "./static/js/embed_actual.js"],
+             "./static/js/embed_kickoff.js"],
+
     "paths" : ["./static/coffee", "./static/vendor/bokehjs/coffee"],
     "public" : "./static/js",
     "css" : false,
