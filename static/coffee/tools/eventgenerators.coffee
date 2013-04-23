@@ -1,7 +1,7 @@
 
 class TwoPointEventGenerator
 
-  constructor : (options) ->
+  constructor: (options) ->
     @options = options
     @toolName = @options.eventBasename
     @dragging = false
@@ -9,7 +9,7 @@ class TwoPointEventGenerator
     @button_activated = false
     @tool_active = false
 
-  bind_events : (plotview, eventSink) ->
+  bind_events: (plotview, eventSink) ->
     toolName = @toolName
     @plotview = plotview
     @eventSink = eventSink
@@ -21,7 +21,7 @@ class TwoPointEventGenerator
       offset = $(e.currentTarget).offset()
       e.bokehX = e.pageX - offset.left
       e.bokehY = e.pageY - offset.top
-    
+
       if not @basepoint_set
         @dragging = true
         @basepoint_set = true
@@ -43,12 +43,12 @@ class TwoPointEventGenerator
       if not e[@options.keyName]
         @_stop_drag(e))
 
-    @plotview.main_can_wrapper.bind('mousedown', (e) =>
+    @plotview.canvas_wrapper.bind('mousedown', (e) =>
       if @button_activated
         @_start_drag()
         return false)
 
-    @plotview.main_can_wrapper.bind('mouseup', (e) =>
+    @plotview.canvas_wrapper.bind('mouseup', (e) =>
       if @button_activated
         @_stop_drag(e)
         return false)
@@ -73,29 +73,29 @@ class TwoPointEventGenerator
       @$tool_button.addClass('active'))
     return eventSink
 
-  _start_drag : ->
+  _start_drag: ->
     @eventSink.trigger("active_tool", @toolName)
     if not @dragging
       @dragging = true
       if not @button_activated
         @$tool_button.addClass('active')
 
-  _stop_drag : (e)->
+  _stop_drag: (e)->
     @basepoint_set = false
     if @dragging
       @dragging = false
       if not @button_activated
         @$tool_button.removeClass('active')
       offset = $(e.currentTarget).offset()
-      e.bokehX = e.pageX - offset.left
-      e.bokehY = e.pageY - offset.top
+      e.bokehX = e.pageX #- offset.left
+      e.bokehY = e.pageY #- offset.top
       @eventSink.trigger("#{@options.eventBasename}:DragEnd", e)
 
 
 
 class OnePointWheelEventGenerator
 
-  constructor : (options) ->
+  constructor: (options) ->
     @options = options
     @toolName = @options.eventBasename
     @dragging = false
@@ -103,11 +103,11 @@ class OnePointWheelEventGenerator
     @button_activated = false
     @tool_active = false
 
-  bind_events : (plotview, eventSink) ->
+  bind_events: (plotview, eventSink) ->
     toolName = @toolName
     @plotview = plotview
     @eventSink = eventSink
-    @plotview.main_can_wrapper.bind("mousewheel",
+    @plotview.canvas_wrapper.bind("mousewheel",
       (e, delta, dX, dY) =>
         if not @tool_active
           return

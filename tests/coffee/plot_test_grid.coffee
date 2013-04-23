@@ -1,7 +1,7 @@
 base = require("../base")
 Collections = base.Collections
 
-testutils = require("../testutils")
+testutils = require("./testutils")
 scatter_plot = testutils.scatter_plot
 line_plot = testutils.line_plot
 

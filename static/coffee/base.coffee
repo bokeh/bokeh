@@ -1,3 +1,5 @@
+
+
 Config = {
     prefix : ''
   }
@@ -45,7 +47,7 @@ safebind = (binder, target, event, callback) ->
       ,
         binder)
    else
-    #debugger;
+    debugger;
     console.log("error with binder", binder, event)
   return null
 
@@ -545,149 +547,32 @@ build_views = (view_storage, view_models, options) ->
   return created_views
 
 
-
-class ContinuumView extends Backbone.View
-  initialize : (options) ->
-    #autogenerates id
-    if not _.has(options, 'id')
-      this.id = _.uniqueId('ContinuumView')
-
-  #bind_bokeh_events is always called after initialize has run
-  bind_bokeh_events : () ->
-    'pass'
-
-
-
-  delegateEvents : (events) ->
-    super(events)
-    @bind_bokeh_events()
-
-  remove : ->
-    #handles lifecycle of events bound by safebind
-
-    if _.has(this, 'eventers')
-      for own target, val of @eventers
-        val.off(null, null, this)
-    @trigger('remove')
-    super()
-
-  mget : ()->
-    # convenience function, calls get on the associated model
-    return @model.get.apply(@model, arguments)
-
-  mset : ()->
-    # convenience function, calls set on the associated model
-
-    return @model.set.apply(@model, arguments)
-
-  mget_obj : (fld) ->
-    # convenience function, calls get_obj on the associated model
-
-    return @model.get_obj(fld)
-  render_end : () ->
-    "pass"
-
-
-class PlotWidget extends ContinuumView
-  # Everything that lives inside a plot container should
-  # inherit from this class.  All plot widgets are
-  # passed in the plot model and view
-  # This class also contains some basic canvas rendering primitives
-  # we also include the request_render function, which
-  # calls a throttled version of the plot canvas rendering function
-  tagName : 'div'
-  marksize : 3
-  initialize : (options) ->
-    @plot_model = options.plot_model
-    @plot_view = options.plot_view
-    ctx = @plot_view.ctx
-    if (!ctx.setLineDash)
-      ctx.setLineDash = (dash) ->
-        ctx.mozDash = dash
-        ctx.webkitLineDash = dash
-    if (!ctx.getLineDash)
-      ctx.getLineDash = () ->
-        return ctx.mozDash
-    ctx.setLineDashOffset = (dash_offset) ->
-      ctx.lineDashOffset = dash_offset
-      ctx.mozDashOffset = dash_offset
-      ctx.webkitLineDashOffset = dash_offset
-    ctx.setImageSmoothingEnabled = (value) ->
-      ctx.imageSmoothingEnabled = value;
-      ctx.mozImageSmoothingEnabled = value;
-      ctx.oImageSmoothingEnabled = value;
-      ctx.webkitImageSmoothingEnabled = value;
-    ctx.getImageSmoothingEnabled = () ->
-      return ctx.imageSmoothingEnabled ? true
-    super(options)
-
-  bind_bokeh_events : ->
-    safebind(this, @plot_view.viewstate, 'change', ()->
-        @request_render())
-
-  addPolygon: (x,y) ->
-    if isNaN(x) or isNaN(y)
-      return null
-    @plot_view.ctx.fillRect(x,y,@marksize,@marksize)
-
-  addCircle: (x,y) ->
-    if isNaN(x) or isNaN(y)
-      return null
-    @plot_view.ctx.beginPath()
-    @plot_view.ctx.arc(x, y, @marksize, 0, Math.PI*2)
-    @plot_view.ctx.closePath()
-    @plot_view.ctx.fill()
-    @plot_view.ctx.stroke()
-
-  request_render : () ->
-    @plot_view.throttled()
-
 locations =
-  Plot : ['./container', 'plots']
+  AnnotationRenderer: ['./renderers/annotation_renderer', 'annotationrenderers']
+  GlyphRenderer:      ['./renderers/glyph_renderer',      'glyphrenderers']
+  GuideRenderer:      ['./renderers/guide_renderer',      'guiderenderers']
 
-  PanTool :       ['./tools/pantool',   'pantools']
-  ZoomTool :      ['./tools/zoomtool',   'zoomtools']
-  SelectionTool : ['./tools/selecttool', 'selectiontools']
+  PanTool:       ['./tools/pantool',    'pantools']
+  ZoomTool:      ['./tools/zoomtool',   'zoomtools']
+  SelectionTool: ['./tools/selecttool', 'selectiontools']
 
-  LinearAxis :     ['./guides', 'linearaxes']
-  LinearDateAxis : ['./guides', 'lineardateaxes']
-  Legend :         ['./guides', 'legends']
+  ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources']
+  ColumnDataSource:      ['./common/datasource', 'columndatasources']
 
-  GlyphRenderer : ['./renderers/glyph_renderer',     'glyphrenderers']
+  Range1d:         ['./common/ranges', 'range1ds']
+  DataRange1d:     ['./common/ranges', 'datarange1ds']
+  DataFactorRange: ['./common/ranges', 'datafactorranges']
 
-  Glyph :     ['./renderers/glyph',     'glyphs']
-  Arc :       ['./renderers/arc',       'arcs']
-  Area :      ['./renderers/area',      'areas']
-  Bezier :    ['./renderers/bezier',    'beziers']
-  Circle :    ['./renderers/circle',    'circles']
-  Image :     ['./renderers/image',     'images']
-  Line :      ['./renderers/line',      'lines']
-  Oval :      ['./renderers/oval',      'ovals']
-  Quad :      ['./renderers/quad',      'quads']
-  Quadcurve : ['./renderers/quadcurve', 'quadcurves']
-  Ray :       ['./renderers/ray',       'rays']
-  Rect :      ['./renderers/rect',      'rects']
-  Segment :   ['./renderers/segment',   'segments']
-  Text :      ['./renderers/text',      'texts']
-  Wedge :     ['./renderers/wedge',     'wedges']
+  Plot:              ['./common/plot',         'plots']
+  GridPlotContainer: ['./common/grid_plot',    'gridplotcontainers']
+  CDXPlotContext:    ['./common/plot_context', 'plotcontexts']
+  PlotContext:       ['./common/plot_context', 'plotcontexts']
 
-  BoxSelectionOverlay : ['./overlays', 'boxselectionoverlays']
-  ObjectArrayDataSource : ['./datasource', 'objectarraydatasources']
-  ColumnDataSource : ['./datasource', 'columndatasources']
-  Range1d : ['./ranges', 'range1ds']
-  DataRange1d :['./ranges', 'datarange1ds']
-  DataFactorRange : ['./ranges', 'datafactorranges']
-  Plot : ['./container', 'plots']
-  GridPlotContainer : ['./container', 'gridplotcontainers']
-  CDXPlotContext : ['./container', 'plotcontexts']
-  PlotContext : ['./container', 'plotcontexts']
-  ScatterRenderer: ['./schema_renderers', 'scatterrenderers']
-  LineRenderer: ['./schema_renderers', 'linerenderers']
-  DiscreteColorMapper :['./mapper', 'discretecolormappers']
-  DataTable :['./table', 'datatables']
-  PandasPivot :['./pandas/pandas', 'pandaspivots']
-  PandasDataSource :['./pandas/pandas', 'pandasdatasources']
-  PandasPlotSource :['./pandas/pandas', 'pandasplotsources']
+  DataTable: ['./widgets/table', 'datatables']
+
+  PandasPivot:      ['./pandas/pandas', 'pandaspivots']
+  PandasDataSource: ['./pandas/pandas', 'pandasdatasources']
+  PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
 exports.locations = locations
 
 Collections = (typename) ->
@@ -705,5 +590,3 @@ exports.submodels = submodels
 exports.HasProperties = HasProperties
 exports.HasParent = HasParent
 exports.build_views = build_views
-exports.ContinuumView = ContinuumView
-exports.PlotWidget = PlotWidget

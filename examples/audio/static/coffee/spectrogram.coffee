@@ -1,7 +1,8 @@
 Collections = require('base').Collections
 
 all_palettes = require('../palettes/palettes').all_palettes
-ColorMapper = require('../color_mapper').ColorMapper
+console.log all_palettes
+ColorMapper = require('../mappers/color/linear_color_mapper').LinearColorMapper
 
 NUM_SAMPLES = 1024
 SAMPLING_RATE = 44100
@@ -86,7 +87,7 @@ class Spectrogram
     success: (data, textStatus, jqXHR) =>
       if not data[0]?
         _.delay((=> @throttled_request_data), 130)
-      else  
+      else
         @on_data(data)
         requestAnimationFrame(
           => @throttled_request_data())
@@ -106,7 +107,11 @@ class Spectrogram
     for i in [0..(data[1].length-1)]
       data[1][i] *= @gain
 
-    cmap = new ColorMapper(all_palettes["YlGnBu-9"], 0, 10)
+    cmap = new ColorMapper({}, {
+      palette: all_palettes["YlGnBu-9"],
+      low: 0,
+      high: 10
+    })
     buf = cmap.v_map_screen(data[0])
 
     image32 = new Uint32Array(@image[0])
@@ -252,21 +257,30 @@ class Spectrogram
     _.defer(myrender)
 
   create_spec: () ->
-    plot_model = Collections('Plot').create()
 
     xrange = Collections('Range1d').create({start: 0, end: NGRAMS})
     yrange = Collections('Range1d').create({start: 0, end: MAX_FREQ})
 
-    xaxis = Collections('LinearAxis').create(
-      orientation: 'bottom'
-      parent: plot_model.ref()
-      data_range: xrange.ref()
+    plot_model = Collections('Plot').create(
+      x_range: xrange
+      y_range: yrange
+      canvas_width: @image_width
+      canvas_height: @image_height
+      outer_width: @image_width
+      outer_height: @image_height
+      tools: []
     )
-    yaxis = Collections('LinearAxis').create(
-      orientation: 'left'
-      parent: plot_model.ref()
-      data_range: yrange.ref()
-    )
+
+    # xaxis = Collections('LinearAxis').create(
+    #   orientation: 'bottom'
+    #   parent: plot_model.ref()
+    #   data_range: xrange.ref()
+    # )
+    # yaxis = Collections('LinearAxis').create(
+    #   orientation: 'left'
+    #   parent: plot_model.ref()
+    #   data_range: yrange.ref()
+    # )
 
     glyphspec = {
       type: 'image_rgba'
@@ -286,33 +300,35 @@ class Spectrogram
       ydata_range: yrange.ref()
       glyphspec: glyphspec
     })
-
-    plot_model.set(
-      renderers: [glyph.ref()]
-      axes: [xaxis.ref(), yaxis.ref()]
-      tools: []
-      width: @image_width
-      height: @image_height
-    )
+    plot_model.add_renderers([glyph])
 
     return plot_model
 
   create_power: () ->
-    plot_model = Collections('Plot').create()
 
     xrange = Collections('Range1d').create({start: 0, end: window.TIMESLICE})
     yrange = Collections('Range1d').create({start: -0.25, end: 0.25})
 
-    xaxis = Collections('LinearAxis').create(
-      orientation: 'bottom'
-      parent: plot_model.ref()
-      data_range: xrange.ref()
+    plot_model = Collections('Plot').create(
+      x_range: xrange
+      y_range: yrange
+      canvas_width: 550
+      canvas_height: 220
+      outer_width: 550
+      outer_height: 220
+      tools: []
     )
-    yaxis = Collections('LinearAxis').create(
-      orientation: 'left'
-      parent: plot_model.ref()
-      data_range: yrange.ref()
-    )
+
+    # xaxis = Collections('LinearAxis').create(
+    #   orientation: 'bottom'
+    #   parent: plot_model.ref()
+    #   data_range: xrange.ref()
+    # )
+    # yaxis = Collections('LinearAxis').create(
+    #   orientation: 'left'
+    #   parent: plot_model.ref()
+    #   data_range: yrange.ref()
+    # )
 
     glyphspec = {
       type: 'line'
@@ -325,34 +341,36 @@ class Spectrogram
       ydata_range: yrange.ref()
       glyphspec: glyphspec
     })
-
-    plot_model.set(
-      renderers: [glyph.ref()]
-      axes: [xaxis.ref(), yaxis.ref()]
-      tools: []
-      width: 500
-      height: 220
-    )
+    plot_model.add_renderers([glyph])
 
     return plot_model
 
   create_fft: () ->
-    plot_model = Collections('Plot').create()
 
     xrange = Collections('Range1d').create({start: 0, end: SPECTROGRAM_LENGTH})
     @fft_xrange = xrange
     yrange = Collections('Range1d').create({start: -1.75, end: 3.75})
 
-    xaxis = Collections('LinearAxis').create(
-      orientation: 'bottom'
-      parent: plot_model.ref()
-      data_range: xrange.ref()
+    plot_model = Collections('Plot').create(
+      x_range: xrange
+      y_range: yrange
+      canvas_width: 550
+      canvas_height: 220
+      outer_width: 550
+      outer_height: 220
+      tools: []
     )
-    yaxis = Collections('LinearAxis').create(
-      orientation: 'left'
-      parent: plot_model.ref()
-      data_range: yrange.ref()
-    )
+
+    # xaxis = Collections('LinearAxis').create(
+    #   orientation: 'bottom'
+    #   parent: plot_model.ref()
+    #   data_range: xrange.ref()
+    # )
+    # yaxis = Collections('LinearAxis').create(
+    #   orientation: 'left'
+    #   parent: plot_model.ref()
+    #   data_range: yrange.ref()
+    # )
 
     glyphspec = {
       type: 'line'
@@ -365,14 +383,7 @@ class Spectrogram
       ydata_range: yrange.ref()
       glyphspec: glyphspec
     })
-
-    plot_model.set(
-      renderers: [glyph.ref()]
-      axes: [xaxis.ref(), yaxis.ref()]
-      tools: []
-      width: 500
-      height: 220
-    )
+    plot_model.add_renderers([glyph])
 
     return plot_model
 
@@ -380,6 +391,16 @@ class Spectrogram
     plot_model = Collections('Plot').create()
 
     range = Collections('Range1d').create({start: -20, end: 20})
+
+    plot_model = Collections('Plot').create(
+      x_range: range
+      y_range: range
+      canvas_width: 500
+      canvas_height: 500
+      outer_width: 500
+      outer_height: 500
+      tools: []
+    )
 
     glyphspec = {
       type: 'annular_wedge',
@@ -399,14 +420,7 @@ class Spectrogram
       ydata_range: range.ref()
       glyphspec: glyphspec
     })
-
-    plot_model.set(
-      renderers: [glyph.ref()]
-      axes: []
-      tools: []
-      width: 500
-      height: 500
-    )
+    plot_model.add_renderers([glyph])
 
     return plot_model
 
@@ -415,5 +429,5 @@ $(document).ready () ->
   setInterval((() ->
     spec.request_data()),
     400)
-    
+
 
