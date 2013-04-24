@@ -48,7 +48,7 @@ class ZoomToolView extends ToolView
 
     [x, y]  = @mouse_coords(e, screenX, screenY)
     speed   = @mget('speed')
-    factor  = -speed * (delta * 50)
+    factor  = speed * (delta * 50)
 
     xr = @plot_view.view_state.get('inner_range_horizontal')
     sx_low  = xr.get('start')
