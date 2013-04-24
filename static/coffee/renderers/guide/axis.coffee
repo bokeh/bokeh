@@ -68,8 +68,10 @@ class LinearAxisView extends PlotWidget
     standoff = @mget('major_label_standoff')
     @major_label_props.set(ctx, @)
     dim = @mget('dimension')
+    formatter = new ticking.BasicTickFormatter()
+    labels = formatter.format(coords[dim])
     for i in [0..sx.length-1]
-      ctx.fillText("#{coords[dim][i]}", sx[i] + nx*standoff, sy[i] + ny * standoff)
+      ctx.fillText(labels[i], sx[i] + nx*standoff, sy[i] + ny * standoff)
     return
 
 
@@ -131,8 +133,8 @@ class LinearAxis extends HasParent
     end = Math.max(start, end)
     start = tmp
 
-    interval = ticking.auto_interval(start, end)
-    [first_tick, last_tick] = ticking.auto_bounds(start, end, interval)
+    [min, max, interval] = ticking.auto_interval(start, end)
+    ticks = ticking.auto_ticks(null, null, start, end, interval)
 
     i = @get('dimension')
     j = (i + 1) % 2
@@ -145,11 +147,9 @@ class LinearAxis extends HasParent
     ys = []
     coords = [xs, ys]
 
-    current_tick = first_tick
-    while current_tick <= last_tick
-      coords[i].push(current_tick)
+    for ii in [0..ticks.length-1]
+      coords[i].push(ticks[ii])
       coords[j].push(loc)
-      current_tick += interval
 
     return coords
 

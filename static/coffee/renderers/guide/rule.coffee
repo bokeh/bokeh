@@ -61,8 +61,8 @@ class Rule extends HasParent
     end = Math.max(start, end)
     start = tmp
 
-    interval = ticking.auto_interval(start, end)
-    [first_tick, last_tick] = ticking.auto_bounds(start, end, interval)
+    [min, max, interval] = ticking.auto_interval(start, end)
+    ticks = ticking.auto_ticks(null, null, start, end, interval)
 
     i = @get('dimension')
     j = (i + 1) % 2
@@ -71,23 +71,20 @@ class Rule extends HasParent
 
     coords = [[], []]
 
-    current_tick = first_tick
-    while current_tick <= last_tick
-      cmin = @get_obj('cross_range').get('min')
-      cmax = @get_obj('cross_range').get('max')
-      if current_tick == cmin or current_tick == cmax
-        current_tick += interval
+    cmin = @get_obj('cross_range').get('min')
+    cmax = @get_obj('cross_range').get('max')
+    for ii in [0..ticks.length-1]
+      if ticks[ii] == cmin or ticks[ii] == cmax
         continue
       dim_i = []
       dim_j = []
       coords[i].push(dim_i)
       coords[j].push(dim_j)
       N = 2
-      for ii in [0..N-1]
-        loc = cmin + (cmax-cmin)/(N-1) * ii
-        dim_i.push(current_tick)
+      for jj in [0..N-1]
+        loc = cmin + (cmax-cmin)/(N-1) * jj
+        dim_i.push(ticks[ii])
         dim_j.push(loc)
-      current_tick += interval
 
     return coords
 
