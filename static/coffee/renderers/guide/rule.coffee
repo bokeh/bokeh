@@ -74,17 +74,17 @@ class Rule extends HasParent
     cmin = @get_obj('cross_range').get('min')
     cmax = @get_obj('cross_range').get('max')
     for ii in [0..ticks.length-1]
-      if ticks[ii] == cmin or ticks[ii] == cmax
-        continue
+      # if ticks[ii] == ??? or ticks[ii] == ???
+      #   continue
       dim_i = []
       dim_j = []
-      coords[i].push(dim_i)
-      coords[j].push(dim_j)
       N = 2
-      for jj in [0..N-1]
-        loc = cmin + (cmax-cmin)/(N-1) * jj
+      for n in [0..N-1]
+        loc = cmin + (cmax-cmin)/(N-1) * n
         dim_i.push(ticks[ii])
         dim_j.push(loc)
+      coords[i].push(dim_i)
+      coords[j].push(dim_j)
 
     return coords
 
