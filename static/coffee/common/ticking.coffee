@@ -241,7 +241,6 @@ auto_interval = (data_low, data_high) ->
     for nticks in divisions
       [min, max, interval] = heckbert_interval(data_low, data_high, nice_2_5_10, nticks)
       candidate_intervals.push([min, max, interval])
-    console.log candidate_intervals
 
     diff = 10000
     ind = -1
@@ -251,7 +250,6 @@ auto_interval = (data_low, data_high) ->
         if newdiff < diff
           diff = newdiff
           ind = i
-    console.log ind
 
     return candidate_intervals[ind]
 
