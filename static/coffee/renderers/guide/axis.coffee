@@ -16,6 +16,7 @@ class LinearAxisView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
 
+    @spec = attrs.guidespec
     @rule_props = new line_properties(@, {}, 'rule_')
     @major_tick_props = new line_properties(@, {}, 'major_tick_')
     @major_label_props = new text_properties(@, {}, 'major_label_')
@@ -67,7 +68,7 @@ class LinearAxisView extends PlotWidget
     [nx, ny] = @mget('normals')
     standoff = @mget('major_label_standoff')
     @major_label_props.set(ctx, @)
-    dim = @mget('dimension')
+    dim = @mget('guidespec').dimension
     formatter = new ticking.BasicTickFormatter()
     labels = formatter.format(coords[dim])
     for i in [0..sx.length-1]
@@ -92,26 +93,29 @@ class LinearAxis extends HasParent
     @add_dependencies('normals', this, ['dimension', 'location'])
 
   _rule_coords: () ->
+    i = @get('guidespec').dimension
+    j = (i + 1) % 2
+
+    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    range = ranges[i]
+    cross_range = ranges[j]
+
     bounds = @get_obj('bounds')
+
     if _.isArray(bounds)
       start = bounds[0]
       end = bounds[1]
     else
-      start = bounds.get('start')
-      end = bounds.get('end')
-
-    dim = @get('dimension')
+      start = range.get('start')
+      end = range.get('end')
 
     xs = new Array(2)
     ys = new Array(2)
     coords = [xs, ys]
 
-    loc = @get('location')
+    loc = @get('guidespec').location
     if _.isString(loc)
-      loc = @get_obj('cross_range').get(loc)
-
-    i = @get('dimension')
-    j = (i + 1) % 2
+      loc = cross_range.get(loc)
 
     coords[i][0] = start
     coords[i][1] = end
@@ -121,27 +125,32 @@ class LinearAxis extends HasParent
     return coords
 
   _major_coords: () ->
+    i = @get('guidespec').dimension
+    j = (i + 1) % 2
+
+    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    range = ranges[i]
+    cross_range = ranges[j]
+
     bounds = @get_obj('bounds')
+
     if _.isArray(bounds)
       start = bounds[0]
       end = bounds[1]
     else
-      start = bounds.get('start')
-      end = bounds.get('end')
+      start = range.get('start')
+      end = range.get('end')
 
     tmp = Math.min(start, end)
     end = Math.max(start, end)
     start = tmp
 
-    [min, max, interval] = ticking.auto_interval(start, end)
+    [imin, imax, interval] = ticking.auto_interval(start, end)
     ticks = ticking.auto_ticks(null, null, start, end, interval)
 
-    i = @get('dimension')
-    j = (i + 1) % 2
-
-    loc = @get('location')
+    loc = @get('guidespec').location
     if _.isString(loc)
-      loc = @get_obj('cross_range').get(loc)
+      loc = cross_range.get(loc)
 
     xs = []
     ys = []
@@ -154,21 +163,25 @@ class LinearAxis extends HasParent
     return coords
 
   _normals: () ->
+    i = @get('guidespec').dimension
+    j = (i + 1) % 2
+
+    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    range = ranges[i]
+    cross_range = ranges[j]
+
     bounds = @get_obj('bounds')
+
     if _.isArray(bounds)
       start = bounds[0]
       end = bounds[1]
     else
-      start = bounds.get('start')
-      end = bounds.get('end')
+      start = range.get('start')
+      end = range.get('end')
 
-    i = @get('dimension')
-    j = (i + 1) % 2
-
-    loc = @get('location')
-
-    cstart = @get_obj('cross_range').get('start')
-    cend = @get_obj('cross_range').get('end')
+    loc = @get('guidespec').location
+    cstart = cross_range.get('start')
+    cend = cross_range.get('end')
 
     normals = [0, 0]
 

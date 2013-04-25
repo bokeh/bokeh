@@ -325,60 +325,54 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
       xaxis1 = Collections('GuideRenderer').create(
         guidespec: {
           type: 'linear_axis'
+          dimension: 0
+          location: 'min'
+          bounds: 'auto'
         }
         parent: plot_model.ref()
-        bounds: xrange.ref()
-        dimension: 0
-        cross_range: yrange.ref()
-        location: 'min'
       )
       yaxis1 = Collections('GuideRenderer').create(
         guidespec: {
           type: 'linear_axis'
+          dimension: 1
+          location: 'min'
+          bounds: 'auto'
         }
         parent: plot_model.ref()
-        bounds: yrange.ref()
-        dimension: 1
-        cross_range: xrange.ref()
-        location: 'min'
       )
       xaxis2 = Collections('GuideRenderer').create(
         guidespec: {
           type: 'linear_axis'
+          dimension: 0
+          location: 'max'
+          bounds: 'auto'
         }
         parent: plot_model.ref()
-        bounds: xrange.ref()
-        dimension: 0
-        cross_range: yrange.ref()
-        location: 'max'
       )
       yaxis2 = Collections('GuideRenderer').create(
         guidespec: {
           type: 'linear_axis'
+          dimension: 1
+          location: 'max'
+          bounds: 'auto'
         }
         parent: plot_model.ref()
-        bounds: yrange.ref()
-        dimension: 1
-        cross_range: xrange.ref()
-        location: 'max'
       )
       xrule = Collections('GuideRenderer').create(
         guidespec: {
           type: 'rule'
+          dimension: 0
+          bounds: 'auto'
         }
         parent: plot_model.ref()
-        bounds: xrange.ref()
-        dimension: 0
-        cross_range: yrange.ref()
       )
       yrule = Collections('GuideRenderer').create(
         guidespec: {
           type: 'rule'
+          dimension: 1
+          bounds: 'auto'
         }
         parent: plot_model.ref()
-        bounds: yrange.ref()
-        dimension: 1
-        cross_range: xrange.ref()
       )
       plot_model.add_renderers(
         [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]

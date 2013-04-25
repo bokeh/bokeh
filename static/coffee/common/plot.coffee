@@ -153,10 +153,8 @@ class PlotView extends ContinuumView
         @glyphs[k] = v
       if v.mget('level') == 'overlay'
         @overlays[k] = v
-        #@overlays[k].bind_events(this)
       if v.mget('level') == 'annotation'
         @annotations[k] = v
-        #@annotations[k].bind_events(this)
 
     @build_tools()
     @bind_tools()

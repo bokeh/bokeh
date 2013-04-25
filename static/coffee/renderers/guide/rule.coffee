@@ -49,33 +49,39 @@ class Rule extends HasParent
     @add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location'])
 
   _rule_coords: () ->
+    i = @get('guidespec').dimension
+    j = (i + 1) % 2
+
+    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    range = ranges[i]
+    cross_range = ranges[j]
+
     bounds = @get_obj('bounds')
+
     if _.isArray(bounds)
       start = bounds[0]
       end = bounds[1]
     else
-      start = bounds.get('start')
-      end = bounds.get('end')
+      start = range.get('start')
+      end = range.get('end')
 
     tmp = Math.min(start, end)
     end = Math.max(start, end)
     start = tmp
 
-    [min, max, interval] = ticking.auto_interval(start, end)
+    [imin, imax, interval] = ticking.auto_interval(start, end)
     ticks = ticking.auto_ticks(null, null, start, end, interval)
 
-    i = @get('dimension')
-    j = (i + 1) % 2
+    min = range.get('min')
+    max = range.get('max')
 
-    loc = @get_obj('cross_range').get(loc)
+    cmin = cross_range.get('min')
+    cmax = cross_range.get('max')
 
     coords = [[], []]
-
-    cmin = @get_obj('cross_range').get('min')
-    cmax = @get_obj('cross_range').get('max')
     for ii in [0..ticks.length-1]
-      # if ticks[ii] == ??? or ticks[ii] == ???
-      #   continue
+      if ticks[ii] == min or ticks[ii] == max
+        continue
       dim_i = []
       dim_j = []
       N = 2

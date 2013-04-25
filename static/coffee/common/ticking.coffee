@@ -234,7 +234,29 @@ auto_interval = (data_low, data_high) ->
             tick mark interval for axis
     """
 
-    return heckbert_interval(data_low, data_high)
+    divisions = [8, 7, 6, 5, 4, 3]
+    magic_intervals = [1.0, 2.0, 2.5, 5.0, 10.0 ]
+
+    candidate_intervals = []
+    for nticks in divisions
+      [min, max, interval] = heckbert_interval(data_low, data_high, nice_2_5_10, nticks)
+      candidate_intervals.push([min, max, interval])
+    console.log candidate_intervals
+
+    diff = 10000
+    ind = -1
+    for i in [0..candidate_intervals.length-1]
+      for j in [0..magic_intervals.length-1]
+        newdiff = Math.abs(candidate_intervals[i][2]-magic_intervals[i])
+        if newdiff < diff
+          diff = newdiff
+          ind = i
+    console.log ind
+
+    return candidate_intervals[ind]
+
+
+
 
 
 class BasicTickFormatter
