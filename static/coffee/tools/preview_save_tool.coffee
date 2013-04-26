@@ -24,7 +24,7 @@ class PreviewSaveToolView extends ToolView
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
           <h3 id="dataConfirmLabel">Image Preview (right click to save)</h3></div><div class="modal-body">
         <div class="modal-body">
-          <img src="#{data_uri}">
+          <img src="#{data_uri}" style="max-height: 300px; max-width: 400px">
         </div>
         </div><div class="modal-footer">
           <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
