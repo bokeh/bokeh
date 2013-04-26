@@ -190,7 +190,13 @@ class PlotView extends ContinuumView
     @render_end()
 
   render_deferred_components: (force) ->
-    @ctx.clearRect(0,0,  @view_state.get('canvas_width'), @view_state.get('canvas_height'))
+    @ctx.fillStyle = @mget('border_fill')
+    @ctx.fillRect(0,0,  @view_state.get('canvas_width'), @view_state.get('canvas_height'))
+    @ctx.fillStyle = @mget('background_fill')
+    @ctx.fillRect(
+      @view_state.get('border_left'), @view_state.get('border_top'),
+      @view_state.get('inner_width'), @view_state.get('inner_height'),
+    )
 
     @ctx.save()
 
@@ -251,7 +257,7 @@ _.extend(Plot::defaults , {
 Plot::display_defaults = _.clone(Plot::display_defaults)
 _.extend(Plot::display_defaults
   ,
-    background_fill: "#eee",
+    background_fill: "#fff",
     border_fill: "#eee",
     border: 40,
     x_offset: 0,
