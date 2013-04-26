@@ -110,7 +110,7 @@ class Spectrogram
     cmap = new ColorMapper({}, {
       palette: all_palettes["YlGnBu-9"],
       low: 0,
-      high: 1
+      high: 10
     })
     buf = cmap.v_map_screen(data[0])
 
