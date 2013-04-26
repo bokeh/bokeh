@@ -32,6 +32,9 @@ class PreviewSaveToolView extends ToolView
       </div>')
     """
     $('body').append(modal)
+    $('#previewModal').on('hidden', () =>
+      $('#previewModal').remove()
+    )
     $('#previewModal').modal({show:true});
 
 class PreviewSaveTool extends HasParent
