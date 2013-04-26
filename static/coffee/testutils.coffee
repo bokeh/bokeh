@@ -298,7 +298,8 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
         dataranges: [xrange.ref(), yrange.ref()]
         dimensions: ['width', 'height']
       )
-      plot_tools = [pantool, zoomtool]
+      pstool = Collections('PreviewSaveTool').create()
+      plot_tools = [pantool, zoomtool, pstool]
     glyphs = []
     if not typeIsArray(glyphspecs)
       glyphspecs = [glyphspecs]

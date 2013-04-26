@@ -552,9 +552,10 @@ locations =
   GlyphRenderer:      ['./renderers/glyph_renderer',      'glyphrenderers']
   GuideRenderer:      ['./renderers/guide_renderer',      'guiderenderers']
 
-  PanTool:       ['./tools/pantool',    'pantools']
-  ZoomTool:      ['./tools/zoomtool',   'zoomtools']
-  SelectionTool: ['./tools/selecttool', 'selectiontools']
+  PanTool:         ['./tools/pantool',    'pantools']
+  ZoomTool:        ['./tools/zoomtool',   'zoomtools']
+  SelectionTool:   ['./tools/selecttool', 'selectiontools']
+  PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools']
 
   ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources']
   ColumnDataSource:      ['./common/datasource', 'columndatasources']
