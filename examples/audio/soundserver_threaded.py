@@ -3,7 +3,6 @@ import flask
 import os
 from os.path import join
 import sys
-import time
 import hemlib
 
 try:
@@ -45,17 +44,18 @@ def get_audio_data():
     if _stream is None:
         pa = pyaudio.PyAudio()
         _stream = pa.open(format=pyaudio.paInt16, channels=1, rate=SAMPLING_RATE,
-            input=True, frames_per_buffer=NUM_SAMPLES)    
+            input=True, frames_per_buffer=NUM_SAMPLES)
 
     while True:
-        with mutex:
-            try:
-                audio_data  = fromstring(_stream.read(NUM_SAMPLES), dtype=short)
-                normalized_data = audio_data / 32768.0
+        try:
+            audio_data  = fromstring(_stream.read(NUM_SAMPLES), dtype=np.int16)
+            normalized_data = audio_data / 32768.0
+            with mutex:
                 adata = (abs(fft(normalized_data))[:NUM_SAMPLES/2], normalized_data)
-            except:
+        except:
+            with mutex:
                 adata = 0
- 
+
 # def onTimer(self, *args):
 #     spectrum, time = get_audio_data()
 #     self.spectrum_data.set_data('amplitude', spectrum)
@@ -115,10 +115,10 @@ def data():
         else:
             to_send = adata
             adata = None
-    
+
     if to_send:
         return json.dumps([to_send[0].tolist(), to_send[1].tolist()])
-        
+
 
 def main():
     """ Starts the sound server, which retains the audio data inside
@@ -129,10 +129,10 @@ def main():
     t.daemon = True
     t.setDaemon(True)
     t.start()
-    
+
     app.debug = True
     app.run()
-    
+
 
 if __name__ == "__main__":
     main()

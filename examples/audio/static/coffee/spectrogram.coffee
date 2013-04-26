@@ -1,7 +1,6 @@
 Collections = require('base').Collections
 
 all_palettes = require('../palettes/palettes').all_palettes
-console.log all_palettes
 ColorMapper = require('../mappers/color/linear_color_mapper').LinearColorMapper
 
 NUM_SAMPLES = 1024
@@ -11,6 +10,7 @@ FREQ_SAMPLES = NUM_SAMPLES / 8
 SPECTROGRAM_LENGTH = 512
 FREQ_MAX = 512
 FREQ_MIN = 0
+BORDER = 50
 
 NGRAMS = 1020
 
@@ -33,7 +33,7 @@ class Spectrogram
     @last_render = new Date()
 
     @paused = false
-    @throttled_request_data = _.throttle((=> @request_data()), 10)
+    @throttled_request_data = _.throttle((=> @request_data()), 40)
     # Set up image plot for the spectrogram
     @image_width = NGRAMS
     @image_height = 256
@@ -110,7 +110,7 @@ class Spectrogram
     cmap = new ColorMapper({}, {
       palette: all_palettes["YlGnBu-9"],
       low: 0,
-      high: 10
+      high: 1
     })
     buf = cmap.v_map_screen(data[0])
 
@@ -264,10 +264,12 @@ class Spectrogram
     plot_model = Collections('Plot').create(
       x_range: xrange
       y_range: yrange
-      canvas_width: @image_width
-      canvas_height: @image_height
-      outer_width: @image_width
-      outer_height: @image_height
+      border_fill: "#fff"
+      canvas_width: @image_width + 2*BORDER
+      canvas_height: @image_height + 2*BORDER
+      outer_width: @image_width + 2*BORDER
+      outer_height: @image_height + 2*BORDER
+      border: BORDER
       tools: []
     )
 
@@ -312,6 +314,7 @@ class Spectrogram
     plot_model = Collections('Plot').create(
       x_range: xrange
       y_range: yrange
+      border_fill: "#fff"
       canvas_width: 550
       canvas_height: 220
       outer_width: 550
@@ -354,6 +357,7 @@ class Spectrogram
     plot_model = Collections('Plot').create(
       x_range: xrange
       y_range: yrange
+      border_fill: "#fff"
       canvas_width: 550
       canvas_height: 220
       outer_width: 550
@@ -395,6 +399,7 @@ class Spectrogram
     plot_model = Collections('Plot').create(
       x_range: range
       y_range: range
+      border_fill: "#fff"
       canvas_width: 500
       canvas_height: 500
       outer_width: 500
