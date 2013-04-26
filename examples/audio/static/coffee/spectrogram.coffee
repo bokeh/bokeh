@@ -273,16 +273,24 @@ class Spectrogram
       tools: []
     )
 
-    # xaxis = Collections('LinearAxis').create(
-    #   orientation: 'bottom'
-    #   parent: plot_model.ref()
-    #   data_range: xrange.ref()
-    # )
-    # yaxis = Collections('LinearAxis').create(
-    #   orientation: 'left'
-    #   parent: plot_model.ref()
-    #   data_range: yrange.ref()
-    # )
+    xaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 0
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: plot_model.ref()
+    )
+    yaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 1
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: plot_model.ref()
+    )
 
     glyphspec = {
       type: 'image_rgba'
@@ -302,14 +310,14 @@ class Spectrogram
       ydata_range: yrange.ref()
       glyphspec: glyphspec
     })
-    plot_model.add_renderers([glyph])
+    plot_model.add_renderers([glyph, xaxis, yaxis])
 
     return plot_model
 
   create_power: () ->
 
     xrange = Collections('Range1d').create({start: 0, end: window.TIMESLICE})
-    yrange = Collections('Range1d').create({start: -0.25, end: 0.25})
+    yrange = Collections('Range1d').create({start: -0.5, end: 0.5})
 
     plot_model = Collections('Plot').create(
       x_range: xrange
@@ -322,16 +330,24 @@ class Spectrogram
       tools: []
     )
 
-    # xaxis = Collections('LinearAxis').create(
-    #   orientation: 'bottom'
-    #   parent: plot_model.ref()
-    #   data_range: xrange.ref()
-    # )
-    # yaxis = Collections('LinearAxis').create(
-    #   orientation: 'left'
-    #   parent: plot_model.ref()
-    #   data_range: yrange.ref()
-    # )
+    xaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 0
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: plot_model.ref()
+    )
+    yaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 1
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: plot_model.ref()
+    )
 
     glyphspec = {
       type: 'line'
@@ -344,7 +360,7 @@ class Spectrogram
       ydata_range: yrange.ref()
       glyphspec: glyphspec
     })
-    plot_model.add_renderers([glyph])
+    plot_model.add_renderers([glyph, xaxis, yaxis])
 
     return plot_model
 
@@ -365,16 +381,24 @@ class Spectrogram
       tools: []
     )
 
-    # xaxis = Collections('LinearAxis').create(
-    #   orientation: 'bottom'
-    #   parent: plot_model.ref()
-    #   data_range: xrange.ref()
-    # )
-    # yaxis = Collections('LinearAxis').create(
-    #   orientation: 'left'
-    #   parent: plot_model.ref()
-    #   data_range: yrange.ref()
-    # )
+    xaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 0
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: plot_model.ref()
+    )
+    yaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 1
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: plot_model.ref()
+    )
 
     glyphspec = {
       type: 'line'
@@ -387,7 +411,7 @@ class Spectrogram
       ydata_range: yrange.ref()
       glyphspec: glyphspec
     })
-    plot_model.add_renderers([glyph])
+    plot_model.add_renderers([glyph, xaxis, yaxis])
 
     return plot_model
 
