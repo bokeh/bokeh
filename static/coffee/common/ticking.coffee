@@ -103,7 +103,7 @@ arange = (start, end=false, step=false) ->
   return ret_arr
 
 
-auto_ticks = (data_low, data_high, bound_low, bound_high, tick_interval, use_endpoints=false) ->
+auto_ticks = (data_low, data_high, bound_low, bound_high, tick_interval, use_endpoints=false, zero_always_nice=true) ->
     """ Finds locations for axis tick marks.
 
         Calculates the locations for tick marks on an axis. The *bound_low*,
@@ -133,6 +133,9 @@ auto_ticks = (data_low, data_high, bound_low, bound_high, tick_interval, use_end
             If True, the lower and upper bounds of the data are used as the
             lower and upper end points of the axis. If False, the end points
             might not fall exactly on the bounds.
+        zero_always_nice : Boolean
+            If True, ticks much closer to zero than the tick interval will be
+            coerced to have a value of zero
 
         Returns
         -------
@@ -203,6 +206,11 @@ auto_ticks = (data_low, data_high, bound_low, bound_high, tick_interval, use_end
     if upper > end
         end += tick_interval
     ticks = arange( start, end + (tick_interval / 2.0), tick_interval )
+
+    if zero_always_nice
+        for i in [0..ticks.length-1]
+            if Math.abs(ticks[i]) < tick_interval/1000
+                ticks[i] = 0
 
     # FIXME
     # if len( ticks ) < 2
