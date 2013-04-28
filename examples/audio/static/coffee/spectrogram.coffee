@@ -17,9 +17,9 @@ NGRAMS = 1020
 
 HIST_NUM_BINS = 16
 
-FREQ_SLIDER_FACTOR = 2
-FREQ_SLIDER_MAX = MAX_FREQ/FREQ_SLIDER_FACTOR
+FREQ_SLIDER_MAX = MAX_FREQ
 FREQ_SLIDER_MIN = 0
+FREQ_SLIDER_START = FREQ_SLIDER_MAX/2
 
 GAIN_DEFAULT = 1
 GAIN_MIN = 1
@@ -38,15 +38,9 @@ class SpectrogramApp
 
     @throttled_request_data = _.throttle((=> @request_data()), 40)
 
-    # Set up image plot for the spectrogram
-    @image_width = NGRAMS
-    @image_height = 256
-    @image = [new ArrayBuffer(SPECTROGRAM_LENGTH * NGRAMS * 4)]
-    @spec_source = Collections('ColumnDataSource').create(
-      data:{image: @image}
-    )
-    spec_model = @create_spec()
-    @spec_view = new spec_model.default_view(model: spec_model)
+    @spec_plot = new SpectrogramPlot({
+      width: NGRAMS, height: SPECTROGRAM_LENGTH/2, border: BORDER
+    })
 
     @power_plot = new SimpleIndexPlot({
       x0: 0, x1: window.TIMESLICE, y0: -0.5, y1: 0.5, width: 550, height: 220, border: BORDER
@@ -86,29 +80,13 @@ class SpectrogramApp
     for i in [0..(data[1].length-1)]
       data[1][i] *= @gain
 
-    cmap = new ColorMapper({}, {
-      palette: all_palettes["YlGnBu-9"],
-      low: 0,
-      high: 10
-    })
-    buf = cmap.v_map_screen(data[0])
-
-    image32 = new Uint32Array(@image[0])
-    buf32 = new Uint32Array(buf)
-
-    # update the spectrogram
-    for i in [0..(SPECTROGRAM_LENGTH-1)]
-      for j in [(NGRAMS-1)..1]
-        image32[i*NGRAMS + j] = image32[i*NGRAMS + j - 1]
-      image32[i*NGRAMS] = buf32[i]
-    @spec_source.set('data', {image: @image})
-    @spec_source.trigger('change', @spec_source, {})
+    @spec_plot.update(data[0])
 
     @power_plot.update(data[1])
 
-    @fft_plot.update(data[0][0..data[0].length/FREQ_SLIDER_FACTOR])
+    @fft_plot.update(data[0])
 
-    @hist_plot.update(data[0][0..data[0].length/FREQ_SLIDER_FACTOR], @fft_range[0], @fft_range[1])
+    @hist_plot.update(data[0], @fft_range[0], @fft_range[1])
 
   set_freq_range : (event, ui) ->
     [min, max] = @fft_range = ui.values
@@ -124,10 +102,10 @@ class SpectrogramApp
     slider_div = $('<div id="freq-range-slider" style="width: 200px;"></div>')
     slider_div.slider({
       animate: "fast",
-      step: 1
-      min: FREQ_SLIDER_MIN
-      max: FREQ_SLIDER_MAX
-      values: [FREQ_SLIDER_MIN, FREQ_SLIDER_MAX]
+      step: 1,
+      min: FREQ_SLIDER_MIN,
+      max: FREQ_SLIDER_MAX,
+      values: [FREQ_SLIDER_MIN, FREQ_SLIDER_MAX],
       slide: ( event, ui ) =>
         @set_freq_range(event, ui)
     });
@@ -142,7 +120,7 @@ class SpectrogramApp
     slider_div = $('<div id="gain-slider" style="width: 200px;"></div>')
     slider_div.slider({
       animate: "fast",
-      step: 0.1
+      step: 0.1,
       min: GAIN_MIN,
       max: GAIN_MAX,
       value: GAIN_DEFAULT,
@@ -164,7 +142,8 @@ class SpectrogramApp
         button.text('pause')
         @paused = false
         @request_data())
-
+    button.css('float', 'left')
+    button.css('margin', '30px')
     controls.append(button)
 
     controls.css('clear', 'both')
@@ -175,8 +154,8 @@ class SpectrogramApp
     div = $('<div></div>')
     $('body').append(div)
     myrender = () =>
-      div.append(@spec_view.$el)
-      @spec_view.render()
+      div.append(@spec_plot.view.$el)
+      @spec_plot.render()
 
       foo = $('<div></div>')
       foo.append(@power_plot.view.$el)
@@ -191,19 +170,33 @@ class SpectrogramApp
       @hist_plot.render()
     _.defer(myrender)
 
-  create_spec: () ->
-    xrange = Collections('Range1d').create({start: 0, end: NGRAMS})
-    yrange = Collections('Range1d').create({start: 0, end: MAX_FREQ})
+class SpectrogramPlot
+  constructor: (options) ->
+    @cmap = new ColorMapper({}, {
+      palette: all_palettes["YlGnBu-9"],
+      low: 0,
+      high: 10
+    })
 
-    plot_model = Collections('Plot').create(
-      x_range: xrange
-      y_range: yrange
+    @image_width = NGRAMS
+    @image_height = 256
+    @image = new ArrayBuffer(SPECTROGRAM_LENGTH * NGRAMS * 4)
+    @source = Collections('ColumnDataSource').create(
+      data:{image: [@image]}
+    )
+
+    @xrange = Collections('Range1d').create({start: 0, end: NGRAMS})
+    @yrange = Collections('Range1d').create({start: 0, end: MAX_FREQ})
+
+    @model = Collections('Plot').create(
+      x_range: @xrange
+      y_range: @yrange
       border_fill: "#fff"
-      canvas_width: @image_width + 2*BORDER
-      canvas_height: @image_height + 2*BORDER
-      outer_width: @image_width + 2*BORDER
-      outer_height: @image_height + 2*BORDER
-      border: BORDER
+      canvas_width: options.width + 2*options.border
+      canvas_height: options.height + 2*options.border
+      outer_width: options.width + 2*options.border
+      outer_height: options.height + 2*options.border
+      border: options.border
       tools: []
     )
 
@@ -214,8 +207,9 @@ class SpectrogramApp
         location: 'min'
         bounds: 'auto'
       }
-      parent: plot_model.ref()
+      parent: @model
     )
+
     yaxis = Collections('GuideRenderer').create(
       guidespec: {
         type: 'linear_axis'
@@ -223,30 +217,52 @@ class SpectrogramApp
         location: 'min'
         bounds: 'auto'
       }
-      parent: plot_model.ref()
+      parent: @model
     )
 
-    glyphspec = {
-      type: 'image_rgba'
-      x: 0
-      y: 0
-      dw: NGRAMS
-      dh: MAX_FREQ
-      width: NGRAMS,
-      height: SPECTROGRAM_LENGTH,
-      image: 'image'
-      palette:
-        default: 'YlGnBu-9'
-    }
     glyph = Collections('GlyphRenderer').create({
-      data_source: @spec_source.ref()
-      xdata_range: xrange.ref()
-      ydata_range: yrange.ref()
-      glyphspec: glyphspec
+      data_source: @source
+      xdata_range: @xrange
+      ydata_range: @yrange
+      glyphspec: {
+        type: 'image_rgba'
+        x: 0
+        y: 0
+        dw: NGRAMS
+        dh: MAX_FREQ
+        width: NGRAMS,
+        height: SPECTROGRAM_LENGTH,
+        image: 'image'
+        palette:
+          default: 'YlGnBu-9'
+      }
     })
-    plot_model.add_renderers([glyph, xaxis, yaxis])
 
-    return plot_model
+    @model.add_renderers([glyph, xaxis, yaxis])
+    @view = new @model.default_view(model: @model)
+
+  update: (fft) ->
+    buf = @cmap.v_map_screen(fft)
+
+    image32 = new Uint32Array(@image)
+    buf32 = new Uint32Array(buf)
+
+    for i in [0..(SPECTROGRAM_LENGTH-1)]
+      for j in [(NGRAMS-1)..1]
+        image32[i*NGRAMS + j] = image32[i*NGRAMS + j - 1]
+      image32[i*NGRAMS] = buf32[i]
+
+    @source.set('data', {image: [@image]})
+    @source.trigger('change', @spec_source, {})
+
+  set_xrange: (x0, x1) ->
+    @xrange.set({'start': x0, 'end' : x1})
+
+  set_yrange: (y0, y1) ->
+    @yrange.set({'start': y0, 'end' : y1})
+
+  render: () ->
+    @view.render()
 
 class RadialHistogramPlot
   constructor: (options) ->
@@ -272,24 +288,22 @@ class RadialHistogramPlot
       tools: []
     )
 
-    glyphspec = {
-      type: 'annular_wedge',
-      line_color: null
-      x: 0
-      y: 0
-      fill: '#688AB9'
-      fill_alpha: 'fill_alpha'
-      inner_radius: 'inner_radius'
-      outer_radius: 'outer_radius'
-      start_angle: 'start_angle'
-      end_angle: 'end_angle'
-    }
-
     glyph = Collections('GlyphRenderer').create({
       data_source: @source
       xdata_range: @range
       ydata_range: @range
-      glyphspec: glyphspec
+      glyphspec: {
+        type: 'annular_wedge',
+        line_color: null
+        x: 0
+        y: 0
+        fill: '#688AB9'
+        fill_alpha: 'fill_alpha'
+        inner_radius: 'inner_radius'
+        outer_radius: 'outer_radius'
+        start_angle: 'start_angle'
+        end_angle: 'end_angle'
+      }
     })
 
     @model.add_renderers([glyph])
@@ -403,7 +417,7 @@ class SimpleIndexPlot
     @xrange.set({'start': x0, 'end' : x1})
 
   set_yrange: (y0, y1) ->
-    @yrange.set({'start': x0, 'end' : x1})
+    @yrange.set({'start': y0, 'end' : y1})
 
   render: () ->
     @view.render()
