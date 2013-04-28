@@ -85,6 +85,7 @@ class LinearAxis extends HasParent
 
     @register_property('bounds', @_bounds, false)
     @add_dependencies('bounds', this, ['guidespec'])
+    @add_dependencies('bounds', @get_obj('parent'), ['x_range', 'y_range'])
 
     @register_property('rule_coords', @_rule_coords, false)
     @add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location'])
@@ -200,7 +201,6 @@ class LinearAxis extends HasParent
 
     normals = [0, 0]
 
-
     if _.isString(loc)
       normals[j] = if (end-start) < 0 then -1 else 1
       if i == 0
@@ -209,6 +209,7 @@ class LinearAxis extends HasParent
       else if i == 1
         if (loc == 'min' and (cstart < cend)) or (loc == 'max' and (cstart > cend)) or loc == 'left' or loc == 'bottom'
           normals[j] *= -1
+
     else
       if i == 0
         if Math.abs(loc-cstart) <= Math.abs(loc-cend)

@@ -8,8 +8,11 @@ SAMPLING_RATE = 44100
 MAX_FREQ = SAMPLING_RATE / 2
 FREQ_SAMPLES = NUM_SAMPLES / 8
 SPECTROGRAM_LENGTH = 512
-FREQ_MAX = 512
-FREQ_MIN = 0
+
+FREQ_SLIDER_FACTOR = 2
+FREQ_SLIDER_MAX = MAX_FREQ/FREQ_SLIDER_FACTOR
+FREQ_SLIDER_MIN = 0
+
 BORDER = 50
 
 NGRAMS = 1020
@@ -22,11 +25,14 @@ window.TIMESLICE = 40 # ms
 GAIN_DEFAULT = 1
 GAIN_MIN = 1
 GAIN_MAX = 20
+
+
 requestAnimationFrame = window.requestAnimationFrame || \
   window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||\
   window.msRequestAnimationFrame
 
-class Spectrogram
+
+class SpectrogramApp
   constructor: () ->
 
     @gain = GAIN_DEFAULT
@@ -44,27 +50,13 @@ class Spectrogram
     spec_model = @create_spec()
     @spec_view = new spec_model.default_view(model: spec_model)
 
-    # Set up the power waveform plot
-    @power = [new Float32Array(NUM_SAMPLES)]
-    @power_idx = [new Array(NUM_SAMPLES)]
-    for i in [0..@power_idx[0].length-1]
-      @power_idx[0][i] = (i/(@power_idx[0].length-1))*window.TIMESLICE
-    @power_source = Collections('ColumnDataSource').create(
-      data:{power: @power, idx: @power_idx}
-    )
-    power_model = @create_power()
-    @power_view = new power_model.default_view(model: power_model)
+    @power_plot = new SimpleIndexPlot({
+      x0: 0, x1: window.TIMESLICE, y0: -0.5, y1: 0.5, width: 550, height: 220, border: BORDER
+    })
 
-    # Set up the single FFT plot
-    @fft = [new Float32Array(SPECTROGRAM_LENGTH)]
-    @fft_idx = [new Array(SPECTROGRAM_LENGTH)]
-    for i in [0..@fft_idx[0].length-1]
-      @fft_idx[0][i] = i
-    @fft_source = Collections('ColumnDataSource').create(
-      data:{fft: @fft, idx: @fft_idx}
-    )
-    fft_model = @create_fft()
-    @fft_view = new fft_model.default_view(model: fft_model)
+    @fft_plot = new SimpleIndexPlot({
+      x0: FREQ_SLIDER_MIN, x1: FREQ_SLIDER_MAX, y0: -1, y1: 10, width: 550, height: 220, border: BORDER
+    })
 
     # Set up the radial histogram
     @hist_source = Collections('ColumnDataSource').create(
@@ -125,17 +117,9 @@ class Spectrogram
     @spec_source.set('data', {image: @image})
     @spec_source.trigger('change', @spec_source, {})
 
-    # update the power waveform data
-    for i in [0..@power[0].length-1]
-      @power[0][i] = data[1][i]
-    @power_source.set('data', {power: @power, idx: @power_idx})
-    @power_source.trigger('change', @power_source, {})
-
-    # update the single fft data
-    for i in [0..@fft[0].length-1]
-      @fft[0][i] = data[0][i]
-    @fft_source.set('data', {fft: @fft, idx: @fft_idx})
-    @fft_source.trigger('change', @fft_source, {})
+    # update the simple line plots
+    @power_plot.update(data[1])
+    @fft_plot.update(data[0][0..data[0].length/FREQ_SLIDER_FACTOR])
 
     # update the radial histogram data
     hist = new Float32Array(NUM_BINS)
@@ -178,7 +162,7 @@ class Spectrogram
 
   set_freq_range : (event, ui) ->
     [min, max] = ui.values
-    @fft_xrange.set({'start': min, 'end' : max})
+    @fft_plot.set_xrange(min, max)
     return null
 
   render: () ->
@@ -191,9 +175,9 @@ class Spectrogram
     slider_div.slider({
       animate: "fast",
       step: 1
-      min: 0
-      max: 512
-      values: [0, 512]
+      min: FREQ_SLIDER_MIN
+      max: FREQ_SLIDER_MAX
+      values: [FREQ_SLIDER_MIN, FREQ_SLIDER_MAX]
       slide: ( event, ui ) =>
         @set_freq_range(event, ui)
     });
@@ -239,18 +223,18 @@ class Spectrogram
 
     div = $('<div></div>')
     $('body').append(div)
-    myrender  =  =>
+    myrender = () =>
       div.append(@spec_view.$el)
       @spec_view.render()
 
-      div.append(@power_view.$el)
       foo = $('<div></div>')
-      @power_view.render()
-      @fft_view.render()
-      foo.append(@power_view.$el)
-      foo.append(@fft_view.$el)
+      foo.append(@power_plot.view.$el)
+      foo.append(@fft_plot.view.$el)
       foo.css('float', 'left')
       div.append(foo)
+      @power_plot.render()
+      @fft_plot.render()
+
       div.append(@hist_view.$el)
       @hist_view.render()
       @hist_view.$el.css('float', 'left')
@@ -314,106 +298,6 @@ class Spectrogram
 
     return plot_model
 
-  create_power: () ->
-
-    xrange = Collections('Range1d').create({start: 0, end: window.TIMESLICE})
-    yrange = Collections('Range1d').create({start: -0.5, end: 0.5})
-
-    plot_model = Collections('Plot').create(
-      x_range: xrange
-      y_range: yrange
-      border_fill: "#fff"
-      canvas_width: 550
-      canvas_height: 220
-      outer_width: 550
-      outer_height: 220
-      tools: []
-    )
-
-    xaxis = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 0
-        location: 'min'
-        bounds: 'auto'
-      }
-      parent: plot_model.ref()
-    )
-    yaxis = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 1
-        location: 'min'
-        bounds: 'auto'
-      }
-      parent: plot_model.ref()
-    )
-
-    glyphspec = {
-      type: 'line'
-      xs: 'idx'
-      ys: 'power'
-    }
-    glyph = Collections('GlyphRenderer').create({
-      data_source: @power_source.ref()
-      xdata_range: xrange.ref()
-      ydata_range: yrange.ref()
-      glyphspec: glyphspec
-    })
-    plot_model.add_renderers([glyph, xaxis, yaxis])
-
-    return plot_model
-
-  create_fft: () ->
-
-    xrange = Collections('Range1d').create({start: 0, end: SPECTROGRAM_LENGTH})
-    @fft_xrange = xrange
-    yrange = Collections('Range1d').create({start: -1.75, end: 3.75})
-
-    plot_model = Collections('Plot').create(
-      x_range: xrange
-      y_range: yrange
-      border_fill: "#fff"
-      canvas_width: 550
-      canvas_height: 220
-      outer_width: 550
-      outer_height: 220
-      tools: []
-    )
-
-    xaxis = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 0
-        location: 'min'
-        bounds: 'auto'
-      }
-      parent: plot_model.ref()
-    )
-    yaxis = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 1
-        location: 'min'
-        bounds: 'auto'
-      }
-      parent: plot_model.ref()
-    )
-
-    glyphspec = {
-      type: 'line'
-      xs: 'idx'
-      ys: 'fft'
-    }
-    glyph = Collections('GlyphRenderer').create({
-      data_source: @fft_source.ref()
-      xdata_range: xrange.ref()
-      ydata_range: yrange.ref()
-      glyphspec: glyphspec
-    })
-    plot_model.add_renderers([glyph, xaxis, yaxis])
-
-    return plot_model
 
   create_hist: () ->
     plot_model = Collections('Plot').create()
@@ -453,8 +337,85 @@ class Spectrogram
 
     return plot_model
 
+
+class SimpleIndexPlot
+  constructor: (options) ->
+    @source = Collections('ColumnDataSource').create(
+      data: {idx: [[]], ys: [[]]}
+    )
+
+    @xrange = Collections('Range1d').create({start: options.x0, end: options.x1})
+    @yrange = Collections('Range1d').create({start: options.y0, end: options.y1})
+
+    @model = Collections('Plot').create(
+      x_range: @xrange
+      y_range: @yrange
+      border_fill: "#fff"
+      canvas_width:  options.width  + 2*options.border
+      canvas_height: options.height + 2*options.border
+      outer_width:   options.width  + 2*options.border
+      outer_height:  options.height + 2*options.border
+      tools: []
+    )
+
+    xaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 0
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: @model
+    )
+
+    yaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 1
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: @model
+    )
+
+    glyph = Collections('GlyphRenderer').create({
+      data_source: @source
+      xdata_range: @xrange
+      ydata_range: @yrange
+      glyphspec: {
+        type: 'line'
+        xs: 'idx'
+        ys: 'ys'
+      }
+    })
+
+    @model.add_renderers([glyph, xaxis, yaxis])
+    @view = new @model.default_view(model: @model)
+
+  update: (ys) ->
+    if @idx?.length != ys.length
+      @idx = new Array(ys.length)
+      for i in [0..@idx.length-1]
+        @idx[i] = @xrange.get('start') + (i/@idx.length)*@xrange.get('end')
+
+    @source.set('data', {idx: [@idx], ys: [ys]})
+    @source.trigger('change', @source, {})
+
+  set_xrange: (x0, x1) ->
+    @xrange.set({'start': x0, 'end' : x1})
+
+  set_yrange: (y0, y1) ->
+    @yrange.set({'start': x0, 'end' : x1})
+
+  render: () ->
+    @view.render()
+
+
+
+
+
 $(document).ready () ->
-  spec = new Spectrogram()
+  spec = new SpectrogramApp()
   setInterval((() ->
     spec.request_data()),
     400)
