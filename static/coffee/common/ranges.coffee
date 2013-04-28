@@ -3,7 +3,7 @@ HasProperties = base.HasProperties
 
 class Range1d extends HasProperties
   type : 'Range1d'
-  dinitialize : (attrs, options) ->
+  initialize : (attrs, options) ->
     super(attrs, options)
     @register_property('min',
         () -> Math.min(@get('start'), @get('end'))
