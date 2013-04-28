@@ -32,11 +32,15 @@ one_axis_test = (testname, dim, xr, yr, loc, bds) ->
       parent: plot_model.ref()
     )
     plot_model.add_renderers([xaxis])
-    div = $('<div></div>')
+
+    div = $("<div style='overflow:hidden;'></div>")
+    plot_div = $("<div style='float:left;'></div>")
+    div.append(plot_div)
+    div.append($("<div style='float:left;margin-left:20px; margin-top:100px'>#{testname}</div>"))
     $('body').append(div)
     myrender  =  ->
       view = new plot_model.default_view(model: plot_model)
-      div.append(view.$el)
+      plot_div.append(view.$el)
       console.log('Test ' + testname)
     _.defer(myrender)
   )
