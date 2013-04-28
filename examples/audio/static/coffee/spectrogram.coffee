@@ -9,37 +9,35 @@ MAX_FREQ = SAMPLING_RATE / 2
 FREQ_SAMPLES = NUM_SAMPLES / 8
 SPECTROGRAM_LENGTH = 512
 
-FREQ_SLIDER_FACTOR = 2
-FREQ_SLIDER_MAX = MAX_FREQ/FREQ_SLIDER_FACTOR
-FREQ_SLIDER_MIN = 0
+window.TIMESLICE = 40 # ms
 
 BORDER = 50
 
 NGRAMS = 1020
 
-HISTSIZE = 256
-NUM_BINS = 16
+HIST_NUM_BINS = 16
 
-window.TIMESLICE = 40 # ms
+FREQ_SLIDER_FACTOR = 2
+FREQ_SLIDER_MAX = MAX_FREQ/FREQ_SLIDER_FACTOR
+FREQ_SLIDER_MIN = 0
 
 GAIN_DEFAULT = 1
 GAIN_MIN = 1
 GAIN_MAX = 20
 
-
 requestAnimationFrame = window.requestAnimationFrame || \
   window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||\
   window.msRequestAnimationFrame
-
 
 class SpectrogramApp
   constructor: () ->
 
     @gain = GAIN_DEFAULT
-    @last_render = new Date()
 
     @paused = false
+
     @throttled_request_data = _.throttle((=> @request_data()), 40)
+
     # Set up image plot for the spectrogram
     @image_width = NGRAMS
     @image_height = 256
@@ -58,12 +56,9 @@ class SpectrogramApp
       x0: FREQ_SLIDER_MIN, x1: FREQ_SLIDER_MAX, y0: -1, y1: 10, width: 550, height: 220, border: BORDER
     })
 
-    # Set up the radial histogram
-    @hist_source = Collections('ColumnDataSource').create(
-      data: {inner_radius:[], outer_radius:[], start_angle:[], end_angle:[], fill_alpha: []}
-    )
-    hist_model = @create_hist()
-    @hist_view = new hist_model.default_view(model: hist_model)
+    @hist_plot = new RadialHistogramPlot({
+      num_bins: HIST_NUM_BINS, width: 500, height: 500
+    })
 
     @render()
 
@@ -75,7 +70,6 @@ class SpectrogramApp
     dataType: 'json'
     error: (jqXHR, textStatus, errorThrown) =>
 
-      #console.log "AJAX Error: #{textStatus}"
     success: (data, textStatus, jqXHR) =>
       if not data[0]?
         _.delay((=> @throttled_request_data), 130)
@@ -84,14 +78,7 @@ class SpectrogramApp
         requestAnimationFrame(
           => @throttled_request_data())
 
-
-    new_render = new Date()
-    #console.log("render_time", new_render - @last_render)
-    @last_render = new_render
-
   on_data: (data) ->
-    if not data[0]?
-      return
 
     # apply the gain
     for i in [0..(data[0].length-1)]
@@ -117,51 +104,14 @@ class SpectrogramApp
     @spec_source.set('data', {image: @image})
     @spec_source.trigger('change', @spec_source, {})
 
-    # update the simple line plots
     @power_plot.update(data[1])
+
     @fft_plot.update(data[0][0..data[0].length/FREQ_SLIDER_FACTOR])
 
-    # update the radial histogram data
-    hist = new Float32Array(NUM_BINS)
-    if @fft_xrange
-      bin_min = Math.round(@fft_xrange.get('start'))
-      bin_max = Math.round(@fft_xrange.get('end'))
-    else
-      bin_min = 0
-      bin_max = 256
-    bin_start = bin_min
-    bin_size = Math.ceil((bin_max - bin_min) / NUM_BINS)
-    for i in [0..NUM_BINS-1]
-      hist[i] = 0
-      bin_end = Math.min(bin_start+bin_size-1, bin_max)
-      for j in [bin_start..bin_end]
-        hist[i] += data[0][j]
-      bin_start += bin_size
-
-    inner = []
-    outer = []
-    start = []
-    end = []
-    fill_alpha = []
-    vals = []
-    angle = 2*Math.PI/NUM_BINS
-    for i in [0..(hist.length-1)]
-      n = hist[i]/16
-      for j in [0..n]
-        vals.push(j)
-        inner.push(2+j)
-        outer.push(2+j+0.95)
-        start.push((i+0.05)*angle)
-        end.push((i+0.95)*angle)
-        fill_alpha.push(1-0.08*j)
-
-    @hist_source.set('data', {
-      inner_radius: inner, outer_radius: outer, start_angle: start, end_angle: end, fill_alpha: fill_alpha
-    })
-    @hist_source.trigger('change', @power_source, {})
+    @hist_plot.update(data[0][0..data[0].length/FREQ_SLIDER_FACTOR], @fft_range[0], @fft_range[1])
 
   set_freq_range : (event, ui) ->
-    [min, max] = ui.values
+    [min, max] = @fft_range = ui.values
     @fft_plot.set_xrange(min, max)
     return null
 
@@ -185,6 +135,7 @@ class SpectrogramApp
     slider.css('float', 'left')
     slider.css('margin', '30px')
     controls.append(slider)
+    @fft_range = [FREQ_SLIDER_MIN, FREQ_SLIDER_MAX]
 
     slider = $('<div></div>')
     slider.append($("<p>gain:</p>"))
@@ -235,13 +186,12 @@ class SpectrogramApp
       @power_plot.render()
       @fft_plot.render()
 
-      div.append(@hist_view.$el)
-      @hist_view.render()
-      @hist_view.$el.css('float', 'left')
+      div.append(@hist_plot.view.$el)
+      @hist_plot.view.$el.css('float', 'left')
+      @hist_plot.render()
     _.defer(myrender)
 
   create_spec: () ->
-
     xrange = Collections('Range1d').create({start: 0, end: NGRAMS})
     yrange = Collections('Range1d').create({start: 0, end: MAX_FREQ})
 
@@ -298,20 +248,27 @@ class SpectrogramApp
 
     return plot_model
 
+class RadialHistogramPlot
+  constructor: (options) ->
+    @num_bins = options.num_bins
 
-  create_hist: () ->
-    plot_model = Collections('Plot').create()
+    @hist = new Float32Array(@num_bins)
 
-    range = Collections('Range1d').create({start: -20, end: 20})
+    @source = Collections('ColumnDataSource').create(
+      data: {inner_radius:[], outer_radius:[], start_angle:[], end_angle:[], fill_alpha: []}
+    )
 
-    plot_model = Collections('Plot').create(
-      x_range: range
-      y_range: range
+    @range = Collections('Range1d').create({start: -20, end: 20})
+
+    @model = Collections('Plot').create(
+      x_range: @range
+      y_range: @range
       border_fill: "#fff"
-      canvas_width: 500
-      canvas_height: 500
-      outer_width: 500
-      outer_height: 500
+      canvas_width:  options.width
+      canvas_height: options.height
+      outer_width:   options.width
+      outer_height:  options.height
+      border: 0
       tools: []
     )
 
@@ -327,15 +284,56 @@ class SpectrogramApp
       start_angle: 'start_angle'
       end_angle: 'end_angle'
     }
+
     glyph = Collections('GlyphRenderer').create({
-      data_source: @hist_source.ref()
-      xdata_range: range.ref()
-      ydata_range: range.ref()
+      data_source: @source
+      xdata_range: @range
+      ydata_range: @range
       glyphspec: glyphspec
     })
-    plot_model.add_renderers([glyph])
 
-    return plot_model
+    @model.add_renderers([glyph])
+    @view = new @model.default_view(model: @model)
+
+  update: (fft, fft_min, fft_max) ->
+    df = (FREQ_SLIDER_MAX - FREQ_SLIDER_MIN)
+
+    bin_min = Math.floor(fft_min/df)
+    bin_max = bin_min + Math.floor((fft_max-fft_min)/df * (fft.length-1))
+
+    bin_start = bin_min
+    bin_size = Math.ceil((bin_max - bin_min) / @num_bins)
+    for i in [0..@num_bins-1]
+      @hist[i] = 0
+      bin_end = Math.min(bin_start+bin_size-1, bin_max)
+      for j in [bin_start..bin_end]
+        @hist[i] += fft[j]
+      bin_start += bin_size
+
+    inner = []
+    outer = []
+    start = []
+    end = []
+    fill_alpha = []
+    vals = []
+    angle = 2*Math.PI/@num_bins
+    for i in [0..(@hist.length-1)]
+      n = @hist[i]/16
+      for j in [0..n]
+        vals.push(j)
+        inner.push(2+j)
+        outer.push(2+j+0.95)
+        start.push((i+0.05)*angle)
+        end.push((i+0.95)*angle)
+        fill_alpha.push(1-0.08*j)
+
+    @source.set('data', {
+      inner_radius: inner, outer_radius: outer, start_angle: start, end_angle: end, fill_alpha: fill_alpha
+    })
+    @source.trigger('change', @source, {})
+
+  render: () ->
+    @view.render()
 
 
 class SimpleIndexPlot
@@ -409,10 +407,6 @@ class SimpleIndexPlot
 
   render: () ->
     @view.render()
-
-
-
-
 
 $(document).ready () ->
   spec = new SpectrogramApp()
