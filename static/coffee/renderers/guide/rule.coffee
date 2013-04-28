@@ -45,8 +45,36 @@ class Rule extends HasParent
   initialize: (attrs, options)->
     super(attrs, options)
 
+    @register_property('bounds', @_bounds, false)
+    @add_dependencies('bounds', this, ['guidespec'])
+
     @register_property('rule_coords', @_rule_coords, false)
     @add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location'])
+
+   _bounds: () ->
+    i = @get('guidespec').dimension
+    j = (i + 1) % 2
+
+    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+
+    user_bounds = @get('guidespec').bounds ? 'auto'
+    range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
+
+    if _.isArray(user_bounds)
+      start = Math.min(user_bounds[0], user_bounds[1])
+      end = Math.max(user_bounds[0], user_bounds[1])
+      if start < range_bounds[0]
+        start = range_bounds[0]
+      else if start > range_bounds[1]
+        start = null
+      if end > range_bounds[1]
+        end = range_bounds[1]
+      else if end < range_bounds[0]
+        end = null
+    else
+      [start, end] = range_bounds
+
+    return [start, end]
 
   _rule_coords: () ->
     i = @get('guidespec').dimension
@@ -56,14 +84,7 @@ class Rule extends HasParent
     range = ranges[i]
     cross_range = ranges[j]
 
-    bounds = @get_obj('bounds')
-
-    if _.isArray(bounds)
-      start = bounds[0]
-      end = bounds[1]
-    else
-      start = range.get('start')
-      end = range.get('end')
+    [start, end] = @get('bounds')
 
     tmp = Math.min(start, end)
     end = Math.max(start, end)

@@ -83,7 +83,7 @@ class LinearAxis extends HasParent
   initialize: (attrs, options)->
     super(attrs, options)
 
-    @register_property('bounds', @_bounds, true)
+    @register_property('bounds', @_bounds, false)
     @add_dependencies('bounds', this, ['guidespec'])
 
     @register_property('rule_coords', @_rule_coords, false)
@@ -200,16 +200,26 @@ class LinearAxis extends HasParent
 
     normals = [0, 0]
 
-    d = end - start
-    normals[j] = if d<0 then -1 else 1
 
-    if i == 0
-      if (loc == 'max' and (cstart < cend)) or (loc == 'min' and (cstart > cend)) or loc == 'right' or loc == 'top'
-        normals[j] *= -1
-    else if i == 1
-      if (loc == 'min' and (cstart < cend)) or (loc == 'max' and (cstart > cend)) or loc == 'left' or loc == 'bottom'
-        normals[j] *= -1
-
+    if _.isString(loc)
+      normals[j] = if (end-start) < 0 then -1 else 1
+      if i == 0
+        if (loc == 'max' and (cstart < cend)) or (loc == 'min' and (cstart > cend)) or loc == 'right' or loc == 'top'
+          normals[j] *= -1
+      else if i == 1
+        if (loc == 'min' and (cstart < cend)) or (loc == 'max' and (cstart > cend)) or loc == 'left' or loc == 'bottom'
+          normals[j] *= -1
+    else
+      if i == 0
+        if Math.abs(loc-cstart) <= Math.abs(loc-cend)
+          normals[j] = 1
+        else
+          normals[j] = -1
+      else
+        if Math.abs(loc-cstart) <= Math.abs(loc-cend)
+          normals[j] = -1
+        else
+          normals[j] = 1
     return normals
 
 

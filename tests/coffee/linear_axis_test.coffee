@@ -61,6 +61,8 @@ one_axis_test('dim0_flipped_flipped_max_autobounds', 0, xrange_flipped, yrange_f
 one_axis_test('dim1_flipped_flipped_min_autobounds', 1, xrange_flipped, yrange_flipped, 'min', 'auto')
 one_axis_test('dim1_flipped_flipped_max_autobounds', 1, xrange_flipped, yrange_flipped, 'max', 'auto')
 
+
+
 one_axis_test('dim0_normal_normal_min_bounds_nice', 0, xrange_normal, yrange_normal, 'min', [1, 9])
 one_axis_test('dim1_normal_normal_min_bounds_nice', 1, xrange_normal, yrange_normal, 'min', [1, 9])
 
@@ -69,6 +71,8 @@ one_axis_test('dim1_normal_normal_min_bounds', 1, xrange_normal, yrange_normal, 
 
 one_axis_test('dim0_normal_normal_min_bounds_large', 0, xrange_normal, yrange_normal, 'min', [-1, 11])
 one_axis_test('dim1_normal_normal_min_bounds_large', 1, xrange_normal, yrange_normal, 'min', [-1, 11])
+
+
 
 one_axis_test('dim0_normal_normal_bottom_autobounds', 0, xrange_normal, yrange_normal, 'bottom', 'auto')
 one_axis_test('dim0_normal_normal_top_autobounds', 0, xrange_normal, yrange_normal, 'top', 'auto')
@@ -89,6 +93,48 @@ one_axis_test('dim0_flipped_flipped_bottom_autobounds', 0, xrange_flipped, yrang
 one_axis_test('dim0_flipped_flipped_top_autobounds', 0, xrange_flipped, yrange_flipped, 'top', 'auto')
 one_axis_test('dim1_flipped_flipped_left_autobounds', 1, xrange_flipped, yrange_flipped, 'left', 'auto')
 one_axis_test('dim1_flipped_flipped_right_autobounds', 1, xrange_flipped, yrange_flipped, 'right', 'auto')
+
+
+
+one_axis_test('dim0_normal_normal_2_autobounds', 0, xrange_normal, yrange_normal, 2, 'auto')
+one_axis_test('dim1_normal_normal_2_autobounds', 1, xrange_normal, yrange_normal, 2, 'auto')
+
+one_axis_test('dim0_normal_flipped_2_autobounds', 0, xrange_normal, yrange_flipped, 2, 'auto')
+one_axis_test('dim1_flipped_normal_2_autobounds', 1, xrange_flipped, yrange_normal, 2, 'auto')
+
+one_axis_test('dim0_flipped_normal_2_autobounds', 0, xrange_flipped, yrange_normal, 2, 'auto')
+one_axis_test('dim1_normal_flipped_2_autobounds', 1, xrange_normal, yrange_flipped, 2, 'auto')
+
+one_axis_test('dim0_flipped_flipped_2_autobounds', 0, xrange_flipped, yrange_flipped, 2, 'auto')
+one_axis_test('dim1_flipped_flipped_2_autobounds', 1, xrange_flipped, yrange_flipped, 2, 'auto')
+
+
+
+one_axis_test('dim0_normal_normal_5_autobounds', 0, xrange_normal, yrange_normal, 5, 'auto')
+one_axis_test('dim1_normal_normal_5_autobounds', 1, xrange_normal, yrange_normal, 5, 'auto')
+
+one_axis_test('dim0_normal_flipped_5_autobounds', 0, xrange_normal, yrange_flipped, 5, 'auto')
+one_axis_test('dim1_flipped_normal_5_autobounds', 1, xrange_flipped, yrange_normal, 5, 'auto')
+
+one_axis_test('dim0_flipped_normal_5_autobounds', 0, xrange_flipped, yrange_normal, 5, 'auto')
+one_axis_test('dim1_normal_flipped_5_autobounds', 1, xrange_normal, yrange_flipped, 5, 'auto')
+
+one_axis_test('dim0_flipped_flipped_5_autobounds', 0, xrange_flipped, yrange_flipped, 5, 'auto')
+one_axis_test('dim1_flipped_flipped_5_autobounds', 1, xrange_flipped, yrange_flipped, 5, 'auto')
+
+
+one_axis_test('dim0_normal_normal_8_autobounds', 0, xrange_normal, yrange_normal, 8, 'auto')
+one_axis_test('dim1_normal_normal_8_autobounds', 1, xrange_normal, yrange_normal, 8, 'auto')
+
+one_axis_test('dim0_normal_flipped_8_autobounds', 0, xrange_normal, yrange_flipped, 8, 'auto')
+one_axis_test('dim1_flipped_normal_8_autobounds', 1, xrange_flipped, yrange_normal, 8, 'auto')
+
+one_axis_test('dim0_flipped_normal_8_autobounds', 0, xrange_flipped, yrange_normal, 8, 'auto')
+one_axis_test('dim1_normal_flipped_8_autobounds', 1, xrange_normal, yrange_flipped, 8, 'auto')
+
+one_axis_test('dim0_flipped_flipped_8_autobounds', 0, xrange_flipped, yrange_flipped, 8, 'auto')
+one_axis_test('dim1_flipped_flipped_8_autobounds', 1, xrange_flipped, yrange_flipped, 8, 'auto')
+
 
 
 # one_axis_test('dim0_normal_normal_min_bounds_out_high', 0, xrange_normal, yrange_normal, 'min', [11, 12])
