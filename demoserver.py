@@ -118,6 +118,8 @@ alltests = {
 
     'perf' : ['perf_test'],
 
+    'axes' : ['linear_axis_test'],
+
     'prim' : [
         'primitives/annular_wedge_test',
         'primitives/annulus_test',

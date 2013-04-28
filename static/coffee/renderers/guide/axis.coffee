@@ -83,6 +83,9 @@ class LinearAxis extends HasParent
   initialize: (attrs, options)->
     super(attrs, options)
 
+    @register_property('bounds', @_bounds, true)
+    @add_dependencies('bounds', this, ['guidespec'])
+
     @register_property('rule_coords', @_rule_coords, false)
     @add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location'])
 
@@ -90,7 +93,32 @@ class LinearAxis extends HasParent
     @add_dependencies('major_coords', this, ['bounds', 'dimension', 'location'])
 
     @register_property('normals', @_normals, false)
-    @add_dependencies('normals', this, ['dimension', 'location'])
+    @add_dependencies('normals', this, ['bounds', 'dimension', 'location'])
+
+  _bounds: () ->
+    i = @get('guidespec').dimension
+    j = (i + 1) % 2
+
+    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+
+    user_bounds = @get('guidespec').bounds ? 'auto'
+    range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
+
+    if _.isArray(user_bounds)
+      start = Math.min(user_bounds[0], user_bounds[1])
+      end = Math.max(user_bounds[0], user_bounds[1])
+      if start < range_bounds[0]
+        start = range_bounds[0]
+      else if start > range_bounds[1]
+        start = null
+      if end > range_bounds[1]
+        end = range_bounds[1]
+      else if end < range_bounds[0]
+        end = null
+    else
+      [start, end] = range_bounds
+
+    return [start, end]
 
   _rule_coords: () ->
     i = @get('guidespec').dimension
@@ -100,14 +128,7 @@ class LinearAxis extends HasParent
     range = ranges[i]
     cross_range = ranges[j]
 
-    bounds = @get_obj('bounds')
-
-    if _.isArray(bounds)
-      start = bounds[0]
-      end = bounds[1]
-    else
-      start = range.get('start')
-      end = range.get('end')
+    [start, end] = @get('bounds')
 
     xs = new Array(2)
     ys = new Array(2)
@@ -115,6 +136,10 @@ class LinearAxis extends HasParent
 
     loc = @get('guidespec').location
     if _.isString(loc)
+      if loc == 'left' or loc == 'bottom'
+        loc = 'start'
+      else if loc == 'right' or loc == 'top'
+        loc = 'end'
       loc = cross_range.get(loc)
 
     coords[i][0] = start
@@ -132,14 +157,7 @@ class LinearAxis extends HasParent
     range = ranges[i]
     cross_range = ranges[j]
 
-    bounds = @get_obj('bounds')
-
-    if _.isArray(bounds)
-      start = bounds[0]
-      end = bounds[1]
-    else
-      start = range.get('start')
-      end = range.get('end')
+    [start, end] = @get('bounds')
 
     tmp = Math.min(start, end)
     end = Math.max(start, end)
@@ -150,6 +168,10 @@ class LinearAxis extends HasParent
 
     loc = @get('guidespec').location
     if _.isString(loc)
+      if loc == 'left' or loc == 'bottom'
+        loc = 'start'
+      else if loc == 'right' or loc == 'top'
+        loc = 'end'
       loc = cross_range.get(loc)
 
     xs = []
@@ -170,14 +192,7 @@ class LinearAxis extends HasParent
     range = ranges[i]
     cross_range = ranges[j]
 
-    bounds = @get_obj('bounds')
-
-    if _.isArray(bounds)
-      start = bounds[0]
-      end = bounds[1]
-    else
-      start = range.get('start')
-      end = range.get('end')
+    [start, end] = @get('bounds')
 
     loc = @get('guidespec').location
     cstart = cross_range.get('start')
@@ -189,10 +204,10 @@ class LinearAxis extends HasParent
     normals[j] = if d<0 then -1 else 1
 
     if i == 0
-      if (loc == 'max' and (cstart < cend)) or (loc == 'max' and (cstart > cend)) or loc == 'right' or loc == 'bottom'
+      if (loc == 'max' and (cstart < cend)) or (loc == 'min' and (cstart > cend)) or loc == 'right' or loc == 'top'
         normals[j] *= -1
     else if i == 1
-      if (loc == 'min' and (cstart < cend)) or (loc == 'min' and (cstart > cend)) or loc == 'left' or loc == 'top'
+      if (loc == 'min' and (cstart < cend)) or (loc == 'max' and (cstart > cend)) or loc == 'left' or loc == 'bottom'
         normals[j] *= -1
 
     return normals
