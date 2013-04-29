@@ -81,11 +81,8 @@ class SpectrogramApp
       data[1][i] *= @gain
 
     @spec_plot.update(data[0])
-
     @power_plot.update(data[1])
-
     @fft_plot.update(data[0])
-
     @hist_plot.update(data[0], @fft_range[0], @fft_range[1])
 
   set_freq_range : (event, ui) ->
@@ -396,6 +393,7 @@ class SimpleIndexPlot
       ydata_range: @yrange
       glyphspec: {
         type: 'line'
+        line_color: 'darkblue'
         xs: 'idx'
         ys: 'ys'
       }
