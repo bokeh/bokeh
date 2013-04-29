@@ -5,8 +5,8 @@ class LinearColorMapper extends HasProperties
 
   initialize: (attrs, options) ->
     super(attrs, options)
-    @low           = options.low ? 0
-    @high          = options.high ? 1
+    @low           = options.low
+    @high          = options.high
     @palette       = @_build_palette(options.palette)
     @little_endian = @_is_little_endian()
 
@@ -24,8 +24,14 @@ class LinearColorMapper extends HasProperties
       if (value < min)
         min = value;
 
-    low = @low ? min
-    high = @high ? max
+    if @low?
+      low = @low
+    else
+      low = min
+    if @high?
+      high = @high
+    else
+      high = max
 
     N = @palette.length - 1
     scale = N/(high-low)
