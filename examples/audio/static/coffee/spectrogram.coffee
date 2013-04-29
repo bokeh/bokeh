@@ -175,12 +175,21 @@ class SpectrogramPlot
       high: 10
     })
 
-    @image_width = NGRAMS
+    @num_images = Math.ceil(NGRAMS/500) + 3
+
+    @image_width = 500
     @image_height = 256
-    @image = new ArrayBuffer(SPECTROGRAM_LENGTH * NGRAMS * 4)
+
+    @images = new Array(@num_images)
+    @xs = new Array(@num_images)
+    for i in [0..(@num_images-1)]
+      @images[i] = new ArrayBuffer(SPECTROGRAM_LENGTH * @image_width * 4)
+      @xs[i] = @image_width*i
     @source = Collections('ColumnDataSource').create(
-      data:{image: [@image]}
+      data:{image: @images, x: @xs}
     )
+
+    @col = 0
 
     @xrange = Collections('Range1d').create({start: 0, end: NGRAMS})
     @yrange = Collections('Range1d').create({start: 0, end: MAX_FREQ})
@@ -223,11 +232,11 @@ class SpectrogramPlot
       ydata_range: @yrange
       glyphspec: {
         type: 'image_rgba'
-        x: 0
+        x: 'x'
         y: 0
-        dw: NGRAMS
+        dw: @image_width
         dh: MAX_FREQ
-        width: NGRAMS,
+        width: @image_width,
         height: SPECTROGRAM_LENGTH,
         image: 'image'
         palette:
@@ -241,16 +250,25 @@ class SpectrogramPlot
   update: (fft) ->
     buf = @cmap.v_map_screen(fft)
 
-    image32 = new Uint32Array(@image)
+    @col -= 1
+    for i in [0..(@num_images-1)]
+      @xs[i] += 1
+
+    if @col == -1
+      @col = @image_width - 1
+      img = @images.pop()
+      @images = [img].concat(@images[0..])
+      @xs.pop()
+      @xs = [-@image_width+1].concat(@xs)
+
+    image32 = new Uint32Array(@images[0])
     buf32 = new Uint32Array(buf)
 
     for i in [0..(SPECTROGRAM_LENGTH-1)]
-      for j in [(NGRAMS-1)..1]
-        image32[i*NGRAMS + j] = image32[i*NGRAMS + j - 1]
-      image32[i*NGRAMS] = buf32[i]
+      image32[i*@image_width+@col] = buf32[i]
 
-    @source.set('data', {image: [@image]})
-    @source.trigger('change', @spec_source, {})
+    @source.set('data', {image: @images, x: @xs})
+    @source.trigger('change', @source, {})
 
   set_xrange: (x0, x1) ->
     @xrange.set({'start': x0, 'end' : x1})
