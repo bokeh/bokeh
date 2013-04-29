@@ -34,16 +34,19 @@ class ImageRGBAView extends GlyphView
     if not @image_data? or @image_data.length != data.length
       @image_data = new Array(data.length)
 
+    if not @image_canvas? or @image_canvas.length != data.length
+      @image_canvas = new Array(data.length)
+
     for i in [0..data.length-1]
-      if not @image_data[i]?
-        @image_data[i] = document.createElement('canvas')
-      if @image_data[i].width != width[i] or @image_data[i].height != height[i]
-        @image_data[i].width = width[i];
-        @image_data[i].height = height[i];
-      ctx = @image_data[i].getContext('2d');
-      img_data = ctx.createImageData(width[i], height[i])
-      img_data.data.set(new Uint8ClampedArray(img[i]))
-      ctx.putImageData(img_data, 0, 0);
+      if not @image_canvas[i]? or (@image_canvas[i].width != width[i] or @image_canvas[i].height != height[i])
+        @image_canvas[i] = document.createElement('canvas')
+        @image_canvas[i].width = width[i];
+        @image_canvas[i].height = height[i];
+        ctx = @image_canvas[i].getContext('2d');
+        @image_data[i] = ctx.createImageData(width[i], height[i])
+      ctx = @image_canvas[i].getContext('2d');
+      @image_data[i].data.set(new Uint8ClampedArray(img[i]))
+      ctx.putImageData(@image_data[i], 0, 0);
 
   _render: () ->
     [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
@@ -66,7 +69,7 @@ class ImageRGBAView extends GlyphView
       ctx.translate(0, y_offset)
       ctx.scale(1, -1)
       ctx.translate(0, -y_offset)
-      ctx.drawImage(@image_data[i], @sx[i]|0, @sy[i]|0, @sw[i], @sh[i])
+      ctx.drawImage(@image_canvas[i], @sx[i]|0, @sy[i]|0, @sw[i], @sh[i])
       ctx.translate(0, y_offset)
       ctx.scale(1, -1)
       ctx.translate(0, -y_offset)
