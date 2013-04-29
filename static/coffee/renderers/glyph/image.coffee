@@ -73,7 +73,9 @@ class ImageView extends GlyphView
       ctx.scale(1,-1)
       ctx.translate(0, -y_offset)
       ctx.drawImage(@image_data[i], @sx[i]|0, @sy[i]|0, @sw[i], @sh[i])
-      ctx.scale(1,1)
+      ctx.translate(0, y_offset)
+      ctx.scale(1,-1)
+      ctx.translate(0, -y_offset)
 
     ctx.setImageSmoothingEnabled(old_smoothing)
     ctx.restore()
