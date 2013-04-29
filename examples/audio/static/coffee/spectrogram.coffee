@@ -47,7 +47,7 @@ class SpectrogramApp
     })
 
     @fft_plot = new SimpleIndexPlot({
-      x0: FREQ_SLIDER_MIN, x1: FREQ_SLIDER_MAX, y0: -1, y1: 10, width: 550, height: 220, border: BORDER
+      x0: FREQ_SLIDER_MIN, x1: FREQ_SLIDER_MAX, y0: -1, y1: 20, width: 550, height: 220, border: BORDER
     })
 
     @hist_plot = new RadialHistogramPlot({
