@@ -1,4 +1,3 @@
-from webutils import get_json
 import numpy as np
 import logging
 import urlparse
@@ -14,6 +13,7 @@ import pandas
 from exceptions import DataIntegrityException
 
 from bokeh import protocol
+from bokeh.utils import get_json
 
 log = logging.getLogger(__name__)
 colors = [
