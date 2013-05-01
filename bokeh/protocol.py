@@ -30,9 +30,11 @@ class NumpyJSONEncoder(json.JSONEncoder):
             return obj.tolist()
         elif isinstance(obj, np.integer):
             return int(obj)
+        else:
+            return super(NumpyJSONEncoder, self).default(obj)
         
-def serialize_json(obj):
-    return json.dumps(obj, cls=NumpyJSONEncoder)
+def serialize_json(obj, encoder=NumpyJSONEncoder):
+    return json.dumps(obj, cls=encoder)
 deserialize_json = json.loads
 
 def default_serialize_data(data):
