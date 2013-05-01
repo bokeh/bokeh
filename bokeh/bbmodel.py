@@ -160,7 +160,7 @@ class ContinuumModelsClient(object):
                                 self.docid + "/",
                                 model.typename +"/")
             log.debug("create %s", url)
-            self.s.post(url, data=protocol.serialize_msg(
+            self.s.post(url, data=protocol.serialize_json(
                 model.to_json(include_hidden=True)))
             model.set('created', True)
         return model
