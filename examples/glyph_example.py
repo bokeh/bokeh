@@ -1,12 +1,23 @@
-from bokeh import mpl
-from bokeh.bbmodel import make_model
-p = mpl.PlotClient('defaultuser',
-                   serverloc='http://localhost:5006',
-                   userapikey='nokey')
-p.use_doc('glyph')
 import numpy as np
 import datetime
+import sys
 import time
+
+from bokeh import mpl
+from bokeh.bbmodel import make_model
+
+if len(sys.argv)> 1 and sys.argv[1] == "local":
+    LOCAL = True
+else:
+    LOCAL = False
+
+if LOCAL:
+    p = mpl.PlotClient()
+else:
+    p = mpl.PlotClient('defaultuser',
+                       serverloc='http://localhost:5006',
+                       userapikey='nokey')
+    p.use_doc('glyph')
 
 source = make_model(
     'ObjectArrayDataSource',
@@ -62,8 +73,11 @@ yaxis = make_model(
 plot.set('renderers', [glyph_renderer.ref()])
 plot.set('axes', [xaxis.ref(), yaxis.ref()])
 
-p.bbclient.upsert_all([source, plot, xdr, ydr, glyph_renderer, xaxis, yaxis])
-p.show(plot)
+if LOCAL:
+    p.htmldump("glyph_example.html")
+else:
+    p.bbclient.upsert_all([source, plot, xdr, ydr, glyph_renderer, xaxis, yaxis])
+    p.show(plot)
 
 
 
