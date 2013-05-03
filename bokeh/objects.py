@@ -299,11 +299,29 @@ class Circle(Glyph):
             if props.get(dataprop, None):
                 dataspec = props[dataprop]
                 if isinstance(dataspec, basestring):
-                    props[dataprop] = dict(field=dataspec)
+                    props[dataprop] = {"field": dataspec}
                 elif isinstance(dataspec, DataSpec):
                     props[dataprop] = props[dataprop].to_dataspec()
                 else:
-                    props[dataprop] = dict(default=dataspec)
+                    props[dataprop] = {"default": dataspec}
+        return props
+
+
+class LineRenderer(PlotObject):
+    """ This is a "schema-oriented" renderer, which uses the LineRenderer in
+    BokehJS instead of the Line glyph.
+    """
+
+    data_source = Instance(DataSource)
+    xdata_range = Instance(DataRange1d)
+    ydata_range = Instance(DataRange1d)
+    xfield = String
+    yfield = String
+    color = Color("black")
+
+    def vm_props(self, withvalues=False):
+        props = super(LineRenderer,self).vm_props(withvalues)
+        props["foreground_color"] = props.pop("color", "black")
         return props
 
 class Plot(PlotObject):
@@ -350,42 +368,6 @@ class Plot(PlotObject):
     border_left = Int
     border_right = Int
     
-
-#class Plot2d(PlotArea):
-#    """ A simple PlotArea which contains a single 2D mapper, and any number
-#    of glyphs to render.  Supports at most one axis on each side.
-
-#    TODO: This should actually reflect some sort of plot convenience
-#    object on the JS side.
-#    """
-
-#    x_range = Instance
-#    y_range = Instance
-
-#    # There isn't a Plot2d class in BokehJS, but we might as well
-#    # explicitly declare this for now.
-#    __view_model__ = "Plot2d"
-
-#    def __init__(self, *args, **kw):
-#        super(Plot2d, self).__init__(*args, **kw)
-#        # Create a default mapper if we don't already have one
-#        if self.x_range is None:
-#            self.x_range = DataRange1d()
-#        if self.y_range is None:
-#            self.y_range = DataRange1d()
-#        self.mapper = Mapper2d(x_range=self.x_range,
-#                        y_range=self.y_range)
-#    
-#    def __add__(self, rval):
-#        if isinstance(rval, GlyphRenderer):
-#            self.renderers.append(rval)
-#            return self
-#        elif isinstance(rval, LinearAxis):
-#            self.axes.append(rval)
-#            return self
-#        elif isinstance(rval, Grid):
-#            self.grids.append(rval)
-#            return self
 
 #class PolarPlot(PlotArea):
 
