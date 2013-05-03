@@ -3,6 +3,19 @@
   <head>
     <meta charset="utf-8">
     <title>Continuum Analytics</title>
+
+    {% if cssfiles %}
+    {% for cssfile in cssfiles %}
+    <link rel="stylesheet" href="{{cssfile}}" type="text/css" />
+    {% endfor %}
+    {% endif %}
+
+    {% if jsfiles %}
+    {% for jsfile in jsfiles %}
+    <script type="text/javascript" src="{{jsfile}}"></script>
+    {% endfor %}
+    {% endif %}
+
   </head>
   {% if rawcss %}
   <style>
