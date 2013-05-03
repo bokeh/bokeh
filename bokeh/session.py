@@ -146,7 +146,7 @@ class BaseHTMLSession(Session):
     def make_id(self, obj):
         return str(uuid.uuid4())
 
-    def serialize(self, obj):
+    def serialize(self, obj, **jsonkwargs):
         """ Returns a string representing the JSON encoded object.
         References to other objects/instances is ended by a "ref"
         has encoding the type and UUID of the object.
@@ -158,7 +158,8 @@ class BaseHTMLSession(Session):
 
         try:
             self.PlotObjEncoder.session = self
-            jsondata = protocol.serialize_json(obj, encoder=self.PlotObjEncoder)
+            jsondata = protocol.serialize_json(obj, encoder=self.PlotObjEncoder,
+                            **jsonkwargs)
         finally:
             self.PlotObjEncoder.session = None
         return jsondata
@@ -330,9 +331,11 @@ class HTMLFileSession(BaseHTMLSession):
         file_url = "file://" + abspath(self.filename)
         webbrowser.open(file_url, new = newmap[new], autoraise=autoraise)
 
-    def dumpjson(self):
+    def dumpjson(self, pretty=True):
         """ Returns a JSON string representing the contents of all the models
-        stored in this session.  Mostly used for debugging.
+        stored in this session.  If **pretty** is True, then return a string
+        suitable for human reading, otherwise returns a compact string.
+        Mostly used for debugging.
         """
         models = []
         for m in self._models:
@@ -340,16 +343,11 @@ class HTMLFileSession(BaseHTMLSession):
             ref["attributes"] = m.vm_serialize()
             ref["attributes"].update({"id": ref["id"], "doc": None})
             models.append(ref)
-        return self.serialize(models)
-
-    def printjson(self):
-        """ Pretty-prints the JSON representation of this session.  Mostly
-        used for debugging.
-        """
-        from pprint import pprint
-        data = json.loads(self.dumpjson())
-        pprint(data)
-        return
+        if pretty:
+            indent = 4
+        else:
+            indent = None
+        return self.serialize(models, indent=indent)
 
 
 class HTMLFragmentSession(BaseHTMLSession):

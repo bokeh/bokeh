@@ -33,8 +33,8 @@ class NumpyJSONEncoder(json.JSONEncoder):
         else:
             return super(NumpyJSONEncoder, self).default(obj)
         
-def serialize_json(obj, encoder=NumpyJSONEncoder):
-    return json.dumps(obj, cls=encoder)
+def serialize_json(obj, encoder=NumpyJSONEncoder, **kwargs):
+    return json.dumps(obj, cls=encoder, **kwargs)
 deserialize_json = json.loads
 
 def default_serialize_data(data):
