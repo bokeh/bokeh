@@ -167,7 +167,7 @@ class ObjectArrayDataSource(DataSource):
     data = List()
 
     # List of names of the fields of each tuple in self.data
-    columns = List()
+    column_names = List()
 
     # Maps field/column name to a DataRange or FactorRange object. If the
     # field is not in the dict, then a range is created automatically.
@@ -261,7 +261,7 @@ class GlyphRenderer(PlotObject):
     units = Enum("screen", "data")
 
     # The glyphs
-    glyphs = List(Glyph)
+    glyph = Instance(Glyph)
 
     def vm_serialize(self):
         # GlyphRenderers need to serialize their state a little differently,
@@ -269,7 +269,7 @@ class GlyphRenderer(PlotObject):
         return { "data_source": self.data_source,
                  "xdata_range": self.xdata_range,
                  "ydata_range": self.ydata_range,
-                 "glyphspecs": [g.to_glyphspec() for g in self.glyphs] }
+                 "glyphspec": self.glyph.to_glyphspec() }
 
 
 class Circle(Glyph):
@@ -408,10 +408,12 @@ class LinearAxis(PlotObject):
 class PanTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
+    dataranges = List
 
 class ZoomTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
+    dataranges = List
 
 
 
