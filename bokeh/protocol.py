@@ -111,6 +111,14 @@ serialize_web = serialize_json
 
 deserialize_web = deserialize_json
 
+def status_obj(status):
+    return {'msgtype' : 'status',
+            'status' : status}
+def error_obj(error_msg):
+    return {
+        'msgtype' : 'error',
+        'error_msg' : error_msg}
+
 
 class ProtocolHelper(object):
     """
@@ -131,14 +139,7 @@ class ProtocolHelper(object):
         self.serialize_web = serialize_web
         self.deserialize_web = deserialize_web
 
-    def status_obj(self, status):
-        return {'msgtype' : 'status',
-                'status' : status}
 
-    def error_obj(self, error_msg):
-        return {
-            'msgtype' : 'error',
-            'error_msg' : error_msg}
 
     def working_obj(self, request_id):
         return {
