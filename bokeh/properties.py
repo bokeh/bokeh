@@ -65,8 +65,9 @@ class HasProps(object):
                 setattr(self, kw, val)
             else:
                 newkwargs[kw] = val
-        super(HasProps, self).__init__(*args, **newkwargs)
-
+        # Dump the rest of the kwargs in self.dict
+        self.__dict__.update(newkwargs)
+        super(HasProps, self).__init__(*args)
 
     def clone(self):
         """ Returns a duplicate of this object with all its properties
@@ -108,17 +109,28 @@ class String(BaseProperty): pass
 class List(BaseProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
+
+    People will also frequently pass in some other kind of property or a
+    class (to indicate a list of instances).  In those cases, we want to 
+    just create an empty list
     """
 
-    def __init__(self, default=[]):
+    def __init__(self, default=None):
+        if isinstance(default, type) or isinstance(default, BaseProperty):
+            default = None
         BaseProperty.__init__(self, default)
 
     def __get__(self, obj, type=None):
-        if not hasattr(obj, "_"+self.name) and isinstance(self.default, list):
-            setattr(obj, "_"+self.name, copy(self.default))
-            return getattr(obj, "_"+self.name) and self.default is None
+        if hasattr(obj, "_"+self.name):
+            return getattr(obj, "_"+self.name)
+        if self.default is None:
+            val = []
+        elif isinstance(self.default, list):
+            val = copy(self.default)
         else:
-            return getattr(obj, "_"+self.name, self.default)
+            val = self.default
+        setattr(obj, "_"+self.name, val)
+        return val
 
 class Dict(BaseProperty):
     """ If a default value is passed in, then a shallow copy of it will be
@@ -154,8 +166,21 @@ class Array(BaseProperty):
 
 # OOP things
 class Class(BaseProperty): pass
-class Instance(BaseProperty): pass
-class This(BaseProperty): pass
+class Instance(BaseProperty):
+
+    def __get__(self, obj, type=None):
+        # If the constructor for Instance() supplied a class name, we should
+        # instantiate that class here, instead of returning the class as the
+        # default object
+        if not hasattr(obj, "_"+self.name):
+            if self.default and isinstance(self.default, type):
+                setattr(obj, "_"+self.name, self.default())
+        return getattr(obj, "_"+self.name, None)
+
+class This(BaseProperty): 
+    """ A reference to an instance of the class being defined
+    """
+    pass
 
 # Fake types, ABCs
 class Any(BaseProperty): pass
