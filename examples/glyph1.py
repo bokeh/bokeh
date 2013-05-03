@@ -5,7 +5,8 @@ import os.path
 
 #from bokeh.glyphs import Rects, Square, Circles
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, GlyphRenderer, Circle)
+        ColumnDataSource, GlyphRenderer, Circle, ObjectArrayDataSource,
+        PanTool, ZoomTool)
 from bokeh import session
 
 x = arange(-2*pi, 2*pi, 0.1)
@@ -15,30 +16,43 @@ widths = np.ones_like(x) * 0.02
 heights = np.ones_like(x) * 0.2
 
 
-source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
-            heights=heights))
+#source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
+#            heights=heights))
+source = ObjectArrayDataSource(
+    data = [
+        {'x' : 1, 'y' : 5, 'z':3},
+        {'x' : 2, 'y' : 4, 'z':3, 'radius':10},
+        {'x' : 3, 'y' : 3, 'z':3, 'fill':"blue"},
+        {'x' : 4, 'y' : 2, 'z':3},
+        {'x' : 5, 'y' : 1, 'z':3},
+        ])
 
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", fill="red", radius=0.5)
+circle = Circle(x="x", y="y", fill="red", radius=5)
 
 glyph_renderer = GlyphRenderer(
         data_source = source,
         xdata_range = xdr,
         ydata_range = ydr,
-        glyphs = [circle]
+        glyph = circle,
         )
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source])
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
+        border= 80)
 xaxis = LinearAxis(orientation="bottom", data_range=xdr)
-yaxis = LinearAxis(orientation="left", data_range=ydr)
+yaxis = LinearAxis(orientation="right", data_range=ydr)
+
+pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
+zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot.axes = [xaxis, yaxis]
 plot.renderers = [glyph_renderer]
+plot.tools = [pantool,zoomtool]
 
 sess = session.HTMLFileSession("glyph1.html")
 sess.server_static_dir="../bokeh/server"
-sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr)
+sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 
