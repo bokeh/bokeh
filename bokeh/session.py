@@ -1,7 +1,23 @@
 """ Defines the base PlotSession and some example session types.
 """
 
+from exceptions import DataIntegrityException
 from os.path import abspath, split, join
+import os.path
+import json
+import logging
+import urlparse
+import uuid
+
+import requests
+
+from bokeh import protocol, utils
+from bokeh.objects import PlotObject, Plot
+
+# TODO: eliminate dependency on bbmodel; just used in PlotServerSession
+from bokeh import bbmodel
+
+logger = logging.getLogger(__file__)
 
 class Session(object):
     """ Sessions provide a sandbox or facility in which to manage the "live"
@@ -19,15 +35,18 @@ class Session(object):
     it provides a central place to manage serialization (and related 
     persistence issues).
 
-    Sessions should be used as ContextManagers, but they can be created
-    around a PlotObject manually.  End-users will mostly interact with 
-    them as context managers.
+    Sessions can be used as ContextManagers, but they can be created
+    around a PlotObject manually the PlotObject and its related objects
+    will be associated with the given session.
     """
 
     def __init__(self, plot=None):
         """ Initializes this session from the given PlotObject. """
         # Has the plot model changed since the last save?
         self._dirty = True
+        # This stores a reference to all models in the object graph.
+        # Eventually consider making this be weakrefs?
+        self._models = set()
 
     def __enter__(self):
         pass
@@ -35,62 +54,114 @@ class Session(object):
     def __exit__(self, e_ty, e_val, e_tb):
         pass
 
+    def add(self, *objects):
+        """ Associates the given object to this session.  This means
+        that changes to the object's internal state will be reflected
+        in the persistence layer and trigger event that propagate
+        across to the View(s)
+        """
+        for obj in objects:
+            obj.session = self
+        self._models.update(objects)
+
+    def view(self):
+        """ Triggers the OS to open a web browser pointing to the file
+        that is connected to this session.
+        """
+        raise NotImplementedError
+
 
 class BaseHTMLSession(Session):
     """ Common file & HTML-related utility functions which all HTML output
-    sessions will need.
+    sessions will need.  Mostly involves JSON serialization.
     """
-
-    default_paths = {
-        "template": None,
-        "js": None,
-        "css": None,
-        }
 
     bokeh_url = "https://bokeh.pydata.org/"
 
-    @classmethod
-    def template_dir(cls):
-        return cls.default_paths.get("template",
-            join(abspath(split(__file__)[0]), "templates"))
+    # The base local directory for all CSS and JS
+    server_static_dir = join(abspath(split(__file__)[0]), "server", "static")
 
-    @classmethod
-    def js_dir(cls):
-        return cls.default_paths.get("js",
-            join(abspath(split(__file__)[0]), "templates", "js"))
+    # The base URL for all CSS and JS
+    static_url = bokeh_url
 
-    @classmethod
-    def css_dir(cls):
-        return cls.default_paths.get("css",
-            join(abspath(split(__file__)[0]), "templates", "css"))
+    #------------------------------------------------------------------------
+    # Static file handling
+    #------------------------------------------------------------------------
 
-    def __init__(self):
-        pass
-
-    def js_files(self, unified=True, min=True):
-        """ Returns a list of absolute paths on this machine to the JS 
-        source files needed to render this session.  If **unified**
-        is True, then this list is a single file.  If **min** is True,
-        then minifies all the JS.
+    def js_paths(self, as_url=True, unified=True, min=True):
+        """ Returns a list of URLs or absolute paths on this machine to the JS
+        source files needed to render this session.  If **unified** is True,
+        then this list is a single file.  If **min** is True, then minifies
+        all the JS.
         """
         raise NotImplementedError
 
-    def css_file(self):
-        """ Returns the path to the bokeh.css file.
+    def css_paths(self, as_url=True):
+        """ Returns the paths to required CSS files. Could be paths
+        or URIs depending on the type of session.
         """
         raise NotImplementedError
 
-    def js_urls(self, unified=True, min=True, ver=None):
-        """ Returns a list of URLs to BokehJS sources, on a remote server,
-        using the URL template defined in **bokeh_url_template**.
-        """
-        raise NotImplementedError
+    #------------------------------------------------------------------------
+    # Serialization 
+    #------------------------------------------------------------------------
 
-    def css_url(self):
-        """ Returns the URL to the bokeh.css file, stored on a remote server,
-        using the URL template defined in **bokeh_url**
+    class PlotObjEncoder(protocol.NumpyJSONEncoder):
+        """ Helper class we'll use to encode PlotObjects 
+        
+        Note that since json.dumps() takes a *class* as an argument and
+        not an instance, when this encoder class is used, the Session
+        instance is set as a class-level attribute.  Kind of weird, and
+        should be better handled via a metaclass.
         """
-        raise NotImplementedError
+
+        session = None
+        
+        def default(self, obj):
+            if isinstance(obj, PlotObject):
+                if self.session is None:
+                    raise RuntimeError("PlotObjEncoder requires a valid session")
+                # We do not want the JSON encoder (which walks the entire
+                # object graph) to do anything more than return references.
+                # The model serialization happens later.
+                d = self.session.get_ref(obj)
+                return d
+            else:
+                return protocol.NumpyJSONEncoder.default(self, obj)
+
+    
+    def get_ref(self, obj):
+        # Eventually should use our own memo instead of storing
+        # an attribute on the class
+        if not getattr(obj, "_id", None):
+            obj._id = self.make_id(obj)
+
+        self._models.add(obj)
+
+        return {
+                'type': obj.__view_model__,
+                'id': obj._id
+                }
+
+    def make_id(self, obj):
+        return str(uuid.uuid4())
+
+    def serialize(self, obj):
+        """ Returns a string representing the JSON encoded object.
+        References to other objects/instances is ended by a "ref"
+        has encoding the type and UUID of the object.
+        
+        For all HTML sessions, the serialization protocol is JSON.
+        How we produce references is actually more involved, because
+        it may differ between server-based models versus embedded.
+        """
+
+        try:
+            self.PlotObjEncoder.session = self
+            jsondata = protocol.serialize_json(obj, encoder=self.PlotObjEncoder)
+        finally:
+            self.PlotObjEncoder.session = None
+        return jsondata
 
 
 class HTMLFileSession(BaseHTMLSession):
@@ -99,21 +170,165 @@ class HTMLFileSession(BaseHTMLSession):
     plot and includes all the associated JS and CSS for the plot.
     """
 
+
+    # The root directory for the CSS files
+    css_files = ["css/bokeh.css", "css/continuum.css",
+                 "vendor/bootstrap/css/bootstrap.css"]
+
+    # TODO: Why is this not in bokehjs_dir, but rather outside of it?
+    js_files = ["../../js/application.js"]
+
+    # Template files used to generate the HTML
+    template_dir = join(abspath(split(__file__)[0]), "templates")
+    js_template = "plots.js"
+    div_template = "plots.html"     # template for just the plot <div>
+    html_template = "base.html"     # template for the entire HTML file
+
     def __init__(self, filename="bokehplot.html", plot=None):
         self.filename = filename
+        super(HTMLFileSession, self).__init__(plot=plot)
+    
+    @property
+    def bokehjs_dir(self):
+        return getattr(self, "_bokehjs_dir", 
+                join(BaseHTMLSession.server_static_dir, "vendor/bokehjs"))
 
-    def contents(self):
-        """ Returns the contents of the HTML file as a string """
-        pass
+    @bokehjs_dir.setter
+    def bokehjs_dir(self, val):
+        self._bokehjs_dir = val
 
-    def open(self, filename=None):
-        """ Creates an HTML file with the given name, saves out the
-        contents of the plot, and then opens a browser window to view it.
+    def css_paths(self, as_url=False):
+        return [join(self.bokehjs_dir, d) for d in self.css_files]
+    
+    def js_paths(self, as_url=False, unified=True, min=True):
+        return [join(self.bokehjs_dir, d) for d in self.js_files]
+
+    def _load_template(self, filename):
+        import jinja2
+        with open(join(self.template_dir, filename)) as f:
+            return jinja2.Template(f.read())
+
+    def dumps(self, js="inline", css="inline", 
+                rootdir=abspath(split(__file__)[0])):
+        """ Returns the HTML contents as a string 
+        
+        **js** and **css** can be "inline" or "relative". In the latter case,
+        **rootdir** can be specified to indicate the base directory from which
+        the path to the various static files should be computed.
         """
-        html = self.to_string()
+        # FIXME: Handle this more intelligently
+        the_plot = [m for m in self._models if isinstance(m, Plot)][0]
+        plot_ref = self.get_ref(the_plot)
+        elementid = str(uuid.uuid4())
+
+        #import pdb; pdb.set_trace()
+
+        # Manually convert our top-level models into dicts, before handing
+        # them in to the JSON encoder.  (We don't want to embed the call to
+        # vm_serialize into the PlotObjEncoder, because that would cause
+        # all the attributes to be duplicated multiple times.)
+        models = []
+        for m in self._models:
+            ref = self.get_ref(m)
+            ref["attributes"] = m.vm_serialize()
+            ref["attributes"].update({"id": ref["id"], "doc": None})
+            models.append(ref)
+
+        js = self._load_template(self.js_template).render(
+                    elementid = elementid,
+                    modelid = plot_ref["id"],
+                    modeltype = plot_ref["type"],
+                    all_models = self.serialize(models),
+                )
+        div = self._load_template(self.div_template).render(
+                    elementid = elementid
+                )
+        
+        if js == "inline":
+            rawjs = self._inline_scripts(self.js_paths()).decode("utf-8")
+            jsfiles = []
+        else:
+            rawjs = None
+            jsfiles = [os.path.relpath(p,rootdir) for p in self.js_paths()]
+        
+        if css == "inline":
+            rawcss = self._inline_css(self.css_paths()).decode("utf-8")
+            cssfiles = []
+        else:
+            rawcss = None
+            cssfiles = [os.path.relpath(p,rootdir) for p in self.css_paths()]
+
+        html = self._load_template(self.html_template).render(
+                    js_snippets = [js],
+                    html_snippets = [div],
+                    # TODO: Are the UTF-8 decodes really necessary?
+                    rawjs = rawjs, rawcss = rawcss,
+                    jsfiles = jsfiles, cssfiles = cssfiles)
+        return html
+
+    def _inline_scripts(self, paths):
+        # Copied from dump.py, which itself was from wakariserver
+        if len(paths) == 0:
+            return ""
+        strings = []
+        for script in paths:
+            f_name = join(self.server_static_dir, script)
+            strings.append("""
+              // BEGIN %s
+            """ % f_name + open(f_name).read() + \
+            """
+              // END %s
+            """ % f_name)
+        return "".join(strings)
+
+    def _inline_css(self, paths):
+        # Copied from dump.py, which itself was from wakariserver
+        if len(paths) == 0:
+            return ""
+        strings = []
+        for css_path in paths:
+            f_name = join(self.server_static_dir, css_path)
+            strings.append("""
+              /* BEGIN %s */
+            """ % f_name + open(f_name).read().decode("utf-8") + \
+            """
+              /* END %s */
+            """ % f_name)
+        return "".join(strings)
+
+
+    def save(self, filename=None, js="inline", css="inline",
+                rootdir=abspath(split(__file__)[0])):
+        """ Saves the file contents.  Uses self.filename if **filename**
+        is not provided.  Overwrites the contents.
+
+        **js** and **css** can be "inline" or "relative". In the latter case,
+        **rootdir** can be specified to indicate the base directory from which
+        the path to the various static files should be computed.
+        """
+        s = self.dumps(js, css, rootdir)
+        if filename is None:
+            filename = self.filename
         with open(filename, "w") as f:
-            f.write(html)
+            f.write(s.encode("utf-8"))
         return
+
+    def view(self, do_save=True, new=False, autoraise=True):
+        """ Opens a browser to view the file pointed to by this sessions.
+        Automatically triggers a save by default.
+
+        **new** can be None, "tab", or "window" to view the file in the
+        existing page, a new tab, or a new windows.  **autoraise** causes
+        the browser to be brought to the foreground; this may happen
+        automatically on some platforms regardless of the setting of this
+        variable.
+        """
+        import webbrowser
+        if do_save:
+            self.save()
+        newmap = {False: 0, "window": 1, "tab": 2}
+        file_url = "file://" + abspath(self.filename)
+        webbrowser.open(file_url, new = newmap[new], autoraise=autoraise)
 
 
 class HTMLFragmentSession(BaseHTMLSession):
@@ -131,11 +346,166 @@ class HTMLFragmentSession(BaseHTMLSession):
         """
         pass
 
-class NotebookSession(BaseHTMLSession):
+
+class PlotServerSession(BaseHTMLSession):
+
+    def __init__(self, username=None, serverloc=None, userapikey="nokey"):
+        # This logic is based on ContinuumModelsClient.__init__ and
+        # mpl.PlotClient.__init__.  There is some merged functionality here
+        # since a Session is meant to capture the little bit of lower-level
+        # logic in PlotClient (i.e. avoiding handling of things like
+        # _newxyplot()), but also build in the functionality of the
+        # ContinuumModelsClient.
+
+        self.username = username
+        self.root_url = serverloc
+        self.http_session = requests.session()
+        self.http_session.headers.update({
+            'content-type':'application/json',
+            'BOKEHUSER-API-KEY' : userapikey,
+            'BOKEHUSER' : username})
+
+        if self.root_url:
+            url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
+            self.userinfo = utils.get_json(self.http_session.get(url, verify=False))
+        else:
+            logger.info('Not using a server, plots will only work in embedded mode')
+            self.userinfo = None
+        
+        self.docid = None
+        self.apikey = None
+        self.bbclient = None   # reference to a ContinuumModelsClient
+        self.base_url = urlparse.urljoin(self.root_url, "/bokeh/bb")
+
+    #------------------------------------------------------------------------
+    # Document-related operations
+    #------------------------------------------------------------------------
+
+    def load_doc(self, docid):
+        url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
+        resp = self.http_session.get(url, verify=False)
+        if resp.status_code == 401:
+            raise Exception('HTTP Unauthorized accessing DocID "%s"' % docid)
+        apikey = utils.get_json(resp)
+        if 'apikey' in apikey:
+            self.docid = docid
+            self.apikey = apikey['apikey']
+            logger.info('got read write apikey')
+        else:
+            self.docid = docid
+            self.apikey = apikey['readonlyapikey']
+            logger.info('got read only apikey')
+
+        url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
+        self.bbclient = bbmodel.ContinuumModelsClient(
+            docid, url, self.apikey)
+        # TODO: Not sure how to handle interactive contexts for now... also
+        # not sure what their role is in mpl.py (specifically, being a parent
+        # in the object heirarchy)
+        #interactive_contexts = self.bbclient.fetch(
+        #    typename='PlotContext')
+        #if len(interactive_contexts) > 1:
+        #    print 'warning, multiple plot contexts here...'
+        #self.ic = interactive_contexts[0]
+
+    def make_doc(self, title):
+        url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
+        data = protocol.serialize_web({'title' : title})
+        response = self.session.post(url, data=data, verify=False)
+        if response.status_code == 409:
+            raise DataIntegrityException
+        self.userinfo = utils.get_json(response)
+        
+    def remove_doc(self, title):
+        matching = [x for x in self.userinfo['docs'] \
+                    if x.get('title') == title]
+        docid = matching[0]['docid']
+        url = urlparse.urljoin(self.root_url,"/bokeh/doc/%s/" % docid)
+        response = self.session.delete(url, verify=False)
+        if response.status_code == 409:
+            raise DataIntegrityException
+        self.userinfo = utils.get_json(response)
+
+    def use_doc(self, name):
+        self.docname = name
+        docs = self.userinfo.get('docs')
+        matching = [x for x in docs if x.get('title') == name]
+        if len(matching) > 1:
+            print 'warning, multiple documents with that title'
+        if len(matching) == 0:
+            print 'no documents found, creating new document'
+            self.make_doc(name)
+            return self.use_doc(name)
+            docs = self.userinfo.get('docs')
+            matching = [x for x in docs if x.get('title') == name]
+        self.load_doc(matching[0]['docid'])
+
+    def make_source(self, *args, **kwargs):
+        # This should not implement this here directly, since it should
+        # done by separately creating the DataSource object. Stubbing this
+        # out for now for symmetry with mpl.PlotClient
+        raise NotImplementedError("Construct DataSources manually from bokeh.objects")
+
+    def store_obj(self, obj, ref=None):
+        """ Uploads the object state and attributes to the server represented
+        by this session.
+
+        **ref** is a dict containing keys "type" and "id"; by default, the
+        ref is retrieved/computed from **obj** itself.
+        """
+        jsondata = self.serialize(obj)
+        if ref is not None and "type" in ref and "id" in ref:
+            jsondata.update(ref)
+        else:
+            raise ValueError("ref needs to have both 'type' and 'id' keys")
+        # This is copied from ContinuumModelsClient.buffer_sync(), .update(),
+        # and .upsert_all().
+        # TODO: Handle the include_hidden stuff.
+        url = utils.urljoin(self.baseurl, self.docid + "/" + jsondata["type"] +\
+                "/" + jsondata["id"] + "/")
+        self.http_session.put(url, data=jsondata)
+
+    def load_obj(self, ref, asdict=False):
+        """ Unserializes the object given by **ref**, into a new object
+        of the type in the serialization.  If **asdict** is True,
+        then the raw dictionary (including object type and ref) is 
+        returned, and no new object is instantiated.
+        """
+        # TODO: Do URL and path stuff to read json data from persistence 
+        # backend into jsondata string
+        jsondata = None
+        attrs = protocol.deserialize_json(jsondata)
+        if asdict:
+            return attrs
+        else:
+            from bokeh.objects import PlotObject
+            objtype = attrs["type"]
+            ref_id = attrs["id"]
+            cls = PlotObject.get_class(objtype)
+            newobj = cls(id=ref_id)
+            # TODO: finish this...
+            return newobj
+
+    #------------------------------------------------------------------------
+    # Static files
+    #------------------------------------------------------------------------
+
+    def css_paths(self, as_urls=True):
+        """ Returns a list of URLs or file paths for CSS files """
+        # This should coordinate with the running plot server and use some
+        # mechanism to query this information from it.
+        raise NotImplementedError
+
+    def js_paths(self, as_urls=True):
+        raise NotImplementedError
+
+
+
+class NotebookSession(PlotServerSession):
     """ Produces inline HTML suitable for placing into an IPython Notebook.
     """
 
-class WakariSession(BaseHTMLSession):
+class WakariSession(PlotServerSession):
     """ Suitable for running on the Wakari.io service.  Includes default
     paths and plot data server configurations which are appropriate for
     a user account on Wakari.
