@@ -207,7 +207,7 @@ class HTMLFileSession(BaseHTMLSession):
         import jinja2
         with open(join(self.template_dir, filename)) as f:
             return jinja2.Template(f.read())
-
+    
     def dumps(self, js="inline", css="inline", 
                 rootdir=abspath(split(__file__)[0])):
         """ Returns the HTML contents as a string 
@@ -329,6 +329,27 @@ class HTMLFileSession(BaseHTMLSession):
         newmap = {False: 0, "window": 1, "tab": 2}
         file_url = "file://" + abspath(self.filename)
         webbrowser.open(file_url, new = newmap[new], autoraise=autoraise)
+
+    def dumpjson(self):
+        """ Returns a JSON string representing the contents of all the models
+        stored in this session.  Mostly used for debugging.
+        """
+        models = []
+        for m in self._models:
+            ref = self.get_ref(m)
+            ref["attributes"] = m.vm_serialize()
+            ref["attributes"].update({"id": ref["id"], "doc": None})
+            models.append(ref)
+        return self.serialize(models)
+
+    def printjson(self):
+        """ Pretty-prints the JSON representation of this session.  Mostly
+        used for debugging.
+        """
+        from pprint import pprint
+        data = json.loads(self.dumpjson())
+        pprint(data)
+        return
 
 
 class HTMLFragmentSession(BaseHTMLSession):
