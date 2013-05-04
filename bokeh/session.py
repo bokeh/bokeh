@@ -114,9 +114,7 @@ class BaseHTMLSession(Session):
         instance is set as a class-level attribute.  Kind of weird, and
         should be better handled via a metaclass.
         """
-
         session = None
-        
         def default(self, obj):
             if isinstance(obj, PlotObject):
                 if self.session is None:
@@ -221,8 +219,6 @@ class HTMLFileSession(BaseHTMLSession):
         the_plot = [m for m in self._models if isinstance(m, Plot)][0]
         plot_ref = self.get_ref(the_plot)
         elementid = str(uuid.uuid4())
-
-        #import pdb; pdb.set_trace()
 
         # Manually convert our top-level models into dicts, before handing
         # them in to the JSON encoder.  (We don't want to embed the call to
@@ -394,7 +390,8 @@ class PlotServerSession(BaseHTMLSession):
         self.docid = None
         self.apikey = None
         self.bbclient = None   # reference to a ContinuumModelsClient
-        self.base_url = urlparse.urljoin(self.root_url, "/bokeh/bb")
+        self.base_url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
+        super(PlotServerSession, self).__init__()
 
     #------------------------------------------------------------------------
     # Document-related operations
@@ -416,8 +413,8 @@ class PlotServerSession(BaseHTMLSession):
             logger.info('got read only apikey')
 
         url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
-        self.bbclient = bbmodel.ContinuumModelsClient(
-            docid, url, self.apikey)
+        #self.bbclient = bbmodel.ContinuumModelsClient(
+        #    docid, url, self.apikey)
         # TODO: Not sure how to handle interactive contexts for now... also
         # not sure what their role is in mpl.py (specifically, being a parent
         # in the object heirarchy)
@@ -430,7 +427,7 @@ class PlotServerSession(BaseHTMLSession):
     def make_doc(self, title):
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
         data = protocol.serialize_web({'title' : title})
-        response = self.session.post(url, data=data, verify=False)
+        response = self.http_session.post(url, data=data, verify=False)
         if response.status_code == 409:
             raise DataIntegrityException
         self.userinfo = utils.get_json(response)
@@ -449,14 +446,12 @@ class PlotServerSession(BaseHTMLSession):
         self.docname = name
         docs = self.userinfo.get('docs')
         matching = [x for x in docs if x.get('title') == name]
-        if len(matching) > 1:
-            print 'warning, multiple documents with that title'
         if len(matching) == 0:
-            print 'no documents found, creating new document'
+            logger.info("No documents found, creating new document '%s'" % name)
             self.make_doc(name)
             return self.use_doc(name)
-            docs = self.userinfo.get('docs')
-            matching = [x for x in docs if x.get('title') == name]
+        elif len(matching) > 1:
+            logger.warning("Multiple documents with title '%s'" % name)
         self.load_doc(matching[0]['docid'])
 
     def make_source(self, *args, **kwargs):
@@ -480,7 +475,7 @@ class PlotServerSession(BaseHTMLSession):
         # This is copied from ContinuumModelsClient.buffer_sync(), .update(),
         # and .upsert_all().
         # TODO: Handle the include_hidden stuff.
-        url = utils.urljoin(self.baseurl, self.docid + "/" + jsondata["type"] +\
+        url = utils.urljoin(self.base_url, self.docid + "/" + jsondata["type"] +\
                 "/" + jsondata["id"] + "/")
         self.http_session.put(url, data=jsondata)
 
@@ -504,6 +499,17 @@ class PlotServerSession(BaseHTMLSession):
             newobj = cls(id=ref_id)
             # TODO: finish this...
             return newobj
+
+    def store_all(self):
+        models = []
+        for m in self._models:
+            ref = self.get_ref(m)
+            ref["attributes"] = m.vm_serialize()
+            ref["attributes"].update({"id": ref["id"], "doc": None})
+            models.append(ref)
+        data = self.serialize(models)
+        url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
+        self.http_session.post(url, data=data)
 
     #------------------------------------------------------------------------
     # Static files
