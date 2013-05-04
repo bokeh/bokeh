@@ -60,8 +60,9 @@ class HasProps(object):
         that have the same names as Properties on the class
         """
         newkwargs = {}
+        props = self.properties()
         for kw, val in kwargs.iteritems():
-            if kw in self.__properties__:
+            if kw in props:
                 setattr(self, kw, val)
             else:
                 newkwargs[kw] = val
@@ -81,11 +82,13 @@ class HasProps(object):
         traverse the class hierarchy and pull together the full
         list of properties.
         """
-        s = set()
-        for cls in inspect.getmro(self.__class__):
-            if issubclass(cls, HasProps):
-                s.update(cls.__properties__)
-        return s
+        if not hasattr(self, "__cached_allprops"):
+            s = set()
+            for cls in inspect.getmro(self.__class__):
+                if issubclass(cls, HasProps):
+                    s.update(cls.__properties__)
+            self.__cached_allprops = s
+        return self.__cached_allprops
 
     def set(self, **kwargs):
         """ Sets a number of properties at once """
@@ -225,10 +228,25 @@ Mapping = _dummy
 Iterable = _dummy
 
 # Properties useful for defining visual attributes
-class Color(BaseProperty): pass
+class Color(BaseProperty):
+    """ Accepts color definition in a variety of ways, and produces an 
+    appropriate serialization of its value for whatever backend
+    """
+    # TODO: Implement this.  Valid inputs: SVG named 147, 3-tuple, 4-tuple with
+    # appropriate options for baking in alpha, hex code.  Tuples should allow
+    # both float as well as integer.
+
+
 class Align(BaseProperty): pass
 class Pattern(BaseProperty): pass
-class Size(Float): pass
+class Size(Float):
+    """ Equivalent to an unsigned int """
+
 class Angle(Float): pass
-class Percent(Float): pass
+
+class Percent(Float):
+    """ Percent is useful for alphas and coverage and extents; more
+    semantically meaningful than Float(0..1) 
+    """
+
 
