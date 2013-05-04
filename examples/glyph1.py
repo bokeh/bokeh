@@ -3,10 +3,10 @@ from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
 
-#from bokeh.glyphs import Rects, Square, Circles
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, GlyphRenderer, Circle, ObjectArrayDataSource,
+        ColumnDataSource, GlyphRenderer, ObjectArrayDataSource,
         PanTool, ZoomTool)
+from bokeh.glyphs import Circle
 from bokeh import session
 
 x = arange(-2*pi, 2*pi, 0.1)
@@ -30,7 +30,7 @@ source = ObjectArrayDataSource(
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", fill="red", radius=5)
+circle = Circle(x="x", y="y", fill="red", radius=5, line_color="black")
 
 glyph_renderer = GlyphRenderer(
         data_source = source,

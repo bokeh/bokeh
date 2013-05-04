@@ -104,10 +104,12 @@ class PlotObject(HasProps):
         **withvalues** is True, then returns attributes with values as a 
         dict.  Otherwise, returns a list of attribute names.
         """
+        props = self.properties()
+        props.remove("session")
         if withvalues:
-            return dict((k,getattr(self,k)) for k in self.__properties__)
+            return dict((k,getattr(self,k)) for k in props)
         else:
-            return self.__properties__[:]
+            return props
     
     def vm_serialize(self):
         """ Returns a dictionary of the attributes of this object, in 
@@ -137,7 +139,7 @@ class PlotObject(HasProps):
 
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
-                self.__view_model__, self._id)
+                self.__view_model__, getattr(self, "_id", None))
 
 
 class DataSource(PlotObject):
@@ -175,40 +177,6 @@ class ObjectArrayDataSource(DataSource):
     discrete_ranges = Dict()
 
 
-class DataSpec(HasProps):
-    """ Mirrors the BokehJS data spec. References a DataSource and uses a
-    field on it, with potential defaults.
-
-    This is not a PlotObject because it does not get serialized directly,
-    nor does it get a ref/id from the session.  Its information gets 
-    incorporated into the serialization of Glyphs and renderers.
-    """
-    # TODO: It would be nice to reconcile this with ColumnsRef; it's
-    # weird that DataRanges use ColumnsRef instead of DataSpecs
-
-    # The BokehJS data spec does not necessarily 
-    datasource = Instance(DataSource)
-
-    # The default value for this numerical field
-    default = Any()
-    
-    # The column name in the datasource
-    field = String()
-
-    # This was originally in the dataspec, but seems to be on glyphspec now
-    #units = Enum("data", "screen")
-
-    def to_dataspec(self):
-        # We don't automatically set variables in the dict unless they have
-        # real values, because in some cases the mere presence of the field
-        # may flag or be interpreted as an override.
-        d = {}
-        if self.default is not None:
-            d["default"] = self.default
-        if self.field is not None:
-            d["field"] = self.field
-        return d
-
 class DataRange1d(PlotObject):    
     """ Represents a range in a scalar dimension """
     sources = List(ColumnsRef)
@@ -228,29 +196,6 @@ class FactorRange(PlotObject):
     values = List()
     columns = List()
 
-# We shouldn't need to create mappers manually on the Python side.
-# 
-#class LinearMapper(PlotObject):
-#    pass
-
-#class GridMapper(PlotObject):
-#    domain_mapper = Instance(LinearMapper)
-#    codomain_mapper = Instance(LinearMapper)
-
-
-class Glyph(PlotObject):
-    """ Base class for glyphs.  Used by GlyphRenderer. """
-    # TODO: Should this actually be a metaclass, so that glyph
-    # attributes get stored correctly as glyphspecs?
-
-    glyphtype = String
-
-    def to_glyphspec(self):
-        """ Returns a glyphspec-style nested dictionary representation
-        of this Glyph.
-        """
-        raise NotImplementedError
-
 class GlyphRenderer(PlotObject):
     
     data_source = Instance(DataSource)
@@ -260,8 +205,10 @@ class GlyphRenderer(PlotObject):
     # How to intepret the values in the data_source
     units = Enum("screen", "data")
 
-    # The glyphs
-    glyph = Instance(Glyph)
+    # Instance of bokeh.glyphs.Glyph; not declaring it explicitly below
+    # because of circular imports. The renderers should get moved out
+    # into another module...
+    glyph = Instance
 
     def vm_serialize(self):
         # GlyphRenderers need to serialize their state a little differently,
@@ -270,42 +217,6 @@ class GlyphRenderer(PlotObject):
                  "xdata_range": self.xdata_range,
                  "ydata_range": self.ydata_range,
                  "glyphspec": self.glyph.to_glyphspec() }
-
-
-class Circle(Glyph):
-    
-    # This is a class attribute that corresponds to the mapping defined in
-    # BokehJS glyphs.coffee.
-    glyphtype = String("circle")
-
-    x = Instance(DataSpec)
-    y = Instance(DataSpec)
-    radius = Instance(DataSpec)
-
-    fill = Color("gray")
-    fill_alpha = Percent(1.0)
-    line_color = Color("red")
-    line_width = Size(1)
-    line_alpha = Percent(1.0)
-    line_join = String("miter")
-    line_cap = String("butt")
-    line_dash = Pattern
-    line_dash_offset = Int(0)
-
-    def to_glyphspec(self):
-        props = self.vm_props(withvalues=True)
-        props["type"] = props.pop("glyphtype")
-        for dataprop in ("radius", "x", "y"):
-            if props.get(dataprop, None):
-                dataspec = props[dataprop]
-                if isinstance(dataspec, basestring):
-                    props[dataprop] = {"field": dataspec}
-                elif isinstance(dataspec, DataSpec):
-                    props[dataprop] = props[dataprop].to_dataspec()
-                else:
-                    props[dataprop] = {"default": dataspec}
-        return props
-
 
 class LineRenderer(PlotObject):
     """ This is a "schema-oriented" renderer, which uses the LineRenderer in
