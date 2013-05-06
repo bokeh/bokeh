@@ -13,6 +13,7 @@ import requests
 
 from bokeh import protocol, utils
 from bokeh.objects import PlotObject, Plot
+from bokeh.properties import List
 
 # TODO: eliminate dependency on bbmodel; just used in PlotServerSession
 from bokeh import bbmodel
@@ -364,6 +365,10 @@ class HTMLFragmentSession(BaseHTMLSession):
 
 class PlotServerSession(BaseHTMLSession):
 
+    class PlotContext(PlotObject):
+        children = List
+
+
     def __init__(self, username=None, serverloc=None, userapikey="nokey"):
         # This logic is based on ContinuumModelsClient.__init__ and
         # mpl.PlotClient.__init__.  There is some merged functionality here
@@ -388,9 +393,11 @@ class PlotServerSession(BaseHTMLSession):
             self.userinfo = None
         
         self.docid = None
+        self.plotcontext = PlotServerSession.PlotContext()
         self.apikey = None
         self.bbclient = None   # reference to a ContinuumModelsClient
         self.base_url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
+
         super(PlotServerSession, self).__init__()
 
     #------------------------------------------------------------------------
@@ -413,16 +420,7 @@ class PlotServerSession(BaseHTMLSession):
             logger.info('got read only apikey')
 
         url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
-        #self.bbclient = bbmodel.ContinuumModelsClient(
-        #    docid, url, self.apikey)
-        # TODO: Not sure how to handle interactive contexts for now... also
-        # not sure what their role is in mpl.py (specifically, being a parent
-        # in the object heirarchy)
-        #interactive_contexts = self.bbclient.fetch(
-        #    typename='PlotContext')
-        #if len(interactive_contexts) > 1:
-        #    print 'warning, multiple plot contexts here...'
-        #self.ic = interactive_contexts[0]
+        # TODO: Load the document
 
     def make_doc(self, title):
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
@@ -502,10 +500,14 @@ class PlotServerSession(BaseHTMLSession):
 
     def store_all(self):
         models = []
-        for m in self._models:
+        pc = PlotServerSession.PlotContext(children = list(self._models))
+        for m in list(self._models) + [pc]:
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
+            # FIXME: Is this part really necessary? It shows up in the 
+            # bbclient-based JSON serializations, but I don't understand
+            # why it's necessary.
+            ref["attributes"].update({"id": ref["id"], "doc": self.docid})
             models.append(ref)
         data = self.serialize(models)
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
