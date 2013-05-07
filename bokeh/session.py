@@ -509,7 +509,11 @@ class PlotServerSession(BaseHTMLSession):
 
     def store_all(self):
         models = []
-        self.plotcontext.children = list(self._models)
+        # Look for the Plot to stick into here. PlotContexts only
+        # want things with a corresponding BokehJS View, so Plots and
+        # GridPlots for now.
+        theplot = [x for x in self._models if isinstance(x, Plot)][0]
+        self.plotcontext.children = [theplot]
         for m in list(self._models) + [self.plotcontext]:
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
