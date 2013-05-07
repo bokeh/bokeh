@@ -27,7 +27,7 @@ from ..crossdomain import crossdomain
 
 @app.route('/bokeh/')
 def index(*unused_all, **kwargs):
-    if app.debug:
+    if getattr(app, "debugjs", False):
         slug = hemlib.slug_json()
         static_js = hemlib.slug_libs(app, slug['libs'])
         hemsource = os.path.join(app.static_folder, "coffee")
