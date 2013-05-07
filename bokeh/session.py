@@ -368,7 +368,6 @@ class PlotServerSession(BaseHTMLSession):
     class PlotContext(PlotObject):
         children = List
 
-
     def __init__(self, username=None, serverloc=None, userapikey="nokey"):
         # This logic is based on ContinuumModelsClient.__init__ and
         # mpl.PlotClient.__init__.  There is some merged functionality here
@@ -393,7 +392,7 @@ class PlotServerSession(BaseHTMLSession):
             self.userinfo = None
         
         self.docid = None
-        self.plotcontext = PlotServerSession.PlotContext()
+        self.plotcontext = None
         self.apikey = None
         self.bbclient = None   # reference to a ContinuumModelsClient
         self.base_url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
@@ -418,9 +417,19 @@ class PlotServerSession(BaseHTMLSession):
             self.docid = docid
             self.apikey = apikey['readonlyapikey']
             logger.info('got read only apikey')
-
         url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
-        # TODO: Load the document
+        # TODO: Load the full document. For now, just load the PlotContext
+        url = urlparse.urljoin(self.base_url, self.docid+"/PlotContext/")
+        attrs = protocol.deserialize_json(self.http_session.get(url).content)
+        if len(attrs) == 0:
+            logger.warning("Unable to load PlotContext for doc ID %s" % self.docid)
+        else:
+            self.plotcontext = PlotServerSession.PlotContext(id=attrs[0]["id"])
+            if len(attrs) > 1:
+                logger.warning("Found more than one PlotContext for doc ID %s; " \
+                        "Using PlotContext ID %s" % (self.docid, attrs[0]["id"]))
+        return
+        
 
     def make_doc(self, title):
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
@@ -500,8 +509,8 @@ class PlotServerSession(BaseHTMLSession):
 
     def store_all(self):
         models = []
-        pc = PlotServerSession.PlotContext(children = list(self._models))
-        for m in list(self._models) + [pc]:
+        self.plotcontext.children = list(self._models)
+        for m in list(self._models) + [self.plotcontext]:
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
             # FIXME: Is this part really necessary? It shows up in the 
