@@ -27,11 +27,15 @@ class SelectionToolView extends ToolView
         select_callback)
       safebind(this, renderer.get_obj('ydata_range'), 'change',
         select_callback)
+
   eventGeneratorClass : TwoPointEventGenerator
   evgen_options : {keyName:"ctrlKey", buttonText:"Select"}
   tool_events : {
-    UpdatingMouseMove: "_selecting",
     SetBasepoint : "_start_selecting",
+    #UpdatingMouseMove: "box_selecting",
+    UpdatingMouseMove: "_selecting",
+
+    #DragEnd: "_selecting",
     deactivated : "_stop_selecting"}
 
   mouse_coords : (e, x, y) ->
@@ -61,10 +65,29 @@ class SelectionToolView extends ToolView
       yrange = null
     return [xrange, yrange]
 
+  _get_selection_range_fast : (current_x, current_y)->
+    xrange = [@mget('start_x'), current_x]
+    yrange = [@mget('start_y'), current_y]
+    if @mget('select_x')
+      xrange = [d3.min(xrange), d3.max(xrange)]
+    else
+      xrange = null
+    if @mget('select_y')
+      yrange = [d3.min(yrange), d3.max(yrange)]
+    else
+      yrange = null
+    return [xrange, yrange]
+
   _selecting : (e, x_, y_) ->
     [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     @mset({'current_x' : x, 'current_y' : y})
-    [@xrange, @yrange] = @_get_selection_range()
+    [@xrange, @yrange] = @_get_selection_range(x, y)
+    @trigger('boxselect', @xrange, @yrange)
+    return null
+
+  box_selecting : (e, x_, y_) ->
+    [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
+    [@xrange, @yrange] = @_get_selection_range_fast(x, y)
     @trigger('boxselect', @xrange, @yrange)
     return null
 
@@ -80,13 +103,25 @@ class SelectionToolView extends ToolView
     for renderer in @mget_obj('renderers')
       datasource_id = renderer.get_obj('data_source').id
       _.setdefault(datasource_selections, datasource_id, [])
+      #the select call of the render converts the screen coordinates
+      #of @xrange and @yrange into data space coordinates
       selected = @plot_view.renderers[renderer.id].select(@xrange, @yrange)
       datasource_selections[datasource_id].push(selected)
 
     for own k,v of datasource_selections
+
+      #FIXME: I'm not sure why this is here, when will v have more than one element?
+      #
+      # This next line is the equivalent of calling
+      #_.intersection(v[0], v[1], v[2]...) for however many
+      #subelements v has.  each member of the v list will have another
+      #list inside it.  thus this line finds the intersection of the
+      #lists of v.
       selected = _.intersection.apply(_, v)
-      datasources[k].set('selected', selected)
-      datasources[k].save()
+      ds = datasources[k]
+      ds.set('selected', selected)
+      #console.log("datasource_selections", k, v, selected)
+      #ds.save()
     return null
 
 

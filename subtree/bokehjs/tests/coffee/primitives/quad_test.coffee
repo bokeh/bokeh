@@ -1,5 +1,5 @@
-Collections = require('../../base').Collections
-make_glyph_test = require('../../testutils').make_glyph_test
+Collections = require('base').Collections
+make_glyph_test = require('testutils').make_glyph_test
 
 range = Collections('Range1d').create({start: 0, end: 10})
 
@@ -88,7 +88,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 
 glyph = {
   type: 'quad'
-  fill: 
+  fill:
     field: 'color'
     default: 'blue'
   left: 'left'

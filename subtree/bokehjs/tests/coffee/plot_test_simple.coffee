@@ -1,5 +1,5 @@
 base = require("../base")
-testutils = require("../testutils")
+testutils = require("./testutils")
 
 Collections = base.Collections
 test('test_simple_plot',  ->

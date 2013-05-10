@@ -1,5 +1,4 @@
-base = require("../base")
-PlotWidget = base.PlotWidget
+PlotWidget = require('../common/plot_widget').PlotWidget
 
 class ToolView extends PlotWidget
   initialize : (options) ->

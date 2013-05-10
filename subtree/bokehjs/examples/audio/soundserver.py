@@ -1,8 +1,11 @@
 
 import flask
 import json
+import os
+from os.path import join
 import sys
 import time
+import hemlib
 
 app = flask.Flask(__name__)
 
@@ -10,6 +13,10 @@ app = flask.Flask(__name__)
 import pyaudio
 from numpy import zeros, linspace, short, fromstring, hstack, transpose
 from scipy import fft
+
+
+HOST = "localhost"
+PORT = 9294
 
 
 NUM_SAMPLES = 1024
@@ -20,6 +27,7 @@ SPECTROGRAM_LENGTH = 400
 
 # Maximum time we want to spend polling the microphone for a single request
 MAX_REQ_TIME = 0.05
+
 
 _stream = None
 def get_audio_data():
@@ -43,13 +51,41 @@ def get_audio_data():
 #     spectrogram_data = hstack((spectrogram_data[:,1:],
 #                                transpose([spectrum])))
 
+#SRCDIR = "../../static/coffee"
+SRCDIR = "static/bokehjs_static/coffee"
+EXAMPLE_SRCDIR = "static/coffee"
+EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
+            join(SRCDIR,"unittest/primitives")]
 
 @app.route("/")
 def root():
     """ Returns the spectrogram of audio data served from /data
     """
+    app.debug = True
+    if app.debug:
+        with open("slug.json") as f:
+            slug = json.load(f)
+        jslibs = hemlib.slug_libs(app, slug['libs'])
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT,
+                                        excludes=EXCLUDES)
 
-    return flask.render_template("spectrogram.html")
+    else:
+        jslibs = ['/static/js/demo/application.js']
+        hemfiles = []
+    print "soundserver hemfiles", hemfiles
+    #demofiles = [os.path.join(EXAMPLE_SRCDIR,".coffee") for name in demos]
+    demofiles = ["static/coffee/spectrogram.coffee"]
+
+    for demo in demofiles:
+        if not os.path.isfile(demo):
+            raise RuntimeError("Cannot find demo named '%s'"%demo)
+
+    hemfiles.extend(hemlib.make_urls(demofiles, HOST, PORT))
+
+    return flask.render_template("spectrogram.html", jslibs = jslibs,
+                                 hemfiles=hemfiles, demos="basdf")
+
+    #return flask.render_template("spectrogram.html")
 
 @app.route("/data")
 def data():
@@ -77,6 +113,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-
-

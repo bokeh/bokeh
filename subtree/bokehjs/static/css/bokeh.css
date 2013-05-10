@@ -4,7 +4,7 @@ svg {
 }
 
 .ui-dialog-titlebar {
-  height : 16px 
+  height : 16px
 }
 
 .button_bar{
@@ -15,17 +15,12 @@ svg {
     float : left;
 }
 
-.all_can_wrapper {position:relative; }
-.can_wrapper {position:absolute; }
-.main_ can_wrapper {}
-.main_can {}
-.x_can_wrapper { }
-.y_can_wrapper {}
-.y_can {}
+.bokeh_canvas_wrapper {position:relative; font-size: 12pt;}
+.bokeh_canvas {position:absolute; border:1px solid red; font-size: 12pt;}
 .shading {display:block; border:1px dashed green; position: absolute; z-index:100;}
 .gridplot_container {position: relative;}
-.gridplot_container .gp_plotwrapper { position:absolute; } 
-button.active { border:1px solid blue }
+.gridplot_container .gp_plotwrapper {position:absolute;}
+button.active {border:1px solid blue}
 .table_wrap {  }
 .table_wrap table { margin:5px;  height:300px; display:block; overflow-y:scroll }
 /*
@@ -82,7 +77,7 @@ button.active { border:1px solid blue }
 
 /* pandas */
 
-.bokehtable{ 
+.bokehtable{
     overflow : auto;
 }
 .pandassize{
@@ -93,7 +88,7 @@ button.active { border:1px solid blue }
 }
 
 .hide{
-    display : none; 
+    display : none;
 }
 .pandasicons {
     position:relative;
@@ -106,7 +101,7 @@ button.active { border:1px solid blue }
 
 }
 .bokehdocheading:hover > .bokehdelete{
-    display : none; 
+    display : none;
     float : right;
 }
 .bokehdelete{
