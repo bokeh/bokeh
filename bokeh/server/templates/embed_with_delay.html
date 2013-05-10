@@ -21,13 +21,8 @@
 
   <script type="text/javascript">
     (function () {
-        var addOnload = function(func){
-            if (window.attachEvent){
-                window.attachEvent('onload', func);}
-            else {
-                window.addEventListener('load', func, false);}};
-        console.log(document.readyState);
-        addOnload(function() {
+
+        setTimeout(function() {
             var scr = document.createElement("script");
     
             var sa = function(name,val){
@@ -43,7 +38,7 @@
             sa('bokeh_modelid', "b9c1d5dc-c617-41bc-9df7-bed21020035e");
             sa('bokeh_modeltype',"Plot" );
     
-            document.body.appendChild(scr);});
+            document.body.appendChild(scr);}, 5000);
         console.log("end of script tag injection");
     }())
         

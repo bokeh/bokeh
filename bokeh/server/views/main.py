@@ -195,6 +195,23 @@ loaded, and embed.js script tags are dynamically injected"""
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []
     return render_template("embed_with_existing_js.html", jsfiles=static_js, hemfiles=hem_js)
+
+@app.route("/bokeh/embed_with_delay")
+def embed_with_delay():
+    """this is made to test the case where application.js is already
+loaded, and embed.js script tags are dynamically injected"""
+    if app.debug:
+        slug = hemlib.slug_json()
+        static_js = hemlib.slug_libs(app, slug['libs'])
+        hemsource = os.path.join(app.static_folder, "coffee")
+        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hemsource = os.path.join(app.static_folder, "vendor",
+                                 "bokehjs", "coffee")
+        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
+    else:
+        static_js = ['/bokeh/static/js/application.js']
+        hem_js = []
+    return render_template("embed_with_delay.html", jsfiles=static_js, hemfiles=hem_js)
     
 
 

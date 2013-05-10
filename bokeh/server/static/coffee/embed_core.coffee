@@ -81,6 +81,7 @@ find_injections = ->
   for el in els
     is_new_el = el not in foundEls
     matches = el.src.match(re)
+    console.log(el, is_new_el, matches)
     if is_new_el and matches
       foundEls.push(el)
       info = parse_el(el)
