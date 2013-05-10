@@ -87,6 +87,7 @@ class SpectrogramApp
 
   set_freq_range : (event, ui) ->
     [min, max] = @fft_range = ui.values
+    @spec_plot.set_yrange(min, max)
     @fft_plot.set_xrange(min, max)
     return null
 
@@ -155,8 +156,8 @@ class SpectrogramApp
       @spec_plot.render()
 
       foo = $('<div></div>')
-      foo.append(@power_plot.view.$el)
       foo.append(@fft_plot.view.$el)
+      foo.append(@power_plot.view.$el)
       foo.css('float', 'left')
       div.append(foo)
       @power_plot.render()
@@ -198,11 +199,12 @@ class SpectrogramPlot
       x_range: @xrange
       y_range: @yrange
       border_fill: "#fff"
-      canvas_width: options.width + 2*options.border
+      canvas_width: options.width + options.border + 80
       canvas_height: options.height + 2*options.border
       outer_width: options.width + 2*options.border
       outer_height: options.height + 2*options.border
       border: options.border
+      border_left: 80
       tools: []
     )
 
@@ -223,6 +225,7 @@ class SpectrogramPlot
         location: 'min'
         bounds: 'auto'
       }
+      major_label_standoff: 40
       parent: @model
     )
 
