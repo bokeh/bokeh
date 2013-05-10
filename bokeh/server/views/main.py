@@ -159,11 +159,45 @@ def sampleerror():
 
 @app.route("/bokeh/embed_test/")
 def embed_test():
+    """this is made to test the case where  """
     return render_template("embed_test.html")
 
 @app.route("/bokeh/dynamic_embed_test/")
 def dynamic_embed_test():
-    return render_template("dynamic_embed_test.html")
+    """this is made to test the case where application.js is already
+loaded, and embed.js script tags are dynamically injected"""
+    if app.debug:
+        slug = hemlib.slug_json()
+        static_js = hemlib.slug_libs(app, slug['libs'])
+        hemsource = os.path.join(app.static_folder, "coffee")
+        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hemsource = os.path.join(app.static_folder, "vendor",
+                                 "bokehjs", "coffee")
+        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
+    else:
+        static_js = ['/bokeh/static/js/application.js']
+        hem_js = []
+    return render_template("dynamic_embed_test.html", jsfiles=static_js, hemfiles=hem_js)
+    
+@app.route("/bokeh/embed_with_existing_js")
+def embed_with_existing_js_test():
+    """this is made to test the case where application.js is already
+loaded, and embed.js script tags are dynamically injected"""
+    if app.debug:
+        slug = hemlib.slug_json()
+        static_js = hemlib.slug_libs(app, slug['libs'])
+        hemsource = os.path.join(app.static_folder, "coffee")
+        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hemsource = os.path.join(app.static_folder, "vendor",
+                                 "bokehjs", "coffee")
+        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
+    else:
+        static_js = ['/bokeh/static/js/application.js']
+        hem_js = []
+    return render_template("embed_with_existing_js.html", jsfiles=static_js, hemfiles=hem_js)
+    
+
+
 
 @app.route("/bokeh/embed.js")
 def embed_js():
