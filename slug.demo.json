@@ -5,9 +5,10 @@
              "./static/vendor/underscore/underscore.js", 
              "./static/vendor/backbone/backbone.js", 
              "./static/vendor/buckets/buckets.js",
+             "./static/vendor/bootstrap/js/bootstrap.js",
              "./static/js/custom.js"],
     "paths" : ["./static/coffee", "./demo/coffee"],
-    "public" : "./demo/js",
+    "public" : "./static/js/demo",
     "css" : false,
     "specs" : false
 
