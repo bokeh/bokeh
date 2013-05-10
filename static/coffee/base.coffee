@@ -146,10 +146,13 @@ class WebSocketWrapper
     @ws_conn_string = ws_conn_string
     @_connected = $.Deferred()
     @connected = @_connected.promise()
-    try
-      @s = new WebSocket(ws_conn_string)
-    catch error
+    if window.MozWebSocket
       @s = new MozWebSocket(ws_conn_string)
+    else
+      @s = new WebSocket(ws_conn_string)
+    # catch error
+    #   console.log(ws_conn_string, error)
+
     @s.onopen = () =>
       @_connected.resolve()
     @s.onmessage = @onmessage
