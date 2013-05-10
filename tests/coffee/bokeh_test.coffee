@@ -1,13 +1,12 @@
-base = require("../base")
+base = require("base")
 Collections = base.Collections
 
-container = require("../container")
-ViewState = container.ViewState
+ViewState = require("../../static/coffee/common/view_state").ViewState
 
 mapper = require("../mapper")
 LinearMapper = mapper.LinearMapper
 
-testutils = require("../testutils")
+testutils = require("./testutils")
 scatter_plot = testutils.scatter_plot
 
 asyncTest('test_datarange1d', ->
