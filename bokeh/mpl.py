@@ -47,6 +47,24 @@ bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></scrip
         '''
     return e_str % f_dict
 
+def script_inject_escaped(plotclient, modelid, typename):
+    pc = plotclient
+    f_dict = dict(
+        docid = pc.docid,
+        ws_conn_string = pc.ws_conn_string,
+        docapikey = pc.apikey,
+        root_url = pc.root_url,
+        modelid = modelid,
+        modeltype = typename,
+        script_url = pc.root_url + "/bokeh/embed.js")
+
+    e_str = '''&lt; script src="%(script_url)s" bokeh_plottype="serverconn"
+bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
+bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
+    bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"&gt; &lt;/script&gt;
+        '''
+    return e_str % f_dict
+
 
 class BokehMPLBase(object):
     def __init__(self, *args, **kwargs):
@@ -473,7 +491,7 @@ class PlotClient(object):
 
         model.set('doc', self.docid)
         if hasattr(self, "apikey"):
-            model.set('script_inject', script_inject(
+            model.set('script_inject_escaped', script_inject_escaped(
                 self, model.id, typename))
         self.models[model.id] = model
         return model
@@ -517,6 +535,10 @@ class PlotClient(object):
         ----------
         """
         plot = self.model('Plot', width=width, height=height)
+        if self.bbclient:
+            plot.set('docapikey', self.apikey)
+            plot.set('baseurl', self.bbclient.baseurl)
+            
         if container:
             parent = container
             plot.set('parent', container.ref())
