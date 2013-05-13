@@ -2,37 +2,6 @@
 base = require("./base")
 Collections = base.Collections
 
-class Rand
-  # if created without a seed, uses current time as seed
-  constructor: (@seed) ->
-    # Knuth and Lewis' improvements to Park and Miller's LCPRNG
-    @multiplier = 1664525
-    @modulo = 4294967296 # 2**32-1;
-    @offset = 1013904223
-    unless @seed? && 0 <= seed < @modulo
-      @seed = (new Date().valueOf() * new Date().getMilliseconds()) % @modulo
-
-  # sets new seed value
-  seed: (seed) ->
-    @seed = seed
-
-  # return a random integer 0 <= n < @modulo
-  randn: ->
-    # new_seed = (a * seed + c) % m
-    @seed = (@multiplier*@seed + @offset) % @modulo
-
- # return a random float 0 <= f < 1.0
-  randf: ->
-    this.randn() / @modulo
-
-  # return a random int 0 <= f < n
-  rand: (n) ->
-    Math.floor(this.randf() * n)
-
-  # return a random int min <= f < max
-  rand2: (min, max) ->
-    min + this.rand(max-min)
-
 
 scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
   if _.isUndefined(local)
@@ -315,7 +284,7 @@ typeIsArray = ( value ) ->
         typeof value.splice is 'function' and
         not ( value.propertyIsEnumerable 'length' )
 
-make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[200, 200], axes=true) ->
+make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[400, 400], axes=true) ->
   return () ->
     expect(0)
 
@@ -329,7 +298,10 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
         dataranges: [xrange.ref(), yrange.ref()]
         dimensions: ['width', 'height']
       )
-      plot_tools = [pantool, zoomtool]
+      pstool = Collections('PreviewSaveTool').create()
+      embedtool = Collections('EmbedTool').create()
+      plot_tools = [pantool, zoomtool, pstool, embedtool]
+      #plot_tools = [pantool, zoomtool, pstool]
     glyphs = []
     if not typeIsArray(glyphspecs)
       glyphspecs = [glyphspecs]
@@ -342,43 +314,79 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
       })
       glyph.set(defaults)
       glyphs.push(glyph)
-    plot_model = Collections('Plot').create()
+    plot_model = Collections('Plot').create(
+      x_range: xrange # TODO .ref() fails?
+      y_range: yrange
+      canvas_width: dims[0]
+      canvas_height: dims[1]
+      outer_width: dims[0]
+      outer_height: dims[1]
+      tools: plot_tools
+    )
+    plot_model.add_renderers(g.ref() for g in glyphs)
     if axes
-      xaxis = Collections('LinearAxis').create(
-        orientation: 'bottom'
+      xaxis1 = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'linear_axis'
+          dimension: 0
+          location: 'min'
+          bounds: 'auto'
+        }
         parent: plot_model.ref()
-        data_range: xrange.ref()
       )
-      yaxis = Collections('LinearAxis').create(
-        orientation: 'left',
+      yaxis1 = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'linear_axis'
+          dimension: 1
+          location: 'min'
+          bounds: 'auto'
+        }
         parent: plot_model.ref()
-        data_range: yrange.ref()
       )
-      plot_model.set(
-        renderers: (g.ref() for g in glyphs)
-        axes: [xaxis.ref(), yaxis.ref()]
-        tools: plot_tools
-        width: dims[0]
-        height: dims[1]
+      xaxis2 = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'linear_axis'
+          dimension: 0
+          location: 'max'
+          bounds: 'auto'
+        }
+        parent: plot_model.ref()
       )
-    else
-      plot_model.set(
-        renderers: (g.ref() for g in glyphs)
-        axes: []
-        tools: plot_tools
-        width: dims[0]
-        height: dims[1]
+      yaxis2 = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'linear_axis'
+          dimension: 1
+          location: 'max'
+          bounds: 'auto'
+        }
+        parent: plot_model.ref()
+      )
+      xrule = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'rule'
+          dimension: 0
+          bounds: 'auto'
+        }
+        parent: plot_model.ref()
+      )
+      yrule = Collections('GuideRenderer').create(
+        guidespec: {
+          type: 'rule'
+          dimension: 1
+          bounds: 'auto'
+        }
+        parent: plot_model.ref()
+      )
+      plot_model.add_renderers(
+        [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
       )
     div = $('<div></div>')
     $('body').append(div)
     myrender  =  ->
       view = new plot_model.default_view(model: plot_model)
       div.append(view.$el)
-      view.render()
       console.log('Test ' + test_name)
     _.defer(myrender)
-
-
 
 
 window.bokehprettyprint = (obj) ->
@@ -393,4 +401,3 @@ exports.bar_plot = bar_plot
 exports.line_plot = line_plot
 exports.glyph_plot = glyph_plot
 exports.make_glyph_test = make_glyph_test
-exports.Rand = Rand

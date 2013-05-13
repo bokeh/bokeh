@@ -1,8 +1,11 @@
 base = require("../base")
-ContinuumView = base.ContinuumView
 safebind = base.safebind
 HasParent = base.HasParent
+
 pandas_template = require("./pandaspivot")
+
+ContinuumView = require('../common/continuum_view').ContinuumView
+
 
 ENTER = 13
 
