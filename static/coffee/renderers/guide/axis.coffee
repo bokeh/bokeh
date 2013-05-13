@@ -16,10 +16,10 @@ class LinearAxisView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @spec = attrs.guidespec
-    @rule_props = new line_properties(@, {}, 'rule_')
-    @major_tick_props = new line_properties(@, {}, 'major_tick_')
-    @major_label_props = new text_properties(@, {}, 'major_label_')
+    guidespec = @mget('guidespec')
+    @rule_props = new line_properties(@, guidespec, 'rule_')
+    @major_tick_props = new line_properties(@, guidespec, 'major_tick_')
+    @major_label_props = new text_properties(@, guidespec, 'major_label_')
 
   render: () ->
 
