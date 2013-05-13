@@ -9,27 +9,32 @@ import sys
 app = flask.Flask(__name__)
 
 SRCDIR = "static/coffee"
+TEST_SRCDIR = "tests/coffee"
+DEMO_SRCDIR = "demo/coffee"
+# TODO: Should be able to remove EXCLUDES now that demo and tests have
+# been moved out.
 EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
             join(SRCDIR,"unittest/primitives")]
 
 HOST = "localhost"
 PORT = 9294
 
+# TODO: Add route handlers for index urls: /, /demos, and /tests
+
 @app.route("/demo/<demoname>")
 def demo(demoname):
 
     if app.debug:
-        with open("slug.json") as f:
+        with open("slug.demo.json") as f:
             slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT,
-                    excludes=EXCLUDES)
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT)
     else:
-        jslibs = ['/static/js/application.js']
+        jslibs = ['/static/js/demo/application.js']
         hemfiles = []
 
     demos = alldemos[demoname]
-    demofiles = [os.path.join(SRCDIR, name+".coffee") for name in demos]
+    demofiles = [os.path.join(DEMO_SRCDIR, name+".coffee") for name in demos]
 
     for demo in demofiles:
         if not os.path.isfile(demo):
@@ -38,24 +43,25 @@ def demo(demoname):
     hemfiles.extend(hemlib.make_urls(demofiles, HOST, PORT))
 
     return flask.render_template("demos.html", jslibs = jslibs,
-            hemfiles=hemfiles, demos=demos)
+                                 hemfiles=hemfiles, demos=demos)
 
 @app.route("/test/<testname>")
 def test(testname):
     if app.debug:
-        with open("slug.json") as f:
+        with open("slug.tests.json") as f:
             slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
         hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT,
-                    excludes=EXCLUDES)
+                                        excludes=EXCLUDES)
     else:
-        jslibs= ['/static/js/application.js']
+        jslibs= ['/static/js/tests/application.js']
         hemfiles = []
+    print "demoserver hemfiles", hemfiles
     tests = alltests[testname]
-    testfiles = [os.path.join(SRCDIR, name+".coffee") for name in tests]
+    testfiles = [os.path.join(TEST_SRCDIR, name+".coffee") for name in tests]
     for test in testfiles:
         if not os.path.isfile(test):
-            raise RuntimeError("Cannot find test named '%s'"%demo)
+            raise RuntimeError("Cannot find test named '%s'" % test)
 
     hemfiles.extend(hemlib.make_urls(testfiles, HOST, PORT))
 
@@ -66,87 +72,89 @@ def test(testname):
 alldemos = {
 
     'all' : [
-        'demo/scatter',
-        'demo/image',
-        'demo/bars',
-        'demo/map',
-        'demo/candle',
-        'demo/vector',
-        'demo/group',
-        'demo/stack',
-        'demo/lorenz10',
-        'demo/lorenz50',
-        'demo/lorenz100',
+        'scatter',
+        'image',
+        'bars',
+        'map',
+        'candle',
+        'vector',
+        'group',
+        'stack',
+        'lorenz10',
+        'lorenz50',
+        'lorenz100',
     ],
 
-    'scatter'   : ['demo/scatter'],
-    'image'     : ['demo/image'],
-    'bars'      : ['demo/bars'],
-    'map'       : ['demo/map'],
-    'candle'    : ['demo/candle'],
-    'vector'    : ['demo/vector'],
-    'group'     : ['demo/group'],
-    'stack'     : ['demo/stack'],
-    'lorenz10'  : ['demo/lorenz10'],
-    'lorenz50'  : ['demo/lorenz50'],
-    'lorenz100' : ['demo/lorenz100'],
+    'scatter'   : ['scatter'],
+    'image'     : ['image'],
+    'bars'      : ['bars'],
+    'map'       : ['map'],
+    'candle'    : ['candle'],
+    'vector'    : ['vector'],
+    'group'     : ['group'],
+    'stack'     : ['stack'],
+    'lorenz10'  : ['lorenz10'],
+    'lorenz50'  : ['lorenz50'],
+    'lorenz100' : ['lorenz100'],
 }
 
 alltests = {
 
     'allplots' : [
-        "unittest/plot_test_simple",
-        "unittest/tools_test",
-        "unittest/plot_test_grid",
-        "unittest/date_test",
-        "unittest/legend_test"
+        "plot_test_simple",
+        "tools_test",
+        "plot_test_grid",
+        "date_test",
+        "legend_test"
     ],
 
     'allunit' : [
-        "unittest/bokeh_test",
-        "unittest/hasparent_test",
-        "unittest/hasproperty_test"
+        "bokeh_test",
+        "hasparent_test",
+        "hasproperty_test"
     ],
 
-    'tick' : ['unittest/tick_test'],
+    'tick' : ['tick_test'],
 
-    'perf' : ['unittest/perf_test'],
+    'perf' : ['perf_test'],
+
+    'axes' : ['linear_axis_test'],
 
     'prim' : [
-        'unittest/primitives/annular_wedge_test',
-        'unittest/primitives/annulus_test',
-        'unittest/primitives/arc_test',
-        'unittest/primitives/area_test',
-        'unittest/primitives/bezier_test',
-        'unittest/primitives/circle_test',
-        'unittest/primitives/imageuri_test',
-        'unittest/primitives/line_test',
-        'unittest/primitives/oval_test',
-        'unittest/primitives/quad_test',
-        'unittest/primitives/quadcurve_test',
-        'unittest/primitives/ray_test',
-        'unittest/primitives/rect_test',
-        'unittest/primitives/segment_test',
-        'unittest/primitives/text_test',
-        'unittest/primitives/wedge_test',
+        'primitives/annular_wedge_test',
+        'primitives/annulus_test',
+        'primitives/arc_test',
+        'primitives/area_test',
+        'primitives/bezier_test',
+        'primitives/circle_test',
+        'primitives/image_uri_test',
+        'primitives/line_test',
+        'primitives/oval_test',
+        'primitives/quad_test',
+        'primitives/quadcurve_test',
+        'primitives/ray_test',
+        'primitives/rect_test',
+        'primitives/segment_test',
+        'primitives/text_test',
+        'primitives/wedge_test',
     ],
 
-    'annular_wedge' : ['unittest/primitives/annular_wedge_test'],
-    'annulus'       : ['unittest/primitives/annulus_test'],
-    'arc'           : ['unittest/primitives/arc_test'],
-    'area'          : ['unittest/primitives/area_test'],
-    'bezier'        : ['unittest/primitives/bezier_test'],
-    'circle'        : ['unittest/primitives/circle_test'],
-    'imageuri'      : ['unittest/primitives/imageuri_test'],
-    'line'          : ['unittest/primitives/line_test'],
-    'oval'          : ['unittest/primitives/oval_test'],
-    'quad'          : ['unittest/primitives/quad_test'],
-    'quadcurve'     : ['unittest/primitives/quadcurve_test'],
-    'ray'           : ['unittest/primitives/ray_test'],
-    'rect'          : ['unittest/primitives/rect_test'],
-    'segment'       : ['unittest/primitives/segment_test'],
-    'text'          : ['unittest/primitives/text_test'],
-    'wedge'         : ['unittest/primitives/wedge_test'],
+    'annular_wedge' : ['primitives/annular_wedge_test'],
+    'annulus'       : ['primitives/annulus_test'],
+    'arc'           : ['primitives/arc_test'],
+    'area'          : ['primitives/area_test'],
+    'bezier'        : ['primitives/bezier_test'],
+    'circle'        : ['primitives/circle_test'],
+    'image_uri'     : ['primitives/image_uri_test'],
+    'line'          : ['primitives/line_test'],
+    'oval'          : ['primitives/oval_test'],
+    'quad'          : ['primitives/quad_test'],
+    'quadcurve'     : ['primitives/quadcurve_test'],
+    'ray'           : ['primitives/ray_test'],
+    'rect'          : ['primitives/rect_test'],
+    'segment'       : ['primitives/segment_test'],
+    'text'          : ['primitives/text_test'],
+    'wedge'         : ['primitives/wedge_test'],
 }
 
 allpossibletests = set()

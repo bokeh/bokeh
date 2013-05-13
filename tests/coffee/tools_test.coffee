@@ -1,5 +1,5 @@
 base = require("../base")
-testutils = require("../testutils")
+testutils = require("./testutils")
 Collections = base.Collections
 
 MAX_SIZE = 500

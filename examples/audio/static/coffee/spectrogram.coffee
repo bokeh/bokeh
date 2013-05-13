@@ -1,82 +1,78 @@
 Collections = require('base').Collections
 
+all_palettes = require('../palettes/palettes').all_palettes
+ColorMapper = require('../mappers/color/linear_color_mapper').LinearColorMapper
+
 NUM_SAMPLES = 1024
 SAMPLING_RATE = 44100
 MAX_FREQ = SAMPLING_RATE / 2
 FREQ_SAMPLES = NUM_SAMPLES / 8
 SPECTROGRAM_LENGTH = 512
-FREQ_MAX=512
-FREQ_MIN=0
+
+window.TIMESLICE = 40 # ms
+
+BORDER = 50
 
 NGRAMS = 1020
 
-HISTSIZE = 256
-NUM_BINS = 16
+HIST_NUM_BINS = 16
 
-TIMESLICE = 35 # ms
+FREQ_SLIDER_MAX = MAX_FREQ
+FREQ_SLIDER_MIN = 0
+FREQ_SLIDER_START = FREQ_SLIDER_MAX/2
 
 GAIN_DEFAULT = 1
 GAIN_MIN = 1
 GAIN_MAX = 20
 
-class Spectrogram
+requestAnimationFrame = window.requestAnimationFrame || \
+  window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||\
+  window.msRequestAnimationFrame
+
+class SpectrogramApp
   constructor: () ->
 
     @gain = GAIN_DEFAULT
 
-    # Set up image plot for the spectrogram
-    @image_width = NGRAMS
-    @image_height = 256
-    @image = [new Float32Array(SPECTROGRAM_LENGTH * NGRAMS)]
-    @spec_source = Collections('ColumnDataSource').create(
-      data:{image: @image}
-    )
-    spec_model = @create_spec()
-    @spec_view = new spec_model.default_view(model: spec_model)
+    @paused = false
 
-    # Set up the power waveform plot
-    @power = [new Float32Array(NUM_SAMPLES)]
-    @power_idx = [new Array(NUM_SAMPLES)]
-    for i in [0..@power_idx[0].length-1]
-      @power_idx[0][i] = (i/(@power_idx[0].length-1))*TIMESLICE
-    @power_source = Collections('ColumnDataSource').create(
-      data:{power: @power, idx: @power_idx}
-    )
-    power_model = @create_power()
-    @power_view = new power_model.default_view(model: power_model)
+    @throttled_request_data = _.throttle((=> @request_data()), 40)
 
-    # Set up the single FFT plot
-    @fft = [new Float32Array(SPECTROGRAM_LENGTH)]
-    @fft_idx = [new Array(SPECTROGRAM_LENGTH)]
-    for i in [0..@fft_idx[0].length-1]
-      @fft_idx[0][i] = i
-    @fft_source = Collections('ColumnDataSource').create(
-      data:{fft: @fft, idx: @fft_idx}
-    )
-    fft_model = @create_fft()
-    @fft_view = new fft_model.default_view(model: fft_model)
+    @spec_plot = new SpectrogramPlot({
+      width: NGRAMS, height: SPECTROGRAM_LENGTH/2, border: BORDER
+    })
 
-    # Set up the radial histogram
-    @hist_source = Collections('ColumnDataSource').create(
-      data: {inner_radius:[], outer_radius:[], start_angle:[], end_angle:[], fill_alpha: []}
-    )
-    hist_model = @create_hist()
-    @hist_view = new hist_model.default_view(model: hist_model)
+    @power_plot = new SimpleIndexPlot({
+      x0: 0, x1: window.TIMESLICE, y0: -0.5, y1: 0.5, width: 550, height: 220, border: BORDER
+    })
+
+    @fft_plot = new SimpleIndexPlot({
+      x0: FREQ_SLIDER_MIN, x1: FREQ_SLIDER_MAX, y0: -1, y1: 20, width: 550, height: 220, border: BORDER
+    })
+
+    @hist_plot = new RadialHistogramPlot({
+      num_bins: HIST_NUM_BINS, width: 500, height: 500
+    })
 
     @render()
 
-  request_data: () =>
+  request_data: () ->
+    if @paused
+      return
     $.ajax 'http://localhost:5000/data',
     type: 'GET'
     dataType: 'json'
     error: (jqXHR, textStatus, errorThrown) =>
-      console.log "AJAX Error: #{textStatus}"
-    success: (data, textStatus, jqXHR) =>
-      @on_data(data)
 
-  on_data: (data) =>
-    if not data[0]?
-      return
+    success: (data, textStatus, jqXHR) =>
+      if not data[0]?
+        _.delay((=> @throttled_request_data), 130)
+      else
+        @on_data(data)
+        requestAnimationFrame(
+          => @throttled_request_data())
+
+  on_data: (data) ->
 
     # apply the gain
     for i in [0..(data[0].length-1)]
@@ -84,72 +80,19 @@ class Spectrogram
     for i in [0..(data[1].length-1)]
       data[1][i] *= @gain
 
-    # update the spectrogram
-    for i in [0..(SPECTROGRAM_LENGTH-1)]
-      for j in [(NGRAMS-1)..1]
-        @image[0][i*NGRAMS + j] = @image[0][i*NGRAMS + j - 1]
-      @image[0][i*NGRAMS] = data[0][i]
-    @spec_source.set('data', {image: @image})
-    @spec_source.trigger('change', @spec_source, {})
+    @spec_plot.update(data[0])
+    @power_plot.update(data[1])
+    @fft_plot.update(data[0])
+    @hist_plot.update(data[0], @fft_range[0], @fft_range[1])
 
-    # update the power waveform data
-    for i in [0..@power[0].length-1]
-      @power[0][i] = data[1][i]
-    @power_source.set('data', {power: @power, idx: @power_idx})
-    @power_source.trigger('change', @power_source, {})
-
-    # update the single fft data
-    for i in [0..@fft[0].length-1]
-      @fft[0][i] = data[0][i]
-    @fft_source.set('data', {fft: @fft, idx: @fft_idx})
-    @fft_source.trigger('change', @fft_source, {})
-
-    # update the radial histogram data
-    hist = new Float32Array(NUM_BINS)
-    if @fft_xrange
-      bin_min = Math.round(@fft_xrange.get('start'))
-      bin_max = Math.round(@fft_xrange.get('end'))
-    else
-      bin_min = 0
-      bin_max = 256
-    bin_start = bin_min
-    bin_size = Math.ceil((bin_max - bin_min) / NUM_BINS)
-    for i in [0..NUM_BINS-1]
-      hist[i] = 0
-      bin_end = Math.min(bin_start+bin_size-1, bin_max)
-      for j in [bin_start..bin_end]
-        hist[i] += data[0][j]
-      bin_start += bin_size
-
-    inner = []
-    outer = []
-    start = []
-    end = []
-    fill_alpha = []
-    vals = []
-    angle = 2*Math.PI/NUM_BINS
-    for i in [0..(hist.length-1)]
-      n = hist[i]/16
-      for j in [0..n]
-        vals.push(j)
-        inner.push(2+j)
-        outer.push(2+j+0.95)
-        start.push((i+0.05)*angle)
-        end.push((i+0.95)*angle)
-        fill_alpha.push(1-0.08*j)
-
-    @hist_source.set('data', {
-      inner_radius: inner, outer_radius: outer, start_angle: start, end_angle: end, fill_alpha: fill_alpha
-    })
-    @hist_source.trigger('change', @power_source, {})
-
-  set_freq_range : (event, ui) =>
-    [min, max] = ui.values
-    @fft_xrange.set({'start': min, 'end' : max})
+  set_freq_range : (event, ui) ->
+    [min, max] = @fft_range = ui.values
+    @spec_plot.set_yrange(min, max)
+    @fft_plot.set_xrange(min, max)
     return null
 
   render: () ->
-    sliders = $('<div></div>')
+    controls = $('<div></div>')
 
     slider = $('<div></div>')
     label = $("<p style>frequency range:</p>")
@@ -157,25 +100,25 @@ class Spectrogram
     slider_div = $('<div id="freq-range-slider" style="width: 200px;"></div>')
     slider_div.slider({
       animate: "fast",
-      step: 1
-      min: 0
-      max: 512
-      values: [0, 512]
+      step: 1,
+      min: FREQ_SLIDER_MIN,
+      max: FREQ_SLIDER_MAX,
+      values: [FREQ_SLIDER_MIN, FREQ_SLIDER_MAX],
       slide: ( event, ui ) =>
         @set_freq_range(event, ui)
     });
     slider.append(slider_div)
     slider.css('float', 'left')
     slider.css('margin', '30px')
-
-    sliders.append(slider)
+    controls.append(slider)
+    @fft_range = [FREQ_SLIDER_MIN, FREQ_SLIDER_MAX]
 
     slider = $('<div></div>')
     slider.append($("<p>gain:</p>"))
     slider_div = $('<div id="gain-slider" style="width: 200px;"></div>')
     slider_div.slider({
       animate: "fast",
-      step: 0.1
+      step: 0.1,
       min: GAIN_MIN,
       max: GAIN_MAX,
       value: GAIN_DEFAULT,
@@ -186,193 +129,322 @@ class Spectrogram
     slider.append(slider_div)
     slider.css('float', 'left')
     slider.css('margin', '30px')
+    controls.append(slider)
 
-    sliders.append(slider)
+    button = $('<button id="pause">pause</button>')
+    button.on("click", () =>
+      if button.text() == 'pause'
+        button.text('resume')
+        @paused = true
+      else
+        button.text('pause')
+        @paused = false
+        @request_data())
+    button.css('float', 'left')
+    button.css('margin', '30px')
+    controls.append(button)
 
-    sliders.css('clear', 'both')
-    sliders.css('overflow', 'hidden')
+    controls.css('clear', 'both')
+    controls.css('overflow', 'hidden')
     $( "#gain" ).val( $( "#gain-slider" ).slider( "value" ) );
-    $('body').append(sliders)
+    $('body').append(controls)
 
     div = $('<div></div>')
     $('body').append(div)
-    myrender  =  =>
-      div.append(@spec_view.$el)
-      @spec_view.render()
+    myrender = () =>
+      div.append(@spec_plot.view.$el)
+      @spec_plot.render()
 
-      div.append(@power_view.$el)
       foo = $('<div></div>')
-      @power_view.render()
-      @fft_view.render()
-      foo.append(@power_view.$el)
-      foo.append(@fft_view.$el)
+      foo.append(@fft_plot.view.$el)
+      foo.append(@power_plot.view.$el)
       foo.css('float', 'left')
       div.append(foo)
-      div.append(@hist_view.$el)
-      @hist_view.render()
-      @hist_view.$el.css('float', 'left')
+      @power_plot.render()
+      @fft_plot.render()
+
+      div.append(@hist_plot.view.$el)
+      @hist_plot.view.$el.css('float', 'left')
+      @hist_plot.render()
     _.defer(myrender)
 
-  create_spec: () ->
-    plot_model = Collections('Plot').create()
-
-    xrange = Collections('Range1d').create({start: 0, end: NGRAMS})
-    yrange = Collections('Range1d').create({start: 0, end: MAX_FREQ})
-
-    xaxis = Collections('LinearAxis').create(
-      orientation: 'bottom'
-      parent: plot_model.ref()
-      data_range: xrange.ref()
-    )
-    yaxis = Collections('LinearAxis').create(
-      orientation: 'left'
-      parent: plot_model.ref()
-      data_range: yrange.ref()
-    )
-
-    glyphspec = {
-      type: 'image'
-      x: 0
-      y: 0
-      dw: NGRAMS
-      dh: MAX_FREQ
-      width: NGRAMS,
-      height: SPECTROGRAM_LENGTH,
-      image: 'image'
-      palette:
-        default: 'YlGnBu-9'
-    }
-    glyph = Collections('GlyphRenderer').create({
-      data_source: @spec_source.ref()
-      xdata_range: xrange.ref()
-      ydata_range: yrange.ref()
-      glyphspec: glyphspec
+class SpectrogramPlot
+  constructor: (options) ->
+    @cmap = new ColorMapper({}, {
+      palette: all_palettes["YlGnBu-9"],
+      low: 0,
+      high: 10
     })
 
-    plot_model.set(
-      renderers: [glyph.ref()]
-      axes: [xaxis.ref(), yaxis.ref()]
+    @num_images = Math.ceil(NGRAMS/500) + 3
+
+    @image_width = 500
+    @image_height = 256
+
+    @images = new Array(@num_images)
+    @xs = new Array(@num_images)
+    for i in [0..(@num_images-1)]
+      @images[i] = new ArrayBuffer(SPECTROGRAM_LENGTH * @image_width * 4)
+      @xs[i] = @image_width*i
+    @source = Collections('ColumnDataSource').create(
+      data:{image: @images, x: @xs}
+    )
+
+    @col = 0
+
+    @xrange = Collections('Range1d').create({start: 0, end: NGRAMS})
+    @yrange = Collections('Range1d').create({start: 0, end: MAX_FREQ})
+
+    @model = Collections('Plot').create(
+      x_range: @xrange
+      y_range: @yrange
+      border_fill: "#fff"
+      canvas_width: options.width + options.border + 80
+      canvas_height: options.height + 2*options.border
+      outer_width: options.width + 2*options.border
+      outer_height: options.height + 2*options.border
+      border: options.border
+      border_left: 80
       tools: []
-      width: @image_width
-      height: @image_height
     )
 
-    return plot_model
-
-  create_power: () ->
-    plot_model = Collections('Plot').create()
-
-    xrange = Collections('Range1d').create({start: 0, end: TIMESLICE})
-    yrange = Collections('Range1d').create({start: -0.25, end: 0.25})
-
-    xaxis = Collections('LinearAxis').create(
-      orientation: 'bottom'
-      parent: plot_model.ref()
-      data_range: xrange.ref()
-    )
-    yaxis = Collections('LinearAxis').create(
-      orientation: 'left'
-      parent: plot_model.ref()
-      data_range: yrange.ref()
+    xaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 0
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: @model
     )
 
-    glyphspec = {
-      type: 'line'
-      xs: 'idx'
-      ys: 'power'
-    }
+    yaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 1
+        location: 'min'
+        bounds: 'auto'
+      }
+      major_label_standoff: 40
+      parent: @model
+    )
+
     glyph = Collections('GlyphRenderer').create({
-      data_source: @power_source.ref()
-      xdata_range: xrange.ref()
-      ydata_range: yrange.ref()
-      glyphspec: glyphspec
+      data_source: @source
+      xdata_range: @xrange
+      ydata_range: @yrange
+      glyphspec: {
+        type: 'image_rgba'
+        x: 'x'
+        y: 0
+        dw: @image_width
+        dh: MAX_FREQ
+        width: @image_width,
+        height: SPECTROGRAM_LENGTH,
+        image: 'image'
+        palette:
+          default: 'YlGnBu-9'
+      }
     })
 
-    plot_model.set(
-      renderers: [glyph.ref()]
-      axes: [xaxis.ref(), yaxis.ref()]
+    @model.add_renderers([glyph, xaxis, yaxis])
+    @view = new @model.default_view(model: @model)
+
+  update: (fft) ->
+    buf = @cmap.v_map_screen(fft)
+
+    @col -= 1
+    for i in [0..(@num_images-1)]
+      @xs[i] += 1
+
+    if @col == -1
+      @col = @image_width - 1
+      img = @images.pop()
+      @images = [img].concat(@images[0..])
+      @xs.pop()
+      @xs = [-@image_width+1].concat(@xs)
+
+    image32 = new Uint32Array(@images[0])
+    buf32 = new Uint32Array(buf)
+
+    for i in [0..(SPECTROGRAM_LENGTH-1)]
+      image32[i*@image_width+@col] = buf32[i]
+
+    @source.set('data', {image: @images, x: @xs})
+    @source.trigger('change', @source, {})
+
+  set_xrange: (x0, x1) ->
+    @xrange.set({'start': x0, 'end' : x1})
+
+  set_yrange: (y0, y1) ->
+    @yrange.set({'start': y0, 'end' : y1})
+
+  render: () ->
+    @view.render()
+
+class RadialHistogramPlot
+  constructor: (options) ->
+    @num_bins = options.num_bins
+
+    @hist = new Float32Array(@num_bins)
+
+    @source = Collections('ColumnDataSource').create(
+      data: {inner_radius:[], outer_radius:[], start_angle:[], end_angle:[], fill_alpha: []}
+    )
+
+    @range = Collections('Range1d').create({start: -20, end: 20})
+
+    @model = Collections('Plot').create(
+      x_range: @range
+      y_range: @range
+      border_fill: "#fff"
+      canvas_width:  options.width
+      canvas_height: options.height
+      outer_width:   options.width
+      outer_height:  options.height
+      border: 0
       tools: []
-      width: 500
-      height: 220
     )
 
-    return plot_model
-
-  create_fft: () ->
-    plot_model = Collections('Plot').create()
-
-    xrange = Collections('Range1d').create({start: 0, end: SPECTROGRAM_LENGTH})
-    @fft_xrange = xrange
-    yrange = Collections('Range1d').create({start: -1.75, end: 3.75})
-
-    xaxis = Collections('LinearAxis').create(
-      orientation: 'bottom'
-      parent: plot_model.ref()
-      data_range: xrange.ref()
-    )
-    yaxis = Collections('LinearAxis').create(
-      orientation: 'left'
-      parent: plot_model.ref()
-      data_range: yrange.ref()
-    )
-
-    glyphspec = {
-      type: 'line'
-      xs: 'idx'
-      ys: 'fft'
-    }
     glyph = Collections('GlyphRenderer').create({
-      data_source: @fft_source.ref()
-      xdata_range: xrange.ref()
-      ydata_range: yrange.ref()
-      glyphspec: glyphspec
+      data_source: @source
+      xdata_range: @range
+      ydata_range: @range
+      glyphspec: {
+        type: 'annular_wedge',
+        line_color: null
+        x: 0
+        y: 0
+        fill: '#688AB9'
+        fill_alpha: 'fill_alpha'
+        inner_radius: 'inner_radius'
+        outer_radius: 'outer_radius'
+        start_angle: 'start_angle'
+        end_angle: 'end_angle'
+      }
     })
 
-    plot_model.set(
-      renderers: [glyph.ref()]
-      axes: [xaxis.ref(), yaxis.ref()]
-      tools: []
-      width: 500
-      height: 220
+    @model.add_renderers([glyph])
+    @view = new @model.default_view(model: @model)
+
+  update: (fft, fft_min, fft_max) ->
+    df = (FREQ_SLIDER_MAX - FREQ_SLIDER_MIN)
+
+    bin_min = Math.floor(fft_min/df)
+    bin_max = bin_min + Math.floor((fft_max-fft_min)/df * (fft.length-1))
+
+    bin_start = bin_min
+    bin_size = Math.ceil((bin_max - bin_min) / @num_bins)
+    for i in [0..@num_bins-1]
+      @hist[i] = 0
+      bin_end = Math.min(bin_start+bin_size-1, bin_max)
+      for j in [bin_start..bin_end]
+        @hist[i] += fft[j]
+      bin_start += bin_size
+
+    inner = []
+    outer = []
+    start = []
+    end = []
+    fill_alpha = []
+    vals = []
+    angle = 2*Math.PI/@num_bins
+    for i in [0..(@hist.length-1)]
+      n = @hist[i]/16
+      for j in [0..n]
+        vals.push(j)
+        inner.push(2+j)
+        outer.push(2+j+0.95)
+        start.push((i+0.05)*angle)
+        end.push((i+0.95)*angle)
+        fill_alpha.push(1-0.08*j)
+
+    @source.set('data', {
+      inner_radius: inner, outer_radius: outer, start_angle: start, end_angle: end, fill_alpha: fill_alpha
+    })
+    @source.trigger('change', @source, {})
+
+  render: () ->
+    @view.render()
+
+
+class SimpleIndexPlot
+  constructor: (options) ->
+    @source = Collections('ColumnDataSource').create(
+      data: {idx: [[]], ys: [[]]}
     )
 
-    return plot_model
+    @xrange = Collections('Range1d').create({start: options.x0, end: options.x1})
+    @yrange = Collections('Range1d').create({start: options.y0, end: options.y1})
 
-  create_hist: () ->
-    plot_model = Collections('Plot').create()
+    @model = Collections('Plot').create(
+      x_range: @xrange
+      y_range: @yrange
+      border_fill: "#fff"
+      canvas_width:  options.width  + 2*options.border
+      canvas_height: options.height + 2*options.border
+      outer_width:   options.width  + 2*options.border
+      outer_height:  options.height + 2*options.border
+      tools: []
+    )
 
-    range = Collections('Range1d').create({start: -20, end: 20})
+    xaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 0
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: @model
+    )
 
-    glyphspec = {
-      type: 'annular_wedge',
-      line_color: null
-      x: 0
-      y: 0
-      fill: '#688AB9'
-      fill_alpha: 'fill_alpha'
-      inner_radius: 'inner_radius'
-      outer_radius: 'outer_radius'
-      start_angle: 'start_angle'
-      end_angle: 'end_angle'
-      direction: 'clock'
-    }
+    yaxis = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 1
+        location: 'min'
+        bounds: 'auto'
+      }
+      parent: @model
+    )
+
     glyph = Collections('GlyphRenderer').create({
-      data_source: @hist_source.ref()
-      xdata_range: range.ref()
-      ydata_range: range.ref()
-      glyphspec: glyphspec
+      data_source: @source
+      xdata_range: @xrange
+      ydata_range: @yrange
+      glyphspec: {
+        type: 'line'
+        line_color: 'darkblue'
+        xs: 'idx'
+        ys: 'ys'
+      }
     })
 
-    plot_model.set(
-      renderers: [glyph.ref()]
-      axes: []
-      tools: []
-      width: 500
-      height: 500
-    )
+    @model.add_renderers([glyph, xaxis, yaxis])
+    @view = new @model.default_view(model: @model)
 
-    return plot_model
+  update: (ys) ->
+    if @idx?.length != ys.length
+      @idx = new Array(ys.length)
+      for i in [0..@idx.length-1]
+        @idx[i] = @xrange.get('start') + (i/@idx.length)*@xrange.get('end')
+
+    @source.set('data', {idx: [@idx], ys: [ys]})
+    @source.trigger('change', @source, {})
+
+  set_xrange: (x0, x1) ->
+    @xrange.set({'start': x0, 'end' : x1})
+
+  set_yrange: (y0, y1) ->
+    @yrange.set({'start': y0, 'end' : y1})
+
+  render: () ->
+    @view.render()
 
 $(document).ready () ->
-  spec = new Spectrogram()
-  setInterval(spec.request_data, TIMESLICE)
+  spec = new SpectrogramApp()
+  setInterval((() ->
+    spec.request_data()),
+    400)
+
+

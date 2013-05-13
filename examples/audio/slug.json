@@ -1,12 +1,14 @@
 {
-    "libs": ["./bokehjs_static/vendor/d3/d3.v2.js", 
-             "./bokehjs_static/vendor/jquery/js/jquery-1.7.2.js", 
-             "./bokehjs_static/vendor/jquery/js/jquery.mousewheel.js", 
-             "./bokehjs_static/vendor/underscore/underscore.js", 
-             "./bokehjs_static/vendor/backbone/backbone.js", 
-             "./bokehjs_static/vendor/buckets/buckets.js",
-             "./bokehjs_static/js/custom.js"],
-    "paths" : ["./bokehjs_static/coffee", "./static/coffee"],
+    "libs": ["./static/bokehjs_static/vendor/d3/d3.v2.js",
+             "./static/bokehjs_static/vendor/jquery/js/jquery-1.7.2.js",
+             "./static/bokehjs_static/vendor/jquery/js/jquery.mousewheel.js",
+             "./static/bokehjs_static/vendor/underscore/underscore.js",
+             "./static/bokehjs_static/vendor/backbone/backbone.js",
+             "./static/bokehjs_static/vendor/buckets/buckets.js",
+             "./static/bokehjs_static/js/custom.js",
+             "./static/vendor/jquery/js/jquery-ui.min.js"],
+
+    "paths" : ["./static/bokehjs_static/coffee", "./static/coffee"],
     "public" : "./static/js",
     "css" : false,
     "specs" : false
