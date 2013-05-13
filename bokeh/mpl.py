@@ -1,4 +1,3 @@
-from webutils import get_json
 import numpy as np
 import logging
 import urlparse
@@ -7,13 +6,14 @@ import uuid
 import bbmodel
 import protocol
 import data
-from protocol import serialize_json
 import os
 import dump
 import json
 import pandas
 from exceptions import DataIntegrityException
 
+from bokeh import protocol
+from bokeh.utils import get_json
 
 log = logging.getLogger(__name__)
 colors = [
@@ -344,8 +344,7 @@ class XYPlot(BokehMPLBase):
 class PlotClient(object):
     def __init__(self, username=None,
                  serverloc=None,
-                 userapikey="nokey",
-                 ph=None):
+                 userapikey="nokey"):
         #the root url should be just protocol://domain
         self.username = username
         self.root_url = serverloc
@@ -357,11 +356,8 @@ class PlotClient(object):
             self.update_userinfo()
         else:
             print 'Not using a server, plots will only work in embedded mode'
-        if not ph:
-            ph = protocol.ProtocolHelper()
         self.docid = None
         self.models = {}
-        self.ph = ph
         self.clf()
         self._hold = True
         self.bbclient = None
@@ -399,8 +395,7 @@ class PlotClient(object):
         self.models = {}
         url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
         self.bbclient = bbmodel.ContinuumModelsClient(
-            docid, url, self.apikey, self.ph
-            )
+            docid, url, self.apikey)
         interactive_contexts = self.bbclient.fetch(
             typename='PlotContext')
         if len(interactive_contexts) > 1:
@@ -409,7 +404,7 @@ class PlotClient(object):
 
     def make_doc(self, title):
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
-        data = self.ph.serialize_web({'title' : title})
+        data = protocol.serialize_web({'title' : title})
         response = self.session.post(url, data=data, verify=False)
         if response.status_code == 409:
             raise DataIntegrityException
@@ -713,7 +708,7 @@ class PlotClient(object):
         plot_js = get_template('plots.js').render(
             elementid=elementid,
             modelid=model.id,
-            all_models=serialize_json([x.to_broadcast_json()\
+            all_models=protocol.serialize_json([x.to_broadcast_json()\
                                        for x in all_models]),
             modeltype=model.typename,
             )

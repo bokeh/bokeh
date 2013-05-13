@@ -1,6 +1,5 @@
 
-from .faketraits import Function, Instance, List, This, String, Color, Enum, Int, Array
-from .data_graph import FactorExprNode
+from .properties import Function, Instance, List, This, String, Color, Enum, Int, Array
 
 class PlotExprNode(object):
     """ A node in the Plot Expression Graph. Used to express the AST of the
@@ -46,12 +45,12 @@ class BokehPlot(PlotExprNode):
 
 class FacetGrid(PlotExprNode):
     
-    factor_expr = Instance(FactorExprNode)
+    factor_expr = Instance(PlotExprNode)
 
 
 class FacetWrap(PlotExprNode):
     
-    factor_expr = Instance(FactorExprNode)
+    factor_expr = Instance(PlotExprNode)
 
 
 class Aes(PlotExprNode):

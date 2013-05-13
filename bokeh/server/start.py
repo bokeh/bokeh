@@ -22,10 +22,14 @@ import models.docs as docs
 
 import logging
 import time
-port = 5006
+
+
+PORT = 5006
+REDIS_PORT = 6379
+
 log = logging.getLogger(__name__)
 
-def prepare_app(rhost='127.0.0.1', rport=6379):
+def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT):
     #must import views before running apps
     import views.deps
     app.wsmanager = wsmanager.WebSocketManager()
@@ -34,7 +38,6 @@ def prepare_app(rhost='127.0.0.1', rport=6379):
         status = mconv.can_write_doc_api(doc, auth, current_app)
         return status
     app.wsmanager.register_auth("bokehplot", auth)
-    app.ph = protocol.ProtocolHelper()
     app.collections = ContinuumModelsStorage(
         redis.Redis(host=rhost, port=rport, db=2)
         )
@@ -67,8 +70,8 @@ http_server = None
 def start_app(verbose=False):
     global http_server
     if verbose:
-        print "Starting server on port 5006..."
-    http_server = WSGIServer(('', 5006), app,
+        print "Starting server on port %d..." % PORT
+    http_server = WSGIServer(('', PORT), app,
                              handler_class=WebSocketHandler,
                              )
     http_server.serve_forever()

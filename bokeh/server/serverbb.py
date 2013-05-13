@@ -1,4 +1,3 @@
-from bokeh import protocol
 import requests
 import urlparse
 import uuid
@@ -6,6 +5,7 @@ import logging
 import cPickle as pickle
 import redis
 import bokeh.bbmodel as bbmodel
+from bokeh import protocol
 from bokeh.bbmodel import ContinuumModelsClient
 import numpy as np
 log = logging.getLogger(__name__)
@@ -26,10 +26,7 @@ def parse_modelkey(modelkey):
     return (typename, docid, modelid)
 
 class ContinuumModelsStorage(object):
-    def __init__(self, client, ph=None):
-        if ph is None:
-            ph = protocol.ProtocolHelper()
-        self.ph = ph
+    def __init__(self, client):
         self.client = client
         
     def bbget(self, client, key):
@@ -39,11 +36,11 @@ class ContinuumModelsStorage(object):
             return None
 
         else:
-            attrs = self.ph.deserialize_web(attrs)
+            attrs = protocol.deserialize_web(attrs)
             return make_model(typename, **attrs)
 
     def bbset(self, client, key, model):
-        return client.set(key, self.ph.serialize_web(
+        return client.set(key, protocol.serialize_web(
             model.to_json(include_hidden=True)))
         
     def get_bulk(self, docid, typename=None):
@@ -119,8 +116,7 @@ def client_for_request(doc, app, request, mode):
         key = doc.apikey
     return ContinuumModelsClient(doc.docid,
                                  request.url_root + "bokeh/bb/",
-                                 key,
-                                 app.ph)
+                                 key)
     
 def make_model(typename, **kwargs):
     """the server should use this make_model function,

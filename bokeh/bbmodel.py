@@ -114,9 +114,8 @@ class ContinuumModel(object):
         self.client.update(self)
         
 class ContinuumModelsClient(object):
-    def __init__(self, docid, baseurl, apikey, ph, session=None):
+    def __init__(self, docid, baseurl, apikey, session=None):
         self.apikey = apikey
-        self.ph = ph
         self.baseurl = baseurl
         parsed = urlparse.urlsplit(baseurl)
         self.docid = docid
@@ -132,7 +131,7 @@ class ContinuumModelsClient(object):
     def buffer_sync(self):
         """bulk upsert of everything in self.buffer
         """
-        data = self.ph.serialize_web(
+        data = protocol.serialize_web(
             [x.to_broadcast_json(include_hidden=True) for x in self.buffer])
         url = utils.urljoin(self.baseurl, self.docid + "/", 'bulkupsert')
         self.s.post(url, data=data)
@@ -161,7 +160,7 @@ class ContinuumModelsClient(object):
                                 self.docid + "/",
                                 model.typename +"/")
             log.debug("create %s", url)
-            self.s.post(url, data=self.ph.serialize_msg(
+            self.s.post(url, data=protocol.serialize_json(
                 model.to_json(include_hidden=True)))
             model.set('created', True)
         return model
@@ -176,7 +175,7 @@ class ContinuumModelsClient(object):
                                 model.typename + "/",
                                 model.id +"/")
             log.debug("create %s", url)
-            self.s.put(url, data=self.ph.serialize_web(
+            self.s.put(url, data=protocol.serialize_web(
                 model.to_json(include_hidden=True)))
         return model
     
@@ -189,21 +188,21 @@ class ContinuumModelsClient(object):
         if typename is None:
             url = utils.urljoin(self.baseurl, self.docid +"/") + "?" + query
             data = self.s.get(url).content
-            specs = self.ph.deserialize_web(data)
+            specs = protocol.deserialize_web(data)
             models =  [make_model(x['type'], client=self, **x['attributes'])\
                        for x in specs]
             return models
         elif typename is not None and id is None:
             url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/")
             url += "?" + query
-            attrs = self.ph.deserialize_web(self.s.get(url).content)
+            attrs = protocol.deserialize_web(self.s.get(url).content)
             models = [make_model(typename, client=self, **x) for x in attrs]
             return models
         elif typename is not None and id is not None:
             url = utils.urljoin(self.baseurl, self.docid +"/",
                                 typename + "/", id +"/")
             url += "?" + query            
-            attr = self.ph.deserialize_web(self.s.get(url).content)
+            attr = protocol.deserialize_web(self.s.get(url).content)
             if attr is None:
                 return None
             model = make_model(typename, client=self, **attr)

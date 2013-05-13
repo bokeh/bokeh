@@ -30,9 +30,11 @@ class NumpyJSONEncoder(json.JSONEncoder):
             return obj.tolist()
         elif isinstance(obj, np.integer):
             return int(obj)
+        else:
+            return super(NumpyJSONEncoder, self).default(obj)
         
-def serialize_json(obj):
-    return json.dumps(obj, cls=NumpyJSONEncoder)
+def serialize_json(obj, encoder=NumpyJSONEncoder, **kwargs):
+    return json.dumps(obj, cls=encoder, **kwargs)
 deserialize_json = json.loads
 
 def default_serialize_data(data):
@@ -105,6 +107,19 @@ def default_deserialize_data(input):
         curr_index += 2
     return output
 
+serialize_web = serialize_json
+
+deserialize_web = deserialize_json
+
+def status_obj(status):
+    return {'msgtype' : 'status',
+            'status' : status}
+def error_obj(error_msg):
+    return {
+        'msgtype' : 'error',
+        'error_msg' : error_msg}
+
+
 class ProtocolHelper(object):
     """
     collections of functions to assist in working with protocols
@@ -124,14 +139,7 @@ class ProtocolHelper(object):
         self.serialize_web = serialize_web
         self.deserialize_web = deserialize_web
 
-    def status_obj(self, status):
-        return {'msgtype' : 'status',
-                'status' : status}
 
-    def error_obj(self, error_msg):
-        return {
-            'msgtype' : 'error',
-            'error_msg' : error_msg}
 
     def working_obj(self, request_id):
         return {

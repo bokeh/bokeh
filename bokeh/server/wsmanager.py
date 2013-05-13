@@ -1,5 +1,6 @@
 import uuid
 import logging
+from .. import  protocol
 from flask import (
     request, current_app,
     )
@@ -89,8 +90,7 @@ class WebSocketManager(object):
                 self.remove_socket(clientid)
                 self.remove_clientid(clientid)
 
-def run_socket(socket, manager, protocol_helper, clientid=None):
-    ph = protocol_helper
+def run_socket(socket, manager, clientid=None):
     clientid = clientid if clientid is not None else str(uuid.uuid4())
     log.debug("CLIENTID %s", clientid)     
     while True:
@@ -99,17 +99,18 @@ def run_socket(socket, manager, protocol_helper, clientid=None):
             manager.remove_socket(clientid)
             manager.remove_clientid(clientid)
             break
-        msgobj = ph.deserialize_msg(msg)
+        msgobj = protocol.deserialize_web(msg)
         if msgobj['msgtype'] == 'subscribe':
             if manager.auth(msgobj.get('auth'), msgobj['topic']):
                 manager.add_socket(socket, clientid)
                 manager.subscribe(clientid, msgobj['topic'])
-                msg = ph.serialize_msg(ph.status_obj(
+                msg = protocol.serialize_web(protocol.status_obj(
                     ['subscribesuccess', msgobj['topic'], clientid]
                     ))
                 socket.send(msgobj['topic'] + ":" + msg)
             else:
-                msg = ph.serialize_msg(ph.error_obj('unauthorized'))
+                msg = protocol.serialize_web(
+                    protcol.error_obj('unauthorized'))
                 socket.send(msgobj['topic'] + ":" + msg)                
                 return
 
