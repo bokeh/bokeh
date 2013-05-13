@@ -154,7 +154,7 @@ class GridPlot(BokehMPLBase):
 class XYPlot(BokehMPLBase):
     topmodel = 'plotmodel'
     def __init__(self, plot, xdata_range, ydata_range,
-                 xaxis, yaxis, pantool, zoomtool, selectiontool,
+                 xaxis, yaxis, pantool, zoomtool, selectiontool, embedtool,
                  selectionoverlay, parent, plotclient=None):
         super(XYPlot, self).__init__(
             plot, xdata_range, ydata_range, xaxis, yaxis,
@@ -166,6 +166,7 @@ class XYPlot(BokehMPLBase):
         self.pantool = pantool
         self.zoomtool = zoomtool
         self.selectiontool = selectiontool
+        self.embedtool = embedtool
         self.selectionoverlay = selectionoverlay
         self.xaxis = xaxis
         self.yaxis = yaxis
@@ -183,6 +184,7 @@ class XYPlot(BokehMPLBase):
                    self.pantool,
                    self.zoomtool,
                    self.selectiontool,
+                   self.embedtool,
                    self.selectionoverlay,
                    self.xaxis,
                    self.yaxis]
@@ -304,6 +306,7 @@ class XYPlot(BokehMPLBase):
         update.append(scatterrenderer)
         update.append(self.plotmodel)
         update.append(self.selectiontool)
+        update.append(self.embedtool)
         update.append(self.selectionoverlay)
         if self.plotclient.bbclient:
             self.plotclient.bbclient.upsert_all(update)
@@ -335,6 +338,7 @@ class XYPlot(BokehMPLBase):
         update.append(linerenderer)
         update.append(self.plotmodel)
         update.append(self.selectiontool)
+        update.append(self.embedtool)
         update.append(self.selectionoverlay)
         if self.plotclient.bbclient:
             self.plotclient.bbclient.upsert_all(update)
@@ -550,18 +554,20 @@ class PlotClient(object):
             )
         selecttool = self.model(
             'SelectionTool',
-            renderers=[])
+            renderers=[])       
+        embedtool = self.model(
+            'EmbedTool')
         selectoverlay = self.model(
             'BoxSelectionOverlay',
             tool=selecttool.ref())
         plot.set('renderers', [])
         plot.set('axes', [xaxis.ref(), yaxis.ref()])
-        plot.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref()])
+        plot.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref(), embedtool.ref()])
         plot.set('overlays', [selectoverlay.ref()])
         output = XYPlot(
             plot, xdata_range, ydata_range,
             xaxis, yaxis, pantool, zoomtool,
-            selecttool, selectoverlay, parent,
+            selecttool, embedtool, selectoverlay, parent,
             plotclient=self)
         return output
 

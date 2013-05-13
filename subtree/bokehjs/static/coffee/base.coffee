@@ -652,6 +652,7 @@ locations =
   PanTool :       ['./tools/pantool',   'pantools']
   ZoomTool :      ['./tools/zoomtool',   'zoomtools']
   SelectionTool : ['./tools/selecttool', 'selectiontools']
+  EmbedTool : ['./tools/embed_tool', 'embedtools']
 
   LinearAxis :     ['./guides', 'linearaxes']
   LinearDateAxis : ['./guides', 'lineardateaxes']
