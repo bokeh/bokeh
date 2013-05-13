@@ -1,6 +1,5 @@
 utils = require("./serverutils")
 base = require("./base")
-container = require("./container")
 Config = base.Config
 utility = utils.utility
 Promises = utils.Promises

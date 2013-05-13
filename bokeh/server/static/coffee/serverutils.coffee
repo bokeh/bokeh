@@ -9,7 +9,9 @@ Promises.doc_promises = {};
 
 base = require("./base")
 Collections = base.Collections
-container = require("./container")
+console.log("serverutils");
+#container = require("./container")
+container = require("./common/plot_context")
 HasProperties = base.HasProperties
 load_models = base.load_models
 submodels = base.submodels
@@ -84,7 +86,8 @@ utility =
     utility.bokeh_connection(host, docid, "https")
     Deferreds._doc_loaded.done((data) ->
       utility.render_plots(data.plot_context_ref,
-        container.SinglePlotContextView,
+        #container.SinglePlotContextView,
+        container.PlotContextView,
         {target_model_id : view_model_id}
       )
       $(target_el).empty().append(exports.plotcontextview.el)
