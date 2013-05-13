@@ -213,6 +213,44 @@ loaded, and embed.js script tags are dynamically injected"""
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []
     return render_template("embed_with_delay.html", jsfiles=static_js, hemfiles=hem_js)
+
+@app.route("/bokeh/generate_embed_test")
+def generate_embed_test():
+    """this generates a new plot and uses the script inject to put it
+    into a page running this repeatedly will fill up your redis DB
+    quickly, but it allows quick iteration
+
+    """
+    from bokeh import mpl
+    p = mpl.PlotClient('defaultuser',
+                   serverloc='http://localhost:5006',
+                   userapikey='nokey')
+    p.use_doc('main')
+
+    import numpy as np
+    import datetime
+    import time
+    x = np.arange(100) / 6.0
+    y = np.sin(x)
+    z = np.cos(x)
+    data_source = p.make_source(idx=range(100), x=x, y=y, z=z)
+    plot = p.plot(x, y, 'orange')
+
+
+    if app.debug:
+        slug = hemlib.slug_json()
+        static_js = hemlib.slug_libs(app, slug['libs'])
+        hemsource = os.path.join(app.static_folder, "coffee")
+        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hemsource = os.path.join(app.static_folder, "vendor",
+                                 "bokehjs", "coffee")
+        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
+    else:
+        static_js = ['/bokeh/static/js/application.js']
+        hem_js = []
+    return render_template("generate_embed_test.html", jsfiles=static_js, hemfiles=hem_js, 
+                           plot_scr=plot.script_inject())
+
     
 
 
