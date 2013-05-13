@@ -18,6 +18,25 @@ class EmbedToolView extends ToolView
 
   _activated: (e) ->
     console.log("EmbedToolView._activated")
+    window.tool_view = @
+    model_id = @plot_model.get('id')
+    doc_id = @plot_model.get('doc')
+    doc_apikey = @plot_model.get('docapikey')
+    baseurl = @plot_model.get('baseurl')
+    #note this is unused and will be removed in the next commit 
+    js_template = """
+ 
+&lt;script src="http://localhost:5006/bokeh/embed.js" bokeh_plottype="serverconn"
+bokeh_docid="#{doc_id}" bokeh_ws_conn_string="ws://localhost:5006/bokeh/sub"
+bokeh_docapikey="#{doc_apikey}"
+
+bokeh_root_url="#{baseurl}"
+bokeh_root_url="http://localhost:5006"
+bokeh_modelid="#{model_id}" bokeh_modeltype="Plot" async="true"&gt;
+&lt;/script&gt;
+
+    """
+    script_inject_escaped = @plot_model.get('script_inject_escaped')
     modal = """
       '<div id="embedModal" class="modal" role="dialog" aria-labelledby="embedLabel" aria-hidden="true">
         <div class="modal-header">
@@ -25,11 +44,8 @@ class EmbedToolView extends ToolView
           <h3 id="dataConfirmLabel"> HTML Embed code</h3></div><div class="modal-body">
         <div class="modal-body">
 
-&lt;script src="http://localhost:5006/bokeh/embed.js" bokeh_plottype="serverconn"
-bokeh_docid="f66ebc17-dd93-4497-853d-d57063372bce" bokeh_ws_conn_string="ws://localhost:5006/bokeh/sub"
-bokeh_docapikey="0d1efb97-c52c-4054-bbf0-9c8c22a0eccb" bokeh_root_url="http://localhost:5006"
-bokeh_modelid="b9c1d5dc-c617-41bc-9df7-bed21020035e" bokeh_modeltype="Plot" async="true"&gt;
-&lt;/script&gt;
+#{script_inject_escaped}
+
 
         </div>
         </div><div class="modal-footer">
