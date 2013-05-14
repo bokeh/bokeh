@@ -334,6 +334,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
       outer_height: dims[1]
       tools: plot_tools
     )
+    plot_model.set(defaults)
     plot_model.add_renderers(g.ref() for g in glyphs)
     if axes
       xaxis1 = Collections('GuideRenderer').create(
