@@ -233,7 +233,7 @@ _.extend(LinearAxis::display_defaults, {
   level: 'overlay'
 
   axis_line_color: 'black'
-  axis_line_width: 2
+  axis_line_width: 1
   axis_line_alpha: 1.0
   axis_line_join: 'miter'
   axis_line_cap: 'butt'
