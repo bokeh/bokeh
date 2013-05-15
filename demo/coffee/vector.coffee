@@ -58,5 +58,5 @@ line = {
   line_alpha: 0.9
 }
 
-test('vector', make_glyph_test('vector', [source, source2], {}, [vector, line], xdr, ydr, false, [600, 600]))
+test('vector', make_glyph_test('vector', [source, source2], {}, [vector, line], xdr, ydr, true, [600, 600]))
 
