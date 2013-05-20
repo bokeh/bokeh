@@ -40,10 +40,10 @@ class QuadView extends GlyphView
     [@sx0, @sy0] = @plot_view.map_to_screen(@left,  @glyph_props.left.units,  @top,    @glyph_props.top.units)
     [@sx1, @sy1] = @plot_view.map_to_screen(@right, @glyph_props.right.units, @bottom, @glyph_props.bottom.units)
 
-    iw = @plot_view.view_state.get('inner_width')
-    ih = @plot_view.view_state.get('inner_height')
+    ow = @plot_view.view_state.get('outer_width')
+    oh = @plot_view.view_state.get('outer_height')
     for i in [0..@mask.length-1]
-      if (@sx0[i] < 0 and sx1[i] < 0) or (sx0[i] > iw and sx1[i] > iw) or (@sy0[i] < 0 and sy1[i] < 0) or (sy0[i] > ih and sy1[i] > ih)
+      if (@sx0[i] < 0 and @sx1[i] < 0) or (@sx0[i] > ow and @sx1[i] > ow) or (@sy0[i] < 0 and @sy1[i] < 0) or (@sy0[i] > ph and @sy1[i] > oh)
         @mask[i] = false
       else
         @mask[i] = true
