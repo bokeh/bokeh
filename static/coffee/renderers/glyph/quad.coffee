@@ -32,10 +32,21 @@ class QuadView extends GlyphView
     @top  = @glyph_props.v_select('top', data)
     @right  = @glyph_props.v_select('right', data)
     @bottom = @glyph_props.v_select('bottom', data)
+    @mask = new Array(data.length-1)
+    for i in [0..@mask.length-1]
+      @mask[i] = true
 
   _render: () ->
     [@sx0, @sy0] = @plot_view.map_to_screen(@left,  @glyph_props.left.units,  @top,    @glyph_props.top.units)
     [@sx1, @sy1] = @plot_view.map_to_screen(@right, @glyph_props.right.units, @bottom, @glyph_props.bottom.units)
+
+    iw = @plot_view.view_state.get('inner_width')
+    ih = @plot_view.view_state.get('inner_height')
+    for i in [0..@mask.length-1]
+      if (@sx0[i] < 0 and sx1[i] < 0) or (sx0[i] > iw and sx1[i] > iw) or (@sy0[i] < 0 and sy1[i] < 0) or (sy0[i] > ih and sy1[i] > ih)
+        @mask[i] = false
+      else
+        @mask[i] = true
 
     ctx = @plot_view.ctx
 
@@ -51,7 +62,7 @@ class QuadView extends GlyphView
       @glyph_props.fill_properties.set(ctx, @glyph_props)
       ctx.beginPath()
       for i in [0..@sx0.length-1]
-        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
+        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i]) or not @mask[i]
           continue
         ctx.rect(@sx0[i], @sy0[i], @sx1[i]-@sx0[i], @sy1[i]-@sy0[i])
       ctx.fill()
@@ -60,14 +71,14 @@ class QuadView extends GlyphView
       @glyph_props.line_properties.set(ctx, @glyph_props)
       ctx.beginPath()
       for i in [0..@sx0.length-1]
-        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
+        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i]) or not @mask[i]
           continue
         ctx.rect(@sx0[i], @sy0[i], @sx1[i]-@sx0[i], @sy1[i]-@sy0[i])
       ctx.stroke()
 
   _full_path: (ctx) ->
     for i in [0..@sx0.length-1]
-      if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
+      if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i]) or not @mask[i]
         continue
 
       ctx.beginPath()
