@@ -261,7 +261,8 @@ _.extend(LinearAxis::display_defaults, {
 
 })
 
-
+class LinearAxes extends Backbone.Collection
+   model: LinearAxis
+exports.linearaxes = new LinearAxes()
 exports.LinearAxis = LinearAxis
 exports.LinearAxisView = LinearAxisView
-
