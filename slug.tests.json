@@ -7,7 +7,7 @@
              "./static/vendor/buckets/buckets.js",
              "./static/js/custom.js"],
     "paths" : ["./static/coffee", "./tests/coffee"],
-    "public" : "./tests/js",
+    "public" : "./static/js/tests",
     "css" : false,
     "specs" : false
 
