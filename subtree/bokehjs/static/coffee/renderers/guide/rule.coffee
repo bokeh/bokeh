@@ -13,7 +13,8 @@ class RuleView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @rule_props = new line_properties(@, {}, 'rule_')
+    guidespec = @mget('guidespec')
+    @rule_props = new line_properties(@, guidespec, 'rule_')
 
   render: () ->
     ctx = @plot_view.ctx

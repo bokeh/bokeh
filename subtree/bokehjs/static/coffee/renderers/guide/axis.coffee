@@ -16,10 +16,10 @@ class LinearAxisView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @spec = attrs.guidespec
-    @rule_props = new line_properties(@, {}, 'rule_')
-    @major_tick_props = new line_properties(@, {}, 'major_tick_')
-    @major_label_props = new text_properties(@, {}, 'major_label_')
+    guidespec = @mget('guidespec')
+    @rule_props = new line_properties(@, guidespec, 'axis_')
+    @major_tick_props = new line_properties(@, guidespec, 'major_tick_')
+    @major_label_props = new text_properties(@, guidespec, 'major_label_')
 
   render: () ->
 
@@ -232,13 +232,13 @@ _.extend(LinearAxis::display_defaults, {
 
   level: 'overlay'
 
-  rule_line_color: 'black'
-  rule_line_width: 2
-  rule_line_alpha: 1.0
-  rule_line_join: 'miter'
-  rule_line_cap: 'butt'
-  rule_line_dash: []
-  rule_line_dash_offset: 0
+  axis_line_color: 'black'
+  axis_line_width: 1
+  axis_line_alpha: 1.0
+  axis_line_join: 'miter'
+  axis_line_cap: 'butt'
+  axis_line_dash: []
+  axis_line_dash_offset: 0
 
   major_tick_in: 2
   major_tick_out: 4

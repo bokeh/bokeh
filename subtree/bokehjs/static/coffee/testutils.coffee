@@ -2,6 +2,11 @@
 base = require("./base")
 Collections = base.Collections
 
+zip = () ->
+  lengthArray = (arr.length for arr in arguments)
+  length = Math.min(lengthArray...)
+  for i in [0...length]
+    arr[i] for arr in arguments
 
 scatter_plot = (parent, data_source, xfield, yfield, color_field, mark, colormapper, local) ->
   if _.isUndefined(local)
@@ -303,15 +308,23 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
     glyphs = []
     if not typeIsArray(glyphspecs)
       glyphspecs = [glyphspecs]
-    for glyphspec in glyphspecs
-      glyph = Collections('GlyphRenderer').create({
-        data_source: data_source.ref()
-        xdata_range: xrange.ref()
-        ydata_range: yrange.ref()
-        glyphspec: glyphspec
-      })
-      glyph.set(defaults)
-      glyphs.push(glyph)
+    if not typeIsArray(data_source)
+      for glyphspec in glyphspecs
+        glyph = Collections('GlyphRenderer').create({
+          data_source: data_source.ref()
+          glyphspec: glyphspec
+        })
+        glyph.set(defaults)
+        glyphs.push(glyph)
+    else
+      for val in zip(glyphspecs, data_source)
+        [glyphspec, ds] = val
+        glyph = Collections('GlyphRenderer').create({
+          data_source: ds.ref()
+          glyphspec: glyphspec
+        })
+        glyph.set(defaults)
+        glyphs.push(glyph)
     plot_model = Collections('Plot').create(
       x_range: xrange # TODO .ref() fails?
       y_range: yrange
@@ -321,6 +334,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
       outer_height: dims[1]
       tools: plot_tools
     )
+    plot_model.set(defaults)
     plot_model.add_renderers(g.ref() for g in glyphs)
     if axes
       xaxis1 = Collections('GuideRenderer').create(
