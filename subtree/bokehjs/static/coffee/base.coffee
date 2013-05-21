@@ -574,6 +574,8 @@ locations =
   PandasPivot:      ['./pandas/pandas', 'pandaspivots']
   PandasDataSource: ['./pandas/pandas', 'pandasdatasources']
   PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
+
+  LinearAxis: ['./renderers/guide/axis', 'linearaxes']
 exports.locations = locations
 
 Collections = (typename) ->
