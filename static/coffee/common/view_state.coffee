@@ -107,36 +107,38 @@ class ViewState extends HasProperties
       , true)
     @add_dependencies('inner_range_vertical', this, ['border_bottom', 'inner_height'])
 
-  # TODO half pixel fixes
-
   # transform screen coordinates to underlying device coordinates
   sx_to_device: (x) ->
-    return x #+ 0.5
+    return x + 0.5
   sy_to_device: (y) ->
-    return @get('canvas_height') - y
+    return @get('canvas_height') - y + 0.5
 
   # vectorized versions of xpos/ypos, these are mutating, in-place operations
   v_sx_to_device: (xx) ->
+    for x, idx in xx
+      xx[idx] = x + 0.5
     return xx
   v_sy_to_device: (yy) ->
     canvas_height = @get('canvas_height')
     for y, idx in yy
-      yy[idx] = canvas_height - y
+      yy[idx] = canvas_height - y + 0.5
     return yy
 
   # transform underlying device coordinates to screen coordinates
   device_to_sx: (x) ->
-    return x
+    return x - 0.5
   device_to_sy: (y) ->
-    return @get('canvas_height') - y
+    return @get('canvas_height') - y - 0.5
 
   # vectorized versions of rxpos/rypos, these are mutating, in-place operations
   v_device_to_sx: (xx) ->
+    for x, idx in xx
+      xx[idx] = x - 0.5
     return xx
   v_device_to_sy: (yy) ->
     canvas_height = @get('canvas_height')
     for y, idx in yy
-      yy[idx] = y - canvas_height
+      yy[idx] = y - canvas_height - 0.5
     return yy
 
 

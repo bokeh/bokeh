@@ -27,5 +27,5 @@ line = {
   line_alpha: 0.9
 }
 
-test('lorenz', make_glyph_test('lorenz', source, {}, [line], xdr, ydr, true, [600, 600]))
+test('lorenz50', make_glyph_test('lorenz50', source, {}, [line], xdr, ydr, true, [600, 600]))
 

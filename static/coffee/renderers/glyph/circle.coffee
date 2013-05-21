@@ -30,10 +30,21 @@ class CircleView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
+    @mask = new Array(data.length-1)
+    for i in [0..@mask.length-1]
+      @mask[i] = true
 
   _render: (plot_view) ->
     [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
     @radius = @distance(@data, 'x', 'radius', 'edge')
+
+    ow = @plot_view.view_state.get('outer_width')
+    oh = @plot_view.view_state.get('outer_height')
+    for i in [0..@mask.length-1]
+      if (@sx[i]+@radius[i]) < 0 or (@sx[i]-@radius[i]) > ow or (@sy[i]+@radius[i]) < 0 or (@sy[i]-@radius[i]) > oh
+        @mask[i] = false
+      else
+        @mask[i] = true
 
     ctx = @plot_view.ctx
 
@@ -48,7 +59,7 @@ class CircleView extends GlyphView
     if @do_fill
       @glyph_props.fill_properties.set(ctx, @glyph_props)
       for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @radius[i])
+        if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
           continue
         ctx.beginPath()
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
@@ -57,7 +68,7 @@ class CircleView extends GlyphView
     if @do_stroke
       @glyph_props.line_properties.set(ctx, @glyph_props)
       for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @radius[i])
+        if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
           continue
         ctx.beginPath()
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
@@ -65,7 +76,7 @@ class CircleView extends GlyphView
 
   _full_path: (ctx) ->
     for i in [0..@sx.length-1]
-      if isNaN(@sx[i] + @sy[i] + @radius[i])
+      if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
         continue
 
       ctx.beginPath()

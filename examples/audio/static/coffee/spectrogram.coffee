@@ -13,7 +13,7 @@ window.TIMESLICE = 40 # ms
 
 BORDER = 50
 
-NGRAMS = 1020
+NGRAMS = 800
 
 HIST_NUM_BINS = 16
 
@@ -43,11 +43,11 @@ class SpectrogramApp
     })
 
     @power_plot = new SimpleIndexPlot({
-      x0: 0, x1: window.TIMESLICE, y0: -0.5, y1: 0.5, width: 550, height: 220, border: BORDER
+      x0: 0, x1: window.TIMESLICE, y0: -0.5, y1: 0.5, width: 550, height: 180, border: BORDER
     })
 
     @fft_plot = new SimpleIndexPlot({
-      x0: FREQ_SLIDER_MIN, x1: FREQ_SLIDER_MAX, y0: -1, y1: 20, width: 550, height: 220, border: BORDER
+      x0: FREQ_SLIDER_MIN, x1: FREQ_SLIDER_MAX, y0: -1, y1: 20, width: 550, height: 180, border: BORDER
     })
 
     @hist_plot = new RadialHistogramPlot({
@@ -87,17 +87,33 @@ class SpectrogramApp
 
   set_freq_range : (event, ui) ->
     [min, max] = @fft_range = ui.values
+    @spec_plot.set_yrange(min, max)
     @fft_plot.set_xrange(min, max)
     return null
 
   render: () ->
     controls = $('<div></div>')
 
+    button = $('<button id="pause">pause</button>')
+    button.on("click", () =>
+      if button.text() == 'pause'
+        button.text('resume')
+        @paused = true
+      else
+        button.text('pause')
+        @paused = false
+        @request_data())
+    button.css('margin-top', '50px')
+    controls.append(button)
+
+    sliders = $('<div></div>')
+
     slider = $('<div></div>')
-    label = $("<p style>frequency range:</p>")
+    label = $("<p>freq range:</p>")
     slider.append(label)
-    slider_div = $('<div id="freq-range-slider" style="width: 200px;"></div>')
+    slider_div = $('<div id="freq-range-slider" style="height: 160px;"></div>')
     slider_div.slider({
+      orientation: "vertical",
       animate: "fast",
       step: 1,
       min: FREQ_SLIDER_MIN,
@@ -108,14 +124,15 @@ class SpectrogramApp
     });
     slider.append(slider_div)
     slider.css('float', 'left')
-    slider.css('margin', '30px')
-    controls.append(slider)
+    slider.css('margin', '10px')
+    sliders.append(slider)
     @fft_range = [FREQ_SLIDER_MIN, FREQ_SLIDER_MAX]
 
     slider = $('<div></div>')
     slider.append($("<p>gain:</p>"))
-    slider_div = $('<div id="gain-slider" style="width: 200px;"></div>')
+    slider_div = $('<div id="gain-slider" style="height: 160px;"></div>')
     slider_div.slider({
+      orientation: "vertical",
       animate: "fast",
       step: 0.1,
       min: GAIN_MIN,
@@ -127,36 +144,26 @@ class SpectrogramApp
     });
     slider.append(slider_div)
     slider.css('float', 'left')
-    slider.css('margin', '30px')
-    controls.append(slider)
+    slider.css('margin', '10px')
+    sliders.append(slider)
 
-    button = $('<button id="pause">pause</button>')
-    button.on("click", () =>
-      if button.text() == 'pause'
-        button.text('resume')
-        @paused = true
-      else
-        button.text('pause')
-        @paused = false
-        @request_data())
-    button.css('float', 'left')
-    button.css('margin', '30px')
-    controls.append(button)
-
-    controls.css('clear', 'both')
-    controls.css('overflow', 'hidden')
+    controls.append(sliders)
+    controls.css('float', 'left')
     $( "#gain" ).val( $( "#gain-slider" ).slider( "value" ) );
-    $('body').append(controls)
 
     div = $('<div></div>')
     $('body').append(div)
     myrender = () =>
-      div.append(@spec_plot.view.$el)
+      top_div = $('<div></div>')
+      top_div.append(controls)
+      @spec_plot.view.$el.css('float', 'left')
+      top_div.append(@spec_plot.view.$el)
+      div.append(top_div)
       @spec_plot.render()
 
       foo = $('<div></div>')
-      foo.append(@power_plot.view.$el)
       foo.append(@fft_plot.view.$el)
+      foo.append(@power_plot.view.$el)
       foo.css('float', 'left')
       div.append(foo)
       @power_plot.render()
@@ -198,11 +205,12 @@ class SpectrogramPlot
       x_range: @xrange
       y_range: @yrange
       border_fill: "#fff"
-      canvas_width: options.width + 2*options.border
+      canvas_width: options.width + options.border + 80
       canvas_height: options.height + 2*options.border
       outer_width: options.width + 2*options.border
       outer_height: options.height + 2*options.border
       border: options.border
+      border_left: 80
       tools: []
     )
 
@@ -223,6 +231,7 @@ class SpectrogramPlot
         location: 'min'
         bounds: 'auto'
       }
+      major_label_standoff: 40
       parent: @model
     )
 
