@@ -269,15 +269,14 @@ class Plot(PlotObject):
 
     background_fill = Color
     border_fill = Color
-    canvas_width = Int
-    canvas_height = Int
-    outer_width = Int
-    outer_height = Int
-    border = Int
-    border_top = Int
-    border_bottom = Int
-    border_left = Int
-    border_right = Int
+    canvas_width = Int(300)
+    canvas_height = Int(300)
+    outer_width = Int(400)
+    outer_height = Int(400)
+    border_top = Int(50)
+    border_bottom = Int(50)
+    border_left = Int(50)
+    border_right = Int(50)
     
 
 #class PolarPlot(PlotArea):
@@ -291,12 +290,22 @@ class GridPlot(PlotObject):
     children = List(List)
     border_space = Int(0)
 
-
-class LinearAxis(PlotObject):
-
-    orientation = Enum("bottom", "left", "right", "top")
-    data_range = Instance(DataRange1d)
-    ticks = Int(3)
+class GuideSpec(HasProps):
+    type = String('linear_axis')
+    dimension = Int(0)
+    location = String('min')
+    bounds = String('auto')
+    
+class GuideRenderer(PlotObject):
+    plot = Instance()
+    guidespec = Instance()
+    def vm_serialize(self):
+        # GlyphRenderers need to serialize their state a little differently,
+        # because the internal glyph instance is turned into a glyphspec
+        guidespec = dict((k, getattr(self.guidespec,k)) \
+                          for k in self.guidespec.properties())
+        return { "plot" : self.plot,
+                 "guidespec" : guidespec}
 
 class PanTool(PlotObject):
     plot = Instance(Plot)
