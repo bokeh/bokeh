@@ -1,4 +1,6 @@
 base = require('../base')
+Range1d = require('../common/ranges').Range1d
+
 Collections   = base.Collections
 HasProperties = base.HasProperties
 
@@ -91,19 +93,19 @@ class ViewState extends HasProperties
 
     @register_property('inner_range_horizontal',
       () ->
-        Collections('Range1d').create({
+        new Range1d(
           start: @get('border_left'),
           end:   @get('border_left') + @get('inner_width')
-        })
+        )
       , true)
     @add_dependencies('inner_range_horizontal', this, ['border_left', 'inner_width'])
 
     @register_property('inner_range_vertical',
       () ->
-        Collections('Range1d').create({
+        new Range1d(
           start: @get('border_bottom'),
           end:   @get('border_bottom') + @get('inner_height')
-        })
+        )
       , true)
     @add_dependencies('inner_range_vertical', this, ['border_bottom', 'inner_height'])
 
