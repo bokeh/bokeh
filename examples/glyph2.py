@@ -3,9 +3,11 @@ from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
 
-from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, GlyphRenderer, ObjectArrayDataSource,
-        PanTool, ZoomTool)
+from bokeh.objects import (
+    Plot, DataRange1d, GuideRenderer,
+    GuideSpec,
+    ColumnDataSource, GlyphRenderer, ObjectArrayDataSource,
+    PanTool, ZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
 
@@ -39,14 +41,18 @@ glyph_renderer = GlyphRenderer(
         glyph = circle,
         )
 
-xaxis = LinearAxis(orientation="bottom", data_range=xdr)
-yaxis = LinearAxis(orientation="right", data_range=ydr)
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
 zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
+xaxis = GuideRenderer()
+xaxis.plot = plot
+xaxis.guidespec = GuideSpec()
+yaxis = GuideRenderer()
+yaxis.plot = plot
+yaxis.guidespec = GuideSpec(dimension=1)
 plot.axes = [xaxis, yaxis]
 plot.renderers = [glyph_renderer]
 plot.tools = [pantool,zoomtool]
