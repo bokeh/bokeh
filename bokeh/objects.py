@@ -267,10 +267,10 @@ class Plot(PlotObject):
     height = Int(400)
     width = Int(400)
 
-    background_fill = Color
-    border_fill = Color
-    canvas_width = Int(300)
-    canvas_height = Int(300)
+    background_fill = Color("white")
+    border_fill = Color("white")
+    canvas_width = Int(400)
+    canvas_height = Int(400)
     outer_width = Int(400)
     outer_height = Int(400)
     border_top = Int(50)
