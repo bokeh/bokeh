@@ -100,7 +100,8 @@ class LinearAxis extends HasParent
     i = @get('guidespec').dimension
     j = (i + 1) % 2
 
-    ranges = [@get_obj('plot').get('x_range'), @get_obj('plot').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'),
+      @get_obj('plot').get_obj('y_range')]
 
     user_bounds = @get('guidespec').bounds ? 'auto'
     range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
@@ -125,7 +126,7 @@ class LinearAxis extends HasParent
     i = @get('guidespec').dimension
     j = (i + 1) % 2
 
-    ranges = [@get_obj('plot').get('x_range'), @get_obj('plot').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
@@ -154,7 +155,7 @@ class LinearAxis extends HasParent
     i = @get('guidespec').dimension
     j = (i + 1) % 2
 
-    ranges = [@get_obj('plot').get('x_range'), @get_obj('plot').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
@@ -189,7 +190,7 @@ class LinearAxis extends HasParent
     i = @get('guidespec').dimension
     j = (i + 1) % 2
 
-    ranges = [@get_obj('plot').get('x_range'), @get_obj('plot').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
