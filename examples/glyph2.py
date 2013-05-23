@@ -53,8 +53,7 @@ xaxis.guidespec = GuideSpec()
 yaxis = GuideRenderer()
 yaxis.plot = plot
 yaxis.guidespec = GuideSpec(dimension=1)
-plot.axes = [xaxis, yaxis]
-plot.renderers = [glyph_renderer]
+plot.renderers = [glyph_renderer, xaxis, yaxis]
 plot.tools = [pantool,zoomtool]
 
 sess = session.PlotServerSession(username="defaultuser",
