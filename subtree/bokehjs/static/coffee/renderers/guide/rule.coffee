@@ -137,6 +137,8 @@ _.extend(Rule::display_defaults, {
 })
 
 
+class Rules extends Backbone.Collection
+   model: Rule
+exports.rules = new Rules()
 exports.Rule = Rule
 exports.RuleView = RuleView
-

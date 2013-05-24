@@ -576,6 +576,7 @@ locations =
   PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
 
   LinearAxis: ['./renderers/guide/axis', 'linearaxes']
+  Rule: ['./renderers/guide/rule', 'rules']
 exports.locations = locations
 
 Collections = (typename) ->
