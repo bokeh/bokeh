@@ -4,8 +4,7 @@ import numpy as np
 import os.path
 
 from bokeh.objects import (
-    Plot, DataRange1d, GuideRenderer,
-    GuideSpec,
+    Plot, DataRange1d, LinearAxis, Rule,
     ColumnDataSource, GlyphRenderer, ObjectArrayDataSource,
     PanTool, ZoomTool)
 from bokeh.glyphs import Circle
@@ -18,16 +17,16 @@ widths = np.ones_like(x) * 0.02
 heights = np.ones_like(x) * 0.2
 
 
-#source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
-#            heights=heights))
-source = ObjectArrayDataSource(
-    data = [
-        {'x' : 1, 'y' : 5, 'z':3},
-        {'x' : 2, 'y' : 4, 'z':3, 'radius':10},
-        {'x' : 3, 'y' : 3, 'z':3, 'fill':"blue"},
-        {'x' : 4, 'y' : 2, 'z':3},
-        {'x' : 5, 'y' : 1, 'z':3},
-        ])
+source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
+            heights=heights))
+#source = ObjectArrayDataSource(
+#    data = [
+#        {'x' : 1, 'y' : 5, 'z':3},
+#        {'x' : 2, 'y' : 4, 'z':3, 'radius':10},
+#        {'x' : 3, 'y' : 3, 'z':3, 'fill':"blue"},
+#        {'x' : 4, 'y' : 2, 'z':3},
+#        {'x' : 5, 'y' : 1, 'z':3},
+#        ])
 
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
@@ -47,19 +46,20 @@ zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
-xaxis = GuideRenderer()
-xaxis.plot = plot
-xaxis.guidespec = GuideSpec()
-yaxis = GuideRenderer()
-yaxis.plot = plot
-yaxis.guidespec = GuideSpec(dimension=1)
+xaxis = LinearAxis(plot=plot, dimension=0)
+yaxis = LinearAxis(plot=plot, dimension=1)
+
+#xgrid = Rule(plot=plot, dimension=0)
+
 plot.renderers = [glyph_renderer, xaxis, yaxis]
+#plot.renderers = [glyph_renderer, xaxis, yaxis, xgrid]
 plot.tools = [pantool,zoomtool]
 
 sess = session.PlotServerSession(username="defaultuser",
         serverloc="http://localhost:5006", userapikey="nokey")
 sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
-sess.use_doc("glyph2")
+#sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, source, xdr, ydr, pantool, zoomtool)
+sess.use_doc("glyph2b")
 sess.store_all()
 
 

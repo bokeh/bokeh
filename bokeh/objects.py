@@ -176,6 +176,14 @@ class ObjectArrayDataSource(DataSource):
     cont_ranges = Dict()
     discrete_ranges = Dict()
 
+class PandasDataSource(DataSource):
+    """ Represents serverside data.  This gets stored into the plot server's
+    database, but it does not have any client side representation.  Instead,
+    a PandasPlotSource needs to be created and pointed at it.
+    """
+
+    data = Dict()
+
 
 class DataRange1d(PlotObject):    
     """ Represents a range in a scalar dimension """
@@ -290,22 +298,24 @@ class GridPlot(PlotObject):
     children = List(List)
     border_space = Int(0)
 
-class GuideSpec(HasProps):
-    type = String('linear_axis')
+class GuideRenderer(PlotObject):
+    plot = Instance
     dimension = Int(0)
     location = String('min')
     bounds = String('auto')
     
-class GuideRenderer(PlotObject):
-    plot = Instance()
-    guidespec = Instance()
     def vm_serialize(self):
-        # GlyphRenderers need to serialize their state a little differently,
-        # because the internal glyph instance is turned into a glyphspec
-        guidespec = dict((k, getattr(self.guidespec,k)) \
-                          for k in self.guidespec.properties())
+        props = self.vm_props(withvalues=True)
+        del props["plot"]
         return { "plot" : self.plot,
-                 "guidespec" : guidespec}
+                 "guidespec" : props}
+
+class LinearAxis(GuideRenderer):
+    type = String("linear_axis")
+
+class Rule(GuideRenderer):
+    """ 1D Grid component """
+    type = String("rule")
 
 class PanTool(PlotObject):
     plot = Instance(Plot)
