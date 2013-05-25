@@ -226,23 +226,6 @@ class GlyphRenderer(PlotObject):
                  "ydata_range": self.ydata_range,
                  "glyphspec": self.glyph.to_glyphspec() }
 
-class LineRenderer(PlotObject):
-    """ This is a "schema-oriented" renderer, which uses the LineRenderer in
-    BokehJS instead of the Line glyph.
-    """
-
-    data_source = Instance(DataSource)
-    xdata_range = Instance(DataRange1d)
-    ydata_range = Instance(DataRange1d)
-    xfield = String
-    yfield = String
-    color = Color("black")
-
-    def vm_props(self, withvalues=False):
-        props = super(LineRenderer,self).vm_props(withvalues)
-        props["foreground_color"] = props.pop("color", "black")
-        return props
-
 class Plot(PlotObject):
 
     data_sources = List
