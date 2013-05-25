@@ -303,6 +303,11 @@ class GuideRenderer(PlotObject):
     dimension = Int(0)
     location = String('min')
     bounds = String('auto')
+
+    def __init__(self, **kwargs):
+        super(GuideRenderer, self).__init__(**kwargs)
+        if self.plot is not None:
+            self.plot.renderers.append(self)
     
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
