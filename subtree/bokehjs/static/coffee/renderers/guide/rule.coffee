@@ -56,7 +56,7 @@ class Rule extends HasParent
     i = @get('guidespec').dimension
     j = (i + 1) % 2
 
-    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
 
     user_bounds = @get('guidespec').bounds ? 'auto'
     range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
@@ -80,8 +80,7 @@ class Rule extends HasParent
   _rule_coords: () ->
     i = @get('guidespec').dimension
     j = (i + 1) % 2
-
-    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 

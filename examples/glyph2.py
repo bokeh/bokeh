@@ -48,17 +48,16 @@ plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
 xaxis = LinearAxis(plot=plot, dimension=0)
 yaxis = LinearAxis(plot=plot, dimension=1)
-
-#xgrid = Rule(plot=plot, dimension=0)
+xgrid = Rule(plot=plot, dimension=0)
 
 plot.renderers = [glyph_renderer, xaxis, yaxis]
-#plot.renderers = [glyph_renderer, xaxis, yaxis, xgrid]
+plot.renderers = [glyph_renderer, xaxis, yaxis, xgrid]
 plot.tools = [pantool,zoomtool]
 
 sess = session.PlotServerSession(username="defaultuser",
         serverloc="http://localhost:5006", userapikey="nokey")
 sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
-#sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, source, xdr, ydr, pantool, zoomtool)
+sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, source, xdr, ydr, pantool, zoomtool)
 sess.use_doc("glyph2b")
 sess.store_all()
 
