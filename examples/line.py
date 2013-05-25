@@ -11,7 +11,7 @@ from bokeh import session
 
 # The Line glyph needs arrays of arrays of X and Y, so use newaxis.
 x = arange(-2*pi, 2*pi, 0.1)[np.newaxis,:]
-y = sin(x)[np.newaxis,:]
+y = sin(x)
 
 source = ColumnDataSource(data=dict(xs=x, ys=y))
 
