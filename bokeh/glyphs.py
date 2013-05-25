@@ -229,12 +229,53 @@ class Circle(Marker):
 #    outline_color = Color
 #    outline_width = Size
 
+# Other kinds of Markers, to match what GGplot provides
+class Triangle(Marker):
+    glyphtype = String("triangle")
+
+class Cross(Marker):
+    glyphtype = String("cross")
+
+class Xmarker(Marker):
+    glyphtype = String("xmarker")
+
+class Diamond(Marker):
+    glyphtype = String("diamond")
+
+class InvertedTriangle(Marker):
+    glyphtype = String("invertedtriangle")
+
+class SquareX(Marker):
+    glyphtype = String("squarex")
+
+class Asterisk(Marker):
+    glyphtype = String("asterisk")
+
+class DiamondCross(Marker):
+    glyphtype = String("diamondcross")
+
+class CircleCross(Marker):
+    glyphtype = String("circlecross")
+
+class HexStar(Marker):
+    glyphtype = String("hexstar")
+
+class SquareCross(Marker):
+    glyphtype = String("squarecross")
+
+class CircleX(Marker):
+    glyphtype = String("circlex")
+
 class Quad(Glyph):
-    glyphtype = "quad"
+    glyphtype = String("quad")
     left = DataSpec
     right = DataSpec
     bottom = DataSpec
     top = DataSpec
     #angle = DataSpec
 
+class Line(Glyph, LineProps):
+    glyphtype = String("line")
+    xs = DataSpec
+    ys = DataSpec
 
