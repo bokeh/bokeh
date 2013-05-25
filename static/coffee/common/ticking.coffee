@@ -24,6 +24,13 @@ log2 = (num) ->
 
     return Math.log(num) / Math.LN2
 
+is_base2 = (rng) ->
+  """ Returns True if rng is a positive multiple of 2 """
+  if rng <= 0
+    false
+  else
+    lg = log2(rng)
+    return ((lg > 0.0) and (lg == Math.floor(lg)))
 
 nice_2_5_10 = (x, round=false) ->
     """ if round is false, then use Math.ceil(range) """
