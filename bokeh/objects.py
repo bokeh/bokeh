@@ -184,12 +184,13 @@ class PandasDataSource(DataSource):
 
     data = Dict()
 
-
-class DataRange1d(PlotObject):    
-    """ Represents a range in a scalar dimension """
-    sources = List(ColumnsRef)
+class Range1d(PlotObject):
     start = Float()
     end = Float()
+
+class DataRange1d(Range1d):    
+    """ Represents a range in a scalar dimension """
+    sources = List(ColumnsRef)
     rangepadding = Float(0.1)
 
     def vm_serialize(self):
