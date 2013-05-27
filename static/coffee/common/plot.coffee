@@ -176,6 +176,9 @@ class PlotView extends ContinuumView
   # would only have a "render_canvas function
 
   render: () ->
+    if @is_paused
+      return
+
     super()
 
     oh = @view_state.get('outer_height')

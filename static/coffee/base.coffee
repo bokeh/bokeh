@@ -554,6 +554,7 @@ locations =
 
   PanTool:         ['./tools/pantool',    'pantools']
   ZoomTool:        ['./tools/zoomtool',   'zoomtools']
+  ResizeTool:      ['./tools/resizetool', 'resizetools']
   SelectionTool:   ['./tools/selecttool', 'selectiontools']
   PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools']
 
