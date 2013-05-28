@@ -14,6 +14,7 @@ ViewState = require('./view_state').ViewState
 ActiveToolManager = require("../tools/activetoolmanager").ActiveToolManager
 
 
+LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
 class PlotView extends ContinuumView
 
@@ -95,8 +96,8 @@ class PlotView extends ContinuumView
     @mousedownCallbacks = []
     @keydownCallbacks = []
     @render_init()
-    @render_canvas()
-    @build_views()
+    @render_canvas(false)
+    @build_levels()
     @request_render()
     return this
 
@@ -135,35 +136,30 @@ class PlotView extends ContinuumView
 
   build_views: ()->
     build_views(@renderers, @mget_obj('renderers'), @view_options())
+    return this
 
-    @images = {}
-    @underlays = {}
-    @glyphs = {}
-    @overlays = {}
-    @annotations = {}
-    for k,v of @renderers
-      if v.mget('level') == 'image'
-        @images[k] = v
-      if v.mget('level') == 'underlay'
-        @underlays[k] = v
-      if v.mget('level') == 'glyph'
-        @glyphs[k] = v
-      if v.mget('level') == 'overlay'
-        @overlays[k] = v
-      if v.mget('level') == 'annotation'
-        @annotations[k] = v
-
+  build_levels: () ->
+    @build_views()
     @build_tools()
     @bind_tools()
+
+    @levels = {}
+    for level in LEVELS
+      @levels[level] = {}
+
+    for k,v of @renderers
+      level = v.mget('level')
+      @levels[level][k] = v
+
     return this
 
   bind_bokeh_events: () ->
     safebind(this, @view_state, 'change', @request_render_canvas)
     safebind(this, @x_range, 'change', @request_render)
     safebind(this, @y_range, 'change', @request_render)
-    safebind(this, @model, 'change:renderers', @build_views)
-    safebind(this, @model, 'change:tool', @build_tools)
-    safebind(this, @model, 'change', @render)
+    safebind(this, @model, 'change:renderers', @build_levels)
+    safebind(this, @model, 'change:tool', @build_levels)
+    safebind(this, @model, 'change', @request_render)
     safebind(this, @model, 'destroy', () => @remove())
 
   render_init: () ->
@@ -177,7 +173,7 @@ class PlotView extends ContinuumView
     @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
     @canvas = @$el.find('canvas.bokeh_canvas')
 
-  render_canvas: () ->
+  render_canvas: (full_render = true) ->
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
 
@@ -187,7 +183,8 @@ class PlotView extends ContinuumView
 
     @ctx = @canvas[0].getContext('2d')
 
-    @render();
+    if full_render
+      @render();
 
     @render_end()
 
@@ -211,14 +208,16 @@ class PlotView extends ContinuumView
     @ctx.clip()
     @ctx.beginPath()
 
-    for level in [@images, @underlays, @glyphs]
-      for k, v of level
+    for level in ['image', 'underlay', 'glyph']
+      renderers = @levels[level]
+      for k, v of renderers
         v.render()
 
     @ctx.restore()
 
-    for level in [@overlays, @annotations]
-      for k, v of @overlays
+    for level in ['overlay', 'annotation']
+      renderers = @levels[level]
+      for k, v of renderers
         v.render()
 
 class Plot extends HasParent
