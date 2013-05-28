@@ -21,24 +21,12 @@ class Aggregates:
     chunks = map(str, [self.values[i:i+self.w] for i in xrange(0, len(self.values), self.w)])
     return "\n".join(chunks) 
 
-class Pixel:
-  x=None
-  y=None
-  w=None
-  h=None
-  def __init__(self,x,y):
-    self.x=x
-    self.y=y
-    self.w=1
-    self.h=1
 
-
-#TODO: Pay attention to the view transform
 def aggregate(glyphs, selector, reducer, width, height, vt):
   aggs = Aggregates(width, height)
   for x in range(0, width):
     for y in range(0, height):
-      px = Pixel(x,y)
+      px = vt.transform(Pixel(x,y,1,1))
       gs = selector(px, glyphs)
       v = reducer(gs)
       aggs.set(x,y,v)
@@ -64,6 +52,43 @@ def render(glyphs, selector, reducer, trans, w,h,vt):
   return image
 
 
+###############################  Graphics Components ###############
+
+#TODO: Verify that this is the right way to do affine transforms of shapes...at least as far as zoom/pan
+class AffineTransform:
+  m = None
+  def __init__(self, tx, ty, sx, sy):
+    self.m = [[sx,0,tx],
+              [0,sy,ty],
+              [0,0,1]]
+  def trans(self, x, y):
+    x = self.m[0][0]*x + self.m[0][1]*y + self.m[0][2]
+    y = self.m[1][0]*x + self.m[1][1]*y + self.m[1][2]
+    return (x, y)
+
+  def transform(self, r):
+    (p1x,p1y) = self.trans(r.x, r.y)
+    (p2x,p2y) = self.trans(r.x+r.w, r.y+r.h)
+    w = p2x-p1x
+    h = p2y-p1y
+    return Pixel(p1x,p1y,w,h)
+
+
+class Pixel:
+  x=None
+  y=None
+  w=None
+  h=None
+
+  def __init__(self,x,y,w,h):
+    self.x=x
+    self.y=y
+    self.w=w
+    self.h=h
+
+  def __str__(self):
+    return ",".join(map(str, [self.x,self.y,self.w,self.h]))
+
 ############################  Support functions ####################
 
 def count(x):
@@ -72,7 +97,6 @@ def count(x):
   if type(x) is None: 
     return 0
   return 1
-
 
 
 def halves(low, high):
@@ -128,7 +152,7 @@ def main():
     glyphs.append(bokeh.glyphs.SquareX(x=x,y=y,width=1,height=1,fill="red"))
 
   source.close()
-  image = render(glyphs, containing, count, halves("w","r"), 5,5, None)
+  image = render(glyphs, containing, count, halves("w","r"), 5,5, AffineTransform(0,0,1,1))
   print image
 
 

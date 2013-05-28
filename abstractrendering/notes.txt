@@ -1,6 +1,10 @@
 Simple checkerboard run: python ar.py checkerboard.csv 2 0 1 3
 
-Transform the pixel by the view transform (that's why its a class)
+
+Implicit geometry using ColumnDataSource and a few functions
+* One functions for location
+* One function for color
+* Works better with the aggregate-reducers and glyph-based iteration (as opposed to pixel-based)
 
 Use higher-order functions for transfer: (Done)
 1) Generator takes universial paramaters and hands back a function that...
