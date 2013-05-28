@@ -151,6 +151,10 @@ class PlotView extends ContinuumView
       level = v.mget('level')
       @levels[level][k] = v
 
+    for k,v of @tools
+      level = v.mget('level')
+      @levels[level][k] = v
+
     return this
 
   bind_bokeh_events: () ->
@@ -215,7 +219,7 @@ class PlotView extends ContinuumView
 
     @ctx.restore()
 
-    for level in ['overlay', 'annotation']
+    for level in ['overlay', 'annotation', 'tool']
       renderers = @levels[level]
       for k, v of renderers
         v.render()
