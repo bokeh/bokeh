@@ -7,21 +7,23 @@ base = require("../base")
 class ResizeToolView extends tool.ToolView
   initialize: (options) ->
     super(options)
+    @active = false
 
   bind_events: (plotview) ->
     super(plotview)
-    @tool_active = true
-    @button_activated = true
 
   eventGeneratorClass: TwoPointEventGenerator
   evgen_options: {keyName:"", buttonText:"Resize"}
   tool_events: {
+    activated: "_activate",
+    deactivated: "_deactivate",
     UpdatingMouseMove: "_drag",
     SetBasepoint: "_set_base_point"
   }
 
   render: () ->
-    return this
+    if not @active
+      return
 
     ctx = @plot_view.ctx
 
@@ -50,24 +52,48 @@ class ResizeToolView extends tool.ToolView
   mouse_coords: (e, x, y) ->
     return [x, y]
 
+  _activate: (e) ->
+    @active = true
+    @popup = $(
+      '<div class="resize_popup pull-right" style="border-radius: 10px; background-color: grey; padding:8px"></div>'
+    )
+    bbar = @plot_view.$el.find('.button_bar')
+    bbar.append(@popup)
+    ch = @plot_view.view_state.get('outer_height')
+    cw = @plot_view.view_state.get('outer_width')
+    @popup.text("width: #{cw} height: #{ch}")
+
+    @plot_view.request_render()
+    return null
+
+  _deactivate: (e) ->
+    @active = false
+    @popup.remove()
+    @plot_view.request_render()
+    return null
+
   _set_base_point: (e) ->
     [@x, @y] = @mouse_coords(e, e.bokehX, e.bokehY)
     return null
 
   _drag: (e) ->
     @plot_view.pause()
+
+
     [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
     xdiff = x - @x
     ydiff = y - @y
     [@x, @y] = [x, y]
 
-    oh = @plot_view.view_state.get('outer_height')
-    @plot_view.view_state.set('outer_height', oh+ydiff)
-    @plot_view.view_state.set('canvas_height', oh+ydiff)
+    ch = @plot_view.view_state.get('outer_height') + ydiff
+    cw = @plot_view.view_state.get('outer_width') + xdiff
 
-    ow = @plot_view.view_state.get('outer_width')
-    @plot_view.view_state.set('outer_width', ow+xdiff)
-    @plot_view.view_state.set('canvas_width', ow+xdiff)
+    @popup.text("width: #{cw} height: #{ch}")
+
+    @plot_view.view_state.set('outer_height', ch+ydiff)
+    @plot_view.view_state.set('outer_width', cw+xdiff)
+    @plot_view.view_state.set('canvas_height', ch+ydiff)
+    @plot_view.view_state.set('canvas_width', cw+xdiff)
 
     @plot_view.unpause()
 

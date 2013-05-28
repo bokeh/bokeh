@@ -174,6 +174,7 @@ class PlotView extends ContinuumView
         <canvas class='bokeh_canvas'></canvas>
       </div>
       """))
+    @button_bar = @$el.find('.button_bar')
     @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
     @canvas = @$el.find('canvas.bokeh_canvas')
 
@@ -181,6 +182,7 @@ class PlotView extends ContinuumView
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
 
+    @button_bar.attr('style', "width:#{ow}px;")
     @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
     @canvas.attr('width', ow).attr('height', oh)
     @$el.attr("width", ow).attr('height', oh)
