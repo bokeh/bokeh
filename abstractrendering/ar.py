@@ -1,7 +1,12 @@
 import bokeh.glyphs 
-
 import re
 import sys
+
+##Abstract rendering function implementation modules
+import counts
+import rle
+import infos
+
 
 
 ############################  Core System ####################
@@ -22,13 +27,14 @@ class Aggregates:
     return "\n".join(chunks) 
 
 
-def aggregate(glyphs, selector, reducer, width, height, vt):
+def aggregate(glyphs, selector, info, reducer, width, height, ivt):
   aggs = Aggregates(width, height)
   for x in range(0, width):
     for y in range(0, height):
-      px = vt.transform(Pixel(x,y,1,1))
+      px = ivt.transform(Pixel(x,y,1,1))
       gs = selector(px, glyphs)
-      v = reducer(gs)
+      vs = map(info, gs)
+      v = reducer(vs)
       aggs.set(x,y,v)
   
   return aggs
@@ -46,8 +52,18 @@ def transfer(aggs, trans):
   return image
 
 
-def render(glyphs, selector, reducer, trans, w,h,vt):
-  aggs = aggregate(glyphs, selector, reducer, w,h,vt)
+def render(glyphs, selector, info, reducer, trans, w,h,ivt):
+  """
+  Render a set of glyphs under the specified condition to the described canvas.
+  glyphs ---- Glyphs t render
+  selector -- Function used to select which glyphs apply to which pixel
+  reducer --- Function to combine a set of glyphs into a single aggregate value
+  trans ----- Function for converting aggregates to colors
+  w,h  ------ width/height of the canvas
+  ivt ------- INVERSE view transform (converts pixels to canvas space)
+  """
+
+  aggs = aggregate(glyphs, selector, info, reducer, w,h,ivt)
   image = transfer(aggs, trans)
   return image
 
@@ -73,6 +89,18 @@ class AffineTransform:
     h = p2y-p1y
     return Pixel(p1x,p1y,w,h)
 
+class Color:
+  r=None
+  g=None
+  b=None
+  a=None
+
+  def __init__(self,r,g,b,a):
+    self.r=r
+    self.g=g
+    self.b=b
+    self.a=a
+
 
 class Pixel:
   x=None
@@ -91,27 +119,6 @@ class Pixel:
 
 ############################  Support functions ####################
 
-def count(x):
-  if type(x) is list: 
-    return len(x) 
-  if type(x) is None: 
-    return 0
-  return 1
-
-
-def halves(low, high):
-  def gen(aggs):
-    (min,max) = minmax(aggs)
-    def f(v):
-      if (v >= ((max-min)/2.0)):
-          return high
-      return low
-    return f
-  return gen
-
-def minmax(aggs):
-  return (min(aggs.values), max(aggs.values))
-
 
 #Assumes x,y,w,h exist on glyph
 #Does the glyph contain any part of the pixel?
@@ -128,7 +135,6 @@ def containing(px, glyphs):
       items.append(g)
       
   return items
-
 
 
 def main():
@@ -152,7 +158,9 @@ def main():
     glyphs.append(bokeh.glyphs.SquareX(x=x,y=y,width=1,height=1,fill="red"))
 
   source.close()
-  image = render(glyphs, containing, count, halves("w","r"), 5,5, AffineTransform(0,0,1,1))
+  #image = render(glyphs, containing, infos.const(1), counts.count, counts.segment("R",".",2), 20,20, AffineTransform(0,0,.25,.25))
+  #image = render(glyphs, containing, infos.attribute("color",None), rle.RLE, rle.minPercent(.5,"A","B","."), 20,20, AffineTransform(0,0,.25,.25))
+  image = render(glyphs, containing, infos.attribute("color",None), rle.COC, rle.minPercent(.5,"A","B","."), 20,20, AffineTransform(0,0,.25,.25))
   print image
 
 
