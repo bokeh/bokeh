@@ -134,6 +134,9 @@ class OnePointWheelEventGenerator
         if @mouseover_count == 0
           eventSink.trigger("clear_active_tool")), 500))
 
+    @plotview.$el.bind("mousein", (e) =>
+      eventSink.trigger("clear_active_tool"))
+
     @plotview.$el.bind("mouseover", (e) =>
       @mouseover_count += 1)
 

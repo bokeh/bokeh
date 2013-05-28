@@ -55,7 +55,7 @@ class ResizeToolView extends tool.ToolView
   _activate: (e) ->
     @active = true
     @popup = $(
-      '<div class="resize_popup pull-right" style="border-radius: 10px; background-color: grey; padding:8px"></div>'
+      '<div class="resize_popup pull-right" style="border-radius: 10px; background-color: lightgrey; padding:3px 8px"></div>'
     )
     bbar = @plot_view.$el.find('.button_bar')
     bbar.append(@popup)
