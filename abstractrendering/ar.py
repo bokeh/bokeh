@@ -39,28 +39,28 @@ def aggregate(glyphs, selector, reducer, width, height, vt):
   for x in range(0, width):
     for y in range(0, height):
       px = Pixel(x,y)
-      g = selector(px, glyphs)
-      v = reducer(g)
+      gs = selector(px, glyphs)
+      v = reducer(gs)
       aggs.set(x,y,v)
   
   return aggs
 
 
-def transfer(aggs, trans, info, params):
+def transfer(aggs, trans):
   image = Aggregates(aggs.width(), aggs.height())
-  params = info(aggs, params)
+  f = trans(aggs)
 
   for x in range(0, aggs.width()):
     for y in range(0, aggs.height()):
-      c = trans(aggs.get(x,y), params)
+      c = f(aggs.get(x,y))
       image.set(x, y, c)
 
   return image
 
 
-def render(glyphs, selector, reducer, trans, transferPrep, transferParams, w,h,vt):
+def render(glyphs, selector, reducer, trans, w,h,vt):
   aggs = aggregate(glyphs, selector, reducer, w,h,vt)
-  image = transfer(aggs, trans, transferPrep, transferParams)
+  image = transfer(aggs, trans)
   return image
 
 
@@ -74,19 +74,19 @@ def count(x):
   return 1
 
 
-def halves(v, params):
-  min = params["min"]
-  max = params["max"]
-  low = params["low"]
-  high = params["high"]
 
-  if (v >= ((max-min)/2.0)): return high
-  return low
+def halves(low, high):
+  def gen(aggs):
+    (min,max) = minmax(aggs)
+    def f(v):
+      if (v >= ((max-min)/2.0)):
+          return high
+      return low
+    return f
+  return gen
 
-def minmax(aggs, params):
-  params["min"] = min(aggs.values)
-  params["max"] = max(aggs.values)
-  return params 
+def minmax(aggs):
+  return (min(aggs.values), max(aggs.values))
 
 
 #Assumes x,y,w,h exist on glyph
@@ -128,7 +128,7 @@ def main():
     glyphs.append(bokeh.glyphs.SquareX(x=x,y=y,width=1,height=1,fill="red"))
 
   source.close()
-  image = render(glyphs, containing, count, halves, minmax, {"low":"w", "high": "r"}, 5,5, None)
+  image = render(glyphs, containing, count, halves("w","r"), 5,5, None)
   print image
 
 
