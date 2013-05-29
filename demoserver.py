@@ -102,14 +102,20 @@ alldemos = {
 
 alltests = {
 
-    'allunit' : [
-        "hasparent_test",
-        "hasproperty_test"
+    'base' : [
+        'hasparent_test',
+        'hasproperty_test',
+    ],
+
+    'common' : [
+        'ranges_test',
     ],
 
     'perf' : ['perf_test'],
 
-    'axes' : ['linear_axis_test'],
+    'axes' : [
+        'linear_axis_test',
+    ],
 
     'prim' : [
         'primitives/annular_wedge_test',
