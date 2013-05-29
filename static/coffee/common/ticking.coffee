@@ -51,7 +51,7 @@ nice_2_5_10 = (x, round=false) ->
 
 
 nice_10 = (x, round=false) ->
-  expv = Math.floor(log10(x))
+  expv = Math.floor(log10(x*1.0001))
   return Math.pow(10.0, expv)
 
 
@@ -260,7 +260,7 @@ auto_interval = (data_low, data_high) ->
           diff = newdiff
           ind = i
 
-    return candidate_intervals[ind]
+    return candidate_intervals[ind][2]
 
 
 
