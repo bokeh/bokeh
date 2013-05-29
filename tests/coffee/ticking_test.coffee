@@ -22,13 +22,6 @@ test('test_nice_10', () ->
   ok(arrayEqual(res, [1, 1, 10, 10, 10, 100, 100, 1000, 1000]))
 )
 
-# test('test_tick_intervals', () ->
-#   expect(3)
-#   equal(tick_intervals(0.0, 100.0, 13), 10)
-#   equal(tick_intervals(0.0, 120.0, 3), 50)
-#   equal(tick_intervals(0.0, 100.0, 5), 25)
-# )
-
 test('test_auto_interval', () ->
   expect(3)
   equal(auto_interval(0.0, 100.0), 10)
