@@ -11,7 +11,7 @@ GridMapper = require('../mappers/2d/grid_mapper').GridMapper
 
 ViewState = require('./view_state').ViewState
 
-ActiveToolManager = require("../tools/activetoolmanager").ActiveToolManager
+ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager
 
 
 LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
