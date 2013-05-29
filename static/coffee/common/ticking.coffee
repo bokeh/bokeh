@@ -55,7 +55,7 @@ nice_10 = (x, round=false) ->
   return Math.pow(10.0, expv)
 
 
-heckbert_interval = (min, max, nice=nice_2_5_10, numticks=8, loose=false) ->
+heckbert_interval = (min, max, numticks=8, nice=nice_2_5_10,loose=false) ->
     """
     Returns a "nice" range and interval for a given data range and a preferred
     number of ticks.  From Paul Heckbert's algorithm in Graphics Gems.
@@ -246,7 +246,7 @@ auto_interval = (data_low, data_high) ->
     magic_intervals = [1.0, 2.0, 2.5, 5.0, 10.0 ]
     candidate_intervals = []
     for nticks in divisions
-      [min, max, interval] = heckbert_interval(data_low, data_high, nice_2_5_10, nticks)
+      [min, max, interval] = heckbert_interval(data_low, data_high, nticks, nice_2_5_10)
       candidate_intervals.push([min, max, interval])
 
     diff = 10000
@@ -295,6 +295,9 @@ class BasicTickFormatter
     return labels
 
 
+exports.nice_2_5_10 = nice_2_5_10
+exports.nice_10 = nice_10
+exports.heckbert_interval = heckbert_interval
 exports.auto_ticks = auto_ticks
 exports.auto_interval = auto_interval
 exports.BasicTickFormatter = BasicTickFormatter

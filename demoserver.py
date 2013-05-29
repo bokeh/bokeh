@@ -109,6 +109,7 @@ alltests = {
 
     'common' : [
         'ranges_test',
+        'ticking_test',
     ],
 
     'perf' : ['perf_test'],
