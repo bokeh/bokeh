@@ -9,8 +9,6 @@ parser.add_argument("-j", "--debugjs", action="store_true", default=False)
 parser.add_argument("-v", "--verbose", action="store_true", default=False)
 args = parser.parse_args(sys.argv[1:])
 
-print "exiting"
-
 start.prepare_app()
 start.prepare_local()
 
