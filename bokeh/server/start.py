@@ -1,6 +1,6 @@
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
-from flask import request, current_app
+from flask import request
 import gevent
 import gevent.monkey
 gevent.monkey.patch_all()
@@ -34,8 +34,8 @@ def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT):
     import views.deps
     app.wsmanager = wsmanager.WebSocketManager()
     def auth(auth, docid):
-        doc = docs.Doc.load(current_app.model_redis, docid)
-        status = mconv.can_write_doc_api(doc, auth, current_app)
+        doc = docs.Doc.load(app.model_redis, docid)
+        status = mconv.can_write_doc_api(doc, auth, app)
         return status
     app.wsmanager.register_auth("bokehplot", auth)
     app.collections = ContinuumModelsStorage(
