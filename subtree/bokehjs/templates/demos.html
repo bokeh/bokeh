@@ -9,7 +9,7 @@
   <link type="text/css" rel="stylesheet" href="/static/css/bokeh.css"/>
   <link type="text/css" rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css"/>
   <!-- Your project file goes here -->
-  
+
   <!-- These are 3rd party libs that we depend on.  In debug mode, this
   should be a list of JS files.  In prod mode, this should be a single
   minified/unified JS file. -->
@@ -28,21 +28,18 @@
     require("{{ demoscript }}");
     {% endfor %}
   </script>
-<style> 
+<style>
 
   .all_can_wrapper {position:relative; }
   .can_wrapper {position:absolute; }
   .main_ can_wrapper {border:1px dotted green;}
   .main_can {border:1px solid blue}
   .y_can {}
-  ._shader {display:none; } 
+  ._shader {display:none; }
   .shading ._shader {display:block; border:1px dashed green; position: absolute; z-index:-10;}
-  
-  .gridplot_container {position: relative;}
-  .gridplot_container .gp_plotwrapper { position:absolute; } 
 
-  button.active { border:3px solid blue }
-  .table_wrap { border:1px solid red; }
+  .gridplot_container {position: relative;}
+  .gridplot_container .gp_plotwrapper { position:absolute; }
 
   .table_wrap table { margin:5px; border:1px solid orange;  height:300px; display:block; overflow-y:scroll }
 
@@ -54,7 +51,7 @@
   .table_outer table td { border-left:1px solid black; border-right:1px solid black; }
 */
 </style>
-  
+
 </head>
 <body>
   <h1 id="qunit-header">QUnit Test Suite</h1>
