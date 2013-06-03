@@ -102,25 +102,21 @@ alldemos = {
 
 alltests = {
 
-    'allplots' : [
-        "plot_test_simple",
-        "tools_test",
-        "plot_test_grid",
-        "date_test",
-        "legend_test"
+    'base' : [
+        'hasparent_test',
+        'hasproperty_test',
     ],
 
-    'allunit' : [
-        "bokeh_test",
-        "hasparent_test",
-        "hasproperty_test"
+    'common' : [
+        'ranges_test',
+        'ticking_test',
     ],
-
-    'tick' : ['tick_test'],
 
     'perf' : ['perf_test'],
 
-    'axes' : ['linear_axis_test'],
+    'axes' : [
+        'linear_axis_test',
+    ],
 
     'prim' : [
         'primitives/annular_wedge_test',
@@ -162,7 +158,7 @@ alltests = {
 allpossibletests = set()
 for v in alltests.values():
     allpossibletests.update(v)
-alltests['allpossibletests'] = alltests
+alltests['allpossibletests'] = allpossibletests
 
 if __name__ == "__main__":
 

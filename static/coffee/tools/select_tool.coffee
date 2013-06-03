@@ -1,14 +1,12 @@
-toolview = require("./toolview")
-ToolView = toolview.ToolView
+tool = require("./tool")
 eventgenerators = require("./eventgenerators")
 TwoPointEventGenerator = eventgenerators.TwoPointEventGenerator
 mapper = require("../mapper")
 LinearMapper = mapper.LinearMapper
 base = require("../base")
 safebind = base.safebind
-HasParent = base.HasParent
 
-class SelectionToolView extends ToolView
+class SelectionToolView extends tool.ToolView
   initialize : (options) ->
     super(options)
     select_callback = _.debounce((() => @_select_data()), 50)
@@ -126,7 +124,7 @@ class SelectionToolView extends ToolView
 
 
 
-class SelectionTool extends HasParent
+class SelectionTool extends tool.Tool
   type : "SelectionTool"
   default_view : SelectionToolView
 

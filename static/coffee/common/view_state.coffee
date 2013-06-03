@@ -89,21 +89,27 @@ class ViewState extends HasProperties
       , true)
     @add_dependencies('inner_aspect', this, ['inner_height', 'inner_width'])
 
+    _inner_range_horizontal = Collections('Range1d').create({
+      start: @get('border_left'),
+      end:   @get('border_left') + @get('inner_width')
+    })
     @register_property('inner_range_horizontal',
-      () ->
-        Collections('Range1d').create({
-          start: @get('border_left'),
-          end:   @get('border_left') + @get('inner_width')
-        })
+        () ->
+          _inner_range_horizontal.set('start', @get('border_left'))
+          _inner_range_horizontal.set('end', @get('border_left') + @get('inner_width'))
+          return _inner_range_horizontal
       , true)
     @add_dependencies('inner_range_horizontal', this, ['border_left', 'inner_width'])
 
+    _inner_range_vertical = Collections('Range1d').create({
+      start: @get('border_bottom'),
+      end:   @get('border_bottom') + @get('inner_height')
+    })
     @register_property('inner_range_vertical',
-      () ->
-        Collections('Range1d').create({
-          start: @get('border_bottom'),
-          end:   @get('border_bottom') + @get('inner_height')
-        })
+        () ->
+          _inner_range_vertical.set('start', @get('border_bottom'))
+          _inner_range_vertical.set('end', @get('border_bottom') + @get('inner_height'))
+          return _inner_range_vertical
       , true)
     @add_dependencies('inner_range_vertical', this, ['border_bottom', 'inner_height'])
 
