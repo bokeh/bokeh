@@ -16,7 +16,7 @@ from ..models import user
 from ..models import docs
 from ..models import convenience as mconv
 from ... import protocol
-from .. import hemlib
+from continuumweb import hemlib
 from ...exceptions import DataIntegrityException
 from bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
@@ -30,11 +30,7 @@ def index(*unused_all, **kwargs):
     if getattr(app, "debugjs", False):
         slug = hemlib.slug_json()
         static_js = hemlib.slug_libs(app, slug['libs'])
-        hemsource = os.path.join(app.static_folder, "coffee")
-        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
-        hemsource = os.path.join(app.static_folder, "vendor",
-                                 "bokehjs", "coffee")
-        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hem_js = hemlib.all_coffee_assets("localhost", app.hem_port)
     else:
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []
