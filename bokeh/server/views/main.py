@@ -1,5 +1,5 @@
 from flask import (
-    render_template, request, current_app,
+    render_template, request,
     send_from_directory, make_response, abort,
     jsonify
     )
@@ -60,7 +60,7 @@ def makedoc():
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
     msg = protocol.serialize_web({'msgtype' : 'docchange'})
-    current_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
+    app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
 
 @app.route('/bokeh/doc/<docid>', methods=['delete'])
@@ -74,7 +74,7 @@ def deletedoc(docid):
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
     msg = protocol.serialize_web({'msgtype' : 'docchange'})
-    current_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
+    app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
     
 @app.route('/bokeh/getdocapikey/<docid>')
@@ -113,8 +113,8 @@ def write_plot_file(url):
 def get_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     plot_context_ref = doc.plot_context_ref
-    all_models = docs.prune_and_get_valid_models(current_app.model_redis,
-                                                 current_app.collections,
+    all_models = docs.prune_and_get_valid_models(app.model_redis,
+                                                 app.collections,
                                                  docid)
     print "num models", len(all_models)
     all_models = [x.to_broadcast_json() for x in all_models]
@@ -131,8 +131,8 @@ def get_bokeh_info(docid):
 def get_public_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     plot_context_ref = doc.plot_context_ref
-    all_models = docs.prune_and_get_valid_models(current_app.model_redis,
-                                                 current_app.collections,
+    all_models = docs.prune_and_get_valid_models(app.model_redis,
+                                                 app.collections,
                                                  docid)
     public_models = [x for x in all_models if x.get('public', False)]
     if len(public_models) == 0:
