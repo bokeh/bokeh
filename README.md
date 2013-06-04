@@ -1,11 +1,11 @@
 Bokeh 
 =====
 
-Bokeh (pronounced bok-Kay) is a Python interactive visualization library for
-large data, that natively uses the latest web technologies.  Its goal is to
-provide elegant, concise construction of novel graphics (in the style of
-Protovis/D3) over large data, and to provide seamless interactivity through
-thin clients.
+Bokeh (pronounced bo-Kay or bo-Kuh) is a Python interactive visualization
+library for large datasets that natively uses the latest web technologies.  Its
+goal is to provide elegant, concise construction of novel graphics in the
+style of Protovis/D3, while delivering high-performance interactivity over 
+large data to thin clients.
 
 Design & Motivation
 ===================
@@ -13,22 +13,28 @@ Design & Motivation
 Bokeh's architecture includes a high-level plotting DSL based on the [Stencil visualization system](https://github.com/JosephCottam/Stencil) that is able
 to express a superset of the statistical binding concepts of the [Grammar of
 Graphics](http://www.cs.uic.edu/~wilkinson/TheGrammarOfGraphics/GOG.html) and
-the glyph-based visualization constructions of Protovis and D3.
+the glyph-based visualization constructions of Protovis and D3.  (This DSL is
+currently an S-Expr based syntax, but will evolve into a Python embedded DSL.)
 
 There are many excellent plotting packages for Python, but they generally 
 do not optimize for the particular needs of statistical plotting (easy faceting,
 bulk application of aesthetic and visual parameters across categorical variables,
-pleasing default color palettes for categorical data, etc.).  One of the goals
-of Bokeh is to provide a compelling Python equivalent of
+pleasing default color palettes for categorical data, etc.).  One of the 
+side goals of Bokeh is to provide a compelling Python equivalent of
 [ggplot](http://had.co.nz/ggplot/) in R.
 
 Bokeh has several high-level Python interfaces, including a ggplot-like set of
-plotting function, as well as MATLAB-style "schema" plotting commands such as
-scatter(), line(), and the like.  These are wrappers around a low-level set of
-Python objects, which drive the Javascript objects in
-[BokehJS](http://continuumio.github.com/bokehjs/).  The Python can either
-generate static Javascript for embedding in an HTML file, or output JSON state
-to be stored in a Redis-backed Plot Server.
+plotting functions, as well as MATLAB-style plotting commands such as
+scatter(), line(), and the like.  These are called "schema-oriented" renderers,
+and they are wrappers around a low-level set of Python objects, which drive the
+Javascript objects in [BokehJS](http://continuumio.github.com/bokehjs/).
+
+The Python interface can either generate static Javascript for embedding in an
+HTML file, or output JSON state to be stored in a Redis-backed Plot Server.
+(Both forms can be embedded in IPython Notebook.) The latter "server-based"
+mode is very powerful because view state is stored on the server, and provides
+a much richer level of collaboration in exploratory web-based graphics than is
+anything else we are aware of.
 
 
 Status
@@ -57,7 +63,7 @@ At a minimum, Bokeh requires the following:
  * gevent
  * gevent-websocket
 
-For older prototype interactive GGplot functionality, the
+For an older rich-client prototype of some interactive GGplot functionality, the
 [Chaco](https://github.com/enthought/chaco) plotting library is also required.
 
 Although Bokeh only uses Numpy natively, it can also take advantage of
@@ -129,14 +135,14 @@ Hem
 We're using our own fork of hem to manage the build process.  
 Please clone this repo: https://github.com/ContinuumIO/hem. 
 hem will compile coffeescript, combine js files, and support node.js require
-syntax on the client side
+syntax on the client side.
 
-install it by executing
+Install it by executing
 
 `$ sudo npm link` inside the hem repo.  
 
 This will link hem to your working copy so you get hem changes as we push it
-out.  Inside bokeh/server/ of the Bokeh repo, execute `$ hem server &`.  The
+out.  Inside `bokeh/server/` of the Bokeh repo, execute `$ hem server &`.  The
 hem server will serve up coffeescript, compiling them on the fly.
 
 Developing
@@ -144,18 +150,19 @@ Developing
 
 To run the debug webserver, execute `$ python runserver.py -d -j`.  The debug
 webserver is configured to ask the hem server for compiled javascript, rather
-than read the pre-compiled js off of disk.
+than read the pre-compiled application.js off of disk.
 
 For the embedded plotting examples, or the production server, you will need to
 compile the js yourself.
 
-   * `$ hem build -d`, will build the Bokeh application.js file
+   * Go to the `bokeh/server/` directory.
+   * `$ hem build -d` will build the Bokeh application.js file
    * `$ hem build -d -s slug.notebook.json` will build bokehnotebook.js, which is used for all the notebook examples
    * the `-d` option will prevent hem from uglifying the js, which breaks the notebook
    export at the moment.
 
 What Does the Name "Bokeh" Mean?
-================================
+--------------------------------
 
-"Bokeh" is a [photography term](http://en.wikipedia.org/wiki/Bokeh) for the
-aesthetic quality of blurring of an image's background.
+"Bokeh" is a [photography term](http://en.wikipedia.org/wiki/Bokeh) that refers
+to the aesthetic quality of the blur of a photograph's background.
