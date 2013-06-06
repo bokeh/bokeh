@@ -24,6 +24,13 @@ log2 = (num) ->
 
     return Math.log(num) / Math.LN2
 
+is_base2 = (rng) ->
+  """ Returns True if rng is a positive multiple of 2 """
+  if rng <= 0
+    false
+  else
+    lg = log2(rng)
+    return ((lg > 0.0) and (lg == Math.floor(lg)))
 
 nice_2_5_10 = (x, round=false) ->
     """ if round is false, then use Math.ceil(range) """
@@ -244,17 +251,18 @@ auto_interval = (data_low, data_high) ->
 
     divisions = [8, 7, 6, 5, 4, 3]
     magic_intervals = [1.0, 2.0, 2.5, 5.0, 10.0 ]
-
     candidate_intervals = []
     for nticks in divisions
       [min, max, interval] = heckbert_interval(data_low, data_high, nice_2_5_10, nticks)
       candidate_intervals.push([min, max, interval])
 
     diff = 10000
-    ind = -1
+    ind = 0
     for i in [0..candidate_intervals.length-1]
       for j in [0..magic_intervals.length-1]
-        newdiff = Math.abs(candidate_intervals[i][2]-magic_intervals[i])
+        expv = Math.floor(log10(candidate_intervals[i][2]))
+        f = candidate_intervals[i][2] / Math.pow(10.0, expv)
+        newdiff = Math.abs(f-magic_intervals[i])
         if newdiff < diff
           diff = newdiff
           ind = i

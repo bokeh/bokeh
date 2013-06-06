@@ -561,6 +561,7 @@ locations =
   PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools']
   EmbedTool:       ['./tools/preview_save_tool', 'embedtools']
 
+
   ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources']
   ColumnDataSource:      ['./common/datasource', 'columndatasources']
 
@@ -578,6 +579,10 @@ locations =
   PandasPivot:      ['./pandas/pandas', 'pandaspivots']
   PandasDataSource: ['./pandas/pandas', 'pandasdatasources']
   PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
+
+  LinearAxis: ['./renderers/guide/axis', 'linearaxes']
+  Rule: ['./renderers/guide/rule', 'rules']
+
 exports.locations = locations
 
 Collections = (typename) ->

@@ -16,10 +16,10 @@ class LinearAxisView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @spec = attrs.guidespec
-    @rule_props = new line_properties(@, {}, 'rule_')
-    @major_tick_props = new line_properties(@, {}, 'major_tick_')
-    @major_label_props = new text_properties(@, {}, 'major_label_')
+    guidespec = @mget('guidespec')
+    @rule_props = new line_properties(@, guidespec, 'axis_')
+    @major_tick_props = new line_properties(@, guidespec, 'major_tick_')
+    @major_label_props = new text_properties(@, guidespec, 'major_label_')
 
   render: () ->
 
@@ -80,12 +80,12 @@ class LinearAxis extends HasParent
   default_view: LinearAxisView
   type: 'GuideRenderer'
 
-  initialize: (attrs, options)->
+  dinitialize: (attrs, options)->
     super(attrs, options)
 
     @register_property('bounds', @_bounds, false)
     @add_dependencies('bounds', this, ['guidespec'])
-    @add_dependencies('bounds', @get_obj('parent'), ['x_range', 'y_range'])
+    @add_dependencies('bounds', @get_obj('plot'), ['x_range', 'y_range'])
 
     @register_property('rule_coords', @_rule_coords, false)
     @add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location'])
@@ -100,7 +100,8 @@ class LinearAxis extends HasParent
     i = @get('guidespec').dimension
     j = (i + 1) % 2
 
-    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'),
+      @get_obj('plot').get_obj('y_range')]
 
     user_bounds = @get('guidespec').bounds ? 'auto'
     range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
@@ -125,7 +126,7 @@ class LinearAxis extends HasParent
     i = @get('guidespec').dimension
     j = (i + 1) % 2
 
-    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
@@ -154,7 +155,7 @@ class LinearAxis extends HasParent
     i = @get('guidespec').dimension
     j = (i + 1) % 2
 
-    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
@@ -189,7 +190,7 @@ class LinearAxis extends HasParent
     i = @get('guidespec').dimension
     j = (i + 1) % 2
 
-    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
@@ -232,13 +233,13 @@ _.extend(LinearAxis::display_defaults, {
 
   level: 'overlay'
 
-  rule_line_color: 'black'
-  rule_line_width: 2
-  rule_line_alpha: 1.0
-  rule_line_join: 'miter'
-  rule_line_cap: 'butt'
-  rule_line_dash: []
-  rule_line_dash_offset: 0
+  axis_line_color: 'black'
+  axis_line_width: 1
+  axis_line_alpha: 1.0
+  axis_line_join: 'miter'
+  axis_line_cap: 'butt'
+  axis_line_dash: []
+  axis_line_dash_offset: 0
 
   major_tick_in: 2
   major_tick_out: 4
@@ -261,7 +262,8 @@ _.extend(LinearAxis::display_defaults, {
 
 })
 
-
+class LinearAxes extends Backbone.Collection
+   model: LinearAxis
+exports.linearaxes = new LinearAxes()
 exports.LinearAxis = LinearAxis
 exports.LinearAxisView = LinearAxisView
-

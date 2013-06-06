@@ -76,6 +76,7 @@ alldemos = {
         'image',
         'bars',
         'map',
+        'map_overlay',
         'candle',
         'vector',
         'group',
@@ -85,17 +86,19 @@ alldemos = {
         'lorenz100',
     ],
 
-    'scatter'   : ['scatter'],
-    'image'     : ['image'],
-    'bars'      : ['bars'],
-    'map'       : ['map'],
-    'candle'    : ['candle'],
-    'vector'    : ['vector'],
-    'group'     : ['group'],
-    'stack'     : ['stack'],
-    'lorenz10'  : ['lorenz10'],
-    'lorenz50'  : ['lorenz50'],
-    'lorenz100' : ['lorenz100'],
+    'scatter'    : ['scatter'],
+    'image'      : ['image'],
+    'bars'       : ['bars'],
+    'map'        : ['map'],
+    'map_overlay': ['map_overlay'],
+    'candle'     : ['candle'],
+    'vector'     : ['vector'],
+    'group'      : ['group'],
+    'stack'      : ['stack'],
+    'lorenz10'   : ['lorenz10'],
+    'lorenz50'   : ['lorenz50'],
+    'lorenz100'  : ['lorenz100'],
+
 }
 
 alltests = {
