@@ -13,7 +13,7 @@ from .objects import PlotObject, Viewable
 #   but gaussian could certainly be useful.
 
 #class Scene(object):
-#    """ A set of related plots, each with their own panel(s) and each 
+#    """ A set of related plots, each with their own panel(s) and each
 #    panel representing some coherent coordinate space onto which Glyphs
 #    are positioned and rendered.
 #    """
@@ -33,7 +33,7 @@ class DataSpec(BaseProperty):
     f.x = "fieldname"   # Sets x to a field named "fieldname"
     f.x = 12            # Sets x to a default value of 12
     f.x = {"name": "foo", "default": 12}
-    
+
     Just reading out "f.x" will always retrieve what has been set.
     """
     # TODO: Check to see if the "units" field hasn't been removed...
@@ -50,7 +50,7 @@ class DataSpec(BaseProperty):
         If a constant value is desired, then leave **field** as None and
         set **default** to the fixed value.
         """
-        # Don't use .name because the HasProps metaclass uses that to 
+        # Don't use .name because the HasProps metaclass uses that to
         # store the attribute name on this descriptor.
         self.field = field
         self.units = units
@@ -132,7 +132,7 @@ class MetaGlyph(Viewable):
     subclasses need.
 
     I contemplated making this a class decorator, or monkeypatching the
-    Viewable metaclass, but that all seemed more brittle than just 
+    Viewable metaclass, but that all seemed more brittle than just
     making a sub-metaclass.
     """
 
@@ -159,7 +159,7 @@ class Glyph(PlotObject):
 
     __metaclass__ = MetaGlyph
 
-    # The name that will be used for the 'type' field of the glyph when we 
+    # The name that will be used for the 'type' field of the glyph when we
     # create the JS dict representation of this glyph.  "glyph" is not a valid
     # glyph type; it's just a placeholder.
     glyphtype = "glyph"
@@ -213,9 +213,7 @@ class Marker(Glyph, FillProps, LineProps):
     #char_value = String
 
 class Circle(Marker):
-    
     glyphtype = String("circle")
-
     radius = DataSpec(units="screen", default=4)
 
 #class Rects(Glyph):
@@ -229,12 +227,161 @@ class Circle(Marker):
 #    outline_color = Color
 #    outline_width = Size
 
-class Quad(Glyph):
-    glyphtype = "quad"
+# Other kinds of Markers, to match what GGplot provides
+class Triangle(Marker):
+    glyphtype = String("triangle")
+
+class Cross(Marker):
+    glyphtype = String("cross")
+
+class Xmarker(Marker):
+    glyphtype = String("xmarker")
+
+class Diamond(Marker):
+    glyphtype = String("diamond")
+
+class InvertedTriangle(Marker):
+    glyphtype = String("invertedtriangle")
+
+class SquareX(Marker):
+    glyphtype = String("squarex")
+
+class Asterisk(Marker):
+    glyphtype = String("asterisk")
+
+class DiamondCross(Marker):
+    glyphtype = String("diamondcross")
+
+class CircleCross(Marker):
+    glyphtype = String("circlecross")
+
+class HexStar(Marker):
+    glyphtype = String("hexstar")
+
+class SquareCross(Marker):
+    glyphtype = String("squarecross")
+
+class CircleX(Marker):
+    glyphtype = String("circlex")
+
+
+class AnnularWedge(Glyph, FillProps, LineProps):
+    glyphtype = String('annular_wedge')
+    x = DataSpec
+    y = DataSpec
+    inner_radius = DataSpec
+    outer_radius = DataSpec
+    start_angle = DataSpec
+    end_angle = DataSpec
+    direction = Enum('clock', 'anticlock')
+
+class Annulus(Glyph, FillProps, LineProps):
+    glyphtype = String('annulus')
+    x = DataSpec
+    y = DataSpec
+    inner_radius = DataSpec
+    outer_radius = DataSpec
+
+class Arc(Glyph, LineProps):
+    glyphtype = String('arc')
+    x = DataSpec
+    y = DataSpec
+    radius = DataSpec
+    start_angle = DataSpec
+    end_angle = DataSpec
+    direction = Enum('clock', 'anticlock')
+
+# TODO
+# class Area
+
+class Bezier(Glyph, LineProps):
+    glyphtype = String('bezier')
+    x0 = DataSpec
+    y0 = DataSpec
+    x1 = DataSpec
+    y1 = DataSpec
+    cx0 = DataSpec
+    cy0 = DataSpec
+    cx1 = DataSpec
+    cy1 = DataSpec
+
+# TODO
+# class image
+
+class ImageURI(Glyph):
+    glyphtype = String('image_uri')
+    x = DataSpec
+    y = DataSpec
+    angle = DataSpec
+
+# TODO
+# image_rgba
+
+class Line(Glyph, LineProps):
+    glyphtype = String("line")
+    xs = DataSpec
+    ys = DataSpec
+
+class Oval(Glyph, FillProps, LineProps):
+    glyphtype = String('oval')
+    x = DataSpec
+    y = DataSpec
+    width = DataSpec
+    height = DataSpec
+    angle = DataSpec
+
+class Quad(Glyph, FillProps, LineProps):
+    glyphtype = String("quad")
     left = DataSpec
     right = DataSpec
     bottom = DataSpec
     top = DataSpec
-    #angle = DataSpec
+
+class QuadCurve(Glyph, FillProps, LineProps):
+    glyphtype = String('quad_curve')
+    x0 = DataSpec
+    y0 = DataSpec
+    x1 = DataSpec
+    y1 = DataSpec
+    cx = DataSpec
+    cy = DataSpec
+
+class Ray(Glyph, LineProps):
+    glyphtype = String("ray")
+    x = DataSpec
+    y = DataSpec
+    angle = DataSpec
+    length = DataSpec
+
+class Rect(Glyph, FillProps, LineProps):
+    glyphtype = String("rect")
+    x = DataSpec
+    y = DataSpec
+    width = DataSpec
+    height = DataSpec
+    angle = DataSpec
+
+class Segment(Glyph, LineProps):
+    glyphtype = String('segment')
+    x0 = DataSpec
+    y0 = DataSpec
+    x1 = DataSpec
+    y1 = DataSpec
+
+class Text(Glyph):
+    glyphtype = String("text")
+    x = DataSpec
+    y = DataSpec
+    angle = DataSpec
+    text = String
+
+class Wedge(Glyph, FillProps, LineProps):
+    glyphtype = String('wedge')
+    x = DataSpec
+    y = DataSpec
+    radius = DataSpec
+    start_angle = DataSpec
+    end_angle = DataSpec
+    direction = Enum('clock', 'anticlock')
 
 

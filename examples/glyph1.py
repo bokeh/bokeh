@@ -41,14 +41,13 @@ glyph_renderer = GlyphRenderer(
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
-xaxis = LinearAxis(orientation="bottom", data_range=xdr)
-yaxis = LinearAxis(orientation="right", data_range=ydr)
+xaxis = LinearAxis(plot=plot, dimension=0)
+yaxis = LinearAxis(plot=plot, dimension=1)
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
 zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
-plot.axes = [xaxis, yaxis]
-plot.renderers = [glyph_renderer]
+plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,zoomtool]
 
 sess = session.HTMLFileSession("glyph1.html")

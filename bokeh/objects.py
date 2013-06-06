@@ -176,12 +176,21 @@ class ObjectArrayDataSource(DataSource):
     cont_ranges = Dict()
     discrete_ranges = Dict()
 
+class PandasDataSource(DataSource):
+    """ Represents serverside data.  This gets stored into the plot server's
+    database, but it does not have any client side representation.  Instead,
+    a PandasPlotSource needs to be created and pointed at it.
+    """
 
-class DataRange1d(PlotObject):    
-    """ Represents a range in a scalar dimension """
-    sources = List(ColumnsRef)
+    data = Dict()
+
+class Range1d(PlotObject):
     start = Float()
     end = Float()
+
+class DataRange1d(Range1d):    
+    """ Represents a range in a scalar dimension """
+    sources = List(ColumnsRef)
     rangepadding = Float(0.1)
 
     def vm_serialize(self):
@@ -218,23 +227,6 @@ class GlyphRenderer(PlotObject):
                  "ydata_range": self.ydata_range,
                  "glyphspec": self.glyph.to_glyphspec() }
 
-class LineRenderer(PlotObject):
-    """ This is a "schema-oriented" renderer, which uses the LineRenderer in
-    BokehJS instead of the Line glyph.
-    """
-
-    data_source = Instance(DataSource)
-    xdata_range = Instance(DataRange1d)
-    ydata_range = Instance(DataRange1d)
-    xfield = String
-    yfield = String
-    color = Color("black")
-
-    def vm_props(self, withvalues=False):
-        props = super(LineRenderer,self).vm_props(withvalues)
-        props["foreground_color"] = props.pop("color", "black")
-        return props
-
 class Plot(PlotObject):
 
     data_sources = List
@@ -267,17 +259,16 @@ class Plot(PlotObject):
     height = Int(400)
     width = Int(400)
 
-    background_fill = Color
-    border_fill = Color
-    canvas_width = Int
-    canvas_height = Int
-    outer_width = Int
-    outer_height = Int
-    border = Int
-    border_top = Int
-    border_bottom = Int
-    border_left = Int
-    border_right = Int
+    background_fill = Color("white")
+    border_fill = Color("white")
+    canvas_width = Int(400)
+    canvas_height = Int(400)
+    outer_width = Int(400)
+    outer_height = Int(400)
+    border_top = Int(50)
+    border_bottom = Int(50)
+    border_left = Int(50)
+    border_right = Int(50)
     
 
 #class PolarPlot(PlotArea):
@@ -291,12 +282,29 @@ class GridPlot(PlotObject):
     children = List(List)
     border_space = Int(0)
 
+class GuideRenderer(PlotObject):
+    plot = Instance
+    dimension = Int(0)
+    location = String('min')
+    bounds = String('auto')
 
-class LinearAxis(PlotObject):
+    def __init__(self, **kwargs):
+        super(GuideRenderer, self).__init__(**kwargs)
+        if self.plot is not None:
+            self.plot.renderers.append(self)
+    
+    def vm_serialize(self):
+        props = self.vm_props(withvalues=True)
+        del props["plot"]
+        return { "plot" : self.plot,
+                 "guidespec" : props}
 
-    orientation = Enum("bottom", "left", "right", "top")
-    data_range = Instance(DataRange1d)
-    ticks = Int(3)
+class LinearAxis(GuideRenderer):
+    type = String("linear_axis")
+
+class Rule(GuideRenderer):
+    """ 1D Grid component """
+    type = String("rule")
 
 class PanTool(PlotObject):
     plot = Instance(Plot)

@@ -17,7 +17,6 @@ class PreviewSaveToolView extends ToolView
   }
 
   _activated: (e) ->
-    console.log("PreviewSaveToolView._activated")
     data_uri = @plot_view.canvas[0].toDataURL()
     modal = """
       '<div id="previewModal" class="modal" role="dialog" aria-labelledby="previewLabel" aria-hidden="true">
@@ -98,9 +97,6 @@ bokeh_modelid="b9c1d5dc-c617-41bc-9df7-bed21020035e" bokeh_modeltype="Plot" asyn
  class EmbedTools extends Backbone.Collection
    model: EmbedTool
 
-
-exports.PreviewSaveToolView = PreviewSaveToolView
-exports.previewsavetools = new PreviewSaveTools
 
 exports.EmbedToolView = EmbedToolView
 exports.embedtools = new EmbedTools

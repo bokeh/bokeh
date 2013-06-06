@@ -9,9 +9,6 @@ Promises.doc_promises = {};
 
 base = require("./base")
 Collections = base.Collections
-console.log("serverutils");
-#container = require("./container")
-container = require("./common/plot_context")
 HasProperties = base.HasProperties
 load_models = base.load_models
 submodels = base.submodels
@@ -83,6 +80,10 @@ utility =
       )
   instantiate_doc_single_plot : (docid, view_model_id, target_el="#PlotPane", host="www.wakari.io") ->
     #this should not use plot contexts!
+    # TODO: The container got "refactored" away when Bryan moved things around
+    # in BokehJS, and the SinglePlotContextView no longer exists. Either remove
+    # this code or update it.
+    container = require("./container")
     utility.bokeh_connection(host, docid, "https")
     Deferreds._doc_loaded.done((data) ->
       utility.render_plots(data.plot_context_ref,

@@ -1,5 +1,5 @@
 base = require("../base")
-ContinuumView = base.ContinuumView
+ContinuumView = require("../common/continuum_view").ContinuumView
 HasParent = base.HasParent
 HasProperties = base.HasProperties
 load_models = base.load_models

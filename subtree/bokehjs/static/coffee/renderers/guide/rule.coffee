@@ -13,7 +13,8 @@ class RuleView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    @rule_props = new line_properties(@, {}, 'rule_')
+    guidespec = @mget('guidespec')
+    @rule_props = new line_properties(@, guidespec, 'rule_')
 
   render: () ->
     ctx = @plot_view.ctx
@@ -55,7 +56,7 @@ class Rule extends HasParent
     i = @get('guidespec').dimension
     j = (i + 1) % 2
 
-    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
 
     user_bounds = @get('guidespec').bounds ? 'auto'
     range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
@@ -79,8 +80,7 @@ class Rule extends HasParent
   _rule_coords: () ->
     i = @get('guidespec').dimension
     j = (i + 1) % 2
-
-    ranges = [@get_obj('parent').get('x_range'), @get_obj('parent').get('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
@@ -136,6 +136,8 @@ _.extend(Rule::display_defaults, {
 })
 
 
+class Rules extends Backbone.Collection
+   model: Rule
+exports.rules = new Rules()
 exports.Rule = Rule
 exports.RuleView = RuleView
-

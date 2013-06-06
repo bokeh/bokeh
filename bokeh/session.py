@@ -15,9 +15,6 @@ from bokeh import protocol, utils
 from bokeh.objects import PlotObject, Plot
 from bokeh.properties import List
 
-# TODO: eliminate dependency on bbmodel; just used in PlotServerSession
-from bokeh import bbmodel
-
 logger = logging.getLogger(__file__)
 
 class Session(object):
@@ -430,7 +427,6 @@ class PlotServerSession(BaseHTMLSession):
                         "Using PlotContext ID %s" % (self.docid, attrs[0]["id"]))
         return
         
-
     def make_doc(self, title):
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
         data = protocol.serialize_web({'title' : title})
@@ -517,9 +513,9 @@ class PlotServerSession(BaseHTMLSession):
         for m in list(self._models) + [self.plotcontext]:
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
-            # FIXME: Is this part really necessary? It shows up in the 
-            # bbclient-based JSON serializations, but I don't understand
-            # why it's necessary.
+            # FIXME: Is it really necessary to add the id and doc to the
+            # attributes dict? It shows up in the bbclient-based JSON
+            # serializations, but I don't understand why it's necessary.
             ref["attributes"].update({"id": ref["id"], "doc": self.docid})
             models.append(ref)
         data = self.serialize(models)

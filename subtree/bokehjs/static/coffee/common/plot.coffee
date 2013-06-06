@@ -69,8 +69,8 @@ class PlotView extends ContinuumView
       border_right:  (options.border_right  ? @mget('border_right'))  ? @mget('border')
     })
 
-    @x_range = options.x_range ? @mget('x_range')
-    @y_range = options.y_range ? @mget('y_range')
+    @x_range = options.x_range ? @mget_obj('x_range')
+    @y_range = options.y_range ? @mget_obj('y_range')
 
     @xmapper = new LinearMapper({
       source_range: @x_range
@@ -180,7 +180,6 @@ class PlotView extends ContinuumView
 
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
-
     @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
     @canvas.attr('width', ow).attr('height', oh)
     @$el.attr("width", ow).attr('height', oh)
