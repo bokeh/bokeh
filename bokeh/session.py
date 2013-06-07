@@ -470,17 +470,23 @@ class PlotServerSession(BaseHTMLSession):
         **ref** is a dict containing keys "type" and "id"; by default, the
         ref is retrieved/computed from **obj** itself.
         """
-        jsondata = self.serialize(obj)
-        if ref is not None and "type" in ref and "id" in ref:
-            jsondata.update(ref)
-        else:
+        if ref is None:
+            ref = self.get_ref(obj)
+        if ref is not None and ("type" not in ref or "id" not in ref):
             raise ValueError("ref needs to have both 'type' and 'id' keys")
+
+        data = obj.vm_serialize()
+        # It might seem redundant to include both of these, but the server
+        # doesn't do the right thing unless these are included.
+        data["id"] = ref["id"]
+        data["doc"] = self.docid
+
         # This is copied from ContinuumModelsClient.buffer_sync(), .update(),
         # and .upsert_all().
         # TODO: Handle the include_hidden stuff.
-        url = utils.urljoin(self.base_url, self.docid + "/" + jsondata["type"] +\
-                "/" + jsondata["id"] + "/")
-        self.http_session.put(url, data=jsondata)
+        url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
+                "/" + ref["id"] + "/")
+        self.http_session.put(url, data=self.serialize(data))
 
     def load_obj(self, ref, asdict=False):
         """ Unserializes the object given by **ref**, into a new object
@@ -540,6 +546,43 @@ class PlotServerSession(BaseHTMLSession):
 class NotebookSession(PlotServerSession):
     """ Produces inline HTML suitable for placing into an IPython Notebook.
     """
+
+    def ws_conn_string(self):
+        split = urlparse.urlsplit(self.root_url)
+        #how to fix this in bokeh and wakari?
+        if split.scheme == 'http':
+            return "ws://%s/bokeh/sub" % split.netloc
+        else:
+            return "wss://%s/bokeh/sub" % split.netloc
+   
+    def notebook_connect(self):
+        import IPython.core.displaypub as displaypub
+        js = get_template('connect.js').render(
+            username=self.username,
+            root_url = self.root_url,
+            docid=self.docid,
+            docapikey=self.apikey,
+            ws_conn_string=self.ws_conn_string()
+            )
+        msg = """ <p>Connection Information for this %s document, only share with people you trust </p> """  % self.docname
+        html = self.html(
+            script_paths=[],
+            css_paths=[],
+            js_snippets=[js],
+            html_snippets=[msg],
+            template="basediv.html"
+            )
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
+ 
+    def notebooksources(self):
+        import IPython.core.displaypub as displaypub        
+        html = self.html(template="basediv.html",
+                         script_paths = dump.notebookscript_paths,
+                         html_snippets=["<p>Bokeh Sources</p>"])
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
+
 
 class WakariSession(PlotServerSession):
     """ Suitable for running on the Wakari.io service.  Includes default
