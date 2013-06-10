@@ -470,17 +470,23 @@ class PlotServerSession(BaseHTMLSession):
         **ref** is a dict containing keys "type" and "id"; by default, the
         ref is retrieved/computed from **obj** itself.
         """
-        jsondata = self.serialize(obj)
-        if ref is not None and "type" in ref and "id" in ref:
-            jsondata.update(ref)
-        else:
+        if ref is None:
+            ref = self.get_ref(obj)
+        if ref is not None and ("type" not in ref or "id" not in ref):
             raise ValueError("ref needs to have both 'type' and 'id' keys")
+
+        data = obj.vm_serialize()
+        # It might seem redundant to include both of these, but the server
+        # doesn't do the right thing unless these are included.
+        data["id"] = ref["id"]
+        data["doc"] = self.docid
+
         # This is copied from ContinuumModelsClient.buffer_sync(), .update(),
         # and .upsert_all().
         # TODO: Handle the include_hidden stuff.
-        url = utils.urljoin(self.base_url, self.docid + "/" + jsondata["type"] +\
-                "/" + jsondata["id"] + "/")
-        self.http_session.put(url, data=jsondata)
+        url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
+                "/" + ref["id"] + "/")
+        self.http_session.put(url, data=self.serialize(data))
 
     def load_obj(self, ref, asdict=False):
         """ Unserializes the object given by **ref**, into a new object
@@ -537,9 +543,105 @@ class PlotServerSession(BaseHTMLSession):
 
 
 
-class NotebookSession(PlotServerSession):
+class NotebookSession(HTMLFileSession):
     """ Produces inline HTML suitable for placing into an IPython Notebook.
     """
+
+    # Most of these were formerly defined in dump.py, which was ported over
+    # from Wakari.
+    notebookscript_paths = ["js/bokehnotebook.js"]
+    html_template = "basediv.html"     # template for the entire HTML file
+    def __init__(self, plot=None):
+        HTMLFileSession.__init__(self, filename=None, plot=plot)
+
+    def ws_conn_string(self):
+        split = urlparse.urlsplit(self.root_url)
+        #how to fix this in bokeh and wakari?
+        if split.scheme == 'http':
+            return "ws://%s/bokeh/sub" % split.netloc
+        else:
+            return "wss://%s/bokeh/sub" % split.netloc
+   
+    def notebook_connect(self):
+        import IPython.core.displaypub as displaypub
+        js = self._load_template('connect.js').render(
+            username=self.username,
+            root_url = self.root_url,
+            docid=self.docid,
+            docapikey=self.apikey,
+            ws_conn_string=self.ws_conn_string()
+            )
+        msg = """ <p>Connection Information for this %s document, only share with people you trust </p> """  % self.docname
+
+        script_paths = self.js_paths()
+        css_paths = self.css_paths()
+        html = self._load_template("basediv.html").render(
+            rawjs=self._inline_scripts(script_paths).decode('utf8'),
+            rawcss=self._inline_css(css_paths).decode('utf8'),
+            js_snippets=[js],
+            html_snippets=[msg])
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
+ 
+    def notebooksources(self):
+        import IPython.core.displaypub as displaypub        
+        script_paths = NotebookSession.notebookscript_paths
+        css_paths = self.css_paths()
+        html = self._load_template("basediv.html").render(
+            rawjs=self._inline_scripts(script_paths).decode('utf8'),
+            rawcss=self._inline_css(css_paths).decode('utf8'),
+            js_snippets=[],
+            html_snippets=["<p>Bokeh Sources</p>"])
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
+
+    def dumps(self, objects):
+        """ Returns the HTML contents as a string
+        FIXME : signature different than other dumps
+        FIXME: should consolidate code between this one and that one.
+        """
+        the_plot = objects[0]
+        plot_ref = self.get_ref(the_plot)
+        elementid = str(uuid.uuid4())
+
+        # Manually convert our top-level models into dicts, before handing
+        # them in to the JSON encoder.  (We don't want to embed the call to
+        # vm_serialize into the PlotObjEncoder, because that would cause
+        # all the attributes to be duplicated multiple times.)
+        models = []
+        for m in objects:
+            ref = self.get_ref(m)
+            ref["attributes"] = m.vm_serialize()
+            ref["attributes"].update({"id": ref["id"], "doc": None})
+            models.append(ref)
+
+        js = self._load_template(self.js_template).render(
+                    elementid = elementid,
+                    modelid = plot_ref["id"],
+                    modeltype = plot_ref["type"],
+                    all_models = self.serialize(models),
+                )
+        div = self._load_template(self.div_template).render(
+                    elementid = elementid
+                )
+        html = self._load_template(self.html_template).render(
+                    js_snippets = [js],
+                    html_snippets = [div])
+        return html.encode("utf-8")
+
+    def show(self, *objects):
+        """ Displays the given objects, or all objects currently associated
+        with the session, inline in the IPython Notebook.
+
+        Basicall we return a dummy object that implements _repr_html.
+        The reason to do this instead of just having this session object
+        implement _repr_html directly is because users will usually want
+        to just see one or two plots, and not all the plots and models
+        associated with the session.
+        """
+        from IPython.core.display import HTML
+        html = self.dumps(objects)
+        return HTML(html)
 
 class WakariSession(PlotServerSession):
     """ Suitable for running on the Wakari.io service.  Includes default
