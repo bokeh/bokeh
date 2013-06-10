@@ -41,6 +41,17 @@ def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
                                'favicon.ico', mimetype='image/x-icon')
 
+def _makedoc(redisconn, u, title):
+    docid = str(uuid.uuid4())
+    if isinstance(u, basestring):
+        u = user.User.load(redisconn, u)
+    u.add_doc(docid, title)        
+    doc = docs.new_doc(app, docid,
+                       title,
+                       rw_users=[u.username])
+    bokehuser.save(redisconn)
+    return doc
+
 @app.route('/bokeh/doc', methods=['POST'])    
 @app.route('/bokeh/doc/', methods=['POST'])
 def makedoc():
@@ -50,12 +61,7 @@ def makedoc():
         title = request.values['title']
     bokehuser = app.current_user(request)
     try:
-        docid = str(uuid.uuid4())
-        bokehuser.add_doc(docid, title)        
-        doc = docs.new_doc(app, docid,
-                           title,
-                           rw_users=[bokehuser.username])
-        bokehuser.save(app.model_redis)
+        doc = _makedoc(app.model_redis, bokehuser, title)
     except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
@@ -106,7 +112,8 @@ def write_plot_file(url):
                                bokehuser.apikey,
                                url)
     app.write_plot_file(bokehuser.username, codedata)
-    
+
+@app.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
 @app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 @check_read_authentication_and_create_client
@@ -126,6 +133,30 @@ def get_bokeh_info(docid):
     result = make_json(returnval,
                        headers={"Access-Control-Allow-Origin": "*"})
     return result
+
+@app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
+@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
+@check_read_authentication_and_create_client
+def doc_by_title():
+    if request.json:
+        title = request.json['title']
+    else:
+        title = request.values['title']
+    bokehuser = app.current_user(request)
+    docs = [doc for doc in user.docs if doc['title'] == title]
+    if len(docs) == 0:
+        try:
+            doc = _makedoc(app.model_redis, bokehuser, title)
+            docid = doc.docid
+        except DataIntegrityException as e:
+            return abort(409, e.message)
+        jsonstring = protocol.serialize_web(bokehuser.to_public_json())
+        msg = protocol.serialize_web({'msgtype' : 'docchange'})
+        app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
+    else:
+        doc = docs[0]
+        docid = doc['docid']
+    return get_bokeh_info(docid)
 
 @app.route('/bokeh/publicbokehinfo/<docid>')
 def get_public_bokeh_info(docid):
