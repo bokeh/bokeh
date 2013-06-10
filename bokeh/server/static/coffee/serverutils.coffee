@@ -25,6 +25,17 @@ utility =
     response = $.get('/bokeh/userinfo/', {})
     return response
 
+  load_doc_by_title : (title) ->
+    response = $.get(Config.prefix + "/bokeh/doc", {title : title})
+      .done((data) ->
+        all_models = data['all_models']
+        load_models(all_models)
+        apikey = data['apikey']
+        docid = data['docid']
+        submodels(exports.wswrapper, "bokehplot:#{docid}", apikey)
+      )
+    return response
+
   load_doc : (docid) ->
     response = $.get(Config.prefix + "/bokeh/bokehinfo/#{docid}/", {})
       .done((data) ->

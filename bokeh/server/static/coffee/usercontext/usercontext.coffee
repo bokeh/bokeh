@@ -104,11 +104,16 @@ class Doc extends HasParent
       type : 'delete'
     )
 
-  load : () ->
+  load : (use_title) ->
     if @loaded
       return
-    docid = @get('docid')
-    resp = utility.load_doc(docid)
+    if use_title
+      title = @get('title')
+      resp = utility.load_doc_by_title(title)
+    else
+      docid = @get('docid')
+      resp = utility.load_doc(docid)
+
     resp.done((data) =>
       @set('apikey', data['apikey'])
       @set('plot_context', data['plot_context_ref'])

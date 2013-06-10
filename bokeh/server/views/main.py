@@ -49,7 +49,7 @@ def _makedoc(redisconn, u, title):
     doc = docs.new_doc(app, docid,
                        title,
                        rw_users=[u.username])
-    bokehuser.save(redisconn)
+    u.save(redisconn)
     return doc
 
 @app.route('/bokeh/doc', methods=['POST'])    
@@ -118,6 +118,9 @@ def write_plot_file(url):
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 @check_read_authentication_and_create_client
 def get_bokeh_info(docid):
+    return _get_bokeh_info(docid)
+
+def _get_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     plot_context_ref = doc.plot_context_ref
     all_models = docs.prune_and_get_valid_models(app.model_redis,
@@ -136,14 +139,13 @@ def get_bokeh_info(docid):
 
 @app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
-@check_read_authentication_and_create_client
 def doc_by_title():
     if request.json:
         title = request.json['title']
     else:
         title = request.values['title']
     bokehuser = app.current_user(request)
-    docs = [doc for doc in user.docs if doc['title'] == title]
+    docs = [doc for doc in bokehuser.docs if doc['title'] == title]
     if len(docs) == 0:
         try:
             doc = _makedoc(app.model_redis, bokehuser, title)
