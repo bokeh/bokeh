@@ -550,7 +550,7 @@ class NotebookSession(HTMLFileSession):
     # Most of these were formerly defined in dump.py, which was ported over
     # from Wakari.
     notebookscript_paths = ["js/bokehnotebook.js"]
-
+    html_template = "basediv.html"     # template for the entire HTML file
     def __init__(self, plot=None):
         HTMLFileSession.__init__(self, filename=None, plot=plot)
 
@@ -595,29 +595,39 @@ class NotebookSession(HTMLFileSession):
         displaypub.publish_display_data('bokeh', {'text/html': html})
         return None
 
-    class PlotDisplay(object):
+    def dumps(self, objects):
+        """ Returns the HTML contents as a string
+        FIXME : signature different than other dumps
+        FIXME: should consolidate code between this one and that one.
+        """
+        the_plot = objects[0]
+        plot_ref = self.get_ref(the_plot)
+        elementid = str(uuid.uuid4())
 
-        def __init__(self, session, objects):
-            self.session = session
-            self.objects = objects
+        # Manually convert our top-level models into dicts, before handing
+        # them in to the JSON encoder.  (We don't want to embed the call to
+        # vm_serialize into the PlotObjEncoder, because that would cause
+        # all the attributes to be duplicated multiple times.)
+        models = []
+        for m in objects:
+            ref = self.get_ref(m)
+            ref["attributes"] = m.vm_serialize()
+            ref["attributes"].update({"id": ref["id"], "doc": None})
+            models.append(ref)
 
-        def _repr_html(self):
-            sess = self.session
-
-            # model = ???
-            eid = str(uuid.uuid4())
-            plot_js = sess._load_template("plots.js").render(
-                        elementid=eid, modelid=model.id,
-                        all_models=sess.serialize(self.objects),
-                        modeltype= model.typename)
-            plot_div = sess._load_template("plots.html").render(elementid=eid)
-            html = sess._load_template("basediv.html").render(
-                    script_paths = sess._inline_scripts(sess.js_paths()).decode("utf8"),
-                    css_paths = sess._inline_css(sess.css_paths()).decode("utf8"),
-                    js_snippets = [plot_js],
-                    html_snippets = [plot_div])
-            return html.encode("utf-8")
-
+        js = self._load_template(self.js_template).render(
+                    elementid = elementid,
+                    modelid = plot_ref["id"],
+                    modeltype = plot_ref["type"],
+                    all_models = self.serialize(models),
+                )
+        div = self._load_template(self.div_template).render(
+                    elementid = elementid
+                )
+        html = self._load_template(self.html_template).render(
+                    js_snippets = [js],
+                    html_snippets = [div])
+        return html.encode("utf-8")
 
     def show(self, *objects):
         """ Displays the given objects, or all objects currently associated
@@ -629,11 +639,9 @@ class NotebookSession(HTMLFileSession):
         to just see one or two plots, and not all the plots and models
         associated with the session.
         """
-        
-        if len(objects) == 0:
-            objects = self._models
-        return PlotDisplay(self, objects)
-
+        from IPython.core.display import HTML
+        html = self.dumps(objects)
+        return HTML(html)
 
 class WakariSession(PlotServerSession):
     """ Suitable for running on the Wakari.io service.  Includes default
