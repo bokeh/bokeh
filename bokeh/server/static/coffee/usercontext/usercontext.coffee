@@ -115,6 +115,7 @@ class Doc extends HasParent
       resp = utility.load_doc(docid)
 
     resp.done((data) =>
+      @set('docid', data.docid)
       @set('apikey', data['apikey'])
       @set('plot_context', data['plot_context_ref'])
       @trigger('loaded')
