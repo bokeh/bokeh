@@ -44,7 +44,7 @@ class Session(object):
         self._dirty = True
         # This stores a reference to all models in the object graph.
         # Eventually consider making this be weakrefs?
-        self._models = set()
+        self._models = {}
 
     def __enter__(self):
         pass
@@ -60,8 +60,8 @@ class Session(object):
         """
         for obj in objects:
             obj.session = self
-        self._models.update(objects)
-
+            self._models[obj._id] = obj
+            
     def view(self):
         """ Triggers the OS to open a web browser pointing to the file
         that is connected to this session.
@@ -127,13 +127,7 @@ class BaseHTMLSession(Session):
 
     
     def get_ref(self, obj):
-        # Eventually should use our own memo instead of storing
-        # an attribute on the class
-        if not getattr(obj, "_id", None):
-            obj._id = self.make_id(obj)
-
-        self._models.add(obj)
-
+        self._models[obj._id] = obj
         return {
                 'type': obj.__view_model__,
                 'id': obj._id
@@ -214,7 +208,7 @@ class HTMLFileSession(BaseHTMLSession):
         the path to the various static files should be computed.
         """
         # FIXME: Handle this more intelligently
-        the_plot = [m for m in self._models if isinstance(m, Plot)][0]
+        the_plot = [m for m in self._models.itervalues() if isinstance(m, Plot)][0]
         plot_ref = self.get_ref(the_plot)
         elementid = str(uuid.uuid4())
 
@@ -223,7 +217,7 @@ class HTMLFileSession(BaseHTMLSession):
         # vm_serialize into the PlotObjEncoder, because that would cause
         # all the attributes to be duplicated multiple times.)
         models = []
-        for m in self._models:
+        for m in self._models.itervalues():
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
             ref["attributes"].update({"id": ref["id"], "doc": None})
@@ -332,7 +326,7 @@ class HTMLFileSession(BaseHTMLSession):
         Mostly used for debugging.
         """
         models = []
-        for m in self._models:
+        for m in self._models.itervalues():
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
             ref["attributes"].update({"id": ref["id"], "doc": None})
@@ -487,36 +481,50 @@ class PlotServerSession(BaseHTMLSession):
         url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
                 "/" + ref["id"] + "/")
         self.http_session.put(url, data=self.serialize(data))
-
+        
+    def load_type(self, typename, asdict=False):
+        url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/")
+        attrs = protocol.deserialize_json(self.s.get(url).content)
+        if not asdict:
+            models = [PlotObject.get_obj(attr) for attr in attrs]
+        else:
+            models = attrs
+        return models
+    
+    def load_all(self, asdict=False):
+        url = utils.urljoin(self.baseurl, self.docid +"/")
+        attrs = protocol.deserialize_json(self.s.get(url).content)
+        if not asdict:
+            models = [PlotObject.get_obj(attr) for attr in attrs]
+        else:
+            models = attrs
+        return models
+    
     def load_obj(self, ref, asdict=False):
+        
         """ Unserializes the object given by **ref**, into a new object
         of the type in the serialization.  If **asdict** is True,
         then the raw dictionary (including object type and ref) is 
         returned, and no new object is instantiated.
         """
-        # TODO: Do URL and path stuff to read json data from persistence 
-        # backend into jsondata string
-        jsondata = None
-        attrs = protocol.deserialize_json(jsondata)
-        if asdict:
-            return attrs
+        typename = ref["type"]
+        ref_id = ref["id"]
+        url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
+                            "/" + ref["id"] + "/")
+        attr = protocol.deserialize_json(self.s.get(url).content)
+        if not asdict:
+            return PlotObject.get_obj(attr)
         else:
-            from bokeh.objects import PlotObject
-            objtype = attrs["type"]
-            ref_id = attrs["id"]
-            cls = PlotObject.get_class(objtype)
-            newobj = cls(id=ref_id)
-            # TODO: finish this...
-            return newobj
+            return attr
 
     def store_all(self):
         models = []
         # Look for the Plot to stick into here. PlotContexts only
         # want things with a corresponding BokehJS View, so Plots and
         # GridPlots for now.
-        theplot = [x for x in self._models if isinstance(x, Plot)][0]
+        theplot = [x for x in self._models.itervalues() if isinstance(x, Plot)][0]
         self.plotcontext.children = [theplot]
-        for m in list(self._models) + [self.plotcontext]:
+        for m in self._models.values() + [self.plotcontext]:
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
             # FIXME: Is it really necessary to add the id and doc to the
