@@ -91,6 +91,8 @@ class PlotObject(HasProps):
     def __init__(self, *args, **kwargs):
         if "id" in kwargs:
             self._id = kwargs.pop("id")
+        else:
+            self._id = str(uuid4())
         super(PlotObject, self).__init__(*args, **kwargs)
 
     #---------------------------------------------------------------------
