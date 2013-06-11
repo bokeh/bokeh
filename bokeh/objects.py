@@ -4,7 +4,7 @@ this module can be stored as a backbone.js model graph, and stored in a
 plot server or serialized into JS for embedding in HTML or an IPython
 notebook.
 """
-
+from uuid import uuid4
 from functools import wraps
 
 from bokeh.properties import (HasProps, MetaHasProps, 
@@ -59,6 +59,10 @@ class Viewable(MetaHasProps):
         else:
             raise KeyError("View model name '%s' not found" % view_model_name)
 
+    @classmethod
+    def get_obj(cls, attrs):
+        objtype = attrs["type"]
+        return cls.get_class(objtype)(**attrs)
 
 def usesession(meth):
     """ Checks for 'session' in kwargs and in **self**, and guarantees
