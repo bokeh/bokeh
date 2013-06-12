@@ -31,14 +31,15 @@ def _create_plot_component():
     white = ar.Color(255,255,255,255)
 
     #Checkerboard demo ---- 
-    glyphs = ar.load_csv("checkerboard.csv", 2, 0, 1, 3)
-    image = ar.render(glyphs, ar.containing, infos.const(1), counts.count, counts.hdalpha(white,red), 20,20, ar.AffineTransform(0,0,.25,.25))
+    #glyphs = ar.load_csv("checkerboard.csv", 2, 0, 1, 3,1,1)
+    #image = ar.render(glyphs, ar.containing, infos.const(1), counts.count, counts.hdalpha(white,red), 20,20, ar.AffineTransform(0,0,.25,.25))
     #image = ar.render(glyphs, ar.containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,red,blue,white), 20,20, ar.AffineTransform(0,0,.25,.25))
 
     #Circlpoints series A/B
-    #glyphs = ar.load_csv("circlepoints.csv", 1, 2, 3, 4)
-    #image = ar.render(glyphs, ar.containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,red,blue,white), 20,20, ar.AffineTransform(-1,-1,.15,.15))
-    
+    glyphs = ar.load_csv("circlepoints.csv", 1, 2, 3, 4,.1,.1)
+    #image = ar.render(glyphs, ar.containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,red,blue,white), 20,20, ar.AffineTransform(0,0,.1,.1))
+    image = ar.render(glyphs, ar.containing, infos.const(1), counts.count, counts.hdalpha(white,red), 80, 80, ar.AffineTransform(-1,-1,.025,.025))
+
     # Create a plot data object and give it this data
     pd = ArrayPlotData()
     pd.set_data("imagedata", image.as_nparray())
