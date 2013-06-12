@@ -37,9 +37,12 @@ class BaseProperty(object):
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
         names = []
+        names_with_refs = []
         for name, prop in class_dict.iteritems():
             if isinstance(prop, BaseProperty):
                 prop.name = name
+                if hasattr(prop, 'has_ref') and prop.has_ref:
+                    names_with_refs.append(name)
                 names.append(name)
             elif isinstance(prop, type) and issubclass(prop, BaseProperty):
                 # Support the user adding a property without using parens,
@@ -50,6 +53,7 @@ class MetaHasProps(type):
                 newprop.name = name
                 names.append(name)
         class_dict["__properties__"] = names
+        class_dict["__properties_with_refs__"] = names_with_refs
         return type.__new__(cls, class_name, bases, class_dict)
 
 class HasProps(object):
@@ -116,11 +120,15 @@ class List(BaseProperty):
     People will also frequently pass in some other kind of property or a
     class (to indicate a list of instances).  In those cases, we want to 
     just create an empty list
+
+    has_ref parameter tells us whether the json representation of this
+    list contains references to other objects
     """
 
-    def __init__(self, default=None):
+    def __init__(self, default=None, has_ref=False):
         if isinstance(default, type) or isinstance(default, BaseProperty):
             default = None
+        self.has_ref = has_ref
         BaseProperty.__init__(self, default)
 
     def __get__(self, obj, type=None):
@@ -138,11 +146,15 @@ class List(BaseProperty):
 class Dict(BaseProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
+
+    has_ref parameter tells us whether the json representation of this
+    list contains references to other objects
     """
 
-    def __init__(self, default={}):
+    def __init__(self, default={}, has_ref=False):
         BaseProperty.__init__(self, default)
-
+        self.has_ref = has_ref
+        
     def __get__(self, obj, type=None):
         if not hasattr(obj, "_"+self.name) and isinstance(self.default, dict):
             setattr(obj, "_"+self.name, copy(self.default))
@@ -170,7 +182,12 @@ class Array(BaseProperty):
 # OOP things
 class Class(BaseProperty): pass
 class Instance(BaseProperty):
-
+    def __init__(self, default, has_ref=False):
+        """has_ref : whether the json for this is a reference to
+        another object or not
+        """
+        self.has_ref = True
+        
     def __get__(self, obj, type=None):
         # If the constructor for Instance() supplied a class name, we should
         # instantiate that class here, instead of returning the class as the
