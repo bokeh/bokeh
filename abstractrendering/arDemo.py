@@ -14,17 +14,13 @@ import counts
 import rle
 import infos
 
-# Major library imports
-from numpy import exp, linspace, meshgrid
-
 # Enthought library imports
 from enable.api import Component, ComponentEditor
 from traits.api import HasTraits, Instance
 from traitsui.api import Item, Group, View
 
 # Chaco imports
-from chaco.api import ArrayPlotData, jet, Plot
-from chaco.tools.api import PanTool, ZoomTool
+from chaco.api import ArrayPlotData, Plot
 
 #===============================================================================
 # # Create the Chaco plot.
@@ -34,14 +30,14 @@ def _create_plot_component():
     blue = ar.Color(0,255,0,255)
     white = ar.Color(255,255,255,255)
 
-
     #Checkerboard demo ---- 
-    #glyphs = ar.load_csv("checkerboard.csv", 2, 0, 1, 3)
-    #image = ar.render(glyphs, ar.containing, infos.attribute("color",None), rle.COC, rle.minPercent(.5,red,blue,white), 20,20, ar.AffineTransform(0,0,.25,.25))
+    glyphs = ar.load_csv("checkerboard.csv", 2, 0, 1, 3)
+    image = ar.render(glyphs, ar.containing, infos.const(1), counts.count, counts.hdalpha(white,red), 20,20, ar.AffineTransform(0,0,.25,.25))
+    #image = ar.render(glyphs, ar.containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,red,blue,white), 20,20, ar.AffineTransform(0,0,.25,.25))
 
     #Circlpoints series A/B
-    glyphs = ar.load_csv("circlepoints.csv", 1, 2, 3, 4)
-    image = ar.render(glyphs, ar.containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,red,blue,white), 20,20, ar.AffineTransform(-1,-1,.15,.15))
+    #glyphs = ar.load_csv("circlepoints.csv", 1, 2, 3, 4)
+    #image = ar.render(glyphs, ar.containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,red,blue,white), 20,20, ar.AffineTransform(-1,-1,.15,.15))
     
     # Create a plot data object and give it this data
     pd = ArrayPlotData()
@@ -55,10 +51,6 @@ def _create_plot_component():
     plot.title = "Abstract Rendering"
     plot.padding = 50
 
-    # Attach some tools to the plot
-    plot.tools.append(PanTool(plot))
-    zoom = ZoomTool(component=img_plot, tool_mode="box", always_on=False)
-    img_plot.overlays.append(zoom)
     return plot
 
 
