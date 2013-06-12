@@ -66,6 +66,68 @@ def transfer(aggs, trans):
   return image
 
 
+#class GlyphSet(list):
+#    pass
+
+
+class Grid(object):
+
+    width = 2000
+    height = 2000
+    viewxform = None   # array [tx, ty, sx, sy]
+
+    _projected_grid = None
+
+    def project(self, glyphset):
+        """
+        Parameters
+        ==========
+        glyphset: Numpy record array
+            should be record array with at least the following named fields:
+            x, y, width, height.
+
+        Stores result in _projected_grid.
+        """
+
+        outgrid = np.empty((self.width, self.height), dtype=object)
+        for g in glyphset:
+            # transform and add to grid
+            pass
+        self._projected_grid = outgrid
+
+    def reduce(self, reducer, glyphset):
+        """ 
+        Returns ndarray of results of applying func to each element in 
+        the grid.  Creates a new ndarray of the given dtype.
+        """
+        outgrid = np.empty_like(self._projected_grid)
+        outgrid.ravel()[:] = map(lambda x: reducer(glyphset, x), 
+                                    self._projected_grid.flat)
+
+    def transfer(self, transferer):
+        """
+        Returns pixel grid of NxMxRGBA32
+        """
+
+        
+class Reducer(object):
+
+    infields = None
+    outfields = None
+
+    def reduce(self, glyphset, indices):
+        """ Returns the reduced values from just the indicated fields and
+        indicated elements of the glyphset
+        """
+
+class Transfer(object):
+    input_spec = None # tuple of (shape, dtype)
+    # For now assume output is RGBA32
+    #output = None
+
+    def transfer(self, grid):
+        pass
+
 def render(glyphs, selector, info, reducer, trans, screen,ivt):
   """
   Render a set of glyphs under the specified condition to the described canvas.
