@@ -8,8 +8,6 @@ import counts
 import rle
 import infos
 
-
-
 ############################  Core System ####################
 class Aggregates:
   def __init__(self, width, height):
@@ -155,7 +153,7 @@ def containing(px, glyphs):
   return items
 
 
-def load_csv(filename, skip, xc,yc,vc):
+def load_csv(filename, skip, xc,yc,vc,width,height):
   source = open(filename, 'r')
   glyphs = []
   
@@ -168,7 +166,7 @@ def load_csv(filename, skip, xc,yc,vc):
     y = float(line[yc].strip())
     v = line[vc].strip()
 
-    glyphs.append(bokeh.glyphs.SquareX(x=x,y=y,width=1,height=1,fill="red",value=v))
+    glyphs.append(bokeh.glyphs.SquareX(x=x,y=y,width=width,height=height,fill="red",value=v))
   source.close()
   return glyphs
 
