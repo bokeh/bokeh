@@ -25,7 +25,9 @@ def hdalpha(low, high):
   def gen(aggs):
     (min,max) = minmax(aggs)
     def f(v):
-      return interpolatecolors(low,high,min,max,v)
+      return interpolateColors(low,high,min,max,v)
+    return f
+  return gen
       
 
 
@@ -49,7 +51,7 @@ def interpolateColors(low, high, min,  max, v):
   g = int(weightedAverage(high.g, low.g, distance))
   b = int(weightedAverage(high.b, low.b, distance))
   a = int(weightedAverage(high.a, low.a, distance))
-  return Color(r,g,b,a);
+  return ar.Color(r,g,b,a);
 
 
 #TODO: Look at the inMens perceptually-weighted average
