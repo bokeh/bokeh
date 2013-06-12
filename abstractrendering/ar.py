@@ -40,8 +40,9 @@ class Aggregates:
     return "\n".join(chunks) 
 
 
-def aggregate(glyphs, selector, info, reducer, width, height, ivt):
-  aggs = Aggregates(width, height)
+def aggregate(glyphs, selector, info, reducer, screen, ivt):
+  (width,height) = screen
+  aggs = Aggregates(width,height)
   for x in range(0, width):
     for y in range(0, height):
       px = ivt.transform(Pixel(x,y,1,1))
@@ -65,7 +66,7 @@ def transfer(aggs, trans):
   return image
 
 
-def render(glyphs, selector, info, reducer, trans, w,h,ivt):
+def render(glyphs, selector, info, reducer, trans, screen,ivt):
   """
   Render a set of glyphs under the specified condition to the described canvas.
   glyphs ---- Glyphs t render
@@ -76,7 +77,7 @@ def render(glyphs, selector, info, reducer, trans, w,h,ivt):
   ivt ------- INVERSE view transform (converts pixels to canvas space)
   """
 
-  aggs = aggregate(glyphs, selector, info, reducer, w,h,ivt)
+  aggs = aggregate(glyphs, selector, info, reducer, screen,ivt)
   image = transfer(aggs, trans)
   return image
 
@@ -151,6 +152,31 @@ def containing(px, glyphs):
       items.append(g)
       
   return items
+
+def bounds(glyphs):
+  """Compute bounds of the glyph-set.  Returns (X,Y,W,H)"""
+  minX=float("inf")
+  maxX=float("-inf")
+  minY=float("inf")
+  maxY=float("-inf")
+  for g in glyphs:
+    minX=min(minX, g.x)
+    maxX=max(maxX, g.x+g.width)
+    minY=min(minY, g.y)
+    maxY=max(maxY, g.y+g.height)
+
+  return (minX, minY, maxX-minX, maxY-minY)
+
+def zoom_fit(screen, bounds):
+  """What affine transform will zoom-fit the given items?
+     screen: (w,h) of the viewing region
+     bounds: (x,y,w,h) of the items to fit
+     returns: AffineTransform object
+  """
+  (sw,sh) = screen
+  (gx,gy,gw,gh) = bounds
+  scale = max(gw/sw, gh/sh)
+  return AffineTransform(gx,gy,scale,scale)
 
 
 def load_csv(filename, skip, xc,yc,vc,width,height):
