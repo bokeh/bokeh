@@ -1,6 +1,7 @@
 import bokeh.glyphs 
 import re
 import sys
+import numpy as np
 
 ##Abstract rendering function implementation modules
 import counts
@@ -22,8 +23,22 @@ class Aggregates:
   def width(self): return self.w 
   def height(self): return self.h
 
+  def as_nparray(self):
+    """Convert to a numpy array of quads....Assumes the items are colors.
+       This is not a good idea long-term, but we're using it for glue right now."""
+    a = np.ndarray(shape=(self.w, self.h, 4), dtype="uint8")
+    for x in range(0, self.w):
+      for y in range(0, self.h):
+        c = self.get(x,y)
+        a[x][y][0] = c.r
+        a[x][y][1] = c.g
+        a[x][y][2] = c.b
+        a[x][y][3] = c.a
+    return a
+
   def __str__(self):
-    chunks = map(str, [self.values[i:i+self.w] for i in xrange(0, len(self.values), self.w)])
+    ds = lambda v: map(str, v)
+    chunks = map(str, map(ds, [self.values[i:i+self.w] for i in xrange(0, len(self.values), self.w)]))
     return "\n".join(chunks) 
 
 
@@ -101,6 +116,9 @@ class Color:
     self.b=b
     self.a=a
 
+  def __str__(self):
+    return str([self.r,self.g,self.b,self.a])
+
 
 class Pixel:
   x=None
@@ -137,15 +155,10 @@ def containing(px, glyphs):
   return items
 
 
-def main():
-  source = open(sys.argv[1])
-  skip = int(sys.argv[2])
-  xc = int(sys.argv[3])
-  yc = int(sys.argv[4])
-  vc = int(sys.argv[5])
-
+def load_csv(filename, skip, xc,yc,vc):
+  source = open(filename, 'r')
   glyphs = []
-
+  
   for i in range(0, skip):
     source.readline()
 
@@ -155,12 +168,21 @@ def main():
     y = float(line[yc].strip())
     v = line[vc].strip()
 
-    glyphs.append(bokeh.glyphs.SquareX(x=x,y=y,width=1,height=1,fill="red"))
-
+    glyphs.append(bokeh.glyphs.SquareX(x=x,y=y,width=1,height=1,fill="red",value=v))
   source.close()
+  return glyphs
+
+def main():
+  source = sys.argv[1]
+  skip = int(sys.argv[2])
+  xc = int(sys.argv[3])
+  yc = int(sys.argv[4])
+  vc = int(sys.argv[5])
+  glyphs = load_csv(source,skip,xc,yc,vc)
+
   #image = render(glyphs, containing, infos.const(1), counts.count, counts.segment("R",".",2), 20,20, AffineTransform(0,0,.25,.25))
   #image = render(glyphs, containing, infos.attribute("color",None), rle.RLE, rle.minPercent(.5,"A","B","."), 20,20, AffineTransform(0,0,.25,.25))
-  image = render(glyphs, containing, infos.attribute("color",None), rle.COC, rle.minPercent(.5,"A","B","."), 20,20, AffineTransform(0,0,.25,.25))
+  image = render(glyphs, containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,"A","B","."), 10,10, AffineTransform(-1,-1,.35,.35))
   print image
 
 

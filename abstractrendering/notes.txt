@@ -1,5 +1,5 @@
 Simple checkerboard run: python ar.py checkerboard.csv 2 0 1 3
-
+circlepoints: python ar.py circlepoints.csv 1 2 3 4
 
 Implicit geometry using ColumnDataSource and a few functions
 * One functions for location

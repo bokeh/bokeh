@@ -31,14 +31,15 @@ def hdalpha(colors, background):
     return f
   return gen
 
-def minPercent(percent, above, below, background):
+def minPercent(cutoff, above, below, background):
   def gen(aggs):
     def f(rle):
       if len(rle) == 0:
         return background
       else:
         first = rle[rle.first()]
-        return above if (first/float(len(rle))) >= percent else below
+        percentFirst = first/(float(rle.total()))
+        return above if percentFirst >= cutoff else below
     return f
   return gen
 
@@ -65,6 +66,7 @@ class RunLengthEncode:
     self.counts[len(self.counts)-1] = self.counts[len(self.counts)-1]+1
 
   def first(self): return self.keys[0]
+  def total(self): return reduce(lambda x,y:x+y, self.counts)
   
   def __len__(self): return len(self.counts)  
   def __getitem__(self, key):
@@ -74,6 +76,9 @@ class RunLengthEncode:
   
   def __iter__(self): 
     return zip(self.keys, self.counts).__iter__()
+
+  def __str__(self):
+    return str(zip(self.keys,self.counts))
 
 
 class CountOfCategories:
@@ -91,16 +96,18 @@ class CountOfCategories:
       self.coc[key] = current+count
 
   def first(self): return self.__iter__().next()[0]
+  def total(self): return reduce(lambda x,y:x+y, self.coc.values())
 
   def __len__(self): return len(self.coc)
   def __getitem__(self,key): return self.coc[key]
   
   def __iter__(self):
     return zip(self.coc.keys(), self.coc.values()).__iter__()
+  
+  def __str__(self):
+    #Note sure that the keys and the values are in the same order...
+    return str(zip(self.coc.keys(), self.coc.values()))
 
-
-class IDDict:
-  def __getitem__(self, v): return v
 
 def minmax(aggs):
   sizes = map(len, aggs)
