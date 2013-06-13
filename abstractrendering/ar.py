@@ -3,80 +3,25 @@ import re
 import sys
 import numpy as np
 
-##Abstract rendering function implementation modules
-import counts
-import rle
-import infos
 
 ############################  Core System ####################
-class Aggregates:
-  def __init__(self, width, height):
-    self.values=(width*height)*[None]
-    self.w=width
-    self.h=height
-
-  def set(self, x, y, v): self.values[self.idx(x,y)]=v
-  def get(self, x, y): return self.values[self.idx(x,y)]
-  def idx(self, x, y): return (self.h*x)+y
-  def width(self): return self.w 
-  def height(self): return self.h
-
-  def as_nparray(self):
-    """Convert to a numpy array of quads....Assumes the items are colors.
-       This is not a good idea long-term, but we're using it for glue right now."""
-    a = np.ndarray(shape=(self.w, self.h, 4), dtype="uint8")
-    for x in range(0, self.w):
-      for y in range(0, self.h):
-        c = self.get(x,y)
-        a[x][y][0] = c.r
-        a[x][y][1] = c.g
-        a[x][y][2] = c.b
-        a[x][y][3] = c.a
-    return a
-
-  def __str__(self):
-    ds = lambda v: map(str, v)
-    chunks = map(str, map(ds, [self.values[i:i+self.w] for i in xrange(0, len(self.values), self.w)]))
-    return "\n".join(chunks) 
-
-
-def aggregate(glyphs, selector, info, reducer, screen, ivt):
-  (width,height) = screen
-  aggs = Aggregates(width,height)
-  for x in range(0, width):
-    for y in range(0, height):
-      px = ivt.transform(Pixel(x,y,1,1))
-      gs = selector(px, glyphs)
-      vs = map(info, gs)
-      v = reducer(vs)
-      aggs.set(x,y,v)
-  
-  return aggs
-
-
-def transfer(aggs, trans):
-  image = Aggregates(aggs.width(), aggs.height())
-  f = trans(aggs)
-
-  for x in range(0, aggs.width()):
-    for y in range(0, aggs.height()):
-      c = f(aggs.get(x,y))
-      image.set(x, y, c)
-
-  return image
-
-
-#class GlyphSet(list):
-#    pass
+class GlyphSet(list):
+    pass
 
 
 class Grid(object):
-
     width = 2000
     height = 2000
     viewxform = None   # array [tx, ty, sx, sy]
 
+    _glyphset = None
     _projected_grid = None
+    _aggregates = None
+
+    def __init__(self, w,h,viewxform):
+      self.width=w
+      self.height=h
+      self.viewxform=viewxform
 
     def project(self, glyphset):
         """
@@ -87,61 +32,100 @@ class Grid(object):
             x, y, width, height.
 
         Stores result in _projected_grid.
+        Stores the passed glyphset in _glyphset
         """
 
         outgrid = np.empty((self.width, self.height), dtype=object)
-        for g in glyphset:
-            # transform and add to grid
-            pass
+        
+        # transform each glyph and add it to the grid
+        for i in xrange(0, len(glyphset)):
+          g = glyphset[i]
+          gt = self.viewxform.transform(g)
+          for x in xrange(int(gt.x), int(round(gt.x+gt.width))):
+            for y in xrange(int(gt.y), int(round(gt.y+gt.height))):
+              ls = outgrid[x,y]
+              if (ls == None): 
+                ls = []
+                outgrid[x,y]=ls
+              ls.append(i)
+        
+        self._glyphset = glyphset
         self._projected_grid = outgrid
+        #print self._projected_grid
 
-    def reduce(self, reducer, glyphset):
+    def aggregate(self, aggregator):
         """ 
         Returns ndarray of results of applying func to each element in 
         the grid.  Creates a new ndarray of the given dtype.
+
+        Stores the results in _aggregates
         """
         outgrid = np.empty_like(self._projected_grid)
-        outgrid.ravel()[:] = map(lambda x: reducer(glyphset, x), 
+        outgrid.ravel()[:] = map(lambda ids: aggregator.aggregate(self._glyphset, ids), 
                                     self._projected_grid.flat)
 
+        self._aggregates = outgrid
+
     def transfer(self, transferer):
-        """
-        Returns pixel grid of NxMxRGBA32
-        """
+        """ Returns pixel grid of NxMxRGBA32 (for now) """
+        return transferer.transfer(self)
 
         
-class Reducer(object):
-
+class Aggregator(object):
     infields = None
-    outfields = None
 
-    def reduce(self, glyphset, indices):
-        """ Returns the reduced values from just the indicated fields and
+    def aggregate(self, glyphset, indices):
+        """ Returns the aggregated values from just the indicated fields and
         indicated elements of the glyphset
         """
-
-class Transfer(object):
-    input_spec = None # tuple of (shape, dtype)
-    # For now assume output is RGBA32
-    #output = None
-
-    def transfer(self, grid):
         pass
 
-def render(glyphs, selector, info, reducer, trans, screen,ivt):
+class Transfer(object):
+  input_spec = None # tuple of (shape, dtype)
+  # For now assume output is RGBA32
+  #output = None
+
+  def makegrid(self, grid):
+    return np.ndarray((grid.width, grid.height, 4), dtype=np.uint8)
+
+  def transfer(self, grid):
+    raise NotImplementedError
+
+ 
+class PixelTransfer(Transfer):
+  """Transfer function that does non-vectorized per-pixel transfers."""
+
+  def __init__(self, pixelfunc, prefunc):
+    self.pixelfunc = pixelfunc
+    self.prefunc = prefunc
+
+  def transfer(self, grid):
+    outgrid = self.makegrid(grid)
+    self._pre(grid)
+    (width,height) = (grid.width, grid.height)
+
+    for x in xrange(0, width):
+      for y in xrange(0, height):
+        outgrid[x,y] = self.pixelfunc(grid, x, y)
+
+    return outgrid
+
+
+def render(glyphs, aggregator, trans, screen,ivt):
   """
   Render a set of glyphs under the specified condition to the described canvas.
   glyphs ---- Glyphs t render
   selector -- Function used to select which glyphs apply to which pixel
-  reducer --- Function to combine a set of glyphs into a single aggregate value
+  aggregator  Function to combine a set of glyphs into a single aggregate value
   trans ----- Function for converting aggregates to colors
-  w,h  ------ width/height of the canvas
+  screen ---- (width,height) of the canvas
   ivt ------- INVERSE view transform (converts pixels to canvas space)
   """
 
-  aggs = aggregate(glyphs, selector, info, reducer, screen,ivt)
-  image = transfer(aggs, trans)
-  return image
+  grid = Grid(screen[0], screen[1], ivt.inverse())
+  grid.project(glyphs)
+  grid.aggregate(aggregator)
+  return grid.transfer(trans)
 
 
 ###############################  Graphics Components ###############
@@ -153,48 +137,51 @@ class AffineTransform:
     self.m = [[sx,0,tx],
               [0,sy,ty],
               [0,0,1]]
+
   def trans(self, x, y):
+    """Transform a passed point."""
     x = self.m[0][0]*x + self.m[0][1]*y + self.m[0][2]
     y = self.m[1][0]*x + self.m[1][1]*y + self.m[1][2]
     return (x, y)
 
   def transform(self, r):
+    """Transform a passed rectangle (somethign with x,y,w,h)"""
     (p1x,p1y) = self.trans(r.x, r.y)
-    (p2x,p2y) = self.trans(r.x+r.w, r.y+r.h)
+    (p2x,p2y) = self.trans(r.x+r.width, r.y+r.height)
     w = p2x-p1x
     h = p2y-p1y
     return Pixel(p1x,p1y,w,h)
 
-class Color:
-  r=None
-  g=None
-  b=None
-  a=None
+  def inverse(self):
+    sx = self.m[0][0]
+    sy = self.m[1][1]
+    tx = self.m[0][2]
+    ty = self.m[1][2]
+    return AffineTransform(-tx,-ty,1/sx, 1/sy)
 
+class Color:
   def __init__(self,r,g,b,a):
     self.r=r
     self.g=g
     self.b=b
     self.a=a
 
+  def np(self):
+    return [self.r,self.g,self.b,self.a]
+
   def __str__(self):
     return str([self.r,self.g,self.b,self.a])
 
 
 class Pixel:
-  x=None
-  y=None
-  w=None
-  h=None
-
   def __init__(self,x,y,w,h):
     self.x=x
     self.y=y
-    self.w=w
-    self.h=h
+    self.width=w
+    self.height=h
 
   def __str__(self):
-    return ",".join(map(str, [self.x,self.y,self.w,self.h]))
+    return ",".join(map(str, [self.x,self.y,self.width,self.height]))
 
 ############################  Support functions ####################
 
@@ -259,16 +246,25 @@ def load_csv(filename, skip, xc,yc,vc,width,height):
   return glyphs
 
 def main():
+  ##Abstract rendering function implementation modules (for demo purposes only)
+  import rle
+  import infos
+  import counts
+
   source = sys.argv[1]
   skip = int(sys.argv[2])
   xc = int(sys.argv[3])
   yc = int(sys.argv[4])
   vc = int(sys.argv[5])
-  glyphs = load_csv(source,skip,xc,yc,vc)
+  size = float(sys.argv[6])
+  glyphs = load_csv(source,skip,xc,yc,vc,size,size)
 
-  #image = render(glyphs, containing, infos.const(1), counts.count, counts.segment("R",".",2), 20,20, AffineTransform(0,0,.25,.25))
-  #image = render(glyphs, containing, infos.attribute("color",None), rle.RLE, rle.minPercent(.5,"A","B","."), 20,20, AffineTransform(0,0,.25,.25))
-  image = render(glyphs, containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,"A","B","."), 10,10, AffineTransform(-1,-1,.35,.35))
+  image = render(glyphs, 
+                 counts.Count(), 
+                 counts.Segment(Color(0,0,0,0), Color(255,255,255,255), .5),
+                 (20,20),
+                 AffineTransform(-1,-1,.35,.35))
+
   print image
 
 

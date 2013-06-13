@@ -31,24 +31,29 @@ def _create_plot_component():
     red = ar.Color(255,0,0,255)
     blue = ar.Color(0,255,0,255)
     white = ar.Color(255,255,255,255)
+    black = ar.Color(0,0,0,255)
     
     glyphs = ar.load_csv("circlepoints.csv", 1, 2, 3, 4,.1,.1)
     #glyphs = ar.load_csv("checkerboard.csv", 2, 0, 1, 3,1,1)
     
-    screen = (20,20)
+    screen = (800,800)
     ivt = ar.zoom_fit(screen,ar.bounds(glyphs))
 
     with Timer() as arTimer:   
       #image = ar.render(glyphs, ar.containing, infos.const(1), counts.count, counts.hdalpha(white,red), screen, ivt)
       #image = ar.render(glyphs, ar.containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,red,blue,white), screen, ivt) 
       #image = ar.render(glyphs, ar.containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,red,blue,white), screen, ivt)
-      image = ar.render(glyphs, ar.containing, infos.const(1), counts.count, counts.hdalpha(white,red), screen, ivt) 
       #image = ar.render(glyphs, ar.containing, infos.const(1), counts.count, counts.hdalpha(white,red), screen, ivt) 
+      #image = ar.render(glyphs, ar.containing, infos.const(1), counts.count, counts.hdalpha(white,red), screen, ivt) 
+      image = ar.render(glyphs, 
+                        counts.Count(), 
+                        counts.Segment(red, black, .5),
+                        screen,
+                        ivt)
 
     # Create a plot data object and give it this data
     pd = ArrayPlotData()
-    with Timer() as screenTimer:
-      pd.set_data("imagedata", image.as_nparray())
+    pd.set_data("imagedata", image)
 
     # Create the plot
     plot = Plot(pd)
@@ -59,7 +64,6 @@ def _create_plot_component():
     plot.padding = 50
     
     print "Aggregate/Transfer: %s ms" % arTimer.msecs
-    print "Render to screen: %s ms" % screenTimer.msecs
 
     return plot
 
