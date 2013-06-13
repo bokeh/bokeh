@@ -553,9 +553,7 @@ class PlotServerSession(BaseHTMLSession):
         # Look for the Plot to stick into here. PlotContexts only
         # want things with a corresponding BokehJS View, so Plots and
         # GridPlots for now.
-        theplot = [x for x in self._models.itervalues() if isinstance(x, Plot)][0]
-        self.plotcontext.children = [theplot]
-        for m in self._models.values() + [self.plotcontext]:
+        for m in self._models.values():
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
             # FIXME: Is it really necessary to add the id and doc to the
