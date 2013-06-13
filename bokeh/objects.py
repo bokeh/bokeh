@@ -127,7 +127,7 @@ class PlotObject(HasProps):
         """Loads all json into a instance of cls, EXCEPT any references
         which are handled in finalize
         """
-        inst = cls()
+        inst = cls(id=attrs.pop('id'))
         ref_props = {}
         for p in inst.properties_with_refs():
             if p in attrs:
@@ -158,7 +158,7 @@ class PlotObject(HasProps):
         dict.  Otherwise, returns a list of attribute names.
         """
         props = self.properties()
-        props.remove("session")
+        props.remove("session")        
         if withvalues:
             return dict((k,getattr(self,k)) for k in props)
         else:
@@ -208,7 +208,7 @@ class DataSource(PlotObject):
         return ColumnsRef(source=self, columns=columns)
 
 class ColumnsRef(HasProps):
-    source = Instance(DataSource)
+    source = Instance(DataSource, has_ref=True)
     columns = List(String)
 
 class ColumnDataSource(DataSource):
@@ -246,7 +246,7 @@ class Range1d(PlotObject):
 
 class DataRange1d(Range1d):    
     """ Represents a range in a scalar dimension """
-    sources = List(ColumnsRef)
+    sources = List(ColumnsRef, has_ref=True)
     rangepadding = Float(0.1)
 
     def vm_serialize(self):
@@ -257,15 +257,15 @@ class DataRange1d(Range1d):
 
 class FactorRange(PlotObject):
     """ Represents a range in a categorical dimension """
-    sources = List(ColumnsRef)
+    sources = List(ColumnsRef, has_ref=True)
     values = List()
     columns = List()
 
 class GlyphRenderer(PlotObject):
     
-    data_source = Instance(DataSource)
-    xdata_range = Instance(DataRange1d)
-    ydata_range = Instance(DataRange1d)
+    data_source = Instance(DataSource, has_ref=True)
+    xdata_range = Instance(DataRange1d, has_ref=True)
+    ydata_range = Instance(DataRange1d, has_ref=True)
 
     # How to intepret the values in the data_source
     units = Enum("screen", "data")
@@ -273,7 +273,7 @@ class GlyphRenderer(PlotObject):
     # Instance of bokeh.glyphs.Glyph; not declaring it explicitly below
     # because of circular imports. The renderers should get moved out
     # into another module...
-    glyph = Instance
+    glyph = Instance(has_ref=True)
 
     def vm_serialize(self):
         # GlyphRenderers need to serialize their state a little differently,
