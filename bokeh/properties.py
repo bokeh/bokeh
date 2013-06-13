@@ -60,7 +60,7 @@ def accumulate_from_subclasses(cls, propname):
     s = set()
     for c in inspect.getmro(cls):
         if issubclass(c, HasProps):
-            s.update(getattr(cls, propname))
+            s.update(getattr(c, propname))
     return s
 
 class HasProps(object):
