@@ -55,6 +55,13 @@ class MetaHasProps(type):
         class_dict["__properties__"] = names
         class_dict["__properties_with_refs__"] = names_with_refs
         return type.__new__(cls, class_name, bases, class_dict)
+    
+def accumulate_from_subclasses(cls, propname):
+    s = set()
+    for c in inspect.getmro(cls):
+        if issubclass(c, HasProps):
+            s.update(getattr(cls, propname))
+    return s
 
 class HasProps(object):
     __metaclass__ = MetaHasProps
@@ -81,16 +88,25 @@ class HasProps(object):
         d = dict((p,getattr(self, p)) for p in self.__properties__)
         return self.__class__(**d)
 
+    def properties_with_refs(self):
+        """ Returns a set of the names of this object's properties that
+        have references. We traverse the class hierarchy and
+        pull together the full list of properties.
+        """
+        if not hasattr(self, "__cached_allprops_with_refs"):
+            s = accumulate_from_subclasses(self.__class__,
+                                           "__properties_with_refs__")
+            self.__cached_allprops_with_refs = s
+        return self.__cached_allprops_with_refs
+
     def properties(self):
         """ Returns a set of the names of this object's properties. We
         traverse the class hierarchy and pull together the full
         list of properties.
         """
         if not hasattr(self, "__cached_allprops"):
-            s = set()
-            for cls in inspect.getmro(self.__class__):
-                if issubclass(cls, HasProps):
-                    s.update(cls.__properties__)
+            s = accumulate_from_subclasses(self.__class__,
+                                           "__properties__")
             self.__cached_allprops = s
         return self.__cached_allprops
 
@@ -182,10 +198,11 @@ class Array(BaseProperty):
 # OOP things
 class Class(BaseProperty): pass
 class Instance(BaseProperty):
-    def __init__(self, default, has_ref=False):
+    def __init__(self, default=None, has_ref=False):
         """has_ref : whether the json for this is a reference to
         another object or not
         """
+        super(Instance, self).__init__(default=default)
         self.has_ref = True
         
     def __get__(self, obj, type=None):

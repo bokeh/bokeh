@@ -79,10 +79,13 @@ def create(docid, typename):
 @check_read_authentication_and_create_client
 def get(docid, typename=None):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
-    models = app.collections.get_bulk(docid, typename=typename)
+    models = docs.prune_and_get_valid_models(app.model_redis,
+                                             app.collections,
+                                             docid)
     if typename is not None:
         return protocol.serialize_web(
-            [x.to_json(include_hidden=include_hidden) for x in models]
+            [x.to_json(include_hidden=include_hidden) \
+             for x in models if x.typename==typename]
             )
     else:
         return protocol.serialize_web(

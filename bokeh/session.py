@@ -353,11 +353,11 @@ class HTMLFragmentSession(BaseHTMLSession):
         """
         pass
 
+class PlotContext(PlotObject):
+    children = List
 
 class PlotServerSession(BaseHTMLSession):
 
-    class PlotContext(PlotObject):
-        children = List
 
     def __init__(self, username=None, serverloc=None, userapikey="nokey"):
         # This logic is based on ContinuumModelsClient.__init__ and
@@ -408,17 +408,20 @@ class PlotServerSession(BaseHTMLSession):
             self.docid = docid
             self.apikey = apikey['readonlyapikey']
             logger.info('got read only apikey')
-        url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
-        # TODO: Load the full document. For now, just load the PlotContext
-        url = urlparse.urljoin(self.base_url, self.docid+"/PlotContext/")
-        attrs = protocol.deserialize_json(self.http_session.get(url).content)
-        if len(attrs) == 0:
-            logger.warning("Unable to load PlotContext for doc ID %s" % self.docid)
+        self.load_all()
+        plotcontext = self.load_type('PlotContext')
+        if len(plotcontext):
+            temp = plotcontext[0]            
+            if len(plotcontext) > 1:
+                logger.warning(
+                    "Found more than one PlotContext for doc ID %s; " \
+                    "Using PlotContext ID %s" % (self.docid, plotcontext._id))
+            plotcontext = temp
         else:
-            self.plotcontext = PlotServerSession.PlotContext(id=attrs[0]["id"])
-            if len(attrs) > 1:
-                logger.warning("Found more than one PlotContext for doc ID %s; " \
-                        "Using PlotContext ID %s" % (self.docid, attrs[0]["id"]))
+            logger.warning("Unable to load PlotContext for doc ID %s" % self.docid)
+            plotcontext = PlotContext()
+            self.store_obj(plotcontext)
+        self.plotcontext = plotcontext
         return
         
     def make_doc(self, title):
@@ -482,41 +485,69 @@ class PlotServerSession(BaseHTMLSession):
                 "/" + ref["id"] + "/")
         self.http_session.put(url, data=self.serialize(data))
         
-    def load_type(self, typename, asdict=False):
-        url = utils.urljoin(self.baseurl, self.docid +"/", typename + "/")
-        attrs = protocol.deserialize_json(self.s.get(url).content)
-        if not asdict:
-            models = [PlotObject.get_obj(attr) for attr in attrs]
-        else:
-            models = attrs
-        return models
     
     def load_all(self, asdict=False):
-        url = utils.urljoin(self.baseurl, self.docid +"/")
-        attrs = protocol.deserialize_json(self.s.get(url).content)
+        """the json coming out of this looks different than that coming
+        out of load_type, because it contains id, type, attributes, whereas
+        the other one just contains attributes directly
+        """
+        url = utils.urljoin(self.base_url, self.docid +"/")
+        attrs = protocol.deserialize_json(self.http_session.get(url).content)
         if not asdict:
-            models = [PlotObject.get_obj(attr) for attr in attrs]
+            models = []
+            for attr in attrs:
+                _id = attr['id']
+                typename = attr['type']
+                attr = attr['attributes']
+                m = PlotObject.get_obj(typename, attr)
+                self.add(m)
+                models.append(m)
+            for m in models:
+                m.finalize(self._models)
         else:
             models = attrs
         return models
     
-    def load_obj(self, ref, asdict=False):
-        
-        """ Unserializes the object given by **ref**, into a new object
-        of the type in the serialization.  If **asdict** is True,
-        then the raw dictionary (including object type and ref) is 
-        returned, and no new object is instantiated.
+    def load_type(self, typename, asdict=False):
+        url = utils.urljoin(self.base_url, self.docid +"/", typename + "/")
+        attrs = protocol.deserialize_json(self.http_session.get(url).content)
+        if not asdict:
+            models = []
+            for attr in attrs:
+                m = PlotObject.get_obj(typename, attr)
+                self.add(m)
+                models.append(m)
+            for m in models:
+                m.finalize(self._models)
+        else:
+            models = attrs
+        return models
+    
+    def load_obj(self, ref, asdict=False, modelattrs={}):
+        """loads an object from the server.
+        if asdict:
+            only the json is returned.
+        else:
+            update the existing copy in _models if it is present
+            instantiate a new one if it is not
+            and make sure to convert all references into models
+        in the conversion from json to objects, sometimes references
+        to models need to be resolved.  If there are any json attributes
+        being processed, you can pass them in as modelattrs
         """
         typename = ref["type"]
         ref_id = ref["id"]
         url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
                             "/" + ref["id"] + "/")
-        attr = protocol.deserialize_json(self.s.get(url).content)
+        attr = protocol.deserialize_json(self.http_session.get(url).content)
         if not asdict:
-            return PlotObject.get_obj(attr)
+            m = PlotObject.get_obj(typename, attr)
+            self.add(m)
+            m.finalize(self._models)
+            return m
         else:
             return attr
-
+    
     def store_all(self):
         models = []
         # Look for the Plot to stick into here. PlotContexts only
