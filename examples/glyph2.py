@@ -58,6 +58,7 @@ sess = session.PlotServerSession(username="defaultuser",
         serverloc="http://localhost:5006", userapikey="nokey")
 sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
 sess.use_doc("glyph2")
+sess.plotcontext.children.append(plot)
 sess.store_all()
 
 
