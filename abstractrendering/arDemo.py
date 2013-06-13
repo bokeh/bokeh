@@ -39,7 +39,7 @@ def _create_plot_component():
     screen = (800,800)
     ivt = ar.zoom_fit(screen,ar.bounds(glyphs))
 
-    with Timer() as arTimer:   
+    with Timer("Aggregates/Transfer") as arTimer:   
       #image = ar.render(glyphs, ar.containing, infos.const(1), counts.count, counts.hdalpha(white,red), screen, ivt)
       #image = ar.render(glyphs, ar.containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,red,blue,white), screen, ivt) 
       #image = ar.render(glyphs, ar.containing, infos.attribute("value",None), rle.COC, rle.minPercent(.5,red,blue,white), screen, ivt)
@@ -63,8 +63,6 @@ def _create_plot_component():
     plot.title = "Abstract Rendering"
     plot.padding = 50
     
-    print "Aggregate/Transfer: %s ms" % arTimer.msecs
-
     return plot
 
 

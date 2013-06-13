@@ -3,6 +3,8 @@ import re
 import sys
 import numpy as np
 
+from timer import Timer
+
 
 ############################  Core System ####################
 class GlyphSet(list):
@@ -122,8 +124,12 @@ def render(glyphs, aggregator, trans, screen,ivt):
   ivt ------- INVERSE view transform (converts pixels to canvas space)
   """
 
-  grid = Grid(screen[0], screen[1], ivt.inverse())
-  grid.project(glyphs)
+  with Timer("Load") as t:
+    grid = Grid(screen[0], screen[1], ivt.inverse())
+
+  with Timer("Project:") as t:
+    grid.project(glyphs)
+
   grid.aggregate(aggregator)
   return grid.transfer(trans)
 
