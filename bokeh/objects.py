@@ -10,7 +10,8 @@ from functools import wraps
 from bokeh.properties import (HasProps, MetaHasProps, 
         Any, Dict, Enum, Float, Instance, Int, List, String,
         Color, Pattern, Percent, Size)
-
+import logging
+logger = logging.getLogger(__file__)
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
     persistence layer.
@@ -48,8 +49,8 @@ class Viewable(MetaHasProps):
         Viewable.model_class_reverse_map[class_name] = newcls
         return newcls
 
-    @staticmethod
-    def get_class(view_model_name):
+    @classmethod
+    def get_class(cls, view_model_name):
         """ Given a __view_model__ name, returns the corresponding class
         object
         """
@@ -60,9 +61,8 @@ class Viewable(MetaHasProps):
             raise KeyError("View model name '%s' not found" % view_model_name)
 
     @classmethod
-    def get_obj(cls, attrs):
-        objtype = attrs["type"]
-        return cls.get_class(objtype)(**attrs)
+    def get_obj(cls, typename, attrs):
+        return cls.get_class(typename).load_json(attrs)
 
 def usesession(meth):
     """ Checks for 'session' in kwargs and in **self**, and guarantees
@@ -81,6 +81,31 @@ def usesession(meth):
         return meth(self, *args, **kw)
     return wrapper
 
+def is_ref(frag):
+    return isinstance(frag, dict) and \
+           frag.get('type') and \
+           frag.get('id')
+
+def resolve_json(fragment, models):
+    if is_ref(fragment):
+        if fragment['id'] in models:
+            return models[fragment['id']]
+        else:
+            logging.error("model not found for %s", fragment)
+    elif isinstance(fragment, list):
+        output = []
+        for val in fragment:
+            output.append(resolve_json(val, models))
+        return output
+    elif isinstance(fragment, dict):
+        output = {}
+        for k, val in fragment.iteritems():
+            output[k] = resolve_json(val, models)
+        return output
+    else:
+        return fragment
+        
+    
 class PlotObject(HasProps):
     """ Base class for all plot-related objects """
 
@@ -89,11 +114,34 @@ class PlotObject(HasProps):
     session = Instance   # bokeh.session.Session
 
     def __init__(self, *args, **kwargs):
+        # Eventually should use our own memo instead of storing
+        # an attribute on the class
         if "id" in kwargs:
             self._id = kwargs.pop("id")
         else:
             self._id = str(uuid4())
         super(PlotObject, self).__init__(*args, **kwargs)
+        
+    @classmethod
+    def load_json(cls, attrs):
+        """Loads all json into a instance of cls, EXCEPT any references
+        which are handled in finalize
+        """
+        inst = cls()
+        ref_props = {}
+        for p in inst.properties_with_refs():
+            if p in attrs:
+                ref_props[p] = attrs.pop(p)
+        inst._ref_props = ref_props
+        inst.update(**attrs)
+        return inst
+    
+    def finalize(self, models):
+        """models is a dict of id->model mappings
+        """
+        if hasattr(self, "_ref_props"):
+            props = resolve_json(self._ref_props, models)
+            self.update(**props)
 
     #---------------------------------------------------------------------
     # View Model connection methods
@@ -104,7 +152,6 @@ class PlotObject(HasProps):
     # Many of the calls one would expect in a rich client map instead to
     # batched updates on the M-VM-V approach.
     #---------------------------------------------------------------------
-
     def vm_props(self, withvalues=False):
         """ Returns the ViewModel-related properties of this object.  If
         **withvalues** is True, then returns attributes with values as a 
@@ -122,7 +169,11 @@ class PlotObject(HasProps):
         a layout corresponding to what BokehJS expects at unmarshalling time.
         """
         return self.vm_props(withvalues=True)
-
+    
+    def update(self, **kwargs):
+        for k,v in kwargs.iteritems():
+            setattr(self, k, v)
+            
     @usesession
     def pull(self, session=None, ref=None):
         """ Pulls information from the given session and ref id into this
@@ -133,8 +184,7 @@ class PlotObject(HasProps):
         newattrs = session.load(ref, asdict=True)
         # Loop over attributes and call setattr() instead of doing a bulk
         # self.__dict__.update because some attributes may be properties.
-        for k,v in newattrs["attributes"].iteritems():
-            setattr(self, k, v)
+        self.update(newattrs["attributes"])
 
     @usesession
     def push(self, session=None):
@@ -297,7 +347,8 @@ class GuideRenderer(PlotObject):
     def __init__(self, **kwargs):
         super(GuideRenderer, self).__init__(**kwargs)
         if self.plot is not None:
-            self.plot.renderers.append(self)
+            if self not in self.plot.renderers:
+                self.plot.renderers.append(self)
     
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
