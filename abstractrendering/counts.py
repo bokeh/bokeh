@@ -26,8 +26,8 @@ class Segment(ar.Transfer):
   def f_vec(self, items):
     keys = (items >= self.divider) # .astype(int)
     out = np.empty(items.shape + (4,), dtype=np.uint8)
-    out[keys] = self.high.np()
-    out[~keys] = self.low.np()
+    out[keys] = self.high
+    out[~keys] = self.low
     return out
     #return np.array([[self.high.np()],[self.low.np()]])[keys]
 

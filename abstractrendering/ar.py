@@ -2,12 +2,12 @@ import bokeh.glyphs
 import re
 import sys
 import numpy as np
-
+import math
 from timer import Timer
 
 
 ############################  Core System ####################
-class GlyphSet(list):
+class Glyphset(list):
     pass
 
 
@@ -38,13 +38,16 @@ class Grid(object):
         """
 
         outgrid = np.empty((self.width, self.height), dtype=object)
+
+
+        #X,Y,W,H -> X,Y,X2,Y2 -pixel space-> X',Y',X2',Y2'
         
         # transform each glyph and add it to the grid
         for i in xrange(0, len(glyphset)):
           g = glyphset[i]
           gt = self.viewxform.transform(g)
-          for x in xrange(int(gt.x), int(round(gt.x+gt.width))):
-            for y in xrange(int(gt.y), int(round(gt.y+gt.height))):
+          for x in xrange(int(math.floor(gt.x)), int(math.ceil(gt.x+gt.width))):
+            for y in xrange(int(math.floor(gt.y)), int(math.ceil(gt.y+gt.height))):
               ls = outgrid[x,y]
               if (ls == None): 
                 ls = []
@@ -130,8 +133,11 @@ def render(glyphs, aggregator, trans, screen,ivt):
   with Timer("Project:") as t:
     grid.project(glyphs)
 
-  grid.aggregate(aggregator)
-  return grid.transfer(trans)
+  with Timer("Aggregate") as t:
+    grid.aggregate(aggregator)
+
+  with Timer("Transfer") as t:
+    return grid.transfer(trans)
 
 
 ###############################  Graphics Components ###############
@@ -150,13 +156,13 @@ class AffineTransform:
     y = self.m[1][0]*x + self.m[1][1]*y + self.m[1][2]
     return (x, y)
 
-  def transform(self, r):
-    """Transform a passed rectangle (somethign with x,y,w,h)"""
-    (p1x,p1y) = self.trans(r.x, r.y)
-    (p2x,p2y) = self.trans(r.x+r.width, r.y+r.height)
+  def transform(self, glyph):
+    """Transform a passed glyph (somethign with x,y,w,h)"""
+    (p1x,p1y) = self.trans(glyph.x, glyph.y)
+    (p2x,p2y) = self.trans(glyph.x+glyph.width, glyph.y+glyph.height)
     w = p2x-p1x
     h = p2y-p1y
-    return Pixel(p1x,p1y,w,h)
+    return Glyph(p1x, p1y, w, h, glyph.props)
 
   def inverse(self):
     sx = self.m[0][0]
@@ -165,29 +171,24 @@ class AffineTransform:
     ty = self.m[1][2]
     return AffineTransform(-tx,-ty,1/sx, 1/sy)
 
-class Color:
+class Color(list):
   def __init__(self,r,g,b,a):
+    list.__init__(self,[r,g,b,a])
     self.r=r
     self.g=g
     self.b=b
     self.a=a
 
-  def np(self):
-    return [self.r,self.g,self.b,self.a]
-
-  def __str__(self):
-    return str([self.r,self.g,self.b,self.a])
-
-
-class Pixel:
-  def __init__(self,x,y,w,h):
+class Glyph(list):
+  def __init__(self,x,y,w,h,*props):
+    fl = [x,y,w,h]
+    fl.extend(props)
+    list.__init__(self,fl)
     self.x=x
     self.y=y
     self.width=w
     self.height=h
-
-  def __str__(self):
-    return ",".join(map(str, [self.x,self.y,self.width,self.height]))
+    self.props=props
 
 ############################  Support functions ####################
 
@@ -236,7 +237,7 @@ def zoom_fit(screen, bounds):
 
 def load_csv(filename, skip, xc,yc,vc,width,height):
   source = open(filename, 'r')
-  glyphs = []
+  glyphs = Glyphset()
   
   for i in range(0, skip):
     source.readline()
@@ -246,8 +247,9 @@ def load_csv(filename, skip, xc,yc,vc,width,height):
     x = float(line[xc].strip())
     y = float(line[yc].strip())
     v = line[vc].strip()
+    g = Glyph(x,y,width,height,v)
+    glyphs.append(g)
 
-    glyphs.append(bokeh.glyphs.SquareX(x=x,y=y,width=width,height=height,fill="red",value=v))
   source.close()
   return glyphs
 
