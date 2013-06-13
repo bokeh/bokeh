@@ -254,7 +254,15 @@ class DataRange1d(Range1d):
         sources = props.pop("sources")
         props["sources"] = [{"ref":cr.source, "columns":cr.columns} for cr in sources]
         return props
-
+    
+    def finalize(self, models):
+        super(DataRange1d, self).finalize(models)
+        for idx, source in enumerate(self.sources):
+            if isinstance(source, dict):
+                self.sources[idx] = ColumnsRef(
+                    source=source['ref'],
+                    columns=source['columns'])
+        
 class FactorRange(PlotObject):
     """ Represents a range in a categorical dimension """
     sources = List(ColumnsRef, has_ref=True)
@@ -282,7 +290,7 @@ class GlyphRenderer(PlotObject):
                  "xdata_range": self.xdata_range,
                  "ydata_range": self.ydata_range,
                  "glyphspec": self.glyph.to_glyphspec() }
-
+        
 class Plot(PlotObject):
 
     data_sources = List

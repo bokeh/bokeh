@@ -353,9 +353,16 @@ class HTMLFragmentSession(BaseHTMLSession):
         """
         pass
 
+#should move these to bokeh.objects?
+
 class PlotContext(PlotObject):
     children = List
-
+    
+class PlotList(PlotContext):
+    # just like plot context, except plot context has special meaning
+    # everywhere, so plotlist is the generic one
+    pass
+               
 class PlotServerSession(BaseHTMLSession):
 
 
@@ -437,7 +444,7 @@ class PlotServerSession(BaseHTMLSession):
                     if x.get('title') == title]
         docid = matching[0]['docid']
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/%s/" % docid)
-        response = self.session.delete(url, verify=False)
+        response = self.http_session.delete(url, verify=False)
         if response.status_code == 409:
             raise DataIntegrityException
         self.userinfo = utils.get_json(response)
@@ -459,7 +466,11 @@ class PlotServerSession(BaseHTMLSession):
         # done by separately creating the DataSource object. Stubbing this
         # out for now for symmetry with mpl.PlotClient
         raise NotImplementedError("Construct DataSources manually from bokeh.objects")
-
+    
+    def store_objs(self, *objs):
+        for obj in objs:
+            self.store_obj(obj)
+            
     def store_obj(self, obj, ref=None):
         """ Uploads the object state and attributes to the server represented
         by this session.
