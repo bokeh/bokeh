@@ -11,32 +11,47 @@ from timer import Timer
 
 ############################  Core System ####################
 class Glyphset(list):
-    pass
+  def asarray(self):
+    return np.array(self)
 
-
-def _project(viewxform, glyphset, outgrid):
-  """
-  Parameters
-  ==========
-  glyphset: Numpy record array
-  should be record array with at least the following named fields:
-  x, y, width, height.
-
-  Stores result in _projected.
-  Stores the passed glyphset in _glyphset
-  """
+def _project(viewxform, glyphset):
+  tx,ty,sx,sy = viewxform
+  outglyphs = np.empty(glyphset.shape, dtype=np.int32)
 
   # transform each glyph and add it to the grid
   for i in xrange(0, len(glyphset)):
-    g = glyphset[i]
-    gt = viewxform.transform(g)
-    for x in xrange(int(floor(gt.x)), int(ceil(gt.x+gt.width))):
-      for y in xrange(int(floor(gt.y)), int(ceil(gt.y+gt.height))):
-        ls = outgrid[x,y]
+    #apply the view transform
+    #(x,y,w,h,v) = glyphset[i]
+    x = glyphset[i,0]
+    y = glyphset[i,1]
+    w = glyphset[i,2]
+    h = glyphset[i,3]
+    v = glyphset[i,4]
+    x2 = x + w
+    y2 = y + h
+    x = floor(sx * x + tx)
+    y = floor(sy * y + ty)
+    x2 = floor(sx * x2 + tx)
+    y2 = floor(sy * y2 + ty)
+    outglyphs[i:i+5] = [x,y,x2,y2,v]
+
+  return outglyphs
+
+def _store(projected, outgrid):
+  for i in xrange(0, len(projected)):
+    x = projected[i,0]
+    y = projected[i,1]
+    x2 = projected[i,2]
+    y2 = projected[i,3]
+    for xx in xrange(x, x2):
+      for yy in xrange(y, y2):
+        ls = outgrid[xx,yy]
         if (ls == None): 
           ls = []
-        outgrid[x,y]=ls
         ls.append(i)
+        outgrid[xx,yy]=ls
+  return outgrid
+   
 
 class Grid(object):
     width = 2000
@@ -52,12 +67,25 @@ class Grid(object):
       self.height=h
       self.viewxform=viewxform
       self.numba_project = autojit()(_project)
+      self.numba_store = autojit()(_store)
 
     def project(self, glyphset):
+      """
+      Parameters
+      ==========
+      glyphset: Numpy record array
+      should be record array with at least the following named fields:
+        x, y, width, height.
+      Stores result in _projected.
+      Stores the passed glyphset in _glyphset
+      """
       self._glyphset = glyphset
-      self._projected = np.empty((self.width, self.height), dtype=object)
-      self.numba_project(self.viewxform, glyphset, self._projected)
-      #self._projected = _project(self.viewxform, glyphset, self._projected)
+      projected = self.numba_project(self.viewxform, glyphset.asarray())
+      #projected = _project(self.viewxform.asarray(), glyphset.asarray())
+      
+      outgrid = np.ndarray((self.width, self.height), dtype=object)
+      #self._projected = self.numba_store(projected, outgrid)
+      self._projected = _store(projected, outgrid)
 
     def aggregate(self, aggregator):
         """ 
@@ -144,9 +172,9 @@ def render(glyphs, aggregator, trans, screen,ivt):
 ###############################  Graphics Components ###############
 
 #TODO: Verify that this is the right way to do affine transforms of shapes...at least as far as zoom/pan
-class AffineTransform:
-  m = None
+class AffineTransform(list):
   def __init__(self, tx, ty, sx, sy):
+    list.__init__(self, [tx,ty,sx,sy])
     self.sx=sx
     self.sy=sy
     self.tx=tx
@@ -166,6 +194,8 @@ class AffineTransform:
     h = p2y-p1y
     return Glyph(p1x, p1y, w, h, glyph.props)
 
+  def asarray(self): return np.array(self)
+
   def inverse(self):
     return AffineTransform(-self.tx, -self.ty, 1/self.sx, 1/self.sy)
 
@@ -177,6 +207,8 @@ class Color(list):
     self.b=b
     self.a=a
 
+  def asarray(self): return np.array(self)
+
 class Glyph(list):
   def __init__(self,x,y,w,h,*props):
     fl = [x,y,w,h]
@@ -187,6 +219,9 @@ class Glyph(list):
     self.width=w
     self.height=h
     self.props=props
+
+  def asarray(self): return np.array(self)
+
 
 ############################  Support functions ####################
 
@@ -244,7 +279,7 @@ def load_csv(filename, skip, xc,yc,vc,width,height):
     line = re.split("\s*,\s*", line)
     x = float(line[xc].strip())
     y = float(line[yc].strip())
-    v = line[vc].strip()
+    v = float(line[vc].strip())
     g = Glyph(x,y,width,height,v)
     glyphs.append(g)
 
