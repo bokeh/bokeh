@@ -467,10 +467,6 @@ class PlotServerSession(BaseHTMLSession):
         # out for now for symmetry with mpl.PlotClient
         raise NotImplementedError("Construct DataSources manually from bokeh.objects")
     
-    def store_objs(self, *objs):
-        for obj in objs:
-            self.store_obj(obj)
-            
     def store_obj(self, obj, ref=None):
         """ Uploads the object state and attributes to the server represented
         by this session.
@@ -558,13 +554,9 @@ class PlotServerSession(BaseHTMLSession):
             return m
         else:
             return attr
-    
-    def store_all(self):
-        models = []
-        # Look for the Plot to stick into here. PlotContexts only
-        # want things with a corresponding BokehJS View, so Plots and
-        # GridPlots for now.
-        for m in self._models.values():
+        
+    def store_objs(self, to_store):
+        for m in to_store:
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
             # FIXME: Is it really necessary to add the id and doc to the
@@ -575,6 +567,13 @@ class PlotServerSession(BaseHTMLSession):
         data = self.serialize(models)
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.http_session.post(url, data=data)
+        for m in to_store:
+            m._dirty = False
+        
+    def store_all(self):
+        to_store = [x for x in self._models.values() \
+                    if hasattr(x, '_dirty') and x._dirty]
+        self.store_objs(to_store)
 
     #------------------------------------------------------------------------
     # Static files

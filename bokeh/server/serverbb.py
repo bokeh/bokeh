@@ -9,6 +9,9 @@ from bokeh import protocol
 from bokeh.bbmodel import ContinuumModelsClient
 import numpy as np
 log = logging.getLogger(__name__)
+
+from bokeh.objects import PlotObject, Plot
+
 """
 In our python interface to the backbone system, we separate the local collection
 which stores models, from the http client which interacts with a remote store
@@ -128,5 +131,50 @@ def make_model(typename, **kwargs):
         return bbmodel.make_model(typename, client=g.client, **kwargs)
     return bbmodel.make_model(typename, **kwargs)
 
+class RedisSession(PlotServerSession):
+    """session used by the webserver to work with
+    a user's documents.  uses redis directly.  This probably shouldn't
+    inherit from PlotServerSession, we need to refactor this abit.
+    """
+    def __init__(self, redisconn, docid):
+        self.docid = docid
+        self.r = redisconn
+        self._models = {}
+        
+    def load(self):
+        self.load_all()
+        plotcontext = self.load_type('PlotContext')[0]
+        self.plotcontext = plotcontext
+        return
     
+    def load_all(self, asdict=False):
+        doc_keys = self.r.smembers(dockey(self.docid))
+        attrs = self.r.mget(doc_keys)
+        if asdict:
+            return attrs
+        models = []
+        for k, attr in zip(doc_keys, attrs):
+            typename, _, modelid = parse_modelkey(k)
+            m = PlotObject.get_obj(typename, attr)
+            self.add(m)
+            models.append(m)
+        for m in models:
+            m.finalize(self._models)
+        return models
+    
+    def store_objs(self, to_store):
+        keys = [modelkey(m.__view_model__, self.docid, m._id) \
+                for m in to_store]
+        models = [self.serialize(m.vm_serialize()) for m in to_store]
+        dkey = dockey(self.docid)
+        self.r.mset(reduce(zip(keys, models), lambda x,y:x+y))
+        self.r.sadd(dkey, *keys)
+        
+    def attrupdate(self, typename, attributes):
+        id = attributes['id']
+        mkey = modelkey(typename, self.docid, id)
+        model = self._models[id]
+        for k,v in attributes.iteritems():
+            setattr(model, k, v)
+        
         
