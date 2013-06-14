@@ -2,7 +2,10 @@ import bokeh.glyphs
 import re
 import sys
 import numpy as np
-import math
+from math import ceil, floor 
+
+from numba import autojit
+
 from timer import Timer
 
 
@@ -11,52 +14,50 @@ class Glyphset(list):
     pass
 
 
+def _project(viewxform, glyphset, outgrid):
+  """
+  Parameters
+  ==========
+  glyphset: Numpy record array
+  should be record array with at least the following named fields:
+  x, y, width, height.
+
+  Stores result in _projected.
+  Stores the passed glyphset in _glyphset
+  """
+
+  # transform each glyph and add it to the grid
+  for i in xrange(0, len(glyphset)):
+    g = glyphset[i]
+    gt = viewxform.transform(g)
+    for x in xrange(int(floor(gt.x)), int(ceil(gt.x+gt.width))):
+      for y in xrange(int(floor(gt.y)), int(ceil(gt.y+gt.height))):
+        ls = outgrid[x,y]
+        if (ls == None): 
+          ls = []
+        outgrid[x,y]=ls
+        ls.append(i)
+
 class Grid(object):
     width = 2000
     height = 2000
     viewxform = None   # array [tx, ty, sx, sy]
 
     _glyphset = None
-    _projected_grid = None
+    _projected = None
     _aggregates = None
 
     def __init__(self, w,h,viewxform):
       self.width=w
       self.height=h
       self.viewxform=viewxform
+      self.numba_project = autojit()(_project)
 
     def project(self, glyphset):
-        """
-        Parameters
-        ==========
-        glyphset: Numpy record array
-            should be record array with at least the following named fields:
-            x, y, width, height.
-
-        Stores result in _projected_grid.
-        Stores the passed glyphset in _glyphset
-        """
-
-        outgrid = np.empty((self.width, self.height), dtype=object)
-
-
-        #X,Y,W,H -> X,Y,X2,Y2 -pixel space-> X',Y',X2',Y2'
-        
-        # transform each glyph and add it to the grid
-        for i in xrange(0, len(glyphset)):
-          g = glyphset[i]
-          gt = self.viewxform.transform(g)
-          for x in xrange(int(math.floor(gt.x)), int(math.ceil(gt.x+gt.width))):
-            for y in xrange(int(math.floor(gt.y)), int(math.ceil(gt.y+gt.height))):
-              ls = outgrid[x,y]
-              if (ls == None): 
-                ls = []
-                outgrid[x,y]=ls
-              ls.append(i)
-        
-        self._glyphset = glyphset
-        self._projected_grid = outgrid
-        #print self._projected_grid
+      self._glyphset = glyphset
+      self._projected = np.empty((self.width, self.height), dtype=object)
+      self.numba_project(self.viewxform, glyphset, self._projected)
+      #self._projected = _project(self.viewxform, glyphset, self._projected)
 
     def aggregate(self, aggregator):
         """ 
@@ -65,9 +66,9 @@ class Grid(object):
 
         Stores the results in _aggregates
         """
-        outgrid = np.empty_like(self._projected_grid)
+        outgrid = np.empty_like(self._projected)
         outgrid.ravel()[:] = map(lambda ids: aggregator.aggregate(self._glyphset, ids), 
-                                    self._projected_grid.flat)
+                                    self._projected.flat)
 
         self._aggregates = outgrid
 
@@ -146,14 +147,15 @@ def render(glyphs, aggregator, trans, screen,ivt):
 class AffineTransform:
   m = None
   def __init__(self, tx, ty, sx, sy):
-    self.m = [[sx,0,tx],
-              [0,sy,ty],
-              [0,0,1]]
+    self.sx=sx
+    self.sy=sy
+    self.tx=tx
+    self.ty=ty
 
   def trans(self, x, y):
     """Transform a passed point."""
-    x = self.m[0][0]*x + self.m[0][1]*y + self.m[0][2]
-    y = self.m[1][0]*x + self.m[1][1]*y + self.m[1][2]
+    x = self.sx * x + self.tx
+    y = self.sy * y + self.ty
     return (x, y)
 
   def transform(self, glyph):
@@ -165,11 +167,7 @@ class AffineTransform:
     return Glyph(p1x, p1y, w, h, glyph.props)
 
   def inverse(self):
-    sx = self.m[0][0]
-    sy = self.m[1][1]
-    tx = self.m[0][2]
-    ty = self.m[1][2]
-    return AffineTransform(-tx,-ty,1/sx, 1/sy)
+    return AffineTransform(-self.tx, -self.ty, 1/self.sx, 1/self.sy)
 
 class Color(list):
   def __init__(self,r,g,b,a):
@@ -267,11 +265,14 @@ def main():
   size = float(sys.argv[6])
   glyphs = load_csv(source,skip,xc,yc,vc,size,size)
 
+  screen=(20,20)
+  ivt = zoom_fit(screen,bounds(glyphs))
+
   image = render(glyphs, 
                  counts.Count(), 
                  counts.Segment(Color(0,0,0,0), Color(255,255,255,255), .5),
-                 (20,20),
-                 AffineTransform(-1,-1,.35,.35))
+                 screen, 
+                 ivt)
 
   print image
 

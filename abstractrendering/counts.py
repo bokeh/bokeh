@@ -48,8 +48,8 @@ class Segment(ar.Transfer):
 #        return self.low.np()
 #
     #gw, gh = outgrid.shape[:2]
-    #outgrid.reshape((gw*gh, outgrid.shape[2]))[:] = map(f, grid._projected_grid.flat)
-    outgrid = self.f_vec(grid._projected_grid) #.reshape(grid.width,grid.height,4)
+    #outgrid.reshape((gw*gh, outgrid.shape[2]))[:] = map(f, grid._projected.flat)
+    outgrid = self.f_vec(grid._projected) #.reshape(grid.width,grid.height,4)
     return outgrid
  
 
