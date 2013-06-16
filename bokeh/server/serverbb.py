@@ -152,20 +152,22 @@ class RedisSession(PlotServerSession):
         attrs = self.r.mget(doc_keys)
         if asdict:
             return attrs
-        models = []
+        data = []
         for k, attr in zip(doc_keys, attrs):
             typename, _, modelid = parse_modelkey(k)
-            m = PlotObject.get_obj(typename, attr)
-            self.add(m)
-            models.append(m)
-        for m in models:
-            m.finalize(self._models)
+            data.append({'type' : typename,
+                         'attributes' : attr})
+        models = self.load_broadcast_attrs(data)
         return models
+    def store_obj(self, obj):
+        return self.store_objs([obj])
     
     def store_objs(self, to_store):
         keys = [modelkey(m.__view_model__, self.docid, m._id) \
                 for m in to_store]
         models = [self.serialize(m.vm_serialize()) for m in to_store]
+        for m in models:
+            m['doc'] = self.docid
         dkey = dockey(self.docid)
         self.r.mset(reduce(zip(keys, models), lambda x,y:x+y))
         self.r.sadd(dkey, *keys)
@@ -176,5 +178,13 @@ class RedisSession(PlotServerSession):
         model = self._models[id]
         for k,v in attributes.iteritems():
             setattr(model, k, v)
+            
+    def del_obj(self, obj):
+        self.del_objs([obj])
         
+    def del_objs(self, to_del):
+        for m in to_del:
+            mkey = modelkey(m.__view_model__, self.docid, m._id)
+            self.r.srem(dockey(self.docid), mkey)
+            self.r.delete(mkey)
         

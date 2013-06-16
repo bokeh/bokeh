@@ -38,9 +38,7 @@ def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT):
         status = mconv.can_write_doc_api(doc, auth, app)
         return status
     app.wsmanager.register_auth("bokehplot", auth)
-    app.collections = ContinuumModelsStorage(
-        redis.Redis(host=rhost, port=rport, db=2)
-        )
+    app.bb_redis = redis.Redis(host=rhost, port=rport, db=2)
     #for non-backbone models
     app.model_redis = redis.Redis(host=rhost, port=rport, db=3)
     app.pubsub_redis = redis.Redis(host=rhost, port=rport, db=4)

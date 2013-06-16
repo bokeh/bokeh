@@ -492,6 +492,32 @@ class PlotServerSession(BaseHTMLSession):
                 "/" + ref["id"] + "/")
         self.http_session.put(url, data=self.serialize(data))
         
+    def load_attrs(self, typename, attrs):
+        models = []
+        for attr in attrs:
+            m = PlotObject.get_obj(typename, attr)
+            self.add(m)
+            models.append(m)
+        for m in models:
+            m.finalize(self._models)
+        return models
+        
+    def load_broadcast_attrs(self, attrs):
+        """
+        some legacy stuff, but broadcast attrs are of the form
+        {'type':typename, 'attributes' : attrs}
+        """
+        models = []
+        for attr in attrs:
+            _id = attr['id']
+            typename = attr['type']
+            attr = attr['attributes']
+            m = PlotObject.get_obj(typename, attr)
+            self.add(m)
+            models.append(m)
+        for m in models:
+            m.finalize(self._models)
+        return models
     
     def load_all(self, asdict=False):
         """the json coming out of this looks different than that coming
@@ -501,16 +527,7 @@ class PlotServerSession(BaseHTMLSession):
         url = utils.urljoin(self.base_url, self.docid +"/")
         attrs = protocol.deserialize_json(self.http_session.get(url).content)
         if not asdict:
-            models = []
-            for attr in attrs:
-                _id = attr['id']
-                typename = attr['type']
-                attr = attr['attributes']
-                m = PlotObject.get_obj(typename, attr)
-                self.add(m)
-                models.append(m)
-            for m in models:
-                m.finalize(self._models)
+            return self.load_broadcast_attrs(attrs)
         else:
             models = attrs
         return models
@@ -519,13 +536,7 @@ class PlotServerSession(BaseHTMLSession):
         url = utils.urljoin(self.base_url, self.docid +"/", typename + "/")
         attrs = protocol.deserialize_json(self.http_session.get(url).content)
         if not asdict:
-            models = []
-            for attr in attrs:
-                m = PlotObject.get_obj(typename, attr)
-                self.add(m)
-                models.append(m)
-            for m in models:
-                m.finalize(self._models)
+            return self.load_attrs(typename, attrs)
         else:
             models = attrs
         return models
@@ -555,7 +566,14 @@ class PlotServerSession(BaseHTMLSession):
         else:
             return attr
         
-    def store_objs(self, to_store):
+    def attrs(self, to_store):
+        models = [m.vm_serialize() for m in to_store]
+        for m in models:
+            m['doc'] = self.docid
+        return models
+        
+    def broadcast_attrs(self, to_store):
+        models = []
         for m in to_store:
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
@@ -564,9 +582,16 @@ class PlotServerSession(BaseHTMLSession):
             # serializations, but I don't understand why it's necessary.
             ref["attributes"].update({"id": ref["id"], "doc": self.docid})
             models.append(ref)
+        return models
+    
+    def store_broadcast_attrs(self, attrs):
         data = self.serialize(models)
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.http_session.post(url, data=data)
+    
+    def store_objs(self, to_store):
+        models = self.broadcast_attrs(to_store)
+        self.store_broadcast_attrs(models)
         for m in to_store:
             m._dirty = False
         

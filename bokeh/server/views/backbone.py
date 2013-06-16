@@ -7,7 +7,7 @@ import logging
 import uuid
 import urlparse
 from ..app import app
-from ..serverbb import make_model
+from ..serverbb import RedisSession
 from .. import wsmanager
 from ..models import convenience
 from ..models import docs
@@ -23,76 +23,79 @@ log = logging.getLogger(__name__)
 @app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
 @check_write_authentication_and_create_client
 def reset(docid):
-    models = app.collections.get_bulk(docid)
-    for m in models:
+    sess = RedisSession(app.bb_redis, docid)
+    sess.load()
+    for m in sess._models:
         if not m.typename.endswith('PlotContext'):
-            app.collections.delete(m.typename, m.id)
+            sess.del_obj(m)
         else:
-            m.set('children', [])
-            app.collections.add(m)
+            m.children = []
+            sess.store_obj(m)
     return 'success'
 
 #backbone model apis
 @app.route("/bokeh/bb/<docid>/rungc", methods=['GET'])
 @check_write_authentication_and_create_client
 def rungc(docid):
-    all_models = docs.prune_and_get_valid_models(app.model_redis,
-                                                 app.collections,
-                                                 docid, delete=True)
+    doc = docs.Doc.load(app.model_redis, docid)
+    sess = RedisSession(app.bb_redis, docid)
+    sess.load()    
+    all_models = docs.prune_and_get_valid_models(doc, sess, delete=True)
     return 'success'
 
 @app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
 @check_write_authentication_and_create_client
 def bulk_upsert(docid):
-    data = protocol.deserialize_web(request.data)
-    models = [make_model(x['type'], **x['attributes']) \
-              for x in data]
-    for m in models:
-        m.set('doc', docid)
-        app.collections.add(m)
+    doc = docs.Doc.load(app.model_redis, docid)
+    sess = RedisSession(app.bb_redis, docid)
+    sess.load()    
+    data = protocol.deserialize_json(request.data)
+    models = sess.load_broadcast_attrs(data)
+    sess.store_all()
     clientid = request.headers.get('Continuum-Clientid', None)
-    msg = protocol.serialize_web({
-        'msgtype' : 'modelpush',
-        'modelspecs' : [x.to_broadcast_json() for x in models]
-        })
+    specs = sess.broadcast_attrs(models)
+    msg = dict(msgtype='modelpush',
+               modelspecs=specs)
+    msg = sess.serialize(msg)
     app.wsmanager.send("bokehplot:" + docid, msg,  exclude={clientid})
-    return msg
+    return sess.serialize(msg)
 
 @app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @check_write_authentication_and_create_client
 def create(docid, typename):
-    modeldata = protocol.deserialize_web(request.data)
-    model = make_model(typename, **modeldata)
-    model.set('doc', docid)
-    app.collections.add(model)
+    doc = docs.Doc.load(app.model_redis, docid)
+    sess = RedisSession(app.bb_redis, docid)
+    modeldata = protocol.deserialize_json(request.data)
+    modeldata['doc'] = docid
+    sess.store_broadcast_attrs({'type' : typename,
+                                'attributes' : modeldata})
     clientid=request.headers.get('Continuum-Clientid', None)
-    msg = protocol.serialize_web(
+    msg = protocol.serialize_json(
         {'msgtype' : 'modelpush',
-         'modelspecs' : [model.to_broadcast_json()]
+         'modelspecs' : [modeldata]
          })
     app.wsmanager.send("bokehplot:" + docid, msg, exclude={clientid})
-    return protocol.serialize_web(model.to_json())
-
+    return protocol.serialize_json(modeldata)
 
 @app.route("/bokeh/bb/<docid>/", methods=['GET'])
 @app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
 @check_read_authentication_and_create_client
 def get(docid, typename=None):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
-    models = docs.prune_and_get_valid_models(app.model_redis,
-                                             app.collections,
-                                             docid)
+    doc = docs.Doc.load(app.model_redis, docid)
+    sess = RedisSession(app.bb_redis, docid)
+    sess.load()
+    all_models = docs.prune_and_get_valid_models(doc, sess, delete=False)
     if typename is not None:
-        return protocol.serialize_web(
-            [x.to_json(include_hidden=include_hidden) \
-             for x in models if x.typename==typename]
-            )
+        attrs = sess.attrs([x for x in all_models \
+                            if x.typename==typename])
+        return make_json(sess.serialize(attrs))
     else:
-        return protocol.serialize_web(
-            [x.to_broadcast_json(include_hidden=include_hidden) \
-             for x in models]
-            )
-@app.route("/bokeh/bb/<docid>/<typename>/<id>/", methods=['GET', 'OPTIONS', 'PUT','PATCH'])
+        attrs = sess.broadcast_attrs([x for x in all_models])
+        return make_json(sess.serialize(attrs))
+    
+@app.route("/bokeh/bb/<docid>/<typename>/<id>/",
+           methods=['GET', 'OPTIONS', 'PUT','PATCH'])
 @crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'],
              headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
 def handle_specific_model(docid, typename, id):
@@ -105,60 +108,64 @@ def handle_specific_model(docid, typename, id):
         
 @check_read_authentication_and_create_client
 def getbyid(docid, typename, id):
-    include_hidden = request.values.get('include_hidden', '').lower() == 'true'    
-    model = app.collections.get(typename, docid, id)
-    if model:
-        returnval = protocol.serialize_web(
-            model.to_json(include_hidden=include_hidden))
-        return make_json(returnval,
-                         headers={"Access-Control-Allow-Origin": "*"})
-    if model is None:
-        return protocol.serialize_web(None)
+    include_hidden = request.values.get('include_hidden', '').lower() == 'true'
+    sess = RedisSession(app.bb_redis, docid)
+    sess.load()
+    attrs = sess._models[id].vm_serialize()
+    attrs['doc'] = sess.docid
+    return make_json(sess.serialize(attrs))
 
 @check_write_authentication_and_create_client
 def patch(docid, typename, id):
-    modeldata = protocol.deserialize_web(request.data)
+    modeldata = protocol.deserialize_json(request.data)
     modeldata['id'] = id
     modeldata['doc'] = docid
-    model = app.collections.attrupdate(typename, docid, modeldata)
+    sess = RedisSession(app.bb_redis, docid)
+    sess.load_attrs(typename, [modeldata])
+    sess.store_all()
+    model = sess._models[id]
     log.debug("patch, %s, %s", docid, typename)
-    app.collections.add(model)
     clientid=request.headers.get('Continuum-Clientid', None)
-    msg = protocol.serialize_web(
-        {'msgtype' : 'modelpush',
-         'modelspecs' : [model.to_broadcast_json()]}
-        )
+    msg = {'msgtype' : 'modelpush',
+           'modelspecs' : sess.broadcast_attrs([model])
+           }
+    msg = sess.serialize(msg)
     app.wsmanager.send("bokehplot:" + docid, msg, exclude={clientid})
-    return (protocol.serialize_web(model.to_json()), "200",
-            {"Access-Control-Allow-Origin": "*"})
-    
+    return make_json(sess.attrs([model])[0])
 
 @check_write_authentication_and_create_client
 def put(docid, typename, id):
-    modeldata = protocol.deserialize_web(request.data)
+    """we need to distinguish between writing and patching models
+    namely in writing, we shouldn't remove unspecified attrs
+    (we currently don't handle this correctly)
+    """
+    modeldata = protocol.deserialize_json(request.data)
+    modeldata['id'] = id
+    modeldata['doc'] = docid
     log.debug("put, %s, %s", docid, typename)
-    model = make_model(typename, **modeldata)
-    model.set('doc', docid)
-    app.collections.add(model)
+    sess = RedisSession(app.bb_redis, docid)    
+    sess.load_attrs(typename, [modeldata])
+    sess.store_all()
+    model = sess._models[id]
     clientid=request.headers.get('Continuum-Clientid', None)
-    msg = protocol.serialize_web(
-        {'msgtype' : 'modelpush',
-         'modelspecs' : [model.to_broadcast_json()]
-         })
+    msg = {'msgtype' : 'modelpush',
+           'modelspecs' : sess.broadcast_attrs([model])
+           }
+    msg = sess.serialize(msg)
     app.wsmanager.send("bokehplot:" + docid, msg, exclude={clientid})
-    return (protocol.serialize_web(model.to_json()), "200",
-            {"Access-Control-Allow-Origin": "*"})
+    return make_json(sess.attrs([model])[0])
 
 @app.route("/bokeh/bb/<docid>/<typename>/<id>", methods=['DELETE'])
 @check_write_authentication_and_create_client
 def delete(docid, typename, id):
-    model = app.collections.get(typename, docid, id)
+    sess = RedisSession(app.bb_redis, docid)    
+    model = sess._models[id]
     log.debug("DELETE, %s, %s", docid, typename)
     clientid = request.headers.get('Continuum-Clientid', None)
-    app.collections.delete(typename, docid, id)
-    msg = protocol.serialize_web(
-        {'msgtype' : 'modeldel',
-         'modelspecs' : [model.to_broadcast_json()]
-         })
+    sess.del_obj(model)
+    msg = {'msgtype' : 'modeldel',
+           'modelspecs' : sess.broadcast_attrs([model])
+           }
+    msg = sess.serialize(msg)
     app.wsmanager.send("bokehplot:" + docid, msg, exclude={clientid})
-    return protocol.serialize_web(model.to_json())
+    return sess.serialize(sess.attrs([model])[0])

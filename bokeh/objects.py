@@ -86,26 +86,74 @@ def is_ref(frag):
            frag.get('type') and \
            frag.get('id')
 
-def resolve_json(fragment, models):
-    if is_ref(fragment):
-        if fragment['id'] in models:
-            return models[fragment['id']]
-        else:
-            logging.error("model not found for %s", fragment)
+def json_apply(fragment, check_func, func):
+    """recursively searches through a nested dict/lists
+    if check_func(fragment) is True, then we return
+    func(fragment)
+    """
+    if check_func(fragment):
+        return func(fragment)
     elif isinstance(fragment, list):
         output = []
         for val in fragment:
-            output.append(resolve_json(val, models))
+            output.append(json_apply(val, check_func, func))
         return output
     elif isinstance(fragment, dict):
         output = {}
         for k, val in fragment.iteritems():
-            output[k] = resolve_json(val, models)
+            output[k] = json_apply(val, check_func, func)
         return output
     else:
         return fragment
-        
     
+def resolve_json(fragment, models):
+    check_func = is_ref
+    def func(fragment):
+        if fragment['id'] in models:
+            return models[fragment['id']]
+        else:
+            logging.error("model not found for %s", fragment)
+            return None
+    json_apply(fragment, check_func, func)
+        
+def traverse_plot_object(plot_object):
+    """iterate through an objects properties
+    if it has_ref, json_apply through it and accumulate
+    all PlotObjects into children.  return all objects found
+    """
+    children = set()
+    def check_func(fragment):
+        return isinstance(fragment, PlotObject)
+    def func(obj):
+        children.add(obj)
+        return obj
+    for prop in plot_object.properties_with_refs():
+        val = getattr(plot_object, prop)
+        json_apply(val, check_func, func)
+    return children
+
+def recursively_traverse_plot_object(plot_object,
+                                     traversed_ids=None,
+                                     children=None):
+    if not children: children = set()
+    if not traversed_ids: traversed_ids = set()
+    if plot_object._id in traversed_ids:
+        return children
+    else:
+        immediate_children = traverse_plot_object(plot_object)
+        traversed_ids.add(plot_object._id)
+        children.update(immediate_children)
+        for child in list(children):
+            if child not in traversed_ids:
+                recursively_traverse_plot_object(
+                    child,
+                    traversed_ids=traversed_ids,
+                    children=children)
+        return children
+    
+    
+    
+
 class PlotObject(HasProps):
     """ Base class for all plot-related objects """
 
@@ -120,6 +168,7 @@ class PlotObject(HasProps):
             self._id = kwargs.pop("id")
         else:
             self._id = str(uuid4())
+        self._dirty = True
         super(PlotObject, self).__init__(*args, **kwargs)
         
     @classmethod
@@ -127,14 +176,14 @@ class PlotObject(HasProps):
         """Loads all json into a instance of cls, EXCEPT any references
         which are handled in finalize
         """
-        inst = cls(id=attrs.pop('id'))
+        instance = cls(id=attrs.pop('id'))
         ref_props = {}
-        for p in inst.properties_with_refs():
+        for p in instance.properties_with_refs():
             if p in attrs:
                 ref_props[p] = attrs.pop(p)
-        inst._ref_props = ref_props
-        inst.update(**attrs)
-        return inst
+        instance._ref_props = ref_props
+        instance.update(**attrs)
+        return instance
     
     def finalize(self, models):
         """models is a dict of id->model mappings

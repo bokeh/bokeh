@@ -122,17 +122,15 @@ def get_bokeh_info(docid):
 
 def _get_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
-    plot_context_ref = doc.plot_context_ref
-    all_models = docs.prune_and_get_valid_models(app.model_redis,
-                                                 app.collections,
-                                                 docid)
+    sess = RedisSession(app.bb_redis, docid)
+    all_models = docs.prune_and_get_valid_models(doc, sess)
     print "num models", len(all_models)
-    all_models = [x.to_broadcast_json() for x in all_models]
-    returnval = {'plot_context_ref' : plot_context_ref,
+    all_models = sess.broadcast_attrs(all_models)
+    returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
                  'apikey' : doc.apikey}
-    returnval = protocol.serialize_web(returnval)
+    returnval = sess.serialize(returnval)
     result = make_json(returnval,
                        headers={"Access-Control-Allow-Origin": "*"})
     return result
@@ -160,26 +158,28 @@ def doc_by_title():
         docid = doc['docid']
     return get_bokeh_info(docid)
 
-@app.route('/bokeh/publicbokehinfo/<docid>')
-def get_public_bokeh_info(docid):
-    doc = docs.Doc.load(app.model_redis, docid)
-    plot_context_ref = doc.plot_context_ref
-    all_models = docs.prune_and_get_valid_models(app.model_redis,
-                                                 app.collections,
-                                                 docid)
-    public_models = [x for x in all_models if x.get('public', False)]
-    if len(public_models) == 0:
-        return False
-    all_models_json = [x.to_broadcast_json() for x in all_models]
-    returnval = {'plot_context_ref' : plot_context_ref,
-                 'docid' : docid,
-                 'all_models' : all_models_json,
-                 }
-    returnval = protocol.serialize_web(returnval)
-    #return returnval
+"""need to rethink public publishing
+"""
+# @app.route('/bokeh/publicbokehinfo/<docid>')
+# def get_public_bokeh_info(docid):
+#     doc = docs.Doc.load(app.model_redis, docid)
+#     plot_context_ref = doc.plot_context_ref
+#     all_models = docs.prune_and_get_valid_models(app.model_redis,
+#                                                  app.collections,
+#                                                  docid)
+#     public_models = [x for x in all_models if x.get('public', False)]
+#     if len(public_models) == 0:
+#         return False
+#     all_models_json = [x.to_broadcast_json() for x in all_models]
+#     returnval = {'plot_context_ref' : plot_context_ref,
+#                  'docid' : docid,
+#                  'all_models' : all_models_json,
+#                  }
+#     returnval = protocol.serialize_web(returnval)
+#     #return returnval
 
-    return (returnval, "200",
-            {"Access-Control-Allow-Origin": "*"})
+#     return (returnval, "200",
+#             {"Access-Control-Allow-Origin": "*"})
 
 
 @app.route('/bokeh/sampleerror')
