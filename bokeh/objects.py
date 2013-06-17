@@ -141,6 +141,7 @@ def recursively_traverse_plot_object(plot_object,
         return children
     else:
         immediate_children = plot_object.references()
+        children.add(plot_object)
         traversed_ids.add(plot_object._id)
         children.update(immediate_children)
         for child in list(children):
