@@ -188,14 +188,14 @@ class PlotContext extends HasParent
     children: []
     render_loop: true
 
+class PlotList extends PlotContext
+  type: 'PlotList'
 
 class PlotContexts extends Backbone.Collection
   model: PlotContext
 
-class PlotList extends PlotContext
-  type: 'PlotList'
-
 class PlotLists extends PlotContexts
+  model: PlotList
 
 exports.PlotContext = PlotContext
 exports.PlotContexts = PlotContexts
