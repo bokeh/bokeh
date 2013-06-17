@@ -88,7 +88,7 @@ def get(docid, typename=None):
     all_models = docs.prune_and_get_valid_models(doc, sess, delete=False)
     if typename is not None:
         attrs = sess.attrs([x for x in all_models \
-                            if x.typename==typename])
+                            if x.__view_model__==typename])
         return make_json(sess.serialize(attrs))
     else:
         attrs = sess.broadcast_attrs([x for x in all_models])
