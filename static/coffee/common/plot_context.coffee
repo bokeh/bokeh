@@ -193,6 +193,7 @@ class PlotContexts extends Backbone.Collection
   model: PlotContext
 
 class PlotList extends PlotContext
+  type: 'PlotList'
 
 class PlotLists extends PlotContexts
 
