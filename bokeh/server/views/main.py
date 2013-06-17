@@ -45,9 +45,10 @@ def _makedoc(redisconn, u, title):
     docid = str(uuid.uuid4())
     if isinstance(u, basestring):
         u = user.User.load(redisconn, u)
+    sess = RedisSession(app.bb_redis, docid)
     u.add_doc(docid, title)        
     doc = docs.new_doc(app, docid,
-                       title,
+                       title, sess,
                        rw_users=[u.username])
     u.save(redisconn)
     return doc
