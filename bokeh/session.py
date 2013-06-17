@@ -422,7 +422,7 @@ class PlotServerSession(BaseHTMLSession):
             if len(plotcontext) > 1:
                 logger.warning(
                     "Found more than one PlotContext for doc ID %s; " \
-                    "Using PlotContext ID %s" % (self.docid, plotcontext._id))
+                    "Using PlotContext ID %s" % (self.docid, temp._id))
             plotcontext = temp
         else:
             logger.warning("Unable to load PlotContext for doc ID %s" % self.docid)
@@ -506,10 +506,13 @@ class PlotServerSession(BaseHTMLSession):
         return models
 
     def attrs(self, to_store):
-        models = [m.vm_serialize() for m in to_store]
-        for m in models:
-            m['doc'] = self.docid
-        return models
+        attrs = []
+        for m in to_store:
+            attr = m.vm_serialize()
+            attr['doc'] = self.docid
+            attr['id'] = m._id
+            attrs.append(attr)
+        return attrs
         
     def broadcast_attrs(self, to_store):
         models = []
@@ -567,6 +570,7 @@ class PlotServerSession(BaseHTMLSession):
     def store_all(self):
         to_store = [x for x in self._models.values() \
                     if hasattr(x, '_dirty') and x._dirty]
+        import pdb;pdb.set_trace()
         self.store_objs(to_store)
 
     #------------------------------------------------------------------------

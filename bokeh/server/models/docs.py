@@ -1,6 +1,5 @@
 import uuid
 from .. import models 
-from .. import serverbb
 from ...objects import PlotObject, recursively_traverse_plot_object
 from ...session import PlotContext
 import logging

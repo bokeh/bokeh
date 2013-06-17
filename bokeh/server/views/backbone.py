@@ -24,7 +24,8 @@ log = logging.getLogger(__name__)
 @check_write_authentication_and_create_client
 def reset(docid):
     sess = RedisSession(app.bb_redis, docid)
-    sess.load()
+    doc = docs.Doc.load(app.model_redis, docid)
+    sess.load(doc)
     for m in sess._models:
         if not m.typename.endswith('PlotContext'):
             sess.del_obj(m)
@@ -39,8 +40,8 @@ def reset(docid):
 def rungc(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
-    sess.load()    
-    all_models = docs.prune_and_get_valid_models(doc, sess, delete=True)
+    sess.load(doc)
+    all_models = sess._models.values()
     return 'success'
 
 @app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
@@ -48,7 +49,7 @@ def rungc(docid):
 def bulk_upsert(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
-    sess.load()    
+    sess.load(doc)
     data = protocol.deserialize_json(request.data)
     models = sess.load_broadcast_attrs(data)
     sess.store_all()
@@ -84,8 +85,8 @@ def get(docid, typename=None):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
-    sess.load()
-    all_models = docs.prune_and_get_valid_models(doc, sess, delete=False)
+    sess.load(doc)
+    all_models = sess._models.values()
     if typename is not None:
         attrs = sess.attrs([x for x in all_models \
                             if x.__view_model__==typename])
@@ -109,8 +110,9 @@ def handle_specific_model(docid, typename, id):
 @check_read_authentication_and_create_client
 def getbyid(docid, typename, id):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
+    doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
-    sess.load()
+    sess.load(doc)
     attrs = sess._models[id].vm_serialize()
     attrs['doc'] = sess.docid
     return make_json(sess.serialize(attrs))

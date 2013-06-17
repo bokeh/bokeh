@@ -46,7 +46,7 @@ def _makedoc(redisconn, u, title):
     if isinstance(u, basestring):
         u = user.User.load(redisconn, u)
     sess = RedisSession(app.bb_redis, docid)
-    u.add_doc(docid, title)        
+    u.add_doc(docid, title)
     doc = docs.new_doc(app, docid,
                        title, sess,
                        rw_users=[u.username])
@@ -124,8 +124,8 @@ def get_bokeh_info(docid):
 def _get_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
-    sess.load()
-    all_models = docs.prune_and_get_valid_models(doc, sess)
+    sess.load(doc)
+    all_models = sess._models.values()
     print "num models", len(all_models)
     all_models = sess.broadcast_attrs(all_models)
     returnval = {'plot_context_ref' : doc.plot_context_ref,

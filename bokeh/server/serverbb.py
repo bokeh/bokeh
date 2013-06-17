@@ -7,6 +7,7 @@ import redis
 import bokeh.bbmodel as bbmodel
 from bokeh import protocol
 from bokeh.bbmodel import ContinuumModelsClient
+from models import docs
 import numpy as np
 log = logging.getLogger(__name__)
 
@@ -142,11 +143,14 @@ class RedisSession(PlotServerSession):
         self.r = redisconn
         self._models = {}
         
-    def load(self):
+    def load(self, doc):
         self.load_all()
-        plotcontext = [x for x in self._models.values() \
-                       if x.__view_model__ == 'PlotContext'][0]
-        self.plotcontext = plotcontext
+        self.plotcontext = self._models[doc.plot_context_ref['id']]        
+        all_models = docs.prune_and_get_valid_models(doc, self)
+        to_keep = set([x._id for x in all_models])
+        for k in self._models.keys():
+            if k not in to_keep:
+                del self._models[k]
         return
     
     def load_all(self, asdict=False):
@@ -170,7 +174,8 @@ class RedisSession(PlotServerSession):
             attr['attributes']['doc'] = self.docid
         attrs = [self.serialize(attr['attributes']) for attr in attrs]
         dkey = dockey(self.docid)
-        self.r.mset(reduce(lambda x,y:x+y, zip(keys, attrs)))
+        data = dict(zip(keys, attrs))
+        self.r.mset(data)
         self.r.sadd(dkey, *keys)
         
     def store_obj(self, obj):
@@ -179,11 +184,13 @@ class RedisSession(PlotServerSession):
     def store_objs(self, to_store):
         keys = [modelkey(m.__view_model__, self.docid, m._id) \
                 for m in to_store]
-        models = [self.serialize(m.vm_serialize()) for m in to_store]
+        models = [m.vm_serialize() for m in to_store]
         for m in models:
             m['doc'] = self.docid
+        models = [self.serialize(m) for m in to_store]
         dkey = dockey(self.docid)
-        self.r.mset(reduce(zip(keys, models), lambda x,y:x+y))
+        data = dict(zip(keys, models))
+        self.r.mset(data)
         self.r.sadd(dkey, *keys)
         
     def del_obj(self, obj):
