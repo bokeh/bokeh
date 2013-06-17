@@ -478,13 +478,13 @@ class PlotServerSession(BaseHTMLSession):
     def load_attrs(self, typename, attrs):
         models = []
         for attr in attrs:
+            print 'type:', typename
+            print 'attrs:', attr
             m = PlotObject.get_obj(typename, attr)
             self.add(m)
             models.append(m)
         for m in models:
             m.finalize(self._models)
-        for m in models:
-            m._dirty = False
         return models
         
     def load_broadcast_attrs(self, attrs):
@@ -492,6 +492,8 @@ class PlotServerSession(BaseHTMLSession):
         for attr in attrs:
             typename = attr['type']
             attr = attr['attributes']
+            print 'type:', typename
+            print 'attrs:', attr
             try:
                 _id = attr['id']
             except Exception as e:
@@ -501,8 +503,6 @@ class PlotServerSession(BaseHTMLSession):
             models.append(m)
         for m in models:
             m.finalize(self._models)
-        for m in models:
-            m._dirty = False
         return models
 
     def attrs(self, to_store):
@@ -522,7 +522,7 @@ class PlotServerSession(BaseHTMLSession):
             # FIXME: Is it really necessary to add the id and doc to the
             # attributes dict? It shows up in the bbclient-based JSON
             # serializations, but I don't understand why it's necessary.
-            ref["attributes"].update({"id": ref["id"], "doc": self.docid})
+            ref["attributes"].update({"doc": self.docid})
             models.append(ref)
         return models
 
@@ -545,7 +545,6 @@ class PlotServerSession(BaseHTMLSession):
         data = obj.vm_serialize()
         # It might seem redundant to include both of these, but the server
         # doesn't do the right thing unless these are included.
-        data["id"] = ref["id"]
         data["doc"] = self.docid
 
         # This is copied from ContinuumModelsClient.buffer_sync(), .update(),
@@ -570,7 +569,6 @@ class PlotServerSession(BaseHTMLSession):
     def store_all(self):
         to_store = [x for x in self._models.values() \
                     if hasattr(x, '_dirty') and x._dirty]
-        import pdb;pdb.set_trace()
         self.store_objs(to_store)
 
     #------------------------------------------------------------------------
@@ -585,7 +583,10 @@ class PlotServerSession(BaseHTMLSession):
         url = utils.urljoin(self.base_url, self.docid +"/")
         attrs = protocol.deserialize_json(self.http_session.get(url).content)
         if not asdict:
-            return self.load_broadcast_attrs(attrs)
+            models = self.load_broadcast_attrs(attrs)
+            for m in models:
+                m._dirty = False
+            return models
         else:
             models = attrs
         return models
@@ -594,7 +595,10 @@ class PlotServerSession(BaseHTMLSession):
         url = utils.urljoin(self.base_url, self.docid +"/", typename + "/")
         attrs = protocol.deserialize_json(self.http_session.get(url).content)
         if not asdict:
-            return self.load_attrs(typename, attrs)
+            models = self.load_attrs(typename, attrs)
+            for m in models:
+                m._dirty = False
+            return models
         else:
             models = attrs
         return models

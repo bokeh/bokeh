@@ -224,7 +224,9 @@ class PlotObject(HasProps):
         """ Returns a dictionary of the attributes of this object, in 
         a layout corresponding to what BokehJS expects at unmarshalling time.
         """
-        return self.vm_props(withvalues=True)
+        attrs = self.vm_props(withvalues=True)
+        attrs['id'] = self._id
+        return attrs
     
     def update(self, **kwargs):
         for k,v in kwargs.iteritems():
@@ -304,6 +306,7 @@ class DataRange(PlotObject):
     sources = List(ColumnsRef, has_ref=True)
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
+        props['id'] = self._id
         sources = props.pop("sources")
         props["sources"] = [{"ref":cr.source, "columns":cr.columns} for cr in sources]
         return props
@@ -349,17 +352,21 @@ class GlyphRenderer(PlotObject):
     def vm_serialize(self):
         # GlyphRenderers need to serialize their state a little differently,
         # because the internal glyph instance is turned into a glyphspec
-        return { "data_source": self.data_source,
-                 "xdata_range": self.xdata_range,
-                 "ydata_range": self.ydata_range,
-                 "glyphspec": self.glyph.to_glyphspec() }
+        return {"id" : self._id,
+                "data_source": self.data_source,
+                "xdata_range": self.xdata_range,
+                "ydata_range": self.ydata_range,
+                "glyphspec": self.glyph.to_glyphspec() }
 
     def finalize(self, models):
         super(GlyphRenderer, self).finalize(models)
         ## FIXME: we shouldn't have to do this i think..
-        glyphspec = self.glyphspec
-        del self.glyphspec
-        self.glyph = PlotObject.get_class(glyphspec['type'])(**glyphspec)
+        if hasattr(self, 'glyphspec'):
+            glyphspec = self.glyphspec
+            del self.glyphspec
+            self.glyph = PlotObject.get_class(glyphspec['type'])(**glyphspec)
+        else:
+            self.glyph = None
 
 class Plot(PlotObject):
 
@@ -431,8 +438,9 @@ class GuideRenderer(PlotObject):
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
         del props["plot"]
-        return { "plot" : self.plot,
-                 "guidespec" : props}
+        return {"id" : self._id,
+                "plot" : self.plot,
+                "guidespec" : props}
 
 class LinearAxis(GuideRenderer):
     type = String("linear_axis")

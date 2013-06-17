@@ -29,6 +29,8 @@ class BaseProperty(object):
 
     def __set__(self, obj, value):
         setattr(obj, "_"+self.name, value)
+        print 'setting'
+        obj._dirty = True
 
     def __delete__(self, obj):
         if hasattr(obj, "_"+self.name):
@@ -257,7 +259,7 @@ class Enum(BaseProperty):
             raise ValueError("Invalid value '%r' passed to Enum." % value)
         setattr(obj, "_"+self.name, value)
         obj._dirty = True
-        
+
 Sequence = _dummy
 Mapping = _dummy
 Iterable = _dummy

@@ -165,6 +165,8 @@ class RedisSession(PlotServerSession):
             data.append({'type' : typename,
                          'attributes' : attr})
         models = self.load_broadcast_attrs(data)
+        for m in models:
+            m._dirty = False
         return models
     
     def store_broadcast_attrs(self, attrs):
@@ -175,6 +177,7 @@ class RedisSession(PlotServerSession):
         attrs = [self.serialize(attr['attributes']) for attr in attrs]
         dkey = dockey(self.docid)
         data = dict(zip(keys, attrs))
+        print 'storing', data
         self.r.mset(data)
         self.r.sadd(dkey, *keys)
         
@@ -182,14 +185,20 @@ class RedisSession(PlotServerSession):
         return self.store_objs([obj])
     
     def store_objs(self, to_store):
+        if not to_store:
+            return
         keys = [modelkey(m.__view_model__, self.docid, m._id) \
                 for m in to_store]
         models = [m.vm_serialize() for m in to_store]
         for m in models:
             m['doc'] = self.docid
-        models = [self.serialize(m) for m in to_store]
+        models = [self.serialize(m) for m in models]
         dkey = dockey(self.docid)
         data = dict(zip(keys, models))
+        print 'storign'
+        for k,v in data.iteritems():
+            print 'key:', k
+            print 'val:', v
         self.r.mset(data)
         self.r.sadd(dkey, *keys)
         
