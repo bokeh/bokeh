@@ -67,8 +67,8 @@ def create(docid, typename):
     sess = RedisSession(app.bb_redis, docid)
     modeldata = protocol.deserialize_json(request.data)
     modeldata['doc'] = docid
-    sess.store_broadcast_attrs({'type' : typename,
-                                'attributes' : modeldata})
+    sess.store_broadcast_attrs([{'type' : typename,
+                                 'attributes' : modeldata}])
     clientid=request.headers.get('Continuum-Clientid', None)
     msg = protocol.serialize_json(
         {'msgtype' : 'modelpush',

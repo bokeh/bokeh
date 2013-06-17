@@ -22,7 +22,7 @@ from bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
 from ..views import make_json
 from ..crossdomain import crossdomain
-
+from ..serverbb import RedisSession
 #main pages
 
 @app.route('/bokeh/')
@@ -123,6 +123,7 @@ def get_bokeh_info(docid):
 def _get_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
+    sess.load()
     all_models = docs.prune_and_get_valid_models(doc, sess)
     print "num models", len(all_models)
     all_models = sess.broadcast_attrs(all_models)

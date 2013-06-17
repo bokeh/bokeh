@@ -90,13 +90,13 @@ def transform_models(models):
     return [x for x in models if x.id not in to_delete]
 
 
-def prune_and_get_valid_models(model_redis, doc, session, delete=False):
+def prune_and_get_valid_models(doc, session, delete=False):
     """retrieve all models that the plot_context points to.
     if delete is True,
     wipe out any models that are orphaned.  Also call transform_models, which
     performs any backwards compatability data transformations.  
     """
-    objs = recursively_trverse_plot_object(session.plotcontext)
+    objs = recursively_traverse_plot_object(session.plotcontext)
     print "num models", len(objs)
     if delete:
         for obj in session._models.values():

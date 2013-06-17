@@ -356,7 +356,7 @@ class HTMLFragmentSession(BaseHTMLSession):
 #should move these to bokeh.objects?
 
 class PlotContext(PlotObject):
-    children = List
+    children = List(has_ref=True)
     
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning
@@ -467,6 +467,66 @@ class PlotServerSession(BaseHTMLSession):
         # out for now for symmetry with mpl.PlotClient
         raise NotImplementedError("Construct DataSources manually from bokeh.objects")
     
+    #------------------------------------------------------------------------
+    # functions for loading json into models
+    # we have 2 types of json data, if all the models are of one type, then
+    # we just have a list of model attributes
+    # otherwise, we have what we refer to as broadcast_json, which are of the form
+    # {'type':typename, 'attributes' : attrs}
+    #------------------------------------------------------------------------
+    
+    def load_attrs(self, typename, attrs):
+        models = []
+        for attr in attrs:
+            m = PlotObject.get_obj(typename, attr)
+            self.add(m)
+            models.append(m)
+        for m in models:
+            m.finalize(self._models)
+        for m in models:
+            m._dirty = False
+        return models
+        
+    def load_broadcast_attrs(self, attrs):
+        models = []
+        for attr in attrs:
+            typename = attr['type']
+            attr = attr['attributes']
+            try:
+                _id = attr['id']
+            except Exception as e:
+                import pdb;pdb.set_trace()
+            m = PlotObject.get_obj(typename, attr)
+            self.add(m)
+            models.append(m)
+        for m in models:
+            m.finalize(self._models)
+        for m in models:
+            m._dirty = False
+        return models
+
+    def attrs(self, to_store):
+        models = [m.vm_serialize() for m in to_store]
+        for m in models:
+            m['doc'] = self.docid
+        return models
+        
+    def broadcast_attrs(self, to_store):
+        models = []
+        for m in to_store:
+            ref = self.get_ref(m)
+            ref["attributes"] = m.vm_serialize()
+            # FIXME: Is it really necessary to add the id and doc to the
+            # attributes dict? It shows up in the bbclient-based JSON
+            # serializations, but I don't understand why it's necessary.
+            ref["attributes"].update({"id": ref["id"], "doc": self.docid})
+            models.append(ref)
+        return models
+
+    #------------------------------------------------------------------------
+    # Storing models
+    #------------------------------------------------------------------------
+    
     def store_obj(self, obj, ref=None):
         """ Uploads the object state and attributes to the server represented
         by this session.
@@ -491,33 +551,27 @@ class PlotServerSession(BaseHTMLSession):
         url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
                 "/" + ref["id"] + "/")
         self.http_session.put(url, data=self.serialize(data))
+        obj._dirty = False
         
-    def load_attrs(self, typename, attrs):
-        models = []
-        for attr in attrs:
-            m = PlotObject.get_obj(typename, attr)
-            self.add(m)
-            models.append(m)
-        for m in models:
-            m.finalize(self._models)
-        return models
+    def store_broadcast_attrs(self, attrs):
+        data = self.serialize(attrs)
+        url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
+        self.http_session.post(url, data=data)
+    
+    def store_objs(self, to_store):
+        models = self.broadcast_attrs(to_store)
+        self.store_broadcast_attrs(models)
+        for m in to_store:
+            m._dirty = False
         
-    def load_broadcast_attrs(self, attrs):
-        """
-        some legacy stuff, but broadcast attrs are of the form
-        {'type':typename, 'attributes' : attrs}
-        """
-        models = []
-        for attr in attrs:
-            _id = attr['id']
-            typename = attr['type']
-            attr = attr['attributes']
-            m = PlotObject.get_obj(typename, attr)
-            self.add(m)
-            models.append(m)
-        for m in models:
-            m.finalize(self._models)
-        return models
+    def store_all(self):
+        to_store = [x for x in self._models.values() \
+                    if hasattr(x, '_dirty') and x._dirty]
+        self.store_objs(to_store)
+
+    #------------------------------------------------------------------------
+    # Loading models
+    #------------------------------------------------------------------------
     
     def load_all(self, asdict=False):
         """the json coming out of this looks different than that coming
@@ -562,44 +616,11 @@ class PlotServerSession(BaseHTMLSession):
             m = PlotObject.get_obj(typename, attr)
             self.add(m)
             m.finalize(self._models)
+            m.dirty = False
             return m
         else:
             return attr
-        
-    def attrs(self, to_store):
-        models = [m.vm_serialize() for m in to_store]
-        for m in models:
-            m['doc'] = self.docid
-        return models
-        
-    def broadcast_attrs(self, to_store):
-        models = []
-        for m in to_store:
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            # FIXME: Is it really necessary to add the id and doc to the
-            # attributes dict? It shows up in the bbclient-based JSON
-            # serializations, but I don't understand why it's necessary.
-            ref["attributes"].update({"id": ref["id"], "doc": self.docid})
-            models.append(ref)
-        return models
     
-    def store_broadcast_attrs(self, attrs):
-        data = self.serialize(models)
-        url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
-        self.http_session.post(url, data=data)
-    
-    def store_objs(self, to_store):
-        models = self.broadcast_attrs(to_store)
-        self.store_broadcast_attrs(models)
-        for m in to_store:
-            m._dirty = False
-        
-    def store_all(self):
-        to_store = [x for x in self._models.values() \
-                    if hasattr(x, '_dirty') and x._dirty]
-        self.store_objs(to_store)
-
     #------------------------------------------------------------------------
     # Static files
     #------------------------------------------------------------------------

@@ -203,7 +203,7 @@ class Instance(BaseProperty):
         another object or not
         """
         super(Instance, self).__init__(default=default)
-        self.has_ref = True
+        self.has_ref = has_ref
         
     def __get__(self, obj, type=None):
         # If the constructor for Instance() supplied a class name, we should
@@ -256,7 +256,8 @@ class Enum(BaseProperty):
         if value not in self.allowed_values:
             raise ValueError("Invalid value '%r' passed to Enum." % value)
         setattr(obj, "_"+self.name, value)
-
+        obj._dirty = True
+        
 Sequence = _dummy
 Mapping = _dummy
 Iterable = _dummy

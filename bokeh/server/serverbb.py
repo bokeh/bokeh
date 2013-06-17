@@ -11,6 +11,7 @@ import numpy as np
 log = logging.getLogger(__name__)
 
 from bokeh.objects import PlotObject, Plot
+from bokeh.session import PlotServerSession
 
 """
 In our python interface to the backbone system, we separate the local collection
@@ -143,7 +144,8 @@ class RedisSession(PlotServerSession):
         
     def load(self):
         self.load_all()
-        plotcontext = self.load_type('PlotContext')[0]
+        plotcontext = [x for x in self._models.values() \
+                       if x.__view_model__ == 'PlotContext'][0]
         self.plotcontext = plotcontext
         return
     
@@ -155,10 +157,22 @@ class RedisSession(PlotServerSession):
         data = []
         for k, attr in zip(doc_keys, attrs):
             typename, _, modelid = parse_modelkey(k)
+            attr = protocol.deserialize_json(attr)
             data.append({'type' : typename,
                          'attributes' : attr})
         models = self.load_broadcast_attrs(data)
         return models
+    
+    def store_broadcast_attrs(self, attrs):
+        keys = [modelkey(attr['type'], self.docid, attr['attributes']['id'])\
+                for attr in attrs]
+        for attr in attrs:
+            attr['attributes']['doc'] = self.docid
+        attrs = [self.serialize(attr['attributes']) for attr in attrs]
+        dkey = dockey(self.docid)
+        self.r.mset(reduce(lambda x,y:x+y, zip(keys, attrs)))
+        self.r.sadd(dkey, *keys)
+        
     def store_obj(self, obj):
         return self.store_objs([obj])
     
@@ -172,13 +186,6 @@ class RedisSession(PlotServerSession):
         self.r.mset(reduce(zip(keys, models), lambda x,y:x+y))
         self.r.sadd(dkey, *keys)
         
-    def attrupdate(self, typename, attributes):
-        id = attributes['id']
-        mkey = modelkey(typename, self.docid, id)
-        model = self._models[id]
-        for k,v in attributes.iteritems():
-            setattr(model, k, v)
-            
     def del_obj(self, obj):
         self.del_objs([obj])
         
