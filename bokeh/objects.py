@@ -62,7 +62,8 @@ class Viewable(MetaHasProps):
 
     @classmethod
     def get_obj(cls, typename, attrs):
-        return cls.get_class(typename).load_json(attrs)
+        temp = cls.get_class(typename) 
+        return temp.load_json(attrs)
 
 def usesession(meth):
     """ Checks for 'session' in kwargs and in **self**, and guarantees
@@ -170,14 +171,18 @@ class PlotObject(HasProps):
         else:
             self._id = str(uuid4())
         self._dirty = True
+        self._callbacks_dirty = False
+        self._callbacks = {}
         super(PlotObject, self).__init__(*args, **kwargs)
         
     @classmethod
-    def load_json(cls, attrs):
+    def load_json(cls, attrs, instance=None):
         """Loads all json into a instance of cls, EXCEPT any references
         which are handled in finalize
         """
-        instance = cls(id=attrs.pop('id'))
+        _id = attrs.pop('id')
+        if not instance:
+            instance = cls(id=_id)
         ref_props = {}
         for p in instance.properties_with_refs():
             if p in attrs:
@@ -254,7 +259,28 @@ class PlotObject(HasProps):
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))
-
+    
+    def on_change(self, attrname, obj, callbackname):
+        """when attrname of self changes, call callbackname
+        on obj
+        """
+        callbacks = self._callbacks.setdefault(attrname, [])
+        callback = dict(obj=obj,
+                        callbackname=callbackname)
+        callbacks.append(callback)
+        self._callbacks_dirty = True
+        
+    def _trigger(self, attrname, old, new):
+        """attrname of self changed.  So call all callbacks
+        """
+        callbacks = self._callbacks.get(attrname)
+        if callbacks:
+            for callback in callbacks:
+                getattr(callback['obj'], callback['callbackname'])(
+                    self, attrname, old, new)
+    def dummy(self, changedobj, attrname, old, new):
+        print 'DUMMY', changedobj, attrname, old, new
+        
 
 class DataSource(PlotObject):
     """ Base class for data sources """

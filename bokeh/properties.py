@@ -18,7 +18,8 @@ class BaseProperty(object):
 
     @classmethod
     def autocreate(cls, name=None):
-        """ Called by the metaclass to create a new instance of this descriptor
+        """ Called by the metaclass to create a
+        new instance of this descriptor
         if the user just assigned it to a property without trailing
         parentheses.
         """
@@ -28,10 +29,12 @@ class BaseProperty(object):
         return getattr(obj, "_"+self.name, self.default)
 
     def __set__(self, obj, value):
+        old = self.__get__(obj)
         setattr(obj, "_"+self.name, value)
-        print 'setting'
         obj._dirty = True
-
+        if hasattr(obj, '_trigger'):
+            obj._trigger(self.name, old, value)
+            
     def __delete__(self, obj):
         if hasattr(obj, "_"+self.name):
             delattr(obj, "_"+self.name)
@@ -212,7 +215,7 @@ class Instance(BaseProperty):
         # instantiate that class here, instead of returning the class as the
         # default object
         if not hasattr(obj, "_"+self.name):
-            if self.default and isinstance(self.default, type):
+             if type and self.default and isinstance(self.default, type):
                 setattr(obj, "_"+self.name, self.default())
         return getattr(obj, "_"+self.name, None)
 

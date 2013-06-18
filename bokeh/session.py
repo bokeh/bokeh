@@ -111,6 +111,12 @@ class BaseHTMLSession(Session):
         not an instance, when this encoder class is used, the Session
         instance is set as a class-level attribute.  Kind of weird, and
         should be better handled via a metaclass.
+
+        #hugo - I don't think we should use the json encoder anymore to do
+        this.  It introduces an asymmetry in our operations, because
+        while you can use this mechanism to serialize, you cannot use
+        this mechanism to deserialize because we need 2 stage deserialization
+        in order to resolve references
         """
         session = None
         def default(self, obj):
@@ -480,8 +486,13 @@ class PlotServerSession(BaseHTMLSession):
         for attr in attrs:
             print 'type:', typename
             print 'attrs:', attr
-            m = PlotObject.get_obj(typename, attr)
-            self.add(m)
+            _id = attr['id']
+            if _id in self._models:
+                m = self._models[_id]
+                m.load_json(attr, instance=m)
+            else:
+                m = PlotObject.get_obj(typename, attr)
+                self.add(m)
             models.append(m)
         for m in models:
             m.finalize(self._models)
@@ -494,12 +505,13 @@ class PlotServerSession(BaseHTMLSession):
             attr = attr['attributes']
             print 'type:', typename
             print 'attrs:', attr
-            try:
-                _id = attr['id']
-            except Exception as e:
-                import pdb;pdb.set_trace()
-            m = PlotObject.get_obj(typename, attr)
-            self.add(m)
+            _id = attr['id']
+            if _id in self._models:
+                m = self._models[_id]
+                m.load_json(attr, instance=m)
+            else:
+                m = PlotObject.get_obj(typename, attr)
+                self.add(m)
             models.append(m)
         for m in models:
             m.finalize(self._models)
@@ -570,7 +582,9 @@ class PlotServerSession(BaseHTMLSession):
         to_store = [x for x in self._models.values() \
                     if hasattr(x, '_dirty') and x._dirty]
         self.store_objs(to_store)
-
+        return to_store
+    
+    
     #------------------------------------------------------------------------
     # Loading models
     #------------------------------------------------------------------------
@@ -628,6 +642,52 @@ class PlotServerSession(BaseHTMLSession):
             return m
         else:
             return attr
+
+    #loading callbacks
+    def callbacks_json(self, to_store):
+        all_data = []
+        for m in to_store:
+            data = self.get_ref(m)
+            data['callbacks'] = m._callbacks
+            all_data.append(data)
+        return all_data
+    
+    def load_callbacks_json(self, callback_json):
+        for data in callback_json:
+            m = self._models[data['id']]
+            m._callbacks = {}
+            for attrname, callbacks in data['callbacks'].iteritems():
+                m._callbacks[attrname] = []
+                for callback in callbacks:
+                    m._callbacks[attrname].append(dict(
+                        obj=self._models[callback['obj']['id']],
+                        callbackname=callback['callbackname']
+                        ))
+                    
+    def load_all_callbacks(self, get_json=False):
+        """get_json = return json of callbacks, rather than
+        loading them into models
+        """
+        url = utils.urljoin(self.base_url, self.docid + "/", "callbacks")
+        data = protocol.deserialize_json(self.http_session.get(url).content)
+        if get_json:
+            return data
+        self.load_callbacks_json(data)
+        
+    #storing callbacks
+    
+    def store_callbacks(self, to_store):
+        all_data = self.callbacks_json(to_store)
+        url = utils.urljoin(self.base_url, self.docid + "/", "callbacks")
+        self.http_session.post(url, data=all_data)
+        for m in to_store:
+            m._callbacks_dirty = False
+            
+    def store_all_callbacks(self):
+        to_store = [x for x in self._models.values() \
+                    if hasattr(x, '_callbacks_dirty') and x._callbacks_dirty]
+        self.store_callbacks(to_store)
+        return to_store
     
     #------------------------------------------------------------------------
     # Static files

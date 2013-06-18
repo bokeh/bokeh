@@ -26,6 +26,9 @@ def dockey(docid):
 def modelkey(typename, docid, modelid):
     return 'bbmodel:%s:%s:%s' % (typename, docid, modelid)
 
+def callbackskey(typename, docid, modelid):
+    return 'bbcallback:%s:%s:%s' % (typename, docid, modelid)
+
 def parse_modelkey(modelkey):
     _, typename, docid, modelid = modelkey.split(":")
     return (typename, docid, modelid)
@@ -211,3 +214,23 @@ class RedisSession(PlotServerSession):
             self.r.srem(dockey(self.docid), mkey)
             self.r.delete(mkey)
         
+    def load_all_callbacks(self, get_json=False):
+        """get_json = return json of callbacks, rather than
+        loading them into models
+        """
+        doc_keys = self.r.smembers(dockey(self.docid))
+        callback_keys = [x.replace("bbmodel", "bbcallback") for x in doc_keys]
+        callbacks = self.r.mget(callback_keys)
+        callbacks = [x for x in callbacks if x]
+        callbacks = [protocol.deserialize_json(x) for x in callbacks]
+        if get_json:
+            return callbacks
+        self.load_callbacks_json(callbacks)
+        
+    def store_callbacks(self, to_store):
+        for callbacks in to_store:
+            typename = callbacks['type']
+            _id = callbacks['id']
+            key = callbackskey(typename, self.docid, _id)
+            data = self.serialize(callbacks)
+            self.r.set(key, data)

@@ -27,6 +27,7 @@ def reset(docid):
     sess = RedisSession(app.bb_redis, docid)
     doc = docs.Doc.load(app.model_redis, docid)
     sess.load(doc)
+    sess.load_all_callbacks()
     for m in sess._models:
         if not m.typename.endswith('PlotContext'):
             sess.del_obj(m)
@@ -41,8 +42,23 @@ def rungc(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
+    sess.load_all_callbacks()    
     all_models = sess._models.values()
     return 'success'
+
+@app.route("/bokeh/bb/<docid>/callbacks", methods=['POST', 'GET'])
+@check_write_authentication_and_create_client
+def callbacks(docid):
+    doc = docs.Doc.load(app.model_redis, docid)
+    sess = RedisSession(app.bb_redis, docid)
+    sess.load(doc)
+    sess.load_all_callbacks()    
+    if request.method == 'POST':
+        jsondata = protocol.deserialize_json(request.data)
+        sess.store_callbacks(jsondata)
+    else:
+        jsondata = sess.load_all_callbacks(get_json=True)
+    return make_json(sess.serialize(jsondata))
 
 #bulk upsert
 @app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
@@ -51,6 +67,7 @@ def bulk_upsert(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
+    sess.load_all_callbacks()    
     data = protocol.deserialize_json(request.data)
     models = sess.load_broadcast_attrs(data)
     changed = sess.store_all()
@@ -83,6 +100,7 @@ def create(docid, typename):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
+    sess.load_all_callbacks()
     modeldata = protocol.deserialize_json(request.data)
     modeldata = [{'type' : typename,
                   'attributes' : modeldata}]
@@ -98,6 +116,7 @@ def bulkget(docid, typename=None):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
+    sess.load_all_callbacks()    
     all_models = sess._models.values()
     if typename is not None:
         attrs = sess.attrs([x for x in all_models \
@@ -129,6 +148,7 @@ def getbyid(docid, typename, id):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
+    sess.load_all_callbacks()    
     attr = sess.attrs([sess._models[id]])[0]
     return make_json(sess.serialize(attr))
 
@@ -138,8 +158,11 @@ def update(docid, typename, id):
     namely in writing, we shouldn't remove unspecified attrs
     (we currently don't handle this correctly)
     """
+    doc = docs.Doc.load(app.model_redis, docid)
     modeldata = protocol.deserialize_json(request.data)
     sess = RedisSession(app.bb_redis, docid)
+    sess.load(doc)
+    sess.load_all_callbacks()
     sess.load_attrs(typename, [modeldata])
     changed = sess.store_all()
     ws_update(sess, changed)
