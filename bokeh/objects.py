@@ -174,7 +174,7 @@ class PlotObject(HasProps):
         self._callbacks_dirty = False
         self._callbacks = {}
         self._callback_queue = []
-        self._block_callbakcs = False
+        self._block_callbacks = False
         super(PlotObject, self).__init__(*args, **kwargs)
         
     @classmethod

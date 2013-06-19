@@ -9,11 +9,7 @@ from bokeh import protocol
 from bokeh.bbmodel import ContinuumModelsClient
 from models import docs
 import numpy as np
-<<<<<<< HEAD
-log = logging.getLogger(__name__)
-=======
 logger = logging.getLogger(__name__)
->>>>>>> fc6d41c682392b7de45129de398a19fac57b0938
 
 from bokeh.objects import PlotObject, Plot
 from bokeh.session import PlotServerSession
@@ -145,17 +141,6 @@ class RedisSession(PlotServerSession):
     a user's documents.  uses redis directly.  This probably shouldn't
     inherit from PlotServerSession, we need to refactor this abit.
     """
-<<<<<<< HEAD
-    def __init__(self, redisconn, docid):
-        self.docid = docid
-        self.r = redisconn
-        self._models = {}
-        
-    def load(self, doc):
-        self.load_all()
-        self.plotcontext = self._models[doc.plot_context_ref['id']]        
-        all_models = docs.prune_and_get_valid_models(doc, self)
-=======
     def __init__(self, redisconn, doc):
         if isinstance(doc, basestring):
             self.docid = doc
@@ -176,7 +161,6 @@ class RedisSession(PlotServerSession):
         all_models = docs.prune_and_get_valid_models(
             self.doc, self, delete=delete
             )
->>>>>>> fc6d41c682392b7de45129de398a19fac57b0938
         to_keep = set([x._id for x in all_models])
         for k in self._models.keys():
             if k not in to_keep:
