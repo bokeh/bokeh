@@ -483,7 +483,7 @@ class Plot(PlotObject):
             self.__view_model__)
 
     def script_inject(self):
-        script_inject(
+        return script_inject(
             self._session,
             self._id,
             self.__view_model__)
