@@ -30,10 +30,15 @@ class BaseProperty(object):
 
     def __set__(self, obj, value):
         old = self.__get__(obj)
+        if value == old:
+            return
         setattr(obj, "_"+self.name, value)
         obj._dirty = True
         if hasattr(obj, '_trigger'):
-            obj._trigger(self.name, old, value)
+            if hasattr(obj, '_block_callbacks') and obj._block_callbacks:
+                obj._callback_queue.append((self.name, old, value))
+            else:
+                obj._trigger(self.name, old, value)
             
     def __delete__(self, obj):
         if hasattr(obj, "_"+self.name):

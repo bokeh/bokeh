@@ -27,7 +27,6 @@ def reset(docid):
     sess = RedisSession(app.bb_redis, docid)
     doc = docs.Doc.load(app.model_redis, docid)
     sess.load(doc)
-    sess.load_all_callbacks()
     for m in sess._models:
         if not m.typename.endswith('PlotContext'):
             sess.del_obj(m)
@@ -42,7 +41,6 @@ def rungc(docid):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
-    sess.load_all_callbacks()    
     all_models = sess._models.values()
     return 'success'
 
@@ -64,19 +62,23 @@ def callbacks(docid):
 @app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
 @check_write_authentication_and_create_client
 def bulk_upsert(docid):
+    # endpoint is only used by python, therefore we don't process
+    # callbacks here
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
-    sess.load_all_callbacks()    
     data = protocol.deserialize_json(request.data)
     models = sess.load_broadcast_attrs(data)
     changed = sess.store_all()
     msg = ws_update(sess, changed)
     return make_json(msg)
 
-def ws_update(session, models):
+def ws_update(session, models, exclude_self=True):
     attrs = session.broadcast_attrs(models)
-    clientid = request.headers.get('Continuum-Clientid', None)
+    if exclude_self:
+        clientid = request.headers.get('Continuum-Clientid', None)
+    else:
+        clientid = None
     msg = session.serialize({'msgtype' : 'modelpush',
                              'modelspecs' : attrs
                              })
@@ -100,7 +102,6 @@ def create(docid, typename):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
-    sess.load_all_callbacks()
     modeldata = protocol.deserialize_json(request.data)
     modeldata = [{'type' : typename,
                   'attributes' : modeldata}]
@@ -116,7 +117,6 @@ def bulkget(docid, typename=None):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
-    sess.load_all_callbacks()    
     all_models = sess._models.values()
     if typename is not None:
         attrs = sess.attrs([x for x in all_models \
@@ -148,7 +148,6 @@ def getbyid(docid, typename, id):
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
-    sess.load_all_callbacks()    
     attr = sess.attrs([sess._models[id]])[0]
     return make_json(sess.serialize(attr))
 
@@ -163,11 +162,20 @@ def update(docid, typename, id):
     sess = RedisSession(app.bb_redis, docid)
     sess.load(doc)
     sess.load_all_callbacks()
+    sess.disable_callbacks()
     sess.load_attrs(typename, [modeldata])
+    sess.execute_callback_queue()
     changed = sess.store_all()
-    ws_update(sess, changed)
     model = sess._models[id]
-    log.debug("patch, %s, %s", docid, typename)
+    try:
+        idx = changed.index(model)
+        del changed[idx]
+    except ValueError  as e:
+        #this is strange but ok, that means the model didn't change
+        pass
+    ws_update(sess, changed, exclude_self=False)
+    ws_update(sess, [model], exclude_self=True)
+    log.debug("update, %s, %s", docid, typename)
     return make_json(sess.attrs([model])[0])
 
 @check_write_authentication_and_create_client

@@ -543,29 +543,30 @@ class PlotServerSession(BaseHTMLSession):
     #------------------------------------------------------------------------
     
     def store_obj(self, obj, ref=None):
-        """ Uploads the object state and attributes to the server represented
-        by this session.
+        return self.store_objs([obj])
+        # """ Uploads the object state and attributes to the server represented
+        # by this session.
 
-        **ref** is a dict containing keys "type" and "id"; by default, the
-        ref is retrieved/computed from **obj** itself.
-        """
-        if ref is None:
-            ref = self.get_ref(obj)
-        if ref is not None and ("type" not in ref or "id" not in ref):
-            raise ValueError("ref needs to have both 'type' and 'id' keys")
+        # **ref** is a dict containing keys "type" and "id"; by default, the
+        # ref is retrieved/computed from **obj** itself.
+        # """
+        # if ref is None:
+        #     ref = self.get_ref(obj)
+        # if ref is not None and ("type" not in ref or "id" not in ref):
+        #     raise ValueError("ref needs to have both 'type' and 'id' keys")
 
-        data = obj.vm_serialize()
-        # It might seem redundant to include both of these, but the server
-        # doesn't do the right thing unless these are included.
-        data["doc"] = self.docid
+        # data = obj.vm_serialize()
+        # # It might seem redundant to include both of these, but the server
+        # # doesn't do the right thing unless these are included.
+        # data["doc"] = self.docid
 
-        # This is copied from ContinuumModelsClient.buffer_sync(), .update(),
-        # and .upsert_all().
-        # TODO: Handle the include_hidden stuff.
-        url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
-                "/" + ref["id"] + "/")
-        self.http_session.put(url, data=self.serialize(data))
-        obj._dirty = False
+        # # This is copied from ContinuumModelsClient.buffer_sync(), .update(),
+        # # and .upsert_all().
+        # # TODO: Handle the include_hidden stuff.
+        # url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
+        #         "/" + ref["id"] + "/")
+        # self.http_session.put(url, data=self.serialize(data))
+        # obj._dirty = False
         
     def store_broadcast_attrs(self, attrs):
         data = self.serialize(attrs)
@@ -679,6 +680,7 @@ class PlotServerSession(BaseHTMLSession):
     def store_callbacks(self, to_store):
         all_data = self.callbacks_json(to_store)
         url = utils.urljoin(self.base_url, self.docid + "/", "callbacks")
+        all_data = self.serialize(all_data)
         self.http_session.post(url, data=all_data)
         for m in to_store:
             m._callbacks_dirty = False
@@ -689,6 +691,25 @@ class PlotServerSession(BaseHTMLSession):
         self.store_callbacks(to_store)
         return to_store
     
+    #managing callbacks
+    
+    def disable_callbacks(self):
+        for m in self._models.itervalues():
+            m._block_callbacks = True
+            
+    def enable_callbacks(self):
+        for m in self._models.itervalues():
+            m._block_callbacks = False
+            
+    def clear_callback_queue(self):
+        for m in self._models.itervalues():
+            del m._callback_queue[:]
+            
+    def execute_callback_queue(self):
+        for m in self._models.itervalues():
+            for cb in m._callback_queue:
+                m._trigger(*cb)
+                
     #------------------------------------------------------------------------
     # Static files
     #------------------------------------------------------------------------

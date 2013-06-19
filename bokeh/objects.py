@@ -173,6 +173,8 @@ class PlotObject(HasProps):
         self._dirty = True
         self._callbacks_dirty = False
         self._callbacks = {}
+        self._callback_queue = []
+        self._block_callbakcs = False
         super(PlotObject, self).__init__(*args, **kwargs)
         
     @classmethod
