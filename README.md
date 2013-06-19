@@ -61,6 +61,7 @@ At a minimum, Bokeh requires the following:
  * Requests
  * gevent
  * gevent-websocket
+ * Pandas
 
 For an older rich-client prototype of some interactive GGplot functionality, the
 [Chaco](https://github.com/enthought/chaco) plotting library is also required.
