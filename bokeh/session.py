@@ -484,8 +484,8 @@ class PlotServerSession(BaseHTMLSession):
     def load_attrs(self, typename, attrs):
         models = []
         for attr in attrs:
-            print 'type:', typename
-            print 'attrs:', attr
+            logger.debug('type: %s', typename)
+            logger.debug('attrs: %s', attr)
             _id = attr['id']
             if _id in self._models:
                 m = self._models[_id]
@@ -503,8 +503,8 @@ class PlotServerSession(BaseHTMLSession):
         for attr in attrs:
             typename = attr['type']
             attr = attr['attributes']
-            print 'type:', typename
-            print 'attrs:', attr
+            logger.debug('type: %s', typename)
+            logger.debug('attrs: %s', attr)
             _id = attr['id']
             if _id in self._models:
                 m = self._models[_id]

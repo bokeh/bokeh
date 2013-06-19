@@ -123,8 +123,8 @@ def get_bokeh_info(docid):
 
 def _get_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, docid)
-    sess.load(doc)
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
     all_models = sess._models.values()
     print "num models", len(all_models)
     all_models = sess.broadcast_attrs(all_models)
