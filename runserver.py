@@ -12,9 +12,10 @@ args = parser.parse_args(sys.argv[1:])
 start.prepare_app()
 start.prepare_local()
 
-start.app.debugjs = args.debugjs
+start.bokeh_app.debugjs = args.debugjs
 
 if args.debug:
+    start.bokeh_app.debug = True
     start.app.debug = True
     import werkzeug.serving
     @werkzeug.serving.run_with_reloader

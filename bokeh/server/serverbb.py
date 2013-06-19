@@ -141,15 +141,26 @@ class RedisSession(PlotServerSession):
     a user's documents.  uses redis directly.  This probably shouldn't
     inherit from PlotServerSession, we need to refactor this abit.
     """
-    def __init__(self, redisconn, docid):
-        self.docid = docid
+    def __init__(self, redisconn, doc):
+        if isinstance(doc, basestring):
+            self.docid = doc
+        else:
+            self.set_doc(doc)
         self.r = redisconn
         self._models = {}
         
-    def load(self, doc):
+    def set_doc(self, doc):
+        self.doc = doc
+        self.docid = doc.docid
+        
+    def load(self):
         self.load_all()
-        self.plotcontext = self._models[doc.plot_context_ref['id']]        
-        all_models = docs.prune_and_get_valid_models(doc, self)
+        self.plotcontext = self._models[self.doc.plot_context_ref['id']]
+        
+    def prune(self, delete=False):
+        all_models = docs.prune_and_get_valid_models(
+            self.doc, self, delete=delete
+            )
         to_keep = set([x._id for x in all_models])
         for k in self._models.keys():
             if k not in to_keep:

@@ -24,9 +24,9 @@ log = logging.getLogger(__name__)
 @app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
 @check_write_authentication_and_create_client
 def reset(docid):
-    sess = RedisSession(app.bb_redis, docid)
     doc = docs.Doc.load(app.model_redis, docid)
-    sess.load(doc)
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
     for m in sess._models:
         if not m.typename.endswith('PlotContext'):
             sess.del_obj(m)
@@ -39,17 +39,17 @@ def reset(docid):
 @check_write_authentication_and_create_client
 def rungc(docid):
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, docid)
-    sess.load(doc)
-    all_models = sess._models.values()
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
+    sess.prune(delete=True)
     return 'success'
 
 @app.route("/bokeh/bb/<docid>/callbacks", methods=['POST', 'GET'])
 @check_write_authentication_and_create_client
 def callbacks(docid):
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, docid)
-    sess.load(doc)
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
     sess.load_all_callbacks()    
     if request.method == 'POST':
         jsondata = protocol.deserialize_json(request.data)
@@ -65,10 +65,11 @@ def bulk_upsert(docid):
     # endpoint is only used by python, therefore we don't process
     # callbacks here
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, docid)
-    sess.load(doc)
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
     data = protocol.deserialize_json(request.data)
     models = sess.load_broadcast_attrs(data)
+    
     changed = sess.store_all()
     msg = ws_update(sess, changed)
     return make_json(msg)
@@ -100,8 +101,9 @@ def ws_delete(session, models):
 @check_write_authentication_and_create_client
 def create(docid, typename):
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, docid)
-    sess.load(doc)
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
+    
     modeldata = protocol.deserialize_json(request.data)
     modeldata = [{'type' : typename,
                   'attributes' : modeldata}]
@@ -115,8 +117,9 @@ def create(docid, typename):
 def bulkget(docid, typename=None):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, docid)
-    sess.load(doc)
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
+    sess.prune()    
     all_models = sess._models.values()
     if typename is not None:
         attrs = sess.attrs([x for x in all_models \
@@ -146,8 +149,8 @@ def handle_specific_model(docid, typename, id):
 def getbyid(docid, typename, id):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, docid)
-    sess.load(doc)
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
     attr = sess.attrs([sess._models[id]])[0]
     return make_json(sess.serialize(attr))
 
@@ -158,9 +161,10 @@ def update(docid, typename, id):
     (we currently don't handle this correctly)
     """
     doc = docs.Doc.load(app.model_redis, docid)
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
+    
     modeldata = protocol.deserialize_json(request.data)
-    sess = RedisSession(app.bb_redis, docid)
-    sess.load(doc)
     sess.load_all_callbacks()
     sess.disable_callbacks()
     sess.load_attrs(typename, [modeldata])
@@ -180,7 +184,7 @@ def update(docid, typename, id):
 
 @check_write_authentication_and_create_client
 def delete(docid, typename, id):
-    sess = RedisSession(app.bb_redis, docid)    
+    sess = RedisSession(app.bb_redis, doc)    
     model = sess._models[id]
     log.debug("DELETE, %s, %s", docid, typename)
     sess.del_obj(model)
