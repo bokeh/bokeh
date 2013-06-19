@@ -56,7 +56,6 @@ Dependencies
 At a minimum, Bokeh requires the following:
 
  * Numpy
- * BokehJS
  * Flask
  * Redis
  * Requests
