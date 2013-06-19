@@ -44,7 +44,7 @@ class Session(object):
         self._dirty = True
         # This stores a reference to all models in the object graph.
         # Eventually consider making this be weakrefs?
-        self._models = set()
+        self._models = {}
 
     def __enter__(self):
         pass
@@ -60,8 +60,8 @@ class Session(object):
         """
         for obj in objects:
             obj.session = self
-        self._models.update(objects)
-
+            self._models[obj._id] = obj
+            
     def view(self):
         """ Triggers the OS to open a web browser pointing to the file
         that is connected to this session.
@@ -111,6 +111,12 @@ class BaseHTMLSession(Session):
         not an instance, when this encoder class is used, the Session
         instance is set as a class-level attribute.  Kind of weird, and
         should be better handled via a metaclass.
+
+        #hugo - I don't think we should use the json encoder anymore to do
+        this.  It introduces an asymmetry in our operations, because
+        while you can use this mechanism to serialize, you cannot use
+        this mechanism to deserialize because we need 2 stage deserialization
+        in order to resolve references
         """
         session = None
         def default(self, obj):
@@ -127,13 +133,7 @@ class BaseHTMLSession(Session):
 
     
     def get_ref(self, obj):
-        # Eventually should use our own memo instead of storing
-        # an attribute on the class
-        if not getattr(obj, "_id", None):
-            obj._id = self.make_id(obj)
-
-        self._models.add(obj)
-
+        self._models[obj._id] = obj
         return {
                 'type': obj.__view_model__,
                 'id': obj._id
@@ -214,7 +214,7 @@ class HTMLFileSession(BaseHTMLSession):
         the path to the various static files should be computed.
         """
         # FIXME: Handle this more intelligently
-        the_plot = [m for m in self._models if isinstance(m, Plot)][0]
+        the_plot = [m for m in self._models.itervalues() if isinstance(m, Plot)][0]
         plot_ref = self.get_ref(the_plot)
         elementid = str(uuid.uuid4())
 
@@ -223,7 +223,7 @@ class HTMLFileSession(BaseHTMLSession):
         # vm_serialize into the PlotObjEncoder, because that would cause
         # all the attributes to be duplicated multiple times.)
         models = []
-        for m in self._models:
+        for m in self._models.itervalues():
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
             ref["attributes"].update({"id": ref["id"], "doc": None})
@@ -332,7 +332,7 @@ class HTMLFileSession(BaseHTMLSession):
         Mostly used for debugging.
         """
         models = []
-        for m in self._models:
+        for m in self._models.itervalues():
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
             ref["attributes"].update({"id": ref["id"], "doc": None})
@@ -359,11 +359,18 @@ class HTMLFragmentSession(BaseHTMLSession):
         """
         pass
 
+#should move these to bokeh.objects?
 
+class PlotContext(PlotObject):
+    children = List(has_ref=True)
+    
+class PlotList(PlotContext):
+    # just like plot context, except plot context has special meaning
+    # everywhere, so plotlist is the generic one
+    pass
+               
 class PlotServerSession(BaseHTMLSession):
 
-    class PlotContext(PlotObject):
-        children = List
 
     def __init__(self, username=None, serverloc=None, userapikey="nokey"):
         # This logic is based on ContinuumModelsClient.__init__ and
@@ -414,17 +421,20 @@ class PlotServerSession(BaseHTMLSession):
             self.docid = docid
             self.apikey = apikey['readonlyapikey']
             logger.info('got read only apikey')
-        url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
-        # TODO: Load the full document. For now, just load the PlotContext
-        url = urlparse.urljoin(self.base_url, self.docid+"/PlotContext/")
-        attrs = protocol.deserialize_json(self.http_session.get(url).content)
-        if len(attrs) == 0:
-            logger.warning("Unable to load PlotContext for doc ID %s" % self.docid)
+        self.load_all()
+        plotcontext = self.load_type('PlotContext')
+        if len(plotcontext):
+            temp = plotcontext[0]            
+            if len(plotcontext) > 1:
+                logger.warning(
+                    "Found more than one PlotContext for doc ID %s; " \
+                    "Using PlotContext ID %s" % (self.docid, temp._id))
+            plotcontext = temp
         else:
-            self.plotcontext = PlotServerSession.PlotContext(id=attrs[0]["id"])
-            if len(attrs) > 1:
-                logger.warning("Found more than one PlotContext for doc ID %s; " \
-                        "Using PlotContext ID %s" % (self.docid, attrs[0]["id"]))
+            logger.warning("Unable to load PlotContext for doc ID %s" % self.docid)
+            plotcontext = PlotContext()
+            self.store_obj(plotcontext)
+        self.plotcontext = plotcontext
         return
         
     def make_doc(self, title):
@@ -440,7 +450,7 @@ class PlotServerSession(BaseHTMLSession):
                     if x.get('title') == title]
         docid = matching[0]['docid']
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/%s/" % docid)
-        response = self.session.delete(url, verify=False)
+        response = self.http_session.delete(url, verify=False)
         if response.status_code == 409:
             raise DataIntegrityException
         self.userinfo = utils.get_json(response)
@@ -462,66 +472,244 @@ class PlotServerSession(BaseHTMLSession):
         # done by separately creating the DataSource object. Stubbing this
         # out for now for symmetry with mpl.PlotClient
         raise NotImplementedError("Construct DataSources manually from bokeh.objects")
-
-    def store_obj(self, obj, ref=None):
-        """ Uploads the object state and attributes to the server represented
-        by this session.
-
-        **ref** is a dict containing keys "type" and "id"; by default, the
-        ref is retrieved/computed from **obj** itself.
-        """
-        jsondata = self.serialize(obj)
-        if ref is not None and "type" in ref and "id" in ref:
-            jsondata.update(ref)
-        else:
-            raise ValueError("ref needs to have both 'type' and 'id' keys")
-        # This is copied from ContinuumModelsClient.buffer_sync(), .update(),
-        # and .upsert_all().
-        # TODO: Handle the include_hidden stuff.
-        url = utils.urljoin(self.base_url, self.docid + "/" + jsondata["type"] +\
-                "/" + jsondata["id"] + "/")
-        self.http_session.put(url, data=jsondata)
-
-    def load_obj(self, ref, asdict=False):
-        """ Unserializes the object given by **ref**, into a new object
-        of the type in the serialization.  If **asdict** is True,
-        then the raw dictionary (including object type and ref) is 
-        returned, and no new object is instantiated.
-        """
-        # TODO: Do URL and path stuff to read json data from persistence 
-        # backend into jsondata string
-        jsondata = None
-        attrs = protocol.deserialize_json(jsondata)
-        if asdict:
-            return attrs
-        else:
-            from bokeh.objects import PlotObject
-            objtype = attrs["type"]
-            ref_id = attrs["id"]
-            cls = PlotObject.get_class(objtype)
-            newobj = cls(id=ref_id)
-            # TODO: finish this...
-            return newobj
-
-    def store_all(self):
+    
+    #------------------------------------------------------------------------
+    # functions for loading json into models
+    # we have 2 types of json data, if all the models are of one type, then
+    # we just have a list of model attributes
+    # otherwise, we have what we refer to as broadcast_json, which are of the form
+    # {'type':typename, 'attributes' : attrs}
+    #------------------------------------------------------------------------
+    
+    def load_attrs(self, typename, attrs):
         models = []
-        # Look for the Plot to stick into here. PlotContexts only
-        # want things with a corresponding BokehJS View, so Plots and
-        # GridPlots for now.
-        theplot = [x for x in self._models if isinstance(x, Plot)][0]
-        self.plotcontext.children = [theplot]
-        for m in list(self._models) + [self.plotcontext]:
+        for attr in attrs:
+            # logger.debug('type: %s', typename)
+            # logger.debug('attrs: %s', attr)
+            _id = attr['id']
+            if _id in self._models:
+                m = self._models[_id]
+                m.load_json(attr, instance=m)
+            else:
+                m = PlotObject.get_obj(typename, attr)
+                self.add(m)
+            models.append(m)
+        for m in models:
+            m.finalize(self._models)
+        return models
+        
+    def load_broadcast_attrs(self, attrs):
+        models = []
+        for attr in attrs:
+            typename = attr['type']
+            attr = attr['attributes']
+            logger.debug('type: %s', typename)
+            logger.debug('attrs: %s', attr)
+            _id = attr['id']
+            if _id in self._models:
+                m = self._models[_id]
+                m.load_json(attr, instance=m)
+            else:
+                m = PlotObject.get_obj(typename, attr)
+                self.add(m)
+            models.append(m)
+        for m in models:
+            m.finalize(self._models)
+        return models
+
+    def attrs(self, to_store):
+        attrs = []
+        for m in to_store:
+            attr = m.vm_serialize()
+            attr['doc'] = self.docid
+            attr['id'] = m._id
+            attrs.append(attr)
+        return attrs
+        
+    def broadcast_attrs(self, to_store):
+        models = []
+        for m in to_store:
             ref = self.get_ref(m)
             ref["attributes"] = m.vm_serialize()
             # FIXME: Is it really necessary to add the id and doc to the
             # attributes dict? It shows up in the bbclient-based JSON
             # serializations, but I don't understand why it's necessary.
-            ref["attributes"].update({"id": ref["id"], "doc": self.docid})
+            ref["attributes"].update({"doc": self.docid})
             models.append(ref)
-        data = self.serialize(models)
+        return models
+
+    #------------------------------------------------------------------------
+    # Storing models
+    #------------------------------------------------------------------------
+    
+    def store_obj(self, obj, ref=None):
+        return self.store_objs([obj])
+        # """ Uploads the object state and attributes to the server represented
+        # by this session.
+
+        # **ref** is a dict containing keys "type" and "id"; by default, the
+        # ref is retrieved/computed from **obj** itself.
+        # """
+        # if ref is None:
+        #     ref = self.get_ref(obj)
+        # if ref is not None and ("type" not in ref or "id" not in ref):
+        #     raise ValueError("ref needs to have both 'type' and 'id' keys")
+
+        # data = obj.vm_serialize()
+        # # It might seem redundant to include both of these, but the server
+        # # doesn't do the right thing unless these are included.
+        # data["doc"] = self.docid
+
+        # # This is copied from ContinuumModelsClient.buffer_sync(), .update(),
+        # # and .upsert_all().
+        # # TODO: Handle the include_hidden stuff.
+        # url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
+        #         "/" + ref["id"] + "/")
+        # self.http_session.put(url, data=self.serialize(data))
+        # obj._dirty = False
+        
+    def store_broadcast_attrs(self, attrs):
+        data = self.serialize(attrs)
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.http_session.post(url, data=data)
+    
+    def store_objs(self, to_store):
+        models = self.broadcast_attrs(to_store)
+        self.store_broadcast_attrs(models)
+        for m in to_store:
+            m._dirty = False
+        
+    def store_all(self):
+        to_store = [x for x in self._models.values() \
+                    if hasattr(x, '_dirty') and x._dirty]
+        self.store_objs(to_store)
+        return to_store
+    
+    
+    #------------------------------------------------------------------------
+    # Loading models
+    #------------------------------------------------------------------------
+    
+    def load_all(self, asdict=False):
+        """the json coming out of this looks different than that coming
+        out of load_type, because it contains id, type, attributes, whereas
+        the other one just contains attributes directly
+        """
+        url = utils.urljoin(self.base_url, self.docid +"/")
+        attrs = protocol.deserialize_json(self.http_session.get(url).content)
+        if not asdict:
+            models = self.load_broadcast_attrs(attrs)
+            for m in models:
+                m._dirty = False
+            return models
+        else:
+            models = attrs
+        return models
+    
+    def load_type(self, typename, asdict=False):
+        url = utils.urljoin(self.base_url, self.docid +"/", typename + "/")
+        attrs = protocol.deserialize_json(self.http_session.get(url).content)
+        if not asdict:
+            models = self.load_attrs(typename, attrs)
+            for m in models:
+                m._dirty = False
+            return models
+        else:
+            models = attrs
+        return models
+    
+    def load_obj(self, ref, asdict=False, modelattrs={}):
+        """loads an object from the server.
+        if asdict:
+            only the json is returned.
+        else:
+            update the existing copy in _models if it is present
+            instantiate a new one if it is not
+            and make sure to convert all references into models
+        in the conversion from json to objects, sometimes references
+        to models need to be resolved.  If there are any json attributes
+        being processed, you can pass them in as modelattrs
+        """
+        typename = ref["type"]
+        ref_id = ref["id"]
+        url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
+                            "/" + ref["id"] + "/")
+        attr = protocol.deserialize_json(self.http_session.get(url).content)
+        if not asdict:
+            m = PlotObject.get_obj(typename, attr)
+            self.add(m)
+            m.finalize(self._models)
+            m.dirty = False
+            return m
+        else:
+            return attr
 
+    #loading callbacks
+    def callbacks_json(self, to_store):
+        all_data = []
+        for m in to_store:
+            data = self.get_ref(m)
+            data['callbacks'] = m._callbacks
+            all_data.append(data)
+        return all_data
+    
+    def load_callbacks_json(self, callback_json):
+        for data in callback_json:
+            m = self._models[data['id']]
+            m._callbacks = {}
+            for attrname, callbacks in data['callbacks'].iteritems():
+                m._callbacks[attrname] = []
+                for callback in callbacks:
+                    m._callbacks[attrname].append(dict(
+                        obj=self._models[callback['obj']['id']],
+                        callbackname=callback['callbackname']
+                        ))
+                    
+    def load_all_callbacks(self, get_json=False):
+        """get_json = return json of callbacks, rather than
+        loading them into models
+        """
+        url = utils.urljoin(self.base_url, self.docid + "/", "callbacks")
+        data = protocol.deserialize_json(self.http_session.get(url).content)
+        if get_json:
+            return data
+        self.load_callbacks_json(data)
+        
+    #storing callbacks
+    
+    def store_callbacks(self, to_store):
+        all_data = self.callbacks_json(to_store)
+        url = utils.urljoin(self.base_url, self.docid + "/", "callbacks")
+        all_data = self.serialize(all_data)
+        self.http_session.post(url, data=all_data)
+        for m in to_store:
+            m._callbacks_dirty = False
+            
+    def store_all_callbacks(self):
+        to_store = [x for x in self._models.values() \
+                    if hasattr(x, '_callbacks_dirty') and x._callbacks_dirty]
+        self.store_callbacks(to_store)
+        return to_store
+    
+    #managing callbacks
+    
+    def disable_callbacks(self):
+        for m in self._models.itervalues():
+            m._block_callbacks = True
+            
+    def enable_callbacks(self):
+        for m in self._models.itervalues():
+            m._block_callbacks = False
+            
+    def clear_callback_queue(self):
+        for m in self._models.itervalues():
+            del m._callback_queue[:]
+            
+    def execute_callback_queue(self):
+        for m in self._models.itervalues():
+            for cb in m._callback_queue:
+                m._trigger(*cb)
+                
     #------------------------------------------------------------------------
     # Static files
     #------------------------------------------------------------------------
@@ -537,9 +725,105 @@ class PlotServerSession(BaseHTMLSession):
 
 
 
-class NotebookSession(PlotServerSession):
+class NotebookSession(HTMLFileSession):
     """ Produces inline HTML suitable for placing into an IPython Notebook.
     """
+
+    # Most of these were formerly defined in dump.py, which was ported over
+    # from Wakari.
+    notebookscript_paths = ["js/bokehnotebook.js"]
+    html_template = "basediv.html"     # template for the entire HTML file
+    def __init__(self, plot=None):
+        HTMLFileSession.__init__(self, filename=None, plot=plot)
+
+    def ws_conn_string(self):
+        split = urlparse.urlsplit(self.root_url)
+        #how to fix this in bokeh and wakari?
+        if split.scheme == 'http':
+            return "ws://%s/bokeh/sub" % split.netloc
+        else:
+            return "wss://%s/bokeh/sub" % split.netloc
+   
+    def notebook_connect(self):
+        import IPython.core.displaypub as displaypub
+        js = self._load_template('connect.js').render(
+            username=self.username,
+            root_url = self.root_url,
+            docid=self.docid,
+            docapikey=self.apikey,
+            ws_conn_string=self.ws_conn_string()
+            )
+        msg = """ <p>Connection Information for this %s document, only share with people you trust </p> """  % self.docname
+
+        script_paths = self.js_paths()
+        css_paths = self.css_paths()
+        html = self._load_template("basediv.html").render(
+            rawjs=self._inline_scripts(script_paths).decode('utf8'),
+            rawcss=self._inline_css(css_paths).decode('utf8'),
+            js_snippets=[js],
+            html_snippets=[msg])
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
+ 
+    def notebooksources(self):
+        import IPython.core.displaypub as displaypub        
+        script_paths = NotebookSession.notebookscript_paths
+        css_paths = self.css_paths()
+        html = self._load_template("basediv.html").render(
+            rawjs=self._inline_scripts(script_paths).decode('utf8'),
+            rawcss=self._inline_css(css_paths).decode('utf8'),
+            js_snippets=[],
+            html_snippets=["<p>Bokeh Sources</p>"])
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
+
+    def dumps(self, objects):
+        """ Returns the HTML contents as a string
+        FIXME : signature different than other dumps
+        FIXME: should consolidate code between this one and that one.
+        """
+        the_plot = objects[0]
+        plot_ref = self.get_ref(the_plot)
+        elementid = str(uuid.uuid4())
+
+        # Manually convert our top-level models into dicts, before handing
+        # them in to the JSON encoder.  (We don't want to embed the call to
+        # vm_serialize into the PlotObjEncoder, because that would cause
+        # all the attributes to be duplicated multiple times.)
+        models = []
+        for m in objects:
+            ref = self.get_ref(m)
+            ref["attributes"] = m.vm_serialize()
+            ref["attributes"].update({"id": ref["id"], "doc": None})
+            models.append(ref)
+
+        js = self._load_template(self.js_template).render(
+                    elementid = elementid,
+                    modelid = plot_ref["id"],
+                    modeltype = plot_ref["type"],
+                    all_models = self.serialize(models),
+                )
+        div = self._load_template(self.div_template).render(
+                    elementid = elementid
+                )
+        html = self._load_template(self.html_template).render(
+                    js_snippets = [js],
+                    html_snippets = [div])
+        return html.encode("utf-8")
+
+    def show(self, *objects):
+        """ Displays the given objects, or all objects currently associated
+        with the session, inline in the IPython Notebook.
+
+        Basicall we return a dummy object that implements _repr_html.
+        The reason to do this instead of just having this session object
+        implement _repr_html directly is because users will usually want
+        to just see one or two plots, and not all the plots and models
+        associated with the session.
+        """
+        from IPython.core.display import HTML
+        html = self.dumps(objects)
+        return HTML(html)
 
 class WakariSession(PlotServerSession):
     """ Suitable for running on the Wakari.io service.  Includes default

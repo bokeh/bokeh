@@ -28,6 +28,7 @@ utility =
     response = $.get('/bokeh/userinfo/', {})
     return response
 
+
   load_doc_once : (docid) ->
     if _.has(Promises.doc_promises, docid)
       console.log("already found #{docid} in promises")
@@ -37,6 +38,18 @@ utility =
       doc_prom = utility.load_doc(docid)
       Promises.doc_promises[docid] = doc_prom
       return doc_prom
+
+  load_doc_by_title : (title) ->
+    response = $.get(Config.prefix + "/bokeh/doc", {title : title})
+      .done((data) ->
+        all_models = data['all_models']
+        load_models(all_models)
+        apikey = data['apikey']
+        docid = data['docid']
+        submodels(exports.wswrapper, "bokehplot:#{docid}", apikey)
+      )
+    return response
+
 
   load_doc : (docid) ->
     wswrapper = utility.make_websocket();
