@@ -9,7 +9,7 @@ from bokeh import protocol
 from bokeh.bbmodel import ContinuumModelsClient
 from models import docs
 import numpy as np
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
 
 from bokeh.objects import PlotObject, Plot
 from bokeh.session import PlotServerSession
@@ -191,7 +191,7 @@ class RedisSession(PlotServerSession):
         attrs = [self.serialize(attr['attributes']) for attr in attrs]
         dkey = dockey(self.docid)
         data = dict(zip(keys, attrs))
-        print 'storing', data
+        logger.debug('storing %s', data)
         self.r.mset(data)
         self.r.sadd(dkey, *keys)
         
@@ -209,10 +209,10 @@ class RedisSession(PlotServerSession):
         models = [self.serialize(m) for m in models]
         dkey = dockey(self.docid)
         data = dict(zip(keys, models))
-        print 'storign'
         for k,v in data.iteritems():
-            print 'key:', k
-            print 'val:', v
+            pass
+            # logger.debug('key: %s', k)
+            # logger.debug('val: %s', v)
         self.r.mset(data)
         self.r.sadd(dkey, *keys)
         
