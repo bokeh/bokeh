@@ -56,13 +56,28 @@
 <body>
   <div>
     <h1> Welcome to the bokehjs demoserver </h1>
-    <ul>
-    {% for demo in alldemos['all'] %}
-      <li>
-        <a href="/demo/{{demo}}">{{demo}}</a>
-      </li>
-    {% endfor %}
-    </ul>
+    <div>
+      <h2>demo list</h2>
+      <p> to run the demos, hem must be running via <code>hem server -s slug.demo.json</code></p>
+      <ul>
+        {% for demo in alldemos['all'] %}
+          <li>
+            <a href="/demo/{{demo}}">{{demo}}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h2>test list</h2>
+      <p> to run the tests, hem must be running via <code>hem server -s slug.tests.json</code></p>
+      <ul>
+        {% for test in alltests.keys() %}
+          <li>
+            <a href="/test/{{test}}">{{test}}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
   </div>
 </body>
 </html>

@@ -103,7 +103,7 @@ alldemos = {
 
 @app.route("/")
 def welcome():
-    return flask.render_template("welcome.html", alldemos=alldemos)
+    return flask.render_template("welcome.html", alldemos=alldemos, alltests=alltests)
 
 alltests = {
 
