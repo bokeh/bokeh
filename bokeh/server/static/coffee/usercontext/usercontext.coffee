@@ -3,13 +3,15 @@ ContinuumView = require("../common/continuum_view").ContinuumView
 HasParent = base.HasParent
 HasProperties = base.HasProperties
 load_models = base.load_models
-template = require("./wrappertemplate")
 userdocstemplate = require("./userdocstemplate")
 documentationtemplate = require("./documentationtemplate")
 utility = require("../serverutils").utility
 build_views = base.build_views
 
-class PlotContextWrapper extends ContinuumView
+class DocView extends ContinuumView
+  template : require("./wrappertemplate")
+  attributes :
+    class : 'accordion-group'
   events :
     "click .bokehdoclabel" : "loaddoc"
     "click .bokehdelete" : "deldoc"
@@ -32,16 +34,15 @@ class PlotContextWrapper extends ContinuumView
     @listenTo(@model, 'loaded', @render)
 
   render_init : () ->
-    html = template(model : @model, bodyid : _.uniqueId())
+    html = @template(model : @model, bodyid : _.uniqueId())
     @$el.html(html)
-    @$el.addClass('accordion-group')
 
   render : () ->
     plot_context = @model.get_obj('plot_context')
     @plot_context_view = new plot_context.default_view(
       model : plot_context
     )
-    @$el.find('.accordion-inner').append(@plot_context_view.el)
+    @$el.find('.plots').append(@plot_context_view.el)
     return true
 
 class UserDocsView extends ContinuumView
@@ -85,8 +86,8 @@ class UserDocsView extends ContinuumView
       @$el.find(".accordion").append(@views[model.id].el)
     return @
 
-class UserDoc extends HasParent
-  default_view : PlotContextWrapper
+class Doc extends HasParent
+  default_view : DocView
   idAttribute : 'docid'
   defaults :
     docid : null
@@ -103,12 +104,18 @@ class UserDoc extends HasParent
       type : 'delete'
     )
 
-  load : () ->
+  load : (use_title) ->
     if @loaded
       return
-    docid = @get('docid')
-    resp = utility.load_doc(docid)
+    if use_title
+      title = @get('title')
+      resp = utility.load_doc_by_title(title)
+    else
+      docid = @get('docid')
+      resp = utility.load_doc(docid)
+
     resp.done((data) =>
+      @set('docid', data.docid)
       @set('apikey', data['apikey'])
       @set('plot_context', data['plot_context_ref'])
       @trigger('loaded')
@@ -117,7 +124,7 @@ class UserDoc extends HasParent
     )
 
 class UserDocs extends Backbone.Collection
-  model : UserDoc
+  model : Doc
   subscribe : (wswrapper, username) ->
     wswrapper.subscribe("bokehuser:#{username}", null)
     @listenTo(wswrapper, "msg:bokehuser:#{username}", (msg) ->
@@ -141,3 +148,5 @@ class UserDocs extends Backbone.Collection
 
 exports.UserDocs = UserDocs
 exports.UserDocsView = UserDocsView
+exports.Doc = Doc
+exports.DocView = DocView

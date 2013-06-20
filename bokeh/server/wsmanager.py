@@ -1,9 +1,7 @@
 import uuid
 import logging
 from .. import  protocol
-from flask import (
-    request, current_app,
-    )
+from flask import request
 
 log = logging.getLogger(__name__)
 

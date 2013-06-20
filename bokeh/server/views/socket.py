@@ -1,5 +1,5 @@
 from flask import (
-    render_template, request, current_app,
+    render_template, request, 
     send_from_directory, make_response)
 import flask
 import os
@@ -17,5 +17,5 @@ def sub():
         ws = request.environ['wsgi.websocket']
         wsmanager.run_socket(
             ws,
-            current_app.wsmanager)
+            app.wsmanager)
     return "done"

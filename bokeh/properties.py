@@ -18,7 +18,8 @@ class BaseProperty(object):
 
     @classmethod
     def autocreate(cls, name=None):
-        """ Called by the metaclass to create a new instance of this descriptor
+        """ Called by the metaclass to create a
+        new instance of this descriptor
         if the user just assigned it to a property without trailing
         parentheses.
         """
@@ -28,8 +29,17 @@ class BaseProperty(object):
         return getattr(obj, "_"+self.name, self.default)
 
     def __set__(self, obj, value):
+        old = self.__get__(obj)
+        if value == old:
+            return
         setattr(obj, "_"+self.name, value)
-
+        obj._dirty = True
+        if hasattr(obj, '_trigger'):
+            if hasattr(obj, '_block_callbacks') and obj._block_callbacks:
+                obj._callback_queue.append((self.name, old, value))
+            else:
+                obj._trigger(self.name, old, value)
+            
     def __delete__(self, obj):
         if hasattr(obj, "_"+self.name):
             delattr(obj, "_"+self.name)
@@ -37,9 +47,12 @@ class BaseProperty(object):
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
         names = []
+        names_with_refs = []
         for name, prop in class_dict.iteritems():
             if isinstance(prop, BaseProperty):
                 prop.name = name
+                if hasattr(prop, 'has_ref') and prop.has_ref:
+                    names_with_refs.append(name)
                 names.append(name)
             elif isinstance(prop, type) and issubclass(prop, BaseProperty):
                 # Support the user adding a property without using parens,
@@ -50,7 +63,15 @@ class MetaHasProps(type):
                 newprop.name = name
                 names.append(name)
         class_dict["__properties__"] = names
+        class_dict["__properties_with_refs__"] = names_with_refs
         return type.__new__(cls, class_name, bases, class_dict)
+    
+def accumulate_from_subclasses(cls, propname):
+    s = set()
+    for c in inspect.getmro(cls):
+        if issubclass(c, HasProps):
+            s.update(getattr(c, propname))
+    return s
 
 class HasProps(object):
     __metaclass__ = MetaHasProps
@@ -77,16 +98,25 @@ class HasProps(object):
         d = dict((p,getattr(self, p)) for p in self.__properties__)
         return self.__class__(**d)
 
+    def properties_with_refs(self):
+        """ Returns a set of the names of this object's properties that
+        have references. We traverse the class hierarchy and
+        pull together the full list of properties.
+        """
+        if not hasattr(self, "__cached_allprops_with_refs"):
+            s = accumulate_from_subclasses(self.__class__,
+                                           "__properties_with_refs__")
+            self.__cached_allprops_with_refs = s
+        return self.__cached_allprops_with_refs
+
     def properties(self):
         """ Returns a set of the names of this object's properties. We
         traverse the class hierarchy and pull together the full
         list of properties.
         """
         if not hasattr(self, "__cached_allprops"):
-            s = set()
-            for cls in inspect.getmro(self.__class__):
-                if issubclass(cls, HasProps):
-                    s.update(cls.__properties__)
+            s = accumulate_from_subclasses(self.__class__,
+                                           "__properties__")
             self.__cached_allprops = s
         return self.__cached_allprops
 
@@ -116,11 +146,15 @@ class List(BaseProperty):
     People will also frequently pass in some other kind of property or a
     class (to indicate a list of instances).  In those cases, we want to 
     just create an empty list
+
+    has_ref parameter tells us whether the json representation of this
+    list contains references to other objects
     """
 
-    def __init__(self, default=None):
+    def __init__(self, default=None, has_ref=False):
         if isinstance(default, type) or isinstance(default, BaseProperty):
             default = None
+        self.has_ref = has_ref
         BaseProperty.__init__(self, default)
 
     def __get__(self, obj, type=None):
@@ -138,11 +172,15 @@ class List(BaseProperty):
 class Dict(BaseProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
+
+    has_ref parameter tells us whether the json representation of this
+    list contains references to other objects
     """
 
-    def __init__(self, default={}):
+    def __init__(self, default={}, has_ref=False):
         BaseProperty.__init__(self, default)
-
+        self.has_ref = has_ref
+        
     def __get__(self, obj, type=None):
         if not hasattr(obj, "_"+self.name) and isinstance(self.default, dict):
             setattr(obj, "_"+self.name, copy(self.default))
@@ -170,13 +208,23 @@ class Array(BaseProperty):
 # OOP things
 class Class(BaseProperty): pass
 class Instance(BaseProperty):
-
+    def __init__(self, default=None, has_ref=False):
+        """has_ref : whether the json for this is a reference to
+        another object or not
+        """
+        super(Instance, self).__init__(default=default)
+<<<<<<< HEAD
+        self.has_ref = True
+=======
+        self.has_ref = has_ref
+>>>>>>> cdxsubtree
+        
     def __get__(self, obj, type=None):
         # If the constructor for Instance() supplied a class name, we should
         # instantiate that class here, instead of returning the class as the
         # default object
         if not hasattr(obj, "_"+self.name):
-            if self.default and isinstance(self.default, type):
+             if type and self.default and isinstance(self.default, type):
                 setattr(obj, "_"+self.name, self.default())
         return getattr(obj, "_"+self.name, None)
 
@@ -222,6 +270,7 @@ class Enum(BaseProperty):
         if value not in self.allowed_values:
             raise ValueError("Invalid value '%r' passed to Enum." % value)
         setattr(obj, "_"+self.name, value)
+        obj._dirty = True
 
 Sequence = _dummy
 Mapping = _dummy

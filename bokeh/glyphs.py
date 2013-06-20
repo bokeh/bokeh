@@ -144,7 +144,8 @@ class MetaGlyph(Viewable):
         # muck with the class after it's been created.  I've not seen it done
         # this way elsewhere, but it shouldn't be a problem.
 
-        newcls = super(MetaGlyph,cls).__new__(cls, class_name, bases, class_dict)
+        newcls = super(MetaGlyph,cls).__new__(cls, class_name,
+                                              bases, class_dict)
         dataspecs = {}
         for attr,val in newcls.__dict__.iteritems():
             if isinstance(val, DataSpec):
@@ -159,10 +160,7 @@ class Glyph(PlotObject):
 
     __metaclass__ = MetaGlyph
 
-    # The name that will be used for the 'type' field of the glyph when we
-    # create the JS dict representation of this glyph.  "glyph" is not a valid
-    # glyph type; it's just a placeholder.
-    glyphtype = "glyph"
+    # use __view_model__ for type field in js dict
 
     # Common attributes for all glyphs
     #color = Color
@@ -183,7 +181,7 @@ class Glyph(PlotObject):
         inclusion in a GlyphRenderer definition.
         """
         d = self.vm_props(withvalues=True)
-        d["type"] = d.pop("glyphtype")
+        d["type"] = self.__view_model__
         # Iterate over all the DataSpec properties and convert them, using the
         # fact that DataSpecs store the dict-ified version on the object.
         for attrname, dspec in self.dataspecs().iteritems():
@@ -213,7 +211,7 @@ class Marker(Glyph, FillProps, LineProps):
     #char_value = String
 
 class Circle(Marker):
-    glyphtype = String("circle")
+    __view_model__ = "circle"
     radius = DataSpec(units="screen", default=4)
 
 #class Rects(Glyph):
@@ -229,44 +227,44 @@ class Circle(Marker):
 
 # Other kinds of Markers, to match what GGplot provides
 class Triangle(Marker):
-    glyphtype = String("triangle")
+    __view_model__ = "triangle"
 
 class Cross(Marker):
-    glyphtype = String("cross")
+    __view_model__ = "cross"
 
 class Xmarker(Marker):
-    glyphtype = String("xmarker")
+    __view_model__ = "xmarker"
 
 class Diamond(Marker):
-    glyphtype = String("diamond")
+    __view_model__ = "diamond"
 
 class InvertedTriangle(Marker):
-    glyphtype = String("invertedtriangle")
+    __view_model__ = "invertedtriangle"
 
 class SquareX(Marker):
-    glyphtype = String("squarex")
+    __view_model__ = "squarex"
 
 class Asterisk(Marker):
-    glyphtype = String("asterisk")
+    __view_model__ = "asterisk"
 
 class DiamondCross(Marker):
-    glyphtype = String("diamondcross")
+    __view_model__ = "diamondcross"
 
 class CircleCross(Marker):
-    glyphtype = String("circlecross")
+    __view_model__ = "circlecross"
 
 class HexStar(Marker):
-    glyphtype = String("hexstar")
+    __view_model__ = "hexstar"
 
 class SquareCross(Marker):
-    glyphtype = String("squarecross")
+    __view_model__ = "squarecross"
 
 class CircleX(Marker):
-    glyphtype = String("circlex")
+    __view_model__ = "circlex"
 
 
 class AnnularWedge(Glyph, FillProps, LineProps):
-    glyphtype = String('annular_wedge')
+    __view_model__ = 'annular_wedge'
     x = DataSpec
     y = DataSpec
     inner_radius = DataSpec
@@ -276,14 +274,14 @@ class AnnularWedge(Glyph, FillProps, LineProps):
     direction = Enum('clock', 'anticlock')
 
 class Annulus(Glyph, FillProps, LineProps):
-    glyphtype = String('annulus')
+    __view_model__ = 'annulus'
     x = DataSpec
     y = DataSpec
     inner_radius = DataSpec
     outer_radius = DataSpec
 
 class Arc(Glyph, LineProps):
-    glyphtype = String('arc')
+    __view_model__ = 'arc'
     x = DataSpec
     y = DataSpec
     radius = DataSpec
@@ -295,7 +293,7 @@ class Arc(Glyph, LineProps):
 # class Area
 
 class Bezier(Glyph, LineProps):
-    glyphtype = String('bezier')
+    __view_model__ = 'bezier'
     x0 = DataSpec
     y0 = DataSpec
     x1 = DataSpec
@@ -309,7 +307,7 @@ class Bezier(Glyph, LineProps):
 # class image
 
 class ImageURI(Glyph):
-    glyphtype = String('image_uri')
+    __view_model__ = 'image_uri'
     x = DataSpec
     y = DataSpec
     angle = DataSpec
@@ -318,12 +316,12 @@ class ImageURI(Glyph):
 # image_rgba
 
 class Line(Glyph, LineProps):
-    glyphtype = String("line")
+    __view_model__ = "line"
     xs = DataSpec
     ys = DataSpec
 
 class Oval(Glyph, FillProps, LineProps):
-    glyphtype = String('oval')
+    __view_model__ = 'oval'
     x = DataSpec
     y = DataSpec
     width = DataSpec
@@ -331,14 +329,14 @@ class Oval(Glyph, FillProps, LineProps):
     angle = DataSpec
 
 class Quad(Glyph, FillProps, LineProps):
-    glyphtype = String("quad")
+    __view_model__ = "quad"
     left = DataSpec
     right = DataSpec
     bottom = DataSpec
     top = DataSpec
 
 class QuadCurve(Glyph, FillProps, LineProps):
-    glyphtype = String('quad_curve')
+    __view_model__ = 'quad_curve'
     x0 = DataSpec
     y0 = DataSpec
     x1 = DataSpec
@@ -347,14 +345,14 @@ class QuadCurve(Glyph, FillProps, LineProps):
     cy = DataSpec
 
 class Ray(Glyph, LineProps):
-    glyphtype = String("ray")
+    __view_model__ = "ray"
     x = DataSpec
     y = DataSpec
     angle = DataSpec
     length = DataSpec
 
 class Rect(Glyph, FillProps, LineProps):
-    glyphtype = String("rect")
+    __view_model__ = "rect"
     x = DataSpec
     y = DataSpec
     width = DataSpec
@@ -362,21 +360,21 @@ class Rect(Glyph, FillProps, LineProps):
     angle = DataSpec
 
 class Segment(Glyph, LineProps):
-    glyphtype = String('segment')
+    __view_model__ = 'segment'
     x0 = DataSpec
     y0 = DataSpec
     x1 = DataSpec
     y1 = DataSpec
 
 class Text(Glyph):
-    glyphtype = String("text")
+    __view_model__ = "text"
     x = DataSpec
     y = DataSpec
     angle = DataSpec
     text = String
 
 class Wedge(Glyph, FillProps, LineProps):
-    glyphtype = String('wedge')
+    __view_model__ = 'wedge'
     x = DataSpec
     y = DataSpec
     radius = DataSpec

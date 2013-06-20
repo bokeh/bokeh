@@ -56,8 +56,12 @@ plot.tools = [pantool,zoomtool]
 
 sess = session.PlotServerSession(username="defaultuser",
         serverloc="http://localhost:5006", userapikey="nokey")
-sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
 sess.use_doc("glyph2")
+sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+sess.plotcontext.children.append(plot)
+sess.plotcontext._dirty = True
+# not so nice.. but set the model doens't know
+# that we appended to children
 sess.store_all()
 
 
