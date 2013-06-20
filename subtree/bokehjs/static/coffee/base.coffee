@@ -221,7 +221,7 @@ class HasProperties extends Backbone.Model
         val.off(null, null, this)
 
   isNew : () ->
-    return not this.get('created')
+    return false
 
   initialize : (attrs, options) ->
     # auto generates ids if we need to, calls deferred initialize if we have
@@ -572,12 +572,12 @@ locations =
 
   DataTable: ['./widgets/table', 'datatables']
 
-  PandasPivot:      ['./pandas/pandas', 'pandaspivots']
-  PandasDataSource: ['./pandas/pandas', 'pandasdatasources']
-  PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
+  IPythonRemoteData: ['./pandas/pandas', 'ipythonremotedatas']
+  PandasPivotTable: ['./pandas/pandas', 'pandaspivottables']
 
   LinearAxis: ['./renderers/guide/axis', 'linearaxes']
   Rule: ['./renderers/guide/rule', 'rules']
+
 exports.locations = locations
 
 Collections = (typename) ->

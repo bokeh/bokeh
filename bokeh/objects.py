@@ -60,11 +60,6 @@ class Viewable(MetaHasProps):
         else:
             raise KeyError("View model name '%s' not found" % view_model_name)
 
-    @classmethod
-    def get_obj(cls, typename, attrs):
-        temp = cls.get_class(typename) 
-        return temp.load_json(attrs)
-
 def usesession(meth):
     """ Checks for 'session' in kwargs and in **self**, and guarantees
     that **kw always has a valid 'session' parameter.  Wrapped methods

@@ -178,7 +178,7 @@ class RedisSession(PlotServerSession):
             attr = protocol.deserialize_json(attr)
             data.append({'type' : typename,
                          'attributes' : attr})
-        models = self.load_broadcast_attrs(data)
+        models = self.load_broadcast_attrs(data, events=None)
         for m in models:
             m._dirty = False
         return models

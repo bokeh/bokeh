@@ -483,25 +483,17 @@ class PlotServerSession(BaseHTMLSession):
     # {'type':typename, 'attributes' : attrs}
     #------------------------------------------------------------------------
     
-    def load_attrs(self, typename, attrs):
-        models = []
-        for attr in attrs:
-            logger.debug('type: %s', typename)
-            logger.debug('attrs: %s', attr)
-            _id = attr['id']
-            if _id in self._models:
-                m = self._models[_id]
-                m.load_json(attr, instance=m)
-            else:
-                m = PlotObject.get_obj(typename, attr)
-                self.add(m)
-            models.append(m)
-        for m in models:
-            m.finalize(self._models)
-        return models
+    def load_attrs(self, typename, attrs, events='existing'):
+        broadcast_attrs = [dict(type=typename, attributes=x) for x in attrs]
+        return self.load_broadcast_attrs(broadcast_attrs, events=events)
         
-    def load_broadcast_attrs(self, attrs):
+    def load_broadcast_attrs(self, attrs, events='existing'):
+        """events can be 'existing', or None.   existing means
+        trigger events only for existing (not new  objects).
+        None means don't trigger any events
+        """
         models = []
+        created = set()
         for attr in attrs:
             typename = attr['type']
             attr = attr['attributes']
@@ -510,13 +502,25 @@ class PlotServerSession(BaseHTMLSession):
             _id = attr['id']
             if _id in self._models:
                 m = self._models[_id]
+                m._block_callbacks = True
                 m.load_json(attr, instance=m)
             else:
-                m = PlotObject.get_obj(typename, attr)
+                cls = PlotObject.get_class(typename)
+                m = cls(id=_id)
+                m._block_callbacks = True
+                m.load_json(attr, instance=m)
                 self.add(m)
+                created.add(m)
             models.append(m)
         for m in models:
             m.finalize(self._models)
+        if events is None:
+            self.clear_callback_queue(models)
+        elif events is 'existing':
+            non_created = [x for x in models if x not in created]
+            self.execute_callback_queue(non_created)
+            self.clear_callback_queue(created)
+        self.enable_callbacks(models)
         return models
 
     def attrs(self, to_store):
@@ -546,29 +550,6 @@ class PlotServerSession(BaseHTMLSession):
     
     def store_obj(self, obj, ref=None):
         return self.store_objs([obj])
-        # """ Uploads the object state and attributes to the server represented
-        # by this session.
-
-        # **ref** is a dict containing keys "type" and "id"; by default, the
-        # ref is retrieved/computed from **obj** itself.
-        # """
-        # if ref is None:
-        #     ref = self.get_ref(obj)
-        # if ref is not None and ("type" not in ref or "id" not in ref):
-        #     raise ValueError("ref needs to have both 'type' and 'id' keys")
-
-        # data = obj.vm_serialize()
-        # # It might seem redundant to include both of these, but the server
-        # # doesn't do the right thing unless these are included.
-        # data["doc"] = self.docid
-
-        # # This is copied from ContinuumModelsClient.buffer_sync(), .update(),
-        # # and .upsert_all().
-        # # TODO: Handle the include_hidden stuff.
-        # url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
-        #         "/" + ref["id"] + "/")
-        # self.http_session.put(url, data=self.serialize(data))
-        # obj._dirty = False
         
     def store_broadcast_attrs(self, attrs):
         data = self.serialize(attrs)
@@ -638,11 +619,7 @@ class PlotServerSession(BaseHTMLSession):
                             "/" + ref["id"] + "/")
         attr = protocol.deserialize_json(self.http_session.get(url).content)
         if not asdict:
-            m = PlotObject.get_obj(typename, attr)
-            self.add(m)
-            m.finalize(self._models)
-            m.dirty = False
-            return m
+            return self.load_attrs(typename, [attr])[0]
         else:
             return attr
 
@@ -692,19 +669,28 @@ class PlotServerSession(BaseHTMLSession):
     
     #managing callbacks
     
-    def disable_callbacks(self):
-        for m in self._models.itervalues():
+    def disable_callbacks(self, models=None):
+        if models is None:
+            models = self._models.itervalues()
+        for m in models:
             m._block_callbacks = True
             
-    def enable_callbacks(self):
+    def enable_callbacks(self, models=None):
+        if models is None:
+            models = self._models.itervalues()
+        
         for m in self._models.itervalues():
             m._block_callbacks = False
             
-    def clear_callback_queue(self):
+    def clear_callback_queue(self, models=None):
+        if models is None:
+            models = self._models.itervalues()
         for m in self._models.itervalues():
             del m._callback_queue[:]
             
-    def execute_callback_queue(self):
+    def execute_callback_queue(self, models=None):
+        if models is None:
+            models = self._models.itervalues()
         for m in self._models.itervalues():
             for cb in m._callback_queue:
                 m._trigger(*cb)

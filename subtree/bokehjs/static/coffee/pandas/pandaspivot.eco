@@ -3,7 +3,6 @@
     through <%=@offset + @length%> of 
     <%= @maxlength %>
   </p>
-  
   <table class="table" style="max-width:<%= @width %>px">
     <tr>
       <td colspan="1">
@@ -15,23 +14,23 @@
         <input type="text" class="pandassize" value="<%= @length %>"/>
       </td>
       <td>
-        <a href="#" class="pandasbeginning">
+        <a class="pandasbeginning">
           <i class="pandasicons icon-fast-backward"></i>
         </a>
-        <a href="#" class="pandasback">
+        <a class="pandasback">
           <i class="pandasicons icon-backward"></i>
         </a>
-        <a href="#" class="pandasnext">
+        <a class="pandasnext">
           <i class="pandasicons icon-forward"></i>
         </a>
-        <a href="#" class="pandasend">
+        <a class="pandasend">
           <i class="pandasicons icon-fast-forward"></i>
         </a>
       </td>
     <tr>
       <td colspan="2">
         <label>GroupBy </label>
-        <input type="text" class="pandasgroup" value="<%= @groups %>"/>
+        <input type="text" class="pandasgroup" value="<%= @group %>"/>
       </td>
       <td colspan="2">
         <label>Aggregation</label>
@@ -57,23 +56,25 @@
     <% end %>
     <th>index</th>
     <% for column in @columns: %>
+    <% if not @skip[column]: %>
     <th><a class="pandascolumn"><%= column %></a>
+      
         <% if @sort_ascendings[column] == true: %>
         <i class="icon-chevron-up"></i>
         <% else if @sort_ascendings[column] == false: %>
         <i class="icon-chevron-down"></i>
         <% end %>
+        
+    <% end %>
     </th>
     <% end %>
   </thead>
-  <% for datapoint, idx in @data: %>
-  
+  <% for idx in _.range(@length): %>
   <% if @colors: %>
   <tr style="background-color:<%= @colors[idx] %>">
   <% else: %>
   <tr>
   <% end %>
-  
     <% if @counts: %>
       <% if @selected and @selected[idx]: %>
     <td> <%= @selected[idx] %>/<%= @counts[idx] %> </td>
@@ -83,7 +84,9 @@
     <% end %>
     <td> <%= @index[idx] %> </td>
     <% for column in @columns: %>
-    <td> <%= datapoint[column] %> </td>
+    <% if not @skip[column]: %>    
+    <td> <%= @data[column][idx] %> </td>
+    <% end %>    
     <% end %>
   </tr>
   <% end %>

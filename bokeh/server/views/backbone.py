@@ -68,8 +68,7 @@ def bulk_upsert(docid):
     sess = RedisSession(app.bb_redis, doc)
     sess.load()
     data = protocol.deserialize_json(request.data)
-    models = sess.load_broadcast_attrs(data)
-    
+    models = sess.load_broadcast_attrs(data, events='existing')
     changed = sess.store_all()
     msg = ws_update(sess, changed)
     return make_json(msg)
@@ -166,9 +165,7 @@ def update(docid, typename, id):
     
     modeldata = protocol.deserialize_json(request.data)
     sess.load_all_callbacks()
-    sess.disable_callbacks()
-    sess.load_attrs(typename, [modeldata])
-    sess.execute_callback_queue()
+    sess.load_attrs(typename, [modeldata], events='existing')
     changed = sess.store_all()
     model = sess._models[id]
     try:
@@ -180,7 +177,7 @@ def update(docid, typename, id):
     ws_update(sess, changed, exclude_self=False)
     ws_update(sess, [model], exclude_self=True)
     log.debug("update, %s, %s", docid, typename)
-    return make_json(sess.attrs([model])[0])
+    return make_json(sess.serialize(sess.attrs([model])[0]))
 
 @check_write_authentication_and_create_client
 def delete(docid, typename, id):
