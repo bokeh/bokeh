@@ -2,41 +2,44 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-  <title>QUnit Test Suite</title>
+  <title>BokehJS Demos</title>
   <link rel="stylesheet" href="/static/vendor/qunit/css/qunit.css" type="text/css" media="screen">
   <script type="text/javascript" src="/static/vendor/qunit/js/qunit.js"></script>
   <link type="text/css" rel="stylesheet" href="/static/vendor/jquery/css/themes/base/jquery-ui.min.css"/>
   <link type="text/css" rel="stylesheet" href="/static/css/bokeh.css"/>
+  <link type="text/css" rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.min.css"/>
   <!-- Your project file goes here -->
-  
+
+  <!-- These are 3rd party libs that we depend on.  In debug mode, this
+  should be a list of JS files.  In prod mode, this should be a single
+  minified/unified JS file. -->
   {% for jsfile in jslibs %}
   <script type="text/javascript" src="{{jsfile}}"></script>
   {% endfor %}
+
+  <!-- These are our JS files which are managed by Hem, and built as
+  needed from the coffee sources. -->
   {% for jsfile in hemfiles %}
   <script type="text/javascript" src="{{jsfile}}"></script>
   {% endfor %}
+
   <script>
-    {% for testscript in tests %}
-    require("{{ testscript }}");
+    {% for demoscript in demos %}
+    require("{{ demoscript }}");
     {% endfor %}
   </script>
-<style> 
+<style>
 
   .all_can_wrapper {position:relative; }
   .can_wrapper {position:absolute; }
   .main_ can_wrapper {border:1px dotted green;}
   .main_can {border:1px solid blue}
-  .x_can_wrapper { border:1px solid orange; }
-  .y_can_wrapper { border:1px solid purple; }
   .y_can {}
-  ._shader {display:none; } 
+  ._shader {display:none; }
   .shading ._shader {display:block; border:1px dashed green; position: absolute; z-index:-10;}
-  
-  .gridplot_container {position: relative;}
-  .gridplot_container .gp_plotwrapper { position:absolute; } 
 
-  button.active { border:3px solid blue }
-  .table_wrap { border:1px solid red; }
+  .gridplot_container {position: relative;}
+  .gridplot_container .gp_plotwrapper { position:absolute; }
 
   .table_wrap table { margin:5px; border:1px solid orange;  height:300px; display:block; overflow-y:scroll }
 
@@ -48,16 +51,33 @@
   .table_outer table td { border-left:1px solid black; border-right:1px solid black; }
 */
 </style>
-  
+
 </head>
 <body>
-  <a href="/">Return to welcome page </a>
-  <h1 id="qunit-header">QUnit Test Suite</h1>
-  <h2 id="qunit-banner"></h2>
-  <div id="qunit-testrunner-toolbar"></div>
-  <h2 id="qunit-userAgent"></h2>
-  <ol id="qunit-tests"></ol>
-<div id="container"></div>
-<h3 id="timer"> </h3>
+  <div>
+    <h1> Welcome to the bokehjs demoserver </h1>
+    <div>
+      <h2>demo list</h2>
+      <p> to run the demos, hem must be running via <code>hem server -s slug.demo.json</code></p>
+      <ul>
+        {% for demo in alldemos['all'] %}
+          <li>
+            <a href="/demo/{{demo}}">{{demo}}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+    <div>
+      <h2>test list</h2>
+      <p> to run the tests, hem must be running via <code>hem server -s slug.tests.json</code></p>
+      <ul>
+        {% for test in alltests.keys() %}
+          <li>
+            <a href="/test/{{test}}">{{test}}</a>
+          </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
 </body>
 </html>

@@ -11,21 +11,15 @@ GridMapper = require('../mappers/2d/grid_mapper').GridMapper
 
 ViewState = require('./view_state').ViewState
 
-ActiveToolManager = require("../tools/activetoolmanager").ActiveToolManager
+ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager
 
 
+LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
 class PlotView extends ContinuumView
 
   view_options: () ->
     _.extend({plot_model: @model, plot_view: @}, @options)
-
-  build_tools: () ->
-    build_views(@tools, @mget_obj('tools'), @view_options())
-
-  bind_tools: () ->
-    for toolspec in @mget('tools')
-      @tools[toolspec.id].bind_events(this)
 
   events:
     "mousemove .bokeh_canvas_wrapper": "_mousemove"
@@ -48,11 +42,17 @@ class PlotView extends ContinuumView
 
   request_render : () ->
     if not @is_paused
-      @throttled()
+      @throttled_render()
+    return
+
+  request_render_canvas : () ->
+    if not @is_paused
+      @throttled_render_canvas()
     return
 
   initialize: (options) ->
-    @throttled = _.throttle(@render_deferred_components, 50)
+    @throttled_render = _.throttle(@render, 50)
+    @throttled_render_canvas = _.throttle(@render_canvas, 30)
 
     super(_.defaults(options, @default_options))
 
@@ -96,8 +96,8 @@ class PlotView extends ContinuumView
     @mousedownCallbacks = []
     @keydownCallbacks = []
     @render_init()
-    @render()
-    @build_views()
+    @render_canvas(false)
+    @build_levels()
     @request_render()
     return this
 
@@ -125,70 +125,77 @@ class PlotView extends ContinuumView
 
     return [x, y]
 
+  build_tools: () ->
+    build_views(@tools, @mget_obj('tools'), @view_options())
+    return this
+
+  bind_tools: () ->
+    for toolspec in @mget('tools')
+      @tools[toolspec.id].bind_events(this)
+    return this
+
+  build_views: ()->
+    build_views(@renderers, @mget_obj('renderers'), @view_options())
+    return this
+
+  build_levels: () ->
+    @build_views()
+    @build_tools()
+    @bind_tools()
+
+    @levels = {}
+    for level in LEVELS
+      @levels[level] = {}
+
+    for k,v of @renderers
+      level = v.mget('level')
+      @levels[level][k] = v
+
+    for k,v of @tools
+      level = v.mget('level')
+      @levels[level][k] = v
+
+    return this
+
+  bind_bokeh_events: () ->
+    safebind(this, @view_state, 'change', @request_render_canvas)
+    safebind(this, @x_range, 'change', @request_render)
+    safebind(this, @y_range, 'change', @request_render)
+    safebind(this, @model, 'change:renderers', @build_levels)
+    safebind(this, @model, 'change:tool', @build_levels)
+    safebind(this, @model, 'change', @request_render)
+    safebind(this, @model, 'destroy', () => @remove())
+
   render_init: () ->
-    #FIXME template
+    # TODO use template
     @$el.append($("""
       <div class='button_bar'/>
       <div class='bokeh_canvas_wrapper'>
         <canvas class='bokeh_canvas'></canvas>
       </div>
       """))
+    @button_bar = @$el.find('.button_bar')
     @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
     @canvas = @$el.find('canvas.bokeh_canvas')
 
-  build_views: ()->
-    build_views(@renderers, @mget_obj('renderers'), @view_options())
-
-    @images = {}
-    @underlays = {}
-    @glyphs = {}
-    @overlays = {}
-    @annotations = {}
-    for k,v of @renderers
-      if v.mget('level') == 'image'
-        @images[k] = v
-      if v.mget('level') == 'underlay'
-        @underlays[k] = v
-      if v.mget('level') == 'glyph'
-        @glyphs[k] = v
-      if v.mget('level') == 'overlay'
-        @overlays[k] = v
-      if v.mget('level') == 'annotation'
-        @annotations[k] = v
-
-    @build_tools()
-    @bind_tools()
-
-  bind_bokeh_events: () ->
-    safebind(this, @view_state, 'change', @render)
-    safebind(this, @x_range, 'change', @request_render)
-    safebind(this, @y_range, 'change', @request_render)
-    safebind(this, @model, 'change:renderers', @build_views)
-    safebind(this, @model, 'change:tool', @build_tools)
-    safebind(this, @model, 'change', @render)
-    safebind(this, @model, 'destroy', () => @remove())
-
-  # FIXME document throughly when render is called vs render_deferred
-  # should we have a "render_init" "render" and a
-  # "render_canvas" function add_dom is called at instatiation.
-  # "render" is called for plot resizing.  render_canvas is called
-  # when changes to the canvas are desired.  A ScatterRendererView
-  # would only have a "render_canvas function
-
-  render: () ->
-    super()
-
+  render_canvas: (full_render = true) ->
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
+
+    @button_bar.attr('style', "width:#{ow}px;")
     @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
     @canvas.attr('width', ow).attr('height', oh)
     @$el.attr("width", ow).attr('height', oh)
 
     @ctx = @canvas[0].getContext('2d')
 
+    if full_render
+      @render();
+
     @render_end()
 
-  render_deferred_components: (force) ->
+  render: (force) ->
+    super()
     @ctx.fillStyle = @mget('border_fill')
     @ctx.fillRect(0,0,  @view_state.get('canvas_width'), @view_state.get('canvas_height'))
     @ctx.fillStyle = @mget('background_fill')
@@ -207,20 +214,17 @@ class PlotView extends ContinuumView
     @ctx.clip()
     @ctx.beginPath()
 
-    for k, v of @images
-      v.render()
-    for k, v of @underlays
-      v.render()
-    for k, v of @glyphs
-      v.render()
+    for level in ['image', 'underlay', 'glyph']
+      renderers = @levels[level]
+      for k, v of renderers
+        v.render()
 
     @ctx.restore()
 
-    for k, v of @overlays
-      v.render()
-    for k, v of @annotations
-      v.render()
-
+    for level in ['overlay', 'annotation', 'tool']
+      renderers = @levels[level]
+      for k, v of renderers
+        v.render()
 
 class Plot extends HasParent
   type: 'Plot'
