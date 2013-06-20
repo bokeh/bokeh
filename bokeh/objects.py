@@ -287,7 +287,9 @@ class PlotObject(HasProps):
 
 class DataSource(PlotObject):
     """ Base class for data sources """
-
+    # List of names of the fields of each tuple in self.data
+    # ordering is incoporated here
+    column_names = List()
     def columns(self, *columns):
         """ Returns a ColumnsRef object that points to a column or set of
         columns on this data source
@@ -311,8 +313,6 @@ class ObjectArrayDataSource(DataSource):
     # List of tuples of values 
     data = List()
 
-    # List of names of the fields of each tuple in self.data
-    column_names = List()
 
     # Maps field/column name to a DataRange or FactorRange object. If the
     # field is not in the dict, then a range is created automatically.
