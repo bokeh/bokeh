@@ -12,7 +12,6 @@ var view = new model.default_view(
     {model : model}
 );
 window.view = view;
-view.render()
 _.delay(function(){
     $('#{{ elementid }}').append(view.$el)
 }, 1000);
