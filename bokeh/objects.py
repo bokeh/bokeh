@@ -269,7 +269,8 @@ class PlotObject(HasProps):
         callbacks = self._callbacks.setdefault(attrname, [])
         callback = dict(obj=obj,
                         callbackname=callbackname)
-        callbacks.append(callback)
+        if callback not in callbacks:
+            callbacks.append(callback)
         self._callbacks_dirty = True
         
     def _trigger(self, attrname, old, new):

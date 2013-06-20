@@ -154,8 +154,10 @@ class BaseHTMLSession(Session):
 
         try:
             self.PlotObjEncoder.session = self
-            jsondata = protocol.serialize_json(obj, encoder=self.PlotObjEncoder,
-                            **jsonkwargs)
+            jsondata = protocol.serialize_json(
+                obj,
+                encoder=self.PlotObjEncoder,
+                **jsonkwargs)
         finally:
             self.PlotObjEncoder.session = None
         return jsondata
@@ -658,12 +660,9 @@ class PlotServerSession(BaseHTMLSession):
             m = self._models[data['id']]
             m._callbacks = {}
             for attrname, callbacks in data['callbacks'].iteritems():
-                m._callbacks[attrname] = []
-                for callback in callbacks:
-                    m._callbacks[attrname].append(dict(
-                        obj=self._models[callback['obj']['id']],
-                        callbackname=callback['callbackname']
-                        ))
+                obj = self._models[callback['obj']['id']]
+                callbackname = callback['callbackname']
+                m.on_change(attrname, obj, callbackname)
                     
     def load_all_callbacks(self, get_json=False):
         """get_json = return json of callbacks, rather than
