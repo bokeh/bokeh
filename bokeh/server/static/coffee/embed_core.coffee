@@ -38,7 +38,7 @@ addDirectPlot = (docid, ws_conn_string, docapikey,
       plot_collection = base.Collections(modeltype);
       model = plot_collection.get(modelid);
       view = new model.default_view({model : model});
-      view.render()
+      #view.render()
       _.delay(-> $(element).append(view.$el)))
 
 
