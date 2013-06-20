@@ -213,11 +213,7 @@ class Instance(BaseProperty):
         another object or not
         """
         super(Instance, self).__init__(default=default)
-<<<<<<< HEAD
-        self.has_ref = True
-=======
         self.has_ref = has_ref
->>>>>>> cdxsubtree
         
     def __get__(self, obj, type=None):
         # If the constructor for Instance() supplied a class name, we should
