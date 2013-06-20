@@ -1,11 +1,13 @@
 import uuid
 from .. import models 
-from .. import serverbb
+from ...objects import PlotObject, recursively_traverse_plot_object
+from ...session import PlotContext
 import logging
 log = logging.getLogger(__name__)
 
 def transform_models(models):
-    """backwards compatability code for data migrations    
+    """backwards compatability code for data migrations - out of date with
+    new object stuff
     """
     print 'transforming!'
     model_cache = {}
@@ -87,84 +89,32 @@ def transform_models(models):
     return [x for x in models if x.id not in to_delete]
 
 
-def prune_and_get_valid_models(model_redis, collections, docid, delete=False):
-    """retrieve all models that the plot_context points to.  if delete is True,
+def prune_and_get_valid_models(doc, session, delete=False):
+    """retrieve all models that the plot_context points to.
+    if delete is True,
     wipe out any models that are orphaned.  Also call transform_models, which
     performs any backwards compatability data transformations.  
     """
-    doc = Doc.load(model_redis, docid)
-    plot_context = collections.get(doc.plot_context_ref['type'],
-                                   docid,
-                                   doc.plot_context_ref['id'])
-    toplevelmodels = [plot_context]
-    marked = set()
-    temp = collections.get_bulk(docid)
-    print "num models", len(temp)
-    all_models = {}
-    all_models_json = {}
-    for x in temp:
-        all_models_json[x.id] = x.attributes
-        all_models[x.id] = x
-    mark_recursive_models(all_models_json, marked, plot_context.attributes)
-    for v in all_models_json.values():
-        if v['id'] not in marked:
-            typename = all_models[v['id']].typename
-            if delete:
-                collections.delete(typename, docid, v['id'])
-    valid_models = [x for x in all_models.values() if x.id in marked]
-    valid_models = transform_models(valid_models)
-    return valid_models
+    objs = recursively_traverse_plot_object(session.plotcontext)
+    print "num models", len(objs)
+    if delete:
+        for obj in session._models.values():
+            if obj not in objs:
+                #not impl yet...
+                session.delete(obj)
+    return objs
 
-def mark_recursive_models(all_models, marked, model):
-    marked.add(model['id'])
-    refs = []
-    find_refs_json(model, refs=refs)
-    for ref in refs:
-        if ref['id'] in marked:
-            continue
-        model = all_models.get(ref['id'])
-        if model:
-            mark_recursive_models(all_models, marked, model)
-
-def is_ref(data):
-    return (isinstance(data, dict) and
-            'type' in data and
-            'id' in data)
-
-def find_refs_json(datajson, refs=None):
-    refs = [] if refs is None else refs
-    if is_ref(datajson):
-        refs.append(datajson)
-    elif isinstance(datajson, dict):
-        find_refs_dict(datajson, refs=refs)
-    elif isinstance(datajson, list):
-        find_refs_list(datajson, refs=refs)
-    else:
-        pass
-
-def find_refs_dict(datadict, refs=None):
-    refs = [] if refs is None else refs
-    for k,v in datadict.iteritems():
-        find_refs_json(v, refs=refs)
-
-def find_refs_list(datalist, refs=None):
-    refs = [] if refs is None else refs
-    for v in datalist:
-        find_refs_json(v, refs=refs)
-
-
-def new_doc(flaskapp, docid, title, rw_users=None, r_users=None,
+def new_doc(flaskapp, docid, title, session, rw_users=None, r_users=None,
             apikey=None, readonlyapikey=None):
     if not apikey: apikey = str(uuid.uuid4())
     if not readonlyapikey: readonlyapikey = str(uuid.uuid4())
-    plot_context = serverbb.make_model(
-        'PlotContext',
-        doc=docid)
-    flaskapp.collections.add(plot_context)
+    plot_context = PlotContext()
+    session.add(plot_context)
+    session.store_all()
     if rw_users is None: rw_users = []
     if r_users is None: r_users = []
     doc = Doc(docid, title, rw_users, r_users,
-              plot_context.ref(), apikey, readonlyapikey)
+              session.get_ref(plot_context), apikey, readonlyapikey)
     doc.save(flaskapp.model_redis)
     return doc
 

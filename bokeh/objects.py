@@ -39,14 +39,14 @@ class Viewable(MetaHasProps):
 
         # Create the new class
         newcls = super(Viewable,cls).__new__(cls, class_name, bases, class_dict)
-        
+        entry = class_dict["__view_model__"]
         # Add it to the reverse map, but check for duplicates first
-        if class_dict["__view_model__"] in Viewable.model_class_reverse_map:
+        if entry in Viewable.model_class_reverse_map:
             raise Warning("Duplicate __view_model__ declaration of '%s' for " \
                           "class %s.  Previous definition: %s" % \
-                          (class_dict['__view_model__'], class_name,
-                            Viewable.model_class_reverse_map[class_name]))
-        Viewable.model_class_reverse_map[class_name] = newcls
+                          (entry, class_name,
+                           Viewable.model_class_reverse_map[entry]))
+        Viewable.model_class_reverse_map[entry] = newcls
         return newcls
 
     @classmethod
@@ -62,7 +62,8 @@ class Viewable(MetaHasProps):
 
     @classmethod
     def get_obj(cls, typename, attrs):
-        return cls.get_class(typename).load_json(attrs)
+        temp = cls.get_class(typename) 
+        return temp.load_json(attrs)
 
 def usesession(meth):
     """ Checks for 'session' in kwargs and in **self**, and guarantees
@@ -86,26 +87,75 @@ def is_ref(frag):
            frag.get('type') and \
            frag.get('id')
 
-def resolve_json(fragment, models):
-    if is_ref(fragment):
-        if fragment['id'] in models:
-            return models[fragment['id']]
-        else:
-            logging.error("model not found for %s", fragment)
+def json_apply(fragment, check_func, func):
+    """recursively searches through a nested dict/lists
+    if check_func(fragment) is True, then we return
+    func(fragment)
+    """
+    if check_func(fragment):
+        return func(fragment)
     elif isinstance(fragment, list):
         output = []
         for val in fragment:
-            output.append(resolve_json(val, models))
+            output.append(json_apply(val, check_func, func))
         return output
     elif isinstance(fragment, dict):
         output = {}
         for k, val in fragment.iteritems():
-            output[k] = resolve_json(val, models)
+            output[k] = json_apply(val, check_func, func)
         return output
     else:
         return fragment
-        
     
+def resolve_json(fragment, models):
+    check_func = is_ref
+    def func(fragment):
+        if fragment['id'] in models:
+            return models[fragment['id']]
+        else:
+            logging.error("model not found for %s", fragment)
+            return None
+    return json_apply(fragment, check_func, func)
+        
+def traverse_plot_object(plot_object):
+    """iterate through an objects properties
+    if it has_ref, json_apply through it and accumulate
+    all PlotObjects into children.  return all objects found
+    """
+    children = set()
+    def check_func(fragment):
+        return isinstance(fragment, PlotObject)
+    def func(obj):
+        children.add(obj)
+        return obj
+    for prop in plot_object.properties_with_refs():
+        val = getattr(plot_object, prop)
+        json_apply(val, check_func, func)
+    return children
+
+def recursively_traverse_plot_object(plot_object,
+                                     traversed_ids=None,
+                                     children=None):
+    if not children: children = set()
+    if not traversed_ids: traversed_ids = set()
+    if plot_object._id in traversed_ids:
+        return children
+    else:
+        immediate_children = plot_object.references()
+        children.add(plot_object)
+        traversed_ids.add(plot_object._id)
+        children.update(immediate_children)
+        for child in list(children):
+            if child not in traversed_ids:
+                recursively_traverse_plot_object(
+                    child,
+                    traversed_ids=traversed_ids,
+                    children=children)
+        return children
+    
+    
+    
+
 class PlotObject(HasProps):
     """ Base class for all plot-related objects """
 
@@ -120,29 +170,42 @@ class PlotObject(HasProps):
             self._id = kwargs.pop("id")
         else:
             self._id = str(uuid4())
+        self._dirty = True
+        self._callbacks_dirty = False
+        self._callbacks = {}
+        self._callback_queue = []
+        self._block_callbakcs = False
         super(PlotObject, self).__init__(*args, **kwargs)
         
     @classmethod
-    def load_json(cls, attrs):
+    def load_json(cls, attrs, instance=None):
         """Loads all json into a instance of cls, EXCEPT any references
         which are handled in finalize
         """
-        inst = cls(id=attrs.pop('id'))
+        _id = attrs.pop('id')
+        if not instance:
+            instance = cls(id=_id)
         ref_props = {}
-        for p in inst.properties_with_refs():
+        for p in instance.properties_with_refs():
             if p in attrs:
                 ref_props[p] = attrs.pop(p)
-        inst._ref_props = ref_props
-        inst.update(**attrs)
-        return inst
+        instance._ref_props = ref_props
+        instance.update(**attrs)
+        return instance
     
     def finalize(self, models):
-        """models is a dict of id->model mappings
+        """Convert any references into instances
+        models is a dict of id->model mappings
         """
         if hasattr(self, "_ref_props"):
             props = resolve_json(self._ref_props, models)
             self.update(**props)
-
+            
+    def references(self):
+        """Returns all PlotObjects that this object has references to
+        """
+        return traverse_plot_object(self)
+    
     #---------------------------------------------------------------------
     # View Model connection methods
     #
@@ -168,7 +231,9 @@ class PlotObject(HasProps):
         """ Returns a dictionary of the attributes of this object, in 
         a layout corresponding to what BokehJS expects at unmarshalling time.
         """
-        return self.vm_props(withvalues=True)
+        attrs = self.vm_props(withvalues=True)
+        attrs['id'] = self._id
+        return attrs
     
     def update(self, **kwargs):
         for k,v in kwargs.iteritems():
@@ -196,7 +261,28 @@ class PlotObject(HasProps):
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))
-
+    
+    def on_change(self, attrname, obj, callbackname):
+        """when attrname of self changes, call callbackname
+        on obj
+        """
+        callbacks = self._callbacks.setdefault(attrname, [])
+        callback = dict(obj=obj,
+                        callbackname=callbackname)
+        callbacks.append(callback)
+        self._callbacks_dirty = True
+        
+    def _trigger(self, attrname, old, new):
+        """attrname of self changed.  So call all callbacks
+        """
+        callbacks = self._callbacks.get(attrname)
+        if callbacks:
+            for callback in callbacks:
+                getattr(callback['obj'], callback['callbackname'])(
+                    self, attrname, old, new)
+    def dummy(self, changedobj, attrname, old, new):
+        print 'DUMMY', changedobj, attrname, old, new
+        
 
 class DataSource(PlotObject):
     """ Base class for data sources """
@@ -243,19 +329,35 @@ class PandasDataSource(DataSource):
 class Range1d(PlotObject):
     start = Float()
     end = Float()
-
-class DataRange1d(Range1d):    
-    """ Represents a range in a scalar dimension """
+    
+class DataRange(PlotObject):
     sources = List(ColumnsRef, has_ref=True)
-    rangepadding = Float(0.1)
-
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
+        props['id'] = self._id
         sources = props.pop("sources")
         props["sources"] = [{"ref":cr.source, "columns":cr.columns} for cr in sources]
         return props
+    
+    def finalize(self, models):
+        super(DataRange, self).finalize(models)
+        for idx, source in enumerate(self.sources):
+            if isinstance(source, dict):
+                self.sources[idx] = ColumnsRef(
+                    source=source['ref'],
+                    columns=source['columns'])
+                
+    def references(self):
+        return [x.source for x in self.sources]
+    
+class DataRange1d(DataRange):
+    """ Represents a range in a scalar dimension """
+    sources = List(ColumnsRef, has_ref=True)
+    rangepadding = Float(0.1)
+    start = Float()
+    end = Float()
 
-class FactorRange(PlotObject):
+class FactorRange(DataRange):
     """ Represents a range in a categorical dimension """
     sources = List(ColumnsRef, has_ref=True)
     values = List()
@@ -273,23 +375,34 @@ class GlyphRenderer(PlotObject):
     # Instance of bokeh.glyphs.Glyph; not declaring it explicitly below
     # because of circular imports. The renderers should get moved out
     # into another module...
-    glyph = Instance(has_ref=True)
+    glyph = Instance()
 
     def vm_serialize(self):
         # GlyphRenderers need to serialize their state a little differently,
         # because the internal glyph instance is turned into a glyphspec
-        return { "data_source": self.data_source,
-                 "xdata_range": self.xdata_range,
-                 "ydata_range": self.ydata_range,
-                 "glyphspec": self.glyph.to_glyphspec() }
+        return {"id" : self._id,
+                "data_source": self.data_source,
+                "xdata_range": self.xdata_range,
+                "ydata_range": self.ydata_range,
+                "glyphspec": self.glyph.to_glyphspec() }
+
+    def finalize(self, models):
+        super(GlyphRenderer, self).finalize(models)
+        ## FIXME: we shouldn't have to do this i think..
+        if hasattr(self, 'glyphspec'):
+            glyphspec = self.glyphspec
+            del self.glyphspec
+            self.glyph = PlotObject.get_class(glyphspec['type'])(**glyphspec)
+        else:
+            self.glyph = None
 
 class Plot(PlotObject):
 
     data_sources = List
     title = String("Bokeh Plot")
 
-    x_range = Instance(DataRange1d)
-    y_range = Instance(DataRange1d)
+    x_range = Instance(DataRange1d, has_ref=True)
+    y_range = Instance(DataRange1d, has_ref=True)
 
     # We shouldn't need to create mappers manually on the Python side
     #xmapper = Instance(LinearMapper)
@@ -298,12 +411,12 @@ class Plot(PlotObject):
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
-    renderers = List
-    tools = List
+    renderers = List(has_ref=True)
+    tools = List(has_ref=True)
 
     # TODO: These don't appear in the CS source, but are created by mpl.py, so
     # I'm leaving them here for initial compatibility testing.
-    axes = List
+    axes = List(has_ref=True)
 
     # TODO: How do we want to handle syncing of the different layers?
     # image = List
@@ -353,8 +466,9 @@ class GuideRenderer(PlotObject):
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
         del props["plot"]
-        return { "plot" : self.plot,
-                 "guidespec" : props}
+        return {"id" : self._id,
+                "plot" : self.plot,
+                "guidespec" : props}
 
 class LinearAxis(GuideRenderer):
     type = String("linear_axis")

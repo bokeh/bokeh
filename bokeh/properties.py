@@ -18,7 +18,8 @@ class BaseProperty(object):
 
     @classmethod
     def autocreate(cls, name=None):
-        """ Called by the metaclass to create a new instance of this descriptor
+        """ Called by the metaclass to create a
+        new instance of this descriptor
         if the user just assigned it to a property without trailing
         parentheses.
         """
@@ -28,8 +29,17 @@ class BaseProperty(object):
         return getattr(obj, "_"+self.name, self.default)
 
     def __set__(self, obj, value):
+        old = self.__get__(obj)
+        if value == old:
+            return
         setattr(obj, "_"+self.name, value)
-
+        obj._dirty = True
+        if hasattr(obj, '_trigger'):
+            if hasattr(obj, '_block_callbacks') and obj._block_callbacks:
+                obj._callback_queue.append((self.name, old, value))
+            else:
+                obj._trigger(self.name, old, value)
+            
     def __delete__(self, obj):
         if hasattr(obj, "_"+self.name):
             delattr(obj, "_"+self.name)
@@ -203,14 +213,18 @@ class Instance(BaseProperty):
         another object or not
         """
         super(Instance, self).__init__(default=default)
+<<<<<<< HEAD
         self.has_ref = True
+=======
+        self.has_ref = has_ref
+>>>>>>> cdxsubtree
         
     def __get__(self, obj, type=None):
         # If the constructor for Instance() supplied a class name, we should
         # instantiate that class here, instead of returning the class as the
         # default object
         if not hasattr(obj, "_"+self.name):
-            if self.default and isinstance(self.default, type):
+             if type and self.default and isinstance(self.default, type):
                 setattr(obj, "_"+self.name, self.default())
         return getattr(obj, "_"+self.name, None)
 
@@ -256,6 +270,7 @@ class Enum(BaseProperty):
         if value not in self.allowed_values:
             raise ValueError("Invalid value '%r' passed to Enum." % value)
         setattr(obj, "_"+self.name, value)
+        obj._dirty = True
 
 Sequence = _dummy
 Mapping = _dummy

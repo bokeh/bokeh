@@ -568,6 +568,7 @@ locations =
   GridPlotContainer: ['./common/grid_plot',    'gridplotcontainers']
   CDXPlotContext:    ['./common/plot_context', 'plotcontexts']
   PlotContext:       ['./common/plot_context', 'plotcontexts']
+  PlotList:       ['./common/plot_context', 'plotlists']
 
   DataTable: ['./widgets/table', 'datatables']
 
