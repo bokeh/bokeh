@@ -550,5 +550,10 @@ class ZoomTool(PlotObject):
     dimensions = List   # valid values: "x", "y"
     dataranges = List
 
+class PreviewSaveTool(PlotObject):
+    plot = Instance(Plot)
+    dimensions = List   # valid values: "x", "y"
+    dataranges = List
+
 
 
