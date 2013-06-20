@@ -98,6 +98,7 @@ alldemos = {
     'lorenz10'   : ['lorenz10'],
     'lorenz50'   : ['lorenz50'],
     'lorenz100'  : ['lorenz100'],
+
 }
 
 alltests = {
