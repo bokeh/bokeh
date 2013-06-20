@@ -19,7 +19,8 @@ EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
 HOST = "localhost"
 PORT = 9294
 
-# TODO: Add route handlers for index urls: /, /demos, and /tests
+
+    
 
 @app.route("/demo/<demoname>")
 def demo(demoname):
@@ -100,27 +101,27 @@ alldemos = {
     'lorenz100'  : ['lorenz100'],
 }
 
+@app.route("/")
+def welcome():
+    return flask.render_template("welcome.html", alldemos=alldemos, alltests=alltests)
+
 alltests = {
 
-    'allplots' : [
-        "plot_test_simple",
-        "tools_test",
-        "plot_test_grid",
-        "date_test",
-        "legend_test"
+    'base' : [
+        'hasparent_test',
+        'hasproperty_test',
     ],
 
-    'allunit' : [
-        "bokeh_test",
-        "hasparent_test",
-        "hasproperty_test"
+    'common' : [
+        'ranges_test',
+        'ticking_test',
     ],
-
-    'tick' : ['tick_test'],
 
     'perf' : ['perf_test'],
 
-    'axes' : ['linear_axis_test'],
+    'axes' : [
+        'linear_axis_test',
+    ],
 
     'prim' : [
         'primitives/annular_wedge_test',
@@ -162,7 +163,7 @@ alltests = {
 allpossibletests = set()
 for v in alltests.values():
     allpossibletests.update(v)
-alltests['allpossibletests'] = alltests
+alltests['allpossibletests'] = allpossibletests
 
 if __name__ == "__main__":
 
