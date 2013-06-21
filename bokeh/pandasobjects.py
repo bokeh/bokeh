@@ -3,7 +3,7 @@ import json
 
 from bokeh.properties import (HasProps, MetaHasProps, 
         Any, Dict, Enum, Float, Instance, Int, List, String,
-        Color, Pattern, Percent, Size)
+        Color, Pattern, Percent, Size, Bool)
 
 #loading dependencies
 import bokeh.objects
@@ -28,6 +28,7 @@ class PandasPivotTable(PlotObject):
     precision = Dict()
     tabledata = Dict()
     selected = List()
+    filterselected = Bool(default=False)
     
     def __init__(self, *args, **kwargs):
         super(PandasPivotTable, self).__init__(*args, **kwargs)
@@ -37,6 +38,7 @@ class PandasPivotTable(PlotObject):
         self.on_change('length', self, 'get_table_data')
         self.on_change('offset', self, 'get_table_data')
         self.on_change('precision', self, 'get_table_data')
+        self.on_change('filterselected', self, 'get_table_data')        
         
     def select(self, select):
         import requests        
@@ -65,6 +67,7 @@ class PandasPivotTable(PlotObject):
                     group=self.group,
                     offset=self.offset,
                     length=self.length,
+                    filterselected=self.filterselected,
                     )
                     
     def get_table_data(self, obj=None, attrname=None, old=None, new=None):
