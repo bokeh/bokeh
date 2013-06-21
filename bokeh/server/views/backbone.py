@@ -187,3 +187,24 @@ def delete(docid, typename, id):
     sess.del_obj(model)
     ws_delete(sess, [model])
     return sess.serialize(sess.attrs([model])[0])
+
+
+#rpc route
+@app.route("/bokeh/bb/rpc/<docid>/<typename>/<id>/<funcname>/",
+           methods=['POST', 'OPTIONS'])
+@crossdomain(origin="*", methods=['POST'],
+             headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
+@check_write_authentication_and_create_client
+def rpc(docid, typename, id, funcname):
+    doc = docs.Doc.load(app.model_redis, docid)
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
+    model = sess._models[id]
+    data = protocol.deserialize_json(request.data)
+    args = data.get('args', [])
+    kwargs = data.get('kwargs', {})
+    result = getattr(model, funcname)(*args, **kwargs)
+    log.debug("rpc, %s, %s", docid, typename)
+    changed = sess.store_all()
+    ws_update(sess, changed, exclude_self=False)
+    return make_json(sess.serialize(result))
