@@ -43,6 +43,21 @@
         </select>
       </td>
     </tr>
+    <tr>
+      <td colspan="2">
+        <button class="clearselection btn"> Clear Selection </button>
+      </td>
+      <td colspan="2">
+        <label class="checkbox" >
+          <% if @filterselected: %>
+          <input type="checkbox" class="filterselected" checked="checked"/>
+          <% else: %>
+          <input type="checkbox" class="filterselected"/>
+          <% end %>
+          Filter Selection
+        </label>
+      </td>
+    </tr>
   </table>
 </form>
 

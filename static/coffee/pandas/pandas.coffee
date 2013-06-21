@@ -30,6 +30,12 @@ class PandasPivotView extends ContinuumView
     "click .controlsmore" : 'toggle_more_controls'
     "click .pandascolumn" : 'sort'
     "click .pandasrow" : 'rowclick'
+    "click .filterselected" : 'toggle_filterselected'
+
+  toggle_filterselected: (e) =>
+    checked = @$('.filterselected').is(":checked")
+    @mset('filterselected', checked)
+    @model.save()
 
   rowclick : (e) =>
     rownum = Number($(e.currentTarget).attr('rownum'))
@@ -122,7 +128,7 @@ class PandasPivotView extends ContinuumView
     if counts and selected
       return _.map(_.zip(counts, selected), (temp) ->
         [count, selected] = temp
-        alpha = selected / count
+        alpha = 0.5 * selected / count
         return "rgba(0,0,255,#{alpha})"
       )
     else
@@ -152,6 +158,7 @@ class PandasPivotView extends ContinuumView
       width : @mget('width')
       offset : @mget('offset')
       length : length
+      filterselected : @mget('filterselected')
       maxlength : @mget('maxlength')
       counts : @mget('tabledata').data._counts
       selected : @mget('tabledata').data._selected
