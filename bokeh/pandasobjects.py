@@ -25,6 +25,8 @@ class PandasPivotTable(PlotObject):
     group = List()
     offset = Int(default=0)
     length = Int(default=100)
+    maxlength = Int()
+    totallength = Int()    
     precision = Dict()
     tabledata = Dict()
     filterselected = Bool(default=False)
@@ -89,7 +91,9 @@ class PandasPivotTable(PlotObject):
                                          remotedata.varname)
         data = requests.get(url, data=json.dumps(self.transform())).json()
         print data['data']['_selected']
-        self.format_data(data)
+        self.maxlength = data.pop('maxlength')
+        self.totallength = data.pop('totallength')
+        self.format_data(data['data'])
         self.tabledata = data
         
     def format_data(self, jsondata):
@@ -100,6 +104,5 @@ class PandasPivotTable(PlotObject):
             for idx, val in enumerate(data):
                 if isinstance(val, float):
                     data[idx] = "%%.%df" % precision.get(colname,2)%data[idx]
-        
-    
+                    
     

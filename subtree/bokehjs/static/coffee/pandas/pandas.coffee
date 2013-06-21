@@ -106,7 +106,11 @@ class PandasPivotView extends ContinuumView
 
   pandasgroup : (e) ->
     if e.keyCode == ENTER
-     @model.save('group', @fromcsv(@$el.find(".pandasgroup").val()))
+      @model.set(
+        group : @fromcsv(@$el.find(".pandasgroup").val())
+        offset : 0
+      )
+     @model.save()
 
   counts : () ->
     @mget('tabledata').data._counts
@@ -125,7 +129,6 @@ class PandasPivotView extends ContinuumView
       )
     else
       return null
-
   render : () ->
     group = @mget('group')
     if _.isArray(group)
@@ -137,7 +140,6 @@ class PandasPivotView extends ContinuumView
     sort_ascendings = {}
     for obj in  @mget('sort')
       sort_ascendings[obj['column']] = obj['ascending']
-    length = _.values(@mget('tabledata').data)[0].length
     template_data =
       skip :
         _counts : true
@@ -149,7 +151,7 @@ class PandasPivotView extends ContinuumView
       height : @mget('height')
       width : @mget('width')
       offset : @mget('offset')
-      length : length
+      length : @model.length()
       filterselected : @mget('filterselected')
       maxlength : @mget('maxlength')
       counts : @mget('tabledata').data._counts
@@ -175,6 +177,9 @@ class PandasPivotTable extends HasParent
 
   fetch : (options) ->
     super(options)
+
+  length : () ->
+    _.values(@get('tabledata').data)[0].length
 
   toggle_column_sort : (colname) =>
     sorting = @get('sort')
@@ -202,7 +207,7 @@ class PandasPivotTable extends HasParent
 
   go_back : () ->
     offset = @get('offset')
-    offset = offset - @get('length')
+    offset = offset - @length()
     if offset < 0
       offset = 0
     @set('offset', offset)
@@ -210,15 +215,15 @@ class PandasPivotTable extends HasParent
 
   go_forward : () ->
     offset = @get('offset')
-    offset = offset + @get('length')
-    maxoffset = @get('maxlength') - @get('length')
+    offset = offset + @length()
+    maxoffset = @get('maxlength') - @length()
     if offset > maxoffset
       offset = maxoffset
     @set('offset', offset)
     @save()
 
   go_end : () ->
-    maxoffset = @get('maxlength') - @get('length')
+    maxoffset = @get('maxlength') - @length()
     @set('offset', maxoffset)
     @save()
 
