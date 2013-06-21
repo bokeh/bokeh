@@ -71,9 +71,10 @@
   </thead>
   <% for idx in _.range(@length): %>
   <% if @colors: %>
-  <tr style="background-color:<%= @colors[idx] %>">
+  <tr class="pandasrow" rownum="<%= idx %>" 
+      style="background-color:<%= @colors[idx] %>">
   <% else: %>
-  <tr>
+  <tr class="pandasrow" rownum="<%= idx %>">
   <% end %>
     <% if @counts: %>
       <% if @selected and @selected[idx]: %>

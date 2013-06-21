@@ -454,6 +454,24 @@ class HasProperties extends Backbone.Model
 
   defaults : {}
 
+  rpc : (funcname, args, kwargs) =>
+    prefix = Config.prefix
+    docid = @get('doc')
+    id = @get('id')
+    type = @type
+    url = "#{prefix}/bokeh/bb/rpc/#{docid}/#{type}/#{id}/#{funcname}/"
+    data =
+      args : args
+      kwargs : kwargs
+    resp = $.ajax(
+      type : 'POST'
+      url: url,
+      data : JSON.stringify(data)
+      contentType : 'application/json'
+      xhrFields :
+        withCredentials : true
+    )
+    return resp
 
 
   # hasparent

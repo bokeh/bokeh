@@ -29,6 +29,32 @@ class PandasPivotView extends ContinuumView
     "click .pandasend" : 'pandasend'
     "click .controlsmore" : 'toggle_more_controls'
     "click .pandascolumn" : 'sort'
+    "click .pandasrow" : 'rowclick'
+
+  rowclick : (e) =>
+    rownum = Number($(e.currentTarget).attr('rownum'))
+    selected = @mget('selected')
+    index = selected.indexOf(rownum)
+    if index == -1
+      console.log('select', selected, index)
+      selected = _.clone(selected)
+      selected.push(rownum)
+      @mset('selected', selected)
+      @model.save().done(() =>
+        resp = @model.rpc('select', [[rownum]])
+      )
+
+      console.log('select', selected, index)
+    else
+      console.log('deselect', selected, index)
+      selected = _.without(selected, index)
+      @mset('selected', selected)
+      @model.save().done(() =>
+        resp = @model.rpc('deselect', [[rownum]])
+      )
+      console.log('deselect', selected, index)
+
+    return null
 
   sort : (e) =>
     colname = $(e.currentTarget).text()
