@@ -1,7 +1,7 @@
 <form class="form-inline">
   <p>Displaying entries <%= @offset %> 
     through <%=@offset + @length%> of 
-    <%= @maxlength %>
+    <%= @totallength %>
   </p>
   <table class="table" style="max-width:<%= @width %>px">
     <tr>

@@ -153,7 +153,7 @@ class PandasPivotView extends ContinuumView
       offset : @mget('offset')
       length : @model.length()
       filterselected : @mget('filterselected')
-      maxlength : @mget('maxlength')
+      totallength : @mget('totallength')
       counts : @mget('tabledata').data._counts
       selected : @mget('tabledata').data._selected
       controls_hide : @controls_hide
