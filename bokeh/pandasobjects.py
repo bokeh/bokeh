@@ -37,7 +37,18 @@ class PandasPivotTable(PlotObject):
         self.on_change('length', self, 'get_table_data')
         self.on_change('offset', self, 'get_table_data')
         self.on_change('precision', self, 'get_table_data')
-        self.on_change('filterselected', self, 'get_table_data')        
+        self.on_change('filterselected', self, 'get_table_data')
+        
+    def setselect(self, select):
+        import requests        
+        remotedata = self.source
+        url = "http://%s:%s/array/%s/setselect" % (remotedata.host,
+                                                remotedata.port,
+                                                remotedata.varname)
+        data = self.transform()
+        data['selected'] = select
+        requests.post(url, data=json.dumps(data))
+        self.get_table_data()
         
     def select(self, select):
         import requests        

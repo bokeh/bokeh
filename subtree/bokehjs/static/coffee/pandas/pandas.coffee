@@ -31,6 +31,10 @@ class PandasPivotView extends ContinuumView
     "click .pandascolumn" : 'sort'
     "click .pandasrow" : 'rowclick'
     "click .filterselected" : 'toggle_filterselected'
+    "click .clearselected" : 'clearselected'
+
+  clearselected : (e) =>
+    @model.rpc('setselect', [[]])
 
   toggle_filterselected: (e) =>
     checked = @$('.filterselected').is(":checked")
@@ -45,17 +49,9 @@ class PandasPivotView extends ContinuumView
     rownum = Number($(e.currentTarget).attr('rownum'))
     index = selected.indexOf(rownum)
     if index == -1
-      console.log('select', selected, index)
-      selected = _.clone(selected)
-      selected.push(rownum)
       resp = @model.rpc('select', [[rownum]])
-      console.log('select', selected, index)
     else
-      console.log('deselect', selected, index)
-      selected = _.without(selected, index)
       resp = @model.rpc('deselect', [[rownum]])
-      console.log('deselect', selected, index)
-
     return null
 
   sort : (e) =>
