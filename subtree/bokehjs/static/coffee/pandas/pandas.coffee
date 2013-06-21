@@ -38,26 +38,22 @@ class PandasPivotView extends ContinuumView
     @model.save()
 
   rowclick : (e) =>
+    counts = @counts()
+    selected = @selected()
+    ratios = (select/count for [select,count] in _.zip(selected, counts))
+    selected = (idx for ratio, idx in ratios when ratio > 0.5)
     rownum = Number($(e.currentTarget).attr('rownum'))
-    selected = @mget('selected')
     index = selected.indexOf(rownum)
     if index == -1
       console.log('select', selected, index)
       selected = _.clone(selected)
       selected.push(rownum)
-      @mset('selected', selected)
-      @model.save().done(() =>
-        resp = @model.rpc('select', [[rownum]])
-      )
-
+      resp = @model.rpc('select', [[rownum]])
       console.log('select', selected, index)
     else
       console.log('deselect', selected, index)
       selected = _.without(selected, index)
-      @mset('selected', selected)
-      @model.save().done(() =>
-        resp = @model.rpc('deselect', [[rownum]])
-      )
+      resp = @model.rpc('deselect', [[rownum]])
       console.log('deselect', selected, index)
 
     return null

@@ -27,7 +27,6 @@ class PandasPivotTable(PlotObject):
     length = Int(default=100)
     precision = Dict()
     tabledata = Dict()
-    selected = List()
     filterselected = Bool(default=False)
     
     def __init__(self, *args, **kwargs):
