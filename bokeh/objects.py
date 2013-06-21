@@ -528,7 +528,18 @@ class GuideRenderer(PlotObject):
         return {"id" : self._id,
                 "plot" : self.plot,
                 "guidespec" : props}
-
+    
+    @classmethod
+    def load_json(cls, attrs, instance=None):
+        """Loads all json into a instance of cls, EXCEPT any references
+        which are handled in finalize
+        """
+        inst = super(GuideRenderer, cls).load_json(attrs, instance=instance)
+        if hasattr(inst, 'guidespec'):
+            guidespec = inst.guidespec
+            del inst.guidespec
+            inst.update(**guidespec)
+                  
 class LinearAxis(GuideRenderer):
     type = String("linear_axis")
 
