@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<!-- Vendor Styles -->
+
+    <link href="{{ url_for('static', filename='vendor/bokehjs/css/bokeh.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bokehjs/css/continuum.css') }}" rel="stylesheet">
+
+
+    <link href="{{ url_for('static', filename='vendor/bokehjs/vendor/bootstrap/css/bootstrap.css') }}" rel="stylesheet">    
+
+    {% for jsfile in jsfiles %}
+    <script type="text/javascript" src="{{jsfile}}"></script>
+    {% endfor %}
+    {% for jsfile in hemfiles %}
+    <script type="text/javascript" src="{{jsfile}}"></script>
+    {% endfor %}
+  
+</head>
+<body>
+  <p>content</p>
+
+  {{plot_scr|safe}}
+</body>
+</html>

@@ -56,12 +56,12 @@ Dependencies
 At a minimum, Bokeh requires the following:
 
  * Numpy
- * BokehJS
  * Flask
  * Redis
  * Requests
  * gevent
  * gevent-websocket
+ * Pandas
 
 For an older rich-client prototype of some interactive GGplot functionality, the
 [Chaco](https://github.com/enthought/chaco) plotting library is also required.
@@ -166,3 +166,4 @@ What Does the Name "Bokeh" Mean?
 
 "Bokeh" is a [photography term](http://en.wikipedia.org/wiki/Bokeh) that refers
 to the aesthetic quality of the blur of a photograph's background.
+

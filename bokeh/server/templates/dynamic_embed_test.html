@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+	<!-- Vendor Styles -->
+
+    <link href="{{ url_for('static', filename='vendor/bokehjs/css/bokeh.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='vendor/bokehjs/css/continuum.css') }}" rel="stylesheet">
+
+
+    <link href="{{ url_for('static', filename='vendor/bokehjs/vendor/bootstrap/css/bootstrap.css') }}" rel="stylesheet">    
+
+    {% for jsfile in jsfiles %}
+    <script type="text/javascript" src="{{jsfile}}"></script>
+    {% endfor %}
+    {% for jsfile in hemfiles %}
+    <script type="text/javascript" src="{{jsfile}}"></script>
+    {% endfor %}
+  
+</head>
+<body>
+  <p>content</p>
+
+  <script type="text/javascript">
+    (function () {
+        var addOnload = function(func){
+            if (window.attachEvent){
+                window.attachEvent('onload', func);}
+            else {
+                window.addEventListener('load', func, false);}};
+        console.log(document.readyState);
+        addOnload(function() {
+            var scr = document.createElement("script");
+    
+            var sa = function(name,val){
+                console.log(name,val);
+                scr.setAttribute(name, val);};
+            sa('src',"http://localhost:5006/bokeh/embed.js");
+    
+            sa('bokeh_plottype',"serverconn");
+            sa('bokeh_docid',"f66ebc17-dd93-4497-853d-d57063372bce");
+            sa('bokeh_ws_conn_string',"ws://localhost:5006/bokeh/sub" );
+            sa('bokeh_docapikey',"0d1efb97-c52c-4054-bbf0-9c8c22a0eccb");
+            sa('bokeh_root_url',"http://localhost:5006" );
+
+            sa('bokeh_modelid', "1d340680-0b1c-41f6-9b16-82758b1f2728");
+
+            sa('bokeh_modeltype',"Plot" );
+    
+            document.body.appendChild(scr);});
+        console.log("end of script tag injection");
+    }())
+        
+</script>
+
+</body>
+</html>

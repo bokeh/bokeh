@@ -6,7 +6,7 @@ notebook.
 """
 from uuid import uuid4
 from functools import wraps
-
+import urlparse
 from bokeh.properties import (HasProps, MetaHasProps, 
         Any, Dict, Enum, Float, Instance, Int, List, String,
         Color, Pattern, Percent, Size)
@@ -392,6 +392,62 @@ class GlyphRenderer(PlotObject):
         else:
             self.glyph = None
 
+def script_inject(sess, modelid, typename):
+    split = urlparse.urlsplit(sess.root_url)
+    if split.scheme == 'http':
+        ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
+    else:
+        ws_conn_string = "wss://%s/bokeh/sub" % split.netloc
+   
+    f_dict = dict(
+        docid = sess.docid,
+
+        ws_conn_string = ws_conn_string,
+        docapikey = sess.apikey,
+        root_url = sess.root_url,
+        modelid = modelid,
+        modeltype = typename,
+        script_url = sess.root_url + "/bokeh/embed.js")
+    e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
+bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
+bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
+bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>        
+        '''
+    return e_str % f_dict
+
+def script_inject_escaped(sess, modelid, typename):
+    split = urlparse.urlsplit(sess.root_url)
+    if split.scheme == 'http':
+        ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
+    else:
+        ws_conn_string = "wss://%s/bokeh/sub" % split.netloc
+   
+    f_dict = dict(
+        docid = sess.docid,
+
+        ws_conn_string = ws_conn_string,
+        docapikey = sess.apikey,
+        root_url = sess.root_url,
+        modelid = modelid,
+        modeltype = typename,
+        script_url = sess.root_url + "/bokeh/embed.js")
+    f_dict = dict(
+        docid = pc.docid,
+        ws_conn_string = pc.ws_conn_string,
+        docapikey = pc.apikey,
+        root_url = pc.root_url,
+        modelid = modelid,
+        modeltype = typename,
+        script_url = pc.root_url + "/bokeh/embed.js")
+
+    e_str = '''&lt; script src="%(script_url)s" bokeh_plottype="serverconn"
+bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
+bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
+    bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"&gt; &lt;/script&gt;
+        '''
+    return e_str % f_dict
+
+
 class Plot(PlotObject):
 
     data_sources = List
@@ -434,12 +490,19 @@ class Plot(PlotObject):
     border_bottom = Int(50)
     border_left = Int(50)
     border_right = Int(50)
-    
 
-#class PolarPlot(PlotArea):
+    def script_inject(self):
+        return script_inject(
+            self._session,
+            self._id,
+            self.__view_model__)
 
-#    radial_range = Instance(DataRange1d)
-#    angular_range = Instance(DataRange1d)
+    def script_inject_escaped(self):
+        return script_inject(
+            self._session,
+            self._id,
+            self.__view_model__)
+
 
 class GridPlot(PlotObject):
     """ A 2D grid of plots """

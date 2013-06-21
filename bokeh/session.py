@@ -498,7 +498,7 @@ class PlotServerSession(BaseHTMLSession):
             typename = attr['type']
             attr = attr['attributes']
             logger.debug('type: %s', typename)
-            logger.debug('attrs: %s', attr)
+            #logger.debug('attrs: %s', attr)
             _id = attr['id']
             if _id in self._models:
                 m = self._models[_id]

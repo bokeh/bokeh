@@ -188,3 +188,155 @@ def doc_by_title():
 def sampleerror():
     return 1 + "sdf"
 
+
+@app.route("/bokeh/embed_test/")
+def embed_test():
+    """this is made to test the case where  """
+    return render_template("embed_test.html")
+
+@app.route("/bokeh/dynamic_embed_test/")
+def dynamic_embed_test():
+    """this is made to test the case where application.js is already
+loaded, and embed.js script tags are dynamically injected"""
+    if app.debug:
+        slug = hemlib.slug_json()
+        static_js = hemlib.slug_libs(app, slug['libs'])
+        hemsource = os.path.join(app.static_folder, "coffee")
+        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hemsource = os.path.join(app.static_folder, "vendor",
+                                 "bokehjs", "coffee")
+        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
+    else:
+        static_js = ['/bokeh/static/js/application.js']
+        hem_js = []
+    return render_template("dynamic_embed_test.html", jsfiles=static_js, hemfiles=hem_js)
+    
+@app.route("/bokeh/embed_with_existing_js")
+def embed_with_existing_js_test():
+    """this is made to test the case where application.js is already
+loaded, and embed.js script tags are dynamically injected"""
+    if app.debug:
+        slug = hemlib.slug_json()
+        static_js = hemlib.slug_libs(app, slug['libs'])
+        hemsource = os.path.join(app.static_folder, "coffee")
+        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hemsource = os.path.join(app.static_folder, "vendor",
+                                 "bokehjs", "coffee")
+        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
+    else:
+        static_js = ['/bokeh/static/js/application.js']
+        hem_js = []
+    return render_template("embed_with_existing_js.html", jsfiles=static_js, hemfiles=hem_js)
+
+@app.route("/bokeh/embed_with_delay")
+def embed_with_delay():
+    """this is made to test the case where application.js is already
+loaded, and embed.js script tags are dynamically injected"""
+    if app.debug:
+        slug = hemlib.slug_json()
+        static_js = hemlib.slug_libs(app, slug['libs'])
+        hemsource = os.path.join(app.static_folder, "coffee")
+        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hemsource = os.path.join(app.static_folder, "vendor",
+                                 "bokehjs", "coffee")
+        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
+    else:
+        static_js = ['/bokeh/static/js/application.js']
+        hem_js = []
+    return render_template("embed_with_delay.html", jsfiles=static_js, hemfiles=hem_js)
+
+@app.route("/bokeh/generate_embed_test")
+def generate_embed_test():
+    """this generates a new plot and uses the script inject to put it
+    into a page running this repeatedly will fill up your redis DB
+    quickly, but it allows quick iteration
+
+    """
+
+    from numpy import pi, arange, sin, cos
+    import numpy as np
+    import os.path
+
+    from bokeh.objects import (
+        Plot, DataRange1d, LinearAxis, Rule,
+        ColumnDataSource, GlyphRenderer, ObjectArrayDataSource,
+        PanTool, ZoomTool)
+    from bokeh.glyphs import Circle
+    from bokeh import session
+
+    x = arange(-2*pi, 2*pi, 0.1)
+    y = sin(x)
+    z = cos(x)
+    widths = np.ones_like(x) * 0.02
+    heights = np.ones_like(x) * 0.2
+
+
+    source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
+                                    heights=heights))
+    #source = ObjectArrayDataSource(
+    #    data = [
+    #        {'x' : 1, 'y' : 5, 'z':3},
+    #        {'x' : 2, 'y' : 4, 'z':3, 'radius':10},
+    #        {'x' : 3, 'y' : 3, 'z':3, 'fill':"blue"},
+    #        {'x' : 4, 'y' : 2, 'z':3},
+    #        {'x' : 5, 'y' : 1, 'z':3},
+    #        ])
+
+    xdr = DataRange1d(sources=[source.columns("x")])
+    ydr = DataRange1d(sources=[source.columns("y")])
+
+    circle = Circle(x="x", y="y", fill="red", radius=5, line_color="black")
+
+    glyph_renderer = GlyphRenderer(
+        data_source = source,
+        xdata_range = xdr,
+        ydata_range = ydr,
+        glyph = circle)
+
+
+    pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
+    zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+
+    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
+                border= 80)
+    xaxis = LinearAxis(plot=plot, dimension=0)
+    yaxis = LinearAxis(plot=plot, dimension=1)
+    xgrid = Rule(plot=plot, dimension=0)
+    ygrid = Rule(plot=plot, dimension=1)
+
+    plot.renderers.append(glyph_renderer)
+    plot.tools = [pantool,zoomtool]
+
+    sess = session.PlotServerSession(
+        username="defaultuser", 
+        serverloc="http://localhost:5006", userapikey="nokey")
+    sess.use_doc("glyph2")
+    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+    sess.plotcontext.children.append(plot)
+    sess.plotcontext._dirty = True
+    # not so nice.. but set the model doens't know
+    # that we appended to children
+    sess.store_all()
+
+    if app.debug:
+        slug = hemlib.slug_json()
+        static_js = hemlib.slug_libs(app, slug['libs'])
+        hemsource = os.path.join(app.static_folder, "coffee")
+        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
+        hemsource = os.path.join(app.static_folder, "vendor",
+                                 "bokehjs", "coffee")
+        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
+    else:
+        static_js = ['/bokeh/static/js/application.js']
+        hem_js = []
+    return render_template("generate_embed_test.html", jsfiles=static_js, hemfiles=hem_js, 
+                           plot_scr=plot.script_inject())
+
+    
+
+
+
+@app.route("/bokeh/embed.js")
+def embed_js():
+    return (render_template("embed.js", host=request.host), "200", 
+            {'Content-Type':'application/javascript'})
