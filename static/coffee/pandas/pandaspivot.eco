@@ -45,7 +45,7 @@
     </tr>
     <tr>
       <td colspan="2">
-        <button class="clearselection btn"> Clear Selection </button>
+        <input type="button" class="clearselected btn" value="Clear Selection"/>
       </td>
       <td colspan="2">
         <label class="checkbox" >
