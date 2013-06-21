@@ -35,24 +35,21 @@ bokeh_root_url="http://localhost:5006"
 bokeh_modelid="#{model_id}" bokeh_modeltype="Plot" async="true"&gt;
 &lt;/script&gt;
 
-    """
+    """ #FIXME: this quote hack makes my text editor happy"
     script_inject_escaped = @plot_model.get('script_inject_escaped')
     modal = """
-      '<div id="embedModal" class="modal" role="dialog" aria-labelledby="embedLabel" aria-hidden="true">
+      <div id="embedModal" class="modal" role="dialog" aria-labelledby="embedLabel" aria-hidden="true">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
           <h3 id="dataConfirmLabel"> HTML Embed code</h3></div><div class="modal-body">
         <div class="modal-body">
-
-#{script_inject_escaped}
-
-
+          #{script_inject_escaped}
         </div>
         </div><div class="modal-footer">
           <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
         </div>
-      </div>')
-    """
+      </div>
+    """  #FIXME: this quote hack makes my text editor happy"
     $('body').append(modal)
     $('#embedModal').on('hidden', () =>
       $('#embedModal').remove()
