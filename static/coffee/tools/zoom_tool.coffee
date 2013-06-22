@@ -1,13 +1,11 @@
-toolview = require("./toolview")
-ToolView = toolview.ToolView
+tool = require("./tool")
 eventgenerators = require("./eventgenerators")
 OnePointWheelEventGenerator = eventgenerators.OnePointWheelEventGenerator
 LinearMapper = require("../mappers/1d/linear_mapper").LinearMapper
 base = require("../base")
 safebind = base.safebind
-HasParent = base.HasParent
 
-class ZoomToolView extends ToolView
+class ZoomToolView extends tool.ToolView
 
   initialize : (options) ->
     super(options)
@@ -71,9 +69,10 @@ class ZoomToolView extends ToolView
     return null
 
 
-class ZoomTool extends HasParent
+class ZoomTool extends tool.Tool
   type : "ZoomTool"
   default_view : ZoomToolView
+
 ZoomTool::defaults = _.clone(ZoomTool::defaults)
 _.extend(ZoomTool::defaults
   ,

@@ -1,11 +1,11 @@
 PlotWidget = require('../common/plot_widget').PlotWidget
+HasParent = require('../base').HasParent
 
 class ToolView extends PlotWidget
   initialize : (options) ->
     super(options)
   bind_events : (plotview) ->
     eventSink = plotview.eventSink
-    @plotview = plotview
     evgen_options = { eventBasename:@cid }
     evgen_options2 = _.extend(evgen_options, @evgen_options)
     evgen = new @eventGeneratorClass(evgen_options2)
@@ -17,4 +17,15 @@ class ToolView extends PlotWidget
         @[handler_f](e)
       eventSink.on(full_event_name, wrap))
 
+    render: () ->
+
+
+class Tool extends HasParent
+
+Tool::display_defaults = _.clone(Tool::display_defaults)
+_.extend(Tool::display_defaults, {
+  level: 'tool'
+})
+
+exports.Tool = Tool
 exports.ToolView = ToolView

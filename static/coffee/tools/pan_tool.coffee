@@ -1,13 +1,11 @@
-toolview = require("./toolview")
-ToolView = toolview.ToolView
+tool = require("./tool")
 eventgenerators = require("./eventgenerators")
 TwoPointEventGenerator = eventgenerators.TwoPointEventGenerator
 LinearMapper = require("../mappers/1d/linear_mapper").LinearMapper
 base = require("../base")
 safebind = base.safebind
-HasParent = base.HasParent
 
-class PanToolView extends ToolView
+class PanToolView extends tool.ToolView
   initialize: (options) ->
     super(options)
     @build_mappers()
@@ -72,7 +70,7 @@ class PanToolView extends ToolView
     return null
 
 
-class PanTool extends HasParent
+class PanTool extends tool.Tool
   type: "PanTool"
   default_view: PanToolView
 
