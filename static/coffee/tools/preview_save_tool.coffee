@@ -1,12 +1,8 @@
-toolview = require("./toolview")
-ToolView = toolview.ToolView
+tool= require("./tool")
 ButtonEventGenerator = require("./eventgenerators").ButtonEventGenerator
 LinearMapper = require("../mappers/1d/linear_mapper").LinearMapper
-base = require("../base")
-safebind = base.safebind
-HasParent = base.HasParent
 
-class PreviewSaveToolView extends ToolView
+class PreviewSaveToolView extends tool.ToolView
   initialize: (options) ->
     super(options)
 
@@ -37,7 +33,7 @@ class PreviewSaveToolView extends ToolView
     )
     $('#previewModal').modal({show:true});
 
-class PreviewSaveTool extends HasParent
+class PreviewSaveTool extends tool.Tool
   type: "PreviewSaveTool"
   default_view: PreviewSaveToolView
 

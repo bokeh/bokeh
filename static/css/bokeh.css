@@ -8,28 +8,24 @@ svg {
 }
 
 .button_bar{
-    width : 250px;
-    overflow : hidden;
+  overflow : hidden;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 .button_bar > button{
-    float : left;
+  float : left;
 }
 
 .bokeh_canvas_wrapper {position:relative; font-size: 12pt;}
-.bokeh_canvas {position:absolute; border:1px solid red; font-size: 12pt;}
+.bokeh_canvas {position:absolute; font-size: 12pt;}
 .shading {display:block; border:1px dashed green; position: absolute; z-index:100;}
 .gridplot_container {position: relative;}
 .gridplot_container .gp_plotwrapper {position:absolute;}
 button.active {border:1px solid blue}
 .table_wrap {  }
 .table_wrap table { margin:5px;  height:300px; display:block; overflow-y:scroll }
-/*
-  .table_outer thead { fon t-size:15px; display:block; height: 100px; overflow:auto; outline:1px  solid green}
-
-  .table_outer tbody { font -size:10px; display:table; height: 200px; overflow-y:scroll; outline:1px  solid blue}
-  .table_outer table td { border-left:1px solid black; border-right:1px solid black; }
-*/
-
 
 .plot_wrap .button_bar {height:30px}
 .plot_wrap .button_bar * {display:none}

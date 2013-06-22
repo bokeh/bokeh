@@ -43,7 +43,7 @@ class QuadView extends GlyphView
     ow = @plot_view.view_state.get('outer_width')
     oh = @plot_view.view_state.get('outer_height')
     for i in [0..@mask.length-1]
-      if (@sx0[i] < 0 and @sx1[i] < 0) or (@sx0[i] > ow and @sx1[i] > ow) or (@sy0[i] < 0 and @sy1[i] < 0) or (@sy0[i] > ph and @sy1[i] > oh)
+      if (@sx0[i] < 0 and @sx1[i] < 0) or (@sx0[i] > ow and @sx1[i] > ow) or (@sy0[i] < 0 and @sy1[i] < 0) or (@sy0[i] > oh and @sy1[i] > oh)
         @mask[i] = false
       else
         @mask[i] = true
