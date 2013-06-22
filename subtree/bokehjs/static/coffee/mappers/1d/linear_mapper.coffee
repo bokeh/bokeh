@@ -16,8 +16,6 @@ class LinearMapper extends HasProperties
     [scale, offset] = @get('mapper_state')
     return scale * x + offset
 
-
-
   v_map_to_target: (xs) ->
     [scale, offset] = @get('mapper_state')
     result = new Array(xs.length)

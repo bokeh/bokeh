@@ -1,8 +1,10 @@
 PlotWidget = require('../common/plot_widget').PlotWidget
+HasParent = require('../base').HasParent
 
 class ToolView extends PlotWidget
   initialize : (options) ->
     super(options)
+
   bind_bokeh_events : () ->
     eventSink = @plot_view.eventSink
     evgen_options = { eventBasename:@cid }
@@ -16,4 +18,15 @@ class ToolView extends PlotWidget
         @[handler_f](e)
       eventSink.on(full_event_name, wrap))
 
+    render: () ->
+
+
+class Tool extends HasParent
+
+Tool::display_defaults = _.clone(Tool::display_defaults)
+_.extend(Tool::display_defaults, {
+  level: 'tool'
+})
+
+exports.Tool = Tool
 exports.ToolView = ToolView

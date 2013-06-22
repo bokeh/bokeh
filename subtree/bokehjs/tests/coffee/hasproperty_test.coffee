@@ -1,8 +1,8 @@
 base = require("../base")
-ContinuumView = base.ContinuumView
 safebind = base.safebind
 Collections = base.Collections
 HasProperties = base.HasParent
+ContinuumView = require('../common/continuum_view').ContinuumView
 
 class TestObject extends HasProperties
   type : 'TestObject'
@@ -14,7 +14,7 @@ class TestObjects extends Backbone.Collection
 # registering this test collection with Collections function
 testobjects = new TestObjects()
 exports.testobjects = testobjects
-base.locations['TestObject'] = ['./unittest/hasproperty_test', 'testobjects']
+base.locations['TestObject'] = ['./hasproperty_test', 'testobjects']
 
 test('computed_properties', ->
   testobjects.reset()
