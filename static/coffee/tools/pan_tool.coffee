@@ -11,6 +11,7 @@ class PanToolView extends tool.ToolView
     @build_mappers()
 
   bind_bokeh_events: () ->
+    super()
     safebind(this, @model, 'change:dataranges', @build_mappers)
 
   build_mappers: () =>
