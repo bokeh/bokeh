@@ -23,10 +23,6 @@ class PlotView extends ContinuumView
   build_tools: () ->
     build_views(@tools, @mget_obj('tools'), @view_options())
 
-  bind_tools: () ->
-    for toolspec in @mget('tools')
-      @tools[toolspec.id].bind_events(this)
-
   events:
     "mousemove .bokeh_canvas_wrapper": "_mousemove"
     "mousedown .bokeh_canvas_wrapper": "_mousedown"
@@ -91,7 +87,6 @@ class PlotView extends ContinuumView
     @tools = {}
 
     @eventSink = _.extend({}, Backbone.Events)
-    atm = new ActiveToolManager(@eventSink)
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
@@ -156,8 +151,15 @@ class PlotView extends ContinuumView
       if v.mget('level') == 'annotation'
         @annotations[k] = v
 
+    @atm = new ActiveToolManager(@eventSink)
+    @atm.bind_bokeh_events()
     @build_tools()
-    @bind_tools()
+    @bind_bokeh_events()
+    for toolview in _.values(@tools)
+      toolview.bind_bokeh_events()
+    for view in _.values(@renderers)
+      view.bind_bokeh_events()
+
 
   bind_bokeh_events: () ->
     safebind(this, @view_state, 'change', @render)

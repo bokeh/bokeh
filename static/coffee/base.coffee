@@ -578,7 +578,8 @@ locations =
   SelectionTool:   ['./tools/selecttool', 'selectiontools']
   PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools']
   EmbedTool:       ['./tools/preview_save_tool', 'embedtools']
-
+  BoxSelectionOverlay: ['./overlays/boxselectionoverlay',
+    'boxselectionoverlays']
 
   ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources']
   ColumnDataSource:      ['./common/datasource', 'columndatasources']

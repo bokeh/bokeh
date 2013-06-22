@@ -30,6 +30,9 @@ class GlyphView extends PlotWidget
       @need_set_data = false
     @_render()
 
+  select : () ->
+    'pass'
+
   bind_bokeh_events: () ->
     safebind(this, @model, 'change', @request_render)
     safebind(this, @mget_obj('data_source'), 'change', @set_data)
