@@ -1,18 +1,28 @@
 bokehjs
 =======
 
+About
+=====
+
+BokehJS is designed to be a front-end library for
+[Bokeh](http://github.com/ContinuumIO/bokeh).  The architecture of the library
+facilitates easy manipulation of the components and configuration of a plot
+from the server side.
+
+However, it can be used directly from Javascript, without a Plot Server, and
+with all its data embedded directly into the page.  All of the examples in
+the `demo/` directory showcase this.
+
 Requirements
 ============
 
 1. You need to have node.js installed.
 
-2. Clone the Continuum hem repo: 
+2. We're using hem for our Coffeescript build tool.  Hem will compile
+coffeescript, combine js files, and support node.js require syntax on the
+client side.  Clone the Continuum hem repo: 
 
 `$ git clone https://github.com/ContinuumIO/hem`
-
-We're using hem for our Coffeescript build tool.  Hem will compile
-coffeescript, combine js files, and support node.js require syntax on the
-client side.
 
 3. Install hem by executing
 
@@ -78,4 +88,15 @@ To build a single application.js for Bokeh, do:
 This produces a file `static/js/application.js` that includes BokehJS
 and all of its dependencies.  Passing the `-d` option will cause this
 to be un-minified and readable, but inflates the file size by roughly 2X.
+
+Developing & Contributing
+=========================
+
+The project is very new but is already quite useful.  We always appreciate
+feedback and value contributions.  The core developers are working hard towards
+applying Bokeh and BokehJS towards some specific projects, so the dev priorities
+will tend to center around those tasks, until the project reaches a point of
+stability.  It should be considered alpha software at this point.
+
+Please join the discussion on the [Bokeh mailing list](https://groups.google.com/a/continuum.io/forum/#!forum/bokeh).
 

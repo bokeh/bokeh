@@ -13,7 +13,7 @@ class TestParents extends Backbone.Collection
 # registering this test collection with Collections function
 testparents = new TestParents()
 exports.testparents = testparents
-base.locations['TestParent'] = ['./unittest/hasparent_test', 'testparents']
+base.locations['TestParent'] = ['./hasparent_test', 'testparents']
 
 test('parent_settings_propagate', () ->
   testparents.reset()

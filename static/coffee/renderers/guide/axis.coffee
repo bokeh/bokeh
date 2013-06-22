@@ -164,7 +164,7 @@ class LinearAxis extends HasParent
     end = Math.max(start, end)
     start = tmp
 
-    [imin, imax, interval] = ticking.auto_interval(start, end)
+    interval = ticking.auto_interval(start, end)
     ticks = ticking.auto_ticks(null, null, start, end, interval)
 
     loc = @get('guidespec').location
