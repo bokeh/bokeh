@@ -152,7 +152,8 @@ class PlotView extends ContinuumView
     for k,v of @tools
       level = v.mget('level')
       @levels[level][k] = v
-
+    @atm = new ActiveToolManager(@eventSink)
+    @atm.bind_bokeh_events()
     @bind_bokeh_events()
     for toolview in _.values(@tools)
       toolview.bind_bokeh_events()

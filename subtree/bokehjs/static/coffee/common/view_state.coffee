@@ -91,7 +91,7 @@ class ViewState extends HasProperties
       , true)
     @add_dependencies('inner_aspect', this, ['inner_height', 'inner_width'])
 
-    _inner_range_horizontal = Collections('Range1d').create({
+    _inner_range_horizontal = new Range1d({
       start: @get('border_left'),
       end:   @get('border_left') + @get('inner_width')
     })
@@ -103,7 +103,7 @@ class ViewState extends HasProperties
       , true)
     @add_dependencies('inner_range_horizontal', this, ['border_left', 'inner_width'])
 
-    _inner_range_vertical = Collections('Range1d').create({
+    _inner_range_vertical = new Range1d({
       start: @get('border_bottom'),
       end:   @get('border_bottom') + @get('inner_height')
     })
