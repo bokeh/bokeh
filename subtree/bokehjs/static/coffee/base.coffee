@@ -573,9 +573,10 @@ locations =
   GlyphRenderer:      ['./renderers/glyph_renderer',      'glyphrenderers']
   GuideRenderer:      ['./renderers/guide_renderer',      'guiderenderers']
 
-  PanTool:         ['./tools/pantool',    'pantools']
-  ZoomTool:        ['./tools/zoomtool',   'zoomtools']
-  SelectionTool:   ['./tools/selecttool', 'selectiontools']
+  PanTool:         ['./tools/pan_tool',          'pantools']
+  ZoomTool:        ['./tools/zoom_tool',         'zoomtools']
+  ResizeTool:      ['./tools/resize_tool',       'resizetools']
+  SelectionTool:   ['./tools/select_tool',       'selectiontools']
   PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools']
   EmbedTool:       ['./tools/preview_save_tool', 'embedtools']
 
