@@ -474,7 +474,7 @@ class Plot(PlotObject):
     # image = List
     # underlay = List
     # glyph = List
-    # overlay = List
+    #
     # annotation = List
 
     height = Int(400)
@@ -548,14 +548,17 @@ class Rule(GuideRenderer):
     type = String("rule")
 
 class PanTool(PlotObject):
-    plot = Instance(Plot)
+    plot = Instance(Plot, has_ref=True)
     dimensions = List   # valid values: "x", "y"
-    dataranges = List
+    dataranges = List(has_ref=True)
 
 class ZoomTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
-    dataranges = List
+    dataranges = List(has_ref=True)
 
+class SelectionTool(PlotObject):
+    renderers = List(has_ref=True)
 
-
+class BoxSelectionOverlay(PlotObject):
+    tool = Instance(has_ref=True)

@@ -3,9 +3,8 @@ class ActiveToolManager
   constructor : (eventSink) ->
     @eventSink = eventSink
     @eventSink.active = true
-    @bind_events()
 
-  bind_events : () ->
+  bind_bokeh_events : () ->
     @eventSink.on("clear_active_tool", () =>
       @eventSink.trigger("#{@eventSink.active}:deactivated")
       @eventSink.active = true)

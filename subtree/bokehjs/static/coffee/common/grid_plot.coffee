@@ -24,6 +24,7 @@ class GridPlotView extends ContinuumView
     @viewstate = new GridViewState();
     @childviews = {}
     @build_children()
+    @bind_bokeh_events()
     @render()
     return this
 
