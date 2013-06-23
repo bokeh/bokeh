@@ -13,9 +13,12 @@ class GlyphView extends PlotWidget
 
   set_data: (request_render=true) ->
     source = @mget_obj('data_source')
+    #FIXME: should use some mechanism like isinstance
     if source.type == 'ObjectArrayDataSource'
       data = source.get('data')
     else if source.type == 'ColumnDataSource'
+      data = source.datapoints()
+    else if source.type == 'PandasPlotSource'
       data = source.datapoints()
     else
       console.log('Unknown data source type: ' + source.type)
