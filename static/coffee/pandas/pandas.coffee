@@ -1,4 +1,5 @@
 base = require("../base")
+datasource = require("../common/datasource")
 ContinuumView = require("../common/continuum_view").ContinuumView
 HasParent = base.HasParent
 HasProperties = base.HasProperties
@@ -9,6 +10,15 @@ class IPythonRemoteData extends HasProperties
 coll = Collection.extend({model : IPythonRemoteData})
 exports.ipythonremotedatas = new coll()
 ENTER = 13
+
+class PandasPlotSource extends datasource.ColumnDataSource
+  type : 'PandasPlotSource'
+
+coll = Collection.extend({model : PandasPlotSource})
+exports.pandasplotsources = new coll()
+
+class PandasPlotSources extends Backbone.Collection
+  model : PandasPlotSource
 
 class PandasPivotView extends ContinuumView
   template : require("./pandaspivot")
