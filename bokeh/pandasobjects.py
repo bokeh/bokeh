@@ -1,5 +1,6 @@
 import pandas
 import json
+import numpy as np
 
 from bokeh.properties import (HasProps, MetaHasProps, 
         Any, Dict, Enum, Float, Instance, Int, List, String,
@@ -17,7 +18,7 @@ class IPythonRemoteData(PlotObject):
     port = Int(10020)
     varname = String() 
     #hack... we're just using this field right now to trigger events
-    selected = Int
+    selected = Int(0)
     
     def setselect(self, select, transform):
         import requests        
@@ -28,6 +29,7 @@ class IPythonRemoteData(PlotObject):
         data = transform
         data['selected'] = select
         requests.post(url, data=json.dumps(data))
+        self.selected += 1
         
     def select(self, select, transform):
         import requests        
@@ -38,6 +40,7 @@ class IPythonRemoteData(PlotObject):
         data = transform
         data['selected'] = select
         requests.post(url, data=json.dumps(data))
+        self.selected += 1
         
     def deselect(self, deselect, transform):
         import requests        
@@ -48,6 +51,7 @@ class IPythonRemoteData(PlotObject):
         data = transform
         data['selected'] = deselect
         requests.post(url, data=json.dumps(data))
+        self.selected += 1
         
     def get_data(self, transform):
         import requests
@@ -61,27 +65,45 @@ class IPythonRemoteData(PlotObject):
     
 class PandasPlotSource(ColumnDataSource):
     source = Instance(has_ref=True)
+    
     def __init__(self, *args, **kwargs):
-        super(PandasPlotSource, self).__init__(self, *args, **kwargs)
+        super(PandasPlotSource, self).__init__(*args, **kwargs)
+        self.on_change('selected', self, 'selection_callback')
+        if self.source:
+            self.source.on_change('selected', self, 'get_data')
+            self.source.on_change('data', self, 'get_data')
+        
+    def finalize(self, models):
+        super(PandasPlotSource, self).finalize(models)
+        self.source.on_change('selected', self, 'get_data')
+        self.source.on_change('data', self, 'get_data')
+                       
+    def selection_callback(self, obj=None, attrname=None, old=None, new=None):
+        self.setselect(self.selected)
+        
+    def transform(self):
+        return {}
+    
     def setselect(self, select):
         self.source.setselect(select, self.transform())
-        self.get_table_data()
+        self.get_data()
         
     def select(self, select):
         self.source.select(select, self.transform())
-        self.get_table_data()
+        self.get_data()
         
     def deselect(self, deselect):
         self.source.deselect(deselect, self.transform())
-        self.get_table_data()
+        self.get_data()
         
-    def get_table_data(self, obj=None, attrname=None, old=None, new=None):
-        data = self.source.get_table_data(self.transform())
-        print data['data']['_selected']
+    def get_data(self, obj=None, attrname=None, old=None, new=None):
+        data = self.source.get_data(self.transform())
+        #ugly:
+        self._selected =  np.nonzero(data['data']['_selected'])[0]
         self.maxlength = data.pop('maxlength')
         self.totallength = data.pop('totallength')
-        self.format_data(data['data'])
-        self.tabledata = data
+        self.column_names = data['column_names']
+        self.data = data['data']
     
     
 class PandasPivotTable(PlotObject):
@@ -99,13 +121,20 @@ class PandasPivotTable(PlotObject):
     def __init__(self, *args, **kwargs):
         super(PandasPivotTable, self).__init__(*args, **kwargs)
         self._callbacks.clear()
-        self.on_change('sort', self, 'get_table_data')
-        self.on_change('group', self, 'get_table_data')
-        self.on_change('length', self, 'get_table_data')
-        self.on_change('offset', self, 'get_table_data')
-        self.on_change('precision', self, 'get_table_data')
-        self.on_change('filterselected', self, 'get_table_data')
-        
+        self.on_change('sort', self, 'get_data')
+        self.on_change('group', self, 'get_data')
+        self.on_change('length', self, 'get_data')
+        self.on_change('offset', self, 'get_data')
+        self.on_change('precision', self, 'get_data')
+        self.on_change('filterselected', self, 'get_data')
+        if self.source:
+            self.source.on_change('selected', self, 'get_data')
+            self.source.on_change('data', self, 'get_data')
+            
+    def finalize(self, models):
+        super(PandasPivotTable, self).finalize(models)
+        self.source.on_change('selected', self, 'get_data')
+        self.source.on_change('data', self, 'get_data')
         
     def format_data(self, jsondata):
         """inplace manipulation of jsondata
@@ -127,17 +156,17 @@ class PandasPivotTable(PlotObject):
     
     def setselect(self, select):
         self.source.setselect(select, self.transform())
-        self.get_table_data()
+        self.get_data()
         
     def select(self, select):
         self.source.select(select, self.transform())
-        self.get_table_data()
+        self.get_data()
         
     def deselect(self, deselect):
         self.source.deselect(deselect, self.transform())
-        self.get_table_data()
+        self.get_data()
         
-    def get_table_data(self, obj=None, attrname=None, old=None, new=None):
+    def get_data(self, obj=None, attrname=None, old=None, new=None):
         data = self.source.get_data(self.transform())
         print data['data']['_selected']
         self.maxlength = data.pop('maxlength')
