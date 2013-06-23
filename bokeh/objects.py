@@ -372,15 +372,25 @@ class GlyphRenderer(PlotObject):
     # because of circular imports. The renderers should get moved out
     # into another module...
     glyph = Instance()
-
+    # glyph used when data is unselected.  optional
+    nonselection_glyph = Instance()
+    # glyph used when data is selected.  optional
+    selection_glyph = Instance() 
+    
     def vm_serialize(self):
         # GlyphRenderers need to serialize their state a little differently,
         # because the internal glyph instance is turned into a glyphspec
-        return {"id" : self._id,
-                "data_source": self.data_source,
-                "xdata_range": self.xdata_range,
-                "ydata_range": self.ydata_range,
-                "glyphspec": self.glyph.to_glyphspec() }
+        data =  {"id" : self._id,
+                 "data_source": self.data_source,
+                 "xdata_range": self.xdata_range,
+                 "ydata_range": self.ydata_range,
+                 "glyphspec": self.glyph.to_glyphspec()                 
+                 }
+        if self.selection_glyph:
+            data['selection_glyphspec'] = self.selection_glyph.to_glyphspec()
+        if self.nonselection_glyph:
+            data['nonselection_glyphspec'] = self.nonselection_glyph.to_glyphspec()
+        return data
 
     def finalize(self, models):
         super(GlyphRenderer, self).finalize(models)
@@ -391,6 +401,23 @@ class GlyphRenderer(PlotObject):
             self.glyph = PlotObject.get_class(glyphspec['type'])(**glyphspec)
         else:
             self.glyph = None
+        if hasattr(self, 'selection_glyphspec'):
+            selection_glyphspec = self.selection_glyphspec
+            del self.selection_glyphspec
+            temp = PlotObject.get_class(selection_glyphspec['type'])
+            self.selection_glyph = temp(**selection_glyphspec)
+
+        else:
+            self.selection_glyph = None
+        if hasattr(self, 'nonselection_glyphspec'):
+            nonselection_glyphspec = self.nonselection_glyphspec
+            del self.nonselection_glyphspec
+            temp = PlotObject.get_class(nonselection_glyphspec['type'])
+            self.nonselection_glyph = temp(**nonselection_glyphspec)
+
+        else:
+            self.nonselection_glyph = None
+            
 
 def script_inject(sess, modelid, typename):
     split = urlparse.urlsplit(sess.root_url)
