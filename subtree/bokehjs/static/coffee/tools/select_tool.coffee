@@ -121,7 +121,7 @@ class SelectionToolView extends tool.ToolView
       ds = datasources[k]
       ds.set('selected', selected)
       #console.log("datasource_selections", k, v, selected)
-      #ds.save()
+      ds.save()
     return null
 
 
