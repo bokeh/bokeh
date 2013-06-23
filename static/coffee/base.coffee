@@ -599,6 +599,7 @@ locations =
 
   IPythonRemoteData: ['./pandas/pandas', 'ipythonremotedatas']
   PandasPivotTable: ['./pandas/pandas', 'pandaspivottables']
+  PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
 
   LinearAxis: ['./renderers/guide/axis', 'linearaxes']
   Rule: ['./renderers/guide/rule', 'rules']
