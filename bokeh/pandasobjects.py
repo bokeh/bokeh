@@ -9,7 +9,7 @@ from bokeh.properties import (HasProps, MetaHasProps,
 import bokeh.objects
 import bokeh.glyphs
 
-from bokeh.objects import PlotObject, Plot
+from bokeh.objects import PlotObject, Plot, ColumnDataSource
 from bokeh.session import PlotContext, PlotList
     
 class IPythonRemoteData(PlotObject):
@@ -18,6 +18,71 @@ class IPythonRemoteData(PlotObject):
     varname = String() 
     #hack... we're just using this field right now to trigger events
     selected = Int
+    
+    def setselect(self, select, transform):
+        import requests        
+        remotedata = self
+        url = "http://%s:%s/array/%s/setselect" % (remotedata.host,
+                                                remotedata.port,
+                                                remotedata.varname)
+        data = transform
+        data['selected'] = select
+        requests.post(url, data=json.dumps(data))
+        
+    def select(self, select, transform):
+        import requests        
+        remotedata = self
+        url = "http://%s:%s/array/%s/select" % (remotedata.host,
+                                                remotedata.port,
+                                                remotedata.varname)
+        data = transform
+        data['selected'] = select
+        requests.post(url, data=json.dumps(data))
+        
+    def deselect(self, deselect, transform):
+        import requests        
+        remotedata = self
+        url = "http://%s:%s/array/%s/deselect" % (remotedata.host,
+                                                  remotedata.port,
+                                                  remotedata.varname)
+        data = transform
+        data['selected'] = deselect
+        requests.post(url, data=json.dumps(data))
+        
+    def get_data(self, transform):
+        import requests
+        remotedata = self
+        url = "http://%s:%s/array/%s" % (remotedata.host,
+                                         remotedata.port,
+                                         remotedata.varname)
+        data = requests.get(url, data=json.dumps(transform)).json()
+        return data
+                    
+    
+class PandasPlotSource(ColumnDataSource):
+    source = Instance(has_ref=True)
+    def __init__(self, *args, **kwargs):
+        super(PandasPlotSource, self).__init__(self, *args, **kwargs)
+    def setselect(self, select):
+        self.source.setselect(select, self.transform())
+        self.get_table_data()
+        
+    def select(self, select):
+        self.source.select(select, self.transform())
+        self.get_table_data()
+        
+    def deselect(self, deselect):
+        self.source.deselect(deselect, self.transform())
+        self.get_table_data()
+        
+    def get_table_data(self, obj=None, attrname=None, old=None, new=None):
+        data = self.source.get_table_data(self.transform())
+        print data['data']['_selected']
+        self.maxlength = data.pop('maxlength')
+        self.totallength = data.pop('totallength')
+        self.format_data(data['data'])
+        self.tabledata = data
+    
     
 class PandasPivotTable(PlotObject):
     source = Instance(has_ref=True)
@@ -41,60 +106,6 @@ class PandasPivotTable(PlotObject):
         self.on_change('precision', self, 'get_table_data')
         self.on_change('filterselected', self, 'get_table_data')
         
-    def setselect(self, select):
-        import requests        
-        remotedata = self.source
-        url = "http://%s:%s/array/%s/setselect" % (remotedata.host,
-                                                remotedata.port,
-                                                remotedata.varname)
-        data = self.transform()
-        data['selected'] = select
-        requests.post(url, data=json.dumps(data))
-        self.get_table_data()
-        
-    def select(self, select):
-        import requests        
-        remotedata = self.source
-        url = "http://%s:%s/array/%s/select" % (remotedata.host,
-                                                remotedata.port,
-                                                remotedata.varname)
-        data = self.transform()
-        data['selected'] = select
-        requests.post(url, data=json.dumps(data))
-        self.get_table_data()
-        
-    def deselect(self, deselect):
-        import requests        
-        remotedata = self.source
-        url = "http://%s:%s/array/%s/deselect" % (remotedata.host,
-                                                remotedata.port,
-                                                remotedata.varname)
-        data = self.transform()
-        data['selected'] = deselect
-        requests.post(url, data=json.dumps(data))
-        self.get_table_data()
-        
-    def transform(self):
-        return dict(sort=self.sort,
-                    group=self.group,
-                    offset=self.offset,
-                    length=self.length,
-                    filterselected=self.filterselected,
-                    )
-                    
-    def get_table_data(self, obj=None, attrname=None, old=None, new=None):
-        print 'GET TABLE DATA'
-        import requests
-        remotedata = self.source
-        url = "http://%s:%s/array/%s" % (remotedata.host,
-                                         remotedata.port,
-                                         remotedata.varname)
-        data = requests.get(url, data=json.dumps(self.transform())).json()
-        print data['data']['_selected']
-        self.maxlength = data.pop('maxlength')
-        self.totallength = data.pop('totallength')
-        self.format_data(data['data'])
-        self.tabledata = data
         
     def format_data(self, jsondata):
         """inplace manipulation of jsondata
@@ -106,3 +117,31 @@ class PandasPivotTable(PlotObject):
                     data[idx] = "%%.%df" % precision.get(colname,2)%data[idx]
                     
     
+    def transform(self):
+        return dict(sort=self.sort,
+                    group=self.group,
+                    offset=self.offset,
+                    length=self.length,
+                    filterselected=self.filterselected,
+                    )
+    
+    def setselect(self, select):
+        self.source.setselect(select, self.transform())
+        self.get_table_data()
+        
+    def select(self, select):
+        self.source.select(select, self.transform())
+        self.get_table_data()
+        
+    def deselect(self, deselect):
+        self.source.deselect(deselect, self.transform())
+        self.get_table_data()
+        
+    def get_table_data(self, obj=None, attrname=None, old=None, new=None):
+        data = self.source.get_data(self.transform())
+        print data['data']['_selected']
+        self.maxlength = data.pop('maxlength')
+        self.totallength = data.pop('totallength')
+        self.format_data(data['data'])
+        self.tabledata = data
+        

@@ -285,6 +285,7 @@ class DataSource(PlotObject):
     # List of names of the fields of each tuple in self.data
     # ordering is incoporated here
     column_names = List()
+    selected = List() #index of selected points
     def columns(self, *columns):
         """ Returns a ColumnsRef object that points to a column or set of
         columns on this data source
