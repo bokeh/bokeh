@@ -90,9 +90,9 @@ class DataSpec(BaseProperty):
         # Build the complete dict
         value = getattr(obj, "_"+self.name, self.default)
         if type(value) == str:
-            d = {"name": value, "units": self.units, "default": self.default}
+            d = {"field": value, "units": self.units, "default": self.default}
         elif isinstance(value, dict):
-            d = {"name": self.field, "units": self.units, "default": self.default}
+            d = {"field": self.field, "units": self.units, "default": self.default}
             d.update(value)
         else:
             # Assume value is a numeric type and is the default value.
