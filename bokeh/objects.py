@@ -170,16 +170,29 @@ class PlotObject(HasProps):
         self._callbacks = {}
         self._callback_queue = []
         self._block_callbacks = False
-        super(PlotObject, self).__init__(*args, **kwargs)
-        
+        if '_block_events'  not in kwargs:
+            super(PlotObject, self).__init__(*args, **kwargs)            
+            self.setup_events()
+        else:
+            self._block_callbacks = True
+            super(PlotObject, self).__init__(*args, **kwargs)
+            
+    def setup_events(self):
+        pass
+    
     @classmethod
     def load_json(cls, attrs, instance=None):
         """Loads all json into a instance of cls, EXCEPT any references
         which are handled in finalize
         """
+        if 'id' not in attrs:
+            import pdb;pdb.set_trace()
         _id = attrs.pop('id')
+        
         if not instance:
-            instance = cls(id=_id)
+            instance = cls(id=_id, _block_events=True)
+        if not instance:
+            import pdb;pdb.set_trace()
         ref_props = {}
         for p in instance.properties_with_refs():
             if p in attrs:
@@ -195,7 +208,8 @@ class PlotObject(HasProps):
         if hasattr(self, "_ref_props"):
             props = resolve_json(self._ref_props, models)
             self.update(**props)
-            
+        self.setup_events()
+        
     def references(self):
         """Returns all PlotObjects that this object has references to
         """
@@ -567,6 +581,7 @@ class GuideRenderer(PlotObject):
             guidespec = inst.guidespec
             del inst.guidespec
             inst.update(**guidespec)
+        return inst
                   
 class LinearAxis(GuideRenderer):
     type = String("linear_axis")

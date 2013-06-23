@@ -68,16 +68,12 @@ class PandasPlotSource(ColumnDataSource):
     
     def __init__(self, *args, **kwargs):
         super(PandasPlotSource, self).__init__(*args, **kwargs)
-        self.on_change('selected', self, 'selection_callback')
-        if self.source:
-            self.source.on_change('selected', self, 'get_data')
-            self.source.on_change('data', self, 'get_data')
         
-    def finalize(self, models):
-        super(PandasPlotSource, self).finalize(models)
+    def setup_events(self):
+        self.on_change('selected', self, 'selection_callback')
         self.source.on_change('selected', self, 'get_data')
         self.source.on_change('data', self, 'get_data')
-                       
+        
     def selection_callback(self, obj=None, attrname=None, old=None, new=None):
         self.setselect(self.selected)
         
@@ -117,22 +113,16 @@ class PandasPivotTable(PlotObject):
     precision = Dict()
     tabledata = Dict()
     filterselected = Bool(default=False)
-    
-    def __init__(self, *args, **kwargs):
-        super(PandasPivotTable, self).__init__(*args, **kwargs)
-        self._callbacks.clear()
+            
+    def setup_events(self):
         self.on_change('sort', self, 'get_data')
         self.on_change('group', self, 'get_data')
         self.on_change('length', self, 'get_data')
         self.on_change('offset', self, 'get_data')
         self.on_change('precision', self, 'get_data')
         self.on_change('filterselected', self, 'get_data')
-        if self.source:
-            self.source.on_change('selected', self, 'get_data')
-            self.source.on_change('data', self, 'get_data')
-            
-    def finalize(self, models):
-        super(PandasPivotTable, self).finalize(models)
+        if not self.source:
+            import pdb;pdb.set_trace()
         self.source.on_change('selected', self, 'get_data')
         self.source.on_change('data', self, 'get_data')
         
