@@ -28,6 +28,44 @@ colors = [
       "#bcbd22", "#dbdb8d",
       "#17becf", "#9edae5"
     ]
+
+
+def script_inject(plotclient, modelid, typename):
+    pc = plotclient
+    f_dict = dict(
+        docid = pc.docid,
+        ws_conn_string = pc.ws_conn_string,
+        docapikey = pc.apikey,
+        root_url = pc.root_url,
+        modelid = modelid,
+        modeltype = typename,
+        script_url = pc.root_url + "/bokeh/embed.js")
+    e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
+bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
+bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
+bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>        
+        '''
+    return e_str % f_dict
+
+def script_inject_escaped(plotclient, modelid, typename):
+    pc = plotclient
+    f_dict = dict(
+        docid = pc.docid,
+        ws_conn_string = pc.ws_conn_string,
+        docapikey = pc.apikey,
+        root_url = pc.root_url,
+        modelid = modelid,
+        modeltype = typename,
+        script_url = pc.root_url + "/bokeh/embed.js")
+
+    e_str = '''&lt; script src="%(script_url)s" bokeh_plottype="serverconn"
+bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
+bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
+    bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"&gt; &lt;/script&gt;
+        '''
+    return e_str % f_dict
+
+
 class BokehMPLBase(object):
     def __init__(self, *args, **kwargs):
         if 'plotclient' in kwargs:
@@ -36,7 +74,12 @@ class BokehMPLBase(object):
     def update(self):
         if self.plotclient.bbclient:
             self.plotclient.bbclient.upsert_all(self.allmodels())
-            
+
+
+    @property
+    def foo(self):
+        return "bar"
+
     def _repr_html_(self):
         html = self.plotclient.make_html(
             self.allmodels(),
@@ -47,6 +90,10 @@ class BokehMPLBase(object):
             )
         html = html.encode('utf-8')
         return html
+
+    def script_inject(self):
+        return script_inject(
+            self.plotclient, self.plotmodel.id, self.plotmodel.typename)
 
     def htmldump(self, path=None):
         """ If **path** is provided, then writes output to a file,
@@ -125,7 +172,7 @@ class GridPlot(BokehMPLBase):
 class XYPlot(BokehMPLBase):
     topmodel = 'plotmodel'
     def __init__(self, plot, xdata_range, ydata_range,
-                 xaxis, yaxis, pantool, zoomtool, selectiontool,
+                 xaxis, yaxis, pantool, zoomtool, selectiontool, embedtool,
                  selectionoverlay, parent, plotclient=None):
         super(XYPlot, self).__init__(
             plot, xdata_range, ydata_range, xaxis, yaxis,
@@ -137,6 +184,7 @@ class XYPlot(BokehMPLBase):
         self.pantool = pantool
         self.zoomtool = zoomtool
         self.selectiontool = selectiontool
+        self.embedtool = embedtool
         self.selectionoverlay = selectionoverlay
         self.xaxis = xaxis
         self.yaxis = yaxis
@@ -154,6 +202,7 @@ class XYPlot(BokehMPLBase):
                    self.pantool,
                    self.zoomtool,
                    self.selectiontool,
+                   self.embedtool,
                    self.selectionoverlay,
                    self.xaxis,
                    self.yaxis]
@@ -275,6 +324,7 @@ class XYPlot(BokehMPLBase):
         update.append(scatterrenderer)
         update.append(self.plotmodel)
         update.append(self.selectiontool)
+        update.append(self.embedtool)
         update.append(self.selectionoverlay)
         if self.plotclient.bbclient:
             self.plotclient.bbclient.upsert_all(update)
@@ -306,6 +356,7 @@ class XYPlot(BokehMPLBase):
         update.append(linerenderer)
         update.append(self.plotmodel)
         update.append(self.selectiontool)
+        update.append(self.embedtool)
         update.append(self.selectionoverlay)
         if self.plotclient.bbclient:
             self.plotclient.bbclient.upsert_all(update)
@@ -437,7 +488,11 @@ class PlotClient(object):
         if 'client' not in kwargs and self.bbclient:
             kwargs['client'] = self.bbclient
         model = bbmodel.make_model(typename, **kwargs)
+
         model.set('doc', self.docid)
+        if hasattr(self, "apikey"):
+            model.set('script_inject_escaped', script_inject_escaped(
+                self, model.id, typename))
         self.models[model.id] = model
         return model
 
@@ -480,6 +535,10 @@ class PlotClient(object):
         ----------
         """
         plot = self.model('Plot', width=width, height=height)
+        if self.bbclient:
+            plot.set('docapikey', self.apikey)
+            plot.set('baseurl', self.bbclient.baseurl)
+            
         if container:
             parent = container
             plot.set('parent', container.ref())
@@ -517,18 +576,20 @@ class PlotClient(object):
             )
         selecttool = self.model(
             'SelectionTool',
-            renderers=[])
+            renderers=[])       
+        embedtool = self.model(
+            'EmbedTool')
         selectoverlay = self.model(
             'BoxSelectionOverlay',
             tool=selecttool.ref())
         plot.set('renderers', [])
         plot.set('axes', [xaxis.ref(), yaxis.ref()])
-        plot.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref()])
+        plot.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref(), embedtool.ref()])
         plot.set('overlays', [selectoverlay.ref()])
         output = XYPlot(
             plot, xdata_range, ydata_range,
             xaxis, yaxis, pantool, zoomtool,
-            selecttool, selectoverlay, parent,
+            selecttool, embedtool, selectoverlay, parent,
             plotclient=self)
         return output
 
@@ -712,3 +773,4 @@ def get_template(filename):
         return jinja2.Template(f.read())
 
 bbmodel.load_special_types()
+

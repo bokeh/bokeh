@@ -25,15 +25,15 @@ class PandasDataSource(ContinuumModel):
             kwargs['encoded'] = base64.b64encode(pickle.dumps(df, -1))
             self.data = df
         super(PandasDataSource, self).__init__(typename, **kwargs)
-        
+
     def ensure_data(self):
         if not hasattr(self, 'data'):
             self.data = pickle.loads(base64.b64decode(self.get('encoded')))
-            
+
     def selected(self):
         self.pull()
         return self.get('selected')
-    
+
 class PandasPlotSource(ContinuumModel):
     """
     attributes:
@@ -45,7 +45,7 @@ class PandasPlotSource(ContinuumModel):
             self.pandassource = kwargs.pop('pandassourceobj')
             kwargs['pandassource'] = self.pandassource.ref()
         super(PandasPlotSource, self).__init__(typename, **kwargs)
-        
+
     def get_data(self):
         if not hasattr(self, 'pandassource'):
             self.pandassource = self.client.get(
@@ -57,9 +57,15 @@ class PandasPlotSource(ContinuumModel):
         data = self.pandassource.data
         return data
 
+    def dataframe_to_mapping(self, df):
+        dd = {}
+        for c in df.columns:
+            dd[c] = df[c]
+        return dd
+
     def to_json(self, include_hidden=False):
         data = self.get_data()
-        data = make_source(index=data.index, **data)
+        data = make_source(index=data.index, **self.dataframe_to_mapping(data))
         self.set('data', data)
         return self.attributes
 
@@ -67,7 +73,7 @@ class PandasPivotModel(PandasPlotSource):
     """Pandas Pivot table class
     you must pass either a client in to kwargs, or pandassourceobj
     which is an instance of PandasDataSource
-    
+
     attributes:
         pandassource : reference to PandasDataSource
         sort : list of columns to sort by
@@ -92,7 +98,7 @@ class PandasPivotModel(PandasPlotSource):
     def get_slice(self, data):
         data = data[self.get('offset'):self.get('offset')+self.get('length')]
         return data
-    
+
     def format_data(self, jsondata):
         """inplace manipulation of jsondata
         """
@@ -103,7 +109,7 @@ class PandasPivotModel(PandasPlotSource):
                     dp[k] = "%%.%df" % precision.get(k,2) % dp[k]
                 elif isinstance(dp[k], (dt.date, dt.datetime)):
                     dp[k] = dp[k].isoformat()
-        
+
     def get_data(self):
         data = super(PandasPivotModel, self).get_data()
         #add counts/selected, so we can compute counts and selections
@@ -143,12 +149,12 @@ class PandasPivotModel(PandasPlotSource):
             self.get('length'),
             self.get('maxlength') - self.get('offset'))
                  )
-        
+
         self.data = self.get_slice(data)
         self.data.pop('_counts')
         self.data.pop('_selected')
         return self.data
-    
+
     def to_json(self, include_hidden=False):
         data = self.get_data()
         if self.groupobj:
@@ -160,9 +166,9 @@ class PandasPivotModel(PandasPlotSource):
             selected = self.get_slice(self.fulldata)['_selected']
         self.set('index', data.index.tolist())
         columns = data.columns.tolist()
-        data = make_source(**data)
+        data = make_source(**self.dataframe_to_mapping(data))
         self.format_data(data)
-        
+
         self.set('selected', selected)
         self.set('data', data)
         self.set('columns', columns)

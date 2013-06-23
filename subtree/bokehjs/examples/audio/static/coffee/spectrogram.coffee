@@ -43,6 +43,7 @@ class SpectrogramApp
     })
 
     @power_plot = new SimpleIndexPlot({
+
       x0: 0, x1: window.TIMESLICE, y0: -0.5, y1: 0.5, width: 550, height: 180, border: BORDER
     })
 
@@ -126,6 +127,7 @@ class SpectrogramApp
     slider.css('float', 'left')
     slider.css('margin', '10px')
     sliders.append(slider)
+
     @fft_range = [FREQ_SLIDER_MIN, FREQ_SLIDER_MAX]
 
     slider = $('<div></div>')

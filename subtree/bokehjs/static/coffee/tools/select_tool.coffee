@@ -1,8 +1,9 @@
 tool = require("./tool")
 eventgenerators = require("./eventgenerators")
 TwoPointEventGenerator = eventgenerators.TwoPointEventGenerator
-mapper = require("../mapper")
-LinearMapper = mapper.LinearMapper
+#mapper = require("../mapper")
+LinearMapper = require("../mappers/1d/linear_mapper").LinearMapper
+#LinearMapper = mapper.LinearMapper
 base = require("../base")
 safebind = base.safebind
 

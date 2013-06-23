@@ -68,8 +68,7 @@ def bulk_upsert(docid):
     sess = RedisSession(app.bb_redis, doc)
     sess.load()
     data = protocol.deserialize_json(request.data)
-    models = sess.load_broadcast_attrs(data)
-    
+    models = sess.load_broadcast_attrs(data, events='existing')
     changed = sess.store_all()
     msg = ws_update(sess, changed)
     return make_json(msg)
@@ -166,9 +165,7 @@ def update(docid, typename, id):
     
     modeldata = protocol.deserialize_json(request.data)
     sess.load_all_callbacks()
-    sess.disable_callbacks()
-    sess.load_attrs(typename, [modeldata])
-    sess.execute_callback_queue()
+    sess.load_attrs(typename, [modeldata], events='existing')
     changed = sess.store_all()
     model = sess._models[id]
     try:
@@ -180,7 +177,7 @@ def update(docid, typename, id):
     ws_update(sess, changed, exclude_self=False)
     ws_update(sess, [model], exclude_self=True)
     log.debug("update, %s, %s", docid, typename)
-    return make_json(sess.attrs([model])[0])
+    return make_json(sess.serialize(sess.attrs([model])[0]))
 
 @check_write_authentication_and_create_client
 def delete(docid, typename, id):
@@ -190,3 +187,24 @@ def delete(docid, typename, id):
     sess.del_obj(model)
     ws_delete(sess, [model])
     return sess.serialize(sess.attrs([model])[0])
+
+
+#rpc route
+@app.route("/bokeh/bb/rpc/<docid>/<typename>/<id>/<funcname>/",
+           methods=['POST', 'OPTIONS'])
+@crossdomain(origin="*", methods=['POST'],
+             headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
+@check_write_authentication_and_create_client
+def rpc(docid, typename, id, funcname):
+    doc = docs.Doc.load(app.model_redis, docid)
+    sess = RedisSession(app.bb_redis, doc)
+    sess.load()
+    model = sess._models[id]
+    data = protocol.deserialize_json(request.data)
+    args = data.get('args', [])
+    kwargs = data.get('kwargs', {})
+    result = getattr(model, funcname)(*args, **kwargs)
+    log.debug("rpc, %s, %s", docid, typename)
+    changed = sess.store_all()
+    ws_update(sess, changed, exclude_self=False)
+    return make_json(sess.serialize(result))

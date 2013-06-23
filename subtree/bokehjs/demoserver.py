@@ -19,7 +19,8 @@ EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
 HOST = "localhost"
 PORT = 9294
 
-# TODO: Add route handlers for index urls: /, /demos, and /tests
+
+    
 
 @app.route("/demo/<demoname>")
 def demo(demoname):
@@ -98,7 +99,12 @@ alldemos = {
     'lorenz10'   : ['lorenz10'],
     'lorenz50'   : ['lorenz50'],
     'lorenz100'  : ['lorenz100'],
+
 }
+
+@app.route("/")
+def welcome():
+    return flask.render_template("welcome.html", alldemos=alldemos, alltests=alltests)
 
 alltests = {
 

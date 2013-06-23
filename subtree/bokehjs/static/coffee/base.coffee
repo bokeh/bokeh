@@ -148,10 +148,13 @@ class WebSocketWrapper
     @ws_conn_string = ws_conn_string
     @_connected = $.Deferred()
     @connected = @_connected.promise()
-    try
-      @s = new WebSocket(ws_conn_string)
-    catch error
+    if window.MozWebSocket
       @s = new MozWebSocket(ws_conn_string)
+    else
+      @s = new WebSocket(ws_conn_string)
+    # catch error
+    #   console.log(ws_conn_string, error)
+
     @s.onopen = () =>
       @_connected.resolve()
     @s.onmessage = @onmessage
@@ -221,7 +224,7 @@ class HasProperties extends Backbone.Model
         val.off(null, null, this)
 
   isNew : () ->
-    return not this.get('created')
+    return false
 
   initialize : (attrs, options) ->
     # auto generates ids if we need to, calls deferred initialize if we have
@@ -454,6 +457,24 @@ class HasProperties extends Backbone.Model
 
   defaults : {}
 
+  rpc : (funcname, args, kwargs) =>
+    prefix = Config.prefix
+    docid = @get('doc')
+    id = @get('id')
+    type = @type
+    url = "#{prefix}/bokeh/bb/rpc/#{docid}/#{type}/#{id}/#{funcname}/"
+    data =
+      args : args
+      kwargs : kwargs
+    resp = $.ajax(
+      type : 'POST'
+      url: url,
+      data : JSON.stringify(data)
+      contentType : 'application/json'
+      xhrFields :
+        withCredentials : true
+    )
+    return resp
 
 
   # hasparent
@@ -557,6 +578,8 @@ locations =
   ResizeTool:      ['./tools/resize_tool',       'resizetools']
   SelectionTool:   ['./tools/select_tool',       'selectiontools']
   PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools']
+  EmbedTool:       ['./tools/preview_save_tool', 'embedtools']
+
 
   ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources']
   ColumnDataSource:      ['./common/datasource', 'columndatasources']
@@ -573,12 +596,12 @@ locations =
 
   DataTable: ['./widgets/table', 'datatables']
 
-  PandasPivot:      ['./pandas/pandas', 'pandaspivots']
-  PandasDataSource: ['./pandas/pandas', 'pandasdatasources']
-  PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
+  IPythonRemoteData: ['./pandas/pandas', 'ipythonremotedatas']
+  PandasPivotTable: ['./pandas/pandas', 'pandaspivottables']
 
   LinearAxis: ['./renderers/guide/axis', 'linearaxes']
   Rule: ['./renderers/guide/rule', 'rules']
+
 exports.locations = locations
 
 Collections = (typename) ->
