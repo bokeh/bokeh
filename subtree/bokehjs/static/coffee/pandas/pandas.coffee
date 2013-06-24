@@ -33,6 +33,7 @@ class PandasPivotView extends ContinuumView
     "keyup .pandasoffset" : 'pandasoffset'
     "keyup .pandassize" : 'pandassize'
     "change .pandasagg" : 'pandasagg'
+    "change .tablecontrolstate" : 'tablecontrolstate'
     "click .pandasbeginning" : 'pandasbeginning'
     "click .pandasback" : 'pandasback'
     "click .pandasnext" : 'pandasnext'
@@ -105,6 +106,9 @@ class PandasPivotView extends ContinuumView
         size = @mget('maxlength') - @mget('offset')
       @model.save('length', size, {wait:true})
 
+  tablecontrolstate : () ->
+    @mset('tablecontrolstate', @$('.tablecontrolstate').val())
+
   pandasagg : () ->
     @model.save('agg', @$el.find('.pandasagg').val(), {'wait':true})
 
@@ -154,6 +158,7 @@ class PandasPivotView extends ContinuumView
       skip :
         _counts : true
         _selected : true
+      tablecontrolstate : @mget('tablecontrolstate')
       columns : @mget('tabledata').column_names
       data : @mget('tabledata').data
       group : group
@@ -173,7 +178,12 @@ class PandasPivotView extends ContinuumView
     @$el.empty()
     html = @template(template_data)
     @$el.html(html)
-    @$el.find("option[value=\"#{@mget('agg')}\"]").attr('selected', 'selected')
+    @$(".pandasagg")
+      .find("option[value=\"#{@mget('agg')}\"]")
+      .attr('selected', 'selected')
+    @$(".tablecontrolstate")
+      .find("option[value=\"#{@mget('tablecontrolstate')}\"]")
+      .attr('selected', 'selected')
     @$el.addClass("bokehtable")
 
 class PandasPivotTable extends HasParent
@@ -246,7 +256,8 @@ class PandasPivotTable extends HasParent
     maxlength : 1000
     tabledata : null
     columns_names : []
-    width : 400
+    width : null
+    tablecontrolstate : 'groupby'
 
   default_view : PandasPivotView
 
