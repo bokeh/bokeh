@@ -11,3 +11,13 @@
     background-color : #C0C0C0;    
 }
 
+
+.bokehtable form table tr td{
+    padding : 2px;
+}
+.bokehtable form table tr td input{
+    padding : 0px;
+}
+.bokehtable table tr td{
+    padding : 2px;
+}
