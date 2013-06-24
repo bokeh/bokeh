@@ -612,6 +612,25 @@ Collections = (typename) ->
   [modulename, collection] = locations[typename]
   return require(modulename)[collection]
 
+Collections.bulksave = (models) ->
+  ##FIXME:hack
+  doc = models[0].get('doc')
+  jsondata = ({type : m.type, attributes :_.clone(m.attributes)} for m in models)
+  jsondata = JSON.stringify(jsondata)
+  url = Config.prefix + "/bokeh/bb/" + doc + "/bulkupsert"
+  xhr = $.ajax(
+    type : 'POST'
+    url : url
+    contentType: "application/json"
+    data : jsondata
+    header :
+      client : "javascript"
+  )
+  xhr.done((data) ->
+    load_models(data.modelspecs)
+  )
+  return xhr
+
 exports.Collections = Collections
 exports.Config = Config
 exports.safebind = safebind

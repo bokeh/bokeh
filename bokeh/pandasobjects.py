@@ -73,7 +73,9 @@ class PandasPlotSource(ColumnDataSource):
         self.on_change('selected', self, 'selection_callback')
         self.source.on_change('selected', self, 'get_data')
         self.source.on_change('data', self, 'get_data')
-        
+        if not self.data:
+            self.get_data()
+
     def selection_callback(self, obj=None, attrname=None, old=None, new=None):
         self.setselect(self.selected)
         
@@ -121,10 +123,10 @@ class PandasPivotTable(PlotObject):
         self.on_change('offset', self, 'get_data')
         self.on_change('precision', self, 'get_data')
         self.on_change('filterselected', self, 'get_data')
-        if not self.source:
-            import pdb;pdb.set_trace()
         self.source.on_change('selected', self, 'get_data')
         self.source.on_change('data', self, 'get_data')
+        if not self.tabledata:
+            self.get_data()
         
     def format_data(self, jsondata):
         """inplace manipulation of jsondata
