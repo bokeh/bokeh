@@ -1,5 +1,5 @@
 import pandas
-import json
+import protocol
 import numpy as np
 
 from bokeh.properties import (HasProps, MetaHasProps, 
@@ -28,7 +28,7 @@ class IPythonRemoteData(PlotObject):
                                                 remotedata.varname)
         data = transform
         data['selected'] = select
-        requests.post(url, data=json.dumps(data))
+        requests.post(url, data=protocol.serialize_json(data))
         self.selected += 1
         
     def select(self, select, transform):
@@ -39,7 +39,7 @@ class IPythonRemoteData(PlotObject):
                                                 remotedata.varname)
         data = transform
         data['selected'] = select
-        requests.post(url, data=json.dumps(data))
+        requests.post(url, data=protocol.serialize_json(data))
         self.selected += 1
         
     def deselect(self, deselect, transform):
@@ -50,7 +50,7 @@ class IPythonRemoteData(PlotObject):
                                                   remotedata.varname)
         data = transform
         data['selected'] = deselect
-        requests.post(url, data=json.dumps(data))
+        requests.post(url, data=protocol.serialize_json(data))
         self.selected += 1
         
     def get_data(self, transform):
@@ -59,7 +59,7 @@ class IPythonRemoteData(PlotObject):
         url = "http://%s:%s/array/%s" % (remotedata.host,
                                          remotedata.port,
                                          remotedata.varname)
-        data = requests.get(url, data=json.dumps(transform)).json()
+        data = requests.get(url, data=protocol.serialize_json(transform)).json()
         return data
                     
     
