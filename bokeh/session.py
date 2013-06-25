@@ -59,6 +59,8 @@ class Session(object):
         across to the View(s)
         """
         for obj in objects:
+            if obj is None:
+                import pdb;pdb.set_trace()
             obj.session = self
             self._models[obj._id] = obj
             
@@ -506,9 +508,9 @@ class PlotServerSession(BaseHTMLSession):
                 m.load_json(attr, instance=m)
             else:
                 cls = PlotObject.get_class(typename)
-                m = cls(id=_id)
-                m._block_callbacks = True
-                m.load_json(attr, instance=m)
+                m = cls.load_json(attr)
+                if m is None:
+                    import pdb;pdb.set_trace()
                 self.add(m)
                 created.add(m)
             models.append(m)

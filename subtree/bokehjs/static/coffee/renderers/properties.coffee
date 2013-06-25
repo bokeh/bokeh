@@ -140,7 +140,7 @@ class properties
 
     # if the attribute is not on this property object at all, log a bad request
     if not (attrname of @)
-      console.log("requested unknown property '#{ attrname } on object: " + obj)
+      #console.log("requested unknown property '#{ attrname } on object: " + obj)
       return
 
     # if the attribute specifies a field, and the field exists on the object, return that value
@@ -293,4 +293,3 @@ exports.glyph_properties = glyph_properties
 exports.fill_properties = fill_properties
 exports.line_properties = line_properties
 exports.text_properties = text_properties
-

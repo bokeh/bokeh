@@ -170,16 +170,29 @@ class PlotObject(HasProps):
         self._callbacks = {}
         self._callback_queue = []
         self._block_callbacks = False
-        super(PlotObject, self).__init__(*args, **kwargs)
-        
+        if '_block_events'  not in kwargs:
+            super(PlotObject, self).__init__(*args, **kwargs)            
+            self.setup_events()
+        else:
+            self._block_callbacks = True
+            super(PlotObject, self).__init__(*args, **kwargs)
+            
+    def setup_events(self):
+        pass
+    
     @classmethod
     def load_json(cls, attrs, instance=None):
         """Loads all json into a instance of cls, EXCEPT any references
         which are handled in finalize
         """
+        if 'id' not in attrs:
+            import pdb;pdb.set_trace()
         _id = attrs.pop('id')
+        
         if not instance:
-            instance = cls(id=_id)
+            instance = cls(id=_id, _block_events=True)
+        if not instance:
+            import pdb;pdb.set_trace()
         ref_props = {}
         for p in instance.properties_with_refs():
             if p in attrs:
@@ -195,7 +208,8 @@ class PlotObject(HasProps):
         if hasattr(self, "_ref_props"):
             props = resolve_json(self._ref_props, models)
             self.update(**props)
-            
+        self.setup_events()
+        
     def references(self):
         """Returns all PlotObjects that this object has references to
         """
@@ -285,6 +299,7 @@ class DataSource(PlotObject):
     # List of names of the fields of each tuple in self.data
     # ordering is incoporated here
     column_names = List()
+    selected = List() #index of selected points
     def columns(self, *columns):
         """ Returns a ColumnsRef object that points to a column or set of
         columns on this data source
@@ -372,15 +387,25 @@ class GlyphRenderer(PlotObject):
     # because of circular imports. The renderers should get moved out
     # into another module...
     glyph = Instance()
-
+    # glyph used when data is unselected.  optional
+    nonselection_glyph = Instance()
+    # glyph used when data is selected.  optional
+    selection_glyph = Instance() 
+    
     def vm_serialize(self):
         # GlyphRenderers need to serialize their state a little differently,
         # because the internal glyph instance is turned into a glyphspec
-        return {"id" : self._id,
-                "data_source": self.data_source,
-                "xdata_range": self.xdata_range,
-                "ydata_range": self.ydata_range,
-                "glyphspec": self.glyph.to_glyphspec() }
+        data =  {"id" : self._id,
+                 "data_source": self.data_source,
+                 "xdata_range": self.xdata_range,
+                 "ydata_range": self.ydata_range,
+                 "glyphspec": self.glyph.to_glyphspec()                 
+                 }
+        if self.selection_glyph:
+            data['selection_glyphspec'] = self.selection_glyph.to_glyphspec()
+        if self.nonselection_glyph:
+            data['nonselection_glyphspec'] = self.nonselection_glyph.to_glyphspec()
+        return data
 
     def finalize(self, models):
         super(GlyphRenderer, self).finalize(models)
@@ -391,6 +416,23 @@ class GlyphRenderer(PlotObject):
             self.glyph = PlotObject.get_class(glyphspec['type'])(**glyphspec)
         else:
             self.glyph = None
+        if hasattr(self, 'selection_glyphspec'):
+            selection_glyphspec = self.selection_glyphspec
+            del self.selection_glyphspec
+            temp = PlotObject.get_class(selection_glyphspec['type'])
+            self.selection_glyph = temp(**selection_glyphspec)
+
+        else:
+            self.selection_glyph = None
+        if hasattr(self, 'nonselection_glyphspec'):
+            nonselection_glyphspec = self.nonselection_glyphspec
+            del self.nonselection_glyphspec
+            temp = PlotObject.get_class(nonselection_glyphspec['type'])
+            self.nonselection_glyph = temp(**nonselection_glyphspec)
+
+        else:
+            self.nonselection_glyph = None
+            
 
 def script_inject(sess, modelid, typename):
     split = urlparse.urlsplit(sess.root_url)
@@ -474,7 +516,7 @@ class Plot(PlotObject):
     # image = List
     # underlay = List
     # glyph = List
-    # overlay = List
+    #
     # annotation = List
 
     height = Int(400)
@@ -528,7 +570,19 @@ class GuideRenderer(PlotObject):
         return {"id" : self._id,
                 "plot" : self.plot,
                 "guidespec" : props}
-
+    
+    @classmethod
+    def load_json(cls, attrs, instance=None):
+        """Loads all json into a instance of cls, EXCEPT any references
+        which are handled in finalize
+        """
+        inst = super(GuideRenderer, cls).load_json(attrs, instance=instance)
+        if hasattr(inst, 'guidespec'):
+            guidespec = inst.guidespec
+            del inst.guidespec
+            inst.update(**guidespec)
+        return inst
+                  
 class LinearAxis(GuideRenderer):
     type = String("linear_axis")
 
@@ -537,14 +591,17 @@ class Rule(GuideRenderer):
     type = String("rule")
 
 class PanTool(PlotObject):
-    plot = Instance(Plot)
+    plot = Instance(Plot, has_ref=True)
     dimensions = List   # valid values: "x", "y"
-    dataranges = List
+    dataranges = List(has_ref=True)
 
 class ZoomTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
-    dataranges = List
+    dataranges = List(has_ref=True)
 
+class SelectionTool(PlotObject):
+    renderers = List(has_ref=True)
 
-
+class BoxSelectionOverlay(PlotObject):
+    tool = Instance(has_ref=True)

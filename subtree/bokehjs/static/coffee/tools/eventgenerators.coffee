@@ -9,7 +9,7 @@ class TwoPointEventGenerator
     @button_activated = false
     @tool_active = false
 
-  bind_events: (plotview, eventSink) ->
+  bind_bokeh_events: (plotview, eventSink) ->
     toolName = @toolName
     @plotview = plotview
     @eventSink = eventSink
@@ -103,7 +103,7 @@ class OnePointWheelEventGenerator
     @button_activated = false
     @tool_active = false
 
-  bind_events: (plotview, eventSink) ->
+  bind_bokeh_events: (plotview, eventSink) ->
     toolName = @toolName
     @plotview = plotview
     @eventSink = eventSink
@@ -187,7 +187,7 @@ class ButtonEventGenerator
     @button_activated = false
     @tool_active = false
 
-  bind_events: (plotview, eventSink) ->
+  bind_bokeh_events: (plotview, eventSink) ->
     toolName = @toolName
     @plotview = plotview
     @eventSink = eventSink

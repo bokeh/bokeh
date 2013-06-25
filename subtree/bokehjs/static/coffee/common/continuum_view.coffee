@@ -11,7 +11,6 @@ class ContinuumView extends Backbone.View
 
   delegateEvents: (events) ->
     super(events)
-    @bind_bokeh_events()
 
   remove: ->
     #handles lifecycle of events bound by safebind

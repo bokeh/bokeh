@@ -5,6 +5,8 @@ classes and implement convenience behaviors like default values, etc.
 from copy import copy
 import inspect
 import numpy as np
+import logging
+logger = logging.getLogger(__name__)
 
 def _dummy(*args,**kw):
     return None
@@ -27,10 +29,18 @@ class BaseProperty(object):
 
     def __get__(self, obj, type=None):
         return getattr(obj, "_"+self.name, self.default)
-
+    
+    def matches(self, new, old):
+        try:
+            return new == old
+        except Exception as e:
+            logger.warning("could not compare %s and %s for property %s",
+                           new, old, self.name)
+        return False
+    
     def __set__(self, obj, value):
         old = self.__get__(obj)
-        if value == old:
+        if self.matches(value, old):
             return
         setattr(obj, "_"+self.name, value)
         obj._dirty = True
@@ -168,7 +178,7 @@ class List(BaseProperty):
             val = self.default
         setattr(obj, "_"+self.name, val)
         return val
-
+        
 class Dict(BaseProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.

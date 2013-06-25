@@ -64,11 +64,16 @@ def callbacks(docid):
 def bulk_upsert(docid):
     # endpoint is only used by python, therefore we don't process
     # callbacks here
+    client = request.headers.get('client', 'python')
     doc = docs.Doc.load(app.model_redis, docid)
     sess = RedisSession(app.bb_redis, doc)
     sess.load()
     data = protocol.deserialize_json(request.data)
-    models = sess.load_broadcast_attrs(data, events='existing')
+    if client == 'python':
+        sess.load_broadcast_attrs(data, events=None)
+    else:
+        sess.load_all_callbacks()
+        sess.load_broadcast_attrs(data, events='existing')
     changed = sess.store_all()
     msg = ws_update(sess, changed)
     return make_json(msg)
