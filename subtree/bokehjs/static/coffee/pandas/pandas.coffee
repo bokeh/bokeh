@@ -47,6 +47,13 @@ class PandasPivotView extends ContinuumView
     "click .clearselected" : 'clearselected'
     "keyup .computedtxtbox" : 'computedtxtbox'
     "click .column_del" : "column_del"
+    "keyup .search" : 'search'
+
+  search : (e) =>
+    if e.keyCode == ENTER
+      code = $(e.currentTarget).val()
+      source = @model.get_obj('source')
+      source.rpc('search', [code])
 
   column_del : (e) =>
     source = @model.get_obj('source')

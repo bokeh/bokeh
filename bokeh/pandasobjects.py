@@ -1,6 +1,7 @@
 import pandas
 import protocol
 import numpy as np
+import requests
 
 from bokeh.properties import (HasProps, MetaHasProps, 
         Any, Dict, Enum, Float, Instance, Int, List, String,
@@ -24,7 +25,7 @@ class IPythonRemoteData(PlotObject):
     data = Int(0)    
     
     def setselect(self, select, transform):
-        import requests        
+                
         remotedata = self
         url = "http://%s:%s/array/%s/setselect" % (remotedata.host,
                                                 remotedata.port,
@@ -34,8 +35,16 @@ class IPythonRemoteData(PlotObject):
         requests.post(url, data=protocol.serialize_json(data))
         self.selected += 1
         
+    def search(self, search):
+        remotedata = self
+        url = "http://%s:%s/array/%s/search" % (remotedata.host,
+                                                remotedata.port,
+                                                remotedata.varname)
+        requests.post(url, data=search)
+        self.selected += 1
+        
     def select(self, select, transform):
-        import requests        
+                
         remotedata = self
         url = "http://%s:%s/array/%s/select" % (remotedata.host,
                                                 remotedata.port,
@@ -46,7 +55,7 @@ class IPythonRemoteData(PlotObject):
         self.selected += 1
         
     def deselect(self, deselect, transform):
-        import requests        
+                
         remotedata = self
         url = "http://%s:%s/array/%s/deselect" % (remotedata.host,
                                                   remotedata.port,
@@ -57,7 +66,7 @@ class IPythonRemoteData(PlotObject):
         self.selected += 1
         
     def get_data(self, transform):
-        import requests
+        
         remotedata = self
         url = "http://%s:%s/array/%s" % (remotedata.host,
                                          remotedata.port,
@@ -66,7 +75,7 @@ class IPythonRemoteData(PlotObject):
         return data
     
     def set_computed_columns(self, computed_columns):
-        import requests
+        
         remotedata = self
         url = "http://%s:%s/array/%s/computed" % (remotedata.host,
                                                   remotedata.port,
