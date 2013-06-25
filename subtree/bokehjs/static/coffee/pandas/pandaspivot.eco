@@ -28,6 +28,46 @@
   </label>
   <input type="button" class="clearselected btn btn-mini" value="Clear Selection"/>
   <% end %>
+  
+  <% if @tablecontrolstate == 'computed': %>
+  <table class="table">
+    <thead>
+      <th>
+        Name
+      </th>
+      <th>
+        Value
+      </th>
+      <th>
+      </th>
+    </thead>
+    <% for computed_column in @computed_columns: %>
+    <tr>
+      <td>
+        <%= computed_column.name %>
+      </td>
+      <td>
+        <%= computed_column.code %>
+      </td>
+      <td>
+        <a class="column_del" 
+           name="<%= computed_column.name %>" href="#">[delete]</a>
+      </td>
+    </tr>
+    <% end %>
+    <tr>
+      <td>
+        <input type="text" class="computedname input-mini"/>
+      </td>
+      <td>
+        <input type="text" class="computedtxtbox input-medium"/>
+      </td>
+      <td>
+      </td>
+    </tr>
+  </table>
+  <% end %>
+  
 </form>
 <table class="table
               table-bordered table-condensed"

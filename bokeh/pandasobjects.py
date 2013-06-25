@@ -16,9 +16,12 @@ from bokeh.session import PlotContext, PlotList
 class IPythonRemoteData(PlotObject):
     host  = String("localhost")
     port = Int(10020)
-    varname = String() 
+    varname = String()
+    computed_columns = List()
+    
     #hack... we're just using this field right now to trigger events
     selected = Int(0)
+    data = Int(0)    
     
     def setselect(self, select, transform):
         import requests        
@@ -61,7 +64,20 @@ class IPythonRemoteData(PlotObject):
                                          remotedata.varname)
         data = requests.get(url, data=protocol.serialize_json(transform)).json()
         return data
-                    
+    
+    def set_computed_columns(self, computed_columns):
+        import requests
+        remotedata = self
+        url = "http://%s:%s/array/%s/computed" % (remotedata.host,
+                                                  remotedata.port,
+                                                  remotedata.varname)
+        data = requests.get(
+            url,
+            data=protocol.serialize_json(computed_columns)).json()
+        self.computed_columns = computed_columns
+        self.data += 1
+        return data
+        
     
 class PandasPlotSource(ColumnDataSource):
     source = Instance(has_ref=True)
@@ -73,6 +89,7 @@ class PandasPlotSource(ColumnDataSource):
         self.on_change('selected', self, 'selection_callback')
         self.source.on_change('selected', self, 'get_data')
         self.source.on_change('data', self, 'get_data')
+        self.source.on_change('computed_columns', self, 'get_data')
         if not self.data:
             self.get_data()
 
@@ -115,7 +132,7 @@ class PandasPivotTable(PlotObject):
     precision = Dict()
     tabledata = Dict()
     filterselected = Bool(default=False)
-            
+    
     def setup_events(self):
         self.on_change('sort', self, 'get_data')
         self.on_change('group', self, 'get_data')
@@ -125,6 +142,7 @@ class PandasPivotTable(PlotObject):
         self.on_change('filterselected', self, 'get_data')
         self.source.on_change('selected', self, 'get_data')
         self.source.on_change('data', self, 'get_data')
+        self.source.on_change('computed_columns', self, 'get_data')
         if not self.tabledata:
             self.get_data()
         
