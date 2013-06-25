@@ -214,9 +214,9 @@ class PlotView extends ContinuumView
 
   save_png: () ->
     @render()
-    data_uri = @plot_view.canvas[0].toDataURL()
-    @plot_model.set('png', @plot_view.canvas[0].toDataURL())
-    base.Collections.bulksave([@plot_model])
+    data_uri = @canvas[0].toDataURL()
+    @model.set('png', @canvas[0].toDataURL())
+    base.Collections.bulksave([@model])
 
 
   render: (force) ->

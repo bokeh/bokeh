@@ -1,5 +1,6 @@
 base = require("../base")
 PNGView = require("./plot").PNGView
+PlotView = require("./plot").PlotView
 HasParent = base.HasParent
 HasProperties = base.HasProperties
 safebind = base.safebind
@@ -116,6 +117,10 @@ class PNGContextView extends ContinuumView
   build_children: () ->
     view_classes = []
     for view_model in @mget_obj('children')
+      if view_model.get('png') == ""
+        console.log("no png for #{view_model.id} making one")
+        pv = new PlotView({model:view_model})
+        pv.save_png()
       view_classes.push(PNGView)
     created_views = build_views(
       @views, @mget_obj('children'), {}, view_classes)
