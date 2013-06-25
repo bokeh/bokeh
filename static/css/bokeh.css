@@ -127,3 +127,9 @@ button.active {border:1px solid blue}
 .tablecontrolform{
     margin : 0px;
 }
+
+.computedtxtbox,
+.computedname{
+    height : 20px !important;
+    padding : 1px !important;
+}
