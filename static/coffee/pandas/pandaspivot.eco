@@ -27,6 +27,10 @@
     Filter Selection
   </label>
   <input type="button" class="clearselected btn btn-mini" value="Clear Selection"/>
+  <label>
+    Search
+  </label>
+  <input type="text" class="search input-medium"/>
   <% end %>
   
   <% if @tablecontrolstate == 'computed': %>

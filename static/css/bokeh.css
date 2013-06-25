@@ -129,7 +129,8 @@ button.active {border:1px solid blue}
 }
 
 .computedtxtbox,
-.computedname{
+.computedname,
+.search{
     height : 20px !important;
     padding : 1px !important;
 }
