@@ -520,8 +520,8 @@ class PlotServerSession(BaseHTMLSession):
             self.clear_callback_queue(models)
         elif events is 'existing':
             non_created = [x for x in models if x not in created]
-            self.execute_callback_queue(non_created)
-            self.clear_callback_queue(created)
+            self.execute_callback_queue(models=non_created)
+            self.clear_callback_queue(models=created)
         self.enable_callbacks(models)
         return models
 
@@ -681,19 +681,19 @@ class PlotServerSession(BaseHTMLSession):
         if models is None:
             models = self._models.itervalues()
         
-        for m in self._models.itervalues():
+        for m in models:
             m._block_callbacks = False
             
     def clear_callback_queue(self, models=None):
         if models is None:
             models = self._models.itervalues()
-        for m in self._models.itervalues():
+        for m in models:
             del m._callback_queue[:]
             
     def execute_callback_queue(self, models=None):
         if models is None:
             models = self._models.itervalues()
-        for m in self._models.itervalues():
+        for m in models:
             for cb in m._callback_queue:
                 m._trigger(*cb)
                 
