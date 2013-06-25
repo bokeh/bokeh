@@ -178,7 +178,7 @@ class RedisSession(PlotServerSession):
             attr = protocol.deserialize_json(attr)
             data.append({'type' : typename,
                          'attributes' : attr})
-        models = self.load_broadcast_attrs(data)
+        models = self.load_broadcast_attrs(data, events=None)
         for m in models:
             m._dirty = False
         return models
@@ -210,9 +210,8 @@ class RedisSession(PlotServerSession):
         dkey = dockey(self.docid)
         data = dict(zip(keys, models))
         for k,v in data.iteritems():
-            pass
-            # logger.debug('key: %s', k)
-            # logger.debug('val: %s', v)
+            logger.debug('key: %s', k)
+            logger.debug('val: %s', v)
         self.r.mset(data)
         self.r.sadd(dkey, *keys)
         

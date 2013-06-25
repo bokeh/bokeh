@@ -224,7 +224,7 @@ class HasProperties extends Backbone.Model
         val.off(null, null, this)
 
   isNew : () ->
-    return not this.get('created')
+    return false
 
   initialize : (attrs, options) ->
     # auto generates ids if we need to, calls deferred initialize if we have
@@ -457,6 +457,24 @@ class HasProperties extends Backbone.Model
 
   defaults : {}
 
+  rpc : (funcname, args, kwargs) =>
+    prefix = Config.prefix
+    docid = @get('doc')
+    id = @get('id')
+    type = @type
+    url = "#{prefix}/bokeh/bb/rpc/#{docid}/#{type}/#{id}/#{funcname}/"
+    data =
+      args : args
+      kwargs : kwargs
+    resp = $.ajax(
+      type : 'POST'
+      url: url,
+      data : JSON.stringify(data)
+      contentType : 'application/json'
+      xhrFields :
+        withCredentials : true
+    )
+    return resp
 
 
   # hasparent
@@ -561,7 +579,8 @@ locations =
   SelectionTool:   ['./tools/select_tool',       'selectiontools']
   PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools']
   EmbedTool:       ['./tools/preview_save_tool', 'embedtools']
-
+  BoxSelectionOverlay: ['./overlays/boxselectionoverlay',
+    'boxselectionoverlays']
 
   ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources']
   ColumnDataSource:      ['./common/datasource', 'columndatasources']
@@ -578,8 +597,8 @@ locations =
 
   DataTable: ['./widgets/table', 'datatables']
 
-  PandasPivot:      ['./pandas/pandas', 'pandaspivots']
-  PandasDataSource: ['./pandas/pandas', 'pandasdatasources']
+  IPythonRemoteData: ['./pandas/pandas', 'ipythonremotedatas']
+  PandasPivotTable: ['./pandas/pandas', 'pandaspivottables']
   PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
 
   LinearAxis: ['./renderers/guide/axis', 'linearaxes']
@@ -592,6 +611,25 @@ Collections = (typename) ->
     throw "./base: Unknown Collection #{typename}"
   [modulename, collection] = locations[typename]
   return require(modulename)[collection]
+
+Collections.bulksave = (models) ->
+  ##FIXME:hack
+  doc = models[0].get('doc')
+  jsondata = ({type : m.type, attributes :_.clone(m.attributes)} for m in models)
+  jsondata = JSON.stringify(jsondata)
+  url = Config.prefix + "/bokeh/bb/" + doc + "/bulkupsert"
+  xhr = $.ajax(
+    type : 'POST'
+    url : url
+    contentType: "application/json"
+    data : jsondata
+    header :
+      client : "javascript"
+  )
+  xhr.done((data) ->
+    load_models(data.modelspecs)
+  )
+  return xhr
 
 exports.Collections = Collections
 exports.Config = Config

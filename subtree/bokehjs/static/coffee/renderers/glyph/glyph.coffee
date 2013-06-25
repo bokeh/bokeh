@@ -13,9 +13,12 @@ class GlyphView extends PlotWidget
 
   set_data: (request_render=true) ->
     source = @mget_obj('data_source')
+    #FIXME: should use some mechanism like isinstance
     if source.type == 'ObjectArrayDataSource'
       data = source.get('data')
     else if source.type == 'ColumnDataSource'
+      data = source.datapoints()
+    else if source.type == 'PandasPlotSource'
       data = source.datapoints()
     else
       console.log('Unknown data source type: ' + source.type)
@@ -30,9 +33,12 @@ class GlyphView extends PlotWidget
       @need_set_data = false
     @_render()
 
+  select : () ->
+    'pass'
+
   bind_bokeh_events: () ->
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @mget_obj('data_source'), 'change', @set_data)
+    @listenTo(@model, 'change', @request_render)
+    @listenTo(@mget_obj('data_source'), 'change', @set_data)
 
   distance: (data, pt, span, position) ->
     pt_units = @glyph_props[pt].units
