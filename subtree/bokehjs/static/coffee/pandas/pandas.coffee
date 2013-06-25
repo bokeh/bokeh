@@ -124,7 +124,9 @@ class PandasPivotView extends ContinuumView
         group : @fromcsv(@$el.find(".pandasgroup").val())
         offset : 0
       )
-     @model.save()
+      @model.save()
+      return false
+
 
   counts : () ->
     @mget('tabledata').data._counts
