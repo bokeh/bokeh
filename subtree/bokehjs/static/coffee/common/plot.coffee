@@ -263,7 +263,8 @@ class PNGView extends ContinuumView
   initialize: (options) ->
     @throttled_render = _.throttle(@render, 50)
     @throttled_render_canvas = _.throttle(@render_canvas, 30)
-
+    @thumb_x = options.thumb_x or 40
+    @thumb_y = options.thumb_y or 40
     super(_.defaults(options, @default_options))
     @request_render()
     return this
@@ -272,7 +273,7 @@ class PNGView extends ContinuumView
   render: (force) ->
     super()
     png = @model.get('png')
-    @$el.append($("<img height='40' width='40'  src='#{png}'/>"))
+    @$el.append($("<img  width='#{@thumb_x}'  height='#{@thumb_y}'  src='#{png}'/>"))
 
     
 
