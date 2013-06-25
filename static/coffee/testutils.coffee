@@ -327,8 +327,8 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
         glyph.set(defaults)
         glyphs.push(glyph)
     plot_model = Collections('Plot').create(
-      x_range: xrange # TODO .ref() fails?
-      y_range: yrange
+      x_range: xrange.ref() # TODO .ref() fails?
+      y_range: yrange.ref()
       canvas_width: dims[0]
       canvas_height: dims[1]
       outer_width: dims[0]
@@ -345,7 +345,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
           location: 'min'
           bounds: 'auto'
         }
-        parent: plot_model.ref()
+        plot: plot_model.ref()
       )
       yaxis1 = Collections('GuideRenderer').create(
         guidespec: {
@@ -354,7 +354,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
           location: 'min'
           bounds: 'auto'
         }
-        parent: plot_model.ref()
+        plot: plot_model.ref()
       )
       xaxis2 = Collections('GuideRenderer').create(
         guidespec: {
@@ -363,7 +363,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
           location: 'max'
           bounds: 'auto'
         }
-        parent: plot_model.ref()
+        plot: plot_model.ref()
       )
       yaxis2 = Collections('GuideRenderer').create(
         guidespec: {
@@ -372,7 +372,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
           location: 'max'
           bounds: 'auto'
         }
-        parent: plot_model.ref()
+        plot: plot_model.ref()
       )
       xrule = Collections('GuideRenderer').create(
         guidespec: {
@@ -380,7 +380,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
           dimension: 0
           bounds: 'auto'
         }
-        parent: plot_model.ref()
+        plot: plot_model.ref()
       )
       yrule = Collections('GuideRenderer').create(
         guidespec: {
@@ -388,7 +388,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
           dimension: 1
           bounds: 'auto'
         }
-        parent: plot_model.ref()
+        plot: plot_model.ref()
       )
       plot_model.add_renderers(
         [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
