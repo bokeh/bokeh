@@ -38,7 +38,8 @@ class SelectionToolView extends tool.ToolView
     deactivated : "_stop_selecting"}
 
   mouse_coords : (e, x, y) ->
-    [x, y] = [@plot_view.viewstate.rxpos(x), @plot_view.viewstate.rypos(y)]
+    [x, y] = [@plot_view.view_state.device_to_sx(x),
+      @plot_view.view_state.device_to_sy(y)]
     return [x, y]
 
   _stop_selecting : () ->
@@ -55,11 +56,11 @@ class SelectionToolView extends tool.ToolView
     xrange = [@mget('start_x'), @mget('current_x')]
     yrange = [@mget('start_y'), @mget('current_y')]
     if @mget('select_x')
-      xrange = [d3.min(xrange), d3.max(xrange)]
+      xrange = [_.min(xrange), _.max(xrange)]
     else
       xrange = null
     if @mget('select_y')
-      yrange = [d3.min(yrange), d3.max(yrange)]
+      yrange = [_.min(yrange), _.max(yrange)]
     else
       yrange = null
     return [xrange, yrange]
@@ -68,11 +69,11 @@ class SelectionToolView extends tool.ToolView
     xrange = [@mget('start_x'), current_x]
     yrange = [@mget('start_y'), current_y]
     if @mget('select_x')
-      xrange = [d3.min(xrange), d3.max(xrange)]
+      xrange = [_.min(xrange), _.max(xrange)]
     else
       xrange = null
     if @mget('select_y')
-      yrange = [d3.min(yrange), d3.max(yrange)]
+      yrange = [_.min(yrange), _.max(yrange)]
     else
       yrange = null
     return [xrange, yrange]
@@ -120,7 +121,7 @@ class SelectionToolView extends tool.ToolView
       ds = datasources[k]
       ds.set('selected', selected)
       #console.log("datasource_selections", k, v, selected)
-      #ds.save()
+      ds.save()
     return null
 
 

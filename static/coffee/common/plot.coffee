@@ -91,7 +91,6 @@ class PlotView extends ContinuumView
     @tools = {}
 
     @eventSink = _.extend({}, Backbone.Events)
-    atm = new ActiveToolManager(@eventSink)
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
@@ -141,7 +140,26 @@ class PlotView extends ContinuumView
   build_levels: () ->
     @build_views()
     @build_tools()
-    @bind_tools()
+
+    @levels = {}
+    for level in LEVELS
+      @levels[level] = {}
+
+    for k,v of @renderers
+      level = v.mget('level')
+      @levels[level][k] = v
+
+    for k,v of @tools
+      level = v.mget('level')
+      @levels[level][k] = v
+    @atm = new ActiveToolManager(@eventSink)
+    @atm.bind_bokeh_events()
+    @bind_bokeh_events()
+    for toolview in _.values(@tools)
+      toolview.bind_bokeh_events()
+    for view in _.values(@renderers)
+      view.bind_bokeh_events()
+    return this
 
     @levels = {}
     for level in LEVELS
