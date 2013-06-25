@@ -1,11 +1,13 @@
 tool= require("./tool")
 ButtonEventGenerator = require("./eventgenerators").ButtonEventGenerator
 LinearMapper = require("../mappers/1d/linear_mapper").LinearMapper
+base = require("../base")
 
 class PreviewSaveToolView extends tool.ToolView
   initialize: (options) ->
     super(options)
-
+    console.log("png", @plot_model.get('png'))
+    
   eventGeneratorClass: ButtonEventGenerator
   evgen_options: { buttonText:"Preview/Save" }
   tool_events: {
@@ -14,6 +16,9 @@ class PreviewSaveToolView extends tool.ToolView
 
   _activated: (e) ->
     data_uri = @plot_view.canvas[0].toDataURL()
+    @plot_model.set('png', @plot_view.canvas[0].toDataURL())
+    base.Collections.bulksave([@plot_model])
+    #@model.sync()
     modal = """
       '<div id="previewModal" class="modal" role="dialog" aria-labelledby="previewLabel" aria-hidden="true">
         <div class="modal-header">
