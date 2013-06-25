@@ -212,6 +212,13 @@ class PlotView extends ContinuumView
 
     @render_end()
 
+  save_png: () ->
+    @render()
+    data_uri = @plot_view.canvas[0].toDataURL()
+    @plot_model.set('png', @plot_view.canvas[0].toDataURL())
+    base.Collections.bulksave([@plot_model])
+
+
   render: (force) ->
     super()
     @ctx.fillStyle = @mget('border_fill')
@@ -248,33 +255,9 @@ class PNGView extends ContinuumView
   view_options: () ->
     _.extend({plot_model: @model, plot_view: @}, @options)
 
-  events:
-    "mousemove .bokeh_canvas_wrapper": "_mousemove"
-    "mousedown .bokeh_canvas_wrapper": "_mousedown"
-
-  _mousedown: (e) ->
-    for f in @mousedownCallbacks
-      f(e, e.layerX, e.layerY)
-
-  _mousemove: (e) ->
-    for f in @moveCallbacks
-      f(e, e.layerX, e.layerY)
-
-  pause : () ->
-    @is_paused = true
-
-  unpause : () ->
-    @is_paused = false
-    @request_render()
-
   request_render : () ->
     if not @is_paused
       @throttled_render()
-    return
-
-  request_render_canvas : () ->
-    if not @is_paused
-      @throttled_render_canvas()
     return
 
   initialize: (options) ->
@@ -282,62 +265,21 @@ class PNGView extends ContinuumView
     @throttled_render_canvas = _.throttle(@render_canvas, 30)
 
     super(_.defaults(options, @default_options))
-
-    @view_state = new ViewState({
-      canvas_width:  options.canvas_width  ? @mget('canvas_width')
-      canvas_height: options.canvas_height ? @mget('canvas_height')
-      x_offset:      options.x_offset      ? @mget('x_offset')
-      y_offset:      options.y_offset      ? @mget('y_offset')
-      outer_width:   options.outer_width   ? @mget('outer_width')
-      outer_height:  options.outer_height  ? @mget('outer_height')
-      border_top:    (options.border_top    ? @mget('border_top'))    ? @mget('border')
-      border_bottom: (options.border_bottom ? @mget('border_bottom')) ? @mget('border')
-      border_left:   (options.border_left   ? @mget('border_left'))   ? @mget('border')
-      border_right:  (options.border_right  ? @mget('border_right'))  ? @mget('border')
-    })
-
-    @x_range = options.x_range ? @mget_obj('x_range')
-    @y_range = options.y_range ? @mget_obj('y_range')
-
-    @xmapper = new LinearMapper({
-      source_range: @x_range
-      target_range: @view_state.get('inner_range_horizontal')
-    })
-
-    @ymapper = new LinearMapper({
-      source_range: @y_range
-      target_range: @view_state.get('inner_range_vertical')
-    })
-
-    @mapper = new GridMapper({
-      domain_mapper: @xmapper
-      codomain_mapper: @ymapper
-    })
-
-    @renderers = {}
-    @tools = {}
-
-    @eventSink = _.extend({}, Backbone.Events)
-    @moveCallbacks = []
-    @mousedownCallbacks = []
-    @keydownCallbacks = []
     @request_render()
     return this
 
 
   render: (force) ->
     super()
-    # TODO use template
-    window.pngview = @
     png = @model.get('png')
-    @$el.append($("<div class='button_bar'/><div class='bokeh_canvas_wrapper'><img src='#{png}'/></div>"))
-    window.at_el = @$el
+    @$el.append($("<img height='40' width='40'  src='#{png}'/>"))
 
     
 
 class Plot extends HasParent
   type: 'Plot'
-  default_view: PNGView
+  #default_view: PNGView
+  default_view: PlotView
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')
@@ -386,4 +328,5 @@ class Plots extends Backbone.Collection
 
 exports.Plot = Plot
 exports.PlotView = PlotView
+exports.PNGView = PNGView
 exports.plots = new Plots
