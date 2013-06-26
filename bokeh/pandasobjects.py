@@ -183,6 +183,7 @@ class PandasPivotTable(PlotObject):
         self.get_data()
         
     def get_data(self, obj=None, attrname=None, old=None, new=None):
+        print 'get data table'
         data = self.source.get_data(self.transform())
         print data['data']['_selected']
         self.maxlength = data.pop('maxlength')
