@@ -1,4 +1,6 @@
 base = require("../base")
+PNGView = require("./plot").PNGView
+PlotView = require("./plot").PlotView
 HasParent = base.HasParent
 HasProperties = base.HasProperties
 safebind = base.safebind
@@ -94,6 +96,81 @@ class PlotContextView extends ContinuumView
     )
     return null
 
+class PNGContextView extends ContinuumView
+  initialize: (options) ->
+    @views = {}
+    @views_rendered = [false]
+    @child_models = []
+    super(options)
+    @render()
+
+  delegateEvents: () ->
+    safebind(this, @model, 'destroy', @remove)
+    safebind(this, @model, 'change', @render)
+    super()
+
+  generate_remove_child_callback: (view) ->
+    callback = () =>
+      return null
+    return callback
+
+  build_children: () ->
+    view_classes = []
+    for view_model in @mget_obj('children')
+      if view_model.get('png') == ""
+        console.log("no png for #{view_model.id} making one")
+        pv = new PlotView({model:view_model})
+        pv.save_png()
+      view_classes.push(PNGView)
+    created_views = build_views(
+      @views, @mget_obj('children'), {thumb_x:60, thumb_y:60}, view_classes)
+
+    window.pc_created_views = created_views
+    window.pc_views = @views
+    return null
+
+  events:
+    'click .plotclose': 'removeplot'
+    'click .closeall': 'closeall'
+
+  closeall: (e) =>
+    @mset('children', [])
+    @model.save()
+
+  removeplot: (e) =>
+    plotnum = parseInt($(e.currentTarget).parent().attr('data-plot_num'))
+    s_pc = @model.resolve_ref(@mget('children')[plotnum])
+    view = @views[s_pc.get('id')]
+    view.remove();
+    newchildren = (x for x in @mget('children') when x.id != view.model.id)
+    @mset('children', newchildren)
+    @model.save()
+    return false
+
+  render: () ->
+    super()
+    @build_children()
+    for own key, val of @views
+      val.$el.detach()
+    @$el.html('')
+    numplots = _.keys(@views).length
+    @$el.append("<div>You have #{numplots} plots</div>")
+    @$el.append("<div><a class='closeall' href='#'>Close All Plots</a></div>")
+    @$el.append("<br/>")
+    to_render = []
+    tab_names = {}
+    for modelref, index in @mget('children')
+      view = @views[modelref.id]
+      node = $("<div class='jsp' data-plot_num='#{index}'></div>"  )
+      @$el.append(node)
+      title = view.model.get('title')
+      if not title  == ""
+        node.append($("<h2 class='plottitle'>#{title}</h2>"))
+      node.append($("<a class='plotclose'>[close]</a>"))
+      node.append(view.el)
+    return null
+
+#PlotContextView = PNGContextView
 class PlotContextViewState extends HasProperties
   defaults:
     maxheight: 600
