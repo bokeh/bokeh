@@ -157,6 +157,8 @@ class PandasPivotTable(PlotObject):
         """
         precision = self.precision
         for colname, data in jsondata.iteritems():
+            if colname == '_selected' or colname == '_counts':
+                continue
             for idx, val in enumerate(data):
                 if isinstance(val, float):
                     data[idx] = "%%.%df" % precision.get(colname,2)%data[idx]
@@ -183,7 +185,6 @@ class PandasPivotTable(PlotObject):
         self.get_data()
         
     def get_data(self, obj=None, attrname=None, old=None, new=None):
-        print 'get data table'
         data = self.source.get_data(self.transform())
         print data['data']['_selected']
         self.maxlength = data.pop('maxlength')
