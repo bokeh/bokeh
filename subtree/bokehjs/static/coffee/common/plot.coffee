@@ -161,6 +161,20 @@ class PlotView extends ContinuumView
       view.bind_bokeh_events()
     return this
 
+    @levels = {}
+    for level in LEVELS
+      @levels[level] = {}
+
+    for k,v of @renderers
+      level = v.mget('level')
+      @levels[level][k] = v
+
+    for k,v of @tools
+      level = v.mget('level')
+      @levels[level][k] = v
+
+    return this
+
   bind_bokeh_events: () ->
     safebind(this, @view_state, 'change', @request_render_canvas)
     safebind(this, @x_range, 'change', @request_render)
@@ -198,6 +212,13 @@ class PlotView extends ContinuumView
 
     @render_end()
 
+  save_png: () ->
+    @render()
+    data_uri = @canvas[0].toDataURL()
+    @model.set('png', @canvas[0].toDataURL())
+    base.Collections.bulksave([@model])
+
+
   render: (force) ->
     super()
     @ctx.fillStyle = @mget('border_fill')
@@ -229,9 +250,36 @@ class PlotView extends ContinuumView
       renderers = @levels[level]
       for k, v of renderers
         v.render()
+class PNGView extends ContinuumView
+
+  view_options: () ->
+    _.extend({plot_model: @model, plot_view: @}, @options)
+
+  request_render : () ->
+    if not @is_paused
+      @throttled_render()
+    return
+
+  initialize: (options) ->
+    @throttled_render = _.throttle(@render, 50)
+    @throttled_render_canvas = _.throttle(@render_canvas, 30)
+    @thumb_x = options.thumb_x or 40
+    @thumb_y = options.thumb_y or 40
+    super(_.defaults(options, @default_options))
+    @request_render()
+    return this
+
+
+  render: (force) ->
+    super()
+    png = @model.get('png')
+    @$el.append($("<img  width='#{@thumb_x}'  height='#{@thumb_y}'  src='#{png}'/>"))
+
+    
 
 class Plot extends HasParent
   type: 'Plot'
+  #default_view: PNGView
   default_view: PlotView
 
   add_renderers: (new_renderers) ->
@@ -281,4 +329,5 @@ class Plots extends Backbone.Collection
 
 exports.Plot = Plot
 exports.PlotView = PlotView
+exports.PNGView = PNGView
 exports.plots = new Plots

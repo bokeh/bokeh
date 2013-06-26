@@ -528,7 +528,7 @@ class HasParent extends HasProperties
   display_defaults : {}
 
 
-build_views = (view_storage, view_models, options) ->
+build_views = (view_storage, view_models, options, view_types=[]) ->
   # ## function : build_views
   # convenience function for creating a bunch of views from a spec
   # and storing them in a dictionary keyed off of model id.
@@ -553,10 +553,15 @@ build_views = (view_storage, view_models, options) ->
     debugger
     console.log(error)
     throw error
-  for model in newmodels
+  for i_model in [0..newmodels.length-1]
+    model = newmodels[i_model]
+  #for model in newmodels
     view_specific_option = _.extend({}, options, {'model' : model})
     try
-      view_storage[model.id] = new model.default_view(view_specific_option)
+      if i_model < view_types.length
+        view_storage[model.id] = new view_types[i_model](view_specific_option)
+      else
+        view_storage[model.id] = new model.default_view(view_specific_option)
     catch error
       console.log("error on model of", model, error)
       throw error
