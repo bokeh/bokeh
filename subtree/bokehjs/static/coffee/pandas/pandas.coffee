@@ -169,7 +169,7 @@ class PandasPivotView extends ContinuumView
     if counts and selected
       return _.map(_.zip(counts, selected), (temp) ->
         [count, selected] = temp
-        alpha = 0.5 * selected / count
+        alpha = 0.3 * selected / count
         return "rgba(0,0,255,#{alpha})"
       )
     else
@@ -185,6 +185,7 @@ class PandasPivotView extends ContinuumView
     sort_ascendings = {}
     for obj in  @mget('sort')
       sort_ascendings[obj['column']] = obj['ascending']
+    source = @mget_obj('source')
     template_data =
       skip :
         _counts : true

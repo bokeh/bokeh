@@ -101,24 +101,19 @@
     <% end %>
   </thead>
   <% for idx in _.range(@length): %>
-  <% if @colors: %>
-  <tr class="pandasrow" rownum="<%= idx %>" 
-      style="background-color:<%= @colors[idx] %>">
-    <% else: %>
   <tr class="pandasrow" rownum="<%= idx %>">
-    <% end %>
-    <% if @counts: %>
     <% if @selected and @selected[idx]: %>
-    <td> <%= @selected[idx] %>/<%= @counts[idx] %> </td>
+      <td style="background-color:<%= @colors[idx] %>"> 
+        <%= @selected[idx] %>/<%= @counts[idx] %>
+      </td>      
     <% else: %>
-    <td> <%= @counts[idx] %> </td>
-    <% end %>
+      <td> <%= @counts[idx] %> </td>
     <% end %>
     <td> <%= @index[idx] %> </td>
     <% for column in @columns: %>
-    <% if not @skip[column]: %>    
-    <td> <%= @data[column][idx] %> </td>
-    <% end %>    
+      <% if not @skip[column]: %>    
+      <td> <%= @data[column][idx] %> </td>
+      <% end %>
     <% end %>
   </tr>
   <% end %>
