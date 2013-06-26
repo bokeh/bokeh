@@ -256,12 +256,12 @@ def generate_embed_test():
 
     from numpy import pi, arange, sin, cos
     import numpy as np
-    import os.path
 
     from bokeh.objects import (
         Plot, DataRange1d, LinearAxis, Rule,
-        ColumnDataSource, GlyphRenderer, ObjectArrayDataSource,
-        PanTool, ZoomTool)
+        ColumnDataSource, GlyphRenderer, 
+        PanTool, ZoomTool, PreviewSaveTool)
+
     from bokeh.glyphs import Circle
     from bokeh import session
 
@@ -274,14 +274,6 @@ def generate_embed_test():
 
     source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
                                     heights=heights))
-    #source = ObjectArrayDataSource(
-    #    data = [
-    #        {'x' : 1, 'y' : 5, 'z':3},
-    #        {'x' : 2, 'y' : 4, 'z':3, 'radius':10},
-    #        {'x' : 3, 'y' : 3, 'z':3, 'fill':"blue"},
-    #        {'x' : 4, 'y' : 2, 'z':3},
-    #        {'x' : 5, 'y' : 1, 'z':3},
-    #        ])
 
     xdr = DataRange1d(sources=[source.columns("x")])
     ydr = DataRange1d(sources=[source.columns("y")])
@@ -296,7 +288,8 @@ def generate_embed_test():
 
 
     pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-    zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+    #zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+    previewtool = PreviewSaveTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
     plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
                 border= 80)
@@ -306,13 +299,14 @@ def generate_embed_test():
     ygrid = Rule(plot=plot, dimension=1)
 
     plot.renderers.append(glyph_renderer)
-    plot.tools = [pantool,zoomtool]
+    plot.tools = [pantool, previewtool]
 
     sess = session.PlotServerSession(
         username="defaultuser", 
         serverloc="http://localhost:5006", userapikey="nokey")
     sess.use_doc("glyph2")
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, 
+             xdr, ydr, pantool, previewtool)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
     # not so nice.. but set the model doens't know

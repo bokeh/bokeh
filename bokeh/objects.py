@@ -497,7 +497,7 @@ class Plot(PlotObject):
 
     x_range = Instance(DataRange1d, has_ref=True)
     y_range = Instance(DataRange1d, has_ref=True)
-
+    png = String('')
     # We shouldn't need to create mappers manually on the Python side
     #xmapper = Instance(LinearMapper)
     #ymapper = Instance(LinearMapper)
@@ -596,6 +596,11 @@ class PanTool(PlotObject):
     dataranges = List(has_ref=True)
 
 class ZoomTool(PlotObject):
+    plot = Instance(Plot)
+    dimensions = List   # valid values: "x", "y"
+    dataranges = List(has_ref=True)
+
+class PreviewSaveTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)

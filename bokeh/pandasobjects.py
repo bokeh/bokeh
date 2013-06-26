@@ -55,7 +55,6 @@ class IPythonRemoteData(PlotObject):
         self.selected += 1
         
     def deselect(self, deselect, transform):
-                
         remotedata = self
         url = "http://%s:%s/array/%s/deselect" % (remotedata.host,
                                                   remotedata.port,
@@ -66,7 +65,6 @@ class IPythonRemoteData(PlotObject):
         self.selected += 1
         
     def get_data(self, transform):
-        
         remotedata = self
         url = "http://%s:%s/array/%s" % (remotedata.host,
                                          remotedata.port,
@@ -141,7 +139,6 @@ class PandasPivotTable(PlotObject):
     precision = Dict()
     tabledata = Dict()
     filterselected = Bool(default=False)
-    
     def setup_events(self):
         self.on_change('sort', self, 'get_data')
         self.on_change('group', self, 'get_data')
