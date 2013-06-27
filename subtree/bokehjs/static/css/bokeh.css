@@ -53,13 +53,6 @@ button.active {border:1px solid blue}
     vertical-align : top;
 }
 
-.plottitle{
-  height: 1em;
-  border : none;
-  resize : none;
-  width : 200;
-  overflow : hidden;
-}
 
 .plotsidebar{
     overflow-x : auto;
@@ -133,4 +126,10 @@ button.active {border:1px solid blue}
 .search{
     height : 20px !important;
     padding : 1px !important;
+}
+
+
+.plottitle{
+    padding-left: 50px;
+    padding-bottom: 10px;
 }

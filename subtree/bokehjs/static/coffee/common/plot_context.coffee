@@ -34,22 +34,10 @@ class PlotContextView extends ContinuumView
     #'click .jsp': 'newtab'
     'click .plotclose': 'removeplot'
     'click .closeall': 'closeall'
-    'keydown .plottitle': 'savetitle'
 
   size_textarea: (textarea) ->
     scrollHeight = $(textarea).height(0).prop('scrollHeight')
     $(textarea).height(scrollHeight)
-
-  savetitle: (e) =>
-    if e.keyCode == 13 #enter
-      e.preventDefault()
-      plotnum = parseInt($(e.currentTarget).parent().attr('data-plot_num'))
-      s_pc = @model.resolve_ref(@mget('children')[plotnum])
-      s_pc.set('title', $(e.currentTarget).val())
-      s_pc.save()
-      $(e.currentTarget).blur()
-      return false
-    @size_textarea($(e.currentTarget))
 
   closeall: (e) =>
     @mset('children', [])
@@ -81,8 +69,6 @@ class PlotContextView extends ContinuumView
       view = @views[modelref.id]
       node = $("<div class='jsp' data-plot_num='#{index}'></div>"  )
       @$el.append(node)
-      title = view.model.get('title')
-      node.append($("<textarea class='plottitle'>#{title}</textarea>"))
       node.append($("<a class='plotclose'>[close]</a>"))
       node.append(view.el)
     _.defer(() =>
