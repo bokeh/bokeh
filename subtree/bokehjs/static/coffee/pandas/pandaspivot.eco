@@ -30,7 +30,7 @@
   <label>
     Search
   </label>
-  <input type="text" class="search input-medium"/>
+  <input type="text" class="search input-large"/>
   <% end %>
   
   <% if @tablecontrolstate == 'computed': %>
