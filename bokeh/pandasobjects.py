@@ -1,4 +1,5 @@
 import pandas
+import time
 import protocol
 import numpy as np
 import requests
@@ -13,12 +14,17 @@ import bokeh.glyphs
 
 from bokeh.objects import PlotObject, Plot, ColumnDataSource
 from bokeh.session import PlotContext, PlotList
-    
+
+# Hugo: this object model is still a bit half baked
+# we are probabyl storing some things on the plot source and
+# pivot table that we should store on the IPythonRemoteData
+
 class IPythonRemoteData(PlotObject):
     host  = String("localhost")
     port = Int(10020)
     varname = String()
     computed_columns = List()
+    metadata = Dict()
     
     #hack... we're just using this field right now to trigger events
     selected = Int(0)
@@ -70,6 +76,7 @@ class IPythonRemoteData(PlotObject):
                                          remotedata.port,
                                          remotedata.varname)
         data = requests.get(url, data=protocol.serialize_json(transform)).json()
+        self.metadata = data.pop('metadata', {})
         return data
     
     def set_computed_columns(self, computed_columns):
@@ -159,10 +166,16 @@ class PandasPivotTable(PlotObject):
         for colname, data in jsondata.iteritems():
             if colname == '_selected' or colname == '_counts':
                 continue
+            if self.source.metadata.get(colname, {}).get('date'):
+                isdate = True
+            else:
+                isdate = False
             for idx, val in enumerate(data):
+                if isdate:
+                    timeobj = time.localtime(val/1000.0)
+                    data[idx] = time.strftime("%Y-%m-%d %H:%M:%S", timeobj)
                 if isinstance(val, float):
                     data[idx] = "%%.%df" % precision.get(colname,2)%data[idx]
-                    
     
     def transform(self):
         return dict(sort=self.sort,

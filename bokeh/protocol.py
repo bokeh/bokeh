@@ -5,6 +5,7 @@ import logging
 import time
 import cPickle as pickle
 import numpy as np
+import pandas as pd
 
 log = logging.getLogger(__name__)
 
@@ -24,12 +25,15 @@ list data which can be serialized and deserialized
 
 3.  rpc protocol, a layer around the msgobject and a data object
 """
+millifactor = 10 ** 6.
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, np.ndarray):
             return obj.tolist()
         elif isinstance(obj, np.integer):
             return int(obj)
+        elif isinstance(obj, pd.tslib.Timestamp):
+            return obj.value / millifactor
         else:
             return super(NumpyJSONEncoder, self).default(obj)
         

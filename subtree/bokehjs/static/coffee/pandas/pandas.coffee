@@ -190,6 +190,7 @@ class PandasPivotView extends ContinuumView
       skip :
         _counts : true
         _selected : true
+        index : true
       tablecontrolstate : @mget('tablecontrolstate')
       computed_columns : @mget_obj('source').get('computed_columns')
       columns : @mget('tabledata').column_names
@@ -206,7 +207,7 @@ class PandasPivotView extends ContinuumView
       selected : @mget('tabledata').data._selected
       controls_hide : @controls_hide
       colors : colors
-      index : @mget('tabledata').data._index
+      index : @mget('tabledata').data.index
 
     @$el.empty()
     html = @template(template_data)
