@@ -91,9 +91,9 @@
     <th><a class="pandascolumn"><%= column %></a>
       
       <% if @sort_ascendings[column] == true: %>
-      <i class="icon-chevron-up"></i>
+      <i class="icon-caret-up"></i>
       <% else if @sort_ascendings[column] == false: %>
-      <i class="icon-chevron-down"></i>
+      <i class="icon-caret-down"></i>
       <% end %>
       
       <% end %>
