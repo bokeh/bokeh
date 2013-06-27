@@ -73,8 +73,8 @@
   <% end %>
   
 </form>
-<table class="table
-              table-bordered table-condensed"
+
+<table class="table table-bordered"
 <% if @width: %>
        style="max-height:<%= @height %>px;max-width:<%= @width %>px"
 <% else: %>
