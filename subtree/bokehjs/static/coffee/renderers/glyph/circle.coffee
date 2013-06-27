@@ -125,6 +125,9 @@ class CircleView extends GlyphView
     yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)]
     console.log(xscreenbounds)
     console.log(yscreenbounds)
+    console.log('min', _.min(this.sx), _.min(this.sy))
+    console.log('max', _.max(this.sx), _.max(this.sy))
+
     selected = []
     for i in [0..@sx.length-1]
       if xscreenbounds
