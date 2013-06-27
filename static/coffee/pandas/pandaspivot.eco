@@ -74,7 +74,7 @@
   
 </form>
 
-<table class="table table-bordered"
+<table class="bokehdatatable table table-bordered"
 <% if @width: %>
        style="max-height:<%= @height %>px;max-width:<%= @width %>px"
 <% else: %>
