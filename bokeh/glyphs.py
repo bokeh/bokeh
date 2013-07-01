@@ -97,7 +97,7 @@ class DataSpec(BaseProperty):
         else:
             # Assume value is a numeric type and is the default value.
             # We explicitly set the field name to None.
-            d = {"name": None, "units": self.units, "default": value}
+            d = {"field": None, "units": self.units, "default": value}
         return d
 
 
