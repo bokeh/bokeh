@@ -140,7 +140,6 @@ class PlotView extends ContinuumView
   build_levels: () ->
     @build_views()
     @build_tools()
-
     @levels = {}
     for level in LEVELS
       @levels[level] = {}
@@ -161,20 +160,6 @@ class PlotView extends ContinuumView
       view.bind_bokeh_events()
     return this
 
-    @levels = {}
-    for level in LEVELS
-      @levels[level] = {}
-
-    for k,v of @renderers
-      level = v.mget('level')
-      @levels[level][k] = v
-
-    for k,v of @tools
-      level = v.mget('level')
-      @levels[level][k] = v
-
-    return this
-
   bind_bokeh_events: () ->
     safebind(this, @view_state, 'change', @request_render_canvas)
     safebind(this, @x_range, 'change', @request_render)
@@ -188,6 +173,7 @@ class PlotView extends ContinuumView
     # TODO use template
     @$el.append($("""
       <div class='button_bar'/>
+      <div class='plottitle'>#{@mget('title')}</div>
       <div class='bokeh_canvas_wrapper'>
         <canvas class='bokeh_canvas'></canvas>
       </div>
@@ -250,32 +236,19 @@ class PlotView extends ContinuumView
       renderers = @levels[level]
       for k, v of renderers
         v.render()
+
 class PNGView extends ContinuumView
 
-  view_options: () ->
-    _.extend({plot_model: @model, plot_view: @}, @options)
-
-  request_render : () ->
-    if not @is_paused
-      @throttled_render()
-    return
-
   initialize: (options) ->
-    @throttled_render = _.throttle(@render, 50)
-    @throttled_render_canvas = _.throttle(@render_canvas, 30)
+    super(options)
     @thumb_x = options.thumb_x or 40
     @thumb_y = options.thumb_y or 40
-    super(_.defaults(options, @default_options))
-    @request_render()
+    @render()
     return this
 
-
-  render: (force) ->
-    super()
+  render: () ->
     png = @model.get('png')
-    @$el.append($("<img  width='#{@thumb_x}'  height='#{@thumb_y}'  src='#{png}'/>"))
-
-    
+    @$el.append($("<img  modeltype='#{@model.type}' modelid='#{@model.get('id')}' class='pngview' width='#{@thumb_x}'  height='#{@thumb_y}'  src='#{png}'/>"))
 
 class Plot extends HasParent
   type: 'Plot'

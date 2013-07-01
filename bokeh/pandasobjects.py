@@ -1,6 +1,8 @@
 import pandas
+import time
 import protocol
 import numpy as np
+import requests
 
 from bokeh.properties import (HasProps, MetaHasProps, 
         Any, Dict, Enum, Float, Instance, Int, List, String,
@@ -12,16 +14,24 @@ import bokeh.glyphs
 
 from bokeh.objects import PlotObject, Plot, ColumnDataSource
 from bokeh.session import PlotContext, PlotList
-    
+
+# Hugo: this object model is still a bit half baked
+# we are probabyl storing some things on the plot source and
+# pivot table that we should store on the IPythonRemoteData
+
 class IPythonRemoteData(PlotObject):
     host  = String("localhost")
     port = Int(10020)
-    varname = String() 
+    varname = String()
+    computed_columns = List()
+    metadata = Dict()
+    
     #hack... we're just using this field right now to trigger events
     selected = Int(0)
+    data = Int(0)    
     
     def setselect(self, select, transform):
-        import requests        
+                
         remotedata = self
         url = "http://%s:%s/array/%s/setselect" % (remotedata.host,
                                                 remotedata.port,
@@ -31,8 +41,16 @@ class IPythonRemoteData(PlotObject):
         requests.post(url, data=protocol.serialize_json(data))
         self.selected += 1
         
+    def search(self, search):
+        remotedata = self
+        url = "http://%s:%s/array/%s/search" % (remotedata.host,
+                                                remotedata.port,
+                                                remotedata.varname)
+        requests.post(url, data=search)
+        self.selected += 1
+        
     def select(self, select, transform):
-        import requests        
+                
         remotedata = self
         url = "http://%s:%s/array/%s/select" % (remotedata.host,
                                                 remotedata.port,
@@ -43,7 +61,6 @@ class IPythonRemoteData(PlotObject):
         self.selected += 1
         
     def deselect(self, deselect, transform):
-        import requests        
         remotedata = self
         url = "http://%s:%s/array/%s/deselect" % (remotedata.host,
                                                   remotedata.port,
@@ -54,14 +71,27 @@ class IPythonRemoteData(PlotObject):
         self.selected += 1
         
     def get_data(self, transform):
-        import requests
         remotedata = self
         url = "http://%s:%s/array/%s" % (remotedata.host,
                                          remotedata.port,
                                          remotedata.varname)
         data = requests.get(url, data=protocol.serialize_json(transform)).json()
+        self.metadata = data.pop('metadata', {})
         return data
-                    
+    
+    def set_computed_columns(self, computed_columns):
+        
+        remotedata = self
+        url = "http://%s:%s/array/%s/computed" % (remotedata.host,
+                                                  remotedata.port,
+                                                  remotedata.varname)
+        data = requests.get(
+            url,
+            data=protocol.serialize_json(computed_columns)).json()
+        self.computed_columns = computed_columns
+        self.data += 1
+        return data
+        
     
 class PandasPlotSource(ColumnDataSource):
     source = Instance(has_ref=True)
@@ -73,6 +103,7 @@ class PandasPlotSource(ColumnDataSource):
         self.on_change('selected', self, 'selection_callback')
         self.source.on_change('selected', self, 'get_data')
         self.source.on_change('data', self, 'get_data')
+        self.source.on_change('computed_columns', self, 'get_data')
         if not self.data:
             self.get_data()
 
@@ -115,7 +146,6 @@ class PandasPivotTable(PlotObject):
     precision = Dict()
     tabledata = Dict()
     filterselected = Bool(default=False)
-            
     def setup_events(self):
         self.on_change('sort', self, 'get_data')
         self.on_change('group', self, 'get_data')
@@ -125,6 +155,7 @@ class PandasPivotTable(PlotObject):
         self.on_change('filterselected', self, 'get_data')
         self.source.on_change('selected', self, 'get_data')
         self.source.on_change('data', self, 'get_data')
+        self.source.on_change('computed_columns', self, 'get_data')
         if not self.tabledata:
             self.get_data()
         
@@ -133,10 +164,18 @@ class PandasPivotTable(PlotObject):
         """
         precision = self.precision
         for colname, data in jsondata.iteritems():
+            if colname == '_selected' or colname == '_counts':
+                continue
+            if self.source.metadata.get(colname, {}).get('date'):
+                isdate = True
+            else:
+                isdate = False
             for idx, val in enumerate(data):
+                if isdate:
+                    timeobj = time.localtime(val/1000.0)
+                    data[idx] = time.strftime("%Y-%m-%d %H:%M:%S", timeobj)
                 if isinstance(val, float):
                     data[idx] = "%%.%df" % precision.get(colname,2)%data[idx]
-                    
     
     def transform(self):
         return dict(sort=self.sort,

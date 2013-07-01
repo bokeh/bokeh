@@ -553,9 +553,7 @@ build_views = (view_storage, view_models, options, view_types=[]) ->
     debugger
     console.log(error)
     throw error
-  for i_model in [0..newmodels.length-1]
-    model = newmodels[i_model]
-  #for model in newmodels
+  for model, i_model in newmodels
     view_specific_option = _.extend({}, options, {'model' : model})
     try
       if i_model < view_types.length

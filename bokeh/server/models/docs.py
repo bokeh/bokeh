@@ -101,7 +101,7 @@ def prune_and_get_valid_models(doc, session, delete=False):
         for obj in session._models.values():
             if obj not in objs:
                 #not impl yet...
-                session.delete(obj)
+                session.del_obj(obj)
     return objs
 
 def new_doc(flaskapp, docid, title, session, rw_users=None, r_users=None,
