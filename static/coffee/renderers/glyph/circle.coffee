@@ -30,7 +30,7 @@ class CircleView extends GlyphView
       ]
     )
     glyph_props.do_fill = glyph_props.fill_properties.do_fill
-    glyph_props.do_stroke = glyph_props.fill_properties.do_stroke
+    glyph_props.do_stroke = glyph_props.line_properties.do_stroke
     return glyph_props
 
   _set_data: (@data) ->
@@ -111,7 +111,6 @@ class CircleView extends GlyphView
       if glyph_props.do_fill
         glyph_props.fill_properties.set(ctx, @data[i])
         ctx.fill()
-
       if glyph_props.do_stroke
         glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
