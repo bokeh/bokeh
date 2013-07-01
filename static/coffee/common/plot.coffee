@@ -140,7 +140,6 @@ class PlotView extends ContinuumView
   build_levels: () ->
     @build_views()
     @build_tools()
-
     @levels = {}
     for level in LEVELS
       @levels[level] = {}
@@ -174,6 +173,7 @@ class PlotView extends ContinuumView
     # TODO use template
     @$el.append($("""
       <div class='button_bar'/>
+      <div class='plottitle'>#{@mget('title')}</div>
       <div class='bokeh_canvas_wrapper'>
         <canvas class='bokeh_canvas'></canvas>
       </div>
@@ -197,6 +197,13 @@ class PlotView extends ContinuumView
       @render();
 
     @render_end()
+
+  save_png: () ->
+    @render()
+    data_uri = @canvas[0].toDataURL()
+    @model.set('png', @canvas[0].toDataURL())
+    base.Collections.bulksave([@model])
+
 
   render: (force) ->
     super()
@@ -230,8 +237,22 @@ class PlotView extends ContinuumView
       for k, v of renderers
         v.render()
 
+class PNGView extends ContinuumView
+
+  initialize: (options) ->
+    super(options)
+    @thumb_x = options.thumb_x or 40
+    @thumb_y = options.thumb_y or 40
+    @render()
+    return this
+
+  render: () ->
+    png = @model.get('png')
+    @$el.append($("<img  modeltype='#{@model.type}' modelid='#{@model.get('id')}' class='pngview' width='#{@thumb_x}'  height='#{@thumb_y}'  src='#{png}'/>"))
+
 class Plot extends HasParent
   type: 'Plot'
+  #default_view: PNGView
   default_view: PlotView
 
   add_renderers: (new_renderers) ->
@@ -281,4 +302,5 @@ class Plots extends Backbone.Collection
 
 exports.Plot = Plot
 exports.PlotView = PlotView
+exports.PNGView = PNGView
 exports.plots = new Plots

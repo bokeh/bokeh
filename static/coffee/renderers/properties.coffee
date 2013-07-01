@@ -174,9 +174,8 @@ class properties
       obj = objs[i]
 
       # if the attribute specifies a field, and the field exists on the object, return that value
-      if @[attrname].field?
-        if (@[attrname].field of obj)
-          result[i] = obj[@[attrname].field]
+      if @[attrname].field? and (@[attrname].field of obj)
+        result[i] = obj[@[attrname].field]
 
       # otherwise, if the attribute exists on the object, return that value
       else if obj[attrname]

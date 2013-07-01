@@ -53,13 +53,6 @@ button.active {border:1px solid blue}
     vertical-align : top;
 }
 
-.plottitle{
-  height: 1em;
-  border : none;
-  resize : none;
-  width : 200;
-  overflow : hidden;
-}
 
 .plotsidebar{
     overflow-x : auto;
@@ -76,13 +69,12 @@ button.active {border:1px solid blue}
 .bokehtable{
     overflow : auto;
 }
-.pandassize{
-    width : 40px;
-}
+.pandassize,
 .pandasoffset{
-    width : 40px;
+    width : 30px !important;
+    height : 20px !important;
+    padding : 1px !important;
 }
-
 .hide{
     display : none;
 }
@@ -105,7 +97,39 @@ button.active {border:1px solid blue}
 }
 .pandasgroup{
     width : auto;
+    height : 20px !important;
+    padding : 1px !important;    
 }
 .pandasagg{
     width : auto;
+    height : 20px !important;
+    padding : 1px !important;
+}
+.tablecontrolstate{
+    width : auto;
+    height : 20px !important;
+    padding : 1px !important;
+}
+.paginatedisplay{
+    overflow : hidden;
+}
+.pagination{
+    margin : 0px !important;
+}
+
+.tablecontrolform{
+    margin : 0px;
+}
+
+.computedtxtbox,
+.computedname,
+.search{
+    height : 20px !important;
+    padding : 1px !important;
+}
+
+
+.plottitle{
+    padding-left: 50px;
+    padding-bottom: 10px;
 }

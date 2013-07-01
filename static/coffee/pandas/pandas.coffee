@@ -6,6 +6,8 @@ HasProperties = base.HasProperties
 Collection = Backbone.Collection
 class IPythonRemoteData extends HasProperties
   type : 'IPythonRemoteData'
+  defaults :
+    computed_columns : []
 
 coll = Collection.extend({model : IPythonRemoteData})
 exports.ipythonremotedatas = new coll()
@@ -33,6 +35,7 @@ class PandasPivotView extends ContinuumView
     "keyup .pandasoffset" : 'pandasoffset'
     "keyup .pandassize" : 'pandassize'
     "change .pandasagg" : 'pandasagg'
+    "change .tablecontrolstate" : 'tablecontrolstate'
     "click .pandasbeginning" : 'pandasbeginning'
     "click .pandasback" : 'pandasback'
     "click .pandasnext" : 'pandasnext'
@@ -42,6 +45,33 @@ class PandasPivotView extends ContinuumView
     "click .pandasrow" : 'rowclick'
     "click .filterselected" : 'toggle_filterselected'
     "click .clearselected" : 'clearselected'
+    "keyup .computedtxtbox" : 'computedtxtbox'
+    "click .column_del" : "column_del"
+    "keyup .search" : 'search'
+
+  search : (e) =>
+    if e.keyCode == ENTER
+      code = $(e.currentTarget).val()
+      source = @model.get_obj('source')
+      source.rpc('search', [code])
+
+  column_del : (e) =>
+    source = @model.get_obj('source')
+    old = source.get('computed_columns')
+    name = $(e.currentTarget).attr('name')
+    computed_columns = _.filter(old, (x) ->
+      return x.name != name
+    )
+    source.rpc('set_computed_columns', [computed_columns])
+
+  computedtxtbox : (e) =>
+    if e.keyCode == ENTER
+      name = @$('.computedname').val()
+      code = @$('.computedtxtbox').val()
+      source = @model.get_obj('source')
+      old = source.get('computed_columns')
+      old.push(name : name, code : code)
+      source.rpc('set_computed_columns', [old])
 
   clearselected : (e) =>
     @model.rpc('setselect', [[]])
@@ -105,6 +135,9 @@ class PandasPivotView extends ContinuumView
         size = @mget('maxlength') - @mget('offset')
       @model.save('length', size, {wait:true})
 
+  tablecontrolstate : () ->
+    @mset('tablecontrolstate', @$('.tablecontrolstate').val())
+
   pandasagg : () ->
     @model.save('agg', @$el.find('.pandasagg').val(), {'wait':true})
 
@@ -120,7 +153,9 @@ class PandasPivotView extends ContinuumView
         group : @fromcsv(@$el.find(".pandasgroup").val())
         offset : 0
       )
-     @model.save()
+      @model.save()
+      return false
+
 
   counts : () ->
     @mget('tabledata').data._counts
@@ -134,7 +169,7 @@ class PandasPivotView extends ContinuumView
     if counts and selected
       return _.map(_.zip(counts, selected), (temp) ->
         [count, selected] = temp
-        alpha = 0.5 * selected / count
+        alpha = 0.3 * selected / count
         return "rgba(0,0,255,#{alpha})"
       )
     else
@@ -150,10 +185,14 @@ class PandasPivotView extends ContinuumView
     sort_ascendings = {}
     for obj in  @mget('sort')
       sort_ascendings[obj['column']] = obj['ascending']
+    source = @mget_obj('source')
     template_data =
       skip :
         _counts : true
         _selected : true
+        index : true
+      tablecontrolstate : @mget('tablecontrolstate')
+      computed_columns : @mget_obj('source').get('computed_columns')
       columns : @mget('tabledata').column_names
       data : @mget('tabledata').data
       group : group
@@ -168,12 +207,17 @@ class PandasPivotView extends ContinuumView
       selected : @mget('tabledata').data._selected
       controls_hide : @controls_hide
       colors : colors
-      index : @mget('tabledata').data._index
+      index : @mget('tabledata').data.index
 
     @$el.empty()
     html = @template(template_data)
     @$el.html(html)
-    @$el.find("option[value=\"#{@mget('agg')}\"]").attr('selected', 'selected')
+    @$(".pandasagg")
+      .find("option[value=\"#{@mget('agg')}\"]")
+      .attr('selected', 'selected')
+    @$(".tablecontrolstate")
+      .find("option[value=\"#{@mget('tablecontrolstate')}\"]")
+      .attr('selected', 'selected')
     @$el.addClass("bokehtable")
 
 class PandasPivotTable extends HasParent
@@ -246,7 +290,8 @@ class PandasPivotTable extends HasParent
     maxlength : 1000
     tabledata : null
     columns_names : []
-    width : 400
+    width : null
+    tablecontrolstate : 'groupby'
 
   default_view : PandasPivotView
 
