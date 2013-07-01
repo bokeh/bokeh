@@ -75,7 +75,7 @@ class properties
     default_units = styleprovider.mget(attrname+"_units") ? 'data'
 
     if (attrname+'_units' of glyphspec)
-      default_units = glyphspec[attrname+'units']
+      default_units = glyphspec[attrname+'_units']
 
     if not (attrname of glyphspec)
       if _.isArray(default_value)
