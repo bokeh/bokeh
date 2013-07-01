@@ -46,6 +46,8 @@ def make_plot(name, glyph):
     )
     sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
     sess.use_doc(name)
+    sess.plotcontext.children.append(plot)
+    sess.plotcontext._dirty = True
     sess.store_all()
 
 make_plot('annular_wedge', AnnularWedge(x="x", y="y", inner_radius=0.2, outer_radius=0.5, start_angle=0.8, end_angle=3.8))
