@@ -9,6 +9,6 @@
     "paths" : ["./static/coffee", "./tests/coffee"],
     "public" : "./static/js/tests",
     "css" : false,
-    "specs" : false
-
+    "specs" : false,
+    "port" : 9297
 }
