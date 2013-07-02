@@ -17,11 +17,8 @@ EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
             join(SRCDIR,"unittest/primitives")]
 
 HOST = "localhost"
-PORT = 9294
-
-
-    
-
+DEMOPORT = 9296
+TESTPORT = 9297
 @app.route("/demo/<demoname>")
 def demo(demoname):
 
@@ -29,7 +26,7 @@ def demo(demoname):
         with open("slug.demo.json") as f:
             slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT)
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, DEMOPORT)
     else:
         jslibs = ['/static/js/demo/application.js']
         hemfiles = []
@@ -41,7 +38,7 @@ def demo(demoname):
         if not os.path.isfile(demo):
             raise RuntimeError("Cannot find demo named '%s'"%demo)
 
-    hemfiles.extend(hemlib.make_urls(demofiles, HOST, PORT))
+    hemfiles.extend(hemlib.make_urls(demofiles, HOST, DEMOPORT))
 
     return flask.render_template("demos.html", jslibs = jslibs,
                                  hemfiles=hemfiles, demos=demos)
@@ -52,7 +49,7 @@ def test(testname):
         with open("slug.tests.json") as f:
             slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT,
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, TESTPORT,
                                         excludes=EXCLUDES)
     else:
         jslibs= ['/static/js/tests/application.js']
@@ -64,7 +61,7 @@ def test(testname):
         if not os.path.isfile(test):
             raise RuntimeError("Cannot find test named '%s'" % test)
 
-    hemfiles.extend(hemlib.make_urls(testfiles, HOST, PORT))
+    hemfiles.extend(hemlib.make_urls(testfiles, HOST, TESTPORT))
 
     return flask.render_template("tests.html", jslibs=jslibs,
             hemfiles=hemfiles, tests=tests)

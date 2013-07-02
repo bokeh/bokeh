@@ -10,6 +10,6 @@
     "paths" : ["./static/coffee", "./demo/coffee"],
     "public" : "./static/js/demo",
     "css" : false,
-    "specs" : false
-
+    "specs" : false,
+    "port" : 9296
 }
