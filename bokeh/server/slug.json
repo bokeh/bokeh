@@ -11,6 +11,6 @@
     "paths" : ["./static/coffee", "./static/vendor/bokehjs/coffee"],
     "public" : "./static/js",
     "css" : false,
-    "specs" : false
-
+    "specs" : false,
+    "port" : 9295
 }

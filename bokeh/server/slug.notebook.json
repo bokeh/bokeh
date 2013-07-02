@@ -9,5 +9,6 @@
     "public" : "./static/js",
     "css" : false,
     "specs" : false,
-    "jsPath" : "/bokehnotebook.js"
+    "jsPath" : "/bokehnotebook.js",
+    "port" : 9295
 }
