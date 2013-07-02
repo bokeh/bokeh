@@ -30,7 +30,7 @@ def index(*unused_all, **kwargs):
     if getattr(app, "debugjs", False):
         slug = hemlib.slug_json()
         static_js = hemlib.slug_libs(app, slug['libs'])
-        hem_js = hemlib.all_coffee_assets("localhost", app.hem_port)
+        hem_js = hemlib.all_coffee_assets("localhost")
     else:
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []
