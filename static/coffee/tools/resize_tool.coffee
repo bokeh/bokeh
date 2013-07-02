@@ -85,8 +85,8 @@ class ResizeToolView extends tool.ToolView
     ydiff = y - @y
     [@x, @y] = [x, y]
 
-    ch = @plot_view.view_state.get('outer_height') + ydiff
-    cw = @plot_view.view_state.get('outer_width') + xdiff
+    ch = @plot_view.view_state.get('outer_height')
+    cw = @plot_view.view_state.get('outer_width')
 
     @popup.text("width: #{cw} height: #{ch}")
 
