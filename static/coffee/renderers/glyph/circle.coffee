@@ -29,8 +29,6 @@ class CircleView extends GlyphView
         new line_properties(@, glyphspec)
       ]
     )
-    glyph_props.do_fill = glyph_props.fill_properties.do_fill
-    glyph_props.do_stroke = glyph_props.line_properties.do_stroke
     return glyph_props
 
   _set_data: (@data) ->
@@ -77,7 +75,7 @@ class CircleView extends GlyphView
   _fast_path: (ctx, glyph_props) ->
     if not glyph_props
       glyph_props = @glyph_props
-    if @glyph_props.do_fill
+    if glyph_props.fill_properties.do_fill
       @glyph_props.fill_properties.set(ctx, @glyph_props)
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
@@ -86,7 +84,7 @@ class CircleView extends GlyphView
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
         ctx.fill()
 
-    if @glyph_props.do_stroke
+    if glyph_props.line_properties.do_stroke
       @glyph_props.line_properties.set(ctx, @glyph_props)
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
@@ -108,10 +106,11 @@ class CircleView extends GlyphView
       ctx.beginPath()
       ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
 
-      if glyph_props.do_fill
+      if glyph_props.fill_properties.do_fill
         glyph_props.fill_properties.set(ctx, @data[i])
         ctx.fill()
-      if glyph_props.do_stroke
+
+      if glyph_props.line_properties.do_stroke
         glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
@@ -122,11 +121,6 @@ class CircleView extends GlyphView
       @plot_view.view_state.sy_to_device(yscreenbounds[1])]
     xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)]
     yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)]
-    console.log(xscreenbounds)
-    console.log(yscreenbounds)
-    console.log('min', _.min(this.sx), _.min(this.sy))
-    console.log('max', _.max(this.sx), _.max(this.sy))
-
     selected = []
     for i in [0..@sx.length-1]
       if xscreenbounds
