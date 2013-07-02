@@ -34,12 +34,13 @@ REDIS_PORT = 6379
 log = logging.getLogger(__name__)
 app = Flask("bokeh.server")    
 
-def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, hem_port=9294):
+def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True):
     #must import views before running apps
     import views.deps
     app.register_blueprint(bokeh_app)
+    bokeh_app.redis_port = rport
+    bokeh_app.start_redis = start_redis
     bokeh_app.wsmanager = wsmanager.WebSocketManager()
-    bokeh_app.hem_port = hem_port
     def auth(auth, docid):
         doc = docs.Doc.load(bokeh_app.model_redis, docid)
         status = mconv.can_write_doc_api(doc, auth, bokeh_app)
@@ -72,10 +73,25 @@ def prepare_local():
 
 http_server = None
 
+import services
+import os
+import atexit
+def start_services():
+    if bokeh_app.start_redis:
+        mproc = services.start_redis("bokehpids.json",
+                                     bokeh_app.redis_port, os.getcwd())
+        bokeh_app.redis_proc = mproc
+    atexit.register(service_exit)
+    
+def service_exit():
+    if hasattr(bokeh_app, 'redis_proc'):
+        bokeh_app.redis_proc.close()
+        
 def start_app(verbose=False):
     global http_server
     if verbose:
         print "Starting server on port %d..." % PORT
+    start_services()
     http_server = WSGIServer(('', PORT), app,
                              handler_class=WebSocketHandler,
                              )
