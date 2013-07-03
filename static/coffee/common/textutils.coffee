@@ -2,7 +2,7 @@
 
 getTextHeight = (font) ->
 
-  text = $('<span>Hg</span>').css({ fontFamily: font })
+  text = $('<span>Hg</span>').css({ font: font })
   block = $('<div style="display: inline-block; width: 1px; height: 0px;"></div>')
 
   div = $('<div></div>')

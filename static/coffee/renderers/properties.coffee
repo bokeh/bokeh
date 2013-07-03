@@ -257,12 +257,15 @@ class text_properties extends properties
     @enum(styleprovider, glyphspec, @text_align_name, "left right center")
     @enum(styleprovider, glyphspec, @text_baseline_name, "top middle bottom")
 
-  set: (ctx, obj) ->
+  font:(obj) ->
     font       = @select(@text_font_name,       obj)
     font_size  = @select(@text_font_size_name,  obj)
     font_style = @select(@text_font_style_name, obj)
+    font = font_style + " " + font_size + " " + font
+    return font
 
-    ctx.font         = font_style + " " + font_size + " " + font
+  set: (ctx, obj) ->
+    ctx.font         = @font(obj)
     ctx.fillStyle    = @select(@text_color_name,    obj)
     ctx.globalAlpha  = @select(@text_alpha_name,    obj)
     ctx.textAlign    = @select(@text_align_name,    obj)
