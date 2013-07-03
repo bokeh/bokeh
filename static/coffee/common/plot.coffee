@@ -57,16 +57,20 @@ class PlotView extends ContinuumView
     super(_.defaults(options, @default_options))
 
     @view_state = new ViewState({
-      canvas_width:  options.canvas_width  ? @mget('canvas_width')
-      canvas_height: options.canvas_height ? @mget('canvas_height')
-      x_offset:      options.x_offset      ? @mget('x_offset')
-      y_offset:      options.y_offset      ? @mget('y_offset')
-      outer_width:   options.outer_width   ? @mget('outer_width')
-      outer_height:  options.outer_height  ? @mget('outer_height')
-      border_top:    (options.border_top    ? @mget('border_top'))    ? @mget('border')
-      border_bottom: (options.border_bottom ? @mget('border_bottom')) ? @mget('border')
-      border_left:   (options.border_left   ? @mget('border_left'))   ? @mget('border')
-      border_right:  (options.border_right  ? @mget('border_right'))  ? @mget('border')
+      canvas_width:      options.canvas_width       ? @mget('canvas_width')
+      canvas_height:     options.canvas_height      ? @mget('canvas_height')
+      x_offset:          options.x_offset           ? @mget('x_offset')
+      y_offset:          options.y_offset           ? @mget('y_offset')
+      outer_width:       options.outer_width        ? @mget('outer_width')
+      outer_height:      options.outer_height       ? @mget('outer_height')
+      min_border_top:    (options.min_border_top    ? @mget('min_border_top'))    ? @mget('min_border')
+      min_border_bottom: (options.min_border_bottom ? @mget('min_border_bottom')) ? @mget('min_border')
+      min_border_left:   (options.min_border_left   ? @mget('min_border_left'))   ? @mget('min_border')
+      min_border_right:  (options.min_border_right  ? @mget('min_border_right'))  ? @mget('min_border')
+      requested_border_top: 0
+      requested_border_bottom: 0
+      requested_border_left: 0
+      requested_border_right: 0
     })
 
     @x_range = options.x_range ? @mget_obj('x_range')
@@ -267,11 +271,11 @@ class Plot extends HasParent
     'canvas_height',
     'outer_width',
     'outer_height',
-    'border',
-    'border_top',
-    'border_bottom'
-    'border_left'
-    'border_right'
+    'min_border',
+    'min_border_top',
+    'min_border_bottom'
+    'min_border_left'
+    'min_border_right'
   ]
 
 Plot::defaults = _.clone(Plot::defaults)
@@ -287,7 +291,7 @@ _.extend(Plot::display_defaults
   ,
     background_fill: "#fff",
     border_fill: "#eee",
-    border: 40,
+    min_border: 40,
     x_offset: 0,
     y_offset: 0,
     canvas_width: 300,
