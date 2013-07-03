@@ -114,6 +114,21 @@ class CircleView extends GlyphView
         glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+    glyph_props = @glyph_props
+    ctx.save()
+    glyph_props.fill_properties.set(ctx, @data[0])
+    glyph_props.line_properties.set(ctx, @data[0])
+    border = ctx.lineWidth
+    ctx.beginPath()
+    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
+    d = d - 2 * border
+    r = d / 2
+    ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2*Math.PI,false)
+    ctx.fill()
+    ctx.stroke()
+    ctx.restore()
+
   select : (xscreenbounds, yscreenbounds) ->
     xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
       @plot_view.view_state.sx_to_device(xscreenbounds[1])]

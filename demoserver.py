@@ -156,6 +156,7 @@ alltests = {
     'segment'       : ['primitives/segment_test'],
     'text'          : ['primitives/text_test'],
     'wedge'         : ['primitives/wedge_test'],
+    'legend'         : ['legend_test'],
 }
 
 allpossibletests = set()

@@ -14,6 +14,7 @@ signum = (x) -> x ? x<0 ? -1:1:0
 
 class LinearAxisView extends PlotWidget
   initialize: (attrs, options) ->
+    #hugo : i don't think views take 2 params for initialize
     super(attrs, options)
 
     guidespec = @mget('guidespec')

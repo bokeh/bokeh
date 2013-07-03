@@ -281,6 +281,8 @@ glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatanames=[
   #  #_.defer(myrender)
   return plot_model
 
+#hugo: why not .isArray?
+
 typeIsArray = ( value ) ->
     value and
         typeof value is 'object' and
@@ -289,110 +291,113 @@ typeIsArray = ( value ) ->
         typeof value.splice is 'function' and
         not ( value.propertyIsEnumerable 'length' )
 
+make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[400, 400], axes=true) ->
+  plot_tools = []
+  if tools
+    pantool = Collections('PanTool').create(
+      dataranges: [xrange.ref(), yrange.ref()]
+      dimensions: ['width', 'height']
+    )
+    zoomtool = Collections('ZoomTool').create(
+      dataranges: [xrange.ref(), yrange.ref()]
+      dimensions: ['width', 'height']
+    )
+    resizetool = Collections('ResizeTool').create()
+    pstool = Collections('PreviewSaveTool').create()
+    plot_tools = [pantool, zoomtool, pstool, resizetool]
+  glyphs = []
+  if not typeIsArray(glyphspecs)
+    glyphspecs = [glyphspecs]
+  if not typeIsArray(data_source)
+    for glyphspec in glyphspecs
+      glyph = Collections('GlyphRenderer').create({
+        data_source: data_source.ref()
+        glyphspec: glyphspec
+      })
+      glyph.set(defaults)
+      glyphs.push(glyph)
+  else
+    for val in zip(glyphspecs, data_source)
+      [glyphspec, ds] = val
+      glyph = Collections('GlyphRenderer').create({
+        data_source: ds.ref()
+        glyphspec: glyphspec
+      })
+      glyph.set(defaults)
+      glyphs.push(glyph)
+  plot_model = Collections('Plot').create(
+    x_range: xrange.ref()
+    y_range: yrange.ref()
+    canvas_width: dims[0]
+    canvas_height: dims[1]
+    outer_width: dims[0]
+    outer_height: dims[1]
+    tools: plot_tools
+  )
+  plot_model.set(defaults)
+  plot_model.add_renderers(g.ref() for g in glyphs)
+  if axes
+    xaxis1 = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 0
+        location: 'min'
+        bounds: 'auto'
+      }
+      plot: plot_model.ref()
+    )
+    yaxis1 = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 1
+        location: 'min'
+        bounds: 'auto'
+      }
+      plot: plot_model.ref()
+    )
+    xaxis2 = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 0
+        location: 'max'
+        bounds: 'auto'
+      }
+      plot: plot_model.ref()
+    )
+    yaxis2 = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'linear_axis'
+        dimension: 1
+        location: 'max'
+        bounds: 'auto'
+      }
+      plot: plot_model.ref()
+    )
+    xrule = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'rule'
+        dimension: 0
+        bounds: 'auto'
+      }
+      plot: plot_model.ref()
+    )
+    yrule = Collections('GuideRenderer').create(
+      guidespec: {
+        type: 'rule'
+        dimension: 1
+        bounds: 'auto'
+      }
+      plot: plot_model.ref()
+    )
+    plot_model.add_renderers(
+      [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
+    )
+  return plot_model
+
 make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[400, 400], axes=true) ->
   return () ->
     expect(0)
-
-    plot_tools = []
-    if tools
-      pantool = Collections('PanTool').create(
-        dataranges: [xrange.ref(), yrange.ref()]
-        dimensions: ['width', 'height']
-      )
-      zoomtool = Collections('ZoomTool').create(
-        dataranges: [xrange.ref(), yrange.ref()]
-        dimensions: ['width', 'height']
-      )
-      resizetool = Collections('ResizeTool').create()
-      pstool = Collections('PreviewSaveTool').create()
-      plot_tools = [pantool, zoomtool, pstool, resizetool]
-    glyphs = []
-    if not typeIsArray(glyphspecs)
-      glyphspecs = [glyphspecs]
-    if not typeIsArray(data_source)
-      for glyphspec in glyphspecs
-        glyph = Collections('GlyphRenderer').create({
-          data_source: data_source.ref()
-          glyphspec: glyphspec
-        })
-        glyph.set(defaults)
-        glyphs.push(glyph)
-    else
-      for val in zip(glyphspecs, data_source)
-        [glyphspec, ds] = val
-        glyph = Collections('GlyphRenderer').create({
-          data_source: ds.ref()
-          glyphspec: glyphspec
-        })
-        glyph.set(defaults)
-        glyphs.push(glyph)
-    plot_model = Collections('Plot').create(
-      x_range: xrange.ref()
-      y_range: yrange.ref()
-      canvas_width: dims[0]
-      canvas_height: dims[1]
-      outer_width: dims[0]
-      outer_height: dims[1]
-      tools: plot_tools
-    )
-    plot_model.set(defaults)
-    plot_model.add_renderers(g.ref() for g in glyphs)
-    if axes
-      xaxis1 = Collections('GuideRenderer').create(
-        guidespec: {
-          type: 'linear_axis'
-          dimension: 0
-          location: 'min'
-          bounds: 'auto'
-        }
-        plot: plot_model.ref()
-      )
-      yaxis1 = Collections('GuideRenderer').create(
-        guidespec: {
-          type: 'linear_axis'
-          dimension: 1
-          location: 'min'
-          bounds: 'auto'
-        }
-        plot: plot_model.ref()
-      )
-      xaxis2 = Collections('GuideRenderer').create(
-        guidespec: {
-          type: 'linear_axis'
-          dimension: 0
-          location: 'max'
-          bounds: 'auto'
-        }
-        plot: plot_model.ref()
-      )
-      yaxis2 = Collections('GuideRenderer').create(
-        guidespec: {
-          type: 'linear_axis'
-          dimension: 1
-          location: 'max'
-          bounds: 'auto'
-        }
-        plot: plot_model.ref()
-      )
-      xrule = Collections('GuideRenderer').create(
-        guidespec: {
-          type: 'rule'
-          dimension: 0
-          bounds: 'auto'
-        }
-        plot: plot_model.ref()
-      )
-      yrule = Collections('GuideRenderer').create(
-        guidespec: {
-          type: 'rule'
-          dimension: 1
-          bounds: 'auto'
-        }
-        plot: plot_model.ref()
-      )
-      plot_model.add_renderers(
-        [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
-      )
+    plot_model = make_glyph_plot(data_source, defaults, glyphspecs, xrange, yrange, tools, dims, axes)
     div = $('<div></div>')
     $('body').append(div)
     myrender  =  ->
@@ -414,3 +419,4 @@ exports.bar_plot = bar_plot
 exports.line_plot = line_plot
 exports.glyph_plot = glyph_plot
 exports.make_glyph_test = make_glyph_test
+exports.make_glyph_plot = make_glyph_plot
