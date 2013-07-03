@@ -7,6 +7,27 @@ textutils = require('../../common/textutils')
 line_properties = properties.line_properties
 text_properties = properties.text_properties
 
+"""
+Legends:
+
+legend_padding is the boundary between the legend and the edge of the plot
+legend_spacing goes between each legend entry and the edge of the legend,
+as well as between 2 adjacent legend entries.  It is also the space between
+the legend label, and the legend glyph.
+
+A legend in the top right corner looks like this
+
+plotborder
+padding
+legendborder
+spacing
+legendborder|spacing|label|spacing|glyph|spacing|legendborder|padding|plotborder
+spacing
+legendborder|spacing|label|spacing|glyph|spacing|legendborder|padding|plotborder
+spacing
+border
+
+"""
 class LegendView extends PlotWidget
   initialize : (options) ->
     super(options)
@@ -58,7 +79,18 @@ class LegendView extends PlotWidget
     if orientation == "top_right"
       x = h_range.get('end') - legend_padding - @legend_width
       y = v_range.get('start') + legend_padding
-      @box_coords = [x, y]
+    else if orientation == "top_left"
+      x = h_range.get('start') + legend_padding
+      y = v_range.get('start') + legend_padding
+    else if orientation == "bottom_left"
+      x = h_range.get('start') + legend_padding
+      y = v_range.get('end') - legend_padding - @legend_height
+    else if orientation == "bottom_right"
+      x = h_range.get('end') - legend_padding - @legend_width
+      y = v_range.get('end') - legend_padding - @legend_height
+    else if orientation == "absolute"
+      [x,y] = @annotationspec.absolute_coords
+    @box_coords = [x,y]
 
   render : () ->
     ctx = @plot_view.ctx

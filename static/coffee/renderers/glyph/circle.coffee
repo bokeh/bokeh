@@ -117,8 +117,8 @@ class CircleView extends GlyphView
   draw_legend: (ctx, x1, x2, y1, y2) ->
     glyph_props = @glyph_props
     ctx.save()
-    glyph_props.fill_properties.set(ctx, @data[0])
-    glyph_props.line_properties.set(ctx, @data[0])
+    glyph_props.fill_properties.set(ctx, @glyph_props)
+    glyph_props.line_properties.set(ctx, @glyph_props)
     border = ctx.lineWidth
     ctx.beginPath()
     d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
