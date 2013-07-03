@@ -327,7 +327,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange,
         glyph.set(defaults)
         glyphs.push(glyph)
     plot_model = Collections('Plot').create(
-      x_range: xrange.ref() # TODO .ref() fails?
+      x_range: xrange.ref()
       y_range: yrange.ref()
       canvas_width: dims[0]
       canvas_height: dims[1]
