@@ -21,15 +21,11 @@ class PlotView extends ContinuumView
   view_options: () ->
     _.extend({plot_model: @model, plot_view: @}, @options)
 
-  events:
-    "mousemove .bokeh_canvas_wrapper": "_mousemove"
-    "mousedown .bokeh_canvas_wrapper": "_mousedown"
-
-  _mousedown: (e) ->
+  _mousedown: (e) =>
     for f in @mousedownCallbacks
       f(e, e.layerX, e.layerY)
 
-  _mousemove: (e) ->
+  _mousemove: (e) =>
     for f in @moveCallbacks
       f(e, e.layerX, e.layerY)
 
@@ -51,6 +47,8 @@ class PlotView extends ContinuumView
     return
 
   initialize: (options) ->
+    $('body').mousedown(@_mousedown)
+    $('body').mousemove(@_mousemove)
     @throttled_render = _.throttle(@render, 50)
     @throttled_render_canvas = _.throttle(@render_canvas, 30)
 
@@ -90,6 +88,15 @@ class PlotView extends ContinuumView
       domain_mapper: @xmapper
       codomain_mapper: @ymapper
     })
+
+    @requested_padding = {
+      top: 0
+      bottom: 0
+      left: 0
+      right: 0
+    }
+
+    @am_rendering = false
 
     @renderers = {}
     @tools = {}
@@ -211,8 +218,31 @@ class PlotView extends ContinuumView
 
   render: (force) ->
     super()
+
+    if @am_rendering
+      return
+
+    @am_rendering = true
+
+    @requested_padding = {
+      top: 0
+      bottom: 0
+      left: 0
+      right: 0
+    }
+    for level in ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
+      renderers = @levels[level]
+      for k, v of renderers
+        if v.padding_request?
+          pr = v.padding_request()
+          for k, v of pr
+            @requested_padding[k] += v
+
+    for k, v of @requested_padding
+      @view_state.set("requested_border_#{k}", v)
+
     @ctx.fillStyle = @mget('border_fill')
-    @ctx.fillRect(0,0,  @view_state.get('canvas_width'), @view_state.get('canvas_height'))
+    @ctx.fillRect(0, 0,  @view_state.get('canvas_width'), @view_state.get('canvas_height')) # TODO
     @ctx.fillStyle = @mget('background_fill')
     @ctx.fillRect(
       @view_state.get('border_left'), @view_state.get('border_top'),
@@ -240,6 +270,8 @@ class PlotView extends ContinuumView
       renderers = @levels[level]
       for k, v of renderers
         v.render()
+
+    @am_rendering = false
 
 class PNGView extends ContinuumView
 

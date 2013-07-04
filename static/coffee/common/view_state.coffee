@@ -68,22 +68,22 @@ class ViewState extends HasProperties
 
     @register_property('border_top',
         () -> Math.max(@get('min_border_top'), @get('requested_border_top'))
-      , true)
+      , false)
     @add_dependencies('border_top', this, ['min_border_top', 'requested_border_top'])
 
     @register_property('border_bottom',
         () -> Math.max(@get('min_border_bottom'), @get('requested_border_bottom'))
-      , true)
+      , false)
     @add_dependencies('border_bottom', this, ['min_border_bottom', 'requested_border_bottom'])
 
     @register_property('border_left',
         () -> Math.max(@get('min_border_left'), @get('requested_border_left'))
-      , true)
+      , false)
     @add_dependencies('border_left', this, ['min_border_left', 'requested_border_left'])
 
     @register_property('border_right',
         () -> Math.max(@get('min_border_right'), @get('requested_border_right'))
-      , true)
+      , false)
     @add_dependencies('border_right', this, ['min_border_right', 'requested_border_right'])
 
     @register_property('canvas_aspect',

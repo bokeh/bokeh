@@ -344,6 +344,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=fals
         location: 'min'
         bounds: 'auto'
       }
+      axis_label: 'x'
       plot: plot_model.ref()
     )
     yaxis1 = Collections('GuideRenderer').create(
@@ -353,6 +354,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=fals
         location: 'min'
         bounds: 'auto'
       }
+      axis_label: 'y'
       plot: plot_model.ref()
     )
     xaxis2 = Collections('GuideRenderer').create(
@@ -362,6 +364,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=fals
         location: 'max'
         bounds: 'auto'
       }
+      axis_label: 'x'
       plot: plot_model.ref()
     )
     yaxis2 = Collections('GuideRenderer').create(
@@ -371,6 +374,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=fals
         location: 'max'
         bounds: 'auto'
       }
+      axis_label: 'y'
       plot: plot_model.ref()
     )
     xrule = Collections('GuideRenderer').create(

@@ -255,7 +255,7 @@ class text_properties extends properties
     @color(styleprovider, glyphspec, @text_color_name)
     @number(styleprovider, glyphspec, @text_alpha_name)
     @enum(styleprovider, glyphspec, @text_align_name, "left right center")
-    @enum(styleprovider, glyphspec, @text_baseline_name, "top middle bottom")
+    @enum(styleprovider, glyphspec, @text_baseline_name, "top middle bottom alphabetic hanging")
 
   font:(obj) ->
     font       = @select(@text_font_name,       obj)
