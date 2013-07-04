@@ -18,6 +18,10 @@ EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
 HOST = "localhost"
 slug = json.load(open("slug.all.json"))
 
+@app.route("/")
+def welcome():
+    return flask.render_template("welcome.html", alldemos=alldemos, alltests=alltests)
+
 def display_page(file_set, template, **extra_template_vars):
     for f in file_set:
         if not os.path.isfile(f):
@@ -78,9 +82,6 @@ alldemos = {
 
 }
 
-@app.route("/")
-def welcome():
-    return flask.render_template("welcome.html", alldemos=alldemos, alltests=alltests)
 
 alltests = {
 

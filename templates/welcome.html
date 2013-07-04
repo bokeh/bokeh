@@ -56,9 +56,10 @@
 <body>
   <div>
     <h1> Welcome to the bokehjs demoserver </h1>
+      <p> to run the demos and tests, hem must be running via <code>hem server -s slug.all.json</code></p>
     <div>
       <h2>demo list</h2>
-      <p> to run the demos, hem must be running via <code>hem server -s slug.demo.json</code></p>
+
       <ul>
         {% for demo in alldemos['all'] %}
           <li>
@@ -69,7 +70,6 @@
     </div>
     <div>
       <h2>test list</h2>
-      <p> to run the tests, hem must be running via <code>hem server -s slug.tests.json</code></p>
       <ul>
         {% for test in alltests.keys() %}
           <li>
