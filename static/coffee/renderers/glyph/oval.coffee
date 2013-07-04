@@ -110,6 +110,44 @@ class OvalView extends GlyphView
       ctx.rotate(-@angle[i])
       ctx.translate(-@sx[i], -@sy[i])
 
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+    glyph_props = @glyph_props
+    line_props = glyph_props.line_properties
+    fill_props = glyph_props.fill_properties
+    ctx.save()
+    reference_point = @get_reference_point()
+    if reference_point?
+      glyph_settings = reference_point
+      sw = @distance([reference_point], 'x', 'width', 'center')[0]
+      sh = @distance([refrence_point], 'y', 'height', 'center')[0]
+    else
+      glyph_settings = glyph_props
+      sw = 1.0
+      sh = 2.0
+    border = line_props.select(line_props.line_width_name, glyph_settings)
+    w = Math.abs(x2-x1)
+    h = Math.abs(y2-y1)
+    w = w - 2*border
+    h = h - 2*border
+    ratio1 = h / sh
+    ratio2 = w / sw
+    ratio = _.min([ratio1, ratio2])
+    h = sh * ratio
+    w = sw * ratio
+
+    ctx.translate((x1 + x2)/2, (y1 + y2)/2)
+    ctx.beginPath()
+    ctx.moveTo(0, -h/2)
+    ctx.bezierCurveTo( w/2, -h/2,  w/2,  h/2, 0,  h/2)
+    ctx.bezierCurveTo( -w/2, h/2,  -w/2,  -h/2, 0,  -h/2)
+    ctx.closePath()
+    fill_props.set(ctx, glyph_settings)
+    ctx.fill()
+    line_props.set(ctx, glyph_settings)
+    ctx.stroke()
+
+    ctx.restore()
+
 
 class Oval extends Glyph
   default_view: OvalView
