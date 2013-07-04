@@ -256,10 +256,10 @@ class text_properties extends properties
     @number(styleprovider, glyphspec, @text_alpha_name)
     @enum(styleprovider, glyphspec, @text_align_name, "left right center")
     @enum(styleprovider, glyphspec, @text_baseline_name, "top middle bottom alphabetic hanging")
-
-  font:(obj) ->
+  font:(obj, font_size) ->
+    if font_size?
+      font_size = @select(@text_font_size_name,  obj)
     font       = @select(@text_font_name,       obj)
-    font_size  = @select(@text_font_size_name,  obj)
     font_style = @select(@text_font_style_name, obj)
     font = font_style + " " + font_size + " " + font
     return font
