@@ -23,7 +23,7 @@ def demo(demoname):
         jslibs = hemlib.slug_libs(app, slug['libs'])
         hemfiles = hemlib.coffee_assets(SRCDIR, HOST, slug['port'])
     else:
-        jslibs = ['/static/js/demo/application.js']
+        jslibs= ['/static/js/application.js']
         hemfiles = []
 
     demos = alldemos[demoname]
@@ -45,7 +45,7 @@ def test(testname):
         hemfiles = hemlib.coffee_assets(SRCDIR, HOST, slug['port'],
                                         excludes=EXCLUDES)
     else:
-        jslibs= ['/static/js/tests/application.js']
+        jslibs= ['/static/js/application.js']
         hemfiles = []
     print "demoserver hemfiles", hemfiles
     tests = alltests[testname]
