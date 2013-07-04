@@ -31,3 +31,5 @@ glyph = {
 }
 
 test('annular_wedge_glyph', make_glyph_test('annular_wedge_glyph', data_source, defaults, glyph, range, range))
+
+test('annular_wedge_glyph_legend2', make_glyph_test('annular_wedge_glyph', data_source, defaults, glyph, range, range, null, null, null, null, 3))

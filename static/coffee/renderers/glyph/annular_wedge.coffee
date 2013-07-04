@@ -130,6 +130,58 @@ class AnnularWedgeView extends GlyphView
         @glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+    glyph_props = @glyph_props
+    line_props = glyph_props.line_properties
+    fill_props = glyph_props.fill_properties
+    ctx.save()
+    reference_point = @get_reference_point()
+    if reference_point?
+      glyph_settings = reference_point
+      outer_radius = @distance([reference_point],'x', 'outer_radius', 'edge')
+      outer_radius = outer_radius[0]
+      inner_radius = @distance([reference_point],'x', 'inner_radius', 'edge')
+      inner_radius = inner_radius[0]
+      start_angle = -@glyph_props.select('start_angle', reference_point)
+      end_angle = -@glyph_props.select('end_angle', reference_point)
+    else
+      glyph_settings = glyph_props
+      start_angle = -0.1
+      end_angle = -3.9
+
+    angle = end_angle - start_angle
+    direction = @glyph_props.select('direction', glyph_settings)
+    direction = if direction == "clock" then false else true
+    border = line_props.select(line_props.line_width_name, glyph_settings)
+    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
+    d = d - 2 * border
+    r = d / 2
+    if outer_radius? or inner_radius?
+      ratio = r / outer_radius
+      outer_radius = r
+      inner_radius = inner_radius * ratio
+    else
+      outer_radius = r
+      inner_radius = r/2
+    sx = (x1 + x2) / 2.0
+    sy = (y1 + y2) / 2.0
+    ctx.translate(sx, sy)
+    ctx.rotate(start_angle)
+    ctx.moveTo(outer_radius, 0)
+    ctx.beginPath()
+    ctx.arc(0, 0, outer_radius, 0, angle, direction)
+    ctx.rotate(angle)
+    ctx.lineTo(inner_radius, 0)
+    ctx.arc(0, 0, inner_radius, 0, -angle, not direction)
+    ctx.closePath()
+
+    fill_props.set(ctx, glyph_settings)
+    ctx.fill()
+    line_props.set(ctx, glyph_settings)
+    ctx.stroke()
+
+    ctx.restore()
+
 
 class AnnularWedge extends Glyph
   default_view: AnnularWedgeView
