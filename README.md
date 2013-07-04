@@ -52,7 +52,7 @@ of demos.
 If, for whatever reason, you don't want to have the hem server running, you 
 can also build a static Javascript file and use that instead:
 
-`$ hem build -s slug.demo.json`
+`$ hem build -s slug.all.json`
 `$ python demoserver.py`
 
 Note that in order to run the demo server in debug mode, you must also use
@@ -60,17 +60,7 @@ the hem server.  The reason is that it's very unlikely you will be debugging
 BokehJS without modifying coffeescript, and using the hem server ensures
 that you are never served stale Javascript.
 
-Testing
-=======
-
-The process for unit tests is very similar to the demos:
-
-`$ hem server -s slug.tests.json`
-`$ python demoserver.py debug`  (In a new window)
-
-Navigate to `http://localhost:5000/tests` to see a list of unit tests
-you can run.
-
+You can run tests by navigating to `http://localhost:5000/tests`
 
 Deploying
 =========

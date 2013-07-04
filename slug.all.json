@@ -8,7 +8,7 @@
              "./static/vendor/buckets/buckets.js",
              "./static/js/custom.js"],
     "paths" : ["./static/coffee", "./tests/coffee", "./demo/coffee"],
-    "public" : "./static/js/tests",
+    "public" : "./static/js/demo",
     "css" : false,
     "specs" : false,
     "port" : 9296

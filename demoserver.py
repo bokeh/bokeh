@@ -19,43 +19,37 @@ HOST = "localhost"
 slug = json.load(open("slug.all.json"))
 @app.route("/demo/<demoname>")
 def demo(demoname):
+    demos = alldemos[demoname]
+    demofiles = [os.path.join(DEMO_SRCDIR, name+".coffee") for name in demos]
     if app.debug:
         jslibs = hemlib.slug_libs(app, slug['libs'])
         hemfiles = hemlib.coffee_assets(SRCDIR, HOST, slug['port'])
+        hemfiles.extend(hemlib.make_urls(demofiles, HOST, slug['port']))
     else:
-        jslibs= ['/static/js/application.js']
+        jslibs= ['/static/js/demo/application.js']
         hemfiles = []
-
-    demos = alldemos[demoname]
-    demofiles = [os.path.join(DEMO_SRCDIR, name+".coffee") for name in demos]
-
     for demo in demofiles:
         if not os.path.isfile(demo):
             raise RuntimeError("Cannot find demo named '%s'"%demo)
-
-    hemfiles.extend(hemlib.make_urls(demofiles, HOST, slug['port']))
-
     return flask.render_template("demos.html", jslibs = jslibs,
                                  hemfiles=hemfiles, demos=demos)
 
 @app.route("/test/<testname>")
 def test(testname):
-    if app.debug:
-        jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, slug['port'],
-                                        excludes=EXCLUDES)
-    else:
-        jslibs= ['/static/js/application.js']
-        hemfiles = []
-    print "demoserver hemfiles", hemfiles
     tests = alltests[testname]
     testfiles = [os.path.join(TEST_SRCDIR, name+".coffee") for name in tests]
     for test in testfiles:
         if not os.path.isfile(test):
             raise RuntimeError("Cannot find test named '%s'" % test)
-
-    hemfiles.extend(hemlib.make_urls(testfiles, HOST, slug['port']))
-
+    if app.debug:
+        jslibs = hemlib.slug_libs(app, slug['libs'])
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, slug['port'],
+                                        excludes=EXCLUDES)
+        hemfiles.extend(hemlib.make_urls(testfiles, HOST, slug['port']))
+        print "demoserver hemfiles", hemfiles
+    else:
+        jslibs= ['/static/js/demo/application.js']
+        hemfiles = []
     return flask.render_template("tests.html", jslibs=jslibs,
             hemfiles=hemfiles, tests=tests)
 
