@@ -156,7 +156,7 @@ _.extend(Legend::display_defaults, {
   legend_padding : 10
   legend_spacing : 3
   orientation : "top_right"
-  label_text_align : "start"
+  label_text_align : "left"
   label_text_baseline : "middle"
   datapoint : null
 })
