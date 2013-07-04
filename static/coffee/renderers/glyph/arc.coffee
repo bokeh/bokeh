@@ -73,6 +73,35 @@ class ArcView extends GlyphView
         @glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+    glyph_props = @glyph_props
+    line_props = glyph_props.line_properties
+    ctx.save()
+    reference_point = @get_reference_point()
+    if reference_point?
+      glyph_settings = reference_point
+      data_r = @distance([reference_point], 'x', 'radius', 'edge')[0]
+      start_angle = -@glyph_props.select('start_angle', reference_point)
+      end_angle = -@glyph_props.select('end_angle', reference_point)
+    else
+      glyph_settings = glyph_props
+      start_angle = -0.1
+      end_angle = -3.9
+    direction = @glyph_props.select('direction', glyph_settings)
+    direction = if direction == "clock" then false else true
+    border = line_props.select(line_props.line_width_name, glyph_settings)
+    ctx.beginPath()
+    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
+    d = d - 2 * border
+    r = d / 2
+    if data_r?
+      r = if data_r > r then r else data_r
+    ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, start_angle,
+      end_angle, direction)
+    line_props.set(ctx, glyph_settings)
+    ctx.stroke()
+
+    ctx.restore()
 
 class Arc extends Glyph
   default_view: ArcView
@@ -96,4 +125,3 @@ _.extend(Arc::display_defaults, {
 
 exports.Arc = Arc
 exports.ArcView = ArcView
-
