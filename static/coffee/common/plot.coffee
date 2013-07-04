@@ -20,6 +20,9 @@ ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager
 LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
 class PlotView extends ContinuumView
+  events:
+    "mousemove .bokeh_canvas_wrapper": "_mousemove"
+    "mousedown .bokeh_canvas_wrapper": "_mousedown"
 
   view_options: () ->
     _.extend({plot_model: @model, plot_view: @}, @options)
@@ -37,6 +40,7 @@ class PlotView extends ContinuumView
 
   unpause : () ->
     @is_paused = false
+    @render_canvas()
     @request_render()
 
   request_render : () ->
@@ -46,14 +50,13 @@ class PlotView extends ContinuumView
 
   request_render_canvas : () ->
     if not @is_paused
-      @throttled_render_canvas()
+      @render_canvas()
     return
 
   initialize: (options) ->
-    $('body').mousedown(@_mousedown)
-    $('body').mousemove(@_mousemove)
-    @throttled_render = _.throttle(@render, 50)
-    @throttled_render_canvas = _.throttle(@render_canvas, 30)
+    # $('body').mousedown(@_mousedown)
+    # $('body').mousemove(@_mousemove)
+    @throttled_render = _.throttle(@render, 100)
 
     @title_props = new text_properties(@, {}, 'title_')
 
@@ -177,7 +180,10 @@ class PlotView extends ContinuumView
     return this
 
   bind_bokeh_events: () ->
-    safebind(this, @view_state, 'change', @request_render_canvas)
+    safebind(this, @view_state, 'change', () =>
+      @request_render_canvas()
+      @request_render()
+    )
     safebind(this, @x_range, 'change', @request_render)
     safebind(this, @y_range, 'change', @request_render)
     safebind(this, @model, 'change:renderers', @build_levels)
@@ -197,7 +203,7 @@ class PlotView extends ContinuumView
     @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
     @canvas = @$el.find('canvas.bokeh_canvas')
 
-  render_canvas: (full_render = true) ->
+  render_canvas: () ->
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
 
@@ -207,9 +213,6 @@ class PlotView extends ContinuumView
     @$el.attr("width", ow).attr('height', oh)
 
     @ctx = @canvas[0].getContext('2d')
-
-    if full_render
-      @render();
 
     @render_end()
 
@@ -222,12 +225,11 @@ class PlotView extends ContinuumView
 
   render: (force) ->
     super()
-
-    if @am_rendering
-      return
-
-    @am_rendering = true
-
+    #newtime = new Date()
+    # if @last_render
+    #   console.log(newtime - @last_render)
+    # @last_render = newtime
+    # console.log('fullrender')
     @requested_padding = {
       top: 0
       bottom: 0
@@ -245,9 +247,10 @@ class PlotView extends ContinuumView
     @title_props.set(@ctx, {})
     th = @ctx.measureText(@mget('title')).ascent
     @requested_padding['top'] += (th + @mget('title_standoff'))
-
+    @is_paused = true
     for k, v of @requested_padding
       @view_state.set("requested_border_#{k}", v)
+    @is_paused = false
 
     @ctx.fillStyle = @mget('border_fill')
     @ctx.fillRect(0, 0,  @view_state.get('canvas_width'), @view_state.get('canvas_height')) # TODO
@@ -284,7 +287,7 @@ class PlotView extends ContinuumView
     @title_props.set(@ctx, {})
     @ctx.fillText(@mget('title'), sx, sy)
 
-    @am_rendering = false
+
 
 class PNGView extends ContinuumView
 

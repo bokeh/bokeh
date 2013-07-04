@@ -90,16 +90,17 @@ class ResizeToolView extends tool.ToolView
 
     @popup.text("width: #{cw} height: #{ch}")
 
-    @plot_view.view_state.set('outer_height', ch+ydiff)
-    @plot_view.view_state.set('outer_width', cw+xdiff)
-    @plot_view.view_state.set('canvas_height', ch+ydiff)
-    @plot_view.view_state.set('canvas_width', cw+xdiff)
+    @plot_view.view_state.set('outer_height', ch+ydiff, {'silent' : true})
+    @plot_view.view_state.set('outer_width', cw+xdiff, {'silent' : true})
+    @plot_view.view_state.set('canvas_height', ch+ydiff, {'silent' : true})
+    @plot_view.view_state.set('canvas_width', cw+xdiff, {'silent' : true})
 
+    @plot_view.view_state.trigger('change:outer_height', ch+ydiff)
+    @plot_view.view_state.trigger('change:outer_width', cw+xdiff)
+    @plot_view.view_state.trigger('change:canvas_height', ch+ydiff)
+    @plot_view.view_state.trigger('change:canvas_width', cw+xdiff)
+    @plot_view.view_state.trigger('change', @plot_view.view_state)
     @plot_view.unpause()
-
-    @plot_view.view_state.trigger('change')
-
-    @plot_view.request_render()
 
     return null
 
