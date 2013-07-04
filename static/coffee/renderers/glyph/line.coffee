@@ -81,6 +81,21 @@ class LineView extends GlyphView
             ctx.lineTo(sx[i], sy[i])
         ctx.stroke()
 
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+    glyph_props = @glyph_props
+    line_props = glyph_props.line_properties
+    reference_point = @get_reference_point()
+    if reference_point?
+      glyph_settings = reference_point
+    else
+      glyph_settings = glyph_props
+    line_props.set(ctx, glyph_settings)
+    ctx.beginPath()
+    ctx.moveTo(x1, (y1 + y2) /2)
+    ctx.lineTo(x2, (y1 + y2) /2)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.restore()
 
 class Line extends Glyph
   default_view: LineView
@@ -103,4 +118,3 @@ _.extend(Line::display_defaults, {
 
 exports.Line = Line
 exports.LineView = LineView
-
