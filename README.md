@@ -36,9 +36,9 @@ happen very often, as we do not make very many changes to Hem.
 Demoing
 =======
 
-To play with the BokehJS demos, run the following two commands:
+To play with the BokehJS demos and tests, run the following two commands:
 
-`$ hem server -s slug.demo.json`
+`$ hem server -s slug.all.json`
 
 This causes a hem server to start, which will compile coffeescript source
 on-demand and serve them up.  Then, in a new window, run the Python 

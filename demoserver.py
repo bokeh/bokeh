@@ -3,7 +3,6 @@ import hemlib
 import json
 import os
 from os.path import join
-import subprocess
 import sys
 
 app = flask.Flask(__name__)
@@ -17,16 +16,12 @@ EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
             join(SRCDIR,"unittest/primitives")]
 
 HOST = "localhost"
-DEMOPORT = 9296
-TESTPORT = 9297
+slug = json.load(open("slug.all.json"))
 @app.route("/demo/<demoname>")
 def demo(demoname):
-
     if app.debug:
-        with open("slug.demo.json") as f:
-            slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, DEMOPORT)
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, slug['port'])
     else:
         jslibs = ['/static/js/demo/application.js']
         hemfiles = []
@@ -38,7 +33,7 @@ def demo(demoname):
         if not os.path.isfile(demo):
             raise RuntimeError("Cannot find demo named '%s'"%demo)
 
-    hemfiles.extend(hemlib.make_urls(demofiles, HOST, DEMOPORT))
+    hemfiles.extend(hemlib.make_urls(demofiles, HOST, slug['port']))
 
     return flask.render_template("demos.html", jslibs = jslibs,
                                  hemfiles=hemfiles, demos=demos)
@@ -46,10 +41,8 @@ def demo(demoname):
 @app.route("/test/<testname>")
 def test(testname):
     if app.debug:
-        with open("slug.tests.json") as f:
-            slug = json.load(f)
         jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, TESTPORT,
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, slug['port'],
                                         excludes=EXCLUDES)
     else:
         jslibs= ['/static/js/tests/application.js']
@@ -61,7 +54,7 @@ def test(testname):
         if not os.path.isfile(test):
             raise RuntimeError("Cannot find test named '%s'" % test)
 
-    hemfiles.extend(hemlib.make_urls(testfiles, HOST, TESTPORT))
+    hemfiles.extend(hemlib.make_urls(testfiles, HOST, slug['port']))
 
     return flask.render_template("tests.html", jslibs=jslibs,
             hemfiles=hemfiles, tests=tests)
