@@ -17,43 +17,35 @@ EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
 
 HOST = "localhost"
 slug = json.load(open("slug.all.json"))
+
+def display_page(file_set, template, **extra_template_vars):
+    for f in file_set:
+        if not os.path.isfile(f):
+            raise RuntimeError("Cannot find file named '%s'" % f)
+    if app.debug:
+        jslibs = hemlib.slug_libs(app, slug['libs'])
+        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, slug['port'],
+                                        excludes=EXCLUDES)
+        hemfiles.extend(hemlib.make_urls(file_set, HOST, slug['port']))
+        print "demoserver hemfiles", hemfiles
+    else:
+        jslibs= ['/static/js/demo/application.js']
+        hemfiles = []
+    return flask.render_template(template, jslibs=jslibs,
+            hemfiles=hemfiles, **extra_template_vars)
+
 @app.route("/demo/<demoname>")
 def demo(demoname):
     demos = alldemos[demoname]
     demofiles = [os.path.join(DEMO_SRCDIR, name+".coffee") for name in demos]
-    if app.debug:
-        jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, slug['port'])
-        hemfiles.extend(hemlib.make_urls(demofiles, HOST, slug['port']))
-    else:
-        jslibs= ['/static/js/demo/application.js']
-        hemfiles = []
-    for demo in demofiles:
-        if not os.path.isfile(demo):
-            raise RuntimeError("Cannot find demo named '%s'"%demo)
-    return flask.render_template("demos.html", jslibs = jslibs,
-                                 hemfiles=hemfiles, demos=demos)
+    return display_page(demofiles, "demos.html", demos=demos)
 
 @app.route("/test/<testname>")
 def test(testname):
     tests = alltests[testname]
     testfiles = [os.path.join(TEST_SRCDIR, name+".coffee") for name in tests]
-    for test in testfiles:
-        if not os.path.isfile(test):
-            raise RuntimeError("Cannot find test named '%s'" % test)
-    if app.debug:
-        jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, slug['port'],
-                                        excludes=EXCLUDES)
-        hemfiles.extend(hemlib.make_urls(testfiles, HOST, slug['port']))
-        print "demoserver hemfiles", hemfiles
-    else:
-        jslibs= ['/static/js/demo/application.js']
-        hemfiles = []
-    return flask.render_template("tests.html", jslibs=jslibs,
-            hemfiles=hemfiles, tests=tests)
-
-
+    return display_page(testfiles, "tests.html", tests=tests)
+    
 alldemos = {
 
     'all' : [
