@@ -74,7 +74,7 @@ glyph = {
   length: 'length'
 }
 
-test('ray_glyph_line_alpha', make_glyph_test('ray_glyph_line_alpha', data_source, defaults, glyph, range, range))
+test('ray_glyph_line_alpha', make_glyph_test('ray_glyph_line_alpha', data_source, defaults, glyph, range, range, null, null, null, null, 3))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
