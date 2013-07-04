@@ -291,7 +291,10 @@ typeIsArray = ( value ) ->
         typeof value.splice is 'function' and
         not ( value.propertyIsEnumerable 'length' )
 
-make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[400, 400], axes=true) ->
+make_glyph_plot = (data_source, defaults, glyphspecs,
+    xrange, yrange, tools=false, dims=[400, 400],
+    axes=true, legend=true, legend_name="glyph",
+    reference_point) ->
   plot_tools = []
   if tools
     pantool = Collections('PanTool').create(
@@ -313,6 +316,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=fals
       glyph = Collections('GlyphRenderer').create({
         data_source: data_source.ref()
         glyphspec: glyphspec
+        reference_point : reference_point
       })
       glyph.set(defaults)
       glyphs.push(glyph)
@@ -396,12 +400,28 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=fals
     plot_model.add_renderers(
       [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
     )
+    if legend
+      legends = {}
+      legend_renderer = Collections("AnnotationRenderer").create(
+        plot : plot_model.ref()
+        annotationspec:
+          type : "legend"
+          orientation : "top_right"
+          legends: legends
+      )
+      for g, idx in glyphs
+        legends[legend_name + String(idx)] = [g.ref()]
+      plot_model.add_renderers([legend_renderer.ref()])
+
   return plot_model
 
-make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[400, 400], axes=true) ->
+make_glyph_test = (test_name, data_source, defaults, glyphspecs,
+    xrange, yrange, tools=false, dims=[400, 400],
+    axes=true, legend=true,
+    reference_point) ->
   return () ->
     expect(0)
-    plot_model = make_glyph_plot(data_source, defaults, glyphspecs, xrange, yrange, tools, dims, axes)
+    plot_model = make_glyph_plot(data_source, defaults, glyphspecs, xrange, yrange, tools, dims, axes, true, test_name, reference_point)
     div = $('<div></div>')
     $('body').append(div)
     myrender  =  ->

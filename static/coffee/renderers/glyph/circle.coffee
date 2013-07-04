@@ -114,21 +114,6 @@ class CircleView extends GlyphView
         glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
-  draw_legend: (ctx, x1, x2, y1, y2) ->
-    glyph_props = @glyph_props
-    ctx.save()
-    glyph_props.fill_properties.set(ctx, @glyph_props)
-    glyph_props.line_properties.set(ctx, @glyph_props)
-    border = ctx.lineWidth
-    ctx.beginPath()
-    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
-    d = d - 2 * border
-    r = d / 2
-    ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2*Math.PI,false)
-    ctx.fill()
-    ctx.stroke()
-    ctx.restore()
-
   select : (xscreenbounds, yscreenbounds) ->
     xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
       @plot_view.view_state.sx_to_device(xscreenbounds[1])]
@@ -146,6 +131,32 @@ class CircleView extends GlyphView
           continue
       selected.push(i)
      return selected
+
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+    glyph_props = @glyph_props
+    line_props = glyph_props.line_properties
+    fill_props = glyph_props.fill_properties
+    ctx.save()
+    reference_point = @get_reference_point()
+    if reference_point?
+      glyph_settings = reference_point
+      data_r = @distance([reference_point], 'x', 'radius', 'edge')[0]
+    else
+      glyph_settings = glyph_props
+    border = line_props.select(line_props.line_width_name, glyph_settings)
+    ctx.beginPath()
+    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
+    d = d - 2 * border
+    r = d / 2
+    if data_r?
+      r = if data_r > r then r else data_r
+    ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2*Math.PI,false)
+    fill_props.set(ctx, glyph_settings)
+    ctx.fill()
+    line_props.set(ctx, glyph_settings)
+    ctx.stroke()
+
+    ctx.restore()
 
 
 class Circle extends Glyph

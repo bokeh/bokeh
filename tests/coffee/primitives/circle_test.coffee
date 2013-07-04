@@ -26,7 +26,7 @@ glyph = {
   y: 'y'
 }
 
-test('circle_glyph', make_glyph_test('circle_glyph', data_source, defaults, glyph, range, range))
+test('circle_glyph', make_glyph_test('circle_glyph', data_source, defaults, glyph, range, range, null, null, null, null, null))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -51,7 +51,8 @@ glyph = {
   y: 'y'
 }
 
-test('circle_glyph_line_color', make_glyph_test('circle_glyph_line_color', data_source, defaults, glyph, range, range))
+test('circle_glyph_line_color', make_glyph_test('circle_glyph_line_color', data_source, defaults, glyph, range, range, null, null, null, null,
+{x: 4, y: 2, line_color: '#4488ff'}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -123,7 +124,7 @@ glyph = {
   y: 'y'
 }
 
-test('circle_glyph_line_alpha', make_glyph_test('circle_glyph_line_alpha', data_source, defaults, glyph, range, range))
+test('circle_glyph_line_alpha', make_glyph_test('circle_glyph_line_alpha', data_source, defaults, glyph, range, range, reference_point=2))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -137,7 +138,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 
 glyph = {
   type: 'circle'
-  fill: 
+  fill:
     field: 'color'
     default: 'blue'
   radius: 10

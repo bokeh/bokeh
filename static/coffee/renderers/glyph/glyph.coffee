@@ -70,6 +70,16 @@ class GlyphView extends PlotWidget
 
     return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
 
+  get_reference_point : () ->
+    reference_point = @mget('reference_point')
+    if _.isNumber(reference_point)
+      return @data[reference_point]
+    else
+      return reference_point
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+
+
+
 
 
 class Glyph extends HasParent

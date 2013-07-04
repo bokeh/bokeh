@@ -158,6 +158,7 @@ _.extend(Legend::display_defaults, {
   orientation : "top_right"
   label_text_align : "start"
   label_text_baseline : "middle"
+  datapoint : null
 })
 
 

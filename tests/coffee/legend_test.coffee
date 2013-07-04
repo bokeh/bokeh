@@ -24,6 +24,21 @@ glyph = {
   x: 'x'
   y: 'y'
 }
+
+glyph2 = {
+  width: 10
+  width_units: 'screen'
+  height : 10
+  height_units: 'screen'
+  line_width:
+    field: 'lwidth'
+    default: .5
+  type: 'rect'
+  fill: 'green'
+  x: 'x'
+  y: 'y'
+}
+
 test('legend_test', () ->
   expect(0)
   plot_model = testutils.make_glyph_plot(data_source,
@@ -132,6 +147,31 @@ test('legend_bottom_right', () ->
     annotationspec:
       type : "legend"
       orientation : "bottom_right"
+      legends:
+        fakelabel : [glyph_renderer.ref()]
+        fakelabel2 : [glyph_renderer.ref()]
+    )
+  plot_model.get('renderers').push(legend.ref())
+  div = $('<div></div>')
+  $('body').append(div)
+  myrender  =  ->
+    view = new plot_model.default_view(model: plot_model)
+    div.append(view.$el)
+  _.defer(myrender)
+)
+
+test('legend_rect_test', () ->
+  expect(0)
+  plot_model = testutils.make_glyph_plot(data_source,
+    defaults, glyph2, range,range)
+  glyph_renderer = (x for x in plot_model.get_obj('renderers') \
+    when x.type == 'GlyphRenderer')[0]
+  glyph_renderer.set('reference_point', 3)
+  legend = Collections("AnnotationRenderer").create(
+    plot : plot_model.ref()
+    annotationspec:
+      type : "legend"
+      orientation : "top_right"
       legends:
         fakelabel : [glyph_renderer.ref()]
         fakelabel2 : [glyph_renderer.ref()]
