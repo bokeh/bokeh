@@ -140,7 +140,7 @@ class properties
 
     # if the attribute is not on this property object at all, log a bad request
     if not (attrname of @)
-      #console.log("requested unknown property '#{ attrname } on object: " + obj)
+      console.log("requested unknown property '#{ attrname } on object: " + obj)
       return
 
     # if the attribute specifies a field, and the field exists on the object, return that value
@@ -149,7 +149,7 @@ class properties
         return obj[@[attrname].field]
 
     # otherwise, if the attribute exists on the object, return that value
-    if obj[attrname]
+    if obj[attrname]?
       return obj[attrname]
 
     # finally, check for a default value on this property object that could be returned
@@ -257,7 +257,7 @@ class text_properties extends properties
     @enum(styleprovider, glyphspec, @text_align_name, "left right center")
     @enum(styleprovider, glyphspec, @text_baseline_name, "top middle bottom alphabetic hanging")
   font:(obj, font_size) ->
-    if font_size?
+    if not font_size?
       font_size = @select(@text_font_size_name,  obj)
     font       = @select(@text_font_name,       obj)
     font_style = @select(@text_font_style_name, obj)
