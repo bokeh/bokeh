@@ -17,18 +17,22 @@ _angle_lookup = {
     parallel: 0
     normal: -Math.PI/2
     horizontal: 0
+    vertical: -Math.PI/2
   bottom:
     parallel: 0
     normal: Math.PI/2
     horizontal: 0
+    vertical: Math.PI/2
   left:
     parallel: -Math.PI/2
     normal: 0
     horizontal: 0
+    vertical: -Math.PI/2
   right:
     parallel: Math.PI/2
     normal: 0
     horizontal: 0
+    vertical: Math.PI/2
 }
 
 _baseline_lookup = {
@@ -36,18 +40,22 @@ _baseline_lookup = {
     parallel: 'alphabetic'
     normal: 'middle'
     horizontal: 'alphabetic'
+    vertical: 'middle'
   bottom:
     parallel: 'hanging'
     normal: 'middle'
     horizontal: 'hanging'
+    vertical: 'middle'
   left:
     parallel: 'alphabetic'
     normal: 'middle'
     horizontal: 'middle'
+    vertical: 'alphabetic'
   right:
     parallel: 'alphabetic'
     normal: 'middle'
     horizontal: 'middle'
+    vertical: 'alphabetic'
 }
 
 _align_lookup = {
@@ -55,18 +63,22 @@ _align_lookup = {
     parallel: 'center'
     normal: 'left'
     horizontal: 'center'
+    vertical: 'left'
   bottom:
     parallel: 'center'
-    normal: 'right'
+    normal: 'left'
     horizontal: 'center'
+    vertical: 'right'
   left:
     parallel: 'center'
     normal: 'right'
     horizontal: 'right'
+    vertical: 'center'
   right:
     parallel: 'center'
     normal: 'left'
     horizontal: 'left'
+    vertical: 'center'
 }
 
 
@@ -133,17 +145,23 @@ class LinearAxisView extends PlotWidget
     [x, y] = coords = @mget('major_coords')
     [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
     [nx, ny] = @mget('normals')
-    standoff = @mget('major_label_standoff') + @mget('major_tick_out')
-
     dim = @mget('guidespec').dimension
+    side = @mget('side')
+    orient = @mget('major_label_orientation')
+
+    if _.isString(orient)
+      angle = _angle_lookup[side][orient]
+    else
+      angle = -orient
+    standoff = @_tick_extent() + @mget('major_label_standoff')
+
     formatter = new ticking.BasicTickFormatter()
     labels = formatter.format(coords[dim])
-    side = @_side()
-    orient = @mget('major_label_orientation')
-    angle = _angle_lookup[side][orient]
+
+    # override baseline and alignment with heuristics for tick labels
     @major_label_props.set(ctx, @)
-    ctx.textBaseline = _baseline_lookup[side][orient]
-    ctx.textAlign = _align_lookup[side][orient]
+    @_apply_location_heuristics(ctx, side, orient)
+
     for i in [0..sx.length-1]
       if angle
         ctx.translate(sx[i]+nx*standoff, sy[i]+ny*standoff)
@@ -153,26 +171,30 @@ class LinearAxisView extends PlotWidget
         ctx.translate(-sx[i]-nx*standoff, -sy[i]-ny*standoff)
       else
         ctx.fillText(labels[i], sx[i] + nx*standoff, sy[i] + ny*standoff)
+
     return
 
   _draw_axis_label: (ctx) ->
     label = @mget('axis_label')
+
     if not label?
       return
+
     [x, y] = @mget('rule_coords')
     [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
     [nx, ny] = @mget('normals')
-    side = @_side()
-    orient = @mget('axis_label_orientation')
-    angle = _angle_lookup[side][orient]
-    standoff = @_tick_extent() + @_tick_label_extent() + @mget('major_label_standoff')
-    formatter = new ticking.BasicTickFormatter()
+    side = @mget('side')
+    orient = 'parallel'
 
-    sx = (sx[0] + sx[1])/2
-    sy = (sy[0] + sy[1])/2
+    angle = _angle_lookup[side][orient]
+    standoff = @_tick_extent() + @_tick_label_extent() + @mget('axis_label_standoff')
+    sx = (sx[0] + sx[sx.length-1])/2
+    sy = (sy[0] + sy[sy.length-1])/2
+
+    # override baseline and alignment with heuristics for axis labels
     @axis_label_props.set(ctx, @)
-    ctx.textBaseline = _baseline_lookup[side][orient]
-    ctx.textAlign = _align_lookup[side][orient]
+    @_apply_location_heuristics(ctx, side, orient)
+
     if angle
       ctx.translate(sx+nx*standoff, sy+ny*standoff)
       ctx.rotate(angle)
@@ -181,30 +203,76 @@ class LinearAxisView extends PlotWidget
       ctx.translate(-sx-nx*standoff, -sy-ny*standoff)
     else
       ctx.fillText(label, sx+nx*standoff, sy+ny*standoff)
+
     return
+
+  _apply_location_heuristics: (ctx, side, orient) ->
+    if _.isString(orient)
+      baseline = _baseline_lookup[side][orient]
+      align = _align_lookup[side][orient]
+
+    else if orient == 0
+      baseline = _baseline_lookup[side][orient]
+      align = _align_lookup[side][orient]
+
+    else if orient < 0
+      baseline = 'middle'
+      if side == 'top'
+        align = 'right'
+      else if side == 'bottom'
+        align = 'left'
+      else if side == 'left'
+        align = 'right'
+      else if side == 'right'
+        align = 'left'
+
+    else if orient > 0
+      baseline = 'middle'
+      if side == 'top'
+        align = 'left'
+      else if side == 'bottom'
+        align = 'right'
+      else if side == 'left'
+        align = 'right'
+      else if side == 'right'
+        align = 'left'
+
+    ctx.textBaseline = baseline
+    ctx.textAlign = align
 
   _tick_extent: () ->
     return @mget('major_tick_out')
 
   _tick_label_extent: () ->
     extent = 0
-    coords = @mget('major_coords')
+
     dim = @mget('guidespec').dimension
+    coords = @mget('major_coords')
+    side = @mget('side')
+    orient = @mget('major_label_orientation')
+
     formatter = new ticking.BasicTickFormatter()
     labels = formatter.format(coords[dim])
-    side = @_side()
-    orient = @mget('major_label_orientation')
+
     @major_label_props.set(@plot_view.ctx, @)
-    angle = Math.abs(_angle_lookup[side][orient])
+
+    if _.isString(orient)
+      factor = 1
+      angle = _angle_lookup[side][orient]
+    else
+      factor = 2
+      angle = -orient
+    angle = Math.abs(angle)
     c = Math.cos(angle)
     s = Math.sin(angle)
+
     if side == "top" or side == "bottom"
       for i in [0..labels.length-1]
         if not labels[i]?
           continue
         w = @plot_view.ctx.measureText(labels[i]).width
         h = @plot_view.ctx.measureText(labels[i]).ascent
-        val = w*s + h*c
+        val = w*s + (h/factor)*c
         if val > extent
           extent = val
     else
@@ -213,19 +281,23 @@ class LinearAxisView extends PlotWidget
           continue
         w = @plot_view.ctx.measureText(labels[i]).width
         h = @plot_view.ctx.measureText(labels[i]).ascent
-        val = w*c + h*s
+        val = w*c + (h/factor)*s
         if val > extent
           extent = val
+
     if extent > 0
       extent += @mget('major_label_standoff')
+
     return extent
 
   _axis_label_extent: () ->
     extent = 0
 
-    side = @_side()
-    orient = @mget('axis_label_orientation')
+    side = @mget('side')
+    orient = 'parallel'
+
     @major_label_props.set(@plot_view.ctx, @)
+
     angle = Math.abs(_angle_lookup[side][orient])
     c = Math.cos(angle)
     s = Math.sin(angle)
@@ -239,28 +311,17 @@ class LinearAxisView extends PlotWidget
         extent += w*s + h*c
       else
         extent += w*c + h*s
-    return extent
 
-  _side: () ->
-    n = @mget('normals')
-    if n[1] == -1
-      side = 'top'
-    else if n[1] == 1
-      side = 'bottom'
-    else if n[0] == -1
-      side = 'left'
-    else if n[0] == 1
-      side = 'right'
-    return side
+    return extent
 
   _padding_request: () ->
     req = {}
+
+    side = @mget('side')
     loc = @mget('guidespec').location
 
     if not _.isString(loc)
       return req
-
-    side = @_side()
 
     padding = 0
     padding += @_tick_extent()
@@ -268,7 +329,7 @@ class LinearAxisView extends PlotWidget
     padding += @_axis_label_extent()
 
     req[side] = padding
-    console.log side, @_tick_extent(), @_tick_label_extent(), @_axis_label_extent(), padding
+
     return req
 
 
@@ -291,6 +352,9 @@ class LinearAxis extends HasParent
 
     @register_property('normals', @_normals, false)
     @add_dependencies('normals', this, ['bounds', 'dimension', 'location'])
+
+    @register_property('side', @_side, false)
+    @add_dependencies('side', this, ['normals'])
 
     @register_property('padding_request', @_padding_request, false)
 
@@ -422,7 +486,17 @@ class LinearAxis extends HasParent
           normals[j] = 1
     return normals
 
-
+  _side: () ->
+    n = @get('normals')
+    if n[1] == -1
+      side = 'top'
+    else if n[1] == 1
+      side = 'bottom'
+    else if n[0] == -1
+      side = 'left'
+    else if n[0] == 1
+      side = 'right'
+    return side
 
 
 
@@ -465,7 +539,6 @@ _.extend(LinearAxis::display_defaults, {
 
   axis_label: ""
   axis_label_standoff: 5
-  axis_label_orientation: "parallel"
   axis_label_text_font: "helvetica"
   axis_label_text_font_size: "16pt"
   axis_label_text_font_style: "normal"
