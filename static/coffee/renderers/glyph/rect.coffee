@@ -12,24 +12,40 @@ GlyphView = glyph.GlyphView
 class RectView extends GlyphView
 
   initialize: (options) ->
-    glyphspec = @mget('glyphspec')
+    super(options)
+    ##duped in many classes
+    @glyph_props = @init_glyph(@mget('glyphspec'))
+    if @mget('selection_glyphspec')
+      spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
+      @selection_glyphprops = @init_glyph(spec)
+    if @mget('nonselection_glyphspec')
+      spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
+      @nonselection_glyphprops = @init_glyph(spec)
+    ##duped in many classes
+    @do_fill   = @glyph_props.fill_properties.do_fill
+    @do_stroke = @glyph_props.line_properties.do_stroke
+
+  init_glyph : (glyphspec) ->
     fill_props = new fill_properties(@, glyphspec)
     line_props = new line_properties(@, glyphspec)
-    @glyph_props = new glyph_properties(
+    glyph_props = new glyph_properties(
       @,
       glyphspec,
       ['x', 'y', 'width', 'height', 'angle'],
       [line_props, fill_props]
     )
-    @do_fill   = @glyph_props.fill_properties.do_fill
-    @do_stroke = @glyph_props.line_properties.do_stroke
-    super(options)
+    return glyph_props
 
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
     angles = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
     @angle = (-angle for angle in angles)
+
+    #duped
+    @selected_mask = new Array(data.length-1)
+    for i in [0..@selected_mask.length-1]
+      @selected_mask[i] = false
 
   _render: () ->
     [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
@@ -38,11 +54,26 @@ class RectView extends GlyphView
 
     ctx = @plot_view.ctx
 
+    #duped
+    selected = @mget_obj('data_source').get('selected')
+    for idx in selected
+      @selected_mask[idx] = true
+
     ctx.save()
     if @glyph_props.fast_path
       @_fast_path(ctx)
     else
-      @_full_path(ctx)
+      ##duped in many classes
+      if selected and selected.length and @nonselection_glyphprops
+        if @selection_glyphprops
+          props =  @selection_glyphprops
+        else
+          props = @glyphprops
+        @_full_path(ctx, props, 'selected')
+        @_full_path(ctx, @nonselection_glyphprops, 'unselected')
+      else
+        @_full_path(ctx)
+      ##duped in many classes
     ctx.restore()
 
   _fast_path: (ctx) ->
@@ -119,11 +150,16 @@ class RectView extends GlyphView
 
     ctx.restore()
 
-  _full_path: (ctx) ->
+  _full_path: (ctx, glyph_props, use_selection) ->
+    if not glyph_props
+      glyph_props = @glyph_props
     for i in [0..@sx.length-1]
       if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
         continue
-
+      if use_selection == 'selected' and not @selected_mask[i]
+        continue
+      if use_selection == 'unselected' and @selected_mask[i]
+        continue
       ctx.translate(@sx[i], @sy[i])
       ctx.rotate(@angle[i])
 
@@ -131,15 +167,34 @@ class RectView extends GlyphView
       ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
 
       if @do_fill
-        @glyph_props.fill_properties.set(ctx, @data[i])
+        glyph_props.fill_properties.set(ctx, @data[i])
         ctx.fill()
 
       if @do_stroke
-        @glyph_props.line_properties.set(ctx, @data[i])
+        glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
       ctx.rotate(-@angle[i])
       ctx.translate(-@sx[i], -@sy[i])
+
+  ##duped
+  select : (xscreenbounds, yscreenbounds) ->
+    xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
+      @plot_view.view_state.sx_to_device(xscreenbounds[1])]
+    yscreenbounds = [@plot_view.view_state.sy_to_device(yscreenbounds[0]),
+      @plot_view.view_state.sy_to_device(yscreenbounds[1])]
+    xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)]
+    yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)]
+    selected = []
+    for i in [0..@sx.length-1]
+      if xscreenbounds
+        if @sx[i] < xscreenbounds[0] or @sx[i] > xscreenbounds[1]
+          continue
+      if yscreenbounds
+        if @sy[i] < yscreenbounds[0] or @sy[i] > yscreenbounds[1]
+          continue
+      selected.push(i)
+     return selected
 
 
 class Rect extends Glyph

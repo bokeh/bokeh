@@ -13,6 +13,7 @@ class CircleView extends GlyphView
 
   initialize: (options) ->
     super(options)
+    ##duped in many classes
     @glyph_props = @init_glyph(@mget('glyphspec'))
     if @mget('selection_glyphspec')
       spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
@@ -20,6 +21,7 @@ class CircleView extends GlyphView
     if @mget('nonselection_glyphspec')
       spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
       @nonselection_glyphprops = @init_glyph(spec)
+    ##duped in many classes
 
   init_glyph : (glyphspec) ->
     glyph_props = new glyph_properties(
@@ -102,9 +104,9 @@ class CircleView extends GlyphView
       if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
         continue
       if use_selection == 'selected' and not @selected_mask[i]
-          continue
+        continue
       if use_selection == 'unselected' and @selected_mask[i]
-          continue
+        continue
       ctx.beginPath()
       ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
 
