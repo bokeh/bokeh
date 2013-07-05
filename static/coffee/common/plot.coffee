@@ -189,7 +189,6 @@ class PlotView extends ContinuumView
     # TODO use template
     @$el.append($("""
       <div class='button_bar'/>
-      <div class='plottitle'>#{@mget('title')}</div>
       <div class='bokeh_canvas_wrapper'>
         <canvas class='bokeh_canvas'></canvas>
       </div>
