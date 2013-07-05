@@ -46,8 +46,8 @@ demo web server:
 
 `$ python demoserver.py debug`
 
-Now, you should be able to visit `http://localhost:5000/demos` and see a list
-of demos.
+Now, you should be able to visit `http://localhost:5000/` and see a list
+of demos and tests.
 
 If, for whatever reason, you don't want to have the hem server running, you 
 can also build a static Javascript file and use that instead:
@@ -60,7 +60,6 @@ the hem server.  The reason is that it's very unlikely you will be debugging
 BokehJS without modifying coffeescript, and using the hem server ensures
 that you are never served stale Javascript.
 
-You can run tests by navigating to `http://localhost:5000/tests`
 
 Deploying
 =========
