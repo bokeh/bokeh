@@ -100,7 +100,7 @@ class ResizeToolView extends tool.ToolView
     @plot_view.view_state.trigger('change:canvas_height', ch+ydiff)
     @plot_view.view_state.trigger('change:canvas_width', cw+xdiff)
     @plot_view.view_state.trigger('change', @plot_view.view_state)
-    @plot_view.unpause()
+    @plot_view.unpause(true)
 
     return null
 

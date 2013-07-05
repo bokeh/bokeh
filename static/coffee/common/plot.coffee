@@ -38,9 +38,10 @@ class PlotView extends ContinuumView
   pause : () ->
     @is_paused = true
 
-  unpause : () ->
+  unpause : (render_canvas=false) ->
     @is_paused = false
-    @render_canvas()
+    if render_canvas
+      @render_canvas()
     @request_render()
 
   request_render : () ->
@@ -213,8 +214,6 @@ class PlotView extends ContinuumView
     @$el.attr("width", ow).attr('height', oh)
 
     @ctx = @canvas[0].getContext('2d')
-
-    @render_end()
 
   save_png: () ->
     @render()
