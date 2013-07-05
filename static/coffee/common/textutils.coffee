@@ -1,7 +1,8 @@
-
+cache = {}
 
 getTextHeight = (font) ->
-
+  if cache[font]?
+    return cache[font]
   text = $('<span>Hg</span>').css({ font: font })
   block = $('<div style="display: inline-block; width: 1px; height: 0px;"></div>')
 
@@ -23,7 +24,7 @@ getTextHeight = (font) ->
     result.descent = result.height - result.ascent
   finally
     div.remove()
-
+  cache[font] = result
   return result
 
 
