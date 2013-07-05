@@ -36,10 +36,7 @@ class LegendView extends PlotWidget
   delegateEvents : (events) ->
     super(events)
     @listenTo(@model, 'change:annotationspec', @change_annotationspec)
-    @listenTo(@plot_view.view_state.get('inner_range_horizontal'),
-      'change', @calc_dims)
-    @listenTo(@plot_view.view_state.get('inner_range_vertical'),
-      'change', @calc_dims)
+    @listenTo(@plot_view.view_state, 'change', @calc_dims)
 
   change_annotationspec : () ->
     @annotationspec = @mget('annotationspec')
@@ -78,18 +75,20 @@ class LegendView extends PlotWidget
     v_range = @plot_view.view_state.get('inner_range_vertical')
     if orientation == "top_right"
       x = h_range.get('end') - legend_padding - @legend_width
-      y = v_range.get('start') + legend_padding
+      y = v_range.get('end') - legend_padding
     else if orientation == "top_left"
       x = h_range.get('start') + legend_padding
-      y = v_range.get('start') + legend_padding
+      y = v_range.get('end') - legend_padding
     else if orientation == "bottom_left"
       x = h_range.get('start') + legend_padding
-      y = v_range.get('end') - legend_padding - @legend_height
+      y = v_range.get('start') + legend_padding + @legend_height
     else if orientation == "bottom_right"
       x = h_range.get('end') - legend_padding - @legend_width
-      y = v_range.get('end') - legend_padding - @legend_height
+      y = v_range.get('start') + legend_padding + @legend_height
     else if orientation == "absolute"
       [x,y] = @annotationspec.absolute_coords
+    x = @plot_view.view_state.sx_to_device(x)
+    y = @plot_view.view_state.sy_to_device(y)
     @box_coords = [x,y]
 
   render : () ->
@@ -155,7 +154,7 @@ _.extend(Legend::display_defaults, {
   label_width : 50
   legend_padding : 10
   legend_spacing : 3
-  orientation : "top_right"
+  orientation : "top_left"
   label_text_align : "left"
   label_text_baseline : "middle"
   datapoint : null

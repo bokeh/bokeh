@@ -4,6 +4,9 @@ HasParent = base.HasParent
 safebind = base.safebind
 build_views = base.build_views
 
+properties = require('../renderers/properties')
+text_properties = properties.text_properties
+
 ContinuumView = require('./continuum_view').ContinuumView
 
 LinearMapper = require('../mappers/1d/linear_mapper').LinearMapper
@@ -51,6 +54,8 @@ class PlotView extends ContinuumView
     $('body').mousemove(@_mousemove)
     @throttled_render = _.throttle(@render, 50)
     @throttled_render_canvas = _.throttle(@render_canvas, 30)
+
+    @title_props = new text_properties(@, {}, 'title_')
 
     super(_.defaults(options, @default_options))
 
@@ -184,7 +189,6 @@ class PlotView extends ContinuumView
     # TODO use template
     @$el.append($("""
       <div class='button_bar'/>
-      <div class='plottitle'>#{@mget('title')}</div>
       <div class='bokeh_canvas_wrapper'>
         <canvas class='bokeh_canvas'></canvas>
       </div>
@@ -238,6 +242,10 @@ class PlotView extends ContinuumView
           for k, v of pr
             @requested_padding[k] += v
 
+    @title_props.set(@ctx, {})
+    th = @ctx.measureText(@mget('title')).ascent
+    @requested_padding['top'] += (th + @mget('title_standoff'))
+
     for k, v of @requested_padding
       @view_state.set("requested_border_#{k}", v)
 
@@ -270,6 +278,11 @@ class PlotView extends ContinuumView
       renderers = @levels[level]
       for k, v of renderers
         v.render()
+
+    sx = @view_state.get('outer_width')/2
+    sy = th
+    @title_props.set(@ctx, {})
+    @ctx.fillText(@mget('title'), sx, sy)
 
     @am_rendering = false
 
@@ -315,7 +328,7 @@ _.extend(Plot::defaults , {
   'data_sources': {},
   'renderers': [],
   'tools': [],
-  'title': 'Plot'
+  'title': 'Plot',
 })
 
 Plot::display_defaults = _.clone(Plot::display_defaults)
@@ -329,7 +342,16 @@ _.extend(Plot::display_defaults
     canvas_width: 300,
     canvas_height: 300,
     outer_width: 300,
-    outer_height: 300
+    outer_height: 300,
+
+    title_standoff: 8,
+    title_text_font: "helvetica",
+    title_text_font_size: "20pt",
+    title_text_font_style: "normal",
+    title_text_color: "#444444",
+    title_text_alpha: 1.0,
+    title_text_align: "center",
+    title_text_baseline: "alphabetic"
 )
 
 class Plots extends Backbone.Collection
