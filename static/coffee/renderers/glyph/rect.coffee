@@ -68,7 +68,7 @@ class RectView extends GlyphView
         if @selection_glyphprops
           props =  @selection_glyphprops
         else
-          props = @glyphprops
+          props = @glyph_props
         @_full_path(ctx, props, 'selected')
         @_full_path(ctx, @nonselection_glyphprops, 'unselected')
       else
