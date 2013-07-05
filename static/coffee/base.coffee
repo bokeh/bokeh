@@ -608,12 +608,15 @@ locations =
   Rule: ['./renderers/guide/rule', 'rules']
 
 exports.locations = locations
-
+mod_cache = {}
 Collections = (typename) ->
   if not locations[typename]
     throw "./base: Unknown Collection #{typename}"
   [modulename, collection] = locations[typename]
-  return require(modulename)[collection]
+  if not mod_cache[modulename]?
+    console.log("calling require", modulename)
+    mod_cache[modulename] = require(modulename)
+  return mod_cache[modulename][collection]
 
 Collections.bulksave = (models) ->
   ##FIXME:hack
