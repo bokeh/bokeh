@@ -36,6 +36,12 @@ class GlyphView extends PlotWidget
   select : () ->
     'pass'
 
+  xrange : () ->
+    return @plot_view.x_range
+
+  yrange : () ->
+    return @plot_view.y_range
+
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget_obj('data_source'), 'change', @set_data)

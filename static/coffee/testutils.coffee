@@ -292,22 +292,9 @@ typeIsArray = ( value ) ->
         not ( value.propertyIsEnumerable 'length' )
 
 make_glyph_plot = (data_source, defaults, glyphspecs,
-    xrange, yrange, tools=false, dims=[400, 400],
+    xrange, yrange, tools=true, dims=[400, 400],
     axes=true, legend=true, legend_name="glyph",
     reference_point) ->
-  plot_tools = []
-  if tools
-    pantool = Collections('PanTool').create(
-      dataranges: [xrange.ref(), yrange.ref()]
-      dimensions: ['width', 'height']
-    )
-    zoomtool = Collections('ZoomTool').create(
-      dataranges: [xrange.ref(), yrange.ref()]
-      dimensions: ['width', 'height']
-    )
-    resizetool = Collections('ResizeTool').create()
-    pstool = Collections('PreviewSaveTool').create()
-    plot_tools = [pantool, zoomtool, pstool, resizetool]
   glyphs = []
   if not typeIsArray(glyphspecs)
     glyphspecs = [glyphspecs]
@@ -316,6 +303,8 @@ make_glyph_plot = (data_source, defaults, glyphspecs,
       glyph = Collections('GlyphRenderer').create({
         data_source: data_source.ref()
         glyphspec: glyphspec
+        nonselection_glyphspec :
+          fill_alpha : 0.1
         reference_point : reference_point
       })
       glyph.set(defaults)
@@ -324,11 +313,14 @@ make_glyph_plot = (data_source, defaults, glyphspecs,
     for val in zip(glyphspecs, data_source)
       [glyphspec, ds] = val
       glyph = Collections('GlyphRenderer').create({
+        xdata_range : xrange.ref()
+        ydata_range : yrange.ref()
         data_source: ds.ref()
         glyphspec: glyphspec
       })
       glyph.set(defaults)
       glyphs.push(glyph)
+
   plot_model = Collections('Plot').create(
     x_range: xrange.ref()
     y_range: yrange.ref()
@@ -336,7 +328,6 @@ make_glyph_plot = (data_source, defaults, glyphspecs,
     canvas_height: dims[1]
     outer_width: dims[0]
     outer_height: dims[1]
-    tools: plot_tools
   )
   plot_model.set(defaults)
   plot_model.add_renderers(g.ref() for g in glyphs)
@@ -400,23 +391,43 @@ make_glyph_plot = (data_source, defaults, glyphspecs,
     plot_model.add_renderers(
       [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
     )
-    if legend
-      legends = {}
-      legend_renderer = Collections("AnnotationRenderer").create(
-        plot : plot_model.ref()
-        annotationspec:
-          type : "legend"
-          orientation : "top_right"
-          legends: legends
-      )
-      for g, idx in glyphs
-        legends[legend_name + String(idx)] = [g.ref()]
-      plot_model.add_renderers([legend_renderer.ref()])
+  if tools
+    pantool = Collections('PanTool').create(
+      dataranges: [xrange.ref(), yrange.ref()]
+      dimensions: ['width', 'height']
+    )
+    zoomtool = Collections('ZoomTool').create(
+      dataranges: [xrange.ref(), yrange.ref()]
+      dimensions: ['width', 'height']
+    )
+    selecttool = Collections('SelectionTool').create(
+      renderers : (x.ref() for x in glyphs)
+    )
+    boxselectionoverlay = Collections('BoxSelectionOverlay').create(
+      tool : selecttool.ref()
+    )
+    resizetool = Collections('ResizeTool').create()
+    pstool = Collections('PreviewSaveTool').create()
+    plot_tools = [pantool, zoomtool, pstool, resizetool, selecttool]
+    plot_model.set_obj('tools', plot_tools)
+    plot_model.add_renderers([boxselectionoverlay.ref()])
+  if legend
+    legends = {}
+    legend_renderer = Collections("AnnotationRenderer").create(
+      plot : plot_model.ref()
+      annotationspec:
+        type : "legend"
+        orientation : "top_right"
+        legends: legends
+    )
+    for g, idx in glyphs
+      legends[legend_name + String(idx)] = [g.ref()]
+    plot_model.add_renderers([legend_renderer.ref()])
 
   return plot_model
 
 make_glyph_test = (test_name, data_source, defaults, glyphspecs,
-    xrange, yrange, tools=false, dims=[400, 400],
+    xrange, yrange, tools=true, dims=[400, 400],
     axes=true, legend=true,
     reference_point) ->
   return () ->

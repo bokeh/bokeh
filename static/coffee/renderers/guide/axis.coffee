@@ -329,7 +329,6 @@ class LinearAxisView extends PlotWidget
     padding += @_axis_label_extent()
 
     req[side] = padding
-
     return req
 
 

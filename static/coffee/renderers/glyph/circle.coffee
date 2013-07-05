@@ -15,9 +15,11 @@ class CircleView extends GlyphView
     super(options)
     @glyph_props = @init_glyph(@mget('glyphspec'))
     if @mget('selection_glyphspec')
-      @selection_glyphprops = @init_glyph(@mget('selection_glyphspec'))
+      spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
+      @selection_glyphprops = @init_glyph(spec)
     if @mget('nonselection_glyphspec')
-      @nonselection_glyphprops = @init_glyph(@mget('nonselection_glyphspec'))
+      spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
+      @nonselection_glyphprops = @init_glyph(spec)
 
   init_glyph : (glyphspec) ->
     glyph_props = new glyph_properties(
