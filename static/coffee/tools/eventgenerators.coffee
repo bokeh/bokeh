@@ -2,6 +2,7 @@
 class TwoPointEventGenerator
 
   constructor: (options) ->
+    @restrict_to_innercanvas = options.restrict_to_innercanvas
     @options = options
     @toolName = @options.eventBasename
     @dragging = false
@@ -31,7 +32,6 @@ class TwoPointEventGenerator
         e.preventDefault()
         e.stopPropagation()
       )
-
     @plotview.moveCallbacks.push((e, x, y) =>
       if @dragging
         offset = $(e.currentTarget).offset()
@@ -43,11 +43,21 @@ class TwoPointEventGenerator
           'inner_range_vertical')
         x = @plotview.view_state.device_to_sx(e.bokehX)
         y = @plotview.view_state.device_to_sy(e.bokehY)
-        if (x < inner_range_horizontal.get('start') or x > inner_range_horizontal.get('end'))
+        if @restrict_to_innercanvas
+          xstart = inner_range_horizontal.get('start')
+          xend = inner_range_horizontal.get('end')
+          ystart = inner_range_vertical.get('start')
+          yend = inner_range_vertical.get('end')
+        else
+          xstart = 0
+          xend = @plotview.view_state.get('outer_width')
+          ystart = 0
+          yend = @plotview.view_state.get('outer_height')
+        if x < xstart  or x > xend
           console.log("stopping1")
           @_stop_drag(e)
           return false
-        if (y < inner_range_vertical.get('start') or y > inner_range_vertical.get('end'))
+        if y < ystart or y > yend
           console.log("stopping2")
           @_stop_drag(e)
           return false
@@ -70,6 +80,10 @@ class TwoPointEventGenerator
 
     @plotview.canvas_wrapper.bind('mouseup', (e) =>
       if @button_activated
+        @_stop_drag(e)
+        return false)
+    @plotview.canvas_wrapper.bind('mouseleave', (e) =>
+      if @button_activated and e.target == this
         @_stop_drag(e)
         return false)
 

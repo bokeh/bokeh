@@ -27,7 +27,10 @@ class SelectionToolView extends tool.ToolView
       @listenTo(renderer, 'change', @select_callback)
 
   eventGeneratorClass : TwoPointEventGenerator
-  evgen_options : {keyName:"ctrlKey", buttonText:"Select"}
+  evgen_options :
+    keyName:"ctrlKey",
+    buttonText:"Select",
+    restrict_to_innercanvas : true
   tool_events : {
     SetBasepoint : "_start_selecting",
     #UpdatingMouseMove: "box_selecting",
