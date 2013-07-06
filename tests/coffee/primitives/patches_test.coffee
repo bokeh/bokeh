@@ -17,7 +17,7 @@ defaults = {
 }
 
 glyph = {
-  type: 'area'
+  type: 'patches'
   xs: 'xs'
   ys: 'ys'
 }

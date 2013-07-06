@@ -50,7 +50,7 @@ ydr = Collections('Range1d').create({start: 25, end: 50})
 area = {
   xs: 'xs'
   ys: 'ys'
-  type: 'area',
+  type: 'patches',
   line_color: 'white'
   fill:
     field: 'colors'

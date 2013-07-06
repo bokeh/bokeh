@@ -15,7 +15,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 defaults = {}
 
 glyph = {
-  type: 'line'
+  type: 'multi_line'
   xs: 'xs'
   ys: 'ys'
 }
@@ -33,7 +33,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 
 
 glyph = {
-  type: 'line'
+  type: 'multi_line'
   line_width:
     field: 'lwidth'
     default: .5
@@ -54,7 +54,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 
 
 glyph = {
-  type: 'line'
+  type: 'multi_line'
   line_alpha:
     field: 'alpha'
     default: 0
@@ -74,7 +74,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 )
 
 glyph = {
-  type: 'line'
+  type: 'multi_line'
   line_width:
     field: 'lwidth'
     default: .5

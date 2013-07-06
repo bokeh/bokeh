@@ -49,7 +49,7 @@ def test(testname):
     tests = alltests[testname]
     testfiles = [os.path.join(TEST_SRCDIR, name+".coffee") for name in tests]
     return display_page(testfiles, "tests.html", tests=tests)
-    
+
 alldemos = {
 
     'all' : [
@@ -105,12 +105,12 @@ alltests = {
         'primitives/annular_wedge_test',
         'primitives/annulus_test',
         'primitives/arc_test',
-        'primitives/area_test',
         'primitives/bezier_test',
         'primitives/circle_test',
         'primitives/image_uri_test',
-        'primitives/line_test',
+        'primitives/multi_line_test',
         'primitives/oval_test',
+        'primitives/patches_test',
         'primitives/quad_test',
         'primitives/quadcurve_test',
         'primitives/ray_test',
@@ -123,12 +123,12 @@ alltests = {
     'annular_wedge' : ['primitives/annular_wedge_test'],
     'annulus'       : ['primitives/annulus_test'],
     'arc'           : ['primitives/arc_test'],
-    'area'          : ['primitives/area_test'],
     'bezier'        : ['primitives/bezier_test'],
     'circle'        : ['primitives/circle_test'],
     'image_uri'     : ['primitives/image_uri_test'],
-    'line'          : ['primitives/line_test'],
+    'multi_line'    : ['primitives/multi_line_test'],
     'oval'          : ['primitives/oval_test'],
+    'patches'       : ['primitives/patches_test'],
     'quad'          : ['primitives/quad_test'],
     'quadcurve'     : ['primitives/quadcurve_test'],
     'ray'           : ['primitives/ray_test'],

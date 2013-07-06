@@ -20,7 +20,7 @@ ydr = Collections('Range1d').create({start: 0, end: 50})
 line = {
   xs: 'xs'
   ys: 'ys'
-  type: 'line',
+  type: 'multi_line',
   line_color:
     field: 'colors'
   line_width: 2

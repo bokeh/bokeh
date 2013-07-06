@@ -9,7 +9,7 @@ Glyph = glyph.Glyph
 GlyphView = glyph.GlyphView
 
 
-class AreaView extends GlyphView
+class PatchesView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
@@ -76,13 +76,13 @@ class AreaView extends GlyphView
     ctx.restore()
 
 
-class Area extends Glyph
-  default_view: AreaView
+class Patches extends Glyph
+  default_view: PatchesView
   type: 'GlyphRenderer'
 
 
-Area::display_defaults = _.clone(Area::display_defaults)
-_.extend(Area::display_defaults, {
+Patches::display_defaults = _.clone(Patches::display_defaults)
+_.extend(Patches::display_defaults, {
 
   fill: 'gray'
   fill_alpha: 1.0
@@ -98,6 +98,6 @@ _.extend(Area::display_defaults, {
 })
 
 
-exports.Area = Area
-exports.AreaView = AreaView
+exports.Patches = Patches
+exports.PatchesView = PatchesView
 

@@ -51,7 +51,7 @@ vector = {
 line = {
   xs: 'xs'
   ys: 'ys'
-  type: 'line',
+  type: 'multi_line',
   line_color:
     field: 'scolors'
   line_width: 2

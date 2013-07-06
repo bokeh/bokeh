@@ -149,7 +149,7 @@ class properties
         return obj[@[attrname].field]
 
     # otherwise, if the attribute exists on the object, return that value
-    if attrname of obj
+    if obj[attrname]?
       return obj[attrname]
 
     # finally, check for a default value on this property object that could be returned
@@ -178,7 +178,7 @@ class properties
         result[i] = obj[@[attrname].field]
 
       # otherwise, if the attribute exists on the object, return that value
-      else if attrname of obj
+      else if obj[attrname]?
         result[i] = obj[attrname]
 
       # finally, check for a default value on this property object that could be returned
