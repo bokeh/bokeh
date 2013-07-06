@@ -30,6 +30,7 @@
   </script>
 <style>
 
+  .topdiv { margin: 50px; }
   .all_can_wrapper {position:relative; }
   .can_wrapper {position:absolute; }
   .main_ can_wrapper {border:1px dotted green;}
@@ -54,11 +55,11 @@
 
 </head>
 <body>
-  <div>
+  <div class="topdiv">
     <h1> Welcome to the bokehjs demoserver </h1>
-      <p> to run the demos and tests, hem must be running via <code>hem server -s slug.all.json</code></p>
+      <p>To run the demos and tests, hem must be running via <code>hem server -s slug.all.json</code></p>
     <div>
-      <h2>demo list</h2>
+      <h2>Demos:</h2>
 
       <ul>
         {% for demo in alldemos['all'] %}
@@ -69,7 +70,7 @@
       </ul>
     </div>
     <div>
-      <h2>test list</h2>
+      <h2>Unit tests:</h2>
       <ul>
         {% for test in alltests.keys() %}
           <li>
