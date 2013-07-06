@@ -140,7 +140,7 @@ class properties
 
     # if the attribute is not on this property object at all, log a bad request
     if not (attrname of @)
-      console.log("requested unknown property '#{ attrname } on object: " + obj)
+      console.log("requested unknown property '#{ attrname }' on object: " + obj)
       return
 
     # if the attribute specifies a field, and the field exists on the object, return that value
@@ -149,7 +149,7 @@ class properties
         return obj[@[attrname].field]
 
     # otherwise, if the attribute exists on the object, return that value
-    if obj[attrname]?
+    if attrname of obj
       return obj[attrname]
 
     # finally, check for a default value on this property object that could be returned
@@ -158,13 +158,13 @@ class properties
 
     # failing that, just log a problem
     else
-      console.log "selection for attribute '#{ attrname } failed on object: #{ obj }"
+      console.log "selection for attribute '#{ attrname }' failed on object: #{ obj }"
 
   v_select: (attrname, objs) ->
 
     # if the attribute is not on this property object at all, log a bad request
     if not (attrname of @)
-      console.log("requested unknown property '#{ attrname } on objects")
+      console.log("requested unknown property '#{ attrname }' on objects")
       return
 
     result = new Array(objs.length)
@@ -178,7 +178,7 @@ class properties
         result[i] = obj[@[attrname].field]
 
       # otherwise, if the attribute exists on the object, return that value
-      else if obj[attrname]
+      else if attrname of obj
         result[i] = obj[attrname]
 
       # finally, check for a default value on this property object that could be returned
@@ -187,7 +187,7 @@ class properties
 
       # failing that, just log a problem
       else
-        console.log "vector selection for attribute '#{ attrname } failed on object: #{ obj }"
+        console.log "vector selection for attribute '#{ attrname }' failed on object: #{ obj }"
         return
 
     return result
@@ -256,6 +256,7 @@ class text_properties extends properties
     @number(styleprovider, glyphspec, @text_alpha_name)
     @enum(styleprovider, glyphspec, @text_align_name, "left right center")
     @enum(styleprovider, glyphspec, @text_baseline_name, "top middle bottom alphabetic hanging")
+
   font:(obj, font_size) ->
     if not font_size?
       font_size = @select(@text_font_size_name,  obj)
