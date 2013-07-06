@@ -83,7 +83,7 @@ class TwoPointEventGenerator
         @_stop_drag(e)
         return false)
     @plotview.canvas_wrapper.bind('mouseleave', (e) =>
-      if @button_activated and e.target == this
+      if @button_activated
         @_stop_drag(e)
         return false)
 
@@ -158,15 +158,15 @@ class OnePointWheelEventGenerator
       if e.keyCode == 27
         eventSink.trigger("clear_active_tool"))
 
-    @mouseover_count = 0
-    #waiting 500 ms and testing mouseover countmakes sure that
-    #mouseouts that occur because of going over element borders don't
-    #trigger the mouseout
-    @plotview.$el.bind("mouseout", (e) =>
-      @mouseover_count -=1
-      _.delay((=>
-        if @mouseover_count == 0
-          eventSink.trigger("clear_active_tool")), 500))
+    # @mouseover_count = 0
+    # #waiting 500 ms and testing mouseover countmakes sure that
+    # #mouseouts that occur because of going over element borders don't
+    # #trigger the mouseout
+    # @plotview.$el.bind("mouseout", (e) =>
+    #   @mouseover_count -=1
+    #   _.delay((=>
+    #     if @mouseover_count == 0
+    #       eventSink.trigger("clear_active_tool")), 500))
 
     @plotview.$el.bind("mousein", (e) =>
       eventSink.trigger("clear_active_tool"))
@@ -231,15 +231,15 @@ class ButtonEventGenerator
       if e.keyCode == 27
         eventSink.trigger("clear_active_tool"))
 
-    @mouseover_count = 0
-    #waiting 500 ms and testing mouseover countmakes sure that
-    #mouseouts that occur because of going over element borders don't
-    #trigger the mouseout
-    @plotview.$el.bind("mouseout", (e) =>
-      @mouseover_count -=1
-      _.delay((=>
-        if @mouseover_count == 0
-          eventSink.trigger("clear_active_tool")), 500))
+    # @mouseover_count = 0
+    # #waiting 500 ms and testing mouseover countmakes sure that
+    # #mouseouts that occur because of going over element borders don't
+    # #trigger the mouseout
+    # @plotview.$el.bind("mouseout", (e) =>
+    #   @mouseover_count -=1
+    #   _.delay((=>
+    #     if @mouseover_count == 0
+    #       eventSink.trigger("clear_active_tool")), 500))
 
     @plotview.$el.bind("mouseover", (e) =>
       @mouseover_count += 1)
