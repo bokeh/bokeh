@@ -433,7 +433,7 @@ make_glyph_test = (test_name, data_source, defaults, glyphspecs,
   return () ->
     expect(0)
     plot_model = make_glyph_plot(data_source, defaults, glyphspecs, xrange, yrange, tools, dims, axes, true, test_name, reference_point)
-    div = $('<div></div>')
+    div = $('<div class="plotdiv"></div>')
     $('body').append(div)
     myrender  =  ->
       view = new plot_model.default_view(model: plot_model)
