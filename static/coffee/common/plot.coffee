@@ -41,23 +41,25 @@ class PlotView extends ContinuumView
   unpause : (render_canvas=false) ->
     @is_paused = false
     if render_canvas
-      @render_canvas()
-    @request_render()
+      @request_render_canvas(true)
+    else
+      @request_render()
 
   request_render : () ->
     if not @is_paused
       @throttled_render()
     return
 
-  request_render_canvas : () ->
+  request_render_canvas : (full_render) ->
     if not @is_paused
-      @render_canvas()
+      @throttled_render_canvas(full_render)
     return
 
   initialize: (options) ->
     # $('body').mousedown(@_mousedown)
     # $('body').mousemove(@_mousemove)
     @throttled_render = _.throttle(@render, 100)
+    @throttled_render_canvas = _.throttle(@render_canvas, 100)
 
     @title_props = new text_properties(@, {}, 'title_')
 
@@ -204,7 +206,8 @@ class PlotView extends ContinuumView
     @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
     @canvas = @$el.find('canvas.bokeh_canvas')
 
-  render_canvas: () ->
+  render_canvas: (full_render=true) ->
+    console.log("rendercanvas")
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
 
@@ -214,6 +217,8 @@ class PlotView extends ContinuumView
     @$el.attr("width", ow).attr('height', oh)
 
     @ctx = @canvas[0].getContext('2d')
+    if full_render
+      @render()
 
   save_png: () ->
     @render()
