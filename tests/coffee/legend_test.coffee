@@ -2,7 +2,8 @@ base = require("../base")
 Collections = base.Collections
 testutils = require("../testutils")
 
-range = Collections('Range1d').create({start: 0, end: 10})
+xrange = Collections('Range1d').create({start: 0, end: 10})
+yrange = Collections('Range1d').create({start: 0, end: 10})
 defaults = {}
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -42,7 +43,7 @@ glyph2 = {
 test('legend_test', () ->
   expect(0)
   plot_model = testutils.make_glyph_plot(data_source,
-    defaults, glyph, range,range)
+    defaults, glyph, xrange, yrange)
   glyph_renderer = (x for x in plot_model.get_obj('renderers') \
     when x.type == 'GlyphRenderer')[0]
   legend = Collections("AnnotationRenderer").create(
@@ -66,7 +67,7 @@ test('legend_test', () ->
 test('legend_test', () ->
   expect(0)
   plot_model = testutils.make_glyph_plot(data_source,
-    defaults, glyph, range,range)
+    defaults, glyph, xrange, yrange)
   glyph_renderer = (x for x in plot_model.get_obj('renderers') \
     when x.type == 'GlyphRenderer')[0]
   legend = Collections("AnnotationRenderer").create(
@@ -90,7 +91,7 @@ test('legend_test', () ->
 test('legend_absolute', () ->
   expect(0)
   plot_model = testutils.make_glyph_plot(data_source,
-    defaults, glyph, range,range)
+    defaults, glyph, xrange, yrange)
   glyph_renderer = (x for x in plot_model.get_obj('renderers') \
     when x.type == 'GlyphRenderer')[0]
   legend = Collections("AnnotationRenderer").create(
@@ -115,7 +116,7 @@ test('legend_absolute', () ->
 test('legend_bottom_left', () ->
   expect(0)
   plot_model = testutils.make_glyph_plot(data_source,
-    defaults, glyph, range,range)
+    defaults, glyph, xrange, yrange)
   glyph_renderer = (x for x in plot_model.get_obj('renderers') \
     when x.type == 'GlyphRenderer')[0]
   legend = Collections("AnnotationRenderer").create(
@@ -139,7 +140,7 @@ test('legend_bottom_left', () ->
 test('legend_bottom_right', () ->
   expect(0)
   plot_model = testutils.make_glyph_plot(data_source,
-    defaults, glyph, range,range)
+    defaults, glyph, xrange, yrange)
   glyph_renderer = (x for x in plot_model.get_obj('renderers') \
     when x.type == 'GlyphRenderer')[0]
   legend = Collections("AnnotationRenderer").create(
@@ -163,7 +164,7 @@ test('legend_bottom_right', () ->
 test('legend_rect_test', () ->
   expect(0)
   plot_model = testutils.make_glyph_plot(data_source,
-    defaults, glyph2, range,range)
+    defaults, glyph2, xrange, yrange)
   glyph_renderer = (x for x in plot_model.get_obj('renderers') \
     when x.type == 'GlyphRenderer')[0]
   glyph_renderer.set('reference_point', 3)

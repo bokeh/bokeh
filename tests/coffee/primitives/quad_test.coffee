@@ -1,7 +1,8 @@
 Collections = require('base').Collections
 make_glyph_test = require('testutils').make_glyph_test
 
-range = Collections('Range1d').create({start: 0, end: 10})
+xrange = Collections('Range1d').create({start: 0, end: 10})
+yrange = Collections('Range1d').create({start: 0, end: 10})
 
 data_source = Collections('ObjectArrayDataSource').create(
   data : [
@@ -24,7 +25,7 @@ glyph = {
   top: 'top'
 }
 
-test('quad_glyph', make_glyph_test('quad_glyph', data_source, defaults, glyph, range, range, null, null, null, null, null))
+test('quad_glyph', make_glyph_test('quad_glyph', data_source, defaults, glyph, xrange, yrange, null, null, null, null, null))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data : [
@@ -48,7 +49,7 @@ glyph = {
   top: 'top'
 }
 
-test('quad_glyph_linewidth', make_glyph_test('quad_glyph_linewidth', data_source, defaults, glyph, range, range, null, null, null, null, 3))
+test('quad_glyph_linewidth', make_glyph_test('quad_glyph_linewidth', data_source, defaults, glyph, xrange, yrange, null, null, null, null, 3))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data : [
@@ -74,7 +75,7 @@ glyph = {
   top: 'top'
 }
 
-test('quad_glyph_line_alpha', make_glyph_test('quad_line_alpha', data_source, defaults, glyph, range, range))
+test('quad_glyph_line_alpha', make_glyph_test('quad_line_alpha', data_source, defaults, glyph, xrange, yrange))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data : [
@@ -97,7 +98,7 @@ glyph = {
   top: 'top'
 }
 
-test('quad_glyph_fill', make_glyph_test('quad_glyph_fill', data_source, defaults, glyph, range, range))
+test('quad_glyph_fill', make_glyph_test('quad_glyph_fill', data_source, defaults, glyph, xrange, yrange))
 
 
 data_source = Collections('ObjectArrayDataSource').create(
@@ -122,4 +123,4 @@ glyph = {
   top: 'top'
 }
 
-test('quad_glyph_linedash', make_glyph_test('quad_glyph_linedash', data_source, defaults, glyph, range, range))
+test('quad_glyph_linedash', make_glyph_test('quad_glyph_linedash', data_source, defaults, glyph, xrange, yrange))

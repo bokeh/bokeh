@@ -1,7 +1,8 @@
 Collections = require('../../base').Collections
 make_glyph_test = require('../testutils').make_glyph_test
 
-range = Collections('Range1d').create({start: 0, end: 10})
+xrange = Collections('Range1d').create({start: 0, end: 10})
+yrange = Collections('Range1d').create({start: 0, end: 10})
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -27,4 +28,4 @@ glyph = {
   cy1: 'cy1'
 }
 
-test('bezier_glyph', make_glyph_test('bezier_glyph', data_source, defaults, glyph, range, range))
+test('bezier_glyph', make_glyph_test('bezier_glyph', data_source, defaults, glyph, xrange, yrange))
