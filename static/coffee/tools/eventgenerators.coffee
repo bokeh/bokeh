@@ -32,6 +32,26 @@ class TwoPointEventGenerator
         e.stopPropagation()
       )
 
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if @dragging
+        offset = $(e.currentTarget).offset()
+        e.bokehX = e.pageX - offset.left
+        e.bokehY = e.pageY - offset.top
+        inner_range_horizontal = @plotview.view_state.get(
+          'inner_range_horizontal')
+        inner_range_vertical = @plotview.view_state.get(
+          'inner_range_vertical')
+        x = @plotview.view_state.device_to_sx(e.bokehX)
+        y = @plotview.view_state.device_to_sy(e.bokehY)
+        if (x < inner_range_horizontal.get('start') or x > inner_range_horizontal.get('end'))
+          console.log("stopping1")
+          @_stop_drag(e)
+          return false
+        if (y < inner_range_vertical.get('start') or y > inner_range_vertical.get('end'))
+          console.log("stopping2")
+          @_stop_drag(e)
+          return false
+    )
     $(document).bind('keydown', (e) =>
       if e[@options.keyName]
         @_start_drag()
