@@ -30,7 +30,7 @@
   </script>
 <style>
 
-  .topdiv { margin: 50px; }
+  .topdiv { padding: 50px; }
   .all_can_wrapper {position:relative; }
   .can_wrapper {position:absolute; }
   .main_ can_wrapper {border:1px dotted green;}
@@ -44,6 +44,9 @@
 
   .table_wrap table { margin:5px; border:1px solid orange;  height:300px; display:block; overflow-y:scroll }
 
+  .demotable { border: 1px solid #000000; margin-top: 50px; }
+  .demotable th { width: 200px; }
+  .demotable td { border: 1px solid #000000; padding: 30px; vertical-align: text-top; }
 
 /*
   .table_outer thead { fon t-size:15px; display:block; height: 100px; overflow:auto; outline:1px  solid green}
@@ -58,27 +61,42 @@
   <div class="topdiv">
     <h1> Welcome to the bokehjs demoserver </h1>
       <p>To run the demos and tests, hem must be running via <code>hem server -s slug.all.json</code></p>
-    <div>
-      <h2>Demos:</h2>
+      <table class="demotable">
+          <tr><th><h2>Demos</h2></th>
+              <th><h2>Glyph Unit Tests</h2></th>
+              <th><h2>Other Unit Tests</h2></th>
+          </tr>
 
-      <ul>
-        {% for demo in alldemos['all'] %}
-          <li>
-            <a href="/demo/{{demo}}">{{demo}}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
-    <div>
-      <h2>Unit tests:</h2>
-      <ul>
-        {% for test in alltests.keys() %}
-          <li>
-            <a href="/test/{{test}}">{{test}}</a>
-          </li>
-        {% endfor %}
-      </ul>
-    </div>
+          <tr><td>
+            <ul>
+              {% for demo in alldemos['all'] %}
+                <li>
+                  <a href="/demo/{{demo}}">{{demo}}</a>
+                </li>
+              {% endfor %}
+            </ul>
+          </td>
+
+          <td>
+            <ul>
+            {% for test in alltests['prim'] %}
+              <li>
+                <a href="/test/{{test}}">{{test}}</a>
+              </li>
+            {% endfor %}
+            </ul>
+          </td>
+    
+          <td>
+            <ul>
+            {% for test in alltests['nonprim'] %}
+              <li>
+                <a href="/test/{{test}}">{{test}}</a>
+              </li>
+            {% endfor %}
+            </ul>
+          </td></tr>
+  </table>
   </div>
 </body>
 </html>

@@ -46,9 +46,16 @@ def demo(demoname):
 
 @app.route("/test/<testname>")
 def test(testname):
-    tests = alltests[testname]
-    testfiles = [os.path.join(TEST_SRCDIR, name+".coffee") for name in tests]
-    return display_page(testfiles, "tests.html", tests=tests)
+    if testname in alltests:
+        tests = alltests[testname]
+        testfiles = [os.path.join(TEST_SRCDIR, name+".coffee") for name in tests]
+        return display_page(testfiles, "tests.html", tests=tests)
+    else:
+        testfilename = os.path.join(TEST_SRCDIR, testname+".coffee")
+        if os.path.isfile(testfilename):
+            return display_page([testfilename], "tests.html", tests=[testname])
+        else:
+            flask.abort(404)
 
 alldemos = {
 
@@ -101,25 +108,35 @@ alltests = {
         'linear_axis_test',
     ],
 
+    'nonprim': [
+        'legend_test',
+        'linear_axis_test',
+        'ranges_test',
+        'ticking_test',
+        'hasparent_test',
+        'hasproperty_test',
+        'perf_test',
+    ],
+
     'prim' : [
-        'primitives/annular_wedge_test',
-        'primitives/annulus_test',
-        'primitives/arc_test',
-        'primitives/bezier_test',
-        'primitives/circle_test',
-        'primitives/image_uri_test',
-        'primitives/line_test',
-        'primitives/multi_line_test',
-        'primitives/oval_test',
-        'primitives/patch_test',
-        'primitives/patches_test',
-        'primitives/quad_test',
-        'primitives/quadcurve_test',
-        'primitives/ray_test',
-        'primitives/rect_test',
-        'primitives/segment_test',
-        'primitives/text_test',
-        'primitives/wedge_test',
+        'annular_wedge',
+        'annulus',
+        'arc',
+        'bezier',
+        'circle',
+        'image_uri',
+        'line',
+        'multi_line',
+        'oval',
+        'patch',
+        'patches',
+        'quad',
+        'quadcurve',
+        'ray',
+        'rect',
+        'segment',
+        'text',
+        'wedge',
     ],
 
     'annular_wedge' : ['primitives/annular_wedge_test'],
@@ -140,7 +157,7 @@ alltests = {
     'segment'       : ['primitives/segment_test'],
     'text'          : ['primitives/text_test'],
     'wedge'         : ['primitives/wedge_test'],
-    'legend'         : ['legend_test'],
+
 }
 
 allpossibletests = set()
