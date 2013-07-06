@@ -14,8 +14,8 @@ source = Collections('ColumnDataSource').create(
     f: [100,100,100,100,100,100,100,100,100]
 )
 
-xdr = Collections('Range1d').create({start: 0, end: 10})
-ydr = Collections('Range1d').create({start: 0, end: 100})
+xdr = Collections('Range1d').create({start: 0, end: 9})
+ydr = Collections('Range1d').create({start: 0, end: 120})
 
 a = {
   left: 'left'
@@ -67,6 +67,6 @@ e = {
   line_color: null
 }
 
-test('stack', make_glyph_test('stack', source, {}, [a,b,c,d,e], xdr, ydr, false, [400, 400]))
+test('stack', make_glyph_test('stack', source, {}, [a,b,c,d,e], xdr, ydr, false, [600, 600]))
 
 

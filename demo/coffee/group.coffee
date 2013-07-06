@@ -18,7 +18,7 @@ source = Collections('ColumnDataSource').create(
     cb: [0,0,0]
 )
 
-xdr = Collections('Range1d').create({start: 0, end: 12})
+xdr = Collections('Range1d').create({start: 0, end: 8})
 ydr = Collections('Range1d').create({start: 0, end: 8})
 
 a = {
@@ -51,6 +51,6 @@ c = {
   line_color: null
 }
 
-test('group', make_glyph_test('group', source, {}, [a,b,c], xdr, ydr, false, [400, 400]))
+test('group', make_glyph_test('group', source, {}, [a,b,c], xdr, ydr, false, [600, 600]))
 
 
