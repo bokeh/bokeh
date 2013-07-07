@@ -25,7 +25,7 @@ glyph = {
   top: 'top'
 }
 
-test('quad_glyph', make_glyph_test('quad_glyph', data_source, defaults, glyph, xrange, yrange, null, null, null, null, null))
+test('quad_glyph', make_glyph_test('quad_glyph', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data : [
@@ -49,7 +49,7 @@ glyph = {
   top: 'top'
 }
 
-test('quad_glyph_linewidth', make_glyph_test('quad_glyph_linewidth', data_source, defaults, glyph, xrange, yrange, null, null, null, null, 3))
+test('quad_glyph_linewidth', make_glyph_test('quad_glyph_linewidth', data_source, defaults, glyph, xrange, yrange, {reference_point:3}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data : [
@@ -75,7 +75,7 @@ glyph = {
   top: 'top'
 }
 
-test('quad_glyph_line_alpha', make_glyph_test('quad_line_alpha', data_source, defaults, glyph, xrange, yrange))
+test('quad_glyph_line_alpha', make_glyph_test('quad_line_alpha', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data : [
@@ -98,7 +98,7 @@ glyph = {
   top: 'top'
 }
 
-test('quad_glyph_fill', make_glyph_test('quad_glyph_fill', data_source, defaults, glyph, xrange, yrange))
+test('quad_glyph_fill', make_glyph_test('quad_glyph_fill', data_source, defaults, glyph, xrange, yrange, {}))
 
 
 data_source = Collections('ObjectArrayDataSource').create(
@@ -123,4 +123,4 @@ glyph = {
   top: 'top'
 }
 
-test('quad_glyph_linedash', make_glyph_test('quad_glyph_linedash', data_source, defaults, glyph, xrange, yrange))
+test('quad_glyph_linedash', make_glyph_test('quad_glyph_linedash', data_source, defaults, glyph, xrange, yrange, {}))

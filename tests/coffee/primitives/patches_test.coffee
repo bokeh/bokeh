@@ -23,5 +23,5 @@ glyph = {
   ys: 'ys'
 }
 
-test('patches_glyph', make_glyph_test('patches_glyph', data_source, defaults, glyph, xrange, yrange))
+test('patches_glyph', make_glyph_test('patches_glyph', data_source, defaults, glyph, xrange, yrange, {}))
 

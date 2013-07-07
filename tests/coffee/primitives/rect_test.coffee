@@ -28,7 +28,7 @@ glyph = {
   y: 'y'
 }
 
-test('rect_glyph', make_glyph_test('rect_glyph', data_source, defaults, glyph, xrange, yrange, null, null, null, null, null))
+test('rect_glyph', make_glyph_test('rect_glyph', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -51,8 +51,7 @@ glyph = {
   y: 'y'
 }
 
-test('rect_glyph_angle', make_glyph_test('rect_glyph_angle', data_source, defaults, glyph, xrange, yrange,
-))
+test('rect_glyph_angle', make_glyph_test('rect_glyph_angle', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -75,8 +74,8 @@ glyph = {
   y: 'y'
 }
 
-test('rect_glyph_line_width', make_glyph_test('rect_glyph_line_width', data_source, defaults, glyph, xrange, yrange, null, null, null, null,
-{x: 4, y: 2, lwidth:4}))
+test('rect_glyph_line_width', make_glyph_test('rect_glyph_line_width', data_source, defaults, glyph, xrange, yrange,
+{reference_point:{x: 4, y: 2, lwidth:4}}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -103,7 +102,7 @@ glyph = {
   y: 'y'
 }
 
-test('rect_glyph_line_alpha', make_glyph_test('rect_glyph_line_alpha', data_source, defaults, glyph, xrange, yrange))
+test('rect_glyph_line_alpha', make_glyph_test('rect_glyph_line_alpha', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -125,7 +124,7 @@ glyph = {
   y: 'y'
 }
 
-test('rect_glyph_fill', make_glyph_test('rect_glyph_fill', data_source, defaults, glyph, xrange, yrange))
+test('rect_glyph_fill', make_glyph_test('rect_glyph_fill', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -152,7 +151,7 @@ glyph = {
   y: 'y'
 }
 
-test('rect_glyph_linedash', make_glyph_test('rect_glyph_linedash', data_source, defaults, glyph, xrange, yrange))
+test('rect_glyph_linedash', make_glyph_test('rect_glyph_linedash', data_source, defaults, glyph, xrange, yrange, {}))
 
 
 data_source = Collections('ObjectArrayDataSource').create(
@@ -184,4 +183,4 @@ glyph = {
   y: 'y'
 }
 
-test('rect_glyph_house', make_glyph_test('rect_glyph_house', data_source, defaults, glyph, xrange, yrange))
+test('rect_glyph_house', make_glyph_test('rect_glyph_house', data_source, defaults, glyph, xrange, yrange, {}))

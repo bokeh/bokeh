@@ -281,24 +281,19 @@ glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatanames=[
   #  #_.defer(myrender)
   return plot_model
 
-#hugo: why not .isArray?
+make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, tools, axes, legend, legend_name, plot_title, reference_point}) ->
 
-typeIsArray = ( value ) ->
-    value and
-        typeof value is 'object' and
-        value instanceof Array and
-        typeof value.length is 'number' and
-        typeof value.splice is 'function' and
-        not ( value.propertyIsEnumerable 'length' )
+  dims ?= [400, 400]
+  tools ?= true
+  axes ?= true
+  legend ?= true
+  legend_name ?= "glyph"
+  plot_title ?= ""
 
-make_glyph_plot = (data_source, defaults, glyphspecs,
-    xrange, yrange, tools=true, dims=[400, 400],
-    axes=true, legend=true, legend_name="glyph",
-    reference_point) ->
   glyphs = []
-  if not typeIsArray(glyphspecs)
+  if not _.isArray(glyphspecs)
     glyphspecs = [glyphspecs]
-  if not typeIsArray(data_source)
+  if not _.isArray(data_source)
     for glyphspec in glyphspecs
       glyph = Collections('GlyphRenderer').create({
         data_source: data_source.ref()
@@ -328,6 +323,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs,
     canvas_height: dims[1]
     outer_width: dims[0]
     outer_height: dims[1]
+    title: plot_title
   )
   plot_model.set(defaults)
   plot_model.add_renderers(g.ref() for g in glyphs)
@@ -426,13 +422,18 @@ make_glyph_plot = (data_source, defaults, glyphspecs,
 
   return plot_model
 
-make_glyph_test = (test_name, data_source, defaults, glyphspecs,
-    xrange, yrange, tools=true, dims=[400, 400],
-    axes=true, legend=true,
-    reference_point) ->
+make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange, {dims, tools, axes, legend, legend_name, plot_title, reference_point}) ->
+  dims ?= [400, 400]
+  tools ?= true
+  axes ?= true
+  legend ?= true
+  legend_name ?= "glyph"
+  plot_title ?= ""
+
   return () ->
     expect(0)
-    plot_model = make_glyph_plot(data_source, defaults, glyphspecs, xrange, yrange, tools, dims, axes, true, test_name, reference_point)
+    opts = {dims: dims, tools: tools, axes:axes, legend: legend, legend_name: legend_name, plot_title: plot_title, reference_point: reference_point}
+    plot_model = make_glyph_plot(data_source, defaults, glyphspecs, xrange, yrange, opts)
     div = $('<div class="plotdiv"></div>')
     $('body').append(div)
     myrender  =  ->

@@ -28,4 +28,4 @@ glyph = {
   cy1: 'cy1'
 }
 
-test('bezier_glyph', make_glyph_test('bezier_glyph', data_source, defaults, glyph, xrange, yrange))
+test('bezier_glyph', make_glyph_test('bezier_glyph', data_source, defaults, glyph, xrange, yrange, {}))

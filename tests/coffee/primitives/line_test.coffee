@@ -22,4 +22,4 @@ glyph = {
   y: 'y'
 }
 
-test('line_glyph', make_glyph_test('line_glyph', data_source, defaults, glyph, rangex, rangey, null, null, null, null, null))
+test('line_glyph', make_glyph_test('line_glyph', data_source, defaults, glyph, rangex, rangey, {}))

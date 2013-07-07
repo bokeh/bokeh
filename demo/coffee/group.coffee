@@ -51,6 +51,10 @@ c = {
   line_color: null
 }
 
-test('group', make_glyph_test('group', source, {}, [a,b,c], xdr, ydr, false, [600, 600]))
+title = "Grouiped Bars Example"
+test(
+  'group',
+  make_glyph_test('group', source, {}, [a,b,c], xdr, ydr, {dims:[600, 600], tools:false, plot_title:title})
+)
 
 

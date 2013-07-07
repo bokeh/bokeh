@@ -106,7 +106,10 @@ wedge = {
 }
 
 
-
-test('map_overlay', make_glyph_test('map_overlay', [source, source2], {border_fill:'#ffffff'}, [area, wedge], xdr, ydr, true, [1200, 600], false))
+title = "Map with Overlay Example"
+test(
+  'map_overlay',
+  make_glyph_test('map_overlay', [source, source2], {border_fill:'#fafafa'}, [area, wedge], xdr, ydr, {dims: [1200, 600], axes:false, legend: false, plot_title:title})
+)
 
 

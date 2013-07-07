@@ -26,4 +26,4 @@ glyph = {
   cy: 'cy'
 }
 
-test('quadcurve_glyph', make_glyph_test('quadcurve_glyph', data_source, defaults, glyph, xrange, yrange))
+test('quadcurve_glyph', make_glyph_test('quadcurve_glyph', data_source, defaults, glyph, xrange, yrange, {}))

@@ -58,5 +58,9 @@ line = {
   line_alpha: 0.9
 }
 
-test('vector', make_glyph_test('vector', [source, source2], {}, [vector, line], xdr, ydr, true, [600, 600]))
+title = "Quiver Example"
+test(
+  'vector',
+  make_glyph_test('vector', [source, source2], {}, [vector, line], xdr, ydr, {dims: [600, 600], plot_title:title, legend:false})
+)
 

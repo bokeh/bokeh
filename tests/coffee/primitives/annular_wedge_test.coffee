@@ -31,6 +31,6 @@ glyph = {
   y: 'y'
 }
 
-test('annular_wedge_glyph', make_glyph_test('annular_wedge_glyph', data_source, defaults, glyph, xrange, yrange))
+test('annular_wedge_glyph', make_glyph_test('annular_wedge_glyph', data_source, defaults, glyph, xrange, yrange, {}))
 
-test('annular_wedge_glyph_legend2', make_glyph_test('annular_wedge_glyph', data_source, defaults, glyph, xrange, yrange, null, null, null, null, 3))
+test('annular_wedge_glyph_legend2', make_glyph_test('annular_wedge_glyph', data_source, defaults, glyph, xrange, yrange, {reference_point:3}))

@@ -25,4 +25,4 @@ glyph = {
   y: 'y'
 }
 
-test('image_uri_glyph', make_glyph_test('image_uri_glyph', data_source, defaults, glyph, xrange, yrange))
+test('image_uri_glyph', make_glyph_test('image_uri_glyph', data_source, defaults, glyph, xrange, yrange, {}))

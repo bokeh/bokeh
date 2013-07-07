@@ -24,4 +24,4 @@ glyph = {
   y1: 'y1'
 }
 
-test('segment_glyph', make_glyph_test('segment_glyph', data_source, defaults, glyph, xrange, yrange))
+test('segment_glyph', make_glyph_test('segment_glyph', data_source, defaults, glyph, xrange, yrange, {}))

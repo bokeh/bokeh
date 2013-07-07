@@ -26,7 +26,7 @@ glyph = {
   angle: -0.2
 }
 
-test('text_glyph', make_glyph_test('text_glyph', data_source, defaults, glyph, xrange, yrange))
+test('text_glyph', make_glyph_test('text_glyph', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -47,7 +47,7 @@ glyph = {
   y: 'y'
 }
 
-test('text_glyph_angle', make_glyph_test('text_glyph_angle', data_source, defaults, glyph, xrange, yrange))
+test('text_glyph_angle', make_glyph_test('text_glyph_angle', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -65,7 +65,7 @@ glyph = {
   y: 'y'
 }
 
-test('text_glyph_baseline', make_glyph_test('text_glyph_baseline', data_source, defaults, glyph, xrange, yrange))
+test('text_glyph_baseline', make_glyph_test('text_glyph_baseline', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -83,7 +83,7 @@ glyph = {
   y: 'y'
 }
 
-test('text_glyph_align', make_glyph_test('text_glyph_align', data_source, defaults, glyph, xrange, yrange))
+test('text_glyph_align', make_glyph_test('text_glyph_align', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -104,7 +104,7 @@ glyph = {
   y: 'y'
 }
 
-test('text_glyph_alpha', make_glyph_test('text_glyph_alpha', data_source, defaults, glyph, xrange, yrange))
+test('text_glyph_alpha', make_glyph_test('text_glyph_alpha', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -122,7 +122,7 @@ glyph = {
   y: 'y'
 }
 
-test('text_glyph_size', make_glyph_test('text_glyph_size', data_source, defaults, glyph, xrange, yrange))
+test('text_glyph_size', make_glyph_test('text_glyph_size', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -141,7 +141,7 @@ glyph = {
   y: 'y'
 }
 
-test('text_glyph_style', make_glyph_test('text_glyph_style', data_source, defaults, glyph, xrange, yrange))
+test('text_glyph_style', make_glyph_test('text_glyph_style', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -159,7 +159,7 @@ glyph = {
   y: 'y'
 }
 
-test('text_glyph_color', make_glyph_test('text_glyph_color', data_source, defaults, glyph, xrange, yrange))
+test('text_glyph_color', make_glyph_test('text_glyph_color', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -177,4 +177,4 @@ glyph = {
   y: 'y'
 }
 
-test('text_glyph_font', make_glyph_test('text_glyph_font', data_source, defaults, glyph, xrange, yrange))
+test('text_glyph_font', make_glyph_test('text_glyph_font', data_source, defaults, glyph, xrange, yrange, {}))

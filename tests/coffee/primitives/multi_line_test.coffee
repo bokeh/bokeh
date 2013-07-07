@@ -21,7 +21,7 @@ glyph = {
   ys: 'ys'
 }
 
-test('line_glyph', make_glyph_test('line_glyph', data_source, defaults, glyph, xrange, yrange))
+test('line_glyph', make_glyph_test('line_glyph', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -42,7 +42,7 @@ glyph = {
   ys: 'ys'
 }
 
-test('line_glyph_line_width', make_glyph_test('line_glyph_line_width', data_source, defaults, glyph, xrange, yrange))
+test('line_glyph_line_width', make_glyph_test('line_glyph_line_width', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -63,7 +63,7 @@ glyph = {
   ys: 'ys'
 }
 
-test('line_glyph_line_alpha', make_glyph_test('line_glyph_line_alpha', data_source, defaults, glyph, xrange, yrange))
+test('line_glyph_line_alpha', make_glyph_test('line_glyph_line_alpha', data_source, defaults, glyph, xrange, yrange, {}))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -86,4 +86,4 @@ glyph = {
   ys: 'ys'
 }
 
-test('line_glyph_linedash', make_glyph_test('line_glyph_linedash', data_source, defaults, glyph, xrange, yrange))
+test('line_glyph_linedash', make_glyph_test('line_glyph_linedash', data_source, defaults, glyph, xrange, yrange, {}))

@@ -29,7 +29,9 @@ glyph = {
     field: 'line_color'
 }
 
-test('arc_glyph', make_glyph_test('arc_glyph', data_source, defaults, glyph, xrange, yrange))
+opts = {}
+
+test('arc_glyph', make_glyph_test('arc_glyph', data_source, defaults, glyph, xrange, yrange, opts))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -49,7 +51,7 @@ glyph = {
     field: 'line_color'
 }
 
-test('arc_glyph_startstop_angle', make_glyph_test('arc_glyph_startstop_angle', data_source, defaults, glyph, xrange, yrange, null, null, null, null, 0))
+test('arc_glyph_startstop_angle', make_glyph_test('arc_glyph_startstop_angle', data_source, defaults, glyph, xrange, yrange, opts))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -71,4 +73,4 @@ glyph = {
   y: 'y'
 }
 
-test('arc_glyph_line_width', make_glyph_test('arc_glyph_line_width', data_source, defaults, glyph, xrange, yrange, null, null, null, null, 0))
+test('arc_glyph_line_width', make_glyph_test('arc_glyph_line_width', data_source, defaults, glyph, xrange, yrange, opts))

@@ -30,7 +30,9 @@ glyph = {
   y: 'y'
 }
 
-test('annulus_glyph', make_glyph_test('annulus_glyph', data_source, defaults, glyph, xrange, yrange))
+opts = {}
+
+test('annulus_glyph', make_glyph_test('annulus_glyph', data_source, defaults, glyph, xrange, yrange, opts))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -54,7 +56,7 @@ glyph = {
   y: 'y'
 }
 
-test('annulus_glyph_line_color', make_glyph_test('annulus_glyph_line_color', data_source, defaults, glyph, xrange, yrange))
+test('annulus_glyph_line_color', make_glyph_test('annulus_glyph_line_color', data_source, defaults, glyph, xrange, yrange, opts))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -77,7 +79,7 @@ glyph = {
   y: 'y'
 }
 
-test('annulus_glyph_outer_radius', make_glyph_test('annulus_glyph_outer_radius', data_source, defaults, glyph, xrange, yrange))
+test('annulus_glyph_outer_radius', make_glyph_test('annulus_glyph_outer_radius', data_source, defaults, glyph, xrange, yrange, opts))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -100,7 +102,7 @@ glyph = {
   y: 'y'
 }
 
-test('annulus_glyph_line_width', make_glyph_test('annulus_glyph_line_width', data_source, defaults, glyph, xrange, yrange))
+test('annulus_glyph_line_width', make_glyph_test('annulus_glyph_line_width', data_source, defaults, glyph, xrange, yrange, opts))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -125,7 +127,7 @@ glyph = {
   y: 'y'
 }
 
-test('annulus_glyph_line_alpha', make_glyph_test('annulus_glyph_line_alpha', data_source, defaults, glyph, xrange, yrange))
+test('annulus_glyph_line_alpha', make_glyph_test('annulus_glyph_line_alpha', data_source, defaults, glyph, xrange, yrange, opts))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -147,7 +149,7 @@ glyph = {
   y: 'y'
 }
 
-test('annulus_glyph_fill', make_glyph_test('annulus_glyph_fill', data_source, defaults, glyph, xrange, yrange))
+test('annulus_glyph_fill', make_glyph_test('annulus_glyph_fill', data_source, defaults, glyph, xrange, yrange, opts))
 
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
@@ -172,4 +174,4 @@ glyph = {
   y: 'y'
 }
 
-test('annulus_glyph_linedash', make_glyph_test('annulus_glyph_linedash', data_source, defaults, glyph, xrange, yrange))
+test('annulus_glyph_linedash', make_glyph_test('annulus_glyph_linedash', data_source, defaults, glyph, xrange, yrange, opts))

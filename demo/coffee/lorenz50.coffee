@@ -27,5 +27,9 @@ line = {
   line_alpha: 0.9
 }
 
-test('lorenz50', make_glyph_test('lorenz50', source, {}, [line], xdr, ydr, true, [600, 600]))
+title = "Lorenz Example (50s)"
+test(
+  'lorenz50',
+  make_glyph_test('lorenz50', source, {}, [line], xdr, ydr, {dims:[600, 600], plot_title:title, legend:false})
+)
 

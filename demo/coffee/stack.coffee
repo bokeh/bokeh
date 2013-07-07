@@ -14,8 +14,8 @@ source = Collections('ColumnDataSource').create(
     f: [100,100,100,100,100,100,100,100,100]
 )
 
-xdr = Collections('Range1d').create({start: 0, end: 9})
-ydr = Collections('Range1d').create({start: 0, end: 120})
+xdr = Collections('Range1d').create({start: 0, end: 11})
+ydr = Collections('Range1d').create({start: 0, end: 100})
 
 a = {
   left: 'left'
@@ -67,6 +67,10 @@ e = {
   line_color: null
 }
 
-test('stack', make_glyph_test('stack', source, {}, [a,b,c,d,e], xdr, ydr, false, [600, 600]))
+title = "Stacked Bars Example"
+test(
+  'stack',
+  make_glyph_test('stack', source, {}, [a,b,c,d,e], xdr, ydr, {dims:[600, 600], tools:false, plot_title:title})
+)
 
 

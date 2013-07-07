@@ -69,6 +69,10 @@ text = {
   text_font_size: '8pt'
 }
 
-test('map', make_glyph_test('map', source, {}, [area, text], xdr, ydr, true, [1200, 600], false))
+title = "Map Example"
+test(
+  'map',
+  make_glyph_test('map', source, {border_fill:'#fafafa'}, [area, text], xdr, ydr, {dims: [1200, 600], axes:false, legend: false, plot_title:title})
+)
 
 

@@ -248,9 +248,12 @@ class PlotView extends ContinuumView
           for k, v of pr
             @requested_padding[k] += v
 
-    @title_props.set(@ctx, {})
-    th = @ctx.measureText(@mget('title')).ascent
-    @requested_padding['top'] += (th + @mget('title_standoff'))
+    title = @mget('title')
+    if title
+      @title_props.set(@ctx, {})
+      th = @ctx.measureText(@mget('title')).ascent
+      @requested_padding['top'] += (th + @mget('title_standoff'))
+
     @is_paused = true
     for k, v of @requested_padding
       @view_state.set("requested_border_#{k}", v)
@@ -286,10 +289,11 @@ class PlotView extends ContinuumView
       for k, v of renderers
         v.render()
 
-    sx = @view_state.get('outer_width')/2
-    sy = th
-    @title_props.set(@ctx, {})
-    @ctx.fillText(@mget('title'), sx, sy)
+    if title
+      sx = @view_state.get('outer_width')/2
+      sy = th
+      @title_props.set(@ctx, {})
+      @ctx.fillText(title, sx, sy)
 
 
 

@@ -49,7 +49,7 @@ rect_fast = {
   angle: 0
 }
 
-test('rect_perf_fast', make_glyph_test('rect_perf_fast', source, defaults, rect_fast, xdr, ydr, true, [800, 400]))
+test('rect_perf_fast', make_glyph_test('rect_perf_fast', source, defaults, rect_fast, xdr, ydr, {dims:[800, 500]}))
 
 
 
@@ -73,7 +73,7 @@ rect_slow = {
   angle: 0.1
 }
 
-test('rect_perf_slow', make_glyph_test('rect_perf_slow', source, defaults, rect_slow, xdr, ydr, true, [800, 400]))
+test('rect_perf_slow', make_glyph_test('rect_perf_slow', source, defaults, rect_slow, xdr, ydr, {dims:[800, 500]}))
 
 
 ##
@@ -109,7 +109,7 @@ circle_fast = {
   fast_path: true
 }
 
-test('circle_perf_fast', make_glyph_test('circle_perf_fast', source, defaults, circle_fast, xdr, ydr, true, [600, 600]))
+test('circle_perf_fast', make_glyph_test('circle_perf_fast', source, defaults, circle_fast, xdr, ydr, {dims:[600, 600]}))
 
 
 
@@ -127,5 +127,5 @@ circle_slow = {
   line_color: null
 }
 
-test('circle_perf_slow', make_glyph_test('circle_perf_slow', source, defaults, circle_slow, xdr, ydr, true, [600, 600]))
+test('circle_perf_slow', make_glyph_test('circle_perf_slow', source, defaults, circle_slow, xdr, ydr, {dims:[600, 600]}))
 

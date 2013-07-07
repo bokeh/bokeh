@@ -57,5 +57,9 @@ image = {
     default: 'Spectral-10'
 }
 
-test('image', make_glyph_test('image', source, {}, [image], xdr, ydr, true, [600, 600]))
+title = "Image Plot Example"
+test(
+  'image',
+  make_glyph_test('image', source, {}, [image], xdr, ydr, {dims:[600, 600], plot_title:title, legend:false})
+)
 

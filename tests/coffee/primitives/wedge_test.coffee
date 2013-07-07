@@ -27,4 +27,4 @@ glyph = {
   y: 'y'
 }
 
-test('wedge_glyph', make_glyph_test('wedge_glyph', data_source, defaults, glyph, xrange, yrange))
+test('wedge_glyph', make_glyph_test('wedge_glyph', data_source, defaults, glyph, xrange, yrange, {}))
