@@ -118,7 +118,7 @@ class CircleView extends GlyphView
         glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()
 
-  select : (xscreenbounds, yscreenbounds) ->
+  select: (xscreenbounds, yscreenbounds) ->
     xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
       @plot_view.view_state.sx_to_device(xscreenbounds[1])]
     yscreenbounds = [@plot_view.view_state.sy_to_device(yscreenbounds[0]),
@@ -134,7 +134,7 @@ class CircleView extends GlyphView
         if @sy[i] < yscreenbounds[0] or @sy[i] > yscreenbounds[1]
           continue
       selected.push(i)
-     return selected
+    return selected
 
   draw_legend: (ctx, x1, x2, y1, y2) ->
     glyph_props = @glyph_props
