@@ -162,6 +162,8 @@ class LinearAxisView extends PlotWidget
     @major_label_props.set(ctx, @)
     @_apply_location_heuristics(ctx, side, orient)
 
+    console.log side, nx*standoff, ny*standoff
+
     for i in [0..sx.length-1]
       if angle
         ctx.translate(sx[i]+nx*standoff, sy[i]+ny*standoff)
@@ -270,7 +272,8 @@ class LinearAxisView extends PlotWidget
       for i in [0..labels.length-1]
         if not labels[i]?
           continue
-        w = @plot_view.ctx.measureText(labels[i]).width
+        w = @plot_view.ctx.measureText(labels[i]).width * 1.3
+
         h = @plot_view.ctx.measureText(labels[i]).ascent
         val = w*s + (h/factor)*c
         if val > extent
@@ -279,7 +282,7 @@ class LinearAxisView extends PlotWidget
       for i in [0..labels.length-1]
         if not labels[i]?
           continue
-        w = @plot_view.ctx.measureText(labels[i]).width
+        w = @plot_view.ctx.measureText(labels[i]).width * 1.3
         h = @plot_view.ctx.measureText(labels[i]).ascent
         val = w*c + (h/factor)*s
         if val > extent

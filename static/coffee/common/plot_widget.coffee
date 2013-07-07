@@ -55,7 +55,7 @@ class PlotWidget extends ContinuumView
       ctx.measureText = (text) ->
         textMetrics = ctx.html5MeasureText(text)
         # fake it 'til you make it
-        textMetrics.ascent = ctx.html5MeasureText("m").width * 2
+        textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
         return textMetrics
 
 
