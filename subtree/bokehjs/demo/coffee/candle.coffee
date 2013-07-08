@@ -62,6 +62,10 @@ upperlower = {
   line_width: 1
 }
 
-test('candle', make_glyph_test('candle', source, {}, [upperlower, bars], xdr, ydr, true, [800, 400]))
+title = "Candlestick Example"
+test(
+    'candle',
+    make_glyph_test('candle', source, {}, [upperlower, bars], xdr, ydr, {dims:[800, 500], plot_title:title, legend:false})
+)
 
 

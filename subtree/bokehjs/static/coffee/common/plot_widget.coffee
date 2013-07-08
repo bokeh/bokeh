@@ -21,6 +21,7 @@ class PlotWidget extends ContinuumView
     @_fixup_line_dash(@plot_view.ctx)
     @_fixup_line_dash_offset(@plot_view.ctx)
     @_fixup_image_smoothing(@plot_view.ctx)
+    @_fixup_measure_text(@plot_view.ctx)
 
     super(options)
 
@@ -47,6 +48,16 @@ class PlotWidget extends ContinuumView
       ctx.webkitImageSmoothingEnabled = value;
     ctx.getImageSmoothingEnabled = () ->
       return ctx.imageSmoothingEnabled ? true
+
+  _fixup_measure_text: (ctx) ->
+    if ctx.measureText and not ctx.html5MeasureText?
+      ctx.html5MeasureText = ctx.measureText
+      ctx.measureText = (text) ->
+        textMetrics = ctx.html5MeasureText(text)
+        # fake it 'til you make it
+        textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
+        return textMetrics
+
 
   bind_bokeh_events: () ->
     #safebind(this, @plot_view.viewstate, 'change', ()-> @request_render())

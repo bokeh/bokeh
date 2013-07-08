@@ -37,5 +37,9 @@ scatter = {
   line_color: null
 }
 
-test('scatter', make_glyph_test('scatter', source, {}, [scatter], xdr, ydr, true, [600, 600]))
+title = "Scatter Example"
+test(
+  'scatter',
+  make_glyph_test(title, source, {}, [scatter], xdr, ydr, {dims: [600, 600], plot_title:title, legend: false})
+)
 

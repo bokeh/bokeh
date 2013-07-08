@@ -36,6 +36,12 @@ class GlyphView extends PlotWidget
   select : () ->
     'pass'
 
+  xrange : () ->
+    return @plot_view.x_range
+
+  yrange : () ->
+    return @plot_view.y_range
+
   bind_bokeh_events: () ->
     @listenTo(@model, 'change', @request_render)
     @listenTo(@mget_obj('data_source'), 'change', @set_data)
@@ -69,6 +75,16 @@ class GlyphView extends PlotWidget
     spt1 = mapper.v_map_to_target(pt1)
 
     return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
+
+  get_reference_point : () ->
+    reference_point = @mget('reference_point')
+    if _.isNumber(reference_point)
+      return @data[reference_point]
+    else
+      return reference_point
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+
+
 
 
 
