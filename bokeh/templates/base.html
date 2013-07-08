@@ -2,7 +2,15 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title>Continuum Analytics</title>
+
+    <title>
+    {% if title %}
+    {{ title }}
+    {% else %}
+    Bokeh Plot
+    {% endif %}
+    </title>
+
 
     {% if cssfiles %}
     {% for cssfile in cssfiles %}
