@@ -46,12 +46,13 @@ class RectView extends GlyphView
     @selected_mask = new Array(data.length-1)
     for i in [0..@selected_mask.length-1]
       @selected_mask[i] = false
-
-  _render: () ->
+  _map_data : () ->
     [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
     @sw = @distance(@data, 'x', 'width', 'center')
     @sh = @distance(@data, 'y', 'height', 'center')
 
+  _render: () ->
+    @_map_data()
     ctx = @plot_view.ctx
 
     #duped
