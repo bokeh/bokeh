@@ -173,6 +173,7 @@ class HTMLFileSession(BaseHTMLSession):
     plot and includes all the associated JS and CSS for the plot.
     """
 
+    title = "Bokeh Plot"
 
     # The root directory for the CSS files
     css_files = ["css/bokeh.css", "css/continuum.css",
@@ -191,8 +192,10 @@ class HTMLFileSession(BaseHTMLSession):
     inline_css = True
     rootdir = abspath(split(__file__)[0])
 
-    def __init__(self, filename="bokehplot.html", plot=None):
+    def __init__(self, filename="bokehplot.html", plot=None, title=None):
         self.filename = filename
+        if title is not None:
+            self.title = title
         super(HTMLFileSession, self).__init__(plot=plot)
     
     @property
@@ -256,6 +259,7 @@ class HTMLFileSession(BaseHTMLSession):
             rootdir = self.rootdir
 
         if js == "inline" or self.inline_js:
+            # TODO: Are the UTF-8 decodes really necessary?
             rawjs = self._inline_scripts(self.js_paths()).decode("utf-8")
             jsfiles = []
         else:
@@ -263,6 +267,7 @@ class HTMLFileSession(BaseHTMLSession):
             jsfiles = [os.path.relpath(p,rootdir) for p in self.js_paths()]
         
         if css == "inline" or self.inline_css:
+            # TODO: Are the UTF-8 decodes really necessary?
             rawcss = self._inline_css(self.css_paths()).decode("utf-8")
             cssfiles = []
         else:
@@ -272,9 +277,9 @@ class HTMLFileSession(BaseHTMLSession):
         html = self._load_template(self.html_template).render(
                     js_snippets = [js],
                     html_snippets = [div],
-                    # TODO: Are the UTF-8 decodes really necessary?
                     rawjs = rawjs, rawcss = rawcss,
-                    jsfiles = jsfiles, cssfiles = cssfiles)
+                    jsfiles = jsfiles, cssfiles = cssfiles,
+                    title = self.title)
         return html
 
     def _inline_scripts(self, paths):
