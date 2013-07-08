@@ -134,6 +134,7 @@ class DataFactorRanges extends Backbone.Collection
 class FactorRanges extends Backbone.Collection
   model : FactorRange
 
+exports.Range1d = Range1d
 exports.range1ds = new Range1ds
 exports.datarange1ds = new DataRange1ds
 exports.datafactorranges = new DataFactorRanges

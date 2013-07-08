@@ -4,6 +4,9 @@ HasParent = base.HasParent
 safebind = base.safebind
 build_views = base.build_views
 
+properties = require('../renderers/properties')
+text_properties = properties.text_properties
+
 ContinuumView = require('./continuum_view').ContinuumView
 
 LinearMapper = require('../mappers/1d/linear_mapper').LinearMapper
@@ -17,60 +20,70 @@ ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager
 LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
 class PlotView extends ContinuumView
-
-  view_options: () ->
-    _.extend({plot_model: @model, plot_view: @}, @options)
-
   events:
     "mousemove .bokeh_canvas_wrapper": "_mousemove"
     "mousedown .bokeh_canvas_wrapper": "_mousedown"
 
-  _mousedown: (e) ->
+  view_options: () ->
+    _.extend({plot_model: @model, plot_view: @}, @options)
+
+  _mousedown: (e) =>
     for f in @mousedownCallbacks
       f(e, e.layerX, e.layerY)
 
-  _mousemove: (e) ->
+  _mousemove: (e) =>
     for f in @moveCallbacks
       f(e, e.layerX, e.layerY)
 
   pause : () ->
     @is_paused = true
 
-  unpause : () ->
+  unpause : (render_canvas=false) ->
     @is_paused = false
-    @request_render()
+    if render_canvas
+      @request_render_canvas(true)
+    else
+      @request_render()
 
   request_render : () ->
     if not @is_paused
       @throttled_render()
     return
 
-  request_render_canvas : () ->
+  request_render_canvas : (full_render) ->
     if not @is_paused
-      @throttled_render_canvas()
+      @throttled_render_canvas(full_render)
     return
 
   initialize: (options) ->
-    @throttled_render = _.throttle(@render, 50)
-    @throttled_render_canvas = _.throttle(@render_canvas, 30)
+    # $('body').mousedown(@_mousedown)
+    # $('body').mousemove(@_mousemove)
+    @throttled_render = _.throttle(@render, 100)
+    @throttled_render_canvas = _.throttle(@render_canvas, 100)
+
+    @title_props = new text_properties(@, {}, 'title_')
 
     super(_.defaults(options, @default_options))
 
     @view_state = new ViewState({
-      canvas_width:  options.canvas_width  ? @mget('canvas_width')
-      canvas_height: options.canvas_height ? @mget('canvas_height')
-      x_offset:      options.x_offset      ? @mget('x_offset')
-      y_offset:      options.y_offset      ? @mget('y_offset')
-      outer_width:   options.outer_width   ? @mget('outer_width')
-      outer_height:  options.outer_height  ? @mget('outer_height')
-      border_top:    (options.border_top    ? @mget('border_top'))    ? @mget('border')
-      border_bottom: (options.border_bottom ? @mget('border_bottom')) ? @mget('border')
-      border_left:   (options.border_left   ? @mget('border_left'))   ? @mget('border')
-      border_right:  (options.border_right  ? @mget('border_right'))  ? @mget('border')
+      canvas_width:      options.canvas_width       ? @mget('canvas_width')
+      canvas_height:     options.canvas_height      ? @mget('canvas_height')
+      x_offset:          options.x_offset           ? @mget('x_offset')
+      y_offset:          options.y_offset           ? @mget('y_offset')
+      outer_width:       options.outer_width        ? @mget('outer_width')
+      outer_height:      options.outer_height       ? @mget('outer_height')
+      min_border_top:    (options.min_border_top    ? @mget('min_border_top'))    ? @mget('min_border')
+      min_border_bottom: (options.min_border_bottom ? @mget('min_border_bottom')) ? @mget('min_border')
+      min_border_left:   (options.min_border_left   ? @mget('min_border_left'))   ? @mget('min_border')
+      min_border_right:  (options.min_border_right  ? @mget('min_border_right'))  ? @mget('min_border')
+      requested_border_top: 0
+      requested_border_bottom: 0
+      requested_border_left: 0
+      requested_border_right: 0
     })
 
-    @x_range = options.x_range ? @mget('x_range')
-    @y_range = options.y_range ? @mget('y_range')
+    @x_range = options.x_range ? @mget_obj('x_range')
+    @y_range = options.y_range ? @mget_obj('y_range')
 
     @xmapper = new LinearMapper({
       source_range: @x_range
@@ -87,11 +100,19 @@ class PlotView extends ContinuumView
       codomain_mapper: @ymapper
     })
 
+    @requested_padding = {
+      top: 0
+      bottom: 0
+      left: 0
+      right: 0
+    }
+
+    @am_rendering = false
+
     @renderers = {}
     @tools = {}
 
     @eventSink = _.extend({}, Backbone.Events)
-    atm = new ActiveToolManager(@eventSink)
     @moveCallbacks = []
     @mousedownCallbacks = []
     @keydownCallbacks = []
@@ -141,8 +162,6 @@ class PlotView extends ContinuumView
   build_levels: () ->
     @build_views()
     @build_tools()
-    @bind_tools()
-
     @levels = {}
     for level in LEVELS
       @levels[level] = {}
@@ -154,11 +173,20 @@ class PlotView extends ContinuumView
     for k,v of @tools
       level = v.mget('level')
       @levels[level][k] = v
-
+    @atm = new ActiveToolManager(@eventSink)
+    @atm.bind_bokeh_events()
+    @bind_bokeh_events()
+    for toolview in _.values(@tools)
+      toolview.bind_bokeh_events()
+    for view in _.values(@renderers)
+      view.bind_bokeh_events()
     return this
 
   bind_bokeh_events: () ->
-    safebind(this, @view_state, 'change', @request_render_canvas)
+    safebind(this, @view_state, 'change', () =>
+      @request_render_canvas()
+      @request_render()
+    )
     safebind(this, @x_range, 'change', @request_render)
     safebind(this, @y_range, 'change', @request_render)
     safebind(this, @model, 'change:renderers', @build_levels)
@@ -169,7 +197,7 @@ class PlotView extends ContinuumView
   render_init: () ->
     # TODO use template
     @$el.append($("""
-      <div class='button_bar'/>
+      <div class='button_bar btn-group'/>
       <div class='bokeh_canvas_wrapper'>
         <canvas class='bokeh_canvas'></canvas>
       </div>
@@ -178,7 +206,8 @@ class PlotView extends ContinuumView
     @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
     @canvas = @$el.find('canvas.bokeh_canvas')
 
-  render_canvas: (full_render = true) ->
+  render_canvas: (full_render=true) ->
+    console.log("rendercanvas")
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
 
@@ -188,16 +217,50 @@ class PlotView extends ContinuumView
     @$el.attr("width", ow).attr('height', oh)
 
     @ctx = @canvas[0].getContext('2d')
-
     if full_render
-      @render();
+      @render()
 
-    @render_end()
+  save_png: () ->
+    @render()
+    data_uri = @canvas[0].toDataURL()
+    @model.set('png', @canvas[0].toDataURL())
+    base.Collections.bulksave([@model])
+
 
   render: (force) ->
     super()
+    #newtime = new Date()
+    # if @last_render
+    #   console.log(newtime - @last_render)
+    # @last_render = newtime
+    # console.log('fullrender')
+    @requested_padding = {
+      top: 0
+      bottom: 0
+      left: 0
+      right: 0
+    }
+    for level in ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
+      renderers = @levels[level]
+      for k, v of renderers
+        if v.padding_request?
+          pr = v.padding_request()
+          for k, v of pr
+            @requested_padding[k] += v
+
+    title = @mget('title')
+    if title
+      @title_props.set(@ctx, {})
+      th = @ctx.measureText(@mget('title')).ascent
+      @requested_padding['top'] += (th + @mget('title_standoff'))
+
+    @is_paused = true
+    for k, v of @requested_padding
+      @view_state.set("requested_border_#{k}", v)
+    @is_paused = false
+
     @ctx.fillStyle = @mget('border_fill')
-    @ctx.fillRect(0,0,  @view_state.get('canvas_width'), @view_state.get('canvas_height'))
+    @ctx.fillRect(0, 0,  @view_state.get('canvas_width'), @view_state.get('canvas_height')) # TODO
     @ctx.fillStyle = @mget('background_fill')
     @ctx.fillRect(
       @view_state.get('border_left'), @view_state.get('border_top'),
@@ -226,8 +289,30 @@ class PlotView extends ContinuumView
       for k, v of renderers
         v.render()
 
+    if title
+      sx = @view_state.get('outer_width')/2
+      sy = th
+      @title_props.set(@ctx, {})
+      @ctx.fillText(title, sx, sy)
+
+
+
+class PNGView extends ContinuumView
+
+  initialize: (options) ->
+    super(options)
+    @thumb_x = options.thumb_x or 40
+    @thumb_y = options.thumb_y or 40
+    @render()
+    return this
+
+  render: () ->
+    png = @model.get('png')
+    @$el.append($("<img  modeltype='#{@model.type}' modelid='#{@model.get('id')}' class='pngview' width='#{@thumb_x}'  height='#{@thumb_y}'  src='#{png}'/>"))
+
 class Plot extends HasParent
   type: 'Plot'
+  #default_view: PNGView
   default_view: PlotView
 
   add_renderers: (new_renderers) ->
@@ -242,11 +327,11 @@ class Plot extends HasParent
     'canvas_height',
     'outer_width',
     'outer_height',
-    'border',
-    'border_top',
-    'border_bottom'
-    'border_left'
-    'border_right'
+    'min_border',
+    'min_border_top',
+    'min_border_bottom'
+    'min_border_left'
+    'min_border_right'
   ]
 
 Plot::defaults = _.clone(Plot::defaults)
@@ -254,7 +339,7 @@ _.extend(Plot::defaults , {
   'data_sources': {},
   'renderers': [],
   'tools': [],
-  'title': 'Plot'
+  'title': 'Plot',
 })
 
 Plot::display_defaults = _.clone(Plot::display_defaults)
@@ -262,13 +347,22 @@ _.extend(Plot::display_defaults
   ,
     background_fill: "#fff",
     border_fill: "#eee",
-    border: 40,
+    min_border: 40,
     x_offset: 0,
     y_offset: 0,
     canvas_width: 300,
     canvas_height: 300,
     outer_width: 300,
-    outer_height: 300
+    outer_height: 300,
+
+    title_standoff: 8,
+    title_text_font: "helvetica",
+    title_text_font_size: "20pt",
+    title_text_font_style: "normal",
+    title_text_color: "#444444",
+    title_text_alpha: 1.0,
+    title_text_align: "center",
+    title_text_baseline: "alphabetic"
 )
 
 class Plots extends Backbone.Collection
@@ -277,4 +371,5 @@ class Plots extends Backbone.Collection
 
 exports.Plot = Plot
 exports.PlotView = PlotView
+exports.PNGView = PNGView
 exports.plots = new Plots

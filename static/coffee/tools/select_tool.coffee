@@ -1,33 +1,36 @@
 tool = require("./tool")
 eventgenerators = require("./eventgenerators")
 TwoPointEventGenerator = eventgenerators.TwoPointEventGenerator
-mapper = require("../mapper")
-LinearMapper = mapper.LinearMapper
+#mapper = require("../mapper")
+LinearMapper = require("../mappers/1d/linear_mapper").LinearMapper
+#LinearMapper = mapper.LinearMapper
 base = require("../base")
 safebind = base.safebind
 
 class SelectionToolView extends tool.ToolView
   initialize : (options) ->
     super(options)
-    select_callback = _.debounce((() => @_select_data()), 50)
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @model, 'change', select_callback)
+    @select_callback = _.debounce((() => @_select_data()), 50)
+    @listenTo(@model, 'change', @select_callback)
+
+  bind_bokeh_events : () ->
+    super()
     for renderer in @mget_obj('renderers')
-      safebind(this, renderer, 'change', @request_render)
-      safebind(this, renderer.get_obj('xdata_range'), 'change',
-        @request_render)
-      safebind(this, renderer.get_obj('ydata_range'), 'change',
-        @request_render)
-      safebind(this, renderer.get_obj('data_source'), 'change',
-        @request_render)
-      safebind(this, renderer, 'change', select_callback)
-      safebind(this, renderer.get_obj('xdata_range'), 'change',
-        select_callback)
-      safebind(this, renderer.get_obj('ydata_range'), 'change',
-        select_callback)
+      rendererview = @plot_view.renderers[renderer.id]
+      @listenTo(rendererview.xrange(), 'change',
+        @select_callback)
+      @listenTo(rendererview.yrange(), 'change',
+        @select_callback)
+      @listenTo(renderer, 'change', @select_callback)
+      @listenTo(renderer.get_obj('data_source'), 'change',
+        @select_callback)
+      @listenTo(renderer, 'change', @select_callback)
 
   eventGeneratorClass : TwoPointEventGenerator
-  evgen_options : {keyName:"ctrlKey", buttonText:"Select"}
+  evgen_options :
+    keyName:"ctrlKey",
+    buttonText:"Select",
+    restrict_to_innercanvas : true
   tool_events : {
     SetBasepoint : "_start_selecting",
     #UpdatingMouseMove: "box_selecting",
@@ -37,7 +40,8 @@ class SelectionToolView extends tool.ToolView
     deactivated : "_stop_selecting"}
 
   mouse_coords : (e, x, y) ->
-    [x, y] = [@plot_view.viewstate.rxpos(x), @plot_view.viewstate.rypos(y)]
+    [x, y] = [@plot_view.view_state.device_to_sx(x),
+      @plot_view.view_state.device_to_sy(y)]
     return [x, y]
 
   _stop_selecting : () ->
@@ -54,11 +58,11 @@ class SelectionToolView extends tool.ToolView
     xrange = [@mget('start_x'), @mget('current_x')]
     yrange = [@mget('start_y'), @mget('current_y')]
     if @mget('select_x')
-      xrange = [d3.min(xrange), d3.max(xrange)]
+      xrange = [_.min(xrange), _.max(xrange)]
     else
       xrange = null
     if @mget('select_y')
-      yrange = [d3.min(yrange), d3.max(yrange)]
+      yrange = [_.min(yrange), _.max(yrange)]
     else
       yrange = null
     return [xrange, yrange]
@@ -67,11 +71,11 @@ class SelectionToolView extends tool.ToolView
     xrange = [@mget('start_x'), current_x]
     yrange = [@mget('start_y'), current_y]
     if @mget('select_x')
-      xrange = [d3.min(xrange), d3.max(xrange)]
+      xrange = [_.min(xrange), _.max(xrange)]
     else
       xrange = null
     if @mget('select_y')
-      yrange = [d3.min(yrange), d3.max(yrange)]
+      yrange = [_.min(yrange), _.max(yrange)]
     else
       yrange = null
     return [xrange, yrange]
@@ -119,7 +123,7 @@ class SelectionToolView extends tool.ToolView
       ds = datasources[k]
       ds.set('selected', selected)
       #console.log("datasource_selections", k, v, selected)
-      #ds.save()
+      ds.save()
     return null
 
 

@@ -20,12 +20,16 @@ ydr = Collections('Range1d').create({start: 0, end: 50})
 line = {
   xs: 'xs'
   ys: 'ys'
-  type: 'line',
+  type: 'multi_line',
   line_color:
     field: 'colors'
   line_width: 2
   line_alpha: 0.9
 }
 
-test('lorenz100', make_glyph_test('lorenz100', source, {}, [line], xdr, ydr, true, [600, 600]))
+title = "Lorenz Example (100s)"
+test(
+  'lorenz100',
+  make_glyph_test('lorenz100', source, {}, [line], xdr, ydr, {dims:[600, 600], plot_title:title, legend:false})
+)
 

@@ -11,6 +11,7 @@ class PanToolView extends tool.ToolView
     @build_mappers()
 
   bind_bokeh_events: () ->
+    super()
     safebind(this, @model, 'change:dataranges', @build_mappers)
 
   build_mappers: () =>
@@ -31,7 +32,10 @@ class PanToolView extends tool.ToolView
     return @mappers
 
   eventGeneratorClass: TwoPointEventGenerator
-  evgen_options: {keyName:"shiftKey", buttonText:"Pan"}
+  evgen_options:
+    keyName:"shiftKey"
+    buttonText:"Pan"
+    restrict_to_innercanvas : true
   tool_events: {
     UpdatingMouseMove: "_drag",
     SetBasepoint: "_set_base_point"}

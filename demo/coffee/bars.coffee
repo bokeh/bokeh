@@ -31,6 +31,10 @@ bars = {
   angle: 0.1
 }
 
-test('bars', make_glyph_test('bars', source, {}, [bars], xdr, ydr, true, [800, 400]))
+title = "Dense Bars Example"
+test(
+  'bars',
+  make_glyph_test('bars', source, {}, [bars], xdr, ydr, {dims: [800, 500], plot_title: title, legend: false})
+)
 
 

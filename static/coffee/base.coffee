@@ -148,10 +148,13 @@ class WebSocketWrapper
     @ws_conn_string = ws_conn_string
     @_connected = $.Deferred()
     @connected = @_connected.promise()
-    try
-      @s = new WebSocket(ws_conn_string)
-    catch error
+    if window.MozWebSocket
       @s = new MozWebSocket(ws_conn_string)
+    else
+      @s = new WebSocket(ws_conn_string)
+    # catch error
+    #   console.log(ws_conn_string, error)
+
     @s.onopen = () =>
       @_connected.resolve()
     @s.onmessage = @onmessage
@@ -221,7 +224,7 @@ class HasProperties extends Backbone.Model
         val.off(null, null, this)
 
   isNew : () ->
-    return not this.get('created')
+    return false
 
   initialize : (attrs, options) ->
     # auto generates ids if we need to, calls deferred initialize if we have
@@ -454,6 +457,24 @@ class HasProperties extends Backbone.Model
 
   defaults : {}
 
+  rpc : (funcname, args, kwargs) =>
+    prefix = Config.prefix
+    docid = @get('doc')
+    id = @get('id')
+    type = @type
+    url = "#{prefix}/bokeh/bb/rpc/#{docid}/#{type}/#{id}/#{funcname}/"
+    data =
+      args : args
+      kwargs : kwargs
+    resp = $.ajax(
+      type : 'POST'
+      url: url,
+      data : JSON.stringify(data)
+      contentType : 'application/json'
+      xhrFields :
+        withCredentials : true
+    )
+    return resp
 
 
   # hasparent
@@ -507,7 +528,7 @@ class HasParent extends HasProperties
   display_defaults : {}
 
 
-build_views = (view_storage, view_models, options) ->
+build_views = (view_storage, view_models, options, view_types=[]) ->
   # ## function : build_views
   # convenience function for creating a bunch of views from a spec
   # and storing them in a dictionary keyed off of model id.
@@ -532,10 +553,13 @@ build_views = (view_storage, view_models, options) ->
     debugger
     console.log(error)
     throw error
-  for model in newmodels
+  for model, i_model in newmodels
     view_specific_option = _.extend({}, options, {'model' : model})
     try
-      view_storage[model.id] = new model.default_view(view_specific_option)
+      if i_model < view_types.length
+        view_storage[model.id] = new view_types[i_model](view_specific_option)
+      else
+        view_storage[model.id] = new model.default_view(view_specific_option)
     catch error
       console.log("error on model of", model, error)
       throw error
@@ -557,6 +581,9 @@ locations =
   ResizeTool:      ['./tools/resize_tool',       'resizetools']
   SelectionTool:   ['./tools/select_tool',       'selectiontools']
   PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools']
+  EmbedTool:       ['./tools/preview_save_tool', 'embedtools']
+  BoxSelectionOverlay: ['./overlays/boxselectionoverlay',
+    'boxselectionoverlays']
 
   ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources']
   ColumnDataSource:      ['./common/datasource', 'columndatasources']
@@ -569,19 +596,46 @@ locations =
   GridPlotContainer: ['./common/grid_plot',    'gridplotcontainers']
   CDXPlotContext:    ['./common/plot_context', 'plotcontexts']
   PlotContext:       ['./common/plot_context', 'plotcontexts']
+  PlotList:       ['./common/plot_context', 'plotlists']
 
   DataTable: ['./widgets/table', 'datatables']
 
-  PandasPivot:      ['./pandas/pandas', 'pandaspivots']
-  PandasDataSource: ['./pandas/pandas', 'pandasdatasources']
+  IPythonRemoteData: ['./pandas/pandas', 'ipythonremotedatas']
+  PandasPivotTable: ['./pandas/pandas', 'pandaspivottables']
   PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
-exports.locations = locations
 
+  LinearAxis: ['./renderers/guide/axis', 'linearaxes']
+  Rule: ['./renderers/guide/rule', 'rules']
+
+exports.locations = locations
+mod_cache = {}
 Collections = (typename) ->
   if not locations[typename]
     throw "./base: Unknown Collection #{typename}"
   [modulename, collection] = locations[typename]
-  return require(modulename)[collection]
+  if not mod_cache[modulename]?
+    console.log("calling require", modulename)
+    mod_cache[modulename] = require(modulename)
+  return mod_cache[modulename][collection]
+
+Collections.bulksave = (models) ->
+  ##FIXME:hack
+  doc = models[0].get('doc')
+  jsondata = ({type : m.type, attributes :_.clone(m.attributes)} for m in models)
+  jsondata = JSON.stringify(jsondata)
+  url = Config.prefix + "/bokeh/bb/" + doc + "/bulkupsert"
+  xhr = $.ajax(
+    type : 'POST'
+    url : url
+    contentType: "application/json"
+    data : jsondata
+    header :
+      client : "javascript"
+  )
+  xhr.done((data) ->
+    load_models(data.modelspecs)
+  )
+  return xhr
 
 exports.Collections = Collections
 exports.Config = Config
