@@ -226,6 +226,9 @@ class Circle(Marker):
 #    outline_width = Size
 
 # Other kinds of Markers, to match what GGplot provides
+class Square(Marker):
+    __view_model__ = "square"
+
 class Triangle(Marker):
     __view_model__ = "triangle"
 
