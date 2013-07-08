@@ -11,76 +11,116 @@ GlyphView = glyph.GlyphView
 class LineView extends GlyphView
 
   initialize: (options) ->
-    glyphspec = @mget('glyphspec')
-    @glyph_props = new glyph_properties(
+    super(options)
+    ##duped in many classes
+    @glyph_props = @init_glyph(@mget('glyphspec'))
+    if @mget('selection_glyphspec')
+      spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
+      @selection_glyphprops = @init_glyph(spec)
+    if @mget('nonselection_glyphspec')
+      spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
+      @nonselection_glyphprops = @init_glyph(spec)
+    ##duped in many classes
+    @do_stroke = @glyph_props.line_properties.do_stroke
+
+  init_glyph : (glyphspec) ->
+    glyph_props = new glyph_properties(
       @,
       glyphspec,
-      ['xs:array', 'ys:array'],
+      ['x:number', 'y:number'],
       [
         new line_properties(@, glyphspec)
       ]
     )
-
-    @do_stroke = @glyph_props.line_properties.do_stroke
-    super(options)
+    return glyph_props
 
   _set_data: (@data) ->
-    # TODO save screen coords
+    @x = @glyph_props.v_select('x', data)
+    @y = @glyph_props.v_select('y', data)
+    #duped
+    @selected_mask = new Array(data.length-1)
+    for i in [0..@selected_mask.length-1]
+      @selected_mask[i] = false
+  _map_data : () ->
+    [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
   _render: () ->
+    @_map_data()
     ctx = @plot_view.ctx
-
     ctx.save()
-    if @glyph_props.fast_path
-      @_fast_path(ctx)
+    #duped
+    selected = @mget_obj('data_source').get('selected')
+    for idx in selected
+      @selected_mask[idx] = true
+    if selected and selected.length and @nonselection_glyphprops
+      if @selection_glyphprops
+        props =  @selection_glyphprops
+      else
+        props = @glyph_props
+      @_draw_path(ctx, props, 'selected')
+      @_draw_path(ctx, @nonselection_glyphprops, 'unselected')
     else
-      @_full_path(ctx)
+      @_draw_path(ctx)
     ctx.restore()
 
-  _fast_path: (ctx) ->
-    if @do_stroke
-      @glyph_props.line_properties.set(ctx, @glyph_props)
-      for pt in @data
-        x = @glyph_props.select('xs', pt)
-        y = @glyph_props.select('ys', pt)
-
-        [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
-
-        for i in [0..sx.length-1]
-          if i == 0
-            ctx.beginPath()
-            ctx.moveTo(sx[i], sy[i])
-            continue
-          else if isNaN(sx[i]) or isNaN(sy[i])
-            ctx.stroke()
-            ctx.beginPath()
-            continue
-          else
-            ctx.lineTo(sx[i], sy[i])
+  _draw_path: (ctx, glyph_props, use_selection) ->
+    if not glyph_props
+      glyph_props = @glyph_props
+    glyph_props.line_properties.set(ctx, glyph_props)
+    drawing = false
+    for i in [0..@sx.length-1]
+      if isNaN(@sx[i] + @sy[i])
+        drawing = false
+        ctx.beginPath()
+        continue
+      if use_selection == 'selected' and not @selected_mask[i]
+        drawing = false
+        ctx.beginPath()
+        continue
+      if not drawing
+        ctx.beginPath()
+        ctx.moveTo(@sx[i], @sy[i])
+        drawing = true
+      else
+        console.log("line to", @sx[i], @sy[i])
+        ctx.lineTo(@sx[i], @sy[i])
         ctx.stroke()
+    ctx.beginPath()
 
-  _full_path: (ctx) ->
-    if @do_stroke
-      for pt in @data
-        x = @glyph_props.select('xs', pt)
-        y = @glyph_props.select('ys', pt)
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+    glyph_props = @glyph_props
+    line_props = glyph_props.line_properties
+    reference_point = @get_reference_point()
+    if reference_point?
+      glyph_settings = reference_point
+    else
+      glyph_settings = glyph_props
+    line_props.set(ctx, glyph_settings)
+    ctx.beginPath()
+    ctx.moveTo(x1, (y1 + y2) /2)
+    ctx.lineTo(x2, (y1 + y2) /2)
+    ctx.stroke()
+    ctx.beginPath()
+    ctx.restore()
 
-        [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
-
-        @glyph_props.line_properties.set(ctx, pt)
-        for i in [0..sx.length-1]
-          if i == 0
-            ctx.beginPath()
-            ctx.moveTo(sx[i], sy[i])
-            continue
-          else if isNaN(sx[i]) or isNaN(sy[i])
-            ctx.stroke()
-            ctx.beginPath()
-            continue
-          else
-            ctx.lineTo(sx[i], sy[i])
-        ctx.stroke()
-
+  ##duped
+  select : (xscreenbounds, yscreenbounds) ->
+    xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
+      @plot_view.view_state.sx_to_device(xscreenbounds[1])]
+    yscreenbounds = [@plot_view.view_state.sy_to_device(yscreenbounds[0]),
+      @plot_view.view_state.sy_to_device(yscreenbounds[1])]
+    xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)]
+    yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)]
+    selected = []
+    for i in [0..@sx.length-1]
+      if xscreenbounds
+        if @sx[i] < xscreenbounds[0] or @sx[i] > xscreenbounds[1]
+          continue
+      if yscreenbounds
+        if @sy[i] < yscreenbounds[0] or @sy[i] > yscreenbounds[1]
+          continue
+      selected.push(i)
+     return selected
 
 class Line extends Glyph
   default_view: LineView
@@ -103,4 +143,3 @@ _.extend(Line::display_defaults, {
 
 exports.Line = Line
 exports.LineView = LineView
-

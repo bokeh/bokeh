@@ -10,25 +10,27 @@ safebind = base.safebind
 class SelectionToolView extends tool.ToolView
   initialize : (options) ->
     super(options)
-    select_callback = _.debounce((() => @_select_data()), 50)
-    safebind(this, @model, 'change', @request_render)
-    safebind(this, @model, 'change', select_callback)
+    @select_callback = _.debounce((() => @_select_data()), 50)
+    @listenTo(@model, 'change', @select_callback)
+
+  bind_bokeh_events : () ->
+    super()
     for renderer in @mget_obj('renderers')
-      safebind(this, renderer, 'change', @request_render)
-      safebind(this, renderer.get_obj('xdata_range'), 'change',
-        @request_render)
-      safebind(this, renderer.get_obj('ydata_range'), 'change',
-        @request_render)
-      safebind(this, renderer.get_obj('data_source'), 'change',
-        @request_render)
-      safebind(this, renderer, 'change', select_callback)
-      safebind(this, renderer.get_obj('xdata_range'), 'change',
-        select_callback)
-      safebind(this, renderer.get_obj('ydata_range'), 'change',
-        select_callback)
+      rendererview = @plot_view.renderers[renderer.id]
+      @listenTo(rendererview.xrange(), 'change',
+        @select_callback)
+      @listenTo(rendererview.yrange(), 'change',
+        @select_callback)
+      @listenTo(renderer, 'change', @select_callback)
+      @listenTo(renderer.get_obj('data_source'), 'change',
+        @select_callback)
+      @listenTo(renderer, 'change', @select_callback)
 
   eventGeneratorClass : TwoPointEventGenerator
-  evgen_options : {keyName:"ctrlKey", buttonText:"Select"}
+  evgen_options :
+    keyName:"ctrlKey",
+    buttonText:"Select",
+    restrict_to_innercanvas : true
   tool_events : {
     SetBasepoint : "_start_selecting",
     #UpdatingMouseMove: "box_selecting",

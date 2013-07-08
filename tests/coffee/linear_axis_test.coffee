@@ -21,6 +21,7 @@ one_axis_test = (testname, dim, xr, yr, loc, bds) ->
       outer_width: 200
       outer_height: 200
       border: 25
+      title: ""
     )
     xaxis = Collections('GuideRenderer').create(
       guidespec: {
@@ -29,7 +30,7 @@ one_axis_test = (testname, dim, xr, yr, loc, bds) ->
         location: loc
         bounds: bds
       }
-      parent: plot_model.ref()
+      plot: plot_model.ref()
     )
     plot_model.add_renderers([xaxis])
 

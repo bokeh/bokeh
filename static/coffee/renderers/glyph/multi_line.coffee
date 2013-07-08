@@ -8,14 +8,14 @@ Glyph = glyph.Glyph
 GlyphView = glyph.GlyphView
 
 
-class SegmentView extends GlyphView
+class MultiLineView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
     @glyph_props = new glyph_properties(
       @,
       glyphspec,
-      ['x0', 'y0', 'x1', 'y1'],
+      ['xs:array', 'ys:array'],
       [
         new line_properties(@, glyphspec)
       ]
@@ -25,16 +25,9 @@ class SegmentView extends GlyphView
     super(options)
 
   _set_data: (@data) ->
-    @x0 = @glyph_props.v_select('x0', data)
-    @y0 = @glyph_props.v_select('y0', data)
-
-    @x1 = @glyph_props.v_select('x1', data)
-    @y1 = @glyph_props.v_select('y1', data)
+    # TODO save screen coords
 
   _render: () ->
-    [@sx0, @sy0] = @plot_view.map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units)
-    [@sx1, @sy1] = @plot_view.map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units)
-
     ctx = @plot_view.ctx
 
     ctx.save()
@@ -47,27 +40,45 @@ class SegmentView extends GlyphView
   _fast_path: (ctx) ->
     if @do_stroke
       @glyph_props.line_properties.set(ctx, @glyph_props)
-      ctx.beginPath()
-      for i in [0..@sx0.length-1]
-        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
-          continue
+      for pt in @data
+        x = @glyph_props.select('xs', pt)
+        y = @glyph_props.select('ys', pt)
 
-        ctx.moveTo(@sx0[i], @sy0[i])
-        ctx.lineTo(@sx1[i], @sy1[i])
+        [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
 
-      ctx.stroke()
+        for i in [0..sx.length-1]
+          if i == 0
+            ctx.beginPath()
+            ctx.moveTo(sx[i], sy[i])
+            continue
+          else if isNaN(sx[i]) or isNaN(sy[i])
+            ctx.stroke()
+            ctx.beginPath()
+            continue
+          else
+            ctx.lineTo(sx[i], sy[i])
+        ctx.stroke()
 
   _full_path: (ctx) ->
     if @do_stroke
-      for i in [0..@sx0.length-1]
-        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
-          continue
+      for pt in @data
+        x = @glyph_props.select('xs', pt)
+        y = @glyph_props.select('ys', pt)
 
-        ctx.beginPath()
-        ctx.moveTo(@sx0[i], @sy0[i])
-        ctx.lineTo(@sx1[i], @sy1[i])
+        [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
 
-        @glyph_props.line_properties.set(ctx, @data[i])
+        @glyph_props.line_properties.set(ctx, pt)
+        for i in [0..sx.length-1]
+          if i == 0
+            ctx.beginPath()
+            ctx.moveTo(sx[i], sy[i])
+            continue
+          else if isNaN(sx[i]) or isNaN(sy[i])
+            ctx.stroke()
+            ctx.beginPath()
+            continue
+          else
+            ctx.lineTo(sx[i], sy[i])
         ctx.stroke()
 
   draw_legend: (ctx, x1, x2, y1, y2) ->
@@ -86,14 +97,13 @@ class SegmentView extends GlyphView
     ctx.beginPath()
     ctx.restore()
 
-
-class Segment extends Glyph
-  default_view: SegmentView
+class MultiLine extends Glyph
+  default_view: MultiLineView
   type: 'GlyphRenderer'
 
 
-Segment::display_defaults = _.clone(Segment::display_defaults)
-_.extend(Segment::display_defaults, {
+MultiLine::display_defaults = _.clone(MultiLine::display_defaults)
+_.extend(MultiLine::display_defaults, {
 
   line_color: 'red'
   line_width: 1
@@ -106,5 +116,5 @@ _.extend(Segment::display_defaults, {
 })
 
 
-exports.Segment = Segment
-exports.SegmentView = SegmentView
+exports.MultiLine = MultiLine
+exports.MultiLineView = MultiLineView

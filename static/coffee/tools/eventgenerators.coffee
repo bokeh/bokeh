@@ -2,6 +2,7 @@
 class TwoPointEventGenerator
 
   constructor: (options) ->
+    @restrict_to_innercanvas = options.restrict_to_innercanvas
     @options = options
     @toolName = @options.eventBasename
     @dragging = false
@@ -31,7 +32,36 @@ class TwoPointEventGenerator
         e.preventDefault()
         e.stopPropagation()
       )
-
+    @plotview.moveCallbacks.push((e, x, y) =>
+      if @dragging
+        offset = $(e.currentTarget).offset()
+        e.bokehX = e.pageX - offset.left
+        e.bokehY = e.pageY - offset.top
+        inner_range_horizontal = @plotview.view_state.get(
+          'inner_range_horizontal')
+        inner_range_vertical = @plotview.view_state.get(
+          'inner_range_vertical')
+        x = @plotview.view_state.device_to_sx(e.bokehX)
+        y = @plotview.view_state.device_to_sy(e.bokehY)
+        if @restrict_to_innercanvas
+          xstart = inner_range_horizontal.get('start')
+          xend = inner_range_horizontal.get('end')
+          ystart = inner_range_vertical.get('start')
+          yend = inner_range_vertical.get('end')
+        else
+          xstart = 0
+          xend = @plotview.view_state.get('outer_width')
+          ystart = 0
+          yend = @plotview.view_state.get('outer_height')
+        if x < xstart  or x > xend
+          console.log("stopping1")
+          @_stop_drag(e)
+          return false
+        if y < ystart or y > yend
+          console.log("stopping2")
+          @_stop_drag(e)
+          return false
+    )
     $(document).bind('keydown', (e) =>
       if e[@options.keyName]
         @_start_drag()
@@ -49,6 +79,10 @@ class TwoPointEventGenerator
         return false)
 
     @plotview.canvas_wrapper.bind('mouseup', (e) =>
+      if @button_activated
+        @_stop_drag(e)
+        return false)
+    @plotview.canvas_wrapper.bind('mouseleave', (e) =>
       if @button_activated
         @_stop_drag(e)
         return false)
@@ -124,15 +158,15 @@ class OnePointWheelEventGenerator
       if e.keyCode == 27
         eventSink.trigger("clear_active_tool"))
 
-    @mouseover_count = 0
-    #waiting 500 ms and testing mouseover countmakes sure that
-    #mouseouts that occur because of going over element borders don't
-    #trigger the mouseout
-    @plotview.$el.bind("mouseout", (e) =>
-      @mouseover_count -=1
-      _.delay((=>
-        if @mouseover_count == 0
-          eventSink.trigger("clear_active_tool")), 500))
+    # @mouseover_count = 0
+    # #waiting 500 ms and testing mouseover countmakes sure that
+    # #mouseouts that occur because of going over element borders don't
+    # #trigger the mouseout
+    # @plotview.$el.bind("mouseout", (e) =>
+    #   @mouseover_count -=1
+    #   _.delay((=>
+    #     if @mouseover_count == 0
+    #       eventSink.trigger("clear_active_tool")), 500))
 
     @plotview.$el.bind("mousein", (e) =>
       eventSink.trigger("clear_active_tool"))
@@ -197,15 +231,15 @@ class ButtonEventGenerator
       if e.keyCode == 27
         eventSink.trigger("clear_active_tool"))
 
-    @mouseover_count = 0
-    #waiting 500 ms and testing mouseover countmakes sure that
-    #mouseouts that occur because of going over element borders don't
-    #trigger the mouseout
-    @plotview.$el.bind("mouseout", (e) =>
-      @mouseover_count -=1
-      _.delay((=>
-        if @mouseover_count == 0
-          eventSink.trigger("clear_active_tool")), 500))
+    # @mouseover_count = 0
+    # #waiting 500 ms and testing mouseover countmakes sure that
+    # #mouseouts that occur because of going over element borders don't
+    # #trigger the mouseout
+    # @plotview.$el.bind("mouseout", (e) =>
+    #   @mouseover_count -=1
+    #   _.delay((=>
+    #     if @mouseover_count == 0
+    #       eventSink.trigger("clear_active_tool")), 500))
 
     @plotview.$el.bind("mouseover", (e) =>
       @mouseover_count += 1)

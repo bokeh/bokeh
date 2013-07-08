@@ -51,12 +51,16 @@ vector = {
 line = {
   xs: 'xs'
   ys: 'ys'
-  type: 'line',
+  type: 'multi_line',
   line_color:
     field: 'scolors'
   line_width: 2
   line_alpha: 0.9
 }
 
-test('vector', make_glyph_test('vector', [source, source2], {}, [vector, line], xdr, ydr, true, [600, 600]))
+title = "Quiver Example"
+test(
+  'vector',
+  make_glyph_test('vector', [source, source2], {}, [vector, line], xdr, ydr, {dims: [600, 600], plot_title:title, legend:false})
+)
 

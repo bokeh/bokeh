@@ -71,6 +71,23 @@ class TextView extends GlyphView
       ctx.rotate(-@angle[i])
       ctx.translate(-@sx[i], -@sy[i])
 
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+    glyph_props = @glyph_props
+    text_props = glyph_props.text_properties
+    ctx.save()
+    reference_point = @get_reference_point()
+    if reference_point?
+      glyph_settings = reference_point
+    else
+      glyph_settings = glyph_props
+    text_props.set(ctx, glyph_settings)
+    #override some features so we fit inside the legend
+    ctx.font = text_props.font(12)
+    ctx.textAlign = "right"
+    ctx.textBaseline = "middle"
+    ctx.fillText("txt", x2, (y1+y2)/2)
+
+    ctx.restore()
 
 class Text extends Glyph
   default_view: TextView
@@ -93,4 +110,3 @@ _.extend(Text::display_defaults, {
 
 exports.Text = Text
 exports.TextView = TextView
-

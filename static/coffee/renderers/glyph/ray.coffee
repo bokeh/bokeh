@@ -85,6 +85,29 @@ class RayView extends GlyphView
         ctx.rotate(-@angle[i])
         ctx.translate(-@sx[i], -@sy[i])
 
+  draw_legend: (ctx, x1, x2, y1, y2) ->
+    glyph_props = @glyph_props
+    line_props = glyph_props.line_properties
+    reference_point = @get_reference_point()
+    if reference_point?
+      glyph_settings = reference_point
+    else
+      glyph_settings = glyph_props
+    angle = - @glyph_props.select('angle', glyph_settings)
+    r = _.min([Math.abs(x2-x1), Math.abs(y2-y1)]) / 2
+    sx = (x1+x2)/2
+    sy = (y1+y2)/2
+    ctx.beginPath()
+    ctx.translate(sx, sy)
+    ctx.rotate(angle)
+    ctx.moveTo(0,  0)
+    ctx.lineTo(r, 0) # TODO handle @length in data units?
+    ctx.rotate(-angle)
+    ctx.translate(-sx, -sy)
+    line_props.set(ctx, glyph_settings)
+    ctx.stroke()
+    ctx.restore()
+
 
 class Ray extends Glyph
   default_view: RayView
@@ -107,4 +130,3 @@ _.extend(Ray::display_defaults, {
 
 exports.Ray = Ray
 exports.RayView = RayView
-
