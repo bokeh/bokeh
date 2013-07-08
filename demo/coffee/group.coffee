@@ -51,7 +51,7 @@ c = {
   line_color: null
 }
 
-title = "Grouiped Bars Example"
+title = "Grouped Bars Example"
 test(
   'group',
   make_glyph_test('group', source, {}, [a,b,c], xdr, ydr, {dims:[600, 600], tools:false, plot_title:title})
