@@ -300,6 +300,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, too
         glyphspec: glyphspec
         nonselection_glyphspec :
           fill_alpha : 0.1
+          line_alpha : 0.1
         reference_point : reference_point
       })
       glyph.set(defaults)
