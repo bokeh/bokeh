@@ -152,10 +152,9 @@ def output_server(docname, url="default", **kwargs):
     _config["session"] = PlotServerSession(**kwargs)
     _config["session"].use_doc(docname)
 
-def output_file(filename, autosave=True, js="inline", css="inline", 
-                rootdir=None):
-    """
-    Outputs to a static HTML file. WARNING: This file will be overwritten
+def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
+                css="inline", rootdir=None):
+    """ Outputs to a static HTML file. WARNING: This file will be overwritten
     each time show() is invoked.
 
     If **autosave** is True, then every time plot() or one of the other
@@ -172,7 +171,7 @@ def output_file(filename, autosave=True, js="inline", css="inline",
     
     if os.path.isfile(filename):
         warnings.warn("Session output file '%s' already exists, will be overwritten." % filename)
-    session = HTMLFileSession(filename)
+    session = HTMLFileSession(filename, title=title)
     if js == "relative":
         session.inline_js = False
     if css == "relative":
@@ -202,12 +201,22 @@ def show():
         session.plotcontext._dirty = True
         session.store_all()
 
-def save():
-    """ Identical to show() for file based output mode.  Has no effect
-    for other output backends.
+def save(filename=None):
+    """ When using file-based output, this will save the plot to the given
+    filename.  Has no effect for other output backends.
     """
     if _config["output_type"] == "file":
-        _config["session"].save()
+        session = _config["session"]
+        if filename is not None:
+            oldfilename = session.filename
+            session.filename = filename
+        try:
+            session.save()
+        finally:
+            if filename is not None:
+                session.filename = oldfilename
+    else:
+        warnings.warn("save() does nothing for non-file-based output mode.")
 
 def visual(func):
     """ Decorator to wrap functions that might create visible plot objects
