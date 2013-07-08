@@ -8,6 +8,7 @@ import json
 import logging
 import urlparse
 import uuid
+import warnings
 
 import requests
 
@@ -60,9 +61,10 @@ class Session(object):
         """
         for obj in objects:
             if obj is None:
-                import pdb;pdb.set_trace()
-            obj.session = self
-            self._models[obj._id] = obj
+                warnings.warn("Null object passed to Session.add()")
+            else:
+                obj.session = self
+                self._models[obj._id] = obj
             
     def view(self):
         """ Triggers the OS to open a web browser pointing to the file
@@ -185,6 +187,10 @@ class HTMLFileSession(BaseHTMLSession):
     div_template = "plots.html"     # template for just the plot <div>
     html_template = "base.html"     # template for the entire HTML file
 
+    inline_js = True
+    inline_css = True
+    rootdir = abspath(split(__file__)[0])
+
     def __init__(self, filename="bokehplot.html", plot=None):
         self.filename = filename
         super(HTMLFileSession, self).__init__(plot=plot)
@@ -209,13 +215,16 @@ class HTMLFileSession(BaseHTMLSession):
         with open(join(self.template_dir, filename)) as f:
             return jinja2.Template(f.read())
     
-    def dumps(self, js="inline", css="inline", 
-                rootdir=abspath(split(__file__)[0])):
+    def dumps(self, js=None, css=None, rootdir=None):
         """ Returns the HTML contents as a string 
         
-        **js** and **css** can be "inline" or "relative". In the latter case,
+        **js** and **css** can be "inline" or "relative", and they default
+        to the values of self.inline_js and self.inline_css. 
+        
+        If these are set to be "relative" (or self.inline_js/css are False),
         **rootdir** can be specified to indicate the base directory from which
-        the path to the various static files should be computed.
+        the path to the various static files should be computed.  **rootdir**
+        defaults to the value of self.rootdir.
         """
         # FIXME: Handle this more intelligently
         the_plot = [m for m in self._models.itervalues() if isinstance(m, Plot)][0]
@@ -242,15 +251,18 @@ class HTMLFileSession(BaseHTMLSession):
         div = self._load_template(self.div_template).render(
                     elementid = elementid
                 )
-        
-        if js == "inline":
+
+        if rootdir is None:
+            rootdir = self.rootdir
+
+        if js == "inline" or self.inline_js:
             rawjs = self._inline_scripts(self.js_paths()).decode("utf-8")
             jsfiles = []
         else:
             rawjs = None
             jsfiles = [os.path.relpath(p,rootdir) for p in self.js_paths()]
         
-        if css == "inline":
+        if css == "inline" or self.inline_css:
             rawcss = self._inline_css(self.css_paths()).decode("utf-8")
             cssfiles = []
         else:
@@ -271,7 +283,7 @@ class HTMLFileSession(BaseHTMLSession):
             return ""
         strings = []
         for script in paths:
-            f_name = join(self.server_static_dir, script)
+            f_name = abspath(join(self.server_static_dir, script))
             strings.append("""
               // BEGIN %s
             """ % f_name + open(f_name).read() + \
@@ -296,14 +308,17 @@ class HTMLFileSession(BaseHTMLSession):
         return "".join(strings)
 
 
-    def save(self, filename=None, js="inline", css="inline",
-                rootdir=abspath(split(__file__)[0])):
+    def save(self, filename=None, js=None, css=None, rootdir=None):
         """ Saves the file contents.  Uses self.filename if **filename**
         is not provided.  Overwrites the contents.
 
-        **js** and **css** can be "inline" or "relative". In the latter case,
+        **js** and **css** can be "inline" or "relative", and they default
+        to the values of self.inline_js and self.inline_css. 
+        
+        If these are set to be "relative" (or self.inline_js/css are False),
         **rootdir** can be specified to indicate the base directory from which
-        the path to the various static files should be computed.
+        the path to the various static files should be computed.  **rootdir**
+        defaults to the value of self.rootdir.
         """
         s = self.dumps(js, css, rootdir)
         if filename is None:
