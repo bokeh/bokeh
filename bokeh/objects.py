@@ -319,6 +319,19 @@ class ColumnDataSource(DataSource):
     cont_ranges = Dict()
     discrete_ranges = Dict()
 
+    def add(self, data, name=None):
+        """ Appends the data to the list of columns.  Returns the name
+        that was inserted.
+        """
+        if name is None:
+            n = len(self.data)
+            while "Series %d"%n in self.data:
+                n += 1
+            name = "Series %d"%n
+        self.column_names.append(name)
+        self.data[name] = data
+        return name
+
 class ObjectArrayDataSource(DataSource):
     # List of tuples of values 
     data = List()
@@ -605,6 +618,9 @@ class PreviewSaveTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
+
+class ResizeTool(PlotObject):
+    plot = Instance(Plot)
 
 class SelectionTool(PlotObject):
     renderers = List(has_ref=True)
