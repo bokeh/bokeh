@@ -13,6 +13,6 @@ rects(x,y, 0.1, 0.05, color="#FF0000", tools="pan,zoom,save,resize")
 save()
 
 # You can set the x, y, width, and height to arrays or to constant values
-#rects(np.arange(60), np.sin(x), 0.3, 0.1*np.cos(x), color="green",
-#        line_color="none", tools="pan,zoom,resize")
-#show()
+rects(np.arange(60), np.sin(x), 2, 0.1*np.cos(x), color="green",
+        line_color="none", tools="pan,zoom,resize")
+show()
