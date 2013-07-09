@@ -332,6 +332,14 @@ class ColumnDataSource(DataSource):
         self.data[name] = data
         return name
 
+    def remove(self, name):
+        try:
+            self.column_names.remove(name)
+            del self.data[name]
+        except (ValueError, KeyError):
+            warnings.warn("Unable to find column '%s' in datasource" % name)
+
+
 class ObjectArrayDataSource(DataSource):
     # List of tuples of values 
     data = List()
