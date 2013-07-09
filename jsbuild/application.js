@@ -21170,6 +21170,8 @@ _.setdefault = function(obj, key, value){
 
   })(HasParent);
 
+  BoxSelectionOverlay.prototype.defaults = _.clone(BoxSelectionOverlay.prototype.defaults);
+
   _.extend(BoxSelectionOverlay.prototype.defaults, {
     tool: null,
     level: 'overlay'
