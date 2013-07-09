@@ -253,6 +253,10 @@ def visual(func):
             session.add(plot)
         if session_objs:
             session.add(*session_objs)
+            
+        #easier to always use plot context
+        session.plotcontext.children.append(plot)
+        session.plotcontext._dirty = True
 
         if (output_type == "notebook" and output_url is None):
             return session.show(plot, *session_objs)
@@ -260,8 +264,6 @@ def visual(func):
         elif (output_type == "server") or \
                 (output_type == "notebook" and output_url is not None):
             # push the plot data to a plot server
-            session.plotcontext.children.append(plot)
-            session.plotcontext._dirty = True
             session.store_all()
             if output_type == "notebook":
                 return session.show(plot, *session_objs)

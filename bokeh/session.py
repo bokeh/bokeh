@@ -228,13 +228,12 @@ class HTMLFileSession(BaseHTMLSession):
                  "vendor/bootstrap/css/bootstrap.css"]
 
     # TODO: Why is this not in bokehjs_dir, but rather outside of it?
-    js_files = ["../../js/application.js"]
+    js_files = ["js/application.js"]
 
     # Template files used to generate the HTML
     js_template = "plots.js"
     div_template = "plots.html"     # template for just the plot <div>
     html_template = "base.html"     # template for the entire HTML file
-
     inline_js = True
     inline_css = True
 
@@ -247,14 +246,16 @@ class HTMLFileSession(BaseHTMLSession):
         if title is not None:
             self.title = title
         super(HTMLFileSession, self).__init__(plot=plot)
-    
+        self.plotcontext = PlotContext()
+        
+    # FIXME: move this to css_paths, js_paths to base class?
     def css_paths(self, as_url=False):
         return [join(self.bokehjs_dir, d) for d in self.css_files]
     
     def js_paths(self, as_url=False, unified=True, min=True):
         # TODO: Handle unified and minified options
-        return [join(self.bokehjs_dir, d) for d in self.js_files]
-
+        return [join(self.server_static_dir, d) for d in self.js_files]
+    
     def dumps(self, js=None, css=None, rootdir=None):
         """ Returns the HTML contents as a string 
         
@@ -267,8 +268,7 @@ class HTMLFileSession(BaseHTMLSession):
         defaults to the value of self.rootdir.
         """
         # FIXME: Handle this more intelligently
-        the_plot = [m for m in self._models.itervalues() if isinstance(m, Plot)][0]
-        plot_ref = self.get_ref(the_plot)
+        pc_ref = self.get_ref(self.plotcontext)
         elementid = str(uuid.uuid4())
 
         # Manually convert our top-level models into dicts, before handing
@@ -284,8 +284,8 @@ class HTMLFileSession(BaseHTMLSession):
 
         js = self._load_template(self.js_template).render(
                     elementid = elementid,
-                    modelid = plot_ref["id"],
-                    modeltype = plot_ref["type"],
+                    modelid = pc_ref["id"],
+                    modeltype = pc_ref["type"],
                     all_models = self.serialize(models),
                 )
         div = self._load_template(self.div_template).render(
@@ -310,7 +310,10 @@ class HTMLFileSession(BaseHTMLSession):
         else:
             rawcss = None
             cssfiles = [os.path.relpath(p,rootdir) for p in self.css_paths()]
-
+            
+        plot_div = self._load_template(self.div_template).render(
+            elementid=elementid
+            )
         html = self._load_template(self.html_template).render(
                     js_snippets = [js],
                     html_snippets = [div],
@@ -746,9 +749,8 @@ class NotebookSessionMixin(object):
     js_files = ["js/bokehnotebook.js"]
 
     js_template = "plots.js"
-    div_template = "basediv.html"
-    plot_div_template = "plots.html"
-    html_template = "base.html"     # template for the entire HTML file
+    div_template = "plots.html"
+    html_template = "basediv.html"     # template for the entire HTML file
     
     def css_paths(self, as_url=False):
         # TODO: Fix the duplication of this method from HTMLFileSession.
@@ -789,10 +791,10 @@ class NotebookSessionMixin(object):
                     modeltype = plot_ref["type"],
                     all_models = self.serialize(models),
                 )
-        plot_div = self._load_template(self.plot_div_template).render(
+        plot_div = self._load_template(self.div_template).render(
             elementid=elementid
             )
-        html = self._load_template(self.div_template).render(
+        html = self._load_template(self.html_template).render(
                                            html_snippets=[plot_div],
                                            elementid = elementid,
                                            js_snippets = [js],
@@ -820,7 +822,8 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
 
     def __init__(self, plot=None):
         HTMLFileSession.__init__(self, filename=None, plot=plot)
-
+        self.plotcontext = PlotContext()
+        
     def notebooksources(self):
         import IPython.core.displaypub as displaypub        
         # Normally this would call self.js_paths() to build a list of

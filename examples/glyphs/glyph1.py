@@ -51,7 +51,7 @@ plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,zoomtool]
 
 sess = session.HTMLFileSession("glyph1.html")
-sess.server_static_dir="../bokeh/server"
 sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
+sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 
