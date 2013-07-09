@@ -208,6 +208,12 @@ def hold(val=None):
         val = not _config["hold"]
     _config["hold"] = val
 
+def curplot():
+    """ Returns a reference to the current plot, i.e. the most recently
+    created plot
+    """
+    return _config["curplot"]
+
 def show():
     output_type = _config["output_type"]
     session = _config["session"]
@@ -251,8 +257,11 @@ def visual(func):
             session_objs = []
         else:
             plot, session_objs = retvals
+        
         if plot is not None:
             session.add(plot)
+            _config["curplot"] = plot
+
         if session_objs:
             session.add(*session_objs)
             
