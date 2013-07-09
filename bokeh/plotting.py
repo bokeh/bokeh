@@ -5,12 +5,14 @@ from functools import wraps
 from numbers import Number
 import numpy as np
 import os
+import time
 import warnings
 
 from .objects import (ColumnDataSource, DataSource, ColumnsRef, DataRange1d,
         Plot, GlyphRenderer, LinearAxis, Rule, PanTool, ZoomTool,
         PreviewSaveTool, ResizeTool, SelectionTool, BoxSelectionOverlay)
-from .session import HTMLFileSession, PlotServerSession, NotebookSession
+from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
+        NotebookServerSession)
 from . import glyphs
 
 # A bunch of this stuff is copied from chaco.shell, because that layout is
@@ -95,7 +97,7 @@ _config = {
     "plotserver_url": DEFAULT_SERVER_URL,
 
     # Configuration options for "file" output mode
-    "autosave": True,
+    "autosave": False,
     "file_js": "inline",
     "file_css": "inline",
     "file_rootdir": None,
@@ -111,7 +113,7 @@ _config = {
     }
 
 
-def output_notebook(url="default"):
+def output_notebook(url=None, docname=None):
     """ Sets the output mode to emit HTML objects suitable for embedding in
     IPython notebook.  If URL is "default", then uses the default plot
     server URLs etc. for Bokeh.  If URL is explicitly set to None, then data,
@@ -120,12 +122,24 @@ def output_notebook(url="default"):
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
     """
-    if url == "default":
-        _config["output_url"] = _config["plotserver_url"]
+    if url is None:
+        session = NotebookSession()
+        session.notebooksources()
     else:
-        _config["output_url"] = url
+        if url == "default":
+            real_url = _config["plotserver_url"]
+        else:
+            real_url = url
+        _config["output_url"] = real_url
+        session = NotebookServerSession(serverloc = real_url,
+                    username = "defauluser", userapikey = "nokey")
+        if docname is None:
+            docname = "IPython Session at %s" % time.ctime()
+        session.use_doc(docname)
+        session.notebook_connect()
+    _config["output_type"] = "notebook"
     _config["output_file"] = None
-    _config["session"] = NotebookSession()
+    _config["session"] = session 
 
 def output_server(docname, url="default", **kwargs):
     """ Sets the output mode to upload to a Bokeh plot server.
@@ -235,27 +249,25 @@ def visual(func):
             session_objs = []
         else:
             plot, session_objs = retvals
+        if plot is not None:
+            session.add(plot)
+        if session_objs:
+            session.add(*session_objs)
 
         if (output_type == "notebook" and output_url is None):
-            # embed it inline in IPython
-            pass
-
+            session.show()
+        
         elif (output_type == "server") or \
                 (output_type == "notebook" and output_url is not None):
             # push the plot data to a plot server
-            if plot is not None:
-                session.add(plot)
-            if session_objs:
-                session.add(*session_objs)
             session.plotcontext.children.append(plot)
             session.plotcontext._dirty = True
             session.store_all()
+            if output_type == "notebook":
+                session.show(plot, *session_objs)
 
         else: # File output mode
             # Store plot into HTML file
-            session.add(plot)
-            if session_objs:
-                session.add(*session_objs)
             if _config["autosave"]:
                 session.save()
     return wrapper
@@ -388,7 +400,7 @@ def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select"
         select_tool = SelectionTool()
         tool_objs.append(select_tool)
         overlay = BoxSelectionOverlay(tool=select_tool)
-        plot.renderers.append(overlay)
+        p.renderers.append(overlay)
     p.tools.extend(tool_objs)
     return p
 
