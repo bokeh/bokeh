@@ -643,8 +643,8 @@ class PlotServerSession(BaseHTMLSession):
         """
         typename = ref["type"]
         ref_id = ref["id"]
-        url = utils.urljoin(self.base_url, self.docid + "/" + ref["type"] +\
-                            "/" + ref["id"] + "/")
+        url = utils.urljoin(self.base_url, self.docid + "/" + typename +\
+                            "/" + ref_id + "/")
         attr = protocol.deserialize_json(self.http_session.get(url).content)
         if not asdict:
             return self.load_attrs(typename, [attr])[0]
@@ -745,7 +745,9 @@ class NotebookSessionMixin(object):
 
     js_files = ["js/bokehnotebook.js"]
 
-    html_template = "basediv.html"     # template for the entire HTML file
+    js_template = "plots.js"
+    div_template = "basediv.html"
+    html_template = "base.html"     # template for the entire HTML file
 
     def css_paths(self, as_url=False):
         # TODO: Fix the duplication of this method from HTMLFileSession.
@@ -757,29 +759,6 @@ class NotebookSessionMixin(object):
         # For notebook session, we rely on a unified bokehJS file,
         # that is not located in the BokehJS subtree
         return [join(self.server_static_dir, d) for d in self.js_files]
-
-class NotebookSession(NotebookSessionMixin, HTMLFileSession):
-    """ Produces inline HTML suitable for placing into an IPython Notebook.
-    """
-
-    def __init__(self, plot=None):
-        HTMLFileSession.__init__(self, filename=None, plot=plot)
-
-    def notebooksources(self):
-        import IPython.core.displaypub as displaypub        
-        # Normally this would call self.js_paths() to build a list of
-        # scripts or get a reference to the unified/minified JS file,
-        # but our static JS build process produces a single unified
-        # bokehJS file for inclusion in the notebook.
-        js_paths = self.js_files
-        css_paths = self.css_paths()
-        html = self._load_template("basediv.html").render(
-            rawjs=self._inline_scripts(js_paths).decode('utf8'),
-            rawcss=self._inline_css(css_paths).decode('utf8'),
-            js_snippets=[],
-            html_snippets=["<p>Bokeh Sources</p>"])
-        displaypub.publish_display_data('bokeh', {'text/html': html})
-        return None
 
     def dumps(self, objects):
         """ Returns the HTML contents as a string
@@ -809,12 +788,10 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
                     modeltype = plot_ref["type"],
                     all_models = self.serialize(models),
                 )
-        div = self._load_template(self.div_template).render(
-                    elementid = elementid
-                )
-        html = self._load_template(self.html_template).render(
+        html = self._load_template(self.div_template).render(
+                    elementid = elementid,
                     js_snippets = [js],
-                    html_snippets = [div])
+                )
         return html.encode("utf-8")
 
     def show(self, *objects):
@@ -830,6 +807,31 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
         from IPython.core.display import HTML
         html = self.dumps(objects)
         return HTML(html)
+
+
+class NotebookSession(NotebookSessionMixin, HTMLFileSession):
+    """ Produces inline HTML suitable for placing into an IPython Notebook.
+    """
+
+    def __init__(self, plot=None):
+        HTMLFileSession.__init__(self, filename=None, plot=plot)
+
+    def notebooksources(self):
+        import IPython.core.displaypub as displaypub        
+        # Normally this would call self.js_paths() to build a list of
+        # scripts or get a reference to the unified/minified JS file,
+        # but our static JS build process produces a single unified
+        # bokehJS file for inclusion in the notebook.
+        js_paths = self.js_files
+        css_paths = self.css_paths()
+        html = self._load_template(self.div_template).render(
+            rawjs=self._inline_scripts(js_paths).decode('utf8'),
+            rawcss=self._inline_css(css_paths).decode('utf8'),
+            js_snippets=[],
+            html_snippets=["<p>Configuring embedded BokehJS mode.</p>"])
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
+
 
 class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
     """ An IPython Notebook session that is connected to a plot server.
@@ -867,13 +869,6 @@ class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
         displaypub.publish_display_data('bokeh', {'text/html': html})
         return None
 
-    def show(self, *objects):
-        """ Displays the given objects, or all plots associated with the
-        plotcontext/document associated with this session, into the output
-        cell of an IPython notebook.
-        """
-        from IPython.core.display import HTML
-        # TODO: ... 
 
 
 

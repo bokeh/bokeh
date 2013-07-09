@@ -255,7 +255,7 @@ def visual(func):
             session.add(*session_objs)
 
         if (output_type == "notebook" and output_url is None):
-            session.show()
+            return session.show(plot, *session_objs)
         
         elif (output_type == "server") or \
                 (output_type == "notebook" and output_url is not None):
@@ -264,7 +264,7 @@ def visual(func):
             session.plotcontext._dirty = True
             session.store_all()
             if output_type == "notebook":
-                session.show(plot, *session_objs)
+                return session.show(plot, *session_objs)
 
         else: # File output mode
             # Store plot into HTML file
