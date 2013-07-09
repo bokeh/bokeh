@@ -50,8 +50,13 @@ zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,zoomtool]
 
-sess = session.HTMLFileSession("glyph1.html")
+sess = session.HTMLFileSession("circle.html")
 sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-
+print "Wrote circle.html"
+try:
+    import webbrowser
+    webbrowser.open("file://" + os.path.abspath("circle.html"))
+except:
+    pass
