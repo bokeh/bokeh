@@ -320,8 +320,8 @@ class ImageURI(Glyph):
 
 class Line(Glyph, LineProps):
     __view_model__ = "line"
-    xs = DataSpec
-    ys = DataSpec
+    x = DataSpec
+    y = DataSpec
 
 class Oval(Glyph, FillProps, LineProps):
     __view_model__ = 'oval'
