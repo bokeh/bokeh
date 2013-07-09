@@ -154,17 +154,19 @@ def output_server(docname, url="default", **kwargs):
     or the top of a script.
     """
     if url == "default":
-        _config["output_url"] = _config["plotserver_url"]
-        url = _config["output_url"]
+        real_url = _config["plotserver_url"]
     else:
-        _config["output_url"] = url
+        real_url = url
+    _config["output_url"] = real_url
     _config["output_type"] = "server"
     _config["output_file"] = None
     kwargs.setdefault("username", "defaultuser")
-    kwargs.setdefault("serverloc", url)
+    kwargs.setdefault("serverloc", real_url)
     kwargs.setdefault("userapikey", "nokey")
     _config["session"] = PlotServerSession(**kwargs)
     _config["session"].use_doc(docname)
+
+    print "Using plot server at", real_url + "bokeh;", "Docname:", docname
 
 def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
                 css="inline", rootdir=None):
@@ -330,7 +332,7 @@ def scatter(*args, **kwargs):
     """
     session_objs = []   # The list of objects that need to be added
 
-    ds = kwargs.pop("source",None)
+    ds = kwargs.pop("source", None)
     names, datasource = _handle_1d_data_args(args, datasource=ds)
     if datasource != ds:
         session_objs.append(datasource)
@@ -383,6 +385,71 @@ def scatter(*args, **kwargs):
     session_objs.extend([plot.x_range, plot.y_range])
     return plot, session_objs
 
+@visual
+def rects(x, y, width, height, angle=0, **kwargs):
+    """ Creates a series of rectangles.
+
+    x, y, width, height, angle=0:
+        Either an iterable or numpy array of values, or a scalar, or the
+        name of a column in a datasource passed in via the "source"
+        keyword argument
+    
+    Style Parameters (specified by keyword)
+    ---------------------------------------
+    color : color  # same as "fill"
+    fill : color
+    fill_alpha : 0.0 - 1.0
+    line_color : color
+    line_width : int >= 1
+    line_alpha : 0.0 - 1.0
+    line_cap : "butt", "join", "miter"
+    """
+
+    argnames = ["x","y","width","height","angle"]
+    datasource = kwargs.pop("source", ColumnDataSource())
+    session_objs = [datasource]
+    datanames = []
+    for var in argnames:
+        val = locals()[var]
+        if isinstance(val, basestring):
+            if val not in datasource.column_names:
+                raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
+            datanames.append(val)
+        elif isinstance(val, np.ndarray):
+            if val.ndim != 1:
+                raise RuntimeError("Columns need to be 1D (%s is not)" % var)
+            datasource.add(val, name=var)
+            datanames.append(var)
+        elif isinstance(val, Iterable):
+            datasource.add(val, name=var)
+            datanames.append(var)
+        elif isinstance(val, Number):
+            datanames.append(var)
+        else:
+            raise RuntimeError("Unexpected column type in rect(): %s" % type(val))
+        kwargs[var] = val
+    
+    if _config["hold"]:
+        plot = _config["curplot"]
+    else:
+        plot = _new_xy_plot(**kwargs)
+
+    plot.x_range.sources.append(datasource.columns(datanames[0]))
+    plot.y_range.sources.append(datasource.columns(datanames[1]))
+
+    if "color" in kwargs:
+        kwargs["fill"] = kwargs.pop("color")
+
+    glyph_renderer = GlyphRenderer(data_source = datasource,
+                        xdata_range = plot.x_range,
+                        ydata_range = plot.y_range,
+                        glyph = glyphs.Rect(**kwargs))
+    plot.renderers.append(glyph_renderer)
+    session_objs.extend(plot.tools)
+    session_objs.extend(plot.renderers)
+    session_objs.extend([plot.x_range, plot.y_range])
+    return plot, session_objs
+
 
 def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
@@ -418,7 +485,8 @@ def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select"
     return p
 
 
-def _handle_1d_data_args(args, datasource=None):
+def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
+        suggested_names=[]):
     """ Returns a datasource and a list of names corresponding (roughly)
     to the input data.  If only a single array was given, and an index
     array was created, then the index's name is returned first.
@@ -449,7 +517,7 @@ def _handle_1d_data_args(args, datasource=None):
     # Now handle the case when they've only provided a single array of
     # inputs (i.e. just the values, and no x positions).  Generate a new
     # dummy array for this.
-    if len(arrays) == 1:
+    if create_autoindex and len(arrays) == 1:
         arrays.insert(0, np.arange(len(arrays[0])))
 
     # Now put all the data into a DataSource, or insert into existing one
@@ -458,7 +526,9 @@ def _handle_1d_data_args(args, datasource=None):
         if isinstance(ary, basestring):
             name = ary
         else:
-            if i == 0:
+            if i < len(suggested_names):
+                name = suggested_names[i]
+            elif i == 0 and create_autoindex:
                 name = datasource.add(ary, name="_autoindex")
             else:
                 name = datasource.add(ary)
