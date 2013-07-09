@@ -747,8 +747,9 @@ class NotebookSessionMixin(object):
 
     js_template = "plots.js"
     div_template = "basediv.html"
+    plot_div_template = "plots.html"
     html_template = "base.html"     # template for the entire HTML file
-
+    
     def css_paths(self, as_url=False):
         # TODO: Fix the duplication of this method from HTMLFileSession.
         # Perhaps move this into BaseHTMLSession.. but a lot of other
@@ -788,10 +789,14 @@ class NotebookSessionMixin(object):
                     modeltype = plot_ref["type"],
                     all_models = self.serialize(models),
                 )
+        plot_div = self._load_template(self.plot_div_template).render(
+            elementid=elementid
+            )
         html = self._load_template(self.div_template).render(
-                    elementid = elementid,
-                    js_snippets = [js],
-                )
+                                           html_snippets=[plot_div],
+                                           elementid = elementid,
+                                           js_snippets = [js],
+                                           )
         return html.encode("utf-8")
 
     def show(self, *objects):
