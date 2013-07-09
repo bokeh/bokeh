@@ -355,12 +355,23 @@ def scatter(*args, **kwargs):
     marker = kwargs.get("type", "circle")
     glyph_class = marker_glyph_map[marker]
     x_name = names[0]
+    select_tool = [x for x in plot.tools if x.__view_model__ == "SelectionTool"]
+    if len(select_tool) > 0:
+        select_tool = select_tool[0]
+    else:
+        select_tool = None
+        
     for name in names[1:]:
         glyph = glyph_class(x=x_name, y=name, **style)
+        nonselection_glyph = glyph_class(fill_alpha=0.1)
         glyph_renderer = GlyphRenderer(data_source=datasource,
                             xdata_range = plot.x_range,
                             ydata_range = plot.y_range,
-                            glyph = glyph)
+                            glyph = glyph,
+                            nonselection_glyph = nonselection_glyph,
+                            )
+        if select_tool:
+            select_tool.renderers.append(glyph_renderer)
         plot.renderers.append(glyph_renderer)
 
     # TODO: Figure out a better way to keep track of which objects on the
