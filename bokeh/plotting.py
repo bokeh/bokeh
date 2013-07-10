@@ -312,16 +312,6 @@ def visual(func):
                 session.save()
     return wrapper
 
-@visual
-def plot(*data, **kwargs):
-    """ Create simple X vs. Y type of plots
-
-    If data items are actual data containers, then new data sources will be
-    created around them.  In order to share selection, pan & zoom, etc., 
-    pass in previously-created datasource objects, or manually create data-
-    source objects and pass those in to the call to plot().
-
-    """
 
 marker_glyph_map = {
         "circle": glyphs.Circle,
