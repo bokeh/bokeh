@@ -288,7 +288,9 @@ class LinearAxisView extends PlotWidget
     if extent > 0
       extent += @mget('major_label_standoff')
 
-    return extent
+    rounding = @mget('rounding_value')
+
+    return (Math.floor(extent/rounding) + 1) * rounding
 
   _axis_label_extent: () ->
     extent = 0
@@ -313,6 +315,10 @@ class LinearAxisView extends PlotWidget
         extent += w*c + h*s
 
     return extent
+
+    # rounding = @mget('rounding_value')
+
+    # return (Math.floor(extent/rounding) + 1) * rounding
 
   _padding_request: () ->
     req = {}
@@ -545,6 +551,8 @@ _.extend(LinearAxis::display_defaults, {
   axis_label_text_alpha: 1.0
   axis_label_text_align: "center"
   axis_label_text_baseline: "alphabetic"
+
+  rounding_value: 20
 
 })
 
