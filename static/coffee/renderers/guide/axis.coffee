@@ -272,8 +272,7 @@ class LinearAxisView extends PlotWidget
       for i in [0..labels.length-1]
         if not labels[i]?
           continue
-        w = @plot_view.ctx.measureText(labels[i]).width * 1.3
-
+        w = @plot_view.ctx.measureText(labels[i]).width * 1.3 # height overestimates, compensate
         h = @plot_view.ctx.measureText(labels[i]).ascent
         val = w*s + (h/factor)*c
         if val > extent
@@ -282,7 +281,7 @@ class LinearAxisView extends PlotWidget
       for i in [0..labels.length-1]
         if not labels[i]?
           continue
-        w = @plot_view.ctx.measureText(labels[i]).width * 1.3
+        w = @plot_view.ctx.measureText(labels[i]).width * 1.3 # height overestimates, compensate
         h = @plot_view.ctx.measureText(labels[i]).ascent
         val = w*c + (h/factor)*s
         if val > extent
@@ -339,9 +338,10 @@ class LinearAxis extends HasParent
   default_view: LinearAxisView
   type: 'GuideRenderer'
 
-  dinitialize: (attrs, options)->
+  initialize: (attrs, options)->
     super(attrs, options)
 
+    console.log "FOOOOOO"
     @register_property('bounds', @_bounds, false)
     @add_dependencies('bounds', this, ['guidespec'])
     @add_dependencies('bounds', @get_obj('plot'), ['x_range', 'y_range'])
