@@ -82,7 +82,6 @@ class LineView extends GlyphView
         ctx.moveTo(@sx[i], @sy[i])
         drawing = true
       else
-        console.log("line to", @sx[i], @sy[i])
         ctx.lineTo(@sx[i], @sy[i])
         ctx.stroke()
     ctx.beginPath()
