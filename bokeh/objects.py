@@ -494,14 +494,6 @@ def script_inject_escaped(sess, modelid, typename):
         modelid = modelid,
         modeltype = typename,
         script_url = sess.root_url + "/bokeh/embed.js")
-    f_dict = dict(
-        docid = pc.docid,
-        ws_conn_string = pc.ws_conn_string,
-        docapikey = pc.apikey,
-        root_url = pc.root_url,
-        modelid = modelid,
-        modeltype = typename,
-        script_url = pc.root_url + "/bokeh/embed.js")
 
     e_str = '''&lt; script src="%(script_url)s" bokeh_plottype="serverconn"
 bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
