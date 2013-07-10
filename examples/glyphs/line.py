@@ -4,11 +4,12 @@ import numpy as np
 import os.path
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ObjectArrayDataSource, ColumnDataSource, GlyphRenderer)
+        ObjectArrayDataSource, ColumnDataSource, GlyphRenderer,
+        PanTool, ZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
 
-x = arange(-2*pi, 2*pi, 0.1)
+x = np.linspace(-2*pi, 2*pi, 1000)
 y = sin(x)
 z = cos(x)
 widths = np.ones_like(x) * 0.02
@@ -34,10 +35,14 @@ plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
 xaxis = LinearAxis(plot=plot, dimension=0)
 yaxis = LinearAxis(plot=plot, dimension=1)
 
+pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
+zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+
 plot.renderers.append(renderer)
+plot.tools = [pantool, zoomtool]
 
 sess = session.HTMLFileSession("line.html")
-sess.add(plot, renderer, xaxis, yaxis, source, xdr, ydr)
+sess.add(plot, renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 print "Wrote line.html"
