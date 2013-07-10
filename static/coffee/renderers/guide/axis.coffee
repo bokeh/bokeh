@@ -162,8 +162,6 @@ class LinearAxisView extends PlotWidget
     @major_label_props.set(ctx, @)
     @_apply_location_heuristics(ctx, side, orient)
 
-    console.log side, nx*standoff, ny*standoff
-
     for i in [0..sx.length-1]
       if angle
         ctx.translate(sx[i]+nx*standoff, sy[i]+ny*standoff)
@@ -341,7 +339,6 @@ class LinearAxis extends HasParent
   initialize: (attrs, options)->
     super(attrs, options)
 
-    console.log "FOOOOOO"
     @register_property('bounds', @_bounds, false)
     @add_dependencies('bounds', this, ['guidespec'])
     @add_dependencies('bounds', @get_obj('plot'), ['x_range', 'y_range'])

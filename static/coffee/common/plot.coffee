@@ -207,7 +207,6 @@ class PlotView extends ContinuumView
     @canvas = @$el.find('canvas.bokeh_canvas')
 
   render_canvas: (full_render=true) ->
-    console.log("rendercanvas")
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
 
