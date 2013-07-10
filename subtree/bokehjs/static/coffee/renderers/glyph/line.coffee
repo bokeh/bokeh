@@ -57,35 +57,38 @@ class LineView extends GlyphView
         props =  @selection_glyphprops
       else
         props = @glyph_props
-      @_draw_path(ctx, props, 'selected')
-      @_draw_path(ctx, @nonselection_glyphprops, 'unselected')
+      @_draw_path(ctx, @nonselection_glyphprops, false)
+      @_draw_path(ctx, props, true)
     else
       @_draw_path(ctx)
     ctx.restore()
 
-  _draw_path: (ctx, glyph_props, use_selection) ->
+  _draw_path: (ctx, glyph_props, draw_selected) ->
     if not glyph_props
       glyph_props = @glyph_props
     glyph_props.line_properties.set(ctx, glyph_props)
+
+    sx = @sx
+    sy = @sy
+    selected_mask = @selected_mask
+
     drawing = false
-    for i in [0..@sx.length-1]
-      if isNaN(@sx[i] + @sy[i])
-        drawing = false
-        ctx.beginPath()
-        continue
-      if use_selection == 'selected' and not @selected_mask[i]
-        drawing = false
-        ctx.beginPath()
-        continue
+    for i in [0..sx.length-1]
+      if isNaN(sx[i]+sy[i]) or (draw_selected and not selected_mask[i]) or
+                               (not draw_selected and selected_mask[i])
+          if drawing
+            ctx.stroke()
+          drawing = false
+          continue
       if not drawing
         ctx.beginPath()
-        ctx.moveTo(@sx[i], @sy[i])
+        ctx.moveTo(sx[i], sy[i])
         drawing = true
       else
-        console.log("line to", @sx[i], @sy[i])
-        ctx.lineTo(@sx[i], @sy[i])
-        ctx.stroke()
-    ctx.beginPath()
+        ctx.lineTo(sx[i], sy[i])
+    if drawing  
+      # Need to stroke the path after the last point
+      ctx.stroke()
 
   draw_legend: (ctx, x1, x2, y1, y2) ->
     glyph_props = @glyph_props
