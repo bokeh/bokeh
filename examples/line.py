@@ -13,7 +13,7 @@ from bokeh import session
 x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
 
-source = ColumnDataSource(data=dict(xs=[x], ys=[y]))
+source = ColumnDataSource(data=dict(x=x, y=y))
 
 #xdr = DataRange1d(sources=[source.columns("xs")])
 #ydr = DataRange1d(sources=[source.columns("ys")])
@@ -21,7 +21,7 @@ source = ColumnDataSource(data=dict(xs=[x], ys=[y]))
 xdr = Range1d(start=-2*pi, end=2*pi)
 ydr = Range1d(start=-1, end=1)
 
-line = Line(xs="xs", ys="ys", line_color="blue", line_width=2)
+line = Line(x="x", y="y", line_color="blue", line_width=2)
 glyph_renderer = GlyphRenderer(
         data_source = source,
         xdata_range = xdr,
@@ -48,13 +48,15 @@ if len(sys.argv) > 1 and sys.argv[1] == "server":
             serverloc="http://localhost:5006", userapikey="nokey")
     sess.use_doc(demo_name)
     sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+    sess.plotcontext.children.append(plot)
+    sess.plotcontext._dirty = True
     sess.store_all()
     print "Stored to document", demo_name
 else:
     filename = demo_name + ".html"
     sess = session.HTMLFileSession(filename)
-    sess.server_static_dir="../bokeh/server"
     sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+    sess.plotcontext.children.append(plot)
     sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
     print "Wrote", filename
 
