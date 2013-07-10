@@ -314,9 +314,11 @@ class LinearAxisView extends PlotWidget
       else
         extent += w*c + h*s
 
-    rounding = @mget('rounding_value')
+    return extent
 
-    return (Math.floor(extent/rounding) + 1) * rounding
+    # rounding = @mget('rounding_value')
+
+    # return (Math.floor(extent/rounding) + 1) * rounding
 
   _padding_request: () ->
     req = {}
