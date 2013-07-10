@@ -3,7 +3,6 @@ from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
 
-#from bokeh.glyphs import Rects, Square, Circles
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
         ObjectArrayDataSource, ColumnDataSource, GlyphRenderer)
 from bokeh.glyphs import Line
@@ -35,7 +34,7 @@ plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
 xaxis = LinearAxis(plot=plot, dimension=0)
 yaxis = LinearAxis(plot=plot, dimension=1)
 
-plot.renderers = [renderer]
+plot.renderers.append(renderer)
 
 sess = session.HTMLFileSession("line.html")
 sess.add(plot, renderer, xaxis, yaxis, source, xdr, ydr)
