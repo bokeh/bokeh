@@ -228,6 +228,8 @@ class Circle(Marker):
 # Other kinds of Markers, to match what GGplot provides
 class Square(Marker):
     __view_model__ = "square"
+    size = DataSpec(units="screen", default=4)
+    angle = DataSpec
 
 class Triangle(Marker):
     __view_model__ = "triangle"
