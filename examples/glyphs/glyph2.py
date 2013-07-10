@@ -12,7 +12,7 @@ from bokeh import session
 
 x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
-z = cos(x)
+z = (cos(x)+1) * 6 + 6
 widths = np.ones_like(x) * 0.02
 heights = np.ones_like(x) * 0.2
 
@@ -31,7 +31,7 @@ source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", fill="red", radius=5, line_color="black")
+circle = Circle(x="x", y="y", fill="red", radius="z", line_color="black")
 
 glyph_renderer = GlyphRenderer(
         data_source = source,
@@ -63,5 +63,6 @@ sess.plotcontext._dirty = True
 # not so nice.. but set the model doens't know
 # that we appended to children
 sess.store_all()
-
+import webbrowser
+webbrowser.open("http://localhost:5006/bokeh")
 

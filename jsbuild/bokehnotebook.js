@@ -17204,7 +17204,6 @@ _.setdefault = function(obj, key, value){
       if (full_render == null) {
         full_render = true;
       }
-      console.log("rendercanvas");
       oh = this.view_state.get('outer_height');
       ow = this.view_state.get('outer_width');
       this.button_bar.attr('style', "width:" + ow + "px;");
@@ -22442,43 +22441,43 @@ _.setdefault = function(obj, key, value){
         } else {
           props = this.glyph_props;
         }
-        this._draw_path(ctx, props, 'selected');
-        this._draw_path(ctx, this.nonselection_glyphprops, 'unselected');
+        this._draw_path(ctx, this.nonselection_glyphprops, false);
+        this._draw_path(ctx, props, true);
       } else {
         this._draw_path(ctx);
       }
       return ctx.restore();
     };
 
-    LineView.prototype._draw_path = function(ctx, glyph_props, use_selection) {
-      var drawing, i, _i, _ref;
+    LineView.prototype._draw_path = function(ctx, glyph_props, draw_selected) {
+      var drawing, i, selected_mask, sx, sy, _i, _ref;
       if (!glyph_props) {
         glyph_props = this.glyph_props;
       }
       glyph_props.line_properties.set(ctx, glyph_props);
+      sx = this.sx;
+      sy = this.sy;
+      selected_mask = this.selected_mask;
       drawing = false;
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-        if (isNaN(this.sx[i] + this.sy[i])) {
+      for (i = _i = 0, _ref = sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(sx[i] + sy[i]) || (draw_selected && !selected_mask[i]) || (!draw_selected && selected_mask[i])) {
+          if (drawing) {
+            ctx.stroke();
+          }
           drawing = false;
-          ctx.beginPath();
-          continue;
-        }
-        if (use_selection === 'selected' && !this.selected_mask[i]) {
-          drawing = false;
-          ctx.beginPath();
           continue;
         }
         if (!drawing) {
           ctx.beginPath();
-          ctx.moveTo(this.sx[i], this.sy[i]);
+          ctx.moveTo(sx[i], sy[i]);
           drawing = true;
         } else {
-          console.log("line to", this.sx[i], this.sy[i]);
-          ctx.lineTo(this.sx[i], this.sy[i]);
-          ctx.stroke();
+          ctx.lineTo(sx[i], sy[i]);
         }
       }
-      return ctx.beginPath();
+      if (drawing) {
+        return ctx.stroke();
+      }
     };
 
     LineView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
@@ -25084,7 +25083,6 @@ _.setdefault = function(obj, key, value){
       labels = formatter.format(coords[dim]);
       this.major_label_props.set(ctx, this);
       this._apply_location_heuristics(ctx, side, orient);
-      console.log(side, nx * standoff, ny * standoff);
       for (i = _i = 0, _ref3 = sx.length - 1; 0 <= _ref3 ? _i <= _ref3 : _i >= _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
         if (angle) {
           ctx.translate(sx[i] + nx * standoff, sy[i] + ny * standoff);
@@ -25166,7 +25164,7 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxisView.prototype._tick_label_extent = function() {
-      var angle, c, coords, dim, extent, factor, formatter, h, i, labels, orient, s, side, val, w, _i, _j, _ref, _ref1;
+      var angle, c, coords, dim, extent, factor, formatter, h, i, labels, orient, rounding, s, side, val, w, _i, _j, _ref, _ref1;
       extent = 0;
       dim = this.mget('guidespec').dimension;
       coords = this.mget('major_coords');
@@ -25213,7 +25211,8 @@ _.setdefault = function(obj, key, value){
       if (extent > 0) {
         extent += this.mget('major_label_standoff');
       }
-      return extent;
+      rounding = this.mget('rounding_value');
+      return (Math.floor(extent / rounding) + 1) * rounding;
     };
 
     LinearAxisView.prototype._axis_label_extent = function() {
@@ -25271,8 +25270,8 @@ _.setdefault = function(obj, key, value){
 
     LinearAxis.prototype.type = 'GuideRenderer';
 
-    LinearAxis.prototype.dinitialize = function(attrs, options) {
-      LinearAxis.__super__.dinitialize.call(this, attrs, options);
+    LinearAxis.prototype.initialize = function(attrs, options) {
+      LinearAxis.__super__.initialize.call(this, attrs, options);
       this.register_property('bounds', this._bounds, false);
       this.add_dependencies('bounds', this, ['guidespec']);
       this.add_dependencies('bounds', this.get_obj('plot'), ['x_range', 'y_range']);
@@ -25471,7 +25470,8 @@ _.setdefault = function(obj, key, value){
     axis_label_text_color: "#444444",
     axis_label_text_alpha: 1.0,
     axis_label_text_align: "center",
-    axis_label_text_baseline: "alphabetic"
+    axis_label_text_baseline: "alphabetic",
+    rounding_value: 20
   });
 
   LinearAxes = (function(_super) {
