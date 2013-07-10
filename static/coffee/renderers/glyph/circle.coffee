@@ -162,7 +162,6 @@ class CircleView extends GlyphView
 
     ctx.restore()
 
-
 class Circle extends Glyph
   default_view: CircleView
   type: 'GlyphRenderer'

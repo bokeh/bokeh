@@ -162,8 +162,6 @@ class LinearAxisView extends PlotWidget
     @major_label_props.set(ctx, @)
     @_apply_location_heuristics(ctx, side, orient)
 
-    console.log side, nx*standoff, ny*standoff
-
     for i in [0..sx.length-1]
       if angle
         ctx.translate(sx[i]+nx*standoff, sy[i]+ny*standoff)
@@ -272,8 +270,7 @@ class LinearAxisView extends PlotWidget
       for i in [0..labels.length-1]
         if not labels[i]?
           continue
-        w = @plot_view.ctx.measureText(labels[i]).width * 1.3
-
+        w = @plot_view.ctx.measureText(labels[i]).width * 1.3 # height overestimates, compensate
         h = @plot_view.ctx.measureText(labels[i]).ascent
         val = w*s + (h/factor)*c
         if val > extent
@@ -282,7 +279,7 @@ class LinearAxisView extends PlotWidget
       for i in [0..labels.length-1]
         if not labels[i]?
           continue
-        w = @plot_view.ctx.measureText(labels[i]).width * 1.3
+        w = @plot_view.ctx.measureText(labels[i]).width * 1.3 # height overestimates, compensate
         h = @plot_view.ctx.measureText(labels[i]).ascent
         val = w*c + (h/factor)*s
         if val > extent
@@ -291,7 +288,9 @@ class LinearAxisView extends PlotWidget
     if extent > 0
       extent += @mget('major_label_standoff')
 
-    return extent
+    rounding = @mget('rounding_value')
+
+    return (Math.floor(extent/rounding) + 1) * rounding
 
   _axis_label_extent: () ->
     extent = 0
@@ -317,6 +316,10 @@ class LinearAxisView extends PlotWidget
 
     return extent
 
+    # rounding = @mget('rounding_value')
+
+    # return (Math.floor(extent/rounding) + 1) * rounding
+
   _padding_request: () ->
     req = {}
 
@@ -339,7 +342,7 @@ class LinearAxis extends HasParent
   default_view: LinearAxisView
   type: 'GuideRenderer'
 
-  dinitialize: (attrs, options)->
+  initialize: (attrs, options)->
     super(attrs, options)
 
     @register_property('bounds', @_bounds, false)
@@ -548,6 +551,8 @@ _.extend(LinearAxis::display_defaults, {
   axis_label_text_alpha: 1.0
   axis_label_text_align: "center"
   axis_label_text_baseline: "alphabetic"
+
+  rounding_value: 20
 
 })
 

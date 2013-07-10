@@ -207,7 +207,6 @@ class PlotView extends ContinuumView
     @canvas = @$el.find('canvas.bokeh_canvas')
 
   render_canvas: (full_render=true) ->
-    console.log("rendercanvas")
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
 
@@ -219,6 +218,13 @@ class PlotView extends ContinuumView
     @ctx = @canvas[0].getContext('2d')
     if full_render
       @render()
+
+  save_png: () ->
+    @render()
+    data_uri = @canvas[0].toDataURL()
+    @model.set('png', @canvas[0].toDataURL())
+    base.Collections.bulksave([@model])
+
 
   save_png: () ->
     @render()
