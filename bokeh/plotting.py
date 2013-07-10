@@ -7,6 +7,7 @@ import numpy as np
 import os
 import time
 import warnings
+import webbrowser
 
 from .objects import (ColumnDataSource, DataSource, ColumnsRef, DataRange1d,
         Plot, GlyphRenderer, LinearAxis, Rule, PanTool, ZoomTool,
@@ -186,7 +187,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
     """
     
     if os.path.isfile(filename):
-        warnings.warn("Session output file '%s' already exists, will be overwritten." % filename)
+        print "Session output file '%s' already exists, will be overwritten." % filename
     session = HTMLFileSession(filename, title=title)
     if js == "relative":
         session.inline_js = False
@@ -214,18 +215,41 @@ def curplot():
     """
     return _config["curplot"]
 
-def show():
+def show(browser=None, new="tab"):
+    """ 'shows' the current plot, by auto-raising the window or tab
+    displaying the current plot (for file/server output modes) or displaying
+    it in an output cell (IPython notebook).
+
+    For file-based output, opens or raises the browser window showing the
+    current output file.  If **new** is 'tab', then opens a new tab.  
+    If **new** is 'window', then opens a new window.
+
+    For systems that support it, the **browser** argument allows specifying
+    which browser to display in, e.g. "safari", "firefox", "opera",
+    "windows-default".  (See the webbrowser module documentation in the
+    standard lib for more details.)
+    """
     output_type = _config["output_type"]
     session = _config["session"]
+    session.save()
+    # Map our string argument to the webbrowser.open argument
+    new_param = {'tab': 2, 'window': 1}[new]
+    if browser is not None:
+        controller = webbrowser.get(browser)
+    else:
+        controller = webbrowser
     if output_type == "file":
-        session.save()
+        controller.open("file://" + os.path.abspath(_config["output_file"]), 
+                            new=new_param)
     elif output_type == "server":
-        session.plotcontext._dirty = True
-        session.store_all()
+        controller.open(_config["output_url"] + "/bokeh", new=new_param)
 
 def save(filename=None):
-    """ When using file-based output, this will save the plot to the given
-    filename.  Has no effect for other output backends.
+    """ Updates the file or plot server that contains this plot.
+
+    For file-based output, this will save the plot to the given filename.
+    For plot server-based output, this will upload all the plot objects
+    up to the server.
     """
     if _config["output_type"] == "file":
         session = _config["session"]
@@ -237,6 +261,9 @@ def save(filename=None):
         finally:
             if filename is not None:
                 session.filename = oldfilename
+    elif _config["output_type"] == "server":
+        session.plotcontext._dirty = True
+        session.store_all()
     else:
         warnings.warn("save() does nothing for non-file-based output mode.")
 
@@ -355,12 +382,14 @@ def scatter(*args, **kwargs):
     plot.x_range.sources.append(datasource.columns(names[0]))
     plot.y_range.sources.append(datasource.columns(*names[1:]))
     
-    # TODO: Clean this up to handle dataspecs in general
-    if "radius" in kwargs:
-        r_data = kwargs.pop("radius")
-        if isinstance(r_data, Iterable):
-            r_name = datasource.add(r_data)
-            kwargs["radius"] = r_name
+    for dataspec in ("radius", "size"):
+        if dataspec in kwargs:
+            specdata = kwargs.pop(dataspec)
+            if isinstance(specdata, Iterable):
+                specname = datasource.add(specdata)
+                kwargs[dataspec] = specname
+    
+    # Alias "color" to "fill", since this is such a common pattern
     if "color" in kwargs:
         kwargs["fill"] = kwargs.pop("color")
     style = kwargs
