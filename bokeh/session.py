@@ -832,7 +832,7 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
         # bokehJS file for inclusion in the notebook.
         js_paths = self.js_files
         css_paths = self.css_paths()
-        html = self._load_template(self.div_template).render(
+        html = self._load_template(self.html_template).render(
             rawjs=self._inline_scripts(js_paths).decode('utf8'),
             rawcss=self._inline_css(css_paths).decode('utf8'),
             js_snippets=[],
