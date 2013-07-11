@@ -13,3 +13,9 @@ scatter(x,y, color="#FF0000", tools="pan,zoom,resize")
 # This will be saved in scatter.html
 output_file("scatter.html", title="Peter Plot")
 scatter(x,y, color="green", tools="pan,zoom")
+
+scatter(x,y, type="rect", color="green", tools="pan,zoom")
+save()
+show()
+
+
