@@ -98,16 +98,18 @@ a few mechanisms.
 
 Static html dump based web plotting examples
 ============================================
- * `$ python glyph1.py` in `examples/`.
- * open up the generated `glyph1.html` in a web browser.
+ * `$ python glyph1.py` in `examples/glyphs/`.
+ * `$ python rects.py` in `examples/plotting/`.
+ * open up the generated HTML in a web browser.
  
 Server Based Web Plotting Examples
 ==================================
- * start a redis-server anywhere, using `$ redis-server &`
- * execute `$ python runserver.py ` in a terminal, this will start a webserver which will block the terminal
- * execute `$ python glyph2.py` or `$ python prim.py` in `examples/` This will make a few plots.
+ * execute `$ python runserver.py ` in a terminal, this will start both an internal Redis server and a webserver which will block the terminal
+ * execute `$ python glyph2.py` or `$ python prim.py` in `examples/glyphs/` This will make a few plots.
+ * Also try executing `$ python rects.py` in `examples/plotting`
  * navigate to `http://localhost:5006/bokeh`.  The bokeh client plots to named plot namespaces, called 'documents'.  You should see a list of documents on this page in an accordion view, clicking on one should load the plots for that document
- * To do the same plots in an ipython notebook, open up an ipython notebook.  open up cars.ipynb.  Execute that notebook.
+ * To do the same plots in an ipython notebook, open up an ipython notebook and run the examples in the `examples/plotting/` or `examples/glyphs`
+ * There are also IPython notebooks in both `examples/glyphs` and `examples/plotting`.
 
 Developing Bokeh
 ================
