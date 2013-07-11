@@ -153,7 +153,7 @@ class properties
       return obj[attrname]
 
     # finally, check for a default value on this property object that could be returned
-    if @[attrname].default?
+    if @[attrname]? and 'default' of @[attrname]
       return @[attrname].default
 
     # failing that, just log a problem
