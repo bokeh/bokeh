@@ -231,6 +231,33 @@ auto_ticks = (data_low, data_high, bound_low, bound_high, tick_interval, use_end
 
     return (tick for tick in ticks when (tick >= bound_low and tick <= bound_high))
 
+arr_div2 = (numerator, denominators) ->
+  output_arr = []
+  for val in denominators
+    output_arr.push(numerator/val)
+  return output_arr
+
+
+arr_div3 = (numerators, denominators) ->
+  output_arr = []
+  for val, i in denominators
+    output_arr.push(numerators[i]/val)
+  return output_arr
+
+argsort = (arr) ->
+  sorted_arr =
+    _.sortBy(arr, _.identity)
+  ret_arr = []
+  #for y, i in arr
+  #  ret_arr[i] = sorted_arr.indexOf(y)
+  for y, i in sorted_arr
+    ret_arr[i] = arr.indexOf(y)
+
+    #ret_arr.push(sorted_arr.indexOf(y))
+  return ret_arr
+
+float = (x) ->
+  return x + 0.0
 
 auto_interval = (data_low, data_high) ->
     """ Calculates the tick interval for a range.
@@ -241,34 +268,62 @@ auto_interval = (data_low, data_high) ->
 
         The function chooses the number of tick marks, which can be between
         3 and 9 marks (including end points), and chooses tick intervals at
-        1, 2, 2.5, 5, 10, 20, ... TODO
+        1, 2, 2.5, 5, 10, 20, ...
 
         Returns
         -------
         interval : float
             tick mark interval for axis
     """
+    range = float( data_high ) - float( data_low )
 
-    divisions = [8, 7, 6, 5, 4, 3]
+    # We'll choose from between 2 and 8 tick marks.
+    # Preference is given to more ticks:
+    #   Note reverse order and see kludge below...
+    #divisions = arange( 8.0, 2.0, -1.0 ) # ( 7, 6, ..., 3 )
+    divisions = [8.0, 7.0, 6.0, 5.0, 4.0, 3.0]
+    # Calculate the intervals for the divisions:
+    #candidate_intervals = range / divisions
+    candidate_intervals = arr_div2(range, divisions)
+
+    # Get magnitudes and mantissas for each candidate:
+
+    magnitudes = candidate_intervals.map((candidate) ->
+      return Math.pow(10.0, Math.floor(log10(candidate))))
+    mantissas  = arr_div3(candidate_intervals, magnitudes)
+
+    # List of "pleasing" intervals between ticks on graph.
+    # Only the first magnitude are listed, higher mags others are inferred:
     magic_intervals = [1.0, 2.0, 2.5, 5.0, 10.0 ]
-    candidate_intervals = []
-    for nticks in divisions
-      [min, max, interval] = heckbert_interval(data_low, data_high, nticks, nice_2_5_10)
-      candidate_intervals.push([min, max, interval])
 
-    diff = 10000
-    ind = 0
-    for i in [0..candidate_intervals.length-1]
-      for j in [0..magic_intervals.length-1]
-        expv = Math.floor(log10(candidate_intervals[i][2]))
-        f = candidate_intervals[i][2] / Math.pow(10.0, expv)
-        newdiff = Math.abs(f-magic_intervals[i])
-        if newdiff < diff
-          diff = newdiff
-          ind = i
 
-    return candidate_intervals[ind][2]
+    best_mantissas = []
+    best_magics = []
+    for mi in magic_intervals
+      diff_arr = mantissas.map((x) -> Math.abs(mi - x))
+      best_magics.push(_.min(diff_arr))
+    for ma in mantissas
+      diff_arr = magic_intervals.map((x) -> Math.abs(ma - x))
+      best_mantissas.push(_.min(diff_arr))
+    # Calculate the absolute differences between the candidates
+    # (with magnitude removed) and the magic intervals:
 
+
+    # Find the division and magic interval combo that produce the
+    # smallest differences:
+    magic_index    = argsort(best_magics )[0]
+
+    mantissa_index = argsort(best_mantissas )[0]
+
+
+    # The best interval is the magic_interval multiplied by the magnitude
+    # of the best mantissa:
+    interval  = magic_intervals[ magic_index ]
+    magnitude = magnitudes[ mantissa_index ]
+    result    = interval * magnitude
+    #if result == 0.0
+    #    result = finfo(float).eps
+    return result
 
 
 
