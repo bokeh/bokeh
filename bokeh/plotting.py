@@ -310,6 +310,7 @@ def visual(func):
             # Store plot into HTML file
             if _config["autosave"]:
                 session.save()
+        return plot
     return wrapper
 
 
@@ -318,7 +319,6 @@ marker_glyph_map = {
         "square": glyphs.Square,
         }
 
-@visual
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x & y items
 
@@ -364,54 +364,100 @@ def scatter(*args, **kwargs):
         session_objs.append(datasource)
 
     # If hold is on, then we will reuse the ranges of the current plot
-    if _config["hold"]:
-        plot = _config["curplot"]
-    else:
-        plot = _new_xy_plot(**kwargs)
-
-    plot.x_range.sources.append(datasource.columns(names[0]))
-    plot.y_range.sources.append(datasource.columns(*names[1:]))
-    
-    for dataspec in ("radius", "size"):
-        if dataspec in kwargs:
-            specdata = kwargs.pop(dataspec)
-            if isinstance(specdata, Iterable):
-                specname = datasource.add(specdata)
-                kwargs[dataspec] = specname
-    
-    # Alias "color" to "fill", since this is such a common pattern
-    if "color" in kwargs:
-        kwargs["fill"] = kwargs.pop("color")
-    style = kwargs
-
+    plot = get_plot(kwargs)
     marker = kwargs.get("type", "circle")
-    glyph_class = marker_glyph_map[marker]
-    x_name = names[0]
+    x_name = names[0]    
+    all_session_objs = set()
+    for name in names[1:]:
+        if marker == "circle":
+            circles(x_name, name, 
+                    kwargs.get('radius', 4),
+                    source=datasource,
+                    plot=plot, **kwargs)
+        elif marker == "rect":
+            rects(x_name, name, 
+                  kwargs.get('width', 4),
+                  kwargs.get('height', 4),
+                  angle=kwargs.get('angle', 0),
+                  source=datasource,
+                  plot=plot, **kwargs)
+    return plot
+
+def update_plot_data_ranges(plot, datasource, xcols, ycols):
+    """
+    Parmeters
+    ---------
+    plot : plot
+    datasource : datasource
+    xcols : names of columns that are in the X axis
+    ycols : names of columns that are in the Y axis
+    """
+    x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
+    if len(x_column_ref) > 0:
+        x_column_ref = x_column_ref[0]
+        for cname in xcols:
+            if cname not in x_column_ref.columns: 
+                x_column_ref.columns.append(cname)
+    else:
+        plot.x_range.sources.append(datasource.columns(*xcols))
+    y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
+    if len(y_column_ref) > 0:
+        y_column_ref = y_column_ref[0]
+        for cname in ycols:
+            if cname not in y_column_ref.columns: 
+                y_column_ref.columns.append(cname)
+    else:
+        plot.y_range.sources.append(datasource.columns(*ycols))
+    plot.x_range._dirty = True
+    plot.y_range._dirty = True
+
+def match_data_params(names, vals, datasource):
+    """ 
+    Parameters
+    ---------
+    names : names of glyph attributes (x,y,width,height, etc...)
+    vals : values of glyph attributes
+    datasource: datasource
+    
+    Returns
+    ---------
+    glyph_params : dict of params that should be in the glyphspec
+    data_names : names of in the data source that correspond to
+    names, so if names = [x,y]. and you want x,y to match up with columns
+    ['date', 'price'], then names would be ['x', 'y'], vals would be
+    ['date', 'price'], and data_names would also be ['date', 'price']
+    """
+    glyph_params = {}
+    datanames = []
+    for var, val in zip(names, vals):
+        if isinstance(val, basestring):
+            if val not in datasource.column_names:
+                raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
+            datanames.append(val)
+        elif isinstance(val, np.ndarray):
+            if val.ndim != 1:
+                raise RuntimeError("Columns need to be 1D (%s is not)" % var)
+            datasource.add(val, name=var)
+            datanames.append(var)
+        elif isinstance(val, Iterable):
+            datasource.add(val, name=var)
+            datanames.append(var)
+        elif isinstance(val, Number):
+            datanames.append(var)
+        else:
+            raise RuntimeError("Unexpected column type: %s" % type(val))
+        glyph_params[var] = val
+    return datanames, glyph_params
+
+def get_select_tool(plot):
+    """returns select tool on a plot, if it's there
+    """
     select_tool = [x for x in plot.tools if x.__view_model__ == "SelectionTool"]
     if len(select_tool) > 0:
         select_tool = select_tool[0]
     else:
         select_tool = None
-        
-    for name in names[1:]:
-        glyph = glyph_class(x=x_name, y=name, **style)
-        nonselection_glyph = glyph_class(fill_alpha=0.1)
-        glyph_renderer = GlyphRenderer(data_source=datasource,
-                            xdata_range = plot.x_range,
-                            ydata_range = plot.y_range,
-                            glyph = glyph,
-                            nonselection_glyph = nonselection_glyph,
-                            )
-        if select_tool:
-            select_tool.renderers.append(glyph_renderer)
-        plot.renderers.append(glyph_renderer)
-
-    # TODO: Figure out a better way to keep track of which objects on the
-    # session need to be added to the session.
-    session_objs.extend(plot.tools)
-    session_objs.extend(plot.renderers)
-    session_objs.extend([plot.x_range, plot.y_range])
-    return plot, session_objs
+    return select_tool
 
 @visual
 def rects(x, y, width, height, angle=0, **kwargs):
@@ -436,42 +482,64 @@ def rects(x, y, width, height, angle=0, **kwargs):
     argnames = ["x","y","width","height","angle"]
     datasource = kwargs.pop("source", ColumnDataSource())
     session_objs = [datasource]
-    datanames = []
-    for var in argnames:
-        val = locals()[var]
-        if isinstance(val, basestring):
-            if val not in datasource.column_names:
-                raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
-            datanames.append(val)
-        elif isinstance(val, np.ndarray):
-            if val.ndim != 1:
-                raise RuntimeError("Columns need to be 1D (%s is not)" % var)
-            datasource.add(val, name=var)
-            datanames.append(var)
-        elif isinstance(val, Iterable):
-            datasource.add(val, name=var)
-            datanames.append(var)
-        elif isinstance(val, Number):
-            datanames.append(var)
-        else:
-            raise RuntimeError("Unexpected column type in rect(): %s" % type(val))
-        kwargs[var] = val
-    
-    if _config["hold"]:
-        plot = _config["curplot"]
-    else:
-        plot = _new_xy_plot(**kwargs)
-
-    plot.x_range.sources.append(datasource.columns(datanames[0]))
-    plot.y_range.sources.append(datasource.columns(datanames[1]))
-
+    datanames, glyph_params = match_data_params(argnames, 
+                                               [x, y, width, height],
+                                               datasource)
+    plot = get_plot(kwargs)    
+    update_plot_data_ranges(plot, datasource, [datanames[0]], [datanames[1]])
     if "color" in kwargs:
         kwargs["fill"] = kwargs.pop("color")
+    select_tool = get_select_tool(plot)
+    glyph_renderer = GlyphRenderer(
+        data_source = datasource,
+        xdata_range = plot.x_range,
+        ydata_range = plot.y_range,
+        glyph = glyphs.Rect(**kwargs),
+        nonselection_glyph = glyphs.Rect(fill_alpha=0.1)
+        )
+    if select_tool : 
+        select_tool.renderers.append(glyph_renderer)
+        select_tool._dirty = True
+    plot.renderers.append(glyph_renderer)
+    session_objs.extend(plot.tools)
+    session_objs.extend(plot.renderers)
+    session_objs.extend([plot.x_range, plot.y_range])
+    return plot, session_objs
 
-    glyph_renderer = GlyphRenderer(data_source = datasource,
-                        xdata_range = plot.x_range,
-                        ydata_range = plot.y_range,
-                        glyph = glyphs.Rect(**kwargs))
+def get_plot(kwargs):
+    plot = kwargs.pop("plot", None)
+    if not plot:
+        if _config["hold"]:
+            plot = _config["curplot"]
+        else:
+            plot = _new_xy_plot(**kwargs)
+    return plot
+
+@visual
+def circles(x, y, radius=4, **kwargs):
+    """ Creates a series of circles.
+    """
+    argnames = ["x","y","radius"]
+    datasource = kwargs.pop("source", ColumnDataSource())
+    session_objs = [datasource]
+    datanames, glyph_params = match_data_params(argnames, 
+                                               [x, y, radius],
+                                               datasource)
+    plot = get_plot(kwargs)
+    update_plot_data_ranges(plot, datasource, [datanames[0]], [datanames[1]])
+    if "color" in kwargs:
+        kwargs["fill"] = kwargs.pop("color")
+    select_tool = get_select_tool(plot)
+    glyph_renderer = GlyphRenderer(
+        data_source = datasource,
+        xdata_range = plot.x_range,
+        ydata_range = plot.y_range,
+        glyph = glyphs.Circle(**kwargs),
+        nonselection_glyph = glyphs.Circle(fill_alpha=0.1)
+        )
+    if select_tool : 
+        select_tool.renderers.append(glyph_renderer)
+        select_tool._dirty = True
     plot.renderers.append(glyph_renderer)
     session_objs.extend(plot.tools)
     session_objs.extend(plot.renderers)
