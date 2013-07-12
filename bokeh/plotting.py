@@ -422,32 +422,24 @@ def match_data_params(names, vals, datasource):
     Returns
     ---------
     glyph_params : dict of params that should be in the glyphspec
-    data_names : names of in the data source that correspond to
-    names, so if names = [x,y]. and you want x,y to match up with columns
-    ['date', 'price'], then names would be ['x', 'y'], vals would be
-    ['date', 'price'], and data_names would also be ['date', 'price']
     """
     glyph_params = {}
-    datanames = []
     for var, val in zip(names, vals):
         if isinstance(val, basestring):
             if val not in datasource.column_names:
                 raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
-            datanames.append(val)
         elif isinstance(val, np.ndarray):
             if val.ndim != 1:
                 raise RuntimeError("Columns need to be 1D (%s is not)" % var)
             datasource.add(val, name=var)
-            datanames.append(var)
         elif isinstance(val, Iterable):
             datasource.add(val, name=var)
-            datanames.append(var)
         elif isinstance(val, Number):
-            datanames.append(var)
+            pass
         else:
             raise RuntimeError("Unexpected column type: %s" % type(val))
         glyph_params[var] = val
-    return datanames, glyph_params
+    return glyph_params
 
 def get_select_tool(plot):
     """returns select tool on a plot, if it's there
@@ -482,14 +474,18 @@ def rects(x, y, width, height, angle=0, **kwargs):
     argnames = ["x","y","width","height","angle"]
     datasource = kwargs.pop("source", ColumnDataSource())
     session_objs = [datasource]
-    datanames, glyph_params = match_data_params(argnames, 
-                                               [x, y, width, height],
-                                               datasource)
+    glyph_params = match_data_params(argnames, 
+                                     [x, y, width, height],
+                                     datasource)
     plot = get_plot(kwargs)    
-    update_plot_data_ranges(plot, datasource, [datanames[0]], [datanames[1]])
+    update_plot_data_ranges(plot, datasource, 
+                            [glyph_params['x']], 
+                            [glyph_params['y']])
     if "color" in kwargs:
         kwargs["fill"] = kwargs.pop("color")
     select_tool = get_select_tool(plot)
+    kwargs.update(glyph_params)
+    import pdb;pdb.set_trace()
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,
@@ -522,14 +518,17 @@ def circles(x, y, radius=4, **kwargs):
     argnames = ["x","y","radius"]
     datasource = kwargs.pop("source", ColumnDataSource())
     session_objs = [datasource]
-    datanames, glyph_params = match_data_params(argnames, 
-                                               [x, y, radius],
-                                               datasource)
+    glyph_params = match_data_params(argnames, 
+                                     [x, y, radius],
+                                     datasource)
     plot = get_plot(kwargs)
-    update_plot_data_ranges(plot, datasource, [datanames[0]], [datanames[1]])
+    update_plot_data_ranges(plot, datasource, 
+                            [glyph_params['x']], 
+                            [glyph_params['y']])
     if "color" in kwargs:
         kwargs["fill"] = kwargs.pop("color")
     select_tool = get_select_tool(plot)
+    kwargs.update(glyph_params)
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,
