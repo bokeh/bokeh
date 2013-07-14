@@ -428,17 +428,20 @@ def match_data_params(names, vals, datasource):
         if isinstance(val, basestring):
             if val not in datasource.column_names:
                 raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
+            glyph_val = {'field' : val, 'units' : 'data'}
         elif isinstance(val, np.ndarray):
             if val.ndim != 1:
                 raise RuntimeError("Columns need to be 1D (%s is not)" % var)
             datasource.add(val, name=var)
+            glyph_val = {'field' : var, 'units' : 'data'}
         elif isinstance(val, Iterable):
             datasource.add(val, name=var)
+            glyph_val = {'field' : var, 'units' : 'data'}
         elif isinstance(val, Number):
-            pass
+            glyph_val = {'field' : None, 'default' : val, 'units' : 'screen'}
         else:
             raise RuntimeError("Unexpected column type: %s" % type(val))
-        glyph_params[var] = val
+        glyph_params[var] = glyph_val
     return glyph_params
 
 def get_select_tool(plot):
@@ -477,15 +480,16 @@ def rects(x, y, width, height, angle=0, **kwargs):
     glyph_params = match_data_params(argnames, 
                                      [x, y, width, height],
                                      datasource)
-    plot = get_plot(kwargs)    
+    plot = get_plot(kwargs)
+    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
+    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
     update_plot_data_ranges(plot, datasource, 
-                            [glyph_params['x']], 
-                            [glyph_params['y']])
+                            [x_data_fields], 
+                            [y_data_fields])
     if "color" in kwargs:
         kwargs["fill"] = kwargs.pop("color")
     select_tool = get_select_tool(plot)
     kwargs.update(glyph_params)
-    import pdb;pdb.set_trace()
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,
@@ -522,9 +526,12 @@ def circles(x, y, radius=4, **kwargs):
                                      [x, y, radius],
                                      datasource)
     plot = get_plot(kwargs)
+    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
+    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
     update_plot_data_ranges(plot, datasource, 
-                            [glyph_params['x']], 
-                            [glyph_params['y']])
+                            [x_data_fields], 
+                            [y_data_fields])
+    import pdb;pdb.set_trace()
     if "color" in kwargs:
         kwargs["fill"] = kwargs.pop("color")
     select_tool = get_select_tool(plot)
