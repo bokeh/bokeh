@@ -295,7 +295,7 @@ def visual(func):
         #easier to always use plot context
         session.plotcontext.children.append(plot)
         session.plotcontext._dirty = True
-
+        plot._dirty = True
         if (output_type == "notebook" and output_url is None):
             return session.show(plot, *session_objs)
         
@@ -354,7 +354,7 @@ def plot(*args, **kwargs):
     for name in names[1:]:
         line(x_name, name, plot=plot, source=datasource, **kwargs)
     return plot
-
+color_fields = ["color", "fill_color", "line_color"]
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x & y items
 
@@ -402,7 +402,10 @@ def scatter(*args, **kwargs):
     # If hold is on, then we will reuse the ranges of the current plot
     plot = get_plot(kwargs)
     marker = kwargs.get("type", "circle")
-    x_name = names[0]    
+    x_name = names[0]
+
+    if not len(np.intersect1d(color_fields, kwargs.keys())):
+        kwargs['color'] = get_default_color(plot)
     for name in names[1:]:
         if marker == "circle":
             circles(x_name, name, 
@@ -417,7 +420,6 @@ def scatter(*args, **kwargs):
                   source=datasource,
                   plot=plot, **kwargs)
         elif marker == "square":
-            import pdb;pdb.set_trace()
             squares(x_name, name, 
                   kwargs.get('width', 4),
                   angle=kwargs.get('angle', 0),
@@ -496,6 +498,24 @@ def get_select_tool(plot):
         select_tool = None
     return select_tool
 
+def get_default_color(plot):
+    colors = [
+      "#1f77b4",
+      "#ff7f0e", "#ffbb78",
+      "#2ca02c", "#98df8a",
+      "#d62728", "#ff9896",
+      "#9467bd", "#c5b0d5",
+      "#8c564b", "#c49c94",
+      "#e377c2", "#f7b6d2",
+      "#7f7f7f",
+      "#bcbd22", "#dbdb8d",
+      "#17becf", "#9edae5"
+    ]
+    renderers = plot.renderers
+    renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
+    num_renderers = len(renderers)
+    return colors[num_renderers]
+
 @visual
 def rects(x, y, width, height, angle=0, **kwargs):
     """ Creates a series of rectangles.
@@ -529,7 +549,9 @@ def rects(x, y, width, height, angle=0, **kwargs):
                             [x_data_fields], 
                             [y_data_fields])
     if "color" in kwargs:
-        kwargs["fill"] = kwargs.pop("color")
+        color = kwargs.pop("color")
+        kwargs["fill"] = color
+        kwargs["line_color"] = color
     select_tool = get_select_tool(plot)
     kwargs.update(glyph_params)
     glyph_renderer = GlyphRenderer(
@@ -612,7 +634,9 @@ def squares(x, y, size, angle=0, **kwargs):
                             [x_data_fields], 
                             [y_data_fields])
     if "color" in kwargs:
-        kwargs["fill"] = kwargs.pop("color")
+        color = kwargs.pop("color")
+        kwargs["fill"] = color
+        kwargs["line_color"] = color
     select_tool = get_select_tool(plot)
     kwargs.update(glyph_params)
     glyph_renderer = GlyphRenderer(
@@ -634,7 +658,7 @@ def squares(x, y, size, angle=0, **kwargs):
 def get_plot(kwargs):
     plot = kwargs.pop("plot", None)
     if not plot:
-        if _config["hold"]:
+        if _config["hold"] and _config["curplot"]:
             plot = _config["curplot"]
         else:
             plot = _new_xy_plot(**kwargs)
@@ -657,7 +681,9 @@ def circles(x, y, radius=4, **kwargs):
                             [x_data_fields], 
                             [y_data_fields])
     if "color" in kwargs:
-        kwargs["fill"] = kwargs.pop("color")
+        color = kwargs.pop("color")
+        kwargs["fill"] = color
+        kwargs["line_color"] = color
     select_tool = get_select_tool(plot)
     kwargs.update(glyph_params)
     glyph_renderer = GlyphRenderer(
