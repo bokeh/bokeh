@@ -376,8 +376,15 @@ def scatter(*args, **kwargs):
                     plot=plot, **kwargs)
         elif marker == "rect":
             rects(x_name, name, 
-                  kwargs.get('width', 4),
+                  kwargs.get('width', 8),
                   kwargs.get('height', 4),
+                  angle=kwargs.get('angle', 0),
+                  source=datasource,
+                  plot=plot, **kwargs)
+        elif marker == "square":
+            import pdb;pdb.set_trace()
+            squares(x_name, name, 
+                  kwargs.get('width', 4),
                   angle=kwargs.get('angle', 0),
                   source=datasource,
                   plot=plot, **kwargs)
@@ -506,6 +513,58 @@ def rects(x, y, width, height, angle=0, **kwargs):
     session_objs.extend([plot.x_range, plot.y_range])
     return plot, session_objs
 
+@visual
+def squares(x, y, size, angle=0, **kwargs):
+    """ Creates a series of rectangles.
+
+    x, y, size, height, angle=0:
+        Either an iterable or numpy array of values, or a scalar, or the
+        name of a column in a datasource passed in via the "source"
+        keyword argument
+    
+    Style Parameters (specified by keyword)
+    ---------------------------------------
+    color : color  # same as "fill"
+    fill : color
+    fill_alpha : 0.0 - 1.0
+    line_color : color
+    line_width : int >= 1
+    line_alpha : 0.0 - 1.0
+    line_cap : "butt", "join", "miter"
+    """
+
+    argnames = ["x","y","size","angle"]
+    datasource = kwargs.pop("source", ColumnDataSource())
+    session_objs = [datasource]
+    glyph_params = match_data_params(argnames, 
+                                     [x, y, size],
+                                     datasource)
+    plot = get_plot(kwargs)
+    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
+    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
+    update_plot_data_ranges(plot, datasource, 
+                            [x_data_fields], 
+                            [y_data_fields])
+    if "color" in kwargs:
+        kwargs["fill"] = kwargs.pop("color")
+    select_tool = get_select_tool(plot)
+    kwargs.update(glyph_params)
+    glyph_renderer = GlyphRenderer(
+        data_source = datasource,
+        xdata_range = plot.x_range,
+        ydata_range = plot.y_range,
+        glyph = glyphs.Square(**kwargs),
+        nonselection_glyph = glyphs.Square(fill_alpha=0.1)
+        )
+    if select_tool : 
+        select_tool.renderers.append(glyph_renderer)
+        select_tool._dirty = True
+    plot.renderers.append(glyph_renderer)
+    session_objs.extend(plot.tools)
+    session_objs.extend(plot.renderers)
+    session_objs.extend([plot.x_range, plot.y_range])
+    return plot, session_objs
+
 def get_plot(kwargs):
     plot = kwargs.pop("plot", None)
     if not plot:
@@ -531,7 +590,6 @@ def circles(x, y, radius=4, **kwargs):
     update_plot_data_ranges(plot, datasource, 
                             [x_data_fields], 
                             [y_data_fields])
-    import pdb;pdb.set_trace()
     if "color" in kwargs:
         kwargs["fill"] = kwargs.pop("color")
     select_tool = get_select_tool(plot)
