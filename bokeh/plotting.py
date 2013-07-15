@@ -319,6 +319,42 @@ marker_glyph_map = {
         "square": glyphs.Square,
         }
 
+def plot(*args, **kwargs):
+    """ Creates a line plot of the given x & y items
+
+    Parameters
+    ----------
+    *data : The data to plot.  Can be of several forms:
+        (X, Y1, Y2, ...)
+            A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
+        [[x1,y1], [x2,y2], .... ]
+            An iterable of tuples
+        NDarray (NxM)
+            The first column is treated as the X, and all other M-1 columns
+            are treated as separate Y series
+    Examples
+    --------
+        plot([1,2,3,4,5,6])
+        plot([1,2,3],[4,5,6], fill="red")
+        plot(x_array, y_array, type="circle")
+        plot("data1", "data2", source=data_source, ...)
+
+    """
+    session_objs = []   # The list of objects that need to be added
+
+    ds = kwargs.pop("source", None)
+    names, datasource = _handle_1d_data_args(args, datasource=ds)
+    if datasource != ds:
+        session_objs.append(datasource)
+
+    # If hold is on, then we will reuse the ranges of the current plot
+    plot = get_plot(kwargs)
+    marker = kwargs.get("type", "circle")
+    x_name = names[0]    
+    for name in names[1:]:
+        line(x_name, name, plot=plot, source=datasource, **kwargs)
+    return plot
+
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x & y items
 
@@ -367,7 +403,6 @@ def scatter(*args, **kwargs):
     plot = get_plot(kwargs)
     marker = kwargs.get("type", "circle")
     x_name = names[0]    
-    all_session_objs = set()
     for name in names[1:]:
         if marker == "circle":
             circles(x_name, name, 
@@ -514,8 +549,39 @@ def rects(x, y, width, height, angle=0, **kwargs):
     return plot, session_objs
 
 @visual
+def line(x, y, **kwargs):
+    """ Create a line plot
+    """
+    argnames = ["x","y"]
+    datasource = kwargs.pop("source", ColumnDataSource())
+    session_objs = [datasource]
+    glyph_params = match_data_params(argnames, 
+                                     [x, y],
+                                     datasource)
+    plot = get_plot(kwargs)
+    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
+    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
+    update_plot_data_ranges(plot, datasource, 
+                            [x_data_fields], 
+                            [y_data_fields])
+    if "color" in kwargs:
+        kwargs["line_color"] = kwargs.pop("color")
+    kwargs.update(glyph_params)
+    glyph_renderer = GlyphRenderer(
+        data_source = datasource,
+        xdata_range = plot.x_range,
+        ydata_range = plot.y_range,
+        glyph = glyphs.Line(**kwargs),
+        )
+    plot.renderers.append(glyph_renderer)
+    session_objs.extend(plot.tools)
+    session_objs.extend(plot.renderers)
+    session_objs.extend([plot.x_range, plot.y_range])
+    return plot, session_objs
+    
+@visual
 def squares(x, y, size, angle=0, **kwargs):
-    """ Creates a series of rectangles.
+    """ Creates a series of squares.
 
     x, y, size, height, angle=0:
         Either an iterable or numpy array of values, or a scalar, or the
