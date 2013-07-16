@@ -12,3 +12,9 @@ hold(True)
 scatter(x,y, tools="pan,zoom,resize")
 scatter(x,2*y, tools="pan,zoom,resize")
 scatter(x,3*y, tools="pan,zoom,resize")
+
+figure()
+
+plot(x,y, tools="pan,zoom,resize")
+plot(x,2*y, tools="pan,zoom,resize")
+plot(x,3*y, tools="pan,zoom,resize")
