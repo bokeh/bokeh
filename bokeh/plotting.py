@@ -1,5 +1,6 @@
 """ Command-line driven plotting functions, a la Matplotlib  / Matlab / etc.
 """
+import copy
 from collections import Iterable
 from functools import wraps
 from numbers import Number
@@ -354,11 +355,15 @@ def plot(*args, **kwargs):
     plot = get_plot(kwargs)
     if not len(np.intersect1d(color_fields, kwargs.keys())):
         kwargs['color'] = get_default_color(plot)
-    marker = kwargs.get("type", "circle")
+    points = kwargs.pop("points", True)
+    marker = kwargs.get("type", "circle")    
     x_name = names[0]    
     for name in names[1:]:
-        line(x_name, name, plot=plot, source=datasource, **kwargs)
+        _glyph_plot("line", x_name, name, plot, datasource, **kwargs)
+        if points:
+            _glyph_plot(marker, x_name, name, plot, datasource, **kwargs)
     return plot
+
 color_fields = ["color", "fill_color", "line_color"]
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x & y items
@@ -412,26 +417,34 @@ def scatter(*args, **kwargs):
     if not len(np.intersect1d(color_fields, kwargs.keys())):
         kwargs['color'] = get_default_color(plot)
     for name in names[1:]:
-        if marker == "circle":
-            circles(x_name, name, 
-                    kwargs.get('radius', 4),
-                    source=datasource,
-                    plot=plot, **kwargs)
-        elif marker == "rect":
-            rects(x_name, name, 
-                  kwargs.get('width', 8),
-                  kwargs.get('height', 4),
-                  angle=kwargs.get('angle', 0),
-                  source=datasource,
-                  plot=plot, **kwargs)
-        elif marker == "square":
-            squares(x_name, name, 
-                  kwargs.get('width', 4),
-                  angle=kwargs.get('angle', 0),
-                  source=datasource,
-                  plot=plot, **kwargs)
+        _glyph_plot(marker, x_name, name, plot, datasource, **kwargs)
     return plot
 
+def _glyph_plot(plottype, x_name, y_name, plot, datasource, **kwargs):
+    #copy kwargs, because we pop things off inside these functions
+    kwargs = copy.copy(kwargs)
+    if plottype == "circle":
+        circles(x_name, y_name, 
+                kwargs.pop('radius', 4),
+                source=datasource,
+                plot=plot, **kwargs)
+    elif plottype == "rect":
+        rects(x_name, y_name, 
+              kwargs.pop('width', 8),
+              kwargs.pop('height', 4),
+              angle=kwargs.get('angle', 0),
+              source=datasource,
+              plot=plot, **kwargs)
+    elif plottype == "square":
+        squares(x_name, y_name, 
+              kwargs.pop('width', 4),
+              angle=kwargs.pop('angle', 0),
+              source=datasource,
+              plot=plot, **kwargs)
+    elif plottype == "line":
+        line(x_name, y_name, plot=plot, source=datasource, **kwargs)
+    
+    
 def update_plot_data_ranges(plot, datasource, xcols, ycols):
     """
     Parmeters
@@ -559,12 +572,15 @@ def rects(x, y, width, height, angle=0, **kwargs):
         kwargs["line_color"] = color
     select_tool = get_select_tool(plot)
     kwargs.update(glyph_params)
+    glyph = glyphs.Rect(**kwargs)
+    nonselection_glyph = glyph.clone()
+    nonselection_glyph.fill_alpha = 0.1
     glyph_renderer = GlyphRenderer(
-        data_source = datasource,
-        xdata_range = plot.x_range,
-        ydata_range = plot.y_range,
-        glyph = glyphs.Rect(**kwargs),
-        nonselection_glyph = glyphs.Rect(fill_alpha=0.1)
+        data_source=datasource,
+        xdata_range=plot.x_range,
+        ydata_range=plot.y_range,
+        glyph=glyph,
+        nonselection_glyph=nonselection_glyph,
         )
     if select_tool : 
         select_tool.renderers.append(glyph_renderer)
@@ -644,12 +660,15 @@ def squares(x, y, size, angle=0, **kwargs):
         kwargs["line_color"] = color
     select_tool = get_select_tool(plot)
     kwargs.update(glyph_params)
+    glyph = glyphs.Square(**kwargs)
+    nonselection_glyph = glyph.clone()
+    nonselection_glyph.fill_alpha = 0.1
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,
         ydata_range = plot.y_range,
-        glyph = glyphs.Square(**kwargs),
-        nonselection_glyph = glyphs.Square(fill_alpha=0.1)
+        glyph=glyph,
+        nonselection_glyph=nonselection_glyph,
         )
     if select_tool : 
         select_tool.renderers.append(glyph_renderer)
@@ -691,12 +710,15 @@ def circles(x, y, radius=4, **kwargs):
         kwargs["line_color"] = color
     select_tool = get_select_tool(plot)
     kwargs.update(glyph_params)
+    glyph = glyphs.Circle(**kwargs)
+    nonselection_glyph = glyph.clone()
+    nonselection_glyph.fill_alpha = 0.1
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,
         ydata_range = plot.y_range,
-        glyph = glyphs.Circle(**kwargs),
-        nonselection_glyph = glyphs.Circle(fill_alpha=0.1)
+        glyph=glyph,
+        nonselection_glyph=nonselection_glyph
         )
     if select_tool : 
         select_tool.renderers.append(glyph_renderer)
