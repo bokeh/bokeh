@@ -118,8 +118,14 @@ class PlotView extends ContinuumView
     @keydownCallbacks = []
     @render_init()
     @render_canvas(false)
+    @atm = new ActiveToolManager(@eventSink)
+    @levels = {}
+    for level in LEVELS
+      @levels[level] = {}
     @build_levels()
     @request_render()
+    @atm.bind_bokeh_events()
+    @bind_bokeh_events()
     return this
 
   map_to_screen : (x, x_units, y, y_units, units) ->
@@ -147,39 +153,28 @@ class PlotView extends ContinuumView
     return [x, y]
 
   build_tools: () ->
-    build_views(@tools, @mget_obj('tools'), @view_options())
-    return this
+    return build_views(@tools, @mget_obj('tools'), @view_options())
 
-  bind_tools: () ->
-    for toolspec in @mget('tools')
-      @tools[toolspec.id].bind_events(this)
-    return this
 
   build_views: ()->
-    build_views(@renderers, @mget_obj('renderers'), @view_options())
-    return this
+    return build_views(@renderers, @mget_obj('renderers'), @view_options())
 
   build_levels: () ->
-    @build_views()
-    @build_tools()
-    @levels = {}
-    for level in LEVELS
-      @levels[level] = {}
-
-    for k,v of @renderers
+    # need to separate renderer/tool creation from event binding
+    # because things like box selection overlay needs to bind events
+    # on the select tool
+    #
+    # should only bind events on NEW views and tools
+    views = @build_views()
+    tools = @build_tools()
+    for v in views
       level = v.mget('level')
-      @levels[level][k] = v
-
-    for k,v of @tools
-      level = v.mget('level')
-      @levels[level][k] = v
-    @atm = new ActiveToolManager(@eventSink)
-    @atm.bind_bokeh_events()
-    @bind_bokeh_events()
-    for toolview in _.values(@tools)
-      toolview.bind_bokeh_events()
-    for view in _.values(@renderers)
-      view.bind_bokeh_events()
+      @levels[level][v.model.id] = v
+      v.bind_bokeh_events()
+    for t in tools
+      level = t.mget('level')
+      @levels[level][t.model.id] = t
+      t.bind_bokeh_events()
     return this
 
   bind_bokeh_events: () ->
