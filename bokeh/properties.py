@@ -147,7 +147,7 @@ class HasProps(object):
         """ Returns a duplicate of this object with all its properties
         set appropriately.  Values which are containers are shallow-copied.
         """
-        d = dict((p,getattr(self, p)) for p in self.__properties__)
+        d = dict((p,getattr(self, p)) for p in self.properties())
         return self.__class__(**d)
 
     def properties_with_refs(self):
