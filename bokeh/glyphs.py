@@ -2,7 +2,8 @@
 import inspect
 
 from .properties import (BaseProperty, HasProps, Instance, Enum, Float, Int,
-        Color, Percent, Size, Bool, Pattern, Align, Angle, String)
+        Color, Percent, Size, Bool, Pattern, Align, Angle, String, FillProps,
+        LineProps, TextProps)
 
 from .objects import PlotObject, Viewable
 
@@ -104,33 +105,6 @@ class DataSpec(BaseProperty):
             # We explicitly set the field name to None.
             d = {"field": None, "units": self.units, "default": value}
         return d
-
-
-class FillProps(HasProps):
-    """ Mirrors the BokehJS properties.fill_properties class """
-    fill = Color("gray")
-    fill_alpha = Percent(1.0)
-
-class LineProps(HasProps):
-    """ Mirrors the BokehJS properties.line_properties class """
-    line_color = Color("red")
-    line_width = Size(1)
-    line_alpha = Percent(1.0)
-    line_join = String("miter")
-    line_cap = String("butt")
-    line_dash = Pattern
-    line_dash_offset = Int(0)
-
-class TextProps(HasProps):
-    """ Mirrors the BokehJS properties.text_properties class """
-    text_font = String
-    text_font_size = Int(10)
-    text_font_style = Enum("normal", "italic", "bold")
-    text_color = Color("black")
-    text_alpha = Percent(1.0)
-    text_align = Enum("left", "right", "center")
-    text_baseline = Enum("top", "middle", "bottom")
-
 
 class MetaGlyph(Viewable):
     """ Handles DataSpecs and other special attribute processing that Glyph

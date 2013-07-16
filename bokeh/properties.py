@@ -54,10 +54,52 @@ class BaseProperty(object):
         if hasattr(obj, "_"+self.name):
             delattr(obj, "_"+self.name)
 
+
+class Include(BaseProperty):
+
+    def __init__(self, delegate, prefix=None):
+        self._delegate = delegate
+        self._prefix = prefix
+        super(Include, self).__init__()
+
+
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
         names = []
         names_with_refs = []
+
+        # First pre-process to handle all the Includes
+        includes = {}
+        removes = []
+        for name, prop in class_dict.iteritems():
+            if not isinstance(prop, Include):
+                continue
+
+            delegate = prop._delegate
+            if isinstance(delegate,type) and issubclass(delegate,HasProps):
+                pass
+            elif isinstance(delegate, HasProps):
+                # If the include is actually wrapped around an instance,
+                # just look at its class
+                delegate = delegate.__class__
+            
+            if prop._prefix is None:
+                prefix = name + "_"
+            else:
+                prefix = prop._prefix + "_"
+            for subprop in delegate.__dict__["__properties__"]:
+                includes[prefix+subprop] = delegate.__dict__[subprop]
+            # Remove the name of the Include attribute itself
+            removes.append(name)
+
+        # Update the class dictionary, taking care not to overwrite values
+        # from the delegates that the subclass may have explicitly defined
+        for key, val in includes.iteritems():
+            if key not in class_dict:
+                class_dict[key] = val
+        for tmp in removes:
+            del class_dict[tmp]
+
         for name, prop in class_dict.iteritems():
             if isinstance(prop, BaseProperty):
                 prop.name = name
@@ -139,6 +181,8 @@ class HasProps(object):
         """ Prints the properties of this object, nicely formatted """
         for p in self.__properties__:
             print "  "*indent + p + ":", getattr(self, p)
+
+
 
 # Python scalar types
 class Int(BaseProperty): pass
@@ -303,5 +347,32 @@ class Percent(Float):
     """ Percent is useful for alphas and coverage and extents; more
     semantically meaningful than Float(0..1) 
     """
+
+# These classes can be mixed-in to HasProps classes to get them the 
+# corresponding attributes
+class FillProps(HasProps):
+    """ Mirrors the BokehJS properties.fill_properties class """
+    fill = Color("gray")
+    fill_alpha = Percent(1.0)
+
+class LineProps(HasProps):
+    """ Mirrors the BokehJS properties.line_properties class """
+    line_color = Color("red")
+    line_width = Size(1)
+    line_alpha = Percent(1.0)
+    line_join = String("miter")
+    line_cap = String("butt")
+    line_dash = Pattern
+    line_dash_offset = Int(0)
+
+class TextProps(HasProps):
+    """ Mirrors the BokehJS properties.text_properties class """
+    text_font = String
+    text_font_size = Int(10)
+    text_font_style = Enum("normal", "italic", "bold")
+    text_color = Color("black")
+    text_alpha = Percent(1.0)
+    text_align = Enum("left", "right", "center")
+    text_baseline = Enum("top", "middle", "bottom")
 
 
