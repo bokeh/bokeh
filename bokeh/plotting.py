@@ -12,7 +12,8 @@ import webbrowser
 
 from .objects import (ColumnDataSource, DataSource, ColumnsRef, DataRange1d,
         Plot, GlyphRenderer, LinearAxis, Rule, PanTool, ZoomTool,
-        PreviewSaveTool, ResizeTool, SelectionTool, BoxSelectionOverlay)
+        PreviewSaveTool, ResizeTool, SelectionTool, BoxSelectionOverlay,
+        Legend)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
 from . import glyphs
@@ -571,6 +572,7 @@ def rects(x, y, width, height, angle=0, **kwargs):
         kwargs["fill"] = color
         kwargs["line_color"] = color
     select_tool = get_select_tool(plot)
+    legend_name = kwargs.pop("legend", None)    
     kwargs.update(glyph_params)
     glyph = glyphs.Rect(**kwargs)
     nonselection_glyph = glyph.clone()
@@ -582,6 +584,13 @@ def rects(x, y, width, height, angle=0, **kwargs):
         glyph=glyph,
         nonselection_glyph=nonselection_glyph,
         )
+    if legend_name:
+        legend = get_legend(plot)
+        if not legend:
+            legend = make_legend(plot)
+        mappings = legend.annotationspec.setdefault("legends", {})
+        mappings.setdefault(legend_name, []).append(glyph_renderer)
+        legend._dirty = True
     if select_tool : 
         select_tool.renderers.append(glyph_renderer)
         select_tool._dirty = True
@@ -607,6 +616,7 @@ def line(x, y, **kwargs):
     update_plot_data_ranges(plot, datasource, 
                             [x_data_fields], 
                             [y_data_fields])
+    legend_name = kwargs.pop("legend", None)    
     if "color" in kwargs:
         kwargs["line_color"] = kwargs.pop("color")
     kwargs.update(glyph_params)
@@ -616,6 +626,13 @@ def line(x, y, **kwargs):
         ydata_range = plot.y_range,
         glyph = glyphs.Line(**kwargs),
         )
+    if legend_name:
+        legend = get_legend(plot)
+        if not legend:
+            legend = make_legend(plot)
+        mappings = legend.annotationspec.setdefault("legends", {})
+        mappings.setdefault(legend_name, []).append(glyph_renderer)
+        legend._dirty = True
     plot.renderers.append(glyph_renderer)
     session_objs.extend(plot.tools)
     session_objs.extend(plot.renderers)
@@ -659,6 +676,7 @@ def squares(x, y, size, angle=0, **kwargs):
         kwargs["fill"] = color
         kwargs["line_color"] = color
     select_tool = get_select_tool(plot)
+    legend_name = kwargs.pop("legend", None)    
     kwargs.update(glyph_params)
     glyph = glyphs.Square(**kwargs)
     nonselection_glyph = glyph.clone()
@@ -670,6 +688,13 @@ def squares(x, y, size, angle=0, **kwargs):
         glyph=glyph,
         nonselection_glyph=nonselection_glyph,
         )
+    if legend_name:
+        legend = get_legend(plot)
+        if not legend:
+            legend = make_legend(plot)
+        mappings = legend.annotationspec.setdefault("legends", {})
+        mappings.setdefault(legend_name, []).append(glyph_renderer)
+        legend._dirty = True
     if select_tool : 
         select_tool.renderers.append(glyph_renderer)
         select_tool._dirty = True
@@ -687,6 +712,20 @@ def get_plot(kwargs):
         else:
             plot = _new_xy_plot(**kwargs)
     return plot
+
+def get_legend(plot):
+    legend = [x for x in plot.renderers if x.__view_model__ == "Legend"]
+    if len(legend) > 0:
+        legend = legend[0]
+    else:
+        legend = None
+    return legend
+
+def make_legend(plot):
+    legend = Legend(plot=plot)
+    plot.renderers.append(legend)
+    plot._dirty = True
+    return legend
 
 @visual
 def circles(x, y, radius=4, **kwargs):
@@ -709,6 +748,7 @@ def circles(x, y, radius=4, **kwargs):
         kwargs["fill"] = color
         kwargs["line_color"] = color
     select_tool = get_select_tool(plot)
+    legend_name = kwargs.pop("legend", None)
     kwargs.update(glyph_params)
     glyph = glyphs.Circle(**kwargs)
     nonselection_glyph = glyph.clone()
@@ -720,6 +760,14 @@ def circles(x, y, radius=4, **kwargs):
         glyph=glyph,
         nonselection_glyph=nonselection_glyph
         )
+    if legend_name:
+        legend = get_legend(plot)
+        if not legend:
+            legend = make_legend(plot)
+        mappings = legend.annotationspec.setdefault("legends", {})
+        mappings.setdefault(legend_name, []).append(glyph_renderer)
+        legend._dirty = True
+
     if select_tool : 
         select_tool.renderers.append(glyph_renderer)
         select_tool._dirty = True

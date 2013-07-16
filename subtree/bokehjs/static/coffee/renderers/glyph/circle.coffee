@@ -147,6 +147,7 @@ class CircleView extends GlyphView
       data_r = @distance([reference_point], 'x', 'radius', 'edge')[0]
     else
       glyph_settings = glyph_props
+      data_r = glyph_props.select('radius', glyph_props).default
     border = line_props.select(line_props.line_width_name, glyph_settings)
     ctx.beginPath()
     d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
