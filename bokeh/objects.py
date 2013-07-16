@@ -7,9 +7,10 @@ notebook.
 from uuid import uuid4
 from functools import wraps
 import urlparse
-from bokeh.properties import (HasProps, MetaHasProps, 
-        Any, Dict, Enum, Float, Instance, Int, List, String,
-        Color, Pattern, Percent, Size)
+from bokeh.properties import (HasProps, MetaHasProps, Any, Dict, Enum,
+        Either, Float, Instance, Int, List, String, Color, Pattern, Percent,
+        Size, LineProps, FillProps, TextProps, Include)
+
 import logging
 logger = logging.getLogger(__file__)
 class Viewable(MetaHasProps):
@@ -599,6 +600,21 @@ class GuideRenderer(PlotObject):
                   
 class LinearAxis(GuideRenderer):
     type = String("linear_axis")
+    axis_label = String(None)
+    axis_label_standoff = Int(0)
+    axis_label_props = Include(TextProps, prefix="axis_label")
+
+    major_label_standoff = Int(5)
+    major_label_orientation = Either(Enum("horizontal", "vertical"), Int)
+    major_label_props = Include(TextProps, prefix="major_label")
+
+    # Line props
+    axis_props = Include(LineProps, prefix="axis")
+    tick_props = Include(LineProps, prefix="major_tick")
+    
+    major_tick_in = Int(2)
+    major_tick_out = Int(6)
+
 
 class Rule(GuideRenderer):
     """ 1D Grid component """
