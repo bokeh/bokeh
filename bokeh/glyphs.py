@@ -69,23 +69,18 @@ class DataSpec(BaseProperty):
         # user hasn't set anything yet.  We use our best heuristic and
         # return a name, a default, or a dict with both, depending on
         # what is None.
-        if self.field is None:
-            return self.default
-        elif self.default is None:
-            return self.field
+        if hasattr(obj, "_"+self.name):
+            return getattr(obj, "_"+self.name)
         else:
-            return {"field": self.field, "default": self.default}
+            if self.field is None:
+                return self.default
+            elif self.default is None:
+                return self.field
+            else:
+                return {"field": self.field, "default": self.default}
 
     def __set__(self, obj, value):
-        currval = getattr(obj, "_"+self.name, None)
-        if currval is None: currval = {}
-        if isinstance(value, dict):
-            currval.update(value)
-        else:
-            currval["default"] = value
-        setattr(obj, "_"+self.name, currval)
-        obj._dirty = True
-                    
+        setattr(obj, "_"+self.name, value)
 
     def __delete__(self, obj):
         if hasattr(obj, self.name + "_dict"):
