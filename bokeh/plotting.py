@@ -353,7 +353,7 @@ def plot(*args, **kwargs):
 
     # If hold is on, then we will reuse the ranges of the current plot
     plot = get_plot(kwargs)
-    if not len(np.intersect1d(color_fields, kwargs.keys())):
+    if not len(color_fields.intersection(set(kwargs.keys()))):
         kwargs['color'] = get_default_color(plot)
     points = kwargs.pop("points", True)
     marker = kwargs.get("type", "circle")    
@@ -364,7 +364,7 @@ def plot(*args, **kwargs):
             _glyph_plot(marker, x_name, name, plot, datasource, **kwargs)
     return plot
 
-color_fields = ["color", "fill_color", "line_color"]
+color_fields = set(["color", "fill_color", "line_color"])
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x & y items
 
@@ -414,7 +414,7 @@ def scatter(*args, **kwargs):
     marker = kwargs.get("type", "circle")
     x_name = names[0]
 
-    if not len(np.intersect1d(color_fields, kwargs.keys())):
+    if not len(color_fields.intersection(set(kwargs.keys()))):
         kwargs['color'] = get_default_color(plot)
     for name in names[1:]:
         _glyph_plot(marker, x_name, name, plot, datasource, **kwargs)
