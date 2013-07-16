@@ -199,6 +199,9 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
         output_type = "file", output_file = filename, output_url= None,
         session = session))
 
+def figure():
+    _config["curplot"] = None
+
 def hold(val=None):
     """ Turns hold on or off.  When on, then does not create a new figure
     with each plotting command, but rather adds renderers to the current
@@ -349,6 +352,8 @@ def plot(*args, **kwargs):
 
     # If hold is on, then we will reuse the ranges of the current plot
     plot = get_plot(kwargs)
+    if not len(np.intersect1d(color_fields, kwargs.keys())):
+        kwargs['color'] = get_default_color(plot)
     marker = kwargs.get("type", "circle")
     x_name = names[0]    
     for name in names[1:]:
@@ -703,7 +708,7 @@ def circles(x, y, radius=4, **kwargs):
     return plot, session_objs
 
 
-def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select", **kw):
+def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select,previewsave", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
@@ -733,6 +738,9 @@ def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select"
         tool_objs.append(select_tool)
         overlay = BoxSelectionOverlay(tool=select_tool)
         p.renderers.append(overlay)
+    if "previewsave" in tools:
+        previewsave_tool = PreviewSaveTool(plot=p)
+        tool_objs.append(previewsave_tool)
     p.tools.extend(tool_objs)
     return p
 
