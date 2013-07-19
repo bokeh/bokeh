@@ -62,6 +62,9 @@ class Include(BaseProperty):
         self._prefix = prefix
         super(Include, self).__init__()
 
+class PropertyGroup(object):
+    pass
+
 
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
@@ -76,19 +79,26 @@ class MetaHasProps(type):
                 continue
 
             delegate = prop._delegate
-            if isinstance(delegate,type) and issubclass(delegate,HasProps):
-                pass
-            elif isinstance(delegate, HasProps):
-                # If the include is actually wrapped around an instance,
-                # just look at its class
-                delegate = delegate.__class__
+            if not (isinstance(delegate,type) and issubclass(delegate,PropertyGroup)):
+                continue
             
             if prop._prefix is None:
                 prefix = name + "_"
             else:
                 prefix = prop._prefix + "_"
-            for subprop in delegate.__dict__["__properties__"]:
-                includes[prefix+subprop] = delegate.__dict__[subprop]
+            for subpropname in dir(delegate):
+                if subpropname.startswith("__"):
+                    continue
+                fullpropname = prefix + subpropname
+                # FIXME: Directly accessing the __dict__ means that you can't
+                # subclass PropertyGroups.  That's fine for now.
+                subprop = delegate.__dict__[subpropname]
+                if isinstance(subprop, BaseProperty):
+                    # If it's an actual instance, then we need to make a copy
+                    # so two properties don't write to the same hidden variable
+                    # inside the instance.
+                    subprop = copy(subprop)
+                includes[fullpropname] = subprop
             # Remove the name of the Include attribute itself
             removes.append(name)
 
@@ -181,8 +191,6 @@ class HasProps(object):
         """ Prints the properties of this object, nicely formatted """
         for p in self.__properties__:
             print "  "*indent + p + ":", getattr(self, p)
-
-
 
 # Python scalar types
 class Int(BaseProperty): pass
@@ -350,12 +358,12 @@ class Percent(Float):
 
 # These classes can be mixed-in to HasProps classes to get them the 
 # corresponding attributes
-class FillProps(HasProps):
+class FillProps(PropertyGroup):
     """ Mirrors the BokehJS properties.fill_properties class """
     fill = Color("gray")
     fill_alpha = Percent(1.0)
 
-class LineProps(HasProps):
+class LineProps(PropertyGroup):
     """ Mirrors the BokehJS properties.line_properties class """
     line_color = Color("red")
     line_width = Size(1)
@@ -365,7 +373,7 @@ class LineProps(HasProps):
     line_dash = Pattern
     line_dash_offset = Int(0)
 
-class TextProps(HasProps):
+class TextProps(PropertyGroup):
     """ Mirrors the BokehJS properties.text_properties class """
     text_font = String
     text_font_size = Int(10)
