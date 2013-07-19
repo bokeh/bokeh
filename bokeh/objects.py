@@ -187,13 +187,12 @@ class PlotObject(HasProps):
         which are handled in finalize
         """
         if 'id' not in attrs:
-            import pdb;pdb.set_trace()
+            raise RuntimeError("Unable to find 'id' attribute in JSON: %r" % attrs)
         _id = attrs.pop('id')
         
         if not instance:
             instance = cls(id=_id, _block_events=True)
-        if not instance:
-            import pdb;pdb.set_trace()
+
         ref_props = {}
         for p in instance.properties_with_refs():
             if p in attrs:
@@ -581,10 +580,13 @@ class GuideRenderer(PlotObject):
     
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
+        guide_props = {}
+        for name in ("dimension", "location", "bounds"):
+            guide_props[name] = props.pop(name)
         del props["plot"]
-        return {"id" : self._id,
-                "plot" : self.plot,
-                "guidespec" : props}
+        props.update({"id" : self._id, "plot" : self.plot,
+                        "guidespec" : guide_props})
+        return props
     
     @classmethod
     def load_json(cls, attrs, instance=None):
