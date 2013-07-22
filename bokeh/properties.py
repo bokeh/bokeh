@@ -62,9 +62,6 @@ class Include(BaseProperty):
         self._prefix = prefix
         super(Include, self).__init__()
 
-class PropertyGroup(object):
-    pass
-
 
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
@@ -79,20 +76,16 @@ class MetaHasProps(type):
                 continue
 
             delegate = prop._delegate
-            if not (isinstance(delegate,type) and issubclass(delegate,PropertyGroup)):
+            if not (isinstance(delegate,type) and issubclass(delegate,HasProps)):
                 continue
             
             if prop._prefix is None:
                 prefix = name + "_"
             else:
                 prefix = prop._prefix + "_"
-            for subpropname in dir(delegate):
-                if subpropname.startswith("__"):
-                    continue
+            for subpropname in delegate.class_properties(withbases=False):
                 fullpropname = prefix + subpropname
-                # FIXME: Directly accessing the __dict__ means that you can't
-                # subclass PropertyGroups.  That's fine for now.
-                subprop = delegate.__dict__[subpropname]
+                subprop = lookup_descriptor(delegate, subpropname)
                 if isinstance(subprop, BaseProperty):
                     # If it's an actual instance, then we need to make a copy
                     # so two properties don't write to the same hidden variable
@@ -134,6 +127,12 @@ def accumulate_from_subclasses(cls, propname):
         if issubclass(c, HasProps):
             s.update(getattr(c, propname))
     return s
+
+def lookup_descriptor(cls, propname):
+    for c in inspect.getmro(cls):
+        if issubclass(c, HasProps) and propname in c.__dict__:
+            return c.__dict__[propname]
+    raise KeyError("Property '%s' not found on class '%s'" % (propname, cls))
 
 class HasProps(object):
     __metaclass__ = MetaHasProps
@@ -177,10 +176,16 @@ class HasProps(object):
         list of properties.
         """
         if not hasattr(self, "__cached_allprops"):
-            s = accumulate_from_subclasses(self.__class__,
-                                           "__properties__")
+            s = self.__class__.class_properties()
             self.__cached_allprops = s
         return self.__cached_allprops
+
+    @classmethod
+    def class_properties(cls, withbases=True):
+        if withbases:
+            return accumulate_from_subclasses(cls, "__properties__")
+        else:
+            return set(cls.__properties__)
 
     def set(self, **kwargs):
         """ Sets a number of properties at once """
@@ -358,14 +363,14 @@ class Percent(Float):
 
 # These classes can be mixed-in to HasProps classes to get them the 
 # corresponding attributes
-class FillProps(PropertyGroup):
+class FillProps(HasProps):
     """ Mirrors the BokehJS properties.fill_properties class """
     fill = Color("gray")
     fill_alpha = Percent(1.0)
 
-class LineProps(PropertyGroup):
+class LineProps(HasProps):
     """ Mirrors the BokehJS properties.line_properties class """
-    line_color = Color("red")
+    line_color = Color("black")
     line_width = Size(1)
     line_alpha = Percent(1.0)
     line_join = String("miter")
@@ -373,7 +378,7 @@ class LineProps(PropertyGroup):
     line_dash = Pattern
     line_dash_offset = Int(0)
 
-class TextProps(PropertyGroup):
+class TextProps(HasProps):
     """ Mirrors the BokehJS properties.text_properties class """
     text_font = String
     text_font_size = Int(10)
