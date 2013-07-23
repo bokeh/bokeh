@@ -230,6 +230,9 @@ class PlotObject(HasProps):
         dict.  Otherwise, returns a list of attribute names.
         """
         props = self.changed_vars()
+        #print "Object:", type(self)
+        #print "\tOld:", sorted(self.properties())
+        #print "\tNew:", sorted(props)
         if "session" in props:
             props.remove("session")
         if withvalues:
@@ -357,7 +360,6 @@ class ColumnDataSource(DataSource):
 class ObjectArrayDataSource(DataSource):
     # List of tuples of values 
     data = List()
-
 
     # Maps field/column name to a DataRange or FactorRange object. If the
     # field is not in the dict, then a range is created automatically.
@@ -548,8 +550,8 @@ class Plot(PlotObject):
     #
     # annotation = List
 
-    height = Int(400)
-    width = Int(400)
+    height = Int(800)
+    width = Int(600)
 
     background_fill = Color("white")
     border_fill = Color("white")
@@ -557,10 +559,11 @@ class Plot(PlotObject):
     canvas_height = Int(400)
     outer_width = Int(400)
     outer_height = Int(400)
-    border_top = Int(50)
-    border_bottom = Int(50)
-    border_left = Int(50)
-    border_right = Int(50)
+    min_border_top = Int(50)
+    min_border_bottom = Int(50)
+    min_border_left = Int(50)
+    min_border_right = Int(50)
+    min_border = Int(50)
 
     def script_inject(self):
         return script_inject(
@@ -573,6 +576,21 @@ class Plot(PlotObject):
             self._session,
             self._id,
             self.__view_model__)
+
+    def vm_props(self, *args, **kw):
+        # FIXME: We need to duplicate the height and width into canvas and
+        # outer height/width.  This is a quick fix for the gorpiness, but this
+        # needs to be fixed more structurally on the JS side, and then this
+        # should be revisited on the Python side.
+        if "canvas_width" not in self._changed_vars:
+            self.canvas_width = self.width
+        if "outer_width" not in self._changed_vars:
+            self.outer_width = self.width
+        if "canvas_height" not in self._changed_vars:
+            self.canvas_height = self.height
+        if "outer_height" not in self._changed_vars:
+            self.outer_height = self.height
+        return super(Plot, self).vm_props(*args, **kw)
 
 
 class GridPlot(PlotObject):
