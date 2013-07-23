@@ -6,8 +6,7 @@ base = require("../base")
 class PreviewSaveToolView extends tool.ToolView
   initialize: (options) ->
     super(options)
-    console.log("png", @plot_model.get('png'))
-    
+
   eventGeneratorClass: ButtonEventGenerator
   evgen_options: { buttonText:"Preview/Save" }
   tool_events: {

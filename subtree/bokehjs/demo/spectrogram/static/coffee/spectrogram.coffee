@@ -214,6 +214,7 @@ class SpectrogramPlot
       border: options.border
       border_left: 80
       tools: []
+      title: ""
     )
 
     xaxis = Collections('GuideRenderer').create(
@@ -312,6 +313,7 @@ class RadialHistogramPlot
       outer_height:  options.height
       border: 0
       tools: []
+      title: ""
     )
 
     glyph = Collections('GlyphRenderer').create({
@@ -379,7 +381,7 @@ class RadialHistogramPlot
 class SimpleIndexPlot
   constructor: (options) ->
     @source = Collections('ColumnDataSource').create(
-      data: {idx: [[]], ys: [[]]}
+      data: {idx: [], ys: []}
     )
 
     @xrange = Collections('Range1d').create({start: options.x0, end: options.x1})
@@ -394,6 +396,7 @@ class SimpleIndexPlot
       outer_width:   options.width  + 2*options.border
       outer_height:  options.height + 2*options.border
       tools: []
+      title: ""
     )
 
     xaxis = Collections('GuideRenderer').create(
@@ -421,10 +424,10 @@ class SimpleIndexPlot
       xdata_range: @xrange.ref()
       ydata_range: @yrange.ref()
       glyphspec: {
-        type: 'multi_line'
+        type: 'line'
         line_color: 'darkblue'
-        xs: 'idx'
-        ys: 'ys'
+        x: 'idx'
+        y: 'ys'
       }
     })
 
@@ -437,7 +440,7 @@ class SimpleIndexPlot
       for i in [0..@idx.length-1]
         @idx[i] = @xrange.get('start') + (i/@idx.length)*@xrange.get('end')
 
-    @source.set('data', {idx: [@idx], ys: [ys]})
+    @source.set('data', {idx: @idx, ys: ys})
     @source.trigger('change', @source, {})
 
   set_xrange: (x0, x1) ->
