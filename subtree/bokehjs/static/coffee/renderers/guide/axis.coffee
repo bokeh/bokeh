@@ -324,7 +324,7 @@ class LinearAxisView extends PlotWidget
     req = {}
 
     side = @mget('side')
-    loc = @mget('guidespec').location
+    loc = @mget('guidespec').location ? 'min'
 
     if not _.isString(loc)
       return req
