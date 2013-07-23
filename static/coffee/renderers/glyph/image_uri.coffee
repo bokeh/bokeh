@@ -23,13 +23,17 @@ class ImageURIView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    @image = (@glyph_props.select('url', obj) for obj in data)
+    @url = (@glyph_props.select('url', obj) for obj in data)
     @angle = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
+    @image = (null for img in @url)
+    @need_load = (true for img in @url)
+    @loaded = (false for img in @url)
 
   _render: () ->
     [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
     ctx = @plot_view.ctx
+    vs = @plot_view.view_state
 
     ctx.save()
 
@@ -38,20 +42,39 @@ class ImageURIView extends GlyphView
       if isNaN(@sx[i] + @sy[i]+ @angle[i])
         continue
 
-      img = new Image()
-      img.onload = do (img, i) =>
-        return () =>
-          if @angle[i]
-            ctx.translate(@sx[i], @sy[i])
-            ctx.rotate(@angle[i])
-            ctx.drawImage(img, 0, 0);
-            ctx.rotate(-@angle[i])
-            ctx.translate(-@sx[i], -@sy[i])
-          else
-            ctx.drawImage(img, @sx[i], @sy[i]);
-      img.src = @image[i]
+      if @need_load[i]
+        img = new Image()
+        img.onload = do (img, i) =>
+          return () =>
+            @loaded[i] = true
+            @image[i] = img
+            ctx.save()
+            ctx.beginPath()
+            # TODO should take the real axis rule width into account, for now shrink region by 1 px
+            ctx.rect(
+              vs.get('border_left')+1, vs.get('border_top')+1,
+              vs.get('inner_width')-2, vs.get('inner_height')-2,
+            )
+            ctx.clip()
+            @_render_image(ctx, vs, i, img)
+            ctx.restore()
+        img.src = @url[i]
+        @need_load[i] = false
+
+      else if @loaded[i]
+        @_render_image(ctx, vs, i, @image[i])
 
     ctx.restore()
+
+  _render_image: (ctx, vs, i, img) ->
+    if @angle[i]
+      ctx.translate(@sx[i], @sy[i])
+      ctx.rotate(@angle[i])
+      ctx.drawImage(img, 0, 0);
+      ctx.rotate(-@angle[i])
+      ctx.translate(-@sx[i], -@sy[i])
+    else
+      ctx.drawImage(img, @sx[i], @sy[i]);
 
 # name Image conflicts with js Image
 class ImageURIGlyph extends Glyph
