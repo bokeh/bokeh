@@ -41,8 +41,8 @@ glyph_renderer = GlyphRenderer(
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
-xaxis = LinearAxis(plot=plot, dimension=0, location="min", bounds="auto")
-yaxis = LinearAxis(plot=plot, dimension=1, location="min", bounds="auto")
+xaxis = LinearAxis(plot=plot, dimension=0, location="min")
+yaxis = LinearAxis(plot=plot, dimension=1, location="min")
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
 zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))

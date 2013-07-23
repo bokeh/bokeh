@@ -32,8 +32,8 @@ renderer = GlyphRenderer(
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], 
         border=50)
-xaxis = LinearAxis(plot=plot, dimension=0, location="bottom", bounds="auto")
-yaxis = LinearAxis(plot=plot, dimension=1, location="left", bounds="auto")
+xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
+yaxis = LinearAxis(plot=plot, dimension=1, location="left")
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
 zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
