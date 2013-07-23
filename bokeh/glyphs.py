@@ -299,6 +299,11 @@ class Line(Glyph, LineProps):
     x = DataSpec
     y = DataSpec
 
+class MultiLine(Glyph, LineProps):
+    __view_model__ = 'multi_line'
+    xs = DataSpec
+    ys = DataSpec
+
 class Oval(Glyph, FillProps, LineProps):
     __view_model__ = 'oval'
     x = DataSpec
@@ -360,5 +365,6 @@ class Wedge(Glyph, FillProps, LineProps):
     start_angle = DataSpec
     end_angle = DataSpec
     direction = Enum('clock', 'anticlock')
+
 
 
