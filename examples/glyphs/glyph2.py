@@ -46,8 +46,8 @@ zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
-xaxis = LinearAxis(plot=plot, dimension=0)
-yaxis = LinearAxis(plot=plot, dimension=1)
+xaxis = LinearAxis(plot=plot, dimension=0, location="min", bounds="auto")
+yaxis = LinearAxis(plot=plot, dimension=1, location="min", bounds="auto")
 xgrid = Rule(plot=plot, dimension=0)
 ygrid = Rule(plot=plot, dimension=1)
 

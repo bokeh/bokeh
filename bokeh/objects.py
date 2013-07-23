@@ -633,10 +633,6 @@ class LinearAxis(GuideRenderer):
     major_tick_in = Int
     major_tick_out = Int
 
-    def vm_props(self, withvalues=False):
-        return self.old_vm_props(withvalues)
-
-
 class Rule(GuideRenderer):
     """ 1D Grid component """
     type = String("rule")
