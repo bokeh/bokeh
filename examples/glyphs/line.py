@@ -21,7 +21,7 @@ source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-line_glyph = Line(x="x", y="y", line_color="red")
+line_glyph = Line(x="x", y="y", line_color="blue")
 
 renderer = GlyphRenderer(
         data_source = source,
