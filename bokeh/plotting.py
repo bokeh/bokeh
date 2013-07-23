@@ -778,10 +778,19 @@ def circles(x, y, radius=4, **kwargs):
     return plot, session_objs
 
 
-def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select,previewsave", **kw):
+def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select,previewsave", plot_width=None, plot_height=None, **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
+    if plot_width is not None:
+        p.width = plot_width
+    elif "width" in kw:
+        p.width = kw["width"]
+    if plot_height is not None:
+        p.height = plot_height
+    elif "height" in kw:
+        p.height = kw["height"]
+
     if x_range is None:
         x_range = DataRange1d()
     p.x_range = x_range
