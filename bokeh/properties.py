@@ -68,6 +68,7 @@ class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
         names = set()
         names_with_refs = set()
+        container_names = set()
 
         # First pre-process to handle all the Includes
         includes = {}
@@ -109,6 +110,8 @@ class MetaHasProps(type):
                 prop.name = name
                 if hasattr(prop, 'has_ref') and prop.has_ref:
                     names_with_refs.add(name)
+                elif isinstance(prop, ContainerProp):
+                    container_names.add(name)
                 names.add(name)
             elif isinstance(prop, type) and issubclass(prop, BaseProperty):
                 # Support the user adding a property without using parens,
@@ -120,6 +123,7 @@ class MetaHasProps(type):
                 names.add(name)
         class_dict["__properties__"] = names
         class_dict["__properties_with_refs__"] = names_with_refs
+        class_dict["__container_props__"] = container_names
         return type.__new__(cls, class_name, bases, class_dict)
     
 def accumulate_from_subclasses(cls, propname):
@@ -175,6 +179,15 @@ class HasProps(object):
             self.__cached_allprops_with_refs = s
         return self.__cached_allprops_with_refs
 
+    def properties_containers(self):
+        """ Returns a list of properties that are containers
+        """
+        if not hasattr(self, "__cached_allprops_containers"):
+            s = accumulate_from_subclasses(self.__class__,
+                                           "__container_props__")
+            self.__cached_allprops_containers = s
+        return self.__cached_allprops_containers
+
     def properties(self):
         """ Returns a set of the names of this object's properties. We
         traverse the class hierarchy and pull together the full
@@ -189,7 +202,8 @@ class HasProps(object):
         """ Returns which variables changed since the creation of the object,
         or the last called to reset_changed_vars().
         """
-        return set.union(self._changed_vars, self.properties_with_refs())
+        return set.union(self._changed_vars, self.properties_with_refs(),
+                         self.properties_containers())
 
     def reset_changed_vars(self):
         self._changed_vars = set()
@@ -219,8 +233,13 @@ class File(BaseProperty): pass
 class Bool(BaseProperty): pass
 class String(BaseProperty): pass
 
+class ContainerProp(BaseProperty):
+    # Base class for container-like things; this helps the auto-serialization
+    # and attribute change detection code
+    pass
+
 # container types
-class List(BaseProperty):
+class List(ContainerProp):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
 
@@ -250,7 +269,7 @@ class List(BaseProperty):
         setattr(obj, "_"+self.name, val)
         return val
         
-class Dict(BaseProperty):
+class Dict(ContainerProp):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
 
@@ -269,12 +288,12 @@ class Dict(BaseProperty):
         else:
             return getattr(obj, "_"+self.name, self.default)
 
-class Tuple(BaseProperty):
+class Tuple(ContainerProp):
 
     def __init__(self, default=()):
         BaseProperty.__init__(self, default)
 
-class Array(BaseProperty):
+class Array(ContainerProp):
     """ Whatever object is passed in as a default value, np.asarray() is
     called on it to create a copy for the default value for each use of
     this property.
