@@ -403,7 +403,7 @@ class LinearAxis extends HasParent
     ys = new Array(2)
     coords = [xs, ys]
 
-    loc = @get('guidespec').location
+    loc = @get('guidespec').location ? 'min'
     if _.isString(loc)
       if loc == 'left' or loc == 'bottom'
         loc = 'start'
@@ -435,7 +435,7 @@ class LinearAxis extends HasParent
     interval = ticking.auto_interval(start, end)
     ticks = ticking.auto_ticks(null, null, start, end, interval)
 
-    loc = @get('guidespec').location
+    loc = @get('guidespec').location ? 'min'
     if _.isString(loc)
       if loc == 'left' or loc == 'bottom'
         loc = 'start'
@@ -463,7 +463,7 @@ class LinearAxis extends HasParent
 
     [start, end] = @get('bounds')
 
-    loc = @get('guidespec').location
+    loc = @get('guidespec').location ? 'min'
     cstart = cross_range.get('start')
     cend = cross_range.get('end')
 
@@ -558,6 +558,7 @@ _.extend(LinearAxis::display_defaults, {
 
 class LinearAxes extends Backbone.Collection
    model: LinearAxis
+
 exports.linearaxes = new LinearAxes()
 exports.LinearAxis = LinearAxis
 exports.LinearAxisView = LinearAxisView
