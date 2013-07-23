@@ -229,8 +229,22 @@ class PlotObject(HasProps):
         **withvalues** is True, then returns attributes with values as a 
         dict.  Otherwise, returns a list of attribute names.
         """
-        props = self.properties()
-        props.remove("session")        
+        props = self.changed_vars()
+        if "session" in props:
+            props.remove("session")
+        if withvalues:
+            return dict((k,getattr(self,k)) for k in props)
+        else:
+            return props
+
+    def old_vm_props(self, withvalues=False):
+        """ Returns the ViewModel-related properties of this object.  If
+        **withvalues** is True, then returns attributes with values as a 
+        dict.  Otherwise, returns a list of attribute names.
+        """
+        props = set(self.properties())
+        if "session" in props:
+            props.remove("session")
         if withvalues:
             return dict((k,getattr(self,k)) for k in props)
         else:
@@ -386,14 +400,15 @@ class DataRange1d(DataRange):
     """ Represents a range in a scalar dimension """
     sources = List(ColumnsRef, has_ref=True)
     rangepadding = Float(0.1)
-    start = Float()
-    end = Float()
+    start = Float
+    end = Float
+
 
 class FactorRange(DataRange):
     """ Represents a range in a categorical dimension """
     sources = List(ColumnsRef, has_ref=True)
-    values = List()
-    columns = List()
+    values = List
+    columns = List
 
 class GlyphRenderer(PlotObject):
     
@@ -582,7 +597,8 @@ class GuideRenderer(PlotObject):
         props = self.vm_props(withvalues=True)
         guide_props = {}
         for name in ("dimension", "location", "bounds"):
-            guide_props[name] = props.pop(name)
+            if name in props:
+                guide_props[name] = props.pop(name)
         del props["plot"]
         props.update({"id" : self._id, "plot" : self.plot,
                         "guidespec" : guide_props})
@@ -602,11 +618,11 @@ class GuideRenderer(PlotObject):
                   
 class LinearAxis(GuideRenderer):
     type = String("linear_axis")
-    axis_label = String(None)
-    axis_label_standoff = Int(0)
+    axis_label = String
+    axis_label_standoff = Int
     axis_label_props = Include(TextProps, prefix="axis_label")
 
-    major_label_standoff = Int(5)
+    major_label_standoff = Int
     major_label_orientation = Either(Enum("horizontal", "vertical"), Int)
     major_label_props = Include(TextProps, prefix="major_label")
 
@@ -614,8 +630,11 @@ class LinearAxis(GuideRenderer):
     axis_props = Include(LineProps, prefix="axis")
     tick_props = Include(LineProps, prefix="major_tick")
     
-    major_tick_in = Int(2)
-    major_tick_out = Int(6)
+    major_tick_in = Int
+    major_tick_out = Int
+
+    def vm_props(self, withvalues=False):
+        return self.old_vm_props(withvalues)
 
 
 class Rule(GuideRenderer):

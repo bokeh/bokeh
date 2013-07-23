@@ -44,6 +44,7 @@ class BaseProperty(object):
             return
         setattr(obj, "_"+self.name, value)
         obj._dirty = True
+        obj._changed_vars.add(self.name)
         if hasattr(obj, '_trigger'):
             if hasattr(obj, '_block_callbacks') and obj._block_callbacks:
                 obj._callback_queue.append((self.name, old, value))
@@ -65,12 +66,12 @@ class Include(BaseProperty):
 
 class MetaHasProps(type):
     def __new__(cls, class_name, bases, class_dict):
-        names = []
-        names_with_refs = []
+        names = set()
+        names_with_refs = set()
 
         # First pre-process to handle all the Includes
         includes = {}
-        removes = []
+        removes = set()
         for name, prop in class_dict.iteritems():
             if not isinstance(prop, Include):
                 continue
@@ -93,7 +94,7 @@ class MetaHasProps(type):
                     subprop = copy(subprop)
                 includes[fullpropname] = subprop
             # Remove the name of the Include attribute itself
-            removes.append(name)
+            removes.add(name)
 
         # Update the class dictionary, taking care not to overwrite values
         # from the delegates that the subclass may have explicitly defined
@@ -107,8 +108,8 @@ class MetaHasProps(type):
             if isinstance(prop, BaseProperty):
                 prop.name = name
                 if hasattr(prop, 'has_ref') and prop.has_ref:
-                    names_with_refs.append(name)
-                names.append(name)
+                    names_with_refs.add(name)
+                names.add(name)
             elif isinstance(prop, type) and issubclass(prop, BaseProperty):
                 # Support the user adding a property without using parens,
                 # i.e. using just the BaseProperty subclass instead of an
@@ -116,7 +117,7 @@ class MetaHasProps(type):
                 newprop = prop.autocreate(name=name)
                 class_dict[name] = newprop
                 newprop.name = name
-                names.append(name)
+                names.add(name)
         class_dict["__properties__"] = names
         class_dict["__properties_with_refs__"] = names_with_refs
         return type.__new__(cls, class_name, bases, class_dict)
@@ -141,6 +142,9 @@ class HasProps(object):
         """ Set up a default initializer handler which assigns all kwargs
         that have the same names as Properties on the class
         """
+        # Initialize the mutated property handling
+        self._changed_vars = set()
+
         newkwargs = {}
         props = self.properties()
         for kw, val in kwargs.iteritems():
@@ -150,6 +154,7 @@ class HasProps(object):
                 newkwargs[kw] = val
         # Dump the rest of the kwargs in self.dict
         self.__dict__.update(newkwargs)
+        self._changed_vars.update(newkwargs.keys())
         super(HasProps, self).__init__(*args)
 
     def clone(self):
@@ -179,6 +184,15 @@ class HasProps(object):
             s = self.__class__.class_properties()
             self.__cached_allprops = s
         return self.__cached_allprops
+
+    def changed_vars(self):
+        """ Returns which variables changed since the creation of the object,
+        or the last called to reset_changed_vars().
+        """
+        return set.union(self._changed_vars, self.properties_with_refs())
+
+    def reset_changed_vars(self):
+        self._changed_vars = set()
 
     @classmethod
     def class_properties(cls, withbases=True):
