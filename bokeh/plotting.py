@@ -788,8 +788,8 @@ def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select,
     if y_range is None:
         y_range = DataRange1d()
     p.y_range = y_range
-    xaxis = LinearAxis(plot=p, dimension=0)
-    yaxis = LinearAxis(plot=p, dimension=1)
+    xaxis = LinearAxis(plot=p, dimension=0, location="min", bounds="auto")
+    yaxis = LinearAxis(plot=p, dimension=1, location="min", bounds="auto")
     xgrid = Rule(plot=p, dimension=0)
     ygrid = Rule(plot=p, dimension=1)
     p.renderers.extend([xaxis, yaxis, xgrid, ygrid])
