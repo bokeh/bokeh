@@ -332,7 +332,7 @@ class BasicTickFormatter
   constructor: (@precision='auto', @use_scientific=true, @power_limit_high=5, @power_limit_low=-3) ->
     @scientific_limit_low  = Math.pow(10.0, power_limit_low)
     @scientific_limit_high = Math.pow(10.0, power_limit_high)
-    @last_precision = 2
+    @last_precision = 3
 
   format: (ticks) ->
     zero_eps = 0
@@ -358,20 +358,28 @@ class BasicTickFormatter
       return labels
 
     else if @precision == 'auto'
+      labels = new Array(ticks.length)
       for x in [@last_precision..15]
-        labels = new Array(ticks.length)
+        is_ok = true
         if need_sci
           for i in [0..ticks.length-1]
             labels[i] = ticks[i].toExponential(x)
+            if i > 0
+              if labels[i] == labels[i-1]
+                is_ok = false
+                break
+          if is_ok
+            break
         else
           for i in [0..ticks.length-1]
             labels[i] = ticks[i].toPrecision(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
-
-        is_ok = true
-        for i in [0..labels.length-2]
-          if labels[i] == labels[i+1]
-            is_ok = false
+            if i > 0
+              if labels[i] == labels[i-1]
+                is_ok = false
+                break
+          if is_ok
             break
+
         if is_ok
           @last_precision = x
           return labels
