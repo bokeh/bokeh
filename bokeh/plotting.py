@@ -577,6 +577,7 @@ def rects(x, y, width, height, angle=0, **kwargs):
     glyph = glyphs.Rect(**kwargs)
     nonselection_glyph = glyph.clone()
     nonselection_glyph.fill_alpha = 0.1
+    nonselection_glyph.line_alpha = 0.1
     glyph_renderer = GlyphRenderer(
         data_source=datasource,
         xdata_range=plot.x_range,
@@ -681,6 +682,7 @@ def squares(x, y, size, angle=0, **kwargs):
     glyph = glyphs.Square(**kwargs)
     nonselection_glyph = glyph.clone()
     nonselection_glyph.fill_alpha = 0.1
+    nonselection_glyph.line_alpha = 0.1    
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,
@@ -753,6 +755,7 @@ def circles(x, y, radius=4, **kwargs):
     glyph = glyphs.Circle(**kwargs)
     nonselection_glyph = glyph.clone()
     nonselection_glyph.fill_alpha = 0.1
+    nonselection_glyph.line_alpha = 0.1    
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,
@@ -782,6 +785,7 @@ def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select,
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
+    p.title = kw.pop("title", "Plot")
     if plot_width is not None:
         p.width = plot_width
     elif "width" in kw:
