@@ -100,7 +100,7 @@ class PNGContextView extends PlotContextView
   build_children: () ->
     view_classes = []
     for view_model in @mget_obj('children')
-      if view_model.get('png') == ""
+      if not view_model.get('png')
         console.log("no png for #{view_model.id} making one")
         pv = new PlotView({model:view_model})
         pv.save_png()
