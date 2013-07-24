@@ -606,6 +606,7 @@ locations =
 
   LinearAxis: ['./renderers/guide/axis', 'linearaxes']
   Rule: ['./renderers/guide/rule', 'rules']
+  Legend: ['./renderers/annotation_renderer', 'annotationrenderers']
 
 exports.locations = locations
 mod_cache = {}

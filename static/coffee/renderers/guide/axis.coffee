@@ -324,7 +324,7 @@ class LinearAxisView extends PlotWidget
     req = {}
 
     side = @mget('side')
-    loc = @mget('guidespec').location
+    loc = @mget('guidespec').location ? 'min'
 
     if not _.isString(loc)
       return req
@@ -342,9 +342,8 @@ class LinearAxis extends HasParent
   default_view: LinearAxisView
   type: 'GuideRenderer'
 
-  initialize: (attrs, options)->
+  dinitialize: (attrs, options)->
     super(attrs, options)
-
     @register_property('bounds', @_bounds, false)
     @add_dependencies('bounds', this, ['guidespec'])
     @add_dependencies('bounds', @get_obj('plot'), ['x_range', 'y_range'])

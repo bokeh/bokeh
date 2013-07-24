@@ -36,7 +36,15 @@ class DataRange1d extends Range1d
         columns.push(sourceobj.getcolumn(colname))
     columns = _.reduce(columns, ((x, y) -> return x.concat(y)), [])
     columns = _.filter(columns, (x) -> typeof(x) != "string")
-    [min, max] = [_.min(columns), _.max(columns)]
+    if not _.isArray(columns[0])
+      [min, max] = [_.min(columns), _.max(columns)]
+    else
+      maxs = Array(columns.length)
+      mins = Array(columns.length)
+      for i in [0..columns.length-1]
+        maxs[i] = _.max(columns[i])
+        mins[i] = _.min(columns[i])
+    [min, max] = [_.min(mins), _.max(maxs)]
     span = (max - min) * (1 + @get('rangepadding'))
     center = (max + min) / 2.0
     [min, max] = [center - span/2.0, center + span/2.0]

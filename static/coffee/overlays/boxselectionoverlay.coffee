@@ -63,6 +63,7 @@ class BoxSelectionOverlayView extends PlotWidget
 class BoxSelectionOverlay extends HasParent
   type : 'BoxSelectionOverlay'
   default_view : BoxSelectionOverlayView
+BoxSelectionOverlay::defaults = _.clone(BoxSelectionOverlay::defaults)
 _.extend(BoxSelectionOverlay::defaults
   ,
     tool : null
