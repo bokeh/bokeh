@@ -44,7 +44,7 @@ class DataRange1d extends Range1d
       for i in [0..columns.length-1]
         maxs[i] = _.max(columns[i])
         mins[i] = _.min(columns[i])
-    [min, max] = [_.min(mins), _.max(maxs)]
+      [min, max] = [_.min(mins), _.max(maxs)]
     span = (max - min) * (1 + @get('rangepadding'))
     center = (max + min) / 2.0
     [min, max] = [center - span/2.0, center + span/2.0]
