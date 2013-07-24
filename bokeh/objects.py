@@ -550,7 +550,7 @@ class Plot(PlotObject):
     #
     # annotation = List
 
-    height = Int(800)
+    height = Int(600)
     width = Int(600)
 
     background_fill = Color("white")
