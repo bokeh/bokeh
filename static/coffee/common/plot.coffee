@@ -155,7 +155,6 @@ class PlotView extends ContinuumView
   build_tools: () ->
     return build_views(@tools, @mget_obj('tools'), @view_options())
 
-
   build_views: ()->
     return build_views(@renderers, @mget_obj('renderers'), @view_options())
 
@@ -192,9 +191,11 @@ class PlotView extends ContinuumView
   render_init: () ->
     # TODO use template
     @$el.append($("""
-      <div class='button_bar btn-group'/>
+      <div class='button_bar btn-group pull-top'/>
+      <div class='plotarea'>
       <div class='bokeh_canvas_wrapper'>
         <canvas class='bokeh_canvas'></canvas>
+      </div>
       </div>
       """))
     @button_bar = @$el.find('.button_bar')
