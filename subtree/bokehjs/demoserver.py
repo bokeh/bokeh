@@ -108,6 +108,10 @@ alltests = {
         'linear_axis_test',
     ],
 
+    'dataslider' : [
+        'dataslider_test',
+    ],
+    
     'nonprim': [
         'legend_test',
         'linear_axis_test',

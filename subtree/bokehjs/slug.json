@@ -6,6 +6,7 @@
              "./static/vendor/backbone/backbone.js", 
              "./static/vendor/buckets/buckets.js",
 			 "./static/vendor/bootstrap/js/bootstrap.js",
+             "./static/vendor/jquery/js/jquery-ui.min.js",
              "./static/js/custom.js"],
     "paths" : ["./static/coffee"],
     "public" : "./static/js",

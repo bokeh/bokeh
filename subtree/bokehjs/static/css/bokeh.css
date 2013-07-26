@@ -18,7 +18,11 @@ svg {
   float : left;
 }
 
-.bokeh_canvas_wrapper {position:relative; font-size: 12pt;}
+.bokeh_canvas_wrapper {
+    position:relative; 
+    font-size: 12pt;
+    float : left;
+}
 .bokeh_canvas {position:absolute; font-size: 12pt;}
 .shading {display:block; border:1px dashed green; position: absolute; z-index:100;}
 .gridplot_container {position: relative;}
@@ -132,4 +136,11 @@ button.active {border:1px solid blue}
 .plottitle{
     padding-left: 50px;
     padding-bottom: 10px;
+}
+
+.dataslider{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 5px;
+    margin-right: 5px;            
 }
