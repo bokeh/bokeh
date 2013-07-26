@@ -695,3 +695,7 @@ class DataSlider(PlotObject):
     data_source = Instance(has_ref=True)
     field = String()
     
+class DataRangeBoxSelectionTool(PlotObject):
+    plot = Instance(Plot, has_ref=True)    
+    xselect = List()
+    yselect = List()    
