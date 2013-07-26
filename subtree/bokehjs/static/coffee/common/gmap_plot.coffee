@@ -228,11 +228,10 @@ class GMapPlotView extends ContinuumView
     @canvas_wrapper.width("#{ow}px").height("#{oh}px")
     @canvas.attr('width', ow).attr('height', oh) # TODO: this is needed but why
     @$el.attr("width", ow).attr('height', oh)
-    @gmap_div.attr("style", "top: #{top}px; left: #{left}px;")
+    @gmap_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
     @gmap_div.width("#{iw}px").height("#{ih}px")
 
     mo = @mget('map_options')
-    console.log mo
     map_options =
       center: new google.maps.LatLng(mo.lat, mo.lng)
       zoom:mo.zoom
@@ -245,8 +244,7 @@ class GMapPlotView extends ContinuumView
       bds = @map.getBounds()
       ne = bds.getNorthEast()
       sw = bds.getSouthWest()
-      console.log ne.lat(), ne.lng(), sw.lat(), sw.lng()
-      @x_range.set({start: sw.lng(), end: ne.lng()})
+      @x_range.set({start: sw.lng(), end: ne.lng(), silent:true})
       @y_range.set({start: sw.lat(), end: ne.lat()})
     )
 
@@ -338,7 +336,6 @@ class GMapPlot extends HasParent
     @set('renderers', renderers)
 
   parent_properties: [
-    'background_fill',
     'border_fill',
     'canvas_width',
     'canvas_height',
