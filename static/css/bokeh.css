@@ -14,26 +14,21 @@ svg {
   padding-top: 5px;
   padding-bottom: 5px;
 }
+
 .button_bar > button{
   float : left;
 }
 
-<<<<<<< HEAD
 .plotview{
     clear : both;
 }
-.bokeh_canvas_wrapper {
-    position:relative; 
-    font-size: 12pt;
-    float : left;
-}
-.bokeh_canvas {position:absolute; font-size: 12pt;}
-=======
+
 .bokeh_canvas_wrapper {
   position: relative;
   font-size: 12pt;
-
+  float left;
 }
+
 .bokeh_canvas {
   position: absolute;
   font-size: 12pt;
@@ -46,7 +41,6 @@ svg {
   z-index: -5;
 }
 
->>>>>>> preliminary supprt for google maps plot objects (no tools yet)
 .shading {display:block; border:1px dashed green; position: absolute; z-index:100;}
 .gridplot_container {position: relative;}
 .gridplot_container .gp_plotwrapper {position:absolute;}
@@ -165,5 +159,5 @@ button.active {border:1px solid blue}
     margin-top: 20px;
     margin-bottom: 20px;
     margin-left: 5px;
-    margin-right: 5px;            
+    margin-right: 5px;
 }
