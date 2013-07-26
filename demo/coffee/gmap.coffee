@@ -40,8 +40,8 @@ make_glyph_plot = (data_source, defaults, glyphspecs, {dims, tools, axes, legend
   )
 
   plot_model.add_renderers(
-      [xaxis.ref(), yaxis.ref()]
-    )
+    [xaxis.ref(), yaxis.ref()]
+  )
 
   return plot_model
 

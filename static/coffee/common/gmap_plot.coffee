@@ -101,6 +101,13 @@ class GMapPlotView extends ContinuumView
       codomain_mapper: @ymapper
     })
 
+    pantool = Collections('PanTool').create(
+      dataranges: [@x_range.ref(), @y_range.ref()]
+      dimensions: ['width', 'height']
+    )
+
+    @mset('tools', [pantool])
+
     @requested_padding = {
       top: 0
       bottom: 0
@@ -152,6 +159,11 @@ class GMapPlotView extends ContinuumView
       [x, y] = @mapper.v_map_from_target(sx, sy)  # TODO: in-place?
 
     return [x, y]
+
+  update_range : (range_info) ->
+    @pause()
+    @map.panBy(range_info.sdx, range_info.sdy)
+    @unpause()
 
   build_tools: () ->
     return build_views(@tools, @mget_obj('tools'), @view_options())
@@ -267,6 +279,8 @@ class GMapPlotView extends ContinuumView
     ih = @view_state.get('inner_height')
     top = @view_state.get('border_top')
     left = @view_state.get('border_left')
+
+    @ctx.clearRect(0, 0, ow, oh)
 
     @ctx.beginPath()
     @ctx.moveTo(0,  0)

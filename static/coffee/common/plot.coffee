@@ -151,6 +151,12 @@ class PlotView extends ContinuumView
 
     return [x, y]
 
+  update_range : (range_info) ->
+    @pause()
+    @x_range.set(range_info.x)
+    @y_range.set(range_info.y)
+    @unpause()
+
   build_tools: () ->
     return build_views(@tools, @mget_obj('tools'), @view_options())
 
