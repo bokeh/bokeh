@@ -300,7 +300,7 @@ def visual(func):
         #easier to always use plot context
         if plot not in session.plotcontext.children:
             session.plotcontext.children.append(plot)
-            session.plotcontext._dirty = True
+        session.plotcontext._dirty = True
         plot._dirty = True
         if (output_type == "notebook" and output_url is None):
             return session.show(plot, *session_objs)
@@ -461,7 +461,7 @@ def update_plot_data_ranges(plot, datasource, xcols, ycols):
         x_column_ref = x_column_ref[0]
         for cname in xcols:
             if cname not in x_column_ref.columns: 
-                x_column_ref.columns.extend(cname)
+                x_column_ref.columns.append(cname)
     else:
         plot.x_range.sources.append(datasource.columns(*xcols))
     y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
@@ -469,7 +469,7 @@ def update_plot_data_ranges(plot, datasource, xcols, ycols):
         y_column_ref = y_column_ref[0]
         for cname in ycols:
             if cname not in y_column_ref.columns:
-                y_column_ref.columns.extend(cname)
+                y_column_ref.columns.append(cname)
     else:
         plot.y_range.sources.append(datasource.columns(*ycols))
     plot.x_range._dirty = True
@@ -566,8 +566,8 @@ def rects(x, y, width, height, angle=0, **kwargs):
     x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
     y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
     update_plot_data_ranges(plot, datasource, 
-                            [x_data_fields], 
-                            [y_data_fields])
+                            x_data_fields, 
+                            y_data_fields)
     if "color" in kwargs:
         color = kwargs.pop("color")
         kwargs["fill"] = color
@@ -616,8 +616,8 @@ def line(x, y, **kwargs):
     x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
     y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
     update_plot_data_ranges(plot, datasource, 
-                            [x_data_fields], 
-                            [y_data_fields])
+                            x_data_fields, 
+                            y_data_fields)
     legend_name = kwargs.pop("legend", None)    
     if "color" in kwargs:
         kwargs["line_color"] = kwargs.pop("color")
@@ -671,8 +671,8 @@ def squares(x, y, size, angle=0, **kwargs):
     x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
     y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
     update_plot_data_ranges(plot, datasource, 
-                            [x_data_fields], 
-                            [y_data_fields])
+                            x_data_fields, 
+                            y_data_fields)
     if "color" in kwargs:
         color = kwargs.pop("color")
         kwargs["fill"] = color
@@ -744,8 +744,8 @@ def circles(x, y, radius=4, **kwargs):
     x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
     y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
     update_plot_data_ranges(plot, datasource, 
-                            [x_data_fields], 
-                            [y_data_fields])
+                            x_data_fields, 
+                            y_data_fields)
     if "color" in kwargs:
         color = kwargs.pop("color")
         kwargs["fill"] = color
