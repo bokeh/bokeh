@@ -6,6 +6,7 @@
              "./static/vendor/bokehjs/vendor/backbone/backbone.js", 
              "./static/vendor/bokehjs/vendor/buckets/buckets.js",
              "./static/vendor/bokehjs/vendor/bootstrap/js/bootstrap.js",
+             "./static/vendor/bokehjs/vendor/jquery/js/jquery-ui.min.js",
              "./static/vendor/bokehjs/js/custom.js"],
 
     "paths" : ["./static/coffee", "./static/vendor/bokehjs/coffee"],

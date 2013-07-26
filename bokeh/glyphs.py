@@ -291,8 +291,15 @@ class ImageURI(Glyph):
     y = DataSpec
     angle = DataSpec
 
-# TODO
-# image_rgba
+class ImageRGBA(Glyph):
+    __view_model__ = 'image_rgba'
+    image = DataSpec
+    width = DataSpec
+    height = DataSpec
+    x = DataSpec
+    y = DataSpec
+    dw = DataSpec
+    dh = DataSpec
 
 class Line(Glyph, LineProps):
     __view_model__ = "line"

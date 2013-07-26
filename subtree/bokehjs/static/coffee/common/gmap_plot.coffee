@@ -19,9 +19,7 @@ ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager
 
 LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
-class PlotView extends ContinuumView
-  attributes :
-    class : "plotview"
+class GMapPlotView extends ContinuumView
   events:
     "mousemove .bokeh_canvas_wrapper": "_mousemove"
     "mousedown .bokeh_canvas_wrapper": "_mousedown"
@@ -59,6 +57,13 @@ class PlotView extends ContinuumView
 
   initialize: (options) ->
     super(_.defaults(options, @default_options))
+
+    # TODO(bryanv): there must be a cleaner way to do this
+    @x_range = Collections('Range1d').create({start: 0, end: 1})
+    @y_range = Collections('Range1d').create({start: 0, end: 1})
+    @mset('x_range', @x_range, {silent: true})
+    @mset('y_range', @y_range, {silent: true})
+
     @throttled_render = _.throttle(@render, 100)
     @throttled_render_canvas = _.throttle(@render_canvas, 100)
 
@@ -81,9 +86,6 @@ class PlotView extends ContinuumView
       requested_border_right: 0
     })
 
-    @x_range = options.x_range ? @mget_obj('x_range')
-    @y_range = options.y_range ? @mget_obj('y_range')
-
     @xmapper = new LinearMapper({
       source_range: @x_range
       target_range: @view_state.get('inner_range_horizontal')
@@ -98,6 +100,13 @@ class PlotView extends ContinuumView
       domain_mapper: @xmapper
       codomain_mapper: @ymapper
     })
+
+    pantool = Collections('PanTool').create(
+      dataranges: [@x_range.ref(), @y_range.ref()]
+      dimensions: ['width', 'height']
+    )
+
+    @mset('tools', [pantool])
 
     @requested_padding = {
       top: 0
@@ -140,8 +149,8 @@ class PlotView extends ContinuumView
     return [sx, sy]
 
   map_from_screen : (sx, sy, units) ->
-    sx = @view_state.v_device_to_sx(sx[..])
-    sy = @view_state.v_device_to_sy(sy[..])
+    sx = @view_state.v_device_sx(sx[..])
+    sy = @view_state.v_device_sx(sy[..])
 
     if units == 'screen'
       x = sx
@@ -153,12 +162,12 @@ class PlotView extends ContinuumView
 
   update_range : (range_info) ->
     @pause()
-    @x_range.set(range_info.x)
-    @y_range.set(range_info.y)
+    @map.panBy(range_info.sdx, range_info.sdy)
     @unpause()
 
   build_tools: () ->
     return build_views(@tools, @mget_obj('tools'), @view_options())
+
 
   build_views: ()->
     return build_views(@renderers, @mget_obj('renderers'), @view_options())
@@ -196,57 +205,63 @@ class PlotView extends ContinuumView
   render_init: () ->
     # TODO use template
     @$el.append($("""
-      <div class='button_bar btn-group pull-top'/>
-      <div class='plotarea'>
+      <div class='button_bar btn-group'/>
       <div class='bokeh_canvas_wrapper'>
+        <div class="bokeh_gmap"></div>
         <canvas class='bokeh_canvas'></canvas>
-      </div>
       </div>
       """))
     @button_bar = @$el.find('.button_bar')
     @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
     @canvas = @$el.find('canvas.bokeh_canvas')
+    @gmap_div = @$el.find('.bokeh_gmap')
 
   render_canvas: (full_render=true) ->
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
+    iw = @view_state.get('inner_width')
+    ih = @view_state.get('inner_height')
+    top = @view_state.get('border_top')
+    left = @view_state.get('border_left')
 
-    @button_bar.attr('style', "width:#{ow}px;")
-    @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
-    @canvas.attr('width', ow).attr('height', oh)
+    @button_bar.width("#{ow}px")
+    @canvas_wrapper.width("#{ow}px").height("#{oh}px")
+    @canvas.attr('width', ow).attr('height', oh) # TODO: this is needed but why
     @$el.attr("width", ow).attr('height', oh)
+    @gmap_div.attr("style", "top: #{top}px; left: #{left}px;")
+    @gmap_div.width("#{iw}px").height("#{ih}px")
+
+    mo = @mget('map_options')
+    console.log mo
+    map_options =
+      center: new google.maps.LatLng(mo.lat, mo.lng)
+      zoom:mo.zoom
+      disableDefaultUI: true
+      mapTypeId: google.maps.MapTypeId.SATELLITE
+
+    # Create the map with above options in div
+    @map = new google.maps.Map(@gmap_div[0], map_options)
+    google.maps.event.addListener(@map, 'bounds_changed', () =>
+      bds = @map.getBounds()
+      ne = bds.getNorthEast()
+      sw = bds.getSouthWest()
+      console.log ne.lat(), ne.lng(), sw.lat(), sw.lng()
+      @x_range.set({start: sw.lng(), end: ne.lng()})
+      @y_range.set({start: sw.lat(), end: ne.lat()})
+    )
 
     @ctx = @canvas[0].getContext('2d')
     if full_render
       @render()
 
-  save_png: () ->
-    @render()
-    data_uri = @canvas[0].toDataURL()
-    @model.set('png', @canvas[0].toDataURL())
-    base.Collections.bulksave([@model])
 
   render: (force) ->
-    super()
-    #newtime = new Date()
-    # if @last_render
-    #   console.log(newtime - @last_render)
-    # @last_render = newtime
-    # console.log('fullrender')
     @requested_padding = {
       top: 0
       bottom: 0
       left: 0
       right: 0
     }
-    for level in ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
-      renderers = @levels[level]
-      for k, v of renderers
-        if v.padding_request?
-          pr = v.padding_request()
-          for k, v of pr
-            @requested_padding[k] += v
-
     title = @mget('title')
     if title
       @title_props.set(@ctx, {})
@@ -258,13 +273,31 @@ class PlotView extends ContinuumView
       @view_state.set("requested_border_#{k}", v)
     @is_paused = false
 
+    oh = @view_state.get('outer_height')
+    ow = @view_state.get('outer_width')
+    iw = @view_state.get('inner_width')
+    ih = @view_state.get('inner_height')
+    top = @view_state.get('border_top')
+    left = @view_state.get('border_left')
+
+    @ctx.clearRect(0, 0, ow, oh)
+
+    @ctx.beginPath()
+    @ctx.moveTo(0,  0)
+    @ctx.lineTo(0,  oh)
+    @ctx.lineTo(ow, oh)
+    @ctx.lineTo(ow, 0)
+    @ctx.lineTo(0,  0)
+
+    @ctx.moveTo(left,    top)
+    @ctx.lineTo(left+iw, top)
+    @ctx.lineTo(left+iw, top+ih)
+    @ctx.lineTo(left,    top+ih)
+    @ctx.lineTo(left,    top)
+    @ctx.closePath()
+
     @ctx.fillStyle = @mget('border_fill')
-    @ctx.fillRect(0, 0,  @view_state.get('canvas_width'), @view_state.get('canvas_height')) # TODO
-    @ctx.fillStyle = @mget('background_fill')
-    @ctx.fillRect(
-      @view_state.get('border_left'), @view_state.get('border_top'),
-      @view_state.get('inner_width'), @view_state.get('inner_height'),
-    )
+    @ctx.fill()
 
     @ctx.save()
 
@@ -295,24 +328,9 @@ class PlotView extends ContinuumView
       @ctx.fillText(title, sx, sy)
 
 
-
-class PNGView extends ContinuumView
-
-  initialize: (options) ->
-    super(options)
-    @thumb_x = options.thumb_x or 40
-    @thumb_y = options.thumb_y or 40
-    @render()
-    return this
-
-  render: () ->
-    png = @model.get('png')
-    @$el.append($("<img  modeltype='#{@model.type}' modelid='#{@model.get('id')}' class='pngview' width='#{@thumb_x}'  height='#{@thumb_y}'  src='#{png}'/>"))
-
-class Plot extends HasParent
-  type: 'Plot'
-  #default_view: PNGView
-  default_view: PlotView
+class GMapPlot extends HasParent
+  type: 'GMapPlot'
+  default_view: GMapPlotView
 
   add_renderers: (new_renderers) ->
     renderers = @get('renderers')
@@ -333,16 +351,17 @@ class Plot extends HasParent
     'min_border_right'
   ]
 
-Plot::defaults = _.clone(Plot::defaults)
-_.extend(Plot::defaults , {
+
+GMapPlot::defaults = _.clone(GMapPlot::defaults)
+_.extend(GMapPlot::defaults , {
   'data_sources': {},
   'renderers': [],
   'tools': [],
-  'title': 'Plot',
+  'title': 'GMapPlot',
 })
 
-Plot::display_defaults = _.clone(Plot::display_defaults)
-_.extend(Plot::display_defaults
+GMapPlot::display_defaults = _.clone(GMapPlot::display_defaults)
+_.extend(GMapPlot::display_defaults
   ,
     background_fill: "#fff",
     border_fill: "#eee",
@@ -364,11 +383,10 @@ _.extend(Plot::display_defaults
     title_text_baseline: "alphabetic"
 )
 
-class Plots extends Backbone.Collection
-   model: Plot
+class GMapPlots extends Backbone.Collection
+   model: GMapPlot
 
 
-exports.Plot = Plot
-exports.PlotView = PlotView
-exports.PNGView = PNGView
-exports.plots = new Plots
+exports.GMapPlot = GMapPlot
+exports.GMapPlotView = GMapPlotView
+exports.gmapplots = new GMapPlots

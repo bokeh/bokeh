@@ -668,9 +668,10 @@ class PlotServerSession(BaseHTMLSession):
             m = self._models[data['id']]
             m._callbacks = {}
             for attrname, callbacks in data['callbacks'].iteritems():
-                obj = self._models[callbacks['obj']['id']]
-                callbackname = callbacks['callbackname']
-                m.on_change(attrname, obj, callbackname)
+                for callback in callbacks:
+                    obj = self._models[callback['obj']['id']]
+                    callbackname = callback['callbackname']
+                    m.on_change(attrname, obj, callbackname)
                     
     def load_all_callbacks(self, get_json=False):
         """get_json = return json of callbacks, rather than
@@ -725,7 +726,7 @@ class PlotServerSession(BaseHTMLSession):
         for m in models:
             for cb in m._callback_queue:
                 m._trigger(*cb)
-                
+            del m._callback_queue[:]                
     #------------------------------------------------------------------------
     # Static files
     #------------------------------------------------------------------------
