@@ -60,7 +60,7 @@ test('datarangeselect_test', () ->
   )
   plot_model.add_renderers([boxselectionoverlay.ref()])
   plot_model.get('tools').push(tool.ref())
-  tool.on("change", ()->
+  tool.on("change:xselect change:yselect", ()->
     console.log(tool.get('xselect'))
     console.log(tool.get('yselect'))
   )
