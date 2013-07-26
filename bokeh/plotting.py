@@ -298,8 +298,9 @@ def visual(func):
             session.add(*session_objs)
             
         #easier to always use plot context
-        session.plotcontext.children.append(plot)
-        session.plotcontext._dirty = True
+        if plot not in session.plotcontext.children:
+            session.plotcontext.children.append(plot)
+            session.plotcontext._dirty = True
         plot._dirty = True
         if (output_type == "notebook" and output_url is None):
             return session.show(plot, *session_objs)
@@ -460,15 +461,15 @@ def update_plot_data_ranges(plot, datasource, xcols, ycols):
         x_column_ref = x_column_ref[0]
         for cname in xcols:
             if cname not in x_column_ref.columns: 
-                x_column_ref.columns.append(cname)
+                x_column_ref.columns.extend(cname)
     else:
         plot.x_range.sources.append(datasource.columns(*xcols))
     y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
     if len(y_column_ref) > 0:
         y_column_ref = y_column_ref[0]
         for cname in ycols:
-            if cname not in y_column_ref.columns: 
-                y_column_ref.columns.append(cname)
+            if cname not in y_column_ref.columns:
+                y_column_ref.columns.extend(cname)
     else:
         plot.y_range.sources.append(datasource.columns(*ycols))
     plot.x_range._dirty = True
