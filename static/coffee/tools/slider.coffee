@@ -20,7 +20,7 @@ class DataSliderView extends PlotWidget
     @$el.slider(
       orientation: "vertical",
       animate: "fast",
-      step: 1,
+      step: (max - min) / 50.0 ,
       min: min
       max: max
       values: [min, max]
