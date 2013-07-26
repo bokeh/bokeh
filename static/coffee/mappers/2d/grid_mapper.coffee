@@ -19,8 +19,8 @@ class GridMapper extends HasProperties
     return [x, y]
 
   v_map_from_target: (xprimes, yprimes) ->
-    xs = @domain_mapper.v_map_from_target(xprimes)
-    ys = @codomain_mapper.v_map_from_target(yprimes)
+    xs = @get('domain_mapper').v_map_from_target(xprimes)
+    ys = @get('codomain_mapper').v_map_from_target(yprimes)
     return [xs, ys]
 
 

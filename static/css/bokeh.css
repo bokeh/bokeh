@@ -14,12 +14,33 @@ svg {
   padding-top: 5px;
   padding-bottom: 5px;
 }
+
 .button_bar > button{
   float : left;
 }
 
-.bokeh_canvas_wrapper {position:relative; font-size: 12pt;}
-.bokeh_canvas {position:absolute; font-size: 12pt;}
+.plotview{
+    clear : both;
+}
+
+.bokeh_canvas_wrapper {
+  position: relative;
+  font-size: 12pt;
+  float left;
+}
+
+.bokeh_canvas {
+  position: absolute;
+  font-size: 12pt;
+
+}
+
+.bokeh_gmap {
+  border: 0px;
+  position: absolute;
+  z-index: -5;
+}
+
 .shading {display:block; border:1px dashed green; position: absolute; z-index:100;}
 .gridplot_container {position: relative;}
 .gridplot_container .gp_plotwrapper {position:absolute;}
@@ -27,9 +48,9 @@ button.active {border:1px solid blue}
 .table_wrap {  }
 .table_wrap table { margin:5px;  height:300px; display:block; overflow-y:scroll }
 
-.plot_wrap .button_bar {height:30px}
-.plot_wrap .button_bar * {display:none}
-.plot_wrap:hover  .button_bar *  {display:inherit}
+.plot_wrap .button_bar { height: 30px }
+.plot_wrap .button_bar * { display: none }
+.plot_wrap:hover  .button_bar * { display: inherit }
 
 .maximize {
     display : none;
@@ -98,7 +119,7 @@ button.active {border:1px solid blue}
 .pandasgroup{
     width : auto;
     height : 20px !important;
-    padding : 1px !important;    
+    padding : 1px !important;
 }
 .pandasagg{
     width : auto;
@@ -132,4 +153,11 @@ button.active {border:1px solid blue}
 .plottitle{
     padding-left: 50px;
     padding-bottom: 10px;
+}
+
+.dataslider{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 5px;
+    margin-right: 5px;
 }
