@@ -143,8 +143,8 @@ class PlotView extends ContinuumView
     return [sx, sy]
 
   map_from_screen : (sx, sy, units) ->
-    sx = @view_state.v_device_sx(sx[..])
-    sy = @view_state.v_device_sx(sy[..])
+    sx = @view_state.v_device_to_sx(sx[..])
+    sy = @view_state.v_device_to_sy(sy[..])
 
     if units == 'screen'
       x = sx
