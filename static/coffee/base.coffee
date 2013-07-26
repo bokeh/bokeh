@@ -595,6 +595,7 @@ locations =
   DataFactorRange: ['./common/ranges', 'datafactorranges']
 
   Plot:              ['./common/plot',         'plots']
+  GMapPlot:          ['./common/gmap_plot',    'gmapplots']
   GridPlotContainer: ['./common/grid_plot',    'gridplotcontainers']
   CDXPlotContext:    ['./common/plot_context', 'plotcontexts']
   PlotContext:       ['./common/plot_context', 'plotcontexts']
