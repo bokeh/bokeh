@@ -20,6 +20,8 @@ ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager
 LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
 class PlotView extends ContinuumView
+  attributes :
+    class : "plotview"
   events:
     "mousemove .bokeh_canvas_wrapper": "_mousemove"
     "mousedown .bokeh_canvas_wrapper": "_mousedown"
@@ -141,8 +143,8 @@ class PlotView extends ContinuumView
     return [sx, sy]
 
   map_from_screen : (sx, sy, units) ->
-    sx = @view_state.v_device_sx(sx[..])
-    sy = @view_state.v_device_sx(sy[..])
+    sx = @view_state.v_device_to_sx(sx[..])
+    sy = @view_state.v_device_to_sy(sy[..])
 
     if units == 'screen'
       x = sx
