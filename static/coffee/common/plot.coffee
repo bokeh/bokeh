@@ -58,14 +58,11 @@ class PlotView extends ContinuumView
     return
 
   initialize: (options) ->
-    # $('body').mousedown(@_mousedown)
-    # $('body').mousemove(@_mousemove)
+    super(_.defaults(options, @default_options))
     @throttled_render = _.throttle(@render, 100)
     @throttled_render_canvas = _.throttle(@render_canvas, 100)
 
     @title_props = new text_properties(@, {}, 'title_')
-
-    super(_.defaults(options, @default_options))
 
     @view_state = new ViewState({
       canvas_width:      options.canvas_width       ? @mget('canvas_width')
@@ -222,14 +219,6 @@ class PlotView extends ContinuumView
     data_uri = @canvas[0].toDataURL()
     @model.set('png', @canvas[0].toDataURL())
     base.Collections.bulksave([@model])
-
-
-  save_png: () ->
-    @render()
-    data_uri = @canvas[0].toDataURL()
-    @model.set('png', @canvas[0].toDataURL())
-    base.Collections.bulksave([@model])
-
 
   render: (force) ->
     super()
