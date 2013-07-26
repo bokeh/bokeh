@@ -580,6 +580,8 @@ locations =
   ZoomTool:        ['./tools/zoom_tool',         'zoomtools']
   ResizeTool:      ['./tools/resize_tool',       'resizetools']
   SelectionTool:   ['./tools/select_tool',       'selectiontools']
+  DataRangeBoxSelectionTool:   ['./tools/select_tool',
+    'datarangeboxselectiontools']
   PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools']
   EmbedTool:       ['./tools/preview_save_tool', 'embedtools']
   BoxSelectionOverlay: ['./overlays/boxselectionoverlay',

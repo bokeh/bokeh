@@ -18,6 +18,9 @@ svg {
   float : left;
 }
 
+.plotview{
+    clear : both;
+}
 .bokeh_canvas_wrapper {
     position:relative; 
     font-size: 12pt;
