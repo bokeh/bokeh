@@ -137,3 +137,10 @@ button.active {border:1px solid blue}
     padding-left: 50px;
     padding-bottom: 10px;
 }
+
+.dataslider{
+    margin-top: 20px;
+    margin-bottom: 20px;
+    margin-left: 5px;
+    margin-right: 5px;            
+}
