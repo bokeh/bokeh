@@ -163,6 +163,7 @@ class DataRangeBoxSelectionToolView extends SelectionToolView
       @xrange[1], @yrange[1])
     @mset('xselect', [xstart, xend])
     @mset('yselect', [ystart, yend])
+    @model.save()
 
 class DataRangeBoxSelectionTool extends SelectionTool
   type  : "DataRangeBoxSelectionTool"
