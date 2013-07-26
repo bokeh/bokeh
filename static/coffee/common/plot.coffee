@@ -20,6 +20,8 @@ ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager
 LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
 class PlotView extends ContinuumView
+  attributes :
+    class : "plotview"
   events:
     "mousemove .bokeh_canvas_wrapper": "_mousemove"
     "mousedown .bokeh_canvas_wrapper": "_mousedown"
