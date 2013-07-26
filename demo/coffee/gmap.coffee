@@ -11,9 +11,9 @@ make_glyph_plot = (data_source, defaults, glyphspecs, {dims, tools, axes, legend
 
   plot_model = Collections('GMapPlot').create(
     map_options:
-      lat: 35.349
-      lng: -116.595
-      zoom: 17
+      lat: 30.267153
+      lng: -97.74306079999997
+      zoom: 15
     canvas_width: dims[0]
     canvas_height: dims[1]
     outer_width: dims[0]
