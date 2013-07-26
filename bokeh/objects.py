@@ -690,3 +690,8 @@ class Legend(PlotObject):
         return result
 
     
+class DataSlider(PlotObject):
+    plot = Instance(Plot, has_ref=True)
+    data_source = Instance(has_ref=True)
+    field = String()
+    
