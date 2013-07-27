@@ -153,8 +153,8 @@ class PlotView extends ContinuumView
 
   update_range : (range_info) ->
     @pause()
-    @x_range.set(range_info.x)
-    @y_range.set(range_info.y)
+    @x_range.set(range_info.xr)
+    @y_range.set(range_info.yr)
     @unpause()
 
   build_tools: () ->
