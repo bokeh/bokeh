@@ -58,16 +58,6 @@ class GMapPlotView extends ContinuumView
   initialize: (options) ->
     super(_.defaults(options, @default_options))
 
-    # TODO(bryanv): there must be a cleaner way to do this
-    coll = Collections('Range1d')
-    m = Collections('Range1d').model
-    @x_range = new m({start: 0, end: 1})
-    coll.add(@x_range)
-    @y_range = new m({start: 0, end: 1})
-    coll.add(@y_range)
-    @mset('x_range', @x_range, {silent: true})
-    @mset('y_range', @y_range, {silent: true})
-
     @throttled_render = _.throttle(@render, 100)
     @throttled_render_canvas = _.throttle(@render_canvas, 100)
 
@@ -89,7 +79,8 @@ class GMapPlotView extends ContinuumView
       requested_border_left: 0
       requested_border_right: 0
     })
-
+    @x_range = options.x_range ? @mget_obj('x_range')
+    @y_range = options.y_range ? @mget_obj('y_range')
     @xmapper = new LinearMapper({
       source_range: @x_range
       target_range: @view_state.get('inner_range_horizontal')
@@ -240,17 +231,18 @@ class GMapPlotView extends ContinuumView
 
       # Create the map with above options in div
       @map = new google.maps.Map(@gmap_div[0], map_options)
-      google.maps.event.addListener(@map, 'bounds_changed', () =>
-        bds = @map.getBounds()
-        ne = bds.getNorthEast()
-        sw = bds.getSouthWest()
-        @x_range.set({start: sw.lng(), end: ne.lng(), silent:true})
-        @y_range.set({start: sw.lat(), end: ne.lat()})
-      )
+      google.maps.event.addListener(@map, 'bounds_changed', @bounds_change)
     _.defer(build_map)
     @ctx = @canvas[0].getContext('2d')
     if full_render
       @render()
+
+  bounds_change : () =>
+    bds = @map.getBounds()
+    ne = bds.getNorthEast()
+    sw = bds.getSouthWest()
+    @x_range.set({start: sw.lng(), end: ne.lng(), silent:true})
+    @y_range.set({start: sw.lat(), end: ne.lat()})
 
   save_png: () ->
     @render()
