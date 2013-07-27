@@ -19,7 +19,7 @@ from bokeh.properties import List
 logger = logging.getLogger(__file__)
 
 class Session(object):
-    """ Sessions provide a sandbox or facility in which to manage the "live"
+    """ Sessions provide a sandbox or facility in which to manage the 'live'
     object state for a Bokeh plot.
 
     Many use cases for Bokeh have a client-server separation between the
@@ -441,12 +441,14 @@ class PlotServerSession(BaseHTMLSession):
         self.apikey = None
         self.bbclient = None   # reference to a ContinuumModelsClient
         self.base_url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
-
+        self.raw_js_objs = []
         super(PlotServerSession, self).__init__()
 
     #------------------------------------------------------------------------
     # Document-related operations
     #------------------------------------------------------------------------
+    def raw_js_snippets(self, obj):
+        self.raw_js_objs.append(obj)
 
     def load_doc(self, docid):
         url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)

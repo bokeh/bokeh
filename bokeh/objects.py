@@ -638,15 +638,31 @@ class GMapPlot(PlotObject):
         # GlyphRenderers need to serialize their state a little differently,
         # because the internal glyph instance is turned into a glyphspec
         data = super(GMapPlot, self).vm_serialize()
-        del data['center_lat']
-        del data['center_lng']
-        del data['zoom_level']
+        data.pop('center_lat', None)
+        data.pop('center_lng', None)
+        data.pop('zoom_level', None)
         data["map_options"] = {
-            'lat': self.center_lat, 'lng': self.center_lng, 'zoom': self.zoom_level
+            'lat': self.center_lat, 
+            'lng': self.center_lng, 
+            'zoom': self.zoom_level
         }
         self._session.raw_js_snippets(self)
         print data
         return data
+    
+    @classmethod
+    def load_json(cls, attrs, instance=None):
+        """Loads all json into a instance of cls, EXCEPT any references
+        which are handled in finalize
+        """
+        inst = super(GMapPlot, cls).load_json(attrs, instance=instance)
+        if hasattr(inst, 'map_options'):
+            mo = inst.map_options
+            del inst.map_options
+            inst.center_lat = mo['lat']
+            inst.center_lng = mo['lng']
+            inst.zoom_level = mo['zoom']
+        return inst
 
     def get_raw_js(self):
         return '<script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>'
