@@ -580,8 +580,9 @@ def rects(x, y, width, height, angle=0, **kwargs):
     kwargs.update(glyph_params)
     glyph = glyphs.Rect(**kwargs)
     nonselection_glyph = glyph.clone()
-    nonselection_glyph.fill_alpha = 0.1
-    nonselection_glyph.line_alpha = 0.1
+    alpha = kwargs.pop("nonselection_alpha", 0.1)
+    nonselection_glyph.fill_alpha = alpha
+    nonselection_glyph.line_alpha = alpha
     glyph_renderer = GlyphRenderer(
         data_source=datasource,
         xdata_range=plot.x_range,
@@ -685,8 +686,9 @@ def squares(x, y, size, angle=0, **kwargs):
     kwargs.update(glyph_params)
     glyph = glyphs.Square(**kwargs)
     nonselection_glyph = glyph.clone()
-    nonselection_glyph.fill_alpha = 0.1
-    nonselection_glyph.line_alpha = 0.1    
+    alpha = kwargs.pop("nonselection_alpha", 0.1)
+    nonselection_glyph.fill_alpha = alpha
+    nonselection_glyph.line_alpha = alpha
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,
@@ -758,8 +760,9 @@ def circles(x, y, radius=4, **kwargs):
     kwargs.update(glyph_params)
     glyph = glyphs.Circle(**kwargs)
     nonselection_glyph = glyph.clone()
-    nonselection_glyph.fill_alpha = 0.1
-    nonselection_glyph.line_alpha = 0.1    
+    alpha = kwargs.pop("nonselection_alpha", 0.1)
+    nonselection_glyph.fill_alpha = alpha
+    nonselection_glyph.line_alpha = alpha
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,
