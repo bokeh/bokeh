@@ -68,8 +68,8 @@ class CircleView extends GlyphView
           props =  @selection_glyphprops
         else
           props = @glyph_props
-        @_fast_path(ctx, props, 'selected')
-        @_fast_path(ctx, @nonselection_glyphprops, 'unselected')
+        @_fast_path(ctx, props, true)
+        @_fast_path(ctx, @nonselection_glyphprops, false)
       else
         @_fast_path(ctx)
     else
@@ -88,7 +88,7 @@ class CircleView extends GlyphView
     if not glyph_props
       glyph_props = @glyph_props
     if glyph_props.fill_properties.do_fill
-      @glyph_props.fill_properties.set(ctx, @glyph_props)
+      glyph_props.fill_properties.set(ctx, @glyph_props)
       ctx.beginPath()
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
@@ -102,7 +102,7 @@ class CircleView extends GlyphView
       ctx.fill()
 
     if glyph_props.line_properties.do_stroke
-      @glyph_props.line_properties.set(ctx, @glyph_props)
+      glyph_props.line_properties.set(ctx, @glyph_props)
       ctx.beginPath()
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
