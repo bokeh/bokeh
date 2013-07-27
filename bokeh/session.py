@@ -19,19 +19,19 @@ from bokeh.properties import List
 logger = logging.getLogger(__file__)
 
 class Session(object):
-    """ Sessions provide a sandbox or facility in which to manage the "live"
-    object state for a Bokeh plot.  
-    
+    """ Sessions provide a sandbox or facility in which to manage the 'live'
+    object state for a Bokeh plot.
+
     Many use cases for Bokeh have a client-server separation between the
     plot and data model objects and the view layer objects and controllers.
-    For instance, we may have data and plot definitions in an interactive 
+    For instance, we may have data and plot definitions in an interactive
     Python session, while the rendering layer and its objects may be in
     Javascript running in a web browser (even a remote browser).
-    
+
     Even a rich client scenario benefits from the session concept, as it
     clearly demarcates responsibilities between plot specification and
     managing interactive state.  For inter-process or inter-language cases,
-    it provides a central place to manage serialization (and related 
+    it provides a central place to manage serialization (and related
     persistence issues).
 
     Sessions can be used as ContextManagers, but they can be created
@@ -65,7 +65,7 @@ class Session(object):
             else:
                 obj.session = self
                 self._models[obj._id] = obj
-            
+
     def view(self):
         """ Triggers the OS to open a web browser pointing to the file
         that is connected to this session.
@@ -109,7 +109,7 @@ class BaseHTMLSession(Session):
 
     @property
     def bokehjs_dir(self):
-        return getattr(self, "_bokehjs_dir", 
+        return getattr(self, "_bokehjs_dir",
                 join(self.server_static_dir, "vendor/bokehjs"))
 
     @bokehjs_dir.setter
@@ -150,15 +150,15 @@ class BaseHTMLSession(Session):
         import jinja2
         with open(join(self.template_dir, filename)) as f:
             return jinja2.Template(f.read())
-    
+
 
     #------------------------------------------------------------------------
-    # Serialization 
+    # Serialization
     #------------------------------------------------------------------------
 
     class PlotObjEncoder(protocol.NumpyJSONEncoder):
-        """ Helper class we'll use to encode PlotObjects 
-        
+        """ Helper class we'll use to encode PlotObjects
+
         Note that since json.dumps() takes a *class* as an argument and
         not an instance, when this encoder class is used, the Session
         instance is set as a class-level attribute.  Kind of weird, and
@@ -183,7 +183,7 @@ class BaseHTMLSession(Session):
             else:
                 return protocol.NumpyJSONEncoder.default(self, obj)
 
-    
+
     def get_ref(self, obj):
         self._models[obj._id] = obj
         return {
@@ -198,7 +198,7 @@ class BaseHTMLSession(Session):
         """ Returns a string representing the JSON encoded object.
         References to other objects/instances is ended by a "ref"
         has encoding the type and UUID of the object.
-        
+
         For all HTML sessions, the serialization protocol is JSON.
         How we produce references is actually more involved, because
         it may differ between server-based models versus embedded.
@@ -214,7 +214,6 @@ class BaseHTMLSession(Session):
             self.PlotObjEncoder.session = None
         return jsondata
 
-
 class HTMLFileSession(BaseHTMLSession):
     """ Produces a pile of static HTML, suitable for exporting a plot
     as a standalone HTML file.  This includes a template around the
@@ -224,8 +223,11 @@ class HTMLFileSession(BaseHTMLSession):
     title = "Bokeh Plot"
 
     # The root directory for the CSS files
-    css_files = ["css/bokeh.css", "css/continuum.css",
-                 "vendor/bootstrap/css/bootstrap.css"]
+    css_files = [
+        "vendor/bootstrap/css/bootstrap.css",
+        "css/bokeh.css",
+        "css/continuum.css",
+    ]
 
     # TODO: Why is this not in bokehjs_dir, but rather outside of it?
     js_files = ["js/application.js"]
@@ -247,21 +249,25 @@ class HTMLFileSession(BaseHTMLSession):
             self.title = title
         super(HTMLFileSession, self).__init__(plot=plot)
         self.plotcontext = PlotContext()
-        
+        self.raw_js_objs = []
+
     # FIXME: move this to css_paths, js_paths to base class?
     def css_paths(self, as_url=False):
         return [join(self.bokehjs_dir, d) for d in self.css_files]
-    
+
     def js_paths(self, as_url=False, unified=True, min=True):
         # TODO: Handle unified and minified options
         return [join(self.server_static_dir, d) for d in self.js_files]
-    
+
+    def raw_js_snippets(self, obj):
+        self.raw_js_objs.append(obj)
+
     def dumps(self, js=None, css=None, rootdir=None):
-        """ Returns the HTML contents as a string 
-        
+        """ Returns the HTML contents as a string
+
         **js** and **css** can be "inline" or "relative", and they default
-        to the values of self.inline_js and self.inline_css. 
-        
+        to the values of self.inline_js and self.inline_css.
+
         If these are set to be "relative" (or self.inline_js/css are False),
         **rootdir** can be specified to indicate the base directory from which
         the path to the various static files should be computed.  **rootdir**
@@ -302,7 +308,7 @@ class HTMLFileSession(BaseHTMLSession):
         else:
             rawjs = None
             jsfiles = [os.path.relpath(p,rootdir) for p in self.js_paths()]
-        
+
         if css == "inline" or self.inline_css:
             # TODO: Are the UTF-8 decodes really necessary?
             rawcss = self._inline_css(self.css_paths()).decode("utf-8")
@@ -310,13 +316,15 @@ class HTMLFileSession(BaseHTMLSession):
         else:
             rawcss = None
             cssfiles = [os.path.relpath(p,rootdir) for p in self.css_paths()]
-            
+
         plot_div = self._load_template(self.div_template).render(
             elementid=elementid
             )
+
+        print [o.get_raw_js() for o in self.raw_js_objs]
         html = self._load_template(self.html_template).render(
                     js_snippets = [js],
-                    html_snippets = [div],
+                    html_snippets = [div] + [o.get_raw_js() for o in self.raw_js_objs],
                     rawjs = rawjs, rawcss = rawcss,
                     jsfiles = jsfiles, cssfiles = cssfiles,
                     title = self.title)
@@ -327,8 +335,8 @@ class HTMLFileSession(BaseHTMLSession):
         is not provided.  Overwrites the contents.
 
         **js** and **css** can be "inline" or "relative", and they default
-        to the values of self.inline_js and self.inline_css. 
-        
+        to the values of self.inline_js and self.inline_css.
+
         If these are set to be "relative" (or self.inline_js/css are False),
         **rootdir** can be specified to indicate the base directory from which
         the path to the various static files should be computed.  **rootdir**
@@ -396,12 +404,12 @@ class HTMLFragmentSession(BaseHTMLSession):
 
 class PlotContext(PlotObject):
     children = List(has_ref=True)
-    
+
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning
     # everywhere, so plotlist is the generic one
     pass
-               
+
 class PlotServerSession(BaseHTMLSession):
 
 
@@ -427,18 +435,20 @@ class PlotServerSession(BaseHTMLSession):
         else:
             logger.info('Not using a server, plots will only work in embedded mode')
             self.userinfo = None
-        
+
         self.docid = None
         self.plotcontext = None
         self.apikey = None
         self.bbclient = None   # reference to a ContinuumModelsClient
         self.base_url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
-
+        self.raw_js_objs = []
         super(PlotServerSession, self).__init__()
 
     #------------------------------------------------------------------------
     # Document-related operations
     #------------------------------------------------------------------------
+    def raw_js_snippets(self, obj):
+        self.raw_js_objs.append(obj)
 
     def load_doc(self, docid):
         url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
@@ -457,7 +467,7 @@ class PlotServerSession(BaseHTMLSession):
         self.load_all()
         plotcontext = self.load_type('PlotContext')
         if len(plotcontext):
-            temp = plotcontext[0]            
+            temp = plotcontext[0]
             if len(plotcontext) > 1:
                 logger.warning(
                     "Found more than one PlotContext for doc ID %s; " \
@@ -469,7 +479,7 @@ class PlotServerSession(BaseHTMLSession):
             self.store_obj(plotcontext)
         self.plotcontext = plotcontext
         return
-        
+
     def make_doc(self, title):
         url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
         data = protocol.serialize_web({'title' : title})
@@ -477,7 +487,7 @@ class PlotServerSession(BaseHTMLSession):
         if response.status_code == 409:
             raise DataIntegrityException
         self.userinfo = utils.get_json(response)
-        
+
     def remove_doc(self, title):
         matching = [x for x in self.userinfo['docs'] \
                     if x.get('title') == title]
@@ -505,7 +515,7 @@ class PlotServerSession(BaseHTMLSession):
         # done by separately creating the DataSource object. Stubbing this
         # out for now for symmetry with mpl.PlotClient
         raise NotImplementedError("Construct DataSources manually from bokeh.objects")
-    
+
     #------------------------------------------------------------------------
     # functions for loading json into models
     # we have 2 types of json data, if all the models are of one type, then
@@ -513,11 +523,11 @@ class PlotServerSession(BaseHTMLSession):
     # otherwise, we have what we refer to as broadcast_json, which are of the form
     # {'type':typename, 'attributes' : attrs}
     #------------------------------------------------------------------------
-    
+
     def load_attrs(self, typename, attrs, events='existing'):
         broadcast_attrs = [dict(type=typename, attributes=x) for x in attrs]
         return self.load_broadcast_attrs(broadcast_attrs, events=events)
-        
+
     def load_broadcast_attrs(self, attrs, events='existing'):
         """events can be 'existing', or None.   existing means
         trigger events only for existing (not new  objects).
@@ -562,7 +572,7 @@ class PlotServerSession(BaseHTMLSession):
             attr['id'] = m._id
             attrs.append(attr)
         return attrs
-        
+
     def broadcast_attrs(self, to_store):
         models = []
         for m in to_store:
@@ -578,32 +588,32 @@ class PlotServerSession(BaseHTMLSession):
     #------------------------------------------------------------------------
     # Storing models
     #------------------------------------------------------------------------
-    
+
     def store_obj(self, obj, ref=None):
         return self.store_objs([obj])
-        
+
     def store_broadcast_attrs(self, attrs):
         data = self.serialize(attrs)
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.http_session.post(url, data=data)
-    
+
     def store_objs(self, to_store):
         models = self.broadcast_attrs(to_store)
         self.store_broadcast_attrs(models)
         for m in to_store:
             m._dirty = False
-        
+
     def store_all(self):
         to_store = [x for x in self._models.values() \
                     if hasattr(x, '_dirty') and x._dirty]
         self.store_objs(to_store)
         return to_store
-    
-    
+
+
     #------------------------------------------------------------------------
     # Loading models
     #------------------------------------------------------------------------
-    
+
     def load_all(self, asdict=False):
         """the json coming out of this looks different than that coming
         out of load_type, because it contains id, type, attributes, whereas
@@ -619,7 +629,7 @@ class PlotServerSession(BaseHTMLSession):
         else:
             models = attrs
         return models
-    
+
     def load_type(self, typename, asdict=False):
         url = utils.urljoin(self.base_url, self.docid +"/", typename + "/")
         attrs = protocol.deserialize_json(self.http_session.get(url).content)
@@ -631,7 +641,7 @@ class PlotServerSession(BaseHTMLSession):
         else:
             models = attrs
         return models
-    
+
     def load_obj(self, ref, asdict=False, modelattrs={}):
         """loads an object from the server.
         if asdict:
@@ -662,7 +672,7 @@ class PlotServerSession(BaseHTMLSession):
             data['callbacks'] = m._callbacks
             all_data.append(data)
         return all_data
-    
+
     def load_callbacks_json(self, callback_json):
         for data in callback_json:
             m = self._models[data['id']]
@@ -682,9 +692,9 @@ class PlotServerSession(BaseHTMLSession):
         if get_json:
             return data
         self.load_callbacks_json(data)
-        
+
     #storing callbacks
-    
+
     def store_callbacks(self, to_store):
         all_data = self.callbacks_json(to_store)
         url = utils.urljoin(self.base_url, self.docid + "/", "callbacks")
@@ -692,34 +702,34 @@ class PlotServerSession(BaseHTMLSession):
         self.http_session.post(url, data=all_data)
         for m in to_store:
             m._callbacks_dirty = False
-            
+
     def store_all_callbacks(self):
         to_store = [x for x in self._models.values() \
                     if hasattr(x, '_callbacks_dirty') and x._callbacks_dirty]
         self.store_callbacks(to_store)
         return to_store
-    
+
     #managing callbacks
-    
+
     def disable_callbacks(self, models=None):
         if models is None:
             models = self._models.itervalues()
         for m in models:
             m._block_callbacks = True
-            
+
     def enable_callbacks(self, models=None):
         if models is None:
             models = self._models.itervalues()
-        
+
         for m in models:
             m._block_callbacks = False
-            
+
     def clear_callback_queue(self, models=None):
         if models is None:
             models = self._models.itervalues()
         for m in models:
             del m._callback_queue[:]
-            
+
     def execute_callback_queue(self, models=None):
         if models is None:
             models = self._models.itervalues()
@@ -752,13 +762,13 @@ class NotebookSessionMixin(object):
     js_template = "plots.js"
     div_template = "plots.html"
     html_template = "basediv.html"     # template for the entire HTML file
-    
+
     def css_paths(self, as_url=False):
         # TODO: Fix the duplication of this method from HTMLFileSession.
         # Perhaps move this into BaseHTMLSession.. but a lot of other
         # things would need to move as well.
         return [join(self.bokehjs_dir, d) for d in self.css_files]
-     
+
     def js_paths(self):
         # For notebook session, we rely on a unified bokehJS file,
         # that is not located in the BokehJS subtree
@@ -824,9 +834,9 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
     def __init__(self, plot=None):
         HTMLFileSession.__init__(self, filename=None, plot=plot)
         self.plotcontext = PlotContext()
-        
+
     def notebooksources(self):
-        import IPython.core.displaypub as displaypub        
+        import IPython.core.displaypub as displaypub
         # Normally this would call self.js_paths() to build a list of
         # scripts or get a reference to the unified/minified JS file,
         # but our static JS build process produces a single unified
@@ -852,7 +862,7 @@ class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
             return "ws://%s/bokeh/sub" % split.netloc
         else:
             return "wss://%s/bokeh/sub" % split.netloc
-   
+
     def notebook_connect(self):
         if self.docname is None:
             raise RuntimeError("usedoc() must be called before notebook_connect()")
