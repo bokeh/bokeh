@@ -104,14 +104,10 @@ class GMapPlotView extends ContinuumView
       domain_mapper: @xmapper
       codomain_mapper: @ymapper
     })
-    coll = Collections('PanTool')
-    m = coll.model
-    pantool = new m(
-      dataranges: [@x_range.ref(), @y_range.ref()]
-      dimensions: ['width', 'height']
-    )
-    coll.add(pantool)
-    @mget('tools').push(pantool.ref())
+    for tool in @mget_obj('tools')
+      if tool.type == "PanTool"
+        tool.set_obj('dataranges', [@x_range, @y_range])
+        tool.set('dimensions', ['width', 'height'])
     @requested_padding = {
       top: 0
       bottom: 0
