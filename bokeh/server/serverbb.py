@@ -148,7 +148,6 @@ class RedisSession(PlotServerSession):
             self.set_doc(doc)
         self.r = redisconn
         self._models = {}
-        self.raw_js_objs = []
         
     def set_doc(self, doc):
         self.doc = doc
