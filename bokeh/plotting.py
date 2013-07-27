@@ -456,24 +456,27 @@ def update_plot_data_ranges(plot, datasource, xcols, ycols):
     xcols : names of columns that are in the X axis
     ycols : names of columns that are in the Y axis
     """
-    x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
-    if len(x_column_ref) > 0:
-        x_column_ref = x_column_ref[0]
-        for cname in xcols:
-            if cname not in x_column_ref.columns: 
-                x_column_ref.columns.append(cname)
-    else:
-        plot.x_range.sources.append(datasource.columns(*xcols))
-    y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
-    if len(y_column_ref) > 0:
-        y_column_ref = y_column_ref[0]
-        for cname in ycols:
-            if cname not in y_column_ref.columns:
-                y_column_ref.columns.append(cname)
-    else:
-        plot.y_range.sources.append(datasource.columns(*ycols))
-    plot.x_range._dirty = True
-    plot.y_range._dirty = True
+    if isinstance(plot.x_range, DataRange1d):
+        x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
+        if len(x_column_ref) > 0:
+            x_column_ref = x_column_ref[0]
+            for cname in xcols:
+                if cname not in x_column_ref.columns: 
+                    x_column_ref.columns.append(cname)
+        else:
+            plot.x_range.sources.append(datasource.columns(*xcols))
+        plot.x_range._dirty = True
+        
+    if isinstance(plot.y_range, DataRange1d):            
+        y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
+        if len(y_column_ref) > 0:
+            y_column_ref = y_column_ref[0]
+            for cname in ycols:
+                if cname not in y_column_ref.columns:
+                    y_column_ref.columns.append(cname)
+        else:
+            plot.y_range.sources.append(datasource.columns(*ycols))
+        plot.y_range._dirty = True
 
 def match_data_params(names, vals, datasource):
     """ 
