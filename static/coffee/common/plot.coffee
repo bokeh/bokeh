@@ -253,6 +253,16 @@ class PlotView extends ContinuumView
       th = @ctx.measureText(@mget('title')).ascent
       @requested_padding['top'] += (th + @mget('title_standoff'))
 
+    sym = @mget('border_symmetry')
+    if sym.indexOf('h') >= 0 or sym.indexOf('H') >= 0
+      hpadding = Math.max(@requested_padding['left'], @requested_padding['right'])
+      @requested_padding['left'] = hpadding
+      @requested_padding['right'] = hpadding
+    if sym.indexOf('v') >= 0 or sym.indexOf('V') >= 0
+      hpadding = Math.max(@requested_padding['top'], @requested_padding['bottom'])
+      @requested_padding['top'] = hpadding
+      @requested_padding['bottom'] = hpadding
+
     @is_paused = true
     for k, v of @requested_padding
       @view_state.set("requested_border_#{k}", v)
@@ -346,6 +356,7 @@ _.extend(Plot::display_defaults
   ,
     background_fill: "#fff",
     border_fill: "#eee",
+    border_symmetry: "h",
     min_border: 40,
     x_offset: 0,
     y_offset: 0,
