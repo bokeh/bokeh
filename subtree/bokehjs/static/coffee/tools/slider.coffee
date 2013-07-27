@@ -56,7 +56,7 @@ class DataSliderView extends PlotWidget
           break
       if select
         selected.push(i)
-    data_source.set('selected', selected)
+    data_source.save('selected', selected)
 
 class DataSlider extends HasParent
   type : "DataSlider"
