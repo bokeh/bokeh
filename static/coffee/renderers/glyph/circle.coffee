@@ -97,6 +97,7 @@ class CircleView extends GlyphView
           continue
         if use_selection == false and @selected_mask[i]
           continue
+        ctx.moveTo(@sx[i], @sy[i])
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
       ctx.fill()
 
@@ -110,6 +111,7 @@ class CircleView extends GlyphView
           continue
         if use_selection == false and  @selected_mask[i]
           continue
+        ctx.moveTo(@sx[i], @sy[i])
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
       ctx.stroke()
 
