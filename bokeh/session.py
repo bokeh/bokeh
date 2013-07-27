@@ -321,7 +321,6 @@ class HTMLFileSession(BaseHTMLSession):
             elementid=elementid
             )
 
-        print [o.get_raw_js() for o in self.raw_js_objs]
         html = self._load_template(self.html_template).render(
                     js_snippets = [js],
                     html_snippets = [div] + [o.get_raw_js() for o in self.raw_js_objs],

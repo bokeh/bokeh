@@ -649,7 +649,6 @@ class GMapPlot(PlotObject):
             'zoom': self.zoom_level
         }
         self._session.raw_js_snippets(self)
-        print data
         return data
     
     @classmethod
