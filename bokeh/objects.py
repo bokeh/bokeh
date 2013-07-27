@@ -1,4 +1,4 @@
-""" Collection of core plotting objects, which can be represented in the 
+""" Collection of core plotting objects, which can be represented in the
 Javascript layer.  The object graph formed by composing the objects in
 this module can be stored as a backbone.js model graph, and stored in a
 plot server or serialized into JS for embedding in HTML or an IPython
@@ -18,7 +18,7 @@ class Viewable(MetaHasProps):
     persistence layer.
 
     Adds handling of a __view_model__ attribute to the class (which is
-    provided by default) which tells the View layer what View class to 
+    provided by default) which tells the View layer what View class to
     create.
 
     One thing to keep in mind is that a Viewable should have a single
@@ -65,7 +65,7 @@ def usesession(meth):
     """ Checks for 'session' in kwargs and in **self**, and guarantees
     that **kw always has a valid 'session' parameter.  Wrapped methods
     should define 'session' as an optional argument, and in the body of
-    the method, should expect an 
+    the method, should expect an
     """
     @wraps(meth)
     def wrapper(self, *args, **kw):
@@ -102,7 +102,7 @@ def json_apply(fragment, check_func, func):
         return output
     else:
         return fragment
-    
+
 def resolve_json(fragment, models):
     check_func = is_ref
     def func(fragment):
@@ -112,7 +112,7 @@ def resolve_json(fragment, models):
             logging.error("model not found for %s", fragment)
             return None
     return json_apply(fragment, check_func, func)
-        
+
 def traverse_plot_object(plot_object):
     """iterate through an objects properties
     if it has_ref, json_apply through it and accumulate
@@ -148,9 +148,9 @@ def recursively_traverse_plot_object(plot_object,
                     traversed_ids=traversed_ids,
                     children=children)
         return children
-    
-    
-    
+
+
+
 
 class PlotObject(HasProps):
     """ Base class for all plot-related objects """
@@ -172,15 +172,15 @@ class PlotObject(HasProps):
         self._callback_queue = []
         self._block_callbacks = False
         if '_block_events'  not in kwargs:
-            super(PlotObject, self).__init__(*args, **kwargs)            
+            super(PlotObject, self).__init__(*args, **kwargs)
             self.setup_events()
         else:
             self._block_callbacks = True
             super(PlotObject, self).__init__(*args, **kwargs)
-            
+
     def setup_events(self):
         pass
-    
+
     @classmethod
     def load_json(cls, attrs, instance=None):
         """Loads all json into a instance of cls, EXCEPT any references
@@ -189,7 +189,7 @@ class PlotObject(HasProps):
         if 'id' not in attrs:
             raise RuntimeError("Unable to find 'id' attribute in JSON: %r" % attrs)
         _id = attrs.pop('id')
-        
+
         if not instance:
             instance = cls(id=_id, _block_events=True)
 
@@ -200,7 +200,7 @@ class PlotObject(HasProps):
         instance._ref_props = ref_props
         instance.update(**attrs)
         return instance
-    
+
     def finalize(self, models):
         """Convert any references into instances
         models is a dict of id->model mappings
@@ -209,12 +209,12 @@ class PlotObject(HasProps):
             props = resolve_json(self._ref_props, models)
             self.update(**props)
         self.setup_events()
-        
+
     def references(self):
         """Returns all PlotObjects that this object has references to
         """
         return traverse_plot_object(self)
-    
+
     #---------------------------------------------------------------------
     # View Model connection methods
     #
@@ -226,7 +226,7 @@ class PlotObject(HasProps):
     #---------------------------------------------------------------------
     def vm_props(self, withvalues=False):
         """ Returns the ViewModel-related properties of this object.  If
-        **withvalues** is True, then returns attributes with values as a 
+        **withvalues** is True, then returns attributes with values as a
         dict.  Otherwise, returns a list of attribute names.
         """
         props = self.changed_vars()
@@ -242,7 +242,7 @@ class PlotObject(HasProps):
 
     def old_vm_props(self, withvalues=False):
         """ Returns the ViewModel-related properties of this object.  If
-        **withvalues** is True, then returns attributes with values as a 
+        **withvalues** is True, then returns attributes with values as a
         dict.  Otherwise, returns a list of attribute names.
         """
         props = set(self.properties())
@@ -252,19 +252,19 @@ class PlotObject(HasProps):
             return dict((k,getattr(self,k)) for k in props)
         else:
             return props
-    
+
     def vm_serialize(self):
-        """ Returns a dictionary of the attributes of this object, in 
+        """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
         """
         attrs = self.vm_props(withvalues=True)
         attrs['id'] = self._id
         return attrs
-    
+
     def update(self, **kwargs):
         for k,v in kwargs.iteritems():
             setattr(self, k, v)
-            
+
     @usesession
     def pull(self, session=None, ref=None):
         """ Pulls information from the given session and ref id into this
@@ -287,7 +287,7 @@ class PlotObject(HasProps):
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))
-    
+
     def on_change(self, attrname, obj, callbackname):
         """when attrname of self changes, call callbackname
         on obj
@@ -298,7 +298,7 @@ class PlotObject(HasProps):
         if callback not in callbacks:
             callbacks.append(callback)
         self._callbacks_dirty = True
-        
+
     def _trigger(self, attrname, old, new):
         """attrname of self changed.  So call all callbacks
         """
@@ -309,7 +309,7 @@ class PlotObject(HasProps):
                     self, attrname, old, new)
     def dummy(self, changedobj, attrname, old, new):
         print 'DUMMY', changedobj, attrname, old, new
-        
+
 
 class DataSource(PlotObject):
     """ Base class for data sources """
@@ -358,7 +358,7 @@ class ColumnDataSource(DataSource):
 
 
 class ObjectArrayDataSource(DataSource):
-    # List of tuples of values 
+    # List of tuples of values
     data = List()
 
     # Maps field/column name to a DataRange or FactorRange object. If the
@@ -377,7 +377,7 @@ class PandasDataSource(DataSource):
 class Range1d(PlotObject):
     start = Float()
     end = Float()
-    
+
 class DataRange(PlotObject):
     sources = List(ColumnsRef, has_ref=True)
     def vm_serialize(self):
@@ -386,7 +386,7 @@ class DataRange(PlotObject):
         sources = props.pop("sources")
         props["sources"] = [{"ref":cr.source, "columns":cr.columns} for cr in sources]
         return props
-    
+
     def finalize(self, models):
         super(DataRange, self).finalize(models)
         for idx, source in enumerate(self.sources):
@@ -394,10 +394,10 @@ class DataRange(PlotObject):
                 self.sources[idx] = ColumnsRef(
                     source=source['ref'],
                     columns=source['columns'])
-                
+
     def references(self):
         return [x.source for x in self.sources]
-    
+
 class DataRange1d(DataRange):
     """ Represents a range in a scalar dimension """
     sources = List(ColumnsRef, has_ref=True)
@@ -413,7 +413,7 @@ class FactorRange(DataRange):
     columns = List
 
 class GlyphRenderer(PlotObject):
-    
+
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(DataRange1d, has_ref=True)
     ydata_range = Instance(DataRange1d, has_ref=True)
@@ -428,8 +428,8 @@ class GlyphRenderer(PlotObject):
     # glyph used when data is unselected.  optional
     nonselection_glyph = Instance()
     # glyph used when data is selected.  optional
-    selection_glyph = Instance() 
-    
+    selection_glyph = Instance()
+
     def vm_serialize(self):
         # GlyphRenderers need to serialize their state a little differently,
         # because the internal glyph instance is turned into a glyphspec
@@ -437,7 +437,7 @@ class GlyphRenderer(PlotObject):
                  "data_source": self.data_source,
                  "xdata_range": self.xdata_range,
                  "ydata_range": self.ydata_range,
-                 "glyphspec": self.glyph.to_glyphspec()                 
+                 "glyphspec": self.glyph.to_glyphspec()
                  }
         if self.selection_glyph:
             data['selection_glyphspec'] = self.selection_glyph.to_glyphspec()
@@ -470,7 +470,7 @@ class GlyphRenderer(PlotObject):
 
         else:
             self.nonselection_glyph = None
-            
+
 
 def script_inject(sess, modelid, typename):
     split = urlparse.urlsplit(sess.root_url)
@@ -478,7 +478,7 @@ def script_inject(sess, modelid, typename):
         ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
     else:
         ws_conn_string = "wss://%s/bokeh/sub" % split.netloc
-   
+
     f_dict = dict(
         docid = sess.docid,
 
@@ -491,7 +491,7 @@ def script_inject(sess, modelid, typename):
     e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
 bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
 bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
-bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>        
+bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
         '''
     return e_str % f_dict
 
@@ -501,7 +501,7 @@ def script_inject_escaped(sess, modelid, typename):
         ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
     else:
         ws_conn_string = "wss://%s/bokeh/sub" % split.netloc
-   
+
     f_dict = dict(
         docid = sess.docid,
 
@@ -697,7 +697,7 @@ class GMapPlot(PlotObject):
 
 class GridPlot(PlotObject):
     """ A 2D grid of plots """
-    
+
     children = List(List)
     border_space = Int(0)
 
@@ -712,7 +712,7 @@ class GuideRenderer(PlotObject):
         if self.plot is not None:
             if self not in self.plot.renderers:
                 self.plot.renderers.append(self)
-    
+
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
         guide_props = {}
@@ -723,7 +723,7 @@ class GuideRenderer(PlotObject):
         props.update({"id" : self._id, "plot" : self.plot,
                         "guidespec" : guide_props})
         return props
-    
+
     @classmethod
     def load_json(cls, attrs, instance=None):
         """Loads all json into a instance of cls, EXCEPT any references
@@ -735,7 +735,7 @@ class GuideRenderer(PlotObject):
             del inst.guidespec
             inst.update(**guidespec)
         return inst
-                  
+
 class LinearAxis(GuideRenderer):
     type = String("linear_axis")
     axis_label = String
@@ -749,7 +749,7 @@ class LinearAxis(GuideRenderer):
     # Line props
     axis_props = Include(LineProps, prefix="axis")
     tick_props = Include(LineProps, prefix="major_tick")
-    
+
     major_tick_in = Int
     major_tick_out = Int
 
@@ -784,7 +784,7 @@ class BoxSelectionOverlay(PlotObject):
 class Legend(PlotObject):
     plot = Instance(Plot, has_ref=True)
     annotationspec = Dict(has_ref=True)
-    
+
     def vm_serialize(self):
         #ensure that the type of the annotation spec is set
         result = super(Legend, self).vm_serialize()
@@ -801,3 +801,4 @@ class DataRangeBoxSelectionTool(PlotObject):
     plot = Instance(Plot, has_ref=True)    
     xselect = List()
     yselect = List()    
+

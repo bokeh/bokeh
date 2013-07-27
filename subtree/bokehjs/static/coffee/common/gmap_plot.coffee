@@ -95,12 +95,10 @@ class GMapPlotView extends ContinuumView
       domain_mapper: @xmapper
       codomain_mapper: @ymapper
     })
-    
-	for tool in @mget_obj('tools')
+    for tool in @mget_obj('tools')
       if tool.type == "PanTool"
         tool.set_obj('dataranges', [@x_range, @y_range])
         tool.set('dimensions', ['width', 'height'])
-
     @requested_padding = {
       top: 0
       bottom: 0
@@ -223,7 +221,7 @@ class GMapPlotView extends ContinuumView
     @canvas_wrapper.width("#{ow}px").height("#{oh}px")
     @canvas.attr('width', ow).attr('height', oh) # TODO: this is needed but why
     @$el.attr("width", ow).attr('height', oh)
-    @gmap_div.attr("style", "top: #{top}px; left: #{left}px;")
+    @gmap_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
     @gmap_div.width("#{iw}px").height("#{ih}px")
     build_map = () =>
       mo = @mget('map_options')
@@ -237,7 +235,6 @@ class GMapPlotView extends ContinuumView
       @map = new google.maps.Map(@gmap_div[0], map_options)
       google.maps.event.addListener(@map, 'bounds_changed', @bounds_change)
     _.defer(build_map)
-
     @ctx = @canvas[0].getContext('2d')
     if full_render
       @render()
