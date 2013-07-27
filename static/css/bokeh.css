@@ -16,27 +16,7 @@ svg {
 }
 
 .button_bar > button{
-  float: left;
-}
-
-.plotview{
-    clear: both;
-}
-
-.bokeh_canvas_wrapper {
-  position: relative;
-  font-size: 12pt;
-  float: left;
-}
-
-.bokeh_canvas {
-  position: absolute;
-  font-size: 12pt;
-}
-
-.bokeh_canvas_wrapper .bokeh_gmap {
-  position: absolute !important;
-  z-index: -5;
+  float : left;
 }
 
 .plotview{
@@ -97,7 +77,7 @@ button.active {border:1px solid blue}
 
 .plotsidebar{
     overflow-x : auto;
-    width : 350px;
+    width : 350;
     float : left;
 }
 
