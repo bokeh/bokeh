@@ -197,9 +197,11 @@ class GMapPlotView extends ContinuumView
     # TODO use template
     @$el.append($("""
       <div class='button_bar btn-group'/>
+      <div class='plotarea'>
       <div class='bokeh_canvas_wrapper'>
         <div class="bokeh_gmap"></div>
         <canvas class='bokeh_canvas'></canvas>
+      </div>
       </div>
       """))
     @button_bar = @$el.find('.button_bar')
