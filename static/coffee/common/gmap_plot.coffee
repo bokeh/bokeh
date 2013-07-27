@@ -113,6 +113,14 @@ class GMapPlotView extends ContinuumView
     coll.add(pantool)
     @mget('tools').push(pantool.ref())
 
+    pantool = Collections('PanTool').create(
+      dataranges: [@x_range.ref(), @y_range.ref()]
+      dimensions: ['width', 'height']
+    )
+
+    @mset('tools', [pantool])
+>>>>>>> master
+
     @requested_padding = {
       top: 0
       bottom: 0
@@ -341,6 +349,7 @@ class GMapPlot extends HasParent
     @set('renderers', renderers)
 
   parent_properties: [
+    'background_fill',
     'border_fill',
     'canvas_width',
     'canvas_height',
