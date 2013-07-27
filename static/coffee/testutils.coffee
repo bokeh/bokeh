@@ -333,8 +333,6 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, too
       guidespec: {
         type: 'linear_axis'
         dimension: 0
-        location: 'min'
-        bounds: 'auto'
       }
       axis_label: 'x'
       plot: plot_model.ref()
@@ -343,8 +341,6 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, too
       guidespec: {
         type: 'linear_axis'
         dimension: 1
-        location: 'min'
-        bounds: 'auto'
       }
       axis_label: 'y'
       plot: plot_model.ref()
@@ -354,9 +350,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, too
         type: 'linear_axis'
         dimension: 0
         location: 'max'
-        bounds: 'auto'
       }
-      axis_label: 'x'
       plot: plot_model.ref()
     )
     yaxis2 = Collections('GuideRenderer').create(
@@ -364,9 +358,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, too
         type: 'linear_axis'
         dimension: 1
         location: 'max'
-        bounds: 'auto'
       }
-      axis_label: 'y'
       plot: plot_model.ref()
     )
     xrule = Collections('GuideRenderer').create(
