@@ -256,6 +256,11 @@ class GMapPlotView extends ContinuumView
     if full_render
       @render()
 
+  save_png: () ->
+    @render()
+    data_uri = @canvas[0].toDataURL()
+    @model.set('png', @canvas[0].toDataURL())
+    base.Collections.bulksave([@model])
 
   render: (force) ->
     @requested_padding = {
