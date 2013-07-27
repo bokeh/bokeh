@@ -298,7 +298,8 @@ def visual(func):
             session.add(*session_objs)
             
         #easier to always use plot context
-        session.plotcontext.children.append(plot)
+        if plot not in session.plotcontext.children:
+            session.plotcontext.children.append(plot)
         session.plotcontext._dirty = True
         plot._dirty = True
         if (output_type == "notebook" and output_url is None):
@@ -467,7 +468,7 @@ def update_plot_data_ranges(plot, datasource, xcols, ycols):
     if len(y_column_ref) > 0:
         y_column_ref = y_column_ref[0]
         for cname in ycols:
-            if cname not in y_column_ref.columns: 
+            if cname not in y_column_ref.columns:
                 y_column_ref.columns.append(cname)
     else:
         plot.y_range.sources.append(datasource.columns(*ycols))
@@ -565,8 +566,8 @@ def rects(x, y, width, height, angle=0, **kwargs):
     x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
     y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
     update_plot_data_ranges(plot, datasource, 
-                            [x_data_fields], 
-                            [y_data_fields])
+                            x_data_fields, 
+                            y_data_fields)
     if "color" in kwargs:
         color = kwargs.pop("color")
         kwargs["fill"] = color
@@ -577,6 +578,7 @@ def rects(x, y, width, height, angle=0, **kwargs):
     glyph = glyphs.Rect(**kwargs)
     nonselection_glyph = glyph.clone()
     nonselection_glyph.fill_alpha = 0.1
+    nonselection_glyph.line_alpha = 0.1
     glyph_renderer = GlyphRenderer(
         data_source=datasource,
         xdata_range=plot.x_range,
@@ -614,8 +616,8 @@ def line(x, y, **kwargs):
     x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
     y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
     update_plot_data_ranges(plot, datasource, 
-                            [x_data_fields], 
-                            [y_data_fields])
+                            x_data_fields, 
+                            y_data_fields)
     legend_name = kwargs.pop("legend", None)    
     if "color" in kwargs:
         kwargs["line_color"] = kwargs.pop("color")
@@ -669,8 +671,8 @@ def squares(x, y, size, angle=0, **kwargs):
     x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
     y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
     update_plot_data_ranges(plot, datasource, 
-                            [x_data_fields], 
-                            [y_data_fields])
+                            x_data_fields, 
+                            y_data_fields)
     if "color" in kwargs:
         color = kwargs.pop("color")
         kwargs["fill"] = color
@@ -681,6 +683,7 @@ def squares(x, y, size, angle=0, **kwargs):
     glyph = glyphs.Square(**kwargs)
     nonselection_glyph = glyph.clone()
     nonselection_glyph.fill_alpha = 0.1
+    nonselection_glyph.line_alpha = 0.1    
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,
@@ -741,8 +744,8 @@ def circles(x, y, radius=4, **kwargs):
     x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
     y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
     update_plot_data_ranges(plot, datasource, 
-                            [x_data_fields], 
-                            [y_data_fields])
+                            x_data_fields, 
+                            y_data_fields)
     if "color" in kwargs:
         color = kwargs.pop("color")
         kwargs["fill"] = color
@@ -753,6 +756,7 @@ def circles(x, y, radius=4, **kwargs):
     glyph = glyphs.Circle(**kwargs)
     nonselection_glyph = glyph.clone()
     nonselection_glyph.fill_alpha = 0.1
+    nonselection_glyph.line_alpha = 0.1    
     glyph_renderer = GlyphRenderer(
         data_source = datasource,
         xdata_range = plot.x_range,

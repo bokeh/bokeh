@@ -321,12 +321,12 @@ class DataSource(PlotObject):
         """ Returns a ColumnsRef object that points to a column or set of
         columns on this data source
         """
-        return ColumnsRef(source=self, columns=columns)
+        return ColumnsRef(source=self, columns=list(columns))
 
 class ColumnsRef(HasProps):
     source = Instance(DataSource, has_ref=True)
     columns = List(String)
-
+    
 class ColumnDataSource(DataSource):
     # Maps names of columns to sequences or arrays
     data = Dict()
@@ -550,7 +550,7 @@ class Plot(PlotObject):
     #
     # annotation = List
 
-    height = Int(800)
+    height = Int(600)
     width = Int(600)
 
     background_fill = Color("white")
@@ -790,4 +790,14 @@ class Legend(PlotObject):
         result['annotationspec']['type'] = 'legend'
         return result
 
+    
+class DataSlider(PlotObject):
+    plot = Instance(Plot, has_ref=True)
+    data_source = Instance(has_ref=True)
+    field = String()
+    
+class DataRangeBoxSelectionTool(PlotObject):
+    plot = Instance(Plot, has_ref=True)    
+    xselect = List()
+    yselect = List()    
 

@@ -39,6 +39,28 @@ svg {
   z-index: -5;
 }
 
+.plotview{
+    clear : both;
+}
+
+.bokeh_canvas_wrapper {
+  position: relative;
+  font-size: 12pt;
+  float left;
+}
+
+.bokeh_canvas {
+  position: absolute;
+  font-size: 12pt;
+
+}
+
+.bokeh_gmap {
+  border: 0px;
+  position: absolute;
+  z-index: -5;
+}
+
 .shading {display:block; border:1px dashed green; position: absolute; z-index:100;}
 .gridplot_container {position: relative;}
 .gridplot_container .gp_plotwrapper {position:absolute;}
