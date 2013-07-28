@@ -59,8 +59,8 @@ class PlotView extends ContinuumView
 
   initialize: (options) ->
     super(_.defaults(options, @default_options))
-    @throttled_render = _.throttle(@render, 100)
-    @throttled_render_canvas = _.throttle(@render_canvas, 100)
+    @throttled_render = _.throttle(@render, 15)
+    @throttled_render_canvas = _.throttle(@render_canvas, 15)
 
     @title_props = new text_properties(@, {}, 'title_')
 
