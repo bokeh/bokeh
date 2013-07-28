@@ -8,7 +8,7 @@ class DataSliderView extends PlotWidget
   initialize : (options) ->
     super(options)
     @render_init()
-
+    @select = _.throttle(@_select, 50)
   delegateEvents : (events) ->
     super(events)
     "pass"
@@ -31,14 +31,15 @@ class DataSliderView extends PlotWidget
     @$el.height(@plot_view.view_state.get('inner_height'))
 
   set_selection_range : (event, ui) ->
-    [min, max] = ui.values
+    min = _.min(ui.values)
+    max = _.max(ui.values)
     data_source = @mget_obj('data_source')
     field = @mget('field')
     if not data_source.range_selections?
       data_source.range_selections = {}
     data_source.range_selections[field] = [min,max]
 
-  select : () ->
+  _select : () ->
     data_source = @mget_obj('data_source')
     columns = {}
     numrows = 0
@@ -56,7 +57,11 @@ class DataSliderView extends PlotWidget
           break
       if select
         selected.push(i)
-    data_source.save('selected', selected)
+    data_source.save(
+        selected :selected
+      ,
+        {patch : true}
+    )
 
 class DataSlider extends HasParent
   type : "DataSlider"
