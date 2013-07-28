@@ -59,8 +59,8 @@ class PlotView extends ContinuumView
 
   initialize: (options) ->
     super(_.defaults(options, @default_options))
-    @throttled_render = _.throttle(@render, 100)
-    @throttled_render_canvas = _.throttle(@render_canvas, 100)
+    @throttled_render = _.throttle(@render, 15)
+    @throttled_render_canvas = _.throttle(@render_canvas, 15)
 
     @title_props = new text_properties(@, {}, 'title_')
 
@@ -104,6 +104,11 @@ class PlotView extends ContinuumView
       bottom: 0
       left: 0
       right: 0
+    }
+
+    @old_mapper_state = {
+      x: null
+      y: null
     }
 
     @am_rendering = false
@@ -253,6 +258,16 @@ class PlotView extends ContinuumView
       th = @ctx.measureText(@mget('title')).ascent
       @requested_padding['top'] += (th + @mget('title_standoff'))
 
+    sym = @mget('border_symmetry')
+    if sym.indexOf('h') >= 0 or sym.indexOf('H') >= 0
+      hpadding = Math.max(@requested_padding['left'], @requested_padding['right'])
+      @requested_padding['left'] = hpadding
+      @requested_padding['right'] = hpadding
+    if sym.indexOf('v') >= 0 or sym.indexOf('V') >= 0
+      hpadding = Math.max(@requested_padding['top'], @requested_padding['bottom'])
+      @requested_padding['top'] = hpadding
+      @requested_padding['bottom'] = hpadding
+
     @is_paused = true
     for k, v of @requested_padding
       @view_state.set("requested_border_#{k}", v)
@@ -265,6 +280,14 @@ class PlotView extends ContinuumView
       @view_state.get('border_left'), @view_state.get('border_top'),
       @view_state.get('inner_width'), @view_state.get('inner_height'),
     )
+
+    have_new_mapper_state = false
+    xms = @xmapper.get('mapper_state')[0]
+    yms = @xmapper.get('mapper_state')[0]
+    if Math.abs(@old_mapper_state.x-xms) > 1e-8 or Math.abs(@old_mapper_state.y - yms) > 1e-8
+      @old_mapper_state.x = xms
+      @old_mapper_state.y = yms
+      have_new_mapper_state = true
 
     @ctx.save()
 
@@ -279,14 +302,14 @@ class PlotView extends ContinuumView
     for level in ['image', 'underlay', 'glyph']
       renderers = @levels[level]
       for k, v of renderers
-        v.render()
+        v.render(have_new_mapper_state)
 
     @ctx.restore()
 
     for level in ['overlay', 'annotation', 'tool']
       renderers = @levels[level]
       for k, v of renderers
-        v.render()
+        v.render(have_new_mapper_state)
 
     if title
       sx = @view_state.get('outer_width')/2
@@ -346,6 +369,7 @@ _.extend(Plot::display_defaults
   ,
     background_fill: "#fff",
     border_fill: "#eee",
+    border_symmetry: "h",
     min_border: 40,
     x_offset: 0,
     y_offset: 0,

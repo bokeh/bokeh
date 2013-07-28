@@ -117,7 +117,7 @@ class LinearAxisView extends PlotWidget
     return @_padding_request()
 
   _draw_rule: (ctx) ->
-    [x, y] = @mget('rule_coords')
+    [x, y] = coords = @mget('rule_coords')
     [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
     @rule_props.set(ctx, @)
     ctx.beginPath()
@@ -128,7 +128,7 @@ class LinearAxisView extends PlotWidget
     return
 
   _draw_major_ticks: (ctx) ->
-    [x, y] = @mget('major_coords')
+    [x, y] = coords = @mget('major_coords')
     [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
     [nx, ny] = @mget('normals')
     tin = @mget('major_tick_in')
@@ -245,7 +245,6 @@ class LinearAxisView extends PlotWidget
 
   _tick_label_extent: () ->
     extent = 0
-
     dim = @mget('guidespec').dimension
     coords = @mget('major_coords')
     side = @mget('side')
@@ -342,7 +341,7 @@ class LinearAxis extends HasParent
   default_view: LinearAxisView
   type: 'GuideRenderer'
 
-  dinitialize: (attrs, options)->
+  initialize: (attrs, options)->
     super(attrs, options)
     @register_property('bounds', @_bounds, false)
     @add_dependencies('bounds', this, ['guidespec'])
