@@ -106,6 +106,11 @@ class GMapPlotView extends ContinuumView
       right: 0
     }
 
+    @old_mapper_state = {
+      x: null
+      y: null
+    }
+
     @am_rendering = false
 
     @renderers = {}
@@ -259,11 +264,29 @@ class GMapPlotView extends ContinuumView
       left: 0
       right: 0
     }
+    for level in ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
+      renderers = @levels[level]
+      for k, v of renderers
+        if v.padding_request?
+          pr = v.padding_request()
+          for k, v of pr
+            @requested_padding[k] += v
+
     title = @mget('title')
     if title
       @title_props.set(@ctx, {})
       th = @ctx.measureText(@mget('title')).ascent
       @requested_padding['top'] += (th + @mget('title_standoff'))
+
+    sym = @mget('border_symmetry')
+    if sym.indexOf('h') >= 0 or sym.indexOf('H') >= 0
+      hpadding = Math.max(@requested_padding['left'], @requested_padding['right'])
+      @requested_padding['left'] = hpadding
+      @requested_padding['right'] = hpadding
+    if sym.indexOf('v') >= 0 or sym.indexOf('V') >= 0
+      hpadding = Math.max(@requested_padding['top'], @requested_padding['bottom'])
+      @requested_padding['top'] = hpadding
+      @requested_padding['bottom'] = hpadding
 
     @is_paused = true
     for k, v of @requested_padding
@@ -296,6 +319,14 @@ class GMapPlotView extends ContinuumView
     @ctx.fillStyle = @mget('border_fill')
     @ctx.fill()
 
+    have_new_mapper_state = false
+    xms = @xmapper.get('mapper_state')[0]
+    yms = @xmapper.get('mapper_state')[0]
+    if Math.abs(@old_mapper_state.x-xms) > 1e-8 or Math.abs(@old_mapper_state.y - yms) > 1e-8
+      @old_mapper_state.x = xms
+      @old_mapper_state.y = yms
+      have_new_mapper_state = true
+
     @ctx.save()
 
     @ctx.beginPath()
@@ -309,14 +340,14 @@ class GMapPlotView extends ContinuumView
     for level in ['image', 'underlay', 'glyph']
       renderers = @levels[level]
       for k, v of renderers
-        v.render()
+        v.render(have_new_mapper_state)
 
     @ctx.restore()
 
     for level in ['overlay', 'annotation', 'tool']
       renderers = @levels[level]
       for k, v of renderers
-        v.render()
+        v.render(have_new_mapper_state)
 
     if title
       sx = @view_state.get('outer_width')/2
@@ -335,7 +366,6 @@ class GMapPlot extends HasParent
     @set('renderers', renderers)
 
   parent_properties: [
-    'background_fill',
     'border_fill',
     'canvas_width',
     'canvas_height',
@@ -360,8 +390,8 @@ _.extend(GMapPlot::defaults , {
 GMapPlot::display_defaults = _.clone(GMapPlot::display_defaults)
 _.extend(GMapPlot::display_defaults
   ,
-    background_fill: "#fff",
     border_fill: "#eee",
+    border_symmetry: 'h',
     min_border: 40,
     x_offset: 0,
     y_offset: 0,

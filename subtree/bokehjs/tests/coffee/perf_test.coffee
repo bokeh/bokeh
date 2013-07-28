@@ -82,10 +82,10 @@ test('rect_perf_slow', make_glyph_test('rect_perf_slow', source, defaults, rect_
 
 r = new Rand(123456789)
 
-x = (r.randf()*100 for i in _.range(4000))
-y = (r.randf()*100 for i in _.range(4000))
-radii = (r.randf()+0.5 for i in _.range(4000))
-colors = ("rgb(#{ Math.floor(50+2*val[0]) }, #{ Math.floor(30+2*val[1]) }, 150)" for val in zip(x, y))
+x = (r.randf()*500 for i in _.range(20000))
+y = (r.randf()*500 for i in _.range(20000))
+radii = (r.randf()+0.8 for i in _.range(20000))
+colors = ("rgb(#{ Math.floor(50+2*val[0]/5) }, #{ Math.floor(30+2*val[1]/5) }, 150)" for val in zip(x, y))
 source = Collections('ColumnDataSource').create(
   data:
     x: x
@@ -94,8 +94,8 @@ source = Collections('ColumnDataSource').create(
     fill: colors
 )
 
-xdr = Collections('Range1d').create({start: 0, end: 100})
-ydr = Collections('Range1d').create({start: 0, end: 100})
+xdr = Collections('Range1d').create({start: 0, end: 500})
+ydr = Collections('Range1d').create({start: 0, end: 500})
 
 circle_fast = {
   x: 'x'
@@ -113,8 +113,8 @@ test('circle_perf_fast', make_glyph_test('circle_perf_fast', source, defaults, c
 
 
 
-xdr = Collections('Range1d').create({start: 0, end: 100})
-ydr = Collections('Range1d').create({start: 0, end: 100})
+xdr = Collections('Range1d').create({start: 0, end: 500})
+ydr = Collections('Range1d').create({start: 0, end: 500})
 
 circle_slow = {
   x: 'x'
