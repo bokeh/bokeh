@@ -106,7 +106,12 @@ class GMapPlotView extends ContinuumView
       dimensions: ['width', 'height']
     )
 
-    @mset('tools', [pantool])
+    zoomtool = Collections('ZoomTool').create(
+      dataranges: [@x_range.ref(), @y_range.ref()]
+      dimensions: ['width', 'height']
+    )
+
+    @mset('tools', [pantool, zoomtool])
 
     @requested_padding = {
       top: 0
@@ -124,6 +129,7 @@ class GMapPlotView extends ContinuumView
 
     @renderers = {}
     @tools = {}
+    @zoom_count = null
 
     @eventSink = _.extend({}, Backbone.Events)
     @moveCallbacks = []
@@ -167,7 +173,28 @@ class GMapPlotView extends ContinuumView
 
   update_range : (range_info) ->
     @pause()
-    @map.panBy(range_info.sdx, range_info.sdy)
+    if range_info.sdx?
+      @map.panBy(range_info.sdx, range_info.sdy)
+    else
+      sw_lng = Math.min(range_info.xr.start, range_info.xr.end)
+      ne_lng = Math.max(range_info.xr.start, range_info.xr.end)
+      sw_lat = Math.min(range_info.yr.start, range_info.yr.end)
+      ne_lat = Math.max(range_info.yr.start, range_info.yr.end)
+
+      center = new google.maps.LatLng((ne_lat+sw_lat)/2, (ne_lng+sw_lng)/2)
+      if range_info.factor > 0
+        @zoom_count += 1
+        if @zoom_count == 10
+          @map.setZoom(@map.getZoom()+1)
+          @zoom_count = 0
+      else
+        @zoom_count -= 1
+        if @zoom_count == -10
+          @map.setCenter(center);
+          @map.setZoom(@map.getZoom()-1)
+          @map.setCenter(center);
+          @zoom_count = 0
+
     @unpause()
 
   build_tools: () ->
@@ -237,7 +264,6 @@ class GMapPlotView extends ContinuumView
     @gmap_div.width("#{iw}px").height("#{ih}px")
 
     mo = @mget('map_options')
-    console.log mo
     map_options =
       center: new google.maps.LatLng(mo.lat, mo.lng)
       zoom:mo.zoom
@@ -250,7 +276,6 @@ class GMapPlotView extends ContinuumView
       bds = @map.getBounds()
       ne = bds.getNorthEast()
       sw = bds.getSouthWest()
-      console.log ne.lat(), ne.lng(), sw.lat(), sw.lng()
       @x_range.set({start: sw.lng(), end: ne.lng()})
       @y_range.set({start: sw.lat(), end: ne.lat()})
     )
@@ -258,7 +283,6 @@ class GMapPlotView extends ContinuumView
     @ctx = @canvas[0].getContext('2d')
     if full_render
       @render()
-
 
   render: (force) ->
     @requested_padding = {
