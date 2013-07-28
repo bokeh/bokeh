@@ -115,6 +115,11 @@ class GMapPlotView extends ContinuumView
       right: 0
     }
 
+    @old_mapper_state = {
+      x: null
+      y: null
+    }
+
     @am_rendering = false
 
     @renderers = {}
@@ -317,6 +322,14 @@ class GMapPlotView extends ContinuumView
     @ctx.fillStyle = @mget('border_fill')
     @ctx.fill()
 
+    have_new_mapper_state = false
+    xms = @xmapper.get('mapper_state')[0]
+    yms = @xmapper.get('mapper_state')[0]
+    if Math.abs(@old_mapper_state.x-xms) > 1e-8 or Math.abs(@old_mapper_state.y - yms) > 1e-8
+      @old_mapper_state.x = xms
+      @old_mapper_state.y = yms
+      have_new_mapper_state = true
+
     @ctx.save()
 
     @ctx.beginPath()
@@ -330,14 +343,14 @@ class GMapPlotView extends ContinuumView
     for level in ['image', 'underlay', 'glyph']
       renderers = @levels[level]
       for k, v of renderers
-        v.render()
+        v.render(have_new_mapper_state)
 
     @ctx.restore()
 
     for level in ['overlay', 'annotation', 'tool']
       renderers = @levels[level]
       for k, v of renderers
-        v.render()
+        v.render(have_new_mapper_state)
 
     if title
       sx = @view_state.get('outer_width')/2

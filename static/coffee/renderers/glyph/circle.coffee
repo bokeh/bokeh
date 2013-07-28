@@ -22,10 +22,6 @@ class CircleView extends GlyphView
       spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
       @nonselection_glyphprops = @init_glyph(spec)
     @have_new_data = false
-    @old_ow = null
-    @old_oh = null
-    @old_dx = null
-    @old_dy = null
 
   init_glyph : (glyphspec) ->
     glyph_props = new glyph_properties(
@@ -49,21 +45,15 @@ class CircleView extends GlyphView
       @selected_mask[i] = false
     @have_new_data = true
 
-  _render: (plot_view) ->
+  _render: (plot_view, have_new_mapper_state=true) ->
     [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
     ow = @plot_view.view_state.get('outer_width')
     oh = @plot_view.view_state.get('outer_height')
-    dx = @plot_view.x_range.get('end') - @plot_view.x_range.get('start')
-    dy = @plot_view.y_range.get('end') - @plot_view.y_range.get('start')
 
-    if @have_new_data or ow != @old_ow or oh != @old_oh or dx != @old_dx or dy != @old_dy
+    if @have_new_data or have_new_mapper_state
       @radius = @distance(@data, 'x', 'radius', 'edge')
       @have_new_data = false
-      @old_ow = ow
-      @old_oh = oh
-      @old_dx = dx
-      @old_dy = dy
 
     ow = @plot_view.view_state.get('outer_width')
     oh = @plot_view.view_state.get('outer_height')

@@ -27,11 +27,11 @@ class GlyphView extends PlotWidget
     if request_render
       @request_render()
 
-  render: () ->
+  render: (have_new_mapper_state=true) ->
     if @need_set_data
       @set_data(false)
       @need_set_data = false
-    @_render()
+    @_render(@plot_view, have_new_mapper_state)
 
   select : () ->
     'pass'
