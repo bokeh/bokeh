@@ -96,9 +96,10 @@ class GMapPlotView extends ContinuumView
       codomain_mapper: @ymapper
     })
     for tool in @mget_obj('tools')
-      if tool.type == "PanTool"
+      if tool.type == "PanTool" or tool.type == "ZoomTool"
         tool.set_obj('dataranges', [@x_range, @y_range])
         tool.set('dimensions', ['width', 'height'])
+
     @requested_padding = {
       top: 0
       bottom: 0
@@ -115,6 +116,7 @@ class GMapPlotView extends ContinuumView
 
     @renderers = {}
     @tools = {}
+    @zoom_count = null
 
     @eventSink = _.extend({}, Backbone.Events)
     @moveCallbacks = []
@@ -158,7 +160,28 @@ class GMapPlotView extends ContinuumView
 
   update_range : (range_info) ->
     @pause()
-    @map.panBy(range_info.sdx, range_info.sdy)
+    if range_info.sdx?
+      @map.panBy(range_info.sdx, range_info.sdy)
+    else
+      sw_lng = Math.min(range_info.xr.start, range_info.xr.end)
+      ne_lng = Math.max(range_info.xr.start, range_info.xr.end)
+      sw_lat = Math.min(range_info.yr.start, range_info.yr.end)
+      ne_lat = Math.max(range_info.yr.start, range_info.yr.end)
+
+      center = new google.maps.LatLng((ne_lat+sw_lat)/2, (ne_lng+sw_lng)/2)
+      if range_info.factor > 0
+        @zoom_count += 1
+        if @zoom_count == 10
+          @map.setZoom(@map.getZoom()+1)
+          @zoom_count = 0
+      else
+        @zoom_count -= 1
+        if @zoom_count == -10
+          @map.setCenter(center);
+          @map.setZoom(@map.getZoom()-1)
+          @map.setCenter(center);
+          @zoom_count = 0
+
     @unpause()
 
   build_tools: () ->
