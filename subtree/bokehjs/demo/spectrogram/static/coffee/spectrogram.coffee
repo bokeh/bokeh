@@ -11,8 +11,6 @@ SPECTROGRAM_LENGTH = 512
 
 window.TIMESLICE = 40 # ms
 
-BORDER = 50
-
 NGRAMS = 800
 
 HIST_NUM_BINS = 16
@@ -38,17 +36,14 @@ class SpectrogramApp
 
     @throttled_request_data = _.throttle((=> @request_data()), 40)
 
-    @spec_plot = new SpectrogramPlot({
-      width: NGRAMS, height: SPECTROGRAM_LENGTH/2, border: BORDER
-    })
+    @spec_plot = new SpectrogramPlot({ width: NGRAMS, height: SPECTROGRAM_LENGTH/2+80 })
 
     @power_plot = new SimpleIndexPlot({
-
-      x0: 0, x1: window.TIMESLICE, y0: -0.5, y1: 0.5, width: 550, height: 180, border: BORDER
+      x0: 0, x1: window.TIMESLICE+0.1, y0: -0.6, y1: 0.7, width: 800, height: 250
     })
 
     @fft_plot = new SimpleIndexPlot({
-      x0: FREQ_SLIDER_MIN, x1: FREQ_SLIDER_MAX, y0: -1, y1: 20, width: 550, height: 180, border: BORDER
+      x0: FREQ_SLIDER_MIN, x1: FREQ_SLIDER_MAX, y0: -1, y1: 26, width: 800, height: 250
     })
 
     @hist_plot = new RadialHistogramPlot({
@@ -74,7 +69,6 @@ class SpectrogramApp
           => @throttled_request_data())
 
   on_data: (data) ->
-
     # apply the gain
     for i in [0..(data[0].length-1)]
       data[0][i] *= @gain
@@ -207,41 +201,34 @@ class SpectrogramPlot
       x_range: @xrange.ref()
       y_range: @yrange.ref()
       border_fill: "#fff"
-      canvas_width: options.width + options.border + 80
-      canvas_height: options.height + 2*options.border
-      outer_width: options.width + 2*options.border
-      outer_height: options.height + 2*options.border
-      border: options.border
-      border_left: 80
+      canvas_width: options.width
+      canvas_height: options.height
+      outer_width: options.width
+      outer_height: options.height
       tools: []
       title: ""
     )
 
     xaxis = Collections('GuideRenderer').create(
+      plot: @model.ref()
       guidespec: {
         type: 'linear_axis'
         dimension: 0
-        location: 'min'
-        bounds: 'auto'
       }
-      plot: @model.ref()
     )
 
     yaxis = Collections('GuideRenderer').create(
+      plot: @model.ref()
       guidespec: {
         type: 'linear_axis'
         dimension: 1
-        location: 'min'
-        bounds: 'auto'
       }
-      major_label_standoff: 40
-      plot: @model.ref()
     )
 
     glyph = Collections('GlyphRenderer').create({
-      data_source: @source
-      xdata_range: @xrange
-      ydata_range: @yrange
+      data_source: @source.ref()
+      xdata_range: @xrange.ref()
+      ydata_range: @yrange.ref()
       glyphspec: {
         type: 'image_rgba'
         x: 'x'
@@ -255,8 +242,7 @@ class SpectrogramPlot
           default: 'YlGnBu-9'
       }
     })
-
-    @model.add_renderers([glyph, xaxis, yaxis])
+    @model.add_renderers([glyph.ref(), xaxis.ref(), yaxis.ref()])
     @view = new @model.default_view(model: @model)
 
   update: (fft) ->
@@ -311,7 +297,6 @@ class RadialHistogramPlot
       canvas_height: options.height
       outer_width:   options.width
       outer_height:  options.height
-      border: 0
       tools: []
       title: ""
     )
@@ -391,32 +376,36 @@ class SimpleIndexPlot
       x_range: @xrange.ref()
       y_range: @yrange.ref()
       border_fill: "#fff"
-      canvas_width:  options.width  + 2*options.border
-      canvas_height: options.height + 2*options.border
-      outer_width:   options.width  + 2*options.border
-      outer_height:  options.height + 2*options.border
+      canvas_width:  options.width
+      canvas_height: options.height
+      outer_width:   options.width
+      outer_height:  options.height
       tools: []
       title: ""
     )
 
     xaxis = Collections('GuideRenderer').create(
+      plot: @model.ref()
       guidespec: {
         type: 'linear_axis'
         dimension: 0
-        location: 'min'
-        bounds: 'auto'
       }
-      plot: @model.ref()
     )
 
     yaxis = Collections('GuideRenderer').create(
+      plot: @model.ref()
       guidespec: {
         type: 'linear_axis'
         dimension: 1
-        location: 'min'
-        bounds: 'auto'
       }
+    )
+
+    yrule = Collections('GuideRenderer').create(
       plot: @model.ref()
+      guidespec: {
+        type: 'rule'
+        dimension: 1
+      }
     )
 
     glyph = Collections('GlyphRenderer').create({
@@ -431,7 +420,7 @@ class SimpleIndexPlot
       }
     })
 
-    @model.add_renderers([glyph.ref(), xaxis.ref(), yaxis.ref()])
+    @model.add_renderers([glyph.ref(), xaxis.ref(), yaxis.ref(), yrule.ref()])
     @view = new @model.default_view(model: @model)
 
   update: (ys) ->

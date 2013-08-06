@@ -335,6 +335,9 @@ class BasicTickFormatter
     @last_precision = 3
 
   format: (ticks) ->
+    if ticks.length == 0
+      return []
+
     zero_eps = 0
     if ticks.length >= 2
       zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000;

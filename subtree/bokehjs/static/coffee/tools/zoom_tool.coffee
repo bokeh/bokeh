@@ -61,11 +61,12 @@ class ZoomToolView extends tool.ToolView
     ystart = @plot_view.ymapper.map_from_target(sy_low  - (sy_low  - y)*factor)
     yend   = @plot_view.ymapper.map_from_target(sy_high - (sy_high - y)*factor)
 
-    @plot_view.pause()
-    @plot_view.x_range.set({start: xstart, end: xend})
-    @plot_view.y_range.set({start: ystart, end: yend})
-    @plot_view.unpause()
-
+    zoom_info = {
+      xr: {start: xstart, end: xend}
+      yr: {start: ystart, end: yend}
+      factor: factor
+    }
+    @plot_view.update_range(zoom_info)
     return null
 
 

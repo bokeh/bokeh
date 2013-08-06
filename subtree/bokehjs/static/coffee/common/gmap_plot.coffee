@@ -106,7 +106,12 @@ class GMapPlotView extends ContinuumView
       dimensions: ['width', 'height']
     )
 
-    @mset('tools', [pantool])
+    zoomtool = Collections('ZoomTool').create(
+      dataranges: [@x_range.ref(), @y_range.ref()]
+      dimensions: ['width', 'height']
+    )
+
+    @mset('tools', [pantool, zoomtool])
 
     @requested_padding = {
       top: 0
@@ -115,10 +120,16 @@ class GMapPlotView extends ContinuumView
       right: 0
     }
 
+    @old_mapper_state = {
+      x: null
+      y: null
+    }
+
     @am_rendering = false
 
     @renderers = {}
     @tools = {}
+    @zoom_count = null
 
     @eventSink = _.extend({}, Backbone.Events)
     @moveCallbacks = []
@@ -162,7 +173,28 @@ class GMapPlotView extends ContinuumView
 
   update_range : (range_info) ->
     @pause()
-    @map.panBy(range_info.sdx, range_info.sdy)
+    if range_info.sdx?
+      @map.panBy(range_info.sdx, range_info.sdy)
+    else
+      sw_lng = Math.min(range_info.xr.start, range_info.xr.end)
+      ne_lng = Math.max(range_info.xr.start, range_info.xr.end)
+      sw_lat = Math.min(range_info.yr.start, range_info.yr.end)
+      ne_lat = Math.max(range_info.yr.start, range_info.yr.end)
+
+      center = new google.maps.LatLng((ne_lat+sw_lat)/2, (ne_lng+sw_lng)/2)
+      if range_info.factor > 0
+        @zoom_count += 1
+        if @zoom_count == 10
+          @map.setZoom(@map.getZoom()+1)
+          @zoom_count = 0
+      else
+        @zoom_count -= 1
+        if @zoom_count == -10
+          @map.setCenter(center);
+          @map.setZoom(@map.getZoom()-1)
+          @map.setCenter(center);
+          @zoom_count = 0
+
     @unpause()
 
   build_tools: () ->
@@ -232,7 +264,6 @@ class GMapPlotView extends ContinuumView
     @gmap_div.width("#{iw}px").height("#{ih}px")
 
     mo = @mget('map_options')
-    console.log mo
     map_options =
       center: new google.maps.LatLng(mo.lat, mo.lng)
       zoom:mo.zoom
@@ -245,7 +276,6 @@ class GMapPlotView extends ContinuumView
       bds = @map.getBounds()
       ne = bds.getNorthEast()
       sw = bds.getSouthWest()
-      console.log ne.lat(), ne.lng(), sw.lat(), sw.lng()
       @x_range.set({start: sw.lng(), end: ne.lng()})
       @y_range.set({start: sw.lat(), end: ne.lat()})
     )
@@ -254,7 +284,6 @@ class GMapPlotView extends ContinuumView
     if full_render
       @render()
 
-
   render: (force) ->
     @requested_padding = {
       top: 0
@@ -262,11 +291,29 @@ class GMapPlotView extends ContinuumView
       left: 0
       right: 0
     }
+    for level in ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
+      renderers = @levels[level]
+      for k, v of renderers
+        if v.padding_request?
+          pr = v.padding_request()
+          for k, v of pr
+            @requested_padding[k] += v
+
     title = @mget('title')
     if title
       @title_props.set(@ctx, {})
       th = @ctx.measureText(@mget('title')).ascent
       @requested_padding['top'] += (th + @mget('title_standoff'))
+
+    sym = @mget('border_symmetry')
+    if sym.indexOf('h') >= 0 or sym.indexOf('H') >= 0
+      hpadding = Math.max(@requested_padding['left'], @requested_padding['right'])
+      @requested_padding['left'] = hpadding
+      @requested_padding['right'] = hpadding
+    if sym.indexOf('v') >= 0 or sym.indexOf('V') >= 0
+      hpadding = Math.max(@requested_padding['top'], @requested_padding['bottom'])
+      @requested_padding['top'] = hpadding
+      @requested_padding['bottom'] = hpadding
 
     @is_paused = true
     for k, v of @requested_padding
@@ -299,6 +346,14 @@ class GMapPlotView extends ContinuumView
     @ctx.fillStyle = @mget('border_fill')
     @ctx.fill()
 
+    have_new_mapper_state = false
+    xms = @xmapper.get('mapper_state')[0]
+    yms = @xmapper.get('mapper_state')[0]
+    if Math.abs(@old_mapper_state.x-xms) > 1e-8 or Math.abs(@old_mapper_state.y - yms) > 1e-8
+      @old_mapper_state.x = xms
+      @old_mapper_state.y = yms
+      have_new_mapper_state = true
+
     @ctx.save()
 
     @ctx.beginPath()
@@ -312,14 +367,14 @@ class GMapPlotView extends ContinuumView
     for level in ['image', 'underlay', 'glyph']
       renderers = @levels[level]
       for k, v of renderers
-        v.render()
+        v.render(have_new_mapper_state)
 
     @ctx.restore()
 
     for level in ['overlay', 'annotation', 'tool']
       renderers = @levels[level]
       for k, v of renderers
-        v.render()
+        v.render(have_new_mapper_state)
 
     if title
       sx = @view_state.get('outer_width')/2
@@ -338,7 +393,6 @@ class GMapPlot extends HasParent
     @set('renderers', renderers)
 
   parent_properties: [
-    'background_fill',
     'border_fill',
     'canvas_width',
     'canvas_height',
@@ -363,8 +417,8 @@ _.extend(GMapPlot::defaults , {
 GMapPlot::display_defaults = _.clone(GMapPlot::display_defaults)
 _.extend(GMapPlot::display_defaults
   ,
-    background_fill: "#fff",
     border_fill: "#eee",
+    border_symmetry: 'h',
     min_border: 40,
     x_offset: 0,
     y_offset: 0,
