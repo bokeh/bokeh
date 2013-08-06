@@ -27,11 +27,11 @@ class GlyphView extends PlotWidget
     if request_render
       @request_render()
 
-  render: () ->
+  render: (have_new_mapper_state=true) ->
     if @need_set_data
       @set_data(false)
       @need_set_data = false
-    @_render()
+    @_render(@plot_view, have_new_mapper_state)
 
   select : () ->
     'pass'
@@ -59,14 +59,14 @@ class GlyphView extends PlotWidget
 
     if position == 'center'
       halfspan = (d / 2 for d in span)
-      ptc = (@glyph_props.select(pt, x) for x in data)
+      ptc = @glyph_props.v_select(pt, data)
       if pt_units == 'screen'
         ptc = mapper.v_map_from_target(ptc)
       pt0 = (ptc[i] - halfspan[i] for i in [0..ptc.length-1])
       pt1 = (ptc[i] + halfspan[i] for i in [0..ptc.length-1])
 
     else
-      pt0 = (@glyph_props.select(pt, x) for x in data)
+      pt0 = @glyph_props.v_select(pt, data)
       if pt_units == 'screen'
         pt0 = mapper.v_map_from_target(pt0)
       pt1 = (pt0[i] + span[i] for i in [0..pt0.length-1])
