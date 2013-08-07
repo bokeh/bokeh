@@ -227,6 +227,7 @@ class GMapPlotView extends ContinuumView
       @request_render_canvas()
       @request_render()
     )
+
     safebind(this, @x_range, 'change', @request_render)
     safebind(this, @y_range, 'change', @request_render)
     safebind(this, @model, 'change:renderers', @build_levels)
@@ -266,7 +267,7 @@ class GMapPlotView extends ContinuumView
     mo = @mget('map_options')
     map_options =
       center: new google.maps.LatLng(mo.lat, mo.lng)
-      zoom:mo.zoom
+      zoom: mo.zoom
       disableDefaultUI: true
       mapTypeId: google.maps.MapTypeId.SATELLITE
 
@@ -326,6 +327,9 @@ class GMapPlotView extends ContinuumView
     ih = @view_state.get('inner_height')
     top = @view_state.get('border_top')
     left = @view_state.get('border_left')
+
+    @gmap_div.attr("style", "top: #{top}px; left: #{left}px;")
+    @gmap_div.width("#{iw}px").height("#{ih}px")
 
     @ctx.clearRect(0, 0, ow, oh)
 
