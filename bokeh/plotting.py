@@ -142,7 +142,7 @@ def output_notebook(url=None, docname=None):
         session.notebook_connect()
     _config["output_type"] = "notebook"
     _config["output_file"] = None
-    _config["session"] = session 
+    _config["session"] = session
 
 def output_server(docname, url="default", **kwargs):
     """ Sets the output mode to upload to a Bokeh plot server.
@@ -151,7 +151,7 @@ def output_server(docname, url="default", **kwargs):
     the name of the document to store in the plot server.  If there is an
     existing document with this name, it will be overwritten.
 
-    Additional keyword arguments like **username**, **userapikey**, 
+    Additional keyword arguments like **username**, **userapikey**,
     and **base_url** can be supplied.
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
@@ -187,7 +187,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
     """
-    
+
     if os.path.isfile(filename):
         print "Session output file '%s' already exists, will be overwritten." % filename
     session = HTMLFileSession(filename, title=title)
@@ -226,7 +226,7 @@ def show(browser=None, new="tab"):
     it in an output cell (IPython notebook).
 
     For file-based output, opens or raises the browser window showing the
-    current output file.  If **new** is 'tab', then opens a new tab.  
+    current output file.  If **new** is 'tab', then opens a new tab.
     If **new** is 'window', then opens a new window.
 
     For systems that support it, the **browser** argument allows specifying
@@ -244,7 +244,7 @@ def show(browser=None, new="tab"):
     else:
         controller = webbrowser
     if output_type == "file":
-        controller.open("file://" + os.path.abspath(_config["output_file"]), 
+        controller.open("file://" + os.path.abspath(_config["output_file"]),
                             new=new_param)
     elif output_type == "server":
         controller.open(_config["output_url"] + "/bokeh", new=new_param)
@@ -289,14 +289,14 @@ def visual(func):
             session_objs = []
         else:
             plot, session_objs = retvals
-        
+
         if plot is not None:
             session.add(plot)
             _config["curplot"] = plot
 
         if session_objs:
             session.add(*session_objs)
-            
+
         #easier to always use plot context
         if plot not in session.plotcontext.children:
             session.plotcontext.children.append(plot)
@@ -304,7 +304,7 @@ def visual(func):
         plot._dirty = True
         if (output_type == "notebook" and output_url is None):
             return session.show(plot, *session_objs)
-        
+
         elif (output_type == "server") or \
                 (output_type == "notebook" and output_url is not None):
             # push the plot data to a plot server
@@ -319,6 +319,65 @@ def visual(func):
         return plot
     return wrapper
 
+def glyph(argnames):
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            datasource = kwargs.pop("source", ColumnDataSource())
+            session_objs = [datasource]
+            glyph_params = match_data_params(argnames, args, datasource)
+
+            plot = get_plot(kwargs)
+            x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
+            y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
+            update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
+
+            if "color" in kwargs:
+                color = kwargs.pop("color")
+                kwargs["fill"] = color
+                kwargs["line_color"] = color
+
+            select_tool = get_select_tool(plot)
+            legend_name = kwargs.pop("legend", None)
+            kwargs.update(glyph_params)
+
+            glyph = func(**kwargs)
+
+            nonselection_glyph = glyph.clone()
+            nonselection_glyph.fill_alpha = 0.1
+            nonselection_glyph.line_alpha = 0.1
+
+            glyph_renderer = GlyphRenderer(
+                data_source = datasource,
+                xdata_range = plot.x_range,
+                ydata_range = plot.y_range,
+                glyph=glyph,
+                nonselection_glyph=nonselection_glyph,
+                )
+
+            if legend_name:
+                legend = get_legend(plot)
+                if not legend:
+                    legend = make_legend(plot)
+                mappings = legend.annotationspec.setdefault("legends", {})
+                mappings.setdefault(legend_name, []).append(glyph_renderer)
+                legend._dirty = True
+
+            if select_tool :
+                select_tool.renderers.append(glyph_renderer)
+                select_tool._dirty = True
+
+            plot.renderers.append(glyph_renderer)
+
+            session_objs.extend(plot.tools)
+            session_objs.extend(plot.renderers)
+            session_objs.extend([plot.x_range, plot.y_range])
+
+            return plot, session_objs
+
+        return wrapper
+
+    return decorator
 
 marker_glyph_map = {
         "circle": glyphs.Circle,
@@ -358,8 +417,8 @@ def plot(*args, **kwargs):
     if not len(color_fields.intersection(set(kwargs.keys()))):
         kwargs['color'] = get_default_color(plot)
     points = kwargs.pop("points", True)
-    marker = kwargs.get("type", "circle")    
-    x_name = names[0]    
+    marker = kwargs.get("type", "circle")
+    x_name = names[0]
     for name in names[1:]:
         _glyph_plot("line", x_name, name, plot, datasource, **kwargs)
         if points:
@@ -426,27 +485,27 @@ def _glyph_plot(plottype, x_name, y_name, plot, datasource, **kwargs):
     #copy kwargs, because we pop things off inside these functions
     kwargs = copy.copy(kwargs)
     if plottype == "circle":
-        circles(x_name, y_name, 
+        circles(x_name, y_name,
                 kwargs.pop('radius', 4),
                 source=datasource,
                 plot=plot, **kwargs)
     elif plottype == "rect":
-        rects(x_name, y_name, 
+        rects(x_name, y_name,
               kwargs.pop('width', 8),
               kwargs.pop('height', 4),
               angle=kwargs.get('angle', 0),
               source=datasource,
               plot=plot, **kwargs)
     elif plottype == "square":
-        squares(x_name, y_name, 
+        squares(x_name, y_name,
               kwargs.pop('width', 4),
               angle=kwargs.pop('angle', 0),
               source=datasource,
               plot=plot, **kwargs)
     elif plottype == "line":
         line(x_name, y_name, plot=plot, source=datasource, **kwargs)
-    
-    
+
+
 def update_plot_data_ranges(plot, datasource, xcols, ycols):
     """
     Parmeters
@@ -460,7 +519,7 @@ def update_plot_data_ranges(plot, datasource, xcols, ycols):
     if len(x_column_ref) > 0:
         x_column_ref = x_column_ref[0]
         for cname in xcols:
-            if cname not in x_column_ref.columns: 
+            if cname not in x_column_ref.columns:
                 x_column_ref.columns.append(cname)
     else:
         plot.x_range.sources.append(datasource.columns(*xcols))
@@ -476,13 +535,13 @@ def update_plot_data_ranges(plot, datasource, xcols, ycols):
     plot.y_range._dirty = True
 
 def match_data_params(names, vals, datasource):
-    """ 
+    """
     Parameters
     ---------
     names : names of glyph attributes (x,y,width,height, etc...)
     vals : values of glyph attributes
     datasource: datasource
-    
+
     Returns
     ---------
     glyph_params : dict of params that should be in the glyphspec
@@ -536,176 +595,78 @@ def get_default_color(plot):
     num_renderers = len(renderers)
     return colors[num_renderers]
 
-@visual
-def rects(x, y, width, height, angle=0, **kwargs):
-    """ Creates a series of rectangles.
-
-    x, y, width, height, angle=0:
-        Either an iterable or numpy array of values, or a scalar, or the
-        name of a column in a datasource passed in via the "source"
-        keyword argument
-    
-    Style Parameters (specified by keyword)
-    ---------------------------------------
-    color : color  # same as "fill"
-    fill : color
-    fill_alpha : 0.0 - 1.0
-    line_color : color
-    line_width : int >= 1
-    line_alpha : 0.0 - 1.0
-    line_cap : "butt", "join", "miter"
-    """
-
-    argnames = ["x","y","width","height","angle"]
-    datasource = kwargs.pop("source", ColumnDataSource())
-    session_objs = [datasource]
-    glyph_params = match_data_params(argnames, 
-                                     [x, y, width, height],
-                                     datasource)
-    plot = get_plot(kwargs)
-    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
-    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
-    update_plot_data_ranges(plot, datasource, 
-                            x_data_fields, 
-                            y_data_fields)
-    if "color" in kwargs:
-        color = kwargs.pop("color")
-        kwargs["fill"] = color
-        kwargs["line_color"] = color
-    select_tool = get_select_tool(plot)
-    legend_name = kwargs.pop("legend", None)    
-    kwargs.update(glyph_params)
-    glyph = glyphs.Rect(**kwargs)
-    nonselection_glyph = glyph.clone()
-    nonselection_glyph.fill_alpha = 0.1
-    nonselection_glyph.line_alpha = 0.1
-    glyph_renderer = GlyphRenderer(
-        data_source=datasource,
-        xdata_range=plot.x_range,
-        ydata_range=plot.y_range,
-        glyph=glyph,
-        nonselection_glyph=nonselection_glyph,
-        )
-    if legend_name:
-        legend = get_legend(plot)
-        if not legend:
-            legend = make_legend(plot)
-        mappings = legend.annotationspec.setdefault("legends", {})
-        mappings.setdefault(legend_name, []).append(glyph_renderer)
-        legend._dirty = True
-    if select_tool : 
-        select_tool.renderers.append(glyph_renderer)
-        select_tool._dirty = True
-    plot.renderers.append(glyph_renderer)
-    session_objs.extend(plot.tools)
-    session_objs.extend(plot.renderers)
-    session_objs.extend([plot.x_range, plot.y_range])
-    return plot, session_objs
 
 @visual
-def line(x, y, **kwargs):
-    """ Create a line plot
-    """
-    argnames = ["x","y"]
-    datasource = kwargs.pop("source", ColumnDataSource())
-    session_objs = [datasource]
-    glyph_params = match_data_params(argnames, 
-                                     [x, y],
-                                     datasource)
-    plot = get_plot(kwargs)
-    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
-    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
-    update_plot_data_ranges(plot, datasource, 
-                            x_data_fields, 
-                            y_data_fields)
-    legend_name = kwargs.pop("legend", None)    
-    if "color" in kwargs:
-        kwargs["line_color"] = kwargs.pop("color")
-    kwargs.update(glyph_params)
-    glyph_renderer = GlyphRenderer(
-        data_source = datasource,
-        xdata_range = plot.x_range,
-        ydata_range = plot.y_range,
-        glyph = glyphs.Line(**kwargs),
-        )
-    if legend_name:
-        legend = get_legend(plot)
-        if not legend:
-            legend = make_legend(plot)
-        mappings = legend.annotationspec.setdefault("legends", {})
-        mappings.setdefault(legend_name, []).append(glyph_renderer)
-        legend._dirty = True
-    plot.renderers.append(glyph_renderer)
-    session_objs.extend(plot.tools)
-    session_objs.extend(plot.renderers)
-    session_objs.extend([plot.x_range, plot.y_range])
-    return plot, session_objs
-    
+@glyph(['x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle'])
+def annular_wedge(**kwargs):
+    return glyphs.AnnularWedge(**kwargs)
+
 @visual
-def squares(x, y, size, angle=0, **kwargs):
-    """ Creates a series of squares.
+@glyph(['x', 'y', 'inner_radius', 'outer_radius'])
+def annulus(**kwargs):
+    return glyphs.Annulus(**kwargs)
 
-    x, y, size, height, angle=0:
-        Either an iterable or numpy array of values, or a scalar, or the
-        name of a column in a datasource passed in via the "source"
-        keyword argument
-    
-    Style Parameters (specified by keyword)
-    ---------------------------------------
-    color : color  # same as "fill"
-    fill : color
-    fill_alpha : 0.0 - 1.0
-    line_color : color
-    line_width : int >= 1
-    line_alpha : 0.0 - 1.0
-    line_cap : "butt", "join", "miter"
-    """
+@visual
+@glyph(['x0', 'x1', 'y0', 'y1', 'cx0', 'cy0', 'cx1', 'cy1'])
+def bezier(**kwargs):
+    return glyphs.Bezier(**kwargs)
 
-    argnames = ["x","y","size","angle"]
-    datasource = kwargs.pop("source", ColumnDataSource())
-    session_objs = [datasource]
-    glyph_params = match_data_params(argnames, 
-                                     [x, y, size],
-                                     datasource)
-    plot = get_plot(kwargs)
-    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
-    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
-    update_plot_data_ranges(plot, datasource, 
-                            x_data_fields, 
-                            y_data_fields)
-    if "color" in kwargs:
-        color = kwargs.pop("color")
-        kwargs["fill"] = color
-        kwargs["line_color"] = color
-    select_tool = get_select_tool(plot)
-    legend_name = kwargs.pop("legend", None)    
-    kwargs.update(glyph_params)
-    glyph = glyphs.Square(**kwargs)
-    nonselection_glyph = glyph.clone()
-    nonselection_glyph.fill_alpha = 0.1
-    nonselection_glyph.line_alpha = 0.1    
-    glyph_renderer = GlyphRenderer(
-        data_source = datasource,
-        xdata_range = plot.x_range,
-        ydata_range = plot.y_range,
-        glyph=glyph,
-        nonselection_glyph=nonselection_glyph,
-        )
-    if legend_name:
-        legend = get_legend(plot)
-        if not legend:
-            legend = make_legend(plot)
-        mappings = legend.annotationspec.setdefault("legends", {})
-        mappings.setdefault(legend_name, []).append(glyph_renderer)
-        legend._dirty = True
-    if select_tool : 
-        select_tool.renderers.append(glyph_renderer)
-        select_tool._dirty = True
-    plot.renderers.append(glyph_renderer)
-    session_objs.extend(plot.tools)
-    session_objs.extend(plot.renderers)
-    session_objs.extend([plot.x_range, plot.y_range])
-    return plot, session_objs
+@visual
+@glyph(['x', 'y', 'radius'])
+def circles(**kwargs):
+    return glyphs.Circle(**kwargs)
+
+@visual
+@glyph(['x', 'y'])
+def line(**kwargs):
+    return glyphs.Line(**kwargs)
+
+@visual
+@glyph(['xs', 'ys'])
+def multi_line(**kwargs):
+    return glyphs.MultiLine(**kwargs)
+
+@visual
+@glyph(['x', 'y', 'width', 'height', 'angle'])
+def oval(**kwargs):
+    return glyphs.Oval(**kwargs)
+
+@visual
+@glyph(['x', 'y', 'angle', 'length'])
+def ray(**kwargs):
+    return glyphs.Ray(**kwargs)
+
+@visual
+@glyph(['left', 'right', 'top', 'bottom'])
+def quad(**kwargs):
+    return glyphs.Quad(**kwargs)
+
+@visual
+@glyph(['x0', 'x1', 'y0', 'y1', 'cx', 'cy'])
+def quad_curve(**kwargs):
+    return glyphs.QuadCurve(**kwargs)
+
+@visual
+@glyph(['x', 'y', 'width', 'height', 'angle'])
+def rects(**kwargs):
+    return glyphs.Rect(**kwargs)
+
+@visual
+@glyph(['x0', 'y0', 'x1', 'y1'])
+def segment(**kwargs):
+    return glyphs.Segment(**kwargs)
+
+@visual
+@glyph(['x', 'y', 'size', 'angle'])
+def squares(**kwargs):
+    return glyphs.Square(**kwargs)
+
+@visual
+@glyph(['x', 'y', 'radius', 'start_angle', 'end_angle'])
+def wedge(**kwargs):
+    return glyphs.Wedge(**kwargs)
+
+
 
 def get_plot(kwargs):
     plot = kwargs.pop("plot", None)
@@ -729,57 +690,6 @@ def make_legend(plot):
     plot.renderers.append(legend)
     plot._dirty = True
     return legend
-
-@visual
-def circles(x, y, radius=4, **kwargs):
-    """ Creates a series of circles.
-    """
-    argnames = ["x","y","radius"]
-    datasource = kwargs.pop("source", ColumnDataSource())
-    session_objs = [datasource]
-    glyph_params = match_data_params(argnames, 
-                                     [x, y, radius],
-                                     datasource)
-    plot = get_plot(kwargs)
-    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
-    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
-    update_plot_data_ranges(plot, datasource, 
-                            x_data_fields, 
-                            y_data_fields)
-    if "color" in kwargs:
-        color = kwargs.pop("color")
-        kwargs["fill"] = color
-        kwargs["line_color"] = color
-    select_tool = get_select_tool(plot)
-    legend_name = kwargs.pop("legend", None)
-    kwargs.update(glyph_params)
-    glyph = glyphs.Circle(**kwargs)
-    nonselection_glyph = glyph.clone()
-    nonselection_glyph.fill_alpha = 0.1
-    nonselection_glyph.line_alpha = 0.1    
-    glyph_renderer = GlyphRenderer(
-        data_source = datasource,
-        xdata_range = plot.x_range,
-        ydata_range = plot.y_range,
-        glyph=glyph,
-        nonselection_glyph=nonselection_glyph
-        )
-    if legend_name:
-        legend = get_legend(plot)
-        if not legend:
-            legend = make_legend(plot)
-        mappings = legend.annotationspec.setdefault("legends", {})
-        mappings.setdefault(legend_name, []).append(glyph_renderer)
-        legend._dirty = True
-
-    if select_tool : 
-        select_tool.renderers.append(glyph_renderer)
-        select_tool._dirty = True
-    plot.renderers.append(glyph_renderer)
-    session_objs.extend(plot.tools)
-    session_objs.extend(plot.renderers)
-    session_objs.extend([plot.x_range, plot.y_range])
-    return plot, session_objs
 
 
 def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select,previewsave", plot_width=None, plot_height=None, **kw):
@@ -850,7 +760,7 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
                 arrays.append(arg)
             else:
                 arrays.extend(arg)
-        
+
         elif isinstance(arg, Iterable):
             arrays.append(arg)
 

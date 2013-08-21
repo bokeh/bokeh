@@ -9,7 +9,7 @@ y = np.sin(x)
 # Go to http://localhost:5006/bokeh to view this plot
 #output_server("rect example")
 output_file("rects.html", title="Rectangles")
-rects(x,y, 0.1, 0.05, color="#FF0000", tools="pan,zoom,save,resize")
+rects(x,y, 1, 0.5, color="#FF0000", tools="pan,zoom,save,resize")
 save()
 
 # You can set the x, y, width, and height to arrays or to constant values

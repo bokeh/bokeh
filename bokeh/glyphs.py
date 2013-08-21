@@ -361,8 +361,8 @@ class Text(Glyph):
     __view_model__ = "text"
     x = DataSpec
     y = DataSpec
-    angle = DataSpec
     text = String
+    angle = DataSpec
 
 class Wedge(Glyph, FillProps, LineProps):
     __view_model__ = 'wedge'
