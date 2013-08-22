@@ -59,8 +59,12 @@ class GMapPlotView extends ContinuumView
     super(_.defaults(options, @default_options))
 
     # TODO(bryanv): there must be a cleaner way to do this
-    @x_range = Collections('Range1d').create({start: 0, end: 1})
-    @y_range = Collections('Range1d').create({start: 0, end: 1})
+    coll = Collections('Range1d')
+    m = Collections('Range1d').model
+    @x_range = new m({start: 0, end: 1})
+    coll.add(@x_range)
+    @y_range = new m({start: 0, end: 1})
+    coll.add(@y_range)
     @mset('x_range', @x_range, {silent: true})
     @mset('y_range', @y_range, {silent: true})
 
@@ -100,8 +104,9 @@ class GMapPlotView extends ContinuumView
       domain_mapper: @xmapper
       codomain_mapper: @ymapper
     })
-
-    pantool = Collections('PanTool').create(
+    coll = Collections('PanTool')
+    m = coll.model
+    pantool = new m(
       dataranges: [@x_range.ref(), @y_range.ref()]
       dimensions: ['width', 'height']
     )
@@ -112,7 +117,8 @@ class GMapPlotView extends ContinuumView
     )
 
     @mset('tools', [pantool, zoomtool])
-
+    coll.add(pantool)
+    @mget('tools').push(pantool.ref())
     @requested_padding = {
       top: 0
       bottom: 0
@@ -260,26 +266,26 @@ class GMapPlotView extends ContinuumView
     @canvas_wrapper.width("#{ow}px").height("#{oh}px")
     @canvas.attr('width', ow).attr('height', oh) # TODO: this is needed but why
     @$el.attr("width", ow).attr('height', oh)
-    @gmap_div.attr("style", "top: #{top}px; left: #{left}px;")
+    @gmap_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
     @gmap_div.width("#{iw}px").height("#{ih}px")
+    build_map = () =>
+      mo = @mget('map_options')
+      map_options =
+        center: new google.maps.LatLng(mo.lat, mo.lng)
+        zoom:mo.zoom
+        disableDefaultUI: true
+        mapTypeId: google.maps.MapTypeId.SATELLITE
 
-    mo = @mget('map_options')
-    map_options =
-      center: new google.maps.LatLng(mo.lat, mo.lng)
-      zoom:mo.zoom
-      disableDefaultUI: true
-      mapTypeId: google.maps.MapTypeId.SATELLITE
-
-    # Create the map with above options in div
-    @map = new google.maps.Map(@gmap_div[0], map_options)
-    google.maps.event.addListener(@map, 'bounds_changed', () =>
-      bds = @map.getBounds()
-      ne = bds.getNorthEast()
-      sw = bds.getSouthWest()
-      @x_range.set({start: sw.lng(), end: ne.lng()})
-      @y_range.set({start: sw.lat(), end: ne.lat()})
-    )
-
+      # Create the map with above options in div
+      @map = new google.maps.Map(@gmap_div[0], map_options)
+      google.maps.event.addListener(@map, 'bounds_changed', () =>
+        bds = @map.getBounds()
+        ne = bds.getNorthEast()
+        sw = bds.getSouthWest()
+        @x_range.set({start: sw.lng(), end: ne.lng(), silent:true})
+        @y_range.set({start: sw.lat(), end: ne.lat()})
+      )
+    _.defer(build_map)
     @ctx = @canvas[0].getContext('2d')
     if full_render
       @render()
