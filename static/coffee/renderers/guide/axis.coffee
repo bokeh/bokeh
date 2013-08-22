@@ -345,7 +345,6 @@ class LinearAxis extends HasParent
     super(attrs, options)
     @register_property('bounds', @_bounds, false)
     @add_dependencies('bounds', this, ['guidespec'])
-    @add_dependencies('bounds', @get_obj('plot'), ['x_range', 'y_range'])
 
     @register_property('rule_coords', @_rule_coords, false)
     @add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location'])
@@ -360,6 +359,9 @@ class LinearAxis extends HasParent
     @add_dependencies('side', this, ['normals'])
 
     @register_property('padding_request', @_padding_request, false)
+
+  dinitialize: (attrs, options)->
+    @add_dependencies('bounds', @get_obj('plot'), ['x_range', 'y_range'])
 
   _bounds: () ->
     i = @get('guidespec').dimension
