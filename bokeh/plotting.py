@@ -515,24 +515,27 @@ def update_plot_data_ranges(plot, datasource, xcols, ycols):
     xcols : names of columns that are in the X axis
     ycols : names of columns that are in the Y axis
     """
-    x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
-    if len(x_column_ref) > 0:
-        x_column_ref = x_column_ref[0]
-        for cname in xcols:
-            if cname not in x_column_ref.columns:
-                x_column_ref.columns.append(cname)
-    else:
-        plot.x_range.sources.append(datasource.columns(*xcols))
-    y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
-    if len(y_column_ref) > 0:
-        y_column_ref = y_column_ref[0]
-        for cname in ycols:
-            if cname not in y_column_ref.columns:
-                y_column_ref.columns.append(cname)
-    else:
-        plot.y_range.sources.append(datasource.columns(*ycols))
-    plot.x_range._dirty = True
-    plot.y_range._dirty = True
+    if isinstance(plot.x_range, DataRange1d):
+        x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
+        if len(x_column_ref) > 0:
+            x_column_ref = x_column_ref[0]
+            for cname in xcols:
+                if cname not in x_column_ref.columns: 
+                    x_column_ref.columns.append(cname)
+        else:
+            plot.x_range.sources.append(datasource.columns(*xcols))
+        plot.x_range._dirty = True
+        
+    if isinstance(plot.y_range, DataRange1d):            
+        y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
+        if len(y_column_ref) > 0:
+            y_column_ref = y_column_ref[0]
+            for cname in ycols:
+                if cname not in y_column_ref.columns:
+                    y_column_ref.columns.append(cname)
+        else:
+            plot.y_range.sources.append(datasource.columns(*ycols))
+        plot.y_range._dirty = True
 
 def match_data_params(names, vals, datasource):
     """
@@ -601,10 +604,59 @@ def get_default_color(plot):
 def annular_wedge(**kwargs):
     return glyphs.AnnularWedge(**kwargs)
 
+<<<<<<< HEAD
 @visual
 @glyph(['x', 'y', 'inner_radius', 'outer_radius'])
 def annulus(**kwargs):
     return glyphs.Annulus(**kwargs)
+=======
+    argnames = ["x","y","width","height","angle"]
+    datasource = kwargs.pop("source", ColumnDataSource())
+    session_objs = [datasource]
+    glyph_params = match_data_params(argnames, 
+                                     [x, y, width, height],
+                                     datasource)
+    plot = get_plot(kwargs)
+    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
+    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
+    update_plot_data_ranges(plot, datasource, 
+                            x_data_fields, 
+                            y_data_fields)
+    if "color" in kwargs:
+        color = kwargs.pop("color")
+        kwargs["fill"] = color
+        kwargs["line_color"] = color
+    select_tool = get_select_tool(plot)
+    legend_name = kwargs.pop("legend", None)    
+    kwargs.update(glyph_params)
+    glyph = glyphs.Rect(**kwargs)
+    nonselection_glyph = glyph.clone()
+    alpha = kwargs.pop("nonselection_alpha", 0.1)
+    nonselection_glyph.fill_alpha = alpha
+    nonselection_glyph.line_alpha = alpha
+    glyph_renderer = GlyphRenderer(
+        data_source=datasource,
+        xdata_range=plot.x_range,
+        ydata_range=plot.y_range,
+        glyph=glyph,
+        nonselection_glyph=nonselection_glyph,
+        )
+    if legend_name:
+        legend = get_legend(plot)
+        if not legend:
+            legend = make_legend(plot)
+        mappings = legend.annotationspec.setdefault("legends", {})
+        mappings.setdefault(legend_name, []).append(glyph_renderer)
+        legend._dirty = True
+    if select_tool : 
+        select_tool.renderers.append(glyph_renderer)
+        select_tool._dirty = True
+    plot.renderers.append(glyph_renderer)
+    session_objs.extend(plot.tools)
+    session_objs.extend(plot.renderers)
+    session_objs.extend([plot.x_range, plot.y_range])
+    return plot, session_objs
+>>>>>>> cdxsubtree
 
 @visual
 @glyph(['x0', 'x1', 'y0', 'y1', 'cx0', 'cy0', 'cx1', 'cy1'])
@@ -667,6 +719,55 @@ def wedge(**kwargs):
     return glyphs.Wedge(**kwargs)
 
 
+<<<<<<< HEAD
+=======
+    argnames = ["x","y","size","angle"]
+    datasource = kwargs.pop("source", ColumnDataSource())
+    session_objs = [datasource]
+    glyph_params = match_data_params(argnames, 
+                                     [x, y, size],
+                                     datasource)
+    plot = get_plot(kwargs)
+    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
+    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
+    update_plot_data_ranges(plot, datasource, 
+                            x_data_fields, 
+                            y_data_fields)
+    if "color" in kwargs:
+        color = kwargs.pop("color")
+        kwargs["fill"] = color
+        kwargs["line_color"] = color
+    select_tool = get_select_tool(plot)
+    legend_name = kwargs.pop("legend", None)    
+    kwargs.update(glyph_params)
+    glyph = glyphs.Square(**kwargs)
+    nonselection_glyph = glyph.clone()
+    alpha = kwargs.pop("nonselection_alpha", 0.1)
+    nonselection_glyph.fill_alpha = alpha
+    nonselection_glyph.line_alpha = alpha
+    glyph_renderer = GlyphRenderer(
+        data_source = datasource,
+        xdata_range = plot.x_range,
+        ydata_range = plot.y_range,
+        glyph=glyph,
+        nonselection_glyph=nonselection_glyph,
+        )
+    if legend_name:
+        legend = get_legend(plot)
+        if not legend:
+            legend = make_legend(plot)
+        mappings = legend.annotationspec.setdefault("legends", {})
+        mappings.setdefault(legend_name, []).append(glyph_renderer)
+        legend._dirty = True
+    if select_tool : 
+        select_tool.renderers.append(glyph_renderer)
+        select_tool._dirty = True
+    plot.renderers.append(glyph_renderer)
+    session_objs.extend(plot.tools)
+    session_objs.extend(plot.renderers)
+    session_objs.extend([plot.x_range, plot.y_range])
+    return plot, session_objs
+>>>>>>> cdxsubtree
 
 def get_plot(kwargs):
     plot = kwargs.pop("plot", None)
@@ -691,11 +792,67 @@ def make_legend(plot):
     plot._dirty = True
     return legend
 
+<<<<<<< HEAD
+=======
+@visual
+def circles(x, y, radius=4, **kwargs):
+    """ Creates a series of circles.
+    """
+    argnames = ["x","y","radius"]
+    datasource = kwargs.pop("source", ColumnDataSource())
+    session_objs = [datasource]
+    glyph_params = match_data_params(argnames, 
+                                     [x, y, radius],
+                                     datasource)
+    plot = get_plot(kwargs)
+    x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
+    y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
+    update_plot_data_ranges(plot, datasource, 
+                            x_data_fields, 
+                            y_data_fields)
+    if "color" in kwargs:
+        color = kwargs.pop("color")
+        kwargs["fill"] = color
+        kwargs["line_color"] = color
+    select_tool = get_select_tool(plot)
+    legend_name = kwargs.pop("legend", None)
+    kwargs.update(glyph_params)
+    glyph = glyphs.Circle(**kwargs)
+    nonselection_glyph = glyph.clone()
+    alpha = kwargs.pop("nonselection_alpha", 0.1)
+    nonselection_glyph.fill_alpha = alpha
+    nonselection_glyph.line_alpha = alpha
+    glyph_renderer = GlyphRenderer(
+        data_source = datasource,
+        xdata_range = plot.x_range,
+        ydata_range = plot.y_range,
+        glyph=glyph,
+        nonselection_glyph=nonselection_glyph
+        )
+    if legend_name:
+        legend = get_legend(plot)
+        if not legend:
+            legend = make_legend(plot)
+        mappings = legend.annotationspec.setdefault("legends", {})
+        mappings.setdefault(legend_name, []).append(glyph_renderer)
+        legend._dirty = True
+
+    if select_tool : 
+        select_tool.renderers.append(glyph_renderer)
+        select_tool._dirty = True
+    plot.renderers.append(glyph_renderer)
+    session_objs.extend(plot.tools)
+    session_objs.extend(plot.renderers)
+    session_objs.extend([plot.x_range, plot.y_range])
+    return plot, session_objs
+
+>>>>>>> cdxsubtree
 
 def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select,previewsave", plot_width=None, plot_height=None, **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
+    p.title = kw.pop("title", "Plot")
     if plot_width is not None:
         p.width = plot_width
     elif "width" in kw:

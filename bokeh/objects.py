@@ -612,6 +612,8 @@ class GMapPlot(PlotObject):
     # TODO: These don't appear in the CS source, but are created by mpl.py, so
     # I'm leaving them here for initial compatibility testing.
     axes = List(has_ref=True)
+    x_range = Instance(Range1d, has_ref=True)
+    y_range = Instance(Range1d, has_ref=True)
 
     # TODO: How do we want to handle syncing of the different layers?
     # image = List
@@ -647,7 +649,6 @@ class GMapPlot(PlotObject):
             'zoom': self.zoom_level
         }
         self._session.raw_js_snippets(self)
-        print data
         return data
     
     @classmethod
