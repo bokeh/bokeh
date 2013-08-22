@@ -54,7 +54,7 @@ class PandasPivotView extends ContinuumView
       code = $(e.currentTarget).val()
       source = @model.get_obj('source')
       source.rpc('search', [code])
-
+      e.preventDefault()
   column_del : (e) =>
     source = @model.get_obj('source')
     old = source.get('computed_columns')
@@ -72,7 +72,7 @@ class PandasPivotView extends ContinuumView
       old = source.get('computed_columns')
       old.push(name : name, code : code)
       source.rpc('set_computed_columns', [old])
-
+      e.preventDefault()
   clearselected : (e) =>
     @model.rpc('setselect', [[]])
 
@@ -124,7 +124,7 @@ class PandasPivotView extends ContinuumView
       if _.isNaN(offset)
         offset = @model.defaults.offset
       @model.save('offset', offset, {wait : true})
-
+      e.preventDefault()
   pandassize : (e) ->
     if e.keyCode == ENTER
       sizetxt = @$el.find('.pandassize').val()
@@ -134,7 +134,7 @@ class PandasPivotView extends ContinuumView
       if size + @mget('offset') > @mget('maxlength')
         size = @mget('maxlength') - @mget('offset')
       @model.save('length', size, {wait:true})
-
+      e.preventDefault()
   tablecontrolstate : () ->
     @mset('tablecontrolstate', @$('.tablecontrolstate').val())
 
@@ -154,6 +154,7 @@ class PandasPivotView extends ContinuumView
         offset : 0
       )
       @model.save()
+      e.preventDefault()
       return false
 
 
