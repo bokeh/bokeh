@@ -319,29 +319,35 @@ def visual(func):
         return plot
     return wrapper
 
-def glyph(argnames):
+def glyph(x=['x'], y=['y']):
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
             datasource = kwargs.pop("source", ColumnDataSource())
             session_objs = [datasource]
-            glyph_params = match_data_params(argnames, args, datasource)
-
-            plot = get_plot(kwargs)
-            x_data_fields = [glyph_params['x']['field']] if glyph_params['x']['units'] == 'data' else []
-            y_data_fields = [glyph_params['y']['field']] if glyph_params['y']['units'] == 'data' else []
-            update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
 
             if "color" in kwargs:
                 color = kwargs.pop("color")
                 kwargs["fill"] = color
                 kwargs["line_color"] = color
 
-            select_tool = get_select_tool(plot)
             legend_name = kwargs.pop("legend", None)
-            kwargs.update(glyph_params)
 
-            glyph = func(**kwargs)
+            glyph_type, glyph_params = func(*args, datasource=datasource, **kwargs)
+
+            plot = get_plot(kwargs)
+            select_tool = get_select_tool(plot)
+
+            x_data_fields = [
+                glyph_params[xx]['field'] for xx in x if glyph_params[xx]['units'] == 'data'
+            ]
+            y_data_fields = [
+                glyph_params[yy]['field'] for yy in y if glyph_params[yy]['units'] == 'data'
+            ]
+            update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
+
+            kwargs.update(glyph_params)
+            glyph = glyph_type(**kwargs)
 
             nonselection_glyph = glyph.clone()
             nonselection_glyph.fill_alpha = 0.1
@@ -597,74 +603,116 @@ def get_default_color(plot):
 
 
 @visual
-@glyph(['x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle'])
-def annular_wedge(**kwargs):
-    return glyphs.AnnularWedge(**kwargs)
+@glyph()
+def annular_wedge(x, y, inner_radius, outer_radius, start_angle, end_angle, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.AnnularWedge, glyph_params
 
 @visual
-@glyph(['x', 'y', 'inner_radius', 'outer_radius'])
-def annulus(**kwargs):
-    return glyphs.Annulus(**kwargs)
+@glyph()
+def annulus(x, y, inner_radius, outer_radius, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Annulus, glyph_params
 
 @visual
-@glyph(['x0', 'x1', 'y0', 'y1', 'cx0', 'cy0', 'cx1', 'cy1'])
-def bezier(**kwargs):
-    return glyphs.Bezier(**kwargs)
+@glyph()
+def bezier(x0, x1, y0, y1, cx0, cy0, cx1, cy1, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Bezier, glyph_params
 
 @visual
-@glyph(['x', 'y', 'radius'])
-def circles(**kwargs):
-    return glyphs.Circle(**kwargs)
+@glyph()
+def circles(x, y, radius, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Circle, glyph_params
 
 @visual
-@glyph(['x', 'y'])
-def line(**kwargs):
-    return glyphs.Line(**kwargs)
+@glyph()
+def line(x, y, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Line, glyph_params
 
 @visual
-@glyph(['xs', 'ys'])
-def multi_line(**kwargs):
-    return glyphs.MultiLine(**kwargs)
+@glyph()
+def multi_line(xs, ys, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.MultiLine, glyph_params
 
 @visual
-@glyph(['x', 'y', 'width', 'height', 'angle'])
-def oval(**kwargs):
-    return glyphs.Oval(**kwargs)
+@glyph()
+def oval(x, y, width, height, angle=0, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Oval, glyph_params
 
 @visual
-@glyph(['x', 'y', 'angle', 'length'])
-def ray(**kwargs):
-    return glyphs.Ray(**kwargs)
+@glyph()
+def ray(x, y, length, angle, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Ray, glyph_params
 
 @visual
-@glyph(['left', 'right', 'top', 'bottom'])
-def quad(**kwargs):
-    return glyphs.Quad(**kwargs)
+@glyph(x=['left', 'right'], y=['top', 'bottom'])
+def quad(left, right, top, bottom, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Quad, glyph_params
 
 @visual
-@glyph(['x0', 'x1', 'y0', 'y1', 'cx', 'cy'])
-def quad_curve(**kwargs):
-    return glyphs.QuadCurve(**kwargs)
+@glyph()
+def quad_curve(x0, x1, y0, y1, cx, cy, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.QuadCurve, glyph_params
 
 @visual
-@glyph(['x', 'y', 'width', 'height', 'angle'])
-def rects(**kwargs):
-    return glyphs.Rect(**kwargs)
+@glyph()
+def rects(x, y, width, height, angle=0, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Rect, glyph_params
 
 @visual
-@glyph(['x0', 'y0', 'x1', 'y1'])
-def segment(**kwargs):
-    return glyphs.Segment(**kwargs)
+@glyph(x=['x0', 'x1'], y=['y0', 'y1'])
+def segment(x0, y0, x1, y1, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Segment, glyph_params
 
 @visual
-@glyph(['x', 'y', 'size', 'angle'])
-def squares(**kwargs):
-    return glyphs.Square(**kwargs)
+@glyph()
+def squares(x, y, size, angle=0, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Square, glyph_params
 
 @visual
-@glyph(['x', 'y', 'radius', 'start_angle', 'end_angle'])
-def wedge(**kwargs):
-    return glyphs.Wedge(**kwargs)
+@glyph()
+def wedge(x, y, radius, start_angle, end_angle, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Wedge, glyph_params
 
 
 
