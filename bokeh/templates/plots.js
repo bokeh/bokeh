@@ -3,7 +3,7 @@ var modelid = "{{ modelid }}";
 var modeltype = "{{ modeltype }}";
 var elementid = "{{ elementid }}";
 var view;
-base = require("./base")
+base = rrequire("./base")
 console.log(modelid, modeltype, elementid);
 base.load_models(all_models);
 var model = base.Collections(modeltype).get(modelid)

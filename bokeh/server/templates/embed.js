@@ -18,10 +18,10 @@ console.log("embed.js");
             el.addEventListener(eventName, func, false);}}
 
     var script_injected = !(typeof(_embed_bokeh_inject_application) == "undefined") && _embed_bokeh_inject_application;
-    if(typeof require == "function"){
+    if(typeof rrequire == "function"){
         // application.js is already loaded
         console.log("application.js is already loaded, going straight to plotting");
-        embed_core = require("./embed_core");
+        embed_core = rrequire("./embed_core");
         embed_core.search_and_plot();
     }
 
@@ -35,7 +35,7 @@ console.log("embed.js");
             s,'load', 
             function() {
                 console.log("application.js loaded callback");
-                embed_core = require("./embed_core");
+                embed_core = rrequire("./embed_core");
                 console.log("embed_core loaded")
                 embed_core.search_and_plot();
                 console.log("search_and_plot called");

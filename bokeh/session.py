@@ -821,9 +821,10 @@ class NotebookSessionMixin(object):
         to just see one or two plots, and not all the plots and models
         associated with the session.
         """
-        from IPython.core.display import HTML
+        import IPython.core.displaypub as displaypub
         html = self.dumps(objects)
-        return HTML(html)
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
 
 
 class NotebookSession(NotebookSessionMixin, HTMLFileSession):
