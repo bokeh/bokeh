@@ -169,6 +169,8 @@ def update(docid, typename, id):
     sess.load()
     
     modeldata = protocol.deserialize_json(request.data)
+    #patch id is not passed...
+    modeldata['id'] = id
     sess.load_all_callbacks()
     sess.load_attrs(typename, [modeldata], events='existing')
     changed = sess.store_all()

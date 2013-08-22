@@ -43,6 +43,15 @@ make_glyph_plot = (data_source, defaults, glyphspecs, {dims, tools, axes, legend
     [xaxis.ref(), yaxis.ref()]
   )
 
+  pantool = Collections('PanTool').create(
+    dimensions: ['width', 'height']
+  )
+  zoomtool = Collections('ZoomTool').create(
+    dimensions: ['width', 'height']
+  )
+  plot_model.set_obj('tools', [pantool, zoomtool])
+
+
   return plot_model
 
 make_glyph_test = (test_name, data_source, defaults, glyphspecs, {dims, tools, axes, legend, legend_name, plot_title, reference_point}) ->

@@ -39,7 +39,7 @@ class IPythonRemoteData(PlotObject):
         data = transform
         data['selected'] = select
         requests.post(url, data=protocol.serialize_json(data))
-        self.selected += 1
+        self.selected = self.selected + 1
         
     def search(self, search):
         remotedata = self
@@ -47,7 +47,7 @@ class IPythonRemoteData(PlotObject):
                                                 remotedata.port,
                                                 remotedata.varname)
         requests.post(url, data=search)
-        self.selected += 1
+        self.selected = self.selected + 1        
         
     def select(self, select, transform):
                 
@@ -58,7 +58,7 @@ class IPythonRemoteData(PlotObject):
         data = transform
         data['selected'] = select
         requests.post(url, data=protocol.serialize_json(data))
-        self.selected += 1
+        self.selected = self.selected + 1        
         
     def deselect(self, deselect, transform):
         remotedata = self
@@ -68,7 +68,7 @@ class IPythonRemoteData(PlotObject):
         data = transform
         data['selected'] = deselect
         requests.post(url, data=protocol.serialize_json(data))
-        self.selected += 1
+        self.selected = self.selected + 1        
         
     def get_data(self, transform):
         remotedata = self
