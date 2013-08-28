@@ -484,32 +484,32 @@ def scatter(*args, **kwargs):
     if not len(color_fields.intersection(set(kwargs.keys()))):
         kwargs['color'] = get_default_color(plot)
     for name in names[1:]:
-        _glyph_plot(marker, x_name, name, plot, datasource, **kwargs)
+        plot = _glyph_plot(marker, x_name, name, plot, datasource, **kwargs)
     return plot
 
 def _glyph_plot(plottype, x_name, y_name, plot, datasource, **kwargs):
     #copy kwargs, because we pop things off inside these functions
     kwargs = copy.copy(kwargs)
     if plottype == "circle":
-        circles(x_name, y_name,
+        return circles(x_name, y_name,
                 kwargs.pop('radius', 4),
                 source=datasource,
                 plot=plot, **kwargs)
     elif plottype == "rect":
-        rects(x_name, y_name,
+        return rects(x_name, y_name,
               kwargs.pop('width', 8),
               kwargs.pop('height', 4),
               angle=kwargs.get('angle', 0),
               source=datasource,
               plot=plot, **kwargs)
     elif plottype == "square":
-        squares(x_name, y_name,
+        return squares(x_name, y_name,
               kwargs.pop('width', 4),
               angle=kwargs.pop('angle', 0),
               source=datasource,
               plot=plot, **kwargs)
     elif plottype == "line":
-        line(x_name, y_name, plot=plot, source=datasource, **kwargs)
+        return line(x_name, y_name, plot=plot, source=datasource, **kwargs)
 
 
 def update_plot_data_ranges(plot, datasource, xcols, ycols):
