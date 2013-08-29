@@ -303,14 +303,14 @@ def visual(func):
         session.plotcontext._dirty = True
         plot._dirty = True
         if (output_type == "notebook" and output_url is None):
-            return session.show(plot, *session_objs)
+            session.show(plot, *session_objs)
 
         elif (output_type == "server") or \
                 (output_type == "notebook" and output_url is not None):
             # push the plot data to a plot server
             session.store_all()
             if output_type == "notebook":
-                return session.show(plot, *session_objs)
+                session.show(plot, *session_objs)
 
         else: # File output mode
             # Store plot into HTML file
@@ -484,32 +484,32 @@ def scatter(*args, **kwargs):
     if not len(color_fields.intersection(set(kwargs.keys()))):
         kwargs['color'] = get_default_color(plot)
     for name in names[1:]:
-        plot = _glyph_plot(marker, x_name, name, plot, datasource, **kwargs)
+        _glyph_plot(marker, x_name, name, plot, datasource, **kwargs)
     return plot
 
 def _glyph_plot(plottype, x_name, y_name, plot, datasource, **kwargs):
     #copy kwargs, because we pop things off inside these functions
     kwargs = copy.copy(kwargs)
     if plottype == "circle":
-        return circles(x_name, y_name,
+        circles(x_name, y_name,
                 kwargs.pop('radius', 4),
                 source=datasource,
                 plot=plot, **kwargs)
     elif plottype == "rect":
-        return rects(x_name, y_name,
+        rects(x_name, y_name,
               kwargs.pop('width', 8),
               kwargs.pop('height', 4),
               angle=kwargs.get('angle', 0),
               source=datasource,
               plot=plot, **kwargs)
     elif plottype == "square":
-        return squares(x_name, y_name,
+        squares(x_name, y_name,
               kwargs.pop('width', 4),
               angle=kwargs.pop('angle', 0),
               source=datasource,
               plot=plot, **kwargs)
     elif plottype == "line":
-        return line(x_name, y_name, plot=plot, source=datasource, **kwargs)
+        line(x_name, y_name, plot=plot, source=datasource, **kwargs)
 
 
 def update_plot_data_ranges(plot, datasource, xcols, ycols):
@@ -521,24 +521,27 @@ def update_plot_data_ranges(plot, datasource, xcols, ycols):
     xcols : names of columns that are in the X axis
     ycols : names of columns that are in the Y axis
     """
-    x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
-    if len(x_column_ref) > 0:
-        x_column_ref = x_column_ref[0]
-        for cname in xcols:
-            if cname not in x_column_ref.columns:
-                x_column_ref.columns.append(cname)
-    else:
-        plot.x_range.sources.append(datasource.columns(*xcols))
-    y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
-    if len(y_column_ref) > 0:
-        y_column_ref = y_column_ref[0]
-        for cname in ycols:
-            if cname not in y_column_ref.columns:
-                y_column_ref.columns.append(cname)
-    else:
-        plot.y_range.sources.append(datasource.columns(*ycols))
-    plot.x_range._dirty = True
-    plot.y_range._dirty = True
+    if isinstance(plot.x_range, DataRange1d):
+        x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
+        if len(x_column_ref) > 0:
+            x_column_ref = x_column_ref[0]
+            for cname in xcols:
+                if cname not in x_column_ref.columns:
+                    x_column_ref.columns.append(cname)
+        else:
+            plot.x_range.sources.append(datasource.columns(*xcols))
+        plot.x_range._dirty = True
+
+    if isinstance(plot.y_range, DataRange1d):
+        y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
+        if len(y_column_ref) > 0:
+            y_column_ref = y_column_ref[0]
+            for cname in ycols:
+                if cname not in y_column_ref.columns:
+                    y_column_ref.columns.append(cname)
+        else:
+            plot.y_range.sources.append(datasource.columns(*ycols))
+        plot.y_range._dirty = True
 
 def match_data_params(names, vals, datasource):
     """
@@ -715,7 +718,6 @@ def wedge(x, y, radius, start_angle, end_angle, **kwargs):
     return glyphs.Wedge, glyph_params
 
 
-
 def get_plot(kwargs):
     plot = kwargs.pop("plot", None)
     if not plot:
@@ -744,6 +746,7 @@ def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select,
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
+    p.title = kw.pop("title", "Plot")
     if plot_width is not None:
         p.width = plot_width
     elif "width" in kw:

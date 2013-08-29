@@ -19,7 +19,7 @@ from bokeh.properties import List
 logger = logging.getLogger(__file__)
 
 class Session(object):
-    """ Sessions provide a sandbox or facility in which to manage the "live"
+    """ Sessions provide a sandbox or facility in which to manage the 'live'
     object state for a Bokeh plot.
 
     Many use cases for Bokeh have a client-server separation between the
@@ -214,7 +214,6 @@ class BaseHTMLSession(Session):
             self.PlotObjEncoder.session = None
         return jsondata
 
-
 class HTMLFileSession(BaseHTMLSession):
     """ Produces a pile of static HTML, suitable for exporting a plot
     as a standalone HTML file.  This includes a template around the
@@ -224,8 +223,11 @@ class HTMLFileSession(BaseHTMLSession):
     title = "Bokeh Plot"
 
     # The root directory for the CSS files
-    css_files = ["css/bokeh.css", "css/continuum.css",
-                 "vendor/bootstrap/css/bootstrap.css"]
+    css_files = [
+        "vendor/bootstrap/css/bootstrap.css",
+        "css/bokeh.css",
+        "css/continuum.css",
+    ]
 
     # TODO: Why is this not in bokehjs_dir, but rather outside of it?
     js_files = ["js/application.js"]
@@ -247,6 +249,7 @@ class HTMLFileSession(BaseHTMLSession):
             self.title = title
         super(HTMLFileSession, self).__init__(plot=plot)
         self.plotcontext = PlotContext()
+        self.raw_js_objs = []
 
     # FIXME: move this to css_paths, js_paths to base class?
     def css_paths(self, as_url=False):
@@ -255,6 +258,9 @@ class HTMLFileSession(BaseHTMLSession):
     def js_paths(self, as_url=False, unified=True, min=True):
         # TODO: Handle unified and minified options
         return [join(self.server_static_dir, d) for d in self.js_files]
+
+    def raw_js_snippets(self, obj):
+        self.raw_js_objs.append(obj)
 
     def dumps(self, js=None, css=None, rootdir=None):
         """ Returns the HTML contents as a string
@@ -314,9 +320,10 @@ class HTMLFileSession(BaseHTMLSession):
         plot_div = self._load_template(self.div_template).render(
             elementid=elementid
             )
+
         html = self._load_template(self.html_template).render(
                     js_snippets = [js],
-                    html_snippets = [div],
+                    html_snippets = [div] + [o.get_raw_js() for o in self.raw_js_objs],
                     rawjs = rawjs, rawcss = rawcss,
                     jsfiles = jsfiles, cssfiles = cssfiles,
                     title = self.title)
@@ -433,12 +440,14 @@ class PlotServerSession(BaseHTMLSession):
         self.apikey = None
         self.bbclient = None   # reference to a ContinuumModelsClient
         self.base_url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
-
+        self.raw_js_objs = []
         super(PlotServerSession, self).__init__()
 
     #------------------------------------------------------------------------
     # Document-related operations
     #------------------------------------------------------------------------
+    def raw_js_snippets(self, obj):
+        self.raw_js_objs.append(obj)
 
     def load_doc(self, docid):
         url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
@@ -812,10 +821,10 @@ class NotebookSessionMixin(object):
         to just see one or two plots, and not all the plots and models
         associated with the session.
         """
-        from IPython.core.display import HTML
+        import IPython.core.displaypub as displaypub
         html = self.dumps(objects)
-        #print html
-        return HTML(html)
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
 
 
 class NotebookSession(NotebookSessionMixin, HTMLFileSession):

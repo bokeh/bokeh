@@ -1,9 +1,9 @@
 window.docid = "{{ docid }}";
-utility = require("./serverutils").utility;
+utility = rrequire("./serverutils").utility;
 headers = {'BOKEH-API-KEY' : '{{ docapikey }}',
           };
 $.ajaxSetup({'headers' : headers});
-BokehConfig = require("./base").Config;
+BokehConfig = rrequire("./base").Config;
 BokehConfig.prefix = "{{ root_url }}";
 BokehConfig.ws_conn_string = "{{ ws_conn_string }}";
 wswrapper = utility.make_websocket();
