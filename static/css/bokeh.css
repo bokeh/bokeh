@@ -16,7 +16,27 @@ svg {
 }
 
 .button_bar > button{
-  float : left;
+  float: left;
+}
+
+.plotview{
+    clear: both;
+}
+
+.bokeh_canvas_wrapper {
+  position: relative;
+  font-size: 12pt;
+  float: left;
+}
+
+.bokeh_canvas {
+  position: absolute;
+  font-size: 12pt;
+}
+
+.bokeh_canvas_wrapper .bokeh_gmap {
+  position: absolute !important;
+  z-index: -5;
 }
 
 .plotview{
@@ -77,7 +97,7 @@ button.active {border:1px solid blue}
 
 .plotsidebar{
     overflow-x : auto;
-    width : 350;
+    width : 350px;
     float : left;
 }
 
@@ -156,8 +176,15 @@ button.active {border:1px solid blue}
 }
 
 .dataslider{
-    margin-top: 20px;
-    margin-bottom: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
     margin-left: 5px;
     margin-right: 5px;
+    width : 20px;
+}
+
+.maxlabel,
+.minlabel{
+    margin-top: 10px;
+    margin-bottom: 10px;
 }

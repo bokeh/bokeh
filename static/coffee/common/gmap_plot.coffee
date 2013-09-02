@@ -58,12 +58,6 @@ class GMapPlotView extends ContinuumView
   initialize: (options) ->
     super(_.defaults(options, @default_options))
 
-    # TODO(bryanv): there must be a cleaner way to do this
-    @x_range = Collections('Range1d').create({start: 0, end: 1})
-    @y_range = Collections('Range1d').create({start: 0, end: 1})
-    @mset('x_range', @x_range, {silent: true})
-    @mset('y_range', @y_range, {silent: true})
-
     @throttled_render = _.throttle(@render, 100)
     @throttled_render_canvas = _.throttle(@render_canvas, 100)
 
@@ -85,7 +79,8 @@ class GMapPlotView extends ContinuumView
       requested_border_left: 0
       requested_border_right: 0
     })
-
+    @x_range = options.x_range ? @mget_obj('x_range')
+    @y_range = options.y_range ? @mget_obj('y_range')
     @xmapper = new LinearMapper({
       source_range: @x_range
       target_range: @view_state.get('inner_range_horizontal')
@@ -100,18 +95,10 @@ class GMapPlotView extends ContinuumView
       domain_mapper: @xmapper
       codomain_mapper: @ymapper
     })
-
-    pantool = Collections('PanTool').create(
-      dataranges: [@x_range.ref(), @y_range.ref()]
-      dimensions: ['width', 'height']
-    )
-
-    zoomtool = Collections('ZoomTool').create(
-      dataranges: [@x_range.ref(), @y_range.ref()]
-      dimensions: ['width', 'height']
-    )
-
-    @mset('tools', [pantool, zoomtool])
+    for tool in @mget_obj('tools')
+      if tool.type == "PanTool" or tool.type == "ZoomTool"
+        tool.set_obj('dataranges', [@x_range, @y_range])
+        tool.set('dimensions', ['width', 'height'])
 
     @requested_padding = {
       top: 0
@@ -227,6 +214,7 @@ class GMapPlotView extends ContinuumView
       @request_render_canvas()
       @request_render()
     )
+
     safebind(this, @x_range, 'change', @request_render)
     safebind(this, @y_range, 'change', @request_render)
     safebind(this, @model, 'change:renderers', @build_levels)
@@ -238,9 +226,11 @@ class GMapPlotView extends ContinuumView
     # TODO use template
     @$el.append($("""
       <div class='button_bar btn-group'/>
+      <div class='plotarea'>
       <div class='bokeh_canvas_wrapper'>
         <div class="bokeh_gmap"></div>
         <canvas class='bokeh_canvas'></canvas>
+      </div>
       </div>
       """))
     @button_bar = @$el.find('.button_bar')
@@ -260,29 +250,36 @@ class GMapPlotView extends ContinuumView
     @canvas_wrapper.width("#{ow}px").height("#{oh}px")
     @canvas.attr('width', ow).attr('height', oh) # TODO: this is needed but why
     @$el.attr("width", ow).attr('height', oh)
-    @gmap_div.attr("style", "top: #{top}px; left: #{left}px;")
+    @gmap_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
     @gmap_div.width("#{iw}px").height("#{ih}px")
+    build_map = () =>
+      mo = @mget('map_options')
+      map_options =
+        center: new google.maps.LatLng(mo.lat, mo.lng)
+        zoom:mo.zoom
+        disableDefaultUI: true
+        mapTypeId: google.maps.MapTypeId.SATELLITE
 
-    mo = @mget('map_options')
-    map_options =
-      center: new google.maps.LatLng(mo.lat, mo.lng)
-      zoom:mo.zoom
-      disableDefaultUI: true
-      mapTypeId: google.maps.MapTypeId.SATELLITE
-
-    # Create the map with above options in div
-    @map = new google.maps.Map(@gmap_div[0], map_options)
-    google.maps.event.addListener(@map, 'bounds_changed', () =>
-      bds = @map.getBounds()
-      ne = bds.getNorthEast()
-      sw = bds.getSouthWest()
-      @x_range.set({start: sw.lng(), end: ne.lng()})
-      @y_range.set({start: sw.lat(), end: ne.lat()})
-    )
-
+      # Create the map with above options in div
+      @map = new google.maps.Map(@gmap_div[0], map_options)
+      google.maps.event.addListener(@map, 'bounds_changed', @bounds_change)
+    _.defer(build_map)
     @ctx = @canvas[0].getContext('2d')
     if full_render
       @render()
+
+  bounds_change : () =>
+    bds = @map.getBounds()
+    ne = bds.getNorthEast()
+    sw = bds.getSouthWest()
+    @x_range.set({start: sw.lng(), end: ne.lng(), silent:true})
+    @y_range.set({start: sw.lat(), end: ne.lat()})
+
+  save_png: () ->
+    @render()
+    data_uri = @canvas[0].toDataURL()
+    @model.set('png', @canvas[0].toDataURL())
+    base.Collections.bulksave([@model])
 
   render: (force) ->
     @requested_padding = {
@@ -326,6 +323,9 @@ class GMapPlotView extends ContinuumView
     ih = @view_state.get('inner_height')
     top = @view_state.get('border_top')
     left = @view_state.get('border_left')
+
+    @gmap_div.attr("style", "top: #{top}px; left: #{left}px;")
+    @gmap_div.width("#{iw}px").height("#{ih}px")
 
     @ctx.clearRect(0, 0, ow, oh)
 

@@ -69,40 +69,58 @@ class CircleView extends GlyphView
     ctx = @plot_view.ctx
 
     ctx.save()
-    if @glyph_props.fast_path
-      @_fast_path(ctx)
+    if true #@glyph_props.fast_path
+      if selected and selected.length and @nonselection_glyphprops
+        if @selection_glyphprops
+          props =  @selection_glyphprops
+        else
+          props = @glyph_props
+        @_fast_path(ctx, props, true)
+        @_fast_path(ctx, @nonselection_glyphprops, false)
+      else
+        @_fast_path(ctx)
     else
       if selected and selected.length and @nonselection_glyphprops
         if @selection_glyphprops
           props =  @selection_glyphprops
         else
           props = @glyph_props
-        @_full_path(ctx, props, 'selected')
-        @_full_path(ctx, @nonselection_glyphprops, 'unselected')
+        @_full_path(ctx, props, true)
+        @_full_path(ctx, @nonselection_glyphprops, false)
       else
         @_full_path(ctx)
     ctx.restore()
 
-  _fast_path: (ctx, glyph_props) ->
+  _fast_path: (ctx, glyph_props, use_selection) ->
     if not glyph_props
       glyph_props = @glyph_props
     if glyph_props.fill_properties.do_fill
-      @glyph_props.fill_properties.set(ctx, @glyph_props)
+      glyph_props.fill_properties.set(ctx, @glyph_props)
+      ctx.beginPath()
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
           continue
-        ctx.beginPath()
+        if use_selection and not @selected_mask[i]
+          continue
+        if use_selection == false and @selected_mask[i]
+          continue
+        ctx.moveTo(@sx[i], @sy[i])
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
-        ctx.fill()
+      ctx.fill()
 
     if glyph_props.line_properties.do_stroke
-      @glyph_props.line_properties.set(ctx, @glyph_props)
+      glyph_props.line_properties.set(ctx, @glyph_props)
+      ctx.beginPath()
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
           continue
-        ctx.beginPath()
+        if use_selection and not @selected_mask[i]
+          continue
+        if use_selection == false and  @selected_mask[i]
+          continue
+        ctx.moveTo(@sx[i], @sy[i])
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
-        ctx.stroke()
+      ctx.stroke()
 
   _full_path: (ctx, glyph_props, use_selection) ->
     if not glyph_props
@@ -110,9 +128,9 @@ class CircleView extends GlyphView
     for i in [0..@sx.length-1]
       if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
         continue
-      if use_selection == 'selected' and not @selected_mask[i]
+      if use_selection and not @selected_mask[i]
         continue
-      if use_selection == 'unselected' and @selected_mask[i]
+      if use_selection == false and @selected_mask[i]
         continue
       ctx.beginPath()
       ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
