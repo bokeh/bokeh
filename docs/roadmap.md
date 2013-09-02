@@ -1,6 +1,8 @@
 
 Ideas for future development. Some of these will be implemented in BokehJS. In no particular order:
 
+* retina/HiDPI improvement
+
 * code cleanup
  - should use html templates in some places
  - css files have lots of cruft
