@@ -116,6 +116,11 @@ _config = {
     }
 
 
+def session():
+    """ Get the current session.
+    """
+    return _config["session"]
+
 def output_notebook(url=None, docname=None):
     """ Sets the output mode to emit HTML objects suitable for embedding in
     IPython notebook.  If URL is "default", then uses the default plot
