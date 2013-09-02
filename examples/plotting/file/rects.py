@@ -7,7 +7,7 @@ N = 80
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_file("rects.html", title="Rectangles")
+output_file("rects.html", title="rects.py example")
 
 # fixed width and height
 rects(x, y, 4, 2, color="#ff0000", tools="pan,zoom,save,resize")
