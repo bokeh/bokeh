@@ -22,8 +22,8 @@ class SelectionToolView extends tool.ToolView
       @listenTo(rendererview.yrange(), 'change',
         @select_callback)
       @listenTo(renderer, 'change', @select_callback)
-      @listenTo(renderer.get_obj('data_source'), 'change',
-        @select_callback)
+      # @listenTo(renderer.get_obj('data_source'), 'change',
+      #   @select_callback)
       @listenTo(renderer, 'change', @select_callback)
 
   eventGeneratorClass : TwoPointEventGenerator
@@ -121,9 +121,11 @@ class SelectionToolView extends tool.ToolView
       #lists of v.
       selected = _.intersection.apply(_, v)
       ds = datasources[k]
-      ds.set('selected', selected)
-      #console.log("datasource_selections", k, v, selected)
-      ds.save()
+      ds.save(
+        selected :selected
+      ,
+        {patch : true}
+      )
     return null
 
 
@@ -163,6 +165,7 @@ class DataRangeBoxSelectionToolView extends SelectionToolView
       @xrange[1], @yrange[1])
     @mset('xselect', [xstart, xend])
     @mset('yselect', [ystart, yend])
+    @model.save()
 
 class DataRangeBoxSelectionTool extends SelectionTool
   type  : "DataRangeBoxSelectionTool"

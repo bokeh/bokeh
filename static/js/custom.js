@@ -1,5 +1,6 @@
 //customizations to libraries
 (function () {
+  "use strict";
 _.uniqueId = function (prefix) {
     //from ipython project
     // http://www.ietf.org/rfc/rfc4122.txt
