@@ -20,7 +20,7 @@ plot = GMapPlot(
     data_sources=[],
     canvas_width=600, canvas_height=600,
     outer_width=600, outer_height=600,
-    title = "GISR"
+    title = "Austin"
     )
 
 select_tool = SelectionTool()
