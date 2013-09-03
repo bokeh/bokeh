@@ -74,13 +74,24 @@ def plothelp():
 
     Display & Session management
     ----------------------------
-    show
+    output_notebook(url=None, docname=None)
+        sets IPython Notebook output mode
+    output_server(docname, url="default", ...)
+        sets plot server output mode
+    output_file(filename, ...)
+        sets HTML file output mode
+    hold()
+        turns "hold" on or off. When hold is on, each new plotting call
+        adds the renderer to the existing plot.
+    figure()
+        clears the "current plot" object on the session
+    show(browser=None, new="tab")
         forces the plot to be rendered to the currently set output device
         or mode (e.g. static HTML file, IPython notebook, plot server)
-    setoutput
-        sets the output mode
-    hold
-        turns "hold" on or off
+    save(filename=None)
+        Updates the output HTML file or forces an upload of plot data 
+        to the server
+    
     """
     print helpstr
 
@@ -337,8 +348,10 @@ def glyph(x=['x'], y=['y']):
 
             if "color" in kwargs:
                 color = kwargs.pop("color")
-                kwargs["fill"] = color
-                kwargs["line_color"] = color
+                if "fill_color" not in kwargs:
+                    kwargs["fill_color"] = color
+                if "line_color" not in kwargs:
+                    kwargs["line_color"] = color
 
             legend_name = kwargs.pop("legend", None)
 
