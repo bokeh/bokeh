@@ -1,6 +1,5 @@
 {
-    "libs": ["./static/vendor/d3/d3.v2.js",
-             "./static/vendor/jquery/js/jquery-1.7.2.js",
+    "libs": ["./static/vendor/jquery/js/jquery-1.7.2.js",
              "./static/vendor/jquery/js/jquery.mousewheel.js",
              "./static/vendor/underscore/underscore.js",
              "./static/vendor/backbone/backbone.js",
