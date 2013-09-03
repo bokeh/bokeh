@@ -16,7 +16,6 @@ from ..models import user
 from ..models import docs
 from ..models import convenience as mconv
 from ... import protocol
-from continuumweb import hemlib
 from ...exceptions import DataIntegrityException
 from bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
@@ -28,6 +27,7 @@ from ..serverbb import RedisSession
 @app.route('/bokeh/')
 def index(*unused_all, **kwargs):
     if getattr(app, "debugjs", False):
+        from continuumweb import hemlib
         slug = hemlib.slug_json()
         static_js = hemlib.slug_libs(app, slug['libs'])
         hem_js = hemlib.all_coffee_assets("localhost")
@@ -53,7 +53,7 @@ def _makedoc(redisconn, u, title):
     u.save(redisconn)
     return doc
 
-@app.route('/bokeh/doc', methods=['POST'])    
+@app.route('/bokeh/doc', methods=['POST'])
 @app.route('/bokeh/doc/', methods=['POST'])
 def makedoc():
     if request.json:
@@ -75,7 +75,7 @@ def makedoc():
 def deletedoc(docid):
     bokehuser = app.current_user(request)
     try:
-        bokehuser.remove_doc(docid)        
+        bokehuser.remove_doc(docid)
         bokehuser.save(app.model_redis)
     except DataIntegrityException as e:
         return abort(409, e.message)
@@ -83,7 +83,7 @@ def deletedoc(docid):
     msg = protocol.serialize_web({'msgtype' : 'docchange'})
     app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
-    
+
 @app.route('/bokeh/getdocapikey/<docid>')
 def get_doc_api_key(docid):
     bokehuser = app.current_user(request)
@@ -94,7 +94,7 @@ def get_doc_api_key(docid):
         return jsonify({'readonlyapikey' : doc.readonlyapikey})
     else:
         return abort(401)
-    
+
 @app.route('/bokeh/userinfo/')
 def get_user():
     bokehuser = app.current_user(request)
@@ -200,6 +200,7 @@ def dynamic_embed_test():
     """this is made to test the case where application.js is already
 loaded, and embed.js script tags are dynamically injected"""
     if app.debug:
+        from continuumweb import hemlib
         slug = hemlib.slug_json()
         static_js = hemlib.slug_libs(app, slug['libs'])
         hemsource = os.path.join(app.static_folder, "coffee")
@@ -211,12 +212,13 @@ loaded, and embed.js script tags are dynamically injected"""
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []
     return render_template("dynamic_embed_test.html", jsfiles=static_js, hemfiles=hem_js)
-    
+
 @app.route("/bokeh/embed_with_existing_js")
 def embed_with_existing_js_test():
     """this is made to test the case where application.js is already
 loaded, and embed.js script tags are dynamically injected"""
     if app.debug:
+        from continuumweb import hemlib
         slug = hemlib.slug_json()
         static_js = hemlib.slug_libs(app, slug['libs'])
         hemsource = os.path.join(app.static_folder, "coffee")
@@ -234,6 +236,7 @@ def embed_with_delay():
     """this is made to test the case where application.js is already
 loaded, and embed.js script tags are dynamically injected"""
     if app.debug:
+        from continuumweb import hemlib
         slug = hemlib.slug_json()
         static_js = hemlib.slug_libs(app, slug['libs'])
         hemsource = os.path.join(app.static_folder, "coffee")
@@ -259,7 +262,7 @@ def generate_embed_test():
 
     from bokeh.objects import (
         Plot, DataRange1d, LinearAxis, Rule,
-        ColumnDataSource, GlyphRenderer, 
+        ColumnDataSource, GlyphRenderer,
         PanTool, ZoomTool, PreviewSaveTool)
 
     from bokeh.glyphs import Circle
@@ -302,10 +305,10 @@ def generate_embed_test():
     plot.tools = [pantool, previewtool]
 
     sess = session.PlotServerSession(
-        username="defaultuser", 
+        username="defaultuser",
         serverloc="http://localhost:5006", userapikey="nokey")
     sess.use_doc("glyph2")
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, 
+    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source,
              xdr, ydr, pantool, previewtool)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
@@ -314,6 +317,7 @@ def generate_embed_test():
     sess.store_all()
 
     if app.debug:
+        from continuumweb import hemlib
         slug = hemlib.slug_json()
         static_js = hemlib.slug_libs(app, slug['libs'])
         hemsource = os.path.join(app.static_folder, "coffee")
@@ -324,14 +328,14 @@ def generate_embed_test():
     else:
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []
-    return render_template("generate_embed_test.html", jsfiles=static_js, hemfiles=hem_js, 
+    return render_template("generate_embed_test.html", jsfiles=static_js, hemfiles=hem_js,
                            plot_scr=plot.script_inject())
 
-    
+
 
 
 
 @app.route("/bokeh/embed.js")
 def embed_js():
-    return (render_template("embed.js", host=request.host), "200", 
+    return (render_template("embed.js", host=request.host), "200",
             {'Content-Type':'application/javascript'})

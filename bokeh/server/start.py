@@ -21,9 +21,12 @@ import bokeh.glyphs
 import models.user as user
 import models.convenience as mconv
 import models.docs as docs
-from continuumweb import hemlib
 import os
-hemlib.slug_path = os.path.dirname(__file__)
+try:
+    from continuumweb import hemlib
+    hemlib.slug_path = os.path.dirname(__file__)
+except ImportError:
+    pass
 import logging
 import time
 
@@ -32,7 +35,7 @@ PORT = 5006
 REDIS_PORT = 6379
 
 log = logging.getLogger(__name__)
-app = Flask("bokeh.server")    
+app = Flask("bokeh.server")
 
 def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True):
     #must import views before running apps
@@ -56,9 +59,9 @@ def make_default_user(bokeh_app):
     docid = "defaultdoc"
     bokehuser = user.new_user(bokeh_app.model_redis, "defaultuser",
                               str(uuid.uuid4()), apikey='nokey', docs=[])
-         
+
     return bokehuser
-    
+
 def prepare_local():
     #monkeypatching
     def current_user(request):
@@ -82,11 +85,11 @@ def start_services():
                                      bokeh_app.redis_port, os.getcwd())
         bokeh_app.redis_proc = mproc
     atexit.register(service_exit)
-    
+
 def service_exit():
     if hasattr(bokeh_app, 'redis_proc'):
         bokeh_app.redis_proc.close()
-        
+
 def start_app(verbose=False):
     global http_server
     if verbose:
@@ -97,7 +100,7 @@ def start_app(verbose=False):
                              )
     http_server.serve_forever()
 
-    
+
 
 #database
 
