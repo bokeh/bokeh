@@ -23,75 +23,81 @@ from . import glyphs
 
 def plothelp():
     """ Prints out a list of all plotting functions.  Information on each
-    function is available in its docstring.
+    function is available in its docstring, and can be accessed via the
+    normal Python help() function, e.g. help(rect).
     """
 
     helpstr = """
-    Renderers
-    ---------
-    scatter, line, bar, candle, hbar, imshow, contour, contourf
 
     Plotting
     --------
-    plot
-        plots some data, with options for line, scatter, bar
-    pcolor
-        plots some scalar data as a pseudocolor image
-    loglog
-        plots an x-y line or scatter plot on log-log scale
-    semilogx
-        plots an x-y line or scatter plot with a log x-scale
-    semilogy
-        plots an x-y line or scatter plot with a log y-scale
-    #imread
-    #    creates an array from an image file on disk
+    plot(data, type="circle"|"square"|"line", ...)
+        plots some data, with options for line, circles, or squares; this
+        convenience function is just for basic similarity with other toolkits.
+        Recommend using one of the more specific drawing commands below.
+    
+    scatter(data, type="circle"|"square", ...)
+        scatter plot of some data, 
+
+    get_plot()
+        returns the current bokeh.objects.Plot object
+
+    Renderers
+    ---------
+    annular_wedge
+    annulus
+    bezier
+    circle
+    line
+    multi_line
+    oval
+    quad
+    quad_curve
+    rect
+    segment
+    square
+    wedge
 
     Axes, Annotations, Legends
     --------------------------
-    xaxis
-        toggles the horizontal axis, sets the interval
-    yaxis
-        toggles the vertical axis, sets the interval
-    xgrid
-        toggles the grid running along the X axis
-    ygrid
-        toggles the grid running along the Y axis
-    xtitle
-        sets the title of a horizontal axis
-    ytitle
-        sets the title of a vertical axis
-    xscale
-        sets the tick scale system of the X axis
-    yscale
-        sets the tick scale system of the Y axis
-    title
-        sets the title of the plot
+    get_legend(plot)
+        returns the Legend object for the given plot, whose attributes can 
+        then be manipulated directly
 
-    Layout
-    ------
-    grid
-        configures a grid plot
+    make_legend(plot)
+        creates a new legend for the plot, and also returns it
+    
+    xaxis
+        returns the X axis or list of X axes on the current plot
+
+    yaxis
+        returns the Y axis or list of Y axes on the current plot
 
     Display & Session management
     ----------------------------
     output_notebook(url=None, docname=None)
         sets IPython Notebook output mode
+
     output_server(docname, url="default", ...)
         sets plot server output mode
+
     output_file(filename, ...)
         sets HTML file output mode
+
     hold()
         turns "hold" on or off. When hold is on, each new plotting call
         adds the renderer to the existing plot.
+
     figure()
         clears the "current plot" object on the session
+
     show(browser=None, new="tab")
         forces the plot to be rendered to the currently set output device
         or mode (e.g. static HTML file, IPython notebook, plot server)
+
     save(filename=None)
         Updates the output HTML file or forces an upload of plot data 
         to the server
-    
     """
     print helpstr
 
@@ -276,8 +282,8 @@ def save(filename=None):
     For plot server-based output, this will upload all the plot objects
     up to the server.
     """
+    session = _config["session"]
     if _config["output_type"] == "file":
-        session = _config["session"]
         if filename is not None:
             oldfilename = session.filename
             session.filename = filename
@@ -340,6 +346,7 @@ def visual(func):
     return wrapper
 
 def glyph(x=['x'], y=['y']):
+    """ Decorator for glyph rendering functions below """
     def decorator(func):
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -788,7 +795,6 @@ def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select,
     yaxis = LinearAxis(plot=p, dimension=1, location="min", bounds="auto")
     xgrid = Grid(plot=p, dimension=0)
     ygrid = Grid(plot=p, dimension=1)
-    p.renderers.extend([xaxis, yaxis, xgrid, ygrid])
 
     tool_objs = []
     if "pan" in tools:
@@ -861,16 +867,48 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
         names.append(name)
     return names, datasource
 
-@visual
-def semilogx(*data, **kwargs):
-    # TODO: figure out the right kwarg to set
-    kwargs["index_scale"] = "log"
-    return plot(*data, **kwargs)
+def xaxis():
+    """ Returns the x-axis or list of x-axes on the current plot """
+    p = curplot()
+    if p is None:
+        return None
+    axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==0]
+    if len(axis) > 0:
+        return axis
+    else:
+        return None
 
-@visual
-def semilogy(*data, **kwargs):
-    # TODO: figure out the right kwarg to set
-    kwargs["value_scale"] = "log"
-    return plot(*data, **kwargs)
+def yaxis():
+    """ Returns the y-axis or list of y-axes on the current plot """
+    p = curplot()
+    if p is None:
+        return None
+    axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==1]
+    if len(axis) > 0:
+        return axis
+    else:
+        return None
+
+def xgrid():
+    """ Returns x-grid object on the current plot """
+    p = curplot()
+    if p is None:
+        return None
+    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==0]
+    if len(grid) > 0:
+        return grid
+    else:
+        return None
+
+def ygrid():
+    """ Returns y-grid object on the current plot """
+    p = curplot()
+    if p is None:
+        return None
+    grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==1]
+    if len(grid) > 0:
+        return grid
+    else:
+        return None
 
 
