@@ -18,9 +18,6 @@ from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
 from . import glyphs
 
-# A bunch of this stuff is copied from chaco.shell, because that layout is
-# pretty reasonable.
-
 def plothelp():
     """ Prints out a list of all plotting functions.  Information on each
     function is available in its docstring, and can be accessed via the
