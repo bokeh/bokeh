@@ -12,13 +12,11 @@ from bokeh.objects import (
 from bokeh.glyphs import MultiLine, ImageRGBA
 from bokeh import session
 
-
-
 x_range = Range1d()
 y_range = Range1d()
 plot = GMapPlot(
     x_range=x_range, y_range=y_range,
-    center_lat=35.349, center_lng=-116.595, zoom_level=17,
+    center_lat=30.2861, center_lng=-97.7394, zoom_level=15,
     data_sources=[],
     canvas_width=600, canvas_height=600,
     outer_width=600, outer_height=600,
@@ -35,16 +33,19 @@ ygrid = Grid(plot=plot, dimension=1)
 pantool = PanTool(plot=plot)
 zoomtool = ZoomTool(plot=plot)
 plot.tools.extend([pantool, zoomtool])
+
 sess = session.PlotServerSession(
     username="defaultuser",
     serverloc="http://localhost:5006",
     userapikey="nokey"
 )
+
 sess.use_doc("maps")
-#sess.add(plot, tracks_glyph_renderer, tracks_source, xaxis, yaxis, xgrid, ygrid)
-sess.add(plot, xgrid, ygrid, pantool, zoomtool, x_range, y_range,
-         select_tool, overlay)
+sess.add(
+    plot, xgrid, ygrid, pantool, zoomtool, x_range, y_range, select_tool, overlay
+)
 sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
 sess.store_all()
+
 print "Stored to document maps"
