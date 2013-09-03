@@ -11,7 +11,7 @@ import warnings
 import webbrowser
 
 from .objects import (ColumnDataSource, DataSource, ColumnsRef, DataRange1d,
-        Plot, GlyphRenderer, LinearAxis, Rule, PanTool, ZoomTool,
+        Plot, GlyphRenderer, LinearAxis, Grid, PanTool, ZoomTool,
         PreviewSaveTool, ResizeTool, SelectionTool, BoxSelectionOverlay,
         Legend)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
@@ -773,8 +773,8 @@ def _new_xy_plot(x_range=None, y_range=None, tools="pan,zoom,save,resize,select,
     p.y_range = y_range
     xaxis = LinearAxis(plot=p, dimension=0, location="min", bounds="auto")
     yaxis = LinearAxis(plot=p, dimension=1, location="min", bounds="auto")
-    xgrid = Rule(plot=p, dimension=0)
-    ygrid = Rule(plot=p, dimension=1)
+    xgrid = Grid(plot=p, dimension=0)
+    ygrid = Grid(plot=p, dimension=1)
     p.renderers.extend([xaxis, yaxis, xgrid, ygrid])
 
     tool_objs = []

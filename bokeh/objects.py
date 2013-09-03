@@ -326,7 +326,7 @@ class DataSource(PlotObject):
 class ColumnsRef(HasProps):
     source = Instance(DataSource, has_ref=True)
     columns = List(String)
-    
+
 class ColumnDataSource(DataSource):
     # Maps names of columns to sequences or arrays
     data = Dict()
@@ -644,13 +644,13 @@ class GMapPlot(PlotObject):
         data.pop('center_lng', None)
         data.pop('zoom_level', None)
         data["map_options"] = {
-            'lat': self.center_lat, 
-            'lng': self.center_lng, 
+            'lat': self.center_lat,
+            'lng': self.center_lng,
             'zoom': self.zoom_level
         }
         self._session.raw_js_snippets(self)
         return data
-    
+
     @classmethod
     def load_json(cls, attrs, instance=None):
         """Loads all json into a instance of cls, EXCEPT any references
@@ -755,9 +755,10 @@ class LinearAxis(GuideRenderer):
     major_tick_in = Int
     major_tick_out = Int
 
-class Rule(GuideRenderer):
+class Grid(GuideRenderer):
     """ 1D Grid component """
     type = String("rule")
+    __view_model__ = "Rule"
 
 class PanTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
@@ -793,14 +794,14 @@ class Legend(PlotObject):
         result['annotationspec']['type'] = 'legend'
         return result
 
-    
+
 class DataSlider(PlotObject):
     plot = Instance(Plot, has_ref=True)
     data_source = Instance(has_ref=True)
     field = String()
-    
+
 class DataRangeBoxSelectionTool(PlotObject):
-    plot = Instance(Plot, has_ref=True)    
+    plot = Instance(Plot, has_ref=True)
     xselect = List()
-    yselect = List()    
+    yselect = List()
 

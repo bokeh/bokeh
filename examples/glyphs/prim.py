@@ -3,7 +3,7 @@ import os.path
 import numpy as np
 
 from bokeh.objects import (
-    Plot, Range1d, LinearAxis, Rule,
+    Plot, Range1d, LinearAxis, Grid,
     GlyphRenderer, ColumnDataSource,
     PanTool, ZoomTool)
 from bokeh.glyphs import *
@@ -33,8 +33,8 @@ def make_plot(name, glyph):
     plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], border=80)
     xaxis = LinearAxis(plot=plot, dimension=0)
     yaxis = LinearAxis(plot=plot, dimension=1)
-    xgrid = Rule(plot=plot, dimension=0)
-    ygrid = Rule(plot=plot, dimension=1)
+    xgrid = Grid(plot=plot, dimension=0)
+    ygrid = Grid(plot=plot, dimension=1)
 
     plot.renderers.append(glyph_renderer)
     plot.tools = [pantool,zoomtool]
