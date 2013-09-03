@@ -73,6 +73,7 @@ alldemos = {
         'lorenz10',
         'lorenz50',
         'lorenz100',
+        'grid_plot',
     ],
 
     'scatter'    : ['scatter'],
@@ -88,6 +89,7 @@ alldemos = {
     'lorenz10'   : ['lorenz10'],
     'lorenz50'   : ['lorenz50'],
     'lorenz100'  : ['lorenz100'],
+    'grid_plot'  : ['grid_plot'],
 
 }
 
