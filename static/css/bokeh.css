@@ -16,7 +16,6 @@ svg {
 }
 
 .button_bar > button{
-  float: left;
 }
 
 .plotview{
@@ -26,7 +25,6 @@ svg {
 .bokeh_canvas_wrapper {
   position: relative;
   font-size: 12pt;
-  float: left;
 }
 
 .bokeh_canvas {
@@ -77,23 +75,9 @@ button.active {border:1px solid blue}
     float : right;
 }
 
-.jsp:hover > .maximize{
-    display : inline;
-    float : right;
-    vertical-align : top;
-}
-
 .plotclose {
-    display : none;
     float : right;
 }
-
-.jsp:hover > .plotclose{
-    display : inline;
-    float : right;
-    vertical-align : top;
-}
-
 
 .plotsidebar{
     overflow-x : auto;
