@@ -7,12 +7,14 @@ notebook.
 from uuid import uuid4
 from functools import wraps
 import urlparse
+import warnings
+import logging
+logger = logging.getLogger(__file__)
+
 from bokeh.properties import (HasProps, MetaHasProps, Any, Dict, Enum,
         Either, Float, Instance, Int, List, String, Color, Pattern, Percent,
         Size, LineProps, FillProps, TextProps, Include)
 
-import logging
-logger = logging.getLogger(__file__)
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
     persistence layer.
@@ -149,9 +151,6 @@ def recursively_traverse_plot_object(plot_object,
                     children=children)
         return children
 
-
-
-
 class PlotObject(HasProps):
     """ Base class for all plot-related objects """
 
@@ -230,9 +229,6 @@ class PlotObject(HasProps):
         dict.  Otherwise, returns a list of attribute names.
         """
         props = self.changed_vars()
-        #print "Object:", type(self)
-        #print "\tOld:", sorted(self.properties())
-        #print "\tNew:", sorted(props)
         if "session" in props:
             props.remove("session")
         if withvalues:
@@ -307,9 +303,6 @@ class PlotObject(HasProps):
             for callback in callbacks:
                 getattr(callback['obj'], callback['callbackname'])(
                     self, attrname, old, new)
-    def dummy(self, changedobj, attrname, old, new):
-        print 'DUMMY', changedobj, attrname, old, new
-
 
 class DataSource(PlotObject):
     """ Base class for data sources """
