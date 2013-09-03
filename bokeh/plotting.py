@@ -500,19 +500,19 @@ def _glyph_plot(plottype, x_name, y_name, plot, datasource, **kwargs):
     #copy kwargs, because we pop things off inside these functions
     kwargs = copy.copy(kwargs)
     if plottype == "circle":
-        circles(x_name, y_name,
+        circle(x_name, y_name,
                 kwargs.pop('radius', 4),
                 source=datasource,
                 plot=plot, **kwargs)
     elif plottype == "rect":
-        rects(x_name, y_name,
+        rect(x_name, y_name,
               kwargs.pop('width', 8),
               kwargs.pop('height', 4),
               angle=kwargs.get('angle', 0),
               source=datasource,
               plot=plot, **kwargs)
     elif plottype == "square":
-        squares(x_name, y_name,
+        square(x_name, y_name,
               kwargs.pop('width', 4),
               angle=kwargs.pop('angle', 0),
               source=datasource,
@@ -640,7 +640,7 @@ def bezier(x0, x1, y0, y1, cx0, cy0, cx1, cy1, **kwargs):
 
 @visual
 @glyph()
-def circles(x, y, radius, **kwargs):
+def circle(x, y, radius, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
     datasource = kwargs['datasource']
     glyph_params = match_data_params(args, vals, datasource)
@@ -696,7 +696,7 @@ def quad_curve(x0, x1, y0, y1, cx, cy, **kwargs):
 
 @visual
 @glyph()
-def rects(x, y, width, height, angle=0, **kwargs):
+def rect(x, y, width, height, angle=0, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
     datasource = kwargs['datasource']
     glyph_params = match_data_params(args, vals, datasource)
@@ -712,7 +712,7 @@ def segment(x0, y0, x1, y1, **kwargs):
 
 @visual
 @glyph()
-def squares(x, y, size, angle=0, **kwargs):
+def square(x, y, size, angle=0, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().items() if k != 'kwargs'))
     datasource = kwargs['datasource']
     glyph_params = match_data_params(args, vals, datasource)

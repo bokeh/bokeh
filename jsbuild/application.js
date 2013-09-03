@@ -20817,6 +20817,8 @@ _.setdefault = function(obj, key, value){
       ih = this.view_state.get('inner_height');
       top = this.view_state.get('border_top');
       left = this.view_state.get('border_left');
+      this.gmap_div.attr("style", "top: " + top + "px; left: " + left + "px;");
+      this.gmap_div.width("" + iw + "px").height("" + ih + "px");
       this.ctx.clearRect(0, 0, ow, oh);
       this.ctx.beginPath();
       this.ctx.moveTo(0, 0);
@@ -26232,7 +26234,7 @@ _.setdefault = function(obj, key, value){
       }
       ctx = this.plot_view.ctx;
       ctx.save();
-      if (true) {
+      if (false) {
         if (selected && selected.length && this.nonselection_glyphprops) {
           if (this.selection_glyphprops) {
             props = this.selection_glyphprops;
@@ -26261,7 +26263,7 @@ _.setdefault = function(obj, key, value){
     };
 
     CircleView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
-      var i, _i, _j, _ref, _ref1;
+      var i, _i, _j, _ref, _ref1, _results;
       if (!glyph_props) {
         glyph_props = this.glyph_props;
       }
@@ -26285,7 +26287,7 @@ _.setdefault = function(obj, key, value){
       }
       if (glyph_props.line_properties.do_stroke) {
         glyph_props.line_properties.set(ctx, this.glyph_props);
-        ctx.beginPath();
+        _results = [];
         for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
           if (isNaN(this.sx[i] + this.sy[i] + this.radius[i]) || !this.mask[i]) {
             continue;
@@ -26297,9 +26299,11 @@ _.setdefault = function(obj, key, value){
             continue;
           }
           ctx.moveTo(this.sx[i], this.sy[i]);
+          ctx.beginPath();
           ctx.arc(this.sx[i], this.sy[i], this.radius[i], 0, 2 * Math.PI, false);
+          _results.push(ctx.stroke());
         }
-        return ctx.stroke();
+        return _results;
       }
     };
 
@@ -31046,8 +31050,8 @@ _.setdefault = function(obj, key, value){
       },
       parent: parent
     }, options);
-    _ref = make_range_and_mapper(data_source, [xfield], d3.max([1 / (data_source.get('data').length - 1), 0.1]), plot_model.get_obj('xrange'), false, options), xdr = _ref[0], xmapper = _ref[1];
-    _ref1 = make_range_and_mapper(data_source, [yfield], d3.max([1 / (data_source.get('data').length - 1), 0.1]), plot_model.get_obj('yrange'), false, options), ydr = _ref1[0], ymapper = _ref1[1];
+    _ref = make_range_and_mapper(data_source, [xfield], Math.max([1 / (data_source.get('data').length - 1), 0.1]), plot_model.get_obj('xrange'), false, options), xdr = _ref[0], xmapper = _ref[1];
+    _ref1 = make_range_and_mapper(data_source, [yfield], Math.max([1 / (data_source.get('data').length - 1), 0.1]), plot_model.get_obj('yrange'), false, options), ydr = _ref1[0], ymapper = _ref1[1];
     bar_plot = Collections("BarRenderer").create({
       data_source: data_source.ref(),
       xfield: xfield,

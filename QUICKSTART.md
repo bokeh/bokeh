@@ -8,6 +8,14 @@ This document outlines three different ways of installing and getting started wi
 * python-only development
 * python+js development
 
+Dependencies
+============
+
+Bokeh currently requires the continuumweb project:
+
+    $ git clone https://github.com/ContinuumIO/continuumweb.git
+    $ cd continuumweb
+	$ python setup.py install
 
 Simple Install
 ==============
@@ -58,6 +66,8 @@ All the plots you create will reflect any changes you make to the Bokeh python c
 
 Python+JS Development
 =====================
+
+*** These instructions currently do not work. Build is changing in 0.2 release and instructions will be updated then. ***
 
 This setup appropriate when you need to develop on both the client-side python parts of Bokeh, and the browser-side javascript parts of BokehJS.
 

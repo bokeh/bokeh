@@ -188,16 +188,6 @@ class Circle(Marker):
     __view_model__ = "circle"
     radius = DataSpec(units="screen", default=4)
 
-#class Rects(Glyph):
-#    glyphtype = "rects"
-#    x = DataSpec
-#    y = DataSpec
-#    width = DataSpec
-#    height = DataSpec
-#    angle = DataSpec
-#    color = Color
-#    outline_color = Color
-#    outline_width = Size
 
 # Other kinds of Markers, to match what GGplot provides
 class Square(Marker):
