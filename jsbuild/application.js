@@ -19922,7 +19922,7 @@ _.setdefault = function(obj, key, value){
     DataFactorRange: ['./common/ranges', 'datafactorranges'],
     Plot: ['./common/plot', 'plots'],
     GMapPlot: ['./common/gmap_plot', 'gmapplots'],
-    GridPlotContainer: ['./common/grid_plot', 'gridplotcontainers'],
+    GridPlotContainer: ['./common/grid_plot', 'gridplots'],
     CDXPlotContext: ['./common/plot_context', 'plotcontexts'],
     PlotContext: ['./common/plot_context', 'plotcontexts'],
     PlotList: ['./common/plot_context', 'plotlists'],
@@ -32220,9 +32220,9 @@ _.setdefault = function(obj, key, value){
     ResizeToolView.prototype._activate = function(e) {
       var bbar, ch, cw;
       this.active = true;
-      this.popup = $('<div class="resize_popup pull-right" style="border-radius: 10px; background-color: lightgrey; padding:3px 8px"></div>');
+      this.popup = $('<div class="resize_popup pull-right" style="border-radius: 10px; background-color: lightgrey; padding:3px 8px; font-size: 14px"></div>');
       bbar = this.plot_view.$el.find('.button_bar');
-      bbar.append(this.popup);
+      this.popup.appendTo(bbar);
       ch = this.plot_view.view_state.get('outer_height');
       cw = this.plot_view.view_state.get('outer_width');
       this.popup.text("width: " + cw + " height: " + ch);
