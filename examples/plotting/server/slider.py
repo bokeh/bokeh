@@ -36,8 +36,4 @@ sess.add(slider_x)
 sess.add(slider_y)
 sess.store_all()
 
-
-
-
-
-
+show()

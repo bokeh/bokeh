@@ -22,3 +22,5 @@ rects(x, y, 10, 20, -0.7, color="#8888ee", tools="pan,zoom,resize", title="rects
 segment(x, y, x-0.1, y-0.1, color="#8888ee", tools="pan,zoom,resize", title="segment")
 squares(x, y, 20, color="#8888ee", tools="pan,zoom,resize", title="squares")
 wedge(x, y, 15, 0.6, 4.1, color="#8888ee", tools="pan,zoom,resize", title="wedge")
+
+show()
