@@ -11,7 +11,7 @@ This document outlines three different ways of installing and getting started wi
 Dependencies
 ============
 
-Bokeh currently requires the continuumweb project:
+Bokeh currently requires the continuumweb project if you are *developing*:
 
     $ git clone https://github.com/ContinuumIO/continuumweb.git
     $ cd continuumweb
