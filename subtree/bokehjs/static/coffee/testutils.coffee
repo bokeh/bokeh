@@ -159,11 +159,11 @@ bar_plot = (parent, data_source, xfield, yfield, orientation, local) ->
     , options
   )
   [xdr, xmapper] = make_range_and_mapper(data_source, [xfield],
-    d3.max([1 / (data_source.get('data').length - 1), 0.1]),
+    Math.max([1 / (data_source.get('data').length - 1), 0.1]),
     plot_model.get_obj('xrange'), false, options)
 
   [ydr, ymapper] = make_range_and_mapper(data_source, [yfield],
-    d3.max([1 / (data_source.get('data').length - 1), 0.1]),
+    Math.max([1 / (data_source.get('data').length - 1), 0.1]),
     plot_model.get_obj('yrange'), false, options)
 
   bar_plot = Collections("BarRenderer").create(
