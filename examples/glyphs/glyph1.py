@@ -22,6 +22,9 @@ source = ObjectArrayDataSource(
     data = [
         {'x' : 1, 'y' : 5, 'z':3},
         {'x' : 2, 'y' : 4, 'z':3, 'radius':10},
+        # The field in this dict still needs to be called "fill", because
+        # it needs to correspond to BokehJS naming.  In the next version,
+        # this field will be renamed to fill_color, to correspond to Bokeh.
         {'x' : 3, 'y' : 3, 'z':3, 'fill':"blue"},
         {'x' : 4, 'y' : 2, 'z':3},
         {'x' : 5, 'y' : 1, 'z':3},
@@ -30,7 +33,7 @@ source = ObjectArrayDataSource(
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", fill="red", radius=5, line_color="black")
+circle = Circle(x="x", y="y", fill_color="red", radius=5, line_color="black")
 
 glyph_renderer = GlyphRenderer(
         data_source = source,

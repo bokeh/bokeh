@@ -398,7 +398,7 @@ class Percent(Float):
 # corresponding attributes
 class FillProps(HasProps):
     """ Mirrors the BokehJS properties.fill_properties class """
-    fill = Color("gray")
+    fill_color = Color("gray")
     fill_alpha = Percent(1.0)
 
 class LineProps(HasProps):

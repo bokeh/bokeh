@@ -15,7 +15,7 @@ rect(x, y, 4, 2, color="#ff0000", tools="pan,zoom,save,resize")
 # variable width and height
 rect(
     x, y, 0.01*np.exp(1+0.1*x), 0.2*abs(np.cos(x)),
-    fill="green", line_color="none", fill_alpha=0.6, tools="pan,zoom,resize"
+    fill_color="green", line_color="none", fill_alpha=0.6, tools="pan,zoom,resize"
 )
 
 # angle

@@ -31,7 +31,7 @@ source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", fill="red", radius="z", line_color="black")
+circle = Circle(x="x", y="y", fill_color="red", radius="z", line_color="black")
 
 glyph_renderer = GlyphRenderer(
         data_source = source,
