@@ -28,17 +28,19 @@ To utilize the plot server, execute the following in the top-level Bokeh directo
 
     $ python runserver.py
 
-Now you are ready to generate plots form the server. In examples/glyphs, try:
+Now you are ready to generate plots form the server. In examples/plotting/server/, try:
 
-    $ python glyph2.py
+    $ python rects.py
 
-A browser window should open up to http://localhost:5006/bokeh/ with a plot showing. Try running prim.py for more plot server examples.
+A browser window should open up to http://localhost:5006/bokeh/, with a gray
+header entitled "Document: rects.py example".  Click on the title to view the
+plots within the document.  Try running glyphs.py for more plot server examples.
 
 
 Python-only Development
 =======================
 
-This setup appropriate when you need to develop on the client-side python parts of Bokeh, but do not need to develop on the browser-side javascript parts of BokehJS.
+This setup is appropriate when you need to develop on the client-side Python parts of Bokeh, but do not need to develop on the browser-side Javascript parts of BokehJS.
 
 In the top-level Bokeh directory:
 

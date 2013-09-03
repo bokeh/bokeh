@@ -24,3 +24,4 @@ rects(
 # angle
 rects(x, y, 1, 8, color="#4444aa", angle=-np.pi/6, tools="pan,zoom,resize")
 
+show()

@@ -241,7 +241,6 @@ def show(browser=None, new="tab"):
     """
     output_type = _config["output_type"]
     session = _config["session"]
-    session.save()
     # Map our string argument to the webbrowser.open argument
     new_param = {'tab': 2, 'window': 1}[new]
     if browser is not None:
@@ -249,10 +248,15 @@ def show(browser=None, new="tab"):
     else:
         controller = webbrowser
     if output_type == "file":
+        session.save()
         controller.open("file://" + os.path.abspath(_config["output_file"]),
                             new=new_param)
     elif output_type == "server":
+        session.store_all()
         controller.open(_config["output_url"] + "/bokeh", new=new_param)
+
+    elif output_type == "notebook":
+        session.show()
 
 def save(filename=None):
     """ Updates the file or plot server that contains this plot.

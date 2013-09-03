@@ -16,5 +16,4 @@ scatter(x,y, color="red", tools="pan,zoom,resize")
 scatter(x,y, type="rect", color="green", tools="pan,zoom,resize")
 scatter(x,y, type="square", color="blue", tools="pan,zoom,resize")
 
-
-
+show()
