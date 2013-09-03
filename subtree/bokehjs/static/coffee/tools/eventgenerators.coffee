@@ -202,13 +202,11 @@ class OnePointWheelEventGenerator
       @tool_active=false;
       @button_activated = false;
       @$tool_button.removeClass('active')
-      restore_scroll(@plotview.$el[0])
       document.body.style.overflow = @old_overflow)
 
     eventSink.on("#{toolName}:activated", =>
       @tool_active=true;
-      @$tool_button.addClass('active')
-      no_scroll(@plotview.$el[0]))
+      @$tool_button.addClass('active'))
 
     return eventSink
 
@@ -272,13 +270,11 @@ class ButtonEventGenerator
       @tool_active=false;
       @button_activated = false;
       @$tool_button.removeClass('active')
-      restore_scroll(@plotview.$el[0])
       document.body.style.overflow = @old_overflow)
 
     eventSink.on("#{toolName}:activated", =>
       @tool_active=true;
-      @$tool_button.addClass('active')
-      no_scroll(@plotview.$el[0]))
+      @$tool_button.addClass('active'))
 
     return eventSink
 
