@@ -29957,13 +29957,11 @@ _.setdefault = function(obj, key, value){
         _this.tool_active = false;
         _this.button_activated = false;
         _this.$tool_button.removeClass('active');
-        restore_scroll(_this.plotview.$el[0]);
         return document.body.style.overflow = _this.old_overflow;
       });
       eventSink.on("" + toolName + ":activated", function() {
         _this.tool_active = true;
-        _this.$tool_button.addClass('active');
-        return no_scroll(_this.plotview.$el[0]);
+        return _this.$tool_button.addClass('active');
       });
       return eventSink;
     };
@@ -30026,13 +30024,11 @@ _.setdefault = function(obj, key, value){
         _this.tool_active = false;
         _this.button_activated = false;
         _this.$tool_button.removeClass('active');
-        restore_scroll(_this.plotview.$el[0]);
         return document.body.style.overflow = _this.old_overflow;
       });
       eventSink.on("" + toolName + ":activated", function() {
         _this.tool_active = true;
-        _this.$tool_button.addClass('active');
-        return no_scroll(_this.plotview.$el[0]);
+        return _this.$tool_button.addClass('active');
       });
       return eventSink;
     };
