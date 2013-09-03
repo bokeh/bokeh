@@ -4,7 +4,7 @@ import numpy as np
 import os.path
 
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, Rule,
+    Plot, DataRange1d, LinearAxis, Grid,
     ColumnDataSource, GlyphRenderer, ObjectArrayDataSource,
     PanTool, ZoomTool)
 from bokeh.glyphs import Circle
@@ -48,8 +48,8 @@ plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
 xaxis = LinearAxis(plot=plot, dimension=0, location="min")
 yaxis = LinearAxis(plot=plot, dimension=1, location="min")
-xgrid = Rule(plot=plot, dimension=0)
-ygrid = Rule(plot=plot, dimension=1)
+xgrid = Grid(plot=plot, dimension=0)
+ygrid = Grid(plot=plot, dimension=1)
 
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,zoomtool]

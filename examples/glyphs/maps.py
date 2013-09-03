@@ -5,7 +5,7 @@ import os, sys
 import itertools
 
 from bokeh.objects import (
-    GMapPlot, DataRange1d, Range1d, LinearAxis, Rule, ColumnDataSource,
+    GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
     GlyphRenderer, ObjectArrayDataSource, PanTool, ZoomTool, ResizeTool,
     SelectionTool, BoxSelectionOverlay
 )
@@ -30,8 +30,8 @@ overlay = BoxSelectionOverlay(tool=select_tool)
 plot.renderers.append(overlay)
 plot.tools.append(select_tool)
 
-xgrid = Rule(plot=plot, dimension=0)
-ygrid = Rule(plot=plot, dimension=1)
+xgrid = Grid(plot=plot, dimension=0)
+ygrid = Grid(plot=plot, dimension=1)
 pantool = PanTool(plot=plot)
 zoomtool = ZoomTool(plot=plot)
 plot.tools.extend([pantool, zoomtool])
@@ -42,7 +42,7 @@ sess = session.PlotServerSession(
 )
 sess.use_doc("maps")
 #sess.add(plot, tracks_glyph_renderer, tracks_source, xaxis, yaxis, xgrid, ygrid)
-sess.add(plot, xgrid, ygrid, pantool, zoomtool, x_range, y_range, 
+sess.add(plot, xgrid, ygrid, pantool, zoomtool, x_range, y_range,
          select_tool, overlay)
 sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True

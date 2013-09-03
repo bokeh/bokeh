@@ -3,7 +3,7 @@ from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
 
-from bokeh.objects import (Plot, DataRange1d, Range1d, LinearAxis, Rule,
+from bokeh.objects import (Plot, DataRange1d, Range1d, LinearAxis, Grid,
         ColumnDataSource, GlyphRenderer, ObjectArrayDataSource, PanTool,
         ZoomTool)
 from bokeh.glyphs import Line
@@ -35,8 +35,8 @@ plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
 xaxis = LinearAxis(plot=plot, dimension=0)
 yaxis = LinearAxis(plot=plot, dimension=1)
-xgrid = Rule(plot=plot, dimension=0)
-ygrid = Rule(plot=plot, dimension=1)
+xgrid = Grid(plot=plot, dimension=0)
+ygrid = Grid(plot=plot, dimension=1)
 
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,zoomtool]
