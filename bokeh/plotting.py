@@ -255,6 +255,9 @@ def show(browser=None, new="tab"):
         session.store_all()
         controller.open(_config["output_url"] + "/bokeh", new=new_param)
 
+    elif output_type == "notebook":
+        session.show()
+
 def save(filename=None):
     """ Updates the file or plot server that contains this plot.
 
