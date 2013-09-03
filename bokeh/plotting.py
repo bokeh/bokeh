@@ -177,7 +177,7 @@ def output_server(docname, url="default", **kwargs):
     print "Using plot server at", real_url + "bokeh;", "Docname:", docname
 
 def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
-                css="inline", rootdir=None):
+                css="inline", rootdir="."):
     """ Outputs to a static HTML file. WARNING: This file will be overwritten
     each time show() is invoked.
 
