@@ -1,6 +1,7 @@
 
 import os.path
 import numpy as np
+import requests, sys
 
 from bokeh.objects import (
     Plot, Range1d, LinearAxis, Grid,
@@ -39,11 +40,16 @@ def make_plot(name, glyph):
     plot.renderers.append(glyph_renderer)
     plot.tools = [pantool,zoomtool]
 
-    sess = session.PlotServerSession(
-        username="defaultuser",
-        serverloc="http://localhost:5006",
-        userapikey="nokey"
-    )
+    try:
+        sess = session.PlotServerSession(
+            username="defaultuser",
+            serverloc="http://localhost:5006",
+            userapikey="nokey"
+        )
+    except requests.exceptions.ConnectionError as e:
+        print e
+        print "\nThis example requires the plot server.  Please make sure plot server is running, via 'python runserver.py' in the bokeh root directory.\n"
+        sys.exit()
     sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
     sess.use_doc(name)
     sess.plotcontext.children.append(plot)

@@ -2,6 +2,7 @@
 from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
+import sys
 
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, Grid,
@@ -54,9 +55,16 @@ ygrid = Grid(plot=plot, dimension=1)
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,zoomtool]
 
-sess = session.PlotServerSession(username="defaultuser",
-        serverloc="http://localhost:5006", userapikey="nokey")
-sess.use_doc("glyph2")
+import requests
+try:
+    sess = session.PlotServerSession(username="defaultuser",
+            serverloc="http://localhost:5006", userapikey="nokey")
+    sess.use_doc("glyph2")
+except requests.exceptions.ConnectionError as e:
+    print e
+    print "\nThis example requires the plot server.  Please make sure plot server is running, via 'python runserver.py' in the bokeh root directory.\n"
+    sys.exit()
+
 sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
 sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
