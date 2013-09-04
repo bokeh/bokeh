@@ -28,6 +28,10 @@ for dirname, _, files in os.walk('bokeh/templates', followlinks=True):
     for f in files:
         package_data_dirs.append(os.path.join(dirname, f))
 
+scripts = []
+if sys.platform != 'win32':
+    scripts.append('bokeh-server')
+
 setup(
     name = 'bokeh',
     version = '.'.join([str(x) for x in __version__]),
@@ -41,4 +45,5 @@ setup(
     description = 'Statistical and novel interactive HTML plots for Python',
     zip_safe=False,
     license = 'New BSD',
+    scripts = scripts,
 )
