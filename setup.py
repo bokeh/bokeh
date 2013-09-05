@@ -36,7 +36,7 @@ scripts = []
 if sys.platform != 'win32':
     scripts.append('bokeh-server')
 else:
-    bokehjs = abspath('bokeh/server/vendor/bokehjs')
+    bokehjs = abspath('bokeh/server/static/vendor/bokehjs')
     if not isdir(bokehjs):
         os.unlink(bokehjs)
         shutil.copytree(abspath('subtree/bokehjs/static'), bokehjs)
