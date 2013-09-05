@@ -1,23 +1,25 @@
 # needs to be tested
 import sys
-if len(sys.argv)>1 and sys.argv[1] == 'develop':
+if 'develop' in sys.argv:
     # Only import setuptools if we have to
     import setuptools
 else:
     import shutil
-    shutil.copy("jsbuild/application.js", "bokeh/server/static/js/application.js")
-    shutil.copy("jsbuild/bokehnotebook.js", "bokeh/server/static/js/bokehnotebook.js")
-    
+    shutil.copy("jsbuild/application.js",
+                "bokeh/server/static/js/application.js")
+    shutil.copy("jsbuild/bokehnotebook.js",
+                "bokeh/server/static/js/bokehnotebook.js")
+
 from distutils.core import setup
 import os
-import sys
-__version__ = (0, 0, 1)
+
+__version__ = (0, 1, 1)
 package_data_dirs = []
 for dirname, _, files in os.walk('bokeh/server/static', followlinks=True):
     dirname = os.path.relpath(dirname, 'bokeh')
     for f in files:
         package_data_dirs.append(os.path.join(dirname, f))
-        
+
 for dirname, _, files in os.walk('bokeh/server/templates', followlinks=True):
     dirname = os.path.relpath(dirname, 'bokeh')
     for f in files:
