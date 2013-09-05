@@ -430,7 +430,12 @@ class PlotServerSession(BaseHTMLSession):
 
         if self.root_url:
             url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
-            self.userinfo = utils.get_json(self.http_session.get(url, verify=False))
+            try:
+                self.userinfo = utils.get_json(self.http_session.get(url, verify=False))
+            except requests.exceptions.ConnectionError:
+                print "Cannot connect to Bokeh server. (Not running?) To start the Bokeh server execute 'bokeh-server'"
+                import sys
+                sys.exit(1)
         else:
             logger.info('Not using a server, plots will only work in embedded mode')
             self.userinfo = None
