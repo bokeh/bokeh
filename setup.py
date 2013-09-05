@@ -10,8 +10,10 @@ else:
     shutil.copy("jsbuild/bokehnotebook.js",
                 "bokeh/server/static/js/bokehnotebook.js")
 
-from distutils.core import setup
 import os
+import shutil
+from os.path import abspath, isdir
+from distutils.core import setup
 
 __version__ = (0, 1, 1)
 package_data_dirs = []
@@ -33,6 +35,11 @@ for dirname, _, files in os.walk('bokeh/templates', followlinks=True):
 scripts = []
 if sys.platform != 'win32':
     scripts.append('bokeh-server')
+else:
+    bokehjs = abspath('bokeh/server/vendor/bokehjs')
+    if not isdir(bokehjs):
+        os.unlink(bokehjs)
+        shutil.copytree(abspath('subtree/bokehjs/static'), bokehjs)
 
 setup(
     name = 'bokeh',
