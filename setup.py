@@ -15,7 +15,7 @@ import shutil
 from os.path import abspath, isdir
 from distutils.core import setup
 
-if sys.plaform == 'win32':
+if sys.platform == 'win32':
     bokehjs = abspath('bokeh/server/static/vendor/bokehjs')
     if not isdir(bokehjs):
         os.unlink(bokehjs)
