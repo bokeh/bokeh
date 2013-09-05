@@ -6,6 +6,7 @@ from functools import wraps
 from numbers import Number
 import numpy as np
 import os
+import requests
 import time
 import warnings
 import webbrowser
@@ -32,9 +33,9 @@ def plothelp():
         plots some data, with options for line, circles, or squares; this
         convenience function is just for basic similarity with other toolkits.
         Recommend using one of the more specific drawing commands below.
-    
+
     scatter(data, type="circle"|"square", ...)
-        scatter plot of some data, 
+        scatter plot of some data,
 
     get_plot()
         returns the current bokeh.objects.Plot object
@@ -58,12 +59,12 @@ def plothelp():
     Axes, Annotations, Legends
     --------------------------
     get_legend(plot)
-        returns the Legend object for the given plot, whose attributes can 
+        returns the Legend object for the given plot, whose attributes can
         then be manipulated directly
 
     make_legend(plot)
         creates a new legend for the plot, and also returns it
-    
+
     xaxis
         returns the X axis or list of X axes on the current plot
 
@@ -93,7 +94,7 @@ def plothelp():
         or mode (e.g. static HTML file, IPython notebook, plot server)
 
     save(filename=None)
-        Updates the output HTML file or forces an upload of plot data 
+        Updates the output HTML file or forces an upload of plot data
         to the server
     """
     print helpstr
@@ -185,7 +186,12 @@ def output_server(docname, url="default", **kwargs):
     kwargs.setdefault("username", "defaultuser")
     kwargs.setdefault("serverloc", real_url)
     kwargs.setdefault("userapikey", "nokey")
-    _config["session"] = PlotServerSession(**kwargs)
+    try:
+        _config["session"] = PlotServerSession(**kwargs)
+    except requests.exceptions.ConnectionError:
+        print "Cannot connect to Bokeh server. (Not running?) To start the Bokeh server execute 'bokeh-server'"
+        import sys
+        sys.exit(1)
     _config["session"].use_doc(docname)
 
     print "Using plot server at", real_url + "bokeh;", "Docname:", docname
