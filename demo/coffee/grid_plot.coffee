@@ -1,6 +1,6 @@
 
 Collections = require('../base').Collections
-make_glyph_test = require('../testutils').make_glyph_test
+make_glyph_plot = require('../testutils').make_glyph_plot
 Rand = require('../common/random').Rand
 
 xs = ((x/50) for x in _.range(630))
@@ -41,19 +41,30 @@ scatter2 = {
   y: 'y2'
   width: 5
   height: 5
-  type: 'rects'
+  width_units: "screen"
+  height_units: "screen"
+  type: 'rect'
   fill_color: 'blue'
 }
 
-plot1 = make_glyph_test("plot1", source, {}, scatter1, xdr, ydr,
-        {dims: [600,600], plot_title: "Plot 1"})
-plot2 = make_glyph_test("plot2", source, {}, scatter2, xdr, ydr2,
-        {dims: [600,600], plot_title: "Plot 2"})
+plot1 = make_glyph_plot(source, {}, scatter1, xdr, ydr,
+        {dims: [400,400], plot_title: "Plot 1", legend_name: "plot1"})
+plot2 = make_glyph_plot(source, {}, scatter2, xdr, ydr2,
+        {dims: [400,400], plot_title: "Plot 2", legend_name: "plot2"})
 
-gridplot = Collections('GridPlotContainer').create(children: [[plot1, plot2]])
+gridplot = Collections('GridPlot').create(children: [[plot1.ref(), plot2.ref()]])
 
 test(
   'gridplot',
-  gridplot
+  () ->
+    div = $('<div class="plotdiv"></div>')
+    $('body').append(div)
+    myrender = ->
+      p1view = new plot1.default_view(model: plot1)
+      p2view = new plot2.default_view(model: plot2)
+      gridview = new gridplot.default_view(model: gridplot)
+      div.append(gridview.$el)
+      console.log('Grid Plot Test')
+    _.defer(myrender)
 )
 
