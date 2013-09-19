@@ -92,12 +92,12 @@ def service_exit():
 
 def start_app(verbose=False):
     global http_server
-    if verbose:
-        print "Starting server on port %d..." % PORT
     start_services()
     http_server = WSGIServer(('', PORT), app,
                              handler_class=WebSocketHandler,
                              )
+    print "\nStarting Bokeh plot server on port %d..." % PORT
+    print "View http://localhost:%d/bokeh to see plots\n" % PORT
     http_server.serve_forever()
 
 
