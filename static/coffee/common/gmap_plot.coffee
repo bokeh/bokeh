@@ -58,6 +58,7 @@ class GMapPlotView extends ContinuumView
   initialize: (options) ->
     super(_.defaults(options, @default_options))
 
+    # TODO (bryanv) investigate (turn off?) throttling for gmap plots
     @throttled_render = _.throttle(@render, 100)
     @throttled_render_canvas = _.throttle(@render_canvas, 100)
 
