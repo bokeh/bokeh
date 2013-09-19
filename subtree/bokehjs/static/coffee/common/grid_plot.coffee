@@ -6,7 +6,7 @@ build_views = base.build_views
 
 ContinuumView = require('./continuum_view').ContinuumView
 
-PlotViewState = require('./plot').PlotViewState
+ViewState = require('./view_state').ViewState
 
 class GridPlotView extends ContinuumView
   tagName: 'div'
@@ -15,7 +15,7 @@ class GridPlotView extends ContinuumView
   set_child_view_states: () ->
     viewstates = []
     for row in @mget('children')
-      viewstaterow = (@childviews[x.id].viewstate for x in row)
+      viewstaterow = (@childviews[x.id].view_state for x in row)
       viewstates.push(viewstaterow)
     @viewstate.set('childviewstates', viewstates)
 
@@ -82,9 +82,9 @@ class GridPlotView extends ContinuumView
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         view = @childviews[plotspec.id]
-        ypos = @viewstate.position_child_y(view.viewstate.get('outerheight'),
+        ypos = @viewstate.position_child_y(view.view_state.get('outerheight'),
           y_coords[ridx])
-        xpos = @viewstate.position_child_x(view.viewstate.get('outerwidth'),
+        xpos = @viewstate.position_child_x(view.view_state.get('outerwidth'),
           x_coords[cidx])
         plot_wrapper = $("<div class='gp_plotwrapper'></div>")
         plot_wrapper.attr(
@@ -112,7 +112,7 @@ class GridPlots extends Backbone.Collection
   model: GridPlot
 
 
-class GridPlotViewState extends PlotViewState
+class GridViewState extends ViewState
   setup_layout_properties: () =>
     @register_property('layout_heights', @layout_heights, true)
     @register_property('layout_widths', @layout_widths, true)
@@ -136,9 +136,9 @@ class GridPlotViewState extends PlotViewState
 
   #compute a childs position in the underlying device
   position_child_x: (childsize, offset) ->
-    return  @xpos(offset)
+    return @sx_to_device(offset)
   position_child_y: (childsize, offset) ->
-    return @ypos(offset) - childsize
+    return @sy_to_device(offset) - childsize
 
   maxdim: (dim, row) ->
     if row.length == 0
@@ -156,8 +156,8 @@ class GridPlotViewState extends PlotViewState
     col_widths = (@maxdim('outerwidth', col) for col in columns)
     return col_widths
 
-GridPlotViewState::defaults = _.clone(GridPlotViewState::defaults)
-_.extend(GridPlotViewState::defaults
+GridViewState::defaults = _.clone(GridViewState::defaults)
+_.extend(GridViewState::defaults
   ,
     childviewstates: [[]]
     border_space: 0
@@ -166,5 +166,5 @@ _.extend(GridPlotViewState::defaults
 
 exports.GridPlot = GridPlot
 exports.GridPlotView = GridPlotView
-exports.GridPlotViewState = GridPlotViewState
+exports.GridViewState = GridViewState
 exports.gridplots = new GridPlots

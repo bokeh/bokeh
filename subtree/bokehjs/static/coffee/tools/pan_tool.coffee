@@ -8,28 +8,9 @@ safebind = base.safebind
 class PanToolView extends tool.ToolView
   initialize: (options) ->
     super(options)
-    @build_mappers()
 
   bind_bokeh_events: () ->
     super()
-    safebind(this, @model, 'change:dataranges', @build_mappers)
-
-  build_mappers: () =>
-    @mappers = {}
-    for temp in _.zip(@mget_obj('dataranges'), @mget('dimensions'))
-      [datarange, dim] = temp
-      if dim == 'width'
-        mapper = new LinearMapper({
-          source_range: datarange
-          target_range: @plot_view.view_state.get('inner_range_horizontal')
-        })
-      else
-        mapper = new LinearMapper({
-          source_range: datarange
-          target_range: @plot_view.view_state.get('inner_range_vertical')
-        })
-      @mappers[dim] = mapper
-    return @mappers
 
   eventGeneratorClass: TwoPointEventGenerator
   evgen_options:
