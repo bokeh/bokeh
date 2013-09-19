@@ -60,8 +60,6 @@ test(
     div = $('<div class="plotdiv"></div>')
     $('body').append(div)
     myrender = ->
-      p1view = new plot1.default_view(model: plot1)
-      p2view = new plot2.default_view(model: plot2)
       gridview = new gridplot.default_view(model: gridplot)
       div.append(gridview.$el)
       console.log('Grid Plot Test')
