@@ -283,7 +283,7 @@ class PlotView extends ContinuumView
 
     have_new_mapper_state = false
     xms = @xmapper.get('mapper_state')[0]
-    yms = @xmapper.get('mapper_state')[0]
+    yms = @ymapper.get('mapper_state')[0]
     if Math.abs(@old_mapper_state.x-xms) > 1e-8 or Math.abs(@old_mapper_state.y - yms) > 1e-8
       @old_mapper_state.x = xms
       @old_mapper_state.y = yms
