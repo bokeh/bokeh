@@ -26,10 +26,10 @@ class GridViewState extends ViewState
     @add_dependencies('width', @, 'layout_widths')
 
   #compute a childs position in the underlying device
-  position_child_x: (offset) ->
+  position_child_x: (offset, childsize) ->
     return offset
-  position_child_y: (offset) ->
-    return offset
+  position_child_y: (offset, childsize) ->
+    return @get('height') - offset - childsize
 
   maxdim: (dim, row) ->
     if row.length == 0

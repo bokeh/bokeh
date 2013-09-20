@@ -83,8 +83,8 @@ class GridPlotView extends ContinuumView
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         view = @childviews[plotspec.id]
-        ypos = @viewstate.position_child_y(y_coords[ridx])
-        xpos = @viewstate.position_child_x(x_coords[cidx])
+        ypos = @viewstate.position_child_y(y_coords[ridx], view.view_state.get('outer_height'))
+        xpos = @viewstate.position_child_x(x_coords[cidx], view.view_state.get('outer_width'))
         plot_wrapper = $("<div class='gp_plotwrapper'></div>")
         plot_wrapper.attr(
           'style',
