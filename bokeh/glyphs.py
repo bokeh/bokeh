@@ -264,9 +264,6 @@ class Arc(Glyph, LineProps):
     end_angle = DataSpec
     direction = Enum('clock', 'anticlock')
 
-# TODO
-# class Area
-
 class Bezier(Glyph, LineProps):
     __view_model__ = 'bezier'
     x0 = DataSpec
@@ -314,6 +311,16 @@ class Oval(Glyph, FillProps, LineProps):
     width = DataSpec
     height = DataSpec
     angle = DataSpec
+
+class Patch(Glyph, FillProps, LineProps):
+    __view_model__ = 'patch'
+    x = DataSpec
+    y = DataSpec
+
+class Patches(Glyph, LineProps, FillProps):
+    __view_model__ = 'patches'
+    xs = DataSpec
+    ys = DataSpec
 
 class Quad(Glyph, FillProps, LineProps):
     __view_model__ = "quad"
