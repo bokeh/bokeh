@@ -655,6 +655,14 @@ def annulus(x, y, inner_radius, outer_radius, **kwargs):
 
 @visual
 @glyph()
+def arc(x, y, radius, start_angle, end_angle, **kwargs):
+    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
+    datasource = kwargs['datasource']
+    glyph_params = match_data_params(args, vals, datasource)
+    return glyphs.Arc, glyph_params
+
+@visual
+@glyph()
 def bezier(x0, x1, y0, y1, cx0, cy0, cx1, cy1, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
