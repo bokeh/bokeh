@@ -9,31 +9,11 @@ class ZoomToolView extends tool.ToolView
 
   initialize : (options) ->
     super(options)
-    safebind(this, @model, 'change:dataranges', @build_mappers)
-    @build_mappers()
 
   eventGeneratorClass : OnePointWheelEventGenerator
   evgen_options : {buttonText:"Zoom"}
   tool_events : {
     zoom: "_zoom"}
-
-
-  build_mappers : () =>
-    @mappers = {}
-    for temp in _.zip(@mget_obj('dataranges'), @mget('dimensions'))
-      [datarange, dim] = temp
-      if dim == 'width'
-        mapper = new LinearMapper({
-          source_range: datarange
-          target_range: @plot_view.view_state.get('inner_range_horizontal')
-        })
-      else
-        mapper = new LinearMapper({
-          source_range: datarange
-          target_range: @plot_view.view_state.get('inner_range_vertical')
-        })
-      @mappers[dim] = mapper
-    return @mappers
 
   mouse_coords : (e, x, y) ->
     [x_, y_] = [@plot_view.view_state.device_to_sx(x), @plot_view.view_state.device_to_sy(y)]

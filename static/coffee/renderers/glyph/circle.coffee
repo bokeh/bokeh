@@ -69,7 +69,7 @@ class CircleView extends GlyphView
     ctx = @plot_view.ctx
 
     ctx.save()
-    if false #@glyph_props.fast_path
+    if @glyph_props.fast_path
       if selected and selected.length and @nonselection_glyphprops
         if @selection_glyphprops
           props =  @selection_glyphprops
