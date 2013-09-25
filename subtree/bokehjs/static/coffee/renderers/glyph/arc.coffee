@@ -111,7 +111,7 @@ class Arc extends Glyph
 Arc::display_defaults = _.clone(Arc::display_defaults)
 _.extend(Arc::display_defaults, {
 
-  diection: 'anticlock'
+  direction: 'anticlock'
   line_color: 'red'
   line_width: 1
   line_alpha: 1.0
