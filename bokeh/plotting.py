@@ -44,13 +44,16 @@ def plothelp():
     ---------
     annular_wedge
     annulus
+    arc
     bezier
     circle
     line
     multi_line
     oval
+    patch
+    patches
     quad
-    quad_curve
+    quadratic
     rect
     segment
     square
@@ -662,8 +665,8 @@ def arc(x, y, radius, start_angle, end_angle, **kwargs):
     return glyphs.Arc, glyph_params
 
 @visual
-@glyph()
-def bezier(x0, x1, y0, y1, cx0, cy0, cx1, cy1, **kwargs):
+@glyph(x=['x0', 'x1'], y=['y0', 'y1'])
+def bezier(x0, y0, x1, y1, cx0, cy0, cx1, cy1, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
     glyph_params = match_data_params(args, vals, datasource)
@@ -734,12 +737,12 @@ def quad(left, right, top, bottom, **kwargs):
     return glyphs.Quad, glyph_params
 
 @visual
-@glyph()
-def quad_curve(x0, x1, y0, y1, cx, cy, **kwargs):
+@glyph(x=['x0', 'x1'], y=['y0', 'y1'])
+def quadratic(x0, y0, x1, y1, cx, cy, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
     glyph_params = match_data_params(args, vals, datasource)
-    return glyphs.QuadCurve, glyph_params
+    return glyphs.Quadratic, glyph_params
 
 @visual
 @glyph()
