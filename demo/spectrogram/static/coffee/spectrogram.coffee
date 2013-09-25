@@ -178,9 +178,9 @@ class SpectrogramPlot
       high: 10
     })
 
-    @num_images = Math.ceil(NGRAMS/500) + 3
+    @num_images = Math.ceil(NGRAMS/800) + 1
 
-    @image_width = 500
+    @image_width = 800
     @image_height = 256
 
     @images = new Array(@num_images)
