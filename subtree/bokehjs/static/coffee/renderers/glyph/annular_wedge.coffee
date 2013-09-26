@@ -247,7 +247,7 @@ _.extend(AnnularWedge::display_defaults, {
 
   direction: 'anticlock'
 
-  fill: 'gray'
+  fill_color: 'gray'
   fill_alpha: 1.0
 
   line_color: 'red'

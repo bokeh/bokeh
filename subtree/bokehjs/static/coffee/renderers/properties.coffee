@@ -225,7 +225,7 @@ class line_properties extends properties
 
 class fill_properties extends properties
   constructor: (styleprovider, glyphspec, prefix="") ->
-    @fill_name       = "#{ prefix }fill"
+    @fill_name       = "#{ prefix }fill_color"
     @fill_alpha_name = "#{ prefix }fill_alpha"
 
     @color(styleprovider, glyphspec, @fill_name)

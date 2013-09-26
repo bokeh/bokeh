@@ -81,7 +81,7 @@ source = Collections('ColumnDataSource').create(
   data:
     x: xs
     y: ys
-    fill: colors
+    fill_color: colors
 )
 
 test(
