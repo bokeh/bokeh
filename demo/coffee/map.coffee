@@ -52,7 +52,7 @@ area = {
   ys: 'ys'
   type: 'patches',
   line_color: 'white'
-  fill:
+  fill_color:
     field: 'colors'
   fill_alpha: 0.6
 }

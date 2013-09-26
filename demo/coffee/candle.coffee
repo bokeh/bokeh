@@ -35,7 +35,7 @@ source = Collections('ColumnDataSource').create(
     height: dy
     high: high
     low: low
-    fill: colors
+    fill_color: colors
 )
 
 xdr = Collections('Range1d').create({start: 0, end: 100})
@@ -47,7 +47,7 @@ bars = {
   width: 1
   height: 'height'
   type: 'rect',
-  fill: 'fill'
+  fill_color: 'fill'
   line_color: 'black'
   line_width: 0.5
 }

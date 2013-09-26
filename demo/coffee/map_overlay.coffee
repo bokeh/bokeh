@@ -86,7 +86,7 @@ area = {
   ys: 'ys'
   type: 'patches',
   line_color: 'white'
-  fill: '#665555'
+  fill_color: '#665555'
   fill_alpha: 0.6
 }
 
@@ -95,7 +95,7 @@ defaults = {
 
 wedge = {
   type: 'wedge'
-  fill:
+  fill_color:
     field: 'wcolors'
   x: 'wx'
   y: 'wy'

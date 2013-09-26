@@ -20,7 +20,7 @@ source = Collections('ColumnDataSource').create(
     x: x
     y: y
     radius: radii
-    fill: colors
+    fill_color: colors
 )
 
 xdr = Collections('Range1d').create({start: 0, end: 100})
@@ -31,7 +31,7 @@ scatter = {
   y: 'y'
   radius: 'radius'
   radius_units: 'data'
-  fill: 'fill'
+  fill_color: 'fill'
   fill_alpha: 0.6
   type: 'circle',
   line_color: null
