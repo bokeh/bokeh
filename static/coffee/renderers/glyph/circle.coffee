@@ -196,7 +196,7 @@ class Circle extends Glyph
 Circle::display_defaults = _.clone(Circle::display_defaults)
 _.extend(Circle::display_defaults, {
 
-  fill: 'gray'
+  fill_color: 'gray'
   fill_alpha: 1.0
 
   line_color: 'red'

@@ -84,7 +84,7 @@ class Patches extends Glyph
 Patches::display_defaults = _.clone(Patches::display_defaults)
 _.extend(Patches::display_defaults, {
 
-  fill: 'gray'
+  fill_color: 'gray'
   fill_alpha: 1.0
 
   line_color: 'red'

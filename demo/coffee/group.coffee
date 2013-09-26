@@ -27,7 +27,7 @@ a = {
   top: 'at'
   bottom: 'ab'
   type: 'quad',
-  fill: '#A6CEE3'
+  fill_color: '#A6CEE3'
   line_color: null
 }
 
@@ -37,7 +37,7 @@ b = {
   top: 'bt'
   bottom: 'bb'
   type: 'quad',
-  fill: '#1F78B4'
+  fill_color: '#1F78B4'
   line_color: null
 }
 
@@ -47,7 +47,7 @@ c = {
   top: 'ct'
   bottom: 'cb'
   type: 'quad',
-  fill: '#B2DF8A'
+  fill_color: '#B2DF8A'
   line_color: null
 }
 

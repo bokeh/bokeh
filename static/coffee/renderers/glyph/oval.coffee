@@ -209,7 +209,7 @@ class Oval extends Glyph
 Oval::display_defaults = _.clone(Oval::display_defaults)
 _.extend(Oval::display_defaults, {
 
-  fill: 'gray'
+  fill_color: 'gray'
   fill_alpha: 1.0
 
   line_color: 'red'

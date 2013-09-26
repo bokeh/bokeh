@@ -206,7 +206,7 @@ class Rect extends Glyph
 Rect::display_defaults = _.clone(Rect::display_defaults)
 _.extend(Rect::display_defaults, {
 
-  fill: 'gray'
+  fill_color: 'gray'
   fill_alpha: 1.0
 
   line_color: 'red'
