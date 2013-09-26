@@ -34,7 +34,7 @@ This will write a static HTML file circle.html in the current directory and open
 
 To utilize the plot server, execute the following in the top-level Bokeh directory:
 
-    $ python runserver.py
+    $ python bokeh-server
 
 Now you are ready to generate plots form the server. In examples/plotting/server/, try:
 
@@ -53,7 +53,7 @@ This setup is appropriate when you need to develop on the client-side Python par
 In the top-level Bokeh directory:
 
     $ python setup.py develop
-    $ python runserver.py -d &
+    $ python bokeh-server -d &
 
 Now you are ready to plot:
 
