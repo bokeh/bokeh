@@ -441,7 +441,7 @@ def plot(*args, **kwargs):
     Examples
     --------
         plot([1,2,3,4,5,6])
-        plot([1,2,3],[4,5,6], fill="red")
+        plot([1,2,3],[4,5,6], fill_color="red")
         plot(x_array, y_array, type="circle")
         plot("data1", "data2", source=data_source, ...)
 
@@ -484,8 +484,8 @@ def scatter(*args, **kwargs):
     Style Parameters (specified by keyword)
     ---------------------------------------
     type : "circle", "square"
-    color : color  # same as "fill"
-    fill : color
+    color : color  # same as "fill_color"
+    fill_color : color
     fill_alpha : 0.0 - 1.0
     line_color : color
     line_width : int >= 1
@@ -499,7 +499,7 @@ def scatter(*args, **kwargs):
     Examples
     --------
         scatter([1,2,3,4,5,6])
-        scatter([1,2,3],[4,5,6], fill="red")
+        scatter([1,2,3],[4,5,6], fill_color="red")
         scatter(x_array, y_array, type="circle")
         scatter("data1", "data2", source=data_source, ...)
 

@@ -157,11 +157,6 @@ class Glyph(PlotObject):
         d = self.vm_props(withvalues=True)
         d["type"] = self.__view_model__
 
-        # TODO: Remove this when we rename the BokehJS fill color attribute
-        # from "fill" to "fill_color"
-        if "fill_color" in d:
-            d["fill"] = d.pop("fill_color")
-
         # Iterate over all the DataSpec properties and convert them, using the
         # fact that DataSpecs store the dict-ified version on the object.
         for attrname, dspec in self.dataspecs().iteritems():
