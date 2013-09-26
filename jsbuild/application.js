@@ -19922,7 +19922,7 @@ _.setdefault = function(obj, key, value){
     DataFactorRange: ['./common/ranges', 'datafactorranges'],
     Plot: ['./common/plot', 'plots'],
     GMapPlot: ['./common/gmap_plot', 'gmapplots'],
-    GridPlotContainer: ['./common/grid_plot', 'gridplots'],
+    GridPlot: ['./common/grid_plot', 'gridplots'],
     CDXPlotContext: ['./common/plot_context', 'plotcontexts'],
     PlotContext: ['./common/plot_context', 'plotcontexts'],
     PlotList: ['./common/plot_context', 'plotlists'],
@@ -20956,10 +20956,9 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/grid_plot": function(exports, require, module) {(function() {
-  var ContinuumView, GridPlot, GridPlotView, GridPlotViewState, GridPlots, HasParent, HasProperties, PlotViewState, base, build_views, safebind,
+  var ContinuumView, GridPlot, GridPlotView, GridPlots, GridViewState, HasParent, HasProperties, ViewState, base, build_views, safebind,
     __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   base = require("../base");
 
@@ -20973,7 +20972,9 @@ _.setdefault = function(obj, key, value){
 
   ContinuumView = require('./continuum_view').ContinuumView;
 
-  PlotViewState = require('./plot').PlotViewState;
+  ViewState = require('./view_state').ViewState;
+
+  GridViewState = require('./grid_view_state').GridViewState;
 
   GridPlotView = (function(_super) {
 
@@ -21002,7 +21003,7 @@ _.setdefault = function(obj, key, value){
           _results = [];
           for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
             x = row[_j];
-            _results.push(this.childviews[x.id].viewstate);
+            _results.push(this.childviews[x.id].view_state);
           }
           return _results;
         }).call(this);
@@ -21087,10 +21088,10 @@ _.setdefault = function(obj, key, value){
         for (cidx = _k = 0, _len2 = row.length; _k < _len2; cidx = ++_k) {
           plotspec = row[cidx];
           view = this.childviews[plotspec.id];
-          ypos = this.viewstate.position_child_y(view.viewstate.get('outerheight'), y_coords[ridx]);
-          xpos = this.viewstate.position_child_x(view.viewstate.get('outerwidth'), x_coords[cidx]);
+          ypos = this.viewstate.position_child_y(y_coords[ridx], view.view_state.get('outer_height'));
+          xpos = this.viewstate.position_child_x(x_coords[cidx], view.view_state.get('outer_width'));
           plot_wrapper = $("<div class='gp_plotwrapper'></div>");
-          plot_wrapper.attr('style', "left:" + xpos + "px; top:" + ypos + "px");
+          plot_wrapper.attr('style', "position: absolute; left:" + xpos + "px; top:" + ypos + "px");
           plot_wrapper.append(view.$el);
           this.$el.append(plot_wrapper);
         }
@@ -21142,142 +21143,9 @@ _.setdefault = function(obj, key, value){
 
   })(Backbone.Collection);
 
-  GridPlotViewState = (function(_super) {
-
-    __extends(GridPlotViewState, _super);
-
-    function GridPlotViewState() {
-      this.layout_widths = __bind(this.layout_widths, this);
-
-      this.layout_heights = __bind(this.layout_heights, this);
-
-      this.setup_layout_properties = __bind(this.setup_layout_properties, this);
-      return GridPlotViewState.__super__.constructor.apply(this, arguments);
-    }
-
-    GridPlotViewState.prototype.setup_layout_properties = function() {
-      var row, viewstate, _i, _len, _ref, _results;
-      this.register_property('layout_heights', this.layout_heights, true);
-      this.register_property('layout_widths', this.layout_widths, true);
-      _ref = this.get('childviewstates');
-      _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        row = _ref[_i];
-        _results.push((function() {
-          var _j, _len1, _results1;
-          _results1 = [];
-          for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
-            viewstate = row[_j];
-            this.add_dependencies('layout_heights', viewstate, 'outerheight');
-            _results1.push(this.add_dependencies('layout_widths', viewstate, 'outerwidth'));
-          }
-          return _results1;
-        }).call(this));
-      }
-      return _results;
-    };
-
-    GridPlotViewState.prototype.initialize = function(attrs, options) {
-      GridPlotViewState.__super__.initialize.call(this, attrs, options);
-      this.setup_layout_properties();
-      safebind(this, this, 'change:childviewstates', this.setup_layout_properties);
-      this.register_property('height', function() {
-        return _.reduce(this.get('layout_heights'), (function(x, y) {
-          return x + y;
-        }), 0);
-      }, true);
-      this.add_dependencies('height', this, 'layout_heights');
-      this.register_property('width', function() {
-        return _.reduce(this.get('layout_widths'), (function(x, y) {
-          return x + y;
-        }), 0);
-      }, true);
-      return this.add_dependencies('width', this, 'layout_widths');
-    };
-
-    GridPlotViewState.prototype.position_child_x = function(childsize, offset) {
-      return this.xpos(offset);
-    };
-
-    GridPlotViewState.prototype.position_child_y = function(childsize, offset) {
-      return this.ypos(offset) - childsize;
-    };
-
-    GridPlotViewState.prototype.maxdim = function(dim, row) {
-      if (row.length === 0) {
-        return 0;
-      } else {
-        return _.max(_.map(row, (function(x) {
-          return x.get(dim);
-        })));
-      }
-    };
-
-    GridPlotViewState.prototype.layout_heights = function() {
-      var row, row_heights;
-      row_heights = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.get('childviewstates');
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          row = _ref[_i];
-          _results.push(this.maxdim('outerheight', row));
-        }
-        return _results;
-      }).call(this);
-      return row_heights;
-    };
-
-    GridPlotViewState.prototype.layout_widths = function() {
-      var col, col_widths, columns, n, num_cols, row;
-      num_cols = this.get('childviewstates')[0].length;
-      columns = (function() {
-        var _i, _len, _ref, _results;
-        _ref = _.range(num_cols);
-        _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          n = _ref[_i];
-          _results.push((function() {
-            var _j, _len1, _ref1, _results1;
-            _ref1 = this.get('childviewstates');
-            _results1 = [];
-            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-              row = _ref1[_j];
-              _results1.push(row[n]);
-            }
-            return _results1;
-          }).call(this));
-        }
-        return _results;
-      }).call(this);
-      col_widths = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = columns.length; _i < _len; _i++) {
-          col = columns[_i];
-          _results.push(this.maxdim('outerwidth', col));
-        }
-        return _results;
-      }).call(this);
-      return col_widths;
-    };
-
-    return GridPlotViewState;
-
-  })(PlotViewState);
-
-  GridPlotViewState.prototype.defaults = _.clone(GridPlotViewState.prototype.defaults);
-
-  _.extend(GridPlotViewState.prototype.defaults, {
-    childviewstates: [[]],
-    border_space: 0
-  });
-
   exports.GridPlot = GridPlot;
 
   exports.GridPlotView = GridPlotView;
-
-  exports.GridPlotViewState = GridPlotViewState;
 
   exports.gridplots = new GridPlots;
 
@@ -21347,12 +21215,12 @@ _.setdefault = function(obj, key, value){
       return this.add_dependencies('width', this, 'layout_widths');
     };
 
-    GridViewState.prototype.position_child_x = function(childsize, offset) {
-      return this.sx_to_device(offset);
+    GridViewState.prototype.position_child_x = function(offset, childsize) {
+      return offset;
     };
 
-    GridViewState.prototype.position_child_y = function(childsize, offset) {
-      return this.sy_to_device(offset) - childsize;
+    GridViewState.prototype.position_child_y = function(offset, childsize) {
+      return this.get('height') - offset - childsize;
     };
 
     GridViewState.prototype.maxdim = function(dim, row) {
@@ -21767,7 +21635,7 @@ _.setdefault = function(obj, key, value){
       this.ctx.fillRect(this.view_state.get('border_left'), this.view_state.get('border_top'), this.view_state.get('inner_width'), this.view_state.get('inner_height'));
       have_new_mapper_state = false;
       xms = this.xmapper.get('mapper_state')[0];
-      yms = this.xmapper.get('mapper_state')[0];
+      yms = this.ymapper.get('mapper_state')[0];
       if (Math.abs(this.old_mapper_state.x - xms) > 1e-8 || Math.abs(this.old_mapper_state.y - yms) > 1e-8) {
         this.old_mapper_state.x = xms;
         this.old_mapper_state.y = yms;
@@ -25528,7 +25396,7 @@ _.setdefault = function(obj, key, value){
 
   _.extend(AnnularWedge.prototype.display_defaults, {
     direction: 'anticlock',
-    fill: 'gray',
+    fill_color: 'gray',
     fill_alpha: 1.0,
     line_color: 'red',
     line_width: 1,
@@ -25789,7 +25657,7 @@ _.setdefault = function(obj, key, value){
   Annulus.prototype.display_defaults = _.clone(Annulus.prototype.display_defaults);
 
   _.extend(Annulus.prototype.display_defaults, {
-    fill: 'gray',
+    fill_color: 'gray',
     fill_alpha: 1.0,
     line_color: 'red',
     line_width: 1,
@@ -25997,7 +25865,7 @@ _.setdefault = function(obj, key, value){
   Arc.prototype.display_defaults = _.clone(Arc.prototype.display_defaults);
 
   _.extend(Arc.prototype.display_defaults, {
-    diection: 'anticlock',
+    direction: 'anticlock',
     line_color: 'red',
     line_width: 1,
     line_alpha: 1.0,
@@ -26234,7 +26102,7 @@ _.setdefault = function(obj, key, value){
       }
       ctx = this.plot_view.ctx;
       ctx.save();
-      if (false) {
+      if (this.glyph_props.fast_path) {
         if (selected && selected.length && this.nonselection_glyphprops) {
           if (this.selection_glyphprops) {
             props = this.selection_glyphprops;
@@ -26415,7 +26283,7 @@ _.setdefault = function(obj, key, value){
   Circle.prototype.display_defaults = _.clone(Circle.prototype.display_defaults);
 
   _.extend(Circle.prototype.display_defaults, {
-    fill: 'gray',
+    fill_color: 'gray',
     fill_alpha: 1.0,
     line_color: 'red',
     line_width: 1,
@@ -27693,7 +27561,7 @@ _.setdefault = function(obj, key, value){
   Oval.prototype.display_defaults = _.clone(Oval.prototype.display_defaults);
 
   _.extend(Oval.prototype.display_defaults, {
-    fill: 'gray',
+    fill_color: 'gray',
     fill_alpha: 1.0,
     line_color: 'red',
     line_width: 1,
@@ -27821,7 +27689,7 @@ _.setdefault = function(obj, key, value){
   Patch.prototype.display_defaults = _.clone(Patch.prototype.display_defaults);
 
   _.extend(Patch.prototype.display_defaults, {
-    fill: 'gray',
+    fill_color: 'gray',
     fill_alpha: 1.0,
     line_color: 'red',
     line_width: 1,
@@ -27952,7 +27820,7 @@ _.setdefault = function(obj, key, value){
   Patches.prototype.display_defaults = _.clone(Patches.prototype.display_defaults);
 
   _.extend(Patches.prototype.display_defaults, {
-    fill: 'gray',
+    fill_color: 'gray',
     fill_alpha: 1.0,
     line_color: 'red',
     line_width: 1,
@@ -28157,7 +28025,7 @@ _.setdefault = function(obj, key, value){
   Quad.prototype.display_defaults = _.clone(Quad.prototype.display_defaults);
 
   _.extend(Quad.prototype.display_defaults, {
-    fill: 'gray',
+    fill_color: 'gray',
     fill_alpha: 1.0,
     line_color: 'red',
     line_width: 1,
@@ -28763,7 +28631,7 @@ _.setdefault = function(obj, key, value){
   Rect.prototype.display_defaults = _.clone(Rect.prototype.display_defaults);
 
   _.extend(Rect.prototype.display_defaults, {
-    fill: 'gray',
+    fill_color: 'gray',
     fill_alpha: 1.0,
     line_color: 'red',
     line_width: 1,
@@ -29438,7 +29306,7 @@ _.setdefault = function(obj, key, value){
 
   _.extend(Wedge.prototype.display_defaults, {
     direction: 'anticlock',
-    fill: 'gray',
+    fill_color: 'gray',
     fill_alpha: 1.0,
     line_color: 'red',
     line_width: 1,
@@ -30730,7 +30598,7 @@ _.setdefault = function(obj, key, value){
       if (prefix == null) {
         prefix = "";
       }
-      this.fill_name = "" + prefix + "fill";
+      this.fill_name = "" + prefix + "fill_color";
       this.fill_alpha_name = "" + prefix + "fill_alpha";
       this.color(styleprovider, glyphspec, this.fill_name);
       this.number(styleprovider, glyphspec, this.fill_alpha_name);
@@ -31888,7 +31756,6 @@ _.setdefault = function(obj, key, value){
 }).call(this);
 }, "tools/pan_tool": function(exports, require, module) {(function() {
   var LinearMapper, PanTool, PanToolView, PanTools, TwoPointEventGenerator, base, eventgenerators, safebind, tool,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -31909,41 +31776,15 @@ _.setdefault = function(obj, key, value){
     __extends(PanToolView, _super);
 
     function PanToolView() {
-      this.build_mappers = __bind(this.build_mappers, this);
       return PanToolView.__super__.constructor.apply(this, arguments);
     }
 
     PanToolView.prototype.initialize = function(options) {
-      PanToolView.__super__.initialize.call(this, options);
-      return this.build_mappers();
+      return PanToolView.__super__.initialize.call(this, options);
     };
 
     PanToolView.prototype.bind_bokeh_events = function() {
-      PanToolView.__super__.bind_bokeh_events.call(this);
-      return safebind(this, this.model, 'change:dataranges', this.build_mappers);
-    };
-
-    PanToolView.prototype.build_mappers = function() {
-      var datarange, dim, mapper, temp, _i, _len, _ref;
-      this.mappers = {};
-      _ref = _.zip(this.mget_obj('dataranges'), this.mget('dimensions'));
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        temp = _ref[_i];
-        datarange = temp[0], dim = temp[1];
-        if (dim === 'width') {
-          mapper = new LinearMapper({
-            source_range: datarange,
-            target_range: this.plot_view.view_state.get('inner_range_horizontal')
-          });
-        } else {
-          mapper = new LinearMapper({
-            source_range: datarange,
-            target_range: this.plot_view.view_state.get('inner_range_vertical')
-          });
-        }
-        this.mappers[dim] = mapper;
-      }
-      return this.mappers;
+      return PanToolView.__super__.bind_bokeh_events.call(this);
     };
 
     PanToolView.prototype.eventGeneratorClass = TwoPointEventGenerator;
@@ -32825,7 +32666,6 @@ _.setdefault = function(obj, key, value){
 }).call(this);
 }, "tools/zoom_tool": function(exports, require, module) {(function() {
   var LinearMapper, OnePointWheelEventGenerator, ZoomTool, ZoomToolView, ZoomTools, base, eventgenerators, safebind, tool,
-    __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -32846,14 +32686,11 @@ _.setdefault = function(obj, key, value){
     __extends(ZoomToolView, _super);
 
     function ZoomToolView() {
-      this.build_mappers = __bind(this.build_mappers, this);
       return ZoomToolView.__super__.constructor.apply(this, arguments);
     }
 
     ZoomToolView.prototype.initialize = function(options) {
-      ZoomToolView.__super__.initialize.call(this, options);
-      safebind(this, this.model, 'change:dataranges', this.build_mappers);
-      return this.build_mappers();
+      return ZoomToolView.__super__.initialize.call(this, options);
     };
 
     ZoomToolView.prototype.eventGeneratorClass = OnePointWheelEventGenerator;
@@ -32864,29 +32701,6 @@ _.setdefault = function(obj, key, value){
 
     ZoomToolView.prototype.tool_events = {
       zoom: "_zoom"
-    };
-
-    ZoomToolView.prototype.build_mappers = function() {
-      var datarange, dim, mapper, temp, _i, _len, _ref;
-      this.mappers = {};
-      _ref = _.zip(this.mget_obj('dataranges'), this.mget('dimensions'));
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        temp = _ref[_i];
-        datarange = temp[0], dim = temp[1];
-        if (dim === 'width') {
-          mapper = new LinearMapper({
-            source_range: datarange,
-            target_range: this.plot_view.view_state.get('inner_range_horizontal')
-          });
-        } else {
-          mapper = new LinearMapper({
-            source_range: datarange,
-            target_range: this.plot_view.view_state.get('inner_range_vertical')
-          });
-        }
-        this.mappers[dim] = mapper;
-      }
-      return this.mappers;
     };
 
     ZoomToolView.prototype.mouse_coords = function(e, x, y) {
