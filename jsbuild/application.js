@@ -22635,6 +22635,162 @@ _.setdefault = function(obj, key, value){
   exports.datafactorranges = new DataFactorRanges;
 
 }).call(this);
+}, "common/svg_colors": function(exports, require, module) {(function() {
+  var svg_colors;
+
+  svg_colors = {
+    indianred: "#CD5C5C",
+    lightcoral: "#F08080",
+    salmon: "#FA8072",
+    darksalmon: "#E9967A",
+    lightsalmon: "#FFA07A",
+    crimson: "#DC143C",
+    red: "#FF0000",
+    firebrick: "#B22222",
+    darkred: "#8B0000",
+    pink: "#FFC0CB",
+    lightpink: "#FFB6C1",
+    hotpink: "#FF69B4",
+    deeppink: "#FF1493",
+    mediumvioletred: "#C71585",
+    palevioletred: "#DB7093",
+    lightsalmon: "#FFA07A",
+    coral: "#FF7F50",
+    tomato: "#FF6347",
+    orangered: "#FF4500",
+    darkorange: "#FF8C00",
+    orange: "#FFA500",
+    gold: "#FFD700",
+    yellow: "#FFFF00",
+    lightyellow: "#FFFFE0",
+    lemonchiffon: "#FFFACD",
+    lightgoldenrodyellow: "#FAFAD2",
+    papayawhip: "#FFEFD5",
+    moccasin: "#FFE4B5",
+    peachpuff: "#FFDAB9",
+    palegoldenrod: "#EEE8AA",
+    khaki: "#F0E68C",
+    darkkhaki: "#BDB76B",
+    lavender: "#E6E6FA",
+    thistle: "#D8BFD8",
+    plum: "#DDA0DD",
+    violet: "#EE82EE",
+    orchid: "#DA70D6",
+    fuchsia: "#FF00FF",
+    magenta: "#FF00FF",
+    mediumorchid: "#BA55D3",
+    mediumpurple: "#9370DB",
+    blueviolet: "#8A2BE2",
+    darkviolet: "#9400D3",
+    darkorchid: "#9932CC",
+    darkmagenta: "#8B008B",
+    purple: "#800080",
+    indigo: "#4B0082",
+    slateblue: "#6A5ACD",
+    darkslateblue: "#483D8B",
+    mediumslateblue: "#7B68EE",
+    greenyellow: "#ADFF2F",
+    chartreuse: "#7FFF00",
+    lawngreen: "#7CFC00",
+    lime: "#00FF00",
+    limegreen: "#32CD32",
+    palegreen: "#98FB98",
+    lightgreen: "#90EE90",
+    mediumspringgreen: "#00FA9A",
+    springgreen: "#00FF7F",
+    mediumseagreen: "#3CB371",
+    seagreen: "#2E8B57",
+    forestgreen: "#228B22",
+    green: "#008000",
+    darkgreen: "#006400",
+    yellowgreen: "#9ACD32",
+    olivedrab: "#6B8E23",
+    olive: "#808000",
+    darkolivegreen: "#556B2F",
+    mediumaquamarine: "#66CDAA",
+    darkseagreen: "#8FBC8F",
+    lightseagreen: "#20B2AA",
+    darkcyan: "#008B8B",
+    teal: "#008080",
+    aqua: "#00FFFF",
+    cyan: "#00FFFF",
+    lightcyan: "#E0FFFF",
+    paleturquoise: "#AFEEEE",
+    aquamarine: "#7FFFD4",
+    turquoise: "#40E0D0",
+    mediumturquoise: "#48D1CC",
+    darkturquoise: "#00CED1",
+    cadetblue: "#5F9EA0",
+    steelblue: "#4682B4",
+    lightsteelblue: "#B0C4DE",
+    powderblue: "#B0E0E6",
+    lightblue: "#ADD8E6",
+    skyblue: "#87CEEB",
+    lightskyblue: "#87CEFA",
+    deepskyblue: "#00BFFF",
+    dodgerblue: "#1E90FF",
+    cornflowerblue: "#6495ED",
+    mediumslateblue: "#7B68EE",
+    royalblue: "#4169E1",
+    blue: "#0000FF",
+    mediumblue: "#0000CD",
+    darkblue: "#00008B",
+    navy: "#000080",
+    midnightblue: "#191970",
+    cornsilk: "#FFF8DC",
+    blanchedalmond: "#FFEBCD",
+    bisque: "#FFE4C4",
+    navajowhite: "#FFDEAD",
+    wheat: "#F5DEB3",
+    burlywood: "#DEB887",
+    tan: "#D2B48C",
+    rosybrown: "#BC8F8F",
+    sandybrown: "#F4A460",
+    goldenrod: "#DAA520",
+    darkgoldenrod: "#B8860B",
+    peru: "#CD853F",
+    chocolate: "#D2691E",
+    saddlebrown: "#8B4513",
+    sienna: "#A0522D",
+    brown: "#A52A2A",
+    maroon: "#800000",
+    white: "#FFFFFF",
+    snow: "#FFFAFA",
+    honeydew: "#F0FFF0",
+    mintcream: "#F5FFFA",
+    azure: "#F0FFFF",
+    aliceblue: "#F0F8FF",
+    ghostwhite: "#F8F8FF",
+    whitesmoke: "#F5F5F5",
+    seashell: "#FFF5EE",
+    beige: "#F5F5DC",
+    oldlace: "#FDF5E6",
+    floralwhite: "#FFFAF0",
+    ivory: "#FFFFF0",
+    antiquewhite: "#FAEBD7",
+    linen: "#FAF0E6",
+    lavenderblush: "#FFF0F5",
+    mistyrose: "#FFE4E1",
+    gainsboro: "#DCDCDC",
+    lightgrey: "#D3D3D3",
+    silver: "#C0C0C0",
+    darkgray: "#A9A9A9",
+    darkgrey: "#A9A9A9",
+    gray: "#808080",
+    grey: "#808080",
+    dimgray: "#696969",
+    dimgrey: "#696969",
+    lightslategray: "#778899",
+    lightslategrey: "#778899",
+    slategray: "#708090",
+    darkslategray: "#2F4F4F",
+    darkslategrey: "#2F4F4F",
+    black: "#000000"
+  };
+
+  exports.svg_colors = svg_colors;
+
+}).call(this);
 }, "common/textutils": function(exports, require, module) {(function() {
   var cache, getTextHeight;
 
@@ -23262,7 +23418,7 @@ _.setdefault = function(obj, key, value){
       var idx, offset, result, scale, values, x, _i, _len, _ref;
       _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
       values = this.get('source_range').get('values');
-      result = new Array(xs.length);
+      result = new Float32Array(xs.length);
       for (idx = _i = 0, _len = xs.length; _i < _len; idx = ++_i) {
         x = xs[idx];
         result[idx] = scale * _.indexOf(values, x) + offset;
@@ -23281,7 +23437,7 @@ _.setdefault = function(obj, key, value){
       var idx, offset, result, scale, values, xprime, _i, _len, _ref;
       _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
       values = this.get('source_range').get('values');
-      result = new Array(xprimes.length);
+      result = new Float32Array(xprimes.length);
       for (idx = _i = 0, _len = xprimes.length; _i < _len; idx = ++_i) {
         xprime = xprimes[idx];
         result[idx] = values[Math.trunc((xprime + offset) / scale)];
@@ -23342,7 +23498,7 @@ _.setdefault = function(obj, key, value){
     LinearMapper.prototype.v_map_to_target = function(xs) {
       var idx, offset, result, scale, x, _i, _len, _ref;
       _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
-      result = new Array(xs.length);
+      result = new Float32Array(xs.length);
       for (idx = _i = 0, _len = xs.length; _i < _len; idx = ++_i) {
         x = xs[idx];
         result[idx] = scale * x + offset;
@@ -23359,7 +23515,7 @@ _.setdefault = function(obj, key, value){
     LinearMapper.prototype.v_map_from_target = function(xprimes) {
       var idx, offset, result, scale, xprime, _i, _len, _ref;
       _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
-      result = new Array(xprimes.length);
+      result = new Float32Array(xprimes.length);
       for (idx = _i = 0, _len = xprimes.length; _i < _len; idx = ++_i) {
         xprime = xprimes[idx];
         result[idx] = (xprime - offset) / scale;
@@ -23408,7 +23564,7 @@ _.setdefault = function(obj, key, value){
 
     LogMapper.prototype.v_map_to_target = function(xs) {
       var result;
-      result = new Array(xs.length);
+      result = new Float32Array(xs.length);
       return result;
     };
 
@@ -23416,7 +23572,7 @@ _.setdefault = function(obj, key, value){
 
     LogMapper.prototype.v_map_from_target = function(xprimes) {
       var result;
-      result = new Array(xprimes.length);
+      result = new Float32Array(xprimes.length);
       return result;
     };
 
@@ -25118,19 +25274,11 @@ _.setdefault = function(obj, key, value){
     };
 
     AnnularWedgeView.prototype._set_data = function(data) {
-      var angle, dir, end_angle, i, obj, start_angle, _i, _j, _k, _ref, _ref1, _ref2, _results;
+      var angle, dir, end_angle, i, start_angle, _i, _j, _k, _ref, _ref1, _ref2, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
-      start_angle = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          obj = data[_i];
-          _results.push(this.glyph_props.select('start_angle', obj));
-        }
-        return _results;
-      }).call(this);
+      start_angle = this.glyph_props.v_select('start_angle', data);
       this.start_angle = (function() {
         var _i, _len, _results;
         _results = [];
@@ -25140,15 +25288,7 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       })();
-      end_angle = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          obj = data[_i];
-          _results.push(this.glyph_props.select('end_angle', obj));
-        }
-        return _results;
-      }).call(this);
+      end_angle = this.glyph_props.v_select('end_angle', data);
       this.end_angle = (function() {
         var _i, _len, _results;
         _results = [];
@@ -25158,11 +25298,11 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       })();
-      this.angle = new Array(this.start_angle.length);
+      this.angle = new Float32Array(this.start_angle.length);
       for (i = _i = 0, _ref = this.start_angle.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         this.angle[i] = this.end_angle[i] - this.start_angle[i];
       }
-      this.direction = new Array(this.data.length);
+      this.direction = new Uint8Array(this.data.length);
       for (i = _j = 0, _ref1 = this.data.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
         dir = this.glyph_props.select('direction', data[i]);
         if (dir === 'clock') {
@@ -25707,19 +25847,11 @@ _.setdefault = function(obj, key, value){
     };
 
     ArcView.prototype._set_data = function(data) {
-      var angle, dir, end_angle, i, obj, start_angle, _i, _ref, _results;
+      var angle, dir, end_angle, i, start_angle, _i, _ref, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
-      start_angle = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          obj = data[_i];
-          _results.push(this.glyph_props.select('start_angle', obj));
-        }
-        return _results;
-      }).call(this);
+      start_angle = this.glyph_props.v_select('start_angle', data);
       this.start_angle = (function() {
         var _i, _len, _results;
         _results = [];
@@ -25729,15 +25861,7 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       })();
-      end_angle = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          obj = data[_i];
-          _results.push(this.glyph_props.select('end_angle', obj));
-        }
-        return _results;
-      }).call(this);
+      end_angle = this.glyph_props.v_select('end_angle', data);
       this.end_angle = (function() {
         var _i, _len, _results;
         _results = [];
@@ -25747,7 +25871,7 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       })();
-      this.direction = new Array(this.data.length);
+      this.direction = new Uint8Array(this.data.length);
       _results = [];
       for (i = _i = 0, _ref = this.data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         dir = this.glyph_props.select('direction', data[i]);
@@ -26375,7 +26499,7 @@ _.setdefault = function(obj, key, value){
     };
 
     GlyphView.prototype.distance = function(data, pt, span, position) {
-      var d, halfspan, i, mapper, pt0, pt1, pt_units, ptc, span_units, spt0, spt1, x;
+      var d, halfspan, i, mapper, pt0, pt1, pt_units, ptc, span_units, spt0, spt1;
       pt_units = this.glyph_props[pt].units;
       span_units = this.glyph_props[span].units;
       if (pt === 'x') {
@@ -26383,15 +26507,7 @@ _.setdefault = function(obj, key, value){
       } else if (pt === 'y') {
         mapper = this.plot_view.ymapper;
       }
-      span = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          x = data[_i];
-          _results.push(this.glyph_props.select(span, x));
-        }
-        return _results;
-      }).call(this);
+      span = this.glyph_props.v_select(span, data);
       if (span_units === 'screen') {
         return span;
       }
@@ -26793,7 +26909,7 @@ _.setdefault = function(obj, key, value){
     };
 
     ImageURIView.prototype._set_data = function(data) {
-      var img, obj;
+      var angle, angles, img, obj;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
@@ -26806,15 +26922,16 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       }).call(this);
+      angles = this.glyph_props.v_select('angle', data);
       this.angle = (function() {
         var _i, _len, _results;
         _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          obj = data[_i];
-          _results.push(this.glyph_props.select('angle', obj));
+        for (_i = 0, _len = angles.length; _i < _len; _i++) {
+          angle = angles[_i];
+          _results.push(-angle);
         }
         return _results;
-      }).call(this);
+      })();
       this.image = (function() {
         var _i, _len, _ref, _results;
         _ref = this.url;
@@ -27337,19 +27454,11 @@ _.setdefault = function(obj, key, value){
     };
 
     OvalView.prototype._set_data = function(data) {
-      var angle, angles, i, obj, _i, _ref, _results;
+      var angle, angles, i, _i, _ref, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
-      angles = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          obj = data[_i];
-          _results.push(this.glyph_props.select('angle', obj));
-        }
-        return _results;
-      }).call(this);
+      angles = this.glyph_props.v_select('angle', data);
       this.angle = (function() {
         var _i, _len, _results;
         _results = [];
@@ -28235,10 +28344,9 @@ _.setdefault = function(obj, key, value){
       width = this.plot_view.view_state.get('width');
       height = this.plot_view.view_state.get('height');
       inf_len = 2 * (width + height);
-      this.slength = this.length.slice(0);
-      for (i = _i = 0, _ref1 = this.slength.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-        if (this.slength[i] === 0) {
-          this.slength[i] = inf_len;
+      for (i = _i = 0, _ref1 = this.length.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if (this.length[i] === 0) {
+          this.length[i] = inf_len;
         }
       }
       ctx = this.plot_view.ctx;
@@ -28257,13 +28365,13 @@ _.setdefault = function(obj, key, value){
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
         for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-          if (isNaN(this.sx[i] + this.sy[i] + this.angle[i] + this.slength[i])) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.angle[i] + this.length[i])) {
             continue;
           }
           ctx.translate(this.sx[i], this.sy[i]);
           ctx.rotate(this.angle[i]);
           ctx.moveTo(0, 0);
-          ctx.lineTo(this.slength[i], 0);
+          ctx.lineTo(this.length[i], 0);
           ctx.rotate(-this.angle[i]);
           ctx.translate(-this.sx[i], -this.sy[i]);
         }
@@ -28276,14 +28384,14 @@ _.setdefault = function(obj, key, value){
       if (this.do_stroke) {
         _results = [];
         for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-          if (isNaN(this.sx[i] + this.sy[i] + this.angle[i] + this.slength[i])) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.angle[i] + this.length[i])) {
             continue;
           }
           ctx.translate(this.sx[i], this.sy[i]);
           ctx.rotate(this.angle[i]);
           ctx.beginPath();
           ctx.moveTo(0, 0);
-          ctx.lineTo(this.slength[i], 0);
+          ctx.lineTo(this.length[i], 0);
           this.glyph_props.line_properties.set(ctx, this.data[i]);
           ctx.stroke();
           ctx.rotate(-this.angle[i]);
@@ -28408,19 +28516,11 @@ _.setdefault = function(obj, key, value){
     };
 
     RectView.prototype._set_data = function(data) {
-      var angle, angles, i, obj, _i, _ref, _results;
+      var angle, angles, i, _i, _ref, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
-      angles = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          obj = data[_i];
-          _results.push(this.glyph_props.select('angle', obj));
-        }
-        return _results;
-      }).call(this);
+      angles = this.glyph_props.v_select('angle', data);
       this.angle = (function() {
         var _i, _len, _results;
         _results = [];
@@ -29116,19 +29216,11 @@ _.setdefault = function(obj, key, value){
     };
 
     WedgeView.prototype._set_data = function(data) {
-      var angle, dir, end_angle, i, obj, start_angle, _i, _ref, _results;
+      var angle, dir, end_angle, i, start_angle, _i, _ref, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
-      start_angle = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          obj = data[_i];
-          _results.push(this.glyph_props.select('start_angle', obj));
-        }
-        return _results;
-      }).call(this);
+      start_angle = this.glyph_props.v_select('start_angle', data);
       this.start_angle = (function() {
         var _i, _len, _results;
         _results = [];
@@ -29138,15 +29230,7 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       })();
-      end_angle = (function() {
-        var _i, _len, _results;
-        _results = [];
-        for (_i = 0, _len = data.length; _i < _len; _i++) {
-          obj = data[_i];
-          _results.push(this.glyph_props.select('end_angle', obj));
-        }
-        return _results;
-      }).call(this);
+      end_angle = this.glyph_props.v_select('end_angle', data);
       this.end_angle = (function() {
         var _i, _len, _results;
         _results = [];
@@ -29156,7 +29240,7 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       })();
-      this.direction = new Array(this.data.length);
+      this.direction = new Uint8Array(this.data.length);
       _results = [];
       for (i = _i = 0, _ref = this.data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         dir = this.glyph_props.select('direction', data[i]);
@@ -29876,8 +29960,8 @@ _.setdefault = function(obj, key, value){
       range = ranges[i];
       cross_range = ranges[j];
       _ref = this.get('bounds'), start = _ref[0], end = _ref[1];
-      xs = new Array(2);
-      ys = new Array(2);
+      xs = new Float32Array(2);
+      ys = new Float32Array(2);
       coords = [xs, ys];
       loc = (_ref1 = this.get('guidespec').location) != null ? _ref1 : 'min';
       if (_.isString(loc)) {
@@ -30299,10 +30383,12 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/properties": function(exports, require, module) {(function() {
-  var fill_properties, glyph_properties, line_properties, properties, text_properties,
+  var fill_properties, glyph_properties, line_properties, properties, svg_colors, text_properties,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  svg_colors = require('../common/svg_colors').svg_colors;
 
   properties = (function() {
 
@@ -30310,70 +30396,56 @@ _.setdefault = function(obj, key, value){
 
     properties.prototype.string = function(styleprovider, glyphspec, attrname) {
       var default_value, glyph_value;
+      this[attrname] = {};
       default_value = styleprovider.mget(attrname);
+      if (!(default_value != null)) {
+
+      } else if (_.isString(default_value)) {
+        this[attrname]["default"] = default_value;
+      } else {
+        console.log(("string property '" + attrname + "' given invalid default value: ") + default_value);
+      }
       if (!(attrname in glyphspec)) {
-        if (_.isString(default_value)) {
-          this[attrname] = {
-            "default": default_value
-          };
-        } else {
-          console.log(("string property '" + attrname + "' given invalid default value: ") + default_value);
-        }
         return;
       }
       glyph_value = glyphspec[attrname];
       if (_.isString(glyph_value)) {
-        return this[attrname] = {
-          "default": glyph_value
-        };
+        return this[attrname].value = glyph_value;
       } else if (_.isObject(glyph_value)) {
-        this[attrname] = glyph_value;
-        if (!(this[attrname]["default"] != null)) {
-          return this[attrname]["default"] = default_value;
-        }
+        return this[attrname] = _.extend(this[attrname], glyph_value);
       } else {
         return console.log(("string property '" + attrname + "' given invalid glyph value: ") + glyph_value);
       }
     };
 
     properties.prototype.number = function(styleprovider, glyphspec, attrname) {
-      var default_units, default_value, glyph_value, _ref;
+      var default_value, glyph_value, units_value, _ref;
+      this[attrname] = {
+        typed: true
+      };
       default_value = styleprovider.mget(attrname);
-      default_units = (_ref = styleprovider.mget(attrname + '_units')) != null ? _ref : 'data';
-      if (attrname + '_units' in glyphspec) {
-        default_units = glyphspec[attrname + '_units'];
+      if (!(default_value != null)) {
+
+      } else if (_.isNumber(default_value)) {
+        this[attrname]["default"] = default_value;
+      } else {
+        console.log(("number property '" + attrname + "' given invalid default value: ") + default_value);
       }
+      units_value = (_ref = styleprovider.mget(attrname + '_units')) != null ? _ref : 'data';
+      if (attrname + '_units' in glyphspec) {
+        units_value = glyphspec[attrname + '_units'];
+      }
+      this[attrname].units = units_value;
       if (!(attrname in glyphspec)) {
-        if (_.isNumber(default_value)) {
-          this[attrname] = {
-            "default": default_value,
-            units: default_units
-          };
-        } else {
-          console.log(("number property '" + attrname + "' given invalid default value: ") + default_value);
-        }
         return;
       }
       glyph_value = glyphspec[attrname];
       if (_.isString(glyph_value)) {
-        return this[attrname] = {
-          field: glyph_value,
-          "default": default_value,
-          units: default_units
-        };
+        return this[attrname].field = glyph_value;
       } else if (_.isNumber(glyph_value)) {
-        return this[attrname] = {
-          "default": glyph_value,
-          units: default_units
-        };
+        return this[attrname].value = glyph_value;
       } else if (_.isObject(glyph_value)) {
-        this[attrname] = glyph_value;
-        if (!(this[attrname]["default"] != null)) {
-          this[attrname]["default"] = default_value;
-        }
-        if (!(this[attrname].units != null)) {
-          return this[attrname].units = default_units;
-        }
+        return this[attrname] = _.extend(this[attrname], glyph_value);
       } else {
         return console.log(("number property '" + attrname + "' given invalid glyph value: ") + glyph_value);
       }
@@ -30381,107 +30453,95 @@ _.setdefault = function(obj, key, value){
 
     properties.prototype.color = function(styleprovider, glyphspec, attrname) {
       var default_value, glyph_value;
+      this[attrname] = {};
       default_value = styleprovider.mget(attrname);
+      if (!(default_value != null)) {
+        this[attrname]["default"] = null;
+      } else if (_.isString(default_value) && ((svg_colors[default_value] != null) || default_value.substring(0, 1) === "#")) {
+        this[attrname]["default"] = default_value;
+      } else {
+        console.log(("color property '" + attrname + "' given invalid default value: ") + default_value);
+      }
       if (!(attrname in glyphspec)) {
-        if (_.isString(default_value) || _.isNull(default_value)) {
-          this[attrname] = {
-            "default": default_value
-          };
-        } else {
-          console.log(("color property '" + attrname + "' given invalid default value: ") + default_value);
-        }
         return;
       }
       glyph_value = glyphspec[attrname];
-      if (_.isString(glyph_value) || _.isNull(glyph_value)) {
-        return this[attrname] = {
-          "default": glyph_value
-        };
-      } else if (_.isObject(glyph_value)) {
-        this[attrname] = glyph_value;
-        if (!(this[attrname]["default"] != null)) {
-          return this[attrname]["default"] = default_value;
+      if (_.isNull(glyph_value)) {
+        return this[attrname].value = null;
+      } else if (_.isString(glyph_value)) {
+        if ((svg_colors[glyph_value] != null) || glyph_value.substring(0, 1) === "#") {
+          return this[attrname].value = glyph_value;
+        } else {
+          return this[attrname].field = glyph_value;
         }
+      } else if (_.isObject(glyph_value)) {
+        return this[attrname] = _.extend(this[attrname], glyph_value);
       } else {
         return console.log(("color property '" + attrname + "' given invalid glyph value: ") + glyph_value);
       }
     };
 
     properties.prototype.array = function(styleprovider, glyphspec, attrname) {
-      var default_units, default_value, glyph_value, _ref;
+      var default_value, glyph_value, units_value, _ref;
+      this[attrname] = {};
       default_value = styleprovider.mget(attrname);
-      default_units = (_ref = styleprovider.mget(attrname + "_units")) != null ? _ref : 'data';
-      if (attrname + '_units' in glyphspec) {
-        default_units = glyphspec[attrname + '_units'];
+      if (!(default_value != null)) {
+
+      } else if (_.isArray(default_value)) {
+        this[attrname]["default"] = default_value;
+      } else {
+        console.log(("array property '" + attrname + "' given invalid default value: ") + default_value);
       }
+      units_value = (_ref = styleprovider.mget(attrname + "_units")) != null ? _ref : 'data';
+      if (attrname + '_units' in glyphspec) {
+        units_value = glyphspec[attrname + '_units'];
+      }
+      this[attrname].units = units_value;
       if (!(attrname in glyphspec)) {
-        if (_.isArray(default_value)) {
-          this[attrname] = {
-            "default": default_value,
-            units: default_units
-          };
-        } else {
-          console.log(("array property '" + attrname + "' given invalid default value: ") + default_value);
-        }
         return;
       }
       glyph_value = glyphspec[attrname];
       if (_.isString(glyph_value)) {
-        return this[attrname] = {
-          field: glyph_value,
-          "default": default_value,
-          units: default_units
-        };
+        return this[attrname].field = glyph_value;
       } else if (_.isArray(glyph_value)) {
-        return this[attrname] = {
-          "default": glyph_value,
-          units: default_units
-        };
+        return this[attrname].value = glyph_value;
       } else if (_.isObject(glyph_value)) {
-        this[attrname] = glyph_value;
-        if (!(this[attrname]["default"] != null)) {
-          return this[attrname]["default"] = default_value;
-        }
+        return this[attrname] = _.extend(this[attrname], glyph_value);
       } else {
         return console.log(("array property '" + attrname + "' given invalid glyph value: ") + glyph_value);
       }
     };
 
     properties.prototype["enum"] = function(styleprovider, glyphspec, attrname, vals) {
-      var default_value, glyph_value, levels_value;
+      var default_value, glyph_value, levels;
+      this[attrname] = {};
+      levels = vals.split(" ");
       default_value = styleprovider.mget(attrname);
-      levels_value = vals.split(" ");
+      if (_.isNull(default_value)) {
+
+      } else if (_.isString(default_value) && __indexOf.call(levels, default_value) >= 0) {
+        this[attrname] = {
+          "default": default_value
+        };
+      } else {
+        console.log(("enum property '" + attrname + "' given invalid default value: ") + default_value);
+        console.log("    acceptable values:" + levels);
+      }
       if (!(attrname in glyphspec)) {
-        if (_.isString(default_value) && __indexOf.call(levels_value, default_value) >= 0) {
-          this[attrname] = {
-            "default": default_value
-          };
-        } else {
-          console.log(("enum property '" + attrname + "' given invalid default value: ") + default_value);
-          console.log("    acceptable values:" + levels_value);
-        }
         return;
       }
       glyph_value = glyphspec[attrname];
       if (_.isString(glyph_value)) {
-        if (__indexOf.call(levels_value, glyph_value) >= 0) {
-          return this[attrname] = {
-            "default": glyph_value
-          };
+        if (__indexOf.call(levels, glyph_value) >= 0) {
+          return this[attrname].value = glyph_value;
         } else {
-          return this[attrname] = {
-            field: glyph_value,
-            "default": default_value
-          };
+          return this[attrname].field = glyph_value;
         }
       } else if (_.isObject(glyph_value)) {
-        this[attrname] = glyph_value;
-        if (!(this[attrname]["default"] != null)) {
-          return this[attrname]["default"] = default_value;
-        }
+        return this[attrname] = _.extend(this[attrname], glyph_value);
       } else {
         console.log(("enum property '" + attrname + "' given invalid glyph value: ") + glyph_value);
-        return console.log("    acceptable values:" + levels_value);
+        return console.log("    acceptable values:" + levels);
       }
     };
 
@@ -30508,17 +30568,19 @@ _.setdefault = function(obj, key, value){
 
     properties.prototype.select = function(attrname, obj) {
       if (!(attrname in this)) {
+        console.log(("requested selection of unknown property '" + attrname + "' on object: ") + obj);
         return;
       }
-      if (this[attrname].field != null) {
-        if (this[attrname].field in obj) {
-          return obj[this[attrname].field];
-        }
+      if ((this[attrname].field != null) && (this[attrname].field in obj)) {
+        return obj[this[attrname].field];
+      }
+      if (this[attrname].value != null) {
+        return this[attrname].value;
       }
       if (obj[attrname] != null) {
         return obj[attrname];
       }
-      if ((this[attrname] != null) && 'default' in this[attrname]) {
+      if (this[attrname]["default"] != null) {
         return this[attrname]["default"];
       } else {
         return console.log("selection for attribute '" + attrname + "' failed on object: " + obj);
@@ -30528,13 +30590,20 @@ _.setdefault = function(obj, key, value){
     properties.prototype.v_select = function(attrname, objs) {
       var i, obj, result, _i, _ref;
       if (!(attrname in this)) {
+        console.log("requested vector selection of unknown property '" + attrname + "' on objects");
         return;
       }
-      result = new Array(objs.length);
+      if (this[attrname].typed != null) {
+        result = new Float32Array(objs.length);
+      } else {
+        result = new Array(objs.length);
+      }
       for (i = _i = 0, _ref = objs.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         obj = objs[i];
         if ((this[attrname].field != null) && (this[attrname].field in obj)) {
           result[i] = obj[this[attrname].field];
+        } else if (this[attrname].value != null) {
+          result[i] = this[attrname].value;
         } else if (obj[attrname] != null) {
           result[i] = obj[attrname];
         } else if (this[attrname]["default"] != null) {
@@ -30573,7 +30642,7 @@ _.setdefault = function(obj, key, value){
       this["enum"](styleprovider, glyphspec, this.line_cap_name, "butt round square");
       this.array(styleprovider, glyphspec, this.line_dash_name);
       this.number(styleprovider, glyphspec, this.line_dash_offset_name);
-      this.do_stroke = this[this.line_color_name]["default"] != null;
+      this.do_stroke = !_.isNull(this[this.line_color_name].value);
     }
 
     line_properties.prototype.set = function(ctx, obj) {
@@ -30598,15 +30667,15 @@ _.setdefault = function(obj, key, value){
       if (prefix == null) {
         prefix = "";
       }
-      this.fill_name = "" + prefix + "fill_color";
+      this.fill_color_name = "" + prefix + "fill_color";
       this.fill_alpha_name = "" + prefix + "fill_alpha";
-      this.color(styleprovider, glyphspec, this.fill_name);
+      this.color(styleprovider, glyphspec, this.fill_color_name);
       this.number(styleprovider, glyphspec, this.fill_alpha_name);
-      this.do_fill = this[this.fill_name]["default"] != null;
+      this.do_fill = !_.isNull(this[this.fill_color_name].value);
     }
 
     fill_properties.prototype.set = function(ctx, obj) {
-      ctx.fillStyle = this.select(this.fill_name, obj);
+      ctx.fillStyle = this.select(this.fill_color_name, obj);
       return ctx.globalAlpha = this.select(this.fill_alpha_name, obj);
     };
 
