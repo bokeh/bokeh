@@ -24,7 +24,9 @@ class ImageURIView extends GlyphView
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
     @url = (@glyph_props.select('url', obj) for obj in data)
-    @angle = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
+    # TODO (bev) handle degrees in addition to radians
+    angles = @glyph_props.v_select('angle', data)
+    @angle = (-angle for angle in angles)
     @image = (null for img in @url)
     @need_load = (true for img in @url)
     @loaded = (false for img in @url)

@@ -26,6 +26,8 @@ class properties
     default_value = styleprovider.mget(attrname)
     default_units = styleprovider.mget(attrname+'_units') ? 'data'
 
+    @[attrname + "_typed"] = true
+
     if (attrname+'_units' of glyphspec)
       default_units = glyphspec[attrname+'_units']
 
@@ -167,7 +169,10 @@ class properties
       #console.log("requested unknown property '#{ attrname }' on objects")
       return
 
-    result = new Array(objs.length)
+    if @[attrname + "_typed"]?
+      result = new Float32Array(objs.length)
+    else
+      result = new Array(objs.length)
 
     for i in [0..objs.length-1]
 
