@@ -21,7 +21,7 @@ glyph = {
     field: 'lwidth'
     default: .5
   type: 'circle'
-  fill: 'blue'
+  fill_color: 'blue'
   x: 'x'
   y: 'y'
 }
@@ -35,7 +35,7 @@ glyph2 = {
     field: 'lwidth'
     default: .5
   type: 'rect'
-  fill: 'green'
+  fill_color: 'green'
   x: 'x'
   y: 'y'
 }

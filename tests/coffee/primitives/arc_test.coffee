@@ -68,7 +68,7 @@ glyph = {
     field: 'lwidth'
     default: .5
   type: 'arc'
-  fill: 'blue'
+  fill_color: 'blue'
   x: 'x'
   y: 'y'
 }

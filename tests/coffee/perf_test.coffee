@@ -24,7 +24,7 @@ source = Collections('ColumnDataSource').create(
     y: y
     width: widths
     height: heights
-    fill: colors
+    fill_color: colors
 )
 
 xdr = Collections('DataRange1d').create(
@@ -84,14 +84,14 @@ r = new Rand(123456789)
 
 x = (r.randf()*500 for i in _.range(20000))
 y = (r.randf()*500 for i in _.range(20000))
-radii = (r.randf()+0.8 for i in _.range(20000))
+radii = (r.randf()+0.8 *2 for i in _.range(20000))
 colors = ("rgb(#{ Math.floor(50+2*val[0]/5) }, #{ Math.floor(30+2*val[1]/5) }, 150)" for val in zip(x, y))
 source = Collections('ColumnDataSource').create(
   data:
     x: x
     y: y
     radius: radii
-    fill: colors
+    fill_color: colors
 )
 
 xdr = Collections('Range1d').create({start: 0, end: 500})

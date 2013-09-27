@@ -18,7 +18,7 @@ defaults = {}
 
 glyph = {
   type: 'circle'
-  fill: 'blue'
+  fill_color: 'blue'
   radius:
     field: 'radius'
     default: 5
