@@ -89,16 +89,20 @@ class DataSpec(BaseProperty):
 
     def to_dict(self, obj):
         # Build the complete dict
-        value = getattr(obj, "_"+self.name, self.default)
+        value = getattr(obj, "_"+self.name, None)
         if type(value) == str:
-            d = {"field": value, "units": self.units, "default": self.default}
+            d = {"field": value, "units": self.units}
         elif isinstance(value, dict):
-            d = {"field": self.field, "units": self.units, "default": self.default}
+            d = {"field": self.field, "units": self.units}
             d.update(value)
+        elif value:
+            d = {"units": self.units, "value": value}
         else:
             # Assume value is a numeric type and is the default value.
             # We explicitly set the field name to None.
-            d = {"field": None, "units": self.units, "default": value}
+            d = {"units": self.units}
+        if self.default:
+            d["default"] = self.default
         return d
 
 class MetaGlyph(Viewable):
