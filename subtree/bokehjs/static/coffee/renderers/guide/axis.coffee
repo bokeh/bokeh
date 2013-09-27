@@ -391,8 +391,8 @@ class LinearAxis extends HasParent
 
     [start, end] = @get('bounds')
 
-    xs = new Array(2)
-    ys = new Array(2)
+    xs = new Float32Array(2)
+    ys = new Float32Array(2)
     coords = [xs, ys]
 
     loc = @get('guidespec').location ? 'min'

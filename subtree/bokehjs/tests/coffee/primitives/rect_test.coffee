@@ -8,7 +8,7 @@ data_source = Collections('ObjectArrayDataSource').create(
   data: [
     {x: 1, y: 5},
     {x: 2, y: 4, angle: -0.4},
-    {x: 3, y: 3, fill: 'red'},
+    {x: 3, y: 3, fill_color: 'red'},
     {x: 4, y: 2, fill_alpha: 0.3},
     {x: 5, y: 1},
   ]
@@ -23,7 +23,7 @@ defaults = {
 
 glyph = {
   type: 'rect'
-  fill: 'blue'
+  fill_color: 'blue'
   x: 'x'
   y: 'y'
 }
@@ -46,7 +46,7 @@ glyph = {
     default: 1.2
   fill_alpha: 0.5
   type: 'rect'
-  fill: 'blue'
+  fill_color: 'blue'
   x: 'x'
   y: 'y'
 }
@@ -69,7 +69,7 @@ glyph = {
     field: 'lwidth'
     default: .5
   type: 'rect'
-  fill: 'blue'
+  fill_color: 'blue'
   x: 'x'
   y: 'y'
 }
@@ -95,7 +95,7 @@ glyph = {
     field: 'alpha'
     default: 0
   type: 'rect'
-  fill: 'grey'
+  fill_color: 'grey'
   height: 22
   width: 18
   x: 'x'
@@ -117,7 +117,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 glyph = {
   angle: 0
   type: 'rect'
-  fill:
+  fill_color:
     field: 'color'
     default: 'blue'
   x: 'x'
@@ -143,7 +143,7 @@ glyph = {
     field: 'dash'
     default: [2,2]
   type: 'rect'
-  fill: 'grey'
+  fill_color: 'grey'
   fill_alpha: 0.2
   height: 40
   width: 20
@@ -158,17 +158,17 @@ data_source = Collections('ObjectArrayDataSource').create(
   data: [
     {x: 1.5, y: 1, height: 40},
     {x: 4, y: 1, height: 40},
-    {x: 3, y: .5, height: 20, fill: 'brown'},
-    {x: 1.6, y: 2.2, height: 70, angle: -.8, line_color: 'purple', fill: 'purple'},
-    {x: 3.4, y: 3.3, height: 20, fill: 'red'},
-    {x: 3.9, y: 2.2, height: 70, angle: -2.3, line_color: 'purple', fill: 'purple'},
-    {x: 7, y: .5, height: 35, fill: 'brown'},
-    {x: 6.6, y: 1.6, height: 20, angle: -.8, line_color: 'green', fill: 'green'},
-    {x: 6.6, y: 2, height: 20, angle: -.8, line_color: 'green', fill: 'green'},
-    {x: 6.6, y: 2.5, height: 20, angle: -.8, line_color: 'green', fill: 'green'},
-    {x: 7.4, y: 1.6, height: 20, angle: -2.3, line_color: 'green', fill: 'green'},
-    {x: 7.4, y: 2, height: 20, angle: -2.3, line_color: 'green', fill: 'green'},
-    {x: 7.4, y: 2.4, height: 20, angle: -2.3, line_color: 'green', fill: 'green'}
+    {x: 3, y: .5, height: 20, fill_color: 'brown'},
+    {x: 1.6, y: 2.2, height: 70, angle: -.8, line_color: 'purple', fill_color: 'purple'},
+    {x: 3.4, y: 3.3, height: 20, fill_color: 'red'},
+    {x: 3.9, y: 2.2, height: 70, angle: -2.3, line_color: 'purple', fill_color: 'purple'},
+    {x: 7, y: .5, height: 35, fill_color: 'brown'},
+    {x: 6.6, y: 1.6, height: 20, angle: -.8, line_color: 'green', fill_color: 'green'},
+    {x: 6.6, y: 2, height: 20, angle: -.8, line_color: 'green', fill_color: 'green'},
+    {x: 6.6, y: 2.5, height: 20, angle: -.8, line_color: 'green', fill_color: 'green'},
+    {x: 7.4, y: 1.6, height: 20, angle: -2.3, line_color: 'green', fill_color: 'green'},
+    {x: 7.4, y: 2, height: 20, angle: -2.3, line_color: 'green', fill_color: 'green'},
+    {x: 7.4, y: 2.4, height: 20, angle: -2.3, line_color: 'green', fill_color: 'green'}
   ]
 )
 
@@ -178,7 +178,7 @@ glyph = {
     default: 0
   fill_alpha: 1
   type: 'rect'
-  fill: 'blue'
+  fill_color: 'blue'
   x: 'x'
   y: 'y'
 }
