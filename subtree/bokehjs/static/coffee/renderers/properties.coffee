@@ -78,7 +78,6 @@ class properties
       @[attrname] = _.extend(@[attrname], glyph_value)
     else
       console.log("color property '#{ attrname }' given invalid glyph value: " + glyph_value)
-    console.log attrname, @[attrname]
 
   array: (styleprovider, glyphspec, attrname) ->
     @[attrname] = {}
