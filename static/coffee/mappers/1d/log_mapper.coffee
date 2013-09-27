@@ -8,13 +8,13 @@ class LogMapper extends HasProperties
   map_to_target: (x) ->
 
   v_map_to_target: (xs) ->
-    result = new Array(xs.length)
+    result = new Float32Array(xs.length)
     return result
 
   map_from_target: (xprime) ->
 
   v_map_from_target: (xprimes) ->
-    result = new Array(xprimes.length)
+    result = new Float32Array(xprimes.length)
     return result
 
 

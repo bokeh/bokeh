@@ -8,7 +8,7 @@ data_source = Collections('ObjectArrayDataSource').create(
   data: [
     {x: 1, y: 5},
     {x: 2, y: 4, direction: 'clock'},
-    {x: 3, y: 3, fill: 'red'},
+    {x: 3, y: 3, fill_color: 'red'},
     {x: 4, y: 2, inner_radius: 3, fill_alpha: 0.3},
     {x: 5, y: 1, outer_radius: 15},
   ]
@@ -26,7 +26,7 @@ defaults = {
 
 glyph = {
   type: 'annular_wedge'
-  fill: 'blue'
+  fill_color: 'blue'
   x: 'x'
   y: 'y'
 }
