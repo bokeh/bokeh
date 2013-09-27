@@ -72,7 +72,6 @@ class properties
     else if _.isString(glyph_value)
       if svg_colors[glyph_value]? or glyph_value.substring(0, 1) == "#"
         @[attrname] = {default: glyph_value}
-        console.log glyph_value
       else
         @[attrname] = {field: glyph_value, default: default_value}
     else if _.isObject(glyph_value)
