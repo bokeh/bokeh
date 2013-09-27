@@ -42,7 +42,7 @@ rect_fast = {
   y: 'y'
   width: 'width'
   height: 'height'
-  fill: 'red',
+  fill_color: 'firebrick',
   type: 'rect',
   line_color: null
   fast_path: true
@@ -68,7 +68,7 @@ rect_slow = {
   width: 'width'
   height: 'height'
   type: 'rect',
-  fill: 'fill'
+  fill_color: 'fill'
   line_color: null
   angle: 0.1
 }
@@ -102,7 +102,7 @@ circle_fast = {
   y: 'y'
   radius: 'radius'
   radius_units: 'data'
-  fill: 'red',
+  fill_color: 'steelblue',
   fill_alpha: 0.5
   type: 'circle',
   line_color: null
@@ -121,7 +121,7 @@ circle_slow = {
   y: 'y'
   radius: 'radius'
   radius_units: 'data'
-  fill: 'fill'
+  fill_color: 'fill'
   fill_alpha: 0.5
   type: 'circle',
   line_color: null

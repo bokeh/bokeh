@@ -1,4 +1,5 @@
 
+svg_colors = require('../common/svg_colors').svg_colors
 
 class properties
 
@@ -56,15 +57,24 @@ class properties
     default_value = styleprovider.mget(attrname)
 
     if not (attrname of glyphspec)
-      if _.isString(default_value) or _.isNull(default_value)
+      if _.isNull(default_value)
+        @[attrname] = {default: null}
+      else if _.isString(default_value) and (svg_colors[default_value]? or default_value.substring(0, 1) == "#")
         @[attrname] = {default: default_value}
       else
         console.log("color property '#{ attrname }' given invalid default value: " + default_value)
       return
 
     glyph_value = glyphspec[attrname]
-    if _.isString(glyph_value) or _.isNull(glyph_value)
-      @[attrname] = {default: glyph_value}
+    console.log attrname, glyph_value
+    if _.isNull(glyph_value)
+      @[attrname] = {default: null}
+    else if _.isString(glyph_value)
+      if svg_colors[glyph_value]? or glyph_value.substring(0, 1) == "#"
+        @[attrname] = {default: glyph_value}
+        console.log glyph_value
+      else
+        @[attrname] = {field: glyph_value, default: default_value}
     else if _.isObject(glyph_value)
       @[attrname] = glyph_value
       if not @[attrname].default?
