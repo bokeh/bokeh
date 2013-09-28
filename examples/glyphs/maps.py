@@ -9,9 +9,10 @@ from bokeh.objects import (
     GlyphRenderer, ObjectArrayDataSource, PanTool, ZoomTool, ResizeTool,
     SelectionTool, BoxSelectionOverlay
 )
-from bokeh.glyphs import MultiLine, ImageRGBA
+from bokeh.glyphs import MultiLine, ImageRGBA, Circle
 from bokeh import session
 
+# The Google Maps plot
 x_range = Range1d()
 y_range = Range1d()
 plot = GMapPlot(
@@ -34,18 +35,39 @@ pantool = PanTool(plot=plot)
 zoomtool = ZoomTool(plot=plot)
 plot.tools.extend([pantool, zoomtool])
 
-sess = session.PlotServerSession(
-    username="defaultuser",
-    serverloc="http://localhost:5006",
-    userapikey="nokey"
-)
+# Plot some data on top
+source = ObjectArrayDataSource(
+        data = [{'lat': 30.2861, 'long': -97.7394, 'z': 20, 'fill': 'orange'},
+                {'lat': 30.2855, 'long': -97.7390, 'z': 15, 'fill': 'blue'},
+                {'lat': 30.2869, 'long': -97.7405, 'z': 15, 'fill': 'green'},
+                ])
+circle_renderer = GlyphRenderer(
+        data_source = source,
+        xdata_range = x_range,
+        ydata_range = y_range,
+        glyph = Circle(x="long", y="lat", fill_color="red", radius=4,
+                radius_units="screen", line_color="black")
+        )
+plot.data_sources.append(source)
+plot.renderers.append(circle_renderer)
+
+import requests
+try:
+    sess = session.PlotServerSession(
+        username="defaultuser",
+        serverloc="http://localhost:5006",
+        userapikey="nokey"
+    )
+except requests.exceptions.ConnectionError as e:
+    print e
+    print "\nThis example requires the plot server.  Please make sure plot server is running, via 'bokeh-server' in the bokeh root directory.\n"
+    sys.exit()
 
 sess.use_doc("maps")
-sess.add(
-    plot, xgrid, ygrid, pantool, zoomtool, x_range, y_range, select_tool, overlay
-)
+sess.add(plot, xgrid, ygrid, pantool, zoomtool, x_range, y_range,
+        select_tool, overlay, source, circle_renderer)
 sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
 sess.store_all()
 
-print "Stored to document maps"
+print "Stored to document maps at http://localhost:5006/bokeh"
