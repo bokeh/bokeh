@@ -691,8 +691,6 @@ class GMapPlot(PlotObject):
 class GridPlot(PlotObject):
     """ A 2D grid of plots """
 
-    __view_model__ = "GridPlotContainer"
-
     children = List(List)
     border_space = Int(0)
 
