@@ -89,16 +89,20 @@ class DataSpec(BaseProperty):
 
     def to_dict(self, obj):
         # Build the complete dict
-        value = getattr(obj, "_"+self.name, self.default)
+        value = getattr(obj, "_"+self.name, None)
         if type(value) == str:
-            d = {"field": value, "units": self.units, "default": self.default}
+            d = {"field": value, "units": self.units}
         elif isinstance(value, dict):
-            d = {"field": self.field, "units": self.units, "default": self.default}
+            d = {"field": self.field, "units": self.units}
             d.update(value)
+        elif value:
+            d = {"units": self.units, "value": value}
         else:
             # Assume value is a numeric type and is the default value.
             # We explicitly set the field name to None.
-            d = {"field": None, "units": self.units, "default": value}
+            d = {"units": self.units}
+        if self.default:
+            d["default"] = self.default
         return d
 
 class MetaGlyph(Viewable):
@@ -156,11 +160,6 @@ class Glyph(PlotObject):
         """
         d = self.vm_props(withvalues=True)
         d["type"] = self.__view_model__
-
-        # TODO: Remove this when we rename the BokehJS fill color attribute
-        # from "fill" to "fill_color"
-        if "fill_color" in d:
-            d["fill"] = d.pop("fill_color")
 
         # Iterate over all the DataSpec properties and convert them, using the
         # fact that DataSpecs store the dict-ified version on the object.
@@ -264,9 +263,6 @@ class Arc(Glyph, LineProps):
     end_angle = DataSpec
     direction = Enum('clock', 'anticlock')
 
-# TODO
-# class Area
-
 class Bezier(Glyph, LineProps):
     __view_model__ = 'bezier'
     x0 = DataSpec
@@ -315,6 +311,16 @@ class Oval(Glyph, FillProps, LineProps):
     height = DataSpec
     angle = DataSpec
 
+class Patch(Glyph, FillProps, LineProps):
+    __view_model__ = 'patch'
+    x = DataSpec
+    y = DataSpec
+
+class Patches(Glyph, LineProps, FillProps):
+    __view_model__ = 'patches'
+    xs = DataSpec
+    ys = DataSpec
+
 class Quad(Glyph, FillProps, LineProps):
     __view_model__ = "quad"
     left = DataSpec
@@ -322,8 +328,8 @@ class Quad(Glyph, FillProps, LineProps):
     bottom = DataSpec
     top = DataSpec
 
-class QuadCurve(Glyph, FillProps, LineProps):
-    __view_model__ = 'quad_curve'
+class Quadratic(Glyph, FillProps, LineProps):
+    __view_model__ = 'quadcurve'
     x0 = DataSpec
     y0 = DataSpec
     x1 = DataSpec

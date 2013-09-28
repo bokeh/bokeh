@@ -39,8 +39,9 @@ class OvalView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    angles = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
-    @angle = (-angle for angle in angles) # TODO deg/rad
+    # TODO (bev) handle degrees in addition to radians
+    angles = @glyph_props.v_select('angle', data)
+    @angle = (-angle for angle in angles)
     #duped
     @selected_mask = new Array(data.length-1)
     for i in [0..@selected_mask.length-1]
@@ -209,7 +210,7 @@ class Oval extends Glyph
 Oval::display_defaults = _.clone(Oval::display_defaults)
 _.extend(Oval::display_defaults, {
 
-  fill: 'gray'
+  fill_color: 'gray'
   fill_alpha: 1.0
 
   line_color: 'red'

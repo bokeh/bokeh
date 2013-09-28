@@ -53,7 +53,7 @@ class GlyphView extends PlotWidget
     if      pt == 'x' then mapper = @plot_view.xmapper
     else if pt == 'y' then mapper = @plot_view.ymapper
 
-    span = (@glyph_props.select(span, x) for x in data)
+    span = @glyph_props.v_select(span, data)
     if span_units == 'screen'
       return span
 

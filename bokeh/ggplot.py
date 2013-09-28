@@ -1,7 +1,7 @@
 """
 An implementation of GGPlot in Python.
 
-The functions try to mimic the R interface, for better or for worse, but 
+The functions try to mimic the R interface, for better or for worse, but
 there is an underlying object model for the actual graphics pipeline that
 is constructed.
 
@@ -16,9 +16,9 @@ from pandas_plot_data import PandasPlotData
 
 DefaultStyle = dict(
     color = "black",
-    fill = "lightgray",
+    fill_color = "lightgray",
     shape = 0,
-    size = 4, 
+    size = 4,
     justification = "left",
     line_type = "solid",
     line_weight = 1
@@ -33,7 +33,7 @@ class Aesthetic(HasProps):
     y = String(None)
 
     color = String(None)
-    fill = String(None)
+    fill_color = String(None)
 
     # Shape can be:
     #   an integer in 0..25 for the various symbols
@@ -69,7 +69,7 @@ class Aesthetic(HasProps):
 
     def __add__(self, aes):
         """ Returns a new Aesthetic class that represents the merger of this
-        instance with another one.  This instance (LHS) takes lower 
+        instance with another one.  This instance (LHS) takes lower
         precedence, and its values are masked by ones in RHS argument.
         """
         newaes = self.clone()
@@ -101,7 +101,7 @@ class Geom(Aesthetic):
         raise NotImplementedError
 
 class GeomPoint(Geom):
-    
+
     def plot(self, plotclient, datasource, aes, title=None):
         props = self.properties()
         aes = aes + self
@@ -116,12 +116,12 @@ class GeomPoint(Geom):
 
 
 class GeomLine(Geom):
-    
+
     def plot(self, plotclient, datasource, aes, title=None):
         aes = aes + self
         aes.merge_defaults()
         #p = plot.plot((aes.x, aes.y), type="line", color=aes.fill,
-        #        line_width=aes.line_weight, 
+        #        line_width=aes.line_weight,
         #        line_style=self._convert_line_style(aes.line_type))
         p = plotclient.plot(aes.x, aes.y, color=aes.color, data_source=datasource)
         if title:
@@ -139,7 +139,7 @@ class GGPlot(HasProps):
     new renderers and changing the data pipeline (or extracting statistics
     from data).
 
-    The most common operation on this object is the '+' operator, which 
+    The most common operation on this object is the '+' operator, which
     adds renderers to the plot.
     """
 
@@ -149,10 +149,10 @@ class GGPlot(HasProps):
     # Instance of Aesthetic which usually defines the data columns
     aes = Any()
 
-    # list of Geom objects that define the actual things to plot on the 
+    # list of Geom objects that define the actual things to plot on the
     # graph itself
     geoms = List()
-    
+
     facet_layout = Any()
 
     _plot_title = String()
@@ -183,7 +183,7 @@ class GGPlot(HasProps):
     def set_title(self, title):
         """ Sets the title of this plot to **title** """
         self._plot_title = title
-        
+
     def to_html(self, notebook=False):
         """ Returns HTML representing the plot. Does not include any headers
         or javascript dependencies, etc.
@@ -209,7 +209,7 @@ class GGPlot(HasProps):
                 return p
             else:
                 return client.htmldump()
-            
+
         else:
             # Use the PandasPlotData to create a list of faceted data sources
             facet_pds = ppd.facet(self.facet_layout.factors)
@@ -245,7 +245,7 @@ class GGPlot(HasProps):
                     plots.append(plotrow)
 
                 container = client.grid(plots)
-            
+
             elif self.facet_layout.ftype == "wrap":
                 pass
 
@@ -269,9 +269,9 @@ class Facet(HasProps):
         return cls(factors=[factor], ftype="wrap")
 
 class Factor(HasProps):
-    """ Represents a factorization ("uniquification") of a particular 
+    """ Represents a factorization ("uniquification") of a particular
     column.  This is typically used to generate the unique set of values
-    for a categorical dimension, to feed in to things like facets and 
+    for a categorical dimension, to feed in to things like facets and
     color scales.
     """
 

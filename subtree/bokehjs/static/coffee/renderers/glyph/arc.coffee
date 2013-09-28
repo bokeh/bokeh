@@ -27,11 +27,12 @@ class ArcView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
+    # TODO (bev) handle degrees in addition to radians
+    start_angle = @glyph_props.v_select('start_angle', data)
     @start_angle = (-angle for angle in start_angle)
-    end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
+    end_angle = @glyph_props.v_select('end_angle', data)
     @end_angle = (-angle for angle in end_angle)
-    @direction = new Array(@data.length)
+    @direction = new Uint8Array(@data.length)
     for i in [0..@data.length-1]
       dir = @glyph_props.select('direction', data[i])
       if dir == 'clock' then @direction[i] = false
@@ -111,7 +112,7 @@ class Arc extends Glyph
 Arc::display_defaults = _.clone(Arc::display_defaults)
 _.extend(Arc::display_defaults, {
 
-  diection: 'anticlock'
+  direction: 'anticlock'
   line_color: 'red'
   line_width: 1
   line_alpha: 1.0
