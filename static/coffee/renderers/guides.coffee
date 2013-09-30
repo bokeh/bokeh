@@ -1,6 +1,6 @@
-axis   = require("./guide/axis")
-rule  = require("./guide/rule")
+linear_axis = require("./guide/linear_axis")
+rule        = require("./guide/rule")
 
 
-exports.linear_axis  = axis.LinearAxis
+exports.linear_axis  = linear_axis.LinearAxis
 exports.rule         = rule.Rule
