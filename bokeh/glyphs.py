@@ -13,29 +13,58 @@ from .objects import PlotObject, Viewable
 #   of a random distribution to draw random samples from. Defaults to uniform
 #   but gaussian could certainly be useful.
 
-#class Scene(object):
-#    """ A set of related plots, each with their own panel(s) and each
-#    panel representing some coherent coordinate space onto which Glyphs
-#    are positioned and rendered.
-#    """
-
 class DataSpec(BaseProperty):
     """ Because the BokehJS glyphs support a fixed value or a named
-    field for most data fields, we capture that in this property.
+    field for most data fields, we capture that in this descriptor.
+    Fields can have a fixed value, or be a name that is looked up
+    on the datasource (usually as a column or record array field).
+    A default value can also be provided for when a particular row
+    in the datasource has a missing value.
+    Numerical data can also have units of screen or data space.
 
-    We mirror the JS convention in this Python descriptor.  There are
-    multiple ways to set a DataSpec, illustrated below with comments
+    We mirror the JS convention in this Python descriptor.  For details,
+    see renderers/properties.coffee in BokehJS, and specifically the
+    select() function.
+
+    There are multiple ways to set a DataSpec, illustrated below with comments
     and example code.
+
+    Setting DataSpecs
+    -----------------
 
     class Foo(HasProps):
         x = DataSpec("x", units="data")
 
     f = Foo()
-    f.x = "fieldname"   # Sets x to a field named "fieldname"
-    f.x = 12            # Sets x to a default value of 12
-    f.x = {"name": "foo", "default": 12}
+    f.x = "fieldname"  # Use the datasource field named "fieldname"
+    f.x = 12           # A fixed value of 12
+    f.x = ("foo", 16)  # a field name, and a default value
 
-    Just reading out "f.x" will always retrieve what has been set.
+    # Can provide a dict with the fields explicitly named
+    f.width = {"name": "foo", "default": 16}
+    f.size = {"name": "foo", "units": "screen", "default": 16}
+
+    Reading DataSpecs
+    -----------------
+
+    In the cases when the dataspec is set to just a field name or a
+    fixed value, then those are returned.  If the user has overridden
+    the default value in the DataSpec with a new default value, or
+    if no values have been set, then the value of to_dict() is returned.
+
+    In all cases, to determine the full dict that will be used to
+    represent this dataspec, use the to_dict() method.
+
+    Implementation
+    --------------
+
+    The DataSpec instance is stored in the class dict, and acts as a
+    descriptor.  Thus, it is shared between all instances of the class.
+    Instance-specific data is stored in the instance dict, in a private
+    variable named _[attrname].  This stores the actual value that the
+    user last set (and does not exist if the user has not yet set the
+    value).
+
     """
     # TODO: Check to see if the "units" field hasn't been removed...
 
@@ -47,9 +76,6 @@ class DataSpec(BaseProperty):
         **units** is either "data" or "screen"
         **default** is the default value to use if a datapoint is
         missing the field specified in **name**
-
-        If a constant value is desired, then leave **field** as None and
-        set **default** to the fixed value.
         """
         # Don't use .name because the HasProps metaclass uses that to
         # store the attribute name on this descriptor.
@@ -65,22 +91,42 @@ class DataSpec(BaseProperty):
         return d
 
     def __get__(self, obj, cls=None):
-        # It's kind of an open question what we should return here if the
-        # user hasn't set anything yet.  We use our best heuristic and
-        # return a name, a default, or a dict with both, depending on
-        # what is None.
-        if hasattr(obj, "_"+self.name):
-            return getattr(obj, "_"+self.name)
-        else:
-            if self.field is None:
-                return self.default
-            elif self.default is None:
-                return self.field
+        """ Try to implement a "natural" interface: if the user just set
+        simple values or field names, the getter just returns those.
+        However, if the user has also overridden the "units" or "default"
+        settings, then a dictionary is returned.
+        """
+        attrname = "_" + self.name
+        if hasattr(obj, attrname):
+            setval = getattr(obj, attrname)
+            if isinstance(setval, basestring) and self.default is None:
+                # A string representing the field
+                return setval
+            elif not isinstance(setval, dict):
+                # Typically a number presenting the fixed value
+                return setval
             else:
+                return self.to_dict(obj)
+        else:
+            # If the user hasn't set anything, just return the field name
+            # if there are not defaults, or a dict with the field name
+            # and the default value.
+            if self.default is not None:
                 return {"field": self.field, "default": self.default}
+            else:
+                return self.field
 
-    def __set__(self, obj, value):
-        setattr(obj, "_"+self.name, value)
+    def __set__(self, obj, arg):
+        attrname = "_" + self.name
+        if isinstance(arg, tuple):
+            value, default = arg
+            if isinstance(value, basestring):
+                key = "field"
+            else:
+                key = "value"
+            setattr(obj, attrname, {key: value, "default": default})
+        else:
+            setattr(obj, attrname, arg)
 
     def __delete__(self, obj):
         if hasattr(obj, self.name + "_dict"):
@@ -89,21 +135,70 @@ class DataSpec(BaseProperty):
 
     def to_dict(self, obj):
         # Build the complete dict
-        value = getattr(obj, "_"+self.name, None)
-        if type(value) == str:
-            d = {"field": value, "units": self.units}
-        elif isinstance(value, dict):
-            d = {"field": self.field, "units": self.units}
-            d.update(value)
-        elif value:
-            d = {"units": self.units, "value": value}
+        setval = getattr(obj, "_"+self.name, None)
+        if isinstance(setval, basestring):
+            d = {"field": setval, "units": self.units}
+            if self.default is not None:
+                d["default"] = self.default
+        elif isinstance(setval, dict):
+            d = {"units": self.units, "default": self.default}
+            d.update(setval)
+            if d["default"] is None:
+                del d["default"]
+            if "value" in d and "default" in d:
+                del d["default"]
+        elif setval is not None:
+            # a fixed value of some sort; no need to store the default value
+            d = {"value": setval, "units": self.units}
         else:
-            # Assume value is a numeric type and is the default value.
-            # We explicitly set the field name to None.
-            d = {"units": self.units}
-        if self.default:
-            d["default"] = self.default
+            # If the user never set a value
+            d = {"field": self.field, "units": self.units}
+            if self.default is not None:
+                d["default"] = self.default
         return d
+
+    def __repr__(self):
+        return "DataSpec(field=%r, units=%r, default=%r)" % (
+            self.field, self.units, self.default)
+
+
+class ColorSpec(DataSpec):
+    """ Subclass of DataSpec for specifying colors.
+
+    For colors, because we support named colors and hex values prefaced
+    with a "#", when we are handed a string value, there is a little
+    interpretation: if the value is one of the 147 SVG named colors or
+    it starts with a "#", then it is interpreted as a value.  Otherwise,
+    it is treated as a field name.
+
+    If a 3-tuple is provided, then it is treated as an RGB (0..255).
+    If a 4-tuple is provided, then it is treated as an RGBa (0..255), with
+    alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
+
+    If a 2-tuple is provided, then it is treated as (value/field, default).
+    This is the same as the behavior in the base class DataSpec.
+    Unlike DataSpec, ColorSpecs do not have a "units" property.
+
+    class Bar(HasProps):
+        col = ColorSpec("fill_color", default="gray")
+    >>> b = Bar()
+    >>> b.col = "red"  # sets a fixed value of red
+    >>> b.col
+    "red"
+    >>> b.col = "mycolor"  # Use the datasource field named "mycolor"
+    >>> b.col
+    "mycolor"
+    >>> b.col = {"name": "mycolor", "default": "#FF126D"}
+
+    For more examples, see tests/test_glyphs.py
+    """
+
+    def __init__(self, field=None, default=None, value=None):
+        self.field = field
+        self.default = default
+        self.value = value
+
+
 
 class MetaGlyph(Viewable):
     """ Handles DataSpecs and other special attribute processing that Glyph
