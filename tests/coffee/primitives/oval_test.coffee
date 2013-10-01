@@ -8,7 +8,7 @@ data_source = Collections('ObjectArrayDataSource').create(
   data : [
     {x : 1, y : 5},
     {x : 2, y : 4, angle: 0.4},
-    {x : 3, y : 3, fill: "red"},
+    {x : 3, y : 3, fill_color: "red"},
     {x : 4, y : 2, fill_alpha: 0.3},
     {x : 5, y : 1},
   ]
@@ -24,7 +24,7 @@ defaults = {
 
 glyph = {
   type : 'oval'
-  fill: 'blue'
+  fill_color: 'blue'
   x : 'x'
   y : 'y'
 }
@@ -44,7 +44,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 glyph = {
   type : 'oval'
   line_color: 'black'
-  fill: 'white'
+  fill_color: 'white'
   x : 'x'
   y : 'y'
 }
@@ -67,7 +67,7 @@ glyph = {
     field: 'lwidth'
     default: .5
   type: 'oval'
-  fill: 'grey'
+  fill_color: 'grey'
   x: 'x'
   y: 'y'
 }
@@ -91,7 +91,7 @@ glyph = {
     field: 'alpha'
     default: 0
   type: 'oval'
-  fill: 'grey'
+  fill_color: 'grey'
   radius: 10
   x: 'x'
   y: 'y'
@@ -111,7 +111,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 
 glyph = {
   type: 'oval'
-  fill:
+  fill_color:
     field: 'color'
     default: 'blue'
   radius: 10
@@ -138,7 +138,7 @@ glyph = {
     field: 'dash'
     default: [2,2]
   type: 'oval'
-  fill: 'grey'
+  fill_color: 'grey'
   fill_alpha: 0.2
   x: 'x'
   y: 'y'

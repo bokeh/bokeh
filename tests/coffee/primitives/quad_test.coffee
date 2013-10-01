@@ -8,7 +8,7 @@ data_source = Collections('ObjectArrayDataSource').create(
   data : [
     {left: 1, right: 1.75, bottom: 5, top: 6},
     {left: 2, right: 3.00, bottom: 4, top: 4.75},
-    {left: 3, right: 3.75, bottom: 3, top: 3.75, fill: 'red'},
+    {left: 3, right: 3.75, bottom: 3, top: 3.75, fill_color: 'red'},
     {left: 4, right: 4.75, bottom: 2, top: 3.75, fill_alpha : 0.3},
     {left: 5, right: 5.76, bottom: 1, top: 1.75},
   ]
@@ -18,7 +18,7 @@ defaults = {}
 
 glyph = {
   type: 'quad'
-  fill: 'blue'
+  fill_color: 'blue'
   left: 'left'
   right: 'right'
   bottom: 'bottom'
@@ -42,7 +42,7 @@ glyph = {
   line_width:
     field: 'lwidth'
     default: .5
-  fill: 'blue'
+  fill_color: 'blue'
   left: 'left'
   right: 'right'
   bottom: 'bottom'
@@ -68,7 +68,7 @@ glyph = {
   line_alpha:
     field: 'alpha'
     default: 0
-  fill: 'grey'
+  fill_color: 'grey'
   left: 'left'
   right: 'right'
   bottom: 'bottom'
@@ -89,7 +89,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 
 glyph = {
   type: 'quad'
-  fill:
+  fill_color:
     field: 'color'
     default: 'blue'
   left: 'left'

@@ -8,7 +8,7 @@ data_source = Collections('ObjectArrayDataSource').create(
   data: [
     {x: 1, y: 5, outer_radius:10},
     {x: 2, y: 4},
-    {x: 3, y: 3, fill: 'red'},
+    {x: 3, y: 3, fill_color: 'red'},
     {x: 4, y: 2, outer_radius: 8, fill_alpha: 0.3},
     {x: 5, y: 1},
   ]
@@ -22,7 +22,7 @@ defaults = {
 
 glyph = {
   type: 'annulus'
-  fill: 'blue'
+  fill_color: 'blue'
   outer_radius:
     field: 'outer_radius'
     default: 5
@@ -97,7 +97,7 @@ glyph = {
     field: 'lwidth'
     default: .5
   type: 'annulus'
-  fill: 'blue'
+  fill_color: 'blue'
   x: 'x'
   y: 'y'
 }
@@ -121,7 +121,7 @@ glyph = {
     field: 'alpha'
     default: 0
   type: 'annulus'
-  fill: 'grey'
+  fill_color: 'grey'
   outer_radius: 10
   x: 'x'
   y: 'y'
@@ -141,7 +141,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 
 glyph = {
   type: 'annulus'
-  fill:
+  fill_color:
     field: 'color'
     default: 'blue'
   outer_radius: 10
@@ -168,7 +168,7 @@ glyph = {
     field: 'dash'
     default: [2,2]
   type: 'annulus'
-  fill: 'grey'
+  fill_color: 'grey'
   fill_alpha: 0.2
   x: 'x'
   y: 'y'

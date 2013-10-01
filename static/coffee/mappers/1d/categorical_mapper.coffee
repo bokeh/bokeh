@@ -18,7 +18,7 @@ class CategoricalMapper extends HasProperties
   v_map_to_target: (xs) ->
     [scale, offset] = @get('mapper_state')
     values = @get('source_range').get('values')
-    result = new Array(xs.length)
+    result = new Float32Array(xs.length)
     for x, idx in xs
       result[idx] = scale * _.indexOf(values, x) + offset
     return result
@@ -31,7 +31,7 @@ class CategoricalMapper extends HasProperties
   v_map_from_target: (xprimes) ->
     [scale, offset] = @get('mapper_state')
     values = @get('source_range').get('values')
-    result = new Array(xprimes.length)
+    result = new Float32Array(xprimes.length)
     for xprime, idx in xprimes
       result[idx] = values[Math.trunc((xprime + offset) / scale)]
     return result

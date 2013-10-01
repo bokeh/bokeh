@@ -39,8 +39,10 @@ class RectView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    angles = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
+    # TODO (bev) handle degrees in addition to radians
+    angles = @glyph_props.v_select('angle', data)
     @angle = (-angle for angle in angles)
+
 
     #duped
     @selected_mask = new Array(data.length-1)
@@ -206,7 +208,7 @@ class Rect extends Glyph
 Rect::display_defaults = _.clone(Rect::display_defaults)
 _.extend(Rect::display_defaults, {
 
-  fill: 'gray'
+  fill_color: 'gray'
   fill_alpha: 1.0
 
   line_color: 'red'

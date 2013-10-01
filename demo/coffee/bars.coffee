@@ -8,7 +8,7 @@ source = Collections('ColumnDataSource').create(
   data:
     x: xs
     y: ys
-    fill: colors
+    fill_color: colors
 )
 
 
@@ -26,7 +26,7 @@ bars = {
   width: 0.01
   height: 0.4
   type: 'rect',
-  fill: 'fill'
+  fill_color: 'fill'
   line_color: null
   angle: 0.1
 }

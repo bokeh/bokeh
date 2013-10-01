@@ -18,7 +18,7 @@ class LinearMapper extends HasProperties
 
   v_map_to_target: (xs) ->
     [scale, offset] = @get('mapper_state')
-    result = new Array(xs.length)
+    result = new Float32Array(xs.length)
     for x, idx in xs
       result[idx] = scale * x + offset
     return result
@@ -29,7 +29,7 @@ class LinearMapper extends HasProperties
 
   v_map_from_target: (xprimes) ->
     [scale, offset] = @get('mapper_state')
-    result = new Array(xprimes.length)
+    result = new Float32Array(xprimes.length)
     for xprime, idx in xprimes
       result[idx] = (xprime - offset) / scale
     return result

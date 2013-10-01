@@ -1,126 +1,139 @@
 
+svg_colors = require('../common/svg_colors').svg_colors
 
 class properties
 
   string: (styleprovider, glyphspec, attrname) ->
+    @[attrname] = {}
+
     default_value = styleprovider.mget(attrname)
+    if not default_value?
+    else if _.isString(default_value)
+      @[attrname].default = default_value
+    else
+      console.log("string property '#{ attrname }' given invalid default value: " + default_value)
 
     if not (attrname of glyphspec)
-      if _.isString(default_value)
-        @[attrname] = {default: default_value}
-      else
-        console.log("string property '#{ attrname }' given invalid default value: " + default_value)
       return
 
     glyph_value = glyphspec[attrname]
     if _.isString(glyph_value)
-      @[attrname] = {default: glyph_value}
+      @[attrname].value = glyph_value
     else if _.isObject(glyph_value)
-      @[attrname] = glyph_value
-      if not @[attrname].default?
-        @[attrname].default = default_value
+      @[attrname] = _.extend(@[attrname], glyph_value)
     else
       console.log("string property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
   number: (styleprovider, glyphspec, attrname) ->
-    default_value = styleprovider.mget(attrname)
-    default_units = styleprovider.mget(attrname+'_units') ? 'data'
+    @[attrname] = { typed: true }
 
+    default_value = styleprovider.mget(attrname)
+    if not default_value?
+    else if _.isNumber(default_value)
+      @[attrname].default = default_value
+    else
+      console.log("number property '#{ attrname }' given invalid default value: " + default_value)
+
+    units_value = styleprovider.mget(attrname+'_units') ? 'data'
     if (attrname+'_units' of glyphspec)
-      default_units = glyphspec[attrname+'_units']
+      units_value = glyphspec[attrname+'_units']
+    @[attrname].units = units_value
 
     if not (attrname of glyphspec)
-      if _.isNumber(default_value)
-        @[attrname] = {default: default_value, units: default_units}
-      else
-        console.log("number property '#{ attrname }' given invalid default value: " + default_value)
       return
 
     glyph_value = glyphspec[attrname]
     if _.isString(glyph_value)
-      @[attrname] = {field: glyph_value, default: default_value, units: default_units}
+      @[attrname].field = glyph_value
     else if _.isNumber(glyph_value)
-      @[attrname] = {default: glyph_value, units: default_units}
+      @[attrname].value = glyph_value
     else if _.isObject(glyph_value)
-      @[attrname] = glyph_value
-      if not @[attrname].default?
-        @[attrname].default = default_value
-      if not @[attrname].units?
-        @[attrname].units = default_units
+      @[attrname] = _.extend(@[attrname], glyph_value)
     else
       console.log("number property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
   color: (styleprovider, glyphspec, attrname) ->
+    @[attrname] = {}
+
     default_value = styleprovider.mget(attrname)
+    if not default_value?
+      @[attrname].default = null
+    else if _.isString(default_value) and (svg_colors[default_value]? or default_value.substring(0, 1) == "#")
+      @[attrname].default = default_value
+    else
+      console.log("color property '#{ attrname }' given invalid default value: " + default_value)
 
     if not (attrname of glyphspec)
-      if _.isString(default_value) or _.isNull(default_value)
-        @[attrname] = {default: default_value}
-      else
-        console.log("color property '#{ attrname }' given invalid default value: " + default_value)
       return
 
     glyph_value = glyphspec[attrname]
-    if _.isString(glyph_value) or _.isNull(glyph_value)
-      @[attrname] = {default: glyph_value}
+    if _.isNull(glyph_value)
+      @[attrname].value = null
+    else if _.isString(glyph_value)
+      if svg_colors[glyph_value]? or glyph_value.substring(0, 1) == "#"
+        @[attrname].value = glyph_value
+      else
+        @[attrname].field = glyph_value
     else if _.isObject(glyph_value)
-      @[attrname] = glyph_value
-      if not @[attrname].default?
-        @[attrname].default = default_value
+      @[attrname] = _.extend(@[attrname], glyph_value)
     else
       console.log("color property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
   array: (styleprovider, glyphspec, attrname) ->
-    default_value = styleprovider.mget(attrname)
-    default_units = styleprovider.mget(attrname+"_units") ? 'data'
+    @[attrname] = {}
 
+    default_value = styleprovider.mget(attrname)
+    if not default_value?
+    else if _.isArray(default_value)
+      @[attrname].default = default_value
+    else
+      console.log("array property '#{ attrname }' given invalid default value: " + default_value)
+
+    units_value = styleprovider.mget(attrname+"_units") ? 'data'
     if (attrname+'_units' of glyphspec)
-      default_units = glyphspec[attrname+'_units']
+      units_value = glyphspec[attrname+'_units']
+    @[attrname].units = units_value
 
     if not (attrname of glyphspec)
-      if _.isArray(default_value)
-        @[attrname] = {default: default_value, units: default_units}
-      else
-        console.log("array property '#{ attrname }' given invalid default value: " + default_value)
       return
 
     glyph_value = glyphspec[attrname]
     if _.isString(glyph_value)
-      @[attrname] = {field: glyph_value, default: default_value, units: default_units}
+      @[attrname].field = glyph_value
     else if _.isArray(glyph_value)
-      @[attrname] = {default: glyph_value, units: default_units}
+      @[attrname].value = glyph_value
     else if _.isObject(glyph_value)
-      @[attrname] = glyph_value
-      if not @[attrname].default?
-        @[attrname].default = default_value
+      @[attrname] = _.extend(@[attrname], glyph_value)
     else
       console.log("array property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
   enum: (styleprovider, glyphspec, attrname, vals) ->
+    @[attrname] = {}
+
+    levels = vals.split(" ")
+
     default_value = styleprovider.mget(attrname)
-    levels_value = vals.split(" ")
+    if _.isNull(default_value)
+    else if _.isString(default_value) and default_value in levels
+      @[attrname] = {default: default_value}
+    else
+      console.log("enum property '#{ attrname }' given invalid default value: " + default_value)
+      console.log("    acceptable values:" + levels)
 
     if not (attrname of glyphspec)
-      if _.isString(default_value) and default_value in levels_value
-        @[attrname] = {default: default_value}
-      else
-        console.log("enum property '#{ attrname }' given invalid default value: " + default_value)
-        console.log("    acceptable values:" + levels_value)
       return
 
     glyph_value = glyphspec[attrname]
     if _.isString(glyph_value)
-      if glyph_value in levels_value
-        @[attrname] = {default: glyph_value}
+      if glyph_value in levels
+        @[attrname].value = glyph_value
       else
-        @[attrname] = {field: glyph_value, default: default_value}
+        @[attrname].field = glyph_value
     else if _.isObject(glyph_value)
-      @[attrname] = glyph_value
-      if not @[attrname].default?
-        @[attrname].default = default_value
+      @[attrname] = _.extend(@[attrname], glyph_value)
     else
       console.log("enum property '#{ attrname }' given invalid glyph value: " + glyph_value)
-      console.log("    acceptable values:" + levels_value)
+      console.log("    acceptable values:" + levels)
 
   setattr: (styleprovider, glyphspec, attrname, attrtype) ->
     values = null
@@ -140,13 +153,16 @@ class properties
 
     # if the attribute is not on this property object at all, log a bad request
     if not (attrname of @)
-      #console.log("requested unknown property '#{ attrname }' on object: " + obj)
+      console.log("requested selection of unknown property '#{ attrname }' on object: " + obj)
       return
 
     # if the attribute specifies a field, and the field exists on the object, return that value
-    if @[attrname].field?
-      if (@[attrname].field of obj)
-        return obj[@[attrname].field]
+    if @[attrname].field? and (@[attrname].field of obj)
+      return obj[@[attrname].field]
+
+    # If the user gave an explicit value, that should always be returned
+    if @[attrname].value?
+      return @[attrname].value
 
     # otherwise, if the attribute exists on the object, return that value.
     # (This is a convenience case for when the object passed in has a member
@@ -156,7 +172,7 @@ class properties
       return obj[attrname]
 
     # finally, check for a default value on this property object that could be returned
-    if @[attrname]? and 'default' of @[attrname]
+    if @[attrname].default?
       return @[attrname].default
 
     # failing that, just log a problem
@@ -167,10 +183,13 @@ class properties
 
     # if the attribute is not on this property object at all, log a bad request
     if not (attrname of @)
-      #console.log("requested unknown property '#{ attrname }' on objects")
+      console.log("requested vector selection of unknown property '#{ attrname }' on objects")
       return
 
-    result = new Array(objs.length)
+    if @[attrname].typed?
+      result = new Float32Array(objs.length)
+    else
+      result = new Array(objs.length)
 
     for i in [0..objs.length-1]
 
@@ -179,6 +198,10 @@ class properties
       # if the attribute specifies a field, and the field exists on the object, return that value
       if @[attrname].field? and (@[attrname].field of obj)
         result[i] = obj[@[attrname].field]
+
+      # If the user gave an explicit value, that should always be returned
+      else if @[attrname].value?
+        result[i] = @[attrname].value
 
       # otherwise, if the attribute exists on the object, return that value
       else if obj[attrname]?
@@ -214,7 +237,7 @@ class line_properties extends properties
     @array(styleprovider, glyphspec, @line_dash_name)
     @number(styleprovider, glyphspec, @line_dash_offset_name)
 
-    @do_stroke = @[@line_color_name].default?
+    @do_stroke = not _.isNull(@[@line_color_name].value)
 
   set: (ctx, obj) ->
     ctx.strokeStyle = @select(@line_color_name, obj)
@@ -228,16 +251,16 @@ class line_properties extends properties
 
 class fill_properties extends properties
   constructor: (styleprovider, glyphspec, prefix="") ->
-    @fill_name       = "#{ prefix }fill"
+    @fill_color_name = "#{ prefix }fill_color"
     @fill_alpha_name = "#{ prefix }fill_alpha"
 
-    @color(styleprovider, glyphspec, @fill_name)
+    @color(styleprovider, glyphspec, @fill_color_name)
     @number(styleprovider, glyphspec, @fill_alpha_name)
 
-    @do_fill = @[@fill_name].default?
+    @do_fill = not _.isNull(@[@fill_color_name].value)
 
   set: (ctx, obj) ->
-    ctx.fillStyle   = @select(@fill_name,       obj)
+    ctx.fillStyle   = @select(@fill_color_name, obj)
     ctx.globalAlpha = @select(@fill_alpha_name, obj)
 
 

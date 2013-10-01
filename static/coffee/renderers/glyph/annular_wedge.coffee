@@ -40,14 +40,15 @@ class AnnularWedgeView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    start_angle = (@glyph_props.select('start_angle', obj) for obj in data) # TODO deg/rad
+    # TODO (bev) handle degrees in addition to radians
+    start_angle = @glyph_props.v_select('start_angle', data)
     @start_angle = (-angle for angle in start_angle)
-    end_angle = (@glyph_props.select('end_angle', obj) for obj in data) # TODO deg/rad
+    end_angle = @glyph_props.v_select('end_angle', data)
     @end_angle = (-angle for angle in end_angle)
-    @angle = new Array(@start_angle.length)
+    @angle = new Float32Array(@start_angle.length)
     for i in [0..@start_angle.length-1]
       @angle[i] = @end_angle[i] - @start_angle[i]
-    @direction = new Array(@data.length)
+    @direction = new Uint8Array(@data.length)
     for i in [0..@data.length-1]
       dir = @glyph_props.select('direction', data[i])
       if dir == 'clock' then @direction[i] = false
@@ -247,7 +248,7 @@ _.extend(AnnularWedge::display_defaults, {
 
   direction: 'anticlock'
 
-  fill: 'gray'
+  fill_color: 'gray'
   fill_alpha: 1.0
 
   line_color: 'red'
