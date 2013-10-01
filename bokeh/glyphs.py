@@ -119,12 +119,10 @@ class DataSpec(BaseProperty):
     def __set__(self, obj, arg):
         attrname = "_" + self.name
         if isinstance(arg, tuple):
-            value, default = arg
-            if isinstance(value, basestring):
-                key = "field"
-            else:
-                key = "value"
-            setattr(obj, attrname, {key: value, "default": default})
+            field, default = arg
+            if not isinstance(field, basestring):
+                raise RuntimeError("String is required for field name when assigning tuple to a DataSpec")
+            setattr(obj, attrname, {"field": field, "default": default})
         else:
             setattr(obj, attrname, arg)
 
