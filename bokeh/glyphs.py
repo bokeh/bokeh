@@ -173,29 +173,148 @@ class ColorSpec(DataSpec):
     If a 4-tuple is provided, then it is treated as an RGBa (0..255), with
     alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
 
-    If a 2-tuple is provided, then it is treated as (value/field, default).
+    If a 2-tuple is provided, then it is treated as (value/fieldname, default).
     This is the same as the behavior in the base class DataSpec.
     Unlike DataSpec, ColorSpecs do not have a "units" property.
 
+    When reading out a ColorSpec, it returns a tuple, hex value, field name,
+    or a dict of (field, default).
+
     class Bar(HasProps):
-        col = ColorSpec("fill_color", default="gray")
+        col = ColorSpec("fill_color")
+
     >>> b = Bar()
     >>> b.col = "red"  # sets a fixed value of red
     >>> b.col
     "red"
-    >>> b.col = "mycolor"  # Use the datasource field named "mycolor"
+    >>> b.col = "myfield"  # Use the datasource field named "myfield"
     >>> b.col
-    "mycolor"
+    "myfield"
     >>> b.col = {"name": "mycolor", "default": "#FF126D"}
 
     For more examples, see tests/test_glyphs.py
     """
+
+    NAMEDCOLORS = {'indigo', 'gold', 'firebrick', 'indianred', 'yellow',
+    'darkolivegreen', 'darkseagreen', 'darkslategrey', 'mediumvioletred',
+    'mediumorchid', 'chartreuse', 'mediumblue', 'black', 'springgreen',
+    'orange', 'lightsalmon', 'brown', 'turquoise', 'olivedrab', 'cyan',
+    'silver', 'skyblue', 'gray', 'darkturquoise', 'goldenrod', 'darkgreen',
+    'darkviolet', 'darkgray', 'lightpink', 'teal', 'darkmagenta',
+    'lightgoldenrodyellow', 'lavender', 'yellowgreen', 'thistle', 'violet',
+    'navy', 'dimgrey', 'orchid', 'blue', 'ghostwhite', 'honeydew',
+    'cornflowerblue', 'purple', 'darkkhaki', 'mediumpurple', 'cornsilk', 'red',
+    'bisque', 'slategray', 'darkcyan', 'khaki', 'wheat', 'deepskyblue',
+    'darkred', 'steelblue', 'aliceblue', 'lightslategrey', 'gainsboro',
+    'mediumturquoise', 'floralwhite', 'coral', 'aqua', 'burlywood',
+    'darksalmon', 'beige', 'azure', 'lightsteelblue', 'oldlace', 'greenyellow',
+    'royalblue', 'lightseagreen', 'mistyrose', 'sienna', 'lightcoral',
+    'orangered', 'navajowhite', 'lime', 'palegreen', 'lightcyan', 'seashell',
+    'mediumspringgreen', 'fuchsia', 'papayawhip', 'blanchedalmond', 'peru',
+    'aquamarine', 'white', 'darkslategray', 'ivory', 'darkgoldenrod',
+    'lawngreen', 'lightgreen', 'crimson', 'forestgreen', 'maroon', 'olive',
+    'mintcream', 'antiquewhite', 'dimgray', 'hotpink', 'moccasin', 'limegreen',
+    'saddlebrown', 'grey', 'darkslateblue', 'lightskyblue', 'deeppink',
+    'plum', 'lightgrey', 'dodgerblue', 'slateblue', 'sandybrown', 'magenta',
+    'tan', 'rosybrown', 'pink', 'lightblue', 'palevioletred', 'mediumseagreen',
+    'linen', 'darkorange', 'powderblue', 'seagreen', 'snow', 'mediumslateblue',
+    'midnightblue', 'paleturquoise', 'palegoldenrod', 'whitesmoke',
+    'darkorchid', 'salmon', 'lightslategray', 'lemonchiffon', 'chocolate',
+    'tomato', 'cadetblue', 'lightyellow', 'lavenderblush', 'darkblue',
+    'mediumaquamarine', 'green', 'blueviolet', 'peachpuff', 'darkgrey'}
+
 
     def __init__(self, field=None, default=None, value=None):
         self.field = field
         self.default = default
         self.value = value
 
+    def _isconst(self, arg):
+        """ Returns True if the argument is a literal color.  Check for a
+        well-formed hexadecimal color value.
+        """
+        return isinstance(arg, basestring) and \
+               ((len(arg) == 7 and arg[0] == "#") or arg in self.NAMEDCOLORS)
+
+    def _formattuple(self, colortuple):
+        if isinstance(colortuple, tuple):
+            return "rgb%r" % (colortuple,)
+        else:
+            return colortuple
+
+    def __get__(self, obj, cls=None):
+        # One key difference in ColorSpec.__get__ from the base class is
+        # that we do not call self.to_dict() in any circumstance, because
+        # this could lead to formatting color tuples as "rgb(R,G,B)" instead
+        # of keeping them as tuples.
+        attrname = "_" + self.name
+        if hasattr(obj, attrname):
+            setval = getattr(obj, attrname)
+            if self._isconst(setval) or isinstance(setval, tuple):
+                # Fixed color value
+                return setval
+            elif isinstance(setval, basestring):
+                if self.default is None:
+                    # Field name
+                    return setval
+                else:
+                    return {"field": setval, "default": self.default}
+            else:
+                # setval should be a dict at this point
+                assert(isinstance(setval, dict))
+                return setval
+        else:
+            if self.default is not None:
+                return {"field": self.field, "default": self.default}
+            else:
+                return self.field
+
+    def __set__(self, obj, arg):
+        attrname = "_" + self.name
+        if isinstance(arg, tuple):
+            if len(arg) == 2:
+                if not isinstance(arg[0], basestring):
+                    raise RuntimeError("String is required for field name when assigning 2-tuple to ColorSpec")
+                setattr(obj, attrname, {"field": arg[0], "default": arg[1]})
+            elif len(arg) in (3, 4):
+                # RGB or RGBa
+                setattr(obj, attrname, arg)
+            else:
+                raise RuntimeError("Invalid tuple being assigned to ColorSpec; must be length 2, 3, or 4.")
+        else:
+            setattr(obj, attrname, arg)
+
+    def to_dict(self, obj):
+        setval = getattr(obj, "_" + self.name, None)
+        if setval is not None:
+            if self._isconst(setval):
+                # Hexadecimal or named color
+                return {"value": setval}
+            elif isinstance(setval, tuple):
+                # RGB or RGBa
+                # TODO: Should we validate that alpha is between 0..1?
+                return {"value": self._formattuple(setval)}
+            elif isinstance(setval, basestring):
+                d = {"field": setval}
+                if self.default is not None:
+                    d["default"] = self._formattuple(self.default)
+                return d
+            elif isinstance(setval, dict):
+                # this is considerably simpler than the DataSpec case because
+                # there are no units involved, and we've handled all of the
+                # value cases above.
+                d = setval.copy()
+                if isinstance(d.get("default", None), tuple):
+                    d["default"] = self._formattuple(d["default"])
+        else:
+            # If the user never set a value
+            d = {"field": self.field}
+            if self.default is not None:
+                d["default"] = self._formattuple(self.default)
+            return d
+
+    def __repr__(self):
+        return "ColorSpec(field=%r, default=%r)" % (self.field, self.default)
 
 
 class MetaGlyph(Viewable):

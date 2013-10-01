@@ -70,26 +70,101 @@ class TestDataSpec(unittest.TestCase):
         self.assertDictEqual(Foo.__dict__["x"].to_dict(b), {"field": "x3", "units": "screen", "default": 25})
 
 
-#class TestColorSpec(unittest.TestCase):
-#
-#    def test_color(self):
-#        class Foo(HasProps):
-#            col = ColorSpec("color", default="red")
-#
-#        f = Foo()
-#        self.assertEqual(f.col, "color")
-#        self.assertDictEqual(Foo.col.to_dict(f), {"field": "color", "default": "red"})
-#        f.y = "blue"
-#        self.assertDictEqual(Foo.col.to_dict(f), {"field": "color", "value": "blue", "default": "red"})
-#        f.y = "columnX"
-#        self.assertDictEqual(Foo.col.to_dict(f), {"field": "columnX", "default": "red"})
-#        f.y = ("columnY", "#FF00FF")
-#        self.assertDictEqual(Foo.col.to_dict(f), {"field": "columnY", "default": "#FF00FF"})
-#        f.y = {"field": "columnZ"}
-#        self.assertDictEqual(Foo.col.to_dict(f), {"field": "columnZ"})
-#        f.y = (128, 200, 255)
-#        self.assertDictEqual(Foo.col.to_dict(f), {"value": "rgb(128,200,255)"})
+class TestColorSpec(unittest.TestCase):
 
+    def test_field(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+        self.assertEqual(f.col, "colorfield")
+        self.assertDictEqual(desc.to_dict(f), {"field": "colorfield"})
+        f.col = "myfield"
+        self.assertEqual(f.col, "myfield")
+        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+
+    def test_field_default(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield", default="red")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+        self.assertDictEqual(f.col, {"field": "colorfield", "default": "red"})
+        self.assertDictEqual(desc.to_dict(f), {"field": "colorfield", "default": "red"})
+        f.col = "myfield"
+        self.assertDictEqual(f.col, {"field": "myfield", "default": "red"})
+        self.assertDictEqual(desc.to_dict(f), {"field": "myfield", "default": "red"})
+
+    def test_default_tuple(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield", default=(128,255,124))
+        desc = Foo.__dict__["col"]
+        f = Foo()
+        self.assertDictEqual(f.col, {"field": "colorfield", "default": (128, 255, 124)})
+        self.assertDictEqual(desc.to_dict(f), {"field": "colorfield", "default": "rgb(128, 255, 124)"})
+
+    def test_named_value(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+
+        f.col = "red"
+        self.assertEqual(f.col, "red")
+        self.assertDictEqual(desc.to_dict(f), {"value": "red"})
+        f.col = "forestgreen"
+        self.assertEqual(f.col, "forestgreen")
+        self.assertDictEqual(desc.to_dict(f), {"value": "forestgreen"})
+
+    def test_named_color_overriding_default(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield", default="blue")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+        f.col = "forestgreen"
+        self.assertEqual(f.col, "forestgreen")
+        self.assertDictEqual(desc.to_dict(f), {"value": "forestgreen"})
+        f.col = "myfield"
+        self.assertDictEqual(f.col, {"field": "myfield", "default": "blue"})
+        self.assertDictEqual(desc.to_dict(f), {"field": "myfield", "default": "blue"})
+
+    def test_hex_value(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+        f.col = "#FF004A"
+        self.assertEqual(f.col, "#FF004A")
+        self.assertDictEqual(desc.to_dict(f), {"value": "#FF004A"})
+        f.col = "myfield"
+        self.assertEqual(f.col, "myfield")
+        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+
+    def test_tuple_value(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+        f.col = (128, 200, 255)
+        self.assertEqual(f.col, (128, 200, 255))
+        self.assertDictEqual(desc.to_dict(f), {"value": "rgb(128, 200, 255)"})
+        f.col = "myfield"
+        self.assertEqual(f.col, "myfield")
+        self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
+        f.col = (100, 150, 200, 0.5)
+        self.assertEqual(f.col, (100, 150, 200, 0.5))
+        self.assertDictEqual(desc.to_dict(f), {"value": "rgb(100, 150, 200, 0.5)"})
+
+    def test_set_dict(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+        f.col = {"field": "myfield", "default": "#88FF00"}
+        self.assertDictEqual(f.col, {"field": "myfield", "default": "#88FF00"})
+
+        f.col = "field2"
+        self.assertEqual(f.col, "field2")
+        self.assertDictEqual(desc.to_dict(f), {"field": "field2"})
 
 
 if __name__ == "__main__":
