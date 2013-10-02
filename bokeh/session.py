@@ -365,11 +365,17 @@ class HTMLFileSession(BaseHTMLSession):
         file_url = "file://" + abspath(self.filename)
         webbrowser.open(file_url, new = newmap[new], autoraise=autoraise)
 
-    def dumpjson(self, pretty=True):
+    def dumpjson(self, pretty=True, file=None):
         """ Returns a JSON string representing the contents of all the models
-        stored in this session.  If **pretty** is True, then return a string
-        suitable for human reading, otherwise returns a compact string.
-        Mostly used for debugging.
+        stored in this session, or write it to a file object or file name.
+
+        If **pretty** is True, then return a string suitable for human reading,
+        otherwise returns a compact string.
+
+        If a file object is provided, then the output is appended to it.  If a
+        file name is provided, then it opened for overwrite, and not append.
+
+        Mostly intended to be used for debugging.
         """
         models = []
         for m in self._models.itervalues():
@@ -381,7 +387,15 @@ class HTMLFileSession(BaseHTMLSession):
             indent = 4
         else:
             indent = None
-        return self.serialize(models, indent=indent)
+        s = self.serialize(models, indent=indent)
+        if file is not None:
+            if isinstance(file, basestring):
+                with open(file, "w") as f:
+                    f.write(s)
+            else:
+                file.write(s)
+        else:
+            return s
 
 
 class HTMLFragmentSession(BaseHTMLSession):
