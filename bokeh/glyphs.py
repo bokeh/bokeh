@@ -262,7 +262,10 @@ class ColorSpec(DataSpec):
 
     def _formattuple(self, colortuple):
         if isinstance(colortuple, tuple):
-            return "rgb%r" % (colortuple,)
+            if len(colortuple) == 3:
+                return "rgb%r" % (colortuple,)
+            else:
+                return "rgba%r" % (colortuple,)
         else:
             return colortuple
 
