@@ -332,6 +332,7 @@ class ColorSpec(DataSpec):
                 d = setval.copy()
                 if isinstance(d.get("default", None), tuple):
                     d["default"] = self._formattuple(d["default"])
+                return d
         else:
             # If the user never set a value
             if self.value is not None:
