@@ -36,9 +36,8 @@ class RayView extends GlyphView
     width = @plot_view.view_state.get('width')
     height = @plot_view.view_state.get('height')
     inf_len = 2 * (width + height)
-    @slength = @length[..]
-    for i in [0..@slength.length-1]
-      if @slength[i] == 0 then @slength[i] = inf_len
+    for i in [0..@length.length-1]
+      if @length[i] == 0 then @length[i] = inf_len
 
     ctx = @plot_view.ctx
 
@@ -54,13 +53,13 @@ class RayView extends GlyphView
       @glyph_props.line_properties.set(ctx, @glyph_props)
       ctx.beginPath()
       for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @angle[i] + @slength[i])
+        if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
           continue
 
         ctx.translate(@sx[i], @sy[i])
         ctx.rotate(@angle[i])
         ctx.moveTo(0,  0)
-        ctx.lineTo(@slength[i], 0) # TODO handle @length in data units?
+        ctx.lineTo(@length[i], 0) # TODO handle @length in data units?
         ctx.rotate(-@angle[i])
         ctx.translate(-@sx[i], -@sy[i])
 
@@ -69,7 +68,7 @@ class RayView extends GlyphView
   _full_path: (ctx) ->
     if @do_stroke
       for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @angle[i] + @slength[i])
+        if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
           continue
 
         ctx.translate(@sx[i], @sy[i])
@@ -77,7 +76,7 @@ class RayView extends GlyphView
 
         ctx.beginPath()
         ctx.moveTo(0, 0)
-        ctx.lineTo(@slength[i], 0) # TODO handle @length in data units?
+        ctx.lineTo(@length[i], 0) # TODO handle @length in data units?
 
         @glyph_props.line_properties.set(ctx, @data[i])
         ctx.stroke()

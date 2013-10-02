@@ -157,15 +157,17 @@ class properties
       return
 
     # if the attribute specifies a field, and the field exists on the object, return that value
-    if @[attrname].field?
-      if (@[attrname].field of obj)
-        return obj[@[attrname].field]
+    if @[attrname].field? and (@[attrname].field of obj)
+      return obj[@[attrname].field]
 
     # If the user gave an explicit value, that should always be returned
-    else if @[attrname].value?
+    if @[attrname].value?
       return @[attrname].value
 
-    # otherwise, if the attribute exists on the object, return that value
+    # otherwise, if the attribute exists on the object, return that value.
+    # (This is a convenience case for when the object passed in has a member
+    # that has the same name as the glyphspec name, e.g. an actual field
+    # named "x" or "radius".)
     if obj[attrname]?
       return obj[attrname]
 
