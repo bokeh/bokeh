@@ -164,7 +164,10 @@ class properties
     if @[attrname].value?
       return @[attrname].value
 
-    # otherwise, if the attribute exists on the object, return that value
+    # otherwise, if the attribute exists on the object, return that value.
+    # (This is a convenience case for when the object passed in has a member
+    # that has the same name as the glyphspec name, e.g. an actual field
+    # named "x" or "radius".)
     if obj[attrname]?
       return obj[attrname]
 
