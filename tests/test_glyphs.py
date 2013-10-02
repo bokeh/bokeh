@@ -102,6 +102,14 @@ class TestColorSpec(unittest.TestCase):
         self.assertDictEqual(f.col, {"field": "colorfield", "default": (128, 255, 124)})
         self.assertDictEqual(desc.to_dict(f), {"field": "colorfield", "default": "rgb(128, 255, 124)"})
 
+    def test_fixed_value(self):
+        class Foo(HasProps):
+            col = ColorSpec("gray")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+        self.assertEqual(f.col, "gray")
+        self.assertDictEqual(desc.to_dict(f), {"value": "gray"})
+
     def test_named_value(self):
         class Foo(HasProps):
             col = ColorSpec("colorfield")

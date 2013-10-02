@@ -163,6 +163,13 @@ class DataSpec(BaseProperty):
 class ColorSpec(DataSpec):
     """ Subclass of DataSpec for specifying colors.
 
+    Although this serves the same role as a DataSpec, its usage is somewhat
+    different because:
+      * Specifying a fixed value is much more common
+      * Strings can be both field identifiers or refer to one of the SVG
+        Named Colors (or be a hex value starting with "#")
+      * There are no units
+
     For colors, because we support named colors and hex values prefaced
     with a "#", when we are handed a string value, there is a little
     interpretation: if the value is one of the 147 SVG named colors or
@@ -180,8 +187,13 @@ class ColorSpec(DataSpec):
     When reading out a ColorSpec, it returns a tuple, hex value, field name,
     or a dict of (field, default).
 
-    class Bar(HasProps):
-        col = ColorSpec("fill_color")
+    There are two common use cases for ColorSpec: setting a constant value,
+    and indicating a field name to look for on the datasource:
+
+        class Bar(HasProps):
+            col = ColorSpec("green")
+            col2 = ColorSpec("colorfield")
+            col3 = ColorSpec("colorfield", default="aqua")
 
     >>> b = Bar()
     >>> b.col = "red"  # sets a fixed value of red
@@ -224,10 +236,22 @@ class ColorSpec(DataSpec):
     'mediumaquamarine', 'green', 'blueviolet', 'peachpuff', 'darkgrey'}
 
 
-    def __init__(self, field=None, default=None, value=None):
+    def __init__(self, field_or_value=None, field=None, default=None, value=None):
+        """ ColorSpec(field_or_value=None, field=None, default=None, value=None)
+        """
+        # The fancy footwork below is so we auto-interpret the first positional
+        # parameter as either a field or a fixed value.  If either "field" or
+        # "value" are then supplied as keyword arguments, then those will
+        # override the inferred value from the positional argument.
+
         self.field = field
         self.default = default
         self.value = value
+        if field_or_value is not None:
+            if self._isconst(field_or_value):
+                self.value = field_or_value
+            else:
+                self.field = field_or_value
 
     def _isconst(self, arg):
         """ Returns True if the argument is a literal color.  Check for a
@@ -264,7 +288,9 @@ class ColorSpec(DataSpec):
                 assert(isinstance(setval, dict))
                 return setval
         else:
-            if self.default is not None:
+            if self.value is not None:
+                return self.value
+            elif self.default is not None:
                 return {"field": self.field, "default": self.default}
             else:
                 return self.field
@@ -308,10 +334,13 @@ class ColorSpec(DataSpec):
                     d["default"] = self._formattuple(d["default"])
         else:
             # If the user never set a value
-            d = {"field": self.field}
-            if self.default is not None:
-                d["default"] = self._formattuple(self.default)
-            return d
+            if self.value is not None:
+                return {"value": self.value}
+            else:
+                d = {"field": self.field}
+                if self.default is not None:
+                    d["default"] = self._formattuple(self.default)
+                return d
 
     def __repr__(self):
         return "ColorSpec(field=%r, default=%r)" % (self.field, self.default)
@@ -393,10 +422,11 @@ class Marker(Glyph, FillProps, LineProps):
 
     x = DataSpec
     y = DataSpec
-    #size = Size
 
-    # TODO: Remove this and use the color attributes in Glyph instead
-    #stroke_color = Color
+    # Override the inherited color properties with ColorSpecs
+    fill_color = ColorSpec("gray")
+    line_color = ColorSpec("black")
+
     #fill_pattern = Pattern
     #shape = Enum("circle", "dot", "square", "tri", "diamond", "x", "+", "char")
     #char_value = String
