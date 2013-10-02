@@ -98,18 +98,42 @@ a few mechanisms.
 
 Static html dump based web plotting examples
 ============================================
- * `$ python glyph1.py` in `examples/glyphs/`.
- * `$ python rects.py` in `examples/plotting/`.
- * open up the generated HTML in a web browser.
- 
+ * Most people will want to look at `examples/plotting/file`, which
+   show using the high-level `bokeh.plotting` interface.  This contains
+   plotting functions like `scatter()` and `line()` and the like.
+ * Low-level Glyph interface examples are in `examples/glyphs/`.  These
+   demonstrate the low-level Python object machinery that generates the
+   Javascript objects, which are then transported to the BokehJS front-end.
+ * Running any of the examples will open up your default browser to look
+   at the generated file.  The output HTML files are completely stand-alone,
+   and contain all of the data and Javascript.  They can be placed on a
+   web server, and visitors to that web page will get the full interactivity.
+ * In order to generate smaller HTML files that use relative links to the
+   BokehJS sources and CSS, change the calls to `output_file()` and the
+   keyword arguments `js="relative", css="relative"`.
+
 Server Based Web Plotting Examples
 ==================================
- * execute `$ python runserver.py ` in a terminal, this will start both an internal Redis server and a webserver which will block the terminal
- * execute `$ python glyph2.py` or `$ python prim.py` in `examples/glyphs/` This will make a few plots.
- * Also try executing `$ python rects.py` in `examples/plotting`
- * navigate to `http://localhost:5006/bokeh`.  The bokeh client plots to named plot namespaces, called 'documents'.  You should see a list of documents on this page in an accordion view, clicking on one should load the plots for that document
- * To do the same plots in an ipython notebook, open up an ipython notebook and run the examples in the `examples/plotting/` or `examples/glyphs`
- * There are also IPython notebooks in both `examples/glyphs` and `examples/plotting`.
+
+ * Execute `bokeh-server` in a terminal.  This will start both an internal
+   Redis server and a webserver which will block the terminal.  If you have a checkout of Bokeh,
+   be sure to execute the version in your checkout by using the full path.  If
+   you have Bokeh installed via a binary build, then you should be able to run
+   `bokeh-server` from anywhere. 
+ * Most of the server-based examples can be found in `examples/plotting/server/`.
+   Also, `examples/glyphs/glyph2.py`, `examples/glyphs/prim.py` both use the
+   plot server.  Run any of these examples.  They will make a few plots and
+   store them on the plot server.
+ * Navigate to `http://localhost:5006/bokeh`.  The bokeh client plots
+   to named plot namespaces, called 'documents'.  Each example creates
+   a new document on the plot server that is named after the example
+   itself.  You should see a list of documents on this page in an
+   accordion view.  Clicking on one should load the plots for that document.
+ * To use the plot server from an IPython Notebook, go to `examples/plotting/notebook` 
+   and start the IPython Notebook by typing `ipython notebook`.  Then change the
+   calls to `output_notebook()` into `output_notebook(url="default")`.  The notebooks
+   will look the same as before, but the plots will all be stored on the plot server
+   and dynamically served up into the output cells.
 
 Developing Bokeh
 ================
@@ -150,7 +174,7 @@ hem server will serve up coffeescript, compiling them on the fly.
 Developing
 ----------
 
-To run the debug webserver, execute `$ python runserver.py -d -j`.  The debug
+To run the debug webserver, execute `$ bokeh-server -d -j`.  The debug
 webserver is configured to ask the hem server for compiled javascript, rather
 than read the pre-compiled application.js off of disk.
 
