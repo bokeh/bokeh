@@ -22,10 +22,7 @@ source = ObjectArrayDataSource(
     data = [
         {'x' : 1, 'y' : 5, 'z':3},
         {'x' : 2, 'y' : 4, 'z':3, 'radius':10},
-        # The field in this dict still needs to be called "fill", because
-        # it needs to correspond to BokehJS naming.  In the next version,
-        # this field will be renamed to fill_color, to correspond to Bokeh.
-        {'x' : 3, 'y' : 3, 'z':3, 'fill':"blue"},
+        {'x' : 3, 'y' : 3, 'z':3},
         {'x' : 4, 'y' : 2, 'z':3},
         {'x' : 5, 'y' : 1, 'z':3},
         ])
@@ -53,13 +50,14 @@ zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,zoomtool]
 
-sess = session.HTMLFileSession("circle.html")
+sess = session.HTMLFileSession("glyph1.html")
 sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-print "Wrote circle.html"
+sess.dumpjson(file="glyph1.json")
+print "Wrote glyph1.html"
 try:
     import webbrowser
-    webbrowser.open("file://" + os.path.abspath("circle.html"))
+    webbrowser.open("file://" + os.path.abspath("glyph1.html"))
 except:
     pass
