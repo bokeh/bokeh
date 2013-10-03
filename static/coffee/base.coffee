@@ -607,7 +607,8 @@ locations =
   PandasPivotTable: ['./pandas/pandas', 'pandaspivottables']
   PandasPlotSource: ['./pandas/pandas', 'pandasplotsources']
 
-  LinearAxis: ['./renderers/guide/axis', 'linearaxes']
+  LinearAxis: ['./renderers/guide/linear_axis', 'linearaxes']
+  DatetimeAxis: ['./renderers/guide/datetime_axis', 'datetimeaxes']
   Rule: ['./renderers/guide/rule', 'rules']
   Legend: ['./renderers/annotation_renderer', 'annotationrenderers']
 
