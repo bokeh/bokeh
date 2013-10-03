@@ -11,28 +11,22 @@ source = Collections('ColumnDataSource').create(
   data:
     x: xs
     y1: ys1
-    y2: ys2
-)
+    y2: ys2)
 
 xdr = Collections('DataRange1d').create(
-  sources: [{ref: source.ref(), columns: ['x']}]
-)
+  sources: [{ref: source.ref(), columns: ['x']}])
 
 ydr = Collections('DataRange1d').create(
-  sources: [{ref: source.ref(), columns: ['y1']}]
-)
+  sources: [{ref: source.ref(), columns: ['y1']}])
 
 ydr2 = Collections('DataRange1d').create(
-  sources: [{ref: source.ref(), columns: ['y2']}]
-)
+  sources: [{ref: source.ref(), columns: ['y2']}])
 
 ydr3 = Collections('DataRange1d').create(
-  sources: [{ref: source.ref(), columns: ['y2']}]
-)
+  sources: [{ref: source.ref(), columns: ['y2']}])
 
 ydr4 = Collections('DataRange1d').create(
-  sources: [{ref: source.ref(), columns: ['y2']}]
-)
+  sources: [{ref: source.ref(), columns: ['y2']}])
 
 scatter1 = {
   x: 'x'
@@ -42,8 +36,7 @@ scatter1 = {
   type: 'circle'
   fill_color: 'red'
   line_color: 'black'
-  fast_path: true
-}
+  fast_path: true}
 
 scatter2 = {
   x: 'x'
@@ -54,20 +47,19 @@ scatter2 = {
   height_units: "screen"
   type: 'rect'
   fill_color: 'blue'
-  fast_path: true
-}
+  fast_path: true}
 
 plot1 = make_glyph_plot(source, {}, scatter1, xdr, ydr,
         {dims: [400,400], plot_title: "Plot 1", legend_name: "plot1"})
 plot2 = make_glyph_plot(source, {}, scatter2, xdr, ydr2,
         {dims: [400,400], plot_title: "Plot 2", legend_name: "plot2"})
-
 plot3 = make_glyph_plot(source, {}, scatter1, xdr, ydr3,
         {dims: [400,400], plot_title: "Plot 3", legend_name: "plot3"})
 plot4 = make_glyph_plot(source, {}, scatter2, xdr, ydr4,
         {dims: [400,400], plot_title: "Plot 4", legend_name: "plot4"})
 
-gridplot = Collections('GridPlot').create(children: [[plot1.ref(), plot2.ref()], [plot3.ref(), plot4.ref()]])
+gridplot = Collections('GridPlot').create(
+    children: [[plot1.ref(), plot2.ref()], [plot3.ref(), plot4.ref()]])
 
 test(
   'gridplot',
