@@ -46,7 +46,7 @@ ydr = Collections('Range1d').create({start: 3000, end: 5000})
 bars = {
   x: 'x'
   y: 'y'
-  width: 1000000
+  width: 40000000
   height: 'height'
   type: 'rect',
   fill_color: 'fill'
