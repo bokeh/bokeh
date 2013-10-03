@@ -95,6 +95,8 @@ class LinearAxisView extends PlotWidget
     @major_label_props = new text_properties(@, guidespec, 'major_label_')
     @axis_label_props = new text_properties(@, guidespec, 'axis_label_')
 
+    @formatter = new ticking.BasicTickFormatter()
+
   render: () ->
 
     ctx = @plot_view.ctx
@@ -155,8 +157,7 @@ class LinearAxisView extends PlotWidget
       angle = -orient
     standoff = @_tick_extent() + @mget('major_label_standoff')
 
-    formatter = new ticking.BasicTickFormatter()
-    labels = formatter.format(coords[dim])
+    labels = @formatter.format(coords[dim])
 
     # override baseline and alignment with heuristics for tick labels
     @major_label_props.set(ctx, @)
@@ -250,8 +251,7 @@ class LinearAxisView extends PlotWidget
     side = @mget('side')
     orient = @mget('major_label_orientation')
 
-    formatter = new ticking.BasicTickFormatter()
-    labels = formatter.format(coords[dim])
+    labels = @formatter.format(coords[dim])
 
     @major_label_props.set(@plot_view.ctx, @)
 
