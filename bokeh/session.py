@@ -288,7 +288,7 @@ class HTMLFileSession(BaseHTMLSession):
             ref["attributes"].update({"id": ref["id"], "doc": None})
             models.append(ref)
 
-        js = self._load_template(self.js_template).render(
+        jscode = self._load_template(self.js_template).render(
                     elementid = elementid,
                     modelid = pc_ref["id"],
                     modeltype = pc_ref["type"],
@@ -301,7 +301,7 @@ class HTMLFileSession(BaseHTMLSession):
         if rootdir is None:
             rootdir = self.rootdir
 
-        if js == "inline" or self.inline_js:
+        if js == "inline" or (js is None and self.inline_js):
             # TODO: Are the UTF-8 decodes really necessary?
             rawjs = self._inline_scripts(self.js_paths()).decode("utf-8")
             jsfiles = []
@@ -309,7 +309,7 @@ class HTMLFileSession(BaseHTMLSession):
             rawjs = None
             jsfiles = [os.path.relpath(p,rootdir) for p in self.js_paths()]
 
-        if css == "inline" or self.inline_css:
+        if css == "inline" or (css is None and self.inline_css):
             # TODO: Are the UTF-8 decodes really necessary?
             rawcss = self._inline_css(self.css_paths()).decode("utf-8")
             cssfiles = []
@@ -322,7 +322,7 @@ class HTMLFileSession(BaseHTMLSession):
             )
 
         html = self._load_template(self.html_template).render(
-                    js_snippets = [js],
+                    js_snippets = [jscode],
                     html_snippets = [div] + [o.get_raw_js() for o in self.raw_js_objs],
                     rawjs = rawjs, rawcss = rawcss,
                     jsfiles = jsfiles, cssfiles = cssfiles,
