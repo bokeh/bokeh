@@ -555,7 +555,7 @@ class DatetimeFormatter
             s = tz(t, next_format)
             break
           else
-            hybrid_handled = True
+            hybrid_handled = true
 
         next_format = @formats[@format_order[next_ndx]][1][0]
         s = tz(t, next_format)
