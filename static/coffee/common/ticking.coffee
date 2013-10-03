@@ -1,5 +1,6 @@
 
-
+sprintf = window.sprintf
+tz = window.tz
 
 log10 = (num) ->
   """
@@ -390,10 +391,193 @@ class BasicTickFormatter
     return labels
 
 
+_two_digit_year = (t) ->
+  # Round to the nearest Jan 1, roughly.
+  dt = Date(t)
+  year = dt.getFullYear()
+  if dt.getMonth() >= 7
+      year += 1
+  return sprintf("'%02d", (year % 100))
+
+_four_digit_year = (t) ->
+  # Round to the nearest Jan 1, roughly.
+  dt = Date(t)
+  year = dt.getFullYear()
+  if dt.getMonth() >= 7
+      year += 1
+  return sprintf("%d", year)
+
+_array = (t) ->
+  return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map( (e) -> return parseInt(e, 10) );
+
+class DatetimeFormatter
+
+  # Labels of time units, from finest to coarsest.
+  format_order: [
+    'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'
+  ]
+
+  # A dict whose are keys are the strings in **format_order**; each value is
+  # two arrays, (widths, format strings/functions).
+
+  # Whether or not to strip the leading zeros on tick labels.
+  strip_leading_zeros: true
+
+  constructor: () ->
+    # This table of format is convert into the 'formats' dict.  Each tuple of
+    # formats must be ordered from shortest to longest.
+    @_formats = {
+      'microseconds': ['%6Nus', '%3N.%6Nms']
+      'milliseconds': ['%3Nms', '%S.%3Ns']
+      'seconds':      [':%S', '%Ss']
+      'minsec':       ['%M:%S']
+      'minutes':      ['%Mm']
+      'hourmin':      ['%H:%M']
+      'hours':        ['%Hh', '%H:%M']
+      'days':         ['%m/%d', '%a%d']
+      'months':       ['%m/%Y', '%b%y']
+      'years':        ['%Y'] #[_two_digit_year, _four_digit_year]
+    }
+    @formats = {}
+    for fmt_name of @_formats
+      fmt_strings = @_formats[fmt_name]
+      sizes = []
+      tmptime = tz(new Date())
+      for s in fmt_strings
+          size = (tz(tmptime, s)).length
+          sizes.push(size)
+      @formats[fmt_name] = [sizes, fmt_strings]
+    return
+
+  _get_resolution: (resolution, interval) ->
+    r = resolution
+    span = interval
+    if r < 5e-4
+      resol = "microseconds"
+    else if r < 0.5
+      resol = "milliseconds"
+    else if r < 60
+      if span > 60
+        resol = "minsec"
+      else
+        resol = "seconds"
+    else if r < 3600
+      if span > 3600
+        resol = "hourmin"
+      else
+        resol = "minutes"
+    else if r < 24*3600
+      resol = "hours"
+    else if r < 30*24*3600
+      resol = "days"
+    else if r < 365*24*3600
+      resol = "months"
+    else
+      resol = "years"
+    return resol
+
+  format: (ticks, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
+
+    # In order to pick the right set of labels, we need to determine
+    # the resolution of the ticks.  We can do this using a ticker if
+    # it's provided, or by computing the resolution from the actual
+    # ticks we've been given.
+    if ticks.length == 0
+        return []
+
+    span = Math.abs(ticks[ticks.length-1] - ticks[0])/1000.0
+    if ticker
+      r = ticker.resolution
+    else
+      r = span / (ticks.length - 1)
+    resol = @_get_resolution(r, span)
+
+    [widths, formats] = @formats[resol]
+    format = formats[0]
+    if char_width
+      # If a width is provided, then we pick the most appropriate scale,
+      # otherwise just use the widest format
+      good_formats = []
+      for i in [0..widths.length-1]
+        if widths[i] * ticks.length < fill_ratio * char_width
+          good_formats.push(@formats[i])
+      if good_formats.length > 0
+        format = good_formats[ticks.length-1]
+
+    # Apply the format to the tick values
+    labels = []
+    resol_ndx = @format_order.indexOf(resol)
+
+    # This dictionary maps the name of a time resolution (in @format_order)
+    # to its index in a time.localtime() timetuple.  The default is to map
+    # everything to index 0, which is year.  This is not ideal; it might cause
+    # a problem with the tick at midnight, january 1st, 0 a.d. being incorrectly
+    # promoted at certain tick resolutions.
+    time_tuple_ndx_for_resol = {}
+    for fmt in @format_order
+      time_tuple_ndx_for_resol[fmt] = 0
+    time_tuple_ndx_for_resol["seconds"] = 5
+    time_tuple_ndx_for_resol["minsec"] = 4
+    time_tuple_ndx_for_resol["minutes"] = 4
+    time_tuple_ndx_for_resol["hourmin"] = 3
+    time_tuple_ndx_for_resol["hours"] = 3
+
+    # As we format each tick, check to see if we are at a boundary of the
+    # next higher unit of time.  If so, replace the current format with one
+    # from that resolution.  This is not the best heuristic in the world,
+    # but it works!  There is some trickiness here due to having to deal
+    # with hybrid formats in a reasonable manner.
+    for t in ticks
+      try
+        dt = Date(t)
+        tm = _array(t)
+        s = tz(t, format)
+      catch error
+        console.log error
+        console.log("Unable to convert tick for timestamp " + t)
+        labels.push("ERR")
+        continue
+
+      hybrid_handled = false
+      next_ndx = resol_ndx
+
+      # The way to check that we are at the boundary of the next unit of
+      # time is by checking that we have 0 units of the resolution, i.e.
+      # we are at zero minutes, so display hours, or we are at zero seconds,
+      # so display minutes (and if that is zero as well, then display hours).
+      while tm[ time_tuple_ndx_for_resol[@format_order[next_ndx]] ] == 0
+        next_ndx += 1
+        if next_ndx == @format_order.length
+          break
+        if resol in ["minsec", "hourmin"] and not hybrid_handled
+          if (resol == "minsec" and tm[4] == 0 and tm[5] != 0) or (resol == "hourmin" and tm[3] == 0 and tm[4] != 0)
+            next_format = @formats[@format_order[resol_ndx-1]][1][0]
+            s = tz(t, next_format)
+            break
+          else
+            hybrid_handled = true
+
+        next_format = @formats[@format_order[next_ndx]][1][0]
+        s = tz(t, next_format)
+
+      if @strip_leading_zeros
+        ss = s.replace(/^0+/g, "")
+        if ss != s and (ss == '' or not isFinite(ss[0]))
+          # A label such as '000ms' should leave one zero.
+          ss = '0' + ss
+        labels.push(ss)
+      else
+        labels.push(s)
+
+    return labels
+
+
 exports.nice_2_5_10 = nice_2_5_10
 exports.nice_10 = nice_10
 exports.heckbert_interval = heckbert_interval
 exports.auto_ticks = auto_ticks
 exports.auto_interval = auto_interval
 exports.BasicTickFormatter = BasicTickFormatter
+exports.DatetimeFormatter = DatetimeFormatter
+
 
