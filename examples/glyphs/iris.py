@@ -35,8 +35,10 @@ glyph_renderer = GlyphRenderer(
         )
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], border=80, title="Iris Data")
-xaxis = LinearAxis(plot=plot, dimension=0, location="min", axis_label="petal length")
-yaxis = LinearAxis(plot=plot, dimension=1, location="min", axis_label="petal width")
+xaxis = LinearAxis(plot=plot, dimension=0, location="min", 
+        axis_label="petal length", bounds=(1,7), major_tick_in=0)
+yaxis = LinearAxis(plot=plot, dimension=1, location="min", 
+        axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
 xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 
