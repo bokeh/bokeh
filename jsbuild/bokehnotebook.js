@@ -8739,7 +8739,8 @@ _.setdefault = function(obj, key, value){
     IPythonRemoteData: ['./pandas/pandas', 'ipythonremotedatas'],
     PandasPivotTable: ['./pandas/pandas', 'pandaspivottables'],
     PandasPlotSource: ['./pandas/pandas', 'pandasplotsources'],
-    LinearAxis: ['./renderers/guide/axis', 'linearaxes'],
+    LinearAxis: ['./renderers/guide/linear_axis', 'linearaxes'],
+    DatetimeAxis: ['./renderers/guide/datetime_axis', 'datetimeaxes'],
     Rule: ['./renderers/guide/rule', 'rules'],
     Legend: ['./renderers/annotation_renderer', 'annotationrenderers'],
     DataSlider: ['./tools/slider', 'datasliders']
@@ -11634,7 +11635,11 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/ticking": function(exports, require, module) {(function() {
-  var BasicTickFormatter, arange, argsort, arr_div2, arr_div3, auto_interval, auto_ticks, float, heckbert_interval, is_base2, log10, log2, nice_10, nice_2_5_10;
+  var BasicTickFormatter, DatetimeFormatter, arange, argsort, arr_div2, arr_div3, auto_interval, auto_ticks, float, heckbert_interval, is_base2, log10, log2, nice_10, nice_2_5_10, sprintf, tz, _array, _four_digit_year, _two_digit_year;
+
+  sprintf = window.sprintf;
+
+  tz = window.tz;
 
   log10 = function(num) {
     "Returns the base 10 logarithm of a number.";    if (num === 0.0) {
@@ -12022,6 +12027,197 @@ _.setdefault = function(obj, key, value){
 
   })();
 
+  _two_digit_year = function(t) {
+    var dt, year;
+    dt = Date(t);
+    year = dt.getFullYear();
+    if (dt.getMonth() >= 7) {
+      year += 1;
+    }
+    return sprintf("'%02d", year % 100);
+  };
+
+  _four_digit_year = function(t) {
+    var dt, year;
+    dt = Date(t);
+    year = dt.getFullYear();
+    if (dt.getMonth() >= 7) {
+      year += 1;
+    }
+    return sprintf("%d", year);
+  };
+
+  _array = function(t) {
+    return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map(function(e) {
+      return parseInt(e, 10);
+    });
+  };
+
+  DatetimeFormatter = (function() {
+
+    DatetimeFormatter.prototype.format_order = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'];
+
+    DatetimeFormatter.prototype.strip_leading_zeros = true;
+
+    function DatetimeFormatter() {
+      var fmt_name, fmt_strings, s, size, sizes, tmptime, _i, _len;
+      this._formats = {
+        'microseconds': ['%6Nus', '%3N.%6Nms'],
+        'milliseconds': ['%3Nms', '%S.%3Ns'],
+        'seconds': [':%S', '%Ss'],
+        'minsec': ['%M:%S'],
+        'minutes': ['%Mm'],
+        'hourmin': ['%H:%M'],
+        'hours': ['%Hh', '%H:%M'],
+        'days': ['%m/%d', '%a%d'],
+        'months': ['%m/%Y', '%b%y'],
+        'years': ['%Y']
+      };
+      this.formats = {};
+      for (fmt_name in this._formats) {
+        fmt_strings = this._formats[fmt_name];
+        sizes = [];
+        tmptime = tz(new Date());
+        for (_i = 0, _len = fmt_strings.length; _i < _len; _i++) {
+          s = fmt_strings[_i];
+          size = (tz(tmptime, s)).length;
+          sizes.push(size);
+        }
+        this.formats[fmt_name] = [sizes, fmt_strings];
+      }
+      return;
+    }
+
+    DatetimeFormatter.prototype._get_resolution = function(resolution, interval) {
+      var r, resol, span;
+      r = resolution;
+      span = interval;
+      if (r < 5e-4) {
+        resol = "microseconds";
+      } else if (r < 0.5) {
+        resol = "milliseconds";
+      } else if (r < 60) {
+        if (span > 60) {
+          resol = "minsec";
+        } else {
+          resol = "seconds";
+        }
+      } else if (r < 3600) {
+        if (span > 3600) {
+          resol = "hourmin";
+        } else {
+          resol = "minutes";
+        }
+      } else if (r < 24 * 3600) {
+        resol = "hours";
+      } else if (r < 30 * 24 * 3600) {
+        resol = "days";
+      } else if (r < 365 * 24 * 3600) {
+        resol = "months";
+      } else {
+        resol = "years";
+      }
+      return resol;
+    };
+
+    DatetimeFormatter.prototype.format = function(ticks, num_labels, char_width, fill_ratio, ticker) {
+      var dt, fmt, format, formats, good_formats, hybrid_handled, i, labels, next_format, next_ndx, r, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
+      if (num_labels == null) {
+        num_labels = null;
+      }
+      if (char_width == null) {
+        char_width = null;
+      }
+      if (fill_ratio == null) {
+        fill_ratio = 0.3;
+      }
+      if (ticker == null) {
+        ticker = null;
+      }
+      if (ticks.length === 0) {
+        return [];
+      }
+      span = Math.abs(ticks[ticks.length - 1] - ticks[0]) / 1000.0;
+      if (ticker) {
+        r = ticker.resolution;
+      } else {
+        r = span / (ticks.length - 1);
+      }
+      resol = this._get_resolution(r, span);
+      _ref = this.formats[resol], widths = _ref[0], formats = _ref[1];
+      format = formats[0];
+      if (char_width) {
+        good_formats = [];
+        for (i = _i = 0, _ref1 = widths.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (widths[i] * ticks.length < fill_ratio * char_width) {
+            good_formats.push(this.formats[i]);
+          }
+        }
+        if (good_formats.length > 0) {
+          format = good_formats[ticks.length - 1];
+        }
+      }
+      labels = [];
+      resol_ndx = this.format_order.indexOf(resol);
+      time_tuple_ndx_for_resol = {};
+      _ref2 = this.format_order;
+      for (_j = 0, _len = _ref2.length; _j < _len; _j++) {
+        fmt = _ref2[_j];
+        time_tuple_ndx_for_resol[fmt] = 0;
+      }
+      time_tuple_ndx_for_resol["seconds"] = 5;
+      time_tuple_ndx_for_resol["minsec"] = 4;
+      time_tuple_ndx_for_resol["minutes"] = 4;
+      time_tuple_ndx_for_resol["hourmin"] = 3;
+      time_tuple_ndx_for_resol["hours"] = 3;
+      for (_k = 0, _len1 = ticks.length; _k < _len1; _k++) {
+        t = ticks[_k];
+        try {
+          dt = Date(t);
+          tm = _array(t);
+          s = tz(t, format);
+        } catch (error) {
+          console.log(error);
+          console.log("Unable to convert tick for timestamp " + t);
+          labels.push("ERR");
+          continue;
+        }
+        hybrid_handled = false;
+        next_ndx = resol_ndx;
+        while (tm[time_tuple_ndx_for_resol[this.format_order[next_ndx]]] === 0) {
+          next_ndx += 1;
+          if (next_ndx === this.format_order.length) {
+            break;
+          }
+          if ((resol === "minsec" || resol === "hourmin") && !hybrid_handled) {
+            if ((resol === "minsec" && tm[4] === 0 && tm[5] !== 0) || (resol === "hourmin" && tm[3] === 0 && tm[4] !== 0)) {
+              next_format = this.formats[this.format_order[resol_ndx - 1]][1][0];
+              s = tz(t, next_format);
+              break;
+            } else {
+              hybrid_handled = true;
+            }
+          }
+          next_format = this.formats[this.format_order[next_ndx]][1][0];
+          s = tz(t, next_format);
+        }
+        if (this.strip_leading_zeros) {
+          ss = s.replace(/^0+/g, "");
+          if (ss !== s && (ss === '' || !isFinite(ss[0]))) {
+            ss = '0' + ss;
+          }
+          labels.push(ss);
+        } else {
+          labels.push(s);
+        }
+      }
+      return labels;
+    };
+
+    return DatetimeFormatter;
+
+  })();
+
   exports.nice_2_5_10 = nice_2_5_10;
 
   exports.nice_10 = nice_10;
@@ -12033,6 +12229,8 @@ _.setdefault = function(obj, key, value){
   exports.auto_interval = auto_interval;
 
   exports.BasicTickFormatter = BasicTickFormatter;
+
+  exports.DatetimeFormatter = DatetimeFormatter;
 
 }).call(this);
 }, "common/view_state": function(exports, require, module) {(function() {
@@ -18315,7 +18513,74 @@ _.setdefault = function(obj, key, value){
   exports.wedge = wedge.Wedge;
 
 }).call(this);
-}, "renderers/guide/axis": function(exports, require, module) {(function() {
+}, "renderers/guide/datetime_axis": function(exports, require, module) {(function() {
+  var DatetimeAxes, DatetimeAxis, DatetimeAxisView, linear_axis, ticking,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  linear_axis = require('./linear_axis');
+
+  ticking = require('../../common/ticking');
+
+  DatetimeAxisView = (function(_super) {
+
+    __extends(DatetimeAxisView, _super);
+
+    function DatetimeAxisView() {
+      DatetimeAxisView.__super__.constructor.apply(this, arguments);
+    }
+
+    DatetimeAxisView.prototype.initialize = function(attrs, options) {
+      DatetimeAxisView.__super__.initialize.call(this, attrs, options);
+      return this.formatter = new ticking.DatetimeFormatter();
+    };
+
+    return DatetimeAxisView;
+
+  })(linear_axis.LinearAxisView);
+
+  DatetimeAxis = (function(_super) {
+
+    __extends(DatetimeAxis, _super);
+
+    function DatetimeAxis() {
+      DatetimeAxis.__super__.constructor.apply(this, arguments);
+    }
+
+    DatetimeAxis.prototype.default_view = DatetimeAxisView;
+
+    DatetimeAxis.prototype.type = 'GuideRenderer';
+
+    DatetimeAxis.prototype.initialize = function(attrs, options) {
+      return DatetimeAxis.__super__.initialize.call(this, attrs, options);
+    };
+
+    return DatetimeAxis;
+
+  })(linear_axis.LinearAxis);
+
+  DatetimeAxes = (function(_super) {
+
+    __extends(DatetimeAxes, _super);
+
+    function DatetimeAxes() {
+      DatetimeAxes.__super__.constructor.apply(this, arguments);
+    }
+
+    DatetimeAxes.prototype.model = DatetimeAxis;
+
+    return DatetimeAxes;
+
+  })(Backbone.Collection);
+
+  exports.datetimeaxes = new DatetimeAxes();
+
+  exports.DatetimeAxis = DatetimeAxis;
+
+  exports.DatetimeAxisView = DatetimeAxisView;
+
+}).call(this);
+}, "renderers/guide/linear_axis": function(exports, require, module) {(function() {
   var HasParent, LinearAxes, LinearAxis, LinearAxisView, PlotWidget, base, line_properties, properties, safebind, signum, text_properties, ticking, _align_lookup, _angle_lookup, _baseline_lookup,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -18441,7 +18706,8 @@ _.setdefault = function(obj, key, value){
       this.rule_props = new line_properties(this, guidespec, 'axis_');
       this.major_tick_props = new line_properties(this, guidespec, 'major_tick_');
       this.major_label_props = new text_properties(this, guidespec, 'major_label_');
-      return this.axis_label_props = new text_properties(this, guidespec, 'axis_label_');
+      this.axis_label_props = new text_properties(this, guidespec, 'axis_label_');
+      return this.formatter = new ticking.BasicTickFormatter();
     };
 
     LinearAxisView.prototype.render = function() {
@@ -18493,7 +18759,7 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxisView.prototype._draw_major_labels = function(ctx) {
-      var angle, coords, dim, formatter, i, labels, nx, ny, orient, side, standoff, sx, sy, x, y, _i, _ref, _ref1, _ref2, _ref3;
+      var angle, coords, dim, i, labels, nx, ny, orient, side, standoff, sx, sy, x, y, _i, _ref, _ref1, _ref2, _ref3;
       _ref = coords = this.mget('major_coords'), x = _ref[0], y = _ref[1];
       _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
       _ref2 = this.mget('normals'), nx = _ref2[0], ny = _ref2[1];
@@ -18506,8 +18772,7 @@ _.setdefault = function(obj, key, value){
         angle = -orient;
       }
       standoff = this._tick_extent() + this.mget('major_label_standoff');
-      formatter = new ticking.BasicTickFormatter();
-      labels = formatter.format(coords[dim]);
+      labels = this.formatter.format(coords[dim]);
       this.major_label_props.set(ctx, this);
       this._apply_location_heuristics(ctx, side, orient);
       for (i = _i = 0, _ref3 = sx.length - 1; 0 <= _ref3 ? _i <= _ref3 : _i >= _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
@@ -18591,14 +18856,13 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxisView.prototype._tick_label_extent = function() {
-      var angle, c, coords, dim, extent, factor, formatter, h, i, labels, orient, rounding, s, side, val, w, _i, _j, _ref, _ref1;
+      var angle, c, coords, dim, extent, factor, h, i, labels, orient, rounding, s, side, val, w, _i, _j, _ref, _ref1;
       extent = 0;
       dim = this.mget('guidespec').dimension;
       coords = this.mget('major_coords');
       side = this.mget('side');
       orient = this.mget('major_label_orientation');
-      formatter = new ticking.BasicTickFormatter();
-      labels = formatter.format(coords[dim]);
+      labels = this.formatter.format(coords[dim]);
       this.major_label_props.set(this.plot_view.ctx, this);
       if (_.isString(orient)) {
         factor = 1;
@@ -19151,13 +19415,17 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/guides": function(exports, require, module) {(function() {
-  var axis, rule;
+  var datetime_axis, linear_axis, rule;
 
-  axis = require("./guide/axis");
+  linear_axis = require("./guide/linear_axis");
+
+  datetime_axis = require("./guide/datetime_axis");
 
   rule = require("./guide/rule");
 
-  exports.linear_axis = axis.LinearAxis;
+  exports.linear_axis = linear_axis.LinearAxis;
+
+  exports.datetime_axis = datetime_axis.DatetimeAxis;
 
   exports.rule = rule.Rule;
 
