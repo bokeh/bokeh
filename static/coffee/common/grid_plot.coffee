@@ -75,7 +75,6 @@ class GridPlotView extends ContinuumView
     button_activated = false;
     button.click(->
       console.log("button clicked", button_name);
-      #debugger;
       if button_activated
         eventSink.trigger('clear_active_tool')
       else
@@ -98,8 +97,27 @@ class GridPlotView extends ContinuumView
         console.log('activating ', t_name)
         t.evgen.eventSink.trigger("#{t_name}:activated")))
 
-    
-    
+  addGridToolbar : ->
+
+    @button_bar = $("<div class='grid_button_bar'/>")
+    @button_bar.attr('style',     "position:absolute; left:100px;  border:2px solid green")
+    @toolEventSink = _.extend({}, Backbone.Events)
+    @atm = new ActiveToolManager(@toolEventSink)
+    @atm.bind_bokeh_events()
+    @$el.append(@button_bar)
+    all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
+    all_tool_classes = _.uniq(_.pluck(all_tools, 'constructor'))
+    tool_name_dict = {}
+    _.each(all_tool_classes, (klass) ->
+      btext = _.where(all_tools, {constructor:klass})[0].evgen_options.buttonText
+      tool_name_dict[btext] = klass)
+    _.map(tool_name_dict, (klass, button_text) =>
+      @makeButton(@toolEventSink, klass, @button_bar, button_text))
+    _.map(all_tools, (t) ->
+      console.log(t)
+      console.log(t.evgen)
+      t.evgen.hide_button())
+
     
   render: () ->
     super()
@@ -141,19 +159,11 @@ class GridPlotView extends ContinuumView
           "position: absolute; left:#{xpos}px; top:#{ypos}px")
         plot_wrapper.append(view.$el)
         @$el.append(plot_wrapper)
+
     height = @viewstate.get('outerheight')
     width = @viewstate.get('outerwidth')
     @$el.attr('style', "height:#{height}px;width:#{width}px")
-    @button_bar = $("<div class='grid_button_bar'/>")
-    @button_bar.attr('style',     "position:absolute; left:100px;  border:2px solid green")
-
-    @toolEventSink = _.extend({}, Backbone.Events)
-    @atm = new ActiveToolManager(@toolEventSink)
-    @atm.bind_bokeh_events()
-    @$el.append(@button_bar)
-    @makeButton(@toolEventSink, PanToolView, @button_bar, "pan")
-    @makeButton(@toolEventSink, ZoomToolView, @button_bar, "zoom")
-
+    @addGridToolbar()
 
     @render_end()
   

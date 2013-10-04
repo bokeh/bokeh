@@ -114,6 +114,9 @@ class TwoPointEventGenerator
       @button_activated = true)
     return eventSink
 
+  hide_button : ->
+    @$tool_button.hide()
+
   _start_drag: ->
     @eventSink.trigger("active_tool", @toolName)
     if not @dragging
@@ -216,6 +219,8 @@ class OnePointWheelEventGenerator
       @$tool_button.addClass('active'))
 
     return eventSink
+  hide_button : ->
+    @$tool_button.hide()
 
 
 class ButtonEventGenerator
@@ -285,6 +290,8 @@ class ButtonEventGenerator
       @$tool_button.addClass('active'))
 
     return eventSink
+  hide_button : ->
+    @$tool_button.hide()
 
 
 exports.TwoPointEventGenerator = TwoPointEventGenerator
