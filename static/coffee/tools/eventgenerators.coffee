@@ -88,14 +88,20 @@ class TwoPointEventGenerator
         return false)
 
     @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
+    @plotview
     @plotview.$el.find('.button_bar').append(@$tool_button)
 
+    # Paddy: I want to remove all this checking for @button_activated,
+    # is there some way we can do this in a more declarative way,
+    # maybe a state machine?
+    #
+    # What is the difference between tool_active and button_activated?
+    # I once knew, but now I forget
     @$tool_button.click(=>
       if @button_activated
         eventSink.trigger("clear_active_tool")
       else
-        eventSink.trigger("active_tool", toolName)
-        @button_activated = true)
+        eventSink.trigger("active_tool", toolName))
 
     eventSink.on("#{toolName}:deactivated", =>
       @tool_active=false;
@@ -104,7 +110,8 @@ class TwoPointEventGenerator
 
     eventSink.on("#{toolName}:activated", =>
       @tool_active=true;
-      @$tool_button.addClass('active'))
+      @$tool_button.addClass('active')
+      @button_activated = true)
     return eventSink
 
   _start_drag: ->
@@ -159,7 +166,7 @@ class OnePointWheelEventGenerator
         eventSink.trigger("clear_active_tool"))
 
     # @mouseover_count = 0
-    # #waiting 500 ms and testing mouseover countmakes sure that
+    #waiting 500 ms and testing mouseover countmakes sure that
     # #mouseouts that occur because of going over element borders don't
     # #trigger the mouseout
     # @plotview.$el.bind("mouseout", (e) =>
@@ -243,7 +250,8 @@ class ButtonEventGenerator
       @mouseover_count += 1)
 
     @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
-    @plotview.$el.find('.button_bar').append(@$tool_button)
+
+    #@plotview.$el.find('.button_bar').append(@$tool_button)
 
     @$tool_button.click(=>
       if @button_activated
