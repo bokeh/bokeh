@@ -55,21 +55,11 @@ class GridPlotView extends ContinuumView
     build_views(@childviews, childmodels, {})
     @set_child_view_states()
 
-  
-  startPan : ->
-    
-    all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
-    pan_tools = _.where(all_tools, {constructor:PanToolView})
-    _.each(pan_tools, (t) ->
-      t_name = t.evgen.toolName
-      console.log('activating ', t_name)
-      t.evgen.eventSink.trigger('active_tool', t_name))
-
   makeButton : (eventSink, constructor, toolbar_div, button_name) ->
     
     all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
     specific_tools = _.where(all_tools, {constructor:constructor})
-    button = $("<button>#{button_name}</button>")
+    button = $("<button class='btn btn-small'>#{button_name}</button>")
     toolbar_div.append(button)
     tool_active = false;
     button_activated = false;
@@ -100,7 +90,7 @@ class GridPlotView extends ContinuumView
   addGridToolbar : ->
 
     @button_bar = $("<div class='grid_button_bar'/>")
-    @button_bar.attr('style',     "position:absolute; left:100px;  border:2px solid green")
+    @button_bar.attr('style',     "position:absolute; left:10px; top:0px; ")
     @toolEventSink = _.extend({}, Backbone.Events)
     @atm = new ActiveToolManager(@toolEventSink)
     @atm.bind_bokeh_events()
