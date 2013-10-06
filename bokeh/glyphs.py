@@ -204,7 +204,7 @@ class Quad(Glyph, FillProps, LineProps):
     top = DataSpec
 
 class Quadratic(Glyph, FillProps, LineProps):
-    __view_model__ = 'quadcurve'
+    __view_model__ = 'quadratic'
     x0 = DataSpec
     y0 = DataSpec
     x1 = DataSpec

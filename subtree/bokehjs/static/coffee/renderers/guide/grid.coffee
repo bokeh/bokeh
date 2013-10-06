@@ -9,26 +9,26 @@ PlotWidget = require('../../common/plot_widget').PlotWidget
 ticking = require('../../common/ticking')
 
 
-class RuleView extends PlotWidget
+class GridView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
 
     guidespec = @mget('guidespec')
-    @rule_props = new line_properties(@, guidespec, 'rule_')
+    @grid_props = new line_properties(@, guidespec, 'grid_')
 
   render: () ->
     ctx = @plot_view.ctx
 
     ctx.save()
-    @_draw_rules(ctx)
+    @_draw_grids(ctx)
     ctx.restore()
 
   bind_bokeh_events: () ->
     safebind(this, @model, 'change', @request_render)
 
-  _draw_rules: (ctx) ->
-    [xs, ys] = @mget('rule_coords')
-    @rule_props.set(ctx, @)
+  _draw_grids: (ctx) ->
+    [xs, ys] = @mget('grid_coords')
+    @grid_props.set(ctx, @)
     for i in [0..xs.length-1]
       [sx, sy] = @plot_view.map_to_screen(xs[i], "data", ys[i], "data")
       ctx.beginPath()
@@ -39,8 +39,8 @@ class RuleView extends PlotWidget
     return
 
 
-class Rule extends HasParent
-  default_view: RuleView
+class Grid extends HasParent
+  default_view: GridView
   type: 'GuideRenderer'
 
   initialize: (attrs, options)->
@@ -49,8 +49,8 @@ class Rule extends HasParent
     @register_property('bounds', @_bounds, false)
     @add_dependencies('bounds', this, ['guidespec'])
 
-    @register_property('rule_coords', @_rule_coords, false)
-    @add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location'])
+    @register_property('grid_coords', @_grid_coords, false)
+    @add_dependencies('grid_coords', this, ['bounds', 'dimension', 'location'])
 
    _bounds: () ->
     i = @get('guidespec').dimension
@@ -77,7 +77,7 @@ class Rule extends HasParent
 
     return [start, end]
 
-  _rule_coords: () ->
+  _grid_coords: () ->
     i = @get('guidespec').dimension
     j = (i + 1) % 2
     ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
@@ -117,27 +117,27 @@ class Rule extends HasParent
 
 
 
-Rule::defaults = _.clone(Rule::defaults)
+Grid::defaults = _.clone(Grid::defaults)
 
 
-Rule::display_defaults = _.clone(Rule::display_defaults)
-_.extend(Rule::display_defaults, {
+Grid::display_defaults = _.clone(Grid::display_defaults)
+_.extend(Grid::display_defaults, {
 
   level: 'underlay'
 
-  rule_line_color: '#aaaaaa'
-  rule_line_width: 1
-  rule_line_alpha: 1.0
-  rule_line_join: 'miter'
-  rule_line_cap: 'butt'
-  rule_line_dash: [4, 6]
-  rule_line_dash_offset: 0
+  grid_line_color: '#aaaaaa'
+  grid_line_width: 1
+  grid_line_alpha: 1.0
+  grid_line_join: 'miter'
+  grid_line_cap: 'butt'
+  grid_line_dash: [4, 6]
+  grid_line_dash_offset: 0
 
 })
 
 
-class Rules extends Backbone.Collection
-   model: Rule
-exports.rules = new Rules()
-exports.Rule = Rule
-exports.RuleView = RuleView
+class Grids extends Backbone.Collection
+   model: Grid
+exports.grids = new Grids()
+exports.Grid = Grid
+exports.GridView = GridView

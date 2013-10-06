@@ -43,7 +43,7 @@ class OvalView extends GlyphView
     angles = @glyph_props.v_select('angle', data)
     @angle = (-angle for angle in angles)
     #duped
-    @selected_mask = new Array(data.length-1)
+    @selected_mask = new Uint8Array(data.length)
     for i in [0..@selected_mask.length-1]
       @selected_mask[i] = false
 

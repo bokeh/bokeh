@@ -748,8 +748,7 @@ class LinearAxis(GuideRenderer):
 
 class Grid(GuideRenderer):
     """ 1D Grid component """
-    type = String("rule")
-    __view_model__ = "Rule"
+    type = String("grid")
 
 class PanTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
