@@ -17,7 +17,7 @@ data_source = Collections('ObjectArrayDataSource').create(
 defaults = {}
 
 glyph = {
-  type: 'quadcurve'
+  type: 'quadratic'
   x0: 'x0'
   y0: 'y0'
   x1: 'x1'
@@ -26,4 +26,4 @@ glyph = {
   cy: 'cy'
 }
 
-test('quadcurve_glyph', make_glyph_test('quadcurve_glyph', data_source, defaults, glyph, xrange, yrange, {}))
+test('quadratic_glyph', make_glyph_test('quadratic_glyph', data_source, defaults, glyph, xrange, yrange, {}))
