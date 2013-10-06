@@ -330,51 +330,37 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, too
   plot_model.add_renderers(g.ref() for g in glyphs)
   if axes
     xaxis1 = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 0
-      }
+      type: 'linear_axis'
+      dimension: 0
       axis_label: 'x'
       plot: plot_model.ref()
     )
     yaxis1 = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 1
-      }
+      type: 'linear_axis'
+      dimension: 1
       axis_label: 'y'
       plot: plot_model.ref()
     )
     xaxis2 = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 0
-        location: 'max'
-      }
+      type: 'linear_axis'
+      dimension: 0
+      location: 'max'
       plot: plot_model.ref()
     )
     yaxis2 = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 1
-        location: 'max'
-      }
+      type: 'linear_axis'
+      dimension: 1
+      location: 'max'
       plot: plot_model.ref()
     )
     xgrid = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'grid'
-        dimension: 0
-        bounds: 'auto'
-      }
+      type: 'grid'
+      dimension: 0
       plot: plot_model.ref()
     )
     ygrid = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'grid'
-        dimension: 1
-        bounds: 'auto'
-      }
+      type: 'grid'
+      dimension: 1
       plot: plot_model.ref()
     )
     plot_model.add_renderers(

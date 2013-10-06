@@ -6,11 +6,11 @@ guides = require('./guides')
 
 class GuideRenderers extends Backbone.Collection
   model: (attrs, options) ->
-    if not attrs.guidespec?.type?
+    if not attrs.type?
       console.log "missing guide type"
       return
 
-    type = attrs.guidespec.type
+    type = attrs.type
 
     if not (type of guides)
       console.log "unknown guide type '" + type + "'"

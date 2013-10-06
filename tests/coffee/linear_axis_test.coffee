@@ -24,12 +24,10 @@ one_axis_test = (testname, dim, xr, yr, loc, bds) ->
       title: ""
     )
     xaxis = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: dim
-        location: loc
-        bounds: bds
-      }
+      type: 'linear_axis'
+      dimension: dim
+      location: loc
+      bounds: bds
       plot: plot_model.ref()
     )
     plot_model.add_renderers([xaxis])
