@@ -361,24 +361,24 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, too
       }
       plot: plot_model.ref()
     )
-    xrule = Collections('GuideRenderer').create(
+    xgrid = Collections('GuideRenderer').create(
       guidespec: {
-        type: 'rule'
+        type: 'grid'
         dimension: 0
         bounds: 'auto'
       }
       plot: plot_model.ref()
     )
-    yrule = Collections('GuideRenderer').create(
+    ygrid = Collections('GuideRenderer').create(
       guidespec: {
-        type: 'rule'
+        type: 'grid'
         dimension: 1
         bounds: 'auto'
       }
       plot: plot_model.ref()
     )
     plot_model.add_renderers(
-      [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
+      [xgrid.ref(), ygrid.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
     )
   if tools
     pantool = Collections('PanTool').create(

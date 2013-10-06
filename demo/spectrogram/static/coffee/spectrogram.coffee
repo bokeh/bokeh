@@ -400,10 +400,10 @@ class SimpleIndexPlot
       }
     )
 
-    yrule = Collections('GuideRenderer').create(
+    ygrid = Collections('GuideRenderer').create(
       plot: @model.ref()
       guidespec: {
-        type: 'rule'
+        type: 'grid'
         dimension: 1
       }
     )
@@ -420,7 +420,7 @@ class SimpleIndexPlot
       }
     })
 
-    @model.add_renderers([glyph.ref(), xaxis.ref(), yaxis.ref(), yrule.ref()])
+    @model.add_renderers([glyph.ref(), xaxis.ref(), yaxis.ref(), ygrid.ref()])
     @view = new @model.default_view(model: @model)
 
   update: (ys) ->
