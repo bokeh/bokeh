@@ -13,8 +13,7 @@ class GridView extends PlotWidget
   initialize: (attrs, options) ->
     super(attrs, options)
 
-    guidespec = @mget('guidespec')
-    @grid_props = new line_properties(@, guidespec, 'grid_')
+    @grid_props = new line_properties(@, null, 'grid_')
 
   render: () ->
     ctx = @plot_view.ctx
@@ -46,19 +45,19 @@ class Grid extends HasParent
   initialize: (attrs, options)->
     super(attrs, options)
 
-    @register_property('bounds', @_bounds, false)
-    @add_dependencies('bounds', this, ['guidespec'])
+    @register_property('computed_bounds', @_bounds, false)
+    @add_dependencies('computed_bounds', this, ['bounds'])
 
     @register_property('grid_coords', @_grid_coords, false)
-    @add_dependencies('grid_coords', this, ['bounds', 'dimension', 'location'])
+    @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'location'])
 
    _bounds: () ->
-    i = @get('guidespec').dimension
+    i = @get('dimension')
     j = (i + 1) % 2
 
     ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
 
-    user_bounds = @get('guidespec').bounds ? 'auto'
+    user_bounds = @get('bounds') ? 'auto'
     range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
 
     if _.isArray(user_bounds)
@@ -78,13 +77,13 @@ class Grid extends HasParent
     return [start, end]
 
   _grid_coords: () ->
-    i = @get('guidespec').dimension
+    i = @get('dimension')
     j = (i + 1) % 2
     ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
-    [start, end] = @get('bounds')
+    [start, end] = @get('computed_bounds')
 
     tmp = Math.min(start, end)
     end = Math.max(start, end)
