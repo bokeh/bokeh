@@ -38,8 +38,8 @@ class CircleView extends GlyphView
   _set_data: (@data) ->
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
-    @mask = new Array(data.length)
-    @selected_mask = new Array(data.length)
+    @mask = new Uint8Array(data.length)
+    @selected_mask = new Uint8Array(data.length)
     for i in [0..@mask.length-1]
       @mask[i] = true
       @selected_mask[i] = false
