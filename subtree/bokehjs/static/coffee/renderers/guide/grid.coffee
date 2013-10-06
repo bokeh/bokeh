@@ -49,7 +49,7 @@ class Grid extends HasParent
     @add_dependencies('computed_bounds', this, ['bounds'])
 
     @register_property('grid_coords', @_grid_coords, false)
-    @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'location'])
+    @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension'])
 
    _bounds: () ->
     i = @get('dimension')
