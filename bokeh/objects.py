@@ -696,9 +696,6 @@ class GridPlot(PlotObject):
 
 class GuideRenderer(PlotObject):
     plot = Instance
-    dimension = Int(0)
-    location = String('min')
-    bounds = String('auto')
 
     def __init__(self, **kwargs):
         super(GuideRenderer, self).__init__(**kwargs)
@@ -706,31 +703,13 @@ class GuideRenderer(PlotObject):
             if self not in self.plot.renderers:
                 self.plot.renderers.append(self)
 
-    def vm_serialize(self):
-        props = self.vm_props(withvalues=True)
-        guide_props = {}
-        for name in ("dimension", "location", "bounds"):
-            if name in props:
-                guide_props[name] = props.pop(name)
-        del props["plot"]
-        props.update({"id" : self._id, "plot" : self.plot,
-                        "guidespec" : guide_props})
-        return props
-
-    @classmethod
-    def load_json(cls, attrs, instance=None):
-        """Loads all json into a instance of cls, EXCEPT any references
-        which are handled in finalize
-        """
-        inst = super(GuideRenderer, cls).load_json(attrs, instance=instance)
-        if hasattr(inst, 'guidespec'):
-            guidespec = inst.guidespec
-            del inst.guidespec
-            inst.update(**guidespec)
-        return inst
-
 class LinearAxis(GuideRenderer):
     type = String("linear_axis")
+
+    dimension = Int(0)
+    location = String('min')
+    bounds = String('auto')
+
     axis_label = String
     axis_label_standoff = Int
     axis_label_props = Include(TextProps, prefix="axis_label")
@@ -749,6 +728,9 @@ class LinearAxis(GuideRenderer):
 class Grid(GuideRenderer):
     """ 1D Grid component """
     type = String("grid")
+
+    dimension = Int(0)
+    bounds = String('auto')
 
 class PanTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
