@@ -210,19 +210,15 @@ class SpectrogramPlot
     )
 
     xaxis = Collections('GuideRenderer').create(
+      type: 'linear_axis'
+      dimension: 0
       plot: @model.ref()
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 0
-      }
     )
 
     yaxis = Collections('GuideRenderer').create(
+      type: 'linear_axis'
+      dimension: 1
       plot: @model.ref()
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 1
-      }
     )
 
     glyph = Collections('GlyphRenderer').create({
@@ -385,27 +381,21 @@ class SimpleIndexPlot
     )
 
     xaxis = Collections('GuideRenderer').create(
+      type: 'linear_axis'
+      dimension: 0
       plot: @model.ref()
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 0
-      }
     )
 
     yaxis = Collections('GuideRenderer').create(
+      type: 'linear_axis'
+      dimension: 1
       plot: @model.ref()
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 1
-      }
     )
 
-    yrule = Collections('GuideRenderer').create(
+    ygrid = Collections('GuideRenderer').create(
+      type: 'grid'
+      dimension: 1
       plot: @model.ref()
-      guidespec: {
-        type: 'rule'
-        dimension: 1
-      }
     )
 
     glyph = Collections('GlyphRenderer').create({
@@ -420,7 +410,7 @@ class SimpleIndexPlot
       }
     })
 
-    @model.add_renderers([glyph.ref(), xaxis.ref(), yaxis.ref(), yrule.ref()])
+    @model.add_renderers([glyph.ref(), xaxis.ref(), yaxis.ref(), ygrid.ref()])
     @view = new @model.default_view(model: @model)
 
   update: (ys) ->

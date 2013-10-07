@@ -32,7 +32,7 @@ class QuadView extends GlyphView
     @top  = @glyph_props.v_select('top', data)
     @right  = @glyph_props.v_select('right', data)
     @bottom = @glyph_props.v_select('bottom', data)
-    @mask = new Array(data.length)
+    @mask = new Uint8Array(data.length)
     for i in [0..@mask.length-1]
       @mask[i] = true
 

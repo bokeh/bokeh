@@ -8,7 +8,7 @@ Glyph = glyph.Glyph
 GlyphView = glyph.GlyphView
 
 
-class QuadcurveView extends GlyphView
+class QuadraticView extends GlyphView
 
   initialize: (options) ->
     glyphspec = @mget('glyphspec')
@@ -75,13 +75,13 @@ class QuadcurveView extends GlyphView
         ctx.stroke()
 
 
-class Quadcurve extends Glyph
-  default_view: QuadcurveView
+class Quadratic extends Glyph
+  default_view: QuadraticView
   type: 'GlyphRenderer'
 
 
-Quadcurve::display_defaults = _.clone(Quadcurve::display_defaults)
-_.extend(Quadcurve::display_defaults, {
+Quadratic::display_defaults = _.clone(Quadratic::display_defaults)
+_.extend(Quadratic::display_defaults, {
 
   line_color: 'red'
   line_width: 1
@@ -94,5 +94,5 @@ _.extend(Quadcurve::display_defaults, {
 })
 
 
-exports.Quadcurve = Quadcurve
-exports.QuadcurveView = QuadcurveView
+exports.Quadratic = Quadratic
+exports.QuadraticView = QuadraticView

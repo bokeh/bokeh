@@ -42,7 +42,7 @@ class AnnulusView extends GlyphView
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
     #duped
-    @selected_mask = new Array(data.length-1)
+    @selected_mask = new Uint8Array(data.length)
     for i in [0..@selected_mask.length-1]
       @selected_mask[i] = false
 

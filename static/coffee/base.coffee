@@ -609,7 +609,7 @@ locations =
 
   LinearAxis: ['./renderers/guide/linear_axis', 'linearaxes']
   DatetimeAxis: ['./renderers/guide/datetime_axis', 'datetimeaxes']
-  Rule: ['./renderers/guide/rule', 'rules']
+  Grid: ['./renderers/guide/grid', 'grids']
   Legend: ['./renderers/annotation_renderer', 'annotationrenderers']
 
   DataSlider : ['./tools/slider', 'datasliders']
