@@ -37,11 +37,13 @@ class DataRange1d extends Range1d
     columns = _.reduce(columns, ((x, y) -> return x.concat(y)), [])
     columns = _.filter(columns, (x) -> typeof(x) != "string")
     if not _.isArray(columns[0])
+      columns = _.reject(columns, (x) -> isNaN(x))
       [min, max] = [_.min(columns), _.max(columns)]
     else
       maxs = Array(columns.length)
       mins = Array(columns.length)
       for i in [0..columns.length-1]
+        columns[i] = _.reject(columns[i], (x) -> isNaN(x))
         maxs[i] = _.max(columns[i])
         mins[i] = _.min(columns[i])
       [min, max] = [_.min(mins), _.max(maxs)]

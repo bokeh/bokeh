@@ -12,6 +12,7 @@ class ActiveToolManager
     )
 
     @event_sink.on("active_tool", (toolName) =>
+      console.log("ActiveToolManager active_tool", toolName)
       if toolName != @event_sink.active
         @event_sink.trigger("#{toolName}:activated")
         @event_sink.trigger("#{@event_sink.active}:deactivated")
