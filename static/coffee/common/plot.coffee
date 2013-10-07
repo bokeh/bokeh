@@ -23,8 +23,10 @@ LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 delayAnimation = (f) ->
   return f()
 
-if window.requestAnimationFrame
-  delayAnimation = window.requestAnimationFrame
+
+delayAnimation = window.requestAnimationFrame ||
+        window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame ||
+        window.msRequestAnimationFrame || delayAnimation;
 
 #Returns a function, that, when invoked, will only be triggered at
 #most once during a given window of time.  If the browser supports
@@ -49,8 +51,7 @@ throttleAnimation = (func, wait) ->
     if (remaining <= 0 and !pending) 
       clearTimeout(timeout);
       pending = true;
-      window.requestAnimationFrame(later)
-      #result = func.apply(context, args);
+      delayAnimation(later)
     else if (!timeout) 
       timeout = setTimeout(
        (->
