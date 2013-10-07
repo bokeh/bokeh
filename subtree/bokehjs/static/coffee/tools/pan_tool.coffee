@@ -12,6 +12,7 @@ class PanToolView extends tool.ToolView
   bind_bokeh_events: () ->
     super()
 
+  toolType:"PanTool"
   eventGeneratorClass: TwoPointEventGenerator
   evgen_options:
     keyName:"shiftKey"

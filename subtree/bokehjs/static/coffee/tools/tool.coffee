@@ -17,7 +17,7 @@ class ToolView extends PlotWidget
       wrap = (e) =>
         @[handler_f](e)
       eventSink.on(full_event_name, wrap))
-
+    @evgen = evgen
     render: () ->
 
 
