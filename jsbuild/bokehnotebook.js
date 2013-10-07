@@ -9772,7 +9772,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/grid_plot": function(exports, require, module) {(function() {
-  var ContinuumView, GridPlot, GridPlotView, GridPlots, GridViewState, HasParent, HasProperties, ViewState, base, build_views, safebind,
+  var ActiveToolManager, ContinuumView, GridPlot, GridPlotView, GridPlots, GridViewState, HasParent, HasProperties, PanToolView, ViewState, ZoomToolView, base, build_views, safebind,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -9791,6 +9791,12 @@ _.setdefault = function(obj, key, value){
   ViewState = require('./view_state').ViewState;
 
   GridViewState = require('./grid_view_state').GridViewState;
+
+  ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager;
+
+  PanToolView = require('../tools/pan_tool').PanToolView;
+
+  ZoomToolView = require('../tools/zoom_tool').ZoomToolView;
 
   GridPlotView = (function(_super) {
 
@@ -9870,6 +9876,75 @@ _.setdefault = function(obj, key, value){
       return this.set_child_view_states();
     };
 
+    GridPlotView.prototype.makeButton = function(eventSink, constructor, toolbar_div, button_name) {
+      var all_tools, button, button_activated, specific_tools, tool_active;
+      all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values));
+      specific_tools = _.where(all_tools, {
+        constructor: constructor
+      });
+      button = $("<button class='btn btn-small'>" + button_name + "</button>");
+      toolbar_div.append(button);
+      tool_active = false;
+      button_activated = false;
+      button.click(function() {
+        console.log("button clicked", button_name);
+        if (button_activated) {
+          return eventSink.trigger('clear_active_tool');
+        } else {
+          return eventSink.trigger('active_tool', button_name);
+        }
+      });
+      eventSink.on("" + button_name + ":deactivated", function() {
+        button.removeClass('active');
+        button_activated = false;
+        return _.each(specific_tools, function(t) {
+          var t_name;
+          t_name = t.evgen.toolName;
+          console.log('deactivating ', t_name);
+          return t.evgen.eventSink.trigger("" + t_name + ":deactivated");
+        });
+      });
+      return eventSink.on("" + button_name + ":activated", function() {
+        button.addClass('active');
+        button_activated = true;
+        return _.each(specific_tools, function(t) {
+          var t_name;
+          t_name = t.evgen.toolName;
+          console.log('activating ', t_name);
+          return t.evgen.eventSink.trigger("" + t_name + ":activated");
+        });
+      });
+    };
+
+    GridPlotView.prototype.addGridToolbar = function() {
+      var all_tool_classes, all_tools, tool_name_dict,
+        _this = this;
+      this.button_bar = $("<div class='grid_button_bar'/>");
+      this.button_bar.attr('style', "position:absolute; left:10px; top:0px; ");
+      this.toolEventSink = _.extend({}, Backbone.Events);
+      this.atm = new ActiveToolManager(this.toolEventSink);
+      this.atm.bind_bokeh_events();
+      this.$el.append(this.button_bar);
+      all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values));
+      all_tool_classes = _.uniq(_.pluck(all_tools, 'constructor'));
+      tool_name_dict = {};
+      _.each(all_tool_classes, function(klass) {
+        var btext;
+        btext = _.where(all_tools, {
+          constructor: klass
+        })[0].evgen_options.buttonText;
+        return tool_name_dict[btext] = klass;
+      });
+      _.map(tool_name_dict, function(klass, button_text) {
+        return _this.makeButton(_this.toolEventSink, klass, _this.button_bar, button_text);
+      });
+      return _.map(all_tools, function(t) {
+        console.log(t);
+        console.log(t.evgen);
+        return t.evgen.hide_button();
+      });
+    };
+
     GridPlotView.prototype.render = function() {
       var cidx, col_widths, height, last_plot, plot_divs, plot_wrapper, plotspec, ridx, row, row_heights, view, width, x_coords, xpos, y_coords, ypos, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
       GridPlotView.__super__.render.call(this);
@@ -9915,6 +9990,7 @@ _.setdefault = function(obj, key, value){
       height = this.viewstate.get('outerheight');
       width = this.viewstate.get('outerwidth');
       this.$el.attr('style', "height:" + height + "px;width:" + width + "px");
+      this.addGridToolbar();
       return this.render_end();
     };
 
@@ -10113,7 +10189,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/plot": function(exports, require, module) {(function() {
-  var ActiveToolManager, Collections, ContinuumView, GridMapper, HasParent, LEVELS, LinearMapper, PNGView, Plot, PlotView, Plots, ViewState, base, build_views, properties, safebind, text_properties,
+  var ActiveToolManager, Collections, ContinuumView, GridMapper, HasParent, LEVELS, LinearMapper, PNGView, Plot, PlotView, Plots, ViewState, base, build_views, delayAnimation, properties, safebind, text_properties, throttleAnimation,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -10143,6 +10219,42 @@ _.setdefault = function(obj, key, value){
   ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager;
 
   LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
+
+  delayAnimation = function(f) {
+    return f();
+  };
+
+  delayAnimation = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || delayAnimation;
+
+  throttleAnimation = function(func, wait) {
+    var args, context, later, pending, previous, result, timeout, _ref;
+    _ref = [null, null, null, null], context = _ref[0], args = _ref[1], timeout = _ref[2], result = _ref[3];
+    previous = 0;
+    pending = false;
+    later = function() {
+      previous = new Date;
+      timeout = null;
+      pending = false;
+      return result = func.apply(context, args);
+    };
+    return function() {
+      var now, remaining;
+      now = new Date;
+      remaining = wait - (now - previous);
+      context = this;
+      args = arguments;
+      if (remaining <= 0 && !pending) {
+        clearTimeout(timeout);
+        pending = true;
+        delayAnimation(later);
+      } else if (!timeout) {
+        timeout = setTimeout((function() {
+          return delayAnimation(later);
+        }), remaining);
+      }
+      return result;
+    };
+  };
 
   PlotView = (function(_super) {
 
@@ -10224,8 +10336,8 @@ _.setdefault = function(obj, key, value){
     PlotView.prototype.initialize = function(options) {
       var level, _i, _len, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
       PlotView.__super__.initialize.call(this, _.defaults(options, this.default_options));
-      this.throttled_render = _.throttle(this.render, 15);
-      this.throttled_render_canvas = _.throttle(this.render_canvas, 15);
+      this.throttled_render = throttleAnimation(this.render, 15);
+      this.throttled_render_canvas = throttleAnimation(this.render_canvas, 15);
       this.title_props = new text_properties(this, {}, 'title_');
       this.view_state = new ViewState({
         canvas_width: (_ref = options.canvas_width) != null ? _ref : this.mget('canvas_width'),
@@ -11238,11 +11350,17 @@ _.setdefault = function(obj, key, value){
         return typeof x !== "string";
       });
       if (!_.isArray(columns[0])) {
+        columns = _.reject(columns, function(x) {
+          return isNaN(x);
+        });
         _ref2 = [_.min(columns), _.max(columns)], min = _ref2[0], max = _ref2[1];
       } else {
         maxs = Array(columns.length);
         mins = Array(columns.length);
         for (i = _k = 0, _ref3 = columns.length - 1; 0 <= _ref3 ? _k <= _ref3 : _k >= _ref3; i = 0 <= _ref3 ? ++_k : --_k) {
+          columns[i] = _.reject(columns[i], function(x) {
+            return isNaN(x);
+          });
           maxs[i] = _.max(columns[i]);
           mins[i] = _.min(columns[i]);
         }
@@ -20447,6 +20565,7 @@ _.setdefault = function(obj, key, value){
         return _this.event_sink.active = null;
       });
       this.event_sink.on("active_tool", function(toolName) {
+        console.log("ActiveToolManager active_tool", toolName);
         if (toolName !== _this.event_sink.active) {
           _this.event_sink.trigger("" + toolName + ":activated");
           _this.event_sink.trigger("" + _this.event_sink.active + ":deactivated");
@@ -20679,13 +20798,13 @@ _.setdefault = function(obj, key, value){
         }
       });
       this.$tool_button = $("<button class='btn btn-small'> " + this.options.buttonText + " </button>");
+      this.plotview;
       this.plotview.$el.find('.button_bar').append(this.$tool_button);
       this.$tool_button.click(function() {
         if (_this.button_activated) {
           return eventSink.trigger("clear_active_tool");
         } else {
-          eventSink.trigger("active_tool", toolName);
-          return _this.button_activated = true;
+          return eventSink.trigger("active_tool", toolName);
         }
       });
       eventSink.on("" + toolName + ":deactivated", function() {
@@ -20695,9 +20814,14 @@ _.setdefault = function(obj, key, value){
       });
       eventSink.on("" + toolName + ":activated", function() {
         _this.tool_active = true;
-        return _this.$tool_button.addClass('active');
+        _this.$tool_button.addClass('active');
+        return _this.button_activated = true;
       });
       return eventSink;
+    };
+
+    TwoPointEventGenerator.prototype.hide_button = function() {
+      return this.$tool_button.hide();
     };
 
     TwoPointEventGenerator.prototype._start_drag = function() {
@@ -20810,6 +20934,10 @@ _.setdefault = function(obj, key, value){
       return eventSink;
     };
 
+    OnePointWheelEventGenerator.prototype.hide_button = function() {
+      return this.$tool_button.hide();
+    };
+
     return OnePointWheelEventGenerator;
 
   })();
@@ -20838,7 +20966,6 @@ _.setdefault = function(obj, key, value){
         return _this.mouseover_count += 1;
       });
       this.$tool_button = $("<button class='btn btn-small'> " + this.options.buttonText + " </button>");
-      this.plotview.$el.find('.button_bar').append(this.$tool_button);
       this.$tool_button.click(function() {
         if (_this.button_activated) {
           return eventSink.trigger("clear_active_tool");
@@ -20875,6 +21002,10 @@ _.setdefault = function(obj, key, value){
         return _this.$tool_button.addClass('active');
       });
       return eventSink;
+    };
+
+    ButtonEventGenerator.prototype.hide_button = function() {
+      return this.$tool_button.hide();
     };
 
     return ButtonEventGenerator;
@@ -20920,6 +21051,8 @@ _.setdefault = function(obj, key, value){
     PanToolView.prototype.bind_bokeh_events = function() {
       return PanToolView.__super__.bind_bokeh_events.call(this);
     };
+
+    PanToolView.prototype.toolType = "PanTool";
 
     PanToolView.prototype.eventGeneratorClass = TwoPointEventGenerator;
 
@@ -21766,6 +21899,7 @@ _.setdefault = function(obj, key, value){
         };
         return eventSink.on(full_event_name, wrap);
       });
+      this.evgen = evgen;
       return {
         render: function() {}
       };
