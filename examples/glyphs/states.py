@@ -1,29 +1,29 @@
 
 import os
 
-from bokeh.sampledata import states, counties, unemployment
+from bokeh.sampledata import us_states, us_counties, unemployment
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, GlyphRenderer, PanTool, ZoomTool, ResizeTool
 )
 from bokeh.glyphs import Patches
 from bokeh import session
 
-del states['HI']
-del states['AK']
+del us_states.data['HI']
+del us_states.data['AK']
 
 state_source = ColumnDataSource(
     data=dict(
-        state_xs=[states[code]['lons'] for code in states],
-        state_ys=[states[code]['lats'] for code in states],
+        state_xs=[us_states.data[code]['lons'] for code in us_states.data],
+        state_ys=[us_states.data[code]['lats'] for code in us_states.data],
     )
 )
 
 colors = ["#F1EEF6", "#D4B9DA", "#C994C7", "#DF65B0", "#DD1C77", "#980043"]
 
 county_colors = []
-for county_id in counties:
+for county_id in us_counties.data:
     try:
-        rate = unemployment[county_id]
+        rate = unemployment.data[county_id]
         idx = min(int(rate/2), 5)
         county_colors.append(colors[idx])
     except KeyError:
@@ -31,12 +31,18 @@ for county_id in counties:
 
 county_source = ColumnDataSource(
     data=dict(
-        county_xs=[counties[code]['lons'] for code in counties],
-        county_ys=[counties[code]['lats'] for code in counties],
+        county_xs=[us_counties.data[code]['lons'] for code in us_counties.data],
+        county_ys=[us_counties.data[code]['lats'] for code in us_counties.data],
         county_colors=county_colors
     )
 )
 
+print len([us_states.data[code]['lons'] for code in us_states.data])
+print len([us_states.data[code]['lats'] for code in us_states.data])
+
+print len(county_colors)
+print len([us_counties.data[code]['lons'] for code in us_counties.data])
+print len([us_counties.data[code]['lats'] for code in us_counties.data])
 
 xdr = DataRange1d(sources=[state_source.columns("state_xs")])
 ydr = DataRange1d(sources=[state_source.columns("state_ys")])
