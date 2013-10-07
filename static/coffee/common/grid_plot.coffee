@@ -8,6 +8,9 @@ ContinuumView = require('./continuum_view').ContinuumView
 
 ViewState = require('./view_state').ViewState
 GridViewState = require('./grid_view_state').GridViewState
+ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager
+PanToolView = require('../tools/pan_tool').PanToolView
+ZoomToolView = require('../tools/zoom_tool').ZoomToolView
 
 class GridPlotView extends ContinuumView
   tagName: 'div'
@@ -52,6 +55,60 @@ class GridPlotView extends ContinuumView
     build_views(@childviews, childmodels, {})
     @set_child_view_states()
 
+  makeButton : (eventSink, constructor, toolbar_div, button_name) ->
+    
+    all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
+    specific_tools = _.where(all_tools, {constructor:constructor})
+    button = $("<button class='btn btn-small'>#{button_name}</button>")
+    toolbar_div.append(button)
+    tool_active = false;
+    button_activated = false;
+    button.click(->
+      console.log("button clicked", button_name);
+      if button_activated
+        eventSink.trigger('clear_active_tool')
+      else
+        eventSink.trigger('active_tool', button_name))
+
+    eventSink.on("#{button_name}:deactivated", ->
+      button.removeClass('active')
+      button_activated = false
+      _.each(specific_tools, (t) ->
+        t_name = t.evgen.toolName
+        console.log('deactivating ', t_name)
+
+        t.evgen.eventSink.trigger("#{t_name}:deactivated")))
+
+    eventSink.on("#{button_name}:activated", ->
+      button.addClass('active')
+      button_activated = true
+      _.each(specific_tools, (t) ->
+        t_name = t.evgen.toolName
+        console.log('activating ', t_name)
+        t.evgen.eventSink.trigger("#{t_name}:activated")))
+
+  addGridToolbar : ->
+
+    @button_bar = $("<div class='grid_button_bar'/>")
+    @button_bar.attr('style',     "position:absolute; left:10px; top:0px; ")
+    @toolEventSink = _.extend({}, Backbone.Events)
+    @atm = new ActiveToolManager(@toolEventSink)
+    @atm.bind_bokeh_events()
+    @$el.append(@button_bar)
+    all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
+    all_tool_classes = _.uniq(_.pluck(all_tools, 'constructor'))
+    tool_name_dict = {}
+    _.each(all_tool_classes, (klass) ->
+      btext = _.where(all_tools, {constructor:klass})[0].evgen_options.buttonText
+      tool_name_dict[btext] = klass)
+    _.map(tool_name_dict, (klass, button_text) =>
+      @makeButton(@toolEventSink, klass, @button_bar, button_text))
+    _.map(all_tools, (t) ->
+      console.log(t)
+      console.log(t.evgen)
+      t.evgen.hide_button())
+
+    
   render: () ->
     super()
     for view in _.values(@childviews)
@@ -59,6 +116,7 @@ class GridPlotView extends ContinuumView
     @$el.html('')
     row_heights =  @viewstate.get('layout_heights')
     col_widths =  @viewstate.get('layout_widths')
+    
     y_coords = [0]
     _.reduceRight(row_heights[1..]
       ,
@@ -91,11 +149,14 @@ class GridPlotView extends ContinuumView
           "position: absolute; left:#{xpos}px; top:#{ypos}px")
         plot_wrapper.append(view.$el)
         @$el.append(plot_wrapper)
+
     height = @viewstate.get('outerheight')
     width = @viewstate.get('outerwidth')
     @$el.attr('style', "height:#{height}px;width:#{width}px")
-    @render_end()
+    @addGridToolbar()
 
+    @render_end()
+  
 class GridPlot extends HasParent
   type: 'GridPlot'
   default_view: GridPlotView

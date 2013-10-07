@@ -19,6 +19,46 @@ ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager
 
 LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
+
+delayAnimation = (f) ->
+  return f()
+
+if window.requestAnimationFrame
+  delayAnimation = window.requestAnimationFrame
+
+#Returns a function, that, when invoked, will only be triggered at
+#most once during a given window of time.  If the browser supports
+#requestAnimationFrame, in addition the throttled function will be run
+#no more frequently than request animation frame allow
+# 
+throttleAnimation = (func, wait) ->
+  [context , args, timeout, result] = [null,null,null,null]
+  previous = 0
+  pending = false
+  later = ->
+    previous = new Date;
+    timeout = null
+    pending = false
+    result = func.apply(context, args);
+  
+  return ->
+    now = new Date;
+    remaining = wait - (now - previous);
+    context = this;
+    args = arguments;
+    if (remaining <= 0 and !pending) 
+      clearTimeout(timeout);
+      pending = true;
+      window.requestAnimationFrame(later)
+      #result = func.apply(context, args);
+    else if (!timeout) 
+      timeout = setTimeout(
+       (->
+          delayAnimation(later)),
+       remaining)
+    return result;
+  
+
 class PlotView extends ContinuumView
   attributes :
     class : "plotview"
@@ -59,8 +99,9 @@ class PlotView extends ContinuumView
 
   initialize: (options) ->
     super(_.defaults(options, @default_options))
-    @throttled_render = _.throttle(@render, 15)
-    @throttled_render_canvas = _.throttle(@render_canvas, 15)
+    #@throttled_render = _.throttle(@render, 15)
+    @throttled_render = throttleAnimation(@render, 15)
+    @throttled_render_canvas = throttleAnimation(@render_canvas, 15)
 
     @title_props = new text_properties(@, {}, 'title_')
 
@@ -237,7 +278,6 @@ class PlotView extends ContinuumView
     # if @last_render
     #   console.log(newtime - @last_render)
     # @last_render = newtime
-    # console.log('fullrender')
     @requested_padding = {
       top: 0
       bottom: 0
