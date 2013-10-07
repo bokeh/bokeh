@@ -734,18 +734,6 @@ class DatetimeAxis(LinearAxis):
     fill_ratio = Float(0.3)
     formats = Dict({"days": ["%m/%d/%Y"]})
 
-    def vm_serialize(self):
-        props = self.vm_props(withvalues=True)
-        guide_props = {}
-        for name in ("dimension", "location", "bounds", "scale", "num_labels",
-            "char_width", "fill_ratio", "formats"):
-            if name in props:
-                guide_props[name] = props.pop(name)
-        del props["plot"]
-        props.update({"id" : self._id, "plot" : self.plot,
-                        "guidespec" : guide_props})
-        return props
-
 class Grid(GuideRenderer):
     """ 1D Grid component """
     type = String("grid")

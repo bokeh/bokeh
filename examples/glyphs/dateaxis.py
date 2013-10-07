@@ -13,7 +13,7 @@ y = sin(x)
 
 # Create an array of times, starting at the current time, and extending
 # for len(x) number of hours.
-times = np.ones_like(x) * 3600 + time.time()
+times = np.arange(len(x)) * 3600000 + time.time()
 
 source = ColumnDataSource(data=dict(x=x, y=y, times=times))
 
@@ -42,7 +42,7 @@ plot.tools = [pantool, zoomtool]
 
 FILENAME = __file__.replace(".py", ".html")
 sess = session.HTMLFileSession(FILENAME)
-sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
+sess.add(plot, glyph_renderer, source, xaxis, yaxis, xdr, ydr, pantool, zoomtool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 sess.dumpjson(file=__file__.replace(".py", ".json"))

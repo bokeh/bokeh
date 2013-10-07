@@ -6,6 +6,8 @@
              "./static/vendor/bokehjs/vendor/backbone/backbone.js", 
              "./static/vendor/bokehjs/vendor/buckets/buckets.js",
              "./static/vendor/bokehjs/vendor/bootstrap/js/bootstrap.js",
+             "./static/vendor/bokehjs/vendor/timezone/index.js",
+             "./static/vendor/bokehjs/vendor/sprintf/sprintf.min.js",
              "./static/vendor/bokehjs/js/custom.js"],
 
     "paths" : ["./static/coffee", "./static/vendor/bokehjs/coffee"],
