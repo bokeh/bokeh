@@ -1,7 +1,7 @@
 
 import os
 
-from bokeh.sampledata import iris
+from bokeh.sampledata.iris import flowers
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, GlyphRenderer, PanTool, ZoomTool
 )
@@ -10,15 +10,15 @@ from bokeh import session
 
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 
-iris['color'] = iris['species'].map(lambda x: colormap[x])
+flowers['color'] = flowers['species'].map(lambda x: colormap[x])
 
 source = ColumnDataSource(
     data=dict(
-        petal_length=iris['petal_length'],
-        petal_width=iris['petal_width'],
-        sepal_length=iris['sepal_length'],
-        sepal_width=iris['sepal_width'],
-        color=iris['color']
+        petal_length=flowers['petal_length'],
+        petal_width=flowers['petal_width'],
+        sepal_length=flowers['sepal_length'],
+        sepal_width=flowers['sepal_width'],
+        color=flowers['color']
     )
 )
 
