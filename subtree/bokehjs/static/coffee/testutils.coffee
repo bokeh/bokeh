@@ -281,7 +281,10 @@ glyph_plot = (data_source, renderer, dom_element, xdatanames=['x'], ydatanames=[
   #  #_.defer(myrender)
   return plot_model
 
-make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, tools, axes, legend, legend_name, plot_title, reference_point}) ->
+make_glyph_plot = (data_source, defaults, glyphspecs,
+                   xrange, yrange,
+                       {dims, tools, axes, legend,
+                        legend_name, plot_title, reference_point}) ->
 
   dims ?= [400, 400]
   tools ?= true
@@ -324,8 +327,8 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, too
     canvas_height: dims[1]
     outer_width: dims[0]
     outer_height: dims[1]
-    title: plot_title
-  )
+    title: plot_title)
+
   plot_model.set(defaults)
   plot_model.add_renderers(g.ref() for g in glyphs)
   if axes
