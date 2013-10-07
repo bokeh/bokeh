@@ -96,6 +96,8 @@ class LinearAxisView extends PlotWidget
 
     @formatter = new ticking.BasicTickFormatter()
 
+    @formatter = new ticking.BasicTickFormatter()
+
   render: () ->
 
     ctx = @plot_view.ctx
