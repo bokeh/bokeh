@@ -29,18 +29,14 @@ make_glyph_plot = (data_source, defaults, glyphspecs, {dims, tools, axes, legend
   plot_model.set(defaults)
 
   xaxis = Collections('GuideRenderer').create(
-    guidespec: {
-      type: 'linear_axis'
-      dimension: 0
-    }
+    type: 'linear_axis'
+    dimension: 0
     axis_label: 'x'
     plot: plot_model.ref()
   )
   yaxis = Collections('GuideRenderer').create(
-    guidespec: {
-      type: 'linear_axis'
-      dimension: 1
-    }
+    type: 'linear_axis'
+    dimension: 1
     axis_label: 'y'
     plot: plot_model.ref()
   )

@@ -38,7 +38,7 @@ class LineView extends GlyphView
     @x = @glyph_props.v_select('x', data)
     @y = @glyph_props.v_select('y', data)
     #duped
-    @selected_mask = new Array(data.length-1)
+    @selected_mask = new Uint8Array(data.length)
     for i in [0..@selected_mask.length-1]
       @selected_mask[i] = false
   _map_data : () ->
@@ -86,7 +86,7 @@ class LineView extends GlyphView
         drawing = true
       else
         ctx.lineTo(sx[i], sy[i])
-    if drawing  
+    if drawing
       # Need to stroke the path after the last point
       ctx.stroke()
 

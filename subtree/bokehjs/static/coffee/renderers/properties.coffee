@@ -13,7 +13,7 @@ class properties
     else
       console.log("string property '#{ attrname }' given invalid default value: " + default_value)
 
-    if not (attrname of glyphspec)
+    if not glyphspec? or not (attrname of glyphspec)
       return
 
     glyph_value = glyphspec[attrname]
@@ -35,11 +35,11 @@ class properties
       console.log("number property '#{ attrname }' given invalid default value: " + default_value)
 
     units_value = styleprovider.mget(attrname+'_units') ? 'data'
-    if (attrname+'_units' of glyphspec)
+    if glyphspec? and (attrname+'_units' of glyphspec)
       units_value = glyphspec[attrname+'_units']
     @[attrname].units = units_value
 
-    if not (attrname of glyphspec)
+    if not glyphspec? or not (attrname of glyphspec)
       return
 
     glyph_value = glyphspec[attrname]
@@ -63,7 +63,7 @@ class properties
     else
       console.log("color property '#{ attrname }' given invalid default value: " + default_value)
 
-    if not (attrname of glyphspec)
+    if not glyphspec? or not (attrname of glyphspec)
       return
 
     glyph_value = glyphspec[attrname]
@@ -90,11 +90,11 @@ class properties
       console.log("array property '#{ attrname }' given invalid default value: " + default_value)
 
     units_value = styleprovider.mget(attrname+"_units") ? 'data'
-    if (attrname+'_units' of glyphspec)
+    if glyphspec? and (attrname+'_units' of glyphspec)
       units_value = glyphspec[attrname+'_units']
     @[attrname].units = units_value
 
-    if not (attrname of glyphspec)
+    if not glyphspec? or not (attrname of glyphspec)
       return
 
     glyph_value = glyphspec[attrname]
@@ -120,7 +120,7 @@ class properties
       console.log("enum property '#{ attrname }' given invalid default value: " + default_value)
       console.log("    acceptable values:" + levels)
 
-    if not (attrname of glyphspec)
+    if not glyphspec? or not (attrname of glyphspec)
       return
 
     glyph_value = glyphspec[attrname]

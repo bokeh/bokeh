@@ -89,11 +89,12 @@ class LinearAxisView extends PlotWidget
     #hugo : i don't think views take 2 params for initialize
     super(attrs, options)
 
-    guidespec = @mget('guidespec')
-    @rule_props = new line_properties(@, guidespec, 'axis_')
-    @major_tick_props = new line_properties(@, guidespec, 'major_tick_')
-    @major_label_props = new text_properties(@, guidespec, 'major_label_')
-    @axis_label_props = new text_properties(@, guidespec, 'axis_label_')
+    @rule_props = new line_properties(@, null, 'axis_')
+    @major_tick_props = new line_properties(@, null, 'major_tick_')
+    @major_label_props = new text_properties(@, null, 'major_label_')
+    @axis_label_props = new text_properties(@, null, 'axis_label_')
+
+    @formatter = new ticking.BasicTickFormatter()
 
     @formatter = new ticking.BasicTickFormatter()
 
@@ -147,7 +148,7 @@ class LinearAxisView extends PlotWidget
     [x, y] = coords = @mget('major_coords')
     [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
     [nx, ny] = @mget('normals')
-    dim = @mget('guidespec').dimension
+    dim = @mget('dimension')
     side = @mget('side')
     orient = @mget('major_label_orientation')
 
@@ -246,7 +247,7 @@ class LinearAxisView extends PlotWidget
 
   _tick_label_extent: () ->
     extent = 0
-    dim = @mget('guidespec').dimension
+    dim = @mget('dimension')
     coords = @mget('major_coords')
     side = @mget('side')
     orient = @mget('major_label_orientation')
@@ -323,7 +324,7 @@ class LinearAxisView extends PlotWidget
     req = {}
 
     side = @mget('side')
-    loc = @mget('guidespec').location ? 'min'
+    loc = @mget('location') ? 'min'
 
     if not _.isString(loc)
       return req
@@ -343,17 +344,17 @@ class LinearAxis extends HasParent
 
   initialize: (attrs, options)->
     super(attrs, options)
-    @register_property('bounds', @_bounds, false)
-    @add_dependencies('bounds', this, ['guidespec'])
+    @register_property('computed_bounds', @_bounds, false)
+    @add_dependencies('computed_bounds', this, ['bounds'])
 
     @register_property('rule_coords', @_rule_coords, false)
-    @add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location'])
+    @add_dependencies('rule_coords', this, ['computed_bounds', 'dimension', 'location'])
 
     @register_property('major_coords', @_major_coords, false)
-    @add_dependencies('major_coords', this, ['bounds', 'dimension', 'location'])
+    @add_dependencies('major_coords', this, ['computed_bounds', 'dimension', 'location'])
 
     @register_property('normals', @_normals, false)
-    @add_dependencies('normals', this, ['bounds', 'dimension', 'location'])
+    @add_dependencies('normals', this, ['computed_bounds', 'dimension', 'location'])
 
     @register_property('side', @_side, false)
     @add_dependencies('side', this, ['normals'])
@@ -361,16 +362,16 @@ class LinearAxis extends HasParent
     @register_property('padding_request', @_padding_request, false)
 
   dinitialize: (attrs, options)->
-    @add_dependencies('bounds', @get_obj('plot'), ['x_range', 'y_range'])
+    @add_dependencies('computed_bounds', @get_obj('plot'), ['x_range', 'y_range'])
 
   _bounds: () ->
-    i = @get('guidespec').dimension
+    i = @get('dimension')
     j = (i + 1) % 2
 
     ranges = [@get_obj('plot').get_obj('x_range'),
       @get_obj('plot').get_obj('y_range')]
 
-    user_bounds = @get('guidespec').bounds ? 'auto'
+    user_bounds = @get('bounds') ? 'auto'
     range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
 
     if _.isArray(user_bounds)
@@ -382,20 +383,20 @@ class LinearAxis extends HasParent
     return [start, end]
 
   _rule_coords: () ->
-    i = @get('guidespec').dimension
+    i = @get('dimension')
     j = (i + 1) % 2
 
     ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
-    [start, end] = @get('bounds')
+    [start, end] = @get('computed_bounds')
 
     xs = new Float32Array(2)
     ys = new Float32Array(2)
     coords = [xs, ys]
 
-    loc = @get('guidespec').location ? 'min'
+    loc = @get('location') ? 'min'
     if _.isString(loc)
       if loc == 'left' or loc == 'bottom'
         loc = 'start'
@@ -416,14 +417,14 @@ class LinearAxis extends HasParent
     return coords
 
   _major_coords: () ->
-    i = @get('guidespec').dimension
+    i = @get('dimension')
     j = (i + 1) % 2
 
     ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
-    [start, end] = @get('bounds')
+    [start, end] = @get('computed_bounds')
 
     tmp = Math.min(start, end)
     end = Math.max(start, end)
@@ -431,7 +432,7 @@ class LinearAxis extends HasParent
     interval = ticking.auto_interval(start, end)
     ticks = ticking.auto_ticks(null, null, start, end, interval)
 
-    loc = @get('guidespec').location ? 'min'
+    loc = @get('location') ? 'min'
     if _.isString(loc)
       if loc == 'left' or loc == 'bottom'
         loc = 'start'
@@ -454,16 +455,16 @@ class LinearAxis extends HasParent
     return coords
 
   _normals: () ->
-    i = @get('guidespec').dimension
+    i = @get('dimension')
     j = (i + 1) % 2
 
     ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
     range = ranges[i]
     cross_range = ranges[j]
 
-    [start, end] = @get('bounds')
+    [start, end] = @get('computed_bounds')
 
-    loc = @get('guidespec').location ? 'min'
+    loc = @get('location') ? 'min'
     cstart = cross_range.get('start')
     cend = cross_range.get('end')
 

@@ -330,55 +330,41 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, too
   plot_model.add_renderers(g.ref() for g in glyphs)
   if axes
     xaxis1 = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 0
-      }
+      type: 'linear_axis'
+      dimension: 0
       axis_label: 'x'
       plot: plot_model.ref()
     )
     yaxis1 = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 1
-      }
+      type: 'linear_axis'
+      dimension: 1
       axis_label: 'y'
       plot: plot_model.ref()
     )
     xaxis2 = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 0
-        location: 'max'
-      }
+      type: 'linear_axis'
+      dimension: 0
+      location: 'max'
       plot: plot_model.ref()
     )
     yaxis2 = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 1
-        location: 'max'
-      }
+      type: 'linear_axis'
+      dimension: 1
+      location: 'max'
       plot: plot_model.ref()
     )
-    xrule = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'rule'
-        dimension: 0
-        bounds: 'auto'
-      }
+    xgrid = Collections('GuideRenderer').create(
+      type: 'grid'
+      dimension: 0
       plot: plot_model.ref()
     )
-    yrule = Collections('GuideRenderer').create(
-      guidespec: {
-        type: 'rule'
-        dimension: 1
-        bounds: 'auto'
-      }
+    ygrid = Collections('GuideRenderer').create(
+      type: 'grid'
+      dimension: 1
       plot: plot_model.ref()
     )
     plot_model.add_renderers(
-      [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
+      [xgrid.ref(), ygrid.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
     )
   if tools
     pantool = Collections('PanTool').create(

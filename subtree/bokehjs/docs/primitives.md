@@ -28,7 +28,7 @@
  - x, y, start_angle, end_angle, direction ``(clock, anticlock)``
  - *line properties*
 
-## quadcurve
+## quadratic
  - x0, y0, x1, y1, cx, cy
  - *line properties*
 
@@ -75,7 +75,7 @@
  - xs, ys OR pts    # nans finish strokes, "missing" parts of lines
  - *line properties*
 
-## area
+## patches
  - xs, ys OR pts    # nans finish strokes, "multi-part" areas
  - *fill properties*
  - *line properties*

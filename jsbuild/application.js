@@ -10583,7 +10583,7 @@ _.setdefault = function(obj, key, value){
     PandasPlotSource: ['./pandas/pandas', 'pandasplotsources'],
     LinearAxis: ['./renderers/guide/linear_axis', 'linearaxes'],
     DatetimeAxis: ['./renderers/guide/datetime_axis', 'datetimeaxes'],
-    Rule: ['./renderers/guide/rule', 'rules'],
+    Grid: ['./renderers/guide/grid', 'grids'],
     Legend: ['./renderers/annotation_renderer', 'annotationrenderers'],
     DataSlider: ['./tools/slider', 'datasliders']
   };
@@ -16133,7 +16133,7 @@ _.setdefault = function(obj, key, value){
           this.direction[i] = NaN;
         }
       }
-      this.selected_mask = new Array(data.length - 1);
+      this.selected_mask = new Uint8Array(data.length);
       _results = [];
       for (i = _k = 0, _ref2 = this.selected_mask.length - 1; 0 <= _ref2 ? _k <= _ref2 : _k >= _ref2; i = 0 <= _ref2 ? ++_k : --_k) {
         _results.push(this.selected_mask[i] = false);
@@ -16426,7 +16426,7 @@ _.setdefault = function(obj, key, value){
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
-      this.selected_mask = new Array(data.length - 1);
+      this.selected_mask = new Uint8Array(data.length);
       _results = [];
       for (i = _i = 0, _ref = this.selected_mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         _results.push(this.selected_mask[i] = false);
@@ -17009,8 +17009,8 @@ _.setdefault = function(obj, key, value){
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
-      this.mask = new Array(data.length);
-      this.selected_mask = new Array(data.length);
+      this.mask = new Uint8Array(data.length);
+      this.selected_mask = new Uint8Array(data.length);
       for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         this.mask[i] = true;
         this.selected_mask[i] = false;
@@ -17912,7 +17912,7 @@ _.setdefault = function(obj, key, value){
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
-      this.selected_mask = new Array(data.length - 1);
+      this.selected_mask = new Uint8Array(data.length);
       _results = [];
       for (i = _i = 0, _ref = this.selected_mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         _results.push(this.selected_mask[i] = false);
@@ -18288,7 +18288,7 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       })();
-      this.selected_mask = new Array(data.length - 1);
+      this.selected_mask = new Uint8Array(data.length);
       _results = [];
       for (i = _i = 0, _ref = this.selected_mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         _results.push(this.selected_mask[i] = false);
@@ -18808,7 +18808,7 @@ _.setdefault = function(obj, key, value){
       this.top = this.glyph_props.v_select('top', data);
       this.right = this.glyph_props.v_select('right', data);
       this.bottom = this.glyph_props.v_select('bottom', data);
-      this.mask = new Array(data.length);
+      this.mask = new Uint8Array(data.length);
       _results = [];
       for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         _results.push(this.mask[i] = true);
@@ -18970,8 +18970,8 @@ _.setdefault = function(obj, key, value){
   exports.QuadView = QuadView;
 
 }).call(this);
-}, "renderers/glyph/quadcurve": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Quadcurve, QuadcurveView, glyph, glyph_properties, line_properties, properties,
+}, "renderers/glyph/quadratic": function(exports, require, module) {(function() {
+  var Glyph, GlyphView, Quadratic, QuadraticView, glyph, glyph_properties, line_properties, properties,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -18987,23 +18987,23 @@ _.setdefault = function(obj, key, value){
 
   GlyphView = glyph.GlyphView;
 
-  QuadcurveView = (function(_super) {
+  QuadraticView = (function(_super) {
 
-    __extends(QuadcurveView, _super);
+    __extends(QuadraticView, _super);
 
-    function QuadcurveView() {
-      QuadcurveView.__super__.constructor.apply(this, arguments);
+    function QuadraticView() {
+      QuadraticView.__super__.constructor.apply(this, arguments);
     }
 
-    QuadcurveView.prototype.initialize = function(options) {
+    QuadraticView.prototype.initialize = function(options) {
       var glyphspec;
       glyphspec = this.mget('glyphspec');
       this.glyph_props = new glyph_properties(this, glyphspec, ['x0', 'y0', 'x1', 'y1', 'cx', 'cy'], [new line_properties(this, glyphspec)]);
       this.do_stroke = this.glyph_props.line_properties.do_stroke;
-      return QuadcurveView.__super__.initialize.call(this, options);
+      return QuadraticView.__super__.initialize.call(this, options);
     };
 
-    QuadcurveView.prototype._set_data = function(data) {
+    QuadraticView.prototype._set_data = function(data) {
       this.data = data;
       this.x0 = this.glyph_props.v_select('x0', data);
       this.y0 = this.glyph_props.v_select('y0', data);
@@ -19013,7 +19013,7 @@ _.setdefault = function(obj, key, value){
       return this.cy = this.glyph_props.v_select('cy', data);
     };
 
-    QuadcurveView.prototype._render = function() {
+    QuadraticView.prototype._render = function() {
       var ctx, _ref, _ref1, _ref2;
       _ref = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref[0], this.sy0 = _ref[1];
       _ref1 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref1[0], this.sy1 = _ref1[1];
@@ -19028,7 +19028,7 @@ _.setdefault = function(obj, key, value){
       return ctx.restore();
     };
 
-    QuadcurveView.prototype._fast_path = function(ctx) {
+    QuadraticView.prototype._fast_path = function(ctx) {
       var i, _i, _ref;
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
@@ -19044,7 +19044,7 @@ _.setdefault = function(obj, key, value){
       }
     };
 
-    QuadcurveView.prototype._full_path = function(ctx) {
+    QuadraticView.prototype._full_path = function(ctx) {
       var i, _i, _ref, _results;
       if (this.do_stroke) {
         _results = [];
@@ -19062,29 +19062,29 @@ _.setdefault = function(obj, key, value){
       }
     };
 
-    return QuadcurveView;
+    return QuadraticView;
 
   })(GlyphView);
 
-  Quadcurve = (function(_super) {
+  Quadratic = (function(_super) {
 
-    __extends(Quadcurve, _super);
+    __extends(Quadratic, _super);
 
-    function Quadcurve() {
-      Quadcurve.__super__.constructor.apply(this, arguments);
+    function Quadratic() {
+      Quadratic.__super__.constructor.apply(this, arguments);
     }
 
-    Quadcurve.prototype.default_view = QuadcurveView;
+    Quadratic.prototype.default_view = QuadraticView;
 
-    Quadcurve.prototype.type = 'GlyphRenderer';
+    Quadratic.prototype.type = 'GlyphRenderer';
 
-    return Quadcurve;
+    return Quadratic;
 
   })(Glyph);
 
-  Quadcurve.prototype.display_defaults = _.clone(Quadcurve.prototype.display_defaults);
+  Quadratic.prototype.display_defaults = _.clone(Quadratic.prototype.display_defaults);
 
-  _.extend(Quadcurve.prototype.display_defaults, {
+  _.extend(Quadratic.prototype.display_defaults, {
     line_color: 'red',
     line_width: 1,
     line_alpha: 1.0,
@@ -19094,9 +19094,9 @@ _.setdefault = function(obj, key, value){
     line_dash_offset: 0
   });
 
-  exports.Quadcurve = Quadcurve;
+  exports.Quadratic = Quadratic;
 
-  exports.QuadcurveView = QuadcurveView;
+  exports.QuadraticView = QuadraticView;
 
 }).call(this);
 }, "renderers/glyph/ray": function(exports, require, module) {(function() {
@@ -19350,7 +19350,7 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       })();
-      this.selected_mask = new Array(data.length - 1);
+      this.selected_mask = new Uint8Array(data.length);
       _results = [];
       for (i = _i = 0, _ref = this.selected_mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
         _results.push(this.selected_mask[i] = false);
@@ -20268,7 +20268,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyphs": function(exports, require, module) {(function() {
-  var annular_wedge, annulus, arc, bezier, circle, image, image_rgba, image_uri, line, multi_line, oval, patch, patches, quad, quadcurve, ray, rect, segment, square, text, wedge;
+  var annular_wedge, annulus, arc, bezier, circle, image, image_rgba, image_uri, line, multi_line, oval, patch, patches, quad, quadratic, ray, rect, segment, square, text, wedge;
 
   annular_wedge = require("./glyph/annular_wedge");
 
@@ -20298,7 +20298,7 @@ _.setdefault = function(obj, key, value){
 
   quad = require("./glyph/quad");
 
-  quadcurve = require("./glyph/quadcurve");
+  quadratic = require("./glyph/quadratic");
 
   ray = require("./glyph/ray");
 
@@ -20340,7 +20340,7 @@ _.setdefault = function(obj, key, value){
 
   exports.quad = quad.Quad;
 
-  exports.quadcurve = quadcurve.Quadcurve;
+  exports.quadratic = quadratic.Quadratic;
 
   exports.ray = ray.Ray;
 
@@ -20420,6 +20420,191 @@ _.setdefault = function(obj, key, value){
   exports.DatetimeAxis = DatetimeAxis;
 
   exports.DatetimeAxisView = DatetimeAxisView;
+
+}).call(this);
+}, "renderers/guide/grid": function(exports, require, module) {(function() {
+  var Grid, GridView, Grids, HasParent, PlotWidget, base, line_properties, properties, safebind, ticking,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  base = require('../../base');
+
+  HasParent = base.HasParent;
+
+  safebind = base.safebind;
+
+  properties = require('../properties');
+
+  line_properties = properties.line_properties;
+
+  PlotWidget = require('../../common/plot_widget').PlotWidget;
+
+  ticking = require('../../common/ticking');
+
+  GridView = (function(_super) {
+
+    __extends(GridView, _super);
+
+    function GridView() {
+      GridView.__super__.constructor.apply(this, arguments);
+    }
+
+    GridView.prototype.initialize = function(attrs, options) {
+      GridView.__super__.initialize.call(this, attrs, options);
+      return this.grid_props = new line_properties(this, null, 'grid_');
+    };
+
+    GridView.prototype.render = function() {
+      var ctx;
+      ctx = this.plot_view.ctx;
+      ctx.save();
+      this._draw_grids(ctx);
+      return ctx.restore();
+    };
+
+    GridView.prototype.bind_bokeh_events = function() {
+      return safebind(this, this.model, 'change', this.request_render);
+    };
+
+    GridView.prototype._draw_grids = function(ctx) {
+      var i, sx, sy, xs, ys, _i, _j, _ref, _ref1, _ref2, _ref3;
+      _ref = this.mget('grid_coords'), xs = _ref[0], ys = _ref[1];
+      this.grid_props.set(ctx, this);
+      for (i = _i = 0, _ref1 = xs.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        _ref2 = this.plot_view.map_to_screen(xs[i], "data", ys[i], "data"), sx = _ref2[0], sy = _ref2[1];
+        ctx.beginPath();
+        ctx.moveTo(sx[0], sy[0]);
+        for (i = _j = 1, _ref3 = sx.length - 1; 1 <= _ref3 ? _j <= _ref3 : _j >= _ref3; i = 1 <= _ref3 ? ++_j : --_j) {
+          ctx.lineTo(sx[i], sy[i]);
+        }
+        ctx.stroke();
+      }
+    };
+
+    return GridView;
+
+  })(PlotWidget);
+
+  Grid = (function(_super) {
+
+    __extends(Grid, _super);
+
+    function Grid() {
+      Grid.__super__.constructor.apply(this, arguments);
+    }
+
+    Grid.prototype.default_view = GridView;
+
+    Grid.prototype.type = 'GuideRenderer';
+
+    Grid.prototype.initialize = function(attrs, options) {
+      Grid.__super__.initialize.call(this, attrs, options);
+      this.register_property('computed_bounds', this._bounds, false);
+      this.add_dependencies('computed_bounds', this, ['bounds']);
+      this.register_property('grid_coords', this._grid_coords, false);
+      return this.add_dependencies('grid_coords', this, ['computed_bounds', 'dimension']);
+    };
+
+    Grid.prototype._bounds = function() {
+      var end, i, j, range_bounds, ranges, start, user_bounds, _ref;
+      i = this.get('dimension');
+      j = (i + 1) % 2;
+      ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
+      user_bounds = (_ref = this.get('bounds')) != null ? _ref : 'auto';
+      range_bounds = [ranges[i].get('min'), ranges[i].get('max')];
+      if (_.isArray(user_bounds)) {
+        start = Math.min(user_bounds[0], user_bounds[1]);
+        end = Math.max(user_bounds[0], user_bounds[1]);
+        if (start < range_bounds[0]) {
+          start = range_bounds[0];
+        } else if (start > range_bounds[1]) {
+          start = null;
+        }
+        if (end > range_bounds[1]) {
+          end = range_bounds[1];
+        } else if (end < range_bounds[0]) {
+          end = null;
+        }
+      } else {
+        start = range_bounds[0], end = range_bounds[1];
+      }
+      return [start, end];
+    };
+
+    Grid.prototype._grid_coords = function() {
+      var N, cmax, cmin, coords, cross_range, dim_i, dim_j, end, i, ii, interval, j, loc, max, min, n, range, ranges, start, ticks, tmp, _i, _j, _ref, _ref1, _ref2;
+      i = this.get('dimension');
+      j = (i + 1) % 2;
+      ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
+      range = ranges[i];
+      cross_range = ranges[j];
+      _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
+      tmp = Math.min(start, end);
+      end = Math.max(start, end);
+      start = tmp;
+      interval = ticking.auto_interval(start, end);
+      ticks = ticking.auto_ticks(null, null, start, end, interval);
+      min = range.get('min');
+      max = range.get('max');
+      cmin = cross_range.get('min');
+      cmax = cross_range.get('max');
+      coords = [[], []];
+      for (ii = _i = 0, _ref1 = ticks.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; ii = 0 <= _ref1 ? ++_i : --_i) {
+        if (ticks[ii] === min || ticks[ii] === max) {
+          continue;
+        }
+        dim_i = [];
+        dim_j = [];
+        N = 2;
+        for (n = _j = 0, _ref2 = N - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; n = 0 <= _ref2 ? ++_j : --_j) {
+          loc = cmin + (cmax - cmin) / (N - 1) * n;
+          dim_i.push(ticks[ii]);
+          dim_j.push(loc);
+        }
+        coords[i].push(dim_i);
+        coords[j].push(dim_j);
+      }
+      return coords;
+    };
+
+    return Grid;
+
+  })(HasParent);
+
+  Grid.prototype.defaults = _.clone(Grid.prototype.defaults);
+
+  Grid.prototype.display_defaults = _.clone(Grid.prototype.display_defaults);
+
+  _.extend(Grid.prototype.display_defaults, {
+    level: 'underlay',
+    grid_line_color: '#aaaaaa',
+    grid_line_width: 1,
+    grid_line_alpha: 1.0,
+    grid_line_join: 'miter',
+    grid_line_cap: 'butt',
+    grid_line_dash: [4, 6],
+    grid_line_dash_offset: 0
+  });
+
+  Grids = (function(_super) {
+
+    __extends(Grids, _super);
+
+    function Grids() {
+      Grids.__super__.constructor.apply(this, arguments);
+    }
+
+    Grids.prototype.model = Grid;
+
+    return Grids;
+
+  })(Backbone.Collection);
+
+  exports.grids = new Grids();
+
+  exports.Grid = Grid;
+
+  exports.GridView = GridView;
 
 }).call(this);
 }, "renderers/guide/linear_axis": function(exports, require, module) {(function() {
@@ -20542,13 +20727,12 @@ _.setdefault = function(obj, key, value){
     }
 
     LinearAxisView.prototype.initialize = function(attrs, options) {
-      var guidespec;
       LinearAxisView.__super__.initialize.call(this, attrs, options);
-      guidespec = this.mget('guidespec');
-      this.rule_props = new line_properties(this, guidespec, 'axis_');
-      this.major_tick_props = new line_properties(this, guidespec, 'major_tick_');
-      this.major_label_props = new text_properties(this, guidespec, 'major_label_');
-      this.axis_label_props = new text_properties(this, guidespec, 'axis_label_');
+      this.rule_props = new line_properties(this, null, 'axis_');
+      this.major_tick_props = new line_properties(this, null, 'major_tick_');
+      this.major_label_props = new text_properties(this, null, 'major_label_');
+      this.axis_label_props = new text_properties(this, null, 'axis_label_');
+      this.formatter = new ticking.BasicTickFormatter();
       return this.formatter = new ticking.BasicTickFormatter();
     };
 
@@ -20605,7 +20789,7 @@ _.setdefault = function(obj, key, value){
       _ref = coords = this.mget('major_coords'), x = _ref[0], y = _ref[1];
       _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
       _ref2 = this.mget('normals'), nx = _ref2[0], ny = _ref2[1];
-      dim = this.mget('guidespec').dimension;
+      dim = this.mget('dimension');
       side = this.mget('side');
       orient = this.mget('major_label_orientation');
       if (_.isString(orient)) {
@@ -20700,7 +20884,7 @@ _.setdefault = function(obj, key, value){
     LinearAxisView.prototype._tick_label_extent = function() {
       var angle, c, coords, dim, extent, factor, h, i, labels, orient, rounding, s, side, val, w, _i, _j, _ref, _ref1;
       extent = 0;
-      dim = this.mget('guidespec').dimension;
+      dim = this.mget('dimension');
       coords = this.mget('major_coords');
       side = this.mget('side');
       orient = this.mget('major_label_orientation');
@@ -20775,7 +20959,7 @@ _.setdefault = function(obj, key, value){
       var loc, padding, req, side, _ref;
       req = {};
       side = this.mget('side');
-      loc = (_ref = this.mget('guidespec').location) != null ? _ref : 'min';
+      loc = (_ref = this.mget('location')) != null ? _ref : 'min';
       if (!_.isString(loc)) {
         return req;
       }
@@ -20805,29 +20989,29 @@ _.setdefault = function(obj, key, value){
 
     LinearAxis.prototype.initialize = function(attrs, options) {
       LinearAxis.__super__.initialize.call(this, attrs, options);
-      this.register_property('bounds', this._bounds, false);
-      this.add_dependencies('bounds', this, ['guidespec']);
+      this.register_property('computed_bounds', this._bounds, false);
+      this.add_dependencies('computed_bounds', this, ['bounds']);
       this.register_property('rule_coords', this._rule_coords, false);
-      this.add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location']);
+      this.add_dependencies('rule_coords', this, ['computed_bounds', 'dimension', 'location']);
       this.register_property('major_coords', this._major_coords, false);
-      this.add_dependencies('major_coords', this, ['bounds', 'dimension', 'location']);
+      this.add_dependencies('major_coords', this, ['computed_bounds', 'dimension', 'location']);
       this.register_property('normals', this._normals, false);
-      this.add_dependencies('normals', this, ['bounds', 'dimension', 'location']);
+      this.add_dependencies('normals', this, ['computed_bounds', 'dimension', 'location']);
       this.register_property('side', this._side, false);
       this.add_dependencies('side', this, ['normals']);
       return this.register_property('padding_request', this._padding_request, false);
     };
 
     LinearAxis.prototype.dinitialize = function(attrs, options) {
-      return this.add_dependencies('bounds', this.get_obj('plot'), ['x_range', 'y_range']);
+      return this.add_dependencies('computed_bounds', this.get_obj('plot'), ['x_range', 'y_range']);
     };
 
     LinearAxis.prototype._bounds = function() {
       var end, i, j, range_bounds, ranges, start, user_bounds, _ref;
-      i = this.get('guidespec').dimension;
+      i = this.get('dimension');
       j = (i + 1) % 2;
       ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
-      user_bounds = (_ref = this.get('guidespec').bounds) != null ? _ref : 'auto';
+      user_bounds = (_ref = this.get('bounds')) != null ? _ref : 'auto';
       range_bounds = [ranges[i].get('min'), ranges[i].get('max')];
       if (_.isArray(user_bounds)) {
         start = Math.min(user_bounds[0], user_bounds[1]);
@@ -20840,16 +21024,16 @@ _.setdefault = function(obj, key, value){
 
     LinearAxis.prototype._rule_coords = function() {
       var coords, cross_range, end, i, j, loc, range, range_max, range_min, ranges, start, xs, ys, _ref, _ref1, _ref2;
-      i = this.get('guidespec').dimension;
+      i = this.get('dimension');
       j = (i + 1) % 2;
       ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
       range = ranges[i];
       cross_range = ranges[j];
-      _ref = this.get('bounds'), start = _ref[0], end = _ref[1];
+      _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
       xs = new Float32Array(2);
       ys = new Float32Array(2);
       coords = [xs, ys];
-      loc = (_ref1 = this.get('guidespec').location) != null ? _ref1 : 'min';
+      loc = (_ref1 = this.get('location')) != null ? _ref1 : 'min';
       if (_.isString(loc)) {
         if (loc === 'left' || loc === 'bottom') {
           loc = 'start';
@@ -20871,17 +21055,17 @@ _.setdefault = function(obj, key, value){
 
     LinearAxis.prototype._major_coords = function() {
       var coords, cross_range, end, i, ii, interval, j, loc, range, range_max, range_min, ranges, start, ticks, tmp, xs, ys, _i, _ref, _ref1, _ref2, _ref3;
-      i = this.get('guidespec').dimension;
+      i = this.get('dimension');
       j = (i + 1) % 2;
       ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
       range = ranges[i];
       cross_range = ranges[j];
-      _ref = this.get('bounds'), start = _ref[0], end = _ref[1];
+      _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
       tmp = Math.min(start, end);
       end = Math.max(start, end);
       interval = ticking.auto_interval(start, end);
       ticks = ticking.auto_ticks(null, null, start, end, interval);
-      loc = (_ref1 = this.get('guidespec').location) != null ? _ref1 : 'min';
+      loc = (_ref1 = this.get('location')) != null ? _ref1 : 'min';
       if (_.isString(loc)) {
         if (loc === 'left' || loc === 'bottom') {
           loc = 'start';
@@ -20906,13 +21090,13 @@ _.setdefault = function(obj, key, value){
 
     LinearAxis.prototype._normals = function() {
       var cend, cross_range, cstart, end, i, j, loc, normals, range, ranges, start, _ref, _ref1;
-      i = this.get('guidespec').dimension;
+      i = this.get('dimension');
       j = (i + 1) % 2;
       ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
       range = ranges[i];
       cross_range = ranges[j];
-      _ref = this.get('bounds'), start = _ref[0], end = _ref[1];
-      loc = (_ref1 = this.get('guidespec').location) != null ? _ref1 : 'min';
+      _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
+      loc = (_ref1 = this.get('location')) != null ? _ref1 : 'min';
       cstart = cross_range.get('start');
       cend = cross_range.get('end');
       normals = [0, 0];
@@ -21028,193 +21212,6 @@ _.setdefault = function(obj, key, value){
   exports.LinearAxisView = LinearAxisView;
 
 }).call(this);
-}, "renderers/guide/rule": function(exports, require, module) {(function() {
-  var HasParent, PlotWidget, Rule, RuleView, Rules, base, line_properties, properties, safebind, ticking,
-    __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  base = require('../../base');
-
-  HasParent = base.HasParent;
-
-  safebind = base.safebind;
-
-  properties = require('../properties');
-
-  line_properties = properties.line_properties;
-
-  PlotWidget = require('../../common/plot_widget').PlotWidget;
-
-  ticking = require('../../common/ticking');
-
-  RuleView = (function(_super) {
-
-    __extends(RuleView, _super);
-
-    function RuleView() {
-      RuleView.__super__.constructor.apply(this, arguments);
-    }
-
-    RuleView.prototype.initialize = function(attrs, options) {
-      var guidespec;
-      RuleView.__super__.initialize.call(this, attrs, options);
-      guidespec = this.mget('guidespec');
-      return this.rule_props = new line_properties(this, guidespec, 'rule_');
-    };
-
-    RuleView.prototype.render = function() {
-      var ctx;
-      ctx = this.plot_view.ctx;
-      ctx.save();
-      this._draw_rules(ctx);
-      return ctx.restore();
-    };
-
-    RuleView.prototype.bind_bokeh_events = function() {
-      return safebind(this, this.model, 'change', this.request_render);
-    };
-
-    RuleView.prototype._draw_rules = function(ctx) {
-      var i, sx, sy, xs, ys, _i, _j, _ref, _ref1, _ref2, _ref3;
-      _ref = this.mget('rule_coords'), xs = _ref[0], ys = _ref[1];
-      this.rule_props.set(ctx, this);
-      for (i = _i = 0, _ref1 = xs.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-        _ref2 = this.plot_view.map_to_screen(xs[i], "data", ys[i], "data"), sx = _ref2[0], sy = _ref2[1];
-        ctx.beginPath();
-        ctx.moveTo(sx[0], sy[0]);
-        for (i = _j = 1, _ref3 = sx.length - 1; 1 <= _ref3 ? _j <= _ref3 : _j >= _ref3; i = 1 <= _ref3 ? ++_j : --_j) {
-          ctx.lineTo(sx[i], sy[i]);
-        }
-        ctx.stroke();
-      }
-    };
-
-    return RuleView;
-
-  })(PlotWidget);
-
-  Rule = (function(_super) {
-
-    __extends(Rule, _super);
-
-    function Rule() {
-      Rule.__super__.constructor.apply(this, arguments);
-    }
-
-    Rule.prototype.default_view = RuleView;
-
-    Rule.prototype.type = 'GuideRenderer';
-
-    Rule.prototype.initialize = function(attrs, options) {
-      Rule.__super__.initialize.call(this, attrs, options);
-      this.register_property('bounds', this._bounds, false);
-      this.add_dependencies('bounds', this, ['guidespec']);
-      this.register_property('rule_coords', this._rule_coords, false);
-      return this.add_dependencies('rule_coords', this, ['bounds', 'dimension', 'location']);
-    };
-
-    Rule.prototype._bounds = function() {
-      var end, i, j, range_bounds, ranges, start, user_bounds, _ref;
-      i = this.get('guidespec').dimension;
-      j = (i + 1) % 2;
-      ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
-      user_bounds = (_ref = this.get('guidespec').bounds) != null ? _ref : 'auto';
-      range_bounds = [ranges[i].get('min'), ranges[i].get('max')];
-      if (_.isArray(user_bounds)) {
-        start = Math.min(user_bounds[0], user_bounds[1]);
-        end = Math.max(user_bounds[0], user_bounds[1]);
-        if (start < range_bounds[0]) {
-          start = range_bounds[0];
-        } else if (start > range_bounds[1]) {
-          start = null;
-        }
-        if (end > range_bounds[1]) {
-          end = range_bounds[1];
-        } else if (end < range_bounds[0]) {
-          end = null;
-        }
-      } else {
-        start = range_bounds[0], end = range_bounds[1];
-      }
-      return [start, end];
-    };
-
-    Rule.prototype._rule_coords = function() {
-      var N, cmax, cmin, coords, cross_range, dim_i, dim_j, end, i, ii, interval, j, loc, max, min, n, range, ranges, start, ticks, tmp, _i, _j, _ref, _ref1, _ref2;
-      i = this.get('guidespec').dimension;
-      j = (i + 1) % 2;
-      ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
-      range = ranges[i];
-      cross_range = ranges[j];
-      _ref = this.get('bounds'), start = _ref[0], end = _ref[1];
-      tmp = Math.min(start, end);
-      end = Math.max(start, end);
-      start = tmp;
-      interval = ticking.auto_interval(start, end);
-      ticks = ticking.auto_ticks(null, null, start, end, interval);
-      min = range.get('min');
-      max = range.get('max');
-      cmin = cross_range.get('min');
-      cmax = cross_range.get('max');
-      coords = [[], []];
-      for (ii = _i = 0, _ref1 = ticks.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; ii = 0 <= _ref1 ? ++_i : --_i) {
-        if (ticks[ii] === min || ticks[ii] === max) {
-          continue;
-        }
-        dim_i = [];
-        dim_j = [];
-        N = 2;
-        for (n = _j = 0, _ref2 = N - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; n = 0 <= _ref2 ? ++_j : --_j) {
-          loc = cmin + (cmax - cmin) / (N - 1) * n;
-          dim_i.push(ticks[ii]);
-          dim_j.push(loc);
-        }
-        coords[i].push(dim_i);
-        coords[j].push(dim_j);
-      }
-      return coords;
-    };
-
-    return Rule;
-
-  })(HasParent);
-
-  Rule.prototype.defaults = _.clone(Rule.prototype.defaults);
-
-  Rule.prototype.display_defaults = _.clone(Rule.prototype.display_defaults);
-
-  _.extend(Rule.prototype.display_defaults, {
-    level: 'underlay',
-    rule_line_color: '#aaaaaa',
-    rule_line_width: 1,
-    rule_line_alpha: 1.0,
-    rule_line_join: 'miter',
-    rule_line_cap: 'butt',
-    rule_line_dash: [4, 6],
-    rule_line_dash_offset: 0
-  });
-
-  Rules = (function(_super) {
-
-    __extends(Rules, _super);
-
-    function Rules() {
-      Rules.__super__.constructor.apply(this, arguments);
-    }
-
-    Rules.prototype.model = Rule;
-
-    return Rules;
-
-  })(Backbone.Collection);
-
-  exports.rules = new Rules();
-
-  exports.Rule = Rule;
-
-  exports.RuleView = RuleView;
-
-}).call(this);
 }, "renderers/guide_renderer": function(exports, require, module) {(function() {
   var Collections, GuideRenderers, base, guides,
     __hasProp = {}.hasOwnProperty,
@@ -21235,12 +21232,12 @@ _.setdefault = function(obj, key, value){
     }
 
     GuideRenderers.prototype.model = function(attrs, options) {
-      var model, type, _ref;
-      if (((_ref = attrs.guidespec) != null ? _ref.type : void 0) == null) {
+      var model, type;
+      if (attrs.type == null) {
         console.log("missing guide type");
         return;
       }
-      type = attrs.guidespec.type;
+      type = attrs.type;
       if (!(type in guides)) {
         console.log("unknown guide type '" + type + "'");
         return;
@@ -21257,19 +21254,19 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/guides": function(exports, require, module) {(function() {
-  var datetime_axis, linear_axis, rule;
+  var datetime_axis, grid, linear_axis;
 
   linear_axis = require("./guide/linear_axis");
 
   datetime_axis = require("./guide/datetime_axis");
 
-  rule = require("./guide/rule");
+  grid = require("./guide/grid");
 
   exports.linear_axis = linear_axis.LinearAxis;
 
   exports.datetime_axis = datetime_axis.DatetimeAxis;
 
-  exports.rule = rule.Rule;
+  exports.grid = grid.Grid;
 
 }).call(this);
 }, "renderers/properties": function(exports, require, module) {(function() {
@@ -21295,7 +21292,7 @@ _.setdefault = function(obj, key, value){
       } else {
         console.log(("string property '" + attrname + "' given invalid default value: ") + default_value);
       }
-      if (!(attrname in glyphspec)) {
+      if ((glyphspec == null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21322,11 +21319,11 @@ _.setdefault = function(obj, key, value){
         console.log(("number property '" + attrname + "' given invalid default value: ") + default_value);
       }
       units_value = (_ref = styleprovider.mget(attrname + '_units')) != null ? _ref : 'data';
-      if (attrname + '_units' in glyphspec) {
+      if ((glyphspec != null) && (attrname + '_units' in glyphspec)) {
         units_value = glyphspec[attrname + '_units'];
       }
       this[attrname].units = units_value;
-      if (!(attrname in glyphspec)) {
+      if ((glyphspec == null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21352,7 +21349,7 @@ _.setdefault = function(obj, key, value){
       } else {
         console.log(("color property '" + attrname + "' given invalid default value: ") + default_value);
       }
-      if (!(attrname in glyphspec)) {
+      if ((glyphspec == null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21383,11 +21380,11 @@ _.setdefault = function(obj, key, value){
         console.log(("array property '" + attrname + "' given invalid default value: ") + default_value);
       }
       units_value = (_ref = styleprovider.mget(attrname + "_units")) != null ? _ref : 'data';
-      if (attrname + '_units' in glyphspec) {
+      if ((glyphspec != null) && (attrname + '_units' in glyphspec)) {
         units_value = glyphspec[attrname + '_units'];
       }
       this[attrname].units = units_value;
-      if (!(attrname in glyphspec)) {
+      if ((glyphspec == null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21417,7 +21414,7 @@ _.setdefault = function(obj, key, value){
         console.log(("enum property '" + attrname + "' given invalid default value: ") + default_value);
         console.log("    acceptable values:" + levels);
       }
-      if (!(attrname in glyphspec)) {
+      if ((glyphspec == null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -22006,7 +22003,7 @@ _.setdefault = function(obj, key, value){
   };
 
   make_glyph_plot = function(data_source, defaults, glyphspecs, xrange, yrange, _arg) {
-    var axes, boxselectionoverlay, dims, ds, g, glyph, glyphs, glyphspec, idx, legend, legend_name, legend_renderer, legends, pantool, plot_model, plot_title, plot_tools, pstool, reference_point, resizetool, selecttool, tools, val, x, xaxis1, xaxis2, xrule, yaxis1, yaxis2, yrule, zoomtool, _i, _j, _k, _len, _len1, _len2, _ref;
+    var axes, boxselectionoverlay, dims, ds, g, glyph, glyphs, glyphspec, idx, legend, legend_name, legend_renderer, legends, pantool, plot_model, plot_title, plot_tools, pstool, reference_point, resizetool, selecttool, tools, val, x, xaxis1, xaxis2, xgrid, yaxis1, yaxis2, ygrid, zoomtool, _i, _j, _k, _len, _len1, _len2, _ref;
     dims = _arg.dims, tools = _arg.tools, axes = _arg.axes, legend = _arg.legend, legend_name = _arg.legend_name, plot_title = _arg.plot_title, reference_point = _arg.reference_point;
     if (dims == null) {
       dims = [400, 400];
@@ -22081,54 +22078,40 @@ _.setdefault = function(obj, key, value){
     })());
     if (axes) {
       xaxis1 = Collections('GuideRenderer').create({
-        guidespec: {
-          type: 'linear_axis',
-          dimension: 0
-        },
+        type: 'linear_axis',
+        dimension: 0,
         axis_label: 'x',
         plot: plot_model.ref()
       });
       yaxis1 = Collections('GuideRenderer').create({
-        guidespec: {
-          type: 'linear_axis',
-          dimension: 1
-        },
+        type: 'linear_axis',
+        dimension: 1,
         axis_label: 'y',
         plot: plot_model.ref()
       });
       xaxis2 = Collections('GuideRenderer').create({
-        guidespec: {
-          type: 'linear_axis',
-          dimension: 0,
-          location: 'max'
-        },
+        type: 'linear_axis',
+        dimension: 0,
+        location: 'max',
         plot: plot_model.ref()
       });
       yaxis2 = Collections('GuideRenderer').create({
-        guidespec: {
-          type: 'linear_axis',
-          dimension: 1,
-          location: 'max'
-        },
+        type: 'linear_axis',
+        dimension: 1,
+        location: 'max',
         plot: plot_model.ref()
       });
-      xrule = Collections('GuideRenderer').create({
-        guidespec: {
-          type: 'rule',
-          dimension: 0,
-          bounds: 'auto'
-        },
+      xgrid = Collections('GuideRenderer').create({
+        type: 'grid',
+        dimension: 0,
         plot: plot_model.ref()
       });
-      yrule = Collections('GuideRenderer').create({
-        guidespec: {
-          type: 'rule',
-          dimension: 1,
-          bounds: 'auto'
-        },
+      ygrid = Collections('GuideRenderer').create({
+        type: 'grid',
+        dimension: 1,
         plot: plot_model.ref()
       });
-      plot_model.add_renderers([xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]);
+      plot_model.add_renderers([xgrid.ref(), ygrid.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]);
     }
     if (tools) {
       pantool = Collections('PanTool').create({
