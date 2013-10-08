@@ -40,6 +40,58 @@ glyph2 = {
   y: 'y'
 }
 
+linspace = (start, end, points) ->
+  diff = end - start
+  step = diff/(points + 0.0)
+  (x for x in _.range(start, end, step))
+
+
+
+xs = linspace(0, 4 * Math.PI, 100)
+ys = xs.map(Math.sin)
+ys2 = ys.map(((y) -> y*2))
+ys3 = ys.map(((y) -> y*3))
+
+trig_datasource = Collections('ColumnDataSource').create(
+  data:
+    x: xs,
+    y1: ys,
+    y2: ys2,
+    y3: ys3)
+
+xdr = Collections('DataRange1d').create(
+  sources: [{ref: trig_datasource.ref(), columns: ['x']}])
+
+ydr = Collections('DataRange1d').create(
+  sources: [{ref: trig_datasource.ref(), columns: ['y1']}])
+
+line1 = {x: 'x', y: 'y1',  type: 'line', height:5, width:5}
+
+test('legend_test_overlap', () ->
+  expect(0)
+  plot_model = testutils.make_glyph_plot(trig_datasource, defaults, line1, xdr, ydr, {})
+
+  glyph_renderer = (x for x in plot_model.get_obj('renderers') \
+    when x.type == 'GlyphRenderer')[0]
+  legend = Collections("AnnotationRenderer").create(
+    plot : plot_model.ref()
+    annotationspec:
+      type : "legend"
+      orientation : "top_right"
+      legends:
+        'asdf fakelabel' : [glyph_renderer.ref()]
+        fakelabel2 : [glyph_renderer.ref()]
+        fakelabel3 : [glyph_renderer.ref()]
+    )
+  plot_model.get('renderers').push(legend.ref())
+  div = $('<div></div>')
+  $('body').append(div)
+  myrender  =  ->
+    view = new plot_model.default_view(model: plot_model)
+    div.append(view.$el)
+  _.defer(myrender)
+)
+
 test('legend_test', () ->
   expect(0)
   plot_model = testutils.make_glyph_plot(data_source, defaults, glyph, xrange, yrange, {})
