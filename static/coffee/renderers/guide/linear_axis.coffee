@@ -366,15 +366,18 @@ class LinearAxis extends HasParent
     i = @get('dimension')
     j = (i + 1) % 2
 
-    ranges = [@get_obj('plot').get_obj('x_range'),
-      @get_obj('plot').get_obj('y_range')]
+    ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
 
     user_bounds = @get('bounds') ? 'auto'
     range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
 
     if _.isArray(user_bounds)
-      start = Math.min(user_bounds[0], user_bounds[1])
-      end = Math.max(user_bounds[0], user_bounds[1])
+      if Math.abs(user_bounds[0]-user_bounds[1]) > Math.abs(range_bounds[0]-range_bounds[1])
+        start = Math.max(Math.min(user_bounds[0], user_bounds[1]), range_bounds[0])
+        end = Math.min(Math.max(user_bounds[0], user_bounds[1]), range_bounds[1])
+      else
+        start = Math.min(user_bounds[0], user_bounds[1])
+        end = Math.max(user_bounds[0], user_bounds[1])
     else
       [start, end] = range_bounds
 
@@ -390,8 +393,8 @@ class LinearAxis extends HasParent
 
     [start, end] = @get('computed_bounds')
 
-    xs = new Float32Array(2)
-    ys = new Float32Array(2)
+    xs = new Float64Array(2)
+    ys = new Float64Array(2)
     coords = [xs, ys]
 
     loc = @get('location') ? 'min'
@@ -423,9 +426,6 @@ class LinearAxis extends HasParent
     cross_range = ranges[j]
 
     [start, end] = @get('computed_bounds')
-
-    tmp = Math.min(start, end)
-    end = Math.max(start, end)
 
     interval = ticking.auto_interval(start, end)
     ticks = ticking.auto_ticks(null, null, start, end, interval)
