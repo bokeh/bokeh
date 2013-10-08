@@ -8,6 +8,7 @@
              "./static/vendor/jquery/js/jquery-ui.min.js",
              "./static/vendor/timezone/index.js",
              "./static/vendor/sprintf/sprintf.min.js",
+             "./static/vendor/memoize/memoize.js",
              "./static/js/custom.js"
     ],
     "paths" : ["./static/coffee", "./tests/coffee", "./demo/coffee"],
