@@ -25,11 +25,16 @@ def main():
     parser = build_parser()
     args = parser.parse_args(sys.argv[1:])
 
+    from bokeh.server.views import main
     start.prepare_app(rport=args.redis_port, start_redis=args.start_redis)
     start.prepare_local()
-
+    start.bokeh_app.debug = False
+    start.app.debug = False
+    
     start.bokeh_app.debugjs = args.debugjs
+
     if args.debug:
+        print "running with debug"
         start.bokeh_app.debug = True
         start.app.debug = True
         logging.basicConfig(level=logging.DEBUG)
