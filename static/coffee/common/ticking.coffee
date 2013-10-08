@@ -260,7 +260,7 @@ argsort = (arr) ->
 float = (x) ->
   return x + 0.0
 
-auto_interval = (data_low, data_high) ->
+auto_interval_temp = (data_low, data_high) ->
     """ Calculates the tick interval for a range.
 
         The boundaries for the data to be plotted on the axis are::
@@ -326,7 +326,7 @@ auto_interval = (data_low, data_high) ->
     #    result = finfo(float).eps
     return result
 
-
+auto_interval = memoize(auto_interval_temp)
 
 
 class BasicTickFormatter
