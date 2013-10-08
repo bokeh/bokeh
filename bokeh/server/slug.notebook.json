@@ -6,6 +6,7 @@
              "./static/vendor/bokehjs/vendor/buckets/buckets.js",
              "./static/vendor/bokehjs/vendor/timezone/index.js",
              "./static/vendor/bokehjs/vendor/sprintf/sprintf.min.js",
+             "./static/vendor/memoize/memoize.js",
              "./static/vendor/bokehjs/js/custom.js"],
     "paths" : ["./static/coffee", "./static/vendor/bokehjs/coffee"],
     "public" : "./static/js",
