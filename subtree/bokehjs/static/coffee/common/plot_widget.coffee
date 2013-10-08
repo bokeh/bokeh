@@ -52,11 +52,13 @@ class PlotWidget extends ContinuumView
   _fixup_measure_text: (ctx) ->
     if ctx.measureText and not ctx.html5MeasureText?
       ctx.html5MeasureText = ctx.measureText
-      ctx.measureText = (text) ->
+
+      ctx.measureText = memoize((text) ->
         textMetrics = ctx.html5MeasureText(text)
         # fake it 'til you make it
         textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6
-        return textMetrics
+        return textMetrics)
+        
 
 
   bind_bokeh_events: () ->
