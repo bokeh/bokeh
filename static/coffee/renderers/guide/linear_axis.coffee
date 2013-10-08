@@ -372,8 +372,12 @@ class LinearAxis extends HasParent
     range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
 
     if _.isArray(user_bounds)
-      start = Math.min(user_bounds[0], user_bounds[1])
-      end = Math.max(user_bounds[0], user_bounds[1])
+      if Math.abs(user_bounds[0]-user_bounds[1]) > Math.abs(range_bounds[0]-range_bounds[1])
+        start = Math.max(Math.min(user_bounds[0], user_bounds[1]), range_bounds[0])
+        end = Math.min(Math.max(user_bounds[0], user_bounds[1]), range_bounds[1])
+      else
+        start = Math.min(user_bounds[0], user_bounds[1])
+        end = Math.max(user_bounds[0], user_bounds[1])
     else
       [start, end] = range_bounds
 
