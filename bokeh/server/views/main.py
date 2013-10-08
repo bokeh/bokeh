@@ -190,47 +190,6 @@ def sampleerror():
     return 1 + "sdf"
 
 
-@app.route("/bokeh/embed_test/")
-def embed_test():
-    """this is made to test the case where  """
-    return render_template("embed_test.html")
-
-@app.route("/bokeh/dynamic_embed_test/")
-def dynamic_embed_test():
-    """this is made to test the case where application.js is already
-loaded, and embed.js script tags are dynamically injected"""
-    if app.debug:
-        from continuumweb import hemlib
-        slug = hemlib.slug_json()
-        static_js = hemlib.slug_libs(app, slug['libs'])
-        hemsource = os.path.join(app.static_folder, "coffee")
-        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
-        hemsource = os.path.join(app.static_folder, "vendor",
-                                 "bokehjs", "coffee")
-        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
-    else:
-        static_js = ['/bokeh/static/js/application.js']
-        hem_js = []
-    return render_template("dynamic_embed_test.html", jsfiles=static_js, hemfiles=hem_js)
-
-@app.route("/bokeh/embed_with_existing_js")
-def embed_with_existing_js_test():
-    """this is made to test the case where application.js is already
-loaded, and embed.js script tags are dynamically injected"""
-    if app.debug:
-        from continuumweb import hemlib
-        slug = hemlib.slug_json()
-        static_js = hemlib.slug_libs(app, slug['libs'])
-        hemsource = os.path.join(app.static_folder, "coffee")
-        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
-        hemsource = os.path.join(app.static_folder, "vendor",
-                                 "bokehjs", "coffee")
-        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
-    else:
-        static_js = ['/bokeh/static/js/application.js']
-        hem_js = []
-    return render_template("embed_with_existing_js.html", jsfiles=static_js, hemfiles=hem_js)
-
 def dom_embed(plot, **kwargs):
     if app.debug:
         from continuumweb import hemlib
@@ -245,26 +204,9 @@ def dom_embed(plot, **kwargs):
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []
     return render_template(
-        "embed_with_delay.html", jsfiles=static_js, hemfiles=hem_js,
+        "embed.html", jsfiles=static_js, hemfiles=hem_js,
         docid=plot._session.docid, docapikey=plot._session.apikey, modelid=plot._id,
         **kwargs)
-
-
-
-@app.route("/bokeh/generate_embed_with_delay")
-def generate_embed_with_delay():
-    """this is made to test the case where application.js is already
-loaded, and embed.js script tags are dynamically injected"""
-    plot = make_plot()
-    return dom_embed(plot, include_js=True, delay=True)
-
-@app.route("/bokeh/generate_embed_with_delay_no_js")
-def generate_embed_with_delay_no_js():
-    """this is made to test the case where there is no bokeh js on the page, and
-    after pageload, an embed.js is injected into the dom"""
-    plot = make_plot()
-    return dom_embed(plot, include_js=False, delay=True)
-
 
 def make_plot():
 
@@ -299,17 +241,13 @@ def make_plot():
         ydata_range = ydr,
         glyph = circle)
 
-
     pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-    #zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
     previewtool = PreviewSaveTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
     plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
                 border= 80)
     xaxis = LinearAxis(plot=plot, dimension=0)
     yaxis = LinearAxis(plot=plot, dimension=1)
-    #xgrid = Rule(plot=plot, dimension=0)
-    #ygrid = Rule(plot=plot, dimension=1)
 
     plot.renderers.append(glyph_renderer)
     plot.tools = [pantool, previewtool]
@@ -327,32 +265,69 @@ def make_plot():
     sess.store_all()
     return plot
 
-@app.route("/bokeh/generate_embed_test")
-def generate_embed_test():
-    """this generates a new plot and uses the script inject to put it
-    into a page running this repeatedly will fill up your redis DB
-    quickly, but it allows quick iteration
 
-    """
+"""the following 8 functions setup embedding pages in a variety of formats
+
+urls with no_js don't have any of our javascript included in script
+tags.  the embed.js code is supposed to make sure the proper js files
+are sourced.  Embed.js should only donwload a new js file if the
+existing javascript code isn't in the runtime environment.
+
+static places a script tag into the html markup.
+
+the rest of the urls construct a script tag with a source of the
+embed.js along with the proper attributes.
+
+with_delay doesn't inject until 5 seconds after pageload
+
+onload injects at onload
+
+direct injects as soon as the script block is hit.
+
+Everyone one of these urls should display the same plot
+"""
+
+@app.route("/bokeh/generate_embed/static")
+def generate_embed_static():
     plot = make_plot()
-    if app.debug:
-        from continuumweb import hemlib
-        slug = hemlib.slug_json()
-        static_js = hemlib.slug_libs(app, slug['libs'])
-        hemsource = os.path.join(app.static_folder, "coffee")
-        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
-        hemsource = os.path.join(app.static_folder, "vendor",
-                                 "bokehjs", "coffee")
-        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
-    else:
-        static_js = ['/bokeh/static/js/application.js']
-        hem_js = []
-    return render_template("generate_embed_test.html", jsfiles=static_js, hemfiles=hem_js,
-                           plot_scr=plot.script_inject())
+    return dom_embed(plot, include_js=True, plot_scr=plot.script_inject())
+
+@app.route("/bokeh/generate_embed/static/no_js")
+def generate_embed_static_no_js():
+    plot = make_plot()
+    return dom_embed(plot, include_js=False, plot_scr=plot.script_inject())
 
 
 
+@app.route("/bokeh/generate_embed/with_delay")
+def generate_embed_with_delay():
+    plot = make_plot()
+    return dom_embed(plot, include_js=True, delay=True, onload=False, direct=False)
 
+@app.route("/bokeh/generate_embed/with_delay/no_js")
+def generate_embed_with_delay_no_js():
+    plot = make_plot()
+    return dom_embed(plot, include_js=False, delay=True, onload=False, direct=False)
+
+@app.route("/bokeh/generate_embed/onload")
+def generate_embed_onload():
+    plot = make_plot()
+    return dom_embed(plot, include_js=True, delay=False, onload=True, direct=False)
+
+@app.route("/bokeh/generate_embed/onload/no_js")
+def generate_embed_onload_no_js():
+    plot = make_plot()
+    return dom_embed(plot, include_js=False, delay=False, onload=True, direct=False)
+
+@app.route("/bokeh/generate_embed/direct")
+def generate_embed_direct():
+    plot = make_plot()
+    return dom_embed(plot, include_js=True, delay=False, onload=True, direct=True)
+
+@app.route("/bokeh/generate_embed/direct/no_js")
+def generate_embed_direct_no_js():
+    plot = make_plot()
+    return dom_embed(plot, include_js=False, direct=True)
 
 @app.route("/bokeh/embed.js")
 def embed_js():
