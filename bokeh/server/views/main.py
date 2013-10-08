@@ -231,10 +231,7 @@ loaded, and embed.js script tags are dynamically injected"""
         hem_js = []
     return render_template("embed_with_existing_js.html", jsfiles=static_js, hemfiles=hem_js)
 
-@app.route("/bokeh/embed_with_delay")
-def embed_with_delay():
-    """this is made to test the case where application.js is already
-loaded, and embed.js script tags are dynamically injected"""
+def dom_embed(plot, **kwargs):
     if app.debug:
         from continuumweb import hemlib
         slug = hemlib.slug_json()
@@ -247,16 +244,29 @@ loaded, and embed.js script tags are dynamically injected"""
     else:
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []
-    return render_template("embed_with_delay.html", jsfiles=static_js, hemfiles=hem_js)
+    return render_template(
+        "embed_with_delay.html", jsfiles=static_js, hemfiles=hem_js,
+        docid=plot._session.docid, docapikey=plot._session.apikey, modelid=plot._id,
+        **kwargs)
 
 
-@app.route("/bokeh/generate_embed_test")
-def generate_embed_test():
-    """this generates a new plot and uses the script inject to put it
-    into a page running this repeatedly will fill up your redis DB
-    quickly, but it allows quick iteration
 
-    """
+@app.route("/bokeh/generate_embed_with_delay")
+def generate_embed_with_delay():
+    """this is made to test the case where application.js is already
+loaded, and embed.js script tags are dynamically injected"""
+    plot = make_plot()
+    return dom_embed(plot, include_js=True, delay=True)
+
+@app.route("/bokeh/generate_embed_with_delay_no_js")
+def generate_embed_with_delay_no_js():
+    """this is made to test the case where there is no bokeh js on the page, and
+    after pageload, an embed.js is injected into the dom"""
+    plot = make_plot()
+    return dom_embed(plot, include_js=False, delay=True)
+
+
+def make_plot():
 
     from numpy import pi, arange, sin, cos
     import numpy as np
@@ -264,7 +274,7 @@ def generate_embed_test():
     from bokeh.objects import (
         Plot, DataRange1d, LinearAxis, 
         ColumnDataSource, GlyphRenderer,
-        PanTool, ZoomTool, PreviewSaveTool)
+        PanTool, PreviewSaveTool)
 
     from bokeh.glyphs import Circle
     from bokeh import session
@@ -274,7 +284,6 @@ def generate_embed_test():
     z = cos(x)
     widths = np.ones_like(x) * 0.02
     heights = np.ones_like(x) * 0.2
-
 
     source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
                                     heights=heights))
@@ -316,7 +325,16 @@ def generate_embed_test():
     # not so nice.. but set the model doens't know
     # that we appended to children
     sess.store_all()
+    return plot
 
+@app.route("/bokeh/generate_embed_test")
+def generate_embed_test():
+    """this generates a new plot and uses the script inject to put it
+    into a page running this repeatedly will fill up your redis DB
+    quickly, but it allows quick iteration
+
+    """
+    plot = make_plot()
     if app.debug:
         from continuumweb import hemlib
         slug = hemlib.slug_json()

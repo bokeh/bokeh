@@ -8,12 +8,14 @@
     <link href="{{ url_for('static', filename='vendor/bokehjs/css/continuum.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='vendor/bokehjs/vendor/bootstrap/css/bootstrap.css') }}" rel="stylesheet">    
 -->
+{% if include_js %}
     {% for jsfile in jsfiles %}
     <script type="text/javascript" src="{{jsfile}}"></script>
     {% endfor %}
     {% for jsfile in hemfiles %}
     <script type="text/javascript" src="{{jsfile}}"></script>
     {% endfor %}
+{% endif %}
   
 </head>
 <body>
@@ -31,11 +33,11 @@
             sa('src',"http://localhost:5006/bokeh/embed.js");
     
             sa('bokeh_plottype',"serverconn");
-            sa('bokeh_docid',"f66ebc17-dd93-4497-853d-d57063372bce");
+            sa('bokeh_docid',"{{docid}}");
             sa('bokeh_ws_conn_string',"ws://localhost:5006/bokeh/sub" );
-            sa('bokeh_docapikey',"0d1efb97-c52c-4054-bbf0-9c8c22a0eccb");
+            sa('bokeh_docapikey',"{{docapikey}}");
             sa('bokeh_root_url',"http://localhost:5006" );
-            sa('bokeh_modelid', "b9c1d5dc-c617-41bc-9df7-bed21020035e");
+            sa('bokeh_modelid', "{{modelid}}");
             sa('bokeh_modeltype',"Plot" );
     
             document.body.appendChild(scr);}, 5000);
