@@ -249,6 +249,7 @@ loaded, and embed.js script tags are dynamically injected"""
         hem_js = []
     return render_template("embed_with_delay.html", jsfiles=static_js, hemfiles=hem_js)
 
+
 @app.route("/bokeh/generate_embed_test")
 def generate_embed_test():
     """this generates a new plot and uses the script inject to put it
@@ -261,7 +262,7 @@ def generate_embed_test():
     import numpy as np
 
     from bokeh.objects import (
-        Plot, DataRange1d, LinearAxis, Rule,
+        Plot, DataRange1d, LinearAxis, 
         ColumnDataSource, GlyphRenderer,
         PanTool, ZoomTool, PreviewSaveTool)
 
@@ -298,8 +299,8 @@ def generate_embed_test():
                 border= 80)
     xaxis = LinearAxis(plot=plot, dimension=0)
     yaxis = LinearAxis(plot=plot, dimension=1)
-    xgrid = Rule(plot=plot, dimension=0)
-    ygrid = Rule(plot=plot, dimension=1)
+    #xgrid = Rule(plot=plot, dimension=0)
+    #ygrid = Rule(plot=plot, dimension=1)
 
     plot.renderers.append(glyph_renderer)
     plot.tools = [pantool, previewtool]
@@ -308,8 +309,8 @@ def generate_embed_test():
         username="defaultuser",
         serverloc="http://localhost:5006", userapikey="nokey")
     sess.use_doc("glyph2")
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source,
-             xdr, ydr, pantool, previewtool)
+    sess.add(plot, glyph_renderer, xaxis, yaxis, # xgrid, ygrid,
+             source,  xdr, ydr, pantool, previewtool)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
     # not so nice.. but set the model doens't know
