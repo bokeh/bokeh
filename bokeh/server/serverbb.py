@@ -210,9 +210,9 @@ class RedisSession(PlotServerSession):
         models = [self.serialize(m) for m in models]
         dkey = dockey(self.docid)
         data = dict(zip(keys, models))
-        #for k,v in data.iteritems():
-            #logger.debug('key: %s', k)
-            #logger.debug('val: %s', v)
+        for k,v in data.iteritems():
+            logger.debug('key: %s', k)
+            logger.debug('val: %s', v)
         self.r.mset(data)
         self.r.sadd(dkey, *keys)
         
