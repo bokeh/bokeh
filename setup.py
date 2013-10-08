@@ -37,11 +37,11 @@ for dirname, _, files in os.walk('bokeh/templates', followlinks=True):
     dirname = os.path.relpath(dirname, 'bokeh')
     for f in files:
         package_data_dirs.append(os.path.join(dirname, f))
+package_data_dirs.append('server/redis.conf')
 
 scripts = []
 if sys.platform != 'win32':
     scripts.append('bokeh-server')
-
 
 setup(
     name = 'bokeh',
