@@ -137,19 +137,19 @@ class ViewState extends HasProperties
 
   # transform screen coordinates to underlying device coordinates
   sx_to_device: (x) ->
-    return Math.round(x)
+    return x
   sy_to_device: (y) ->
-    return Math.round(@get('canvas_height') - y)
+    return @get('canvas_height') - y
 
   # vectorized versions of xpos/ypos, these are mutating, in-place operations
   v_sx_to_device: (xx) ->
     for x, idx in xx
-      xx[idx] = Math.round(x)
+      xx[idx] = x
     return xx
   v_sy_to_device: (yy) ->
     canvas_height = @get('canvas_height')
     for y, idx in yy
-      yy[idx] = Math.round(canvas_height - y)
+      yy[idx] = canvas_height - y
     return yy
 
   # transform underlying device coordinates to screen coordinates
