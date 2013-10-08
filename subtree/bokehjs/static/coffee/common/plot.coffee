@@ -32,7 +32,7 @@ delayAnimation = window.requestAnimationFrame ||
 #most once during a given window of time.  If the browser supports
 #requestAnimationFrame, in addition the throttled function will be run
 #no more frequently than request animation frame allow
-# 
+#
 throttleAnimation = (func, wait) ->
   [context , args, timeout, result] = [null,null,null,null]
   previous = 0
@@ -42,23 +42,23 @@ throttleAnimation = (func, wait) ->
     timeout = null
     pending = false
     result = func.apply(context, args);
-  
+
   return ->
     now = new Date;
     remaining = wait - (now - previous);
     context = this;
     args = arguments;
-    if (remaining <= 0 and !pending) 
+    if (remaining <= 0 and !pending)
       clearTimeout(timeout);
       pending = true;
       delayAnimation(later)
-    else if (!timeout) 
+    else if (!timeout)
       timeout = setTimeout(
        (->
           delayAnimation(later)),
        remaining)
     return result;
-  
+
 
 class PlotView extends ContinuumView
   attributes :
@@ -254,6 +254,7 @@ class PlotView extends ContinuumView
     @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
     @canvas = @$el.find('canvas.bokeh_canvas')
 
+
   render_canvas: (full_render=true) ->
     oh = @view_state.get('outer_height')
     ow = @view_state.get('outer_width')
@@ -264,6 +265,7 @@ class PlotView extends ContinuumView
     @$el.attr("width", ow).attr('height', oh)
 
     @ctx = @canvas[0].getContext('2d')
+    @ctx.translate(0.5, 0.5);
     if full_render
       @render()
 
