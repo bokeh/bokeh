@@ -45,7 +45,6 @@ class LineView extends GlyphView
     [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
   _render: () ->
-    console.log('lineview render')
     @_map_data()
     ctx = @plot_view.ctx
     ctx.save()
@@ -92,6 +91,7 @@ class LineView extends GlyphView
       ctx.stroke()
 
   draw_legend: (ctx, x1, x2, y1, y2) ->
+    ctx.save()
     glyph_props = @glyph_props
     line_props = glyph_props.line_properties
     reference_point = @get_reference_point()
@@ -104,7 +104,6 @@ class LineView extends GlyphView
     ctx.moveTo(x1, (y1 + y2) /2)
     ctx.lineTo(x2, (y1 + y2) /2)
     ctx.stroke()
-    ctx.beginPath()
     ctx.restore()
 
   ##duped

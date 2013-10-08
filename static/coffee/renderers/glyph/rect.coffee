@@ -54,7 +54,6 @@ class RectView extends GlyphView
     @sh = @distance(@data, 'y', 'height', 'center')
 
   _render: () ->
-    console.log("rectview render")
     @_map_data()
     ctx = @plot_view.ctx
 

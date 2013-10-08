@@ -7,7 +7,7 @@ yrange = Collections('Range1d').create({start: 0, end: 10})
 defaults = {}
 data_source = Collections('ObjectArrayDataSource').create(
   data: [
-    {x: 1, y: 8, lwidth: 7},
+    {x: 1, y: 5, lwidth: 7},
     {x: 2, y: 4, lwidth: 4},
     {x: 3, y: 3},
     {x: 4, y: 2, lwidth: 2},
@@ -52,11 +52,6 @@ ys = xs.map(Math.sin)
 ys2 = ys.map(((y) -> y*2))
 ys3 = ys.map(((y) -> y*3))
 
-
-# ys = map(Math.sin, xs)
-# ys2 = map(((y) -> y*2), ys)
-# ys3 = map(((y) -> y*3), ys) 
-
 trig_datasource = Collections('ColumnDataSource').create(
   data:
     x: xs,
@@ -70,14 +65,6 @@ xdr = Collections('DataRange1d').create(
 ydr = Collections('DataRange1d').create(
   sources: [{ref: trig_datasource.ref(), columns: ['y1']}])
 
-ydr2 = Collections('DataRange1d').create(
-  sources: [{ref: trig_datasource.ref(), columns: ['y2']}])
-
-ydr3 = Collections('DataRange1d').create(
-  sources: [{ref: trig_datasource.ref(), columns: ['y3']}])
-
-
-#line1 = {x: 'x', y: 'y1',  type: 'rect', height:5, width:5}
 line1 = {x: 'x', y: 'y1',  type: 'line', height:5, width:5}
 
 test('legend_test_overlap', () ->

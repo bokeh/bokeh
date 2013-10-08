@@ -92,8 +92,6 @@ class LegendView extends PlotWidget
     @box_coords = [x,y]
 
   render : () ->
-    console.log("legend view render")
-    
     ctx = @plot_view.ctx
     ctx.save()
 
