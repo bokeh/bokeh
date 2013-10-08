@@ -1,19 +1,26 @@
-# needs to be tested
-import sys
-if 'develop' in sys.argv:
-    # Only import setuptools if we have to
-    import setuptools
-else:
-    import shutil
-    shutil.copy("jsbuild/application.js",
-                "bokeh/server/static/js/application.js")
-    shutil.copy("jsbuild/bokehnotebook.js",
-                "bokeh/server/static/js/bokehnotebook.js")
 
 import os
-import shutil
 from os.path import abspath, isdir
+import sys
+import shutil
 from distutils.core import setup
+
+# Set up this checkout or source archive with the right BokehJS files.
+
+JSBUILD_APP = "jsbuild/application.js"
+JSBUILD_NB = "jsbuild/bokehnotebook.js"
+DEV_APP = "bokeh/server/static/js/application.js"
+DEV_NB = "bokeh/server/static/js/bokehnotebook.js"
+if 'develop' in sys.argv:
+    # Don't import setuptools unless the user is actively trying to do
+    # something that requires it.
+    import setuptools
+
+if not os.path.exists(DEV_APP):
+    shutil.copy(JSBUILD_APP, DEV_APP)
+if not os.path.exists(DEV_NB):
+    shutil.copy(JSBUILD_NB, DEV_NB)
+
 
 if sys.platform == 'win32':
     bokehjs = abspath('bokeh/server/static/vendor/bokehjs')
