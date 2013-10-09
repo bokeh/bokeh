@@ -117,6 +117,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, {dims, too
       type: 'datetime_axis'
       dimension: 0
       axis_label: 'x'
+      major_label_orientation: Math.PI/4
       plot: plot_model.ref()
     )
     yaxis1 = Collections('GuideRenderer').create(
