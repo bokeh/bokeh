@@ -351,74 +351,6 @@ def visual(func):
         return plot
     return wrapper
 
-def glyph(x=['x'], y=['y']):
-    """ Decorator for glyph rendering functions below """
-    def decorator(func):
-        @wraps(func)
-        def wrapper(*args, **kwargs):
-            datasource = kwargs.pop("source", ColumnDataSource())
-            session_objs = [datasource]
-
-            if "color" in kwargs:
-                color = kwargs.pop("color")
-                if "fill_color" not in kwargs:
-                    kwargs["fill_color"] = color
-                if "line_color" not in kwargs:
-                    kwargs["line_color"] = color
-
-            legend_name = kwargs.pop("legend", None)
-
-            glyph_type, glyph_params = func(*args, datasource=datasource, **kwargs)
-
-            plot = get_plot(kwargs)
-            select_tool = get_select_tool(plot)
-
-            x_data_fields = [
-                glyph_params[xx]['field'] for xx in x if glyph_params[xx]['units'] == 'data'
-            ]
-            y_data_fields = [
-                glyph_params[yy]['field'] for yy in y if glyph_params[yy]['units'] == 'data'
-            ]
-            update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
-
-            kwargs.update(glyph_params)
-            glyph = glyph_type(**kwargs)
-
-            nonselection_glyph = glyph.clone()
-            nonselection_glyph.fill_alpha = 0.1
-            nonselection_glyph.line_alpha = 0.1
-
-            glyph_renderer = GlyphRenderer(
-                data_source = datasource,
-                xdata_range = plot.x_range,
-                ydata_range = plot.y_range,
-                glyph=glyph,
-                nonselection_glyph=nonselection_glyph,
-                )
-
-            if legend_name:
-                legend = get_legend(plot)
-                if not legend:
-                    legend = make_legend(plot)
-                mappings = legend.annotationspec.setdefault("legends", {})
-                mappings.setdefault(legend_name, []).append(glyph_renderer)
-                legend._dirty = True
-
-            if select_tool :
-                select_tool.renderers.append(glyph_renderer)
-                select_tool._dirty = True
-
-            plot.renderers.append(glyph_renderer)
-
-            session_objs.extend(plot.tools)
-            session_objs.extend(plot.renderers)
-            session_objs.extend([plot.x_range, plot.y_range])
-
-            return plot, session_objs
-
-        return wrapper
-
-    return decorator
 
 marker_glyph_map = {
         "circle": glyphs.Circle,
@@ -546,8 +478,93 @@ def _glyph_plot(plottype, x_name, y_name, plot, datasource, **kwargs):
     elif plottype == "line":
         line(x_name, y_name, plot=plot, source=datasource, **kwargs)
 
+class __Undefined__: pass
 
-def update_plot_data_ranges(plot, datasource, xcols, ycols):
+def glyph(xfields=__Undefined__, yfields=__Undefined__):
+    """ Decorator for glyph rendering functions below """
+    func_to_wrap = None
+    if xfields is __Undefined__:
+        xfields = ["x"]
+
+    elif callable(xfields) and (yfields is __Undefined__):
+        # This decorator was called without closing parens
+        func_to_wrap = xfields
+        xfields = ["x"]
+
+    if yfields is __Undefined__:
+        yfields = ["y"]
+
+    def decorator(func):
+        @wraps(func)
+        def wrapper(*args, **kwargs):
+            datasource = kwargs.pop("source", ColumnDataSource())
+            session_objs = [datasource]
+
+            if "color" in kwargs:
+                color = kwargs.pop("color")
+                if "fill_color" not in kwargs:
+                    kwargs["fill_color"] = color
+                if "line_color" not in kwargs:
+                    kwargs["line_color"] = color
+
+            legend_name = kwargs.pop("legend", None)
+
+            glyph_type, glyph_params = func(*args, datasource=datasource, **kwargs)
+
+            plot = get_plot(kwargs)
+            select_tool = get_select_tool(plot)
+
+            x_data_fields = [
+                glyph_params[xx]['field'] for xx in xfields if glyph_params[xx]['units'] == 'data'
+            ]
+            y_data_fields = [
+                glyph_params[yy]['field'] for yy in yfields if glyph_params[yy]['units'] == 'data'
+            ]
+            _update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
+
+            kwargs.update(glyph_params)
+            glyph = glyph_type(**kwargs)
+
+            nonselection_glyph = glyph.clone()
+            nonselection_glyph.fill_alpha = 0.1
+            nonselection_glyph.line_alpha = 0.1
+
+            glyph_renderer = GlyphRenderer(
+                data_source = datasource,
+                xdata_range = plot.x_range,
+                ydata_range = plot.y_range,
+                glyph=glyph,
+                nonselection_glyph=nonselection_glyph,
+                )
+
+            if legend_name:
+                legend = get_legend(plot)
+                if not legend:
+                    legend = make_legend(plot)
+                mappings = legend.annotationspec.setdefault("legends", {})
+                mappings.setdefault(legend_name, []).append(glyph_renderer)
+                legend._dirty = True
+
+            if select_tool :
+                select_tool.renderers.append(glyph_renderer)
+                select_tool._dirty = True
+
+            plot.renderers.append(glyph_renderer)
+
+            session_objs.extend(plot.tools)
+            session_objs.extend(plot.renderers)
+            session_objs.extend([plot.x_range, plot.y_range])
+
+            return plot, session_objs
+
+        return visual(wrapper)
+
+    if func_to_wrap is not None:
+        return decorator(func_to_wrap)
+    else:
+        return decorator
+
+def _update_plot_data_ranges(plot, datasource, xcols, ycols):
     """
     Parmeters
     ---------
@@ -578,7 +595,7 @@ def update_plot_data_ranges(plot, datasource, xcols, ycols):
             plot.y_range.sources.append(datasource.columns(*ycols))
         plot.y_range._dirty = True
 
-def match_data_params(names, vals, datasource):
+def _match_data_params(names, vals, datasource):
     """
     Parameters
     ---------
@@ -640,140 +657,123 @@ def get_default_color(plot):
     return colors[num_renderers]
 
 
-@visual
-@glyph()
+@glyph
 def annular_wedge(x, y, inner_radius, outer_radius, start_angle, end_angle, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.AnnularWedge, glyph_params
 
-@visual
-@glyph()
+@glyph
 def annulus(x, y, inner_radius, outer_radius, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Annulus, glyph_params
 
-@visual
-@glyph()
+@glyph
 def arc(x, y, radius, start_angle, end_angle, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Arc, glyph_params
 
-@visual
-@glyph(x=['x0', 'x1'], y=['y0', 'y1'])
+@glyph(xfields=['x0', 'x1'], yfields=['y0', 'y1'])
 def bezier(x0, y0, x1, y1, cx0, cy0, cx1, cy1, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Bezier, glyph_params
 
-@visual
-@glyph()
+@glyph
 def circle(x, y, radius, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Circle, glyph_params
 
-@visual
-@glyph()
+@glyph
 def line(x, y, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Line, glyph_params
 
-@visual
-@glyph(x=['xs'], y=['ys'])
+@glyph(xfields=['xs'], yfields=['ys'])
 def multi_line(xs, ys, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.MultiLine, glyph_params
 
-@visual
-@glyph()
+@glyph
 def oval(x, y, width, height, angle=0, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Oval, glyph_params
 
-@visual
-@glyph()
+@glyph
 def patch(x, y, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Patch, glyph_params
 
-@visual
-@glyph(x=['xs'], y=['ys'])
+@glyph(xfields=['xs'], yfields=['ys'])
 def patches(xs, ys, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Patches, glyph_params
 
-@visual
-@glyph()
+@glyph
 def ray(x, y, length, angle, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Ray, glyph_params
 
-@visual
-@glyph(x=['left', 'right'], y=['top', 'bottom'])
+@glyph(xfields=['left', 'right'], yfields=['top', 'bottom'])
 def quad(left, right, top, bottom, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Quad, glyph_params
 
-@visual
-@glyph(x=['x0', 'x1'], y=['y0', 'y1'])
+@glyph(xfields=['x0', 'x1'], yfields=['y0', 'y1'])
 def quadratic(x0, y0, x1, y1, cx, cy, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Quadratic, glyph_params
 
-@visual
-@glyph()
+@glyph
 def rect(x, y, width, height, angle=0, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Rect, glyph_params
 
-@visual
-@glyph(x=['x0', 'x1'], y=['y0', 'y1'])
+@glyph(xfields=['x0', 'x1'], yfields=['y0', 'y1'])
 def segment(x0, y0, x1, y1, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Segment, glyph_params
 
-@visual
-@glyph()
+@glyph
 def square(x, y, size, angle=0, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Square, glyph_params
 
-@visual
-@glyph()
+@glyph
 def wedge(x, y, radius, start_angle, end_angle, **kwargs):
     args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
     datasource = kwargs['datasource']
-    glyph_params = match_data_params(args, vals, datasource)
+    glyph_params = _match_data_params(args, vals, datasource)
     return glyphs.Wedge, glyph_params
 
 
