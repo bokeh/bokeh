@@ -14,8 +14,6 @@ from os.path import dirname, join
 try:
     import pandas as pd
 except ImportError as e:
-    print "Iris data requires pandas (http://pandas.pydata.org) to be installed"
-    import sys
-    sys.exit(1)
+    raise RuntimeError("iris data requires pandas (http://pandas.pydata.org) to be installed")
 
 flowers = pd.read_csv(join(dirname(__file__), 'iris.csv'))

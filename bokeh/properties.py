@@ -16,7 +16,7 @@ class BaseProperty(object):
         """ This is how the descriptor is created in the class declaration """
         self.default = default
         # This gets set by the class decorator at class creation time
-        self.name = "unnamed"  
+        self.name = "unnamed"
 
     @classmethod
     def autocreate(cls, name=None):
@@ -29,7 +29,7 @@ class BaseProperty(object):
 
     def __get__(self, obj, type=None):
         return getattr(obj, "_"+self.name, self.default)
-    
+
     def matches(self, new, old):
         try:
             return new == old
@@ -37,7 +37,7 @@ class BaseProperty(object):
             logger.warning("could not compare %s and %s for property %s",
                            new, old, self.name)
         return False
-    
+
     def __set__(self, obj, value):
         old = self.__get__(obj)
         obj._changed_vars.add(self.name)
@@ -50,7 +50,7 @@ class BaseProperty(object):
                 obj._callback_queue.append((self.name, old, value))
             else:
                 obj._trigger(self.name, old, value)
-            
+
     def __delete__(self, obj):
         if hasattr(obj, "_"+self.name):
             delattr(obj, "_"+self.name)
@@ -303,6 +303,11 @@ class ColorSpec(DataSpec):
             else:
                 self.field = field_or_value
 
+        # We need to distinguish if the user ever explicitly sets the attribute; if
+        # they explicitly set it to None, we should pass on None in the dict. Otherwise,
+        # look up a default or value
+        self._isset = False
+
     def _isconst(self, arg):
         """ Returns True if the argument is a literal color.  Check for a
         well-formed hexadecimal color value.
@@ -336,6 +341,8 @@ class ColorSpec(DataSpec):
                     return setval
                 else:
                     return {"field": setval, "default": self.default}
+            elif setval is None:
+                return None
             else:
                 # setval should be a dict at this point
                 assert(isinstance(setval, dict))
@@ -349,6 +356,7 @@ class ColorSpec(DataSpec):
                 return self.field
 
     def __set__(self, obj, arg):
+        self._isset = True
         attrname = "_" + self.name
         if isinstance(arg, tuple):
             if len(arg) == 2:
@@ -387,6 +395,8 @@ class ColorSpec(DataSpec):
                     d["default"] = self._formattuple(d["default"])
                 return d
         else:
+            if self._isset:
+                return {"value": None}
             # If the user never set a value
             if self.value is not None:
                 return {"value": self.value}
@@ -416,7 +426,7 @@ class MetaHasProps(type):
             delegate = prop._delegate
             if not (isinstance(delegate,type) and issubclass(delegate,HasProps)):
                 continue
-            
+
             if prop._prefix is None:
                 prefix = name + "_"
             else:
@@ -472,7 +482,7 @@ class MetaHasProps(type):
         if dataspecs:
             class_dict["_dataspecs"] = dataspecs
         return type.__new__(cls, class_name, bases, class_dict)
-    
+
 def accumulate_from_subclasses(cls, propname):
     s = set()
     for c in inspect.getmro(cls):
@@ -591,7 +601,7 @@ class List(ContainerProp):
     used for each new use of this property.
 
     People will also frequently pass in some other kind of property or a
-    class (to indicate a list of instances).  In those cases, we want to 
+    class (to indicate a list of instances).  In those cases, we want to
     just create an empty list
 
     has_ref parameter tells us whether the json representation of this
@@ -615,7 +625,7 @@ class List(ContainerProp):
             val = self.default
         setattr(obj, "_"+self.name, val)
         return val
-        
+
 class Dict(ContainerProp):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
@@ -627,7 +637,7 @@ class Dict(ContainerProp):
     def __init__(self, default={}, has_ref=False):
         BaseProperty.__init__(self, default)
         self.has_ref = has_ref
-        
+
     def __get__(self, obj, type=None):
         if not hasattr(obj, "_"+self.name) and isinstance(self.default, dict):
             setattr(obj, "_"+self.name, copy(self.default))
@@ -661,7 +671,7 @@ class Instance(BaseProperty):
         """
         super(Instance, self).__init__(default=default)
         self.has_ref = has_ref
-        
+
     def __get__(self, obj, type=None):
         # If the constructor for Instance() supplied a class name, we should
         # instantiate that class here, instead of returning the class as the
@@ -671,7 +681,7 @@ class Instance(BaseProperty):
                 setattr(obj, "_"+self.name, self.default())
         return getattr(obj, "_"+self.name, None)
 
-class This(BaseProperty): 
+class This(BaseProperty):
     """ A reference to an instance of the class being defined
     """
     pass
@@ -682,7 +692,7 @@ class Function(BaseProperty): pass
 class Event(BaseProperty): pass
 
 class Either(BaseProperty):
-    """ Takes a list of valid properties and validates against them in 
+    """ Takes a list of valid properties and validates against them in
     succession.
     """
     # TODO: In order to implement this, we need to change all the properties
@@ -721,7 +731,7 @@ Iterable = _dummy
 
 # Properties useful for defining visual attributes
 class Color(BaseProperty):
-    """ Accepts color definition in a variety of ways, and produces an 
+    """ Accepts color definition in a variety of ways, and produces an
     appropriate serialization of its value for whatever backend
     """
     # TODO: Implement this.  Valid inputs: SVG named 147, 3-tuple, 4-tuple with
@@ -738,7 +748,7 @@ class Angle(Float): pass
 
 class Percent(Float):
     """ Percent is useful for alphas and coverage and extents; more
-    semantically meaningful than Float(0..1) 
+    semantically meaningful than Float(0..1)
     """
 
 # These classes can be mixed-in to HasProps classes to get them the

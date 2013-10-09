@@ -123,6 +123,14 @@ class TestColorSpec(unittest.TestCase):
         self.assertEqual(f.col, "forestgreen")
         self.assertDictEqual(desc.to_dict(f), {"value": "forestgreen"})
 
+    def test_named_value_set_none(self):
+        class Foo(HasProps):
+            col = ColorSpec("colorfield")
+        desc = Foo.__dict__["col"]
+        f = Foo()
+        f.col = None
+        self.assertDictEqual(desc.to_dict(f), {"value": None})
+
     def test_named_color_overriding_default(self):
         class Foo(HasProps):
             col = ColorSpec("colorfield", default="blue")
@@ -160,7 +168,7 @@ class TestColorSpec(unittest.TestCase):
         self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
         f.col = (100, 150, 200, 0.5)
         self.assertEqual(f.col, (100, 150, 200, 0.5))
-        self.assertDictEqual(desc.to_dict(f), {"value": "rgb(100, 150, 200, 0.5)"})
+        self.assertDictEqual(desc.to_dict(f), {"value": "rgba(100, 150, 200, 0.5)"})
 
     def test_set_dict(self):
         class Foo(HasProps):
