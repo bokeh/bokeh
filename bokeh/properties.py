@@ -303,6 +303,11 @@ class ColorSpec(DataSpec):
             else:
                 self.field = field_or_value
 
+        # We need to distinguish if the user ever explicitly sets the attribute; if
+        # they explicitly set it to None, we should pass on None in the dict. Otherwise,
+        # look up a default or value
+        self._isset = False
+
     def _isconst(self, arg):
         """ Returns True if the argument is a literal color.  Check for a
         well-formed hexadecimal color value.
@@ -349,6 +354,7 @@ class ColorSpec(DataSpec):
                 return self.field
 
     def __set__(self, obj, arg):
+        self._isset = True
         attrname = "_" + self.name
         if isinstance(arg, tuple):
             if len(arg) == 2:
@@ -387,7 +393,16 @@ class ColorSpec(DataSpec):
                     d["default"] = self._formattuple(d["default"])
                 return d
         else:
-            return {"value": None}
+            if self._isset:
+                return {"value": None}
+            # If the user never set a value
+            if self.value is not None:
+                return {"value": self.value}
+            else:
+                d = {"field": self.field}
+                if self.default is not None:
+                    d["default"] = self._formattuple(self.default)
+                return d
 
     def __repr__(self):
         return "ColorSpec(field=%r, default=%r)" % (self.field, self.default)
