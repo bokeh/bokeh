@@ -390,10 +390,18 @@ class BasicTickFormatter
 
     return labels
 
+_us = (t) ->
+  return sprintf("%3dus", Math.floor((t % 1) * 1000))
+
+_ms_dot_us = (t) ->
+  ms = Math.floor(((t / 1000) % 1) * 1000)
+  us = Math.floor((t % 1) * 1000)
+  return sprintf("%3d.%3dms", ms, us)
+
 
 _two_digit_year = (t) ->
   # Round to the nearest Jan 1, roughly.
-  dt = Date(t)
+  dt = new Date(t)
   year = dt.getFullYear()
   if dt.getMonth() >= 7
       year += 1
@@ -401,7 +409,7 @@ _two_digit_year = (t) ->
 
 _four_digit_year = (t) ->
   # Round to the nearest Jan 1, roughly.
-  dt = Date(t)
+  dt = new Date(t)
   year = dt.getFullYear()
   if dt.getMonth() >= 7
       year += 1
@@ -409,6 +417,12 @@ _four_digit_year = (t) ->
 
 _array = (t) ->
   return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map( (e) -> return parseInt(e, 10) );
+
+_strftime = (t, format) ->
+  if _.isFunction(format)
+    return format(t)
+  else
+    return tz(t, format)
 
 class DatetimeFormatter
 
@@ -427,7 +441,7 @@ class DatetimeFormatter
     # This table of format is convert into the 'formats' dict.  Each tuple of
     # formats must be ordered from shortest to longest.
     @_formats = {
-      'microseconds': ['%6Nus', '%3N.%6Nms']
+      'microseconds': [_us, _ms_dot_us]
       'milliseconds': ['%3Nms', '%S.%3Ns']
       'seconds':      [':%S', '%Ss']
       'minsec':       ['%M:%S']
@@ -436,15 +450,15 @@ class DatetimeFormatter
       'hours':        ['%Hh', '%H:%M']
       'days':         ['%m/%d', '%a%d']
       'months':       ['%m/%Y', '%b%y']
-      'years':        ['%Y'] #[_two_digit_year, _four_digit_year]
+      'years':        ['%Y', _two_digit_year, _four_digit_year]
     }
     @formats = {}
     for fmt_name of @_formats
       fmt_strings = @_formats[fmt_name]
       sizes = []
       tmptime = tz(new Date())
-      for s in fmt_strings
-          size = (tz(tmptime, s)).length
+      for fmt in fmt_strings
+          size = (_strftime(tmptime, fmt)).length
           sizes.push(size)
       @formats[fmt_name] = [sizes, fmt_strings]
     return
@@ -531,7 +545,7 @@ class DatetimeFormatter
       try
         dt = Date(t)
         tm = _array(t)
-        s = tz(t, format)
+        s = _strftime(t, format)
       catch error
         console.log error
         console.log("Unable to convert tick for timestamp " + t)
@@ -552,13 +566,13 @@ class DatetimeFormatter
         if resol in ["minsec", "hourmin"] and not hybrid_handled
           if (resol == "minsec" and tm[4] == 0 and tm[5] != 0) or (resol == "hourmin" and tm[3] == 0 and tm[4] != 0)
             next_format = @formats[@format_order[resol_ndx-1]][1][0]
-            s = tz(t, next_format)
+            s = _strftime(t, next_format)
             break
           else
             hybrid_handled = true
 
         next_format = @formats[@format_order[next_ndx]][1][0]
-        s = tz(t, next_format)
+        s = _strftime(t, next_format)
 
       if @strip_leading_zeros
         ss = s.replace(/^0+/g, "")
