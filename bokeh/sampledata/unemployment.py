@@ -7,9 +7,12 @@ unemployment rate (2009) as the associated value.
 import csv
 import xml.etree.cElementTree as et
 from os.path import dirname, join
+from . import _data_dir
+
+data_dir = _data_dir()
 
 data = {}
-with open(join(dirname(__file__), 'unemployment09.csv')) as f:
+with open(join(data_dir, 'unemployment09.csv')) as f:
     reader = csv.reader(f, delimiter=',', quotechar='"')
     for row in reader:
         dummy, state_id, county_id, dumm, dummy, dummy, dummy, dummy, rate = row
