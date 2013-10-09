@@ -9515,6 +9515,55 @@ buckets.BSTree.prototype.createNode = function(element) {
 });
 
 /*! sprintf.js | Copyright (c) 2007-2013 Alexandru Marasteanu <hello at alexei dot ro> | 3 clause BSD license */(function(e){function r(e){return Object.prototype.toString.call(e).slice(8,-1).toLowerCase()}function i(e,t){for(var n=[];t>0;n[--t]=e);return n.join("")}var t=function(){return t.cache.hasOwnProperty(arguments[0])||(t.cache[arguments[0]]=t.parse(arguments[0])),t.format.call(null,t.cache[arguments[0]],arguments)};t.format=function(e,n){var s=1,o=e.length,u="",a,f=[],l,c,h,p,d,v;for(l=0;l<o;l++){u=r(e[l]);if(u==="string")f.push(e[l]);else if(u==="array"){h=e[l];if(h[2]){a=n[s];for(c=0;c<h[2].length;c++){if(!a.hasOwnProperty(h[2][c]))throw t('[sprintf] property "%s" does not exist',h[2][c]);a=a[h[2][c]]}}else h[1]?a=n[h[1]]:a=n[s++];if(/[^s]/.test(h[8])&&r(a)!="number")throw t("[sprintf] expecting number but found %s",r(a));switch(h[8]){case"b":a=a.toString(2);break;case"c":a=String.fromCharCode(a);break;case"d":a=parseInt(a,10);break;case"e":a=h[7]?a.toExponential(h[7]):a.toExponential();break;case"f":a=h[7]?parseFloat(a).toFixed(h[7]):parseFloat(a);break;case"o":a=a.toString(8);break;case"s":a=(a=String(a))&&h[7]?a.substring(0,h[7]):a;break;case"u":a>>>=0;break;case"x":a=a.toString(16);break;case"X":a=a.toString(16).toUpperCase()}a=/[def]/.test(h[8])&&h[3]&&a>=0?"+"+a:a,d=h[4]?h[4]=="0"?"0":h[4].charAt(1):" ",v=h[6]-String(a).length,p=h[6]?i(d,v):"",f.push(h[5]?a+p:p+a)}}return f.join("")},t.cache={},t.parse=function(e){var t=e,n=[],r=[],i=0;while(t){if((n=/^[^\x25]+/.exec(t))!==null)r.push(n[0]);else if((n=/^\x25{2}/.exec(t))!==null)r.push("%");else{if((n=/^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(t))===null)throw"[sprintf] huh?";if(n[2]){i|=1;var s=[],o=n[2],u=[];if((u=/^([a-z_][a-z_\d]*)/i.exec(o))===null)throw"[sprintf] huh?";s.push(u[1]);while((o=o.substring(u[0].length))!=="")if((u=/^\.([a-z_][a-z_\d]*)/i.exec(o))!==null)s.push(u[1]);else{if((u=/^\[(\d+)\]/.exec(o))===null)throw"[sprintf] huh?";s.push(u[1])}n[2]=s}else i|=2;if(i===3)throw"[sprintf] mixing positional and named placeholders is not (yet) supported";r.push(n)}t=t.substring(n[0].length)}return r};var n=function(e,n,r){return r=n.slice(0),r.splice(0,0,e),t.apply(null,r)};e.sprintf=t,e.vsprintf=n})(typeof exports!="undefined"?exports:window);
+/*
+ * memoize.js
+ * by @philogb and @addyosmani
+ * with further optimizations by @mathias
+ * and @DmitryBaranovsk
+ * perf tests: http://bit.ly/q3zpG3
+ * Released under an MIT license.
+ */
+function memoize( fn ) {
+    return function () {
+        var args = Array.prototype.slice.call(arguments),
+        hash = "",
+        i = args.length;
+        currentArg = null;
+        while (i--) {
+            currentArg = args[i];
+            hash += (currentArg === Object(currentArg)) ?
+                JSON.stringify(currentArg) : currentArg;
+            fn.memoize || (fn.memoize = {});
+        }
+        return (hash in fn.memoize) ? fn.memoize[hash] :
+            fn.memoize[hash] = fn.apply(this, args);
+    };
+}
+
+/*
+function memoize(f){
+    var cache = {};
+    cache['hits'] = 0
+    cache['misses'] = 0
+    return function(){
+
+        var key = JSON.stringify(Array.prototype.slice.call(arguments));
+
+        if(key in cache){
+            cache['hits'] += 1
+            console.log('From cache...', cache['hits'], cache['misses']);
+            return cache[key]
+        }else{
+            cache['misses'] +=1
+            console.log('Computing..', cache['hits'], cache['misses']);
+            return cache[key] = f.apply(this,arguments);
+        }
+
+    }
+
+}
+*/
+
 //customizations to libraries
 (function () {
   "use strict";
@@ -9687,6 +9736,7 @@ _.setdefault = function(obj, key, value){
 
   parse_el = function(el) {
     "this takes a bokeh embed script element and returns the relvant\nattributes through to a dictionary, ";
+
     var attr, attrs, bokehCount, bokehRe, info, _i, _len;
     attrs = el.attributes;
     bokehRe = /bokeh.*/;
@@ -10012,7 +10062,7 @@ _.setdefault = function(obj, key, value){
     __extends(DocView, _super);
 
     function DocView() {
-      DocView.__super__.constructor.apply(this, arguments);
+      return DocView.__super__.constructor.apply(this, arguments);
     }
 
     DocView.prototype.template = require("./wrappertemplate");
@@ -10075,7 +10125,7 @@ _.setdefault = function(obj, key, value){
     __extends(UserDocsView, _super);
 
     function UserDocsView() {
-      UserDocsView.__super__.constructor.apply(this, arguments);
+      return UserDocsView.__super__.constructor.apply(this, arguments);
     }
 
     UserDocsView.prototype.initialize = function(options) {
@@ -10148,7 +10198,7 @@ _.setdefault = function(obj, key, value){
     __extends(Doc, _super);
 
     function Doc() {
-      Doc.__super__.constructor.apply(this, arguments);
+      return Doc.__super__.constructor.apply(this, arguments);
     }
 
     Doc.prototype.default_view = DocView;
@@ -10203,7 +10253,7 @@ _.setdefault = function(obj, key, value){
     __extends(UserDocs, _super);
 
     function UserDocs() {
-      UserDocs.__super__.constructor.apply(this, arguments);
+      return UserDocs.__super__.constructor.apply(this, arguments);
     }
 
     UserDocs.prototype.model = Doc;
@@ -10444,6 +10494,7 @@ _.setdefault = function(obj, key, value){
 
     function WebSocketWrapper(ws_conn_string) {
       this.onmessage = __bind(this.onmessage, this);
+
       var _this = this;
       this.auth = {};
       this.ws_conn_string = ws_conn_string;
@@ -10532,10 +10583,13 @@ _.setdefault = function(obj, key, value){
 
     function HasProperties() {
       this.rpc = __bind(this.rpc, this);
+
       this.get_obj = __bind(this.get_obj, this);
+
       this.resolve_ref = __bind(this.resolve_ref, this);
+
       this.convert_to_ref = __bind(this.convert_to_ref, this);
-      HasProperties.__super__.constructor.apply(this, arguments);
+      return HasProperties.__super__.constructor.apply(this, arguments);
     }
 
     HasProperties.prototype.destroy = function(options) {
@@ -10833,7 +10887,7 @@ _.setdefault = function(obj, key, value){
     __extends(HasParent, _super);
 
     function HasParent() {
-      HasParent.__super__.constructor.apply(this, arguments);
+      return HasParent.__super__.constructor.apply(this, arguments);
     }
 
     HasParent.prototype.get_fallback = function(attr) {
@@ -10868,6 +10922,7 @@ _.setdefault = function(obj, key, value){
       view_types = [];
     }
     "use strict";
+
     created_views = [];
     try {
       newmodels = _.filter(view_models, function(x) {
@@ -10948,7 +11003,7 @@ _.setdefault = function(obj, key, value){
       throw "./base: Unknown Collection " + typename;
     }
     _ref = locations[typename], modulename = _ref[0], collection = _ref[1];
-    if (mod_cache[modulename] == null) {
+    if (!(mod_cache[modulename] != null)) {
       console.log("calling require", modulename);
       mod_cache[modulename] = require(modulename);
     }
@@ -11147,7 +11202,7 @@ _.setdefault = function(obj, key, value){
     __extends(ContinuumView, _super);
 
     function ContinuumView() {
-      ContinuumView.__super__.constructor.apply(this, arguments);
+      return ContinuumView.__super__.constructor.apply(this, arguments);
     }
 
     ContinuumView.prototype.initialize = function(options) {
@@ -11215,7 +11270,7 @@ _.setdefault = function(obj, key, value){
     __extends(ObjectArrayDataSource, _super);
 
     function ObjectArrayDataSource() {
-      ObjectArrayDataSource.__super__.constructor.apply(this, arguments);
+      return ObjectArrayDataSource.__super__.constructor.apply(this, arguments);
     }
 
     ObjectArrayDataSource.prototype.type = 'ObjectArrayDataSource';
@@ -11342,7 +11397,7 @@ _.setdefault = function(obj, key, value){
     __extends(ObjectArrayDataSources, _super);
 
     function ObjectArrayDataSources() {
-      ObjectArrayDataSources.__super__.constructor.apply(this, arguments);
+      return ObjectArrayDataSources.__super__.constructor.apply(this, arguments);
     }
 
     ObjectArrayDataSources.prototype.model = ObjectArrayDataSource;
@@ -11356,7 +11411,7 @@ _.setdefault = function(obj, key, value){
     __extends(ColumnDataSource, _super);
 
     function ColumnDataSource() {
-      ColumnDataSource.__super__.constructor.apply(this, arguments);
+      return ColumnDataSource.__super__.constructor.apply(this, arguments);
     }
 
     ColumnDataSource.prototype.type = 'ColumnDataSource';
@@ -11396,7 +11451,7 @@ _.setdefault = function(obj, key, value){
     __extends(ColumnDataSources, _super);
 
     function ColumnDataSources() {
-      ColumnDataSources.__super__.constructor.apply(this, arguments);
+      return ColumnDataSources.__super__.constructor.apply(this, arguments);
     }
 
     ColumnDataSources.prototype.model = ColumnDataSource;
@@ -11452,9 +11507,11 @@ _.setdefault = function(obj, key, value){
 
     function GMapPlotView() {
       this.bounds_change = __bind(this.bounds_change, this);
+
       this._mousemove = __bind(this._mousemove, this);
+
       this._mousedown = __bind(this._mousedown, this);
-      GMapPlotView.__super__.constructor.apply(this, arguments);
+      return GMapPlotView.__super__.constructor.apply(this, arguments);
     }
 
     GMapPlotView.prototype.events = {
@@ -11883,7 +11940,7 @@ _.setdefault = function(obj, key, value){
     __extends(GMapPlot, _super);
 
     function GMapPlot() {
-      GMapPlot.__super__.constructor.apply(this, arguments);
+      return GMapPlot.__super__.constructor.apply(this, arguments);
     }
 
     GMapPlot.prototype.type = 'GMapPlot';
@@ -11939,7 +11996,7 @@ _.setdefault = function(obj, key, value){
     __extends(GMapPlots, _super);
 
     function GMapPlots() {
-      GMapPlots.__super__.constructor.apply(this, arguments);
+      return GMapPlots.__super__.constructor.apply(this, arguments);
     }
 
     GMapPlots.prototype.model = GMapPlot;
@@ -11987,7 +12044,7 @@ _.setdefault = function(obj, key, value){
     __extends(GridPlotView, _super);
 
     function GridPlotView() {
-      GridPlotView.__super__.constructor.apply(this, arguments);
+      return GridPlotView.__super__.constructor.apply(this, arguments);
     }
 
     GridPlotView.prototype.tagName = 'div';
@@ -12187,7 +12244,7 @@ _.setdefault = function(obj, key, value){
     __extends(GridPlot, _super);
 
     function GridPlot() {
-      GridPlot.__super__.constructor.apply(this, arguments);
+      return GridPlot.__super__.constructor.apply(this, arguments);
     }
 
     GridPlot.prototype.type = 'GridPlot';
@@ -12210,7 +12267,7 @@ _.setdefault = function(obj, key, value){
     __extends(GridPlots, _super);
 
     function GridPlots() {
-      GridPlots.__super__.constructor.apply(this, arguments);
+      return GridPlots.__super__.constructor.apply(this, arguments);
     }
 
     GridPlots.prototype.model = GridPlot;
@@ -12244,9 +12301,11 @@ _.setdefault = function(obj, key, value){
 
     function GridViewState() {
       this.layout_widths = __bind(this.layout_widths, this);
+
       this.layout_heights = __bind(this.layout_heights, this);
+
       this.setup_layout_properties = __bind(this.setup_layout_properties, this);
-      GridViewState.__super__.constructor.apply(this, arguments);
+      return GridViewState.__super__.constructor.apply(this, arguments);
     }
 
     GridViewState.prototype.setup_layout_properties = function() {
@@ -12444,8 +12503,9 @@ _.setdefault = function(obj, key, value){
 
     function PlotView() {
       this._mousemove = __bind(this._mousemove, this);
+
       this._mousedown = __bind(this._mousedown, this);
-      PlotView.__super__.constructor.apply(this, arguments);
+      return PlotView.__super__.constructor.apply(this, arguments);
     }
 
     PlotView.prototype.attributes = {
@@ -12677,6 +12737,7 @@ _.setdefault = function(obj, key, value){
       this.canvas.attr('width', ow).attr('height', oh);
       this.$el.attr("width", ow).attr('height', oh);
       this.ctx = this.canvas[0].getContext('2d');
+      this.ctx.translate(0.5, 0.5);
       if (full_render) {
         return this.render();
       }
@@ -12791,7 +12852,7 @@ _.setdefault = function(obj, key, value){
     __extends(PNGView, _super);
 
     function PNGView() {
-      PNGView.__super__.constructor.apply(this, arguments);
+      return PNGView.__super__.constructor.apply(this, arguments);
     }
 
     PNGView.prototype.initialize = function(options) {
@@ -12819,7 +12880,7 @@ _.setdefault = function(obj, key, value){
     __extends(Plot, _super);
 
     function Plot() {
-      Plot.__super__.constructor.apply(this, arguments);
+      return Plot.__super__.constructor.apply(this, arguments);
     }
 
     Plot.prototype.type = 'Plot';
@@ -12876,7 +12937,7 @@ _.setdefault = function(obj, key, value){
     __extends(Plots, _super);
 
     function Plots() {
-      Plots.__super__.constructor.apply(this, arguments);
+      return Plots.__super__.constructor.apply(this, arguments);
     }
 
     Plots.prototype.model = Plot;
@@ -12922,8 +12983,9 @@ _.setdefault = function(obj, key, value){
 
     function PlotContextView() {
       this.removeplot = __bind(this.removeplot, this);
+
       this.closeall = __bind(this.closeall, this);
-      PlotContextView.__super__.constructor.apply(this, arguments);
+      return PlotContextView.__super__.constructor.apply(this, arguments);
     }
 
     PlotContextView.prototype.initialize = function(options) {
@@ -13037,7 +13099,7 @@ _.setdefault = function(obj, key, value){
 
     function PNGContextView() {
       this.pngclick = __bind(this.pngclick, this);
-      PNGContextView.__super__.constructor.apply(this, arguments);
+      return PNGContextView.__super__.constructor.apply(this, arguments);
     }
 
     PNGContextView.prototype.initialize = function(options) {
@@ -13105,7 +13167,7 @@ _.setdefault = function(obj, key, value){
     __extends(PlotContextViewState, _super);
 
     function PlotContextViewState() {
-      PlotContextViewState.__super__.constructor.apply(this, arguments);
+      return PlotContextViewState.__super__.constructor.apply(this, arguments);
     }
 
     PlotContextViewState.prototype.defaults = {
@@ -13123,7 +13185,7 @@ _.setdefault = function(obj, key, value){
     __extends(PlotContextViewWithMaximized, _super);
 
     function PlotContextViewWithMaximized() {
-      PlotContextViewWithMaximized.__super__.constructor.apply(this, arguments);
+      return PlotContextViewWithMaximized.__super__.constructor.apply(this, arguments);
     }
 
     PlotContextViewWithMaximized.prototype.initialize = function(options) {
@@ -13231,7 +13293,7 @@ _.setdefault = function(obj, key, value){
     __extends(PlotContext, _super);
 
     function PlotContext() {
-      PlotContext.__super__.constructor.apply(this, arguments);
+      return PlotContext.__super__.constructor.apply(this, arguments);
     }
 
     PlotContext.prototype.type = 'PlotContext';
@@ -13256,7 +13318,7 @@ _.setdefault = function(obj, key, value){
     __extends(PlotList, _super);
 
     function PlotList() {
-      PlotList.__super__.constructor.apply(this, arguments);
+      return PlotList.__super__.constructor.apply(this, arguments);
     }
 
     PlotList.prototype.type = 'PlotList';
@@ -13270,7 +13332,7 @@ _.setdefault = function(obj, key, value){
     __extends(PlotContexts, _super);
 
     function PlotContexts() {
-      PlotContexts.__super__.constructor.apply(this, arguments);
+      return PlotContexts.__super__.constructor.apply(this, arguments);
     }
 
     PlotContexts.prototype.model = PlotContext;
@@ -13284,7 +13346,7 @@ _.setdefault = function(obj, key, value){
     __extends(PlotLists, _super);
 
     function PlotLists() {
-      PlotLists.__super__.constructor.apply(this, arguments);
+      return PlotLists.__super__.constructor.apply(this, arguments);
     }
 
     PlotLists.prototype.model = PlotList;
@@ -13326,7 +13388,7 @@ _.setdefault = function(obj, key, value){
     __extends(PlotWidget, _super);
 
     function PlotWidget() {
-      PlotWidget.__super__.constructor.apply(this, arguments);
+      return PlotWidget.__super__.constructor.apply(this, arguments);
     }
 
     PlotWidget.prototype.tagName = 'div';
@@ -13377,14 +13439,14 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotWidget.prototype._fixup_measure_text = function(ctx) {
-      if (ctx.measureText && (ctx.html5MeasureText == null)) {
+      if (ctx.measureText && !(ctx.html5MeasureText != null)) {
         ctx.html5MeasureText = ctx.measureText;
-        return ctx.measureText = function(text) {
+        return ctx.measureText = memoize(function(text) {
           var textMetrics;
           textMetrics = ctx.html5MeasureText(text);
           textMetrics.ascent = ctx.html5MeasureText("m").width * 1.6;
           return textMetrics;
-        };
+        });
       }
     };
 
@@ -13458,7 +13520,7 @@ _.setdefault = function(obj, key, value){
     __extends(Range1d, _super);
 
     function Range1d() {
-      Range1d.__super__.constructor.apply(this, arguments);
+      return Range1d.__super__.constructor.apply(this, arguments);
     }
 
     Range1d.prototype.type = 'Range1d';
@@ -13491,7 +13553,7 @@ _.setdefault = function(obj, key, value){
     __extends(Range1ds, _super);
 
     function Range1ds() {
-      Range1ds.__super__.constructor.apply(this, arguments);
+      return Range1ds.__super__.constructor.apply(this, arguments);
     }
 
     Range1ds.prototype.model = Range1d;
@@ -13505,7 +13567,7 @@ _.setdefault = function(obj, key, value){
     __extends(DataRange1d, _super);
 
     function DataRange1d() {
-      DataRange1d.__super__.constructor.apply(this, arguments);
+      return DataRange1d.__super__.constructor.apply(this, arguments);
     }
 
     DataRange1d.prototype.type = 'DataRange1d';
@@ -13611,7 +13673,7 @@ _.setdefault = function(obj, key, value){
     __extends(DataRange1ds, _super);
 
     function DataRange1ds() {
-      DataRange1ds.__super__.constructor.apply(this, arguments);
+      return DataRange1ds.__super__.constructor.apply(this, arguments);
     }
 
     DataRange1ds.prototype.model = DataRange1d;
@@ -13625,7 +13687,7 @@ _.setdefault = function(obj, key, value){
     __extends(Range1ds, _super);
 
     function Range1ds() {
-      Range1ds.__super__.constructor.apply(this, arguments);
+      return Range1ds.__super__.constructor.apply(this, arguments);
     }
 
     Range1ds.prototype.model = Range1d;
@@ -13639,7 +13701,7 @@ _.setdefault = function(obj, key, value){
     __extends(FactorRange, _super);
 
     function FactorRange() {
-      FactorRange.__super__.constructor.apply(this, arguments);
+      return FactorRange.__super__.constructor.apply(this, arguments);
     }
 
     FactorRange.prototype.type = 'FactorRange';
@@ -13660,7 +13722,7 @@ _.setdefault = function(obj, key, value){
 
     function DataFactorRange() {
       this._get_values = __bind(this._get_values, this);
-      DataFactorRange.__super__.constructor.apply(this, arguments);
+      return DataFactorRange.__super__.constructor.apply(this, arguments);
     }
 
     DataFactorRange.prototype.type = 'DataFactorRange';
@@ -13717,7 +13779,7 @@ _.setdefault = function(obj, key, value){
     __extends(DataFactorRanges, _super);
 
     function DataFactorRanges() {
-      DataFactorRanges.__super__.constructor.apply(this, arguments);
+      return DataFactorRanges.__super__.constructor.apply(this, arguments);
     }
 
     DataFactorRanges.prototype.model = DataFactorRange;
@@ -13731,7 +13793,7 @@ _.setdefault = function(obj, key, value){
     __extends(FactorRanges, _super);
 
     function FactorRanges() {
-      FactorRanges.__super__.constructor.apply(this, arguments);
+      return FactorRanges.__super__.constructor.apply(this, arguments);
     }
 
     FactorRanges.prototype.model = FactorRange;
@@ -13945,21 +14007,23 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/ticking": function(exports, require, module) {(function() {
-  var BasicTickFormatter, DatetimeFormatter, arange, argsort, arr_div2, arr_div3, auto_interval, auto_ticks, float, heckbert_interval, is_base2, log10, log2, nice_10, nice_2_5_10, sprintf, tz, _array, _four_digit_year, _two_digit_year;
+  var BasicTickFormatter, DatetimeFormatter, arange, argsort, arr_div2, arr_div3, auto_interval, auto_interval_temp, auto_ticks, float, heckbert_interval, is_base2, log10, log2, nice_10, nice_2_5_10, sprintf, tz, _array, _four_digit_year, _ms_dot_us, _strftime, _two_digit_year, _us;
 
   sprintf = window.sprintf;
 
   tz = window.tz;
 
   log10 = function(num) {
-    "Returns the base 10 logarithm of a number.";    if (num === 0.0) {
+    "Returns the base 10 logarithm of a number.";
+    if (num === 0.0) {
       num += 1.0e-16;
     }
     return Math.log(num) / Math.LN10;
   };
 
   log2 = function(num) {
-    "Returns the base 2 logarithm of a number.";    if (num === 0.0) {
+    "Returns the base 2 logarithm of a number.";
+    if (num === 0.0) {
       num += 1.0e-16;
     }
     return Math.log(num) / Math.LN2;
@@ -13967,6 +14031,7 @@ _.setdefault = function(obj, key, value){
 
   is_base2 = function(rng) {
     " Returns True if rng is a positive multiple of 2 ";
+
     var lg;
     if (rng <= 0) {
       return false;
@@ -13982,6 +14047,7 @@ _.setdefault = function(obj, key, value){
       round = false;
     }
     " if round is false, then use Math.ceil(range) ";
+
     expv = Math.floor(log10(x));
     f = x / Math.pow(10.0, expv);
     if (round) {
@@ -14029,6 +14095,7 @@ _.setdefault = function(obj, key, value){
       loose = false;
     }
     "Returns a \"nice\" range and interval for a given data range and a preferred\nnumber of ticks.  From Paul Heckbert's algorithm in Graphics Gems.";
+
     range = nice(max - min);
     d = nice(range / (numticks - 1), true);
     if (loose) {
@@ -14058,10 +14125,12 @@ _.setdefault = function(obj, key, value){
         step = -1;
       } else if (step > 0) {
         "the loop will never terminate";
+
         1 / 0;
       }
     } else if (step < 0) {
       "the loop will never terminate";
+
       1 / 0;
     }
     if (!step) {
@@ -14092,6 +14161,7 @@ _.setdefault = function(obj, key, value){
       zero_always_nice = true;
     }
     " Finds locations for axis tick marks.\n\nCalculates the locations for tick marks on an axis. The *bound_low*,\n*bound_high*, and *tick_interval* parameters specify how the axis end\npoints and tick interval are calculated.\n\nParameters\n----------\n\ndata_low, data_high : number\n    The minimum and maximum values of the data along this axis.\n    If any of the bound settings are 'auto' or 'fit', the axis\n    bounds are calculated automatically from these values.\nbound_low, bound_high : 'auto', 'fit', or a number.\n    The lower and upper bounds of the axis. If the value is a number,\n    that value is used for the corresponding end point. If the value is\n    'auto', then the end point is calculated automatically. If the\n    value is 'fit', then the axis bound is set to the corresponding\n    *data_low* or *data_high* value.\ntick_interval : can be 'auto' or a number\n    If the value is a positive number, it specifies the length\n    of the tick interval; a negative integer specifies the\n    number of tick intervals; 'auto' specifies that the number and\n    length of the tick intervals are automatically calculated, based\n    on the range of the axis.\nuse_endpoints : Boolean\n    If True, the lower and upper bounds of the data are used as the\n    lower and upper end points of the axis. If False, the end points\n    might not fall exactly on the bounds.\nzero_always_nice : Boolean\n    If True, ticks much closer to zero than the tick interval will be\n    coerced to have a value of zero\n\nReturns\n-------\nAn array of tick mark locations. The first and last tick entries are the\naxis end points.";
+
     is_auto_low = bound_low === 'auto';
     is_auto_high = bound_high === 'auto';
     if (typeof bound_low === "string") {
@@ -14214,8 +14284,9 @@ _.setdefault = function(obj, key, value){
     return x + 0.0;
   };
 
-  auto_interval = function(data_low, data_high) {
+  auto_interval_temp = function(data_low, data_high) {
     " Calculates the tick interval for a range.\n\nThe boundaries for the data to be plotted on the axis are::\n\n    data_bounds = (data_low,data_high)\n\nThe function chooses the number of tick marks, which can be between\n3 and 9 marks (including end points), and chooses tick intervals at\n1, 2, 2.5, 5, 10, 20, ...\n\nReturns\n-------\ninterval : float\n    tick mark interval for axis";
+
     var best_magics, best_mantissas, candidate_intervals, diff_arr, divisions, interval, ma, magic_index, magic_intervals, magnitude, magnitudes, mantissa_index, mantissas, mi, range, result, _i, _j, _len, _len1;
     range = float(data_high) - float(data_low);
     divisions = [8.0, 7.0, 6.0, 5.0, 4.0, 3.0];
@@ -14248,6 +14319,8 @@ _.setdefault = function(obj, key, value){
     result = interval * magnitude;
     return result;
   };
+
+  auto_interval = memoize(auto_interval_temp);
 
   BasicTickFormatter = (function() {
 
@@ -14337,9 +14410,20 @@ _.setdefault = function(obj, key, value){
 
   })();
 
+  _us = function(t) {
+    return sprintf("%3dus", Math.floor((t % 1) * 1000));
+  };
+
+  _ms_dot_us = function(t) {
+    var ms, us;
+    ms = Math.floor(((t / 1000) % 1) * 1000);
+    us = Math.floor((t % 1) * 1000);
+    return sprintf("%3d.%3dms", ms, us);
+  };
+
   _two_digit_year = function(t) {
     var dt, year;
-    dt = Date(t);
+    dt = new Date(t);
     year = dt.getFullYear();
     if (dt.getMonth() >= 7) {
       year += 1;
@@ -14349,7 +14433,7 @@ _.setdefault = function(obj, key, value){
 
   _four_digit_year = function(t) {
     var dt, year;
-    dt = Date(t);
+    dt = new Date(t);
     year = dt.getFullYear();
     if (dt.getMonth() >= 7) {
       year += 1;
@@ -14363,6 +14447,14 @@ _.setdefault = function(obj, key, value){
     });
   };
 
+  _strftime = function(t, format) {
+    if (_.isFunction(format)) {
+      return format(t);
+    } else {
+      return tz(t, format);
+    }
+  };
+
   DatetimeFormatter = (function() {
 
     DatetimeFormatter.prototype.format_order = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'];
@@ -14370,9 +14462,9 @@ _.setdefault = function(obj, key, value){
     DatetimeFormatter.prototype.strip_leading_zeros = true;
 
     function DatetimeFormatter() {
-      var fmt_name, fmt_strings, s, size, sizes, tmptime, _i, _len;
+      var fmt, fmt_name, fmt_strings, size, sizes, tmptime, _i, _len;
       this._formats = {
-        'microseconds': ['%6Nus', '%3N.%6Nms'],
+        'microseconds': [_us, _ms_dot_us],
         'milliseconds': ['%3Nms', '%S.%3Ns'],
         'seconds': [':%S', '%Ss'],
         'minsec': ['%M:%S'],
@@ -14381,7 +14473,7 @@ _.setdefault = function(obj, key, value){
         'hours': ['%Hh', '%H:%M'],
         'days': ['%m/%d', '%a%d'],
         'months': ['%m/%Y', '%b%y'],
-        'years': ['%Y']
+        'years': ['%Y', _two_digit_year, _four_digit_year]
       };
       this.formats = {};
       for (fmt_name in this._formats) {
@@ -14389,8 +14481,8 @@ _.setdefault = function(obj, key, value){
         sizes = [];
         tmptime = tz(new Date());
         for (_i = 0, _len = fmt_strings.length; _i < _len; _i++) {
-          s = fmt_strings[_i];
-          size = (tz(tmptime, s)).length;
+          fmt = fmt_strings[_i];
+          size = (_strftime(tmptime, fmt)).length;
           sizes.push(size);
         }
         this.formats[fmt_name] = [sizes, fmt_strings];
@@ -14485,7 +14577,7 @@ _.setdefault = function(obj, key, value){
         try {
           dt = Date(t);
           tm = _array(t);
-          s = tz(t, format);
+          s = _strftime(t, format);
         } catch (error) {
           console.log(error);
           console.log("Unable to convert tick for timestamp " + t);
@@ -14502,14 +14594,14 @@ _.setdefault = function(obj, key, value){
           if ((resol === "minsec" || resol === "hourmin") && !hybrid_handled) {
             if ((resol === "minsec" && tm[4] === 0 && tm[5] !== 0) || (resol === "hourmin" && tm[3] === 0 && tm[4] !== 0)) {
               next_format = this.formats[this.format_order[resol_ndx - 1]][1][0];
-              s = tz(t, next_format);
+              s = _strftime(t, next_format);
               break;
             } else {
               hybrid_handled = true;
             }
           }
           next_format = this.formats[this.format_order[next_ndx]][1][0];
-          s = tz(t, next_format);
+          s = _strftime(t, next_format);
         }
         if (this.strip_leading_zeros) {
           ss = s.replace(/^0+/g, "");
@@ -14561,7 +14653,7 @@ _.setdefault = function(obj, key, value){
     __extends(ViewState, _super);
 
     function ViewState() {
-      ViewState.__super__.constructor.apply(this, arguments);
+      return ViewState.__super__.constructor.apply(this, arguments);
     }
 
     ViewState.prototype.initialize = function(attrs, options) {
@@ -14626,18 +14718,18 @@ _.setdefault = function(obj, key, value){
     };
 
     ViewState.prototype.sx_to_device = function(x) {
-      return x + 0.5;
+      return x;
     };
 
     ViewState.prototype.sy_to_device = function(y) {
-      return this.get('canvas_height') - y + 0.5;
+      return this.get('canvas_height') - y;
     };
 
     ViewState.prototype.v_sx_to_device = function(xx) {
       var idx, x, _i, _len;
       for (idx = _i = 0, _len = xx.length; _i < _len; idx = ++_i) {
         x = xx[idx];
-        xx[idx] = x + 0.5;
+        xx[idx] = x;
       }
       return xx;
     };
@@ -14647,24 +14739,24 @@ _.setdefault = function(obj, key, value){
       canvas_height = this.get('canvas_height');
       for (idx = _i = 0, _len = yy.length; _i < _len; idx = ++_i) {
         y = yy[idx];
-        yy[idx] = canvas_height - y + 0.5;
+        yy[idx] = canvas_height - y;
       }
       return yy;
     };
 
     ViewState.prototype.device_to_sx = function(x) {
-      return x - 0.5;
+      return x;
     };
 
     ViewState.prototype.device_to_sy = function(y) {
-      return this.get('canvas_height') - y - 0.5;
+      return this.get('canvas_height') - y;
     };
 
     ViewState.prototype.v_device_to_sx = function(xx) {
       var idx, x, _i, _len;
       for (idx = _i = 0, _len = xx.length; _i < _len; idx = ++_i) {
         x = xx[idx];
-        xx[idx] = x - 0.5;
+        xx[idx] = x;
       }
       return xx;
     };
@@ -14674,7 +14766,7 @@ _.setdefault = function(obj, key, value){
       canvas_height = this.get('canvas_height');
       for (idx = _i = 0, _len = yy.length; _i < _len; idx = ++_i) {
         y = yy[idx];
-        yy[idx] = y - canvas_height - 0.5;
+        yy[idx] = y - canvas_height;
       }
       return yy;
     };
@@ -14698,7 +14790,7 @@ _.setdefault = function(obj, key, value){
     __extends(CategoricalMapper, _super);
 
     function CategoricalMapper() {
-      CategoricalMapper.__super__.constructor.apply(this, arguments);
+      return CategoricalMapper.__super__.constructor.apply(this, arguments);
     }
 
     CategoricalMapper.prototype.initialize = function(attrs, options) {
@@ -14780,7 +14872,7 @@ _.setdefault = function(obj, key, value){
     __extends(LinearMapper, _super);
 
     function LinearMapper() {
-      LinearMapper.__super__.constructor.apply(this, arguments);
+      return LinearMapper.__super__.constructor.apply(this, arguments);
     }
 
     LinearMapper.prototype.initialize = function(attrs, options) {
@@ -14855,7 +14947,7 @@ _.setdefault = function(obj, key, value){
     __extends(LogMapper, _super);
 
     function LogMapper() {
-      LogMapper.__super__.constructor.apply(this, arguments);
+      return LogMapper.__super__.constructor.apply(this, arguments);
     }
 
     LogMapper.prototype.initialize = function(attrs, options) {
@@ -14897,7 +14989,7 @@ _.setdefault = function(obj, key, value){
     __extends(BarycentricMapper, _super);
 
     function BarycentricMapper() {
-      BarycentricMapper.__super__.constructor.apply(this, arguments);
+      return BarycentricMapper.__super__.constructor.apply(this, arguments);
     }
 
     BarycentricMapper.prototype.initialize = function(attrs, options) {
@@ -14931,7 +15023,7 @@ _.setdefault = function(obj, key, value){
     __extends(GridMapper, _super);
 
     function GridMapper() {
-      GridMapper.__super__.constructor.apply(this, arguments);
+      return GridMapper.__super__.constructor.apply(this, arguments);
     }
 
     GridMapper.prototype.map_to_target = function(x, y) {
@@ -14981,7 +15073,7 @@ _.setdefault = function(obj, key, value){
     __extends(PolarMapper, _super);
 
     function PolarMapper() {
-      PolarMapper.__super__.constructor.apply(this, arguments);
+      return PolarMapper.__super__.constructor.apply(this, arguments);
     }
 
     PolarMapper.prototype.initialize = function(attrs, options) {
@@ -15015,7 +15107,7 @@ _.setdefault = function(obj, key, value){
     __extends(TernaryMapper, _super);
 
     function TernaryMapper() {
-      TernaryMapper.__super__.constructor.apply(this, arguments);
+      return TernaryMapper.__super__.constructor.apply(this, arguments);
     }
 
     TernaryMapper.prototype.initialize = function(attrs, options) {
@@ -15049,7 +15141,7 @@ _.setdefault = function(obj, key, value){
     __extends(LinearColorMapper, _super);
 
     function LinearColorMapper() {
-      LinearColorMapper.__super__.constructor.apply(this, arguments);
+      return LinearColorMapper.__super__.constructor.apply(this, arguments);
     }
 
     LinearColorMapper.prototype.initialize = function(attrs, options) {
@@ -15173,7 +15265,7 @@ _.setdefault = function(obj, key, value){
     __extends(BoxSelectionOverlayView, _super);
 
     function BoxSelectionOverlayView() {
-      BoxSelectionOverlayView.__super__.constructor.apply(this, arguments);
+      return BoxSelectionOverlayView.__super__.constructor.apply(this, arguments);
     }
 
     BoxSelectionOverlayView.prototype.initialize = function(options) {
@@ -15251,7 +15343,7 @@ _.setdefault = function(obj, key, value){
     __extends(BoxSelectionOverlay, _super);
 
     function BoxSelectionOverlay() {
-      BoxSelectionOverlay.__super__.constructor.apply(this, arguments);
+      return BoxSelectionOverlay.__super__.constructor.apply(this, arguments);
     }
 
     BoxSelectionOverlay.prototype.type = 'BoxSelectionOverlay';
@@ -15274,7 +15366,7 @@ _.setdefault = function(obj, key, value){
     __extends(BoxSelectionOverlays, _super);
 
     function BoxSelectionOverlays() {
-      BoxSelectionOverlays.__super__.constructor.apply(this, arguments);
+      return BoxSelectionOverlays.__super__.constructor.apply(this, arguments);
     }
 
     BoxSelectionOverlays.prototype.model = BoxSelectionOverlay;
@@ -15601,7 +15693,7 @@ _.setdefault = function(obj, key, value){
     __extends(IPythonRemoteData, _super);
 
     function IPythonRemoteData() {
-      IPythonRemoteData.__super__.constructor.apply(this, arguments);
+      return IPythonRemoteData.__super__.constructor.apply(this, arguments);
     }
 
     IPythonRemoteData.prototype.type = 'IPythonRemoteData';
@@ -15627,7 +15719,7 @@ _.setdefault = function(obj, key, value){
     __extends(PandasPlotSource, _super);
 
     function PandasPlotSource() {
-      PandasPlotSource.__super__.constructor.apply(this, arguments);
+      return PandasPlotSource.__super__.constructor.apply(this, arguments);
     }
 
     PandasPlotSource.prototype.type = 'PandasPlotSource';
@@ -15647,7 +15739,7 @@ _.setdefault = function(obj, key, value){
     __extends(PandasPlotSources, _super);
 
     function PandasPlotSources() {
-      PandasPlotSources.__super__.constructor.apply(this, arguments);
+      return PandasPlotSources.__super__.constructor.apply(this, arguments);
     }
 
     PandasPlotSources.prototype.model = PandasPlotSource;
@@ -15662,19 +15754,31 @@ _.setdefault = function(obj, key, value){
 
     function PandasPivotView() {
       this.colors = __bind(this.colors, this);
+
       this.pandasend = __bind(this.pandasend, this);
+
       this.pandasnext = __bind(this.pandasnext, this);
+
       this.pandasback = __bind(this.pandasback, this);
+
       this.pandasbeginning = __bind(this.pandasbeginning, this);
+
       this.toggle_more_controls = __bind(this.toggle_more_controls, this);
+
       this.sort = __bind(this.sort, this);
+
       this.rowclick = __bind(this.rowclick, this);
+
       this.toggle_filterselected = __bind(this.toggle_filterselected, this);
+
       this.clearselected = __bind(this.clearselected, this);
+
       this.computedtxtbox = __bind(this.computedtxtbox, this);
+
       this.column_del = __bind(this.column_del, this);
+
       this.search = __bind(this.search, this);
-      PandasPivotView.__super__.constructor.apply(this, arguments);
+      return PandasPivotView.__super__.constructor.apply(this, arguments);
     }
 
     PandasPivotView.prototype.template = require("./pandaspivot");
@@ -15968,8 +16072,9 @@ _.setdefault = function(obj, key, value){
 
     function PandasPivotTable() {
       this.toggle_column_sort = __bind(this.toggle_column_sort, this);
+
       this.dinitialize = __bind(this.dinitialize, this);
-      PandasPivotTable.__super__.constructor.apply(this, arguments);
+      return PandasPivotTable.__super__.constructor.apply(this, arguments);
     }
 
     PandasPivotTable.prototype.type = 'PandasPivotTable';
@@ -16293,12 +16398,13 @@ _.setdefault = function(obj, key, value){
 
   "Legends:\n\nlegend_padding is the boundary between the legend and the edge of the plot\nlegend_spacing goes between each legend entry and the edge of the legend,\nas well as between 2 adjacent legend entries.  It is also the space between\nthe legend label, and the legend glyph.\n\nA legend in the top right corner looks like this\n\nplotborder\npadding\nlegendborder\nspacing\nlegendborder|spacing|label|spacing|glyph|spacing|legendborder|padding|plotborder\nspacing\nlegendborder|spacing|label|spacing|glyph|spacing|legendborder|padding|plotborder\nspacing\nborder\n";
 
+
   LegendView = (function(_super) {
 
     __extends(LegendView, _super);
 
     function LegendView() {
-      LegendView.__super__.constructor.apply(this, arguments);
+      return LegendView.__super__.constructor.apply(this, arguments);
     }
 
     LegendView.prototype.initialize = function(options) {
@@ -16411,7 +16517,7 @@ _.setdefault = function(obj, key, value){
     __extends(Legend, _super);
 
     function Legend() {
-      Legend.__super__.constructor.apply(this, arguments);
+      return Legend.__super__.constructor.apply(this, arguments);
     }
 
     Legend.prototype.default_view = LegendView;
@@ -16479,12 +16585,12 @@ _.setdefault = function(obj, key, value){
     __extends(AnnotationRenderers, _super);
 
     function AnnotationRenderers() {
-      AnnotationRenderers.__super__.constructor.apply(this, arguments);
+      return AnnotationRenderers.__super__.constructor.apply(this, arguments);
     }
 
     AnnotationRenderers.prototype.model = function(attrs, options) {
       var model, type, _ref;
-      if (((_ref = attrs.annotationspec) != null ? _ref.type : void 0) == null) {
+      if (!(((_ref = attrs.annotationspec) != null ? _ref.type : void 0) != null)) {
         console.log("missing annotation type");
         return;
       }
@@ -16536,7 +16642,7 @@ _.setdefault = function(obj, key, value){
     __extends(AnnularWedgeView, _super);
 
     function AnnularWedgeView() {
-      AnnularWedgeView.__super__.constructor.apply(this, arguments);
+      return AnnularWedgeView.__super__.constructor.apply(this, arguments);
     }
 
     AnnularWedgeView.prototype.initialize = function(options) {
@@ -16809,7 +16915,7 @@ _.setdefault = function(obj, key, value){
     __extends(AnnularWedge, _super);
 
     function AnnularWedge() {
-      AnnularWedge.__super__.constructor.apply(this, arguments);
+      return AnnularWedge.__super__.constructor.apply(this, arguments);
     }
 
     AnnularWedge.prototype.default_view = AnnularWedgeView;
@@ -16864,7 +16970,7 @@ _.setdefault = function(obj, key, value){
     __extends(AnnulusView, _super);
 
     function AnnulusView() {
-      AnnulusView.__super__.constructor.apply(this, arguments);
+      return AnnulusView.__super__.constructor.apply(this, arguments);
     }
 
     AnnulusView.prototype.initialize = function(options) {
@@ -17071,7 +17177,7 @@ _.setdefault = function(obj, key, value){
     __extends(Annulus, _super);
 
     function Annulus() {
-      Annulus.__super__.constructor.apply(this, arguments);
+      return Annulus.__super__.constructor.apply(this, arguments);
     }
 
     Annulus.prototype.default_view = AnnulusView;
@@ -17123,7 +17229,7 @@ _.setdefault = function(obj, key, value){
     __extends(ArcView, _super);
 
     function ArcView() {
-      ArcView.__super__.constructor.apply(this, arguments);
+      return ArcView.__super__.constructor.apply(this, arguments);
     }
 
     ArcView.prototype.initialize = function(options) {
@@ -17263,7 +17369,7 @@ _.setdefault = function(obj, key, value){
     __extends(Arc, _super);
 
     function Arc() {
-      Arc.__super__.constructor.apply(this, arguments);
+      return Arc.__super__.constructor.apply(this, arguments);
     }
 
     Arc.prototype.default_view = ArcView;
@@ -17314,7 +17420,7 @@ _.setdefault = function(obj, key, value){
     __extends(BezierView, _super);
 
     function BezierView() {
-      BezierView.__super__.constructor.apply(this, arguments);
+      return BezierView.__super__.constructor.apply(this, arguments);
     }
 
     BezierView.prototype.initialize = function(options) {
@@ -17396,7 +17502,7 @@ _.setdefault = function(obj, key, value){
     __extends(Bezier, _super);
 
     function Bezier() {
-      Bezier.__super__.constructor.apply(this, arguments);
+      return Bezier.__super__.constructor.apply(this, arguments);
     }
 
     Bezier.prototype.default_view = BezierView;
@@ -17448,7 +17554,7 @@ _.setdefault = function(obj, key, value){
     __extends(CircleView, _super);
 
     function CircleView() {
-      CircleView.__super__.constructor.apply(this, arguments);
+      return CircleView.__super__.constructor.apply(this, arguments);
     }
 
     CircleView.prototype.initialize = function(options) {
@@ -17681,7 +17787,7 @@ _.setdefault = function(obj, key, value){
     __extends(Circle, _super);
 
     function Circle() {
-      Circle.__super__.constructor.apply(this, arguments);
+      return Circle.__super__.constructor.apply(this, arguments);
     }
 
     Circle.prototype.default_view = CircleView;
@@ -17729,7 +17835,7 @@ _.setdefault = function(obj, key, value){
     __extends(GlyphView, _super);
 
     function GlyphView() {
-      GlyphView.__super__.constructor.apply(this, arguments);
+      return GlyphView.__super__.constructor.apply(this, arguments);
     }
 
     GlyphView.prototype.initialize = function(options) {
@@ -17876,7 +17982,7 @@ _.setdefault = function(obj, key, value){
     __extends(Glyph, _super);
 
     function Glyph() {
-      Glyph.__super__.constructor.apply(this, arguments);
+      return Glyph.__super__.constructor.apply(this, arguments);
     }
 
     return Glyph;
@@ -17929,7 +18035,7 @@ _.setdefault = function(obj, key, value){
     __extends(ImageView, _super);
 
     function ImageView() {
-      ImageView.__super__.constructor.apply(this, arguments);
+      return ImageView.__super__.constructor.apply(this, arguments);
     }
 
     ImageView.prototype.initialize = function(options) {
@@ -18015,7 +18121,7 @@ _.setdefault = function(obj, key, value){
     __extends(ImageGlyph, _super);
 
     function ImageGlyph() {
-      ImageGlyph.__super__.constructor.apply(this, arguments);
+      return ImageGlyph.__super__.constructor.apply(this, arguments);
     }
 
     ImageGlyph.prototype.default_view = ImageView;
@@ -18057,7 +18163,7 @@ _.setdefault = function(obj, key, value){
     __extends(ImageRGBAView, _super);
 
     function ImageRGBAView() {
-      ImageRGBAView.__super__.constructor.apply(this, arguments);
+      return ImageRGBAView.__super__.constructor.apply(this, arguments);
     }
 
     ImageRGBAView.prototype.initialize = function(options) {
@@ -18087,15 +18193,15 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       }).call(this);
-      if ((this.image_data == null) || this.image_data.length !== data.length) {
+      if (!(this.image_data != null) || this.image_data.length !== data.length) {
         this.image_data = new Array(data.length);
       }
-      if ((this.image_canvas == null) || this.image_canvas.length !== data.length) {
+      if (!(this.image_canvas != null) || this.image_canvas.length !== data.length) {
         this.image_canvas = new Array(data.length);
       }
       _results = [];
       for (i = _j = 0, _ref1 = data.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
-        if ((this.image_canvas[i] == null) || (this.image_canvas[i].width !== width[i] || this.image_canvas[i].height !== height[i])) {
+        if (!(this.image_canvas[i] != null) || (this.image_canvas[i].width !== width[i] || this.image_canvas[i].height !== height[i])) {
           this.image_canvas[i] = document.createElement('canvas');
           this.image_canvas[i].width = width[i];
           this.image_canvas[i].height = height[i];
@@ -18144,7 +18250,7 @@ _.setdefault = function(obj, key, value){
     __extends(ImageRGBAGlyph, _super);
 
     function ImageRGBAGlyph() {
-      ImageRGBAGlyph.__super__.constructor.apply(this, arguments);
+      return ImageRGBAGlyph.__super__.constructor.apply(this, arguments);
     }
 
     ImageRGBAGlyph.prototype.default_view = ImageRGBAView;
@@ -18186,7 +18292,7 @@ _.setdefault = function(obj, key, value){
     __extends(ImageURIView, _super);
 
     function ImageURIView() {
-      ImageURIView.__super__.constructor.apply(this, arguments);
+      return ImageURIView.__super__.constructor.apply(this, arguments);
     }
 
     ImageURIView.prototype.initialize = function(options) {
@@ -18307,7 +18413,7 @@ _.setdefault = function(obj, key, value){
     __extends(ImageURIGlyph, _super);
 
     function ImageURIGlyph() {
-      ImageURIGlyph.__super__.constructor.apply(this, arguments);
+      return ImageURIGlyph.__super__.constructor.apply(this, arguments);
     }
 
     ImageURIGlyph.prototype.default_view = ImageURIView;
@@ -18351,7 +18457,7 @@ _.setdefault = function(obj, key, value){
     __extends(LineView, _super);
 
     function LineView() {
-      LineView.__super__.constructor.apply(this, arguments);
+      return LineView.__super__.constructor.apply(this, arguments);
     }
 
     LineView.prototype.initialize = function(options) {
@@ -18450,6 +18556,7 @@ _.setdefault = function(obj, key, value){
 
     LineView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
       var glyph_props, glyph_settings, line_props, reference_point;
+      ctx.save();
       glyph_props = this.glyph_props;
       line_props = glyph_props.line_properties;
       reference_point = this.get_reference_point();
@@ -18463,7 +18570,6 @@ _.setdefault = function(obj, key, value){
       ctx.moveTo(x1, (y1 + y2) / 2);
       ctx.lineTo(x2, (y1 + y2) / 2);
       ctx.stroke();
-      ctx.beginPath();
       return ctx.restore();
     };
 
@@ -18499,7 +18605,7 @@ _.setdefault = function(obj, key, value){
     __extends(Line, _super);
 
     function Line() {
-      Line.__super__.constructor.apply(this, arguments);
+      return Line.__super__.constructor.apply(this, arguments);
     }
 
     Line.prototype.default_view = LineView;
@@ -18549,7 +18655,7 @@ _.setdefault = function(obj, key, value){
     __extends(MultiLineView, _super);
 
     function MultiLineView() {
-      MultiLineView.__super__.constructor.apply(this, arguments);
+      return MultiLineView.__super__.constructor.apply(this, arguments);
     }
 
     MultiLineView.prototype.initialize = function(options) {
@@ -18664,7 +18770,7 @@ _.setdefault = function(obj, key, value){
     __extends(MultiLine, _super);
 
     function MultiLine() {
-      MultiLine.__super__.constructor.apply(this, arguments);
+      return MultiLine.__super__.constructor.apply(this, arguments);
     }
 
     MultiLine.prototype.default_view = MultiLineView;
@@ -18716,7 +18822,7 @@ _.setdefault = function(obj, key, value){
     __extends(OvalView, _super);
 
     function OvalView() {
-      OvalView.__super__.constructor.apply(this, arguments);
+      return OvalView.__super__.constructor.apply(this, arguments);
     }
 
     OvalView.prototype.initialize = function(options) {
@@ -18944,7 +19050,7 @@ _.setdefault = function(obj, key, value){
     __extends(Oval, _super);
 
     function Oval() {
-      Oval.__super__.constructor.apply(this, arguments);
+      return Oval.__super__.constructor.apply(this, arguments);
     }
 
     Oval.prototype.default_view = OvalView;
@@ -18999,7 +19105,7 @@ _.setdefault = function(obj, key, value){
     __extends(PatchView, _super);
 
     function PatchView() {
-      PatchView.__super__.constructor.apply(this, arguments);
+      return PatchView.__super__.constructor.apply(this, arguments);
     }
 
     PatchView.prototype.initialize = function(options) {
@@ -19072,7 +19178,7 @@ _.setdefault = function(obj, key, value){
     __extends(Patch, _super);
 
     function Patch() {
-      Patch.__super__.constructor.apply(this, arguments);
+      return Patch.__super__.constructor.apply(this, arguments);
     }
 
     Patch.prototype.default_view = PatchView;
@@ -19126,7 +19232,7 @@ _.setdefault = function(obj, key, value){
     __extends(PatchesView, _super);
 
     function PatchesView() {
-      PatchesView.__super__.constructor.apply(this, arguments);
+      return PatchesView.__super__.constructor.apply(this, arguments);
     }
 
     PatchesView.prototype.initialize = function(options) {
@@ -19203,7 +19309,7 @@ _.setdefault = function(obj, key, value){
     __extends(Patches, _super);
 
     function Patches() {
-      Patches.__super__.constructor.apply(this, arguments);
+      return Patches.__super__.constructor.apply(this, arguments);
     }
 
     Patches.prototype.default_view = PatchesView;
@@ -19257,7 +19363,7 @@ _.setdefault = function(obj, key, value){
     __extends(QuadView, _super);
 
     function QuadView() {
-      QuadView.__super__.constructor.apply(this, arguments);
+      return QuadView.__super__.constructor.apply(this, arguments);
     }
 
     QuadView.prototype.initialize = function(options) {
@@ -19408,7 +19514,7 @@ _.setdefault = function(obj, key, value){
     __extends(Quad, _super);
 
     function Quad() {
-      Quad.__super__.constructor.apply(this, arguments);
+      return Quad.__super__.constructor.apply(this, arguments);
     }
 
     Quad.prototype.default_view = QuadView;
@@ -19460,7 +19566,7 @@ _.setdefault = function(obj, key, value){
     __extends(QuadraticView, _super);
 
     function QuadraticView() {
-      QuadraticView.__super__.constructor.apply(this, arguments);
+      return QuadraticView.__super__.constructor.apply(this, arguments);
     }
 
     QuadraticView.prototype.initialize = function(options) {
@@ -19539,7 +19645,7 @@ _.setdefault = function(obj, key, value){
     __extends(Quadratic, _super);
 
     function Quadratic() {
-      Quadratic.__super__.constructor.apply(this, arguments);
+      return Quadratic.__super__.constructor.apply(this, arguments);
     }
 
     Quadratic.prototype.default_view = QuadraticView;
@@ -19589,7 +19695,7 @@ _.setdefault = function(obj, key, value){
     __extends(RayView, _super);
 
     function RayView() {
-      RayView.__super__.constructor.apply(this, arguments);
+      return RayView.__super__.constructor.apply(this, arguments);
     }
 
     RayView.prototype.initialize = function(options) {
@@ -19724,7 +19830,7 @@ _.setdefault = function(obj, key, value){
     __extends(Ray, _super);
 
     function Ray() {
-      Ray.__super__.constructor.apply(this, arguments);
+      return Ray.__super__.constructor.apply(this, arguments);
     }
 
     Ray.prototype.default_view = RayView;
@@ -19776,7 +19882,7 @@ _.setdefault = function(obj, key, value){
     __extends(RectView, _super);
 
     function RectView() {
-      RectView.__super__.constructor.apply(this, arguments);
+      return RectView.__super__.constructor.apply(this, arguments);
     }
 
     RectView.prototype.initialize = function(options) {
@@ -19827,10 +19933,26 @@ _.setdefault = function(obj, key, value){
     };
 
     RectView.prototype._map_data = function() {
-      var _ref;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var i, sxi, syi, _i, _ref, _ref1, _results;
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), sxi = _ref[0], syi = _ref[1];
       this.sw = this.distance(this.data, 'x', 'width', 'center');
-      return this.sh = this.distance(this.data, 'y', 'height', 'center');
+      this.sh = this.distance(this.data, 'y', 'height', 'center');
+      this.sx = new Array(sxi.length);
+      this.sy = new Array(sxi.length);
+      _results = [];
+      for (i = _i = 0, _ref1 = sxi.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if (Math.abs(sxi[i] - this.sw[i]) < 2) {
+          this.sx[i] = Math.round(sxi[i]);
+        } else {
+          this.sx[i] = sxi[i];
+        }
+        if (Math.abs(syi[i] - this.sh[i]) < 2) {
+          _results.push(this.sy[i] = Math.round(syi[i]));
+        } else {
+          _results.push(this.sy[i] = syi[i]);
+        }
+      }
+      return _results;
     };
 
     RectView.prototype._render = function() {
@@ -20005,7 +20127,7 @@ _.setdefault = function(obj, key, value){
     __extends(Rect, _super);
 
     function Rect() {
-      Rect.__super__.constructor.apply(this, arguments);
+      return Rect.__super__.constructor.apply(this, arguments);
     }
 
     Rect.prototype.default_view = RectView;
@@ -20058,7 +20180,7 @@ _.setdefault = function(obj, key, value){
     __extends(SegmentView, _super);
 
     function SegmentView() {
-      SegmentView.__super__.constructor.apply(this, arguments);
+      return SegmentView.__super__.constructor.apply(this, arguments);
     }
 
     SegmentView.prototype.initialize = function(options) {
@@ -20153,7 +20275,7 @@ _.setdefault = function(obj, key, value){
     __extends(Segment, _super);
 
     function Segment() {
-      Segment.__super__.constructor.apply(this, arguments);
+      return Segment.__super__.constructor.apply(this, arguments);
     }
 
     Segment.prototype.default_view = SegmentView;
@@ -20207,7 +20329,7 @@ _.setdefault = function(obj, key, value){
     __extends(SquareView, _super);
 
     function SquareView() {
-      SquareView.__super__.constructor.apply(this, arguments);
+      return SquareView.__super__.constructor.apply(this, arguments);
     }
 
     SquareView.prototype.initialize = function(options) {
@@ -20286,7 +20408,7 @@ _.setdefault = function(obj, key, value){
     __extends(Square, _super);
 
     function Square() {
-      Square.__super__.constructor.apply(this, arguments);
+      return Square.__super__.constructor.apply(this, arguments);
     }
 
     Square.prototype.default_view = SquareView;
@@ -20324,7 +20446,7 @@ _.setdefault = function(obj, key, value){
     __extends(TextView, _super);
 
     function TextView() {
-      TextView.__super__.constructor.apply(this, arguments);
+      return TextView.__super__.constructor.apply(this, arguments);
     }
 
     TextView.prototype.initialize = function(options) {
@@ -20439,7 +20561,7 @@ _.setdefault = function(obj, key, value){
     __extends(Text, _super);
 
     function Text() {
-      Text.__super__.constructor.apply(this, arguments);
+      return Text.__super__.constructor.apply(this, arguments);
     }
 
     Text.prototype.default_view = TextView;
@@ -20491,7 +20613,7 @@ _.setdefault = function(obj, key, value){
     __extends(WedgeView, _super);
 
     function WedgeView() {
-      WedgeView.__super__.constructor.apply(this, arguments);
+      return WedgeView.__super__.constructor.apply(this, arguments);
     }
 
     WedgeView.prototype.initialize = function(options) {
@@ -20663,7 +20785,7 @@ _.setdefault = function(obj, key, value){
     __extends(Wedge, _super);
 
     function Wedge() {
-      Wedge.__super__.constructor.apply(this, arguments);
+      return Wedge.__super__.constructor.apply(this, arguments);
     }
 
     Wedge.prototype.default_view = WedgeView;
@@ -20710,12 +20832,12 @@ _.setdefault = function(obj, key, value){
     __extends(GlyphRenderers, _super);
 
     function GlyphRenderers() {
-      GlyphRenderers.__super__.constructor.apply(this, arguments);
+      return GlyphRenderers.__super__.constructor.apply(this, arguments);
     }
 
     GlyphRenderers.prototype.model = function(attrs, options) {
       var model, type, _ref;
-      if (((_ref = attrs.glyphspec) != null ? _ref.type : void 0) == null) {
+      if (!(((_ref = attrs.glyphspec) != null ? _ref.type : void 0) != null)) {
         console.log("missing glyph type");
         return;
       }
@@ -20837,7 +20959,7 @@ _.setdefault = function(obj, key, value){
     __extends(DatetimeAxisView, _super);
 
     function DatetimeAxisView() {
-      DatetimeAxisView.__super__.constructor.apply(this, arguments);
+      return DatetimeAxisView.__super__.constructor.apply(this, arguments);
     }
 
     DatetimeAxisView.prototype.initialize = function(attrs, options) {
@@ -20854,7 +20976,7 @@ _.setdefault = function(obj, key, value){
     __extends(DatetimeAxis, _super);
 
     function DatetimeAxis() {
-      DatetimeAxis.__super__.constructor.apply(this, arguments);
+      return DatetimeAxis.__super__.constructor.apply(this, arguments);
     }
 
     DatetimeAxis.prototype.default_view = DatetimeAxisView;
@@ -20874,7 +20996,7 @@ _.setdefault = function(obj, key, value){
     __extends(DatetimeAxes, _super);
 
     function DatetimeAxes() {
-      DatetimeAxes.__super__.constructor.apply(this, arguments);
+      return DatetimeAxes.__super__.constructor.apply(this, arguments);
     }
 
     DatetimeAxes.prototype.model = DatetimeAxis;
@@ -20914,7 +21036,7 @@ _.setdefault = function(obj, key, value){
     __extends(GridView, _super);
 
     function GridView() {
-      GridView.__super__.constructor.apply(this, arguments);
+      return GridView.__super__.constructor.apply(this, arguments);
     }
 
     GridView.prototype.initialize = function(attrs, options) {
@@ -20958,7 +21080,7 @@ _.setdefault = function(obj, key, value){
     __extends(Grid, _super);
 
     function Grid() {
-      Grid.__super__.constructor.apply(this, arguments);
+      return Grid.__super__.constructor.apply(this, arguments);
     }
 
     Grid.prototype.default_view = GridView;
@@ -21059,7 +21181,7 @@ _.setdefault = function(obj, key, value){
     __extends(Grids, _super);
 
     function Grids() {
-      Grids.__super__.constructor.apply(this, arguments);
+      return Grids.__super__.constructor.apply(this, arguments);
     }
 
     Grids.prototype.model = Grid;
@@ -21191,7 +21313,7 @@ _.setdefault = function(obj, key, value){
     __extends(LinearAxisView, _super);
 
     function LinearAxisView() {
-      LinearAxisView.__super__.constructor.apply(this, arguments);
+      return LinearAxisView.__super__.constructor.apply(this, arguments);
     }
 
     LinearAxisView.prototype.initialize = function(attrs, options) {
@@ -21284,7 +21406,7 @@ _.setdefault = function(obj, key, value){
     LinearAxisView.prototype._draw_axis_label = function(ctx) {
       var angle, label, nx, ny, orient, side, standoff, sx, sy, x, y, _ref, _ref1, _ref2;
       label = this.mget('axis_label');
-      if (label == null) {
+      if (!(label != null)) {
         return;
       }
       _ref = this.mget('rule_coords'), x = _ref[0], y = _ref[1];
@@ -21349,7 +21471,7 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxisView.prototype._tick_label_extent = function() {
-      var angle, c, coords, dim, extent, factor, h, i, labels, orient, rounding, s, side, val, w, _i, _j, _ref, _ref1;
+      var angle, c, coords, dim, extent, factor, h, i, labels, orient, s, side, val, w, _i, _j, _ref, _ref1;
       extent = 0;
       dim = this.mget('dimension');
       coords = this.mget('major_coords');
@@ -21369,11 +21491,11 @@ _.setdefault = function(obj, key, value){
       s = Math.sin(angle);
       if (side === "top" || side === "bottom") {
         for (i = _i = 0, _ref = labels.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-          if (labels[i] == null) {
+          if (!(labels[i] != null)) {
             continue;
           }
-          w = this.plot_view.ctx.measureText(labels[i]).width * 1.3;
-          h = this.plot_view.ctx.measureText(labels[i]).ascent;
+          w = this.plot_view.ctx.measureText(labels[i]).width * 1.1;
+          h = this.plot_view.ctx.measureText(labels[i]).ascent * 0.9;
           val = w * s + (h / factor) * c;
           if (val > extent) {
             extent = val;
@@ -21381,11 +21503,11 @@ _.setdefault = function(obj, key, value){
         }
       } else {
         for (i = _j = 0, _ref1 = labels.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
-          if (labels[i] == null) {
+          if (!(labels[i] != null)) {
             continue;
           }
-          w = this.plot_view.ctx.measureText(labels[i]).width * 1.3;
-          h = this.plot_view.ctx.measureText(labels[i]).ascent;
+          w = this.plot_view.ctx.measureText(labels[i]).width * 1.1;
+          h = this.plot_view.ctx.measureText(labels[i]).ascent * 0.9;
           val = w * c + (h / factor) * s;
           if (val > extent) {
             extent = val;
@@ -21395,8 +21517,7 @@ _.setdefault = function(obj, key, value){
       if (extent > 0) {
         extent += this.mget('major_label_standoff');
       }
-      rounding = this.mget('rounding_value');
-      return (Math.floor(extent / rounding) + 1) * rounding;
+      return extent;
     };
 
     LinearAxisView.prototype._axis_label_extent = function() {
@@ -21411,8 +21532,8 @@ _.setdefault = function(obj, key, value){
       if (this.mget('axis_label')) {
         extent += this.mget('axis_label_standoff');
         this.axis_label_props.set(this.plot_view.ctx, this);
-        w = this.plot_view.ctx.measureText(this.mget('axis_label')).width;
-        h = this.plot_view.ctx.measureText(this.mget('axis_label')).ascent;
+        w = this.plot_view.ctx.measureText(this.mget('axis_label')).width * 1.1;
+        h = this.plot_view.ctx.measureText(this.mget('axis_label')).ascent * 0.9;
         if (side === "top" || side === "bottom") {
           extent += w * s + h * c;
         } else {
@@ -21447,7 +21568,7 @@ _.setdefault = function(obj, key, value){
     __extends(LinearAxis, _super);
 
     function LinearAxis() {
-      LinearAxis.__super__.constructor.apply(this, arguments);
+      return LinearAxis.__super__.constructor.apply(this, arguments);
     }
 
     LinearAxis.prototype.default_view = LinearAxisView;
@@ -21666,7 +21787,7 @@ _.setdefault = function(obj, key, value){
     __extends(LinearAxes, _super);
 
     function LinearAxes() {
-      LinearAxes.__super__.constructor.apply(this, arguments);
+      return LinearAxes.__super__.constructor.apply(this, arguments);
     }
 
     LinearAxes.prototype.model = LinearAxis;
@@ -21698,12 +21819,12 @@ _.setdefault = function(obj, key, value){
     __extends(GuideRenderers, _super);
 
     function GuideRenderers() {
-      GuideRenderers.__super__.constructor.apply(this, arguments);
+      return GuideRenderers.__super__.constructor.apply(this, arguments);
     }
 
     GuideRenderers.prototype.model = function(attrs, options) {
       var model, type;
-      if (attrs.type == null) {
+      if (!(attrs.type != null)) {
         console.log("missing guide type");
         return;
       }
@@ -21755,14 +21876,14 @@ _.setdefault = function(obj, key, value){
       var default_value, glyph_value;
       this[attrname] = {};
       default_value = styleprovider.mget(attrname);
-      if (default_value == null) {
+      if (!(default_value != null)) {
 
       } else if (_.isString(default_value)) {
         this[attrname]["default"] = default_value;
       } else {
         console.log(("string property '" + attrname + "' given invalid default value: ") + default_value);
       }
-      if ((glyphspec == null) || !(attrname in glyphspec)) {
+      if (!(glyphspec != null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21781,7 +21902,7 @@ _.setdefault = function(obj, key, value){
         typed: true
       };
       default_value = styleprovider.mget(attrname);
-      if (default_value == null) {
+      if (!(default_value != null)) {
 
       } else if (_.isNumber(default_value)) {
         this[attrname]["default"] = default_value;
@@ -21793,7 +21914,7 @@ _.setdefault = function(obj, key, value){
         units_value = glyphspec[attrname + '_units'];
       }
       this[attrname].units = units_value;
-      if ((glyphspec == null) || !(attrname in glyphspec)) {
+      if (!(glyphspec != null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21812,14 +21933,14 @@ _.setdefault = function(obj, key, value){
       var default_value, glyph_value;
       this[attrname] = {};
       default_value = styleprovider.mget(attrname);
-      if (default_value == null) {
+      if (!(default_value != null)) {
         this[attrname]["default"] = null;
       } else if (_.isString(default_value) && ((svg_colors[default_value] != null) || default_value.substring(0, 1) === "#")) {
         this[attrname]["default"] = default_value;
       } else {
         console.log(("color property '" + attrname + "' given invalid default value: ") + default_value);
       }
-      if ((glyphspec == null) || !(attrname in glyphspec)) {
+      if (!(glyphspec != null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21842,7 +21963,7 @@ _.setdefault = function(obj, key, value){
       var default_value, glyph_value, units_value, _ref;
       this[attrname] = {};
       default_value = styleprovider.mget(attrname);
-      if (default_value == null) {
+      if (!(default_value != null)) {
 
       } else if (_.isArray(default_value)) {
         this[attrname]["default"] = default_value;
@@ -21854,7 +21975,7 @@ _.setdefault = function(obj, key, value){
         units_value = glyphspec[attrname + '_units'];
       }
       this[attrname].units = units_value;
-      if ((glyphspec == null) || !(attrname in glyphspec)) {
+      if (!(glyphspec != null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21884,7 +22005,7 @@ _.setdefault = function(obj, key, value){
         console.log(("enum property '" + attrname + "' given invalid default value: ") + default_value);
         console.log("    acceptable values:" + levels);
       }
-      if ((glyphspec == null) || !(attrname in glyphspec)) {
+      if (!(glyphspec != null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -22066,7 +22187,7 @@ _.setdefault = function(obj, key, value){
 
     text_properties.prototype.font = function(obj, font_size) {
       var font, font_style;
-      if (font_size == null) {
+      if (!(font_size != null)) {
         font_size = this.select(this.text_font_size_name, obj);
       }
       font = this.select(this.text_font_name, obj);
@@ -22712,6 +22833,7 @@ _.setdefault = function(obj, key, value){
 
   ActiveToolManager = (function() {
     " This makes sure that only one tool is active at a time ";
+
     function ActiveToolManager(event_sink) {
       this.event_sink = event_sink;
       this.event_sink.active = null;
@@ -22732,7 +22854,7 @@ _.setdefault = function(obj, key, value){
         }
       });
       return this.event_sink.on("try_active_tool", function(toolName) {
-        if (_this.event_sink.active == null) {
+        if (!(_this.event_sink.active != null)) {
           _this.event_sink.trigger("" + toolName + ":activated");
           _this.event_sink.trigger("" + _this.event_sink.active + ":deactivated");
           return _this.event_sink.active = toolName;
@@ -22769,7 +22891,7 @@ _.setdefault = function(obj, key, value){
     __extends(EmbedToolView, _super);
 
     function EmbedToolView() {
-      EmbedToolView.__super__.constructor.apply(this, arguments);
+      return EmbedToolView.__super__.constructor.apply(this, arguments);
     }
 
     EmbedToolView.prototype.initialize = function(options) {
@@ -22795,7 +22917,7 @@ _.setdefault = function(obj, key, value){
       doc_id = this.plot_model.get('doc');
       doc_apikey = this.plot_model.get('docapikey');
       baseurl = this.plot_model.get('baseurl');
-      js_template = "&lt;script src=\"http://localhost:5006/bokeh/embed.js\" bokeh_plottype=\"serverconn\"\nbokeh_docid=\"" + doc_id + "\" bokeh_ws_conn_string=\"ws://localhost:5006/bokeh/sub\"\nbokeh_docapikey=\"" + doc_apikey + "\"\n\nbokeh_root_url=\"" + baseurl + "\"\nbokeh_root_url=\"http://localhost:5006\"\nbokeh_modelid=\"" + model_id + "\" bokeh_modeltype=\"Plot\" async=\"true\"&gt;\n&lt;/script&gt;\n";
+      js_template = "\n&lt;script src=\"http://localhost:5006/bokeh/embed.js\" bokeh_plottype=\"serverconn\"\nbokeh_docid=\"" + doc_id + "\" bokeh_ws_conn_string=\"ws://localhost:5006/bokeh/sub\"\nbokeh_docapikey=\"" + doc_apikey + "\"\n\nbokeh_root_url=\"" + baseurl + "\"\nbokeh_root_url=\"http://localhost:5006\"\nbokeh_modelid=\"" + model_id + "\" bokeh_modeltype=\"Plot\" async=\"true\"&gt;\n&lt;/script&gt;\n";
       script_inject_escaped = this.plot_model.get('script_inject_escaped');
       modal = "<div id=\"embedModal\" class=\"modal\" role=\"dialog\" aria-labelledby=\"embedLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n    <h3 id=\"dataConfirmLabel\"> HTML Embed code</h3></div><div class=\"modal-body\">\n  <div class=\"modal-body\">\n    " + script_inject_escaped + "\n  </div>\n  </div><div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n  </div>\n</div>";
       $('body').append(modal);
@@ -22816,7 +22938,7 @@ _.setdefault = function(obj, key, value){
     __extends(EmbedTool, _super);
 
     function EmbedTool() {
-      EmbedTool.__super__.constructor.apply(this, arguments);
+      return EmbedTool.__super__.constructor.apply(this, arguments);
     }
 
     EmbedTool.prototype.type = "EmbedTool";
@@ -22836,7 +22958,7 @@ _.setdefault = function(obj, key, value){
     __extends(EmbedTools, _super);
 
     function EmbedTools() {
-      EmbedTools.__super__.constructor.apply(this, arguments);
+      return EmbedTools.__super__.constructor.apply(this, arguments);
     }
 
     EmbedTools.prototype.model = EmbedTool;
@@ -23200,7 +23322,7 @@ _.setdefault = function(obj, key, value){
     __extends(PanToolView, _super);
 
     function PanToolView() {
-      PanToolView.__super__.constructor.apply(this, arguments);
+      return PanToolView.__super__.constructor.apply(this, arguments);
     }
 
     PanToolView.prototype.initialize = function(options) {
@@ -23279,7 +23401,7 @@ _.setdefault = function(obj, key, value){
     __extends(PanTool, _super);
 
     function PanTool() {
-      PanTool.__super__.constructor.apply(this, arguments);
+      return PanTool.__super__.constructor.apply(this, arguments);
     }
 
     PanTool.prototype.type = "PanTool";
@@ -23302,7 +23424,7 @@ _.setdefault = function(obj, key, value){
     __extends(PanTools, _super);
 
     function PanTools() {
-      PanTools.__super__.constructor.apply(this, arguments);
+      return PanTools.__super__.constructor.apply(this, arguments);
     }
 
     PanTools.prototype.model = PanTool;
@@ -23334,7 +23456,7 @@ _.setdefault = function(obj, key, value){
     __extends(PreviewSaveToolView, _super);
 
     function PreviewSaveToolView() {
-      PreviewSaveToolView.__super__.constructor.apply(this, arguments);
+      return PreviewSaveToolView.__super__.constructor.apply(this, arguments);
     }
 
     PreviewSaveToolView.prototype.initialize = function(options) {
@@ -23376,7 +23498,7 @@ _.setdefault = function(obj, key, value){
     __extends(PreviewSaveTool, _super);
 
     function PreviewSaveTool() {
-      PreviewSaveTool.__super__.constructor.apply(this, arguments);
+      return PreviewSaveTool.__super__.constructor.apply(this, arguments);
     }
 
     PreviewSaveTool.prototype.type = "PreviewSaveTool";
@@ -23396,7 +23518,7 @@ _.setdefault = function(obj, key, value){
     __extends(PreviewSaveTools, _super);
 
     function PreviewSaveTools() {
-      PreviewSaveTools.__super__.constructor.apply(this, arguments);
+      return PreviewSaveTools.__super__.constructor.apply(this, arguments);
     }
 
     PreviewSaveTools.prototype.model = PreviewSaveTool;
@@ -23430,7 +23552,7 @@ _.setdefault = function(obj, key, value){
     __extends(ResizeToolView, _super);
 
     function ResizeToolView() {
-      ResizeToolView.__super__.constructor.apply(this, arguments);
+      return ResizeToolView.__super__.constructor.apply(this, arguments);
     }
 
     ResizeToolView.prototype.initialize = function(options) {
@@ -23550,7 +23672,7 @@ _.setdefault = function(obj, key, value){
     __extends(ResizeTool, _super);
 
     function ResizeTool() {
-      ResizeTool.__super__.constructor.apply(this, arguments);
+      return ResizeTool.__super__.constructor.apply(this, arguments);
     }
 
     ResizeTool.prototype.type = "ResizeTool";
@@ -23574,7 +23696,7 @@ _.setdefault = function(obj, key, value){
     __extends(ResizeTools, _super);
 
     function ResizeTools() {
-      ResizeTools.__super__.constructor.apply(this, arguments);
+      return ResizeTools.__super__.constructor.apply(this, arguments);
     }
 
     ResizeTools.prototype.model = ResizeTool;
@@ -23610,7 +23732,7 @@ _.setdefault = function(obj, key, value){
     __extends(SelectionToolView, _super);
 
     function SelectionToolView() {
-      SelectionToolView.__super__.constructor.apply(this, arguments);
+      return SelectionToolView.__super__.constructor.apply(this, arguments);
     }
 
     SelectionToolView.prototype.initialize = function(options) {
@@ -23774,7 +23896,7 @@ _.setdefault = function(obj, key, value){
     __extends(SelectionTool, _super);
 
     function SelectionTool() {
-      SelectionTool.__super__.constructor.apply(this, arguments);
+      return SelectionTool.__super__.constructor.apply(this, arguments);
     }
 
     SelectionTool.prototype.type = "SelectionTool";
@@ -23799,7 +23921,7 @@ _.setdefault = function(obj, key, value){
     __extends(SelectionTools, _super);
 
     function SelectionTools() {
-      SelectionTools.__super__.constructor.apply(this, arguments);
+      return SelectionTools.__super__.constructor.apply(this, arguments);
     }
 
     SelectionTools.prototype.model = SelectionTool;
@@ -23817,7 +23939,7 @@ _.setdefault = function(obj, key, value){
     __extends(DataRangeBoxSelectionToolView, _super);
 
     function DataRangeBoxSelectionToolView() {
-      DataRangeBoxSelectionToolView.__super__.constructor.apply(this, arguments);
+      return DataRangeBoxSelectionToolView.__super__.constructor.apply(this, arguments);
     }
 
     DataRangeBoxSelectionToolView.prototype.bind_bokeh_events = function() {
@@ -23842,7 +23964,7 @@ _.setdefault = function(obj, key, value){
     __extends(DataRangeBoxSelectionTool, _super);
 
     function DataRangeBoxSelectionTool() {
-      DataRangeBoxSelectionTool.__super__.constructor.apply(this, arguments);
+      return DataRangeBoxSelectionTool.__super__.constructor.apply(this, arguments);
     }
 
     DataRangeBoxSelectionTool.prototype.type = "DataRangeBoxSelectionTool";
@@ -23876,7 +23998,7 @@ _.setdefault = function(obj, key, value){
     __extends(DataSliderView, _super);
 
     function DataSliderView() {
-      DataSliderView.__super__.constructor.apply(this, arguments);
+      return DataSliderView.__super__.constructor.apply(this, arguments);
     }
 
     DataSliderView.prototype.attributes = {
@@ -23932,7 +24054,7 @@ _.setdefault = function(obj, key, value){
       this.label(min, max);
       data_source = this.mget_obj('data_source');
       field = this.mget('field');
-      if (data_source.range_selections == null) {
+      if (!(data_source.range_selections != null)) {
         data_source.range_selections = {};
       }
       return data_source.range_selections[field] = [min, max];
@@ -23984,7 +24106,7 @@ _.setdefault = function(obj, key, value){
     __extends(DataSlider, _super);
 
     function DataSlider() {
-      DataSlider.__super__.constructor.apply(this, arguments);
+      return DataSlider.__super__.constructor.apply(this, arguments);
     }
 
     DataSlider.prototype.type = "DataSlider";
@@ -24033,7 +24155,7 @@ _.setdefault = function(obj, key, value){
     __extends(ToolView, _super);
 
     function ToolView() {
-      ToolView.__super__.constructor.apply(this, arguments);
+      return ToolView.__super__.constructor.apply(this, arguments);
     }
 
     ToolView.prototype.initialize = function(options) {
@@ -24073,7 +24195,7 @@ _.setdefault = function(obj, key, value){
     __extends(Tool, _super);
 
     function Tool() {
-      Tool.__super__.constructor.apply(this, arguments);
+      return Tool.__super__.constructor.apply(this, arguments);
     }
 
     return Tool;
@@ -24113,7 +24235,7 @@ _.setdefault = function(obj, key, value){
     __extends(ZoomToolView, _super);
 
     function ZoomToolView() {
-      ZoomToolView.__super__.constructor.apply(this, arguments);
+      return ZoomToolView.__super__.constructor.apply(this, arguments);
     }
 
     ZoomToolView.prototype.initialize = function(options) {
@@ -24178,7 +24300,7 @@ _.setdefault = function(obj, key, value){
     __extends(ZoomTool, _super);
 
     function ZoomTool() {
-      ZoomTool.__super__.constructor.apply(this, arguments);
+      return ZoomTool.__super__.constructor.apply(this, arguments);
     }
 
     ZoomTool.prototype.type = "ZoomTool";
@@ -24202,7 +24324,7 @@ _.setdefault = function(obj, key, value){
     __extends(ZoomTools, _super);
 
     function ZoomTools() {
-      ZoomTools.__super__.constructor.apply(this, arguments);
+      return ZoomTools.__super__.constructor.apply(this, arguments);
     }
 
     ZoomTools.prototype.model = ZoomTool;
