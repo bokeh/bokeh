@@ -160,7 +160,7 @@ class TestColorSpec(unittest.TestCase):
         self.assertDictEqual(desc.to_dict(f), {"field": "myfield"})
         f.col = (100, 150, 200, 0.5)
         self.assertEqual(f.col, (100, 150, 200, 0.5))
-        self.assertDictEqual(desc.to_dict(f), {"value": "rgb(100, 150, 200, 0.5)"})
+        self.assertDictEqual(desc.to_dict(f), {"value": "rgba(100, 150, 200, 0.5)"})
 
     def test_set_dict(self):
         class Foo(HasProps):
