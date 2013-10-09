@@ -341,6 +341,8 @@ class ColorSpec(DataSpec):
                     return setval
                 else:
                     return {"field": setval, "default": self.default}
+            elif setval is None:
+                return None
             else:
                 # setval should be a dict at this point
                 assert(isinstance(setval, dict))
