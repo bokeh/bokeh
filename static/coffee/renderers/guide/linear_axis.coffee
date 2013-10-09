@@ -122,9 +122,9 @@ class LinearAxisView extends PlotWidget
     [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
     @rule_props.set(ctx, @)
     ctx.beginPath()
-    ctx.moveTo(sx[0], sy[0])
+    ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
     for i in [1..sx.length-1]
-      ctx.lineTo(sx[i], sy[i])
+      ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
     ctx.stroke()
     return
 
@@ -137,8 +137,8 @@ class LinearAxisView extends PlotWidget
     @major_tick_props.set(ctx, @)
     for i in [0..sx.length-1]
       ctx.beginPath()
-      ctx.moveTo(sx[i]+nx*tout, sy[i]+ny*tout)
-      ctx.lineTo(sx[i]-nx*tin,  sy[i]-ny*tin)
+      ctx.moveTo(Math.round(sx[i]+nx*tout), Math.round(sy[i]+ny*tout))
+      ctx.lineTo(Math.round(sx[i]-nx*tin),  Math.round(sy[i]-ny*tin))
       ctx.stroke()
     return
 
@@ -170,7 +170,7 @@ class LinearAxisView extends PlotWidget
         ctx.rotate(-angle)
         ctx.translate(-sx[i]-nx*standoff, -sy[i]-ny*standoff)
       else
-        ctx.fillText(labels[i], sx[i] + nx*standoff, sy[i] + ny*standoff)
+        ctx.fillText(labels[i], Math.round(sx[i] + nx*standoff), Math.round(sy[i] + ny*standoff))
 
     return
 
