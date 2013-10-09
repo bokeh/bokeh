@@ -741,6 +741,9 @@ class Grid(GuideRenderer):
     dimension = Int(0)
     bounds = String('auto')
 
+    # Line props
+    grid_props = Include(LineProps, prefix="grid")
+
 class PanTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
     dimensions = List   # valid values: "x", "y"
