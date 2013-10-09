@@ -266,69 +266,60 @@ def make_plot():
     return plot
 
 
-"""the following 8 functions setup embedding pages in a variety of formats
 
-urls with no_js don't have any of our javascript included in script
-tags.  the embed.js code is supposed to make sure the proper js files
-are sourced.  Embed.js should only donwload a new js file if the
-existing javascript code isn't in the runtime environment.
 
-static places a script tag into the html markup.
+@app.route("/bokeh/generate_embed/<inject_type>/<include_js>")
+def generate_embed(inject_type, include_js):
+    """the following 8 functions setup embedding pages in a variety of formats
 
-the rest of the urls construct a script tag with a source of the
-embed.js along with the proper attributes.
+    urls with no_js don't have any of our javascript included in
+    script tags.  the embed.js code is supposed to make sure the
+    proper js files are sourced.  Embed.js should only donwload a new
+    js file if the existing javascript code isn't in the runtime
+    environment.
 
-with_delay doesn't inject until 5 seconds after pageload
+    static places a script tag into the html markup.
+    
+    static_double places two script tags in the dom.  This should
+    still cause the bokeh js to be downloaded only once
 
-onload injects at onload
+    the rest of the urls construct a script tag with a source of the
+    embed.js along with the proper attributes.
 
-direct injects as soon as the script block is hit.
+    with_delay doesn't inject until 5 seconds after pageload
 
-Everyone one of these urls should display the same plot
-"""
+    onload injects at onload
 
-@app.route("/bokeh/generate_embed/static")
-def generate_embed_static():
+    direct injects as soon as the script block is hit.
+
+    Everyone one of these urls should display the same plot
+    """
+
     plot = make_plot()
-    return dom_embed(plot, include_js=True, plot_scr=plot.script_inject())
+    delay, onload, direct, include_js_flag  = [False] * 4
+    plot_scr = ""
 
-@app.route("/bokeh/generate_embed/static/no_js")
-def generate_embed_static_no_js():
-    plot = make_plot()
-    return dom_embed(plot, include_js=False, plot_scr=plot.script_inject())
+    if inject_type == "delay":
+        delay = True
+    elif inject_type == "onload":
+        onload = True
+    elif inject_type == "direct":
+        direct = True
+    elif inject_type == "static":
+        plot_scr = plot.script_inject()
+    elif inject_type == "static_double":
+        
+        plot_scr = "%s %s" % (plot.script_inject(), plot.script_inject())
+    
+    #I don't like this naming scheme
+    if include_js == "no_js":
+        include_js_flag = False
+    elif include_js == "yes_js":
+        include_js_flag = True
 
-
-
-@app.route("/bokeh/generate_embed/with_delay")
-def generate_embed_with_delay():
-    plot = make_plot()
-    return dom_embed(plot, include_js=True, delay=True, onload=False, direct=False)
-
-@app.route("/bokeh/generate_embed/with_delay/no_js")
-def generate_embed_with_delay_no_js():
-    plot = make_plot()
-    return dom_embed(plot, include_js=False, delay=True, onload=False, direct=False)
-
-@app.route("/bokeh/generate_embed/onload")
-def generate_embed_onload():
-    plot = make_plot()
-    return dom_embed(plot, include_js=True, delay=False, onload=True, direct=False)
-
-@app.route("/bokeh/generate_embed/onload/no_js")
-def generate_embed_onload_no_js():
-    plot = make_plot()
-    return dom_embed(plot, include_js=False, delay=False, onload=True, direct=False)
-
-@app.route("/bokeh/generate_embed/direct")
-def generate_embed_direct():
-    plot = make_plot()
-    return dom_embed(plot, include_js=True, delay=False, onload=True, direct=True)
-
-@app.route("/bokeh/generate_embed/direct/no_js")
-def generate_embed_direct_no_js():
-    plot = make_plot()
-    return dom_embed(plot, include_js=False, direct=True)
-
+    return dom_embed(
+        plot, include_js=include_js_flag, delay=delay, onload=onload,
+        direct=direct,  plot_scr=plot_scr)
 @app.route("/bokeh/embed.js")
 def embed_js():
     return (render_template("embed.js", host=request.host), "200",
