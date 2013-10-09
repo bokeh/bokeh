@@ -181,10 +181,12 @@ class CircleView extends GlyphView
     if data_r?
       r = if data_r > r then r else data_r
     ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2*Math.PI,false)
-    fill_props.set(ctx, glyph_settings)
-    ctx.fill()
-    line_props.set(ctx, glyph_settings)
-    ctx.stroke()
+    if fill_props.do_fill
+      fill_props.set(ctx, glyph_settings)
+      ctx.fill()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
 
     ctx.restore()
 

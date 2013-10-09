@@ -176,10 +176,13 @@ class OvalView extends GlyphView
     ctx.bezierCurveTo( w/2, -h/2,  w/2,  h/2, 0,  h/2)
     ctx.bezierCurveTo( -w/2, h/2,  -w/2,  -h/2, 0,  -h/2)
     ctx.closePath()
-    fill_props.set(ctx, glyph_settings)
-    ctx.fill()
-    line_props.set(ctx, glyph_settings)
-    ctx.stroke()
+    if fill_props.do_fill
+      fill_props.set(ctx, glyph_settings)
+      ctx.fill()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
+
 
     ctx.restore()
   ##duped

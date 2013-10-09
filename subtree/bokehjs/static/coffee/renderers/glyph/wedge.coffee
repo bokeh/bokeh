@@ -129,10 +129,13 @@ class WedgeView extends GlyphView
     ctx.arc(sx, sy, r, start_angle, end_angle, direction)
     ctx.lineTo(sx, sy)
     ctx.closePath()
-    fill_props.set(ctx, glyph_settings)
-    ctx.fill()
-    line_props.set(ctx, glyph_settings)
-    ctx.stroke()
+    if fill_props.do_fill
+      fill_props.set(ctx, glyph_settings)
+      ctx.fill()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
+
 
     ctx.restore()
 
