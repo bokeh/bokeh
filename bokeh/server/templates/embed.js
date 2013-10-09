@@ -38,6 +38,7 @@ console.log("embed.js");
                 embed_core = rrequire("./embed_core");
                 console.log("embed_core loaded")
                 embed_core.search_and_plot();
+                embed_core.injectCss(host);
                 console.log("search_and_plot called");
             });
         document.body.appendChild(s);        

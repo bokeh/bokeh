@@ -41,18 +41,26 @@ addDirectPlot = (docid, ws_conn_string, docapikey,
       #view.render()
       _.delay(-> $(element).append(view.$el)))
 
-
+'''
+http://localhost:5006/static/vendor/bokehjs/css/bokeh.css
+http://localhost:5006/static/vendor/bokehjs/css/continuum.css
+http://localhost:5006/static/vendor/bokehjs/
+http://localhost:5006/static/vendor/bokehjs/vendor/jquery/css/themes/base/jquery-ui.min.css
+'''
 injectCss = (host) ->
+
   static_base = "http://#{host}/bokeh/static/vendor/bokehjs/"
   css_urls = ["#{static_base}css/bokeh.css",
              "#{static_base}css/continuum.css",
-            "#{static_base}css/bootstrap.css"]
+            "#{static_base}vendor/bootstrap/css/bootstrap.css",
+            "#{static_base}vendor/jquery/css/themes/base/jquery-ui.min.css"]
+            
   load_css = (url) ->
     link = document.createElement('link');
     link.href = url; link.rel="stylesheet";
     link.type = "text/css";
     document.body.appendChild(link);
-  _.map(load_css,css_urls);
+  _.map(css_urls, load_css);
 
 
 foundEls = []
@@ -111,4 +119,5 @@ window.addPlotWrap = addPlotWrap;
 window.addDirectPlotWrap = addDirectPlotWrap;
 
 exports.search_and_plot = search_and_plot
+exports.injectCss = injectCss
 console.log('embed_core');
