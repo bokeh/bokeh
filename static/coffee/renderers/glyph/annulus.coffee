@@ -153,10 +153,12 @@ class AnnulusView extends GlyphView
     ctx.arc(sx, sy, inner_radius, 0, 2*Math.PI*2, false)
     ctx.moveTo(sx + outer_radius, sy)
     ctx.arc(sx, sy, outer_radius, 0, 2*Math.PI*2, true)
-    fill_props.set(ctx, glyph_settings)
-    ctx.fill()
-    line_props.set(ctx, glyph_settings)
-    ctx.stroke()
+    if fill_props.do_fill
+      fill_props.set(ctx, glyph_settings)
+      ctx.fill()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
 
     ctx.restore()
 

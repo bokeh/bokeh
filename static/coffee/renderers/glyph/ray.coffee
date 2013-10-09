@@ -103,8 +103,9 @@ class RayView extends GlyphView
     ctx.lineTo(r, 0) # TODO handle @length in data units?
     ctx.rotate(-angle)
     ctx.translate(-sx, -sy)
-    line_props.set(ctx, glyph_settings)
-    ctx.stroke()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
     ctx.restore()
 
 

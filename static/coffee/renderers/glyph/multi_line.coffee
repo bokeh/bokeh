@@ -89,12 +89,12 @@ class MultiLineView extends GlyphView
       glyph_settings = reference_point
     else
       glyph_settings = glyph_props
-    line_props.set(ctx, glyph_settings)
     ctx.beginPath()
     ctx.moveTo(x1, (y1 + y2) /2)
     ctx.lineTo(x2, (y1 + y2) /2)
-    ctx.stroke()
-    ctx.beginPath()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
     ctx.restore()
 
 class MultiLine extends Glyph
