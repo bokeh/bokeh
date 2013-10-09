@@ -25,7 +25,7 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length")])
 ydr = DataRange1d(sources=[source.columns("petal_width")])
 
-circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.5, radius=5, line_color=None)
+circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, radius=5, line_color="color")
 
 glyph_renderer = GlyphRenderer(
         data_source = source,
@@ -35,9 +35,9 @@ glyph_renderer = GlyphRenderer(
         )
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], border=80, title="Iris Data")
-xaxis = LinearAxis(plot=plot, dimension=0, location="min", 
+xaxis = LinearAxis(plot=plot, dimension=0, location="min",
         axis_label="petal length", bounds=(1,7), major_tick_in=0)
-yaxis = LinearAxis(plot=plot, dimension=1, location="min", 
+yaxis = LinearAxis(plot=plot, dimension=1, location="min",
         axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
 xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
