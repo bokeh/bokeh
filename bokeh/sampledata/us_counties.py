@@ -10,7 +10,7 @@ associated value:
 '''
 import csv
 import xml.etree.cElementTree as et
-from os.path import dirname, join
+from os.path import join
 from . import _data_dir
 
 data_dir = _data_dir()

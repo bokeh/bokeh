@@ -1,6 +1,6 @@
 
 from os import mkdir
-from os.path import dirname, exists, expanduser, isdir, join
+from os.path import exists, expanduser, isdir, join
 import urllib2
 import yaml
 
