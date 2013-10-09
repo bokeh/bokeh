@@ -488,6 +488,19 @@ bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></scrip
         '''
     return e_str % f_dict
 
+def script_direct_inject(sess, modelid, typename, embed_filename):
+
+    f_dict = dict(
+        
+        modelid = modelid,
+        modeltype = typename,
+        script_url = "/" + embed_filename)
+    e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
+
+bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
+        '''
+    return e_str % f_dict
+
 def script_inject_escaped(sess, modelid, typename):
     split = urlparse.urlsplit(sess.root_url)
     if split.scheme == 'http':
@@ -563,6 +576,12 @@ class Plot(PlotObject):
             self._session,
             self._id,
             self.__view_model__)
+
+    def script_direct_inject(self):
+        embed_filename = "%s.id" % self._id
+        self._session.save_embed_js(embed_filename, self._id)
+        return script_direct_inject(
+            self._session, self._id, self.__view_model__, embed_filename)
 
     def script_inject_escaped(self):
         return script_inject(

@@ -50,6 +50,13 @@ utility =
       )
     return response
 
+  load_doc_static : (docid, data) ->
+    """ loads data without making a websocket connection """
+    load_data(data['all_models'])
+    promise = jQuery.Deferred()
+    promise.resolve()
+    return promise
+
 
   load_doc : (docid) ->
     wswrapper = utility.make_websocket();

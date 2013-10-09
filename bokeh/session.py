@@ -321,6 +321,10 @@ class HTMLFileSession(BaseHTMLSession):
             elementid=elementid
             )
 
+        # jscode is the one I want
+
+        import pdb
+        pdb.set_trace()
         html = self._load_template(self.html_template).render(
                     js_snippets = [jscode],
                     html_snippets = [div] + [o.get_raw_js() for o in self.raw_js_objs],
@@ -328,6 +332,28 @@ class HTMLFileSession(BaseHTMLSession):
                     jsfiles = jsfiles, cssfiles = cssfiles,
                     title = self.title)
         return html
+
+    def save_embed_js(self, filename, plot_id):
+
+        # FIXME: Handle this more intelligently
+        pc_ref = self.get_ref(self.plotcontext)
+        elementid = str(uuid.uuid4())
+
+        models = []
+        for m in self._models.itervalues():
+            ref = self.get_ref(m)
+            ref["attributes"] = m.vm_serialize()
+            ref["attributes"].update({"id": ref["id"], "doc": None})
+            models.append(ref)
+
+        jscode = self._load_template('embed_direct.js').render(
+            elementid = elementid,
+            modelid = pc_ref["id"],
+            modeltype = pc_ref["type"],
+            plotid = plot_id,  all_models = self.serialize(models))
+        with open(filename, "w") as f:
+            f.write(jscode.encode("utf-8"))
+
 
     def save(self, filename=None, js=None, css=None, rootdir=None):
         """ Saves the file contents.  Uses self.filename if **filename**

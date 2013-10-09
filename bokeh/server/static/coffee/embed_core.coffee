@@ -41,12 +41,6 @@ addDirectPlot = (docid, ws_conn_string, docapikey,
       #view.render()
       _.delay(-> $(element).append(view.$el)))
 
-'''
-http://localhost:5006/static/vendor/bokehjs/css/bokeh.css
-http://localhost:5006/static/vendor/bokehjs/css/continuum.css
-http://localhost:5006/static/vendor/bokehjs/
-http://localhost:5006/static/vendor/bokehjs/vendor/jquery/css/themes/base/jquery-ui.min.css
-'''
 injectCss = (host) ->
 
   static_base = "http://#{host}/bokeh/static/vendor/bokehjs/"
@@ -103,9 +97,9 @@ find_injections = ->
 
 plot_from_dict = (info_dict) ->
   if info_dict.bokeh_plottype == 'embeddata'
-    window.addPlotWrap(info_dict)
+    addPlotWrap(info_dict)
   else
-    window.addDirectPlotWrap(info_dict)
+    addDirectPlotWrap(info_dict)
 
 search_and_plot = ->
   new_plot_dicts = find_injections()
@@ -114,9 +108,6 @@ search_and_plot = ->
 
 
 
-
-window.addPlotWrap = addPlotWrap;
-window.addDirectPlotWrap = addDirectPlotWrap;
 
 exports.search_and_plot = search_and_plot
 exports.injectCss = injectCss
