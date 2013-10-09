@@ -136,7 +136,6 @@ class WedgeView extends GlyphView
       line_props.set(ctx, glyph_settings)
       ctx.stroke()
 
-
     ctx.restore()
 
 class Wedge extends Glyph

@@ -106,7 +106,6 @@ class RayView extends GlyphView
     if line_props.do_stroke
       line_props.set(ctx, glyph_settings)
       ctx.stroke()
-
     ctx.restore()
 
 
