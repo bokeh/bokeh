@@ -100,7 +100,9 @@ class ArcView extends GlyphView
     ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, start_angle,
       end_angle, direction)
     line_props.set(ctx, glyph_settings)
-    ctx.stroke()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
 
     ctx.restore()
 
