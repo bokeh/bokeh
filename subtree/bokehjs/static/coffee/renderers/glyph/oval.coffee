@@ -183,7 +183,6 @@ class OvalView extends GlyphView
       line_props.set(ctx, glyph_settings)
       ctx.stroke()
 
-
     ctx.restore()
   ##duped
   select : (xscreenbounds, yscreenbounds) ->

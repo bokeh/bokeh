@@ -26,8 +26,11 @@ class GridView extends PlotWidget
     safebind(this, @model, 'change', @request_render)
 
   _draw_grids: (ctx) ->
+<<<<<<< HEAD
     if not @grid_props.do_stroke
       return
+=======
+>>>>>>> 1b484bc882efbdc009b201e54db7a66022b89cbb
     [xs, ys] = @mget('grid_coords')
     @grid_props.set(ctx, @)
     for i in [0..xs.length-1]
