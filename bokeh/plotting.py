@@ -424,9 +424,11 @@ def scatter(*args, **kwargs):
     line_alpha : 0.0 - 1.0
     line_cap : "butt", "join", "miter"
 
-    Colors can be either one of the 147 named SVG colors, or a string
-    representing a Hex color (e.g. "#FF32D0"), or a a 3-tuple of integers
-    between 0 and 255.  (The latter will be converted into a hex color string.)
+    Colors can be either one of:
+       the 147 named SVG colors
+       a string representing a Hex color (e.g. "#FF32D0")
+       a 3-tuple of integers between 0 and 255
+       a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
 
     Examples
     --------
