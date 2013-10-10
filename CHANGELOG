@@ -1,6 +1,7 @@
 
 2013-10-11      0.2:
 --------------------
+  * enable (optional) HiDPI mode in bokehjs for retina displays
   * improve examples and documentation
   * expose sample data through bokeh.sampledata
   * implement more bokehjs primitive glyphs (patches, multiline)
@@ -18,6 +19,7 @@
     - The last plot in a page full of plots behaves weird when the Zoom tool
       button is depressed
     - legend rendering bug in plotting/file/legend.py
+	- Why are our rectangle borders goofy-looking?
 
 
 2013-09-05    0.1.1:
