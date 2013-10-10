@@ -323,8 +323,6 @@ class HTMLFileSession(BaseHTMLSession):
 
         # jscode is the one I want
 
-        import pdb
-        pdb.set_trace()
         html = self._load_template(self.html_template).render(
                     js_snippets = [jscode],
                     html_snippets = [div] + [o.get_raw_js() for o in self.raw_js_objs],
@@ -333,7 +331,7 @@ class HTMLFileSession(BaseHTMLSession):
                     title = self.title)
         return html
 
-    def save_embed_js(self, filename, plot_id):
+    def save_embed_js(self, filename, plot_id, host):
 
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
@@ -347,6 +345,7 @@ class HTMLFileSession(BaseHTMLSession):
             models.append(ref)
 
         jscode = self._load_template('embed_direct.js').render(
+            host = host,
             elementid = elementid,
             modelid = pc_ref["id"],
             modeltype = pc_ref["type"],

@@ -118,9 +118,11 @@ html  = '''
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <script 
+
+<!--    <script 
        type="text/javascript" 
        src="http://localhost:5006/bokeh/static/js/application.js"></script>
+-->
   </head>
   <body>
 %s %s

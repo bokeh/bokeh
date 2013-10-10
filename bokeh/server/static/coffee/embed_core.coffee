@@ -105,7 +105,6 @@ find_injections = ->
 
 
 search_and_plot = (dd)->
-
   plot_from_dict = (info_dict, key) ->
     if info_dict.bokeh_plottype == 'embeddata'
       dd_id = _.keys(dd)[0]

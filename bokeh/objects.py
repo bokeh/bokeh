@@ -488,8 +488,7 @@ bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></scrip
         '''
     return e_str % f_dict
 
-def script_direct_inject(sess, modelid, typename, embed_filename):
-
+def script_direct_inject(modelid, typename, embed_filename):
     f_dict = dict(modelid = modelid, modeltype = typename, 
                   embed_filename=embed_filename)
     e_str = '''<script src="%(embed_filename)s" bokeh_plottype="embeddata"
@@ -573,11 +572,11 @@ class Plot(PlotObject):
             self._id,
             self.__view_model__)
 
-    def script_direct_inject(self):
+    def script_direct_inject(self, host="http://localhost:5006/bokeh/static/"):
         embed_filename = "%s.embed.js" % self._id
-        self._session.save_embed_js(embed_filename, self._id)
+        self._session.save_embed_js(embed_filename, self._id, host)
         return script_direct_inject(
-            self._session, self._id, self.__view_model__, embed_filename)
+            self._id, self.__view_model__, embed_filename)
 
     def script_inject_escaped(self):
         return script_inject(
@@ -590,6 +589,8 @@ class Plot(PlotObject):
         # outer height/width.  This is a quick fix for the gorpiness, but this
         # needs to be fixed more structurally on the JS side, and then this
         # should be revisited on the Python side.
+
+
         if "canvas_width" not in self._changed_vars:
             self.canvas_width = self.width
         if "outer_width" not in self._changed_vars:
