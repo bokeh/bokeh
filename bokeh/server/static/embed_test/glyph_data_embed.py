@@ -1,4 +1,13 @@
 
+import os
+
+from bokeh.sampledata.iris import flowers
+from bokeh.objects import (
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, GlyphRenderer, PanTool, ZoomTool
+)
+from bokeh.glyphs import Circle
+from bokeh import session
+
 from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
@@ -9,29 +18,25 @@ from bokeh.objects import (Plot, DataRange1d, LinearAxis,
 from bokeh.glyphs import Circle
 from bokeh import session
 
-x = arange(-2*pi, 2*pi, 0.1)
-y = sin(x)
-z = cos(x)
-widths = np.ones_like(x) * 0.02
-heights = np.ones_like(x) * 0.2
 
+colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 
-#source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
-#            heights=heights))
+flowers['color'] = flowers['species'].map(lambda x: colormap[x])
 
-source = ObjectArrayDataSource(
-    data = [
-        {'x' : 1, 'y' : 5, 'z':3},
-        {'x' : 2, 'y' : 4, 'z':3, 'radius':10},
-        {'x' : 3, 'y' : 3, 'z':3},
-        {'x' : 4, 'y' : 2, 'z':3},
-        {'x' : 5, 'y' : 1, 'z':3},
-        ])
+source = ColumnDataSource(
+    data=dict(
+        petal_length=flowers['petal_length'],
+        petal_width=flowers['petal_width'],
+        sepal_length=flowers['sepal_length'],
+        sepal_width=flowers['sepal_width'],
+        color=flowers['color']
+    )
+)
 
-xdr = DataRange1d(sources=[source.columns("x")])
-ydr = DataRange1d(sources=[source.columns("y")])
+xdr = DataRange1d(sources=[source.columns("petal_length")])
+ydr = DataRange1d(sources=[source.columns("petal_width")])
 
-circle = Circle(x="x", y="y", fill_color="red", radius=5, line_color="black")
+circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, radius=5, line_color="color")
 
 glyph_renderer = GlyphRenderer(
         data_source = source,
@@ -39,11 +44,14 @@ glyph_renderer = GlyphRenderer(
         ydata_range = ydr,
         glyph = circle,
         )
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
-        border= 80)
 
-xaxis = LinearAxis(plot=plot, dimension=0, location="min")
-yaxis = LinearAxis(plot=plot, dimension=1, location="min")
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], border=80, title="Iris Data")
+xaxis = LinearAxis(plot=plot, dimension=0, location="min",
+        axis_label="petal length", bounds=(1,7), major_tick_in=0)
+yaxis = LinearAxis(plot=plot, dimension=1, location="min",
+        axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
+xgrid = Grid(plot=plot, dimension=0)
+ygrid = Grid(plot=plot, dimension=1)
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
 zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
@@ -51,57 +59,57 @@ zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,zoomtool]
 
+sess = session.HTMLFileSession("iris.html")
+sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+sess.plotcontext.children.append(plot)
+inject_1 =  plot.script_direct_inject()
+from numpy import pi, arange, sin, cos
+import numpy as np
+import os.path
 
+from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
+        ObjectArrayDataSource, ColumnDataSource, GlyphRenderer,
+        PanTool, ZoomTool)
+from bokeh.glyphs import Line
+from bokeh import session
 
-source = ObjectArrayDataSource(
-    data = [
-        {'x' : 1, 'y' : 5, 'z':3, "color":"rgb(0,100,120)"},
-        {'x' : 2, 'y' : 4, 'z':3, "color":"green", "radius":10},
-        {'x' : 3, 'y' : 3, 'z':3, "color":"blue"},
-        {'x' : 4, 'y' : 2, 'z':3},
-        {'x' : 5, 'y' : 1, 'z':3, "color": "rgba(120,230,150,0.5)"},
-        ])
+x = np.linspace(-2*pi, 2*pi, 1000)
+y = sin(x)
+z = cos(x)
+widths = np.ones_like(x) * 0.02
+heights = np.ones_like(x) * 0.2
+
+source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
+            heights=heights))
 
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", radius=5,
-    # Set the fill color to be dependent on the "color" field of the
-    # datasource.  If the field is missing, then the default value is
-    # used. Since no explicit default is provided, this picks up the
-    # default in FillProps, which is "gray".
-    fill_color="color", 
-    
-    # An alternative form that explicitly sets a default value:
-    #fill_color={"default": "red", "field": "color"},
-    
-    # Note that line_color is set to a fixed value. This can be any of
-    # the SVG named 147 colors, or a hex color string starting with "#",
-    # or a string "rgb(r,g,b)" or "rgba(r,g,b,a)".
-    # Any other string will be interpreted as a field name to look up
-    # on the datasource.
-    line_color="black")
+line_glyph = Line(x="x", y="y", line_color="blue")
 
-glyph_renderer = GlyphRenderer(
+renderer = GlyphRenderer(
         data_source = source,
         xdata_range = xdr,
         ydata_range = ydr,
-        glyph = circle,
+        glyph = line_glyph
         )
 
-plot2 = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
-        border= 80)
-xaxis = LinearAxis(plot=plot, dimension=0, location="min")
-yaxis = LinearAxis(plot=plot, dimension=1, location="min")
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], 
+        border=50)
+xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
+yaxis = LinearAxis(plot=plot, dimension=1, location="left")
 
+pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
+zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
+plot.renderers.append(renderer)
+plot.tools = [pantool, zoomtool]
 
-sess = session.HTMLFileSession("glyph1.html")
-sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
-inject_1 =  plot.script_direct_inject()
-print inject_1
-sess.add(plot2, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
-inject_2 = plot2.script_direct_inject()
+sess = session.HTMLFileSession("line.html")
+sess.add(plot, renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
+sess.plotcontext.children.append(plot)
+
+inject_2 =  plot.script_direct_inject()
 print inject_2
 
 html  = '''
