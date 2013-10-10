@@ -36,6 +36,11 @@ def index(*unused_all, **kwargs):
         hem_js = []
     return render_template('bokeh.html', jsfiles=static_js, hemfiles=hem_js)
 
+@app.route('/')
+def welcome(*unused_all, **kwargs):
+    return render_template('base.html')
+
+
 @app.route('/bokeh/favicon.ico')
 def favicon():
     return send_from_directory(os.path.join(app.root_path, 'static'),
