@@ -41,16 +41,10 @@ class Glyph(PlotObject):
 
         # Iterate over all the DataSpec properties and convert them, using the
         # fact that DataSpecs store the dict-ified version on the object.
-        for attrname, dspec in self.dataspecs().iteritems():
+        for attrname, dspec in self.dataspecs_with_refs().iteritems():
             d[attrname] = dspec.to_dict(self)
         return d
 
-    def dataspecs(self):
-        dataspecs = {}
-        for cls in reversed(inspect.getmro(self.__class__)):
-            if hasattr(cls, "_dataspecs"):
-                dataspecs.update(cls._dataspecs)
-        return dataspecs
 
 class Marker(Glyph, FillProps, LineProps):
     """ Base class for glyphs which are just simple markers placed at (x,y)

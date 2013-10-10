@@ -522,35 +522,59 @@ class HasProps(object):
         d = dict((p,getattr(self, p)) for p in self.properties())
         return self.__class__(**d)
 
-    def properties_with_refs(self):
+    @classmethod
+    def properties_with_refs(cls):
         """ Returns a set of the names of this object's properties that
         have references. We traverse the class hierarchy and
         pull together the full list of properties.
         """
-        if not hasattr(self, "__cached_allprops_with_refs"):
-            s = accumulate_from_subclasses(self.__class__,
+        if not hasattr(cls, "__cached_allprops_with_refs"):
+            s = accumulate_from_subclasses(cls,
                                            "__properties_with_refs__")
-            self.__cached_allprops_with_refs = s
-        return self.__cached_allprops_with_refs
+            cls.__cached_allprops_with_refs = s
+        return cls.__cached_allprops_with_refs
 
-    def properties_containers(self):
+    @classmethod
+    def properties_containers(cls):
         """ Returns a list of properties that are containers
         """
-        if not hasattr(self, "__cached_allprops_containers"):
-            s = accumulate_from_subclasses(self.__class__,
+        if not hasattr(cls, "__cached_allprops_containers"):
+            s = accumulate_from_subclasses(cls,
                                            "__container_props__")
-            self.__cached_allprops_containers = s
-        return self.__cached_allprops_containers
+            cls.__cached_allprops_containers = s
+        return cls.__cached_allprops_containers
 
-    def properties(self):
+    @classmethod
+    def properties(cls):
         """ Returns a set of the names of this object's properties. We
         traverse the class hierarchy and pull together the full
         list of properties.
         """
-        if not hasattr(self, "__cached_allprops"):
-            s = self.__class__.class_properties()
-            self.__cached_allprops = s
-        return self.__cached_allprops
+        if not hasattr(cls, "__cached_allprops"):
+            s = cls.class_properties()
+            cls.__cached_allprops = s
+        return cls.__cached_allprops
+
+    @classmethod
+    def dataspecs(cls):
+        """ Returns a set of the names of this object's dataspecs (and
+        dataspec subclasses).  Traverses the class hierarchy.
+        """
+        if not hasattr(cls, "__cached_dataspecs"):
+            dataspecs = set()
+            for c in reversed(inspect.getmro(cls)):
+                if hasattr(c, "_dataspecs"):
+                    dataspecs.update(c._dataspecs.keys())
+            cls.__cached_dataspecs = dataspecs
+        return cls.__cached_dataspecs
+
+    @classmethod
+    def dataspecs_with_refs(cls):
+        dataspecs = {}
+        for c in reversed(inspect.getmro(cls)):
+            if hasattr(c, "_dataspecs"):
+                dataspecs.update(c._dataspecs)
+        return dataspecs
 
     def changed_vars(self):
         """ Returns which variables changed since the creation of the object,
