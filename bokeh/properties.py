@@ -167,19 +167,17 @@ class DataSpec(BaseProperty):
                 return self.field
 
     def __set__(self, obj, arg):
-        attrname = "_" + self.name
         if isinstance(arg, tuple):
             field, default = arg
             if not isinstance(field, basestring):
                 raise RuntimeError("String is required for field name when assigning tuple to a DataSpec")
-            setattr(obj, attrname, {"field": field, "default": default})
-        else:
-            setattr(obj, attrname, arg)
+            arg = {"field": field, "default": default}
+        super(DataSpec, self).__set__(obj, arg)
 
     def __delete__(self, obj):
         if hasattr(obj, self.name + "_dict"):
             delattr(obj, self.name + "_dict")
-        BaseProperty.__delete__(self, obj)
+        super(DataSpec, self).__delete__(self, obj)
 
     def to_dict(self, obj):
         # Build the complete dict
@@ -343,6 +341,7 @@ class ColorSpec(DataSpec):
                     return {"field": setval, "default": self.default}
             elif setval is None:
                 return None
+                return {"value": None}
             else:
                 # setval should be a dict at this point
                 assert(isinstance(setval, dict))
@@ -357,19 +356,17 @@ class ColorSpec(DataSpec):
 
     def __set__(self, obj, arg):
         self._isset = True
-        attrname = "_" + self.name
         if isinstance(arg, tuple):
             if len(arg) == 2:
                 if not isinstance(arg[0], basestring):
                     raise RuntimeError("String is required for field name when assigning 2-tuple to ColorSpec")
-                setattr(obj, attrname, {"field": arg[0], "default": arg[1]})
+                arg = {"field": arg[0], "default": arg[1]}
             elif len(arg) in (3, 4):
                 # RGB or RGBa
-                setattr(obj, attrname, arg)
+                pass
             else:
                 raise RuntimeError("Invalid tuple being assigned to ColorSpec; must be length 2, 3, or 4.")
-        else:
-            setattr(obj, attrname, arg)
+        super(ColorSpec, self).__set__(obj, arg)
 
     def to_dict(self, obj):
         setval = getattr(obj, "_" + self.name, None)
@@ -722,8 +719,8 @@ class Enum(BaseProperty):
     def __set__(self, obj, value):
         if value not in self.allowed_values:
             raise ValueError("Invalid value '%r' passed to Enum." % value)
-        setattr(obj, "_"+self.name, value)
-        obj._dirty = True
+        super(Enum, self).__set__(obj, value)
+
 
 Sequence = _dummy
 Mapping = _dummy
@@ -740,7 +737,19 @@ class Color(BaseProperty):
 
 
 class Align(BaseProperty): pass
-class Pattern(BaseProperty): pass
+
+class Pattern(BaseProperty):
+    def __init__(self, default=[]):
+        BaseProperty.__init__(self, default)
+
+    def __set__(self, obj, arg):
+        if isinstance(arg, str):
+            try:
+                arg = [float(x) for x in arg.split()]
+            except TypeError:
+                raise RuntimeError("Invalid string being assigned to Pattern; must be space delimited numbers, e.g. '2 4 3 2'")
+        super(Pattern, self).__set__(obj, arg)
+
 class Size(Float):
     """ Equivalent to an unsigned int """
 
