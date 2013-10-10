@@ -56,9 +56,9 @@ class properties
     @[attrname] = {}
 
     default_value = styleprovider.mget(attrname)
-    if not default_value?
+    if _.isUndefined(default_value)
       @[attrname].default = null
-    else if _.isString(default_value) and (svg_colors[default_value]? or default_value.substring(0, 1) == "#")
+    else if _.isString(default_value) and (svg_colors[default_value]? or default_value.substring(0, 1) == "#") or _.isNull(default_value)
       @[attrname].default = default_value
     else
       console.log("color property '#{ attrname }' given invalid default value: " + default_value)
@@ -237,7 +237,12 @@ class line_properties extends properties
     @array(styleprovider, glyphspec, @line_dash_name)
     @number(styleprovider, glyphspec, @line_dash_offset_name)
 
-    @do_stroke = not _.isNull(@[@line_color_name].value)
+    @do_stroke = true
+    if not _.isUndefined(@[@line_color_name].value)
+      if _.isNull(@[@line_color_name].value)
+        @do_stroke = false
+    else if _.isNull(@[@line_color_name].default)
+      @do_stroke = false
 
   set: (ctx, obj) ->
     ctx.strokeStyle = @select(@line_color_name, obj)
@@ -257,7 +262,12 @@ class fill_properties extends properties
     @color(styleprovider, glyphspec, @fill_color_name)
     @number(styleprovider, glyphspec, @fill_alpha_name)
 
-    @do_fill = not _.isNull(@[@fill_color_name].value)
+    @do_fill = true
+    if not _.isUndefined(@[@fill_color_name].value)
+      if _.isNull(@[@fill_color_name].value)
+        @do_fill = false
+    else if _.isNull(@[@fill_color_name].default)
+      @do_fill = false
 
   set: (ctx, obj) ->
     ctx.fillStyle   = @select(@fill_color_name, obj)
