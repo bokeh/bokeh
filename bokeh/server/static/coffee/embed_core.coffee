@@ -74,7 +74,6 @@ parse_el = (el) ->
   bokehRe = /bokeh.*/
   info = {};
   bokehCount = 0;
-  window.attrs = attrs;
   for attr in attrs
     if attr.name.match(bokehRe)
       info[attr.name] = attr.value
@@ -85,6 +84,7 @@ parse_el = (el) ->
   else 
     return false;
 
+unsatisfied_els = {}
 find_injections = ->
   #TODO:make this find files that aren't named embed.js
   els = document.getElementsByTagName('script');
@@ -93,7 +93,6 @@ find_injections = ->
   for el in els
     is_new_el = el not in foundEls
     matches = el.src.match(re)
-    console.log(el, is_new_el, matches)
     if is_new_el and matches
       foundEls.push(el)
       info = parse_el(el)
@@ -102,20 +101,28 @@ find_injections = ->
       el.parentNode.insertBefore(container, el);
       info['element'] = container;
       new_settings.push(info)
-
   new_settings
 
 
 search_and_plot = (dd)->
-  plot_from_dict = (info_dict) ->
+
+  plot_from_dict = (info_dict, key) ->
     if info_dict.bokeh_plottype == 'embeddata'
-      addPlotWrap(info_dict, dd)
+      dd_id = _.keys(dd)[0]
+      if key == dd_id
+        addPlotWrap(info_dict, dd)
+        delete unsatisfied_els[key]
     else
       addDirectPlotWrap(info_dict)
+      delete unsatisfied_els[key]
 
   new_plot_dicts = find_injections()
-  console.log("find injections called");
-  _.map(new_plot_dicts, plot_from_dict)
+
+  _.each(new_plot_dicts, (plotdict) ->
+    unsatisfied_els[plotdict['bokeh_modelid']] = plotdict)
+
+  _.map(unsatisfied_els, plot_from_dict)
+
 
 
 

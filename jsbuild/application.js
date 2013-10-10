@@ -9655,7 +9655,7 @@ _.setdefault = function(obj, key, value){
   return this.rrequire.define;
 }).call(this)({
   "embed_core": function(exports, require, module) {(function() {
-  var addDirectPlot, addDirectPlotWrap, addPlot, addPlotWrap, base, find_injections, foundEls, injectCss, parse_el, search_and_plot, serverLoad, utility,
+  var addDirectPlot, addDirectPlotWrap, addPlot, addPlotWrap, base, find_injections, foundEls, injectCss, parse_el, search_and_plot, serverLoad, unsatisfied_els, utility,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   base = require("./base");
@@ -9745,7 +9745,6 @@ _.setdefault = function(obj, key, value){
     bokehRe = /bokeh.*/;
     info = {};
     bokehCount = 0;
-    window.attrs = attrs;
     for (_i = 0, _len = attrs.length; _i < _len; _i++) {
       attr = attrs[_i];
       if (attr.name.match(bokehRe)) {
@@ -9760,6 +9759,8 @@ _.setdefault = function(obj, key, value){
     }
   };
 
+  unsatisfied_els = {};
+
   find_injections = function() {
     var container, d, el, els, info, is_new_el, matches, new_settings, re, _i, _len;
     els = document.getElementsByTagName('script');
@@ -9769,7 +9770,6 @@ _.setdefault = function(obj, key, value){
       el = els[_i];
       is_new_el = __indexOf.call(foundEls, el) < 0;
       matches = el.src.match(re);
-      console.log(el, is_new_el, matches);
       if (is_new_el && matches) {
         foundEls.push(el);
         info = parse_el(el);
@@ -9785,16 +9785,24 @@ _.setdefault = function(obj, key, value){
 
   search_and_plot = function(dd) {
     var new_plot_dicts, plot_from_dict;
-    plot_from_dict = function(info_dict) {
+    plot_from_dict = function(info_dict, key) {
+      var dd_id;
       if (info_dict.bokeh_plottype === 'embeddata') {
-        return addPlotWrap(info_dict, dd);
+        dd_id = _.keys(dd)[0];
+        if (key === dd_id) {
+          addPlotWrap(info_dict, dd);
+          return delete unsatisfied_els[key];
+        }
       } else {
-        return addDirectPlotWrap(info_dict);
+        addDirectPlotWrap(info_dict);
+        return delete unsatisfied_els[key];
       }
     };
     new_plot_dicts = find_injections();
-    console.log("find injections called");
-    return _.map(new_plot_dicts, plot_from_dict);
+    _.each(new_plot_dicts, function(plotdict) {
+      return unsatisfied_els[plotdict['bokeh_modelid']] = plotdict;
+    });
+    return _.map(unsatisfied_els, plot_from_dict);
   };
 
   exports.search_and_plot = search_and_plot;

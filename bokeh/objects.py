@@ -574,7 +574,7 @@ class Plot(PlotObject):
             self.__view_model__)
 
     def script_direct_inject(self):
-        embed_filename = "%s.id.embed.js" % self._id
+        embed_filename = "%s.embed.js" % self._id
         self._session.save_embed_js(embed_filename, self._id)
         return script_direct_inject(
             self._session, self._id, self.__view_model__, embed_filename)

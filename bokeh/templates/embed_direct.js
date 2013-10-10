@@ -1,12 +1,6 @@
 console.log("embed.js");
 
 (function(global) {
-    if(window._embed_bokeh == true){
-        // embed.js has alread run, there is no need to run this script again?
-        // or is there.  
-        return;
-    };
-
 
     var host = "{{host}}";
     var bokehUrl = 'http://' + host +'/bokeh/static/js/application.js';
