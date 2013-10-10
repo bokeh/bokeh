@@ -37,13 +37,6 @@ county_source = ColumnDataSource(
     )
 )
 
-print len([us_states.data[code]['lons'] for code in us_states.data])
-print len([us_states.data[code]['lats'] for code in us_states.data])
-
-print len(county_colors)
-print len([us_counties.data[code]['lons'] for code in us_counties.data])
-print len([us_counties.data[code]['lats'] for code in us_counties.data])
-
 xdr = DataRange1d(sources=[state_source.columns("state_xs")])
 ydr = DataRange1d(sources=[state_source.columns("state_ys")])
 
