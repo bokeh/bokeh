@@ -1,0 +1,30 @@
+
+0.2 (2013-10-11)
+----------------
+
+- enhancements
+ * Update bokeh.sampledata.download to take an alternate download directory
+ * Add datetime axis from bokehj
+ * Use request animation frame where possible
+ * Make colors representable by DataSpecs.
+
+
+- bugixes
+ * colorspec on Grid and Axis objects not serialized
+ * Cannot find redis.conf
+ * None does not pass as null to bokehjs
+ * The last plot in a page full of plots behaves weird when the Zoom tool
+   button is depressed
+ * legend rendering bug in plotting/file/legend.py
+
+
+0.1.1 (2013-09-05)
+------------------
+
+- improve error messages on server examples
+
+
+0.1 (2013-09-03)
+----------------
+
+- initial release
