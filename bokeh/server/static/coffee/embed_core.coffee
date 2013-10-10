@@ -1,13 +1,22 @@
 base = require("./base");
 utility = require("./serverutils").utility;
 
-addPlotWrap = (settings) ->
-  addPlot(settings.bokeh_modelid, settings.bokeh_modeltype, settings.element);
+addPlotWrap = (settings, dd) ->
+  addPlot(settings.bokeh_modelid, settings.bokeh_modeltype,
+    settings.element, dd);
 
-addPlot = (modelid, modeltype, element) ->
+addPlot = (modelid, modeltype, element, data) ->
+  data_plot_id = _.keys(data)[0]
+  if not data_plot_id == modelid
+    #we want to make sure we are inserting the right plot data in he
+    #right place
+    return
+
+
   console.log("addPlot");
   console.log(modelid, modeltype, element);
-  base.load_models(window.Bokeh.models);
+
+  base.load_models(data[data_plot_id])
   model = base.Collections(modeltype).get(modelid);
   view = new model.default_view({model : model})
   view.render()
@@ -77,6 +86,7 @@ parse_el = (el) ->
     return false;
 
 find_injections = ->
+  #TODO:make this find files that aren't named embed.js
   els = document.getElementsByTagName('script');
   re = /.*embed.js.*/;
   new_settings = []
@@ -95,13 +105,14 @@ find_injections = ->
 
   new_settings
 
-plot_from_dict = (info_dict) ->
-  if info_dict.bokeh_plottype == 'embeddata'
-    addPlotWrap(info_dict)
-  else
-    addDirectPlotWrap(info_dict)
 
-search_and_plot = ->
+search_and_plot = (dd)->
+  plot_from_dict = (info_dict) ->
+    if info_dict.bokeh_plottype == 'embeddata'
+      addPlotWrap(info_dict, dd)
+    else
+      addDirectPlotWrap(info_dict)
+
   new_plot_dicts = find_injections()
   console.log("find injections called");
   _.map(new_plot_dicts, plot_from_dict)

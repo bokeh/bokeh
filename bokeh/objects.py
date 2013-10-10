@@ -490,13 +490,9 @@ bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></scrip
 
 def script_direct_inject(sess, modelid, typename, embed_filename):
 
-    f_dict = dict(
-        
-        modelid = modelid,
-        modeltype = typename,
-        script_url = "/" + embed_filename)
-    e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
-
+    f_dict = dict(modelid = modelid, modeltype = typename, 
+                  embed_filename=embed_filename)
+    e_str = '''<script src="%(embed_filename)s" bokeh_plottype="embeddata"
 bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
         '''
     return e_str % f_dict
@@ -578,7 +574,7 @@ class Plot(PlotObject):
             self.__view_model__)
 
     def script_direct_inject(self):
-        embed_filename = "%s.id" % self._id
+        embed_filename = "%s.id.embed.js" % self._id
         self._session.save_embed_js(embed_filename, self._id)
         return script_direct_inject(
             self._session, self._id, self.__view_model__, embed_filename)

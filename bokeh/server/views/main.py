@@ -37,7 +37,7 @@ def index(*unused_all, **kwargs):
     return render_template('bokeh.html', jsfiles=static_js, hemfiles=hem_js)
 
 @app.route('/')
-def index(*unused_all, **kwargs):
+def index2(*unused_all, **kwargs):
     if getattr(app, "debugjs", False):
         from continuumweb import hemlib
         slug = hemlib.slug_json()

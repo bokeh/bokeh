@@ -9655,22 +9655,26 @@ _.setdefault = function(obj, key, value){
   return this.rrequire.define;
 }).call(this)({
   "embed_core": function(exports, require, module) {(function() {
-  var addDirectPlot, addDirectPlotWrap, addPlot, addPlotWrap, base, find_injections, foundEls, injectCss, parse_el, plot_from_dict, search_and_plot, serverLoad, utility,
+  var addDirectPlot, addDirectPlotWrap, addPlot, addPlotWrap, base, find_injections, foundEls, injectCss, parse_el, search_and_plot, serverLoad, utility,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   base = require("./base");
 
   utility = require("./serverutils").utility;
 
-  addPlotWrap = function(settings) {
-    return addPlot(settings.bokeh_modelid, settings.bokeh_modeltype, settings.element);
+  addPlotWrap = function(settings, dd) {
+    return addPlot(settings.bokeh_modelid, settings.bokeh_modeltype, settings.element, dd);
   };
 
-  addPlot = function(modelid, modeltype, element) {
-    var model, view;
+  addPlot = function(modelid, modeltype, element, data) {
+    var data_plot_id, model, view;
+    data_plot_id = _.keys(data)[0];
+    if (!data_plot_id === modelid) {
+      return;
+    }
     console.log("addPlot");
     console.log(modelid, modeltype, element);
-    base.load_models(window.Bokeh.models);
+    base.load_models(data[data_plot_id]);
     model = base.Collections(modeltype).get(modelid);
     view = new model.default_view({
       model: model
@@ -9717,9 +9721,6 @@ _.setdefault = function(obj, key, value){
     });
   };
 
-  'http://localhost:5006/static/vendor/bokehjs/css/bokeh.css\nhttp://localhost:5006/static/vendor/bokehjs/css/continuum.css\nhttp://localhost:5006/static/vendor/bokehjs/\nhttp://localhost:5006/static/vendor/bokehjs/vendor/jquery/css/themes/base/jquery-ui.min.css';
-
-
   injectCss = function(host) {
     var css_urls, load_css, static_base;
     static_base = "http://" + host + "/bokeh/static/vendor/bokehjs/";
@@ -9739,7 +9740,6 @@ _.setdefault = function(obj, key, value){
 
   parse_el = function(el) {
     "this takes a bokeh embed script element and returns the relvant\nattributes through to a dictionary, ";
-
     var attr, attrs, bokehCount, bokehRe, info, _i, _len;
     attrs = el.attributes;
     bokehRe = /bokeh.*/;
@@ -9783,24 +9783,19 @@ _.setdefault = function(obj, key, value){
     return new_settings;
   };
 
-  plot_from_dict = function(info_dict) {
-    if (info_dict.bokeh_plottype === 'embeddata') {
-      return window.addPlotWrap(info_dict);
-    } else {
-      return window.addDirectPlotWrap(info_dict);
-    }
-  };
-
-  search_and_plot = function() {
-    var new_plot_dicts;
+  search_and_plot = function(dd) {
+    var new_plot_dicts, plot_from_dict;
+    plot_from_dict = function(info_dict) {
+      if (info_dict.bokeh_plottype === 'embeddata') {
+        return addPlotWrap(info_dict, dd);
+      } else {
+        return addDirectPlotWrap(info_dict);
+      }
+    };
     new_plot_dicts = find_injections();
     console.log("find injections called");
     return _.map(new_plot_dicts, plot_from_dict);
   };
-
-  window.addPlotWrap = addPlotWrap;
-
-  window.addDirectPlotWrap = addDirectPlotWrap;
 
   exports.search_and_plot = search_and_plot;
 
@@ -9915,6 +9910,14 @@ _.setdefault = function(obj, key, value){
         return submodels(exports.wswrapper, "bokehplot:" + docid, apikey);
       });
       return response;
+    },
+    load_doc_static: function(docid, data) {
+      " loads data without making a websocket connection ";
+      var promise;
+      load_data(data['all_models']);
+      promise = jQuery.Deferred();
+      promise.resolve();
+      return promise;
     },
     load_doc: function(docid) {
       var response, wswrapper;
@@ -10031,7 +10034,6 @@ _.setdefault = function(obj, key, value){
   }
   (function() {
     (function() {
-    
       __out.push('<p>\n  <b>\n    You have no Plots.  Follow the intsructions\n    below to create some\n  </b>\n</p>\n');
     
     }).call(this);
@@ -10040,7 +10042,7 @@ _.setdefault = function(obj, key, value){
   __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 }}, "usercontext/usercontext": function(exports, require, module) {(function() {
-  var ContinuumView, Doc, DocView, HasParent, HasProperties, UserDocs, UserDocsView, base, build_views, documentationtemplate, load_models, userdocstemplate, utility,
+  var ContinuumView, Doc, DocView, HasParent, HasProperties, UserDocs, UserDocsView, base, build_views, documentationtemplate, load_models, userdocstemplate, utility, _ref, _ref1, _ref2, _ref3,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -10063,11 +10065,11 @@ _.setdefault = function(obj, key, value){
   build_views = base.build_views;
 
   DocView = (function(_super) {
-
     __extends(DocView, _super);
 
     function DocView() {
-      return DocView.__super__.constructor.apply(this, arguments);
+      _ref = DocView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     DocView.prototype.template = require("./wrappertemplate");
@@ -10126,11 +10128,11 @@ _.setdefault = function(obj, key, value){
   })(ContinuumView);
 
   UserDocsView = (function(_super) {
-
     __extends(UserDocsView, _super);
 
     function UserDocsView() {
-      return UserDocsView.__super__.constructor.apply(this, arguments);
+      _ref1 = UserDocsView.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     UserDocsView.prototype.initialize = function(options) {
@@ -10199,11 +10201,11 @@ _.setdefault = function(obj, key, value){
   })(ContinuumView);
 
   Doc = (function(_super) {
-
     __extends(Doc, _super);
 
     function Doc() {
-      return Doc.__super__.constructor.apply(this, arguments);
+      _ref2 = Doc.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     Doc.prototype.default_view = DocView;
@@ -10254,11 +10256,11 @@ _.setdefault = function(obj, key, value){
   })(HasParent);
 
   UserDocs = (function(_super) {
-
     __extends(UserDocs, _super);
 
     function UserDocs() {
-      return UserDocs.__super__.constructor.apply(this, arguments);
+      _ref3 = UserDocs.__super__.constructor.apply(this, arguments);
+      return _ref3;
     }
 
     UserDocs.prototype.model = Doc;
@@ -10346,7 +10348,6 @@ _.setdefault = function(obj, key, value){
   }
   (function() {
     (function() {
-    
       __out.push('<div class="accordion">\n</div>\n');
     
     }).call(this);
@@ -10393,7 +10394,6 @@ _.setdefault = function(obj, key, value){
   }
   (function() {
     (function() {
-    
       __out.push('<div class="accordion-heading bokehdocheading">\n  <a class="accordion-toggle bokehdoclabel" data-toggle="collapse" \n     href="#');
     
       __out.push(__sanitize(this.bodyid));
@@ -10414,7 +10414,7 @@ _.setdefault = function(obj, key, value){
   __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 }}, "base": function(exports, require, module) {(function() {
-  var Collections, Config, HasParent, HasProperties, WebSocketWrapper, build_views, load_models, locations, mod_cache, safebind, submodels,
+  var Collections, Config, HasParent, HasProperties, WebSocketWrapper, build_views, load_models, locations, mod_cache, safebind, submodels, _ref, _ref1,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -10424,14 +10424,15 @@ _.setdefault = function(obj, key, value){
   };
 
   safebind = function(binder, target, event, callback) {
-    var _this = this;
+    var error,
+      _this = this;
     if (!_.has(binder, 'eventers')) {
       binder['eventers'] = {};
     }
     try {
       binder['eventers'][target.id] = target;
-    } catch (error) {
-
+    } catch (_error) {
+      error = _error;
     }
     if (target != null) {
       target.on(event, callback, binder);
@@ -10494,12 +10495,10 @@ _.setdefault = function(obj, key, value){
   };
 
   WebSocketWrapper = (function() {
-
     _.extend(WebSocketWrapper.prototype, Backbone.Events);
 
     function WebSocketWrapper(ws_conn_string) {
       this.onmessage = __bind(this.onmessage, this);
-
       var _this = this;
       this.auth = {};
       this.ws_conn_string = ws_conn_string;
@@ -10583,29 +10582,26 @@ _.setdefault = function(obj, key, value){
   };
 
   HasProperties = (function(_super) {
-
     __extends(HasProperties, _super);
 
     function HasProperties() {
       this.rpc = __bind(this.rpc, this);
-
       this.get_obj = __bind(this.get_obj, this);
-
       this.resolve_ref = __bind(this.resolve_ref, this);
-
       this.convert_to_ref = __bind(this.convert_to_ref, this);
-      return HasProperties.__super__.constructor.apply(this, arguments);
+      _ref = HasProperties.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     HasProperties.prototype.destroy = function(options) {
-      var target, val, _ref, _results;
+      var target, val, _ref1, _results;
       HasProperties.__super__.destroy.call(this, options);
       if (_.has(this, 'eventers')) {
-        _ref = this.eventers;
+        _ref1 = this.eventers;
         _results = [];
-        for (target in _ref) {
-          if (!__hasProp.call(_ref, target)) continue;
-          val = _ref[target];
+        for (target in _ref1) {
+          if (!__hasProp.call(_ref1, target)) continue;
+          val = _ref1[target];
           _results.push(val.off(null, null, this));
         }
         return _results;
@@ -10762,15 +10758,15 @@ _.setdefault = function(obj, key, value){
     };
 
     HasProperties.prototype.remove_property = function(prop_name) {
-      var dep, dependencies, fld, obj, prop_spec, _i, _j, _len, _len1, _ref;
+      var dep, dependencies, fld, obj, prop_spec, _i, _j, _len, _len1, _ref1;
       prop_spec = this.properties[prop_name];
       dependencies = prop_spec.dependencies;
       for (_i = 0, _len = dependencies.length; _i < _len; _i++) {
         dep = dependencies[_i];
         obj = dep.obj;
-        _ref = dep['fields'];
-        for (_j = 0, _len1 = _ref.length; _j < _len1; _j++) {
-          fld = _ref[_j];
+        _ref1 = dep['fields'];
+        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+          fld = _ref1[_j];
           obj.off('change:' + fld, prop_spec['callbacks']['changedep'], this);
         }
       }
@@ -10888,11 +10884,11 @@ _.setdefault = function(obj, key, value){
   })(Backbone.Model);
 
   HasParent = (function(_super) {
-
     __extends(HasParent, _super);
 
     function HasParent() {
-      return HasParent.__super__.constructor.apply(this, arguments);
+      _ref1 = HasParent.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     HasParent.prototype.get_fallback = function(attr) {
@@ -10922,18 +10918,18 @@ _.setdefault = function(obj, key, value){
   })(HasProperties);
 
   build_views = function(view_storage, view_models, options, view_types) {
-    var created_views, i_model, key, model, newmodels, to_remove, view_specific_option, _i, _j, _len, _len1;
+    var created_views, error, i_model, key, model, newmodels, to_remove, view_specific_option, _i, _j, _len, _len1;
     if (view_types == null) {
       view_types = [];
     }
     "use strict";
-
     created_views = [];
     try {
       newmodels = _.filter(view_models, function(x) {
         return !_.has(view_storage, x.id);
       });
-    } catch (error) {
+    } catch (_error) {
+      error = _error;
       debugger;
       console.log(error);
       throw error;
@@ -10949,7 +10945,8 @@ _.setdefault = function(obj, key, value){
         } else {
           view_storage[model.id] = new model.default_view(view_specific_option);
         }
-      } catch (error) {
+      } catch (_error) {
+        error = _error;
         console.log("error on model of", model, error);
         throw error;
       }
@@ -11003,12 +11000,12 @@ _.setdefault = function(obj, key, value){
   mod_cache = {};
 
   Collections = function(typename) {
-    var collection, modulename, _ref;
+    var collection, modulename, _ref2;
     if (!locations[typename]) {
       throw "./base: Unknown Collection " + typename;
     }
-    _ref = locations[typename], modulename = _ref[0], collection = _ref[1];
-    if (!(mod_cache[modulename] != null)) {
+    _ref2 = locations[typename], modulename = _ref2[0], collection = _ref2[1];
+    if (mod_cache[modulename] == null) {
       console.log("calling require", modulename);
       mod_cache[modulename] = require(modulename);
     }
@@ -11070,7 +11067,6 @@ _.setdefault = function(obj, key, value){
   var Affine;
 
   Affine = (function() {
-
     function Affine(a, b, c, d, tx, ty) {
       this.a = a != null ? a : 1;
       this.b = b != null ? b : 0;
@@ -11198,16 +11194,16 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/continuum_view": function(exports, require, module) {(function() {
-  var ContinuumView,
+  var ContinuumView, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   ContinuumView = (function(_super) {
-
     __extends(ContinuumView, _super);
 
     function ContinuumView() {
-      return ContinuumView.__super__.constructor.apply(this, arguments);
+      _ref = ContinuumView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ContinuumView.prototype.initialize = function(options) {
@@ -11225,12 +11221,12 @@ _.setdefault = function(obj, key, value){
     };
 
     ContinuumView.prototype.remove = function() {
-      var target, val, _ref;
+      var target, val, _ref1;
       if (_.has(this, 'eventers')) {
-        _ref = this.eventers;
-        for (target in _ref) {
-          if (!__hasProp.call(_ref, target)) continue;
-          val = _ref[target];
+        _ref1 = this.eventers;
+        for (target in _ref1) {
+          if (!__hasProp.call(_ref1, target)) continue;
+          val = _ref1[target];
           val.off(null, null, this);
         }
       }
@@ -11262,7 +11258,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/datasource": function(exports, require, module) {(function() {
-  var ColumnDataSource, ColumnDataSources, HasProperties, ObjectArrayDataSource, ObjectArrayDataSources, base,
+  var ColumnDataSource, ColumnDataSources, HasProperties, ObjectArrayDataSource, ObjectArrayDataSources, base, _ref, _ref1, _ref2, _ref3,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -11271,11 +11267,11 @@ _.setdefault = function(obj, key, value){
   HasProperties = base.HasProperties;
 
   ObjectArrayDataSource = (function(_super) {
-
     __extends(ObjectArrayDataSource, _super);
 
     function ObjectArrayDataSource() {
-      return ObjectArrayDataSource.__super__.constructor.apply(this, arguments);
+      _ref = ObjectArrayDataSource.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ObjectArrayDataSource.prototype.type = 'ObjectArrayDataSource';
@@ -11289,11 +11285,11 @@ _.setdefault = function(obj, key, value){
     ObjectArrayDataSource.prototype.getcolumn = function(colname) {
       var x;
       return (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.get('data');
+        var _i, _len, _ref1, _results;
+        _ref1 = this.get('data');
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          x = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          x = _ref1[_i];
           _results.push(x[colname]);
         }
         return _results;
@@ -11307,11 +11303,11 @@ _.setdefault = function(obj, key, value){
     };
 
     ObjectArrayDataSource.prototype.compute_discrete_factor = function(field) {
-      var temp, uniques, val, _i, _len, _ref;
+      var temp, uniques, val, _i, _len, _ref1;
       temp = {};
-      _ref = this.getcolumn(field);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        val = _ref[_i];
+      _ref1 = this.getcolumn(field);
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        val = _ref1[_i];
         temp[val] = true;
       }
       uniques = _.keys(temp);
@@ -11321,23 +11317,23 @@ _.setdefault = function(obj, key, value){
     };
 
     ObjectArrayDataSource.prototype.get_cont_range = function(field, padding) {
-      var center, max, min, span, _ref, _ref1,
+      var center, max, min, span, _ref1, _ref2,
         _this = this;
       if (_.isUndefined(padding)) {
         padding = 1.0;
       }
       if (!_.exists(this.cont_ranges, field)) {
-        _ref = this.compute_cont_range(field), min = _ref[0], max = _ref[1];
+        _ref1 = this.compute_cont_range(field), min = _ref1[0], max = _ref1[1];
         span = (max - min) * (1 + padding);
         center = (max + min) / 2.0;
-        _ref1 = [center - span / 2.0, center + span / 2.0], min = _ref1[0], max = _ref1[1];
+        _ref2 = [center - span / 2.0, center + span / 2.0], min = _ref2[0], max = _ref2[1];
         this.cont_ranges[field] = Collections('Range1d').create({
           start: min,
           end: max
         });
         this.on('change:data', function() {
-          var _ref2;
-          _ref2 = _this.compute_cont_range(field), max = _ref2[0], min = _ref2[1];
+          var _ref3;
+          _ref3 = _this.compute_cont_range(field), max = _ref3[0], min = _ref3[1];
           _this.cont_ranges[field].set('start', min);
           return _this.cont_ranges[field].set('end', max);
         });
@@ -11362,11 +11358,11 @@ _.setdefault = function(obj, key, value){
     };
 
     ObjectArrayDataSource.prototype.select = function(fields, func) {
-      var args, idx, selected, val, x, _i, _len, _ref;
+      var args, idx, selected, val, x, _i, _len, _ref1;
       selected = [];
-      _ref = this.get('data');
-      for (idx = _i = 0, _len = _ref.length; _i < _len; idx = ++_i) {
-        val = _ref[idx];
+      _ref1 = this.get('data');
+      for (idx = _i = 0, _len = _ref1.length; _i < _len; idx = ++_i) {
+        val = _ref1[idx];
         args = (function() {
           var _j, _len1, _results;
           _results = [];
@@ -11398,11 +11394,11 @@ _.setdefault = function(obj, key, value){
   });
 
   ObjectArrayDataSources = (function(_super) {
-
     __extends(ObjectArrayDataSources, _super);
 
     function ObjectArrayDataSources() {
-      return ObjectArrayDataSources.__super__.constructor.apply(this, arguments);
+      _ref1 = ObjectArrayDataSources.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     ObjectArrayDataSources.prototype.model = ObjectArrayDataSource;
@@ -11412,11 +11408,11 @@ _.setdefault = function(obj, key, value){
   })(Backbone.Collection);
 
   ColumnDataSource = (function(_super) {
-
     __extends(ColumnDataSource, _super);
 
     function ColumnDataSource() {
-      return ColumnDataSource.__super__.constructor.apply(this, arguments);
+      _ref2 = ColumnDataSource.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     ColumnDataSource.prototype.type = 'ColumnDataSource';
@@ -11432,11 +11428,11 @@ _.setdefault = function(obj, key, value){
     };
 
     ColumnDataSource.prototype.datapoints = function() {
-      var data, field, fields, i, point, points, _i, _j, _len, _ref;
+      var data, field, fields, i, point, points, _i, _j, _len, _ref3;
       data = this.get('data');
       fields = _.keys(data);
       points = [];
-      for (i = _i = 0, _ref = data[fields[0]].length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref3 = data[fields[0]].length - 1; 0 <= _ref3 ? _i <= _ref3 : _i >= _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
         point = {};
         for (_j = 0, _len = fields.length; _j < _len; _j++) {
           field = fields[_j];
@@ -11452,11 +11448,11 @@ _.setdefault = function(obj, key, value){
   })(ObjectArrayDataSource);
 
   ColumnDataSources = (function(_super) {
-
     __extends(ColumnDataSources, _super);
 
     function ColumnDataSources() {
-      return ColumnDataSources.__super__.constructor.apply(this, arguments);
+      _ref3 = ColumnDataSources.__super__.constructor.apply(this, arguments);
+      return _ref3;
     }
 
     ColumnDataSources.prototype.model = ColumnDataSource;
@@ -11475,7 +11471,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/gmap_plot": function(exports, require, module) {(function() {
-  var ActiveToolManager, Collections, ContinuumView, GMapPlot, GMapPlotView, GMapPlots, GridMapper, HasParent, LEVELS, LinearMapper, ViewState, base, build_views, properties, safebind, text_properties,
+  var ActiveToolManager, Collections, ContinuumView, GMapPlot, GMapPlotView, GMapPlots, GridMapper, HasParent, LEVELS, LinearMapper, ViewState, base, build_views, properties, safebind, text_properties, _ref, _ref1, _ref2,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -11507,16 +11503,14 @@ _.setdefault = function(obj, key, value){
   LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
 
   GMapPlotView = (function(_super) {
-
     __extends(GMapPlotView, _super);
 
     function GMapPlotView() {
       this.bounds_change = __bind(this.bounds_change, this);
-
       this._mousemove = __bind(this._mousemove, this);
-
       this._mousedown = __bind(this._mousedown, this);
-      return GMapPlotView.__super__.constructor.apply(this, arguments);
+      _ref = GMapPlotView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     GMapPlotView.prototype.events = {
@@ -11532,22 +11526,22 @@ _.setdefault = function(obj, key, value){
     };
 
     GMapPlotView.prototype._mousedown = function(e) {
-      var f, _i, _len, _ref, _results;
-      _ref = this.mousedownCallbacks;
+      var f, _i, _len, _ref1, _results;
+      _ref1 = this.mousedownCallbacks;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        f = _ref[_i];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        f = _ref1[_i];
         _results.push(f(e, e.layerX, e.layerY));
       }
       return _results;
     };
 
     GMapPlotView.prototype._mousemove = function(e) {
-      var f, _i, _len, _ref, _results;
-      _ref = this.moveCallbacks;
+      var f, _i, _len, _ref1, _results;
+      _ref1 = this.moveCallbacks;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        f = _ref[_i];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        f = _ref1[_i];
         _results.push(f(e, e.layerX, e.layerY));
       }
       return _results;
@@ -11582,29 +11576,29 @@ _.setdefault = function(obj, key, value){
     };
 
     GMapPlotView.prototype.initialize = function(options) {
-      var level, tool, _i, _j, _len, _len1, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+      var level, tool, _i, _j, _len, _len1, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
       GMapPlotView.__super__.initialize.call(this, _.defaults(options, this.default_options));
       this.throttled_render = _.throttle(this.render, 100);
       this.throttled_render_canvas = _.throttle(this.render_canvas, 100);
       this.title_props = new text_properties(this, {}, 'title_');
       this.view_state = new ViewState({
-        canvas_width: (_ref = options.canvas_width) != null ? _ref : this.mget('canvas_width'),
-        canvas_height: (_ref1 = options.canvas_height) != null ? _ref1 : this.mget('canvas_height'),
-        x_offset: (_ref2 = options.x_offset) != null ? _ref2 : this.mget('x_offset'),
-        y_offset: (_ref3 = options.y_offset) != null ? _ref3 : this.mget('y_offset'),
-        outer_width: (_ref4 = options.outer_width) != null ? _ref4 : this.mget('outer_width'),
-        outer_height: (_ref5 = options.outer_height) != null ? _ref5 : this.mget('outer_height'),
-        min_border_top: (_ref6 = (_ref7 = options.min_border_top) != null ? _ref7 : this.mget('min_border_top')) != null ? _ref6 : this.mget('min_border'),
-        min_border_bottom: (_ref8 = (_ref9 = options.min_border_bottom) != null ? _ref9 : this.mget('min_border_bottom')) != null ? _ref8 : this.mget('min_border'),
-        min_border_left: (_ref10 = (_ref11 = options.min_border_left) != null ? _ref11 : this.mget('min_border_left')) != null ? _ref10 : this.mget('min_border'),
-        min_border_right: (_ref12 = (_ref13 = options.min_border_right) != null ? _ref13 : this.mget('min_border_right')) != null ? _ref12 : this.mget('min_border'),
+        canvas_width: (_ref1 = options.canvas_width) != null ? _ref1 : this.mget('canvas_width'),
+        canvas_height: (_ref2 = options.canvas_height) != null ? _ref2 : this.mget('canvas_height'),
+        x_offset: (_ref3 = options.x_offset) != null ? _ref3 : this.mget('x_offset'),
+        y_offset: (_ref4 = options.y_offset) != null ? _ref4 : this.mget('y_offset'),
+        outer_width: (_ref5 = options.outer_width) != null ? _ref5 : this.mget('outer_width'),
+        outer_height: (_ref6 = options.outer_height) != null ? _ref6 : this.mget('outer_height'),
+        min_border_top: (_ref7 = (_ref8 = options.min_border_top) != null ? _ref8 : this.mget('min_border_top')) != null ? _ref7 : this.mget('min_border'),
+        min_border_bottom: (_ref9 = (_ref10 = options.min_border_bottom) != null ? _ref10 : this.mget('min_border_bottom')) != null ? _ref9 : this.mget('min_border'),
+        min_border_left: (_ref11 = (_ref12 = options.min_border_left) != null ? _ref12 : this.mget('min_border_left')) != null ? _ref11 : this.mget('min_border'),
+        min_border_right: (_ref13 = (_ref14 = options.min_border_right) != null ? _ref14 : this.mget('min_border_right')) != null ? _ref13 : this.mget('min_border'),
         requested_border_top: 0,
         requested_border_bottom: 0,
         requested_border_left: 0,
         requested_border_right: 0
       });
-      this.x_range = (_ref14 = options.x_range) != null ? _ref14 : this.mget_obj('x_range');
-      this.y_range = (_ref15 = options.y_range) != null ? _ref15 : this.mget_obj('y_range');
+      this.x_range = (_ref15 = options.x_range) != null ? _ref15 : this.mget_obj('x_range');
+      this.y_range = (_ref16 = options.y_range) != null ? _ref16 : this.mget_obj('y_range');
       this.xmapper = new LinearMapper({
         source_range: this.x_range,
         target_range: this.view_state.get('inner_range_horizontal')
@@ -11617,9 +11611,9 @@ _.setdefault = function(obj, key, value){
         domain_mapper: this.xmapper,
         codomain_mapper: this.ymapper
       });
-      _ref16 = this.mget_obj('tools');
-      for (_i = 0, _len = _ref16.length; _i < _len; _i++) {
-        tool = _ref16[_i];
+      _ref17 = this.mget_obj('tools');
+      for (_i = 0, _len = _ref17.length; _i < _len; _i++) {
+        tool = _ref17[_i];
         if (tool.type === "PanTool" || tool.type === "ZoomTool") {
           tool.set_obj('dataranges', [this.x_range, this.y_range]);
           tool.set('dimensions', ['width', 'height']);
@@ -11659,12 +11653,12 @@ _.setdefault = function(obj, key, value){
     };
 
     GMapPlotView.prototype.map_to_screen = function(x, x_units, y, y_units, units) {
-      var sx, sy, _ref;
+      var sx, sy, _ref1;
       if (x_units === 'screen') {
         sx = x.slice(0);
         sy = y.slice(0);
       } else {
-        _ref = this.mapper.v_map_to_target(x, y), sx = _ref[0], sy = _ref[1];
+        _ref1 = this.mapper.v_map_to_target(x, y), sx = _ref1[0], sy = _ref1[1];
       }
       sx = this.view_state.v_sx_to_device(sx);
       sy = this.view_state.v_sy_to_device(sy);
@@ -11672,14 +11666,14 @@ _.setdefault = function(obj, key, value){
     };
 
     GMapPlotView.prototype.map_from_screen = function(sx, sy, units) {
-      var x, y, _ref;
+      var x, y, _ref1;
       sx = this.view_state.v_device_sx(sx.slice(0));
       sy = this.view_state.v_device_sx(sy.slice(0));
       if (units === 'screen') {
         x = sx;
         y = sy;
       } else {
-        _ref = this.mapper.v_map_from_target(sx, sy), x = _ref[0], y = _ref[1];
+        _ref1 = this.mapper.v_map_from_target(sx, sy), x = _ref1[0], y = _ref1[1];
       }
       return [x, y];
     };
@@ -11827,16 +11821,16 @@ _.setdefault = function(obj, key, value){
     };
 
     GMapPlotView.prototype.render = function(force) {
-      var have_new_mapper_state, hpadding, ih, iw, k, left, level, oh, ow, pr, renderers, sx, sy, sym, th, title, top, v, xms, yms, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
+      var have_new_mapper_state, hpadding, ih, iw, k, left, level, oh, ow, pr, renderers, sx, sy, sym, th, title, top, v, xms, yms, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3, _ref4;
       this.requested_padding = {
         top: 0,
         bottom: 0,
         left: 0,
         right: 0
       };
-      _ref = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        level = _ref[_i];
+      _ref1 = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        level = _ref1[_i];
         renderers = this.levels[level];
         for (k in renderers) {
           v = renderers[k];
@@ -11867,9 +11861,9 @@ _.setdefault = function(obj, key, value){
         this.requested_padding['bottom'] = hpadding;
       }
       this.is_paused = true;
-      _ref1 = this.requested_padding;
-      for (k in _ref1) {
-        v = _ref1[k];
+      _ref2 = this.requested_padding;
+      for (k in _ref2) {
+        v = _ref2[k];
         this.view_state.set("requested_border_" + k, v);
       }
       this.is_paused = false;
@@ -11909,9 +11903,9 @@ _.setdefault = function(obj, key, value){
       this.ctx.rect(this.view_state.get('border_left'), this.view_state.get('border_top'), this.view_state.get('inner_width'), this.view_state.get('inner_height'));
       this.ctx.clip();
       this.ctx.beginPath();
-      _ref2 = ['image', 'underlay', 'glyph'];
-      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-        level = _ref2[_j];
+      _ref3 = ['image', 'underlay', 'glyph'];
+      for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+        level = _ref3[_j];
         renderers = this.levels[level];
         for (k in renderers) {
           v = renderers[k];
@@ -11919,9 +11913,9 @@ _.setdefault = function(obj, key, value){
         }
       }
       this.ctx.restore();
-      _ref3 = ['overlay', 'annotation', 'tool'];
-      for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
-        level = _ref3[_k];
+      _ref4 = ['overlay', 'annotation', 'tool'];
+      for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
+        level = _ref4[_k];
         renderers = this.levels[level];
         for (k in renderers) {
           v = renderers[k];
@@ -11941,11 +11935,11 @@ _.setdefault = function(obj, key, value){
   })(ContinuumView);
 
   GMapPlot = (function(_super) {
-
     __extends(GMapPlot, _super);
 
     function GMapPlot() {
-      return GMapPlot.__super__.constructor.apply(this, arguments);
+      _ref1 = GMapPlot.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     GMapPlot.prototype.type = 'GMapPlot';
@@ -11997,11 +11991,11 @@ _.setdefault = function(obj, key, value){
   });
 
   GMapPlots = (function(_super) {
-
     __extends(GMapPlots, _super);
 
     function GMapPlots() {
-      return GMapPlots.__super__.constructor.apply(this, arguments);
+      _ref2 = GMapPlots.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     GMapPlots.prototype.model = GMapPlot;
@@ -12018,7 +12012,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/grid_plot": function(exports, require, module) {(function() {
-  var ActiveToolManager, ContinuumView, GridPlot, GridPlotView, GridPlots, GridViewState, HasParent, HasProperties, PanToolView, ViewState, ZoomToolView, base, build_views, safebind,
+  var ActiveToolManager, ContinuumView, GridPlot, GridPlotView, GridPlots, GridViewState, HasParent, HasProperties, PanToolView, ViewState, ZoomToolView, base, build_views, safebind, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -12045,11 +12039,11 @@ _.setdefault = function(obj, key, value){
   ZoomToolView = require('../tools/zoom_tool').ZoomToolView;
 
   GridPlotView = (function(_super) {
-
     __extends(GridPlotView, _super);
 
     function GridPlotView() {
-      return GridPlotView.__super__.constructor.apply(this, arguments);
+      _ref = GridPlotView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     GridPlotView.prototype.tagName = 'div';
@@ -12061,11 +12055,11 @@ _.setdefault = function(obj, key, value){
     };
 
     GridPlotView.prototype.set_child_view_states = function() {
-      var row, viewstaterow, viewstates, x, _i, _len, _ref;
+      var row, viewstaterow, viewstates, x, _i, _len, _ref1;
       viewstates = [];
-      _ref = this.mget('children');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        row = _ref[_i];
+      _ref1 = this.mget('children');
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        row = _ref1[_i];
         viewstaterow = (function() {
           var _j, _len1, _results;
           _results = [];
@@ -12108,11 +12102,11 @@ _.setdefault = function(obj, key, value){
     };
 
     GridPlotView.prototype.build_children = function() {
-      var childmodels, plot, row, _i, _j, _len, _len1, _ref;
+      var childmodels, plot, row, _i, _j, _len, _len1, _ref1;
       childmodels = [];
-      _ref = this.mget_obj('children');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        row = _ref[_i];
+      _ref1 = this.mget_obj('children');
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        row = _ref1[_i];
         for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
           plot = row[_j];
           childmodels.push(plot);
@@ -12192,11 +12186,11 @@ _.setdefault = function(obj, key, value){
     };
 
     GridPlotView.prototype.render = function() {
-      var cidx, col_widths, height, last_plot, plot_divs, plot_wrapper, plotspec, ridx, row, row_heights, view, width, x_coords, xpos, y_coords, ypos, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+      var cidx, col_widths, height, last_plot, plot_divs, plot_wrapper, plotspec, ridx, row, row_heights, view, width, x_coords, xpos, y_coords, ypos, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
       GridPlotView.__super__.render.call(this);
-      _ref = _.values(this.childviews);
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        view = _ref[_i];
+      _ref1 = _.values(this.childviews);
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        view = _ref1[_i];
         view.$el.detach();
       }
       this.$el.html('');
@@ -12219,9 +12213,9 @@ _.setdefault = function(obj, key, value){
       }, 0);
       plot_divs = [];
       last_plot = null;
-      _ref1 = this.mget('children');
-      for (ridx = _j = 0, _len1 = _ref1.length; _j < _len1; ridx = ++_j) {
-        row = _ref1[ridx];
+      _ref2 = this.mget('children');
+      for (ridx = _j = 0, _len1 = _ref2.length; _j < _len1; ridx = ++_j) {
+        row = _ref2[ridx];
         for (cidx = _k = 0, _len2 = row.length; _k < _len2; cidx = ++_k) {
           plotspec = row[cidx];
           view = this.childviews[plotspec.id];
@@ -12245,11 +12239,11 @@ _.setdefault = function(obj, key, value){
   })(ContinuumView);
 
   GridPlot = (function(_super) {
-
     __extends(GridPlot, _super);
 
     function GridPlot() {
-      return GridPlot.__super__.constructor.apply(this, arguments);
+      _ref1 = GridPlot.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     GridPlot.prototype.type = 'GridPlot';
@@ -12268,11 +12262,11 @@ _.setdefault = function(obj, key, value){
   });
 
   GridPlots = (function(_super) {
-
     __extends(GridPlots, _super);
 
     function GridPlots() {
-      return GridPlots.__super__.constructor.apply(this, arguments);
+      _ref2 = GridPlots.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     GridPlots.prototype.model = GridPlot;
@@ -12289,7 +12283,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/grid_view_state": function(exports, require, module) {(function() {
-  var GridViewState, ViewState, base, safebind,
+  var GridViewState, ViewState, base, safebind, _ref,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -12301,26 +12295,24 @@ _.setdefault = function(obj, key, value){
   ViewState = require('./view_state').ViewState;
 
   GridViewState = (function(_super) {
-
     __extends(GridViewState, _super);
 
     function GridViewState() {
       this.layout_widths = __bind(this.layout_widths, this);
-
       this.layout_heights = __bind(this.layout_heights, this);
-
       this.setup_layout_properties = __bind(this.setup_layout_properties, this);
-      return GridViewState.__super__.constructor.apply(this, arguments);
+      _ref = GridViewState.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     GridViewState.prototype.setup_layout_properties = function() {
-      var row, viewstate, _i, _len, _ref, _results;
+      var row, viewstate, _i, _len, _ref1, _results;
       this.register_property('layout_heights', this.layout_heights, true);
       this.register_property('layout_widths', this.layout_widths, true);
-      _ref = this.get('childviewstates');
+      _ref1 = this.get('childviewstates');
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        row = _ref[_i];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        row = _ref1[_i];
         _results.push((function() {
           var _j, _len1, _results1;
           _results1 = [];
@@ -12374,11 +12366,11 @@ _.setdefault = function(obj, key, value){
     GridViewState.prototype.layout_heights = function() {
       var row, row_heights;
       row_heights = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.get('childviewstates');
+        var _i, _len, _ref1, _results;
+        _ref1 = this.get('childviewstates');
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          row = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          row = _ref1[_i];
           _results.push(this.maxdim('outer_height', row));
         }
         return _results;
@@ -12390,17 +12382,17 @@ _.setdefault = function(obj, key, value){
       var col, col_widths, columns, n, num_cols, row;
       num_cols = this.get('childviewstates')[0].length;
       columns = (function() {
-        var _i, _len, _ref, _results;
-        _ref = _.range(num_cols);
+        var _i, _len, _ref1, _results;
+        _ref1 = _.range(num_cols);
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          n = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          n = _ref1[_i];
           _results.push((function() {
-            var _j, _len1, _ref1, _results1;
-            _ref1 = this.get('childviewstates');
+            var _j, _len1, _ref2, _results1;
+            _ref2 = this.get('childviewstates');
             _results1 = [];
-            for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-              row = _ref1[_j];
+            for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+              row = _ref2[_j];
               _results1.push(row[n]);
             }
             return _results1;
@@ -12435,7 +12427,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/plot": function(exports, require, module) {(function() {
-  var ActiveToolManager, Collections, ContinuumView, GridMapper, HasParent, LEVELS, LinearMapper, PNGView, Plot, PlotView, Plots, ViewState, base, build_views, delayAnimation, properties, safebind, text_properties, throttleAnimation,
+  var ActiveToolManager, Collections, ContinuumView, GridMapper, HasParent, LEVELS, LinearMapper, PNGView, Plot, PlotView, Plots, ViewState, base, build_views, delayAnimation, properties, safebind, text_properties, throttleAnimation, _ref, _ref1, _ref2, _ref3,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -12503,14 +12495,13 @@ _.setdefault = function(obj, key, value){
   };
 
   PlotView = (function(_super) {
-
     __extends(PlotView, _super);
 
     function PlotView() {
       this._mousemove = __bind(this._mousemove, this);
-
       this._mousedown = __bind(this._mousedown, this);
-      return PlotView.__super__.constructor.apply(this, arguments);
+      _ref = PlotView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PlotView.prototype.attributes = {
@@ -12530,22 +12521,22 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotView.prototype._mousedown = function(e) {
-      var f, _i, _len, _ref, _results;
-      _ref = this.mousedownCallbacks;
+      var f, _i, _len, _ref1, _results;
+      _ref1 = this.mousedownCallbacks;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        f = _ref[_i];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        f = _ref1[_i];
         _results.push(f(e, e.layerX, e.layerY));
       }
       return _results;
     };
 
     PlotView.prototype._mousemove = function(e) {
-      var f, _i, _len, _ref, _results;
-      _ref = this.moveCallbacks;
+      var f, _i, _len, _ref1, _results;
+      _ref1 = this.moveCallbacks;
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        f = _ref[_i];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        f = _ref1[_i];
         _results.push(f(e, e.layerX, e.layerY));
       }
       return _results;
@@ -12580,29 +12571,29 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotView.prototype.initialize = function(options) {
-      var level, _i, _len, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+      var level, _i, _len, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
       PlotView.__super__.initialize.call(this, _.defaults(options, this.default_options));
       this.throttled_render = throttleAnimation(this.render, 15);
       this.throttled_render_canvas = throttleAnimation(this.render_canvas, 15);
       this.title_props = new text_properties(this, {}, 'title_');
       this.view_state = new ViewState({
-        canvas_width: (_ref = options.canvas_width) != null ? _ref : this.mget('canvas_width'),
-        canvas_height: (_ref1 = options.canvas_height) != null ? _ref1 : this.mget('canvas_height'),
-        x_offset: (_ref2 = options.x_offset) != null ? _ref2 : this.mget('x_offset'),
-        y_offset: (_ref3 = options.y_offset) != null ? _ref3 : this.mget('y_offset'),
-        outer_width: (_ref4 = options.outer_width) != null ? _ref4 : this.mget('outer_width'),
-        outer_height: (_ref5 = options.outer_height) != null ? _ref5 : this.mget('outer_height'),
-        min_border_top: (_ref6 = (_ref7 = options.min_border_top) != null ? _ref7 : this.mget('min_border_top')) != null ? _ref6 : this.mget('min_border'),
-        min_border_bottom: (_ref8 = (_ref9 = options.min_border_bottom) != null ? _ref9 : this.mget('min_border_bottom')) != null ? _ref8 : this.mget('min_border'),
-        min_border_left: (_ref10 = (_ref11 = options.min_border_left) != null ? _ref11 : this.mget('min_border_left')) != null ? _ref10 : this.mget('min_border'),
-        min_border_right: (_ref12 = (_ref13 = options.min_border_right) != null ? _ref13 : this.mget('min_border_right')) != null ? _ref12 : this.mget('min_border'),
+        canvas_width: (_ref1 = options.canvas_width) != null ? _ref1 : this.mget('canvas_width'),
+        canvas_height: (_ref2 = options.canvas_height) != null ? _ref2 : this.mget('canvas_height'),
+        x_offset: (_ref3 = options.x_offset) != null ? _ref3 : this.mget('x_offset'),
+        y_offset: (_ref4 = options.y_offset) != null ? _ref4 : this.mget('y_offset'),
+        outer_width: (_ref5 = options.outer_width) != null ? _ref5 : this.mget('outer_width'),
+        outer_height: (_ref6 = options.outer_height) != null ? _ref6 : this.mget('outer_height'),
+        min_border_top: (_ref7 = (_ref8 = options.min_border_top) != null ? _ref8 : this.mget('min_border_top')) != null ? _ref7 : this.mget('min_border'),
+        min_border_bottom: (_ref9 = (_ref10 = options.min_border_bottom) != null ? _ref10 : this.mget('min_border_bottom')) != null ? _ref9 : this.mget('min_border'),
+        min_border_left: (_ref11 = (_ref12 = options.min_border_left) != null ? _ref12 : this.mget('min_border_left')) != null ? _ref11 : this.mget('min_border'),
+        min_border_right: (_ref13 = (_ref14 = options.min_border_right) != null ? _ref14 : this.mget('min_border_right')) != null ? _ref13 : this.mget('min_border'),
         requested_border_top: 0,
         requested_border_bottom: 0,
         requested_border_left: 0,
         requested_border_right: 0
       });
-      this.x_range = (_ref14 = options.x_range) != null ? _ref14 : this.mget_obj('x_range');
-      this.y_range = (_ref15 = options.y_range) != null ? _ref15 : this.mget_obj('y_range');
+      this.x_range = (_ref15 = options.x_range) != null ? _ref15 : this.mget_obj('x_range');
+      this.y_range = (_ref16 = options.y_range) != null ? _ref16 : this.mget_obj('y_range');
       this.xmapper = new LinearMapper({
         source_range: this.x_range,
         target_range: this.view_state.get('inner_range_horizontal')
@@ -12648,12 +12639,12 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotView.prototype.map_to_screen = function(x, x_units, y, y_units, units) {
-      var sx, sy, _ref;
+      var sx, sy, _ref1;
       if (x_units === 'screen') {
         sx = x.slice(0);
         sy = y.slice(0);
       } else {
-        _ref = this.mapper.v_map_to_target(x, y), sx = _ref[0], sy = _ref[1];
+        _ref1 = this.mapper.v_map_to_target(x, y), sx = _ref1[0], sy = _ref1[1];
       }
       sx = this.view_state.v_sx_to_device(sx);
       sy = this.view_state.v_sy_to_device(sy);
@@ -12661,14 +12652,14 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotView.prototype.map_from_screen = function(sx, sy, units) {
-      var x, y, _ref;
+      var x, y, _ref1;
       sx = this.view_state.v_device_to_sx(sx.slice(0));
       sy = this.view_state.v_device_to_sy(sy.slice(0));
       if (units === 'screen') {
         x = sx;
         y = sy;
       } else {
-        _ref = this.mapper.v_map_from_target(sx, sy), x = _ref[0], y = _ref[1];
+        _ref1 = this.mapper.v_map_from_target(sx, sy), x = _ref1[0], y = _ref1[1];
       }
       return [x, y];
     };
@@ -12757,7 +12748,7 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotView.prototype.render = function(force) {
-      var have_new_mapper_state, hpadding, k, level, pr, renderers, sx, sy, sym, th, title, v, xms, yms, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
+      var have_new_mapper_state, hpadding, k, level, pr, renderers, sx, sy, sym, th, title, v, xms, yms, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3, _ref4;
       PlotView.__super__.render.call(this);
       this.requested_padding = {
         top: 0,
@@ -12765,9 +12756,9 @@ _.setdefault = function(obj, key, value){
         left: 0,
         right: 0
       };
-      _ref = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        level = _ref[_i];
+      _ref1 = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        level = _ref1[_i];
         renderers = this.levels[level];
         for (k in renderers) {
           v = renderers[k];
@@ -12798,9 +12789,9 @@ _.setdefault = function(obj, key, value){
         this.requested_padding['bottom'] = hpadding;
       }
       this.is_paused = true;
-      _ref1 = this.requested_padding;
-      for (k in _ref1) {
-        v = _ref1[k];
+      _ref2 = this.requested_padding;
+      for (k in _ref2) {
+        v = _ref2[k];
         this.view_state.set("requested_border_" + k, v);
       }
       this.is_paused = false;
@@ -12821,9 +12812,9 @@ _.setdefault = function(obj, key, value){
       this.ctx.rect(this.view_state.get('border_left'), this.view_state.get('border_top'), this.view_state.get('inner_width'), this.view_state.get('inner_height'));
       this.ctx.clip();
       this.ctx.beginPath();
-      _ref2 = ['image', 'underlay', 'glyph'];
-      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-        level = _ref2[_j];
+      _ref3 = ['image', 'underlay', 'glyph'];
+      for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+        level = _ref3[_j];
         renderers = this.levels[level];
         for (k in renderers) {
           v = renderers[k];
@@ -12831,9 +12822,9 @@ _.setdefault = function(obj, key, value){
         }
       }
       this.ctx.restore();
-      _ref3 = ['overlay', 'annotation', 'tool'];
-      for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
-        level = _ref3[_k];
+      _ref4 = ['overlay', 'annotation', 'tool'];
+      for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
+        level = _ref4[_k];
         renderers = this.levels[level];
         for (k in renderers) {
           v = renderers[k];
@@ -12853,11 +12844,11 @@ _.setdefault = function(obj, key, value){
   })(ContinuumView);
 
   PNGView = (function(_super) {
-
     __extends(PNGView, _super);
 
     function PNGView() {
-      return PNGView.__super__.constructor.apply(this, arguments);
+      _ref1 = PNGView.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     PNGView.prototype.initialize = function(options) {
@@ -12881,11 +12872,11 @@ _.setdefault = function(obj, key, value){
   })(ContinuumView);
 
   Plot = (function(_super) {
-
     __extends(Plot, _super);
 
     function Plot() {
-      return Plot.__super__.constructor.apply(this, arguments);
+      _ref2 = Plot.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     Plot.prototype.type = 'Plot';
@@ -12938,11 +12929,11 @@ _.setdefault = function(obj, key, value){
   });
 
   Plots = (function(_super) {
-
     __extends(Plots, _super);
 
     function Plots() {
-      return Plots.__super__.constructor.apply(this, arguments);
+      _ref3 = Plots.__super__.constructor.apply(this, arguments);
+      return _ref3;
     }
 
     Plots.prototype.model = Plot;
@@ -12961,7 +12952,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/plot_context": function(exports, require, module) {(function() {
-  var ContinuumView, HasParent, HasProperties, PNGContextView, PNGView, PlotContext, PlotContextView, PlotContextViewState, PlotContextViewWithMaximized, PlotContexts, PlotList, PlotLists, PlotView, base, build_views, safebind,
+  var ContinuumView, HasParent, HasProperties, PNGContextView, PNGView, PlotContext, PlotContextView, PlotContextViewState, PlotContextViewWithMaximized, PlotContexts, PlotList, PlotLists, PlotView, base, build_views, safebind, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7,
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -12983,14 +12974,13 @@ _.setdefault = function(obj, key, value){
   ContinuumView = require('./continuum_view').ContinuumView;
 
   PlotContextView = (function(_super) {
-
     __extends(PlotContextView, _super);
 
     function PlotContextView() {
       this.removeplot = __bind(this.removeplot, this);
-
       this.closeall = __bind(this.closeall, this);
-      return PlotContextView.__super__.constructor.apply(this, arguments);
+      _ref = PlotContextView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PlotContextView.prototype.initialize = function(options) {
@@ -13038,11 +13028,11 @@ _.setdefault = function(obj, key, value){
       view = this.views[s_pc.get('id')];
       view.remove();
       newchildren = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.mget('children');
+        var _i, _len, _ref1, _results;
+        _ref1 = this.mget('children');
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          x = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          x = _ref1[_i];
           if (x.id !== view.model.id) {
             _results.push(x);
           }
@@ -13055,14 +13045,14 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotContextView.prototype.render = function() {
-      var index, key, modelref, node, numplots, tab_names, to_render, val, view, _i, _len, _ref, _ref1,
+      var index, key, modelref, node, numplots, tab_names, to_render, val, view, _i, _len, _ref1, _ref2,
         _this = this;
       PlotContextView.__super__.render.call(this);
       this.build_children();
-      _ref = this.views;
-      for (key in _ref) {
-        if (!__hasProp.call(_ref, key)) continue;
-        val = _ref[key];
+      _ref1 = this.views;
+      for (key in _ref1) {
+        if (!__hasProp.call(_ref1, key)) continue;
+        val = _ref1[key];
         val.$el.detach();
       }
       this.$el.html('');
@@ -13072,9 +13062,9 @@ _.setdefault = function(obj, key, value){
       this.$el.append("<br/>");
       to_render = [];
       tab_names = {};
-      _ref1 = this.mget('children');
-      for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
-        modelref = _ref1[index];
+      _ref2 = this.mget('children');
+      for (index = _i = 0, _len = _ref2.length; _i < _len; index = ++_i) {
+        modelref = _ref2[index];
         view = this.views[modelref.id];
         node = $("<div class='jsp' data-plot_num='" + index + "'></div>");
         this.$el.append(node);
@@ -13082,11 +13072,11 @@ _.setdefault = function(obj, key, value){
         node.append(view.el);
       }
       _.defer(function() {
-        var textarea, _j, _len1, _ref2, _results;
-        _ref2 = _this.$el.find('.plottitle');
+        var textarea, _j, _len1, _ref3, _results;
+        _ref3 = _this.$el.find('.plottitle');
         _results = [];
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          textarea = _ref2[_j];
+        for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+          textarea = _ref3[_j];
           _results.push(_this.size_textarea($(textarea)));
         }
         return _results;
@@ -13099,12 +13089,12 @@ _.setdefault = function(obj, key, value){
   })(ContinuumView);
 
   PNGContextView = (function(_super) {
-
     __extends(PNGContextView, _super);
 
     function PNGContextView() {
       this.pngclick = __bind(this.pngclick, this);
-      return PNGContextView.__super__.constructor.apply(this, arguments);
+      _ref1 = PNGContextView.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     PNGContextView.prototype.initialize = function(options) {
@@ -13134,11 +13124,11 @@ _.setdefault = function(obj, key, value){
     };
 
     PNGContextView.prototype.build_children = function() {
-      var created_views, pv, view_classes, view_model, _i, _len, _ref;
+      var created_views, pv, view_classes, view_model, _i, _len, _ref2;
       view_classes = [];
-      _ref = this.mget_obj('children');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        view_model = _ref[_i];
+      _ref2 = this.mget_obj('children');
+      for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+        view_model = _ref2[_i];
         if (!view_model.get('png')) {
           console.log("no png for " + view_model.id + " making one");
           pv = new view_model.default_view({
@@ -13168,11 +13158,11 @@ _.setdefault = function(obj, key, value){
   })(PlotContextView);
 
   PlotContextViewState = (function(_super) {
-
     __extends(PlotContextViewState, _super);
 
     function PlotContextViewState() {
-      return PlotContextViewState.__super__.constructor.apply(this, arguments);
+      _ref2 = PlotContextViewState.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     PlotContextViewState.prototype.defaults = {
@@ -13186,11 +13176,11 @@ _.setdefault = function(obj, key, value){
   })(HasProperties);
 
   PlotContextViewWithMaximized = (function(_super) {
-
     __extends(PlotContextViewWithMaximized, _super);
 
     function PlotContextViewWithMaximized() {
-      return PlotContextViewWithMaximized.__super__.constructor.apply(this, arguments);
+      _ref3 = PlotContextViewWithMaximized.__super__.constructor.apply(this, arguments);
+      return _ref3;
     }
 
     PlotContextViewWithMaximized.prototype.initialize = function(options) {
@@ -13225,14 +13215,14 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotContextViewWithMaximized.prototype.render = function() {
-      var index, key, main, model, modelref, node, tab_names, title, to_render, val, view, _i, _len, _ref, _ref1,
+      var index, key, main, model, modelref, node, tab_names, title, to_render, val, view, _i, _len, _ref4, _ref5,
         _this = this;
       PlotContextViewWithMaximized.__super__.render.call(this);
       this.build_children();
-      _ref = this.views;
-      for (key in _ref) {
-        if (!__hasProp.call(_ref, key)) continue;
-        val = _ref[key];
+      _ref4 = this.views;
+      for (key in _ref4) {
+        if (!__hasProp.call(_ref4, key)) continue;
+        val = _ref4[key];
         val.$el.detach();
       }
       this.$el.html('');
@@ -13243,9 +13233,9 @@ _.setdefault = function(obj, key, value){
       main.append("<br/>");
       to_render = [];
       tab_names = {};
-      _ref1 = this.mget('children');
-      for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
-        modelref = _ref1[index];
+      _ref5 = this.mget('children');
+      for (index = _i = 0, _len = _ref5.length; _i < _len; index = ++_i) {
+        modelref = _ref5[index];
         view = this.views[modelref.id];
         node = $("<div class='jsp' data-plot_num='" + index + "'></div>");
         main.append(node);
@@ -13266,10 +13256,10 @@ _.setdefault = function(obj, key, value){
         this.maxview = null;
       }
       _.defer(function() {
-        var height, heightratio, maxheight, maxwidth, newheight, newwidth, ratio, textarea, width, widthratio, _j, _len1, _ref2;
-        _ref2 = main.find('.plottitle');
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          textarea = _ref2[_j];
+        var height, heightratio, maxheight, maxwidth, newheight, newwidth, ratio, textarea, width, widthratio, _j, _len1, _ref6;
+        _ref6 = main.find('.plottitle');
+        for (_j = 0, _len1 = _ref6.length; _j < _len1; _j++) {
+          textarea = _ref6[_j];
           _this.size_textarea($(textarea));
         }
         if (_this.maxview) {
@@ -13294,11 +13284,11 @@ _.setdefault = function(obj, key, value){
   })(PlotContextView);
 
   PlotContext = (function(_super) {
-
     __extends(PlotContext, _super);
 
     function PlotContext() {
-      return PlotContext.__super__.constructor.apply(this, arguments);
+      _ref4 = PlotContext.__super__.constructor.apply(this, arguments);
+      return _ref4;
     }
 
     PlotContext.prototype.type = 'PlotContext';
@@ -13319,11 +13309,11 @@ _.setdefault = function(obj, key, value){
   })(HasParent);
 
   PlotList = (function(_super) {
-
     __extends(PlotList, _super);
 
     function PlotList() {
-      return PlotList.__super__.constructor.apply(this, arguments);
+      _ref5 = PlotList.__super__.constructor.apply(this, arguments);
+      return _ref5;
     }
 
     PlotList.prototype.type = 'PlotList';
@@ -13333,11 +13323,11 @@ _.setdefault = function(obj, key, value){
   })(PlotContext);
 
   PlotContexts = (function(_super) {
-
     __extends(PlotContexts, _super);
 
     function PlotContexts() {
-      return PlotContexts.__super__.constructor.apply(this, arguments);
+      _ref6 = PlotContexts.__super__.constructor.apply(this, arguments);
+      return _ref6;
     }
 
     PlotContexts.prototype.model = PlotContext;
@@ -13347,11 +13337,11 @@ _.setdefault = function(obj, key, value){
   })(Backbone.Collection);
 
   PlotLists = (function(_super) {
-
     __extends(PlotLists, _super);
 
     function PlotLists() {
-      return PlotLists.__super__.constructor.apply(this, arguments);
+      _ref7 = PlotLists.__super__.constructor.apply(this, arguments);
+      return _ref7;
     }
 
     PlotLists.prototype.model = PlotList;
@@ -13378,7 +13368,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/plot_widget": function(exports, require, module) {(function() {
-  var ContinuumView, PlotWidget, base, safebind,
+  var ContinuumView, PlotWidget, base, safebind, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -13389,11 +13379,11 @@ _.setdefault = function(obj, key, value){
   ContinuumView = require("./continuum_view").ContinuumView;
 
   PlotWidget = (function(_super) {
-
     __extends(PlotWidget, _super);
 
     function PlotWidget() {
-      return PlotWidget.__super__.constructor.apply(this, arguments);
+      _ref = PlotWidget.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PlotWidget.prototype.tagName = 'div';
@@ -13438,13 +13428,13 @@ _.setdefault = function(obj, key, value){
         return ctx.webkitImageSmoothingEnabled = value;
       };
       return ctx.getImageSmoothingEnabled = function() {
-        var _ref;
-        return (_ref = ctx.imageSmoothingEnabled) != null ? _ref : true;
+        var _ref1;
+        return (_ref1 = ctx.imageSmoothingEnabled) != null ? _ref1 : true;
       };
     };
 
     PlotWidget.prototype._fixup_measure_text = function(ctx) {
-      if (ctx.measureText && !(ctx.html5MeasureText != null)) {
+      if (ctx.measureText && (ctx.html5MeasureText == null)) {
         ctx.html5MeasureText = ctx.measureText;
         return ctx.measureText = memoize(function(text) {
           var textMetrics;
@@ -13472,7 +13462,6 @@ _.setdefault = function(obj, key, value){
   var Rand;
 
   Rand = (function() {
-
     function Rand(seed) {
       this.seed = seed;
       this.multiplier = 1664525;
@@ -13511,7 +13500,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/ranges": function(exports, require, module) {(function() {
-  var DataFactorRange, DataFactorRanges, DataRange1d, DataRange1ds, FactorRange, FactorRanges, HasProperties, Range1d, Range1ds, base,
+  var DataFactorRange, DataFactorRanges, DataRange1d, DataRange1ds, FactorRange, FactorRanges, HasProperties, Range1d, Range1ds, base, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -13521,11 +13510,11 @@ _.setdefault = function(obj, key, value){
   HasProperties = base.HasProperties;
 
   Range1d = (function(_super) {
-
     __extends(Range1d, _super);
 
     function Range1d() {
-      return Range1d.__super__.constructor.apply(this, arguments);
+      _ref = Range1d.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     Range1d.prototype.type = 'Range1d';
@@ -13554,11 +13543,11 @@ _.setdefault = function(obj, key, value){
   });
 
   Range1ds = (function(_super) {
-
     __extends(Range1ds, _super);
 
     function Range1ds() {
-      return Range1ds.__super__.constructor.apply(this, arguments);
+      _ref1 = Range1ds.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Range1ds.prototype.model = Range1d;
@@ -13568,25 +13557,25 @@ _.setdefault = function(obj, key, value){
   })(Backbone.Collection);
 
   DataRange1d = (function(_super) {
-
     __extends(DataRange1d, _super);
 
     function DataRange1d() {
-      return DataRange1d.__super__.constructor.apply(this, arguments);
+      _ref2 = DataRange1d.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     DataRange1d.prototype.type = 'DataRange1d';
 
     DataRange1d.prototype._get_minmax = function() {
-      var center, colname, columns, i, max, maxs, min, mins, source, sourceobj, span, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
+      var center, colname, columns, i, max, maxs, min, mins, source, sourceobj, span, _i, _j, _k, _len, _len1, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
       columns = [];
-      _ref = this.get('sources');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        source = _ref[_i];
+      _ref3 = this.get('sources');
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        source = _ref3[_i];
         sourceobj = this.resolve_ref(source['ref']);
-        _ref1 = source['columns'];
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          colname = _ref1[_j];
+        _ref4 = source['columns'];
+        for (_j = 0, _len1 = _ref4.length; _j < _len1; _j++) {
+          colname = _ref4[_j];
           columns.push(sourceobj.getcolumn(colname));
         }
       }
@@ -13600,22 +13589,22 @@ _.setdefault = function(obj, key, value){
         columns = _.reject(columns, function(x) {
           return isNaN(x);
         });
-        _ref2 = [_.min(columns), _.max(columns)], min = _ref2[0], max = _ref2[1];
+        _ref5 = [_.min(columns), _.max(columns)], min = _ref5[0], max = _ref5[1];
       } else {
         maxs = Array(columns.length);
         mins = Array(columns.length);
-        for (i = _k = 0, _ref3 = columns.length - 1; 0 <= _ref3 ? _k <= _ref3 : _k >= _ref3; i = 0 <= _ref3 ? ++_k : --_k) {
+        for (i = _k = 0, _ref6 = columns.length - 1; 0 <= _ref6 ? _k <= _ref6 : _k >= _ref6; i = 0 <= _ref6 ? ++_k : --_k) {
           columns[i] = _.reject(columns[i], function(x) {
             return isNaN(x);
           });
           maxs[i] = _.max(columns[i]);
           mins[i] = _.min(columns[i]);
         }
-        _ref4 = [_.min(mins), _.max(maxs)], min = _ref4[0], max = _ref4[1];
+        _ref7 = [_.min(mins), _.max(maxs)], min = _ref7[0], max = _ref7[1];
       }
       span = (max - min) * (1 + this.get('rangepadding'));
       center = (max + min) / 2.0;
-      _ref5 = [center - span / 2.0, center + span / 2.0], min = _ref5[0], max = _ref5[1];
+      _ref8 = [center - span / 2.0, center + span / 2.0], min = _ref8[0], max = _ref8[1];
       return [min, max];
     };
 
@@ -13644,13 +13633,13 @@ _.setdefault = function(obj, key, value){
     };
 
     DataRange1d.prototype.dinitialize = function(attrs, options) {
-      var source, _i, _len, _ref;
+      var source, _i, _len, _ref3;
       DataRange1d.__super__.dinitialize.call(this, attrs, options);
       this.register_property('minmax', this._get_minmax, true);
       this.add_dependencies('minmax', this, ['sources'], ['rangepadding']);
-      _ref = this.get('sources');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        source = _ref[_i];
+      _ref3 = this.get('sources');
+      for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+        source = _ref3[_i];
         source = this.resolve_ref(source.ref);
         this.add_dependencies('minmax', source, 'data');
       }
@@ -13674,11 +13663,11 @@ _.setdefault = function(obj, key, value){
   });
 
   DataRange1ds = (function(_super) {
-
     __extends(DataRange1ds, _super);
 
     function DataRange1ds() {
-      return DataRange1ds.__super__.constructor.apply(this, arguments);
+      _ref3 = DataRange1ds.__super__.constructor.apply(this, arguments);
+      return _ref3;
     }
 
     DataRange1ds.prototype.model = DataRange1d;
@@ -13688,11 +13677,11 @@ _.setdefault = function(obj, key, value){
   })(Backbone.Collection);
 
   Range1ds = (function(_super) {
-
     __extends(Range1ds, _super);
 
     function Range1ds() {
-      return Range1ds.__super__.constructor.apply(this, arguments);
+      _ref4 = Range1ds.__super__.constructor.apply(this, arguments);
+      return _ref4;
     }
 
     Range1ds.prototype.model = Range1d;
@@ -13702,11 +13691,11 @@ _.setdefault = function(obj, key, value){
   })(Backbone.Collection);
 
   FactorRange = (function(_super) {
-
     __extends(FactorRange, _super);
 
     function FactorRange() {
-      return FactorRange.__super__.constructor.apply(this, arguments);
+      _ref5 = FactorRange.__super__.constructor.apply(this, arguments);
+      return _ref5;
     }
 
     FactorRange.prototype.type = 'FactorRange';
@@ -13722,12 +13711,12 @@ _.setdefault = function(obj, key, value){
   });
 
   DataFactorRange = (function(_super) {
-
     __extends(DataFactorRange, _super);
 
     function DataFactorRange() {
       this._get_values = __bind(this._get_values, this);
-      return DataFactorRange.__super__.constructor.apply(this, arguments);
+      _ref6 = DataFactorRange.__super__.constructor.apply(this, arguments);
+      return _ref6;
     }
 
     DataFactorRange.prototype.type = 'DataFactorRange';
@@ -13735,11 +13724,11 @@ _.setdefault = function(obj, key, value){
     DataFactorRange.prototype._get_values = function() {
       var columns, temp, uniques, val, x, _i, _len;
       columns = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.get('columns');
+        var _i, _len, _ref7, _results;
+        _ref7 = this.get('columns');
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          x = _ref[_i];
+        for (_i = 0, _len = _ref7.length; _i < _len; _i++) {
+          x = _ref7[_i];
           _results.push(this.get_obj('data_source').getcolumn(x));
         }
         return _results;
@@ -13780,11 +13769,11 @@ _.setdefault = function(obj, key, value){
   });
 
   DataFactorRanges = (function(_super) {
-
     __extends(DataFactorRanges, _super);
 
     function DataFactorRanges() {
-      return DataFactorRanges.__super__.constructor.apply(this, arguments);
+      _ref7 = DataFactorRanges.__super__.constructor.apply(this, arguments);
+      return _ref7;
     }
 
     DataFactorRanges.prototype.model = DataFactorRange;
@@ -13794,11 +13783,11 @@ _.setdefault = function(obj, key, value){
   })(Backbone.Collection);
 
   FactorRanges = (function(_super) {
-
     __extends(FactorRanges, _super);
 
     function FactorRanges() {
-      return FactorRanges.__super__.constructor.apply(this, arguments);
+      _ref8 = FactorRanges.__super__.constructor.apply(this, arguments);
+      return _ref8;
     }
 
     FactorRanges.prototype.model = FactorRange;
@@ -14036,7 +14025,6 @@ _.setdefault = function(obj, key, value){
 
   is_base2 = function(rng) {
     " Returns True if rng is a positive multiple of 2 ";
-
     var lg;
     if (rng <= 0) {
       return false;
@@ -14052,7 +14040,6 @@ _.setdefault = function(obj, key, value){
       round = false;
     }
     " if round is false, then use Math.ceil(range) ";
-
     expv = Math.floor(log10(x));
     f = x / Math.pow(10.0, expv);
     if (round) {
@@ -14100,7 +14087,6 @@ _.setdefault = function(obj, key, value){
       loose = false;
     }
     "Returns a \"nice\" range and interval for a given data range and a preferred\nnumber of ticks.  From Paul Heckbert's algorithm in Graphics Gems.";
-
     range = nice(max - min);
     d = nice(range / (numticks - 1), true);
     if (loose) {
@@ -14130,12 +14116,10 @@ _.setdefault = function(obj, key, value){
         step = -1;
       } else if (step > 0) {
         "the loop will never terminate";
-
         1 / 0;
       }
     } else if (step < 0) {
       "the loop will never terminate";
-
       1 / 0;
     }
     if (!step) {
@@ -14166,7 +14150,6 @@ _.setdefault = function(obj, key, value){
       zero_always_nice = true;
     }
     " Finds locations for axis tick marks.\n\nCalculates the locations for tick marks on an axis. The *bound_low*,\n*bound_high*, and *tick_interval* parameters specify how the axis end\npoints and tick interval are calculated.\n\nParameters\n----------\n\ndata_low, data_high : number\n    The minimum and maximum values of the data along this axis.\n    If any of the bound settings are 'auto' or 'fit', the axis\n    bounds are calculated automatically from these values.\nbound_low, bound_high : 'auto', 'fit', or a number.\n    The lower and upper bounds of the axis. If the value is a number,\n    that value is used for the corresponding end point. If the value is\n    'auto', then the end point is calculated automatically. If the\n    value is 'fit', then the axis bound is set to the corresponding\n    *data_low* or *data_high* value.\ntick_interval : can be 'auto' or a number\n    If the value is a positive number, it specifies the length\n    of the tick interval; a negative integer specifies the\n    number of tick intervals; 'auto' specifies that the number and\n    length of the tick intervals are automatically calculated, based\n    on the range of the axis.\nuse_endpoints : Boolean\n    If True, the lower and upper bounds of the data are used as the\n    lower and upper end points of the axis. If False, the end points\n    might not fall exactly on the bounds.\nzero_always_nice : Boolean\n    If True, ticks much closer to zero than the tick interval will be\n    coerced to have a value of zero\n\nReturns\n-------\nAn array of tick mark locations. The first and last tick entries are the\naxis end points.";
-
     is_auto_low = bound_low === 'auto';
     is_auto_high = bound_high === 'auto';
     if (typeof bound_low === "string") {
@@ -14291,7 +14274,6 @@ _.setdefault = function(obj, key, value){
 
   auto_interval_temp = function(data_low, data_high) {
     " Calculates the tick interval for a range.\n\nThe boundaries for the data to be plotted on the axis are::\n\n    data_bounds = (data_low,data_high)\n\nThe function chooses the number of tick marks, which can be between\n3 and 9 marks (including end points), and chooses tick intervals at\n1, 2, 2.5, 5, 10, 20, ...\n\nReturns\n-------\ninterval : float\n    tick mark interval for axis";
-
     var best_magics, best_mantissas, candidate_intervals, diff_arr, divisions, interval, ma, magic_index, magic_intervals, magnitude, magnitudes, mantissa_index, mantissas, mi, range, result, _i, _j, _len, _len1;
     range = float(data_high) - float(data_low);
     divisions = [8.0, 7.0, 6.0, 5.0, 4.0, 3.0];
@@ -14328,7 +14310,6 @@ _.setdefault = function(obj, key, value){
   auto_interval = memoize(auto_interval_temp);
 
   BasicTickFormatter = (function() {
-
     function BasicTickFormatter(precision, use_scientific, power_limit_high, power_limit_low) {
       this.precision = precision != null ? precision : 'auto';
       this.use_scientific = use_scientific != null ? use_scientific : true;
@@ -14461,7 +14442,6 @@ _.setdefault = function(obj, key, value){
   };
 
   DatetimeFormatter = (function() {
-
     DatetimeFormatter.prototype.format_order = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'];
 
     DatetimeFormatter.prototype.strip_leading_zeros = true;
@@ -14528,7 +14508,7 @@ _.setdefault = function(obj, key, value){
     };
 
     DatetimeFormatter.prototype.format = function(ticks, num_labels, char_width, fill_ratio, ticker) {
-      var dt, fmt, format, formats, good_formats, hybrid_handled, i, labels, next_format, next_ndx, r, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
+      var dt, error, fmt, format, formats, good_formats, hybrid_handled, i, labels, next_format, next_ndx, r, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
       if (num_labels == null) {
         num_labels = null;
       }
@@ -14583,7 +14563,8 @@ _.setdefault = function(obj, key, value){
           dt = Date(t);
           tm = _array(t);
           s = _strftime(t, format);
-        } catch (error) {
+        } catch (_error) {
+          error = _error;
           console.log(error);
           console.log("Unable to convert tick for timestamp " + t);
           labels.push("ERR");
@@ -14641,7 +14622,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "common/view_state": function(exports, require, module) {(function() {
-  var Collections, HasProperties, Range1d, ViewState, base,
+  var Collections, HasProperties, Range1d, ViewState, base, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -14654,11 +14635,11 @@ _.setdefault = function(obj, key, value){
   HasProperties = base.HasProperties;
 
   ViewState = (function(_super) {
-
     __extends(ViewState, _super);
 
     function ViewState() {
-      return ViewState.__super__.constructor.apply(this, arguments);
+      _ref = ViewState.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ViewState.prototype.initialize = function(attrs, options) {
@@ -14784,18 +14765,18 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "mappers/1d/categorical_mapper": function(exports, require, module) {(function() {
-  var CategoricalMapper, HasProperties,
+  var CategoricalMapper, HasProperties, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   HasProperties = require('../../base').HasProperties;
 
   CategoricalMapper = (function(_super) {
-
     __extends(CategoricalMapper, _super);
 
     function CategoricalMapper() {
-      return CategoricalMapper.__super__.constructor.apply(this, arguments);
+      _ref = CategoricalMapper.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     CategoricalMapper.prototype.initialize = function(attrs, options) {
@@ -14807,15 +14788,15 @@ _.setdefault = function(obj, key, value){
     };
 
     CategoricalMapper.prototype.map_to_target = function(x) {
-      var offset, scale_factor, values, _ref;
-      _ref = this.get('mapper_state'), scale_factor = _ref[0], offset = _ref[1];
+      var offset, scale_factor, values, _ref1;
+      _ref1 = this.get('mapper_state'), scale_factor = _ref1[0], offset = _ref1[1];
       values = this.get('source_range').get('values');
       return scale * _.indexOf(values, x) + offset;
     };
 
     CategoricalMapper.prototype.v_map_to_target = function(xs) {
-      var idx, offset, result, scale, values, x, _i, _len, _ref;
-      _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+      var idx, offset, result, scale, values, x, _i, _len, _ref1;
+      _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
       values = this.get('source_range').get('values');
       result = new Float32Array(xs.length);
       for (idx = _i = 0, _len = xs.length; _i < _len; idx = ++_i) {
@@ -14826,15 +14807,15 @@ _.setdefault = function(obj, key, value){
     };
 
     CategoricalMapper.prototype.map_from_target = function(xprime) {
-      var offset, scale, values, _ref;
-      _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+      var offset, scale, values, _ref1;
+      _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
       values = this.get('source_range').get('values');
       return values[Math.trunc((xprime + offset) / scale)];
     };
 
     CategoricalMapper.prototype.v_map_from_target = function(xprimes) {
-      var idx, offset, result, scale, values, xprime, _i, _len, _ref;
-      _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+      var idx, offset, result, scale, values, xprime, _i, _len, _ref1;
+      _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
       values = this.get('source_range').get('values');
       result = new Float32Array(xprimes.length);
       for (idx = _i = 0, _len = xprimes.length; _i < _len; idx = ++_i) {
@@ -14866,18 +14847,18 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "mappers/1d/linear_mapper": function(exports, require, module) {(function() {
-  var HasProperties, LinearMapper,
+  var HasProperties, LinearMapper, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   HasProperties = require('../../base').HasProperties;
 
   LinearMapper = (function(_super) {
-
     __extends(LinearMapper, _super);
 
     function LinearMapper() {
-      return LinearMapper.__super__.constructor.apply(this, arguments);
+      _ref = LinearMapper.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     LinearMapper.prototype.initialize = function(attrs, options) {
@@ -14889,14 +14870,14 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearMapper.prototype.map_to_target = function(x) {
-      var offset, scale, _ref;
-      _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+      var offset, scale, _ref1;
+      _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
       return scale * x + offset;
     };
 
     LinearMapper.prototype.v_map_to_target = function(xs) {
-      var idx, offset, result, scale, x, _i, _len, _ref;
-      _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+      var idx, offset, result, scale, x, _i, _len, _ref1;
+      _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
       result = new Float32Array(xs.length);
       for (idx = _i = 0, _len = xs.length; _i < _len; idx = ++_i) {
         x = xs[idx];
@@ -14906,14 +14887,14 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearMapper.prototype.map_from_target = function(xprime) {
-      var offset, scale, _ref;
-      _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+      var offset, scale, _ref1;
+      _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
       return (xprime - offset) / scale;
     };
 
     LinearMapper.prototype.v_map_from_target = function(xprimes) {
-      var idx, offset, result, scale, xprime, _i, _len, _ref;
-      _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+      var idx, offset, result, scale, xprime, _i, _len, _ref1;
+      _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
       result = new Float32Array(xprimes.length);
       for (idx = _i = 0, _len = xprimes.length; _i < _len; idx = ++_i) {
         xprime = xprimes[idx];
@@ -14941,18 +14922,18 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "mappers/1d/log_mapper": function(exports, require, module) {(function() {
-  var HasProperties, LogMapper,
+  var HasProperties, LogMapper, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   HasProperties = require('../../base').HasProperties;
 
   LogMapper = (function(_super) {
-
     __extends(LogMapper, _super);
 
     function LogMapper() {
-      return LogMapper.__super__.constructor.apply(this, arguments);
+      _ref = LogMapper.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     LogMapper.prototype.initialize = function(attrs, options) {
@@ -14983,18 +14964,18 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "mappers/2d/barycentric_mapper": function(exports, require, module) {(function() {
-  var BarycentricMapper, HasProperties,
+  var BarycentricMapper, HasProperties, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   HasProperties = require('../../base').HasProperties;
 
   BarycentricMapper = (function(_super) {
-
     __extends(BarycentricMapper, _super);
 
     function BarycentricMapper() {
-      return BarycentricMapper.__super__.constructor.apply(this, arguments);
+      _ref = BarycentricMapper.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     BarycentricMapper.prototype.initialize = function(attrs, options) {
@@ -15017,18 +14998,18 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "mappers/2d/grid_mapper": function(exports, require, module) {(function() {
-  var GridMapper, HasProperties,
+  var GridMapper, HasProperties, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   HasProperties = require('../../base').HasProperties;
 
   GridMapper = (function(_super) {
-
     __extends(GridMapper, _super);
 
     function GridMapper() {
-      return GridMapper.__super__.constructor.apply(this, arguments);
+      _ref = GridMapper.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     GridMapper.prototype.map_to_target = function(x, y) {
@@ -15067,18 +15048,18 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "mappers/2d/polar_mapper": function(exports, require, module) {(function() {
-  var HasProperties, PolarMapper,
+  var HasProperties, PolarMapper, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   HasProperties = require('../../base').HasProperties;
 
   PolarMapper = (function(_super) {
-
     __extends(PolarMapper, _super);
 
     function PolarMapper() {
-      return PolarMapper.__super__.constructor.apply(this, arguments);
+      _ref = PolarMapper.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PolarMapper.prototype.initialize = function(attrs, options) {
@@ -15101,18 +15082,18 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "mappers/2d/ternary_mapper": function(exports, require, module) {(function() {
-  var HasProperties, TernaryMapper,
+  var HasProperties, TernaryMapper, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   HasProperties = require('../../base').HasProperties;
 
   TernaryMapper = (function(_super) {
-
     __extends(TernaryMapper, _super);
 
     function TernaryMapper() {
-      return TernaryMapper.__super__.constructor.apply(this, arguments);
+      _ref = TernaryMapper.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     TernaryMapper.prototype.initialize = function(attrs, options) {
@@ -15135,18 +15116,18 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "mappers/color/linear_color_mapper": function(exports, require, module) {(function() {
-  var HasProperties, LinearColorMapper,
+  var HasProperties, LinearColorMapper, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   HasProperties = require('../../base').HasProperties;
 
   LinearColorMapper = (function(_super) {
-
     __extends(LinearColorMapper, _super);
 
     function LinearColorMapper() {
-      return LinearColorMapper.__super__.constructor.apply(this, arguments);
+      _ref = LinearColorMapper.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     LinearColorMapper.prototype.initialize = function(attrs, options) {
@@ -15158,13 +15139,13 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearColorMapper.prototype.v_map_screen = function(data) {
-      var N, buf, color, d, high, i, low, max, min, offset, scale, value, _i, _j, _k, _ref, _ref1, _ref2;
+      var N, buf, color, d, high, i, low, max, min, offset, scale, value, _i, _j, _k, _ref1, _ref2, _ref3;
       buf = new ArrayBuffer(data.length * 4);
       color = new Uint32Array(buf);
       max = -Infinity;
       min = Infinity;
       value = 0;
-      for (i = _i = 0, _ref = data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = data.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         value = data[i];
         if (value > max) {
           max = value;
@@ -15187,7 +15168,7 @@ _.setdefault = function(obj, key, value){
       scale = N / (high - low);
       offset = -scale * low;
       if (this.little_endian) {
-        for (i = _j = 0, _ref1 = data.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+        for (i = _j = 0, _ref2 = data.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
           d = data[i];
           if (d > high) {
             d = high;
@@ -15199,7 +15180,7 @@ _.setdefault = function(obj, key, value){
           color[i] = (0xff << 24) | ((value & 0xff0000) >> 16) | (value & 0xff00) | ((value & 0xff) << 16);
         }
       } else {
-        for (i = _k = 0, _ref2 = data.length - 1; 0 <= _ref2 ? _k <= _ref2 : _k >= _ref2; i = 0 <= _ref2 ? ++_k : --_k) {
+        for (i = _k = 0, _ref3 = data.length - 1; 0 <= _ref3 ? _k <= _ref3 : _k >= _ref3; i = 0 <= _ref3 ? ++_k : --_k) {
           d = data[i];
           if (d > high) {
             d = high;
@@ -15228,9 +15209,9 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearColorMapper.prototype._build_palette = function(palette) {
-      var i, new_palette, _i, _ref;
+      var i, new_palette, _i, _ref1;
       new_palette = new Uint32Array(palette.length + 1);
-      for (i = _i = 0, _ref = palette.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = palette.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         new_palette[i] = palette[i];
       }
       new_palette[new_palette.length - 1] = palette[palette.length - 1];
@@ -15247,15 +15228,13 @@ _.setdefault = function(obj, key, value){
 }, "mappers/color/log_color_mapper": function(exports, require, module) {(function() {
 
 
-
 }).call(this);
 }, "mappers/color/segment_color_mapper": function(exports, require, module) {(function() {
 
 
-
 }).call(this);
 }, "overlays/boxselectionoverlay": function(exports, require, module) {(function() {
-  var BoxSelectionOverlay, BoxSelectionOverlayView, BoxSelectionOverlays, HasParent, PlotWidget, base,
+  var BoxSelectionOverlay, BoxSelectionOverlayView, BoxSelectionOverlays, HasParent, PlotWidget, base, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -15266,11 +15245,11 @@ _.setdefault = function(obj, key, value){
   HasParent = base.HasParent;
 
   BoxSelectionOverlayView = (function(_super) {
-
     __extends(BoxSelectionOverlayView, _super);
 
     function BoxSelectionOverlayView() {
-      return BoxSelectionOverlayView.__super__.constructor.apply(this, arguments);
+      _ref = BoxSelectionOverlayView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     BoxSelectionOverlayView.prototype.initialize = function(options) {
@@ -15344,11 +15323,11 @@ _.setdefault = function(obj, key, value){
   })(PlotWidget);
 
   BoxSelectionOverlay = (function(_super) {
-
     __extends(BoxSelectionOverlay, _super);
 
     function BoxSelectionOverlay() {
-      return BoxSelectionOverlay.__super__.constructor.apply(this, arguments);
+      _ref1 = BoxSelectionOverlay.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     BoxSelectionOverlay.prototype.type = 'BoxSelectionOverlay';
@@ -15367,11 +15346,11 @@ _.setdefault = function(obj, key, value){
   });
 
   BoxSelectionOverlays = (function(_super) {
-
     __extends(BoxSelectionOverlays, _super);
 
     function BoxSelectionOverlays() {
-      return BoxSelectionOverlays.__super__.constructor.apply(this, arguments);
+      _ref2 = BoxSelectionOverlays.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     BoxSelectionOverlays.prototype.model = BoxSelectionOverlay;
@@ -15676,7 +15655,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "pandas/pandas": function(exports, require, module) {(function() {
-  var Collection, ContinuumView, ENTER, HasParent, HasProperties, IPythonRemoteData, PandasPivotTable, PandasPivotView, PandasPlotSource, PandasPlotSources, base, coll, datasource,
+  var Collection, ContinuumView, ENTER, HasParent, HasProperties, IPythonRemoteData, PandasPivotTable, PandasPivotView, PandasPlotSource, PandasPlotSources, base, coll, datasource, _ref, _ref1, _ref2, _ref3, _ref4,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
     __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
@@ -15694,11 +15673,11 @@ _.setdefault = function(obj, key, value){
   Collection = Backbone.Collection;
 
   IPythonRemoteData = (function(_super) {
-
     __extends(IPythonRemoteData, _super);
 
     function IPythonRemoteData() {
-      return IPythonRemoteData.__super__.constructor.apply(this, arguments);
+      _ref = IPythonRemoteData.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     IPythonRemoteData.prototype.type = 'IPythonRemoteData';
@@ -15720,11 +15699,11 @@ _.setdefault = function(obj, key, value){
   ENTER = 13;
 
   PandasPlotSource = (function(_super) {
-
     __extends(PandasPlotSource, _super);
 
     function PandasPlotSource() {
-      return PandasPlotSource.__super__.constructor.apply(this, arguments);
+      _ref1 = PandasPlotSource.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     PandasPlotSource.prototype.type = 'PandasPlotSource';
@@ -15740,11 +15719,11 @@ _.setdefault = function(obj, key, value){
   exports.pandasplotsources = new coll();
 
   PandasPlotSources = (function(_super) {
-
     __extends(PandasPlotSources, _super);
 
     function PandasPlotSources() {
-      return PandasPlotSources.__super__.constructor.apply(this, arguments);
+      _ref2 = PandasPlotSources.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     PandasPlotSources.prototype.model = PandasPlotSource;
@@ -15754,36 +15733,24 @@ _.setdefault = function(obj, key, value){
   })(Backbone.Collection);
 
   PandasPivotView = (function(_super) {
-
     __extends(PandasPivotView, _super);
 
     function PandasPivotView() {
       this.colors = __bind(this.colors, this);
-
       this.pandasend = __bind(this.pandasend, this);
-
       this.pandasnext = __bind(this.pandasnext, this);
-
       this.pandasback = __bind(this.pandasback, this);
-
       this.pandasbeginning = __bind(this.pandasbeginning, this);
-
       this.toggle_more_controls = __bind(this.toggle_more_controls, this);
-
       this.sort = __bind(this.sort, this);
-
       this.rowclick = __bind(this.rowclick, this);
-
       this.toggle_filterselected = __bind(this.toggle_filterselected, this);
-
       this.clearselected = __bind(this.clearselected, this);
-
       this.computedtxtbox = __bind(this.computedtxtbox, this);
-
       this.column_del = __bind(this.column_del, this);
-
       this.search = __bind(this.search, this);
-      return PandasPivotView.__super__.constructor.apply(this, arguments);
+      _ref3 = PandasPivotView.__super__.constructor.apply(this, arguments);
+      return _ref3;
     }
 
     PandasPivotView.prototype.template = require("./pandaspivot");
@@ -15868,11 +15835,11 @@ _.setdefault = function(obj, key, value){
       counts = this.counts();
       selected = this.selected();
       ratios = (function() {
-        var _i, _len, _ref, _ref1, _results;
-        _ref = _.zip(selected, counts);
+        var _i, _len, _ref4, _ref5, _results;
+        _ref4 = _.zip(selected, counts);
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          _ref1 = _ref[_i], select = _ref1[0], count = _ref1[1];
+        for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+          _ref5 = _ref4[_i], select = _ref5[0], count = _ref5[1];
           _results.push(select / count);
         }
         return _results;
@@ -16018,7 +15985,7 @@ _.setdefault = function(obj, key, value){
     };
 
     PandasPivotView.prototype.render = function() {
-      var colors, group, html, obj, sort, sort_ascendings, source, template_data, _i, _len, _ref;
+      var colors, group, html, obj, sort, sort_ascendings, source, template_data, _i, _len, _ref4;
       group = this.mget('group');
       if (_.isArray(group)) {
         group = group.join(",");
@@ -16029,9 +15996,9 @@ _.setdefault = function(obj, key, value){
       }
       colors = this.colors();
       sort_ascendings = {};
-      _ref = this.mget('sort');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        obj = _ref[_i];
+      _ref4 = this.mget('sort');
+      for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+        obj = _ref4[_i];
         sort_ascendings[obj['column']] = obj['ascending'];
       }
       source = this.mget_obj('source');
@@ -16072,14 +16039,13 @@ _.setdefault = function(obj, key, value){
   })(ContinuumView);
 
   PandasPivotTable = (function(_super) {
-
     __extends(PandasPivotTable, _super);
 
     function PandasPivotTable() {
       this.toggle_column_sort = __bind(this.toggle_column_sort, this);
-
       this.dinitialize = __bind(this.dinitialize, this);
-      return PandasPivotTable.__super__.constructor.apply(this, arguments);
+      _ref4 = PandasPivotTable.__super__.constructor.apply(this, arguments);
+      return _ref4;
     }
 
     PandasPivotTable.prototype.type = 'PandasPivotTable';
@@ -16383,7 +16349,7 @@ _.setdefault = function(obj, key, value){
   __obj.safe = __objSafe, __obj.escape = __escape;
   return __out.join('');
 }}, "renderers/annotation/legend": function(exports, require, module) {(function() {
-  var HasParent, Legend, LegendView, PlotWidget, base, line_properties, properties, text_properties, textutils,
+  var HasParent, Legend, LegendView, PlotWidget, base, line_properties, properties, text_properties, textutils, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -16403,13 +16369,12 @@ _.setdefault = function(obj, key, value){
 
   "Legends:\n\nlegend_padding is the boundary between the legend and the edge of the plot\nlegend_spacing goes between each legend entry and the edge of the legend,\nas well as between 2 adjacent legend entries.  It is also the space between\nthe legend label, and the legend glyph.\n\nA legend in the top right corner looks like this\n\nplotborder\npadding\nlegendborder\nspacing\nlegendborder|spacing|label|spacing|glyph|spacing|legendborder|padding|plotborder\nspacing\nlegendborder|spacing|label|spacing|glyph|spacing|legendborder|padding|plotborder\nspacing\nborder\n";
 
-
   LegendView = (function(_super) {
-
     __extends(LegendView, _super);
 
     function LegendView() {
-      return LegendView.__super__.constructor.apply(this, arguments);
+      _ref = LegendView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     LegendView.prototype.initialize = function(options) {
@@ -16436,12 +16401,12 @@ _.setdefault = function(obj, key, value){
     };
 
     LegendView.prototype.calc_dims = function(options) {
-      var ctx, h_range, label_height, label_width, legend_padding, legend_spacing, orientation, text_width, text_widths, v_range, x, y, _ref, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7;
-      label_height = (_ref = this.annotationspec.label_height) != null ? _ref : this.mget('label_height');
-      this.glyph_height = (_ref1 = this.annotationspec.glyph_height) != null ? _ref1 : this.mget('glyph_height');
-      label_width = (_ref2 = this.annotationspec.label_width) != null ? _ref2 : this.mget('label_width');
-      this.glyph_width = (_ref3 = this.annotationspec.glyph_width) != null ? _ref3 : this.mget('glyph_width');
-      legend_spacing = (_ref4 = this.annotationspec.legend_spacing) != null ? _ref4 : this.mget('legend_spacing');
+      var ctx, h_range, label_height, label_width, legend_padding, legend_spacing, orientation, text_width, text_widths, v_range, x, y, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8;
+      label_height = (_ref1 = this.annotationspec.label_height) != null ? _ref1 : this.mget('label_height');
+      this.glyph_height = (_ref2 = this.annotationspec.glyph_height) != null ? _ref2 : this.mget('glyph_height');
+      label_width = (_ref3 = this.annotationspec.label_width) != null ? _ref3 : this.mget('label_width');
+      this.glyph_width = (_ref4 = this.annotationspec.glyph_width) != null ? _ref4 : this.mget('glyph_width');
+      legend_spacing = (_ref5 = this.annotationspec.legend_spacing) != null ? _ref5 : this.mget('legend_spacing');
       this.label_height = _.max([textutils.getTextHeight(this.label_props.font(this)), label_height, this.glyph_height]);
       this.legend_height = this.label_height;
       this.legend_height = this.legend_names.length * this.legend_height + (1 + this.legend_names.length) * legend_spacing;
@@ -16455,8 +16420,8 @@ _.setdefault = function(obj, key, value){
       text_width = _.max(text_widths);
       this.label_width = _.max([text_width, label_width]);
       this.legend_width = this.label_width + this.glyph_width + 3 * legend_spacing;
-      orientation = (_ref5 = this.annotationspec.orientation) != null ? _ref5 : this.mget('orientation');
-      legend_padding = (_ref6 = this.annotationspec.legend_padding) != null ? _ref6 : this.mget('legend_padding');
+      orientation = (_ref6 = this.annotationspec.orientation) != null ? _ref6 : this.mget('orientation');
+      legend_padding = (_ref7 = this.annotationspec.legend_padding) != null ? _ref7 : this.mget('legend_padding');
       h_range = this.plot_view.view_state.get('inner_range_horizontal');
       v_range = this.plot_view.view_state.get('inner_range_vertical');
       if (orientation === "top_right") {
@@ -16472,7 +16437,7 @@ _.setdefault = function(obj, key, value){
         x = h_range.get('end') - legend_padding - this.legend_width;
         y = v_range.get('start') + legend_padding + this.legend_height;
       } else if (orientation === "absolute") {
-        _ref7 = this.annotationspec.absolute_coords, x = _ref7[0], y = _ref7[1];
+        _ref8 = this.annotationspec.absolute_coords, x = _ref8[0], y = _ref8[1];
       }
       x = this.plot_view.view_state.sx_to_device(x);
       y = this.plot_view.view_state.sy_to_device(y);
@@ -16480,7 +16445,7 @@ _.setdefault = function(obj, key, value){
     };
 
     LegendView.prototype.render = function() {
-      var ctx, idx, legend_name, legend_spacing, renderer, view, x, x1, x2, y, y1, y2, yoffset, yspacing, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+      var ctx, idx, legend_name, legend_spacing, renderer, view, x, x1, x2, y, y1, y2, yoffset, yspacing, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
       ctx = this.plot_view.ctx;
       ctx.save();
       ctx.fillStyle = this.plot_model.get('background_fill');
@@ -16490,10 +16455,10 @@ _.setdefault = function(obj, key, value){
       ctx.fill();
       ctx.stroke();
       this.label_props.set(ctx, this);
-      legend_spacing = (_ref = this.annotationspec.legend_spacing) != null ? _ref : this.mget('legend_spacing');
-      _ref1 = this.legend_names;
-      for (idx = _i = 0, _len = _ref1.length; _i < _len; idx = ++_i) {
-        legend_name = _ref1[idx];
+      legend_spacing = (_ref1 = this.annotationspec.legend_spacing) != null ? _ref1 : this.mget('legend_spacing');
+      _ref2 = this.legend_names;
+      for (idx = _i = 0, _len = _ref2.length; _i < _len; idx = ++_i) {
+        legend_name = _ref2[idx];
         yoffset = idx * this.label_height;
         yspacing = (1 + idx) * legend_spacing;
         y = this.box_coords[1] + this.label_height / 2.0 + yoffset + yspacing;
@@ -16503,9 +16468,9 @@ _.setdefault = function(obj, key, value){
         y1 = this.box_coords[1] + yoffset + yspacing;
         y2 = y1 + this.glyph_height;
         ctx.fillText(legend_name, x, y);
-        _ref2 = this.model.resolve_ref(this.annotationspec.legends[legend_name]);
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          renderer = _ref2[_j];
+        _ref3 = this.model.resolve_ref(this.annotationspec.legends[legend_name]);
+        for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+          renderer = _ref3[_j];
           view = this.plot_view.renderers[renderer.id];
           view.draw_legend(ctx, x1, x2, y1, y2);
         }
@@ -16518,11 +16483,11 @@ _.setdefault = function(obj, key, value){
   })(PlotWidget);
 
   Legend = (function(_super) {
-
     __extends(Legend, _super);
 
     function Legend() {
-      return Legend.__super__.constructor.apply(this, arguments);
+      _ref1 = Legend.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Legend.prototype.default_view = LegendView;
@@ -16572,10 +16537,9 @@ _.setdefault = function(obj, key, value){
 }, "renderers/annotation/title": function(exports, require, module) {(function() {
 
 
-
 }).call(this);
 }, "renderers/annotation_renderer": function(exports, require, module) {(function() {
-  var AnnotationRenderers, Collections, annotations, base,
+  var AnnotationRenderers, Collections, annotations, base, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -16586,16 +16550,16 @@ _.setdefault = function(obj, key, value){
   annotations = require('./annotations');
 
   AnnotationRenderers = (function(_super) {
-
     __extends(AnnotationRenderers, _super);
 
     function AnnotationRenderers() {
-      return AnnotationRenderers.__super__.constructor.apply(this, arguments);
+      _ref = AnnotationRenderers.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     AnnotationRenderers.prototype.model = function(attrs, options) {
-      var model, type, _ref;
-      if (!(((_ref = attrs.annotationspec) != null ? _ref.type : void 0) != null)) {
+      var model, type, _ref1;
+      if (((_ref1 = attrs.annotationspec) != null ? _ref1.type : void 0) == null) {
         console.log("missing annotation type");
         return;
       }
@@ -16624,7 +16588,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/annular_wedge": function(exports, require, module) {(function() {
-  var AnnularWedge, AnnularWedgeView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties,
+  var AnnularWedge, AnnularWedgeView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -16643,11 +16607,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   AnnularWedgeView = (function(_super) {
-
     __extends(AnnularWedgeView, _super);
 
     function AnnularWedgeView() {
-      return AnnularWedgeView.__super__.constructor.apply(this, arguments);
+      _ref = AnnularWedgeView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     AnnularWedgeView.prototype.initialize = function(options) {
@@ -16673,7 +16637,7 @@ _.setdefault = function(obj, key, value){
     };
 
     AnnularWedgeView.prototype._set_data = function(data) {
-      var angle, dir, end_angle, i, start_angle, _i, _j, _k, _ref, _ref1, _ref2, _results;
+      var angle, dir, end_angle, i, start_angle, _i, _j, _k, _ref1, _ref2, _ref3, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
@@ -16698,11 +16662,11 @@ _.setdefault = function(obj, key, value){
         return _results;
       })();
       this.angle = new Float32Array(this.start_angle.length);
-      for (i = _i = 0, _ref = this.start_angle.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.start_angle.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         this.angle[i] = this.end_angle[i] - this.start_angle[i];
       }
       this.direction = new Uint8Array(this.data.length);
-      for (i = _j = 0, _ref1 = this.data.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+      for (i = _j = 0, _ref2 = this.data.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
         dir = this.glyph_props.select('direction', data[i]);
         if (dir === 'clock') {
           this.direction[i] = false;
@@ -16714,15 +16678,15 @@ _.setdefault = function(obj, key, value){
       }
       this.selected_mask = new Uint8Array(data.length);
       _results = [];
-      for (i = _k = 0, _ref2 = this.selected_mask.length - 1; 0 <= _ref2 ? _k <= _ref2 : _k >= _ref2; i = 0 <= _ref2 ? ++_k : --_k) {
+      for (i = _k = 0, _ref3 = this.selected_mask.length - 1; 0 <= _ref3 ? _k <= _ref3 : _k >= _ref3; i = 0 <= _ref3 ? ++_k : --_k) {
         _results.push(this.selected_mask[i] = false);
       }
       return _results;
     };
 
     AnnularWedgeView.prototype._render = function() {
-      var ctx, idx, props, selected, _i, _len, _ref;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var ctx, idx, props, selected, _i, _len, _ref1;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       this.inner_radius = this.distance(this.data, 'x', 'inner_radius', 'edge');
       this.outer_radius = this.distance(this.data, 'x', 'outer_radius', 'edge');
       ctx = this.plot_view.ctx;
@@ -16751,10 +16715,10 @@ _.setdefault = function(obj, key, value){
     };
 
     AnnularWedgeView.prototype._fast_path = function(ctx) {
-      var i, _i, _j, _ref, _ref1;
+      var i, _i, _j, _ref1, _ref2;
       if (this.do_fill) {
         this.glyph_props.fill_properties.set(ctx, this.glyph_props);
-        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx[i] + this.sy[i] + this.inner_radius[i] + this.outer_radius[i] + this.start_angle[i] + this.end_angle[i])) {
             continue;
           }
@@ -16775,7 +16739,7 @@ _.setdefault = function(obj, key, value){
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+        for (i = _j = 0, _ref2 = this.sx.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
           if (isNaN(this.sx[i] + this.sy[i] + this.inner_radius[i] + this.outer_radius[i] + this.start_angle[i] + this.end_angle[i])) {
             continue;
           }
@@ -16795,12 +16759,12 @@ _.setdefault = function(obj, key, value){
     };
 
     AnnularWedgeView.prototype._full_path = function(ctx, glyph_props, use_selection) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (!glyph_props) {
         glyph_props = this.glyph_props;
       }
       _results = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.inner_radius[i] + this.outer_radius[i] + this.start_angle[i] + this.end_angle[i])) {
           continue;
         }
@@ -16889,13 +16853,13 @@ _.setdefault = function(obj, key, value){
     };
 
     AnnularWedgeView.prototype.select = function(xscreenbounds, yscreenbounds) {
-      var i, selected, _i, _ref;
+      var i, selected, _i, _ref1;
       xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
       yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
       xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
       yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
       selected = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (xscreenbounds) {
           if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
             continue;
@@ -16916,11 +16880,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   AnnularWedge = (function(_super) {
-
     __extends(AnnularWedge, _super);
 
     function AnnularWedge() {
-      return AnnularWedge.__super__.constructor.apply(this, arguments);
+      _ref1 = AnnularWedge.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     AnnularWedge.prototype.default_view = AnnularWedgeView;
@@ -16952,7 +16916,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/annulus": function(exports, require, module) {(function() {
-  var Annulus, AnnulusView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties,
+  var Annulus, AnnulusView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -16971,11 +16935,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   AnnulusView = (function(_super) {
-
     __extends(AnnulusView, _super);
 
     function AnnulusView() {
-      return AnnulusView.__super__.constructor.apply(this, arguments);
+      _ref = AnnulusView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     AnnulusView.prototype.initialize = function(options) {
@@ -17001,21 +16965,21 @@ _.setdefault = function(obj, key, value){
     };
 
     AnnulusView.prototype._set_data = function(data) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
       this.selected_mask = new Uint8Array(data.length);
       _results = [];
-      for (i = _i = 0, _ref = this.selected_mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.selected_mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         _results.push(this.selected_mask[i] = false);
       }
       return _results;
     };
 
     AnnulusView.prototype._render = function() {
-      var ctx, idx, props, selected, _i, _len, _ref;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var ctx, idx, props, selected, _i, _len, _ref1;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       this.inner_radius = this.distance(this.data, 'x', 'inner_radius', 'edge');
       this.outer_radius = this.distance(this.data, 'x', 'outer_radius', 'edge');
       ctx = this.plot_view.ctx;
@@ -17044,10 +17008,10 @@ _.setdefault = function(obj, key, value){
     };
 
     AnnulusView.prototype._fast_path = function(ctx) {
-      var i, _i, _j, _ref, _ref1, _results;
+      var i, _i, _j, _ref1, _ref2, _results;
       if (this.do_fill) {
         this.glyph_props.fill_properties.set(ctx, this.glyph_props);
-        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx[i] + this.sy[i] + this.inner_radius[i] + this.outer_radius[i])) {
             continue;
           }
@@ -17060,7 +17024,7 @@ _.setdefault = function(obj, key, value){
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         _results = [];
-        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+        for (i = _j = 0, _ref2 = this.sx.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
           if (isNaN(this.sx[i] + this.sy[i] + this.inner_radius[i] + this.outer_radius[i])) {
             continue;
           }
@@ -17076,12 +17040,12 @@ _.setdefault = function(obj, key, value){
     };
 
     AnnulusView.prototype._full_path = function(ctx, glyph_props, use_selection) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (!glyph_props) {
         glyph_props = this.glyph_props;
       }
       _results = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.inner_radius[i] + this.outer_radius[i])) {
           continue;
         }
@@ -17151,13 +17115,13 @@ _.setdefault = function(obj, key, value){
     };
 
     AnnulusView.prototype.select = function(xscreenbounds, yscreenbounds) {
-      var i, selected, _i, _ref;
+      var i, selected, _i, _ref1;
       xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
       yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
       xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
       yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
       selected = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (xscreenbounds) {
           if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
             continue;
@@ -17178,11 +17142,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Annulus = (function(_super) {
-
     __extends(Annulus, _super);
 
     function Annulus() {
-      return Annulus.__super__.constructor.apply(this, arguments);
+      _ref1 = Annulus.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Annulus.prototype.default_view = AnnulusView;
@@ -17213,7 +17177,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/arc": function(exports, require, module) {(function() {
-  var Arc, ArcView, Glyph, GlyphView, glyph, glyph_properties, line_properties, properties,
+  var Arc, ArcView, Glyph, GlyphView, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -17230,11 +17194,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   ArcView = (function(_super) {
-
     __extends(ArcView, _super);
 
     function ArcView() {
-      return ArcView.__super__.constructor.apply(this, arguments);
+      _ref = ArcView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ArcView.prototype.initialize = function(options) {
@@ -17246,7 +17210,7 @@ _.setdefault = function(obj, key, value){
     };
 
     ArcView.prototype._set_data = function(data) {
-      var angle, dir, end_angle, i, start_angle, _i, _ref, _results;
+      var angle, dir, end_angle, i, start_angle, _i, _ref1, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
@@ -17272,7 +17236,7 @@ _.setdefault = function(obj, key, value){
       })();
       this.direction = new Uint8Array(this.data.length);
       _results = [];
-      for (i = _i = 0, _ref = this.data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.data.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         dir = this.glyph_props.select('direction', data[i]);
         if (dir === 'clock') {
           _results.push(this.direction[i] = false);
@@ -17286,8 +17250,8 @@ _.setdefault = function(obj, key, value){
     };
 
     ArcView.prototype._render = function() {
-      var ctx, _ref;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var ctx, _ref1;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       this.radius = this.distance(this.data, 'x', 'radius', 'edge');
       ctx = this.plot_view.ctx;
       ctx.save();
@@ -17300,11 +17264,11 @@ _.setdefault = function(obj, key, value){
     };
 
     ArcView.prototype._fast_path = function(ctx) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         _results = [];
-        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx[i] + this.sy[i] + this.radius[i] + this.start_angle[i] + this.end_angle[i] + this.direction[i])) {
             continue;
           }
@@ -17317,10 +17281,10 @@ _.setdefault = function(obj, key, value){
     };
 
     ArcView.prototype._full_path = function(ctx) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (this.do_stroke) {
         _results = [];
-        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx[i] + this.sy[i] + this.radius[i] + this.start_angle[i] + this.end_angle[i] + this.direction[i])) {
             continue;
           }
@@ -17370,11 +17334,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Arc = (function(_super) {
-
     __extends(Arc, _super);
 
     function Arc() {
-      return Arc.__super__.constructor.apply(this, arguments);
+      _ref1 = Arc.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Arc.prototype.default_view = ArcView;
@@ -17404,7 +17368,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/bezier": function(exports, require, module) {(function() {
-  var Bezier, BezierView, Glyph, GlyphView, glyph, glyph_properties, line_properties, properties,
+  var Bezier, BezierView, Glyph, GlyphView, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -17421,11 +17385,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   BezierView = (function(_super) {
-
     __extends(BezierView, _super);
 
     function BezierView() {
-      return BezierView.__super__.constructor.apply(this, arguments);
+      _ref = BezierView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     BezierView.prototype.initialize = function(options) {
@@ -17449,11 +17413,11 @@ _.setdefault = function(obj, key, value){
     };
 
     BezierView.prototype._render = function() {
-      var ctx, _ref, _ref1, _ref2, _ref3;
-      _ref = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref[0], this.sy0 = _ref[1];
-      _ref1 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref1[0], this.sy1 = _ref1[1];
-      _ref2 = this.plot_view.map_to_screen(this.cx0, this.glyph_props.cx0.units, this.cy0, this.glyph_props.cy0.units), this.scx0 = _ref2[0], this.scy0 = _ref2[1];
-      _ref3 = this.plot_view.map_to_screen(this.cx1, this.glyph_props.cx1.units, this.cy1, this.glyph_props.cy1.units), this.scx1 = _ref3[0], this.scy1 = _ref3[1];
+      var ctx, _ref1, _ref2, _ref3, _ref4;
+      _ref1 = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref1[0], this.sy0 = _ref1[1];
+      _ref2 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref2[0], this.sy1 = _ref2[1];
+      _ref3 = this.plot_view.map_to_screen(this.cx0, this.glyph_props.cx0.units, this.cy0, this.glyph_props.cy0.units), this.scx0 = _ref3[0], this.scy0 = _ref3[1];
+      _ref4 = this.plot_view.map_to_screen(this.cx1, this.glyph_props.cx1.units, this.cy1, this.glyph_props.cy1.units), this.scx1 = _ref4[0], this.scy1 = _ref4[1];
       ctx = this.plot_view.ctx;
       ctx.save();
       if (this.glyph_props.fast_path) {
@@ -17465,11 +17429,11 @@ _.setdefault = function(obj, key, value){
     };
 
     BezierView.prototype._fast_path = function(ctx) {
-      var i, _i, _ref;
+      var i, _i, _ref1;
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _i = 0, _ref = this.sx0.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx0.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx0[i] + this.sy0[i] + this.sx1[i] + this.sy1[i] + this.scx0[i] + this.scy0[i] + this.scx1[i] + this.scy1[i])) {
             continue;
           }
@@ -17481,10 +17445,10 @@ _.setdefault = function(obj, key, value){
     };
 
     BezierView.prototype._full_path = function(ctx) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (this.do_stroke) {
         _results = [];
-        for (i = _i = 0, _ref = this.sx0.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx0.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx0[i] + this.sy0[i] + this.sx1[i] + this.sy1[i] + this.scx0[i] + this.scy0[i] + this.scx1[i] + this.scy1[i])) {
             continue;
           }
@@ -17503,11 +17467,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Bezier = (function(_super) {
-
     __extends(Bezier, _super);
 
     function Bezier() {
-      return Bezier.__super__.constructor.apply(this, arguments);
+      _ref1 = Bezier.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Bezier.prototype.default_view = BezierView;
@@ -17536,7 +17500,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/circle": function(exports, require, module) {(function() {
-  var Circle, CircleView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties,
+  var Circle, CircleView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -17555,11 +17519,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   CircleView = (function(_super) {
-
     __extends(CircleView, _super);
 
     function CircleView() {
-      return CircleView.__super__.constructor.apply(this, arguments);
+      _ref = CircleView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     CircleView.prototype.initialize = function(options) {
@@ -17584,13 +17548,13 @@ _.setdefault = function(obj, key, value){
     };
 
     CircleView.prototype._set_data = function(data) {
-      var i, _i, _ref;
+      var i, _i, _ref1;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
       this.mask = new Uint8Array(data.length);
       this.selected_mask = new Uint8Array(data.length);
-      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         this.mask[i] = true;
         this.selected_mask[i] = false;
       }
@@ -17598,11 +17562,11 @@ _.setdefault = function(obj, key, value){
     };
 
     CircleView.prototype._render = function(plot_view, have_new_mapper_state) {
-      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref, _ref1;
+      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref1, _ref2;
       if (have_new_mapper_state == null) {
         have_new_mapper_state = true;
       }
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       ow = this.plot_view.view_state.get('outer_width');
       oh = this.plot_view.view_state.get('outer_height');
       if (this.have_new_data || have_new_mapper_state) {
@@ -17611,7 +17575,7 @@ _.setdefault = function(obj, key, value){
       }
       ow = this.plot_view.view_state.get('outer_width');
       oh = this.plot_view.view_state.get('outer_height');
-      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+      for (i = _i = 0, _ref2 = this.mask.length - 1; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
         if ((this.sx[i] + this.radius[i]) < 0 || (this.sx[i] - this.radius[i]) > ow || (this.sy[i] + this.radius[i]) < 0 || (this.sy[i] - this.radius[i]) > oh) {
           this.mask[i] = false;
         } else {
@@ -17654,14 +17618,14 @@ _.setdefault = function(obj, key, value){
     };
 
     CircleView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
-      var i, _i, _j, _ref, _ref1, _results;
+      var i, _i, _j, _ref1, _ref2, _results;
       if (!glyph_props) {
         glyph_props = this.glyph_props;
       }
       if (glyph_props.fill_properties.do_fill) {
         glyph_props.fill_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx[i] + this.sy[i] + this.radius[i]) || !this.mask[i]) {
             continue;
           }
@@ -17679,7 +17643,7 @@ _.setdefault = function(obj, key, value){
       if (glyph_props.line_properties.do_stroke) {
         glyph_props.line_properties.set(ctx, this.glyph_props);
         _results = [];
-        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+        for (i = _j = 0, _ref2 = this.sx.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
           if (isNaN(this.sx[i] + this.sy[i] + this.radius[i]) || !this.mask[i]) {
             continue;
           }
@@ -17699,12 +17663,12 @@ _.setdefault = function(obj, key, value){
     };
 
     CircleView.prototype._full_path = function(ctx, glyph_props, use_selection) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (!glyph_props) {
         glyph_props = this.glyph_props;
       }
       _results = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.radius[i]) || !this.mask[i]) {
           continue;
         }
@@ -17731,13 +17695,13 @@ _.setdefault = function(obj, key, value){
     };
 
     CircleView.prototype.select = function(xscreenbounds, yscreenbounds) {
-      var i, selected, _i, _ref;
+      var i, selected, _i, _ref1;
       xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
       yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
       xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
       yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
       selected = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (xscreenbounds) {
           if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
             continue;
@@ -17788,11 +17752,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Circle = (function(_super) {
-
     __extends(Circle, _super);
 
     function Circle() {
-      return Circle.__super__.constructor.apply(this, arguments);
+      _ref1 = Circle.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Circle.prototype.default_view = CircleView;
@@ -17823,7 +17787,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/glyph": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, HasParent, PlotWidget, base, safebind,
+  var Glyph, GlyphView, HasParent, PlotWidget, base, safebind, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -17836,11 +17800,11 @@ _.setdefault = function(obj, key, value){
   PlotWidget = require('../../common/plot_widget').PlotWidget;
 
   GlyphView = (function(_super) {
-
     __extends(GlyphView, _super);
 
     function GlyphView() {
-      return GlyphView.__super__.constructor.apply(this, arguments);
+      _ref = GlyphView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     GlyphView.prototype.initialize = function(options) {
@@ -17925,17 +17889,17 @@ _.setdefault = function(obj, key, value){
           ptc = mapper.v_map_from_target(ptc);
         }
         pt0 = (function() {
-          var _i, _ref, _results;
+          var _i, _ref1, _results;
           _results = [];
-          for (i = _i = 0, _ref = ptc.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          for (i = _i = 0, _ref1 = ptc.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
             _results.push(ptc[i] - halfspan[i]);
           }
           return _results;
         })();
         pt1 = (function() {
-          var _i, _ref, _results;
+          var _i, _ref1, _results;
           _results = [];
-          for (i = _i = 0, _ref = ptc.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          for (i = _i = 0, _ref1 = ptc.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
             _results.push(ptc[i] + halfspan[i]);
           }
           return _results;
@@ -17946,9 +17910,9 @@ _.setdefault = function(obj, key, value){
           pt0 = mapper.v_map_from_target(pt0);
         }
         pt1 = (function() {
-          var _i, _ref, _results;
+          var _i, _ref1, _results;
           _results = [];
-          for (i = _i = 0, _ref = pt0.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          for (i = _i = 0, _ref1 = pt0.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
             _results.push(pt0[i] + span[i]);
           }
           return _results;
@@ -17957,9 +17921,9 @@ _.setdefault = function(obj, key, value){
       spt0 = mapper.v_map_to_target(pt0);
       spt1 = mapper.v_map_to_target(pt1);
       return (function() {
-        var _i, _ref, _results;
+        var _i, _ref1, _results;
         _results = [];
-        for (i = _i = 0, _ref = spt0.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = spt0.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           _results.push(spt1[i] - spt0[i]);
         }
         return _results;
@@ -17983,11 +17947,11 @@ _.setdefault = function(obj, key, value){
   })(PlotWidget);
 
   Glyph = (function(_super) {
-
     __extends(Glyph, _super);
 
     function Glyph() {
-      return Glyph.__super__.constructor.apply(this, arguments);
+      _ref1 = Glyph.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     return Glyph;
@@ -18017,7 +17981,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/image": function(exports, require, module) {(function() {
-  var ColorMapper, Glyph, GlyphView, ImageGlyph, ImageView, all_palettes, glyph, glyph_properties, properties,
+  var ColorMapper, Glyph, GlyphView, ImageGlyph, ImageView, all_palettes, glyph, glyph_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -18036,11 +18000,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   ImageView = (function(_super) {
-
     __extends(ImageView, _super);
 
     function ImageView() {
-      return ImageView.__super__.constructor.apply(this, arguments);
+      _ref = ImageView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ImageView.prototype.initialize = function(options) {
@@ -18051,12 +18015,12 @@ _.setdefault = function(obj, key, value){
     };
 
     ImageView.prototype._set_data = function(data) {
-      var buf, buf8, canvas, cmap, ctx, h, height, i, image_data, img, obj, width, _i, _j, _ref, _ref1, _results;
+      var buf, buf8, canvas, cmap, ctx, h, height, i, image_data, img, obj, width, _i, _j, _ref1, _ref2, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
       h = this.glyph_props.v_select('dh', data);
-      for (i = _i = 0, _ref = this.y.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.y.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         this.y[i] += h[i];
       }
       this.pal = this.glyph_props.v_select('palette', data);
@@ -18073,7 +18037,7 @@ _.setdefault = function(obj, key, value){
       }).call(this);
       this.image_data = new Array(data.length);
       _results = [];
-      for (i = _j = 0, _ref1 = data.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+      for (i = _j = 0, _ref2 = data.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
         canvas = document.createElement('canvas');
         canvas.width = width[i];
         canvas.height = height[i];
@@ -18092,15 +18056,15 @@ _.setdefault = function(obj, key, value){
     };
 
     ImageView.prototype._render = function() {
-      var ctx, i, old_smoothing, y_offset, _i, _ref, _ref1;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var ctx, i, old_smoothing, y_offset, _i, _ref1, _ref2;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       this.sw = this.distance(this.data, 'x', 'dw', 'edge');
       this.sh = this.distance(this.data, 'y', 'dh', 'edge');
       ctx = this.plot_view.ctx;
       ctx.save();
       old_smoothing = ctx.getImageSmoothingEnabled();
       ctx.setImageSmoothingEnabled(false);
-      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+      for (i = _i = 0, _ref2 = this.sx.length - 1; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i])) {
           continue;
         }
@@ -18122,11 +18086,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   ImageGlyph = (function(_super) {
-
     __extends(ImageGlyph, _super);
 
     function ImageGlyph() {
-      return ImageGlyph.__super__.constructor.apply(this, arguments);
+      _ref1 = ImageGlyph.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     ImageGlyph.prototype.default_view = ImageView;
@@ -18149,7 +18113,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/image_rgba": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, ImageRGBAGlyph, ImageRGBAView, glyph, glyph_properties, properties,
+  var Glyph, GlyphView, ImageRGBAGlyph, ImageRGBAView, glyph, glyph_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -18164,11 +18128,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   ImageRGBAView = (function(_super) {
-
     __extends(ImageRGBAView, _super);
 
     function ImageRGBAView() {
-      return ImageRGBAView.__super__.constructor.apply(this, arguments);
+      _ref = ImageRGBAView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ImageRGBAView.prototype.initialize = function(options) {
@@ -18179,12 +18143,12 @@ _.setdefault = function(obj, key, value){
     };
 
     ImageRGBAView.prototype._set_data = function(data) {
-      var ctx, h, height, i, img, obj, width, _i, _j, _ref, _ref1, _results;
+      var ctx, h, height, i, img, obj, width, _i, _j, _ref1, _ref2, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
       h = this.glyph_props.v_select('dh', data);
-      for (i = _i = 0, _ref = this.y.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.y.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         this.y[i] += h[i];
       }
       width = this.glyph_props.v_select('width', data);
@@ -18198,15 +18162,15 @@ _.setdefault = function(obj, key, value){
         }
         return _results;
       }).call(this);
-      if (!(this.image_data != null) || this.image_data.length !== data.length) {
+      if ((this.image_data == null) || this.image_data.length !== data.length) {
         this.image_data = new Array(data.length);
       }
-      if (!(this.image_canvas != null) || this.image_canvas.length !== data.length) {
+      if ((this.image_canvas == null) || this.image_canvas.length !== data.length) {
         this.image_canvas = new Array(data.length);
       }
       _results = [];
-      for (i = _j = 0, _ref1 = data.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
-        if (!(this.image_canvas[i] != null) || (this.image_canvas[i].width !== width[i] || this.image_canvas[i].height !== height[i])) {
+      for (i = _j = 0, _ref2 = data.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
+        if ((this.image_canvas[i] == null) || (this.image_canvas[i].width !== width[i] || this.image_canvas[i].height !== height[i])) {
           this.image_canvas[i] = document.createElement('canvas');
           this.image_canvas[i].width = width[i];
           this.image_canvas[i].height = height[i];
@@ -18221,15 +18185,15 @@ _.setdefault = function(obj, key, value){
     };
 
     ImageRGBAView.prototype._render = function() {
-      var ctx, i, old_smoothing, y_offset, _i, _ref, _ref1;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var ctx, i, old_smoothing, y_offset, _i, _ref1, _ref2;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       this.sw = this.distance(this.data, 'x', 'dw', 'edge');
       this.sh = this.distance(this.data, 'y', 'dh', 'edge');
       ctx = this.plot_view.ctx;
       ctx.save();
       old_smoothing = ctx.getImageSmoothingEnabled();
       ctx.setImageSmoothingEnabled(false);
-      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+      for (i = _i = 0, _ref2 = this.sx.length - 1; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i])) {
           continue;
         }
@@ -18251,11 +18215,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   ImageRGBAGlyph = (function(_super) {
-
     __extends(ImageRGBAGlyph, _super);
 
     function ImageRGBAGlyph() {
-      return ImageRGBAGlyph.__super__.constructor.apply(this, arguments);
+      _ref1 = ImageRGBAGlyph.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     ImageRGBAGlyph.prototype.default_view = ImageRGBAView;
@@ -18278,7 +18242,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/image_uri": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, ImageURIGlyph, ImageURIView, glyph, glyph_properties, properties,
+  var Glyph, GlyphView, ImageURIGlyph, ImageURIView, glyph, glyph_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -18293,11 +18257,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   ImageURIView = (function(_super) {
-
     __extends(ImageURIView, _super);
 
     function ImageURIView() {
-      return ImageURIView.__super__.constructor.apply(this, arguments);
+      _ref = ImageURIView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ImageURIView.prototype.initialize = function(options) {
@@ -18332,31 +18296,31 @@ _.setdefault = function(obj, key, value){
         return _results;
       })();
       this.image = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.url;
+        var _i, _len, _ref1, _results;
+        _ref1 = this.url;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          img = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          img = _ref1[_i];
           _results.push(null);
         }
         return _results;
       }).call(this);
       this.need_load = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.url;
+        var _i, _len, _ref1, _results;
+        _ref1 = this.url;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          img = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          img = _ref1[_i];
           _results.push(true);
         }
         return _results;
       }).call(this);
       return this.loaded = (function() {
-        var _i, _len, _ref, _results;
-        _ref = this.url;
+        var _i, _len, _ref1, _results;
+        _ref1 = this.url;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          img = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          img = _ref1[_i];
           _results.push(false);
         }
         return _results;
@@ -18364,13 +18328,13 @@ _.setdefault = function(obj, key, value){
     };
 
     ImageURIView.prototype._render = function() {
-      var ctx, i, img, vs, _i, _ref, _ref1,
+      var ctx, i, img, vs, _i, _ref1, _ref2,
         _this = this;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       ctx = this.plot_view.ctx;
       vs = this.plot_view.view_state;
       ctx.save();
-      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+      for (i = _i = 0, _ref2 = this.sx.length - 1; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.angle[i])) {
           continue;
         }
@@ -18414,11 +18378,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   ImageURIGlyph = (function(_super) {
-
     __extends(ImageURIGlyph, _super);
 
     function ImageURIGlyph() {
-      return ImageURIGlyph.__super__.constructor.apply(this, arguments);
+      _ref1 = ImageURIGlyph.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     ImageURIGlyph.prototype.default_view = ImageURIView;
@@ -18441,7 +18405,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/line": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Line, LineView, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, Line, LineView, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -18458,11 +18422,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   LineView = (function(_super) {
-
     __extends(LineView, _super);
 
     function LineView() {
-      return LineView.__super__.constructor.apply(this, arguments);
+      _ref = LineView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     LineView.prototype.initialize = function(options) {
@@ -18487,21 +18451,21 @@ _.setdefault = function(obj, key, value){
     };
 
     LineView.prototype._set_data = function(data) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
       this.selected_mask = new Uint8Array(data.length);
       _results = [];
-      for (i = _i = 0, _ref = this.selected_mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.selected_mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         _results.push(this.selected_mask[i] = false);
       }
       return _results;
     };
 
     LineView.prototype._map_data = function() {
-      var _ref;
-      return _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1], _ref;
+      var _ref1;
+      return _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1], _ref1;
     };
 
     LineView.prototype._render = function() {
@@ -18529,7 +18493,7 @@ _.setdefault = function(obj, key, value){
     };
 
     LineView.prototype._draw_path = function(ctx, glyph_props, draw_selected) {
-      var drawing, i, selected_mask, sx, sy, _i, _ref;
+      var drawing, i, selected_mask, sx, sy, _i, _ref1;
       if (!glyph_props) {
         glyph_props = this.glyph_props;
       }
@@ -18538,7 +18502,7 @@ _.setdefault = function(obj, key, value){
       sy = this.sy;
       selected_mask = this.selected_mask;
       drawing = false;
-      for (i = _i = 0, _ref = sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (isNaN(sx[i] + sy[i]) || (draw_selected && !selected_mask[i]) || (!draw_selected && selected_mask[i])) {
           if (drawing) {
             ctx.stroke();
@@ -18579,13 +18543,13 @@ _.setdefault = function(obj, key, value){
     };
 
     LineView.prototype.select = function(xscreenbounds, yscreenbounds) {
-      var i, selected, _i, _ref;
+      var i, selected, _i, _ref1;
       xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
       yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
       xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
       yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
       selected = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (xscreenbounds) {
           if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
             continue;
@@ -18606,11 +18570,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Line = (function(_super) {
-
     __extends(Line, _super);
 
     function Line() {
-      return Line.__super__.constructor.apply(this, arguments);
+      _ref1 = Line.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Line.prototype.default_view = LineView;
@@ -18639,7 +18603,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/multi_line": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, MultiLine, MultiLineView, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, MultiLine, MultiLineView, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -18656,11 +18620,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   MultiLineView = (function(_super) {
-
     __extends(MultiLineView, _super);
 
     function MultiLineView() {
-      return MultiLineView.__super__.constructor.apply(this, arguments);
+      _ref = MultiLineView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     MultiLineView.prototype.initialize = function(options) {
@@ -18688,17 +18652,17 @@ _.setdefault = function(obj, key, value){
     };
 
     MultiLineView.prototype._fast_path = function(ctx) {
-      var i, pt, sx, sy, x, y, _i, _j, _len, _ref, _ref1, _ref2, _results;
+      var i, pt, sx, sy, x, y, _i, _j, _len, _ref1, _ref2, _ref3, _results;
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
-        _ref = this.data;
+        _ref1 = this.data;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          pt = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          pt = _ref1[_i];
           x = this.glyph_props.select('xs', pt);
           y = this.glyph_props.select('ys', pt);
-          _ref1 = this.plot_view.map_to_screen(x, this.glyph_props.xs.units, y, this.glyph_props.ys.units), sx = _ref1[0], sy = _ref1[1];
-          for (i = _j = 0, _ref2 = sx.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
+          _ref2 = this.plot_view.map_to_screen(x, this.glyph_props.xs.units, y, this.glyph_props.ys.units), sx = _ref2[0], sy = _ref2[1];
+          for (i = _j = 0, _ref3 = sx.length - 1; 0 <= _ref3 ? _j <= _ref3 : _j >= _ref3; i = 0 <= _ref3 ? ++_j : --_j) {
             if (i === 0) {
               ctx.beginPath();
               ctx.moveTo(sx[i], sy[i]);
@@ -18718,17 +18682,17 @@ _.setdefault = function(obj, key, value){
     };
 
     MultiLineView.prototype._full_path = function(ctx) {
-      var i, pt, sx, sy, x, y, _i, _j, _len, _ref, _ref1, _ref2, _results;
+      var i, pt, sx, sy, x, y, _i, _j, _len, _ref1, _ref2, _ref3, _results;
       if (this.do_stroke) {
-        _ref = this.data;
+        _ref1 = this.data;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          pt = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          pt = _ref1[_i];
           x = this.glyph_props.select('xs', pt);
           y = this.glyph_props.select('ys', pt);
-          _ref1 = this.plot_view.map_to_screen(x, this.glyph_props.xs.units, y, this.glyph_props.ys.units), sx = _ref1[0], sy = _ref1[1];
+          _ref2 = this.plot_view.map_to_screen(x, this.glyph_props.xs.units, y, this.glyph_props.ys.units), sx = _ref2[0], sy = _ref2[1];
           this.glyph_props.line_properties.set(ctx, pt);
-          for (i = _j = 0, _ref2 = sx.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
+          for (i = _j = 0, _ref3 = sx.length - 1; 0 <= _ref3 ? _j <= _ref3 : _j >= _ref3; i = 0 <= _ref3 ? ++_j : --_j) {
             if (i === 0) {
               ctx.beginPath();
               ctx.moveTo(sx[i], sy[i]);
@@ -18771,11 +18735,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   MultiLine = (function(_super) {
-
     __extends(MultiLine, _super);
 
     function MultiLine() {
-      return MultiLine.__super__.constructor.apply(this, arguments);
+      _ref1 = MultiLine.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     MultiLine.prototype.default_view = MultiLineView;
@@ -18804,7 +18768,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/oval": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Oval, OvalView, fill_properties, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, Oval, OvalView, fill_properties, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -18823,11 +18787,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   OvalView = (function(_super) {
-
     __extends(OvalView, _super);
 
     function OvalView() {
-      return OvalView.__super__.constructor.apply(this, arguments);
+      _ref = OvalView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     OvalView.prototype.initialize = function(options) {
@@ -18853,7 +18817,7 @@ _.setdefault = function(obj, key, value){
     };
 
     OvalView.prototype._set_data = function(data) {
-      var angle, angles, i, _i, _ref, _results;
+      var angle, angles, i, _i, _ref1, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
@@ -18869,15 +18833,15 @@ _.setdefault = function(obj, key, value){
       })();
       this.selected_mask = new Uint8Array(data.length);
       _results = [];
-      for (i = _i = 0, _ref = this.selected_mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.selected_mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         _results.push(this.selected_mask[i] = false);
       }
       return _results;
     };
 
     OvalView.prototype._render = function() {
-      var ctx, idx, props, selected, _i, _len, _ref;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var ctx, idx, props, selected, _i, _len, _ref1;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       this.sw = this.distance(this.data, 'x', 'width', 'center');
       this.sh = this.distance(this.data, 'y', 'height', 'center');
       ctx = this.plot_view.ctx;
@@ -18906,10 +18870,10 @@ _.setdefault = function(obj, key, value){
     };
 
     OvalView.prototype._fast_path = function(ctx) {
-      var i, _i, _j, _ref, _ref1;
+      var i, _i, _j, _ref1, _ref2;
       if (this.do_fill) {
         this.glyph_props.fill_properties.set(ctx, this.glyph_props);
-        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i] + this.angle[i])) {
             continue;
           }
@@ -18928,7 +18892,7 @@ _.setdefault = function(obj, key, value){
       if (this.do_fill) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+        for (i = _j = 0, _ref2 = this.sx.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
           if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i] + this.angle[i])) {
             continue;
           }
@@ -18945,12 +18909,12 @@ _.setdefault = function(obj, key, value){
     };
 
     OvalView.prototype._full_path = function(ctx, glyph_props, use_selection) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (!glyph_props) {
         glyph_props = this.glyph_props;
       }
       _results = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i] + this.angle[i])) {
           continue;
         }
@@ -19024,13 +18988,13 @@ _.setdefault = function(obj, key, value){
     };
 
     OvalView.prototype.select = function(xscreenbounds, yscreenbounds) {
-      var i, selected, _i, _ref;
+      var i, selected, _i, _ref1;
       xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
       yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
       xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
       yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
       selected = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (xscreenbounds) {
           if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
             continue;
@@ -19051,11 +19015,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Oval = (function(_super) {
-
     __extends(Oval, _super);
 
     function Oval() {
-      return Oval.__super__.constructor.apply(this, arguments);
+      _ref1 = Oval.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Oval.prototype.default_view = OvalView;
@@ -19087,7 +19051,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/patch": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Patch, PatchView, fill_properties, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, Patch, PatchView, fill_properties, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -19106,11 +19070,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   PatchView = (function(_super) {
-
     __extends(PatchView, _super);
 
     function PatchView() {
-      return PatchView.__super__.constructor.apply(this, arguments);
+      _ref = PatchView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PatchView.prototype.initialize = function(options) {
@@ -19129,13 +19093,13 @@ _.setdefault = function(obj, key, value){
     };
 
     PatchView.prototype._render = function() {
-      var ctx, i, sx, sy, _i, _j, _ref, _ref1, _ref2;
+      var ctx, i, sx, sy, _i, _j, _ref1, _ref2, _ref3;
       ctx = this.plot_view.ctx;
       ctx.save();
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), sx = _ref[0], sy = _ref[1];
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), sx = _ref1[0], sy = _ref1[1];
       if (this.do_fill) {
         this.glyph_props.fill_properties.set(ctx, this.glyph_props);
-        for (i = _i = 0, _ref1 = sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        for (i = _i = 0, _ref2 = sx.length - 1; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
           if (i === 0) {
             ctx.beginPath();
             ctx.moveTo(sx[i], sy[i]);
@@ -19154,7 +19118,7 @@ _.setdefault = function(obj, key, value){
       }
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
-        for (i = _j = 0, _ref2 = sx.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
+        for (i = _j = 0, _ref3 = sx.length - 1; 0 <= _ref3 ? _j <= _ref3 : _j >= _ref3; i = 0 <= _ref3 ? ++_j : --_j) {
           if (i === 0) {
             ctx.beginPath();
             ctx.moveTo(sx[i], sy[i]);
@@ -19179,11 +19143,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Patch = (function(_super) {
-
     __extends(Patch, _super);
 
     function Patch() {
-      return Patch.__super__.constructor.apply(this, arguments);
+      _ref1 = Patch.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Patch.prototype.default_view = PatchView;
@@ -19214,7 +19178,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/patches": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Patches, PatchesView, fill_properties, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, Patches, PatchesView, fill_properties, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -19233,11 +19197,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   PatchesView = (function(_super) {
-
     __extends(PatchesView, _super);
 
     function PatchesView() {
-      return PatchesView.__super__.constructor.apply(this, arguments);
+      _ref = PatchesView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PatchesView.prototype.initialize = function(options) {
@@ -19254,18 +19218,18 @@ _.setdefault = function(obj, key, value){
     };
 
     PatchesView.prototype._render = function() {
-      var ctx, i, pt, sx, sy, x, y, _i, _j, _k, _len, _ref, _ref1, _ref2, _ref3;
+      var ctx, i, pt, sx, sy, x, y, _i, _j, _k, _len, _ref1, _ref2, _ref3, _ref4;
       ctx = this.plot_view.ctx;
       ctx.save();
-      _ref = this.data;
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        pt = _ref[_i];
+      _ref1 = this.data;
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        pt = _ref1[_i];
         x = this.glyph_props.select('xs', pt);
         y = this.glyph_props.select('ys', pt);
-        _ref1 = this.plot_view.map_to_screen(x, this.glyph_props.xs.units, y, this.glyph_props.ys.units), sx = _ref1[0], sy = _ref1[1];
+        _ref2 = this.plot_view.map_to_screen(x, this.glyph_props.xs.units, y, this.glyph_props.ys.units), sx = _ref2[0], sy = _ref2[1];
         if (this.do_fill) {
           this.glyph_props.fill_properties.set(ctx, pt);
-          for (i = _j = 0, _ref2 = sx.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
+          for (i = _j = 0, _ref3 = sx.length - 1; 0 <= _ref3 ? _j <= _ref3 : _j >= _ref3; i = 0 <= _ref3 ? ++_j : --_j) {
             if (i === 0) {
               ctx.beginPath();
               ctx.moveTo(sx[i], sy[i]);
@@ -19284,7 +19248,7 @@ _.setdefault = function(obj, key, value){
         }
         if (this.do_stroke) {
           this.glyph_props.line_properties.set(ctx, pt);
-          for (i = _k = 0, _ref3 = sx.length - 1; 0 <= _ref3 ? _k <= _ref3 : _k >= _ref3; i = 0 <= _ref3 ? ++_k : --_k) {
+          for (i = _k = 0, _ref4 = sx.length - 1; 0 <= _ref4 ? _k <= _ref4 : _k >= _ref4; i = 0 <= _ref4 ? ++_k : --_k) {
             if (i === 0) {
               ctx.beginPath();
               ctx.moveTo(sx[i], sy[i]);
@@ -19310,11 +19274,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Patches = (function(_super) {
-
     __extends(Patches, _super);
 
     function Patches() {
-      return Patches.__super__.constructor.apply(this, arguments);
+      _ref1 = Patches.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Patches.prototype.default_view = PatchesView;
@@ -19345,7 +19309,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/quad": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Quad, QuadView, fill_properties, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, Quad, QuadView, fill_properties, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -19364,11 +19328,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   QuadView = (function(_super) {
-
     __extends(QuadView, _super);
 
     function QuadView() {
-      return QuadView.__super__.constructor.apply(this, arguments);
+      _ref = QuadView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     QuadView.prototype.initialize = function(options) {
@@ -19381,7 +19345,7 @@ _.setdefault = function(obj, key, value){
     };
 
     QuadView.prototype._set_data = function(data) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       this.data = data;
       this.left = this.glyph_props.v_select('left', data);
       this.top = this.glyph_props.v_select('top', data);
@@ -19389,19 +19353,19 @@ _.setdefault = function(obj, key, value){
       this.bottom = this.glyph_props.v_select('bottom', data);
       this.mask = new Uint8Array(data.length);
       _results = [];
-      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         _results.push(this.mask[i] = true);
       }
       return _results;
     };
 
     QuadView.prototype._render = function() {
-      var ctx, i, oh, ow, _i, _ref, _ref1, _ref2;
-      _ref = this.plot_view.map_to_screen(this.left, this.glyph_props.left.units, this.top, this.glyph_props.top.units), this.sx0 = _ref[0], this.sy0 = _ref[1];
-      _ref1 = this.plot_view.map_to_screen(this.right, this.glyph_props.right.units, this.bottom, this.glyph_props.bottom.units), this.sx1 = _ref1[0], this.sy1 = _ref1[1];
+      var ctx, i, oh, ow, _i, _ref1, _ref2, _ref3;
+      _ref1 = this.plot_view.map_to_screen(this.left, this.glyph_props.left.units, this.top, this.glyph_props.top.units), this.sx0 = _ref1[0], this.sy0 = _ref1[1];
+      _ref2 = this.plot_view.map_to_screen(this.right, this.glyph_props.right.units, this.bottom, this.glyph_props.bottom.units), this.sx1 = _ref2[0], this.sy1 = _ref2[1];
       ow = this.plot_view.view_state.get('outer_width');
       oh = this.plot_view.view_state.get('outer_height');
-      for (i = _i = 0, _ref2 = this.mask.length - 1; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
+      for (i = _i = 0, _ref3 = this.mask.length - 1; 0 <= _ref3 ? _i <= _ref3 : _i >= _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
         if ((this.sx0[i] < 0 && this.sx1[i] < 0) || (this.sx0[i] > ow && this.sx1[i] > ow) || (this.sy0[i] < 0 && this.sy1[i] < 0) || (this.sy0[i] > oh && this.sy1[i] > oh)) {
           this.mask[i] = false;
         } else {
@@ -19419,11 +19383,11 @@ _.setdefault = function(obj, key, value){
     };
 
     QuadView.prototype._fast_path = function(ctx) {
-      var i, _i, _j, _ref, _ref1;
+      var i, _i, _j, _ref1, _ref2;
       if (this.do_fill) {
         this.glyph_props.fill_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _i = 0, _ref = this.sx0.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx0.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx0[i] + this.sy0[i] + this.sx1[i] + this.sy1[i]) || !this.mask[i]) {
             continue;
           }
@@ -19434,7 +19398,7 @@ _.setdefault = function(obj, key, value){
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _j = 0, _ref1 = this.sx0.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+        for (i = _j = 0, _ref2 = this.sx0.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
           if (isNaN(this.sx0[i] + this.sy0[i] + this.sx1[i] + this.sy1[i]) || !this.mask[i]) {
             continue;
           }
@@ -19445,9 +19409,9 @@ _.setdefault = function(obj, key, value){
     };
 
     QuadView.prototype._full_path = function(ctx) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       _results = [];
-      for (i = _i = 0, _ref = this.sx0.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx0.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (isNaN(this.sx0[i] + this.sy0[i] + this.sx1[i] + this.sy1[i]) || !this.mask[i]) {
           continue;
         }
@@ -19468,7 +19432,7 @@ _.setdefault = function(obj, key, value){
     };
 
     QuadView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
-      var border, bottom, data_h, data_w, fill_props, glyph_props, glyph_settings, h, left, line_props, ratio, ratio1, ratio2, reference_point, right, sx0, sx1, sy0, sy1, top, w, x, y, _ref, _ref1;
+      var border, bottom, data_h, data_w, fill_props, glyph_props, glyph_settings, h, left, line_props, ratio, ratio1, ratio2, reference_point, right, sx0, sx1, sy0, sy1, top, w, x, y, _ref1, _ref2;
       glyph_props = this.glyph_props;
       line_props = glyph_props.line_properties;
       fill_props = glyph_props.fill_properties;
@@ -19480,8 +19444,8 @@ _.setdefault = function(obj, key, value){
         top = this.glyph_props.select('top', glyph_settings);
         right = this.glyph_props.select('right', glyph_settings);
         bottom = this.glyph_props.select('bottom', glyph_settings);
-        _ref = this.plot_view.map_to_screen([left], this.glyph_props.left.units, [top], this.glyph_props.top.units), sx0 = _ref[0], sy0 = _ref[1];
-        _ref1 = this.plot_view.map_to_screen([right], this.glyph_props.right.units, [bottom], this.glyph_props.bottom.units), sx1 = _ref1[0], sy1 = _ref1[1];
+        _ref1 = this.plot_view.map_to_screen([left], this.glyph_props.left.units, [top], this.glyph_props.top.units), sx0 = _ref1[0], sy0 = _ref1[1];
+        _ref2 = this.plot_view.map_to_screen([right], this.glyph_props.right.units, [bottom], this.glyph_props.bottom.units), sx1 = _ref2[0], sy1 = _ref2[1];
         data_w = sx1[0] - sx0[0];
         data_h = sy1[0] - sy0[0];
       } else {
@@ -19515,11 +19479,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Quad = (function(_super) {
-
     __extends(Quad, _super);
 
     function Quad() {
-      return Quad.__super__.constructor.apply(this, arguments);
+      _ref1 = Quad.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Quad.prototype.default_view = QuadView;
@@ -19550,7 +19514,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/quadratic": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Quadratic, QuadraticView, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, Quadratic, QuadraticView, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -19567,11 +19531,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   QuadraticView = (function(_super) {
-
     __extends(QuadraticView, _super);
 
     function QuadraticView() {
-      return QuadraticView.__super__.constructor.apply(this, arguments);
+      _ref = QuadraticView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     QuadraticView.prototype.initialize = function(options) {
@@ -19593,10 +19557,10 @@ _.setdefault = function(obj, key, value){
     };
 
     QuadraticView.prototype._render = function() {
-      var ctx, _ref, _ref1, _ref2;
-      _ref = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref[0], this.sy0 = _ref[1];
-      _ref1 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref1[0], this.sy1 = _ref1[1];
-      _ref2 = this.plot_view.map_to_screen(this.cx, this.glyph_props.cx.units, this.cy, this.glyph_props.cy.units), this.scx = _ref2[0], this.scy = _ref2[1];
+      var ctx, _ref1, _ref2, _ref3;
+      _ref1 = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref1[0], this.sy0 = _ref1[1];
+      _ref2 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref2[0], this.sy1 = _ref2[1];
+      _ref3 = this.plot_view.map_to_screen(this.cx, this.glyph_props.cx.units, this.cy, this.glyph_props.cy.units), this.scx = _ref3[0], this.scy = _ref3[1];
       ctx = this.plot_view.ctx;
       ctx.save();
       if (this.glyph_props.fast_path) {
@@ -19608,11 +19572,11 @@ _.setdefault = function(obj, key, value){
     };
 
     QuadraticView.prototype._fast_path = function(ctx) {
-      var i, _i, _ref;
+      var i, _i, _ref1;
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _i = 0, _ref = this.sx0.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx0.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx0[i] + this.sy0[i] + this.sx1[i] + this.sy1[i] + this.scx[i] + this.scy[i])) {
             continue;
           }
@@ -19624,10 +19588,10 @@ _.setdefault = function(obj, key, value){
     };
 
     QuadraticView.prototype._full_path = function(ctx) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (this.do_stroke) {
         _results = [];
-        for (i = _i = 0, _ref = this.sx0.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx0.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx0[i] + this.sy0[i] + this.sx1[i] + this.sy1[i] + this.scx[i] + this.scy[i])) {
             continue;
           }
@@ -19646,11 +19610,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Quadratic = (function(_super) {
-
     __extends(Quadratic, _super);
 
     function Quadratic() {
-      return Quadratic.__super__.constructor.apply(this, arguments);
+      _ref1 = Quadratic.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Quadratic.prototype.default_view = QuadraticView;
@@ -19679,7 +19643,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/ray": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Ray, RayView, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, Ray, RayView, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -19696,11 +19660,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   RayView = (function(_super) {
-
     __extends(RayView, _super);
 
     function RayView() {
-      return RayView.__super__.constructor.apply(this, arguments);
+      _ref = RayView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     RayView.prototype.initialize = function(options) {
@@ -19738,12 +19702,12 @@ _.setdefault = function(obj, key, value){
     };
 
     RayView.prototype._render = function() {
-      var ctx, height, i, inf_len, width, _i, _ref, _ref1;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var ctx, height, i, inf_len, width, _i, _ref1, _ref2;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       width = this.plot_view.view_state.get('width');
       height = this.plot_view.view_state.get('height');
       inf_len = 2 * (width + height);
-      for (i = _i = 0, _ref1 = this.length.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+      for (i = _i = 0, _ref2 = this.length.length - 1; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
         if (this.length[i] === 0) {
           this.length[i] = inf_len;
         }
@@ -19759,11 +19723,11 @@ _.setdefault = function(obj, key, value){
     };
 
     RayView.prototype._fast_path = function(ctx) {
-      var i, _i, _ref;
+      var i, _i, _ref1;
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx[i] + this.sy[i] + this.angle[i] + this.length[i])) {
             continue;
           }
@@ -19779,10 +19743,10 @@ _.setdefault = function(obj, key, value){
     };
 
     RayView.prototype._full_path = function(ctx) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (this.do_stroke) {
         _results = [];
-        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx[i] + this.sy[i] + this.angle[i] + this.length[i])) {
             continue;
           }
@@ -19831,11 +19795,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Ray = (function(_super) {
-
     __extends(Ray, _super);
 
     function Ray() {
-      return Ray.__super__.constructor.apply(this, arguments);
+      _ref1 = Ray.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Ray.prototype.default_view = RayView;
@@ -19864,7 +19828,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/rect": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Rect, RectView, fill_properties, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, Rect, RectView, fill_properties, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -19883,11 +19847,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   RectView = (function(_super) {
-
     __extends(RectView, _super);
 
     function RectView() {
-      return RectView.__super__.constructor.apply(this, arguments);
+      _ref = RectView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     RectView.prototype.initialize = function(options) {
@@ -19915,7 +19879,7 @@ _.setdefault = function(obj, key, value){
     };
 
     RectView.prototype._set_data = function(data) {
-      var angle, angles, i, _i, _ref, _results;
+      var angle, angles, i, _i, _ref1, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
@@ -19931,21 +19895,21 @@ _.setdefault = function(obj, key, value){
       })();
       this.selected_mask = new Uint8Array(data.length);
       _results = [];
-      for (i = _i = 0, _ref = this.selected_mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.selected_mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         _results.push(this.selected_mask[i] = false);
       }
       return _results;
     };
 
     RectView.prototype._map_data = function() {
-      var i, sxi, syi, _i, _ref, _ref1, _results;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), sxi = _ref[0], syi = _ref[1];
+      var i, sxi, syi, _i, _ref1, _ref2, _results;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), sxi = _ref1[0], syi = _ref1[1];
       this.sw = this.distance(this.data, 'x', 'width', 'center');
       this.sh = this.distance(this.data, 'y', 'height', 'center');
       this.sx = new Array(sxi.length);
       this.sy = new Array(sxi.length);
       _results = [];
-      for (i = _i = 0, _ref1 = sxi.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+      for (i = _i = 0, _ref2 = sxi.length - 1; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
         if (Math.abs(sxi[i] - this.sw[i]) < 2) {
           this.sx[i] = Math.round(sxi[i]);
         } else {
@@ -19989,11 +19953,11 @@ _.setdefault = function(obj, key, value){
     };
 
     RectView.prototype._fast_path = function(ctx) {
-      var i, _i, _j, _ref, _ref1;
+      var i, _i, _j, _ref1, _ref2;
       if (this.do_fill) {
         this.glyph_props.fill_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i] + this.angle[i])) {
             continue;
           }
@@ -20012,7 +19976,7 @@ _.setdefault = function(obj, key, value){
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+        for (i = _j = 0, _ref2 = this.sx.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
           if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i] + this.angle[i])) {
             continue;
           }
@@ -20067,12 +20031,12 @@ _.setdefault = function(obj, key, value){
     };
 
     RectView.prototype._full_path = function(ctx, glyph_props, use_selection) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (!glyph_props) {
         glyph_props = this.glyph_props;
       }
       _results = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i] + this.angle[i])) {
           continue;
         }
@@ -20101,13 +20065,13 @@ _.setdefault = function(obj, key, value){
     };
 
     RectView.prototype.select = function(xscreenbounds, yscreenbounds) {
-      var i, selected, _i, _ref;
+      var i, selected, _i, _ref1;
       xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
       yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
       xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
       yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
       selected = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (xscreenbounds) {
           if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
             continue;
@@ -20128,11 +20092,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Rect = (function(_super) {
-
     __extends(Rect, _super);
 
     function Rect() {
-      return Rect.__super__.constructor.apply(this, arguments);
+      _ref1 = Rect.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Rect.prototype.default_view = RectView;
@@ -20164,7 +20128,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/segment": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Segment, SegmentView, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, Segment, SegmentView, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -20181,11 +20145,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   SegmentView = (function(_super) {
-
     __extends(SegmentView, _super);
 
     function SegmentView() {
-      return SegmentView.__super__.constructor.apply(this, arguments);
+      _ref = SegmentView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     SegmentView.prototype.initialize = function(options) {
@@ -20205,9 +20169,9 @@ _.setdefault = function(obj, key, value){
     };
 
     SegmentView.prototype._render = function() {
-      var ctx, _ref, _ref1;
-      _ref = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref[0], this.sy0 = _ref[1];
-      _ref1 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref1[0], this.sy1 = _ref1[1];
+      var ctx, _ref1, _ref2;
+      _ref1 = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref1[0], this.sy0 = _ref1[1];
+      _ref2 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref2[0], this.sy1 = _ref2[1];
       ctx = this.plot_view.ctx;
       ctx.save();
       if (this.glyph_props.fast_path) {
@@ -20219,11 +20183,11 @@ _.setdefault = function(obj, key, value){
     };
 
     SegmentView.prototype._fast_path = function(ctx) {
-      var i, _i, _ref;
+      var i, _i, _ref1;
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         ctx.beginPath();
-        for (i = _i = 0, _ref = this.sx0.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx0.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx0[i] + this.sy0[i] + this.sx1[i] + this.sy1[i])) {
             continue;
           }
@@ -20235,10 +20199,10 @@ _.setdefault = function(obj, key, value){
     };
 
     SegmentView.prototype._full_path = function(ctx) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       if (this.do_stroke) {
         _results = [];
-        for (i = _i = 0, _ref = this.sx0.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx0.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx0[i] + this.sy0[i] + this.sx1[i] + this.sy1[i])) {
             continue;
           }
@@ -20276,11 +20240,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Segment = (function(_super) {
-
     __extends(Segment, _super);
 
     function Segment() {
-      return Segment.__super__.constructor.apply(this, arguments);
+      _ref1 = Segment.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Segment.prototype.default_view = SegmentView;
@@ -20309,7 +20273,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/square": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Square, SquareView, fill_properties, glyph, glyph_properties, line_properties, properties, rect,
+  var Glyph, GlyphView, Square, SquareView, fill_properties, glyph, glyph_properties, line_properties, properties, rect, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -20330,11 +20294,11 @@ _.setdefault = function(obj, key, value){
   rect = require("./rect");
 
   SquareView = (function(_super) {
-
     __extends(SquareView, _super);
 
     function SquareView() {
-      return SquareView.__super__.constructor.apply(this, arguments);
+      _ref = SquareView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     SquareView.prototype.initialize = function(options) {
@@ -20362,8 +20326,8 @@ _.setdefault = function(obj, key, value){
     };
 
     SquareView.prototype._map_data = function() {
-      var _ref;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var _ref1;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       this.sw = this.distance(this.data, 'x', 'size', 'center');
       return this.sh = this.sw;
     };
@@ -20409,11 +20373,11 @@ _.setdefault = function(obj, key, value){
   })(rect.RectView);
 
   Square = (function(_super) {
-
     __extends(Square, _super);
 
     function Square() {
-      return Square.__super__.constructor.apply(this, arguments);
+      _ref1 = Square.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Square.prototype.default_view = SquareView;
@@ -20430,7 +20394,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/text": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Text, TextView, glyph, glyph_properties, properties, text_properties,
+  var Glyph, GlyphView, Text, TextView, glyph, glyph_properties, properties, text_properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -20447,11 +20411,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   TextView = (function(_super) {
-
     __extends(TextView, _super);
 
     function TextView() {
-      return TextView.__super__.constructor.apply(this, arguments);
+      _ref = TextView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     TextView.prototype.initialize = function(options) {
@@ -20488,8 +20452,8 @@ _.setdefault = function(obj, key, value){
     };
 
     TextView.prototype._render = function() {
-      var ctx, _ref;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var ctx, _ref1;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       ctx = this.plot_view.ctx;
       ctx.save();
       if (this.glyph_props.fast_path) {
@@ -20501,10 +20465,10 @@ _.setdefault = function(obj, key, value){
     };
 
     TextView.prototype._fast_path = function(ctx) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       this.glyph_props.text_properties.set(ctx, this.glyph_props);
       _results = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.angle[i])) {
           continue;
         }
@@ -20522,9 +20486,9 @@ _.setdefault = function(obj, key, value){
     };
 
     TextView.prototype._full_path = function(ctx) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       _results = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.angle[i])) {
           continue;
         }
@@ -20562,11 +20526,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Text = (function(_super) {
-
     __extends(Text, _super);
 
     function Text() {
-      return Text.__super__.constructor.apply(this, arguments);
+      _ref1 = Text.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Text.prototype.default_view = TextView;
@@ -20595,7 +20559,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph/wedge": function(exports, require, module) {(function() {
-  var Glyph, GlyphView, Wedge, WedgeView, fill_properties, glyph, glyph_properties, line_properties, properties,
+  var Glyph, GlyphView, Wedge, WedgeView, fill_properties, glyph, glyph_properties, line_properties, properties, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -20614,11 +20578,11 @@ _.setdefault = function(obj, key, value){
   GlyphView = glyph.GlyphView;
 
   WedgeView = (function(_super) {
-
     __extends(WedgeView, _super);
 
     function WedgeView() {
-      return WedgeView.__super__.constructor.apply(this, arguments);
+      _ref = WedgeView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     WedgeView.prototype.initialize = function(options) {
@@ -20631,7 +20595,7 @@ _.setdefault = function(obj, key, value){
     };
 
     WedgeView.prototype._set_data = function(data) {
-      var angle, dir, end_angle, i, start_angle, _i, _ref, _results;
+      var angle, dir, end_angle, i, start_angle, _i, _ref1, _results;
       this.data = data;
       this.x = this.glyph_props.v_select('x', data);
       this.y = this.glyph_props.v_select('y', data);
@@ -20657,7 +20621,7 @@ _.setdefault = function(obj, key, value){
       })();
       this.direction = new Uint8Array(this.data.length);
       _results = [];
-      for (i = _i = 0, _ref = this.data.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.data.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         dir = this.glyph_props.select('direction', data[i]);
         if (dir === 'clock') {
           _results.push(this.direction[i] = false);
@@ -20671,8 +20635,8 @@ _.setdefault = function(obj, key, value){
     };
 
     WedgeView.prototype._render = function() {
-      var ctx, _ref;
-      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      var ctx, _ref1;
+      _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
       this.radius = this.distance(this.data, 'x', 'radius', 'edge');
       ctx = this.plot_view.ctx;
       ctx.save();
@@ -20685,10 +20649,10 @@ _.setdefault = function(obj, key, value){
     };
 
     WedgeView.prototype._fast_path = function(ctx) {
-      var i, _i, _j, _ref, _ref1, _results;
+      var i, _i, _j, _ref1, _ref2, _results;
       if (this.do_fill) {
         this.glyph_props.fill_properties.set(ctx, this.glyph_props);
-        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (isNaN(this.sx[i] + this.sy[i] + this.radius[i] + this.start_angle[i] + this.end_angle[i] + this.direction[i])) {
             continue;
           }
@@ -20702,7 +20666,7 @@ _.setdefault = function(obj, key, value){
       if (this.do_stroke) {
         this.glyph_props.line_properties.set(ctx, this.glyph_props);
         _results = [];
-        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+        for (i = _j = 0, _ref2 = this.sx.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
           if (isNaN(this.sx[i] + this.sy[i] + this.radius[i] + this.start_angle[i] + this.end_angle[i] + this.direction[i])) {
             continue;
           }
@@ -20717,9 +20681,9 @@ _.setdefault = function(obj, key, value){
     };
 
     WedgeView.prototype._full_path = function(ctx) {
-      var i, _i, _ref, _results;
+      var i, _i, _ref1, _results;
       _results = [];
-      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+      for (i = _i = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         if (isNaN(this.sx[i] + this.sy[i] + this.radius[i] + this.start_angle[i] + this.end_angle[i] + this.direction[i])) {
           continue;
         }
@@ -20786,11 +20750,11 @@ _.setdefault = function(obj, key, value){
   })(GlyphView);
 
   Wedge = (function(_super) {
-
     __extends(Wedge, _super);
 
     function Wedge() {
-      return Wedge.__super__.constructor.apply(this, arguments);
+      _ref1 = Wedge.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Wedge.prototype.default_view = WedgeView;
@@ -20822,7 +20786,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyph_renderer": function(exports, require, module) {(function() {
-  var Collections, GlyphRenderers, base, glyphs,
+  var Collections, GlyphRenderers, base, glyphs, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -20833,16 +20797,16 @@ _.setdefault = function(obj, key, value){
   glyphs = require('./glyphs');
 
   GlyphRenderers = (function(_super) {
-
     __extends(GlyphRenderers, _super);
 
     function GlyphRenderers() {
-      return GlyphRenderers.__super__.constructor.apply(this, arguments);
+      _ref = GlyphRenderers.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     GlyphRenderers.prototype.model = function(attrs, options) {
-      var model, type, _ref;
-      if (!(((_ref = attrs.glyphspec) != null ? _ref.type : void 0) != null)) {
+      var model, type, _ref1;
+      if (((_ref1 = attrs.glyphspec) != null ? _ref1.type : void 0) == null) {
         console.log("missing glyph type");
         return;
       }
@@ -20951,7 +20915,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/guide/datetime_axis": function(exports, require, module) {(function() {
-  var DatetimeAxes, DatetimeAxis, DatetimeAxisView, linear_axis, ticking,
+  var DatetimeAxes, DatetimeAxis, DatetimeAxisView, linear_axis, ticking, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -20960,11 +20924,11 @@ _.setdefault = function(obj, key, value){
   ticking = require('../../common/ticking');
 
   DatetimeAxisView = (function(_super) {
-
     __extends(DatetimeAxisView, _super);
 
     function DatetimeAxisView() {
-      return DatetimeAxisView.__super__.constructor.apply(this, arguments);
+      _ref = DatetimeAxisView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     DatetimeAxisView.prototype.initialize = function(attrs, options) {
@@ -20977,11 +20941,11 @@ _.setdefault = function(obj, key, value){
   })(linear_axis.LinearAxisView);
 
   DatetimeAxis = (function(_super) {
-
     __extends(DatetimeAxis, _super);
 
     function DatetimeAxis() {
-      return DatetimeAxis.__super__.constructor.apply(this, arguments);
+      _ref1 = DatetimeAxis.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     DatetimeAxis.prototype.default_view = DatetimeAxisView;
@@ -20997,11 +20961,11 @@ _.setdefault = function(obj, key, value){
   })(linear_axis.LinearAxis);
 
   DatetimeAxes = (function(_super) {
-
     __extends(DatetimeAxes, _super);
 
     function DatetimeAxes() {
-      return DatetimeAxes.__super__.constructor.apply(this, arguments);
+      _ref2 = DatetimeAxes.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     DatetimeAxes.prototype.model = DatetimeAxis;
@@ -21018,7 +20982,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/guide/grid": function(exports, require, module) {(function() {
-  var Grid, GridView, Grids, HasParent, PlotWidget, base, line_properties, properties, safebind, ticking,
+  var Grid, GridView, Grids, HasParent, PlotWidget, base, line_properties, properties, safebind, ticking, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -21037,11 +21001,11 @@ _.setdefault = function(obj, key, value){
   ticking = require('../../common/ticking');
 
   GridView = (function(_super) {
-
     __extends(GridView, _super);
 
     function GridView() {
-      return GridView.__super__.constructor.apply(this, arguments);
+      _ref = GridView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     GridView.prototype.initialize = function(attrs, options) {
@@ -21062,14 +21026,14 @@ _.setdefault = function(obj, key, value){
     };
 
     GridView.prototype._draw_grids = function(ctx) {
-      var i, sx, sy, xs, ys, _i, _j, _ref, _ref1, _ref2, _ref3;
-      _ref = this.mget('grid_coords'), xs = _ref[0], ys = _ref[1];
+      var i, sx, sy, xs, ys, _i, _j, _ref1, _ref2, _ref3, _ref4;
+      _ref1 = this.mget('grid_coords'), xs = _ref1[0], ys = _ref1[1];
       this.grid_props.set(ctx, this);
-      for (i = _i = 0, _ref1 = xs.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-        _ref2 = this.plot_view.map_to_screen(xs[i], "data", ys[i], "data"), sx = _ref2[0], sy = _ref2[1];
+      for (i = _i = 0, _ref2 = xs.length - 1; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
+        _ref3 = this.plot_view.map_to_screen(xs[i], "data", ys[i], "data"), sx = _ref3[0], sy = _ref3[1];
         ctx.beginPath();
         ctx.moveTo(sx[0], sy[0]);
-        for (i = _j = 1, _ref3 = sx.length - 1; 1 <= _ref3 ? _j <= _ref3 : _j >= _ref3; i = 1 <= _ref3 ? ++_j : --_j) {
+        for (i = _j = 1, _ref4 = sx.length - 1; 1 <= _ref4 ? _j <= _ref4 : _j >= _ref4; i = 1 <= _ref4 ? ++_j : --_j) {
           ctx.lineTo(sx[i], sy[i]);
         }
         ctx.stroke();
@@ -21081,11 +21045,11 @@ _.setdefault = function(obj, key, value){
   })(PlotWidget);
 
   Grid = (function(_super) {
-
     __extends(Grid, _super);
 
     function Grid() {
-      return Grid.__super__.constructor.apply(this, arguments);
+      _ref1 = Grid.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     Grid.prototype.default_view = GridView;
@@ -21101,11 +21065,11 @@ _.setdefault = function(obj, key, value){
     };
 
     Grid.prototype._bounds = function() {
-      var end, i, j, range_bounds, ranges, start, user_bounds, _ref;
+      var end, i, j, range_bounds, ranges, start, user_bounds, _ref2;
       i = this.get('dimension');
       j = (i + 1) % 2;
       ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
-      user_bounds = (_ref = this.get('bounds')) != null ? _ref : 'auto';
+      user_bounds = (_ref2 = this.get('bounds')) != null ? _ref2 : 'auto';
       range_bounds = [ranges[i].get('min'), ranges[i].get('max')];
       if (_.isArray(user_bounds)) {
         start = Math.min(user_bounds[0], user_bounds[1]);
@@ -21127,13 +21091,13 @@ _.setdefault = function(obj, key, value){
     };
 
     Grid.prototype._grid_coords = function() {
-      var N, cmax, cmin, coords, cross_range, dim_i, dim_j, end, i, ii, interval, j, loc, max, min, n, range, ranges, start, ticks, tmp, _i, _j, _ref, _ref1, _ref2;
+      var N, cmax, cmin, coords, cross_range, dim_i, dim_j, end, i, ii, interval, j, loc, max, min, n, range, ranges, start, ticks, tmp, _i, _j, _ref2, _ref3, _ref4;
       i = this.get('dimension');
       j = (i + 1) % 2;
       ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
       range = ranges[i];
       cross_range = ranges[j];
-      _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
+      _ref2 = this.get('computed_bounds'), start = _ref2[0], end = _ref2[1];
       tmp = Math.min(start, end);
       end = Math.max(start, end);
       start = tmp;
@@ -21144,14 +21108,14 @@ _.setdefault = function(obj, key, value){
       cmin = cross_range.get('min');
       cmax = cross_range.get('max');
       coords = [[], []];
-      for (ii = _i = 0, _ref1 = ticks.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; ii = 0 <= _ref1 ? ++_i : --_i) {
+      for (ii = _i = 0, _ref3 = ticks.length - 1; 0 <= _ref3 ? _i <= _ref3 : _i >= _ref3; ii = 0 <= _ref3 ? ++_i : --_i) {
         if (ticks[ii] === min || ticks[ii] === max) {
           continue;
         }
         dim_i = [];
         dim_j = [];
         N = 2;
-        for (n = _j = 0, _ref2 = N - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; n = 0 <= _ref2 ? ++_j : --_j) {
+        for (n = _j = 0, _ref4 = N - 1; 0 <= _ref4 ? _j <= _ref4 : _j >= _ref4; n = 0 <= _ref4 ? ++_j : --_j) {
           loc = cmin + (cmax - cmin) / (N - 1) * n;
           dim_i.push(ticks[ii]);
           dim_j.push(loc);
@@ -21182,11 +21146,11 @@ _.setdefault = function(obj, key, value){
   });
 
   Grids = (function(_super) {
-
     __extends(Grids, _super);
 
     function Grids() {
-      return Grids.__super__.constructor.apply(this, arguments);
+      _ref2 = Grids.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     Grids.prototype.model = Grid;
@@ -21203,7 +21167,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/guide/linear_axis": function(exports, require, module) {(function() {
-  var HasParent, LinearAxes, LinearAxis, LinearAxisView, PlotWidget, base, line_properties, properties, safebind, signum, text_properties, ticking, _align_lookup, _angle_lookup, _baseline_lookup,
+  var HasParent, LinearAxes, LinearAxis, LinearAxisView, PlotWidget, base, line_properties, properties, safebind, signum, text_properties, ticking, _align_lookup, _angle_lookup, _baseline_lookup, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -21314,11 +21278,11 @@ _.setdefault = function(obj, key, value){
   };
 
   LinearAxisView = (function(_super) {
-
     __extends(LinearAxisView, _super);
 
     function LinearAxisView() {
-      return LinearAxisView.__super__.constructor.apply(this, arguments);
+      _ref = LinearAxisView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     LinearAxisView.prototype.initialize = function(attrs, options) {
@@ -21350,27 +21314,27 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxisView.prototype._draw_rule = function(ctx) {
-      var coords, i, sx, sy, x, y, _i, _ref, _ref1, _ref2;
-      _ref = coords = this.mget('rule_coords'), x = _ref[0], y = _ref[1];
-      _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
+      var coords, i, sx, sy, x, y, _i, _ref1, _ref2, _ref3;
+      _ref1 = coords = this.mget('rule_coords'), x = _ref1[0], y = _ref1[1];
+      _ref2 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref2[0], sy = _ref2[1];
       this.rule_props.set(ctx, this);
       ctx.beginPath();
       ctx.moveTo(sx[0], sy[0]);
-      for (i = _i = 1, _ref2 = sx.length - 1; 1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 1 <= _ref2 ? ++_i : --_i) {
+      for (i = _i = 1, _ref3 = sx.length - 1; 1 <= _ref3 ? _i <= _ref3 : _i >= _ref3; i = 1 <= _ref3 ? ++_i : --_i) {
         ctx.lineTo(sx[i], sy[i]);
       }
       ctx.stroke();
     };
 
     LinearAxisView.prototype._draw_major_ticks = function(ctx) {
-      var coords, i, nx, ny, sx, sy, tin, tout, x, y, _i, _ref, _ref1, _ref2, _ref3;
-      _ref = coords = this.mget('major_coords'), x = _ref[0], y = _ref[1];
-      _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
-      _ref2 = this.mget('normals'), nx = _ref2[0], ny = _ref2[1];
+      var coords, i, nx, ny, sx, sy, tin, tout, x, y, _i, _ref1, _ref2, _ref3, _ref4;
+      _ref1 = coords = this.mget('major_coords'), x = _ref1[0], y = _ref1[1];
+      _ref2 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref2[0], sy = _ref2[1];
+      _ref3 = this.mget('normals'), nx = _ref3[0], ny = _ref3[1];
       tin = this.mget('major_tick_in');
       tout = this.mget('major_tick_out');
       this.major_tick_props.set(ctx, this);
-      for (i = _i = 0, _ref3 = sx.length - 1; 0 <= _ref3 ? _i <= _ref3 : _i >= _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
+      for (i = _i = 0, _ref4 = sx.length - 1; 0 <= _ref4 ? _i <= _ref4 : _i >= _ref4; i = 0 <= _ref4 ? ++_i : --_i) {
         ctx.beginPath();
         ctx.moveTo(sx[i] + nx * tout, sy[i] + ny * tout);
         ctx.lineTo(sx[i] - nx * tin, sy[i] - ny * tin);
@@ -21379,10 +21343,10 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxisView.prototype._draw_major_labels = function(ctx) {
-      var angle, coords, dim, i, labels, nx, ny, orient, side, standoff, sx, sy, x, y, _i, _ref, _ref1, _ref2, _ref3;
-      _ref = coords = this.mget('major_coords'), x = _ref[0], y = _ref[1];
-      _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
-      _ref2 = this.mget('normals'), nx = _ref2[0], ny = _ref2[1];
+      var angle, coords, dim, i, labels, nx, ny, orient, side, standoff, sx, sy, x, y, _i, _ref1, _ref2, _ref3, _ref4;
+      _ref1 = coords = this.mget('major_coords'), x = _ref1[0], y = _ref1[1];
+      _ref2 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref2[0], sy = _ref2[1];
+      _ref3 = this.mget('normals'), nx = _ref3[0], ny = _ref3[1];
       dim = this.mget('dimension');
       side = this.mget('side');
       orient = this.mget('major_label_orientation');
@@ -21395,7 +21359,7 @@ _.setdefault = function(obj, key, value){
       labels = this.formatter.format(coords[dim]);
       this.major_label_props.set(ctx, this);
       this._apply_location_heuristics(ctx, side, orient);
-      for (i = _i = 0, _ref3 = sx.length - 1; 0 <= _ref3 ? _i <= _ref3 : _i >= _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
+      for (i = _i = 0, _ref4 = sx.length - 1; 0 <= _ref4 ? _i <= _ref4 : _i >= _ref4; i = 0 <= _ref4 ? ++_i : --_i) {
         if (angle) {
           ctx.translate(sx[i] + nx * standoff, sy[i] + ny * standoff);
           ctx.rotate(angle);
@@ -21409,14 +21373,14 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxisView.prototype._draw_axis_label = function(ctx) {
-      var angle, label, nx, ny, orient, side, standoff, sx, sy, x, y, _ref, _ref1, _ref2;
+      var angle, label, nx, ny, orient, side, standoff, sx, sy, x, y, _ref1, _ref2, _ref3;
       label = this.mget('axis_label');
-      if (!(label != null)) {
+      if (label == null) {
         return;
       }
-      _ref = this.mget('rule_coords'), x = _ref[0], y = _ref[1];
-      _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
-      _ref2 = this.mget('normals'), nx = _ref2[0], ny = _ref2[1];
+      _ref1 = this.mget('rule_coords'), x = _ref1[0], y = _ref1[1];
+      _ref2 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref2[0], sy = _ref2[1];
+      _ref3 = this.mget('normals'), nx = _ref3[0], ny = _ref3[1];
       side = this.mget('side');
       orient = 'parallel';
       angle = _angle_lookup[side][orient];
@@ -21476,7 +21440,7 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxisView.prototype._tick_label_extent = function() {
-      var angle, c, coords, dim, extent, factor, h, i, labels, orient, s, side, val, w, _i, _j, _ref, _ref1;
+      var angle, c, coords, dim, extent, factor, h, i, labels, orient, s, side, val, w, _i, _j, _ref1, _ref2;
       extent = 0;
       dim = this.mget('dimension');
       coords = this.mget('major_coords');
@@ -21495,8 +21459,8 @@ _.setdefault = function(obj, key, value){
       c = Math.cos(angle);
       s = Math.sin(angle);
       if (side === "top" || side === "bottom") {
-        for (i = _i = 0, _ref = labels.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
-          if (!(labels[i] != null)) {
+        for (i = _i = 0, _ref1 = labels.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (labels[i] == null) {
             continue;
           }
           w = this.plot_view.ctx.measureText(labels[i]).width * 1.1;
@@ -21507,8 +21471,8 @@ _.setdefault = function(obj, key, value){
           }
         }
       } else {
-        for (i = _j = 0, _ref1 = labels.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
-          if (!(labels[i] != null)) {
+        for (i = _j = 0, _ref2 = labels.length - 1; 0 <= _ref2 ? _j <= _ref2 : _j >= _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
+          if (labels[i] == null) {
             continue;
           }
           w = this.plot_view.ctx.measureText(labels[i]).width * 1.1;
@@ -21549,10 +21513,10 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxisView.prototype._padding_request = function() {
-      var loc, padding, req, side, _ref;
+      var loc, padding, req, side, _ref1;
       req = {};
       side = this.mget('side');
-      loc = (_ref = this.mget('location')) != null ? _ref : 'min';
+      loc = (_ref1 = this.mget('location')) != null ? _ref1 : 'min';
       if (!_.isString(loc)) {
         return req;
       }
@@ -21569,11 +21533,11 @@ _.setdefault = function(obj, key, value){
   })(PlotWidget);
 
   LinearAxis = (function(_super) {
-
     __extends(LinearAxis, _super);
 
     function LinearAxis() {
-      return LinearAxis.__super__.constructor.apply(this, arguments);
+      _ref1 = LinearAxis.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     LinearAxis.prototype.default_view = LinearAxisView;
@@ -21600,11 +21564,11 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxis.prototype._bounds = function() {
-      var end, i, j, range_bounds, ranges, start, user_bounds, _ref;
+      var end, i, j, range_bounds, ranges, start, user_bounds, _ref2;
       i = this.get('dimension');
       j = (i + 1) % 2;
       ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
-      user_bounds = (_ref = this.get('bounds')) != null ? _ref : 'auto';
+      user_bounds = (_ref2 = this.get('bounds')) != null ? _ref2 : 'auto';
       range_bounds = [ranges[i].get('min'), ranges[i].get('max')];
       if (_.isArray(user_bounds)) {
         if (Math.abs(user_bounds[0] - user_bounds[1]) > Math.abs(range_bounds[0] - range_bounds[1])) {
@@ -21621,17 +21585,17 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxis.prototype._rule_coords = function() {
-      var coords, cross_range, end, i, j, loc, range, range_max, range_min, ranges, start, xs, ys, _ref, _ref1, _ref2;
+      var coords, cross_range, end, i, j, loc, range, range_max, range_min, ranges, start, xs, ys, _ref2, _ref3, _ref4;
       i = this.get('dimension');
       j = (i + 1) % 2;
       ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
       range = ranges[i];
       cross_range = ranges[j];
-      _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
+      _ref2 = this.get('computed_bounds'), start = _ref2[0], end = _ref2[1];
       xs = new Float64Array(2);
       ys = new Float64Array(2);
       coords = [xs, ys];
-      loc = (_ref1 = this.get('location')) != null ? _ref1 : 'min';
+      loc = (_ref3 = this.get('location')) != null ? _ref3 : 'min';
       if (_.isString(loc)) {
         if (loc === 'left' || loc === 'bottom') {
           loc = 'start';
@@ -21640,7 +21604,7 @@ _.setdefault = function(obj, key, value){
         }
         loc = cross_range.get(loc);
       }
-      _ref2 = [range.get('min'), range.get('max')], range_min = _ref2[0], range_max = _ref2[1];
+      _ref4 = [range.get('min'), range.get('max')], range_min = _ref4[0], range_max = _ref4[1];
       coords[i][0] = Math.max(start, range_min);
       coords[i][1] = Math.min(end, range_max);
       coords[j][0] = loc;
@@ -21652,16 +21616,16 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxis.prototype._major_coords = function() {
-      var coords, cross_range, end, i, ii, interval, j, loc, range, range_max, range_min, ranges, start, ticks, xs, ys, _i, _ref, _ref1, _ref2, _ref3;
+      var coords, cross_range, end, i, ii, interval, j, loc, range, range_max, range_min, ranges, start, ticks, xs, ys, _i, _ref2, _ref3, _ref4, _ref5;
       i = this.get('dimension');
       j = (i + 1) % 2;
       ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
       range = ranges[i];
       cross_range = ranges[j];
-      _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
+      _ref2 = this.get('computed_bounds'), start = _ref2[0], end = _ref2[1];
       interval = ticking.auto_interval(start, end);
       ticks = ticking.auto_ticks(null, null, start, end, interval);
-      loc = (_ref1 = this.get('location')) != null ? _ref1 : 'min';
+      loc = (_ref3 = this.get('location')) != null ? _ref3 : 'min';
       if (_.isString(loc)) {
         if (loc === 'left' || loc === 'bottom') {
           loc = 'start';
@@ -21673,8 +21637,8 @@ _.setdefault = function(obj, key, value){
       xs = [];
       ys = [];
       coords = [xs, ys];
-      _ref2 = [range.get('min'), range.get('max')], range_min = _ref2[0], range_max = _ref2[1];
-      for (ii = _i = 0, _ref3 = ticks.length - 1; 0 <= _ref3 ? _i <= _ref3 : _i >= _ref3; ii = 0 <= _ref3 ? ++_i : --_i) {
+      _ref4 = [range.get('min'), range.get('max')], range_min = _ref4[0], range_max = _ref4[1];
+      for (ii = _i = 0, _ref5 = ticks.length - 1; 0 <= _ref5 ? _i <= _ref5 : _i >= _ref5; ii = 0 <= _ref5 ? ++_i : --_i) {
         if (ticks[ii] < range_min || ticks[ii] > range_max) {
           continue;
         }
@@ -21685,14 +21649,14 @@ _.setdefault = function(obj, key, value){
     };
 
     LinearAxis.prototype._normals = function() {
-      var cend, cross_range, cstart, end, i, j, loc, normals, range, ranges, start, _ref, _ref1;
+      var cend, cross_range, cstart, end, i, j, loc, normals, range, ranges, start, _ref2, _ref3;
       i = this.get('dimension');
       j = (i + 1) % 2;
       ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
       range = ranges[i];
       cross_range = ranges[j];
-      _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
-      loc = (_ref1 = this.get('location')) != null ? _ref1 : 'min';
+      _ref2 = this.get('computed_bounds'), start = _ref2[0], end = _ref2[1];
+      loc = (_ref3 = this.get('location')) != null ? _ref3 : 'min';
       cstart = cross_range.get('start');
       cend = cross_range.get('end');
       normals = [0, 0];
@@ -21788,11 +21752,11 @@ _.setdefault = function(obj, key, value){
   });
 
   LinearAxes = (function(_super) {
-
     __extends(LinearAxes, _super);
 
     function LinearAxes() {
-      return LinearAxes.__super__.constructor.apply(this, arguments);
+      _ref2 = LinearAxes.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     LinearAxes.prototype.model = LinearAxis;
@@ -21809,7 +21773,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/guide_renderer": function(exports, require, module) {(function() {
-  var Collections, GuideRenderers, base, guides,
+  var Collections, GuideRenderers, base, guides, _ref,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -21820,16 +21784,16 @@ _.setdefault = function(obj, key, value){
   guides = require('./guides');
 
   GuideRenderers = (function(_super) {
-
     __extends(GuideRenderers, _super);
 
     function GuideRenderers() {
-      return GuideRenderers.__super__.constructor.apply(this, arguments);
+      _ref = GuideRenderers.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     GuideRenderers.prototype.model = function(attrs, options) {
       var model, type;
-      if (!(attrs.type != null)) {
+      if (attrs.type == null) {
         console.log("missing guide type");
         return;
       }
@@ -21874,21 +21838,20 @@ _.setdefault = function(obj, key, value){
   svg_colors = require('../common/svg_colors').svg_colors;
 
   properties = (function() {
-
     function properties() {}
 
     properties.prototype.string = function(styleprovider, glyphspec, attrname) {
       var default_value, glyph_value;
       this[attrname] = {};
       default_value = styleprovider.mget(attrname);
-      if (!(default_value != null)) {
+      if (default_value == null) {
 
       } else if (_.isString(default_value)) {
         this[attrname]["default"] = default_value;
       } else {
         console.log(("string property '" + attrname + "' given invalid default value: ") + default_value);
       }
-      if (!(glyphspec != null) || !(attrname in glyphspec)) {
+      if ((glyphspec == null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21907,7 +21870,7 @@ _.setdefault = function(obj, key, value){
         typed: true
       };
       default_value = styleprovider.mget(attrname);
-      if (!(default_value != null)) {
+      if (default_value == null) {
 
       } else if (_.isNumber(default_value)) {
         this[attrname]["default"] = default_value;
@@ -21919,7 +21882,7 @@ _.setdefault = function(obj, key, value){
         units_value = glyphspec[attrname + '_units'];
       }
       this[attrname].units = units_value;
-      if (!(glyphspec != null) || !(attrname in glyphspec)) {
+      if ((glyphspec == null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21938,14 +21901,14 @@ _.setdefault = function(obj, key, value){
       var default_value, glyph_value;
       this[attrname] = {};
       default_value = styleprovider.mget(attrname);
-      if (!(default_value != null)) {
+      if (default_value == null) {
         this[attrname]["default"] = null;
       } else if (_.isString(default_value) && ((svg_colors[default_value] != null) || default_value.substring(0, 1) === "#")) {
         this[attrname]["default"] = default_value;
       } else {
         console.log(("color property '" + attrname + "' given invalid default value: ") + default_value);
       }
-      if (!(glyphspec != null) || !(attrname in glyphspec)) {
+      if ((glyphspec == null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -21968,7 +21931,7 @@ _.setdefault = function(obj, key, value){
       var default_value, glyph_value, units_value, _ref;
       this[attrname] = {};
       default_value = styleprovider.mget(attrname);
-      if (!(default_value != null)) {
+      if (default_value == null) {
 
       } else if (_.isArray(default_value)) {
         this[attrname]["default"] = default_value;
@@ -21980,7 +21943,7 @@ _.setdefault = function(obj, key, value){
         units_value = glyphspec[attrname + '_units'];
       }
       this[attrname].units = units_value;
-      if (!(glyphspec != null) || !(attrname in glyphspec)) {
+      if ((glyphspec == null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -22010,7 +21973,7 @@ _.setdefault = function(obj, key, value){
         console.log(("enum property '" + attrname + "' given invalid default value: ") + default_value);
         console.log("    acceptable values:" + levels);
       }
-      if (!(glyphspec != null) || !(attrname in glyphspec)) {
+      if ((glyphspec == null) || !(attrname in glyphspec)) {
         return;
       }
       glyph_value = glyphspec[attrname];
@@ -22104,7 +22067,6 @@ _.setdefault = function(obj, key, value){
   })();
 
   line_properties = (function(_super) {
-
     __extends(line_properties, _super);
 
     function line_properties(styleprovider, glyphspec, prefix) {
@@ -22143,7 +22105,6 @@ _.setdefault = function(obj, key, value){
   })(properties);
 
   fill_properties = (function(_super) {
-
     __extends(fill_properties, _super);
 
     function fill_properties(styleprovider, glyphspec, prefix) {
@@ -22167,7 +22128,6 @@ _.setdefault = function(obj, key, value){
   })(properties);
 
   text_properties = (function(_super) {
-
     __extends(text_properties, _super);
 
     function text_properties(styleprovider, glyphspec, prefix) {
@@ -22192,7 +22152,7 @@ _.setdefault = function(obj, key, value){
 
     text_properties.prototype.font = function(obj, font_size) {
       var font, font_style;
-      if (!(font_size != null)) {
+      if (font_size == null) {
         font_size = this.select(this.text_font_size_name, obj);
       }
       font = this.select(this.text_font_name, obj);
@@ -22214,7 +22174,6 @@ _.setdefault = function(obj, key, value){
   })(properties);
 
   glyph_properties = (function(_super) {
-
     __extends(glyph_properties, _super);
 
     function glyph_properties(styleprovider, glyphspec, attrnames, properties) {
@@ -22838,7 +22797,6 @@ _.setdefault = function(obj, key, value){
 
   ActiveToolManager = (function() {
     " This makes sure that only one tool is active at a time ";
-
     function ActiveToolManager(event_sink) {
       this.event_sink = event_sink;
       this.event_sink.active = null;
@@ -22859,7 +22817,7 @@ _.setdefault = function(obj, key, value){
         }
       });
       return this.event_sink.on("try_active_tool", function(toolName) {
-        if (!(_this.event_sink.active != null)) {
+        if (_this.event_sink.active == null) {
           _this.event_sink.trigger("" + toolName + ":activated");
           _this.event_sink.trigger("" + _this.event_sink.active + ":deactivated");
           return _this.event_sink.active = toolName;
@@ -22875,7 +22833,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "tools/embed_tool": function(exports, require, module) {(function() {
-  var ButtonEventGenerator, EmbedTool, EmbedToolView, EmbedTools, HasParent, ToolView, base, safebind, toolview,
+  var ButtonEventGenerator, EmbedTool, EmbedToolView, EmbedTools, HasParent, ToolView, base, safebind, toolview, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -22892,11 +22850,11 @@ _.setdefault = function(obj, key, value){
   HasParent = base.HasParent;
 
   EmbedToolView = (function(_super) {
-
     __extends(EmbedToolView, _super);
 
     function EmbedToolView() {
-      return EmbedToolView.__super__.constructor.apply(this, arguments);
+      _ref = EmbedToolView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     EmbedToolView.prototype.initialize = function(options) {
@@ -22922,7 +22880,7 @@ _.setdefault = function(obj, key, value){
       doc_id = this.plot_model.get('doc');
       doc_apikey = this.plot_model.get('docapikey');
       baseurl = this.plot_model.get('baseurl');
-      js_template = "\n&lt;script src=\"http://localhost:5006/bokeh/embed.js\" bokeh_plottype=\"serverconn\"\nbokeh_docid=\"" + doc_id + "\" bokeh_ws_conn_string=\"ws://localhost:5006/bokeh/sub\"\nbokeh_docapikey=\"" + doc_apikey + "\"\n\nbokeh_root_url=\"" + baseurl + "\"\nbokeh_root_url=\"http://localhost:5006\"\nbokeh_modelid=\"" + model_id + "\" bokeh_modeltype=\"Plot\" async=\"true\"&gt;\n&lt;/script&gt;\n";
+      js_template = "&lt;script src=\"http://localhost:5006/bokeh/embed.js\" bokeh_plottype=\"serverconn\"\nbokeh_docid=\"" + doc_id + "\" bokeh_ws_conn_string=\"ws://localhost:5006/bokeh/sub\"\nbokeh_docapikey=\"" + doc_apikey + "\"\n\nbokeh_root_url=\"" + baseurl + "\"\nbokeh_root_url=\"http://localhost:5006\"\nbokeh_modelid=\"" + model_id + "\" bokeh_modeltype=\"Plot\" async=\"true\"&gt;\n&lt;/script&gt;\n";
       script_inject_escaped = this.plot_model.get('script_inject_escaped');
       modal = "<div id=\"embedModal\" class=\"modal\" role=\"dialog\" aria-labelledby=\"embedLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n    <h3 id=\"dataConfirmLabel\"> HTML Embed code</h3></div><div class=\"modal-body\">\n  <div class=\"modal-body\">\n    " + script_inject_escaped + "\n  </div>\n  </div><div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n  </div>\n</div>";
       $('body').append(modal);
@@ -22939,11 +22897,11 @@ _.setdefault = function(obj, key, value){
   })(ToolView);
 
   EmbedTool = (function(_super) {
-
     __extends(EmbedTool, _super);
 
     function EmbedTool() {
-      return EmbedTool.__super__.constructor.apply(this, arguments);
+      _ref1 = EmbedTool.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     EmbedTool.prototype.type = "EmbedTool";
@@ -22959,11 +22917,11 @@ _.setdefault = function(obj, key, value){
   _.extend(EmbedTool.prototype.defaults);
 
   EmbedTools = (function(_super) {
-
     __extends(EmbedTools, _super);
 
     function EmbedTools() {
-      return EmbedTools.__super__.constructor.apply(this, arguments);
+      _ref2 = EmbedTools.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     EmbedTools.prototype.model = EmbedTool;
@@ -22981,7 +22939,6 @@ _.setdefault = function(obj, key, value){
   var ButtonEventGenerator, OnePointWheelEventGenerator, TwoPointEventGenerator;
 
   TwoPointEventGenerator = (function() {
-
     function TwoPointEventGenerator(options) {
       this.restrict_to_innercanvas = options.restrict_to_innercanvas;
       this.options = options;
@@ -23140,7 +23097,6 @@ _.setdefault = function(obj, key, value){
   })();
 
   OnePointWheelEventGenerator = (function() {
-
     function OnePointWheelEventGenerator(options) {
       this.options = options;
       this.toolName = this.options.eventBasename;
@@ -23229,7 +23185,6 @@ _.setdefault = function(obj, key, value){
   })();
 
   ButtonEventGenerator = (function() {
-
     function ButtonEventGenerator(options) {
       this.options = options;
       this.toolName = this.options.eventBasename;
@@ -23306,7 +23261,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "tools/pan_tool": function(exports, require, module) {(function() {
-  var LinearMapper, PanTool, PanToolView, PanTools, TwoPointEventGenerator, base, eventgenerators, safebind, tool,
+  var LinearMapper, PanTool, PanToolView, PanTools, TwoPointEventGenerator, base, eventgenerators, safebind, tool, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -23323,11 +23278,11 @@ _.setdefault = function(obj, key, value){
   safebind = base.safebind;
 
   PanToolView = (function(_super) {
-
     __extends(PanToolView, _super);
 
     function PanToolView() {
-      return PanToolView.__super__.constructor.apply(this, arguments);
+      _ref = PanToolView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PanToolView.prototype.initialize = function(options) {
@@ -23354,23 +23309,23 @@ _.setdefault = function(obj, key, value){
     };
 
     PanToolView.prototype.mouse_coords = function(e, x, y) {
-      var x_, y_, _ref;
-      _ref = [this.plot_view.view_state.device_to_sx(x), this.plot_view.view_state.device_to_sy(y)], x_ = _ref[0], y_ = _ref[1];
+      var x_, y_, _ref1;
+      _ref1 = [this.plot_view.view_state.device_to_sx(x), this.plot_view.view_state.device_to_sy(y)], x_ = _ref1[0], y_ = _ref1[1];
       return [x_, y_];
     };
 
     PanToolView.prototype._set_base_point = function(e) {
-      var _ref;
-      _ref = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref[0], this.y = _ref[1];
+      var _ref1;
+      _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref1[0], this.y = _ref1[1];
       return null;
     };
 
     PanToolView.prototype._drag = function(e) {
-      var pan_info, sx_high, sx_low, sy_high, sy_low, x, xdiff, xend, xr, xstart, y, ydiff, yend, yr, ystart, _ref, _ref1;
-      _ref = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref[0], y = _ref[1];
+      var pan_info, sx_high, sx_low, sy_high, sy_low, x, xdiff, xend, xr, xstart, y, ydiff, yend, yr, ystart, _ref1, _ref2;
+      _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref1[0], y = _ref1[1];
       xdiff = x - this.x;
       ydiff = y - this.y;
-      _ref1 = [x, y], this.x = _ref1[0], this.y = _ref1[1];
+      _ref2 = [x, y], this.x = _ref2[0], this.y = _ref2[1];
       xr = this.plot_view.view_state.get('inner_range_horizontal');
       sx_low = xr.get('start') - xdiff;
       sx_high = xr.get('end') - xdiff;
@@ -23402,11 +23357,11 @@ _.setdefault = function(obj, key, value){
   })(tool.ToolView);
 
   PanTool = (function(_super) {
-
     __extends(PanTool, _super);
 
     function PanTool() {
-      return PanTool.__super__.constructor.apply(this, arguments);
+      _ref1 = PanTool.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     PanTool.prototype.type = "PanTool";
@@ -23425,11 +23380,11 @@ _.setdefault = function(obj, key, value){
   });
 
   PanTools = (function(_super) {
-
     __extends(PanTools, _super);
 
     function PanTools() {
-      return PanTools.__super__.constructor.apply(this, arguments);
+      _ref2 = PanTools.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     PanTools.prototype.model = PanTool;
@@ -23444,7 +23399,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "tools/preview_save_tool": function(exports, require, module) {(function() {
-  var ButtonEventGenerator, LinearMapper, PreviewSaveTool, PreviewSaveToolView, PreviewSaveTools, base, tool,
+  var ButtonEventGenerator, LinearMapper, PreviewSaveTool, PreviewSaveToolView, PreviewSaveTools, base, tool, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -23457,11 +23412,11 @@ _.setdefault = function(obj, key, value){
   base = require("../base");
 
   PreviewSaveToolView = (function(_super) {
-
     __extends(PreviewSaveToolView, _super);
 
     function PreviewSaveToolView() {
-      return PreviewSaveToolView.__super__.constructor.apply(this, arguments);
+      _ref = PreviewSaveToolView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     PreviewSaveToolView.prototype.initialize = function(options) {
@@ -23499,11 +23454,11 @@ _.setdefault = function(obj, key, value){
   })(tool.ToolView);
 
   PreviewSaveTool = (function(_super) {
-
     __extends(PreviewSaveTool, _super);
 
     function PreviewSaveTool() {
-      return PreviewSaveTool.__super__.constructor.apply(this, arguments);
+      _ref1 = PreviewSaveTool.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     PreviewSaveTool.prototype.type = "PreviewSaveTool";
@@ -23519,11 +23474,11 @@ _.setdefault = function(obj, key, value){
   _.extend(PreviewSaveTool.prototype.defaults);
 
   PreviewSaveTools = (function(_super) {
-
     __extends(PreviewSaveTools, _super);
 
     function PreviewSaveTools() {
-      return PreviewSaveTools.__super__.constructor.apply(this, arguments);
+      _ref2 = PreviewSaveTools.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     PreviewSaveTools.prototype.model = PreviewSaveTool;
@@ -23538,7 +23493,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "tools/resize_tool": function(exports, require, module) {(function() {
-  var LinearMapper, ResizeTool, ResizeToolView, ResizeTools, TwoPointEventGenerator, base, eventgenerators, tool,
+  var LinearMapper, ResizeTool, ResizeToolView, ResizeTools, TwoPointEventGenerator, base, eventgenerators, tool, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -23553,11 +23508,11 @@ _.setdefault = function(obj, key, value){
   base = require("../base");
 
   ResizeToolView = (function(_super) {
-
     __extends(ResizeToolView, _super);
 
     function ResizeToolView() {
-      return ResizeToolView.__super__.constructor.apply(this, arguments);
+      _ref = ResizeToolView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ResizeToolView.prototype.initialize = function(options) {
@@ -23632,18 +23587,18 @@ _.setdefault = function(obj, key, value){
     };
 
     ResizeToolView.prototype._set_base_point = function(e) {
-      var _ref;
-      _ref = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref[0], this.y = _ref[1];
+      var _ref1;
+      _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref1[0], this.y = _ref1[1];
       return null;
     };
 
     ResizeToolView.prototype._drag = function(e) {
-      var ch, cw, x, xdiff, y, ydiff, _ref, _ref1;
+      var ch, cw, x, xdiff, y, ydiff, _ref1, _ref2;
       this.plot_view.pause();
-      _ref = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref[0], y = _ref[1];
+      _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref1[0], y = _ref1[1];
       xdiff = x - this.x;
       ydiff = y - this.y;
-      _ref1 = [x, y], this.x = _ref1[0], this.y = _ref1[1];
+      _ref2 = [x, y], this.x = _ref2[0], this.y = _ref2[1];
       ch = this.plot_view.view_state.get('outer_height');
       cw = this.plot_view.view_state.get('outer_width');
       this.popup.text("width: " + cw + " height: " + ch);
@@ -23673,11 +23628,11 @@ _.setdefault = function(obj, key, value){
   })(tool.ToolView);
 
   ResizeTool = (function(_super) {
-
     __extends(ResizeTool, _super);
 
     function ResizeTool() {
-      return ResizeTool.__super__.constructor.apply(this, arguments);
+      _ref1 = ResizeTool.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     ResizeTool.prototype.type = "ResizeTool";
@@ -23697,11 +23652,11 @@ _.setdefault = function(obj, key, value){
   _.extend(ResizeTool.prototype.display_defaults);
 
   ResizeTools = (function(_super) {
-
     __extends(ResizeTools, _super);
 
     function ResizeTools() {
-      return ResizeTools.__super__.constructor.apply(this, arguments);
+      _ref2 = ResizeTools.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     ResizeTools.prototype.model = ResizeTool;
@@ -23716,7 +23671,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "tools/select_tool": function(exports, require, module) {(function() {
-  var DataRangeBoxSelectionTool, DataRangeBoxSelectionToolView, LinearMapper, SelectionTool, SelectionToolView, SelectionTools, TwoPointEventGenerator, base, coll, eventgenerators, safebind, tool,
+  var DataRangeBoxSelectionTool, DataRangeBoxSelectionToolView, LinearMapper, SelectionTool, SelectionToolView, SelectionTools, TwoPointEventGenerator, base, coll, eventgenerators, safebind, tool, _ref, _ref1, _ref2, _ref3, _ref4,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -23733,11 +23688,11 @@ _.setdefault = function(obj, key, value){
   safebind = base.safebind;
 
   SelectionToolView = (function(_super) {
-
     __extends(SelectionToolView, _super);
 
     function SelectionToolView() {
-      return SelectionToolView.__super__.constructor.apply(this, arguments);
+      _ref = SelectionToolView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     SelectionToolView.prototype.initialize = function(options) {
@@ -23750,12 +23705,12 @@ _.setdefault = function(obj, key, value){
     };
 
     SelectionToolView.prototype.bind_bokeh_events = function() {
-      var renderer, rendererview, _i, _len, _ref, _results;
+      var renderer, rendererview, _i, _len, _ref1, _results;
       SelectionToolView.__super__.bind_bokeh_events.call(this);
-      _ref = this.mget_obj('renderers');
+      _ref1 = this.mget_obj('renderers');
       _results = [];
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        renderer = _ref[_i];
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        renderer = _ref1[_i];
         rendererview = this.plot_view.renderers[renderer.id];
         this.listenTo(rendererview.xrange(), 'change', this.select_callback);
         this.listenTo(rendererview.yrange(), 'change', this.select_callback);
@@ -23780,8 +23735,8 @@ _.setdefault = function(obj, key, value){
     };
 
     SelectionToolView.prototype.mouse_coords = function(e, x, y) {
-      var _ref;
-      _ref = [this.plot_view.view_state.device_to_sx(x), this.plot_view.view_state.device_to_sy(y)], x = _ref[0], y = _ref[1];
+      var _ref1;
+      _ref1 = [this.plot_view.view_state.device_to_sx(x), this.plot_view.view_state.device_to_sy(y)], x = _ref1[0], y = _ref1[1];
       return [x, y];
     };
 
@@ -23791,9 +23746,9 @@ _.setdefault = function(obj, key, value){
     };
 
     SelectionToolView.prototype._start_selecting = function(e) {
-      var x, y, _ref;
+      var x, y, _ref1;
       this.trigger('startselect');
-      _ref = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref[0], y = _ref[1];
+      _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref1[0], y = _ref1[1];
       this.mset({
         'start_x': x,
         'start_y': y,
@@ -23838,41 +23793,41 @@ _.setdefault = function(obj, key, value){
     };
 
     SelectionToolView.prototype._selecting = function(e, x_, y_) {
-      var x, y, _ref, _ref1;
-      _ref = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref[0], y = _ref[1];
+      var x, y, _ref1, _ref2;
+      _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref1[0], y = _ref1[1];
       this.mset({
         'current_x': x,
         'current_y': y
       });
-      _ref1 = this._get_selection_range(x, y), this.xrange = _ref1[0], this.yrange = _ref1[1];
+      _ref2 = this._get_selection_range(x, y), this.xrange = _ref2[0], this.yrange = _ref2[1];
       this.trigger('boxselect', this.xrange, this.yrange);
       return null;
     };
 
     SelectionToolView.prototype.box_selecting = function(e, x_, y_) {
-      var x, y, _ref, _ref1;
-      _ref = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref[0], y = _ref[1];
-      _ref1 = this._get_selection_range_fast(x, y), this.xrange = _ref1[0], this.yrange = _ref1[1];
+      var x, y, _ref1, _ref2;
+      _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref1[0], y = _ref1[1];
+      _ref2 = this._get_selection_range_fast(x, y), this.xrange = _ref2[0], this.yrange = _ref2[1];
       this.trigger('boxselect', this.xrange, this.yrange);
       return null;
     };
 
     SelectionToolView.prototype._select_data = function() {
-      var datasource, datasource_id, datasource_selections, datasources, ds, k, renderer, selected, v, _i, _j, _len, _len1, _ref, _ref1;
+      var datasource, datasource_id, datasource_selections, datasources, ds, k, renderer, selected, v, _i, _j, _len, _len1, _ref1, _ref2;
       if (!this.basepoint_set) {
         return;
       }
       datasources = {};
       datasource_selections = {};
-      _ref = this.mget_obj('renderers');
-      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-        renderer = _ref[_i];
+      _ref1 = this.mget_obj('renderers');
+      for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+        renderer = _ref1[_i];
         datasource = renderer.get_obj('data_source');
         datasources[datasource.id] = datasource;
       }
-      _ref1 = this.mget_obj('renderers');
-      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-        renderer = _ref1[_j];
+      _ref2 = this.mget_obj('renderers');
+      for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+        renderer = _ref2[_j];
         datasource_id = renderer.get_obj('data_source').id;
         _.setdefault(datasource_selections, datasource_id, []);
         selected = this.plot_view.renderers[renderer.id].select(this.xrange, this.yrange);
@@ -23897,11 +23852,11 @@ _.setdefault = function(obj, key, value){
   })(tool.ToolView);
 
   SelectionTool = (function(_super) {
-
     __extends(SelectionTool, _super);
 
     function SelectionTool() {
-      return SelectionTool.__super__.constructor.apply(this, arguments);
+      _ref1 = SelectionTool.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     SelectionTool.prototype.type = "SelectionTool";
@@ -23922,11 +23877,11 @@ _.setdefault = function(obj, key, value){
   });
 
   SelectionTools = (function(_super) {
-
     __extends(SelectionTools, _super);
 
     function SelectionTools() {
-      return SelectionTools.__super__.constructor.apply(this, arguments);
+      _ref2 = SelectionTools.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     SelectionTools.prototype.model = SelectionTool;
@@ -23940,11 +23895,11 @@ _.setdefault = function(obj, key, value){
   exports.selectiontools = new SelectionTools;
 
   DataRangeBoxSelectionToolView = (function(_super) {
-
     __extends(DataRangeBoxSelectionToolView, _super);
 
     function DataRangeBoxSelectionToolView() {
-      return DataRangeBoxSelectionToolView.__super__.constructor.apply(this, arguments);
+      _ref3 = DataRangeBoxSelectionToolView.__super__.constructor.apply(this, arguments);
+      return _ref3;
     }
 
     DataRangeBoxSelectionToolView.prototype.bind_bokeh_events = function() {
@@ -23952,9 +23907,9 @@ _.setdefault = function(obj, key, value){
     };
 
     DataRangeBoxSelectionToolView.prototype._select_data = function() {
-      var xend, xstart, yend, ystart, _ref, _ref1;
-      _ref = this.plot_view.mapper.map_from_target(this.xrange[0], this.yrange[0]), xstart = _ref[0], ystart = _ref[1];
-      _ref1 = this.plot_view.mapper.map_from_target(this.xrange[1], this.yrange[1]), xend = _ref1[0], yend = _ref1[1];
+      var xend, xstart, yend, ystart, _ref4, _ref5;
+      _ref4 = this.plot_view.mapper.map_from_target(this.xrange[0], this.yrange[0]), xstart = _ref4[0], ystart = _ref4[1];
+      _ref5 = this.plot_view.mapper.map_from_target(this.xrange[1], this.yrange[1]), xend = _ref5[0], yend = _ref5[1];
       this.mset('xselect', [xstart, xend]);
       this.mset('yselect', [ystart, yend]);
       return this.model.save();
@@ -23965,11 +23920,11 @@ _.setdefault = function(obj, key, value){
   })(SelectionToolView);
 
   DataRangeBoxSelectionTool = (function(_super) {
-
     __extends(DataRangeBoxSelectionTool, _super);
 
     function DataRangeBoxSelectionTool() {
-      return DataRangeBoxSelectionTool.__super__.constructor.apply(this, arguments);
+      _ref4 = DataRangeBoxSelectionTool.__super__.constructor.apply(this, arguments);
+      return _ref4;
     }
 
     DataRangeBoxSelectionTool.prototype.type = "DataRangeBoxSelectionTool";
@@ -23990,7 +23945,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "tools/slider": function(exports, require, module) {(function() {
-  var DataSlider, DataSliderView, HasParent, PlotWidget, coll,
+  var DataSlider, DataSliderView, HasParent, PlotWidget, coll, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -23999,11 +23954,11 @@ _.setdefault = function(obj, key, value){
   HasParent = require("../base").HasParent;
 
   DataSliderView = (function(_super) {
-
     __extends(DataSliderView, _super);
 
     function DataSliderView() {
-      return DataSliderView.__super__.constructor.apply(this, arguments);
+      _ref = DataSliderView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     DataSliderView.prototype.attributes = {
@@ -24027,7 +23982,7 @@ _.setdefault = function(obj, key, value){
     };
 
     DataSliderView.prototype.render_init = function() {
-      var column, max, min, _ref,
+      var column, max, min, _ref1,
         _this = this;
       this.$el.html("");
       this.$el.append("<div class='maxlabel'></div>");
@@ -24035,7 +23990,7 @@ _.setdefault = function(obj, key, value){
       this.$el.append("<div class='minlabel'></div>");
       this.plot_view.$(".plotarea").append(this.$el);
       column = this.mget_obj('data_source').getcolumn(this.mget('field'));
-      _ref = [_.min(column), _.max(column)], min = _ref[0], max = _ref[1];
+      _ref1 = [_.min(column), _.max(column)], min = _ref1[0], max = _ref1[1];
       this.$el.find(".slider").slider({
         orientation: "vertical",
         animate: "fast",
@@ -24059,31 +24014,31 @@ _.setdefault = function(obj, key, value){
       this.label(min, max);
       data_source = this.mget_obj('data_source');
       field = this.mget('field');
-      if (!(data_source.range_selections != null)) {
+      if (data_source.range_selections == null) {
         data_source.range_selections = {};
       }
       return data_source.range_selections[field] = [min, max];
     };
 
     DataSliderView.prototype._select = function() {
-      var colname, columns, data_source, i, max, min, numrows, select, selected, val, value, _i, _ref, _ref1;
+      var colname, columns, data_source, i, max, min, numrows, select, selected, val, value, _i, _ref1, _ref2;
       data_source = this.mget_obj('data_source');
       columns = {};
       numrows = 0;
-      _ref = data_source.range_selections;
-      for (colname in _ref) {
-        if (!__hasProp.call(_ref, colname)) continue;
-        value = _ref[colname];
+      _ref1 = data_source.range_selections;
+      for (colname in _ref1) {
+        if (!__hasProp.call(_ref1, colname)) continue;
+        value = _ref1[colname];
         columns[colname] = data_source.getcolumn(colname);
         numrows = columns[colname].length;
       }
       selected = [];
       for (i = _i = 0; 0 <= numrows ? _i < numrows : _i > numrows; i = 0 <= numrows ? ++_i : --_i) {
         select = true;
-        _ref1 = data_source.range_selections;
-        for (colname in _ref1) {
-          if (!__hasProp.call(_ref1, colname)) continue;
-          value = _ref1[colname];
+        _ref2 = data_source.range_selections;
+        for (colname in _ref2) {
+          if (!__hasProp.call(_ref2, colname)) continue;
+          value = _ref2[colname];
           min = value[0], max = value[1];
           val = columns[colname][i];
           if (val < min || val > max) {
@@ -24107,11 +24062,11 @@ _.setdefault = function(obj, key, value){
   })(PlotWidget);
 
   DataSlider = (function(_super) {
-
     __extends(DataSlider, _super);
 
     function DataSlider() {
-      return DataSlider.__super__.constructor.apply(this, arguments);
+      _ref1 = DataSlider.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     DataSlider.prototype.type = "DataSlider";
@@ -24147,7 +24102,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "tools/tool": function(exports, require, module) {(function() {
-  var HasParent, PlotWidget, Tool, ToolView,
+  var HasParent, PlotWidget, Tool, ToolView, _ref, _ref1,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -24156,11 +24111,11 @@ _.setdefault = function(obj, key, value){
   HasParent = require('../base').HasParent;
 
   ToolView = (function(_super) {
-
     __extends(ToolView, _super);
 
     function ToolView() {
-      return ToolView.__super__.constructor.apply(this, arguments);
+      _ref = ToolView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ToolView.prototype.initialize = function(options) {
@@ -24196,11 +24151,11 @@ _.setdefault = function(obj, key, value){
   })(PlotWidget);
 
   Tool = (function(_super) {
-
     __extends(Tool, _super);
 
     function Tool() {
-      return Tool.__super__.constructor.apply(this, arguments);
+      _ref1 = Tool.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     return Tool;
@@ -24219,7 +24174,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "tools/zoom_tool": function(exports, require, module) {(function() {
-  var LinearMapper, OnePointWheelEventGenerator, ZoomTool, ZoomToolView, ZoomTools, base, eventgenerators, safebind, tool,
+  var LinearMapper, OnePointWheelEventGenerator, ZoomTool, ZoomToolView, ZoomTools, base, eventgenerators, safebind, tool, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
@@ -24236,11 +24191,11 @@ _.setdefault = function(obj, key, value){
   safebind = base.safebind;
 
   ZoomToolView = (function(_super) {
-
     __extends(ZoomToolView, _super);
 
     function ZoomToolView() {
-      return ZoomToolView.__super__.constructor.apply(this, arguments);
+      _ref = ZoomToolView.__super__.constructor.apply(this, arguments);
+      return _ref;
     }
 
     ZoomToolView.prototype.initialize = function(options) {
@@ -24258,17 +24213,17 @@ _.setdefault = function(obj, key, value){
     };
 
     ZoomToolView.prototype.mouse_coords = function(e, x, y) {
-      var x_, y_, _ref;
-      _ref = [this.plot_view.view_state.device_to_sx(x), this.plot_view.view_state.device_to_sy(y)], x_ = _ref[0], y_ = _ref[1];
+      var x_, y_, _ref1;
+      _ref1 = [this.plot_view.view_state.device_to_sx(x), this.plot_view.view_state.device_to_sy(y)], x_ = _ref1[0], y_ = _ref1[1];
       return [x_, y_];
     };
 
     ZoomToolView.prototype._zoom = function(e) {
-      var delta, factor, screenX, screenY, speed, sx_high, sx_low, sy_high, sy_low, x, xend, xr, xstart, y, yend, yr, ystart, zoom_info, _ref;
+      var delta, factor, screenX, screenY, speed, sx_high, sx_low, sy_high, sy_low, x, xend, xr, xstart, y, yend, yr, ystart, zoom_info, _ref1;
       delta = e.delta;
       screenX = e.bokehX;
       screenY = e.bokehY;
-      _ref = this.mouse_coords(e, screenX, screenY), x = _ref[0], y = _ref[1];
+      _ref1 = this.mouse_coords(e, screenX, screenY), x = _ref1[0], y = _ref1[1];
       speed = this.mget('speed');
       factor = speed * (delta * 50);
       xr = this.plot_view.view_state.get('inner_range_horizontal');
@@ -24301,11 +24256,11 @@ _.setdefault = function(obj, key, value){
   })(tool.ToolView);
 
   ZoomTool = (function(_super) {
-
     __extends(ZoomTool, _super);
 
     function ZoomTool() {
-      return ZoomTool.__super__.constructor.apply(this, arguments);
+      _ref1 = ZoomTool.__super__.constructor.apply(this, arguments);
+      return _ref1;
     }
 
     ZoomTool.prototype.type = "ZoomTool";
@@ -24325,11 +24280,11 @@ _.setdefault = function(obj, key, value){
   });
 
   ZoomTools = (function(_super) {
-
     __extends(ZoomTools, _super);
 
     function ZoomTools() {
-      return ZoomTools.__super__.constructor.apply(this, arguments);
+      _ref2 = ZoomTools.__super__.constructor.apply(this, arguments);
+      return _ref2;
     }
 
     ZoomTools.prototype.model = ZoomTool;
