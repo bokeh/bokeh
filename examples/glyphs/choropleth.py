@@ -65,13 +65,13 @@ plot.renderers.append(county_renderer)
 plot.renderers.append(state_renderer)
 plot.tools = [resizetool]
 
-sess = session.HTMLFileSession("states.html")
+sess = session.HTMLFileSession("choropleth.html")
 sess.add(plot, county_renderer, state_renderer, state_source, county_source, xdr, ydr, resizetool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-print "Wrote states.html"
+print "Wrote choropleth.html"
 try:
     import webbrowser
-    webbrowser.open("file://" + os.path.abspath("states.html"))
+    webbrowser.open("file://" + os.path.abspath("choropleth.html"))
 except:
     pass
