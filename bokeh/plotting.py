@@ -11,6 +11,7 @@ import time
 import warnings
 import webbrowser
 
+from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataSource, ColumnsRef, DataRange1d,
         Plot, GlyphRenderer, LinearAxis, Grid, PanTool, ZoomTool,
         PreviewSaveTool, ResizeTool, SelectionTool, BoxSelectionOverlay,
@@ -347,48 +348,6 @@ def visual(func):
     return wrapper
 
 
-
-#def plot(*args, **kwargs):
-#    """ Creates a line plot of the given x & y items
-#
-#    Parameters
-#    ----------
-#    *data : The data to plot.  Can be of several forms:
-#        (X, Y1, Y2, ...)
-#            A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
-#        [[x1,y1], [x2,y2], .... ]
-#            An iterable of tuples
-#        NDarray (NxM)
-#            The first column is treated as the X, and all other M-1 columns
-#            are treated as separate Y series
-#    Examples
-#    --------
-#        plot([1,2,3,4,5,6])
-#        plot([1,2,3],[4,5,6], fill_color="red")
-#        plot(x_array, y_array, type="circle")
-#        plot("data1", "data2", source=data_source, ...)
-#
-#    """
-#    session_objs = []   # The list of objects that need to be added
-#
-#    ds = kwargs.pop("source", None)
-#    names, datasource = _handle_1d_data_args(args, datasource=ds)
-#    if datasource != ds:
-#        session_objs.append(datasource)
-#
-#    # If hold is on, then we will reuse the ranges of the current plot
-#    plot = get_plot(kwargs)
-#    if not len(color_fields.intersection(set(kwargs.keys()))):
-#        kwargs['color'] = get_default_color(plot)
-#    points = kwargs.pop("points", True)
-#    marker = kwargs.get("type", "circle")
-#    x_name = names[0]
-#    for name in names[1:]:
-#        _glyph_plot("line", x_name, name, plot, datasource, **kwargs)
-#        if points:
-#            _glyph_plot(marker, x_name, name, plot, datasource, **kwargs)
-#    return plot
-
 marker_types = {
         "circle": glyphs.Circle,
         "square": glyphs.Square,
@@ -529,10 +488,43 @@ class GlyphFunction(object):
                     attributes[argname] = kwargs.pop(argname)
                 else:
                     raise RuntimeError("Missing required glyph parameter '%s'" % argname)
+        # Go through keys in alpha order, so that *_units are handled after
+        # the dataspec dict is already created
+        dataspecs = self.glyphclass.dataspecs_with_refs()
+        for kw in kwargs:
+            if (kw.endswith("_units") and kw[:-6] in dataspecs) or kw in dataspecs:
+                attributes[kw] = kwargs[kw]
 
         glyph_params = {}
-        for var, val in attributes.iteritems():
-            if isinstance(val, basestring):
+        for var in sorted(attributes.keys()):
+            val = attributes[var]
+
+            if var.endswith("_units") and var[:-6] in dataspecs:
+                dspec = var[:-6]
+                if dspec not in glyph_params:
+                    raise RuntimeError("Cannot set units on undefined field '%s'" % dspec)
+                curval = glyph_params[dspec]
+                if not isinstance(curval, dict):
+                    # TODO: This assumes that string values are fields; this is invalid
+                    # for ColorSpecs, but all this logic is to handle dataspec units, and
+                    # ColorSpecs do not have units.  However, if there are other kinds of
+                    # DataSpecs that do have string constants, then we will need to fix
+                    # this up to have smarter detection of field names.
+                    if isinstance(curval, basestring):
+                        glyph_params[dspec] = {"field": curval, "units": val}
+                    else:
+                        glyph_params[dspec] = {"value": curval, "units": val}
+                else:
+                    glyph_params[dspec]["units"] = val
+                continue
+
+            if isinstance(val, dict) or isinstance(val, Number):
+                glyph_val = val
+            elif isinstance(dataspecs.get(var, None), ColorSpec) and ColorSpec.isconst(val):
+                # This check for color constants needs to happen relatively early on because
+                # both strings and certain iterables are valid colors.
+                glyph_val = val
+            elif isinstance(val, basestring):
                 if val not in datasource.column_names:
                     raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
                 glyph_val = {'field' : val, 'units' : 'data'}
@@ -541,15 +533,9 @@ class GlyphFunction(object):
                     raise RuntimeError("Columns need to be 1D (%s is not)" % var)
                 datasource.add(val, name=var)
                 glyph_val = {'field' : var, 'units' : 'data'}
-            elif isinstance(val, dict):
-                glyph_val = val
             elif isinstance(val, Iterable):
                 datasource.add(val, name=var)
                 glyph_val = {'field' : var, 'units' : 'data'}
-            elif isinstance(val, Number):
-                # TODO: verify this handles constant colors, which are not numbers.
-                #    Will probably need to move this before basestring check above.
-                glyph_val = {'field' : None, 'default' : val, 'units' : 'screen'}
             else:
                 raise RuntimeError("Unexpected column type: %s" % type(val))
             glyph_params[var] = glyph_val
