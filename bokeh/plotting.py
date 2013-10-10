@@ -541,10 +541,14 @@ class GlyphFunction(object):
                     raise RuntimeError("Columns need to be 1D (%s is not)" % var)
                 datasource.add(val, name=var)
                 glyph_val = {'field' : var, 'units' : 'data'}
+            elif isinstance(val, dict):
+                glyph_val = val
             elif isinstance(val, Iterable):
                 datasource.add(val, name=var)
                 glyph_val = {'field' : var, 'units' : 'data'}
             elif isinstance(val, Number):
+                # TODO: verify this handles constant colors, which are not numbers.
+                #    Will probably need to move this before basestring check above.
                 glyph_val = {'field' : None, 'default' : val, 'units' : 'screen'}
             else:
                 raise RuntimeError("Unexpected column type: %s" % type(val))
