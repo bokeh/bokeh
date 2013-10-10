@@ -329,6 +329,15 @@ class ColumnDataSource(DataSource):
     cont_ranges = Dict()
     discrete_ranges = Dict()
 
+    def __init__(self, *args, **kw):
+        """ Modify the basic DataSource/PlotObj constructor so that if we
+        are called with a single argument that is a dict, then we treat
+        that implicitly as our "data" attribute.
+        """
+        if len(args) == 1 and "data" not in kw:
+            kw["data"] = args[0]
+        super(ColumnDataSource, self).__init__(**kw)
+
     def add(self, data, name=None):
         """ Appends the data to the list of columns.  Returns the name
         that was inserted.
