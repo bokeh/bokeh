@@ -6,7 +6,7 @@ from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import *
 
 
-output_file("stocks.html", title="stocks.py example")
+output_file("correlation.html", title="correlation.py example")
 
 hold()
 
