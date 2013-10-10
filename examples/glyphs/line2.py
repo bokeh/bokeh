@@ -50,9 +50,9 @@ if len(sys.argv) > 1 and sys.argv[1] == "server":
         sess.use_doc(demo_name)
     except requests.exceptions.ConnectionError as e:
         print e
-        print "\nThe 'server' version of this example requires the plot server.  Please make sure plot server is running, via 'python runserver.py' in the bokeh root directory.\n"
+        print "\nThe 'server' version of this example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'.\n"
         sys.exit()
-        
+
     sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
