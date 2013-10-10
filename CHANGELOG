@@ -24,9 +24,9 @@
 
 2013-09-05    0.1.1:
 --------------------
-- improve error messages on server examples
+  * improve error messages on server examples
 
 
 2013-09-03      0.1:
 --------------------
-- initial release
+  * initial release
