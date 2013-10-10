@@ -1,5 +1,7 @@
 
 
+import os
+_basedir = os.path.dirname(__file__)
 
 from bokeh.vendor.pycco import generate_func_docs
 MAIN= __name__ == "__main__"
@@ -8,15 +10,19 @@ doc_funcs = {}
 def doc_dec(f):
     name_ = f.__name__
     def inner_f():
-        return generate_func_docs(f)
+        plot = f()
+        if isinstance(plot, str):
+            output = plot
+        else:
+            output = plot.script_direct_inject(
+                os.path.join(_basedir, "../static/demos"))
+        return generate_func_docs(f, output)
     inner_f.__name__ = name_
     if MAIN:
-        print "NOT IMPORTING APP"
         doc_funcs[name_] = inner_f
         return inner_f
     else:
         #this causes errors when running as __main__
-        print "importing app"
         from ..app import app
         ret_f = app.route("/bokeh/demo/" + name_)(inner_f)
         return ret_f
@@ -24,7 +30,7 @@ def doc_dec(f):
 @doc_dec
 def add():
     """ docstring """
-    return 2+3
+    return str(2+3)
 
 
 
@@ -74,27 +80,23 @@ def make_plot2():
     plot.renderers.append(glyph_renderer)
     plot.tools = [pantool, previewtool]
 
-    sess = session.PlotServerSession(
-        username="defaultuser",
-        serverloc="http://localhost:5006", userapikey="nokey")
-    sess.use_doc("glyph2")
+    sess = session.HTMLFileSession()
+
     sess.add(plot, glyph_renderer, xaxis, yaxis, # xgrid, ygrid,
              source,  xdr, ydr, pantool, previewtool)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
     # not so nice.. but set the model doens't know
     # that we appended to children
-    sess.store_all()
-    return plot.script_inject()
+    return plot
+
+
 
 
 
 if __name__ == "__main__":
-    import os
-    _basedir = os.path.dirname(__file__)
-
     for func_name, func in doc_funcs.items():
-        f_name = _basedir +  "demo_output/" + func_name + ".html"
+        f_name = _basedir +  "../static/demos/" + func_name + ".html"
         with open(f_name, "w") as f:
             f.write(func())
 

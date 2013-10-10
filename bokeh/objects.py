@@ -4,6 +4,7 @@ this module can be stored as a backbone.js model graph, and stored in a
 plot server or serialized into JS for embedding in HTML or an IPython
 notebook.
 """
+import os
 from uuid import uuid4
 from functools import wraps
 import urlparse
@@ -572,9 +573,12 @@ class Plot(PlotObject):
             self._id,
             self.__view_model__)
 
-    def script_direct_inject(self, host="http://localhost:5006/bokeh/static/"):
+    def script_direct_inject(
+            self, output_path="", static_path="http://localhost:5006/bokeh/static/"):
+
         embed_filename = "%s.embed.js" % self._id
-        self._session.save_embed_js(embed_filename, self._id, host)
+        embed_save_loc = os.path.join(output_path, embed_filename)
+        self._session.save_embed_js(embed_filename, self._id, static_path)
         return script_direct_inject(
             self._id, self.__view_model__, embed_filename)
 

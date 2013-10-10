@@ -49,8 +49,8 @@ def generate_documentation(source, outdir=None, preserve_paths=True,
     highlight(source, sections, language, preserve_paths=preserve_paths, outdir=outdir)
     return generate_html(source, sections, preserve_paths=preserve_paths, outdir=outdir)
 
-def generate_func_docs(func, outdir=None, preserve_paths=True,
-                           language=None):
+def generate_func_docs(func, func_output=False,
+                       outdir=None, preserve_paths=True, language=None):
     """
     Generate the documentation for a source file by reading it in, splitting it
     up into comment/code sections, highlighting them for the appropriate
@@ -63,7 +63,10 @@ def generate_func_docs(func, outdir=None, preserve_paths=True,
     
     language = languages[".py"]
     sections = parse(source, code, language)
-    sections[0]['output'] = func()
+    if func_output:
+        sections[0]['output'] = func_output
+    else:
+        sections[0]['output'] = func()
     #highlight_section(sections[0], language)
     highlight_no_remove(sections, language)
     return generate_html(
