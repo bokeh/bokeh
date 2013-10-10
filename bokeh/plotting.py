@@ -586,38 +586,6 @@ class GlyphFunction(object):
                 plot.y_range.sources.append(datasource.columns(*ycols))
             plot.y_range._dirty = True
 
-    def get_plot(self, kwargs):
-        plot = kwargs.pop("plot", None)
-        if not plot:
-            if _config["hold"] and _config["curplot"]:
-                plot = _config["curplot"]
-            else:
-                plot = _new_xy_plot(**kwargs)
-        return plot
-
-    def get_legend(self, plot):
-        legend = [x for x in plot.renderers if x.__view_model__ == "Legend"]
-        if len(legend) > 0:
-            legend = legend[0]
-        else:
-            legend = None
-        return legend
-
-    def make_legend(self, plot):
-        legend = Legend(plot=plot)
-        plot.renderers.append(legend)
-        plot._dirty = True
-        return legend
-
-    def get_select_tool(self, plot):
-        """returns select tool on a plot, if it's there
-        """
-        select_tool = [x for x in plot.tools if x.__view_model__ == "SelectionTool"]
-        if len(select_tool) > 0:
-            select_tool = select_tool[0]
-        else:
-            select_tool = None
-        return select_tool
 
     @visual
     def __call__(self, *args, **kwargs):
@@ -633,8 +601,8 @@ class GlyphFunction(object):
                 kwargs["line_color"] = color
 
         legend_name = kwargs.pop("legend", None)
-        plot = self.get_plot(kwargs)
-        select_tool = self.get_select_tool(plot)
+        plot = self._get_plot(kwargs)
+        select_tool = self._get_select_tool(plot)
 
         # Process the glyph dataspec parameters
         glyph_params = self._match_data_params(datasource, args, kwargs)
@@ -663,9 +631,9 @@ class GlyphFunction(object):
             )
 
         if legend_name:
-            legend = self.get_legend(plot)
+            legend = self._get_legend(plot)
             if not legend:
-                legend = self.make_legend(plot)
+                legend = self._make_legend(plot)
             mappings = legend.annotationspec.setdefault("legends", {})
             mappings.setdefault(legend_name, []).append(glyph_renderer)
             legend._dirty = True
@@ -681,6 +649,39 @@ class GlyphFunction(object):
         session_objs.extend([plot.x_range, plot.y_range])
 
         return plot, session_objs
+
+    def _get_plot(self, kwargs):
+        plot = kwargs.pop("plot", None)
+        if not plot:
+            if _config["hold"] and _config["curplot"]:
+                plot = _config["curplot"]
+            else:
+                plot = _new_xy_plot(**kwargs)
+        return plot
+
+    def _get_legend(self, plot):
+        legend = [x for x in plot.renderers if x.__view_model__ == "Legend"]
+        if len(legend) > 0:
+            legend = legend[0]
+        else:
+            legend = None
+        return legend
+
+    def _make_legend(self, plot):
+        legend = Legend(plot=plot)
+        plot.renderers.append(legend)
+        plot._dirty = True
+        return legend
+
+    def _get_select_tool(self, plot):
+        """returns select tool on a plot, if it's there
+        """
+        select_tool = [x for x in plot.tools if x.__view_model__ == "SelectionTool"]
+        if len(select_tool) > 0:
+            select_tool = select_tool[0]
+        else:
+            select_tool = None
+        return select_tool
 
 
 def get_default_color(plot):
