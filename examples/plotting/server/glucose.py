@@ -5,7 +5,7 @@ from bokeh.sampledata.glucose import data
 from bokeh.plotting import *
 
 
-output_file("glucose.html", title="glucose.py example")
+output_server("glucose.py example")
 
 hold()
 
