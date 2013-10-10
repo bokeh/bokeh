@@ -328,3 +328,13 @@ def generate_embed(inject_type, include_js):
 def embed_js():
     return (render_template("embed.js", host=request.host), "200",
             {'Content-Type':'application/javascript'})
+
+def add():
+    """ docstring """
+    return 2+3
+
+@app.route("/bokeh/demo/1")
+def demo1():
+    from bokeh.server.vendor.pycco import generate_func_docs
+    return generate_func_docs(add)
+
