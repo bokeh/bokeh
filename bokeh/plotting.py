@@ -689,104 +689,46 @@ def get_default_color(plot):
     return colors[num_renderers]
 
 
-# TODO: Unify these under one thing for all Marker glyphs
-# TODO: How to handle default arguments?
+# TODO: Unify these under one thing for all Marker glyphs and add other markers
 square = GlyphFunction(glyphs.Square, ("x", "y"))
 circle = GlyphFunction(glyphs.Circle, ("x", "y"))
 
+
 line = GlyphFunction(glyphs.Line, ("x", "y"))
+
 multi_line = GlyphFunction(glyphs.MultiLine, ("xs", "ys"), ["xs"], ["ys"])
 
-#@glyph
-#def annular_wedge(x, y, inner_radius, outer_radius, start_angle, end_angle, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.AnnularWedge, glyph_params
-#
-#@glyph
-#def annulus(x, y, inner_radius, outer_radius, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Annulus, glyph_params
-#
-#@glyph
-#def arc(x, y, radius, start_angle, end_angle, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Arc, glyph_params
-#
-#@glyph(xfields=['x0', 'x1'], yfields=['y0', 'y1'])
-#def bezier(x0, y0, x1, y1, cx0, cy0, cx1, cy1, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Bezier, glyph_params
-#
-#@glyph
-#def oval(x, y, width, height, angle=0, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Oval, glyph_params
-#
-#@glyph
-#def patch(x, y, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Patch, glyph_params
-#
-#@glyph(xfields=['xs'], yfields=['ys'])
-#def patches(xs, ys, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Patches, glyph_params
-#
-#@glyph
-#def ray(x, y, length, angle, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Ray, glyph_params
-#
-#@glyph(xfields=['left', 'right'], yfields=['top', 'bottom'])
-#def quad(left, right, top, bottom, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Quad, glyph_params
-#
-#@glyph(xfields=['x0', 'x1'], yfields=['y0', 'y1'])
-#def quadratic(x0, y0, x1, y1, cx, cy, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Quadratic, glyph_params
-#
-#@glyph
-#def rect(x, y, width, height, angle=0, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Rect, glyph_params
-#
-#@glyph(xfields=['x0', 'x1'], yfields=['y0', 'y1'])
-#def segment(x0, y0, x1, y1, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Segment, glyph_params
-#
-#@glyph
-#def wedge(x, y, radius, start_angle, end_angle, **kwargs):
-#    args, vals = zip(*tuple((k,v) for (k,v) in locals().iteritems() if k != 'kwargs'))
-#    datasource = kwargs['datasource']
-#    glyph_params = _match_data_params(args, vals, datasource)
-#    return glyphs.Wedge, glyph_params
+annular_wedge = GlyphFunction(glyphs.AnnularWedge,
+    "x,y,inner_radius,outer_radius,start_angle,end_angle".split(","))
+
+annulus = GlyphFunction(glyphs.Annulus,
+    "x,y,inner_radius,outer_radius".split(","))
+
+arc = GlyphFunction(glyphs.Arc, "x,y,radius,start_angle,end_angle".split(","))
+
+bezier = GlyphFunction(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(","),
+    xfields=['x0', 'x1'], yfields=['y0', 'y1'])
+
+oval = GlyphFunction(glyphs.Oval, ("x", "y", "width", "height"))
+
+patch = GlyphFunction(glyphs.Patch, ("x", "y"))
+
+patches = GlyphFunction(glyphs.Patches, ("xs", "ys"), ["xs"], ["ys"])
+
+ray = GlyphFunction(glyphs.Ray, ("x", "y", "length", "angle"))
+
+quad = GlyphFunction(glyphs.Quad, ("left", "right", "top", "bottom"),
+    xfields=["left", "right"], yfields=["top", "bottom"])
+
+quadratic = GlyphFunction(glyphs.Quadratic, "x0,y0,x1,y1,cx,cy".split(","),
+    xfields=["x0", "x1"], yfields=["y0", "y1"])
+
+rect = GlyphFunction(glyphs.Rect, ("x", "y", "width", "height"))
+
+segment = GlyphFunction(glyphs.Segment, ("x0", "y0", "x1", "y1"),
+    xfields=["x0", "x1"], yfields=["y0", "y1"])
+
+wedge = GlyphFunction(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"))
 
 
 
