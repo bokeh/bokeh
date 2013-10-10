@@ -26,14 +26,16 @@ class GridView extends PlotWidget
     safebind(this, @model, 'change', @request_render)
 
   _draw_grids: (ctx) ->
+    if not @grid_props.do_stroke
+      return
     [xs, ys] = @mget('grid_coords')
     @grid_props.set(ctx, @)
     for i in [0..xs.length-1]
       [sx, sy] = @plot_view.map_to_screen(xs[i], "data", ys[i], "data")
       ctx.beginPath()
-      ctx.moveTo(sx[0], sy[0])
+      ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
       for i in [1..sx.length-1]
-        ctx.lineTo(sx[i], sy[i])
+        ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
       ctx.stroke()
     return
 

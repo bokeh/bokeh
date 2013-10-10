@@ -7813,23 +7813,26 @@ _.setdefault = function(obj, key, value){
   return this.rrequire.define;
 }).call(this)({
   "embed_core": function(exports, require, module) {(function() {
-  var addDirectPlot, addDirectPlotWrap, addPlot, addPlotWrap, base, find_injections, foundEls, injectCss, parse_el, plot_from_dict, search_and_plot, serverLoad, utility,
+  var addDirectPlot, addDirectPlotWrap, addPlot, addPlotWrap, base, find_injections, foundEls, injectCss, parse_el, search_and_plot, serverLoad, unsatisfied_els, utility,
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   base = require("./base");
 
   utility = require("./serverutils").utility;
 
-  addPlotWrap = function(settings) {
-    return addPlot(settings.bokeh_modelid, settings.bokeh_modeltype, settings.element);
+  addPlotWrap = function(settings, dd) {
+    return addPlot(settings.bokeh_modelid, settings.bokeh_modeltype, settings.element, dd);
   };
 
-  addPlot = function(modelid, modeltype, element) {
-    var model, view;
+  addPlot = function(modelid, modeltype, element, data) {
+    var data_plot_id, model, view;
+    data_plot_id = _.keys(data)[0];
+    if (!data_plot_id === modelid) {
+      return;
+    }
     console.log("addPlot");
     console.log(modelid, modeltype, element);
-    debugger;
-    base.load_models(window.Bokeh.models);
+    base.load_models(data[data_plot_id]);
     model = base.Collections(modeltype).get(modelid);
     view = new model.default_view({
       model: model
@@ -7900,7 +7903,6 @@ _.setdefault = function(obj, key, value){
     bokehRe = /bokeh.*/;
     info = {};
     bokehCount = 0;
-    window.attrs = attrs;
     for (_i = 0, _len = attrs.length; _i < _len; _i++) {
       attr = attrs[_i];
       if (attr.name.match(bokehRe)) {
@@ -7915,6 +7917,8 @@ _.setdefault = function(obj, key, value){
     }
   };
 
+  unsatisfied_els = {};
+
   find_injections = function() {
     var container, d, el, els, info, is_new_el, matches, new_settings, re, _i, _len;
     els = document.getElementsByTagName('script');
@@ -7924,7 +7928,6 @@ _.setdefault = function(obj, key, value){
       el = els[_i];
       is_new_el = __indexOf.call(foundEls, el) < 0;
       matches = el.src.match(re);
-      console.log(el, is_new_el, matches);
       if (is_new_el && matches) {
         foundEls.push(el);
         info = parse_el(el);
@@ -7938,20 +7941,26 @@ _.setdefault = function(obj, key, value){
     return new_settings;
   };
 
-  plot_from_dict = function(info_dict) {
-    if (info_dict.bokeh_plottype === 'embeddata') {
-      debugger;
-      return addPlotWrap(info_dict);
-    } else {
-      return addDirectPlotWrap(info_dict);
-    }
-  };
-
-  search_and_plot = function() {
-    var new_plot_dicts;
+  search_and_plot = function(dd) {
+    var new_plot_dicts, plot_from_dict;
+    plot_from_dict = function(info_dict, key) {
+      var dd_id;
+      if (info_dict.bokeh_plottype === 'embeddata') {
+        dd_id = _.keys(dd)[0];
+        if (key === dd_id) {
+          addPlotWrap(info_dict, dd);
+          return delete unsatisfied_els[key];
+        }
+      } else {
+        addDirectPlotWrap(info_dict);
+        return delete unsatisfied_els[key];
+      }
+    };
     new_plot_dicts = find_injections();
-    console.log("find injections called");
-    return _.map(new_plot_dicts, plot_from_dict);
+    _.each(new_plot_dicts, function(plotdict) {
+      return unsatisfied_els[plotdict['bokeh_modelid']] = plotdict;
+    });
+    return _.map(unsatisfied_els, plot_from_dict);
   };
 
   exports.search_and_plot = search_and_plot;
@@ -10728,7 +10737,7 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotView.prototype.initialize = function(options) {
-      var level, _i, _len, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+      var level, _i, _len, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
       PlotView.__super__.initialize.call(this, _.defaults(options, this.default_options));
       this.throttled_render = throttleAnimation(this.render, 15);
       this.throttled_render_canvas = throttleAnimation(this.render_canvas, 15);
@@ -10749,8 +10758,9 @@ _.setdefault = function(obj, key, value){
         requested_border_left: 0,
         requested_border_right: 0
       });
-      this.x_range = (_ref15 = options.x_range) != null ? _ref15 : this.mget_obj('x_range');
-      this.y_range = (_ref16 = options.y_range) != null ? _ref16 : this.mget_obj('y_range');
+      this.hidpi = (_ref15 = options.hidpi) != null ? _ref15 : this.mget('hidpi');
+      this.x_range = (_ref16 = options.x_range) != null ? _ref16 : this.mget_obj('x_range');
+      this.y_range = (_ref17 = options.y_range) != null ? _ref17 : this.mget_obj('y_range');
       this.xmapper = new LinearMapper({
         source_range: this.x_range,
         target_range: this.view_state.get('inner_range_horizontal')
@@ -10879,17 +10889,29 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotView.prototype.render_canvas = function(full_render) {
-      var oh, ow;
+      var backingStoreRatio, devicePixelRatio, oh, ow, ratio;
       if (full_render == null) {
         full_render = true;
       }
-      oh = this.view_state.get('outer_height');
+      this.ctx = this.canvas[0].getContext('2d');
+      if (this.hidpi) {
+        devicePixelRatio = window.devicePixelRatio || 1;
+        backingStoreRatio = this.ctx.webkitBackingStorePixelRatio || this.ctx.mozBackingStorePixelRatio || this.ctx.msBackingStorePixelRatio || this.ctx.oBackingStorePixelRatio || this.ctx.backingStorePixelRatio || 1;
+        ratio = devicePixelRatio / backingStoreRatio;
+      } else {
+        ratio = 1;
+      }
       ow = this.view_state.get('outer_width');
+      oh = this.view_state.get('outer_height');
+      this.canvas.width = ow * ratio;
+      this.canvas.height = oh * ratio;
       this.button_bar.attr('style', "width:" + ow + "px;");
       this.canvas_wrapper.attr('style', "width:" + ow + "px; height:" + oh + "px");
-      this.canvas.attr('width', ow).attr('height', oh);
+      this.canvas.attr('style', "width:" + ow + "px;");
+      this.canvas.attr('style', "height:" + oh + "px;");
+      this.canvas.attr('width', ow * ratio).attr('height', oh * ratio);
       this.$el.attr("width", ow).attr('height', oh);
-      this.ctx = this.canvas[0].getContext('2d');
+      this.ctx.scale(ratio, ratio);
       this.ctx.translate(0.5, 0.5);
       if (full_render) {
         return this.render();
@@ -11065,6 +11087,7 @@ _.setdefault = function(obj, key, value){
   Plot.prototype.display_defaults = _.clone(Plot.prototype.display_defaults);
 
   _.extend(Plot.prototype.display_defaults, {
+    hidpi: true,
     background_fill: "#fff",
     border_fill: "#eee",
     border_symmetry: "h",
@@ -15002,10 +15025,14 @@ _.setdefault = function(obj, key, value){
       ctx.lineTo(inner_radius, 0);
       ctx.arc(0, 0, inner_radius, 0, -angle, !direction);
       ctx.closePath();
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -15264,10 +15291,14 @@ _.setdefault = function(obj, key, value){
       ctx.arc(sx, sy, inner_radius, 0, 2 * Math.PI * 2, false);
       ctx.moveTo(sx + outer_radius, sy);
       ctx.arc(sx, sy, outer_radius, 0, 2 * Math.PI * 2, true);
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -15482,7 +15513,10 @@ _.setdefault = function(obj, key, value){
       }
       ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, start_angle, end_angle, direction);
       line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -15897,10 +15931,14 @@ _.setdefault = function(obj, key, value){
         r = data_r > r ? r : data_r;
       }
       ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2 * Math.PI, false);
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -16627,6 +16665,9 @@ _.setdefault = function(obj, key, value){
 
     LineView.prototype._render = function() {
       var ctx, idx, props, selected, _i, _len;
+      if (!this.do_stroke) {
+        return;
+      }
       this._map_data();
       ctx = this.plot_view.ctx;
       ctx.save();
@@ -16695,7 +16736,10 @@ _.setdefault = function(obj, key, value){
       ctx.beginPath();
       ctx.moveTo(x1, (y1 + y2) / 2);
       ctx.lineTo(x2, (y1 + y2) / 2);
-      ctx.stroke();
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -16878,12 +16922,13 @@ _.setdefault = function(obj, key, value){
       } else {
         glyph_settings = glyph_props;
       }
-      line_props.set(ctx, glyph_settings);
       ctx.beginPath();
       ctx.moveTo(x1, (y1 + y2) / 2);
       ctx.lineTo(x2, (y1 + y2) / 2);
-      ctx.stroke();
-      ctx.beginPath();
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -17137,10 +17182,14 @@ _.setdefault = function(obj, key, value){
       ctx.bezierCurveTo(w / 2, -h / 2, w / 2, h / 2, 0, h / 2);
       ctx.bezierCurveTo(-w / 2, h / 2, -w / 2, -h / 2, 0, -h / 2);
       ctx.closePath();
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -17624,10 +17673,14 @@ _.setdefault = function(obj, key, value){
       y = (y1 + y2) / 2 - (h / 2);
       ctx.beginPath();
       ctx.rect(x, y, w, h);
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -17942,8 +17995,10 @@ _.setdefault = function(obj, key, value){
       ctx.lineTo(r, 0);
       ctx.rotate(-angle);
       ctx.translate(-sx, -sy);
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -18387,8 +18442,10 @@ _.setdefault = function(obj, key, value){
       ctx.beginPath();
       ctx.moveTo(x1, (y1 + y2) / 2);
       ctx.lineTo(x2, (y1 + y2) / 2);
-      ctx.stroke();
-      ctx.beginPath();
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -18518,10 +18575,14 @@ _.setdefault = function(obj, key, value){
       x = (x1 + x2) / 2 - (w / 2);
       y = (y1 + y2) / 2 - (h / 2);
       ctx.rect(x, y, w, h);
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -18895,10 +18956,14 @@ _.setdefault = function(obj, key, value){
       ctx.arc(sx, sy, r, start_angle, end_angle, direction);
       ctx.lineTo(sx, sy);
       ctx.closePath();
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -19184,14 +19249,17 @@ _.setdefault = function(obj, key, value){
 
     GridView.prototype._draw_grids = function(ctx) {
       var i, sx, sy, xs, ys, _i, _j, _ref1, _ref2, _ref3, _ref4;
+      if (!this.grid_props.do_stroke) {
+        return;
+      }
       _ref1 = this.mget('grid_coords'), xs = _ref1[0], ys = _ref1[1];
       this.grid_props.set(ctx, this);
       for (i = _i = 0, _ref2 = xs.length - 1; 0 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
         _ref3 = this.plot_view.map_to_screen(xs[i], "data", ys[i], "data"), sx = _ref3[0], sy = _ref3[1];
         ctx.beginPath();
-        ctx.moveTo(sx[0], sy[0]);
+        ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]));
         for (i = _j = 1, _ref4 = sx.length - 1; 1 <= _ref4 ? _j <= _ref4 : _j >= _ref4; i = 1 <= _ref4 ? ++_j : --_j) {
-          ctx.lineTo(sx[i], sy[i]);
+          ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]));
         }
         ctx.stroke();
       }
@@ -19476,9 +19544,9 @@ _.setdefault = function(obj, key, value){
       _ref2 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref2[0], sy = _ref2[1];
       this.rule_props.set(ctx, this);
       ctx.beginPath();
-      ctx.moveTo(sx[0], sy[0]);
+      ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]));
       for (i = _i = 1, _ref3 = sx.length - 1; 1 <= _ref3 ? _i <= _ref3 : _i >= _ref3; i = 1 <= _ref3 ? ++_i : --_i) {
-        ctx.lineTo(sx[i], sy[i]);
+        ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]));
       }
       ctx.stroke();
     };
@@ -19493,8 +19561,8 @@ _.setdefault = function(obj, key, value){
       this.major_tick_props.set(ctx, this);
       for (i = _i = 0, _ref4 = sx.length - 1; 0 <= _ref4 ? _i <= _ref4 : _i >= _ref4; i = 0 <= _ref4 ? ++_i : --_i) {
         ctx.beginPath();
-        ctx.moveTo(sx[i] + nx * tout, sy[i] + ny * tout);
-        ctx.lineTo(sx[i] - nx * tin, sy[i] - ny * tin);
+        ctx.moveTo(Math.round(sx[i] + nx * tout), Math.round(sy[i] + ny * tout));
+        ctx.lineTo(Math.round(sx[i] - nx * tin), Math.round(sy[i] - ny * tin));
         ctx.stroke();
       }
     };
@@ -19524,7 +19592,7 @@ _.setdefault = function(obj, key, value){
           ctx.rotate(-angle);
           ctx.translate(-sx[i] - nx * standoff, -sy[i] - ny * standoff);
         } else {
-          ctx.fillText(labels[i], sx[i] + nx * standoff, sy[i] + ny * standoff);
+          ctx.fillText(labels[i], Math.round(sx[i] + nx * standoff), Math.round(sy[i] + ny * standoff));
         }
       }
     };
@@ -20058,9 +20126,9 @@ _.setdefault = function(obj, key, value){
       var default_value, glyph_value;
       this[attrname] = {};
       default_value = styleprovider.mget(attrname);
-      if (default_value == null) {
+      if (_.isUndefined(default_value)) {
         this[attrname]["default"] = null;
-      } else if (_.isString(default_value) && ((svg_colors[default_value] != null) || default_value.substring(0, 1) === "#")) {
+      } else if (_.isString(default_value) && ((svg_colors[default_value] != null) || default_value.substring(0, 1) === "#") || _.isNull(default_value)) {
         this[attrname]["default"] = default_value;
       } else {
         console.log(("color property '" + attrname + "' given invalid default value: ") + default_value);
@@ -20244,7 +20312,14 @@ _.setdefault = function(obj, key, value){
       this["enum"](styleprovider, glyphspec, this.line_cap_name, "butt round square");
       this.array(styleprovider, glyphspec, this.line_dash_name);
       this.number(styleprovider, glyphspec, this.line_dash_offset_name);
-      this.do_stroke = !_.isNull(this[this.line_color_name].value);
+      this.do_stroke = true;
+      if (!_.isUndefined(this[this.line_color_name].value)) {
+        if (_.isNull(this[this.line_color_name].value)) {
+          this.do_stroke = false;
+        }
+      } else if (_.isNull(this[this.line_color_name]["default"])) {
+        this.do_stroke = false;
+      }
     }
 
     line_properties.prototype.set = function(ctx, obj) {
@@ -20272,7 +20347,14 @@ _.setdefault = function(obj, key, value){
       this.fill_alpha_name = "" + prefix + "fill_alpha";
       this.color(styleprovider, glyphspec, this.fill_color_name);
       this.number(styleprovider, glyphspec, this.fill_alpha_name);
-      this.do_fill = !_.isNull(this[this.fill_color_name].value);
+      this.do_fill = true;
+      if (!_.isUndefined(this[this.fill_color_name].value)) {
+        if (_.isNull(this[this.fill_color_name].value)) {
+          this.do_fill = false;
+        }
+      } else if (_.isNull(this[this.fill_color_name]["default"])) {
+        this.do_fill = false;
+      }
     }
 
     fill_properties.prototype.set = function(ctx, obj) {

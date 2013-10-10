@@ -18,8 +18,8 @@ scatter(x,3*y, color="green", tools="pan,zoom,resize", legend="3*sin(x)")
 figure()
 
 plot(x,y, points=True, radius=2, tools="pan,zoom,resize,select", legend="sin(x)")
-plot(x,2*y, points=False, legend="2*sin(x)")
-plot(x,3*y, points=True, color="green", radius=2, legend="3*sin(x)")
+plot(x,2*y, points=False, line_dash="4 4", line_width=2, legend="2*sin(x)")
+plot(x,3*y, points=True, fill_color=None, line_color="green", radius=4, legend="3*sin(x)")
 
 # open a browser
 show()

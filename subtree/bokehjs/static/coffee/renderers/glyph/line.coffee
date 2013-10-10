@@ -45,6 +45,8 @@ class LineView extends GlyphView
     [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
   _render: () ->
+    if not @do_stroke
+      return
     @_map_data()
     ctx = @plot_view.ctx
     ctx.save()
@@ -103,7 +105,9 @@ class LineView extends GlyphView
     ctx.beginPath()
     ctx.moveTo(x1, (y1 + y2) /2)
     ctx.lineTo(x2, (y1 + y2) /2)
-    ctx.stroke()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
     ctx.restore()
 
   ##duped

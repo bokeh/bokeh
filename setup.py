@@ -4,6 +4,12 @@ from os.path import abspath, isdir
 import sys
 import shutil
 from distutils.core import setup
+import versioneer
+
+versioneer.versionfile_source = 'bokeh/_version.py'
+versioneer.versionfile_build = 'bokeh/_version.py'
+versioneer.tag_prefix = '' # tags are like 1.2.0
+versioneer.parentdir_prefix = 'Bokeh-' # dirname like 'myproject-1.2.0'
 
 # Set up this checkout or source archive with the right BokehJS files.
 
@@ -52,7 +58,8 @@ if sys.platform != 'win32':
 
 setup(
     name = 'bokeh',
-    version = '.'.join([str(x) for x in __version__]),
+    version=versioneer.get_version(),
+    cmdclass=versioneer.get_cmdclass(),
     packages = ['bokeh', 'bokeh.chaco_gg', 'bokeh.server',
                 'bokeh.server.models', 'bokeh.server.views',
                 'bokeh.server.test', 'bokeh.specialmodels'],

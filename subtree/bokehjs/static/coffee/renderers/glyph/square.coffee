@@ -71,10 +71,12 @@ class SquareView extends rect.RectView
     x = (x1 + x2) / 2 - (w / 2)
     y = (y1 + y2) / 2 - (h / 2)
     ctx.rect(x, y, w, h)
-    fill_props.set(ctx, glyph_settings)
-    ctx.fill()
-    line_props.set(ctx, glyph_settings)
-    ctx.stroke()
+    if fill_props.do_fill
+      fill_props.set(ctx, glyph_settings)
+      ctx.fill()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
 
     ctx.restore()
 
