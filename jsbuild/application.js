@@ -16881,10 +16881,14 @@ _.setdefault = function(obj, key, value){
       ctx.lineTo(inner_radius, 0);
       ctx.arc(0, 0, inner_radius, 0, -angle, !direction);
       ctx.closePath();
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -17143,10 +17147,14 @@ _.setdefault = function(obj, key, value){
       ctx.arc(sx, sy, inner_radius, 0, 2 * Math.PI * 2, false);
       ctx.moveTo(sx + outer_radius, sy);
       ctx.arc(sx, sy, outer_radius, 0, 2 * Math.PI * 2, true);
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -17361,7 +17369,10 @@ _.setdefault = function(obj, key, value){
       }
       ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, start_angle, end_angle, direction);
       line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -17776,10 +17787,14 @@ _.setdefault = function(obj, key, value){
         r = data_r > r ? r : data_r;
       }
       ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2 * Math.PI, false);
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -18506,6 +18521,9 @@ _.setdefault = function(obj, key, value){
 
     LineView.prototype._render = function() {
       var ctx, idx, props, selected, _i, _len;
+      if (!this.do_stroke) {
+        return;
+      }
       this._map_data();
       ctx = this.plot_view.ctx;
       ctx.save();
@@ -18574,7 +18592,10 @@ _.setdefault = function(obj, key, value){
       ctx.beginPath();
       ctx.moveTo(x1, (y1 + y2) / 2);
       ctx.lineTo(x2, (y1 + y2) / 2);
-      ctx.stroke();
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -18757,12 +18778,13 @@ _.setdefault = function(obj, key, value){
       } else {
         glyph_settings = glyph_props;
       }
-      line_props.set(ctx, glyph_settings);
       ctx.beginPath();
       ctx.moveTo(x1, (y1 + y2) / 2);
       ctx.lineTo(x2, (y1 + y2) / 2);
-      ctx.stroke();
-      ctx.beginPath();
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -19016,10 +19038,14 @@ _.setdefault = function(obj, key, value){
       ctx.bezierCurveTo(w / 2, -h / 2, w / 2, h / 2, 0, h / 2);
       ctx.bezierCurveTo(-w / 2, h / 2, -w / 2, -h / 2, 0, -h / 2);
       ctx.closePath();
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -19503,10 +19529,14 @@ _.setdefault = function(obj, key, value){
       y = (y1 + y2) / 2 - (h / 2);
       ctx.beginPath();
       ctx.rect(x, y, w, h);
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -19821,8 +19851,10 @@ _.setdefault = function(obj, key, value){
       ctx.lineTo(r, 0);
       ctx.rotate(-angle);
       ctx.translate(-sx, -sy);
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -20266,8 +20298,10 @@ _.setdefault = function(obj, key, value){
       ctx.beginPath();
       ctx.moveTo(x1, (y1 + y2) / 2);
       ctx.lineTo(x2, (y1 + y2) / 2);
-      ctx.stroke();
-      ctx.beginPath();
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -20397,10 +20431,14 @@ _.setdefault = function(obj, key, value){
       x = (x1 + x2) / 2 - (w / 2);
       y = (y1 + y2) / 2 - (h / 2);
       ctx.rect(x, y, w, h);
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -20774,10 +20812,14 @@ _.setdefault = function(obj, key, value){
       ctx.arc(sx, sy, r, start_angle, end_angle, direction);
       ctx.lineTo(sx, sy);
       ctx.closePath();
-      fill_props.set(ctx, glyph_settings);
-      ctx.fill();
-      line_props.set(ctx, glyph_settings);
-      ctx.stroke();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
       return ctx.restore();
     };
 
@@ -21063,14 +21105,17 @@ _.setdefault = function(obj, key, value){
 
     GridView.prototype._draw_grids = function(ctx) {
       var i, sx, sy, xs, ys, _i, _j, _ref, _ref1, _ref2, _ref3;
+      if (!this.grid_props.do_stroke) {
+        return;
+      }
       _ref = this.mget('grid_coords'), xs = _ref[0], ys = _ref[1];
       this.grid_props.set(ctx, this);
       for (i = _i = 0, _ref1 = xs.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
         _ref2 = this.plot_view.map_to_screen(xs[i], "data", ys[i], "data"), sx = _ref2[0], sy = _ref2[1];
         ctx.beginPath();
-        ctx.moveTo(sx[0], sy[0]);
+        ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]));
         for (i = _j = 1, _ref3 = sx.length - 1; 1 <= _ref3 ? _j <= _ref3 : _j >= _ref3; i = 1 <= _ref3 ? ++_j : --_j) {
-          ctx.lineTo(sx[i], sy[i]);
+          ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]));
         }
         ctx.stroke();
       }
@@ -21355,9 +21400,9 @@ _.setdefault = function(obj, key, value){
       _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
       this.rule_props.set(ctx, this);
       ctx.beginPath();
-      ctx.moveTo(sx[0], sy[0]);
+      ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]));
       for (i = _i = 1, _ref2 = sx.length - 1; 1 <= _ref2 ? _i <= _ref2 : _i >= _ref2; i = 1 <= _ref2 ? ++_i : --_i) {
-        ctx.lineTo(sx[i], sy[i]);
+        ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]));
       }
       ctx.stroke();
     };
@@ -21372,8 +21417,8 @@ _.setdefault = function(obj, key, value){
       this.major_tick_props.set(ctx, this);
       for (i = _i = 0, _ref3 = sx.length - 1; 0 <= _ref3 ? _i <= _ref3 : _i >= _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
         ctx.beginPath();
-        ctx.moveTo(sx[i] + nx * tout, sy[i] + ny * tout);
-        ctx.lineTo(sx[i] - nx * tin, sy[i] - ny * tin);
+        ctx.moveTo(Math.round(sx[i] + nx * tout), Math.round(sy[i] + ny * tout));
+        ctx.lineTo(Math.round(sx[i] - nx * tin), Math.round(sy[i] - ny * tin));
         ctx.stroke();
       }
     };
@@ -21403,7 +21448,7 @@ _.setdefault = function(obj, key, value){
           ctx.rotate(-angle);
           ctx.translate(-sx[i] - nx * standoff, -sy[i] - ny * standoff);
         } else {
-          ctx.fillText(labels[i], sx[i] + nx * standoff, sy[i] + ny * standoff);
+          ctx.fillText(labels[i], Math.round(sx[i] + nx * standoff), Math.round(sy[i] + ny * standoff));
         }
       }
     };
@@ -21938,9 +21983,9 @@ _.setdefault = function(obj, key, value){
       var default_value, glyph_value;
       this[attrname] = {};
       default_value = styleprovider.mget(attrname);
-      if (!(default_value != null)) {
+      if (_.isUndefined(default_value)) {
         this[attrname]["default"] = null;
-      } else if (_.isString(default_value) && ((svg_colors[default_value] != null) || default_value.substring(0, 1) === "#")) {
+      } else if (_.isString(default_value) && ((svg_colors[default_value] != null) || default_value.substring(0, 1) === "#") || _.isNull(default_value)) {
         this[attrname]["default"] = default_value;
       } else {
         console.log(("color property '" + attrname + "' given invalid default value: ") + default_value);
@@ -22125,7 +22170,14 @@ _.setdefault = function(obj, key, value){
       this["enum"](styleprovider, glyphspec, this.line_cap_name, "butt round square");
       this.array(styleprovider, glyphspec, this.line_dash_name);
       this.number(styleprovider, glyphspec, this.line_dash_offset_name);
-      this.do_stroke = !_.isNull(this[this.line_color_name].value);
+      this.do_stroke = true;
+      if (!_.isUndefined(this[this.line_color_name].value)) {
+        if (_.isNull(this[this.line_color_name].value)) {
+          this.do_stroke = false;
+        }
+      } else if (_.isNull(this[this.line_color_name]["default"])) {
+        this.do_stroke = false;
+      }
     }
 
     line_properties.prototype.set = function(ctx, obj) {
@@ -22154,7 +22206,14 @@ _.setdefault = function(obj, key, value){
       this.fill_alpha_name = "" + prefix + "fill_alpha";
       this.color(styleprovider, glyphspec, this.fill_color_name);
       this.number(styleprovider, glyphspec, this.fill_alpha_name);
-      this.do_fill = !_.isNull(this[this.fill_color_name].value);
+      this.do_fill = true;
+      if (!_.isUndefined(this[this.fill_color_name].value)) {
+        if (_.isNull(this[this.fill_color_name].value)) {
+          this.do_fill = false;
+        }
+      } else if (_.isNull(this[this.fill_color_name]["default"])) {
+        this.do_fill = false;
+      }
     }
 
     fill_properties.prototype.set = function(ctx, obj) {

@@ -62,7 +62,7 @@ try:
     sess.use_doc("glyph2")
 except requests.exceptions.ConnectionError as e:
     print e
-    print "\nThis example requires the plot server.  Please make sure plot server is running, via 'python runserver.py' in the bokeh root directory.\n"
+    print "\nThis example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'\n"
     sys.exit()
 
 sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)

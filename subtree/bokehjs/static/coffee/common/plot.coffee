@@ -123,6 +123,8 @@ class PlotView extends ContinuumView
       requested_border_right: 0
     })
 
+    @hidpi = options.hidpi ? @mget('hidpi')
+
     @x_range = options.x_range ? @mget_obj('x_range')
     @y_range = options.y_range ? @mget_obj('y_range')
 
@@ -256,18 +258,38 @@ class PlotView extends ContinuumView
 
 
   render_canvas: (full_render=true) ->
-    oh = @view_state.get('outer_height')
+    @ctx = @canvas[0].getContext('2d')
+
+    if @hidpi
+      devicePixelRatio = window.devicePixelRatio || 1
+      backingStoreRatio = @ctx.webkitBackingStorePixelRatio ||
+                          @ctx.mozBackingStorePixelRatio ||
+                          @ctx.msBackingStorePixelRatio ||
+                          @ctx.oBackingStorePixelRatio ||
+                          @ctx.backingStorePixelRatio || 1
+      ratio = devicePixelRatio / backingStoreRatio
+    else
+      ratio = 1
+
     ow = @view_state.get('outer_width')
+    oh = @view_state.get('outer_height')
+
+    @canvas.width = ow * ratio;
+    @canvas.height = oh * ratio;
 
     @button_bar.attr('style', "width:#{ow}px;")
     @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
-    @canvas.attr('width', ow).attr('height', oh)
+    @canvas.attr('style', "width:#{ow}px;")
+    @canvas.attr('style', "height:#{oh}px;")
+    @canvas.attr('width', ow*ratio).attr('height', oh*ratio)
     @$el.attr("width", ow).attr('height', oh)
 
-    @ctx = @canvas[0].getContext('2d')
+    @ctx.scale(ratio, ratio);
     @ctx.translate(0.5, 0.5);
+
     if full_render
       @render()
+
 
   save_png: () ->
     @render()
@@ -412,6 +434,7 @@ _.extend(Plot::defaults , {
 Plot::display_defaults = _.clone(Plot::display_defaults)
 _.extend(Plot::display_defaults
   ,
+    hidpi: true,
     background_fill: "#fff",
     border_fill: "#eee",
     border_symmetry: "h",
