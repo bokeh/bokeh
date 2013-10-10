@@ -82,8 +82,9 @@ class SegmentView extends GlyphView
     ctx.beginPath()
     ctx.moveTo(x1, (y1 + y2) /2)
     ctx.lineTo(x2, (y1 + y2) /2)
-    ctx.stroke()
-    ctx.beginPath()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
     ctx.restore()
 
 

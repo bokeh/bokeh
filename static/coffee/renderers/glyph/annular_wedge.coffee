@@ -211,10 +211,12 @@ class AnnularWedgeView extends GlyphView
     ctx.arc(0, 0, inner_radius, 0, -angle, not direction)
     ctx.closePath()
 
-    fill_props.set(ctx, glyph_settings)
-    ctx.fill()
-    line_props.set(ctx, glyph_settings)
-    ctx.stroke()
+    if fill_props.do_fill
+      fill_props.set(ctx, glyph_settings)
+      ctx.fill()
+    if line_props.do_stroke
+      line_props.set(ctx, glyph_settings)
+      ctx.stroke()
 
     ctx.restore()
   ##duped
