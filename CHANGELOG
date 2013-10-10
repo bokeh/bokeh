@@ -1,30 +1,30 @@
 
-0.2 (2013-10-11)
-----------------
+2013-10-11      0.2:
+--------------------
+  * improve examples and documentation
+  * expose sample data through bokeh.sampledata
+  * implement more bokehjs primitive glyphs (patches, multiline)
+  * add static HTML embed capability
+  * add versioneer
+  * enhancements:
+    - Update bokeh.sampledata.download to take an alternate download directory
+    - Add datetime axis from bokehj
+    - Use request animation frame where possible
+    - Make colors representable by DataSpecs.
+  * bugixes:
+    - colorspec on Grid and Axis objects not serialized
+    - Cannot find redis.conf
+    - None does not pass as null to bokehjs
+    - The last plot in a page full of plots behaves weird when the Zoom tool
+      button is depressed
+    - legend rendering bug in plotting/file/legend.py
 
-- enhancements
- * Update bokeh.sampledata.download to take an alternate download directory
- * Add datetime axis from bokehj
- * Use request animation frame where possible
- * Make colors representable by DataSpecs.
 
-
-- bugixes
- * colorspec on Grid and Axis objects not serialized
- * Cannot find redis.conf
- * None does not pass as null to bokehjs
- * The last plot in a page full of plots behaves weird when the Zoom tool
-   button is depressed
- * legend rendering bug in plotting/file/legend.py
-
-
-0.1.1 (2013-09-05)
-------------------
-
+2013-09-05    0.1.1:
+--------------------
 - improve error messages on server examples
 
 
-0.1 (2013-09-03)
-----------------
-
+2013-09-03      0.1:
+--------------------
 - initial release
