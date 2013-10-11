@@ -83,3 +83,5 @@ Thumbs.db
 webplot.py
 redis.db
 bokehpids.json
+
+/.idea/
