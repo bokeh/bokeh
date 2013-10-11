@@ -2,13 +2,19 @@
 from bokeh.sampledata.iris import flowers
 from bokeh.plotting import *
 
-output_file("iris.html", title="iris.py example")
+def iris():
+    output_file("iris.html", title="iris.py example")
 
-colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
+    colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 
-flowers['color'] = flowers['species'].map(lambda x: colormap[x])
+    flowers['color'] = flowers['species'].map(lambda x: colormap[x])
 
-scatter(flowers["petal_length"], flowers["petal_width"], color=flowers["color"], fill_alpha=0.2, radius=5)
+    scatter(flowers["petal_length"], flowers["petal_width"], 
+            color=flowers["color"], fill_alpha=0.2, radius=5)
 
-# open a browser
-show()
+    return curplot()
+
+if __name__ == "__main__":
+    iris()
+    # open a browser
+    show()

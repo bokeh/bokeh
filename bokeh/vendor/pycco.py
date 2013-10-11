@@ -465,7 +465,8 @@ def template(source):
     return lambda context: pystache.render(source, context)
 
 # Create the template that we will use to generate the Pycco HTML page.
-pycco_template = template(pycco_resources.html)
+#pycco_template = template(pycco_resources.html)
+pycco_template = template(pycco_resources.func)
 
 # The CSS styles we'd like to apply to the documentation.
 pycco_styles = pycco_resources.css
