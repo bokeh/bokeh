@@ -9,7 +9,7 @@ def candlestick():
 
     hold()
     
-    df = pd.DataFrame(MSFT)
+    df = pd.DataFrame(MSFT)[:50]
     df['date'] = pd.to_datetime(df['date'])
 
     dates = df.date.astype(int)
@@ -39,4 +39,3 @@ if __name__ == "__main__":
     candlestick()
     # open a browser
     show()
-

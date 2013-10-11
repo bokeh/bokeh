@@ -428,7 +428,7 @@ class GlyphFunction(object):
 
             if isinstance(val, dict) or isinstance(val, Number):
                 glyph_val = val
-            elif isinstance(dataspecs.get(var, None), ColorSpec) and ColorSpec.isconst(val):
+            elif isinstance(dataspecs.get(var, None), ColorSpec) and (ColorSpec.isconst(val) or val is None):
                 # This check for color constants needs to happen relatively early on because
                 # both strings and certain iterables are valid colors.
                 glyph_val = val
@@ -715,7 +715,7 @@ def scatter(*args, **kwargs):
     """
     session_objs = []   # The list of objects that need to be added
 
-    ds = kwargs.pop("source", None)
+    ds = kwargs.get("source", None)
     names, datasource = _handle_1d_data_args(args, datasource=ds)
     if datasource != ds:
         session_objs.append(datasource)

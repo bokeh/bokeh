@@ -47,5 +47,7 @@ def make_gallery(functions):
 
 if __name__ == "__main__":
     from plotting.file import iris, candlestick, correlation
-    make_gallery([iris.iris, candlestick.candlestick, correlation.correlation])
+    make_gallery([iris.iris, candlestick.candlestick, correlation.correlation,
+                  
+])
 
