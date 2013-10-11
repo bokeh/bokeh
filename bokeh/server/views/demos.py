@@ -96,7 +96,8 @@ def make_plot2():
 
 if __name__ == "__main__":
     for func_name, func in doc_funcs.items():
-        f_name = _basedir +  "../static/demos/" + func_name + ".html"
+        f_name = os.path.join(
+            _basedir,  "../static/demos/",  func_name + ".html")
         with open(f_name, "w") as f:
             f.write(func())
 
