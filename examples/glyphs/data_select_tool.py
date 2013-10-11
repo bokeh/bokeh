@@ -5,20 +5,26 @@ from bokeh.plotting import *
 import bokeh.plotting as plotting
 from bokeh.objects import (ColumnDataSource, DataRangeBoxSelectionTool,
                            BoxSelectionOverlay)
+
 x = np.linspace(-7, 7, 100)
 y = np.sin(x)
 
 # Go to http://localhost:5006/bokeh to view this plot
 output_server("data select example")
-hold(True)
+
 source = ColumnDataSource()
 source.add(x, name='x')
 source.add(y, name='y')
 source.add(2*y, name='2y')
 source.add(3*y, name='3y')
+
+hold()
 scatter('x','y', source=source, tools="pan,zoom,resize")
 scatter('x','2y', source=source, tools="pan,zoom,resize")
-plot = scatter('x','3y', source=source, color="green", tools="pan,zoom,resize")
+scatter('x','3y', source=source, color="green", tools="pan,zoom,resize")
+
+plot = curplot()
+
 tool = DataRangeBoxSelectionTool(plot=plot)
 overlay = BoxSelectionOverlay(tool=tool)
 plot.renderers.append(overlay)
@@ -34,8 +40,8 @@ tool.on_change("yselect", plot, "dummy")
 
 sess.store_all()
 sess.store_all_callbacks()
-#execute this yourself, you should see the dummy callback fire if anything 
-#has changed
+
+#execute this yourself, you should see the dummy callback fire if anything has changed
 sess.load_obj(sess.get_ref(tool))
 
 

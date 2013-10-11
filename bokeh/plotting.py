@@ -713,7 +713,7 @@ def scatter(*args, **kwargs):
     """
     session_objs = []   # The list of objects that need to be added
 
-    ds = kwargs.pop("source", None)
+    ds = kwargs.get("source", None)
     names, datasource = _handle_1d_data_args(args, datasource=ds)
     if datasource != ds:
         session_objs.append(datasource)
