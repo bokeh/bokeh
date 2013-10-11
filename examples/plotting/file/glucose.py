@@ -44,9 +44,9 @@ def glucose():
     p3 = curplot()
     figure()
     gridplot([
-        #[p1],
-        #[p2], 
-        #[p3]
+        [p1],
+        [p2], 
+        [p3]
     ], name="glucose")
     return curplot()
 
