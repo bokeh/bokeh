@@ -15,7 +15,7 @@ from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataSource, ColumnsRef, DataRange1d,
         Plot, GlyphRenderer, LinearAxis, Grid, PanTool, ZoomTool,
         PreviewSaveTool, ResizeTool, SelectionTool, BoxSelectionOverlay,
-        Legend)
+        GridPlot, Legend)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
 from . import glyphs
@@ -740,6 +740,10 @@ def scatter(*args, **kwargs):
             GlyphFunction(glyphclass, ("x", "y"))(*args, **kwargs)
     return
 
+@visual
+def gridplot(plot_arrangemnt):
+    grid = GridPlot(children=plot_arrangemnt)
+    return grid, [grid]
 
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,

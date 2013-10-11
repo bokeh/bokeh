@@ -305,6 +305,28 @@ class PlotObject(HasProps):
                 getattr(callback['obj'], callback['callbackname'])(
                     self, attrname, old, new)
 
+    def script_inject(self):
+        return script_inject(
+            self._session,
+            self._id,
+            self.__view_model__)
+
+    def script_direct_inject(
+            self, output_path="", static_path="http://localhost:5006/bokeh/static/"):
+
+        embed_filename = "%s.embed.js" % self._id
+        embed_save_loc = os.path.join(output_path, embed_filename)
+        self._session.save_embed_js(embed_save_loc, self._id, static_path)
+        return script_direct_inject(
+            self._id, self.__view_model__, embed_filename)
+
+    def script_inject_escaped(self):
+        return script_inject(
+            self._session,
+            self._id,
+            self.__view_model__)
+
+
 class DataSource(PlotObject):
     """ Base class for data sources """
     # List of names of the fields of each tuple in self.data
@@ -575,28 +597,6 @@ class Plot(PlotObject):
     min_border_left = Int(50)
     min_border_right = Int(50)
     min_border = Int(50)
-
-    def script_inject(self):
-        return script_inject(
-            self._session,
-            self._id,
-            self.__view_model__)
-
-    def script_direct_inject(
-            self, output_path="", static_path="http://localhost:5006/bokeh/static/"):
-
-        embed_filename = "%s.embed.js" % self._id
-        embed_save_loc = os.path.join(output_path, embed_filename)
-        self._session.save_embed_js(embed_save_loc, self._id, static_path)
-        return script_direct_inject(
-            self._id, self.__view_model__, embed_filename)
-
-    def script_inject_escaped(self):
-        return script_inject(
-            self._session,
-            self._id,
-            self.__view_model__)
-
     def vm_props(self, *args, **kw):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
