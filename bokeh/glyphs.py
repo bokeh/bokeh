@@ -53,6 +53,7 @@ class Marker(Glyph, FillProps, LineProps):
 
     x = DataSpec
     y = DataSpec
+    size = DataSpec(units="screen", default=4)
 
     #fill_pattern = Pattern
     #shape = Enum("circle", "dot", "square", "tri", "diamond", "x", "+", "char")
@@ -66,7 +67,6 @@ class Circle(Marker):
 # Other kinds of Markers, to match what GGplot provides
 class Square(Marker):
     __view_model__ = "square"
-    size = DataSpec(units="screen", default=4)
     angle = DataSpec
 
 class Triangle(Marker):
