@@ -348,98 +348,6 @@ def visual(func):
     return wrapper
 
 
-marker_types = {
-        "circle": glyphs.Circle,
-        "square": glyphs.Square,
-        "triangle": glyphs.Triangle,
-        "cross": glyphs.Cross,
-        "xmarker": glyphs.Xmarker,
-        "diamond": glyphs.Diamond,
-        "invtriangle": glyphs.InvertedTriangle,
-        "squarex": glyphs.SquareX,
-        "circlex": glyphs.CircleX,
-        "asterisk": glyphs.Asterisk,
-        "diamondcross": glyphs.DiamondCross,
-        "circlecross": glyphs.CircleCross,
-        "squarecross": glyphs.SquareCross,
-        "hexstar": glyphs.HexStar,
-        "+": glyphs.Cross,
-        "*": glyphs.Asterisk,
-        "x": glyphs.Xmarker,
-        "o": glyphs.Circle,
-        }
-
-def markers():
-    """ Prints a list of valid marker types for scatter()
-    """
-    print sorted(marker_types.keys())
-
-
-color_fields = set(["color", "fill_color", "line_color"])
-def scatter(*args, **kwargs):
-    """ Creates a scatter plot of the given x & y items
-
-    Parameters
-    ----------
-    *data : The data to plot.  Can be of several forms:
-        (X, Y1, Y2, ...)
-            A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
-        [[x1,y1], [x2,y2], .... ]
-            An iterable of tuples
-        NDarray (NxM)
-            The first column is treated as the X, and all other M-1 columns
-            are treated as separate Y series
-        [y1, y2, ... yN]
-            A list/tuple of scalar values; will be treated as Y values and
-            a synthetic X array of integers will be generated.
-
-    Style Parameters (specified by keyword)
-    ---------------------------------------
-    type : a valid marker_type; defaults to "circle"
-    fill_color : color
-    fill_alpha : 0.0 - 1.0
-    line_color : color
-    line_width : int >= 1
-    line_alpha : 0.0 - 1.0
-    line_cap : "butt", "join", "miter"
-
-    Colors can be either one of:
-       the 147 named SVG colors
-       a string representing a Hex color (e.g. "#FF32D0")
-       a 3-tuple of integers between 0 and 255
-       a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
-
-    Examples
-    --------
-        scatter([1,2,3,4,5,6])
-        scatter([1,2,3],[4,5,6], fill_color="red")
-        scatter(x_array, y_array, type="circle")
-        scatter("data1", "data2", source=data_source, ...)
-
-    """
-    session_objs = []   # The list of objects that need to be added
-
-    ds = kwargs.pop("source", None)
-    names, datasource = _handle_1d_data_args(args, datasource=ds)
-    if datasource != ds:
-        session_objs.append(datasource)
-
-    # If hold is on, then we will reuse the ranges of the current plot
-    #plot = get_plot(kwargs)
-    markertype = kwargs.get("type", "circle")
-    x_name = names[0]
-
-    if not len(color_fields.intersection(set(kwargs.keys()))):
-        kwargs['color'] = get_default_color(plot)
-
-    for yname in names[1:]:
-        if markertype not in marker_types:
-            raise RuntimeError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
-        # TODO: Look up correct glyph function, then call it
-
-    return plot
-
-
 class GlyphFunction(object):
     """ Wraps a Glyph so that it can be created as a plot.
 
@@ -670,7 +578,7 @@ class GlyphFunction(object):
         return select_tool
 
 
-def get_default_color(plot):
+def get_default_color(plot=None):
     colors = [
       "#1f77b4",
       "#ff7f0e", "#ffbb78",
@@ -683,16 +591,13 @@ def get_default_color(plot):
       "#bcbd22", "#dbdb8d",
       "#17becf", "#9edae5"
     ]
-    renderers = plot.renderers
-    renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
-    num_renderers = len(renderers)
-    return colors[num_renderers]
-
-
-# TODO: Unify these under one thing for all Marker glyphs and add other markers
-square = GlyphFunction(glyphs.Square, ("x", "y"))
-circle = GlyphFunction(glyphs.Circle, ("x", "y"))
-
+    if plot:
+        renderers = plot.renderers
+        renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
+        num_renderers = len(renderers)
+        return colors[num_renderers]
+    else:
+        return colors[0]
 
 line = GlyphFunction(glyphs.Line, ("x", "y"))
 
@@ -729,6 +634,109 @@ segment = GlyphFunction(glyphs.Segment, ("x0", "y0", "x1", "y1"),
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
 wedge = GlyphFunction(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"))
+
+
+marker_types = {
+        "circle": glyphs.Circle,
+        "square": glyphs.Square,
+        #"triangle": glyphs.Triangle,
+        #"cross": glyphs.Cross,
+        #"xmarker": glyphs.Xmarker,
+        #"diamond": glyphs.Diamond,
+        #"invtriangle": glyphs.InvertedTriangle,
+        #"squarex": glyphs.SquareX,
+        #"circlex": glyphs.CircleX,
+        #"asterisk": glyphs.Asterisk,
+        #"diamondcross": glyphs.DiamondCross,
+        #"circlecross": glyphs.CircleCross,
+        #"squarecross": glyphs.SquareCross,
+        #"hexstar": glyphs.HexStar,
+        #"+": glyphs.Cross,
+        #"*": glyphs.Asterisk,
+        #"x": glyphs.Xmarker,
+        #"o": glyphs.Circle,
+        }
+
+def markers():
+    """ Prints a list of valid marker types for scatter()
+    """
+    print sorted(marker_types.keys())
+
+
+for _marker_name, _glyph_class in marker_types.items():
+    if len(_marker_name) == 1:
+        continue
+    _func = GlyphFunction(_glyph_class, ("x", "y"))
+    exec "%s = _func" % _marker_name
+
+color_fields = set(["color", "fill_color", "line_color"])
+def scatter(*args, **kwargs):
+    """ Creates a scatter plot of the given x & y items
+
+    Parameters
+    ----------
+    *data : The data to plot.  Can be of several forms:
+        (X, Y1, Y2, ...)
+            A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
+        [[x1,y1], [x2,y2], .... ]
+            An iterable of tuples
+        NDarray (NxM)
+            The first column is treated as the X, and all other M-1 columns
+            are treated as separate Y series
+        [y1, y2, ... yN]
+            A list/tuple of scalar values; will be treated as Y values and
+            a synthetic X array of integers will be generated.
+
+    Style Parameters (specified by keyword)
+    ---------------------------------------
+    type : a valid marker_type; defaults to "circle"
+    fill_color : color
+    fill_alpha : 0.0 - 1.0
+    line_color : color
+    line_width : int >= 1
+    line_alpha : 0.0 - 1.0
+    line_cap : "butt", "join", "miter"
+
+    Colors can be either one of:
+       the 147 named SVG colors
+       a string representing a Hex color (e.g. "#FF32D0")
+       a 3-tuple of integers between 0 and 255
+       a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
+
+    Examples
+    --------
+        scatter([1,2,3,4,5,6])
+        scatter([1,2,3],[4,5,6], fill_color="red")
+        scatter(x_array, y_array, type="circle")
+        scatter("data1", "data2", source=data_source, ...)
+
+    """
+    session_objs = []   # The list of objects that need to be added
+
+    ds = kwargs.pop("source", None)
+    names, datasource = _handle_1d_data_args(args, datasource=ds)
+    if datasource != ds:
+        session_objs.append(datasource)
+
+    # If hold is on, then we will reuse the ranges of the current plot
+    #plot = get_plot(kwargs)
+    markertype = kwargs.get("type", "circle")
+    x_name = names[0]
+
+    # TODO: How to handle this? Just call curplot()?
+    if not len(color_fields.intersection(set(kwargs.keys()))):
+        kwargs['color'] = get_default_color()
+
+    for yname in names[1:]:
+        if markertype not in marker_types:
+            raise RuntimeError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
+        # TODO: Look up correct glyph function, then call it
+        if markertype in locals():
+            locals()[markertype](*args, **kwargs)
+        else:
+            glyphclass = marker_types[markertype]
+            GlyphFunction(glyphclass, ("x", "y"))(*args, **kwargs)
+    return
 
 
 
