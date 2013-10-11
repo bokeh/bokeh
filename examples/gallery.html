@@ -1,0 +1,12 @@
+
+<style>
+  li { margin:10px 5px;}
+  li a {display:block}
+</style>
+<ul>
+  {% for pi in page_infos %}
+      <li><a href="{{pi.detail_page_url}}">{{pi.name}}</a>
+        {{pi.embed_snippet|safe}}
+      </li>
+  {% endfor %}
+</ul>

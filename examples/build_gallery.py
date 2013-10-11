@@ -28,7 +28,6 @@ def page_desc(prev_infos, f):
 
     return prev_infos
 
-    
 def _load_template(filename):
     import jinja2
     with open(os.path.join(_basedir, filename)) as f:
@@ -45,15 +44,18 @@ def make_gallery(functions):
         print " writing to ", fname
         with open(fname, "w") as f:
             f.write(t.render(info))
+    with open(os.path.join(demo_dir, "gallery.html"), "w") as f:
+        f.write(
+            _load_template("gallery.html").render(page_infos=page_infos))
 
 if __name__ == "__main__":
     from plotting.file import (
         iris, candlestick, correlation, legend,
         glucose, stocks, line, rect, glyphs, scatter)
     
-    make_gallery([
+    example_funcs = [
         iris.iris, candlestick.candlestick, correlation.correlation,
         legend.legend, glucose.glucose, stocks.stocks, line.line_example,
-        rect.rect_example, glyphs.glyphs, scatter.scatter_example
+        rect.rect_example, glyphs.glyphs, scatter.scatter_example]
 
-    ])
+    make_gallery(example_funcs)
