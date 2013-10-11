@@ -12085,6 +12085,7 @@ _.setdefault = function(obj, key, value){
     GridPlotView.prototype.initialize = function(options) {
       GridPlotView.__super__.initialize.call(this, _.defaults(options, this.default_options));
       this.viewstate = new GridViewState();
+      this.toolbar_height = 0;
       this.childviews = {};
       this.build_children();
       this.bind_bokeh_events();
@@ -12168,13 +12169,16 @@ _.setdefault = function(obj, key, value){
       var all_tool_classes, all_tools, tool_name_dict,
         _this = this;
       this.button_bar = $("<div class='grid_button_bar'/>");
-      this.button_bar.attr('style', "position:absolute; left:10px; top:0px; ");
+      this.button_bar.attr('style', "position:absolute; left:10px; top:5px; ");
       this.toolEventSink = _.extend({}, Backbone.Events);
       this.atm = new ActiveToolManager(this.toolEventSink);
       this.atm.bind_bokeh_events();
       this.$el.append(this.button_bar);
       all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values));
       all_tool_classes = _.uniq(_.pluck(all_tools, 'constructor'));
+      if (all_tool_classes.length > 0) {
+        this.toolbar_height = 20;
+      }
       tool_name_dict = {};
       _.each(all_tool_classes, function(klass) {
         var btext;
@@ -12202,6 +12206,7 @@ _.setdefault = function(obj, key, value){
         view.$el.detach();
       }
       this.$el.html('');
+      this.addGridToolbar();
       row_heights = this.viewstate.get('layout_heights');
       col_widths = this.viewstate.get('layout_widths');
       y_coords = [0];
@@ -12227,7 +12232,7 @@ _.setdefault = function(obj, key, value){
         for (cidx = _k = 0, _len2 = row.length; _k < _len2; cidx = ++_k) {
           plotspec = row[cidx];
           view = this.childviews[plotspec.id];
-          ypos = this.viewstate.position_child_y(y_coords[ridx], view.view_state.get('outer_height'));
+          ypos = this.viewstate.position_child_y(y_coords[ridx], view.view_state.get('outer_height') - this.toolbar_height);
           xpos = this.viewstate.position_child_x(x_coords[cidx], view.view_state.get('outer_width'));
           plot_wrapper = $("<div class='gp_plotwrapper'></div>");
           plot_wrapper.attr('style', "position: absolute; left:" + xpos + "px; top:" + ypos + "px");
@@ -12237,8 +12242,7 @@ _.setdefault = function(obj, key, value){
       }
       height = this.viewstate.get('outerheight');
       width = this.viewstate.get('outerwidth');
-      this.$el.attr('style', "height:" + height + "px;width:" + width + "px");
-      this.addGridToolbar();
+      this.$el.attr('style', "position:relative; height:" + height + "px;width:" + width + "px");
       return this.render_end();
     };
 
