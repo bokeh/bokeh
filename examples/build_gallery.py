@@ -54,8 +54,10 @@ if __name__ == "__main__":
         glucose, stocks, line, rect, glyphs, scatter)
     
     example_funcs = [
-        iris.iris, candlestick.candlestick, correlation.correlation,
-        legend.legend, glucose.glucose, stocks.stocks, line.line_example,
-        rect.rect_example, glyphs.glyphs, scatter.scatter_example]
+        iris.iris, candlestick.candlestick, legend.legend, 
+        correlation.correlation,
+        glucose.glucose, stocks.stocks, 
+        line.line_example, rect.rect_example, glyphs.glyphs, scatter.scatter_example
+    ]
 
     make_gallery(example_funcs)
