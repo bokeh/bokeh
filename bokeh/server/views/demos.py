@@ -33,8 +33,6 @@ def add():
     return str(2+3)
 
 
-
-
 @doc_dec
 def make_plot2():
 
@@ -74,6 +72,8 @@ def make_plot2():
 
     plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
                 border= 80)
+    #by setting our own name 
+    plot._id = "make_plot"
     xaxis = LinearAxis(plot=plot, dimension=0)
     yaxis = LinearAxis(plot=plot, dimension=1)
 

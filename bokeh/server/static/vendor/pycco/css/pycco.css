@@ -30,7 +30,8 @@ h2, h3, h4, h5, h6 {
 }
 #background {
   position: absolute;
-  top: 0; left: 580px; right: 0; bottom: 0;
+  /*top: 0; left: 580px; right: 0; bottom: 0; */
+  top: 0; left: 50%; right: 0; bottom: 0;
   background: #f5f5ff;
   border-left: 1px solid #e5e5ee;
   z-index: 0;
@@ -123,7 +124,10 @@ div.code {
     }
 
 div.output {
-  margin-left: 580px;
+  position:absolute;
+  top:0;
+  left:51%;
+  m argin-left: 580px;
   pa dding: 14px 15px 16px 50px;
   vertical-align: top;
 }
