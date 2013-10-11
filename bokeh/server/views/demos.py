@@ -99,5 +99,6 @@ if __name__ == "__main__":
         f_name = os.path.join(
             _basedir,  "../static/demos/",  func_name + ".html")
         with open(f_name, "w") as f:
+            print "writing ", f_name
             f.write(func())
 

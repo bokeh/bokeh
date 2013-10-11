@@ -49,7 +49,7 @@ def generate_documentation(source, outdir=None, preserve_paths=True,
     highlight(source, sections, language, preserve_paths=preserve_paths, outdir=outdir)
     return generate_html(source, sections, preserve_paths=preserve_paths, outdir=outdir)
 
-def generate_func_docs(func, func_output=False,
+def generate_func_docs(func, func_output=False, remove_decorator=True,
                        outdir=None, preserve_paths=True, language=None):
     """
     Generate the documentation for a source file by reading it in, splitting it
@@ -60,7 +60,8 @@ def generate_func_docs(func, func_output=False,
 
     source = func.__name__
     code = inspect.getsource(func)
-    
+    if remove_decorator:
+        code = re.sub('^@.*\\n', '', code)
     language = languages[".py"]
     sections = parse(source, code, language)
     if func_output:
