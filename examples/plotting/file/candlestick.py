@@ -21,7 +21,8 @@ def candlestick():
     w = (dates[1]-dates[0])*0.7
 
     segment(dates, df.high, dates, df.low, 
-            color='#000000', tools="pan,zoom,resize", width=1000)
+            color='#000000', tools="pan,zoom,resize", width=1000,
+            name="candlestick")
     rect(dates[inc], mids[inc], 5, spans[inc], 
          fill_color="#D5E1DD", line_color="#000000" )
     rect(dates[dec], mids[dec], 5, spans[dec], 

@@ -46,5 +46,6 @@ def make_gallery(functions):
             f.write(t.render(info))
 
 if __name__ == "__main__":
-    from plotting.file import iris, candlestick
-    make_gallery([iris.iris, candlestick.candlestick])
+    from plotting.file import iris, candlestick, correlation
+    make_gallery([iris.iris, candlestick.candlestick, correlation.correlation])
+
