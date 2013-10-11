@@ -52,6 +52,9 @@ for dirname, _, files in os.walk('bokeh/templates', followlinks=True):
         package_data_dirs.append(os.path.join(dirname, f))
 package_data_dirs.append('server/redis.conf')
 
+package_data_dirs.append('sampledata/iris.csv')
+package_data_dirs.append('sampledata/US Regions State Boundaries.csv.gz')
+
 scripts = []
 if sys.platform != 'win32':
     scripts.append('bokeh-server')
@@ -62,7 +65,8 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     packages = ['bokeh', 'bokeh.chaco_gg', 'bokeh.server',
                 'bokeh.server.models', 'bokeh.server.views',
-                'bokeh.server.test', 'bokeh.specialmodels'],
+                'bokeh.server.test', 'bokeh.specialmodels',
+                'bokeh.sampledata'],
     package_data = {'bokeh' : package_data_dirs},
     author = 'Continuum Analytics',
     author_email = 'info@continuum.io',
