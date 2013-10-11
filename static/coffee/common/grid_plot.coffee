@@ -16,6 +16,7 @@ class GridPlotView extends ContinuumView
   tagName: 'div'
   className: "grid_plot"
   default_options: {scale:1.0}
+
   set_child_view_states: () ->
     viewstates = []
     for row in @mget('children')
@@ -26,6 +27,7 @@ class GridPlotView extends ContinuumView
   initialize: (options) ->
     super(_.defaults(options, @default_options))
     @viewstate = new GridViewState();
+    @toolbar_height = 0 # if there are any buttons, this will be set in add toolbar
     @childviews = {}
     @build_children()
     @bind_bokeh_events()
@@ -56,7 +58,7 @@ class GridPlotView extends ContinuumView
     @set_child_view_states()
 
   makeButton : (eventSink, constructor, toolbar_div, button_name) ->
-    
+
     all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
     specific_tools = _.where(all_tools, {constructor:constructor})
     button = $("<button class='btn btn-small'>#{button_name}</button>")
@@ -90,13 +92,15 @@ class GridPlotView extends ContinuumView
   addGridToolbar : ->
 
     @button_bar = $("<div class='grid_button_bar'/>")
-    @button_bar.attr('style',     "position:absolute; left:10px; top:0px; ")
+    @button_bar.attr('style',     "position:absolute; left:10px; top:5px; ")
     @toolEventSink = _.extend({}, Backbone.Events)
     @atm = new ActiveToolManager(@toolEventSink)
     @atm.bind_bokeh_events()
     @$el.append(@button_bar)
     all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
     all_tool_classes = _.uniq(_.pluck(all_tools, 'constructor'))
+    if all_tool_classes.length > 0
+      @toolbar_height = 20 # make room for the button bar
     tool_name_dict = {}
     _.each(all_tool_classes, (klass) ->
       btext = _.where(all_tools, {constructor:klass})[0].evgen_options.buttonText
@@ -114,6 +118,7 @@ class GridPlotView extends ContinuumView
     for view in _.values(@childviews)
       view.$el.detach()
     @$el.html('')
+    @addGridToolbar()
     row_heights =  @viewstate.get('layout_heights')
     col_widths =  @viewstate.get('layout_widths')
     
@@ -141,7 +146,9 @@ class GridPlotView extends ContinuumView
     for row, ridx in @mget('children')
       for plotspec, cidx in row
         view = @childviews[plotspec.id]
-        ypos = @viewstate.position_child_y(y_coords[ridx], view.view_state.get('outer_height'))
+        ypos = @viewstate.position_child_y(y_coords[ridx],
+          view.view_state.get('outer_height') - @toolbar_height)
+
         xpos = @viewstate.position_child_x(x_coords[cidx], view.view_state.get('outer_width'))
         plot_wrapper = $("<div class='gp_plotwrapper'></div>")
         plot_wrapper.attr(
@@ -152,8 +159,8 @@ class GridPlotView extends ContinuumView
 
     height = @viewstate.get('outerheight')
     width = @viewstate.get('outerwidth')
-    @$el.attr('style', "height:#{height}px;width:#{width}px")
-    @addGridToolbar()
+    @$el.attr('style', "position:relative; height:#{height}px;width:#{width}px")
+
 
     @render_end()
   
