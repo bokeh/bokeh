@@ -1,24 +1,22 @@
 from flask import (
     render_template, request,
-    send_from_directory, make_response, abort,
-    jsonify
-    )
-import flask
+    send_from_directory, abort,
+    jsonify)
+
+from ..app import app
 import os
 import logging
 import uuid
-import urlparse
 
-from ..app import app
 
-from .. import wsmanager
+from bbauth import check_read_authentication_and_create_client
+
+
 from ..models import user
 from ..models import docs
 from ..models import convenience as mconv
 from ... import protocol
 from ...exceptions import DataIntegrityException
-from bbauth import (check_read_authentication_and_create_client,
-                    check_write_authentication_and_create_client)
 from ..views import make_json
 from ..crossdomain import crossdomain
 from ..serverbb import RedisSession
@@ -328,3 +326,7 @@ def generate_embed(inject_type, include_js):
 def embed_js():
     return (render_template("embed.js", host=request.host), "200",
             {'Content-Type':'application/javascript'})
+
+
+
+

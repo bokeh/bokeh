@@ -321,7 +321,8 @@ class HTMLFileSession(BaseHTMLSession):
             elementid=elementid
             )
 
-        # jscode is the one I want
+        
+# jscode is the one I want
 
         html = self._load_template(self.html_template).render(
                     js_snippets = [jscode],
