@@ -75,4 +75,5 @@ setup(
     zip_safe=False,
     license = 'New BSD',
     scripts = scripts,
+    install_requires = ['markdown', 'pygments', 'pystache', 'smartypants']
 )
