@@ -157,7 +157,10 @@ class GridPlotView extends ContinuumView
         plot_wrapper.append(view.$el)
         @$el.append(plot_wrapper)
 
-    height = @viewstate.get('outerheight')
+    add = (a,b) -> a+b
+    total_height = _.reduce(row_heights, add, 0)
+    #height = @viewstate.get('outerheight', total_height)
+    height = total_height + @toolbar_height
     width = @viewstate.get('outerwidth')
     @$el.attr('style', "position:relative; height:#{height}px;width:#{width}px")
 
