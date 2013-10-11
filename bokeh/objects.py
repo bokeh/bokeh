@@ -722,6 +722,10 @@ class GridPlot(PlotObject):
 
     children = List(List)
     border_space = Int(0)
+    tools = []
+    x_range = []
+    y_range = []
+    renderers = []
 
 class GuideRenderer(PlotObject):
     plot = Instance

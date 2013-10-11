@@ -741,9 +741,11 @@ def scatter(*args, **kwargs):
     return
 
 @visual
-def gridplot(plot_arrangemnt):
+def gridplot(plot_arrangemnt, name=False):
     grid = GridPlot(children=plot_arrangemnt)
-    return grid, [grid]
+    if name:
+        grid._id = name
+    return grid, []
 
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
