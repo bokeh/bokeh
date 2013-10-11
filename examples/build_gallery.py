@@ -13,7 +13,8 @@ def page_desc(prev_infos, f):
     name_ = f.__name__
     #I need to make sure I know where to put this snippet, where I
     #want it written
-    embed_snippet = f().script_direct_inject(demo_dir)
+    plot = f()
+    embed_snippet = plot.script_direct_inject(demo_dir)
     page_info = dict(
         f=f, name=name_, embed_snippet=embed_snippet,
         detail_snippet = generate_func_docs(f, embed_snippet),
@@ -46,8 +47,9 @@ def make_gallery(functions):
             f.write(t.render(info))
 
 if __name__ == "__main__":
-    from plotting.file import iris, candlestick, correlation
-    make_gallery([iris.iris, candlestick.candlestick, correlation.correlation,
-                  
+    from plotting.file import iris, candlestick, correlation, legend
+    make_gallery([
+        iris.iris, candlestick.candlestick, correlation.correlation,
+        legend.legend
 ])
 

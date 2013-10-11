@@ -101,34 +101,38 @@ def plothelp():
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
 
-_config = {
-    # The current output mode.  Valid combinations:
-    #   type       | url
-    #   -----------+--------------
-    #   "file"     | output_file = filename
-    #   "server"   | output_url = server URL
-    #   "notebook" | output_url = (None, server_URL)
-    "output_type": None,
-    "output_url": None,
-    "output_file": None,
-    "plotserver_url": DEFAULT_SERVER_URL,
 
-    # Configuration options for "file" output mode
-    "autosave": False,
-    "file_js": "inline",
-    "file_css": "inline",
-    "file_rootdir": None,
+_config = {}
+def set_config():
+    global _config
+    _config = {
+        # The current output mode.  Valid combinations:
+        #   type       | url
+        #   -----------+--------------
+        #   "file"     | output_file = filename
+        #   "server"   | output_url = server URL
+        #   "notebook" | output_url = (None, server_URL)
+        "output_type": None,
+        "output_url": None,
+        "output_file": None,
+        "plotserver_url": DEFAULT_SERVER_URL,
 
-    # The currently active Session object
-    "session": None,
+        # Configuration options for "file" output mode
+        "autosave": False,
+        "file_js": "inline",
+        "file_css": "inline",
+        "file_rootdir": None,
 
-    # Current plot or "figure"
-    "curplot": None,
+        # The currently active Session object
+        "session": None,
 
-    # hold state
-    "hold": False,
-    }
+        # Current plot or "figure"
+        "curplot": None,
 
+        # hold state
+        "hold": False,
+        }
+set_config()
 
 def session():
     """ Get the current session.
@@ -211,7 +215,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
     """
-
+    set_config()
     if os.path.isfile(filename):
         print "Session output file '%s' already exists, will be overwritten." % filename
     session = HTMLFileSession(filename, title=title)
@@ -741,8 +745,10 @@ def scatter(*args, **kwargs):
     return
 
 @visual
-def gridplot(plot_arrangemnt):
+def gridplot(plot_arrangemnt, name=False):
     grid = GridPlot(children=plot_arrangemnt)
+    if name:
+        grid._id = name
     return grid, [grid]
 
 
