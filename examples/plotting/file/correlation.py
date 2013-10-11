@@ -37,7 +37,7 @@ def correlation():
     ygrid()[0].grid_line_dash=""
     ygrid()[0].grid_line_alpha=0.3
     p2 = curplot()
-    gridplot([[p1],[p2]])
+    gridplot([[p1],[p2]], name="correlation")
     # g = GridPlot(children=[[p1],[p2]])
     # g._id = "correlation"
     # session = p1.session
