@@ -9,7 +9,7 @@ output_server("candlestick.py example")
 
 hold()
 
-df = pd.DataFrame(MSFT)
+df = pd.DataFrame(MSFT)[:50]
 df['date'] = pd.to_datetime(df['date'])
 
 dates = df.date.astype(int)
@@ -21,8 +21,8 @@ dec = df.open > df.close
 w = (dates[1]-dates[0])*0.7
 
 segment(dates, df.high, dates, df.low, color='#000000', tools="pan,zoom,resize", width=1000)
-rect(dates[inc], mids[inc], 5, spans[inc], fill_color="#D5E1DD", line_color="#000000" )
-rect(dates[dec], mids[dec], 5, spans[dec], fill_color="#F2583E", line_color="#000000" )
+rect(dates[inc], mids[inc], w, spans[inc], fill_color="#D5E1DD", line_color="#000000" )
+rect(dates[dec], mids[dec], w, spans[dec], fill_color="#F2583E", line_color="#000000" )
 
 curplot().title = "MSFT Candlestick"
 xgrid()[0].grid_line_dash=""
