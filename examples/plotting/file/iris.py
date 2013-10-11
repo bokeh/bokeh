@@ -9,12 +9,16 @@ def iris():
 
     flowers['color'] = flowers['species'].map(lambda x: colormap[x])
 
-    scatter(flowers["petal_length"], flowers["petal_width"], 
-            color=flowers["color"], fill_alpha=0.2, radius=5)
 
+    #setting the name kwarg will give this scatter plot a user
+    #friendly id, and the corresponding embed.js will have a nice name
+    #too
+
+    scatter(flowers["petal_length"], flowers["petal_width"], 
+            color=flowers["color"], fill_alpha=0.2, radius=5, name="iris")
     return curplot()
 
 if __name__ == "__main__":
-    iris()
+    iris().script_direct_inject()
     # open a browser
     show()

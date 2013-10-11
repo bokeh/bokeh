@@ -496,6 +496,9 @@ class GlyphFunction(object):
 
         legend_name = kwargs.pop("legend", None)
         plot = self._get_plot(kwargs)
+        if 'name' in kwargs:
+            plot._id = kwargs['name']
+
         select_tool = self._get_select_tool(plot)
 
         # Process the glyph dataspec parameters
@@ -511,7 +514,6 @@ class GlyphFunction(object):
 
         kwargs.update(glyph_params)
         glyph = self.glyphclass(**kwargs)
-
         nonselection_glyph = glyph.clone()
         nonselection_glyph.fill_alpha = 0.1
         nonselection_glyph.line_alpha = 0.1
