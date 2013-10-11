@@ -21,7 +21,8 @@ def rect_example():
     )
 
     # angle
-    rect(x, y, 0.05, 0.1, color="#4444aa", angle=-np.pi/6, tools="pan,zoom,resize")
+    rect(x, y, 0.05, 0.1, color="#4444aa", angle=-np.pi/6, tools="pan,zoom,resize",
+        name="rect_example4")
     return curplot()
 
 if __name__ == "__main__":
