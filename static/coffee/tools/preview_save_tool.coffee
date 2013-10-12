@@ -1,6 +1,5 @@
 tool= require("./tool")
 ButtonEventGenerator = require("./eventgenerators").ButtonEventGenerator
-LinearMapper = require("../mappers/1d/linear_mapper").LinearMapper
 base = require("../base")
 
 class PreviewSaveToolView extends tool.ToolView
