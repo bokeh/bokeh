@@ -14,7 +14,7 @@ def page_desc(prev_infos, f):
     #I need to make sure I know where to put this snippet, where I
     #want it written
     plot = f()
-    embed_snippet = plot.script_direct_inject(demo_dir)
+    embed_snippet = plot.script_direct_inject(demo_dir, static_path="../")
     page_info = dict(
         f=f, name=name_, embed_snippet=embed_snippet,
         detail_snippet = generate_func_docs(f, embed_snippet),

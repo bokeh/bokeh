@@ -52,7 +52,7 @@ addDirectPlot = (docid, ws_conn_string, docapikey,
 
 injectCss = (host) ->
 
-  static_base = "http://#{host}/bokeh/static/vendor/bokehjs/"
+  static_base = "#{host}vendor/bokehjs/"
   css_urls = ["#{static_base}css/bokeh.css",
              "#{static_base}css/continuum.css",
             "#{static_base}vendor/bootstrap/css/bootstrap.css",

@@ -115,6 +115,12 @@ Static html dump based web plotting examples
  * In order to generate smaller HTML files that use relative links to the
    BokehJS sources and CSS, change the calls to `output_file()` and the
    keyword arguments `js="relative", css="relative"`.
+ * You can run the entire doc and gallery generation by running
+   examples/build_gallery.py.  This puts the gallery in
+   bokeh/server/static/demos.  View it in your web browser at
+   [Bokeh Gallery](http://localhost:5006/static/demos/gallery.html) or
+   as a file alone at
+   [Bokeh Gallery](bokeh/server/static/demos/gallery.html)
 
 Server Based Web Plotting Examples
 ==================================
