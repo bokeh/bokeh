@@ -1,12 +1,15 @@
-toolview = require("./toolview")
-ToolView = toolview.ToolView
+console.log('embed_tool')
+
+tool = require("./tool")
+
+
 ButtonEventGenerator = require("./eventgenerators").ButtonEventGenerator
 base = require("../base")
-safebind = base.safebind
+
 HasParent = base.HasParent
 
-  ###############################################################
-class EmbedToolView extends ToolView
+###############################################################
+class EmbedToolView extends tool.ToolView
   initialize: (options) ->
     super(options)
 
@@ -25,7 +28,7 @@ class EmbedToolView extends ToolView
     baseurl = @plot_model.get('baseurl')
     #note this is unused and will be removed in the next commit 
     js_template = """
- 
+
 &lt;script src="http://localhost:5006/bokeh/embed.js" bokeh_plottype="serverconn"
 bokeh_docid="#{doc_id}" bokeh_ws_conn_string="ws://localhost:5006/bokeh/sub"
 bokeh_docapikey="#{doc_apikey}"
@@ -56,19 +59,20 @@ bokeh_modelid="#{model_id}" bokeh_modeltype="Plot" async="true"&gt;
     )
     $('#embedModal').modal({show:true});
 
- class EmbedTool extends HasParent
+class EmbedTool extends HasParent
    type: "EmbedTool"
    default_view: EmbedToolView
 
- EmbedTool::defaults = _.clone(EmbedTool::defaults)
- _.extend(EmbedTool::defaults)
+EmbedTool::defaults = _.clone(EmbedTool::defaults)
+_.extend(EmbedTool::defaults)
 
 
- class EmbedTools extends Backbone.Collection
-   model: EmbedTool
+class EmbedTools extends Backbone.Collection
+  model: EmbedTool
 
 
 
 exports.EmbedToolView = EmbedToolView
 exports.embedtools = new EmbedTools
 
+console.log('end embed_tool') 
