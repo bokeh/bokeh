@@ -798,7 +798,6 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     ygrid = Grid(plot=p, dimension=1)
 
     tool_objs = []
-    print tools
     if "pan" in tools:
         tool_objs.append(PanTool(dataranges=[p.x_range, p.y_range], dimensions=["width","height"]))
     if "zoom" in tools:
@@ -816,7 +815,6 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         previewsave_tool = PreviewSaveTool(plot=p)
         tool_objs.append(previewsave_tool)
     if "embed" in tools:
-        print "inlcuding embed"
         embed_tool = EmbedTool(plot=p)
         tool_objs.append(embed_tool)
     p.tools.extend(tool_objs)
