@@ -9,7 +9,7 @@ def glucose():
 
     hold()
 
-    dates = data.index.astype('int')/1000000 # Pandas keeps nanoseconds, need microseconds
+    dates = data.index.astype('int64')/1000000 # Pandas keeps nanoseconds, need microseconds
 
     line(dates, data['glucose'],
          x_axis_type = "datetime",
@@ -25,13 +25,13 @@ def glucose():
     highs = day[day['glucose'] > 180]
     lows = day[day['glucose'] < 80]
 
-    line(day.index.astype('int')/1000000, day['glucose'],
+    line(day.index.astype('int64')/1000000, day['glucose'],
          x_axis_type = "datetime",
          line_color="gray", line_dash="4 4", line_width=2,
          legend="glucose", tools="pan,zoom,resize")
-    scatter(highs.index.astype('int')/1000000, highs['glucose'],
+    scatter(highs.index.astype('int64')/1000000, highs['glucose'],
             color='tomato', radius=4, legend="high")
-    scatter(lows.index.astype('int')/1000000, lows['glucose'],
+    scatter(lows.index.astype('int64')/1000000, lows['glucose'],
             color='navy', radius=4, legend="low")
 
     curplot().title = "Glucose Range"
@@ -47,7 +47,7 @@ def glucose():
     inrange = inrange.dropna()
     inrange = inrange/float(window)
 
-    line(inrange.index.astype('int')/1000000, inrange,
+    line(inrange.index.astype('int64')/1000000, inrange,
          x_axis_type = "datetime",
          line_color="navy", legend="in-range", tools="pan,zoom,resize")
 
