@@ -49,7 +49,8 @@ def glucose():
 
     line(inrange.index.astype('int64')/1000000, inrange,
          x_axis_type = "datetime",
-         line_color="navy", legend="in-range", tools="pan,zoom,resize")
+         line_color="navy", legend="in-range", tools="pan,zoom,resize",
+         name="glucose")
 
     curplot().title = "Glucose In-Range Rolling Sum"
 

@@ -35,7 +35,8 @@ def correlation():
     scatter(
         acme, choam,
         color='#A6CEE3', radius=3,
-        tools="pan,zoom,resize", legend='close'
+        tools="pan,zoom,resize", legend='close',
+        name="correlation"
     )
 
     curplot().title = "ACME / CHOAM Correlations"
