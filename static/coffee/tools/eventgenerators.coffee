@@ -256,7 +256,7 @@ class ButtonEventGenerator
 
     @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
 
-    #@plotview.$el.find('.button_bar').append(@$tool_button)
+    @plotview.$el.find('.button_bar').append(@$tool_button)
 
     @$tool_button.click(=>
       if @button_activated
