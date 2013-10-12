@@ -14,5 +14,6 @@ def line_example():
     return curplot()
 
 if __name__ == "__main__":
+    line_example()
     # open a browser
     show()
