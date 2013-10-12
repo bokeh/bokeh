@@ -23,9 +23,11 @@ def candlestick():
     segment(dates, df.high, dates, df.low, 
             color='#000000', tools="pan,zoom,resize", width=1000,
             name="candlestick")
-    rect(dates[inc], mids[inc], 5, spans[inc], 
+    rect(dates[inc], mids[inc], 5, spans[inc],
+         width_units = "screen",
          fill_color="#D5E1DD", line_color="#000000" )
-    rect(dates[dec], mids[dec], 5, spans[dec], 
+    rect(dates[dec], mids[dec], 5, spans[dec],
+         width_units = "screen",
          fill_color="#F2583E", line_color="#000000" )
 
     curplot().title = "MSFT Candlestick"
