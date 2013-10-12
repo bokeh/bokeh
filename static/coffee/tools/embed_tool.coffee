@@ -26,19 +26,7 @@ class EmbedToolView extends tool.ToolView
     doc_id = @plot_model.get('doc')
     doc_apikey = @plot_model.get('docapikey')
     baseurl = @plot_model.get('baseurl')
-    #note this is unused and will be removed in the next commit 
-    js_template = """
 
-&lt;script src="http://localhost:5006/bokeh/embed.js" bokeh_plottype="serverconn"
-bokeh_docid="#{doc_id}" bokeh_ws_conn_string="ws://localhost:5006/bokeh/sub"
-bokeh_docapikey="#{doc_apikey}"
-
-bokeh_root_url="#{baseurl}"
-bokeh_root_url="http://localhost:5006"
-bokeh_modelid="#{model_id}" bokeh_modeltype="Plot" async="true"&gt;
-&lt;/script&gt;
-
-    """ #FIXME: this quote hack makes my text editor happy"
     script_inject_escaped = @plot_model.get('script_inject_escaped')
     modal = """
       <div id="embedModal" class="modal" role="dialog" aria-labelledby="embedLabel" aria-hidden="true">
