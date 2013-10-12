@@ -12,6 +12,7 @@ hold()
 dates = data.index.astype('int')/1000000 # Pandas keeps nanoseconds, need microseconds
 
 line(dates, data['glucose'],
+     x_axis_type = "datetime",
      color='red', tools="pan,zoom,resize", legend='glucose')
 line(dates, data['isig'],
      color='blue', legend='isig')
@@ -25,6 +26,7 @@ highs = day[day['glucose'] > 180]
 lows = day[day['glucose'] < 80]
 
 line(day.index.astype('int')/1000000, day['glucose'],
+     x_axis_type = "datetime",
      line_color="gray", line_dash="4 4", line_width=2,
      legend="glucose", tools="pan,zoom,resize")
 scatter(highs.index.astype('int')/1000000, highs['glucose'],
@@ -46,7 +48,8 @@ inrange = inrange.dropna()
 inrange = inrange/float(window)
 
 line(inrange.index.astype('int')/1000000, inrange,
-         line_color="navy", legend="in-range", tools="pan,zoom,resize")
+     x_axis_type = "datetime",
+     line_color="navy", legend="in-range", tools="pan,zoom,resize")
 
 curplot().title = "Glucose In-Range Rolling Sum"
 
