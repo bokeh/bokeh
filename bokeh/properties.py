@@ -41,7 +41,7 @@ class BaseProperty(object):
     def __set__(self, obj, value):
         old = self.__get__(obj)
         obj._changed_vars.add(self.name)
-        if self.matches(value, old):
+        if ("_"+self.name in obj.__dict__) and self.matches(value, old):
             return
         setattr(obj, "_"+self.name, value)
         obj._dirty = True
