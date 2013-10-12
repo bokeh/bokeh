@@ -315,6 +315,11 @@ def visual(func):
         output_url = _config["output_url"]
         session = _config["session"]
 
+        if not session:
+            raise RuntimeError(
+                'No output mode active, call one of: { output_file(...), output_server(...), output_notebook(...) } before plotting'
+            )
+
         retvals = func(*args, **kw)
         if len(retvals) == 1:
             plot = retvals
