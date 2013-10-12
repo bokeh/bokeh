@@ -583,7 +583,7 @@ locations =
   DataRangeBoxSelectionTool:   ['./tools/select_tool',
     'datarangeboxselectiontools']
   PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools']
-  EmbedTool:       ['./tools/preview_save_tool', 'embedtools']
+  EmbedTool:       ['./tools/embed_tool', 'embedtools']
   BoxSelectionOverlay: ['./overlays/boxselectionoverlay',
     'boxselectionoverlays']
 

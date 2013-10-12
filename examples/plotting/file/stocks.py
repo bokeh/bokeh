@@ -44,9 +44,9 @@ def stocks():
 
     scatter(aapl_dates, aapl,
             x_axis_type = "datetime",
-            color='#A6CEE3', radius=1, tools="pan,zoom,resize", legend='close')
+            color='#A6CEE3', radius=1, tools="pan,zoom,resize,embed", legend='close')
     line(aapl_dates, aapl_avg,
-         color='red', tools="pan,zoom,resize,embed", legend='avg', name="stocks")
+         color='red', tools="pan,zoom,resize", legend='avg', name="stocks")
 
     curplot().title = "AAPL One-Month Average"
     xgrid()[0].grid_line_dash=""

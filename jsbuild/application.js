@@ -10979,7 +10979,7 @@ _.setdefault = function(obj, key, value){
     SelectionTool: ['./tools/select_tool', 'selectiontools'],
     DataRangeBoxSelectionTool: ['./tools/select_tool', 'datarangeboxselectiontools'],
     PreviewSaveTool: ['./tools/preview_save_tool', 'previewsavetools'],
-    EmbedTool: ['./tools/preview_save_tool', 'embedtools'],
+    EmbedTool: ['./tools/embed_tool', 'embedtools'],
     BoxSelectionOverlay: ['./overlays/boxselectionoverlay', 'boxselectionoverlays'],
     ObjectArrayDataSource: ['./common/datasource', 'objectarraydatasources'],
     ColumnDataSource: ['./common/datasource', 'columndatasources'],
@@ -22647,7 +22647,7 @@ _.setdefault = function(obj, key, value){
   };
 
   make_glyph_plot = function(data_source, defaults, glyphspecs, xrange, yrange, _arg) {
-    var axes, boxselectionoverlay, dims, ds, g, glyph, glyphs, glyphspec, idx, legend, legend_name, legend_renderer, legends, pantool, plot_model, plot_title, plot_tools, pstool, reference_point, resizetool, selecttool, tools, val, x, xaxis1, xaxis2, xgrid, yaxis1, yaxis2, ygrid, zoomtool, _i, _j, _k, _len, _len1, _len2, _ref;
+    var axes, boxselectionoverlay, dims, ds, embedtool, g, glyph, glyphs, glyphspec, idx, legend, legend_name, legend_renderer, legends, pantool, plot_model, plot_title, plot_tools, pstool, reference_point, resizetool, selecttool, tools, val, x, xaxis1, xaxis2, xgrid, yaxis1, yaxis2, ygrid, zoomtool, _i, _j, _k, _len, _len1, _len2, _ref;
     dims = _arg.dims, tools = _arg.tools, axes = _arg.axes, legend = _arg.legend, legend_name = _arg.legend_name, plot_title = _arg.plot_title, reference_point = _arg.reference_point;
     if (dims == null) {
       dims = [400, 400];
@@ -22782,7 +22782,8 @@ _.setdefault = function(obj, key, value){
       });
       resizetool = Collections('ResizeTool').create();
       pstool = Collections('PreviewSaveTool').create();
-      plot_tools = [pantool, zoomtool, pstool, resizetool, selecttool];
+      embedtool = Collections('EmbedTool').create();
+      plot_tools = [pantool, zoomtool, pstool, resizetool, selecttool, embedtool];
       plot_model.set_obj('tools', plot_tools);
       plot_model.add_renderers([boxselectionoverlay.ref()]);
     }
@@ -22922,19 +22923,17 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "tools/embed_tool": function(exports, require, module) {(function() {
-  var ButtonEventGenerator, EmbedTool, EmbedToolView, EmbedTools, HasParent, ToolView, base, safebind, toolview, _ref, _ref1, _ref2,
+  var ButtonEventGenerator, EmbedTool, EmbedToolView, EmbedTools, HasParent, base, tool, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  toolview = require("./toolview");
+  console.log('embed_tool');
 
-  ToolView = toolview.ToolView;
+  tool = require("./tool");
 
   ButtonEventGenerator = require("./eventgenerators").ButtonEventGenerator;
 
   base = require("../base");
-
-  safebind = base.safebind;
 
   HasParent = base.HasParent;
 
@@ -22961,7 +22960,7 @@ _.setdefault = function(obj, key, value){
     };
 
     EmbedToolView.prototype._activated = function(e) {
-      var baseurl, doc_apikey, doc_id, js_template, modal, model_id, script_inject_escaped,
+      var baseurl, doc_apikey, doc_id, modal, model_id, script_inject_escaped,
         _this = this;
       console.log("EmbedToolView._activated");
       window.tool_view = this;
@@ -22969,7 +22968,6 @@ _.setdefault = function(obj, key, value){
       doc_id = this.plot_model.get('doc');
       doc_apikey = this.plot_model.get('docapikey');
       baseurl = this.plot_model.get('baseurl');
-      js_template = "&lt;script src=\"http://localhost:5006/bokeh/embed.js\" bokeh_plottype=\"serverconn\"\nbokeh_docid=\"" + doc_id + "\" bokeh_ws_conn_string=\"ws://localhost:5006/bokeh/sub\"\nbokeh_docapikey=\"" + doc_apikey + "\"\n\nbokeh_root_url=\"" + baseurl + "\"\nbokeh_root_url=\"http://localhost:5006\"\nbokeh_modelid=\"" + model_id + "\" bokeh_modeltype=\"Plot\" async=\"true\"&gt;\n&lt;/script&gt;\n";
       script_inject_escaped = this.plot_model.get('script_inject_escaped');
       modal = "<div id=\"embedModal\" class=\"modal\" role=\"dialog\" aria-labelledby=\"embedLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n    <h3 id=\"dataConfirmLabel\"> HTML Embed code</h3></div><div class=\"modal-body\">\n  <div class=\"modal-body\">\n    " + script_inject_escaped + "\n  </div>\n  </div><div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n  </div>\n</div>";
       $('body').append(modal);
@@ -22983,7 +22981,7 @@ _.setdefault = function(obj, key, value){
 
     return EmbedToolView;
 
-  })(ToolView);
+  })(tool.ToolView);
 
   EmbedTool = (function(_super) {
     __extends(EmbedTool, _super);
@@ -22999,7 +22997,7 @@ _.setdefault = function(obj, key, value){
 
     return EmbedTool;
 
-  })(HasParent);
+  })(tool.Tool);
 
   EmbedTool.prototype.defaults = _.clone(EmbedTool.prototype.defaults);
 
@@ -23022,6 +23020,8 @@ _.setdefault = function(obj, key, value){
   exports.EmbedToolView = EmbedToolView;
 
   exports.embedtools = new EmbedTools;
+
+  console.log('end embed_tool');
 
 }).call(this);
 }, "tools/eventgenerators": function(exports, require, module) {(function() {
@@ -23296,6 +23296,7 @@ _.setdefault = function(obj, key, value){
         return _this.mouseover_count += 1;
       });
       this.$tool_button = $("<button class='btn btn-small'> " + this.options.buttonText + " </button>");
+      this.plotview.$el.find('.button_bar').append(this.$tool_button);
       this.$tool_button.click(function() {
         if (_this.button_activated) {
           return eventSink.trigger("clear_active_tool");
@@ -23488,15 +23489,13 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "tools/preview_save_tool": function(exports, require, module) {(function() {
-  var ButtonEventGenerator, LinearMapper, PreviewSaveTool, PreviewSaveToolView, PreviewSaveTools, base, tool, _ref, _ref1, _ref2,
+  var ButtonEventGenerator, PreviewSaveTool, PreviewSaveToolView, PreviewSaveTools, base, tool, _ref, _ref1, _ref2,
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   tool = require("./tool");
 
   ButtonEventGenerator = require("./eventgenerators").ButtonEventGenerator;
-
-  LinearMapper = require("../mappers/1d/linear_mapper").LinearMapper;
 
   base = require("../base");
 
