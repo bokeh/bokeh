@@ -11,7 +11,7 @@ hold()
 df = pd.DataFrame(MSFT)[:50]
 df['date'] = pd.to_datetime(df['date'])
 
-dates = df.date.astype(int)
+dates = df.date.astype(int) / 1000000 # source data was in microsec
 mids = (df.open + df.close)/2
 spans = abs(df.close-df.open)
 
@@ -20,6 +20,7 @@ dec = df.open > df.close
 w = (dates[1]-dates[0])*0.7
 
 segment(dates, df.high, dates, df.low,
+        x_axis_type = "datetime",
         color='#000000', tools="pan,zoom,resize", width=1000,
         name="candlestick")
 rect(dates[inc], mids[inc], w, spans[inc],
