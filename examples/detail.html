@@ -1,8 +1,22 @@
 
+<link rel="stylesheet" href="../vendor/pycco/css/pycco.css">
 
-<a href="gallery.html">back to the gallery</a>
-<a href="{{prev_detail_url}}">{{prev_detail_name}}</a>
-<a href="{{next_detail_url}}">{{next_detail_name}}</a>
+<style>
+a.prev {float:left;}
+a.up {margin:0 auto 0 auto;  width:30%}
+a.next {float:right;}
+#container { margin-top:15px;}
+</style>
+<div class="bokeh">
+  <div class="navbar"
+       <a class="prev" href="{{prev_detail_url}}">{{prev_detail_name}}</a>
+       <a class="up" href="../index.html">back to the gallery</a>
+       <a class="next" href="{{next_detail_url}}">{{next_detail_name}}</a>
+  </div>
+</div>
 
 
 {{detail_snippet|safe}}
+<div class='output'>
+  {{ embed_snippet }}
+</div>

@@ -312,13 +312,16 @@ class PlotObject(HasProps):
             self.__view_model__)
 
     def script_direct_inject(
-            self, output_path="", static_path="http://localhost:5006/bokeh/static/"):
+            self, output_path="", static_path="http://localhost:5006/bokeh/static/",
+            embed_path=""):
 
+        
         embed_filename = "%s.embed.js" % self._id
+        full_embed_path = embed_path + embed_filename
         embed_save_loc = os.path.join(output_path, embed_filename)
         self._session.save_embed_js(embed_save_loc, self._id, static_path)
         return script_direct_inject(
-            self._id, self.__view_model__, embed_filename)
+            self._id, self.__view_model__, full_embed_path)
 
     def script_inject_escaped(self):
         return script_inject(
