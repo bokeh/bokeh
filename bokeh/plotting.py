@@ -15,7 +15,7 @@ from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataSource, ColumnsRef, DataRange1d,
         Plot, GlyphRenderer, LinearAxis, Grid, PanTool, ZoomTool,
         PreviewSaveTool, ResizeTool, SelectionTool, BoxSelectionOverlay,
-        GridPlot, Legend)
+        GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
 from . import glyphs
@@ -753,6 +753,7 @@ def gridplot(plot_arrangemnt, name=False):
 
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
+                 x_axis_type = None, y_axis_type = None,
                  tools="pan,zoom,save,resize,select,previewsave", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
@@ -773,8 +774,18 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if y_range is None:
         y_range = DataRange1d()
     p.y_range = y_range
-    xaxis = LinearAxis(plot=p, dimension=0, location="min", bounds="auto")
-    yaxis = LinearAxis(plot=p, dimension=1, location="min", bounds="auto")
+
+    if x_axis_type is None:
+        axiscls = LinearAxis
+    elif x_axis_type == "datetime":
+        axiscls = DatetimeAxis
+    xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
+
+    if y_axis_type is None:
+        axiscls = LinearAxis
+    elif y_axis_type == "datetime":
+        axiscls = DatetimeAxis
+    yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
     xgrid = Grid(plot=p, dimension=0)
     ygrid = Grid(plot=p, dimension=1)
 
