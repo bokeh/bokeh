@@ -792,6 +792,11 @@ class PreviewSaveTool(PlotObject):
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
 
+class EmbedTool(PlotObject):
+    plot = Instance(Plot)
+    dimensions = List   # valid values: "x", "y"
+    dataranges = List(has_ref=True)
+
 class ResizeTool(PlotObject):
     plot = Instance(Plot)
 

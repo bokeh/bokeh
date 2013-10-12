@@ -12,10 +12,10 @@ import warnings
 import webbrowser
 
 from .properties import ColorSpec
-from .objects import (ColumnDataSource, DataSource, ColumnsRef, DataRange1d,
+from .objects import (ColumnDataSource, DataRange1d,
         Plot, GlyphRenderer, LinearAxis, Grid, PanTool, ZoomTool,
-        PreviewSaveTool, ResizeTool, SelectionTool, BoxSelectionOverlay,
-        GridPlot, Legend, DatetimeAxis)
+        PreviewSaveTool, ResizeTool, SelectionTool, EmbedTool,
+        BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
 from . import glyphs
@@ -814,6 +814,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if "previewsave" in tools:
         previewsave_tool = PreviewSaveTool(plot=p)
         tool_objs.append(previewsave_tool)
+    if "embed" in tools:
+        embed_tool = EmbedTool(plot=p)
+        tool_objs.append(embed_tool)
     p.tools.extend(tool_objs)
     return p
 
