@@ -31,6 +31,7 @@ def legend():
     return curplot()
 
 if __name__ == "__main__":
+    legend()
     # open a browser
     legend()
     show()
