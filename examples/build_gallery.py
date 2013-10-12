@@ -2,8 +2,10 @@ from bokeh.vendor.pycco import generate_func_docs
 import os
 _basedir = os.path.dirname(__file__)
 
-demo_dir = os.path.join(_basedir, "../bokeh/server/static/demos")
 
+demo_dir = os.path.join(_basedir, "../bokeh/server/static/demos")
+demo_dir = os.path.join(_basedir, "../../gh-pages-Bokeh")
+detail_dir = os.path.join(demo_dir, "detail")
 
 def page_desc(prev_infos, f):
     if len(prev_infos) > 0:
@@ -14,11 +16,12 @@ def page_desc(prev_infos, f):
     #I need to make sure I know where to put this snippet, where I
     #want it written
     plot = f()
-    embed_snippet = plot.script_direct_inject(demo_dir, static_path="../")
+    embed_snippet = plot.script_direct_inject(
+        detail_dir, static_path="../", embed_path="/Bokeh/detail/")
     page_info = dict(
         f=f, name=name_, embed_snippet=embed_snippet,
-        detail_snippet = generate_func_docs(f, embed_snippet),
-        detail_page_url=name_ + ".html",
+        detail_snippet = generate_func_docs(f, ""),
+        detail_page_url="/Bokeh/detail/" + name_ + ".html",
         prev_detail_url=prev_info.get('detail_page_url', ""),
         prev_detail_name=prev_info.get('name', ""))
     if len(prev_infos) == 0:
@@ -40,11 +43,11 @@ def make_gallery(functions):
         p['next_detail_name'] = p_next['name']
     t = _load_template("detail.html")
     for info in page_infos:
-        fname = os.path.join(demo_dir, info['detail_page_url'])
+        fname = os.path.join(detail_dir, info['name'] + ".html")
         print " writing to ", fname
         with open(fname, "w") as f:
             f.write(t.render(info))
-    with open(os.path.join(demo_dir, "gallery.html"), "w") as f:
+    with open(os.path.join(demo_dir, "index.html"), "w") as f:
         f.write(
             _load_template("gallery.html").render(page_infos=page_infos))
 
@@ -59,5 +62,4 @@ if __name__ == "__main__":
         glucose.glucose, stocks.stocks, 
         line.line_example, rect.rect_example, glyphs.glyphs, scatter.scatter_example
     ]
-
     make_gallery(example_funcs)
