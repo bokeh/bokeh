@@ -26,11 +26,12 @@ def legend():
     scatter(x, 3*y, fill_color=None, line_color="green", radius=4, legend="3*sin(x)")
     line(x, 3*y, fill_color=None, line_color="green", radius=4, legend="3*sin(x)")
     p2 = curplot()
-    figure()
-    gridplot([[p1],[p2]], name="legend")
+    #figure()
+    #gridplot([[p1],[p2]], name="legend")
     return curplot()
 
 if __name__ == "__main__":
     # open a browser
+    legend()
     show()
 
