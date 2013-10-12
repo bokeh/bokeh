@@ -351,6 +351,7 @@ def visual(func):
         return plot
     return wrapper
 
+color_fields = set(["color", "fill_color", "line_color"])
 
 class GlyphFunction(object):
     """ Wraps a Glyph so that it can be created as a plot.
@@ -497,6 +498,9 @@ class GlyphFunction(object):
                 kwargs["fill_color"] = color
             if "line_color" not in kwargs:
                 kwargs["line_color"] = color
+        elif not len(color_fields.intersection(set(kwargs.keys()))):
+            kwargs["fill_color"] = get_default_color()
+            kwargs["line_color"] = kwargs["fill_color"]
 
         legend_name = kwargs.pop("legend", None)
         plot = self._get_plot(kwargs)
@@ -675,7 +679,6 @@ for _marker_name, _glyph_class in marker_types.items():
     _func = GlyphFunction(_glyph_class, ("x", "y"))
     exec "%s = _func" % _marker_name
 
-color_fields = set(["color", "fill_color", "line_color"])
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x & y items
 
