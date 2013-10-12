@@ -386,7 +386,10 @@ make_glyph_plot = (data_source, defaults, glyphspecs,
     )
     resizetool = Collections('ResizeTool').create()
     pstool = Collections('PreviewSaveTool').create()
-    plot_tools = [pantool, zoomtool, pstool, resizetool, selecttool]
+    embedtool = Collections('EmbedTool').create()
+    plot_tools = [pantool, zoomtool, pstool, resizetool, selecttool,
+      embedtool
+    ]
     plot_model.set_obj('tools', plot_tools)
     plot_model.add_renderers([boxselectionoverlay.ref()])
   if legend
