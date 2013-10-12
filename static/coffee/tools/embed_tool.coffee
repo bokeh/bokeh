@@ -59,7 +59,7 @@ bokeh_modelid="#{model_id}" bokeh_modeltype="Plot" async="true"&gt;
     )
     $('#embedModal').modal({show:true});
 
-class EmbedTool extends HasParent
+class EmbedTool extends tool.Tool
    type: "EmbedTool"
    default_view: EmbedToolView
 
