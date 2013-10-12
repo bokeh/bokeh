@@ -10,7 +10,7 @@ def candlestick():
                 js="relative", css="relative")
 
     hold()
-    
+
     df = pd.DataFrame(MSFT)[:50]
     df['date'] = pd.to_datetime(df['date'])
 
@@ -37,9 +37,9 @@ def candlestick():
     xgrid()[0].grid_line_alpha=0.3
     ygrid()[0].grid_line_dash=""
     ygrid()[0].grid_line_alpha=0.3
+
     return curplot()
 
 if __name__ == "__main__":
     candlestick()
-    # open a browser
-    show()
+    show()  # open a browser

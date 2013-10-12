@@ -4,7 +4,6 @@ import pandas as pd
 from bokeh.sampledata.stocks import MSFT
 from bokeh.plotting import *
 
-
 output_server("candlestick.py example")
 
 hold()
@@ -20,9 +19,13 @@ inc = df.close > df.open
 dec = df.open > df.close
 w = (dates[1]-dates[0])*0.7
 
-segment(dates, df.high, dates, df.low, color='#000000', tools="pan,zoom,resize", width=1000)
-rect(dates[inc], mids[inc], w, spans[inc], fill_color="#D5E1DD", line_color="#000000" )
-rect(dates[dec], mids[dec], w, spans[dec], fill_color="#F2583E", line_color="#000000" )
+segment(dates, df.high, dates, df.low,
+        color='#000000', tools="pan,zoom,resize", width=1000,
+        name="candlestick")
+rect(dates[inc], mids[inc], w, spans[inc],
+     fill_color="#D5E1DD", line_color="#000000")
+rect(dates[dec], mids[dec], w, spans[dec],
+     fill_color="#F2583E", line_color="#000000")
 
 curplot().title = "MSFT Candlestick"
 xgrid()[0].grid_line_dash=""

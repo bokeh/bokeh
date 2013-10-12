@@ -10,20 +10,20 @@ def stocks():
 
     hold()
 
-    line(np.array(AAPL['date'], dtype=np.datetime64).astype('int'), 
-         AAPL['adj_close'], color='#A6CEE3', tools="pan,zoom,resize", 
+    line(np.array(AAPL['date'], dtype=np.datetime64).astype('int'),
+         AAPL['adj_close'], color='#A6CEE3', tools="pan,zoom,resize",
          legend='AAPL')
-    line(np.array(FB['date'], dtype=np.datetime64).astype('int'), 
-         FB['adj_close'], color='#1F78B4', tools="pan,zoom,resize", 
+    line(np.array(FB['date'], dtype=np.datetime64).astype('int'),
+         FB['adj_close'], color='#1F78B4', tools="pan,zoom,resize",
          legend='FB')
-    line(np.array(GOOG['date'], dtype=np.datetime64).astype('int'), 
-         GOOG['adj_close'], color='#B2DF8A', tools="pan,zoom,resize", 
+    line(np.array(GOOG['date'], dtype=np.datetime64).astype('int'),
+         GOOG['adj_close'], color='#B2DF8A', tools="pan,zoom,resize",
          legend='GOOG')
-    line(np.array(IBM['date'], dtype=np.datetime64).astype('int'), 
-         IBM['adj_close'], color='#33A02C', tools="pan,zoom,resize", 
+    line(np.array(IBM['date'], dtype=np.datetime64).astype('int'),
+         IBM['adj_close'], color='#33A02C', tools="pan,zoom,resize",
          legend='IBM')
-    line(np.array(MSFT['date'], dtype=np.datetime64).astype('int'), 
-         MSFT['adj_close'], color='#FB9A99', tools="pan,zoom,resize", 
+    line(np.array(MSFT['date'], dtype=np.datetime64).astype('int'),
+         MSFT['adj_close'], color='#FB9A99', tools="pan,zoom,resize",
          legend='MSFT')
 
     curplot().title = "Stock Closing Prices"
@@ -31,7 +31,7 @@ def stocks():
     xgrid()[0].grid_line_alpha=0.3
     ygrid()[0].grid_line_dash=""
     ygrid()[0].grid_line_alpha=0.3
-    p1 = curplot()
+
     figure()
 
     aapl = np.array(AAPL['adj_close'])
@@ -49,11 +49,10 @@ def stocks():
     xgrid()[0].grid_line_alpha=0.3
     ygrid()[0].grid_line_dash=""
     ygrid()[0].grid_line_alpha=0.3
-    gridplot([[p1], [curplot()]], "stocks")
+
     return curplot()
 
 if __name__ == "__main__":
     stocks()
-    # open a browser
-    show()
+    show()  # open a browser
 

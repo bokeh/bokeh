@@ -8,6 +8,7 @@ from bokeh.objects import GridPlot
 
 def correlation():
     output_file("correlation.html", title="correlation.py example")
+
     hold()
 
     num_points = 300
@@ -26,27 +27,24 @@ def correlation():
     xgrid()[0].grid_line_alpha=0.3
     ygrid()[0].grid_line_dash=""
     ygrid()[0].grid_line_alpha=0.3
-    p1 = curplot()
+
     figure()
 
-    scatter(acme, choam, color='#A6CEE3', radius=3, tools="pan,zoom,resize", legend='close')
+    scatter(
+        acme, choam,
+        color='#A6CEE3', radius=3,
+        tools="pan,zoom,resize", legend='close'
+    )
 
     curplot().title = "ACME / CHOAM Correlations"
     xgrid()[0].grid_line_dash=""
     xgrid()[0].grid_line_alpha=0.3
     ygrid()[0].grid_line_dash=""
     ygrid()[0].grid_line_alpha=0.3
-    p2 = curplot()
-    gridplot([[p1],[p2]], name="correlation")
-    # g = GridPlot(children=[[p1],[p2]])
-    # g._id = "correlation"
-    # session = p1.session
-    # session.add(g)
-    # session.plotcontext.children.append(g)
+
     return curplot()
 
 if __name__ == "__main__":
     correlation()
-    # open a browser
-    show()
+    show()  # open a browser
 

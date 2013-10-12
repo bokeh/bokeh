@@ -9,11 +9,21 @@ output_server("stocks.py examples")
 
 hold()
 
-line(np.array(AAPL['date'], dtype=np.datetime64).astype('int'), AAPL['adj_close'], color='#A6CEE3', tools="pan,zoom,resize", legend='AAPL')
-line(np.array(FB['date'], dtype=np.datetime64).astype('int'), FB['adj_close'], color='#1F78B4', tools="pan,zoom,resize", legend='FB')
-line(np.array(GOOG['date'], dtype=np.datetime64).astype('int'), GOOG['adj_close'], color='#B2DF8A', tools="pan,zoom,resize", legend='GOOG')
-line(np.array(IBM['date'], dtype=np.datetime64).astype('int'), IBM['adj_close'], color='#33A02C', tools="pan,zoom,resize", legend='IBM')
-line(np.array(MSFT['date'], dtype=np.datetime64).astype('int'), MSFT['adj_close'], color='#FB9A99', tools="pan,zoom,resize", legend='MSFT')
+line(np.array(AAPL['date'], dtype=np.datetime64).astype('int'),
+     AAPL['adj_close'], color='#A6CEE3', tools="pan,zoom,resize",
+     legend='AAPL')
+line(np.array(FB['date'], dtype=np.datetime64).astype('int'),
+     FB['adj_close'], color='#1F78B4', tools="pan,zoom,resize",
+     legend='FB')
+line(np.array(GOOG['date'], dtype=np.datetime64).astype('int'),
+     GOOG['adj_close'], color='#B2DF8A', tools="pan,zoom,resize",
+     legend='GOOG')
+line(np.array(IBM['date'], dtype=np.datetime64).astype('int'),
+     IBM['adj_close'], color='#33A02C', tools="pan,zoom,resize",
+     legend='IBM')
+line(np.array(MSFT['date'], dtype=np.datetime64).astype('int'),
+     MSFT['adj_close'], color='#FB9A99', tools="pan,zoom,resize",
+     legend='MSFT')
 
 curplot().title = "Stock Closing Prices"
 xgrid()[0].grid_line_dash=""

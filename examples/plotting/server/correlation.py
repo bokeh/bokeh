@@ -5,7 +5,6 @@ import time
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import *
 
-
 output_server("correlation.py example")
 
 hold()
@@ -29,7 +28,11 @@ ygrid()[0].grid_line_alpha=0.3
 
 figure()
 
-scatter(acme, choam, color='#A6CEE3', radius=3, tools="pan,zoom,resize", legend='close')
+scatter(
+    acme, choam,
+    color='#A6CEE3', radius=3,
+    tools="pan,zoom,resize", legend='close'
+)
 
 curplot().title = "ACME / CHOAM Correlations"
 xgrid()[0].grid_line_dash=""
