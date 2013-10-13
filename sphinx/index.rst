@@ -27,9 +27,13 @@ Quickstart
 
 Have :ref:`quick_data`. Want to make chart.
 
-.. _quick_bar:
+.. raw:: html
 
-Bar
+      <script src="/Bokeh/detail/candlestick.embed.js" bokeh_plottype="embeddata"
+         bokeh_modelid="candlestick" bokeh_modeltype="Plot" async="true"></script>
+
+
+Barfoo
 ---
 
 Bar charts::
@@ -39,7 +43,6 @@ Bar charts::
 
 .. image:: /images/quick_bar1.png
 
-.. _quick_axislabels:
 
 Axis Labels
 -----------
