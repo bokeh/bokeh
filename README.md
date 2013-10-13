@@ -201,6 +201,20 @@ compile the js yourself.
    * the `-d` option will prevent hem from uglifying the js, which breaks the
      notebook export at the moment.
 
+Producing the docs
+--------------------------------
+
+The documentation system depends on github pages.  Because of this, two checkouts of the Bokeh repo are needed.  The first is the main repo, in a directory named Bokehd pointing at revision [sphinx].  The second is the Bokeh repo, in a directory named gh-pages-Bokeh, pointed at branch gh-pages.
+
+There are 3 scripts in gh-pages whcih help with doc production.
+
+build.sh  This builds the traitional embed demos.
+build_sphinx.sh  this builds the sphinx documentation.  It the copies all the built documenation back to the gh-pages branch
+s3_sync.sh  This uplaods all relevant files from the gh-pages repo and puts tehm on s3.
+
+
+
+
 What Does the Name "Bokeh" Mean?
 --------------------------------
 
