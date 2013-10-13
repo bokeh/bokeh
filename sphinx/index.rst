@@ -29,7 +29,8 @@ Have :ref:`quick_data`. Want to make chart.
 
 .. raw:: html
 
-      <script src="/Bokeh/detail/candlestick.embed.js" bokeh_plottype="embeddata"
+      <script src="https://s3.amazonaws.com/bokeh_docs/0.2/detail/candlestick.embed.js"
+      bokeh_plottype="embeddata"
          bokeh_modelid="candlestick" bokeh_modeltype="Plot" async="true"></script>
 
 

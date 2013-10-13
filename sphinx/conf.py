@@ -185,7 +185,7 @@ latex_elements = {
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'Bokeh.tex', u'Bokeh Documentation',
-   u'Peter Wang, Bryan Van Der Ven, Hugo Shi, Paddy Mullen', 'manual'),
+   u'Peter Wang, Bryan Van Der Ven, Hugo Shi, and Paddy Mullen', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of
