@@ -17,7 +17,7 @@ def page_desc(prev_infos, f):
     #want it written
     plot = f()
     embed_snippet = plot.script_direct_inject(
-        detail_dir, static_path="../", embed_path="/Bokeh/detail/")
+        detail_dir, static_path="/Bokeh/", embed_path="/Bokeh/detail/")
     page_info = dict(
         f=f, name=name_, embed_snippet=embed_snippet,
         detail_snippet = generate_func_docs(f, ""),
