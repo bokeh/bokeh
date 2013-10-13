@@ -47,7 +47,7 @@ def make_gallery(functions):
         print " writing to ", fname
         with open(fname, "w") as f:
             f.write(t.render(info))
-    with open(os.path.join(demo_dir, "index.html"), "w") as f:
+    with open(os.path.join(demo_dir, "gallery.html"), "w") as f:
         f.write(
             _load_template("gallery.html").render(page_infos=page_infos))
 
