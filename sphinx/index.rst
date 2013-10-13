@@ -1,0 +1,54 @@
+.. Bokeh documentation master file, created by
+   sphinx-quickstart on Sat Oct 12 23:43:03 2013.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to Bokeh's documentation!
+=================================
+
+Contents:
+
+.. toctree::
+   :maxdepth: 2
+
+
+
+Indices and tables
+==================
+
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
+
+.. _quickstart:
+
+Quickstart
+==========
+
+Have :ref:`quick_data`. Want to make chart.
+
+.. _quick_bar:
+
+Bar
+---
+
+Bar charts::
+
+    import vincent
+    bar = vincent.Bar(list_data)
+
+.. image:: /images/quick_bar1.png
+
+.. _quick_axislabels:
+
+Axis Labels
+-----------
+
+Labeling the axes is simple::
+
+    bar = vincent.Bar(multi_iter1['y1'])
+    bar.axis_titles(x='Index', y='Value')
+
+.. image:: /images/quick_bar2.png
+
+.. _quick_line:
