@@ -208,9 +208,9 @@ The documentation system depends on github pages.  Because of this, two checkout
 
 There are 3 scripts in gh-pages whcih help with doc production.
 
-build.sh  This builds the traitional embed demos.
-build_sphinx.sh  this builds the sphinx documentation.  It the copies all the built documenation back to the gh-pages branch
-s3_sync.sh  This uplaods all relevant files from the gh-pages repo and puts tehm on s3.
+   * `build.sh`  This builds the traitional embed demos.
+   * `build_sphinx.sh`  this builds the sphinx documentation.  It the copies all the built documenation back to the gh-pages branch
+   *  `s3_sync.sh`   This uplaods all relevant files from the gh-pages repo and puts tehm on s3.
 
 
 
