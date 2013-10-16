@@ -18,7 +18,8 @@ def legend():
 
     figure()
 
-    scatter(x, y, radius=2, tools="pan,zoom,resize,select", legend="sin(x)")
+    scatter(x, y, radius=2, tools="pan,zoom,resize,select", legend="sin(x)", 
+            name="legend_example")
     line(x, y, radius=2, tools="pan,zoom,resize,select", legend="sin(x)")
 
     line(x, 2*y, line_dash="4 4", line_color="orange", line_width=2, legend="2*sin(x)")
