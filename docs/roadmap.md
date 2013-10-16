@@ -18,6 +18,7 @@ Version 0.3
  * Redo source tree layout, remove BokehJS subtree and incorporating Sahat's JS suggestions
  * More functioning ggplot aesthetics and some stats functions
  * Abstract Rendering
+ * Better grid-based layout system
  * Touch events
  * New logo, frame around plots for consistent look & feel on all Bokeh plots
 
