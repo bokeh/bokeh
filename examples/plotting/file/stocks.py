@@ -46,6 +46,8 @@ def stocks():
             x_axis_type = "datetime",
             color='#A6CEE3', radius=1, tools="pan,zoom,resize,save", legend='close',
             name="stocks")
+
+
     line(aapl_dates, aapl_avg,
          color='red', tools="pan,zoom,resize", legend='avg', name="stocks2")
 

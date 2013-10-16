@@ -16,11 +16,11 @@ Version 0.3
 -----------
 
  * Redo source tree layout, remove BokehJS subtree and incorporating Sahat's JS suggestions
- * More functioning ggplot aesthetics and some stats functions
  * Abstract Rendering
  * Better grid-based layout system
  * Touch events
  * New logo, frame around plots for consistent look & feel on all Bokeh plots
+ * Improve ggplot interface / integrate with ggplot python lib
 
 
 TODO List
@@ -58,11 +58,7 @@ Core Plotting
 Backends
 --------
 
- * Better support for retina/HiDPI
- * Fix rendering in Chrome on HiDPI
- * Make consistent rendering between all
  * more efficient binary data transfers to bokehjs
- * Touch events for browsers on tablets
  * Check compatibility with mobile browsers
 
 
@@ -78,13 +74,6 @@ Code Cleanup
 
  * should use html templates in some places
  * css files have lots of cruft
- * some places just need it
- * Improve source tree layout for JS and build; incorporateSahat's suggestions
-   for new BokehJS layout, and remove the subtree from Bokeh, relying instead
-   on pre-built JS files (minified and un-minified for debug), as well as
-   having clear instructions for how to do dev on both Bokeh and BokehJS at the
-   same time.
-
 
 Docs & Testing
 --------------
