@@ -743,7 +743,7 @@ class LinearAxis(GuideRenderer):
     type = String("linear_axis")
 
     dimension = Int(0)
-    location = String('min')
+    location = Either(String('min'), Float)
     bounds = String('auto')
 
     axis_label = String
