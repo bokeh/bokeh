@@ -521,7 +521,7 @@ bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></scrip
     return e_str % f_dict
 
 def script_direct_inject(modelid, typename, embed_filename):
-    f_dict = dict(modelid = modelid, modeltype = typename, 
+    f_dict = dict(modelid = modelid, modeltype = typename,
                   embed_filename=embed_filename)
     e_str = '''<script src="%(embed_filename)s" bokeh_plottype="embeddata"
 bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
@@ -648,6 +648,7 @@ class GMapPlot(PlotObject):
     width = Int(800)
 
     border_fill = Color("white")
+    border_symmetry = String("h")
     canvas_width = Int(800)
     canvas_height = Int(800)
     outer_width = Int(800)
