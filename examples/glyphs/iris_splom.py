@@ -4,7 +4,8 @@ from math import pi
 
 from bokeh.sampledata.iris import flowers
 from bokeh.objects import (
-    ColumnDataSource, GlyphRenderer, Grid, GridPlot, LinearAxis, Plot, DataRange1d, Range1d
+    ColumnDataSource, GlyphRenderer, Grid, GridPlot, LinearAxis, Plot, 
+    DataRange1d, Range1d, PanTool, ZoomTool
 )
 from bokeh.glyphs import Circle, Text
 from bokeh import session
@@ -28,6 +29,9 @@ source = ColumnDataSource(
 xdr = Range1d(start=-1, end=9)
 ydr = Range1d(start=-1, end=9)
 
+pan = PanTool(dataranges=[xdr,ydr], dimensions=["x","y"])
+zoom = ZoomTool(dataranges=[xdr,ydr], dimensions=["x","y"])
+
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
         x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#ffeedd",
@@ -49,6 +53,7 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         glyph = circle,
     )
     plot.renderers.append(circle_renderer)
+    plot.tools = [pan, zoom]
     if text:
         text = " ".join(text.split('_'))
         text = Text(x=4, y=4, text=text, angle=pi/4, text_font_style="bold", text_baseline="top",
@@ -80,7 +85,7 @@ for y in attrs:
 
 grid = GridPlot(children=plots)
 
-sess.add(source, xdr, ydr)
+sess.add(source, xdr, ydr, pan, zoom)
 sess.add(grid)
 sess.plotcontext.children.append(grid)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
