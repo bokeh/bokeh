@@ -10762,6 +10762,7 @@ _.setdefault = function(obj, key, value){
       this.throttled_render_canvas = throttleAnimation(this.render_canvas, 15);
       this.plotnum = window.plot_count;
       window.plot_count += 1;
+      window['plot' + this.plotnum] = this;
       this.title_props = new text_properties(this, {}, 'title_');
       this.view_state = new ViewState({
         canvas_width: (_ref = options.canvas_width) != null ? _ref : this.mget('canvas_width'),
@@ -11179,6 +11180,55 @@ _.setdefault = function(obj, key, value){
   exports.PNGView = PNGView;
 
   exports.plots = new Plots;
+
+  window.exercise_panning = function() {
+    var end_time, start_time;
+    start_time = new Date();
+    _.delay((function() {
+      return plot10.update_range({
+        sdx: 1,
+        sdy: 2,
+        xr: {
+          end: 10,
+          start: 0
+        },
+        yr: {
+          start: -3,
+          end: 70
+        }
+      });
+    }), 200);
+    _.delay((function() {
+      return plot10.update_range({
+        sdx: 1,
+        sdy: 2,
+        xr: {
+          end: 10,
+          start: 0
+        },
+        yr: {
+          start: -3,
+          end: 30
+        }
+      });
+    }), 400);
+    _.delay((function() {
+      return plot10.update_range({
+        sdx: 1,
+        sdy: 2,
+        xr: {
+          end: 20,
+          start: 0
+        },
+        yr: {
+          start: -3,
+          end: 30
+        }
+      });
+    }), 600);
+    end_time = new Date();
+    return console.log(end_time - start_time, "ms");
+  };
 
 }).call(this);
 }, "common/plot_context": function(exports, require, module) {(function() {
