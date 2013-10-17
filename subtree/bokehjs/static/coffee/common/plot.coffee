@@ -103,11 +103,13 @@ class PlotView extends ContinuumView
 
   initialize: (options) ->
     super(_.defaults(options, @default_options))
+
     #@throttled_render = _.throttle(@render, 15)
     @throttled_render = throttleAnimation(@render, 15)
     @throttled_render_canvas = throttleAnimation(@render_canvas, 15)
     @plotnum = window.plot_count
     window.plot_count+=1
+    window['plot'+@plotnum]=@
     @title_props = new text_properties(@, {}, 'title_')
 
     @view_state = new ViewState({
@@ -492,3 +494,15 @@ exports.Plot = Plot
 exports.PlotView = PlotView
 exports.PNGView = PNGView
 exports.plots = new Plots
+window.exercise_panning = ->
+  start_time = new Date()
+  _.delay((->
+    plot10.update_range({sdx:1, sdy:2, xr:{end:10, start:0}, yr:{start:-3, end:70}})),
+    200)
+  _.delay((->
+    plot10.update_range({sdx:1, sdy:2, xr:{end:10, start:0}, yr:{start:-3, end:30}})), 400)
+  _.delay((->
+    plot10.update_range({sdx:1, sdy:2, xr:{end:20, start:0}, yr:{start:-3, end:30}})), 600)
+  end_time = new Date()
+  console.log(end_time - start_time, "ms")
+  
