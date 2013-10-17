@@ -54,11 +54,9 @@ class TwoPointEventGenerator
           ystart = 0
           yend = @plotview.view_state.get('outer_height')
         if x < xstart  or x > xend
-          console.log("stopping1")
           @_stop_drag(e)
           return false
         if y < ystart or y > yend
-          console.log("stopping2")
           @_stop_drag(e)
           return false
     )
