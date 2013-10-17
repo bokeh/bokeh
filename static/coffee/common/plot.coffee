@@ -33,6 +33,7 @@ delayAnimation = window.requestAnimationFrame ||
 #requestAnimationFrame, in addition the throttled function will be run
 #no more frequently than request animation frame allow
 #
+window.plot_count = 0
 throttleAnimation = (func, wait) ->
   [context , args, timeout, result] = [null,null,null,null]
   previous = 0
@@ -89,11 +90,13 @@ class PlotView extends ContinuumView
       @request_render()
 
   request_render : () ->
+    #console.log("request render", @plotnum)
     if not @is_paused
       @throttled_render()
     return
 
   request_render_canvas : (full_render) ->
+    #console.log("request_render_canvas", @plotnum)
     if not @is_paused
       @throttled_render_canvas(full_render)
     return
@@ -103,7 +106,8 @@ class PlotView extends ContinuumView
     #@throttled_render = _.throttle(@render, 15)
     @throttled_render = throttleAnimation(@render, 15)
     @throttled_render_canvas = throttleAnimation(@render_canvas, 15)
-
+    @plotnum = window.plot_count
+    window.plot_count+=1
     @title_props = new text_properties(@, {}, 'title_')
 
     @view_state = new ViewState({
@@ -201,10 +205,31 @@ class PlotView extends ContinuumView
     return [x, y]
 
   update_range : (range_info) ->
+    contexts = _.pluck(@x_range._events.change, "ctx")
+    contexts = contexts.concat(_.pluck(@y_range._events.change, "ctx"))
+    listener_fs = _.pluck(@x_range._events.change, "callback")
+    listener_fs = listener_fs.concat(_.pluck(@y_range._events.change, "callback"))
+
+    uniq_listener_fs =_.uniq(listener_fs)
+    uniq_contexts = _.uniq(contexts)
+
+    if not uniq_listener_fs.length == 0
+      #throw an error, this is only going to work if all the contexts
+      #are the same object type
+      console.log('throwing an error')
+      1/0
     @pause()
-    @x_range.set(range_info.xr)
-    @y_range.set(range_info.yr)
-    @unpause()
+    for ctx in uniq_contexts
+      ctx.pause()
+    @x_range.set(range_info.xr, {silent:true})
+    @y_range.set(range_info.yr, {silent:true})
+
+    f = uniq_listener_fs[0]
+    for ctx in uniq_contexts
+      ctx.is_paused = false
+      ctx.xmapper.properties.mapper_state.callbacks.propchange()
+      ctx.ymapper.properties.mapper_state.callbacks.propchange()
+      ctx.request_render()
 
   build_tools: () ->
     return build_views(@tools, @mget_obj('tools'), @view_options())
@@ -299,6 +324,9 @@ class PlotView extends ContinuumView
 
   render: (force) ->
     super()
+    window.render_count +=1
+    #console.log("render #{@plotnum}", window.render_count)
+    
     #newtime = new Date()
     # if @last_render
     #   console.log(newtime - @last_render)
@@ -354,6 +382,7 @@ class PlotView extends ContinuumView
       @old_mapper_state.y = yms
       have_new_mapper_state = true
 
+
     @ctx.save()
 
     @ctx.beginPath()
@@ -381,7 +410,6 @@ class PlotView extends ContinuumView
       sy = th
       @title_props.set(@ctx, {})
       @ctx.fillText(title, sx, sy)
-
 
 
 class PNGView extends ContinuumView
