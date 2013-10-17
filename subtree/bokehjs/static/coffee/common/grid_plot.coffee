@@ -66,7 +66,6 @@ class GridPlotView extends ContinuumView
     tool_active = false;
     button_activated = false;
     button.click(->
-      console.log("button clicked", button_name);
       if button_activated
         eventSink.trigger('clear_active_tool')
       else
@@ -77,8 +76,6 @@ class GridPlotView extends ContinuumView
       button_activated = false
       _.each(specific_tools, (t) ->
         t_name = t.evgen.toolName
-        console.log('deactivating ', t_name)
-
         t.evgen.eventSink.trigger("#{t_name}:deactivated")))
 
     eventSink.on("#{button_name}:activated", ->
@@ -86,7 +83,6 @@ class GridPlotView extends ContinuumView
       button_activated = true
       _.each(specific_tools, (t) ->
         t_name = t.evgen.toolName
-        console.log('activating ', t_name)
         t.evgen.eventSink.trigger("#{t_name}:activated")))
 
   addGridToolbar : ->
@@ -108,8 +104,6 @@ class GridPlotView extends ContinuumView
     _.map(tool_name_dict, (klass, button_text) =>
       @makeButton(@toolEventSink, klass, @button_bar, button_text))
     _.map(all_tools, (t) ->
-      console.log(t)
-      console.log(t.evgen)
       t.evgen.hide_button())
 
     
