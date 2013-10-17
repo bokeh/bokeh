@@ -718,7 +718,7 @@ class GMapPlot(PlotObject):
             self.outer_height = self.height
         return super(GMapPlot, self).vm_props(*args, **kw)
 
-class GridPlot(PlotObject):
+class GridPlot(Plot):
     """ A 2D grid of plots """
 
     children = List(List)
