@@ -45,12 +45,12 @@ circles_source = ColumnDataSource(
     )
 )
 
-x = np.linspace(-0.5,10.5, 10)
+x = np.linspace(-0.5, 20.5, 10)
 y = 3 + 0.5 * x
 lines_source = ColumnDataSource(data=dict(x=x, y=y))
 
-xdr = Range1d(start=-0.5, end=10.5)
-ydr = Range1d(start=-0.5, end=10.5)
+xdr = Range1d(start=-0.5, end=20.5)
+ydr = Range1d(start=-0.5, end=20.5)
 
 def make_plot(title, xname, yname):
     plot = Plot(
