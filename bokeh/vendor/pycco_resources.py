@@ -197,7 +197,7 @@ html = """\
 <head>
   <meta http-equiv="content-type" content="text/html;charset=utf-8">
   <title>{{ title }}</title>
-  <link rel="stylesheet" href="/static/vendor/pycco/css/pycco.css">
+  <link rel="stylesheet" href="/vendor/pycco/css/pycco.css">
 </head>
 <body>
 <div id='container'>
@@ -233,14 +233,14 @@ html = """\
       {{{ output }}}
     </div>
   </div>
-  <div class='clearall'></div>
+<div class='clearall'></div>
   {{/sections}}
 </div>
 </body>
 """
 
 func = """\
-  <link rel="stylesheet" href="/static/vendor/pycco/css/pycco.css">
+
 <div id='container'>
   <div id="background"></div>
   {{#sources?}}
@@ -267,16 +267,16 @@ func = """\
       </div>
       {{{ docs_html }}}
     </div>
-
     <div class='code'>
       {{{ code_html }}}
-    </div>
-    <div class='output'>
-      {{{ output }}}
     </div>
   </div>
   <div class='clear all'></div>
   {{/sections}}
+
 </div>
+
+
+
 </body>
 """
