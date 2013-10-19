@@ -4,9 +4,20 @@ _basedir = os.path.dirname(__file__)
 
 
 demo_dir = os.path.join(_basedir, "../bokeh/server/static/demos")
-demo_dir = os.path.join(_basedir, "../../gh-pages-Bokeh")
-detail_dir = os.path.join(demo_dir, "detail")
 
+
+"""
+#these settings worked with a github pages checkout named gh-pages-Bokeh that was a peer to Bokeh
+demo_dir = os.path.join(_basedir, "../../gh-pages-Bokeh")
+HOSTED_STATIC_ROOT="https://s3.amazonaws.com/bokeh_docs/0.2/"
+DETAIL_URL_ROOT="/Bokeh/detail/"
+
+"""
+
+#These settings work with localhost:5006
+HOSTED_STATIC_ROOT="http://localhost:5006/bokeh/static/"
+DETAIL_URL_ROOT="http://localhost:5006/bokeh/static/demos/detail/"
+detail_dir = os.path.join(demo_dir, "detail")
 def page_desc(prev_infos, f):
     if len(prev_infos) > 0:
         prev_info = prev_infos[-1]
@@ -17,11 +28,11 @@ def page_desc(prev_infos, f):
     #want it written
     plot = f()
     embed_snippet = plot.script_direct_inject(
-        detail_dir, static_path="https://s3.amazonaws.com/bokeh_docs/0.2/", embed_path="/Bokeh/detail/")
+        detail_dir, static_path=HOSTED_STATIC_ROOT, embed_path=DETAIL_URL_ROOT)
     page_info = dict(
         f=f, name=name_, embed_snippet=embed_snippet,
         detail_snippet = generate_func_docs(f, ""),
-        detail_page_url="/Bokeh/detail/" + name_ + ".html",
+        detail_page_url=DETAIL_URL_ROOT + name_ + ".html",
         prev_detail_url=prev_info.get('detail_page_url', ""),
         prev_detail_name=prev_info.get('name', ""))
     if len(prev_infos) == 0:
@@ -44,6 +55,7 @@ def make_gallery(functions):
     t = _load_template("detail.html")
     for info in page_infos:
         fname = os.path.join(detail_dir, info['name'] + ".html")
+        info['HOSTED_STATIC_ROOT']= HOSTED_STATIC_ROOT
         print " writing to ", fname
         with open(fname, "w") as f:
             f.write(t.render(info))
