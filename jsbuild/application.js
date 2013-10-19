@@ -13731,7 +13731,11 @@ _.setdefault = function(obj, key, value){
         }
         _ref4 = [_.min(mins), _.max(maxs)], min = _ref4[0], max = _ref4[1];
       }
-      span = (max - min) * (1 + this.get('rangepadding'));
+      if (max !== min) {
+        span = (max - min) * (1 + this.get('rangepadding'));
+      } else {
+        span = max * (1 + this.get('rangepadding'));
+      }
       center = (max + min) / 2.0;
       _ref5 = [center - span / 2.0, center + span / 2.0], min = _ref5[0], max = _ref5[1];
       return [min, max];
@@ -13763,7 +13767,6 @@ _.setdefault = function(obj, key, value){
 
     DataRange1d.prototype.dinitialize = function(attrs, options) {
       var source, _i, _len, _ref;
-      DataRange1d.__super__.dinitialize.call(this, attrs, options);
       this.register_property('minmax', this._get_minmax, true);
       this.add_dependencies('minmax', this, ['sources'], ['rangepadding']);
       _ref = this.get('sources');
@@ -13777,7 +13780,8 @@ _.setdefault = function(obj, key, value){
       this.add_dependencies('start', this, ['minmax', '_start']);
       this.register_property('end', this._get_end, true);
       this.register_setter('end', this._set_end);
-      return this.add_dependencies('end', this, ['minmax', '_end']);
+      this.add_dependencies('end', this, ['minmax', '_end']);
+      return DataRange1d.__super__.dinitialize.call(this, attrs, options);
     };
 
     return DataRange1d;
