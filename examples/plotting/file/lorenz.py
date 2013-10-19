@@ -1,7 +1,6 @@
 
 import numpy as np
 from scipy.integrate import odeint
-from itertools import izip
 from bokeh.plotting import *
 
 def lorenz_example():
