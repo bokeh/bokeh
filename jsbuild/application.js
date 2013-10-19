@@ -11537,8 +11537,6 @@ _.setdefault = function(obj, key, value){
       "mousedown .bokeh_canvas_wrapper": "_mousedown"
     };
 
-    GMapPlotView.prototype.className = "bokeh";
-
     GMapPlotView.prototype.view_options = function() {
       return _.extend({
         plot_model: this.model,
@@ -12069,7 +12067,7 @@ _.setdefault = function(obj, key, value){
 
     GridPlotView.prototype.tagName = 'div';
 
-    GridPlotView.prototype.className = "bokeh grid_plot";
+    GridPlotView.prototype.className = "grid_plot";
 
     GridPlotView.prototype.default_options = {
       scale: 1.0
@@ -12531,7 +12529,9 @@ _.setdefault = function(obj, key, value){
       return PlotView.__super__.constructor.apply(this, arguments);
     }
 
-    PlotView.prototype.className = "bokeh plotview";
+    PlotView.prototype.attributes = {
+      "class": "plotview"
+    };
 
     PlotView.prototype.events = {
       "mousemove .bokeh_canvas_wrapper": "_mousemove",
@@ -23043,6 +23043,8 @@ _.setdefault = function(obj, key, value){
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
+  console.log('embed_tool');
+
   tool = require("./tool");
 
   ButtonEventGenerator = require("./eventgenerators").ButtonEventGenerator;
@@ -23083,12 +23085,12 @@ _.setdefault = function(obj, key, value){
       doc_apikey = this.plot_model.get('docapikey');
       baseurl = this.plot_model.get('baseurl');
       script_inject_escaped = this.plot_model.get('script_inject_escaped');
-      modal = "<div id=\"embedModal\" class=\"bokeh\">\n  <div  class=\"modal\" role=\"dialog\" aria-labelledby=\"embedLabel\" aria-hidden=\"true\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h3 id=\"dataConfirmLabel\"> HTML Embed code</h3></div><div class=\"modal-body\">\n      <div class=\"modal-body\">\n        " + script_inject_escaped + "\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n    </div>\n  </div>\n</div>";
+      modal = "<div id=\"embedModal\" class=\"modal\" role=\"dialog\" aria-labelledby=\"embedLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n    <h3 id=\"dataConfirmLabel\"> HTML Embed code</h3></div><div class=\"modal-body\">\n  <div class=\"modal-body\">\n    " + script_inject_escaped + "\n  </div>\n  </div><div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n  </div>\n</div>";
       $('body').append(modal);
-      $('#embedModal > .modal').on('hidden', function() {
+      $('#embedModal').on('hidden', function() {
         return $('#embedModal').remove();
       });
-      return $('#embedModal > .modal').modal({
+      return $('#embedModal').modal({
         show: true
       });
     };
@@ -23134,6 +23136,8 @@ _.setdefault = function(obj, key, value){
   exports.EmbedToolView = EmbedToolView;
 
   exports.embedtools = new EmbedTools;
+
+  console.log('end embed_tool');
 
 }).call(this);
 }, "tools/eventgenerators": function(exports, require, module) {(function() {
@@ -23642,13 +23646,12 @@ _.setdefault = function(obj, key, value){
       data_uri = this.plot_view.canvas[0].toDataURL();
       this.plot_model.set('png', this.plot_view.canvas[0].toDataURL());
       base.Collections.bulksave([this.plot_model]);
-      modal = "<div id='previewModal' class='bokeh'>\n  <div class=\"modal\" role=\"dialog\" aria-labelledby=\"previewLabel\" aria-hidden=\"true\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h3 id=\"dataConfirmLabel\">Image Preview (right click to save)</h3></div><div class=\"modal-body\">\n    <div class=\"modal-body\">\n      <img src=\"" + data_uri + "\" style=\"max-height: 300px; max-width: 400px\">\n    </div>\n    </div><div class=\"modal-footer\">\n      <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n    </div>\n  </div>\n</div>";
+      modal = "'<div id=\"previewModal\" class=\"modal\" role=\"dialog\" aria-labelledby=\"previewLabel\" aria-hidden=\"true\">\n  <div class=\"modal-header\">\n    <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n    <h3 id=\"dataConfirmLabel\">Image Preview (right click to save)</h3></div><div class=\"modal-body\">\n  <div class=\"modal-body\">\n    <img src=\"" + data_uri + "\" style=\"max-height: 300px; max-width: 400px\">\n  </div>\n  </div><div class=\"modal-footer\">\n    <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n  </div>\n</div>')";
       $('body').append(modal);
-      $('#previewModal .modal').on('hidden', function() {
-        $('#previewModal').remove();
-        return $('#previewModal > .modal').remove();
+      $('#previewModal').on('hidden', function() {
+        return $('#previewModal').remove();
       });
-      return $('#previewModal > .modal').modal({
+      return $('#previewModal').modal({
         show: true
       });
     };
