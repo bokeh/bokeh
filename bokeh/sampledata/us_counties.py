@@ -22,7 +22,7 @@ with open(join(data_dir, 'US_Counties.csv')) as f:
     f.next()
     reader = csv.reader(f, delimiter=',', quotechar='"')
     for row in reader:
-        name, dummy, dummy, dummy, geometry, dummy, dummy, dummy, dummy, state_id, county_id, dummy, dummy = row
+        name, dummy, state, dummy, geometry, dummy, dummy, dummy, dummy, state_id, county_id, dummy, dummy = row
         xml = et.fromstring(geometry)
         lats = []
         lons = []
@@ -36,6 +36,7 @@ with open(join(data_dir, 'US_Counties.csv')) as f:
             lons.extend(lon)
         data[(int(state_id), int(county_id))] = {
             'name' : name,
+            'state' : state,
             'lats' : lats,
             'lons' : lons,
         }
