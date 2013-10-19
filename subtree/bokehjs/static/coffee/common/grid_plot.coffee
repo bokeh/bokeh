@@ -14,7 +14,7 @@ ZoomToolView = require('../tools/zoom_tool').ZoomToolView
 
 class GridPlotView extends ContinuumView
   tagName: 'div'
-  className: "bokeh grid_plot"
+  className: "grid_plot"
   default_options: {scale:1.0}
 
   set_child_view_states: () ->

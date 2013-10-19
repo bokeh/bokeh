@@ -18,8 +18,7 @@ class PreviewSaveToolView extends tool.ToolView
     base.Collections.bulksave([@plot_model])
     #@model.sync()
     modal = """
-    <div id='previewModal' class='bokeh'>
-      <div class="modal" role="dialog" aria-labelledby="previewLabel" aria-hidden="true">
+      '<div id="previewModal" class="modal" role="dialog" aria-labelledby="previewLabel" aria-hidden="true">
         <div class="modal-header">
           <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
           <h3 id="dataConfirmLabel">Image Preview (right click to save)</h3></div><div class="modal-body">
@@ -29,15 +28,13 @@ class PreviewSaveToolView extends tool.ToolView
         </div><div class="modal-footer">
           <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
         </div>
-      </div>
-    </div>
-    """ # hack to keep my text editor happy "
+      </div>')
+    """
     $('body').append(modal)
-    $('#previewModal .modal').on('hidden', () =>
+    $('#previewModal').on('hidden', () =>
       $('#previewModal').remove()
-      $('#previewModal > .modal').remove()
     )
-    $('#previewModal > .modal').modal({show:true});
+    $('#previewModal').modal({show:true});
 
 class PreviewSaveTool extends tool.Tool
   type: "PreviewSaveTool"
