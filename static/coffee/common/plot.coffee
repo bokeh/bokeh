@@ -228,8 +228,11 @@ class PlotView extends ContinuumView
     f = uniq_listener_fs[0]
     for ctx in uniq_contexts
       ctx.is_paused = false
-      ctx.xmapper.properties.mapper_state.callbacks.propchange()
-      ctx.ymapper.properties.mapper_state.callbacks.propchange()
+      try
+        ctx.xmapper.properties.mapper_state.callbacks.propchange()
+        ctx.ymapper.properties.mapper_state.callbacks.propchange()
+      catch err
+        "somehow some listneres don't have x or ymappers'"
       ctx.request_render()
 
   build_tools: () ->
