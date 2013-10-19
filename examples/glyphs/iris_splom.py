@@ -4,8 +4,8 @@ from math import pi
 
 from bokeh.sampledata.iris import flowers
 from bokeh.objects import (
-    ColumnDataSource, GlyphRenderer, Grid, GridPlot, LinearAxis, Plot, 
-    DataRange1d, Range1d, PanTool, ZoomTool
+    ColumnDataSource, GlyphRenderer, Grid, GridPlot, LinearAxis, Plot,
+    DataRange1d, DataRange1d, PanTool, ZoomTool
 )
 from bokeh.glyphs import Circle, Text
 from bokeh import session
@@ -24,10 +24,12 @@ source = ColumnDataSource(
     )
 )
 
-#xdr = DataRange1d(sources=[source.columns(["petal_length", "petal_width", "sepal_width", "sepal_length"])])
-#ydr = DataRange1d(sources=[source.columns(["petal_length", "petal_width", "sepal_width", "sepal_length"])])
-xdr = Range1d(start=-1, end=9)
-ydr = Range1d(start=-1, end=9)
+text_source = ColumnDataSource(
+    data=dict(center=[125])
+)
+
+xdr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
+ydr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 
 pan = PanTool(dataranges=[xdr,ydr], dimensions=["x","y"])
 zoom = ZoomTool(dataranges=[xdr,ydr], dimensions=["x","y"])
@@ -56,16 +58,18 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot.tools = [pan, zoom]
     if text:
         text = " ".join(text.split('_'))
-        text = Text(x=4, y=4, text=text, angle=pi/4, text_font_style="bold", text_baseline="top",
-                    text_color="#ffaaaa", text_alpha=0.2, text_align="center", text_font_size="28pt")
+        text = Text(x={'field':'center', 'units':'screen'}, y={'field':'center', 'units':'screen'}, text=text, angle=pi/4, text_font_style="bold", text_baseline="top",
+                    text_color="#ffaaaa", text_alpha=0.5, text_align="center", text_font_size="28pt")
         text_renderer = GlyphRenderer(
-            data_source=source,
+            data_source=text_source,
             xdata_range = xdr,
             ydata_range = ydr,
             glyph = text,
         )
+        plot.data_sources.append(text_source)
         plot.renderers.append(text_renderer)
         objs.append(text_renderer)
+        objs.append(text_source)
     return plot, objs + [circle_renderer, xgrid, ygrid]
 
 sess = session.HTMLFileSession("iris_splom.html")
@@ -78,7 +82,7 @@ for y in attrs:
         xax = (y == attrs[-1])
         yax = (x == attrs[0])
         text = x if (x==y) else None
-        plot, objs = make_plot(y, x, xax, yax, text)
+        plot, objs = make_plot(x, y, xax, yax, text)
         sess.add(plot, *objs)
         row.append(plot)
     plots.append(row)
