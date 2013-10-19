@@ -12723,8 +12723,13 @@ _.setdefault = function(obj, key, value){
       for (_j = 0, _len1 = uniq_contexts.length; _j < _len1; _j++) {
         ctx = uniq_contexts[_j];
         ctx.is_paused = false;
-        ctx.xmapper.properties.mapper_state.callbacks.propchange();
-        ctx.ymapper.properties.mapper_state.callbacks.propchange();
+        try {
+          ctx.xmapper.properties.mapper_state.callbacks.propchange();
+          ctx.ymapper.properties.mapper_state.callbacks.propchange();
+        } catch (err) {
+          "somehow some listneres don't have x or ymappers'";
+
+        }
         _results.push(ctx.request_render());
       }
       return _results;
@@ -23944,6 +23949,10 @@ _.setdefault = function(obj, key, value){
       SetBasepoint: "_start_selecting",
       UpdatingMouseMove: "_selecting",
       deactivated: "_stop_selecting"
+    };
+
+    SelectionToolView.prototype.pause = function() {
+      return "";
     };
 
     SelectionToolView.prototype.mouse_coords = function(e, x, y) {
