@@ -61,7 +61,8 @@ throttleAnimation = (func, wait) ->
 
 
 class PlotView extends ContinuumView
-  className : "bokeh plotview"
+  attributes :
+    class : "plotview"
   events:
     "mousemove .bokeh_canvas_wrapper": "_mousemove"
     "mousedown .bokeh_canvas_wrapper": "_mousedown"

@@ -23,8 +23,7 @@ class GMapPlotView extends ContinuumView
   events:
     "mousemove .bokeh_canvas_wrapper": "_mousemove"
     "mousedown .bokeh_canvas_wrapper": "_mousedown"
-  className: "bokeh"
-  
+
   view_options: () ->
     _.extend({plot_model: @model, plot_view: @}, @options)
 
