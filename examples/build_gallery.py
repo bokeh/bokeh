@@ -75,3 +75,9 @@ if __name__ == "__main__":
         line.line_example, rect.rect_example, glyphs.glyphs, scatter.scatter_example
     ]
     make_gallery(example_funcs)
+    
+    try:
+        import webbrowser
+        webbrowser.open(HOSTED_STATIC_ROOT + "demos/gallery.html")
+    except:
+        pass
