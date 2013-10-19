@@ -10648,8 +10648,6 @@ _.setdefault = function(obj, key, value){
 
   delayAnimation = window.requestAnimationFrame || window.mozRequestAnimationFrame || window.webkitRequestAnimationFrame || window.msRequestAnimationFrame || delayAnimation;
 
-  window.plot_count = 0;
-
   throttleAnimation = function(func, wait) {
     var args, context, later, pending, previous, result, timeout, _ref;
     _ref = [null, null, null, null], context = _ref[0], args = _ref[1], timeout = _ref[2], result = _ref[3];
@@ -10760,9 +10758,6 @@ _.setdefault = function(obj, key, value){
       PlotView.__super__.initialize.call(this, _.defaults(options, this.default_options));
       this.throttled_render = throttleAnimation(this.render, 15);
       this.throttled_render_canvas = throttleAnimation(this.render_canvas, 15);
-      this.plotnum = window.plot_count;
-      window.plot_count += 1;
-      window['plot' + this.plotnum] = this;
       this.title_props = new text_properties(this, {}, 'title_');
       this.view_state = new ViewState({
         canvas_width: (_ref = options.canvas_width) != null ? _ref : this.mget('canvas_width'),
@@ -10830,8 +10825,18 @@ _.setdefault = function(obj, key, value){
     PlotView.prototype.map_to_screen = function(x, x_units, y, y_units, units) {
       var sx, sy, _ref;
       if (x_units === 'screen') {
-        sx = x.slice(0);
-        sy = y.slice(0);
+        if (_.isArray(x)) {
+          sx = x.slice(0);
+        } else {
+          sx = new Float32Array(x.length);
+          sx.set(x);
+        }
+        if (_.isArray(y)) {
+          sy = y.slice(0);
+        } else {
+          sy = new Float32Array(y.length);
+          sy.set(y);
+        }
       } else {
         _ref = this.mapper.v_map_to_target(x, y), sx = _ref[0], sy = _ref[1];
       }
@@ -10841,9 +10846,21 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotView.prototype.map_from_screen = function(sx, sy, units) {
-      var x, y, _ref;
-      sx = this.view_state.v_device_to_sx(sx.slice(0));
-      sy = this.view_state.v_device_to_sy(sy.slice(0));
+      var dx, dy, x, y, _ref;
+      if (_.isArray(sx)) {
+        dx = x.slice(0);
+      } else {
+        dx = new Float32Array(sx.length);
+        sd.set(x);
+      }
+      if (_.isArray(sy)) {
+        dy = y.slice(0);
+      } else {
+        dy = new Float32Array(sy.length);
+        dy.set(y);
+      }
+      sx = this.view_state.v_device_to_sx(dx);
+      sy = this.view_state.v_device_to_sy(dy);
       if (units === 'screen') {
         x = sx;
         y = sy;
@@ -10854,43 +10871,10 @@ _.setdefault = function(obj, key, value){
     };
 
     PlotView.prototype.update_range = function(range_info) {
-      var contexts, ctx, f, listener_fs, uniq_contexts, uniq_listener_fs, _i, _j, _len, _len1, _results;
-      contexts = _.pluck(this.x_range._events.change, "ctx");
-      contexts = contexts.concat(_.pluck(this.y_range._events.change, "ctx"));
-      listener_fs = _.pluck(this.x_range._events.change, "callback");
-      listener_fs = listener_fs.concat(_.pluck(this.y_range._events.change, "callback"));
-      uniq_listener_fs = _.uniq(listener_fs);
-      uniq_contexts = _.uniq(contexts);
-      if (!uniq_listener_fs.length === 0) {
-        console.log('throwing an error');
-        1 / 0;
-      }
       this.pause();
-      for (_i = 0, _len = uniq_contexts.length; _i < _len; _i++) {
-        ctx = uniq_contexts[_i];
-        ctx.pause();
-      }
-      this.x_range.set(range_info.xr, {
-        silent: true
-      });
-      this.y_range.set(range_info.yr, {
-        silent: true
-      });
-      f = uniq_listener_fs[0];
-      _results = [];
-      for (_j = 0, _len1 = uniq_contexts.length; _j < _len1; _j++) {
-        ctx = uniq_contexts[_j];
-        ctx.is_paused = false;
-        try {
-          ctx.xmapper.properties.mapper_state.callbacks.propchange();
-          ctx.ymapper.properties.mapper_state.callbacks.propchange();
-        } catch (err) {
-          "somehow some listneres don't have x or ymappers'";
-
-        }
-        _results.push(ctx.request_render());
-      }
-      return _results;
+      this.x_range.set(range_info.xr);
+      this.y_range.set(range_info.yr);
+      return this.unpause();
     };
 
     PlotView.prototype.build_tools = function() {
@@ -10984,7 +10968,6 @@ _.setdefault = function(obj, key, value){
     PlotView.prototype.render = function(force) {
       var have_new_mapper_state, hpadding, k, level, pr, renderers, sx, sy, sym, th, title, v, xms, yms, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
       PlotView.__super__.render.call(this);
-      window.render_count += 1;
       this.requested_padding = {
         top: 0,
         bottom: 0,
