@@ -4,7 +4,7 @@ from scipy.integrate import odeint
 from itertools import izip
 from bokeh.plotting import *
 
-def scatter_example():
+def lorenz_example():
 
     sigma = 10
     rho = 28
@@ -39,5 +39,5 @@ def scatter_example():
     return curplot()
 
 if __name__ == "__main__":
-    scatter_example()
+    lorenz_example()
     show()  # open a browser

@@ -3,7 +3,7 @@ import numpy as np
 from itertools import izip
 from bokeh.plotting import *
 
-def scatter_example():
+def color_scatter_example():
     N = 4000
 
     x = np.random.random(size=N) * 100
@@ -20,5 +20,5 @@ def scatter_example():
     return curplot()
 
 if __name__ == "__main__":
-    scatter_example()
+    color_scatter_example()
     show()  # open a browser
