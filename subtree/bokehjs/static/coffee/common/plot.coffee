@@ -183,8 +183,16 @@ class PlotView extends ContinuumView
 
   map_to_screen : (x, x_units, y, y_units, units) ->
     if x_units == 'screen'
-      sx = x[..]
-      sy = y[..]
+      if _.isArray(x)
+        sx = x[..]
+      else
+        sx = new Float32Array(x.length)
+        sx.set(x)
+      if _.isArray(y)
+        sy = y[..]
+      else
+        sy = new Float32Array(y.length)
+        sy.set(y)
     else
       [sx, sy] = @mapper.v_map_to_target(x, y)
 
@@ -194,8 +202,18 @@ class PlotView extends ContinuumView
     return [sx, sy]
 
   map_from_screen : (sx, sy, units) ->
-    sx = @view_state.v_device_to_sx(sx[..])
-    sy = @view_state.v_device_to_sy(sy[..])
+    if _.isArray(sx)
+      dx = x[..]
+    else
+      dx = new Float32Array(sx.length)
+      sd.set(x)
+    if _.isArray(sy)
+      dy = y[..]
+    else
+      dy = new Float32Array(sy.length)
+      dy.set(y)
+    sx = @view_state.v_device_to_sx(dx)
+    sy = @view_state.v_device_to_sy(dy)
 
     if units == 'screen'
       x = sx
@@ -330,7 +348,7 @@ class PlotView extends ContinuumView
     super()
     window.render_count +=1
     #console.log("render #{@plotnum}", window.render_count)
-    
+
     #newtime = new Date()
     # if @last_render
     #   console.log(newtime - @last_render)
@@ -507,4 +525,4 @@ window.exercise_panning = ->
     plot10.update_range({sdx:1, sdy:2, xr:{end:20, start:0}, yr:{start:-3, end:30}})), 600)
   end_time = new Date()
   console.log(end_time - start_time, "ms")
-  
+
