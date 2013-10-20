@@ -357,6 +357,7 @@ def visual(func):
     return wrapper
 
 color_fields = set(["color", "fill_color", "line_color"])
+alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
 class GlyphFunction(object):
     """ Wraps a Glyph so that it can be created as a plot.
@@ -507,6 +508,18 @@ class GlyphFunction(object):
             kwargs["fill_color"] = get_default_color()
             kwargs["line_color"] = kwargs["fill_color"]
 
+        if "alpha" in kwargs:
+            alpha = kwargs.pop("alpha")
+            if "fill_alpha" not in kwargs:
+                kwargs["fill_alpha"] = alpha
+            if "line_alpha" not in kwargs:
+                kwargs["line_alpha"] = alpha
+        elif not len(alpha_fields.intersection(set(kwargs.keys()))):
+            kwargs["fill_alpha"] = get_default_alpha()
+            kwargs["line_alpha"] = kwargs["fill_alpha"]
+
+        print kwargs["fill_alpha"] , kwargs["line_alpha"]
+
         legend_name = kwargs.pop("legend", None)
         plot = self._get_plot(kwargs)
         if 'name' in kwargs:
@@ -613,6 +626,9 @@ def get_default_color(plot=None):
         return colors[num_renderers]
     else:
         return colors[0]
+
+def get_default_alpha(plot=None):
+    return 1.0
 
 line = GlyphFunction(glyphs.Line, ("x", "y"))
 
@@ -740,6 +756,8 @@ def scatter(*args, **kwargs):
     # TODO: How to handle this? Just call curplot()?
     if not len(color_fields.intersection(set(kwargs.keys()))):
         kwargs['color'] = get_default_color()
+    if not len(alpha_fields.intersection(set(kwargs.keys()))):
+        kwargs['alpha'] = get_default_alpha()
 
     for yname in names[1:]:
         if markertype not in marker_types:
