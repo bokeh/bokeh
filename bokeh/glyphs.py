@@ -91,7 +91,7 @@ class Asterisk(Marker):
     __view_model__ = "asterisk"
 
 class DiamondCross(Marker):
-    __view_model__ = "diamondcross"
+    __view_model__ = "diamond_cross"
 
 class CircleCross(Marker):
     __view_model__ = "circle_cross"

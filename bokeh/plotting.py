@@ -676,7 +676,7 @@ marker_types = {
         #"squarex": glyphs.SquareX,
         "circle_x": glyphs.CircleX,
         "asterisk": glyphs.Asterisk,
-        #"diamondcross": glyphs.DiamondCross,
+        "diamond_cross": glyphs.DiamondCross,
         "circle_cross": glyphs.CircleCross,
         #"squarecross": glyphs.SquareCross,
         #"hexstar": glyphs.HexStar,
