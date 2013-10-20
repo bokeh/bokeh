@@ -100,7 +100,7 @@ class HexStar(Marker):
     __view_model__ = "hexstar"
 
 class SquareCross(Marker):
-    __view_model__ = "squarecross"
+    __view_model__ = "square_cross"
 
 class CircleX(Marker):
     __view_model__ = "circle_x"
