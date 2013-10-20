@@ -22,6 +22,7 @@ Contents:
    dev_guide.rst
    contributing.rst
    faq.rst
+   release_notes.rst
    reference.rst
 
 
