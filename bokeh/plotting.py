@@ -669,7 +669,7 @@ marker_types = {
         "circle": glyphs.Circle,
         "square": glyphs.Square,
         #"triangle": glyphs.Triangle,
-        #"cross": glyphs.Cross,
+        "cross": glyphs.Cross,
         #"xmarker": glyphs.Xmarker,
         #"diamond": glyphs.Diamond,
         #"invtriangle": glyphs.InvertedTriangle,
