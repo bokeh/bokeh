@@ -518,8 +518,6 @@ class GlyphFunction(object):
             kwargs["fill_alpha"] = get_default_alpha()
             kwargs["line_alpha"] = kwargs["fill_alpha"]
 
-        print kwargs["fill_alpha"] , kwargs["line_alpha"]
-
         legend_name = kwargs.pop("legend", None)
         plot = self._get_plot(kwargs)
         if 'name' in kwargs:
