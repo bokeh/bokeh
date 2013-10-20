@@ -82,7 +82,7 @@ class Diamond(Marker):
     __view_model__ = "diamond"
 
 class InvertedTriangle(Marker):
-    __view_model__ = "invertedtriangle"
+    __view_model__ = "inverted_triangle"
 
 class SquareX(Marker):
     __view_model__ = "squarex"

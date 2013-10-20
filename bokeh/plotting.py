@@ -668,11 +668,11 @@ wedge = GlyphFunction(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_ang
 marker_types = {
         "circle": glyphs.Circle,
         "square": glyphs.Square,
-        #"triangle": glyphs.Triangle,
+        "triangle": glyphs.Triangle,
         "cross": glyphs.Cross,
         #"xmarker": glyphs.Xmarker,
         "diamond": glyphs.Diamond,
-        #"invtriangle": glyphs.InvertedTriangle,
+        "invtriangle": glyphs.InvertedTriangle,
         #"squarex": glyphs.SquareX,
         "circle_x": glyphs.CircleX,
         "asterisk": glyphs.Asterisk,
