@@ -2,6 +2,7 @@
 annular_wedge = require("./glyph/annular_wedge")
 annulus       = require("./glyph/annulus")
 arc           = require("./glyph/arc")
+asterisk      = require("./glyph/asterisk")
 bezier        = require("./glyph/bezier")
 circle        = require("./glyph/circle")
 image         = require("./glyph/image")
@@ -27,6 +28,7 @@ x             = require("./glyph/x")
 exports.annular_wedge = annular_wedge.AnnularWedge
 exports.annulus       = annulus.Annulus
 exports.arc           = arc.Arc
+exports.asterisk      = asterisk.Asterisk
 exports.bezier        = bezier.Bezier
 exports.circle        = circle.Circle
 exports.image         = image.Image
