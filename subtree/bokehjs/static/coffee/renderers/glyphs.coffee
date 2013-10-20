@@ -63,4 +63,5 @@ exports.rect              = rect.Rect
 exports.segment           = segment.Segment
 exports.text              = text.Text
 exports.triangle          = triangle.Triangle
+exports.wedge             = wedge.Wedge
 exports.x                 = x.X
