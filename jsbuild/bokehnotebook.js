@@ -15677,6 +15677,293 @@ _.setdefault = function(obj, key, value){
   exports.ArcView = ArcView;
 
 }).call(this);
+}, "renderers/glyph/asterisk": function(exports, require, module) {(function() {
+  var Asterisk, AsteriskView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  AsteriskView = (function(_super) {
+
+    __extends(AsteriskView, _super);
+
+    function AsteriskView() {
+      return AsteriskView.__super__.constructor.apply(this, arguments);
+    }
+
+    AsteriskView.prototype.initialize = function(options) {
+      var spec;
+      AsteriskView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      return this.have_new_data = false;
+    };
+
+    AsteriskView.prototype.init_glyph = function(glyphspec) {
+      var glyph_props;
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [new fill_properties(this, glyphspec), new line_properties(this, glyphspec)]);
+      return glyph_props;
+    };
+
+    AsteriskView.prototype._set_data = function(data) {
+      var i, _i, _ref;
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      this.y = this.glyph_props.v_select('y', data);
+      this.mask = new Uint8Array(data.length);
+      this.selected_mask = new Uint8Array(data.length);
+      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.mask[i] = true;
+        this.selected_mask[i] = false;
+      }
+      return this.have_new_data = true;
+    };
+
+    AsteriskView.prototype._render = function(plot_view, have_new_mapper_state) {
+      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref, _ref1;
+      if (have_new_mapper_state == null) {
+        have_new_mapper_state = true;
+      }
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      if (this.have_new_data || have_new_mapper_state) {
+        this.size = this.distance(this.data, 'x', 'size', 'edge');
+        this.have_new_data = false;
+      }
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if ((this.sx[i] + this.size[i]) < 0 || (this.sx[i] - this.size[i]) > ow || (this.sy[i] + this.size[i]) < 0 || (this.sy[i] - this.size[i]) > oh) {
+          this.mask[i] = false;
+        } else {
+          this.mask[i] = true;
+        }
+      }
+      selected = this.mget_obj('data_source').get('selected');
+      for (_j = 0, _len = selected.length; _j < _len; _j++) {
+        idx = selected[_j];
+        this.selected_mask[idx] = true;
+      }
+      ctx = this.plot_view.ctx;
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._fast_path(ctx, props, true);
+          this._fast_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._fast_path(ctx);
+        }
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, true);
+          this._full_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    AsteriskView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
+      var i, r, r2, _i, _ref, _results;
+      if (glyph_props.line_properties.do_stroke) {
+        glyph_props.line_properties.set(ctx, this.glyph_props);
+        _results = [];
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          r = this.size[i] / 2;
+          r2 = r * 0.65;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i]);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+          ctx.moveTo(this.sx[i] - r2, this.sy[i] + r2);
+          ctx.lineTo(this.sx[i] + r2, this.sy[i] - r2);
+          ctx.moveTo(this.sx[i] - r2, this.sy[i] - r2);
+          ctx.lineTo(this.sx[i] + r2, this.sy[i] + r2);
+          _results.push(ctx.stroke());
+        }
+        return _results;
+      }
+    };
+
+    AsteriskView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var i, r, r2, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+          continue;
+        }
+        if (use_selection && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === false && this.selected_mask[i]) {
+          continue;
+        }
+        r = this.size[i] / 2;
+        r2 = r * 0.65;
+        ctx.beginPath();
+        ctx.moveTo(this.sx[i], this.sy[i] + r);
+        ctx.lineTo(this.sx[i], this.sy[i] - r);
+        ctx.moveTo(this.sx[i] - r, this.sy[i]);
+        ctx.lineTo(this.sx[i] + r, this.sy[i]);
+        ctx.moveTo(this.sx[i] - r2, this.sy[i] + r2);
+        ctx.lineTo(this.sx[i] + r2, this.sy[i] - r2);
+        ctx.moveTo(this.sx[i] - r2, this.sy[i] - r2);
+        ctx.lineTo(this.sx[i] + r2, this.sy[i] + r2);
+        if (glyph_props.line_properties.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          _results.push(ctx.stroke());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    AsteriskView.prototype.select = function(xscreenbounds, yscreenbounds) {
+      var i, selected, _i, _ref;
+      xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
+      yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
+      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
+      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
+      selected = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (xscreenbounds) {
+          if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
+            continue;
+          }
+        }
+        if (yscreenbounds) {
+          if (this.sy[i] < yscreenbounds[0] || this.sy[i] > yscreenbounds[1]) {
+            continue;
+          }
+        }
+        selected.push(i);
+      }
+      return selected;
+    };
+
+    AsteriskView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var border, d, data_r, fill_props, glyph_props, glyph_settings, line_props, r, reference_point, x, y;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_r = this.distance([reference_point], 'x', 'size', 'edge')[0];
+      } else {
+        glyph_settings = glyph_props;
+        data_r = glyph_props.select('size', glyph_props)["default"];
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      ctx.beginPath();
+      d = _.min([Math.abs(x2 - x1), Math.abs(y2 - y1)]);
+      d = d - 2 * border;
+      r = d / 2;
+      if (data_r != null) {
+        r = data_r > r ? r : data_r;
+      }
+      r = r * 0.65;
+      x = (x1 + x2) / 2.0;
+      y = (y1 + y2) / 2.0;
+      ctx.moveTo(x, y + r);
+      ctx.lineTo(x, y - r);
+      ctx.moveTo(x - r, y);
+      ctx.lineTo(x + r, y);
+      ctx.moveTo(x - r2, y + r2);
+      ctx.lineTo(x + r2, y - r2);
+      ctx.moveTo(x - r2, y - r2);
+      ctx.lineTo(x + r2, y + r2);
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
+      return ctx.restore();
+    };
+
+    return AsteriskView;
+
+  })(GlyphView);
+
+  Asterisk = (function(_super) {
+
+    __extends(Asterisk, _super);
+
+    function Asterisk() {
+      return Asterisk.__super__.constructor.apply(this, arguments);
+    }
+
+    Asterisk.prototype.default_view = AsteriskView;
+
+    Asterisk.prototype.type = 'GlyphRenderer';
+
+    return Asterisk;
+
+  })(Glyph);
+
+  Asterisk.prototype.display_defaults = _.clone(Asterisk.prototype.display_defaults);
+
+  _.extend(Asterisk.prototype.display_defaults, {
+    line_color: 'red',
+    line_width: 1,
+    line_alpha: 1.0,
+    line_join: 'miter',
+    line_cap: 'butt',
+    line_dash: [],
+    line_dash_offset: 0
+  });
+
+  exports.Asterisk = Asterisk;
+
+  exports.AsteriskView = AsteriskView;
+
+}).call(this);
 }, "renderers/glyph/bezier": function(exports, require, module) {(function() {
   var Bezier, BezierView, Glyph, GlyphView, glyph, glyph_properties, line_properties, properties,
     __hasProp = {}.hasOwnProperty,
@@ -16098,6 +16385,1524 @@ _.setdefault = function(obj, key, value){
   exports.Circle = Circle;
 
   exports.CircleView = CircleView;
+
+}).call(this);
+}, "renderers/glyph/circle_cross": function(exports, require, module) {(function() {
+  var CircleCross, CircleCrossView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  CircleCrossView = (function(_super) {
+
+    __extends(CircleCrossView, _super);
+
+    function CircleCrossView() {
+      return CircleCrossView.__super__.constructor.apply(this, arguments);
+    }
+
+    CircleCrossView.prototype.initialize = function(options) {
+      var spec;
+      CircleCrossView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      return this.have_new_data = false;
+    };
+
+    CircleCrossView.prototype.init_glyph = function(glyphspec) {
+      var glyph_props;
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [new fill_properties(this, glyphspec), new line_properties(this, glyphspec)]);
+      return glyph_props;
+    };
+
+    CircleCrossView.prototype._set_data = function(data) {
+      var i, _i, _ref;
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      this.y = this.glyph_props.v_select('y', data);
+      this.mask = new Uint8Array(data.length);
+      this.selected_mask = new Uint8Array(data.length);
+      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.mask[i] = true;
+        this.selected_mask[i] = false;
+      }
+      return this.have_new_data = true;
+    };
+
+    CircleCrossView.prototype._render = function(plot_view, have_new_mapper_state) {
+      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref, _ref1;
+      if (have_new_mapper_state == null) {
+        have_new_mapper_state = true;
+      }
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      if (this.have_new_data || have_new_mapper_state) {
+        this.size = this.distance(this.data, 'x', 'size', 'edge');
+        this.have_new_data = false;
+      }
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if ((this.sx[i] + this.size[i]) < 0 || (this.sx[i] - this.size[i]) > ow || (this.sy[i] + this.size[i]) < 0 || (this.sy[i] - this.size[i]) > oh) {
+          this.mask[i] = false;
+        } else {
+          this.mask[i] = true;
+        }
+      }
+      selected = this.mget_obj('data_source').get('selected');
+      for (_j = 0, _len = selected.length; _j < _len; _j++) {
+        idx = selected[_j];
+        this.selected_mask[idx] = true;
+      }
+      ctx = this.plot_view.ctx;
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._fast_path(ctx, props, true);
+          this._fast_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._fast_path(ctx);
+        }
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, true);
+          this._full_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    CircleCrossView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _j, _ref, _ref1, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      if (glyph_props.fill_properties.do_fill) {
+        glyph_props.fill_properties.set(ctx, this.glyph_props);
+        ctx.beginPath();
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          ctx.moveTo(this.sx[i], this.sy[i]);
+          ctx.arc(this.sx[i], this.sy[i], this.size[i], 0, 2 * Math.PI, false);
+        }
+        ctx.fill();
+      }
+      if (glyph_props.line_properties.do_stroke) {
+        glyph_props.line_properties.set(ctx, this.glyph_props);
+        _results = [];
+        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          ctx.moveTo(this.sx[i], this.sy[i]);
+          ctx.beginPath();
+          r = this.size[i] / 2;
+          ctx.arc(this.sx[i], this.sy[i], r, 0, 2 * Math.PI, false);
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i]);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+          _results.push(ctx.stroke());
+        }
+        return _results;
+      }
+    };
+
+    CircleCrossView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+          continue;
+        }
+        if (use_selection && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === false && this.selected_mask[i]) {
+          continue;
+        }
+        ctx.beginPath();
+        r = this.size[i] / 2;
+        ctx.arc(this.sx[i], this.sy[i], r, 0, 2 * Math.PI, false);
+        if (glyph_props.fill_properties.do_fill) {
+          glyph_props.fill_properties.set(ctx, this.data[i]);
+          ctx.fill();
+        }
+        if (glyph_props.line_properties.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i]);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+          _results.push(ctx.stroke());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    CircleCrossView.prototype.select = function(xscreenbounds, yscreenbounds) {
+      var i, selected, _i, _ref;
+      xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
+      yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
+      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
+      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
+      selected = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (xscreenbounds) {
+          if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
+            continue;
+          }
+        }
+        if (yscreenbounds) {
+          if (this.sy[i] < yscreenbounds[0] || this.sy[i] > yscreenbounds[1]) {
+            continue;
+          }
+        }
+        selected.push(i);
+      }
+      return selected;
+    };
+
+    CircleCrossView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var border, d, data_r, fill_props, glyph_props, glyph_settings, line_props, r, reference_point;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_r = this.distance([reference_point], 'x', 'size', 'edge')[0];
+      } else {
+        glyph_settings = glyph_props;
+        data_r = glyph_props.select('size', glyph_props)["default"];
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      ctx.beginPath();
+      d = _.min([Math.abs(x2 - x1), Math.abs(y2 - y1)]);
+      d = d - 2 * border;
+      r = d / 2;
+      if (data_r != null) {
+        r = data_r > r ? r : data_r;
+      }
+      ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2 * Math.PI, false);
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.moveTo(x, y + r);
+        ctx.lineTo(x, y - r);
+        ctx.moveTo(x - r, y);
+        ctx.lineTo(x + r, y);
+        ctx.stroke();
+      }
+      return ctx.restore();
+    };
+
+    return CircleCrossView;
+
+  })(GlyphView);
+
+  CircleCross = (function(_super) {
+
+    __extends(CircleCross, _super);
+
+    function CircleCross() {
+      return CircleCross.__super__.constructor.apply(this, arguments);
+    }
+
+    CircleCross.prototype.default_view = CircleCrossView;
+
+    CircleCross.prototype.type = 'GlyphRenderer';
+
+    return CircleCross;
+
+  })(Glyph);
+
+  CircleCross.prototype.display_defaults = _.clone(CircleCross.prototype.display_defaults);
+
+  _.extend(CircleCross.prototype.display_defaults, {
+    fill_color: 'gray',
+    fill_alpha: 1.0,
+    line_color: 'red',
+    line_width: 1,
+    line_alpha: 1.0,
+    line_join: 'miter',
+    line_cap: 'butt',
+    line_dash: [],
+    line_dash_offset: 0
+  });
+
+  exports.CircleCross = CircleCross;
+
+  exports.CircleCrossView = CircleCrossView;
+
+}).call(this);
+}, "renderers/glyph/circle_x": function(exports, require, module) {(function() {
+  var CircleX, CircleXView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  CircleXView = (function(_super) {
+
+    __extends(CircleXView, _super);
+
+    function CircleXView() {
+      return CircleXView.__super__.constructor.apply(this, arguments);
+    }
+
+    CircleXView.prototype.initialize = function(options) {
+      var spec;
+      CircleXView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      return this.have_new_data = false;
+    };
+
+    CircleXView.prototype.init_glyph = function(glyphspec) {
+      var glyph_props;
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [new fill_properties(this, glyphspec), new line_properties(this, glyphspec)]);
+      return glyph_props;
+    };
+
+    CircleXView.prototype._set_data = function(data) {
+      var i, _i, _ref;
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      this.y = this.glyph_props.v_select('y', data);
+      this.mask = new Uint8Array(data.length);
+      this.selected_mask = new Uint8Array(data.length);
+      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.mask[i] = true;
+        this.selected_mask[i] = false;
+      }
+      return this.have_new_data = true;
+    };
+
+    CircleXView.prototype._render = function(plot_view, have_new_mapper_state) {
+      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref, _ref1;
+      if (have_new_mapper_state == null) {
+        have_new_mapper_state = true;
+      }
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      if (this.have_new_data || have_new_mapper_state) {
+        this.size = this.distance(this.data, 'x', 'size', 'edge');
+        this.have_new_data = false;
+      }
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if ((this.sx[i] + this.size[i]) < 0 || (this.sx[i] - this.size[i]) > ow || (this.sy[i] + this.size[i]) < 0 || (this.sy[i] - this.size[i]) > oh) {
+          this.mask[i] = false;
+        } else {
+          this.mask[i] = true;
+        }
+      }
+      selected = this.mget_obj('data_source').get('selected');
+      for (_j = 0, _len = selected.length; _j < _len; _j++) {
+        idx = selected[_j];
+        this.selected_mask[idx] = true;
+      }
+      ctx = this.plot_view.ctx;
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._fast_path(ctx, props, true);
+          this._fast_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._fast_path(ctx);
+        }
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, true);
+          this._full_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    CircleXView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _j, _ref, _ref1, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      if (glyph_props.fill_properties.do_fill) {
+        glyph_props.fill_properties.set(ctx, this.glyph_props);
+        ctx.beginPath();
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          ctx.moveTo(this.sx[i], this.sy[i]);
+          ctx.arc(this.sx[i], this.sy[i], this.size[i], 0, 2 * Math.PI, false);
+        }
+        ctx.fill();
+      }
+      if (glyph_props.line_properties.do_stroke) {
+        glyph_props.line_properties.set(ctx, this.glyph_props);
+        _results = [];
+        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          ctx.moveTo(this.sx[i], this.sy[i]);
+          ctx.beginPath();
+          r = this.size[i] / 2;
+          ctx.arc(this.sx[i], this.sy[i], r, 0, 2 * Math.PI, false);
+          ctx.moveTo(this.sx[i] - r, this.sy[i] + r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i] - r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] + r);
+          _results.push(ctx.stroke());
+        }
+        return _results;
+      }
+    };
+
+    CircleXView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+          continue;
+        }
+        if (use_selection && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === false && this.selected_mask[i]) {
+          continue;
+        }
+        ctx.beginPath();
+        r = this.size[i] / 2;
+        ctx.arc(this.sx[i], this.sy[i], r, 0, 2 * Math.PI, false);
+        if (glyph_props.fill_properties.do_fill) {
+          glyph_props.fill_properties.set(ctx, this.data[i]);
+          ctx.fill();
+        }
+        if (glyph_props.line_properties.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          ctx.moveTo(this.sx[i] - r, this.sy[i] + r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i] - r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] + r);
+          _results.push(ctx.stroke());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    CircleXView.prototype.select = function(xscreenbounds, yscreenbounds) {
+      var i, selected, _i, _ref;
+      xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
+      yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
+      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
+      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
+      selected = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (xscreenbounds) {
+          if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
+            continue;
+          }
+        }
+        if (yscreenbounds) {
+          if (this.sy[i] < yscreenbounds[0] || this.sy[i] > yscreenbounds[1]) {
+            continue;
+          }
+        }
+        selected.push(i);
+      }
+      return selected;
+    };
+
+    CircleXView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var border, d, data_r, fill_props, glyph_props, glyph_settings, line_props, r, reference_point;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_r = this.distance([reference_point], 'x', 'size', 'edge')[0];
+      } else {
+        glyph_settings = glyph_props;
+        data_r = glyph_props.select('size', glyph_props)["default"];
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      ctx.beginPath();
+      d = _.min([Math.abs(x2 - x1), Math.abs(y2 - y1)]);
+      d = d - 2 * border;
+      r = d / 2;
+      if (data_r != null) {
+        r = data_r > r ? r : data_r;
+      }
+      ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2 * Math.PI, false);
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.moveTo(x - r, y + r);
+        ctx.lineTo(x + r, y - r);
+        ctx.moveTo(x - r, y - r);
+        ctx.lineTo(x + r, y + r);
+        ctx.stroke();
+      }
+      return ctx.restore();
+    };
+
+    return CircleXView;
+
+  })(GlyphView);
+
+  CircleX = (function(_super) {
+
+    __extends(CircleX, _super);
+
+    function CircleX() {
+      return CircleX.__super__.constructor.apply(this, arguments);
+    }
+
+    CircleX.prototype.default_view = CircleXView;
+
+    CircleX.prototype.type = 'GlyphRenderer';
+
+    return CircleX;
+
+  })(Glyph);
+
+  CircleX.prototype.display_defaults = _.clone(CircleX.prototype.display_defaults);
+
+  _.extend(CircleX.prototype.display_defaults, {
+    fill_color: 'gray',
+    fill_alpha: 1.0,
+    line_color: 'red',
+    line_width: 1,
+    line_alpha: 1.0,
+    line_join: 'miter',
+    line_cap: 'butt',
+    line_dash: [],
+    line_dash_offset: 0
+  });
+
+  exports.CircleX = CircleX;
+
+  exports.CircleXView = CircleXView;
+
+}).call(this);
+}, "renderers/glyph/cross": function(exports, require, module) {(function() {
+  var Cross, CrossView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  CrossView = (function(_super) {
+
+    __extends(CrossView, _super);
+
+    function CrossView() {
+      return CrossView.__super__.constructor.apply(this, arguments);
+    }
+
+    CrossView.prototype.initialize = function(options) {
+      var spec;
+      CrossView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      return this.have_new_data = false;
+    };
+
+    CrossView.prototype.init_glyph = function(glyphspec) {
+      var glyph_props;
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [new fill_properties(this, glyphspec), new line_properties(this, glyphspec)]);
+      return glyph_props;
+    };
+
+    CrossView.prototype._set_data = function(data) {
+      var i, _i, _ref;
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      this.y = this.glyph_props.v_select('y', data);
+      this.mask = new Uint8Array(data.length);
+      this.selected_mask = new Uint8Array(data.length);
+      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.mask[i] = true;
+        this.selected_mask[i] = false;
+      }
+      return this.have_new_data = true;
+    };
+
+    CrossView.prototype._render = function(plot_view, have_new_mapper_state) {
+      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref, _ref1;
+      if (have_new_mapper_state == null) {
+        have_new_mapper_state = true;
+      }
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      if (this.have_new_data || have_new_mapper_state) {
+        this.size = this.distance(this.data, 'x', 'size', 'edge');
+        this.have_new_data = false;
+      }
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if ((this.sx[i] + this.size[i]) < 0 || (this.sx[i] - this.size[i]) > ow || (this.sy[i] + this.size[i]) < 0 || (this.sy[i] - this.size[i]) > oh) {
+          this.mask[i] = false;
+        } else {
+          this.mask[i] = true;
+        }
+      }
+      selected = this.mget_obj('data_source').get('selected');
+      for (_j = 0, _len = selected.length; _j < _len; _j++) {
+        idx = selected[_j];
+        this.selected_mask[idx] = true;
+      }
+      ctx = this.plot_view.ctx;
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._fast_path(ctx, props, true);
+          this._fast_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._fast_path(ctx);
+        }
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, true);
+          this._full_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    CrossView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _ref, _results;
+      if (glyph_props.line_properties.do_stroke) {
+        glyph_props.line_properties.set(ctx, this.glyph_props);
+        _results = [];
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          r = this.size[i] / 2;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i]);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+          _results.push(ctx.stroke());
+        }
+        return _results;
+      }
+    };
+
+    CrossView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+          continue;
+        }
+        if (use_selection && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === false && this.selected_mask[i]) {
+          continue;
+        }
+        r = this.size[i] / 2;
+        ctx.beginPath();
+        ctx.moveTo(this.sx[i], this.sy[i] + r);
+        ctx.lineTo(this.sx[i], this.sy[i] - r);
+        ctx.moveTo(this.sx[i] - r, this.sy[i]);
+        ctx.lineTo(this.sx[i] + r, this.sy[i]);
+        if (glyph_props.line_properties.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          _results.push(ctx.stroke());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    CrossView.prototype.select = function(xscreenbounds, yscreenbounds) {
+      var i, selected, _i, _ref;
+      xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
+      yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
+      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
+      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
+      selected = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (xscreenbounds) {
+          if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
+            continue;
+          }
+        }
+        if (yscreenbounds) {
+          if (this.sy[i] < yscreenbounds[0] || this.sy[i] > yscreenbounds[1]) {
+            continue;
+          }
+        }
+        selected.push(i);
+      }
+      return selected;
+    };
+
+    CrossView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var border, d, data_r, fill_props, glyph_props, glyph_settings, line_props, r, reference_point, x, y;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_r = this.distance([reference_point], 'x', 'size', 'edge')[0];
+      } else {
+        glyph_settings = glyph_props;
+        data_r = glyph_props.select('size', glyph_props)["default"];
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      ctx.beginPath();
+      d = _.min([Math.abs(x2 - x1), Math.abs(y2 - y1)]);
+      d = d - 2 * border;
+      r = d / 2;
+      if (data_r != null) {
+        r = data_r > r ? r : data_r;
+      }
+      x = (x1 + x2) / 2.0;
+      y = (y1 + y2) / 2.0;
+      ctx.moveTo(x, y + r);
+      ctx.lineTo(x, y - r);
+      ctx.moveTo(x - r, y);
+      ctx.lineTo(x + r, y);
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
+      return ctx.restore();
+    };
+
+    return CrossView;
+
+  })(GlyphView);
+
+  Cross = (function(_super) {
+
+    __extends(Cross, _super);
+
+    function Cross() {
+      return Cross.__super__.constructor.apply(this, arguments);
+    }
+
+    Cross.prototype.default_view = CrossView;
+
+    Cross.prototype.type = 'GlyphRenderer';
+
+    return Cross;
+
+  })(Glyph);
+
+  Cross.prototype.display_defaults = _.clone(Cross.prototype.display_defaults);
+
+  _.extend(Cross.prototype.display_defaults, {
+    line_color: 'red',
+    line_width: 1,
+    line_alpha: 1.0,
+    line_join: 'miter',
+    line_cap: 'butt',
+    line_dash: [],
+    line_dash_offset: 0
+  });
+
+  exports.Cross = Cross;
+
+  exports.CrossView = CrossView;
+
+}).call(this);
+}, "renderers/glyph/diamond": function(exports, require, module) {(function() {
+  var Diamond, DiamondView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  DiamondView = (function(_super) {
+
+    __extends(DiamondView, _super);
+
+    function DiamondView() {
+      return DiamondView.__super__.constructor.apply(this, arguments);
+    }
+
+    DiamondView.prototype.initialize = function(options) {
+      var spec;
+      DiamondView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      return this.have_new_data = false;
+    };
+
+    DiamondView.prototype.init_glyph = function(glyphspec) {
+      var glyph_props;
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [new fill_properties(this, glyphspec), new line_properties(this, glyphspec)]);
+      return glyph_props;
+    };
+
+    DiamondView.prototype._set_data = function(data) {
+      var i, _i, _ref;
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      this.y = this.glyph_props.v_select('y', data);
+      this.mask = new Uint8Array(data.length);
+      this.selected_mask = new Uint8Array(data.length);
+      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.mask[i] = true;
+        this.selected_mask[i] = false;
+      }
+      return this.have_new_data = true;
+    };
+
+    DiamondView.prototype._render = function(plot_view, have_new_mapper_state) {
+      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref, _ref1;
+      if (have_new_mapper_state == null) {
+        have_new_mapper_state = true;
+      }
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      if (this.have_new_data || have_new_mapper_state) {
+        this.size = this.distance(this.data, 'x', 'size', 'edge');
+        this.have_new_data = false;
+      }
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if ((this.sx[i] + this.size[i]) < 0 || (this.sx[i] - this.size[i]) > ow || (this.sy[i] + this.size[i]) < 0 || (this.sy[i] - this.size[i]) > oh) {
+          this.mask[i] = false;
+        } else {
+          this.mask[i] = true;
+        }
+      }
+      selected = this.mget_obj('data_source').get('selected');
+      for (_j = 0, _len = selected.length; _j < _len; _j++) {
+        idx = selected[_j];
+        this.selected_mask[idx] = true;
+      }
+      ctx = this.plot_view.ctx;
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._fast_path(ctx, props, true);
+          this._fast_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._fast_path(ctx);
+        }
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, true);
+          this._full_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    DiamondView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _j, _ref, _ref1, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      if (glyph_props.fill_properties.do_fill) {
+        glyph_props.fill_properties.set(ctx, this.glyph_props);
+        ctx.beginPath();
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          r = this.size[i] / 2;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.lineTo(this.sx[i] - r, this.sy[i]);
+          ctx.closePath();
+        }
+        ctx.fill();
+      }
+      if (glyph_props.line_properties.do_stroke) {
+        glyph_props.line_properties.set(ctx, this.glyph_props);
+        _results = [];
+        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          r = this.size[i] / 2;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.lineTo(this.sx[i] - r, this.sy[i]);
+          ctx.closePath();
+          _results.push(ctx.stroke());
+        }
+        return _results;
+      }
+    };
+
+    DiamondView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+          continue;
+        }
+        if (use_selection && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === false && this.selected_mask[i]) {
+          continue;
+        }
+        r = this.size[i] / 2;
+        ctx.beginPath();
+        ctx.moveTo(this.sx[i], this.sy[i] + r);
+        ctx.lineTo(this.sx[i] + r, this.sy[i]);
+        ctx.lineTo(this.sx[i], this.sy[i] - r);
+        ctx.lineTo(this.sx[i] - r, this.sy[i]);
+        ctx.closePath();
+        if (glyph_props.fill_properties.do_fill) {
+          glyph_props.fill_properties.set(ctx, this.data[i]);
+          ctx.fill();
+        }
+        if (glyph_props.line_properties.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          _results.push(ctx.stroke());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    DiamondView.prototype.select = function(xscreenbounds, yscreenbounds) {
+      var i, selected, _i, _ref;
+      xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
+      yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
+      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
+      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
+      selected = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (xscreenbounds) {
+          if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
+            continue;
+          }
+        }
+        if (yscreenbounds) {
+          if (this.sy[i] < yscreenbounds[0] || this.sy[i] > yscreenbounds[1]) {
+            continue;
+          }
+        }
+        selected.push(i);
+      }
+      return selected;
+    };
+
+    DiamondView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var border, d, data_r, fill_props, glyph_props, glyph_settings, line_props, r, reference_point, x, y;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_r = this.distance([reference_point], 'x', 'size', 'edge')[0];
+      } else {
+        glyph_settings = glyph_props;
+        data_r = glyph_props.select('size', glyph_props)["default"];
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      d = _.min([Math.abs(x2 - x1), Math.abs(y2 - y1)]);
+      d = d - 2 * border;
+      r = d / 2;
+      if (data_r != null) {
+        r = data_r > r ? r : data_r;
+      }
+      r = this.size[i] / 2;
+      x = (x1 + x2) / 2.0;
+      y = (y1 + y2) / 2.0;
+      ctx.beginPath();
+      ctx.moveTo(x, y + r);
+      ctx.lineTo(x + r, y);
+      ctx.lineTo(x, y - r);
+      ctx.lineTo(x - r, y);
+      ctx.closePath();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
+      return ctx.restore();
+    };
+
+    return DiamondView;
+
+  })(GlyphView);
+
+  Diamond = (function(_super) {
+
+    __extends(Diamond, _super);
+
+    function Diamond() {
+      return Diamond.__super__.constructor.apply(this, arguments);
+    }
+
+    Diamond.prototype.default_view = DiamondView;
+
+    Diamond.prototype.type = 'GlyphRenderer';
+
+    return Diamond;
+
+  })(Glyph);
+
+  Diamond.prototype.display_defaults = _.clone(Diamond.prototype.display_defaults);
+
+  _.extend(Diamond.prototype.display_defaults, {
+    fill_color: 'gray',
+    fill_alpha: 1.0,
+    line_color: 'red',
+    line_width: 1,
+    line_alpha: 1.0,
+    line_join: 'miter',
+    line_cap: 'butt',
+    line_dash: [],
+    line_dash_offset: 0
+  });
+
+  exports.Diamond = Diamond;
+
+  exports.DiamondView = DiamondView;
+
+}).call(this);
+}, "renderers/glyph/diamond_cross": function(exports, require, module) {(function() {
+  var DiamondCross, DiamondCrossView, Glyph, GlyphView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  DiamondCrossView = (function(_super) {
+
+    __extends(DiamondCrossView, _super);
+
+    function DiamondCrossView() {
+      return DiamondCrossView.__super__.constructor.apply(this, arguments);
+    }
+
+    DiamondCrossView.prototype.initialize = function(options) {
+      var spec;
+      DiamondCrossView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      return this.have_new_data = false;
+    };
+
+    DiamondCrossView.prototype.init_glyph = function(glyphspec) {
+      var glyph_props;
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [new fill_properties(this, glyphspec), new line_properties(this, glyphspec)]);
+      return glyph_props;
+    };
+
+    DiamondCrossView.prototype._set_data = function(data) {
+      var i, _i, _ref;
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      this.y = this.glyph_props.v_select('y', data);
+      this.mask = new Uint8Array(data.length);
+      this.selected_mask = new Uint8Array(data.length);
+      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.mask[i] = true;
+        this.selected_mask[i] = false;
+      }
+      return this.have_new_data = true;
+    };
+
+    DiamondCrossView.prototype._render = function(plot_view, have_new_mapper_state) {
+      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref, _ref1;
+      if (have_new_mapper_state == null) {
+        have_new_mapper_state = true;
+      }
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      if (this.have_new_data || have_new_mapper_state) {
+        this.size = this.distance(this.data, 'x', 'size', 'edge');
+        this.have_new_data = false;
+      }
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if ((this.sx[i] + this.size[i]) < 0 || (this.sx[i] - this.size[i]) > ow || (this.sy[i] + this.size[i]) < 0 || (this.sy[i] - this.size[i]) > oh) {
+          this.mask[i] = false;
+        } else {
+          this.mask[i] = true;
+        }
+      }
+      selected = this.mget_obj('data_source').get('selected');
+      for (_j = 0, _len = selected.length; _j < _len; _j++) {
+        idx = selected[_j];
+        this.selected_mask[idx] = true;
+      }
+      ctx = this.plot_view.ctx;
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._fast_path(ctx, props, true);
+          this._fast_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._fast_path(ctx);
+        }
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, true);
+          this._full_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    DiamondCrossView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _j, _ref, _ref1, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      if (glyph_props.fill_properties.do_fill) {
+        glyph_props.fill_properties.set(ctx, this.glyph_props);
+        ctx.beginPath();
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          r = this.size[i] / 2;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.lineTo(this.sx[i] - r, this.sy[i]);
+          ctx.closePath();
+        }
+        ctx.fill();
+      }
+      if (glyph_props.line_properties.do_stroke) {
+        glyph_props.line_properties.set(ctx, this.glyph_props);
+        _results = [];
+        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          r = this.size[i] / 2;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.lineTo(this.sx[i] - r, this.sy[i]);
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i]);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+          ctx.closePath();
+          _results.push(ctx.stroke());
+        }
+        return _results;
+      }
+    };
+
+    DiamondCrossView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+          continue;
+        }
+        if (use_selection && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === false && this.selected_mask[i]) {
+          continue;
+        }
+        r = this.size[i] / 2;
+        ctx.beginPath();
+        ctx.moveTo(this.sx[i], this.sy[i] + r);
+        ctx.lineTo(this.sx[i] + r, this.sy[i]);
+        ctx.lineTo(this.sx[i], this.sy[i] - r);
+        ctx.lineTo(this.sx[i] - r, this.sy[i]);
+        ctx.closePath();
+        if (glyph_props.fill_properties.do_fill) {
+          glyph_props.fill_properties.set(ctx, this.data[i]);
+          ctx.fill();
+        }
+        if (glyph_props.line_properties.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i]);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+          _results.push(ctx.stroke());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    DiamondCrossView.prototype.select = function(xscreenbounds, yscreenbounds) {
+      var i, selected, _i, _ref;
+      xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
+      yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
+      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
+      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
+      selected = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (xscreenbounds) {
+          if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
+            continue;
+          }
+        }
+        if (yscreenbounds) {
+          if (this.sy[i] < yscreenbounds[0] || this.sy[i] > yscreenbounds[1]) {
+            continue;
+          }
+        }
+        selected.push(i);
+      }
+      return selected;
+    };
+
+    DiamondCrossView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var border, d, data_r, fill_props, glyph_props, glyph_settings, line_props, r, reference_point, x, y;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_r = this.distance([reference_point], 'x', 'size', 'edge')[0];
+      } else {
+        glyph_settings = glyph_props;
+        data_r = glyph_props.select('size', glyph_props)["default"];
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      d = _.min([Math.abs(x2 - x1), Math.abs(y2 - y1)]);
+      d = d - 2 * border;
+      r = d / 2;
+      if (data_r != null) {
+        r = data_r > r ? r : data_r;
+      }
+      r = this.size[i] / 2;
+      x = (x1 + x2) / 2.0;
+      y = (y1 + y2) / 2.0;
+      ctx.beginPath();
+      ctx.moveTo(x, y + r);
+      ctx.lineTo(x + r, y);
+      ctx.lineTo(x, y - r);
+      ctx.lineTo(x - r, y);
+      ctx.closePath();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.moveTo(x, y + r);
+        ctx.lineTo(x, y - r);
+        ctx.moveTo(x - r, y);
+        ctx.lineTo(x + r, y);
+      }
+      ctx.stroke();
+      return ctx.restore();
+    };
+
+    return DiamondCrossView;
+
+  })(GlyphView);
+
+  DiamondCross = (function(_super) {
+
+    __extends(DiamondCross, _super);
+
+    function DiamondCross() {
+      return DiamondCross.__super__.constructor.apply(this, arguments);
+    }
+
+    DiamondCross.prototype.default_view = DiamondCrossView;
+
+    DiamondCross.prototype.type = 'GlyphRenderer';
+
+    return DiamondCross;
+
+  })(Glyph);
+
+  DiamondCross.prototype.display_defaults = _.clone(DiamondCross.prototype.display_defaults);
+
+  _.extend(DiamondCross.prototype.display_defaults, {
+    fill_color: 'gray',
+    fill_alpha: 1.0,
+    line_color: 'red',
+    line_width: 1,
+    line_alpha: 1.0,
+    line_join: 'miter',
+    line_cap: 'butt',
+    line_dash: [],
+    line_dash_offset: 0
+  });
+
+  exports.DiamondCross = DiamondCross;
+
+  exports.DiamondCrossView = DiamondCrossView;
 
 }).call(this);
 }, "renderers/glyph/glyph": function(exports, require, module) {(function() {
@@ -16716,6 +18521,323 @@ _.setdefault = function(obj, key, value){
   exports.ImageURI = ImageURIGlyph;
 
   exports.ImageURIView = ImageURIView;
+
+}).call(this);
+}, "renderers/glyph/inverted_triangle": function(exports, require, module) {(function() {
+  var Glyph, GlyphView, InvertedTriangle, InvertedTriangleView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  InvertedTriangleView = (function(_super) {
+
+    __extends(InvertedTriangleView, _super);
+
+    function InvertedTriangleView() {
+      return InvertedTriangleView.__super__.constructor.apply(this, arguments);
+    }
+
+    InvertedTriangleView.prototype.initialize = function(options) {
+      var spec;
+      InvertedTriangleView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      return this.have_new_data = false;
+    };
+
+    InvertedTriangleView.prototype.init_glyph = function(glyphspec) {
+      var glyph_props;
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [new fill_properties(this, glyphspec), new line_properties(this, glyphspec)]);
+      return glyph_props;
+    };
+
+    InvertedTriangleView.prototype._set_data = function(data) {
+      var i, _i, _ref;
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      this.y = this.glyph_props.v_select('y', data);
+      this.mask = new Uint8Array(data.length);
+      this.selected_mask = new Uint8Array(data.length);
+      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.mask[i] = true;
+        this.selected_mask[i] = false;
+      }
+      return this.have_new_data = true;
+    };
+
+    InvertedTriangleView.prototype._render = function(plot_view, have_new_mapper_state) {
+      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref, _ref1;
+      if (have_new_mapper_state == null) {
+        have_new_mapper_state = true;
+      }
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      if (this.have_new_data || have_new_mapper_state) {
+        this.size = this.distance(this.data, 'x', 'size', 'edge');
+        this.have_new_data = false;
+      }
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if ((this.sx[i] + this.size[i]) < 0 || (this.sx[i] - this.size[i]) > ow || (this.sy[i] + this.size[i]) < 0 || (this.sy[i] - this.size[i]) > oh) {
+          this.mask[i] = false;
+        } else {
+          this.mask[i] = true;
+        }
+      }
+      selected = this.mget_obj('data_source').get('selected');
+      for (_j = 0, _len = selected.length; _j < _len; _j++) {
+        idx = selected[_j];
+        this.selected_mask[idx] = true;
+      }
+      ctx = this.plot_view.ctx;
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._fast_path(ctx, props, true);
+          this._fast_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._fast_path(ctx);
+        }
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, true);
+          this._full_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    InvertedTriangleView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
+      var a, h, i, r, _i, _j, _ref, _ref1, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      if (glyph_props.fill_properties.do_fill) {
+        glyph_props.fill_properties.set(ctx, this.glyph_props);
+        ctx.beginPath();
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          a = this.size[i] * Math.sqrt(3) / 6;
+          r = this.size[i] / 2;
+          h = this.size[i] * Math.sqrt(3) / 2;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i] - r, this.sy[i] - a);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] - a);
+          ctx.lineTo(this.sx[i], this.sy[i] - a + h);
+          ctx.closePath();
+        }
+        ctx.fill();
+      }
+      if (glyph_props.line_properties.do_stroke) {
+        glyph_props.line_properties.set(ctx, this.glyph_props);
+        _results = [];
+        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          a = this.size[i] * Math.sqrt(3) / 6;
+          r = this.size[i] / 2;
+          h = this.size[i] * Math.sqrt(3) / 2;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i] - r, this.sy[i] - a);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] - a);
+          ctx.lineTo(this.sx[i], this.sy[i] - a + h);
+          ctx.closePath();
+          _results.push(ctx.stroke());
+        }
+        return _results;
+      }
+    };
+
+    InvertedTriangleView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var a, h, i, r, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+          continue;
+        }
+        if (use_selection && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === false && this.selected_mask[i]) {
+          continue;
+        }
+        a = this.size[i] * Math.sqrt(3) / 6;
+        r = this.size[i] / 2;
+        h = this.size[i] * Math.sqrt(3) / 2;
+        console.log(a, r, h);
+        ctx.beginPath();
+        ctx.moveTo(this.sx[i] - r, this.sy[i] - a);
+        ctx.lineTo(this.sx[i] + r, this.sy[i] - a);
+        ctx.lineTo(this.sx[i], this.sy[i] - a + h);
+        ctx.closePath();
+        if (glyph_props.fill_properties.do_fill) {
+          glyph_props.fill_properties.set(ctx, this.data[i]);
+          ctx.fill();
+        }
+        if (glyph_props.line_properties.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          _results.push(ctx.stroke());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    InvertedTriangleView.prototype.select = function(xscreenbounds, yscreenbounds) {
+      var i, selected, _i, _ref;
+      xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
+      yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
+      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
+      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
+      selected = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (xscreenbounds) {
+          if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
+            continue;
+          }
+        }
+        if (yscreenbounds) {
+          if (this.sy[i] < yscreenbounds[0] || this.sy[i] > yscreenbounds[1]) {
+            continue;
+          }
+        }
+        selected.push(i);
+      }
+      return selected;
+    };
+
+    InvertedTriangleView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var a, border, d, data_r, fill_props, glyph_props, glyph_settings, h, line_props, r, reference_point, x, y;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_r = this.distance([reference_point], 'x', 'size', 'edge')[0];
+      } else {
+        glyph_settings = glyph_props;
+        data_r = glyph_props.select('size', glyph_props)["default"];
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      d = _.min([Math.abs(x2 - x1), Math.abs(y2 - y1)]);
+      d = d - 2 * border;
+      r = d / 2;
+      if (data_r != null) {
+        r = data_r > r ? r : data_r;
+      }
+      x = (x1 + x2) / 2.0;
+      y = (y1 + y2) / 2.0;
+      a = this.size[i] * Math.sqrt(3) / 6;
+      r = this.size[i] / 2;
+      h = this.size[i] * Math.sqrt(3) / 2;
+      ctx.beginPath();
+      ctx.moveTo(this.sx[i] - r, this.sy[i] - a);
+      ctx.lineTo(this.sx[i] + r, this.sy[i] - a);
+      ctx.lineTo(this.sx[i], this.sy[i] - a + h);
+      ctx.closePath();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
+      return ctx.restore();
+    };
+
+    return InvertedTriangleView;
+
+  })(GlyphView);
+
+  InvertedTriangle = (function(_super) {
+
+    __extends(InvertedTriangle, _super);
+
+    function InvertedTriangle() {
+      return InvertedTriangle.__super__.constructor.apply(this, arguments);
+    }
+
+    InvertedTriangle.prototype.default_view = InvertedTriangleView;
+
+    InvertedTriangle.prototype.type = 'GlyphRenderer';
+
+    return InvertedTriangle;
+
+  })(Glyph);
+
+  InvertedTriangle.prototype.display_defaults = _.clone(InvertedTriangle.prototype.display_defaults);
+
+  _.extend(InvertedTriangle.prototype.display_defaults, {
+    fill_color: 'gray',
+    fill_alpha: 1.0,
+    line_color: 'red',
+    line_width: 1,
+    line_alpha: 1.0,
+    line_join: 'miter',
+    line_cap: 'butt',
+    line_dash: [],
+    line_dash_offset: 0
+  });
+
+  exports.InvertedTriangle = InvertedTriangle;
+
+  exports.InvertedTriangleView = InvertedTriangleView;
 
 }).call(this);
 }, "renderers/glyph/line": function(exports, require, module) {(function() {
@@ -18730,6 +20852,464 @@ _.setdefault = function(obj, key, value){
   exports.SquareView = SquareView;
 
 }).call(this);
+}, "renderers/glyph/square_cross": function(exports, require, module) {(function() {
+  var Glyph, GlyphView, SquareCross, SquareCrossView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  SquareCrossView = (function(_super) {
+
+    __extends(SquareCrossView, _super);
+
+    function SquareCrossView() {
+      return SquareCrossView.__super__.constructor.apply(this, arguments);
+    }
+
+    SquareCrossView.prototype.initialize = function(options) {
+      var spec;
+      SquareCrossView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      this.do_fill = this.glyph_props.fill_properties.do_fill;
+      return this.do_stroke = this.glyph_props.line_properties.do_stroke;
+    };
+
+    SquareCrossView.prototype.init_glyph = function(glyphspec) {
+      var fill_props, glyph_props, line_props;
+      fill_props = new fill_properties(this, glyphspec);
+      line_props = new line_properties(this, glyphspec);
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [line_props, fill_props]);
+      return glyph_props;
+    };
+
+    SquareCrossView.prototype._set_data = function(data) {
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      return this.y = this.glyph_props.v_select('y', data);
+    };
+
+    SquareCrossView.prototype._map_data = function() {
+      var _ref;
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      this.sw = this.distance(this.data, 'x', 'size', 'center');
+      return this.sh = this.sw;
+    };
+
+    SquareCrossView.prototype._render = function() {
+      var ctx, idx, props, selected, _i, _len;
+      this._map_data();
+      ctx = this.plot_view.ctx;
+      selected = this.mget_obj('data_source').get('selected');
+      for (_i = 0, _len = selected.length; _i < _len; _i++) {
+        idx = selected[_i];
+        this.selected_mask[idx] = true;
+      }
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        this._fast_path(ctx);
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, 'selected');
+          this._full_path(ctx, this.nonselection_glyphprops, 'unselected');
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    SquareCrossView.prototype._fast_path = function(ctx) {
+      var i, r, _i, _j, _ref, _ref1;
+      if (this.do_fill) {
+        this.glyph_props.fill_properties.set(ctx, this.glyph_props);
+        ctx.beginPath();
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i])) {
+            continue;
+          }
+          ctx.rect(this.sx[i] - this.sw[i] / 2, this.sy[i] - this.sh[i] / 2, this.sw[i], this.sh[i]);
+        }
+        ctx.fill();
+      }
+      if (this.do_stroke) {
+        this.glyph_props.line_properties.set(ctx, this.glyph_props);
+        ctx.beginPath();
+        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i])) {
+            continue;
+          }
+          ctx.rect(this.sx[i] - this.sw[i] / 2, this.sy[i] - this.sh[i] / 2, this.sw[i], this.sh[i]);
+          r = this.sw[i] / 2;
+          ctx.moveTo(this.sx[i], this.sy[i] + r);
+          ctx.lineTo(this.sx[i], this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i]);
+          ctx.lineTo(this.sx[i] + r, this.sy[i]);
+        }
+        return ctx.stroke();
+      }
+    };
+
+    SquareCrossView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i])) {
+          continue;
+        }
+        if (use_selection === 'selected' && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === 'unselected' && this.selected_mask[i]) {
+          continue;
+        }
+        ctx.translate(this.sx[i], this.sy[i]);
+        ctx.beginPath();
+        ctx.rect(-this.sw[i] / 2, -this.sh[i] / 2, this.sw[i], this.sh[i]);
+        if (this.do_fill) {
+          glyph_props.fill_properties.set(ctx, this.data[i]);
+          ctx.fill();
+        }
+        if (this.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          r = this.sw[i] / 2;
+          ctx.moveTo(0, +r);
+          ctx.lineTo(0, -r);
+          ctx.moveTo(-r, 0);
+          ctx.lineTo(+r, 0);
+          ctx.stroke();
+        }
+        _results.push(ctx.translate(-this.sx[i], -this.sy[i]));
+      }
+      return _results;
+    };
+
+    SquareCrossView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var border, data_h, data_w, fill_props, glyph_props, glyph_settings, h, line_props, reference_point, w, x, y;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_w = this.distance([reference_point], 'x', 'size', 'center')[0];
+        data_h = data_w;
+      } else {
+        glyph_settings = glyph_props;
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      ctx.beginPath();
+      w = Math.abs(x2 - x1);
+      h = Math.abs(y2 - y1);
+      w = w - 2 * border;
+      h = h - 2 * border;
+      if (data_w != null) {
+        w = data_w > w ? w : data_w;
+      }
+      if (data_h != null) {
+        h = data_h > h ? h : data_h;
+      }
+      x = (x1 + x2) / 2 - (w / 2);
+      y = (y1 + y2) / 2 - (h / 2);
+      ctx.rect(x, y, w, h);
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.moveTo(x, y + r);
+        ctx.lineTo(x, y - r);
+        ctx.moveTo(x - r, y);
+        ctx.lineTo(x + r, y);
+        ctx.stroke();
+      }
+      return ctx.restore();
+    };
+
+    return SquareCrossView;
+
+  })(GlyphView);
+
+  SquareCross = (function(_super) {
+
+    __extends(SquareCross, _super);
+
+    function SquareCross() {
+      return SquareCross.__super__.constructor.apply(this, arguments);
+    }
+
+    SquareCross.prototype.default_view = SquareCrossView;
+
+    SquareCross.prototype.type = 'GlyphRenderer';
+
+    return SquareCross;
+
+  })(Glyph);
+
+  exports.SquareCross = SquareCross;
+
+  exports.SquareCrossView = SquareCrossView;
+
+}).call(this);
+}, "renderers/glyph/square_x": function(exports, require, module) {(function() {
+  var Glyph, GlyphView, SquareX, SquareXView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  SquareXView = (function(_super) {
+
+    __extends(SquareXView, _super);
+
+    function SquareXView() {
+      return SquareXView.__super__.constructor.apply(this, arguments);
+    }
+
+    SquareXView.prototype.initialize = function(options) {
+      var spec;
+      SquareXView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      this.do_fill = this.glyph_props.fill_properties.do_fill;
+      return this.do_stroke = this.glyph_props.line_properties.do_stroke;
+    };
+
+    SquareXView.prototype.init_glyph = function(glyphspec) {
+      var fill_props, glyph_props, line_props;
+      fill_props = new fill_properties(this, glyphspec);
+      line_props = new line_properties(this, glyphspec);
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [line_props, fill_props]);
+      return glyph_props;
+    };
+
+    SquareXView.prototype._set_data = function(data) {
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      return this.y = this.glyph_props.v_select('y', data);
+    };
+
+    SquareXView.prototype._map_data = function() {
+      var _ref;
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      this.sw = this.distance(this.data, 'x', 'size', 'center');
+      return this.sh = this.sw;
+    };
+
+    SquareXView.prototype._render = function() {
+      var ctx, idx, props, selected, _i, _len;
+      this._map_data();
+      ctx = this.plot_view.ctx;
+      selected = this.mget_obj('data_source').get('selected');
+      for (_i = 0, _len = selected.length; _i < _len; _i++) {
+        idx = selected[_i];
+        this.selected_mask[idx] = true;
+      }
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        this._fast_path(ctx);
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, 'selected');
+          this._full_path(ctx, this.nonselection_glyphprops, 'unselected');
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    SquareXView.prototype._fast_path = function(ctx) {
+      var i, r, _i, _j, _ref, _ref1;
+      if (this.do_fill) {
+        this.glyph_props.fill_properties.set(ctx, this.glyph_props);
+        ctx.beginPath();
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i])) {
+            continue;
+          }
+          ctx.rect(this.sx[i] - this.sw[i] / 2, this.sy[i] - this.sh[i] / 2, this.sw[i], this.sh[i]);
+        }
+        ctx.fill();
+      }
+      if (this.do_stroke) {
+        this.glyph_props.line_properties.set(ctx, this.glyph_props);
+        ctx.beginPath();
+        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i])) {
+            continue;
+          }
+          ctx.rect(this.sx[i] - this.sw[i] / 2, this.sy[i] - this.sh[i] / 2, this.sw[i], this.sh[i]);
+          r = this.sw[i] / 2;
+          ctx.moveTo(this.sx[i] - r, this.sy[i] + r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i] - r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] + r);
+        }
+        return ctx.stroke();
+      }
+    };
+
+    SquareXView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i])) {
+          continue;
+        }
+        if (use_selection === 'selected' && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === 'unselected' && this.selected_mask[i]) {
+          continue;
+        }
+        ctx.translate(this.sx[i], this.sy[i]);
+        ctx.beginPath();
+        ctx.rect(-this.sw[i] / 2, -this.sh[i] / 2, this.sw[i], this.sh[i]);
+        if (this.do_fill) {
+          glyph_props.fill_properties.set(ctx, this.data[i]);
+          ctx.fill();
+        }
+        if (this.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          r = this.sw[i] / 2;
+          ctx.moveTo(-r, +r);
+          ctx.lineTo(+r, -r);
+          ctx.moveTo(-r, -r);
+          ctx.lineTo(+r, +r);
+          ctx.stroke();
+        }
+        _results.push(ctx.translate(-this.sx[i], -this.sy[i]));
+      }
+      return _results;
+    };
+
+    SquareXView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var border, data_h, data_w, fill_props, glyph_props, glyph_settings, h, line_props, reference_point, w, x, y;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_w = this.distance([reference_point], 'x', 'size', 'center')[0];
+        data_h = data_w;
+      } else {
+        glyph_settings = glyph_props;
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      ctx.beginPath();
+      w = Math.abs(x2 - x1);
+      h = Math.abs(y2 - y1);
+      w = w - 2 * border;
+      h = h - 2 * border;
+      if (data_w != null) {
+        w = data_w > w ? w : data_w;
+      }
+      if (data_h != null) {
+        h = data_h > h ? h : data_h;
+      }
+      x = (x1 + x2) / 2 - (w / 2);
+      y = (y1 + y2) / 2 - (h / 2);
+      ctx.rect(x, y, w, h);
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.moveTo(x - r, y + r);
+        ctx.lineTo(x + r, y - r);
+        ctx.moveTo(x - r, y - r);
+        ctx.lineTo(x + r, y + r);
+        ctx.stroke();
+      }
+      return ctx.restore();
+    };
+
+    return SquareXView;
+
+  })(GlyphView);
+
+  SquareX = (function(_super) {
+
+    __extends(SquareX, _super);
+
+    function SquareX() {
+      return SquareX.__super__.constructor.apply(this, arguments);
+    }
+
+    SquareX.prototype.default_view = SquareXView;
+
+    SquareX.prototype.type = 'GlyphRenderer';
+
+    return SquareX;
+
+  })(Glyph);
+
+  exports.SquareX = SquareX;
+
+  exports.SquareXView = SquareXView;
+
+}).call(this);
 }, "renderers/glyph/text": function(exports, require, module) {(function() {
   var Glyph, GlyphView, Text, TextView, glyph, glyph_properties, properties, text_properties,
     __hasProp = {}.hasOwnProperty,
@@ -18893,6 +21473,323 @@ _.setdefault = function(obj, key, value){
   exports.Text = Text;
 
   exports.TextView = TextView;
+
+}).call(this);
+}, "renderers/glyph/triangle": function(exports, require, module) {(function() {
+  var Glyph, GlyphView, Triangle, TriangleView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  TriangleView = (function(_super) {
+
+    __extends(TriangleView, _super);
+
+    function TriangleView() {
+      return TriangleView.__super__.constructor.apply(this, arguments);
+    }
+
+    TriangleView.prototype.initialize = function(options) {
+      var spec;
+      TriangleView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      return this.have_new_data = false;
+    };
+
+    TriangleView.prototype.init_glyph = function(glyphspec) {
+      var glyph_props;
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [new fill_properties(this, glyphspec), new line_properties(this, glyphspec)]);
+      return glyph_props;
+    };
+
+    TriangleView.prototype._set_data = function(data) {
+      var i, _i, _ref;
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      this.y = this.glyph_props.v_select('y', data);
+      this.mask = new Uint8Array(data.length);
+      this.selected_mask = new Uint8Array(data.length);
+      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.mask[i] = true;
+        this.selected_mask[i] = false;
+      }
+      return this.have_new_data = true;
+    };
+
+    TriangleView.prototype._render = function(plot_view, have_new_mapper_state) {
+      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref, _ref1;
+      if (have_new_mapper_state == null) {
+        have_new_mapper_state = true;
+      }
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      if (this.have_new_data || have_new_mapper_state) {
+        this.size = this.distance(this.data, 'x', 'size', 'edge');
+        this.have_new_data = false;
+      }
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if ((this.sx[i] + this.size[i]) < 0 || (this.sx[i] - this.size[i]) > ow || (this.sy[i] + this.size[i]) < 0 || (this.sy[i] - this.size[i]) > oh) {
+          this.mask[i] = false;
+        } else {
+          this.mask[i] = true;
+        }
+      }
+      selected = this.mget_obj('data_source').get('selected');
+      for (_j = 0, _len = selected.length; _j < _len; _j++) {
+        idx = selected[_j];
+        this.selected_mask[idx] = true;
+      }
+      ctx = this.plot_view.ctx;
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._fast_path(ctx, props, true);
+          this._fast_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._fast_path(ctx);
+        }
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, true);
+          this._full_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    TriangleView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
+      var a, h, i, r, _i, _j, _ref, _ref1, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      if (glyph_props.fill_properties.do_fill) {
+        glyph_props.fill_properties.set(ctx, this.glyph_props);
+        ctx.beginPath();
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          a = this.size[i] * Math.sqrt(3) / 6;
+          r = this.size[i] / 2;
+          h = this.size[i] * Math.sqrt(3) / 2;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i] - r, this.sy[i] + a);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] + a);
+          ctx.lineTo(this.sx[i], this.sy[i] + a - h);
+          ctx.closePath();
+        }
+        ctx.fill();
+      }
+      if (glyph_props.line_properties.do_stroke) {
+        glyph_props.line_properties.set(ctx, this.glyph_props);
+        _results = [];
+        for (i = _j = 0, _ref1 = this.sx.length - 1; 0 <= _ref1 ? _j <= _ref1 : _j >= _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          a = this.size[i] * Math.sqrt(3) / 6;
+          r = this.size[i] / 2;
+          h = this.size[i] * Math.sqrt(3) / 2;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i] - r, this.sy[i] + a);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] + a);
+          ctx.lineTo(this.sx[i], this.sy[i] + a - h);
+          ctx.closePath();
+          _results.push(ctx.stroke());
+        }
+        return _results;
+      }
+    };
+
+    TriangleView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var a, h, i, r, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+          continue;
+        }
+        if (use_selection && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === false && this.selected_mask[i]) {
+          continue;
+        }
+        a = this.size[i] * Math.sqrt(3) / 6;
+        r = this.size[i] / 2;
+        h = this.size[i] * Math.sqrt(3) / 2;
+        console.log(a, r, h);
+        ctx.beginPath();
+        ctx.moveTo(this.sx[i] - r, this.sy[i] + a);
+        ctx.lineTo(this.sx[i] + r, this.sy[i] + a);
+        ctx.lineTo(this.sx[i], this.sy[i] + a - h);
+        ctx.closePath();
+        if (glyph_props.fill_properties.do_fill) {
+          glyph_props.fill_properties.set(ctx, this.data[i]);
+          ctx.fill();
+        }
+        if (glyph_props.line_properties.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          _results.push(ctx.stroke());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    TriangleView.prototype.select = function(xscreenbounds, yscreenbounds) {
+      var i, selected, _i, _ref;
+      xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
+      yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
+      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
+      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
+      selected = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (xscreenbounds) {
+          if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
+            continue;
+          }
+        }
+        if (yscreenbounds) {
+          if (this.sy[i] < yscreenbounds[0] || this.sy[i] > yscreenbounds[1]) {
+            continue;
+          }
+        }
+        selected.push(i);
+      }
+      return selected;
+    };
+
+    TriangleView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var a, border, d, data_r, fill_props, glyph_props, glyph_settings, h, line_props, r, reference_point, x, y;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_r = this.distance([reference_point], 'x', 'size', 'edge')[0];
+      } else {
+        glyph_settings = glyph_props;
+        data_r = glyph_props.select('size', glyph_props)["default"];
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      d = _.min([Math.abs(x2 - x1), Math.abs(y2 - y1)]);
+      d = d - 2 * border;
+      r = d / 2;
+      if (data_r != null) {
+        r = data_r > r ? r : data_r;
+      }
+      x = (x1 + x2) / 2.0;
+      y = (y1 + y2) / 2.0;
+      a = this.size[i] * Math.sqrt(3) / 6;
+      r = this.size[i] / 2;
+      h = this.size[i] * Math.sqrt(3) / 2;
+      ctx.beginPath();
+      ctx.moveTo(this.sx[i] - r, this.sy[i] + a);
+      ctx.lineTo(this.sx[i] + r, this.sy[i] + a);
+      ctx.lineTo(this.sx[i], this.sy[i] + a - h);
+      ctx.closePath();
+      if (fill_props.do_fill) {
+        fill_props.set(ctx, glyph_settings);
+        ctx.fill();
+      }
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
+      return ctx.restore();
+    };
+
+    return TriangleView;
+
+  })(GlyphView);
+
+  Triangle = (function(_super) {
+
+    __extends(Triangle, _super);
+
+    function Triangle() {
+      return Triangle.__super__.constructor.apply(this, arguments);
+    }
+
+    Triangle.prototype.default_view = TriangleView;
+
+    Triangle.prototype.type = 'GlyphRenderer';
+
+    return Triangle;
+
+  })(Glyph);
+
+  Triangle.prototype.display_defaults = _.clone(Triangle.prototype.display_defaults);
+
+  _.extend(Triangle.prototype.display_defaults, {
+    fill_color: 'gray',
+    fill_alpha: 1.0,
+    line_color: 'red',
+    line_width: 1,
+    line_alpha: 1.0,
+    line_join: 'miter',
+    line_cap: 'butt',
+    line_dash: [],
+    line_dash_offset: 0
+  });
+
+  exports.Triangle = Triangle;
+
+  exports.TriangleView = TriangleView;
 
 }).call(this);
 }, "renderers/glyph/wedge": function(exports, require, module) {(function() {
@@ -19126,6 +22023,278 @@ _.setdefault = function(obj, key, value){
   exports.WedgeView = WedgeView;
 
 }).call(this);
+}, "renderers/glyph/x": function(exports, require, module) {(function() {
+  var Glyph, GlyphView, X, XView, fill_properties, glyph, glyph_properties, line_properties, properties,
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  properties = require('../properties');
+
+  glyph_properties = properties.glyph_properties;
+
+  line_properties = properties.line_properties;
+
+  fill_properties = properties.fill_properties;
+
+  glyph = require('./glyph');
+
+  Glyph = glyph.Glyph;
+
+  GlyphView = glyph.GlyphView;
+
+  XView = (function(_super) {
+
+    __extends(XView, _super);
+
+    function XView() {
+      return XView.__super__.constructor.apply(this, arguments);
+    }
+
+    XView.prototype.initialize = function(options) {
+      var spec;
+      XView.__super__.initialize.call(this, options);
+      this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+      if (this.mget('selection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+        this.selection_glyphprops = this.init_glyph(spec);
+      }
+      if (this.mget('nonselection_glyphspec')) {
+        spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+        this.nonselection_glyphprops = this.init_glyph(spec);
+      }
+      return this.have_new_data = false;
+    };
+
+    XView.prototype.init_glyph = function(glyphspec) {
+      var glyph_props;
+      glyph_props = new glyph_properties(this, glyphspec, ['x', 'y', 'size'], [new fill_properties(this, glyphspec), new line_properties(this, glyphspec)]);
+      return glyph_props;
+    };
+
+    XView.prototype._set_data = function(data) {
+      var i, _i, _ref;
+      this.data = data;
+      this.x = this.glyph_props.v_select('x', data);
+      this.y = this.glyph_props.v_select('y', data);
+      this.mask = new Uint8Array(data.length);
+      this.selected_mask = new Uint8Array(data.length);
+      for (i = _i = 0, _ref = this.mask.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        this.mask[i] = true;
+        this.selected_mask[i] = false;
+      }
+      return this.have_new_data = true;
+    };
+
+    XView.prototype._render = function(plot_view, have_new_mapper_state) {
+      var ctx, i, idx, oh, ow, props, selected, _i, _j, _len, _ref, _ref1;
+      if (have_new_mapper_state == null) {
+        have_new_mapper_state = true;
+      }
+      _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      if (this.have_new_data || have_new_mapper_state) {
+        this.size = this.distance(this.data, 'x', 'size', 'edge');
+        this.have_new_data = false;
+      }
+      ow = this.plot_view.view_state.get('outer_width');
+      oh = this.plot_view.view_state.get('outer_height');
+      for (i = _i = 0, _ref1 = this.mask.length - 1; 0 <= _ref1 ? _i <= _ref1 : _i >= _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        if ((this.sx[i] + this.size[i]) < 0 || (this.sx[i] - this.size[i]) > ow || (this.sy[i] + this.size[i]) < 0 || (this.sy[i] - this.size[i]) > oh) {
+          this.mask[i] = false;
+        } else {
+          this.mask[i] = true;
+        }
+      }
+      selected = this.mget_obj('data_source').get('selected');
+      for (_j = 0, _len = selected.length; _j < _len; _j++) {
+        idx = selected[_j];
+        this.selected_mask[idx] = true;
+      }
+      ctx = this.plot_view.ctx;
+      ctx.save();
+      if (this.glyph_props.fast_path) {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._fast_path(ctx, props, true);
+          this._fast_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._fast_path(ctx);
+        }
+      } else {
+        if (selected && selected.length && this.nonselection_glyphprops) {
+          if (this.selection_glyphprops) {
+            props = this.selection_glyphprops;
+          } else {
+            props = this.glyph_props;
+          }
+          this._full_path(ctx, props, true);
+          this._full_path(ctx, this.nonselection_glyphprops, false);
+        } else {
+          this._full_path(ctx);
+        }
+      }
+      return ctx.restore();
+    };
+
+    XView.prototype._fast_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _ref, _results;
+      if (glyph_props.line_properties.do_stroke) {
+        glyph_props.line_properties.set(ctx, this.glyph_props);
+        _results = [];
+        for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+          if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+            continue;
+          }
+          if (use_selection && !this.selected_mask[i]) {
+            continue;
+          }
+          if (use_selection === false && this.selected_mask[i]) {
+            continue;
+          }
+          r = this.size[i] / 2;
+          ctx.beginPath();
+          ctx.moveTo(this.sx[i] - r, this.sy[i] + r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] - r);
+          ctx.moveTo(this.sx[i] - r, this.sy[i] - r);
+          ctx.lineTo(this.sx[i] + r, this.sy[i] + r);
+          _results.push(ctx.stroke());
+        }
+        return _results;
+      }
+    };
+
+    XView.prototype._full_path = function(ctx, glyph_props, use_selection) {
+      var i, r, _i, _ref, _results;
+      if (!glyph_props) {
+        glyph_props = this.glyph_props;
+      }
+      _results = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (isNaN(this.sx[i] + this.sy[i] + this.size[i]) || !this.mask[i]) {
+          continue;
+        }
+        if (use_selection && !this.selected_mask[i]) {
+          continue;
+        }
+        if (use_selection === false && this.selected_mask[i]) {
+          continue;
+        }
+        r = this.size[i] / 2;
+        ctx.beginPath();
+        ctx.moveTo(this.sx[i] - r, this.sy[i] + r);
+        ctx.lineTo(this.sx[i] + r, this.sy[i] - r);
+        ctx.moveTo(this.sx[i] - r, this.sy[i] - r);
+        ctx.lineTo(this.sx[i] + r, this.sy[i] + r);
+        if (glyph_props.line_properties.do_stroke) {
+          glyph_props.line_properties.set(ctx, this.data[i]);
+          _results.push(ctx.stroke());
+        } else {
+          _results.push(void 0);
+        }
+      }
+      return _results;
+    };
+
+    XView.prototype.select = function(xscreenbounds, yscreenbounds) {
+      var i, selected, _i, _ref;
+      xscreenbounds = [this.plot_view.view_state.sx_to_device(xscreenbounds[0]), this.plot_view.view_state.sx_to_device(xscreenbounds[1])];
+      yscreenbounds = [this.plot_view.view_state.sy_to_device(yscreenbounds[0]), this.plot_view.view_state.sy_to_device(yscreenbounds[1])];
+      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)];
+      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)];
+      selected = [];
+      for (i = _i = 0, _ref = this.sx.length - 1; 0 <= _ref ? _i <= _ref : _i >= _ref; i = 0 <= _ref ? ++_i : --_i) {
+        if (xscreenbounds) {
+          if (this.sx[i] < xscreenbounds[0] || this.sx[i] > xscreenbounds[1]) {
+            continue;
+          }
+        }
+        if (yscreenbounds) {
+          if (this.sy[i] < yscreenbounds[0] || this.sy[i] > yscreenbounds[1]) {
+            continue;
+          }
+        }
+        selected.push(i);
+      }
+      return selected;
+    };
+
+    XView.prototype.draw_legend = function(ctx, x1, x2, y1, y2) {
+      var border, d, data_r, fill_props, glyph_props, glyph_settings, line_props, r, reference_point, x, y;
+      glyph_props = this.glyph_props;
+      line_props = glyph_props.line_properties;
+      fill_props = glyph_props.fill_properties;
+      ctx.save();
+      reference_point = this.get_reference_point();
+      if (reference_point != null) {
+        glyph_settings = reference_point;
+        data_r = this.distance([reference_point], 'x', 'size', 'edge')[0];
+      } else {
+        glyph_settings = glyph_props;
+        data_r = glyph_props.select('size', glyph_props)["default"];
+      }
+      border = line_props.select(line_props.line_width_name, glyph_settings);
+      ctx.beginPath();
+      d = _.min([Math.abs(x2 - x1), Math.abs(y2 - y1)]);
+      d = d - 2 * border;
+      r = d / 2;
+      if (data_r != null) {
+        r = data_r > r ? r : data_r;
+      }
+      x = (x1 + x2) / 2.0;
+      y = (y1 + y2) / 2.0;
+      ctx.moveTo(x - r, y + r);
+      ctx.lineTo(x + r, y - r);
+      ctx.moveTo(x - r, y - r);
+      ctx.lineTo(x + r, y + r);
+      if (line_props.do_stroke) {
+        line_props.set(ctx, glyph_settings);
+        ctx.stroke();
+      }
+      return ctx.restore();
+    };
+
+    return XView;
+
+  })(GlyphView);
+
+  X = (function(_super) {
+
+    __extends(X, _super);
+
+    function X() {
+      return X.__super__.constructor.apply(this, arguments);
+    }
+
+    X.prototype.default_view = XView;
+
+    X.prototype.type = 'GlyphRenderer';
+
+    return X;
+
+  })(Glyph);
+
+  X.prototype.display_defaults = _.clone(X.prototype.display_defaults);
+
+  _.extend(X.prototype.display_defaults, {
+    line_color: 'red',
+    line_width: 1,
+    line_alpha: 1.0,
+    line_join: 'miter',
+    line_cap: 'butt',
+    line_dash: [],
+    line_dash_offset: 0
+  });
+
+  exports.X = X;
+
+  exports.XView = XView;
+
+}).call(this);
 }, "renderers/glyph_renderer": function(exports, require, module) {(function() {
   var Collections, GlyphRenderers, base, glyphs,
     __hasProp = {}.hasOwnProperty,
@@ -19168,7 +22337,7 @@ _.setdefault = function(obj, key, value){
 
 }).call(this);
 }, "renderers/glyphs": function(exports, require, module) {(function() {
-  var annular_wedge, annulus, arc, bezier, circle, image, image_rgba, image_uri, line, multi_line, oval, patch, patches, quad, quadratic, ray, rect, segment, square, text, wedge;
+  var annular_wedge, annulus, arc, asterisk, bezier, circle, circle_cross, circle_x, cross, diamond, diamond_cross, image, image_rgba, image_uri, inverted_triangle, line, multi_line, oval, patch, patches, quad, quadratic, ray, rect, segment, square, square_cross, square_x, text, triangle, wedge, x;
 
   annular_wedge = require("./glyph/annular_wedge");
 
@@ -19176,15 +22345,27 @@ _.setdefault = function(obj, key, value){
 
   arc = require("./glyph/arc");
 
+  asterisk = require("./glyph/asterisk");
+
   bezier = require("./glyph/bezier");
 
   circle = require("./glyph/circle");
+
+  circle_x = require("./glyph/circle_x");
+
+  circle_cross = require("./glyph/circle_cross");
+
+  diamond = require("./glyph/diamond");
+
+  diamond_cross = require("./glyph/diamond_cross");
 
   image = require("./glyph/image");
 
   image_rgba = require("./glyph/image_rgba");
 
   image_uri = require("./glyph/image_uri");
+
+  inverted_triangle = require("./glyph/inverted_triangle");
 
   line = require("./glyph/line");
 
@@ -19196,6 +22377,8 @@ _.setdefault = function(obj, key, value){
 
   patches = require("./glyph/patches");
 
+  cross = require("./glyph/cross");
+
   quad = require("./glyph/quad");
 
   quadratic = require("./glyph/quadratic");
@@ -19206,11 +22389,19 @@ _.setdefault = function(obj, key, value){
 
   square = require("./glyph/square");
 
+  square_x = require("./glyph/square_x");
+
+  square_cross = require("./glyph/square_cross");
+
   segment = require("./glyph/segment");
 
   text = require("./glyph/text");
 
+  triangle = require("./glyph/triangle");
+
   wedge = require("./glyph/wedge");
+
+  x = require("./glyph/x");
 
   exports.annular_wedge = annular_wedge.AnnularWedge;
 
@@ -19218,15 +22409,27 @@ _.setdefault = function(obj, key, value){
 
   exports.arc = arc.Arc;
 
+  exports.asterisk = asterisk.Asterisk;
+
   exports.bezier = bezier.Bezier;
 
   exports.circle = circle.Circle;
+
+  exports.circle_x = circle_x.CircleX;
+
+  exports.circle_cross = circle_cross.CircleCross;
+
+  exports.diamond = diamond.Diamond;
+
+  exports.diamond_cross = diamond_cross.DiamondCross;
 
   exports.image = image.Image;
 
   exports.image_rgba = image_rgba.ImageRGBA;
 
   exports.image_uri = image_uri.ImageURI;
+
+  exports.inverted_triangle = inverted_triangle.InvertedTriangle;
 
   exports.line = line.Line;
 
@@ -19238,6 +22441,8 @@ _.setdefault = function(obj, key, value){
 
   exports.patches = patches.Patches;
 
+  exports.cross = cross.Cross;
+
   exports.quad = quad.Quad;
 
   exports.quadratic = quadratic.Quadratic;
@@ -19246,13 +22451,19 @@ _.setdefault = function(obj, key, value){
 
   exports.square = square.Square;
 
+  exports.square_x = square_x.SquareX;
+
+  exports.square_cross = square_cross.SquareCross;
+
   exports.rect = rect.Rect;
 
   exports.segment = segment.Segment;
 
   exports.text = text.Text;
 
-  exports.wedge = wedge.Wedge;
+  exports.triangle = triangle.Triangle;
+
+  exports.x = x.X;
 
 }).call(this);
 }, "renderers/guide/datetime_axis": function(exports, require, module) {(function() {

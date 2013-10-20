@@ -53,7 +53,7 @@ class Marker(Glyph, FillProps, LineProps):
 
     x = DataSpec
     y = DataSpec
-    size = DataSpec(units="screen", default=4)
+    size = DataSpec(units="screen", default=4, min_value=0)
 
     #fill_pattern = Pattern
     #shape = Enum("circle", "dot", "square", "tri", "diamond", "x", "+", "char")
@@ -61,7 +61,7 @@ class Marker(Glyph, FillProps, LineProps):
 
 class Circle(Marker):
     __view_model__ = "circle"
-    radius = DataSpec(units="screen", default=4)
+    radius = DataSpec(units="screen", default=4, min_value=0)
 
 
 # Other kinds of Markers, to match what GGplot provides
@@ -76,42 +76,42 @@ class Cross(Marker):
     __view_model__ = "cross"
 
 class Xmarker(Marker):
-    __view_model__ = "xmarker"
+    __view_model__ = "x"
 
 class Diamond(Marker):
     __view_model__ = "diamond"
 
 class InvertedTriangle(Marker):
-    __view_model__ = "invertedtriangle"
+    __view_model__ = "inverted_triangle"
 
 class SquareX(Marker):
-    __view_model__ = "squarex"
+    __view_model__ = "square_x"
 
 class Asterisk(Marker):
     __view_model__ = "asterisk"
 
 class DiamondCross(Marker):
-    __view_model__ = "diamondcross"
+    __view_model__ = "diamond_cross"
 
 class CircleCross(Marker):
-    __view_model__ = "circlecross"
+    __view_model__ = "circle_cross"
 
 class HexStar(Marker):
     __view_model__ = "hexstar"
 
 class SquareCross(Marker):
-    __view_model__ = "squarecross"
+    __view_model__ = "square_cross"
 
 class CircleX(Marker):
-    __view_model__ = "circlex"
+    __view_model__ = "circle_x"
 
 
 class AnnularWedge(Glyph, FillProps, LineProps):
     __view_model__ = 'annular_wedge'
     x = DataSpec
     y = DataSpec
-    inner_radius = DataSpec
-    outer_radius = DataSpec
+    inner_radius = DataSpec(min_value=0)
+    outer_radius = DataSpec(min_value=0)
     start_angle = DataSpec
     end_angle = DataSpec
     direction = Enum('clock', 'anticlock')
@@ -120,14 +120,14 @@ class Annulus(Glyph, FillProps, LineProps):
     __view_model__ = 'annulus'
     x = DataSpec
     y = DataSpec
-    inner_radius = DataSpec
-    outer_radius = DataSpec
+    inner_radius = DataSpec(min_value=0)
+    outer_radius = DataSpec(min_value=0)
 
 class Arc(Glyph, LineProps):
     __view_model__ = 'arc'
     x = DataSpec
     y = DataSpec
-    radius = DataSpec
+    radius = DataSpec(min_value=0)
     start_angle = DataSpec
     end_angle = DataSpec
     direction = Enum('clock', 'anticlock')
@@ -239,7 +239,7 @@ class Wedge(Glyph, FillProps, LineProps):
     __view_model__ = 'wedge'
     x = DataSpec
     y = DataSpec
-    radius = DataSpec
+    radius = DataSpec(min_value=0)
     start_angle = DataSpec
     end_angle = DataSpec
     direction = Enum('clock', 'anticlock')

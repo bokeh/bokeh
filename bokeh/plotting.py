@@ -518,8 +518,6 @@ class GlyphFunction(object):
             kwargs["fill_alpha"] = get_default_alpha()
             kwargs["line_alpha"] = kwargs["fill_alpha"]
 
-        print kwargs["fill_alpha"] , kwargs["line_alpha"]
-
         legend_name = kwargs.pop("legend", None)
         plot = self._get_plot(kwargs)
         if 'name' in kwargs:
@@ -670,22 +668,24 @@ wedge = GlyphFunction(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_ang
 marker_types = {
         "circle": glyphs.Circle,
         "square": glyphs.Square,
-        #"triangle": glyphs.Triangle,
-        #"cross": glyphs.Cross,
+        "triangle": glyphs.Triangle,
+        "cross": glyphs.Cross,
         #"xmarker": glyphs.Xmarker,
-        #"diamond": glyphs.Diamond,
-        #"invtriangle": glyphs.InvertedTriangle,
-        #"squarex": glyphs.SquareX,
-        #"circlex": glyphs.CircleX,
-        #"asterisk": glyphs.Asterisk,
-        #"diamondcross": glyphs.DiamondCross,
-        #"circlecross": glyphs.CircleCross,
-        #"squarecross": glyphs.SquareCross,
+        "diamond": glyphs.Diamond,
+        "invtriangle": glyphs.InvertedTriangle,
+        "square_x": glyphs.SquareX,
+        "circle_x": glyphs.CircleX,
+        "asterisk": glyphs.Asterisk,
+        "diamond_cross": glyphs.DiamondCross,
+        "circle_cross": glyphs.CircleCross,
+        "square_cross": glyphs.SquareCross,
         #"hexstar": glyphs.HexStar,
-        #"+": glyphs.Cross,
-        #"*": glyphs.Asterisk,
-        #"x": glyphs.Xmarker,
-        #"o": glyphs.Circle,
+        "+": glyphs.Cross,
+        "*": glyphs.Asterisk,
+        "x": glyphs.Xmarker,
+        "o": glyphs.Circle,
+        "ox": glyphs.CircleX,
+        "o+": glyphs.CircleCross,
         }
 
 def markers():
@@ -695,7 +695,7 @@ def markers():
 
 
 for _marker_name, _glyph_class in marker_types.items():
-    if len(_marker_name) == 1:
+    if len(_marker_name) <= 2:
         continue
     _func = GlyphFunction(_glyph_class, ("x", "y"))
     exec "%s = _func" % _marker_name

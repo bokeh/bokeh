@@ -118,7 +118,7 @@ class DataSpec(BaseProperty):
 
     """
 
-    def __init__(self, field=None, units="data", default=None):
+    def __init__(self, field=None, units="data", default=None, min_value=None):
         """
         Parameters
         ==========
@@ -132,6 +132,7 @@ class DataSpec(BaseProperty):
         self.field = field
         self.units = units
         self.default = default
+        self.min_value = min_value
 
     @classmethod
     def autocreate(cls, name=None):
@@ -201,6 +202,10 @@ class DataSpec(BaseProperty):
             d = {"field": self.field, "units": self.units}
             if self.default is not None:
                 d["default"] = self.default
+
+        if ("value" in d) and self.min_value is not None:
+            if d["value"] < self.min_value:
+                raise ValueError("value must be greater than %s" % str(self.min_value))
         return d
 
     def __repr__(self):
