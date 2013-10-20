@@ -675,15 +675,15 @@ marker_types = {
         #"invtriangle": glyphs.InvertedTriangle,
         #"squarex": glyphs.SquareX,
         #"circlex": glyphs.CircleX,
-        #"asterisk": glyphs.Asterisk,
+        "asterisk": glyphs.Asterisk,
         #"diamondcross": glyphs.DiamondCross,
         #"circlecross": glyphs.CircleCross,
         #"squarecross": glyphs.SquareCross,
         #"hexstar": glyphs.HexStar,
         "+": glyphs.Cross,
-        #"*": glyphs.Asterisk,
+        "*": glyphs.Asterisk,
         "x": glyphs.Xmarker,
-        #"o": glyphs.Circle,
+        "o": glyphs.Circle,
         }
 
 def markers():
