@@ -76,7 +76,7 @@ class Cross(Marker):
     __view_model__ = "cross"
 
 class Xmarker(Marker):
-    __view_model__ = "xmarker"
+    __view_model__ = "x"
 
 class Diamond(Marker):
     __view_model__ = "diamond"

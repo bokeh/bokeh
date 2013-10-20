@@ -20,6 +20,7 @@ square        = require("./glyph/square")
 segment       = require("./glyph/segment")
 text          = require("./glyph/text")
 wedge         = require("./glyph/wedge")
+x             = require("./glyph/x")
 
 
 exports.annular_wedge = annular_wedge.AnnularWedge
@@ -42,4 +43,4 @@ exports.square        = square.Square
 exports.rect          = rect.Rect
 exports.segment       = segment.Segment
 exports.text          = text.Text
-exports.wedge         = wedge.Wedge
+exports.x             = x.X

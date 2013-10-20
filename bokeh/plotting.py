@@ -682,7 +682,7 @@ marker_types = {
         #"hexstar": glyphs.HexStar,
         #"+": glyphs.Cross,
         #"*": glyphs.Asterisk,
-        #"x": glyphs.Xmarker,
+        "x": glyphs.Xmarker,
         #"o": glyphs.Circle,
         }
 
