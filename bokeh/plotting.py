@@ -674,16 +674,18 @@ marker_types = {
         #"diamond": glyphs.Diamond,
         #"invtriangle": glyphs.InvertedTriangle,
         #"squarex": glyphs.SquareX,
-        #"circlex": glyphs.CircleX,
+        "circle_x": glyphs.CircleX,
         "asterisk": glyphs.Asterisk,
         #"diamondcross": glyphs.DiamondCross,
-        #"circlecross": glyphs.CircleCross,
+        "circle_cross": glyphs.CircleCross,
         #"squarecross": glyphs.SquareCross,
         #"hexstar": glyphs.HexStar,
         "+": glyphs.Cross,
         "*": glyphs.Asterisk,
         "x": glyphs.Xmarker,
         "o": glyphs.Circle,
+        "ox": glyphs.CircleX,
+        "o+": glyphs.CircleCross,
         }
 
 def markers():
@@ -693,7 +695,7 @@ def markers():
 
 
 for _marker_name, _glyph_class in marker_types.items():
-    if len(_marker_name) == 1:
+    if len(_marker_name) <= 2:
         continue
     _func = GlyphFunction(_glyph_class, ("x", "y"))
     exec "%s = _func" % _marker_name

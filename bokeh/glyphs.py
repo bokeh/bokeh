@@ -94,7 +94,7 @@ class DiamondCross(Marker):
     __view_model__ = "diamondcross"
 
 class CircleCross(Marker):
-    __view_model__ = "circlecross"
+    __view_model__ = "circle_cross"
 
 class HexStar(Marker):
     __view_model__ = "hexstar"
@@ -103,7 +103,7 @@ class SquareCross(Marker):
     __view_model__ = "squarecross"
 
 class CircleX(Marker):
-    __view_model__ = "circlex"
+    __view_model__ = "circle_x"
 
 
 class AnnularWedge(Glyph, FillProps, LineProps):
