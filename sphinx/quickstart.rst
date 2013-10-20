@@ -10,7 +10,7 @@ Downloading
 
 There are several ways to get Bokeh:
 
-If you are using the `Anaconda <http://continuum.io/anaconda> Python distribution`_:
+If you are using the `Anaconda Python distribution <http://continuum.io/anaconda>`_:
 ::
 
     $ conda install bokeh

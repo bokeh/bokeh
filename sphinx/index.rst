@@ -18,6 +18,7 @@ Contents:
    quickstart.rst
    installation.rst
    tutorial.rst
+   gallery.rst
    user_guide.rst
    dev_guide.rst
    contributing.rst
