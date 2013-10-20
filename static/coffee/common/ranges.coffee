@@ -47,7 +47,10 @@ class DataRange1d extends Range1d
         maxs[i] = _.max(columns[i])
         mins[i] = _.min(columns[i])
       [min, max] = [_.min(mins), _.max(maxs)]
-    span = (max - min) * (1 + @get('rangepadding'))
+    if max != min
+      span = (max - min) * (1 + @get('rangepadding'))
+    else
+      span = max * (1 + @get('rangepadding'))
     center = (max + min) / 2.0
     [min, max] = [center - span/2.0, center + span/2.0]
     return [min, max]
@@ -71,7 +74,6 @@ class DataRange1d extends Range1d
     @set('_end', end)
 
   dinitialize : (attrs, options) ->
-    super(attrs, options)
     @register_property('minmax', @_get_minmax, true)
     @add_dependencies('minmax', this, ['sources'], ['rangepadding'])
     for source in @get('sources')
@@ -83,6 +85,7 @@ class DataRange1d extends Range1d
     @register_property('end', @_get_end, true)
     @register_setter('end', @_set_end)
     @add_dependencies('end', this, ['minmax', '_end'])
+    super(attrs, options)
 
 DataRange1d::defaults = _.clone(DataRange1d::defaults)
 _.extend(DataRange1d::defaults

@@ -4,7 +4,7 @@ TwoPointEventGenerator = eventgenerators.TwoPointEventGenerator
 LinearMapper = require("../mappers/1d/linear_mapper").LinearMapper
 base = require("../base")
 safebind = base.safebind
-
+window.render_count = 0
 class PanToolView extends tool.ToolView
   initialize: (options) ->
     super(options)
@@ -55,6 +55,7 @@ class PanToolView extends tool.ToolView
       sdx: -xdiff
       sdy: ydiff
     }
+
     @plot_view.update_range(pan_info)
     return null
 
