@@ -85,7 +85,7 @@ class InvertedTriangle(Marker):
     __view_model__ = "inverted_triangle"
 
 class SquareX(Marker):
-    __view_model__ = "squarex"
+    __view_model__ = "square_x"
 
 class Asterisk(Marker):
     __view_model__ = "asterisk"

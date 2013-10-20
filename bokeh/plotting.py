@@ -673,7 +673,7 @@ marker_types = {
         #"xmarker": glyphs.Xmarker,
         "diamond": glyphs.Diamond,
         "invtriangle": glyphs.InvertedTriangle,
-        #"squarex": glyphs.SquareX,
+        "square_x": glyphs.SquareX,
         "circle_x": glyphs.CircleX,
         "asterisk": glyphs.Asterisk,
         "diamond_cross": glyphs.DiamondCross,
