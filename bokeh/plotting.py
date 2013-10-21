@@ -736,6 +736,7 @@ def scatter(*args, **kwargs):
     line_width : int >= 1
     line_alpha : 0.0 - 1.0
     line_cap : "butt", "join", "miter"
+    color : shorthand to set both fill and line color
 
     Colors can be either one of:
        the 147 named SVG colors
