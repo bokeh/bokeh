@@ -370,14 +370,14 @@ color_fields = set(["color", "fill_color", "line_color"])
 alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
 class GlyphFunction(object):
-    """ Wraps a Glyph so that it can be created as a plot.
+    """
+    Wraps a Glyph so that it can be created as a plot::
 
-    annular_wedge = GlyphFunction(glyphs.AnnularWedge,
-                        "x,y,inner_radius,outer_radius,start_angle,end_angle".split(","))
-    bezier = GlyphFunction(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(","),
-                    ["x0", "x1"], ["y0", "y1"])
+        annular_wedge = GlyphFunction(glyphs.AnnularWedge,
+            "x,y,inner_radius,outer_radius,start_angle,end_angle".split(","))
+        bezier = GlyphFunction(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(","), ["x0", "x1"], ["y0", "y1"])
 
-    Then annular_wedge can be called like this:
+    Then annular_wedge can be called like this::
 
         annular_wedge([1,2,3,4], [5,3,6,7], 3.0, 8.0, pi/4, 0.75*pi)
 
@@ -716,6 +716,7 @@ def scatter(*args, **kwargs):
     Parameters
     ----------
     *data : The data to plot.  Can be of several forms:
+
         (X, Y1, Y2, ...)
             A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
         [[x1,y1], [x2,y2], .... ]
@@ -727,25 +728,26 @@ def scatter(*args, **kwargs):
             A list/tuple of scalar values; will be treated as Y values and
             a synthetic X array of integers will be generated.
 
-    Style Parameters (specified by keyword)
-    ---------------------------------------
-    type : a valid marker_type; defaults to "circle"
-    fill_color : color
-    fill_alpha : 0.0 - 1.0
-    line_color : color
-    line_width : int >= 1
-    line_alpha : 0.0 - 1.0
-    line_cap : "butt", "join", "miter"
-    color : shorthand to set both fill and line color
+    Style Parameters (specified by keyword)::
+
+        type : a valid marker_type; defaults to "circle"
+        fill_color : color
+        fill_alpha : 0.0 - 1.0
+        line_color : color
+        line_width : int >= 1
+        line_alpha : 0.0 - 1.0
+        line_cap : "butt", "join", "miter"
+        color : shorthand to set both fill and line color
 
     Colors can be either one of:
-       the 147 named SVG colors
-       a string representing a Hex color (e.g. "#FF32D0")
-       a 3-tuple of integers between 0 and 255
-       a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
 
-    Examples
-    --------
+    * the 147 named SVG colors
+    * a string representing a Hex color (e.g. "#FF32D0")
+    * a 3-tuple of integers between 0 and 255
+    * a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
+
+    Examples::
+
         scatter([1,2,3,4,5,6])
         scatter([1,2,3],[4,5,6], fill_color="red")
         scatter(x_array, y_array, type="circle")

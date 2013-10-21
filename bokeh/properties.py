@@ -81,22 +81,25 @@ class DataSpec(BaseProperty):
     and example code.
 
     Setting DataSpecs
-    -----------------
+    
 
-    class Foo(HasProps):
-        x = DataSpec("x", units="data")
+    Simple example::
 
-    f = Foo()
-    f.x = "fieldname"  # Use the datasource field named "fieldname"
-    f.x = 12           # A fixed value of 12
-    f.x = ("foo", 16)  # a field name, and a default value
+        class Foo(HasProps):
+            x = DataSpec("x", units="data")
 
-    # Can provide a dict with the fields explicitly named
-    f.width = {"name": "foo", "default": 16}
-    f.size = {"name": "foo", "units": "screen", "default": 16}
+        f = Foo()
+        f.x = "fieldname"  # Use the datasource field named "fieldname"
+        f.x = 12           # A fixed value of 12
+        f.x = ("foo", 16)  # a field name, and a default value
+
+    Can provide a dict with the fields explicitly named::
+
+        f.width = {"name": "foo", "default": 16}
+        f.size = {"name": "foo", "units": "screen", "default": 16}
 
     Reading DataSpecs
-    -----------------
+   
 
     In the cases when the dataspec is set to just a field name or a
     fixed value, then those are returned.  If the user has overridden
@@ -107,7 +110,7 @@ class DataSpec(BaseProperty):
     represent this dataspec, use the to_dict() method.
 
     Implementation
-    --------------
+  
 
     The DataSpec instance is stored in the class dict, and acts as a
     descriptor.  Thus, it is shared between all instances of the class.
@@ -218,10 +221,11 @@ class ColorSpec(DataSpec):
 
     Although this serves the same role as a DataSpec, its usage is somewhat
     different because:
-      * Specifying a fixed value is much more common
-      * Strings can be both field identifiers or refer to one of the SVG
-        Named Colors (or be a hex value starting with "#")
-      * There are no units
+
+    * Specifying a fixed value is much more common
+    * Strings can be both field identifiers or refer to one of the SVG
+      Named Colors (or be a hex value starting with "#")
+    * There are no units
 
     For colors, because we support named colors and hex values prefaced
     with a "#", when we are handed a string value, there is a little
@@ -241,7 +245,7 @@ class ColorSpec(DataSpec):
     or a dict of (field, default).
 
     There are two common use cases for ColorSpec: setting a constant value,
-    and indicating a field name to look for on the datasource:
+    and indicating a field name to look for on the datasource::
 
         class Bar(HasProps):
             col = ColorSpec("green")

@@ -11,11 +11,11 @@ Welcome to Bokeh
         <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/glyphs/anscombe.py"><img src="_images/anscombe2.png"/></a></td>
         <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/plotting/file/correlation.py"><img src="_images/stocks3.png"/></a></td>
         <td><a href="http://continuumio.github.io/bokehjs/lorenz.html"><img src="_images/lorenz2.png"/></a></td>
-        <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/plotting/file/candlestick.py"><img src="_images/candlestick2.png"/></a></td>
+        <td><a href="static/demos/detail/candlestick.html"><img src="_images/candlestick2.png"/></a></td>
         <td><a href="http://continuumio.github.io/bokehjs/scatter.html"><img src="_images/scatter.png"/></a></td>
     </tr><tr>
         <td><a href="http://continuumio.github.io/bokehjs/map_overlay.html"><img src="_images/map_overlay1.png"/></a></td>
-        <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/plotting/file/iris.py"><img src="_images/iris2.png"/></a></td>
+        <td><a href="static/demos/detail/iris.html"><img src="_images/iris2.png"/></a></td>
         <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/plotting/file/choropleth.py"><img src="_images/choropleth2.png"/></a></td>
         <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/glyphs/iris_splom.py"><img src="_images/splom2.png"/></a></td>
         <td><a href="http://continuumio.github.io/bokehjs/image.html"><img src="_images/image_plot2.png"/></a></td>
