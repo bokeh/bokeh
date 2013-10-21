@@ -66,14 +66,15 @@ def make_gallery(functions):
 if __name__ == "__main__":
     from plotting.file import (
         iris, candlestick, correlation, legend,
-        glucose, stocks, 
+        glucose, stocks, line, rect, glyphs, scatter,
         vector, lorenz, color_scatter)
     
     example_funcs = [
         iris.iris, candlestick.candlestick, legend.legend, 
         correlation.correlation,
         glucose.glucose, stocks.stocks, 
-        vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example
+        vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
+        line.line_example, scatter.scatter_example, rect.rect_example, glyphs.glyphs
     ]
     make_gallery(example_funcs)
     
