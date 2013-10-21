@@ -784,7 +784,7 @@ def scatter(*args, **kwargs):
     return
 
 @visual
-def gridplot(plot_arrangemnt, name=False):
+def gridplot(plot_arrangement, name=False):
     grid = GridPlot(children=plot_arrangemnt)
     if name:
         grid._id = name

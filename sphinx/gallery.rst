@@ -47,29 +47,14 @@ Gallery
           <img src="/static/img/gallery/scatter_rect.png"
                class="gallery" />
         </a>
-
-
-    <p>
-    <table cellspacing="20">
-    <tr>
-        <td><a href="http://continuumio.github.io/bokehjs/image.html"><img src="_images/image_plot1.png"/></a></td>
-        <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/glyphs/anscombe.py"><img src="_images/anscombe2.png"/></a></td>
-        <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/plotting/file/correlation.py"><img src="_images/stocks3.png"/></a></td>
-        <td><a href="http://continuumio.github.io/bokehjs/lorenz.html"><img src="_images/lorenz2.png"/></a></td>
-        <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/plotting/file/candlestick.py"><img src="_images/candlestick2.png"/></a></td>
-        <td><a href="http://continuumio.github.io/bokehjs/scatter.html"><img src="_images/scatter.png"/></a></td>
-    </tr><tr>
-        <td><a href="http://continuumio.github.io/bokehjs/map_overlay.html"><img src="_images/map_overlay1.png"/></a></td>
-        <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/plotting/file/iris.py"><img src="_images/iris2.png"/></a></td>
-        <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/plotting/file/choropleth.py"><img src="_images/choropleth2.png"/></a></td>
-        <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/glyphs/iris_splom.py"><img src="_images/splom2.png"/></a></td>
-        <td><a href="http://continuumio.github.io/bokehjs/image.html"><img src="_images/image_plot2.png"/></a></td>
-        <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/plotting/file/vector.py"><img src="_images/streamline.png"/></a></td>
-
-    </tr>
-    </table>
-    </p>
-
+        <a href="/static/demos/detail/iris_splom.html">Iris Splom
+          <img src="/static/img/gallery/scatter_rect.png"
+               class="gallery" />
+        </a>
+        <a href="/static/demos/detail/choropleth.html">Choropleth
+          <img src="/static/img/gallery/scatter_rect.png"
+               class="gallery" />
+        </a>
 
 Coming soon!  For now, play with the interactive demos on the
 `BokehJS site <http://continuumio.github.io/bokehjs/>`_ or run the
