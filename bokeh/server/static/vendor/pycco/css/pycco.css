@@ -24,6 +24,7 @@ h2, h3, h4, h5, h6 {
   }
 #container {
   background: white;
+  height:100%
  }
 #container, div.section {
   position: relative;
@@ -31,7 +32,8 @@ h2, h3, h4, h5, h6 {
 #background {
   position: absolute;
   /*top: 0; left: 580px; right: 0; bottom: 0; */
-  top: 0; left: 50%; right: 0; bottom: 0;
+  top: 0; left: 50%; right: 0;
+  height:100%;
   background: #f5f5ff;
   border-left: 1px solid #e5e5ee;
   z-index: 0;
