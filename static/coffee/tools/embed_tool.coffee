@@ -4,6 +4,13 @@ base = require("../base")
 
 HasParent = base.HasParent
 
+escapeHTML = (unsafe_str) ->
+  unsafe_str.replace(/&/g, '&amp;')
+  .replace(/</g, '&lt;')
+  .replace(/>/g, '&gt;')
+  .replace(/\"/g, '&quot;')
+  .replace(/\'/g, '&#39;')
+
 ###############################################################
 class EmbedToolView extends tool.ToolView
   initialize: (options) ->
@@ -23,7 +30,7 @@ class EmbedToolView extends tool.ToolView
     doc_apikey = @plot_model.get('docapikey')
     baseurl = @plot_model.get('baseurl')
 
-    script_inject_escaped = @plot_model.get('script_inject_escaped')
+    script_inject_escaped = escapeHTML(@plot_model.get('script_inject_snippet'))
     modal = """
       <div id="embedModal" class="bokeh">
         <div  class="modal" role="dialog" aria-labelledby="embedLabel" aria-hidden="true">
