@@ -139,8 +139,8 @@ Coffeescript in Bokeh itself, and there is Coffeescript in BokehJS.
 
 It is possible to set up just for development on Bokeh, without having a
 development install of BokehJS.  To do this, just run `$ python setup.py`.
-This will copy the pre-built application.js and bokehnotebook.js files
-from the jsbuild/ directory into the correct place in the source tree.
+This will copy the pre-built `application.js` and `bokehnotebook.js` files
+from the `jsbuild/` directory into the correct place in the source tree.
 
 If you want to do development on BokehJS as well, then modify the subtree
 source in the `subtree/bokehjs/` directory, and run `$ python exportjs.py`
@@ -150,21 +150,19 @@ bokehjs changes.)  ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING!
 Coffeescript
 ------------
 
-To develop Bokeh you will need to [install
-coffeescript](http://coffeescript.org/#installation), which depends on
-[node.js](http://nodejs.org/).
+To develop Bokeh you will need to `install
+coffeescript <http://coffeescript.org/#installation>`_, which depends on
+`node.js <http://nodejs.org/>`_.
 
 Hem
 ---
 
 We're using our own fork of hem to manage the build process.
-Please clone this repo: https://github.com/ContinuumIO/hem.
+Please clone this repo: `https://github.com/ContinuumIO/hem <https://github.com/ContinuumIO/hem>`_.
 hem will compile coffeescript, combine js files, and support node.js require
 syntax on the client side.
 
-Install it by executing
-
-`$ sudo npm link` inside the hem repo.
+Install it by executing `$ sudo npm link` inside the hem repo.
 
 This will link hem to your working copy so you get hem changes as we push it
 out.  Inside `bokeh/server/` of the Bokeh repo, execute `$ hem server &`.  The
@@ -188,15 +186,15 @@ compile the js yourself.
      notebook export at the moment.
 
 Producing the docs
---------------------------------
+------------------
 
-The documentation system depends on github pages.  Because of this, two checkouts of the Bokeh repo are needed.  The first is the main repo, in a directory named Bokehd pointing at revision [sphinx].  The second is the Bokeh repo, in a directory named gh-pages-Bokeh, pointed at branch gh-pages.
+The documentation system depends on github pages.  Because of this, two checkouts of the Bokeh repo are needed.  The first is the main repo, in a directory named Bokeh pointing at revision [sphinx].  The second is the Bokeh repo, in a directory named gh-pages-Bokeh, pointed at branch gh-pages.
 
 There are 3 scripts in gh-pages whcih help with doc production.
 
-   * `build.sh`  This builds the traitional embed demos.
-   * `build_sphinx.sh`  this builds the sphinx documentation.  It the copies all the built documenation back to the gh-pages branch
-   *  `s3_sync.sh`   This uplaods all relevant files from the gh-pages repo and puts tehm on s3.
+   * `build.sh`  This builds the traditional embed demos.
+   * `build_sphinx.sh`  This builds the sphinx documentation.  It copies all the built documentation back to the gh-pages branch
+   *  `s3_sync.sh`   This uploads all relevant files from the gh-pages repo and puts them on Amazon S3.
 
 
 

@@ -52,6 +52,8 @@ v0.4
 * New event and interactor architecture
 * Improved annotations and legends
 * Basic widgets
+* Better map projections
+* Better integration with Matplotlib pylab plotting functions
 
 
 Long-term TODO List
