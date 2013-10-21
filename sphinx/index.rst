@@ -20,6 +20,7 @@ Welcome to Bokeh
         <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/glyphs/iris_splom.py"><img src="_images/splom2.png"/></a></td>
         <td><a href="http://continuumio.github.io/bokehjs/image.html"><img src="_images/image_plot2.png"/></a></td>
         <td><a href="https://github.com/ContinuumIO/Bokeh/blob/master/examples/plotting/file/vector.py"><img src="_images/streamline.png"/></a></td>
+
     </tr>
     </table>
     </p>
