@@ -1,9 +1,9 @@
 
 .. _faq:
 
-##########################################
-Frequently (or Inevitably) Asked Questions
-##########################################
+##########################
+Frequently Asked Questions
+##########################
 
 *Q: Why did you start writing a new plotting library, instead of just extending e.g. Matplotlib?*
 

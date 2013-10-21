@@ -18,8 +18,7 @@ v0.2 (Oct 2013)
 v0.1 (April 2013)
 =================
 
-* Basic low-level interface, consisting of wrapper objects for BokehJS
-rendering primitives, glyphs, tools
+* Basic low-level interface, consisting of wrapper objects for BokehJS rendering primitives, glyphs, tools
 * Beginnings of the ggplot-style interface that wraps the low-level interface
 * Simple line/scatter/bar/image plots with a Matplotlib-like interface
 * Static HTML output
@@ -117,7 +116,7 @@ Docs & Testing
 * better docs/interactive gallery
 * demo improvements
 
-   * code simplification
-   * option for static page generation
-   * more demos
+  * code simplification
+  * option for static page generation
+  * more demos
 

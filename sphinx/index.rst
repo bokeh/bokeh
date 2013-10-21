@@ -31,6 +31,11 @@ natively uses the latest web technologies.  Its goal is to provide elegant,
 concise construction of novel graphics in the style of Protovis/D3, while
 delivering high-performance interactivity over large data to thin clients.
 
+For more information about the goals and direction of the project, please
+see the :ref:`technicalvision`.
+
+To get started quickly, follow the :ref:`quickstart`.
+
 Contents:
 
 .. toctree::

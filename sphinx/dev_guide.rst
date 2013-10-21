@@ -111,6 +111,7 @@ web workers, asm.js, SIMD, and parallel JS (e.g. River Trail).
 Python Interface
 ================
 
+*Coming soon*
 
 Properties
 ----------
@@ -138,14 +139,17 @@ Bokeh development is complicated by the fact that there is Python code and
 Coffeescript in Bokeh itself, and there is Coffeescript in BokehJS.
 
 It is possible to set up just for development on Bokeh, without having a
-development install of BokehJS.  To do this, just run `$ python setup.py`.
-This will copy the pre-built `application.js` and `bokehnotebook.js` files
-from the `jsbuild/` directory into the correct place in the source tree.
+development install of BokehJS.  To do this, just run ``python setup.py``.
+This will copy the pre-built ``application.js`` and ``bokehnotebook.js`` files
+from the ``jsbuild/`` directory into the correct place in the source tree.
 
 If you want to do development on BokehJS as well, then modify the subtree
-source in the `subtree/bokehjs/` directory, and run `$ python exportjs.py`
+source in the ``subtree/bokehjs/`` directory, and run ``python exportjs.py``
 in the top-level Bokeh directory.  (You must re-run exportjs.py after all
 bokehjs changes.)  ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING!
+
+If you have any problems with the steps here, please contact the developers 
+(see :ref:`contact`).
 
 Coffeescript
 ------------
@@ -157,44 +161,39 @@ coffeescript <http://coffeescript.org/#installation>`_, which depends on
 Hem
 ---
 
-We're using our own fork of hem to manage the build process.
+We're using our own fork of hem to manage the build process.  *This will be
+changing in version 0.3, when we will move to a different set of Javascript
+technologies for building the front-end.*
+
 Please clone this repo: `https://github.com/ContinuumIO/hem <https://github.com/ContinuumIO/hem>`_.
 hem will compile coffeescript, combine js files, and support node.js require
 syntax on the client side.
 
-Install it by executing `$ sudo npm link` inside the hem repo.
+Install it by executing the following inside the hem repo::
+
+    $ sudo npm link
 
 This will link hem to your working copy so you get hem changes as we push it
-out.  Inside `bokeh/server/` of the Bokeh repo, execute `$ hem server &`.  The
-hem server will serve up coffeescript, compiling them on the fly.
+out.  Inside ``bokeh/server/`` of the Bokeh repo, execute::
+
+    $ hem server &
+    
+The hem server will serve up coffeescript, compiling them on the fly.
 
 Developing with Hem Server
 --------------------------
 
-To run the debug webserver, execute `$ bokeh-server -d -j`.  The debug
+To run the debug webserver, execute ``bokeh-server -d -j``.  The debug
 webserver is configured to ask the hem server for compiled javascript, rather
 than read the pre-compiled application.js off of disk.
 
 For the embedded plotting examples, or the production server, you will need to
 compile the js yourself.
 
-   * Go to the `bokeh/server/` directory.
-   * `$ hem build -d` will build the Bokeh application.js file
-   * `$ hem build -d -s slug.notebook.json` will build bokehnotebook.js, which
+   * Go to the ``bokeh/server/`` directory.
+   * ``hem build -d`` will build the Bokeh application.js file
+   * ``hem build -d -s slug.notebook.json`` will build bokehnotebook.js, which
      is used for all the notebook examples
-   * the `-d` option will prevent hem from uglifying the js, which breaks the
+   * the ``-d`` option will prevent hem from uglifying the js, which breaks the
      notebook export at the moment.
-
-Producing the docs
-------------------
-
-The documentation system depends on github pages.  Because of this, two checkouts of the Bokeh repo are needed.  The first is the main repo, in a directory named Bokeh pointing at revision [sphinx].  The second is the Bokeh repo, in a directory named gh-pages-Bokeh, pointed at branch gh-pages.
-
-There are 3 scripts in gh-pages whcih help with doc production.
-
-   * `build.sh`  This builds the traditional embed demos.
-   * `build_sphinx.sh`  This builds the sphinx documentation.  It copies all the built documentation back to the gh-pages branch
-   *  `s3_sync.sh`   This uploads all relevant files from the gh-pages repo and puts them on Amazon S3.
-
-
 
