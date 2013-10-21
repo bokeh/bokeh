@@ -24,8 +24,8 @@ test('test_nice_10', () ->
 
 test('test_auto_interval', () ->
   expect(3)
-  equal(auto_interval(0.0, 100.0), 10)
-  equal(auto_interval(0.0, 130.0), 50)
-  equal(auto_interval(30.0, 50.0), 5)
+  equal(auto_interval(0.0, 100.0), 20)
+  equal(auto_interval(0.0, 130.0), 25)
+  equal(auto_interval(30.0, 50.0), 2.5)
 )
 
