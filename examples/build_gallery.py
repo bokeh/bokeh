@@ -15,8 +15,8 @@ DETAIL_URL_ROOT="/Bokeh/detail/"
 """
 
 #These settings work with localhost:5006
-HOSTED_STATIC_ROOT="http://localhost:5006/bokeh/static/"
-DETAIL_URL_ROOT="http://localhost:5006/bokeh/static/demos/detail/"
+HOSTED_STATIC_ROOT="/static/"
+DETAIL_URL_ROOT="/static/demos/detail/"
 detail_dir = os.path.join(demo_dir, "detail")
 def page_desc(prev_infos, f):
     if len(prev_infos) > 0:
