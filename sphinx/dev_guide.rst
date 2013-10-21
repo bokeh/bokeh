@@ -134,4 +134,69 @@ Plotting.py
 Installation for Developers
 ===========================
 
+Bokeh development is complicated by the fact that there is Python code and
+Coffeescript in Bokeh itself, and there is Coffeescript in BokehJS.
+
+It is possible to set up just for development on Bokeh, without having a
+development install of BokehJS.  To do this, just run `$ python setup.py`.
+This will copy the pre-built application.js and bokehnotebook.js files
+from the jsbuild/ directory into the correct place in the source tree.
+
+If you want to do development on BokehJS as well, then modify the subtree
+source in the `subtree/bokehjs/` directory, and run `$ python exportjs.py`
+in the top-level Bokeh directory.  (You must re-run exportjs.py after all
+bokehjs changes.)  ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING!
+
+Coffeescript
+------------
+
+To develop Bokeh you will need to [install
+coffeescript](http://coffeescript.org/#installation), which depends on
+[node.js](http://nodejs.org/).
+
+Hem
+---
+
+We're using our own fork of hem to manage the build process.
+Please clone this repo: https://github.com/ContinuumIO/hem.
+hem will compile coffeescript, combine js files, and support node.js require
+syntax on the client side.
+
+Install it by executing
+
+`$ sudo npm link` inside the hem repo.
+
+This will link hem to your working copy so you get hem changes as we push it
+out.  Inside `bokeh/server/` of the Bokeh repo, execute `$ hem server &`.  The
+hem server will serve up coffeescript, compiling them on the fly.
+
+Developing with Hem Server
+--------------------------
+
+To run the debug webserver, execute `$ bokeh-server -d -j`.  The debug
+webserver is configured to ask the hem server for compiled javascript, rather
+than read the pre-compiled application.js off of disk.
+
+For the embedded plotting examples, or the production server, you will need to
+compile the js yourself.
+
+   * Go to the `bokeh/server/` directory.
+   * `$ hem build -d` will build the Bokeh application.js file
+   * `$ hem build -d -s slug.notebook.json` will build bokehnotebook.js, which
+     is used for all the notebook examples
+   * the `-d` option will prevent hem from uglifying the js, which breaks the
+     notebook export at the moment.
+
+Producing the docs
+--------------------------------
+
+The documentation system depends on github pages.  Because of this, two checkouts of the Bokeh repo are needed.  The first is the main repo, in a directory named Bokehd pointing at revision [sphinx].  The second is the Bokeh repo, in a directory named gh-pages-Bokeh, pointed at branch gh-pages.
+
+There are 3 scripts in gh-pages whcih help with doc production.
+
+   * `build.sh`  This builds the traitional embed demos.
+   * `build_sphinx.sh`  this builds the sphinx documentation.  It the copies all the built documenation back to the gh-pages branch
+   *  `s3_sync.sh`   This uplaods all relevant files from the gh-pages repo and puts tehm on s3.
+
+
 
