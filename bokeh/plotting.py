@@ -148,6 +148,16 @@ def output_notebook(url=None, docname=None):
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
     """
+
+    notebook = False
+    try:
+        from IPython import get_ipython
+        notebook = 'notebook' in get_ipython().config['IPKernelApp']['parent_appname']
+    except:
+        pass
+    if not notebook:
+        raise RuntimeError('output_notebook() called outside of IPython notebook. When not running inside an IPython notebook, please use output_file() or output_server()')
+
     if url is None:
         session = NotebookSession()
         session.notebooksources()

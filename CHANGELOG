@@ -7,12 +7,18 @@
   * implement more bokehjs primitive glyphs (patches, multiline)
   * add static HTML embed capability
   * add versioneer
+  * add many new glyph/marker types
   * enhancements:
     - Update bokeh.sampledata.download to take an alternate download directory
+	- need better message if user forgets output_file(), etc
+	- Need better message if output_notebook is used outside a notebook
     - Add datetime axis from bokehj
     - Use request animation frame where possible
     - Make colors representable by DataSpecs.
   * bugixes:
+    - line() without line_color does not render
+    - Add missing requirements, include bokeh.vendor into build
+    - Plotting a single point in causes javascript error in ticking 
     - colorspec on Grid and Axis objects not serialized
     - Cannot find redis.conf
     - None does not pass as null to bokehjs
