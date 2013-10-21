@@ -57,5 +57,10 @@ We are happy for people to do this.  We do appreciate an attribution,
 and we also would like to receive feedback about how it's working out
 for your project.
 
+*Q: How do you pronounce "bokeh"?*
+
+Either "boh-Kay" or "boh-Kuh".  For more information, you can 
+`consult Wikipedia <http://en.wikipedia.org/wiki/Bokeh>`_ or an actual
+Japanese person.
 
 
