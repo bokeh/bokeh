@@ -141,7 +141,8 @@ class RedisSession(PlotServerSession):
     a user's documents.  uses redis directly.  This probably shouldn't
     inherit from PlotServerSession, we need to refactor this abit.
     """
-    def __init__(self, redisconn, doc):
+    def __init__(self, redisconn, doc, 
+                 root_url="http://localhost:5006/", apikey=""):
         if isinstance(doc, basestring):
             self.docid = doc
         else:
@@ -149,6 +150,8 @@ class RedisSession(PlotServerSession):
         self.r = redisconn
         self._models = {}
         self.raw_js_objs = []
+        self.root_url = root_url
+        self.apikey = apikey
         
     def set_doc(self, doc):
         self.doc = doc

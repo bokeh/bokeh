@@ -205,6 +205,7 @@ def dom_embed(plot, **kwargs):
     else:
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []
+    print plot.build_script_inject_snippet()
     return render_template(
         "embed.html", jsfiles=static_js, hemfiles=hem_js,
         docid=plot._session.docid, docapikey=plot._session.apikey, modelid=plot._id,
@@ -308,10 +309,10 @@ def generate_embed(inject_type, include_js):
     elif inject_type == "direct":
         direct = True
     elif inject_type == "static":
-        plot_scr = plot.script_inject()
+        plot_scr = plot.build_script_inject_snippet()
     elif inject_type == "static_double":
         
-        plot_scr = "%s %s" % (plot.script_inject(), plot.script_inject())
+        plot_scr = "%s %s" % (plot.build_script_inject_snippet(), plot.build_script_inject_snippet())
     
     #I don't like this naming scheme
     if include_js == "no_js":

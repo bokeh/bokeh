@@ -305,14 +305,17 @@ class PlotObject(HasProps):
                 getattr(callback['obj'], callback['callbackname'])(
                     self, attrname, old, new)
 
-    def script_inject(self):
+
+    def build_script_inject_snippet(self):
         return script_inject(
             self._session,
             self._id,
             self.__view_model__)
 
+
     def script_direct_inject(
-            self, output_path="", static_path="http://localhost:5006/bokeh/static/",
+            self, output_path="", 
+            static_path="http://localhost:5006/bokeh/static/",
             embed_path=""):
 
         
@@ -322,12 +325,6 @@ class PlotObject(HasProps):
         self._session.save_embed_js(embed_save_loc, self._id, static_path)
         return script_direct_inject(
             self._id, self.__view_model__, full_embed_path)
-
-    def script_inject_escaped(self):
-        return script_inject(
-            self._session,
-            self._id,
-            self.__view_model__)
 
 
 class DataSource(PlotObject):
@@ -531,30 +528,6 @@ bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></scrip
         '''
     return e_str % f_dict
 
-def script_inject_escaped(sess, modelid, typename):
-    split = urlparse.urlsplit(sess.root_url)
-    if split.scheme == 'http':
-        ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
-    else:
-        ws_conn_string = "wss://%s/bokeh/sub" % split.netloc
-
-    f_dict = dict(
-        docid = sess.docid,
-
-        ws_conn_string = ws_conn_string,
-        docapikey = sess.apikey,
-        root_url = sess.root_url,
-        modelid = modelid,
-        modeltype = typename,
-        script_url = sess.root_url + "/bokeh/embed.js")
-
-    e_str = '''&lt; script src="%(script_url)s" bokeh_plottype="serverconn"
-bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
-bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
-    bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"&gt; &lt;/script&gt;
-        '''
-    return e_str % f_dict
-
 
 class Plot(PlotObject):
 
@@ -600,6 +573,7 @@ class Plot(PlotObject):
     min_border_left = Int(50)
     min_border_right = Int(50)
     min_border = Int(50)
+    script_inject_snippet = String("")
     def vm_props(self, *args, **kw):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
@@ -616,6 +590,13 @@ class Plot(PlotObject):
         if "outer_height" not in self._changed_vars:
             self.outer_height = self.height
         return super(Plot, self).vm_props(*args, **kw)
+    def finalize(self, models):
+        """Convert any references into instances
+        models is a dict of id->model mappings
+        """
+        self.script_inject_snippet = self.build_script_inject_snippet()
+        return super(Plot, self).finalize(models)
+
 
 class GMapPlot(PlotObject):
 
@@ -693,18 +674,6 @@ class GMapPlot(PlotObject):
 
     def get_raw_js(self):
         return '<script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>'
-
-    def script_inject(self):
-        return script_inject(
-            self._session,
-            self._id,
-            self.__view_model__)
-
-    def script_inject_escaped(self):
-        return script_inject(
-            self._session,
-            self._id,
-            self.__view_model__)
 
     def vm_props(self, *args, **kw):
         # FIXME: We need to duplicate the height and width into canvas and
