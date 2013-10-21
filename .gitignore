@@ -1,87 +1,18 @@
-# Editor temporary/working/backup files #
-#########################################
-.#*
-[#]*#
-*~
-*$
-*.bak
-*.diff
-*.org
-.project
-*.rej
-.settings/
-.*.sw[nop]
-.sw[nop]
-*.tmp
-
-# Compiled source #
-###################
-*.a
-*.com
-*.class
-*.dll
-*.exe
-*.o
-*.py[ocd]
-*.so
-
-# Packages #
-############
-# it's better to unpack these files and commit the raw source
-# git has its own built in compression methods
-*.7z
-*.bz2
-*.bzip2
-*.dmg
-*.gz
-*.iso
-*.jar
-*.rar
-*.tar
-*.tbz2
-*.tgz
-*.zip
-
-# Python files #
-################
-# setup.py working directory
+MANIFEST
 build
-# sphinx build directory
-_build
-# setup.py dist directory
 dist
-doc/build
-doc/cdoc/build
-# Egg metadata
+_build
+docs/man/*.gz
+docs/source/api/generated
+docs/gh-pages
+IPython/frontend/html/notebook/static/mathjax
+*.py[co]
+build
 *.egg-info
-# The shelf plugin uses this dir
-./.shelf
-
-# Logs and databases #
-######################
-*.log
-*.sql
-*.sqlite
-
-# Patches #
-###########
-*.patch
-*.diff
-
-# OS generated files #
-######################
-.DS_Store*
-.VolumeIcon.icns
-.fseventsd
-Icon?
-.gdb_history
-ehthumbs.db
-Thumbs.db
-
-# Things specific to this project #
-###################################
-webplot.py
-redis.db
-bokehpids.json
-
-/.idea/
+*~
+*.bak
+*#*
+*.#*
+*ipynb
+*.DS_Store
+*.swp
