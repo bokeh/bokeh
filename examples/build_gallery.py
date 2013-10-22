@@ -73,11 +73,11 @@ if __name__ == "__main__":
     )
     
     example_funcs = [
-        iris.iris, candlestick.candlestick, #legend.legend, 
+        iris.iris, candlestick.candlestick, legend.legend, 
         correlation.correlation,
         glucose.glucose, stocks.stocks, 
-        vector.vector_example, lorenz.lorenz_example, #color_scatter.color_scatter_example,
-        line.line_example, #scatter.scatter_example, 
+        vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
+        line.line_example, scatter.scatter_example, 
         rect.rect_example, glyphs.glyphs,
         iris_splom.iris_splom, # anscombe.anscombe,
         choropleth.choropleth_example
