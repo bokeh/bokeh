@@ -2,6 +2,20 @@
 Welcome to Bokeh
 ================
 
+
+.. _about:
+
+Bokeh is a Python interactive visualization library for large datasets that
+natively uses the latest web technologies.  Its goal is to provide elegant,
+concise construction of novel graphics in the style of Protovis/D3, while
+delivering high-performance interactivity over large data to thin clients.
+
+For more information about the goals and direction of the project, please
+see the :ref:`technicalvision`.
+
+To get started quickly, follow the :ref:`quickstart`.
+
+
 .. raw:: html
 
     <p>
@@ -25,19 +39,8 @@ Welcome to Bokeh
     </table>
     </p>
 
-.. _about:
-
-Bokeh is a Python interactive visualization library for large datasets that
-natively uses the latest web technologies.  Its goal is to provide elegant,
-concise construction of novel graphics in the style of Protovis/D3, while
-delivering high-performance interactivity over large data to thin clients.
-
-For more information about the goals and direction of the project, please
-see the :ref:`technicalvision`.
-
-To get started quickly, follow the :ref:`quickstart`.
-
-Contents:
+Contents
+--------
 
 .. toctree::
    :maxdepth: 2
@@ -53,11 +56,10 @@ Contents:
    release_notes.rst
    reference.rst
 
-
 .. _contact:
 
 Contact
-=======
+-------
 
 Source Repository: `https://github.com/ContinuumIO/bokeh <https://github.com/ContinuumIO/bokeh>`_.
 
@@ -78,21 +80,21 @@ To donate funds to support the development of Bokeh, please contact
 
 
 Thanks
-======
+------
 
 Bokeh is developed with funding from `DARPA <http://darpa.mil>`_'s 
 `XDATA <http://www.darpa.mil/Our_Work/I2O/Programs/XDATA.aspx>`_ program.
 
 
 License
-=======
+-------
 
 3-Clause BSD.
 
 .. TODO: Add license text
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
