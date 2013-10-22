@@ -4,6 +4,7 @@ _basedir = os.path.dirname(__file__)
 
 
 demo_dir = os.path.join(_basedir, "../bokeh/server/static/demos")
+GALLERY_SNIPPET_PATH = os.path.join(_basedir, "../sphinx/_templates/gallery_core.html")
 
 
 """
@@ -52,30 +53,40 @@ def make_gallery(functions):
     for p, p_next in [[p, page_infos[i+1]] for i, p in enumerate(page_infos[:-1])]:
         p['next_detail_url'] = p_next['detail_page_url']
         p['next_detail_name'] = p_next['name']
-    t = _load_template("detail.html")
+    t = _load_template("detail.html")    
+    gallery_template = '''
+    <li>
+        <a href="%(detail_page_url)s">%(name)s
+          <img src="/static/img/gallery/%(name)s.png"
+               class="gallery" />
+        </a>
+        </li>
+    '''
+    gallery_snippet = '<ul class="gallery clearfix">'
     for info in page_infos:
+        gallery_snippet +=  gallery_template % info
+
         fname = os.path.join(detail_dir, info['name'] + ".html")
         info['HOSTED_STATIC_ROOT']= HOSTED_STATIC_ROOT
         print " writing to ", fname
         with open(fname, "w") as f:
             f.write(t.render(info))
-    with open(os.path.join(demo_dir, "gallery.html"), "w") as f:
-        f.write(
-            _load_template("gallery.html").render(page_infos=page_infos))
+    gallery_snippet += "</ul>"    
+    with open(GALLERY_SNIPPET_PATH, "w") as f:
+        f.write(gallery_snippet)
 
 if __name__ == "__main__":
     from plotting.file import (iris, candlestick, correlation, legend,
             glucose, stocks, line, rect, glyphs, scatter, vector, lorenz,
             color_scatter, choropleth, texas, markers)
     from glyphs import iris_splom, anscombe
+
     
     example_funcs = [
         iris.iris, candlestick.candlestick, legend.legend, 
         correlation.correlation,
         glucose.glucose, stocks.stocks, 
         vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
-        line.line_example, scatter.scatter_example, 
-        rect.rect_example, glyphs.glyphs,
         iris_splom.iris_splom, anscombe.anscombe,
         choropleth.choropleth_example,
         texas.texas_example,
