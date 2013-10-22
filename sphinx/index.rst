@@ -15,8 +15,9 @@ see the :ref:`technicalvision`.
 
 To get started quickly, follow the :ref:`quickstart`.
 
-Visit the source repository: `https://github.com/ContinuumIO/bokeh <https://github.com/ContinuumIO/bokeh>`_.
+Visit the source repository: `https://github.com/ContinuumIO/bokeh <https://github.com/ContinuumIO/bokeh>`_
 
+Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 
 .. raw:: html
 
@@ -136,6 +137,7 @@ For questions, please join the bokeh mailing list:
 You can also ask questions on StackOverflow and use the #bokeh tag:
 `http://stackoverflow.com/questions/tagged/bokeh <http://stackoverflow.com/questions/tagged/bokeh>`_.
 
+Follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 When tweeting about how awesome Bokeh is, be sure to use the #bokeh tag!
 
 For information about commercial development, custom visualization development

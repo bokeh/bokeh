@@ -64,11 +64,10 @@ def make_gallery(functions):
             _load_template("gallery.html").render(page_infos=page_infos))
 
 if __name__ == "__main__":
-    from plotting.file import (
-        iris, candlestick, correlation, legend,
-        glucose, stocks, line, rect, glyphs, scatter,
-        vector, lorenz, color_scatter, choropleth)
-    from glyphs import (iris_splom, anscombe)
+    from plotting.file import (iris, candlestick, correlation, legend,
+            glucose, stocks, line, rect, glyphs, scatter, vector, lorenz,
+            color_scatter, choropleth, texas, markers)
+    from glyphs import iris_splom, anscombe
     
     example_funcs = [
         iris.iris, candlestick.candlestick, legend.legend, 
@@ -78,7 +77,9 @@ if __name__ == "__main__":
         line.line_example, scatter.scatter_example, 
         rect.rect_example, glyphs.glyphs,
         iris_splom.iris_splom, anscombe.anscombe,
-        choropleth.choropleth_example
+        choropleth.choropleth_example,
+        texas.texas_example,
+        markers.scatter_example,
     ]
     make_gallery(example_funcs)
 
