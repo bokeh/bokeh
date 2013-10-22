@@ -10,38 +10,31 @@ from bokeh.objects import (
 from bokeh.glyphs import Circle, Line
 from bokeh import session
 
-from StringIO import StringIO
+raw_columns=[
+[10.0,   8.04,   10.0,   9.14,   10.0,   7.46,   8.0,    6.58],
+[8.0,    6.95,   8.0,    8.14,   8.0,    6.77,   8.0,    5.76],
+[13.0,   7.58,   13.0,   8.74,   13.0,   12.74,  8.0,    7.71],
+[9.0,    8.81,   9.0,    8.77,   9.0,    7.11,   8.0,    8.84],
+[11.0,   8.33,   11.0,   9.26,   11.0,   7.81,   8.0,    8.47],
+[14.0,   9.96,   14.0,   8.10,   14.0,   8.84,   8.0,    7.04],
+[6.0,    7.24,   6.0,    6.13,   6.0,    6.08,   8.0,    5.25],
+[4.0,    4.26,   4.0,    3.10,   4.0,    5.39,   19.0,   12.5],
+[12.0,   10.84,  12.0,   9.13,   12.0,   8.15,   8.0,    5.56],
+[7.0,    4.82,   7.0,    7.26,   7.0,    6.42,   8.0,    7.91],
+[5.0,    5.68,   5.0,    4.74,   5.0,    5.73,   8.0,    6.89]]
 
-# trailing asterisk is to preserve fixed width field whitespace at the end of the line
-data = """
-I       I       II      II      III     III     IV      IV        *
-x       y       x       y       x       y       x       y         *
-
-10.0    8.04    10.0    9.14    10.0    7.46    8.0     6.58      *
-8.0     6.95    8.0     8.14    8.0     6.77    8.0     5.76      *
-13.0    7.58    13.0    8.74    13.0    12.74   8.0     7.71      *
-9.0     8.81    9.0     8.77    9.0     7.11    8.0     8.84      *
-11.0    8.33    11.0    9.26    11.0    7.81    8.0     8.47      *
-14.0    9.96    14.0    8.10    14.0    8.84    8.0     7.04      *
-6.0     7.24    6.0     6.13    6.0     6.08    8.0     5.25      *
-4.0     4.26    4.0     3.10    4.0     5.39    19.0    12.50     *
-12.0    10.84   12.0    9.13    12.0    8.15    8.0     5.56      *
-7.0     4.82    7.0     7.26    7.0     6.42    8.0     7.91      *
-5.0     5.68    5.0     4.74    5.0     5.73    8.0     6.89      *
-"""
-
-quartet = pd.read_fwf(StringIO(data), widths=[8]*8, header=[1,2], tupleize_cols=False)
-
+quartet = pd.DataFrame(data=raw_columns, columns=
+                       ['Ix','Iy','IIx','IIy','IIIx','IIIy','IVx','IVy'])
 circles_source = ColumnDataSource(
     data = dict(
-        xi   = quartet['I']['x'],
-        yi   = quartet['I']['y'],
-        xii  = quartet['II']['x'],
-        yii  = quartet['II']['y'],
-        xiii = quartet['III']['x'],
-        yiii = quartet['III']['y'],
-        xiv  = quartet['IV']['x'],
-        yiv  = quartet['IV']['y'],
+        xi   = quartet['Ix'],
+        yi   = quartet['Iy'],
+        xii  = quartet['IIx'],
+        yii  = quartet['IIy'],
+        xiii = quartet['IIIx'],
+        yiii = quartet['IIIy'],
+        xiv  = quartet['IVx'],
+        yiv  = quartet['IVy'],
     )
 )
 
