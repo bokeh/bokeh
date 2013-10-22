@@ -306,14 +306,37 @@ class PlotObject(HasProps):
                     self, attrname, old, new)
 
 
+    def inject_snippet(
+            self, server=False, static_path="http://localhost:5006/bokeh/static/"
+            embed_url="", embed_save_loc="."):
+
+
     def build_script_inject_snippet(self):
-        return script_inject(
-            self._session,
-            self._id,
-            self.__view_model__)
+        sess = self._session
+        modelid = self._id
+        typename = self.__view_model__
+        split = urlparse.urlsplit(sess.root_url)
+        if split.scheme == 'http':
+            ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
+        else:
+            ws_conn_string = "wss://%s/bokeh/sub" % split.netloc
 
+        f_dict = dict(
+            docid = sess.docid,
+            ws_conn_string = ws_conn_string,
+            docapikey = sess.apikey,
+            root_url = sess.root_url,
+            modelid = modelid,
+            modeltype = typename,
+            script_url = sess.root_url + "/bokeh/embed.js")
+        e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
+        bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
+        bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
+        bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
+        '''
+        return e_str % f_dict
 
-    def script_direct_inject(
+    def build_static_embed_snippet(
             self, output_path="", 
             static_path="http://localhost:5006/bokeh/static/",
             embed_path=""):
@@ -323,8 +346,19 @@ class PlotObject(HasProps):
         full_embed_path = embed_path + embed_filename
         embed_save_loc = os.path.join(output_path, embed_filename)
         self._session.save_embed_js(embed_save_loc, self._id, static_path)
-        return script_direct_inject(
-            self._id, self.__view_model__, full_embed_path)
+
+        
+        sess = self._session
+        modelid = self._id
+        typename = self.__view_model__
+        embed_filename = full_embed_path
+        f_dict = dict(modelid = modelid, modeltype = typename,
+                      embed_filename=embed_filename)
+        e_str = '''<script src="%(embed_filename)s" bokeh_plottype="embeddata"
+        bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
+        '''
+        return e_str % f_dict
+
 
 
 class DataSource(PlotObject):
@@ -496,37 +530,6 @@ class GlyphRenderer(PlotObject):
         else:
             self.nonselection_glyph = None
 
-
-def script_inject(sess, modelid, typename):
-    split = urlparse.urlsplit(sess.root_url)
-    if split.scheme == 'http':
-        ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
-    else:
-        ws_conn_string = "wss://%s/bokeh/sub" % split.netloc
-
-    f_dict = dict(
-        docid = sess.docid,
-
-        ws_conn_string = ws_conn_string,
-        docapikey = sess.apikey,
-        root_url = sess.root_url,
-        modelid = modelid,
-        modeltype = typename,
-        script_url = sess.root_url + "/bokeh/embed.js")
-    e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
-bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
-bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
-bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
-        '''
-    return e_str % f_dict
-
-def script_direct_inject(modelid, typename, embed_filename):
-    f_dict = dict(modelid = modelid, modeltype = typename,
-                  embed_filename=embed_filename)
-    e_str = '''<script src="%(embed_filename)s" bokeh_plottype="embeddata"
-bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
-        '''
-    return e_str % f_dict
 
 
 class Plot(PlotObject):
