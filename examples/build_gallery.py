@@ -68,9 +68,8 @@ if __name__ == "__main__":
         iris, candlestick, correlation, legend,
         glucose, stocks, line, rect, glyphs, scatter,
         vector, lorenz, color_scatter, choropleth)
-    from glyphs import (iris_splom, 
-                        #anscombe
-    )
+    from glyphs import (iris_splom, anscombe)
+
     
     example_funcs = [
         iris.iris, candlestick.candlestick, legend.legend, 
@@ -79,7 +78,7 @@ if __name__ == "__main__":
         vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
         line.line_example, scatter.scatter_example, 
         rect.rect_example, glyphs.glyphs,
-        iris_splom.iris_splom, # anscombe.anscombe,
+        iris_splom.iris_splom, anscombe.anscombe,
         choropleth.choropleth_example
     ]
     make_gallery(example_funcs)

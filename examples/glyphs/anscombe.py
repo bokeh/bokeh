@@ -25,66 +25,71 @@ raw_columns=[
 
 quartet = pd.DataFrame(data=raw_columns, columns=
                        ['Ix','Iy','IIx','IIy','IIIx','IIIy','IVx','IVy'])
-circles_source = ColumnDataSource(
-    data = dict(
-        xi   = quartet['Ix'],
-        yi   = quartet['Iy'],
-        xii  = quartet['IIx'],
-        yii  = quartet['IIy'],
-        xiii = quartet['IIIx'],
-        yiii = quartet['IIIy'],
-        xiv  = quartet['IVx'],
-        yiv  = quartet['IVy'],
+
+def anscombe():
+    circles_source = ColumnDataSource(
+        data = dict(
+            xi   = quartet['Ix'],
+            yi   = quartet['Iy'],
+            xii  = quartet['IIx'],
+            yii  = quartet['IIy'],
+            xiii = quartet['IIIx'],
+            yiii = quartet['IIIy'],
+            xiv  = quartet['IVx'],
+            yiv  = quartet['IVy'],
+        )
+       )
+    
+    x = np.linspace(-0.5, 20.5, 10)
+    y = 3 + 0.5 * x
+    lines_source = ColumnDataSource(data=dict(x=x, y=y))
+    
+    xdr = Range1d(start=-0.5, end=20.5)
+    ydr = Range1d(start=-0.5, end=20.5)
+    
+    def make_plot(title, xname, yname):
+        plot = Plot(
+            x_range=xdr, y_range=ydr, data_sources=[lines_source, circles_source],
+            title=title, width=400, height=400, border_fill='white', background_fill='#e9e0db')
+        xaxis = LinearAxis(plot=plot, dimension=0, location="bottom", axis_line_alpha=0)
+        yaxis = LinearAxis(plot=plot, dimension=1, location="left", axis_line_alpha=0)
+        xgrid = Grid(plot=plot, dimension=0)
+        ygrid = Grid(plot=plot, dimension=1)
+        line_renderer = GlyphRenderer(
+            data_source = lines_source,
+            xdata_range = xdr,
+            ydata_range = ydr,
+            glyph = Line(x='x', y='y', line_color="#666699", line_width=2),
+        )
+        plot.renderers.append(line_renderer)
+        circle_renderer = GlyphRenderer(
+            data_source = circles_source,
+            xdata_range = xdr,
+            ydata_range = ydr,
+            glyph = Circle(x=xname, y=yname, radius=6, fill_color="#cc6633", 
+                           line_color="#cc6633", fill_alpha=0.5),
     )
-)
+        plot.renderers.append(circle_renderer)
+        return plot, (line_renderer, circle_renderer, xaxis, yaxis, xgrid, ygrid)
 
-x = np.linspace(-0.5, 20.5, 10)
-y = 3 + 0.5 * x
-lines_source = ColumnDataSource(data=dict(x=x, y=y))
+    I,   objsI   = make_plot('I', 'xi', 'yi')
+    II,  objsII  = make_plot('II', 'xii', 'yii')
+    III, objsIII = make_plot('III', 'xiii', 'yiii')
+    IV,  objsIV  = make_plot('IV', 'xiv', 'yiv')
 
-xdr = Range1d(start=-0.5, end=20.5)
-ydr = Range1d(start=-0.5, end=20.5)
+    grid = GridPlot(children=[[I, II], [III, IV]])
 
-def make_plot(title, xname, yname):
-    plot = Plot(
-        x_range=xdr, y_range=ydr, data_sources=[lines_source, circles_source],
-        title=title, width=400, height=400, border_fill='white', background_fill='#e9e0db')
-    xaxis = LinearAxis(plot=plot, dimension=0, location="bottom", axis_line_alpha=0)
-    yaxis = LinearAxis(plot=plot, dimension=1, location="left", axis_line_alpha=0)
-    xgrid = Grid(plot=plot, dimension=0)
-    ygrid = Grid(plot=plot, dimension=1)
-    line_renderer = GlyphRenderer(
-        data_source = lines_source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = Line(x='x', y='y', line_color="#666699", line_width=2),
-    )
-    plot.renderers.append(line_renderer)
-    circle_renderer = GlyphRenderer(
-        data_source = circles_source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = Circle(x=xname, y=yname, radius=6, fill_color="#cc6633", line_color="#cc6633", fill_alpha=0.5),
-    )
-    plot.renderers.append(circle_renderer)
-    return plot, (line_renderer, circle_renderer, xaxis, yaxis, xgrid, ygrid)
+    sess = session.HTMLFileSession("anscombe.html")
+    sess.add(lines_source, circles_source, xdr, ydr)
+    sess.add(*(objsI + objsII + objsIII + objsIV))
+    sess.add(grid, I, II, III, IV)
+    sess.plotcontext.children.append(grid)
+    sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
+    return grid
 
-I,   objsI   = make_plot('I', 'xi', 'yi')
-II,  objsII  = make_plot('II', 'xii', 'yii')
-III, objsIII = make_plot('III', 'xiii', 'yiii')
-IV,  objsIV  = make_plot('IV', 'xiv', 'yiv')
-
-grid = GridPlot(children=[[I, II], [III, IV]])
-
-sess = session.HTMLFileSession("anscombe.html")
-sess.add(lines_source, circles_source, xdr, ydr)
-sess.add(*(objsI + objsII + objsIII + objsIV))
-sess.add(grid, I, II, III, IV)
-sess.plotcontext.children.append(grid)
-sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-
-try:
-    import webbrowser
-    webbrowser.open("file://" + os.path.abspath("anscombe.html"))
-except:
-    pass
+if __name__ == "__main__":
+    try:
+        import webbrowser
+        webbrowser.open("file://" + os.path.abspath("anscombe.html"))
+    except:
+        pass
