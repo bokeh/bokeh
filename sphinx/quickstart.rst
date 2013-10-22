@@ -89,6 +89,25 @@ which have been created.  Clicking on a document name will display its
 plots.
 
 
+Using the embed functionality
+-----------------------------
+Plots can be embedded in two ways, the first requires a running
+plotserver.  The second produces a static script capable of injecting
+a fully functioning bokeh plot into any web page.
+
+Build Script Inject returns a snippet that you can copy and paste into
+any html document, and have that plot show up.  It depends on a
+running accessible bokeh plot server.
+
+::
+   In [12]: l = line(x,y)
+   In [13]: print l.build_script_inject_snippet()
+        <script src="http://localhost:5006//bokeh/embed.js" bokeh_plottype="serverconn"
+        bokeh_docid="1ee1ddba-9ae8-4e20-bd17-21ede6dbd16b" bokeh_ws_conn_string="ws://localhost:5006/bokeh/sub"
+        bokeh_docapikey="82e3691d-ab40-4d83-a88d-94a6520f6f0e" bokeh_root_url="http://localhost:5006/"
+        bokeh_modelid="e2f80663-85ba-4689-8155-30d7bfdce806" bokeh_modeltype="Plot" async="true"></script>
+
+
 Example IPython Notebooks
 -------------------------
 

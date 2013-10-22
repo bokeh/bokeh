@@ -10,6 +10,7 @@
     <link href="{{ url_for('static', filename='vendor/bokehjs/vendor/bootstrap/css/bootstrap.css') }}" rel="stylesheet">    
     <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap-2.2.2.css') }}" rel="stylesheet">    
     <link href="{{ url_for('static', filename='vendor/bokehjs/vendor/jquery/css/themes/base/jquery-ui.min.css') }}" rel="stylesheet">
+
     {% for jsfile in jsfiles %}
     <script type="text/javascript" src="{{jsfile}}"></script>
     {% endfor %}

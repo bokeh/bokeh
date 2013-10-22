@@ -28,8 +28,9 @@ def page_desc(prev_infos, f):
     #I need to make sure I know where to put this snippet, where I
     #want it written
     plot = f()
-    embed_snippet = plot.script_direct_inject(
-        detail_dir, static_path=HOSTED_STATIC_ROOT, embed_path=DETAIL_URL_ROOT)
+    embed_snippet = plot.inject_snippet(
+        embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
+        embed_base_url=DETAIL_URL_ROOT)
     page_info = dict(
         f=f, name=name_, embed_snippet=embed_snippet,
         detail_snippet = generate_func_docs(f, ""),
@@ -77,7 +78,7 @@ def make_gallery(functions):
 
 if __name__ == "__main__":
     from plotting.file import (iris, candlestick, correlation, legend,
-            glucose, stocks, line, rect, glyphs, scatter, vector, lorenz,
+            glucose, stocks, vector, lorenz,
             color_scatter, choropleth, texas, markers)
     from glyphs import iris_splom, anscombe
 

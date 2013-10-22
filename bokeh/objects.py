@@ -307,11 +307,18 @@ class PlotObject(HasProps):
 
 
     def inject_snippet(
-            self, server=False, static_path="http://localhost:5006/bokeh/static/"
-            embed_url="", embed_save_loc="."):
+            self, static_path="http://localhost:5006/bokeh/static/",
+            embed_base_url="", embed_save_loc=".", server=False):
+        if server:
+            return self.build_server_snippet()
+        embed_filename = "%s.embed.js" % self._id
+        full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)        
+        js_code, embed_snippet = self.build_static_embed_snippet(
+            static_path, embed_base_url)
+        with open(full_embed_save_loc,"w") as f:
+            f.write(js_code)
 
-
-    def build_script_inject_snippet(self):
+    def build_server_snippet(self):
         sess = self._session
         modelid = self._id
         typename = self.__view_model__
@@ -334,18 +341,15 @@ class PlotObject(HasProps):
         bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
         bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
         '''
-        return e_str % f_dict
+        return "", e_str % f_dict
 
-    def build_static_embed_snippet(
-            self, output_path="", 
-            static_path="http://localhost:5006/bokeh/static/",
-            embed_path=""):
+    def build_static_embed_snippet(self, static_path, embed_base_url):
 
         
         embed_filename = "%s.embed.js" % self._id
-        full_embed_path = embed_path + embed_filename
-        embed_save_loc = os.path.join(output_path, embed_filename)
-        self._session.save_embed_js(embed_save_loc, self._id, static_path)
+        full_embed_path = embed_base_url + embed_filename
+
+        js_str = self._session.embed_js(self._id, static_path)
 
         
         sess = self._session
@@ -357,7 +361,7 @@ class PlotObject(HasProps):
         e_str = '''<script src="%(embed_filename)s" bokeh_plottype="embeddata"
         bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
         '''
-        return e_str % f_dict
+        return js_str, e_str % f_dict
 
 
 

@@ -332,7 +332,7 @@ class HTMLFileSession(BaseHTMLSession):
                     title = self.title)
         return html
 
-    def save_embed_js(self, filename, plot_id, host):
+    def embed_js(self, plot_id, host):
 
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
@@ -351,8 +351,7 @@ class HTMLFileSession(BaseHTMLSession):
             modelid = pc_ref["id"],
             modeltype = pc_ref["type"],
             plotid = plot_id,  all_models = self.serialize(models))
-        with open(filename, "w") as f:
-            f.write(jscode.encode("utf-8"))
+        return jscode.encode("utf-8")
 
 
     def save(self, filename=None, js=None, css=None, rootdir=None):
