@@ -103,7 +103,7 @@ address fundamental challenges of large dataset visualization:
 
 Some of the core ideas for the backend processing in bokeh-server are currently
 implemented as a standalone library, and are being developed under the term
-"Abstract Rendering".  We will be presenting at VDA 2014.  For more
+"Abstract Rendering", which we will be presenting at VDA 2014.  For more
 information, you can visit the 
 `Abstract Rendering github <http://github.com/JosephCottam/AbstractRendering>`_.
 
