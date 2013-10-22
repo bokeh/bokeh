@@ -18,7 +18,7 @@ def lorenz_example():
         return [x_dot, y_dot, z_dot]
 
     initial = (-10, -7, 35)
-    t = np.arange(0, 100, 0.001)
+    t = np.arange(0, 100, 0.006)
 
     solution = odeint(lorenz, initial, t)
 
