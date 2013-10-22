@@ -3,6 +3,7 @@
 import copy
 from collections import Iterable
 from functools import wraps
+import itertools
 from numbers import Number
 import numpy as np
 import os
@@ -795,9 +796,14 @@ def scatter(*args, **kwargs):
 
 @visual
 def gridplot(plot_arrangement, name=False):
-    grid = GridPlot(children=plot_arrangemnt)
+    grid = GridPlot(children=plot_arrangement)
     if name:
         grid._id = name
+    # Walk the plot_arrangement and remove them from the plotcontext,
+    # so they don't show up twice
+    session = _config["session"]
+    session.plotcontext.children = list(set(session.plotcontext.children) - \
+                set(itertools.chain.from_iterable(plot_arrangement)))
     return grid, [grid]
 
 
