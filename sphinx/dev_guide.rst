@@ -82,7 +82,7 @@ Bokeh development is complicated by the fact that there is Python code and
 Coffeescript in Bokeh itself, and there is Coffeescript in BokehJS.
 
 It is possible to set up just for development on Bokeh, without having a
-development install of BokehJS.  To do this, just run ``python setup.py``.
+development install of BokehJS.  To do this, just run ``python setup.py install``.
 This will copy the pre-built ``application.js`` and ``bokehnotebook.js`` files
 from the ``jsbuild/`` directory into the correct place in the source tree.
 
