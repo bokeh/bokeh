@@ -88,6 +88,7 @@ def anscombe():
     return grid
 
 if __name__ == "__main__":
+    anscombe()
     try:
         import webbrowser
         webbrowser.open("file://" + os.path.abspath("anscombe.html"))
