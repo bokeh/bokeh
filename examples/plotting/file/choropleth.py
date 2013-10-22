@@ -1,11 +1,10 @@
 
 from bokeh.sampledata import us_states, us_counties, unemployment
 from bokeh.plotting import *
+del us_states.data['HI']
+del us_states.data['AK']
 
 def choropleth_example():
-
-    del us_states.data['HI']
-    del us_states.data['AK']
 
     state_xs = [us_states.data[code]['lons'] for code in us_states.data]
     state_ys = [us_states.data[code]['lats'] for code in us_states.data]
