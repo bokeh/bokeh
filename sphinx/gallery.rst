@@ -62,22 +62,43 @@ Gallery
         </a>
         </li>
         <li>
+         <a href="/static/demos/detail/vector_example.html">Vector
+          <img src="/static/img/gallery/vector.png"
+               class="gallery" />
+        </a>
+        </li>
+        <li>
         <a href="/static/demos/detail/scatter_example.html">Scatter
           <img src="/static/img/gallery/scatter_rect.png"
+               class="gallery" />
+        </a>
+        </li> 
+        <li>
+        <a href="/static/demos/detail/color_scatter_example.html">Color Scatter
+          <img src="/static/img/gallery/color_scatter.png"
                class="gallery" />
         </a>
         </li>
         <li>
         <a href="/static/demos/detail/iris_splom.html">Iris Splom
-          <img src="/static/img/gallery/scatter_rect.png"
+          <img src="/static/img/gallery/iris_splom.png"
                class="gallery" />
         </a>
         </li>
         <li>
-        <a href="/static/demos/detail/choropleth.html">Choropleth
+        <a href="/static/demos/detail/choropleth_example.html">Choropleth
+          <img src="/static/img/gallery/choropleth.png"
+               class="gallery" />
+        </a>
+        </li>
+        <!--
+        <li>
+        <a href="/static/demos/detail/anscombe.html">Anscombe
           <img src="/static/img/gallery/scatter_rect.png"
                class="gallery" />
         </a>
+        </li>
+        -->
         </ul>
 
 Coming soon!  For now, play with the interactive demos on the

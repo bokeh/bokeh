@@ -69,7 +69,6 @@ if __name__ == "__main__":
         glucose, stocks, line, rect, glyphs, scatter,
         vector, lorenz, color_scatter, choropleth)
     from glyphs import (iris_splom, anscombe)
-
     
     example_funcs = [
         iris.iris, candlestick.candlestick, legend.legend, 
