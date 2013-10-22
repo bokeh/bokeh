@@ -6,6 +6,11 @@ Reference Guide
 docstrings and make them sphinx-compliant, and figure out how to improve
 formatting with the sphinx-bootstrap-theme plugin.*
 
+
+.. contents::
+    :local:
+    :depth: 2
+
 bokeh.plotting Interface
 ============================
 

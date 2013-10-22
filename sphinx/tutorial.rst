@@ -2,6 +2,10 @@
 Tutorial
 ########
 
+.. contents::
+    :local:
+    :depth: 2
+
 
 Simple Script-based Plotting
 ============================
