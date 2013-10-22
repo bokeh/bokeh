@@ -1,5 +1,6 @@
 import flask
 import os
+from gevent.pywsgi import WSGIServer
 app = flask.Flask(__name__, static_path="/unused")
 
 _basedir = os.path.dirname(__file__)
@@ -27,4 +28,8 @@ def send_pic(filename):
 
 
 if __name__ == "__main__":
-    app.run(port=PORT)
+    #app.run(port=PORT)
+    http_server = WSGIServer(('', PORT), app)
+    print "\nStarting Bokeh plot server on port %d..." % PORT
+    print "View http://localhost:%d/bokeh to see plots\n" % PORT
+    http_server.serve_forever()
