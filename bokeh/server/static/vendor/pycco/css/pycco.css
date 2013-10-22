@@ -119,6 +119,8 @@ div.docs {
       div.docs:hover .octothorpe {
         opacity: 1;
       }
+      div.docs p {margin: 0 0 5px 30px; color:#F9386C}
+      div.docs p:before {content:"#"}
 div.code {
   ma rgin-left: 580px;
   /*padding: 14px 15px 16px 50px;*/
