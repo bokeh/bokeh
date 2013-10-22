@@ -228,7 +228,7 @@ class Segment(Glyph, LineProps):
     x1 = DataSpec
     y1 = DataSpec
 
-class Text(Glyph):
+class Text(Glyph, TextProps):
     __view_model__ = "text"
     x = DataSpec
     y = DataSpec

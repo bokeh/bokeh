@@ -454,9 +454,12 @@ class GlyphFunction(object):
                 # both strings and certain iterables are valid colors.
                 glyph_val = val
             elif isinstance(val, basestring):
-                if val not in datasource.column_names:
-                    raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
-                glyph_val = {'field' : val, 'units' : 'data'}
+                if self.glyphclass == glyphs.Text:
+                    glyph_val = val
+                else:
+                    if val not in datasource.column_names:
+                        raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
+                    glyph_val = {'field' : val, 'units' : 'data'}
             elif isinstance(val, np.ndarray):
                 if val.ndim != 1:
                     raise RuntimeError("Columns need to be 1D (%s is not)" % var)
@@ -671,6 +674,8 @@ rect = GlyphFunction(glyphs.Rect, ("x", "y", "width", "height"))
 
 segment = GlyphFunction(glyphs.Segment, ("x0", "y0", "x1", "y1"),
     xfields=["x0", "x1"], yfields=["y0", "y1"])
+
+text = GlyphFunction(glyphs.Text, ("x", "y", "text", "angle"))
 
 wedge = GlyphFunction(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"))
 
