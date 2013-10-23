@@ -92,7 +92,9 @@ Additional data sets may be obtained by executing the following code::
 
 By default the sample data sets are downloaded into ``~/.bokeh/data`` but this
 setting may be overridden in the ``sampledata_dir`` option of a YAML config file
-placed at ``~/.bokeh/config``.
+placed at ``~/.bokeh/config``.  As of version 0.2, this is approximately 12MB of
+uncompressed CSV data.
+
 Data sets currently downloaded include:
 
 * CGM.csv - glucose monitoring data
