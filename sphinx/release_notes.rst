@@ -41,7 +41,7 @@ v0.3
 * Integrate Abstract Rendering into bokeh server
 * Better grid-based layout system
 * Touch events
-* New logo, frame around plots for consistent look & feel on all Bokeh plots
+* Frame around plots for consistent look & feel on all Bokeh plots
 * Improve ggplot interface / integrate with ggplot python lib
 * Improve rendering loop performance in BokehJS
 

@@ -70,3 +70,20 @@ there any problem with doing this?*
     we also would like to receive feedback about how it's working out for your
     project.
 
+
+*Q: If Bokeh is merely producing JSON objects for BokehJS to handle, why
+not use something like Vega?*
+
+    We may very well end up using the Vega grammar.  For now, we need to be
+    able to specifically tag certain objects with UUIDs so that the object
+    graph structure can be reconstituted on the JS side.  Additionally, we
+    use this JSON to reproduce Python object graphs when we load up a
+    Python plot from the plot server - so we would need to make sure that Vega
+    can fully encapsulate all the information we need here as well.
+
+    At this point, the Trifacta folks are actively iterating on Vega in support
+    of their projects.  We don't want to burden them with requirements that
+    may be incidental to their main design goals at this early stage.  However,
+    we are keeping an active watch over its evolution, and hope that there can
+    be a convergence in this space down the road.
+
