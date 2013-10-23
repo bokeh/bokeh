@@ -317,6 +317,7 @@ class PlotObject(HasProps):
             static_path, embed_base_url)
         with open(full_embed_save_loc,"w") as f:
             f.write(js_code)
+        return embed_snippet
 
     def build_server_snippet(self):
         sess = self._session
@@ -580,7 +581,18 @@ class Plot(PlotObject):
     min_border_left = Int(50)
     min_border_right = Int(50)
     min_border = Int(50)
-    script_inject_snippet = String("")
+    script_inject_snippet = String
+    
+
+    def _script_inject_snippet_get(self):
+        if self._session['output_type'] == "file":
+            return ""
+        else:
+            return self.inject_snippet(
+                server=True)
+    def _script_inject_snippet_set(self, val):
+        return
+    _script_inject_snippet=property(_script_inject_snippet_get, _script_inject_snippet_set)
     def vm_props(self, *args, **kw):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
@@ -597,13 +609,6 @@ class Plot(PlotObject):
         if "outer_height" not in self._changed_vars:
             self.outer_height = self.height
         return super(Plot, self).vm_props(*args, **kw)
-    def finalize(self, models):
-        """Convert any references into instances
-        models is a dict of id->model mappings
-        """
-        self.script_inject_snippet = self.build_script_inject_snippet()
-        return super(Plot, self).finalize(models)
-
 
 class GMapPlot(PlotObject):
 
