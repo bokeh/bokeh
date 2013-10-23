@@ -693,12 +693,8 @@ class GMapPlot(PlotObject):
 class GridPlot(Plot):
     """ A 2D grid of plots """
 
-    children = List(List)
+    children = List(List(has_ref=True), has_ref=True)
     border_space = Int(0)
-    tools = []
-    x_range = []
-    y_range = []
-    renderers = []
 
 class GuideRenderer(PlotObject):
     plot = Instance
