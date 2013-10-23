@@ -72,23 +72,19 @@ This should produce the plot shown below:
 
 
 Using IPython Notebook
-----------------------
+======================
 
-Using Bokeh inside an IPython notebook is almost identical to the usage above, with one small
-change:
-::
+Using Bokeh inside an IPython notebook is almost identical to the usage 
+above, with one small change::
 
-    output_noteboo()
+    output_notebook()
 
 This tells bokeh to configure Bokeh for embedding inside IPython notebook sessions.
 
-
-Plot Server and Embedding
--------------------------
-
+.. image:: images/notebook_vector.png
 
 Downloading Sample Data
------------------------
+=======================
 
 For more interesting plots than just simple trigonometric curves, Bokeh
 comes with a few datasets built in to the :ref:`bokeh.sampledata` module.
@@ -118,7 +114,11 @@ Data sets currently downloaded include:
 
 
 
-Customization
--------------
+..
+    Plot Server and Embedding
+    -------------------------
+
+    Customization
+    -------------
 
 
