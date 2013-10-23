@@ -37,7 +37,13 @@
             {% block navbarextra %}
             {% endblock %}
             {% if theme_source_link_position == "nav" %}
-              <li>{% include "sourcelink.html" %}</li>
+
+              <li>{%- if show_source and has_source and sourcename %}
+                <a href="{{ pathto('_sources/' + sourcename, true)|e }}"
+                   rel="nofollow">{{ _('Source') }}</a>
+                {%- endif %}
+              </li>
+
             {% endif %}
           </ul>
 
