@@ -307,11 +307,23 @@ class PlotObject(HasProps):
 
 
     def inject_snippet(
-            self, static_path="http://localhost:5006/bokeh/static/",
-            embed_base_url="", embed_save_loc=".", server=False):
-        """
-        inject_snippet returns the embed string to be put in html.  
-        static_path controls where the
+            self, server=False, embed_base_url="", embed_save_loc=".",
+            static_path="http://localhost:5006/bokeh/static/"):
+        """inject snippet is used to embed a plot in an html page.
+
+        inject_snippet returns the embed string to be put in html.
+        This will be a <script> tag.
+
+        To embed a plot dependent on the Bokeh Plot Server, set server=True,
+        otherwise a file with the data for the plot will be built.
+
+        embed_base_url is used for non-server embedding.  This is used
+        as the root of the url where the embed.js file will be saved.
+
+        embed_save_loc controls where the embed.js will be actually written to.
+
+        static_path controls where the embed snippet looks to find
+        application.js and the other resources it needs for bokeh.
         """
         if server:
             return self._build_server_snippet()[1]
