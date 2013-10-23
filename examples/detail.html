@@ -14,6 +14,7 @@
 <style>
 
 </style>
+
 <div class="bokeh">
   <div class="navbar">
     <a class="prev" href="{{prev_detail_url}}">{{prev_detail_name}}</a>
@@ -22,8 +23,8 @@
   </div>
 </div>
 
-
-{{detail_snippet|safe}}
-<div class='output'>
-  {{ embed_snippet }}
+<div class="plot-only">
+  <div class='output'>
+    {{ embed_snippet }}
+  </div>
 </div>

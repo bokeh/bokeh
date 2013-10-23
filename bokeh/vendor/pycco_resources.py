@@ -242,7 +242,7 @@ html = """\
 func = """\
 
 <div id='container'>
-  <div id="background"></div>
+<div id="background"></div>
   {{#sources?}}
   <div id="jump_to">
     Jump To &hellip;
