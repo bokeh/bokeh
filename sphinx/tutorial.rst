@@ -48,7 +48,7 @@ structures.
     output_file("cos.html")
 
 This tells bokeh to create an HTML file for us.  This file will contain
-all the plots we create, as well as the source for BokehJS and its 
+all the plots we create, as well as the source for BokehJS and its
 Javascript dependencies.  Consequently, it can be quite large - over
 a megabyte or more.  It is possible to configure the details of HTML
 file generation, so that relative links are used.  Please consult
@@ -77,6 +77,34 @@ Using IPython Notebook
 
 Plot Server and Embedding
 -------------------------
+
+
+Downloading Sample Data
+-----------------------
+
+For more interesting plots than just simple trigonometric curves, Bokeh
+comes with a few datasets built in to the :ref:`bokeh.sampledata` module.
+
+Additional data sets may be obtained by executing the following code::
+
+    import bokeh.sampledata
+    bokeh.sampledata.download()
+
+By default the sample data sets are downloaded into ``~/.bokeh/data`` but this
+setting may be overridden in the ``sampledata_dir`` option of a YAML config file
+placed at ``~/.bokeh/config``.
+Data sets currently downloaded include:
+
+* CGM.csv - glucose monitoring data
+* US_Counties.csv - US counties polygon data
+* unemployment09.csv - 2009 US unemployment by county
+* various stock data:
+
+  - AAPL.csv
+  - FB.csv
+  - GOOG.csv
+  - IBM.csv
+  - MSFT.csv
 
 
 
