@@ -19,6 +19,6 @@ def iris():
     return curplot()
 
 if __name__ == "__main__":
-    iris().script_direct_inject()
+    iris()
     # open a browser
     show()
