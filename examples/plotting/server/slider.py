@@ -20,8 +20,7 @@ hold()
 
 scatter('x','y', source=source, tools="pan,zoom,resize")
 scatter('x','2y', source=source, tools="pan,zoom,resize")
-scatter('x','3y', source=source, color="green", tools="pan,zoom,resize")
-plot = curplot()
+plot = scatter('x','3y', source=source, color="green", tools="pan,zoom,resize")
 slider_x = DataSlider(plot=plot, data_source=source, field='x')
 slider_y = DataSlider(plot=plot, data_source=source, field='y')
 

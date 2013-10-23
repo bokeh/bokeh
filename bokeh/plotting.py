@@ -783,6 +783,7 @@ def scatter(*args, **kwargs):
     if not len(alpha_fields.intersection(set(kwargs.keys()))):
         kwargs['alpha'] = get_default_alpha()
 
+    plots = []
     for yname in names[1:]:
         if markertype not in marker_types:
             raise RuntimeError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
@@ -791,8 +792,11 @@ def scatter(*args, **kwargs):
             locals()[markertype](*args, **kwargs)
         else:
             glyphclass = marker_types[markertype]
-            GlyphFunction(glyphclass, ("x", "y"))(*args, **kwargs)
-    return
+            plots.append(GlyphFunction(glyphclass, ("x", "y"))(*args, **kwargs))
+    if len(plots) == 1:
+        return plots[0]
+    else:
+        return plots
 
 @visual
 def gridplot(plot_arrangement, name=False):
