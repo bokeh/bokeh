@@ -14,15 +14,15 @@ Dependencies
 Because the Bokeh client library is mostly concerned with providing a nice
 Python interface for generating JSON objects which are then consumed by the
 BokehJS library running in the browser, there shouldn't be a *hard* dependency
-on any of the standard Numpy/Scipy stack.  It is entirely possible to use Bokeh with
+on any of the standard NumPy/SciPy stack.  It is entirely possible to use Bokeh with
 plain Python lists of values.
 
-The Bokeh plot server does take advantage of Numpy, and may have a hard
+The Bokeh plot server does take advantage of NumPy, and may have a hard
 dependency on several compiled libraries.
 
 Ideally, you should have the following libraries installed:
 
- * Numpy
+ * NumPy
  * Flask
  * Redis
  * Requests
@@ -43,9 +43,19 @@ This will install the most recent published Bokeh release from the
 `Continuum Analytics <http://continuum.io>`_ Anaconda repository, along with all
 dependencies.
 
-If you are not using Anaconda, and you are using Windows, installing `redis <http://redis.io>`_
-may be challenging.  We recommend grabbing them from here: 
+.. _install_windows:
+
+Note for Windows Users
+----------------------
+
+If you are using Windows but, for some reason, are not using `Anaconda <http://continuum.io>`_,
+then installing `redis <http://redis.io>`_ may be challenging.
+We recommend grabbing the binaries from here: 
 `https://github.com/dmajkic/redis/downloads <https://github.com/dmajkic/redis/downloads>`_.
+
+We would still strongly recommend that Windows users consider installing a
+distribution like `Anaconda <http://continuum.io>`_, since it is the most 
+painless way to obtain the Python scientific/analytic stack.
 
 Installing from Source
 ----------------------

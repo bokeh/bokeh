@@ -15,17 +15,26 @@ If you are using the `Anaconda Python distribution <http://continuum.io/anaconda
 
     $ conda install bokeh
 
-If you are confident you have dependencies like Numpy, Pandas, and Redis installed,
+This will install the examples into the ``examples/`` subdirectory of
+your Anaconda installation directory.
+
+If you are confident you have dependencies like NumPy, Pandas, and Redis installed,
 then you can use ``pip``:
 ::
 
     $ pip install bokeh
+
+This will not install any examples, and you will need to clone the git 
+repository and look in the ``examples/`` directory there.
 
 To download from source, clone the `Bokeh git repo <https://github.com/ContinuumIO/bokeh>`_,
 then run:
 ::
 
     $ python setup.py install
+
+If you are using Windows, please see the 
+:ref:`install_windows`.
 
 
 Generate Static HTML Files

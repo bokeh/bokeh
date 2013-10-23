@@ -10,7 +10,7 @@ Tutorial
 Simple Script-based Plotting
 ============================
 
-To make a simple plot with bokeh, just make a small script containing
+To make a simple plot with Bokeh, just make a small script containing
 the following::
 
     from bokeh.plotting import *
@@ -31,7 +31,7 @@ Let's look at each line in detail.
     from bokeh.plotting import *
 
 This imports a variety of plotting functions from the `plotting` subpackage.
-(This is not the only way to construct bokeh plots, but it will be the most
+(This is not the only way to construct Bokeh plots, but it will be the most
 familiar for those coming from packages like Matplotlib or gnuplot.)
 ::
 
@@ -39,15 +39,15 @@ familiar for those coming from packages like Matplotlib or gnuplot.)
     x = linspace(-2*pi, 2*pi, 100)
     y = cos(x)
 
-These lines create two Numpy arrays.  Bokeh does not require the use of
-Numpy arrays - two Python lists of numbers would have worked just as well -
-but it does have special knowledge and handling of Numpy and Pandas data
+These lines create two NumPy arrays.  Bokeh does not require the use of
+NumPy arrays - two Python lists of numbers would have worked just as well -
+but it does have special knowledge and handling of NumPy and Pandas data
 structures.
 ::
 
     output_file("cos.html")
 
-This tells bokeh to create an HTML file for us.  This file will contain
+This tells Bokeh to create an HTML file for us.  This file will contain
 all the plots we create, as well as the source for BokehJS and its
 Javascript dependencies.  Consequently, it can be quite large - over
 a megabyte or more.  It is possible to configure the details of HTML
@@ -79,7 +79,7 @@ above, with one small change::
 
     output_notebook()
 
-This tells bokeh to configure Bokeh for embedding inside IPython notebook sessions.
+This configures Bokeh for embedding inside IPython notebook sessions.
 
 .. image:: images/notebook_vector.png
 
