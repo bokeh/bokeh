@@ -306,25 +306,80 @@ class PlotObject(HasProps):
                     self, attrname, old, new)
 
 
-    def build_script_inject_snippet(self):
-        return script_inject(
-            self._session,
-            self._id,
-            self.__view_model__)
+    def inject_snippet(
+            self, server=False, embed_base_url="", embed_save_loc=".",
+            static_path="http://localhost:5006/bokeh/static/"):
+        """inject snippet is used to embed a plot in an html page.
 
+        inject_snippet returns the embed string to be put in html.
+        This will be a <script> tag.
 
-    def script_direct_inject(
-            self, output_path="", 
-            static_path="http://localhost:5006/bokeh/static/",
-            embed_path=""):
+        To embed a plot dependent on the Bokeh Plot Server, set server=True,
+        otherwise a file with the data for the plot will be built.
+
+        embed_base_url is used for non-server embedding.  This is used
+        as the root of the url where the embed.js file will be saved.
+
+        embed_save_loc controls where the embed.js will be actually written to.
+
+        static_path controls where the embed snippet looks to find
+        application.js and the other resources it needs for bokeh.
+        """
+        if server:
+            return self._build_server_snippet()[1]
+        embed_filename = "%s.embed.js" % self._id
+        full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)        
+        js_code, embed_snippet = self._build_static_embed_snippet(
+            static_path, embed_base_url)
+        with open(full_embed_save_loc,"w") as f:
+            f.write(js_code)
+        return embed_snippet
+
+    def _build_server_snippet(self):
+        sess = self._session
+        modelid = self._id
+        typename = self.__view_model__
+        split = urlparse.urlsplit(sess.root_url)
+        if split.scheme == 'http':
+            ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
+        else:
+            ws_conn_string = "wss://%s/bokeh/sub" % split.netloc
+
+        f_dict = dict(
+            docid = sess.docid,
+            ws_conn_string = ws_conn_string,
+            docapikey = sess.apikey,
+            root_url = sess.root_url,
+            modelid = modelid,
+            modeltype = typename,
+            script_url = sess.root_url + "/bokeh/embed.js")
+        e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
+        bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
+        bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
+        bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
+        '''
+        return "", e_str % f_dict
+
+    def _build_static_embed_snippet(self, static_path, embed_base_url):
 
         
         embed_filename = "%s.embed.js" % self._id
-        full_embed_path = embed_path + embed_filename
-        embed_save_loc = os.path.join(output_path, embed_filename)
-        self._session.save_embed_js(embed_save_loc, self._id, static_path)
-        return script_direct_inject(
-            self._id, self.__view_model__, full_embed_path)
+        full_embed_path = embed_base_url + embed_filename
+
+        js_str = self._session.embed_js(self._id, static_path)
+
+        
+        sess = self._session
+        modelid = self._id
+        typename = self.__view_model__
+        embed_filename = full_embed_path
+        f_dict = dict(modelid = modelid, modeltype = typename,
+                      embed_filename=embed_filename)
+        e_str = '''<script src="%(embed_filename)s" bokeh_plottype="embeddata"
+        bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
+        '''
+        return js_str, e_str % f_dict
+
 
 
 class DataSource(PlotObject):
@@ -497,37 +552,6 @@ class GlyphRenderer(PlotObject):
             self.nonselection_glyph = None
 
 
-def script_inject(sess, modelid, typename):
-    split = urlparse.urlsplit(sess.root_url)
-    if split.scheme == 'http':
-        ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
-    else:
-        ws_conn_string = "wss://%s/bokeh/sub" % split.netloc
-
-    f_dict = dict(
-        docid = sess.docid,
-
-        ws_conn_string = ws_conn_string,
-        docapikey = sess.apikey,
-        root_url = sess.root_url,
-        modelid = modelid,
-        modeltype = typename,
-        script_url = sess.root_url + "/bokeh/embed.js")
-    e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
-bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
-bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
-bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
-        '''
-    return e_str % f_dict
-
-def script_direct_inject(modelid, typename, embed_filename):
-    f_dict = dict(modelid = modelid, modeltype = typename,
-                  embed_filename=embed_filename)
-    e_str = '''<script src="%(embed_filename)s" bokeh_plottype="embeddata"
-bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
-        '''
-    return e_str % f_dict
-
 
 class Plot(PlotObject):
 
@@ -574,13 +598,23 @@ class Plot(PlotObject):
     min_border_right = Int(50)
     min_border = Int(50)
     script_inject_snippet = String("")
+    
+
+    def _get_script_inject_snippet(self):
+        from session import HTMLFileSession
+        if isinstance(self._session, HTMLFileSession):
+            self.script_inject_snippet
+            return ""
+        else:
+            return self.inject_snippet(server=True)
+
     def vm_props(self, *args, **kw):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
         # needs to be fixed more structurally on the JS side, and then this
         # should be revisited on the Python side.
 
-
+        self.script_inject_snippet = self._get_script_inject_snippet()
         if "canvas_width" not in self._changed_vars:
             self.canvas_width = self.width
         if "outer_width" not in self._changed_vars:
@@ -590,13 +624,6 @@ class Plot(PlotObject):
         if "outer_height" not in self._changed_vars:
             self.outer_height = self.height
         return super(Plot, self).vm_props(*args, **kw)
-    def finalize(self, models):
-        """Convert any references into instances
-        models is a dict of id->model mappings
-        """
-        self.script_inject_snippet = self.build_script_inject_snippet()
-        return super(Plot, self).finalize(models)
-
 
 class GMapPlot(PlotObject):
 
