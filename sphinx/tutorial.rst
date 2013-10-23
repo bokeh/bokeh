@@ -74,6 +74,14 @@ This should produce the plot shown below:
 Using IPython Notebook
 ----------------------
 
+Using Bokeh inside an IPython notebook is almost identical to the usage above, with one small
+change:
+::
+
+    output_noteboo()
+
+This tells bokeh to configure Bokeh for embedding inside IPython notebook sessions.
+
 
 Plot Server and Embedding
 -------------------------
