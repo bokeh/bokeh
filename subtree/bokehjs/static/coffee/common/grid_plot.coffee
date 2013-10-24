@@ -96,7 +96,7 @@ class GridPlotView extends ContinuumView
     all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
     all_tool_classes = _.uniq(_.pluck(all_tools, 'constructor'))
     if all_tool_classes.length > 0
-      @toolbar_height = 20 # make room for the button bar
+      @toolbar_height = 38 # make room for the button bar
     tool_name_dict = {}
     _.each(all_tool_classes, (klass) ->
       btext = _.where(all_tools, {constructor:klass})[0].evgen_options.buttonText
@@ -135,6 +135,7 @@ class GridPlotView extends ContinuumView
           return val
       , 0
     )
+
     plot_divs = []
     last_plot = null
     for row, ridx in @mget('children')
@@ -153,9 +154,10 @@ class GridPlotView extends ContinuumView
 
     add = (a,b) -> a+b
     total_height = _.reduce(row_heights, add, 0)
+    width = _.reduce(col_widths, add, 0)
     #height = @viewstate.get('outerheight', total_height)
     height = total_height + @toolbar_height
-    width = @viewstate.get('outerwidth')
+    #width = @viewstate.get('outerwidth')
     @$el.attr('style', "position:relative; height:#{height}px;width:#{width}px")
 
 

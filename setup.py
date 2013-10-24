@@ -75,6 +75,6 @@ setup(
     zip_safe=False,
     license = 'New BSD',
     scripts = scripts,
-    install_requires = ['markdown', 'pygments', 'pystache', 'smartypants', 
+    install_requires = ['markdown', 'pygments', 'smartypants', 
         'sphinx', 'sphinx_bootstrap_theme']
 )
