@@ -23,10 +23,14 @@ def get_code(func):
     code = re.sub('^@.*\\n', '', code)
     return code
 def page_desc(prev_infos, module_desc):
-    module_path, name_ = module_desc
+    module_path, name_ = module_desc['file'], module_desc['name']
+    varname= module_desc.get("varname", 'curplot')
     temp_dict = {}
     execfile(module_path, temp_dict)
-    plot = temp_dict['curplot']()
+    if varname=='curplot':
+        plot = temp_dict[varname]()
+    else:
+        plot = temp_dict[varname]
 
     if len(prev_infos) > 0:
         prev_info = prev_infos[-1]
@@ -89,21 +93,21 @@ if __name__ == "__main__":
 
 
     make_gallery(
-        [#("glyphs/anscombe.py", 'anscombe',),
-        ("plotting/file/candlestick.py", 'candlestick',),    
-        ("plotting/file/correlation.py", 'correlation',),    
-        ("plotting/file/glucose.py", 'glucose',),    
-        ("plotting/file/legend.py", 'legend',),    
-        ("plotting/file/stocks.py", 'stocks',),    
-        ("plotting/file/choropleth.py", 'choropleth_example',),    
-        ("plotting/file/stocks.py", 'stocks',),    
-        ("plotting/file/color_scatter.py", 'color_scatter_example',),    
-        ("plotting/file/vector.py", 'vector_example',),    
-        ("plotting/file/lorenz.py", 'lorenz_example',),    
-        #("plotting/file/texas.py", 'texas_example',),    
-        ("plotting/file/markers.py", 'scatter_example',),    
-
-
+        [
+        dict(file="plotting/file/iris.py", name='iris',),    
+        dict(file="plotting/file/candlestick.py", name='candlestick',),    
+        dict(file="plotting/file/legend.py", name= 'legend',),    
+        dict(file="plotting/file/correlation.py", name='correlation',),    
+        dict(file="plotting/file/glucose.py", name= 'glucose',),    
+        dict(file="plotting/file/stocks.py", name= 'stocks',),    
+        dict(file="plotting/file/vector.py", name= 'vector_example',),    
+        dict(file="plotting/file/lorenz.py", name= 'lorenz_example',),    
+        dict(file="plotting/file/color_scatter.py", name= 'color_scatter_example',),    
+        dict(file="glyphs/iris_splom.py", name='anscombe', varname="grid"),
+        dict(file="glyphs/anscombe.py", name='anscombe', varname="grid"),
+        dict(file="plotting/file/choropleth.py", name= 'choropleth_example',),    
+        dict(file="plotting/file/texas.py", name= 'texas_example',),    
+        dict(file="plotting/file/markers.py", name= 'scatter_example',),    
          ]
     )
 
