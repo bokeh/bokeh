@@ -30,7 +30,7 @@ Ideally, you should have the following libraries installed:
  * gevent-websocket
  * Pandas
 
-These are best obtained via the `Anaconda Python Distribution <http://continuum.io/Anaconda>`_,
+These are best obtained via the `Anaconda Python Distribution <http://continuum.io/anaconda>`_,
 which was designed to include robust versions of popular libraries for
 the Python scientific and data analysis stacks.
 
