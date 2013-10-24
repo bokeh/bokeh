@@ -3,39 +3,39 @@ import numpy as np
 from scipy.integrate import odeint
 from bokeh.plotting import *
 
-def lorenz_example():
 
-    sigma = 10
-    rho = 28
-    beta = 8.0/3
-    theta = 3 * np.pi / 4
 
-    def lorenz(xyz, t):
-        x, y, z = xyz
-        x_dot = sigma * (y - x)
-        y_dot = x * rho - x * z - y
-        z_dot = x * y - beta* z
-        return [x_dot, y_dot, z_dot]
+sigma = 10
+rho = 28
+beta = 8.0/3
+theta = 3 * np.pi / 4
 
-    initial = (-10, -7, 35)
-    t = np.arange(0, 100, 0.006)
+def lorenz(xyz, t):
+    x, y, z = xyz
+    x_dot = sigma * (y - x)
+    y_dot = x * rho - x * z - y
+    z_dot = x * y - beta* z
+    return [x_dot, y_dot, z_dot]
 
-    solution = odeint(lorenz, initial, t)
+initial = (-10, -7, 35)
+t = np.arange(0, 100, 0.006)
 
-    x = solution[:, 0]
-    y = solution[:, 1]
-    z = solution[:, 2]
-    xprime = np.cos(theta) * x - np.sin(theta) * y
+solution = odeint(lorenz, initial, t)
 
-    colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B",]
+x = solution[:, 0]
+y = solution[:, 1]
+z = solution[:, 2]
+xprime = np.cos(theta) * x - np.sin(theta) * y
 
-    output_file("lorenz.html", title="lorenz.py example")
+colors = ["#C6DBEF", "#9ECAE1", "#6BAED6", "#4292C6", "#2171B5", "#08519C", "#08306B",]
 
-    multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
-               line_color=colors, line_alpha=0.8, line_width=1.5,
-               tools="pan,zoom,resize", title="lorenz example", name="lorenz_example")
+output_file("lorenz.html", title="lorenz.py example")
 
-    return curplot()
+multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
+           line_color=colors, line_alpha=0.8, line_width=1.5,
+           tools="pan,zoom,resize", title="lorenz example", name="lorenz_example")
+
+
 
 if __name__ == "__main__":
     lorenz_example()
