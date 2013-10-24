@@ -3,25 +3,16 @@ import re
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
-import inspect
 
 
 _basedir = os.path.dirname(__file__)
-
-
 demo_dir = os.path.join(_basedir, "../bokeh/server/static/demos")
 GALLERY_SNIPPET_PATH = os.path.join(_basedir, "../sphinx/_templates/gallery_core.html")
-
 #These settings work with localhost:5006
 HOSTED_STATIC_ROOT="/static/"
 DETAIL_URL_ROOT="/static/demos/detail/"
 detail_dir = os.path.join(demo_dir, "detail")
 
-def get_code(func):
-    code = inspect.getsource(func)
-    #remove any decorators
-    code = re.sub('^@.*\\n', '', code)
-    return code
 def page_desc(prev_infos, module_desc):
     module_path, name_ = module_desc['file'], module_desc['name']
     varname= module_desc.get("varname", 'curplot')
@@ -86,12 +77,6 @@ def make_gallery(module_descs):
         f.write(gallery_snippet)
 
 if __name__ == "__main__":
-    # from plotting.file import (iris, candlestick, correlation, legend, 
-    #         glucose, stocks, vector, lorenz,
-    #         color_scatter, choropleth, texas, markers)
-    # from glyphs import iris_splom, anscombe
-
-
     make_gallery(
         [
         dict(file="plotting/file/iris.py", name='iris',),    
@@ -110,19 +95,6 @@ if __name__ == "__main__":
         dict(file="plotting/file/markers.py", name= 'scatter_example',),    
          ]
     )
-
-    # example_funcs = [
-    #     iris.iris, candlestick.candlestick, legend.legend, 
-    #     correlation.correlation, glucose.glucose, stocks.stocks, 
-    #     vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
-    #     iris_splom.iris_splom, anscombe.anscombe,
-    #     choropleth.choropleth_example,
-    #     texas.texas_example,
-    #     #markers.scatter_example,
-    # ]
-    # make_gallery(example_funcs)
-
-    
     try:
         import webbrowser
         webbrowser.open(HOSTED_STATIC_ROOT + "demos/gallery.html")
