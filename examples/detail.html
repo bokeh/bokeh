@@ -24,8 +24,21 @@
 </div>
 
 
-<div id="background-fillin"></div>
-{{ embed_snippet }}
+
+<table class="center_table">
+  <tr>
+    <td>
+      {{ embed_snippet }}
+    </td>
+  </tr>
+
+  <tr>
+    <td>
+      {{detail_snippet|safe}}
+    </td>
+  </tr>
+</table>
 
 
-{{detail_snippet|safe}}
+
+
