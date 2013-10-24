@@ -60,7 +60,7 @@ Frequently Asked Questions
     fairly close to Kiva's), but at this point, you will need to write
     Javascript if you want custom interactors.  For rich client, customizable,
     interactive visualization in Python, `Chaco
-    <http://github.com/enthought/chaco>` is still a good tool.
+    <http://github.com/enthought/chaco>`_ is still a good tool.
 
 
 *Q: I'd like to incorporate Bokeh into my proprietary app or platform. Is
@@ -86,4 +86,5 @@ not use something like Vega?*
     may be incidental to their main design goals at this early stage.  However,
     we are keeping an active watch over its evolution, and hope that there can
     be a convergence in this space down the road.
+
 
