@@ -20,7 +20,7 @@ addPlot = (modelid, modeltype, element, data) ->
   model = base.Collections(modeltype).get(modelid);
   view = new model.default_view({model : model})
   view.render()
-  _.delay(-> $(element).append(view.$el))
+  _.delay(-> $(element).replaceWith(view.$el))
 
 addDirectPlotWrap = (settings) ->
   console.log("addDirectPlotWrap")
@@ -48,7 +48,7 @@ addDirectPlot = (docid, ws_conn_string, docapikey,
       model = plot_collection.get(modelid);
       view = new model.default_view({model : model});
       #view.render()
-      _.delay(-> $(element).append(view.$el)))
+      _.delay(-> $(element).replaceWith(view.$el)))
 
 injectCss = (host) ->
 
@@ -98,6 +98,7 @@ find_injections = ->
       info = parse_el(el)
       d = document.createElement('div');
       container = document.createElement('div');
+      container.className="bokeh-container"
       el.parentNode.insertBefore(container, el);
       info['element'] = container;
       new_settings.push(info)

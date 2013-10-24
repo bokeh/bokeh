@@ -72,12 +72,13 @@ def anscombe():
         plot.renderers.append(circle_renderer)
         return plot, (line_renderer, circle_renderer, xaxis, yaxis, xgrid, ygrid)
 
+    #where will this comment show up
     I,   objsI   = make_plot('I', 'xi', 'yi')
     II,  objsII  = make_plot('II', 'xii', 'yii')
     III, objsIII = make_plot('III', 'xiii', 'yiii')
     IV,  objsIV  = make_plot('IV', 'xiv', 'yiv')
 
-    grid = GridPlot(children=[[I, II], [III, IV]])
+    grid = GridPlot(children=[[I, II], [III, IV]], width="800px")
 
     sess = session.HTMLFileSession("anscombe.html")
     sess.add(lines_source, circles_source, xdr, ydr)

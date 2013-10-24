@@ -19,6 +19,19 @@ DETAIL_URL_ROOT="/Bokeh/detail/"
 HOSTED_STATIC_ROOT="/static/"
 DETAIL_URL_ROOT="/static/demos/detail/"
 detail_dir = os.path.join(demo_dir, "detail")
+
+
+import re
+from pygments import highlight
+from pygments.lexers import PythonLexer
+from pygments.formatters import HtmlFormatter
+import inspect
+
+def get_code(func):
+    code = inspect.getsource(func)
+    #remove any decorators
+    code = re.sub('^@.*\\n', '', code)
+    return code
 def page_desc(prev_infos, f):
     if len(prev_infos) > 0:
         prev_info = prev_infos[-1]
@@ -31,9 +44,10 @@ def page_desc(prev_infos, f):
     embed_snippet = plot.inject_snippet(
         embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
         embed_base_url=DETAIL_URL_ROOT)
+    detail_snippet = highlight(get_code(f), PythonLexer(), HtmlFormatter())
     page_info = dict(
         f=f, name=name_, embed_snippet=embed_snippet,
-        detail_snippet = generate_func_docs(f, ""),
+        detail_snippet = detail_snippet,
         detail_page_url=DETAIL_URL_ROOT + name_ + ".html",
         prev_detail_url=prev_info.get('detail_page_url', ""),
         prev_detail_name=prev_info.get('name', ""))
@@ -84,14 +98,16 @@ if __name__ == "__main__":
 
     
     example_funcs = [
-        iris.iris, candlestick.candlestick, legend.legend, 
-        correlation.correlation,
-        glucose.glucose, stocks.stocks, 
-        vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
-        iris_splom.iris_splom, anscombe.anscombe,
-        choropleth.choropleth_example,
-        texas.texas_example,
-        markers.scatter_example,
+        #iris.iris, candlestick.candlestick, legend.legend, 
+        #correlation.correlation,
+        #glucose.glucose, 
+        stocks.stocks, 
+        #vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
+        iris_splom.iris_splom, 
+        anscombe.anscombe,
+        #choropleth.choropleth_example,
+        #texas.texas_example,
+        #markers.scatter_example,
     ]
     make_gallery(example_funcs)
 

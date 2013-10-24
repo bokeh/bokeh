@@ -1,8 +1,4 @@
 /*--------------------- Layout and Typography ----------------------------*/
-a.prev {float:left;  display:block; padding-left:10px; margin-left:10px;}
-a.up {text-align:center; position:absolute; left:41%; right:41%}
-a.next {float:right; display:block; padding-right:10px;  margin-right:10px; }
-.bokeh .navbar {height:20px;}
 
 body {
   font-family: 'Palatino Linotype', 'Book Antiqua', Palatino, FreeSerif, serif;
@@ -27,7 +23,7 @@ h1, h2, h3, h4, h5, h6 {
 h2, h3, h4, h5, h6 {
     margin-top: 0;
   }
-
+/*
 #container, div.section {
   position: relative;
 }
@@ -135,7 +131,7 @@ div.output {
   vertical-align: top;
 }
 
-
+*/
 div.clearall {
     clear: both;
 }
@@ -207,4 +203,12 @@ body .vi { color: #19469D }                     /* Name.Variable.Instance */
 body .il { color: #666666 }                     /* Literal.Number.Integer.Long */
 #container { position:relative;    min-height:100%;}
 body { height:100%; background:#f5f5ff; }
-#background {background:none repeat scroll 0 0 #FFF; position:absolute; top:10px; bottom:0; width:50%; }
+
+.highlight { float:left; background:#fff; border:2px solid black;}
+.grid_plot {float:left}
+.plotview {float:left}
+
+a.prev {float:left;  display:block; padding-left:10px; margin-left:10px;}
+a.up {text-align:center; position:absolute; left:41%; right:41%}
+a.next {float:right; display:block; padding-right:10px;  margin-right:10px; }
+.bokeh .navbar {height:20px;}
