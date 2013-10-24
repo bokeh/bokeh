@@ -10411,8 +10411,8 @@ _.setdefault = function(obj, key, value){
         return a + b;
       };
       total_height = _.reduce(row_heights, add, 0);
+      width = _.reduce(col_widths, add, 0);
       height = total_height + this.toolbar_height;
-      width = this.viewstate.get('outerwidth');
       this.$el.attr('style', "position:relative; height:" + height + "px;width:" + width + "px");
       return this.render_end();
     };
