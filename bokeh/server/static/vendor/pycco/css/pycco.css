@@ -94,10 +94,10 @@ body .vi { color: #19469D }                     /* Name.Variable.Instance */
 body .il { color: #666666 }                     /* Literal.Number.Integer.Long */
 
 
-body { height:100%; background:#f5f5ff; }
+body { height:100%; background:#fff}
 
 
-.highlight { float:left; background:#fff; border:2px solid black;}
+.highlight { float:left; background:#fff; border-left:2px solid black; padding-left:10px}
 .grid_plot {float:left}
 .plotview {float:left}
 
