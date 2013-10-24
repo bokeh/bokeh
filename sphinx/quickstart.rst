@@ -101,5 +101,10 @@ plots.
 Example IPython Notebooks
 -------------------------
 
-.. #TODO Talk about where the ipython notebooks are located
+There are a number of IPython notebooks in the ``examples/plotting/notebook/``
+directory.  Just run::
+
+    ipython notebook
+
+in that directory, and open any of the notebooks.
 
