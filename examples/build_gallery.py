@@ -91,7 +91,7 @@ if __name__ == "__main__":
         iris_splom.iris_splom, anscombe.anscombe,
         choropleth.choropleth_example,
         texas.texas_example,
-        markers.scatter_example,
+        #markers.scatter_example,
     ]
     make_gallery(example_funcs)
 
