@@ -98,16 +98,11 @@ if __name__ == "__main__":
 
     
     example_funcs = [
-        #iris.iris, candlestick.candlestick, legend.legend, 
-        #correlation.correlation,
-        #glucose.glucose, 
-        stocks.stocks, 
-        #vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
-        iris_splom.iris_splom, 
-        anscombe.anscombe,
-        #choropleth.choropleth_example,
-        #texas.texas_example,
-        #markers.scatter_example,
+        iris.iris, candlestick.candlestick, legend.legend, 
+        correlation.correlation, glucose.glucose, stocks.stocks, 
+        vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
+        iris_splom.iris_splom, anscombe.anscombe, choropleth.choropleth_example,
+        texas.texas_example, markers.scatter_example
     ]
     make_gallery(example_funcs)
 
