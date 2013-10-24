@@ -10346,7 +10346,7 @@ _.setdefault = function(obj, key, value){
       all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values));
       all_tool_classes = _.uniq(_.pluck(all_tools, 'constructor'));
       if (all_tool_classes.length > 0) {
-        this.toolbar_height = 20;
+        this.toolbar_height = 38;
       }
       tool_name_dict = {};
       _.each(all_tool_classes, function(klass) {

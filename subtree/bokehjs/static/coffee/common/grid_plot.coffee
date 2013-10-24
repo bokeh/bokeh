@@ -96,7 +96,7 @@ class GridPlotView extends ContinuumView
     all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
     all_tool_classes = _.uniq(_.pluck(all_tools, 'constructor'))
     if all_tool_classes.length > 0
-      @toolbar_height = 20 # make room for the button bar
+      @toolbar_height = 38 # make room for the button bar
     tool_name_dict = {}
     _.each(all_tool_classes, (klass) ->
       btext = _.where(all_tools, {constructor:klass})[0].evgen_options.buttonText
