@@ -170,38 +170,35 @@ def streamlines(x, y, u, v, density=1):
 
     return xs, ys
 
-def vector_example():
 
-    xx = np.linspace(-3, 3, 100)
-    yy = np.linspace(-3, 3, 100)
+xx = np.linspace(-3, 3, 100)
+yy = np.linspace(-3, 3, 100)
 
-    Y, X = np.meshgrid(xx, yy)
-    U = -1 - X**2 + Y
-    V = 1 + X - Y**2
-    speed = np.sqrt(U*U + V*V)
-    theta = np.arctan(V/U)
+Y, X = np.meshgrid(xx, yy)
+U = -1 - X**2 + Y
+V = 1 + X - Y**2
+speed = np.sqrt(U*U + V*V)
+theta = np.arctan(V/U)
 
-    x0 = X[::2, ::2].flatten()
-    y0 = Y[::2, ::2].flatten()
-    length = speed[::2, ::2].flatten()/40
-    angle = theta[::2, ::2].flatten()
-    x1 = x0 + length * np.cos(angle)
-    y1 = y0 + length * np.sin(angle)
+x0 = X[::2, ::2].flatten()
+y0 = Y[::2, ::2].flatten()
+length = speed[::2, ::2].flatten()/40
+angle = theta[::2, ::2].flatten()
+x1 = x0 + length * np.cos(angle)
+y1 = y0 + length * np.sin(angle)
 
-    xs, ys = streamlines(xx, yy, U.T, V.T, density=2)
+xs, ys = streamlines(xx, yy, U.T, V.T, density=2)
 
-    cm = np.array(["#C7E9B4", "#7FCDBB", "#41B6C4", "#1D91C0", "#225EA8", "#0C2C84"])
-    ix = ((length-length.min())/(length.max()-length.min())*5).astype('int')
-    colors = cm[ix]
+cm = np.array(["#C7E9B4", "#7FCDBB", "#41B6C4", "#1D91C0", "#225EA8", "#0C2C84"])
+ix = ((length-length.min())/(length.max()-length.min())*5).astype('int')
+colors = cm[ix]
 
-    output_file("vector.html", title="vector.py example")
+output_file("vector.html", title="vector.py example")
 
-    segment(x0, y0, x1, y1, line_color=colors, line_width=2,
-        tools="pan,zoom,resize")
-    multi_line(xs, ys, line_color="#ee6666", line_width=2, line_alpha=0.8, name="vector example")
+segment(x0, y0, x1, y1, line_color=colors, line_width=2,
+    tools="pan,zoom,resize")
+multi_line(xs, ys, line_color="#ee6666", line_width=2, line_alpha=0.8, name="vector example")
 
-    return curplot()
 
 if __name__ == "__main__":
-    vector_example()
     show()  # open a browser

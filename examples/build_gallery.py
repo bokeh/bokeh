@@ -22,21 +22,22 @@ def get_code(func):
     #remove any decorators
     code = re.sub('^@.*\\n', '', code)
     return code
-def page_desc(prev_infos, f):
+def page_desc(prev_infos, module_desc):
+    module_path, name_ = module_desc
+    temp_dict = {}
+    execfile(module_path, temp_dict)
+    plot = temp_dict['curplot']()
+
     if len(prev_infos) > 0:
         prev_info = prev_infos[-1]
     else:
         prev_info = {}
-    name_ = f.__name__
-    #I need to make sure I know where to put this snippet, where I
-    #want it written
-    plot = f()
     embed_snippet = plot.inject_snippet(
         embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
         embed_base_url=DETAIL_URL_ROOT)
-    detail_snippet = highlight(get_code(f), PythonLexer(), HtmlFormatter())
+    detail_snippet = highlight(open(module_path).read(), PythonLexer(), HtmlFormatter())
     page_info = dict(
-        f=f, name=name_, embed_snippet=embed_snippet,
+        name=name_, embed_snippet=embed_snippet,
         detail_snippet = detail_snippet,
         detail_page_url=DETAIL_URL_ROOT + name_ + ".html",
         prev_detail_url=prev_info.get('detail_page_url', ""),
@@ -53,8 +54,8 @@ def _load_template(filename):
     with open(os.path.join(_basedir, filename)) as f:
         return jinja2.Template(f.read())
 
-def make_gallery(functions):
-    page_infos = reduce(page_desc, functions, [])
+def make_gallery(module_descs):
+    page_infos = reduce(page_desc, module_descs, [])
     for p, p_next in [[p, page_infos[i+1]] for i, p in enumerate(page_infos[:-1])]:
         p['next_detail_url'] = p_next['detail_page_url']
         p['next_detail_name'] = p_next['name']
@@ -81,22 +82,41 @@ def make_gallery(functions):
         f.write(gallery_snippet)
 
 if __name__ == "__main__":
-    from plotting.file import (iris, candlestick, correlation, legend,
-            glucose, stocks, vector, lorenz,
-            color_scatter, choropleth, texas, markers)
-    from glyphs import iris_splom, anscombe
+    # from plotting.file import (iris, candlestick, correlation, legend, 
+    #         glucose, stocks, vector, lorenz,
+    #         color_scatter, choropleth, texas, markers)
+    # from glyphs import iris_splom, anscombe
 
-    
-    example_funcs = [
-        iris.iris, candlestick.candlestick, legend.legend, 
-        correlation.correlation, glucose.glucose, stocks.stocks, 
-        vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
-        iris_splom.iris_splom, anscombe.anscombe,
-        choropleth.choropleth_example,
-        texas.texas_example,
-        #markers.scatter_example,
-    ]
-    make_gallery(example_funcs)
+
+    make_gallery(
+        [#("glyphs/anscombe.py", 'anscombe',),
+        ("plotting/file/candlestick.py", 'candlestick',),    
+        ("plotting/file/correlation.py", 'correlation',),    
+        ("plotting/file/glucose.py", 'glucose',),    
+        ("plotting/file/legend.py", 'legend',),    
+        ("plotting/file/stocks.py", 'stocks',),    
+        ("plotting/file/choropleth.py", 'choropleth_example',),    
+        ("plotting/file/stocks.py", 'stocks',),    
+        ("plotting/file/color_scatter.py", 'color_scatter_example',),    
+        ("plotting/file/vector.py", 'vector_example',),    
+        ("plotting/file/lorenz.py", 'lorenz_example',),    
+        #("plotting/file/texas.py", 'texas_example',),    
+        ("plotting/file/markers.py", 'scatter_example',),    
+
+
+         ]
+    )
+
+    # example_funcs = [
+    #     iris.iris, candlestick.candlestick, legend.legend, 
+    #     correlation.correlation, glucose.glucose, stocks.stocks, 
+    #     vector.vector_example, lorenz.lorenz_example, color_scatter.color_scatter_example,
+    #     iris_splom.iris_splom, anscombe.anscombe,
+    #     choropleth.choropleth_example,
+    #     texas.texas_example,
+    #     #markers.scatter_example,
+    # ]
+    # make_gallery(example_funcs)
 
     
     try:
