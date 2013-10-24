@@ -23,115 +23,6 @@ h1, h2, h3, h4, h5, h6 {
 h2, h3, h4, h5, h6 {
     margin-top: 0;
   }
-/*
-#container, div.section {
-  position: relative;
-}
-#jump_to, #jump_page {
-  background: white;
-  -webkit-box-shadow: 0 0 25px #777; -moz-box-shadow: 0 0 25px #777;
-  -webkit-border-bottom-left-radius: 5px; -moz-border-radius-bottomleft: 5px;
-  font: 10px Arial;
-  text-transform: uppercase;
-  cursor: pointer;
-  text-align: right;
-}
-#jump_to, #jump_wrapper {
-  position: fixed;
-  right: 0; top: 0;
-  padding: 5px 10px;
-}
-  #jump_wrapper {
-    padding: 0;
-    display: none;
-  }
-    #jump_to:hover #jump_wrapper {
-      display: block;
-    }
-    #jump_page {
-      padding: 5px 0 3px;
-      margin: 0 0 25px 25px;
-    }
-      #jump_page .source {
-        display: block;
-        padding: 5px 10px;
-        text-decoration: none;
-        border-top: 1px solid #eee;
-      }
-        #jump_page .source:hover {
-          background: #f5f5ff;
-        }
-        #jump_page .source:first-child {
-        }
-div.docs {
-  max-width: 500px;
-  min-width: 500px;
-  min-height: 5px;
-  padding: 10px 25px 5px 10px;
-  vertical-align: top;
-  text-align: left;
-}
-  .docs pre {
-    margin: 15px 0 15px;
-    padding-left: 15px;
-  }
-  .docs p tt, .docs p code {
-    background: #f8f8ff;
-    border: 1px solid #dedede;
-    font-size: 12px;
-    padding: 0 0.2em;
-  }
-  .octowrap {
-    position: relative;
-  }
-    .octothorpe {
-      font: 12px Arial;
-      text-decoration: none;
-      color: #454545;
-      position: absolute;
-      top: 3px; left: -20px;
-      padding: 1px 2px;
-      opacity: 0;
-      -webkit-transition: opacity 0.2s linear;
-    }
-      div.docs:hover .octothorpe {
-        opacity: 1;
-      }
-      div.docs p {margin: 0 0 5px 30px; color:#F9386C}
-      div.docs p:before {content:"#"}
-div.code {
-  padding: 10px 25px 5px 10px;
-  vertical-align: top;
-}
-  .code pre, .docs p code {
-    font-size: 12px;
-  }
-    pre, tt, code {
-      line-height: 18px;
-      font-family: Monaco, Consolas, "Lucida Console", monospace;
-      margin: 0; padding: 0;
-    }
-
-div.output {
-  position:absolute;
-  top:0;
-  left:51%;
-  m argin-left: 580px;
-  pa dding: 14px 15px 16px 50px;
-  vertical-align: top;
-}
-.plot-only > div.output {
-  position:relative;
-  top:0;
-  margin:0 auto;
-  left:inherit;
-  width:70%;
-  m argin-left: 580px;
-  pa dding: 14px 15px 16px 50px;
-  vertical-align: top;
-}
-
-*/
 div.clearall {
     clear: both;
 }
@@ -201,8 +92,10 @@ body .vc { color: #19469D }                     /* Name.Variable.Class */
 body .vg { color: #19469D }                     /* Name.Variable.Global */
 body .vi { color: #19469D }                     /* Name.Variable.Instance */
 body .il { color: #666666 }                     /* Literal.Number.Integer.Long */
-#container { position:relative;    min-height:100%;}
+
+
 body { height:100%; background:#f5f5ff; }
+
 
 .highlight { float:left; background:#fff; border:2px solid black;}
 .grid_plot {float:left}
