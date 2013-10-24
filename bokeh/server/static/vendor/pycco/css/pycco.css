@@ -17,12 +17,6 @@ a {
 p {
   margin: 0 0 15px 0;
 }
-h1, h2, h3, h4, h5, h6 {
-  margin: 20px 0 5px 0;
-}
-h2, h3, h4, h5, h6 {
-    margin-top: 0;
-  }
 div.clearall {
     clear: both;
 }
@@ -105,7 +99,9 @@ a.next {float:right; display:block; padding-right:10px;  margin-right:10px; }
 .bokeh .navbar {height:20px;}
 
 table.center_table{margin:0 auto}
-table.center_table td {margin:10px; padding:25px;}
+table.center_table td {}
+table.center_table td.detail {padding-top:40px;}
+
 
 td.embed-choropleth_example { height:805px}
 
