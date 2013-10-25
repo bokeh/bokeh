@@ -7,7 +7,7 @@ from pygments.formatters import HtmlFormatter
 
 _basedir = os.path.dirname(__file__)
 demo_dir = os.path.join(_basedir, "../bokeh/server/static/demos")
-GALLERY_SNIPPET_PATH = os.path.join(_basedir, "../sphinx/_templates/gallery_core.html")
+GALLERY_SNIPPET_PATH = os.path.join(_basedir, "_templates/gallery_core.html")
 #These settings work with localhost:5006
 HOSTED_STATIC_ROOT="/static/"
 DETAIL_URL_ROOT="/static/demos/detail/"
@@ -79,20 +79,20 @@ def make_gallery(module_descs):
 if __name__ == "__main__":
     make_gallery(
         [
-        dict(file="plotting/file/iris.py", name='iris',),    
-        dict(file="plotting/file/candlestick.py", name='candlestick',),    
-        dict(file="plotting/file/legend.py", name= 'legend',),    
-        dict(file="plotting/file/correlation.py", name='correlation',),    
-        dict(file="plotting/file/glucose.py", name= 'glucose',),    
-        dict(file="plotting/file/stocks.py", name= 'stocks',),    
-        dict(file="plotting/file/vector.py", name= 'vector_example',),    
-        dict(file="plotting/file/lorenz.py", name= 'lorenz_example',),    
-        dict(file="plotting/file/color_scatter.py", name= 'color_scatter_example',),    
-        dict(file="glyphs/iris_splom.py", name='iris_splom', varname="grid"),
-        dict(file="glyphs/anscombe.py", name='anscombe', varname="grid"),
-        dict(file="plotting/file/choropleth.py", name= 'choropleth_example',),    
-        dict(file="plotting/file/texas.py", name= 'texas_example',),    
-        dict(file="plotting/file/markers.py", name= 'scatter_example',),    
+        dict(file="../examples/plotting/file/iris.py", name='iris',),    
+        dict(file="../examples/plotting/file/candlestick.py", name='candlestick',),    
+        dict(file="../examples/plotting/file/legend.py", name= 'legend',),    
+        dict(file="../examples/plotting/file/correlation.py", name='correlation',),    
+        dict(file="../examples/plotting/file/glucose.py", name= 'glucose',),    
+        dict(file="../examples/plotting/file/stocks.py", name= 'stocks',),    
+        dict(file="../examples/plotting/file/vector.py", name= 'vector_example',),    
+        dict(file="../examples/plotting/file/lorenz.py", name= 'lorenz_example',),    
+        dict(file="../examples/plotting/file/color_scatter.py", name= 'color_scatter_example',),    
+        dict(file="../examples/glyphs/iris_splom.py", name='iris_splom', varname="grid"),
+        dict(file="../examples/glyphs/anscombe.py", name='anscombe', varname="grid"),
+        dict(file="../examples/plotting/file/choropleth.py", name= 'choropleth_example',),    
+        dict(file="../examples/plotting/file/texas.py", name= 'texas_example',),    
+        dict(file="../examples/plotting/file/markers.py", name= 'scatter_example',),    
          ]
     )
     try:
