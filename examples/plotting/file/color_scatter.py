@@ -3,7 +3,6 @@ import numpy as np
 from itertools import izip
 from bokeh.plotting import *
 
-
 N = 4000
 
 x = np.random.random(size=N) * 100
@@ -17,7 +16,5 @@ scatter(x,y, radius=radii, radius_units="data",
        fill_color=colors, fill_alpha=0.6,
        line_color=None, tools="pan,zoom,save,resize", name="color_scatter_example")
 
-
 if __name__ == "__main__":
-    color_scatter_example()
     show()  # open a browser

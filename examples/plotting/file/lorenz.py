@@ -3,8 +3,6 @@ import numpy as np
 from scipy.integrate import odeint
 from bokeh.plotting import *
 
-
-
 sigma = 10
 rho = 28
 beta = 8.0/3
@@ -35,8 +33,5 @@ multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
            line_color=colors, line_alpha=0.8, line_width=1.5,
            tools="pan,zoom,resize", title="lorenz example", name="lorenz_example")
 
-
-
 if __name__ == "__main__":
-    lorenz_example()
     show()  # open a browser
