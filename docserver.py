@@ -13,13 +13,12 @@ symlink.
 """
 
 
-@app.route('/static/<path:filename>')
-def bokeh_static(filename):
-    static_dir = os.path.join(_basedir,"bokeh/server/static/")
-    print filename
-    print static_dir
-    return flask.send_from_directory(static_dir, filename)
-
+@app.route('/')
+def welcome():
+    return """ 
+    <h1>Welcome to the Bokeh documentation server</h1>
+    You probably want to go to <a href="/index.html"> Index</a>
+    """
 
 @app.route('/<path:filename>')
 def send_pic(filename):
