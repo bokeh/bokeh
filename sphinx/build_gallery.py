@@ -9,8 +9,8 @@ _basedir = os.path.dirname(__file__)
 demo_dir = os.path.join(_basedir, "plot_gallery")
 GALLERY_SNIPPET_PATH = os.path.join(_basedir, "_templates/gallery_core.html")
 #These settings work with localhost:5006
-HOSTED_STATIC_ROOT="/static/"
-DETAIL_URL_ROOT="/plot_gallery/"
+HOSTED_STATIC_ROOT="../static/"
+DETAIL_URL_ROOT="./"
 detail_dir = demo_dir
 
 def page_desc(prev_infos, module_desc):
