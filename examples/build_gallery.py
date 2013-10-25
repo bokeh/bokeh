@@ -88,7 +88,7 @@ if __name__ == "__main__":
         dict(file="plotting/file/vector.py", name= 'vector_example',),    
         dict(file="plotting/file/lorenz.py", name= 'lorenz_example',),    
         dict(file="plotting/file/color_scatter.py", name= 'color_scatter_example',),    
-        dict(file="glyphs/iris_splom.py", name='anscombe', varname="grid"),
+        dict(file="glyphs/iris_splom.py", name='iris_splom', varname="grid"),
         dict(file="glyphs/anscombe.py", name='anscombe', varname="grid"),
         dict(file="plotting/file/choropleth.py", name= 'choropleth_example',),    
         dict(file="plotting/file/texas.py", name= 'texas_example',),    
