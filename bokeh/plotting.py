@@ -813,7 +813,7 @@ def gridplot(plot_arrangement, name=False):
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type = None, y_axis_type = None,
-                 tools="pan,zoom,save,resize,select,previewsave", **kw):
+                 tools="pan,zoom,save,resize,select", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
