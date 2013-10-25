@@ -6,12 +6,12 @@ from pygments.formatters import HtmlFormatter
 
 
 _basedir = os.path.dirname(__file__)
-demo_dir = os.path.join(_basedir, "../bokeh/server/static/demos")
+demo_dir = os.path.join(_basedir, "plot_gallery")
 GALLERY_SNIPPET_PATH = os.path.join(_basedir, "_templates/gallery_core.html")
 #These settings work with localhost:5006
 HOSTED_STATIC_ROOT="/static/"
-DETAIL_URL_ROOT="/static/demos/detail/"
-detail_dir = os.path.join(demo_dir, "detail")
+DETAIL_URL_ROOT="/plot_gallery/"
+detail_dir = demo_dir
 
 def page_desc(prev_infos, module_desc):
     module_path, name_ = module_desc['file'], module_desc['name']
