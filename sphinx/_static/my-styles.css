@@ -3,3 +3,6 @@ img.gallery {height:200px; width:200px}
 ul.gallery {list-style-type:none}
 ul.gallery li {height:250px; width:220px; display:block; float:left; text-align:center}
 a.logo {float:left; margin:9px 5px 0 0}
+
+.col-md-12 {padding-right:80px; /* this makes sure text stays clear of the fork me ribbon*/
+}
