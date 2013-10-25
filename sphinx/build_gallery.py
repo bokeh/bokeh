@@ -57,8 +57,8 @@ def make_gallery(module_descs):
     t = _load_template("detail.html")    
     gallery_template = '''
     <li>
-        <a href="%(detail_page_url)s">%(name)s
-          <img src="/static/img/gallery/%(name)s.png"
+        <a href="plot_gallery/%(detail_page_url)s">%(name)s
+          <img src="..//static/img/gallery/%(name)s.png"
                class="gallery" />
         </a>
         </li>
