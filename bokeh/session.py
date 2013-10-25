@@ -795,7 +795,7 @@ class NotebookSessionMixin(object):
     css_files = ["css/bokeh.css", "css/continuum.css",
                  "vendor/bootstrap/css/bootstrap.css"]
 
-    js_files = ["js/bokehnotebook.js"]
+    js_files = ["js/application.js"]
 
     js_template = "plots.js"
     div_template = "plots.html"

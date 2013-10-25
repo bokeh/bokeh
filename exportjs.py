@@ -7,13 +7,13 @@ subprocess.check_call(
     shell=True,
     cwd="bokeh/server"
 )
-shutil.copy("bokeh/server/static/js/application.js", "jsbuild/application.js")
+in_ = open("bokeh/server/static/js/application.js").read()
+in_ += open("bokeh/server/static/js/post_application.js").read()
+open("bokeh/server/static/js/application.js", "w").write(in_)
 
-subprocess.check_call(
-    "hem build -d -s slug.notebook.json",
-    shell=True,
-    cwd="bokeh/server"
-)
-shutil.copy("bokeh/server/static/js/bokehnotebook.js", "jsbuild/bokehnotebook.js")
+shutil.copy("bokeh/server/static/js/application.js", "jsbuild/application_tmp.js")
+
+
+
 
 
