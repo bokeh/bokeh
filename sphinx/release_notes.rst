@@ -39,11 +39,14 @@ v0.3
 
 * Redo source tree layout, remove BokehJS subtree and incorporating Sahat's JS suggestions
 * Integrate Abstract Rendering into bokeh server
-* Better grid-based layout system
-* Touch events
+* Better grid-based layout system; use Cassowary.js for layout solver
 * Frame around plots for consistent look & feel on all Bokeh plots
-* Improve ggplot interface / integrate with ggplot python lib
 * Improve rendering loop performance in BokehJS
+* Improve tools: turn on pan by default, easier interactions with zoom, add various inspectors and data selectors (accessible from Python interface)
+* Basic mpl interface (enough to make ggplot.py work)
+* More streaming & updating data examples
+* Expose image plot in Python interface: Add BSON for sending large data
+* StreamDataSource
 
 v0.4
 ====
@@ -53,6 +56,9 @@ v0.4
 * Basic widgets
 * Better map projections
 * Better integration with Matplotlib pylab plotting functions
+* Improve ggplot interface / integrate with ggplot python lib
+* Touch events
+* Animation framework
 
 
 Long-term TODO List
