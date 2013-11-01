@@ -67,7 +67,7 @@ setup(
                 'bokeh.server.models', 'bokeh.server.views',
                 'bokeh.server.test', 'bokeh.specialmodels',
                 'bokeh.sampledata', 'bokeh.vendor',
-                'bokeh.test'],
+                'bokeh.tests'],
     package_data = {'bokeh' : package_data_dirs},
     author = 'Continuum Analytics',
     author_email = 'info@continuum.io',
