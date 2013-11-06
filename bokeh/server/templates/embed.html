@@ -21,6 +21,7 @@
 <body>
   <p>content</p>
 
+{% if not plot_scr %}
   <script type="text/javascript">
     (function () {
         window.injectF = function() {
@@ -42,14 +43,17 @@
             document.body.appendChild(scr);};
         console.log("end of script tag injection");
     }())
-        
-</script>
+  </script>
+{% endif %}
 {% if delay %}
+  <h1> delayed injection </h1>
+  <h2> the script should appear in 5 seconds </h2>
   <script type="text/javascript">
       setTimeout(injectF, 5000);
   </script>
 {% endif %}
 {% if onload %}
+  <h1>onload injection </h1>
   <script type="text/javascript">
         var addOnload = function(func){
             if (window.attachEvent){
@@ -61,11 +65,13 @@
   </script>
 {% endif %}
 {% if direct %}
+  <h1>direct injection </h1>
   <script type="text/javascript">
     injectF();
   </script>
 {% endif %}
 {% if plot_scr %}
+  <h1> static injection </h1>
   {{plot_scr|safe}}
 {% endif %}
 
