@@ -796,10 +796,11 @@ class EmbedTool(PlotObject):
 class ResizeTool(PlotObject):
     plot = Instance(Plot)
 
-class SelectionTool(PlotObject):
+class BoxSelectTool(PlotObject):
     renderers = List(has_ref=True)
 
 class BoxSelectionOverlay(PlotObject):
+    __view_model__ = 'BoxSelection'
     tool = Instance(has_ref=True)
 
 class Legend(PlotObject):
@@ -818,7 +819,7 @@ class DataSlider(PlotObject):
     data_source = Instance(has_ref=True)
     field = String()
 
-class DataRangeBoxSelectionTool(PlotObject):
+class DataRangeBoxSelectTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
     xselect = List()
     yselect = List()

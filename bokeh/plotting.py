@@ -15,7 +15,7 @@ import webbrowser
 from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataRange1d,
         Plot, Glyph, LinearAxis, Grid, PanTool, ZoomTool,
-        PreviewSaveTool, ResizeTool, SelectionTool, EmbedTool,
+        PreviewSaveTool, ResizeTool, BoxSelectTool, EmbedTool,
         BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
@@ -610,7 +610,7 @@ class GlyphFunction(object):
     def _get_select_tool(self, plot):
         """returns select tool on a plot, if it's there
         """
-        select_tool = [x for x in plot.tools if x.__view_model__ == "SelectionTool"]
+        select_tool = [x for x in plot.tools if x.__view_model__ == "BoxSelectTool"]
         if len(select_tool) > 0:
             select_tool = select_tool[0]
         else:
@@ -858,7 +858,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if "resize" in tools:
         tool_objs.append(ResizeTool(plot=p))
     if "select" in tools:
-        select_tool = SelectionTool()
+        select_tool = BoxSelectTool()
         tool_objs.append(select_tool)
         overlay = BoxSelectionOverlay(tool=select_tool)
         p.renderers.append(overlay)

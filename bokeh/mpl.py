@@ -575,7 +575,7 @@ class PlotClient(object):
             dimensions=['width', 'height']
             )
         selecttool = self.model(
-            'SelectionTool',
+            'BoxSelectTool',
             renderers=[])       
         embedtool = self.model(
             'EmbedTool')
