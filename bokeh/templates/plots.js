@@ -3,10 +3,9 @@ var modelid = "{{ modelid }}";
 var modeltype = "{{ modeltype }}";
 var elementid = "{{ elementid }}";
 var view;
-base = rrequire("./base")
 console.log(modelid, modeltype, elementid);
-base.load_models(all_models);
-var model = base.Collections(modeltype).get(modelid)
+Bokeh.load_models(all_models);
+var model = Bokeh.Collections(modeltype).get(modelid)
 window.model=model;
 var view = new model.default_view(
     {model : model}

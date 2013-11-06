@@ -3,7 +3,7 @@ import os
 
 from bokeh.sampledata import us_states, us_counties, unemployment
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, GlyphRenderer, PanTool, ZoomTool, ResizeTool
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, ZoomTool, ResizeTool
 )
 from bokeh.glyphs import Patches
 from bokeh import session
@@ -45,14 +45,14 @@ ydr = DataRange1d(sources=[state_source.columns("state_ys")])
 county_patches = Patches(xs="county_xs", ys="county_ys", fill_color="county_colors", fill_alpha=0.7, line_color="white", line_width=0.5)
 state_patches = Patches(xs="state_xs", ys="state_ys", fill_alpha=0.0, line_color="#884444", line_width=2)
 
-county_renderer = GlyphRenderer(
+county_renderer = Glyph(
         data_source = county_source,
         xdata_range = xdr,
         ydata_range = ydr,
         glyph = county_patches,
         )
 
-state_renderer = GlyphRenderer(
+state_renderer = Glyph(
         data_source = state_source,
         xdata_range = xdr,
         ydata_range = ydr,

@@ -5,7 +5,7 @@ import requests, sys
 
 from bokeh.objects import (
     Plot, Range1d, LinearAxis, Grid,
-    GlyphRenderer, ColumnDataSource,
+    Glyph, ColumnDataSource,
     PanTool, ZoomTool)
 from bokeh.glyphs import *
 from bokeh import session
@@ -21,7 +21,7 @@ ydr = Range1d(start=0, end=10)
 arc = Arc(x="x", y="y", radius=0.4, start_angle=0.8, end_angle=3.8)
 
 def make_plot(name, glyph):
-    glyph_renderer = GlyphRenderer(
+    glyph_renderer = Glyph(
         data_source = source,
         xdata_range = xdr,
         ydata_range = ydr,

@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.objects import (
-    ColumnDataSource, GlyphRenderer, Grid, GridPlot, LinearAxis, Plot, Range1d
+    ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis, Plot, Range1d
 )
 from bokeh.glyphs import Circle, Line
 from bokeh import session
@@ -51,22 +51,22 @@ def make_plot(title, xname, yname):
     plot = Plot(
         x_range=xdr, y_range=ydr, data_sources=[lines_source, circles_source],
         title=title, width=400, height=400, border_fill='white', background_fill='#e9e0db')
-    xaxis = LinearAxis(plot=plot, dimension=0, location="bottom", axis_line_alpha=0)
-    yaxis = LinearAxis(plot=plot, dimension=1, location="left", axis_line_alpha=0)
+    xaxis = LinearAxis(plot=plot, dimension=0, location="bottom", axis_line_color=None)
+    yaxis = LinearAxis(plot=plot, dimension=1, location="left", axis_line_color=None)
     xgrid = Grid(plot=plot, dimension=0)
     ygrid = Grid(plot=plot, dimension=1)
-    line_renderer = GlyphRenderer(
+    line_renderer = Glyph(
         data_source = lines_source,
         xdata_range = xdr,
         ydata_range = ydr,
         glyph = Line(x='x', y='y', line_color="#666699", line_width=2),
     )
     plot.renderers.append(line_renderer)
-    circle_renderer = GlyphRenderer(
+    circle_renderer = Glyph(
         data_source = circles_source,
         xdata_range = xdr,
         ydata_range = ydr,
-        glyph = Circle(x=xname, y=yname, radius=6, fill_color="#cc6633", 
+        glyph = Circle(x=xname, y=yname, radius=6, fill_color="#cc6633",
                        line_color="#cc6633", fill_alpha=0.5),
 )
     plot.renderers.append(circle_renderer)

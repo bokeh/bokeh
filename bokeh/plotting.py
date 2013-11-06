@@ -14,7 +14,7 @@ import webbrowser
 
 from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataRange1d,
-        Plot, GlyphRenderer, LinearAxis, Grid, PanTool, ZoomTool,
+        Plot, Glyph, LinearAxis, Grid, PanTool, ZoomTool,
         PreviewSaveTool, ResizeTool, SelectionTool, EmbedTool,
         BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
@@ -556,7 +556,7 @@ class GlyphFunction(object):
         nonselection_glyph.fill_alpha = 0.1
         nonselection_glyph.line_alpha = 0.1
 
-        glyph_renderer = GlyphRenderer(
+        glyph_renderer = Glyph(
             data_source = datasource,
             xdata_range = plot.x_range,
             ydata_range = plot.y_range,
@@ -633,7 +633,7 @@ def get_default_color(plot=None):
     ]
     if plot:
         renderers = plot.renderers
-        renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
+        renderers = [x for x in renderers if x.__view_model__ == "Glyph"]
         num_renderers = len(renderers)
         return colors[num_renderers]
     else:

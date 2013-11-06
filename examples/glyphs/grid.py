@@ -4,7 +4,7 @@ import numpy as np
 import os.path
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ObjectArrayDataSource, ColumnDataSource, GlyphRenderer,
+        ObjectArrayDataSource, ColumnDataSource, Glyph,
         PanTool, ZoomTool, GridPlot)
 from bokeh.glyphs import Line
 from bokeh import session
@@ -37,7 +37,7 @@ def make_plot(source, xname, yname, linecolor, xdr=None, ydr=None):
     yaxis = LinearAxis(plot=plot, dimension=1, location="left")
     pantool = PanTool(dataranges=[xdr,ydr], dimensions=["width","height"])
     zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
-    renderer = GlyphRenderer(
+    renderer = Glyph(
             data_source = source,
             xdata_range = xdr,
             ydata_range = ydr,

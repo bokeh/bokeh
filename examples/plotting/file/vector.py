@@ -195,8 +195,7 @@ colors = cm[ix]
 
 output_file("vector.html", title="vector.py example")
 
-segment(x0, y0, x1, y1, line_color=colors, line_width=2,
-    tools="pan,zoom,resize")
+segment(x0, y0, x1, y1, line_color=colors, line_width=2)
 multi_line(xs, ys, line_color="#ee6666", line_width=2, line_alpha=0.8, name="vector example")
 
 
