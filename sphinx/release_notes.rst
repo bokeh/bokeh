@@ -34,10 +34,28 @@ v0.1 (April 2013)
 Roadmap & TODO List
 ###################
 
-v0.3
-====
+v0.3 (Goal: Nov 12, 2013)
+=========================
+
+The key goal of this release is to have a stable point after the BokehJS
+refactor and after the repository merge, on which CDX development can
+be based.  The new repository layout should also make the project much
+more accessible to new contributors.
+
+In creating this 0.3 release, the previous 0.3 and 0.4 releases have been
+"bumped" up to 0.4 and 0.5, respectively.
 
 * Redo source tree layout, remove BokehJS subtree and incorporating Sahat's JS suggestions
+* Merge BokehJS into Bokeh repo itself, and deprecate BokehJS repository
+* Variety of bugfixes:
+
+  * behavior of hold() in IPython Notebook
+  * handling of corner case data sources
+  * minor improvements to some examples
+
+v0.4 (Goal: December 2013)
+==========================
+
 * Integrate Abstract Rendering into bokeh server
 * Better grid-based layout system; use Cassowary.js for layout solver
 * Frame around plots for consistent look & feel on all Bokeh plots
@@ -48,7 +66,7 @@ v0.3
 * Expose image plot in Python interface: Add BSON for sending large data
 * StreamDataSource
 
-v0.4
+v0.5
 ====
 
 * New event and interactor architecture
