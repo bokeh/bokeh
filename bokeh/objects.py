@@ -414,6 +414,8 @@ class ColumnDataSource(DataSource):
         """
         if len(args) == 1 and "data" not in kw:
             kw["data"] = args[0]
+        for name, data in kw.get("data", {}).items():
+            self.add(data, name)
         super(ColumnDataSource, self).__init__(**kw)
 
     def add(self, data, name=None):
