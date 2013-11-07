@@ -157,7 +157,7 @@ def output_notebook(url=None, docname=None):
     except:
         pass
     if not notebook:
-        raise RuntimeError('output_notebook() called outside of IPython notebook. When not running inside an IPython notebook, please use output_file() or output_server()')
+        raise RuntimeError('output_notebook() called outside of IPython notebook 1.x. When not running inside an IPython notebook 1.x, please use output_file() or output_server()')
 
     if url is None:
         session = NotebookSession()
