@@ -230,7 +230,7 @@ class HTMLFileSession(BaseHTMLSession):
     ]
 
     # TODO: Why is this not in bokehjs_dir, but rather outside of it?
-    js_files = ["js/application.js"]
+    js_files = ["js/bokeh.js"]
 
     # Template files used to generate the HTML
     js_template = "plots.js"
@@ -321,7 +321,7 @@ class HTMLFileSession(BaseHTMLSession):
             elementid=elementid
             )
 
-        
+
 # jscode is the one I want
 
         html = self._load_template(self.html_template).render(
@@ -795,7 +795,7 @@ class NotebookSessionMixin(object):
     css_files = ["css/bokeh.css", "css/continuum.css",
                  "vendor/bootstrap/css/bootstrap.css"]
 
-    js_files = ["js/application.js"]
+    js_files = ["js/bokeh.js"]
 
     js_template = "plots.js"
     div_template = "plots.html"

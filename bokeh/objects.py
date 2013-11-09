@@ -807,14 +807,7 @@ class BoxSelectionOverlay(PlotObject):
 
 class Legend(PlotObject):
     plot = Instance(Plot, has_ref=True)
-    annotationspec = Dict(has_ref=True)
-
-    def vm_serialize(self):
-        #ensure that the type of the annotation spec is set
-        result = super(Legend, self).vm_serialize()
-        result['annotationspec']['type'] = 'legend'
-        return result
-
+    legends = Dict()
 
 class DataSlider(PlotObject):
     plot = Instance(Plot, has_ref=True)

@@ -1,4 +1,3 @@
 serverutils.js
 serverrun.js
-application.js
-bokehnotebook.js
+bokeh.js

@@ -568,7 +568,7 @@ class GlyphFunction(object):
             legend = self._get_legend(plot)
             if not legend:
                 legend = self._make_legend(plot)
-            mappings = legend.annotationspec.setdefault("legends", {})
+            mappings = legend.legends
             mappings.setdefault(legend_name, []).append(glyph_renderer)
             legend._dirty = True
 
