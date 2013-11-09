@@ -839,6 +839,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     elif x_axis_type == "datetime":
         axiscls = DatetimeAxis
     xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
+    xaxis2 = axiscls(plot=p, dimension=0, location="max", bounds="auto")
 
     if y_axis_type is None:
         axiscls = LinearAxis
@@ -922,16 +923,18 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
         names.append(name)
     return names, datasource
 
+class _list_attr_splat(list):
+    def __setattr__(self, attr, value):
+        for x in self:
+            setattr(x, attr, value)
+
 def xaxis():
     """ Returns the x-axis or list of x-axes on the current plot """
     p = curplot()
     if p is None:
         return None
     axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==0]
-    if len(axis) > 0:
-        return axis
-    else:
-        return None
+    return _list_attr_splat(axis)
 
 def yaxis():
     """ Returns the y-axis or list of y-axes on the current plot """
@@ -939,10 +942,7 @@ def yaxis():
     if p is None:
         return None
     axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==1]
-    if len(axis) > 0:
-        return axis
-    else:
-        return None
+    return _list_attr_splat(axis)
 
 def xgrid():
     """ Returns x-grid object on the current plot """
@@ -950,10 +950,7 @@ def xgrid():
     if p is None:
         return None
     grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==0]
-    if len(grid) > 0:
-        return grid
-    else:
-        return None
+    return _list_attr_splat(grid)
 
 def ygrid():
     """ Returns y-grid object on the current plot """
@@ -961,9 +958,6 @@ def ygrid():
     if p is None:
         return None
     grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==1]
-    if len(grid) > 0:
-        return grid
-    else:
-        return None
+    return _list_attr_splat(grid)
 
 
