@@ -350,10 +350,8 @@ def visual(func):
             session.plotcontext.children.append(plot)
         session.plotcontext._dirty = True
         plot._dirty = True
-        if (output_type == "notebook" and output_url is None):
-            session.show(plot, *session_objs)
 
-        elif (output_type == "server") or \
+        if (output_type == "server") or \
                 (output_type == "notebook" and output_url is not None):
             # push the plot data to a plot server
             session.store_all()
