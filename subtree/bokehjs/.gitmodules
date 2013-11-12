@@ -1,3 +1,0 @@
-[submodule "vendor/KineticJS"]
-	path = vendor/KineticJS
-	url = git@github.com:ContinuumIO/KineticJS.git
