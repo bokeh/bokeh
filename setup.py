@@ -13,7 +13,7 @@ versioneer.parentdir_prefix = 'Bokeh-' # dirname like 'myproject-1.2.0'
 
 # Set up this checkout or source archive with the right BokehJS files.
 
-JSBUILD_APP = "jsbuild/bokeh.js"
+JSBUILD_APP = "bokehjs/build/bokeh.js"
 DEV_APP = "bokeh/server/static/js/bokeh.js"
 if 'develop' in sys.argv:
     # Don't import setuptools unless the user is actively trying to do
@@ -71,6 +71,6 @@ setup(
     zip_safe=False,
     license = 'New BSD',
     scripts = scripts,
-    install_requires = ['markdown', 'pygments', 'smartypants', 
+    install_requires = ['markdown', 'pygments', 'smartypants',
         'sphinx', 'sphinx_bootstrap_theme']
 )
