@@ -153,8 +153,8 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-qunit")
   grunt.loadNpmTasks("grunt-eco")
 
-  grunt.registerTask("default",    ["coffee", "less", "copy", "qunit"])
-  grunt.registerTask("build",      ["coffee", "less", "copy"])
+  grunt.registerTask("default",    ["build", "qunit"])
+  grunt.registerTask("build",      ["coffee", "less", "copy", "eco"])
   grunt.registerTask("deploy",     ["build",  "requirejs:dist", "clean"])
   grunt.registerTask("devdeploy",  ["build",  "requirejs:dev",  "clean"])
 
