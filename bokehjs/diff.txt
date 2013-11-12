@@ -1,0 +1,1016 @@
+diff --git a/static/coffee/common/plot.coffee b/static/coffee/common/plot.coffee
+index b16eab6..8ea3a91 100644
+--- a/static/coffee/common/plot.coffee
++++ b/static/coffee/common/plot.coffee
+@@ -17,6 +17,9 @@ ActiveToolManager = require("../tools/active_tool_manager").ActiveToolManager
+ LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
+ 
+ class PlotView extends ContinuumView
++  events:
++    "mousemove .bokeh_canvas_wrapper": "_mousemove"
++    "mousedown .bokeh_canvas_wrapper": "_mousedown"
+ 
+   view_options: () ->
+     _.extend({plot_model: @model, plot_view: @}, @options)
+@@ -41,16 +44,10 @@ class PlotView extends ContinuumView
+       @throttled_render()
+     return
+ 
+-  request_render_canvas : () ->
+-    if not @is_paused
+-      @throttled_render_canvas()
+-    return
+-
+   initialize: (options) ->
+-    $('body').mousedown(@_mousedown)
+-    $('body').mousemove(@_mousemove)
++    # $('body').mousedown(@_mousedown)
++    # $('body').mousemove(@_mousemove)
+     @throttled_render = _.throttle(@render, 50)
+-    @throttled_render_canvas = _.throttle(@render_canvas, 30)
+ 
+     super(_.defaults(options, @default_options))
+ 
+@@ -172,7 +169,10 @@ class PlotView extends ContinuumView
+     return this
+ 
+   bind_bokeh_events: () ->
+-    safebind(this, @view_state, 'change', @request_render_canvas)
++    safebind(this, @view_state, 'change', () =>
++      @render_canvas(false)
++      @request_render()
++    )
+     safebind(this, @x_range, 'change', @request_render)
+     safebind(this, @y_range, 'change', @request_render)
+     safebind(this, @model, 'change:renderers', @build_levels)
+diff --git a/static/coffee/renderers/annotation/legend.coffee b/static/coffee/renderers/annotation/legend.coffee
+index 48919b5..f146592 100644
+--- a/static/coffee/renderers/annotation/legend.coffee
++++ b/static/coffee/renderers/annotation/legend.coffee
+@@ -156,8 +156,9 @@ _.extend(Legend::display_defaults, {
+   legend_padding : 10
+   legend_spacing : 3
+   orientation : "top_right"
+-  label_text_align : "start"
++  label_text_align : "left"
+   label_text_baseline : "middle"
++  datapoint : null
+ })
+ 
+ 
+diff --git a/static/coffee/renderers/glyph/annular_wedge.coffee b/static/coffee/renderers/glyph/annular_wedge.coffee
+index 8423c46..ec303fb 100644
+--- a/static/coffee/renderers/glyph/annular_wedge.coffee
++++ b/static/coffee/renderers/glyph/annular_wedge.coffee
+@@ -130,6 +130,58 @@ class AnnularWedgeView extends GlyphView
+         @glyph_props.line_properties.set(ctx, @data[i])
+         ctx.stroke()
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    fill_props = glyph_props.fill_properties
++    ctx.save()
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++      outer_radius = @distance([reference_point],'x', 'outer_radius', 'edge')
++      outer_radius = outer_radius[0]
++      inner_radius = @distance([reference_point],'x', 'inner_radius', 'edge')
++      inner_radius = inner_radius[0]
++      start_angle = -@glyph_props.select('start_angle', reference_point)
++      end_angle = -@glyph_props.select('end_angle', reference_point)
++    else
++      glyph_settings = glyph_props
++      start_angle = -0.1
++      end_angle = -3.9
++
++    angle = end_angle - start_angle
++    direction = @glyph_props.select('direction', glyph_settings)
++    direction = if direction == "clock" then false else true
++    border = line_props.select(line_props.line_width_name, glyph_settings)
++    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
++    d = d - 2 * border
++    r = d / 2
++    if outer_radius? or inner_radius?
++      ratio = r / outer_radius
++      outer_radius = r
++      inner_radius = inner_radius * ratio
++    else
++      outer_radius = r
++      inner_radius = r/2
++    sx = (x1 + x2) / 2.0
++    sy = (y1 + y2) / 2.0
++    ctx.translate(sx, sy)
++    ctx.rotate(start_angle)
++    ctx.moveTo(outer_radius, 0)
++    ctx.beginPath()
++    ctx.arc(0, 0, outer_radius, 0, angle, direction)
++    ctx.rotate(angle)
++    ctx.lineTo(inner_radius, 0)
++    ctx.arc(0, 0, inner_radius, 0, -angle, not direction)
++    ctx.closePath()
++
++    fill_props.set(ctx, glyph_settings)
++    ctx.fill()
++    line_props.set(ctx, glyph_settings)
++    ctx.stroke()
++
++    ctx.restore()
++
+ 
+ class AnnularWedge extends Glyph
+   default_view: AnnularWedgeView
+diff --git a/static/coffee/renderers/glyph/annulus.coffee b/static/coffee/renderers/glyph/annulus.coffee
+index 1f549e4..1e146a2 100644
+--- a/static/coffee/renderers/glyph/annulus.coffee
++++ b/static/coffee/renderers/glyph/annulus.coffee
+@@ -86,6 +86,44 @@ class AnnulusView extends GlyphView
+         @glyph_props.line_properties.set(ctx, @data[i])
+         ctx.stroke()
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    fill_props = glyph_props.fill_properties
++    ctx.save()
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++      outer_radius = @distance([reference_point],'x', 'outer_radius', 'edge')
++      outer_radius = outer_radius[0]
++      inner_radius = @distance([reference_point],'x', 'inner_radius', 'edge')
++      inner_radius = inner_radius[0]
++    else
++      glyph_settings = glyph_props
++    border = line_props.select(line_props.line_width_name, glyph_settings)
++    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
++    d = d - 2 * border
++    r = d / 2
++    if outer_radius? or inner_radius?
++      ratio = r / outer_radius
++      outer_radius = r
++      inner_radius = inner_radius * ratio
++    else
++      outer_radius = r
++      inner_radius = r/2
++    sx = (x1 + x2) / 2.0
++    sy = (y1 + y2) / 2.0
++    ctx.beginPath()
++    ctx.arc(sx, sy, inner_radius, 0, 2*Math.PI*2, false)
++    ctx.moveTo(sx + outer_radius, sy)
++    ctx.arc(sx, sy, outer_radius, 0, 2*Math.PI*2, true)
++    fill_props.set(ctx, glyph_settings)
++    ctx.fill()
++    line_props.set(ctx, glyph_settings)
++    ctx.stroke()
++
++    ctx.restore()
++
+ 
+ class Annulus extends Glyph
+   default_view: AnnulusView
+diff --git a/static/coffee/renderers/glyph/arc.coffee b/static/coffee/renderers/glyph/arc.coffee
+index cf6bbfc..c7795aa 100644
+--- a/static/coffee/renderers/glyph/arc.coffee
++++ b/static/coffee/renderers/glyph/arc.coffee
+@@ -73,6 +73,35 @@ class ArcView extends GlyphView
+         @glyph_props.line_properties.set(ctx, @data[i])
+         ctx.stroke()
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    ctx.save()
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++      data_r = @distance([reference_point], 'x', 'radius', 'edge')[0]
++      start_angle = -@glyph_props.select('start_angle', reference_point)
++      end_angle = -@glyph_props.select('end_angle', reference_point)
++    else
++      glyph_settings = glyph_props
++      start_angle = -0.1
++      end_angle = -3.9
++    direction = @glyph_props.select('direction', glyph_settings)
++    direction = if direction == "clock" then false else true
++    border = line_props.select(line_props.line_width_name, glyph_settings)
++    ctx.beginPath()
++    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
++    d = d - 2 * border
++    r = d / 2
++    if data_r?
++      r = if data_r > r then r else data_r
++    ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, start_angle,
++      end_angle, direction)
++    line_props.set(ctx, glyph_settings)
++    ctx.stroke()
++
++    ctx.restore()
+ 
+ class Arc extends Glyph
+   default_view: ArcView
+@@ -96,4 +125,3 @@ _.extend(Arc::display_defaults, {
+ 
+ exports.Arc = Arc
+ exports.ArcView = ArcView
+-
+diff --git a/static/coffee/renderers/glyph/circle.coffee b/static/coffee/renderers/glyph/circle.coffee
+index a649e1e..3052a29 100644
+--- a/static/coffee/renderers/glyph/circle.coffee
++++ b/static/coffee/renderers/glyph/circle.coffee
+@@ -114,21 +114,6 @@ class CircleView extends GlyphView
+         glyph_props.line_properties.set(ctx, @data[i])
+         ctx.stroke()
+ 
+-  draw_legend: (ctx, x1, x2, y1, y2) ->
+-    glyph_props = @glyph_props
+-    ctx.save()
+-    glyph_props.fill_properties.set(ctx, @glyph_props)
+-    glyph_props.line_properties.set(ctx, @glyph_props)
+-    border = ctx.lineWidth
+-    ctx.beginPath()
+-    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
+-    d = d - 2 * border
+-    r = d / 2
+-    ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2*Math.PI,false)
+-    ctx.fill()
+-    ctx.stroke()
+-    ctx.restore()
+-
+   select : (xscreenbounds, yscreenbounds) ->
+     xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
+       @plot_view.view_state.sx_to_device(xscreenbounds[1])]
+@@ -147,6 +132,32 @@ class CircleView extends GlyphView
+       selected.push(i)
+      return selected
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    fill_props = glyph_props.fill_properties
++    ctx.save()
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++      data_r = @distance([reference_point], 'x', 'radius', 'edge')[0]
++    else
++      glyph_settings = glyph_props
++    border = line_props.select(line_props.line_width_name, glyph_settings)
++    ctx.beginPath()
++    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
++    d = d - 2 * border
++    r = d / 2
++    if data_r?
++      r = if data_r > r then r else data_r
++    ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2*Math.PI,false)
++    fill_props.set(ctx, glyph_settings)
++    ctx.fill()
++    line_props.set(ctx, glyph_settings)
++    ctx.stroke()
++
++    ctx.restore()
++
+ 
+ class Circle extends Glyph
+   default_view: CircleView
+diff --git a/static/coffee/renderers/glyph/glyph.coffee b/static/coffee/renderers/glyph/glyph.coffee
+index 118401e..82b0689 100644
+--- a/static/coffee/renderers/glyph/glyph.coffee
++++ b/static/coffee/renderers/glyph/glyph.coffee
+@@ -70,6 +70,16 @@ class GlyphView extends PlotWidget
+ 
+     return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
+ 
++  get_reference_point : () ->
++    reference_point = @mget('reference_point')
++    if _.isNumber(reference_point)
++      return @data[reference_point]
++    else
++      return reference_point
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++
++
++
+ 
+ 
+ class Glyph extends HasParent
+diff --git a/static/coffee/renderers/glyph/line.coffee b/static/coffee/renderers/glyph/line.coffee
+index ae8bb9c..64f89ce 100644
+--- a/static/coffee/renderers/glyph/line.coffee
++++ b/static/coffee/renderers/glyph/line.coffee
+@@ -81,6 +81,21 @@ class LineView extends GlyphView
+             ctx.lineTo(sx[i], sy[i])
+         ctx.stroke()
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++    else
++      glyph_settings = glyph_props
++    line_props.set(ctx, glyph_settings)
++    ctx.beginPath()
++    ctx.moveTo(x1, (y1 + y2) /2)
++    ctx.lineTo(x2, (y1 + y2) /2)
++    ctx.stroke()
++    ctx.beginPath()
++    ctx.restore()
+ 
+ class Line extends Glyph
+   default_view: LineView
+@@ -103,4 +118,3 @@ _.extend(Line::display_defaults, {
+ 
+ exports.Line = Line
+ exports.LineView = LineView
+-
+diff --git a/static/coffee/renderers/glyph/oval.coffee b/static/coffee/renderers/glyph/oval.coffee
+index 3b9b2c0..bd90cb0 100644
+--- a/static/coffee/renderers/glyph/oval.coffee
++++ b/static/coffee/renderers/glyph/oval.coffee
+@@ -110,6 +110,44 @@ class OvalView extends GlyphView
+       ctx.rotate(-@angle[i])
+       ctx.translate(-@sx[i], -@sy[i])
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    fill_props = glyph_props.fill_properties
++    ctx.save()
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++      sw = @distance([reference_point], 'x', 'width', 'center')[0]
++      sh = @distance([refrence_point], 'y', 'height', 'center')[0]
++    else
++      glyph_settings = glyph_props
++      sw = 1.0
++      sh = 2.0
++    border = line_props.select(line_props.line_width_name, glyph_settings)
++    w = Math.abs(x2-x1)
++    h = Math.abs(y2-y1)
++    w = w - 2*border
++    h = h - 2*border
++    ratio1 = h / sh
++    ratio2 = w / sw
++    ratio = _.min([ratio1, ratio2])
++    h = sh * ratio
++    w = sw * ratio
++
++    ctx.translate((x1 + x2)/2, (y1 + y2)/2)
++    ctx.beginPath()
++    ctx.moveTo(0, -h/2)
++    ctx.bezierCurveTo( w/2, -h/2,  w/2,  h/2, 0,  h/2)
++    ctx.bezierCurveTo( -w/2, h/2,  -w/2,  -h/2, 0,  -h/2)
++    ctx.closePath()
++    fill_props.set(ctx, glyph_settings)
++    ctx.fill()
++    line_props.set(ctx, glyph_settings)
++    ctx.stroke()
++
++    ctx.restore()
++
+ 
+ class Oval extends Glyph
+   default_view: OvalView
+diff --git a/static/coffee/renderers/glyph/quad.coffee b/static/coffee/renderers/glyph/quad.coffee
+index 59b962d..52cd364 100644
+--- a/static/coffee/renderers/glyph/quad.coffee
++++ b/static/coffee/renderers/glyph/quad.coffee
+@@ -92,6 +92,53 @@ class QuadView extends GlyphView
+         @glyph_props.line_properties.set(ctx, @data[i])
+         ctx.stroke()
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    ## dummy legend function just draws a circle.. this way
++    ## even if we have a differnet glyph shape, at least we get the
++    ## right colors present
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    fill_props = glyph_props.fill_properties
++    ctx.save()
++
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++      left = @glyph_props.select('left', glyph_settings)
++      top  = @glyph_props.select('top', glyph_settings)
++      right  = @glyph_props.select('right', glyph_settings)
++      bottom = @glyph_props.select('bottom', glyph_settings)
++      [sx0, sy0] = @plot_view.map_to_screen([left], @glyph_props.left.units,
++        [top], @glyph_props.top.units)
++      [sx1, sy1] = @plot_view.map_to_screen([right], @glyph_props.right.units,
++        [bottom], @glyph_props.bottom.units)
++      data_w = sx1[0] - sx0[0]
++      data_h = sy1[0] - sy0[0]
++    else
++      glyph_settings = glyph_props
++      data_w = 1
++      data_h = 1
++    border = line_props.select(line_props.line_width_name, glyph_settings)
++    data_w = data_w - 2*border
++    data_h = data_h - 2*border
++    w = Math.abs(x2-x1)
++    h = Math.abs(y2-y1)
++    ratio1 = w / data_w
++    ratio2 = h / data_h
++    ratio = _.min([ratio1, ratio2])
++    w = ratio * data_w
++    h = ratio * data_h
++    x = (x1 + x2) / 2 - (w / 2)
++    y = (y1 + y2) / 2 - (h / 2)
++    ctx.beginPath()
++    ctx.rect(x, y, w, h)
++    fill_props.set(ctx, glyph_settings)
++    ctx.fill()
++    line_props.set(ctx, glyph_settings)
++    ctx.stroke()
++
++    ctx.restore()
++
+ 
+ class Quad extends Glyph
+   default_view: QuadView
+diff --git a/static/coffee/renderers/glyph/ray.coffee b/static/coffee/renderers/glyph/ray.coffee
+index c29bc76..cab728c 100644
+--- a/static/coffee/renderers/glyph/ray.coffee
++++ b/static/coffee/renderers/glyph/ray.coffee
+@@ -85,6 +85,29 @@ class RayView extends GlyphView
+         ctx.rotate(-@angle[i])
+         ctx.translate(-@sx[i], -@sy[i])
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++    else
++      glyph_settings = glyph_props
++    angle = - @glyph_props.select('angle', glyph_settings)
++    r = _.min([Math.abs(x2-x1), Math.abs(y2-y1)]) / 2
++    sx = (x1+x2)/2
++    sy = (y1+y2)/2
++    ctx.beginPath()
++    ctx.translate(sx, sy)
++    ctx.rotate(angle)
++    ctx.moveTo(0,  0)
++    ctx.lineTo(r, 0) # TODO handle @length in data units?
++    ctx.rotate(-angle)
++    ctx.translate(-sx, -sy)
++    line_props.set(ctx, glyph_settings)
++    ctx.stroke()
++    ctx.restore()
++
+ 
+ class Ray extends Glyph
+   default_view: RayView
+@@ -107,4 +130,3 @@ _.extend(Ray::display_defaults, {
+ 
+ exports.Ray = Ray
+ exports.RayView = RayView
+-
+diff --git a/static/coffee/renderers/glyph/rect.coffee b/static/coffee/renderers/glyph/rect.coffee
+index 1112066..1a21cfd 100644
+--- a/static/coffee/renderers/glyph/rect.coffee
++++ b/static/coffee/renderers/glyph/rect.coffee
+@@ -13,16 +13,14 @@ class RectView extends GlyphView
+ 
+   initialize: (options) ->
+     glyphspec = @mget('glyphspec')
++    fill_props = new fill_properties(@, glyphspec)
++    line_props = new line_properties(@, glyphspec)
+     @glyph_props = new glyph_properties(
+       @,
+       glyphspec,
+       ['x', 'y', 'width', 'height', 'angle'],
+-      [
+-        new fill_properties(@, glyphspec),
+-        new line_properties(@, glyphspec)
+-      ]
++      [line_props, fill_props]
+     )
+-
+     @do_fill   = @glyph_props.fill_properties.do_fill
+     @do_stroke = @glyph_props.line_properties.do_stroke
+     super(options)
+@@ -84,6 +82,43 @@ class RectView extends GlyphView
+ 
+       ctx.stroke()
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    ## dummy legend function just draws a circle.. this way
++    ## even if we have a differnet glyph shape, at least we get the
++    ## right colors present
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    fill_props = glyph_props.fill_properties
++    ctx.save()
++
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++      data_w = @distance([reference_point], 'x', 'width', 'center')[0]
++      data_h = @distance([reference_point], 'y', 'height', 'center')[0]
++    else
++      glyph_settings = glyph_props
++    border = line_props.select(line_props.line_width_name, glyph_settings)
++
++    ctx.beginPath()
++    w = Math.abs(x2-x1)
++    h = Math.abs(y2-y1)
++    w = w - 2*border
++    h = h - 2*border
++    if data_w?
++      w = if data_w > w then w else data_w
++    if data_h?
++      h = if data_h > h then h else data_h
++    x = (x1 + x2) / 2 - (w / 2)
++    y = (y1 + y2) / 2 - (h / 2)
++    ctx.rect(x, y, w, h)
++    fill_props.set(ctx, glyph_settings)
++    ctx.fill()
++    line_props.set(ctx, glyph_settings)
++    ctx.stroke()
++
++    ctx.restore()
++
+   _full_path: (ctx) ->
+     for i in [0..@sx.length-1]
+       if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
+diff --git a/static/coffee/renderers/glyph/segment.coffee b/static/coffee/renderers/glyph/segment.coffee
+index 089c26c..2ba84dc 100644
+--- a/static/coffee/renderers/glyph/segment.coffee
++++ b/static/coffee/renderers/glyph/segment.coffee
+@@ -70,6 +70,22 @@ class SegmentView extends GlyphView
+         @glyph_props.line_properties.set(ctx, @data[i])
+         ctx.stroke()
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++    else
++      glyph_settings = glyph_props
++    line_props.set(ctx, glyph_settings)
++    ctx.beginPath()
++    ctx.moveTo(x1, (y1 + y2) /2)
++    ctx.lineTo(x2, (y1 + y2) /2)
++    ctx.stroke()
++    ctx.beginPath()
++    ctx.restore()
++
+ 
+ class Segment extends Glyph
+   default_view: SegmentView
+diff --git a/static/coffee/renderers/glyph/text.coffee b/static/coffee/renderers/glyph/text.coffee
+index 75a9ae4..af9c993 100644
+--- a/static/coffee/renderers/glyph/text.coffee
++++ b/static/coffee/renderers/glyph/text.coffee
+@@ -71,6 +71,23 @@ class TextView extends GlyphView
+       ctx.rotate(-@angle[i])
+       ctx.translate(-@sx[i], -@sy[i])
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    glyph_props = @glyph_props
++    text_props = glyph_props.text_properties
++    ctx.save()
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++    else
++      glyph_settings = glyph_props
++    text_props.set(ctx, glyph_settings)
++    #override some features so we fit inside the legend
++    ctx.font = text_props.font(12)
++    ctx.textAlign = "right"
++    ctx.textBaseline = "middle"
++    ctx.fillText("txt", x2, (y1+y2)/2)
++
++    ctx.restore()
+ 
+ class Text extends Glyph
+   default_view: TextView
+@@ -93,4 +110,3 @@ _.extend(Text::display_defaults, {
+ 
+ exports.Text = Text
+ exports.TextView = TextView
+-
+diff --git a/static/coffee/renderers/glyph/wedge.coffee b/static/coffee/renderers/glyph/wedge.coffee
+index f234244..caef489 100644
+--- a/static/coffee/renderers/glyph/wedge.coffee
++++ b/static/coffee/renderers/glyph/wedge.coffee
+@@ -97,6 +97,43 @@ class WedgeView extends GlyphView
+         @glyph_props.line_properties.set(ctx, @data[i])
+         ctx.stroke()
+ 
++  draw_legend: (ctx, x1, x2, y1, y2) ->
++    glyph_props = @glyph_props
++    line_props = glyph_props.line_properties
++    fill_props = glyph_props.fill_properties
++    ctx.save()
++    reference_point = @get_reference_point()
++    if reference_point?
++      glyph_settings = reference_point
++      data_r = @distance([reference_point], 'x', 'radius', 'edge')[0]
++      start_angle = -@glyph_props.select('start_angle', reference_point)
++      end_angle = -@glyph_props.select('end_angle', reference_point)
++    else
++      glyph_settings = glyph_props
++      start_angle = -0.1
++      end_angle = -3.9
++
++    angle = end_angle - start_angle
++    direction = @glyph_props.select('direction', glyph_settings)
++    direction = if direction == "clock" then false else true
++    border = line_props.select(line_props.line_width_name, glyph_settings)
++    d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
++    d = d - 2 * border
++    r = d / 2
++    if data_r?
++      r = if data_r > r then r else data_r
++    ctx.beginPath()
++    sx = (x1 + x2) / 2.0
++    sy = (y1 + y2) / 2.0
++    ctx.arc(sx, sy, r, start_angle, end_angle, direction)
++    ctx.lineTo(sx, sy)
++    ctx.closePath()
++    fill_props.set(ctx, glyph_settings)
++    ctx.fill()
++    line_props.set(ctx, glyph_settings)
++    ctx.stroke()
++
++    ctx.restore()
+ 
+ class Wedge extends Glyph
+   default_view: WedgeView
+diff --git a/static/coffee/renderers/properties.coffee b/static/coffee/renderers/properties.coffee
+index 201d8e3..608182c 100644
+--- a/static/coffee/renderers/properties.coffee
++++ b/static/coffee/renderers/properties.coffee
+@@ -256,10 +256,10 @@ class text_properties extends properties
+     @number(styleprovider, glyphspec, @text_alpha_name)
+     @enum(styleprovider, glyphspec, @text_align_name, "left right center")
+     @enum(styleprovider, glyphspec, @text_baseline_name, "top middle bottom alphabetic hanging")
+-
+-  font:(obj) ->
++  font:(obj, font_size) ->
++    if font_size?
++      font_size = @select(@text_font_size_name,  obj)
+     font       = @select(@text_font_name,       obj)
+-    font_size  = @select(@text_font_size_name,  obj)
+     font_style = @select(@text_font_style_name, obj)
+     font = font_style + " " + font_size + " " + font
+     return font
+diff --git a/static/coffee/testutils.coffee b/static/coffee/testutils.coffee
+index 857549c..4de539c 100644
+--- a/static/coffee/testutils.coffee
++++ b/static/coffee/testutils.coffee
+@@ -291,20 +291,10 @@ typeIsArray = ( value ) ->
+         typeof value.splice is 'function' and
+         not ( value.propertyIsEnumerable 'length' )
+ 
+-make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[400, 400], axes=true) ->
+-  plot_tools = []
+-  if tools
+-    pantool = Collections('PanTool').create(
+-      dataranges: [xrange.ref(), yrange.ref()]
+-      dimensions: ['width', 'height']
+-    )
+-    zoomtool = Collections('ZoomTool').create(
+-      dataranges: [xrange.ref(), yrange.ref()]
+-      dimensions: ['width', 'height']
+-    )
+-    resizetool = Collections('ResizeTool').create()
+-    pstool = Collections('PreviewSaveTool').create()
+-    plot_tools = [pantool, zoomtool, pstool, resizetool]
++make_glyph_plot = (data_source, defaults, glyphspecs,
++    xrange, yrange, tools=true, dims=[400, 400],
++    axes=true, legend=true, legend_name="glyph",
++    reference_point) ->
+   glyphs = []
+   if not typeIsArray(glyphspecs)
+     glyphspecs = [glyphspecs]
+@@ -313,6 +303,7 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=fals
+       glyph = Collections('GlyphRenderer').create({
+         data_source: data_source.ref()
+         glyphspec: glyphspec
++        reference_point : reference_point
+       })
+       glyph.set(defaults)
+       glyphs.push(glyph)
+@@ -332,7 +323,6 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=fals
+     canvas_height: dims[1]
+     outer_width: dims[0]
+     outer_height: dims[1]
+-    tools: plot_tools
+   )
+   plot_model.set(defaults)
+   plot_model.add_renderers(g.ref() for g in glyphs)
+@@ -396,12 +386,46 @@ make_glyph_plot = (data_source, defaults, glyphspecs, xrange, yrange, tools=fals
+     plot_model.add_renderers(
+       [xrule.ref(), yrule.ref(), xaxis1.ref(), yaxis1.ref(), xaxis2.ref(), yaxis2.ref()]
+     )
++  if tools
++    pantool = Collections('PanTool').create(
++      dataranges: [xrange.ref(), yrange.ref()]
++      dimensions: ['width', 'height']
++    )
++    zoomtool = Collections('ZoomTool').create(
++      dataranges: [xrange.ref(), yrange.ref()]
++      dimensions: ['width', 'height']
++    )
++    selecttool = Collections('SelectionTool').create()
++    boxselectionoverlay = Collections('BoxSelectionOverlay').create(
++      tool : selecttool.ref()
++    )
++    resizetool = Collections('ResizeTool').create()
++    pstool = Collections('PreviewSaveTool').create()
++    plot_tools = [pantool, zoomtool, pstool, resizetool, selecttool]
++    plot_model.set_obj('tools', plot_tools)
++    plot_model.add_renderers([boxselectionoverlay.ref()])
++  if legend
++    legends = {}
++    legend_renderer = Collections("AnnotationRenderer").create(
++      plot : plot_model.ref()
++      annotationspec:
++        type : "legend"
++        orientation : "top_right"
++        legends: legends
++    )
++    for g, idx in glyphs
++      legends[legend_name + String(idx)] = [g.ref()]
++    plot_model.add_renderers([legend_renderer.ref()])
++
+   return plot_model
+ 
+-make_glyph_test = (test_name, data_source, defaults, glyphspecs, xrange, yrange, tools=false, dims=[400, 400], axes=true) ->
++make_glyph_test = (test_name, data_source, defaults, glyphspecs,
++    xrange, yrange, tools=true, dims=[400, 400],
++    axes=true, legend=true,
++    reference_point) ->
+   return () ->
+     expect(0)
+-    plot_model = make_glyph_plot(data_source, defaults, glyphspecs, xrange, yrange, tools, dims, axes)
++    plot_model = make_glyph_plot(data_source, defaults, glyphspecs, xrange, yrange, tools, dims, axes, true, test_name, reference_point)
+     div = $('<div></div>')
+     $('body').append(div)
+     myrender  =  ->
+diff --git a/static/coffee/tools/resize_tool.coffee b/static/coffee/tools/resize_tool.coffee
+index 3667edb..e4684cb 100644
+--- a/static/coffee/tools/resize_tool.coffee
++++ b/static/coffee/tools/resize_tool.coffee
+@@ -95,11 +95,11 @@ class ResizeToolView extends tool.ToolView
+     @plot_view.view_state.set('canvas_height', ch+ydiff)
+     @plot_view.view_state.set('canvas_width', cw+xdiff)
+ 
+-    @plot_view.unpause()
+ 
+     @plot_view.view_state.trigger('change')
++    @plot_view.unpause()
+ 
+-    @plot_view.request_render()
++    #@plot_view.request_render()
+ 
+     return null
+ 
+diff --git a/tests/coffee/legend_test.coffee b/tests/coffee/legend_test.coffee
+index 270cbc6..9e2b6ce 100644
+--- a/tests/coffee/legend_test.coffee
++++ b/tests/coffee/legend_test.coffee
+@@ -24,6 +24,21 @@ glyph = {
+   x: 'x'
+   y: 'y'
+ }
++
++glyph2 = {
++  width: 10
++  width_units: 'screen'
++  height : 10
++  height_units: 'screen'
++  line_width:
++    field: 'lwidth'
++    default: .5
++  type: 'rect'
++  fill: 'green'
++  x: 'x'
++  y: 'y'
++}
++
+ test('legend_test', () ->
+   expect(0)
+   plot_model = testutils.make_glyph_plot(data_source,
+@@ -144,3 +159,28 @@ test('legend_bottom_right', () ->
+     div.append(view.$el)
+   _.defer(myrender)
+ )
++
++test('legend_rect_test', () ->
++  expect(0)
++  plot_model = testutils.make_glyph_plot(data_source,
++    defaults, glyph2, range,range)
++  glyph_renderer = (x for x in plot_model.get_obj('renderers') \
++    when x.type == 'GlyphRenderer')[0]
++  glyph_renderer.set('reference_point', 3)
++  legend = Collections("AnnotationRenderer").create(
++    plot : plot_model.ref()
++    annotationspec:
++      type : "legend"
++      orientation : "top_right"
++      legends:
++        fakelabel : [glyph_renderer.ref()]
++        fakelabel2 : [glyph_renderer.ref()]
++    )
++  plot_model.get('renderers').push(legend.ref())
++  div = $('<div></div>')
++  $('body').append(div)
++  myrender  =  ->
++    view = new plot_model.default_view(model: plot_model)
++    div.append(view.$el)
++  _.defer(myrender)
++)
+diff --git a/tests/coffee/primitives/annular_wedge_test.coffee b/tests/coffee/primitives/annular_wedge_test.coffee
+index e7bbdcb..fca971c 100644
+--- a/tests/coffee/primitives/annular_wedge_test.coffee
++++ b/tests/coffee/primitives/annular_wedge_test.coffee
+@@ -31,3 +31,5 @@ glyph = {
+ }
+ 
+ test('annular_wedge_glyph', make_glyph_test('annular_wedge_glyph', data_source, defaults, glyph, range, range))
++
++test('annular_wedge_glyph_legend2', make_glyph_test('annular_wedge_glyph', data_source, defaults, glyph, range, range, null, null, null, null, 3))
+diff --git a/tests/coffee/primitives/arc_test.coffee b/tests/coffee/primitives/arc_test.coffee
+index 73109f9..63f3aac 100644
+--- a/tests/coffee/primitives/arc_test.coffee
++++ b/tests/coffee/primitives/arc_test.coffee
+@@ -48,7 +48,7 @@ glyph = {
+     field: 'line_color'
+ }
+ 
+-test('arc_glyph_startstop_angle', make_glyph_test('arc_glyph_startstop_angle', data_source, defaults, glyph, range, range))
++test('arc_glyph_startstop_angle', make_glyph_test('arc_glyph_startstop_angle', data_source, defaults, glyph, range, range, null, null, null, null, 0))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+@@ -70,4 +70,4 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('arc_glyph_line_width', make_glyph_test('arc_glyph_line_width', data_source, defaults, glyph, range, range))
++test('arc_glyph_line_width', make_glyph_test('arc_glyph_line_width', data_source, defaults, glyph, range, range, null, null, null, null, 0))
+diff --git a/tests/coffee/primitives/circle_test.coffee b/tests/coffee/primitives/circle_test.coffee
+index 06aac0d..0ba9e3c 100644
+--- a/tests/coffee/primitives/circle_test.coffee
++++ b/tests/coffee/primitives/circle_test.coffee
+@@ -1,7 +1,8 @@
+ Collections = require('../../base').Collections
+ make_glyph_test = require('../testutils').make_glyph_test
+ 
+-range = Collections('Range1d').create({start: 0, end: 10})
++rangex = Collections('Range1d').create({start: 0, end: 10})
++rangey = Collections('Range1d').create({start: 0, end: 10})
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+@@ -26,7 +27,7 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('circle_glyph', make_glyph_test('circle_glyph', data_source, defaults, glyph, range, range))
++test('circle_glyph', make_glyph_test('circle_glyph', data_source, defaults, glyph, rangex, rangey, null, null, null, null, null))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+@@ -51,7 +52,8 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('circle_glyph_line_color', make_glyph_test('circle_glyph_line_color', data_source, defaults, glyph, range, range))
++test('circle_glyph_line_color', make_glyph_test('circle_glyph_line_color', data_source, defaults, glyph, rangex, rangey, null, null, null, null,
++{x: 4, y: 2, line_color: '#4488ff'}))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+@@ -75,7 +77,7 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('circle_glyph_radius', make_glyph_test('circle_glyph_radius', data_source, defaults, glyph, range, range))
++test('circle_glyph_radius', make_glyph_test('circle_glyph_radius', data_source, defaults, glyph, rangex, rangey))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+@@ -98,7 +100,7 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('circle_glyph_line_width', make_glyph_test('circle_glyph_line_width', data_source, defaults, glyph, range, range))
++test('circle_glyph_line_width', make_glyph_test('circle_glyph_line_width', data_source, defaults, glyph, rangex, rangey))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+@@ -123,7 +125,7 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('circle_glyph_line_alpha', make_glyph_test('circle_glyph_line_alpha', data_source, defaults, glyph, range, range))
++test('circle_glyph_line_alpha', make_glyph_test('circle_glyph_line_alpha', data_source, defaults, glyph, rangex, rangey, reference_point=2))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+@@ -137,7 +139,7 @@ data_source = Collections('ObjectArrayDataSource').create(
+ 
+ glyph = {
+   type: 'circle'
+-  fill: 
++  fill:
+     field: 'color'
+     default: 'blue'
+   radius: 10
+@@ -145,7 +147,7 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('circle_glyph_fill', make_glyph_test('circle_glyph_fill', data_source, defaults, glyph, range, range))
++test('circle_glyph_fill', make_glyph_test('circle_glyph_fill', data_source, defaults, glyph, rangex, rangey))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+@@ -170,4 +172,4 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('circle_glyph_linedash', make_glyph_test('circle_glyph_linedash', data_source, defaults, glyph, range, range))
++test('circle_glyph_linedash', make_glyph_test('circle_glyph_linedash', data_source, defaults, glyph, rangex, rangey))
+diff --git a/tests/coffee/primitives/quad_test.coffee b/tests/coffee/primitives/quad_test.coffee
+index 77a4228..083b674 100644
+--- a/tests/coffee/primitives/quad_test.coffee
++++ b/tests/coffee/primitives/quad_test.coffee
+@@ -24,7 +24,7 @@ glyph = {
+   top: 'top'
+ }
+ 
+-test('quad_glyph', make_glyph_test('quad_glyph', data_source, defaults, glyph, range, range))
++test('quad_glyph', make_glyph_test('quad_glyph', data_source, defaults, glyph, range, range, null, null, null, null, null))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data : [
+@@ -48,7 +48,7 @@ glyph = {
+   top: 'top'
+ }
+ 
+-test('quad_glyph_linewidth', make_glyph_test('quad_glyph_linewidth', data_source, defaults, glyph, range, range))
++test('quad_glyph_linewidth', make_glyph_test('quad_glyph_linewidth', data_source, defaults, glyph, range, range, null, null, null, null, 3))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data : [
+diff --git a/tests/coffee/primitives/ray_test.coffee b/tests/coffee/primitives/ray_test.coffee
+index a752c90..5fa4525 100644
+--- a/tests/coffee/primitives/ray_test.coffee
++++ b/tests/coffee/primitives/ray_test.coffee
+@@ -74,7 +74,7 @@ glyph = {
+   length: 'length'
+ }
+ 
+-test('ray_glyph_line_alpha', make_glyph_test('ray_glyph_line_alpha', data_source, defaults, glyph, range, range))
++test('ray_glyph_line_alpha', make_glyph_test('ray_glyph_line_alpha', data_source, defaults, glyph, range, range, null, null, null, null, 3))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+diff --git a/tests/coffee/primitives/rect_test.coffee b/tests/coffee/primitives/rect_test.coffee
+index 43c14d9..651a2b9 100644
+--- a/tests/coffee/primitives/rect_test.coffee
++++ b/tests/coffee/primitives/rect_test.coffee
+@@ -27,7 +27,7 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('rect_glyph', make_glyph_test('rect_glyph', data_source, defaults, glyph, range, range))
++test('rect_glyph', make_glyph_test('rect_glyph', data_source, defaults, glyph, range, range, null, null, null, null, null))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+@@ -50,7 +50,8 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('rect_glyph_angle', make_glyph_test('rect_glyph_angle', data_source, defaults, glyph, range, range))
++test('rect_glyph_angle', make_glyph_test('rect_glyph_angle', data_source, defaults, glyph, range, range,
++))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [
+@@ -73,7 +74,8 @@ glyph = {
+   y: 'y'
+ }
+ 
+-test('rect_glyph_line_width', make_glyph_test('rect_glyph_line_width', data_source, defaults, glyph, range, range))
++test('rect_glyph_line_width', make_glyph_test('rect_glyph_line_width', data_source, defaults, glyph, range, range, null, null, null, null,
++{x: 4, y: 2, lwidth:4}))
+ 
+ data_source = Collections('ObjectArrayDataSource').create(
+   data: [

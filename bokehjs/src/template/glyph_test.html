@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>QUnit Test Suite</title>
+  <link rel="stylesheet" href="../vendor/qunit/css/qunit.css" type="text/css" media="screen">
+  <script type="text/javascript" src="../vendor/qunit/js/qunit.js"></script>
+  <link type="text/css" rel="stylesheet" href="../vendor/jquery/css/themes/base/jquery-ui.min.css"/>
+  <link type="text/css" rel="stylesheet" href="../static/css/bokeh.css"/>
+  <!-- Your project file goes here -->
+  <script type="text/javascript" src="../vendor/d3/d3.v2.js"></script>
+  <script type="text/javascript" src="../vendor/jquery/js/jquery-1.6.4.min.js"></script>
+  <script type="text/javascript" src="../vendor/jquery/js/jquery.mousewheel.js"></script>
+  <script type="text/javascript" src="../vendor/jquery/js/jquery-ui.min.js"></script>
+  <script type="text/javascript" src="../vendor/underscore/underscore.js"></script>
+  <script type="text/javascript" src="../vendor/backbone/backbone.js"></script>
+  <script type="text/javascript" src="../vendor/buckets/buckets.js"></script>
+
+  <script type="text/javascript" src="../static/js/base.js"></script>
+  <script type="text/javascript" src="../static/js/datasource.js"></script>
+  <script type="text/javascript" src="../static/js/ranges.js"></script>  
+  <script type="text/javascript" src="../static/js/guides.js"></script>
+  <script type="text/javascript" src="../static/js/mapper.js"></script>
+  <script type="text/javascript" src="../static/js/schema_renderers.js"></script>
+  <script type="text/javascript" src="../static/js/glyph_renderers.js"></script>
+  <script type="text/javascript" src="../static/js/table.js"></script>
+  <script type="text/javascript" src="../static/js/tools.js"></script>
+  <script type="text/javascript" src="../static/js/overlays.js"></script>    
+  <script type="text/javascript" src="../static/js/ticks.js"></script>
+  <script type="text/javascript" src="../static/js/container.js"></script>
+  <script type="text/javascript" src="../static/js/testutils.js"></script>    
+  <script type="text/javascript" src="../static/js/custom.js"></script>    
+  
+  <script type="text/javascript" src="../static/js/unittest/glyph_test.js"></script>    
+
+<style> 
+
+  .all_can_wrapper {position:relative; }
+  .can_wrapper {position:absolute; }
+  .main_ can_wrapper {border:1px dotted green;}
+  .main_can {border:1px solid blue}
+  .x_can_wrapper { border:1px solid orange; }
+  .y_can_wrapper { border:1px solid purple; }
+  .y_can {}
+  ._shader {display:none; } 
+  .shading ._shader {display:block; border:1px dashed green; position: absolute; z-index:-10;}
+  
+  .gridplot_container {position: relative;}
+  .gridplot_container .gp_plotwrapper { position:absolute; } 
+
+  button.active { border:3px solid blue }
+  .table_wrap { border:1px solid red; }
+
+  .table_wrap table { margin:5px; border:1px solid orange;  height:300px; display:block; overflow-y:scroll }
+/*
+  .table_outer thead { fon t-size:15px; display:block; height: 100px; overflow:auto; outline:1px  solid green}
+
+  .table_outer tbody { font -size:10px; display:table; height: 200px; overflow-y:scroll; outline:1px  solid blue}
+  .table_outer table td { border-left:1px solid black; border-right:1px solid black; }
+*/
+</style>
+  
+</head>
+<body>
+  <h1 id="qunit-header">QUnit Test Suite</h1>
+  <h2 id="qunit-banner"></h2>
+  <div id="qunit-testrunner-toolbar"></div>
+  <h2 id="qunit-userAgent"></h2>
+  <ol id="qunit-tests"></ol>
+<div id="container"></div>
+<h3 id="timer"> </h3>
+</body>
+</html>

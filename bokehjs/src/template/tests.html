@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>QUnit Test Suite</title>
+  <link rel="stylesheet" href="/static/vendor/qunit/css/qunit.css" type="text/css" media="screen">
+  <script type="text/javascript" src="/static/vendor/qunit/js/qunit.js"></script>
+  <link type="text/css" rel="stylesheet" href="/static/vendor/jquery/css/themes/base/jquery-ui.min.css"/>
+
+  <link type="text/css" rel="stylesheet" href="/static/css/bokeh.css"/>
+  <link type="text/css" rel="stylesheet" href="/static/vendor/bootstrap/css/bootstrap.css"/>  
+  <!-- Your project file goes here -->
+  
+  {% for jsfile in jslibs %}
+  <script type="text/javascript" src="{{jsfile}}"></script>
+  {% endfor %}
+  {% for jsfile in hemfiles %}
+  <script type="text/javascript" src="{{jsfile}}"></script>
+  {% endfor %}
+  <script>
+    {% for testscript in tests %}
+    require("{{ testscript }}");
+    {% endfor %}
+  </script>
+  
+</head>
+<body>
+  <a href="/">Return to welcome page </a>
+  <h1 id="qunit-header">QUnit Test Suite</h1>
+  <h2 id="qunit-banner"></h2>
+  <div id="qunit-testrunner-toolbar"></div>
+  <h2 id="qunit-userAgent"></h2>
+  <ol id="qunit-tests"></ol>
+<div id="container"></div>
+<h3 id="timer"> </h3>
+</body>
+</html>

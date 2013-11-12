@@ -5,20 +5,41 @@
     <title>Bokeh Plot Server</title>
 	<!-- Vendor Styles -->
     <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <link href="{{ url_for('static', filename='vendor/bokehjs/css/bokeh.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='vendor/bokehjs/css/continuum.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='vendor/bokehjs/vendor/bootstrap/css/bootstrap.css') }}" rel="stylesheet">    
-    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap-2.2.2.css') }}" rel="stylesheet">    
-    <link href="{{ url_for('static', filename='vendor/bokehjs/vendor/jquery/css/themes/base/jquery-ui.min.css') }}" rel="stylesheet">
-    {% for jsfile in jsfiles %}
-    <script type="text/javascript" src="{{jsfile}}"></script>
-    {% endfor %}
-    {% for jsfile in hemfiles %}
-    <script type="text/javascript" src="{{jsfile}}"></script>
-    {% endfor %}
-    <script>
-      rrequire("serverrun");
+    <link href="{{ url_for('static', filename='build/css/bokeh.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='build/css/continuum.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='build/js/vendor/bootstrap.css') }}" rel="stylesheet">    
+    {% if debugjs %}
+    <script src="{{ url_for('static', 
+                 filename='build/js/vendor/requirejs/require.js') }}">
     </script>
+    <script>
+      require.config({
+      baseUrl: "/static/build/js",
+      paths: {
+      "jquery": "vendor/jquery/jquery",
+      "jquery_ui": "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui",
+      "jquery_mousewheel": "vendor/jquery-mousewheel/jquery.mousewheel",
+      "underscore": "vendor/underscore-amd/underscore",
+      "backbone": "vendor/backbone-amd/backbone",
+      "bootstrap2": "vendor/bootstrap"
+      }
+      });
+      require(["main", "jquery"], 
+      function(main, $){
+      main.server_page();
+      $(function(){
+      require(["bootstrap2"], function(){});
+      });
+      });
+    </script>
+    {% else %}
+    <script src="{{ url_for('static', 
+                 filename='build/bokeh.js') }}">
+    </script>
+    <script>
+    window.Bokeh.server_page();
+    </script>
+    {% endif %}
   </head>
   <body>
     <div id="PlotPane">Plots</div>
