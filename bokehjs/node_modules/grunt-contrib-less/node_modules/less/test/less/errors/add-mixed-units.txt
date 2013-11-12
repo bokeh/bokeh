@@ -1,2 +1,0 @@
-SyntaxError: Incompatible units. Change the units or use the unit function. Bad units: 'px' and 'em'. in {path}add-mixed-units.less on line null, column 0:
-1   error: (1px + 3em);

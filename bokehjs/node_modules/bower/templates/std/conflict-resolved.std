@@ -1,9 +1,0 @@
-{{#yellow}}Please note that,{{/yellow}}
-{{#condense}}
-{{#each picks}}
-    {{#if dependants}}{{#white}}{{dependants}}{{/white}}{{else}}none{{/if}} depend on {{#cyan}}{{endpoint.name}}#{{endpoint.target}}{{/cyan}}{{#if pkgMeta._release}} which resolved to {{#white}}{{pkgMeta._release}}{{/white}}{{/if}}
-{{/each}}
-{{/condense}}
-
-Resort to using {{#cyan}}{{suitable.endpoint.name}}#{{resolution}}{{/cyan}} which resolved to {{#white}}{{suitable.pkgMeta._release}}{{/white}}
-Code incompatibilities may occur.
