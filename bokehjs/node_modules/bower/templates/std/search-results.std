@@ -1,0 +1,9 @@
+{{#if .}}Search results:
+
+{{#condense}}
+{{#.}}
+    {{#cyan}}{{{name}}}{{/cyan}} {{{url}}}
+{{/.}}
+{{/condense}}
+{{else}}No results.
+{{/if}}

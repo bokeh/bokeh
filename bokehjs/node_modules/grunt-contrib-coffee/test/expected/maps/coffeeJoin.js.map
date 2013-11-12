@@ -1,0 +1,10 @@
+{
+  "version": 3,
+  "file": "coffeeJoin.js",
+  "sourceRoot": "",
+  "sources": [
+    "coffeeJoin.src.coffee"
+  ],
+  "names": [],
+  "mappings": "AAAA;CAAA,KAAA,IAAA;;CAAA,CAAM;CACJ;;CAAA,EAAO,CAAP,EAAA,IAAC;;CAAD;;CADF;;CAAA,CAEA,CAAA,CAAA,GAAO;CAFP"
+}

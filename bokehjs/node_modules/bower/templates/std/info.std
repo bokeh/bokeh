@@ -1,0 +1,10 @@
+{{#cyan}}{{name}}{{/cyan}}
+
+{{#if versions}}  Versions:
+{{#condense}}
+{{#versions}}
+    - {{.}}
+{{/versions}}
+{{/condense}}
+{{else}}  No versions available.
+{{/if}}

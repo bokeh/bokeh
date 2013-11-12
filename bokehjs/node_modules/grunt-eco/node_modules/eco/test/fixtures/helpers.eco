@@ -1,0 +1,6 @@
+<% for item in @items: %>
+  <%= @contentTag "div", class: "item", => %>
+    <%= @contentTag "span", class: "price", -> %>$<%= item.price %><% end %>
+    <%= @contentTag "span", class: "name", -> %><%= item.name %><% end %>
+  <% end %>
+<% end %>

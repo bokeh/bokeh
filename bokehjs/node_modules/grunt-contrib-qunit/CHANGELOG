@@ -1,0 +1,42 @@
+v0.3.0:
+  date: 2013-09-29
+  changes:
+    - Update grunt-lib-phantomjs to v0.4.0.
+    - Add qunit.fail.load and qunit.fail.timeout events.
+    - Update QUnit to v1.12.0.
+    - Add force option.
+    - Propagate onError events from phantomjs through the qunit.error.onError event.
+    - Remove confusing error message.
+v0.2.2:
+  date: 2013-06-06
+  changes: 
+    - Warn if no assertions ran in a single test.
+    - Spaces instead of newlines for clickable urls.
+    - Wrap bridge.js in a IIFE.
+v0.2.1:
+  date: 2013-04-05
+  changes: 
+    - Update to use PhantomJS 1.9.0. Fixes PhantomJS not found errors.
+v0.2.0:
+  date: 2013-02-28
+  changes:
+    - Update to use PhantomJS 1.8.1.
+v0.1.1:
+  date: 2013-02-15
+  changes:
+    - First official release for Grunt 0.4.0.
+v0.1.1rc6:
+  date: 2013-01-18
+  changes:
+    - Updating grunt/gruntplugin dependencies to rc6.
+    - Changing in-development grunt/gruntplugin dependency versions from tilde version ranges to specific versions.
+v0.1.1rc5:
+  date: 2013-01-09
+  changes:
+    - Updating to work with grunt v0.4.0rc5.
+    - Switching to this.filesSrc api.
+    - Adding "urls" option for specifying absolute test URLs.
+v0.1.0:
+  date: 2012-10-05
+  changes:
+    - Work in progress, not yet officially released.

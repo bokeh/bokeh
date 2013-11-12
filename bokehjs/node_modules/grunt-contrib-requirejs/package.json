@@ -1,0 +1,64 @@
+{
+  "name": "grunt-contrib-requirejs",
+  "description": "Optimize RequireJS projects using r.js.",
+  "version": "0.4.1",
+  "homepage": "https://github.com/gruntjs/grunt-contrib-requirejs",
+  "author": {
+    "name": "Grunt Team",
+    "url": "http://gruntjs.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gruntjs/grunt-contrib-requirejs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gruntjs/grunt-contrib-requirejs/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/gruntjs/grunt-contrib-requirejs/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "Gruntfile.js",
+  "engines": {
+    "node": ">= 0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "requirejs": "~2.1.0"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.2.0",
+    "grunt-contrib-nodeunit": "~0.1.2",
+    "grunt-contrib-clean": "~0.4.0",
+    "grunt-contrib-internal": "~0.4.2",
+    "grunt": "~0.4.0"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.0"
+  },
+  "keywords": [
+    "gruntplugin"
+  ],
+  "contributors": [
+    {
+      "name": "Tyler Kellen",
+      "url": "http://goingslowly.com/"
+    },
+    {
+      "name": "Tim Branyen",
+      "url": "http://tbranyen.com/"
+    },
+    {
+      "name": "Chris Talkington",
+      "url": "http://christalkington.com/"
+    }
+  ],
+  "readme": "# grunt-contrib-requirejs [![Build Status](https://travis-ci.org/gruntjs/grunt-contrib-requirejs.png?branch=master)](https://travis-ci.org/gruntjs/grunt-contrib-requirejs)\n\n> Optimize RequireJS projects using r.js.\n\n\n\n## Getting Started\nThis plugin requires Grunt `~0.4.0`\n\nIf you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:\n\n```shell\nnpm install grunt-contrib-requirejs --save-dev\n```\n\nOnce the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:\n\n```js\ngrunt.loadNpmTasks('grunt-contrib-requirejs');\n```\n\n*This plugin was designed to work with Grunt 0.4.x. If you're still using grunt v0.3.x it's strongly recommended that [you upgrade](http://gruntjs.com/upgrading-from-0.3-to-0.4), but in case you can't please use [v0.3.3](https://github.com/gruntjs/grunt-contrib-requirejs/tree/grunt-0.3-stable).*\n\n\n\n## Requirejs task\n_Run this task with the `grunt requirejs` command._\n\nTask targets and options may be specified according to the grunt [Configuring tasks](http://gruntjs.com/configuring-tasks) guide.\n### Options\n\nFor a full list of possible options, [see the r.js example build file](https://github.com/jrburke/r.js/blob/master/build/example.build.js).\n\n#### done(done, build)\n\nThe done option is an optional hook to receive the r.js build output. The first argument is the grunt async callback that you are required to call if you provide the done hook. This informs grunt that the task is complete. The second parameter is the build output from r.js.\n\n\n### Usage Examples\n\n```js\nrequirejs: {\n  compile: {\n    options: {\n      baseUrl: \"path/to/base\",\n      mainConfigFile: \"path/to/config.js\",\n      out: \"path/to/optimized.js\"\n    }\n  }\n}\n```\n\n#### Done\n\n```js\nrequirejs: {\n  compile: {\n    options: {\n      baseUrl: \"path/to/base\",\n      mainConfigFile: \"path/to/config.js\",\n      done: function(done, output) {\n        var duplicates = require('rjs-build-analysis').duplicates(output);\n        \n        if (duplicates.length > 0) {\n          grunt.log.subhead('Duplicates found in requirejs build:')\n          grunt.log.warn(duplicates);\n          done(new Error('r.js built duplicate modules, please check the excludes option.');\n        }\n        \n        done();\n      }\n    }\n  }\n}\n```\n\n\n## Release History\n\n * 2013-05-16   v0.4.1   Add 'done' option.\n * 2013-02-15   v0.4.0   First official release for Grunt 0.4.0.\n * 2013-01-23   v0.4.0rc7   Updating to work with grunt v0.4.0rc7.\n * 2013-01-09   v0.4.0rc5   Updating to work with grunt v0.4.0rc5.\n * 2012-10-12   v0.3.3   Rename grunt-contrib-lib dep to grunt-lib-contrib.\n * 2012-10-09   v0.3.1   Bump to RequireJS 2.1.x. Run optimizer async.\n * 2012-09-23   v0.3.0   Options no longer accepted from global config key.\n * 2012-09-10   v0.2.0   Refactored from grunt-contrib into individual repo.\n\n---\n\nTask submitted by [Tyler Kellen](http://goingslowly.com/)\n\n*This file was generated on Thu May 16 2013 16:08:33.*\n",
+  "readmeFilename": "README.md",
+  "_id": "grunt-contrib-requirejs@0.4.1",
+  "_from": "grunt-contrib-requirejs@~0.4.1"
+}

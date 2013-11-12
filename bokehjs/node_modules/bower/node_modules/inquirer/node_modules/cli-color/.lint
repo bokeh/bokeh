@@ -1,0 +1,15 @@
+@root
+
+module
+node
+
+indent 2
+maxlen 80
+tabs
+
+ass
+nomen
+plusplus
+
+./lib/_xterm-colors.js
+maxlen 90

@@ -1,0 +1,10 @@
+<% renderItem = (item) -> %>
+  <div class="item">
+    <span class="name"><%= item.name %></span>
+    <span class="price">$<%= item.price %></span>
+  </div>
+<% end %>
+
+<% for item in @items: %>
+  <%= renderItem item %>
+<% end %>

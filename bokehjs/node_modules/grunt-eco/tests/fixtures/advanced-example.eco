@@ -1,0 +1,8 @@
+<% if @projects.length: %>
+  <% for project in @projects: %>
+    <a href="<%= project.url %>"><%= project.name %></a>
+    <p><%= project.description %></p>
+  <% end %>
+<% else: %>
+  No projects
+<% end %>

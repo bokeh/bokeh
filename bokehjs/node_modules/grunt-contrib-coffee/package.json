@@ -1,0 +1,88 @@
+{
+  "name": "grunt-contrib-coffee",
+  "description": "Compile CoffeeScript files to JavaScript.",
+  "version": "0.7.0",
+  "homepage": "https://github.com/gruntjs/grunt-contrib-coffee",
+  "author": {
+    "name": "Grunt Team",
+    "url": "http://gruntjs.com/"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/gruntjs/grunt-contrib-coffee.git"
+  },
+  "bugs": {
+    "url": "https://github.com/gruntjs/grunt-contrib-coffee/issues"
+  },
+  "licenses": [
+    {
+      "type": "MIT",
+      "url": "https://github.com/gruntjs/grunt-contrib-coffee/blob/master/LICENSE-MIT"
+    }
+  ],
+  "main": "Gruntfile.js",
+  "engines": {
+    "node": ">=0.8.0"
+  },
+  "scripts": {
+    "test": "grunt test"
+  },
+  "dependencies": {
+    "coffee-script": "~1.6.2"
+  },
+  "devDependencies": {
+    "grunt-contrib-jshint": "~0.2.0",
+    "grunt-contrib-nodeunit": "~0.1.2",
+    "grunt-contrib-clean": "~0.4.0",
+    "grunt-contrib-internal": "~0.4.2",
+    "grunt": "~0.4.0"
+  },
+  "peerDependencies": {
+    "grunt": "~0.4.0"
+  },
+  "keywords": [
+    "gruntplugin"
+  ],
+  "contributors": [
+    {
+      "name": "Eric Woroshow",
+      "url": "http://ericw.ca/"
+    },
+    {
+      "name": "Tyler Kellen",
+      "url": "http://goingslowly.com/"
+    },
+    {
+      "name": "Chris Talkington",
+      "url": "http://christalkington.com/"
+    },
+    {
+      "name": "Kyle Robinson Young",
+      "url": "http://twitter.com/shamakry"
+    },
+    {
+      "name": "Yegor Pomortsev",
+      "url": "https://github.com/illicium"
+    },
+    {
+      "name": "Sindre Sorhus",
+      "url": "http://github.com/sindresorhus"
+    },
+    {
+      "name": "Callum Locke",
+      "url": "https://github.com/callumlocke"
+    },
+    {
+      "name": "Scott Delamater",
+      "url": "https://github.com/scottydawg"
+    },
+    {
+      "name": "Colin Wren",
+      "url": "http://cawren.com"
+    }
+  ],
+  "readme": "# grunt-contrib-coffee [![Build Status](https://secure.travis-ci.org/gruntjs/grunt-contrib-coffee.png?branch=master)](http://travis-ci.org/gruntjs/grunt-contrib-coffee)\n\n> Compile CoffeeScript files to JavaScript.\n\n\n\n## Getting Started\nThis plugin requires Grunt `~0.4.0`\n\nIf you haven't used [Grunt](http://gruntjs.com/) before, be sure to check out the [Getting Started](http://gruntjs.com/getting-started) guide, as it explains how to create a [Gruntfile](http://gruntjs.com/sample-gruntfile) as well as install and use Grunt plugins. Once you're familiar with that process, you may install this plugin with this command:\n\n```shell\nnpm install grunt-contrib-coffee --save-dev\n```\n\nOnce the plugin has been installed, it may be enabled inside your Gruntfile with this line of JavaScript:\n\n```js\ngrunt.loadNpmTasks('grunt-contrib-coffee');\n```\n\n*This plugin was designed to work with Grunt 0.4.x. If you're still using grunt v0.3.x it's strongly recommended that [you upgrade](http://gruntjs.com/upgrading-from-0.3-to-0.4), but in case you can't please use [v0.3.2](https://github.com/gruntjs/grunt-contrib-coffee/tree/grunt-0.3-stable).*\n\n\n## Coffee task\n_Run this task with the `grunt coffee` command._\n\nTask targets, files and options may be specified according to the grunt [Configuring tasks](http://gruntjs.com/configuring-tasks) guide.\n### Options\n\n#### separator\nType: `String`\nDefault: linefeed\n\nConcatenated files will be joined on this string.\n\n#### bare\nType: `boolean`\n\nCompile the JavaScript without the top-level function safety wrapper.\n\n#### join\nType: `boolean`\nDefault: `false`\n\nWhen compiling multiple .coffee files into a single .js file, concatenate first.\n\n#### sourceMap\nType: `boolean`\nDefault: `false`\n\nCompile JavaScript and create a .map file linking it to the CoffeeScript source. When compiling multiple .coffee files to a single .js file, concatenation occurs as though the 'join' option is enabled. The concatenated CoffeeScript is written into the output directory, and becomes the target for source mapping.\n### Usage Examples\n\n```js\ncoffee: {\n  compile: {\n    files: {\n      'path/to/result.js': 'path/to/source.coffee', // 1:1 compile\n      'path/to/another.js': ['path/to/sources/*.coffee', 'path/to/more/*.coffee'] // compile and concat into single file\n    }\n  },\n\n  compileBare: {\n    options: {\n      bare: true\n    },\n    files: {\n      'path/to/result.js': 'path/to/source.coffee', // 1:1 compile\n      'path/to/another.js': ['path/to/sources/*.coffee', 'path/to/more/*.coffee'] // compile and concat into single file\n    }\n  },\n\n  compileJoined: {\n    options: {\n      join: true\n    },\n    files: {\n      'path/to/result.js': 'path/to/source.coffee', // 1:1 compile, identical output to join = false\n      'path/to/another.js': ['path/to/sources/*.coffee', 'path/to/more/*.coffee'] // concat then compile into single file\n    }\n  },\n\n  compileWithMaps: {\n    options: {\n      sourceMap: true\n    },\n    files: {\n      'path/to/result.js': 'path/to/source.coffee', // 1:1 compile\n      'path/to/another.js': ['path/to/sources/*.coffee', 'path/to/more/*.coffee'] // concat then compile into single file\n    }\n  },\n\n  glob_to_multiple: {\n    expand: true,\n    flatten: true,\n    cwd: 'path/to',\n    src: ['*.coffee'],\n    dest: 'path/to/dest/',\n    ext: '.js'\n  }\n}\n```\n\nFor more examples on how to use the `expand` API to manipulate the default dynamic path construction in the `glob_to_multiple` examples, see \"Building the files object dynamically\" in the grunt wiki entry [Configuring Tasks](http://gruntjs.com/configuring-tasks).\n\n## Release History\n\n * 2013-04-19   v0.7.0   Place Sourcemaps at bottom of file Change extension for Sourcemaps from .maps to .js.map\n * 2013-04-18   v0.6.7   Improved error reporting\n * 2013-04-08   v0.6.6   Fix regression with single-file compilation.\n * 2013-04-05   v0.6.5   Improved error reporting\n * 2013-03-22   v0.6.4   Sourcemap support\n * 2013-03-19   v0.6.3   Increase error logging verbosity.\n * 2013-03-18   v0.6.2   Bump to CoffeeScript 1.6.2\n * 2013-03-18   v0.6.1   Support `join` option\n * 2013-03-06   v0.6.0   Bump to CoffeeScript 1.6 Support literate CoffeeScript extension coffee.md\n * 2013-02-25   v0.5.0   Bump to CoffeeScript 1.5 Support literate CoffeeScript (.litcoffee)\n * 2013-02-15   v0.4.0   First official release for Grunt 0.4.0.\n * 2013-01-23   v0.4.0rc7   Updating grunt/gruntplugin dependencies to rc7. Changing in-development grunt/gruntplugin dependency versions from tilde version ranges to specific versions. Bump coffeescript dependency to 1.4.\n * 2013-01-09   v0.4.0rc5   Updating to work with grunt v0.4.0rc5. Switching to this.filesSrc api.\n * 2012-12-15   v0.4.0a   Conversion to grunt v0.4 conventions. Remove experimental destination wildcards.\n * 2012-10-12   v0.3.2   Rename grunt-contrib-lib dep to grunt-lib-contrib.\n * 2012-09-25   v0.3.1   Don't fail when there are no files.\n * 2012-09-24   v0.3.0   Global options depreciated.\n * 2012-09-10   v0.2.0   Refactored from grunt-contrib into individual repo.\n\n---\n\nTask submitted by [Eric Woroshow](http://ericw.ca/)\n\n*This file was generated on Fri Apr 19 2013 09:49:08.*\n",
+  "readmeFilename": "README.md",
+  "_id": "grunt-contrib-coffee@0.7.0",
+  "_from": "grunt-contrib-coffee@~0.7.0"
+}

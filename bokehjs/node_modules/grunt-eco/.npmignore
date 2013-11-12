@@ -1,0 +1,26 @@
+# Numerous always-ignore extensions
+*~
+*.diff
+*.err
+*.log
+*.orig
+*.rej
+*.sass-cache
+*.swo
+*.swp
+*.vi
+
+# OS or Editor folders
+Thumbs.db
+nbproject
+.DS_Store
+.cache
+.idea
+.project
+.settings
+.svn
+*.sublime-project
+*.sublime-workspace
+
+node_modules
+tmp

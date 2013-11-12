@@ -1,0 +1,2 @@
+Hello, <%= @name %>.
+I'M SHOUTING AT YOU, <%= @name.toUpperCase() %>!
