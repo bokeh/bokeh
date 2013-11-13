@@ -9,7 +9,7 @@ console.log("embed.js");
 
 
     var host = "{{host}}";
-    var bokehUrl = 'http://' + host +'/bokeh/static/js/application.js';
+    var bokehUrl = 'http://' + host +'/static/js/bokeh.js';
 
     function addEvent(el, eventName, func){
         if(el.attachEvent){
@@ -18,10 +18,9 @@ console.log("embed.js");
             el.addEventListener(eventName, func, false);}}
 
     var script_injected = !(typeof(_embed_bokeh_inject_application) == "undefined") && _embed_bokeh_inject_application;
-    if(typeof rrequire == "function"){
+    if(typeof Bokeh == "object"){
         // application.js is already loaded
-        console.log("application.js is already loaded, going straight to plotting");
-        embed_core = rrequire("./embed_core");
+        console.log("bokeh.js is already loaded, going straight to plotting");
         embed_core.search_and_plot();
     }
 
@@ -34,8 +33,8 @@ console.log("embed.js");
         addEvent(
             s,'load', 
             function() {
-                console.log("application.js loaded callback");
-                embed_core = rrequire("./embed_core");
+                console.log("Bokeh.js loaded callback");
+                embed_core = Bokeh.embed_core
                 console.log("embed_core loaded")
                 embed_core.search_and_plot();
                 embed_core.injectCss(host);
