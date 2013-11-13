@@ -21,6 +21,7 @@ console.log("embed.js");
     if(typeof Bokeh == "object"){
         // application.js is already loaded
         console.log("bokeh.js is already loaded, going straight to plotting");
+        embed_core = Bokeh.embed_core;
         embed_core.search_and_plot();
     }
 
@@ -34,8 +35,8 @@ console.log("embed.js");
             s,'load', 
             function() {
                 console.log("Bokeh.js loaded callback");
-                embed_core = Bokeh.embed_core
-                console.log("embed_core loaded")
+                embed_core = Bokeh.embed_core;
+                console.log("embed_core loaded");
                 embed_core.search_and_plot();
                 embed_core.injectCss(host);
                 console.log("search_and_plot called");
