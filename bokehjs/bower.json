@@ -1,0 +1,18 @@
+{
+  "name": "bokehjs",
+  "version": "0.2.0",
+  "dependencies": {
+    "almond": null,
+    "jquery": null,
+    "jquery-mousewheel": null,
+    "jquery-ui-amd": null,
+    "underscore-amd": null,
+    "backbone-amd": null,
+    "bootstrap": "2.0.4",
+    "requirejs": null,
+    "text": null,
+    "timezone": null,
+    "sprintf": null,
+    "qunit": "1.10.0"
+  }
+}

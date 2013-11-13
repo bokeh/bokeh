@@ -4,7 +4,7 @@ from math import pi
 
 from bokeh.sampledata.iris import flowers
 from bokeh.objects import (
-    ColumnDataSource, GlyphRenderer, Grid, GridPlot, LinearAxis, Plot,
+    ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis, Plot,
     DataRange1d, DataRange1d, PanTool, ZoomTool
 )
 from bokeh.glyphs import Circle, Text
@@ -51,7 +51,7 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
     xgrid = Grid(plot=plot, dimension=0)
     ygrid = Grid(plot=plot, dimension=1)
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, radius=2, line_color="color")
-    circle_renderer = GlyphRenderer(
+    circle_renderer = Glyph(
         data_source = source,
         xdata_range = xdr,
         ydata_range = ydr,
@@ -66,7 +66,7 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
             y={'field':'center', 'units':'screen'}, 
             text=text, angle=pi/4, text_font_style="bold", text_baseline="top",
             text_color="#ffaaaa", text_alpha=0.5, text_align="center", text_font_size="28pt")
-        text_renderer = GlyphRenderer(
+        text_renderer = Glyph(
             data_source=text_source,
             xdata_range = xdr,
             ydata_range = ydr,

@@ -224,13 +224,13 @@ class HTMLFileSession(BaseHTMLSession):
 
     # The root directory for the CSS files
     css_files = [
-        "vendor/bootstrap/css/bootstrap.css",
+        "js/vendor/bootstrap.css",
         "css/bokeh.css",
         "css/continuum.css",
     ]
 
     # TODO: Why is this not in bokehjs_dir, but rather outside of it?
-    js_files = ["js/application.js"]
+    js_files = ["js/bokeh.js"]
 
     # Template files used to generate the HTML
     js_template = "plots.js"
@@ -253,7 +253,7 @@ class HTMLFileSession(BaseHTMLSession):
 
     # FIXME: move this to css_paths, js_paths to base class?
     def css_paths(self, as_url=False):
-        return [join(self.bokehjs_dir, d) for d in self.css_files]
+        return [join(self.server_static_dir, d) for d in self.css_files]
 
     def js_paths(self, as_url=False, unified=True, min=True):
         # TODO: Handle unified and minified options
@@ -321,7 +321,7 @@ class HTMLFileSession(BaseHTMLSession):
             elementid=elementid
             )
 
-        
+
 # jscode is the one I want
 
         html = self._load_template(self.html_template).render(
@@ -790,12 +790,15 @@ class PlotServerSession(BaseHTMLSession):
 
 
 class NotebookSessionMixin(object):
-    # Most of these were formerly defined in dump.py, which was ported over
-    # from Wakari.
-    css_files = ["css/bokeh.css", "css/continuum.css",
-                 "vendor/bootstrap/css/bootstrap.css"]
+    # The root directory for the CSS files
+    css_files = [
+        "js/vendor/bootstrap.css",
+        "css/bokeh.css",
+        "css/continuum.css",
+    ]
 
-    js_files = ["js/application.js"]
+    # TODO: Why is this not in bokehjs_dir, but rather outside of it?
+    js_files = ["js/bokeh.js"]
 
     js_template = "plots.js"
     div_template = "plots.html"
@@ -805,7 +808,7 @@ class NotebookSessionMixin(object):
         # TODO: Fix the duplication of this method from HTMLFileSession.
         # Perhaps move this into BaseHTMLSession.. but a lot of other
         # things would need to move as well.
-        return [join(self.bokehjs_dir, d) for d in self.css_files]
+        return [join(self.server_static_dir, d) for d in self.css_files]
 
     def js_paths(self):
         # For notebook session, we rely on a unified bokehJS file,
@@ -819,7 +822,41 @@ class NotebookSessionMixin(object):
         """
         if len(objects) == 0:
             objects = self._models.values()
-        the_plot = [m for m in objects if isinstance(m, Plot)][0]
+        if len(objects) == 1 and isinstance(objects[0], Plot):
+            the_plot = objects[0]
+            objects = self._models.values()
+        else:
+            the_plot = [m for m in objects if isinstance(m, Plot)][0]
+        plot_ref = self.get_ref(the_plot)
+        elementid = str(uuid.uuid4())
+
+        # Manually convert our top-level models into dicts, before handing
+        # them in to the JSON encoder.  (We don't want to embed the call to
+        # vm_serialize into the PlotObjEncoder, because that would cause
+        # all the attributes to be duplicated multiple times.)
+        models = []
+        for m in objects:
+            ref = self.get_ref(m)
+            ref["attributes"] = m.vm_serialize()
+            ref["attributes"].update({"id": ref["id"], "doc": None})
+            models.append(ref)
+
+        js = self._load_template(self.js_template).render(
+                    elementid = elementid,
+                    modelid = plot_ref["id"],
+                    modeltype = plot_ref["type"],
+                    all_models = self.serialize(models),
+                )
+        plot_div = self._load_template(self.div_template).render(
+            elementid=elementid
+            )
+        html = self._load_template(self.html_template).render(
+                                           html_snippets=[plot_div],
+                                           elementid = elementid,
+                                           js_snippets = [js],
+                                           )
+        return html.encode("utf-8")
+
         plot_ref = self.get_ref(the_plot)
         elementid = str(uuid.uuid4())
 
@@ -861,6 +898,7 @@ class NotebookSessionMixin(object):
         associated with the session.
         """
         import IPython.core.displaypub as displaypub
+        
         html = self.dumps(objects)
         displaypub.publish_display_data('bokeh', {'text/html': html})
         return None
@@ -880,7 +918,7 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
         # scripts or get a reference to the unified/minified JS file,
         # but our static JS build process produces a single unified
         # bokehJS file for inclusion in the notebook.
-        js_paths = self.js_files
+        js_paths = self.js_paths()
         css_paths = self.css_paths()
         html = self._load_template(self.html_template).render(
             rawjs=self._inline_scripts(js_paths).decode('utf8'),
@@ -902,29 +940,43 @@ class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
         else:
             return "wss://%s/bokeh/sub" % split.netloc
 
+    def dumps(self, objects):
+        """ Returns the HTML contents as a string
+        FIXME : signature different than other dumps
+        FIXME: should consolidate code between this one and that one.
+        """
+        if len(objects) == 0:
+            objects = self._models.values()
+        if len(objects) == 1 and isinstance(objects[0], Plot):
+            the_plot = objects[0]
+            objects = self._models.values()
+        else:
+            the_plot = [m for m in objects if isinstance(m, Plot)][0]
+        return the_plot.inject_snippet(server=True)
+
+    def show(self, *objects):
+        """ Displays the given objects, or all objects currently associated
+        with the session, inline in the IPython Notebook.
+
+        Basicall we return a dummy object that implements _repr_html.
+        The reason to do this instead of just having this session object
+        implement _repr_html directly is because users will usually want
+        to just see one or two plots, and not all the plots and models
+        associated with the session.
+        """
+        import IPython.core.displaypub as displaypub
+        
+        html = self.dumps(objects)
+        displaypub.publish_display_data('bokeh', {'text/html': html})
+        return None
+
     def notebook_connect(self):
         if self.docname is None:
             raise RuntimeError("usedoc() must be called before notebook_connect()")
         import IPython.core.displaypub as displaypub
-        js = self._load_template('connect.js').render(
-            username=self.username,
-            root_url = self.root_url,
-            docid=self.docid,
-            docapikey=self.apikey,
-            ws_conn_string=self.ws_conn_string()
-            )
         msg = """<p>Connecting notebook to document "%s" at server %s</p>""" % \
                 (self.docname, self.root_url)
-
-        js_paths = self.js_files
-        #script_paths = self.js_paths()
-        css_paths = self.css_paths()
-        html = self._load_template("basediv.html").render(
-            rawjs=self._inline_scripts(js_paths).decode('utf8'),
-            rawcss=self._inline_css(css_paths).decode('utf8'),
-            js_snippets=[js],
-            html_snippets=[msg])
-        displaypub.publish_display_data('bokeh', {'text/html': html})
+        displaypub.publish_display_data('bokeh', {'text/html': msg})
         return None
 
 

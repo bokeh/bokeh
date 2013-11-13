@@ -2,7 +2,7 @@
 
 import os.path
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, GlyphRenderer, ObjectArrayDataSource,
+        ColumnDataSource, Glyph, ObjectArrayDataSource,
         PanTool, ZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
@@ -36,7 +36,7 @@ circle = Circle(x="x", y="y", radius=5,
     # on the datasource.
     line_color="black")
 
-glyph_renderer = GlyphRenderer(
+glyph_renderer = Glyph(
         data_source = source,
         xdata_range = xdr,
         ydata_range = ydr,

@@ -25,14 +25,10 @@ from ..serverbb import RedisSession
 @app.route('/bokeh/')
 def index(*unused_all, **kwargs):
     if getattr(app, "debugjs", False):
-        from continuumweb import hemlib
-        slug = hemlib.slug_json()
-        static_js = hemlib.slug_libs(app, slug['libs'])
-        hem_js = hemlib.all_coffee_assets("localhost")
+        return render_template('bokeh.html', debugjs=True)
     else:
-        static_js = ['/bokeh/static/js/application.js']
-        hem_js = []
-    return render_template('bokeh.html', jsfiles=static_js, hemfiles=hem_js)
+        return render_template('bokeh.html', debugjs=False)
+
 
 @app.route('/')
 def welcome(*unused_all, **kwargs):
@@ -217,7 +213,7 @@ def make_plot():
 
     from bokeh.objects import (
         Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, GlyphRenderer,
+        ColumnDataSource, Glyph,
         PanTool, PreviewSaveTool)
 
     from bokeh.glyphs import Circle
@@ -237,7 +233,7 @@ def make_plot():
 
     circle = Circle(x="x", y="y", fill="red", radius=5, line_color="black")
 
-    glyph_renderer = GlyphRenderer(
+    glyph_renderer = Glyph(
         data_source = source,
         xdata_range = xdr,
         ydata_range = ydr,

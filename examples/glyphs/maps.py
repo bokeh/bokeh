@@ -6,7 +6,7 @@ import itertools
 
 from bokeh.objects import (
     GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
-    GlyphRenderer, ObjectArrayDataSource, PanTool, ZoomTool, ResizeTool,
+    Glyph, ObjectArrayDataSource, PanTool, ZoomTool, ResizeTool,
     SelectionTool, BoxSelectionOverlay
 )
 from bokeh.glyphs import MultiLine, ImageRGBA, Circle
@@ -41,7 +41,7 @@ source = ObjectArrayDataSource(
                 {'lat': 30.2855, 'long': -97.7390, 'z': 15, 'fill': 'blue'},
                 {'lat': 30.2869, 'long': -97.7405, 'z': 15, 'fill': 'green'},
                 ])
-circle_renderer = GlyphRenderer(
+circle_renderer = Glyph(
         data_source = source,
         xdata_range = x_range,
         ydata_range = y_range,

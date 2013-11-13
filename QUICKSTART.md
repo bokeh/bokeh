@@ -12,17 +12,18 @@ with Bokeh:
 Dependencies
 ============
 
-Bokeh currently requires the continuumweb project if you are *developing*:
+Python dependencies are listed in requirements.txt at the top level
+directory.
 
-    $ git clone https://github.com/ContinuumIO/continuumweb.git
-    $ cd continuumweb
-	$ python setup.py install
+If you plan to do javascript development on BokehJS, please consult
+bokehjs/README.md for more details.
 
 Simple Install
 ==============
 
 This setup is appropriate if you do not need to do any development on Bokeh,
-but just want to get up and running (and plotting) as quickly as possible.
+but just want to get up and running (and plotting) as quickly as possible from a
+source checkout.
 
 In the top-level Bokeh directory:
 
@@ -78,12 +79,27 @@ Python+JS Development
 =====================
 
 This setup appropriate when you need to develop on both the client-side python
-parts of Bokeh, and the browser-side javascript parts of BokehJS.
+parts of Bokeh, and the browser-side javascript parts of BokehJS. It is necessary to
+have a working toolchain to build BokehJS. Please consult bokehjs/README.md for
+additional details.
 
-In the top-level Bokeh directory:
+There are two ways to use BokehJS as a single. The first is to use a single, built
+bokeh.js file:
 
-    $ python exportjs.py
+single bokeh.js file
+--------------------
+
+First build BokehJS. In the top-level Bokeh directory:
+
+    $ cd bokehjs
+    $ grunt deploy
+
+Next, install Bokeh. In the top-level Bokeh directory:
+
     $ python setup.py develop
+
+If you are using the server mode, also run:
+
     $ python bokeh-server -d
 
 Now you are ready to plot:
@@ -94,6 +110,14 @@ Now you are ready to plot:
 
 All the plots you create will reflect any changes you make to the Bokeh python
 code in Bokeh/bokeh. If you make any changes you make to the BokehJS
-coffeescript code in Bokeh/subtree/bokehjs, you will need to re-rerun the
-exportjs.py script for them to show up.
+coffeescript code in Bokeh/subtree/bokehjs, you will need to re-rerun the build in
+bokehjs (using grunt) and re-run python "setup.py develop".
+
+The second method is to use AMD/requirejs to load separate submodules of BokehJS on
+demand, and to let "grunt watch" compile individuals modules as necessary:
+
+requirejs with grunt
+--------------------
+
+Support for this setup coming soon.
 

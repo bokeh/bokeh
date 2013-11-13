@@ -328,7 +328,7 @@ class PlotObject(HasProps):
         if server:
             return self._build_server_snippet()[1]
         embed_filename = "%s.embed.js" % self._id
-        full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)        
+        full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)
         js_code, embed_snippet = self._build_static_embed_snippet(
             static_path, embed_base_url)
         with open(full_embed_save_loc,"w") as f:
@@ -362,13 +362,13 @@ class PlotObject(HasProps):
 
     def _build_static_embed_snippet(self, static_path, embed_base_url):
 
-        
+
         embed_filename = "%s.embed.js" % self._id
         full_embed_path = embed_base_url + embed_filename
 
         js_str = self._session.embed_js(self._id, static_path)
 
-        
+
         sess = self._session
         modelid = self._id
         typename = self.__view_model__
@@ -494,7 +494,7 @@ class FactorRange(DataRange):
     values = List
     columns = List
 
-class GlyphRenderer(PlotObject):
+class Glyph(PlotObject):
 
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(DataRange1d, has_ref=True)
@@ -513,7 +513,7 @@ class GlyphRenderer(PlotObject):
     selection_glyph = Instance()
 
     def vm_serialize(self):
-        # GlyphRenderers need to serialize their state a little differently,
+        # Glyphs need to serialize their state a little differently,
         # because the internal glyph instance is turned into a glyphspec
         data =  {"id" : self._id,
                  "data_source": self.data_source,
@@ -528,7 +528,7 @@ class GlyphRenderer(PlotObject):
         return data
 
     def finalize(self, models):
-        super(GlyphRenderer, self).finalize(models)
+        super(Glyph, self).finalize(models)
         ## FIXME: we shouldn't have to do this i think..
         if hasattr(self, 'glyphspec'):
             glyphspec = self.glyphspec
@@ -600,7 +600,7 @@ class Plot(PlotObject):
     min_border_right = Int(50)
     min_border = Int(50)
     script_inject_snippet = String("")
-    
+
 
     def _get_script_inject_snippet(self):
         from session import HTMLFileSession
@@ -673,7 +673,7 @@ class GMapPlot(PlotObject):
     min_border = Int(50)
 
     def vm_serialize(self):
-        # GlyphRenderers need to serialize their state a little differently,
+        # Glyphs need to serialize their state a little differently,
         # because the internal glyph instance is turned into a glyphspec
         data = super(GMapPlot, self).vm_serialize()
         data.pop('center_lat', None)
@@ -798,29 +798,23 @@ class EmbedTool(PlotObject):
 class ResizeTool(PlotObject):
     plot = Instance(Plot)
 
-class SelectionTool(PlotObject):
+class BoxSelectTool(PlotObject):
     renderers = List(has_ref=True)
 
 class BoxSelectionOverlay(PlotObject):
+    __view_model__ = 'BoxSelection'
     tool = Instance(has_ref=True)
 
 class Legend(PlotObject):
     plot = Instance(Plot, has_ref=True)
-    annotationspec = Dict(has_ref=True)
-
-    def vm_serialize(self):
-        #ensure that the type of the annotation spec is set
-        result = super(Legend, self).vm_serialize()
-        result['annotationspec']['type'] = 'legend'
-        return result
-
+    legends = Dict()
 
 class DataSlider(PlotObject):
     plot = Instance(Plot, has_ref=True)
     data_source = Instance(has_ref=True)
     field = String()
 
-class DataRangeBoxSelectionTool(PlotObject):
+class DataRangeBoxSelectTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
     xselect = List()
     yselect = List()

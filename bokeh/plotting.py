@@ -14,8 +14,8 @@ import webbrowser
 
 from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataRange1d,
-        Plot, GlyphRenderer, LinearAxis, Grid, PanTool, ZoomTool,
-        PreviewSaveTool, ResizeTool, SelectionTool, EmbedTool,
+        Plot, Glyph, LinearAxis, Grid, PanTool, ZoomTool,
+        PreviewSaveTool, ResizeTool, BoxSelectTool, EmbedTool,
         BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
@@ -290,7 +290,7 @@ def show(browser=None, new="tab"):
         controller.open(_config["output_url"] + "/bokeh", new=new_param)
 
     elif output_type == "notebook":
-        session.show()
+        session.show(curplot())
 
 def save(filename=None):
     """ Updates the file or plot server that contains this plot.
@@ -350,10 +350,8 @@ def visual(func):
             session.plotcontext.children.append(plot)
         session.plotcontext._dirty = True
         plot._dirty = True
-        if (output_type == "notebook" and output_url is None):
-            session.show(plot, *session_objs)
 
-        elif (output_type == "server") or \
+        if (output_type == "server") or \
                 (output_type == "notebook" and output_url is not None):
             # push the plot data to a plot server
             session.store_all()
@@ -556,7 +554,7 @@ class GlyphFunction(object):
         nonselection_glyph.fill_alpha = 0.1
         nonselection_glyph.line_alpha = 0.1
 
-        glyph_renderer = GlyphRenderer(
+        glyph_renderer = Glyph(
             data_source = datasource,
             xdata_range = plot.x_range,
             ydata_range = plot.y_range,
@@ -568,7 +566,7 @@ class GlyphFunction(object):
             legend = self._get_legend(plot)
             if not legend:
                 legend = self._make_legend(plot)
-            mappings = legend.annotationspec.setdefault("legends", {})
+            mappings = legend.legends
             mappings.setdefault(legend_name, []).append(glyph_renderer)
             legend._dirty = True
 
@@ -610,7 +608,7 @@ class GlyphFunction(object):
     def _get_select_tool(self, plot):
         """returns select tool on a plot, if it's there
         """
-        select_tool = [x for x in plot.tools if x.__view_model__ == "SelectionTool"]
+        select_tool = [x for x in plot.tools if x.__view_model__ == "BoxSelectTool"]
         if len(select_tool) > 0:
             select_tool = select_tool[0]
         else:
@@ -633,7 +631,7 @@ def get_default_color(plot=None):
     ]
     if plot:
         renderers = plot.renderers
-        renderers = [x for x in renderers if x.__view_model__ == "GlyphRenderer"]
+        renderers = [x for x in renderers if x.__view_model__ == "Glyph"]
         num_renderers = len(renderers)
         return colors[num_renderers]
     else:
@@ -839,6 +837,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     elif x_axis_type == "datetime":
         axiscls = DatetimeAxis
     xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
+    xaxis2 = axiscls(plot=p, dimension=0, location="max", bounds="auto")
 
     if y_axis_type is None:
         axiscls = LinearAxis
@@ -858,7 +857,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if "resize" in tools:
         tool_objs.append(ResizeTool(plot=p))
     if "select" in tools:
-        select_tool = SelectionTool()
+        select_tool = BoxSelectTool()
         tool_objs.append(select_tool)
         overlay = BoxSelectionOverlay(tool=select_tool)
         p.renderers.append(overlay)
@@ -922,16 +921,18 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
         names.append(name)
     return names, datasource
 
+class _list_attr_splat(list):
+    def __setattr__(self, attr, value):
+        for x in self:
+            setattr(x, attr, value)
+
 def xaxis():
     """ Returns the x-axis or list of x-axes on the current plot """
     p = curplot()
     if p is None:
         return None
     axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==0]
-    if len(axis) > 0:
-        return axis
-    else:
-        return None
+    return _list_attr_splat(axis)
 
 def yaxis():
     """ Returns the y-axis or list of y-axes on the current plot """
@@ -939,10 +940,7 @@ def yaxis():
     if p is None:
         return None
     axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==1]
-    if len(axis) > 0:
-        return axis
-    else:
-        return None
+    return _list_attr_splat(axis)
 
 def xgrid():
     """ Returns x-grid object on the current plot """
@@ -950,10 +948,7 @@ def xgrid():
     if p is None:
         return None
     grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==0]
-    if len(grid) > 0:
-        return grid
-    else:
-        return None
+    return _list_attr_splat(grid)
 
 def ygrid():
     """ Returns y-grid object on the current plot """
@@ -961,9 +956,6 @@ def ygrid():
     if p is None:
         return None
     grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==1]
-    if len(grid) > 0:
-        return grid
-    else:
-        return None
+    return _list_attr_splat(grid)
 
 

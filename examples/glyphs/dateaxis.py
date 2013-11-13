@@ -4,7 +4,7 @@ import os.path
 import time
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, DatetimeAxis,
-        ColumnDataSource, GlyphRenderer, PanTool, ZoomTool)
+        ColumnDataSource, Glyph, PanTool, ZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
 
@@ -22,7 +22,7 @@ ydr = DataRange1d(sources=[source.columns("y")])
 
 circle = Circle(x="times", y="y", fill_color="red", radius=5, line_color="black")
 
-glyph_renderer = GlyphRenderer(
+glyph_renderer = Glyph(
     data_source=source,
     xdata_range=xdr,
     ydata_range=ydr,

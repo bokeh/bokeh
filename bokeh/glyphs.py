@@ -14,7 +14,7 @@ from .objects import PlotObject, Viewable
 #   but gaussian could certainly be useful.
 
 
-class Glyph(PlotObject):
+class BaseGlyph(PlotObject):
     """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
     """
 
@@ -34,7 +34,7 @@ class Glyph(PlotObject):
 
     def to_glyphspec(self):
         """ Returns a dict mapping attributes to values, that is amenable for
-        inclusion in a GlyphRenderer definition.
+        inclusion in a Glyph definition.
         """
         d = self.vm_props(withvalues=True)
         d["type"] = self.__view_model__
@@ -46,7 +46,7 @@ class Glyph(PlotObject):
         return d
 
 
-class Marker(Glyph, FillProps, LineProps):
+class Marker(BaseGlyph, FillProps, LineProps):
     """ Base class for glyphs which are just simple markers placed at (x,y)
     locations.
     """
@@ -106,7 +106,7 @@ class CircleX(Marker):
     __view_model__ = "circle_x"
 
 
-class AnnularWedge(Glyph, FillProps, LineProps):
+class AnnularWedge(BaseGlyph, FillProps, LineProps):
     __view_model__ = 'annular_wedge'
     x = DataSpec
     y = DataSpec
@@ -116,14 +116,14 @@ class AnnularWedge(Glyph, FillProps, LineProps):
     end_angle = DataSpec
     direction = Enum('clock', 'anticlock')
 
-class Annulus(Glyph, FillProps, LineProps):
+class Annulus(BaseGlyph, FillProps, LineProps):
     __view_model__ = 'annulus'
     x = DataSpec
     y = DataSpec
     inner_radius = DataSpec(min_value=0)
     outer_radius = DataSpec(min_value=0)
 
-class Arc(Glyph, LineProps):
+class Arc(BaseGlyph, LineProps):
     __view_model__ = 'arc'
     x = DataSpec
     y = DataSpec
@@ -132,7 +132,7 @@ class Arc(Glyph, LineProps):
     end_angle = DataSpec
     direction = Enum('clock', 'anticlock')
 
-class Bezier(Glyph, LineProps):
+class Bezier(BaseGlyph, LineProps):
     __view_model__ = 'bezier'
     x0 = DataSpec
     y0 = DataSpec
@@ -146,13 +146,13 @@ class Bezier(Glyph, LineProps):
 # TODO
 # class image
 
-class ImageURI(Glyph):
+class ImageURI(BaseGlyph):
     __view_model__ = 'image_uri'
     x = DataSpec
     y = DataSpec
     angle = DataSpec
 
-class ImageRGBA(Glyph):
+class ImageRGBA(BaseGlyph):
     __view_model__ = 'image_rgba'
     image = DataSpec
     width = DataSpec
@@ -162,17 +162,17 @@ class ImageRGBA(Glyph):
     dw = DataSpec
     dh = DataSpec
 
-class Line(Glyph, LineProps):
+class Line(BaseGlyph, LineProps):
     __view_model__ = "line"
     x = DataSpec
     y = DataSpec
 
-class MultiLine(Glyph, LineProps):
+class MultiLine(BaseGlyph, LineProps):
     __view_model__ = 'multi_line'
     xs = DataSpec
     ys = DataSpec
 
-class Oval(Glyph, FillProps, LineProps):
+class Oval(BaseGlyph, FillProps, LineProps):
     __view_model__ = 'oval'
     x = DataSpec
     y = DataSpec
@@ -180,24 +180,24 @@ class Oval(Glyph, FillProps, LineProps):
     height = DataSpec
     angle = DataSpec
 
-class Patch(Glyph, FillProps, LineProps):
+class Patch(BaseGlyph, FillProps, LineProps):
     __view_model__ = 'patch'
     x = DataSpec
     y = DataSpec
 
-class Patches(Glyph, LineProps, FillProps):
+class Patches(BaseGlyph, LineProps, FillProps):
     __view_model__ = 'patches'
     xs = DataSpec
     ys = DataSpec
 
-class Quad(Glyph, FillProps, LineProps):
+class Quad(BaseGlyph, FillProps, LineProps):
     __view_model__ = "quad"
     left = DataSpec
     right = DataSpec
     bottom = DataSpec
     top = DataSpec
 
-class Quadratic(Glyph, FillProps, LineProps):
+class Quadratic(BaseGlyph, FillProps, LineProps):
     __view_model__ = 'quadratic'
     x0 = DataSpec
     y0 = DataSpec
@@ -206,14 +206,14 @@ class Quadratic(Glyph, FillProps, LineProps):
     cx = DataSpec
     cy = DataSpec
 
-class Ray(Glyph, LineProps):
+class Ray(BaseGlyph, LineProps):
     __view_model__ = "ray"
     x = DataSpec
     y = DataSpec
     angle = DataSpec
     length = DataSpec
 
-class Rect(Glyph, FillProps, LineProps):
+class Rect(BaseGlyph, FillProps, LineProps):
     __view_model__ = "rect"
     x = DataSpec
     y = DataSpec
@@ -221,21 +221,21 @@ class Rect(Glyph, FillProps, LineProps):
     height = DataSpec
     angle = DataSpec
 
-class Segment(Glyph, LineProps):
+class Segment(BaseGlyph, LineProps):
     __view_model__ = 'segment'
     x0 = DataSpec
     y0 = DataSpec
     x1 = DataSpec
     y1 = DataSpec
 
-class Text(Glyph, TextProps):
+class Text(BaseGlyph, TextProps):
     __view_model__ = "text"
     x = DataSpec
     y = DataSpec
     text = String
     angle = DataSpec
 
-class Wedge(Glyph, FillProps, LineProps):
+class Wedge(BaseGlyph, FillProps, LineProps):
     __view_model__ = 'wedge'
     x = DataSpec
     y = DataSpec

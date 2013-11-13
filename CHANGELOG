@@ -1,3 +1,22 @@
+2013-11-14      0.3:
+--------------------
+  * 
+  * enhancements:
+    - #68 Remove guidespec and bake the attributes directly into the GuideRenderer
+    - #158 Made FAQ fonts consistent
+    - #157 xaxis, etc should return collection object
+    - #151 Merge BokehJS repository
+    - #129 The sampledata download is confusing
+    - #105 All of the glyph examples have the same color
+    - #82 Improve hold() functionality in notebook
+  * bugfixes:
+    - #155 ColumnDataSource does not update column_names
+    - #152 Possible to have two Preview/Save tools
+    - #150 If you plot circles that all have a position (0,0), there is a crash
+    - #131 "Fork me on github" corner banner appears underneath some text boxes
+    - #117 axis_line_color=None does not work
+    - #162 Preview save tool broken
+
 
 2013-10-11      0.2:
 --------------------
@@ -9,23 +28,23 @@
   * add versioneer
   * add many new glyph/marker types
   * enhancements:
-    - Update bokeh.sampledata.download to take an alternate download directory
-	- need better message if user forgets output_file(), etc
-	- Need better message if output_notebook is used outside a notebook
-    - Add datetime axis from bokehj
-    - Use request animation frame where possible
-    - Make colors representable by DataSpecs.
+    - #73 Update bokeh.sampledata.download to take an alternate download directory
+    - #89 Need better message if user forgets output_file(), etc
+    - #90 Need better message if output_notebook is used outside a notebook
+    - #71 Add datetime axis from bokehj
+    - #70 Use request animation frame where possible
+    - #65 Make colors representable by DataSpecs.
   * bugixes:
-    - line() without line_color does not render
-    - Add missing requirements, include bokeh.vendor into build
-    - Plotting a single point in causes javascript error in ticking 
-    - colorspec on Grid and Axis objects not serialized
-    - Cannot find redis.conf
-    - None does not pass as null to bokehjs
-    - The last plot in a page full of plots behaves weird when the Zoom tool
+    - #98 line() without line_color does not render
+    - #112 Add missing requirements, include bokeh.vendor into build
+    - #115 Plotting a single point in causes javascript error in ticking 
+    - #77 colorspec on Grid and Axis objects not serialized
+    - #76 Cannot find redis.conf
+    - #69 None does not pass as null to bokehjs
+    - #55 The last plot in a page full of plots behaves weird when the Zoom tool
       button is depressed
-    - legend rendering bug in plotting/file/legend.py
-	- Why are our rectangle borders goofy-looking?
+    - #54 legend rendering bug in plotting/file/legend.py
+    - #75 Why are our rectangle borders goofy-looking?
 
 
 2013-09-05    0.1.1:

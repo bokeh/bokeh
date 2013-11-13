@@ -4,7 +4,7 @@ import numpy as np
 import os.path
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ObjectArrayDataSource, ColumnDataSource, GlyphRenderer,
+        ObjectArrayDataSource, ColumnDataSource, Glyph,
         PanTool, ZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
@@ -23,7 +23,7 @@ ydr = DataRange1d(sources=[source.columns("y")])
 
 line_glyph = Line(x="x", y="y", line_color="blue")
 
-renderer = GlyphRenderer(
+renderer = Glyph(
         data_source = source,
         xdata_range = xdr,
         ydata_range = ydr,

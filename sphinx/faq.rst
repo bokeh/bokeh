@@ -7,12 +7,10 @@ Frequently Asked Questions
 
 *Q: How do you pronounce "bokeh"?*
 
-    Either "boh-Kay" or "boh-Kuh".  For more information, you can 
+    Either "boh-Kay" or "boh-Kuh".  For more information, you can
     `consult Wikipedia <http://en.wikipedia.org/wiki/Bokeh>`_ or an actual
     Japanese person.
 
-
-..  TODO: Why does the following paragraph get formatted funny?
 
 *Q: Why did you start writing a new plotting library, instead of just extending e.g. Matplotlib?*
 
@@ -20,21 +18,21 @@ Frequently Asked Questions
     all hinge on maximizing flexibility for exploring new design spaces for
     achieving our long-term visualization goals.  (Please see
     :ref:`technicalvision` for details about those.)
-
+..
     The client-server nature of displaying for the web is reflected in the
     fundamental architecture of the library, and also has significant impact on
     the front-end interface.  Additionally, the difficult task of coalescing
     large datasets for display on thin clients in a perceptually useful way
     demands different things of a graphics and rendering architecture than most
     of the readily-available libraries in Python today.
-    
+..
     In the meantime, we would like to remain as *compatible* with the rest of
     the Scipy and PyData ecosystems of tools as possible.  This means that we
     are very eager to get contributions that help us understanding
     configuration files from other libraries, provide API compatibility layers,
     and possibly create backends for other libraries on top of Bokeh's
     low-level glyph API.
-    
+
     Please see :ref:`contact` and get in touch with the dev team if you have
     ideas along these lines.
 
@@ -80,7 +78,7 @@ not use something like Vega?*
     use this JSON to reproduce Python object graphs when we load up a
     Python plot from the plot server - so we would need to make sure that Vega
     can fully encapsulate all the information we need here as well.
-
+..
     At this point, the Trifacta folks are actively iterating on Vega in support
     of their projects.  We don't want to burden them with requirements that
     may be incidental to their main design goals at this early stage.  However,
