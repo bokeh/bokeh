@@ -6,7 +6,7 @@ require.config
     jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel"
     underscore: "vendor/underscore-amd/underscore"
     backbone: "vendor/backbone-amd/backbone"
-    bootstrap: "vendor/bootstrap/dist/js/bootstrap"
+    bootstrap: "vendor/bootstrap"
     timezone: "vendor/timezone/src/timezone"
     sprintf: "vendor/sprintf/src/sprintf"
 
