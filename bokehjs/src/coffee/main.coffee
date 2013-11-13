@@ -20,6 +20,7 @@ define (require, exports, module) ->
 
   # common
   Bokeh.Collections       = require("common/base").Collections
+  Bokeh.Config            = require("common/base").Collections
   Bokeh.GMapPlot          = require("common/gmap_plot")
   Bokeh.GridPlot          = require("common/grid_plot")
   Bokeh.HasParent         = require("common/has_parent")
@@ -98,6 +99,11 @@ define (require, exports, module) ->
   Bokeh.BoxSelection = require("renderer/overlay/box_selection")
 
   Bokeh.Properties = require("renderer/properties")
+
+  # server tools
+  Bokeh.embed_core  = require("server/embed_core")
+  Bokeh.serverrun   = require("server/serverrun")
+  Bokeh.serverutils = require("server/serverutils")
 
   # data sources
   Bokeh.ColumnDataSource      = require("source/column_data_source")

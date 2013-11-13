@@ -34,8 +34,10 @@ define [
 
   # add some useful functions to underscore
   require("common/custom").monkey_patch()
+
   Config =
     prefix : ''
+
   locations =
 
     Plot:                   'common/plot'

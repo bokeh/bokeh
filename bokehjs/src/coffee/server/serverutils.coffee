@@ -1,9 +1,11 @@
-define ["common/base",
-    "server/serverutils",
-    "common/has_properties",
-    "common/socket",
-    "common/load_models"
+define [
+  "common/base",
+  "server/serverutils",
+  "common/has_properties",
+  "common/socket",
+  "common/load_models"
 ], (base, serverutils, HasProperties, socket, load_models) ->
+
   #not proud of this refactor... but we can make it better later
   Deferreds = {}
   Promises = {}
@@ -26,14 +28,12 @@ define ["common/base",
   exports.Promises = Promises
   HasProperties.prototype.sync = Backbone.sync
 
-
   utility =
-    load_user : () ->
+    load_user: () ->
       response = $.get('/bokeh/userinfo/', {})
       return response
 
-
-    load_doc_once : (docid) ->
+    load_doc_once: (docid) ->
       if _.has(Promises.doc_promises, docid)
         console.log("already found #{docid} in promises")
         return Promises.doc_promises[docid]
@@ -43,7 +43,7 @@ define ["common/base",
         Promises.doc_promises[docid] = doc_prom
         return doc_prom
 
-    load_doc_by_title : (title) ->
+    load_doc_by_title: (title) ->
       response = $.get(Config.prefix + "/bokeh/doc", {title : title})
         .done((data) ->
           all_models = data['all_models']
@@ -54,15 +54,14 @@ define ["common/base",
         )
       return response
 
-    load_doc_static : (docid, data) ->
+    load_doc_static: (docid, data) ->
       """ loads data without making a websocket connection """
       load_data(data['all_models'])
       promise = jQuery.Deferred()
       promise.resolve()
       return promise
 
-
-    load_doc : (docid) ->
+    load_doc: (docid) ->
       wswrapper = utility.make_websocket();
       response = $.get(Config.prefix + "/bokeh/bokehinfo/#{docid}/", {})
         .done((data) ->
@@ -73,12 +72,12 @@ define ["common/base",
         )
       return response
 
-    make_websocket : () ->
+    make_websocket: () ->
       wswrapper = new WebSocketWrapper(Config.ws_conn_string)
       exports.wswrapper = wswrapper
       return wswrapper
 
-    render_plots : (plot_context_ref, viewclass=null, viewoptions={}) ->
+    render_plots: (plot_context_ref, viewclass=null, viewoptions={}) ->
       plotcontext = Collections(plot_context_ref.type).get(plot_context_ref.id)
       if not viewclass
         viewclass = plotcontext.default_view
@@ -91,10 +90,10 @@ define ["common/base",
       exports.plotcontext = plotcontext
       exports.plotcontextview = plotcontextview
 
-    bokeh_connection : (host, docid, protocol) ->
+    bokeh_connection: (host, docid, protocol) ->
       if _.isUndefined(protocol)
-        protocol="https"
-      if  Promises.doc_requested.state() == "pending"
+        protocol = "https"
+      if Promises.doc_requested.state() == "pending"
         Deferreds._doc_requested.resolve()
         $.get("#{protocol}://#{host}/bokeh/publicbokehinfo/#{docid}", {}, (data) ->
           console.log('instatiate_doc_single, docid', docid)
@@ -102,5 +101,7 @@ define ["common/base",
           load_models(data['all_models'])
           Deferreds._doc_loaded.resolve(data)
         )
+
   exports.utility = utility
+
   return exports

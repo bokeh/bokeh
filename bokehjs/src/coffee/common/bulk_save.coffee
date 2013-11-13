@@ -2,10 +2,13 @@
 define [
   "underscore",
   "jquery",
-], (_, $) ->
+  "require",
+  "./base",
+], (_, $, require, base) ->
 
   bulk_save = (models) ->
     ##FIXME:hack
+    Config = require("./base").Config
     doc = models[0].get('doc')
     jsondata = ({type: m.type, attributes:_.clone(m.attributes)} for m in models)
     jsondata = JSON.stringify(jsondata)
