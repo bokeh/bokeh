@@ -213,7 +213,7 @@ def make_plot():
 
     from bokeh.objects import (
         Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, GlyphRenderer,
+        ColumnDataSource, Glyph,
         PanTool, PreviewSaveTool)
 
     from bokeh.glyphs import Circle
@@ -233,7 +233,7 @@ def make_plot():
 
     circle = Circle(x="x", y="y", fill="red", radius=5, line_color="black")
 
-    glyph_renderer = GlyphRenderer(
+    glyph_renderer = Glyph(
         data_source = source,
         xdata_range = xdr,
         ydata_range = ydr,
