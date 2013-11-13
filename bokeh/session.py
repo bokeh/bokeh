@@ -224,7 +224,7 @@ class HTMLFileSession(BaseHTMLSession):
 
     # The root directory for the CSS files
     css_files = [
-        "vendor/bootstrap/css/bootstrap.css",
+        "js/vendor/bootstrap.css",
         "css/bokeh.css",
         "css/continuum.css",
     ]
@@ -253,7 +253,7 @@ class HTMLFileSession(BaseHTMLSession):
 
     # FIXME: move this to css_paths, js_paths to base class?
     def css_paths(self, as_url=False):
-        return [join(self.bokehjs_dir, d) for d in self.css_files]
+        return [join(self.server_static_dir, d) for d in self.css_files]
 
     def js_paths(self, as_url=False, unified=True, min=True):
         # TODO: Handle unified and minified options
@@ -790,11 +790,14 @@ class PlotServerSession(BaseHTMLSession):
 
 
 class NotebookSessionMixin(object):
-    # Most of these were formerly defined in dump.py, which was ported over
-    # from Wakari.
-    css_files = ["css/bokeh.css", "css/continuum.css",
-                 "vendor/bootstrap/css/bootstrap.css"]
+    # The root directory for the CSS files
+    css_files = [
+        "js/vendor/bootstrap.css",
+        "css/bokeh.css",
+        "css/continuum.css",
+    ]
 
+    # TODO: Why is this not in bokehjs_dir, but rather outside of it?
     js_files = ["js/bokeh.js"]
 
     js_template = "plots.js"
@@ -805,7 +808,7 @@ class NotebookSessionMixin(object):
         # TODO: Fix the duplication of this method from HTMLFileSession.
         # Perhaps move this into BaseHTMLSession.. but a lot of other
         # things would need to move as well.
-        return [join(self.bokehjs_dir, d) for d in self.css_files]
+        return [join(self.server_static_dir, d) for d in self.css_files]
 
     def js_paths(self):
         # For notebook session, we rely on a unified bokehJS file,
@@ -819,7 +822,11 @@ class NotebookSessionMixin(object):
         """
         if len(objects) == 0:
             objects = self._models.values()
-        the_plot = [m for m in objects if isinstance(m, Plot)][0]
+        if len(objects) == 1 and isinstance(objects[0], Plot):
+            the_plot = objects[0]
+            objects = self._models.values()
+        else:
+            the_plot = [m for m in objects if isinstance(m, Plot)][0]
         plot_ref = self.get_ref(the_plot)
         elementid = str(uuid.uuid4())
 
@@ -880,7 +887,7 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
         # scripts or get a reference to the unified/minified JS file,
         # but our static JS build process produces a single unified
         # bokehJS file for inclusion in the notebook.
-        js_paths = self.js_files
+        js_paths = self.js_paths()
         css_paths = self.css_paths()
         html = self._load_template(self.html_template).render(
             rawjs=self._inline_scripts(js_paths).decode('utf8'),
