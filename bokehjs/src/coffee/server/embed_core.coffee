@@ -55,9 +55,9 @@ define ["common/base", "server/serverutils"],  (base, serverutils) ->
 
     static_base = "//#{host}/static/"
     css_urls = ["#{static_base}css/bokeh.css",
-               "#{static_base}css/continuum.css",
-              "#{static_base}vendor/bootstrap/css/bootstrap.css",
-              "#{static_base}vendor/jquery/css/themes/base/jquery-ui.min.css"]
+                "#{static_base}css/continuum.css",
+                "#{static_base}js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css"]
+
 
     load_css = (url) ->
       link = document.createElement('link');
