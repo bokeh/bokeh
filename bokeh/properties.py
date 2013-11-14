@@ -81,7 +81,7 @@ class DataSpec(BaseProperty):
     and example code.
 
     Setting DataSpecs
-    
+
 
     Simple example::
 
@@ -99,7 +99,7 @@ class DataSpec(BaseProperty):
         f.size = {"name": "foo", "units": "screen", "default": 16}
 
     Reading DataSpecs
-   
+
 
     In the cases when the dataspec is set to just a field name or a
     fixed value, then those are returned.  If the user has overridden
@@ -110,7 +110,7 @@ class DataSpec(BaseProperty):
     represent this dataspec, use the to_dict() method.
 
     Implementation
-  
+
 
     The DataSpec instance is stored in the class dict, and acts as a
     descriptor.  Thus, it is shared between all instances of the class.
@@ -172,10 +172,13 @@ class DataSpec(BaseProperty):
 
     def __set__(self, obj, arg):
         if isinstance(arg, tuple):
-            field, default = arg
-            if not isinstance(field, basestring):
-                raise RuntimeError("String is required for field name when assigning tuple to a DataSpec")
-            arg = {"field": field, "default": default}
+            # Note: tuples of length 2 are assumed to be (field, default)
+            # other (longer) tuples might be color, e.g.
+            if len(arg) == 2:
+                field, default = arg
+                if not isinstance(field, basestring):
+                    raise RuntimeError("String is required for field name when assigning tuple to a DataSpec")
+                arg = {"field": field, "default": default}
         super(DataSpec, self).__set__(obj, arg)
 
     def __delete__(self, obj):
