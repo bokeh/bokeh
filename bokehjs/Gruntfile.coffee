@@ -84,7 +84,7 @@ module.exports = (grunt) ->
           jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel"
           underscore: "vendor/underscore-amd/underscore"
           backbone: "vendor/backbone-amd/backbone"
-          bootstrap: "vendor/bootstrap"
+          bootstrap: "vendor/bootstrap/bootstrap-2.0.4"
           timezone: "vendor/timezone/src/timezone"
           sprintf: "vendor/sprintf/src/sprintf"
         shim:
