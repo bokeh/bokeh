@@ -126,23 +126,23 @@ module.exports = (grunt) ->
 
 
     watch:
-      src:
-        files: ['src/coffee/**/*.coffee']
-        tasks: ['coffee']
+      coffee:
+        files: ["<%= coffee.compile.cwd %>/<%= coffee.compile.src %>"]
+        tasks: ['coffee:compile']
         options:
           spawn: false
       demo:
-        files: ['demo/coffee/**/*.coffee']
-        tasks: ['coffee']
+        files: ["<%= coffee.demo.cwd %>/<%= coffee.demo.src %>"]
+        tasks: ['coffee:demo']
         options:
           spawn: false
       test:
-        files: ['test/coffee/**/*.coffee']
-        tasks: ['coffee']
+        files: ["<%= coffee.test.cwd %>/<%= coffee.test.src %>"]
+        tasks: ['coffee:test']
         options:
           spawn: false
-      styles:
-        files: ['src/less/**/*.less']
+      less:
+        files: ["<%= less.development.files[0].cwd %>/<%= less.development.files[0].src %>"]
         tasks: ['less']
         options:
           spawn: false
