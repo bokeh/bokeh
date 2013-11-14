@@ -23,8 +23,12 @@
 
 {% if not plot_scr %}
   <script type="text/javascript">
+    
     (function () {
-        window.injectF = function() {
+      window.injectF = function() {
+      injectFGeneral("{{docid}}", "{{docapikey}}", "{{modelid}}");
+    };
+        window.injectFGeneral = function(docid, docapi_key, modelid) {
             var scr = document.createElement("script");
     
             var sa = function(name,val){
@@ -33,11 +37,11 @@
             sa('src',"http://localhost:5006/bokeh/embed.js");
     
             sa('bokeh_plottype',"serverconn");
-            sa('bokeh_docid',"{{docid}}");
+            sa('bokeh_docid', docid);
             sa('bokeh_ws_conn_string',"ws://localhost:5006/bokeh/sub" );
-            sa('bokeh_docapikey',"{{docapikey}}");
+            sa('bokeh_docapikey', docapi_key);
             sa('bokeh_root_url',"http://localhost:5006" );
-            sa('bokeh_modelid', "{{modelid}}");
+            sa('bokeh_modelid', modelid);
             sa('bokeh_modeltype',"Plot" );
     
             document.body.appendChild(scr);};
@@ -45,6 +49,7 @@
     }())
   </script>
 {% endif %}
+
 {% if delay %}
   <h1> delayed injection </h1>
   <h2> the script should appear in 5 seconds </h2>
@@ -52,6 +57,18 @@
       setTimeout(injectF, 5000);
   </script>
 {% endif %}
+
+
+{% if double_delay %}
+  <h1> delayed injection </h1>
+  <h2> the script should appear in 5 seconds </h2>
+  <script type="text/javascript">
+      setTimeout(function () {
+          injectFGeneral("{{docid}}","{{docapikey}}", "{{plot2._id}}");}, 5000);
+      setTimeout(injectF, 2000);
+  </script>
+{% endif %}
+
 {% if onload %}
   <h1>onload injection </h1>
   <script type="text/javascript">
@@ -64,6 +81,7 @@
         addOnload(injectF);
   </script>
 {% endif %}
+
 {% if direct %}
   <h1>direct injection </h1>
   <script type="text/javascript">
