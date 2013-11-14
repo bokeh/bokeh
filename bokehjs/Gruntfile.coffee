@@ -177,5 +177,5 @@ module.exports = (grunt) ->
 
   grunt.registerTask("default",    ["build", "qunit"])
   grunt.registerTask("build",      ["coffee", "less", "copy", "eco"])
-  grunt.registerTask("deploy",     ["build",  "requirejs:dist", "clean"])
-  grunt.registerTask("devdeploy",  ["build",  "requirejs:dev",  "clean"])
+  grunt.registerTask("deploy",     ["build",  "requirejs:dist"])
+  grunt.registerTask("devdeploy",  ["build",  "requirejs:dev"])
