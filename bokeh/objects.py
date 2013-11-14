@@ -615,8 +615,8 @@ class Plot(PlotObject):
         # outer height/width.  This is a quick fix for the gorpiness, but this
         # needs to be fixed more structurally on the JS side, and then this
         # should be revisited on the Python side.
-
-        self.script_inject_snippet = self.inject_snippet(server=True)
+        if hasattr(self.session, "root_url"):
+            self.script_inject_snippet = self.inject_snippet(server=True)
         if "canvas_width" not in self._changed_vars:
             self.canvas_width = self.width
         if "outer_width" not in self._changed_vars:
