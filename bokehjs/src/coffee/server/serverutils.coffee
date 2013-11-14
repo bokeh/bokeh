@@ -17,9 +17,6 @@ define [
   Promises.doc_requested = Deferreds._doc_requested.promise()
   Promises.doc_promises = {};
 
-  Collections = base.Collections
-  Config = base.Config
-
   # these get set out later
   exports.wswrapper = null
   exports.plotcontext = null
@@ -42,6 +39,8 @@ define [
         return doc_prom
 
     load_doc_by_title: (title) ->
+      Config = require("common/base").Config
+
       response = $.get(Config.prefix + "/bokeh/doc", {title : title})
         .done((data) ->
           all_models = data['all_models']
@@ -61,6 +60,7 @@ define [
 
     load_doc: (docid) ->
       wswrapper = utility.make_websocket();
+      Config = require("common/base").Config
       response = $.get(Config.prefix + "/bokeh/bokehinfo/#{docid}/", {})
         .done((data) ->
           all_models = data['all_models']
@@ -71,11 +71,13 @@ define [
       return response
 
     make_websocket: () ->
+      Config = require("common/base").Config
       wswrapper = new WebSocketWrapper(Config.ws_conn_string)
       exports.wswrapper = wswrapper
       return wswrapper
 
     render_plots: (plot_context_ref, viewclass=null, viewoptions={}) ->
+      Collections = require("common/base").Collections
       plotcontext = Collections(plot_context_ref.type).get(plot_context_ref.id)
       if not viewclass
         viewclass = plotcontext.default_view

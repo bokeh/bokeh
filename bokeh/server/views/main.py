@@ -201,67 +201,30 @@ def dom_embed(plot, **kwargs):
     else:
         static_js = ['/bokeh/static/js/application.js']
         hem_js = []
+    plot2 = make_plot()
     return render_template(
         "embed.html", jsfiles=static_js, hemfiles=hem_js,
         docid=plot._session.docid, docapikey=plot._session.apikey, modelid=plot._id,
-        **kwargs)
+        plot2=plot2, **kwargs)
 
 def make_plot():
-
-    from numpy import pi, arange, sin, cos
     import numpy as np
+    from bokeh.plotting import *
 
-    from bokeh.objects import (
-        Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, Glyph,
-        PanTool, PreviewSaveTool)
+    N = 80
 
-    from bokeh.glyphs import Circle
-    from bokeh import session
+    x = np.linspace(0, 4*np.pi, N)
+    y = np.sin(x)
 
-    x = arange(-2*pi, 2*pi, 0.1)
-    y = sin(x)
-    z = cos(x)
-    widths = np.ones_like(x) * 0.02
-    heights = np.ones_like(x) * 0.2
+    output_server("line.py example")
 
-    source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
-                                    heights=heights))
+    l = line(
+        x,y, color="#0000FF", 
+        plot_height=300, plot_width=300,
+        tools="pan,zoom,resize")
+    return l
+    #show()
 
-    xdr = DataRange1d(sources=[source.columns("x")])
-    ydr = DataRange1d(sources=[source.columns("y")])
-
-    circle = Circle(x="x", y="y", fill="red", radius=5, line_color="black")
-
-    glyph_renderer = Glyph(
-        data_source = source,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = circle)
-
-    pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-    previewtool = PreviewSaveTool(dataranges=[xdr,ydr], dimensions=("width","height"))
-
-    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
-                border= 80)
-    xaxis = LinearAxis(plot=plot, dimension=0)
-    yaxis = LinearAxis(plot=plot, dimension=1)
-
-    plot.renderers.append(glyph_renderer)
-    plot.tools = [pantool, previewtool]
-
-    sess = session.PlotServerSession(
-        username="defaultuser",
-        serverloc="http://localhost:5006", userapikey="nokey")
-    sess.use_doc("glyph2")
-    sess.add(plot, glyph_renderer, xaxis, yaxis, # xgrid, ygrid,
-             source,  xdr, ydr, pantool, previewtool)
-    sess.plotcontext.children.append(plot)
-    sess.plotcontext._dirty = True
-    # not so nice.. but set the model doens't know
-    # that we appended to children
-    sess.store_all()
-    return plot
 
 
 
@@ -286,6 +249,9 @@ def generate_embed(inject_type, include_js):
 
     with_delay doesn't inject until 5 seconds after pageload
 
+    double_delay injects two separate plots, one at 3 seconds in, 
+        the other at 5 seconds in.
+
     onload injects at onload
 
     direct injects as soon as the script block is hit.
@@ -294,11 +260,13 @@ def generate_embed(inject_type, include_js):
     """
 
     plot = make_plot()
-    delay, onload, direct, include_js_flag  = [False] * 4
+    delay, double_delay, onload, direct, include_js_flag  = [False] * 5
     plot_scr = ""
 
     if inject_type == "delay":
         delay = True
+    if inject_type == "double_delay":
+        double_delay = True
     elif inject_type == "onload":
         onload = True
     elif inject_type == "direct":
@@ -319,7 +287,10 @@ def generate_embed(inject_type, include_js):
 
     return dom_embed(
         plot, include_js=include_js_flag, delay=delay, onload=onload,
-        direct=direct,  plot_scr=plot_scr)
+        direct=direct,  plot_scr=plot_scr, double_delay=double_delay)
+
+
+
 @app.route("/bokeh/embed.js")
 def embed_js():
     return (render_template("embed.js", host=request.host), "200",
