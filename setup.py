@@ -30,7 +30,7 @@ if exists(join(SERVER, 'static', 'js')):
     shutil.rmtree(join(SERVER, 'static', 'js'))
 os.mkdir(join(SERVER, 'static', 'js'))
 shutil.copy(APP, join(SERVER, 'static/js'))
-shutil.copytree(join(JSBUILD, 'js', 'vendor'), join(SERVER, 'static', 'js', 'vendor'))
+shutil.copytree(join(JSBUILD, '..', 'src', 'vendor'), join(SERVER, 'static', 'js', 'vendor'))
 
 if exists(join(SERVER, 'static', 'css')):
     shutil.rmtree(join(SERVER, 'static', 'css'))
