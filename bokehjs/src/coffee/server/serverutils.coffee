@@ -1,10 +1,9 @@
 define [
   "common/base",
   "server/serverutils",
-  "common/has_properties",
   "common/socket",
   "common/load_models"
-], (base, serverutils, HasProperties, socket, load_models) ->
+], (base, serverutils, socket, load_models) ->
 
   #not proud of this refactor... but we can make it better later
   Deferreds = {}
@@ -26,7 +25,6 @@ define [
   exports.plotcontext = null
   exports.plotcontextview = null
   exports.Promises = Promises
-  HasProperties.prototype.sync = Backbone.sync
 
   utility =
     load_user: () ->

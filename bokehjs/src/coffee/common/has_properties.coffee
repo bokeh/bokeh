@@ -240,10 +240,11 @@ define [
       # ### method HasProperties::url
       #model where our API processes this model
 
-      base = base.Config.prefix + "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
+      base = require('./base')
+      url = base.Config.prefix + "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
       if (@isNew())
-        return base
-      return base + @get('id') + "/"
+        return url
+      return url + @get('id') + "/"
 
 
     sync: (method, model, options) ->
