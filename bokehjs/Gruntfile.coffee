@@ -162,7 +162,9 @@ module.exports = (grunt) ->
           src : ['**/*.eco']
           ext : '.js'
           dest: 'build/js'
+          filter: hasChanged("eco.app.files.0")
         ]
+
   grunt.loadNpmTasks("grunt-contrib-coffee")
   grunt.loadNpmTasks("grunt-contrib-watch")
   grunt.loadNpmTasks("grunt-contrib-less")
