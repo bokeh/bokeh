@@ -24,8 +24,6 @@ define [
     _activated: (e) ->
       data_uri = @plot_view.canvas[0].toDataURL()
       @plot_model.set('png', @plot_view.canvas[0].toDataURL())
-      bulk_save([@plot_model])
-      #@model.sync()
       modal = """
       <div id='previewModal' class='bokeh'>
         <div class="modal" role="dialog" aria-labelledby="previewLabel" aria-hidden="true">
