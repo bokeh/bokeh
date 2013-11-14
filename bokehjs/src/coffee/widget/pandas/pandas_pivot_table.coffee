@@ -3,8 +3,8 @@ define [
   "underscore",
   "backbone",
   "common/has_parent",
-  "common/continuum_view"
-  "vendor/text/text!../../../template/pandaspivot.eco"
+  "common/continuum_view",
+  "./pandas_pivot_template"
 ], (_, Backbone, HasParent, ContinuumView, pandaspivot) ->
 
   ENTER = 13
