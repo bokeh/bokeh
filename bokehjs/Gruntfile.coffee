@@ -48,7 +48,8 @@ module.exports = (grunt) ->
           src: ['**/*']
           dest : 'build/js/vendor'
         ]
-    clean: ['release/js/vendor', 'release/js/views', 'release/build.txt']
+
+    clean: ['build']
 
     less:
       development:
