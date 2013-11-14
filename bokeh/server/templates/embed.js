@@ -13,9 +13,9 @@ console.log("embed.js");
     if(typeof Bokeh == "object"){
         // application.js is already loaded
         console.log("bokeh.js is already loaded, going straight to plotting");
-
-        embed_core = Bokeh.embed_core;
-        embed_core.search_and_plot();
+        setTimeout(function () {
+            embed_core = Bokeh.embed_core;
+            embed_core.search_and_plot();}, 10);
     }
 
     else if(!script_injected){
