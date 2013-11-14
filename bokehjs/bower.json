@@ -8,7 +8,6 @@
     "jquery-ui-amd": null,
     "underscore-amd": null,
     "backbone-amd": null,
-    "bootstrap": "2.0.4",
     "requirejs": null,
     "text": null,
     "timezone": null,
