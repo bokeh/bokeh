@@ -119,12 +119,12 @@ define [
     display_defaults: () ->
       return {
         level: 'underlay'
-        grid_line_color: '#aaaaaa'
+        grid_line_color: '#eeeeee'
         grid_line_width: 1
         grid_line_alpha: 1.0
         grid_line_join: 'miter'
         grid_line_cap: 'butt'
-        grid_line_dash: [4, 6]
+        grid_line_dash: []
         grid_line_dash_offset: 0
       }
 

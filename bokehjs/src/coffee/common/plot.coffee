@@ -437,7 +437,7 @@ define [
       return {
         hidpi: true,
         background_fill: "#fff",
-        border_fill: "#eee",
+        border_fill: "#fff",
         border_symmetry: "h",
         min_border: 40,
         x_offset: 0,
