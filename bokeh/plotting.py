@@ -837,7 +837,6 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     elif x_axis_type == "datetime":
         axiscls = DatetimeAxis
     xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
-    xaxis2 = axiscls(plot=p, dimension=0, location="max", bounds="auto")
 
     if y_axis_type is None:
         axiscls = LinearAxis
