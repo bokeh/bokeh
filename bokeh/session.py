@@ -224,7 +224,7 @@ class HTMLFileSession(BaseHTMLSession):
 
     # The root directory for the CSS files
     css_files = [
-        "js/vendor/bootstrap.css",
+        "js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css",
         "css/bokeh.css",
         "css/continuum.css",
     ]
@@ -792,7 +792,7 @@ class PlotServerSession(BaseHTMLSession):
 class NotebookSessionMixin(object):
     # The root directory for the CSS files
     css_files = [
-        "js/vendor/bootstrap.css",
+        "js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css",
         "css/bokeh.css",
         "css/continuum.css",
     ]
