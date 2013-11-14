@@ -616,7 +616,7 @@ class Plot(PlotObject):
         # needs to be fixed more structurally on the JS side, and then this
         # should be revisited on the Python side.
 
-        self.script_inject_snippet = self._get_script_inject_snippet()
+        self.script_inject_snippet = self.inject_snippet(server=True)
         if "canvas_width" not in self._changed_vars:
             self.canvas_width = self.width
         if "outer_width" not in self._changed_vars:
