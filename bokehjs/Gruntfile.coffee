@@ -1,6 +1,21 @@
 module.exports = (grunt) ->
-  grunt.initConfig
+  fs = require("fs")
 
+  # (task: String)(input: String) => Boolean
+  hasChanged = (task) -> (input) ->
+    cwd  = grunt.config.get("#{task}.cwd")
+    dest = grunt.config.get("#{task}.dest")
+    ext  = grunt.config.get("#{task}.ext")
+
+    output = input.replace(cwd, dest)
+                  .replace(/\..+$/, ext)
+
+    if not fs.existsSync(output)
+      true
+    else
+      fs.statSync(input).mtime > fs.statSync(output).mtime
+
+  grunt.initConfig
     copy:
       template:
         files: [
@@ -33,7 +48,8 @@ module.exports = (grunt) ->
           src: ['**/*']
           dest : 'build/js/vendor'
         ]
-    clean: ['release/js/vendor', 'release/js/views', 'release/build.txt']
+
+    clean: ['build']
 
     less:
       development:
@@ -46,15 +62,17 @@ module.exports = (grunt) ->
           src: ['*.less'],     # actual pattern(s) to match
           dest: 'build/css',   # destination path prefix
           ext: '.css',         # dest filepaths will have this extension
+          filter: hasChanged("less.development.files.0")
         }]
 
     coffee:
-      src:
+      compile:
         expand: true           # enable dynamic expansion
         cwd: 'src/coffee'      # source dir for coffee files
         src: '**/*.coffee'     # traverse *.coffee files relative to cwd
         dest: 'build/js'       # destination for compiled js files
         ext: '.js'             # file extension for compiled files
+        filter: hasChanged("coffee.compile")
         options:
           sourceMap : true
       test:
@@ -63,6 +81,7 @@ module.exports = (grunt) ->
         src: '**/*.coffee'     # traverse *.coffee files relative to cwd
         dest: 'build/test'     # destination for compiled js files
         ext: '.js'             # file extension for compiled files
+        filter: hasChanged("coffee.test")
         options:
           sourceMap : true
       demo:
@@ -71,6 +90,7 @@ module.exports = (grunt) ->
         src: '**/*.coffee'     # traverse *.coffee files relative to cwd
         dest: 'build/demo/js'  # destination for compiled js files
         ext: '.js'             # file extension for compiled files
+        filter: hasChanged("coffee.demo")
         options:
           sourceMap : true
 
@@ -107,23 +127,23 @@ module.exports = (grunt) ->
 
 
     watch:
-      src:
-        files: ['src/coffee/**/*.coffee']
-        tasks: ['coffee']
+      coffee:
+        files: ["<%= coffee.compile.cwd %>/<%= coffee.compile.src %>"]
+        tasks: ['coffee:compile']
         options:
           spawn: false
       demo:
-        files: ['demo/coffee/**/*.coffee']
-        tasks: ['coffee']
+        files: ["<%= coffee.demo.cwd %>/<%= coffee.demo.src %>"]
+        tasks: ['coffee:demo']
         options:
           spawn: false
       test:
-        files: ['test/coffee/**/*.coffee']
-        tasks: ['coffee']
+        files: ["<%= coffee.test.cwd %>/<%= coffee.test.src %>"]
+        tasks: ['coffee:test']
         options:
           spawn: false
-      styles:
-        files: ['src/less/**/*.less']
+      less:
+        files: ["<%= less.development.files[0].cwd %>/<%= less.development.files[0].src %>"]
         tasks: ['less']
         options:
           spawn: false
@@ -143,7 +163,9 @@ module.exports = (grunt) ->
           src : ['**/*.eco']
           ext : '.js'
           dest: 'build/js'
+          filter: hasChanged("eco.app.files.0")
         ]
+
   grunt.loadNpmTasks("grunt-contrib-coffee")
   grunt.loadNpmTasks("grunt-contrib-watch")
   grunt.loadNpmTasks("grunt-contrib-less")
@@ -157,16 +179,3 @@ module.exports = (grunt) ->
   grunt.registerTask("build",      ["coffee", "less", "copy", "eco"])
   grunt.registerTask("deploy",     ["build",  "requirejs:dist", "clean"])
   grunt.registerTask("devdeploy",  ["build",  "requirejs:dev",  "clean"])
-
-
-  grunt.event.on "watch", (action, filepath, target) ->
-    filepath = filepath.replace('src/coffee/', '')
-    grunt.config.set('coffee',
-      changed:
-        expand: true
-        cwd: 'src/coffee'
-        src: filepath
-        dest: 'build/js'
-        ext: '.js'
-    )
-    grunt.task.run('coffee:changed')
