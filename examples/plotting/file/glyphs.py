@@ -90,6 +90,7 @@ scatter(x, y, type="invtriangle", size=dict(field="sizes", units="screen"), colo
 scatter(x, y, type="square_x", size=dict(field="sizes", units="screen"), color="#FDAE6B", fill_color=None,
        source=ColumnDataSource({"sizes": sizes}), line_width=2,
        tools="", title="square_x")
+       
 scatter(x, y, type="asterisk", size=dict(field="sizes", units="screen"), color="#F0027F", fill_color=None,
        source=ColumnDataSource({"sizes": sizes}), line_width=2,
        tools="", title="asterisk")
