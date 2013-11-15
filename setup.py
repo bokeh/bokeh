@@ -14,27 +14,31 @@ versioneer.parentdir_prefix = 'Bokeh-' # dirname like 'myproject-1.2.0'
 # Set up this checkout or source archive with the right BokehJS files.
 
 
-JSBUILD = 'bokehjs/build'
+JSROOT = 'bokehjs'
+JSBUILD = join(JSROOT, 'build')
+JSREL = join(JSROOT, 'release')
 
 SERVER = 'bokeh/server'
 
-APP = join(join('bokehjs', 'release', 'bokeh.js'))
+APP = join(join(JSREL, 'bokeh.js'))
+CSS = join(JSREL, 'css')
 
 if 'develop' in sys.argv:
     # Don't import setuptools unless the user is actively
     # trying to do something that requires it.
     APP = join(JSBUILD, 'bokeh.js')
+    CSS = join(JSBUILD, 'css')
     import setuptools
 
 if exists(join(SERVER, 'static', 'js')):
     shutil.rmtree(join(SERVER, 'static', 'js'))
 os.mkdir(join(SERVER, 'static', 'js'))
 shutil.copy(APP, join(SERVER, 'static/js'))
-shutil.copytree(join(JSBUILD, '..', 'src', 'vendor'), join(SERVER, 'static', 'js', 'vendor'))
+shutil.copytree(join(JSROOT, 'src', 'vendor'), join(SERVER, 'static', 'js', 'vendor'))
 
 if exists(join(SERVER, 'static', 'css')):
     shutil.rmtree(join(SERVER, 'static', 'css'))
-shutil.copytree(join(JSBUILD, 'css'), join(SERVER, 'static', 'css'))
+shutil.copytree(CSS, join(SERVER, 'static', 'css'))
 
 def package_path(path, package_data_dirs):
     for dirname, _, files in os.walk(path):
