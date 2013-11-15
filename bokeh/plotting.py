@@ -825,7 +825,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     elif "height" in kw:
         p.height = kw["height"]
 
-    if x_range is "linear":
+    if x_range is None:
         x_range = DataRange1d()
     p.x_range = x_range
     if y_range is None:
