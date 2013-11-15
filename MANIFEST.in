@@ -1,4 +1,5 @@
 global-exclude .git*
+include versioneer.py
 recursive-include examples *.py *.ipynb *.md
 graft bokehjs
 prune bokehjs/node_modules
