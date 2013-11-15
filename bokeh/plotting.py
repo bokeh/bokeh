@@ -810,7 +810,7 @@ def gridplot(plot_arrangement, name=False):
 
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
-                 x_axis_type = None, y_axis_type = None,
+                 x_axis_type="linear", y_axis_type="linear",
                  tools="pan,zoom,save,resize,select", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
@@ -825,24 +825,29 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     elif "height" in kw:
         p.height = kw["height"]
 
-    if x_range is None:
+    if x_range is "linear":
         x_range = DataRange1d()
     p.x_range = x_range
     if y_range is None:
         y_range = DataRange1d()
     p.y_range = y_range
 
-    if x_axis_type is None:
+    axiscls = None
+    if x_axis_type is "linear":
         axiscls = LinearAxis
     elif x_axis_type == "datetime":
         axiscls = DatetimeAxis
-    xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
+    if axiscls:
+        xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
 
-    if y_axis_type is None:
+    axiscls = None
+    if y_axis_type is "linear":
         axiscls = LinearAxis
     elif y_axis_type == "datetime":
         axiscls = DatetimeAxis
-    yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
+    if axiscls:
+        yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
+
     xgrid = Grid(plot=p, dimension=0)
     ygrid = Grid(plot=p, dimension=1)
 
