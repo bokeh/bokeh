@@ -1,0 +1,5 @@
+global-exclude .git*
+recursive-include examples *.py *.ipynb *.md
+graft bokehjs
+prune bokehjs/node_modules
+prune bokehjs/build
