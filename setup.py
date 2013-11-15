@@ -18,7 +18,7 @@ JSBUILD = 'bokehjs/build'
 
 SERVER = 'bokeh/server'
 
-APP = join(JSBUILD, 'bokeh.js')
+APP = join(join('bokehjs', 'release', 'bokeh.js'))
 
 if 'develop' in sys.argv:
     # Don't import setuptools unless the user is actively
