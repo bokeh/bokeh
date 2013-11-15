@@ -564,6 +564,8 @@ class Plot(PlotObject):
     y_range = Instance(DataRange1d, has_ref=True)
     png = String('')
     title = String('')
+    outline_props = Include(LineProps, prefix="outline")
+
     # We shouldn't need to create mappers manually on the Python side
     #xmapper = Instance(LinearMapper)
     #ymapper = Instance(LinearMapper)
