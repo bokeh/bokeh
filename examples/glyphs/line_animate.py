@@ -63,11 +63,14 @@ sess.plotcontext._dirty = True
 # that we appended to children
 sess.store_all()
 
+print "Stored to document line_animate at http://localhost:5006/bokeh"
+
 while True:
     for i in  np.linspace(-2*pi, 2*pi, 50):
         source._data['x'] = x +i
         source._dirty = True
         sess.store_all()
         time.sleep(0.05)
+
 
 

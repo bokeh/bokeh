@@ -16,8 +16,8 @@ line(x,y, color="#0000FF", tools="pan,zoom,resize")
 show()
 
 import time
-from bokeh.objects import GlyphRenderer
-renderer = [r for r in curplot().renderers if isinstance(r, GlyphRenderer)][0]
+from bokeh.objects import Glyph
+renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
 ds = renderer.data_source
 while True:
     for i in np.linspace(-2*np.pi, 2*np.pi, 50):

@@ -100,10 +100,5 @@ sess.add(grid)
 sess.plotcontext.children.append(grid)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 
-if __name__ == "__main__":
-    try:
-        iris_splom()
-        import webbrowser
-        webbrowser.open("file://" + os.path.abspath("iris_splom.html"))
-    except:
-        pass
+import webbrowser
+webbrowser.open("file://" + os.path.abspath("iris_splom.html"))
