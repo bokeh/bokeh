@@ -1,7 +1,12 @@
 #!/usr/bin/env python
 import argparse, sys
 
-from bokeh.server import start
+try:
+    from bokeh.server import start
+except ImportError:
+    print
+    print "Error: bokeh-sever requires the python redis module in order to run"
+    print sys.exit(1)
 import logging
 
 def build_parser():
@@ -30,7 +35,7 @@ def main():
     start.prepare_local()
     start.bokeh_app.debug = False
     start.app.debug = False
-    
+
     start.bokeh_app.debugjs = args.debugjs
 
     if args.debug:
@@ -43,7 +48,7 @@ def main():
         def helper():
             # Always set to verbose if in debug mode
             start.start_app(verbose=True)
-        
+
     else:
         logging.basicConfig(level=logging.INFO)
         start.start_app(verbose=args.verbose)
