@@ -3,7 +3,7 @@
 import numpy as np
 from bokeh.plotting import *
 import bokeh.plotting as plotting
-from bokeh.objects import (ColumnDataSource, DataRangeBoxSelectionTool,
+from bokeh.objects import (ColumnDataSource, DataRangeBoxSelectTool,
                            BoxSelectionOverlay)
 
 x = np.linspace(-7, 7, 100)
@@ -25,7 +25,7 @@ scatter('x','3y', source=source, color="green", tools="pan,zoom,resize")
 
 plot = curplot()
 
-tool = DataRangeBoxSelectionTool(plot=plot)
+tool = DataRangeBoxSelectTool(plot=plot)
 overlay = BoxSelectionOverlay(tool=tool)
 plot.renderers.append(overlay)
 plot.tools.append(tool)
