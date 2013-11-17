@@ -1,6 +1,7 @@
 
 define [
   "underscore",
+  "jquery",
   "backbone",
   "./build_views",
   "./safebind",
@@ -12,7 +13,7 @@ define [
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, $, Backbone, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
 
   LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
 
@@ -79,6 +80,9 @@ define [
         requested_border_left: 0
         requested_border_right: 0
       })
+
+      @hidpi = options.hidpi ? @mget('hidpi')
+
       @x_range = options.x_range ? @mget_obj('x_range')
       @y_range = options.y_range ? @mget_obj('y_range')
       @xmapper = new LinearMapper({
@@ -238,18 +242,44 @@ define [
       @gmap_div = @$el.find('.bokeh_gmap')
 
     render_canvas: (full_render=true) ->
+      @ctx = @canvas[0].getContext('2d')
+
+      if @hidpi
+        devicePixelRatio = window.devicePixelRatio || 1
+        backingStoreRatio = @ctx.webkitBackingStorePixelRatio ||
+                            @ctx.mozBackingStorePixelRatio ||
+                            @ctx.msBackingStorePixelRatio ||
+                            @ctx.oBackingStorePixelRatio ||
+                            @ctx.backingStorePixelRatio || 1
+        ratio = devicePixelRatio / backingStoreRatio
+      else
+        ratio = 1
+
       oh = @view_state.get('outer_height')
       ow = @view_state.get('outer_width')
+
+      @canvas.width = ow * ratio
+      @canvas.height = oh * ratio
+
+      @button_bar.attr('style', "width:#{ow}px;")
+      @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
+      @canvas.attr('style', "width:#{ow}px;")
+      @canvas.attr('style', "height:#{oh}px;")
+      @canvas.attr('width', ow*ratio).attr('height', oh*ratio)
+      @$el.attr("width", ow).attr('height', oh)
+
+      @ctx.scale(ratio, ratio)
+      @ctx.translate(0.5, 0.5)
+
       iw = @view_state.get('inner_width')
       ih = @view_state.get('inner_height')
       top = @view_state.get('border_top')
       left = @view_state.get('border_left')
 
-      @button_bar.width("#{ow}px")
-      @canvas_wrapper.width("#{ow}px").height("#{oh}px")
-      @canvas.attr('width', ow).attr('height', oh) # TODO: this is needed but why
-      @$el.attr("width", ow).attr('height', oh)
+      console.log @gmap_div
       @gmap_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
+      @gmap_div.attr('style', "width:#{iw}px;")
+      @gmap_div.attr('style', "height:#{ih}px;")
       @gmap_div.width("#{iw}px").height("#{ih}px")
       build_map = () =>
         mo = @mget('map_options')
@@ -260,10 +290,12 @@ define [
           mapTypeId: google.maps.MapTypeId.SATELLITE
 
         # Create the map with above options in div
+        console.log "FOO", @
+        console.log "FOO", @gmap_div
+        console.log "FOO", @gmap_div[0]
         @map = new google.maps.Map(@gmap_div[0], map_options)
         google.maps.event.addListener(@map, 'bounds_changed', @bounds_change)
       _.defer(build_map)
-      @ctx = @canvas[0].getContext('2d')
       if full_render
         @render()
 
@@ -421,6 +453,7 @@ define [
 
     display_defaults: () ->
       return {
+        hidpi: true,
         border_fill: "#eee",
         border_symmetry: 'h',
         min_border: 40,
