@@ -25,8 +25,6 @@
 .bokeh canvas,
 .bokeh video {
   display: inline-block;
-  *display: inline;
-  *zoom: 1;
 }
 
 .bokeh audio:not([controls]) {
@@ -88,7 +86,6 @@
 
 .bokeh button,
 .bokeh input {
-  *overflow: visible;
   line-height: normal;
 }
 
@@ -124,7 +121,6 @@
 }
 
 .bokeh .clearfix {
-  *zoom: 1;
 }
 
 .bokeh .clearfix:before,
@@ -176,7 +172,6 @@
 
 .bokeh .row {
   margin-left: -20px;
-  *zoom: 1;
 }
 
 .bokeh .row:before,
@@ -298,7 +293,6 @@
 
 .bokeh .row-fluid {
   width: 100%;
-  *zoom: 1;
 }
 
 .bokeh .row-fluid:before,
@@ -317,7 +311,6 @@
   width: 100%;
   min-height: 28px;
   margin-left: 2.127659574%;
-  *margin-left: 2.0744680846382977%;
   -webkit-box-sizing: border-box;
      -moz-box-sizing: border-box;
       -ms-box-sizing: border-box;
@@ -330,68 +323,55 @@
 
 .bokeh .row-fluid .span12 {
   width: 99.99999998999999%;
-  *width: 99.94680850063828%;
 }
 
 .bokeh .row-fluid .span11 {
   width: 91.489361693%;
-  *width: 91.4361702036383%;
 }
 
 .bokeh .row-fluid .span10 {
   width: 82.97872339599999%;
-  *width: 82.92553190663828%;
 }
 
 .bokeh .row-fluid .span9 {
   width: 74.468085099%;
-  *width: 74.4148936096383%;
 }
 
 .bokeh .row-fluid .span8 {
   width: 65.95744680199999%;
-  *width: 65.90425531263828%;
 }
 
 .bokeh .row-fluid .span7 {
   width: 57.446808505%;
-  *width: 57.3936170156383%;
 }
 
 .bokeh .row-fluid .span6 {
   width: 48.93617020799999%;
-  *width: 48.88297871863829%;
 }
 
 .bokeh .row-fluid .span5 {
   width: 40.425531911%;
-  *width: 40.3723404216383%;
 }
 
 .bokeh .row-fluid .span4 {
   width: 31.914893614%;
-  *width: 31.8617021246383%;
 }
 
 .bokeh .row-fluid .span3 {
   width: 23.404255317%;
-  *width: 23.3510638276383%;
 }
 
 .bokeh .row-fluid .span2 {
   width: 14.89361702%;
-  *width: 14.8404255306383%;
 }
 
 .bokeh .row-fluid .span1 {
   width: 6.382978723%;
-  *width: 6.329787233638298%;
 }
 
 .bokeh .container {
   margin-right: auto;
   margin-left: auto;
-  *zoom: 1;
 }
 
 .bokeh .container:before,
@@ -407,7 +387,6 @@
 .bokeh .container-fluid {
   padding-right: 20px;
   padding-left: 20px;
-  *zoom: 1;
 }
 
 .bokeh .container-fluid:before,
@@ -866,7 +845,6 @@
 .bokeh input[type="radio"],
 .bokeh input[type="checkbox"] {
   margin: 3px 0;
-  *margin-top: 0;
   /* IE7 */
 
   line-height: normal;
@@ -891,7 +869,6 @@
   height: 28px;
   /* In IE7, the height of the select element cannot be changed by height, only font-size */
 
-  *margin-top: 4px;
   /* For IE7, add top margin to align select with labels */
 
   line-height: 28px;
@@ -1208,7 +1185,6 @@ textarea.span1,
   margin-bottom: 18px;
   background-color: #f5f5f5;
   border-top: 1px solid #e5e5e5;
-  *zoom: 1;
 }
 
 .bokeh .form-actions:before,
@@ -1256,10 +1232,8 @@ textarea.span1,
 
 .bokeh .help-inline {
   display: inline-block;
-  *display: inline;
   padding-left: 5px;
   vertical-align: middle;
-  *zoom: 1;
 }
 
 .bokeh .input-prepend,
@@ -1275,7 +1249,6 @@ textarea.span1,
 .bokeh .input-append .uneditable-input {
   position: relative;
   margin-bottom: 0;
-  *margin-left: 0;
   vertical-align: middle;
   -webkit-border-radius: 0 3px 3px 0;
      -moz-border-radius: 0 3px 3px 0;
@@ -1419,9 +1392,7 @@ textarea.span1,
 .bokeh .form-inline .input-append,
 .bokeh .form-horizontal .input-append {
   display: inline-block;
-  *display: inline;
   margin-bottom: 0;
-  *zoom: 1;
 }
 
 .bokeh .form-search .hide,
@@ -1471,7 +1442,6 @@ textarea.span1,
 
 .bokeh .form-horizontal .control-group {
   margin-bottom: 18px;
-  *zoom: 1;
 }
 
 .bokeh .form-horizontal .control-group:before,
@@ -1492,14 +1462,10 @@ textarea.span1,
 }
 
 .bokeh .form-horizontal .controls {
-  *display: inline-block;
-  *padding-left: 20px;
   margin-left: 160px;
-  *margin-left: 0;
 }
 
 .bokeh .form-horizontal .controls:first-child {
-  *padding-left: 160px;
 }
 
 .bokeh .form-horizontal .help-block {
@@ -1561,7 +1527,6 @@ textarea.span1,
 .bokeh .table-bordered {
   border: 1px solid #dddddd;
   border-collapse: separate;
-  *border-collapse: collapsed;
   border-left: 0;
   -webkit-border-radius: 4px;
      -moz-border-radius: 4px;
@@ -1775,7 +1740,6 @@ textarea.span1,
   display: inline-block;
   width: 14px;
   height: 14px;
-  *margin-right: .3em;
   line-height: 14px;
   vertical-align: text-top;
   background-image: url("../img/glyphicons-halflings.png");
@@ -1785,7 +1749,6 @@ textarea.span1,
 
 .bokeh [class^="icon-"]:last-child,
 .bokeh [class*=" icon-"]:last-child {
-  *margin-left: 0;
 }
 
 .bokeh .icon-white {
@@ -2358,7 +2321,6 @@ textarea.span1,
 }
 
 .bokeh .dropdown-toggle {
-  *margin-bottom: -3px;
 }
 
 .bokeh .dropdown-toggle:active,
@@ -2404,8 +2366,6 @@ textarea.span1,
   background-color: #ffffff;
   border: 1px solid #ccc;
   border: 1px solid rgba(0, 0, 0, 0.2);
-  *border-right-width: 2px;
-  *border-bottom-width: 2px;
   -webkit-border-radius: 5px;
      -moz-border-radius: 5px;
           border-radius: 5px;
@@ -2423,10 +2383,8 @@ textarea.span1,
 }
 
 .bokeh .dropdown-menu .divider {
-  *width: 100%;
   height: 1px;
   margin: 8px 1px;
-  *margin: -5px 0 5px;
   overflow: hidden;
   background-color: #e5e5e5;
   border-bottom: 1px solid #ffffff;
@@ -2451,7 +2409,6 @@ textarea.span1,
 }
 
 .bokeh .open {
-  *z-index: 1000;
 }
 
 .bokeh .open > .dropdown-menu {
@@ -2575,20 +2532,16 @@ textarea.span1,
 
 .bokeh .btn {
   display: inline-block;
-  *display: inline;
   padding: 4px 10px 4px;
   margin-bottom: 0;
-  *margin-left: .3em;
   font-size: 13px;
   line-height: 18px;
-  *line-height: 20px;
   color: #333333;
   text-align: center;
   text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
   vertical-align: middle;
   cursor: pointer;
   background-color: #f5f5f5;
-  *background-color: #e6e6e6;
   background-image: -moz-linear-gradient(top, #ffffff, #e6e6e6);
   background-image: -ms-linear-gradient(top, #ffffff, #e6e6e6);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ffffff), to(#e6e6e6));
@@ -2597,7 +2550,6 @@ textarea.span1,
   background-image: linear-gradient(top, #ffffff, #e6e6e6);
   background-repeat: repeat-x;
   border: 1px solid #cccccc;
-  *border: 0;
   border-color: #e6e6e6 #e6e6e6 #bfbfbf;
   border-color: rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.1) rgba(0, 0, 0, 0.25);
   border-bottom-color: #b3b3b3;
@@ -2606,7 +2558,6 @@ textarea.span1,
           border-radius: 4px;
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#e6e6e6', GradientType=0);
   filter: progid:DXImageTransform.Microsoft.gradient(enabled=false);
-  *zoom: 1;
   -webkit-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
      -moz-box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
           box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -2618,7 +2569,6 @@ textarea.span1,
 .bokeh .btn.disabled,
 .bokeh .btn[disabled] {
   background-color: #e6e6e6;
-  *background-color: #d9d9d9;
 }
 
 .bokeh .btn:active,
@@ -2627,14 +2577,12 @@ textarea.span1,
 }
 
 .bokeh .btn:first-child {
-  *margin-left: 0;
 }
 
 .bokeh .btn:hover {
   color: #333333;
   text-decoration: none;
   background-color: #e6e6e6;
-  *background-color: #d9d9d9;
   /* Buttons in IE7 don't get borders, so darken on hover */
 
   background-position: 0 -15px;
@@ -2735,7 +2683,6 @@ textarea.span1,
 
 .bokeh .btn-primary {
   background-color: #0074cc;
-  *background-color: #0055cc;
   background-image: -moz-linear-gradient(top, #0088cc, #0055cc);
   background-image: -ms-linear-gradient(top, #0088cc, #0055cc);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#0088cc), to(#0055cc));
@@ -2755,7 +2702,6 @@ textarea.span1,
 .bokeh .btn-primary.disabled,
 .bokeh .btn-primary[disabled] {
   background-color: #0055cc;
-  *background-color: #004ab3;
 }
 
 .bokeh .btn-primary:active,
@@ -2765,7 +2711,6 @@ textarea.span1,
 
 .bokeh .btn-warning {
   background-color: #faa732;
-  *background-color: #f89406;
   background-image: -moz-linear-gradient(top, #fbb450, #f89406);
   background-image: -ms-linear-gradient(top, #fbb450, #f89406);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#fbb450), to(#f89406));
@@ -2785,7 +2730,6 @@ textarea.span1,
 .bokeh .btn-warning.disabled,
 .bokeh .btn-warning[disabled] {
   background-color: #f89406;
-  *background-color: #df8505;
 }
 
 .bokeh .btn-warning:active,
@@ -2795,7 +2739,6 @@ textarea.span1,
 
 .bokeh .btn-danger {
   background-color: #da4f49;
-  *background-color: #bd362f;
   background-image: -moz-linear-gradient(top, #ee5f5b, #bd362f);
   background-image: -ms-linear-gradient(top, #ee5f5b, #bd362f);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#ee5f5b), to(#bd362f));
@@ -2815,7 +2758,6 @@ textarea.span1,
 .bokeh .btn-danger.disabled,
 .bokeh .btn-danger[disabled] {
   background-color: #bd362f;
-  *background-color: #a9302a;
 }
 
 .bokeh .btn-danger:active,
@@ -2825,7 +2767,6 @@ textarea.span1,
 
 .bokeh .btn-success {
   background-color: #5bb75b;
-  *background-color: #51a351;
   background-image: -moz-linear-gradient(top, #62c462, #51a351);
   background-image: -ms-linear-gradient(top, #62c462, #51a351);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#62c462), to(#51a351));
@@ -2845,7 +2786,6 @@ textarea.span1,
 .bokeh .btn-success.disabled,
 .bokeh .btn-success[disabled] {
   background-color: #51a351;
-  *background-color: #499249;
 }
 
 .bokeh .btn-success:active,
@@ -2855,7 +2795,6 @@ textarea.span1,
 
 .bokeh .btn-info {
   background-color: #49afcd;
-  *background-color: #2f96b4;
   background-image: -moz-linear-gradient(top, #5bc0de, #2f96b4);
   background-image: -ms-linear-gradient(top, #5bc0de, #2f96b4);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#5bc0de), to(#2f96b4));
@@ -2875,7 +2814,6 @@ textarea.span1,
 .bokeh .btn-info.disabled,
 .bokeh .btn-info[disabled] {
   background-color: #2f96b4;
-  *background-color: #2a85a0;
 }
 
 .bokeh .btn-info:active,
@@ -2885,7 +2823,6 @@ textarea.span1,
 
 .bokeh .btn-inverse {
   background-color: #414141;
-  *background-color: #222222;
   background-image: -moz-linear-gradient(top, #555555, #222222);
   background-image: -ms-linear-gradient(top, #555555, #222222);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#555555), to(#222222));
@@ -2905,7 +2842,6 @@ textarea.span1,
 .bokeh .btn-inverse.disabled,
 .bokeh .btn-inverse[disabled] {
   background-color: #222222;
-  *background-color: #151515;
 }
 
 .bokeh .btn-inverse:active,
@@ -2915,8 +2851,6 @@ textarea.span1,
 
 .bokeh button.btn,
 .bokeh input[type="submit"].btn {
-  *padding-top: 2px;
-  *padding-bottom: 2px;
 }
 
 .bokeh button.btn::-moz-focus-inner,
@@ -2927,26 +2861,18 @@ textarea.span1,
 
 .bokeh button.btn.btn-large,
 .bokeh input[type="submit"].btn.btn-large {
-  *padding-top: 7px;
-  *padding-bottom: 7px;
 }
 
 .bokeh button.btn.btn-small,
 .bokeh input[type="submit"].btn.btn-small {
-  *padding-top: 3px;
-  *padding-bottom: 3px;
 }
 
 .bokeh button.btn.btn-mini,
 .bokeh input[type="submit"].btn.btn-mini {
-  *padding-top: 1px;
-  *padding-bottom: 1px;
 }
 
 .bokeh .btn-group {
   position: relative;
-  *margin-left: .3em;
-  *zoom: 1;
 }
 
 .bokeh .btn-group:before,
@@ -2960,7 +2886,6 @@ textarea.span1,
 }
 
 .bokeh .btn-group:first-child {
-  *margin-left: 0;
 }
 
 .bokeh .btn-group + .btn-group {
@@ -2974,10 +2899,8 @@ textarea.span1,
 
 .bokeh .btn-toolbar .btn-group {
   display: inline-block;
-  *display: inline;
   /* IE7 inline-block hack */
 
-  *zoom: 1;
 }
 
 .bokeh .btn-group > .btn {
@@ -3042,9 +2965,7 @@ textarea.span1,
 }
 
 .bokeh .btn-group > .dropdown-toggle {
-  *padding-top: 4px;
   padding-right: 8px;
-  *padding-bottom: 4px;
   padding-left: 8px;
   -webkit-box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.125), inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
      -moz-box-shadow: inset 1px 0 0 rgba(255, 255, 255, 0.125), inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -3057,8 +2978,6 @@ textarea.span1,
 }
 
 .bokeh .btn-group > .btn-small.dropdown-toggle {
-  *padding-top: 4px;
-  *padding-bottom: 4px;
 }
 
 .bokeh .btn-group > .btn-large.dropdown-toggle {
@@ -3263,10 +3182,8 @@ textarea.span1,
 }
 
 .bokeh .nav-list .divider {
-  *width: 100%;
   height: 1px;
   margin: 8px 1px;
-  *margin: -5px 0 5px;
   overflow: hidden;
   background-color: #e5e5e5;
   border-bottom: 1px solid #ffffff;
@@ -3274,7 +3191,6 @@ textarea.span1,
 
 .bokeh .nav-tabs,
 .bokeh .nav-pills {
-  *zoom: 1;
 }
 
 .bokeh .nav-tabs:before,
@@ -3452,7 +3368,6 @@ textarea.span1,
 }
 
 .bokeh .tabbable {
-  *zoom: 1;
 }
 
 .bokeh .tabbable:before,
@@ -3542,7 +3457,6 @@ textarea.span1,
 .bokeh .tabs-left > .nav-tabs .active > a,
 .bokeh .tabs-left > .nav-tabs .active > a:hover {
   border-color: #ddd transparent #ddd #ddd;
-  *border-right-color: #ffffff;
 }
 
 .bokeh .tabs-right > .nav-tabs {
@@ -3565,12 +3479,9 @@ textarea.span1,
 .bokeh .tabs-right > .nav-tabs .active > a,
 .bokeh .tabs-right > .nav-tabs .active > a:hover {
   border-color: #ddd #ddd #ddd transparent;
-  *border-left-color: #ffffff;
 }
 
 .bokeh .navbar {
-  *position: relative;
-  *z-index: 2;
   margin-bottom: 18px;
   overflow: visible;
 }
@@ -3647,7 +3558,6 @@ textarea.span1,
 
 .bokeh .navbar-form {
   margin-bottom: 0;
-  *zoom: 1;
 }
 
 .bokeh .navbar-form:before,
@@ -3844,7 +3754,6 @@ textarea.span1,
   margin-right: 5px;
   margin-left: 5px;
   background-color: #2c2c2c;
-  *background-color: #222222;
   background-image: -moz-linear-gradient(top, #333333, #222222);
   background-image: -ms-linear-gradient(top, #333333, #222222);
   background-image: -webkit-gradient(linear, 0 0, 0 100%, from(#333333), to(#222222));
@@ -3867,7 +3776,6 @@ textarea.span1,
 .bokeh .navbar .btn-navbar.disabled,
 .bokeh .navbar .btn-navbar[disabled] {
   background-color: #222222;
-  *background-color: #151515;
 }
 
 .bokeh .navbar .btn-navbar:active,
@@ -3993,9 +3901,7 @@ textarea.span1,
 
 .bokeh .breadcrumb li {
   display: inline-block;
-  *display: inline;
   text-shadow: 0 1px 0 #ffffff;
-  *zoom: 1;
 }
 
 .bokeh .breadcrumb .divider {
@@ -4014,13 +3920,11 @@ textarea.span1,
 
 .bokeh .pagination ul {
   display: inline-block;
-  *display: inline;
   margin-bottom: 0;
   margin-left: 0;
   -webkit-border-radius: 3px;
      -moz-border-radius: 3px;
           border-radius: 3px;
-  *zoom: 1;
   -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
      -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
           box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
@@ -4083,7 +3987,6 @@ textarea.span1,
   margin-left: 0;
   text-align: center;
   list-style: none;
-  *zoom: 1;
 }
 
 .bokeh .pager:before,
@@ -4135,7 +4038,6 @@ textarea.span1,
 }
 
 .bokeh .modal-open .dropdown.open {
-  *z-index: 2050;
 }
 
 .bokeh .modal-open .popover {
@@ -4177,7 +4079,6 @@ textarea.span1,
   background-color: #ffffff;
   border: 1px solid #999;
   border: 1px solid rgba(0, 0, 0, 0.3);
-  *border: 1px solid #999;
   -webkit-border-radius: 6px;
      -moz-border-radius: 6px;
           border-radius: 6px;
@@ -4230,7 +4131,6 @@ textarea.span1,
   -webkit-border-radius: 0 0 6px 6px;
      -moz-border-radius: 0 0 6px 6px;
           border-radius: 0 0 6px 6px;
-  *zoom: 1;
   -webkit-box-shadow: inset 0 1px 0 #ffffff;
      -moz-box-shadow: inset 0 1px 0 #ffffff;
           box-shadow: inset 0 1px 0 #ffffff;
@@ -4452,7 +4352,6 @@ textarea.span1,
 .bokeh .thumbnails {
   margin-left: -20px;
   list-style: none;
-  *zoom: 1;
 }
 
 .bokeh .thumbnails:before,
