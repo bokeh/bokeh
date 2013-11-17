@@ -946,6 +946,10 @@ def yaxis():
     axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==1]
     return _list_attr_splat(axis)
 
+def axis():
+    """ Return the axes on the current plot """
+    return _list_attr_splat(xaxis() + yaxis())
+
 def xgrid():
     """ Returns x-grid object on the current plot """
     p = curplot()
@@ -962,4 +966,7 @@ def ygrid():
     grid = [obj for obj in p.renderers if isinstance(obj, Grid) and obj.dimension==1]
     return _list_attr_splat(grid)
 
+def grid():
+    """ Return the grids on the current plot """
+    return _list_attr_splat(xgrid() + ygrid())
 
