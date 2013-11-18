@@ -18,6 +18,8 @@ define (require, exports, module) ->
 
   Bokeh = {}
 
+  Bokeh.version = '0.3.0'
+
   # common
   Bokeh.Collections       = require("common/base").Collections
   Bokeh.Config            = require("common/base").Collections
