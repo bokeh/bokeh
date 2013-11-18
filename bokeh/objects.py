@@ -323,7 +323,7 @@ class PlotObject(HasProps):
         embed_save_loc controls where the embed.js will be actually written to.
 
         static_path controls where the embed snippet looks to find
-        application.js and the other resources it needs for bokeh.
+        bokeh.js and the other resources it needs for bokeh.
         """
         if server:
             return self._build_server_snippet()[1]

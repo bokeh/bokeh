@@ -3,7 +3,7 @@ console.log("embed.js");
 (function(global) {
 
     var host = "{{host}}";
-    var bokehUrl = host + 'js/application.js';
+    var bokehUrl = host + 'js/bokeh.js';
 
 
     var all_models = {{ all_models }};

@@ -199,7 +199,7 @@ def dom_embed(plot, **kwargs):
                                  "bokehjs", "coffee")
         hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
     else:
-        static_js = ['/bokeh/static/js/application.js']
+        static_js = ['/bokeh/static/js/bokeh.js']
         hem_js = []
     plot2 = make_plot()
     return render_template(
