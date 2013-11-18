@@ -3,6 +3,11 @@ import re
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
+from bokeh import plotting
+
+def noop(*args, **kwargs):
+    pass
+plotting.show= noop
 
 
 _basedir = os.path.dirname(__file__)
