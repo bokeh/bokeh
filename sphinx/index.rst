@@ -35,7 +35,7 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
         <td><a href="plot_gallery/iris.html"><img src="_images/iris2.png"/></a></td>
         <td><a href="plot_gallery/texas_example.html"><img src="_images/choropleth2.png"/></a></td>
         <td><a href="plot_gallery/iris_splom.html"><img src="_images/splom2.png"/></a></td>
-        <td><a href="http://continuumio.github.io/bokehjs/image.html"><img src="_images/image_plot2.png"/></a></td>
+        <td><a href="plot_gallery/burtin.html"><img src="_images/burtin.png"/></a></td>
         <td><a href="plot_gallery/vector_example.html"><img src="_images/streamline.png"/></a></td>
 
     </tr>
@@ -47,7 +47,7 @@ Contents
 
 .. toctree::
    :maxdepth: 2
-   
+
    quickstart.rst
    installation.rst
    tutorial.rst
@@ -83,12 +83,12 @@ address fundamental challenges of large dataset visualization:
 
   * Are there automated approaches to accurately reduce large datasets
     so that outliers and anomalies are still visible, while we meaningfully
-    represent baselines and backgrounds?  How can we do this without 
+    represent baselines and backgrounds?  How can we do this without
     "washing away" all the interesting bits during a naive downsampling?
-        
+
   * If we treat the pixels and topology of pixels on a screen as a bottleneck
-    in the I/O channel between hard drives and an analyst's visual cortex, 
-    what are the best compression techniques at all levels of the data 
+    in the I/O channel between hard drives and an analyst's visual cortex,
+    what are the best compression techniques at all levels of the data
     transformation pipeline?
 
 * How can scientists and data analysts be empowered to use visualization
@@ -105,12 +105,12 @@ address fundamental challenges of large dataset visualization:
 Some of the core ideas for the backend processing in bokeh-server are currently
 implemented as a standalone library, and are being developed under the term
 "Abstract Rendering", which we will be presenting at VDA 2014.  For more
-information, you can visit the 
+information, you can visit the
 `Abstract Rendering github <http://github.com/JosephCottam/AbstractRendering>`_.
 
 Bokeh is one of several open-source components of the broader technical
 vision of `Continuum Analytics <http://continuum.io>`_.  By providing powerful data
-description and vector computing on remote and distributed data via 
+description and vector computing on remote and distributed data via
 `Blaze <http://blaze.pydata.org>`_ and `Numba <http://numba.pydata.org>`_, and
 providing interactive visualizations of them via Bokeh, we enable teams
 to collaboratively perform rich analysis, share them with others (potentially
@@ -141,7 +141,7 @@ Follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 When tweeting about how awesome Bokeh is, be sure to use the #bokeh tag!
 
 For information about commercial development, custom visualization development
-or embedding Bokeh in your applications, please contact 
+or embedding Bokeh in your applications, please contact
 `pwang@continuum.io <mailto://pwang@continuum.io>`_.
 
 To donate funds to support the development of Bokeh, please contact
@@ -151,7 +151,7 @@ To donate funds to support the development of Bokeh, please contact
 Thanks
 ------
 
-Bokeh is developed with funding from `DARPA <http://darpa.mil>`_'s 
+Bokeh is developed with funding from `DARPA <http://darpa.mil>`_'s
 `XDATA <http://www.darpa.mil/Our_Work/I2O/Programs/XDATA.aspx>`_ program.
 
 
