@@ -20,6 +20,7 @@ from .objects import (ColumnDataSource, DataRange1d,
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
 from . import glyphs
+from .palettes import brewer
 
 def plothelp():
     """ Prints out a list of all plotting functions.  Information on each
