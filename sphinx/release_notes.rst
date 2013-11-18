@@ -4,6 +4,13 @@
 Release Notes
 #############
 
+v0.3 (Nov 2013)
+===============
+
+* refactor bokehjs to use grunt for coffee build
+* merge bokeh and bokehjs repositories
+* various bug fixes
+* additional and improved examples and docs
 
 v0.2 (Oct 2013)
 ===============
@@ -15,8 +22,8 @@ v0.2 (Oct 2013)
 * Many more examples, much improved docs
 
 
-v0.1 (April 2013)
-=================
+v0.1 (Apr 2013)
+===============
 
 * Basic low-level interface, consisting of wrapper objects for BokehJS rendering primitives, glyphs, tools
 * Beginnings of the ggplot-style interface that wraps the low-level interface
@@ -33,25 +40,6 @@ v0.1 (April 2013)
 ###################
 Roadmap & TODO List
 ###################
-
-v0.3 (Goal: Nov 12, 2013)
-=========================
-
-The key goal of this release is to have a stable point after the BokehJS
-refactor and after the repository merge, on which CDX development can
-be based.  The new repository layout should also make the project much
-more accessible to new contributors.
-
-In creating this 0.3 release, the previous 0.3 and 0.4 releases have been
-"bumped" up to 0.4 and 0.5, respectively.
-
-* Redo source tree layout, remove BokehJS subtree and incorporating Sahat's JS suggestions
-* Merge BokehJS into Bokeh repo itself, and deprecate BokehJS repository
-* Variety of bugfixes:
-
-  * behavior of hold() in IPython Notebook
-  * handling of corner case data sources
-  * minor improvements to some examples
 
 v0.4 (Goal: December 2013)
 ==========================
