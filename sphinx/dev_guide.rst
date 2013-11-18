@@ -83,60 +83,63 @@ Coffeescript in Bokeh itself, and there is Coffeescript in BokehJS.
 
 It is possible to set up just for development on Bokeh, without having a
 development install of BokehJS.  To do this, just run ``python setup.py install``.
-This will copy the pre-built ``application.js`` and ``bokehnotebook.js`` files
-from the ``jsbuild/`` directory into the correct place in the source tree.
+This will copy the pre-built ``bokeh.js`` from the ``bokehjs/release`` directory
+into the correct place in the source tree.
 
-If you want to do development on BokehJS as well, then modify the subtree
-source in the ``subtree/bokehjs/`` directory, and run ``python exportjs.py``
-in the top-level Bokeh directory.  (You must re-run exportjs.py after all
-bokehjs changes.)  ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING!
+If you want to do development on BokehJS as well, then modify the Coffeescript
+source in the ``bokehjs/`` directory, and follow the instructions below for
+building/installing Coffeescript.  ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING!
 
-If you have any problems with the steps here, please contact the developers 
+If you have any problems with the steps here, please contact the developers
 (see :ref:`contact`).
 
 Coffeescript
 ------------
 
-To develop Bokeh you will need to `install
-coffeescript <http://coffeescript.org/#installation>`_, which depends on
-`node.js <http://nodejs.org/>`_.
+Building the Coffeescript BokehJS library has a number of requirements:
 
-Hem
----
+1. You need to have node.js and and the node package manager (npm)
+installed.
 
-We're using our own fork of hem to manage the build process.  *This will be
-changing in version 0.3, when we will move to a different set of Javascript
-technologies for building the front-end.*
+2. We're using Grunt for our Coffeescript build tool.  Grunt will compile
+coffeescript, combine js files, and support node.js require syntax on the
+client side.  Install grunt by executing
 
-Please clone this repo: `https://github.com/ContinuumIO/hem <https://github.com/ContinuumIO/hem>`_.
-hem will compile coffeescript, combine js files, and support node.js require
-syntax on the client side.
+`$ npm install -g grunt-cli`
 
-Install it by executing the following inside the hem repo::
+2. We're using bower to manage client dependencies. Install bower by
+executing:
 
-    $ sudo npm link
+`$ npm install -g bower`
 
-This will link hem to your working copy so you get hem changes as we push it
-out.  Inside ``bokeh/server/`` of the Bokeh repo, execute::
+In order to build the javascript files that comprise bokeh.js, first install
+necessary dependencies:
 
-    $ hem server &
-    
-The hem server will serve up coffeescript, compiling them on the fly.
+`$ npm install && bower install`
 
-Developing with Hem Server
---------------------------
+These command will install compile and runtime dependencies into node_modules
+and build subdirectories, respectively.
 
-To run the debug webserver, execute ``bokeh-server -d -j``.  The debug
-webserver is configured to ask the hem server for compiled javascript, rather
-than read the pre-compiled application.js off of disk.
+To compile the Coffeescript into javascript, execute grunt:
 
-For the embedded plotting examples, or the production server, you will need to
-compile the js yourself.
+`$ grunt build`
 
-   * Go to the ``bokeh/server/`` directory.
-   * ``hem build -d`` will build the Bokeh application.js file
-   * ``hem build -d -s slug.notebook.json`` will build bokehnotebook.js, which
-     is used for all the notebook examples
-   * the ``-d`` option will prevent hem from uglifying the js, which breaks the
-     notebook export at the moment.
+At this point bokeh can be be used as an AMD module together with require.js.
+To build a single bokeh.js that may be included as a script, see below.
 
+Grunt can concatenate the javascript files into a single bokeh.js, either
+minified or unminified. To generate a minified script, execute the
+command:
+
+`$ grunt deploy`
+
+The resulting script will have the filename bokeh.min.js and be located in
+the build subdirectory.
+
+To generate an un-minified script, (useful for debugging or developing
+bokehjs), execute the command:
+
+`$ grunt devdeploy`
+
+The resulting script will have the filename bokeh.js and be located in
+the build subdirectory.

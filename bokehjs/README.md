@@ -46,7 +46,7 @@ To compile the Coffeescript into javascript, execute grunt:
 `$ grunt build`
 
 At this point bokeh can be be used as an AMD module together with require.js.
-To build a single bokeh.js that may be included as a script, see the secion
+To build a single bokeh.js that may be included as a script, see the section
 "Deploying".
 
 Deploying
