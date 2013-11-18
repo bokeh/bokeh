@@ -3,7 +3,7 @@ import os
 
 from bokeh.sampledata.iris import flowers
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, GlyphRenderer, PanTool, ZoomTool
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, ZoomTool
 )
 from bokeh.glyphs import Circle
 from bokeh import session
@@ -13,7 +13,7 @@ import numpy as np
 import os.path
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, GlyphRenderer, ObjectArrayDataSource,
+        ColumnDataSource, Glyph, ObjectArrayDataSource,
         PanTool, ZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
@@ -38,7 +38,7 @@ ydr = DataRange1d(sources=[source.columns("petal_width")])
 
 circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, radius=5, line_color="color")
 
-glyph_renderer = GlyphRenderer(
+glyph_renderer = Glyph(
         data_source = source,
         xdata_range = xdr,
         ydata_range = ydr,
@@ -68,7 +68,7 @@ import numpy as np
 import os.path
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ObjectArrayDataSource, ColumnDataSource, GlyphRenderer,
+        ObjectArrayDataSource, ColumnDataSource, Glyph,
         PanTool, ZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
@@ -87,7 +87,7 @@ ydr = DataRange1d(sources=[source.columns("y")])
 
 line_glyph = Line(x="x", y="y", line_color="blue")
 
-renderer = GlyphRenderer(
+renderer = Glyph(
         data_source = source,
         xdata_range = xdr,
         ydata_range = ydr,
