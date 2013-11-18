@@ -16,7 +16,8 @@ the `demo/` directory showcase this.
 Requirements
 ============
 
-1. You need to have node.js installed.
+1. You need to have node.js and and the node package manager (npm)
+installed.
 
 2. We're using Grunt for our Coffeescript build tool.  Grunt will compile
 coffeescript, combine js files, and support node.js require syntax on the
@@ -29,51 +30,72 @@ executing:
 
 `$ npm install -g bower`
 
+Building
+========
 
-Demoing
-=======
+In order to build the javascript files that comprise bokeh.js, first install
+necessary dependencies:
 
-To play with the BokehJS demos and tests, run the following two commands:
+`$ npm install && bower install`
 
-`$ hem server -s slug.all.json`
+These command will install compile and runtime dependencies into node_modules
+and build subdirectories, respectively.
 
-This causes a hem server to start, which will compile coffeescript source
-on-demand and serve them up.  Then, in a new window, run the Python
-demo web server:
+To compile the Coffeescript into javascript, execute grunt:
 
-`$ python demoserver.py debug`
+`$ grunt build`
 
-Now, you should be able to visit `http://localhost:5000/` and see a list
-of demos and tests.
-
-If, for whatever reason, you don't want to have the hem server running, you
-can also build a static Javascript file and use that instead:
-
-`$ hem build -s slug.all.json`
-`$ python demoserver.py`
-
-Note that in order to run the demo server in debug mode, you must also use
-the hem server.  The reason is that it's very unlikely you will be debugging
-BokehJS without modifying coffeescript, and using the hem server ensures
-that you are never served stale Javascript.
-
+At this point bokeh can be be used as an AMD module together with require.js.
+To build a single bokeh.js that may be included as a script, see the secion
+"Deploying".
 
 Deploying
 =========
 
-We have separate slug.json files to configure hem with different paths for
-testing/demoing and production deployment.  The default slug.json just
-points to the actual BokehJS code, and doesn't include any of the tests
-or demos.  (Those sometimes contain lots of test data and really bloat
-the size of the output javascript.)
+Grunt can concatenate the javascript files into a single bokeh.js, either
+minified or unminified. To generate a minified script, execute the
+command:
 
-To build a single application.js for Bokeh, do:
+`$ grunt deploy`
 
-`$ hem build`
+The resulting script will have the filename bokeh.min.js and be located in
+the build subdirectory.
 
-This produces a file `static/js/application.js` that includes BokehJS
-and all of its dependencies.  Passing the `-d` option will cause this
-to be un-minified and readable, but inflates the file size by roughly 2X.
+To generate an un-minified script, (useful for debugging or developing
+bokehjs), execute the command:
+
+`$ grunt devdeploy`
+
+The resulting script will have the filename bokeh.js and be located in
+the build subdirectory.
+
+In both cases, the script creates a top level module "Bokeh" that exposes
+the full API.
+
+Demoing
+=======
+
+Executing "grunt build" will also cause the demo files to be built and copied
+the build/demo subdirectory. To view the demos, simply open any of the html
+files located there in a browser.
+
+Testing
+=======
+
+In order to run the bokehjs tests, a web server must first be running at the
+top level. One simple way is to use the server built into python:
+
+`$ python -m SimpleHTTPServer`
+
+Once a webserver is running, the tests may be run explicitly by executing
+the command
+
+`$ grunt qunit`
+
+or may be run as part of the default grunt target (which also builds), by
+executing the command
+
+`$ grunt`
 
 Developing & Contributing
 =========================
