@@ -1,6 +1,8 @@
-2013-11-14      0.3:
+2013-11-18      0.3:
 --------------------
-  * 
+  * merge bokehjs into bokeh repository
+  * bokehjs build refactor to use grunt
+  * added colorbrewer palettes on python side
   * enhancements:
     - #68 Remove guidespec and bake the attributes directly into the GuideRenderer
     - #158 Made FAQ fonts consistent
