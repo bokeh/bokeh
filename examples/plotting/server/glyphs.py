@@ -8,7 +8,7 @@ N = 9
 
 x = np.linspace(-2, 2, N)
 y = x**2
-sizes = np.linspace(4, 10, N)
+sizes = np.linspace(10, 20, N)
 
 xpts = np.array([-.09, -.12, .0, .12, .09])
 ypts = np.array([-.1, .02, .1, .02, -.1])
@@ -31,10 +31,10 @@ circle(x, y, radius=0.1, radius_units="data", color="#3288BD", tools="", title="
 
 line(x, y, color="#F46D43", tools="", title="line")
 
-multi_line([xpts+xx for xx in x], [ypts+yy for yy in y], 
+multi_line([xpts+xx for xx in x], [ypts+yy for yy in y],
            color="#8073AC", tools="", title="multi_line", line_width=2)
 
-oval(x, y, 15, 25, angle=-0.7, 
+oval(x, y, 15, 25, angle=-0.7,
      width_units="screen", height_units="screen",
      color="#1D91C0", tools="", title="oval")
 
@@ -48,7 +48,7 @@ quadratic(x, y, x+0.2, y, x+0.1, y+0.1, color="#4DAF4A", tools="", title="quadra
 
 ray(x, y, 45, -0.7, color="#FB8072", tools="", title="ray", line_width=2)
 
-rect(x, y, 10, 20, -0.7, 
+rect(x, y, 10, 20, -0.7,
      width_units="screen", height_units="screen",
      color="#CAB2D6", tools="", title="rect")
 
@@ -58,7 +58,7 @@ square(x, y, size=dict(field="sizes", units="screen"), color="#74ADD1",
        source=ColumnDataSource({"sizes": sizes}),
        tools="", title="square")
 
-wedge(x, y, 15, 0.6, 4.1, 
+wedge(x, y, 15, 0.6, 4.1,
       radius_units="screen",
       color="#B3DE69", tools="", title="wedge",)
 
