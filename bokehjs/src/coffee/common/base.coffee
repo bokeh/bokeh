@@ -11,7 +11,7 @@ define [
   "range/data_range1d",
   "range/factor_range",
   "range/data_factor_range",
-  "renderer/glyph/glyph",
+  "renderer/glyph/glyph_factory",
   "renderer/guide/linear_axis",
   "renderer/guide/datetime_axis",
   "renderer/guide/grid",
