@@ -11,6 +11,7 @@
     - #129 The sampledata download is confusing
     - #105 All of the glyph examples have the same color
     - #82 Improve hold() functionality in notebook
+    - #163 Rebuild only files that changed
   * bugfixes:
     - #155 ColumnDataSource does not update column_names
     - #152 Possible to have two Preview/Save tools
@@ -18,6 +19,7 @@
     - #131 "Fork me on github" corner banner appears underneath some text boxes
     - #117 axis_line_color=None does not work
     - #162 Preview save tool broken
+    - #199 Setting renderer.root_url has no effect
 
 
 2013-10-11      0.2:
