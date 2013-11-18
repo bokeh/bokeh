@@ -267,7 +267,7 @@ class ColorSpec(DataSpec):
     For more examples, see tests/test_glyphs.py
     """
 
-    NAMEDCOLORS = {'indigo', 'gold', 'firebrick', 'indianred', 'yellow',
+    NAMEDCOLORS = set(['indigo', 'gold', 'firebrick', 'indianred', 'yellow',
     'darkolivegreen', 'darkseagreen', 'darkslategrey', 'mediumvioletred',
     'mediumorchid', 'chartreuse', 'mediumblue', 'black', 'springgreen',
     'orange', 'lightsalmon', 'brown', 'turquoise', 'olivedrab', 'cyan',
@@ -293,7 +293,7 @@ class ColorSpec(DataSpec):
     'midnightblue', 'paleturquoise', 'palegoldenrod', 'whitesmoke',
     'darkorchid', 'salmon', 'lightslategray', 'lemonchiffon', 'chocolate',
     'tomato', 'cadetblue', 'lightyellow', 'lavenderblush', 'darkblue',
-    'mediumaquamarine', 'green', 'blueviolet', 'peachpuff', 'darkgrey'}
+    'mediumaquamarine', 'green', 'blueviolet', 'peachpuff', 'darkgrey'])
 
 
     def __init__(self, field_or_value=None, field=None, default=None, value=None):

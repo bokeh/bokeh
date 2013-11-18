@@ -87,7 +87,7 @@ def ws_update(session, models, exclude_self=True):
     msg = session.serialize({'msgtype' : 'modelpush',
                              'modelspecs' : attrs
                              })
-    app.wsmanager.send("bokehplot:" + session.docid, msg, exclude={clientid})
+    app.wsmanager.send("bokehplot:" + session.docid, msg, exclude=set([clientid]))
     return msg
         
 def ws_delete(session, models):
@@ -96,7 +96,7 @@ def ws_delete(session, models):
            'modelspecs' : attrs
            }
     msg = session.serialize(msg)
-    app.wsmanager.send("bokehplot:" + session.docid, msg, exclude={clientid})
+    app.wsmanager.send("bokehplot:" + session.docid, msg, exclude=set([clientid]))
     return msg
     
 #backbone functionality
