@@ -27,7 +27,7 @@ def page_desc(prev_infos, module_desc):
         prev_info = prev_infos[-1]
     else:
         prev_info = {}
-    embed_snippet = plot.inject_snippet(
+    embed_snippet = plot.create_html_snippet(
         embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
         embed_base_url=DETAIL_URL_ROOT)
     detail_snippet = highlight(open(module_path).read(), PythonLexer(), HtmlFormatter())

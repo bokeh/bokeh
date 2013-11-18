@@ -952,7 +952,7 @@ class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
             objects = self._models.values()
         else:
             the_plot = [m for m in objects if isinstance(m, Plot)][0]
-        return the_plot.inject_snippet(server=True)
+        return the_plot.create_html_snippet(server=True)
 
     def show(self, *objects):
         """ Displays the given objects, or all objects currently associated

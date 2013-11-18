@@ -306,12 +306,12 @@ class PlotObject(HasProps):
                     self, attrname, old, new)
 
 
-    def inject_snippet(
+    def create_html_snippet(
             self, server=False, embed_base_url="", embed_save_loc=".",
             static_path="http://localhost:5006/bokeh/static/"):
-        """inject snippet is used to embed a plot in an html page.
+        """create_html_snippet is used to embed a plot in an html page.
 
-        inject_snippet returns the embed string to be put in html.
+        create_html_snippet returns the embed string to be put in html.
         This will be a <script> tag.
 
         To embed a plot dependent on the Bokeh Plot Server, set server=True,
@@ -326,7 +326,9 @@ class PlotObject(HasProps):
         bokeh.js and the other resources it needs for bokeh.
         """
         if server:
-            return self._build_server_snippet()[1]
+            if embed_base_url == "":
+                embed_base_url = False
+            return self._build_server_snippet(embed_base_url)[1]
         embed_filename = "%s.embed.js" % self._id
         full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)
         js_code, embed_snippet = self._build_static_embed_snippet(
@@ -335,11 +337,20 @@ class PlotObject(HasProps):
             f.write(js_code)
         return embed_snippet
 
-    def _build_server_snippet(self):
+    def inject_snippet(
+            self, server=False, embed_base_url="", embed_save_loc=".",
+            static_path="http://localhost:5006/bokeh/static/"):
+        warnings.warn("inject_snippet is deprecated, please use create_html_snippet")
+        return self.create_html_snippet(
+            server, embed_base_url, embed_save_loc, static_path)
+
+    def _build_server_snippet(self, base_url=False):
         sess = self._session
         modelid = self._id
         typename = self.__view_model__
-        split = urlparse.urlsplit(sess.root_url)
+        if not base_url:
+            base_url = sess.root_url
+        split = urlparse.urlsplit(base_url)
         if split.scheme == 'http':
             ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
         else:
@@ -349,10 +360,10 @@ class PlotObject(HasProps):
             docid = sess.docid,
             ws_conn_string = ws_conn_string,
             docapikey = sess.apikey,
-            root_url = sess.root_url,
+            root_url = base_url,
             modelid = modelid,
             modeltype = typename,
-            script_url = sess.root_url + "/bokeh/embed.js")
+            script_url = base_url + "/bokeh/embed.js")
         e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
         bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
         bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
@@ -610,7 +621,7 @@ class Plot(PlotObject):
             self.script_inject_snippet
             return ""
         else:
-            return self.inject_snippet(server=True)
+            return self.create_html_snippet(server=True)
 
     def vm_props(self, *args, **kw):
         # FIXME: We need to duplicate the height and width into canvas and
@@ -618,7 +629,7 @@ class Plot(PlotObject):
         # needs to be fixed more structurally on the JS side, and then this
         # should be revisited on the Python side.
         if hasattr(self.session, "root_url"):
-            self.script_inject_snippet = self.inject_snippet(server=True)
+            self.script_inject_snippet = self.create_html_snippet(server=True)
         if "canvas_width" not in self._changed_vars:
             self.canvas_width = self.width
         if "outer_width" not in self._changed_vars:

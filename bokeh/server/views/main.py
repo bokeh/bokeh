@@ -272,11 +272,11 @@ def generate_embed(inject_type, include_js):
     elif inject_type == "direct":
         direct = True
     elif inject_type == "static":
-        plot_scr = plot.inject_snippet(server=True)
+        plot_scr = plot.create_html_snippet(server=True)
     elif inject_type == "static_double":
         
-        plot_scr = "%s %s" % (plot.inject_snippet(server=True), 
-                              plot.inject_snippet(server=True))
+        plot_scr = "%s %s" % (plot.create_html_snippet(server=True), 
+                              plot.create_html_snippet(server=True))
 
     
     #I don't like this naming scheme
