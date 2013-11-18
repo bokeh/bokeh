@@ -93,6 +93,8 @@ if __name__ == "__main__":
         dict(file="../examples/plotting/file/choropleth.py", name= 'choropleth_example',),    
         dict(file="../examples/plotting/file/texas.py", name= 'texas_example',),    
         dict(file="../examples/plotting/file/markers.py", name= 'scatter_example',),    
+        dict(file="../examples/plotting/file/burtin.py", name= 'burtin_example',),    
+        dict(file="../examples/plotting/file/brewer.py", name= 'brewer_example',),    
          ]
     )
     try:
