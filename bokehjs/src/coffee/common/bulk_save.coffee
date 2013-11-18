@@ -4,7 +4,8 @@ define [
   "jquery",
   "require",
   "./base",
-], (_, $, require, base) ->
+  "./load_models",
+], (_, $, require, base, load_models) ->
 
   bulk_save = (models) ->
     ##FIXME:hack
