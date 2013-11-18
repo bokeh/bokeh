@@ -40,8 +40,6 @@ while True:
         rmax = ds.data["outer_radius"]
         rmax = roll(rmax, -1)
         ds.data["outer_radius"] = rmax
-        colors = [colors[-1]] + colors[:-1]
-        ds.data["colors"] = colors
         ds._dirty = True
         session().store_obj(ds)
         time.sleep(.10)
