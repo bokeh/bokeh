@@ -12,10 +12,13 @@ Version 0.2 (Sept 2013)
  * Adding support for colors to be DataSpecs in most glyphs
  * Made bokeh.plotting package more consistent; removing plot() function in favor of scatter/line/bar/etc.
 
-Version 0.3
+Version 0.3 (Nov 2013)
 -----------
+ * js build refactor to use grunt
+ * merge bokeh/bokehjs repositories
 
- * Redo source tree layout, remove BokehJS subtree and incorporating Sahat's JS suggestions
+Version 0.4
+-----------
  * Abstract Rendering
  * Better grid-based layout system
  * Touch events
