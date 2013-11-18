@@ -23,10 +23,7 @@ line(dates, acme,
 line(dates, choam, color='#FB9A99', legend='CHOAM')
 
 curplot().title = "Stock Returns"
-xgrid()[0].grid_line_dash=""
-xgrid()[0].grid_line_alpha=0.3
-ygrid()[0].grid_line_dash=""
-ygrid()[0].grid_line_alpha=0.3
+grid().grid_line_alpha=0.3
 
 figure()
 
@@ -37,10 +34,7 @@ scatter(
 )
 
 curplot().title = "ACME / CHOAM Correlations"
-xgrid()[0].grid_line_dash=""
-xgrid()[0].grid_line_alpha=0.3
-ygrid()[0].grid_line_dash=""
-ygrid()[0].grid_line_alpha=0.3
+grid().grid_line_alpha=0.3
 
 # open a browser
 show()

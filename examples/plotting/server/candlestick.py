@@ -29,10 +29,8 @@ rect(dates[dec], mids[dec], w, spans[dec],
      fill_color="#F2583E", line_color="#000000")
 
 curplot().title = "MSFT Candlestick"
-xgrid()[0].grid_line_dash=""
-xgrid()[0].grid_line_alpha=0.3
-ygrid()[0].grid_line_dash=""
-ygrid()[0].grid_line_alpha=0.3
+xaxis().major_label_orientation = pi/4
+grid().grid_line_alpha=0.3
 
 # open a browser
 show()

@@ -19,7 +19,6 @@ dates = linspace(now, now + num_points*dt, num_points)
 acme = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 choam = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 
-
 scatter(
     acme, choam,
     color='#A6CEE3', radius=3,
@@ -27,10 +26,7 @@ scatter(
 )
 
 curplot().title = "ACME / CHOAM Correlations"
-xgrid()[0].grid_line_dash=""
-xgrid()[0].grid_line_alpha=0.3
-ygrid()[0].grid_line_dash=""
-ygrid()[0].grid_line_alpha=0.3
+grid().grid_line_alpha=0.3
 
 figure()
 line(dates, acme,
@@ -39,13 +35,7 @@ line(dates, acme,
 line(dates, choam, color='#FB9A99', legend='CHOAM')
 
 curplot().title = "Stock Returns"
-xgrid()[0].grid_line_dash=""
-xgrid()[0].grid_line_alpha=0.3
-ygrid()[0].grid_line_dash=""
-ygrid()[0].grid_line_alpha=0.3
+grid().grid_line_alpha=0.3
 
-
-
-if __name__ == "__main__":
-    show()  # open a browser
+show()  # open a browser
 

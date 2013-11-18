@@ -27,10 +27,7 @@ line(np.array(MSFT['date'], dtype=np.datetime64).astype('int'), MSFT['adj_close'
      legend='MSFT')
 
 curplot().title = "Stock Closing Prices"
-xgrid()[0].grid_line_dash=""
-xgrid()[0].grid_line_alpha=0.3
-ygrid()[0].grid_line_dash=""
-ygrid()[0].grid_line_alpha=0.3
+grid().grid_line_alpha=0.3
 
 figure()
 
@@ -48,10 +45,7 @@ line(aapl_dates, aapl_avg,
      color='red', tools="pan,zoom,resize", legend='avg')
 
 curplot().title = "AAPL One-Month Average"
-xgrid()[0].grid_line_dash=""
-xgrid()[0].grid_line_alpha=0.3
-ygrid()[0].grid_line_dash=""
-ygrid()[0].grid_line_alpha=0.3
+grid().grid_line_alpha=0.3
 
 show()
 

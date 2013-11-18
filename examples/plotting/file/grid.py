@@ -22,18 +22,16 @@ xpts = np.array([-.09, -.12, .0, .12, .09])
 ypts = np.array([-.1, .02, .1, .02, -.1])
 
 aw = annular_wedge(
-    x, y, 10, 20, 0.6, 4.1, 
+    x, y, 10, 20, 0.6, 4.1,
     inner_radius_units="screen", outer_radius_units = "screen",
     color="#8888ee", tools="pan,zoom,resize", title="annular_wedge",
     name="glyphs_example", width=width, height=height)
-bez = bezier(x, y, x+0.2, y, x+0.1, y+0.1, x-0.1, y-0.1, 
+bez = bezier(x, y, x+0.2, y, x+0.1, y+0.1, x-0.1, y-0.1,
        color="#8888ee", tools="pan,zoom,resize", title="bezier",
        width=width, height=height)
-q = quad(x, x-0.5, y, y-0.5, 
+q = quad(x, x-0.5, y, y-0.5,
      color="#8888ee", tools="pan,zoom,resize", title="quad",
      width=width, height=height)
 gridplot([[l,aw],[bez,q]])
 
-if __name__ == "__main__":
-    # open a browser
-    show()
+show()

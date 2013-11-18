@@ -26,10 +26,7 @@ line(np.array(MSFT['date'], dtype=np.datetime64).astype('int'), MSFT['adj_close'
      legend='MSFT')
 
 curplot().title = "Stock Closing Prices"
-xgrid()[0].grid_line_dash=""
-xgrid()[0].grid_line_alpha=0.3
-ygrid()[0].grid_line_dash=""
-ygrid()[0].grid_line_alpha=0.3
+grid().grid_line_alpha=0.3
 
 figure()
 
@@ -45,16 +42,11 @@ scatter(aapl_dates, aapl,
         color='#A6CEE3', radius=1, tools="pan,zoom,resize,save", legend='close',
         name="stocks")
 
-
 line(aapl_dates, aapl_avg,
      color='red', tools="pan,zoom,resize", legend='avg', name="stocks2")
 
 curplot().title = "AAPL One-Month Average"
-xgrid()[0].grid_line_dash=""
-xgrid()[0].grid_line_alpha=0.3
-ygrid()[0].grid_line_dash=""
-ygrid()[0].grid_line_alpha=0.3
+grid().grid_line_alpha=0.3
 
-if __name__ == "__main__":
-    show()  # open a browser
+show()  # open a browser
 

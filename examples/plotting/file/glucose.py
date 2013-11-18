@@ -35,7 +35,6 @@ curplot().title = "Glucose In-Range Rolling Sum"
 
 figure()
 
-
 day = data.ix['2010-10-06']
 highs = day[day['glucose'] > 180]
 lows = day[day['glucose'] < 80]
@@ -51,11 +50,9 @@ scatter(lows.index.astype('int64')/1000000, lows['glucose'],
         color='navy', radius=4, legend="low")
 
 curplot().title = "Glucose Range"
-xgrid()[0].grid_line_color=None
-ygrid()[0].grid_line_dash="3 6"
-ygrid()[0].grid_line_alpha=0.5
+xgrid().grid_line_color=None
+ygrid().grid_line_dash="3 6"
+ygrid().grid_line_alpha=0.5
 
-
-if __name__ == "__main__":
-    show()  # open a browser
+show()  # open a browser
 

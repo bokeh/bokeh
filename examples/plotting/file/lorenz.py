@@ -33,5 +33,4 @@ multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
            line_color=colors, line_alpha=0.8, line_width=1.5,
            tools="pan,zoom,resize", title="lorenz example", name="lorenz_example")
 
-if __name__ == "__main__":
-    show()  # open a browser
+show()  # open a browser

@@ -15,6 +15,7 @@ output_file("relative.html", title="Relative path example",
         js="relative", css="relative")
 
 scatter(x,y, color="#FF00FF", tools="pan,zoom,resize,save")
+
 show()
 
 # By default, the URLs for the Javascript and CSS will be relative to

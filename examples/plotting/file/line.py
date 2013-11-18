@@ -11,6 +11,4 @@ output_file("line.html", title="line.py example")
 line(x,y, color="#0000FF", tools="pan,zoom,resize",
      name="line_example")
 
-if __name__ == "__main__":
-    # open a browser
-    show()
+show()

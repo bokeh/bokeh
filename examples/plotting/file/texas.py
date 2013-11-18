@@ -2,8 +2,6 @@
 from bokeh.sampledata import us_counties, unemployment
 from bokeh.plotting import *
 
-
-
 county_xs=[
     us_counties.data[code]['lons'] for code in us_counties.data
     if us_counties.data[code]['state'] == 'tx'
@@ -31,6 +29,4 @@ output_file("texas.html", title="texas.py example")
 patches(county_xs, county_ys, fill_color=county_colors, fill_alpha=0.7,
         line_color="white", line_width=0.5, title="Texas Unemployment 2009")
 
-
-if __name__ == "__main__":
-    show()
+show()

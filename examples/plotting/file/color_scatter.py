@@ -16,5 +16,4 @@ scatter(x,y, radius=radii, radius_units="data",
        fill_color=colors, fill_alpha=0.6,
        line_color=None, tools="pan,zoom,save,resize", name="color_scatter_example")
 
-if __name__ == "__main__":
-    show()  # open a browser
+show()  # open a browser

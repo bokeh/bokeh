@@ -15,5 +15,4 @@ scatter(x,y, type="square", color="green", tools="pan,zoom,resize")
 scatter(x,y, type="square", color="blue", tools="pan,zoom,resize",
         name="scatter_example")
 
-if __name__ == "__main__":
-    show()  # open a browser
+show()  # open a browser
