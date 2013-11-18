@@ -26,8 +26,16 @@ CSS = join(JSREL, 'css')
 if 'develop' in sys.argv:
     # Don't import setuptools unless the user is actively
     # trying to do something that requires it.
+    APP = join(JSREL, 'bokeh.js')
+    CSS = join(JSREL, 'css')
+    import setuptools
+
+if 'devjs' in sys.argv:
+    # Don't import setuptools unless the user is actively
+    # trying to do something that requires it.
     APP = join(JSBUILD, 'bokeh.js')
     CSS = join(JSBUILD, 'css')
+    sys.argv[sys.argv.index("devjs")] = "develop"
     import setuptools
 
 if exists(join(SERVER, 'static', 'js')):

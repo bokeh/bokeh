@@ -22,12 +22,15 @@ Simple Install
 ==============
 
 This setup is appropriate if you do not need to do any development on Bokeh,
-but just want to get up and running (and plotting) as quickly as possible from a
-source checkout.
+but just want to get up and running (and plotting) as quickly as possible
+from a source checkout.
 
 In the top-level Bokeh directory:
 
     $ python setup.py install
+
+Note: this will use and install the latest built, minified bokeh.js checked
+into bokehjs/release.
 
 Now you are ready to generate static plots. In examples/glyphs, try:
 
@@ -63,25 +66,35 @@ parts of BokehJS.
 In the top-level Bokeh directory:
 
     $ python setup.py develop
+
+Note: this will use and install the latest built, minified bokeh.js checked
+into bokehjs/release.
+
+If you would like to run any examples that utilize the bokeh plot server, start
+it in the top level directory:
+
     $ python bokeh-server -d
+
+Note: bokeh-server currently requires redis, which is only available on OSX
+and Linux.
 
 Now you are ready to plot:
 
-    $ cd examples/glyphs
-    $ python glyph1.py
-    $ python glyph2.py
+    $ cd examples/plotting/file
+    $ python iris.py
+    $ python burtin.py
 
 All the plots you create will reflect any changes you make to the Bokeh python
-code in Bokeh/bokeh.
+library.
 
 
 Python+JS Development
 =====================
 
 This setup appropriate when you need to develop on both the client-side python
-parts of Bokeh, and the browser-side javascript parts of BokehJS. It is necessary to
-have a working toolchain to build BokehJS. Please consult bokehjs/README.md for
-additional details.
+parts of Bokeh, and the browser-side javascript parts of BokehJS. It is
+necessary to have a working tool chain to build BokehJS. Please consult
+bokehjs/README.md foradditional details.
 
 There are two ways to use BokehJS as a single. The first is to use a single, built
 bokeh.js file:
@@ -92,32 +105,36 @@ single bokeh.js file
 First build BokehJS. In the top-level Bokeh directory:
 
     $ cd bokehjs
-    $ grunt deploy
+    $ grunt devdeploy
 
 Next, install Bokeh. In the top-level Bokeh directory:
 
-    $ python setup.py develop
+    $ python setup.py devjs
 
-If you are using the server mode, also run:
+Note: this will use and install the un-minified bokeh.js that you just built,
+that is located in bokehjs/build.
+
+If you would like to run any examples that utilize the bokeh plot server, start
+it in the top level directory:
 
     $ python bokeh-server -d
 
 Now you are ready to plot:
 
-    $ cd examples/glyphs
-    $ python glyph1.py
-    $ python glyph2.py
+    $ cd examples/plotting/file
+    $ python iris.py
+    $ python burtin.py
 
 All the plots you create will reflect any changes you make to the Bokeh python
 code in Bokeh/bokeh. If you make any changes you make to the BokehJS
 coffeescript code in Bokeh/subtree/bokehjs, you will need to re-rerun the build in
-bokehjs (using grunt) and re-run python "setup.py develop".
+bokehjs (using grunt) and re-run python "setup.py devjs".
 
 The second method is to use AMD/requirejs to load separate submodules of BokehJS on
-demand, and to let "grunt watch" compile individuals modules as necessary:
+demand, and to let grunt incrementally compile individuals modules as necessary:
 
 requirejs with grunt
 --------------------
 
-Support for this setup coming soon.
+Support for this setup, including incremental compilation, coming soon.
 
