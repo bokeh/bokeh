@@ -61,7 +61,7 @@ plot in the ipython notebook (which may be found in ``examples/plotting/notebook
 
 Note that all the tools, zoom, pan, resize function normally and the plot continues to animate while
 the tools are used. Currently in order to animate, you must grab the glyph renderer off a plot, update
-its data source and set dirty flag, then store the data source with the session. The code to animate
+its data source and set the dirty flag, then store the data source on the session. The code to animate
 the above plot is shown here::
 
     renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
