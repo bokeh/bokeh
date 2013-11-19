@@ -131,8 +131,9 @@ This is somewhat clunky, but improvements and simplifications are planned for th
 Novel Plots
 -----------
 
-
-As an example, we will step through how to reproduce `Will Burtin's antibiotics chart <http://www.americanscientist.org/issues/pub/thats-funny>`_, shown below, using Bokeh.
+Bokeh is designed to allow you to flexibly compose many different glyph types into one plot. As an
+example, we will step through how to reproduce `Will Burtin's antibiotics chart
+<http://www.americanscientist.org/issues/pub/thats-funny>`_, shown below, using Bokeh.
 
 .. image:: /_images/burtin_novel.png
     :align: center
