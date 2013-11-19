@@ -13,7 +13,7 @@ webbrowser.open = noop
 
 
 _basedir = os.path.dirname(__file__)
-demo_dir = os.path.join(_basedir, "plot_gallery")
+demo_dir = os.path.join(_basedir, "_build", "plot_gallery")
 GALLERY_SNIPPET_PATH = os.path.join(_basedir, "_templates/gallery_core.html")
 #These settings work with localhost:5006
 HOSTED_STATIC_ROOT="../static/"
