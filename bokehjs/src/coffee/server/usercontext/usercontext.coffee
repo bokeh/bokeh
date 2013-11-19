@@ -7,13 +7,13 @@ define [
     "./wrappertemplate",
     "common/has_parent",
     "common/build_views",
+    "common/load_models",
 ],  (base, serverutils, continuum_view,
     userdocstemplate, documentationtemplate,
-    wrappertemplate, HasParent, build_views
+    wrappertemplate, HasParent, build_views, load_models
     ) ->
   exports = {}
   ContinuumView = continuum_view.View
-  load_models = base.load_models
   utility = serverutils.utility
 
   class DocView extends ContinuumView
