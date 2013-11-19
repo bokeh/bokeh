@@ -1,4 +1,8 @@
-define ["common/base", "server/serverutils"],  (base, serverutils) ->
+define [
+  "common/base",
+  "common/load_models",
+  "server/serverutils"
+],  (base, load_models, serverutils) ->
 
   utility = serverutils.utility
 
@@ -17,7 +21,7 @@ define ["common/base", "server/serverutils"],  (base, serverutils) ->
     console.log("addPlot");
     console.log(modelid, modeltype, element);
 
-    base.load_models(data[data_plot_id])
+    load_models(data[data_plot_id])
     model = base.Collections(modeltype).get(modelid);
     view = new model.default_view({model : model})
     view.render()
