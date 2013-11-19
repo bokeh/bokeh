@@ -51,6 +51,35 @@ Embedding
 Animated Plots
 --------------
 
+While a sophisticated animation API is planned for Bokeh, it is already possible to create animated
+plots just by updating a glyph's data source periodically. This requires running ``bokeh-server`` so
+that plots are notified of the updates to the data. Below is a video capture of an animated
+plot in the ipython notebook (which may be found in ``examples/plotting/notebook``).
+
+.. image:: /_images/animated.gif
+    :align: center
+
+Note that all the tools, zoom, pan, resize function normally and the plot continues to animate while
+the tools are used. Currently in order to animate, you must grab the glyph renderer off a plot, update
+its data source and set dirty flag, then store the data source with the session. The code to animate
+the above plot is shown here::
+
+    renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
+    ds = renderer.data_source
+    while True:
+        for i in linspace(-2*pi, 2*pi, 50):
+            rmin = ds.data["inner_radius"]
+            rmin = roll(rmin, 1)
+            ds.data["inner_radius"] = rmin
+            rmax = ds.data["outer_radius"]
+            rmax = roll(rmax, -1)
+            ds.data["outer_radius"] = rmax
+            ds._dirty = True
+            session().store_obj(ds)
+            time.sleep(.5)
+
+This is somewhat clunky, but improvements and simplifications are planned for the 0.4 release and after.
+
 
 Extending
 ---------
