@@ -65,11 +65,16 @@ console.log("embed.js");
         var s = document.getElementById("bokeh_script_tag");
     }
     var local_bokeh_embed_count = window.bokeh_embed_count;
+    if(typeof(s) != "undefined") {
     addEvent(
         s,'load',
         function() {
             setTimeout(secondPlot, 20 * local_bokeh_embed_count);});
-    document.body.appendChild(s);
+    }
+    if(!script_injected){
+        document.body.appendChild(s);
+    }
+
     _embed_bokeh_inject_application = true;
 
     window._embed_bokeh = true;}(this));
