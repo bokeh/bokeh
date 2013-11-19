@@ -3,35 +3,15 @@ console.log("embed.js");
 // (c) Steven Levithan <stevenlevithan.com>
 // MIT License
 (function(global) {
-
-    var parseUri = function (str) {
-	var	o   = parseUri.options,
-	m   = o.parser[o.strictMode ? "strict" : "loose"].exec(str),
-	uri = {},
-	i   = 14;
-
-	while (i--) uri[o.key[i]] = m[i] || "";
-
-	uri[o.q.name] = {};
-	uri[o.key[12]].replace(o.q.parser, function ($0, $1, $2) {
-	    if ($1) uri[o.q.name][$1] = $2;
-	});
-
-	return uri;
-    };
-
-    parseUri.options = {
-	strictMode: false,
-	key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
-	q:   {
-	    name:   "queryKey",
-	    parser: /(?:^|&)([^&=]*)=?([^&]*)/g
-	},
-	parser: {
-	    strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
-	    loose:  /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
-	}
-    };
+    if(typeof(window.bokeh_embed_count) == "undefined"){
+        window.bokeh_embed_count = 0;
+    }
+    else {
+        window.bokeh_embed_count += 1;
+    }
+    if(window.bokeh_embed_count == 1) {
+//        debugger;
+    }
     var host = "{{host}}";
 
     var staticRootUrl = "{{static_root_url}}";
@@ -51,36 +31,45 @@ console.log("embed.js");
     var dd = {};
     dd[plotID] = all_models;
     
+
+    var secondPlot =                 function() {
+        console.log("Bokeh.js loaded callback");
+        embed_core = Bokeh.embed_core;
+        console.log("embed_core loaded");
+        embed_core.search_and_plot(dd);
+        embed_core.injectCss(host);
+        console.log("search_and_plot called", new Date());}
+
     function addEvent(el, eventName, func){
         if(el.attachEvent){
             return el.attachEvent('on' + eventName, func);}
         else {
             el.addEventListener(eventName, func, false);}}
     var script_injected = !(typeof(_embed_bokeh_inject_application) == "undefined") && _embed_bokeh_inject_application;
+    //var script_injected = !(typeof(_embed_bokeh_inject_application) == "undefined");
     if(typeof Bokeh == "object"){
         // application.js is already loaded
         console.log("bokeh.js is already loaded, going straight to plotting");
         setTimeout(function () {
             embed_core = Bokeh.embed_core;
-            embed_core.search_and_plot(dd);}, 10);}
+            console.log("calling embed_core.search_and_plot, from already loaded bokehjs state")
+            embed_core.search_and_plot(dd);}, 20);}
 
     else if(!script_injected){
-        // application.js isn't loaded and it hasn't been scheduled to be injected
+        // bokeh.js isn't loaded and it hasn't been scheduled to be injected
         var s = document.createElement('script');
-        s.async = true; s.src = bokehJSUrl;
-
-        _embed_bokeh_inject_application = true;
-        addEvent(
-            s,'load',
-            function() {
-                setTimeout(
-                function() {
-                console.log("Bokeh.js loaded callback");
-                embed_core = Bokeh.embed_core;
-                console.log("embed_core loaded");
-                embed_core.search_and_plot(dd);
-                embed_core.injectCss(host);
-                console.log("search_and_plot called");}, 30);});
-        document.body.appendChild(s);}
+        s.async = true; s.src = bokehJSUrl; s.id="bokeh_script_tag";
+        
+    }
+    else {
+        var s = document.getElementById("bokeh_script_tag");
+    }
+    var local_bokeh_embed_count = window.bokeh_embed_count;
+    addEvent(
+        s,'load',
+        function() {
+            setTimeout(secondPlot, 20 * local_bokeh_embed_count);});
+    document.body.appendChild(s);
+    _embed_bokeh_inject_application = true;
 
     window._embed_bokeh = true;}(this));
