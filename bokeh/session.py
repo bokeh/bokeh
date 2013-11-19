@@ -332,7 +332,7 @@ class HTMLFileSession(BaseHTMLSession):
                     title = self.title)
         return html
 
-    def embed_js(self, plot_id, host):
+    def embed_js(self, plot_id, static_root_url):
 
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
@@ -346,7 +346,8 @@ class HTMLFileSession(BaseHTMLSession):
             models.append(ref)
 
         jscode = self._load_template('embed_direct.js').render(
-            host = host,
+            host = "",
+            static_root_url=static_root_url,
             elementid = elementid,
             modelid = pc_ref["id"],
             modeltype = pc_ref["type"],

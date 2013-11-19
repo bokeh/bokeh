@@ -293,7 +293,7 @@ def generate_embed(inject_type, include_js):
 
 @app.route("/bokeh/embed.js")
 def embed_js():
-    return (render_template("embed.js", host=request.host), "200",
+    return (render_template("embed_direct.js", host=request.host), "200",
             {'Content-Type':'application/javascript'})
 
 
