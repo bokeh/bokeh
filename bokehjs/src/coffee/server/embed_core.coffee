@@ -55,12 +55,10 @@ define [
         #view.render()
         _.delay(-> $(element).replaceWith(view.$el)))
 
-  injectCss = (host) ->
-
-    static_base = "//#{host}/static/"
-    css_urls = ["#{static_base}css/bokeh.css",
-                "#{static_base}css/continuum.css",
-                "#{static_base}js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css"]
+  injectCss = (static_root_url) ->
+    css_urls = ["#{static_root_url}css/bokeh.css",
+                "#{static_root_url}css/continuum.css",
+                "#{static_root_url}js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css"]
 
 
     load_css = (url) ->

@@ -37,7 +37,7 @@ console.log("embed.js");
         embed_core = Bokeh.embed_core;
         console.log("embed_core loaded");
         embed_core.search_and_plot(dd);
-        embed_core.injectCss(host);
+        embed_core.injectCss(staticRootUrl);
         console.log("search_and_plot called", new Date());}
 
     function addEvent(el, eventName, func){

@@ -211,7 +211,7 @@ def make_plot():
     import numpy as np
     from bokeh.plotting import *
 
-    N = 80
+    N = 8000
 
     x = np.linspace(0, 4*np.pi, N)
     y = np.sin(x)
@@ -276,7 +276,7 @@ def generate_embed(inject_type, include_js):
     elif inject_type == "static_double":
         
         plot_scr = "%s %s" % (plot.create_html_snippet(server=True), 
-                              plot.create_html_snippet(server=True))
+                              make_plot().create_html_snippet(server=True))
 
     
     #I don't like this naming scheme
