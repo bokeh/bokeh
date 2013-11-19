@@ -3,7 +3,7 @@ import os
 from gevent.pywsgi import WSGIServer
 app = flask.Flask(__name__, static_path="/unused")
 
-_basedir = os.path.dirname(__file__)
+_basedir = os.path.join("..", os.path.dirname(__file__))
 PORT=5009
 
 """this is a simple server to facilitate developing the docs.  by
