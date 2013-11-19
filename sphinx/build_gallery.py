@@ -20,23 +20,13 @@ detail_dir = demo_dir
 
 def page_desc(prev_infos, module_desc):
     module_path, name_ = module_desc['file'], module_desc['name']
-    varname= module_desc.get("varname", 'curplot')
     temp_dict = {}
     from bokeh import plotting
     plotting.instrument = []
     execfile(module_path, temp_dict)
     embed_snippet = ""
-    #if varname=='curplot':
-    if True:
-        for p in temp_dict['instrument']:
-            
-            embed_snippet += p.create_html_snippet(
-                embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
-                embed_base_url=DETAIL_URL_ROOT)
-
-    else:
-        plot = temp_dict[varname]
-        embed_snippet = plot.create_html_snippet(
+    for p in temp_dict['instrument']:
+        embed_snippet += p.create_html_snippet(
             embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
             embed_base_url=DETAIL_URL_ROOT)
 
@@ -97,15 +87,15 @@ if __name__ == "__main__":
         [
         dict(file="../examples/plotting/file/iris.py", name='iris',),    
         dict(file="../examples/plotting/file/candlestick.py", name='candlestick',),    
-        dict(file="../examples/plotting/file/legend.py", name= 'curplot',),    
+        dict(file="../examples/plotting/file/legend.py", name= 'legend',),    
         dict(file="../examples/plotting/file/correlation.py", name='correlation',),
         dict(file="../examples/plotting/file/glucose.py", name= 'glucose',),    
         dict(file="../examples/plotting/file/stocks.py", name= 'stocks',),    
         dict(file="../examples/plotting/file/vector.py", name= 'vector_example',),    
         dict(file="../examples/plotting/file/lorenz.py", name= 'lorenz_example',),    
         dict(file="../examples/plotting/file/color_scatter.py", name= 'color_scatter_example',),    
-        dict(file="../examples/glyphs/iris_splom.py", name='iris_splom', varname="grid"),
-        dict(file="../examples/glyphs/anscombe.py", name='anscombe', varname="grid"),
+        dict(file="../examples/glyphs/iris_splom.py", name='iris_splom'),
+        dict(file="../examples/glyphs/anscombe.py", name='anscombe'),
         dict(file="../examples/plotting/file/choropleth.py", name= 'choropleth_example',),    
         dict(file="../examples/plotting/file/texas.py", name= 'texas_example',),    
         dict(file="../examples/plotting/file/markers.py", name= 'scatter_example',),    
