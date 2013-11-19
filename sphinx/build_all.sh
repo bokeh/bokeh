@@ -11,4 +11,7 @@ make html
 cp -r ../bokeh/server/static _build/html/static
 cp -r _build/plot_gallery _build/html/plot_gallery
 
+rm _templates/gallery_core.html
+rm *.html
+
 
