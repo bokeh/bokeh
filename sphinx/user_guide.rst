@@ -70,9 +70,9 @@ Some examples::
     axis.bounds = (3, 7)
     axis.major_label_orientation = pi/4
 
-Axes may be conveniently obtained using the ``plotting.xaxis()``, ``plotting.yaxis()``, and ``plotting.axis()``
-functions. These return collections of axes that can be indexed to retrieve individual axes, or can that have
-attributes set directly on them to update all axes. Examples::
+Axes for the current plot may be conveniently obtained using the ``plotting.xaxis()``, ``plotting.yaxis()``,
+and ``plotting.axis()`` functions. These return collections of axes that can be indexed to retrieve
+individual axes, or can that have attributes set directly on them to update all axes. Examples::
 
     xaxis().axis_line_width = 2 # update all x-axes
     yaxis()[0].axis_line_color = "red" # only updates the first y-axis
@@ -82,6 +82,14 @@ Typically after updating these attributes, a call to ``plotting.show()`` will be
 
 Grids
 '''''
+
+Grids are styled very similarly to axes in Bokeh. Grids have identical ``dimension`` and ``bounds`` properties
+as well as line properties, prefixed with ``grid_``. There are also ``plotting.xgrid()``, ``plotting.ygrid()``,
+and ``plotting.grid()`` functions available to obtain grids for the current plot. Examples::
+
+    xgrid().axis_line_dash = "3 3" # update all x-grids
+    ygrid()[0].axis_line_color = None # only updates the first y-grid
+    axis().bounds = (2, 8) # set bounds for all grids
 
 Embedding
 ---------
