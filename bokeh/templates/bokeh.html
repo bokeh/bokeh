@@ -25,8 +25,8 @@
       var modeltype = "{{ modeltype }}";
       
       var elementid = "{{ elementid }}";
-      base = require("./base")
-      base.load_models(all_models);
+      load_models = require("common/load_models")
+      load_models(all_models);
       model = base.Collections(modeltype).get(modelid);
       view = new model.default_view(
       {model : model}

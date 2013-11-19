@@ -10,7 +10,7 @@ console.log("embed.js");
     var dd = {};
     dd[plotID] = all_models;
 
-    var bokehUrl = 'http://' + host +'/static/js/bokeh.js';
+    var bokehUrl = host +'js/bokeh.js';
     function addEvent(el, eventName, func){
         if(el.attachEvent){
             return el.attachEvent('on' + eventName, func);}
@@ -31,7 +31,7 @@ console.log("embed.js");
 
         _embed_bokeh_inject_application = true;
         addEvent(
-            s,'load', 
+            s,'load',
             function() {
                 console.log("Bokeh.js loaded callback");
                 embed_core = Bokeh.embed_core;
