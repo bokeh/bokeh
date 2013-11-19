@@ -28,7 +28,7 @@ line properties:
 * **line_alpha**: an alpha value to use for the stroked line
 * **line_width**: the width of the line stroked
 * **line_join**: policy for joining lines ``"bevel", "round", "miter"``
-* **line_cap**: style of endcaps for lines ``"butt", "round", *square"``
+* **line_cap**: style of endcaps for lines ``"butt", "round", "square"``
 * **line_dash**: a pattern for lien dashing, expressed as a string. e.g., ``"4 6"``
 * **line_dash_offset**: where in the dash pattern should the canvas start
 
@@ -50,7 +50,7 @@ text properties:
 Axes
 ''''
 
-Axes in Bokeh also have line properties for the axis rule line, as well a the major ticks. These standard
+Axes in Bokeh also have line properties for the axis rule line, as well as for the major ticks. These standard
 line properties are prefixed with ``axis_`` and ``major_tick_`` respectively. Axes also have text
 properties, for the axis label and major tick labels. These are prefixed ``axis_label_`` and
 ``major_tick_label_``, respectively.
