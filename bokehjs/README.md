@@ -25,7 +25,7 @@ client side.  Install grunt by executing
 
 `$ npm install -g grunt-cli`
 
-2. We're using bower to manage client dependencies. Install bower by
+3. We're using bower to manage client dependencies. Install bower by
 executing:
 
 `$ npm install -g bower`
