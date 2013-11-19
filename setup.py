@@ -66,7 +66,7 @@ package_data_dirs.append('sampledata/US Regions State Boundaries.csv.gz')
 
 scripts = []
 if sys.platform != 'win32':
-    scripts.extend(['bokeh-server','docserver.py'])
+    scripts.extend(['bokeh-server'])
 
 setup(
     name = 'bokeh',

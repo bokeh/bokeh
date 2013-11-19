@@ -346,8 +346,8 @@ def visual(func):
         if plot is not None:
             session.add(plot)
             _config["curplot"] = plot
-            if type(instrument) == type([]):
-                instrument.append(plot)
+            # if type(instrument) == type([]):
+            #     instrument.append(plot)
                 
         if session_objs:
             session.add(*session_objs)
@@ -822,6 +822,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
+    if type(instrument) == type([]):
+        instrument.append(p)
+
     p.title = kw.pop("title", "Plot")
     if plot_width is not None:
         p.width = plot_width

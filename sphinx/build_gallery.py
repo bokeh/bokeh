@@ -60,7 +60,7 @@ def make_gallery(module_descs):
     for p, p_next in [[p, page_infos[i+1]] for i, p in enumerate(page_infos[:-1])]:
         p['next_detail_url'] = p_next['detail_page_url']
         p['next_detail_name'] = p_next['name']
-    t = _load_template("detail.html")    
+    t = _load_template("_templates/gallery_detail.html")    
     gallery_template = '''
     <li>
         <a href="plot_gallery/%(detail_page_url)s">%(name)s
