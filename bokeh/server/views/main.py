@@ -1,7 +1,7 @@
 from flask import (
     render_template, request,
     send_from_directory, abort,
-    jsonify)
+    jsonify, Response)
 
 from ..app import app
 import os
@@ -290,10 +290,19 @@ def generate_embed(inject_type, include_js):
         direct=direct,  plot_scr=plot_scr, double_delay=double_delay)
 
 
+import os
 
 @app.route("/bokeh/embed.js")
 def embed_js():
-    return (render_template("embed_direct.js", host=request.host), "200",
+    import jinja2
+    t_file = os.path.join(
+        os.path.dirname(
+            os.path.abspath(__file__)), "..", "..", "templates", "embed_direct.js")
+    with open(t_file) as f:
+        template = jinja2.Template(f.read())
+        rendered = template.render(host=request.host)
+
+        return  Response(rendered, "200",
             {'Content-Type':'application/javascript'})
 
 
