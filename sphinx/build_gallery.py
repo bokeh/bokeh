@@ -8,6 +8,8 @@ from bokeh import plotting
 def noop(*args, **kwargs):
     pass
 plotting.show= noop
+import webbrowser 
+webbrowser.open = noop
 
 
 _basedir = os.path.dirname(__file__)
@@ -25,7 +27,7 @@ def page_desc(prev_infos, module_desc):
     plotting.instrument = []
     execfile(module_path, temp_dict)
     embed_snippet = ""
-    for p in temp_dict['instrument']:
+    for p in plotting.instrument:
         embed_snippet += p.create_html_snippet(
             embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
             embed_base_url=DETAIL_URL_ROOT)
