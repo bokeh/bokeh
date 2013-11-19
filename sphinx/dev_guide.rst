@@ -64,12 +64,17 @@ Sessions
 --------
 
 
-Low-level Glyph Interface
--------------------------
+Low-level Object Interface
+--------------------------
 
+Here is a notional diagram showing the overall object system in Bokeh. We will discuss each
+of these in turn.
 
-Plotting.py
------------
+.. image:: /_images/objects.png
+    :align: center
+
+High Level Plotting Interface
+-----------------------------
 
 
 
@@ -88,7 +93,8 @@ into the correct place in the source tree.
 
 If you want to do development on BokehJS as well, then modify the Coffeescript
 source in the ``bokehjs/`` directory, and follow the instructions below for
-building/installing Coffeescript.  ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING!
+building/installing Coffeescript.  Then run ``python setup.py devjs``.
+ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING!
 
 If you have any problems with the steps here, please contact the developers
 (see :ref:`contact`).
@@ -98,48 +104,48 @@ Coffeescript
 
 Building the Coffeescript BokehJS library has a number of requirements:
 
-1. You need to have node.js and and the node package manager (npm)
+You need to have node.js and and the node package manager (npm)
 installed.
 
-2. We're using Grunt for our Coffeescript build tool.  Grunt will compile
+We're using Grunt for our Coffeescript build tool.  Grunt will compile
 coffeescript, combine js files, and support node.js require syntax on the
-client side.  Install grunt by executing
+client side.  Install grunt by executing::
 
-`$ npm install -g grunt-cli`
+    $ npm install -g grunt-cli
 
-2. We're using bower to manage client dependencies. Install bower by
-executing:
+We're using bower to manage client dependencies. Install bower by
+executing::
 
-`$ npm install -g bower`
+    $ npm install -g bower
 
 In order to build the javascript files that comprise bokeh.js, first install
-necessary dependencies:
+necessary dependencies::
 
-`$ npm install && bower install`
+    $ npm install && bower install
 
 These command will install compile and runtime dependencies into node_modules
 and build subdirectories, respectively.
 
-To compile the Coffeescript into javascript, execute grunt:
+To compile the Coffeescript into javascript, execute grunt::
 
-`$ grunt build`
+    $ grunt build
 
 At this point bokeh can be be used as an AMD module together with require.js.
 To build a single bokeh.js that may be included as a script, see below.
 
 Grunt can concatenate the javascript files into a single bokeh.js, either
 minified or unminified. To generate a minified script, execute the
-command:
+command::
 
-`$ grunt deploy`
+    $ grunt deploy
 
 The resulting script will have the filename bokeh.min.js and be located in
 the build subdirectory.
 
 To generate an un-minified script, (useful for debugging or developing
-bokehjs), execute the command:
+bokehjs), execute the command::
 
-`$ grunt devdeploy`
+    $ grunt devdeploy
 
 The resulting script will have the filename bokeh.js and be located in
 the build subdirectory.
