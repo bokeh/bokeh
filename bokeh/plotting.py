@@ -22,6 +22,10 @@ from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
 from . import glyphs
 from .palettes import brewer
 
+instrument = None
+"""instrument is used to collect plots it is particularly helpful for gallery   """
+
+
 def plothelp():
     """ Prints out a list of all plotting functions.  Information on each
     function is available in its docstring, and can be accessed via the
@@ -342,7 +346,9 @@ def visual(func):
         if plot is not None:
             session.add(plot)
             _config["curplot"] = plot
-
+            if type(instrument) == type([]):
+                instrument.append(plot)
+                
         if session_objs:
             session.add(*session_objs)
 

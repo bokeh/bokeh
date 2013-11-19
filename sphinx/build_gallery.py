@@ -22,19 +22,28 @@ def page_desc(prev_infos, module_desc):
     module_path, name_ = module_desc['file'], module_desc['name']
     varname= module_desc.get("varname", 'curplot')
     temp_dict = {}
+    from bokeh import plotting
+    plotting.instrument = []
     execfile(module_path, temp_dict)
-    if varname=='curplot':
-        plot = temp_dict[varname]()
+    embed_snippet = ""
+    #if varname=='curplot':
+    if True:
+        for p in temp_dict['instrument']:
+            
+            embed_snippet += p.create_html_snippet(
+                embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
+                embed_base_url=DETAIL_URL_ROOT)
+
     else:
         plot = temp_dict[varname]
+        embed_snippet = plot.create_html_snippet(
+            embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
+            embed_base_url=DETAIL_URL_ROOT)
 
     if len(prev_infos) > 0:
         prev_info = prev_infos[-1]
     else:
         prev_info = {}
-    embed_snippet = plot.create_html_snippet(
-        embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
-        embed_base_url=DETAIL_URL_ROOT)
     detail_snippet = highlight(open(module_path).read(), PythonLexer(), HtmlFormatter())
     page_info = dict(
         name=name_, embed_snippet=embed_snippet,
@@ -75,9 +84,11 @@ def make_gallery(module_descs):
         fname = os.path.join(detail_dir, info['name'] + ".html")
         info['HOSTED_STATIC_ROOT']= HOSTED_STATIC_ROOT
         print " writing to ", fname
+    
         with open(fname, "w") as f:
             f.write(t.render(info))
     gallery_snippet += "</ul>"    
+    print "GALLERY_SNIPPET_PATH", GALLERY_SNIPPET_PATH
     with open(GALLERY_SNIPPET_PATH, "w") as f:
         f.write(gallery_snippet)
 
@@ -86,8 +97,8 @@ if __name__ == "__main__":
         [
         dict(file="../examples/plotting/file/iris.py", name='iris',),    
         dict(file="../examples/plotting/file/candlestick.py", name='candlestick',),    
-        dict(file="../examples/plotting/file/legend.py", name= 'legend',),    
-        dict(file="../examples/plotting/file/correlation.py", name='correlation',),    
+        dict(file="../examples/plotting/file/legend.py", name= 'curplot',),    
+        dict(file="../examples/plotting/file/correlation.py", name='correlation',),
         dict(file="../examples/plotting/file/glucose.py", name= 'glucose',),    
         dict(file="../examples/plotting/file/stocks.py", name= 'stocks',),    
         dict(file="../examples/plotting/file/vector.py", name= 'vector_example',),    
