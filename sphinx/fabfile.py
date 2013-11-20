@@ -5,7 +5,9 @@ env.roledefs = {
     'web': ['bokeh.pydata.org']}
 
 @roles('web')
-def deploy():
+def deploy(user=False):
+    if user:
+        env.user = user
     run("rm -rf /www/bokeh-old")
     run("cp -r /www/bokeh-latest /www/bokeh-old")
     rsync_project(
