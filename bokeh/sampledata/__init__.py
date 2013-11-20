@@ -2,7 +2,6 @@
 from os import mkdir
 from os.path import exists, expanduser, isdir, join
 import urllib2
-import yaml
 
 def _bokeh_dir(create=False):
     bokeh_dir = expanduser("~/.bokeh")
@@ -19,6 +18,10 @@ def _bokeh_dir(create=False):
     return bokeh_dir
 
 def _data_dir(create=False):
+    try:
+        import yaml
+    except ImportError:
+        raise RuntimeError("'yaml' and 'pyyaml' are required to use bokeh.sampledata functions")
     bokeh_dir = _bokeh_dir(create=create)
     data_dir = join(bokeh_dir, "data")
     try:
