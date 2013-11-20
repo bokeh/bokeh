@@ -100,14 +100,14 @@ def get_user():
     write_plot_file(request.scheme + "://" + request.host)
     return make_json(content)
 
-def _make_plot_file(username, userapikey, url):
+def _make_test_plot_file(username, userapikey, url):
     lines = ["from bokeh import mpl",
              "p = mpl.PlotClient(username='%s', serverloc='%s', userapikey='%s')" % (username, url, userapikey)]
     return "\n".join(lines)
 
 def write_plot_file(url):
     bokehuser = app.current_user(request)
-    codedata = _make_plot_file(bokehuser.username,
+    codedata = _make_test_plot_file(bokehuser.username,
                                bokehuser.apikey,
                                url)
     app.write_plot_file(bokehuser.username, codedata)
@@ -201,15 +201,15 @@ def dom_embed(plot, **kwargs):
     else:
         static_js = ['/bokeh/static/js/bokeh.js']
         hem_js = []
-    plot2 = make_plot()
+    plot2 = make_test_plot()
     return render_template(
         "embed.html", jsfiles=static_js, hemfiles=hem_js,
         docid=plot._session.docid, docapikey=plot._session.apikey, modelid=plot._id,
         plot2=plot2, **kwargs)
 
-def make_plot():
+def make_test_plot():
     import numpy as np
-    from bokeh.plotting import *
+    from bokeh.plotting import output_server, line
 
     N = 8000
 
@@ -219,7 +219,7 @@ def make_plot():
     output_server("line.py example")
 
     l = line(
-        x,y, color="#0000FF", 
+        x,y, color="#0000FF",
         plot_height=300, plot_width=300,
         tools="pan,zoom,resize")
     return l
@@ -240,7 +240,7 @@ def generate_embed(inject_type, include_js):
     environment.
 
     static places a script tag into the html markup.
-    
+
     static_double places two script tags in the dom.  This should
     still cause the bokeh js to be downloaded only once
 
@@ -249,7 +249,7 @@ def generate_embed(inject_type, include_js):
 
     with_delay doesn't inject until 5 seconds after pageload
 
-    double_delay injects two separate plots, one at 3 seconds in, 
+    double_delay injects two separate plots, one at 3 seconds in,
         the other at 5 seconds in.
 
     onload injects at onload
@@ -259,7 +259,7 @@ def generate_embed(inject_type, include_js):
     Everyone one of these urls should display the same plot
     """
 
-    plot = make_plot()
+    plot = make_test_plot()
     delay, double_delay, onload, direct, include_js_flag  = [False] * 5
     plot_scr = ""
 
@@ -274,11 +274,11 @@ def generate_embed(inject_type, include_js):
     elif inject_type == "static":
         plot_scr = plot.create_html_snippet(server=True)
     elif inject_type == "static_double":
-        
-        plot_scr = "%s %s" % (plot.create_html_snippet(server=True), 
+
+        plot_scr = "%s %s" % (plot.create_html_snippet(server=True)test_,
                               make_plot().create_html_snippet(server=True))
 
-    
+
     #I don't like this naming scheme
     if include_js == "no_js":
         include_js_flag = False
