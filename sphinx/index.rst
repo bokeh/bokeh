@@ -35,7 +35,7 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
         <td><a href="plot_gallery/iris.html"><img src="_images/iris2.png"/></a></td>
         <td><a href="plot_gallery/texas_example.html"><img src="_images/choropleth2.png"/></a></td>
         <td><a href="plot_gallery/iris_splom.html"><img src="_images/splom2.png"/></a></td>
-        <td><a href="plot_gallery/burtin.html"><img src="_images/burtin.png"/></a></td>
+        <td><a href="plot_gallery/burtin_example.html"><img src="_images/burtin.png"/></a></td>
         <td><a href="plot_gallery/vector_example.html"><img src="_images/streamline.png"/></a></td>
 
     </tr>
