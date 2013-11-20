@@ -29,7 +29,7 @@ line properties:
 * **line_width**: the width of the line stroked
 * **line_join**: policy for joining lines ``"bevel", "round", "miter"``
 * **line_cap**: style of endcaps for lines ``"butt", "round", "square"``
-* **line_dash**: a pattern for lien dashing, expressed as a string. e.g., ``"4 6"``
+* **line_dash**: an on-off pattern for line dashing pixel lengths, expressed as a string. e.g., ``"4 6"``
 * **line_dash_offset**: where in the dash pattern should the canvas start
 
 fill properties:
