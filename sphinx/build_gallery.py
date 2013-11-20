@@ -22,15 +22,23 @@ detail_dir = demo_dir
 
 def page_desc(prev_infos, module_desc):
     module_path, name_ = module_desc['file'], module_desc['name']
-    temp_dict = {}
+    varname = module_desc.get('varname', False)
+
     from bokeh import plotting
     plotting.instrument = []
-    execfile(module_path, temp_dict)
+    file_namespace = {}
+    execfile(module_path, file_namespace)
     embed_snippet = ""
-    for p in plotting.instrument:
+    if varname:
+        p = file_namespace[varname]
         embed_snippet += p.create_html_snippet(
             embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
             embed_base_url=DETAIL_URL_ROOT)
+    else:
+        for p in plotting.instrument:
+            embed_snippet += p.create_html_snippet(
+                embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
+                embed_base_url=DETAIL_URL_ROOT)
 
     if len(prev_infos) > 0:
         prev_info = prev_infos[-1]
@@ -96,8 +104,8 @@ if __name__ == "__main__":
         dict(file="../examples/plotting/file/vector.py", name= 'vector_example',),    
         dict(file="../examples/plotting/file/lorenz.py", name= 'lorenz_example',),    
         dict(file="../examples/plotting/file/color_scatter.py", name= 'color_scatter_example',),    
-        dict(file="../examples/glyphs/iris_splom.py", name='iris_splom'),
-        dict(file="../examples/glyphs/anscombe.py", name='anscombe'),
+        dict(file="../examples/glyphs/iris_splom.py", name='iris_splom', varname="grid"),
+        dict(file="../examples/glyphs/anscombe.py", name='anscombe', varname="grid"),
         dict(file="../examples/plotting/file/choropleth.py", name= 'choropleth_example',),    
         dict(file="../examples/plotting/file/texas.py", name= 'texas_example',),    
         dict(file="../examples/plotting/file/markers.py", name= 'scatter_example',),    
