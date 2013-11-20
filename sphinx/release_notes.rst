@@ -45,17 +45,21 @@ v0.4 (Goal: December 2013)
 ==========================
 
 Big Items:
+
 * Integrate Abstract Rendering into bokeh server
 * Better grid-based layout system; use Cassowary.js for layout solver, and initially just directly implement schematized layouts
 * Unit tests (including visual)
 * Cheesy publishing
 
 Smaller Items:
+
 * Improve tools
-  * turn on pan by default
-  * easier interactions with zoom: zoom box or buttons for zoom in/out
-  * Reset view
-  * Hot corner for resize tool
+
+  - turn on pan by default
+  - easier interactions with zoom: zoom box or buttons for zoom in/out
+  - Reset view
+  - Hot corner for resize tool
+
 * Expose image plot in Python interface; use efficient binary representation of data, e.g. via dynamically generated images
 * StreamDataSource which automatically, periodically polls a datasource (need to some way highlight data APIs which support CORS; consider using JSONP?)
 * More streaming & updating data examples
