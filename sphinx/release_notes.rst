@@ -44,27 +44,40 @@ Roadmap & TODO List
 v0.4 (Goal: December 2013)
 ==========================
 
+Big Items:
 * Integrate Abstract Rendering into bokeh server
-* Better grid-based layout system; use Cassowary.js for layout solver
-* Frame around plots for consistent look & feel on all Bokeh plots
-* Improve rendering loop performance in BokehJS
-* Improve tools: turn on pan by default, easier interactions with zoom, add various inspectors and data selectors (accessible from Python interface)
-* Basic mpl interface (enough to make ggplot.py work)
+* Better grid-based layout system; use Cassowary.js for layout solver, and initially just directly implement schematized layouts
+* Unit tests (including visual)
+* Cheesy publishing
+
+Smaller Items:
+* Improve tools
+  * turn on pan by default
+  * easier interactions with zoom: zoom box or buttons for zoom in/out
+  * Reset view
+  * Hot corner for resize tool
+* Expose image plot in Python interface; use efficient binary representation of data, e.g. via dynamically generated images
+* StreamDataSource which automatically, periodically polls a datasource (need to some way highlight data APIs which support CORS; consider using JSONP?)
 * More streaming & updating data examples
-* Expose image plot in Python interface: Add BSON for sending large data
-* StreamDataSource
+* Theming support
+* Basic mpl interface (enough to make ggplot.py or seaborn work)
+* Source maps & incremental compilation
 
 v0.5
 ====
 
 * New event and interactor architecture
+* Data selection architecture, add various inspectors and data selectors (accessible from Python interface)
+* Improve rendering loop performance in BokehJS
 * Improved annotations and legends
+* Frame around plots for consistent look & feel on all Bokeh plots
 * Basic widgets
 * Better map projections
 * Better integration with Matplotlib pylab plotting functions
 * Improve ggplot interface / integrate with ggplot python lib
 * Touch events
 * Animation framework
+* CSS styling mechanism
 
 
 Long-term TODO List
