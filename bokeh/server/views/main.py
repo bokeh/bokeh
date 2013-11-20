@@ -275,7 +275,7 @@ def generate_embed(inject_type, include_js):
         plot_scr = plot.create_html_snippet(server=True)
     elif inject_type == "static_double":
 
-        plot_scr = "%s %s" % (plot.create_html_snippet(server=True)test_,
+        plot_scr = "%s %s" % (plot.create_html_snippet(server=True),
                               make_plot().create_html_snippet(server=True))
 
 
