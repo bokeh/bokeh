@@ -18,18 +18,18 @@ Interactive gallery
 <table cellspacing="20">
 <tr>
     <td><a href="http://continuumio.github.io/bokehjs/image.html"><img src="http://bokeh.pydata.org/_images/image_plot1.png"/></a></td>
-    <td><a href="http://bokeh.pydata.org/static/demos/detail/anscombe.html"><img src="http://bokeh.pydata.org/_images/anscombe2.png"/></a></td>
-    <td><a href="http://bokeh.pydata.org/static/demos/detail/correlation.html"><img src="http://bokeh.pydata.org/_images/stocks3.png"/></a></td>
-    <td><a href="http://bokeh.pydata.org/static/demos/detail/lorenz_example.html"><img src="http://bokeh.pydata.org/_images/lorenz2.png"/></a></td>
-    <td><a href="http://bokeh.pydata.org/static/demos/detail/candlestick.html"><img src="http://bokeh.pydata.org/_images/candlestick2.png"/></a></td>
-    <td><a href="http://bokeh.pydata.org/static/demos/detail/color_scatter_example.html"><img src="http://bokeh.pydata.org/_images/scatter.png"/></a></td>
+    <td><a href="http://bokeh.pydata.org/plot_gallery/anscombe.html"><img src="http://bokeh.pydata.org/_images/anscombe2.png"/></a></td>
+    <td><a href="http://bokeh.pydata.org/plot_gallery/correlation.html"><img src="http://bokeh.pydata.org/_images/stocks3.png"/></a></td>
+    <td><a href="http://bokeh.pydata.org/plot_gallery/lorenz_example.html"><img src="http://bokeh.pydata.org/_images/lorenz2.png"/></a></td>
+    <td><a href="http://bokeh.pydata.org/plot_gallery/candlestick.html"><img src="http://bokeh.pydata.org/_images/candlestick2.png"/></a></td>
+    <td><a href="http://bokeh.pydata.org/plot_gallery/color_scatter_example.html"><img src="http://bokeh.pydata.org/_images/scatter.png"/></a></td>
 </tr><tr>
     <td><a href="http://continuumio.github.io/bokehjs/map_overlay.html"><img src="http://bokeh.pydata.org/_images/map_overlay1.png"/></a></td>
-    <td><a href="http://bokeh.pydata.org/static/demos/detail/iris.html"><img src="http://bokeh.pydata.org/_images/iris2.png"/></a></td>
-    <td><a href="http://bokeh.pydata.org/static/demos/detail/texas_example.html"><img src="http://bokeh.pydata.org/_images/choropleth2.png"/></a></td>
-    <td><a href="http://bokeh.pydata.org/static/demos/detail/iris_splom.html"><img src="http://bokeh.pydata.org/_images/splom2.png"/></a></td>
+    <td><a href="http://bokeh.pydata.org/plot_gallery/iris.html"><img src="http://bokeh.pydata.org/_images/iris2.png"/></a></td>
+    <td><a href="http://bokeh.pydata.org/plot_gallery/texas_example.html"><img src="http://bokeh.pydata.org/_images/choropleth2.png"/></a></td>
+    <td><a href="http://bokeh.pydata.org/plot_gallery/iris_splom.html"><img src="http://bokeh.pydata.org/_images/splom2.png"/></a></td>
     <td><a href="http://continuumio.github.io/bokehjs/image.html"><img src="http://bokeh.pydata.org/_images/image_plot2.png"/></a></td>
-    <td><a href="http://bokeh.pydata.org/static/demos/detail/vector_example.html"><img src="http://bokeh.pydata.org/_images/streamline.png"/></a></td>
+    <td><a href="http://bokeh.pydata.org/plot_gallery/vector_example.html"><img src="http://bokeh.pydata.org/_images/streamline.png"/></a></td>
 
 </tr>
 </table>
