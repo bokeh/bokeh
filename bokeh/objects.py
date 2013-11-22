@@ -820,6 +820,18 @@ class BoxSelectionOverlay(PlotObject):
 
 class Legend(PlotObject):
     plot = Instance(Plot, has_ref=True)
+    orientation = Enum("top_right", "top_left", "bottom_left", "bottom_right")
+    border = Include(LineProps, prefix="border")
+
+    label_props = Include(TextProps, prefix="label")
+    label_standoff = Int(15)
+    label_height = Int(20)
+    label_width = Int(50)
+    legend_padding = Int(10)
+
+    glyph_height = Int(20)
+    glyph_width = Int(20)
+    legend_spacing = Int(3)
     legends = Dict()
 
 class DataSlider(PlotObject):
