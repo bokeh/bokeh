@@ -960,6 +960,14 @@ def axis():
     """ Return the axes on the current plot """
     return _list_attr_splat(xaxis() + yaxis())
 
+def legend():
+    """ Return the legend(s) of the current plot """
+    p = curplot()
+    if p is None:
+        return None
+    legends = [obj for obj in p.renderers if isinstance(obj, Legend)]
+    return _list_attr_splat(legends)
+
 def xgrid():
     """ Returns x-grid object on the current plot """
     p = curplot()
