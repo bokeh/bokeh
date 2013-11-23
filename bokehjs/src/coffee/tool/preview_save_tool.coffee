@@ -19,6 +19,7 @@ define [
     evgen_options: { buttonText:"Preview/Save" }
     tool_events: {
        activated: "_activated"
+       deactivated: "_close_modal"
     }
 
     _activated: (e) ->
@@ -41,10 +42,13 @@ define [
       """ # hack to keep my text editor happy "
       $('body').append(modal)
       $('#previewModal .modal').on('hidden', () =>
+        @plot_view.eventSink.trigger("#{@cid}:deactivated"))
+      $('#previewModal > .modal').modal({show:true});
+
+
+    _close_modal : () ->
         $('#previewModal').remove()
         $('#previewModal > .modal').remove()
-      )
-      $('#previewModal > .modal').modal({show:true});
 
   class PreviewSaveTool extends Tool.Model
     default_view: PreviewSaveToolView

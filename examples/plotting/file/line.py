@@ -8,7 +8,7 @@ y = np.sin(x)
 
 output_file("line.html", title="line.py example")
 
-line(x,y, color="#0000FF", tools="pan,zoom,resize",
+line(x,y, color="#0000FF", tools="pan,zoom,resize, preview, save",
      name="line_example")
 
 show()
