@@ -22,6 +22,7 @@ define [
   "tool/pan_tool",
   "tool/zoom_tool",
   "tool/resize_tool",
+  "tool/crosshair_tool",
   "tool/box_select_tool",
   "tool/data_range_box_select_tool",
   "tool/preview_save_tool",
@@ -65,6 +66,7 @@ define [
     PanTool:                'tool/pan_tool'
     ZoomTool:               'tool/zoom_tool'
     ResizeTool:             'tool/resize_tool'
+    CrosshairTool:          'tool/crosshair_tool'
     BoxSelectTool:          'tool/box_select_tool'
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'

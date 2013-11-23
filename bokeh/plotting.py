@@ -15,8 +15,8 @@ import webbrowser
 from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataRange1d,
         Plot, Glyph, LinearAxis, Grid, PanTool, ZoomTool,
-        PreviewSaveTool, ResizeTool, BoxSelectTool, EmbedTool,
-        BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
+        PreviewSaveTool, ResizeTool, CrosshairTool, BoxSelectTool, 
+        EmbedTool, BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
 from . import glyphs
@@ -870,6 +870,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         tool_objs.append(PreviewSaveTool(plot=p))
     if "resize" in tools:
         tool_objs.append(ResizeTool(plot=p))
+    if "crosshair" in tools:
+        tool_objs.append(CrosshairTool(plot=p))
     if "select" in tools:
         select_tool = BoxSelectTool()
         tool_objs.append(select_tool)

@@ -811,6 +811,9 @@ class EmbedTool(PlotObject):
 class ResizeTool(PlotObject):
     plot = Instance(Plot)
 
+class CrosshairTool(PlotObject):
+    plot = Instance(Plot)
+
 class BoxSelectTool(PlotObject):
     renderers = List(has_ref=True)
 
