@@ -4,7 +4,8 @@ define [
   "backbone",
   "./tool",
   "./event_generators",
-], (_, Backbone, Tool, EventGenerators) ->
+  "sprintf",
+], (_, Backbone, Tool, EventGenerators, sprintf) ->
 
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
 
@@ -72,8 +73,8 @@ define [
       ch = @plot_view.view_state.get('outer_height')
       cw = @plot_view.view_state.get('outer_width')
 
-      data_x = @plot_view.xmapper.map_from_target(x)
-      data_y = @plot_view.ymapper.map_from_target(y)
+      data_x = sprintf("%.4f", @plot_view.xmapper.map_from_target(x))
+      data_y = sprintf("%.4f", @plot_view.ymapper.map_from_target(y))
       @popup.text("x: #{data_x} y: #{data_y}")
 
       return null
