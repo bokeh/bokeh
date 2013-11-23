@@ -21,8 +21,10 @@ define [
 
     eventGeneratorClass: ButtonEventGenerator
     evgen_options: { buttonText:"Embed Html" }
+    toolType: "EmbedTool"
     tool_events: {
        activated: "_activated"
+       deactivated: "_close_modal"
     }
 
     _activated: (e) ->
@@ -52,10 +54,12 @@ define [
       """  #FIXME: this quote hack makes my text editor happy"
       $('body').append(modal)
       $('#embedModal > .modal').on('hidden', () =>
-        $('#embedModal').remove()
-        #$('#embedModal .modal').remove()
-      )
+        @plot_view.eventSink.trigger("clear_active_tool"))
       $('#embedModal > .modal').modal({show:true});
+    
+    _close_modal : () ->
+      $('#embedModal').remove()
+      $('#embedModal > .modal').remove()
 
   class EmbedTool extends Tool.Model
      default_view: EmbedToolView

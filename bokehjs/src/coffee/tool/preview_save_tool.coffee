@@ -17,6 +17,7 @@ define [
 
     eventGeneratorClass: ButtonEventGenerator
     evgen_options: { buttonText:"Preview/Save" }
+    toolType: "PreviewSaveTool"
     tool_events: {
        activated: "_activated"
        deactivated: "_close_modal"
@@ -42,9 +43,8 @@ define [
       """ # hack to keep my text editor happy "
       $('body').append(modal)
       $('#previewModal .modal').on('hidden', () =>
-        @plot_view.eventSink.trigger("#{@cid}:deactivated"))
+        @plot_view.eventSink.trigger("clear_active_tool"))
       $('#previewModal > .modal').modal({show:true});
-
 
     _close_modal : () ->
         $('#previewModal').remove()
