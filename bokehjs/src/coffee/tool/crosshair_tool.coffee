@@ -27,6 +27,32 @@ define [
       SetBasepoint: "_set_base_point"
     }
 
+    render: () ->
+      if not @active
+        return
+    
+      ctx = @plot_view.ctx
+
+      cw = @plot_view.view_state.get('canvas_width')
+      ch = @plot_view.view_state.get('canvas_height')
+
+      line_width = 1
+
+      ctx.save()
+
+      ctx.strokeStyle = 'red'
+      ctx.globalAlpha = 0.7
+      ctx.lineWidth   = line_width
+      ctx.setLineDash([])
+
+      ctx.beginPath()
+      ctx.moveTo(0,@y)
+      ctx.lineTo(cw,@y)
+      console.log(@x,@y)
+      ctx.moveTo(@x, 0)
+      ctx.lineTo(@x, ch)
+      ctx.stroke()
+      ctx.restore()
 
     mouse_coords: (e, x, y) ->
       return [x, y]
@@ -35,6 +61,7 @@ define [
       if @active
         return
       @active = true
+      #[@x,@y] = [5,5]
       @popup = $(
         '''<div class="resize_popup pull-right"
           style="border-radius: 10px; background-color: lightgrey; padding:3px 8px; font-size: 14px;
@@ -45,9 +72,9 @@ define [
       cw = @plot_view.view_state.get('outer_width')
       @popup.text("x: 0 y:0")
 
-      @request_render()
-      @plot_view.$el.css("cursor", "crosshair")
-      @plot_view.request_render()
+      #@request_render()
+      #@plot_view.$el.css("cursor", "crosshair")
+      #@plot_view.request_render()
       return null
 
     _deactivate: (e) ->
@@ -70,13 +97,13 @@ define [
       ydiff = y - @y
       [@x, @y] = [x, y]
 
-      ch = @plot_view.view_state.get('outer_height')
-      cw = @plot_view.view_state.get('outer_width')
 
       data_x = sprintf("%.4f", @plot_view.xmapper.map_from_target(x))
       data_y = sprintf("%.4f", @plot_view.ymapper.map_from_target(y))
       @popup.text("x: #{data_x} y: #{data_y}")
-
+      @request_render()
+      @plot_view.request_render()
+      @plot_view.unpause(true)
       return null
 
   class CrosshairTool extends Tool.Model
