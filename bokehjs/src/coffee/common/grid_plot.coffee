@@ -98,7 +98,7 @@ define [
       all_tools = _.flatten(_.map(_.pluck(this.childviews, 'tools'), _.values))
       all_tool_classes = _.uniq(_.pluck(all_tools, 'constructor'))
       if all_tool_classes.length > 0
-        @toolbar_height = 20 # make room for the button bar
+        @toolbar_height = 35 # make room for the button bar
       tool_name_dict = {}
       _.each(all_tool_classes, (klass) ->
         btext = _.where(all_tools, {constructor:klass})[0].evgen_options.buttonText
@@ -142,7 +142,7 @@ define [
         for plotspec, cidx in row
           view = @childviews[plotspec.id]
           ypos = @viewstate.position_child_y(y_coords[ridx],
-            view.view_state.get('outer_height') - @toolbar_height)
+            view.view_state.get('outer_height') -  @toolbar_height)
 
           xpos = @viewstate.position_child_x(x_coords[cidx], view.view_state.get('outer_width'))
           plot_wrapper = $("<div class='gp_plotwrapper'></div>")
