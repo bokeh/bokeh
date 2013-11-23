@@ -17,6 +17,7 @@ define [
       super(plotview)
 
     eventGeneratorClass: TwoPointEventGenerator
+    toolType: "ResizeTool"
     evgen_options: {keyName:"", buttonText:"Resize"}
     tool_events: {
       activated: "_activate",
@@ -57,22 +58,27 @@ define [
       return [x, y]
 
     _activate: (e) ->
+      if @active
+        return
       @active = true
       @popup = $(
-        '<div class="resize_popup pull-right" style="border-radius: 10px; background-color: lightgrey; padding:3px 8px; font-size: 14px"></div>'
-      )
-      bbar = @plot_view.$el.find('.button_bar')
+        '''<div class="resize_popup pull-right"
+          style="border-radius: 10px; background-color: lightgrey; padding:3px 8px; font-size: 14px;
+          position:absolute; right:20px; top: 20px; "></div>''')
+      bbar = @plot_view.$el.find('.bokeh_canvas_wrapper')
       @popup.appendTo(bbar)
       ch = @plot_view.view_state.get('outer_height')
       cw = @plot_view.view_state.get('outer_width')
       @popup.text("width: #{cw} height: #{ch}")
 
+      @request_render()
       @plot_view.request_render()
       return null
 
     _deactivate: (e) ->
       @active = false
       @popup.remove()
+      @request_render()
       @plot_view.request_render()
       return null
 
