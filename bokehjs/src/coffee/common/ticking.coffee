@@ -279,55 +279,35 @@ define [
           interval: float
               tick mark interval for axis
       """
-      range = float( data_high ) - float( data_low )
+      data_range = float(data_high) - float(data_low)
+      desired_n_ticks = 6
+      ideal_interval = data_range / desired_n_ticks
 
-      # We'll choose from between 2 and 8 tick marks.
-      # Preference is given to more ticks:
-      #   Note reverse order and see kludge below...
-      #divisions = arange( 8.0, 2.0, -1.0 ) # ( 7, 6, ..., 3 )
-      divisions = [8.0, 7.0, 6.0, 5.0, 4.0, 3.0]
-      # Calculate the intervals for the divisions:
-      #candidate_intervals = range / divisions
-      candidate_intervals = arr_div2(range, divisions)
+      ideal_magnitude = Math.pow(10, Math.floor(log10(ideal_interval)))
+      ideal_mantissa = ideal_interval / ideal_magnitude
 
-      # Get magnitudes and mantissas for each candidate:
+      allowed_mantissas = [0.5, 1.0, 2.0, 2.5, 5.0, 10.0]
 
-      magnitudes = candidate_intervals.map((candidate) ->
-        return Math.pow(10.0, Math.floor(log10(candidate))))
-      mantissas  = arr_div3(candidate_intervals, magnitudes)
+      # Reduce the set of allowed mantissas to only the closest two.
+      # FIXME Use binary search?
+      # FIXME This loop should always break, but just in case something weird
+      # happens with floating point, we'll set this default value.
+      index = allowed_mantissas.length - 1
+      for i in arange(1, allowed_mantissas.length)
+        if ideal_mantissa < allowed_mantissas[i]
+          index = i
+          break
+      # FIXME Is there some kind of slicing notation?
+      candidate_mantissas = [allowed_mantissas[index - 1],
+                             allowed_mantissas[index]]
 
-      # List of "pleasing" intervals between ticks on graph.
-      # Only the first magnitude are listed, higher mags others are inferred:
-      magic_intervals = [1.0, 2.0, 2.5, 5.0, 10.0 ]
+      errors = candidate_mantissas.map((mantissa) ->
+        return desired_n_ticks - (data_range / (mantissa * ideal_magnitude)))
+      best_mantissa = candidate_mantissas[argsort(errors)[0]]
 
-
-      best_mantissas = []
-      best_magics = []
-      for mi in magic_intervals
-        diff_arr = mantissas.map((x) -> Math.abs(mi - x))
-        best_magics.push(_.min(diff_arr))
-      for ma in mantissas
-        diff_arr = magic_intervals.map((x) -> Math.abs(ma - x))
-        best_mantissas.push(_.min(diff_arr))
-      # Calculate the absolute differences between the candidates
-      # (with magnitude removed) and the magic intervals:
-
-
-      # Find the division and magic interval combo that produce the
-      # smallest differences:
-      magic_index    = argsort(best_magics )[0]
-
-      mantissa_index = argsort(best_mantissas )[0]
-
-
-      # The best interval is the magic_interval multiplied by the magnitude
-      # of the best mantissa:
-      interval  = magic_intervals[ magic_index ]
-      magnitude = magnitudes[ mantissa_index ]
-      result    = interval * magnitude
-      #if result == 0.0
-      #    result = finfo(float).eps
-      return result
+      interval = best_mantissa * ideal_magnitude
+        
+      return interval
 
   # TODO (bev) restore memoization
   #auto_interval = memoize(auto_interval_temp)
