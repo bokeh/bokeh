@@ -3,9 +3,9 @@ import argparse, sys
 
 try:
     from bokeh.server import start
-except ImportError:
+except ImportError, ie:
     print
-    print "Error: bokeh-sever requires the python redis module in order to run"
+    print "Error: required module '{0}' not found".format(ie)
     print sys.exit(1)
 import logging
 
