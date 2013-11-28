@@ -214,6 +214,7 @@ define [
     $('body').append(div)
     myrender  =  ->
       view = new plot.default_view(model: plot)
+      window.pview = view
       div.append(view.$el)
       console.log("added plot: " + plot.get('title'))
     _.defer(myrender)
@@ -221,5 +222,6 @@ define [
 
   return {
     "make_plot": make_plot,
+    "create_glyphs": create_glyphs,
     "show": show,
   }

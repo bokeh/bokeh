@@ -39,7 +39,7 @@ module.exports = (grunt) ->
           cwd: 'demo'
           src: ['**/*.html', '**/*.js']
           dest: 'build/demo'
-          filter: ['isFile', hasChanged("copy.demo")]
+          filter: ['isFile'], #, hasChanged("copy.demo")]
         ]
       vendor:
         files : [
