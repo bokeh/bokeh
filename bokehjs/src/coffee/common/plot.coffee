@@ -198,7 +198,7 @@ define [
         dx = x[..]
       else
         dx = new Float64Array(sx.length)
-        sd.set(x)
+        dx.set(x)
       if _.isArray(sy)
         dy = y[..]
       else
