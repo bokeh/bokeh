@@ -65,10 +65,12 @@ require(['main'], (Bokeh) ->
     legend: false
     
   }
-
   plot1 = Bokeh.Plotting.make_plot(
     [scatter1, scatter2],
     source, _.extend({title: "Plot 1", yrange: ydr1}, options))
+  column_select_tool = Bokeh.Collections('ColumnSelectTool').create(
+    data_source: source.ref())
+  plot1.set_obj('tools', [column_select_tool])
 
 
   Bokeh.Plotting.show(plot1))
