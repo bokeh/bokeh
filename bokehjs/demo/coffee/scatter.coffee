@@ -1,6 +1,6 @@
 require(['main'], (Bokeh) ->
 
-  N= 20000
+  N= 2000
   r = new Bokeh.Random(123456789)
 
   x = (r.randf()*100 for i in _.range(N))
@@ -35,4 +35,6 @@ require(['main'], (Bokeh) ->
   }
 
   plot = Bokeh.Plotting.make_plot(scatter, data, options)
-  Bokeh.Plotting.show(plot))
+  Bokeh.Plotting.show(plot)
+  )
+
