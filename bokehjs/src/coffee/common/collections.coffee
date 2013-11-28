@@ -26,6 +26,7 @@ define [
   "tool/box_select_tool",
   "tool/data_range_box_select_tool",
   "tool/preview_save_tool",
+  "tool/column_select_tool",
   "tool/embed_tool",
   "widget/data_slider",
 ], (underscore, require) ->
@@ -64,6 +65,7 @@ define [
     BoxSelectTool:          'tool/box_select_tool'
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'
+    ColumnSelectTool:       'tool/column_select_tool'
     EmbedTool:              'tool/embed_tool'
 
     DataSlider:             'widget/data_slider'

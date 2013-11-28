@@ -70,6 +70,7 @@ define [
     BoxSelectTool:          'tool/box_select_tool'
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'
+    ColumnSelectTool:       'tool/column_select_tool'
     EmbedTool:              'tool/embed_tool'
 
     DataSlider:             'widget/data_slider'

@@ -14,9 +14,10 @@ define [
   "tool/box_select_tool",
   "tool/pan_tool",
   "tool/preview_save_tool",
+  "tool/column_select_tool",
   "tool/resize_tool",
   "tool/zoom_tool",
-], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ResizeTool, ZoomTool) ->
+], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ColumnSelectTool, ResizeTool, ZoomTool) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -155,6 +156,12 @@ define [
     if tools.indexOf("preview") > -1
       preview_tool = PreviewSaveTool.Collection.create()
       added_tools.push(preview_tool)
+
+    if tools.indexOf("cselect") > -1
+      ""
+      column_select_tool = ColumnSelectTool.Collection.create()
+      console.log("created a columnselect tool")
+      added_tools.push(column_select_tool)
 
     plot.set_obj('tools', added_tools)
 
