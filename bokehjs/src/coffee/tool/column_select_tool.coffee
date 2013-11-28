@@ -22,7 +22,8 @@ define [
        activated: "_activated"
        deactivated: "_close_modal"
     }
-
+    events:
+      "click input": "update_selected_columns"
 
     _build_renderers: ->
       pmodel = @plot_view.model
@@ -48,9 +49,27 @@ define [
 
     _datasource_columns: ->
       source = @mget_obj('data_source')
-      _.keys(source.get('data'))
+      col_data = []
+      selected_columns = @mget('selected_columns')
+      for k in _.keys(source.get('data'))
+        if _.contains(selected_columns, k)
+          col_data.push([k, "checked"])
+        else
+          col_data.push([k, ""])
+      return col_data
 
-    _activated: (e) ->
+    update_selected_columns: (e) ->
+      column =  $(e.currentTarget).attr('name')
+      add = $(e.currentTarget).is(":checked")
+      selected_columns = @mget('selected_columns')
+      if add
+        selected_columns.push(column)
+        @mset('selected_columns', _.uniq(selected_columns))
+      else
+        @mset('selected_columns', _.without(selected_columns, column))
+      @_build_renderers()
+
+    render: () ->
       modal = """
       <div id='previewModal' class='bokeh'>
         <div class="modal" role="dialog" aria-labelledby="previewLabel" aria-hidden="true">
@@ -59,8 +78,9 @@ define [
             <h3 id="dataConfirmLabel">Columns </h3></div><div class="modal-body">
           <div class="modal-body">
             <ul>
-              <% _.each(columns, function(column_name){ %>
-                <li> <%= column_name %> </li>
+              <% _.each(columns, function(column_data){ %>
+                <li> <%= column_data[0] %> </li>
+                <input name='<%= column_data[0] %>' <%= column_data[1] %> type='checkbox' />
               <% }) %>
             </ul>
           </div>
@@ -70,17 +90,23 @@ define [
         </div>
       </div>
       """ # hack to keep my text editor happy "
-      $('body').append(_.template(modal)(columns:@_datasource_columns()))
+      @$el.html(_.template(modal)(columns:@_datasource_columns()))
+      @
+      
+    _activated: (e) ->
+      @render()
+      $('body').append(@$el)
       $('#previewModal .modal').on('hidden', () =>
         @plot_view.eventSink.trigger("clear_active_tool"))
       $('#previewModal > .modal').modal({show:true});
-
     _close_modal : () ->
-      @mset('selected_columns', @_datasource_columns().slice(0, @counter))
-      @counter += 1
+
+      # @mset('selected_columns', @_datasource_columns().slice(0, @counter))
+      # @counter += 1
       @_build_renderers()
       $('#previewModal').remove()
       $('#previewModal > .modal').remove()
+      @$el.remove()
 
   class ColumnSelectTool extends Tool.Model
     default_view: ColumnSelectToolView
@@ -89,7 +115,7 @@ define [
     defaults: () ->
       return {
         data_source: null
-        columns: []
+        selected_columns: []
       }
 
     display_defaults: () ->
