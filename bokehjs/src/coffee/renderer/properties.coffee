@@ -190,7 +190,7 @@ define [
         return
 
       if @[attrname].typed?
-        result = new Float32Array(objs.length)
+        result = new Float64Array(objs.length)
       else
         result = new Array(objs.length)
 

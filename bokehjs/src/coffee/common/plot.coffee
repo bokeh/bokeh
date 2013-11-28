@@ -178,12 +178,12 @@ define [
         if _.isArray(x)
           sx = x[..]
         else
-          sx = new Float32Array(x.length)
+          sx = new Float64Array(x.length)
           sx.set(x)
         if _.isArray(y)
           sy = y[..]
         else
-          sy = new Float32Array(y.length)
+          sy = new Float64Array(y.length)
           sy.set(y)
       else
         [sx, sy] = @mapper.v_map_to_target(x, y)
@@ -197,12 +197,12 @@ define [
       if _.isArray(sx)
         dx = x[..]
       else
-        dx = new Float32Array(sx.length)
+        dx = new Float64Array(sx.length)
         sd.set(x)
       if _.isArray(sy)
         dy = y[..]
       else
-        dy = new Float32Array(sy.length)
+        dy = new Float64Array(sy.length)
         dy.set(y)
       sx = @view_state.v_device_to_sx(dx)
       sy = @view_state.v_device_to_sy(dy)
