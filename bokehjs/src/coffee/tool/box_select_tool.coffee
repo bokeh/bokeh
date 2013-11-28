@@ -11,8 +11,8 @@ define [
   class BoxSelectToolView extends Tool.View
     initialize: (options) ->
       super(options)
-      @select_callback = _.debounce((() => @_select_data()), 50)
-      @listenTo(@model, 'change', @select_callback)
+      #@select_callback = _.debounce((() => @_select_data()), 50)
+      #@listenTo(@model, 'change', @select_callback)
 
     bind_bokeh_events: () ->
       super()
@@ -34,11 +34,10 @@ define [
       restrict_to_innercanvas: true
     tool_events: {
       SetBasepoint: "_start_selecting",
-      #UpdatingMouseMove: "box_selecting",
       UpdatingMouseMove: "_selecting",
-
-      #DragEnd: "_selecting",
-      deactivated: "_stop_selecting"}
+      deactivated: "_stop_selecting",
+      DragEnd : "_select_data"
+      }
 
     pause:()->
       ""
@@ -51,8 +50,10 @@ define [
     _stop_selecting: () ->
       @trigger('stopselect')
       @basepoint_set = false
+      @plot_view.unpause()
 
     _start_selecting: (e) ->
+      @plot_view.pause()
       @trigger('startselect')
       [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
       @mset({'start_x': x, 'start_y': y, 'current_x': null, 'current_y': null})
@@ -71,31 +72,14 @@ define [
         yrange = null
       return [xrange, yrange]
 
-    _get_selection_range_fast: (current_x, current_y)->
-      xrange = [@mget('start_x'), current_x]
-      yrange = [@mget('start_y'), current_y]
-      if @mget('select_x')
-        xrange = [_.min(xrange), _.max(xrange)]
-      else
-        xrange = null
-      if @mget('select_y')
-        yrange = [_.min(yrange), _.max(yrange)]
-      else
-        yrange = null
-      return [xrange, yrange]
-
     _selecting: (e, x_, y_) ->
       [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
       @mset({'current_x': x, 'current_y': y})
       [@xrange, @yrange] = @_get_selection_range(x, y)
       @trigger('boxselect', @xrange, @yrange)
+      @plot_view.render_overlays(true)
       return null
 
-    box_selecting: (e, x_, y_) ->
-      [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
-      [@xrange, @yrange] = @_get_selection_range_fast(x, y)
-      @trigger('boxselect', @xrange, @yrange)
-      return null
 
     _select_data: () ->
       if not @basepoint_set
@@ -130,7 +114,21 @@ define [
         ,
           {patch: true}
         )
+        @plot_view.unpause()
       return null
+
+    _get_selection_range_fast: (current_x, current_y)->
+      xrange = [@mget('start_x'), current_x]
+      yrange = [@mget('start_y'), current_y]
+      if @mget('select_x')
+        xrange = [_.min(xrange), _.max(xrange)]
+      else
+        xrange = null
+      if @mget('select_y')
+        yrange = [_.min(yrange), _.max(yrange)]
+      else
+        yrange = null
+      return [xrange, yrange]
 
   class BoxSelectTool extends Tool.Model
     default_view: BoxSelectToolView
