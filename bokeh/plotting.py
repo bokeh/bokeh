@@ -511,7 +511,7 @@ class GlyphFunction(object):
             plot.y_range._dirty = True
 
 
-    def _glyph_param_setup(self, datasource, args, kwargs, prefix="", default_alpha=1.0):
+    def _glyph_param_setup(self, kwargs, prefix="", default_alpha=1.0):
 
         COLOR = prefix + "color"
         FILL_COLOR = prefix + "fill_color"
@@ -522,16 +522,13 @@ class GlyphFunction(object):
         LINE_ALPHA = prefix + "line_alpha"
 
         color = kwargs.pop(COLOR, get_default_color())
-        kwargs[FILL_COLOR] = kwargs.get(FILL_COLOR, color)
-        kwargs[LINE_COLOR] = kwargs.get(LINE_COLOR, color)
+        kwargs['fill_color'] = kwargs.get(FILL_COLOR, color)
+        kwargs['line_color'] = kwargs.get(LINE_COLOR, color)
 
         alpha = kwargs.pop(ALPHA, default_alpha)
-        kwargs[FILL_ALPHA] = kwargs.get(FILL_ALPHA, alpha)
-        kwargs[LINE_ALPHA] = kwargs.get(LINE_ALPHA, alpha)
-
-        # Process the glyph dataspec parameters
-        glyph_params = self._match_data_params(datasource, args, kwargs)
-        return glyph_params
+        kwargs['fill_alpha'] = kwargs.get(FILL_ALPHA, alpha)
+        kwargs['line_alpha'] = kwargs.get(LINE_ALPHA, alpha)
+        return kwargs
 
     @visual
     def __call__(self, *args, **kwargs):
@@ -547,7 +544,10 @@ class GlyphFunction(object):
 
         # Process the glyph dataspec parameters
         
-        glyph_params = self._glyph_param_setup(datasource, args, kwargs)
+        # Process the glyph dataspec parameters
+        glyph_params = self._match_data_params(
+            datasource, args, self._glyph_param_setup(kwargs))
+
         x_data_fields = [
             glyph_params[xx]['field'] for xx in self.xfields if glyph_params[xx]['units'] == 'data']
         y_data_fields = [
@@ -555,14 +555,15 @@ class GlyphFunction(object):
         self._update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)
         glyph = self.glyphclass(**kwargs)
-        
-
         nonselection_glyph_params = self._glyph_param_setup(
-            datasource, args, kwargs, prefix='nonselection', default_alpha=0.1)
-        
+            kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
-        nonselection_glyph.fill_alpha = nonselection_glyph_params['nonselection_fill_alpha']
-        nonselection_glyph.line_alpha = nonselection_glyph_params['nonselection_line_alpha']
+
+        nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
+        nonselection_glyph.line_color = nonselection_glyph_params['line_color']
+
+        nonselection_glyph.fill_alpha = nonselection_glyph_params['fill_alpha']
+        nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
 
         glyph_renderer = Glyph(
             data_source = datasource,
