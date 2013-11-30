@@ -22,11 +22,7 @@ import models.user as user
 import models.convenience as mconv
 import models.docs as docs
 import os
-try:
-    from continuumweb import hemlib
-    hemlib.slug_path = os.path.dirname(__file__)
-except ImportError:
-    pass
+from os.path import join, dirname
 import logging
 import time
 
@@ -54,7 +50,14 @@ def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True):
     bokeh_app.model_redis = redis.Redis(host=rhost, port=rport, db=3)
     bokeh_app.pubsub_redis = redis.Redis(host=rhost, port=rport, db=4)
     bokeh_app.secret_key = str(uuid.uuid4())
-
+    if bokeh_app.debugjs:
+        basedir = dirname(dirname(dirname(__file__)))
+        bokeh_app.bokehjsdir = join(basedir, "bokehjs", "build")
+        bokeh_app.bokehjssrcdir = join(basedir, "bokehjs", "src")
+    else:
+        bokeh_app.bokehjsdir = join(dirname(__file__), 'static')
+        bokeh_app.bokehjssrcdir = None
+                             
 def make_default_user(bokeh_app):
     docid = "defaultdoc"
     bokehuser = user.new_user(bokeh_app.model_redis, "defaultuser",
