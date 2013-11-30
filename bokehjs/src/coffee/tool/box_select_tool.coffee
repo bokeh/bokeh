@@ -142,13 +142,13 @@ define [
     type: "BoxSelectTool"
 
     defaults: () ->
-      return {
+      return _.extend(super(), {
         renderers: []
         select_x: true
         select_y: true
         select_every_mousemove: false
         data_source_options: {} #backbone options for save on datasource
-      }
+      })
 
     display_defaults: () ->
       super()
