@@ -90,7 +90,7 @@ define [
     addGridToolbar: ->
 
       @button_bar = $("<div class='grid_button_bar'/>")
-      @button_bar.attr('style',     "position:absolute; left:10px; top:5px; ")
+      @button_bar.attr('style',     "position:absolute; left:10px; top:0px; ")
       @toolEventSink = _.extend({}, Backbone.Events)
       @atm = new ActiveToolManager(@toolEventSink)
       @atm.bind_bokeh_events()
