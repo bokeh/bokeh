@@ -18,6 +18,14 @@ define [
     getcolumn: (colname) ->
       return @get('data')[colname]
 
+    getcolumn_with_default: (colname, default_value) ->
+      """ returns the column, with any undefineds replaced with default""" #"
+      return @get('data')[colname]
+
+    get_length :  ->
+      data = @get('data')
+      return data[_.keys(data)[0]].length 
+
     datapoints: () ->
       data = @get('data')
       fields = _.keys(data)

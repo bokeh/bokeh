@@ -14,6 +14,7 @@ define [
     initialize: (options) ->
       super(options)
       ##duped in many classes
+      #debugger
       @glyph_props = @init_glyph(@mget('glyphspec'))
       if @mget('selection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
@@ -21,6 +22,9 @@ define [
       if @mget('nonselection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
         @nonselection_glyphprops = @init_glyph(spec)
+        debugger
+        @nonselection_glyphprops.fill_properties.fill_alpha=.3
+
       if not @selection_glyphprops
         @selection_glyphprops = @glyph_props
 
@@ -40,7 +44,8 @@ define [
 
     _render: (plot_view, have_new_mapper_state=true) ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-
+      ds = @mget_obj('data_source')
+      
       ow = @plot_view.view_state.get('outer_width')
       oh = @plot_view.view_state.get('outer_height')
 
@@ -60,7 +65,7 @@ define [
         else
           @mask[i] = true
 
-      ds = @mget_obj('data_source')
+
       selected = ds.get('selected')
       for idx in selected
         @selected_mask[idx] = true
@@ -70,6 +75,8 @@ define [
       if selected and selected.length and @nonselection_glyphprops
         @_full_path(ctx, @selection_glyphprops, true)
         @_full_path(ctx, @nonselection_glyphprops, false)
+        #debugger
+        console.log("selection stroke")
       else
         @_full_path(ctx, @selection_glyphprops)
       ctx.restore()
@@ -91,6 +98,10 @@ define [
         @request_render()
 
     _full_path: (ctx, glyph_props, use_selection) ->
+      source = @mget_obj('data_source')
+      glyph_props.fill_properties.set_prop_cache(source)
+      glyph_props.line_properties.set_prop_cache(source)
+
       for i in [0..@sx.length-1]
         #if we are outside the rendering area, continue
         if not @mask[i]
@@ -103,49 +114,15 @@ define [
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
 
         if glyph_props.fill_properties.do_fill
-          #FIXME: vectorize this later
-          glyph_props.fill_properties.set(ctx, @data2[i])
+          glyph_props.fill_properties.set4(ctx,i)
           ctx.fill()
 
         if glyph_props.line_properties.do_stroke
-          #FIXME: vectorize this later
-          glyph_props.line_properties.set(ctx, @data2[i])
+          glyph_props.line_properties.set4(ctx, i)
           ctx.stroke()
 
-
-
     source_v_select: (attrname, glyph_props, datasource) ->
-      # if the attribute is not on this property object at all, log a bad request
-      if not (attrname of glyph_props)
-        console.log("requested vector selection of unknown property '#{ attrname }' on objects")
-        return
-
-      prop = glyph_props[attrname]
-      # if the attribute specifies a field, and the field exists on
-      # the column source, return the column from the column source
-      if prop.field? and (prop.field of datasource.get('data'))
-        console.log("source_v_select")
-        return datasource.getcolumn(prop.field)
-      else
-        # If the user gave an explicit value, that should always be returned
-        if glyph_props[attrname].value?
-          default_value = glyph_props[attrname].value
-
-        # otherwise, if the attribute exists on the object, return that value.
-        # (This is a convenience case for when the object passed in has a member
-        # that has the same name as the glyphspec name, e.g. an actual field
-        # named "x" or "radius".)
-        if (attrname of datasource.get('data'))
-          return datasource.getcolumn(attrname)
-
-        # finally, check for a default value on this property object that could be returned
-        if glyph_props[attrname].default?
-          default_value = glyph_props[attrname].default
-        
-        #FIXME this is where we could return a generator, which might
-        #do a better job for constant propagation
-        return (default_value for i in datasource.get_length())
-
+      return glyph_props.source_v_select(attrname, glyph_props, datasource)
 
     distance: (pt, span_prop_name, position) ->
       """ returns an array """ #"

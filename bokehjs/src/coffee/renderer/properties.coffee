@@ -5,6 +5,39 @@ define [
 ], (_, svg_colors) ->
 
   class properties
+    source_v_select: (attrname, glyph_props, datasource) ->
+      glyph_props = @
+      # if the attribute is not on this property object at all, log a bad request
+      if not (attrname of glyph_props)
+        console.log("requested vector selection of unknown property '#{ attrname }' on objects")
+        return (null for i in datasource.get_length())
+
+
+      prop = glyph_props[attrname]
+      # if the attribute specifies a field, and the field exists on
+      # the column source, return the column from the column source
+      if prop.field? and (prop.field of datasource.get('data'))
+        return datasource.getcolumn(prop.field)
+      else
+        # If the user gave an explicit value, that should always be returned
+        if glyph_props[attrname].value?
+          default_value = glyph_props[attrname].value
+
+        # otherwise, if the attribute exists on the object, return that value.
+        # (This is a convenience case for when the object passed in has a member
+        # that has the same name as the glyphspec name, e.g. an actual field
+        # named "x" or "radius".)
+        if (attrname of datasource.get('data'))
+          return datasource.getcolumn(attrname)
+
+        # finally, check for a default value on this property object that could be returned
+        if glyph_props[attrname].default?
+          default_value = glyph_props[attrname].default
+        
+        #FIXME this is where we could return a generator, which might
+        #do a better job for constant propagation
+        return (default_value for i in datasource.get_length())
+
 
     string: (styleprovider, glyphspec, attrname) ->
       @[attrname] = {}
@@ -255,6 +288,29 @@ define [
       ctx.setLineDash(@select(@line_dash_name, obj))
       ctx.setLineDashOffset(@select(@line_dash_offset_name, obj))
 
+    set_prop_cache: (datasource) ->
+      @cache = {}
+      @cache.strokeStyle       = @source_v_select(@line_color_name, @, datasource)
+      @cache.globalAlpha       = @source_v_select(@line_alpha_name, @, datasource)
+      @cache.lineWidth         = @source_v_select(@line_width_name, @, datasource)
+      @cache.lineJoin          = @source_v_select(@line_join_name,  @, datasource)
+      @cache.lineCap           = @source_v_select(@line_cap_name,   @, datasource)
+      @cache.setLineDash       = @source_v_select(@line_dash_name, @, datasource)
+      @cache.setLineDashOffset = @source_v_select(@line_dash_offset_name, @, datasource)
+
+    clear_prop_cache: () ->
+      @cache = {}
+      
+    set4: (ctx, i) ->
+      ctx.strokeStyle = @cache.strokeStyle[i]
+      ctx.globalAlpha = @cache.globalAlpha[i]
+      ctx.lineWidth   = @cache.lineWidth[i]
+      ctx.lineJoin    = @cache.lineJoin[i]
+      ctx.lineCap     = @cache.lineCap[i]
+      ctx.setLineDash(@cache.setLineDash[i])
+      ctx.setLineDashOffset(@cache.setLineDashOffset[i])
+
+
   class fill_properties extends properties
     constructor: (styleprovider, glyphspec, prefix="") ->
       @fill_color_name = "#{ prefix }fill_color"
@@ -273,6 +329,16 @@ define [
     set: (ctx, obj) ->
       ctx.fillStyle   = @select(@fill_color_name, obj)
       ctx.globalAlpha = @select(@fill_alpha_name, obj)
+
+    set_prop_cache: (datasource) ->
+      @cache = {}
+      @cache.fillStyle         = @source_v_select(@fill_color_name, @, datasource)
+      @cache.globalAlpha       = @source_v_select(@fill_alpha_name, @, datasource)
+
+    set4: (ctx, i) ->
+      ctx.fillStyle   = @cache.fillStyle[i]
+      ctx.globalAlpha = @cache.globalAlpha[i]
+
 
   class text_properties extends properties
     constructor: (styleprovider, glyphspec, prefix="") ->
