@@ -48,8 +48,8 @@ define [
     set_data: (request_render=true) ->
       source = @mget_obj('data_source')
       if source.type == 'ColumnDataSource'
-        @x = @source_v_select('x', @glpyhprops, source)
-        @y = @source_v_select('y', @glyphprops, source)
+        @x = @source_v_select('x', @glpyh_props, source)
+        @y = @source_v_select('y', @glyph_props, source)
         @mask = new Uint8Array(data.length)
         @selected_mask = new Uint8Array(data.length)
         for i in [0..@mask.length-1]
@@ -61,13 +61,13 @@ define [
         @request_render()
 
 
-    source_v_select: (attrname, glyphprops, datasource) ->
+    source_v_select: (attrname, glyph_props, datasource) ->
       # if the attribute is not on this property object at all, log a bad request
-      if not (attrname of glpyhprops)
+      if not (attrname of glpyh_props)
         console.log("requested vector selection of unknown property '#{ attrname }' on objects")
         return
 
-      prop = glyphprops[attrname]
+      prop = glyph_props[attrname]
       # if prop.typed?
       #   result = new Float64Array(objs.length)
 
