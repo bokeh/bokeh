@@ -22,7 +22,7 @@
       "jquery_mousewheel": "vendor/jquery-mousewheel/jquery.mousewheel",
       "underscore": "vendor/underscore-amd/underscore",
       "backbone": "vendor/backbone-amd/backbone",
-      "bootstrap2": "vendor/bootstrap"
+      "bootstrap": "vendor/bootstrap"
       }
       });
       require(["main"], 
@@ -32,7 +32,7 @@
     </script>
 
     {% else %}
-    <script src="{{ url_for('static', filename='js/bokeh.js') }}"> </script>
+    <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/bokeh.js') }}"> </script>
     <script>
       window.Bokeh.server_page();
     </script>
