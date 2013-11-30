@@ -38,6 +38,41 @@ define [
       )
       return glyph_props
 
+    _render: (plot_view, have_new_mapper_state=true) ->
+      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+
+      ow = @plot_view.view_state.get('outer_width')
+      oh = @plot_view.view_state.get('outer_height')
+
+      if @have_new_data or have_new_mapper_state
+        @radius = @distance('x', 'radius', 'edge')
+        @have_new_data = false
+
+      ow = @plot_view.view_state.get('outer_width')
+      oh = @plot_view.view_state.get('outer_height')
+
+      #this seems to do hit testing to see if the desired point is in the view screen
+      for i in [0..@mask.length-1]
+        outside_render_area = ((@sx[i]+@radius[i]) < 0 or (@sx[i]-@radius[i]) > ow or\
+          (@sy[i]+@radius[i]) < 0 or (@sy[i]-@radius[i]) > oh)        
+        if outside_render_area or isNaN(@sx[i] + @sy[i] + @radius[i])
+          @mask[i] = false
+        else
+          @mask[i] = true
+
+      ds = @mget_obj('data_source')
+      selected = ds.get('selected')
+      for idx in selected
+        @selected_mask[idx] = true
+      ctx = @plot_view.ctx
+
+      ctx.save()
+      if selected and selected.length and @nonselection_glyphprops
+        @_full_path(ctx, @selection_glyphprops, true)
+        @_full_path(ctx, @nonselection_glyphprops, false)
+      else
+        @_full_path(ctx, @selection_glyphprops)
+      ctx.restore()
 
     set_data: (request_render=true) ->
       source = @mget_obj('data_source')
@@ -54,6 +89,29 @@ define [
   
       if request_render
         @request_render()
+
+    _full_path: (ctx, glyph_props, use_selection) ->
+      for i in [0..@sx.length-1]
+        #if we are outside the rendering area, continue
+        if not @mask[i]
+          continue
+        if use_selection and not @selected_mask[i]
+          continue
+        if use_selection == false and @selected_mask[i]
+          continue
+        ctx.beginPath()
+        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
+
+        if glyph_props.fill_properties.do_fill
+          #FIXME: vectorize this later
+          glyph_props.fill_properties.set(ctx, @data2[i])
+          ctx.fill()
+
+        if glyph_props.line_properties.do_stroke
+          #FIXME: vectorize this later
+          glyph_props.line_properties.set(ctx, @data2[i])
+          ctx.stroke()
+
 
 
     source_v_select: (attrname, glyph_props, datasource) ->
@@ -88,61 +146,6 @@ define [
         #do a better job for constant propagation
         return (default_value for i in datasource.get_length())
 
-
-    _render: (plot_view, have_new_mapper_state=true) ->
-      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-
-      ow = @plot_view.view_state.get('outer_width')
-      oh = @plot_view.view_state.get('outer_height')
-
-      if @have_new_data or have_new_mapper_state
-        @radius = @distance('x', 'radius', 'edge')
-        @have_new_data = false
-
-      ow = @plot_view.view_state.get('outer_width')
-      oh = @plot_view.view_state.get('outer_height')
-
-      #this seems to do hit testing to see if the desired point is in the view screen
-      for i in [0..@mask.length-1]
-        if (@sx[i]+@radius[i]) < 0 or (@sx[i]-@radius[i]) > ow or (@sy[i]+@radius[i]) < 0 or (@sy[i]-@radius[i]) > oh
-          @mask[i] = false
-        else
-          @mask[i] = true
-
-      ds = @mget_obj('data_source')
-      selected = ds.get('selected')
-      for idx in selected
-        @selected_mask[idx] = true
-      ctx = @plot_view.ctx
-
-      ctx.save()
-      if selected and selected.length and @nonselection_glyphprops
-        @_full_path(ctx, @selection_glyphprops, true)
-        @_full_path(ctx, @nonselection_glyphprops, false)
-      else
-        @_full_path(ctx, @selection_glyphprops)
-      ctx.restore()
-
-    _full_path: (ctx, glyph_props, use_selection) ->
-      for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
-          continue
-        if use_selection and not @selected_mask[i]
-          continue
-        if use_selection == false and @selected_mask[i]
-          continue
-        ctx.beginPath()
-        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
-
-        if glyph_props.fill_properties.do_fill
-          #FIXME: vectorize this later
-          glyph_props.fill_properties.set(ctx, @data2[i])
-          ctx.fill()
-
-        if glyph_props.line_properties.do_stroke
-          #FIXME: vectorize this later
-          glyph_props.line_properties.set(ctx, @data2[i])
-          ctx.stroke()
 
     distance: (pt, span_prop_name, position) ->
       """ returns an array """ #"
