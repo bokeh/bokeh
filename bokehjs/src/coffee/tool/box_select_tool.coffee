@@ -11,6 +11,7 @@ define [
   class BoxSelectToolView extends Tool.View
     initialize: (options) ->
       super(options)
+      @select_every_mousemove = @mget('select_every_mousemove')
       #@select_callback = _.debounce((() => @_select_data()), 50)
       #@listenTo(@model, 'change', @select_callback)
 
@@ -36,7 +37,8 @@ define [
       SetBasepoint: "_start_selecting",
       UpdatingMouseMove: "_selecting",
       deactivated: "_stop_selecting",
-      DragEnd : "_select_data"
+      #DragEnd : "_select_data"
+      DragEnd : "_dragend",
       }
 
     pause:()->
@@ -77,10 +79,15 @@ define [
       @mset({'current_x': x, 'current_y': y})
       [@xrange, @yrange] = @_get_selection_range(x, y)
       @trigger('boxselect', @xrange, @yrange)
-      @plot_view.render_overlays(true)
+      if @every_select
+        @_select_data()
+      else
+        @plot_view.render_overlays(true)
       return null
 
-
+    _dragend : () ->
+      console.log("dragend")
+      @_select_data()
     _select_data: () ->
       if not @basepoint_set
         return
@@ -139,6 +146,7 @@ define [
         renderers: []
         select_x: true
         select_y: true
+        select_every_mousemove: true
         data_source_options: {} #backbone options for save on datasource
       }
 
