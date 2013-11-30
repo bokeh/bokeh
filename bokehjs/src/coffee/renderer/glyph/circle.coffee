@@ -35,27 +35,19 @@ define [
       )
       return glyph_props
 
-    _set_data: (@data) ->
-      @x = @glyph_props.data_v_select('x', data)
-      @y = @glyph_props.data_v_select('y', data)
-      @mask = new Uint8Array(data.length)
-      @selected_mask = new Uint8Array(data.length)
-      for i in [0..@mask.length-1]
-        @mask[i] = true
-        @selected_mask[i] = false
-      @have_new_data = true
 
     set_data: (request_render=true) ->
       source = @mget_obj('data_source')
       if source.type == 'ColumnDataSource'
-        @x = @source_v_select('x', @glpyh_props, source)
+        @x = @source_v_select('x', @glyph_props, source)
         @y = @source_v_select('y', @glyph_props, source)
-        @mask = new Uint8Array(data.length)
-        @selected_mask = new Uint8Array(data.length)
+        @mask = new Uint8Array(@x.length)
+        @selected_mask = new Uint8Array(@x.length)
         for i in [0..@mask.length-1]
           @mask[i] = true
           @selected_mask[i] = false
         @have_new_data = true
+        @data2 = source.datapoints()
   
       if request_render
         @request_render()
@@ -63,48 +55,35 @@ define [
 
     source_v_select: (attrname, glyph_props, datasource) ->
       # if the attribute is not on this property object at all, log a bad request
-      if not (attrname of glpyh_props)
+      if not (attrname of glyph_props)
         console.log("requested vector selection of unknown property '#{ attrname }' on objects")
         return
 
       prop = glyph_props[attrname]
-      # if prop.typed?
-      #   result = new Float64Array(objs.length)
-
       # if the attribute specifies a field, and the field exists on
       # the column source, return the column from the column source
-
-
       if prop.field? and (prop.field of datasource.get('data'))
         console.log("source_v_select")
-        return source.getcolumn(prop.field)
+        return datasource.getcolumn(prop.field)
       else
-        result = new Array(objs.length)
-      '''
-      objs = []
-      for i in [0..objs.length-1]
-        obj = objs[i]
-
-
         # If the user gave an explicit value, that should always be returned
-        else if glyphprops[attrname].value?
-          result[i] = glyphprops[attrname].value
+        debugger 
+        if glyph_props[attrname].value?
+          default_value = glyph_props[attrname].value
 
-        # otherwise, if the attribute exists on the object, return that value
-        else if obj[attrname]?
-          result[i] = obj[attrname]
+        # otherwise, if the attribute exists on the object, return that value.
+        # (This is a convenience case for when the object passed in has a member
+        # that has the same name as the glyphspec name, e.g. an actual field
+        # named "x" or "radius".)
+        if (attrname of datasource.get('data'))
+          return datasource.getcolumn(attrname)
 
         # finally, check for a default value on this property object that could be returned
-        else if glyphprops[attrname].default?
-          result[i] = glyphprops[attrname].default
+        if glyph_props[attrname].default?
+          default_value = glyph_props[attrname].default
 
-        # failing that, just log a problem
-        else
-          console.log "vector selection for attribute '#{ attrname }' failed on object: #{ obj }"
-          return
+        return (default_value for i in datasource.get_length())
 
-      return result
-      '''
 
     _render: (plot_view, have_new_mapper_state=true) ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
@@ -113,11 +92,13 @@ define [
       oh = @plot_view.view_state.get('outer_height')
 
       if @have_new_data or have_new_mapper_state
-        @radius = @distance(@data, 'x', 'radius', 'edge')
+        @radius = @distance('x', 'radius', 'edge')
         @have_new_data = false
 
       ow = @plot_view.view_state.get('outer_width')
       oh = @plot_view.view_state.get('outer_height')
+
+      #this seems to do hit testing to see if the desired point is in the view screen
       for i in [0..@mask.length-1]
         if (@sx[i]+@radius[i]) < 0 or (@sx[i]-@radius[i]) > ow or (@sy[i]+@radius[i]) < 0 or (@sy[i]-@radius[i]) > oh
           @mask[i] = false
@@ -152,6 +133,45 @@ define [
         else
           @_full_path(ctx)
       ctx.restore()
+
+    distance: (pt, span_prop_name, position) ->
+      """ returns an array """ #"
+      pt_units = @glyph_props[pt].units
+      span_units = @glyph_props[span_prop_name].units
+
+      if      pt == 'x' then mapper = @plot_view.xmapper
+      else if pt == 'y' then mapper = @plot_view.ymapper
+
+      source = @mget_obj('data_source')
+      local_select = (prop_name) =>
+        if source.type == 'ColumnDataSource'
+          return @source_v_select(prop_name, @glyph_props, source)
+        else
+          return @glyph_props.v_select(prop_name, @data2)
+      span = local_select(span_prop_name)
+      if span_units == 'screen'
+        return span
+
+      if position == 'center'
+        halfspan = (d / 2 for d in span)
+        ptc = local_select(pt)
+        if pt_units == 'screen'
+          ptc = mapper.v_map_from_target(ptc)
+        pt0 = (ptc[i] - halfspan[i] for i in [0..ptc.length-1])
+        pt1 = (ptc[i] + halfspan[i] for i in [0..ptc.length-1])
+
+      else
+        pt0 = local_select(pt)
+        if pt_units == 'screen'
+          pt0 = mapper.v_map_from_target(pt0)
+        pt1 = (pt0[i] + span[i] for i in [0..pt0.length-1])
+
+      spt0 = mapper.v_map_to_target(pt0)
+      spt1 = mapper.v_map_to_target(pt1)
+
+      return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
+
+
 
     _fast_path: (ctx, glyph_props, use_selection) ->
       if not glyph_props
@@ -198,11 +218,13 @@ define [
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
 
         if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set(ctx, @data[i])
+          #FIXME: vectorize this later
+          glyph_props.fill_properties.set(ctx, @data2[i])
           ctx.fill()
 
         if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set(ctx, @data[i])
+          #FIXME: vectorize this later
+          glyph_props.line_properties.set(ctx, @data2[i])
           ctx.stroke()
 
     select: (xscreenbounds, yscreenbounds) ->
