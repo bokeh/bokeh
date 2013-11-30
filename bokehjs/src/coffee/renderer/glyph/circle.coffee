@@ -21,6 +21,9 @@ define [
       if @mget('nonselection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
         @nonselection_glyphprops = @init_glyph(spec)
+      if not @selection_glyphprops
+        @selection_glyphprops = @glyph_props
+
       @have_new_data = false
 
     init_glyph: (glyphspec) ->
@@ -67,7 +70,6 @@ define [
         return datasource.getcolumn(prop.field)
       else
         # If the user gave an explicit value, that should always be returned
-        debugger 
         if glyph_props[attrname].value?
           default_value = glyph_props[attrname].value
 
@@ -81,7 +83,9 @@ define [
         # finally, check for a default value on this property object that could be returned
         if glyph_props[attrname].default?
           default_value = glyph_props[attrname].default
-
+        
+        #FIXME this is where we could return a generator, which might
+        #do a better job for constant propagation
         return (default_value for i in datasource.get_length())
 
 
@@ -112,27 +116,33 @@ define [
       ctx = @plot_view.ctx
 
       ctx.save()
-      if @glyph_props.fast_path
-        if selected and selected.length and @nonselection_glyphprops
-          if @selection_glyphprops
-            props =  @selection_glyphprops
-          else
-            props = @glyph_props
-          @_fast_path(ctx, props, true)
-          @_fast_path(ctx, @nonselection_glyphprops, false)
-        else
-          @_fast_path(ctx)
+      if selected and selected.length and @nonselection_glyphprops
+        @_full_path(ctx, @selection_glyphprops, true)
+        @_full_path(ctx, @nonselection_glyphprops, false)
       else
-        if selected and selected.length and @nonselection_glyphprops
-          if @selection_glyphprops
-            props =  @selection_glyphprops
-          else
-            props = @glyph_props
-          @_full_path(ctx, props, true)
-          @_full_path(ctx, @nonselection_glyphprops, false)
-        else
-          @_full_path(ctx)
+        @_full_path(ctx, @selection_glyphprops)
       ctx.restore()
+
+    _full_path: (ctx, glyph_props, use_selection) ->
+      for i in [0..@sx.length-1]
+        if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
+          continue
+        if use_selection and not @selected_mask[i]
+          continue
+        if use_selection == false and @selected_mask[i]
+          continue
+        ctx.beginPath()
+        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
+
+        if glyph_props.fill_properties.do_fill
+          #FIXME: vectorize this later
+          glyph_props.fill_properties.set(ctx, @data2[i])
+          ctx.fill()
+
+        if glyph_props.line_properties.do_stroke
+          #FIXME: vectorize this later
+          glyph_props.line_properties.set(ctx, @data2[i])
+          ctx.stroke()
 
     distance: (pt, span_prop_name, position) ->
       """ returns an array """ #"
@@ -172,60 +182,6 @@ define [
       return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
 
 
-
-    _fast_path: (ctx, glyph_props, use_selection) ->
-      if not glyph_props
-        glyph_props = @glyph_props
-      if glyph_props.fill_properties.do_fill
-        glyph_props.fill_properties.set(ctx, @glyph_props)
-        ctx.beginPath()
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
-            continue
-          if use_selection and not @selected_mask[i]
-            continue
-          if use_selection == false and @selected_mask[i]
-            continue
-          ctx.moveTo(@sx[i], @sy[i])
-          ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
-        ctx.fill()
-
-      if glyph_props.line_properties.do_stroke
-        glyph_props.line_properties.set(ctx, @glyph_props)
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
-            continue
-          if use_selection and not @selected_mask[i]
-            continue
-          if use_selection == false and  @selected_mask[i]
-            continue
-          ctx.moveTo(@sx[i], @sy[i])
-          ctx.beginPath()
-          ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
-          ctx.stroke()
-
-    _full_path: (ctx, glyph_props, use_selection) ->
-      if not glyph_props
-        glyph_props = @glyph_props
-      for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
-          continue
-        if use_selection and not @selected_mask[i]
-          continue
-        if use_selection == false and @selected_mask[i]
-          continue
-        ctx.beginPath()
-        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
-
-        if glyph_props.fill_properties.do_fill
-          #FIXME: vectorize this later
-          glyph_props.fill_properties.set(ctx, @data2[i])
-          ctx.fill()
-
-        if glyph_props.line_properties.do_stroke
-          #FIXME: vectorize this later
-          glyph_props.line_properties.set(ctx, @data2[i])
-          ctx.stroke()
 
     select: (xscreenbounds, yscreenbounds) ->
       xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
