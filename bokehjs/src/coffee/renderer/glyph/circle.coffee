@@ -36,14 +36,75 @@ define [
       return glyph_props
 
     _set_data: (@data) ->
-      @x = @glyph_props.v_select('x', data)
-      @y = @glyph_props.v_select('y', data)
+      @x = @glyph_props.data_v_select('x', data)
+      @y = @glyph_props.data_v_select('y', data)
       @mask = new Uint8Array(data.length)
       @selected_mask = new Uint8Array(data.length)
       for i in [0..@mask.length-1]
         @mask[i] = true
         @selected_mask[i] = false
       @have_new_data = true
+
+    set_data: (request_render=true) ->
+      source = @mget_obj('data_source')
+      if source.type == 'ColumnDataSource'
+        @x = @source_v_select('x', @glpyhprops, source)
+        @y = @source_v_select('y', @glyphprops, source)
+        @mask = new Uint8Array(data.length)
+        @selected_mask = new Uint8Array(data.length)
+        for i in [0..@mask.length-1]
+          @mask[i] = true
+          @selected_mask[i] = false
+        @have_new_data = true
+  
+      if request_render
+        @request_render()
+
+
+    source_v_select: (attrname, glyphprops, datasource) ->
+      # if the attribute is not on this property object at all, log a bad request
+      if not (attrname of glpyhprops)
+        console.log("requested vector selection of unknown property '#{ attrname }' on objects")
+        return
+
+      prop = glyphprops[attrname]
+      # if prop.typed?
+      #   result = new Float64Array(objs.length)
+
+      # if the attribute specifies a field, and the field exists on
+      # the column source, return the column from the column source
+
+
+      if prop.field? and (prop.field of datasource.get('data'))
+        console.log("source_v_select")
+        return source.getcolumn(prop.field)
+      else
+        result = new Array(objs.length)
+      '''
+      objs = []
+      for i in [0..objs.length-1]
+        obj = objs[i]
+
+
+        # If the user gave an explicit value, that should always be returned
+        else if glyphprops[attrname].value?
+          result[i] = glyphprops[attrname].value
+
+        # otherwise, if the attribute exists on the object, return that value
+        else if obj[attrname]?
+          result[i] = obj[attrname]
+
+        # finally, check for a default value on this property object that could be returned
+        else if glyphprops[attrname].default?
+          result[i] = glyphprops[attrname].default
+
+        # failing that, just log a problem
+        else
+          console.log "vector selection for attribute '#{ attrname }' failed on object: #{ obj }"
+          return
+
+      return result
+      '''
 
     _render: (plot_view, have_new_mapper_state=true) ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
