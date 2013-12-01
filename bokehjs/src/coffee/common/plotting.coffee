@@ -39,31 +39,32 @@ define [
     else
       return Range1d.Collection.create({start: range[0], end: range[1]})
 
-  create_glyphs = (plot, glyphspecs, sources) ->
+  create_glyphs = (plot, glyphspecs, sources, nonselection_glyphspecs) ->
     glyphs = []
     if not _.isArray(glyphspecs)
       glyphspecs = [glyphspecs]
+
     if sources.length == 1
-      for spec in glyphspecs
-        glyph = GlyphFactory.Collection.create({
-          data_source: sources[0].ref()
-          parent: plot.ref()
-          glyphspec: spec
-          nonselection_glyphspec:
-            fill_alpha: 0.1
-            line_alpha: 0.1
-          #reference_point: reference_point
-        })
-        glyphs.push(glyph)
-    else
-      for val in _.zip(glyphspecs, sources)
-        [spec, source] = val
-        glyph = GlyphFactory.Collection.create({
-          parent: plot.ref()
-          data_source: source.ref()
-          glyphspec: spec
-        })
-        glyphs.push(glyph)
+      sources = (sources[0] for x in glyphspecs)
+
+    if not nonselection_glyphspecs?
+      nonselection_glyphspecs = {
+        fill_alpha: 0.1
+        line_alpha: 0.1
+      }
+    if not _.isArray(nonselection_glyphspecs)
+      nonselection_glyphspecs = (nonselection_glyphspecs for x in glyphspecs)
+
+    for val in _.zip(glyphspecs, nonselection_glyphspecs, sources)
+      [spec, non_spec, source] = val
+      glyph = GlyphFactory.Collection.create({
+        parent: plot.ref()
+        data_source: source.ref()
+        glyphspec: spec
+        nonselection_glyphspec: non_spec
+      })
+      glyphs.push(glyph)
+
     return glyphs
 
   add_axes = (plot, xaxes, yaxes) ->
@@ -171,7 +172,8 @@ define [
       })
       plot.add_renderers([legend_renderer.ref()])
 
-  make_plot = (glyphspecs, data, {title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend}) ->
+  make_plot = (glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend}) ->
+    nonselected ?= null
     title  ?= ""
     dims   ?= [400, 400]
     xrange ?= 'auto'
@@ -198,7 +200,7 @@ define [
       title: title
     )
 
-    glyphs = create_glyphs(plot, glyphspecs, sources)
+    glyphs = create_glyphs(plot, glyphspecs, sources, nonselected)
     plot.add_renderers(g.ref() for g in glyphs)
 
     add_axes(plot, xaxes, yaxes)
