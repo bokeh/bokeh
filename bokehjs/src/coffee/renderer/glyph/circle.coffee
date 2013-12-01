@@ -42,9 +42,6 @@ define [
 
 
     _full_path: (ctx, glyph_props, use_selection) ->
-      source = @mget_obj('data_source')
-      glyph_props.fill_properties.set_prop_cache(source)
-      glyph_props.line_properties.set_prop_cache(source)
       for i in [0..@sx.length-1]
         #if we are outside the rendering area, continue
         if not @mask[i]

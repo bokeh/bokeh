@@ -33,9 +33,7 @@ define [
       @_render_core()
 
     _full_path: (ctx, glyph_props, use_selection) ->
-      source = @mget_obj('data_source')
       if @do_fill
-        glyph_props.fill_properties.set_prop_cache(source)
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
             continue
@@ -58,7 +56,6 @@ define [
             ctx.rect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
 
       if @do_stroke
-        glyph_props.line_properties.set_prop_cache(source)
         ctx.beginPath()
         glyph_props.line_properties.set_vectorize(ctx, 0)
         for i in [0..@sx.length-1]

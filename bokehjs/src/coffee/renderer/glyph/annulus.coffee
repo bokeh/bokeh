@@ -23,11 +23,6 @@ define [
       @_render_core()
 
     _full_path: (ctx, glyph_props, use_selection) ->
-      source = @mget_obj('data_source')
-      if @do_fill
-        glyph_props.fill_properties.set_prop_cache(source)
-      if @do_stroke
-        glyph_props.line_properties.set_prop_cache(source)
       #I'm not sure if we can elide beginPath with this one
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @inner_radius[i] + @outer_radius[i])

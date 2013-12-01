@@ -91,15 +91,24 @@ define [
       """ this logic doesn't seem to change between classes  """
       ctx = @plot_view.ctx
       ctx.save()
+      do_render = (ctx, gprops, use_sel) =>
+        source = @mget_obj('data_source')
+        if @do_fill
+          console.log("calling dofill")
+          gprops.fill_properties.set_prop_cache(source)
+        if @do_stroke
+          gprops.line_properties.set_prop_cache(source)
+        @_full_path(ctx, gprops, use_sel)
       selected = @mget_obj('data_source').get('selected')
+
+      
       for idx in selected
         @selected_mask[idx] = true
-
       if selected and selected.length and @nonselection_glyphprops
-        @_full_path(ctx, @selection_glyphprops, true)
-        @_full_path(ctx, @nonselection_glyphprops, false)
+        do_render(ctx, @selection_glyphprops, true)
+        do_render(ctx, @nonselection_glyphprops, false)
       else
-        @_full_path(ctx, @nonselection_glyphprops)
+        do_render(ctx, @nonselection_glyphprops)
       ctx.restore()
 
     select: () ->

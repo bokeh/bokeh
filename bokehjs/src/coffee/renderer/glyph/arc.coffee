@@ -31,8 +31,6 @@ define [
 
     _full_path: (ctx, glyph_props) ->
       if @do_stroke
-        source = @mget_obj('data_source')
-        glyph_props.line_properties.set_prop_cache(source)
         ctx.beginPath()
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
