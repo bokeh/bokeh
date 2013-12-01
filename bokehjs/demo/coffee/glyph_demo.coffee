@@ -17,12 +17,14 @@ require(['main'], (Bokeh) ->
   }
 
   rects = {
-    type: 'asterisk',
+    type: 'annular_wedge',
     x: 'x'
     y: 'y'
-    size:.2
-    inner_radius: .1
-    outer_radius: .20
+    size:          .2
+    inner_radius:  .1
+    outer_radius:  .20
+    start_angle:   .5
+    end_angle:   1.25
     line_alpha: 1
     fill_color: '#0F0FF0'
     #line_color: 'color'
@@ -30,7 +32,7 @@ require(['main'], (Bokeh) ->
   }
 
   options = {
-    title: "Asterisk Demo"
+    title: "Annular Wedge Demo"
     dims: [800, 500]
     xaxes: "min"
     yaxes: "min"
