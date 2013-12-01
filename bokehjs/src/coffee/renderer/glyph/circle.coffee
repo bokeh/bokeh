@@ -18,13 +18,12 @@ define [
       @glyph_props = @init_glyph(@mget('glyphspec'))
       if @mget('selection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
-        @selection_glyphprops = @init_glyph(spec)
+        # @selection_glyphprops = @init_glyph(spec)
+        # @selection_glyphprops.fill_properties.fill_alpha.default=.1
       if @mget('nonselection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
         @nonselection_glyphprops = @init_glyph(spec)
-        debugger
-        @nonselection_glyphprops.fill_properties.fill_alpha=.3
-
+        @nonselection_glyphprops.fill_properties.fill_alpha.value=.1
       if not @selection_glyphprops
         @selection_glyphprops = @glyph_props
 
@@ -64,19 +63,16 @@ define [
           @mask[i] = false
         else
           @mask[i] = true
-
-
       selected = ds.get('selected')
       for idx in selected
         @selected_mask[idx] = true
       ctx = @plot_view.ctx
 
+
       ctx.save()
       if selected and selected.length and @nonselection_glyphprops
         @_full_path(ctx, @selection_glyphprops, true)
         @_full_path(ctx, @nonselection_glyphprops, false)
-        #debugger
-        console.log("selection stroke")
       else
         @_full_path(ctx, @selection_glyphprops)
       ctx.restore()
@@ -92,7 +88,7 @@ define [
           @mask[i] = true
           @selected_mask[i] = false
         @have_new_data = true
-        @data2 = source.datapoints()
+        #@data2 = source.datapoints()
   
       if request_render
         @request_render()
@@ -101,7 +97,8 @@ define [
       source = @mget_obj('data_source')
       glyph_props.fill_properties.set_prop_cache(source)
       glyph_props.line_properties.set_prop_cache(source)
-
+      ctx.beginPath()
+      didchange = false
       for i in [0..@sx.length-1]
         #if we are outside the rendering area, continue
         if not @mask[i]
@@ -114,12 +111,29 @@ define [
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
 
         if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set4(ctx,i)
+          if glyph_props.fill_properties.set_vectorize(ctx,i)
+            didchange = true
           ctx.fill()
-
         if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set4(ctx, i)
-          ctx.stroke()
+          if glyph_props.line_properties.set_vectorize(ctx, i)
+            didchange = true
+          ctx.stroke()        
+        # if glyph_props.fill_properties.do_fill and didchange
+        #   #console.log("filling on", i)
+        #   ctx.fill()
+
+        # if glyph_props.line_properties.do_stroke and didchange
+        #   ctx.stroke()
+        # if didchange
+        #   didchange = false
+        #   #ctx.closePath()
+
+      # if glyph_props.fill_properties.do_fill
+      #   ctx.fill()
+      # if glyph_props.line_properties.do_stroke
+      #   ctx.stroke()
+
+      
 
     source_v_select: (attrname, glyph_props, datasource) ->
       return glyph_props.source_v_select(attrname, glyph_props, datasource)

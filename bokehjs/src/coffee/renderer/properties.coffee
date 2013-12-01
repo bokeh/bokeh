@@ -27,17 +27,21 @@ define [
         # (This is a convenience case for when the object passed in has a member
         # that has the same name as the glyphspec name, e.g. an actual field
         # named "x" or "radius".)
-        if (attrname of datasource.get('data'))
+        
+        else if (attrname of datasource.get('data'))
           return datasource.getcolumn(attrname)
 
         # finally, check for a default value on this property object that could be returned
-        if glyph_props[attrname].default?
+        else if glyph_props[attrname].default?
           default_value = glyph_props[attrname].default
         
         #FIXME this is where we could return a generator, which might
         #do a better job for constant propagation
-        return (default_value for i in datasource.get_length())
-
+        #for some reason a list comprehension fails here
+        retval = []
+        for i in [0..datasource.get_length()-1]
+          retval.push(default_value)
+        return retval
 
     string: (styleprovider, glyphspec, attrname) ->
       @[attrname] = {}
@@ -301,7 +305,7 @@ define [
     clear_prop_cache: () ->
       @cache = {}
       
-    set4: (ctx, i) ->
+    set_vectorize: (ctx, i) ->
       ctx.strokeStyle = @cache.strokeStyle[i]
       ctx.globalAlpha = @cache.globalAlpha[i]
       ctx.lineWidth   = @cache.lineWidth[i]
@@ -309,6 +313,7 @@ define [
       ctx.lineCap     = @cache.lineCap[i]
       ctx.setLineDash(@cache.setLineDash[i])
       ctx.setLineDashOffset(@cache.setLineDashOffset[i])
+      return true
 
 
   class fill_properties extends properties
@@ -334,11 +339,22 @@ define [
       @cache = {}
       @cache.fillStyle         = @source_v_select(@fill_color_name, @, datasource)
       @cache.globalAlpha       = @source_v_select(@fill_alpha_name, @, datasource)
+      @last_fillstyle = false
+      @last_globalalpha = false
+    set_vectorize: (ctx, i) ->
+      didchange = false
+      if not (@cache.fillStyle[i] == @last_fillstyle)
+        #console.log("fillstyle changed", i, @cache.fillStyle[i] , @last_fillstyle)
+        ctx.fillStyle   = @cache.fillStyle[i]
+        @last_fillstyle = @cache.fillStyle[i]
+        didchange = true
+      if not (@cache.globalAlpha[i] == @last_globalalpha)
+        #console.log("fillalpha changed", i)
+        ctx.globalAlpha = @cache.globalAlpha[i]
+        @last_globalalpha = @cache.globalAlpha[i]
+        didchange=true
 
-    set4: (ctx, i) ->
-      ctx.fillStyle   = @cache.fillStyle[i]
-      ctx.globalAlpha = @cache.globalAlpha[i]
-
+      return didchange
 
   class text_properties extends properties
     constructor: (styleprovider, glyphspec, prefix="") ->
