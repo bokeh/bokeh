@@ -13,6 +13,9 @@ define [
 
     _base_glyphspec : ['x', 'y', 'inner_radius', 'outer_radius']
 
+    set_data: (request_render=true) ->
+      @set_data_new(request_render)
+
     _render: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @inner_radius = @distance_vector('x', 'inner_radius', 'edge')
@@ -20,6 +23,7 @@ define [
       @_render_core()
 
     _full_path: (ctx, glyph_props, use_selection) ->
+      source = @mget_obj('data_source')
       if @do_fill
         glyph_props.fill_properties.set_prop_cache(source)
       if @do_stroke
@@ -29,9 +33,9 @@ define [
         if isNaN(@sx[i] + @sy[i] + @inner_radius[i] + @outer_radius[i])
           continue
         #duped
-        if use_selection == 'selected' and not @selected_mask[i]
+        if use_selection == true and not @selected_mask[i]
           continue
-        if use_selection == 'unselected' and @selected_mask[i]
+        if use_selection == false and @selected_mask[i]
           continue
         ctx.beginPath()
         ctx.arc(@sx[i], @sy[i], @inner_radius[i], 0, 2*Math.PI*2, false)
@@ -39,11 +43,11 @@ define [
         ctx.arc(@sx[i], @sy[i], @outer_radius[i], 0, 2*Math.PI*2, true)
 
         if @do_fill
-          glyph_props.fill_properties.set_vector(ctx, i)
+          glyph_props.fill_properties.set_vectorize(ctx, i)
           ctx.fill()
 
         if @do_stroke
-          glyph_props.line_properties.set_vector(ctx, i)
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->

@@ -43,7 +43,7 @@ define [
       )
       return glyph_props
 
-
+    _data_fields : []
     set_data_new: (request_render=true) ->
       source = @mget_obj('data_source')
       @x = @glyph_props.source_v_select('x', source)
