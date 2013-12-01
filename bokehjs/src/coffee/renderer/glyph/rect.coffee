@@ -5,14 +5,16 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  fill_properties  = Properties.fill_properties
-
   class RectView extends Glyph.View
 
     _base_glyphspec : ['x', 'y', 'width', 'height', 'angle']
-    _map_data: () ->
+    _data_fields : ['angle']
+    set_data: (request_render=true) ->
+      @set_data_new(request_render)
+      if request_render
+        @request_render()
+
+    _render: () ->
       [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @sw = @distance_vector('x', 'width', 'center')
       @sh = @distance_vector('y', 'height', 'center')
@@ -28,33 +30,9 @@ define [
         else
           @sy[i] = syi[i]
 
-    _data_fields : ['angle']
-    set_data: (request_render=true) ->
-      @set_data_new(request_render)
-      if request_render
-        @request_render()
-
-    _render: () ->
-      @_map_data()
-      ctx = @plot_view.ctx
-
-      #duped
-      selected = @mget_obj('data_source').get('selected')
-      for idx in selected
-        @selected_mask[idx] = true
-
-      ctx.save()
-      if selected and selected.length and @nonselection_glyphprops
-        @_full_path(ctx, @selection_glyphprops, 'selected')
-        @_full_path(ctx, @nonselection_glyphprops, 'unselected')
-      else
-        @_full_path(ctx, @selection_glyphprops)
-
-      ctx.restore()
+      @_render_core()
 
     _full_path: (ctx, glyph_props, use_selection) ->
-      if not glyph_props
-        glyph_props = @glyph_props
       source = @mget_obj('data_source')
       if @do_fill
         glyph_props.fill_properties.set_prop_cache(source)

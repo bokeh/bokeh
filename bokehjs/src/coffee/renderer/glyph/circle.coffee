@@ -5,10 +5,6 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  fill_properties  = Properties.fill_properties
-
   class CircleView extends Glyph.View
 
 
@@ -36,19 +32,7 @@ define [
           @mask[i] = false
         else
           @mask[i] = true
-      selected = ds.get('selected')
-      for idx in selected
-        @selected_mask[idx] = true
-      ctx = @plot_view.ctx
-
-
-      ctx.save()
-      if selected and selected.length and @nonselection_glyphprops
-        @_full_path(ctx, @selection_glyphprops, true)
-        @_full_path(ctx, @nonselection_glyphprops, false)
-      else
-        @_full_path(ctx, @selection_glyphprops)
-      ctx.restore()
+      @_render_core()
 
     _data_fields : []
     set_data: (request_render=true) ->

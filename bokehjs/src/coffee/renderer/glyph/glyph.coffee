@@ -79,6 +79,29 @@ define [
         @need_set_data = false
       @_render(@plot_view, have_new_mapper_state)
 
+    _render : (plot_view, have_new_mapper_state) ->
+
+      """ this method should be used tos etup any special render time
+      variables for this particular glyph type, at the end, call
+      _render_core
+
+      """ #"
+      
+    _render_core: ->
+      """ this logic doesn't seem to change between classes  """
+      ctx = @plot_view.ctx
+      ctx.save()
+      selected = @mget_obj('data_source').get('selected')
+      for idx in selected
+        @selected_mask[idx] = true
+
+      if selected and selected.length and @nonselection_glyphprops
+        @_full_path(ctx, @selection_glyphprops, 'selected')
+        @_full_path(ctx, @nonselection_glyphprops, 'unselected')
+      else
+        @_full_path(ctx, @nonselection_glyphprops)
+      ctx.restore()
+
     select: () ->
       'pass'
 

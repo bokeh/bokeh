@@ -29,12 +29,7 @@ define [
     _render: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @radius = @distance(@data, 'x', 'radius', 'edge')
-
-      ctx = @plot_view.ctx
-
-      ctx.save()
-      @_full_path(ctx)
-      ctx.restore()
+      @_render_core()
 
     _full_path: (ctx) ->
       if @do_stroke
