@@ -21,7 +21,7 @@ define [
       if @mget('nonselection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
         @nonselection_glyphprops = @init_glyph(spec)
-        @nonselection_glyphprops.fill_properties.fill_alpha.value=.1
+        #@nonselection_glyphprops.fill_properties.fill_alpha.value=.1
       if not @selection_glyphprops
         @selection_glyphprops = @glyph_props
 
@@ -62,9 +62,9 @@ define [
     set_data: (request_render=true) ->
       source = @mget_obj('data_source')
       if source.type == 'ColumnDataSource'
-        @x = @source_v_select('x', @glyph_props, source)
-        @y = @source_v_select('y', @glyph_props, source)
-        angles = @source_v_select('angle', @glyph_props, source)
+        @x = @glyph_props.source_v_select('x', source)
+        @y = @glyph_props.source_v_select('y', source)
+        angles = @glyph_props.source_v_select('angle', source)
         @angle = (-angle for angle in angles)
         @mask = new Uint8Array(@x.length)
         @selected_mask = new Uint8Array(@x.length)
@@ -75,9 +75,6 @@ define [
   
       if request_render
         @request_render()
-
-    source_v_select: (attrname, glyph_props, datasource) ->
-      return glyph_props.source_v_select(attrname, glyph_props, datasource)
 
     _render: () ->
       @_map_data()

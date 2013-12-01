@@ -5,7 +5,7 @@ define [
 ], (_, svg_colors) ->
 
   class properties
-    source_v_select: (attrname, glyph_props, datasource) ->
+    source_v_select: (attrname, datasource) ->
       glyph_props = @
       # if the attribute is not on this property object at all, log a bad request
       if not (attrname of glyph_props)
@@ -294,13 +294,13 @@ define [
 
     set_prop_cache: (datasource) ->
       @cache = {}
-      @cache.strokeStyle       = @source_v_select(@line_color_name, @, datasource)
-      @cache.globalAlpha       = @source_v_select(@line_alpha_name, @, datasource)
-      @cache.lineWidth         = @source_v_select(@line_width_name, @, datasource)
-      @cache.lineJoin          = @source_v_select(@line_join_name,  @, datasource)
-      @cache.lineCap           = @source_v_select(@line_cap_name,   @, datasource)
-      @cache.setLineDash       = @source_v_select(@line_dash_name, @, datasource)
-      @cache.setLineDashOffset = @source_v_select(@line_dash_offset_name, @, datasource)
+      @cache.strokeStyle       = @source_v_select(@line_color_name, datasource)
+      @cache.globalAlpha       = @source_v_select(@line_alpha_name, datasource)
+      @cache.lineWidth         = @source_v_select(@line_width_name, datasource)
+      @cache.lineJoin          = @source_v_select(@line_join_name,  datasource)
+      @cache.lineCap           = @source_v_select(@line_cap_name,   datasource)
+      @cache.setLineDash       = @source_v_select(@line_dash_name,  datasource)
+      @cache.setLineDashOffset = @source_v_select(@line_dash_offset_name, datasource)
 
       @last_strokeStyle       = false
       @last_globalAlpha       = false
@@ -368,8 +368,8 @@ define [
 
     set_prop_cache: (datasource) ->
       @cache = {}
-      @cache.fillStyle         = @source_v_select(@fill_color_name, @, datasource)
-      @cache.globalAlpha       = @source_v_select(@fill_alpha_name, @, datasource)
+      @cache.fillStyle         = @source_v_select(@fill_color_name, datasource)
+      @cache.globalAlpha       = @source_v_select(@fill_alpha_name, datasource)
       @last_fillstyle = false
       @last_globalalpha = false
     set_vectorize: (ctx, i) ->

@@ -80,8 +80,8 @@ define [
     set_data: (request_render=true) ->
       source = @mget_obj('data_source')
       if source.type == 'ColumnDataSource'
-        @x = @source_v_select('x', @glyph_props, source)
-        @y = @source_v_select('y', @glyph_props, source)
+        @x = @glyph_props.source_v_select('x', source)
+        @y = @glyph_props.source_v_select('y', source)
         @mask = new Uint8Array(@x.length)
         @selected_mask = new Uint8Array(@x.length)
         for i in [0..@mask.length-1]
@@ -114,8 +114,6 @@ define [
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()        
 
-    source_v_select: (attrname, glyph_props, datasource) ->
-      return glyph_props.source_v_select(attrname, glyph_props, datasource)
 
 
     select: (xscreenbounds, yscreenbounds) ->
