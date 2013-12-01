@@ -89,78 +89,52 @@ define [
         @selected_mask[idx] = true
 
       ctx.save()
-      if @glyph_props.fast_path
-        @_fast_path(ctx)
+      if selected and selected.length and @nonselection_glyphprops
+        @_full_path(ctx, @selection_glyphprops, 'selected')
+        @_full_path(ctx, @nonselection_glyphprops, 'unselected')
       else
-        ##duped in many classes
-        if selected and selected.length and @nonselection_glyphprops
+        @_full_path(ctx, @selection_glyphprops)
 
-          @_full_path(ctx, @selection_glyphprops, 'selected')
-          @_full_path(ctx, @nonselection_glyphprops, 'unselected')
-        else
-          @_full_path(ctx)
-        ##duped in many classes
       ctx.restore()
 
     _full_path: (ctx, glyph_props, use_selection) ->
       if not glyph_props
         glyph_props = @glyph_props
       source = @mget_obj('data_source')
-      glyph_props.fill_properties.set_prop_cache(source)
-      glyph_props.line_properties.set_prop_cache(source)
-
-      for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
-          continue
-        if use_selection == 'selected' and not @selected_mask[i]
-          continue
-        if use_selection == 'unselected' and @selected_mask[i]
-          continue
-
-        ctx.translate(@sx[i], @sy[i])
-        ctx.rotate(@angle[i])
-
-        ctx.beginPath()
-        ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
-
-        if @do_fill
-          glyph_props.fill_properties.set_vectorize(ctx, i)
-          ctx.fill()
-
-        if @do_stroke
-          glyph_props.line_properties.set_vectorize(ctx, i)
-          ctx.stroke()
-
-        ctx.rotate(-@angle[i])
-        ctx.translate(-@sx[i], -@sy[i])
-
-
-    _fast_path: (ctx) ->
       if @do_fill
-        @glyph_props.fill_properties.set(ctx, @glyph_props)
-        ctx.beginPath()
+        glyph_props.fill_properties.set_prop_cache(source)
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
             continue
+          if use_selection == 'selected' and not @selected_mask[i]
+            continue
+          if use_selection == 'unselected' and @selected_mask[i]
+            continue
 
+          #no need to test the return value, we call fillRect for every glyph anyway
+          glyph_props.fill_properties.set_vectorize(ctx, i)
+          
           if @angle[i]
             ctx.translate(@sx[i], @sy[i])
             ctx.rotate(@angle[i])
-            ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
+            ctx.fillRect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
             ctx.rotate(-@angle[i])
             ctx.translate(-@sx[i], -@sy[i])
           else
+            ctx.fillRect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
             ctx.rect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
-
-        ctx.fill()
 
       if @do_stroke
-        @glyph_props.line_properties.set(ctx, @glyph_props)
+        glyph_props.line_properties.set_prop_cache(source)
         ctx.beginPath()
+        glyph_props.line_properties.set_vectorize(ctx, 0)
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
             continue
-
+          if glyph_props.line_properties.set_vectorize(ctx, i)
+            #only stroke if the line_properties have changed
+            ctx.stroke()
+            ctx.beginPath()
           if @angle[i]
             ctx.translate(@sx[i], @sy[i])
             ctx.rotate(@angle[i])
@@ -169,7 +143,6 @@ define [
             ctx.translate(-@sx[i], -@sy[i])
           else
             ctx.rect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
-
         ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
