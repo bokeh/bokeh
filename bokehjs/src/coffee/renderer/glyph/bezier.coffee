@@ -27,7 +27,6 @@ define [
         @selected_mask[i] = false
       @have_new_data = true
 
-
     _render: () ->
       [@sx0,  @sy0]  = @plot_view.map_to_screen(@x0,  @glyph_props.x0.units,  @y0, @glyph_props.y0.units)
       [@sx1,  @sy1]  = @plot_view.map_to_screen(@x1,  @glyph_props.x1.units,  @y1, @glyph_props.y1.units)
@@ -39,16 +38,6 @@ define [
       @do_fill = true
       @_render_core()
 
-    _fast_path: (ctx) ->
-      if @do_stroke
-        @glyph_props.line_properties.set(ctx, @glyph_props)
-        ctx.beginPath()
-        for i in [0..@sx0.length-1]
-          if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx0[i] + @scy0[i] + @scx1[i] + @scy1[i])
-            continue
-          ctx.moveTo(@sx0[i], @sy0[i])
-          ctx.bezierCurveTo(@scx0[i], @scy0[i], @scx1[i], @scy1[i], @sx1[i], @sy1[i])
-        ctx.stroke()
 
     _full_path: (ctx, glyph_props) ->
       if @do_stroke
