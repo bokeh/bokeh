@@ -39,6 +39,21 @@ define [
       )
       return glyph_props
 
+    _map_data: () ->
+      [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      @sw = @distance_vector('x', 'width', 'center')
+      @sh = @distance_vector('y', 'height', 'center')
+      @sx = new Array(sxi.length)
+      @sy = new Array(sxi.length)
+      for i in [0..sxi.length-1]
+        if Math.abs(sxi[i]-@sw[i]) < 2
+          @sx[i] = Math.round(sxi[i])
+        else
+          @sx[i] = sxi[i]
+        if Math.abs(syi[i]-@sh[i]) < 2
+          @sy[i] = Math.round(syi[i])
+        else
+          @sy[i] = syi[i]
     _set_data: (@data) ->
       @x = @glyph_props.v_select('x', data)
       @y = @glyph_props.v_select('y', data)
@@ -51,21 +66,26 @@ define [
       @selected_mask = new Uint8Array(data.length)
       for i in [0..@selected_mask.length-1]
         @selected_mask[i] = false
-    _map_data: () ->
-      [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @sw = @distance(@data, 'x', 'width', 'center')
-      @sh = @distance(@data, 'y', 'height', 'center')
-      @sx = new Array(sxi.length)
-      @sy = new Array(sxi.length)
-      for i in [0..sxi.length-1]
-        if Math.abs(sxi[i]-@sw[i]) < 2
-          @sx[i] = Math.round(sxi[i])
-        else
-          @sx[i] = sxi[i]
-        if Math.abs(syi[i]-@sh[i]) < 2
-          @sy[i] = Math.round(syi[i])
-        else
-          @sy[i] = syi[i]
+
+    set_data: (request_render=true) ->
+      source = @mget_obj('data_source')
+      if source.type == 'ColumnDataSource'
+        @x = @source_v_select('x', @glyph_props, source)
+        @y = @source_v_select('y', @glyph_props, source)
+        angles = @source_v_select('angle', @glyph_props, source)
+        @angle = (-angle for angle in angles)
+        @mask = new Uint8Array(@x.length)
+        @selected_mask = new Uint8Array(@x.length)
+        for i in [0..@mask.length-1]
+          @mask[i] = true
+          @selected_mask[i] = false
+        @have_new_data = true
+  
+      if request_render
+        @request_render()
+
+    source_v_select: (attrname, glyph_props, datasource) ->
+      return glyph_props.source_v_select(attrname, glyph_props, datasource)
 
     _render: () ->
       @_map_data()
@@ -92,6 +112,40 @@ define [
           @_full_path(ctx)
         ##duped in many classes
       ctx.restore()
+
+    _full_path: (ctx, glyph_props, use_selection) ->
+      if not glyph_props
+        glyph_props = @glyph_props
+      source = @mget_obj('data_source')
+      glyph_props.fill_properties.set_prop_cache(source)
+      glyph_props.line_properties.set_prop_cache(source)
+
+      for i in [0..@sx.length-1]
+        if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
+          continue
+        if use_selection == 'selected' and not @selected_mask[i]
+          continue
+        if use_selection == 'unselected' and @selected_mask[i]
+          continue
+
+        ctx.translate(@sx[i], @sy[i])
+        ctx.rotate(@angle[i])
+
+        ctx.beginPath()
+        ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
+
+        if @do_fill
+          #glyph_props.fill_properties.set(ctx, @data[i])
+          glyph_props.fill_properties.set_vectorize(ctx, i)
+          ctx.fill()
+
+        if @do_stroke
+          glyph_props.line_properties.set_vectorize(ctx, i)
+          ctx.stroke()
+
+        ctx.rotate(-@angle[i])
+        ctx.translate(-@sx[i], -@sy[i])
+
 
     _fast_path: (ctx) ->
       if @do_fill
@@ -166,34 +220,6 @@ define [
       ctx.stroke()
 
       ctx.restore()
-
-    _full_path: (ctx, glyph_props, use_selection) ->
-      if not glyph_props
-        glyph_props = @glyph_props
-      for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
-          continue
-        if use_selection == 'selected' and not @selected_mask[i]
-          continue
-        if use_selection == 'unselected' and @selected_mask[i]
-          continue
-        ctx.translate(@sx[i], @sy[i])
-        ctx.rotate(@angle[i])
-
-        ctx.beginPath()
-        ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
-
-        if @do_fill
-          glyph_props.fill_properties.set(ctx, @data[i])
-          ctx.fill()
-
-        if @do_stroke
-          glyph_props.line_properties.set(ctx, @data[i])
-          ctx.stroke()
-
-        ctx.rotate(-@angle[i])
-        ctx.translate(-@sx[i], -@sy[i])
-
     ##duped
     select: (xscreenbounds, yscreenbounds) ->
       xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
