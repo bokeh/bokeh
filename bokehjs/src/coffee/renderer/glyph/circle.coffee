@@ -63,8 +63,6 @@ define [
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()        
 
-
-
     select: (xscreenbounds, yscreenbounds) ->
       xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
         @plot_view.view_state.sx_to_device(xscreenbounds[1])]

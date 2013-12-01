@@ -39,9 +39,9 @@ define [
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
             continue
-          if use_selection == 'selected' and not @selected_mask[i]
+          if use_selection == true and not @selected_mask[i]
             continue
-          if use_selection == 'unselected' and @selected_mask[i]
+          if use_selection == false and @selected_mask[i]
             continue
 
           #no need to test the return value, we call fillRect for every glyph anyway
@@ -64,6 +64,12 @@ define [
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
             continue
+          if use_selection == true and not @selected_mask[i]
+            continue
+          if use_selection == false and @selected_mask[i]
+            continue
+
+
           if glyph_props.line_properties.set_vectorize(ctx, i)
             #only stroke if the line_properties have changed
             ctx.stroke()

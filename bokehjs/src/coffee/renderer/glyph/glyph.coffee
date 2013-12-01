@@ -96,8 +96,8 @@ define [
         @selected_mask[idx] = true
 
       if selected and selected.length and @nonselection_glyphprops
-        @_full_path(ctx, @selection_glyphprops, 'selected')
-        @_full_path(ctx, @nonselection_glyphprops, 'unselected')
+        @_full_path(ctx, @selection_glyphprops, true)
+        @_full_path(ctx, @nonselection_glyphprops, false)
       else
         @_full_path(ctx, @nonselection_glyphprops)
       ctx.restore()
