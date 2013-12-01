@@ -67,50 +67,6 @@ define [
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
-    _fast_path: (ctx) ->
-      if @do_fill
-        @glyph_props.fill_properties.set(ctx, @glyph_props)
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @inner_radius[i] + @outer_radius[i] + @start_angle[i] + @end_angle[i])
-            continue
-
-          ctx.translate(@sx[i], @sy[i])
-          ctx.rotate(@start_angle[i])
-
-          ctx.moveTo(@outer_radius[i], 0)
-          ctx.beginPath()
-          ctx.arc(0, 0, @outer_radius[i], 0, @angle[i], @direction[i])
-          ctx.rotate(@angle[i])
-          ctx.lineTo(@inner_radius[i], 0)
-          ctx.arc(0, 0, @inner_radius[i], 0, -@angle[i], not @direction[i])
-          ctx.closePath()
-          ctx.fill()
-
-          ctx.rotate(-@angle[i]-@start_angle[i])
-          ctx.translate(-@sx[i], -@sy[i])
-
-      if @do_stroke
-        @glyph_props.line_properties.set(ctx, @glyph_props)
-        ctx.beginPath()
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @inner_radius[i] + @outer_radius[i] + @start_angle[i] + @end_angle[i])
-            continue
-
-          ctx.translate(@sx[i], @sy[i])
-          ctx.rotate(@start_angle[i])
-
-          ctx.moveTo(@outer_radius[i], 0)
-          ctx.arc(0, 0, @outer_radius[i], 0, @angle[i], @direction[i])
-          ctx.rotate(@angle[i])
-          ctx.lineTo(@inner_radius[i], 0)
-          ctx.arc(0, 0, @inner_radius[i], 0, -@angle[i], not @direction[i])
-          ctx.closePath()
-
-          ctx.rotate(-@angle[i]-@start_angle[i])
-          ctx.translate(-@sx[i], -@sy[i])
-
-        ctx.stroke()
-
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
       glyph_props = @glyph_props
