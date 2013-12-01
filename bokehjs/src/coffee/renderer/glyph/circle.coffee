@@ -88,7 +88,6 @@ define [
           @mask[i] = true
           @selected_mask[i] = false
         @have_new_data = true
-        #@data2 = source.datapoints()
   
       if request_render
         @request_render()
@@ -97,8 +96,6 @@ define [
       source = @mget_obj('data_source')
       glyph_props.fill_properties.set_prop_cache(source)
       glyph_props.line_properties.set_prop_cache(source)
-      ctx.beginPath()
-      didchange = false
       for i in [0..@sx.length-1]
         #if we are outside the rendering area, continue
         if not @mask[i]
@@ -111,29 +108,11 @@ define [
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
 
         if glyph_props.fill_properties.do_fill
-          if glyph_props.fill_properties.set_vectorize(ctx,i)
-            didchange = true
+          glyph_props.fill_properties.set_vectorize(ctx,i)
           ctx.fill()
         if glyph_props.line_properties.do_stroke
-          if glyph_props.line_properties.set_vectorize(ctx, i)
-            didchange = true
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()        
-        # if glyph_props.fill_properties.do_fill and didchange
-        #   #console.log("filling on", i)
-        #   ctx.fill()
-
-        # if glyph_props.line_properties.do_stroke and didchange
-        #   ctx.stroke()
-        # if didchange
-        #   didchange = false
-        #   #ctx.closePath()
-
-      # if glyph_props.fill_properties.do_fill
-      #   ctx.fill()
-      # if glyph_props.line_properties.do_stroke
-      #   ctx.stroke()
-
-      
 
     source_v_select: (attrname, glyph_props, datasource) ->
       return glyph_props.source_v_select(attrname, glyph_props, datasource)
