@@ -11,35 +11,8 @@ define [
 
   class CircleView extends Glyph.View
 
-    initialize: (options) ->
-      super(options)
-      ##duped in many classes
-      #debugger
-      @glyph_props = @init_glyph(@mget('glyphspec'))
-      if @mget('selection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
-        # @selection_glyphprops = @init_glyph(spec)
-        # @selection_glyphprops.fill_properties.fill_alpha.default=.1
-      if @mget('nonselection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
-        @nonselection_glyphprops = @init_glyph(spec)
-        @nonselection_glyphprops.fill_properties.fill_alpha.value=.1
-      if not @selection_glyphprops
-        @selection_glyphprops = @glyph_props
 
-      @have_new_data = false
-
-    init_glyph: (glyphspec) ->
-      glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['x', 'y', 'radius']
-        {
-          fill_properties: new fill_properties(@, glyphspec),
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
-      return glyph_props
+    _base_glyphspec : ['x', 'y', 'radius']
 
     _render: (plot_view, have_new_mapper_state=true) ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)

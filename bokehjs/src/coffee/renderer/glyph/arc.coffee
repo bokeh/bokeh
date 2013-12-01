@@ -10,36 +10,7 @@ define [
 
   class ArcView extends Glyph.View
 
-    initialize: (options) ->
-      glyphspec = @mget('glyphspec')
-      @glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string'],
-        {
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
-
-      @do_stroke = @glyph_props.line_properties.do_stroke
-      super(options)
-
-    _set_data: (@data) ->
-      @x = @glyph_props.v_select('x', data)
-      @y = @glyph_props.v_select('y', data)
-      # TODO (bev) handle degrees in addition to radians
-      start_angle = @glyph_props.v_select('start_angle', data)
-      @start_angle = (-angle for angle in start_angle)
-      end_angle = @glyph_props.v_select('end_angle', data)
-      @end_angle = (-angle for angle in end_angle)
-      @direction = new Uint8Array(@data.length)
-      for i in [0..@data.length-1]
-        dir = @glyph_props.select('direction', data[i])
-        if dir == 'clock' then @direction[i] = false
-        else if dir == 'anticlock' then @direction[i] = true
-        else @direction[i] = NaN
-
-
+    _base_glyphspec =         ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string']
     set_data: (request_render=true) ->
       source = @mget_obj('data_source')
       if source.type == 'ColumnDataSource'

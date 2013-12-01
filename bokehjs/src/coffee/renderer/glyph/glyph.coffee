@@ -2,14 +2,47 @@
 define [
   "underscore",
   "common/has_parent",
-  "common/plot_widget"
-], (_, HasParent, PlotWidget) ->
+  "common/plot_widget",
+  "renderer/properties"
+], (_, HasParent, PlotWidget, Properties) ->
 
   class GlyphView extends PlotWidget
 
     initialize: (options) ->
       super(options)
       @need_set_data = true
+
+      @glyph_props = @init_glyph(@mget('glyphspec'))
+      if @mget('selection_glyphspec')
+        spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
+        @selection_glyphprops = @init_glyph(spec)
+      if @mget('nonselection_glyphspec')
+        spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
+        @nonselection_glyphprops = @init_glyph(spec)
+        #@nonselection_glyphprops.fill_properties.fill_alpha.value=.1
+      if not @selection_glyphprops
+        @selection_glyphprops = @glyph_props
+
+      ##duped in many classes
+      @do_fill   = @glyph_props.fill_properties.do_fill
+      @do_stroke = @glyph_props.line_properties.do_stroke
+
+
+    _base_glyphspec : ['x', 'y']
+    init_glyph: (glyphspec) ->
+      fill_props = new Properties.fill_properties(@, glyphspec)
+      line_props = new Properties.line_properties(@, glyphspec)
+      glyph_props = new Properties.glyph_properties(
+        @,
+        glyphspec,
+        @_base_glyphspec,
+        {
+          fill_properties: new Properties.fill_properties(@, glyphspec),
+          line_properties: new Properties.line_properties(@, glyphspec)
+        }
+      )
+      return glyph_props
+
 
     set_data: (request_render=true) ->
       source = @mget_obj('data_source')
