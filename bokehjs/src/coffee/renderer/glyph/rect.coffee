@@ -21,6 +21,10 @@ define [
       if @mget('nonselection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
         @nonselection_glyphprops = @init_glyph(spec)
+        @nonselection_glyphprops.fill_properties.fill_alpha.value=.1
+      if not @selection_glyphprops
+        @selection_glyphprops = @glyph_props
+
       ##duped in many classes
       @do_fill   = @glyph_props.fill_properties.do_fill
       @do_stroke = @glyph_props.line_properties.do_stroke
@@ -54,18 +58,6 @@ define [
           @sy[i] = Math.round(syi[i])
         else
           @sy[i] = syi[i]
-    _set_data: (@data) ->
-      @x = @glyph_props.v_select('x', data)
-      @y = @glyph_props.v_select('y', data)
-      # TODO (bev) handle degrees in addition to radians
-      angles = @glyph_props.v_select('angle', data)
-      @angle = (-angle for angle in angles)
-
-
-      #duped
-      @selected_mask = new Uint8Array(data.length)
-      for i in [0..@selected_mask.length-1]
-        @selected_mask[i] = false
 
     set_data: (request_render=true) ->
       source = @mget_obj('data_source')
@@ -102,11 +94,8 @@ define [
       else
         ##duped in many classes
         if selected and selected.length and @nonselection_glyphprops
-          if @selection_glyphprops
-            props =  @selection_glyphprops
-          else
-            props = @glyph_props
-          @_full_path(ctx, props, 'selected')
+
+          @_full_path(ctx, @selection_glyphprops, 'selected')
           @_full_path(ctx, @nonselection_glyphprops, 'unselected')
         else
           @_full_path(ctx)
@@ -135,7 +124,6 @@ define [
         ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
 
         if @do_fill
-          #glyph_props.fill_properties.set(ctx, @data[i])
           glyph_props.fill_properties.set_vectorize(ctx, i)
           ctx.fill()
 
