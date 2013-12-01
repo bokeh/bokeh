@@ -302,18 +302,49 @@ define [
       @cache.setLineDash       = @source_v_select(@line_dash_name, @, datasource)
       @cache.setLineDashOffset = @source_v_select(@line_dash_offset_name, @, datasource)
 
+      @last_strokeStyle       = false
+      @last_globalAlpha       = false
+      @last_lineWidth         = false
+      @last_lineJoin          = false
+      @last_lineCap           = false
+      @last_setLineDash       = false
+      @last_setLineDashOffset = false
+
     clear_prop_cache: () ->
       @cache = {}
       
     set_vectorize: (ctx, i) ->
-      ctx.strokeStyle = @cache.strokeStyle[i]
-      ctx.globalAlpha = @cache.globalAlpha[i]
-      ctx.lineWidth   = @cache.lineWidth[i]
-      ctx.lineJoin    = @cache.lineJoin[i]
-      ctx.lineCap     = @cache.lineCap[i]
-      ctx.setLineDash(@cache.setLineDash[i])
-      ctx.setLineDashOffset(@cache.setLineDashOffset[i])
-      return true
+      didchange = false
+      if not (@last_strokeStyle == @cache.strokeStyle[i])
+        ctx.strokeStyle = @cache.strokeStyle[i]
+        @last_strokeStyle = @cache.strokeStyle[i]
+        didchange = true
+      if not (@last_globalAlpha == @cache.globalAlpha[i])
+        ctx.globalAlpha = @cache.globalAlpha[i]
+        @last_globalAlpha = @cache.globalAlpha[i]
+        didchange = true
+      if not (@last_lineWidth == @cache.lineWidth[i])
+        ctx.lineWidth   = @cache.lineWidth[i]
+        @last_lineWidth = @cache.lineWidth[i]
+        didchange = true
+      if not (@last_lineJoin == @cache.lineJoin[i])
+        ctx.lineJoin    = @cache.lineJoin[i]
+        @last_lineJoin = @cache.lineJoin[i]
+        didchange = true
+      if not (@last_lineCap == @cache.lineCap[i])
+        ctx.lineCap     = @cache.lineCap[i]
+        @last_lineCap = @cache.lineCap[i]
+        didchange = true
+      if not (@last_setLineDash == @cache.setLineDash[i])
+        ctx.setLineDash(@cache.setLineDash[i])
+        @last_setLineDash = @cache.setLineDash[i]
+        didchange = true
+      if not (@last_setLineDashOffset == @cache.setLineDashOffset[i])
+        ctx.setLineDashOffset(@cache.setLineDashOffset[i])
+        @last_setLineDashOffset = @cache.setLineDashOffset[i]
+        didchange = true
+      
+      return didchange
 
 
   class fill_properties extends properties
@@ -344,12 +375,10 @@ define [
     set_vectorize: (ctx, i) ->
       didchange = false
       if not (@cache.fillStyle[i] == @last_fillstyle)
-        #console.log("fillstyle changed", i, @cache.fillStyle[i] , @last_fillstyle)
         ctx.fillStyle   = @cache.fillStyle[i]
         @last_fillstyle = @cache.fillStyle[i]
         didchange = true
       if not (@cache.globalAlpha[i] == @last_globalalpha)
-        #console.log("fillalpha changed", i)
         ctx.globalAlpha = @cache.globalAlpha[i]
         @last_globalalpha = @cache.globalAlpha[i]
         didchange=true
