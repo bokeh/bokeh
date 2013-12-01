@@ -44,6 +44,19 @@ define [
       return glyph_props
 
 
+    set_data_new: (request_render=true) ->
+      source = @mget_obj('data_source')
+      @x = @glyph_props.source_v_select('x', source)
+      @y = @glyph_props.source_v_select('y', source)
+      for field in @_data_fields
+        @[field] = @glyph_props.source_v_select(field, source)
+      @mask = new Uint8Array(@x.length)
+      @selected_mask = new Uint8Array(@x.length)
+      for i in [0..@mask.length-1]
+        @mask[i] = true
+        @selected_mask[i] = false
+      @have_new_data = true
+
     set_data: (request_render=true) ->
       source = @mget_obj('data_source')
       #FIXME: should use some mechanism like isinstance

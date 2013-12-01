@@ -50,20 +50,12 @@ define [
         @_full_path(ctx, @selection_glyphprops)
       ctx.restore()
 
+    _data_fields : []
     set_data: (request_render=true) ->
-      source = @mget_obj('data_source')
-      if source.type == 'ColumnDataSource'
-        @x = @glyph_props.source_v_select('x', source)
-        @y = @glyph_props.source_v_select('y', source)
-        @mask = new Uint8Array(@x.length)
-        @selected_mask = new Uint8Array(@x.length)
-        for i in [0..@mask.length-1]
-          @mask[i] = true
-          @selected_mask[i] = false
-        @have_new_data = true
-  
+      @set_data_new(request_render)
       if request_render
         @request_render()
+
 
     _full_path: (ctx, glyph_props, use_selection) ->
       source = @mget_obj('data_source')

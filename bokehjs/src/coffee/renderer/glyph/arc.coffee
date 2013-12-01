@@ -10,33 +10,19 @@ define [
 
   class ArcView extends Glyph.View
 
-    _base_glyphspec =         ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string']
+    _base_glyphspec : ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string']
+    _data_fields : ['start_angle', 'end_angle']
     set_data: (request_render=true) ->
-      source = @mget_obj('data_source')
-      if source.type == 'ColumnDataSource'
-        @x = @glyph_props.source_v_select('x', source)
-        @y = @glyph_props.source_v_select('y', source)
-        start_angles = @glyph_props.source_v_select('start_angle', source)
-        @start_angle = (-angle for angle in start_angles)
-        end_angles = @glyph_props.source_v_select('end_angle', source)
-        @end_angle = (-angle for angle in end_angles)
+      @set_data_new(request_render)
 
-        @direction = new Uint8Array(source.get_length())
-        for i in [0..@direction.length-1]
-          #FIXME
-          dir = @glyph_props.select('direction', data[i])
-          if dir == 'clock' then @direction[i] = false
-          else if dir == 'anticlock' then @direction[i] = true
-          else @direction[i] = NaN
+      @direction = new Uint8Array(source.get_length())
+      for i in [0..@direction.length-1]
+        #FIXME
+        dir = @glyph_props.select('direction', data[i])
+        if dir == 'clock' then @direction[i] = false
+        else if dir == 'anticlock' then @direction[i] = true
+        else @direction[i] = NaN
 
-
-        @mask = new Uint8Array(@x.length)
-        @selected_mask = new Uint8Array(@x.length)
-        for i in [0..@mask.length-1]
-          @mask[i] = true
-          @selected_mask[i] = false
-        @have_new_data = true
-  
       if request_render
         @request_render()
 
@@ -61,7 +47,7 @@ define [
           if glyph_props.line_properties.set_vectorize(ctx, i)
             ctx.stroke()
             ctx.beginPath()
-          ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
+          ctx.arc(@sx[i], @sy[i], @radius[i], -@start_angle[i], -@end_angle[i], @direction[i])
         ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
