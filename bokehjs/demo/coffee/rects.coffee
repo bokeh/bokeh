@@ -1,6 +1,6 @@
 require(['main'], (Bokeh) ->
   N= 630
-  N= 50000
+  N= 50
   r = new Bokeh.Random(123456789)
 
 
@@ -20,13 +20,13 @@ require(['main'], (Bokeh) ->
     type: 'rect',
     x: 'x'
     y: 'y'
-    width:  0.005
-    height: 0.005
+    width:  0.05
+    height: 0.05
     #angle: 0.1
     #fill_color: 'color'
     fill_color: '#0F0FF0'
     #line_color: 'color'
-    do_fill:false
+    do_fill:true
   }
 
   options = {
