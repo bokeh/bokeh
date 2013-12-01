@@ -8,7 +8,8 @@ define [
   class AsteriskView extends Glyph.View
 
 
-    _base_glyphspec = ['size']
+    _base_glyphspec : ['x','y', 'size']
+    _data_fields : ['size']
     set_data: (request_render=true) ->
       @set_data_new(request_render)
 
@@ -29,61 +30,11 @@ define [
           @mask[i] = false
         else
           @mask[i] = true
-      #_render_core()
-      selected = @mget_obj('data_source').get('selected')
-      for idx in selected
-        @selected_mask[idx] = true
-      ctx = @plot_view.ctx
-
-      ctx.save()
-      if @glyph_props.fast_path
-        if selected and selected.length and @nonselection_glyphprops
-          if @selection_glyphprops
-            props =  @selection_glyphprops
-          else
-            props = @glyph_props
-          @_fast_path(ctx, props, true)
-          @_fast_path(ctx, @nonselection_glyphprops, false)
-        else
-          @_fast_path(ctx)
-      else
-        if selected and selected.length and @nonselection_glyphprops
-          if @selection_glyphprops
-            props =  @selection_glyphprops
-          else
-            props = @glyph_props
-          @_full_path(ctx, props, true)
-          @_full_path(ctx, @nonselection_glyphprops, false)
-        else
-          @_full_path(ctx)
-      ctx.restore()
-
-    _fast_path: (ctx, glyph_props, use_selection) ->
-      if glyph_props.line_properties.do_stroke
-        glyph_props.line_properties.set(ctx, @glyph_props)
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
-            continue
-          if use_selection and not @selected_mask[i]
-            continue
-          if use_selection == false and  @selected_mask[i]
-            continue
-          r = @size[i]/2
-          r2 = r*0.65
-          ctx.beginPath()
-          ctx.moveTo(@sx[i],   @sy[i]+r)
-          ctx.lineTo(@sx[i],   @sy[i]-r)
-          ctx.moveTo(@sx[i]-r, @sy[i])
-          ctx.lineTo(@sx[i]+r, @sy[i])
-          ctx.moveTo(@sx[i]-r2, @sy[i]+r2)
-          ctx.lineTo(@sx[i]+r2, @sy[i]-r2)
-          ctx.moveTo(@sx[i]-r2, @sy[i]-r2)
-          ctx.lineTo(@sx[i]+r2, @sy[i]+r2)
-          ctx.stroke()
+      @_render_core()
 
     _full_path: (ctx, glyph_props, use_selection) ->
-      if not glyph_props
-        glyph_props = @glyph_props
+      source = @mget_obj('data_source')
+      glyph_props.line_properties.set_prop_cache(source)
       for i in [0..@sx.length-1]
         if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
           continue
@@ -104,7 +55,7 @@ define [
         ctx.lineTo(@sx[i]+r2, @sy[i]+r2)
 
         if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set(ctx, @data[i])
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
     select: (xscreenbounds, yscreenbounds) ->
