@@ -5,8 +5,6 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
 
   class ArcView extends Glyph.View
 
@@ -14,11 +12,11 @@ define [
     _data_fields : ['start_angle', 'end_angle']
     set_data: (request_render=true) ->
       @set_data_new(request_render)
-
+      source = @mget_obj('data_source')
       @direction = new Uint8Array(source.get_length())
+      direction_list = @glyph_props.source_v_select('direction', source)
       for i in [0..@direction.length-1]
-        #FIXME
-        dir = @glyph_props.select('direction', data[i])
+        dir = direction_list[i]
         if dir == 'clock' then @direction[i] = false
         else if dir == 'anticlock' then @direction[i] = true
         else @direction[i] = NaN
@@ -28,10 +26,10 @@ define [
 
     _render: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @radius = @distance(@data, 'x', 'radius', 'edge')
+      @radius = @distance_vector('x', 'radius', 'edge')
       @_render_core()
 
-    _full_path: (ctx) ->
+    _full_path: (ctx, glyph_props) ->
       if @do_stroke
         source = @mget_obj('data_source')
         glyph_props.line_properties.set_prop_cache(source)
@@ -39,10 +37,11 @@ define [
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
             continue
-          if glyph_props.line_properties.set_vectorize(ctx, i)
-            ctx.stroke()
-            ctx.beginPath()
+          glyph_props.line_properties.set_vectorize(ctx, i)
+          
+          ctx.beginPath()
           ctx.arc(@sx[i], @sy[i], @radius[i], -@start_angle[i], -@end_angle[i], @direction[i])
+          ctx.stroke()
         ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
