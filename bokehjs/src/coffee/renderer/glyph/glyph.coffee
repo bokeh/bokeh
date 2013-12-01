@@ -76,6 +76,44 @@ define [
 
       return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
 
+    distance_vector: (pt, span_prop_name, position) ->
+      """ returns an array """ #"
+      pt_units = @glyph_props[pt].units
+      span_units = @glyph_props[span_prop_name].units
+
+      if      pt == 'x' then mapper = @plot_view.xmapper
+      else if pt == 'y' then mapper = @plot_view.ymapper
+
+      source = @mget_obj('data_source')
+      local_select = (prop_name) =>
+        if source.type == 'ColumnDataSource'
+          return @source_v_select(prop_name, @glyph_props, source)
+        else
+          return @glyph_props.v_select(prop_name, @data2)
+      span = local_select(span_prop_name)
+      if span_units == 'screen'
+        return span
+
+      if position == 'center'
+        halfspan = (d / 2 for d in span)
+        ptc = local_select(pt)
+        if pt_units == 'screen'
+          ptc = mapper.v_map_from_target(ptc)
+        pt0 = (ptc[i] - halfspan[i] for i in [0..ptc.length-1])
+        pt1 = (ptc[i] + halfspan[i] for i in [0..ptc.length-1])
+
+      else
+        pt0 = local_select(pt)
+        if pt_units == 'screen'
+          pt0 = mapper.v_map_from_target(pt0)
+        pt1 = (pt0[i] + span[i] for i in [0..pt0.length-1])
+
+      spt0 = mapper.v_map_to_target(pt0)
+      spt1 = mapper.v_map_to_target(pt1)
+
+      return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
+
+
     get_reference_point: () ->
       reference_point = @mget('reference_point')
       if _.isNumber(reference_point)
