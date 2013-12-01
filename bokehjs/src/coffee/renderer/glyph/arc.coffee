@@ -39,6 +39,36 @@ define [
         else if dir == 'anticlock' then @direction[i] = true
         else @direction[i] = NaN
 
+
+    set_data: (request_render=true) ->
+      source = @mget_obj('data_source')
+      if source.type == 'ColumnDataSource'
+        @x = @glyph_props.source_v_select('x', source)
+        @y = @glyph_props.source_v_select('y', source)
+        start_angles = @glyph_props.source_v_select('start_angle', source)
+        @start_angle = (-angle for angle in start_angles)
+        end_angles = @glyph_props.source_v_select('end_angle', source)
+        @end_angle = (-angle for angle in end_angles)
+
+        @direction = new Uint8Array(source.get_length())
+        for i in [0..@direction.length-1]
+          #FIXME
+          dir = @glyph_props.select('direction', data[i])
+          if dir == 'clock' then @direction[i] = false
+          else if dir == 'anticlock' then @direction[i] = true
+          else @direction[i] = NaN
+
+
+        @mask = new Uint8Array(@x.length)
+        @selected_mask = new Uint8Array(@x.length)
+        for i in [0..@mask.length-1]
+          @mask[i] = true
+          @selected_mask[i] = false
+        @have_new_data = true
+  
+      if request_render
+        @request_render()
+
     _render: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @radius = @distance(@data, 'x', 'radius', 'edge')
@@ -46,33 +76,22 @@ define [
       ctx = @plot_view.ctx
 
       ctx.save()
-      if @glyph_props.fast_path
-        @_fast_path(ctx)
-      else
-        @_full_path(ctx)
+      @_full_path(ctx)
       ctx.restore()
-
-    _fast_path: (ctx) ->
-      if @do_stroke
-        @glyph_props.line_properties.set(ctx, @glyph_props)
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
-            continue
-          ctx.beginPath()
-          ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
-          ctx.stroke()
 
     _full_path: (ctx) ->
       if @do_stroke
+        source = @mget_obj('data_source')
+        glyph_props.line_properties.set_prop_cache(source)
+        ctx.beginPath()
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
             continue
-
-          ctx.beginPath()
+          if glyph_props.line_properties.set_vectorize(ctx, i)
+            ctx.stroke()
+            ctx.beginPath()
           ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
-
-          @glyph_props.line_properties.set(ctx, @data[i])
-          ctx.stroke()
+        ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
       glyph_props = @glyph_props
