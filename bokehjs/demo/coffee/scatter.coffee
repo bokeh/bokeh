@@ -23,6 +23,11 @@ scatter = {
 
 options = {
   title: "Scatter Demo"
+  nonselected:  {
+    fill_color: 'black'
+    line_alpha: 0.1
+    fill_alpha: 0.05
+  }
   dims: [600, 600]
   xrange: [0, 100]
   yrange: [0, 100]
