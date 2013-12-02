@@ -113,8 +113,7 @@ define [
         i += step
     return ret_arr
 
-
-  auto_ticks = (data_low, data_high, bound_low, bound_high, tick_interval, use_endpoints=false, zero_always_nice=true) ->
+  auto_ticks_old = (data_low, data_high, bound_low, bound_high, tick_interval, use_endpoints=false, zero_always_nice=true) ->
       """ Finds locations for axis tick marks.
 
           Calculates the locations for tick marks on an axis. The *bound_low*,
@@ -260,10 +259,152 @@ define [
       #ret_arr.push(sorted_arr.indexOf(y))
     return ret_arr
 
+  indices = (arr) ->
+    return _.range(arr.length)
+
+  argmin = (arr) ->
+    ret = _.min(indices(arr), ((i) -> return arr[i]))
+    return ret
+
   float = (x) ->
     return x + 0.0
 
+  # FIXME Optimize this.
+  bisect_right = (xs, x) ->
+    for i in [0..xs.length]
+      if xs[i] > x
+        return i
+    return xs.length
+
+  clamp = (x, min_val, max_val) ->
+    return Math.max(min_val, Math.min(max_val, x))
+
+  log = (x, base=Math.E) ->
+    return Math.log(x) / Math.log(base)
+
+  DESIRED_N_TICKS = 6
+
+  # FIXME It's not clear this should be a class.
+  class AbstractScale
+    get_ideal_interval: (data_low, data_high) ->
+      data_range = float(data_high) - float(data_low)
+      return data_range / DESIRED_N_TICKS
+
+    get_ticks: (data_low, data_high) ->
+      interval = @get_interval(data_low, data_high)
+      start_factor = Math.floor(data_low / interval)
+      end_factor   = Math.ceil(data_high / interval)
+      factors = arange(start_factor, end_factor + 1)
+      return factors.map((f) -> return f * interval)
+  
+  # FIXME Hopefully we won't actually need this.
+  class SingleIntervalScale extends AbstractScale
+    constructor: (@interval) ->
+
+    get_min_interval: () ->
+      return @interval
+
+    get_max_interval: () ->
+      return @interval
+
+    get_interval: (data_low, data_high) ->
+      return @interval
+
+  class CompositeScale extends AbstractScale
+    constructor: (@scales) ->
+      # FIXME Validate that the scales don't overlap.
+      @min_intervals = @scales.map((s) -> s.get_min_interval())
+      @max_intervals = @scales.map((s) -> s.get_max_interval())
+
+    get_min_interval: () ->
+      return @min_intervals[0]
+
+    get_max_interval: () ->
+      return _.last(@max_intervals)
+
+    get_interval: (data_low, data_high) ->
+      data_range = float(data_high) - float(data_low)
+      ideal_interval = @get_ideal_interval(data_low, data_high)
+      scale_ixs = [
+        bisect_right(@min_intervals, ideal_interval) - 1,
+        bisect_right(@max_intervals, ideal_interval)
+      ]
+      intervals = [@min_intervals[scale_ixs[0]], @max_intervals[scale_ixs[1]]]
+      errors = intervals.map((interval) ->
+        return Math.abs(DESIRED_N_TICKS - (data_range / interval)))
+      
+      best_scale_ix = scale_ixs[argmin(errors)]
+      best_interval = @scales[best_scale_ix].get_interval(data_low, data_high)
+
+      console.log("CS.gi: intervals = #{intervals}")
+      console.log("          errors = #{errors}")
+      console.log("        interval = #{best_interval}")
+
+      return best_interval
+
+  class AdaptiveScale extends AbstractScale
+    constructor: (mantissas, @base=10.0, @min_magnitude=0.0,
+                  @max_magnitude=Infinity)->
+      @min_interval = _.first(mantissas) * @min_magnitude
+      @max_interval =  _.last(mantissas) * @max_magnitude
+
+      prefix_mantissa =  _.last(mantissas) / @base
+      suffix_mantissa = _.first(mantissas) * @base
+      @allowed_mantissas = _.flatten([prefix_mantissa, mantissas,
+                                      suffix_mantissa])
+
+    get_min_interval: () ->
+      return @min_interval
+
+    get_max_interval: () ->
+      return @max_interval
+    
+    get_interval: (data_low, data_high) ->
+      data_range = float(data_high) - float(data_low)
+      ideal_interval = @get_ideal_interval(data_low, data_high)
+
+      ideal_magnitude = Math.pow(@base, Math.floor(log(ideal_interval, @base)))
+      ideal_mantissa = ideal_interval / ideal_magnitude
+
+      # An untested optimization.
+#       index = bisect_right(@allowed_mantissas, ideal_mantissa)
+#       candidate_mantissas = @allowed_mantissas[index..index + 1]
+      candidate_mantissas = @allowed_mantissas
+
+      errors = candidate_mantissas.map((mantissa) ->
+        Math.abs(DESIRED_N_TICKS -
+                 (data_range / (mantissa * ideal_magnitude))))
+      best_mantissa = candidate_mantissas[argmin(errors)]
+
+      interval = best_mantissa * ideal_magnitude
+
+      console.log("AS.gi: mantissas = #{candidate_mantissas}")
+      console.log("          errors = #{errors}")
+      console.log("        mantissa = #{best_mantissa}")
+      console.log("        interval = #{interval}")
+
+      return clamp(interval, @get_min_interval(), @get_max_interval())
+
+  class SimpleScale extends CompositeScale
+    constructor: (intervals) ->
+      super(intervals.map((interval) ->
+        return new SingleIntervalScale(interval)))
+
+  # This is a simple one-size-fits-all scale.
+#   global_scale = new AdaptiveScale([0.5, 1.0, 2.0, 5.0, 10.0])
+
+  # FIXME This is just for testing.
+  global_scale = new CompositeScale([
+    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 0.0, 0.1),
+    new AdaptiveScale([1.0, 3.0],       9.0, 1.0, Infinity),
+  ])
+
   auto_interval_temp = (data_low, data_high) ->
+    return global_scale.get_interval(data_low, data_high)
+  auto_ticks = (_0, _1, data_low, data_high, _2) ->
+    return global_scale.get_ticks(data_low, data_high)
+
+  auto_interval_temp_old = (data_low, data_high) ->
       """ Calculates the tick interval for a range.
 
           The boundaries for the data to be plotted on the axis are::
@@ -301,6 +442,7 @@ define [
       candidate_mantissas = [allowed_mantissas[index - 1],
                              allowed_mantissas[index]]
 
+      # FIXME Use absolute value here!
       errors = candidate_mantissas.map((mantissa) ->
         return desired_n_ticks - (data_range / (mantissa * ideal_magnitude)))
       best_mantissa = candidate_mantissas[argsort(errors)[0]]
