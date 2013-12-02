@@ -86,8 +86,8 @@ define [
             props =  @selection_glyphprops
           else
             props = @glyph_props
-          @_full_path(ctx, props, true)
           @_full_path(ctx, @nonselection_glyphprops, false)
+          @_full_path(ctx, props, true)
         else
           @_full_path(ctx)
       ctx.restore()

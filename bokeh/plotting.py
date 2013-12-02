@@ -511,32 +511,30 @@ class GlyphFunction(object):
             plot.y_range._dirty = True
 
 
+    def _glyph_param_setup(self, kwargs, prefix="", default_alpha=1.0):
+
+        COLOR = prefix + "color"
+        FILL_COLOR = prefix + "fill_color"
+        LINE_COLOR = prefix + "line_color"
+        
+        ALPHA = prefix+"alpha"
+        FILL_ALPHA = prefix + "fill_alpha"
+        LINE_ALPHA = prefix + "line_alpha"
+
+        color = kwargs.pop(COLOR, get_default_color())
+        kwargs['fill_color'] = kwargs.get(FILL_COLOR, color)
+        kwargs['line_color'] = kwargs.get(LINE_COLOR, color)
+
+        alpha = kwargs.pop(ALPHA, default_alpha)
+        kwargs['fill_alpha'] = kwargs.get(FILL_ALPHA, alpha)
+        kwargs['line_alpha'] = kwargs.get(LINE_ALPHA, alpha)
+        return kwargs
+
     @visual
     def __call__(self, *args, **kwargs):
-
         # Process the keyword arguments that are not glyph-specific
         datasource = kwargs.pop("source", ColumnDataSource())
         session_objs = [datasource]
-        if "color" in kwargs:
-            color = kwargs.pop("color")
-            if "fill_color" not in kwargs:
-                kwargs["fill_color"] = color
-            if "line_color" not in kwargs:
-                kwargs["line_color"] = color
-        elif not len(color_fields.intersection(set(kwargs.keys()))):
-            kwargs["fill_color"] = get_default_color()
-            kwargs["line_color"] = kwargs["fill_color"]
-
-        if "alpha" in kwargs:
-            alpha = kwargs.pop("alpha")
-            if "fill_alpha" not in kwargs:
-                kwargs["fill_alpha"] = alpha
-            if "line_alpha" not in kwargs:
-                kwargs["line_alpha"] = alpha
-        elif not len(alpha_fields.intersection(set(kwargs.keys()))):
-            kwargs["fill_alpha"] = get_default_alpha()
-            kwargs["line_alpha"] = kwargs["fill_alpha"]
-
         legend_name = kwargs.pop("legend", None)
         plot = self._get_plot(kwargs)
         if 'name' in kwargs:
@@ -545,21 +543,27 @@ class GlyphFunction(object):
         select_tool = self._get_select_tool(plot)
 
         # Process the glyph dataspec parameters
-        glyph_params = self._match_data_params(datasource, args, kwargs)
+        
+        # Process the glyph dataspec parameters
+        glyph_params = self._match_data_params(
+            datasource, args, self._glyph_param_setup(kwargs))
 
         x_data_fields = [
-            glyph_params[xx]['field'] for xx in self.xfields if glyph_params[xx]['units'] == 'data'
-        ]
+            glyph_params[xx]['field'] for xx in self.xfields if glyph_params[xx]['units'] == 'data']
         y_data_fields = [
-            glyph_params[yy]['field'] for yy in self.yfields if glyph_params[yy]['units'] == 'data'
-        ]
+            glyph_params[yy]['field'] for yy in self.yfields if glyph_params[yy]['units'] == 'data']
         self._update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
-
         kwargs.update(glyph_params)
         glyph = self.glyphclass(**kwargs)
+        nonselection_glyph_params = self._glyph_param_setup(
+            kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
-        nonselection_glyph.fill_alpha = 0.1
-        nonselection_glyph.line_alpha = 0.1
+
+        nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
+        nonselection_glyph.line_color = nonselection_glyph_params['line_color']
+
+        nonselection_glyph.fill_alpha = nonselection_glyph_params['fill_alpha']
+        nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
 
         glyph_renderer = Glyph(
             data_source = datasource,
