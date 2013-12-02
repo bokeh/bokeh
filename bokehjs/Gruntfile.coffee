@@ -107,6 +107,7 @@ module.exports = (grunt) ->
           bootstrap: "vendor/bootstrap/bootstrap-2.0.4"
           timezone: "vendor/timezone/src/timezone"
           sprintf: "vendor/sprintf/src/sprintf"
+          rbush: "vendor/rbush/rbush"
         shim:
           sprintf:
             exports: 'sprintf'
