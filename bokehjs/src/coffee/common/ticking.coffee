@@ -295,7 +295,8 @@ define [
       start_factor = Math.floor(data_low / interval)
       end_factor   = Math.ceil(data_high / interval)
       factors = arange(start_factor, end_factor + 1)
-      return factors.map((f) -> return f * interval)
+      ticks = factors.map((f) -> return f * interval)
+      return ticks
   
   # FIXME Hopefully we won't actually need this.
   class SingleIntervalScale extends AbstractScale
@@ -336,9 +337,10 @@ define [
       best_scale_ix = scale_ixs[argmin(errors)]
       best_interval = @scales[best_scale_ix].get_interval(data_low, data_high)
 
-      console.log("CS.gi: intervals = #{intervals}")
-      console.log("          errors = #{errors}")
-      console.log("        interval = #{best_interval}")
+#       console.log("")
+#       console.log("CS.gi: intervals = #{intervals}")
+#       console.log("          errors = #{errors}")
+#       console.log("        interval = #{best_interval}")
 
       return best_interval
 
@@ -353,6 +355,8 @@ define [
       @allowed_mantissas = _.flatten([prefix_mantissa, mantissas,
                                       suffix_mantissa])
 
+      @base_factor = if @min_magnitude == 0.0 then 1.0 else @min_magnitude
+
     get_min_interval: () ->
       return @min_interval
 
@@ -363,7 +367,8 @@ define [
       data_range = float(data_high) - float(data_low)
       ideal_interval = @get_ideal_interval(data_low, data_high)
 
-      ideal_magnitude = Math.pow(@base, Math.floor(log(ideal_interval, @base)))
+      interval_exponent = Math.floor(log(ideal_interval / @base_factor, @base))
+      ideal_magnitude = Math.pow(@base, interval_exponent) * @base_factor
       ideal_mantissa = ideal_interval / ideal_magnitude
 
       # An untested optimization.
@@ -378,10 +383,11 @@ define [
 
       interval = best_mantissa * ideal_magnitude
 
-      console.log("AS.gi: mantissas = #{candidate_mantissas}")
-      console.log("          errors = #{errors}")
-      console.log("        mantissa = #{best_mantissa}")
-      console.log("        interval = #{interval}")
+#       console.log("  AS.gi: mantissas = #{candidate_mantissas}")
+#       console.log("            errors = #{errors}")
+#       console.log("          mantissa = #{best_mantissa}")
+#       console.log("         magnitude = #{ideal_magnitude}")
+#       console.log("          interval = #{interval}")
 
       return clamp(interval, @get_min_interval(), @get_max_interval())
 
@@ -390,13 +396,31 @@ define [
       super(intervals.map((interval) ->
         return new SingleIntervalScale(interval)))
 
-  # This is a simple one-size-fits-all scale.
-#   global_scale = new AdaptiveScale([0.5, 1.0, 2.0, 5.0, 10.0])
+  # This is a simple one-size-fits-all scale, suitable for decimal,
+  # non-time-based quantities.
+#   global_scale = new AdaptiveScale([1.0, 2.0, 5.0])
 
-  # FIXME This is just for testing.
+  HUNDRED_MILLIS = 100.0
+  ONE_SECOND = 1000.0
+  ONE_MINUTE = 60.0 * ONE_SECOND
+  ONE_HOUR = 60 * ONE_MINUTE
+  ONE_DAY = 24 * ONE_HOUR
+
   global_scale = new CompositeScale([
-    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 0.0, 0.1),
-    new AdaptiveScale([1.0, 3.0],       9.0, 1.0, Infinity),
+    # Sub-second.
+    # FIXME 500-ms intervals are not formatted correctly.
+    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 0.0, HUNDRED_MILLIS),
+
+    # Seconds, minutes.
+    new AdaptiveScale([1.0, 2.0, 5.0, 10.0, 15.0, 20.0, 30.0], 60.0,
+                      ONE_SECOND, ONE_MINUTE),
+
+    # Hours.
+    new AdaptiveScale([1.0, 2.0, 4.0, 6.0, 8.0, 12.0], 24.0,
+                      ONE_HOUR, ONE_HOUR),
+ 
+    # Days and above.
+    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, ONE_DAY, Infinity),
   ])
 
   auto_interval_temp = (data_low, data_high) ->
