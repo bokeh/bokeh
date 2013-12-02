@@ -146,7 +146,7 @@ define [
         renderers: []
         select_x: true
         select_y: true
-        select_every_mousemove: false
+        select_every_mousemove: true
         data_source_options: {} #backbone options for save on datasource
       })
 
