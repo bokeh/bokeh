@@ -14,7 +14,7 @@ logger = logging.getLogger(__file__)
 
 from bokeh.properties import (HasProps, MetaHasProps, Any, Dict, Enum,
         Either, Float, Instance, Int, List, String, Color, Pattern, Percent,
-        Size, LineProps, FillProps, TextProps, Include)
+        Size, LineProps, FillProps, TextProps, Include, Bool)
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -816,6 +816,7 @@ class CrosshairTool(PlotObject):
 
 class BoxSelectTool(PlotObject):
     renderers = List(has_ref=True)
+    select_every_mousemove = Bool(True)
 
 class BoxSelectionOverlay(PlotObject):
     __view_model__ = 'BoxSelection'

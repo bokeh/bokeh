@@ -20,14 +20,14 @@ from ...exceptions import DataIntegrityException
 from ..views import make_json
 from ..crossdomain import crossdomain
 from ..serverbb import RedisSession
+from flask import url_for
 #main pages
 
 @app.route('/bokeh/')
 def index(*unused_all, **kwargs):
-    if getattr(app, "debugjs", False):
-        return render_template('bokeh.html', debugjs=True)
-    else:
-        return render_template('bokeh.html', debugjs=False)
+    return render_template('bokeh.html',
+                           splitjs=app.splitjs
+                           )
 
 
 @app.route('/')

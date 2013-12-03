@@ -140,7 +140,7 @@ define [
         label_text_font_style: "normal"
         label_text_color: "#444444"
         label_text_alpha: 1.0
-        label_text_align: "center"
+        label_text_align: "left"
         label_text_baseline: "middle"
 
         glyph_height: 20
@@ -150,8 +150,6 @@ define [
         legend_padding: 10
         legend_spacing: 3
         orientation: "top_right"
-        label_text_align: "left"
-        label_text_baseline: "middle"
         datapoint: null
       }
 
