@@ -97,7 +97,7 @@ define [
 
       ctx.restore()
 
-  class DiamondCross extends Glyph.Model
+  class DiamondCross extends Marker.Model
     default_view: DiamondCrossView
     type: 'Glyph'
 

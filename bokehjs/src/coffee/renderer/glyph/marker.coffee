@@ -5,7 +5,7 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  class Marker extends Glyph.View
+  class MarkerView extends Glyph.View
 
     _fields: ['x', 'y', 'size']
 

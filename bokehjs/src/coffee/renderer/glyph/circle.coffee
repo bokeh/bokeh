@@ -10,21 +10,14 @@ define [
     _fields: ['x', 'y', 'radius']
     _properties: ['line', 'fill']
 
-    _render: (plot_view, have_new_mapper_state=true) ->
+    _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       ds = @mget_obj('data_source')
+      @radius = @distance_vector('x', 'radius', 'edge')
 
+    _mask_data: () ->
       ow = @plot_view.view_state.get('outer_width')
       oh = @plot_view.view_state.get('outer_height')
-
-      if @have_new_data or have_new_mapper_state
-        @radius = @distance_vector('x', 'radius', 'edge')
-        @have_new_data = false
-
-      ow = @plot_view.view_state.get('outer_width')
-      oh = @plot_view.view_state.get('outer_height')
-
-      #this seems to do hit testing to see if the desired point is in the view screen
       for i in [0..@mask.length-1]
         outside_render_area = ((@sx[i]+@radius[i]) < 0 or (@sx[i]-@radius[i]) > ow or\
           (@sy[i]+@radius[i]) < 0 or (@sy[i]-@radius[i]) > oh)
@@ -32,7 +25,6 @@ define [
           @mask[i] = false
         else
           @mask[i] = true
-      @_render_core()
 
     _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@sx.length-1]

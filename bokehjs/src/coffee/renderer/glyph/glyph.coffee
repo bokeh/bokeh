@@ -92,9 +92,9 @@ define [
         source = @mget_obj('data_source')
 
         if glyph_props.fill_properties? and glyph_props.fill_properties.do_fill
-          gprops.fill_properties.set_prop_cache(source)
+          glyph_props.fill_properties.set_prop_cache(source)
         if glyph_props.line_properties? and glyph_props.line_properties.do_stroke
-          gprops.line_properties.set_prop_cache(source)
+          glyph_props.line_properties.set_prop_cache(source)
         # TODO (bev) text props cache?
 
         @_render(ctx, glyph_props, use_selection)

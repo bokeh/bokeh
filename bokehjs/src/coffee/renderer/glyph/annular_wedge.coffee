@@ -14,6 +14,9 @@ define [
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @inner_radius = @distance_vector('x', 'inner_radius', 'edge')
       @outer_radius = @distance_vector('x', 'outer_radius', 'edge')
+      @angle = new Float32Array(@start_angle.length)
+      for i in [0..@start_angle.length-1]
+        @angle[i] = @end_angle[i] - @start_angle[i]
 
     _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@sx.length-1]
