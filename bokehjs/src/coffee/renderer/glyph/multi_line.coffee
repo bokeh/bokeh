@@ -21,17 +21,17 @@ define [
         [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
 
         glyph_props.line_properties.set_vectorize(ctx, i)
-        for i in [0..sx.length-1]
-          if i == 0
+        for j in [0..sx.length-1]
+          if j == 0
             ctx.beginPath()
-            ctx.moveTo(sx[i], sy[i])
+            ctx.moveTo(sx[j], sy[j])
             continue
-          else if isNaN(sx[i]) or isNaN(sy[i])
+          else if isNaN(sx[j]) or isNaN(sy[j])
             ctx.stroke()
             ctx.beginPath()
             continue
           else
-            ctx.lineTo(sx[i], sy[i])
+            ctx.lineTo(sx[j], sy[j])
         ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
