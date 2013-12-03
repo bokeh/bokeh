@@ -357,10 +357,10 @@ define [
 
     set_vectorize: (ctx, i) ->
       did_change = false
-      if ctx.fillStyle != cache.fillStyle[i]
+      if ctx.fillStyle != @cache.fillStyle[i]
         ctx.fillStyle = @cache.fillStyle[i]
         did_change = true
-      if ctx.globalAlpha != @last_globalalpha
+      if ctx.globalAlpha != @cache.globalAlpha[i]
         ctx.globalAlpha = @cache.globalAlpha[i]
         did_change = true
 
