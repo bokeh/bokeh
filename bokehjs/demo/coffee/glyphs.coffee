@@ -1,8 +1,14 @@
 require(['main'], (Bokeh) ->
   data = {
     x: [1, 2, 3, 4, 5]
+    x1: [2, 3, 4, 5, 6]
     y: [5, 4, 3, 2, 1]
-    y2: [4, 5, 3, 5.5, 2]
+    y1: [5, 4, 3, 2, 1]
+    y2: [4, 5, 3, 5.5, 1]
+    cx: [1, 2, 3, 4, 5]
+    cy: [6, 6, 6, 6, 6]
+    xs: [[1, 2, 3], [2, 3, 4], [0, 1, 0], [2, 5, 4], [5, 3, 2]]
+    ys: [[5, 2, 3], [1, 1, 4], [5, 5, 2], [4, 1, 5], [3, 5, 4]]
     small_size: [0.2, 0.3, 0.4, 0.5, 0.6]
     large_size: [5, 10, 15, 20, 25]
     angle: [0.5, 1, 1.5, 2, 2.5]
@@ -11,6 +17,10 @@ require(['main'], (Bokeh) ->
     width: [0.2, 0.4, 0.6, 0.8, 1]
     height: [1, 0.8, 0.6, 0.4, 0.2]
     lw: [1, 2, 3, 4, 5]
+    top: [5.1, 4.2, 3.7, 2.4, 1.5]
+    bottom: [4.9, 3.8, 2.3, 1.6, 0.5]
+    left: [0.9, 1.6, 2.7, 3.6, 4.4]
+    right: [1.1, 2.4, 3.3, 4.4, 5.7]
   }
 
   make_plot = Bokeh.Plotting.make_plot
@@ -86,17 +96,23 @@ require(['main'], (Bokeh) ->
   plot4 = make_plot(asterisk, data, options)
   Bokeh.Plotting.show(plot4)
 
-  # bezier = {
-  #   type: 'bezier'
-  #   x0: 'x'
-  #   y0: 'y'
-  #   line_color: 'colors'
-  #   size: 'size'
-  # }
+  bezier = {
+    type: 'bezier'
+    x0: 'x'
+    y0: 'y2'
+    x1: 'x1'
+    y1: 'y1'
+    cx0: 'cx'
+    cy0: 'cy'
+    cx1: 'cx'
+    cy1: 'cy'
+    line_color: '#7FCDBB'
+    line_width: 2
+  }
 
-  # options.title = "Bezier"
-  # plot5 = make_plot(bezier, data, options)
-  # Bokeh.Plotting.show(plot5)
+  options.title = "Bezier"
+  plot5 = make_plot(bezier, data, options)
+  Bokeh.Plotting.show(plot5)
 
   circle = {
     type: 'circle'
@@ -118,8 +134,9 @@ require(['main'], (Bokeh) ->
     x: 'x'
     y: 'y'
     size: 'small_size'
-    fill_color: 'white'
-    line_width: 2
+    fill_color: 'colors'
+    fill_alpha: 0.2
+    line_width: 'lw'
     line_color: 'colors'
   }
 
@@ -133,8 +150,9 @@ require(['main'], (Bokeh) ->
     x: 'x'
     y: 'y'
     size: 'small_size'
-    fill_color: 'white'
-    line_width: 2
+    fill_color: 'colors'
+    fill_alpha: 0.2
+    line_width: 'lw'
     line_color: 'colors'
   }
 
@@ -147,7 +165,7 @@ require(['main'], (Bokeh) ->
     x: 'x'
     y: 'y'
     size: 'small_size'
-    line_width: 2
+    line_width: 'lw'
     line_color: 'colors'
   }
 
@@ -161,7 +179,7 @@ require(['main'], (Bokeh) ->
     x: 'x'
     y: 'y'
     size: 'small_size'
-    line_width: 2
+    line_width: 'lw'
     fill_color: 'colors'
     fill_alpha: 'alpha'
     line_color: 'colors'
@@ -176,8 +194,9 @@ require(['main'], (Bokeh) ->
     x: 'x'
     y: 'y'
     size: 'small_size'
-    fill_color: 'white'
-    line_width: 2
+    fill_color: 'colors'
+    fill_alpha: 0.2
+    line_width: 'lw'
     line_color: 'colors'
   }
 
@@ -199,7 +218,7 @@ require(['main'], (Bokeh) ->
      x: 'x'
      y: 'y'
      size: 'small_size'
-     line_width: 2
+     line_width: 'lw'
      fill_color: 'colors'
      fill_alpha: 'alpha'
      line_color: 'colors'
@@ -213,7 +232,7 @@ require(['main'], (Bokeh) ->
     type: 'line'
     x: 'x'
     y: 'y2'
-    line_width: 2
+    line_width: 'lw'
     line_dash: [5, 2]
     line_color: '#43A2CA'
   }
@@ -222,40 +241,210 @@ require(['main'], (Bokeh) ->
   plot13 = make_plot(line, data, options)
   Bokeh.Plotting.show(plot13)
   
-  # rect = {
-  #   type: 'rect'
-  #   x: 'x'
-  #   y: 'y'
-  #   angle: 'angle'
-  #   width: 'width'
-  #   height: 'height'
-  #   fill_alpha: 'alpha'
-  #   fill_color: 'colors'
-  #   line_color: 'colors'
-  # }
+  multi_line = {
+    type: 'multi_line'
+    xs: 'xs'
+    ys: 'ys'
+    line_width: 'lw'
+    line_color: 'colors'
+    line_dash: [5, 2]
+  }
 
-  # options.title = 'Rects'
-  # plot = make_plot(rect, data, options)
-  # Bokeh.Plotting.show(plot)
+  options.title = 'Multi Line'
+  plot14 = make_plot(multi_line, data, options)
+  Bokeh.Plotting.show(plot14)
 
-  # square = {
-  #   type: 'square'
-  #   x: 'x'
-  #   y: 'y'
-  #   size: 'size'
-  #   angle: 'angle'
-  #   fill_alpha: 'alpha'
-  #   fill_color: 'colors'
-  #   line_color: 'colors'
-  # }
+  oval = {
+    type: 'oval'
+    x: 'x'
+    y: 'y'
+    angle: 'angle'
+    width: 'width'
+    height: 'height'
+    fill_alpha: 'alpha'
+    fill_color: 'colors'
+    line_color: 'colors'
+  }
 
-  # options.title = 'Squares'
-  # plot2 = make_plot(square, data, options)
-  # Bokeh.Plotting.show(plot2)
+  options.title = 'Oval'
+  plot15 = make_plot(oval, data, options)
+  Bokeh.Plotting.show(plot15)
+
+  patch = {
+    type: 'patch'
+    x: 'x'
+    y: 'y2'
+    line_width: 2
+    line_dash: [5, 2]
+    line_color: '#2C7FB8'
+    fill_color: '#7FCDBB'
+  }
+
+  options.title = 'Patch'
+  plot16 = make_plot(patch, data, options)
+  Bokeh.Plotting.show(plot16)
+
+  patches = {
+    type: 'patches'
+    xs: 'xs'
+    ys: 'ys'
+    line_width: 'lw'
+    line_dash: [5, 2]
+    fill_alpha: 'alpha'
+    line_color: 'colors'
+    fill_color: 'colors'
+  }
+
+  options.title = 'Patches'
+  plot17 = make_plot(patches, data, options)
+  Bokeh.Plotting.show(plot17)
+
+  quad = {
+    type: 'quad'
+    x: 'x'
+    y: 'y'
+    right: 'right'
+    left: 'left'
+    bottom: 'bottom'
+    top: 'top'
+    fill_alpha: 'alpha'
+    fill_color: 'colors'
+    line_color: 'colors'
+  }
+
+  options.title = 'Quad'
+  plot18 = make_plot(quad, data, options)
+  Bokeh.Plotting.show(plot18)
+
+  quadratic = {
+    type: 'quadratic'
+    x0: 'x'
+    y0: 'y'
+    x1: 'x1'
+    y1: 'y1'
+    cx: 'cx'
+    cy: 'cy'
+    line_width: 2
+    line_color: '#7FCDBB'
+  }
+
+  options.title = 'Quadratic'
+  plot19 = make_plot(quadratic, data, options)
+  Bokeh.Plotting.show(plot19)
+
+  ray = {
+    type: 'ray'
+    x: 'x'
+    y: 'y'
+    angle: 'angle'
+    length: 20
+    line_width: 'lw'
+    line_color: 'colors'
+  }
+
+  options.title = 'Ray'
+  plot20 = make_plot(ray, data, options)
+  Bokeh.Plotting.show(plot20)
+
+  rect = {
+    type: 'rect'
+    x: 'x'
+    y: 'y'
+    angle: 'angle'
+    width: 'width'
+    height: 'height'
+    fill_alpha: 'alpha'
+    fill_color: 'colors'
+    line_color: 'colors'
+  }
+
+  options.title = 'Rects'
+  plot21 = make_plot(rect, data, options)
+  Bokeh.Plotting.show(plot21)
+
+  segment = {
+    type: 'segment'
+    x0: 'x'
+    y0: 'y2'
+    x1: 'x1'
+    y1: 'y1'
+    line_width: 2
+    line_color: 'colors'
+  }
+
+  options.title = 'Segment'
+  plot22 = make_plot(segment, data, options)
+  Bokeh.Plotting.show(plot22)
+
+  square = {
+    type: 'square'
+    x: 'x'
+    y: 'y'
+    size: 'small_size'
+    angle: 'angle'
+    fill_alpha: 'alpha'
+    fill_color: 'colors'
+    line_color: 'colors'
+  }
+
+  options.title = 'Squares'
+  plot23 = make_plot(square, data, options)
+  Bokeh.Plotting.show(plot23)
   
+  square_cross = {
+    type: 'square_cross'
+    x: 'x'
+    y: 'y'
+    size: 'small_size'
+    fill_color: 'colors'
+    fill_alpha: 0.2
+    line_width: 'lw'
+    line_color: 'colors'
+  }
 
+  options.title = 'Square Cross'
+  plot24 = make_plot(square_cross, data, options)
+  Bokeh.Plotting.show(plot24)
 
+  square_x = {
+    type: 'square_x'
+    x: 'x'
+    y: 'y'
+    size: 'small_size'
+    fill_color: 'colors'
+    fill_alpha: 0.2
+    line_width: 'lw'
+    line_color: 'colors'
+  }
 
+  options.title = 'Square X'
+  plot25 = make_plot(square_x, data, options)
+  Bokeh.Plotting.show(plot25)
+
+  text = {
+
+  }
+
+  triangle = {
+    type: 'triangle'
+    x: 'x'
+    y: 'y'
+    size: 'small_size'
+    fill_color: 'colors'
+    fill_alpha: 'alpha'
+    line_width: 'lw'
+    line_color: 'colors'
+  }  
   
+  options.title = 'Triangle'
+  plot27 = make_plot(triangle, data, options)
+  Bokeh.Plotting.show(plot27)
 
+  wedge = {
+
+  }
+
+  x = {
+
+  }
 )
