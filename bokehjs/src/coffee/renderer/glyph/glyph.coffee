@@ -95,7 +95,8 @@ define [
           glyph_props.fill_properties.set_prop_cache(source)
         if glyph_props.line_properties? and glyph_props.line_properties.do_stroke
           glyph_props.line_properties.set_prop_cache(source)
-        # TODO (bev) text props cache?
+        if glyph_props.text_properties?
+          glyph_props.text_properties.set_prop_cache(source)
 
         @_render(ctx, glyph_props, use_selection)
 

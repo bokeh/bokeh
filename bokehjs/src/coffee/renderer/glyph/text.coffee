@@ -22,7 +22,7 @@ define [
         ctx.translate(@sx[i], @sy[i])
         ctx.rotate(@angle[i])
 
-        glyph_props.text_properties.set(ctx, @data[i])
+        glyph_props.text_properties.set_vectorize(ctx, i)
         ctx.fillText(@text[i], 0, 0)
 
         ctx.rotate(-@angle[i])
