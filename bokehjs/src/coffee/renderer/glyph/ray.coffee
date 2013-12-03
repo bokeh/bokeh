@@ -5,33 +5,12 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-
   class RayView extends Glyph.View
 
-    initialize: (options) ->
-      glyphspec = @mget('glyphspec')
-      @glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['x', 'y', 'angle', 'length'],
-        {
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
+    _fields: ['x', 'y', 'angle', 'length']
+    _properties: ['line']
 
-      @do_stroke = @glyph_props.line_properties.do_stroke
-      super(options)
-
-    _set_data: (@data) ->
-      @x = @glyph_props.v_select('x', data)
-      @y = @glyph_props.v_select('y', data)
-      angles = (@glyph_props.select('angle', obj) for obj in data) # TODO deg/rad
-      @angle = (-angle for angle in angles)
-      @length = @glyph_props.v_select('length', data)
-
-    _render: () ->
+    _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       width = @plot_view.view_state.get('width')
       height = @plot_view.view_state.get('height')
@@ -39,34 +18,8 @@ define [
       for i in [0..@length.length-1]
         if @length[i] == 0 then @length[i] = inf_len
 
-      ctx = @plot_view.ctx
-
-      ctx.save()
-      if @glyph_props.fast_path
-        @_fast_path(ctx)
-      else
-        @_full_path(ctx)
-      ctx.restore()
-
-    _fast_path: (ctx) ->
-      if @do_stroke
-        @glyph_props.line_properties.set(ctx, @glyph_props)
-        ctx.beginPath()
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
-            continue
-
-          ctx.translate(@sx[i], @sy[i])
-          ctx.rotate(@angle[i])
-          ctx.moveTo(0,  0)
-          ctx.lineTo(@length[i], 0) # TODO handle @length in data units?
-          ctx.rotate(-@angle[i])
-          ctx.translate(-@sx[i], -@sy[i])
-
-        ctx.stroke()
-
-    _full_path: (ctx) ->
-      if @do_stroke
+    _render: (ctx, glyph_props, use_selection) ->
+      if glyph_props.line_properties.do_stroke
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
             continue
@@ -76,9 +29,9 @@ define [
 
           ctx.beginPath()
           ctx.moveTo(0, 0)
-          ctx.lineTo(@length[i], 0) # TODO handle @length in data units?
+          ctx.lineTo(@length[i], 0)
 
-          @glyph_props.line_properties.set(ctx, @data[i])
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
           ctx.rotate(-@angle[i])

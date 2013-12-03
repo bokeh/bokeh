@@ -5,6 +5,43 @@ define [
 ], (_, svg_colors) ->
 
   class properties
+    source_v_select: (attrname, datasource) ->
+      glyph_props = @
+      # if the attribute is not on this property object at all, log a bad request
+      if not (attrname of glyph_props)
+        console.log("requested vector selection of unknown property '#{ attrname }' on objects")
+        return (null for i in datasource.get_length())
+
+
+      prop = glyph_props[attrname]
+      # if the attribute specifies a field, and the field exists on
+      # the column source, return the column from the column source
+      if prop.field? and (prop.field of datasource.get('data'))
+        return datasource.getcolumn(prop.field)
+      else
+        # If the user gave an explicit value, that should always be returned
+        if glyph_props[attrname].value?
+          default_value = glyph_props[attrname].value
+
+        # otherwise, if the attribute exists on the object, return that value.
+        # (This is a convenience case for when the object passed in has a member
+        # that has the same name as the glyphspec name, e.g. an actual field
+        # named "x" or "radius".)
+
+        else if (attrname of datasource.get('data'))
+          return datasource.getcolumn(attrname)
+
+        # finally, check for a default value on this property object that could be returned
+        else if glyph_props[attrname].default?
+          default_value = glyph_props[attrname].default
+
+        #FIXME this is where we could return a generator, which might
+        #do a better job for constant propagation
+        #for some reason a list comprehension fails here
+        retval = []
+        for i in [0..datasource.get_length()-1]
+          retval.push(default_value)
+        return retval
 
     string: (styleprovider, glyphspec, attrname) ->
       @[attrname] = {}
@@ -28,7 +65,7 @@ define [
         console.log("string property '#{ attrname }' given invalid glyph value: " + glyph_value)
 
     number: (styleprovider, glyphspec, attrname) ->
-      @[attrname] = { typed: true }
+      @[attrname] = { } #typed: true }
 
       default_value = styleprovider.mget(attrname)
       if not default_value?
@@ -255,6 +292,45 @@ define [
       ctx.setLineDash(@select(@line_dash_name, obj))
       ctx.setLineDashOffset(@select(@line_dash_offset_name, obj))
 
+    set_prop_cache: (datasource) ->
+      @cache = {}
+      @cache.strokeStyle       = @source_v_select(@line_color_name, datasource)
+      @cache.globalAlpha       = @source_v_select(@line_alpha_name, datasource)
+      @cache.lineWidth         = @source_v_select(@line_width_name, datasource)
+      @cache.lineJoin          = @source_v_select(@line_join_name,  datasource)
+      @cache.lineCap           = @source_v_select(@line_cap_name,   datasource)
+      @cache.setLineDash       = @source_v_select(@line_dash_name,  datasource)
+      @cache.setLineDashOffset = @source_v_select(@line_dash_offset_name, datasource)
+
+    clear_prop_cache: () ->
+      @cache = {}
+
+    set_vectorize: (ctx, i) ->
+      did_change = false
+      if ctx.strokeStyle != @cache.strokeStyle[i]
+        ctx.strokeStyle = @cache.strokeStyle[i]
+        did_change = true
+      if ctx.globalAlpha != @cache.globalAlpha[i]
+        ctx.globalAlpha = @cache.globalAlpha[i]
+        did_change = true
+      if ctx.lineWidth != @cache.lineWidth[i]
+        ctx.lineWidth = @cache.lineWidth[i]
+        did_change = true
+      if ctx.lineJoin != @cache.lineJoin[i]
+        ctx.lineJoin = @cache.lineJoin[i]
+        did_change = true
+      if ctx.lineCap != @cache.lineCap[i]
+        ctx.lineCap = @cache.lineCap[i]
+        did_change = true
+      if ctx.getLineDash() != @cache.setLineDash[i]
+        ctx.setLineDash(@cache.setLineDash[i])
+        did_change = true
+      if ctx.getLineDashOffset() != @cache.setLineDashOffset[i]
+        ctx.setLineDashOffset(@cache.setLineDashOffset[i])
+        did_change = true
+
+      return did_change
+
   class fill_properties extends properties
     constructor: (styleprovider, glyphspec, prefix="") ->
       @fill_color_name = "#{ prefix }fill_color"
@@ -274,6 +350,22 @@ define [
       ctx.fillStyle   = @select(@fill_color_name, obj)
       ctx.globalAlpha = @select(@fill_alpha_name, obj)
 
+    set_prop_cache: (datasource) ->
+      @cache = {}
+      @cache.fillStyle         = @source_v_select(@fill_color_name, datasource)
+      @cache.globalAlpha       = @source_v_select(@fill_alpha_name, datasource)
+
+    set_vectorize: (ctx, i) ->
+      did_change = false
+      if ctx.fillStyle != @cache.fillStyle[i]
+        ctx.fillStyle = @cache.fillStyle[i]
+        did_change = true
+      if ctx.globalAlpha != @cache.globalAlpha[i]
+        ctx.globalAlpha = @cache.globalAlpha[i]
+        did_change = true
+
+      return did_change
+
   class text_properties extends properties
     constructor: (styleprovider, glyphspec, prefix="") ->
       @text_font_name       = "#{ prefix }text_font"
@@ -292,7 +384,7 @@ define [
       @enum(styleprovider, glyphspec, @text_align_name, "left right center")
       @enum(styleprovider, glyphspec, @text_baseline_name, "top middle bottom alphabetic hanging")
 
-    font:(obj, font_size) ->
+    font: (obj, font_size) ->
       if not font_size?
         font_size = @select(@text_font_size_name,  obj)
       font       = @select(@text_font_name,       obj)
@@ -306,6 +398,40 @@ define [
       ctx.globalAlpha  = @select(@text_alpha_name,    obj)
       ctx.textAlign    = @select(@text_align_name,    obj)
       ctx.textBaseline = @select(@text_baseline_name, obj)
+
+    set_prop_cache: (datasource) ->
+      @cache = {}
+      font_size    = @source_v_select(@text_font_size_name, datasource)
+      font         = @source_v_select(@text_font_name, datasource)
+      font_style   = @source_v_select(@text_font_style_name, datasource)
+      @cache.font  = ( "#{font_style[i]} #{font_size[i]} #{font[i]}" for i in [0..font.length-1] )
+      @cache.fillStyle    = @source_v_select(@text_color_name, datasource)
+      @cache.globalAlpha  = @source_v_select(@text_alpha_name, datasource)
+      @cache.textAlign    = @source_v_select(@text_align_name, datasource)
+      @cache.textBaseline = @source_v_select(@text_baseline_name, datasource)
+
+    clear_prop_cache: () ->
+      @cache = {}
+
+    set_vectorize: (ctx, i) ->
+      did_change = false
+      if ctx.font != @cache.font[i]
+        ctx.font = @cache.font[i]
+        did_change = true
+      if ctx.fillStyle != @cache.fillStyle[i]
+        ctx.fillStyle = @cache.fillStyle[i]
+        did_change = true
+      if ctx.globalAlpha != @cache.globalAlpha[i]
+        ctx.globalAlpha = @cache.globalAlpha[i]
+        did_change = true
+      if ctx.textAlign != @cache.textAlign[i]
+        ctx.textAlign = @cache.textAlign[i]
+        did_change = true
+      if ctx.textAlign != @cache.textAlign[i]
+        ctx.textAlign = @cache.textAlign[i]
+        did_change = true
+
+      return did_change
 
   class glyph_properties extends properties
     constructor: (styleprovider, glyphspec, attrnames, properties) ->

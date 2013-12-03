@@ -39,7 +39,7 @@ module.exports = (grunt) ->
           cwd: 'demo'
           src: ['**/*.html', '**/*.js']
           dest: 'build/demo'
-          filter: 'isFile'
+          filter: ['isFile'], #, hasChanged("copy.demo")]
         ]
       vendor:
         files : [
@@ -137,7 +137,12 @@ module.exports = (grunt) ->
         files: ["<%= coffee.demo.cwd %>/<%= coffee.demo.src %>"]
         tasks: ['coffee:demo']
         options:
-          spawn: false
+            spawn: false
+      demo_copy:
+        files: ["demo/**/*.html", "demo/**/*.js"]
+        tasks: ['copy:demo']
+        options:
+          spawn: false          
       test:
         files: ["<%= coffee.test.cwd %>/<%= coffee.test.src %>"]
         tasks: ['coffee:test']

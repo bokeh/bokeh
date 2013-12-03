@@ -9,38 +9,20 @@ define [
 
   class ImageURIView extends Glyph.View
 
-    initialize: (options) ->
-      glyphspec = @mget('glyphspec')
-      @glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['url:string', 'x', 'y', 'angle'],
-        []
-      )
-
-      super(options)
+    _fields: ['url:string', 'x', 'y', 'angle']
+    _properties: []
 
     _set_data: (@data) ->
-      @x = @glyph_props.v_select('x', data)
-      @y = @glyph_props.v_select('y', data)
-      @url = (@glyph_props.select('url', obj) for obj in data)
-      # TODO (bev) handle degrees in addition to radians
-      angles = @glyph_props.v_select('angle', data)
-      @angle = (-angle for angle in angles)
       @image = (null for img in @url)
       @need_load = (true for img in @url)
       @loaded = (false for img in @url)
 
-    _render: () ->
+    _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
-      ctx = @plot_view.ctx
-      vs = @plot_view.view_state
-
-      ctx.save()
-
-      # fast and slow paths are the same
+    _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@sx.length-1]
+
         if isNaN(@sx[i] + @sy[i]+ @angle[i])
           continue
 

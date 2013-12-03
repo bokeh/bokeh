@@ -5,61 +5,20 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-
   class SegmentView extends Glyph.View
 
-    initialize: (options) ->
-      glyphspec = @mget('glyphspec')
-      @glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['x0', 'y0', 'x1', 'y1'],
-        {
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
+    _fields: ['x0', 'y0', 'x1', 'y1']
+    _properties: ['line']
 
-      @do_stroke = @glyph_props.line_properties.do_stroke
-      super(options)
-
-    _set_data: (@data) ->
-      @x0 = @glyph_props.v_select('x0', data)
-      @y0 = @glyph_props.v_select('y0', data)
-
-      @x1 = @glyph_props.v_select('x1', data)
-      @y1 = @glyph_props.v_select('y1', data)
-
-    _render: () ->
+    _map_data: () ->
       [@sx0, @sy0] = @plot_view.map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units)
       [@sx1, @sy1] = @plot_view.map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units)
 
-      ctx = @plot_view.ctx
+    _render: (ctx, glyph_props, use_selection) ->
+      if glyph_props.line_properties.do_stroke
 
-      ctx.save()
-      if @glyph_props.fast_path
-        @_fast_path(ctx)
-      else
-        @_full_path(ctx)
-      ctx.restore()
-
-    _fast_path: (ctx) ->
-      if @do_stroke
-        @glyph_props.line_properties.set(ctx, @glyph_props)
-        ctx.beginPath()
         for i in [0..@sx0.length-1]
-          if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
-            continue
 
-          ctx.moveTo(@sx0[i], @sy0[i])
-          ctx.lineTo(@sx1[i], @sy1[i])
-
-        ctx.stroke()
-
-    _full_path: (ctx) ->
-      if @do_stroke
-        for i in [0..@sx0.length-1]
           if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
             continue
 
@@ -67,7 +26,7 @@ define [
           ctx.moveTo(@sx0[i], @sy0[i])
           ctx.lineTo(@sx1[i], @sy1[i])
 
-          @glyph_props.line_properties.set(ctx, @data[i])
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->

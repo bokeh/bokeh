@@ -5,71 +5,51 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  fill_properties  = Properties.fill_properties
-
   class PatchesView extends Glyph.View
 
-    initialize: (options) ->
-      glyphspec = @mget('glyphspec')
-      @glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['xs:array', 'ys:array']
-        {
-          fill_properties: new fill_properties(@, glyphspec),
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
+    _fields: ['xs', 'ys']
+    _properties: ['line', 'fill']
 
-      @do_fill = @glyph_props.fill_properties.do_fill
-      @do_stroke = @glyph_props.line_properties.do_stroke
-      super(options)
+    _map_data: () ->
+      null
 
-
-    _set_data: (@data) ->
-      # TODO store screen coords
-
-    _render: () ->
+    _render: (ctx, glyph_props, use_selection) ->
       ctx = @plot_view.ctx
 
       ctx.save()
-      for pt in @data
-        x = @glyph_props.select('xs', pt)
-        y = @glyph_props.select('ys', pt)
-        [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
-        if @do_fill
-          @glyph_props.fill_properties.set(ctx, pt)
-          for i in [0..sx.length-1]
-            if i == 0
+      for i in [0..@xs.length-1]
+        [sx, sy] = @plot_view.map_to_screen(@xs[i], glyph_props.xs.units, @ys[i], glyph_props.ys.units)
+        if glyph_props.fill_properties.do_fill
+          glyph_props.fill_properties.set_vectorize(ctx, i)
+          for j in [0..sx.length-1]
+            if j == 0
               ctx.beginPath()
-              ctx.moveTo(sx[i], sy[i])
+              ctx.moveTo(sx[j], sy[j])
               continue
-            else if isNaN(sx[i] + sy[i])
+            else if isNaN(sx[j] + sy[j])
               ctx.closePath()
               ctx.fill()
               ctx.beginPath()
               continue
             else
-              ctx.lineTo(sx[i], sy[i])
+              ctx.lineTo(sx[j], sy[j])
           ctx.closePath()
           ctx.fill()
 
-        if @do_stroke
-          @glyph_props.line_properties.set(ctx, pt)
-          for i in [0..sx.length-1]
-            if i == 0
+        if glyph_props.line_properties.do_stroke
+          glyph_props.line_properties.set_vectorize(ctx, i)
+          for j in [0..sx.length-1]
+            if j == 0
               ctx.beginPath()
-              ctx.moveTo(sx[i], sy[i])
+              ctx.moveTo(sx[j], sy[j])
               continue
-            else if isNaN(sx[i] + sy[i])
+            else if isNaN(sx[j] + sy[j])
               ctx.closePath()
               ctx.stroke()
               ctx.beginPath()
               continue
             else
-              ctx.lineTo(sx[i], sy[i])
+              ctx.lineTo(sx[j], sy[j])
           ctx.closePath()
           ctx.stroke()
 

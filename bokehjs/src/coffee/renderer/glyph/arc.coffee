@@ -5,73 +5,26 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-
   class ArcView extends Glyph.View
 
-    initialize: (options) ->
-      glyphspec = @mget('glyphspec')
-      @glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string'],
-        {
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
+    _fields: ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string']
+    _properties: ['line']
 
-      @do_stroke = @glyph_props.line_properties.do_stroke
-      super(options)
-
-    _set_data: (@data) ->
-      @x = @glyph_props.v_select('x', data)
-      @y = @glyph_props.v_select('y', data)
-      # TODO (bev) handle degrees in addition to radians
-      start_angle = @glyph_props.v_select('start_angle', data)
-      @start_angle = (-angle for angle in start_angle)
-      end_angle = @glyph_props.v_select('end_angle', data)
-      @end_angle = (-angle for angle in end_angle)
-      @direction = new Uint8Array(@data.length)
-      for i in [0..@data.length-1]
-        dir = @glyph_props.select('direction', data[i])
-        if dir == 'clock' then @direction[i] = false
-        else if dir == 'anticlock' then @direction[i] = true
-        else @direction[i] = NaN
-
-    _render: () ->
+    _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @radius = @distance(@data, 'x', 'radius', 'edge')
+      @radius = @distance_vector('x', 'radius', 'edge')
 
-      ctx = @plot_view.ctx
+    _render: (ctx, glyph_props, use_selection) ->
+      if glyph_props.line_properties.do_stroke
 
-      ctx.save()
-      if @glyph_props.fast_path
-        @_fast_path(ctx)
-      else
-        @_full_path(ctx)
-      ctx.restore()
-
-    _fast_path: (ctx) ->
-      if @do_stroke
-        @glyph_props.line_properties.set(ctx, @glyph_props)
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
-            continue
-          ctx.beginPath()
-          ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
-          ctx.stroke()
-
-    _full_path: (ctx) ->
-      if @do_stroke
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
             continue
 
           ctx.beginPath()
-          ctx.arc(@sx[i], @sy[i], @radius[i], @start_angle[i], @end_angle[i], @direction[i])
+          ctx.arc(@sx[i], @sy[i], @radius[i], -@start_angle[i], -@end_angle[i], @direction[i])
 
-          @glyph_props.line_properties.set(ctx, @data[i])
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
