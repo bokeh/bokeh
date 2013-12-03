@@ -2,57 +2,37 @@
 define [
   "underscore",
   "renderer/properties",
-  "./glyph",
-], (_, Properties, Glyph) ->
+  "./marker",
+], (_, Properties, Marker) ->
 
-  class AsteriskView extends Glyph.View
+  class AsteriskView extends Marker.View
 
+    _properties: ['line']
 
-    _base_glyphspec : ['x','y', 'size']
-    _data_fields : ['size']
-    set_data: (request_render=true) ->
-      @set_data_new(request_render)
+    _render: (ctx, glyph_props, use_selection) ->
+      if glyph_props.line_properties.do_stroke
 
-    _render: (plot_view, have_new_mapper_state=true) ->
-      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+        for i in [0..@sx.length-1]
+          if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
+            continue
+          if use_selection and not @selected_mask[i]
+            continue
+          if use_selection == false and @selected_mask[i]
+            continue
 
-      ow = @plot_view.view_state.get('outer_width')
-      oh = @plot_view.view_state.get('outer_height')
+          r = @size[i]/2
+          r2 = r*0.65
 
-      if @have_new_data or have_new_mapper_state
-        @size = @distance_vector('x', 'size', 'edge')
-        @have_new_data = false
+          ctx.beginPath()
+          ctx.moveTo(@sx[i],    @sy[i]+r )
+          ctx.lineTo(@sx[i],    @sy[i]-r )
+          ctx.moveTo(@sx[i]-r,  @sy[i]   )
+          ctx.lineTo(@sx[i]+r,  @sy[i]   )
+          ctx.moveTo(@sx[i]-r2, @sy[i]+r2)
+          ctx.lineTo(@sx[i]+r2, @sy[i]-r2)
+          ctx.moveTo(@sx[i]-r2, @sy[i]-r2)
+          ctx.lineTo(@sx[i]+r2, @sy[i]+r2)
 
-      ow = @plot_view.view_state.get('outer_width')
-      oh = @plot_view.view_state.get('outer_height')
-      for i in [0..@mask.length-1]
-        if (@sx[i]+@size[i]) < 0 or (@sx[i]-@size[i]) > ow or (@sy[i]+@size[i]) < 0 or (@sy[i]-@size[i]) > oh
-          @mask[i] = false
-        else
-          @mask[i] = true
-      @_render_core()
-
-    _full_path: (ctx, glyph_props, use_selection) ->
-      for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
-          continue
-        if use_selection and not @selected_mask[i]
-          continue
-        if use_selection == false and @selected_mask[i]
-          continue
-        r = @size[i]/2
-        r2 = r*0.65
-        ctx.beginPath()
-        ctx.moveTo(@sx[i],   @sy[i]+r)
-        ctx.lineTo(@sx[i],   @sy[i]-r)
-        ctx.moveTo(@sx[i]-r, @sy[i])
-        ctx.lineTo(@sx[i]+r, @sy[i])
-        ctx.moveTo(@sx[i]-r2, @sy[i]+r2)
-        ctx.lineTo(@sx[i]+r2, @sy[i]-r2)
-        ctx.moveTo(@sx[i]-r2, @sy[i]-r2)
-        ctx.lineTo(@sx[i]+r2, @sy[i]+r2)
-
-        if glyph_props.line_properties.do_stroke
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
@@ -110,7 +90,7 @@ define [
 
       ctx.restore()
 
-  class Asterisk extends Glyph.Model
+  class Asterisk extends Marker.Model
     default_view: AsteriskView
     type: 'Glyph'
 

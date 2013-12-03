@@ -10,66 +10,67 @@ define [
 
     initialize: (options) ->
       super(options)
+
       @need_set_data = true
 
       @glyph_props = @init_glyph(@mget('glyphspec'))
+
       if @mget('selection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
         @selection_glyphprops = @init_glyph(spec)
+      else
+        @selection_glyphprops = @glyph_props
+
       if @mget('nonselection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
         @nonselection_glyphprops = @init_glyph(spec)
-        #@nonselection_glyphprops.fill_properties.fill_alpha.value=.1
-      if not @selection_glyphprops
-        @selection_glyphprops = @glyph_props
 
-      ##duped in many classes
-      @do_fill   = @glyph_props.fill_properties.do_fill
-      @do_stroke = @glyph_props.line_properties.do_stroke
-
-
-    _base_glyphspec : ['x', 'y']
     init_glyph: (glyphspec) ->
-      fill_props = new Properties.fill_properties(@, glyphspec)
-      line_props = new Properties.line_properties(@, glyphspec)
-      glyph_props = new Properties.glyph_properties(
-        @,
-        glyphspec,
-        @_base_glyphspec,
-        {
-          fill_properties: new Properties.fill_properties(@, glyphspec),
-          line_properties: new Properties.line_properties(@, glyphspec)
-        }
-      )
+      props = {}
+      if 'line' in @_properties
+        props['line_properties'] = new Properties.line_properties(@, glyphspec)
+      if 'fill' in @_properties
+        props['fill_properties'] = new Properties.fill_properties(@, glyphspec)
+      if 'text' in @_properties
+        props['text_properties'] = new Properties.text_properties(@, glyphspec)
+      glyph_props = new Properties.glyph_properties(@, glyphspec, @_fields, props)
       return glyph_props
-
-    _data_fields : []
-    set_data_new: (request_render=true) ->
-      source = @mget_obj('data_source')
-      @x = @glyph_props.source_v_select('x', source)
-      @y = @glyph_props.source_v_select('y', source)
-      for field in @_data_fields
-        @[field] = @glyph_props.source_v_select(field, source)
-      @mask = new Uint8Array(@x.length)
-      @selected_mask = new Uint8Array(@x.length)
-      for i in [0..@mask.length-1]
-        @mask[i] = true
-        @selected_mask[i] = false
-      @have_new_data = true
 
     set_data: (request_render=true) ->
       source = @mget_obj('data_source')
-      #FIXME: should use some mechanism like isinstance
-      if source.type == 'ObjectArrayDataSource'
-        data = source.get('data')
-      else if source.type == 'ColumnDataSource'
-        data = source.datapoints()
-      else if source.type == 'PandasPlotSource'
-        data = source.datapoints()
-      else
-        console.log('Unknown data source type: ' + source.type)
 
-      @_set_data(data)
+      for field in @_fields
+        if field.indexOf(":") > -1
+          [field, junk] = field.split(":")
+        @[field] = @glyph_props.source_v_select(field, source)
+
+        # special cases
+        if field == "direction"
+          values = new Uint8Array(@direction.length)
+          for i in [0..@direction.length-1]
+            dir = @direction[i]
+            if      dir == 'clock'     then values[i] = false
+            else if dir == 'anticlock' then values[i] = true
+            else values = NaN
+          @direction = values
+
+        if field.indexOf("angle") > -1
+          @[field] = (-x for x in @[field])
+
+      # any additional customization can happen here
+      if @_set_data?
+        @set_data()
+
+      len = @[@_fields[0]].length
+
+      @mask = new Uint8Array(len)
+      @selected_mask = new Uint8Array(len)
+      for i in [0..@mask.length-1]
+        @mask[i] = true
+        @selected_mask[i] = false
+
+      @have_new_data = true
+
       if request_render
         @request_render()
 
@@ -77,38 +78,38 @@ define [
       if @need_set_data
         @set_data(false)
         @need_set_data = false
-      @_render(@plot_view, have_new_mapper_state)
 
-    _render : (plot_view, have_new_mapper_state) ->
+      if have_new_mapper_state or @have_new_data
+        @_map_data()
 
-      """ this method should be used tos etup any special render time
-      variables for this particular glyph type, at the end, call
-      _render_core
+      if @_mask_data?
+        @_mask_data()
 
-      """ #"
-      
-    _render_core: ->
-      """ this logic doesn't seem to change between classes  """
       ctx = @plot_view.ctx
       ctx.save()
-      do_render = (ctx, gprops, use_sel) =>
+
+      do_render = (ctx, glyph_props, use_selection) =>
         source = @mget_obj('data_source')
-        if @do_fill
-          console.log("calling dofill")
+
+        if glyph_props.fill_properties? and glyph_props.fill_properties.do_fill
           gprops.fill_properties.set_prop_cache(source)
-        if @do_stroke
+        if glyph_props.line_properties? and glyph_props.line_properties.do_stroke
           gprops.line_properties.set_prop_cache(source)
-        @_full_path(ctx, gprops, use_sel)
+        # TODO (bev) text props cache?
+
+        @_render(ctx, glyph_props, use_selection)
+
       selected = @mget_obj('data_source').get('selected')
 
-      
       for idx in selected
         @selected_mask[idx] = true
+
       if selected and selected.length and @nonselection_glyphprops
         do_render(ctx, @selection_glyphprops, true)
         do_render(ctx, @nonselection_glyphprops, false)
       else
-        do_render(ctx, @nonselection_glyphprops)
+        do_render(ctx, @glyph_props)
+
       ctx.restore()
 
     select: () ->
@@ -190,7 +191,6 @@ define [
       spt1 = mapper.v_map_to_target(pt1)
 
       return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
-
 
     get_reference_point: () ->
       reference_point = @mget('reference_point')

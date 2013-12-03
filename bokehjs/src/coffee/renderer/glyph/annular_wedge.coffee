@@ -7,39 +7,24 @@ define [
 
   class AnnularWedgeView extends Glyph.View
 
+    _fields: ['x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction:string'],
+    _properties: ['line', 'fill']
 
-    _base_glyphspec :  ['x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction:string'],
-    _data_fields : ['start_angle', 'end_angle']
-    set_data: (request_render) ->
-      @set_data_new(request_render)
-      @angle = new Float32Array(@start_angle.length)
-      for i in [0..@start_angle.length-1]
-        @angle[i] = @end_angle[i] - @start_angle[i]
-      source = @mget_obj('data_source')
-      @direction = new Uint8Array(source.get_length())
-      direction_list = @glyph_props.source_v_select('direction', source)
-      for i in [0..@direction.length-1]
-        dir = direction_list[i]
-        if dir == 'clock' then @direction[i] = false
-        else if dir == 'anticlock' then @direction[i] = true
-        else @direction[i] = NaN
-      if request_render
-        @request_render()
-
-    _render: () ->
+    _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @inner_radius = @distance_vector('x', 'inner_radius', 'edge')
       @outer_radius = @distance_vector('x', 'outer_radius', 'edge')
-      @_render_core()
 
-    _full_path: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@sx.length-1]
+
         if isNaN(@sx[i] + @sy[i] + @inner_radius[i] + @outer_radius[i] + @start_angle[i] + @end_angle[i])
           continue
         if use_selection == true and not @selected_mask[i]
           continue
         if use_selection == false and @selected_mask[i]
           continue
+
         ctx.translate(@sx[i], @sy[i])
         ctx.rotate(@start_angle[i])
 
@@ -54,11 +39,11 @@ define [
         ctx.rotate(-@angle[i]-@start_angle[i])
         ctx.translate(-@sx[i], -@sy[i])
 
-        if @do_fill
+        if glyph_props.fill_properties.do_fill
           glyph_props.fill_properties.set_vectorize(ctx, i)
           ctx.fill()
 
-        if @do_stroke
+        if glyph_props.line_properties.do_stroke
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 

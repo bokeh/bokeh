@@ -7,13 +7,13 @@ define [
 
   class CircleView extends Glyph.View
 
-
-    _base_glyphspec : ['x', 'y', 'radius']
+    _fields: ['x', 'y', 'radius']
+    _properties: ['line', 'fill']
 
     _render: (plot_view, have_new_mapper_state=true) ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       ds = @mget_obj('data_source')
-      
+
       ow = @plot_view.view_state.get('outer_width')
       oh = @plot_view.view_state.get('outer_height')
 
@@ -27,38 +27,33 @@ define [
       #this seems to do hit testing to see if the desired point is in the view screen
       for i in [0..@mask.length-1]
         outside_render_area = ((@sx[i]+@radius[i]) < 0 or (@sx[i]-@radius[i]) > ow or\
-          (@sy[i]+@radius[i]) < 0 or (@sy[i]-@radius[i]) > oh)        
+          (@sy[i]+@radius[i]) < 0 or (@sy[i]-@radius[i]) > oh)
         if outside_render_area or isNaN(@sx[i] + @sy[i] + @radius[i])
           @mask[i] = false
         else
           @mask[i] = true
       @_render_core()
 
-    _data_fields : []
-    set_data: (request_render=true) ->
-      @set_data_new(request_render)
-      if request_render
-        @request_render()
-
-
-    _full_path: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@sx.length-1]
-        #if we are outside the rendering area, continue
+
         if not @mask[i]
           continue
         if use_selection and not @selected_mask[i]
           continue
         if use_selection == false and @selected_mask[i]
           continue
+
         ctx.beginPath()
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
 
         if glyph_props.fill_properties.do_fill
           glyph_props.fill_properties.set_vectorize(ctx,i)
           ctx.fill()
+
         if glyph_props.line_properties.do_stroke
           glyph_props.line_properties.set_vectorize(ctx, i)
-          ctx.stroke()        
+          ctx.stroke()
 
     select: (xscreenbounds, yscreenbounds) ->
       xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),

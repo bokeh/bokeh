@@ -7,14 +7,10 @@ define [
 
   class RectView extends Glyph.View
 
-    _base_glyphspec : ['x', 'y', 'width', 'height', 'angle']
-    _data_fields : ['angle']
-    set_data: (request_render=true) ->
-      @set_data_new(request_render)
-      if request_render
-        @request_render()
+    _fields : ['x', 'y', 'width', 'height', 'angle']
+    _properties: ['line', 'fill']
 
-    _render: () ->
+    _map_data: () ->
       [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @sw = @distance_vector('x', 'width', 'center')
       @sh = @distance_vector('y', 'height', 'center')
@@ -30,10 +26,8 @@ define [
         else
           @sy[i] = syi[i]
 
-      @_render_core()
-
-    _full_path: (ctx, glyph_props, use_selection) ->
-      if @do_fill
+    _render: (ctx, glyph_props, use_selection) ->
+      if glyph_props.fill_properties.do_fill
         for i in [0..@sx.length-1]
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
             continue
@@ -44,7 +38,7 @@ define [
 
           #no need to test the return value, we call fillRect for every glyph anyway
           glyph_props.fill_properties.set_vectorize(ctx, i)
-          
+
           if @angle[i]
             ctx.translate(@sx[i], @sy[i])
             ctx.rotate(-@angle[i])
@@ -55,17 +49,18 @@ define [
             ctx.fillRect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
             ctx.rect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
 
-      if @do_stroke
+      if glyph_props.line_properties.do_stroke
+
         ctx.beginPath()
-        glyph_props.line_properties.set_vectorize(ctx, 0)
+
         for i in [0..@sx.length-1]
+
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
             continue
           if use_selection == true and not @selected_mask[i]
             continue
           if use_selection == false and @selected_mask[i]
             continue
-
 
           if glyph_props.line_properties.set_vectorize(ctx, i)
             #only stroke if the line_properties have changed
@@ -79,6 +74,7 @@ define [
             ctx.translate(-@sx[i], -@sy[i])
           else
             ctx.rect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
+
         ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->

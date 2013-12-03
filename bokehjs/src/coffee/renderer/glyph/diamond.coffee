@@ -2,145 +2,23 @@
 define [
   "underscore",
   "renderer/properties",
-  "./glyph",
-], (_, Properties, Glyph) ->
+  "./marker",
+], (_, Properties, Marker) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  fill_properties  = Properties.fill_properties
+  class DiamondView extends Marker.View
 
-  class DiamondView extends Glyph.View
+    _properties: ['line', 'fill']
 
-    initialize: (options) ->
-      super(options)
-      ##duped in many classes
-      @glyph_props = @init_glyph(@mget('glyphspec'))
-      if @mget('selection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
-        @selection_glyphprops = @init_glyph(spec)
-      if @mget('nonselection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
-        @nonselection_glyphprops = @init_glyph(spec)
-      @have_new_data = false
-
-    init_glyph: (glyphspec) ->
-      glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['x', 'y', 'size']
-        {
-          fill_properties: new fill_properties(@, glyphspec),
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
-      return glyph_props
-
-    _set_data: (@data) ->
-      @x = @glyph_props.v_select('x', data)
-      @y = @glyph_props.v_select('y', data)
-      @mask = new Uint8Array(data.length)
-      @selected_mask = new Uint8Array(data.length)
-      for i in [0..@mask.length-1]
-        @mask[i] = true
-        @selected_mask[i] = false
-      @have_new_data = true
-
-    _render: (plot_view, have_new_mapper_state=true) ->
-      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-
-      ow = @plot_view.view_state.get('outer_width')
-      oh = @plot_view.view_state.get('outer_height')
-
-      if @have_new_data or have_new_mapper_state
-        @size = @distance(@data, 'x', 'size', 'edge')
-        @have_new_data = false
-
-      ow = @plot_view.view_state.get('outer_width')
-      oh = @plot_view.view_state.get('outer_height')
-      for i in [0..@mask.length-1]
-        if (@sx[i]+@size[i]) < 0 or (@sx[i]-@size[i]) > ow or (@sy[i]+@size[i]) < 0 or (@sy[i]-@size[i]) > oh
-          @mask[i] = false
-        else
-          @mask[i] = true
-
-      selected = @mget_obj('data_source').get('selected')
-      for idx in selected
-        @selected_mask[idx] = true
-      ctx = @plot_view.ctx
-
-      ctx.save()
-      if @glyph_props.fast_path
-        if selected and selected.length and @nonselection_glyphprops
-          if @selection_glyphprops
-            props =  @selection_glyphprops
-          else
-            props = @glyph_props
-          @_fast_path(ctx, props, true)
-          @_fast_path(ctx, @nonselection_glyphprops, false)
-        else
-          @_fast_path(ctx)
-      else
-        if selected and selected.length and @nonselection_glyphprops
-          if @selection_glyphprops
-            props =  @selection_glyphprops
-          else
-            props = @glyph_props
-          @_full_path(ctx, props, true)
-          @_full_path(ctx, @nonselection_glyphprops, false)
-        else
-          @_full_path(ctx)
-      ctx.restore()
-
-    _fast_path: (ctx, glyph_props, use_selection) ->
-      if not glyph_props
-        glyph_props = @glyph_props
-      if glyph_props.fill_properties.do_fill
-        glyph_props.fill_properties.set(ctx, @glyph_props)
-        ctx.beginPath()
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
-            continue
-          if use_selection and not @selected_mask[i]
-            continue
-          if use_selection == false and @selected_mask[i]
-            continue
-          r = @size[i]/2
-          ctx.beginPath()
-          ctx.moveTo(@sx[i],   @sy[i]+r)
-          ctx.lineTo(@sx[i]+r, @sy[i])
-          ctx.lineTo(@sx[i],   @sy[i]-r)
-          ctx.lineTo(@sx[i]-r, @sy[i])
-          ctx.closePath()
-        ctx.fill()
-
-      if glyph_props.line_properties.do_stroke
-        glyph_props.line_properties.set(ctx, @glyph_props)
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
-            continue
-          if use_selection and not @selected_mask[i]
-            continue
-          if use_selection == false and  @selected_mask[i]
-            continue
-          r = @size[i]/2
-          ctx.beginPath()
-          ctx.moveTo(@sx[i],   @sy[i]+r)
-          ctx.lineTo(@sx[i]+r, @sy[i])
-          ctx.lineTo(@sx[i],   @sy[i]-r)
-          ctx.lineTo(@sx[i]-r, @sy[i])
-          ctx.closePath()
-          ctx.stroke()
-
-    _full_path: (ctx, glyph_props, use_selection) ->
-      if not glyph_props
-        glyph_props = @glyph_props
+    _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@sx.length-1]
+
         if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
           continue
         if use_selection and not @selected_mask[i]
           continue
         if use_selection == false and @selected_mask[i]
           continue
+
         r = @size[i]/2
         ctx.beginPath()
         ctx.moveTo(@sx[i],   @sy[i]+r)
@@ -150,11 +28,11 @@ define [
         ctx.closePath()
 
         if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set(ctx, @data[i])
+          glyph_props.fill_properties.set_vectorize(ctx, i)
           ctx.fill()
 
         if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set(ctx, @data[i])
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
     select: (xscreenbounds, yscreenbounds) ->
@@ -211,7 +89,7 @@ define [
 
       ctx.restore()
 
-  class Diamond extends Glyph.Model
+  class Diamond extends Marker.Model
     default_view: DiamondView
     type: 'Glyph'
 

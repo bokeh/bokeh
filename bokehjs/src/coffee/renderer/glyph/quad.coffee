@@ -5,41 +5,16 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  fill_properties  = Properties.fill_properties
-
   class QuadView extends Glyph.View
 
-    initialize: (options) ->
-      glyphspec = @mget('glyphspec')
-      @glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['right', 'left', 'bottom', 'top'],
-        {
-          fill_properties: new fill_properties(@, glyphspec),
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
+    _fields: ['right', 'left', 'bottom', 'top']
+    _properties: ['line', 'fill']
 
-      @do_fill   = @glyph_props.fill_properties.do_fill
-      @do_stroke = @glyph_props.line_properties.do_stroke
-      super(options)
-
-    _set_data: (@data) ->
-      @left = @glyph_props.v_select('left', data)
-      @top  = @glyph_props.v_select('top', data)
-      @right  = @glyph_props.v_select('right', data)
-      @bottom = @glyph_props.v_select('bottom', data)
-      @mask = new Uint8Array(data.length)
-      for i in [0..@mask.length-1]
-        @mask[i] = true
-
-    _render: () ->
+    _map_data: () ->
       [@sx0, @sy0] = @plot_view.map_to_screen(@left,  @glyph_props.left.units,  @top,    @glyph_props.top.units)
       [@sx1, @sy1] = @plot_view.map_to_screen(@right, @glyph_props.right.units, @bottom, @glyph_props.bottom.units)
 
+    _mask_data: () ->
       ow = @plot_view.view_state.get('outer_width')
       oh = @plot_view.view_state.get('outer_height')
       for i in [0..@mask.length-1]
@@ -48,48 +23,20 @@ define [
         else
           @mask[i] = true
 
-      ctx = @plot_view.ctx
-
-      ctx.save()
-      if @glyph_props.fast_path
-        @_fast_path(ctx)
-      else
-        @_full_path(ctx)
-      ctx.restore()
-
-    _fast_path: (ctx) ->
-      if @do_fill
-        @glyph_props.fill_properties.set(ctx, @glyph_props)
-        ctx.beginPath()
-        for i in [0..@sx0.length-1]
-          if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i]) or not @mask[i]
-            continue
-          ctx.rect(@sx0[i], @sy0[i], @sx1[i]-@sx0[i], @sy1[i]-@sy0[i])
-        ctx.fill()
-
-      if @do_stroke
-        @glyph_props.line_properties.set(ctx, @glyph_props)
-        ctx.beginPath()
-        for i in [0..@sx0.length-1]
-          if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i]) or not @mask[i]
-            continue
-          ctx.rect(@sx0[i], @sy0[i], @sx1[i]-@sx0[i], @sy1[i]-@sy0[i])
-        ctx.stroke()
-
-    _full_path: (ctx) ->
+    _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@sx0.length-1]
+
         if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i]) or not @mask[i]
           continue
 
-        ctx.beginPath()
-        ctx.rect(@sx0[i], @sy0[i], @sx1[i]-@sx0[i], @sy1[i]-@sy0[i])
+        if glyph_props.fill_properties.do_fill
+          glyph_props.fill_properties.set_vectorize(ctx, i)
+          ctx.fillRect(@sx0[i], @sy0[i], @sx1[i]-@sx0[i], @sy1[i]-@sy0[i])
 
-        if @do_fill
-          @glyph_props.fill_properties.set(ctx, @data[i])
-          ctx.fill()
-
-        if @do_stroke
-          @glyph_props.line_properties.set(ctx, @data[i])
+        if glyph_props.line_properties.do_stroke
+          ctx.beginPath()
+          ctx.rect(@sx0[i], @sy0[i], @sx1[i]-@sx0[i], @sy1[i]-@sy0[i])
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->

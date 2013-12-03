@@ -5,33 +5,12 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  fill_properties  = Properties.fill_properties
-
   class PatchesView extends Glyph.View
 
-    initialize: (options) ->
-      glyphspec = @mget('glyphspec')
-      @glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['xs:array', 'ys:array']
-        {
-          fill_properties: new fill_properties(@, glyphspec),
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
+    _fields: ['xs', 'ys']
+    _properties: ['line', 'fill']
 
-      @do_fill = @glyph_props.fill_properties.do_fill
-      @do_stroke = @glyph_props.line_properties.do_stroke
-      super(options)
-
-
-    _set_data: (@data) ->
-      # TODO store screen coords
-
-    _render: () ->
+    _render: (ctx, glyph_props, use_selection) ->
       ctx = @plot_view.ctx
 
       ctx.save()

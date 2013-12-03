@@ -5,71 +5,15 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-
   class LineView extends Glyph.View
 
-    initialize: (options) ->
-      super(options)
-      ##duped in many classes
-      @glyph_props = @init_glyph(@mget('glyphspec'))
-      if @mget('selection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
-        @selection_glyphprops = @init_glyph(spec)
-      if @mget('nonselection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
-        @nonselection_glyphprops = @init_glyph(spec)
-      ##duped in many classes
-      @do_stroke = @glyph_props.line_properties.do_stroke
+    _fields: ['x', 'y']
+    _properties: ['line']
 
-    init_glyph: (glyphspec) ->
-      glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['x:number', 'y:number'],
-        {
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
-      return glyph_props
-
-    _set_data: (@data) ->
-      @x = @glyph_props.v_select('x', data)
-      @y = @glyph_props.v_select('y', data)
-      #duped
-      @selected_mask = new Uint8Array(data.length)
-      for i in [0..@selected_mask.length-1]
-        @selected_mask[i] = false
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
-    _render: () ->
-      if not @do_stroke
-        return
-      @_map_data()
-      ctx = @plot_view.ctx
-      ctx.save()
-      #duped
-      selected = @mget_obj('data_source').get('selected')
-      for idx in selected
-        @selected_mask[idx] = true
-      if selected and selected.length and @nonselection_glyphprops
-        if @selection_glyphprops
-          props =  @selection_glyphprops
-        else
-          props = @glyph_props
-        @_draw_path(ctx, @nonselection_glyphprops, false)
-        @_draw_path(ctx, props, true)
-      else
-        @_draw_path(ctx)
-      ctx.restore()
-
-    _draw_path: (ctx, glyph_props, draw_selected) ->
-      if not glyph_props
-        glyph_props = @glyph_props
-      glyph_props.line_properties.set(ctx, glyph_props)
-
+    _render: (ctx, glyph_props, use_selection) ->
       sx = @sx
       sy = @sy
       selected_mask = @selected_mask

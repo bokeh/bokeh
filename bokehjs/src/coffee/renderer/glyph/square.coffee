@@ -5,37 +5,10 @@ define [
   "./rect",
 ], (_, Properties, Rect) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  fill_properties  = Properties.fill_properties
-
   class SquareView extends Rect.View
 
-    initialize: (options) ->
-      super(options)
-      ##duped in many classes
-      @glyph_props = @init_glyph(@mget('glyphspec'))
-      if @mget('selection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
-        @selection_glyphprops = @init_glyph(spec)
-      if @mget('nonselection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
-        @nonselection_glyphprops = @init_glyph(spec)
-      ##duped in many classes
-      @do_fill   = @glyph_props.fill_properties.do_fill
-      @do_stroke = @glyph_props.line_properties.do_stroke
-
-    init_glyph: (glyphspec) ->
-      glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['x', 'y', 'size', 'angle'],
-        {
-          fill_properties: new fill_properties(@, glyphspec),
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
-      return glyph_props
+    _fields: ['x', 'y', 'size', 'angle']
+    _properties: ['line', 'fill']
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
@@ -72,14 +45,14 @@ define [
       x = (x1 + x2) / 2 - (w / 2)
       y = (y1 + y2) / 2 - (h / 2)
       ctx.rect(x, y, w, h)
-      if fill_props.do_fill
-        fill_props.set(ctx, glyph_settings)
-        ctx.fill()
-      if line_props.do_stroke
-        line_props.set(ctx, glyph_settings)
-        ctx.stroke()
 
-      ctx.restore()
+      if glyph_props.fill_properties.do_fill
+        glyph_props.fill_properties.set_vectorize(ctx, i)
+        ctx.fill()
+
+      if glyph_props.line_properties.do_stroke
+        glyph_props.line_properties.set_vectorize(ctx, i)
+        ctx.stroke()
 
   class Square extends Rect.Model
     default_view: SquareView
