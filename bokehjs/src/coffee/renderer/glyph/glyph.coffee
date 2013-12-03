@@ -80,8 +80,7 @@ define [
         @set_data(false)
         @need_set_data = false
 
-      if have_new_mapper_state or @have_new_data
-        @_map_data()
+      @_map_data()
 
       if @_mask_data?
         @_mask_data()
@@ -92,12 +91,13 @@ define [
       do_render = (ctx, glyph_props, use_selection) =>
         source = @mget_obj('data_source')
 
-        if glyph_props.fill_properties? and glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set_prop_cache(source)
-        if glyph_props.line_properties? and glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set_prop_cache(source)
-        if glyph_props.text_properties?
-          glyph_props.text_properties.set_prop_cache(source)
+        if @have_new_data
+          if glyph_props.fill_properties? and glyph_props.fill_properties.do_fill
+            glyph_props.fill_properties.set_prop_cache(source)
+          if glyph_props.line_properties? and glyph_props.line_properties.do_stroke
+            glyph_props.line_properties.set_prop_cache(source)
+          if glyph_props.text_properties?
+            glyph_props.text_properties.set_prop_cache(source)
 
         @_render(ctx, glyph_props, use_selection)
 
@@ -111,6 +111,8 @@ define [
         do_render(ctx, @nonselection_glyphprops, false)
       else
         do_render(ctx, @glyph_props)
+
+      @have_new_data = false
 
       ctx.restore()
 
