@@ -19,37 +19,37 @@ define [
       ctx.save()
       for i in [0..@xs.length-1]
         [sx, sy] = @plot_view.map_to_screen(@xs[i], glyph_props.xs.units, @ys[i], glyph_props.ys.units)
-        if @do_fill
-          @glyph_props.fill_properties.set(ctx, pt)
-          for i in [0..sx.length-1]
-            if i == 0
+        if glyph_props.fill_properties.do_fill
+          glyph_props.fill_properties.set_vectorize(ctx, i)
+          for j in [0..sx.length-1]
+            if j == 0
               ctx.beginPath()
-              ctx.moveTo(sx[i], sy[i])
+              ctx.moveTo(sx[j], sy[j])
               continue
-            else if isNaN(sx[i] + sy[i])
+            else if isNaN(sx[j] + sy[j])
               ctx.closePath()
               ctx.fill()
               ctx.beginPath()
               continue
             else
-              ctx.lineTo(sx[i], sy[i])
+              ctx.lineTo(sx[j], sy[j])
           ctx.closePath()
           ctx.fill()
 
-        if @do_stroke
-          @glyph_props.line_properties.set(ctx, pt)
-          for i in [0..sx.length-1]
-            if i == 0
+        if glyph_props.line_properties.do_stroke
+          glyph_props.line_properties.set_vectorize(ctx, i)
+          for j in [0..sx.length-1]
+            if j == 0
               ctx.beginPath()
-              ctx.moveTo(sx[i], sy[i])
+              ctx.moveTo(sx[j], sy[j])
               continue
-            else if isNaN(sx[i] + sy[i])
+            else if isNaN(sx[j] + sy[j])
               ctx.closePath()
               ctx.stroke()
               ctx.beginPath()
               continue
             else
-              ctx.lineTo(sx[i], sy[i])
+              ctx.lineTo(sx[j], sy[j])
           ctx.closePath()
           ctx.stroke()
 
