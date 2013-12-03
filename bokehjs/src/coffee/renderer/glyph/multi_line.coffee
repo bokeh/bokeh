@@ -10,6 +10,9 @@ define [
     _fields: ['xs', 'ys']
     _properties: ['line']
 
+    _map_data: () ->
+      null
+
     _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@xs.length-1]
         x = @xs[i]
