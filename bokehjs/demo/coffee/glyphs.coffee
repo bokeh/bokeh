@@ -24,6 +24,7 @@ require(['main'], (Bokeh) ->
   }
 
   make_plot = Bokeh.Plotting.make_plot
+  show = Bokeh.Plotting.show
 
   options = {
     dims: [400, 400]
@@ -51,7 +52,7 @@ require(['main'], (Bokeh) ->
 
   options.title = 'Annular Wedges'
   plot = make_plot(annular_wedge, data, options)
-  Bokeh.Plotting.show(plot)
+  show(plot)
 
 
   annulus = {
@@ -67,7 +68,7 @@ require(['main'], (Bokeh) ->
 
   options.title = 'Annulus'
   plot2 = make_plot(annulus, data, options)
-  Bokeh.Plotting.show(plot2)
+  show(plot)
 
   arc = {
     type: 'arc'
@@ -81,8 +82,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Arc'
-  plot3 = make_plot(arc, data, options)
-  Bokeh.Plotting.show(plot3)
+  plot = make_plot(arc, data, options)
+  show(plot)
 
   asterisk = {
     type: 'asterisk'
@@ -93,8 +94,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Asterisk'
-  plot4 = make_plot(asterisk, data, options)
-  Bokeh.Plotting.show(plot4)
+  plot = make_plot(asterisk, data, options)
+  show(plot)
 
   bezier = {
     type: 'bezier'
@@ -111,8 +112,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = "Bezier"
-  plot5 = make_plot(bezier, data, options)
-  Bokeh.Plotting.show(plot5)
+  plot = make_plot(bezier, data, options)
+  show(plot)
 
   circle = {
     type: 'circle'
@@ -126,8 +127,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Circle'
-  plot6 = make_plot(circle, data, options)
-  Bokeh.Plotting.show(plot6)
+  plot = make_plot(circle, data, options)
+  show(plot)
 
   circle_cross = {
     type: 'circle_cross'
@@ -141,8 +142,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Circle Cross'
-  plot7 = make_plot(circle_cross, data, options)
-  Bokeh.Plotting.show(plot7)
+  plot = make_plot(circle_cross, data, options)
+  show(plot)
 
 
   circle_x = {
@@ -157,8 +158,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = "Circle X"
-  plot8 = make_plot(circle_x, data, options)
-  Bokeh.Plotting.show(plot8)
+  plot = make_plot(circle_x, data, options)
+  show(plot)
 
   cross = {
     type: 'cross'
@@ -170,8 +171,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Cross'
-  plot9 = make_plot(cross, data, options)
-  Bokeh.Plotting.show(plot9)
+  plot = make_plot(cross, data, options)
+  show(plot)
 
 
   diamond = {
@@ -186,8 +187,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Diamond'
-  plot10 = make_plot(diamond, data, options)
-  Bokeh.Plotting.show(plot10)
+  plot = make_plot(diamond, data, options)
+  show(plot)
 
   diamond_cross = {
     type: 'diamond_cross'
@@ -201,8 +202,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Diamond Cross'
-  plot11 = make_plot(diamond_cross, data, options)
-  Bokeh.Plotting.show(plot11)
+  plot = make_plot(diamond_cross, data, options)
+  show(plot)
 
   # image = {
 
@@ -210,7 +211,7 @@ require(['main'], (Bokeh) ->
 
   # options.title = 'Image'
   # plot12 = make_plot(diamond_cross, data, options)
-  # Bokeh.Plotting.show(plot12)
+  # show(plot12)
 
 
   inverted_triangle = {
@@ -225,8 +226,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Inverted Triangle'
-  plot12 = make_plot(inverted_triangle, data, options)
-  Bokeh.Plotting.show(plot12)
+  plot = make_plot(inverted_triangle, data, options)
+  show(plot)
 
   line = {
     type: 'line'
@@ -238,8 +239,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Line'
-  plot13 = make_plot(line, data, options)
-  Bokeh.Plotting.show(plot13)
+  plot = make_plot(line, data, options)
+  show(plot)
   
   multi_line = {
     type: 'multi_line'
@@ -251,8 +252,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Multi Line'
-  plot14 = make_plot(multi_line, data, options)
-  Bokeh.Plotting.show(plot14)
+  plot = make_plot(multi_line, data, options)
+  show(plot)
 
   oval = {
     type: 'oval'
@@ -267,8 +268,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Oval'
-  plot15 = make_plot(oval, data, options)
-  Bokeh.Plotting.show(plot15)
+  plot = make_plot(oval, data, options)
+  show(plot)
 
   patch = {
     type: 'patch'
@@ -281,8 +282,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Patch'
-  plot16 = make_plot(patch, data, options)
-  Bokeh.Plotting.show(plot16)
+  plot = make_plot(patch, data, options)
+  show(plot)
 
   patches = {
     type: 'patches'
@@ -296,8 +297,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Patches'
-  plot17 = make_plot(patches, data, options)
-  Bokeh.Plotting.show(plot17)
+  plot = make_plot(patches, data, options)
+  show(plot)
 
   quad = {
     type: 'quad'
@@ -313,8 +314,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Quad'
-  plot18 = make_plot(quad, data, options)
-  Bokeh.Plotting.show(plot18)
+  plot = make_plot(quad, data, options)
+  show(plot)
 
   quadratic = {
     type: 'quadratic'
@@ -329,8 +330,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Quadratic'
-  plot19 = make_plot(quadratic, data, options)
-  Bokeh.Plotting.show(plot19)
+  plot = make_plot(quadratic, data, options)
+  show(plot)
 
   ray = {
     type: 'ray'
@@ -343,8 +344,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Ray'
-  plot20 = make_plot(ray, data, options)
-  Bokeh.Plotting.show(plot20)
+  plot = make_plot(ray, data, options)
+  show(plot)
 
   rect = {
     type: 'rect'
@@ -359,8 +360,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Rects'
-  plot21 = make_plot(rect, data, options)
-  Bokeh.Plotting.show(plot21)
+  plot = make_plot(rect, data, options)
+  show(plot)
 
   segment = {
     type: 'segment'
@@ -373,8 +374,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Segment'
-  plot22 = make_plot(segment, data, options)
-  Bokeh.Plotting.show(plot22)
+  plot = make_plot(segment, data, options)
+  show(plot)
 
   square = {
     type: 'square'
@@ -388,8 +389,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Squares'
-  plot23 = make_plot(square, data, options)
-  Bokeh.Plotting.show(plot23)
+  plot = make_plot(square, data, options)
+  show(plot)
   
   square_cross = {
     type: 'square_cross'
@@ -403,8 +404,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Square Cross'
-  plot24 = make_plot(square_cross, data, options)
-  Bokeh.Plotting.show(plot24)
+  plot = make_plot(square_cross, data, options)
+  show(plot)
 
   square_x = {
     type: 'square_x'
@@ -418,8 +419,8 @@ require(['main'], (Bokeh) ->
   }
 
   options.title = 'Square X'
-  plot25 = make_plot(square_x, data, options)
-  Bokeh.Plotting.show(plot25)
+  plot = make_plot(square_x, data, options)
+  show(plot)
 
   text = {
 
@@ -437,14 +438,37 @@ require(['main'], (Bokeh) ->
   }  
   
   options.title = 'Triangle'
-  plot27 = make_plot(triangle, data, options)
-  Bokeh.Plotting.show(plot27)
+  plot = make_plot(triangle, data, options)
+  show(plot)
 
   wedge = {
-
+    type: 'wedge'
+    x: 'x' 
+    y: 'y'
+    fill_color: 'colors'
+    line_color: 'colors'
+    fill_alpha: 'alpha'
+    radius: 'large_size'
+    start_angle: 0
+    end_angle: 'angle'
   }
+
+  options.title = 'Wedge'
+  plot = make_plot(wedge, data, options)
+  show(plot)
 
   x = {
-
+    type: 'x'
+    x: 'x'
+    y: 'y'
+    size: 'small_size'
+    fill_color: 'colors'
+    fill_alpha: 'alpha'
+    line_width: 'lw'
+    line_color: 'colors'
   }
+
+  options.title = "X"
+  plot = make_plot(x, data, options)
+  show(plot)
 )
