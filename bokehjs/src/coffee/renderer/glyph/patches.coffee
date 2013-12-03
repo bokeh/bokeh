@@ -10,14 +10,15 @@ define [
     _fields: ['xs', 'ys']
     _properties: ['line', 'fill']
 
+    _map_data: () ->
+      null
+
     _render: (ctx, glyph_props, use_selection) ->
       ctx = @plot_view.ctx
 
       ctx.save()
-      for pt in @data
-        x = @glyph_props.select('xs', pt)
-        y = @glyph_props.select('ys', pt)
-        [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
+      for i in [0..@xs.length-1]
+        [sx, sy] = @plot_view.map_to_screen(@xs[i], glyph_props.xs.units, @ys[i], glyph_props.ys.units)
         if @do_fill
           @glyph_props.fill_properties.set(ctx, pt)
           for i in [0..sx.length-1]

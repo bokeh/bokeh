@@ -12,7 +12,7 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @radius = @distance(@data, 'x', 'radius', 'edge')
+      @radius = @distance_vector('x', 'radius', 'edge')
 
     _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@sx.length-1]

@@ -13,8 +13,8 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @sw = @distance(@data, 'x', 'width', 'center')
-      @sh = @distance(@data, 'y', 'height', 'center')
+      @sw = @distance_vector('x', 'width', 'center')
+      @sh = @distance_vector('y', 'height', 'center')
 
     _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@sx.length-1]
@@ -55,7 +55,7 @@ define [
       if reference_point?
         glyph_settings = reference_point
         sw = @distance([reference_point], 'x', 'width', 'center')[0]
-        sh = @distance([refrence_point], 'y', 'height', 'center')[0]
+        sh = @distance([reference_point], 'y', 'height', 'center')[0]
       else
         glyph_settings = glyph_props
         sw = 1.0

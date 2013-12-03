@@ -37,8 +37,8 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @sw = @distance(@data, 'x', 'dw', 'edge')
-      @sh = @distance(@data, 'y', 'dh', 'edge')
+      @sw = @distance_vector('x', 'dw', 'edge')
+      @sh = @distance_vector('y', 'dh', 'edge')
 
     _render: (ctx, glyph_props, use_selection) ->
       old_smoothing = ctx.getImageSmoothingEnabled()

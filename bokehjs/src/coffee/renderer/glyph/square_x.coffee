@@ -11,7 +11,7 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @sw = @distance(@data, 'x', 'size', 'center')
+      @sw = @distance_vector('x', 'size', 'center')
       @sh = @sw
 
     _render: (ctx, glyph_props, use_selection) ->
