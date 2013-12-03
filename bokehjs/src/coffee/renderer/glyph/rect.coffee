@@ -41,9 +41,9 @@ define [
 
           if @angle[i]
             ctx.translate(@sx[i], @sy[i])
-            ctx.rotate(-@angle[i])
-            ctx.fillRect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
             ctx.rotate(@angle[i])
+            ctx.fillRect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
+            ctx.rotate(-@angle[i])
             ctx.translate(-@sx[i], -@sy[i])
           else
             ctx.fillRect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
