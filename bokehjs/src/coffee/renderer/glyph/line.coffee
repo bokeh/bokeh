@@ -15,7 +15,6 @@ define [
 
     _render: (ctx, glyph_props, use_selection) ->
       drawing = false
-      console.log "FOO"
       glyph_props.line_properties.set_vectorize(ctx, 0)
       for i in [0..@sx.length-1]
 

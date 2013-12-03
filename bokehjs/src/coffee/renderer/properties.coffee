@@ -27,14 +27,14 @@ define [
         # (This is a convenience case for when the object passed in has a member
         # that has the same name as the glyphspec name, e.g. an actual field
         # named "x" or "radius".)
-        
+
         else if (attrname of datasource.get('data'))
           return datasource.getcolumn(attrname)
 
         # finally, check for a default value on this property object that could be returned
         else if glyph_props[attrname].default?
           default_value = glyph_props[attrname].default
-        
+
         #FIXME this is where we could return a generator, which might
         #do a better job for constant propagation
         #for some reason a list comprehension fails here
@@ -297,6 +297,7 @@ define [
       @cache = {}
       @cache.strokeStyle       = @source_v_select(@line_color_name, datasource)
       @cache.globalAlpha       = @source_v_select(@line_alpha_name, datasource)
+      console.log "FOO", @line_alpha_name, @cache.globalAlpha
       @cache.lineWidth         = @source_v_select(@line_width_name, datasource)
       @cache.lineJoin          = @source_v_select(@line_join_name,  datasource)
       @cache.lineCap           = @source_v_select(@line_cap_name,   datasource)
@@ -313,16 +314,15 @@ define [
 
     clear_prop_cache: () ->
       @cache = {}
-      
+
     set_vectorize: (ctx, i) ->
       didchange = false
       if not (@last_strokeStyle == @cache.strokeStyle[i])
         ctx.strokeStyle = @cache.strokeStyle[i]
         @last_strokeStyle = @cache.strokeStyle[i]
         didchange = true
-      if not (@last_globalAlpha == @cache.globalAlpha[i])
+      if not (ctx.globalAlpha == @cache.globalAlpha[i])
         ctx.globalAlpha = @cache.globalAlpha[i]
-        @last_globalAlpha = @cache.globalAlpha[i]
         didchange = true
       if not (@last_lineWidth == @cache.lineWidth[i])
         ctx.lineWidth   = @cache.lineWidth[i]
@@ -344,7 +344,7 @@ define [
         ctx.setLineDashOffset(@cache.setLineDashOffset[i])
         @last_setLineDashOffset = @cache.setLineDashOffset[i]
         didchange = true
-      
+
       return didchange
 
 
@@ -373,13 +373,14 @@ define [
       @cache.globalAlpha       = @source_v_select(@fill_alpha_name, datasource)
       @last_fillstyle = false
       @last_globalalpha = false
+
     set_vectorize: (ctx, i) ->
       didchange = false
       if not (@cache.fillStyle[i] == @last_fillstyle)
         ctx.fillStyle   = @cache.fillStyle[i]
         @last_fillstyle = @cache.fillStyle[i]
         didchange = true
-      if not (@cache.globalAlpha[i] == @last_globalalpha)
+      if not (ctx.globalAlpha == @last_globalalpha)
         ctx.globalAlpha = @cache.globalAlpha[i]
         @last_globalalpha = @cache.globalAlpha[i]
         didchange=true

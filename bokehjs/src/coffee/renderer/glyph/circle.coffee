@@ -26,7 +26,6 @@ define [
         else
           @mask[i] = true
 
-
     _render: (ctx, glyph_props, use_selection) ->
       for i in [0..@sx.length-1]
 
