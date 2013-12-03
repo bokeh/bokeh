@@ -20,12 +20,18 @@ define [
 
       drawing = false
       for i in [0..sx.length-1]
-        if isNaN(sx[i]+sy[i]) or (draw_selected and not selected_mask[i]) or
-                                 (not draw_selected and selected_mask[i])
-            if drawing
-              ctx.stroke()
-            drawing = false
-            continue
+        if isNaN(sx[i]+sy[i])
+          continue
+        if not @mask[i]
+          continue
+        if use_selection and not @selected_mask[i]
+          continue
+        if use_selection == false and @selected_mask[i]
+          continue
+        if drawing
+          ctx.stroke()
+          drawing = false
+          continue
         if not drawing
           ctx.beginPath()
           ctx.moveTo(sx[i], sy[i])

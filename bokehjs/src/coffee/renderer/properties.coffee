@@ -227,6 +227,7 @@ define [
         return
 
       if @[attrname].typed?
+        debugger
         result = new Float64Array(objs.length)
       else
         result = new Array(objs.length)

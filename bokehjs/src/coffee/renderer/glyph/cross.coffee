@@ -27,7 +27,7 @@ define [
         ctx.lineTo(@sx[i]+r, @sy[i])
 
         if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set(ctx, @data[i])
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
     select: (xscreenbounds, yscreenbounds) ->

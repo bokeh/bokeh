@@ -11,7 +11,7 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @size = @distance(@data, 'x', 'size', 'edge')
+      @size = @distance_vector('x', 'size', 'edge')
 
     _mask_data: () ->
       ow = @plot_view.view_state.get('outer_width')

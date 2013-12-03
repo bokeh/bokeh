@@ -32,11 +32,11 @@ define [
         ctx.closePath()
 
         if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set(ctx, @data[i])
+          glyph_props.fill_properties.set_vectorize(ctx, i)
           ctx.fill()
 
         if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set(ctx, @data[i])
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
     select: (xscreenbounds, yscreenbounds) ->
