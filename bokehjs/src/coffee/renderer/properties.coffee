@@ -304,49 +304,34 @@ define [
       @cache.setLineDash       = @source_v_select(@line_dash_name,  datasource)
       @cache.setLineDashOffset = @source_v_select(@line_dash_offset_name, datasource)
 
-      @last_strokeStyle       = false
-      @last_globalAlpha       = false
-      @last_lineWidth         = false
-      @last_lineJoin          = false
-      @last_lineCap           = false
-      @last_setLineDash       = false
-      @last_setLineDashOffset = false
-
     clear_prop_cache: () ->
       @cache = {}
 
     set_vectorize: (ctx, i) ->
-      didchange = false
-      if not (@last_strokeStyle == @cache.strokeStyle[i])
+      did_change = false
+      if ctx.strokeStyle != @cache.strokeStyle[i])
         ctx.strokeStyle = @cache.strokeStyle[i]
-        @last_strokeStyle = @cache.strokeStyle[i]
-        didchange = true
-      if not (ctx.globalAlpha == @cache.globalAlpha[i])
+        did_change = true
+      if ctx.globalAlpha != @cache.globalAlpha[i])
         ctx.globalAlpha = @cache.globalAlpha[i]
-        didchange = true
-      if not (@last_lineWidth == @cache.lineWidth[i])
+        did_change = true
+      if ctx.lineWidth != @cache.lineWidth[i])
         ctx.lineWidth   = @cache.lineWidth[i]
-        @last_lineWidth = @cache.lineWidth[i]
-        didchange = true
-      if not (@last_lineJoin == @cache.lineJoin[i])
+        did_change = true
+      if ctx.lineJoin != @cache.lineJoin[i])
         ctx.lineJoin    = @cache.lineJoin[i]
-        @last_lineJoin = @cache.lineJoin[i]
-        didchange = true
-      if not (@last_lineCap == @cache.lineCap[i])
+        did_change = true
+      if ctx.lineCap != @cache.lineCap[i])
         ctx.lineCap     = @cache.lineCap[i]
-        @last_lineCap = @cache.lineCap[i]
-        didchange = true
-      if not (@last_setLineDash == @cache.setLineDash[i])
+        did_change = true
+      if ctx.getLineDash() != @cache.setLineDash[i])
         ctx.setLineDash(@cache.setLineDash[i])
-        @last_setLineDash = @cache.setLineDash[i]
-        didchange = true
-      if not (@last_setLineDashOffset == @cache.setLineDashOffset[i])
+        did_change = true
+      if ctx.getLineDashOffset() != @cache.setLineDashOffset[i])
         ctx.setLineDashOffset(@cache.setLineDashOffset[i])
-        @last_setLineDashOffset = @cache.setLineDashOffset[i]
-        didchange = true
+        did_change = true
 
-      return didchange
-
+      return did_change
 
   class fill_properties extends properties
     constructor: (styleprovider, glyphspec, prefix="") ->
@@ -371,21 +356,17 @@ define [
       @cache = {}
       @cache.fillStyle         = @source_v_select(@fill_color_name, datasource)
       @cache.globalAlpha       = @source_v_select(@fill_alpha_name, datasource)
-      @last_fillstyle = false
-      @last_globalalpha = false
 
     set_vectorize: (ctx, i) ->
-      didchange = false
-      if not (@cache.fillStyle[i] == @last_fillstyle)
-        ctx.fillStyle   = @cache.fillStyle[i]
-        @last_fillstyle = @cache.fillStyle[i]
-        didchange = true
-      if not (ctx.globalAlpha == @last_globalalpha)
+      did_change = false
+      if ctx.fillStyle != cache.fillStyle[i]
+        ctx.fillStyle = @cache.fillStyle[i]
+        did_change = true
+      if ctx.globalAlpha != @last_globalalpha
         ctx.globalAlpha = @cache.globalAlpha[i]
-        @last_globalalpha = @cache.globalAlpha[i]
-        didchange=true
+        did_change = true
 
-      return didchange
+      return did_change
 
   class text_properties extends properties
     constructor: (styleprovider, glyphspec, prefix="") ->
