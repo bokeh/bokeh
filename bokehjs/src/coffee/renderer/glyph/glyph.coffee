@@ -59,9 +59,10 @@ define [
 
       # any additional customization can happen here
       if @_set_data?
-        @set_data()
+        @_set_data()
 
-      len = @[@_fields[0]].length
+      # just use the length of the last added field
+      len = @[field].length
 
       @mask = new Uint8Array(len)
       @selected_mask = new Uint8Array(len)
