@@ -11,19 +11,18 @@ define [
     _properties: ['line', 'fill']
 
     _render: (ctx, glyph_props, use_selection) ->
-      if not glyph_props
-        glyph_props = @glyph_props
       for i in [0..@sx.length-1]
+
         if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
           continue
         if use_selection and not @selected_mask[i]
           continue
         if use_selection == false and @selected_mask[i]
           continue
+
         a = @size[i] * Math.sqrt(3)/6
         r = @size[i]/2
         h = @size[i] * Math.sqrt(3)/2
-        console.log a, r, h
         ctx.beginPath()
         # TODO use viewstate to take y-axis inversion into account
         ctx.moveTo(@sx[i]-r, @sy[i]-a)

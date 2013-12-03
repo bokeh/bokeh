@@ -14,32 +14,25 @@ define [
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
     _render: (ctx, glyph_props, use_selection) ->
-      sx = @sx
-      sy = @sy
-      selected_mask = @selected_mask
-
       drawing = false
-      for i in [0..sx.length-1]
-        if isNaN(sx[i]+sy[i])
-          continue
-        if not @mask[i]
-          continue
-        if use_selection and not @selected_mask[i]
-          continue
-        if use_selection == false and @selected_mask[i]
-          continue
-        if drawing
+      console.log "FOO"
+      glyph_props.line_properties.set_vectorize(ctx, 0)
+      for i in [0..@sx.length-1]
+
+        if isNaN(@sx[i] + @sy[i]) and drawing
           ctx.stroke()
+          ctx.beginPath()
           drawing = false
           continue
-        if not drawing
-          ctx.beginPath()
-          ctx.moveTo(sx[i], sy[i])
-          drawing = true
+
+        if drawing
+          ctx.lineTo(@sx[i], @sy[i])
         else
-          ctx.lineTo(sx[i], sy[i])
+          ctx.beginPath()
+          ctx.moveTo(@sx[i], @sy[i])
+          drawing = true
+
       if drawing
-        # Need to stroke the path after the last point
         ctx.stroke()
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
