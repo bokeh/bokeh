@@ -13,25 +13,24 @@ define [
     _properties: []
 
     _set_data: (@data) ->
-      h = @glyph_props.v_select('dh', data)
       for i in [0..@y.length-1]
-        @y[i] += h[i]
+        @y[i] += @dh[i]
 
       if not @image_data? or @image_data.length != data.length
-        @image_data = new Array(data.length)
+        @image_data = new Array(@image.length)
 
       if not @image_canvas? or @image_canvas.length != data.length
-        @image_canvas = new Array(data.length)
+        @image_canvas = new Array(@image.length)
 
-      for i in [0..data.length-1]
-        if not @image_canvas[i]? or (@image_canvas[i].width != width[i] or @image_canvas[i].height != height[i])
+      for i in [0..@image.length-1]
+        if not @image_canvas[i]? or (@image_canvas[i].width != @width[i] or @image_canvas[i].height != @height[i])
           @image_canvas[i] = document.createElement('canvas')
-          @image_canvas[i].width = width[i];
-          @image_canvas[i].height = height[i];
+          @image_canvas[i].width = @width[i];
+          @image_canvas[i].height = @height[i];
           ctx = @image_canvas[i].getContext('2d');
           @image_data[i] = ctx.createImageData(width[i], height[i])
         ctx = @image_canvas[i].getContext('2d');
-        @image_data[i].data.set(new Uint8ClampedArray(img[i]))
+        @image_data[i].data.set(new Uint8ClampedArray(@image[i]))
         ctx.putImageData(@image_data[i], 0, 0);
 
     _map_data: () ->
