@@ -1,10 +1,11 @@
-
 # ### Coffeescript Style Guide for BokehJS
-#
-# General guidelines:
+
+# #### General guidelines
 # * 2 spaces per indent
 # * 80 characters per line
-'pass'
+
+# #### Names
+''
 
 # Use underscores ('snake case') for variable names
 foo = 10
@@ -30,7 +31,8 @@ class Foo
 
   _private_attr = 10 # should not be accessed outside methods
 
-
+# #### Functions
+''
 
 # Always use parentheses around function calls
 console.log('log this statement')
@@ -44,35 +46,6 @@ foo = (a, b, c) ->
 
 # Even if there are no arguments:
 foo = () ->
-
-
-
-# OK to omit braces for object literals that are standalone
-obj =
-  coffee: 'black'
-  cream: 'none'
-  bagels:
-    cream_cheese: 'fat_free'
-    toasted: 'of course'
-
-# In function calls, prefer to put braces around object literals
-foo({'name': 'John Doe', 'title': 'coder'})
-
-# Note: object literals in function calls which do NOT fit in one line can be tricky.
-# This won't compile!!
-#
-# ```
-# foo({'name': 'firstobject',
-#   'title': 'first'})
-# ```
-foo({
-  'foo': 10,
-  'bar': 20,
-})
-
-
-
-
 
 # For inline functions definitions, use 4 spaces before the start of the
 # function definition and 2 spaces before the comma separating function arguments:
@@ -92,6 +65,36 @@ foo = () ->
   a = 10
   return null
 
-# **dont'** do this:
+# **don't** do this:
 foo = () ->
   a = 10
+
+# #### Object Literals
+''
+
+# OK to omit braces for object literals that are standalone
+obj =
+  coffee: 'black'
+  cream: 'none'
+  bagels:
+    cream_cheese: 'fat_free'
+    toasted: 'of course'
+
+# In function calls, prefer to put braces around object literals
+foo({'name': 'John Doe', 'title': 'coder'})
+
+# Note: object literals in function calls which do NOT fit in one line can be tricky.
+# This won't compile:
+#
+# ```
+# foo({'name': 'firstobject',
+#   'title': 'first'})
+# ```
+foo({
+  'foo': 10,
+  'bar': 20,
+})
+
+
+
+
