@@ -142,7 +142,7 @@ module.exports = (grunt) ->
         files: ["demo/**/*.html", "demo/**/*.js"]
         tasks: ['copy:demo']
         options:
-          spawn: false          
+          spawn: false
       test:
         files: ["<%= coffee.test.cwd %>/<%= coffee.test.src %>"]
         tasks: ['coffee:test']
@@ -159,6 +159,12 @@ module.exports = (grunt) ->
         options:
           urls:[
             'http://localhost:8000/build/test/common_test.html']
+
+    groc:
+      coffee: [ "docs/*.coffee", "docs/*.md", "README.md" ]
+      options:
+        out: "docs/html/"
+
     eco:
       app:
         options:
@@ -180,6 +186,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
   grunt.loadNpmTasks("grunt-eco")
+  grunt.loadNpmTasks('grunt-groc')
 
   grunt.registerTask("default",    ["build", "qunit"])
   grunt.registerTask("build",      ["coffee", "less", "copy", "eco"])

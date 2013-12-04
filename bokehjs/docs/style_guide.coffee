@@ -5,7 +5,6 @@
 # * 80 characters per line
 
 # #### Names
-''
 
 # Use underscores ('snake case') for variable names
 foo = 10
@@ -25,21 +24,20 @@ class SomeThing extends Backbone.Model
 class Foo
   public_method: () ->
     console.log('a public method')
+    @_private_method() # OK to call from another method
 
-  _private_methods: () ->
+  _private_method: () ->
     console.log('should only be called by other methods of this class')
 
   _private_attr = 10 # should not be accessed outside methods
 
 # #### Functions
-''
 
 # Always use parentheses around function calls
-console.log('log this statement')
+console.log('call me like this')
 
 # i.e., **don't** do this:
-
-console.log 'logging this message'
+console.log 'not like this'
 
 # Always use parenthesis when defining a function:
 foo = (a, b, c) ->
@@ -70,7 +68,6 @@ foo = () ->
   a = 10
 
 # #### Object Literals
-''
 
 # OK to omit braces for object literals that are standalone
 obj =
