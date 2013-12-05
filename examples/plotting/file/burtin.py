@@ -4,6 +4,7 @@ from bokeh.plotting import *
 from bokeh.objects import Range1d
 from StringIO import StringIO
 from math import log, sqrt
+from collections import OrderedDict
 
 antibiotics = """
 bacteria,                        penicillin, streptomycin, neomycin, gram
@@ -25,11 +26,11 @@ Streptococcus viridans,          0.005,      10,           40,       positive
 Diplococcus pneumoniae,          0.005,      11,           10,       positive
 """
 
-drug_color = {
-    "Penicillin"   : "#0d3362",
-    "Streptomycin" : "#c64737",
-    "Neomycin"     : "black",
-}
+drug_color = OrderedDict([
+    ("Penicillin",   "#0d3362"),
+    ("Streptomycin", "#c64737"),
+    ("Neomycin",     "black"  ),
+])
 
 gram_color = {
     "positive" : "#aeaeb8",
@@ -69,7 +70,7 @@ plot.y_range = Range1d(start=-420, end=420)
 plot.min_border = 0
 plot.background_fill = "#f0e1d2"
 plot.border_fill = "#f0e1d2"
-plot.outline_line_color = None 
+plot.outline_line_color = None
 
 # annular wedges
 angles = np.pi/2 - big_angle/2 - df.index*big_angle
