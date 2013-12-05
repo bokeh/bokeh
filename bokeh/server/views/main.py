@@ -7,9 +7,10 @@ from ..app import app
 import os
 import logging
 import uuid
+from six import string_types
 
 
-from bbauth import check_read_authentication_and_create_client
+from .bbauth import check_read_authentication_and_create_client
 
 
 from ..models import user
@@ -41,7 +42,7 @@ def favicon():
 
 def _makedoc(redisconn, u, title):
     docid = str(uuid.uuid4())
-    if isinstance(u, basestring):
+    if isinstance(u, string_types):
         u = user.User.load(redisconn, u)
     sess = RedisSession(app.bb_redis, docid)
     u.add_doc(docid, title)
@@ -125,7 +126,7 @@ def _get_bokeh_info(docid):
     sess.load()
     sess.prune()
     all_models = sess._models.values()
-    print "num models", len(all_models)
+    print("num models", len(all_models))
     all_models = sess.broadcast_attrs(all_models)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,

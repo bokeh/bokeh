@@ -1,3 +1,4 @@
+from __future__ import absolute_import, print_function
 
 IN_LONG_VERSION_PY = True
 # This file helps to compute a version number in source trees obtained from

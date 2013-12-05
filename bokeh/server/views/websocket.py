@@ -5,7 +5,6 @@ import flask
 import os
 import logging
 import uuid
-import urlparse
 from ..app import app
 from .. import wsmanager
 log = logging.getLogger(__name__)

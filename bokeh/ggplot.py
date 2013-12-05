@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 """
 An implementation of GGPlot in Python.
 
@@ -12,7 +14,7 @@ is constructed.
 
 from .properties import HasProps, Any, Either, Enum, Int, List, String
 
-from pandas_plot_data import PandasPlotData
+from .pandas_plot_data import PandasPlotData
 
 DefaultStyle = dict(
     color = "black",
@@ -166,10 +168,10 @@ class GGPlot(HasProps):
         """
         # Check to see if a facet or a geom is being passed in
         if isinstance(obj, Geom):
-            print "added geom:", obj
+            print("added geom:", obj)
             self.geoms.append(obj)
         elif isinstance(obj, Facet):
-            print "setting facet:", obj
+            print("setting facet:", obj)
             self.facet_layout = obj
         elif isinstance(obj, Aesthetic):
             if self.aes is None:
@@ -192,7 +194,7 @@ class GGPlot(HasProps):
         output that can be embedded in IPython notebook.
         """
 
-        import mpl
+        from . import mpl
         client = mpl.PlotClient()
 
         if notebook:

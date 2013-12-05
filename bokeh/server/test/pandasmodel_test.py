@@ -2,7 +2,7 @@ import unittest
 from ...specialmodels.pandasmodel import PandasPivotModel, PandasDataSource
 from ...bbmodel import make_model, ContinuumModel
 import tempfile
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import pandas
 
 class PandasModelTestCase(unittest.TestCase):
