@@ -61,7 +61,7 @@ class ManagedProcess(object):
 
 
 
-def start_redis(pidfilename, port, data_dir, loglevel="notice",
+def start_redis(pidfilename, port, data_dir, loglevel="warning",
                 data_file='redis.db', save=True):
     base_config = os.path.join(os.path.dirname(__file__), 'redis.conf')
     with open(base_config) as f:
