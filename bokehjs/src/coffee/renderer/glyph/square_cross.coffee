@@ -15,7 +15,7 @@ define [
       @sh = @sw
 
     _render: (ctx, glyph_props, use_selection) ->
-      for i in [0..@sx.length-1]
+      for i in @mask
 
         if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i])
           continue

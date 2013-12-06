@@ -1,14 +1,22 @@
 
 define [
   "underscore",
+  "rbush",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
+], (_, rbush, Properties, Glyph) ->
 
   class CircleView extends Glyph.View
 
     _fields: ['x', 'y', 'radius']
     _properties: ['line', 'fill']
+
+    _set_data: () ->
+      @max_radius = _.max(@radius)
+      @index = rbush()
+      @index.load(
+        ([@x[i], @y[i], @x[i], @y[i], {'index': i}] for i in [0..@x.length-1])
+      )
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
@@ -16,21 +24,38 @@ define [
       @radius = @distance_vector('x', 'radius', 'edge')
 
     _mask_data: () ->
-      ow = @plot_view.view_state.get('outer_width')
-      oh = @plot_view.view_state.get('outer_height')
-      for i in [0..@mask.length-1]
-        outside_render_area = ((@sx[i]+@radius[i]) < 0 or (@sx[i]-@radius[i]) > ow or\
-          (@sy[i]+@radius[i]) < 0 or (@sy[i]-@radius[i]) > oh)
-        if outside_render_area or isNaN(@sx[i] + @sy[i] + @radius[i])
-          @mask[i] = false
-        else
-          @mask[i] = true
+      hr = @plot_view.view_state.get('inner_range_horizontal')
+      vr = @plot_view.view_state.get('inner_range_vertical')
+
+      if @radius_units == "screen"
+        sx0 = hr.get('start') - @max_radius
+        sx1 = hr.get('end') - @max_radius
+        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+
+        sy0 = vr.get('start') - @max_radius
+        sy1 = vr.get('end') - @max_radius
+        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+
+      else
+        sx0 = hr.get('start')
+        sx1 = hr.get('end')
+        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+        x0 -= @max_radius
+        x1 += @max_radius
+
+        sy0 = vr.get('start')
+        sy1 = vr.get('end')
+        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+        y0 -= @max_radius
+        y1 += @max_radius
+
+      @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
     _render: (ctx, glyph_props, use_selection) ->
-      for i in [0..@sx.length-1]
+      for i in @mask
 
-        if not @mask[i]
-          continue
+        if isNaN(@sx[i] + @sy[i] + @radius[i])
+            continue
         if use_selection and not @selected_mask[i]
           continue
         if use_selection == false and @selected_mask[i]

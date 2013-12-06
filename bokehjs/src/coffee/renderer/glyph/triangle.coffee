@@ -10,7 +10,7 @@ define [
     _properties: ['line', 'fill']
 
     _render: (ctx, glyph_props, use_selection) ->
-      for i in [0..@sx.length-1]
+      for i in @mask
 
         if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
           continue

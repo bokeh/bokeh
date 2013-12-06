@@ -12,7 +12,7 @@ define [
     _render: (ctx, glyph_props, use_selection) ->
       if glyph_props.line_properties.do_stroke
 
-        for i in [0..@sx.length-1]
+        for i in @mask
 
           if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
             continue

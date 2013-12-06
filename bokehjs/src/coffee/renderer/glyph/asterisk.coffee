@@ -12,8 +12,9 @@ define [
     _render: (ctx, glyph_props, use_selection) ->
       if glyph_props.line_properties.do_stroke
 
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
+        for i in @mask
+
+          if isNaN(@sx[i] + @sy[i] + @size[i])
             continue
           if use_selection and not @selected_mask[i]
             continue

@@ -18,6 +18,7 @@ define [
 
     _render: (ctx, glyph_props, use_selection) ->
       if glyph_props.line_properties.do_stroke
+
         for i in [0..@sx0.length-1]
 
           if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx0[i] + @scy0[i] + @scx1[i] + @scy1[i])
