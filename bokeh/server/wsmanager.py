@@ -1,4 +1,5 @@
 import uuid
+import atexit
 import logging
 from .. import  protocol
 from flask import request
@@ -29,7 +30,12 @@ class WebSocketManager(object):
         self.topic_clientid_map = MultiDictionary()
         self.clientid_topic_map = MultiDictionary()
         self.auth_functions = {}
-        
+        atexit.register(self._atexit)
+
+    def _atexit(self):
+        if len(self.sockets) != 0:
+            log.warning("Not all websocket connections were closed properly")
+
     def remove_clientid(self, clientid):
         topics = self.clientid_topic_map.get(clientid, [])
         for topic in topics:
