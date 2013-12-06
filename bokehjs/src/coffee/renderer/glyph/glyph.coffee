@@ -157,7 +157,7 @@ define [
       spt0 = mapper.v_map_to_target(pt0)
       spt1 = mapper.v_map_to_target(pt1)
 
-      return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
+      return (Math.abs(spt1[i] - spt0[i]) for i in [0..spt0.length-1])
 
     distance_vector: (pt, span_prop_name, position) ->
       """ returns an array """ #"
@@ -194,7 +194,7 @@ define [
       spt0 = mapper.v_map_to_target(pt0)
       spt1 = mapper.v_map_to_target(pt1)
 
-      return (spt1[i] - spt0[i] for i in [0..spt0.length-1])
+      return (Math.abs(spt1[i] - spt0[i]) for i in [0..spt0.length-1])
 
     get_reference_point: () ->
       reference_point = @mget('reference_point')
