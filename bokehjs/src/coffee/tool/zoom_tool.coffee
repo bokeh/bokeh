@@ -14,9 +14,8 @@ define [
       super(options)
 
     eventGeneratorClass: OnePointWheelEventGenerator
-    evgen_options: {buttonText:"Zoom"}
-    tool_events: {
-      zoom: "_zoom"}
+    evgen_options: { buttonText:"Zoom" }
+    tool_events: { zoom: "_zoom" }
 
     mouse_coords: (e, x, y) ->
       [x_, y_] = [@plot_view.view_state.device_to_sx(x), @plot_view.view_state.device_to_sy(y)]
@@ -31,7 +30,13 @@ define [
 
       [x, y]  = @mouse_coords(e, screenX, screenY)
       speed   = @mget('speed')
-      factor  = speed * (delta) # * 50)  # TODO
+      factor  = speed * delta
+
+      # clamp the  magnitude of factor, if it is > 1 bad things happen
+      if factor > 0.9
+        factor = 0.9
+      else if factor < -0.9
+        factor = -0.9
 
       xr = @plot_view.view_state.get('inner_range_horizontal')
       sx_low  = xr.get('start')
@@ -41,10 +46,12 @@ define [
       sy_low  = yr.get('start')
       sy_high = yr.get('end')
 
-      xstart = @plot_view.xmapper.map_from_target(sx_low  - (sx_low  - x)*factor)
-      xend   = @plot_view.xmapper.map_from_target(sx_high - (sx_high - x)*factor)
-      ystart = @plot_view.ymapper.map_from_target(sy_low  - (sy_low  - y)*factor)
-      yend   = @plot_view.ymapper.map_from_target(sy_high - (sy_high - y)*factor)
+      [xstart, xend] = @plot_view.xmapper.v_map_from_target([
+        sx_low  - (sx_low  - x)*factor, sx_high - (sx_high - x)*factor)
+      ])
+      [ystart, yend] = @plot_view.ymapper.v_map_from_target([
+        sy_low  - (sy_low  - y)*factor), sy_high - (sy_high - y)*factor)
+      ])
 
       zoom_info = {
         xr: {start: xstart, end: xend}
