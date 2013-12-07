@@ -173,6 +173,7 @@ define [
       @bind_bokeh_events()
       return this
 
+    # TODO (bev) why is this ignoring y units? why does it also take units as last arg?
     map_to_screen: (x, x_units, y, y_units, units) ->
       if x_units == 'screen'
         if _.isArray(x)
@@ -195,12 +196,12 @@ define [
 
     map_from_screen: (sx, sy, units) ->
       if _.isArray(sx)
-        dx = x[..]
+        dx = sx[..]
       else
         dx = new Float64Array(sx.length)
         dx.set(x)
       if _.isArray(sy)
-        dy = y[..]
+        dy = sy[..]
       else
         dy = new Float64Array(sy.length)
         dy.set(y)
@@ -404,12 +405,12 @@ define [
         @title_props.set(@ctx, {})
         @ctx.fillText(title, sx, sy)
 
-    render_overlays : (have_new_mapper_state) ->
+    render_overlays: (have_new_mapper_state) ->
       for level in ['overlay', 'annotation', 'tool']
         renderers = @levels[level]
         for k, v of renderers
           v.render(have_new_mapper_state)
-      
+
   class Plot extends HasParent
     type: 'Plot'
     default_view: PlotView
