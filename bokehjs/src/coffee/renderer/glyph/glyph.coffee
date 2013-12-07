@@ -205,6 +205,22 @@ define [
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
 
+    hit_test: (geometry) ->
+
+      if geometry.type == "point"
+        if @_hit_point?
+          return @_hit_point(geometry)
+        console.log "'point' selection not available on renderer"
+
+      else if geometry.type == "rect"
+        if @_hit_rect?
+          return @_hit_rect(geometry)
+        console.log "'rect' seletion not avaliable on renderer"
+
+      else
+        console.log "unrecognized selection geometry type '#{ geometry.type }'"
+        return []
+
   class Glyph extends HasParent
 
     defaults: () ->

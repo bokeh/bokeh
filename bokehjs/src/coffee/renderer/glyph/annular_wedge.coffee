@@ -50,7 +50,6 @@ define [
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
-
     draw_legend: (ctx, x1, x2, y1, y2) ->
       glyph_props = @glyph_props
       line_props = glyph_props.line_properties

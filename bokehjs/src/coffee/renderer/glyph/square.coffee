@@ -37,6 +37,51 @@ define [
 
       @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
+    # squares do not inherit from Marker, so we must supply hit testers explicitly
+    _hit_point: (geometry) ->
+      [sx, sy] = [geometry.sx, geometry.sy]
+      [x, y] = @plot_view.xmapper.v_map_from_target([sx, sy])
+
+      if @size_units == "screen"
+        sx0 = sx - @max_radius
+        sx1 = sx - @max_radius
+        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+
+        sy0 = sy - @max_radius
+        sy1 = sy - @max_radius
+        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+
+      else
+        sx0 = sx - @max_size
+        sx1 = sx - @max_size
+        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+
+        sy0 = sy - @max_size
+        sy1 = sy - @max_size
+        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+
+      candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
+      hits = []
+      if @size_units == "screen"
+        for i in [0..candidates.length-1]
+          s2 = @size[i]/2
+          if Math.abs(@sx[i]-sx) <= s2 and Math.abs(@sy[i]-sy) <= s2
+            hits.push(i)
+      else
+        for i in [0..candidates.length-1]
+          s2 = @size[i]^2
+          if Math.abs(@x[i]-x) <= s2 and Math.abs(@y[i]-y) <= s2
+            hits.push(i)
+      return hits
+
+    _hit_rect: (geometry) ->
+      [x0, y0] = @plot_view.xmapper.v_map_from_target([geometry.sx0, geometry.sy0])
+      [x1, y1] = @plot_view.xmapper.v_map_from_target([geometry.sx1, geometry.sy1])
+
+      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
+
     draw_legend: (ctx, x1, x2, y1, y2) ->
       ## dummy legend function just draws a circle.. this way
       ## even if we have a differnet glyph shape, at least we get the

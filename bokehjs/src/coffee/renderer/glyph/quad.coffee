@@ -10,6 +10,12 @@ define [
     _fields: ['right', 'left', 'bottom', 'top']
     _properties: ['line', 'fill']
 
+    _set_data: () ->
+      @index = rbush()
+      @index.load(
+        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0..@x.length-1])
+      )
+
     _map_data: () ->
       [@sx0, @sy0] = @plot_view.map_to_screen(@left,  @glyph_props.left.units,  @top,    @glyph_props.top.units)
       [@sx1, @sy1] = @plot_view.map_to_screen(@right, @glyph_props.right.units, @bottom, @glyph_props.bottom.units)

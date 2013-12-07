@@ -15,7 +15,7 @@ define [
       @max_radius = _.max(@radius)
       @index = rbush()
       @index.load(
-        ([@x[i], @y[i], @x[i], @y[i], {'index': i}] for i in [0..@x.length-1])
+        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0..@x.length-1])
       )
 
     _map_data: () ->
@@ -72,22 +72,54 @@ define [
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
+    _hit_point: (geometry) ->
+      [sx, sy] = [geometry.sx, geometry.sy]
+      [x, y] = @plot_view.xmapper.v_map_from_target([sx, sy])
+
+      if @radius_units == "screen"
+        sx0 = sx - @max_radius
+        sx1 = sx - @max_radius
+        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+
+        sy0 = sy - @max_radius
+        sy1 = sy - @max_radius
+        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+
+      else
+        x0 = x - @max_radius
+        x1 = x + @max_radius
+
+        y0 = y - @max_radius
+        y1 = y + @max_radius
+
+      candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
+      hits = []
+      if @radius_units == "screen"
+        for i in [0..candidates.length-1]
+          r2 = @radius[i]^2
+          if (@sx[i]-sx)^2 + (@sy[i]-sy)^2 <= r2
+            hits.push(i)
+      else
+        for i in [0..candidates.length-1]
+          r2 = @radius[i]^2
+          if (@x[i]-x)^2 + (@y[i]-y)^2 <= r2
+            hits.push(i)
+      return hits
+
+    _hit_rect: (geometry) ->
+      [x0, y0] = @plot_view.xmapper.v_map_from_target([geometry.sx0, geometry.sy0])
+      [x1, y1] = @plot_view.xmapper.v_map_from_target([geometry.sx1, geometry.sy1])
+
+      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
     select: (xscreenbounds, yscreenbounds) ->
-      xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
-        @plot_view.view_state.sx_to_device(xscreenbounds[1])]
-      yscreenbounds = [@plot_view.view_state.sy_to_device(yscreenbounds[0]),
-        @plot_view.view_state.sy_to_device(yscreenbounds[1])]
-      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)]
-      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)]
-      selected = []
-      for i in [0..@sx.length-1]
-        if xscreenbounds
-          if @sx[i] < xscreenbounds[0] or @sx[i] > xscreenbounds[1]
-            continue
-        if yscreenbounds
-          if @sy[i] < yscreenbounds[0] or @sy[i] > yscreenbounds[1]
-            continue
-        selected.push(i)
+      geometry = {}
+      geometry.sx0 = xscreenbounds[0]
+      geometry.sx1 = xscreenbounds[1]
+      geometry.sy0 = yscreenbounds[0]
+      geometry.sy1 = yscreenbounds[1]
+      selected = @_hit_rect(geometry)
       return selected
 
     draw_legend: (ctx, x1, x2, y1, y2) ->

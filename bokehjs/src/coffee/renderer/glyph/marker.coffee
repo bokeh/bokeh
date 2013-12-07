@@ -35,6 +35,32 @@ define [
 
       @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
+    _hit_point: (geometry) ->
+      [sx, sy] = [geometry.sx, geometry.sy]
+
+      sx0 = sx - @max_size
+      sx1 = sx - @max_size
+      [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+
+      sy0 = sy - @max_size
+      sy1 = sy - @max_size
+      [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+
+      candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
+      hits = []
+      for i in [0..candidates.length-1]
+        s2 = @size[i]/2
+        if Math.abs(@sx[i]-sx) <= s2 and Math.abs(@sy[i]-sy) <= s2
+          hits.push(i)
+      return hits
+
+    _hit_rect: (geometry) ->
+      [x0, y0] = @plot_view.xmapper.v_map_from_target([geometry.sx0, geometry.sy0])
+      [x1, y1] = @plot_view.xmapper.v_map_from_target([geometry.sx1, geometry.sy1])
+
+      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
   class Marker extends Glyph.Model
 
   return {
