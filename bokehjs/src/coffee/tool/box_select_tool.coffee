@@ -79,10 +79,9 @@ define [
       @mset({'current_x': x, 'current_y': y})
       [@xrange, @yrange] = @_get_selection_range(x, y)
       @trigger('boxselect', @xrange, @yrange)
-      if @every_select
+      if @select_every_mousemove
         @_select_data()
-      else
-        @plot_view.render_overlays(true)
+      @plot_view.render_overlays(true)
       return null
 
     _dragend : () ->
