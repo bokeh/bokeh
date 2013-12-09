@@ -1,9 +1,10 @@
+import gevent.monkey
+gevent.monkey.patch_all()
+
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
 from flask import request, Flask
-import gevent
-import gevent.monkey
-gevent.monkey.patch_all()
+
 import uuid
 import socket
 import redis

@@ -7,7 +7,7 @@ import itertools
 from bokeh.objects import (
     GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
     Glyph, ObjectArrayDataSource, PanTool, ZoomTool, ResizeTool,
-    SelectionTool, BoxSelectionOverlay
+    BoxSelectTool, BoxSelectionOverlay
 )
 from bokeh.glyphs import MultiLine, ImageRGBA, Circle
 from bokeh import session
@@ -24,7 +24,7 @@ plot = GMapPlot(
     title = "Austin"
     )
 
-select_tool = SelectionTool()
+select_tool = BoxSelectTool()
 overlay = BoxSelectionOverlay(tool=select_tool)
 plot.renderers.append(overlay)
 plot.tools.append(select_tool)
