@@ -47,10 +47,10 @@ define [
       sy_high = yr.get('end')
 
       [xstart, xend] = @plot_view.xmapper.v_map_from_target([
-        sx_low - (sx_low - x)*factor, sx_high - (sx_high - x)*factor
+        sx_low  - (sx_low  - x)*factor, sx_high - (sx_high - x)*factor
       ])
       [ystart, yend] = @plot_view.ymapper.v_map_from_target([
-        sy_low - (sy_low - y)*factor, sy_high - (sy_high - y)*factor
+        sy_low  - (sy_low  - y)*factor, sy_high - (sy_high - y)*factor
       ])
 
       zoom_info = {

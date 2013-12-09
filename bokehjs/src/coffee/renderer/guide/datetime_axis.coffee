@@ -13,9 +13,8 @@ define [
 
   class DatetimeAxis extends LinearAxis.Model
     default_view: DatetimeAxisView
+    type: 'DatetimeAxis'
 
-    initialize: (attrs, options)->
-      super(attrs, options)
 
   class DatetimeAxes extends Backbone.Collection
     model: DatetimeAxis

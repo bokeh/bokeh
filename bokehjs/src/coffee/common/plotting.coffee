@@ -16,7 +16,8 @@ define [
   "tool/preview_save_tool",
   "tool/resize_tool",
   "tool/zoom_tool",
-], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ResizeTool, ZoomTool) ->
+  "renderer/guide/datetime_axis",
+], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ResizeTool, ZoomTool, DatetimeAxis) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -74,15 +75,26 @@ define [
         xaxes = ['min', 'max']
       if not _.isArray(xaxes)
         xaxes = [xaxes]
-      for loc in xaxes
-        axis = LinearAxis.Collection.create(
-          dimension: 0
-          axis_label: 'x'
-          location: loc
-          parent: plot.ref()
-          plot: plot.ref()
-        )
-        axes.push(axis)
+      if xaxes[0]=="datetime"
+
+        for loc in ['min','max']
+          axis = DatetimeAxis.Collection.create(
+          #axis = LinearAxis.Collection.create(
+            dimension: 0
+            axis_label: 'x'
+            location: loc
+            parent: plot.ref()
+            plot: plot.ref())
+          axes.push(axis)
+      else
+        for loc in xaxes
+          axis = LinearAxis.Collection.create(
+            dimension: 0
+            axis_label: 'x'
+            location: loc
+            parent: plot.ref()
+            plot: plot.ref())
+          axes.push(axis)
     if yaxes
       if yaxes == true
         yaxes = ['min', 'max']
