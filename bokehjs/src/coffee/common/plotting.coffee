@@ -76,13 +76,16 @@ define [
       if not _.isArray(xaxes)
         xaxes = [xaxes]
       if xaxes[0]=="datetime"
-        axis = DatetimeAxis.Collection.create(
-          dimension: 0
-          axis_label: 'x'
-          location: 'min'
-          parent: plot.ref()
-          plot: plot.ref())
-        axes.push(axis)
+
+        for loc in ['min','max']
+          axis = DatetimeAxis.Collection.create(
+          #axis = LinearAxis.Collection.create(
+            dimension: 0
+            axis_label: 'x'
+            location: loc
+            parent: plot.ref()
+            plot: plot.ref())
+          axes.push(axis)
       else
         for loc in xaxes
           axis = LinearAxis.Collection.create(
