@@ -206,7 +206,6 @@ define [
     draw_legend: (ctx, x1, x2, y1, y2) ->
 
     hit_test: (geometry) ->
-
       if geometry.type == "point"
         if @_hit_point?
           return @_hit_point(geometry)
