@@ -273,10 +273,9 @@ class PlotObject(HasProps):
         If no ref is given, uses self._id.
         """
         # Read session values into a new dict, and fill those into self
-        newattrs = session.load(ref, asdict=True)
-        # Loop over attributes and call setattr() instead of doing a bulk
-        # self.__dict__.update because some attributes may be properties.
-        self.update(newattrs["attributes"])
+        if ref is None:
+            ref = session.get_ref(self)
+        newattrs = session.load_obj(ref)
 
     @usesession
     def push(self, session=None):
