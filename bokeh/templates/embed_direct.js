@@ -36,8 +36,9 @@ console.log("embed.js");
         console.log("Bokeh.js loaded callback");
         embed_core = Bokeh.embed_core;
         console.log("embed_core loaded");
-        embed_core.search_and_plot(dd);
         embed_core.injectCss(staticRootUrl);
+        Bokeh.HasProperties.prototype.sync = Backbone.sync
+        embed_core.search_and_plot(dd);
         console.log("search_and_plot called", new Date());}
 
     function addEvent(el, eventName, func){
