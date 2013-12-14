@@ -120,11 +120,11 @@ module.exports = (grunt) ->
       dist:
         options:
           optimize: "uglify2"
-          out: 'build/bokeh.min.js'
+          out: 'build/js/bokeh.min.js'
       dev:
         options:
           optimize: "none"
-          out: 'build/bokeh.js'
+          out: 'build/js/bokeh.js'
 
 
     watch:
