@@ -681,7 +681,7 @@ class PlotServerSession(BaseHTMLSession):
             models = attrs
         return models
 
-    def load_obj(self, ref, asdict=False, modelattrs={}):
+    def load_obj(self, ref, asdict=False):
         """loads an object from the server.
         if asdict:
             only the json is returned.
@@ -690,8 +690,7 @@ class PlotServerSession(BaseHTMLSession):
             instantiate a new one if it is not
             and make sure to convert all references into models
         in the conversion from json to objects, sometimes references
-        to models need to be resolved.  If there are any json attributes
-        being processed, you can pass them in as modelattrs
+        to models need to be resolved.  
         """
         typename = ref["type"]
         ref_id = ref["id"]
