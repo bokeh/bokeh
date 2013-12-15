@@ -21,6 +21,20 @@ class TestBaseGlyph(unittest.TestCase):
     def test_to_gylphspec(self):
         self.assertEqual(self.testGylph.to_glyphspec(), {'type':'BaseGlyph'})
 
+class TestMarker(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Marker
+        self.testMarker = Marker()
+
+    def test_expected_properties(self):
+        markerProperties = dir(self.testMarker)
+        expectedProperties = ['x','y','size']
+        for prop in expectedProperties:
+            if prop not in markerProperties:
+                raise Exception('%s not in Marker properties' %prop)
+        self.assertEqual(self.testMarker.size , {'default':4,'field':None})
+        self.assertEqual(self.testMarker.x ,'x')
+        self.assertEqual(self.testMarker.y ,'y')
 
 if __name__ == "__main__":
     unittest.main()
