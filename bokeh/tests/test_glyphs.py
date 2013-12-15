@@ -36,5 +36,17 @@ class TestMarker(unittest.TestCase):
         self.assertEqual(self.testMarker.x ,'x')
         self.assertEqual(self.testMarker.y ,'y')
 
+class TestCircle(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Circle
+        self.testCircle = Circle()
+
+    def test_expected_properties(self):        
+        if 'radius' not in dir(self.testCircle):
+            raise Exception('radius not in Circle properties')
+        self.assertEqual(self.testCircle.radius , {'default':4,'field':None})
+        self.assertEqual(self.testCircle.__view_model__,'circle')
+
+
 if __name__ == "__main__":
     unittest.main()
