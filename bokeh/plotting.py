@@ -368,7 +368,7 @@ def visual(func):
                 (output_type == "notebook" and output_url is not None):
             # push the plot data to a plot server
             session.store_all()
-            if output_type == "notebook":
+            if output_type == "notebook" and not _config['hold']:
                 session.show(plot, *session_objs)
 
         else: # File output mode
