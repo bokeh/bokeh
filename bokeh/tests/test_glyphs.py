@@ -318,18 +318,194 @@ class TestLine(unittest.TestCase):
 
 class TestMultiLine(unittest.TestCase):
     def setUp(self):
-        from bokeh.glyphs import TestMultiLine
-        self.testMultiLine = Line()
+        from bokeh.glyphs import MultiLine
+        self.testMultiLine = MultiLine()
 
     def test_expected_properties(self):
         expectedProperties = set(['xs','ys'])
-        actualProperties = getPropSet(type(self.TestMultiLine))
+        actualProperties = getPropSet(type(self.testMultiLine))
         self.assertTrue(expectedProperties.issubset(actualProperties))
 
     def test_expected_values(self):
-        self.assertEqual(self.testMultiLine.x,'x')
-        self.assertEqual(self.testMultiLine.y,'y')
+        self.assertEqual(self.testMultiLine.xs,'xs')
+        self.assertEqual(self.testMultiLine.ys,'ys')
         self.assertEqual(self.testMultiLine.__view_model__,'multi_line')
+
+class TestOval(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Oval
+        self.testOvale = Oval()
+
+    def test_expected_properties(self):
+        expectedProperties = set(['x','y','width','height','angle'])
+        actualProperties = getPropSet(type(self.testOvale))
+        self.assertTrue(expectedProperties.issubset(actualProperties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.testOvale.x,'x')
+        self.assertEqual(self.testOvale.y,'y')
+        self.assertEqual(self.testOvale.width,'width')
+        self.assertEqual(self.testOvale.height,'height')
+        self.assertEqual(self.testOvale.angle,'angle')
+        self.assertEqual(self.testOvale.__view_model__,'oval')
+
+class TestPatch(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Patch
+        self.testPatch = Patch()
+
+    def test_expected_properties(self):
+        expectedProperties = set(['x','y'])
+        actualProperties = getPropSet(type(self.testPatch))
+        self.assertTrue(expectedProperties.issubset(actualProperties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.testPatch.x,'x')
+        self.assertEqual(self.testPatch.y,'y')
+        self.assertEqual(self.testPatch.__view_model__,'patch')
+
+class TestPatches(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Patches
+        self.testPatches = Patches()
+
+    def test_expected_properties(self):
+        expectedProperties = set(['xs','ys'])
+        actualProperties = getPropSet(type(self.testPatches))
+        self.assertTrue(expectedProperties.issubset(actualProperties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.testPatches.xs,'xs')
+        self.assertEqual(self.testPatches.ys,'ys')
+        self.assertEqual(self.testPatches.__view_model__,'patches')
+
+class TestQuad(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Quad
+        self.testQuad = Quad()
+
+    def test_expected_properties(self):
+        expectedProperties = set(['left','right','bottom','top'])
+        actualProperties = getPropSet(type(self.testQuad))
+        self.assertTrue(expectedProperties.issubset(actualProperties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.testQuad.left,'left')
+        self.assertEqual(self.testQuad.right,'right')
+        self.assertEqual(self.testQuad.bottom,'bottom')
+        self.assertEqual(self.testQuad.top,'top')
+        self.assertEqual(self.testQuad.__view_model__,'quad')
+
+class TestQuadratic(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Quadratic
+        self.testQuadratic = Quadratic()
+
+    def test_expected_properties(self):
+        expectedProperties = set(['x0','y0','x1','y1','cx','cy'])
+        actualProperties = getPropSet(type(self.testQuadratic))
+        self.assertTrue(expectedProperties.issubset(actualProperties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.testQuadratic.x0,'x0')
+        self.assertEqual(self.testQuadratic.y0,'y0')
+        self.assertEqual(self.testQuadratic.x1,'x1')
+        self.assertEqual(self.testQuadratic.y1,'y1')
+        self.assertEqual(self.testQuadratic.cx,'cx')
+        self.assertEqual(self.testQuadratic.cy,'cy')
+        self.assertEqual(self.testQuadratic.__view_model__,'quadratic')
+
+class TestRay(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Ray
+        self.testRay = Ray()
+
+    def test_expected_properties(self):
+        expectedProperties = set(['x','y','angle','length'])
+        actualProperties = getPropSet(type(self.testRay))
+        self.assertTrue(expectedProperties.issubset(actualProperties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.testRay.x,'x')
+        self.assertEqual(self.testRay.y,'y')
+        self.assertEqual(self.testRay.angle,'angle')
+        self.assertEqual(self.testRay.length,'length')
+        self.assertEqual(self.testRay.__view_model__,'ray')
+
+
+class TestRect(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Rect
+        self.testRect = Rect()
+
+    def test_expected_properties(self):
+        expectedProperties = set(['x','y','width','height','angle'])
+        actualProperties = getPropSet(type(self.testRect))
+        self.assertTrue(expectedProperties.issubset(actualProperties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.testRect.x,'x')
+        self.assertEqual(self.testRect.y,'y')
+        self.assertEqual(self.testRect.width,'width')
+        self.assertEqual(self.testRect.height,'height')   
+        self.assertEqual(self.testRect.angle,'angle')
+        self.assertEqual(self.testRect.__view_model__,'rect')
+
+class TestSegment(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Segment
+        self.testSegment = Segment()
+
+    def test_expected_properties(self):
+        expectedProperties = set(['x0','y0','x1','y1'])
+        actualProperties = getPropSet(type(self.testSegment))
+        self.assertTrue(expectedProperties.issubset(actualProperties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.testSegment.x0,'x0')
+        self.assertEqual(self.testSegment.y0,'y0')
+        self.assertEqual(self.testSegment.x1,'x1')
+        self.assertEqual(self.testSegment.y1,'y1')
+        self.assertEqual(self.testSegment.__view_model__,'segment')
+
+class TestText(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Text
+        self.testText = Text()
+
+    def test_expected_properties(self):
+        expectedProperties = set(['x','y','text','angle'])
+        actualProperties = getPropSet(type(self.testText))
+        self.assertTrue(expectedProperties.issubset(actualProperties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.testText.x,'x')
+        self.assertEqual(self.testText.y,'y')
+        self.assertEqual(self.testText.text,None)
+        self.assertEqual(self.testText.angle,'angle')
+        self.assertEqual(self.testText.__view_model__,'text')
+
+class TestWedge(unittest.TestCase):
+    def setUp(self):
+        from bokeh.glyphs import Wedge
+        self.testWedge = Wedge()
+
+    def test_expected_properties(self):
+        expectedProperties = set(['x','y','radius','start_angle','end_angle','direction'])
+        actualProperties = getPropSet(type(self.testWedge))
+        self.assertTrue(expectedProperties.issubset(actualProperties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.testWedge.x,'x')
+        self.assertEqual(self.testWedge.y,'y')
+        self.assertEqual(self.testWedge.radius,None)
+        self.assertEqual(self.testWedge.start_angle,'start_angle')
+        self.assertEqual(self.testWedge.end_angle,'end_angle')
+        self.assertEqual(self.testWedge.__view_model__,'wedge')
+
+        self.assertEqual(self.testWedge.direction,'clock')
+        self.testWedge.direction = 'anticlock'
+
 
 if __name__ == "__main__":
     unittest.main()
