@@ -17,7 +17,7 @@ console.log("embed.js");
     var staticRootUrl = "{{static_root_url}}";
     if (host!=""){
 
-        staticRootUrl = "//" + host + "/static/";
+        staticRootUrl = "//" + host + "/bokehjs/static/";
         var bokehJSUrl = staticRootUrl + "js/bokeh.js";
     }
     else {
