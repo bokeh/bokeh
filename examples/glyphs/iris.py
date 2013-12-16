@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import os
 
@@ -52,7 +53,7 @@ sess = session.HTMLFileSession("iris.html")
 sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-print "Wrote iris.html"
+print("Wrote iris.html")
 try:
     import webbrowser
     webbrowser.open("file://" + os.path.abspath("iris.html"))

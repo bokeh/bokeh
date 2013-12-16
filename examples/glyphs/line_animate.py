@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from numpy import pi, arange, sin, cos
 import numpy as np
@@ -63,7 +64,7 @@ sess.plotcontext._dirty = True
 # that we appended to children
 sess.store_all()
 
-print "Stored to document line_animate at http://localhost:5006/bokeh"
+print("Stored to document line_animate at http://localhost:5006/bokeh")
 
 while True:
     for i in  np.linspace(-2*pi, 2*pi, 50):

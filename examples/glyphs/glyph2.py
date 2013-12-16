@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from numpy import pi, arange, sin, cos
 import numpy as np
@@ -61,8 +62,8 @@ try:
             serverloc="http://localhost:5006", userapikey="nokey")
     sess.use_doc("glyph2")
 except requests.exceptions.ConnectionError as e:
-    print e
-    print "\nThis example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'\n"
+    print(e)
+    print("\nThis example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'\n")
     sys.exit()
 
 sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)

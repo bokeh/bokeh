@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import pandas as pd
 from scipy import misc
@@ -59,8 +60,10 @@ try:
         userapikey="nokey"
     )
 except requests.exceptions.ConnectionError as e:
-    print e
-    print "\nThis example requires the plot server.  Please make sure plot server is running, via 'bokeh-server' in the bokeh root directory.\n"
+    print(e)
+    print("\nThis example requires the plot server.  Please make sure plot "
+            "server is running, via 'bokeh-server' in the bokeh root "
+            "directory.\n")
     sys.exit()
 
 sess.use_doc("maps")
@@ -70,4 +73,4 @@ sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
 sess.store_all()
 
-print "Stored to document maps at http://localhost:5006/bokeh"
+print("Stored to document maps at http://localhost:5006/bokeh")

@@ -4,7 +4,7 @@ import mock
 import websocket
 import gevent
 
-import test_utils
+from . import test_utils
 from ..app import app
 from ...bbmodel import ContinuumModelsClient, make_model
 from ..models import docs

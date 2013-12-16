@@ -1,12 +1,16 @@
-import protocol
+from __future__ import absolute_import, print_function
+
+from . import protocol, utils
 import requests
-import urlparse
+
+from six.moves.urllib.parse import urlsplit, urlencode
+
 import urllib
-import utils
 import uuid
 import logging
 import copy
-import cPickle as pickle
+from six.moves import cPickle as pickle
+
 import redis
 
 import numpy as np
@@ -14,7 +18,7 @@ log = logging.getLogger(__name__)
 special_types = {}
 
 def load_special_types():
-    import specialmodels.pandasmodel
+    from .specialmodels import pandasmodel
 
 def register_type(typename, cls):
     special_types[typename] = cls
@@ -98,7 +102,7 @@ class ContinuumModel(object):
     
     def pull(self):
         if not self.client:
-            print "can't fetch, not connected to the server"
+            print("can't fetch, not connected to the server")
             return
         newobj = self.client.fetch(typename=self.typename,
                                    id=self.id,
@@ -109,7 +113,7 @@ class ContinuumModel(object):
     def update(self):
         if not self.client:
             import pdb;pdb.set_trace()
-            print "can't update, not connected to the server"
+            print("can't update, not connected to the server")
             return
         self.client.update(self)
         
@@ -117,7 +121,7 @@ class ContinuumModelsClient(object):
     def __init__(self, docid, baseurl, apikey, session=None):
         self.apikey = apikey
         self.baseurl = baseurl
-        parsed = urlparse.urlsplit(baseurl)
+        parsed = urlsplit(baseurl)
         self.docid = docid
         if session is None:
             session = requests.session()

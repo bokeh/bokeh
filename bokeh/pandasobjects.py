@@ -1,19 +1,18 @@
+from __future__ import absolute_import, print_function
+
 import pandas
 import time
-import protocol
 import numpy as np
 import requests
 
-from bokeh.properties import (HasProps, MetaHasProps, 
+from . import protocol
+
+from .properties import (HasProps, MetaHasProps, 
         Any, Dict, Enum, Float, Instance, Int, List, String,
         Color, Pattern, Percent, Size, Bool)
 
-#loading dependencies
-import bokeh.objects
-import bokeh.glyphs
-
-from bokeh.objects import PlotObject, Plot, ColumnDataSource
-from bokeh.session import PlotContext, PlotList
+from .objects import PlotObject, Plot, ColumnDataSource
+from .session import PlotContext, PlotList
 
 # Hugo: this object model is still a bit half baked
 # we are probabyl storing some things on the plot source and
@@ -199,7 +198,7 @@ class PandasPivotTable(PlotObject):
         
     def get_data(self, obj=None, attrname=None, old=None, new=None):
         data = self.source.get_data(self.transform())
-        print data['data']['_selected']
+        print(data['data']['_selected'])
         self.maxlength = data.pop('maxlength')
         self.totallength = data.pop('totallength')
         self.format_data(data['data'])

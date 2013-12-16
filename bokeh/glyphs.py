@@ -5,7 +5,7 @@ from .properties import (BaseProperty, HasProps, Instance, Enum, Float, Int,
         Color, Percent, Size, Bool, Pattern, Align, Angle, String, FillProps,
         LineProps, TextProps, DataSpec, ColorSpec)
 
-from .objects import PlotObject, Viewable
+from .objects import PlotObject
 
 # Size is a way to preserve a data-space-related metric all the way until
 #   render time, when the screen dimensions are known
@@ -41,7 +41,7 @@ class BaseGlyph(PlotObject):
 
         # Iterate over all the DataSpec properties and convert them, using the
         # fact that DataSpecs store the dict-ified version on the object.
-        for attrname, dspec in self.dataspecs_with_refs().iteritems():
+        for attrname, dspec in self.dataspecs_with_refs().items():
             d[attrname] = dspec.to_dict(self)
         return d
 

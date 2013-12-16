@@ -1,6 +1,6 @@
 import uuid
 import base64
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import numpy as np
 import datetime as dt
 

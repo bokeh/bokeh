@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """ Collection of core plotting objects, which can be represented in the
 Javascript layer.  The object graph formed by composing the objects in
 this module can be stored as a backbone.js model graph, and stored in a
@@ -7,12 +9,15 @@ notebook.
 import os
 from uuid import uuid4
 from functools import wraps
-import urlparse
+
+from six import add_metaclass
+from six.moves.urllib.parse import urlsplit
+
 import warnings
 import logging
 logger = logging.getLogger(__file__)
 
-from bokeh.properties import (HasProps, MetaHasProps, Any, Dict, Enum,
+from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
         Either, Float, Instance, Int, List, String, Color, Pattern, Percent,
         Size, LineProps, FillProps, TextProps, Include, Bool)
 
@@ -100,7 +105,7 @@ def json_apply(fragment, check_func, func):
         return output
     elif isinstance(fragment, dict):
         output = {}
-        for k, val in fragment.iteritems():
+        for k, val in fragment.items():
             output[k] = json_apply(val, check_func, func)
         return output
     else:
@@ -152,10 +157,9 @@ def recursively_traverse_plot_object(plot_object,
                     children=children)
         return children
 
+@add_metaclass(Viewable)
 class PlotObject(HasProps):
     """ Base class for all plot-related objects """
-
-    __metaclass__ = Viewable
 
     session = Instance   # bokeh.session.Session
 
@@ -259,7 +263,7 @@ class PlotObject(HasProps):
         return attrs
 
     def update(self, **kwargs):
-        for k,v in kwargs.iteritems():
+        for k,v in kwargs.items():
             setattr(self, k, v)
 
     @usesession
@@ -350,7 +354,7 @@ class PlotObject(HasProps):
         typename = self.__view_model__
         if not base_url:
             base_url = sess.root_url
-        split = urlparse.urlsplit(base_url)
+        split = urlsplit(base_url)
         if split.scheme == 'http':
             ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
         else:
@@ -616,7 +620,7 @@ class Plot(PlotObject):
 
 
     def _get_script_inject_snippet(self):
-        from session import HTMLFileSession
+        from .session import HTMLFileSession
         if isinstance(self._session, HTMLFileSession):
             self.script_inject_snippet
             return ""

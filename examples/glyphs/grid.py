@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from numpy import pi, arange, sin, cos, tan
 import numpy as np
@@ -60,7 +61,7 @@ sess.add(grid, plot1, plot2, plot3, plot4)
 sess.add(*(objs1 + objs2 + objs3 + objs4))
 sess.plotcontext.children.append(grid)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-print "Wrote grid.html"
+print("Wrote grid.html")
 
 try:
     import webbrowser
