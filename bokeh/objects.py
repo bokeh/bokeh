@@ -283,7 +283,7 @@ class PlotObject(HasProps):
         """ Pushes the update values from this object into the given
         session (or self.session, if none is provided).
         """
-        session.store(self)
+        session.store_obj(self)
 
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
