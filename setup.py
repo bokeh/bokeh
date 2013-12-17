@@ -14,35 +14,34 @@ versioneer.parentdir_prefix = 'Bokeh-' # dirname like 'myproject-1.2.0'
 # Set up this checkout or source archive with the right BokehJS files.
 
 
-JSROOT = 'bokehjs'
-JSBUILD = join(JSROOT, 'build')
-JSREL = join(JSROOT, 'release')
+BOKEHJSROOT = 'bokehjs'
+BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
+BOKEHJSREL = join(BOKEHJSROOT, 'release')
 
 SERVER = 'bokeh/server'
 
-APP = join(join(JSREL, 'bokeh.js'))
-CSS = join(JSREL, 'css')
+APP = join(BOKEHJSREL, 'js', 'bokeh.js')
+CSS = join(BOKEHJSREL, 'css')
 
 if 'develop' in sys.argv:
     # Don't import setuptools unless the user is actively
     # trying to do something that requires it.
-    APP = join(JSREL, 'bokeh.js')
-    CSS = join(JSREL, 'css')
     import setuptools
 
 if 'devjs' in sys.argv:
     # Don't import setuptools unless the user is actively
     # trying to do something that requires it.
-    APP = join(JSBUILD, 'bokeh.js')
-    CSS = join(JSBUILD, 'css')
+    APP = join(BOKEHJSBUILD, 'js', 'bokeh.js')
+    CSS = join(BOKEHJSBUILD, 'css')
     sys.argv[sys.argv.index("devjs")] = "develop"
     import setuptools
 
 if exists(join(SERVER, 'static', 'js')):
     shutil.rmtree(join(SERVER, 'static', 'js'))
 os.mkdir(join(SERVER, 'static', 'js'))
-shutil.copy(APP, join(SERVER, 'static/js'))
-shutil.copytree(join(JSROOT, 'src', 'vendor'), join(SERVER, 'static', 'js', 'vendor'))
+shutil.copy(APP, join(SERVER, 'static', 'js'))
+shutil.copytree(join(BOKEHJSROOT, 'src', 'vendor'), 
+                join(SERVER, 'static', 'js', 'vendor'))
 
 if exists(join(SERVER, 'static', 'css')):
     shutil.rmtree(join(SERVER, 'static', 'css'))
