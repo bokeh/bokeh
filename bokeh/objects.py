@@ -428,7 +428,15 @@ class ColumnDataSource(DataSource):
         """
         if len(args) == 1 and "data" not in kw:
             kw["data"] = args[0]
-        for name, data in kw.get("data", {}).items():
+        raw_data = kw.get("data", {})
+        if not isinstance(raw_data, dict):
+            import pandas as pd
+            if isinstance(raw_data, pd.DataFrame):
+                new_data = {}
+                for colname in raw_data:
+                    new_data[colname] = raw_data[colname].tolist()
+                raw_data = new_data
+        for name, data in raw_data.iteritems():
             self.add(data, name)
         super(ColumnDataSource, self).__init__(**kw)
 
