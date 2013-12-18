@@ -327,6 +327,7 @@ class TestArc(unittest.TestCase):
         self.test_arc.start_angle = 52
         self.test_arc.end_angle = 53
         self.test_arc.direction = 'anticlock'
+        self.assertEqual(self.test_arc.to_glyphspec(), {'line_color': {'value': 'black'}, 'direction': 'anticlock', 'start_angle': {'units': 'data', 'value': 52}, 'end_angle': {'units': 'data', 'value': 53}, 'radius': {'units': 'data', 'value': 51}, 'y': {'units': 'data', 'value': 100}, 'x': {'units': 'data', 'value': 50}, 'type': 'arc'})
 
 class TestBezier(unittest.TestCase):
     def setUp(self):
@@ -349,6 +350,18 @@ class TestBezier(unittest.TestCase):
         self.assertEqual(self.test_bezier.cx1,'cx1')
         self.assertEqual(self.test_bezier.cy1,'cy1')     
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_bezier.to_glyphspec(), {'line_color': {'value': 'black'}, 'cx0': {'units': 'data', 'field': 'cx0'}, 'cy1': {'units': 'data', 'field': 'cy1'}, 'cy0': {'units': 'data', 'field': 'cy0'}, 'cx1': {'units': 'data', 'field': 'cx1'}, 'y1': {'units': 'data', 'field': 'y1'}, 'y0': {'units': 'data', 'field': 'y0'}, 'x0': {'units': 'data', 'field': 'x0'}, 'x1': {'units': 'data', 'field': 'x1'}, 'type': 'bezier'})
+        self.test_bezier.x0 = 1
+        self.test_bezier.x1 = 2
+        self.test_bezier.cx0 = 3
+        self.test_bezier.cx1 = 4
+        self.test_bezier.y0 = 5
+        self.test_bezier.y1 = 6
+        self.test_bezier.cy0 = 7
+        self.test_bezier.cy1 = 8
+        self.assertEqual(self.test_bezier.to_glyphspec(), {'cx0': {'units': 'data', 'value': 3}, 'cx1': {'units': 'data', 'value': 4}, 'cy1': {'units': 'data', 'value': 8}, 'cy0': {'units': 'data', 'value': 7}, 'line_color': {'value': 'black'}, 'y1': {'units': 'data', 'value': 6}, 'y0': {'units': 'data', 'value': 5}, 'x0': {'units': 'data', 'value': 1}, 'x1': {'units': 'data', 'value': 2}, 'type': 'bezier'})
+
 class TestImageURI(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import ImageURI
@@ -364,6 +377,14 @@ class TestImageURI(unittest.TestCase):
         self.assertEqual(self.test_imageuri.x,'x')
         self.assertEqual(self.test_imageuri.y,'y')
         self.assertEqual(self.test_imageuri.angle,'angle')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_imageuri.to_glyphspec(), {'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'angle': {'units': 'data', 'field': 'angle'}, 'type': 'image_uri'})
+        self.test_imageuri.x = 50
+        self.test_imageuri.y = 51
+        self.test_imageuri.angle = 90
+        self.assertEqual(self.test_imageuri.to_glyphspec(), {'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'angle': {'units': 'data', 'value': 90}, 'type': 'image_uri'})
+
 
 class TestImageRGBA(unittest.TestCase):
     def setUp(self):
@@ -385,6 +406,17 @@ class TestImageRGBA(unittest.TestCase):
         self.assertEqual(self.test_imagergba.dh,'dh')
         self.assertEqual(self.test_imagergba.__view_model__,'image_rgba')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_imagergba.to_glyphspec(), {'dh': {'units': 'data', 'field': 'dh'}, 'image': {'units': 'data', 'field': 'image'}, 'height': {'units': 'data', 'field': 'height'}, 'width': {'units': 'data', 'field': 'width'}, 'dw': {'units': 'data', 'field': 'dw'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'image_rgba'})
+        self.test_imagergba.image = 'image image image'
+        self.test_imagergba.width = 500
+        self.test_imagergba.height = 600
+        self.test_imagergba.x = 50
+        self.test_imagergba.y = 51
+        self.test_imagergba.dw = 53
+        self.test_imagergba.dh = 54
+        self.assertEqual(self.test_imagergba.to_glyphspec(), {'dh': {'units': 'data', 'value': 54}, 'image': {'units': 'data', 'field': 'image image image'}, 'height': {'units': 'data', 'value': 600}, 'width': {'units': 'data', 'value': 500}, 'x': {'units': 'data', 'value': 50}, 'y': {'units': 'data', 'value': 51}, 'dw': {'units': 'data', 'value': 53}, 'type': 'image_rgba'})
+
 class TestLine(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Line
@@ -399,6 +431,12 @@ class TestLine(unittest.TestCase):
         self.assertEqual(self.test_line.x,'x')
         self.assertEqual(self.test_line.y,'y')
         self.assertEqual(self.test_line.__view_model__,'line')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_line.to_glyphspec(), {'line_color': {'value': 'black'}, 'y': {'units': 'data', 'field': 'y'}, 'type': 'line', 'x': {'units': 'data', 'field': 'x'}})
+        self.test_line.x = 50
+        self.test_line.y = 51
+        self.assertEqual(self.test_line.to_glyphspec(), {'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'type': 'line', 'line_color': {'value': 'black'}})
 
 class TestMultiLine(unittest.TestCase):
     def setUp(self):
@@ -415,23 +453,39 @@ class TestMultiLine(unittest.TestCase):
         self.assertEqual(self.test_multiline.ys,'ys')
         self.assertEqual(self.test_multiline.__view_model__,'multi_line')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_multiline.to_glyphspec(), {'line_color': {'value': 'black'}, 'xs': {'units': 'data', 'field': 'xs'}, 'ys': {'units': 'data', 'field': 'ys'}, 'type': 'multi_line'})
+        self.test_multiline.xs = 50
+        self.test_multiline.ys = 51
+        self.assertEqual(self.test_multiline.to_glyphspec(), {'line_color': {'value': 'black'}, 'xs': {'units': 'data', 'value': 50}, 'ys': {'units': 'data', 'value': 51}, 'type': 'multi_line'})
+
 class TestOval(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Oval
-        self.test_ovale = Oval()
+        self.test_oval = Oval()
 
     def test_expected_properties(self):
         expected_properties = set(['x','y','width','height','angle'])
-        actual_properties = get_prop_set(type(self.test_ovale))
+        actual_properties = get_prop_set(type(self.test_oval))
         self.assertTrue(expected_properties.issubset(actual_properties))
 
     def test_expected_values(self):
-        self.assertEqual(self.test_ovale.x,'x')
-        self.assertEqual(self.test_ovale.y,'y')
-        self.assertEqual(self.test_ovale.width,'width')
-        self.assertEqual(self.test_ovale.height,'height')
-        self.assertEqual(self.test_ovale.angle,'angle')
-        self.assertEqual(self.test_ovale.__view_model__,'oval')
+        self.assertEqual(self.test_oval.x,'x')
+        self.assertEqual(self.test_oval.y,'y')
+        self.assertEqual(self.test_oval.width,'width')
+        self.assertEqual(self.test_oval.height,'height')
+        self.assertEqual(self.test_oval.angle,'angle')
+        self.assertEqual(self.test_oval.__view_model__,'oval')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_oval.to_glyphspec(), {'line_color': {'value': 'black'}, 'angle': {'units': 'data', 'field': 'angle'}, 'fill_color': {'value': 'gray'}, 'height': {'units': 'data', 'field': 'height'}, 'width': {'units': 'data', 'field': 'width'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'oval'})
+        self.test_oval.x = 50
+        self.test_oval.y = 51
+        self.test_oval.width = 500
+        self.test_oval.height = 501
+        self.test_oval.angle = 90
+        self.assertEqual(self.test_oval.to_glyphspec(), {'line_color': {'value': 'black'}, 'angle': {'units': 'data', 'value': 90}, 'fill_color': {'value': 'gray'}, 'height': {'units': 'data', 'value': 501}, 'width': {'units': 'data', 'value': 500}, 'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'type': 'oval'})
+
 
 class TestPatch(unittest.TestCase):
     def setUp(self):
@@ -448,6 +502,12 @@ class TestPatch(unittest.TestCase):
         self.assertEqual(self.test_patch.y,'y')
         self.assertEqual(self.test_patch.__view_model__,'patch')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_patch.to_glyphspec(), {'line_color': {'value': 'black'}, 'y': {'units': 'data', 'field': 'y'}, 'type': 'patch', 'fill_color': {'value': 'gray'}, 'x': {'units': 'data', 'field': 'x'}})
+        self.test_patch.x = 50
+        self.test_patch.y = 51
+        self.assertEqual(self.test_patch.to_glyphspec(), {'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'type': 'patch', 'fill_color': {'value': 'gray'}, 'line_color': {'value': 'black'}})
+
 class TestPatches(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Patches
@@ -462,6 +522,12 @@ class TestPatches(unittest.TestCase):
         self.assertEqual(self.test_patches.xs,'xs')
         self.assertEqual(self.test_patches.ys,'ys')
         self.assertEqual(self.test_patches.__view_model__,'patches')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_patches.to_glyphspec(), {'line_color': {'value': 'black'}, 'xs': {'units': 'data', 'field': 'xs'}, 'ys': {'units': 'data', 'field': 'ys'}, 'type': 'patches', 'fill_color': {'value': 'gray'}})
+        self.test_patches.xs = 50
+        self.test_patches.ys = 51
+        self.assertEqual(self.test_patches.to_glyphspec(), {'line_color': {'value': 'black'}, 'xs': {'units': 'data', 'value': 50}, 'ys': {'units': 'data', 'value': 51}, 'type': 'patches', 'fill_color': {'value': 'gray'}})
 
 class TestQuad(unittest.TestCase):
     def setUp(self):
@@ -479,6 +545,14 @@ class TestQuad(unittest.TestCase):
         self.assertEqual(self.test_quad.bottom,'bottom')
         self.assertEqual(self.test_quad.top,'top')
         self.assertEqual(self.test_quad.__view_model__,'quad')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_quad.to_glyphspec(), {'line_color': {'value': 'black'}, 'right': {'units': 'data', 'field': 'right'}, 'fill_color': {'value': 'gray'}, 'bottom': {'units': 'data', 'field': 'bottom'}, 'top': {'units': 'data', 'field': 'top'}, 'type': 'quad', 'left': {'units': 'data', 'field': 'left'}})
+        self.test_quad.left = 50
+        self.test_quad.right = 51
+        self.test_quad.bottom = 52
+        self.test_quad.top = 53
+        self.assertEqual(self.test_quad.to_glyphspec(), {'line_color': {'value': 'black'}, 'right': {'units': 'data', 'value': 51}, 'fill_color': {'value': 'gray'}, 'bottom': {'units': 'data', 'value': 52}, 'top': {'units': 'data', 'value': 53}, 'type': 'quad', 'left': {'units': 'data', 'value': 50}})
 
 class TestQuadratic(unittest.TestCase):
     def setUp(self):
@@ -499,6 +573,16 @@ class TestQuadratic(unittest.TestCase):
         self.assertEqual(self.test_quadratic.cy,'cy')
         self.assertEqual(self.test_quadratic.__view_model__,'quadratic')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_quadratic.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'cy': {'units': 'data', 'field': 'cy'}, 'cx': {'units': 'data', 'field': 'cx'}, 'y1': {'units': 'data', 'field': 'y1'}, 'y0': {'units': 'data', 'field': 'y0'}, 'x0': {'units': 'data', 'field': 'x0'}, 'x1': {'units': 'data', 'field': 'x1'}, 'type': 'quadratic'})
+        self.test_quadratic.x0 = 1
+        self.test_quadratic.x1 = 2
+        self.test_quadratic.cx = 3
+        self.test_quadratic.y0 = 4
+        self.test_quadratic.y1 = 5
+        self.test_quadratic.cy = 6
+        self.assertEqual(self.test_quadratic.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'cy': {'units': 'data', 'value': 6}, 'cx': {'units': 'data', 'value': 3}, 'y1': {'units': 'data', 'value': 5}, 'y0': {'units': 'data', 'value': 4}, 'x0': {'units': 'data', 'value': 1}, 'x1': {'units': 'data', 'value': 2}, 'type': 'quadratic'})
+
 class TestRay(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Ray
@@ -516,6 +600,13 @@ class TestRay(unittest.TestCase):
         self.assertEqual(self.test_ray.length,'length')
         self.assertEqual(self.test_ray.__view_model__,'ray')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_ray.to_glyphspec(), {'line_color': {'value': 'black'}, 'angle': {'units': 'data', 'field': 'angle'}, 'length': {'units': 'data', 'field': 'length'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'ray'})
+        self.test_ray.x = 50
+        self.test_ray.y = 51
+        self.test_ray.angle = 90
+        self.test_ray.length = 100
+        self.assertEqual(self.test_ray.to_glyphspec(), {'line_color': {'value': 'black'}, 'angle': {'units': 'data', 'value': 90}, 'length': {'units': 'data', 'value': 100}, 'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'type': 'ray'})
 
 class TestRect(unittest.TestCase):
     def setUp(self):
@@ -535,6 +626,15 @@ class TestRect(unittest.TestCase):
         self.assertEqual(self.test_rect.angle,'angle')
         self.assertEqual(self.test_rect.__view_model__,'rect')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_rect.to_glyphspec(), {'line_color': {'value': 'black'}, 'angle': {'units': 'data', 'field': 'angle'}, 'fill_color': {'value': 'gray'}, 'height': {'units': 'data', 'field': 'height'}, 'width': {'units': 'data', 'field': 'width'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'rect'})
+        self.test_rect.x = 50
+        self.test_rect.y = 51
+        self.test_rect.width = 100
+        self.test_rect.height = 200
+        self.test_rect.angle = 90
+        self.assertEqual(self.test_rect.to_glyphspec(), {'line_color': {'value': 'black'}, 'angle': {'units': 'data', 'value': 90}, 'fill_color': {'value': 'gray'}, 'height': {'units': 'data', 'value': 200}, 'width': {'units': 'data', 'value': 100}, 'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'type': 'rect'})
+
 class TestSegment(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Segment
@@ -552,6 +652,14 @@ class TestSegment(unittest.TestCase):
         self.assertEqual(self.test_segment.y1,'y1')
         self.assertEqual(self.test_segment.__view_model__,'segment')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_segment.to_glyphspec(), {'line_color': {'value': 'black'}, 'y1': {'units': 'data', 'field': 'y1'}, 'y0': {'units': 'data', 'field': 'y0'}, 'x0': {'units': 'data', 'field': 'x0'}, 'x1': {'units': 'data', 'field': 'x1'}, 'type': 'segment'})
+        self.test_segment.x0 = 1
+        self.test_segment.y0 = 2
+        self.test_segment.x1 = 3
+        self.test_segment.y1 = 4
+        self.assertEqual(self.test_segment.to_glyphspec(), {'line_color': {'value': 'black'}, 'y1': {'units': 'data', 'value': 4}, 'y0': {'units': 'data', 'value': 2}, 'x0': {'units': 'data', 'value': 1}, 'x1': {'units': 'data', 'value': 3}, 'type': 'segment'})
+
 class TestText(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Text
@@ -568,6 +676,14 @@ class TestText(unittest.TestCase):
         self.assertEqual(self.test_text.text,None)
         self.assertEqual(self.test_text.angle,'angle')
         self.assertEqual(self.test_text.__view_model__,'text')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_text.to_glyphspec(), {'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'angle': {'units': 'data', 'field': 'angle'}, 'type': 'text'})
+        self.test_text.x = 50
+        self.test_text.y = 51
+        self.test_text.angle = 90
+        self.test_text.text = 'colourless green sheep sleep furiously'
+        self.assertEqual(self.test_text.to_glyphspec(), {'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'type': 'text', 'angle': {'units': 'data', 'value': 90}, 'text': 'colourless green sheep sleep furiously'})
 
 class TestWedge(unittest.TestCase):
     def setUp(self):
@@ -590,6 +706,15 @@ class TestWedge(unittest.TestCase):
         self.assertEqual(self.test_wedge.direction,'clock')
         self.test_wedge.direction = 'anticlock'
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_wedge.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'start_angle': {'units': 'data', 'field': 'start_angle'}, 'end_angle': {'units': 'data', 'field': 'end_angle'}, 'radius': {'units': 'data', 'field': None}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'wedge'})
+        self.test_wedge.x = 50
+        self.test_wedge.y = 51
+        self.test_wedge.radius = 52
+        self.test_wedge.start_angle = 53
+        self.test_wedge.end_angle = 54
+        self.test_wedge.direction = 'anticlock'
+        self.assertEqual(self.test_wedge.to_glyphspec(), {'line_color': {'value': 'black'}, 'direction': 'anticlock', 'fill_color': {'value': 'gray'}, 'start_angle': {'units': 'data', 'value': 53}, 'end_angle': {'units': 'data', 'value': 54}, 'radius': {'units': 'data', 'value': 52}, 'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'type': 'wedge'})
 
 if __name__ == "__main__":
     unittest.main()
