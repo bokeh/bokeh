@@ -36,8 +36,16 @@ class TestBaseGlyph(unittest.TestCase):
         self.test_glyph.start_angle_units = 'rad'
         self.test_glyph.end_angle_units = 'rad'     
 
-    def test_to_gylphspec(self):
+    def test_to_glyphspec(self):
         self.assertEqual(self.test_glyph.to_glyphspec(), {'type':'BaseGlyph'})
+        self.test_glyph.visible = False
+        self.test_glyph.margin = 5
+        self.assertEqual(self.test_glyph.to_glyphspec(), {'visible': False, 'margin': 5, 'type': 'BaseGlyph'})
+    
+    def test_constructor(self):
+        from bokeh.glyphs import BaseGlyph
+        test_glyph = BaseGlyph(visible=True,margin=8)
+        self.assertEqual(test_glyph.to_glyphspec(), {'visible': True, 'margin': 8, 'type': 'BaseGlyph'})
 
 #Basic Shapes
 class TestMarker(unittest.TestCase):
@@ -55,6 +63,13 @@ class TestMarker(unittest.TestCase):
         self.assertEqual(self.test_marker.x ,'x')
         self.assertEqual(self.test_marker.y ,'y')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_marker.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'Marker', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+        self.test_marker.x = 20
+        self.test_marker.y = 50
+        self.test_marker.size = 100
+        self.assertEqual(self.test_marker.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'value': 50}, 'x': {'units': 'data', 'value': 20}, 'type': 'Marker', 'size': {'units': 'screen', 'value': 100}})
+
 class TestCircle(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Circle
@@ -69,6 +84,12 @@ class TestCircle(unittest.TestCase):
         self.assertEqual(self.test_circle.radius , {'default':4,'field':None})
         self.assertEqual(self.test_circle.__view_model__,'circle')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_circle.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'radius': {'units': 'screen', 'field': None, 'default': 4}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'circle', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+        self.test_circle.radius = 500
+        self.assertEqual(self.test_circle.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'radius': {'units': 'screen', 'value': 500}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'circle', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+
+
 class TestSquare(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Square
@@ -82,6 +103,11 @@ class TestSquare(unittest.TestCase):
     def test_expected_values(self):
         self.assertEqual(self.test_square.__view_model__,'square')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_square.to_glyphspec(), {'line_color': {'value': 'black'}, 'angle': {'units': 'data', 'field': 'angle'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'square', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+        self.test_square.angle = 90
+        self.assertEqual(self.test_square.to_glyphspec(), {'line_color': {'value': 'black'}, 'angle': {'units': 'data', 'value': 90}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'square', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+
 class TestTriangle(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Triangle
@@ -89,6 +115,9 @@ class TestTriangle(unittest.TestCase):
 
     def test_expected_values(self):
         self.assertEqual(self.test_triangle.__view_model__,'triangle')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_triangle.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'triangle', 'size': {'units': 'screen', 'field': None, 'default': 4}})
 
 class TestCross(unittest.TestCase):
     def setUp(self):
@@ -98,6 +127,9 @@ class TestCross(unittest.TestCase):
     def test_expected_values(self):
         self.assertEqual(self.test_cross.__view_model__,'cross')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_cross.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'cross', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+
 class TestXmarker(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Xmarker
@@ -105,6 +137,9 @@ class TestXmarker(unittest.TestCase):
 
     def test_expected_values(self):
         self.assertEqual(self.test_x_marker.__view_model__,'x')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_x_marker.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'x', 'size': {'units': 'screen', 'field': None, 'default': 4}})
 
 class TestDiamond(unittest.TestCase):
     def setUp(self):
@@ -114,6 +149,9 @@ class TestDiamond(unittest.TestCase):
     def test_expected_values(self):
         self.assertEqual(self.test_diamond.__view_model__,'diamond')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_diamond.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'diamond', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+
 class TestInvertedTriangle(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import InvertedTriangle
@@ -121,6 +159,9 @@ class TestInvertedTriangle(unittest.TestCase):
 
     def test_expected_values(self):
         self.assertEqual(self.test_inverted_triangle.__view_model__,'inverted_triangle')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_inverted_triangle.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'inverted_triangle', 'size': {'units': 'screen', 'field': None, 'default': 4}})
 
 class TestSquareX(unittest.TestCase):
     def setUp(self):
@@ -130,6 +171,9 @@ class TestSquareX(unittest.TestCase):
     def test_expected_values(self):
         self.assertEqual(self.test_square_x.__view_model__,'square_x')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_square_x.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'square_x', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+
 class TestAsterisk(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import Asterisk
@@ -137,6 +181,9 @@ class TestAsterisk(unittest.TestCase):
 
     def test_expected_values(self):
         self.assertEqual(self.test_asterisk.__view_model__,'asterisk')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_asterisk.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'asterisk', 'size': {'units': 'screen', 'field': None, 'default': 4}})
 
 class TestDiamondCross(unittest.TestCase):
     def setUp(self):
@@ -146,6 +193,9 @@ class TestDiamondCross(unittest.TestCase):
     def test_expected_values(self):
         self.assertEqual(self.test_diamond_cross.__view_model__,'diamond_cross')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_diamond_cross.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'diamond_cross', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+
 class TestCircleCross(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import CircleCross
@@ -153,6 +203,9 @@ class TestCircleCross(unittest.TestCase):
 
     def test_expected_values(self):
         self.assertEqual(self.test_circle_cross.__view_model__,'circle_cross')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_circle_cross.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'circle_cross', 'size': {'units': 'screen', 'field': None, 'default': 4}})
 
 class TestHexStar(unittest.TestCase):
     def setUp(self):
@@ -162,6 +215,9 @@ class TestHexStar(unittest.TestCase):
     def test_expected_values(self):
         self.assertEqual(self.test_hex_star.__view_model__,'hexstar')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_hex_star.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'hexstar', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+
 class TestSquareCross(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import SquareCross
@@ -170,6 +226,9 @@ class TestSquareCross(unittest.TestCase):
     def test_expected_values(self):
         self.assertEqual(self.test_square_cross.__view_model__,'square_cross')
 
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_square_cross.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'square_cross', 'size': {'units': 'screen', 'field': None, 'default': 4}})
+
 class TestCircleX(unittest.TestCase):
     def setUp(self):
         from bokeh.glyphs import CircleX
@@ -177,6 +236,9 @@ class TestCircleX(unittest.TestCase):
 
     def test_expected_values(self):
         self.assertEqual(self.test_circle_x.__view_model__,'circle_x')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_circle_x.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'circle_x', 'size': {'units': 'screen', 'field': None, 'default': 4}})
 
 #More complicated shapes
 class TestAnnularWedge(unittest.TestCase):
@@ -203,6 +265,14 @@ class TestAnnularWedge(unittest.TestCase):
 
     def test_to_glyphspec(self):
         self.assertEqual(self.test_annular_wedge.to_glyphspec(),{'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'start_angle': {'units': 'data', 'field': 'start_angle'}, 'end_angle': {'units': 'data', 'field': 'end_angle'}, 'outer_radius': {'units': 'data', 'field': None}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'annular_wedge', 'inner_radius': {'units': 'data', 'field': None}})
+        self.test_annular_wedge.x = 50
+        self.test_annular_wedge.y = 100
+        self.test_annular_wedge.inner_radius = 50
+        self.test_annular_wedge.outer_radius = 51
+        self.test_annular_wedge.start_angle = 91 
+        self.test_annular_wedge.end_angle = 92
+        self.test_annular_wedge.direction = 'anticlock'
+        self.assertEqual(self.test_annular_wedge.to_glyphspec(), {'line_color': {'value': 'black'}, 'direction': 'anticlock', 'inner_radius': {'units': 'data', 'value': 50}, 'start_angle': {'units': 'data', 'value': 91}, 'end_angle': {'units': 'data', 'value': 92}, 'outer_radius': {'units': 'data', 'value': 51}, 'y': {'units': 'data', 'value': 100}, 'x': {'units': 'data', 'value': 50}, 'type': 'annular_wedge', 'fill_color': {'value': 'gray'}})
 
 class TestAnnulus(unittest.TestCase):
     def setUp(self):
@@ -220,6 +290,14 @@ class TestAnnulus(unittest.TestCase):
         self.assertEqual(self.test_annulus.y,'y')
         self.assertEqual(self.test_annulus.inner_radius,None)
         self.assertEqual(self.test_annulus.outer_radius,None)
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_annulus.to_glyphspec(), {'line_color': {'value': 'black'}, 'fill_color': {'value': 'gray'}, 'outer_radius': {'units': 'data', 'field': None}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'annulus', 'inner_radius': {'units': 'data', 'field': None}})
+        self.test_annulus.x = 50
+        self.test_annulus.y = 100
+        self.test_annulus.inner_radius = 61
+        self.test_annulus.outer_radius = 62
+        self.assertEqual(self.test_annulus.to_glyphspec(), {'line_color': {'value': 'black'}, 'inner_radius': {'units': 'data', 'value': 61}, 'outer_radius': {'units': 'data', 'value': 62}, 'y': {'units': 'data', 'value': 100}, 'x': {'units': 'data', 'value': 50}, 'type': 'annulus', 'fill_color': {'value': 'gray'}})
 
 class TestArc(unittest.TestCase):
     def setUp(self):
@@ -239,6 +317,15 @@ class TestArc(unittest.TestCase):
         self.assertEqual(self.test_arc.start_angle,'start_angle')
         self.assertEqual(self.test_arc.end_angle,'end_angle')
         self.assertEqual(self.test_arc.direction,'clock')
+        self.test_arc.direction = 'anticlock'
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_arc.to_glyphspec(), {'line_color': {'value': 'black'}, 'start_angle': {'units': 'data', 'field': 'start_angle'}, 'end_angle': {'units': 'data', 'field': 'end_angle'}, 'radius': {'units': 'data', 'field': None}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'arc'})
+        self.test_arc.x = 50
+        self.test_arc.y = 100
+        self.test_arc.radius = 51
+        self.test_arc.start_angle = 52
+        self.test_arc.end_angle = 53
         self.test_arc.direction = 'anticlock'
 
 class TestBezier(unittest.TestCase):
