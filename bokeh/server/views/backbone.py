@@ -5,14 +5,13 @@ import flask
 import os
 import logging
 import uuid
-import urlparse
 from ..app import app
 from ..serverbb import RedisSession
 from .. import wsmanager
 from ..models import convenience
 from ..models import docs
 from ... import protocol
-from bbauth import (check_read_authentication_and_create_client,
+from .bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
 from ..crossdomain import crossdomain
 from ..views import make_json
@@ -178,7 +177,7 @@ def update(docid, typename, id):
     try:
         idx = changed.index(model)
         del changed[idx]
-    except ValueError  as e:
+    except ValueError as e:
         #this is strange but ok, that means the model didn't change
         pass
     ws_update(sess, changed, exclude_self=False)

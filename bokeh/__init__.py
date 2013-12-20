@@ -1,12 +1,13 @@
+from __future__ import absolute_import, print_function
 
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
-import sampledata
+from . import sampledata
 
 def print_versions():
-    """Print all the versions of software that Blaze relies on."""
+    """Print all the versions of software that Bokeh relies on."""
     import sys, platform
     print("-=" * 38)
     print("Bokeh version: %s" % __version__)

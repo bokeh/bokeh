@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 from numpy import pi, arange, sin, cos
 import numpy as np
@@ -49,20 +50,20 @@ if len(sys.argv) > 1 and sys.argv[1] == "server":
                 serverloc="http://localhost:5006", userapikey="nokey")
         sess.use_doc(demo_name)
     except requests.exceptions.ConnectionError as e:
-        print e
-        print "\nThe 'server' version of this example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'.\n"
+        print(e)
+        print("\nThe 'server' version of this example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'.\n")
         sys.exit()
 
     sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
     sess.store_all()
-    print "Stored to document", demo_name
+    print("Stored to document", demo_name)
 else:
     filename = demo_name + ".html"
     sess = session.HTMLFileSession(filename)
     sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
     sess.plotcontext.children.append(plot)
     sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-    print "Wrote", filename
+    print("Wrote", filename)
 

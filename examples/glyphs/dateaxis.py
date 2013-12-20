@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
@@ -46,7 +48,7 @@ sess.add(plot, glyph_renderer, source, xaxis, yaxis, xdr, ydr, pantool, zoomtool
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 sess.dumpjson(file=__file__.replace(".py", ".json"))
-print "Wrote " + FILENAME
+print("Wrote " + FILENAME)
 try:
     import webbrowser
 

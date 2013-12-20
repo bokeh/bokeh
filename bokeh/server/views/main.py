@@ -7,9 +7,10 @@ from ..app import app
 import os
 import logging
 import uuid
+from six import string_types
 
 
-from bbauth import check_read_authentication_and_create_client
+from .bbauth import check_read_authentication_and_create_client
 
 
 from ..models import user
@@ -41,7 +42,7 @@ def favicon():
 
 def _makedoc(redisconn, u, title):
     docid = str(uuid.uuid4())
-    if isinstance(u, basestring):
+    if isinstance(u, string_types):
         u = user.User.load(redisconn, u)
     sess = RedisSession(app.bb_redis, docid)
     u.add_doc(docid, title)
@@ -125,7 +126,7 @@ def _get_bokeh_info(docid):
     sess.load()
     sess.prune()
     all_models = sess._models.values()
-    print "num models", len(all_models)
+    print("num models", len(all_models))
     all_models = sess.broadcast_attrs(all_models)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
@@ -229,8 +230,8 @@ def make_test_plot():
 
 
 
-@app.route("/bokeh/generate_embed/<inject_type>/<include_js>")
-def generate_embed(inject_type, include_js):
+@app.route("/bokeh/generate_embed/<inject_type>")
+def generate_embed(inject_type):
     """the following 8 functions setup embedding pages in a variety of formats
 
     urls with no_js don't have any of our javascript included in
@@ -260,7 +261,7 @@ def generate_embed(inject_type, include_js):
     """
 
     plot = make_test_plot()
-    delay, double_delay, onload, direct, include_js_flag  = [False] * 5
+    delay, double_delay, onload, direct  = [False] * 4
     plot_scr = ""
 
     if inject_type == "delay":
@@ -276,17 +277,12 @@ def generate_embed(inject_type, include_js):
     elif inject_type == "static_double":
 
         plot_scr = "%s %s" % (plot.create_html_snippet(server=True),
-                              make_plot().create_html_snippet(server=True))
+                              plot.create_html_snippet(server=True))
 
 
-    #I don't like this naming scheme
-    if include_js == "no_js":
-        include_js_flag = False
-    elif include_js == "yes_js":
-        include_js_flag = True
 
     return dom_embed(
-        plot, include_js=include_js_flag, delay=delay, onload=onload,
+        plot, delay=delay, onload=onload,
         direct=direct,  plot_scr=plot_scr, double_delay=double_delay)
 
 

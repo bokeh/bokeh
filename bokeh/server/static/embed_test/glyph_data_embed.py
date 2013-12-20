@@ -110,8 +110,8 @@ sess.add(plot, renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
 sess.plotcontext.children.append(plot)
 
 inject_2 =  plot.script_direct_inject()
-print inject_1
-print inject_2
+print(inject_1)
+print(inject_2)
 
 html  = '''
 <!DOCTYPE html>

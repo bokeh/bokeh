@@ -1,3 +1,4 @@
+from __future__ import print_function
 import numpy as np
 import pandas as pd
 from scipy import misc
@@ -7,7 +8,7 @@ import itertools
 from bokeh.objects import (
     GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
     Glyph, ObjectArrayDataSource, PanTool, ZoomTool, ResizeTool,
-    SelectionTool, BoxSelectionOverlay
+    BoxSelectTool, BoxSelectionOverlay
 )
 from bokeh.glyphs import MultiLine, ImageRGBA, Circle
 from bokeh import session
@@ -24,7 +25,7 @@ plot = GMapPlot(
     title = "Austin"
     )
 
-select_tool = SelectionTool()
+select_tool = BoxSelectTool()
 overlay = BoxSelectionOverlay(tool=select_tool)
 plot.renderers.append(overlay)
 plot.tools.append(select_tool)
@@ -59,8 +60,10 @@ try:
         userapikey="nokey"
     )
 except requests.exceptions.ConnectionError as e:
-    print e
-    print "\nThis example requires the plot server.  Please make sure plot server is running, via 'bokeh-server' in the bokeh root directory.\n"
+    print(e)
+    print("\nThis example requires the plot server.  Please make sure plot "
+            "server is running, via 'bokeh-server' in the bokeh root "
+            "directory.\n")
     sys.exit()
 
 sess.use_doc("maps")
@@ -70,4 +73,4 @@ sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
 sess.store_all()
 
-print "Stored to document maps at http://localhost:5006/bokeh"
+print("Stored to document maps at http://localhost:5006/bokeh")

@@ -1,26 +1,24 @@
+from __future__ import absolute_import, print_function
+import gevent.monkey
+gevent.monkey.patch_all()
+
 from geventwebsocket.handler import WebSocketHandler
 from gevent.pywsgi import WSGIServer
 from flask import request, Flask
-import gevent
-import gevent.monkey
-gevent.monkey.patch_all()
+
 import uuid
 import socket
 import redis
 
 #server imports
-from app import app as bokeh_app
-import wsmanager
-from .. import protocol
-from serverbb import ContinuumModelsStorage
-from .. import bbmodel
-bbmodel.load_special_types()
+from .app import app as bokeh_app
+from . import wsmanager
+from .serverbb import ContinuumModelsStorage
 #import objects so that we can resolve them
-import bokeh.objects
-import bokeh.glyphs
-import models.user as user
-import models.convenience as mconv
-import models.docs as docs
+from .. import protocol, bbmodel, objects, glyphs
+bbmodel.load_special_types()
+from .models import user, docs
+from .models import convenience as mconv
 import os
 from os.path import join, dirname
 import logging
@@ -35,7 +33,7 @@ app = Flask("bokeh.server")
 
 def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True):
     #must import views before running apps
-    import views.deps
+    from .views import deps
     app.register_blueprint(bokeh_app)
     bokeh_app.redis_port = rport
     bokeh_app.start_redis = start_redis
@@ -79,7 +77,7 @@ def prepare_local():
 
 http_server = None
 
-import services
+from . import services
 import os
 import atexit
 def start_services():
@@ -99,8 +97,8 @@ def start_app(verbose=False):
     http_server = WSGIServer(('', PORT), app,
                              handler_class=WebSocketHandler,
                              )
-    print "\nStarting Bokeh plot server on port %d..." % PORT
-    print "View http://localhost:%d/bokeh to see plots\n" % PORT
+    print("\nStarting Bokeh plot server on port %d..." % PORT)
+    print("View http://localhost:%d/bokeh to see plots\n" % PORT)
     http_server.serve_forever()
 
 

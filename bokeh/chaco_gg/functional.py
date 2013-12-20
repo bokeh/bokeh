@@ -7,7 +7,7 @@ and constructs a session-level object using the Chaco shell.
 import chaco.shell
 from chaco.shell import *
 
-from ggplot import GGPlot, Aesthetic, GeomPoint, GeomLine, Facet, Factor, Tool
+from .ggplot import GGPlot, Aesthetic, GeomPoint, GeomLine, Facet, Factor, Tool
 
 _auto_show = True
 _plot_object = None

@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 """ Command-line driven plotting functions, a la Matplotlib  / Matlab / etc.
 """
 import copy
@@ -11,6 +13,8 @@ import requests
 import time
 import warnings
 import webbrowser
+
+from six import string_types
 
 from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataRange1d,
@@ -102,7 +106,7 @@ def plothelp():
         Updates the output HTML file or forces an upload of plot data
         to the server
     """
-    print helpstr
+    print(helpstr)
 
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
@@ -174,7 +178,7 @@ def output_notebook(url=None, docname=None):
             real_url = url
         _config["output_url"] = real_url
         session = NotebookServerSession(serverloc = real_url,
-                    username = "defauluser", userapikey = "nokey")
+                    username = "defaultuser", userapikey = "nokey")
         if docname is None:
             docname = "IPython Session at %s" % time.ctime()
         session.use_doc(docname)
@@ -208,12 +212,13 @@ def output_server(docname, url="default", **kwargs):
     try:
         _config["session"] = PlotServerSession(**kwargs)
     except requests.exceptions.ConnectionError:
-        print "Cannot connect to Bokeh server. (Not running?) To start the Bokeh server execute 'bokeh-server'"
+        print("Cannot connect to Bokeh server. (Not running?) To start the "
+              "Bokeh server execute 'bokeh-server'")
         import sys
         sys.exit(1)
     _config["session"].use_doc(docname)
 
-    print "Using plot server at", real_url + "bokeh;", "Docname:", docname
+    print("Using plot server at", real_url + "bokeh;", "Docname:", docname)
 
 def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
                 css="inline", rootdir="."):
@@ -233,7 +238,8 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
     """
     set_config()
     if os.path.isfile(filename):
-        print "Session output file '%s' already exists, will be overwritten." % filename
+        print("Session output file '%s' already exists, will be overwritten." %
+                filename)
     session = HTMLFileSession(filename, title=title)
     if js == "relative":
         session.inline_js = False
@@ -445,7 +451,7 @@ class GlyphFunction(object):
                     # ColorSpecs do not have units.  However, if there are other kinds of
                     # DataSpecs that do have string constants, then we will need to fix
                     # this up to have smarter detection of field names.
-                    if isinstance(curval, basestring):
+                    if isinstance(curval, string_types):
                         glyph_params[dspec] = {"field": curval, "units": val}
                     else:
                         glyph_params[dspec] = {"value": curval, "units": val}
@@ -459,7 +465,7 @@ class GlyphFunction(object):
                 # This check for color constants needs to happen relatively early on because
                 # both strings and certain iterables are valid colors.
                 glyph_val = val
-            elif isinstance(val, basestring):
+            elif isinstance(val, string_types):
                 if self.glyphclass == glyphs.Text:
                     glyph_val = val
                 else:
@@ -716,14 +722,14 @@ marker_types = {
 def markers():
     """ Prints a list of valid marker types for scatter()
     """
-    print sorted(marker_types.keys())
+    print(list(sorted(marker_types.keys())))
 
 
 for _marker_name, _glyph_class in marker_types.items():
     if len(_marker_name) <= 2:
         continue
     _func = GlyphFunction(_glyph_class, ("x", "y"))
-    exec "%s = _func" % _marker_name
+    exec("%s = _func" % _marker_name)
 
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x & y items
@@ -904,7 +910,7 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
     # process, "arrays" should contain a uniform list of string/ndarray/iterable
     # corresponding to the inputs.
     for arg in args:
-        if isinstance(arg, basestring):
+        if isinstance(arg, string_types):
             # This has to be handled before our check for Iterable
             arrays.append(arg)
 
@@ -929,7 +935,7 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
     # Now put all the data into a DataSource, or insert into existing one
     names = []
     for i, ary in enumerate(arrays):
-        if isinstance(ary, basestring):
+        if isinstance(ary, string_types):
             name = ary
         else:
             if i < len(suggested_names):

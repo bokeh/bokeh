@@ -1,18 +1,16 @@
 import requests
-import urlparse
 import uuid
 import logging
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import redis
-import bokeh.bbmodel as bbmodel
-from bokeh import protocol
-from bokeh.bbmodel import ContinuumModelsClient
-from models import docs
+from .. import bbmodel, protocol
+from ..bbmodel import ContinuumModelsClient
+from .models import docs
 import numpy as np
 logger = logging.getLogger(__name__)
 
-from bokeh.objects import PlotObject, Plot
-from bokeh.session import PlotServerSession
+from ..objects import PlotObject, Plot
+from ..session import PlotServerSession
 
 """
 In our python interface to the backbone system, we separate the local collection
@@ -87,7 +85,7 @@ class ContinuumModelsStorage(object):
         with self.client.pipeline() as pipe:
             pipe.watch(mkey)
             model = self.get(typename, docid, id)
-            for k,v in attributes.iteritems():
+            for k,v in attributes.items():
                 model.set(k, v)
             self._upsert(pipe, model)
             pipe.execute()
@@ -213,7 +211,7 @@ class RedisSession(PlotServerSession):
         models = [self.serialize(m) for m in models]
         dkey = dockey(self.docid)
         data = dict(zip(keys, models))
-        for k,v in data.iteritems():
+        for k,v in data.items():
             logger.debug('key: %s', k)
             logger.debug('val: %s', v)
         self.r.mset(data)

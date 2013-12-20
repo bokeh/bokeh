@@ -1,19 +1,22 @@
+from __future__ import absolute_import, print_function
+
 import numpy as np
 import logging
-import urlparse
+
+try:
+    from urlparse import urlsplit, urljoin
+except ImportError:
+    from urllib.parse import urlsplit, urljoin
+
 import requests
 import uuid
-import bbmodel
-import protocol
-import data
 import os
-import dump
 import json
 import pandas
-from exceptions import DataIntegrityException
 
-from bokeh import protocol
-from bokeh.utils import get_json
+from . import bbmodel, data, protocol, dump
+from .exceptions import DataIntegrityException
+from .utils import get_json, string_types
 
 log = logging.getLogger(__name__)
 colors = [
@@ -128,7 +131,7 @@ class PandasTable(BokehMPLBase):
     def sort(self, sort=None, direction=None):
         if sort is None:
             sort = []
-        elif isinstance(sort, basestring):
+        elif isinstance(sort, string_types):
             if direction is None: direction = True
             sort = [{'column' : sort, 'direction' : direction}]
         else:
@@ -247,12 +250,12 @@ class XYPlot(BokehMPLBase):
                 xfield = 'x'
                 yfields = colnames
             else:
-                raise Exception, "too many dims"
+                raise Exception("too many dims")
             return source, xfield, yfields
-        if not isinstance(x, basestring):
+        if not isinstance(x, string_types):
             if y is None:
                 y = x
-                x = range(len(y))
+                x = list(range(len(y)))
                 if isinstance(y, np.ndarray):
                     source, xfield, yfields = source_from_array(x, y)
                 else:
@@ -267,7 +270,8 @@ class XYPlot(BokehMPLBase):
         else:
             xfield = x
             if y is None:
-                raise Exception, 'must specify X and Y when calling with strings'
+                raise Exception('must specify X and Y when calling'
+                                'with strings')
             yfields = [y]
             if data_source:
                 source = data_source
@@ -377,7 +381,7 @@ class PlotClient(object):
         if self.root_url:
             self.update_userinfo()
         else:
-            print 'Not using a server, plots will only work in embedded mode'
+            print('Not using a server, plots will only work in embedded mode')
         self.docid = None
         self.models = {}
         self.clf()
@@ -390,42 +394,42 @@ class PlotClient(object):
 
     @property
     def ws_conn_string(self):
-        split = urlparse.urlsplit(self.root_url)
+        split = urlsplit(self.root_url)
         #how to fix this in bokeh and wakari?
         if split.scheme == 'http':
             return "ws://%s/bokeh/sub" % split.netloc
         else:
             return "wss://%s/bokeh/sub" % split.netloc
     def update_userinfo(self):
-        url = urlparse.urljoin(self.root_url, '/bokeh/userinfo/')
+        url = urljoin(self.root_url, '/bokeh/userinfo/')
         self.userinfo = get_json(self.session.get(url, verify=False))
 
     def load_doc(self, docid):
-        url = urlparse.urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
+        url = urljoin(self.root_url,"/bokeh/getdocapikey/%s" % docid)
         resp = self.session.get(url, verify=False)
         if resp.status_code == 401:
-            raise Exception, 'unauthorized'
+            raise Exception('unauthorized')
         apikey = get_json(resp)
         if 'apikey' in apikey:
             self.docid = docid
             self.apikey = apikey['apikey']
-            print 'got read write apikey'
+            print('got read write apikey')
         else:
             self.docid = docid
             self.apikey = apikey['readonlyapikey']
-            print 'got read only apikey'
+            print('got read only apikey')
         self.models = {}
-        url = urlparse.urljoin(self.root_url, "/bokeh/bb/")
+        url = urljoin(self.root_url, "/bokeh/bb/")
         self.bbclient = bbmodel.ContinuumModelsClient(
             docid, url, self.apikey)
         interactive_contexts = self.bbclient.fetch(
             typename='PlotContext')
         if len(interactive_contexts) > 1:
-            print 'warning, multiple plot contexts here...'
+            print('warning, multiple plot contexts here...')
         self.ic = interactive_contexts[0]
 
     def make_doc(self, title):
-        url = urlparse.urljoin(self.root_url,"/bokeh/doc/")
+        url = urljoin(self.root_url,"/bokeh/doc/")
         data = protocol.serialize_web({'title' : title})
         response = self.session.post(url, data=data, verify=False)
         if response.status_code == 409:
@@ -436,7 +440,7 @@ class PlotClient(object):
         matching = [x for x in self.userinfo['docs'] \
                     if x.get('title') == title]
         docid = matching[0]['docid']
-        url = urlparse.urljoin(self.root_url,"/bokeh/doc/%s/" % docid)
+        url = urljoin(self.root_url,"/bokeh/doc/%s/" % docid)
         response = self.session.delete(url, verify=False)
         if response.status_code == 409:
             raise DataIntegrityException
@@ -447,9 +451,9 @@ class PlotClient(object):
         docs = self.userinfo.get('docs')
         matching = [x for x in docs if x.get('title') == name]
         if len(matching) > 1:
-            print 'warning, multiple documents with that title'
+            print('warning, multiple documents with that title')
         if len(matching) == 0:
-            print 'no documents found, creating new document'
+            print('no documents found, creating new document')
             self.make_doc(name)
             return self.use_doc(name)
             docs = self.userinfo.get('docs')

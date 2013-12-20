@@ -1,8 +1,9 @@
 from .. import models
 from ...exceptions import DataIntegrityException
-from docs import Doc
+from .docs import Doc
 import uuid
 from werkzeug import generate_password_hash, check_password_hash
+from six import string_types
 
 def apiuser_from_request(app, request):
     apikey = request.headers.get('BOKEHUSER-API-KEY')
@@ -63,7 +64,7 @@ class User(models.ServerModel):
         docs = attrs.get('docs')
         newdocs = []
         for doc in docs:
-            if isinstance(doc, basestring):
+            if isinstance(doc, string_types):
                 doc = Doc.load(client, doc)
                 newdocs.append({'title' : doc.title,
                                 'docid' : doc.docid})
@@ -79,13 +80,13 @@ class User(models.ServerModel):
     def add_doc(self, docid, title):
         matching = [x for x in self.docs if x.get('title') == title]
         if len(matching) > 0:
-            raise DataIntegrityException, 'title already exists'
+            raise DataIntegrityException('title already exists')
         self.docs.append({'docid' : docid, 'title' : title})
         
     def remove_doc(self, docid):
         matching = [x for x in self.docs if x.get('docid') == docid]
         if len(matching) == 0:
-            raise DataIntegrityException, 'no document found'
+            raise DataIntegrityException('no document found')
         self.docs = [x for x in self.docs if x.get('docid') != docid]
         
         

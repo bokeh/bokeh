@@ -20,7 +20,7 @@ class ManagedProcess(object):
                 #this is ok, just means process is not running
                 pass
         elif pid and not kill_old:
-            raise Exception, "proces %s is running on PID %s" % (name, pid)
+            raise Exception("process %s is running on PID %s" % (name, pid))
         if stdout is None: stdout = subprocess.PIPE
         if stderr is None: stderr = subprocess.PIPE
         if stdin is None: stdin = subprocess.PIPE
@@ -61,7 +61,7 @@ class ManagedProcess(object):
 
 
 
-def start_redis(pidfilename, port, data_dir, loglevel="notice",
+def start_redis(pidfilename, port, data_dir, loglevel="warning",
                 data_file='redis.db', save=True):
     base_config = os.path.join(os.path.dirname(__file__), 'redis.conf')
     with open(base_config) as f:

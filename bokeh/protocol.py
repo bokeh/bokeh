@@ -3,7 +3,7 @@ import json
 import threading
 import logging
 import time
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import numpy as np
 import pandas as pd
 
@@ -28,7 +28,7 @@ list data which can be serialized and deserialized
 millifactor = 10 ** 6.
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, np.ndarray):
+        if isinstance(obj, (np.ndarray, pd.Series)):
             return obj.tolist()
         elif isinstance(obj, np.number):
             if isinstance(obj, np.integer):
@@ -80,7 +80,7 @@ def default_serialize_data(data):
             d = np.ascontiguousarray(d)
             try:
                 temp = np.frombuffer(d, dtype=d.dtype)
-            except ValueError, TypeError:
+            except (ValueError, TypeError):
                 add_pickle(d)
                 continue
             add_numpy(d)
