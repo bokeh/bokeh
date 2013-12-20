@@ -436,7 +436,7 @@ class ColumnDataSource(DataSource):
                 for colname in raw_data:
                     new_data[colname] = raw_data[colname].tolist()
                 raw_data = new_data
-        for name, data in raw_data.iteritems():
+        for name, data in raw_data.items():
             self.add(data, name)
         super(ColumnDataSource, self).__init__(**kw)
 
