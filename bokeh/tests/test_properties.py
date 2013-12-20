@@ -79,19 +79,18 @@ class Basictest(unittest.TestCase):
         f.x = 13
         self.assertEqual(f.x, 13)
 
-    @unittest.skip('Skipping kwargs test for Jenkins testing')
-    def test_kwargs_init(self):
-        class Foo(HasProps):
-            x = String
-            y = Int
-            z = Float
-        f = Foo(x = "hello", y = 14)
-        self.assertEqual(f.x, "hello")
-        self.assertEqual(f.y, 14)
+    # def test_kwargs_init(self):
+    #     class Foo(HasProps):
+    #         x = String
+    #         y = Int
+    #         z = Float
+    #     f = Foo(x = "hello", y = 14)
+    #     self.assertEqual(f.x, "hello")
+    #     self.assertEqual(f.y, 14)
 
-        with self.assertRaises(TypeError):
-            # This should raise a TypeError: object.__init__() takes no parameters
-            g = Foo(z = 3.14, q = "blah")
+    #     with self.assertRaises(TypeError):
+    #         # This should raise a TypeError: object.__init__() takes no parameters
+    #         g = Foo(z = 3.14, q = "blah")
 
 class TestDataSpec(unittest.TestCase):
 
