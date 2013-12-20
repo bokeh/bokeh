@@ -230,8 +230,8 @@ def make_test_plot():
 
 
 
-@app.route("/bokeh/generate_embed/<inject_type>/<include_js>")
-def generate_embed(inject_type, include_js):
+@app.route("/bokeh/generate_embed/<inject_type>")
+def generate_embed(inject_type):
     """the following 8 functions setup embedding pages in a variety of formats
 
     urls with no_js don't have any of our javascript included in
@@ -261,7 +261,7 @@ def generate_embed(inject_type, include_js):
     """
 
     plot = make_test_plot()
-    delay, double_delay, onload, direct, include_js_flag  = [False] * 5
+    delay, double_delay, onload, direct  = [False] * 4
     plot_scr = ""
 
     if inject_type == "delay":
@@ -277,17 +277,12 @@ def generate_embed(inject_type, include_js):
     elif inject_type == "static_double":
 
         plot_scr = "%s %s" % (plot.create_html_snippet(server=True),
-                              make_plot().create_html_snippet(server=True))
+                              plot.create_html_snippet(server=True))
 
 
-    #I don't like this naming scheme
-    if include_js == "no_js":
-        include_js_flag = False
-    elif include_js == "yes_js":
-        include_js_flag = True
 
     return dom_embed(
-        plot, include_js=include_js_flag, delay=delay, onload=onload,
+        plot, delay=delay, onload=onload,
         direct=direct,  plot_scr=plot_scr, double_delay=double_delay)
 
 
