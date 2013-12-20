@@ -34,7 +34,7 @@ fi
 # Use conda to create a conda environment of the required
 # python version and containing the dependencies.
 export PYENV_PREFIX=${WORKSPACE}/build/pyenv
-~/anaconda/bin/conda create --yes --channel http://repo.continuum.io/pkgs/dev -p ${PYENV_PREFIX} python=${PYTHON_VERSION} bokeh nose || exit 1
+~/anaconda/bin/conda create --yes --channel http://repo.continuum.io/pkgs/dev -p ${PYENV_PREFIX} python=${PYTHON_VERSION} nose || exit 1
 export PATH=${PYENV_PREFIX}/bin:${PATH}
 
 if [ -f "${PYENV_PREFIX}/bin/python" ]; then
