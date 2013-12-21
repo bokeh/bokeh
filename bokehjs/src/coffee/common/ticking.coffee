@@ -323,7 +323,7 @@ define [
     get_max_interval: () ->
       return _.last(@max_intervals)
 
-    get_interval: (data_low, data_high) ->
+    get_best_scale: (data_low, data_high) ->
       data_range = float(data_high) - float(data_low)
       ideal_interval = @get_ideal_interval(data_low, data_high)
       scale_ixs = [
@@ -335,14 +335,19 @@ define [
         return Math.abs(DESIRED_N_TICKS - (data_range / interval)))
       
       best_scale_ix = scale_ixs[argmin(errors)]
-      best_interval = @scales[best_scale_ix].get_interval(data_low, data_high)
+      best_scale = @scales[best_scale_ix]
 
-#       console.log("")
-#       console.log("CS.gi: intervals = #{intervals}")
-#       console.log("          errors = #{errors}")
-#       console.log("        interval = #{best_interval}")
+#       console.log("Selected #{best_scale.constructor.name}")
 
-      return best_interval
+      return best_scale
+
+    get_interval: (data_low, data_high) ->
+      best_scale = @get_best_scale(data_low, data_high)
+      return best_scale.get_interval(data_low, data_high)
+
+    get_ticks: (data_low, data_high) ->
+      best_scale = @get_best_scale(data_low, data_high)
+      return best_scale.get_ticks(data_low, data_high)
 
   class AdaptiveScale extends AbstractScale
     constructor: (mantissas, @base=10.0, @min_magnitude=0.0,
@@ -391,6 +396,42 @@ define [
 
       return clamp(interval, @get_min_interval(), @get_max_interval())
 
+  last_day_no_later_than = (time) ->
+    # FIXME Is this really the best way?
+    d = new Date(time)
+    d.setHours(0)
+    d.setMinutes(0)
+    d.setSeconds(0)
+    d.setMilliseconds(0)
+    return d.getTime()
+
+  add_days = (time, n_days) ->
+    d = new Date(time)
+    d.setDate(d.getDate() + n_days)
+    return d.getTime()
+
+  class DayScale extends AdaptiveScale
+    constructor: () ->
+      super([1.0, 2.0, 5.0], 10.0, ONE_DAY, ONE_DAY)
+
+    get_ticks: (data_low, data_high) ->
+      interval = @get_interval(data_low, data_high)
+
+      # FIXME Ideally we would walk forward using this, but we need to align
+      # the days consistently.
+      n_days_per_tick = interval / ONE_DAY
+
+      tick = last_day_no_later_than(data_low)
+      ticks = [tick]
+      while true
+        tick = add_days(tick, 1)
+        ticks.push(tick)
+        if tick >= data_high
+          break
+
+      console.log(ticks.map((time) -> new Date(time)))
+      return ticks
+
   class SimpleScale extends CompositeScale
     constructor: (intervals) ->
       super(intervals.map((interval) ->
@@ -419,8 +460,12 @@ define [
     new AdaptiveScale([1.0, 2.0, 4.0, 6.0, 8.0, 12.0], 24.0,
                       ONE_HOUR, ONE_HOUR),
  
-    # Days and above.
-    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, ONE_DAY, Infinity),
+    # Days.
+    # FIXME Formatting is not happening quite right at the boundaries.
+    new DayScale(),
+
+    # Catchall for large timescales.
+    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 10 * ONE_DAY, Infinity),
   ])
 
   auto_interval_temp = (data_low, data_high) ->
