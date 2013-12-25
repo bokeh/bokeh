@@ -337,7 +337,7 @@ define [
       best_scale_ix = scale_ixs[argmin(errors)]
       best_scale = @scales[best_scale_ix]
 
-#       console.log("Selected #{best_scale.constructor.name}")
+      console.log("Selected #{best_scale.constructor.name}")
 
       return best_scale
 
@@ -405,6 +405,15 @@ define [
     d.setMilliseconds(0)
     return d.getTime()
 
+  last_month_no_later_than = (time) ->
+    d = new Date(time)
+    d.setDate(1)
+    d.setHours(0)
+    d.setMinutes(0)
+    d.setSeconds(0)
+    d.setMilliseconds(0)
+    return d.getTime()
+
   add_days = (time, n_days) ->
     d = new Date(time)
     d.setDate(d.getDate() + n_days)
@@ -431,6 +440,80 @@ define [
 
       console.log(ticks.map((time) -> new Date(time)))
       return ticks
+
+  class DaysScale extends SingleIntervalScale
+    constructor: (@days) ->
+      typical_interval = if @days.length > 1
+          (@days[1] - @days[0]) * ONE_DAY
+        else
+          31 * ONE_DAY
+      super(typical_interval)
+
+    get_ticks: (data_low, data_high) ->
+      copy_date = (date) ->
+        return new Date(date.getTime())
+
+      date_range_by_month = (start_time, end_time) ->
+        start_date = new Date(last_month_no_later_than(start_time))
+        
+        end_date = new Date(last_month_no_later_than(end_time))
+        # XXX This is not a reliable technique in general, but it should be
+        # safe when the day of the month is 1.  (The problem case is this:
+        # Mar 31 -> Apr 31, which becomes May 1.)
+        end_date.setMonth(end_date.getMonth() + 1)
+
+        console.log("start: #{start_time} -> #{new Date(start_time)} -> #{start_date} -> #{start_date.getTime()}")
+        console.log("  end: #{  end_time} -> #{  new Date(end_time)} -> #{  end_date} -> #{  end_date.getTime()}")
+
+        dates = []
+        date = start_date
+        while true
+          dates.push(copy_date(date))
+
+          date.setMonth(date.getMonth() + 1)
+          if date > end_date
+            break
+
+        return dates
+
+      month_dates = date_range_by_month(data_low, data_high)
+      console.log("months: #{month_dates}")
+
+      days = @days
+      days_of_month = (month_date) ->
+        dates = []
+        for day in days
+          day_date = copy_date(month_date)
+          day_date.setDate(day)
+#           console.log("  #{day} #{day_date} (#{day_date.getMonth() == month_date.getMonth()})")
+          # Some of the values of @days may not apply to the current month, in
+          # which case the resulting date will fall in the next month.
+          if day_date.getMonth() == month_date.getMonth()
+            dates.push(day_date)
+        return dates
+
+      # FIXME Use a list comprehension?
+      day_dates = _.flatten(month_dates.map((date) -> days_of_month(date)))
+
+      console.log("  days: #{day_dates}")
+
+      all_ticks = _.invoke(day_dates, 'getTime')
+      # FIXME Since the ticks are sorted, this could be done more efficiently.
+      ticks_in_range = _.filter(all_ticks,
+                                ((tick) -> data_low <= tick <= data_high))
+
+      console.log(":::")
+      console.log("#{data_low} [#{all_ticks}] #{data_high}")
+      console.log("[#{ ticks_in_range }]")
+
+      # FIXME Continue here:
+      # Transition between 12-hour and 24-hour resolutions is not correct.
+      # This is because the day resolutions are aligned with the local time
+      # zone, and the resolutions below are aligned with GMT.
+
+      console.log("#{ticks_in_range.map((tick) -> new Date(tick))}")
+
+      return ticks_in_range
 
   class SimpleScale extends CompositeScale
     constructor: (intervals) ->
@@ -462,7 +545,11 @@ define [
  
     # Days.
     # FIXME Formatting is not happening quite right at the boundaries.
-    new DayScale(),
+    new DaysScale(arange(1, 32)), #FIXME
+    new DaysScale(arange(1, 31, 3)),
+    new DaysScale([1, 8, 15, 22]),
+    new DaysScale([1, 15]),
+    new DaysScale([1]),
 
     # Catchall for large timescales.
     new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 10 * ONE_DAY, Infinity),
