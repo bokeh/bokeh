@@ -414,6 +414,19 @@ define [
     d.setMilliseconds(0)
     return d.getTime()
 
+  last_year_no_later_than = (time) ->
+    d = new Date(time)
+    d.setMonth(0)
+    d.setDate(1)
+    d.setHours(0)
+    d.setMinutes(0)
+    d.setSeconds(0)
+    d.setMilliseconds(0)
+    return d.getTime()
+
+  copy_date = (date) ->
+    return new Date(date.getTime())
+
   add_days = (time, n_days) ->
     d = new Date(time)
     d.setDate(d.getDate() + n_days)
@@ -441,6 +454,50 @@ define [
       console.log(ticks.map((time) -> new Date(time)))
       return ticks
 
+  class MonthsScale extends SingleIntervalScale
+    constructor: (@months) ->
+      @typical_interval = if @months.length > 1
+          (@months[1] - @months[0]) * ONE_MONTH
+        else
+          12 * ONE_MONTH
+      super(@typical_interval)
+
+    get_ticks: (data_low, data_high) ->
+      date_range_by_year = (start_time, end_time) ->
+        start_date = new Date(last_year_no_later_than(start_time))
+        
+        end_date = new Date(last_year_no_later_than(end_time))
+        end_date.setFullYear(end_date.getFullYear() + 1)
+
+        dates = []
+        date = start_date
+        while true
+          dates.push(copy_date(date))
+
+          date.setFullYear(date.getFullYear() + 1)
+          if date > end_date
+            break
+
+        return dates
+
+      year_dates = date_range_by_year(data_low, data_high)
+
+      months = @months
+      months_of_year = (year_date) ->
+        return months.map((month) ->
+          month_date = copy_date(year_date)
+          month_date.setMonth(month)
+          return month_date)
+
+      # FIXME Use a list comprehension?
+      month_dates = _.flatten(year_dates.map((date) -> months_of_year(date)))
+
+      all_ticks = _.invoke(month_dates, 'getTime')
+      ticks_in_range = _.filter(all_ticks,
+                                ((tick) -> data_low <= tick <= data_high))
+
+      return ticks_in_range
+
   class DaysScale extends SingleIntervalScale
     constructor: (@days) ->
       @typical_interval = if @days.length > 1
@@ -450,10 +507,6 @@ define [
       super(@typical_interval)
 
     get_ticks: (data_low, data_high) ->
-      console.log("#{@typical_interval}")
-      copy_date = (date) ->
-        return new Date(date.getTime())
-
       date_range_by_month = (start_time, end_time) ->
         start_date = new Date(last_month_no_later_than(start_time))
         
@@ -462,9 +515,6 @@ define [
         # safe when the day of the month is 1.  (The problem case is this:
         # Mar 31 -> Apr 31, which becomes May 1.)
         end_date.setMonth(end_date.getMonth() + 1)
-
-        console.log("start: #{start_time} -> #{new Date(start_time)} -> #{start_date} -> #{start_date.getTime()}")
-        console.log("  end: #{  end_time} -> #{  new Date(end_time)} -> #{  end_date} -> #{  end_date.getTime()}")
 
         dates = []
         date = start_date
@@ -478,7 +528,6 @@ define [
         return dates
 
       month_dates = date_range_by_month(data_low, data_high)
-      console.log("months: #{month_dates}")
 
       # FIXME Is there a better way to deal with this?
       days = @days
@@ -501,23 +550,15 @@ define [
       # FIXME Use a list comprehension?
       day_dates = _.flatten(month_dates.map((date) -> days_of_month(date)))
 
-      console.log("  days: #{day_dates}")
-
       all_ticks = _.invoke(day_dates, 'getTime')
       # FIXME Since the ticks are sorted, this could be done more efficiently.
       ticks_in_range = _.filter(all_ticks,
                                 ((tick) -> data_low <= tick <= data_high))
 
-      console.log(":::")
-      console.log("#{data_low} [#{all_ticks}] #{data_high}")
-      console.log("[#{ ticks_in_range }]")
-
       # FIXME Continue here:
       # Transition between 12-hour and 24-hour resolutions is not correct.
       # This is because the day resolutions are aligned with the local time
       # zone, and the resolutions below are aligned with GMT.
-
-      console.log("#{ticks_in_range.map((tick) -> new Date(tick))}")
 
       return ticks_in_range
 
@@ -535,6 +576,8 @@ define [
   ONE_MINUTE = 60.0 * ONE_SECOND
   ONE_HOUR = 60 * ONE_MINUTE
   ONE_DAY = 24 * ONE_HOUR
+  ONE_MONTH = 30 * ONE_DAY # An approximation, obviously.
+  ONE_YEAR = 365 * ONE_DAY
 
   global_scale = new CompositeScale([
     # Sub-second.
@@ -556,9 +599,18 @@ define [
     new DaysScale([1, 8, 15, 22]),
     new DaysScale([1, 15]),
     new DaysScale([1]),
+ 
+    # Months.
+    new MonthsScale(arange(0, 12)),
+    new MonthsScale(arange(0, 12, 2)),
+    new MonthsScale(arange(0, 12, 4)),
+    new MonthsScale(arange(0, 12, 6)),
+
+    # FIXME Add a year scale.
 
     # Catchall for large timescales.
-    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 10 * ONE_DAY, Infinity),
+    # FIXME I don't think this scale is working.
+    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 10 * ONE_YEAR, Infinity),
   ])
 
   auto_interval_temp = (data_low, data_high) ->
