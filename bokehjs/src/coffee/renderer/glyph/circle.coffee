@@ -8,11 +8,23 @@ define [
 
   class CircleView extends Glyph.View
 
-    _fields: ['x', 'y', 'radius']
     _properties: ['line', 'fill']
 
+    # we need a custom initializer because circles may either take glyph-style radius (defaults
+    # to data units) or a marker-style size (defaults to screen units)
+    initialize: (options) ->
+      spec = @mget('glyphspec')
+      if spec.radius?
+        @_fields = ['x', 'y', 'radius']
+      else if spec.size?
+        @_fields = ['x', 'y', 'size']
+      super(options)
+
     _set_data: () ->
-      @max_radius = _.max(@radius)
+      if @size
+        @max_radius = _.max(@size)/2
+      else
+        @max_radius = _.max(@radius)
       @index = rbush()
       @index.load(
         ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0..@x.length-1])
@@ -20,8 +32,11 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      ds = @mget_obj('data_source')
-      @radius = @distance_vector('x', 'radius', 'edge')
+      if @size
+        @radius = (s/2 for s in @distance_vector('x', 'size', 'edge'))
+        @radius_units = @size_units
+      else
+        @radius = @distance_vector('x', 'radius', 'edge')
 
     _mask_data: () ->
       hr = @plot_view.view_state.get('inner_range_horizontal')
@@ -157,8 +172,12 @@ define [
 
     display_defaults: () ->
       return _.extend(super(), {
+        radius_units: 'data'
+        size_units: 'screen'
+
         fill_color: 'gray'
         fill_alpha: 1.0
+
         line_color: 'red'
         line_width: 1
         line_alpha: 1.0

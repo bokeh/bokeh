@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "rbush",
   "renderer/properties",
   "./rect",
-], (_, Properties, Rect) ->
+], (_, rbush, Properties, Rect) ->
 
   class SquareView extends Rect.View
 
@@ -127,8 +128,11 @@ define [
 
     display_defaults: () ->
       return _.extend(super(), {
+        size_units: 'screen'
+
         fill_color: 'gray'
         fill_alpha: 1.0
+
         line_color: 'red'
         line_width: 1
         line_alpha: 1.0

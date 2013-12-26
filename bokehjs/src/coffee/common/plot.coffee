@@ -189,8 +189,8 @@ define [
       else
         [sx, sy] = @mapper.v_map_to_target(x, y)
 
-      sx = @view_state.v_sx_to_device(sx)
-      sy = @view_state.v_sy_to_device(sy)
+      sx = @view_state.v_vx_to_sx(sx)
+      sy = @view_state.v_vy_to_sy(sy)
 
       return [sx, sy]
 
@@ -205,8 +205,8 @@ define [
       else
         dy = new Float64Array(sy.length)
         dy.set(y)
-      sx = @view_state.v_device_to_sx(dx)
-      sy = @view_state.v_device_to_sy(dy)
+      sx = @view_state.v_sx_to_vx(dx)
+      sy = @view_state.v_sy_to_vy(dy)
 
       if units == 'screen'
         x = sx

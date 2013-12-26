@@ -84,8 +84,8 @@ define [
         y = v_range.get('start') + legend_padding + @legend_height
       else if orientation == "absolute"
         [x,y] = @absolute_coords
-      x = @plot_view.view_state.sx_to_device(x)
-      y = @plot_view.view_state.sy_to_device(y)
+      x = @plot_view.view_state.vx_to_sx(x)
+      y = @plot_view.view_state.vy_to_sy(y)
       @box_coords = [x,y]
 
     render: () ->

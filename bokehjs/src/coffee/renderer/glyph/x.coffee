@@ -32,10 +32,10 @@ define [
           ctx.stroke()
 
     select: (xscreenbounds, yscreenbounds) ->
-      xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
-        @plot_view.view_state.sx_to_device(xscreenbounds[1])]
-      yscreenbounds = [@plot_view.view_state.sy_to_device(yscreenbounds[0]),
-        @plot_view.view_state.sy_to_device(yscreenbounds[1])]
+      xscreenbounds = [@plot_view.view_state.vx_to_sx(xscreenbounds[0]),
+        @plot_view.view_state.vx_to_sx(xscreenbounds[1])]
+      yscreenbounds = [@plot_view.view_state.vy_to_sy(yscreenbounds[0]),
+        @plot_view.view_state.vy_to_sy(yscreenbounds[1])]
       xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)]
       yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)]
       selected = []

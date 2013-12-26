@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "rbush",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
+], (_, rbush, Properties, Glyph) ->
 
   class QuadView extends Glyph.View
 
@@ -13,7 +14,7 @@ define [
     _set_data: () ->
       @index = rbush()
       @index.load(
-        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0..@x.length-1])
+        ([@left[i], @bottom[i], @right[i], @top[i], {'i': i}] for i in [0..@left.length-1])
       )
 
     _map_data: () ->

@@ -94,6 +94,8 @@ define [
 
     display_defaults: () ->
       return _.extend(super(), {
+        size_units: 'screen'
+
         fill_color: 'gray'
         fill_alpha: 1.0
 

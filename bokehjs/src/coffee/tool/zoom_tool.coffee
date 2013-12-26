@@ -18,7 +18,7 @@ define [
     tool_events: { zoom: "_zoom" }
 
     mouse_coords: (e, x, y) ->
-      [x_, y_] = [@plot_view.view_state.device_to_sx(x), @plot_view.view_state.device_to_sy(y)]
+      [x_, y_] = [@plot_view.view_state.sx_to_vx(x), @plot_view.view_state.sy_to_vy(y)]
       return [x_, y_]
 
     _zoom: (e) ->
