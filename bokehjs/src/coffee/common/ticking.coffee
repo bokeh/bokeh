@@ -443,13 +443,14 @@ define [
 
   class DaysScale extends SingleIntervalScale
     constructor: (@days) ->
-      typical_interval = if @days.length > 1
+      @typical_interval = if @days.length > 1
           (@days[1] - @days[0]) * ONE_DAY
         else
           31 * ONE_DAY
-      super(typical_interval)
+      super(@typical_interval)
 
     get_ticks: (data_low, data_high) ->
+      console.log("#{@typical_interval}")
       copy_date = (date) ->
         return new Date(date.getTime())
 
@@ -479,16 +480,21 @@ define [
       month_dates = date_range_by_month(data_low, data_high)
       console.log("months: #{month_dates}")
 
+      # FIXME Is there a better way to deal with this?
       days = @days
+      typical_interval = @typical_interval
       days_of_month = (month_date) ->
         dates = []
         for day in days
           day_date = copy_date(month_date)
           day_date.setDate(day)
-#           console.log("  #{day} #{day_date} (#{day_date.getMonth() == month_date.getMonth()})")
-          # Some of the values of @days may not apply to the current month, in
-          # which case the resulting date will fall in the next month.
-          if day_date.getMonth() == month_date.getMonth()
+          # We can't use all of the values in @days, because they may not fall
+          # within the current month.  In fact, if, e.g., our month is 28 days
+          # and we're marking every third day, we don't want day 28 to show up
+          # because it'll be right next to the 1st of the next month.  So we
+          # make sure we have a bit of room before we include a day.
+          future_date = new Date(day_date.getTime() + (typical_interval / 2))
+          if future_date.getMonth() == month_date.getMonth()
             dates.push(day_date)
         return dates
 
