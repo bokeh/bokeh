@@ -62,10 +62,6 @@ define [
           if use_selection == false and @selected_mask[i]
             continue
 
-          if glyph_props.line_properties.set_vectorize(ctx, i)
-            #only stroke if the line_properties have changed
-            ctx.stroke()
-            ctx.beginPath()
           if @angle[i]
             ctx.translate(@sx[i], @sy[i])
             ctx.rotate(@angle[i])
@@ -74,6 +70,11 @@ define [
             ctx.translate(-@sx[i], -@sy[i])
           else
             ctx.rect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
+
+          # only stroke if the line_properties have changed
+          if glyph_props.line_properties.set_vectorize(ctx, i)
+            ctx.stroke()
+            ctx.beginPath()
 
         ctx.stroke()
 
