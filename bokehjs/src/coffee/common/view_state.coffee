@@ -135,13 +135,13 @@ define [
         , true)
       @add_dependencies('inner_range_vertical', this, ['border_bottom', 'inner_height'])
 
-    # transform screen coordinates to underlying device coordinates
+    # transform view coordinates to underlying screen coordinates
     vx_to_sx: (x) ->
       return x
     vy_to_sy: (y) ->
       return @get('canvas_height') - y
 
-    # vectorized versions of xpos/ypos, these are mutating, in-place operations
+    # vectorized versions of vx_to_sx/vy_to_sy, these are mutating, in-place operations
     v_vx_to_sx: (xx) ->
       for x, idx in xx
         xx[idx] = x
@@ -152,13 +152,13 @@ define [
         yy[idx] = canvas_height - y
       return yy
 
-    # transform underlying device coordinates to screen coordinates
+    # transform underlying screen coordinates to view coordinates
     sx_to_vx: (x) ->
       return x
     sy_to_vy: (y) ->
       return @get('canvas_height') - y
 
-    # vectorized versions of rxpos/rypos, these are mutating, in-place operations
+    # vectorized versions of sx_to_vx/sy_to_vy, these are mutating, in-place operations
     v_sx_to_vx: (xx) ->
       for x, idx in xx
         xx[idx] = x
@@ -166,5 +166,5 @@ define [
     v_sy_to_vy: (yy) ->
       canvas_height = @get('canvas_height')
       for y, idx in yy
-        yy[idx] = y - canvas_height
+        yy[idx] = canvas_height - y
       return yy
