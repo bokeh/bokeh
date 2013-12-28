@@ -36,23 +36,8 @@ define [
       if drawing
         ctx.stroke()
 
-    draw_legend: (ctx, x1, x2, y1, y2) ->
-      ctx.save()
-      glyph_props = @glyph_props
-      line_props = glyph_props.line_properties
-      reference_point = @get_reference_point()
-      if reference_point?
-        glyph_settings = reference_point
-      else
-        glyph_settings = glyph_props
-      line_props.set(ctx, glyph_settings)
-      ctx.beginPath()
-      ctx.moveTo(x1, (y1 + y2) /2)
-      ctx.lineTo(x2, (y1 + y2) /2)
-      if line_props.do_stroke
-        line_props.set(ctx, glyph_settings)
-        ctx.stroke()
-      ctx.restore()
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      @_generic_line_legend(ctx, x0, x1, y0, y1)
 
   class Line extends Glyph.Model
     default_view: LineView

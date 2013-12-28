@@ -15,16 +15,16 @@ define [
       @inner_radius = @distance_vector('x', 'inner_radius', 'edge')
       @outer_radius = @distance_vector('x', 'outer_radius', 'edge')
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, inner_radius=@inner_radius, outer_radius=@outer_radius) ->
       for i in indices
 
-        if isNaN(@sx[i] + @sy[i] + @inner_radius[i] + @outer_radius[i])
+        if isNaN(sx[i] + sy[i] + inner_radius[i] + outer_radius[i])
           continue
 
         ctx.beginPath()
-        ctx.arc(@sx[i], @sy[i], @inner_radius[i], 0, 2*Math.PI*2, false)
-        ctx.moveTo(@sx[i]+@outer_radius[i], @sy[i])
-        ctx.arc(@sx[i], @sy[i], @outer_radius[i], 0, 2*Math.PI*2, true)
+        ctx.arc(sx[i], sy[i], inner_radius[i], 0, 2*Math.PI*2, false)
+        ctx.moveTo(sx[i]+outer_radius[i], sy[i])
+        ctx.arc(sx[i], sy[i], outer_radius[i], 0, 2*Math.PI*2, true)
 
         if glyph_props.fill_properties.do_fill
           glyph_props.fill_properties.set_vectorize(ctx, i)
@@ -34,45 +34,22 @@ define [
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
-    draw_legend: (ctx, x1, x2, y1, y2) ->
-      glyph_props = @glyph_props
-      line_props = glyph_props.line_properties
-      fill_props = glyph_props.fill_properties
-      ctx.save()
-      reference_point = @get_reference_point()
-      if reference_point?
-        glyph_settings = reference_point
-        outer_radius = @distance([reference_point],'x', 'outer_radius', 'edge')
-        outer_radius = outer_radius[0]
-        inner_radius = @distance([reference_point],'x', 'inner_radius', 'edge')
-        inner_radius = inner_radius[0]
-      else
-        glyph_settings = glyph_props
-      border = line_props.select(line_props.line_width_name, glyph_settings)
-      d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
-      d = d - 2 * border
-      r = d / 2
-      if outer_radius? or inner_radius?
-        ratio = r / outer_radius
-        outer_radius = r
-        inner_radius = inner_radius * ratio
-      else
-        outer_radius = r
-        inner_radius = r/2
-      sx = (x1 + x2) / 2.0
-      sy = (y1 + y2) / 2.0
-      ctx.beginPath()
-      ctx.arc(sx, sy, inner_radius, 0, 2*Math.PI*2, false)
-      ctx.moveTo(sx + outer_radius, sy)
-      ctx.arc(sx, sy, outer_radius, 0, 2*Math.PI*2, true)
-      if fill_props.do_fill
-        fill_props.set(ctx, glyph_settings)
-        ctx.fill()
-      if line_props.do_stroke
-        line_props.set(ctx, glyph_settings)
-        ctx.stroke()
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      reference_point = @get_reference_point() ? 0
 
-      ctx.restore()
+      indices = [reference_point]
+      sx = { }
+      sx[reference_point] = (x0+x1)/2
+      sy = { }
+      sy[reference_point] = (y0+y1)/2
+
+      r = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.5
+      inner_radius = { }
+      inner_radius[reference_point] = r*0.4
+      outer_radius = { }
+      outer_radius[reference_point] = r*0.8
+
+      @_render(ctx, indices, @glyph_props, sx, sy, inner_radius, outer_radius)
 
   class Annulus extends Glyph.Model
     default_view: AnnulusView

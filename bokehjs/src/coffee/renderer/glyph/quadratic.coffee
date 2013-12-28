@@ -30,6 +30,9 @@ define [
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      @_generic_line_legend(ctx, x0, x1, y0, y1)
+
   class Quadratic extends Glyph.Model
     default_view: QuadraticView
     type: 'Glyph'

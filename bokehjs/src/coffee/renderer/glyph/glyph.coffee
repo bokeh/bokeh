@@ -216,7 +216,46 @@ define [
       else
         return reference_point
 
-    draw_legend: (ctx, x1, x2, y1, y2) ->
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      null
+
+    _generic_line_legend: (ctx, x0, x1, y0, y1) ->
+      reference_point = @get_reference_point() ? 0
+      line_props = @glyph_props.line_properties
+      ctx.save()
+      ctx.beginPath()
+      ctx.moveTo(x0, (y0 + y1) /2)
+      ctx.lineTo(x1, (y0 + y1) /2)
+      if line_props.do_stroke
+        line_props.set_vectorize(ctx, reference_point)
+        ctx.stroke()
+      ctx.restore()
+
+    _generic_area_legend: (ctx, x0, x1, y0, y1) ->
+      reference_point = @get_reference_point() ? 0
+
+      indices = [reference_point]
+
+      w = Math.abs(x1-x0)
+      dw = w*0.1
+      h = Math.abs(y1-y0)
+      dh = h*0.1
+
+      sx0 = x0 + dw
+      sx1 = x1 - dw
+
+      sy0 = y0 + dh
+      sy1 = y1 - dh
+
+      if @glyph_props.fill_properties.do_fill
+        @glyph_props.fill_properties.set_vectorize(ctx, reference_point)
+        ctx.fillRect(sx0, sy0, sx1-sx0, sy1-sy0)
+
+      if @glyph_props.line_properties.do_stroke
+        ctx.beginPath()
+        ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
+        @glyph_props.line_properties.set_vectorize(ctx, reference_point)
+        ctx.stroke()
 
     hit_test: (geometry) ->
       if geometry.type == "point"
