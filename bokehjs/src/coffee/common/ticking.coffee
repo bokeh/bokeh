@@ -113,6 +113,17 @@ define [
         i += step
     return ret_arr
 
+  # A hacky analogue to repr() in Python.  Basically a version of toString()
+  # that works better for arrays and objects.
+  repr = (obj) ->
+    if obj.constructor == Array
+      return "[#{obj}]"
+    else if obj.constructor == Object
+      props_str = ("#{key}: #{obj[key]}" for key of obj).join(", ")
+      return "{#{props_str}}"
+    else
+      return obj.toString()
+
   auto_ticks_old = (data_low, data_high, bound_low, bound_high, tick_interval, use_endpoints=false, zero_always_nice=true) ->
       """ Finds locations for axis tick marks.
 
@@ -286,6 +297,8 @@ define [
 
   # FIXME It's not clear this should be a class.
   class AbstractScale
+    constructor: (@toString_properties=[]) ->
+
     get_ideal_interval: (data_low, data_high) ->
       data_range = float(data_high) - float(data_low)
       return data_range / DESIRED_N_TICKS
@@ -297,10 +310,17 @@ define [
       factors = arange(start_factor, end_factor + 1)
       ticks = factors.map((f) -> return f * interval)
       return ticks
+
+    toString: () ->
+      class_name = @constructor.name
+      props = @toString_properties
+      params_str = ("#{key}=#{repr(this[key])}" for key in props).join(", ")
+      return "#{class_name}(#{params_str})"
   
   # FIXME Hopefully we won't actually need this.
   class SingleIntervalScale extends AbstractScale
     constructor: (@interval) ->
+      super(['interval'])
 
     get_min_interval: () ->
       return @interval
@@ -313,6 +333,8 @@ define [
 
   class CompositeScale extends AbstractScale
     constructor: (@scales) ->
+      super()
+
       # FIXME Validate that the scales don't overlap.
       @min_intervals = @scales.map((s) -> s.get_min_interval())
       @max_intervals = @scales.map((s) -> s.get_max_interval())
@@ -326,6 +348,8 @@ define [
     get_best_scale: (data_low, data_high) ->
       data_range = float(data_high) - float(data_low)
       ideal_interval = @get_ideal_interval(data_low, data_high)
+      # FIXME Other parts of this file use _ndx instead of _ix; I guess we
+      # should switch.
       scale_ixs = [
         bisect_right(@min_intervals, ideal_interval) - 1,
         bisect_right(@max_intervals, ideal_interval)
@@ -337,7 +361,7 @@ define [
       best_scale_ix = scale_ixs[argmin(errors)]
       best_scale = @scales[best_scale_ix]
 
-      console.log("Selected #{best_scale.constructor.name}")
+      console.log("Selected #{best_scale}")
 
       return best_scale
 
@@ -350,8 +374,10 @@ define [
       return best_scale.get_ticks(data_low, data_high)
 
   class AdaptiveScale extends AbstractScale
-    constructor: (mantissas, @base=10.0, @min_magnitude=0.0,
+    constructor: (@mantissas, @base=10.0, @min_magnitude=0.0,
                   @max_magnitude=Infinity)->
+      super(['mantissas', 'base', 'min_magnitude', 'max_magnitude'])
+
       @min_interval = _.first(mantissas) * @min_magnitude
       @max_interval =  _.last(mantissas) * @max_magnitude
 
@@ -506,6 +532,8 @@ define [
           31 * ONE_DAY
       super(@typical_interval)
 
+      @toString_properties = ['days']
+
     get_ticks: (data_low, data_high) ->
       date_range_by_month = (start_time, end_time) ->
         start_date = new Date(last_month_no_later_than(start_time))
@@ -555,7 +583,7 @@ define [
       ticks_in_range = _.filter(all_ticks,
                                 ((tick) -> data_low <= tick <= data_high))
 
-      # FIXME Continue here:
+      # FIXME
       # Transition between 12-hour and 24-hour resolutions is not correct.
       # This is because the day resolutions are aligned with the local time
       # zone, and the resolutions below are aligned with GMT.
