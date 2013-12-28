@@ -14,7 +14,6 @@ define [
       @sw = @distance_vector('x', 'size', 'center')
 
     _render: (ctx, glyph_props, use_selection) ->
-      console.log "FOO"
       for i in @mask
 
         if isNaN(@sx[i] + @sy[i] + @sw[i])
