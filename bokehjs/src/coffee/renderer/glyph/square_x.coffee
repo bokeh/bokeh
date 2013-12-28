@@ -11,18 +11,18 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @sw = @distance_vector('x', 'size', 'center')
+      @size = @distance_vector('x', 'size', 'center')
 
     _render: (ctx, indices, glyph_props) ->
       for i in indices
 
-        if isNaN(@sx[i] + @sy[i] + @sw[i])
+        if isNaN(@sx[i] + @sy[i] + @size[i])
           continue
 
         ctx.translate(@sx[i], @sy[i])
 
         ctx.beginPath()
-        ctx.rect(-@sw[i]/2, -@sw[i]/2, @sw[i], @sw[i])
+        ctx.rect(-@size[i]/2, -@size[i]/2, @size[i], @size[i])
 
         if glyph_props.fill_properties.do_fill
           glyph_props.fill_properties.set_vectorize(ctx, i)
@@ -31,7 +31,7 @@ define [
         if glyph_props.line_properties.do_stroke
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
-          r = @sw[i]/2
+          r = @size[i]/2
           ctx.moveTo(-r, +r)
           ctx.lineTo(+r, -r)
           ctx.moveTo(-r, -r)
