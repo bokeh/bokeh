@@ -26,16 +26,12 @@ define [
         else
           @sy[i] = syi[i]
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props) ->
       if glyph_props.fill_properties.do_fill
 
-        for i in @mask
+        for i in indices
 
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
-            continue
-          if use_selection == true and not @selected_mask[i]
-            continue
-          if use_selection == false and @selected_mask[i]
             continue
 
           #no need to test the return value, we call fillRect for every glyph anyway
@@ -55,13 +51,9 @@ define [
 
         ctx.beginPath()
 
-        for i in @mask
+        for i in indices
 
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
-            continue
-          if use_selection == true and not @selected_mask[i]
-            continue
-          if use_selection == false and @selected_mask[i]
             continue
 
           if @angle[i]

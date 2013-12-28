@@ -15,15 +15,20 @@ define [
 
       @glyph_props = @init_glyph(@mget('glyphspec'))
 
+      @have_selection_props = false
       if @mget('selection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
         @selection_glyphprops = @init_glyph(spec)
+        @have_selection_props = true
       else
         @selection_glyphprops = @glyph_props
 
       if @mget('nonselection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
         @nonselection_glyphprops = @init_glyph(spec)
+        @have_selection_props = true
+      else
+        @nonselection_glyphprops = @glyph_props
 
     init_glyph: (glyphspec) ->
       props = {}
@@ -64,11 +69,7 @@ define [
       # just use the length of the last added field
       len = @[field].length
 
-      @mask = new Uint32Array(len)
-      @selected_mask = new Uint8Array(len)
-      for i in [0..@mask.length-1]
-        @mask[i] = i
-        @selected_mask[i] = false
+      @all_indices = [0..len-1]
 
       @have_new_data = true
 
@@ -83,12 +84,14 @@ define [
       @_map_data()
 
       if @_mask_data?
-        @_mask_data()
+        indices = @_mask_data()
+      else
+        indices = @all_indices
 
       ctx = @plot_view.ctx
       ctx.save()
 
-      do_render = (ctx, glyph_props, use_selection) =>
+      do_render = (ctx, indices, glyph_props) =>
         source = @mget_obj('data_source')
 
         if @have_new_data
@@ -99,18 +102,31 @@ define [
           if glyph_props.text_properties?
             glyph_props.text_properties.set_prop_cache(source)
 
-        @_render(ctx, glyph_props, use_selection)
+        @_render(ctx, indices, glyph_props)
 
       selected = @mget_obj('data_source').get('selected')
 
-      for idx in selected
-        @selected_mask[idx] = true
+      if selected and selected.length and @have_selection_props
 
-      if selected and selected.length and @nonselection_glyphprops
-        do_render(ctx, @selection_glyphprops, true)
-        do_render(ctx, @nonselection_glyphprops, false)
+        # reset the selection mask
+        selected_mask = (false for i in @all_indices)
+        for idx in selected
+          selected_mask[idx] = true
+
+        # intersect/different selection with render mask
+        selected = new Array()
+        nonselected = new Array()
+        for i in indices
+          if selected_mask[i]
+            selected.push(i)
+          else
+            nonselected.push(i)
+
+        do_render(ctx, selected, @selection_glyphprops)
+        do_render(ctx, nonselected, @nonselection_glyphprops)
+
       else
-        do_render(ctx, @glyph_props)
+        do_render(ctx, indices, @glyph_props)
 
       @have_new_data = false
 

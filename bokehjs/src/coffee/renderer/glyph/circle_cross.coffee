@@ -9,14 +9,10 @@ define [
 
     _properties: ['line', 'fill']
 
-    _render: (ctx, glyph_props, use_selection) ->
-      for i in @mask
+    _render: (ctx, indices, glyph_props) ->
+      for i in indices
 
         if isNaN(@sx[i] + @sy[i] + @size[i])
-          continue
-        if use_selection and not @selected_mask[i]
-          continue
-        if use_selection == false and @selected_mask[i]
           continue
 
         ctx.beginPath()

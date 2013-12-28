@@ -18,14 +18,10 @@ define [
       for i in [0..@start_angle.length-1]
         @angle[i] = @end_angle[i] - @start_angle[i]
 
-    _render: (ctx, glyph_props, use_selection) ->
-      for i in [0..@sx.length-1]
+    _render: (ctx, indices, glyph_props) ->
+      for i in indices
 
         if isNaN(@sx[i] + @sy[i] + @inner_radius[i] + @outer_radius[i] + @start_angle[i] + @end_angle[i])
-          continue
-        if use_selection == true and not @selected_mask[i]
-          continue
-        if use_selection == false and @selected_mask[i]
           continue
 
         ctx.translate(@sx[i], @sy[i])

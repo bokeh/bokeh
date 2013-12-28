@@ -33,7 +33,7 @@ define [
       vy1 = vr.get('end') + @max_size
       [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
 
-      @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
     _hit_point: (geometry) ->
       [sx, sy] = [geometry.sx, geometry.sy]

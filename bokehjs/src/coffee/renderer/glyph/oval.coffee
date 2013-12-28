@@ -16,14 +16,10 @@ define [
       @sw = @distance_vector('x', 'width', 'center')
       @sh = @distance_vector('y', 'height', 'center')
 
-    _render: (ctx, glyph_props, use_selection) ->
-      for i in [0..@sx.length-1]
+    _render: (ctx, indices, glyph_props) ->
+      for i in indices
 
         if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
-          continue
-        if use_selection == 'selected' and not @selected_mask[i]
-          continue
-        if use_selection == 'unselected' and @selected_mask[i]
           continue
 
         ctx.translate(@sx[i], @sy[i])

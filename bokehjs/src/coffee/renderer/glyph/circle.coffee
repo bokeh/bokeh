@@ -66,15 +66,11 @@ define [
 
       @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-    _render: (ctx, glyph_props, use_selection) ->
-      for i in @mask
+    _render: (ctx, indices, glyph_props) ->
+      for i in indices
 
         if isNaN(@sx[i] + @sy[i] + @radius[i])
             continue
-        if use_selection and not @selected_mask[i]
-          continue
-        if use_selection == false and @selected_mask[i]
-          continue
 
         ctx.beginPath()
         ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)

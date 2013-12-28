@@ -13,14 +13,10 @@ define [
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @sw = @distance_vector('x', 'size', 'center')
 
-    _render: (ctx, glyph_props, use_selection) ->
-      for i in @mask
+    _render: (ctx, indices, glyph_props) ->
+      for i in indices
 
         if isNaN(@sx[i] + @sy[i] + @sw[i])
-          continue
-        if use_selection == 'selected' and not @selected_mask[i]
-          continue
-        if use_selection == 'unselected' and @selected_mask[i]
           continue
 
         ctx.translate(@sx[i], @sy[i])

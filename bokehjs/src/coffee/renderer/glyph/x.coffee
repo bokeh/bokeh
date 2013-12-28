@@ -9,16 +9,12 @@ define [
 
     _properties: ['line']
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props) ->
       if glyph_props.line_properties.do_stroke
 
-        for i in @mask
+        for i in indices
 
           if isNaN(@sx[i] + @sy[i] + @size[i])
-            continue
-          if use_selection and not @selected_mask[i]
-            continue
-          if use_selection == false and @selected_mask[i]
             continue
 
           r = @size[i]/2

@@ -14,8 +14,8 @@ define [
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @radius = @distance_vector('x', 'radius', 'edge')
 
-    _render: (ctx, glyph_props, use_selection) ->
-      for i in [0..@sx.length-1]
+    _render: (ctx, indices, glyph_props) ->
+      for i in indices
 
         if isNaN(@sx[i] + @sy[i] + @radius[i] + @start_angle[i] + @end_angle[i] + @direction[i])
           continue

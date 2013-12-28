@@ -13,10 +13,12 @@ define [
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props) ->
+
       drawing = false
       glyph_props.line_properties.set_vectorize(ctx, 0)
-      for i in [0..@sx.length-1]
+
+      for i in indices
 
         if isNaN(@sx[i] + @sy[i]) and drawing
           ctx.stroke()

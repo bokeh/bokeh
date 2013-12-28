@@ -15,14 +15,10 @@ define [
       @inner_radius = @distance_vector('x', 'inner_radius', 'edge')
       @outer_radius = @distance_vector('x', 'outer_radius', 'edge')
 
-    _render: (ctx, glyph_props, use_selection) ->
-      for i in [0..@sx.length-1]
+    _render: (ctx, indices, glyph_props) ->
+      for i in indices
 
         if isNaN(@sx[i] + @sy[i] + @inner_radius[i] + @outer_radius[i])
-          continue
-        if use_selection == true and not @selected_mask[i]
-          continue
-        if use_selection == false and @selected_mask[i]
           continue
 
         ctx.beginPath()

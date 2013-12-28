@@ -14,10 +14,10 @@ define [
       [@sx0, @sy0] = @plot_view.map_to_screen(@x0, @glyph_props.x0.units, @y0, @glyph_props.y0.units)
       [@sx1, @sy1] = @plot_view.map_to_screen(@x1, @glyph_props.x1.units, @y1, @glyph_props.y1.units)
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props) ->
       if glyph_props.line_properties.do_stroke
 
-        for i in [0..@sx0.length-1]
+        for i in indices
 
           if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
             continue

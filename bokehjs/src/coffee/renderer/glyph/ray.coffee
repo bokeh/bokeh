@@ -18,9 +18,11 @@ define [
       for i in [0..@length.length-1]
         if @length[i] == 0 then @length[i] = inf_len
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props) ->
       if glyph_props.line_properties.do_stroke
-        for i in [0..@sx.length-1]
+
+        for i in indices
+
           if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
             continue
 

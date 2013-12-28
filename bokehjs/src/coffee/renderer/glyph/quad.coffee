@@ -24,16 +24,16 @@ define [
     _mask_data: () ->
       ow = @plot_view.view_state.get('outer_width')
       oh = @plot_view.view_state.get('outer_height')
-      for i in [0..@mask.length-1]
-        if (@sx0[i] < 0 and @sx1[i] < 0) or (@sx0[i] > ow and @sx1[i] > ow) or (@sy0[i] < 0 and @sy1[i] < 0) or (@sy0[i] > oh and @sy1[i] > oh)
-          @mask[i] = false
-        else
-          @mask[i] = true
+      [x0, x1] = @plot_view.xmapper.v_map_from_target([0, ow])
 
-    _render: (ctx, glyph_props, use_selection) ->
-      for i in [0..@sx0.length-1]
+      vr = @plot_view.view_state.get('inner_range_vertical')
+      [y0, y1] = @plot_view.ymapper.v_map_from_target([0, ow])
+      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i]) or not @mask[i]
+    _render: (ctx, indices, glyph_props) ->
+      for i in indices
+
+        if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i])
           continue
 
         if glyph_props.fill_properties.do_fill

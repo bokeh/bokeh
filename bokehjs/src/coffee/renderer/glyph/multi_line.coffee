@@ -13,11 +13,12 @@ define [
     _map_data: () ->
       null
 
-    _render: (ctx, glyph_props, use_selection) ->
-      for i in [0..@xs.length-1]
+    _render: (ctx, indices, glyph_props) ->
+
+      for i in indices
+
         x = @xs[i]
         y = @ys[i]
-
         [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
 
         glyph_props.line_properties.set_vectorize(ctx, i)

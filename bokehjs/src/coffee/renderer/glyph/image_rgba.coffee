@@ -38,11 +38,11 @@ define [
       @sw = @distance_vector('x', 'dw', 'edge')
       @sh = @distance_vector('y', 'dh', 'edge')
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props) ->
       old_smoothing = ctx.getImageSmoothingEnabled()
       ctx.setImageSmoothingEnabled(false)
 
-      for i in [0..@sx.length-1]
+      for i in indices
 
         if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i])
           continue
