@@ -124,6 +124,8 @@ define [
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
+    # circle does not inherit from marker (since it also accepts radius) so we
+    # must supply a draw_legend for it  here
     draw_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0
 
@@ -136,8 +138,6 @@ define [
       sy[reference_point] = (y0+y1)/2
       radius = { }
       radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
-
-      console.log indices, sx, sy, radius
 
       @_render(ctx, indices, @glyph_props, sx, sy, radius)
 
