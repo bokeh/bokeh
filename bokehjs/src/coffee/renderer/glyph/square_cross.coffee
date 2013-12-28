@@ -12,12 +12,11 @@ define [
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @sw = @distance_vector('x', 'size', 'center')
-      @sh = @sw
 
     _render: (ctx, glyph_props, use_selection) ->
       for i in @mask
 
-        if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i])
+        if isNaN(@sx[i] + @sy[i] + @sw[i])
           continue
         if use_selection == 'selected' and not @selected_mask[i]
           continue
@@ -27,7 +26,7 @@ define [
         ctx.translate(@sx[i], @sy[i])
 
         ctx.beginPath()
-        ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
+        ctx.rect(-@sw[i]/2, -@sw[i]/2, @sw[i], @sw[i])
 
         if glyph_props.fill_properties.do_fill
           glyph_props.fill_properties.set_vectorize(ctx, i)

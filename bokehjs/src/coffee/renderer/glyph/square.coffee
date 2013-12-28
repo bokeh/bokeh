@@ -1,88 +1,43 @@
 
 define [
   "underscore",
-  "rbush",
   "renderer/properties",
-  "./rect",
-], (_, rbush, Properties, Rect) ->
+  "./marker",
+], (_, Properties, Marker) ->
 
-  class SquareView extends Rect.View
+  class SquareView extends Marker.View
 
-    _fields: ['x', 'y', 'size', 'angle']
     _properties: ['line', 'fill']
-
-    _set_data: () ->
-      @max_size = _.max(@size)
-      @index = rbush()
-      @index.load(
-        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0..@x.length-1])
-      )
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       @sw = @distance_vector('x', 'size', 'center')
-      @sh = @sw
 
-    _mask_data: () ->
-      # dilate the inner screen region by max_size and map back to data space for use in
-      # spatial query
-      hr = @plot_view.view_state.get('inner_range_horizontal')
-      vx0 = hr.get('start') - @max_size
-      vx1 = hr.get('end') - @max_size
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+    _render: (ctx, glyph_props, use_selection) ->
+      console.log "FOO"
+      for i in @mask
 
-      vr = @plot_view.view_state.get('inner_range_vertical')
-      vy0 = vr.get('start') - @max_size
-      vy1 = vr.get('end') - @max_size
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+        if isNaN(@sx[i] + @sy[i] + @sw[i])
+          continue
+        if use_selection == 'selected' and not @selected_mask[i]
+          continue
+        if use_selection == 'unselected' and @selected_mask[i]
+          continue
 
-      @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+        ctx.translate(@sx[i], @sy[i])
 
-    # squares do not inherit from Marker, so we must supply hit testers explicitly
-    _hit_point: (geometry) ->
-      [vx, vy] = [geometry.vx, geometry.vy]
-      x = @plot_view.xmapper.map_from_target(vx)
-      y = @plot_view.ymapper.map_from_target(vy)
+        ctx.beginPath()
+        ctx.rect(-@sw[i]/2, -@sw[i]/2, @sw[i], @sw[i])
 
-      if @size_units == "screen"
-        sx0 = sx - @max_radius
-        sx1 = sx - @max_radius
-        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+        if glyph_props.fill_properties.do_fill
+          glyph_props.fill_properties.set_vectorize(ctx, i)
+          ctx.fill()
 
-        sy0 = sy - @max_radius
-        sy1 = sy - @max_radius
-        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+        if glyph_props.line_properties.do_stroke
+          glyph_props.line_properties.set_vectorize(ctx, i)
+          ctx.stroke()
 
-      else
-        sx0 = sx - @max_size
-        sx1 = sx - @max_size
-        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
-
-        sy0 = sy - @max_size
-        sy1 = sy - @max_size
-        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
-
-      candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
-
-      hits = []
-      if @size_units == "screen"
-        for i in [0..candidates.length-1]
-          s2 = @size[i]/2
-          if Math.abs(@sx[i]-sx) <= s2 and Math.abs(@sy[i]-sy) <= s2
-            hits.push(i)
-      else
-        for i in [0..candidates.length-1]
-          s2 = @size[i]^2
-          if Math.abs(@x[i]-x) <= s2 and Math.abs(@y[i]-y) <= s2
-            hits.push(i)
-      return hits
-
-    _hit_rect: (geometry) ->
-      [x0, y0] = @plot_view.xmapper.v_map_from_target([geometry.sx0, geometry.sy0])
-      [x1, y1] = @plot_view.xmapper.v_map_from_target([geometry.sx1, geometry.sy1])
-
-      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
-
+        ctx.translate(-@sx[i], -@sy[i])
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
       ## dummy legend function just draws a circle.. this way
@@ -114,16 +69,20 @@ define [
       x = (x1 + x2) / 2 - (w / 2)
       y = (y1 + y2) / 2 - (h / 2)
       ctx.rect(x, y, w, h)
-
-      if glyph_props.fill_properties.do_fill
-        glyph_props.fill_properties.set_vectorize(ctx, i)
+      if fill_props.do_fill
+        fill_props.set(ctx, glyph_settings)
         ctx.fill()
-
-      if glyph_props.line_properties.do_stroke
-        glyph_props.line_properties.set_vectorize(ctx, i)
+      if line_props.do_stroke
+        line_props.set(ctx, glyph_settings)
+        ctx.moveTo(x-r, y+r)
+        ctx.lineTo(x+r, y-r)
+        ctx.moveTo(x-r, y-r)
+        ctx.lineTo(x+r, y+r)
         ctx.stroke()
 
-  class Square extends Rect.Model
+      ctx.restore()
+
+  class Square extends Marker.Model
     default_view: SquareView
     type: 'Glyph'
 
