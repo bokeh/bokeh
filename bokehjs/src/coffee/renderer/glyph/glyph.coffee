@@ -64,10 +64,10 @@ define [
       # just use the length of the last added field
       len = @[field].length
 
-      @mask = new Uint8Array(len)
+      @mask = new Uint32Array(len)
       @selected_mask = new Uint8Array(len)
       for i in [0..@mask.length-1]
-        @mask[i] = true
+        @mask[i] = i
         @selected_mask[i] = false
 
       @have_new_data = true
