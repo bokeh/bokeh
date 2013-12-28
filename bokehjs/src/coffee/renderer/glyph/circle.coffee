@@ -123,19 +123,10 @@ define [
       return hits
 
     _hit_rect: (geometry) ->
-      [x0, y0] = @plot_view.xmapper.v_map_from_target([geometry.sx0, geometry.sy0])
-      [x1, y1] = @plot_view.xmapper.v_map_from_target([geometry.sx1, geometry.sy1])
+      [x0, x1] = @plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
+      [y0, y1] = @plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
-
-    select: (xscreenbounds, yscreenbounds) ->
-      geometry = {}
-      geometry.sx0 = xscreenbounds[0]
-      geometry.sx1 = xscreenbounds[1]
-      geometry.sy0 = yscreenbounds[0]
-      geometry.sy1 = yscreenbounds[1]
-      selected = @_hit_rect(geometry)
-      return selected
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
       glyph_props = @glyph_props

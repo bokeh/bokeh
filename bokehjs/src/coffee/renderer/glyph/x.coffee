@@ -14,7 +14,7 @@ define [
 
         for i in @mask
 
-          if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
+          if isNaN(@sx[i] + @sy[i] + @size[i])
             continue
           if use_selection and not @selected_mask[i]
             continue
@@ -30,24 +30,6 @@ define [
 
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
-
-    select: (xscreenbounds, yscreenbounds) ->
-      xscreenbounds = [@plot_view.view_state.vx_to_sx(xscreenbounds[0]),
-        @plot_view.view_state.vx_to_sx(xscreenbounds[1])]
-      yscreenbounds = [@plot_view.view_state.vy_to_sy(yscreenbounds[0]),
-        @plot_view.view_state.vy_to_sy(yscreenbounds[1])]
-      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)]
-      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)]
-      selected = []
-      for i in [0..@sx.length-1]
-        if xscreenbounds
-          if @sx[i] < xscreenbounds[0] or @sx[i] > xscreenbounds[1]
-            continue
-        if yscreenbounds
-          if @sy[i] < yscreenbounds[0] or @sy[i] > yscreenbounds[1]
-            continue
-        selected.push(i)
-      return selected
 
     draw_legend: (ctx, x1, x2, y1, y2) ->
       glyph_props = @glyph_props

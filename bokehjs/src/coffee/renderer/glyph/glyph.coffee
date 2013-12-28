@@ -116,9 +116,6 @@ define [
 
       ctx.restore()
 
-    select: () ->
-      'pass'
-
     xrange: () ->
       return @plot_view.x_range
 

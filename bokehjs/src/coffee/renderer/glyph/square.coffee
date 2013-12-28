@@ -27,21 +27,22 @@ define [
       # dilate the inner screen region by max_size and map back to data space for use in
       # spatial query
       hr = @plot_view.view_state.get('inner_range_horizontal')
-      sx0 = hr.get('start') - @max_size
-      sx1 = hr.get('end') - @max_size
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+      vx0 = hr.get('start') - @max_size
+      vx1 = hr.get('end') - @max_size
+      [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
 
       vr = @plot_view.view_state.get('inner_range_vertical')
-      sy0 = vr.get('start') - @max_size
-      sy1 = vr.get('end') - @max_size
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+      vy0 = vr.get('start') - @max_size
+      vy1 = vr.get('end') - @max_size
+      [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
 
       @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
     # squares do not inherit from Marker, so we must supply hit testers explicitly
     _hit_point: (geometry) ->
-      [sx, sy] = [geometry.sx, geometry.sy]
-      [x, y] = @plot_view.xmapper.v_map_from_target([sx, sy])
+      [vx, vy] = [geometry.vx, geometry.vy]
+      x = @plot_view.xmapper.map_from_target(vx)
+      y = @plot_view.ymapper.map_from_target(vy)
 
       if @size_units == "screen"
         sx0 = sx - @max_radius
