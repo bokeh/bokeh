@@ -425,29 +425,29 @@ define [
   last_day_no_later_than = (time) ->
     # FIXME Is this really the best way?
     d = new Date(time)
-    d.setHours(0)
-    d.setMinutes(0)
-    d.setSeconds(0)
-    d.setMilliseconds(0)
+    d.setUTCHours(0)
+    d.setUTCMinutes(0)
+    d.setUTCSeconds(0)
+    d.setUTCMilliseconds(0)
     return d.getTime()
 
   last_month_no_later_than = (time) ->
     d = new Date(time)
-    d.setDate(1)
-    d.setHours(0)
-    d.setMinutes(0)
-    d.setSeconds(0)
-    d.setMilliseconds(0)
+    d.setUTCDate(1)
+    d.setUTCHours(0)
+    d.setUTCMinutes(0)
+    d.setUTCSeconds(0)
+    d.setUTCMilliseconds(0)
     return d.getTime()
 
   last_year_no_later_than = (time) ->
     d = new Date(time)
-    d.setMonth(0)
-    d.setDate(1)
-    d.setHours(0)
-    d.setMinutes(0)
-    d.setSeconds(0)
-    d.setMilliseconds(0)
+    d.setUTCMonth(0)
+    d.setUTCDate(1)
+    d.setUTCHours(0)
+    d.setUTCMinutes(0)
+    d.setUTCSeconds(0)
+    d.setUTCMilliseconds(0)
     return d.getTime()
 
   copy_date = (date) ->
@@ -493,14 +493,14 @@ define [
         start_date = new Date(last_year_no_later_than(start_time))
         
         end_date = new Date(last_year_no_later_than(end_time))
-        end_date.setFullYear(end_date.getFullYear() + 1)
+        end_date.setUTCFullYear(end_date.getUTCFullYear() + 1)
 
         dates = []
         date = start_date
         while true
           dates.push(copy_date(date))
 
-          date.setFullYear(date.getFullYear() + 1)
+          date.setUTCFullYear(date.getUTCFullYear() + 1)
           if date > end_date
             break
 
@@ -512,7 +512,7 @@ define [
       months_of_year = (year_date) ->
         return months.map((month) ->
           month_date = copy_date(year_date)
-          month_date.setMonth(month)
+          month_date.setUTCMonth(month)
           return month_date)
 
       # FIXME Use a list comprehension?
@@ -542,14 +542,15 @@ define [
         # XXX This is not a reliable technique in general, but it should be
         # safe when the day of the month is 1.  (The problem case is this:
         # Mar 31 -> Apr 31, which becomes May 1.)
-        end_date.setMonth(end_date.getMonth() + 1)
+        prev_end_date = copy_date(end_date)
+        end_date.setUTCMonth(end_date.getUTCMonth() + 1)
 
         dates = []
         date = start_date
         while true
           dates.push(copy_date(date))
 
-          date.setMonth(date.getMonth() + 1)
+          date.setUTCMonth(date.getUTCMonth() + 1)
           if date > end_date
             break
 
@@ -564,14 +565,15 @@ define [
         dates = []
         for day in days
           day_date = copy_date(month_date)
-          day_date.setDate(day)
+          day_date.setUTCDate(day)
           # We can't use all of the values in @days, because they may not fall
           # within the current month.  In fact, if, e.g., our month is 28 days
           # and we're marking every third day, we don't want day 28 to show up
           # because it'll be right next to the 1st of the next month.  So we
           # make sure we have a bit of room before we include a day.
           future_date = new Date(day_date.getTime() + (typical_interval / 2))
-          if future_date.getMonth() == month_date.getMonth()
+          if future_date.getUTCMonth() == month_date.getUTCMonth()
+            console.log("  push #{month_date} / #{month_date.toUTCString()} ~ (#{month_date.getUTCDate()} -> #{day}) = #{day_date}")
             dates.push(day_date)
         return dates
 
@@ -582,11 +584,6 @@ define [
       # FIXME Since the ticks are sorted, this could be done more efficiently.
       ticks_in_range = _.filter(all_ticks,
                                 ((tick) -> data_low <= tick <= data_high))
-
-      # FIXME
-      # Transition between 12-hour and 24-hour resolutions is not correct.
-      # This is because the day resolutions are aligned with the local time
-      # zone, and the resolutions below are aligned with GMT.
 
       return ticks_in_range
 
@@ -634,10 +631,7 @@ define [
     new MonthsScale(arange(0, 12, 4)),
     new MonthsScale(arange(0, 12, 6)),
 
-    # FIXME Add a year scale.
-
     # Catchall for large timescales.
-    # FIXME I don't think this scale is working.
     new AdaptiveScale([1.0, 2.0, 5.0], 10.0, ONE_YEAR, Infinity),
   ])
 
@@ -647,7 +641,7 @@ define [
     ticks = global_scale.get_ticks(data_low, data_high)
 
 #     if ticks.length > 0 and ticks[0] > 10000000000
-#       dates = [new Date(tick) for tick in ticks]
+#       dates = (new Date(tick) for tick in ticks)
 #       console.log("returning #{dates}")
 
     return ticks
@@ -838,6 +832,13 @@ define [
         @formats[fmt_name] = [sizes, fmt_strings]
       return
 
+    # FIXME I think these names are misleading.  I suggest:
+    # interval -> span ("interval" means something else in other parts of this
+    #                   file)
+    # resol -> res_str (using "resolution" and "resol" to refer to different
+    #                   concepts?  Have we lived and fought in vain?)
+    # While we're at it, we could probably change the name of the method as
+    # well (e.g., "get_resolution_str").
     _get_resolution: (resolution, interval) ->
       r = resolution
       span = interval
@@ -883,14 +884,22 @@ define [
 
       [widths, formats] = @formats[resol]
       format = formats[0]
+      # FIXME I'm pretty sure this code won't work; luckily it doesn't seem to
+      # be used.
       if char_width
         # If a width is provided, then we pick the most appropriate scale,
         # otherwise just use the widest format
         good_formats = []
         for i in [0...widths.length]
           if widths[i] * ticks.length < fill_ratio * char_width
+            # FIXME I think "@formats" should be "formats".  (Perhaps they
+            # should have more distinct names.)
             good_formats.push(@formats[i])
         if good_formats.length > 0
+          # FIXME I think this should be:
+          #   format = good_formats[good_formats.length - 1]
+          # or better yet:
+          #   format = _.last(good_formats)
           format = good_formats[ticks.length-1]
 
       # Apply the format to the tick values
@@ -918,6 +927,9 @@ define [
       # with hybrid formats in a reasonable manner.
       for t in ticks
         try
+          # FIXME This should be:
+          #   dt = new Date(t)
+          # Or rather, if anyone used dt, that's what it should be.
           dt = Date(t)
           tm = _array(t)
           s = _strftime(t, format)
@@ -955,6 +967,7 @@ define [
             # A label such as '000ms' should leave one zero.
             ss = '0' + ss
           labels.push(ss)
+#           console.log("  #{t} -> #{new Date(t)} : #{tm} : #{s} -> #{ss}")
         else
           labels.push(s)
 
