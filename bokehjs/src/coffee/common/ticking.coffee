@@ -610,13 +610,19 @@ define [
 
     # Catchall for large timescales.
     # FIXME I don't think this scale is working.
-    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 10 * ONE_YEAR, Infinity),
+    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, ONE_YEAR, Infinity),
   ])
 
   auto_interval_temp = (data_low, data_high) ->
     return global_scale.get_interval(data_low, data_high)
   auto_ticks = (_0, _1, data_low, data_high, _2) ->
-    return global_scale.get_ticks(data_low, data_high)
+    ticks = global_scale.get_ticks(data_low, data_high)
+
+#     if ticks.length > 0 and ticks[0] > 10000000000
+#       dates = [new Date(tick) for tick in ticks]
+#       console.log("returning #{dates}")
+
+    return ticks
 
   auto_interval_temp_old = (data_low, data_high) ->
       """ Calculates the tick interval for a range.
