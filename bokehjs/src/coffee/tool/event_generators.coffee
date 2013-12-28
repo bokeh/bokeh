@@ -131,8 +131,8 @@ define [], () ->
         if not @button_activated
           @$tool_button.removeClass('active')
         offset = $(e.currentTarget).offset()
-        e.bokehX = e.pageX #- offset.left
-        e.bokehY = e.pageY #- offset.top
+        e.bokehX = e.pageX - offset.left
+        e.bokehY = e.pageY - offset.top
         @eventSink.trigger("#{@options.eventBasename}:DragEnd", e)
 
 
