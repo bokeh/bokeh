@@ -28,7 +28,9 @@ define [
 
     _render: (ctx, glyph_props, use_selection) ->
       if glyph_props.fill_properties.do_fill
-        for i in [0..@sx.length-1]
+
+        for i in @mask
+
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
             continue
           if use_selection == true and not @selected_mask[i]
@@ -53,7 +55,7 @@ define [
 
         ctx.beginPath()
 
-        for i in [0..@sx.length-1]
+        for i in @mask
 
           if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
             continue
