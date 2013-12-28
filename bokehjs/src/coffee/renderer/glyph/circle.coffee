@@ -66,14 +66,14 @@ define [
 
       @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-    _render: (ctx, indices, glyph_props) ->
+    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->
       for i in indices
 
-        if isNaN(@sx[i] + @sy[i] + @radius[i])
+        if isNaN(sx[i] + sy[i] + radius[i])
             continue
 
         ctx.beginPath()
-        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
+        ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI, false)
 
         if glyph_props.fill_properties.do_fill
           glyph_props.fill_properties.set_vectorize(ctx,i)
@@ -124,34 +124,22 @@ define [
 
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
-    draw_legend: (ctx, x1, x2, y1, y2) ->
-      glyph_props = @glyph_props
-      line_props = glyph_props.line_properties
-      fill_props = glyph_props.fill_properties
-      ctx.save()
-      reference_point = @get_reference_point()
-      if reference_point?
-        glyph_settings = reference_point
-        data_r = @distance([reference_point], 'x', 'radius', 'edge')[0]
-      else
-        glyph_settings = glyph_props
-        data_r = glyph_props.select('radius', glyph_props).default
-      border = line_props.select(line_props.line_width_name, glyph_settings)
-      ctx.beginPath()
-      d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
-      d = d - 2 * border
-      r = d / 2
-      if data_r?
-        r = if data_r > r then r else data_r
-      ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2*Math.PI,false)
-      if fill_props.do_fill
-        fill_props.set(ctx, glyph_settings)
-        ctx.fill()
-      if line_props.do_stroke
-        line_props.set(ctx, glyph_settings)
-        ctx.stroke()
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      reference_point = @get_reference_point() ? 0
 
-      ctx.restore()
+      # using objects like this seems a little wonky, since the keys are coerced to
+      # stings, but it works
+      indices = [reference_point]
+      sx = { }
+      sx[reference_point] = (x0+x1)/2
+      sy = { }
+      sy[reference_point] = (y0+y1)/2
+      radius = { }
+      radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
+
+      console.log indices, sx, sy, radius
+
+      @_render(ctx, indices, @glyph_props, sx, sy, radius)
 
   class Circle extends Glyph.Model
     default_view: CircleView
