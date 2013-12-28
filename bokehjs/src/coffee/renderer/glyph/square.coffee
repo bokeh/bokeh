@@ -74,10 +74,6 @@ define [
         ctx.fill()
       if line_props.do_stroke
         line_props.set(ctx, glyph_settings)
-        ctx.moveTo(x-r, y+r)
-        ctx.lineTo(x+r, y-r)
-        ctx.moveTo(x-r, y-r)
-        ctx.lineTo(x+r, y+r)
         ctx.stroke()
 
       ctx.restore()
