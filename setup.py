@@ -40,7 +40,7 @@ if exists(join(SERVER, 'static', 'js')):
     shutil.rmtree(join(SERVER, 'static', 'js'))
 os.mkdir(join(SERVER, 'static', 'js'))
 shutil.copy(APP, join(SERVER, 'static', 'js'))
-shutil.copytree(join(BOKEHJSROOT, 'src', 'vendor'), 
+shutil.copytree(join(BOKEHJSROOT, 'src', 'vendor'),
                 join(SERVER, 'static', 'js', 'vendor'))
 
 if exists(join(SERVER, 'static', 'css')):
@@ -78,7 +78,7 @@ setup(
         'bokeh.server',
         'bokeh.server.models',
         'bokeh.server.views',
-        'bokeh.server.test',
+        'bokeh.server.tests',
         'bokeh.specialmodels',
         'bokeh.tests'
     ],
