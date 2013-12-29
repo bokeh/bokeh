@@ -1,4 +1,14 @@
 
+# TODO Clear out debugging code, etc.
+# TODO Organize helper functions.
+# TODO Use time-based scales only for time-based data.
+# TODO The formatter transitions don't quite match the tick transitions.
+# TODO Something is breaking at the microsecond scale.
+# TODO The years scale doesn't always use the roundest numbers; it should
+# probably use a special scale.
+# TODO Add more comments.
+# TODO Add tests.
+
 define [
   "underscore",
   "timezone",
@@ -793,6 +803,13 @@ define [
     else
       return tz(t, format)
 
+  # FIXME In order to have the formatting change at the same time as the ticks,
+  # this class needs to be tightly coupled to the tick generation functions.  We
+  # could just keep them in sync, but that's error-prone.  Two alternatives:
+  # 1. Merge the tick generator and the formatter into one class.
+  # 2. Rather than figuring out one resolution for a set of ticks, format the
+  # ticks one at a time, showing only the information that's changed since the
+  # last tick.  This lets us handle any set of ticks gracefully.
   class DatetimeFormatter
 
     # Labels of time units, from finest to coarsest.
@@ -974,12 +991,16 @@ define [
       return labels
 
   return {
+    # FIXME These don't seem to be used anywhere else.
     "argsort": argsort,
     "nice_2_5_10": nice_2_5_10,
     "nice_10": nice_10,
     "heckbert_interval": heckbert_interval,
+
+    # FIXME Maybe move these into classes, like with the formatters?
     "auto_ticks": auto_ticks,
     "auto_interval": auto_interval,
+
     "BasicTickFormatter": BasicTickFormatter,
     "DatetimeFormatter": DatetimeFormatter,
   }
