@@ -33,7 +33,7 @@ require(['main'], (Bokeh) ->
     xaxes: "min"
     yaxes: "min"
     tools: false
-    legend: false
+    legend: "test"
   }
 
 
