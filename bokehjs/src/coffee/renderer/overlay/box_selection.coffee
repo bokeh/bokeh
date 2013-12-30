@@ -48,16 +48,18 @@ define [
           @$el.removeClass('shading')
           return
       style_string = ""
-      xpos = @plot_view.view_state.sx_to_device(Math.min(xrange[0], xrange[1]))
       if xrange
+        xpos = @plot_view.view_state.vx_to_sx(Math.min(xrange[0], xrange[1]))
         width = Math.abs(xrange[1] - xrange[0])
       else
+        xpos = 0
         width = @plot_view.view_state.get('width')
       style_string += "; left:#{xpos}px; width:#{width}px; "
-      ypos = @plot_view.view_state.sy_to_device(Math.max(yrange[0], yrange[1]))
       if yrange
-        height = yrange[1] - yrange[0]
+        ypos = @plot_view.view_state.vy_to_sy(Math.max(yrange[0], yrange[1]))
+        height = Math.abs(yrange[1] - yrange[0])
       else
+        ypos = 0
         height = @plot_view.view_state.get('height')
       @$el.addClass('shading')
       style_string += "top:#{ypos}px; height:#{height}px"

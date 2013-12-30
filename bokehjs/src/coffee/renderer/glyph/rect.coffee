@@ -26,111 +26,73 @@ define [
         else
           @sy[i] = syi[i]
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       if glyph_props.fill_properties.do_fill
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
-            continue
-          if use_selection == true and not @selected_mask[i]
-            continue
-          if use_selection == false and @selected_mask[i]
+
+        for i in indices
+
+          if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
             continue
 
           #no need to test the return value, we call fillRect for every glyph anyway
           glyph_props.fill_properties.set_vectorize(ctx, i)
 
           if @angle[i]
-            ctx.translate(@sx[i], @sy[i])
+            ctx.translate(sx[i], sy[i])
             ctx.rotate(@angle[i])
-            ctx.fillRect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
+            ctx.fillRect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
             ctx.rotate(-@angle[i])
-            ctx.translate(-@sx[i], -@sy[i])
+            ctx.translate(-sx[i], -sy[i])
           else
-            ctx.fillRect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
-            ctx.rect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
+            ctx.fillRect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+            ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
       if glyph_props.line_properties.do_stroke
 
         ctx.beginPath()
 
-        for i in [0..@sx.length-1]
+        for i in indices
 
-          if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i] + @angle[i])
-            continue
-          if use_selection == true and not @selected_mask[i]
-            continue
-          if use_selection == false and @selected_mask[i]
+          if isNaN(sx[i] + sy[i] + sw[i] + sh[i] + @angle[i])
             continue
 
+          if @angle[i]
+            ctx.translate(sx[i], sy[i])
+            ctx.rotate(@angle[i])
+            ctx.rect(-sw[i]/2, -sh[i]/2, sw[i], sh[i])
+            ctx.rotate(-@angle[i])
+            ctx.translate(-sx[i], -sy[i])
+          else
+            ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
+
+          # only stroke if the line_properties have changed
           if glyph_props.line_properties.set_vectorize(ctx, i)
-            #only stroke if the line_properties have changed
             ctx.stroke()
             ctx.beginPath()
-          if @angle[i]
-            ctx.translate(@sx[i], @sy[i])
-            ctx.rotate(@angle[i])
-            ctx.rect(-@sw[i]/2, -@sh[i]/2, @sw[i], @sh[i])
-            ctx.rotate(-@angle[i])
-            ctx.translate(-@sx[i], -@sy[i])
-          else
-            ctx.rect(@sx[i]-@sw[i]/2, @sy[i]-@sh[i]/2, @sw[i], @sh[i])
 
         ctx.stroke()
 
-    draw_legend: (ctx, x1, x2, y1, y2) ->
-      ## dummy legend function just draws a circle.. this way
-      ## even if we have a differnet glyph shape, at least we get the
-      ## right colors present
-      glyph_props = @glyph_props
-      line_props = glyph_props.line_properties
-      fill_props = glyph_props.fill_properties
-      ctx.save()
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      reference_point = @get_reference_point() ? 0
 
-      reference_point = @get_reference_point()
-      if reference_point?
-        glyph_settings = reference_point
-        data_w = @distance([reference_point], 'x', 'width', 'center')[0]
-        data_h = @distance([reference_point], 'y', 'height', 'center')[0]
+      indices = [reference_point]
+      sx = { }
+      sx[reference_point] = (x0+x1)/2
+      sy = { }
+      sy[reference_point] = (y0+y1)/2
+
+      scale = @sw[reference_point] / @sh[reference_point]
+      d = Math.min(Math.abs(x1-x0), Math.abs(y1-y0)) * 0.8
+      sw = { }
+      sh = { }
+      if scale > 1
+        sw[reference_point] = d
+        sh[reference_point] = d/scale
       else
-        glyph_settings = glyph_props
-      border = line_props.select(line_props.line_width_name, glyph_settings)
+        sw[reference_point] = d*scale
+        sh[reference_point] = d
 
-      ctx.beginPath()
-      w = Math.abs(x2-x1)
-      h = Math.abs(y2-y1)
-      w = w - 2*border
-      h = h - 2*border
-      if data_w?
-        w = if data_w > w then w else data_w
-      if data_h?
-        h = if data_h > h then h else data_h
-      x = (x1 + x2) / 2 - (w / 2)
-      y = (y1 + y2) / 2 - (h / 2)
-      ctx.rect(x, y, w, h)
-      fill_props.set(ctx, glyph_settings)
-      ctx.fill()
-      line_props.set(ctx, glyph_settings)
-      ctx.stroke()
-
-      ctx.restore()
-    ##duped
-    select: (xscreenbounds, yscreenbounds) ->
-      xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
-        @plot_view.view_state.sx_to_device(xscreenbounds[1])]
-      yscreenbounds = [@plot_view.view_state.sy_to_device(yscreenbounds[0]),
-        @plot_view.view_state.sy_to_device(yscreenbounds[1])]
-      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)]
-      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)]
-      selected = []
-      for i in [0..@sx.length-1]
-        if xscreenbounds
-          if @sx[i] < xscreenbounds[0] or @sx[i] > xscreenbounds[1]
-            continue
-        if yscreenbounds
-          if @sy[i] < yscreenbounds[0] or @sy[i] > yscreenbounds[1]
-            continue
-        selected.push(i)
-       return selected
+      @_render(ctx, indices, @glyph_props, sx, sy, sw, sh)
 
   class Rect extends Glyph.Model
     default_view: RectView

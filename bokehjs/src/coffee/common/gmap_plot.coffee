@@ -145,14 +145,14 @@ define [
       else
         [sx, sy] = @mapper.v_map_to_target(x, y)
 
-      sx = @view_state.v_sx_to_device(sx)
-      sy = @view_state.v_sy_to_device(sy)
+      sx = @view_state.v_vx_to_sx(sx)
+      sy = @view_state.v_vy_to_sy(sy)
 
       return [sx, sy]
 
     map_from_screen: (sx, sy, units) ->
-      sx = @view_state.v_device_sx(sx[..])
-      sy = @view_state.v_device_sx(sy[..])
+      sx = @view_state.v_sx_to_vx(sx[..])
+      sy = @view_state.v_sy_to_vy(sy[..])
 
       if units == 'screen'
         x = sx

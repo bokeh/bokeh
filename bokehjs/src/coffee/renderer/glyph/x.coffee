@@ -9,76 +9,22 @@ define [
 
     _properties: ['line']
 
-    _render: (ctx, glyph_props, use_selection) ->
-      if glyph_props.line_properties.do_stroke
+    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, size=@size) ->
+      for i in indices
 
-        for i in [0..@sx.length-1]
+        if isNaN(sx[i] + sy[i] + size[i])
+          continue
 
-          if isNaN(@sx[i] + @sy[i] + @size[i]) or not @mask[i]
-            continue
-          if use_selection and not @selected_mask[i]
-            continue
-          if use_selection == false and @selected_mask[i]
-            continue
+        r = size[i]/2
+        ctx.beginPath()
+        ctx.moveTo(sx[i]-r, sy[i]+r)
+        ctx.lineTo(sx[i]+r, sy[i]-r)
+        ctx.moveTo(sx[i]-r, sy[i]-r)
+        ctx.lineTo(sx[i]+r, sy[i]+r)
 
-          r = @size[i]/2
-          ctx.beginPath()
-          ctx.moveTo(@sx[i]-r, @sy[i]+r)
-          ctx.lineTo(@sx[i]+r, @sy[i]-r)
-          ctx.moveTo(@sx[i]-r, @sy[i]-r)
-          ctx.lineTo(@sx[i]+r, @sy[i]+r)
-
+        if glyph_props.line_properties.do_stroke
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
-
-    select: (xscreenbounds, yscreenbounds) ->
-      xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
-        @plot_view.view_state.sx_to_device(xscreenbounds[1])]
-      yscreenbounds = [@plot_view.view_state.sy_to_device(yscreenbounds[0]),
-        @plot_view.view_state.sy_to_device(yscreenbounds[1])]
-      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)]
-      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)]
-      selected = []
-      for i in [0..@sx.length-1]
-        if xscreenbounds
-          if @sx[i] < xscreenbounds[0] or @sx[i] > xscreenbounds[1]
-            continue
-        if yscreenbounds
-          if @sy[i] < yscreenbounds[0] or @sy[i] > yscreenbounds[1]
-            continue
-        selected.push(i)
-      return selected
-
-    draw_legend: (ctx, x1, x2, y1, y2) ->
-      glyph_props = @glyph_props
-      line_props = glyph_props.line_properties
-      fill_props = glyph_props.fill_properties
-      ctx.save()
-      reference_point = @get_reference_point()
-      if reference_point?
-        glyph_settings = reference_point
-        data_r = @distance([reference_point], 'x', 'size', 'edge')[0]
-      else
-        glyph_settings = glyph_props
-        data_r = glyph_props.select('size', glyph_props).default
-      border = line_props.select(line_props.line_width_name, glyph_settings)
-      ctx.beginPath()
-      d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
-      d = d - 2 * border
-      r = d / 2
-      if data_r?
-        r = if data_r > r then r else data_r
-      x = (x1 + x2) / 2.0
-      y = (y1 + y2) / 2.0
-      ctx.moveTo(x-r, y+r)
-      ctx.lineTo(x+r, y-r)
-      ctx.moveTo(x-r, y-r)
-      ctx.lineTo(x+r, y+r)
-      if line_props.do_stroke
-        line_props.set(ctx, glyph_settings)
-        ctx.stroke()
-
-      ctx.restore()
 
   class X extends Marker.Model
     default_view: XView

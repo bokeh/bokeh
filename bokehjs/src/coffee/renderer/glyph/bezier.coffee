@@ -16,9 +16,10 @@ define [
       [@scx0, @scy0] = @plot_view.map_to_screen(@cx0, @glyph_props.cx0.units, @cy0, @glyph_props.cy0.units)
       [@scx1, @scy1] = @plot_view.map_to_screen(@cx1, @glyph_props.cx1.units, @cy1, @glyph_props.cy1.units)
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props) ->
       if glyph_props.line_properties.do_stroke
-        for i in [0..@sx0.length-1]
+
+        for i in indices
 
           if isNaN(@sx0[i] + @sy0[i] + @sx1[i] + @sy1[i] + @scx0[i] + @scy0[i] + @scx1[i] + @scy1[i])
             continue
@@ -29,6 +30,9 @@ define [
 
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
+
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      @_generic_line_legend(ctx, x0, x1, y0, y1)
 
   class Bezier extends Glyph.Model
     default_view: BezierView

@@ -13,10 +13,11 @@ define [
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props) ->
+
       if glyph_props.fill_properties.do_fill
         glyph_props.fill_properties.set(ctx, glyph_props)
-        for i in [0..@sx.length-1]
+        for i in indices
           if i == 0
             ctx.beginPath()
             ctx.moveTo(@sx[i], @sy[i])
@@ -33,7 +34,7 @@ define [
 
       if glyph_props.line_properties.do_stroke
         glyph_props.line_properties.set(ctx, glyph_props)
-        for i in [0..@sx.length-1]
+        for i in indices
           if i == 0
             ctx.beginPath()
             ctx.moveTo(@sx[i], @sy[i])
@@ -49,6 +50,9 @@ define [
         ctx.stroke()
 
       ctx.restore()
+
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      @_generic_area_legend(ctx, x0, x1, y0, y1)
 
   class Patch extends Glyph.Model
     default_view: PatchView

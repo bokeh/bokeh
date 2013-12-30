@@ -18,9 +18,11 @@ define [
       for i in [0..@length.length-1]
         if @length[i] == 0 then @length[i] = inf_len
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props) ->
       if glyph_props.line_properties.do_stroke
-        for i in [0..@sx.length-1]
+
+        for i in indices
+
           if isNaN(@sx[i] + @sy[i] + @angle[i] + @length[i])
             continue
 
@@ -37,30 +39,8 @@ define [
           ctx.rotate(-@angle[i])
           ctx.translate(-@sx[i], -@sy[i])
 
-    draw_legend: (ctx, x1, x2, y1, y2) ->
-      glyph_props = @glyph_props
-      line_props = glyph_props.line_properties
-      reference_point = @get_reference_point()
-      if reference_point?
-        glyph_settings = reference_point
-      else
-        glyph_settings = glyph_props
-      angle = - @glyph_props.select('angle', glyph_settings)
-      r = _.min([Math.abs(x2-x1), Math.abs(y2-y1)]) / 2
-      sx = (x1+x2)/2
-      sy = (y1+y2)/2
-      ctx.beginPath()
-      ctx.translate(sx, sy)
-      ctx.rotate(angle)
-      ctx.moveTo(0,  0)
-      ctx.lineTo(r, 0) # TODO handle @length in data units?
-      ctx.rotate(-angle)
-      ctx.translate(-sx, -sy)
-      if line_props.do_stroke
-        line_props.set(ctx, glyph_settings)
-        ctx.stroke()
-      ctx.restore()
-
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      @_generic_line_legend(ctx, x0, x1, y0, y1)
 
   class Ray extends Glyph.Model
     default_view: RayView

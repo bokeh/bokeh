@@ -15,15 +15,20 @@ define [
 
       @glyph_props = @init_glyph(@mget('glyphspec'))
 
+      @have_selection_props = false
       if @mget('selection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
         @selection_glyphprops = @init_glyph(spec)
+        @have_selection_props = true
       else
         @selection_glyphprops = @glyph_props
 
       if @mget('nonselection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
         @nonselection_glyphprops = @init_glyph(spec)
+        @have_selection_props = true
+      else
+        @nonselection_glyphprops = @glyph_props
 
     init_glyph: (glyphspec) ->
       props = {}
@@ -64,11 +69,7 @@ define [
       # just use the length of the last added field
       len = @[field].length
 
-      @mask = new Uint8Array(len)
-      @selected_mask = new Uint8Array(len)
-      for i in [0..@mask.length-1]
-        @mask[i] = true
-        @selected_mask[i] = false
+      @all_indices = [0..len-1]
 
       @have_new_data = true
 
@@ -83,12 +84,14 @@ define [
       @_map_data()
 
       if @_mask_data?
-        @_mask_data()
+        indices = @_mask_data()
+      else
+        indices = @all_indices
 
       ctx = @plot_view.ctx
       ctx.save()
 
-      do_render = (ctx, glyph_props, use_selection) =>
+      do_render = (ctx, indices, glyph_props) =>
         source = @mget_obj('data_source')
 
         if @have_new_data
@@ -99,25 +102,35 @@ define [
           if glyph_props.text_properties?
             glyph_props.text_properties.set_prop_cache(source)
 
-        @_render(ctx, glyph_props, use_selection)
+        @_render(ctx, indices, glyph_props)
 
       selected = @mget_obj('data_source').get('selected')
 
-      for idx in selected
-        @selected_mask[idx] = true
+      if selected and selected.length and @have_selection_props
 
-      if selected and selected.length and @nonselection_glyphprops
-        do_render(ctx, @selection_glyphprops, true)
-        do_render(ctx, @nonselection_glyphprops, false)
+        # reset the selection mask
+        selected_mask = (false for i in @all_indices)
+        for idx in selected
+          selected_mask[idx] = true
+
+        # intersect/different selection with render mask
+        selected = new Array()
+        nonselected = new Array()
+        for i in indices
+          if selected_mask[i]
+            selected.push(i)
+          else
+            nonselected.push(i)
+
+        do_render(ctx, selected, @selection_glyphprops)
+        do_render(ctx, nonselected, @nonselection_glyphprops)
+
       else
-        do_render(ctx, @glyph_props)
+        do_render(ctx, indices, @glyph_props)
 
       @have_new_data = false
 
       ctx.restore()
-
-    select: () ->
-      'pass'
 
     xrange: () ->
       return @plot_view.x_range
@@ -203,7 +216,61 @@ define [
       else
         return reference_point
 
-    draw_legend: (ctx, x1, x2, y1, y2) ->
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      null
+
+    _generic_line_legend: (ctx, x0, x1, y0, y1) ->
+      reference_point = @get_reference_point() ? 0
+      line_props = @glyph_props.line_properties
+      ctx.save()
+      ctx.beginPath()
+      ctx.moveTo(x0, (y0 + y1) /2)
+      ctx.lineTo(x1, (y0 + y1) /2)
+      if line_props.do_stroke
+        line_props.set_vectorize(ctx, reference_point)
+        ctx.stroke()
+      ctx.restore()
+
+    _generic_area_legend: (ctx, x0, x1, y0, y1) ->
+      reference_point = @get_reference_point() ? 0
+
+      indices = [reference_point]
+
+      w = Math.abs(x1-x0)
+      dw = w*0.1
+      h = Math.abs(y1-y0)
+      dh = h*0.1
+
+      sx0 = x0 + dw
+      sx1 = x1 - dw
+
+      sy0 = y0 + dh
+      sy1 = y1 - dh
+
+      if @glyph_props.fill_properties.do_fill
+        @glyph_props.fill_properties.set_vectorize(ctx, reference_point)
+        ctx.fillRect(sx0, sy0, sx1-sx0, sy1-sy0)
+
+      if @glyph_props.line_properties.do_stroke
+        ctx.beginPath()
+        ctx.rect(sx0, sy0, sx1-sx0, sy1-sy0)
+        @glyph_props.line_properties.set_vectorize(ctx, reference_point)
+        ctx.stroke()
+
+    hit_test: (geometry) ->
+      if geometry.type == "point"
+        if @_hit_point?
+          return @_hit_point(geometry)
+        console.log "'point' selection not available on renderer"
+
+      else if geometry.type == "rect"
+        if @_hit_rect?
+          return @_hit_rect(geometry)
+        console.log "'rect' seletion not avaliable on renderer"
+
+      else
+        console.log "unrecognized selection geometry type '#{ geometry.type }'"
+        return []
 
   class Glyph extends HasParent
 
