@@ -305,7 +305,6 @@ define [
 
   DESIRED_N_TICKS = 6
 
-  # FIXME It's not clear this should be a class.
   class AbstractScale
     constructor: (@toString_properties=[]) ->
 
@@ -327,7 +326,6 @@ define [
       params_str = ("#{key}=#{repr(this[key])}" for key in props).join(", ")
       return "#{class_name}(#{params_str})"
   
-  # FIXME Hopefully we won't actually need this.
   class SingleIntervalScale extends AbstractScale
     constructor: (@interval) ->
       super(['interval'])
@@ -467,28 +465,6 @@ define [
     d = new Date(time)
     d.setDate(d.getDate() + n_days)
     return d.getTime()
-
-  class DayScale extends AdaptiveScale
-    constructor: () ->
-      super([1.0, 2.0, 5.0], 10.0, ONE_DAY, ONE_DAY)
-
-    get_ticks: (data_low, data_high) ->
-      interval = @get_interval(data_low, data_high)
-
-      # FIXME Ideally we would walk forward using this, but we need to align
-      # the days consistently.
-      n_days_per_tick = interval / ONE_DAY
-
-      tick = last_day_no_later_than(data_low)
-      ticks = [tick]
-      while true
-        tick = add_days(tick, 1)
-        ticks.push(tick)
-        if tick >= data_high
-          break
-
-      console.log(ticks.map((time) -> new Date(time)))
-      return ticks
 
   class MonthsScale extends SingleIntervalScale
     constructor: (@months) ->
