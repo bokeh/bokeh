@@ -616,32 +616,37 @@ define [
 
   global_scale = new CompositeScale([
     # Sub-second.
+    # (0 - 500 ms)
     # FIXME 500-ms intervals are not formatted correctly.
     new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 0.0, HUNDRED_MILLIS),
 
     # Seconds, minutes.
+    # (1 s - 30 min)
     new AdaptiveScale([1.0, 2.0, 5.0, 10.0, 15.0, 20.0, 30.0], 60.0,
                       ONE_SECOND, ONE_MINUTE),
 
     # Hours.
+    # (1 hr - 12 hr)
     new AdaptiveScale([1.0, 2.0, 4.0, 6.0, 8.0, 12.0], 24.0,
                       ONE_HOUR, ONE_HOUR),
  
     # Days.
+    # (1 day - 14 days)
     # FIXME Formatting is not happening quite right at the boundaries.
     new DaysScale(arange(1, 32)), #FIXME
     new DaysScale(arange(1, 31, 3)),
     new DaysScale([1, 8, 15, 22]),
     new DaysScale([1, 15]),
-    new DaysScale([1]),
  
     # Months.
+    # (1 month - 6 months)
     new MonthsScale(arange(0, 12)),
     new MonthsScale(arange(0, 12, 2)),
     new MonthsScale(arange(0, 12, 4)),
     new MonthsScale(arange(0, 12, 6)),
 
     # Catchall for large timescales.
+    # (1 year - infinity)
     new AdaptiveScale([1.0, 2.0, 5.0], 10.0, ONE_YEAR, Infinity),
   ])
 
