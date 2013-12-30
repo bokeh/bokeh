@@ -2,7 +2,6 @@
 # TODO Clear out debugging code, etc.
 # TODO Organize helper functions.
 # TODO Use time-based scales only for time-based data.
-# TODO The formatter transitions don't quite match the tick transitions.
 # TODO Something is breaking at the microsecond scale.
 # TODO The years scale doesn't always use the roundest numbers; it should
 # probably use a special scale.
@@ -784,13 +783,6 @@ define [
     else
       return tz(t, format)
 
-  # FIXME In order to have the formatting change at the same time as the ticks,
-  # this class needs to be tightly coupled to the tick generation functions.  We
-  # could just keep them in sync, but that's error-prone.  Two alternatives:
-  # 1. Merge the tick generator and the formatter into one class.
-  # 2. Rather than figuring out one resolution for a set of ticks, format the
-  # ticks one at a time, showing only the information that's changed since the
-  # last tick.  This lets us handle any set of ticks gracefully.
   class DatetimeFormatter
 
     # Labels of time units, from finest to coarsest.
@@ -838,27 +830,31 @@ define [
     # While we're at it, we could probably change the name of the method as
     # well (e.g., "get_resolution_str").
     _get_resolution: (resolution, interval) ->
+      # Our resolution boundaries are not round numbers, because we want them
+      # to fall between the possible tick intervals (which are round numbers,
+      # as we've worked hard to ensure).
       r = resolution
       span = interval
-      if r < 5e-4
+      if r < 6e-4
         resol = "microseconds"
-      else if r < 0.5
+      else if r < 0.6
         resol = "milliseconds"
-      else if r < 60
+      else if r < 50
+        # FIXME Think.
         if span > 60
           resol = "minsec"
         else
           resol = "seconds"
-      else if r < 3600
+      else if r < 3500
         if span > 3600
           resol = "hourmin"
         else
           resol = "minutes"
-      else if r < 24*3600
+      else if r < 23*3600
         resol = "hours"
-      else if r < 30*24*3600
+      else if r < 27*24*3600
         resol = "days"
-      else if r < 365*24*3600
+      else if r < 320*24*3600
         resol = "months"
       else
         resol = "years"
