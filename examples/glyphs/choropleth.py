@@ -69,7 +69,7 @@ plot.renderers.append(state_renderer)
 plot.tools = [resizetool]
 
 sess = session.HTMLFileSession("choropleth.html")
-sess.add(plot, county_renderer, state_renderer, state_source, county_source, xdr, ydr, resizetool)
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 print("Wrote %s" % sess.filename)

@@ -43,7 +43,7 @@ plot.renderers.append(renderer)
 plot.tools = [pantool, zoomtool]
 
 sess = session.HTMLFileSession("line.html")
-sess.add(plot, renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 print("Wrote %s" % sess.filename)

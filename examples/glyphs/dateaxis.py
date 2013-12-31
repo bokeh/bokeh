@@ -43,7 +43,7 @@ plot.renderers.append(glyph_renderer)
 plot.tools = [pantool, zoomtool]
 
 sess = session.HTMLFileSession("dateaxis.html")
-sess.add(plot, glyph_renderer, source, xaxis, yaxis, xdr, ydr, pantool, zoomtool)
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 sess.dumpjson(file="dateaxis.json")

@@ -68,8 +68,7 @@ except requests.exceptions.ConnectionError as e:
     sys.exit()
 
 sess.use_doc("maps")
-sess.add(plot, xgrid, ygrid, pantool, zoomtool, x_range, y_range,
-        select_tool, overlay, source, circle_renderer)
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
 sess.store_all()

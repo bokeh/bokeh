@@ -57,7 +57,7 @@ plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,zoomtool]
 
 sess = session.HTMLFileSession("colorspec.html")
-sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 print("Wrote %s" % sess.filename)

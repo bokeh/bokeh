@@ -56,8 +56,7 @@ sess = session.PlotServerSession(
     username="defaultuser",
     serverloc="http://localhost:5006", userapikey="nokey")
 sess.use_doc("line_animate")
-sess.add(plot, renderer, renderer2, xaxis, yaxis,
-         source, xdr, ydr, xdr_static, pantool, zoomtool)
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
 # not so nice.. but set the model doens't know

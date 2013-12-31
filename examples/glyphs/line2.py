@@ -54,14 +54,14 @@ if len(sys.argv) > 1 and sys.argv[1] == "server":
         print("\nThe 'server' version of this example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'.\n")
         sys.exit()
 
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+    sess.add(plot, recursive=True)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
     sess.store_all()
     print("Stored to document", demo_name)
 else:
     sess = session.HTMLFileSession(demo_name + ".html")
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+    sess.add(plot, recursive=True)
     sess.plotcontext.children.append(plot)
     sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
     print("Wrote %s" % sess.filename)

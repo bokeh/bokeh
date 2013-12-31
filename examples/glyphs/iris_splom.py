@@ -79,25 +79,23 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         objs.append(text_source)
     return plot, objs + [circle_renderer, xgrid, ygrid]
 
-sess = session.HTMLFileSession("iris_splom.html")
 attrs = ["petal_length", "petal_width", "sepal_width", "sepal_length"]
-
 plots = []
+
 for y in attrs:
     row = []
     for x in attrs:
         xax = (y == attrs[-1])
         yax = (x == attrs[0])
         text = x if (x==y) else None
-        plot, objs = make_plot(x, y, xax, yax, text)
-        sess.add(plot, *objs)
+        plot = make_plot(x, y, xax, yax, text)
         row.append(plot)
     plots.append(row)
 
 grid = GridPlot(children=plots, name="iris_splom")
 
-sess.add(source, xdr, ydr, pan, zoom)
-sess.add(grid)
+sess = session.HTMLFileSession("iris_splom.html")
+sess.add(grid, recursive=True)
 sess.plotcontext.children.append(grid)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 print("Wrote %s" % sess.filename)

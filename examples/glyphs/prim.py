@@ -51,7 +51,7 @@ def make_plot(name, glyph):
         print(e)
         print("\nThis example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'\n")
         sys.exit()
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+    sess.add(plot, recursive=True)
     sess.use_doc(name)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
