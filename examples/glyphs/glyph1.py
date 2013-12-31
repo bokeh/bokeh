@@ -4,7 +4,7 @@ from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
 
-from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
+from bokeh.objects import (Plot, DataRange1d, LinearAxis,
         ColumnDataSource, Glyph, ObjectArrayDataSource,
         PanTool, ZoomTool)
 from bokeh.glyphs import Circle
@@ -56,9 +56,7 @@ sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 sess.dumpjson(file="glyph1.json")
-print("Wrote glyph1.html")
-try:
-    import webbrowser
-    webbrowser.open("file://" + os.path.abspath("glyph1.html"))
-except:
-    pass
+print("Wrote %s" % sess.filename)
+
+if __name__ == "__main__":
+    sess.view()

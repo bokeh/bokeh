@@ -42,16 +42,12 @@ zoomtool = ZoomTool(dataranges=[xdr, ydr], dimensions=("width", "height"))
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool, zoomtool]
 
-FILENAME = __file__.replace(".py", ".html")
-sess = session.HTMLFileSession(FILENAME)
+sess = session.HTMLFileSession("dateaxis.html")
 sess.add(plot, glyph_renderer, source, xaxis, yaxis, xdr, ydr, pantool, zoomtool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-sess.dumpjson(file=__file__.replace(".py", ".json"))
-print("Wrote " + FILENAME)
-try:
-    import webbrowser
+sess.dumpjson(file="dateaxis.json")
+print("Wrote %s" % sess.filename)
 
-    webbrowser.open("file://" + os.path.abspath(FILENAME))
-except:
-    pass
+if __name__ == "__main__":
+    sess.view()

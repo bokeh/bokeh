@@ -4,7 +4,7 @@ from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
 import time
-from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
+from bokeh.objects import (Plot, DataRange1d, LinearAxis,
         ObjectArrayDataSource, ColumnDataSource, Glyph,
         PanTool, ZoomTool)
 from bokeh.glyphs import Line
@@ -40,7 +40,7 @@ renderer2 = Glyph(
         glyph = line_glyph2
         )
 
-plot = Plot(x_range=xdr_static, y_range=ydr, data_sources=[source], 
+plot = Plot(x_range=xdr_static, y_range=ydr, data_sources=[source],
         border=50)
 xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
 yaxis = LinearAxis(plot=plot, dimension=1, location="left")
@@ -56,7 +56,7 @@ sess = session.PlotServerSession(
     username="defaultuser",
     serverloc="http://localhost:5006", userapikey="nokey")
 sess.use_doc("line_animate")
-sess.add(plot, renderer, renderer2, xaxis, yaxis, 
+sess.add(plot, renderer, renderer2, xaxis, yaxis,
          source, xdr, ydr, xdr_static, pantool, zoomtool)
 sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
@@ -72,6 +72,3 @@ while True:
         source._dirty = True
         sess.store_all()
         time.sleep(0.05)
-
-
-

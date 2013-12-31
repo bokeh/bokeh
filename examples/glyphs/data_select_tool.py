@@ -43,9 +43,3 @@ sess.store_all_callbacks()
 
 #execute this yourself, you should see the dummy callback fire if anything has changed
 sess.load_obj(sess.get_ref(tool))
-
-
-
-
-
-

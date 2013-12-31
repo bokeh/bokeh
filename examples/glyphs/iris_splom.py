@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import os
 from math import pi
@@ -62,8 +63,8 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
     if text:
         text = " ".join(text.split('_'))
         text = Text(
-            x={'field':'center', 'units':'screen'}, 
-            y={'field':'center', 'units':'screen'}, 
+            x={'field':'center', 'units':'screen'},
+            y={'field':'center', 'units':'screen'},
             text=text, angle=pi/4, text_font_style="bold", text_baseline="top",
             text_color="#ffaaaa", text_alpha=0.5, text_align="center", text_font_size="28pt")
         text_renderer = Glyph(
@@ -99,6 +100,7 @@ sess.add(source, xdr, ydr, pan, zoom)
 sess.add(grid)
 sess.plotcontext.children.append(grid)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
+print("Wrote %s" % sess.filename)
 
-import webbrowser
-webbrowser.open("file://" + os.path.abspath("iris_splom.html"))
+if __name__ == "__main__":
+    sess.view()

@@ -1,9 +1,10 @@
+from __future__ import print_function
 
 from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
 
-from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
+from bokeh.objects import (Plot, DataRange1d, LinearAxis,
         ObjectArrayDataSource, ColumnDataSource, Glyph,
         PanTool, ZoomTool)
 from bokeh.glyphs import Line
@@ -30,7 +31,7 @@ renderer = Glyph(
         glyph = line_glyph
         )
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], 
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border=50)
 xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
 yaxis = LinearAxis(plot=plot, dimension=1, location="left")
@@ -45,11 +46,7 @@ sess = session.HTMLFileSession("line.html")
 sess.add(plot, renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-print("Wrote line.html")
+print("Wrote %s" % sess.filename)
 
-try:
-    import webbrowser
-    webbrowser.open("file://" + os.path.abspath("line.html"))
-except:
-    pass
-
+if __name__ == "__main__":
+    sess.view()

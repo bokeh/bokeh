@@ -72,9 +72,7 @@ sess = session.HTMLFileSession("choropleth.html")
 sess.add(plot, county_renderer, state_renderer, state_source, county_source, xdr, ydr, resizetool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-print("Wrote choropleth.html")
-try:
-    import webbrowser
-    webbrowser.open("file://" + os.path.abspath("choropleth.html"))
-except:
-    pass
+print("Wrote %s" % sess.filename)
+
+if __name__ == "__main__":
+    sess.view()

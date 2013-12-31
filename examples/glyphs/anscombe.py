@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import os
 
@@ -86,10 +87,7 @@ sess.add(*(objsI + objsII + objsIII + objsIV))
 sess.add(grid, I, II, III, IV)
 sess.plotcontext.children.append(grid)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
+print("Wrote %s" % sess.filename)
 
 if __name__ == "__main__":
-    try:
-        import webbrowser
-        webbrowser.open("file://" + os.path.abspath("anscombe.html"))
-    except:
-        pass
+    sess.view()

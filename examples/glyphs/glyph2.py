@@ -74,4 +74,3 @@ sess.plotcontext._dirty = True
 sess.store_all()
 import webbrowser
 webbrowser.open("http://localhost:5006/bokeh")
-

@@ -60,10 +60,8 @@ if len(sys.argv) > 1 and sys.argv[1] == "server":
     sess.store_all()
     print("Stored to document", demo_name)
 else:
-    filename = demo_name + ".html"
-    sess = session.HTMLFileSession(filename)
+    sess = session.HTMLFileSession(demo_name + ".html")
     sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
     sess.plotcontext.children.append(plot)
     sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-    print("Wrote", filename)
-
+    print("Wrote %s" % sess.filename)

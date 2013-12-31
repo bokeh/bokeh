@@ -4,7 +4,7 @@ from numpy import pi, arange, sin, cos, tan
 import numpy as np
 import os.path
 
-from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
+from bokeh.objects import (Plot, DataRange1d, LinearAxis,
         ObjectArrayDataSource, ColumnDataSource, Glyph,
         PanTool, ZoomTool, GridPlot)
 from bokeh.glyphs import Line
@@ -32,7 +32,7 @@ def make_plot(source, xname, yname, linecolor, xdr=None, ydr=None):
         xdr = DataRange1d(sources=[source.columns(xname)])
     if ydr is None:
         ydr = DataRange1d(sources=[source.columns(yname)])
-    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], 
+    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
             border=50)
     xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
     yaxis = LinearAxis(plot=plot, dimension=1, location="left")
@@ -61,11 +61,7 @@ sess.add(grid, plot1, plot2, plot3, plot4)
 sess.add(*(objs1 + objs2 + objs3 + objs4))
 sess.plotcontext.children.append(grid)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-print("Wrote grid.html")
+print("Wrote %s" % sess.filename)
 
-try:
-    import webbrowser
-    webbrowser.open("file://" + os.path.abspath("grid.html"))
-except:
-    pass
-
+if __name__ == "__main__":
+    sess.view()
