@@ -1,8 +1,10 @@
 from __future__ import print_function
 
+import sys
 import os.path
+import requests
+
 import numpy as np
-import requests, sys
 
 from bokeh.objects import (
     Plot, Range1d, LinearAxis, Grid,
@@ -43,16 +45,15 @@ def make_plot(name, glyph):
 
     try:
         sess = session.PlotServerSession(
-            username="defaultuser",
             serverloc="http://localhost:5006",
-            userapikey="nokey"
-        )
-    except requests.exceptions.ConnectionError as e:
-        print(e)
-        print("\nThis example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'\n")
-        sys.exit()
-    sess.add(plot, recursive=True)
+            username="defaultuser",
+            userapikey="nokey")
+    except requests.exceptions.ConnectionError:
+        print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
+        sys.exit(1)
+
     sess.use_doc(name)
+    sess.add(plot, recursive=True)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
     sess.store_all()

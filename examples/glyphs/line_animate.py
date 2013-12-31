@@ -1,9 +1,13 @@
 from __future__ import print_function
 
+import sys
+import time
+import os.path
+import requests
+
 from numpy import pi, arange, sin, cos
 import numpy as np
-import os.path
-import time
+
 from bokeh.objects import (Plot, DataRange1d, LinearAxis,
         ObjectArrayDataSource, ColumnDataSource, Glyph,
         PanTool, ZoomTool)
@@ -52,9 +56,15 @@ plot.renderers.append(renderer)
 plot.renderers.append(renderer2)
 plot.tools = [pantool, zoomtool]
 
-sess = session.PlotServerSession(
-    username="defaultuser",
-    serverloc="http://localhost:5006", userapikey="nokey")
+try:
+    sess = session.PlotServerSession(
+        serverloc="http://localhost:5006",
+        username="defaultuser",
+        userapikey="nokey")
+except requests.exceptions.ConnectionError:
+    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
+    sys.exit(1)
+
 sess.use_doc("line_animate")
 sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
