@@ -19,7 +19,7 @@ from six import string_types
 from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataRange1d,
         Plot, Glyph, LinearAxis, Grid, PanTool, ZoomTool,
-        PreviewSaveTool, ResizeTool, CrosshairTool, BoxSelectTool, 
+        PreviewSaveTool, ResizeTool, CrosshairTool, BoxSelectTool,
         EmbedTool, BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
@@ -354,7 +354,7 @@ def visual(func):
             _config["curplot"] = plot
             # if type(instrument) == type([]):
             #     instrument.append(plot)
-                
+
         if session_objs:
             session.add(*session_objs)
 
@@ -520,18 +520,23 @@ class GlyphFunction(object):
         COLOR = prefix + "color"
         FILL_COLOR = prefix + "fill_color"
         LINE_COLOR = prefix + "line_color"
-        
+        TEXT_COLOR = prefix + "text_color"
+
         ALPHA = prefix+"alpha"
         FILL_ALPHA = prefix + "fill_alpha"
         LINE_ALPHA = prefix + "line_alpha"
+        TEXT_ALPHA = prefix + "text_alpha"
 
         color = kwargs.pop(COLOR, get_default_color())
         kwargs['fill_color'] = kwargs.get(FILL_COLOR, color)
         kwargs['line_color'] = kwargs.get(LINE_COLOR, color)
+        kwargs['text_color'] = kwargs.get(TEXT_COLOR, color)
 
         alpha = kwargs.pop(ALPHA, default_alpha)
         kwargs['fill_alpha'] = kwargs.get(FILL_ALPHA, alpha)
         kwargs['line_alpha'] = kwargs.get(LINE_ALPHA, alpha)
+        kwargs['text_alpha'] = kwargs.get(TEXT_ALPHA, alpha)
+
         return kwargs
 
     @visual
@@ -547,7 +552,7 @@ class GlyphFunction(object):
         select_tool = self._get_select_tool(plot)
 
         # Process the glyph dataspec parameters
-        
+
         # Process the glyph dataspec parameters
         glyph_params = self._match_data_params(
             datasource, args, self._glyph_param_setup(kwargs))
