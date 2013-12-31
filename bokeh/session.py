@@ -356,9 +356,8 @@ class HTMLFileSession(BaseHTMLSession):
             f.write(s.encode("utf-8"))
         return
 
-    def view(self, do_save=True, new=False, autoraise=True):
+    def view(self, new=False, autoraise=True):
         """ Opens a browser to view the file pointed to by this sessions.
-        Automatically triggers a save by default.
 
         **new** can be None, "tab", or "window" to view the file in the
         existing page, a new tab, or a new windows.  **autoraise** causes
@@ -366,12 +365,16 @@ class HTMLFileSession(BaseHTMLSession):
         automatically on some platforms regardless of the setting of this
         variable.
         """
-        import webbrowser
-        if do_save:
-            self.save()
-        newmap = {False: 0, "window": 1, "tab": 2}
+        new_map = { False: 0, "window": 1, "tab": 2 }
         file_url = "file://" + abspath(self.filename)
-        webbrowser.open(file_url, new = newmap[new], autoraise=autoraise)
+
+        try:
+            import webbrowser
+            webbrowser.open(file_url, new=new_map[new], autoraise=autoraise)
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except:
+            pass
 
     def dumpjson(self, pretty=True, file=None):
         """ Returns a JSON string representing the contents of all the models
@@ -672,7 +675,7 @@ class PlotServerSession(BaseHTMLSession):
             instantiate a new one if it is not
             and make sure to convert all references into models
         in the conversion from json to objects, sometimes references
-        to models need to be resolved.  
+        to models need to be resolved.
         """
         typename = ref["type"]
         ref_id = ref["id"]
@@ -880,7 +883,7 @@ class NotebookSessionMixin(object):
         associated with the session.
         """
         import IPython.core.displaypub as displaypub
-        
+
         html = self.dumps(objects)
         displaypub.publish_display_data('bokeh', {'text/html': html})
         return None
@@ -947,7 +950,7 @@ class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
         associated with the session.
         """
         import IPython.core.displaypub as displaypub
-        
+
         html = self.dumps(objects)
         displaypub.publish_display_data('bokeh', {'text/html': html})
         return None
