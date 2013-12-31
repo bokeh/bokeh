@@ -119,30 +119,13 @@ class BaseHTMLSession(Session):
     def bokehjs_dir(self, val):
         self._bokehjs_dir = val
 
-    def _inline_scripts(self, paths):
-        # Copied from dump.py, which itself was from wakariserver
-        if len(paths) == 0:
-            return ""
+    def _inline_files(self, files):
         strings = []
-        for script in paths:
-            f_name = abspath(join(self.server_static_dir, script))
-            begin = "\n// BEGIN %s\n" % f_name
-            end = "\n// END %s\n" % f_name
-            strings.append(begin.encode("utf-8") + open(f_name, 'rb').read() + \
-                    end.encode("utf-8"))
-        return b"".join(strings)
-
-    def _inline_css(self, paths):
-        # Copied from dump.py, which itself was from wakariserver
-        if len(paths) == 0:
-            return ""
-        strings = []
-        for css_path in paths:
-            f_name = join(self.server_static_dir, css_path)
-            begin = "\n/* BEGIN %s */\n" % f_name
-            end = "\n/* END %s */\n" % f_name
-            strings.append(begin.encode("utf-8") + open(f_name, 'rb').read() + \
-                    end.encode("utf-8"))
+        for file in files:
+            path = abspath(join(self.server_static_dir, file))
+            begin = ("\n/* BEGIN %s */\n" % path).encode("utf-8")
+            end = ("\n/* END %s */\n" % path).encode("utf-8")
+            strings.append(begin + open(path, 'rb').read() + end)
         return b"".join(strings)
 
     def _load_template(self, filename):
@@ -302,7 +285,7 @@ class HTMLFileSession(BaseHTMLSession):
 
         if js == "inline" or (js is None and self.inline_js):
             # TODO: Are the UTF-8 decodes really necessary?
-            rawjs = self._inline_scripts(self.js_paths()).decode("utf-8")
+            rawjs = self._inline_files(self.js_paths()).decode("utf-8")
             jsfiles = []
         else:
             rawjs = None
@@ -310,7 +293,7 @@ class HTMLFileSession(BaseHTMLSession):
 
         if css == "inline" or (css is None and self.inline_css):
             # TODO: Are the UTF-8 decodes really necessary?
-            rawcss = self._inline_css(self.css_paths()).decode("utf-8")
+            rawcss = self._inline_files(self.css_paths()).decode("utf-8")
             cssfiles = []
         else:
             rawcss = None
@@ -920,8 +903,8 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
         js_paths = self.js_paths()
         css_paths = self.css_paths()
         html = self._load_template(self.html_template).render(
-            rawjs=self._inline_scripts(js_paths).decode('utf8'),
-            rawcss=self._inline_css(css_paths).decode('utf8'),
+            rawjs=self._inline_files(js_paths).decode('utf8'),
+            rawcss=self._inline_files(css_paths).decode('utf8'),
             js_snippets=[],
             html_snippets=["<p>Configuring embedded BokehJS mode.</p>"])
         displaypub.publish_display_data('bokeh', {'text/html': html})
