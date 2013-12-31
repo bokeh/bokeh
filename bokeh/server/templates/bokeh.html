@@ -6,8 +6,6 @@
     <!-- Vendor Styles -->
     <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <link href="{{ url_for('static', filename='css/bokeh.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/continuum.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap-orig-2.2.2.css') }}" rel="stylesheet">
     {% if splitjs %}
     <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/vendor/requirejs/require.js') }}"></script>

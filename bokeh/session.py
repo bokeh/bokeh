@@ -205,11 +205,7 @@ class HTMLFileSession(BaseHTMLSession):
     title = "Bokeh Plot"
 
     # The root directory for the CSS files
-    css_files = [
-        "js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css",
-        "css/bokeh.css",
-        "css/continuum.css",
-    ]
+    css_files = ["css/bokeh.css"]
 
     # TODO: Why is this not in bokehjs_dir, but rather outside of it?
     js_files = ["js/bokeh.js"]
@@ -776,11 +772,7 @@ class PlotServerSession(BaseHTMLSession):
 
 class NotebookSessionMixin(object):
     # The root directory for the CSS files
-    css_files = [
-        "js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css",
-        "css/bokeh.css",
-        "css/continuum.css",
-    ]
+    css_files = ["css/bokeh.css"]
 
     # TODO: Why is this not in bokehjs_dir, but rather outside of it?
     js_files = ["js/bokeh.js"]
