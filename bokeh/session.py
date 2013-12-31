@@ -16,7 +16,7 @@ from six.moves.urllib.parse import urljoin
 
 from . import protocol, utils
 from .objects import PlotObject, Plot
-from .properties import List
+from .properties import HasProps, List
 from .exceptions import DataIntegrityException
 
 logger = logging.getLogger(__file__)
@@ -98,6 +98,9 @@ class Session(object):
 
                     ids.add(obj._id)
                     objs.append(obj)
+            elif isinstance(obj, HasProps):
+                for attr in obj.__properties_with_refs__:
+                    descend(getattr(obj, attr))
 
         descend(input_objs)
         return objs
