@@ -65,10 +65,9 @@ define [
           else
             ctx.rect(sx[i]-sw[i]/2, sy[i]-sh[i]/2, sw[i], sh[i])
 
-          # only stroke if the line_properties have changed
-          if glyph_props.line_properties.set_vectorize(ctx, i)
-            ctx.stroke()
-            ctx.beginPath()
+          glyph_props.line_properties.set_vectorize(ctx, i)
+          ctx.stroke()
+          ctx.beginPath()
 
         ctx.stroke()
 
