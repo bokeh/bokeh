@@ -5,7 +5,7 @@ from math import pi
 from bokeh.sampledata.iris import flowers
 from bokeh.objects import (
     ColumnDataSource, Glyph, Grid, GridPlot, LinearAxis, Plot,
-    DataRange1d, DataRange1d, PanTool, ZoomTool
+    DataRange1d, DataRange1d, PanTool, WheelZoomTool
 )
 from bokeh.glyphs import Circle, Text
 from bokeh import session
@@ -35,7 +35,7 @@ xdr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_
 ydr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 
 pan = PanTool(dataranges=[xdr,ydr], dimensions=["x","y"])
-zoom = ZoomTool(dataranges=[xdr,ydr], dimensions=["x","y"])
+zoom = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["x","y"])
 
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(

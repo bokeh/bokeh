@@ -6,7 +6,7 @@ import os.path
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
         ColumnDataSource, Glyph, ObjectArrayDataSource,
-        PanTool, ZoomTool)
+        PanTool, WheelZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
 
@@ -46,13 +46,13 @@ xaxis = LinearAxis(plot=plot, dimension=0, location="min")
 yaxis = LinearAxis(plot=plot, dimension=1, location="min")
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool,zoomtool]
+plot.tools = [pantool,wheelzoomtool]
 
 sess = session.HTMLFileSession("glyph1.html")
-sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
+sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, wheelzoomtool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 sess.dumpjson(file="glyph1.json")

@@ -6,7 +6,7 @@ import os.path
 import time
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
         ObjectArrayDataSource, ColumnDataSource, Glyph,
-        PanTool, ZoomTool)
+        PanTool, WheelZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
 
@@ -46,18 +46,18 @@ xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
 yaxis = LinearAxis(plot=plot, dimension=1, location="left")
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot.renderers.append(renderer)
 plot.renderers.append(renderer2)
-plot.tools = [pantool, zoomtool]
+plot.tools = [pantool, wheelzoomtool]
 
 sess = session.PlotServerSession(
     username="defaultuser",
     serverloc="http://localhost:5006", userapikey="nokey")
 sess.use_doc("line_animate")
 sess.add(plot, renderer, renderer2, xaxis, yaxis, 
-         source, xdr, ydr, xdr_static, pantool, zoomtool)
+         source, xdr, ydr, xdr_static, pantool, wheelzoomtool)
 sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
 # not so nice.. but set the model doens't know

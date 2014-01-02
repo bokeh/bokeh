@@ -5,7 +5,7 @@ import os.path
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
         ObjectArrayDataSource, ColumnDataSource, Glyph,
-        PanTool, ZoomTool)
+        PanTool, WheelZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
 
@@ -36,13 +36,13 @@ xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
 yaxis = LinearAxis(plot=plot, dimension=1, location="left")
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot.renderers.append(renderer)
-plot.tools = [pantool, zoomtool]
+plot.tools = [pantool, wheelzoomtool]
 
 sess = session.HTMLFileSession("line.html")
-sess.add(plot, renderer, xaxis, yaxis, source, xdr, ydr, pantool, zoomtool)
+sess.add(plot, renderer, xaxis, yaxis, source, xdr, ydr, pantool, wheelzoomtool)
 sess.plotcontext.children.append(plot)
 sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
 print("Wrote line.html")

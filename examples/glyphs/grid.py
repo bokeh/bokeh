@@ -6,7 +6,7 @@ import os.path
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
         ObjectArrayDataSource, ColumnDataSource, Glyph,
-        PanTool, ZoomTool, GridPlot)
+        PanTool, WheelZoomTool, GridPlot)
 from bokeh.glyphs import Line
 from bokeh import session
 
@@ -37,7 +37,7 @@ def make_plot(source, xname, yname, linecolor, xdr=None, ydr=None):
     xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
     yaxis = LinearAxis(plot=plot, dimension=1, location="left")
     pantool = PanTool(dataranges=[xdr,ydr], dimensions=["width","height"])
-    zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+    wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
     renderer = Glyph(
             data_source = source,
             xdata_range = xdr,
@@ -45,9 +45,9 @@ def make_plot(source, xname, yname, linecolor, xdr=None, ydr=None):
             glyph = Line(x=xname, y=yname, linecolor=linecolor),
             )
     plot.renderers.append(renderer)
-    plot.tools = [pantool, zoomtool]
+    plot.tools = [pantool, wheelzoomtool]
     return plot, (renderer, xaxis, yaxis, source, xdr, ydr,
-            pantool, zoomtool)
+            pantool, wheelzoomtool)
 
 plot1, objs1 = make_plot(source, "x", "y1", "blue")
 plot2, objs2 = make_plot(source, "x", "y2", "red", xdr=plot1.x_range)

@@ -8,7 +8,7 @@ import sys
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, Grid,
     ColumnDataSource, Glyph, ObjectArrayDataSource,
-    PanTool, ZoomTool)
+    PanTool, WheelZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
 
@@ -44,7 +44,7 @@ glyph_renderer = Glyph(
 
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
@@ -54,7 +54,7 @@ xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool,zoomtool]
+plot.tools = [pantool,wheelzoomtool]
 
 import requests
 try:
@@ -66,7 +66,7 @@ except requests.exceptions.ConnectionError as e:
     print("\nThis example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'\n")
     sys.exit()
 
-sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, wheelzoomtool)
 sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
 # not so nice.. but set the model doens't know
