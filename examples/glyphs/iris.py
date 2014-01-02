@@ -4,7 +4,7 @@ import os
 
 from bokeh.sampledata.iris import flowers
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, ZoomTool
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, WheelZoomTool
 )
 from bokeh.glyphs import Circle
 from bokeh import session
@@ -44,10 +44,10 @@ xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool,zoomtool]
+plot.tools = [pantool,wheelzoomtool]
 
 sess = session.HTMLFileSession("iris.html")
 sess.add(plot, recursive=True)

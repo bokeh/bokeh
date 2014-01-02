@@ -100,7 +100,7 @@ define [
         codomain_mapper: @ymapper
       })
       for tool in @mget_obj('tools')
-        if tool.type == "PanTool" or tool.type == "ZoomTool"
+        if tool.type == "PanTool" or tool.type == "WheelZoomTool"
           tool.set_obj('dataranges', [@x_range, @y_range])
           tool.set('dimensions', ['width', 'height'])
 

@@ -11,7 +11,7 @@ from scipy import misc
 
 from bokeh.objects import (
     GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
-    Glyph, ObjectArrayDataSource, PanTool, ZoomTool, ResizeTool,
+    Glyph, ObjectArrayDataSource, PanTool, WheelZoomTool, ResizeTool,
     BoxSelectTool, BoxSelectionOverlay
 )
 from bokeh.glyphs import MultiLine, ImageRGBA, Circle
@@ -37,8 +37,8 @@ plot.tools.append(select_tool)
 xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 pantool = PanTool(plot=plot)
-zoomtool = ZoomTool(plot=plot)
-plot.tools.extend([pantool, zoomtool])
+wheelzoomtool = WheelZoomTool(plot=plot)
+plot.tools.extend([pantool, wheelzoomtool])
 
 # Plot some data on top
 source = ObjectArrayDataSource(

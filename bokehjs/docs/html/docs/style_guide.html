@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="en"><head><title>docs/style_guide</title></head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0"><meta name="groc-relative-root" content="../"><meta name="groc-document-path" content="docs/style_guide"><meta name="groc-project-path" content="docs/style_guide.coffee"><link rel="stylesheet" type="text/css" media="all" href="../assets/style.css"><script type="text/javascript" src="../assets/behavior.js"></script><body><div id="meta"><div class="file-path">docs/style_guide.coffee</div></div><div id="document"><div class="segment"><div class="comments "><div class="wrapper"><h3 id="coffeescript-style-guide-for-bokehjs">Coffeescript Style Guide for BokehJS</h3></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h4 id="general-guidelines">General guidelines</h4>
+
+<ul>
+<li>2 spaces per indent</li>
+<li>80 characters per line</li>
+</ul></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h4 id="names">Names</h4></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use underscores ('snake case') for variable names</p></div></div><div class="code"><div class="wrapper"><span class="nv">foo = </span><span class="mi">10</span>
+<span class="nv">some_thing = </span><span class="mi">20</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>...for function names</p></div></div><div class="code"><div class="wrapper"><span class="nv">my_func = </span><span class="nf">(a, b) -&gt;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>...and for method names</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">Foo</span>
+  <span class="nv">my_method: </span><span class="nf">(foo) -&gt;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use CamelCase ('CapWords') for class names</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">SomeThing</span> <span class="k">extends</span> <span class="nx">Backbone</span><span class="p">.</span><span class="nx">Model</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Use initial underscore to mark "private" methods and attribute in classes</p></div></div><div class="code"><div class="wrapper"><span class="k">class</span> <span class="nx">Foo</span>
+  <span class="nv">public_method: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s">&#39;a public method&#39;</span><span class="p">)</span>
+    <span class="nx">@_private_method</span><span class="p">()</span> <span class="c1"># OK to call from another method</span>
+
+  <span class="nv">_private_method: </span><span class="p">()</span> <span class="nf">-&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s">&#39;should only be called by other methods of this class&#39;</span><span class="p">)</span>
+
+  <span class="nv">_private_attr = </span><span class="mi">10</span> <span class="c1"># should not be accessed outside methods</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h4 id="functions">Functions</h4></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Always use parentheses around function calls</p></div></div><div class="code"><div class="wrapper"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s">&#39;call me like this&#39;</span><span class="p">)</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>i.e., <strong>don't</strong> do this:</p></div></div><div class="code"><div class="wrapper"><span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;not like this&#39;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Always use parenthesis when defining a function:</p></div></div><div class="code"><div class="wrapper"><span class="nv">foo = </span><span class="nf">(a, b, c) -&gt;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Even if there are no arguments:</p></div></div><div class="code"><div class="wrapper"><span class="nv">foo = </span><span class="p">()</span> <span class="nf">-&gt;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>For inline functions definitions, use 4 spaces before the start of the
+function definition and 2 spaces before the comma separating function arguments:</p></div></div><div class="code"><div class="wrapper"><span class="nx">some_foo</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="p">()</span> <span class="nf">-&gt;</span>
+      <span class="nx">my_callback_goes_here</span><span class="p">()</span>
+      <span class="nv">a =</span>
+        <span class="s">&#39;node&#39;</span><span class="o">:</span> <span class="s">&#39;fast&#39;</span>
+      <span class="k">return</span> <span class="nx">a</span>
+  <span class="p">,</span>
+    <span class="p">()</span> <span class="nf">-&gt;</span>
+      <span class="nx">second_callback_goes_here</span><span class="p">()</span>
+<span class="p">)</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Always return something, or null (do not rely on CoffeeScript's implicit return value)</p></div></div><div class="code"><div class="wrapper"><span class="nv">foo = </span><span class="p">()</span> <span class="nf">-&gt;</span>
+  <span class="nv">a = </span><span class="mi">10</span>
+  <span class="k">return</span> <span class="kc">null</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p><strong>don't</strong> do this:</p></div></div><div class="code"><div class="wrapper"><span class="nv">foo = </span><span class="p">()</span> <span class="nf">-&gt;</span>
+  <span class="nv">a = </span><span class="mi">10</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><h4 id="object-literals">Object Literals</h4></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>OK to omit braces for object literals that are standalone</p></div></div><div class="code"><div class="wrapper"><span class="nv">obj =</span>
+  <span class="nv">coffee: </span><span class="s">&#39;black&#39;</span>
+  <span class="nv">cream: </span><span class="s">&#39;none&#39;</span>
+  <span class="nv">bagels:</span>
+    <span class="nv">cream_cheese: </span><span class="s">&#39;fat_free&#39;</span>
+    <span class="nv">toasted: </span><span class="s">&#39;of course&#39;</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>In function calls, prefer to put braces around object literals</p></div></div><div class="code"><div class="wrapper"><span class="nx">foo</span><span class="p">({</span><span class="s">&#39;name&#39;</span><span class="o">:</span> <span class="s">&#39;John Doe&#39;</span><span class="p">,</span> <span class="s">&#39;title&#39;</span><span class="o">:</span> <span class="s">&#39;coder&#39;</span><span class="p">})</span></div></div></div><div class="segment"><div class="comments "><div class="wrapper"><p>Note: object literals in function calls which do NOT fit in one line can be tricky.
+This won't compile:</p>
+
+<pre><code>foo({'name': 'firstobject',
+  'title': 'first'})
+</code></pre></div></div><div class="code"><div class="wrapper"><span class="nx">foo</span><span class="p">({</span>
+  <span class="s">&#39;foo&#39;</span><span class="o">:</span> <span class="mi">10</span><span class="p">,</span>
+  <span class="s">&#39;bar&#39;</span><span class="o">:</span> <span class="mi">20</span><span class="p">,</span>
+<span class="p">})</span></div></div></div></div></body></html>

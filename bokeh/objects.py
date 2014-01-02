@@ -804,7 +804,7 @@ class PanTool(PlotObject):
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
 
-class ZoomTool(PlotObject):
+class WheelZoomTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)

@@ -4,7 +4,7 @@ import os
 
 from bokeh.sampledata import us_states, us_counties, unemployment
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, ZoomTool, ResizeTool
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, WheelZoomTool, ResizeTool
 )
 from bokeh.glyphs import Patches
 from bokeh import session

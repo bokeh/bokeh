@@ -13,14 +13,14 @@ output_server("legend.py example")
 
 hold()
 
-scatter(x,y, tools="pan,zoom,resize", legend="sin(x)")
-scatter(x,2*y, color="orange", tools="pan,zoom,resize", legend="2*sin(x)")
-scatter(x,3*y, color="green", tools="pan,zoom,resize", legend="3*sin(x)")
+scatter(x,y, tools="pan,wheel_zoom,resize", legend="sin(x)")
+scatter(x,2*y, color="orange", tools="pan,wheel_zoom,resize", legend="2*sin(x)")
+scatter(x,3*y, color="green", tools="pan,wheel_zoom,resize", legend="3*sin(x)")
 
 figure()
 
-scatter(x, y, radius=2, tools="pan,zoom,resize,select", legend="sin(x)")
-line(x, y, radius=2, tools="pan,zoom,resize,select", legend="sin(x)")
+scatter(x, y, radius=2, tools="pan,wheel_zoom,resize,select", legend="sin(x)")
+line(x, y, radius=2, tools="pan,wheel_zoom,resize,select", legend="sin(x)")
 
 line(x, 2*y, line_dash="4 4", line_color="orange", line_width=2, legend="2*sin(x)")
 

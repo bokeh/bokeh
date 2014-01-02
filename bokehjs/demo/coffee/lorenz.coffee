@@ -49,7 +49,7 @@ options = {
   dims: [600, 600]
   xrange: [-30, 30]
   yrange: [0, 50]
-  tools: "pan,zoom,resize,preview"
+  tools: "pan,wheel_zoom,resize,preview"
   legend: false
 }
 

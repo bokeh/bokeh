@@ -14,6 +14,6 @@ output_server("color_scatter.py example")
 
 scatter(x,y, radius=radii, radius_units="data",
         fill_color=colors, fill_alpha=0.6,
-        line_color=None, tools="pan,zoom,resize", name="color_scatter_example")
+        line_color=None, tools="pan,wheel_zoom,resize", name="color_scatter_example")
 
 show()  # open a browser

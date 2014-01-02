@@ -9,7 +9,7 @@ import numpy as np
 
 from bokeh.objects import (Plot, DataRange1d, Range1d, LinearAxis, Grid,
         ColumnDataSource, Glyph, ObjectArrayDataSource, PanTool,
-        ZoomTool)
+        WheelZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
 
@@ -33,7 +33,7 @@ glyph_renderer = Glyph(
         glyph = line)
 
 pantool = PanTool(dataranges=[xdr, ydr], dimensions=("width","height"))
-zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
@@ -43,7 +43,7 @@ xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool,zoomtool]
+plot.tools = [pantool,wheelzoomtool]
 
 demo_name = "line"
 if len(sys.argv) > 1 and sys.argv[1] == "server":

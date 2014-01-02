@@ -175,17 +175,17 @@ class GridPlot(BokehMPLBase):
 class XYPlot(BokehMPLBase):
     topmodel = 'plotmodel'
     def __init__(self, plot, xdata_range, ydata_range,
-                 xaxis, yaxis, pantool, zoomtool, selectiontool, embedtool,
+                 xaxis, yaxis, pantool, wheelzoomtool, selectiontool, embedtool,
                  selectionoverlay, parent, plotclient=None):
         super(XYPlot, self).__init__(
             plot, xdata_range, ydata_range, xaxis, yaxis,
-            pantool, zoomtool, selectiontool, selectionoverlay, parent,
+            pantool, wheelzoomtool, selectiontool, selectionoverlay, parent,
             plotclient=plotclient)
         self.plotmodel = plot
         self.xdata_range = xdata_range
         self.ydata_range = ydata_range
         self.pantool = pantool
-        self.zoomtool = zoomtool
+        self.wheelzoomtool = wheelzoomtool
         self.selectiontool = selectiontool
         self.embedtool = embedtool
         self.selectionoverlay = selectionoverlay
@@ -203,7 +203,7 @@ class XYPlot(BokehMPLBase):
                    self.xdata_range,
                    self.ydata_range,
                    self.pantool,
-                   self.zoomtool,
+                   self.wheelzoomtool,
                    self.selectiontool,
                    self.embedtool,
                    self.selectionoverlay,
@@ -573,8 +573,8 @@ class PlotClient(object):
             dataranges=[xdata_range.ref(), ydata_range.ref()],
             dimensions=['width', 'height']
             )
-        zoomtool = self.model(
-            'ZoomTool',
+        wheelzoomtool = self.model(
+            'WheelZoomTool',
             dataranges=[xdata_range.ref(), ydata_range.ref()],
             dimensions=['width', 'height']
             )
@@ -588,11 +588,11 @@ class PlotClient(object):
             tool=selecttool.ref())
         plot.set('renderers', [])
         plot.set('axes', [xaxis.ref(), yaxis.ref()])
-        plot.set('tools', [pantool.ref(), zoomtool.ref(), selecttool.ref(), embedtool.ref()])
+        plot.set('tools', [pantool.ref(), wheelzoomtool.ref(), selecttool.ref(), embedtool.ref()])
         plot.set('overlays', [selectoverlay.ref()])
         output = XYPlot(
             plot, xdata_range, ydata_range,
-            xaxis, yaxis, pantool, zoomtool,
+            xaxis, yaxis, pantool, wheelzoomtool,
             selecttool, embedtool, selectoverlay, parent,
             plotclient=self)
         return output

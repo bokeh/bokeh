@@ -196,7 +196,7 @@ colors = cm[ix]
 output_server("vector.py example")
 
 segment(x0, y0, x1, y1, line_color=colors, line_width=2,
-    tools="pan,zoom,resize", name="vector example")
+    tools="pan,wheel_zoom,resize", name="vector example")
 
 multi_line(xs, ys, line_color="#ee6666", line_width=2, line_alpha=0.8)
 

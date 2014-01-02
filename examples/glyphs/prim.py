@@ -9,7 +9,7 @@ import numpy as np
 from bokeh.objects import (
     Plot, Range1d, LinearAxis, Grid,
     Glyph, ColumnDataSource,
-    PanTool, ZoomTool)
+    PanTool, WheelZoomTool)
 from bokeh.glyphs import *
 from bokeh import session
 
@@ -32,7 +32,7 @@ def make_plot(name, glyph):
     )
 
     pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-    zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+    wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
     plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], border=80)
     xaxis = LinearAxis(plot=plot, dimension=0)
@@ -41,7 +41,7 @@ def make_plot(name, glyph):
     ygrid = Grid(plot=plot, dimension=1)
 
     plot.renderers.append(glyph_renderer)
-    plot.tools = [pantool,zoomtool]
+    plot.tools = [pantool,wheelzoomtool]
 
     try:
         sess = session.PlotServerSession(

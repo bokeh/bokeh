@@ -6,7 +6,7 @@ import os.path
 import time
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, DatetimeAxis,
-        ColumnDataSource, Glyph, PanTool, ZoomTool)
+        ColumnDataSource, Glyph, PanTool, WheelZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
 
@@ -37,10 +37,10 @@ xaxis = DatetimeAxis(plot=plot, dimension=0, location="min")
 yaxis = LinearAxis(plot=plot, dimension=1, location="min")
 
 pantool = PanTool(dataranges=[xdr, ydr], dimensions=["width", "height"])
-zoomtool = ZoomTool(dataranges=[xdr, ydr], dimensions=("width", "height"))
+wheelzoomtool = WheelZoomTool(dataranges=[xdr, ydr], dimensions=("width", "height"))
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool, zoomtool]
+plot.tools = [pantool, wheelzoomtool]
 
 sess = session.HTMLFileSession("dateaxis.html")
 sess.add(plot, recursive=True)
