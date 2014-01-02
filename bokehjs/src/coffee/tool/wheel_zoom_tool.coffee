@@ -8,13 +8,13 @@ define [
 
   OnePointWheelEventGenerator = EventGenerators.OnePointWheelEventGenerator
 
-  class ZoomToolView extends Tool.View
+  class WheelZoomToolView extends Tool.View
 
     initialize: (options) ->
       super(options)
 
     eventGeneratorClass: OnePointWheelEventGenerator
-    evgen_options: { buttonText:"Zoom" }
+    evgen_options: { buttonText: "WheelZoom" }
     tool_events: { zoom: "_zoom" }
 
     mouse_coords: (e, x, y) ->
@@ -61,9 +61,9 @@ define [
       @plot_view.update_range(zoom_info)
       return null
 
-  class ZoomTool extends Tool.Model
-    default_view: ZoomToolView
-    type: "ZoomTool"
+  class WheelZoomTool extends Tool.Model
+    default_view: WheelZoomToolView
+    type: "WheelZoomTool"
 
     defaults: () ->
       return {
@@ -72,14 +72,14 @@ define [
         speed: 1/600
       }
 
-  class ZoomTools extends Backbone.Collection
-    model: ZoomTool
+  class WheelZoomTools extends Backbone.Collection
+    model: WheelZoomTool
 
     display_defaults: () ->
       super()
 
   return {
-    "Model": ZoomTool,
-    "Collection": new ZoomTools(),
-    "View": ZoomToolView,
+    "Model": WheelZoomTool,
+    "Collection": new WheelZoomTools(),
+    "View": WheelZoomToolView,
   }

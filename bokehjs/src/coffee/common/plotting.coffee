@@ -15,9 +15,9 @@ define [
   "tool/pan_tool",
   "tool/preview_save_tool",
   "tool/resize_tool",
-  "tool/zoom_tool",
+  "tool/wheel_zoom_tool",
   "renderer/guide/datetime_axis",
-], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ResizeTool, ZoomTool, DatetimeAxis) ->
+], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, DatetimeAxis) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -134,7 +134,7 @@ define [
       return
 
     if tools == true
-      tools = "pan,zoom,select,resize,preview"
+      tools = "pan,wheel_zoom,select,resize,preview"
     added_tools = []
 
     if tools.indexOf("pan") > -1
@@ -144,12 +144,12 @@ define [
       )
       added_tools.push(pan_tool)
 
-    if tools.indexOf("zoom") > -1
-      zoom_tool = ZoomTool.Collection.create(
+    if tools.indexOf("wheel_zoom") > -1
+      wheel_zoom_tool = WheelZoomTool.Collection.create(
         dataranges: [xdr.ref(), ydr.ref()]
         dimensions: ['width', 'height']
       )
-      added_tools.push(zoom_tool)
+      added_tools.push(wheel_zoom_tool)
 
     if tools.indexOf("select") > -1
       select_tool = BoxSelectTool.Collection.create(

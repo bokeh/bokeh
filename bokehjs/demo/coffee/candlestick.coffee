@@ -61,7 +61,7 @@ options = {
   yrange: [5500, 6500]
   xaxes: "min"
   yaxes: "min"
-  tools: "pan,zoom,resize,preview"
+  tools: "pan,wheel_zoom,resize,preview"
   legend: false
 }
 

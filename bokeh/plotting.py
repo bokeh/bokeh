@@ -18,7 +18,7 @@ from six import string_types
 
 from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataRange1d,
-        Plot, Glyph, LinearAxis, Grid, PanTool, ZoomTool,
+        Plot, Glyph, LinearAxis, Grid, PanTool, WheelZoomTool,
         PreviewSaveTool, ResizeTool, CrosshairTool, BoxSelectTool,
         EmbedTool, BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
@@ -831,7 +831,7 @@ def gridplot(plot_arrangement, name=False):
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="linear", y_axis_type="linear",
-                 tools="pan,zoom,save,resize,select", **kw):
+                 tools="pan,wheel_zoom,save,resize,select", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
@@ -877,8 +877,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     tool_objs = []
     if "pan" in tools:
         tool_objs.append(PanTool(dataranges=[p.x_range, p.y_range], dimensions=["width","height"]))
-    if "zoom" in tools:
-        tool_objs.append(ZoomTool(dataranges=[p.x_range, p.y_range], dimensions=["width","height"]))
+    if "wheel_zoom" in tools:
+        tool_objs.append(WheelZoomTool(dataranges=[p.x_range, p.y_range], dimensions=["width","height"]))
     if "save" in tools:
         tool_objs.append(PreviewSaveTool(plot=p))
     if "resize" in tools:

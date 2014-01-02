@@ -14,8 +14,8 @@ output_server("line.py example")
 
 hold()
 
-line(x, y, color="#3333ee", tools="pan,zoom,resize")
-line([0,4*np.pi], [-1, 1], color="#ee3333", tools="pan,zoom,resize")
+line(x, y, color="#3333ee", tools="pan,wheel_zoom,resize")
+line([0,4*np.pi], [-1, 1], color="#ee3333", tools="pan,wheel_zoom,resize")
 
 show()
 

@@ -19,7 +19,7 @@ choam = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 
 line(dates, acme,
      x_axis_type = "datetime",
-     color='#1F78B4', tools="pan,zoom,resize", legend='ACME')
+     color='#1F78B4', tools="pan,wheel_zoom,resize", legend='ACME')
 line(dates, choam, color='#FB9A99', legend='CHOAM')
 
 curplot().title = "Stock Returns"
@@ -30,7 +30,7 @@ figure()
 scatter(
     acme, choam,
     color='#A6CEE3', radius=3,
-    tools="pan,zoom,resize", legend='close'
+    tools="pan,wheel_zoom,resize", legend='close'
 )
 
 curplot().title = "ACME / CHOAM Correlations"

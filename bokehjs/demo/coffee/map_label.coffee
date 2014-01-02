@@ -71,7 +71,7 @@ options = {
   yaxes: false
   xgrid: false
   ygrid: false
-  tools: "pan,zoom,resize,preview"
+  tools: "pan,wheel_zoom,resize,preview"
   legend: false
 }
 
