@@ -445,7 +445,6 @@ class PlotList(PlotContext):
 
 class PlotServerSession(BaseHTMLSession):
 
-
     def __init__(self, username=None, serverloc=None, userapikey="nokey"):
         # This logic is based on ContinuumModelsClient.__init__ and
         # mpl.PlotClient.__init__.  There is some merged functionality here
@@ -769,46 +768,12 @@ class PlotServerSession(BaseHTMLSession):
             for cb in m._callback_queue:
                 m._trigger(*cb)
             del m._callback_queue[:]
-    #------------------------------------------------------------------------
-    # Static files
-    #------------------------------------------------------------------------
-
-    def css_paths(self, as_urls=True):
-        """ Returns a list of URLs or file paths for CSS files """
-        # This should coordinate with the running plot server and use some
-        # mechanism to query this information from it.
-        raise NotImplementedError
-
-    def js_paths(self, as_urls=True):
-        raise NotImplementedError
 
 
 class NotebookSessionMixin(object):
-    # The root directory for the CSS files
-    css_files = ["css/bokeh.css"]
+    """ Mix this into ``BaseHTMLSession``. """
 
-    # TODO: Why is this not in bokehjs_dir, but rather outside of it?
-    js_files = ["js/bokeh.js"]
-
-    js_template = "plots.js"
-    div_template = "plots.html"
-    html_template = "basediv.html"     # template for the entire HTML file
-
-    def css_paths(self, as_url=False):
-        # TODO: Fix the duplication of this method from HTMLFileSession.
-        # Perhaps move this into BaseHTMLSession.. but a lot of other
-        # things would need to move as well.
-        return [join(self.server_static_dir, d) for d in self.css_files]
-
-    def js_paths(self):
-        # For notebook session, we rely on a unified bokehJS file,
-        # that is not located in the BokehJS subtree
-        return [join(self.server_static_dir, d) for d in self.js_files]
-
-    def dumps(self, objects):
-        """ Returns the HTML contents as a string
-        FIXME: signature different than other dumps
-        """
+    def _get_plot_and_objects(self, *objects):
         if len(objects) == 0:
             objects = list(self._models.values())
         if len(objects) == 1 and isinstance(objects[0], Plot):
@@ -816,6 +781,32 @@ class NotebookSessionMixin(object):
             objects = list(self._models.values())
         else:
             the_plot = [m for m in objects if isinstance(m, Plot)][0]
+
+        return the_plot, objects
+
+    def show(self, *objects):
+        """ Displays the given objects, or all objects currently associated
+        with the session, inline in the IPython Notebook.
+
+        Basicall we return a dummy object that implements _repr_html.
+        The reason to do this instead of just having this session object
+        implement _repr_html directly is because users will usually want
+        to just see one or two plots, and not all the plots and models
+        associated with the session.
+        """
+        import IPython.core.displaypub as displaypub
+        displaypub.publish_display_data('bokeh', {'text/html': self.dumps(*objects)})
+
+
+class NotebookSession(NotebookSessionMixin, HTMLFileSession):
+    """ Produces inline HTML suitable for placing into an IPython Notebook. """
+
+    def __init__(self, plot=None):
+        HTMLFileSession.__init__(self, filename=None, plot=plot)
+
+    def dumps(self, *objects):
+        """ Returns the HTML contents as a string. """
+        the_plot, objects = self._get_plot_and_objects(*objects)
 
         plot_ref = self.get_ref(the_plot)
         elementid = self.make_id()
@@ -834,30 +825,6 @@ class NotebookSessionMixin(object):
                                            js_snippets = [js])
         return html.encode("utf-8")
 
-    def show(self, *objects):
-        """ Displays the given objects, or all objects currently associated
-        with the session, inline in the IPython Notebook.
-
-        Basicall we return a dummy object that implements _repr_html.
-        The reason to do this instead of just having this session object
-        implement _repr_html directly is because users will usually want
-        to just see one or two plots, and not all the plots and models
-        associated with the session.
-        """
-        import IPython.core.displaypub as displaypub
-
-        html = self.dumps(objects)
-        displaypub.publish_display_data('bokeh', {'text/html': html})
-        return None
-
-
-class NotebookSession(NotebookSessionMixin, HTMLFileSession):
-    """ Produces inline HTML suitable for placing into an IPython Notebook.
-    """
-
-    def __init__(self, plot=None):
-        HTMLFileSession.__init__(self, filename=None, plot=plot)
-
     def notebooksources(self):
         import IPython.core.displaypub as displaypub
         js_paths = self.js_paths()
@@ -872,8 +839,8 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
 
 
 class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
-    """ An IPython Notebook session that is connected to a plot server.
-    """
+    """ An IPython Notebook session that is connected to a plot server. """
+
     def ws_conn_string(self):
         split = urlsplit(self.root_url)
         #how to fix this in bokeh and wakari?
@@ -882,35 +849,10 @@ class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
         else:
             return "wss://%s/bokeh/sub" % split.netloc
 
-    def dumps(self, objects):
-        """ Returns the HTML contents as a string
-        FIXME : signature different than other dumps
-        FIXME: should consolidate code between this one and that one.
-        """
-        if len(objects) == 0:
-            objects = self._models.values()
-        if len(objects) == 1 and isinstance(objects[0], Plot):
-            the_plot = objects[0]
-            objects = self._models.values()
-        else:
-            the_plot = [m for m in objects if isinstance(m, Plot)][0]
+    def dumps(self, *objects):
+        """ Returns the HTML contents as a string. """
+        the_plot, _ = self._get_plot_and_objects(*objects)
         return the_plot.create_html_snippet(server=True)
-
-    def show(self, *objects):
-        """ Displays the given objects, or all objects currently associated
-        with the session, inline in the IPython Notebook.
-
-        Basicall we return a dummy object that implements _repr_html.
-        The reason to do this instead of just having this session object
-        implement _repr_html directly is because users will usually want
-        to just see one or two plots, and not all the plots and models
-        associated with the session.
-        """
-        import IPython.core.displaypub as displaypub
-
-        html = self.dumps(objects)
-        displaypub.publish_display_data('bokeh', {'text/html': html})
-        return None
 
     def notebook_connect(self):
         if self.docname is None:
@@ -920,8 +862,3 @@ class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
                 (self.docname, self.root_url)
         displaypub.publish_display_data('bokeh', {'text/html': msg})
         return None
-
-
-
-
-
