@@ -136,15 +136,16 @@ class BaseHTMLSession(Session):
     # Static file handling
     #------------------------------------------------------------------------
 
-    def js_paths(self, as_url=True, unified=True, min=True):
+    # TODO?: as_url=False
+    def js_paths(self, unified=True, minified=True):
         """ Returns a list of URLs or absolute paths on this machine to the JS
         source files needed to render this session.  If **unified** is True,
-        then this list is a single file.  If **min** is True, then minifies
+        then this list is a single file.  If **minified** is True, then minifies
         all the JS.
         """
         raise NotImplementedError
 
-    def css_paths(self, as_url=True):
+    def css_paths(self, unified=True, minified=True):
         """ Returns the paths to required CSS files. Could be paths
         or URIs depending on the type of session.
         """
@@ -243,11 +244,9 @@ class HTMLFileSession(BaseHTMLSession):
 
     title = "Bokeh Plot"
 
-    # The root directory for the CSS files
-    css_files = ["css/bokeh.css"]
-
     # TODO: Why is this not in bokehjs_dir, but rather outside of it?
     js_files = ["js/bokeh.js"]
+    css_files = ["css/bokeh.css"]
 
     # Template files used to generate the HTML
     js_template = "plots.js"
@@ -269,13 +268,20 @@ class HTMLFileSession(BaseHTMLSession):
         self.add(self.plotcontext)
         self.raw_js_objs = []
 
-    # FIXME: move this to css_paths, js_paths to base class?
-    def css_paths(self, as_url=False):
-        return [join(self.server_static_dir, d) for d in self.css_files]
+    def _file_paths(self, files, unified, minified):
+        if not unified:
+            raise NotImplementedError("unified=False is not implemented")
 
-    def js_paths(self, as_url=False, unified=True, min=True):
-        # TODO: Handle unified and minified options
-        return [join(self.server_static_dir, d) for d in self.js_files]
+        if minified:
+            files = [ root + ".min" + ext for (root, ext) in map(os.path.splitext, files) ]
+
+        return [ os.path.join(self.server_static_dir, file) for file in files ]
+
+    def js_paths(self, unified=True, minified=True):
+        return self._file_paths(self.js_files, unified, minified)
+
+    def css_paths(self, unified=True, minified=True):
+        return self._file_paths(self.css_files, unified, minified)
 
     def raw_js_snippets(self, obj):
         self.raw_js_objs.append(obj)
