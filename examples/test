@@ -1,16 +1,28 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
+import os
 import json
 import traceback
 import subprocess
 
 import colorama
-
 colorama.init()
 
-examples = ['anscombe', 'choropleth', 'colorspec', 'dateaxis',
-    'glyph1', 'grid', 'iris', 'iris_splom', 'line', 'line2']
+examples = []
+
+def add_examples(examples_dir, excludes):
+    for file in os.listdir(examples_dir):
+        if not file.startswith('__') and file.endswith(".py") and file not in excludes:
+            examples.append(os.path.join(examples_dir, file))
+
+glyphs_dir = os.path.join("glyphs")
+glyphs_excludes = set(["data_select_tool.py", "glyph2.py", "line_animate.py", "maps.py", "prim.py"])
+add_examples(glyphs_dir, glyphs_excludes)
+
+plotting_file_dir = os.path.join("plotting", "file")
+plotting_file_excludes = set([])
+add_examples(plotting_file_dir, plotting_file_excludes)
 
 def fail(msg):
     print("%s[FAIL]%s %s" % (colorama.Fore.RED, colorama.Style.RESET_ALL, msg))
@@ -18,25 +30,34 @@ def fail(msg):
 def ok(msg):
     print("%s[OK]%s %s" % (colorama.Fore.GREEN, colorama.Style.RESET_ALL, msg))
 
+os.environ['BOKEH_BROWSER'] = 'dummy'
+
 for example in examples:
     print("Testing %s ..." % example)
 
+    module = os.path.splitext(example)[0].replace('/', '.')
+
     try:
-        __import__("glyphs." + example)
-    except (SystemExit, KeyboardInterrupt):
+        __import__(module)
+    except SystemExit:
         raise
+    except KeyboardInterrupt:
+        pass
     except:
         traceback.print_exc()
         fail(example)
     else:
-        output = subprocess.check_output(["phantomjs", "test.js", example + ".html"])
+        html = os.path.splitext(os.path.basename(example))[0] + '.html'
+        proc = subprocess.Popen(["phantomjs", "test.js", html], stdout=subprocess.PIPE)
+
+        output = proc.stdout.read()
         result = json.loads(output)
 
         status = result['status']
         errors = result['errors']
 
         if status == 'fail':
-            fail("failed to load %s.html" % example)
+            fail("failed to load %s" % html)
         elif errors:
             for error in errors:
                 print(error['msg'])
