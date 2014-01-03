@@ -810,8 +810,7 @@ class NotebookSessionMixin(object):
 
     def dumps(self, objects):
         """ Returns the HTML contents as a string
-        FIXME : signature different than other dumps
-        FIXME: should consolidate code between this one and that one.
+        FIXME: signature different than other dumps
         """
         if len(objects) == 0:
             objects = list(self._models.values())
@@ -820,36 +819,6 @@ class NotebookSessionMixin(object):
             objects = list(self._models.values())
         else:
             the_plot = [m for m in objects if isinstance(m, Plot)][0]
-        plot_ref = self.get_ref(the_plot)
-        elementid = str(uuid.uuid4())
-
-        # Manually convert our top-level models into dicts, before handing
-        # them in to the JSON encoder.  (We don't want to embed the call to
-        # vm_serialize into the PlotObjEncoder, because that would cause
-        # all the attributes to be duplicated multiple times.)
-        models = []
-        for m in objects:
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
-            models.append(ref)
-
-        js = self._load_template(self.js_template).render(
-                    elementid = elementid,
-                    modelid = plot_ref["id"],
-                    modeltype = plot_ref["type"],
-                    all_models = self.serialize(models),
-                )
-        plot_div = self._load_template(self.div_template).render(
-            elementid=elementid
-            )
-        html = self._load_template(self.html_template).render(
-                                           html_snippets=[plot_div],
-                                           elementid = elementid,
-                                           js_snippets = [js],
-                                           )
-        return html.encode("utf-8")
-
         plot_ref = self.get_ref(the_plot)
         elementid = str(uuid.uuid4())
 
