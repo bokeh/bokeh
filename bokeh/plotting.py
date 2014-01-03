@@ -26,8 +26,11 @@ from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
 from . import glyphs
 from .palettes import brewer
 
-instrument = None
-"""instrument is used to collect plots it is particularly helpful for gallery   """
+
+# This is used to accumulate plots generated via the plotting methods in this
+# module.  It is used by build_gallery.py.  To activate this feature, simply
+# set _PLOTLIST to an empty list; to turn it off, set it back to None.
+_PLOTLIST = None
 
 
 def plothelp():
@@ -352,8 +355,8 @@ def visual(func):
         if plot is not None:
             session.add(plot)
             _config["curplot"] = plot
-            # if type(instrument) == type([]):
-            #     instrument.append(plot)
+            # if _PLOTLIST is not None:
+            #     _PLOTLIST.append(plot)
 
         if session_objs:
             session.add(*session_objs)
@@ -828,8 +831,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
-    if type(instrument) == type([]):
-        instrument.append(p)
+    if _PLOTLIST is not None:
+        _PLOTLIST.append(p)
 
     p.title = kw.pop("title", "Plot")
     if plot_width is not None:
