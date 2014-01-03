@@ -128,6 +128,10 @@ class BaseHTMLSession(Session):
     # The base URL for all CSS and JS
     static_url = bokeh_url
 
+    def __init__(self, plot=None):
+        super(BaseHTMLSession, self).__init__(plot=plot)
+        self.PlotObjectEncoder = type("PlotObjectEncoder", (self._PlotObjectEncoder,), {"session": self})
+
     #------------------------------------------------------------------------
     # Static file handling
     #------------------------------------------------------------------------
@@ -175,13 +179,8 @@ class BaseHTMLSession(Session):
     # Serialization
     #------------------------------------------------------------------------
 
-    class PlotObjEncoder(protocol.NumpyJSONEncoder):
+    class _PlotObjectEncoder(protocol.NumpyJSONEncoder):
         """ Helper class we'll use to encode PlotObjects
-
-        Note that since json.dumps() takes a *class* as an argument and
-        not an instance, when this encoder class is used, the Session
-        instance is set as a class-level attribute.  Kind of weird, and
-        should be better handled via a metaclass.
 
         #hugo - I don't think we should use the json encoder anymore to do
         this.  It introduces an asymmetry in our operations, because
@@ -190,25 +189,16 @@ class BaseHTMLSession(Session):
         in order to resolve references
         """
         session = None
+
         def default(self, obj):
             if isinstance(obj, PlotObject):
-                if self.session is None:
-                    raise RuntimeError("PlotObjEncoder requires a valid session")
-                # We do not want the JSON encoder (which walks the entire
-                # object graph) to do anything more than return references.
-                # The model serialization happens later.
-                d = self.session.get_ref(obj)
-                return d
+                return self.session.get_ref(obj)
             else:
                 return protocol.NumpyJSONEncoder.default(self, obj)
 
-
     def get_ref(self, obj):
         self._models[obj._id] = obj
-        return {
-                'type': obj.__view_model__,
-                'id': obj._id
-                }
+        return obj.get_ref()
 
     def make_id(self, obj):
         return str(uuid.uuid4())
@@ -222,16 +212,7 @@ class BaseHTMLSession(Session):
         How we produce references is actually more involved, because
         it may differ between server-based models versus embedded.
         """
-
-        try:
-            self.PlotObjEncoder.session = self
-            jsondata = protocol.serialize_json(
-                obj,
-                encoder=self.PlotObjEncoder,
-                **jsonkwargs)
-        finally:
-            self.PlotObjEncoder.session = None
-        return jsondata
+        return protocol.serialize_json(obj, encoder=self.PlotObjectEncoder, **jsonkwargs)
 
 class HTMLFileSession(BaseHTMLSession):
     """ Produces a pile of static HTML, suitable for exporting a plot
