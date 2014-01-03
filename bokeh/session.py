@@ -197,7 +197,6 @@ class BaseHTMLSession(Session):
                 return protocol.NumpyJSONEncoder.default(self, obj)
 
     def get_ref(self, obj):
-        self._models[obj._id] = obj
         return obj.get_ref()
 
     def make_id(self, obj):
@@ -267,6 +266,7 @@ class HTMLFileSession(BaseHTMLSession):
             self.title = title
         super(HTMLFileSession, self).__init__(plot=plot)
         self.plotcontext = PlotContext()
+        self.add(self.plotcontext)
         self.raw_js_objs = []
 
     # FIXME: move this to css_paths, js_paths to base class?
@@ -506,7 +506,7 @@ class PlotServerSession(BaseHTMLSession):
             plotcontext = PlotContext()
             self.store_obj(plotcontext)
         self.plotcontext = plotcontext
-        return
+        self.add(self.plotcontext)
 
     def make_doc(self, title):
         url = urljoin(self.root_url,"/bokeh/doc/")
@@ -852,7 +852,6 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
 
     def __init__(self, plot=None):
         HTMLFileSession.__init__(self, filename=None, plot=plot)
-        self.plotcontext = PlotContext()
 
     def notebooksources(self):
         import IPython.core.displaypub as displaypub
