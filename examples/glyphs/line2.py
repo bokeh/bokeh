@@ -47,7 +47,7 @@ ygrid = Grid(plot=plot, dimension=1)
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,wheelzoomtool]
 
-demo_name = "line"
+demo_name = "line2"
 if len(sys.argv) > 1 and sys.argv[1] == "server":
     try:
         sess = session.PlotServerSession(
