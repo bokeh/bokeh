@@ -214,6 +214,28 @@ class BaseHTMLSession(Session):
         """
         return protocol.serialize_json(obj, encoder=self.PlotObjectEncoder, **jsonkwargs)
 
+    def convert_models(self, to_convert=None):
+        """ Manually convert our top-level models into dicts, before handing
+        them in to the JSON encoder. We don't want to embed the call to
+        ``vm_serialize()`` into the ``PlotObjectEncoder``, because that would
+        cause all the attributes to be duplicated multiple times.
+        """
+        if to_convert is None:
+            to_convert = self._models.values()
+
+        models = []
+
+        for model in to_convert:
+            ref = self.get_ref(model)
+            ref["attributes"] = model.vm_serialize()
+            ref["attributes"].update({"id": ref["id"], "doc": None})
+            models.append(ref)
+
+        return models
+
+    def serialize_models(self, objects=None, **jsonkwargs):
+        return self.serialize(self.convert_models(objects), **jsonkwargs)
+
 class HTMLFileSession(BaseHTMLSession):
     """ Produces a pile of static HTML, suitable for exporting a plot
     as a standalone HTML file.  This includes a template around the
@@ -273,26 +295,12 @@ class HTMLFileSession(BaseHTMLSession):
         pc_ref = self.get_ref(self.plotcontext)
         elementid = str(uuid.uuid4())
 
-        # Manually convert our top-level models into dicts, before handing
-        # them in to the JSON encoder.  (We don't want to embed the call to
-        # vm_serialize into the PlotObjEncoder, because that would cause
-        # all the attributes to be duplicated multiple times.)
-        models = []
-        for m in self._models.values():
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
-            models.append(ref)
-
         jscode = self._load_template(self.js_template).render(
                     elementid = elementid,
                     modelid = pc_ref["id"],
                     modeltype = pc_ref["type"],
-                    all_models = self.serialize(models),
-                )
-        div = self._load_template(self.div_template).render(
-                    elementid = elementid
-                )
+                    all_models = self.serialize_models())
+        div = self._load_template(self.div_template).render(elementid = elementid)
 
         if rootdir is None:
             rootdir = self.rootdir
@@ -311,12 +319,9 @@ class HTMLFileSession(BaseHTMLSession):
             rawcss = None
             cssfiles = [os.path.relpath(p,rootdir) for p in self.css_paths()]
 
-        plot_div = self._load_template(self.div_template).render(
-            elementid=elementid
-            )
+        plot_div = self._load_template(self.div_template).render(elementid=elementid)
 
-
-# jscode is the one I want
+        # jscode is the one I want
 
         html = self._load_template(self.html_template).render(
                     js_snippets = [jscode],
@@ -327,17 +332,9 @@ class HTMLFileSession(BaseHTMLSession):
         return html
 
     def embed_js(self, plot_id, static_root_url):
-
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
         elementid = str(uuid.uuid4())
-
-        models = []
-        for m in self._models.values():
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
-            models.append(ref)
 
         jscode = self._load_template('embed_direct.js').render(
             host = "",
@@ -345,9 +342,10 @@ class HTMLFileSession(BaseHTMLSession):
             elementid = elementid,
             modelid = pc_ref["id"],
             modeltype = pc_ref["type"],
-            plotid = plot_id,  all_models = self.serialize(models))
-        return jscode.encode("utf-8")
+            plotid = plot_id,
+            all_models = self.serialize_models())
 
+        return jscode.encode("utf-8")
 
     def save(self, filename=None, js=None, css=None, rootdir=None):
         """ Saves the file contents.  Uses self.filename if **filename**
@@ -400,17 +398,11 @@ class HTMLFileSession(BaseHTMLSession):
 
         Mostly intended to be used for debugging.
         """
-        models = []
-        for m in self._models.values():
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
-            models.append(ref)
         if pretty:
             indent = 4
         else:
             indent = None
-        s = self.serialize(models, indent=indent)
+        s = self.serialize_models(indent=indent)
         if file is not None:
             if isinstance(file, string_types):
                 with open(file, "w") as f:
@@ -819,34 +811,22 @@ class NotebookSessionMixin(object):
             objects = list(self._models.values())
         else:
             the_plot = [m for m in objects if isinstance(m, Plot)][0]
+
         plot_ref = self.get_ref(the_plot)
         elementid = str(uuid.uuid4())
-
-        # Manually convert our top-level models into dicts, before handing
-        # them in to the JSON encoder.  (We don't want to embed the call to
-        # vm_serialize into the PlotObjEncoder, because that would cause
-        # all the attributes to be duplicated multiple times.)
-        models = []
-        for m in objects:
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
-            models.append(ref)
 
         js = self._load_template(self.js_template).render(
                     elementid = elementid,
                     modelid = plot_ref["id"],
                     modeltype = plot_ref["type"],
-                    all_models = self.serialize(models),
-                )
-        plot_div = self._load_template(self.div_template).render(
-            elementid=elementid
-            )
+                    all_models = self.serialize_models(objects))
+
+        plot_div = self._load_template(self.div_template).render(elementid=elementid)
+
         html = self._load_template(self.html_template).render(
                                            html_snippets=[plot_div],
                                            elementid = elementid,
-                                           js_snippets = [js],
-                                           )
+                                           js_snippets = [js])
         return html.encode("utf-8")
 
     def show(self, *objects):
