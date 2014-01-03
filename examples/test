@@ -1,0 +1,51 @@
+#!/usr/bin/env python
+from __future__ import print_function
+
+import json
+import traceback
+import subprocess
+
+import colorama
+
+colorama.init()
+
+examples = ['anscombe', 'choropleth', 'colorspec', 'dateaxis',
+    'glyph1', 'grid', 'iris', 'iris_splom', 'line', 'line2']
+
+def fail(msg):
+    print("%s[FAIL]%s %s" % (colorama.Fore.RED, colorama.Style.RESET_ALL, msg))
+
+def ok(msg):
+    print("%s[OK]%s %s" % (colorama.Fore.GREEN, colorama.Style.RESET_ALL, msg))
+
+for example in examples:
+    print("Testing %s ..." % example)
+
+    try:
+        __import__("glyphs." + example)
+    except (SystemExit, KeyboardInterrupt):
+        raise
+    except:
+        traceback.print_exc()
+        fail(example)
+    else:
+        output = subprocess.check_output(["phantomjs", "test.js", example + ".html"])
+        result = json.loads(output)
+
+        status = result['status']
+        errors = result['errors']
+
+        if status == 'fail':
+            fail("failed to load %s.html" % example)
+        elif errors:
+            for error in errors:
+                print(error['msg'])
+
+                for item in error['trace']:
+                    print("    %s: %d" % (item['file'], item['line']))
+
+            fail(example)
+        else:
+            ok(example)
+
+    print()
