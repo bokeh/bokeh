@@ -199,7 +199,7 @@ class BaseHTMLSession(Session):
     def get_ref(self, obj):
         return obj.get_ref()
 
-    def make_id(self, obj):
+    def make_id(self):
         return str(uuid.uuid4())
 
     def serialize(self, obj, **jsonkwargs):
@@ -293,7 +293,7 @@ class HTMLFileSession(BaseHTMLSession):
         """
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
-        elementid = str(uuid.uuid4())
+        elementid = self.make_id()
 
         jscode = self._load_template(self.js_template).render(
                     elementid = elementid,
@@ -334,7 +334,7 @@ class HTMLFileSession(BaseHTMLSession):
     def embed_js(self, plot_id, static_root_url):
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
-        elementid = str(uuid.uuid4())
+        elementid = self.make_id()
 
         jscode = self._load_template('embed_direct.js').render(
             host = "",
@@ -813,7 +813,7 @@ class NotebookSessionMixin(object):
             the_plot = [m for m in objects if isinstance(m, Plot)][0]
 
         plot_ref = self.get_ref(the_plot)
-        elementid = str(uuid.uuid4())
+        elementid = self.make_id()
 
         js = self._load_template(self.js_template).render(
                     elementid = elementid,
