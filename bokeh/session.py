@@ -301,26 +301,29 @@ class HTMLFileSession(BaseHTMLSession):
                     modeltype = pc_ref["type"],
                     all_models = self.serialize_models())
 
+        rawjs, rawcss = None, None
+        jsfiles, cssfiles = [], []
+
         if rootdir is None:
             rootdir = self.rootdir
 
         if js == "inline" or (js is None and self.inline_js):
             rawjs = self._inline_files(self.js_paths())
-            jsfiles = []
         elif js == "relative":
-            rawjs = None
-            jsfiles = [os.path.relpath(p,rootdir) for p in self.js_paths()]
+            jsfiles = [ os.path.relpath(p, rootdir) for p in self.js_paths() ]
+        elif js == "absolute":
+            jsfiles = self.js_paths()
         else:
-            raise ValueError("wrong value for 'js' parameter, expected 'inline' or 'relative', got '%s'" % js)
+            raise ValueError("wrong value for 'js' parameter, expected 'inline', 'relative' or 'absolute', got '%s'" % js)
 
         if css == "inline" or (css is None and self.inline_css):
             rawcss = self._inline_files(self.css_paths())
-            cssfiles = []
         elif css == "relative":
-            rawcss = None
-            cssfiles = [os.path.relpath(p,rootdir) for p in self.css_paths()]
+            cssfiles = [ os.path.relpath(p, rootdir) for p in self.css_paths() ]
+        elif css == "absolute":
+            cssfiles = self.css_paths()
         else:
-            raise ValueError("wrong value for 'css' parameter, expected 'inline' or 'relative', got '%s'" % css)
+            raise ValueError("wrong value for 'css' parameter, expected 'inline', 'relative' or 'absolute', got '%s'" % css)
 
         plot_div = self._load_template(self.div_template).render(elementid=elementid)
 
