@@ -25,7 +25,7 @@ def page_desc(prev_infos, module_desc):
     varname = module_desc.get('varname', False)
 
     from bokeh import plotting
-    plotting.instrument = []
+    plotting._PLOTLIST = []
     file_namespace = {}
     execfile(module_path, file_namespace)
     embed_snippet = ""
@@ -35,7 +35,7 @@ def page_desc(prev_infos, module_desc):
             embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
             embed_base_url=DETAIL_URL_ROOT)
     else:
-        for p in plotting.instrument:
+        for p in plotting._PLOTLIST:
             embed_snippet += p.create_html_snippet(
                 embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
                 embed_base_url=DETAIL_URL_ROOT)

@@ -17,7 +17,9 @@ y = sin(x)
 # for len(x) number of hours.
 times = np.arange(len(x)) * 3600000 + time.time()
 
-source = ColumnDataSource(data=dict(x=x, y=y, times=times))
+source = ColumnDataSource(
+    data=dict(x=x, y=y, times=times)
+)
 
 xdr = DataRange1d(sources=[source.columns("times")])
 ydr = DataRange1d(sources=[source.columns("y")])

@@ -5,14 +5,11 @@ import numpy as np
 import os.path
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis,
-        ObjectArrayDataSource, ColumnDataSource, Glyph,
-        PanTool, WheelZoomTool, GridPlot)
+    ColumnDataSource, Glyph, PanTool, WheelZoomTool, GridPlot)
 from bokeh.glyphs import Line
 from bokeh import session
 
 x = np.linspace(-2*pi, 2*pi, 1000)
-widths = np.ones_like(x) * 0.02
-heights = np.ones_like(x) * 0.2
 
 source = ColumnDataSource(data = dict(
             x = x,
@@ -20,8 +17,8 @@ source = ColumnDataSource(data = dict(
             y2 = cos(x),
             y3 = tan(x),
             y4 = sin(x) * cos(x),
-            widths = widths,
-            heights = heights))
+    )
+)
 
 def make_plot(source, xname, yname, linecolor, xdr=None, ydr=None):
     """ Returns a tuple (plot, [obj1...objN]); the former can be added

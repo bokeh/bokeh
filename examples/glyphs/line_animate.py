@@ -9,8 +9,7 @@ from numpy import pi, arange, sin, cos
 import numpy as np
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis,
-        ObjectArrayDataSource, ColumnDataSource, Glyph,
-        PanTool, WheelZoomTool)
+    ColumnDataSource, Glyph, PanTool, WheelZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
 
@@ -18,12 +17,11 @@ x = np.linspace(-2*pi, 2*pi, 1000)
 x_static = np.linspace(-2*pi, 2*pi, 1000)
 y = sin(x)
 z = cos(x)
-widths = np.ones_like(x) * 0.02
-heights = np.ones_like(x) * 0.2
 
 source = ColumnDataSource(
-    data=dict(x=x, y=y, z=z, x_static=x_static,
-              widths=widths, heights=heights))
+    data=dict(
+        x=x, y=y, z=z, x_static=x_static)
+)
 
 xdr = DataRange1d(sources=[source.columns("x")])
 xdr_static = DataRange1d(sources=[source.columns("x_static")])

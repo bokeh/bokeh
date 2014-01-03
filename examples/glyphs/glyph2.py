@@ -9,33 +9,28 @@ import numpy as np
 
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, Grid,
-    ColumnDataSource, Glyph, ObjectArrayDataSource,
+    ColumnDataSource, Glyph,
     PanTool, WheelZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
 
 x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
-z = (cos(x)+1) * 6 + 6
-widths = np.ones_like(x) * 0.02
-heights = np.ones_like(x) * 0.2
+r = (cos(x)+1) * 6 + 6
 
 
-source = ColumnDataSource(data=dict(x=x,y=y,z=z,widths=widths,
-            heights=heights))
-#source = ObjectArrayDataSource(
-#    data = [
-#        {'x' : 1, 'y' : 5, 'z':3},
-#        {'x' : 2, 'y' : 4, 'z':3, 'radius':10},
-#        {'x' : 3, 'y' : 3, 'z':3, 'fill':"blue"},
-#        {'x' : 4, 'y' : 2, 'z':3},
-#        {'x' : 5, 'y' : 1, 'z':3},
-#        ])
+source = ColumnDataSource(
+    data=dict(
+        x=x,
+        y=y,
+        r=r,
+    )
+)
 
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", fill_color="red", radius="z", line_color="black")
+circle = Circle(x="x", y="y", fill_color="red", radius="r", line_color="black")
 
 glyph_renderer = Glyph(
         data_source = source,

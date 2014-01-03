@@ -26,8 +26,11 @@ from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
 from . import glyphs
 from .palettes import brewer
 
-instrument = None
-"""instrument is used to collect plots it is particularly helpful for gallery   """
+
+# This is used to accumulate plots generated via the plotting methods in this
+# module.  It is used by build_gallery.py.  To activate this feature, simply
+# set _PLOTLIST to an empty list; to turn it off, set it back to None.
+_PLOTLIST = None
 
 
 def plothelp():
@@ -352,8 +355,8 @@ def visual(func):
         if plot is not None:
             session.add(plot)
             _config["curplot"] = plot
-            # if type(instrument) == type([]):
-            #     instrument.append(plot)
+            # if _PLOTLIST is not None:
+            #     _PLOTLIST.append(plot)
 
         if session_objs:
             session.add(*session_objs)
@@ -485,8 +488,8 @@ class GlyphFunction(object):
 
     def _update_plot_data_ranges(self, plot, datasource, xcols, ycols):
         """
-        Parmeters
-        ---------
+        Parameters
+        ----------
         plot : plot
         datasource : datasource
         xcols : names of columns that are in the X axis
@@ -514,28 +517,23 @@ class GlyphFunction(object):
                 plot.y_range.sources.append(datasource.columns(*ycols))
             plot.y_range._dirty = True
 
+    def _materialize_colors_and_alpha(self, kwargs, prefix="", default_alpha=1.0):
+        """
+        Given a kwargs dict, a prefix, and a default value, looks for different
+        color and alpha fields of the given prefix, and fills in the default value
+        if it doesn't exist.
+        """
+        # TODO: The need to do this and the complexity of managing this kind of
+        # thing throughout the codebase really suggests that we need to have
+        # a real stylesheet class, where defaults and Types can declaratively
+        # substitute for this kind of imperative logic.
+        color = kwargs.pop(prefix+"color", get_default_color())
+        for argname in ("fill_color", "line_color", "text_color"):
+            kwargs[argname] = kwargs.get(prefix + argname, color)
 
-    def _glyph_param_setup(self, kwargs, prefix="", default_alpha=1.0):
-
-        COLOR = prefix + "color"
-        FILL_COLOR = prefix + "fill_color"
-        LINE_COLOR = prefix + "line_color"
-        TEXT_COLOR = prefix + "text_color"
-
-        ALPHA = prefix+"alpha"
-        FILL_ALPHA = prefix + "fill_alpha"
-        LINE_ALPHA = prefix + "line_alpha"
-        TEXT_ALPHA = prefix + "text_alpha"
-
-        color = kwargs.pop(COLOR, get_default_color())
-        kwargs['fill_color'] = kwargs.get(FILL_COLOR, color)
-        kwargs['line_color'] = kwargs.get(LINE_COLOR, color)
-        kwargs['text_color'] = kwargs.get(TEXT_COLOR, color)
-
-        alpha = kwargs.pop(ALPHA, default_alpha)
-        kwargs['fill_alpha'] = kwargs.get(FILL_ALPHA, alpha)
-        kwargs['line_alpha'] = kwargs.get(LINE_ALPHA, alpha)
-        kwargs['text_alpha'] = kwargs.get(TEXT_ALPHA, alpha)
+        alpha = kwargs.pop(prefix+"alpha", default_alpha)
+        for argname in ("fill_alpha", "line_alpha", "text_alpha"):
+            kwargs[argname] = kwargs.get(prefix + argname, alpha)
 
         return kwargs
 
@@ -552,10 +550,8 @@ class GlyphFunction(object):
         select_tool = self._get_select_tool(plot)
 
         # Process the glyph dataspec parameters
-
-        # Process the glyph dataspec parameters
         glyph_params = self._match_data_params(
-            datasource, args, self._glyph_param_setup(kwargs))
+            datasource, args, self._materialize_colors_and_alpha(kwargs))
 
         x_data_fields = [
             glyph_params[xx]['field'] for xx in self.xfields if glyph_params[xx]['units'] == 'data']
@@ -564,7 +560,7 @@ class GlyphFunction(object):
         self._update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)
         glyph = self.glyphclass(**kwargs)
-        nonselection_glyph_params = self._glyph_param_setup(
+        nonselection_glyph_params = self._materialize_colors_and_alpha(
             kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
 
@@ -835,8 +831,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
-    if type(instrument) == type([]):
-        instrument.append(p)
+    if _PLOTLIST is not None:
+        _PLOTLIST.append(p)
 
     p.title = kw.pop("title", "Plot")
     if plot_width is not None:

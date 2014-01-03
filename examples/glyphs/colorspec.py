@@ -4,19 +4,17 @@ from __future__ import print_function
 
 import os.path
 from bokeh.objects import (Plot, DataRange1d, LinearAxis,
-        ColumnDataSource, Glyph, ObjectArrayDataSource,
-        PanTool, WheelZoomTool)
+    ColumnDataSource, Glyph, PanTool, WheelZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
 
-source = ObjectArrayDataSource(
-    data = [
-        {'x' : 1, 'y' : 5, 'z':3, "color":"rgb(0,100,120)"},
-        {'x' : 2, 'y' : 4, 'z':3, "color":"green", "radius":10},
-        {'x' : 3, 'y' : 3, 'z':3, "color":"blue"},
-        {'x' : 4, 'y' : 2, 'z':3},
-        {'x' : 5, 'y' : 1, 'z':3, "color": "rgba(120,230,150,0.5)"},
-        ])
+source = ColumnDataSource(
+    data = dict(
+        x = [1,2,3,4,5],
+        y = [5,4,3,2,1],
+        color = ["rgb(0, 100, 120)", "green", "blue", "#2c7fb8", "rgba(120, 230, 150, 0.5)"]
+    )
+)
 
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
