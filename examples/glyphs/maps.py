@@ -7,7 +7,7 @@ import itertools
 
 from bokeh.objects import (
     GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
-    Glyph, ObjectArrayDataSource, PanTool, WheelZoomTool, ResizeTool,
+    Glyph, PanTool, WheelZoomTool, ResizeTool,
     BoxSelectTool, BoxSelectionOverlay
 )
 from bokeh.glyphs import MultiLine, ImageRGBA, Circle
@@ -37,16 +37,19 @@ wheelzoomtool = WheelZoomTool(plot=plot)
 plot.tools.extend([pantool, wheelzoomtool])
 
 # Plot some data on top
-source = ObjectArrayDataSource(
-        data = [{'lat': 30.2861, 'long': -97.7394, 'z': 20, 'fill': 'orange'},
-                {'lat': 30.2855, 'long': -97.7390, 'z': 15, 'fill': 'blue'},
-                {'lat': 30.2869, 'long': -97.7405, 'z': 15, 'fill': 'green'},
-                ])
+source = ColumnDataSource(
+        data=dict(
+            lat=[30.2861, 30.2855, 30.2869],
+            lon=[-97.7394, -97.7390, -97.7405],
+            fill=['orange', 'blue', 'green']
+        )
+)
+
 circle_renderer = Glyph(
         data_source = source,
         xdata_range = x_range,
         ydata_range = y_range,
-        glyph = Circle(x="long", y="lat", fill_color="fill", radius=6,
+        glyph = Circle(x="lon", y="lat", fill_color="fill", radius=8,
                 radius_units="screen", line_color="black")
         )
 plot.data_sources.append(source)

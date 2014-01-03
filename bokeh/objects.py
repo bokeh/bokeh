@@ -460,16 +460,6 @@ class ColumnDataSource(DataSource):
         except (ValueError, KeyError):
             warnings.warn("Unable to find column '%s' in datasource" % name)
 
-
-class ObjectArrayDataSource(DataSource):
-    # List of tuples of values
-    data = List()
-
-    # Maps field/column name to a DataRange or FactorRange object. If the
-    # field is not in the dict, then a range is created automatically.
-    cont_ranges = Dict()
-    discrete_ranges = Dict()
-
 class PandasDataSource(DataSource):
     """ Represents serverside data.  This gets stored into the plot server's
     database, but it does not have any client side representation.  Instead,

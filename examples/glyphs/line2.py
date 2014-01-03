@@ -5,7 +5,7 @@ import numpy as np
 import os.path
 
 from bokeh.objects import (Plot, DataRange1d, Range1d, LinearAxis, Grid,
-        ColumnDataSource, Glyph, ObjectArrayDataSource, PanTool,
+        ColumnDataSource, Glyph, PanTool,
         WheelZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
@@ -14,7 +14,9 @@ from bokeh import session
 x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
 
-source = ColumnDataSource(data=dict(x=x, y=y))
+source = ColumnDataSource(
+    data=dict(x=x, y=y)
+)
 
 #xdr = DataRange1d(sources=[source.columns("xs")])
 #ydr = DataRange1d(sources=[source.columns("ys")])
