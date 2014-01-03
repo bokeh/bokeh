@@ -860,10 +860,6 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
 
     def notebooksources(self):
         import IPython.core.displaypub as displaypub
-        # Normally this would call self.js_paths() to build a list of
-        # scripts or get a reference to the unified/minified JS file,
-        # but our static JS build process produces a single unified
-        # bokehJS file for inclusion in the notebook.
         js_paths = self.js_paths()
         css_paths = self.css_paths()
         html = self._load_template(self.html_template).render(
