@@ -66,5 +66,5 @@ else:
     sess = session.HTMLFileSession(demo_name + ".html")
     sess.add(plot, recursive=True)
     sess.plotcontext.children.append(plot)
-    sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
+    sess.save(js="absolute", css="absolute")
     print("Wrote %s" % sess.filename)

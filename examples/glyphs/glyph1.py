@@ -54,7 +54,7 @@ plot.tools = [pantool,wheelzoomtool]
 sess = session.HTMLFileSession("glyph1.html")
 sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
-sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
+sess.save(js="absolute", css="absolute")
 sess.dumpjson(file="glyph1.json")
 print("Wrote %s" % sess.filename)
 

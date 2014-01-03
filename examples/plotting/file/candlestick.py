@@ -1,13 +1,10 @@
-
 from math import pi
 import pandas as pd
 
 from bokeh.sampledata.stocks import MSFT
 from bokeh.plotting import *
 
-
-output_file("candlestick.html", title="candlestick.py example",
-            js="relative", css="relative")
+output_file("candlestick.html", title="candlestick.py example", js="absolute", css="absolute")
 
 hold()
 
