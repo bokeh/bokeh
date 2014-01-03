@@ -300,7 +300,6 @@ class HTMLFileSession(BaseHTMLSession):
                     modelid = pc_ref["id"],
                     modeltype = pc_ref["type"],
                     all_models = self.serialize_models())
-        div = self._load_template(self.div_template).render(elementid = elementid)
 
         if rootdir is None:
             rootdir = self.rootdir
@@ -321,14 +320,13 @@ class HTMLFileSession(BaseHTMLSession):
 
         plot_div = self._load_template(self.div_template).render(elementid=elementid)
 
-        # jscode is the one I want
-
         html = self._load_template(self.html_template).render(
                     js_snippets = [jscode],
-                    html_snippets = [div] + [o.get_raw_js() for o in self.raw_js_objs],
+                    html_snippets = [plot_div] + [o.get_raw_js() for o in self.raw_js_objs],
                     rawjs = rawjs, rawcss = rawcss,
                     jsfiles = jsfiles, cssfiles = cssfiles,
                     title = self.title)
+
         return html
 
     def embed_js(self, plot_id, static_root_url):
