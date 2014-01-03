@@ -307,16 +307,20 @@ class HTMLFileSession(BaseHTMLSession):
         if js == "inline" or (js is None and self.inline_js):
             rawjs = self._inline_files(self.js_paths())
             jsfiles = []
-        else:
+        elif js == "relative":
             rawjs = None
             jsfiles = [os.path.relpath(p,rootdir) for p in self.js_paths()]
+        else:
+            raise ValueError("wrong value for 'js' parameter, expected 'inline' or 'relative', got '%s'" % js)
 
         if css == "inline" or (css is None and self.inline_css):
             rawcss = self._inline_files(self.css_paths())
             cssfiles = []
-        else:
+        elif css == "relative":
             rawcss = None
             cssfiles = [os.path.relpath(p,rootdir) for p in self.css_paths()]
+        else:
+            raise ValueError("wrong value for 'css' parameter, expected 'inline' or 'relative', got '%s'" % css)
 
         plot_div = self._load_template(self.div_template).render(elementid=elementid)
 
