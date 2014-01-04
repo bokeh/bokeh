@@ -30,15 +30,22 @@ def fail(msg):
 def ok(msg):
     print("%s[OK]%s %s" % (colorama.Fore.GREEN, colorama.Style.RESET_ALL, msg))
 
+cwd = os.getcwd()
 os.environ['BOKEH_BROWSER'] = 'dummy'
 
 for example in examples:
     print("Testing %s ..." % example)
 
+    module_cwd = os.path.dirname(example)
     module = os.path.splitext(example)[0].replace('/', '.')
 
     try:
-        __import__(module)
+        os.chdir(module_cwd)
+
+        try:
+            __import__(module)
+        finally:
+            os.chdir(cwd)
     except SystemExit:
         raise
     except KeyboardInterrupt:
@@ -47,7 +54,8 @@ for example in examples:
         traceback.print_exc()
         fail(example)
     else:
-        html = os.path.splitext(os.path.basename(example))[0] + '.html'
+        html = os.path.splitext(example)[0] + '.html'
+
         proc = subprocess.Popen(["phantomjs", "test.js", html], stdout=subprocess.PIPE)
 
         output = proc.stdout.read()
