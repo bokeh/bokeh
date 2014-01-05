@@ -93,10 +93,11 @@ class Session(object):
                     descend(_obj)
             elif isinstance(obj, PlotObject):
                 if obj._id not in ids:
+                    ids.add(obj._id)
+
                     for attr in obj.__properties_with_refs__:
                         descend(getattr(obj, attr))
 
-                    ids.add(obj._id)
                     objs.append(obj)
             elif isinstance(obj, HasProps):
                 for attr in obj.__properties_with_refs__:
