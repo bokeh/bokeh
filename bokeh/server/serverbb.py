@@ -17,7 +17,7 @@ In our python interface to the backbone system, we separate the local collection
 which stores models, from the http client which interacts with a remote store
 In applications, we would use a class that combines both
 """
-    
+
 def dockey(docid):
     return 'doc:' + docid
 
@@ -34,7 +34,7 @@ def parse_modelkey(modelkey):
 class ContinuumModelsStorage(object):
     def __init__(self, client):
         self.client = client
-        
+
     def bbget(self, client, key):
         typename, docid, modelid = parse_modelkey(key)
         attrs = client.get(key)
@@ -48,7 +48,7 @@ class ContinuumModelsStorage(object):
     def bbset(self, client, key, model):
         return client.set(key, protocol.serialize_web(
             model.to_json(include_hidden=True)))
-        
+
     def get_bulk(self, docid, typename=None):
         doc_keys = self.client.smembers(dockey(docid))
         result = []
@@ -57,7 +57,7 @@ class ContinuumModelsStorage(object):
             if typename is None or m.typename==typename:
                 result.append(m)
         return result
-    
+
     def add(self, model, retries=10):
         model.set('created', True)
         try:
@@ -69,7 +69,7 @@ class ContinuumModelsStorage(object):
                 self.add(model, retries=retries-1)
             else:
                 raise
-            
+
     def _upsert(self, pipe, model):
         # I don't think the document level locking I wrote here
         # is necessary
@@ -78,7 +78,7 @@ class ContinuumModelsStorage(object):
         pipe.multi()
         pipe.sadd(dockey(model.get('doc')), mkey)
         self.bbset(pipe, mkey, model)
-            
+
     def attrupdate(self, typename, docid, attributes):
         id = attributes['id']
         mkey = modelkey(typename, docid, id)
@@ -94,16 +94,16 @@ class ContinuumModelsStorage(object):
     #backbone api functions
     def get(self, typename, docid, id):
         return self.bbget(self.client, modelkey(typename, docid, id))
-    
+
     def delete(self, typename, docid, id):
         mkey = modelkey(typename, docid, id)
         oldmodel = self.bbget(self.client, mkey)
         self.client.srem(dockey(docid), mkey)
         self.client.delete(mkey)
-        
+
     def create(self, model):
         self.add(model)
-        
+
     def update(self, model):
         self.add(model)
 
@@ -123,7 +123,7 @@ def client_for_request(doc, app, request, mode):
     return ContinuumModelsClient(doc.docid,
                                  request.url_root + "bokeh/bb/",
                                  key)
-    
+
 def make_model(typename, **kwargs):
     """the server should use this make_model function,
     it automatically passes in a model client to all models
@@ -150,15 +150,15 @@ class RedisSession(PlotServerSession):
         self.raw_js_objs = []
         self.root_url = root_url
         self.apikey = apikey
-        
+
     def set_doc(self, doc):
         self.doc = doc
         self.docid = doc.docid
-        
+
     def load(self):
         self.load_all()
         self.plotcontext = self._models[self.doc.plot_context_ref['id']]
-        
+
     def prune(self, delete=False):
         all_models = docs.prune_and_get_valid_models(
             self.doc, self, delete=delete
@@ -168,7 +168,7 @@ class RedisSession(PlotServerSession):
             if k not in to_keep:
                 del self._models[k]
         return
-    
+
     def load_all(self, asdict=False):
         doc_keys = self.r.smembers(dockey(self.docid))
         attrs = self.r.mget(doc_keys)
@@ -184,7 +184,7 @@ class RedisSession(PlotServerSession):
         for m in models:
             m._dirty = False
         return models
-    
+
     def store_broadcast_attrs(self, attrs):
         keys = [modelkey(attr['type'], self.docid, attr['attributes']['id'])\
                 for attr in attrs]
@@ -196,10 +196,10 @@ class RedisSession(PlotServerSession):
         logger.debug('storing %s', data)
         self.r.mset(data)
         self.r.sadd(dkey, *keys)
-        
+
     def store_obj(self, obj):
         return self.store_objs([obj])
-    
+
     def store_objs(self, to_store):
         if not to_store:
             return
@@ -216,16 +216,16 @@ class RedisSession(PlotServerSession):
             logger.debug('val: %s', v)
         self.r.mset(data)
         self.r.sadd(dkey, *keys)
-        
+
     def del_obj(self, obj):
         self.del_objs([obj])
-        
+
     def del_objs(self, to_del):
         for m in to_del:
             mkey = modelkey(m.__view_model__, self.docid, m._id)
             self.r.srem(dockey(self.docid), mkey)
             self.r.delete(mkey)
-        
+
     def load_all_callbacks(self, get_json=False):
         """get_json = return json of callbacks, rather than
         loading them into models
@@ -238,7 +238,7 @@ class RedisSession(PlotServerSession):
         if get_json:
             return callbacks
         self.load_callbacks_json(callbacks)
-        
+
     def store_callbacks(self, to_store):
         for callbacks in to_store:
             typename = callbacks['type']
