@@ -9,20 +9,31 @@ import subprocess
 import colorama
 colorama.init()
 
+port = 5006
+
 examples = []
 
-def add_examples(examples_dir, excludes):
+def add_examples(examples_dir, excludes=set([]), server=False):
     for file in os.listdir(examples_dir):
         if not file.startswith('__') and file.endswith(".py") and file not in excludes:
-            examples.append(os.path.join(examples_dir, file))
+            if isinstance(server, set):
+                is_server = file in server
+            else:
+                is_server = server
+
+            examples.append((os.path.join(examples_dir, file), is_server))
 
 glyphs_dir = os.path.join("glyphs")
-glyphs_excludes = set(["data_select_tool.py", "glyph2.py", "line_animate.py", "maps.py", "prim.py"])
-add_examples(glyphs_dir, glyphs_excludes)
+glyphs_server = set(["data_select_tool.py", "glyph2.py", "maps.py", "prim.py"])
+glyphs_excludes = set(["line_animate.py"])
+add_examples(glyphs_dir, glyphs_excludes, server=glyphs_server)
 
 plotting_file_dir = os.path.join("plotting", "file")
-plotting_file_excludes = set([])
-add_examples(plotting_file_dir, plotting_file_excludes)
+add_examples(plotting_file_dir, server=False)
+
+plotting_server_dir = os.path.join("plotting", "server")
+plotting_server_excludes = set(["animated.py", "line_animate.py"])
+add_examples(plotting_server_dir, plotting_server_excludes, server=True)
 
 def fail(msg):
     print("%s[FAIL]%s %s" % (colorama.Fore.RED, colorama.Style.RESET_ALL, msg))
@@ -33,7 +44,7 @@ def ok(msg):
 cwd = os.getcwd()
 os.environ['BOKEH_BROWSER'] = 'dummy'
 
-for example in examples:
+for example, is_server in examples:
     print("Testing %s ..." % example)
 
     module_cwd = os.path.dirname(example)
@@ -54,9 +65,17 @@ for example in examples:
         traceback.print_exc()
         fail(example)
     else:
-        html = os.path.splitext(example)[0] + '.html'
+        no_ext = os.path.splitext(os.path.abspath(example))[0]
 
-        proc = subprocess.Popen(["phantomjs", "test.js", html], stdout=subprocess.PIPE)
+        png_file = no_ext + '.png'
+        html_file = no_ext + '.html'
+
+        if is_server:
+            url = 'http://localhost:%d/bokeh/doc/%s/show' % (port, os.path.basename(no_ext))
+        else:
+            url = 'file://' + html_file
+
+        proc = subprocess.Popen(["phantomjs", "test.js", url, png_file], stdout=subprocess.PIPE)
 
         output = proc.stdout.read()
         result = json.loads(output)
@@ -65,7 +84,7 @@ for example in examples:
         errors = result['errors']
 
         if status == 'fail':
-            fail("failed to load %s" % html)
+            fail("failed to load %s" % url)
         elif errors:
             for error in errors:
                 print(error['msg'])

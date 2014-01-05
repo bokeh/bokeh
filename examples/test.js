@@ -2,8 +2,8 @@ var page = require('webpage').create();
 var system = require('system');
 var fs = require('fs');
 
-var file = system.args[1];
-var url = 'file://' + fs.absolute(file);
+var url = system.args[1];
+var png = system.args[2];
 
 var errors = [];
 
@@ -26,7 +26,9 @@ page.open(url, function(status) {
 
     // TODO: get notified when Bokeh finished rendering
     window.setTimeout(function() {
-        page.render(file + '.png');
+        if (png !== undefined) {
+            page.render(png);
+        }
 
         console.log(JSON.stringify({
             status: status,
