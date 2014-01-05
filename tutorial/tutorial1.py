@@ -1,5 +1,5 @@
 # For information about this tutorial, please consult the
-# Tutorial section of the documentation.
+# Tutorial section of the documentation (http://bokeh.pydata.org/tutorial.html).
 
 from bokeh.plotting import *
 from numpy import *
