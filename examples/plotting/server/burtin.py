@@ -55,7 +55,7 @@ def rad(mic):
 big_angle = 2.0 * np.pi / (len(df) + 1)
 small_angle = big_angle / 7
 
-output_server("burtin.py example")
+output_server("burtin")
 
 hold()
 

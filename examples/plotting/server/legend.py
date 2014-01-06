@@ -9,7 +9,7 @@ N = 100
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_server("legend.py example")
+output_server("legend")
 
 hold()
 

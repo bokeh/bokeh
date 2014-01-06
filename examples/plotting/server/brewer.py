@@ -23,7 +23,7 @@ def stacked(df, categories):
         last = next
     return areas
 
-output_server("brewer.py example")
+output_server("brewer")
 
 areas = stacked(df, categories)
 

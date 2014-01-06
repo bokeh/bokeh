@@ -193,7 +193,7 @@ cm = np.array(["#C7E9B4", "#7FCDBB", "#41B6C4", "#1D91C0", "#225EA8", "#0C2C84"]
 ix = ((length-length.min())/(length.max()-length.min())*5).astype('int')
 colors = cm[ix]
 
-output_server("vector.py example")
+output_server("vector")
 
 segment(x0, y0, x1, y1, line_color=colors, line_width=2,
     tools="pan,wheel_zoom,resize", name="vector example")

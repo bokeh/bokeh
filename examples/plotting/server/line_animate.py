@@ -10,7 +10,7 @@ N = 80
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_server("line.py example")
+output_server("line_animate")
 
 hold()
 

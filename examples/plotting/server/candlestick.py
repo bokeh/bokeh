@@ -5,7 +5,7 @@ import pandas as pd
 from bokeh.sampledata.stocks import MSFT
 from bokeh.plotting import *
 
-output_server("candlestick.py example")
+output_server("candlestick")
 
 hold()
 

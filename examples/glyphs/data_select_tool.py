@@ -10,7 +10,7 @@ x = np.linspace(-7, 7, 100)
 y = np.sin(x)
 
 # Go to http://localhost:5006/bokeh to view this plot
-output_server("data select example")
+output_server("data_select_tool")
 
 source = ColumnDataSource()
 source.add(x, name='x')

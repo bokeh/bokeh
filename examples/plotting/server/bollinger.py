@@ -10,7 +10,7 @@ import numpy as np
 
 # Declare output file
 
-output_server('Bollinger (server)')
+output_server("bollinger")
 
 # Define Bollinger Bands.
 
