@@ -73,10 +73,15 @@ for example, is_server in sorted(examples):
 
         status = result['status']
         errors = result['errors']
+        messages = result['messages']
+        resources = result['resources']
 
         if status == 'fail':
             fail("failed to load %s" % url)
-        elif errors:
+        elif resources or errors:
+            for resource in resources:
+                print("%s: %s (%s)" % (resource['url'], resource['status'], resource['statusText']))
+
             for error in errors:
                 print(error['msg'])
 
