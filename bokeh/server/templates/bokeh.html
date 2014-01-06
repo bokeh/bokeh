@@ -1,38 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Bokeh Plot Server</title>
-    <!-- Vendor Styles -->
-    <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <link href="{{ url_for('static', filename='css/bokeh.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap-orig-2.2.2.css') }}" rel="stylesheet">
-    {% if splitjs %}
-    <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/vendor/requirejs/require.js') }}"></script>
-    <script>
-      require.config({
-        baseUrl: "/bokehjs/static/js",
-        paths: {
-          "jquery": "vendor/jquery/jquery",
-          "jquery_ui": "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui",
-          "jquery_mousewheel": "vendor/jquery-mousewheel/jquery.mousewheel",
-          "underscore": "vendor/underscore-amd/underscore",
-          "backbone": "vendor/backbone-amd/backbone",
-          "bootstrap": "vendor/bootstrap"
-        }
-      });
-      require(["main"], function(Bokeh) {
-        Bokeh.server_page();
-      });
-    </script>
-    {% else %}
-    <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/bokeh.js') }}"> </script>
-    <script>
-      window.Bokeh.server_page();
-    </script>
-    {% endif %}
-  </head>
-  <body>
-    <div id="PlotPane">Plots</div>
-  </body>
-</html>
+{% extends "_base.html" %}
+
+{% block title %}
+Bokeh Plot Server
+{% endblock %}
+
+{% block script %}
+Bokeh.server_page();
+{% endblock %}
