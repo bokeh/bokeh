@@ -140,7 +140,7 @@ class RedisSession(PlotServerSession):
     inherit from PlotServerSession, we need to refactor this abit.
     """
     def __init__(self, redisconn, doc, root_url="http://localhost:5006/", apikey=""):
-        super(RedisSession, self).__init__()
+        super(RedisSession, self).__init__(serverloc=root_url)
         if isinstance(doc, basestring):
             self.docid = doc
         else:
