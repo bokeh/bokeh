@@ -1,15 +1,31 @@
 #!/usr/bin/env python
+
 from __future__ import print_function
 
 import os
 import json
+import fnmatch
+import argparse
 import traceback
 import subprocess
 
 import colorama
 colorama.init()
 
-port = 5006
+parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
+parser.add_argument("patterns", type=str, nargs="*", help="select a subset of examples to test")
+parser.add_argument("--port", type=int, default=5006, help="port on which Bokeh server resides")
+args = parser.parse_args()
+
+def is_selected(example):
+    if not args.patterns:
+        return True
+    elif any(pattern in example for pattern in args.patterns):
+        return True
+    elif any(fnmatch.fnmatch(example, pattern) for pattern in args.patterns):
+        return True
+    else:
+        return False
 
 examples = []
 
@@ -47,6 +63,9 @@ env = os.environ.copy()
 env['BOKEH_BROWSER'] = 'dummy'
 
 for example, is_server in sorted(examples):
+    if not is_selected(example):
+        continue
+
     print("Testing %s ..." % example)
 
     cwd = os.path.dirname(example)
@@ -62,7 +81,7 @@ for example, is_server in sorted(examples):
         html_file = no_ext + '.html'
 
         if is_server:
-            url = 'http://localhost:%d/bokeh/doc/%s/show' % (port, os.path.basename(no_ext))
+            url = 'http://localhost:%d/bokeh/doc/%s/show' % (args.port, os.path.basename(no_ext))
         else:
             url = 'file://' + html_file
 
