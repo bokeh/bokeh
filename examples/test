@@ -35,36 +35,27 @@ plotting_server_dir = os.path.join("plotting", "server")
 plotting_server_excludes = set(["animated.py", "line_animate.py"])
 add_examples(plotting_server_dir, plotting_server_excludes, server=True)
 
-def fail(msg):
-    print("%s[FAIL]%s %s" % (colorama.Fore.RED, colorama.Style.RESET_ALL, msg))
+def fail(msg=None):
+    msg = " " + msg if msg is not None else ""
+    print("%s[FAIL]%s%s" % (colorama.Fore.RED, colorama.Style.RESET_ALL, msg))
 
-def ok(msg):
-    print("%s[OK]%s %s" % (colorama.Fore.GREEN, colorama.Style.RESET_ALL, msg))
+def ok(msg=None):
+    msg = " " + msg if msg is not None else ""
+    print("%s[OK]%s%s" % (colorama.Fore.GREEN, colorama.Style.RESET_ALL, msg))
 
-cwd = os.getcwd()
-os.environ['BOKEH_BROWSER'] = 'dummy'
+env = os.environ.copy()
+env['BOKEH_BROWSER'] = 'dummy'
 
-for example, is_server in examples:
+for example, is_server in sorted(examples):
     print("Testing %s ..." % example)
 
-    module_cwd = os.path.dirname(example)
-    module = os.path.splitext(example)[0].replace('/', '.')
+    cwd = os.path.dirname(example)
+    module = os.path.splitext(os.path.basename(example))[0]
 
-    try:
-        os.chdir(module_cwd)
+    proc = subprocess.Popen(["python", "-c", "import %s" % module], cwd=cwd, env=env)
+    code = proc.wait()
 
-        try:
-            __import__(module)
-        finally:
-            os.chdir(cwd)
-    except SystemExit:
-        raise
-    except KeyboardInterrupt:
-        pass
-    except:
-        traceback.print_exc()
-        fail(example)
-    else:
+    if code == 0:
         no_ext = os.path.splitext(os.path.abspath(example))[0]
 
         png_file = no_ext + '.png'
@@ -76,9 +67,9 @@ for example, is_server in examples:
             url = 'file://' + html_file
 
         proc = subprocess.Popen(["phantomjs", "test.js", url, png_file], stdout=subprocess.PIPE)
+        code = proc.wait()
 
-        output = proc.stdout.read()
-        result = json.loads(output)
+        result = json.loads(proc.stdout.read())
 
         status = result['status']
         errors = result['errors']
@@ -92,8 +83,10 @@ for example, is_server in examples:
                 for item in error['trace']:
                     print("    %s: %d" % (item['file'], item['line']))
 
-            fail(example)
+            fail()
         else:
-            ok(example)
+            ok()
+    else:
+        fail()
 
     print()
