@@ -137,6 +137,15 @@ def _get_bokeh_info(docid):
                        headers={"Access-Control-Allow-Origin": "*"})
     return result
 
+@app.route('/bokeh/doc/<title>/show', methods=['GET', 'OPTIONS'])
+@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
+def show_doc_by_title(title):
+    bokehuser = app.current_user(request)
+    docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
+    doc = docs[0] if len(docs) != 0 else abort(404)
+    docid = doc['docid']
+    return render_template('show.html', title=title, docid=docid)
+
 @app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def doc_by_title():

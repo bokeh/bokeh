@@ -1,0 +1,9 @@
+{% extends "_base.html" %}
+
+{% block title %}
+Bokeh Plot Server &mdash; {{ title }}
+{% endblock %}
+
+{% block script %}
+Bokeh.server_page("{{ title }}");
+{% endblock %}
