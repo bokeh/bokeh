@@ -14,7 +14,8 @@ colorama.init()
 
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
 parser.add_argument("patterns", type=str, nargs="*", help="select a subset of examples to test")
-parser.add_argument("--port", type=int, default=5006, help="port on which Bokeh server resides")
+parser.add_argument("-p", "--port", type=int, default=5006, help="port on which Bokeh server resides")
+parser.add_argument("-v", "--verbose", action="store_true", default=False, help="show console messages")
 args = parser.parse_args()
 
 def is_selected(example):
@@ -97,19 +98,33 @@ for example, is_server in sorted(examples):
 
         if status == 'fail':
             fail("failed to load %s" % url)
-        elif resources or errors:
-            for resource in resources:
-                print("%s: %s (%s)" % (resource['url'], resource['status'], resource['statusText']))
-
-            for error in errors:
-                print(error['msg'])
-
-                for item in error['trace']:
-                    print("    %s: %d" % (item['file'], item['line']))
-
-            fail()
         else:
-            ok()
+            if args.verbose:
+                for message in messages:
+                    msg = message['msg']
+                    line = message.get('line')
+                    source = message.get('source')
+
+                    if source is None:
+                        print(msg)
+                    elif line is None:
+                        print("%s: %s" % (source, msg))
+                    else:
+                        print("%s:%s: %s" % (source, line, msg))
+
+            if resources or errors:
+                for resource in resources:
+                    print("%s: %s (%s)" % (resource['url'], resource['status'], resource['statusText']))
+
+                for error in errors:
+                    print(error['msg'])
+
+                    for item in error['trace']:
+                        print("    %s: %d" % (item['file'], item['line']))
+
+                fail()
+            else:
+                ok()
     else:
         fail()
 
