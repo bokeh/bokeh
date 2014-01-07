@@ -13,9 +13,12 @@ import colorama
 colorama.init()
 
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
-parser.add_argument("patterns", type=str, nargs="*", help="select a subset of examples to test")
-parser.add_argument("-p", "--port", type=int, default=5006, help="port on which Bokeh server resides")
-parser.add_argument("-v", "--verbose", action="store_true", default=False, help="show console messages")
+parser.add_argument("patterns", type=str, nargs="*", 
+                    help="select a subset of examples to test")
+parser.add_argument("-p", "--port", type=int, default=5006, 
+                    help="port on which Bokeh server resides")
+parser.add_argument("-v", "--verbose", action="store_true", default=False, 
+                    help="show console messages")
 args = parser.parse_args()
 
 def is_selected(example):
@@ -81,12 +84,14 @@ for example, is_server in sorted(examples):
         png_file = no_ext + '.png'
         html_file = no_ext + '.html'
 
+        server_tmpl = 'http://localhost:%d/bokeh/doc/%s/show'
         if is_server:
-            url = 'http://localhost:%d/bokeh/doc/%s/show' % (args.port, os.path.basename(no_ext))
+            url = server_tmpl  % (args.port, os.path.basename(no_ext))
         else:
             url = 'file://' + html_file
 
-        proc = subprocess.Popen(["phantomjs", "test.js", url, png_file], stdout=subprocess.PIPE)
+        proc = subprocess.Popen(
+            ["phantomjs", "test.js", url, png_file], stdout=subprocess.PIPE)
         code = proc.wait()
 
         result = json.loads(proc.stdout.read())
@@ -114,14 +119,14 @@ for example, is_server in sorted(examples):
 
             if resources or errors:
                 for resource in resources:
-                    print("%s: %s (%s)" % (resource['url'], resource['status'], resource['statusText']))
+                    print("%s: %s (%s)" % (
+                        resource['url'], resource['status'], resource['statusText']))
 
                 for error in errors:
                     print(error['msg'])
 
                     for item in error['trace']:
                         print("    %s: %d" % (item['file'], item['line']))
-
                 fail()
             else:
                 ok()
