@@ -95,6 +95,7 @@ setup(
         'pygments',
         'smartypants',
         'sphinx',
+        'colorama',
         'sphinx_bootstrap_theme',
     ]
 )
