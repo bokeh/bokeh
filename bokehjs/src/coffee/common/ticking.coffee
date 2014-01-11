@@ -270,40 +270,12 @@ define [
 
       return (tick for tick in ticks when (tick >= bound_low and tick <= bound_high))
 
-  arr_div2 = (numerator, denominators) ->
-    output_arr = []
-    for val in denominators
-      output_arr.push(numerator/val)
-    return output_arr
-
-
-  arr_div3 = (numerators, denominators) ->
-    output_arr = []
-    for val, i in denominators
-      output_arr.push(numerators[i]/val)
-    return output_arr
-
-  argsort = (arr) ->
-    sorted_arr =
-      _.sortBy(arr, _.identity)
-    ret_arr = []
-    #for y, i in arr
-    #  ret_arr[i] = sorted_arr.indexOf(y)
-    for y, i in sorted_arr
-      ret_arr[i] = arr.indexOf(y)
-
-      #ret_arr.push(sorted_arr.indexOf(y))
-    return ret_arr
-
   indices = (arr) ->
     return _.range(arr.length)
 
   argmin = (arr) ->
     ret = _.min(indices(arr), ((i) -> return arr[i]))
     return ret
-
-  float = (x) ->
-    return x + 0.0
 
   # FIXME Optimize this.
   bisect_right = (xs, x) ->
@@ -324,7 +296,7 @@ define [
     constructor: (@toString_properties=[]) ->
 
     get_ideal_interval: (data_low, data_high) ->
-      data_range = float(data_high) - float(data_low)
+      data_range = data_high - data_low
       return data_range / DESIRED_N_TICKS
 
     # FIXME Do all the stuff auto_ticks did.
@@ -373,7 +345,7 @@ define [
       return _.last(@max_intervals)
 
     get_best_scale: (data_low, data_high) ->
-      data_range = float(data_high) - float(data_low)
+      data_range = data_high - data_low
       ideal_interval = @get_ideal_interval(data_low, data_high)
       scale_ndxs = [
         bisect_right(@min_intervals, ideal_interval) - 1,
@@ -421,7 +393,7 @@ define [
       return @max_interval
 
     get_interval: (data_low, data_high) ->
-      data_range = float(data_high) - float(data_low)
+      data_range = data_high - data_low
       ideal_interval = @get_ideal_interval(data_low, data_high)
 
       interval_exponent = Math.floor(log(ideal_interval / @base_factor, @base))
