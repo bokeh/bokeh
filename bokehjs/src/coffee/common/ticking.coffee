@@ -754,44 +754,40 @@ define [
         @formats[fmt_name] = [sizes, fmt_strings]
       return
 
-    # FIXME I think these names are misleading.  I suggest:
-    # interval -> span ("interval" means something else in other parts of this
-    #                   file)
-    # resol -> res_str (using "resolution" and "resol" to refer to different
-    #                   concepts?  Have we lived and fought in vain?)
-    # While we're at it, we could probably change the name of the method as
-    # well (e.g., "get_resolution_str").
-    _get_resolution: (resolution, interval) ->
-      # Our resolution boundaries are not round numbers, because we want them
-      # to fall between the possible tick intervals (which are round numbers,
-      # as we've worked hard to ensure).
-      # FIXME Maybe make the adjustments explicit?
-      r = resolution
-      span = interval
-      if r < 6e-4
-        resol = "microseconds"
-      else if r < 0.6
-        resol = "milliseconds"
-      else if r < 50
-        # FIXME Think.
-        if span > 60
-          resol = "minsec"
+    # FIXME There is some unfortunate flicker when panning/zooming near the
+    # span boundaries.
+    # FIXME Rounding is weird at the 20-us scale and below.
+    _get_resolution_str: (resolution_secs, span_secs) ->
+      # Our resolution boundaries should not be round numbers, because we want
+      # them to fall between the possible tick intervals (which *are* round
+      # numbers, as we've worked hard to ensure).  Consequently, we adjust the
+      # resolution upwards a small amount (less than any possible step in
+      # scales) to make the effective boundaries slightly lower.
+      adjusted_resolution_secs = resolution_secs * 1.1
+
+      if adjusted_resolution_secs < 1e-3
+        str = "microseconds"
+      else if adjusted_resolution_secs < 1.0
+        str = "milliseconds"
+      else if adjusted_resolution_secs < 60
+        if span_secs >= 60
+          str = "minsec"
         else
-          resol = "seconds"
-      else if r < 3500
-        if span > 3600
-          resol = "hourmin"
+          str = "seconds"
+      else if adjusted_resolution_secs < 3600
+        if span_secs >= 3600
+          str = "hourmin"
         else
-          resol = "minutes"
-      else if r < 23*3600
-        resol = "hours"
-      else if r < 27*24*3600
-        resol = "days"
-      else if r < 320*24*3600
-        resol = "months"
+          str = "minutes"
+      else if adjusted_resolution_secs < 24*3600
+        str = "hours"
+      else if adjusted_resolution_secs < 31*24*3600
+        str = "days"
+      else if adjusted_resolution_secs < 365*24*3600
+        str = "months"
       else
-        resol = "years"
-      return resol
+        str = "years"
+      return str
 
     format: (ticks, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
 
@@ -807,7 +803,7 @@ define [
         r = ticker.resolution
       else
         r = span / (ticks.length - 1)
-      resol = @_get_resolution(r, span)
+      resol = @_get_resolution_str(r, span)
 
       [widths, formats] = @formats[resol]
       format = formats[0]
