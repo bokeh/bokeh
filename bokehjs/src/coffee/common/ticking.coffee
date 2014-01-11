@@ -343,7 +343,7 @@ define [
       props = @toString_properties
       params_str = ("#{key}=#{repr(this[key])}" for key in props).join(", ")
       return "#{class_name}(#{params_str})"
-  
+
   class SingleIntervalScale extends AbstractScale
     constructor: (@interval) ->
       super(['interval'])
@@ -383,7 +383,7 @@ define [
       intervals = [@min_intervals[scale_ixs[0]], @max_intervals[scale_ixs[1]]]
       errors = intervals.map((interval) ->
         return Math.abs(DESIRED_N_TICKS - (data_range / interval)))
-      
+
       best_scale_ix = scale_ixs[argmin(errors)]
       best_scale = @scales[best_scale_ix]
 
@@ -419,7 +419,7 @@ define [
 
     get_max_interval: () ->
       return @max_interval
-    
+
     get_interval: (data_low, data_high) ->
       data_range = float(data_high) - float(data_low)
       ideal_interval = @get_ideal_interval(data_low, data_high)
@@ -495,7 +495,7 @@ define [
     get_ticks_for_range: (data_low, data_high) ->
       date_range_by_year = (start_time, end_time) ->
         start_date = new Date(last_year_no_later_than(start_time))
-        
+
         end_date = new Date(last_year_no_later_than(end_time))
         end_date.setUTCFullYear(end_date.getUTCFullYear() + 1)
 
@@ -541,7 +541,7 @@ define [
     get_ticks_for_range: (data_low, data_high) ->
       date_range_by_month = (start_time, end_time) ->
         start_date = new Date(last_month_no_later_than(start_time))
-        
+
         end_date = new Date(last_month_no_later_than(end_time))
         # XXX This is not a reliable technique in general, but it should be
         # safe when the day of the month is 1.  (The problem case is this:
@@ -624,14 +624,14 @@ define [
         # (1 hr - 12 hr)
         new AdaptiveScale([1.0, 2.0, 4.0, 6.0, 8.0, 12.0], 24.0,
                           ONE_HOUR, ONE_HOUR),
-     
+
         # Days.
         # (1 day - 14 days)
         new DaysScale(arange(1, 32)), # FIXME
         new DaysScale(arange(1, 31, 3)),
         new DaysScale([1, 8, 15, 22]),
         new DaysScale([1, 15]),
-     
+
         # Months.
         # (1 month - 6 months)
         new MonthsScale(arange(0, 12)),
@@ -688,7 +688,7 @@ define [
       best_mantissa = candidate_mantissas[argsort(errors)[0]]
 
       interval = best_mantissa * ideal_magnitude
-        
+
       return interval
 
   # TODO (bev) restore memoization
