@@ -447,6 +447,7 @@ define [
 
       return clamp(interval, @get_min_interval(), @get_max_interval())
 
+  # FIXME Not currently in use.
   class ValueError extends Error
     constructor: -> super
 
@@ -467,6 +468,44 @@ define [
     date.setUTCMonth(0)
     return date
 
+  date_range_by_year = (start_time, end_time) ->
+    start_date = last_year_no_later_than(new Date(start_time))
+
+    end_date = last_year_no_later_than(new Date(end_time))
+    end_date.setUTCFullYear(end_date.getUTCFullYear() + 1)
+
+    dates = []
+    date = start_date
+    while true
+      dates.push(copy_date(date))
+
+      date.setUTCFullYear(date.getUTCFullYear() + 1)
+      if date > end_date
+        break
+
+    return dates
+
+  date_range_by_month = (start_time, end_time) ->
+    start_date = last_month_no_later_than(new Date(start_time))
+
+    end_date = last_month_no_later_than(new Date(end_time))
+    # XXX This is not a reliable technique in general, but it should be
+    # safe when the day of the month is 1.  (The problem case is this:
+    # Mar 31 -> Apr 31, which becomes May 1.)
+    prev_end_date = copy_date(end_date)
+    end_date.setUTCMonth(end_date.getUTCMonth() + 1)
+
+    dates = []
+    date = start_date
+    while true
+      dates.push(copy_date(date))
+
+      date.setUTCMonth(date.getUTCMonth() + 1)
+      if date > end_date
+        break
+
+    return dates
+
   class MonthsScale extends SingleIntervalScale
     constructor: (@months) ->
       @typical_interval = if @months.length > 1
@@ -476,24 +515,6 @@ define [
       super(@typical_interval)
 
     get_ticks_for_range: (data_low, data_high) ->
-      # FIXME Why is this a separate function?
-      date_range_by_year = (start_time, end_time) ->
-        start_date = last_year_no_later_than(new Date(start_time))
-
-        end_date = last_year_no_later_than(new Date(end_time))
-        end_date.setUTCFullYear(end_date.getUTCFullYear() + 1)
-
-        dates = []
-        date = start_date
-        while true
-          dates.push(copy_date(date))
-
-          date.setUTCFullYear(date.getUTCFullYear() + 1)
-          if date > end_date
-            break
-
-        return dates
-
       year_dates = date_range_by_year(data_low, data_high)
 
       months = @months
@@ -523,27 +544,6 @@ define [
       @toString_properties = ['days']
 
     get_ticks_for_range: (data_low, data_high) ->
-      date_range_by_month = (start_time, end_time) ->
-        start_date = last_month_no_later_than(new Date(start_time))
-
-        end_date = last_month_no_later_than(new Date(end_time))
-        # XXX This is not a reliable technique in general, but it should be
-        # safe when the day of the month is 1.  (The problem case is this:
-        # Mar 31 -> Apr 31, which becomes May 1.)
-        prev_end_date = copy_date(end_date)
-        end_date.setUTCMonth(end_date.getUTCMonth() + 1)
-
-        dates = []
-        date = start_date
-        while true
-          dates.push(copy_date(date))
-
-          date.setUTCMonth(date.getUTCMonth() + 1)
-          if date > end_date
-            break
-
-        return dates
-
       month_dates = date_range_by_month(data_low, data_high)
 
       # FIXME Is there a better way to deal with this?
