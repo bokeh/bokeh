@@ -335,7 +335,7 @@ define [
       start_factor = Math.floor(data_low / interval)
       end_factor   = Math.ceil(data_high / interval)
       factors = arange(start_factor, end_factor + 1)
-      ticks = factors.map((f) -> return f * interval)
+      ticks = (factor * interval for factor in factors)
       return ticks
 
     toString: () ->
@@ -362,8 +362,8 @@ define [
       super()
 
       # FIXME Validate that the scales don't overlap.
-      @min_intervals = @scales.map((s) -> s.get_min_interval())
-      @max_intervals = @scales.map((s) -> s.get_max_interval())
+      @min_intervals = _.invoke(@scales, 'get_min_interval')
+      @max_intervals = _.invoke(@scales, 'get_max_interval')
 
     get_min_interval: () ->
       return @min_intervals[0]
@@ -524,8 +524,7 @@ define [
           month_date.setUTCMonth(month)
           return month_date)
 
-      # FIXME Use a list comprehension?
-      month_dates = _.flatten(year_dates.map((date) -> months_of_year(date)))
+      month_dates = _.flatten(months_of_year(date) for date in year_dates)
 
       all_ticks = _.invoke(month_dates, 'getTime')
       ticks_in_range = _.filter(all_ticks,
@@ -546,7 +545,6 @@ define [
     get_ticks_for_range: (data_low, data_high) ->
       month_dates = date_range_by_month(data_low, data_high)
 
-      # FIXME Is there a better way to deal with this?
       days = @days
       typical_interval = @typical_interval
       days_of_month = (month_date) ->
@@ -561,12 +559,10 @@ define [
           # make sure we have a bit of room before we include a day.
           future_date = new Date(day_date.getTime() + (typical_interval / 2))
           if future_date.getUTCMonth() == month_date.getUTCMonth()
-#             console.log("  push #{month_date} / #{month_date.toUTCString()} ~ (#{month_date.getUTCDate()} -> #{day}) = #{day_date}")
             dates.push(day_date)
         return dates
 
-      # FIXME Use a list comprehension?
-      day_dates = _.flatten(month_dates.map((date) -> days_of_month(date)))
+      day_dates = _.flatten(days_of_month(date) for date in month_dates)
 
       all_ticks = _.invoke(day_dates, 'getTime')
       # FIXME Since the ticks are sorted, this could be done more efficiently.
@@ -574,11 +570,6 @@ define [
                                 ((tick) -> data_low <= tick <= data_high))
 
       return ticks_in_range
-
-  class SimpleScale extends CompositeScale
-    constructor: (intervals) ->
-      super(intervals.map((interval) ->
-        return new SingleIntervalScale(interval)))
 
   HUNDRED_MILLIS = 100.0
   ONE_SECOND = 1000.0
@@ -825,6 +816,7 @@ define [
       # Our resolution boundaries are not round numbers, because we want them
       # to fall between the possible tick intervals (which are round numbers,
       # as we've worked hard to ensure).
+      # FIXME Maybe make the adjustments explicit?
       r = resolution
       span = interval
       if r < 6e-4
