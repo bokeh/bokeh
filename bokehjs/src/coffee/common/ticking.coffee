@@ -7,6 +7,7 @@
 # probably use a special scale.
 # TODO Add more comments.
 # TODO Add tests.
+# TODO There used to be a TODO: restore memoization.  So.... do that?
 
 define [
   "underscore",
@@ -618,58 +619,6 @@ define [
         # (1 year - infinity)
         new AdaptiveScale([1.0, 2.0, 5.0], 10.0, ONE_YEAR, Infinity),
       ])
-
-  auto_interval_temp_old = (data_low, data_high) ->
-      """ Calculates the tick interval for a range.
-
-          The boundaries for the data to be plotted on the axis are::
-
-              data_bounds = (data_low,data_high)
-
-          The function chooses the number of tick marks, which can be between
-          3 and 9 marks (including end points), and chooses tick intervals at
-          1, 2, 2.5, 5, 10, 20, ...
-
-          Returns
-          -------
-          interval: float
-              tick mark interval for axis
-      """
-      data_range = float(data_high) - float(data_low)
-      desired_n_ticks = 6
-      ideal_interval = data_range / desired_n_ticks
-
-      ideal_magnitude = Math.pow(10, Math.floor(log10(ideal_interval)))
-      ideal_mantissa = ideal_interval / ideal_magnitude
-
-      allowed_mantissas = [0.5, 1.0, 2.0, 2.5, 5.0, 10.0]
-
-      # Reduce the set of allowed mantissas to only the closest two.
-      # FIXME Use binary search?
-      # FIXME This loop should always break, but just in case something weird
-      # happens with floating point, we'll set this default value.
-      index = allowed_mantissas.length - 1
-      for i in arange(1, allowed_mantissas.length)
-        if ideal_mantissa < allowed_mantissas[i]
-          index = i
-          break
-      # FIXME Is there some kind of slicing notation?
-      candidate_mantissas = [allowed_mantissas[index - 1],
-                             allowed_mantissas[index]]
-
-      # FIXME Use absolute value here!
-      errors = candidate_mantissas.map((mantissa) ->
-        return desired_n_ticks - (data_range / (mantissa * ideal_magnitude)))
-      best_mantissa = candidate_mantissas[argsort(errors)[0]]
-
-      interval = best_mantissa * ideal_magnitude
-
-      return interval
-
-  # TODO (bev) restore memoization
-  #auto_interval = memoize(auto_interval_temp)
-#   auto_interval = auto_interval_temp
-
 
   class BasicTickFormatter
     constructor: (@precision='auto', @use_scientific=true, @power_limit_high=5, @power_limit_low=-3) ->
