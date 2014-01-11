@@ -15,18 +15,6 @@ define [
   "sprintf",
 ], (_, tz, sprintf) ->
 
-  log10 = (num) ->
-    """
-    Returns the base 10 logarithm of a number.
-    """
-
-    # prevent errors when log is 0
-    if num == 0.0
-      num += 1.0e-16
-
-    return Math.log(num) / Math.LN10
-
-
   log2 = (num) ->
       """
       Returns the base 2 logarithm of a number.
@@ -45,55 +33,6 @@ define [
     else
       lg = log2(rng)
       return ((lg > 0.0) and (lg == Math.floor(lg)))
-
-  nice_2_5_10 = (x, round=false) ->
-      """ if round is false, then use Math.ceil(range) """
-      expv = Math.floor(log10(x))
-      f = x / Math.pow(10.0, expv)
-      if round
-          if f < 1.5
-              nf = 1.0
-          else if f < 3.0
-              nf = 2.0
-          else if f < 7.5
-              nf = 5.0
-          else
-              nf = 10.0
-      else
-          if f <= 1.0
-              nf = 1.0
-          else if f <= 2.0
-              nf = 2.0
-          else if f <= 5.0
-              nf = 5.0
-          else
-              nf = 10.0
-      return nf * Math.pow(10, expv)
-
-
-  nice_10 = (x, round=false) ->
-    expv = Math.floor(log10(x*1.0001))
-    return Math.pow(10.0, expv)
-
-
-  heckbert_interval = (min, max, numticks=8, nice=nice_2_5_10,loose=false) ->
-      """
-      Returns a "nice" range and interval for a given data range and a preferred
-      number of ticks.  From Paul Heckbert's algorithm in Graphics Gems.
-      """
-
-      range = nice(max-min)
-      d = nice(range/(numticks-1), true)
-
-      if loose
-          graphmin = Math.floor(min/d) * d
-          graphmax = Math.ceil(max/d) * d
-      else
-          graphmin = Math.ceil(min/d) * d
-          graphmax = Math.floor(max/d) * d
-
-      return [graphmin, graphmax, d]
-
 
   arange = (start, end=false, step=false) ->
     if not end
