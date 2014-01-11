@@ -277,13 +277,6 @@ define [
     ret = _.min(indices(arr), ((i) -> return arr[i]))
     return ret
 
-  # FIXME Optimize this.
-  bisect_right = (xs, x) ->
-    for i in [0..xs.length]
-      if xs[i] > x
-        return i
-    return xs.length
-
   clamp = (x, min_val, max_val) ->
     return Math.max(min_val, Math.min(max_val, x))
 
@@ -348,8 +341,8 @@ define [
       data_range = data_high - data_low
       ideal_interval = @get_ideal_interval(data_low, data_high)
       scale_ndxs = [
-        bisect_right(@min_intervals, ideal_interval) - 1,
-        bisect_right(@max_intervals, ideal_interval)
+        _.sortedIndex(@min_intervals, ideal_interval) - 1,
+        _.sortedIndex(@max_intervals, ideal_interval)
       ]
       intervals = [@min_intervals[scale_ndxs[0]],
                    @max_intervals[scale_ndxs[1]]]
@@ -401,7 +394,7 @@ define [
       ideal_mantissa = ideal_interval / ideal_magnitude
 
       # An untested optimization.
-#       index = bisect_right(@allowed_mantissas, ideal_mantissa)
+#       index = _.sortedIndex(@allowed_mantissas, ideal_mantissa)
 #       candidate_mantissas = @allowed_mantissas[index..index + 1]
       candidate_mantissas = @allowed_mantissas
 
