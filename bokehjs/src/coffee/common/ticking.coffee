@@ -8,31 +8,15 @@
 # TODO Add more comments.
 # TODO Add tests.
 # TODO There used to be a TODO: restore memoization.  So.... do that?
+# TODO Instead of a get_ticks() method, there used to be an auto_ticks()
+# function that took a lot of fancy arguments, but those arguments weren't
+# used anywhere.  Should we restore them?
 
 define [
   "underscore",
   "timezone",
   "sprintf",
 ], (_, tz, sprintf) ->
-
-  log2 = (num) ->
-      """
-      Returns the base 2 logarithm of a number.
-      """
-
-      # prevent errors when log is 0
-      if num == 0.0
-          num += 1.0e-16
-
-      return Math.log(num) / Math.LN2
-
-  is_base2 = (rng) ->
-    """ Returns True if rng is a positive multiple of 2 """
-    if rng <= 0
-      false
-    else
-      lg = log2(rng)
-      return ((lg > 0.0) and (lg == Math.floor(lg)))
 
   arange = (start, end=false, step=false) ->
     if not end
@@ -88,127 +72,6 @@ define [
       else
         return obj_as_string
 
-  auto_ticks_old = (data_low, data_high, bound_low, bound_high, tick_interval, use_endpoints=false, zero_always_nice=true) ->
-      """ Finds locations for axis tick marks.
-
-          Calculates the locations for tick marks on an axis. The *bound_low*,
-          *bound_high*, and *tick_interval* parameters specify how the axis end
-          points and tick interval are calculated.
-
-          Parameters
-          ----------
-
-          data_low, data_high: number
-              The minimum and maximum values of the data along this axis.
-              If any of the bound settings are 'auto' or 'fit', the axis
-              bounds are calculated automatically from these values.
-          bound_low, bound_high: 'auto', 'fit', or a number.
-              The lower and upper bounds of the axis. If the value is a number,
-              that value is used for the corresponding end point. If the value is
-              'auto', then the end point is calculated automatically. If the
-              value is 'fit', then the axis bound is set to the corresponding
-              *data_low* or *data_high* value.
-          tick_interval: can be 'auto' or a number
-              If the value is a positive number, it specifies the length
-              of the tick interval; a negative integer specifies the
-              number of tick intervals; 'auto' specifies that the number and
-              length of the tick intervals are automatically calculated, based
-              on the range of the axis.
-          use_endpoints: Boolean
-              If True, the lower and upper bounds of the data are used as the
-              lower and upper end points of the axis. If False, the end points
-              might not fall exactly on the bounds.
-          zero_always_nice: Boolean
-              If True, ticks much closer to zero than the tick interval will be
-              coerced to have a value of zero
-
-          Returns
-          -------
-          An array of tick mark locations. The first and last tick entries are the
-          axis end points.
-      """
-
-      is_auto_low  = (bound_low  == 'auto')
-      is_auto_high = (bound_high == 'auto')
-
-      if typeof(bound_low) == "string"
-          lower = data_low
-      else
-          lower = bound_low
-
-      if typeof(bound_high) == "string"
-          upper = data_high
-      else
-          upper = bound_high
-
-      if (tick_interval == 'auto') or (tick_interval == 0.0)
-          rng = Math.abs( upper - lower )
-
-          if rng == 0.0
-              tick_interval = 0.5
-              lower         = data_low  - 0.5
-              upper         = data_high + 0.5
-          else if is_base2( rng ) and is_base2( upper ) and rng > 4
-              if rng == 2
-                  tick_interval = 1
-              else if rng == 4
-                  tick_interval = 4
-              else
-                  tick_interval = rng / 4   # maybe we want it 8?
-          else
-              tick_interval = auto_interval( lower, upper )
-      else if tick_interval < 0
-          intervals     = -tick_interval
-          tick_interval = tick_intervals( lower, upper, intervals )
-          if is_auto_low and is_auto_high
-              is_auto_low = is_auto_high = false
-              lower = tick_interval * Math.floor( lower / tick_interval )
-              while ((Math.abs( lower ) >= tick_interval) and
-                     ((lower + tick_interval * (intervals - 1)) >= upper))
-                  lower -= tick_interval
-              upper = lower + tick_interval * intervals
-
-      # If the lower or upper bound are set to 'auto',
-      # calculate them based on the newly chosen tick_interval:
-      if is_auto_low or is_auto_high
-          delta = 0.01 * tick_interval * (data_low == data_high)
-          [auto_lower, auto_upper] = auto_bounds(
-              data_low - delta, data_high + delta, tick_interval)
-          if is_auto_low
-              lower = auto_lower
-          if is_auto_high
-              upper = auto_upper
-
-      # Compute the range of ticks values:
-      start = Math.floor( lower / tick_interval ) * tick_interval
-      end   = Math.floor( upper / tick_interval ) * tick_interval
-      # If we return the same value for the upper bound and lower bound, the
-      # layout code will not be able to lay out the tick marks (divide by zero).
-      if start == end
-          lower = start = start - tick_interval
-          upper = end = start - tick_interval
-
-      if upper > end
-          end += tick_interval
-      ticks = arange( start, end + (tick_interval / 2.0), tick_interval )
-
-      if zero_always_nice
-          for i in [0...ticks.length]
-              if Math.abs(ticks[i]) < tick_interval/1000
-                  ticks[i] = 0
-
-      # FIXME
-      # if len( ticks ) < 2
-      #  ticks = array( ( ( lower - lower * 1.0e-7 ), lower ) )
-
-      if (not is_auto_low) and use_endpoints
-          ticks[0] = lower
-
-      if (not is_auto_high) and use_endpoints
-          ticks[ticks.length-1] = upper
-
-      return (tick for tick in ticks when (tick >= bound_low and tick <= bound_high))
-
   indices = (arr) ->
     return _.range(arr.length)
 
@@ -230,10 +93,6 @@ define [
     get_ideal_interval: (data_low, data_high) ->
       data_range = data_high - data_low
       return data_range / DESIRED_N_TICKS
-
-    # FIXME Do all the stuff auto_ticks did.
-    get_ticks: (_ignored_0, _ignored_1, data_low, data_high, _ignored_2) ->
-      return @get_ticks_for_range(data_low, data_high)
 
     get_ticks_for_range: (data_low, data_high) ->
       interval = @get_interval(data_low, data_high)
@@ -351,10 +210,6 @@ define [
 #       console.log("          interval = #{interval}")
 
       return clamp(interval, @get_min_interval(), @get_max_interval())
-
-  # FIXME Not currently in use.
-  class ValueError extends Error
-    constructor: -> super
 
   copy_date = (date) ->
     return new Date(date.getTime())

@@ -428,8 +428,7 @@ define [
 
       [start, end] = @get('computed_bounds')
 
-      interval = @scale.get_interval(start, end)
-      ticks = @scale.get_ticks(null, null, start, end, interval)
+      ticks = @scale.get_ticks_for_range(start, end)
 
       loc = @get('location') ? 'min'
       if _.isString(loc)

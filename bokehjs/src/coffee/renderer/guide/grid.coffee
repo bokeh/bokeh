@@ -102,9 +102,7 @@ define [
       end = Math.max(start, end)
       start = tmp
 
-      scale = @get('scale')
-      interval = scale.get_interval(start, end)
-      ticks = scale.get_ticks(null, null, start, end, interval)
+      ticks = @get('scale').get_ticks_for_range(start, end)
 
       min = range.get('min')
       max = range.get('max')
