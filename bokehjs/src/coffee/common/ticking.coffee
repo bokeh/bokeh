@@ -374,18 +374,17 @@ define [
     get_best_scale: (data_low, data_high) ->
       data_range = float(data_high) - float(data_low)
       ideal_interval = @get_ideal_interval(data_low, data_high)
-      # FIXME Other parts of this file use _ndx instead of _ix; I guess we
-      # should switch.
-      scale_ixs = [
+      scale_ndxs = [
         bisect_right(@min_intervals, ideal_interval) - 1,
         bisect_right(@max_intervals, ideal_interval)
       ]
-      intervals = [@min_intervals[scale_ixs[0]], @max_intervals[scale_ixs[1]]]
+      intervals = [@min_intervals[scale_ndxs[0]],
+                   @max_intervals[scale_ndxs[1]]]
       errors = intervals.map((interval) ->
         return Math.abs(DESIRED_N_TICKS - (data_range / interval)))
 
-      best_scale_ix = scale_ixs[argmin(errors)]
-      best_scale = @scales[best_scale_ix]
+      best_scale_ndx = scale_ndxs[argmin(errors)]
+      best_scale = @scales[best_scale_ndx]
 
       console.log("Selected #{best_scale}")
 
