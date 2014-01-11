@@ -122,16 +122,31 @@ define [
         i += step
     return ret_arr
 
-  # A hacky analogue to repr() in Python.  Basically a version of toString()
-  # that works better for arrays and objects.
+  # A hacky analogue to repr() in Python.
   repr = (obj) ->
-    if obj.constructor == Array
-      return "[#{obj}]"
+    if obj == null
+      return "null"
+
+    else if obj.constructor == Array
+      elems_str = (repr(elem) for elem in obj).join(", ")
+      return "[#{elems_str}]"
+
     else if obj.constructor == Object
-      props_str = ("#{key}: #{obj[key]}" for key of obj).join(", ")
+      props_str = ("#{key}: #{repr(obj[key])}" for key of obj).join(", ")
       return "{#{props_str}}"
+
+    else if obj.constructor == String
+      return "\"#{obj}\""
+
+    else if obj.constructor == Function
+      return "<Function: #{obj.name}>"
+
     else
-      return obj.toString()
+      obj_as_string = obj.toString()
+      if obj_as_string == "[object Object]"
+        return "<#{obj.constructor.name}>"
+      else
+        return obj_as_string
 
   auto_ticks_old = (data_low, data_high, bound_low, bound_high, tick_interval, use_endpoints=false, zero_always_nice=true) ->
       """ Finds locations for axis tick marks.
@@ -311,7 +326,11 @@ define [
       data_range = float(data_high) - float(data_low)
       return data_range / DESIRED_N_TICKS
 
-    get_ticks: (data_low, data_high) ->
+    # FIXME Do all the stuff auto_ticks did.
+    get_ticks: (_ignored_0, _ignored_1, data_low, data_high, _ignored_2) ->
+      return @get_ticks_for_range(data_low, data_high)
+
+    get_ticks_for_range: (data_low, data_high) ->
       interval = @get_interval(data_low, data_high)
       start_factor = Math.floor(data_low / interval)
       end_factor   = Math.ceil(data_high / interval)
@@ -376,9 +395,9 @@ define [
       best_scale = @get_best_scale(data_low, data_high)
       return best_scale.get_interval(data_low, data_high)
 
-    get_ticks: (data_low, data_high) ->
+    get_ticks_for_range: (data_low, data_high) ->
       best_scale = @get_best_scale(data_low, data_high)
-      return best_scale.get_ticks(data_low, data_high)
+      return best_scale.get_ticks_for_range(data_low, data_high)
 
   class AdaptiveScale extends AbstractScale
     constructor: (@mantissas, @base=10.0, @min_magnitude=0.0,
@@ -473,7 +492,7 @@ define [
           12 * ONE_MONTH
       super(@typical_interval)
 
-    get_ticks: (data_low, data_high) ->
+    get_ticks_for_range: (data_low, data_high) ->
       date_range_by_year = (start_time, end_time) ->
         start_date = new Date(last_year_no_later_than(start_time))
         
@@ -519,7 +538,7 @@ define [
 
       @toString_properties = ['days']
 
-    get_ticks: (data_low, data_high) ->
+    get_ticks_for_range: (data_low, data_high) ->
       date_range_by_month = (start_time, end_time) ->
         start_date = new Date(last_month_no_later_than(start_time))
         
@@ -558,7 +577,7 @@ define [
           # make sure we have a bit of room before we include a day.
           future_date = new Date(day_date.getTime() + (typical_interval / 2))
           if future_date.getUTCMonth() == month_date.getUTCMonth()
-            console.log("  push #{month_date} / #{month_date.toUTCString()} ~ (#{month_date.getUTCDate()} -> #{day}) = #{day_date}")
+#             console.log("  push #{month_date} / #{month_date.toUTCString()} ~ (#{month_date.getUTCDate()} -> #{day}) = #{day_date}")
             dates.push(day_date)
         return dates
 
@@ -577,10 +596,6 @@ define [
       super(intervals.map((interval) ->
         return new SingleIntervalScale(interval)))
 
-  # This is a simple one-size-fits-all scale, suitable for decimal,
-  # non-time-based quantities.
-#   global_scale = new AdaptiveScale([1.0, 2.0, 5.0])
-
   HUNDRED_MILLIS = 100.0
   ONE_SECOND = 1000.0
   ONE_MINUTE = 60.0 * ONE_SECOND
@@ -589,52 +604,45 @@ define [
   ONE_MONTH = 30 * ONE_DAY # An approximation, obviously.
   ONE_YEAR = 365 * ONE_DAY
 
-  global_scale = new CompositeScale([
-    # Sub-second.
-    # (0 - 500 ms)
-    # FIXME 500-ms intervals are not formatted correctly.
-    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 0.0, HUNDRED_MILLIS),
+  class BasicScale extends AdaptiveScale
+    constructor: () ->
+      super([1.0, 2.0, 5.0])
 
-    # Seconds, minutes.
-    # (1 s - 30 min)
-    new AdaptiveScale([1.0, 2.0, 5.0, 10.0, 15.0, 20.0, 30.0], 60.0,
-                      ONE_SECOND, ONE_MINUTE),
+  class DatetimeScale extends CompositeScale
+    constructor: () ->
+      super([
+        # Sub-second.
+        # (0 - 500 ms)
+        new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 0.0, HUNDRED_MILLIS),
 
-    # Hours.
-    # (1 hr - 12 hr)
-    new AdaptiveScale([1.0, 2.0, 4.0, 6.0, 8.0, 12.0], 24.0,
-                      ONE_HOUR, ONE_HOUR),
- 
-    # Days.
-    # (1 day - 14 days)
-    # FIXME Formatting is not happening quite right at the boundaries.
-    new DaysScale(arange(1, 32)), #FIXME
-    new DaysScale(arange(1, 31, 3)),
-    new DaysScale([1, 8, 15, 22]),
-    new DaysScale([1, 15]),
- 
-    # Months.
-    # (1 month - 6 months)
-    new MonthsScale(arange(0, 12)),
-    new MonthsScale(arange(0, 12, 2)),
-    new MonthsScale(arange(0, 12, 4)),
-    new MonthsScale(arange(0, 12, 6)),
+        # Seconds, minutes.
+        # (1 s - 30 min)
+        new AdaptiveScale([1.0, 2.0, 5.0, 10.0, 15.0, 20.0, 30.0], 60.0,
+                          ONE_SECOND, ONE_MINUTE),
 
-    # Catchall for large timescales.
-    # (1 year - infinity)
-    new AdaptiveScale([1.0, 2.0, 5.0], 10.0, ONE_YEAR, Infinity),
-  ])
+        # Hours.
+        # (1 hr - 12 hr)
+        new AdaptiveScale([1.0, 2.0, 4.0, 6.0, 8.0, 12.0], 24.0,
+                          ONE_HOUR, ONE_HOUR),
+     
+        # Days.
+        # (1 day - 14 days)
+        new DaysScale(arange(1, 32)), # FIXME
+        new DaysScale(arange(1, 31, 3)),
+        new DaysScale([1, 8, 15, 22]),
+        new DaysScale([1, 15]),
+     
+        # Months.
+        # (1 month - 6 months)
+        new MonthsScale(arange(0, 12)),
+        new MonthsScale(arange(0, 12, 2)),
+        new MonthsScale(arange(0, 12, 4)),
+        new MonthsScale(arange(0, 12, 6)),
 
-  auto_interval_temp = (data_low, data_high) ->
-    return global_scale.get_interval(data_low, data_high)
-  auto_ticks = (_0, _1, data_low, data_high, _2) ->
-    ticks = global_scale.get_ticks(data_low, data_high)
-
-#     if ticks.length > 0 and ticks[0] > 10000000000
-#       dates = (new Date(tick) for tick in ticks)
-#       console.log("returning #{dates}")
-
-    return ticks
+        # Catchall for large timescales.
+        # (1 year - infinity)
+        new AdaptiveScale([1.0, 2.0, 5.0], 10.0, ONE_YEAR, Infinity),
+      ])
 
   auto_interval_temp_old = (data_low, data_high) ->
       """ Calculates the tick interval for a range.
@@ -685,7 +693,7 @@ define [
 
   # TODO (bev) restore memoization
   #auto_interval = memoize(auto_interval_temp)
-  auto_interval = auto_interval_temp
+#   auto_interval = auto_interval_temp
 
 
   class BasicTickFormatter
@@ -968,15 +976,8 @@ define [
       return labels
 
   return {
-    # FIXME These don't seem to be used anywhere else.
-    "argsort": argsort,
-    "nice_2_5_10": nice_2_5_10,
-    "nice_10": nice_10,
-    "heckbert_interval": heckbert_interval,
-
-    # FIXME Maybe move these into classes, like with the formatters?
-    "auto_ticks": auto_ticks,
-    "auto_interval": auto_interval,
+    "BasicScale": BasicScale,
+    "DatetimeScale": DatetimeScale,
 
     "BasicTickFormatter": BasicTickFormatter,
     "DatetimeFormatter": DatetimeFormatter,

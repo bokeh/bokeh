@@ -111,13 +111,17 @@ define [
         axes.push(axis)
     plot.add_renderers(a.ref() for a in axes)
 
-  add_grids = (plot, xgrid, ygrid) ->
+  # FIXME The xaxis_is_datetime argument is a huge hack, but for now I want to
+  # make as small a change as possible.  Doing it right will require a larger
+  # refactoring.
+  add_grids = (plot, xgrid, ygrid, xaxis_is_datetime=False) ->
     grids = []
     if xgrid
       grid = Grid.Collection.create(
         dimension: 0
         parent: plot.ref()
         plot: plot.ref()
+        is_datetime: xaxis_is_datetime
       )
       grids.push(grid)
     if ygrid
@@ -125,6 +129,7 @@ define [
         dimension: 1
         parent: plot.ref()
         plot: plot.ref()
+        is_datetime: false
       )
       grids.push(grid)
       plot.add_renderers(g.ref() for g in grids)
@@ -216,7 +221,7 @@ define [
     plot.add_renderers(g.ref() for g in glyphs)
 
     add_axes(plot, xaxes, yaxes)
-    add_grids(plot, xgrid, ygrid)
+    add_grids(plot, xgrid, ygrid, xaxes == 'datetime')
     add_tools(plot, tools, glyphs, xdr, ydr)
     add_legend(plot, legend, glyphs)
 

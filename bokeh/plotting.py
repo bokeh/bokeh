@@ -890,8 +890,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if axiscls:
         yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
 
-    xgrid = Grid(plot=p, dimension=0)
-    ygrid = Grid(plot=p, dimension=1)
+    xgrid = Grid(plot=p, dimension=0, is_datetime=(x_axis_type == "datetime"))
+    ygrid = Grid(plot=p, dimension=1, is_datetime=(y_axis_type == "datetime"))
 
     tool_objs = []
     if "pan" in tools:

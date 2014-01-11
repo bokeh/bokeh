@@ -4,6 +4,8 @@ require [
   "common/ticking",
 ], (_, ticking) ->
 
+  # FIXME These tests are broken now.
+
   auto_interval  = ticking.auto_interval
   argsort        = ticking.argsort
 
