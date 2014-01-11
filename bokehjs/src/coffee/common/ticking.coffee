@@ -447,41 +447,25 @@ define [
 
       return clamp(interval, @get_min_interval(), @get_max_interval())
 
-  last_day_no_later_than = (time) ->
-    # FIXME Is this really the best way?
-    d = new Date(time)
-    d.setUTCHours(0)
-    d.setUTCMinutes(0)
-    d.setUTCSeconds(0)
-    d.setUTCMilliseconds(0)
-    return d.getTime()
-
-  last_month_no_later_than = (time) ->
-    d = new Date(time)
-    d.setUTCDate(1)
-    d.setUTCHours(0)
-    d.setUTCMinutes(0)
-    d.setUTCSeconds(0)
-    d.setUTCMilliseconds(0)
-    return d.getTime()
-
-  last_year_no_later_than = (time) ->
-    d = new Date(time)
-    d.setUTCMonth(0)
-    d.setUTCDate(1)
-    d.setUTCHours(0)
-    d.setUTCMinutes(0)
-    d.setUTCSeconds(0)
-    d.setUTCMilliseconds(0)
-    return d.getTime()
+  class ValueError extends Error
+    constructor: -> super
 
   copy_date = (date) ->
     return new Date(date.getTime())
 
-  add_days = (time, n_days) ->
-    d = new Date(time)
-    d.setDate(d.getDate() + n_days)
-    return d.getTime()
+  last_month_no_later_than = (date) ->
+    date = copy_date(date)
+    date.setUTCDate(1)
+    date.setUTCHours(0)
+    date.setUTCMinutes(0)
+    date.setUTCSeconds(0)
+    date.setUTCMilliseconds(0)
+    return date
+
+  last_year_no_later_than = (date) ->
+    date = last_month_no_later_than(date)
+    date.setUTCMonth(0)
+    return date
 
   class MonthsScale extends SingleIntervalScale
     constructor: (@months) ->
@@ -492,10 +476,11 @@ define [
       super(@typical_interval)
 
     get_ticks_for_range: (data_low, data_high) ->
+      # FIXME Why is this a separate function?
       date_range_by_year = (start_time, end_time) ->
-        start_date = new Date(last_year_no_later_than(start_time))
+        start_date = last_year_no_later_than(new Date(start_time))
 
-        end_date = new Date(last_year_no_later_than(end_time))
+        end_date = last_year_no_later_than(new Date(end_time))
         end_date.setUTCFullYear(end_date.getUTCFullYear() + 1)
 
         dates = []
@@ -539,9 +524,9 @@ define [
 
     get_ticks_for_range: (data_low, data_high) ->
       date_range_by_month = (start_time, end_time) ->
-        start_date = new Date(last_month_no_later_than(start_time))
+        start_date = last_month_no_later_than(new Date(start_time))
 
-        end_date = new Date(last_month_no_later_than(end_time))
+        end_date = last_month_no_later_than(new Date(end_time))
         # XXX This is not a reliable technique in general, but it should be
         # safe when the day of the month is 1.  (The problem case is this:
         # Mar 31 -> Apr 31, which becomes May 1.)
