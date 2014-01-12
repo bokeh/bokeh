@@ -100,7 +100,6 @@ define [
       )
       ctx.fill()
       ctx.stroke()
-      @label_props.set(ctx, @)
       legend_spacing = @mget('legend_spacing')
       for legend_name, idx in @legend_names
         yoffset = idx * @label_height
@@ -111,6 +110,7 @@ define [
         x2 = x1 + @glyph_width
         y1 = @box_coords[1] + yoffset + yspacing
         y2 = y1 + @glyph_height
+        @label_props.set(ctx, @)
         ctx.fillText(legend_name, x, y)
         for renderer in @model.resolve_ref(@legends[legend_name])
           view = @plot_view.renderers[renderer.id]
