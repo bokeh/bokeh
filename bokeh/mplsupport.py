@@ -184,8 +184,24 @@ def _map_line_props(newline, line2d):
     setattr(newline, "line_join", line2d.get_solid_joinstyle())
     setattr(newline, "line_cap", cap_style_map[line2d.get_solid_capstyle()])
     # TODO: Handle line dash, translate between Matplotlib and Canvas-style dashes
-    #setattr(newline, "line_dash", line2d.get_dashes())
+    setattr(newline, "line_dash", _convert_dashes(line2d.get_linestyle()))
     # setattr(newline, "line_dash_offset", ...)
+
+def _convert_dashes(dash):
+    """ Converts a Matplotlib dash specification
+
+    bokeh.properties.DashPattern supports the matplotlib named dash styles,
+    but not the little shorthand characters.  This function takes care of
+    mapping those.
+    """
+    mpl_dash_map = {
+        "-": "solid",
+        "--": "dashed",
+        ":": "dotted",
+        "-.": "dashdot",
+    }
+    # If the value doesn't exist in the map, then just return the value back.
+    return mpl_dash_map.get(dash, dash)
 
 def _make_line(datasource, xdr, ydr, line2d):
     newline = glyphs.Line()
