@@ -779,17 +779,49 @@ class Color(BaseProperty):
 
 class Align(BaseProperty): pass
 
-class Pattern(BaseProperty):
+class DashPattern(BaseProperty):
+    """
+    This is a property that expresses line dashes.  It can be specified in
+    a variety of forms:
+       * "solid", "dashed", "dotted", "dotdash", "dashdot"
+       * A tuple or list of integers in the HTML5 Canvas dash specification
+         style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
+         Note that if the list of integers has an odd number of elements, then
+         it is duplicated, and that duplicated list becomes the new dash list.
+       * A string of integers with spaces separating them. This is broken up into
+         a list and then treated like the above.
+
+    If dash is turned off, then the dash pattern is the empty list [].
+    """
+
+    dashmap = {
+        "solid": [],
+        "dashed": [6],
+        "dotted": [2,4],
+        "dotdash": [2,4,6,4],
+        "dashdot": [6,4,2,4],
+    }
+
     def __init__(self, default=[]):
         BaseProperty.__init__(self, default)
 
     def __set__(self, obj, arg):
-        if isinstance(arg, str):
+        if isinstance(arg, str) and arg in self.dashmap:
+            arg = self.dashmap[arg]
+        elif isinstance(arg, str) and " " in arg:
             try:
-                arg = [float(x) for x in arg.split()]
-            except TypeError:
-                raise RuntimeError("Invalid string being assigned to Pattern; must be space delimited numbers, e.g. '2 4 3 2'")
-        super(Pattern, self).__set__(obj, arg)
+                arg = map(int, arg.split())
+            except:
+                raise ValueError("Invalid space-delimited dash pattern: '%s'" % arg)
+        elif isinstance(arg, tuple) or isinstance(arg, list):
+            # Don't need to do anything
+            pass
+        else:
+            raise RuntimeError("Invalid string being assigned to Pattern; "
+                               "must be space delimited numbers, e.g. '2 4 3 2'"
+                               "or one of the names: 'solid','dashed','dotted','dotdash','dashdot'.")
+
+        super(DashPattern, self).__set__(obj, arg)
 
 class Size(Float):
     """ Equivalent to an unsigned int """
@@ -815,7 +847,7 @@ class LineProps(HasProps):
     line_alpha = Percent(1.0)
     line_join = Enum("miter", "round", "bevel")
     line_cap = Enum("butt", "round", "square")
-    line_dash = Pattern  # This is a list of ints; see HTML5 Canvas setLineDash
+    line_dash = DashPattern  # This is a list of ints, or a dash pattern name
     line_dash_offset = Int(0)
 
 class TextProps(HasProps):

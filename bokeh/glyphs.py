@@ -2,7 +2,7 @@
 import inspect
 
 from .properties import (BaseProperty, HasProps, Instance, Enum, Float, Int,
-        Color, Percent, Size, Bool, Pattern, Align, Angle, String, FillProps,
+        Color, Percent, Size, Bool, DashPattern, Align, Angle, String, FillProps,
         LineProps, TextProps, DataSpec, ColorSpec)
 
 from .objects import PlotObject

@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__file__)
 
 from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
-        Either, Float, Instance, Int, List, String, Color, Pattern, Percent,
+        Either, Float, Instance, Int, List, String, Color, DashPattern, Percent,
         Size, LineProps, FillProps, TextProps, Include, Bool)
 
 class Viewable(MetaHasProps):
