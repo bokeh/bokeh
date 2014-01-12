@@ -813,9 +813,9 @@ class LineProps(HasProps):
     line_color = ColorSpec("black")
     line_width = Size(1)
     line_alpha = Percent(1.0)
-    line_join = String("miter")
-    line_cap = String("butt")
-    line_dash = Pattern
+    line_join = Enum("miter", "round", "bevel")
+    line_cap = Enum("butt", "round", "square")
+    line_dash = Pattern  # This is a list of ints; see HTML5 Canvas setLineDash
     line_dash_offset = Int(0)
 
 class TextProps(HasProps):
