@@ -806,20 +806,23 @@ class DashPattern(BaseProperty):
         BaseProperty.__init__(self, default)
 
     def __set__(self, obj, arg):
-        if isinstance(arg, str) and arg in self.dashmap:
-            arg = self.dashmap[arg]
-        elif isinstance(arg, str) and " " in arg:
-            try:
-                arg = map(int, arg.split())
-            except:
-                raise ValueError("Invalid space-delimited dash pattern: '%s'" % arg)
+        if isinstance(arg, str):
+            if arg in self.dashmap:
+                arg = self.dashmap[arg]
+            else:
+                try:
+                    arg = [int(x) for x in arg.split()]
+                except:
+                    raise ValueError("Invalid string value for dash pattern: '%s'" % arg)
         elif isinstance(arg, tuple) or isinstance(arg, list):
-            # Don't need to do anything
-            pass
+            for x in arg:
+                if not isinstance(x, int):
+                    raise ValueError("list/tuple values for dash patterns must contain only integers")
         else:
-            raise RuntimeError("Invalid string being assigned to Pattern; "
-                               "must be space delimited numbers, e.g. '2 4 3 2'"
-                               "or one of the names: 'solid','dashed','dotted','dotdash','dashdot'.")
+            raise ValueError("Invalid value assigned to Pattern; "
+                             "must be list or tuple of integers, or string; "
+                             "strings must be space delimited integers, e.g. '2 4 3 2' "
+                             "or one of the names: 'solid','dashed','dotted','dotdash','dashdot'.")
 
         super(DashPattern, self).__set__(obj, arg)
 

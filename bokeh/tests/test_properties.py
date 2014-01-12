@@ -1,7 +1,9 @@
 import unittest
 import numpy as np
 
-from bokeh.properties import HasProps, Int, Array, String, Enum, Float, DataSpec, ColorSpec
+from bokeh.properties import (
+    HasProps, Int, Array, String, Enum, Float, DataSpec, ColorSpec, DashPattern
+)
 
 class Basictest(unittest.TestCase):
 
@@ -270,6 +272,85 @@ class TestColorSpec(unittest.TestCase):
         f.col = "field2"
         self.assertEqual(f.col, "field2")
         self.assertDictEqual(desc.to_dict(f), {"field": "field2"})
+
+class TestDashPattern(unittest.TestCase):
+
+    def test_named(self):
+        class Foo(HasProps):
+            pat = DashPattern
+        f = Foo()
+        self.assertEqual(f.pat, [])
+        f.pat = "solid"
+        self.assertEqual(f.pat, [])
+        f.pat = "dashed"
+        self.assertEqual(f.pat, [6])
+        f.pat = "dotted"
+        self.assertEqual(f.pat, [2,4])
+        f.pat = "dotdash"
+        self.assertEqual(f.pat, [2,4,6,4])
+        f.pat = "dashdot"
+        self.assertEqual(f.pat, [6,4,2,4])
+
+    def test_string(self):
+        class Foo(HasProps):
+            pat = DashPattern
+        f = Foo()
+        f.pat = ""
+        self.assertEqual(f.pat, [])
+        f.pat = "2"
+        self.assertEqual(f.pat, [2])
+        f.pat = "2 4"
+        self.assertEqual(f.pat, [2, 4])
+        f.pat = "2 4 6"
+        self.assertEqual(f.pat, [2, 4, 6])
+        def assign(x, val):
+            x.pat = val
+        self.assertRaises(ValueError, assign, f , "abc 6")
+
+    def test_tuple(self):
+        class Foo(HasProps):
+            pat = DashPattern
+        f = Foo()
+        f.pat = ()
+        self.assertEqual(f.pat, ())
+        f.pat = (2,)
+        self.assertEqual(f.pat, (2,))
+        f.pat = (2,4)
+        self.assertEqual(f.pat, (2, 4))
+        f.pat = (2,4,6)
+        self.assertEqual(f.pat, (2, 4, 6))
+        def assign(x, val):
+            x.pat = val
+        self.assertRaises(ValueError, assign, f , (2, 4.2))
+        self.assertRaises(ValueError, assign, f , (2, "a"))
+
+    def test_list(self):
+        class Foo(HasProps):
+            pat = DashPattern
+        f = Foo()
+        f.pat = []
+        self.assertEqual(f.pat, [])
+        f.pat = [2]
+        self.assertEqual(f.pat, [2])
+        f.pat = [2,4]
+        self.assertEqual(f.pat, [2, 4])
+        f.pat = [2,4,6]
+        self.assertEqual(f.pat, [2, 4, 6])
+        def assign(x, val):
+            x.pat = val
+        self.assertRaises(ValueError, assign, f , [2, 4.2])
+        self.assertRaises(ValueError, assign, f , [2, "a"])
+
+    def test_invalid(self):
+        class Foo(HasProps):
+            pat = DashPattern
+        f = Foo()
+        def assign(x, val):
+            x.pat = val
+        self.assertRaises(ValueError, assign, f , 10)
+        self.assertRaises(ValueError, assign, f , 10.1)
+        self.assertRaises(ValueError, assign, f , {})
+
 
 if __name__ == "__main__":
     unittest.main()
