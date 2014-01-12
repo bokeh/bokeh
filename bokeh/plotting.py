@@ -528,8 +528,12 @@ class GlyphFunction(object):
         # a real stylesheet class, where defaults and Types can declaratively
         # substitute for this kind of imperative logic.
         color = kwargs.pop(prefix+"color", get_default_color())
-        for argname in ("fill_color", "line_color", "text_color"):
+        for argname in ("fill_color", "line_color"):
             kwargs[argname] = kwargs.get(prefix + argname, color)
+
+        # NOTE: text fill color should really always default to black, hard coding
+        # this here now untils the stylesheet solution exists
+        kwargs["text_color"] = kwargs.get(prefix + "text_color", "black")
 
         alpha = kwargs.pop(prefix+"alpha", default_alpha)
         for argname in ("fill_alpha", "line_alpha", "text_alpha"):
