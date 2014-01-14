@@ -61,7 +61,27 @@ class Marker(BaseGlyph, FillProps, LineProps):
 
 class Circle(Marker):
     __view_model__ = "circle"
-    radius = DataSpec(units="screen", default=4, min_value=0)
+    radius = DataSpec(units="data", default=4, min_value=0)
+
+    def to_glyphspec(self):
+        """ Returns a dict mapping attributes to values, that is amenable for
+        inclusion in a Glyph definition.
+        """
+        d = self.vm_props(withvalues=True)
+        d["type"] = self.__view_model__
+
+        # Here is the special case for circle, we only want one of "size" or "radius",
+        # but not both.
+        for attrname, dspec in self.dataspecs_with_refs().items():
+            d[attrname] = dspec.to_dict(self)
+        if "size" not in self._changed_vars and "radius" not in self._changed_vars:
+            del d["size"]
+        elif "size" in self._changed_vars:
+            del d["radius"]
+        elif "radius" in self._changed_vars:
+            del d["size"]
+        import pprint; pprint.pprint(d)
+        return d
 
 
 # Other kinds of Markers, to match what GGplot provides

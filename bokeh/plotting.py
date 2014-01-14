@@ -472,15 +472,18 @@ class GlyphFunction(object):
                 else:
                     if val not in datasource.column_names:
                         raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
-                    glyph_val = {'field' : val, 'units' : 'data'}
+                    units = getattr(dataspecs[var], 'units', 'data')
+                    glyph_val = {'field' : val, 'units' : units}
             elif isinstance(val, np.ndarray):
                 if val.ndim != 1:
                     raise RuntimeError("Columns need to be 1D (%s is not)" % var)
                 datasource.add(val, name=var)
-                glyph_val = {'field' : var, 'units' : 'data'}
+                units = getattr(dataspecs[var], 'units', 'data')
+                glyph_val = {'field' : var, 'units' : units}
             elif isinstance(val, Iterable):
                 datasource.add(val, name=var)
-                glyph_val = {'field' : var, 'units' : 'data'}
+                units = getattr(dataspecs[var], 'units', 'data')
+                glyph_val = {'field' : var, 'units' : units}
             else:
                 raise RuntimeError("Unexpected column type: %s" % type(val))
             glyph_params[var] = glyph_val
