@@ -71,7 +71,7 @@ class Circle(Marker):
         for attrname, dspec in self.dataspecs_with_refs().items():
             d[attrname] = dspec.to_dict(self)
         if "size" not in self._changed_vars and "radius" not in self._changed_vars:
-            del d["size"]
+            del d["radius"]
         elif "size" in self._changed_vars:
             del d["radius"]
         elif "radius" in self._changed_vars:
