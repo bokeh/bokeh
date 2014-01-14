@@ -779,17 +779,52 @@ class Color(BaseProperty):
 
 class Align(BaseProperty): pass
 
-class Pattern(BaseProperty):
+class DashPattern(BaseProperty):
+    """
+    This is a property that expresses line dashes.  It can be specified in
+    a variety of forms:
+       * "solid", "dashed", "dotted", "dotdash", "dashdot"
+       * A tuple or list of integers in the HTML5 Canvas dash specification
+         style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
+         Note that if the list of integers has an odd number of elements, then
+         it is duplicated, and that duplicated list becomes the new dash list.
+       * A string of integers with spaces separating them. This is broken up into
+         a list and then treated like the above.
+
+    If dash is turned off, then the dash pattern is the empty list [].
+    """
+
+    dashmap = {
+        "solid": [],
+        "dashed": [6],
+        "dotted": [2,4],
+        "dotdash": [2,4,6,4],
+        "dashdot": [6,4,2,4],
+    }
+
     def __init__(self, default=[]):
         BaseProperty.__init__(self, default)
 
     def __set__(self, obj, arg):
         if isinstance(arg, str):
-            try:
-                arg = [float(x) for x in arg.split()]
-            except TypeError:
-                raise RuntimeError("Invalid string being assigned to Pattern; must be space delimited numbers, e.g. '2 4 3 2'")
-        super(Pattern, self).__set__(obj, arg)
+            if arg in self.dashmap:
+                arg = self.dashmap[arg]
+            else:
+                try:
+                    arg = [int(x) for x in arg.split()]
+                except:
+                    raise ValueError("Invalid string value for dash pattern: '%s'" % arg)
+        elif isinstance(arg, tuple) or isinstance(arg, list):
+            for x in arg:
+                if not isinstance(x, int):
+                    raise ValueError("list/tuple values for dash patterns must contain only integers")
+        else:
+            raise ValueError("Invalid value assigned to Pattern; "
+                             "must be list or tuple of integers, or string; "
+                             "strings must be space delimited integers, e.g. '2 4 3 2' "
+                             "or one of the names: 'solid','dashed','dotted','dotdash','dashdot'.")
+
+        super(DashPattern, self).__set__(obj, arg)
 
 class Size(Float):
     """ Equivalent to an unsigned int """
@@ -806,16 +841,16 @@ class Percent(Float):
 class FillProps(HasProps):
     """ Mirrors the BokehJS properties.fill_properties class """
     fill_color = ColorSpec("gray")
-    fill_alpha = Percent(1.0)
+    fill_alpha = DataSpec(1.0)
 
 class LineProps(HasProps):
     """ Mirrors the BokehJS properties.line_properties class """
     line_color = ColorSpec("black")
-    line_width = Size(1)
-    line_alpha = Percent(1.0)
-    line_join = String("miter")
-    line_cap = String("butt")
-    line_dash = Pattern
+    line_width = DataSpec #
+    line_alpha = DataSpec(1.0)
+    line_join = Enum("miter", "round", "bevel")
+    line_cap = Enum("butt", "round", "square")
+    line_dash = DashPattern  # This is a list of ints, or a dash pattern name
     line_dash_offset = Int(0)
 
 class TextProps(HasProps):
@@ -823,8 +858,8 @@ class TextProps(HasProps):
     text_font = String
     text_font_size = String("10pt")
     text_font_style = Enum("normal", "italic", "bold")
-    text_color = Color("black")
-    text_alpha = Percent(1.0)
+    text_color = ColorSpec("black")
+    text_alpha = DataSpec(1.0)
     text_align = Enum("left", "right", "center")
     text_baseline = Enum("top", "middle", "bottom")
 

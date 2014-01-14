@@ -24,13 +24,13 @@ define [
 
     get_length :  ->
       data = @get('data')
-      return data[_.keys(data)[0]].length 
+      return data[_.keys(data)[0]].length
 
     datapoints: () ->
       data = @get('data')
       fields = _.keys(data)
       points = []
-      for i in [0..data[fields[0]].length-1]
+      for i in [0...data[fields[0]].length]
         point = {}
         for field in fields
           point[field] = data[field][i]

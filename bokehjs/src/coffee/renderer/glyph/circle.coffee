@@ -27,7 +27,7 @@ define [
         @max_radius = _.max(@radius)
       @index = rbush()
       @index.load(
-        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0..@x.length-1])
+        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0...@x.length])
       )
 
     _map_data: () ->
@@ -107,12 +107,12 @@ define [
 
       hits = []
       if @radius_units == "screen"
-        for i in [0..candidates.length-1]
+        for i in [0...candidates.length]
           r2 = @radius[i]^2
           if (@sx[i]-sx)^2 + (@sy[i]-sy)^2 <= r2
             hits.push(i)
       else
-        for i in [0..candidates.length-1]
+        for i in [0...candidates.length]
           r2 = @radius[i]^2
           if (@x[i]-x)^2 + (@y[i]-y)^2 <= r2
             hits.push(i)
