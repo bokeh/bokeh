@@ -793,11 +793,6 @@ def scatter(*args, **kwargs):
     markertype = kwargs.get("type", "circle")
     x_name = names[0]
 
-    # TODO this won't be necessary when markers are made uniform
-    if markertype == "circle":
-        if "radius" not in kwargs:
-            kwargs["radius"] = kwargs.get("size",8)/2
-
     # TODO: How to handle this? Just call curplot()?
     if not len(color_fields.intersection(set(kwargs.keys()))):
         kwargs['color'] = get_default_color()
