@@ -69,5 +69,3 @@ sess.plotcontext._dirty = True
 # not so nice.. but set the model doens't know
 # that we appended to children
 sess.store_all()
-import webbrowser
-webbrowser.open("http://localhost:5006/bokeh")
