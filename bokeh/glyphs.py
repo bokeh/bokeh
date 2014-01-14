@@ -55,10 +55,6 @@ class Marker(BaseGlyph, FillProps, LineProps):
     y = DataSpec
     size = DataSpec(units="screen", default=4, min_value=0)
 
-    #fill_pattern = Pattern
-    #shape = Enum("circle", "dot", "square", "tri", "diamond", "x", "+", "char")
-    #char_value = String
-
 class Circle(Marker):
     __view_model__ = "circle"
     radius = DataSpec(units="data", default=4, min_value=0)
@@ -80,7 +76,6 @@ class Circle(Marker):
             del d["radius"]
         elif "radius" in self._changed_vars:
             del d["size"]
-        import pprint; pprint.pprint(d)
         return d
 
 
