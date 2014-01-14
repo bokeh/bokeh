@@ -30,8 +30,15 @@ page.onResourceReceived = function(response) {
     if (response.stage === 'end') {
         var status = response.status;
 
-        // XXX: status is null for file:// protocol
-        if (status && status !== 200) {
+        if (response.url.slice(0, 7) === "file://") {
+            var path = response.url.slice(7);
+
+            if (!fs.exists(path)) {
+                response.status = 404;
+                response.statusText = "NOT FOUND";
+                resources.push(response);
+            }
+        } else if (status && status !== 200) {
             resources.push(response);
         }
     }
