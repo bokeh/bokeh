@@ -85,40 +85,52 @@ define [
   log = (x, base=Math.E) ->
     return Math.log(x) / Math.log(base)
 
-  DESIRED_N_TICKS = 6
+  DEFAULT_DESIRED_N_TICKS = 6
 
   class AbstractScale
     constructor: (@toString_properties=[]) ->
 
-    get_ideal_interval: (data_low, data_high) ->
-      data_range = data_high - data_low
-      return data_range / DESIRED_N_TICKS
+    get_ticks: (data_low, data_high,
+                desired_n_ticks=DEFAULT_DESIRED_N_TICKS) ->
+      return @get_ticks_no_defaults(data_low, data_high, desired_n_ticks)
 
-    get_ticks_for_range: (data_low, data_high) ->
-      interval = @get_interval(data_low, data_high)
+    get_min_interval: () -> @min_interval
+
+    get_max_interval: () -> @max_interval
+
+    toString: () ->
+      # FIXME Should we use typeof() instead of constructor.name?
+      class_name = @constructor.name
+      props = @toString_properties
+      params_str = ("#{key}=#{repr(this[key])}" for key in props).join(", ")
+      return "#{class_name}(#{params_str})"
+
+    min_interval: undefined
+
+    max_interval: undefined
+
+    get_ideal_interval: (data_low, data_high, desired_n_ticks) ->
+      data_range = data_high - data_low
+      return data_range / desired_n_ticks
+
+    get_interval: (data_low, data_high, desired_n_ticks) ->
+      return @get_interval(data_low, data_high, desired_n_ticks)
+
+    get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
+      interval = @get_interval(data_low, data_high, desired_n_ticks)
       start_factor = Math.floor(data_low / interval)
       end_factor   = Math.ceil(data_high / interval)
       factors = arange(start_factor, end_factor + 1)
       ticks = (factor * interval for factor in factors)
       return ticks
 
-    toString: () ->
-      class_name = @constructor.name
-      props = @toString_properties
-      params_str = ("#{key}=#{repr(this[key])}" for key in props).join(", ")
-      return "#{class_name}(#{params_str})"
-
   class SingleIntervalScale extends AbstractScale
     constructor: (@interval) ->
       super(['interval'])
+      @min_interval = @interval
+      @max_interval = @interval
 
-    get_min_interval: () ->
-      return @interval
-
-    get_max_interval: () ->
-      return @interval
-
-    get_interval: (data_low, data_high) ->
+    get_interval: (data_low, data_high, n_desired_ticks) ->
       return @interval
 
   class CompositeScale extends AbstractScale
@@ -129,15 +141,13 @@ define [
       @min_intervals = _.invoke(@scales, 'get_min_interval')
       @max_intervals = _.invoke(@scales, 'get_max_interval')
 
-    get_min_interval: () ->
-      return @min_intervals[0]
+      @min_interval = _.first(@min_intervals)
+      @max_interval =  _.last(@max_intervals)
 
-    get_max_interval: () ->
-      return _.last(@max_intervals)
-
-    get_best_scale: (data_low, data_high) ->
+    get_best_scale: (data_low, data_high, desired_n_ticks) ->
       data_range = data_high - data_low
-      ideal_interval = @get_ideal_interval(data_low, data_high)
+      ideal_interval = @get_ideal_interval(data_low, data_high,
+                                           desired_n_ticks)
       scale_ndxs = [
         _.sortedIndex(@min_intervals, ideal_interval) - 1,
         _.sortedIndex(@max_intervals, ideal_interval)
@@ -145,47 +155,41 @@ define [
       intervals = [@min_intervals[scale_ndxs[0]],
                    @max_intervals[scale_ndxs[1]]]
       errors = intervals.map((interval) ->
-        return Math.abs(DESIRED_N_TICKS - (data_range / interval)))
+        return Math.abs(desired_n_ticks - (data_range / interval)))
 
       best_scale_ndx = scale_ndxs[argmin(errors)]
       best_scale = @scales[best_scale_ndx]
 
-      console.log("Selected #{best_scale}")
-
       return best_scale
 
-    get_interval: (data_low, data_high) ->
-      best_scale = @get_best_scale(data_low, data_high)
-      return best_scale.get_interval(data_low, data_high)
+    get_interval: (data_low, data_high, desired_n_ticks) ->
+      best_scale = @get_best_scale(data_low, data_high, desired_n_ticks)
+      return best_scale.get_interval(data_low, data_high, desired_n_ticks)
 
-    get_ticks_for_range: (data_low, data_high) ->
-      best_scale = @get_best_scale(data_low, data_high)
-      return best_scale.get_ticks_for_range(data_low, data_high)
+    get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
+      best_scale = @get_best_scale(data_low, data_high, desired_n_ticks)
+      return best_scale.get_ticks_no_defaults(data_low, data_high,
+                                              desired_n_ticks)
 
   class AdaptiveScale extends AbstractScale
     constructor: (@mantissas, @base=10.0, @min_magnitude=0.0,
                   @max_magnitude=Infinity)->
       super(['mantissas', 'base', 'min_magnitude', 'max_magnitude'])
 
-      @min_interval = _.first(mantissas) * @min_magnitude
-      @max_interval =  _.last(mantissas) * @max_magnitude
+      @min_interval = _.first(@mantissas) * @min_magnitude
+      @max_interval =  _.last(@mantissas) * @max_magnitude
 
-      prefix_mantissa =  _.last(mantissas) / @base
-      suffix_mantissa = _.first(mantissas) * @base
-      @allowed_mantissas = _.flatten([prefix_mantissa, mantissas,
+      prefix_mantissa =  _.last(@mantissas) / @base
+      suffix_mantissa = _.first(@mantissas) * @base
+      @allowed_mantissas = _.flatten([prefix_mantissa, @mantissas,
                                       suffix_mantissa])
 
       @base_factor = if @min_magnitude == 0.0 then 1.0 else @min_magnitude
 
-    get_min_interval: () ->
-      return @min_interval
-
-    get_max_interval: () ->
-      return @max_interval
-
-    get_interval: (data_low, data_high) ->
+    get_interval: (data_low, data_high, desired_n_ticks) ->
       data_range = data_high - data_low
-      ideal_interval = @get_ideal_interval(data_low, data_high)
+      ideal_interval = @get_ideal_interval(data_low, data_high,
+                                           desired_n_ticks)
 
       interval_exponent = Math.floor(log(ideal_interval / @base_factor, @base))
       ideal_magnitude = Math.pow(@base, interval_exponent) * @base_factor
@@ -197,19 +201,13 @@ define [
       candidate_mantissas = @allowed_mantissas
 
       errors = candidate_mantissas.map((mantissa) ->
-        Math.abs(DESIRED_N_TICKS -
+        Math.abs(desired_n_ticks -
                  (data_range / (mantissa * ideal_magnitude))))
       best_mantissa = candidate_mantissas[argmin(errors)]
 
       interval = best_mantissa * ideal_magnitude
 
-#       console.log("  AS.gi: mantissas = #{candidate_mantissas}")
-#       console.log("            errors = #{errors}")
-#       console.log("          mantissa = #{best_mantissa}")
-#       console.log("         magnitude = #{ideal_magnitude}")
-#       console.log("          interval = #{interval}")
-
-      return clamp(interval, @get_min_interval(), @get_max_interval())
+      return clamp(interval, @min_interval, @max_interval)
 
   copy_date = (date) ->
     return new Date(date.getTime())
@@ -274,7 +272,9 @@ define [
           12 * ONE_MONTH
       super(@typical_interval)
 
-    get_ticks_for_range: (data_low, data_high) ->
+      @toString_properties = ['months']
+
+    get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
       year_dates = date_range_by_year(data_low, data_high)
 
       months = @months
@@ -302,7 +302,7 @@ define [
 
       @toString_properties = ['days']
 
-    get_ticks_for_range: (data_low, data_high) ->
+    get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
       month_dates = date_range_by_month(data_low, data_high)
 
       days = @days
@@ -362,7 +362,7 @@ define [
 
         # Days.
         # (1 day - 14 days)
-        new DaysScale(arange(1, 32)), # FIXME
+        new DaysScale(arange(1, 32)),
         new DaysScale(arange(1, 31, 3)),
         new DaysScale([1, 8, 15, 22]),
         new DaysScale([1, 15]),
