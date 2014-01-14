@@ -783,7 +783,7 @@ def scatter(*args, **kwargs):
     session_objs = []   # The list of objects that need to be added
 
     if "type" in kwargs:
-        print("Keyword argument 'type' of scatter(...) is deprecated; use 'marker' instead.")
+        warnings.warn("Keyword argument 'type' of scatter(...) is deprecated; use 'marker' instead.")
         kwargs.setdefault("marker", kwargs.pop("type"))
 
     ds = kwargs.get("source", None)
