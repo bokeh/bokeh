@@ -26,7 +26,6 @@ from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
 from . import glyphs
 from .palettes import brewer
 
-
 # This is used to accumulate plots generated via the plotting methods in this
 # module.  It is used by build_gallery.py.  To activate this feature, simply
 # set _PLOTLIST to an empty list; to turn it off, set it back to None.
@@ -757,7 +756,7 @@ def scatter(*args, **kwargs):
 
     Style Parameters (specified by keyword)::
 
-        type : a valid marker_type; defaults to "circle"
+        marker : a valid marker_type; defaults to "circle"
         fill_color : color
         fill_alpha : 0.0 - 1.0
         line_color : color
@@ -783,6 +782,10 @@ def scatter(*args, **kwargs):
     """
     session_objs = []   # The list of objects that need to be added
 
+    if "type" in kwargs:
+        print("Keyword argument 'type' of scatter(...) is deprecated; use 'marker' instead.")
+        kwargs.setdefault("marker", kwargs.pop("type"))
+
     ds = kwargs.get("source", None)
     names, datasource = _handle_1d_data_args(args, datasource=ds)
     if datasource != ds:
@@ -790,7 +793,7 @@ def scatter(*args, **kwargs):
 
     # If hold is on, then we will reuse the ranges of the current plot
     #plot = get_plot(kwargs)
-    markertype = kwargs.get("type", "circle")
+    markertype = kwargs.get("marker", "circle")
     x_name = names[0]
 
     # TODO: How to handle this? Just call curplot()?
