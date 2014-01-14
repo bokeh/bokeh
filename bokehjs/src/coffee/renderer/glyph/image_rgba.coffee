@@ -13,7 +13,7 @@ define [
     _properties: []
 
     _set_data: (@data) ->
-      for i in [0..@y.length-1]
+      for i in [0...@y.length]
         @y[i] += @dh[i]
 
       if not @image_data? or @image_data.length != data.length
@@ -22,7 +22,7 @@ define [
       if not @image_canvas? or @image_canvas.length != data.length
         @image_canvas = new Array(@image.length)
 
-      for i in [0..@image.length-1]
+      for i in [0...@image.length]
         if not @image_canvas[i]? or (@image_canvas[i].width != @width[i] or @image_canvas[i].height != @height[i])
           @image_canvas[i] = document.createElement('canvas')
           @image_canvas[i].width = @width[i];

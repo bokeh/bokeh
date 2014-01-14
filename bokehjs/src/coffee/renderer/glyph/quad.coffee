@@ -14,7 +14,7 @@ define [
     _set_data: () ->
       @index = rbush()
       @index.load(
-        ([@left[i], @bottom[i], @right[i], @top[i], {'i': i}] for i in [0..@left.length-1])
+        ([@left[i], @bottom[i], @right[i], @top[i], {'i': i}] for i in [0...@left.length])
       )
 
     _map_data: () ->

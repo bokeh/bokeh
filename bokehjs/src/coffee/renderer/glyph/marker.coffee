@@ -29,7 +29,7 @@ define [
       @max_size = _.max(@size)
       @index = rbush()
       @index.load(
-        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0..@x.length-1])
+        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0...@x.length])
       )
 
     _map_data: () ->
@@ -64,7 +64,7 @@ define [
       candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
       hits = []
-      for i in [0..candidates.length-1]
+      for i in [0...candidates.length]
         s2 = @size[i]/2
         if Math.abs(@sx[i]-sx) <= s2 and Math.abs(@sy[i]-sy) <= s2
           hits.push(i)

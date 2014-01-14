@@ -15,7 +15,7 @@ define [
       width = @plot_view.view_state.get('width')
       height = @plot_view.view_state.get('height')
       inf_len = 2 * (width + height)
-      for i in [0..@length.length-1]
+      for i in [0...@length.length]
         if @length[i] == 0 then @length[i] = inf_len
 
     _render: (ctx, indices, glyph_props) ->
