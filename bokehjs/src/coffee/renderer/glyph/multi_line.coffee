@@ -22,7 +22,7 @@ define [
         [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
 
         glyph_props.line_properties.set_vectorize(ctx, i)
-        for j in [0..sx.length-1]
+        for j in [0...sx.length]
           if j == 0
             ctx.beginPath()
             ctx.moveTo(sx[j], sy[j])

@@ -52,7 +52,7 @@ define [
         # special cases
         if field == "direction"
           values = new Uint8Array(@direction.length)
-          for i in [0..@direction.length-1]
+          for i in [0...@direction.length]
             dir = @direction[i]
             if      dir == 'clock'     then values[i] = false
             else if dir == 'anticlock' then values[i] = true
@@ -69,7 +69,7 @@ define [
       # just use the length of the last added field
       len = @[field].length
 
-      @all_indices = [0..len-1]
+      @all_indices = [0...len]
 
       @have_new_data = true
 
@@ -158,19 +158,19 @@ define [
         ptc = @glyph_props.v_select(pt, data)
         if pt_units == 'screen'
           ptc = mapper.v_map_from_target(ptc)
-        pt0 = (ptc[i] - halfspan[i] for i in [0..ptc.length-1])
-        pt1 = (ptc[i] + halfspan[i] for i in [0..ptc.length-1])
+        pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
+        pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
 
       else
         pt0 = @glyph_props.v_select(pt, data)
         if pt_units == 'screen'
           pt0 = mapper.v_map_from_target(pt0)
-        pt1 = (pt0[i] + span[i] for i in [0..pt0.length-1])
+        pt1 = (pt0[i] + span[i] for i in [0...pt0.length])
 
       spt0 = mapper.v_map_to_target(pt0)
       spt1 = mapper.v_map_to_target(pt1)
 
-      return (Math.abs(spt1[i] - spt0[i]) for i in [0..spt0.length-1])
+      return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
 
     distance_vector: (pt, span_prop_name, position) ->
       """ returns an array """ #"
@@ -195,19 +195,19 @@ define [
         ptc = local_select(pt)
         if pt_units == 'screen'
           ptc = mapper.v_map_from_target(ptc)
-        pt0 = (ptc[i] - halfspan[i] for i in [0..ptc.length-1])
-        pt1 = (ptc[i] + halfspan[i] for i in [0..ptc.length-1])
+        pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
+        pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
 
       else
         pt0 = local_select(pt)
         if pt_units == 'screen'
           pt0 = mapper.v_map_from_target(pt0)
-        pt1 = (pt0[i] + span[i] for i in [0..pt0.length-1])
+        pt1 = (pt0[i] + span[i] for i in [0...pt0.length])
 
       spt0 = mapper.v_map_to_target(pt0)
       spt1 = mapper.v_map_to_target(pt1)
 
-      return (Math.abs(spt1[i] - spt0[i]) for i in [0..spt0.length-1])
+      return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
 
     get_reference_point: () ->
       reference_point = @mget('reference_point')

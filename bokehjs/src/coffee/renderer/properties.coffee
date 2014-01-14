@@ -39,7 +39,7 @@ define [
         #do a better job for constant propagation
         #for some reason a list comprehension fails here
         retval = []
-        for i in [0..datasource.get_length()-1]
+        for i in [0...datasource.get_length()]
           retval.push(default_value)
         return retval
 
@@ -231,7 +231,7 @@ define [
       else
         result = new Array(objs.length)
 
-      for i in [0..objs.length-1]
+      for i in [0...objs.length]
 
         obj = objs[i]
 
@@ -404,7 +404,7 @@ define [
       font_size    = @source_v_select(@text_font_size_name, datasource)
       font         = @source_v_select(@text_font_name, datasource)
       font_style   = @source_v_select(@text_font_style_name, datasource)
-      @cache.font  = ( "#{font_style[i]} #{font_size[i]} #{font[i]}" for i in [0..font.length-1] )
+      @cache.font  = ( "#{font_style[i]} #{font_size[i]} #{font[i]}" for i in [0...font.length] )
       @cache.fillStyle    = @source_v_select(@text_color_name, datasource)
       @cache.globalAlpha  = @source_v_select(@text_alpha_name, datasource)
       @cache.textAlign    = @source_v_select(@text_align_name, datasource)
