@@ -172,19 +172,16 @@ define [
                                               desired_n_ticks)
 
   class AdaptiveScale extends AbstractScale
-    constructor: (@mantissas, @base=10.0, @min_magnitude=0.0,
-                  @max_magnitude=Infinity)->
+    constructor: (@mantissas, @base=10.0, @min_interval=0.0,
+                  @max_interval=Infinity)->
       super(['mantissas', 'base', 'min_magnitude', 'max_magnitude'])
-
-      @min_interval = _.first(@mantissas) * @min_magnitude
-      @max_interval =  _.last(@mantissas) * @max_magnitude
 
       prefix_mantissa =  _.last(@mantissas) / @base
       suffix_mantissa = _.first(@mantissas) * @base
-      @allowed_mantissas = _.flatten([prefix_mantissa, @mantissas,
-                                      suffix_mantissa])
+      @extended_mantissas = _.flatten([prefix_mantissa, @mantissas,
+                                       suffix_mantissa])
 
-      @base_factor = if @min_magnitude == 0.0 then 1.0 else @min_magnitude
+      @base_factor = if @min_interval == 0.0 then 1.0 else @min_interval
 
     get_interval: (data_low, data_high, desired_n_ticks) ->
       data_range = data_high - data_low
@@ -196,9 +193,9 @@ define [
       ideal_mantissa = ideal_interval / ideal_magnitude
 
       # An untested optimization.
-#       index = _.sortedIndex(@allowed_mantissas, ideal_mantissa)
-#       candidate_mantissas = @allowed_mantissas[index..index + 1]
-      candidate_mantissas = @allowed_mantissas
+#       index = _.sortedIndex(@extended_mantissas, ideal_mantissa)
+#       candidate_mantissas = @extended_mantissas[index..index + 1]
+      candidate_mantissas = @extended_mantissas
 
       errors = candidate_mantissas.map((mantissa) ->
         Math.abs(desired_n_ticks -
@@ -331,7 +328,7 @@ define [
 
       return ticks_in_range
 
-  HUNDRED_MILLIS = 100.0
+  ONE_MILLI = 1.0
   ONE_SECOND = 1000.0
   ONE_MINUTE = 60.0 * ONE_SECOND
   ONE_HOUR = 60 * ONE_MINUTE
@@ -347,36 +344,29 @@ define [
     constructor: () ->
       super([
         # Sub-second.
-        # (0 - 500 ms)
-        new AdaptiveScale([1.0, 2.0, 5.0], 10.0, 0.0, HUNDRED_MILLIS),
+        new AdaptiveScale([1, 2, 5], 10, 0, 500 * ONE_MILLI),
 
         # Seconds, minutes.
-        # (1 s - 30 min)
-        new AdaptiveScale([1.0, 2.0, 5.0, 10.0, 15.0, 20.0, 30.0], 60.0,
-                          ONE_SECOND, ONE_MINUTE),
+        new AdaptiveScale([1, 2, 5, 10, 15, 20, 30], 60,
+                          ONE_SECOND, 30 * ONE_MINUTE),
 
         # Hours.
-        # (1 hr - 12 hr)
-        new AdaptiveScale([1.0, 2.0, 4.0, 6.0, 8.0, 12.0], 24.0,
-                          ONE_HOUR, ONE_HOUR),
+        new AdaptiveScale([1, 2, 4, 6, 8, 12], 24.0, ONE_HOUR, 12 * ONE_HOUR),
 
         # Days.
-        # (1 day - 14 days)
         new DaysScale(arange(1, 32)),
         new DaysScale(arange(1, 31, 3)),
         new DaysScale([1, 8, 15, 22]),
         new DaysScale([1, 15]),
 
         # Months.
-        # (1 month - 6 months)
         new MonthsScale(arange(0, 12)),
         new MonthsScale(arange(0, 12, 2)),
         new MonthsScale(arange(0, 12, 4)),
         new MonthsScale(arange(0, 12, 6)),
 
         # Catchall for large timescales.
-        # (1 year - infinity)
-        new AdaptiveScale([1.0, 2.0, 5.0], 10.0, ONE_YEAR, Infinity),
+        new AdaptiveScale([1, 2, 5], 10, ONE_YEAR, Infinity),
       ])
 
   class BasicTickFormatter
