@@ -15,7 +15,7 @@ colors = ["FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8", "#253494", "#2C7
 
 cx = cy = np.zeros_like(rmin)
 
-output_server("animated.py example")
+output_server("animated")
 
 hold()
 

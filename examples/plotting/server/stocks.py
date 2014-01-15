@@ -4,8 +4,7 @@ import numpy as np
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import *
 
-
-output_server("stocks.py examples")
+output_server("stocks")
 
 hold()
 

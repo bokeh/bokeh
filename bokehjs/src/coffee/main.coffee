@@ -17,6 +17,10 @@ require.config
 
 define (require, exports, module) ->
 
+  if not window.Float64Array
+    console.warn("Float64Array is not supported. Using generic Array instead.")
+    window.Float64Array = Array
+
   Bokeh = {}
 
   Bokeh.version = '0.3.0'

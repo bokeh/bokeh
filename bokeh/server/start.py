@@ -55,7 +55,7 @@ def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True):
     else:
         bokeh_app.bokehjsdir = join(dirname(__file__), 'static')
         bokeh_app.bokehjssrcdir = None
-                             
+
 def make_default_user(bokeh_app):
     docid = "defaultdoc"
     bokehuser = user.new_user(bokeh_app.model_redis, "defaultuser",
@@ -97,7 +97,7 @@ def start_app(verbose=False):
     http_server = WSGIServer(('', PORT), app,
                              handler_class=WebSocketHandler,
                              )
-    print("\nStarting Bokeh plot server on port %d..." % PORT)
+    print("Starting Bokeh plot server on port %d..." % PORT)
     print("View http://localhost:%d/bokeh to see plots\n" % PORT)
     http_server.serve_forever()
 

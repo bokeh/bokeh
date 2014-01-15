@@ -10,7 +10,7 @@ N = 80
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_server("rect.py example")
+output_server("rect")
 
 # fixed width and height
 rect(x, y, 4, 2, width_units="screen", height_units="screen", color="#ff0000", tools="pan,wheel_zoom,save,resize")

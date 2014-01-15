@@ -1,8 +1,11 @@
 from __future__ import print_function
 
+import sys
+import os.path
+import requests
+
 from numpy import pi, arange, sin, cos
 import numpy as np
-import os.path
 
 from bokeh.objects import (Plot, DataRange1d, Range1d, LinearAxis, Grid,
         ColumnDataSource, Glyph, PanTool,
@@ -44,28 +47,26 @@ ygrid = Grid(plot=plot, dimension=1)
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,wheelzoomtool]
 
-import requests, sys
-demo_name = "line"
+demo_name = "line2"
 if len(sys.argv) > 1 and sys.argv[1] == "server":
     try:
-        sess = session.PlotServerSession(username="defaultuser",
-                serverloc="http://localhost:5006", userapikey="nokey")
-        sess.use_doc(demo_name)
-    except requests.exceptions.ConnectionError as e:
-        print(e)
-        print("\nThe 'server' version of this example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'.\n")
-        sys.exit()
+        sess = session.PlotServerSession(
+            serverloc="http://localhost:5006",
+            username="defaultuser",
+            userapikey="nokey")
+    except requests.exceptions.ConnectionError:
+        print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
+        sys.exit(1)
 
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, wheelzoomtool)
+    sess.use_doc(demo_name)
+    sess.add(plot, recursive=True)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
     sess.store_all()
     print("Stored to document", demo_name)
 else:
-    filename = demo_name + ".html"
-    sess = session.HTMLFileSession(filename)
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, wheelzoomtool)
+    sess = session.HTMLFileSession(demo_name + ".html")
+    sess.add(plot, recursive=True)
     sess.plotcontext.children.append(plot)
-    sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-    print("Wrote", filename)
-
+    sess.save(js="absolute", css="absolute")
+    print("Wrote %s" % sess.filename)

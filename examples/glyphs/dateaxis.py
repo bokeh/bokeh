@@ -44,16 +44,12 @@ wheelzoomtool = WheelZoomTool(dataranges=[xdr, ydr], dimensions=("width", "heigh
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool, wheelzoomtool]
 
-FILENAME = __file__.replace(".py", ".html")
-sess = session.HTMLFileSession(FILENAME)
-sess.add(plot, glyph_renderer, source, xaxis, yaxis, xdr, ydr, pantool, wheelzoomtool)
+sess = session.HTMLFileSession("dateaxis.html")
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
-sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-sess.dumpjson(file=__file__.replace(".py", ".json"))
-print("Wrote " + FILENAME)
-try:
-    import webbrowser
+sess.save(js="absolute", css="absolute")
+sess.dumpjson(file="dateaxis.json")
+print("Wrote %s" % sess.filename)
 
-    webbrowser.open("file://" + os.path.abspath(FILENAME))
-except:
-    pass
+if __name__ == "__main__":
+    sess.view()

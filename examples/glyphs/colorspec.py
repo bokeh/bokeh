@@ -3,9 +3,8 @@ from __future__ import print_function
 """ Demonstrates data-dependent color """
 
 import os.path
-from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, Glyph,
-        PanTool, WheelZoomTool)
+from bokeh.objects import (Plot, DataRange1d, LinearAxis,
+    ColumnDataSource, Glyph, PanTool, WheelZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
 
@@ -25,11 +24,11 @@ circle = Circle(x="x", y="y", radius=5,
     # datasource.  If the field is missing, then the default value is
     # used. Since no explicit default is provided, this picks up the
     # default in FillProps, which is "gray".
-    fill_color="color", 
-    
+    fill_color="color",
+
     # An alternative form that explicitly sets a default value:
     #fill_color={"default": "red", "field": "color"},
-    
+
     # Note that line_color is set to a fixed value. This can be any of
     # the SVG named 147 colors, or a hex color string starting with "#",
     # or a string "rgb(r,g,b)" or "rgba(r,g,b,a)".
@@ -55,15 +54,11 @@ wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,wheelzoomtool]
 
-FILENAME="colorspec.html"
-
-sess = session.HTMLFileSession(FILENAME)
-sess.add(plot, glyph_renderer, xaxis, yaxis, source, xdr, ydr, pantool, wheelzoomtool)
+sess = session.HTMLFileSession("colorspec.html")
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
-sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-print("Wrote " + FILENAME)
-try:
-    import webbrowser
-    webbrowser.open("file://" + os.path.abspath(FILENAME))
-except:
-    pass
+sess.save(js="absolute", css="absolute")
+print("Wrote %s" % sess.filename)
+
+if __name__ == "__main__":
+    sess.view()

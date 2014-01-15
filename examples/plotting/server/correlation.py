@@ -5,7 +5,7 @@ import time
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import *
 
-output_server("correlation.py example")
+output_server("correlation")
 
 hold()
 
