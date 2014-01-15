@@ -427,8 +427,8 @@ define [
       if ctx.textAlign != @cache.textAlign[i]
         ctx.textAlign = @cache.textAlign[i]
         did_change = true
-      if ctx.textAlign != @cache.textAlign[i]
-        ctx.textAlign = @cache.textAlign[i]
+      if ctx.textBaseline != @cache.textBaseline[i]
+        ctx.textBaseline = @cache.textBaseline[i]
         did_change = true
 
       return did_change
