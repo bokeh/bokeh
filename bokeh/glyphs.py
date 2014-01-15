@@ -212,7 +212,7 @@ class Quad(BaseGlyph, FillProps, LineProps):
     bottom = DataSpec
     top = DataSpec
 
-class Quadratic(BaseGlyph, FillProps, LineProps):
+class Quadratic(BaseGlyph, LineProps):
     __view_model__ = 'quadratic'
     x0 = DataSpec
     y0 = DataSpec
