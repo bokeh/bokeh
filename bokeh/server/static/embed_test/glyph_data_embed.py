@@ -3,7 +3,7 @@ import os
 
 from bokeh.sampledata.iris import flowers
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, ZoomTool
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, WheelZoomTool
 )
 from bokeh.glyphs import Circle
 from bokeh import session
@@ -12,9 +12,8 @@ from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
 
-from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, Glyph, ObjectArrayDataSource,
-        PanTool, ZoomTool)
+from bokeh.objects import (Plot, DataRange1d, LinearAxis,
+        ColumnDataSource, Glyph, PanTool)
 from bokeh.glyphs import Circle
 from bokeh import session
 
@@ -54,7 +53,7 @@ xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+zoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,zoomtool]
@@ -67,9 +66,8 @@ from numpy import pi, arange, sin, cos
 import numpy as np
 import os.path
 
-from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ObjectArrayDataSource, ColumnDataSource, Glyph,
-        PanTool, ZoomTool)
+from bokeh.objects import (Plot, DataRange1d, LinearAxis,
+        ColumnDataSource, Glyph, PanTool, ZoomTool, WheelZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
 
@@ -94,13 +92,13 @@ renderer = Glyph(
         glyph = line_glyph
         )
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], 
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border=50)
 xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
 yaxis = LinearAxis(plot=plot, dimension=1, location="left")
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+zoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot.renderers.append(renderer)
 plot.tools = [pantool, zoomtool]
@@ -119,8 +117,8 @@ html  = '''
   <head>
     <meta charset="utf-8">
 
-<!--    <script 
-       type="text/javascript" 
+<!--    <script
+       type="text/javascript"
        src="http://localhost:5006/bokeh/static/js/application.js"></script>
 -->
   </head>
