@@ -247,7 +247,7 @@ class Text(BaseGlyph, TextProps):
     __view_model__ = "text"
     x = DataSpec
     y = DataSpec
-    text = String
+    text = DataSpec
     angle = DataSpec
 
 class Wedge(BaseGlyph, FillProps, LineProps):
