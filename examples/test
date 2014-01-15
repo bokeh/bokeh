@@ -3,6 +3,7 @@
 from __future__ import print_function
 
 import os
+import sys
 import json
 import fnmatch
 import argparse
@@ -13,11 +14,11 @@ import colorama
 colorama.init()
 
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
-parser.add_argument("patterns", type=str, nargs="*", 
+parser.add_argument("patterns", type=str, nargs="*",
                     help="select a subset of examples to test")
-parser.add_argument("-p", "--port", type=int, default=5006, 
+parser.add_argument("-p", "--port", type=int, default=5006,
                     help="port on which Bokeh server resides")
-parser.add_argument("-v", "--verbose", action="store_true", default=False, 
+parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
 args = parser.parse_args()
 
@@ -55,6 +56,10 @@ plotting_server_dir = os.path.join("plotting", "server")
 plotting_server_excludes = set(["animated.py", "line_animate.py"])
 add_examples(plotting_server_dir, plotting_server_excludes, server=True)
 
+def warn(msg=None):
+    msg = " " + msg if msg is not None else ""
+    print("%s[WARN]%s%s" % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL, msg))
+
 def fail(msg=None):
     msg = " " + msg if msg is not None else ""
     print("%s[FAIL]%s%s" % (colorama.Fore.RED, colorama.Style.RESET_ALL, msg))
@@ -66,71 +71,90 @@ def ok(msg=None):
 env = os.environ.copy()
 env['BOKEH_BROWSER'] = 'dummy'
 
-for example, is_server in sorted(examples):
-    if not is_selected(example):
-        continue
+selected_examples = [ (example, is_server) for (example, is_server) in examples if is_selected(example) ]
 
-    print("Testing %s ..." % example)
+num_examples = len(selected_examples)
+run_examples = 0
+ok_examples = 0
 
-    cwd = os.path.dirname(example)
-    module = os.path.splitext(os.path.basename(example))[0]
+try:
+    for example, is_server in sorted(selected_examples):
+        print("%s>>>%s Testing %s ..." % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL, example))
 
-    proc = subprocess.Popen(["python", "-c", "import %s" % module], cwd=cwd, env=env)
-    code = proc.wait()
+        cwd = os.path.dirname(example)
+        module = os.path.splitext(os.path.basename(example))[0]
 
-    if code == 0:
-        no_ext = os.path.splitext(os.path.abspath(example))[0]
-
-        png_file = no_ext + '.png'
-        html_file = no_ext + '.html'
-
-        server_tmpl = 'http://localhost:%d/bokeh/doc/%s/show'
-        if is_server:
-            url = server_tmpl  % (args.port, os.path.basename(no_ext))
-        else:
-            url = 'file://' + html_file
-
-        proc = subprocess.Popen(
-            ["phantomjs", "test.js", url, png_file], stdout=subprocess.PIPE)
+        proc = subprocess.Popen(["python", "-c", "import %s" % module], cwd=cwd, env=env)
         code = proc.wait()
 
-        result = json.loads(proc.stdout.read())
+        if code == 0:
+            no_ext = os.path.splitext(os.path.abspath(example))[0]
 
-        status = result['status']
-        errors = result['errors']
-        messages = result['messages']
-        resources = result['resources']
+            png_file = no_ext + '.png'
+            html_file = no_ext + '.html'
 
-        if status == 'fail':
-            fail("failed to load %s" % url)
-        else:
-            if args.verbose:
-                for message in messages:
-                    msg = message['msg']
-                    line = message.get('line')
-                    source = message.get('source')
-
-                    if source is None:
-                        print(msg)
-                    elif line is None:
-                        print("%s: %s" % (source, msg))
-                    else:
-                        print("%s:%s: %s" % (source, line, msg))
-
-            if resources or errors:
-                for resource in resources:
-                    print("%s: %s (%s)" % (
-                        resource['url'], resource['status'], resource['statusText']))
-
-                for error in errors:
-                    print(error['msg'])
-
-                    for item in error['trace']:
-                        print("    %s: %d" % (item['file'], item['line']))
-                fail()
+            server_tmpl = 'http://localhost:%d/bokeh/doc/%s/show'
+            if is_server:
+                url = server_tmpl  % (args.port, os.path.basename(no_ext))
             else:
-                ok()
-    else:
-        fail()
+                url = 'file://' + html_file
 
-    print()
+            proc = subprocess.Popen(
+                ["phantomjs", "test.js", url, png_file], stdout=subprocess.PIPE)
+            code = proc.wait()
+
+            result = json.loads(proc.stdout.read())
+
+            status = result['status']
+            errors = result['errors']
+            messages = result['messages']
+            resources = result['resources']
+
+            if status == 'fail':
+                fail("failed to load %s" % url)
+            else:
+                if args.verbose:
+                    for message in messages:
+                        msg = message['msg']
+                        line = message.get('line')
+                        source = message.get('source')
+
+                        if source is None:
+                            print(msg)
+                        elif line is None:
+                            print("%s: %s" % (source, msg))
+                        else:
+                            print("%s:%s: %s" % (source, line, msg))
+
+                if resources or errors:
+                    for resource in resources:
+                        print("%s: %s (%s)" % (
+                            resource['url'], resource['status'], resource['statusText']))
+
+                    for error in errors:
+                        print(error['msg'])
+
+                        for item in error['trace']:
+                            print("    %s: %d" % (item['file'], item['line']))
+                    fail()
+                else:
+                    ok_examples += 1
+                    ok()
+        else:
+            fail()
+
+        run_examples += 1
+        print()
+except KeyboardInterrupt:
+    print("%sINTERRUPTED%s" % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL))
+
+if ok_examples != num_examples:
+    if run_examples == num_examples:
+        fail("FIX FAILURES AND RUN AGAIN")
+    else:
+        warn("NOT ALL EXAMPLES WERE RUN")
+
+    sys.exit(1)
+else:
+    ok("ALL TESTS PASS")
+    sys.exit(0)
