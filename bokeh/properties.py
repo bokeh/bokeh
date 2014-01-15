@@ -855,7 +855,7 @@ class LineProps(HasProps):
 
 class TextProps(HasProps):
     """ Mirrors the BokehJS properties.text_properties class """
-    text_font = String
+    text_font = String("Helvetica")
     text_font_size = String("10pt")
     text_font_style = Enum("normal", "italic", "bold")
     text_color = ColorSpec("black")
