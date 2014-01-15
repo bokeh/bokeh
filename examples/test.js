@@ -38,7 +38,7 @@ page.onResourceReceived = function(response) {
                 response.statusText = "NOT FOUND";
                 resources.push(response);
             }
-        } else if (status && status !== 200) {
+        } else if (status && status >= 400) {
             resources.push(response);
         }
     }
