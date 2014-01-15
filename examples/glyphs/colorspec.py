@@ -19,7 +19,7 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", radius=5,
+circle = Circle(x="x", y="y", size=15,
     # Set the fill color to be dependent on the "color" field of the
     # datasource.  If the field is missing, then the default value is
     # used. Since no explicit default is provided, this picks up the

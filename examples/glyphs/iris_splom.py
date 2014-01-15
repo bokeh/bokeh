@@ -29,7 +29,7 @@ source = ColumnDataSource(
 )
 
 text_source = ColumnDataSource(
-    data=dict(center=[125])
+    data=dict(xcenter=[125], ycenter=[145])
 )
 
 xdr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
@@ -48,7 +48,7 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         yaxis = LinearAxis(plot=plot, dimension=1, location="left")
     xgrid = Grid(plot=plot, dimension=0)
     ygrid = Grid(plot=plot, dimension=1)
-    circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, radius=2, line_color="color")
+    circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
     circle_renderer = Glyph(
         data_source = source,
         xdata_range = xdr,
@@ -60,8 +60,8 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
     if text:
         text = " ".join(text.split('_'))
         text = Text(
-            x={'field':'center', 'units':'screen'},
-            y={'field':'center', 'units':'screen'},
+            x={'field':'xcenter', 'units':'screen'},
+            y={'field':'ycenter', 'units':'screen'},
             text=text, angle=pi/4, text_font_style="bold", text_baseline="top",
             text_color="#ffaaaa", text_alpha=0.5, text_align="center", text_font_size="28pt")
         text_renderer = Glyph(
@@ -74,14 +74,15 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         plot.renderers.append(text_renderer)
     return plot
 
-attrs = ["petal_length", "petal_width", "sepal_width", "sepal_length"]
+xattrs = ["petal_length", "petal_width", "sepal_width", "sepal_length"]
+yattrs = list(reversed(xattrs))
 plots = []
 
-for y in attrs:
+for y in yattrs:
     row = []
-    for x in attrs:
-        xax = (y == attrs[-1])
-        yax = (x == attrs[0])
+    for x in xattrs:
+        xax = (y == yattrs[-1])
+        yax = (x == xattrs[0])
         text = x if (x==y) else None
         plot = make_plot(x, y, xax, yax, text)
         row.append(plot)

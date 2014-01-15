@@ -26,7 +26,7 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length")])
 ydr = DataRange1d(sources=[source.columns("petal_width")])
 
-circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, radius=5, line_color="color")
+circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, size=10, line_color="color")
 
 glyph_renderer = Glyph(
         data_source = source,

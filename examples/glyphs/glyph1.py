@@ -20,7 +20,7 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("x")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="x", y="y", fill_color="red", radius=5, line_color="black")
+circle = Circle(x="x", y="y", fill_color="red", size=5, line_color="black")
 
 glyph_renderer = Glyph(
         data_source = source,

@@ -61,7 +61,7 @@ def make_plot(name, glyph):
 make_plot('annular_wedge', AnnularWedge(x="x", y="y", inner_radius=0.2, outer_radius=0.5, start_angle=0.8, end_angle=3.8))
 make_plot('annulus', Annulus(x="x", y="y", inner_radius=0.2, outer_radius=0.5))
 make_plot('arc', Arc(x="x", y="y", radius=0.4, start_angle=0.8, end_angle=3.8))
-make_plot('circle', Circle(x="x", y="y", radius=5))
+make_plot('circle', Circle(x="x", y="y", radius=1))
 make_plot('oval', Oval(x="x", y="y", width=0.5, height=0.8, angle=-0.6))
 make_plot('ray', Ray(x="x", y="y", length=25, angle=0.6))
 make_plot('rect', Rect(x="x", y="y", width=0.5, height=0.8, angle=-0.6))

@@ -53,7 +53,7 @@ circle_renderer = Glyph(
         data_source = source,
         xdata_range = x_range,
         ydata_range = y_range,
-        glyph = Circle(x="lon", y="lat", fill_color="fill", radius=8,
+        glyph = Circle(x="lon", y="lat", fill_color="fill", size=15,
                 radius_units="screen", line_color="black")
         )
 plot.data_sources.append(source)
