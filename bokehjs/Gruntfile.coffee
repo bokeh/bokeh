@@ -172,6 +172,11 @@ module.exports = (grunt) ->
         tasks: ['less']
         options:
           spawn: false
+      eco:
+        files: ["<%= eco.app.files[0].cwd %>/<%= eco.app.files[0].src %>"]
+        tasks: ['eco']
+        options:
+          spawn: false
 
     qunit:
       all:
