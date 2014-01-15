@@ -67,7 +67,7 @@ def make_plot(title, xname, yname):
         data_source = circles_source,
         xdata_range = xdr,
         ydata_range = ydr,
-        glyph = Circle(x=xname, y=yname, radius=6, fill_color="#cc6633",
+        glyph = Circle(x=xname, y=yname, size=12, fill_color="#cc6633",
                        line_color="#cc6633", fill_alpha=0.5),
     )
     plot.renderers.append(circle_renderer)
