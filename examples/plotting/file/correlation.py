@@ -20,9 +20,7 @@ acme = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 choam = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 
 scatter(
-    acme, choam,
-    color='#A6CEE3', radius=3,
-    tools="pan,wheel_zoom,resize", legend='close',
+    acme, choam, color='#A6CEE3', tools="pan,wheel_zoom,resize", legend='close',
 )
 
 curplot().title = "ACME / CHOAM Correlations"

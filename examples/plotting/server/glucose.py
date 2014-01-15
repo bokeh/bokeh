@@ -30,9 +30,9 @@ line(day.index.astype('int64')/1000000, day['glucose'],
      line_color="gray", line_dash="4 4", line_width=2,
      legend="glucose", tools="pan,wheel_zoom,resize")
 scatter(highs.index.astype('int64')/1000000, highs['glucose'],
-        color='tomato', radius=4, legend="high")
+        color='tomato', legend="high")
 scatter(lows.index.astype('int64')/1000000, lows['glucose'],
-        color='navy', radius=4, legend="low")
+        color='navy', legend="low")
 
 curplot().title = "Glucose Range"
 xgrid()[0].grid_line_color=None
