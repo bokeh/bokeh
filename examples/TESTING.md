@@ -2,8 +2,9 @@ Automated testing of examples
 =============================
 
 1. Install PhantomJS (see http://phantomjs.org/download.html)
-2. Start bokeh-server in another terminal
-3. Run ./test
+2. Start `bokeh-server` in another terminal
+3. Start `ipython notebook` in `examples/plotting/notebook`
+4. Run `./test`
 
 Example output
 --------------

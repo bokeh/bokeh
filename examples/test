@@ -16,8 +16,10 @@ colorama.init()
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
 parser.add_argument("patterns", type=str, nargs="*",
                     help="select a subset of examples to test")
-parser.add_argument("-p", "--port", type=int, default=5006,
+parser.add_argument("-p", "--bokeh-port", type=int, default=5006,
                     help="port on which Bokeh server resides")
+parser.add_argument("-n", "--notebook-port", type=int, default=8888,
+                    help="port on which IPython Notebook server resides")
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
 args = parser.parse_args()
@@ -34,27 +36,29 @@ def is_selected(example):
 
 examples = []
 
-def add_examples(examples_dir, excludes=set([]), server=False):
-    for file in os.listdir(examples_dir):
-        if not file.startswith('__') and file.endswith(".py") and file not in excludes:
-            if isinstance(server, set):
-                is_server = file in server
-            else:
-                is_server = server
+def add_examples(examples_dir, includes=set([]), excludes=set([]), etype='file'):
+    ext = '.ipynb' if etype == 'notebook' else '.py'
 
-            examples.append((os.path.join(examples_dir, file), is_server))
+    for file in includes or os.listdir(examples_dir):
+        if not file.startswith('__') and file.endswith(ext) and file not in excludes:
+            examples.append((os.path.join(examples_dir, file), etype))
 
 glyphs_dir = os.path.join("glyphs")
 glyphs_server = set(["data_select_tool.py", "glyph2.py", "maps.py", "prim.py"])
 glyphs_excludes = set(["line_animate.py"])
-add_examples(glyphs_dir, glyphs_excludes, server=glyphs_server)
+add_examples(glyphs_dir, excludes=glyphs_excludes|glyphs_server, etype='file')
+add_examples(glyphs_dir, includes=glyphs_server, etype='server')
 
 plotting_file_dir = os.path.join("plotting", "file")
-add_examples(plotting_file_dir, server=False)
+add_examples(plotting_file_dir, etype='file')
 
 plotting_server_dir = os.path.join("plotting", "server")
 plotting_server_excludes = set(["animated.py", "line_animate.py"])
-add_examples(plotting_server_dir, plotting_server_excludes, server=True)
+add_examples(plotting_server_dir, excludes=plotting_server_excludes, etype='server')
+
+plotting_notebook_dir = os.path.join("plotting", "notebook")
+plotting_notebook_excludes = set(["animated.ipynb"])
+add_examples(plotting_notebook_dir, excludes=plotting_notebook_excludes, etype='notebook')
 
 def warn(msg=None):
     msg = " " + msg if msg is not None else ""
@@ -71,36 +75,41 @@ def ok(msg=None):
 env = os.environ.copy()
 env['BOKEH_BROWSER'] = 'dummy'
 
-selected_examples = [ (example, is_server) for (example, is_server) in examples if is_selected(example) ]
+selected_examples = [ (example, etype) for (example, etype) in examples if is_selected(example) ]
 
 num_examples = len(selected_examples)
 run_examples = 0
 ok_examples = 0
 
 try:
-    for example, is_server in sorted(selected_examples):
+    for example, etype in sorted(selected_examples):
         print("%s>>>%s Testing %s ..." % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL, example))
 
-        cwd = os.path.dirname(example)
-        module = os.path.splitext(os.path.basename(example))[0]
+        if etype != 'notebook':
+            cwd = os.path.dirname(example)
+            module = os.path.splitext(os.path.basename(example))[0]
 
-        proc = subprocess.Popen(["python", "-c", "import %s" % module], cwd=cwd, env=env)
-        code = proc.wait()
+            proc = subprocess.Popen(["python", "-c", "import %s" % module], cwd=cwd, env=env)
+            code = proc.wait()
 
-        if code == 0:
+        if etype == 'notebook' or code == 0:
             no_ext = os.path.splitext(os.path.abspath(example))[0]
 
             png_file = no_ext + '.png'
             html_file = no_ext + '.html'
 
-            server_tmpl = 'http://localhost:%d/bokeh/doc/%s/show'
-            if is_server:
-                url = server_tmpl  % (args.port, os.path.basename(no_ext))
-            else:
+            server_url = 'http://localhost:%d/bokeh/doc/%s/show'
+            notebook_url = 'http://localhost:%d/notebooks/%s.ipynb'
+
+            if etype == 'server':
+                url = server_url % (args.bokeh_port, os.path.basename(no_ext))
+            elif etype == 'notebook':
+                url = notebook_url % (args.notebook_port, os.path.basename(no_ext))
+            elif etype == 'file':
                 url = 'file://' + html_file
 
-            proc = subprocess.Popen(
-                ["phantomjs", "test.js", url, png_file], stdout=subprocess.PIPE)
+            cmd = ["phantomjs", "test.js", etype, url, png_file]
+            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
             code = proc.wait()
 
             result = json.loads(proc.stdout.read())

@@ -2,8 +2,9 @@ var page = require('webpage').create();
 var system = require('system');
 var fs = require('fs');
 
-var url = system.args[1];
-var png = system.args[2];
+var tpe = system.args[1];
+var url = system.args[2];
+var png = system.args[3];
 
 var errors = [];
 var messages = [];
@@ -51,6 +52,14 @@ page.open(url, function(status) {
     page.evaluate(function() {
         document.body.bgColor = 'white';
     });
+
+    if (tpe === 'notebook') {
+        page.evaluate(function() {
+            // TODO:
+            // $([IPython.events]).on('notebook_loaded.Notebook', function() { ... });
+            // IPython.notebook.execute_all_cells();
+        });
+    }
 
     // TODO: get notified when Bokeh finished rendering
     window.setTimeout(function() {
