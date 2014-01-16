@@ -96,6 +96,7 @@ module.exports = (grunt) ->
 
     requirejs:
       options:
+        logLevel: 2
         baseUrl: 'build/js'
         name: 'vendor/almond/almond'
         paths:
@@ -117,15 +118,33 @@ module.exports = (grunt) ->
           startFile: 'src/js/_start.js.frag',
           endFile: 'src/js/_end.js.frag'
         }
-      dist:
+      production:
         options:
           optimize: "uglify2"
           out: 'build/js/bokeh.min.js'
-      dev:
+      development:
         options:
           optimize: "none"
           out: 'build/js/bokeh.js'
 
+    concat:
+      options:
+        separator: ""
+      css:
+        src: [
+          "build/js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css",
+          "build/css/continuum.css"
+          "build/css/main.css"
+        ]
+        dest: 'build/css/bokeh.css'
+
+    cssmin:
+      minify:
+        expand: true
+        cwd: "build/css"
+        src: "bokeh.css"
+        dest: "build/css"
+        ext: '.min.css'
 
     watch:
       coffee:
@@ -151,6 +170,11 @@ module.exports = (grunt) ->
       less:
         files: ["<%= less.development.files[0].cwd %>/<%= less.development.files[0].src %>"]
         tasks: ['less']
+        options:
+          spawn: false
+      eco:
+        files: ["<%= eco.app.files[0].cwd %>/<%= eco.app.files[0].src %>"]
+        tasks: ['eco']
         options:
           spawn: false
 
@@ -182,13 +206,16 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-watch")
   grunt.loadNpmTasks("grunt-contrib-less")
   grunt.loadNpmTasks("grunt-contrib-requirejs")
+  grunt.loadNpmTasks("grunt-contrib-cssmin")
+  grunt.loadNpmTasks("grunt-contrib-concat")
   grunt.loadNpmTasks("grunt-contrib-copy")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
   grunt.loadNpmTasks("grunt-eco")
   grunt.loadNpmTasks('grunt-groc')
 
-  grunt.registerTask("default",    ["build", "qunit"])
-  grunt.registerTask("build",      ["coffee", "less", "copy", "eco"])
-  grunt.registerTask("deploy",     ["build",  "requirejs:dist"])
-  grunt.registerTask("devdeploy",  ["build",  "requirejs:dev"])
+  grunt.registerTask("default",     ["build", "qunit"])
+  grunt.registerTask("build",       ["coffee", "less", "copy", "eco"])
+  grunt.registerTask("deploy",      ["build",  "requirejs:production", "concat:css", "cssmin"])
+  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css"])
+  grunt.registerTask("deploy-both", ["deploy", "devdeploy"])

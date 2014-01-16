@@ -26,7 +26,7 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length")])
 ydr = DataRange1d(sources=[source.columns("petal_width")])
 
-circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, radius=5, line_color="color")
+circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, size=10, line_color="color")
 
 glyph_renderer = Glyph(
         data_source = source,
@@ -50,12 +50,10 @@ plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,wheelzoomtool]
 
 sess = session.HTMLFileSession("iris.html")
-sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, wheelzoomtool)
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
-sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-print("Wrote iris.html")
-try:
-    import webbrowser
-    webbrowser.open("file://" + os.path.abspath("iris.html"))
-except:
-    pass
+sess.save(js="absolute", css="absolute")
+print("Wrote %s" % sess.filename)
+
+if __name__ == "__main__":
+    sess.view()

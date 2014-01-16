@@ -13,7 +13,7 @@ sizes = np.linspace(10, 20, N)
 xpts = np.array([-.09, -.12, .0, .12, .09])
 ypts = np.array([-.1, .02, .1, .02, -.1])
 
-output_server("glyph.py examples")
+output_server("glyph")
 
 
 annular_wedge(x, y, 10, 20, 0.6, 4.1,
@@ -54,56 +54,44 @@ rect(x, y, 10, 20, -0.7,
 
 segment(x, y, x-0.1, y-0.1, color="#F4A582", tools="", title="segment", line_width=3)
 
-square(x, y, size=dict(field="sizes", units="screen"), color="#74ADD1",
-       source=ColumnDataSource({"sizes": sizes}),
+square(x, y, size=sizes, color="#74ADD1",
        tools="", title="square")
 
 wedge(x, y, 15, 0.6, 4.1,
       radius_units="screen",
       color="#B3DE69", tools="", title="wedge",)
 
-scatter(x, y, type="circle_x", size=dict(field="sizes", units="screen"), color="#DD1C77", fill_color=None,
-       source=ColumnDataSource({"sizes": sizes}),
+scatter(x, y, marker="circle_x", size=sizes, color="#DD1C77", fill_color=None,
        tools="", title="circle_x")
 
-scatter(x, y, type="triangle", size=dict(field="sizes", units="screen"), color="#99D594",
-       source=ColumnDataSource({"sizes": sizes}), line_width=2,
-       tools="", title="triangle")
+scatter(x, y, marker="triangle", size=sizes, color="#99D594",
+       line_width=2, tools="", title="triangle")
 
-scatter(x, y, type="o", size=dict(field="sizes", units="screen"), color="#80B1D3",
-       source=ColumnDataSource({"sizes": sizes}), line_width=3,
-       tools="", title="circle")
+scatter(x, y, marker="o", size=sizes, color="#80B1D3",
+       line_width=3, tools="", title="circle")
 
-scatter(x, y, type="cross", size=dict(field="sizes", units="screen"), color="#E6550D", fill_color=None,
-       source=ColumnDataSource({"sizes": sizes}), line_width=2,
-       tools="", title="cross")
+scatter(x, y, marker="cross", size=sizes, color="#E6550D", fill_color=None,
+       line_width=2, tools="", title="cross")
 
-scatter(x, y, type="diamond", size=dict(field="sizes", units="screen"), color="#1C9099",
-       source=ColumnDataSource({"sizes": sizes}), line_width=2,
-       tools="", title="diamond")
+scatter(x, y, marker="diamond", size=sizes, color="#1C9099",
+       line_width=2, tools="", title="diamond")
 
-scatter(x, y, type="invtriangle", size=dict(field="sizes", units="screen"), color="#DE2D26",
-       source=ColumnDataSource({"sizes": sizes}), line_width=2,
-       tools="", title="invtriangle")
+scatter(x, y, marker="invtriangle", size=sizes, color="#DE2D26",
+       line_width=2, tools="", title="invtriangle")
 
-scatter(x, y, type="square_x", size=dict(field="sizes", units="screen"), color="#FDAE6B", fill_color=None,
-       source=ColumnDataSource({"sizes": sizes}), line_width=2,
-       tools="", title="square_x")
+scatter(x, y, marker="square_x", size=sizes, color="#FDAE6B", fill_color=None,
+       line_width=2, tools="", title="square_x")
 
-scatter(x, y, type="asterisk", size=dict(field="sizes", units="screen"), color="#F0027F", fill_color=None,
-       source=ColumnDataSource({"sizes": sizes}), line_width=2,
-       tools="", title="asterisk")
+scatter(x, y, marker="asterisk", size=sizes, color="#F0027F", fill_color=None,
+       line_width=2, tools="", title="asterisk")
 
-scatter(x, y, type="square_cross", size=dict(field="sizes", units="screen"), color="#7FC97F", fill_color=None,
-       source=ColumnDataSource({"sizes": sizes}), line_width=2,
-       tools="", title="square_cross")
+scatter(x, y, marker="square_cross", size=sizes, color="#7FC97F", fill_color=None,
+       line_width=2, tools="", title="square_cross")
 
-scatter(x, y, type="diamond_cross", size=dict(field="sizes", units="screen"), color="#386CB0", fill_color=None,
-       source=ColumnDataSource({"sizes": sizes}), line_width=2,
-       tools="", title="diamond_cross")
+scatter(x, y, marker="diamond_cross", size=sizes, color="#386CB0", fill_color=None,
+       line_width=2, tools="", title="diamond_cross")
 
-scatter(x, y, type="circle_cross", size=dict(field="sizes", units="screen"), color="#FB8072", fill_color=None,
-       source=ColumnDataSource({"sizes": sizes}), line_width=2,
-       tools="", title="circle_cross")
+scatter(x, y, marker="circle_cross", size=sizes, color="#FB8072", fill_color=None,
+       line_width=2, tools="", title="circle_cross")
 
 show()

@@ -16,7 +16,7 @@ from six.moves.urllib.parse import urljoin
 
 from . import protocol, utils
 from .objects import PlotObject, Plot
-from .properties import List
+from .properties import HasProps, List
 from .exceptions import DataIntegrityException
 
 logger = logging.getLogger(__file__)
@@ -56,18 +56,55 @@ class Session(object):
     def __exit__(self, e_ty, e_val, e_tb):
         pass
 
-    def add(self, *objects):
+    def add(self, *objects, **kwargs):
         """ Associates the given object to this session.  This means
         that changes to the object's internal state will be reflected
         in the persistence layer and trigger event that propagate
-        across to the View(s)
+        across to the view(s).
+
+        **recursive** flag allows to descend through objects' structure
+        and collect all their dependencies, adding them to the session
+        as well.
         """
+        recursive = kwargs.get("recursive", False)
+
+        if recursive:
+            objects = self._collect_objs(objects)
+
         for obj in objects:
             if obj is None:
                 warnings.warn("Null object passed to Session.add()")
             else:
                 obj.session = self
                 self._models[obj._id] = obj
+
+    @classmethod
+    def _collect_objs(cls, input_objs):
+        """ Iterate over ``input_objs`` and descend through their structure
+        collecting all nested ``PlotObjects`` on the go. The resulting list
+        is duplicate-free based on objects' identifiers.
+        """
+        ids = set([])
+        objs = []
+
+        def descend(obj):
+            if hasattr(obj, '__iter__'):
+                for _obj in obj:
+                    descend(_obj)
+            elif isinstance(obj, PlotObject):
+                if obj._id not in ids:
+                    ids.add(obj._id)
+
+                    for attr in obj.__properties_with_refs__:
+                        descend(getattr(obj, attr))
+
+                    objs.append(obj)
+            elif isinstance(obj, HasProps):
+                for attr in obj.__properties_with_refs__:
+                    descend(getattr(obj, attr))
+
+        descend(input_objs)
+        return objs
 
     def view(self):
         """ Triggers the OS to open a web browser pointing to the file
@@ -92,19 +129,24 @@ class BaseHTMLSession(Session):
     # The base URL for all CSS and JS
     static_url = bokeh_url
 
+    def __init__(self, plot=None):
+        super(BaseHTMLSession, self).__init__(plot=plot)
+        self.PlotObjectEncoder = type("PlotObjectEncoder", (self._PlotObjectEncoder,), {"session": self})
+
     #------------------------------------------------------------------------
     # Static file handling
     #------------------------------------------------------------------------
 
-    def js_paths(self, as_url=True, unified=True, min=True):
+    # TODO?: as_url=False
+    def js_paths(self, unified=True, minified=True):
         """ Returns a list of URLs or absolute paths on this machine to the JS
         source files needed to render this session.  If **unified** is True,
-        then this list is a single file.  If **min** is True, then minifies
+        then this list is a single file.  If **minified** is True, then minifies
         all the JS.
         """
         raise NotImplementedError
 
-    def css_paths(self, as_url=True):
+    def css_paths(self, unified=True, minified=True):
         """ Returns the paths to required CSS files. Could be paths
         or URIs depending on the type of session.
         """
@@ -119,31 +161,15 @@ class BaseHTMLSession(Session):
     def bokehjs_dir(self, val):
         self._bokehjs_dir = val
 
-    def _inline_scripts(self, paths):
-        # Copied from dump.py, which itself was from wakariserver
-        if len(paths) == 0:
-            return ""
+    def _inline_files(self, files):
         strings = []
-        for script in paths:
-            f_name = abspath(join(self.server_static_dir, script))
-            begin = "\n// BEGIN %s\n" % f_name
-            end = "\n// END %s\n" % f_name
-            strings.append(begin.encode("utf-8") + open(f_name, 'rb').read() + \
-                    end.encode("utf-8"))
-        return b"".join(strings)
-
-    def _inline_css(self, paths):
-        # Copied from dump.py, which itself was from wakariserver
-        if len(paths) == 0:
-            return ""
-        strings = []
-        for css_path in paths:
-            f_name = join(self.server_static_dir, css_path)
-            begin = "\n/* BEGIN %s */\n" % f_name
-            end = "\n/* END %s */\n" % f_name
-            strings.append(begin.encode("utf-8") + open(f_name, 'rb').read() + \
-                    end.encode("utf-8"))
-        return b"".join(strings)
+        for file in files:
+            path = abspath(join(self.server_static_dir, file))
+            begin = "\n/* BEGIN %s */\n" % path
+            middle = open(path, 'rb').read().decode("utf-8")
+            end = "\n/* END %s */\n" % path
+            strings.append(begin + middle + end)
+        return "".join(strings)
 
     def _load_template(self, filename):
         import jinja2
@@ -155,13 +181,8 @@ class BaseHTMLSession(Session):
     # Serialization
     #------------------------------------------------------------------------
 
-    class PlotObjEncoder(protocol.NumpyJSONEncoder):
+    class _PlotObjectEncoder(protocol.NumpyJSONEncoder):
         """ Helper class we'll use to encode PlotObjects
-
-        Note that since json.dumps() takes a *class* as an argument and
-        not an instance, when this encoder class is used, the Session
-        instance is set as a class-level attribute.  Kind of weird, and
-        should be better handled via a metaclass.
 
         #hugo - I don't think we should use the json encoder anymore to do
         this.  It introduces an asymmetry in our operations, because
@@ -170,27 +191,17 @@ class BaseHTMLSession(Session):
         in order to resolve references
         """
         session = None
+
         def default(self, obj):
             if isinstance(obj, PlotObject):
-                if self.session is None:
-                    raise RuntimeError("PlotObjEncoder requires a valid session")
-                # We do not want the JSON encoder (which walks the entire
-                # object graph) to do anything more than return references.
-                # The model serialization happens later.
-                d = self.session.get_ref(obj)
-                return d
+                return self.session.get_ref(obj)
             else:
                 return protocol.NumpyJSONEncoder.default(self, obj)
 
-
     def get_ref(self, obj):
-        self._models[obj._id] = obj
-        return {
-                'type': obj.__view_model__,
-                'id': obj._id
-                }
+        return obj.get_ref()
 
-    def make_id(self, obj):
+    def make_id(self):
         return str(uuid.uuid4())
 
     def serialize(self, obj, **jsonkwargs):
@@ -202,16 +213,29 @@ class BaseHTMLSession(Session):
         How we produce references is actually more involved, because
         it may differ between server-based models versus embedded.
         """
+        return protocol.serialize_json(obj, encoder=self.PlotObjectEncoder, **jsonkwargs)
 
-        try:
-            self.PlotObjEncoder.session = self
-            jsondata = protocol.serialize_json(
-                obj,
-                encoder=self.PlotObjEncoder,
-                **jsonkwargs)
-        finally:
-            self.PlotObjEncoder.session = None
-        return jsondata
+    def convert_models(self, to_convert=None):
+        """ Manually convert our top-level models into dicts, before handing
+        them in to the JSON encoder. We don't want to embed the call to
+        ``vm_serialize()`` into the ``PlotObjectEncoder``, because that would
+        cause all the attributes to be duplicated multiple times.
+        """
+        if to_convert is None:
+            to_convert = self._models.values()
+
+        models = []
+
+        for model in to_convert:
+            ref = self.get_ref(model)
+            ref["attributes"] = model.vm_serialize()
+            ref["attributes"].update({"id": ref["id"], "doc": None})
+            models.append(ref)
+
+        return models
+
+    def serialize_models(self, objects=None, **jsonkwargs):
+        return self.serialize(self.convert_models(objects), **jsonkwargs)
 
 class HTMLFileSession(BaseHTMLSession):
     """ Produces a pile of static HTML, suitable for exporting a plot
@@ -221,15 +245,9 @@ class HTMLFileSession(BaseHTMLSession):
 
     title = "Bokeh Plot"
 
-    # The root directory for the CSS files
-    css_files = [
-        "js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css",
-        "css/bokeh.css",
-        "css/continuum.css",
-    ]
-
     # TODO: Why is this not in bokehjs_dir, but rather outside of it?
     js_files = ["js/bokeh.js"]
+    css_files = ["css/bokeh.css"]
 
     # Template files used to generate the HTML
     js_template = "plots.js"
@@ -248,15 +266,23 @@ class HTMLFileSession(BaseHTMLSession):
             self.title = title
         super(HTMLFileSession, self).__init__(plot=plot)
         self.plotcontext = PlotContext()
+        self.add(self.plotcontext)
         self.raw_js_objs = []
 
-    # FIXME: move this to css_paths, js_paths to base class?
-    def css_paths(self, as_url=False):
-        return [join(self.server_static_dir, d) for d in self.css_files]
+    def _file_paths(self, files, unified, minified):
+        if not unified:
+            raise NotImplementedError("unified=False is not implemented")
 
-    def js_paths(self, as_url=False, unified=True, min=True):
-        # TODO: Handle unified and minified options
-        return [join(self.server_static_dir, d) for d in self.js_files]
+        if minified:
+            files = [ root + ".min" + ext for (root, ext) in map(os.path.splitext, files) ]
+
+        return [ os.path.join(self.server_static_dir, file) for file in files ]
+
+    def js_paths(self, unified=True, minified=True):
+        return self._file_paths(self.js_files, unified, minified)
+
+    def css_paths(self, unified=True, minified=True):
+        return self._file_paths(self.css_files, unified, minified)
 
     def raw_js_snippets(self, obj):
         self.raw_js_objs.append(obj)
@@ -274,75 +300,53 @@ class HTMLFileSession(BaseHTMLSession):
         """
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
-        elementid = str(uuid.uuid4())
-
-        # Manually convert our top-level models into dicts, before handing
-        # them in to the JSON encoder.  (We don't want to embed the call to
-        # vm_serialize into the PlotObjEncoder, because that would cause
-        # all the attributes to be duplicated multiple times.)
-        models = []
-        for m in self._models.values():
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
-            models.append(ref)
+        elementid = self.make_id()
 
         jscode = self._load_template(self.js_template).render(
                     elementid = elementid,
                     modelid = pc_ref["id"],
                     modeltype = pc_ref["type"],
-                    all_models = self.serialize(models),
-                )
-        div = self._load_template(self.div_template).render(
-                    elementid = elementid
-                )
+                    all_models = self.serialize_models())
+
+        rawjs, rawcss = None, None
+        jsfiles, cssfiles = [], []
 
         if rootdir is None:
             rootdir = self.rootdir
 
         if js == "inline" or (js is None and self.inline_js):
-            # TODO: Are the UTF-8 decodes really necessary?
-            rawjs = self._inline_scripts(self.js_paths()).decode("utf-8")
-            jsfiles = []
+            rawjs = self._inline_files(self.js_paths())
+        elif js == "relative" or js is None:
+            jsfiles = [ os.path.relpath(p, rootdir) for p in self.js_paths() ]
+        elif js == "absolute":
+            jsfiles = self.js_paths()
         else:
-            rawjs = None
-            jsfiles = [os.path.relpath(p,rootdir) for p in self.js_paths()]
+            raise ValueError("wrong value for 'js' parameter, expected None, 'inline', 'relative' or 'absolute', got %r" % js)
 
         if css == "inline" or (css is None and self.inline_css):
-            # TODO: Are the UTF-8 decodes really necessary?
-            rawcss = self._inline_css(self.css_paths()).decode("utf-8")
-            cssfiles = []
+            rawcss = self._inline_files(self.css_paths())
+        elif css == "relative" or css is None:
+            cssfiles = [ os.path.relpath(p, rootdir) for p in self.css_paths() ]
+        elif css == "absolute":
+            cssfiles = self.css_paths()
         else:
-            rawcss = None
-            cssfiles = [os.path.relpath(p,rootdir) for p in self.css_paths()]
+            raise ValueError("wrong value for 'css' parameter, expected None, 'inline', 'relative' or 'absolute', got %r" % css)
 
-        plot_div = self._load_template(self.div_template).render(
-            elementid=elementid
-            )
-
-
-# jscode is the one I want
+        plot_div = self._load_template(self.div_template).render(elementid=elementid)
 
         html = self._load_template(self.html_template).render(
                     js_snippets = [jscode],
-                    html_snippets = [div] + [o.get_raw_js() for o in self.raw_js_objs],
+                    html_snippets = [plot_div] + [o.get_raw_js() for o in self.raw_js_objs],
                     rawjs = rawjs, rawcss = rawcss,
                     jsfiles = jsfiles, cssfiles = cssfiles,
                     title = self.title)
+
         return html
 
     def embed_js(self, plot_id, static_root_url):
-
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
-        elementid = str(uuid.uuid4())
-
-        models = []
-        for m in self._models.values():
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
-            models.append(ref)
+        elementid = self.make_id()
 
         jscode = self._load_template('embed_direct.js').render(
             host = "",
@@ -350,9 +354,10 @@ class HTMLFileSession(BaseHTMLSession):
             elementid = elementid,
             modelid = pc_ref["id"],
             modeltype = pc_ref["type"],
-            plotid = plot_id,  all_models = self.serialize(models))
-        return jscode.encode("utf-8")
+            plotid = plot_id,
+            all_models = self.serialize_models())
 
+        return jscode.encode("utf-8")
 
     def save(self, filename=None, js=None, css=None, rootdir=None):
         """ Saves the file contents.  Uses self.filename if **filename**
@@ -373,9 +378,8 @@ class HTMLFileSession(BaseHTMLSession):
             f.write(s.encode("utf-8"))
         return
 
-    def view(self, do_save=True, new=False, autoraise=True):
+    def view(self, new=False, autoraise=True):
         """ Opens a browser to view the file pointed to by this sessions.
-        Automatically triggers a save by default.
 
         **new** can be None, "tab", or "window" to view the file in the
         existing page, a new tab, or a new windows.  **autoraise** causes
@@ -383,12 +387,16 @@ class HTMLFileSession(BaseHTMLSession):
         automatically on some platforms regardless of the setting of this
         variable.
         """
-        import webbrowser
-        if do_save:
-            self.save()
-        newmap = {False: 0, "window": 1, "tab": 2}
+        new_map = { False: 0, "window": 1, "tab": 2 }
         file_url = "file://" + abspath(self.filename)
-        webbrowser.open(file_url, new = newmap[new], autoraise=autoraise)
+
+        try:
+            import webbrowser
+            webbrowser.open(file_url, new=new_map[new], autoraise=autoraise)
+        except (SystemExit, KeyboardInterrupt):
+            raise
+        except:
+            pass
 
     def dumpjson(self, pretty=True, file=None):
         """ Returns a JSON string representing the contents of all the models
@@ -402,17 +410,11 @@ class HTMLFileSession(BaseHTMLSession):
 
         Mostly intended to be used for debugging.
         """
-        models = []
-        for m in self._models.values():
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
-            models.append(ref)
         if pretty:
             indent = 4
         else:
             indent = None
-        s = self.serialize(models, indent=indent)
+        s = self.serialize_models(indent=indent)
         if file is not None:
             if isinstance(file, string_types):
                 with open(file, "w") as f:
@@ -449,7 +451,6 @@ class PlotList(PlotContext):
     pass
 
 class PlotServerSession(BaseHTMLSession):
-
 
     def __init__(self, username=None, serverloc=None, userapikey="nokey"):
         # This logic is based on ContinuumModelsClient.__init__ and
@@ -516,7 +517,7 @@ class PlotServerSession(BaseHTMLSession):
             plotcontext = PlotContext()
             self.store_obj(plotcontext)
         self.plotcontext = plotcontext
-        return
+        self.add(self.plotcontext)
 
     def make_doc(self, title):
         url = urljoin(self.root_url,"/bokeh/doc/")
@@ -689,7 +690,7 @@ class PlotServerSession(BaseHTMLSession):
             instantiate a new one if it is not
             and make sure to convert all references into models
         in the conversion from json to objects, sometimes references
-        to models need to be resolved.  
+        to models need to be resolved.
         """
         typename = ref["type"]
         ref_id = ref["id"]
@@ -774,51 +775,12 @@ class PlotServerSession(BaseHTMLSession):
             for cb in m._callback_queue:
                 m._trigger(*cb)
             del m._callback_queue[:]
-    #------------------------------------------------------------------------
-    # Static files
-    #------------------------------------------------------------------------
-
-    def css_paths(self, as_urls=True):
-        """ Returns a list of URLs or file paths for CSS files """
-        # This should coordinate with the running plot server and use some
-        # mechanism to query this information from it.
-        raise NotImplementedError
-
-    def js_paths(self, as_urls=True):
-        raise NotImplementedError
 
 
 class NotebookSessionMixin(object):
-    # The root directory for the CSS files
-    css_files = [
-        "js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css",
-        "css/bokeh.css",
-        "css/continuum.css",
-    ]
+    """ Mix this into ``BaseHTMLSession``. """
 
-    # TODO: Why is this not in bokehjs_dir, but rather outside of it?
-    js_files = ["js/bokeh.js"]
-
-    js_template = "plots.js"
-    div_template = "plots.html"
-    html_template = "basediv.html"     # template for the entire HTML file
-
-    def css_paths(self, as_url=False):
-        # TODO: Fix the duplication of this method from HTMLFileSession.
-        # Perhaps move this into BaseHTMLSession.. but a lot of other
-        # things would need to move as well.
-        return [join(self.server_static_dir, d) for d in self.css_files]
-
-    def js_paths(self):
-        # For notebook session, we rely on a unified bokehJS file,
-        # that is not located in the BokehJS subtree
-        return [join(self.server_static_dir, d) for d in self.js_files]
-
-    def dumps(self, objects):
-        """ Returns the HTML contents as a string
-        FIXME : signature different than other dumps
-        FIXME: should consolidate code between this one and that one.
-        """
+    def _get_plot_and_objects(self, *objects):
         if len(objects) == 0:
             objects = list(self._models.values())
         if len(objects) == 1 and isinstance(objects[0], Plot):
@@ -826,65 +788,8 @@ class NotebookSessionMixin(object):
             objects = list(self._models.values())
         else:
             the_plot = [m for m in objects if isinstance(m, Plot)][0]
-        plot_ref = self.get_ref(the_plot)
-        elementid = str(uuid.uuid4())
 
-        # Manually convert our top-level models into dicts, before handing
-        # them in to the JSON encoder.  (We don't want to embed the call to
-        # vm_serialize into the PlotObjEncoder, because that would cause
-        # all the attributes to be duplicated multiple times.)
-        models = []
-        for m in objects:
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
-            models.append(ref)
-
-        js = self._load_template(self.js_template).render(
-                    elementid = elementid,
-                    modelid = plot_ref["id"],
-                    modeltype = plot_ref["type"],
-                    all_models = self.serialize(models),
-                )
-        plot_div = self._load_template(self.div_template).render(
-            elementid=elementid
-            )
-        html = self._load_template(self.html_template).render(
-                                           html_snippets=[plot_div],
-                                           elementid = elementid,
-                                           js_snippets = [js],
-                                           )
-        return html.encode("utf-8")
-
-        plot_ref = self.get_ref(the_plot)
-        elementid = str(uuid.uuid4())
-
-        # Manually convert our top-level models into dicts, before handing
-        # them in to the JSON encoder.  (We don't want to embed the call to
-        # vm_serialize into the PlotObjEncoder, because that would cause
-        # all the attributes to be duplicated multiple times.)
-        models = []
-        for m in objects:
-            ref = self.get_ref(m)
-            ref["attributes"] = m.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": None})
-            models.append(ref)
-
-        js = self._load_template(self.js_template).render(
-                    elementid = elementid,
-                    modelid = plot_ref["id"],
-                    modeltype = plot_ref["type"],
-                    all_models = self.serialize(models),
-                )
-        plot_div = self._load_template(self.div_template).render(
-            elementid=elementid
-            )
-        html = self._load_template(self.html_template).render(
-                                           html_snippets=[plot_div],
-                                           elementid = elementid,
-                                           js_snippets = [js],
-                                           )
-        return html.encode("utf-8")
+        return the_plot, objects
 
     def show(self, *objects):
         """ Displays the given objects, or all objects currently associated
@@ -897,31 +802,43 @@ class NotebookSessionMixin(object):
         associated with the session.
         """
         import IPython.core.displaypub as displaypub
-        
-        html = self.dumps(objects)
-        displaypub.publish_display_data('bokeh', {'text/html': html})
-        return None
+        displaypub.publish_display_data('bokeh', {'text/html': self.dumps(*objects)})
 
 
 class NotebookSession(NotebookSessionMixin, HTMLFileSession):
-    """ Produces inline HTML suitable for placing into an IPython Notebook.
-    """
+    """ Produces inline HTML suitable for placing into an IPython Notebook. """
 
     def __init__(self, plot=None):
         HTMLFileSession.__init__(self, filename=None, plot=plot)
-        self.plotcontext = PlotContext()
+
+    def dumps(self, *objects):
+        """ Returns the HTML contents as a string. """
+        the_plot, objects = self._get_plot_and_objects(*objects)
+
+        plot_ref = self.get_ref(the_plot)
+        elementid = self.make_id()
+
+        js = self._load_template(self.js_template).render(
+                    elementid = elementid,
+                    modelid = plot_ref["id"],
+                    modeltype = plot_ref["type"],
+                    all_models = self.serialize_models(objects))
+
+        plot_div = self._load_template(self.div_template).render(elementid=elementid)
+
+        html = self._load_template(self.html_template).render(
+                                           html_snippets=[plot_div],
+                                           elementid = elementid,
+                                           js_snippets = [js])
+        return html.encode("utf-8")
 
     def notebooksources(self):
         import IPython.core.displaypub as displaypub
-        # Normally this would call self.js_paths() to build a list of
-        # scripts or get a reference to the unified/minified JS file,
-        # but our static JS build process produces a single unified
-        # bokehJS file for inclusion in the notebook.
         js_paths = self.js_paths()
         css_paths = self.css_paths()
         html = self._load_template(self.html_template).render(
-            rawjs=self._inline_scripts(js_paths).decode('utf8'),
-            rawcss=self._inline_css(css_paths).decode('utf8'),
+            rawjs=self._inline_files(js_paths),
+            rawcss=self._inline_files(css_paths),
             js_snippets=[],
             html_snippets=["<p>Configuring embedded BokehJS mode.</p>"])
         displaypub.publish_display_data('bokeh', {'text/html': html})
@@ -929,8 +846,8 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
 
 
 class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
-    """ An IPython Notebook session that is connected to a plot server.
-    """
+    """ An IPython Notebook session that is connected to a plot server. """
+
     def ws_conn_string(self):
         split = urlsplit(self.root_url)
         #how to fix this in bokeh and wakari?
@@ -939,35 +856,10 @@ class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
         else:
             return "wss://%s/bokeh/sub" % split.netloc
 
-    def dumps(self, objects):
-        """ Returns the HTML contents as a string
-        FIXME : signature different than other dumps
-        FIXME: should consolidate code between this one and that one.
-        """
-        if len(objects) == 0:
-            objects = self._models.values()
-        if len(objects) == 1 and isinstance(objects[0], Plot):
-            the_plot = objects[0]
-            objects = self._models.values()
-        else:
-            the_plot = [m for m in objects if isinstance(m, Plot)][0]
+    def dumps(self, *objects):
+        """ Returns the HTML contents as a string. """
+        the_plot, _ = self._get_plot_and_objects(*objects)
         return the_plot.create_html_snippet(server=True)
-
-    def show(self, *objects):
-        """ Displays the given objects, or all objects currently associated
-        with the session, inline in the IPython Notebook.
-
-        Basicall we return a dummy object that implements _repr_html.
-        The reason to do this instead of just having this session object
-        implement _repr_html directly is because users will usually want
-        to just see one or two plots, and not all the plots and models
-        associated with the session.
-        """
-        import IPython.core.displaypub as displaypub
-        
-        html = self.dumps(objects)
-        displaypub.publish_display_data('bokeh', {'text/html': html})
-        return None
 
     def notebook_connect(self):
         if self.docname is None:
@@ -977,8 +869,3 @@ class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
                 (self.docname, self.root_url)
         displaypub.publish_display_data('bokeh', {'text/html': msg})
         return None
-
-
-
-
-

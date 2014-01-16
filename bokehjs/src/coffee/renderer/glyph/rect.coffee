@@ -16,7 +16,7 @@ define [
       @sh = @distance_vector('y', 'height', 'center')
       @sx = new Array(sxi.length)
       @sy = new Array(sxi.length)
-      for i in [0..sxi.length-1]
+      for i in [0...sxi.length]
         if Math.abs(sxi[i]-@sw[i]) < 2
           @sx[i] = Math.round(sxi[i])
         else

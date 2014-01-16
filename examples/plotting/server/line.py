@@ -9,7 +9,7 @@ N = 80
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_server("line.py example")
+output_server("line")
 
 line(x,y, color="#0000FF", tools="pan,wheel_zoom,resize,embed")
 

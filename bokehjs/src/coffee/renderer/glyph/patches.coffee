@@ -24,7 +24,7 @@ define [
 
         if glyph_props.fill_properties.do_fill
           glyph_props.fill_properties.set_vectorize(ctx, i)
-          for j in [0..sx.length-1]
+          for j in [0...sx.length]
             if j == 0
               ctx.beginPath()
               ctx.moveTo(sx[j], sy[j])
@@ -41,7 +41,7 @@ define [
 
         if glyph_props.line_properties.do_stroke
           glyph_props.line_properties.set_vectorize(ctx, i)
-          for j in [0..sx.length-1]
+          for j in [0...sx.length]
             if j == 0
               ctx.beginPath()
               ctx.moveTo(sx[j], sy[j])

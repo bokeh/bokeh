@@ -219,7 +219,7 @@ define [
       ticks = arange( start, end + (tick_interval / 2.0), tick_interval )
 
       if zero_always_nice
-          for i in [0..ticks.length-1]
+          for i in [0...ticks.length]
               if Math.abs(ticks[i]) < tick_interval/1000
                   ticks[i] = 0
 
@@ -359,10 +359,10 @@ define [
       if _.isNumber(@precision)
         labels = new Array(ticks.length)
         if need_sci
-          for i in [0..ticks.length-1]
+          for i in [0...ticks.length]
             labels[i] = ticks[i].toExponential(@precision)
         else
-          for i in [0..ticks.length-1]
+          for i in [0...ticks.length]
             labels[i] = ticks[i].toPrecision(@precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
         return labels
 
@@ -371,7 +371,7 @@ define [
         for x in [@last_precision..15]
           is_ok = true
           if need_sci
-            for i in [0..ticks.length-1]
+            for i in [0...ticks.length]
               labels[i] = ticks[i].toExponential(x)
               if i > 0
                 if labels[i] == labels[i-1]
@@ -380,7 +380,7 @@ define [
             if is_ok
               break
           else
-            for i in [0..ticks.length-1]
+            for i in [0...ticks.length]
               labels[i] = ticks[i].toPrecision(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
               if i > 0
                 if labels[i] == labels[i-1]
@@ -517,7 +517,7 @@ define [
         # If a width is provided, then we pick the most appropriate scale,
         # otherwise just use the widest format
         good_formats = []
-        for i in [0..widths.length-1]
+        for i in [0...widths.length]
           if widths[i] * ticks.length < fill_ratio * char_width
             good_formats.push(@formats[i])
         if good_formats.length > 0

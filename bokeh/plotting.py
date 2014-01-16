@@ -26,7 +26,6 @@ from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
 from . import glyphs
 from .palettes import brewer
 
-
 # This is used to accumulate plots generated via the plotting methods in this
 # module.  It is used by build_gallery.py.  To activate this feature, simply
 # set _PLOTLIST to an empty list; to turn it off, set it back to None.
@@ -289,20 +288,31 @@ def show(browser=None, new="tab"):
     """
     output_type = _config["output_type"]
     session = _config["session"]
+
     # Map our string argument to the webbrowser.open argument
     new_param = {'tab': 2, 'window': 1}[new]
+
+    if browser is None:
+        browser = os.environ.get("BOKEH_BROWSER", None)
+
     if browser is not None:
-        controller = webbrowser.get(browser)
+        if browser == 'dummy':
+            class DummyWebBrowser(object):
+                def open(self, url, new):
+                    pass
+
+            controller = DummyWebBrowser()
+        else:
+            controller = webbrowser.get(browser)
     else:
         controller = webbrowser
+
     if output_type == "file":
         session.save()
-        controller.open("file://" + os.path.abspath(_config["output_file"]),
-                            new=new_param)
+        controller.open("file://" + os.path.abspath(_config["output_file"]), new=new_param)
     elif output_type == "server":
         session.store_all()
         controller.open(_config["output_url"] + "/bokeh", new=new_param)
-
     elif output_type == "notebook":
         session.show(curplot())
 
@@ -472,15 +482,18 @@ class GlyphFunction(object):
                 else:
                     if val not in datasource.column_names:
                         raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
-                    glyph_val = {'field' : val, 'units' : 'data'}
+                    units = getattr(dataspecs[var], 'units', 'data')
+                    glyph_val = {'field' : val, 'units' : units}
             elif isinstance(val, np.ndarray):
                 if val.ndim != 1:
                     raise RuntimeError("Columns need to be 1D (%s is not)" % var)
                 datasource.add(val, name=var)
-                glyph_val = {'field' : var, 'units' : 'data'}
+                units = getattr(dataspecs[var], 'units', 'data')
+                glyph_val = {'field' : var, 'units' : units}
             elif isinstance(val, Iterable):
                 datasource.add(val, name=var)
-                glyph_val = {'field' : var, 'units' : 'data'}
+                units = getattr(dataspecs[var], 'units', 'data')
+                glyph_val = {'field' : var, 'units' : units}
             else:
                 raise RuntimeError("Unexpected column type: %s" % type(val))
             glyph_params[var] = glyph_val
@@ -528,8 +541,12 @@ class GlyphFunction(object):
         # a real stylesheet class, where defaults and Types can declaratively
         # substitute for this kind of imperative logic.
         color = kwargs.pop(prefix+"color", get_default_color())
-        for argname in ("fill_color", "line_color", "text_color"):
+        for argname in ("fill_color", "line_color"):
             kwargs[argname] = kwargs.get(prefix + argname, color)
+
+        # NOTE: text fill color should really always default to black, hard coding
+        # this here now untils the stylesheet solution exists
+        kwargs["text_color"] = kwargs.get(prefix + "text_color", "black")
 
         alpha = kwargs.pop(prefix+"alpha", default_alpha)
         for argname in ("fill_alpha", "line_alpha", "text_alpha"):
@@ -750,7 +767,7 @@ def scatter(*args, **kwargs):
 
     Style Parameters (specified by keyword)::
 
-        type : a valid marker_type; defaults to "circle"
+        marker : a valid marker_type; defaults to "circle"
         fill_color : color
         fill_alpha : 0.0 - 1.0
         line_color : color
@@ -776,6 +793,10 @@ def scatter(*args, **kwargs):
     """
     session_objs = []   # The list of objects that need to be added
 
+    if "type" in kwargs:
+        warnings.warn("Keyword argument 'type' of scatter(...) is deprecated; use 'marker' instead.")
+        kwargs.setdefault("marker", kwargs.pop("type"))
+
     ds = kwargs.get("source", None)
     names, datasource = _handle_1d_data_args(args, datasource=ds)
     if datasource != ds:
@@ -783,13 +804,8 @@ def scatter(*args, **kwargs):
 
     # If hold is on, then we will reuse the ranges of the current plot
     #plot = get_plot(kwargs)
-    markertype = kwargs.get("type", "circle")
+    markertype = kwargs.get("marker", "circle")
     x_name = names[0]
-
-    # TODO this won't be necessary when markers are made uniform
-    if markertype == "circle":
-        if "radius" not in kwargs:
-            kwargs["radius"] = kwargs.get("size",8)/2
 
     # TODO: How to handle this? Just call curplot()?
     if not len(color_fields.intersection(set(kwargs.keys()))):

@@ -31,11 +31,11 @@ define [
         return
       [xs, ys] = @mget('grid_coords')
       @grid_props.set(ctx, @)
-      for i in [0..xs.length-1]
+      for i in [0...xs.length]
         [sx, sy] = @plot_view.map_to_screen(xs[i], "data", ys[i], "data")
         ctx.beginPath()
         ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
-        for i in [1..sx.length-1]
+        for i in [1...sx.length]
           ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
         ctx.stroke()
       return
@@ -101,13 +101,13 @@ define [
       cmax = cross_range.get('max')
 
       coords = [[], []]
-      for ii in [0..ticks.length-1]
+      for ii in [0...ticks.length]
         if ticks[ii] == min or ticks[ii] == max
           continue
         dim_i = []
         dim_j = []
         N = 2
-        for n in [0..N-1]
+        for n in [0...N]
           loc = cmin + (cmax-cmin)/(N-1) * n
           dim_i.push(ticks[ii])
           dim_j.push(loc)

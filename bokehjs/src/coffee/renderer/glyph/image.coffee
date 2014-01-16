@@ -15,11 +15,11 @@ define [
     _properties: []
 
     _set_data: (@data) ->
-      for i in [0..@y.length-1]
+      for i in [0...@y.length]
         @y[i] += @dh[i]
 
       @image_data = new Array(@image.length)
-      for i in [0..@image.length-1]
+      for i in [0...@image.length]
         canvas = document.createElement('canvas');
         canvas.width = @width[i];
         canvas.height = @height[i];

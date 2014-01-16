@@ -1,12 +1,15 @@
 from __future__ import print_function
 
+import sys
+import time
+import os.path
+import requests
+
 from numpy import pi, arange, sin, cos
 import numpy as np
-import os.path
-import time
-from bokeh.objects import (Plot, DataRange1d, LinearAxis, 
-        ColumnDataSource, Glyph,
-        PanTool, WheelZoomTool)
+
+from bokeh.objects import (Plot, DataRange1d, LinearAxis,
+    ColumnDataSource, Glyph, PanTool, WheelZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
 
@@ -39,7 +42,7 @@ renderer2 = Glyph(
         glyph = line_glyph2
         )
 
-plot = Plot(x_range=xdr_static, y_range=ydr, data_sources=[source], 
+plot = Plot(x_range=xdr_static, y_range=ydr, data_sources=[source],
         border=50)
 xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
 yaxis = LinearAxis(plot=plot, dimension=1, location="left")
@@ -51,12 +54,17 @@ plot.renderers.append(renderer)
 plot.renderers.append(renderer2)
 plot.tools = [pantool, wheelzoomtool]
 
-sess = session.PlotServerSession(
-    username="defaultuser",
-    serverloc="http://localhost:5006", userapikey="nokey")
+try:
+    sess = session.PlotServerSession(
+        serverloc="http://localhost:5006",
+        username="defaultuser",
+        userapikey="nokey")
+except requests.exceptions.ConnectionError:
+    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
+    sys.exit(1)
+
 sess.use_doc("line_animate")
-sess.add(plot, renderer, renderer2, xaxis, yaxis, 
-         source, xdr, ydr, xdr_static, pantool, wheelzoomtool)
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
 sess.plotcontext._dirty = True
 # not so nice.. but set the model doens't know
@@ -71,6 +79,3 @@ while True:
         source._dirty = True
         sess.store_all()
         time.sleep(0.05)
-
-
-

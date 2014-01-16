@@ -182,6 +182,12 @@ class PlotObject(HasProps):
             self._block_callbacks = True
             super(PlotObject, self).__init__(*args, **kwargs)
 
+    def get_ref(self):
+        return {
+            'type': self.__view_model__,
+            'id': self._id,
+        }
+
     def setup_events(self):
         pass
 

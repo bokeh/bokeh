@@ -9,7 +9,7 @@ N = 100
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_server("scatter.py example")
+output_server("scatter")
 
 scatter(x,y, color="#FF00FF", tools="pan,wheel_zoom,resize")
 scatter(x,y, color="red", tools="pan,wheel_zoom,resize")

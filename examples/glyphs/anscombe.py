@@ -1,3 +1,4 @@
+from __future__ import print_function
 
 import os
 
@@ -66,30 +67,25 @@ def make_plot(title, xname, yname):
         data_source = circles_source,
         xdata_range = xdr,
         ydata_range = ydr,
-        glyph = Circle(x=xname, y=yname, radius=6, fill_color="#cc6633",
+        glyph = Circle(x=xname, y=yname, size=12, fill_color="#cc6633",
                        line_color="#cc6633", fill_alpha=0.5),
-)
+    )
     plot.renderers.append(circle_renderer)
-    return plot, (line_renderer, circle_renderer, xaxis, yaxis, xgrid, ygrid)
+    return plot
 
 #where will this comment show up
-I,   objsI   = make_plot('I', 'xi', 'yi')
-II,  objsII  = make_plot('II', 'xii', 'yii')
-III, objsIII = make_plot('III', 'xiii', 'yiii')
-IV,  objsIV  = make_plot('IV', 'xiv', 'yiv')
+I   = make_plot('I',   'xi',   'yi')
+II  = make_plot('II',  'xii',  'yii')
+III = make_plot('III', 'xiii', 'yiii')
+IV  = make_plot('IV',  'xiv',  'yiv')
 
 grid = GridPlot(children=[[I, II], [III, IV]], width="800px")
 
 sess = session.HTMLFileSession("anscombe.html")
-sess.add(lines_source, circles_source, xdr, ydr)
-sess.add(*(objsI + objsII + objsIII + objsIV))
-sess.add(grid, I, II, III, IV)
+sess.add(grid, recursive=True)
 sess.plotcontext.children.append(grid)
-sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
+sess.save(js="absolute", css="absolute")
+print("Wrote %s" % sess.filename)
 
 if __name__ == "__main__":
-    try:
-        import webbrowser
-        webbrowser.open("file://" + os.path.abspath("anscombe.html"))
-    except:
-        pass
+    sess.view()

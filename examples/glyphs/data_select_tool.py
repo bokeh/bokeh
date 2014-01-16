@@ -10,7 +10,7 @@ x = np.linspace(-7, 7, 100)
 y = np.sin(x)
 
 # Go to http://localhost:5006/bokeh to view this plot
-output_server("data select example")
+output_server("data_select_tool")
 
 source = ColumnDataSource()
 source.add(x, name='x')
@@ -43,9 +43,3 @@ sess.store_all_callbacks()
 
 #execute this yourself, you should see the dummy callback fire if anything has changed
 sess.load_obj(sess.get_ref(tool))
-
-
-
-
-
-
