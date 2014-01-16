@@ -1,0 +1,218 @@
+- Version 0.0.23.
+
+Fri Aug  2 00:17:59 UTC 2013
+
+ * Upgrade Proof to 0.0.33. #177.
+ * Fix mass resource loading for Node.js on Windows. #176.
+
+- Version 0.0.22.
+
+Fri Jul 12 04:36:22 UTC 2013
+
+ * Update timezone database to `tz2013d`. #166.
+ * Upgrade Proof to 0.0.32. #168.
+
+- Version 0.0.21.
+
+Mon May 20 16:45:16 UTC 2013
+
+ * Update timezone database to `tz2013c`. #156.
+
+- Version 0.0.20.
+
+Thu May 16 00:00:56 UTC 2013
+
+ * Add Eero Ränik to contributors.
+ * Include time zone links wish slashes in their names.
+ * Fix bogus limit on TZ rules. #158.
+ * Build `Etc` zones. #147.
+
+- Version 0.0.19.
+
+Thu Mar 14 00:03:08 UTC 2013
+
+ * Update timezone database to `tz2013b`. #142.
+
+- Version 0.0.18.
+
+Wed Mar  6 19:48:32 UTC 2013
+
+ * Added `make publish` target to `Makefile`. #141.
+ * Release to fix broken NPM publish. #140.
+
+- Version 0.0.17.
+
+Wed Mar  6 07:21:33 UTC 2013
+
+ * Update timezone database to `tz2013a`.
+
+- Version 0.0.16
+
+Wed Jan  2 04:12:59 UTC 2013
+
+ * Fix typo in `README.md` example. #128.
+ * Fix `synopsis.js` Polish format example. #122.
+ * Set `eggert/tz` to `tzdata2012j` release. #132.
+ * Organize project directory as a compiled project. #135.
+ * Multiple targets to simplify Makefile. #130.
+ * Added `.js` suffix to unit tests. #133.
+ * Use `eggert/tz` GitHub repo as database source. #134.
+ * Added a picture to the `README.md`. #121.
+
+- Version 0.0.15 - Wed Jul 18 20:40:46 UTC 2012
+
+ * Created a Markdown `README.md`. #118. #115.
+ * Added many locales. #116.
+ * Upgraded to Proof 0.0.15. #117. #113. #105. #102. #101.
+ * Removed `main` property from `package.json`. #104.
+ * Tidy whitespace and semi-colons. #97.
+ * Plug all leaks of names into the global namespace. #107.
+ * Run `utility/sizes` at Travis CI as part of continuous intgration build.
+   #103.
+ * Added `typeof` test against `module` in module loader preamble to
+   `timezones.js` and `rfc822.js`. #94.
+ * Merge `applicable` function into `find`. #95.
+ * Merge `format` function into `convert`. #91.
+ * Call `applicable` once. #88.
+ * Merge `parse` function into `convert`. #87.
+ * Merge `parseAdjustment` function into `convert`. #86.
+ * Remove `slice` of arguments in `convert`. #93.
+ * Delete `fields` variable from `actualize`. #92.
+ * Merge `make` function into `convert`. #85.
+ * Build on Node.js 0.8, add 0.8 to Travis CI. #90.
+ * ixed `sysnopsis.js` assertions. #89.
+
+- Version 0.0.14 - Mon Jun 25 21:02:24 UTC 2012
+
+ * Publish tarball of data files at GitHub. #55.
+ * Created AMD, JSONP and JSON files hosted at GitHub:Pages for use in web
+   applications. #23.
+ * Spell check `README`. #61.
+ * Remove used data file from test directories. #67.
+ * Make `zic` at Travis CI. #82.
+ * Minify with lifted variables. #79.
+ * Test minified code at Travis CI. #78.
+ * Create `loaded.js` module to create a pre-loaded Timezone function. #42.
+ * Simplify module loading boilerplate. #76.
+ * Document date array and time zone format specifiers in `synopsis.js`. #50.
+ * Remove `milli` synonym for `millisecond` math unit. #66.
+ * Remove cached `Array.push` variable. #75.
+ * Bump version string returned by Timezone function. #77. #72.
+ * Reorganize `actualize` for byte savings. #63.
+ * Revert to one based month in date array. #74.
+ * Exclude non-JavaScript files, crufy files, from `slurp.js` indices. #71.
+ * Remove over-zealous, bloaty argument verification. #70.
+
+- Version 0.0.13 - Mon Jun 25 11:05:06 UTC 2012
+
+ * Return internal state using function argument. #57.
+ * Return library version when called with no arguments. #54.
+ * Remove `posix` local variable from `convert` to save bytes. #62.
+ * Add "@" to start of date array.
+ * Add "z" to time zone data file array to differentiate zone entries from
+   daylight savings time rules.
+
+- Version 0.0.12 - Sun Jun 24 04:40:41 UTC 2012
+
+ * Clean up commented out code. #65.
+ * Retry unknown string arguments after all data sets are loaded. #59.
+ * Remove `parseInt` to save bytes. #58.
+ * Make `format` a non-member function to save bytes. #60.
+ * Implement external RFC 822 parser function. #56.
+ * Date arrays now fixed length. #52.
+ * Replace ternary operator with short circuit or to save bytes. #53.
+ * Reorder lexically similar code for better minification. #44.
+ * Remove comparisons to zero to save bytes. #45.
+ * UTC with partial didn't work if partial specified time zone name. #51.
+ * Removed TODOs. #46.
+ * Removed `require.date` property to save bytes. #47.
+ * Accept numeric object for POSIX time. #48.
+ * Build on OS X. #31.
+ * Deleted defunct `index.js`. #49.
+ * No longer parsing time only date strings. #30.
+ * Implement `%^z`. #28.
+ * Correctly format `%z` in UTC. #43.
+ * Implement UK English, French and German locales. #26.
+ * Convert Proof tests to JavaScript. #36.
+ * Timezone zones and locales in package root. #34. #33.
+ * Updates and revisions to `synopsis.js`.
+
+- Version 0.0.11 - Thu Jun 14 18:04:39 UTC 2012
+
+ * Correctly format `%_:z`. #40.
+ * Correctly format `%-:z`. #39.
+ * Tidy and sort out change log. #38.
+ * Minor changes to save a few bytes when minified and zipped.
+ * Accept `Date` as date argument.
+ * Convert to plain text `README`. #37.
+ * Combine `timezone.js` with `date.js`. #35. #25.
+
+- Version 0.0.10 - Mon May 21 18:52:31 UTC 2012
+
+ * Draft `synopsis.js`.
+ * Remove CoffeeScript source. #27.
+ * Correctly apply parsed timezone offset. #24.
+ * Use specified padding GNU `strftime` extension. #22.
+ * Implement linked zone files as copies. #11.
+ * Replace binary search with skip-list search. #21.
+ * Add heuristics assertions to pre-compiler. #16.
+ * Use Ruby 1.9.3 to verify `%::z` formats using `tzdata` files.
+ * Convert pre-compiler and library to CoffeeScript.
+ * Add tests against `tzdata` to `npm test`. #17.
+ * GNU `strftime` format parity. #9. #19.
+ * Fixed `%C` which was off by machine zone offset.
+ * Implemented parse RFC 3999 without year. #3. #7.
+ * Added support for RequireJS AMD.
+ * Changes to week of year functions for size savings. #20.
+ * `tz` function is now the sole export of Timezone.
+ * Accept date as an array of date fields.
+ * Split less commonly used GNU `date` formats out into `date.js`.
+ * Use `Object.create` to when creating partial `tz` functions.
+ * Limit date parsing to RFC 3999.
+ * Reject `Date` as date argument.
+
+- Version 0.0.9 - Wed Apr 25 22:07:44 UTC 2012
+
+ * Create `README.md` from `timezone.idl`. `.idl` is a document format for a
+   document generator that I'm never going to write.
+ * Move grumbling from `README.md` to `MOTIVATIONS.md`.
+ * Add `milliseconds` as a synonym for `millis` to date math.
+ * Configuration via partial functions.
+ * Fix subtraction of years as per #10.
+ * Attempt to create JSON as Olson by parsing the Olson files backwards in time.
+ * Convert intermediate interval boundaries format to start time from end time.
+ * Interpret slash delimited timezone abbreviations.
+ * Interpret zone records with a specific savings offset.
+ * Correctly convert between standard, wall-clock and POSIX time in preprocessing.
+ * Correctly interpret rules that occur at the 24th hour; 24:00.
+ * Correctly format `%Z`.
+ * Use binary search against a generated table of rules.
+ * Organize precompiler into a library and separate programs.
+ * Create experimental 7-bit encoding and push it to the sidelines.
+ * Redo intermediate zone file format, create clock property, offset in POSIX
+   time.
+ * Use `Date` to calculate last day of month.
+ * Parse Olson files going forward in time, not backwards.
+ * Remove generated timezone files from git.
+ * Automate download of Olson file source, compilation of of `zic`, and Olson as
+   JSON files.
+ * Build `zic` at Travis CI for testing.
+ * Remove locale aware date parsing. (NLP is out of scope.)
+ * Parse New Year's 1970. (Was confused over `0` and `undefined`.)
+ * Calculate timezone lookup table to 2037.
+
+- Version 0.0.8 - Sun Mar 18 00:42:46 UTC 2012
+
+ * Add `tz.now` date parameter.
+ * Fix month subtraction.
+ * Convert tests to Proof.
+
+- Version 0.0.7 - Thu Oct 20 23:54:43 UTC 2011
+
+ * Date math using day of week; i.e. move forward two Fridays.
+ * Polish locale.
+ * Tests for US and Polish locales.
+
+- Version 0.0.6 - Fri Oct 14 09:27:42 UTC 2011
+
+ * Install from NPM with a set of available timezones.
