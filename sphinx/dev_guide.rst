@@ -113,15 +113,10 @@ client side.  Install grunt by executing::
 
     $ npm install -g grunt-cli
 
-We're using bower to manage client dependencies. Install bower by
-executing::
-
-    $ npm install -g bower
-
 In order to build the javascript files that comprise bokeh.js, first install
 necessary dependencies::
 
-    $ npm install && bower install
+    $ npm install 
 
 These command will install compile and runtime dependencies into node_modules
 and build subdirectories, respectively.
