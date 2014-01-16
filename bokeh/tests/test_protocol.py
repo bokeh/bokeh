@@ -55,9 +55,24 @@ class TestSerializeJson(unittest.TestCase):
 
 
 
-# class TestDefaultSerializeData(unittest.TestCase):
-# 	def test_with_property(self):
-# 		from bokeh.protocol import default_serialize_data
+class TestDefaultSerializeData(unittest.TestCase):
+	def setUp(self):
+		from bokeh.protocol import default_serialize_data
+		self.serialize_data = default_serialize_data
+
+	def test_with_python_objects(self):
+		pobjs = [{'test' : 1 } , [1, 2, 3, 4] , 'string']
+		self.assertEqual(self.serialize_data(pobjs),["(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02}q\x01U\x04testq\x02K\x01s.', "(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02]q\x01(K\x01K\x02K\x03K\x04e.', "(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02U\x06stringq\x01.'])
+
+ 	def test_with_numpy_arrays(self):
+ 		nparray = np.arange(5)
+ 		self.assertEqual(self.serialize_data([nparray]),["(dp1\nS'datatype'\np2\nS'numpy'\np3\nsS'dtype'\np4\ncnumpy\ndtype\np5\n(S'i8'\nI0\nI1\ntRp6\n(I3\nS'<'\nNNNI-1\nI-1\nI0\ntbsS'shape'\np7\n(I5\ntp8\ns.", nparray])
+ 		
+ 	def test_with_mixed(self):
+ 		nparray = np.arange(5)
+ 		objs = [{'test' : 1 } , [1, 2, 3, 4] , 'string', nparray]
+ 		self.assertEqual(self.serialize_data(objs),["(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02}q\x01U\x04testq\x02K\x01s.', "(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02]q\x01(K\x01K\x02K\x03K\x04e.', "(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02U\x06stringq\x01.', "(dp1\nS'datatype'\np2\nS'numpy'\np3\nsS'dtype'\np4\ncnumpy\ndtype\np5\n(S'i8'\nI0\nI1\ntRp6\n(I3\nS'<'\nNNNI-1\nI-1\nI0\ntbsS'shape'\np7\n(I5\ntp8\ns.", nparray])
+
 
 # class TestDefaultDeserializeData(unittest.TestCase):
 # 	def test_with_property(self):
