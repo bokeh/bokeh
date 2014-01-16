@@ -23,24 +23,25 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False):
     Parameters
     ----------
 
-    figure: a matplotlib Figure object
+    @type figure: matplotlib.figure.Figure
         The figure to display. If None, then the current figure will be used.
 
-    filename: string (optional)
+    @type filename: str (default=None)
         If this option is provided, then the Bokeh figure will be saved into
         this HTML file, and then a web browser will used to display it.
         Should end in ".html".
 
-    server: string (optional)
+    @type server: str (default=None)
         Fully specified URI of bokeh plot server.  Default bokeh plot server
         URL is "http://localhost:5006"
 
-    notebook: bool, default=False
+    @type notebook: bool (default=False)
         Return an output value from this function which represents an HTML
         object that the IPython notebook can display.  If this argument
         is False, then a new browser tab will be opened to display the
         bokeh-generated plot.
 
+    @rtype None
     """
 
     if figure is None:
