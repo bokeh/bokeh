@@ -1,5 +1,6 @@
 import unittest
 from six import add_metaclass
+from mock import patch
 
 class TestViewable(unittest.TestCase):
 
@@ -81,13 +82,26 @@ class TestJsonapply(unittest.TestCase):
 				return True
 		def func(frag):
 			return frag + 'ed'
-
+			
 		result = json_apply('goal', check_func,func)
 		self.assertEqual(result, 'goaled')
 		result = json_apply([[['goal', 'junk'], 'junk', 'junk']], check_func, func)
 		self.assertEqual(result, [[['goaled', 'junk'], 'junk', 'junk']])
 		result = json_apply({'1': 'goal', 1.5 : {'2': 'goal', '3': 'junk'}}, check_func, func)
 		self.assertEqual(result, {'1': 'goaled', 1.5 : {'2': 'goaled', '3': 'junk'}})
+
+class TestResolveJson(unittest.TestCase):
+	@patch('bokeh.objects.logging')
+	def test_resolve_json(self,mock_logging):
+		from bokeh.objects import resolve_json
+
+		models = {'foo':'success','otherfoo':'othersuccess'}
+		fragment = [{'id':'foo','type':'atype'},{'id':'foo','type':'atype'},{'id':'otherfoo','type':'othertype'}]
+		self.assertEqual(resolve_json(fragment,models),['success','success','othersuccess'])
+		fragment.append({'id':'notfoo','type':'badtype'})
+		self.assertEqual(resolve_json(fragment,models),['success','success','othersuccess',None])
+		self.assertTrue(mock_logging.error.called)
+		self.assertTrue('badtype' in repr(mock_logging.error.call_args))
 
 
 if __name__ == "__main__":
