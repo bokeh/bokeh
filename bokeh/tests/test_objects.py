@@ -2,6 +2,7 @@ import unittest
 from six import add_metaclass
 
 class TestViewable(unittest.TestCase):
+
 	def setUp(self):
 		from bokeh.objects import Viewable
 		self.viewable = Viewable
@@ -27,6 +28,7 @@ class TestViewable(unittest.TestCase):
 		self.assertRaises(KeyError,self.viewable.get_class,'Imaginary_Class')
 
 class Test_UseSession(unittest.TestCase):
+
 	def setUp(self):
 		from bokeh.objects import usesession
 		self.usesession = usesession
@@ -69,6 +71,23 @@ class Test_UseSession(unittest.TestCase):
 				return session
 		tc = test_class()
 		self.assertEqual(tc.test_func(session='not_default'),'not_default')
+
+class TestJsonapply(unittest.TestCase):
+	def test_jsonapply(self):
+		from bokeh.objects import json_apply
+
+		def check_func(frag):
+			if frag == 'goal':
+				return True
+		def func(frag):
+			return frag + 'ed'
+
+		result = json_apply('goal', check_func,func)
+		self.assertEqual(result, 'goaled')
+		result = json_apply([[['goal', 'junk'], 'junk', 'junk']], check_func, func)
+		self.assertEqual(result, [[['goaled', 'junk'], 'junk', 'junk']])
+		result = json_apply({'1': 'goal', 1.5 : {'2': 'goal', '3': 'junk'}}, check_func, func)
+		self.assertEqual(result, {'1': 'goaled', 1.5 : {'2': 'goaled', '3': 'junk'}})
 
 
 if __name__ == "__main__":
