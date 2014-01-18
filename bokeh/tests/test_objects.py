@@ -1,6 +1,6 @@
 import unittest
 from six import add_metaclass
-from mock import patch
+from mock import patch, Mock
 
 class TestViewable(unittest.TestCase):
 
@@ -62,8 +62,6 @@ class Test_UseSession(unittest.TestCase):
 		self.assertRaises(RuntimeError,tc.test_func)
 		tc.session = 'something'
 		self.assertEqual(tc.test_func(),'something')
-		# this one does not work as it's a nonkeyword argument, limitation of decorators for this purpose?
-		# self.assertEqual(tc.test_func('not_default'),'not_default')
 
 	def test_without_session_attr(self):
 		class test_class():
@@ -101,7 +99,22 @@ class TestResolveJson(unittest.TestCase):
 		fragment.append({'id':'notfoo','type':'badtype'})
 		self.assertEqual(resolve_json(fragment,models),['success','success','othersuccess',None])
 		self.assertTrue(mock_logging.error.called)
-		self.assertTrue('badtype' in repr(mock_logging.error.call_args))
+		self.assertTrue('badtype' in repr(mock_logging.error.call_args))\
+
+class TestTraversePlotObjects(unittest.TestCase):
+	def test_traverse(self):
+		from bokeh.objects import PlotObject, traverse_plot_object
+		pobject = PlotObject()
+
+		pobject.properties_with_refs = Mock(return_value=['test1','test2'])
+		pobject.test1 = PlotObject()
+		pobject.test2 = 2
+		pobject.test3 = PlotObject()
+		result = traverse_plot_object(pobject)
+		self.assertTrue(pobject.test1 in result)
+		self.assertTrue(len(result) == 1)
+			
+
 
 
 if __name__ == "__main__":
