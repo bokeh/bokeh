@@ -7,8 +7,6 @@ def check_read_authentication_and_create_client(func):
     def wrapper(docid, *args, **kwargs):
         doc = docs.Doc.load(app.model_redis, docid)
         if convenience.can_read_from_request(doc, request, app):
-            g.client = serverbb.client_for_request(doc, app,
-                                                   request, 'r')
             return func(docid, *args, **kwargs)            
         else:
             abort(401)
@@ -19,8 +17,6 @@ def check_write_authentication_and_create_client(func):
     def wrapper(docid, *args, **kwargs):
         doc = docs.Doc.load(app.model_redis, docid)
         if convenience.can_write_from_request(doc, request, app):
-            g.client = serverbb.client_for_request(doc, app,
-                                                   request, 'rw')
             return func(docid, *args, **kwargs)            
         else:
             abort(401)
