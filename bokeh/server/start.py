@@ -15,8 +15,7 @@ from .app import app as bokeh_app
 from . import wsmanager
 from .serverbb import ContinuumModelsStorage
 #import objects so that we can resolve them
-from .. import protocol, bbmodel, objects, glyphs
-bbmodel.load_special_types()
+from .. import protocol, objects, glyphs
 from .models import user, docs
 from .models import convenience as mconv
 import os
