@@ -32,27 +32,12 @@ app = Flask("bokeh.server")
 def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True):
     #must import views before running apps
     from .views import deps
+    bokeh_app.setup(rport, start_redis)
     app.register_blueprint(bokeh_app)
-    bokeh_app.redis_port = rport
-    bokeh_app.start_redis = start_redis
-    bokeh_app.wsmanager = wsmanager.WebSocketManager()
-    def auth(auth, docid):
-        doc = docs.Doc.load(bokeh_app.model_redis, docid)
-        status = mconv.can_write_doc_api(doc, auth, bokeh_app)
-        return status
-    bokeh_app.wsmanager.register_auth("bokehplot", auth)
     bokeh_app.bb_redis = redis.Redis(host=rhost, port=rport, db=2)
     #for non-backbone models
     bokeh_app.model_redis = redis.Redis(host=rhost, port=rport, db=3)
     bokeh_app.pubsub_redis = redis.Redis(host=rhost, port=rport, db=4)
-    bokeh_app.secret_key = str(uuid.uuid4())
-    if bokeh_app.debugjs:
-        basedir = dirname(dirname(dirname(__file__)))
-        bokeh_app.bokehjsdir = join(basedir, "bokehjs", "build")
-        bokeh_app.bokehjssrcdir = join(basedir, "bokehjs", "src")
-    else:
-        bokeh_app.bokehjsdir = join(dirname(__file__), 'static')
-        bokeh_app.bokehjssrcdir = None
 
 def make_default_user(bokeh_app):
     docid = "defaultdoc"
@@ -80,8 +65,13 @@ import os
 import atexit
 def start_services():
     if bokeh_app.start_redis:
+        #for tests:
+        data_file = getattr(bokeh_app, 'data_file', 'redis.db')
         mproc = services.start_redis("bokehpids.json",
-                                     bokeh_app.redis_port, os.getcwd())
+                                     bokeh_app.redis_port, 
+                                     os.getcwd(),
+                                     #data_file=data_file
+                                     )
         bokeh_app.redis_proc = mproc
     atexit.register(service_exit)
 

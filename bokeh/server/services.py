@@ -58,7 +58,7 @@ class ManagedProcess(object):
             self.proc.kill()
             self.proc.communicate()
             self.remove_from_pidfile()
-
+            self.closed = True
 
 
 def start_redis(pidfilename, port, data_dir, loglevel="warning",
