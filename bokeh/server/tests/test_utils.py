@@ -9,7 +9,7 @@ from requests.exceptions import ConnectionError
 import requests
 
 from .. import redisutils
-from ..app import app
+from ..app import bokeh_app
 from .. import start
 
 def wait_flask():
@@ -60,17 +60,17 @@ def recv_timeout(socket, timeout):
 class BokehServerTestCase(unittest.TestCase):
     def setUp(self):
         start.prepare_app(rport=6899)
-        start.prepare_local()
-        self.servert = gevent.spawn(start.start_app)
         fname = tempfile.NamedTemporaryFile().name
-        self.redisproc = redisutils.RedisProcess(6899, '/tmp', data_file=fname, save=False)
+        start.prepare_local()
+        bokeh_app.data_file = fname
+        self.servert = gevent.spawn(start.start_app)
         wait_redis_start(6899)
         redis.Redis(port=6899).flushall()
-        start.make_default_user(app)
+        start.make_default_user(bokeh_app)
         wait_flask()
         
     def tearDown(self):
         self.servert.kill()
-        self.redisproc.close()
+        bokeh_app.redis_proc.close()
         wait_redis_gone(6899)
     

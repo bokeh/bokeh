@@ -3,7 +3,7 @@ import unittest
 import mock
 import websocket
 import gevent
-
+from ..serverbb import RedisSession
 from .. import wsmanager
 from . import test_utils
 from ..app import app
@@ -30,19 +30,35 @@ ws_address = "ws://localhost:5006/bokeh/sub"
 class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestSubscribeWebSocket, self).setUp()
+        sess = RedisSession(app.bb_redis, 'defaultdoc')
+        doc = docs.new_doc(app, "defaultdoc",
+                           'main', sess, rw_users=["defaultuser"],
+                           apikey='nokey')
+        sess = RedisSession(app.bb_redis, 'defaultdoc2')
         doc2 = docs.new_doc(app, "defaultdoc2",
-                            'main', rw_users=["defaultuser"],
+                            'main', sess, rw_users=["defaultuser"],
                             apikey='nokey')
+        
     def test_basic_subscribe(self):
+        #connect sock to defaultdoc
+        #connect sock2 to defaultdoc
+        #connect sock3 to defaultdoc2
         sock = websocket.WebSocket()
         connect(sock, ws_address, 'bokehplot:defaultdoc', 'nokey')
-        app.wsmanager.send('bokehplot:defaultdoc', 'hello!')
-        msg = sock.recv()
-        assert msg == 'bokehplot:defaultdoc:hello!'
         sock2 = websocket.WebSocket()
         connect(sock2, ws_address, 'bokehplot:defaultdoc', 'nokey')
         sock3 = websocket.WebSocket()
         connect(sock3, ws_address, 'bokehplot:defaultdoc2', 'nokey')
+        
+        #make sure sock and sock2 receive message
+        app.wsmanager.send('bokehplot:defaultdoc', 'hello!')
+        msg = sock.recv()
+        assert msg == 'bokehplot:defaultdoc:hello!'
+        msg = sock2.recv()
+        assert msg == 'bokehplot:defaultdoc:hello!'
+        
+        # send messages on 2 topics, make sure that sockets receive
+        # the right messages
         app.wsmanager.send('bokehplot:defaultdoc', 'hello2!')        
         app.wsmanager.send('bokehplot:defaultdoc2', 'hello3!')
         msg = sock.recv()
@@ -53,14 +69,14 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         assert msg == 'bokehplot:defaultdoc2:hello3!'
         
 def connect(sock, addr, topic, auth):
-    sock.io_sock.settimeout(1.0)
+    sock.sock.settimeout(1.0)
     sock.connect(addr)
     msgobj = dict(msgtype='subscribe',
                   topic=topic,
                   auth=auth
                   )
-    sock.send(protocol.serialize_msg(msgobj))
+    sock.send(protocol.serialize_json(msgobj))
     msg = sock.recv()
     msg = msg.split(":", 2)[-1]
-    msgobj = protocol.deserialize_msg(msg)
+    msgobj = protocol.deserialize_json(msg)
     assert msgobj['status'][:2] == ['subscribesuccess', topic]
