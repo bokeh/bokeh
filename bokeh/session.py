@@ -478,7 +478,6 @@ class PlotServerSession(BaseHTMLSession):
         self.docid = None
         self.plotcontext = None
         self.apikey = None
-        self.bbclient = None   # reference to a ContinuumModelsClient
         self.base_url = urljoin(self.root_url, "/bokeh/bb/")
         self.raw_js_objs = []
         super(PlotServerSession, self).__init__()
