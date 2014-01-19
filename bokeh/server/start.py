@@ -13,7 +13,6 @@ import redis
 #server imports
 from .app import app as bokeh_app
 from . import wsmanager
-from .serverbb import ContinuumModelsStorage
 #import objects so that we can resolve them
 from .. import protocol, objects, glyphs
 from .models import user, docs
