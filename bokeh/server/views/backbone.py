@@ -5,7 +5,7 @@ import flask
 import os
 import logging
 import uuid
-from ..app import app
+from ..app import bokeh_app
 from ..serverbb import RedisSession
 from .. import wsmanager
 from ..models import convenience
@@ -20,7 +20,7 @@ log = logging.getLogger(__name__)
 
 #Management Functions
 
-@app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
 @check_write_authentication_and_create_client
 def reset(docid):
     doc = docs.Doc.load(app.servermodel_storage, docid)
@@ -34,7 +34,7 @@ def reset(docid):
             sess.store_obj(m)
     return 'success'
 
-@app.route("/bokeh/bb/<docid>/rungc", methods=['GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/rungc", methods=['GET'])
 @check_write_authentication_and_create_client
 def rungc(docid):
     doc = docs.Doc.load(app.servermodel_storage, docid)
@@ -43,7 +43,7 @@ def rungc(docid):
     sess.prune(delete=True)
     return 'success'
 
-@app.route("/bokeh/bb/<docid>/callbacks", methods=['POST', 'GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/callbacks", methods=['POST', 'GET'])
 @check_write_authentication_and_create_client
 def callbacks(docid):
     doc = docs.Doc.load(app.servermodel_storage, docid)
@@ -58,7 +58,7 @@ def callbacks(docid):
     return make_json(sess.serialize(jsondata))
 
 #bulk upsert
-@app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
+@bokeh_app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
 @check_write_authentication_and_create_client
 def bulk_upsert(docid):
     # endpoint is only used by python, therefore we don't process
@@ -100,7 +100,7 @@ def ws_delete(session, models):
     
 #backbone functionality
 
-@app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @check_write_authentication_and_create_client
 def create(docid, typename):
     doc = docs.Doc.load(app.servermodel_storage, docid)
@@ -114,8 +114,8 @@ def create(docid, typename):
     ws_update(sess, modeldata)
     return sess.serialize(modeldata[0]['attributes'])
 
-@app.route("/bokeh/bb/<docid>/", methods=['GET'])
-@app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/", methods=['GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
 @check_read_authentication_and_create_client
 def bulkget(docid, typename=None):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
@@ -133,7 +133,7 @@ def bulkget(docid, typename=None):
         return make_json(sess.serialize(attrs))
 
 #route for working with individual models
-@app.route("/bokeh/bb/<docid>/<typename>/<id>/",
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/",
            methods=['GET', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'])
 @crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'],
              headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
@@ -196,7 +196,7 @@ def delete(docid, typename, id):
 
 
 #rpc route
-@app.route("/bokeh/bb/rpc/<docid>/<typename>/<id>/<funcname>/",
+@bokeh_app.route("/bokeh/bb/rpc/<docid>/<typename>/<id>/<funcname>/",
            methods=['POST', 'OPTIONS'])
 @crossdomain(origin="*", methods=['POST'],
              headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])

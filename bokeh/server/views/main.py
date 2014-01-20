@@ -3,7 +3,7 @@ from flask import (
     send_from_directory, abort,
     jsonify, Response, redirect)
 
-from ..app import app
+from ..app import bokeh_app
 import os
 import logging
 import uuid
@@ -24,86 +24,86 @@ from ..serverbb import RedisSession
 from flask import url_for
 #main pages
 
-@app.route('/bokeh/ping')
+@bokeh_app.route('/bokeh/ping')
 def ping():
     #test route, to know if the server is up
     return "pong"
 
-@app.route('/bokeh/')
+@bokeh_app.route('/bokeh/')
 def index(*unused_all, **kwargs):
-    bokehuser = app.current_user()
+    bokehuser = bokeh_app.current_user()
     if not bokehuser:
         return redirect("/bokeh/login")
     return render_template('bokeh.html',
-                           splitjs=app.splitjs
+                           splitjs=bokeh_app.splitjs
                            )
 
-@app.route('/')
+@bokeh_app.route('/')
 def welcome(*unused_all, **kwargs):
     return redirect("/bokeh/")
 
-@app.route('/bokeh/favicon.ico')
+@bokeh_app.route('/bokeh/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(app.root_path, 'static'),
+    return send_from_directory(os.path.join(bokeh_app.root_path, 'static'),
                                'favicon.ico', mimetype='image/x-icon')
 
 def _makedoc(redisconn, u, title):
     docid = str(uuid.uuid4())
     if isinstance(u, string_types):
         u = user.User.load(redisconn, u)
-    sess = app.backbone_storage.get_session(docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)
     u.add_doc(docid, title)
-    doc = docs.new_doc(app, docid,
+    doc = docs.new_doc(bokeh_app, docid,
                        title, sess,
                        rw_users=[u.username])
     u.save(redisconn)
     return doc
 
-@app.route('/bokeh/doc', methods=['POST'])
-@app.route('/bokeh/doc/', methods=['POST'])
+@bokeh_app.route('/bokeh/doc', methods=['POST'])
+@bokeh_app.route('/bokeh/doc/', methods=['POST'])
 def makedoc():
     if request.json:
         title = request.json['title']
     else:
         title = request.values['title']
-    bokehuser = app.current_user()
+    bokehuser = bokeh_app.current_user()
     try:
-        doc = _makedoc(app.servermodel_storage, bokehuser, title)
+        doc = _makedoc(bokeh_app.servermodel_storage, bokehuser, title)
     except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
     msg = protocol.serialize_web({'msgtype' : 'docchange'})
-    app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
+    bokeh_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
 
-@app.route('/bokeh/doc/<docid>', methods=['delete'])
-@app.route('/bokeh/doc/<docid>/', methods=['delete'])
+@bokeh_app.route('/bokeh/doc/<docid>', methods=['delete'])
+@bokeh_app.route('/bokeh/doc/<docid>/', methods=['delete'])
 def deletedoc(docid):
-    bokehuser = app.current_user()
+    bokehuser = bokeh_app.current_user()
     try:
         bokehuser.remove_doc(docid)
-        bokehuser.save(app.servermodel_storage)
+        bokehuser.save(bokeh_app.servermodel_storage)
     except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
     msg = protocol.serialize_web({'msgtype' : 'docchange'})
-    app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
+    bokeh_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     return make_json(jsonstring)
 
-@app.route('/bokeh/getdocapikey/<docid>')
+@bokeh_app.route('/bokeh/getdocapikey/<docid>')
 def get_doc_api_key(docid):
-    bokehuser = app.current_user()
-    doc = docs.Doc.load(app.servermodel_storage, docid)
-    if mconv.can_write_from_request(doc, request, app):
+    bokehuser = bokeh_app.current_user()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    if mconv.can_write_from_request(doc, request, bokeh_app):
         return jsonify({'apikey' : doc.apikey})
-    elif mconv.can_write_from_request(doc, request, app):
+    elif mconv.can_write_from_request(doc, request, bokeh_app):
         return jsonify({'readonlyapikey' : doc.readonlyapikey})
     else:
         return abort(401)
 
-@app.route('/bokeh/userinfo/')
+@bokeh_app.route('/bokeh/userinfo/')
 def get_user():
-    bokehuser = app.current_user()
+    bokehuser = bokeh_app.current_user()
     if not bokehuser:
         abort(403) 
     content = protocol.serialize_web(bokehuser.to_public_json())
@@ -114,16 +114,16 @@ def _make_test_plot_file(username, userapikey, url):
              "p = mpl.PlotClient(username='%s', serverloc='%s', userapikey='%s')" % (username, url, userapikey)]
     return "\n".join(lines)
 
-@app.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
-@app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
+@bokeh_app.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
+@bokeh_app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 @check_read_authentication_and_create_client
 def get_bokeh_info(docid):
     return _get_bokeh_info(docid)
 
 def _get_bokeh_info(docid):
-    doc = docs.Doc.load(app.servermodel_storage, docid)
-    sess = app.backbone_storage.get_session(docid)    
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)    
     sess.load()
     sess.prune()
     all_models = sess._models.values()
@@ -138,33 +138,33 @@ def _get_bokeh_info(docid):
                        headers={"Access-Control-Allow-Origin": "*"})
     return result
 
-@app.route('/bokeh/doc/<title>/show', methods=['GET', 'OPTIONS'])
+@bokeh_app.route('/bokeh/doc/<title>/show', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def show_doc_by_title(title):
-    bokehuser = app.current_user()
+    bokehuser = bokeh_app.current_user()
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
     doc = docs[0] if len(docs) != 0 else abort(404)
     docid = doc['docid']
     return render_template('show.html', title=title, docid=docid)
 
-@app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
+@bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def doc_by_title():
     if request.json:
         title = request.json['title']
     else:
         title = request.values['title']
-    bokehuser = app.current_user()
+    bokehuser = bokeh_app.current_user()
     docs = [doc for doc in bokehuser.docs if doc['title'] == title]
     if len(docs) == 0:
         try:
-            doc = _makedoc(app.servermodel_storage, bokehuser, title)
+            doc = _makedoc(bokeh_app.servermodel_storage, bokehuser, title)
             docid = doc.docid
         except DataIntegrityException as e:
             return abort(409, e.message)
         jsonstring = protocol.serialize_web(bokehuser.to_public_json())
         msg = protocol.serialize_web({'msgtype' : 'docchange'})
-        app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
+        bokeh_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     else:
         doc = docs[0]
         docid = doc['docid']
@@ -172,12 +172,12 @@ def doc_by_title():
 
 """need to rethink public publishing
 """
-# @app.route('/bokeh/publicbokehinfo/<docid>')
+# @bokeh_app.route('/bokeh/publicbokehinfo/<docid>')
 # def get_public_bokeh_info(docid):
-#     doc = docs.Doc.load(app.servermodel_storage, docid)
+#     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
 #     plot_context_ref = doc.plot_context_ref
-#     all_models = docs.prune_and_get_valid_models(app.servermodel_storage,
-#                                                  app.collections,
+#     all_models = docs.prune_and_get_valid_models(bokeh_app.servermodel_storage,
+#                                                  bokeh_app.collections,
 #                                                  docid)
 #     public_models = [x for x in all_models if x.get('public', False)]
 #     if len(public_models) == 0:
@@ -194,19 +194,19 @@ def doc_by_title():
 #             {"Access-Control-Allow-Origin": "*"})
 
 
-@app.route('/bokeh/sampleerror')
+@bokeh_app.route('/bokeh/sampleerror')
 def sampleerror():
     return 1 + "sdf"
 
 
 def dom_embed(plot, **kwargs):
-    if app.debug:
+    if bokeh_app.debug:
         from continuumweb import hemlib
         slug = hemlib.slug_json()
-        static_js = hemlib.slug_libs(app, slug['libs'])
-        hemsource = os.path.join(app.static_folder, "coffee")
+        static_js = hemlib.slug_libs(bokeh_app, slug['libs'])
+        hemsource = os.path.join(bokeh_app.static_folder, "coffee")
         hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
-        hemsource = os.path.join(app.static_folder, "vendor",
+        hemsource = os.path.join(bokeh_app.static_folder, "vendor",
                                  "bokehjs", "coffee")
         hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
     else:
@@ -240,7 +240,7 @@ def make_test_plot():
 
 
 
-@app.route("/bokeh/generate_embed/<inject_type>")
+@bokeh_app.route("/bokeh/generate_embed/<inject_type>")
 def generate_embed(inject_type):
     """the following 8 functions setup embedding pages in a variety of formats
 
@@ -298,7 +298,7 @@ def generate_embed(inject_type):
 
 import os
 
-@app.route("/bokeh/embed.js")
+@bokeh_app.route("/bokeh/embed.js")
 def embed_js():
     import jinja2
     t_file = os.path.join(
