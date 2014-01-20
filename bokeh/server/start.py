@@ -10,7 +10,7 @@ import uuid
 import socket
 
 #server imports
-from .app import app as bokeh_app
+from .app import bokeh_app
 from . import wsmanager
 #import objects so that we can resolve them
 from .. import protocol, objects, glyphs
@@ -20,6 +20,7 @@ import os
 from os.path import join, dirname
 import logging
 import time
+import sys
 from .server_backends import (RedisBackboneStorage, 
                               RedisServerModelStorage,
                               SingleUserAuthentication,
@@ -78,10 +79,14 @@ def start_services():
     if bokeh_app.start_redis:
         #for tests:
         data_file = getattr(bokeh_app, 'data_file', 'redis.db')
+        stdout = getattr(bokeh_app, 'stdout', sys.stdout)
+        stderr = getattr(bokeh_app, 'stdout', sys.stderr)
         mproc = services.start_redis("bokehpids.json",
                                      bokeh_app.redis_port, 
                                      os.getcwd(),
-                                     #data_file=data_file
+                                     data_file=data_file,
+                                     stdout=stdout,
+                                     stderr=stderr
                                      )
         bokeh_app.redis_proc = mproc
     atexit.register(service_exit)

@@ -63,6 +63,8 @@ class BokehServerTestCase(unittest.TestCase):
         start.prepare_app(rport=6899, **self.options)
         fname = tempfile.NamedTemporaryFile().name
         bokeh_app.data_file = fname
+        bokeh_app.stdout = None
+        bokeh_app.stderr = None
         self.servert = gevent.spawn(start.start_app)
         wait_redis_start(6899)
         redis.Redis(port=6899).flushall()
