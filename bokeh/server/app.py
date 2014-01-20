@@ -4,16 +4,17 @@ import logging
 from logging import Formatter
 import uuid
 from . import wsmanager
-from .models import user, docs
 from .models import convenience as mconv
-
+from .models import docs
 class BokehBlueprint(flask.Blueprint):
     def setup(self, redis_port, start_redis, 
               backbone_storage,
-              servermodel_storage
+              servermodel_storage,
+              authentication
               ):
         self.backbone_storage = backbone_storage
         self.servermodel_storage = servermodel_storage
+        self.authentication = authentication
         self.redis_port = redis_port
         self.start_redis = start_redis
         self.secret_key = str(uuid.uuid4())
@@ -31,6 +32,9 @@ class BokehBlueprint(flask.Blueprint):
         else:
             self.bokehjsdir = join(dirname(__file__), 'static')
             self.bokehjssrcdir = None
+            
+    def current_user(self):
+        return self.authentication.current_user()
 
 app = BokehBlueprint('bokeh.server',
                      'bokeh.server',

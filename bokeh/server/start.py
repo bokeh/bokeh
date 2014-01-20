@@ -20,7 +20,9 @@ import os
 from os.path import join, dirname
 import logging
 import time
-from .server_backends import RedisBackboneStorage, RedisServerModelStorage
+from .server_backends import (RedisBackboneStorage, 
+                              RedisServerModelStorage,
+                              SingleUserAuthentication)
 
 PORT = 5006
 REDIS_PORT = 6379
@@ -28,7 +30,9 @@ REDIS_PORT = 6379
 log = logging.getLogger(__name__)
 app = Flask("bokeh.server")
 
-def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True):
+def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True,
+                single_user_mode=True
+                ):
     #must import views before running apps
     import redis
 
@@ -40,8 +44,12 @@ def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True):
     servermodel_storage = RedisServerModelStorage(
         redis.Redis(host=rhost, port=rport, db=3)
         )
-    bokeh_app.setup(rport, start_redis, bbstorage, servermodel_storage)
-
+    if single_user_mode:
+        authentication = SingleUserAuthentication()
+    bokeh_app.setup(rport, start_redis, bbstorage, servermodel_storage,
+                    authentication
+                    )
+    
     app.register_blueprint(bokeh_app)
     #bokeh_app.pubsub_redis = redis.Redis(host=rhost, port=rport, db=4)
 
@@ -52,17 +60,6 @@ def make_default_user(bokeh_app):
 
     return bokehuser
 
-def prepare_local():
-    #monkeypatching
-    def current_user(request):
-        bokehuser = user.User.load(bokeh_app.servermodel_storage, "defaultuser")
-        if bokehuser is None:
-            bokehuser = make_default_user(bokeh_app)
-        return bokehuser
-    def write_plot_file(username, codedata):
-        return
-    bokeh_app.current_user = current_user
-    bokeh_app.write_plot_file = write_plot_file
 
 http_server = None
 

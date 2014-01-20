@@ -46,7 +46,6 @@ def main():
     start.bokeh_app.debugjs = args.debugjs
 
     start.prepare_app(rport=args.redis_port, start_redis=args.start_redis)
-    start.prepare_local()
 
     if args.debug:
         print("running with debug")

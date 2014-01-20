@@ -59,7 +59,7 @@ def makedoc():
         title = request.json['title']
     else:
         title = request.values['title']
-    bokehuser = app.current_user(request)
+    bokehuser = app.current_user()
     try:
         doc = _makedoc(app.servermodel_storage, bokehuser, title)
     except DataIntegrityException as e:
@@ -72,7 +72,7 @@ def makedoc():
 @app.route('/bokeh/doc/<docid>', methods=['delete'])
 @app.route('/bokeh/doc/<docid>/', methods=['delete'])
 def deletedoc(docid):
-    bokehuser = app.current_user(request)
+    bokehuser = app.current_user()
     try:
         bokehuser.remove_doc(docid)
         bokehuser.save(app.servermodel_storage)
@@ -85,7 +85,7 @@ def deletedoc(docid):
 
 @app.route('/bokeh/getdocapikey/<docid>')
 def get_doc_api_key(docid):
-    bokehuser = app.current_user(request)
+    bokehuser = app.current_user()
     doc = docs.Doc.load(app.servermodel_storage, docid)
     if mconv.can_write_from_request(doc, request, app):
         return jsonify({'apikey' : doc.apikey})
@@ -96,22 +96,14 @@ def get_doc_api_key(docid):
 
 @app.route('/bokeh/userinfo/')
 def get_user():
-    bokehuser = app.current_user(request)
+    bokehuser = app.current_user()
     content = protocol.serialize_web(bokehuser.to_public_json())
-    write_plot_file(request.scheme + "://" + request.host)
     return make_json(content)
 
 def _make_test_plot_file(username, userapikey, url):
     lines = ["from bokeh import mpl",
              "p = mpl.PlotClient(username='%s', serverloc='%s', userapikey='%s')" % (username, url, userapikey)]
     return "\n".join(lines)
-
-def write_plot_file(url):
-    bokehuser = app.current_user(request)
-    codedata = _make_test_plot_file(bokehuser.username,
-                               bokehuser.apikey,
-                               url)
-    app.write_plot_file(bokehuser.username, codedata)
 
 @app.route('/bokeh/doc/<docid>/', methods=['GET', 'OPTIONS'])
 @app.route('/bokeh/bokehinfo/<docid>/', methods=['GET', 'OPTIONS'])
@@ -140,7 +132,7 @@ def _get_bokeh_info(docid):
 @app.route('/bokeh/doc/<title>/show', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def show_doc_by_title(title):
-    bokehuser = app.current_user(request)
+    bokehuser = app.current_user()
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
     doc = docs[0] if len(docs) != 0 else abort(404)
     docid = doc['docid']
@@ -153,7 +145,7 @@ def doc_by_title():
         title = request.json['title']
     else:
         title = request.values['title']
-    bokehuser = app.current_user(request)
+    bokehuser = app.current_user()
     docs = [doc for doc in bokehuser.docs if doc['title'] == title]
     if len(docs) == 0:
         try:

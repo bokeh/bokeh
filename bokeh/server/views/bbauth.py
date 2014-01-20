@@ -22,3 +22,23 @@ def check_write_authentication_and_create_client(func):
             abort(401)
     wrapper.__name__ = func.__name__
     return wrapper
+
+@app.route('/bokeh/login', methods=['GET'])
+@app.route('/bokeh/login/', methods=['GET'])
+def login_get():
+    return app.authentication.login_get()
+
+@app.route('/bokeh/login', methods=['POST'])
+@app.route('/bokeh/login/', methods=['POST'])
+def login_post():
+    return app.authentication.login_post()
+
+@app.route('/bokeh/register', methods=['GET'])
+@app.route('/bokeh/register/', methods=['GET'])
+def register_get():
+    return app.authentication.register_get()
+
+@app.route('/bokeh/register', methods=['POST'])
+@app.route('/bokeh/register/', methods=['POST'])
+def register_post():
+    return app.authentication.register_post()

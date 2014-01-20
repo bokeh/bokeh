@@ -20,7 +20,7 @@ def can_write_from_request(doc, request, app):
     if request.headers.get('BOKEH-API-KEY'):
         return doc.apikey == request.headers['BOKEH-API-KEY']
     else:
-        user = app.current_user(request)
+        user = app.current_user()
         if not user: return False
         return can_write_doc(doc, user)
 
@@ -31,6 +31,6 @@ def can_read_from_request(doc, request, app):
         if request.headers.get('BOKEH-API-KEY'):
             return doc.readonlyapikey == request.headers['BOKEH-API-KEY']
         else:
-            user = app.current_user(request)
+            user = app.current_user()
             if not user: return False
             return can_read_doc(doc, user)

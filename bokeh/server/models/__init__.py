@@ -1,4 +1,5 @@
 import json
+from ...exceptions import DataIntegrityException
 
 class UnauthorizedException(Exception):
     pass
@@ -24,6 +25,12 @@ class ServerModel(object):
     def save(self, client):
         client.set(self.mykey(), self.to_json())
         
+    def create(self, client):
+        try:
+            client.create(self.mykey(), self.to_json())
+        except DataIntegrityException as e:
+            raise UnauthorizedException, self.mykey()
+
     @classmethod
     def load_json(cls, client, objid):
         data = client.get(cls.modelkey(objid))
