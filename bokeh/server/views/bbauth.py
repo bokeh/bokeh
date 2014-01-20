@@ -33,12 +33,15 @@ def login_get():
 def login_post():
     return app.authentication.login_post()
 
-@app.route('/bokeh/register', methods=['GET'])
 @app.route('/bokeh/register/', methods=['GET'])
+@app.route('/bokeh/register', methods=['GET'])
 def register_get():
     return app.authentication.register_get()
 
-@app.route('/bokeh/register', methods=['POST'])
 @app.route('/bokeh/register/', methods=['POST'])
+@app.route('/bokeh/register', methods=['POST'])
 def register_post():
-    return app.authentication.register_post()
+    result = app.authentication.register_post()
+    return result
+
+

@@ -24,16 +24,20 @@ from ..serverbb import RedisSession
 from flask import url_for
 #main pages
 
+@app.route('/bokeh/ping')
+def ping():
+    #test route, to know if the server is up
+    return "pong"
+
 @app.route('/bokeh/')
 def index(*unused_all, **kwargs):
     return render_template('bokeh.html',
                            splitjs=app.splitjs
                            )
 
-
 @app.route('/')
 def welcome(*unused_all, **kwargs):
-    return render_template('base.html')
+    return redirect("/bokeh/")
 
 @app.route('/bokeh/favicon.ico')
 def favicon():
@@ -97,6 +101,8 @@ def get_doc_api_key(docid):
 @app.route('/bokeh/userinfo/')
 def get_user():
     bokehuser = app.current_user()
+    if not bokehuser:
+        abort(403) 
     content = protocol.serialize_web(bokehuser.to_public_json())
     return make_json(content)
 

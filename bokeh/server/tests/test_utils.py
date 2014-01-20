@@ -15,7 +15,7 @@ from .. import start
 def wait_flask():
     def helper():
         try:
-            return requests.get('http://localhost:5006/bokeh/userinfo/')
+            return requests.get('http://localhost:5006/bokeh/ping')
         except ConnectionError as e:
             return False
     return wait_until(helper)
@@ -58,8 +58,9 @@ def recv_timeout(socket, timeout):
 		return None
 	
 class BokehServerTestCase(unittest.TestCase):
+    options = {}
     def setUp(self):
-        start.prepare_app(rport=6899)
+        start.prepare_app(rport=6899, **self.options)
         fname = tempfile.NamedTemporaryFile().name
         bokeh_app.data_file = fname
         self.servert = gevent.spawn(start.start_app)

@@ -22,7 +22,9 @@ import logging
 import time
 from .server_backends import (RedisBackboneStorage, 
                               RedisServerModelStorage,
-                              SingleUserAuthentication)
+                              SingleUserAuthentication,
+                              MultiUserAuthentication
+                              )
 
 PORT = 5006
 REDIS_PORT = 6379
@@ -46,11 +48,17 @@ def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True,
         )
     if single_user_mode:
         authentication = SingleUserAuthentication()
+    else:
+        authentication = MultiUserAuthentication()
     bokeh_app.setup(rport, start_redis, bbstorage, servermodel_storage,
                     authentication
                     )
-    
+
     app.register_blueprint(bokeh_app)
+    
+    #where should we be setting the secret key....?
+    if not app.secret_key:
+        app.secret_key = str(uuid.uuid4())
     #bokeh_app.pubsub_redis = redis.Redis(host=rhost, port=rport, db=4)
 
 def make_default_user(bokeh_app):

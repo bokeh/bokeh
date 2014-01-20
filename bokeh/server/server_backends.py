@@ -1,8 +1,11 @@
 import json
 import uuid
 import models.user as user
+from models import UnauthorizedException
 from app import bokeh_app
 from ..exceptions import DataIntegrityException
+import logging
+logger = logging.getLogger(__name__)
 
 class AbstractBackboneStorage(object):
     def get_session(self, docid, doc=None):
@@ -68,6 +71,17 @@ class AbstractAuthentication(object):
         object
         """
         raise NotImplementedError
+    def login(self, username):
+        """login the user, sets whatever request information is necessary
+        (usually, session['username'] = username)
+        """
+        raise NotImplementedError
+    
+    def logout(self):
+        """logs out the user, sets whatever request information is necessary
+        usually, session.pop('username')
+        """
+        raise NotImplementedError
     
     def current_user(self):
         """returns bokeh User object from self.current_user_name
@@ -75,7 +89,7 @@ class AbstractAuthentication(object):
         username = self.current_user_name()
         bokehuser = user.User.load(bokeh_app.servermodel_storage, username)
         return bokehuser
-
+        
     def login_get(self):
         """custom login view
         """
@@ -95,8 +109,11 @@ class AbstractAuthentication(object):
         """custom register submission
         """
         raise NotImplementedError
-    
-class SingleUserAuthentication(object):
+
+from flask import (request, session, abort, 
+                   flash, redirect, url_for, render_template)
+
+class SingleUserAuthentication(AbstractAuthentication):
     def current_user_name(self):
         return "defaultuser"
         
@@ -112,5 +129,57 @@ class SingleUserAuthentication(object):
                                   str(uuid.uuid4()), apikey='nokey', docs=[])
         return bokehuser
 
-
+class MultiUserAuthentication(AbstractAuthentication):
     
+    def login(self, username):
+        session['username'] = username
+
+    def current_user_name(self):
+        username =  session.get('username', None)
+        if username:
+            return username
+        else:
+            # check for auth via apis and headers
+            bokehuser = user.apiuser_from_request(bokeh_app, request)
+            if bokehuser:
+                return bokehuser.username
+            
+    
+    def register_get(self):
+        return render_template("register.html")
+    
+    def login_get(self):
+        return render_template("login.html")
+
+    def register_post(self):
+        username = request.values['username']
+        password = request.values['password']
+        password_confirm = request.values['password_confirm']
+        if password != password_confirm:
+            flash("password and confirmation do not match")
+            return redirect(url_for('bokeh.server.register_get'))
+        try:
+            bokehuser = user.new_user(
+                bokeh_app.servermodel_storage, username, password
+                )
+            self.login(username)
+            logger.info("logged in %s" % str(bokehuser.to_json()))
+        except UnauthorizedException:
+            flash("user already exists")
+            return redirect(url_for('bokeh.server.register_get'))
+        return redirect("/bokeh")
+    
+    def login_post(self):
+        username = request.values['username']
+        password = request.values['password']
+        try:
+            bokehuser = user.auth_user(bokeh_app.servermodel_storage,
+                                       username, 
+                                       password)
+            self.login(username)
+            logger.info("logged in %s" % str(bokehuser.to_json()))
+        except UnauthorizedException:
+            flash("incorrect login exists")
+            return redirect(url_for('bokeh.server.login_get'))
+        return redirect("/bokeh")
+        
