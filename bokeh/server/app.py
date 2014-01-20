@@ -9,6 +9,10 @@ from .models import docs
 """bokeh_app is actually a flask blueprint
 """
 class BokehBlueprint(flask.Blueprint):
+    def __init__(self, *args, **kwargs):
+        super(BokehBlueprint, self).__init__(*args, **kwargs)
+        self.debugjs = None
+        
     def setup(self, redis_port, start_redis, 
               backbone_storage,
               servermodel_storage,
@@ -19,7 +23,6 @@ class BokehBlueprint(flask.Blueprint):
         self.authentication = authentication
         self.redis_port = redis_port
         self.start_redis = start_redis
-        self.debugjs = None
         self.wsmanager = wsmanager.WebSocketManager()
         def auth(auth, docid):
             doc = docs.Doc.load(self.servermodel_storage, docid)
