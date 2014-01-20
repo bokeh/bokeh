@@ -61,7 +61,6 @@ class BokehServerTestCase(unittest.TestCase):
     def setUp(self):
         start.prepare_app(rport=6899)
         fname = tempfile.NamedTemporaryFile().name
-        start.prepare_local()
         bokeh_app.data_file = fname
         self.servert = gevent.spawn(start.start_app)
         wait_redis_start(6899)

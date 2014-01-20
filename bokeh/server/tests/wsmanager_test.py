@@ -30,11 +30,11 @@ ws_address = "ws://localhost:5006/bokeh/sub"
 class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestSubscribeWebSocket, self).setUp()
-        sess = RedisSession(app.bb_redis, 'defaultdoc')
+        sess = app.backbone_storage.get_session('defaultdoc')
         doc = docs.new_doc(app, "defaultdoc",
                            'main', sess, rw_users=["defaultuser"],
                            apikey='nokey')
-        sess = RedisSession(app.bb_redis, 'defaultdoc2')
+        sess = app.backbone_storage.get_session('defaultdocs')
         doc2 = docs.new_doc(app, "defaultdoc2",
                             'main', sess, rw_users=["defaultuser"],
                             apikey='nokey')
