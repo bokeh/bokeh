@@ -21,7 +21,7 @@ import os
 from os.path import join, dirname
 import logging
 import time
-
+from .server_backends import RedisBackboneStorage
 
 PORT = 5006
 REDIS_PORT = 6379
@@ -31,10 +31,11 @@ app = Flask("bokeh.server")
 
 def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True):
     #must import views before running apps
+
     from .views import deps
-    bokeh_app.setup(rport, start_redis)
+    bbstorage = RedisBackboneStorage(redis.Redis(host=rhost, port=rport, db=2))
+    bokeh_app.setup(rport, start_redis, bbstorage)
     app.register_blueprint(bokeh_app)
-    bokeh_app.bb_redis = redis.Redis(host=rhost, port=rport, db=2)
     #for non-backbone models
     bokeh_app.model_redis = redis.Redis(host=rhost, port=rport, db=3)
     bokeh_app.pubsub_redis = redis.Redis(host=rhost, port=rport, db=4)

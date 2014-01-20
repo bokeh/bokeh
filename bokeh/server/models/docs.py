@@ -5,7 +5,7 @@ from ...session import PlotContext
 import logging
 log = logging.getLogger(__name__)
 
-def prune_and_get_valid_models(doc, session, delete=False):
+def prune_and_get_valid_models(session, delete=False):
     """retrieve all models that the plot_context points to.
     if delete is True,
     wipe out any models that are orphaned.  Also call transform_models, which

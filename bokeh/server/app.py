@@ -8,7 +8,8 @@ from .models import user, docs
 from .models import convenience as mconv
 
 class BokehBlueprint(flask.Blueprint):
-    def setup(self, redis_port, start_redis):
+    def setup(self, redis_port, start_redis, backbone_storage):
+        self.backbone_storage = backbone_storage
         self.redis_port = redis_port
         self.start_redis = start_redis
         self.secret_key = str(uuid.uuid4())

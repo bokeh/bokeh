@@ -855,3 +855,10 @@ class DataRangeBoxSelectTool(PlotObject):
     xselect = List()
     yselect = List()
 
+class PlotContext(PlotObject):
+    children = List(has_ref=True)
+
+class PlotList(PlotContext):
+    # just like plot context, except plot context has special meaning
+    # everywhere, so plotlist is the generic one
+    pass

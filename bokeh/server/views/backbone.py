@@ -24,7 +24,7 @@ log = logging.getLogger(__name__)
 @check_write_authentication_and_create_client
 def reset(docid):
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
+    sess = app.backbone_storage.get_session(docid)        
     sess.load()
     for m in sess._models:
         if not m.typename.endswith('PlotContext'):
@@ -38,7 +38,7 @@ def reset(docid):
 @check_write_authentication_and_create_client
 def rungc(docid):
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
+    sess = app.backbone_storage.get_session(docid)
     sess.load()
     sess.prune(delete=True)
     return 'success'
@@ -47,7 +47,7 @@ def rungc(docid):
 @check_write_authentication_and_create_client
 def callbacks(docid):
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
+    sess = app.backbone_storage.get_session(docid)    
     sess.load()
     sess.load_all_callbacks()    
     if request.method == 'POST':
@@ -65,7 +65,7 @@ def bulk_upsert(docid):
     # callbacks here
     client = request.headers.get('client', 'python')
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
+    sess = app.backbone_storage.get_session(docid)    
     sess.load()
     data = protocol.deserialize_json(request.data)
     if client == 'python':
@@ -104,7 +104,7 @@ def ws_delete(session, models):
 @check_write_authentication_and_create_client
 def create(docid, typename):
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
+    sess = app.backbone_storage.get_session(docid)    
     sess.load()
     
     modeldata = protocol.deserialize_json(request.data)
@@ -120,7 +120,7 @@ def create(docid, typename):
 def bulkget(docid, typename=None):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
+    sess = app.backbone_storage.get_session(docid)    
     sess.load()
     sess.prune()    
     all_models = sess._models.values()
@@ -152,7 +152,7 @@ def handle_specific_model(docid, typename, id):
 def getbyid(docid, typename, id):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
+    sess = app.backbone_storage.get_session(docid)    
     sess.load()
     attr = sess.attrs([sess._models[id]])[0]
     return make_json(sess.serialize(attr))
@@ -164,7 +164,7 @@ def update(docid, typename, id):
     (we currently don't handle this correctly)
     """
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
+    sess = app.backbone_storage.get_session(docid)    
     sess.load()
     
     modeldata = protocol.deserialize_json(request.data)
@@ -187,7 +187,7 @@ def update(docid, typename, id):
 
 @check_write_authentication_and_create_client
 def delete(docid, typename, id):
-    sess = RedisSession(app.bb_redis, doc)    
+    sess = app.backbone_storage.get_session(docid)
     model = sess._models[id]
     log.debug("DELETE, %s, %s", docid, typename)
     sess.del_obj(model)
@@ -203,7 +203,7 @@ def delete(docid, typename, id):
 @check_write_authentication_and_create_client
 def rpc(docid, typename, id, funcname):
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
+    sess = app.backbone_storage.get_session(docid)
     sess.load()
     model = sess._models[id]
     data = protocol.deserialize_json(request.data)

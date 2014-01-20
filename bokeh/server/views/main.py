@@ -44,7 +44,7 @@ def _makedoc(redisconn, u, title):
     docid = str(uuid.uuid4())
     if isinstance(u, string_types):
         u = user.User.load(redisconn, u)
-    sess = RedisSession(app.bb_redis, docid)
+    sess = app.backbone_storage.get_session(docid)
     u.add_doc(docid, title)
     doc = docs.new_doc(app, docid,
                        title, sess,
@@ -122,7 +122,7 @@ def get_bokeh_info(docid):
 
 def _get_bokeh_info(docid):
     doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
+    sess = app.backbone_storage.get_session(docid)    
     sess.load()
     sess.prune()
     all_models = sess._models.values()

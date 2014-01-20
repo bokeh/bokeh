@@ -9,8 +9,9 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 from ..objects import PlotObject, Plot
-from ..session import PlotServerSession
-
+from ..session import PersistentBackboneSession, BaseJSONSession
+from . import server_backends
+from .app import bokeh_app
 """
 In our python interface to the backbone system, we separate the local collection
 which stores models, from the http client which interacts with a remote store
@@ -30,34 +31,37 @@ def parse_modelkey(modelkey):
     _, typename, docid, modelid = modelkey.split(":")
     return (typename, docid, modelid)
 
-class RedisSession(PlotServerSession):
+class RedisSession(PersistentBackboneSession, BaseJSONSession):
     """session used by the webserver to work with
-    a user's documents.  uses redis directly.  This probably shouldn't
-    inherit from PlotServerSession, we need to refactor this abit.
+    a user's documents.  uses redis directly.
     """
-    def __init__(self, redisconn, doc, root_url="http://localhost:5006/", apikey=""):
-        super(RedisSession, self).__init__(serverloc=root_url)
-        if isinstance(doc, basestring):
-            self.docid = doc
-        else:
-            self.set_doc(doc)
+    @property
+    def plotcontext(self):
+        pc = super(RedisSession, self).plotcontext
+        if pc:  return pc
+        if not self.doc:
+            self.doc = docs.Doc.load(bokeh_app.model_redis, self.docid)
+            self.plotcontext = self._models[self.doc.plot_context_ref['id']]
+            return self.plotcontext
+    @plotcontext.setter
+    def plotcontext(self, val):
+        self._plotcontext = val
+        
+    def __init__(self, redisconn, docid, doc=None):
+        super(RedisSession, self).__init__(plot=None)
+        self.doc = doc
+        self.docid = docid
         self.r = redisconn
         self._models = {}
         self.raw_js_objs = []
-        self.root_url = root_url
-        self.apikey = apikey
 
     def set_doc(self, doc):
         self.doc = doc
         self.docid = doc.docid
-
-    def load(self):
-        self.load_all()
-        self.plotcontext = self._models[self.doc.plot_context_ref['id']]
-
+    
     def prune(self, delete=False):
         all_models = docs.prune_and_get_valid_models(
-            self.doc, self, delete=delete
+            self, delete=delete
             )
         to_keep = set([x._id for x in all_models])
         for k in self._models.keys():
@@ -82,6 +86,9 @@ class RedisSession(PlotServerSession):
         return models
 
     def store_broadcast_attrs(self, attrs):
+        if not attrs:
+            import pdb;pdb.set_trace()
+            return
         keys = [modelkey(attr['type'], self.docid, attr['attributes']['id'])\
                 for attr in attrs]
         for attr in attrs:
@@ -89,32 +96,9 @@ class RedisSession(PlotServerSession):
         attrs = [self.serialize(attr['attributes']) for attr in attrs]
         dkey = dockey(self.docid)
         data = dict(zip(keys, attrs))
-        logger.debug('storing %s', data)
+        #logger.debug('storing %s', data)
         self.r.mset(data)
         self.r.sadd(dkey, *keys)
-
-    def store_obj(self, obj):
-        return self.store_objs([obj])
-
-    def store_objs(self, to_store):
-        if not to_store:
-            return
-        keys = [modelkey(m.__view_model__, self.docid, m._id) \
-                for m in to_store]
-        models = [m.vm_serialize() for m in to_store]
-        for m in models:
-            m['doc'] = self.docid
-        models = [self.serialize(m) for m in models]
-        dkey = dockey(self.docid)
-        data = dict(zip(keys, models))
-        for k,v in data.items():
-            logger.debug('key: %s', k)
-            logger.debug('val: %s', v)
-        self.r.mset(data)
-        self.r.sadd(dkey, *keys)
-
-    def del_obj(self, obj):
-        self.del_objs([obj])
 
     def del_objs(self, to_del):
         for m in to_del:
