@@ -2,7 +2,6 @@ import requests
 import uuid
 import logging
 from six.moves import cPickle as pickle
-import redis
 from .. import  protocol
 from .models import docs
 import numpy as np
@@ -40,7 +39,7 @@ class RedisSession(PersistentBackboneSession, BaseJSONSession):
         pc = super(RedisSession, self).plotcontext
         if pc:  return pc
         if not self.doc:
-            self.doc = docs.Doc.load(bokeh_app.model_redis, self.docid)
+            self.doc = docs.Doc.load(bokeh_app.servermodel_storage, self.docid)
             self.plotcontext = self._models[self.doc.plot_context_ref['id']]
             return self.plotcontext
     @plotcontext.setter

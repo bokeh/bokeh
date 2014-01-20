@@ -10,7 +10,7 @@ def apiuser_from_request(app, request):
     if not apikey:
         return None
     username = request.headers['BOKEHUSER']
-    bokehuser = User.load(app.model_redis, username)
+    bokehuser = User.load(app.servermodel_storage, username)
     if bokehuser.apikey == apikey:
         return bokehuser
     else:

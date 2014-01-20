@@ -8,7 +8,6 @@ from flask import request, Flask
 
 import uuid
 import socket
-import redis
 
 #server imports
 from .app import app as bokeh_app
@@ -21,7 +20,7 @@ import os
 from os.path import join, dirname
 import logging
 import time
-from .server_backends import RedisBackboneStorage
+from .server_backends import RedisBackboneStorage, RedisServerModelStorage
 
 PORT = 5006
 REDIS_PORT = 6379
@@ -31,18 +30,24 @@ app = Flask("bokeh.server")
 
 def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True):
     #must import views before running apps
+    import redis
 
     from .views import deps
-    bbstorage = RedisBackboneStorage(redis.Redis(host=rhost, port=rport, db=2))
-    bokeh_app.setup(rport, start_redis, bbstorage)
-    app.register_blueprint(bokeh_app)
+    bbstorage = RedisBackboneStorage(
+        redis.Redis(host=rhost, port=rport, db=2)
+        )
     #for non-backbone models
-    bokeh_app.model_redis = redis.Redis(host=rhost, port=rport, db=3)
-    bokeh_app.pubsub_redis = redis.Redis(host=rhost, port=rport, db=4)
+    servermodel_storage = RedisServerModelStorage(
+        redis.Redis(host=rhost, port=rport, db=3)
+        )
+    bokeh_app.setup(rport, start_redis, bbstorage, servermodel_storage)
+
+    app.register_blueprint(bokeh_app)
+    #bokeh_app.pubsub_redis = redis.Redis(host=rhost, port=rport, db=4)
 
 def make_default_user(bokeh_app):
     docid = "defaultdoc"
-    bokehuser = user.new_user(bokeh_app.model_redis, "defaultuser",
+    bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",
                               str(uuid.uuid4()), apikey='nokey', docs=[])
 
     return bokehuser
@@ -50,7 +55,7 @@ def make_default_user(bokeh_app):
 def prepare_local():
     #monkeypatching
     def current_user(request):
-        bokehuser = user.User.load(bokeh_app.model_redis, "defaultuser")
+        bokehuser = user.User.load(bokeh_app.servermodel_storage, "defaultuser")
         if bokehuser is None:
             bokehuser = make_default_user(bokeh_app)
         return bokehuser

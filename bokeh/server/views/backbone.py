@@ -23,7 +23,7 @@ log = logging.getLogger(__name__)
 @app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
 @check_write_authentication_and_create_client
 def reset(docid):
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     sess = app.backbone_storage.get_session(docid)        
     sess.load()
     for m in sess._models:
@@ -37,7 +37,7 @@ def reset(docid):
 @app.route("/bokeh/bb/<docid>/rungc", methods=['GET'])
 @check_write_authentication_and_create_client
 def rungc(docid):
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     sess = app.backbone_storage.get_session(docid)
     sess.load()
     sess.prune(delete=True)
@@ -46,7 +46,7 @@ def rungc(docid):
 @app.route("/bokeh/bb/<docid>/callbacks", methods=['POST', 'GET'])
 @check_write_authentication_and_create_client
 def callbacks(docid):
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     sess = app.backbone_storage.get_session(docid)    
     sess.load()
     sess.load_all_callbacks()    
@@ -64,7 +64,7 @@ def bulk_upsert(docid):
     # endpoint is only used by python, therefore we don't process
     # callbacks here
     client = request.headers.get('client', 'python')
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     sess = app.backbone_storage.get_session(docid)    
     sess.load()
     data = protocol.deserialize_json(request.data)
@@ -103,7 +103,7 @@ def ws_delete(session, models):
 @app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @check_write_authentication_and_create_client
 def create(docid, typename):
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     sess = app.backbone_storage.get_session(docid)    
     sess.load()
     
@@ -119,7 +119,7 @@ def create(docid, typename):
 @check_read_authentication_and_create_client
 def bulkget(docid, typename=None):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     sess = app.backbone_storage.get_session(docid)    
     sess.load()
     sess.prune()    
@@ -151,7 +151,7 @@ def handle_specific_model(docid, typename, id):
 @check_read_authentication_and_create_client
 def getbyid(docid, typename, id):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     sess = app.backbone_storage.get_session(docid)    
     sess.load()
     attr = sess.attrs([sess._models[id]])[0]
@@ -163,7 +163,7 @@ def update(docid, typename, id):
     namely in writing, we shouldn't remove unspecified attrs
     (we currently don't handle this correctly)
     """
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     sess = app.backbone_storage.get_session(docid)    
     sess.load()
     
@@ -202,7 +202,7 @@ def delete(docid, typename, id):
              headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
 @check_write_authentication_and_create_client
 def rpc(docid, typename, id, funcname):
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     sess = app.backbone_storage.get_session(docid)
     sess.load()
     model = sess._models[id]

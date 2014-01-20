@@ -5,7 +5,7 @@ from ..models import convenience
 from ..app import app
 def check_read_authentication_and_create_client(func):
     def wrapper(docid, *args, **kwargs):
-        doc = docs.Doc.load(app.model_redis, docid)
+        doc = docs.Doc.load(app.servermodel_storage, docid)
         if convenience.can_read_from_request(doc, request, app):
             return func(docid, *args, **kwargs)            
         else:
@@ -15,7 +15,7 @@ def check_read_authentication_and_create_client(func):
 
 def check_write_authentication_and_create_client(func):
     def wrapper(docid, *args, **kwargs):
-        doc = docs.Doc.load(app.model_redis, docid)
+        doc = docs.Doc.load(app.servermodel_storage, docid)
         if convenience.can_write_from_request(doc, request, app):
             return func(docid, *args, **kwargs)            
         else:

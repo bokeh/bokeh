@@ -31,7 +31,7 @@ def new_doc(flaskapp, docid, title, session, rw_users=None, r_users=None,
     if r_users is None: r_users = []
     doc = Doc(docid, title, rw_users, r_users,
               session.get_ref(plot_context), apikey, readonlyapikey)
-    doc.save(flaskapp.model_redis)
+    doc.save(flaskapp.servermodel_storage)
     return doc
 
 class Doc(models.ServerModel):

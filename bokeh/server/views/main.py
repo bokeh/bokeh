@@ -61,7 +61,7 @@ def makedoc():
         title = request.values['title']
     bokehuser = app.current_user(request)
     try:
-        doc = _makedoc(app.model_redis, bokehuser, title)
+        doc = _makedoc(app.servermodel_storage, bokehuser, title)
     except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
@@ -75,7 +75,7 @@ def deletedoc(docid):
     bokehuser = app.current_user(request)
     try:
         bokehuser.remove_doc(docid)
-        bokehuser.save(app.model_redis)
+        bokehuser.save(app.servermodel_storage)
     except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
@@ -86,7 +86,7 @@ def deletedoc(docid):
 @app.route('/bokeh/getdocapikey/<docid>')
 def get_doc_api_key(docid):
     bokehuser = app.current_user(request)
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     if mconv.can_write_from_request(doc, request, app):
         return jsonify({'apikey' : doc.apikey})
     elif mconv.can_write_from_request(doc, request, app):
@@ -121,7 +121,7 @@ def get_bokeh_info(docid):
     return _get_bokeh_info(docid)
 
 def _get_bokeh_info(docid):
-    doc = docs.Doc.load(app.model_redis, docid)
+    doc = docs.Doc.load(app.servermodel_storage, docid)
     sess = app.backbone_storage.get_session(docid)    
     sess.load()
     sess.prune()
@@ -157,7 +157,7 @@ def doc_by_title():
     docs = [doc for doc in bokehuser.docs if doc['title'] == title]
     if len(docs) == 0:
         try:
-            doc = _makedoc(app.model_redis, bokehuser, title)
+            doc = _makedoc(app.servermodel_storage, bokehuser, title)
             docid = doc.docid
         except DataIntegrityException as e:
             return abort(409, e.message)
@@ -173,9 +173,9 @@ def doc_by_title():
 """
 # @app.route('/bokeh/publicbokehinfo/<docid>')
 # def get_public_bokeh_info(docid):
-#     doc = docs.Doc.load(app.model_redis, docid)
+#     doc = docs.Doc.load(app.servermodel_storage, docid)
 #     plot_context_ref = doc.plot_context_ref
-#     all_models = docs.prune_and_get_valid_models(app.model_redis,
+#     all_models = docs.prune_and_get_valid_models(app.servermodel_storage,
 #                                                  app.collections,
 #                                                  docid)
 #     public_models = [x for x in all_models if x.get('public', False)]

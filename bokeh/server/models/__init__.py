@@ -22,15 +22,14 @@ class ServerModel(object):
         raise NotImplementedError        
     
     def save(self, client):
-        client.set(self.mykey(), json.dumps(self.to_json()))
+        client.set(self.mykey(), self.to_json())
         
     @classmethod
     def load_json(cls, client, objid):
         data = client.get(cls.modelkey(objid))
         if data is None:
             return None
-        attrs = json.loads(data)
-        return attrs
+        return data
     
     @classmethod
     def load(cls, client, objid):
