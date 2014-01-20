@@ -87,7 +87,6 @@ class RedisSession(PersistentBackboneSession, BaseJSONSession):
 
     def store_broadcast_attrs(self, attrs):
         if not attrs:
-            import pdb;pdb.set_trace()
             return
         keys = [modelkey(attr['type'], self.docid, attr['attributes']['id'])\
                 for attr in attrs]
