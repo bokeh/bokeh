@@ -468,11 +468,14 @@ class PersistentBackboneSession(object):
     #------------------------------------------------------------------------
 
     def load_attrs(self, typename, attrs, events='existing'):
+        """converts attrs into broadcast_json, and then loads that
+        """
         broadcast_attrs = [dict(type=typename, attributes=x) for x in attrs]
         return self.load_broadcast_attrs(broadcast_attrs, events=events)
 
     def load_broadcast_attrs(self, attrs, events='existing'):
-        """events can be 'existing', or None. 'existing' means
+        """loads broadcast attrs into models.
+        events can be 'existing', or None. 'existing' means
         trigger events only for existing (not new objects).
         None means don't trigger any events.
         """
@@ -508,6 +511,8 @@ class PersistentBackboneSession(object):
         return models
 
     def attrs(self, to_store):
+        """converts to_store (list of models) into attributes
+        """
         attrs = []
         for m in to_store:
             attr = m.vm_serialize()
@@ -517,6 +522,8 @@ class PersistentBackboneSession(object):
         return attrs
 
     def broadcast_attrs(self, to_store):
+        """converts to_store(list of models) into broadcast attributes
+        """
         models = []
         for m in to_store:
             ref = self.get_ref(m)
@@ -532,45 +539,74 @@ class PersistentBackboneSession(object):
     # Storing models
     #------------------------------------------------------------------------
     def store_obj(self, obj, ref=None):
+        """store single object
+        """
         return self.store_objs([obj])
 
-    def store_broadcast_attrs(self, attrs):
-        raise NotImplementedError
-
     def store_objs(self, to_store):
+        """store list of objects
+        """
         models = self.broadcast_attrs(to_store)
         self.store_broadcast_attrs(models)
         for m in to_store:
             m._dirty = False
-
+            
     def store_all(self):
+        """store all dirty models, by calling store_objs
+        """
         to_store = [x for x in self._models.values() \
                     if hasattr(x, '_dirty') and x._dirty]
         self.store_objs(to_store)
         return to_store
 
+    def store_broadcast_attrs(self, attrs):
+        """stores broadcast attrs on the server, persistent store, etc..
+        """
+        raise NotImplementedError
 
     #------------------------------------------------------------------------
     # Loading models
     #------------------------------------------------------------------------
-    def load(self):
-        self.load_all()
-
     def load_all(self, asdict=False):
-        """the json coming out of this looks different than that coming
-        out of load_type, because it contains id, type, attributes, whereas
-        the other one just contains attributes directly
+        """ 
+        normally:
+        you get back a list of models, and they are loaded into this session
+        usually in self._models
+
+        if asdict is True:
+        you get a list of broadcast_json.  json is NOT loaded into
+        this session(no python objects are updated with the new data)
         """
         raise NotImplementedError
 
     def load_type(self, typename, asdict=False):
+        """ loads all objects of a given type
+        normally:
+        you get back a list of models, and they are loaded into this session
+        usually in self._models
+
+        if asdict is True:
+        you get a list of json (not broadcast_json).  json is NOT loaded into
+        this session(no python objects are updated with the new data)
+        """
         raise NotImplementedError
 
     def load_obj(self, ref, asdict=False):
+        """ loads one objects of matching the reference
+        normally:
+        you get a model, and it is loaded into this session
+
+        if asdict is True:
+        you get the json of the model.  json is NOT loaded into
+        this session(no python objects are updated with the new data)
+        """
         raise NotImplementedError        
 
     #loading callbacks
     def callbacks_json(self, to_store):
+        """extracts callbacks  that need to be stored from 
+        a list of models
+        """
         all_data = []
         for m in to_store:
             data = self.get_ref(m)
@@ -579,6 +615,9 @@ class PersistentBackboneSession(object):
         return all_data
 
     def load_callbacks_json(self, callback_json):
+        """given a list of callback specifications, 
+        binds existing models with those callbacks
+        """
         for data in callback_json:
             m = self._models[data['id']]
             m._callbacks = {}
@@ -589,16 +628,24 @@ class PersistentBackboneSession(object):
                     m.on_change(attrname, obj, callbackname)
 
     def load_all_callbacks(self, get_json=False):
-        """get_json = return json of callbacks, rather than
+        """retrieves callback specification for all models
+        and loads them into the models.
+
+        get_json = return json of callbacks, rather than
         loading them into models
         """
         raise NotImplementedError
 
     #storing callbacks
     def store_callbacks(self, to_store):
+        """store callbacks from a bunch of models
+        """
         raise NotImplementedError
 
     def store_all_callbacks(self):
+        """extract callbacks from models, and then store them using
+        self.store_callbacks
+        """
         to_store = [x for x in self._models.values() \
                     if hasattr(x, '_callbacks_dirty') and x._callbacks_dirty]
         self.store_callbacks(to_store)

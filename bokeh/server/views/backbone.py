@@ -25,7 +25,7 @@ log = logging.getLogger(__name__)
 def reset(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)        
-    sess.load()
+    sess.load_all()
     for m in sess._models:
         if not m.typename.endswith('PlotContext'):
             sess.del_obj(m)
@@ -39,7 +39,7 @@ def reset(docid):
 def rungc(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)
-    sess.load()
+    sess.load_all()
     sess.prune(delete=True)
     return 'success'
 
@@ -48,7 +48,7 @@ def rungc(docid):
 def callbacks(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)    
-    sess.load()
+    sess.load_all()
     sess.load_all_callbacks()    
     if request.method == 'POST':
         jsondata = protocol.deserialize_json(request.data)
@@ -66,7 +66,7 @@ def bulk_upsert(docid):
     client = request.headers.get('client', 'python')
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)    
-    sess.load()
+    sess.load_all()
     data = protocol.deserialize_json(request.data)
     if client == 'python':
         sess.load_broadcast_attrs(data, events=None)
@@ -105,7 +105,7 @@ def ws_delete(session, models):
 def create(docid, typename):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)    
-    sess.load()
+    sess.load_all()
     
     modeldata = protocol.deserialize_json(request.data)
     modeldata = [{'type' : typename,
@@ -121,7 +121,7 @@ def bulkget(docid, typename=None):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)    
-    sess.load()
+    sess.load_all()
     sess.prune()    
     all_models = sess._models.values()
     if typename is not None:
@@ -153,7 +153,7 @@ def getbyid(docid, typename, id):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)    
-    sess.load()
+    sess.load_all()
     attr = sess.attrs([sess._models[id]])[0]
     return make_json(sess.serialize(attr))
 
@@ -165,7 +165,7 @@ def update(docid, typename, id):
     """
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)    
-    sess.load()
+    sess.load_all()
     
     modeldata = protocol.deserialize_json(request.data)
     #patch id is not passed...
@@ -204,7 +204,7 @@ def delete(docid, typename, id):
 def rpc(docid, typename, id, funcname):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)
-    sess.load()
+    sess.load_all()
     model = sess._models[id]
     data = protocol.deserialize_json(request.data)
     args = data.get('args', [])

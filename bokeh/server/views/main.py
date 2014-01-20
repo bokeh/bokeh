@@ -124,7 +124,7 @@ def get_bokeh_info(docid):
 def _get_bokeh_info(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)    
-    sess.load()
+    sess.load_all()
     sess.prune()
     all_models = sess._models.values()
     print("num models", len(all_models))

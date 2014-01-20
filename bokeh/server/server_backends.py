@@ -8,7 +8,14 @@ import logging
 logger = logging.getLogger(__name__)
 
 class AbstractBackboneStorage(object):
+    """Abstract class, which returns a session object for a given
+    document
+    """
     def get_session(self, docid, doc=None):
+        """pass in the docid of a document.  If doc is passed
+        (instance of bokeh.models.doc.Doc), then that instance will be used
+        otherwise it will be loaded
+        """
         raise NotImplementedError
     
     
@@ -118,13 +125,13 @@ class SingleUserAuthentication(AbstractAuthentication):
         return "defaultuser"
         
     def current_user(self):
-        """returns bokeh User object from self.current_user_name
+        """returns bokeh User object matching defaultuser
+        if the user does not exist, one will be created
         """
         username = self.current_user_name()
         bokehuser = user.User.load(bokeh_app.servermodel_storage, username)
         if bokehuser is not None:
             return bokehuser
-        docid = "defaultdoc"
         bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",
                                   str(uuid.uuid4()), apikey='nokey', docs=[])
         return bokehuser
@@ -141,6 +148,8 @@ class MultiUserAuthentication(AbstractAuthentication):
         logger.info(command)
 
     def current_user_name(self):
+        # users can be authenticated by logging in (setting the session)
+        # or by setting fields in the http header (api keys, etc..)
         username =  session.get('username', None)
         if username:
             return username
@@ -149,7 +158,6 @@ class MultiUserAuthentication(AbstractAuthentication):
             bokehuser = user.apiuser_from_request(bokeh_app, request)
             if bokehuser:
                 return bokehuser.username
-            
     
     def register_get(self):
         return render_template("register.html")
