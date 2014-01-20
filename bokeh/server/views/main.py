@@ -1,7 +1,7 @@
 from flask import (
     render_template, request,
     send_from_directory, abort,
-    jsonify, Response)
+    jsonify, Response, redirect)
 
 from ..app import app
 import os
@@ -31,6 +31,9 @@ def ping():
 
 @app.route('/bokeh/')
 def index(*unused_all, **kwargs):
+    bokehuser = app.current_user()
+    if not bokehuser:
+        return redirect("/bokeh/login")
     return render_template('bokeh.html',
                            splitjs=app.splitjs
                            )

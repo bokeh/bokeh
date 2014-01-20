@@ -45,3 +45,10 @@ def register_post():
     return result
 
 
+@app.route('/bokeh/logout/')
+@app.route('/bokeh/logout')
+def logout():
+    result = app.authentication.logout()
+    return result
+
+

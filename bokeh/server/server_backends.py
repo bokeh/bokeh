@@ -133,6 +133,12 @@ class MultiUserAuthentication(AbstractAuthentication):
     
     def login(self, username):
         session['username'] = username
+        
+    def print_connection_info(self, bokehuser):
+        logger.info("connect using the following")
+        command = "output_server(docname, username='%s', userapikey='%s')"
+        command = command % (bokehuser.username, bokehuser.apikey)
+        logger.info(command)
 
     def current_user_name(self):
         username =  session.get('username', None)
@@ -163,7 +169,7 @@ class MultiUserAuthentication(AbstractAuthentication):
                 bokeh_app.servermodel_storage, username, password
                 )
             self.login(username)
-            logger.info("logged in %s" % str(bokehuser.to_json()))
+            self.print_connection_info(bokehuser)
         except UnauthorizedException:
             flash("user already exists")
             return redirect(url_for('bokeh.server.register_get'))
@@ -177,7 +183,7 @@ class MultiUserAuthentication(AbstractAuthentication):
                                        username, 
                                        password)
             self.login(username)
-            logger.info("logged in %s" % str(bokehuser.to_json()))
+            self.print_connection_info(bokehuser)
         except UnauthorizedException:
             flash("incorrect login exists")
             return redirect(url_for('bokeh.server.login_get'))
