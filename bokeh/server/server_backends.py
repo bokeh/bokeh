@@ -103,7 +103,11 @@ class AbstractAuthentication(object):
         raise NotImplementedError
     
     def login_post(self):
-        """custom login submission
+        """custom login submission. Request form will have 
+        username, password, and possibly an api field. 
+        api indicates that we are 
+        submitting via python, and we should try to return error
+        codes rather than flash messages
         """
         raise NotImplementedError
 
@@ -114,11 +118,17 @@ class AbstractAuthentication(object):
     
     def register_post(self):
         """custom register submission
+        request form will have username, password, password_confirm,
+        and possibly an api field. api indicates that we are 
+        submitting via python, and we should try to return error
+        codes rather than flash messages
         """
         raise NotImplementedError
 
 from flask import (request, session, abort, 
-                   flash, redirect, url_for, render_template)
+                   flash, redirect, url_for, render_template,
+                   jsonify
+                   )
 
 class SingleUserAuthentication(AbstractAuthentication):
     def current_user_name(self):
@@ -164,8 +174,26 @@ class MultiUserAuthentication(AbstractAuthentication):
     
     def login_get(self):
         return render_template("login.html")
-
+    
+    def register_post_api(self):
+        username = request.values['username']
+        password = request.values['password']
+        try:
+            bokehuser = user.new_user(
+                bokeh_app.servermodel_storage, username, password
+                )
+            self.login(username)
+            self.print_connection_info(bokehuser)
+        except UnauthorizedException:
+            return jsonify(status=False, 
+                           error="user already exists")
+        return jsonify(status=True,
+                       apikey=bokehuser.apikey
+                       )
+    
     def register_post(self):
+        if request.values.get('api', None):
+            return self.register_post_api()
         username = request.values['username']
         password = request.values['password']
         password_confirm = request.values['password_confirm']
@@ -183,7 +211,25 @@ class MultiUserAuthentication(AbstractAuthentication):
             return redirect(url_for('bokeh.server.register_get'))
         return redirect("/bokeh")
     
+    def login_post_api(self):
+        username = request.values['username']
+        password = request.values['password']
+        try:
+            bokehuser = user.auth_user(bokeh_app.servermodel_storage,
+                                       username, 
+                                       password)
+            self.login(username)
+            self.print_connection_info(bokehuser)
+        except UnauthorizedException:
+            return jsonify(status=False,
+                           error="incorrect login ")
+        return jsonify(status=True,
+                       apikey=bokehuser.apikey
+                       )
+        
     def login_post(self):
+        if request.values.get('api', None):
+            return self.login_post_api()
         username = request.values['username']
         password = request.values['password']
         try:
