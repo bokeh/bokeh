@@ -81,12 +81,14 @@ def start_services():
         data_file = getattr(bokeh_app, 'data_file', 'redis.db')
         stdout = getattr(bokeh_app, 'stdout', sys.stdout)
         stderr = getattr(bokeh_app, 'stdout', sys.stderr)
+        redis_save = getattr(bokeh_app, 'redis_save', True)
         mproc = services.start_redis("bokehpids.json",
                                      bokeh_app.redis_port, 
                                      os.getcwd(),
                                      data_file=data_file,
                                      stdout=stdout,
-                                     stderr=stderr
+                                     stderr=stderr,
+                                     save=redis_save
                                      )
         bokeh_app.redis_proc = mproc
     atexit.register(service_exit)

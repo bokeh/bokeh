@@ -65,6 +65,7 @@ class BokehServerTestCase(unittest.TestCase):
         bokeh_app.data_file = fname
         bokeh_app.stdout = None
         bokeh_app.stderr = None
+        bokeh_app.redis_save = False
         self.servert = gevent.spawn(start.start_app)
         wait_redis_start(6899)
         redis.Redis(port=6899).flushall()
