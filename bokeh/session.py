@@ -12,7 +12,7 @@ import warnings
 import requests
 
 from six import string_types
-from six.moves.urllib.parse import urljoin
+from six.moves.urllib.parse import urljoin, urlencode
 
 from . import protocol, utils
 from .objects import PlotObject, Plot, PlotContext
@@ -690,14 +690,18 @@ class PersistentBackboneSession(object):
 
 class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
 
-    def __init__(self, username=None, serverloc=None, userapikey="nokey"):
+    def __init__(self, server_config=None, username=None, 
+                 serverloc=None, userapikey="nokey"):
         # This logic is based on ContinuumModelsClient.__init__ and
         # mpl.PlotClient.__init__.  There is some merged functionality here
         # since a Session is meant to capture the little bit of lower-level
         # logic in PlotClient (i.e. avoiding handling of things like
         # _newxyplot()), but also build in the functionality of the
         # ContinuumModelsClient.
-
+        if server_config:
+            username = server_config.username
+            serverloc = server_config.root_url
+            userapikey = server_config.apikey
         self.username = username
         self.root_url = serverloc
         self.http_session = requests.session()

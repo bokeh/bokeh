@@ -23,7 +23,7 @@ from .objects import (ColumnDataSource, DataRange1d,
         EmbedTool, BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
-from . import glyphs
+from . import glyphs, browserlib, serverconfig
 from .palettes import brewer
 
 # This is used to accumulate plots generated via the plotting methods in this
@@ -151,6 +151,7 @@ def session():
     """
     return _config["session"]
 
+###NEEDS A BOKEH CLOUD VERSION AS WELL
 def output_notebook(url=None, docname=None):
     """ Sets the output mode to emit HTML objects suitable for embedding in
     IPython notebook.  If URL is "default", then uses the default plot
@@ -188,8 +189,11 @@ def output_notebook(url=None, docname=None):
     _config["output_type"] = "notebook"
     _config["output_file"] = None
     _config["session"] = session
+    
+def output_cloud(docname):
+    output_server(docname, server=serverconfig.Cloud())
 
-def output_server(docname, url="default", **kwargs):
+def output_server(docname, server=None, name=None, url="default", **kwargs):
     """ Sets the output mode to upload to a Bokeh plot server.
 
     Default bokeh server address is defined in DEFAULT_SERVER_URL.  Docname is
@@ -200,19 +204,25 @@ def output_server(docname, url="default", **kwargs):
     and **base_url** can be supplied.
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
+
+    if server is provided, use server
+    otherwise use name
+    finally fallback on url
     """
     if url == "default":
         real_url = _config["plotserver_url"]
     else:
         real_url = url
-    _config["output_url"] = real_url
+    if not server:
+        if name:
+            server = serverconfig.Server(name=name)
+        else:
+            server = serverconfig.Server(name=real_url)
+    _config["output_url"] = server.root_url
     _config["output_type"] = "server"
     _config["output_file"] = None
-    kwargs.setdefault("username", "defaultuser")
-    kwargs.setdefault("serverloc", real_url)
-    kwargs.setdefault("userapikey", "nokey")
     try:
-        _config["session"] = PlotServerSession(**kwargs)
+        _config["session"] = PlotServerSession(server_config=server)
     except requests.exceptions.ConnectionError:
         print("Cannot connect to Bokeh server. (Not running?) To start the "
               "Bokeh server execute 'bokeh-server'")
@@ -291,22 +301,7 @@ def show(browser=None, new="tab"):
 
     # Map our string argument to the webbrowser.open argument
     new_param = {'tab': 2, 'window': 1}[new]
-
-    if browser is None:
-        browser = os.environ.get("BOKEH_BROWSER", None)
-
-    if browser is not None:
-        if browser == 'dummy':
-            class DummyWebBrowser(object):
-                def open(self, url, new):
-                    pass
-
-            controller = DummyWebBrowser()
-        else:
-            controller = webbrowser.get(browser)
-    else:
-        controller = webbrowser
-
+    controller = browserlib.get_browser_controller(browser=browser)
     if output_type == "file":
         session.save()
         controller.open("file://" + os.path.abspath(_config["output_file"]), new=new_param)
