@@ -24,28 +24,23 @@ def check_write_authentication_and_create_client(func):
     return wrapper
 
 @bokeh_app.route('/bokeh/login', methods=['GET'])
-@bokeh_app.route('/bokeh/login/', methods=['GET'])
 def login_get():
     return bokeh_app.authentication.login_get()
 
 @bokeh_app.route('/bokeh/login', methods=['POST'])
-@bokeh_app.route('/bokeh/login/', methods=['POST'])
 def login_post():
     return bokeh_app.authentication.login_post()
 
-@bokeh_app.route('/bokeh/register/', methods=['GET'])
 @bokeh_app.route('/bokeh/register', methods=['GET'])
 def register_get():
     return bokeh_app.authentication.register_get()
 
-@bokeh_app.route('/bokeh/register/', methods=['POST'])
 @bokeh_app.route('/bokeh/register', methods=['POST'])
 def register_post():
     result = bokeh_app.authentication.register_post()
     return result
 
 
-@bokeh_app.route('/bokeh/logout/')
 @bokeh_app.route('/bokeh/logout')
 def logout():
     result = bokeh_app.authentication.logout()
