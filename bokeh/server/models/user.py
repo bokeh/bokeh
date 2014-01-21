@@ -28,11 +28,13 @@ def new_user(client, username, password, apikey=None, docs=None):
     user.create(client)
     return user
 
-def auth_user(client, username, password):
+def auth_user(client, username, password=None, apikey=None):
     user = User.load(client, username)
     if user is None:
         raise models.UnauthorizedException        
-    if check_password_hash(user.passhash, password):
+    if password and check_password_hash(user.passhash, password):
+        return user
+    elif apikey and user.apikey == apikey:
         return user
     else:
         raise models.UnauthorizedException

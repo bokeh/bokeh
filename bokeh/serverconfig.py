@@ -1,12 +1,17 @@
 from os.path import expanduser, exists, join
 from os import makedirs
-from six.moves.urllib.parse import urljoin
-from . import protocol, utils
+from six.moves.urllib.parse import urljoin, urlencode
+from . import protocol, utils, browserlib
+
 import requests
 import json
 
+bokeh_plots_url = "http://localhost:5006/"
+
+                                    
 class Server(object):
-    def __init__(self, name, root_url=None, 
+    def __init__(self, name="http://localhost:5006/", 
+                 root_url="http://localhost:5006/", 
                  load_from_config=True,
                  configfile=None
                  ):
@@ -17,9 +22,10 @@ class Server(object):
         config with this data
         """
         self.name = name
-        self.root_url = root_url        
-        self.apikey = None
-        self.username = None
+        self.root_url = root_url
+        #single user mode case
+        self.apikey = "nokey"
+        self.username = "defaultuser"
         self._configfile = None        
         if configfile:
             self.configfile = configfile
@@ -31,10 +37,10 @@ class Server(object):
         """filename where our config are stored"""
         if self._configfile:
             return self._configfile
-        bokehdir = expanduser(".bokeh")
+        bokehdir = join(expanduser("~"), ".bokeh")
         if not exists(bokehdir):
             makedirs(bokehdir)
-        fname = expanduser(join(".bokeh", "config.json"))
+        fname = join(expanduser("~"), ".bokeh", "config.json")
         return fname
     
     #for testing
@@ -68,7 +74,7 @@ class Server(object):
         return
 
     def register(self, username, password):
-        url = urljoin(self.root_url, "register")
+        url = urljoin(self.root_url, "bokeh/register")
         result = requests.post(url, data={
                 'username' : username,
                 'password' : password,
@@ -85,7 +91,7 @@ class Server(object):
             raise Exception, result['error']
 
     def login(self, username, password):
-        url = urljoin(self.root_url, "login")
+        url = urljoin(self.root_url, "bokeh/login")
         result = requests.post(url, data={
                 'username' : username,
                 'password' : password,
@@ -101,3 +107,15 @@ class Server(object):
         else:
             raise Exception, result['error']
         self.save()
+        
+    def browser_login(self):
+        controller = browserlib.get_browser_controller()
+        url = urljoin(self.root_url, "loginfromapikey")
+        url += "?" + urlencode({'username' : self.username,
+                                'apikey' : self.apikey})
+        controller.open(url)
+
+class Cloud(Server):
+    def __init__(self):
+        super(Cloud, self).__init__(name="cloud",
+                                    root_url=bokeh_plots_url)

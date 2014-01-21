@@ -89,13 +89,13 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
         #create a dummy config file
         config = tempfile.NamedTemporaryFile(mode="w+").name
         #create server
-        server = Server(name="foo", root_url="http://localhost:5006/bokeh/",
+        server = Server(name="foo", root_url="http://localhost:5006/",
                         configfile=config
                         )
-        assert not server.apikey
+        assert server.apikey == "nokey"
         #register a user
         server.register("testuser", "fluffy")
-        assert server.apikey
+        assert server.apikey and server.apikey != "nokey"
         #create a second server configuration
         #make sure it loads the proper api key
         server2 = Server(name="foo",
@@ -107,19 +107,19 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
     def test_login(self):
         #create a server config, register a user
         config1 = tempfile.NamedTemporaryFile(mode="w+").name
-        server = Server(name="foo", root_url="http://localhost:5006/bokeh/",
+        server = Server(name="foo", root_url="http://localhost:5006/",
                         configfile=config1
                         )
-        assert not server.apikey
+        assert server.apikey == "nokey"
         server.register("testuser", "fluffy")
-        assert server.apikey
+        assert server.apikey and server.apikey != "nokey"
         
         #create a separate server config, login a user
         config2 = tempfile.NamedTemporaryFile(mode="w+").name
-        server2 = Server(name="foo", root_url="http://localhost:5006/bokeh/",
+        server2 = Server(name="foo", root_url="http://localhost:5006/",
                          configfile=config2
                          )
-        assert not server2.apikey
+        assert server2.apikey == "nokey"
         server2.login("testuser", "fluffy")
         #make sure the apikeys match
         assert server2.apikey == server.apikey

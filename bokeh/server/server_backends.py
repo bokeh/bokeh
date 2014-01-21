@@ -110,6 +110,12 @@ class AbstractAuthentication(object):
         codes rather than flash messages
         """
         raise NotImplementedError
+    
+    def login_from_apikey(self):
+        """login URL using apikey.  This is usually generated 
+        by the python client
+        """
+        raise NotImplementedError
 
     def register_get(self):
         """custom register view
@@ -235,7 +241,7 @@ class MultiUserAuthentication(AbstractAuthentication):
         try:
             bokehuser = user.auth_user(bokeh_app.servermodel_storage,
                                        username, 
-                                       password)
+                                       password=password)
             self.login(username)
             self.print_connection_info(bokehuser)
         except UnauthorizedException:
@@ -243,3 +249,17 @@ class MultiUserAuthentication(AbstractAuthentication):
             return redirect(url_for('bokeh.server.login_get'))
         return redirect("/bokeh")
         
+    def login_from_apikey(self):
+        username = request.values.get('username')
+        apikey = request.values.get('apikey')
+        try:
+            bokehuser = user.auth_user(bokeh_app.servermodel_storage,
+                                       username, 
+                                       apikey=apikey)
+            
+            self.login(username)
+            self.print_connection_info(bokehuser)
+        except UnauthorizedException:
+            flash("incorrect login")
+            return redirect(url_for('bokeh.server.login_get'))
+        return redirect("/bokeh")

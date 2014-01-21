@@ -31,6 +31,10 @@ def login_get():
 def login_post():
     return bokeh_app.authentication.login_post()
 
+@bokeh_app.route('/bokeh/loginfromapikey', methods=['GET'])
+def login_from_apikey():
+    return bokeh_app.authentication.login_from_apikey()
+
 @bokeh_app.route('/bokeh/register', methods=['GET'])
 def register_get():
     return bokeh_app.authentication.register_get()
