@@ -6,7 +6,7 @@ from . import protocol, utils, browserlib
 import requests
 import json
 
-bokeh_plots_url = "http://localhost:5006/"
+bokeh_plots_url = "http://eff.iciently.com:5006/"
 
                                     
 class Server(object):
@@ -110,7 +110,7 @@ class Server(object):
         
     def browser_login(self):
         controller = browserlib.get_browser_controller()
-        url = urljoin(self.root_url, "loginfromapikey")
+        url = urljoin(self.root_url, "bokeh/loginfromapikey")
         url += "?" + urlencode({'username' : self.username,
                                 'apikey' : self.apikey})
         controller.open(url)
