@@ -1,0 +1,15 @@
+{% extends "auth_base.html"%}
+{% block main %}
+<form class="form" action="/bokeh/login/" method="POST">
+  <label>username</label>
+  <input type="text" name="username"/>
+  <label>password</label>
+  <input type="password" name="password"/>
+  </br>
+  <input type="submit"/>
+</form>
+<p>
+If you don't have an account, please create one 
+<a href="/bokeh/register">here</a>
+</p>
+{% endblock %}

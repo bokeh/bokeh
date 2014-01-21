@@ -1,0 +1,12 @@
+language: node_js
+node_js:  0.8
+
+before_script:
+  - node tests/server.js &
+  - sleep 1
+
+script: phantomjs tests/runner.js
+
+after_script:
+  - kill -9 `cat tests/pid.txt`
+  - rm tests/pid.txt

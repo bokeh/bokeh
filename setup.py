@@ -20,8 +20,10 @@ BOKEHJSREL = join(BOKEHJSROOT, 'release')
 
 SERVER = 'bokeh/server'
 
-APP = join(BOKEHJSREL, 'js', 'bokeh.js')
+APP = [join(BOKEHJSREL, 'js', 'bokeh.js'),
+       join(BOKEHJSREL, 'js', 'bokeh.min.js')]
 CSS = join(BOKEHJSREL, 'css')
+
 
 if 'develop' in sys.argv:
     # Don't import setuptools unless the user is actively
@@ -31,15 +33,17 @@ if 'develop' in sys.argv:
 if 'devjs' in sys.argv:
     # Don't import setuptools unless the user is actively
     # trying to do something that requires it.
-    APP = join(BOKEHJSBUILD, 'js', 'bokeh.js')
-    CSS = join(BOKEHJSBUILD, 'css')
+    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
+           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
+    CSS = join(BOKEHJSBUILD, 'css')    
     sys.argv[sys.argv.index("devjs")] = "develop"
     import setuptools
 
 if exists(join(SERVER, 'static', 'js')):
     shutil.rmtree(join(SERVER, 'static', 'js'))
 os.mkdir(join(SERVER, 'static', 'js'))
-shutil.copy(APP, join(SERVER, 'static', 'js'))
+for app in APP:
+    shutil.copy(app, join(SERVER, 'static', 'js'))
 shutil.copytree(join(BOKEHJSROOT, 'src', 'vendor'),
                 join(SERVER, 'static', 'js', 'vendor'))
 

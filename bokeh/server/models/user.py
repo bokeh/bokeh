@@ -10,26 +10,23 @@ def apiuser_from_request(app, request):
     if not apikey:
         return None
     username = request.headers['BOKEHUSER']
-    bokehuser = User.load(app.model_redis, username)
+    bokehuser = User.load(app.servermodel_storage, username)
     if bokehuser.apikey == apikey:
         return bokehuser
     else:
         return None
 
 def new_user(client, username, password, apikey=None, docs=None):
+    """there is probably a race condition here if the same user
+    is registered at the same time since redis doesn't have transactions
+    """
     if apikey is None:
         apikey = str(uuid.uuid4())
     key = User.modelkey(username)
-    with client.pipeline() as pipe:
-        pipe.watch(key)
-        pipe.multi()
-        if client.exists(key):
-            raise models.UnauthorizedException
-        passhash = generate_password_hash(password, method='sha1')
-        user = User(username, passhash, apikey, docs=docs)
-        user.save(pipe)
-        pipe.execute()
-        return user
+    passhash = generate_password_hash(password, method='sha1')
+    user = User(username, passhash, apikey, docs=docs)
+    user.create(client)
+    return user
 
 def auth_user(client, username, password):
     user = User.load(client, username)

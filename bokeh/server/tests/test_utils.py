@@ -9,13 +9,13 @@ from requests.exceptions import ConnectionError
 import requests
 
 from .. import redisutils
-from ..app import app
+from ..app import bokeh_app
 from .. import start
 
 def wait_flask():
     def helper():
         try:
-            return requests.get('http://localhost:5006/bokeh/userinfo/')
+            return requests.get('http://localhost:5006/bokeh/ping')
         except ConnectionError as e:
             return False
     return wait_until(helper)
@@ -58,19 +58,21 @@ def recv_timeout(socket, timeout):
 		return None
 	
 class BokehServerTestCase(unittest.TestCase):
+    options = {}
     def setUp(self):
-        start.prepare_app(rport=6899)
-        start.prepare_local()
-        self.servert = gevent.spawn(start.start_app)
+        start.prepare_app(rport=6899, **self.options)
         fname = tempfile.NamedTemporaryFile().name
-        self.redisproc = redisutils.RedisProcess(6899, '/tmp', data_file=fname, save=False)
+        bokeh_app.data_file = fname
+        bokeh_app.stdout = None
+        bokeh_app.stderr = None
+        self.servert = gevent.spawn(start.start_app)
         wait_redis_start(6899)
         redis.Redis(port=6899).flushall()
-        start.make_default_user(app)
+        start.make_default_user(bokeh_app)
         wait_flask()
         
     def tearDown(self):
         self.servert.kill()
-        self.redisproc.close()
+        bokeh_app.redis_proc.close()
         wait_redis_gone(6899)
     

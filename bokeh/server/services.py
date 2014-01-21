@@ -21,9 +21,6 @@ class ManagedProcess(object):
                 pass
         elif pid and not kill_old:
             raise Exception("process %s is running on PID %s" % (name, pid))
-        if stdout is None: stdout = subprocess.PIPE
-        if stderr is None: stderr = subprocess.PIPE
-        if stdin is None: stdin = subprocess.PIPE
         self.proc = subprocess.Popen(args,
                                      stdout=stdout,
                                      stderr=stderr,
@@ -58,11 +55,16 @@ class ManagedProcess(object):
             self.proc.kill()
             self.proc.communicate()
             self.remove_from_pidfile()
-
+            self.closed = True
 
 
 def start_redis(pidfilename, port, data_dir, loglevel="warning",
-                data_file='redis.db', save=True):
+                data_file='redis.db', save=True, 
+                stdout=sys.stdout,
+                stderr=sys.stderr
+                # stdout=None,
+                # stderr=None
+                ):
     base_config = os.path.join(os.path.dirname(__file__), 'redis.conf')
     with open(base_config) as f:
         redisconf = f.read()
@@ -74,8 +76,9 @@ def start_redis(pidfilename, port, data_dir, loglevel="warning",
                              'loglevel' : loglevel,
                              'save' : savestr}
     mproc = ManagedProcess(['redis-server', '-'], 'redis', pidfilename,
-                           stdout=sys.stdout,
-                           stderr=sys.stderr
+                           stdout=stdout,
+                           stderr=stderr,
+                           stdin=subprocess.PIPE
                            )
     mproc.proc.stdin.write(redisconf)
     mproc.proc.stdin.close()

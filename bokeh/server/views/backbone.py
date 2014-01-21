@@ -5,7 +5,7 @@ import flask
 import os
 import logging
 import uuid
-from ..app import app
+from ..app import bokeh_app
 from ..serverbb import RedisSession
 from .. import wsmanager
 from ..models import convenience
@@ -20,12 +20,12 @@ log = logging.getLogger(__name__)
 
 #Management Functions
 
-@app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
 @check_write_authentication_and_create_client
 def reset(docid):
-    doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
-    sess.load()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)        
+    sess.load_all()
     for m in sess._models:
         if not m.typename.endswith('PlotContext'):
             sess.del_obj(m)
@@ -34,21 +34,21 @@ def reset(docid):
             sess.store_obj(m)
     return 'success'
 
-@app.route("/bokeh/bb/<docid>/rungc", methods=['GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/rungc", methods=['GET'])
 @check_write_authentication_and_create_client
 def rungc(docid):
-    doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
-    sess.load()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)
+    sess.load_all()
     sess.prune(delete=True)
     return 'success'
 
-@app.route("/bokeh/bb/<docid>/callbacks", methods=['POST', 'GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/callbacks", methods=['POST', 'GET'])
 @check_write_authentication_and_create_client
 def callbacks(docid):
-    doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
-    sess.load()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)    
+    sess.load_all()
     sess.load_all_callbacks()    
     if request.method == 'POST':
         jsondata = protocol.deserialize_json(request.data)
@@ -58,15 +58,15 @@ def callbacks(docid):
     return make_json(sess.serialize(jsondata))
 
 #bulk upsert
-@app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
+@bokeh_app.route("/bokeh/bb/<docid>/bulkupsert", methods=['POST'])
 @check_write_authentication_and_create_client
 def bulk_upsert(docid):
     # endpoint is only used by python, therefore we don't process
     # callbacks here
     client = request.headers.get('client', 'python')
-    doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
-    sess.load()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)    
+    sess.load_all()
     data = protocol.deserialize_json(request.data)
     if client == 'python':
         sess.load_broadcast_attrs(data, events=None)
@@ -86,7 +86,7 @@ def ws_update(session, models, exclude_self=True):
     msg = session.serialize({'msgtype' : 'modelpush',
                              'modelspecs' : attrs
                              })
-    app.wsmanager.send("bokehplot:" + session.docid, msg, exclude=set([clientid]))
+    bokeh_app.wsmanager.send("bokehplot:" + session.docid, msg, exclude=set([clientid]))
     return msg
         
 def ws_delete(session, models):
@@ -95,17 +95,17 @@ def ws_delete(session, models):
            'modelspecs' : attrs
            }
     msg = session.serialize(msg)
-    app.wsmanager.send("bokehplot:" + session.docid, msg, exclude=set([clientid]))
+    bokeh_app.wsmanager.send("bokehplot:" + session.docid, msg, exclude=set([clientid]))
     return msg
     
 #backbone functionality
 
-@app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['POST'])
 @check_write_authentication_and_create_client
 def create(docid, typename):
-    doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
-    sess.load()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)    
+    sess.load_all()
     
     modeldata = protocol.deserialize_json(request.data)
     modeldata = [{'type' : typename,
@@ -114,14 +114,14 @@ def create(docid, typename):
     ws_update(sess, modeldata)
     return sess.serialize(modeldata[0]['attributes'])
 
-@app.route("/bokeh/bb/<docid>/", methods=['GET'])
-@app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/", methods=['GET'])
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/", methods=['GET'])
 @check_read_authentication_and_create_client
 def bulkget(docid, typename=None):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
-    doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
-    sess.load()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)    
+    sess.load_all()
     sess.prune()    
     all_models = sess._models.values()
     if typename is not None:
@@ -133,7 +133,7 @@ def bulkget(docid, typename=None):
         return make_json(sess.serialize(attrs))
 
 #route for working with individual models
-@app.route("/bokeh/bb/<docid>/<typename>/<id>/",
+@bokeh_app.route("/bokeh/bb/<docid>/<typename>/<id>/",
            methods=['GET', 'OPTIONS', 'PUT', 'PATCH', 'DELETE'])
 @crossdomain(origin="*", methods=['PATCH', 'GET', 'PUT'],
              headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
@@ -151,9 +151,9 @@ def handle_specific_model(docid, typename, id):
 @check_read_authentication_and_create_client
 def getbyid(docid, typename, id):
     include_hidden = request.values.get('include_hidden', '').lower() == 'true'
-    doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
-    sess.load()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)    
+    sess.load_all()
     attr = sess.attrs([sess._models[id]])[0]
     return make_json(sess.serialize(attr))
 
@@ -163,9 +163,9 @@ def update(docid, typename, id):
     namely in writing, we shouldn't remove unspecified attrs
     (we currently don't handle this correctly)
     """
-    doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
-    sess.load()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)    
+    sess.load_all()
     
     modeldata = protocol.deserialize_json(request.data)
     #patch id is not passed...
@@ -187,7 +187,7 @@ def update(docid, typename, id):
 
 @check_write_authentication_and_create_client
 def delete(docid, typename, id):
-    sess = RedisSession(app.bb_redis, doc)    
+    sess = bokeh_app.backbone_storage.get_session(docid)
     model = sess._models[id]
     log.debug("DELETE, %s, %s", docid, typename)
     sess.del_obj(model)
@@ -196,15 +196,15 @@ def delete(docid, typename, id):
 
 
 #rpc route
-@app.route("/bokeh/bb/rpc/<docid>/<typename>/<id>/<funcname>/",
+@bokeh_app.route("/bokeh/bb/rpc/<docid>/<typename>/<id>/<funcname>/",
            methods=['POST', 'OPTIONS'])
 @crossdomain(origin="*", methods=['POST'],
              headers=['BOKEH-API-KEY', 'Continuum-Clientid', 'Content-Type'])
 @check_write_authentication_and_create_client
 def rpc(docid, typename, id, funcname):
-    doc = docs.Doc.load(app.model_redis, docid)
-    sess = RedisSession(app.bb_redis, doc)
-    sess.load()
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)
+    sess.load_all()
     model = sess._models[id]
     data = protocol.deserialize_json(request.data)
     args = data.get('args', [])

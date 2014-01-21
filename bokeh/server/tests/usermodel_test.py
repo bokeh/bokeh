@@ -13,7 +13,7 @@ from .. import models
 class TestUser(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestUser, self).setUp()
-        self.client = app.model_redis
+        self.client = app.servermodel_storage
 
     def test_cant_create_twice(self):
         model = user.new_user(self.client, 'test@test.com', 'mypassword',

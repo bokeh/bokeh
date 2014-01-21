@@ -33,6 +33,12 @@ def build_parser():
                         action="store_true",
                         default=True
                         )
+    parser.add_argument("-m", "--multi-user",
+                        help="multi user",
+                        action="store_true",
+                        default=False
+                        )
+    
     return parser
 
 def main():
@@ -44,9 +50,10 @@ def main():
     start.app.debug = False
     start.bokeh_app.splitjs = args.splitjs
     start.bokeh_app.debugjs = args.debugjs
-
-    start.prepare_app(rport=args.redis_port, start_redis=args.start_redis)
-    start.prepare_local()
+    
+    start.prepare_app(rport=args.redis_port, start_redis=args.start_redis,
+                      single_user_mode=not args.multi_user
+                      )
 
     if args.debug:
         print("running with debug")
