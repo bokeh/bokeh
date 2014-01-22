@@ -251,7 +251,7 @@ class MultiUserAuthentication(AbstractAuthentication):
         
     def login_from_apikey(self):
         username = request.values.get('username')
-        apikey = request.values.get('apikey')
+        apikey = request.values.get('userapikey')
         try:
             bokehuser = user.auth_user(bokeh_app.servermodel_storage,
                                        username, 
