@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 from os.path import expanduser, exists, join
 from os import makedirs
 from six.moves.urllib.parse import urljoin, urlencode
@@ -12,6 +14,8 @@ bokeh_plots_url = "http://eff.iciently.com:5006/"
 class Server(object):
     def __init__(self, name="http://localhost:5006/", 
                  root_url="http://localhost:5006/", 
+                 userapikey="nokey",
+                 username="defaultuser",
                  load_from_config=True,
                  configfile=None
                  ):
@@ -24,8 +28,8 @@ class Server(object):
         self.name = name
         self.root_url = root_url
         #single user mode case
-        self.userapikey = "nokey"
-        self.username = "defaultuser"
+        self.userapikey = userapikey
+        self.username = username
         self._configfile = None        
         if configfile:
             self.configfile = configfile
@@ -59,6 +63,10 @@ class Server(object):
 
     def load(self):
         config_info = self.load_dict().get(self.name, {})
+        print("found config for %s" % self.name)
+        print(str(config_info))
+        print("loading it!")
+        print("if you don't wish to load this config, please pass load_from_config=False")
         self.root_url = config_info.get('root_url', self.root_url)
         self.userapikey = config_info.get('userapikey', self.userapikey)
         self.username = config_info.get('username', self.username)

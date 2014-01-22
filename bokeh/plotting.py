@@ -152,7 +152,7 @@ def session():
     return _config["session"]
 
 ###NEEDS A BOKEH CLOUD VERSION AS WELL
-def output_notebook(url=None, docname=None):
+def output_notebook(server=None, name=None, url=None, docname=None):
     """ Sets the output mode to emit HTML objects suitable for embedding in
     IPython notebook.  If URL is "default", then uses the default plot
     server URLs etc. for Bokeh.  If URL is explicitly set to None, then data,
@@ -171,7 +171,7 @@ def output_notebook(url=None, docname=None):
     if not notebook:
         raise RuntimeError('output_notebook() called outside of IPython notebook 1.x. When not running inside an IPython notebook 1.x, please use output_file() or output_server()')
 
-    if url is None:
+    if url is None and name is None and server is None:
         session = NotebookSession()
         session.notebooksources()
     else:
@@ -179,9 +179,21 @@ def output_notebook(url=None, docname=None):
             real_url = _config["plotserver_url"]
         else:
             real_url = url
-        _config["output_url"] = real_url
-        session = NotebookServerSession(serverloc = real_url,
-                    username = "defaultuser", userapikey = "nokey")
+        if not server:
+            if name:
+                server = serverconfig.Server(name=name)
+            else:
+                server = serverconfig.Server(name=real_url)
+        _config["output_url"] = server.root_url
+        _config["output_type"] = "server"
+        _config["output_file"] = None
+        try:
+            session = NotebookServerSession(server_config=server)
+        except requests.exceptions.ConnectionError:
+            print("Cannot connect to Bokeh server. (Not running?) To start the "
+                  "Bokeh server execute 'bokeh-server'")
+            import sys
+            sys.exit(1)
         if docname is None:
             docname = "IPython Session at %s" % time.ctime()
         session.use_doc(docname)

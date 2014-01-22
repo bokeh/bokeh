@@ -18,7 +18,7 @@ from . import protocol, utils
 from .objects import PlotObject, Plot, PlotContext
 from .properties import HasProps, List
 from .exceptions import DataIntegrityException
-
+from . import serverconfig
 logger = logging.getLogger(__file__)
 
 class Session(object):
@@ -690,7 +690,7 @@ class PersistentBackboneSession(object):
 
 class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
 
-    def __init__(self, server_config=None, username=None, 
+    def __init__(self, server_config=None, server_name=None, username=None, 
                  serverloc=None, userapikey="nokey"):
         # This logic is based on ContinuumModelsClient.__init__ and
         # mpl.PlotClient.__init__.  There is some merged functionality here
@@ -698,22 +698,25 @@ class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
         # logic in PlotClient (i.e. avoiding handling of things like
         # _newxyplot()), but also build in the functionality of the
         # ContinuumModelsClient.
-        if server_config:
-            username = server_config.username
-            serverloc = server_config.root_url
-            userapikey = server_config.apikey
-        self.username = username
-        self.root_url = serverloc
+        if not server_config:
+            if not server_name: server_name = serverloc
+            server_config = serverconfig.Server(name=server_name,
+                                                root_url=serverloc,
+                                                userapikey=userapikey,
+                                                username=username)
+        self.load_server_config(server_config)
         self.http_session = requests.session()
         self.http_session.headers.update({
             'content-type':'application/json',
-            'BOKEHUSER-API-KEY' : userapikey,
-            'BOKEHUSER' : username})
-
+            'BOKEHUSER-API-KEY' : self.userapikey,
+            'BOKEHUSER' : self.username})
+        
         if self.root_url:
             url = urljoin(self.root_url, '/bokeh/userinfo/')
             self.userinfo = utils.get_json(self.http_session.get(url, verify=False))
         else:
+            # why is this here?  It seems like we would not use this session
+            # if we weren't connecting to a server
             logger.info('Not using a server, plots will only work in embedded mode')
             self.userinfo = None
 
@@ -723,6 +726,12 @@ class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
         self.base_url = urljoin(self.root_url, "/bokeh/bb/")
         self.raw_js_objs = []
         super(PlotServerSession, self).__init__()
+        
+    def load_server_config(self, config):
+        self.username = config.username
+        self.root_url = config.root_url
+        self.userapikey = config.userapikey
+        self.config = config
 
     #------------------------------------------------------------------------
     # Document-related operations
