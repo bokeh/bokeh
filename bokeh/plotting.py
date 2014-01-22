@@ -229,7 +229,7 @@ def output_server(docname, server=None, name=None, url="default", **kwargs):
         import sys
         sys.exit(1)
     _config["session"].use_doc(docname)
-
+    real_url = _config["output_url"]
     print("Using plot server at", real_url + "bokeh;", "Docname:", docname)
 
 def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
