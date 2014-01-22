@@ -83,7 +83,6 @@ setup(
         'bokeh.server.models',
         'bokeh.server.views',
         'bokeh.server.tests',
-        'bokeh.specialmodels',
         'bokeh.tests'
     ],
     package_data = {'bokeh' : package_data_dirs},
