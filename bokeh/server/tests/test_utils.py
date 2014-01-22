@@ -8,7 +8,6 @@ import redis
 from requests.exceptions import ConnectionError
 import requests
 
-from .. import redisutils
 from ..app import bokeh_app
 from .. import start
 

@@ -194,7 +194,7 @@ class MultiUserAuthentication(AbstractAuthentication):
             return jsonify(status=False, 
                            error="user already exists")
         return jsonify(status=True,
-                       apikey=bokehuser.apikey
+                       userapikey=bokehuser.apikey
                        )
     
     def register_post(self):
@@ -230,7 +230,7 @@ class MultiUserAuthentication(AbstractAuthentication):
             return jsonify(status=False,
                            error="incorrect login ")
         return jsonify(status=True,
-                       apikey=bokehuser.apikey
+                       userapikey=bokehuser.apikey
                        )
         
     def login_post(self):

@@ -24,7 +24,7 @@ class Server(object):
         self.name = name
         self.root_url = root_url
         #single user mode case
-        self.apikey = "nokey"
+        self.userapikey = "nokey"
         self.username = "defaultuser"
         self._configfile = None        
         if configfile:
@@ -60,13 +60,13 @@ class Server(object):
     def load(self):
         config_info = self.load_dict().get(self.name, {})
         self.root_url = config_info.get('root_url', self.root_url)
-        self.apikey = config_info.get('apikey', self.apikey)
+        self.userapikey = config_info.get('userapikey', self.userapikey)
         self.username = config_info.get('username', self.username)
 
     def save(self):
         data = self.load_dict()
         data[self.name] = {'root_url' : self.root_url,
-                           'apikey' : self.apikey,
+                           'userapikey' : self.userapikey,
                            'username' : self.username}
         configfile = self.configfile        
         with open(configfile, "w+") as f:
@@ -85,7 +85,7 @@ class Server(object):
         result = utils.get_json(result)
         if result['status']:
             self.username = username
-            self.apikey = result['apikey']
+            self.userapikey = result['userapikey']
             self.save()
         else:
             raise Exception, result['error']
@@ -102,7 +102,7 @@ class Server(object):
         result = utils.get_json(result)
         if result['status']:
             self.username = username            
-            self.apikey = result['apikey']
+            self.userapikey = result['userapikey']
             self.save()
         else:
             raise Exception, result['error']
@@ -112,7 +112,7 @@ class Server(object):
         controller = browserlib.get_browser_controller()
         url = urljoin(self.root_url, "bokeh/loginfromapikey")
         url += "?" + urlencode({'username' : self.username,
-                                'apikey' : self.apikey})
+                                'userapikey' : self.userapikey})
         controller.open(url)
 
 class Cloud(Server):
