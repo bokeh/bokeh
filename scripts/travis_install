@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for requirement in $(cat requirements.txt | grep -v numpy)
+for requirement in $(cat requirements.txt | grep -v numpy | grep -v pandas)
 do
     echo "Installing $requirement"; pip install --use-mirrors -q "$requirement"
 done
