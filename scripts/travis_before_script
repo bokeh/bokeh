@@ -1,0 +1,4 @@
+#!/bin/bash
+
+./bokeh-server &
+ipython notebook examples/plotting/notebook/ &

@@ -11,4 +11,6 @@ before_install: sudo scripts/travis_before_install
 
 install: scripts/travis_install
 
+before_script: scripts/travis_before_script
+
 script: scripts/travis_test

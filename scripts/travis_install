@@ -8,7 +8,7 @@ done
 
 PHANTOMJS=phantomjs-1.9.6-linux-x86_64
 wget -O - https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2 | tar xj
-mv $PHANTOMJS examples/phantomjs
+mv $PHANTOMJS phantomjs
 
 cd bokehjs
 npm install
