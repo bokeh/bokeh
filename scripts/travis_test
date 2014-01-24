@@ -1,0 +1,4 @@
+#!/bin/bash
+
+python -c 'from bokeh import test; test()'
+examples/test --phantomjs=phantomjs/bin/phantomjs

@@ -1,0 +1,18 @@
+#!/bin/bash
+
+for requirement in $(cat requirements.txt | grep -v numpy)
+do
+    echo "Installing $requirement"; pip install --use-mirrors -q "$requirement"
+done
+
+PHANTOMJS=phantomjs-1.9.6-linux-x86_64
+wget -O - https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2 | tar xj
+mv $PHANTOMJS examples/phantomjs
+
+cd bokehjs
+npm install
+node_modules/.bin/grunt deploy-both || exit 1
+cd ..
+
+ln -s $(readlink -f bokehjs/build/js) bokeh/server/static/js
+ln -s $(readlink -f bokehjs/build/css) bokeh/server/static/css
