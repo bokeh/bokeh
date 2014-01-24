@@ -4,6 +4,7 @@ MarkupSafe>=0.18
 Werkzeug>=0.9.1
 argparse>=1.2.1
 gevent>=0.13.8
+gevent_zeromq>=0.2.2
 gevent-websocket>=0.3.6
 greenlet>=0.4.1
 itsdangerous>=0.21
