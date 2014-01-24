@@ -223,9 +223,13 @@ define [
     return plot
 
 
-  show = (plot) ->
+  show = (plot, target_div=false) ->
     div = $('<div class="plotdiv"></div>')
-    $('body').append(div)
+    if target_div
+      target_div = $(target_div)
+    else
+      target_div = $('body')
+    target_div.append(div)
     myrender  =  ->
       view = new plot.default_view(model: plot)
       window.pview = view
