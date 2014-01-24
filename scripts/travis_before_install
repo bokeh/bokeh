@@ -1,4 +1,4 @@
 #!/bin/bash
 
-add-apt-repository ppa:pythonxy/pythonxy-devel && apt-get update
+add-apt-repository -y ppa:pythonxy/pythonxy-devel && apt-get update
 apt-get install python-numpy python-scipy python-pandas nodejs npm redis-server
