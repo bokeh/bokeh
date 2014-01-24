@@ -1,0 +1,13 @@
+language: python
+
+python:
+    - 2.7
+    - 3.3
+
+install:
+    - pip install -r requirements.txt --use-mirrors
+    - python setup.py install
+
+script:
+    - python -c 'from bokeh import test; test()'
+    - cd examples && examples/test && cd ..
