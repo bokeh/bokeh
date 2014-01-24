@@ -1,4 +1,4 @@
 #!/bin/bash
 
 python -c 'from bokeh import test; test()'
-examples/test --phantomjs=phantomjs/bin/phantomjs
+PYTHONPATH=$(readlink -f .) examples/test --phantomjs=phantomjs/bin/phantomjs
