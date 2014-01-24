@@ -20,6 +20,8 @@ parser.add_argument("-p", "--bokeh-port", type=int, default=5006,
                     help="port on which Bokeh server resides")
 parser.add_argument("-n", "--notebook-port", type=int, default=8888,
                     help="port on which IPython Notebook server resides")
+parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
+                    help="phantomjs executable")
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
 args = parser.parse_args()
@@ -108,7 +110,7 @@ try:
             elif etype == 'file':
                 url = 'file://' + html_file
 
-            cmd = ["phantomjs", "test.js", etype, url, png_file]
+            cmd = [args.phantomjs, "test.js", etype, url, png_file]
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
             code = proc.wait()
 
