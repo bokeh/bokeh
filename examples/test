@@ -45,20 +45,22 @@ def add_examples(examples_dir, includes=set([]), excludes=set([]), etype='file')
         if not file.startswith('__') and file.endswith(ext) and file not in excludes:
             examples.append((os.path.join(examples_dir, file), etype))
 
-glyphs_dir = os.path.join("glyphs")
+base_dir = os.path.dirname(__file__)
+
+glyphs_dir = os.path.join(base_dir, "glyphs")
 glyphs_server = set(["data_select_tool.py", "glyph2.py", "maps.py", "prim.py"])
 glyphs_excludes = set(["line_animate.py"])
 add_examples(glyphs_dir, excludes=glyphs_excludes|glyphs_server, etype='file')
 add_examples(glyphs_dir, includes=glyphs_server, etype='server')
 
-plotting_file_dir = os.path.join("plotting", "file")
+plotting_file_dir = os.path.join(base_dir, "plotting", "file")
 add_examples(plotting_file_dir, etype='file')
 
-plotting_server_dir = os.path.join("plotting", "server")
+plotting_server_dir = os.path.join(base_dir, "plotting", "server")
 plotting_server_excludes = set(["animated.py", "line_animate.py"])
 add_examples(plotting_server_dir, excludes=plotting_server_excludes, etype='server')
 
-plotting_notebook_dir = os.path.join("plotting", "notebook")
+plotting_notebook_dir = os.path.join(base_dir, "plotting", "notebook")
 plotting_notebook_excludes = set(["animated.ipynb"])
 add_examples(plotting_notebook_dir, excludes=plotting_notebook_excludes, etype='notebook')
 
@@ -110,7 +112,7 @@ try:
             elif etype == 'file':
                 url = 'file://' + html_file
 
-            cmd = [args.phantomjs, "test.js", etype, url, png_file]
+            cmd = [args.phantomjs, os.path.join(base_dir, "test.js"), etype, url, png_file]
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
             code = proc.wait()
 
