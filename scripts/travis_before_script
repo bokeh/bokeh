@@ -1,4 +1,7 @@
 #!/bin/bash
 
 ./bokeh-server &
+echo $! > bokeh.pid
+
 ipython notebook examples/plotting/notebook/ &
+echo $! > ipython.pid

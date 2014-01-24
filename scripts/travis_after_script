@@ -1,0 +1,4 @@
+#!/bin/bash
+
+kill bokeh.pid
+kill ipython.pid
