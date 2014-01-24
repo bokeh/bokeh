@@ -5,7 +5,7 @@ python:
     - 3.3
 
 before_install:
-    - apt-get install python-numpy nodejs npm
+    - sudo apt-get install python-numpy nodejs npm
 
 install: scripts/travis_install
 
