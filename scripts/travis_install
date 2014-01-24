@@ -17,3 +17,5 @@ cd ..
 
 ln -s $(readlink -f bokehjs/build/js) bokeh/server/static/js
 ln -s $(readlink -f bokehjs/build/css) bokeh/server/static/css
+
+python -c 'import bokeh; bokeh.sampledata.download()'
