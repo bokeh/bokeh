@@ -1,8 +1,9 @@
 #!/bin/bash
 
-for requirement in $(cat requirements.txt | grep -v numpy | grep -v pandas)
+for requirement in $(cat requirements.txt | grep -v numpy | grep -v scipy | grep -v pandas)
 do
-    echo "Installing $requirement"; pip install --use-mirrors -q "$requirement"
+    echo "Installing $requirement"
+    pip install --use-mirrors "$requirement"
 done
 
 PHANTOMJS=phantomjs-1.9.6-linux-x86_64

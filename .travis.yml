@@ -4,6 +4,9 @@ python:
     - 2.7
     - 3.3
 
+virtualenv:
+    system_site_packages: true
+
 before_install: sudo scripts/travis_before_install
 
 install: scripts/travis_install
