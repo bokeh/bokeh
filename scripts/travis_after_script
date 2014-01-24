@@ -1,4 +1,7 @@
 #!/bin/bash
 
-kill bokeh.pid
-kill ipython.pid
+kill $(cat bokeh.pid)
+kill $(cat ipython.pid)
+
+cat bokeh.log
+cat ipython.log
