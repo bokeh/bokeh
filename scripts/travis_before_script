@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export PATH="$HOME/miniconda/bin:$PATH"
-
 BOKEH_PORT=10001
 ./bokeh-server --port=$BOKEH_PORT &> bokeh.log &
 echo $! > bokeh.pid

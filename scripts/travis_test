@@ -1,6 +1,4 @@
 #!/bin/bash
 
-export PATH="$HOME/miniconda/bin:$PATH"
-
 python -c 'from bokeh import test; test()'
 PYTHONPATH=$(readlink -f .) BOKEH_SERVER_URL="http://localhost:$(cat bokeh.port)/" examples/test --bokeh-port=$(cat bokeh.port) --ipython-port=$(cat ipython.port) --phantomjs=$HOME/phantomjs/bin/phantomjs

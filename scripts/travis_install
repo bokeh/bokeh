@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export PATH="$HOME/miniconda/bin:$PATH"
-
 python -V
 
 conda install --yes --file conda.txt

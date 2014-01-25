@@ -6,7 +6,9 @@ python:
 virtualenv:
     system_site_packages: true
 
-before_install: scripts/travis_before_install
+before_install:
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - scripts/travis_before_install
 
 install: scripts/travis_install
 
