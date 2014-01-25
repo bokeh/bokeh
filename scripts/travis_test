@@ -1,4 +1,4 @@
 #!/bin/bash
 
 python -c 'from bokeh import test; test()'
-PYTHONPATH=$(readlink -f .) examples/test --bokeh-port=$(cat bokeh.port) --ipython-port=$(cat ipython.port) --phantomjs=phantomjs/bin/phantomjs
+PYTHONPATH=$(readlink -f .) BOKEH_SERVER_URL="http://localhost:$(cat bokeh.port)/" examples/test --bokeh-port=$(cat bokeh.port) --ipython-port=$(cat ipython.port) --phantomjs=phantomjs/bin/phantomjs
