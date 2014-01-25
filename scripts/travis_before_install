@@ -1,4 +1,12 @@
 #!/bin/bash
 
-add-apt-repository -y ppa:pythonxy/pythonxy-devel && apt-get update
-apt-get install -y --force-yes python-numpy python-scipy python-pandas nodejs npm redis-server libzmq3-dev
+apt-get install -y --force-yes nodejs npm redis-server libzmq3-dev
+
+ANACONDA="Anaconda-1.8.0-Linux-x86_64"
+wget http://09c8d0b2229f813c1b93-c95ac804525aac4b6dba79b00b39d1d3.r79.cf1.rackcdn.com/$ANACONDA.sh
+bash $ANACONDA.sh -b
+export PATH="$HOME/anaconda/bin:$PATH"
+
+PHANTOMJS=phantomjs-1.9.6-linux-x86_64
+wget -O - https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2 | tar xj
+mv $PHANTOMJS phantomjs

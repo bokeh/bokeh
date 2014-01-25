@@ -1,14 +1,7 @@
 #!/bin/bash
 
-for requirement in $(cat requirements.txt | grep -v numpy | grep -v scipy | grep -v pandas)
-do
-    echo "Installing $requirement"
-    pip install --use-mirrors "$requirement"
-done
-
-PHANTOMJS=phantomjs-1.9.6-linux-x86_64
-wget -O - https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2 | tar xj
-mv $PHANTOMJS phantomjs
+conda install --yes --file conda.txt
+pip install mock websocket wsgiref git+https://github.com/ipython/ipython.git@master
 
 cd bokehjs
 npm install
