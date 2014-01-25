@@ -7,6 +7,4 @@ wget http://repo.continuum.io/miniconda/$MINICONDA.sh
 bash $MINICONDA.sh -b
 
 PHANTOMJS=phantomjs-1.9.6-linux-x86_64
-wget -O - https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2 | tar xj
-mv -v $PHANTOMJS phantomjs
-readlink -f phantomjs
+mkdir $HOME/phantomjs && wget -O - https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2 | tar xj --strip-components 1 -C $HOME/phantomjs
