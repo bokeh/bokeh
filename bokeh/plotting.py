@@ -127,7 +127,7 @@ def set_config():
         "output_type": None,
         "output_url": None,
         "output_file": None,
-        "plotserver_url": DEFAULT_SERVER_URL,
+        "plotserver_url": os.environ.get("BOKEH_SERVER_URL", DEFAULT_SERVER_URL),
 
         # Configuration options for "file" output mode
         "autosave": False,
