@@ -3,9 +3,6 @@ language: python
 python:
     - 2.7
 
-virtualenv:
-    system_site_packages: true
-
 before_install:
     - export PATH="$HOME/miniconda/bin:$PATH"
     - scripts/travis_before_install
