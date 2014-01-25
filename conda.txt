@@ -2,6 +2,8 @@ Flask
 Jinja2
 MarkupSafe
 Werkzeug
+zeromq
+pyzmq
 gevent
 gevent_zeromq
 gevent-websocket
@@ -20,6 +22,5 @@ pygments
 markdown
 PyYAML
 tornado
-pyzmq
 colorama
 nose
