@@ -2,10 +2,10 @@
 
 apt-get install -y --force-yes nodejs npm redis-server libzmq3-dev
 
-ANACONDA="Anaconda-1.8.0-Linux-x86_64"
-wget http://09c8d0b2229f813c1b93-c95ac804525aac4b6dba79b00b39d1d3.r79.cf1.rackcdn.com/$ANACONDA.sh
-bash $ANACONDA.sh -b
-export PATH="$HOME/anaconda/bin:$PATH"
+MINICONDA="Miniconda-3.0.0-Linux-x86_64"
+wget http://repo.continuum.io/miniconda/$MINICONDA.sh
+bash $MINICONDA.sh -b
+export PATH="$HOME/miniconda/bin:$PATH"
 
 PHANTOMJS=phantomjs-1.9.6-linux-x86_64
 wget -O - https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2 | tar xj
