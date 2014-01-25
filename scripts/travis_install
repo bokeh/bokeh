@@ -1,5 +1,8 @@
 #!/bin/bash
 
+echo $PATH
+python -V
+
 conda install --yes --file conda.txt
 pip install mock websocket wsgiref git+https://github.com/ipython/ipython.git@master
 
