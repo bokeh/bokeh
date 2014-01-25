@@ -9,3 +9,4 @@ bash $MINICONDA.sh -b
 PHANTOMJS=phantomjs-1.9.6-linux-x86_64
 wget -O - https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2 | tar xj
 mv -v $PHANTOMJS phantomjs
+readlink -f phantomjs

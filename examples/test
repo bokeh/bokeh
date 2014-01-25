@@ -113,8 +113,13 @@ try:
                 url = 'file://' + html_file
 
             cmd = [args.phantomjs, os.path.join(base_dir, "test.js"), etype, url, png_file]
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-            code = proc.wait()
+
+            try:
+                proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+                code = proc.wait()
+            except OSError:
+                print("Failed to run: %s" % " ".join(cmd))
+                sys.exit(1)
 
             result = json.loads(proc.stdout.read())
 
