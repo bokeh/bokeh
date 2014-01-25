@@ -26,3 +26,4 @@ git+https://github.com/ipython/ipython.git@master
 mock>=1.0.1
 websocket>=0.2.1
 colorama>=0.2.7
+nose

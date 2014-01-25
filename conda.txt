@@ -21,3 +21,4 @@ PyYAML
 tornado
 pyzmq
 colorama
+nose
