@@ -7,7 +7,7 @@ python:
 virtualenv:
     system_site_packages: true
 
-before_install: sudo scripts/travis_before_install
+before_install: scripts/travis_before_install
 
 install: scripts/travis_install
 
