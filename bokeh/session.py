@@ -820,7 +820,7 @@ class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
         the other one just contains attributes directly
         """
         url = utils.urljoin(self.base_url, self.docid +"/")
-        attrs = protocol.deserialize_json(self.http_session.get(url).content)
+        attrs = protocol.deserialize_json(self.http_session.get(url).content.decode('utf-8'))
         if not asdict:
             models = self.load_broadcast_attrs(attrs)
             for m in models:
@@ -832,7 +832,7 @@ class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
 
     def load_type(self, typename, asdict=False):
         url = utils.urljoin(self.base_url, self.docid +"/", typename + "/")
-        attrs = protocol.deserialize_json(self.http_session.get(url).content)
+        attrs = protocol.deserialize_json(self.http_session.get(url).content.decode('utf-8'))
         if not asdict:
             models = self.load_attrs(typename, attrs)
             for m in models:

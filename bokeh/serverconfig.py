@@ -89,14 +89,14 @@ class Server(object):
                 'api' : 'true'
                 })
         if result.status_code != 200:
-            raise Exception, "Unknown Error"
+            raise RuntimeError("Unknown Error")
         result = utils.get_json(result)
         if result['status']:
             self.username = username
             self.userapikey = result['userapikey']
             self.save()
         else:
-            raise Exception, result['error']
+            raise RuntimeError(result['error'])
 
     def login(self, username, password):
         url = urljoin(self.root_url, "bokeh/login")
@@ -106,14 +106,14 @@ class Server(object):
                 'api' : 'true'
                 })
         if result.status_code != 200:
-            raise Exception, "Unknown Error"
+            raise RuntimeError("Unknown Error")
         result = utils.get_json(result)
         if result['status']:
             self.username = username            
             self.userapikey = result['userapikey']
             self.save()
         else:
-            raise Exception, result['error']
+            raise RuntimeError(result['error'])
         self.save()
         
     def browser_login(self):
