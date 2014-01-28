@@ -18,7 +18,7 @@ import logging
 logger = logging.getLogger(__file__)
 
 from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
-        Either, Float, Instance, Int, List, String, Color, Pattern, Percent,
+        Either, Float, Instance, Int, List, String, Color, DashPattern, Percent,
         Size, LineProps, FillProps, TextProps, Include, Bool)
 
 class Viewable(MetaHasProps):
@@ -181,6 +181,12 @@ class PlotObject(HasProps):
         else:
             self._block_callbacks = True
             super(PlotObject, self).__init__(*args, **kwargs)
+
+    def get_ref(self):
+        return {
+            'type': self.__view_model__,
+            'id': self._id,
+        }
 
     def setup_events(self):
         pass
@@ -436,7 +442,7 @@ class ColumnDataSource(DataSource):
                 for colname in raw_data:
                     new_data[colname] = raw_data[colname].tolist()
                 raw_data = new_data
-        for name, data in raw_data.iteritems():
+        for name, data in raw_data.items():
             self.add(data, name)
         super(ColumnDataSource, self).__init__(**kw)
 
@@ -459,16 +465,6 @@ class ColumnDataSource(DataSource):
             del self.data[name]
         except (ValueError, KeyError):
             warnings.warn("Unable to find column '%s' in datasource" % name)
-
-
-class ObjectArrayDataSource(DataSource):
-    # List of tuples of values
-    data = List()
-
-    # Maps field/column name to a DataRange or FactorRange object. If the
-    # field is not in the dict, then a range is created automatically.
-    cont_ranges = Dict()
-    discrete_ranges = Dict()
 
 class PandasDataSource(DataSource):
     """ Represents serverside data.  This gets stored into the plot server's
@@ -796,6 +792,8 @@ class Grid(GuideRenderer):
     dimension = Int(0)
     bounds = String('auto')
 
+    is_datetime = Bool(False)
+
     # Line props
     grid_props = Include(LineProps, prefix="grid")
 
@@ -804,7 +802,7 @@ class PanTool(PlotObject):
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
 
-class ZoomTool(PlotObject):
+class WheelZoomTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
@@ -859,3 +857,10 @@ class DataRangeBoxSelectTool(PlotObject):
     xselect = List()
     yselect = List()
 
+class PlotContext(PlotObject):
+    children = List(has_ref=True)
+
+class PlotList(PlotContext):
+    # just like plot context, except plot context has special meaning
+    # everywhere, so plotlist is the generic one
+    pass

@@ -19,7 +19,7 @@ define [
       max = -Infinity;
       min =  Infinity
       value = 0
-      for i in [0..data.length-1]
+      for i in [0...data.length]
         value = data[i];
         if (value > max)
           max = value;
@@ -40,7 +40,7 @@ define [
       offset = -scale*low
 
       if @little_endian
-        for i in [0..data.length-1]
+        for i in [0...data.length]
           d = data[i]
           if (d > high)
             d = high
@@ -54,7 +54,7 @@ define [
             ((value & 0xff) << 16);      # red
 
       else
-        for i in [0..data.length-1]
+        for i in [0...data.length]
           d = data[i]
           if (d > high)
             d = high
@@ -78,7 +78,7 @@ define [
 
     _build_palette: (palette) ->
       new_palette = new Uint32Array(palette.length+1)
-      for i in [0..palette.length-1]
+      for i in [0...palette.length]
         new_palette[i] = palette[i]
       new_palette[new_palette.length-1] = palette[palette.length-1]
       return new_palette

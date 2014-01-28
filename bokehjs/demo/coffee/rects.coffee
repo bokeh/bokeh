@@ -34,7 +34,7 @@ require(['main'], (Bokeh) ->
     dims: [800, 500]
     xaxes: "min"
     yaxes: "min"
-    tools: "pan,zoom,resize,preview,select"
+    tools: "pan,wheel_zoom,resize,preview,select"
     legend: false
   }
 

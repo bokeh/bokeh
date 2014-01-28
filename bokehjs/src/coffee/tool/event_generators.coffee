@@ -43,8 +43,8 @@ define [], () ->
             'inner_range_horizontal')
           inner_range_vertical = @plotview.view_state.get(
             'inner_range_vertical')
-          x = @plotview.view_state.device_to_sx(e.bokehX)
-          y = @plotview.view_state.device_to_sy(e.bokehY)
+          x = @plotview.view_state.sx_to_vx(e.bokehX)
+          y = @plotview.view_state.sy_to_vy(e.bokehY)
           if @restrict_to_innercanvas
             xstart = inner_range_horizontal.get('start')
             xend = inner_range_horizontal.get('end')
@@ -131,8 +131,8 @@ define [], () ->
         if not @button_activated
           @$tool_button.removeClass('active')
         offset = $(e.currentTarget).offset()
-        e.bokehX = e.pageX #- offset.left
-        e.bokehY = e.pageY #- offset.top
+        e.bokehX = e.pageX - offset.left
+        e.bokehY = e.pageY - offset.top
         @eventSink.trigger("#{@options.eventBasename}:DragEnd", e)
 
 

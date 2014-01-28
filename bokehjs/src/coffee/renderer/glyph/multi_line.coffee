@@ -13,15 +13,16 @@ define [
     _map_data: () ->
       null
 
-    _render: (ctx, glyph_props, use_selection) ->
-      for i in [0..@xs.length-1]
+    _render: (ctx, indices, glyph_props) ->
+
+      for i in indices
+
         x = @xs[i]
         y = @ys[i]
-
         [sx, sy] = @plot_view.map_to_screen(x, @glyph_props.xs.units, y, @glyph_props.ys.units)
 
         glyph_props.line_properties.set_vectorize(ctx, i)
-        for j in [0..sx.length-1]
+        for j in [0...sx.length]
           if j == 0
             ctx.beginPath()
             ctx.moveTo(sx[j], sy[j])
@@ -34,21 +35,8 @@ define [
             ctx.lineTo(sx[j], sy[j])
         ctx.stroke()
 
-    draw_legend: (ctx, x1, x2, y1, y2) ->
-      glyph_props = @glyph_props
-      line_props = glyph_props.line_properties
-      reference_point = @get_reference_point()
-      if reference_point?
-        glyph_settings = reference_point
-      else
-        glyph_settings = glyph_props
-      ctx.beginPath()
-      ctx.moveTo(x1, (y1 + y2) /2)
-      ctx.lineTo(x2, (y1 + y2) /2)
-      if line_props.do_stroke
-        line_props.set(ctx, glyph_settings)
-        ctx.stroke()
-      ctx.restore()
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      @_generic_line_legend(ctx, x0, x1, y0, y1)
 
   class MultiLine extends Glyph.Model
     default_view: MultiLineView

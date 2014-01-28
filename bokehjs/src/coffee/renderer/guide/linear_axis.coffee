@@ -125,7 +125,7 @@ define [
       @rule_props.set(ctx, @)
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
-      for i in [1..sx.length-1]
+      for i in [1...sx.length]
         ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
       ctx.stroke()
       return
@@ -139,7 +139,7 @@ define [
       tin = @mget('major_tick_in')
       tout = @mget('major_tick_out')
       @major_tick_props.set(ctx, @)
-      for i in [0..sx.length-1]
+      for i in [0...sx.length]
         ctx.beginPath()
         ctx.moveTo(Math.round(sx[i]+nx*tout), Math.round(sy[i]+ny*tout))
         ctx.lineTo(Math.round(sx[i]-nx*tin),  Math.round(sy[i]-ny*tin))
@@ -166,7 +166,7 @@ define [
       @major_label_props.set(ctx, @)
       @_apply_location_heuristics(ctx, side, orient)
 
-      for i in [0..sx.length-1]
+      for i in [0...sx.length]
         if angle
           ctx.translate(sx[i]+nx*standoff, sy[i]+ny*standoff)
           ctx.rotate(angle)
@@ -271,7 +271,7 @@ define [
       s = Math.sin(angle)
 
       if side == "top" or side == "bottom"
-        for i in [0..labels.length-1]
+        for i in [0...labels.length]
           if not labels[i]?
             continue
           w = @plot_view.ctx.measureText(labels[i]).width * 1.1
@@ -280,7 +280,7 @@ define [
           if val > extent
             extent = val
       else
-        for i in [0..labels.length-1]
+        for i in [0...labels.length]
           if not labels[i]?
             continue
           w = @plot_view.ctx.measureText(labels[i]).width * 1.1
@@ -358,6 +358,8 @@ define [
 
       @register_property('padding_request', @_padding_request, false)
 
+      @scale = new ticking.BasicScale()
+
     dinitialize: (attrs, options)->
       @add_dependencies('computed_bounds', @get_obj('plot'), ['x_range', 'y_range'])
 
@@ -426,8 +428,7 @@ define [
 
       [start, end] = @get('computed_bounds')
 
-      interval = ticking.auto_interval(start, end)
-      ticks = ticking.auto_ticks(null, null, start, end, interval)
+      ticks = @scale.get_ticks(start, end)
 
       loc = @get('location') ? 'min'
       if _.isString(loc)
@@ -443,7 +444,7 @@ define [
 
       [range_min, range_max] = [range.get('min'), range.get('max')]
 
-      for ii in [0..ticks.length-1]
+      for ii in [0...ticks.length]
         if ticks[ii] < range_min or ticks[ii] > range_max
           continue
         coords[i].push(ticks[ii])

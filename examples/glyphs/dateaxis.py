@@ -6,7 +6,7 @@ import os.path
 import time
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis, DatetimeAxis,
-        ColumnDataSource, Glyph, PanTool, ZoomTool)
+        ColumnDataSource, Glyph, PanTool, WheelZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
 
@@ -17,12 +17,14 @@ y = sin(x)
 # for len(x) number of hours.
 times = np.arange(len(x)) * 3600000 + time.time()
 
-source = ColumnDataSource(data=dict(x=x, y=y, times=times))
+source = ColumnDataSource(
+    data=dict(x=x, y=y, times=times)
+)
 
 xdr = DataRange1d(sources=[source.columns("times")])
 ydr = DataRange1d(sources=[source.columns("y")])
 
-circle = Circle(x="times", y="y", fill_color="red", radius=5, line_color="black")
+circle = Circle(x="times", y="y", fill_color="red", size=5, line_color="black")
 
 glyph_renderer = Glyph(
     data_source=source,
@@ -37,21 +39,17 @@ xaxis = DatetimeAxis(plot=plot, dimension=0, location="min")
 yaxis = LinearAxis(plot=plot, dimension=1, location="min")
 
 pantool = PanTool(dataranges=[xdr, ydr], dimensions=["width", "height"])
-zoomtool = ZoomTool(dataranges=[xdr, ydr], dimensions=("width", "height"))
+wheelzoomtool = WheelZoomTool(dataranges=[xdr, ydr], dimensions=("width", "height"))
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool, zoomtool]
+plot.tools = [pantool, wheelzoomtool]
 
-FILENAME = __file__.replace(".py", ".html")
-sess = session.HTMLFileSession(FILENAME)
-sess.add(plot, glyph_renderer, source, xaxis, yaxis, xdr, ydr, pantool, zoomtool)
+sess = session.HTMLFileSession("dateaxis.html")
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
-sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-sess.dumpjson(file=__file__.replace(".py", ".json"))
-print("Wrote " + FILENAME)
-try:
-    import webbrowser
+sess.save(js="absolute", css="absolute")
+sess.dumpjson(file="dateaxis.json")
+print("Wrote %s" % sess.filename)
 
-    webbrowser.open("file://" + os.path.abspath(FILENAME))
-except:
-    pass
+if __name__ == "__main__":
+    sess.view()

@@ -9,8 +9,8 @@ require(['main'], (Bokeh) ->
     cy: [6, 6, 6, 6, 6]
     xs: [[1, 2, 3], [2, 3, 4], [0, 1, 0], [2, 5, 4], [5, 3, 2]]
     ys: [[5, 2, 3], [1, 1, 4], [5, 5, 2], [4, 1, 5], [3, 5, 4]]
-    small_size: [0.2, 0.3, 0.4, 0.5, 0.6]
-    large_size: [5, 10, 15, 20, 25]
+    data_size: [0.2, 0.3, 0.4, 0.5, 0.6]
+    pixel_size: [5, 10, 15, 20, 25]
     angle: [0.5, 1, 1.5, 2, 2.5]
     colors: ['pink', 'orange', 'red', 'blue', 'green']
     alpha: [0.6, 0.5, 0.4, 0.3, 0.2]
@@ -33,13 +33,13 @@ require(['main'], (Bokeh) ->
     xaxes: "min"
     yaxes: "min"
     tools: false
-    legend: false
+    legend: "test"
   }
 
 
   annular_wedge = {
     type: 'annular_wedge'
-    x: 'x' 
+    x: 'x'
     y: 'y'
     fill_color: 'colors'
     line_color: 'colors'
@@ -57,17 +57,17 @@ require(['main'], (Bokeh) ->
 
   annulus = {
     type: 'annulus'
-    x: 'x' 
+    x: 'x'
     y: 'y'
     fill_color: 'colors'
     line_color: 'colors'
     fill_alpha: 'alpha'
-    inner_radius: 'small_size'
+    inner_radius: 'data_size'
     outer_radius: 0.8
   }
 
   options.title = 'Annulus'
-  plot2 = make_plot(annulus, data, options)
+  plot = make_plot(annulus, data, options)
   show(plot)
 
   arc = {
@@ -76,7 +76,8 @@ require(['main'], (Bokeh) ->
     y: 'y'
     line_width: 'lw'
     line_color: 'colors'
-    radius: 20            # for some reason, radius is in pixels.
+    radius: 0.5            # for some reason, radius is in pixels.
+    radius_units: 'data'            # for some reason, radius is in pixels.
     start_angle: 0
     end_angle: 2
   }
@@ -90,7 +91,7 @@ require(['main'], (Bokeh) ->
     x: 'x'
     y: 'y'
     line_color: 'colors'
-    size: 'small_size'
+    size: 'pixel_size'
   }
 
   options.title = 'Asterisk'
@@ -115,26 +116,41 @@ require(['main'], (Bokeh) ->
   plot = make_plot(bezier, data, options)
   show(plot)
 
-  circle = {
+  circle_radius = {
     type: 'circle'
     x: 'x'
     y: 'y'
-    radius: 'large_size'
+    radius: 'data_size'
     fill_color: 'colors'
     line_color: 'colors'
     fill_alpha: 'alpha'
     line_width: 'lw'
   }
 
-  options.title = 'Circle'
-  plot = make_plot(circle, data, options)
+  options.title = 'Circle (radius)'
+  plot = make_plot(circle_radius, data, options)
+  show(plot)
+
+  circle_size = {
+    type: 'circle'
+    x: 'x'
+    y: 'y'
+    size: 'pixel_size'
+    fill_color: 'colors'
+    line_color: 'colors'
+    fill_alpha: 'alpha'
+    line_width: 'lw'
+  }
+
+  options.title = 'Circle (size)'
+  plot = make_plot(circle_size, data, options)
   show(plot)
 
   circle_cross = {
     type: 'circle_cross'
     x: 'x'
     y: 'y'
-    size: 'small_size'
+    size: 'pixel_size'
     fill_color: 'colors'
     fill_alpha: 0.2
     line_width: 'lw'
@@ -150,7 +166,7 @@ require(['main'], (Bokeh) ->
     type: 'circle_x'
     x: 'x'
     y: 'y'
-    size: 'small_size'
+    size: 'pixel_size'
     fill_color: 'colors'
     fill_alpha: 0.2
     line_width: 'lw'
@@ -165,7 +181,7 @@ require(['main'], (Bokeh) ->
     type: 'cross'
     x: 'x'
     y: 'y'
-    size: 'small_size'
+    size: 'pixel_size'
     line_width: 'lw'
     line_color: 'colors'
   }
@@ -179,7 +195,7 @@ require(['main'], (Bokeh) ->
     type: 'diamond'
     x: 'x'
     y: 'y'
-    size: 'small_size'
+    size: 'pixel_size'
     line_width: 'lw'
     fill_color: 'colors'
     fill_alpha: 'alpha'
@@ -194,7 +210,7 @@ require(['main'], (Bokeh) ->
     type: 'diamond_cross'
     x: 'x'
     y: 'y'
-    size: 'small_size'
+    size: 'pixel_size'
     fill_color: 'colors'
     fill_alpha: 0.2
     line_width: 'lw'
@@ -218,7 +234,7 @@ require(['main'], (Bokeh) ->
      type: 'inverted_triangle'
      x: 'x'
      y: 'y'
-     size: 'small_size'
+     size: 'pixel_size'
      line_width: 'lw'
      fill_color: 'colors'
      fill_alpha: 'alpha'
@@ -241,7 +257,7 @@ require(['main'], (Bokeh) ->
   options.title = 'Line'
   plot = make_plot(line, data, options)
   show(plot)
-  
+
   multi_line = {
     type: 'multi_line'
     xs: 'xs'
@@ -381,7 +397,7 @@ require(['main'], (Bokeh) ->
     type: 'square'
     x: 'x'
     y: 'y'
-    size: 'small_size'
+    size: 'pixel_size'
     angle: 'angle'
     fill_alpha: 'alpha'
     fill_color: 'colors'
@@ -391,12 +407,12 @@ require(['main'], (Bokeh) ->
   options.title = 'Squares'
   plot = make_plot(square, data, options)
   show(plot)
-  
+
   square_cross = {
     type: 'square_cross'
     x: 'x'
     y: 'y'
-    size: 'small_size'
+    size: 'pixel_size'
     fill_color: 'colors'
     fill_alpha: 0.2
     line_width: 'lw'
@@ -411,7 +427,7 @@ require(['main'], (Bokeh) ->
     type: 'square_x'
     x: 'x'
     y: 'y'
-    size: 'small_size'
+    size: 'pixel_size'
     fill_color: 'colors'
     fill_alpha: 0.2
     line_width: 'lw'
@@ -430,25 +446,25 @@ require(['main'], (Bokeh) ->
     type: 'triangle'
     x: 'x'
     y: 'y'
-    size: 'small_size'
+    size: 'pixel_size'
     fill_color: 'colors'
     fill_alpha: 'alpha'
     line_width: 'lw'
     line_color: 'colors'
-  }  
-  
+  }
+
   options.title = 'Triangle'
   plot = make_plot(triangle, data, options)
   show(plot)
 
   wedge = {
     type: 'wedge'
-    x: 'x' 
+    x: 'x'
     y: 'y'
     fill_color: 'colors'
     line_color: 'colors'
     fill_alpha: 'alpha'
-    radius: 'large_size'
+    radius: 'pixel_size'
     start_angle: 0
     end_angle: 'angle'
   }
@@ -461,7 +477,7 @@ require(['main'], (Bokeh) ->
     type: 'x'
     x: 'x'
     y: 'y'
-    size: 'small_size'
+    size: 'pixel_size'
     fill_color: 'colors'
     fill_alpha: 'alpha'
     line_width: 'lw'

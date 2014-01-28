@@ -13,7 +13,7 @@ define [
     _properties: []
 
     _set_data: (@data) ->
-      for i in [0..@y.length-1]
+      for i in [0...@y.length]
         @y[i] += @dh[i]
 
       if not @image_data? or @image_data.length != data.length
@@ -22,7 +22,7 @@ define [
       if not @image_canvas? or @image_canvas.length != data.length
         @image_canvas = new Array(@image.length)
 
-      for i in [0..@image.length-1]
+      for i in [0...@image.length]
         if not @image_canvas[i]? or (@image_canvas[i].width != @width[i] or @image_canvas[i].height != @height[i])
           @image_canvas[i] = document.createElement('canvas')
           @image_canvas[i].width = @width[i];
@@ -38,11 +38,11 @@ define [
       @sw = @distance_vector('x', 'dw', 'edge')
       @sh = @distance_vector('y', 'dh', 'edge')
 
-    _render: (ctx, glyph_props, use_selection) ->
+    _render: (ctx, indices, glyph_props) ->
       old_smoothing = ctx.getImageSmoothingEnabled()
       ctx.setImageSmoothingEnabled(false)
 
-      for i in [0..@sx.length-1]
+      for i in indices
 
         if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i])
           continue

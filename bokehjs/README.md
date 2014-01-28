@@ -79,6 +79,9 @@ Executing "grunt build" will also cause the demo files to be built and copied
 the build/demo subdirectory. To view the demos, simply open any of the html
 files located there in a browser.
 
+running `$ ./bokeh-server -j ` and navigating to 
+[Glyphs Demo](http://localhost:5006/bokehjs/static/demo/glyphs.html) also works.
+
 Testing
 =======
 

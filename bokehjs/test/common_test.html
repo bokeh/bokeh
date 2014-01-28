@@ -28,9 +28,11 @@
               "underscore": "vendor/underscore-amd/underscore",
               "backbone": "vendor/backbone-amd/backbone",
               "bootstrap": "vendor/bootstrap/bootstrap-2.0.4",
-			  "timezone": "vendor/timezone/src/timezone",
-			  "sprintf": "vendor/sprintf/src/sprintf",
+			        "timezone": "vendor/timezone/src/timezone",
+              "sprintf": "vendor/sprintf/src/sprintf",
+              "rbush": "vendor/rbush/rbush",
               "testobject": "../test/common/test_object",
+
             }
           }
 
@@ -39,7 +41,6 @@
           requirejs([
             '../test/common/has_parent_test.js',
             '../test/common/has_property_test.js',
-            '../test/common/ticking_test.js'
           ], function(one){
           setTimeout(function () {
           QUnit.start();  }, 1500);

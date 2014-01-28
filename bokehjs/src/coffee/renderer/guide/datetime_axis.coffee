@@ -15,6 +15,9 @@ define [
     default_view: DatetimeAxisView
     type: 'DatetimeAxis'
 
+    initialize: (attrs, options) ->
+      super(attrs, options)
+      @scale = new ticking.DatetimeScale()
 
   class DatetimeAxes extends Backbone.Collection
     model: DatetimeAxis

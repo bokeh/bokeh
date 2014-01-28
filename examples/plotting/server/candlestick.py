@@ -5,7 +5,7 @@ import pandas as pd
 from bokeh.sampledata.stocks import MSFT
 from bokeh.plotting import *
 
-output_server("candlestick.py example")
+output_server("candlestick")
 
 hold()
 
@@ -22,7 +22,7 @@ w = (dates[1]-dates[0])*0.7
 
 segment(dates, df.high, dates, df.low,
         x_axis_type = "datetime",
-        color='#000000', tools="pan,zoom,resize", width=1000,
+        color='#000000', tools="pan,wheel_zoom,resize", width=1000,
         name="candlestick")
 rect(dates[inc], mids[inc], w, spans[inc],
      fill_color="#D5E1DD", line_color="#000000")

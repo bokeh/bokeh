@@ -5,7 +5,7 @@ import time
 from bokeh.sampledata.stocks import AAPL, FB, GOOG, IBM, MSFT
 from bokeh.plotting import *
 
-output_server("correlation.py example")
+output_server("correlation")
 
 hold()
 
@@ -19,7 +19,7 @@ choam = cumprod(random.lognormal(0.0, 0.04, size=num_points))
 
 line(dates, acme,
      x_axis_type = "datetime",
-     color='#1F78B4', tools="pan,zoom,resize", legend='ACME')
+     color='#1F78B4', tools="pan,wheel_zoom,resize", legend='ACME')
 line(dates, choam, color='#FB9A99', legend='CHOAM')
 
 curplot().title = "Stock Returns"
@@ -28,9 +28,7 @@ grid().grid_line_alpha=0.3
 figure()
 
 scatter(
-    acme, choam,
-    color='#A6CEE3', radius=3,
-    tools="pan,zoom,resize", legend='close'
+    acme, choam, color='#A6CEE3', tools="pan,wheel_zoom,resize", legend='close'
 )
 
 curplot().title = "ACME / CHOAM Correlations"

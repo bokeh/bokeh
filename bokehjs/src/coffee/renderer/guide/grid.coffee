@@ -31,11 +31,11 @@ define [
         return
       [xs, ys] = @mget('grid_coords')
       @grid_props.set(ctx, @)
-      for i in [0..xs.length-1]
+      for i in [0...xs.length]
         [sx, sy] = @plot_view.map_to_screen(xs[i], "data", ys[i], "data")
         ctx.beginPath()
         ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
-        for i in [1..sx.length-1]
+        for i in [1...sx.length]
           ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]))
         ctx.stroke()
       return
@@ -50,8 +50,19 @@ define [
       @register_property('computed_bounds', @_bounds, false)
       @add_dependencies('computed_bounds', this, ['bounds'])
 
+      # FIXME Is it better to register a property?  Or just use a member
+      # variable?
+      @register_property('scale', @_scale, true)
+      @add_dependencies('scale', this, ['is_datetime'])
+
       @register_property('grid_coords', @_grid_coords, false)
-      @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension'])
+      @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'scale'])
+
+    _scale: () ->
+      if @get('is_datetime')
+        return new ticking.DatetimeScale()
+      else
+        return new ticking.BasicScale()
 
      _bounds: () ->
       i = @get('dimension')
@@ -91,8 +102,7 @@ define [
       end = Math.max(start, end)
       start = tmp
 
-      interval = ticking.auto_interval(start, end)
-      ticks = ticking.auto_ticks(null, null, start, end, interval)
+      ticks = @get('scale').get_ticks(start, end)
 
       min = range.get('min')
       max = range.get('max')
@@ -101,13 +111,13 @@ define [
       cmax = cross_range.get('max')
 
       coords = [[], []]
-      for ii in [0..ticks.length-1]
+      for ii in [0...ticks.length]
         if ticks[ii] == min or ticks[ii] == max
           continue
         dim_i = []
         dim_j = []
         N = 2
-        for n in [0..N-1]
+        for n in [0...N]
           loc = cmin + (cmax-cmin)/(N-1) * n
           dim_i.push(ticks[ii])
           dim_j.push(loc)

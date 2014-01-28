@@ -17,6 +17,10 @@ require.config
 
 define (require, exports, module) ->
 
+  if not window.Float64Array
+    console.warn("Float64Array is not supported. Using generic Array instead.")
+    window.Float64Array = Array
+
   Bokeh = {}
 
   Bokeh.version = '0.3.0'
@@ -120,7 +124,7 @@ define (require, exports, module) ->
   Bokeh.PreviewSaveTool        = require("tool/preview_save_tool")
   Bokeh.ResizeTool             = require("tool/resize_tool")
   Bokeh.CrosshairTool          = require("tool/crosshair_tool")
-  Bokeh.ZoomTool               = require("tool/zoom_tool")
+  Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
 
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")

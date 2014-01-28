@@ -1,12 +1,15 @@
 from __future__ import print_function
 
+import sys
+import os.path
+import requests
+
 from numpy import pi, arange, sin, cos
 import numpy as np
-import os.path
 
 from bokeh.objects import (Plot, DataRange1d, Range1d, LinearAxis, Grid,
-        ColumnDataSource, Glyph, ObjectArrayDataSource, PanTool,
-        ZoomTool)
+        ColumnDataSource, Glyph, PanTool,
+        WheelZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
 
@@ -14,7 +17,9 @@ from bokeh import session
 x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
 
-source = ColumnDataSource(data=dict(x=x, y=y))
+source = ColumnDataSource(
+    data=dict(x=x, y=y)
+)
 
 #xdr = DataRange1d(sources=[source.columns("xs")])
 #ydr = DataRange1d(sources=[source.columns("ys")])
@@ -30,7 +35,7 @@ glyph_renderer = Glyph(
         glyph = line)
 
 pantool = PanTool(dataranges=[xdr, ydr], dimensions=("width","height"))
-zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)
@@ -40,30 +45,28 @@ xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool,zoomtool]
+plot.tools = [pantool,wheelzoomtool]
 
-import requests, sys
-demo_name = "line"
+demo_name = "line2"
 if len(sys.argv) > 1 and sys.argv[1] == "server":
     try:
-        sess = session.PlotServerSession(username="defaultuser",
-                serverloc="http://localhost:5006", userapikey="nokey")
-        sess.use_doc(demo_name)
-    except requests.exceptions.ConnectionError as e:
-        print(e)
-        print("\nThe 'server' version of this example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'.\n")
-        sys.exit()
+        sess = session.PlotServerSession(
+            serverloc="http://localhost:5006",
+            username="defaultuser",
+            userapikey="nokey")
+    except requests.exceptions.ConnectionError:
+        print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
+        sys.exit(1)
 
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+    sess.use_doc(demo_name)
+    sess.add(plot, recursive=True)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
     sess.store_all()
     print("Stored to document", demo_name)
 else:
-    filename = demo_name + ".html"
-    sess = session.HTMLFileSession(filename)
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+    sess = session.HTMLFileSession(demo_name + ".html")
+    sess.add(plot, recursive=True)
     sess.plotcontext.children.append(plot)
-    sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-    print("Wrote", filename)
-
+    sess.save(js="absolute", css="absolute")
+    print("Wrote %s" % sess.filename)

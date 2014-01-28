@@ -1,50 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-
-    <title>
-    {% if title %}
-    {{ title }}
-    {% else %}
-    Bokeh Plot
-    {% endif %}
-    </title>
-
-
-    {% if cssfiles %}
-    {% for cssfile in cssfiles %}
-    <link rel="stylesheet" href="{{cssfile}}" type="text/css" />
-    {% endfor %}
-    {% endif %}
-
-    {% if jsfiles %}
-    {% for jsfile in jsfiles %}
-    <script type="text/javascript" src="{{jsfile}}"></script>
-    {% endfor %}
-    {% endif %}
-
-  </head>
-  {% if rawcss %}
-  <style>
-    {{ rawcss }}
-  </style>
-  {% endif %}
-  {% if rawjs %}
-  <script type="text/javascript">
-    {{ rawjs }}
-  </script>
-  {% endif %}
-  <script type="text/javascript">
-    $(function(){
-    {% for snippet in js_snippets %}
-    {{ snippet }}
-    {% endfor %}
-    });
-  </script>
-  <body>
-    {% for snippet in html_snippets %}
-    {{ snippet }}
-    {% endfor %}
-  </body>
+    <head>
+        <meta charset="utf-8">
+        <title>{% if title %}{{ title }}{% else %}Bokeh Plot{% endif %}</title>
+        {%- for cssfile in cssfiles %}
+        <link rel="stylesheet" href="{{ cssfile }}" type="text/css" />
+        {%- endfor %}
+        {%- for jsfile in jsfiles %}
+        <script type="text/javascript" src="{{ jsfile }}"></script>
+        {%- endfor %}
+        {%- if rawcss %}
+        <style>
+            {{ rawcss|indent(12) }}
+        </style>
+        {%- endif %}
+        {%- if rawjs %}
+        <script type="text/javascript">
+            {{ rawjs|indent(12) }}
+        </script>
+        {%- endif %}
+    </head>
+    <script type="text/javascript">
+        $(function() {
+            {%- for snippet in js_snippets %}
+            {{ snippet|indent(12) }}
+            {%- endfor %}
+        });
+    </script>
+    <body>
+        {%- for snippet in html_snippets %}
+        {{ snippet|indent(8) }}
+        {%- endfor %}
+    </body>
 </html>

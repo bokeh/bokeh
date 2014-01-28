@@ -1,4 +1,7 @@
-require(['main'], (Bokeh) ->
+require([
+  'main'
+], (Bokeh) ->
+
   data_orig = [
     {"x": 1346630700000, "y": 3.558},
     {"x": 1346630760000, "y": 3.754},
@@ -99,26 +102,24 @@ require(['main'], (Bokeh) ->
     {"x": 1346664360000, "y": 14.82},
     {"x": 1346664420000, "y": 3.731},
     {"x": 1346664480000, "y": 1.469},
-    {"x": 1346664540000, "y": 3.535 }]
-  
-  x = (obj.x for obj in data_orig)
-  y = (obj.y for obj in data_orig)
-  console.log(x);
+    {"x": 1346664540000, "y": 3.535},
+  ]
+
   data = {
-    x: x
-    y: y
+    x: (obj.x for obj in data_orig)
+    y: (obj.y for obj in data_orig)
   }
-  
+
   scatter = {
     type: 'circle'
     x: 'x'
     y: 'y'
-    radius: 5
-
-    fill_alpha: 0.6
+    size: 10
+    fill_color: 'blue'
+    fill_alpha: 0.4
     line_color: null
   }
-  
+
   options = {
     title: "Scatter Demo"
     dims: [600, 600]
@@ -127,6 +128,8 @@ require(['main'], (Bokeh) ->
     tools: true
     legend: false
   }
+
   plot = Bokeh.Plotting.make_plot(scatter, data, options)
+
   Bokeh.Plotting.show(plot))
 
