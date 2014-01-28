@@ -9,18 +9,9 @@
     <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap-orig-2.2.2.css') }}" rel="stylesheet">
     {% if splitjs %}
     <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/vendor/requirejs/require.js') }}"></script>
+    <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/config.js') }}"></script>
     <script>
-      require.config({
-        baseUrl: "/bokehjs/static/js",
-        paths: {
-          "jquery": "vendor/jquery/jquery",
-          "jquery_ui": "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui",
-          "jquery_mousewheel": "vendor/jquery-mousewheel/jquery.mousewheel",
-          "underscore": "vendor/underscore-amd/underscore",
-          "backbone": "vendor/backbone-amd/backbone",
-          "bootstrap": "vendor/bootstrap"
-        }
-      });
+      require.config({ baseUrl: "/bokehjs/static/js" });
       require(["main"], function(Bokeh) {
           {% block script %}
           {% endblock %}
