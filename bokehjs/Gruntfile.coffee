@@ -215,7 +215,15 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-groc')
 
   grunt.registerTask("default",     ["build", "qunit"])
-  grunt.registerTask("build",       ["coffee", "less", "copy", "eco"])
+  grunt.registerTask("build",       ["coffee", "less", "copy", "eco", "config"])
   grunt.registerTask("deploy",      ["build",  "requirejs:production", "concat:css", "cssmin"])
   grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css"])
   grunt.registerTask("deploy-both", ["deploy", "devdeploy"])
+  grunt.registerTask("config", "Write config.js", () ->
+    config = {
+      paths: grunt.config.get("requirejs.options.paths")
+      shim: grunt.config.get("requirejs.options.shim")
+    }
+    content = "require.config(#{JSON.stringify(config)});"
+    grunt.file.write('build/js/config.js', content)
+  )
