@@ -112,7 +112,7 @@ module.exports = (grunt) ->
         shim:
           sprintf:
             exports: 'sprintf'
-        include: ['main', 'underscore']
+        include: ['underscore', 'main']
         fileExclusionRegExp: /^test/
         wrap: {
           startFile: 'src/js/_start.js.frag',
