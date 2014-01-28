@@ -792,6 +792,8 @@ class Grid(GuideRenderer):
     dimension = Int(0)
     bounds = String('auto')
 
+    is_datetime = Bool(False)
+
     # Line props
     grid_props = Include(LineProps, prefix="grid")
 

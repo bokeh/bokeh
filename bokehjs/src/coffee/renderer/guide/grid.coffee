@@ -50,8 +50,19 @@ define [
       @register_property('computed_bounds', @_bounds, false)
       @add_dependencies('computed_bounds', this, ['bounds'])
 
+      # FIXME Is it better to register a property?  Or just use a member
+      # variable?
+      @register_property('scale', @_scale, true)
+      @add_dependencies('scale', this, ['is_datetime'])
+
       @register_property('grid_coords', @_grid_coords, false)
-      @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension'])
+      @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'scale'])
+
+    _scale: () ->
+      if @get('is_datetime')
+        return new ticking.DatetimeScale()
+      else
+        return new ticking.BasicScale()
 
      _bounds: () ->
       i = @get('dimension')
@@ -91,8 +102,7 @@ define [
       end = Math.max(start, end)
       start = tmp
 
-      interval = ticking.auto_interval(start, end)
-      ticks = ticking.auto_ticks(null, null, start, end, interval)
+      ticks = @get('scale').get_ticks(start, end)
 
       min = range.get('min')
       max = range.get('max')
