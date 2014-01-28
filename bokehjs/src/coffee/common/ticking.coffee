@@ -578,7 +578,7 @@ define [
       @_formats = {
         'microseconds': [_us, _ms_dot_us]
         'milliseconds': ['%3Nms', '%S.%3Ns']
-        'seconds':      [':%S', '%Ss']
+        'seconds':      ['%Ss']
         'minsec':       ['%M:%S']
         'minutes':      ['%Mm']
         'hourmin':      ['%H:%M']
