@@ -52,7 +52,7 @@ define [
 
       # FIXME Is it better to register a property?  Or just use a member
       # variable?
-      @register_property('scale', @_scale, false)
+      @register_property('scale', @_scale, true)
       @add_dependencies('scale', this, ['is_datetime'])
 
       @register_property('grid_coords', @_grid_coords, false)
