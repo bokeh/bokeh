@@ -580,7 +580,7 @@ define [
         'milliseconds': ['%3Nms', '%S.%3Ns']
         'seconds':      ['%Ss']
         'minsec':       ['%M:%S']
-        'minutes':      ['%Mm']
+        'minutes':      [':%M', '%Mm']
         'hourmin':      ['%H:%M']
         'hours':        ['%Hh', '%H:%M']
         'days':         ['%m/%d', '%a%d']
