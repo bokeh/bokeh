@@ -29,7 +29,7 @@ millifactor = 10 ** 6.
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, (np.ndarray, pd.Series)):
-            return obj.flatten().tolist()
+            return obj.tolist()
         elif isinstance(obj, np.number):
             if isinstance(obj, np.integer):
                 return int(obj)
