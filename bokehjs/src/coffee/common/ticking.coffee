@@ -579,7 +579,7 @@ define [
         'microseconds': [_us, _ms_dot_us]
         'milliseconds': ['%3Nms', '%S.%3Ns']
         'seconds':      ['%Ss']
-        'minsec':       ['%M:%S']
+        'minsec':       [':%M:%S']
         'minutes':      [':%M', '%Mm']
         'hourmin':      ['%H:%M']
         'hours':        ['%Hh', '%H:%M']
