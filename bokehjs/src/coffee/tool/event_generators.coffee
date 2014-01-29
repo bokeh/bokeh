@@ -1,6 +1,13 @@
 
 define [], () ->
 
+  set_bokehXY = (event) ->
+    offset = $(event.currentTarget).offset()
+    left = if offset? then offset.left else 0
+    top = if offset? then offset.top else 0
+    event.bokehX = event.pageX - left
+    event.bokehY = event.pageY - top
+
   class TwoPointEventGenerator
 
     constructor: (options) ->
@@ -21,9 +28,8 @@ define [], () ->
           return
         if not @tool_active
           return
-        offset = $(e.currentTarget).offset()
-        e.bokehX = e.pageX - offset.left
-        e.bokehY = e.pageY - offset.top
+
+        set_bokehXY(e)
 
         if not @basepoint_set
           @dragging = true
@@ -36,9 +42,7 @@ define [], () ->
         )
       @plotview.moveCallbacks.push((e, x, y) =>
         if @dragging
-          offset = $(e.currentTarget).offset()
-          e.bokehX = e.pageX - offset.left
-          e.bokehY = e.pageY - offset.top
+          set_bokehXY(e)
           inner_range_horizontal = @plotview.view_state.get(
             'inner_range_horizontal')
           inner_range_vertical = @plotview.view_state.get(
@@ -127,9 +131,7 @@ define [], () ->
         @dragging = false
         if not @button_activated
           @$tool_button.removeClass('active')
-        offset = $(e.currentTarget).offset()
-        e.bokehX = e.pageX - offset.left
-        e.bokehY = e.pageY - offset.top
+        set_bokehXY(e)
         @eventSink.trigger("#{@options.eventBasename}:DragEnd", e)
 
 
@@ -152,9 +154,7 @@ define [], () ->
         (e, delta, dX, dY) =>
           if not @tool_active
             return
-          offset = $(e.currentTarget).offset()
-          e.bokehX = e.pageX - offset.left
-          e.bokehY = e.pageY - offset.top
+          set_bokehXY(e)
           e.delta = delta
           eventSink.trigger("#{toolName}:zoom", e)
           e.preventDefault()
