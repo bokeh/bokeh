@@ -9,6 +9,7 @@ import itertools
 from numbers import Number
 import numpy as np
 import os
+import re
 import requests
 import time
 import warnings
@@ -201,7 +202,7 @@ def output_notebook(server=None, name=None, url=None, docname=None):
     _config["output_type"] = "notebook"
     _config["output_file"] = None
     _config["session"] = session
-    
+
 def output_cloud(docname):
     output_server(docname, server=serverconfig.Cloud())
 
@@ -897,27 +898,32 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     ygrid = Grid(plot=p, dimension=1, is_datetime=(y_axis_type == "datetime"))
 
     tool_objs = []
-    if "pan" in tools:
-        tool_objs.append(PanTool(dataranges=[p.x_range, p.y_range], dimensions=["width","height"]))
-    if "wheel_zoom" in tools:
-        tool_objs.append(WheelZoomTool(dataranges=[p.x_range, p.y_range], dimensions=["width","height"]))
-    if "save" in tools:
-        tool_objs.append(PreviewSaveTool(plot=p))
-    if "resize" in tools:
-        tool_objs.append(ResizeTool(plot=p))
-    if "crosshair" in tools:
-        tool_objs.append(CrosshairTool(plot=p))
-    if "select" in tools:
-        select_tool = BoxSelectTool()
-        tool_objs.append(select_tool)
-        overlay = BoxSelectionOverlay(tool=select_tool)
-        p.renderers.append(overlay)
-    if "previewsave" in tools:
-        previewsave_tool = PreviewSaveTool(plot=p)
-        tool_objs.append(previewsave_tool)
-    if "embed" in tools:
-        embed_tool = EmbedTool(plot=p)
-        tool_objs.append(embed_tool)
+
+    for tool in re.split(r"\s*,\s*", tools.strip()):
+        if tool == "pan":
+            tool_obj = PanTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
+        elif tool == "wheel_zoom":
+            tool_obj = WheelZoomTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
+        elif tool == "save":
+            tool_obj = PreviewSaveTool(plot=p)
+        elif tool == "resize":
+            tool_obj = ResizeTool(plot=p)
+        elif tool == "crosshair":
+            tool_obj = CrosshairTool(plot=p)
+        elif tool == "select":
+            tool_obj = BoxSelectTool()
+            overlay = BoxSelectionOverlay(tool=tool_obj)
+            p.renderers.append(overlay)
+        elif tool == "previewsave":
+            tool_obj = PreviewSaveTool(plot=p)
+        elif tool == "embed":
+            tool_obj = EmbedTool(plot=p)
+        else:
+            known_tools = "pan, wheel_zoom, save, resize, crosshair, select, previewsave or embed"
+            raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
+
+        tool_objs.append(tool_obj)
+
     p.tools.extend(tool_objs)
     return p
 
