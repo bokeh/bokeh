@@ -63,10 +63,7 @@ define [], () ->
             return false
       )
       $(document).bind('keydown', (e) =>
-        if e[@options.keyName]
-          @_start_drag()
-        #disable the tool when ESC is pressed
-        if e.keyCode == 27
+        if e.keyCode == 27 # ESC
           eventSink.trigger("clear_active_tool"))
 
       $(document).bind('keyup', (e) =>
@@ -74,7 +71,7 @@ define [], () ->
           @_stop_drag(e))
 
       @plotview.canvas_wrapper.bind('mousedown', (e) =>
-        if @button_activated
+        if @button_activated or e[@options.keyName]
           @_start_drag()
           return false)
 
