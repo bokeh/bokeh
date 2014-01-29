@@ -124,6 +124,8 @@ define [], () ->
         @dragging = true
         if not @button_activated
           @$tool_button.addClass('active')
+        if @options.cursor?
+          @plotview.canvas_wrapper.css('cursor', @options.cursor)
 
     _stop_drag: (e)->
       @basepoint_set = false
@@ -131,10 +133,10 @@ define [], () ->
         @dragging = false
         if not @button_activated
           @$tool_button.removeClass('active')
+        if @options.cursor?
+          @plotview.canvas_wrapper.css('cursor', '')
         set_bokehXY(e)
         @eventSink.trigger("#{@options.eventBasename}:DragEnd", e)
-
-
 
   class OnePointWheelEventGenerator
 
@@ -218,7 +220,6 @@ define [], () ->
       return eventSink
     hide_button: ->
       @$tool_button.hide()
-
 
   class ButtonEventGenerator
 
