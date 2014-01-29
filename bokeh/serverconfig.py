@@ -7,9 +7,9 @@ from . import protocol, utils, browserlib
 
 import requests
 import json
+import pandas as pd
 
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
-
                                     
 class Server(object):
     def __init__(self, name="http://localhost:5006/", 
@@ -17,7 +17,7 @@ class Server(object):
                  userapikey="nokey",
                  username="defaultuser",
                  load_from_config=True,
-                 configfile=None
+                 configdir=None
                  ):
         """name : name of server
         root_url : root_url of server
@@ -30,27 +30,30 @@ class Server(object):
         #single user mode case
         self.userapikey = userapikey
         self.username = username
-        self._configfile = None        
-        if configfile:
-            self.configfile = configfile
+        self._configdir = None        
+        if configdir:
+            self.configdir = configdir
         if load_from_config:
             self.load()
 
     @property
-    def configfile(self):
+    def configdir(self):
         """filename where our config are stored"""
-        if self._configfile:
-            return self._configfile
+        if self._configdir:
+            return self._configdir
         bokehdir = join(expanduser("~"), ".bokeh")
         if not exists(bokehdir):
             makedirs(bokehdir)
-        fname = join(expanduser("~"), ".bokeh", "config.json")
-        return fname
+        return bokehdir
+    
+    @property
+    def configfile(self):
+        return join(self.configdir, "config.json")
     
     #for testing
-    @configfile.setter
-    def configfile(self, path):
-        self._configfile = path
+    @configdir.setter
+    def configdir(self, path):
+        self._configdir = path
         
     def load_dict(self):
         configfile = self.configfile
@@ -122,6 +125,15 @@ class Server(object):
         url += "?" + urlencode({'username' : self.username,
                                 'userapikey' : self.userapikey})
         controller.open(url)
+    
+    def data_source(self, name, dataframe=None, **kwargs):
+        fname = join(self.configdir, name + ".hdf5")
+        store = pd.HDFStore(fname)
+        if not dataframe:
+            dataframe = pd.DataFrame(kwargs)
+        store.put(name, dataframe)
+        store.flush()
+        store.close()
 
 class Cloud(Server):
     def __init__(self):
