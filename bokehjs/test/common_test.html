@@ -9,6 +9,7 @@
       <link rel='stylesheet' href='../js/vendor/qunit/qunit/qunit.css'>
 
       <script src="../js/vendor/requirejs/require.js"></script>
+      <script src="../js/config.js"></script>
 
       <script src="../js/vendor/qunit/qunit/qunit.js"></script>
       <script>QUnit.config.autostart = false;</script>
@@ -16,27 +17,14 @@
       <!-- your tests, any and all to run with the given fixtures below -->
       <script>
         myOnload = function () {
-
           QUnit.config.autostart = false;
           setTimeout(function() {
-          require.config({
-            baseUrl: "../js",
-            paths: {
-              "jquery": "vendor/jquery/jquery",
-              "jquery_ui": "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui",
-              "jquery_mousewheel": "vendor/jquery-mousewheel/jquery.mousewheel",
-              "underscore": "vendor/underscore-amd/underscore",
-              "backbone": "vendor/backbone-amd/backbone",
-              "bootstrap": "vendor/bootstrap/bootstrap-2.0.4",
-			        "timezone": "vendor/timezone/src/timezone",
-              "sprintf": "vendor/sprintf/src/sprintf",
-              "rbush": "vendor/rbush/rbush",
-              "testobject": "../test/common/test_object",
-
-            }
-          }
-
-        );
+            require.config({
+              baseUrl: "../js",
+              paths: {
+                "testobject": "../test/common/test_object"
+              }
+            });
 
           requirejs([
             '../test/common/has_parent_test.js',
