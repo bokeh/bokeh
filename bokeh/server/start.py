@@ -1,11 +1,20 @@
 from __future__ import absolute_import, print_function
-import gevent.monkey
-gevent.monkey.patch_all()
+import logging
+log = logging.getLogger(__name__)
 
-from geventwebsocket.handler import WebSocketHandler
-from gevent.pywsgi import WSGIServer
+try:
+    import gevent.monkey
+    gevent.monkey.patch_all()
+    from geventwebsocket.handler import WebSocketHandler
+    from gevent.pywsgi import WSGIServer
+    def make_server(host, port, app):
+        http_server = WSGIServer((host, port), app, handler_class=WebSocketHandler)
+        return http_server
+except ImportError:
+    log.info("no gevent - your websockets won't work")
+    from wsgiref.simple_server import make_server
+
 from flask import request, Flask
-
 import uuid
 import socket
 
@@ -18,7 +27,7 @@ from .models import user, docs
 from .models import convenience as mconv
 import os
 from os.path import join, dirname
-import logging
+
 import time
 import sys
 from .server_backends import (RedisBackboneStorage, 
@@ -30,7 +39,7 @@ from .server_backends import (RedisBackboneStorage,
 PORT = 5006
 REDIS_PORT = 6379
 
-log = logging.getLogger(__name__)
+
 app = Flask("bokeh.server")
 
 def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True,
@@ -99,11 +108,9 @@ def service_exit():
 
 def start_app(verbose=False):
     global http_server
+    http_server = make_server('', PORT, app)
     start_services()
-    http_server = WSGIServer(('', PORT), app,
-                             handler_class=WebSocketHandler,
-                             )
-    print("Starting Bokeh plot server on port %d..." % PORT)
+    print("\nStarting Bokeh plot server on port %d..." % PORT)
     print("View http://localhost:%d/bokeh to see plots\n" % PORT)
     http_server.serve_forever()
 

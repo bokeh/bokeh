@@ -29,7 +29,7 @@ class ServerModel(object):
         try:
             client.create(self.mykey(), self.to_json())
         except DataIntegrityException as e:
-            raise UnauthorizedException, self.mykey()
+            raise UnauthorizedException(self.mykey())
 
     @classmethod
     def load_json(cls, client, objid):
