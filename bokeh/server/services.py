@@ -80,6 +80,6 @@ def start_redis(pidfilename, port, data_dir, loglevel="warning",
                            stderr=stderr,
                            stdin=subprocess.PIPE
                            )
-    mproc.proc.stdin.write(redisconf)
+    mproc.proc.stdin.write(redisconf.encode())
     mproc.proc.stdin.close()
     return mproc

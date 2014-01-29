@@ -27,7 +27,7 @@ def callbackskey(typename, docid, modelid):
     return 'bbcallback:%s:%s:%s' % (typename, docid, modelid)
 
 def parse_modelkey(modelkey):
-    _, typename, docid, modelid = modelkey.split(":")
+    _, typename, docid, modelid = modelkey.decode('utf-8').split(":")
     return (typename, docid, modelid)
 
 class RedisSession(PersistentBackboneSession, BaseJSONSession):
@@ -76,7 +76,7 @@ class RedisSession(PersistentBackboneSession, BaseJSONSession):
         data = []
         for k, attr in zip(doc_keys, attrs):
             typename, _, modelid = parse_modelkey(k)
-            attr = protocol.deserialize_json(attr)
+            attr = protocol.deserialize_json(attr.decode('utf-8'))
             data.append({'type' : typename,
                          'attributes' : attr})
         models = self.load_broadcast_attrs(data, events=None)
