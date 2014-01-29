@@ -22,7 +22,7 @@ define [
         span = (max - min) * (1 + @get('rangepadding'))
       else
         if max != 0
-          span = max * (1 + @get('rangepadding'))
+          span = Math.abs(max) * (1 + @get('rangepadding'))
         else
           span = 2
       center = (max + min) / 2.0

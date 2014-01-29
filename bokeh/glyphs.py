@@ -158,8 +158,14 @@ class Bezier(BaseGlyph, LineProps):
     cx1 = DataSpec
     cy1 = DataSpec
 
-# TODO
-# class image
+class Image(BaseGlyph):
+    __view_model__ = 'image'
+    image = DataSpec
+    x = DataSpec
+    y = DataSpec
+    dw = DataSpec
+    dh = DataSpec
+    palette = DataSpec
 
 class ImageURI(BaseGlyph):
     __view_model__ = 'image_uri'
@@ -170,8 +176,6 @@ class ImageURI(BaseGlyph):
 class ImageRGBA(BaseGlyph):
     __view_model__ = 'image_rgba'
     image = DataSpec
-    width = DataSpec
-    height = DataSpec
     x = DataSpec
     y = DataSpec
     dw = DataSpec

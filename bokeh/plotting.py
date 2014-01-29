@@ -718,6 +718,9 @@ text = GlyphFunction(glyphs.Text, ("x", "y", "text", "angle"))
 
 wedge = GlyphFunction(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"))
 
+image = GlyphFunction(glyphs.Image, ("image", "x", "y", "dw", "dh", "palette"))
+
+image_rgba = GlyphFunction(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"))
 
 marker_types = {
         "circle": glyphs.Circle,
