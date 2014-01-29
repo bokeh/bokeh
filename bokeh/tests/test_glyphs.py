@@ -25,6 +25,7 @@ GENERIC_FILL_DICT = {
 }
 
 GENERIC_TEXT_DICT = {
+    'text'      : {'field': 'text', 'units': 'data'},
     'text_color': {'value': 'black'},
     'text_alpha': {'field': 1.0, 'units': 'data'},
 }
@@ -571,6 +572,36 @@ class TestImageURI(unittest.TestCase):
         self.test_imageuri.angle = 90
         self.assertEqual(self.test_imageuri.to_glyphspec(), {'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'angle': {'units': 'data', 'value': 90}, 'type': 'image_uri'})
 
+class TestImage(unittest.TestCase):
+
+    def setUp(self):
+        from bokeh.glyphs import Image
+        self.test_image = Image()
+
+    def test_expected_properties(self):
+        expected_properties = set(['image', 'x', 'y', 'dw', 'dh', 'palette'])
+        actual_properties = get_prop_set(type(self.test_image))
+        self.assertTrue(expected_properties.issubset(actual_properties))
+
+    def test_expected_values(self):
+        self.assertEqual(self.test_image.image, 'image')
+        self.assertEqual(self.test_image.x, 'x')
+        self.assertEqual(self.test_image.y, 'y')
+        self.assertEqual(self.test_image.dw, 'dw')
+        self.assertEqual(self.test_image.dh, 'dh')
+        self.assertEqual(self.test_image.__view_model__, 'image')
+
+    def test_to_glyphspec(self):
+        self.assertEqual(self.test_image.to_glyphspec(), {'dh': {'units': 'data', 'field': 'dh'}, 'image': {'units': 'data', 'field': 'image'}, 'dw': {'units': 'data', 'field': 'dw'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'palette': {'field': 'palette', 'units': 'data'}, 'type': 'image'})
+        self.test_image.image = 'image image image'
+        self.test_image.width = 500
+        self.test_image.height = 600
+        self.test_image.x = 50
+        self.test_image.y = 51
+        self.test_image.dw = 53
+        self.test_image.dh = 54
+        self.assertEqual(self.test_image.to_glyphspec(), {'dh': {'units': 'data', 'value': 54}, 'image': {'units': 'data', 'field': 'image image image'}, 'x': {'units': 'data', 'value': 50}, 'y': {'units': 'data', 'value': 51}, 'dw': {'units': 'data', 'value': 53}, 'palette': {'field': 'palette', 'units': 'data'}, 'type': 'image'})
+
 
 class TestImageRGBA(unittest.TestCase):
 
@@ -579,14 +610,12 @@ class TestImageRGBA(unittest.TestCase):
         self.test_imagergba = ImageRGBA()
 
     def test_expected_properties(self):
-        expected_properties = set(['image', 'width', 'height', 'x', 'y', 'dw', 'dh', ])
+        expected_properties = set(['image', 'x', 'y', 'dw', 'dh', ])
         actual_properties = get_prop_set(type(self.test_imagergba))
         self.assertTrue(expected_properties.issubset(actual_properties))
 
     def test_expected_values(self):
         self.assertEqual(self.test_imagergba.image, 'image')
-        self.assertEqual(self.test_imagergba.width, 'width')
-        self.assertEqual(self.test_imagergba.height, 'height')
         self.assertEqual(self.test_imagergba.x, 'x')
         self.assertEqual(self.test_imagergba.y, 'y')
         self.assertEqual(self.test_imagergba.dw, 'dw')
@@ -594,7 +623,7 @@ class TestImageRGBA(unittest.TestCase):
         self.assertEqual(self.test_imagergba.__view_model__, 'image_rgba')
 
     def test_to_glyphspec(self):
-        self.assertEqual(self.test_imagergba.to_glyphspec(), {'dh': {'units': 'data', 'field': 'dh'}, 'image': {'units': 'data', 'field': 'image'}, 'height': {'units': 'data', 'field': 'height'}, 'width': {'units': 'data', 'field': 'width'}, 'dw': {'units': 'data', 'field': 'dw'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'image_rgba'})
+        self.assertEqual(self.test_imagergba.to_glyphspec(), {'dh': {'units': 'data', 'field': 'dh'}, 'image': {'units': 'data', 'field': 'image'}, 'dw': {'units': 'data', 'field': 'dw'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'type': 'image_rgba'})
         self.test_imagergba.image = 'image image image'
         self.test_imagergba.width = 500
         self.test_imagergba.height = 600
@@ -602,7 +631,7 @@ class TestImageRGBA(unittest.TestCase):
         self.test_imagergba.y = 51
         self.test_imagergba.dw = 53
         self.test_imagergba.dh = 54
-        self.assertEqual(self.test_imagergba.to_glyphspec(), {'dh': {'units': 'data', 'value': 54}, 'image': {'units': 'data', 'field': 'image image image'}, 'height': {'units': 'data', 'value': 600}, 'width': {'units': 'data', 'value': 500}, 'x': {'units': 'data', 'value': 50}, 'y': {'units': 'data', 'value': 51}, 'dw': {'units': 'data', 'value': 53}, 'type': 'image_rgba'})
+        self.assertEqual(self.test_imagergba.to_glyphspec(), {'dh': {'units': 'data', 'value': 54}, 'image': {'units': 'data', 'field': 'image image image'}, 'x': {'units': 'data', 'value': 50}, 'y': {'units': 'data', 'value': 51}, 'dw': {'units': 'data', 'value': 53}, 'type': 'image_rgba'})
 
 
 class TestLine(unittest.TestCase):
@@ -1006,7 +1035,7 @@ class TestText(unittest.TestCase):
     def test_expected_values(self):
         self.assertEqual(self.test_text.x, 'x')
         self.assertEqual(self.test_text.y, 'y')
-        self.assertEqual(self.test_text.text, None)
+        self.assertEqual(self.test_text.text, 'text')
         self.assertEqual(self.test_text.angle, 'angle')
         self.assertEqual(self.test_text.__view_model__, 'text')
 
@@ -1026,7 +1055,7 @@ class TestText(unittest.TestCase):
             'x':      {'units': 'data', 'value': 50},
             'y':      {'units': 'data', 'value': 51},
             'angle':  {'units': 'data', 'value': 90},
-            'text':   'colourless green sheep sleep furiously',
+            'text':   {'field': 'colourless green sheep sleep furiously', 'units': 'data'}
         })
         self.assertEqual(self.test_text.to_glyphspec(), expected)
 
