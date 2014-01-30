@@ -247,7 +247,7 @@ class HTMLFileSession(BaseHTMLSession):
 
     # TODO: Why is this not in bokehjs_dir, but rather outside of it?
     js_files = ["js/bokeh.js"]
-    css_files = ["css/bokeh.css"]
+    css_files = ["css/main.css"]
 
     # Template files used to generate the HTML
     js_template = "plots.js"
