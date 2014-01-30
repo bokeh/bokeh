@@ -48,8 +48,6 @@ define [
         else if @loaded[i]
           @_render_image(ctx, vs, i, @image[i])
 
-      ctx.restore()
-
     _render_image: (ctx, vs, i, img) ->
       if @angle[i]
         ctx.translate(@sx[i], @sy[i])

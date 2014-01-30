@@ -16,8 +16,6 @@ define [
     _render: (ctx, indices, glyph_props) ->
       ctx = @plot_view.ctx
 
-      ctx.save()
-
       for i in indices
 
         [sx, sy] = @plot_view.map_to_screen(@xs[i], glyph_props.xs.units, @ys[i], glyph_props.ys.units)
@@ -55,8 +53,6 @@ define [
               ctx.lineTo(sx[j], sy[j])
           ctx.closePath()
           ctx.stroke()
-
-      ctx.restore()
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_area_legend(ctx, x0, x1, y0, y1)

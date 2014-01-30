@@ -1,6 +1,7 @@
 
 Collections  = Bokeh.Collections
 all_palettes = Bokeh.Palettes.all_palettes
+LinearColorMapper = Bokeh.LinearColorMapper
 
 NUM_SAMPLES = 1024
 SAMPLING_RATE = 44100
@@ -78,12 +79,12 @@ class SpectrogramApp
     @power_plot.update(data[1])
     @fft_plot.update(data[0])
     @hist_plot.update(data[0], @fft_range[0], @fft_range[1])
+    @hist_plot.update(data[0], 0, MAX_FREQ)
 
   set_freq_range : (event, ui) ->
     [min, max] = @fft_range = ui.values
     @spec_plot.set_yrange(min, max)
     @fft_plot.set_xrange(min, max)
-    return null
 
   render: () ->
     controls = $('<div></div>')
@@ -154,24 +155,25 @@ class SpectrogramApp
       @spec_plot.view.$el.css('float', 'left')
       top_div.append(@spec_plot.view.$el)
       div.append(top_div)
-      @spec_plot.render()
 
       foo = $('<div></div>')
       foo.append(@fft_plot.view.$el)
       foo.append(@power_plot.view.$el)
       foo.css('float', 'left')
       div.append(foo)
-      @power_plot.render()
-      @fft_plot.render()
 
       div.append(@hist_plot.view.$el)
       @hist_plot.view.$el.css('float', 'left')
+
+      @spec_plot.render()
+      @power_plot.render()
+      @fft_plot.render()
       @hist_plot.render()
     _.defer(myrender)
 
 class SpectrogramPlot
   constructor: (options) ->
-    @cmap = new ColorMapper({}, {
+    @cmap = new LinearColorMapper({}, {
       palette: all_palettes["YlGnBu-9"],
       low: 0,
       high: 10
@@ -180,68 +182,41 @@ class SpectrogramPlot
     @num_images = Math.ceil(NGRAMS/500) + 3
 
     @image_width = 500
-    @image_height = 256
 
     @images = new Array(@num_images)
     @xs = new Array(@num_images)
     for i in [0..(@num_images-1)]
       @images[i] = new ArrayBuffer(SPECTROGRAM_LENGTH * @image_width * 4)
-      @xs[i] = @image_width*i
+    @col = 0
+
     @source = Collections('ColumnDataSource').create(
       data:{image: @images, x: @xs}
     )
 
-    @col = 0
+    spec = {
+      type: 'image_rgba'
+      x: 'x'
+      y: 0
+      dw: @image_width
+      dh: MAX_FREQ
+      cols: @image_width,
+      rows: SPECTROGRAM_LENGTH,
+      image: 'image'
+      }
 
-    @xrange = Collections('Range1d').create({start: 0, end: NGRAMS})
-    @yrange = Collections('Range1d').create({start: 0, end: MAX_FREQ})
-
-    @model = Collections('Plot').create(
-      x_range: @xrange.ref()
-      y_range: @yrange.ref()
-      border_fill: "#fff"
-      canvas_width: options.width
-      canvas_height: options.height
-      outer_width: options.width
-      outer_height: options.height
-      tools: []
+    options = {
       title: ""
-    )
+      dims: [options.width, options.height]
+      xrange: [0, NGRAMS]
+      yrange: [0, MAX_FREQ]
+      xaxes: "min"
+      yaxes: "min"
+      xgrid: false
+      ygrid: false
+      tools: false
+    }
 
-    xaxis = Collections('GuideRenderer').create(
-      plot: @model.ref()
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 0
-      }
-    )
-
-    yaxis = Collections('GuideRenderer').create(
-      plot: @model.ref()
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 1
-      }
-    )
-
-    glyph = Collections('GlyphRenderer').create({
-      data_source: @source.ref()
-      xdata_range: @xrange.ref()
-      ydata_range: @yrange.ref()
-      glyphspec: {
-        type: 'image_rgba'
-        x: 'x'
-        y: 0
-        dw: @image_width
-        dh: MAX_FREQ
-        width: @image_width,
-        height: SPECTROGRAM_LENGTH,
-        image: 'image'
-        palette:
-          default: 'YlGnBu-9'
-      }
-    })
-    @model.add_renderers([glyph.ref(), xaxis.ref(), yaxis.ref()])
+    @model = Bokeh.Plotting.make_plot(spec, @source, options)
     @view = new @model.default_view(model: @model)
 
   update: (fft) ->
@@ -268,10 +243,10 @@ class SpectrogramPlot
     @source.trigger('change', @source, {})
 
   set_xrange: (x0, x1) ->
-    @xrange.set({'start': x0, 'end' : x1})
+    @view.x_range.set({'start': x0, 'end' : x1})
 
   set_yrange: (y0, y1) ->
-    @yrange.set({'start': y0, 'end' : y1})
+    @view.y_range.set({'start': y0, 'end' : y1})
 
   render: () ->
     @view.render()
@@ -286,39 +261,32 @@ class RadialHistogramPlot
       data: {inner_radius:[], outer_radius:[], start_angle:[], end_angle:[], fill_alpha: []}
     )
 
-    @range = Collections('Range1d').create({start: -20, end: 20})
+    spec = {
+      type: 'annular_wedge',
+      line_color: null
+      x: 0
+      y: 0
+      fill_color: '#688AB9'
+      fill_alpha: 'fill_alpha'
+      inner_radius: 'inner_radius'
+      outer_radius: 'outer_radius'
+      start_angle: 'start_angle'
+      end_angle: 'end_angle'
+    }
 
-    @model = Collections('Plot').create(
-      x_range: @range.ref()
-      y_range: @range.ref()
-      border_fill: "#fff"
-      canvas_width:  options.width
-      canvas_height: options.height
-      outer_width:   options.width
-      outer_height:  options.height
-      tools: []
+    options = {
       title: ""
-    )
+      dims: [options.width, options.height]
+      xrange: [-20, 20]
+      yrange: [-20, 20]
+      xaxes: false
+      yaxes: false
+      xgrid: false
+      ygrid: false
+      tools: false
+    }
 
-    glyph = Collections('GlyphRenderer').create({
-      data_source: @source
-      xdata_range: @range
-      ydata_range: @range
-      glyphspec: {
-        type: 'annular_wedge',
-        line_color: null
-        x: 0
-        y: 0
-        fill: '#688AB9'
-        fill_alpha: 'fill_alpha'
-        inner_radius: 'inner_radius'
-        outer_radius: 'outer_radius'
-        start_angle: 'start_angle'
-        end_angle: 'end_angle'
-      }
-    })
-
-    @model.add_renderers([glyph])
+    @model = Bokeh.Plotting.make_plot(spec, @source, options)
     @view = new @model.default_view(model: @model)
 
   update: (fft, fft_min, fft_max) ->
@@ -368,74 +336,41 @@ class SimpleIndexPlot
       data: {idx: [], ys: []}
     )
 
-    @xrange = Collections('Range1d').create({start: options.x0, end: options.x1})
-    @yrange = Collections('Range1d').create({start: options.y0, end: options.y1})
+    spec = {
+      type: 'line'
+      line_color: 'darkblue'
+      x: 'idx'
+      y: 'ys'
+    }
 
-    @model = Collections('Plot').create(
-      x_range: @xrange.ref()
-      y_range: @yrange.ref()
-      border_fill: "#fff"
-      canvas_width:  options.width
-      canvas_height: options.height
-      outer_width:   options.width
-      outer_height:  options.height
-      tools: []
+    options = {
       title: ""
-    )
+      dims: [options.width, options.height]
+      xrange: [options.x0, options.x1]
+      yrange: [options.y0, options.y1]
+      xaxes: "min"
+      yaxes: "min"
+      xgrid: false
+      tools: false
+    }
 
-    xaxis = Collections('GuideRenderer').create(
-      plot: @model.ref()
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 0
-      }
-    )
-
-    yaxis = Collections('GuideRenderer').create(
-      plot: @model.ref()
-      guidespec: {
-        type: 'linear_axis'
-        dimension: 1
-      }
-    )
-
-    yrule = Collections('GuideRenderer').create(
-      plot: @model.ref()
-      guidespec: {
-        type: 'rule'
-        dimension: 1
-      }
-    )
-
-    glyph = Collections('GlyphRenderer').create({
-      data_source: @source.ref()
-      xdata_range: @xrange.ref()
-      ydata_range: @yrange.ref()
-      glyphspec: {
-        type: 'line'
-        line_color: 'darkblue'
-        x: 'idx'
-        y: 'ys'
-      }
-    })
-
-    @model.add_renderers([glyph.ref(), xaxis.ref(), yaxis.ref(), yrule.ref()])
+    @model = Bokeh.Plotting.make_plot(spec, @source, options)
     @view = new @model.default_view(model: @model)
 
   update: (ys) ->
     if @idx?.length != ys.length
-      @idx = new Array(ys.length)
+      @idx = new Float64Array(ys.length)
       for i in [0..@idx.length-1]
-        @idx[i] = @xrange.get('start') + (i/@idx.length)*@xrange.get('end')
+        @idx[i] = @view.x_range.get('start') + (i/@idx.length)*@view.x_range.get('end')
 
     @source.set('data', {idx: @idx, ys: ys})
     @source.trigger('change', @source, {})
 
   set_xrange: (x0, x1) ->
-    @xrange.set({'start': x0, 'end' : x1})
+    @view.x_range.set({'start': x0, 'end' : x1})
 
   set_yrange: (y0, y1) ->
-    @yrange.set({'start': y0, 'end' : y1})
+    @view.y_range.set({'start': y0, 'end' : y1})
 
   render: () ->
     @view.render()

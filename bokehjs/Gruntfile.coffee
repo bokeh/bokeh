@@ -37,7 +37,7 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: 'demo'
-          src: ['**/*.html', '**/*.js']
+          src: ['**/*.html', '**/*.js', '**/*.css', '**/*.png', '**/*.py']
           dest: 'build/demo'
           filter: ['isFile'], #, hasChanged("copy.demo")]
         ]
@@ -104,6 +104,20 @@ module.exports = (grunt) ->
         filter: hasChanged("coffee.demo")
         options:
           sourceMap : true
+      spectrogram:
+        files: {
+          'build/demo/spectrogram/static/spectrogram.js': 'demo/spectrogram/coffee/spectrogram.coffee'
+        }
+
+    symlink:
+      # The "build/target.txt" symlink will be created and linked to
+      # "source/target.txt". It should appear like this in a file listing:
+      # build/target.txt -> ../source/target.txt
+      spectrogram: {
+        src: 'build/js/bokeh.js',
+        dest: 'build/demo/spectrogram/static/bokeh.js'
+      }
+
 
     requirejs:
       options:
@@ -222,13 +236,14 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-copy")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
+  grunt.loadNpmTasks('grunt-contrib-symlink')
   grunt.loadNpmTasks("grunt-eco")
   grunt.loadNpmTasks('grunt-groc')
 
   grunt.registerTask("default",     ["build", "qunit"])
   grunt.registerTask("build",       ["coffee", "less", "copy", "eco", "config"])
   grunt.registerTask("deploy",      ["build",  "requirejs:production", "concat:css", "cssmin"])
-  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css"])
+  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css", "symlink"])
   grunt.registerTask("deploy-both", ["deploy", "devdeploy"])
   grunt.registerTask("config", "Write config.js", () ->
     config = {
