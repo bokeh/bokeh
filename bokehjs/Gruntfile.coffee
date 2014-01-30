@@ -48,7 +48,18 @@ module.exports = (grunt) ->
           src: ['**/*']
           dest : 'build/js/vendor'
         ]
-
+      release:
+        files: [
+            expand : true
+            cwd : 'build/js'
+            src : ['*.js']
+            dest : 'release/js'
+          ,
+            expand : true
+            cwd : 'build/css'
+            src : ['*.css']
+            dest : 'release/css'
+        ]
     clean: ['build']
 
     less:
@@ -227,3 +238,4 @@ module.exports = (grunt) ->
     content = "require.config(#{JSON.stringify(config)});"
     grunt.file.write('build/js/config.js', content)
   )
+  grunt.registerTask("release", ["deploy-both", "copy:release"])
