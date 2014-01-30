@@ -15571,7 +15571,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           span = (max - min) * (1 + this.get('rangepadding'));
         } else {
           if (max !== 0) {
-            span = max * (1 + this.get('rangepadding'));
+            span = Math.abs(max) * (1 + this.get('rangepadding'));
           } else {
             span = 2;
           }
@@ -18637,19 +18637,29 @@ if (typeof define === 'function' && define.amd) {
         return _ref;
       }
 
-      ImageView.prototype._fields = ['image:array', 'width', 'height', 'x', 'y', 'dw', 'dh', 'palette:string'];
+      ImageView.prototype._fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string'];
 
       ImageView.prototype._properties = [];
 
       ImageView.prototype._set_data = function(data) {
-        var buf, buf8, canvas, cmap, ctx, i, image_data, _i, _j, _ref1, _ref2, _results;
+        var buf, buf8, canvas, cmap, ctx, i, image_data, img, _i, _j, _ref1, _ref2, _results;
         this.data = data;
         for (i = _i = 0, _ref1 = this.y.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           this.y[i] += this.dh[i];
         }
-        this.image_data = new Array(this.image.length);
+        if ((this.image_data == null) || this.image_data.length !== this.image.length) {
+          this.image_data = new Array(this.image.length);
+        }
+        if ((this.width == null) || this.width.length !== this.image.length) {
+          this.width = new Array(this.image.length);
+        }
+        if ((this.height == null) || this.height.length !== this.image.length) {
+          this.height = new Array(this.image.length);
+        }
         _results = [];
         for (i = _j = 0, _ref2 = this.image.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
+          this.height[i] = this.image[i].length;
+          this.width[i] = this.image[i][0].length;
           canvas = document.createElement('canvas');
           canvas.width = this.width[i];
           canvas.height = this.height[i];
@@ -18658,7 +18668,8 @@ if (typeof define === 'function' && define.amd) {
           cmap = new LinearColorMapper({}, {
             palette: all_palettes[this.palette[i]]
           });
-          buf = cmap.v_map_screen(this.image[i]);
+          img = _.flatten(this.image[i]);
+          buf = cmap.v_map_screen(img);
           buf8 = new Uint8ClampedArray(buf);
           image_data.data.set(buf8);
           ctx.putImageData(image_data, 0, 0);
@@ -18746,34 +18757,43 @@ if (typeof define === 'function' && define.amd) {
         return _ref;
       }
 
-      ImageRGBAView.prototype._fields = ['image:array', 'width', 'height', 'x', 'y', 'dw', 'dh'];
+      ImageRGBAView.prototype._fields = ['image:array', 'x', 'y', 'dw', 'dh'];
 
       ImageRGBAView.prototype._properties = [];
 
-      ImageRGBAView.prototype._set_data = function(data) {
-        var ctx, i, _i, _j, _ref1, _ref2, _results;
-        this.data = data;
+      ImageRGBAView.prototype._set_data = function() {
+        var buf, buf8, canvas, color, ctx, flat, i, image_data, j, _i, _j, _k, _ref1, _ref2, _ref3, _results;
         for (i = _i = 0, _ref1 = this.y.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           this.y[i] += this.dh[i];
         }
-        if ((this.image_data == null) || this.image_data.length !== data.length) {
+        if ((this.image_data == null) || this.image_data.length !== this.image.length) {
           this.image_data = new Array(this.image.length);
         }
-        if ((this.image_canvas == null) || this.image_canvas.length !== data.length) {
-          this.image_canvas = new Array(this.image.length);
+        if ((this.width == null) || this.width.length !== this.image.length) {
+          this.width = new Array(this.image.length);
+        }
+        if ((this.height == null) || this.height.length !== this.image.length) {
+          this.height = new Array(this.image.length);
         }
         _results = [];
         for (i = _j = 0, _ref2 = this.image.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
-          if ((this.image_canvas[i] == null) || (this.image_canvas[i].width !== this.width[i] || this.image_canvas[i].height !== this.height[i])) {
-            this.image_canvas[i] = document.createElement('canvas');
-            this.image_canvas[i].width = this.width[i];
-            this.image_canvas[i].height = this.height[i];
-            ctx = this.image_canvas[i].getContext('2d');
-            this.image_data[i] = ctx.createImageData(width[i], height[i]);
+          this.height[i] = this.image[i].length;
+          this.width[i] = this.image[i][0].length;
+          canvas = document.createElement('canvas');
+          canvas.width = this.width[i];
+          canvas.height = this.height[i];
+          ctx = canvas.getContext('2d');
+          image_data = ctx.getImageData(0, 0, this.width[i], this.height[i]);
+          flat = _.flatten(this.image[i]);
+          buf = new ArrayBuffer(flat.length * 4);
+          color = new Uint32Array(buf);
+          for (j = _k = 0, _ref3 = flat.length; 0 <= _ref3 ? _k < _ref3 : _k > _ref3; j = 0 <= _ref3 ? ++_k : --_k) {
+            color[j] = flat[j];
           }
-          ctx = this.image_canvas[i].getContext('2d');
-          this.image_data[i].data.set(new Uint8ClampedArray(this.image[i]));
-          _results.push(ctx.putImageData(this.image_data[i], 0, 0));
+          buf8 = new Uint8ClampedArray(buf);
+          image_data.data.set(buf8);
+          ctx.putImageData(image_data, 0, 0);
+          _results.push(this.image_data[i] = canvas);
         }
         return _results;
       };
@@ -18798,7 +18818,7 @@ if (typeof define === 'function' && define.amd) {
           ctx.translate(0, y_offset);
           ctx.scale(1, -1);
           ctx.translate(0, -y_offset);
-          ctx.drawImage(this.image_canvas[i], this.sx[i] | 0, this.sy[i] | 0, this.sw[i], this.sh[i]);
+          ctx.drawImage(this.image_data[i], this.sx[i] | 0, this.sy[i] | 0, this.sw[i], this.sh[i]);
           ctx.translate(0, y_offset);
           ctx.scale(1, -1);
           ctx.translate(0, -y_offset);
@@ -21624,94 +21644,11 @@ define("sprintf", (function (global) {
 }(this)));
 
 (function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
   define('common/ticking',["underscore", "timezone", "sprintf"], function(_, tz, sprintf) {
-    var BasicTickFormatter, DatetimeFormatter, arange, argsort, arr_div2, arr_div3, auto_interval, auto_interval_temp, auto_ticks, float, heckbert_interval, is_base2, log10, log2, nice_10, nice_2_5_10, _array, _four_digit_year, _ms_dot_us, _strftime, _two_digit_year, _us;
-    log10 = function(num) {
-      "Returns the base 10 logarithm of a number.";
-      if (num === 0.0) {
-        num += 1.0e-16;
-      }
-      return Math.log(num) / Math.LN10;
-    };
-    log2 = function(num) {
-      "Returns the base 2 logarithm of a number.";
-      if (num === 0.0) {
-        num += 1.0e-16;
-      }
-      return Math.log(num) / Math.LN2;
-    };
-    is_base2 = function(rng) {
-      " Returns True if rng is a positive multiple of 2 ";
-      var lg;
-      if (rng <= 0) {
-        return false;
-      } else {
-        lg = log2(rng);
-        return (lg > 0.0) && (lg === Math.floor(lg));
-      }
-    };
-    nice_2_5_10 = function(x, round) {
-      var expv, f, nf;
-      if (round == null) {
-        round = false;
-      }
-      " if round is false, then use Math.ceil(range) ";
-      expv = Math.floor(log10(x));
-      f = x / Math.pow(10.0, expv);
-      if (round) {
-        if (f < 1.5) {
-          nf = 1.0;
-        } else if (f < 3.0) {
-          nf = 2.0;
-        } else if (f < 7.5) {
-          nf = 5.0;
-        } else {
-          nf = 10.0;
-        }
-      } else {
-        if (f <= 1.0) {
-          nf = 1.0;
-        } else if (f <= 2.0) {
-          nf = 2.0;
-        } else if (f <= 5.0) {
-          nf = 5.0;
-        } else {
-          nf = 10.0;
-        }
-      }
-      return nf * Math.pow(10, expv);
-    };
-    nice_10 = function(x, round) {
-      var expv;
-      if (round == null) {
-        round = false;
-      }
-      expv = Math.floor(log10(x * 1.0001));
-      return Math.pow(10.0, expv);
-    };
-    heckbert_interval = function(min, max, numticks, nice, loose) {
-      var d, graphmax, graphmin, range;
-      if (numticks == null) {
-        numticks = 8;
-      }
-      if (nice == null) {
-        nice = nice_2_5_10;
-      }
-      if (loose == null) {
-        loose = false;
-      }
-      "Returns a \"nice\" range and interval for a given data range and a preferred\nnumber of ticks.  From Paul Heckbert's algorithm in Graphics Gems.";
-      range = nice(max - min);
-      d = nice(range / (numticks - 1), true);
-      if (loose) {
-        graphmin = Math.floor(min / d) * d;
-        graphmax = Math.ceil(max / d) * d;
-      } else {
-        graphmin = Math.ceil(min / d) * d;
-        graphmax = Math.floor(max / d) * d;
-      }
-      return [graphmin, graphmax, d];
-    };
+    var AbstractScale, AdaptiveScale, BasicScale, BasicTickFormatter, CompositeScale, DEFAULT_DESIRED_N_TICKS, DatetimeFormatter, DatetimeScale, DaysScale, MonthsScale, ONE_DAY, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR, SingleIntervalScale, arange, argmin, clamp, copy_date, date_range_by_month, date_range_by_year, indices, last_month_no_later_than, last_year_no_later_than, log, repr, _array, _four_digit_year, _ms_dot_us, _strftime, _two_digit_year, _us;
     arange = function(start, end, step) {
       var i, ret_arr;
       if (end == null) {
@@ -21753,167 +21690,392 @@ define("sprintf", (function (global) {
       }
       return ret_arr;
     };
-    auto_ticks = function(data_low, data_high, bound_low, bound_high, tick_interval, use_endpoints, zero_always_nice) {
-      var auto_lower, auto_upper, delta, end, i, intervals, is_auto_high, is_auto_low, lower, rng, start, tick, ticks, upper, _i, _ref, _ref1;
-      if (use_endpoints == null) {
-        use_endpoints = false;
-      }
-      if (zero_always_nice == null) {
-        zero_always_nice = true;
-      }
-      " Finds locations for axis tick marks.\n\nCalculates the locations for tick marks on an axis. The *bound_low*,\n*bound_high*, and *tick_interval* parameters specify how the axis end\npoints and tick interval are calculated.\n\nParameters\n----------\n\ndata_low, data_high: number\n    The minimum and maximum values of the data along this axis.\n    If any of the bound settings are 'auto' or 'fit', the axis\n    bounds are calculated automatically from these values.\nbound_low, bound_high: 'auto', 'fit', or a number.\n    The lower and upper bounds of the axis. If the value is a number,\n    that value is used for the corresponding end point. If the value is\n    'auto', then the end point is calculated automatically. If the\n    value is 'fit', then the axis bound is set to the corresponding\n    *data_low* or *data_high* value.\ntick_interval: can be 'auto' or a number\n    If the value is a positive number, it specifies the length\n    of the tick interval; a negative integer specifies the\n    number of tick intervals; 'auto' specifies that the number and\n    length of the tick intervals are automatically calculated, based\n    on the range of the axis.\nuse_endpoints: Boolean\n    If True, the lower and upper bounds of the data are used as the\n    lower and upper end points of the axis. If False, the end points\n    might not fall exactly on the bounds.\nzero_always_nice: Boolean\n    If True, ticks much closer to zero than the tick interval will be\n    coerced to have a value of zero\n\nReturns\n-------\nAn array of tick mark locations. The first and last tick entries are the\naxis end points.";
-      is_auto_low = bound_low === 'auto';
-      is_auto_high = bound_high === 'auto';
-      if (typeof bound_low === "string") {
-        lower = data_low;
-      } else {
-        lower = bound_low;
-      }
-      if (typeof bound_high === "string") {
-        upper = data_high;
-      } else {
-        upper = bound_high;
-      }
-      if ((tick_interval === 'auto') || (tick_interval === 0.0)) {
-        rng = Math.abs(upper - lower);
-        if (rng === 0.0) {
-          tick_interval = 0.5;
-          lower = data_low - 0.5;
-          upper = data_high + 0.5;
-        } else if (is_base2(rng) && is_base2(upper) && rng > 4) {
-          if (rng === 2) {
-            tick_interval = 1;
-          } else if (rng === 4) {
-            tick_interval = 4;
-          } else {
-            tick_interval = rng / 4;
+    repr = function(obj) {
+      var elem, elems_str, key, obj_as_string, props_str;
+      if (obj === null) {
+        return "null";
+      } else if (obj.constructor === Array) {
+        elems_str = ((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = obj.length; _i < _len; _i++) {
+            elem = obj[_i];
+            _results.push(repr(elem));
           }
+          return _results;
+        })()).join(", ");
+        return "[" + elems_str + "]";
+      } else if (obj.constructor === Object) {
+        props_str = ((function() {
+          var _results;
+          _results = [];
+          for (key in obj) {
+            _results.push("" + key + ": " + (repr(obj[key])));
+          }
+          return _results;
+        })()).join(", ");
+        return "{" + props_str + "}";
+      } else if (obj.constructor === String) {
+        return "\"" + obj + "\"";
+      } else if (obj.constructor === Function) {
+        return "<Function: " + obj.name + ">";
+      } else {
+        obj_as_string = obj.toString();
+        if (obj_as_string === "[object Object]") {
+          return "<" + obj.constructor.name + ">";
         } else {
-          tick_interval = auto_interval(lower, upper);
+          return obj_as_string;
         }
-      } else if (tick_interval < 0) {
-        intervals = -tick_interval;
-        tick_interval = tick_intervals(lower, upper, intervals);
-        if (is_auto_low && is_auto_high) {
-          is_auto_low = is_auto_high = false;
-          lower = tick_interval * Math.floor(lower / tick_interval);
-          while ((Math.abs(lower) >= tick_interval) && ((lower + tick_interval * (intervals - 1)) >= upper)) {
-            lower -= tick_interval;
+      }
+    };
+    indices = function(arr) {
+      return _.range(arr.length);
+    };
+    argmin = function(arr) {
+      var ret;
+      ret = _.min(indices(arr), (function(i) {
+        return arr[i];
+      }));
+      return ret;
+    };
+    clamp = function(x, min_val, max_val) {
+      return Math.max(min_val, Math.min(max_val, x));
+    };
+    log = function(x, base) {
+      if (base == null) {
+        base = Math.E;
+      }
+      return Math.log(x) / Math.log(base);
+    };
+    copy_date = function(date) {
+      return new Date(date.getTime());
+    };
+    last_month_no_later_than = function(date) {
+      date = copy_date(date);
+      date.setUTCDate(1);
+      date.setUTCHours(0);
+      date.setUTCMinutes(0);
+      date.setUTCSeconds(0);
+      date.setUTCMilliseconds(0);
+      return date;
+    };
+    last_year_no_later_than = function(date) {
+      date = last_month_no_later_than(date);
+      date.setUTCMonth(0);
+      return date;
+    };
+    date_range_by_year = function(start_time, end_time) {
+      var date, dates, end_date, start_date;
+      start_date = last_year_no_later_than(new Date(start_time));
+      end_date = last_year_no_later_than(new Date(end_time));
+      end_date.setUTCFullYear(end_date.getUTCFullYear() + 1);
+      dates = [];
+      date = start_date;
+      while (true) {
+        dates.push(copy_date(date));
+        date.setUTCFullYear(date.getUTCFullYear() + 1);
+        if (date > end_date) {
+          break;
+        }
+      }
+      return dates;
+    };
+    date_range_by_month = function(start_time, end_time) {
+      var date, dates, end_date, prev_end_date, start_date;
+      start_date = last_month_no_later_than(new Date(start_time));
+      end_date = last_month_no_later_than(new Date(end_time));
+      prev_end_date = copy_date(end_date);
+      end_date.setUTCMonth(end_date.getUTCMonth() + 1);
+      dates = [];
+      date = start_date;
+      while (true) {
+        dates.push(copy_date(date));
+        date.setUTCMonth(date.getUTCMonth() + 1);
+        if (date > end_date) {
+          break;
+        }
+      }
+      return dates;
+    };
+    DEFAULT_DESIRED_N_TICKS = 6;
+    AbstractScale = (function() {
+      function AbstractScale(toString_properties) {
+        this.toString_properties = toString_properties != null ? toString_properties : [];
+      }
+
+      AbstractScale.prototype.get_ticks = function(data_low, data_high, desired_n_ticks) {
+        if (desired_n_ticks == null) {
+          desired_n_ticks = DEFAULT_DESIRED_N_TICKS;
+        }
+        return this.get_ticks_no_defaults(data_low, data_high, desired_n_ticks);
+      };
+
+      AbstractScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
+        var end_factor, factor, factors, interval, start_factor, ticks;
+        interval = this.get_interval(data_low, data_high, desired_n_ticks);
+        start_factor = Math.floor(data_low / interval);
+        end_factor = Math.ceil(data_high / interval);
+        factors = arange(start_factor, end_factor + 1);
+        ticks = (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = factors.length; _i < _len; _i++) {
+            factor = factors[_i];
+            _results.push(factor * interval);
           }
-          upper = lower + tick_interval * intervals;
-        }
-      }
-      if (is_auto_low || is_auto_high) {
-        delta = 0.01 * tick_interval * (data_low === data_high);
-        _ref = auto_bounds(data_low - delta, data_high + delta, tick_interval), auto_lower = _ref[0], auto_upper = _ref[1];
-        if (is_auto_low) {
-          lower = auto_lower;
-        }
-        if (is_auto_high) {
-          upper = auto_upper;
-        }
-      }
-      start = Math.floor(lower / tick_interval) * tick_interval;
-      end = Math.floor(upper / tick_interval) * tick_interval;
-      if (start === end) {
-        lower = start = start - tick_interval;
-        upper = end = start - tick_interval;
-      }
-      if (upper > end) {
-        end += tick_interval;
-      }
-      ticks = arange(start, end + (tick_interval / 2.0), tick_interval);
-      if (zero_always_nice) {
-        for (i = _i = 0, _ref1 = ticks.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-          if (Math.abs(ticks[i]) < tick_interval / 1000) {
-            ticks[i] = 0;
+          return _results;
+        })();
+        return ticks;
+      };
+
+      AbstractScale.prototype.get_interval = void 0;
+
+      AbstractScale.prototype.get_min_interval = function() {
+        return this.min_interval;
+      };
+
+      AbstractScale.prototype.get_max_interval = function() {
+        return this.max_interval;
+      };
+
+      AbstractScale.prototype.min_interval = void 0;
+
+      AbstractScale.prototype.max_interval = void 0;
+
+      AbstractScale.prototype.toString = function() {
+        var class_name, key, params_str, props;
+        class_name = this.constructor.name;
+        props = this.toString_properties;
+        params_str = ((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = props.length; _i < _len; _i++) {
+            key = props[_i];
+            _results.push("" + key + "=" + (repr(this[key])));
           }
-        }
+          return _results;
+        }).call(this)).join(", ");
+        return "" + class_name + "(" + params_str + ")";
+      };
+
+      AbstractScale.prototype.get_ideal_interval = function(data_low, data_high, desired_n_ticks) {
+        var data_range;
+        data_range = data_high - data_low;
+        return data_range / desired_n_ticks;
+      };
+
+      return AbstractScale;
+
+    })();
+    SingleIntervalScale = (function(_super) {
+      __extends(SingleIntervalScale, _super);
+
+      function SingleIntervalScale(interval) {
+        this.interval = interval;
+        SingleIntervalScale.__super__.constructor.call(this, ['interval']);
+        this.min_interval = this.interval;
+        this.max_interval = this.interval;
       }
-      if ((!is_auto_low) && use_endpoints) {
-        ticks[0] = lower;
+
+      SingleIntervalScale.prototype.get_interval = function(data_low, data_high, n_desired_ticks) {
+        return this.interval;
+      };
+
+      return SingleIntervalScale;
+
+    })(AbstractScale);
+    CompositeScale = (function(_super) {
+      __extends(CompositeScale, _super);
+
+      function CompositeScale(scales) {
+        this.scales = scales;
+        CompositeScale.__super__.constructor.call(this);
+        this.min_intervals = _.invoke(this.scales, 'get_min_interval');
+        this.max_intervals = _.invoke(this.scales, 'get_max_interval');
+        this.min_interval = _.first(this.min_intervals);
+        this.max_interval = _.last(this.max_intervals);
       }
-      if ((!is_auto_high) && use_endpoints) {
-        ticks[ticks.length - 1] = upper;
-      }
-      return (function() {
-        var _j, _len, _results;
-        _results = [];
-        for (_j = 0, _len = ticks.length; _j < _len; _j++) {
-          tick = ticks[_j];
-          if (tick >= bound_low && tick <= bound_high) {
-            _results.push(tick);
-          }
-        }
-        return _results;
-      })();
-    };
-    arr_div2 = function(numerator, denominators) {
-      var output_arr, val, _i, _len;
-      output_arr = [];
-      for (_i = 0, _len = denominators.length; _i < _len; _i++) {
-        val = denominators[_i];
-        output_arr.push(numerator / val);
-      }
-      return output_arr;
-    };
-    arr_div3 = function(numerators, denominators) {
-      var i, output_arr, val, _i, _len;
-      output_arr = [];
-      for (i = _i = 0, _len = denominators.length; _i < _len; i = ++_i) {
-        val = denominators[i];
-        output_arr.push(numerators[i] / val);
-      }
-      return output_arr;
-    };
-    argsort = function(arr) {
-      var i, ret_arr, sorted_arr, y, _i, _len;
-      sorted_arr = _.sortBy(arr, _.identity);
-      ret_arr = [];
-      for (i = _i = 0, _len = sorted_arr.length; _i < _len; i = ++_i) {
-        y = sorted_arr[i];
-        ret_arr[i] = arr.indexOf(y);
-      }
-      return ret_arr;
-    };
-    float = function(x) {
-      return x + 0.0;
-    };
-    auto_interval_temp = function(data_low, data_high) {
-      " Calculates the tick interval for a range.\n\nThe boundaries for the data to be plotted on the axis are::\n\n    data_bounds = (data_low,data_high)\n\nThe function chooses the number of tick marks, which can be between\n3 and 9 marks (including end points), and chooses tick intervals at\n1, 2, 2.5, 5, 10, 20, ...\n\nReturns\n-------\ninterval: float\n    tick mark interval for axis";
-      var best_magics, best_mantissas, candidate_intervals, diff_arr, divisions, interval, ma, magic_index, magic_intervals, magnitude, magnitudes, mantissa_index, mantissas, mi, range, result, _i, _j, _len, _len1;
-      range = float(data_high) - float(data_low);
-      divisions = [8.0, 7.0, 6.0, 5.0, 4.0, 3.0];
-      candidate_intervals = arr_div2(range, divisions);
-      magnitudes = candidate_intervals.map(function(candidate) {
-        return Math.pow(10.0, Math.floor(log10(candidate)));
-      });
-      mantissas = arr_div3(candidate_intervals, magnitudes);
-      magic_intervals = [1.0, 2.0, 2.5, 5.0, 10.0];
-      best_mantissas = [];
-      best_magics = [];
-      for (_i = 0, _len = magic_intervals.length; _i < _len; _i++) {
-        mi = magic_intervals[_i];
-        diff_arr = mantissas.map(function(x) {
-          return Math.abs(mi - x);
+
+      CompositeScale.prototype.get_best_scale = function(data_low, data_high, desired_n_ticks) {
+        var best_scale, best_scale_ndx, data_range, errors, ideal_interval, intervals, scale_ndxs;
+        data_range = data_high - data_low;
+        ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks);
+        scale_ndxs = [_.sortedIndex(this.min_intervals, ideal_interval) - 1, _.sortedIndex(this.max_intervals, ideal_interval)];
+        intervals = [this.min_intervals[scale_ndxs[0]], this.max_intervals[scale_ndxs[1]]];
+        errors = intervals.map(function(interval) {
+          return Math.abs(desired_n_ticks - (data_range / interval));
         });
-        best_magics.push(_.min(diff_arr));
+        best_scale_ndx = scale_ndxs[argmin(errors)];
+        best_scale = this.scales[best_scale_ndx];
+        return best_scale;
+      };
+
+      CompositeScale.prototype.get_interval = function(data_low, data_high, desired_n_ticks) {
+        var best_scale;
+        best_scale = this.get_best_scale(data_low, data_high, desired_n_ticks);
+        return best_scale.get_interval(data_low, data_high, desired_n_ticks);
+      };
+
+      CompositeScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
+        var best_scale;
+        best_scale = this.get_best_scale(data_low, data_high, desired_n_ticks);
+        return best_scale.get_ticks_no_defaults(data_low, data_high, desired_n_ticks);
+      };
+
+      return CompositeScale;
+
+    })(AbstractScale);
+    AdaptiveScale = (function(_super) {
+      __extends(AdaptiveScale, _super);
+
+      function AdaptiveScale(mantissas, base, min_interval, max_interval) {
+        var prefix_mantissa, suffix_mantissa;
+        this.mantissas = mantissas;
+        this.base = base != null ? base : 10.0;
+        this.min_interval = min_interval != null ? min_interval : 0.0;
+        this.max_interval = max_interval != null ? max_interval : Infinity;
+        AdaptiveScale.__super__.constructor.call(this, ['mantissas', 'base', 'min_magnitude', 'max_magnitude']);
+        prefix_mantissa = _.last(this.mantissas) / this.base;
+        suffix_mantissa = _.first(this.mantissas) * this.base;
+        this.extended_mantissas = _.flatten([prefix_mantissa, this.mantissas, suffix_mantissa]);
+        this.base_factor = this.min_interval === 0.0 ? 1.0 : this.min_interval;
       }
-      for (_j = 0, _len1 = mantissas.length; _j < _len1; _j++) {
-        ma = mantissas[_j];
-        diff_arr = magic_intervals.map(function(x) {
-          return Math.abs(ma - x);
+
+      AdaptiveScale.prototype.get_interval = function(data_low, data_high, desired_n_ticks) {
+        var best_mantissa, candidate_mantissas, data_range, errors, ideal_interval, ideal_magnitude, ideal_mantissa, interval, interval_exponent;
+        data_range = data_high - data_low;
+        ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks);
+        interval_exponent = Math.floor(log(ideal_interval / this.base_factor, this.base));
+        ideal_magnitude = Math.pow(this.base, interval_exponent) * this.base_factor;
+        ideal_mantissa = ideal_interval / ideal_magnitude;
+        candidate_mantissas = this.extended_mantissas;
+        errors = candidate_mantissas.map(function(mantissa) {
+          return Math.abs(desired_n_ticks - (data_range / (mantissa * ideal_magnitude)));
         });
-        best_mantissas.push(_.min(diff_arr));
+        best_mantissa = candidate_mantissas[argmin(errors)];
+        interval = best_mantissa * ideal_magnitude;
+        return clamp(interval, this.min_interval, this.max_interval);
+      };
+
+      return AdaptiveScale;
+
+    })(AbstractScale);
+    MonthsScale = (function(_super) {
+      __extends(MonthsScale, _super);
+
+      function MonthsScale(months) {
+        this.months = months;
+        this.typical_interval = this.months.length > 1 ? (this.months[1] - this.months[0]) * ONE_MONTH : 12 * ONE_MONTH;
+        MonthsScale.__super__.constructor.call(this, this.typical_interval);
+        this.toString_properties = ['months'];
       }
-      magic_index = argsort(best_magics)[0];
-      mantissa_index = argsort(best_mantissas)[0];
-      interval = magic_intervals[magic_index];
-      magnitude = magnitudes[mantissa_index];
-      result = interval * magnitude;
-      return result;
-    };
-    auto_interval = auto_interval_temp;
+
+      MonthsScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
+        var all_ticks, date, month_dates, months, months_of_year, ticks_in_range, year_dates;
+        year_dates = date_range_by_year(data_low, data_high);
+        months = this.months;
+        months_of_year = function(year_date) {
+          return months.map(function(month) {
+            var month_date;
+            month_date = copy_date(year_date);
+            month_date.setUTCMonth(month);
+            return month_date;
+          });
+        };
+        month_dates = _.flatten((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = year_dates.length; _i < _len; _i++) {
+            date = year_dates[_i];
+            _results.push(months_of_year(date));
+          }
+          return _results;
+        })());
+        all_ticks = _.invoke(month_dates, 'getTime');
+        ticks_in_range = _.filter(all_ticks, (function(tick) {
+          return (data_low <= tick && tick <= data_high);
+        }));
+        return ticks_in_range;
+      };
+
+      return MonthsScale;
+
+    })(SingleIntervalScale);
+    DaysScale = (function(_super) {
+      __extends(DaysScale, _super);
+
+      function DaysScale(days) {
+        this.days = days;
+        this.typical_interval = this.days.length > 1 ? (this.days[1] - this.days[0]) * ONE_DAY : 31 * ONE_DAY;
+        DaysScale.__super__.constructor.call(this, this.typical_interval);
+        this.toString_properties = ['days'];
+      }
+
+      DaysScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
+        var all_ticks, date, day_dates, days, days_of_month, month_dates, ticks_in_range, typical_interval;
+        month_dates = date_range_by_month(data_low, data_high);
+        days = this.days;
+        typical_interval = this.typical_interval;
+        days_of_month = function(month_date) {
+          var dates, day, day_date, future_date, _i, _len;
+          dates = [];
+          for (_i = 0, _len = days.length; _i < _len; _i++) {
+            day = days[_i];
+            day_date = copy_date(month_date);
+            day_date.setUTCDate(day);
+            future_date = new Date(day_date.getTime() + (typical_interval / 2));
+            if (future_date.getUTCMonth() === month_date.getUTCMonth()) {
+              dates.push(day_date);
+            }
+          }
+          return dates;
+        };
+        day_dates = _.flatten((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = month_dates.length; _i < _len; _i++) {
+            date = month_dates[_i];
+            _results.push(days_of_month(date));
+          }
+          return _results;
+        })());
+        all_ticks = _.invoke(day_dates, 'getTime');
+        ticks_in_range = _.filter(all_ticks, (function(tick) {
+          return (data_low <= tick && tick <= data_high);
+        }));
+        return ticks_in_range;
+      };
+
+      return DaysScale;
+
+    })(SingleIntervalScale);
+    ONE_MILLI = 1.0;
+    ONE_SECOND = 1000.0;
+    ONE_MINUTE = 60.0 * ONE_SECOND;
+    ONE_HOUR = 60 * ONE_MINUTE;
+    ONE_DAY = 24 * ONE_HOUR;
+    ONE_MONTH = 30 * ONE_DAY;
+    ONE_YEAR = 365 * ONE_DAY;
+    BasicScale = (function(_super) {
+      __extends(BasicScale, _super);
+
+      function BasicScale() {
+        BasicScale.__super__.constructor.call(this, [1, 2, 5]);
+      }
+
+      return BasicScale;
+
+    })(AdaptiveScale);
+    DatetimeScale = (function(_super) {
+      __extends(DatetimeScale, _super);
+
+      function DatetimeScale() {
+        DatetimeScale.__super__.constructor.call(this, [new AdaptiveScale([1, 2, 5], 10, 0, 500 * ONE_MILLI), new AdaptiveScale([1, 2, 5, 10, 15, 20, 30], 60, ONE_SECOND, 30 * ONE_MINUTE), new AdaptiveScale([1, 2, 4, 6, 8, 12], 24.0, ONE_HOUR, 12 * ONE_HOUR), new DaysScale(arange(1, 32)), new DaysScale(arange(1, 31, 3)), new DaysScale([1, 8, 15, 22]), new DaysScale([1, 15]), new MonthsScale(arange(0, 12)), new MonthsScale(arange(0, 12, 2)), new MonthsScale(arange(0, 12, 4)), new MonthsScale(arange(0, 12, 6)), new AdaptiveScale([1, 2, 5], 10, ONE_YEAR, Infinity)]);
+      }
+
+      return DatetimeScale;
+
+    })(CompositeScale);
     BasicTickFormatter = (function() {
       function BasicTickFormatter(precision, use_scientific, power_limit_high, power_limit_low) {
         this.precision = precision != null ? precision : 'auto';
@@ -22049,9 +22211,9 @@ define("sprintf", (function (global) {
         this._formats = {
           'microseconds': [_us, _ms_dot_us],
           'milliseconds': ['%3Nms', '%S.%3Ns'],
-          'seconds': [':%S', '%Ss'],
-          'minsec': ['%M:%S'],
-          'minutes': ['%Mm'],
+          'seconds': ['%Ss'],
+          'minsec': [':%M:%S'],
+          'minutes': [':%M', '%Mm'],
           'hourmin': ['%H:%M'],
           'hours': ['%Hh', '%H:%M'],
           'days': ['%m/%d', '%a%d'],
@@ -22073,36 +22235,35 @@ define("sprintf", (function (global) {
         return;
       }
 
-      DatetimeFormatter.prototype._get_resolution = function(resolution, interval) {
-        var r, resol, span;
-        r = resolution;
-        span = interval;
-        if (r < 5e-4) {
-          resol = "microseconds";
-        } else if (r < 0.5) {
-          resol = "milliseconds";
-        } else if (r < 60) {
-          if (span > 60) {
-            resol = "minsec";
+      DatetimeFormatter.prototype._get_resolution_str = function(resolution_secs, span_secs) {
+        var adjusted_resolution_secs, str;
+        adjusted_resolution_secs = resolution_secs * 1.1;
+        if (adjusted_resolution_secs < 1e-3) {
+          str = "microseconds";
+        } else if (adjusted_resolution_secs < 1.0) {
+          str = "milliseconds";
+        } else if (adjusted_resolution_secs < 60) {
+          if (span_secs >= 60) {
+            str = "minsec";
           } else {
-            resol = "seconds";
+            str = "seconds";
           }
-        } else if (r < 3600) {
-          if (span > 3600) {
-            resol = "hourmin";
+        } else if (adjusted_resolution_secs < 3600) {
+          if (span_secs >= 3600) {
+            str = "hourmin";
           } else {
-            resol = "minutes";
+            str = "minutes";
           }
-        } else if (r < 24 * 3600) {
-          resol = "hours";
-        } else if (r < 30 * 24 * 3600) {
-          resol = "days";
-        } else if (r < 365 * 24 * 3600) {
-          resol = "months";
+        } else if (adjusted_resolution_secs < 24 * 3600) {
+          str = "hours";
+        } else if (adjusted_resolution_secs < 31 * 24 * 3600) {
+          str = "days";
+        } else if (adjusted_resolution_secs < 365 * 24 * 3600) {
+          str = "months";
         } else {
-          resol = "years";
+          str = "years";
         }
-        return resol;
+        return str;
       };
 
       DatetimeFormatter.prototype.format = function(ticks, num_labels, char_width, fill_ratio, ticker) {
@@ -22128,7 +22289,7 @@ define("sprintf", (function (global) {
         } else {
           r = span / (ticks.length - 1);
         }
-        resol = this._get_resolution(r, span);
+        resol = this._get_resolution_str(r, span);
         _ref = this.formats[resol], widths = _ref[0], formats = _ref[1];
         format = formats[0];
         if (char_width) {
@@ -22204,12 +22365,8 @@ define("sprintf", (function (global) {
 
     })();
     return {
-      "argsort": argsort,
-      "nice_2_5_10": nice_2_5_10,
-      "nice_10": nice_10,
-      "heckbert_interval": heckbert_interval,
-      "auto_ticks": auto_ticks,
-      "auto_interval": auto_interval,
+      "BasicScale": BasicScale,
+      "DatetimeScale": DatetimeScale,
       "BasicTickFormatter": BasicTickFormatter,
       "DatetimeFormatter": DatetimeFormatter
     };
@@ -22599,7 +22756,8 @@ define("sprintf", (function (global) {
         this.add_dependencies('normals', this, ['computed_bounds', 'dimension', 'location']);
         this.register_property('side', this._side, false);
         this.add_dependencies('side', this, ['normals']);
-        return this.register_property('padding_request', this._padding_request, false);
+        this.register_property('padding_request', this._padding_request, false);
+        return this.scale = new ticking.BasicScale();
       };
 
       LinearAxis.prototype.dinitialize = function(attrs, options) {
@@ -22659,15 +22817,14 @@ define("sprintf", (function (global) {
       };
 
       LinearAxis.prototype._major_coords = function() {
-        var coords, cross_range, end, i, ii, interval, j, loc, range, range_max, range_min, ranges, start, ticks, xs, ys, _i, _ref2, _ref3, _ref4, _ref5;
+        var coords, cross_range, end, i, ii, j, loc, range, range_max, range_min, ranges, start, ticks, xs, ys, _i, _ref2, _ref3, _ref4, _ref5;
         i = this.get('dimension');
         j = (i + 1) % 2;
         ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
         range = ranges[i];
         cross_range = ranges[j];
         _ref2 = this.get('computed_bounds'), start = _ref2[0], end = _ref2[1];
-        interval = ticking.auto_interval(start, end);
-        ticks = ticking.auto_ticks(null, null, start, end, interval);
+        ticks = this.scale.get_ticks(start, end);
         loc = (_ref3 = this.get('location')) != null ? _ref3 : 'min';
         if (_.isString(loc)) {
           if (loc === 'left' || loc === 'bottom') {
@@ -22849,6 +23006,11 @@ define("sprintf", (function (global) {
 
       DatetimeAxis.prototype.type = 'DatetimeAxis';
 
+      DatetimeAxis.prototype.initialize = function(attrs, options) {
+        DatetimeAxis.__super__.initialize.call(this, attrs, options);
+        return this.scale = new ticking.DatetimeScale();
+      };
+
       return DatetimeAxis;
 
     })(LinearAxis.Model);
@@ -22948,8 +23110,18 @@ define("sprintf", (function (global) {
         Grid.__super__.initialize.call(this, attrs, options);
         this.register_property('computed_bounds', this._bounds, false);
         this.add_dependencies('computed_bounds', this, ['bounds']);
+        this.register_property('scale', this._scale, true);
+        this.add_dependencies('scale', this, ['is_datetime']);
         this.register_property('grid_coords', this._grid_coords, false);
-        return this.add_dependencies('grid_coords', this, ['computed_bounds', 'dimension']);
+        return this.add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'scale']);
+      };
+
+      Grid.prototype._scale = function() {
+        if (this.get('is_datetime')) {
+          return new ticking.DatetimeScale();
+        } else {
+          return new ticking.BasicScale();
+        }
       };
 
       Grid.prototype._bounds = function() {
@@ -22979,7 +23151,7 @@ define("sprintf", (function (global) {
       };
 
       Grid.prototype._grid_coords = function() {
-        var N, cmax, cmin, coords, cross_range, dim_i, dim_j, end, i, ii, interval, j, loc, max, min, n, range, ranges, start, ticks, tmp, _i, _j, _ref2, _ref3;
+        var N, cmax, cmin, coords, cross_range, dim_i, dim_j, end, i, ii, j, loc, max, min, n, range, ranges, start, ticks, tmp, _i, _j, _ref2, _ref3;
         i = this.get('dimension');
         j = (i + 1) % 2;
         ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
@@ -22989,8 +23161,7 @@ define("sprintf", (function (global) {
         tmp = Math.min(start, end);
         end = Math.max(start, end);
         start = tmp;
-        interval = ticking.auto_interval(start, end);
-        ticks = ticking.auto_ticks(null, null, start, end, interval);
+        ticks = this.get('scale').get_ticks(start, end);
         min = range.get('min');
         max = range.get('max');
         cmin = cross_range.get('min');
@@ -23731,7 +23902,15 @@ define("sprintf", (function (global) {
 */;
 (function() {
   define('tool/event_generators',[], function() {
-    var ButtonEventGenerator, OnePointWheelEventGenerator, TwoPointEventGenerator;
+    var ButtonEventGenerator, OnePointWheelEventGenerator, TwoPointEventGenerator, set_bokehXY;
+    set_bokehXY = function(event) {
+      var left, offset, top;
+      offset = $(event.currentTarget).offset();
+      left = offset != null ? offset.left : 0;
+      top = offset != null ? offset.top : 0;
+      event.bokehX = event.pageX - left;
+      return event.bokehY = event.pageY - top;
+    };
     TwoPointEventGenerator = (function() {
       function TwoPointEventGenerator(options) {
         this.restrict_to_innercanvas = options.restrict_to_innercanvas;
@@ -23750,16 +23929,13 @@ define("sprintf", (function (global) {
         this.plotview = plotview;
         this.eventSink = eventSink;
         this.plotview.moveCallbacks.push(function(e, x, y) {
-          var offset;
           if (!_this.dragging) {
             return;
           }
           if (!_this.tool_active) {
             return;
           }
-          offset = $(e.currentTarget).offset();
-          e.bokehX = e.pageX - offset.left;
-          e.bokehY = e.pageY - offset.top;
+          set_bokehXY(e);
           if (!_this.basepoint_set) {
             _this.dragging = true;
             _this.basepoint_set = true;
@@ -23771,11 +23947,9 @@ define("sprintf", (function (global) {
           }
         });
         this.plotview.moveCallbacks.push(function(e, x, y) {
-          var inner_range_horizontal, inner_range_vertical, offset, xend, xstart, yend, ystart;
+          var inner_range_horizontal, inner_range_vertical, xend, xstart, yend, ystart;
           if (_this.dragging) {
-            offset = $(e.currentTarget).offset();
-            e.bokehX = e.pageX - offset.left;
-            e.bokehY = e.pageY - offset.top;
+            set_bokehXY(e);
             inner_range_horizontal = _this.plotview.view_state.get('inner_range_horizontal');
             inner_range_vertical = _this.plotview.view_state.get('inner_range_vertical');
             x = _this.plotview.view_state.sx_to_vx(e.bokehX);
@@ -23802,9 +23976,6 @@ define("sprintf", (function (global) {
           }
         });
         $(document).bind('keydown', function(e) {
-          if (e[_this.options.keyName]) {
-            _this._start_drag();
-          }
           if (e.keyCode === 27) {
             return eventSink.trigger("clear_active_tool");
           }
@@ -23815,7 +23986,7 @@ define("sprintf", (function (global) {
           }
         });
         this.plotview.canvas_wrapper.bind('mousedown', function(e) {
-          if (_this.button_activated) {
+          if (_this.button_activated || e[_this.options.keyName]) {
             _this._start_drag();
             return false;
           }
@@ -23864,22 +24035,25 @@ define("sprintf", (function (global) {
         if (!this.dragging) {
           this.dragging = true;
           if (!this.button_activated) {
-            return this.$tool_button.addClass('active');
+            this.$tool_button.addClass('active');
+          }
+          if (this.options.cursor != null) {
+            return this.plotview.canvas_wrapper.css('cursor', this.options.cursor);
           }
         }
       };
 
       TwoPointEventGenerator.prototype._stop_drag = function(e) {
-        var offset;
         this.basepoint_set = false;
         if (this.dragging) {
           this.dragging = false;
           if (!this.button_activated) {
             this.$tool_button.removeClass('active');
           }
-          offset = $(e.currentTarget).offset();
-          e.bokehX = e.pageX - offset.left;
-          e.bokehY = e.pageY - offset.top;
+          if (this.options.cursor != null) {
+            this.plotview.canvas_wrapper.css('cursor', '');
+          }
+          set_bokehXY(e);
           return this.eventSink.trigger("" + this.options.eventBasename + ":DragEnd", e);
         }
       };
@@ -23904,13 +24078,10 @@ define("sprintf", (function (global) {
         this.plotview = plotview;
         this.eventSink = eventSink;
         this.plotview.canvas_wrapper.bind("mousewheel", function(e, delta, dX, dY) {
-          var offset;
           if (!_this.tool_active) {
             return;
           }
-          offset = $(e.currentTarget).offset();
-          e.bokehX = e.pageX - offset.left;
-          e.bokehY = e.pageY - offset.top;
+          set_bokehXY(e);
           e.delta = delta;
           eventSink.trigger("" + toolName + ":zoom", e);
           e.preventDefault();
@@ -24079,13 +24250,14 @@ define("sprintf", (function (global) {
         return PanToolView.__super__.bind_bokeh_events.call(this);
       };
 
-      PanToolView.prototype.toolType = "PanTool";
-
       PanToolView.prototype.eventGeneratorClass = TwoPointEventGenerator;
+
+      PanToolView.prototype.toolType = "PanTool";
 
       PanToolView.prototype.evgen_options = {
         keyName: "shiftKey",
         buttonText: "Pan",
+        cursor: "move",
         restrict_to_innercanvas: true
       };
 
@@ -24348,7 +24520,8 @@ define("sprintf", (function (global) {
 
       ResizeToolView.prototype.evgen_options = {
         keyName: "",
-        buttonText: "Resize"
+        buttonText: "Resize",
+        cursor: "move"
       };
 
       ResizeToolView.prototype.tool_events = {
@@ -24525,7 +24698,8 @@ define("sprintf", (function (global) {
 
       CrosshairToolView.prototype.evgen_options = {
         keyName: "",
-        buttonText: "Crosshair"
+        buttonText: "Crosshair",
+        cursor: "crosshair"
       };
 
       CrosshairToolView.prototype.tool_events = {
@@ -24691,9 +24865,12 @@ define("sprintf", (function (global) {
 
       BoxSelectToolView.prototype.eventGeneratorClass = TwoPointEventGenerator;
 
+      BoxSelectToolView.prototype.toolType = "BoxSelectTool";
+
       BoxSelectToolView.prototype.evgen_options = {
         keyName: "ctrlKey",
         buttonText: "Select",
+        cursor: "crosshair",
         restrict_to_innercanvas: true
       };
 
@@ -28112,14 +28289,18 @@ define('widget/pandas/pandas_pivot_template',[],function(){
         return _results;
       })());
     };
-    add_grids = function(plot, xgrid, ygrid) {
+    add_grids = function(plot, xgrid, ygrid, xaxis_is_datetime) {
       var g, grid, grids;
+      if (xaxis_is_datetime == null) {
+        xaxis_is_datetime = False;
+      }
       grids = [];
       if (xgrid) {
         grid = Grid.Collection.create({
           dimension: 0,
           parent: plot.ref(),
-          plot: plot.ref()
+          plot: plot.ref(),
+          is_datetime: xaxis_is_datetime
         });
         grids.push(grid);
       }
@@ -28127,7 +28308,8 @@ define('widget/pandas/pandas_pivot_template',[],function(){
         grid = Grid.Collection.create({
           dimension: 1,
           parent: plot.ref(),
-          plot: plot.ref()
+          plot: plot.ref(),
+          is_datetime: false
         });
         grids.push(grid);
         return plot.add_renderers((function() {
@@ -28268,15 +28450,23 @@ define('widget/pandas/pandas_pivot_template',[],function(){
         return _results;
       })());
       add_axes(plot, xaxes, yaxes);
-      add_grids(plot, xgrid, ygrid);
+      add_grids(plot, xgrid, ygrid, xaxes === 'datetime');
       add_tools(plot, tools, glyphs, xdr, ydr);
       add_legend(plot, legend, glyphs);
       return plot;
     };
-    show = function(plot) {
+    show = function(plot, target_div) {
       var div, myrender;
+      if (target_div == null) {
+        target_div = false;
+      }
       div = $('<div class="plotdiv"></div>');
-      $('body').append(div);
+      if (target_div) {
+        target_div = $(target_div);
+      } else {
+        target_div = $('body');
+      }
+      target_div.append(div);
       myrender = function() {
         var view;
         view = new plot.default_view({
@@ -29363,25 +29553,6 @@ define('server/usercontext/wrappertemplate',[],function(){
 //@ sourceMappingURL=serverrun.js.map
 */;
 (function() {
-  require.config({
-    paths: {
-      jquery: "vendor/jquery/jquery",
-      jquery_ui: "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui",
-      jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel",
-      underscore: "vendor/underscore-amd/underscore",
-      backbone: "vendor/backbone-amd/backbone",
-      bootstrap: "vendor/bootstrap/bootstrap-2.0.4",
-      timezone: "vendor/timezone/src/timezone",
-      sprintf: "vendor/sprintf/src/sprintf",
-      rbush: "vendor/rbush/rbush"
-    },
-    shim: {
-      sprintf: {
-        exports: 'sprintf'
-      }
-    }
-  });
-
   define('main',['require','exports','module','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/ticking','common/view_state','mapper/1d/linear_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','source/object_array_data_source','tool/box_select_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/pan_tool','tool/preview_save_tool','tool/resize_tool','tool/crosshair_tool','tool/wheel_zoom_tool','widget/data_slider','server/serverrun'],function(require, exports, module) {
     var Bokeh, glyph_factory;
     if (!window.Float64Array) {
