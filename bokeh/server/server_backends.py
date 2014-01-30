@@ -176,10 +176,10 @@ class MultiUserAuthentication(AbstractAuthentication):
                 return bokehuser.username
     
     def register_get(self):
-        return render_template("register.html")
+        return render_template("register.html", title="Register")
     
     def login_get(self):
-        return render_template("login.html")
+        return render_template("login.html", title="Login")
     
     def register_post_api(self):
         username = request.values['username']
@@ -263,3 +263,6 @@ class MultiUserAuthentication(AbstractAuthentication):
             flash("incorrect login")
             return redirect(url_for('bokeh.server.login_get'))
         return redirect("/bokeh")
+    def logout(self):
+        session.pop('username', None)
+        return redirect("/")

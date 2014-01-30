@@ -25,6 +25,23 @@
     {% endif %}
   </head>
   <body>
-    <div id="PlotPane">Plots</div>
+  <div class="container">
+    <div class="row">
+      <div class="navbar">
+        <div class="navbar-inner">
+          <a class="brand"> {{ title }} </a>
+          <ul class="nav pull-right">
+              <li>
+                <a href="{{ url_for('bokeh.server.logout') }}">logout </a>
+              </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      {% block content %}
+      {% endblock %}
+    </div>
+  </div>
   </body>
 </html>

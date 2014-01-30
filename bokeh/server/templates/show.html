@@ -7,3 +7,9 @@ Bokeh Plot Server &mdash; {{ title }}
 {% block script %}
 Bokeh.server_page("{{ title }}");
 {% endblock %}
+
+{% block content %}
+<div class="span12">
+  <div id="PlotPane">Plots</div>
+</div>
+{% endblock %}
