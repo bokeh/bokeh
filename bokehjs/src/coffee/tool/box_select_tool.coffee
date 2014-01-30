@@ -22,18 +22,19 @@ define [
         @listenTo(renderer, 'change', @select_callback)
 
     eventGeneratorClass: TwoPointEventGenerator
+    toolType: "BoxSelectTool"
 
     evgen_options:
-      keyName:"ctrlKey",
-      buttonText:"Select",
+      keyName: "ctrlKey"
+      buttonText: "Select"
+      cursor: "crosshair"
       restrict_to_innercanvas: true
 
-    tool_events: {
-      SetBasepoint: "_start_selecting",
-      UpdatingMouseMove: "_selecting",
-      deactivated: "_stop_selecting",
-      DragEnd : "_dragend",
-      }
+    tool_events:
+      SetBasepoint: "_start_selecting"
+      UpdatingMouseMove: "_selecting"
+      deactivated: "_stop_selecting"
+      DragEnd: "_dragend"
 
     pause:()->
       return null
