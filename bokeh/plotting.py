@@ -900,6 +900,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     tool_objs = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
+        # re.split will return empty strings; ignore them.
+        if tool == "": 
+            continue
         if tool == "pan":
             tool_obj = PanTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
         elif tool == "wheel_zoom":
