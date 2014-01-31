@@ -70,7 +70,6 @@ define [
         ctx.translate(0, -y_offset)
 
       ctx.setImageSmoothingEnabled(old_smoothing)
-      ctx.restore()
 
   # name Image conflicts with js Image
   class ImageGlyph extends Glyph.Model

@@ -9,8 +9,19 @@ define [
 
   class ImageRGBAView extends Glyph.View
 
-    _fields: ['image:array', 'x', 'y', 'dw', 'dh']
     _properties: []
+
+    initialize: (options) ->
+      # the point of this is to support both efficient ArrayBuffers as well as dumb
+      # arrays of arrays that the python interface currently uses. If the glyphspec
+      # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
+      # provided number of rows/cols, otherwise treat as a "list of lists".
+      spec = @mget('glyphspec')
+      if spec.rows?
+        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh']
+      else
+        @_fields = ['image:array', 'x', 'y', 'dw', 'dh']
+      super(options)
 
     _set_data: () ->
       for i in [0...@y.length]
@@ -26,20 +37,23 @@ define [
         @height = new Array(@image.length)
 
       for i in [0...@image.length]
-        @height[i] = @image[i].length
-        @width[i] = @image[i][0].length
+        @height[i] = @rows[i] ? @image[i].length
+        @width[i] = @cols[i] ? @image[i][0].length
         canvas = document.createElement('canvas');
         canvas.width = @width[i];
         canvas.height = @height[i];
         ctx = canvas.getContext('2d');
         image_data = ctx.getImageData(0, 0, @width[i], @height[i]);
-        flat = _.flatten(@image[i])
-        buf = new ArrayBuffer(flat.length * 4);
-        color = new Uint32Array(buf);
-        for j in [0...flat.length]
-          color[j] = flat[j]
-        buf8 = new Uint8ClampedArray(buf);
-        image_data.data.set(buf8)
+        if @row?
+          flat = _.flatten(@image[i])
+          buf = new ArrayBuffer(flat.length * 4);
+          color = new Uint32Array(buf);
+          for j in [0...flat.length]
+            color[j] = flat[j]
+          buf8 = new Uint8ClampedArray(buf);
+          image_data.data.set(buf8)
+        else
+          image_data.data.set(new Uint8ClampedArray(@image[i]))
         ctx.putImageData(image_data, 0, 0);
         @image_data[i] = canvas
 
@@ -68,7 +82,6 @@ define [
         ctx.translate(0, -y_offset)
 
       ctx.setImageSmoothingEnabled(old_smoothing)
-      ctx.restore()
 
   # name Image conflicts with js Image
   class ImageRGBAGlyph extends Glyph.Model

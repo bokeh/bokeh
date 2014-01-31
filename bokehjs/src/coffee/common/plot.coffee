@@ -174,20 +174,23 @@ define [
       return this
 
     # TODO (bev) why is this ignoring y units? why does it also take units as last arg?
-    map_to_screen: (x, x_units, y, y_units, units) ->
+    map_to_screen: (x, x_units, y, y_units) ->
       if x_units == 'screen'
         if _.isArray(x)
           sx = x[..]
         else
           sx = new Float64Array(x.length)
           sx.set(x)
+      else
+        sx = @xmapper.v_map_to_target(x)
+      if y_units == 'screen'
         if _.isArray(y)
           sy = y[..]
         else
           sy = new Float64Array(y.length)
           sy.set(y)
       else
-        [sx, sy] = @mapper.v_map_to_target(x, y)
+        sy = @ymapper.v_map_to_target(y)
 
       sx = @view_state.v_vx_to_sx(sx)
       sy = @view_state.v_vy_to_sy(sy)
