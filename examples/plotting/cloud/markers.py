@@ -3,7 +3,7 @@ from numpy.random import random
 from bokeh.plotting import *
 
 
-output_server("markers")
+output_cloud("markers")
 
 def myscatter(x, y, typestr):
     scatter(x, y, marker=typestr,
