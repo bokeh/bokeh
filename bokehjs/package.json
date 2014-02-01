@@ -3,7 +3,6 @@
   "version": "0.3.0",
   "dependencies": {
     "requirejs": "~2.1",
-    "bower": "~1.1",
     "grunt": "~0.4",
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-contrib-watch": "~0.5.1",
