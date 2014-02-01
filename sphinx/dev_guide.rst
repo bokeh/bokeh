@@ -113,29 +113,31 @@ client side.  Install grunt by executing::
 
     $ npm install -g grunt-cli
 
+.. note:: The following commands should be executed in the ``bokejs`` subdirectory of the top level checkout.
+
 In order to build the javascript files that comprise bokeh.js, first install
 necessary dependencies::
 
-    $ npm install 
+    $ npm install
 
-These command will install compile and runtime dependencies into node_modules
-and build subdirectories, respectively.
+This command will install build dependencies in the node_modules subdirectory.
 
 To compile the Coffeescript into javascript, execute grunt::
 
     $ grunt build
 
-At this point bokeh can be be used as an AMD module together with require.js.
-To build a single bokeh.js that may be included as a script, see below.
+At this point bokeh can be be used as an `AMD module together with
+require.js <http://requirejs.org/docs/whyamd.html>`_. To build a single
+bokeh.js that may be included as a script, see below.
 
-Grunt can concatenate the javascript files into a single bokeh.js, either
-minified or unminified. To generate a minified script, execute the
+Grunt can concatenate the javascript files into a single javascript file,
+either minified or unminified. To generate a minified script, execute the
 command::
 
-    $ grunt deploy
+    $ grunt mindeploy
 
 The resulting script will have the filename bokeh.min.js and be located in
-the build subdirectory.
+the ``build/js`` subdirectory.
 
 To generate an un-minified script, (useful for debugging or developing
 bokehjs), execute the command::
@@ -143,4 +145,9 @@ bokehjs), execute the command::
     $ grunt devdeploy
 
 The resulting script will have the filename bokeh.js and be located in
-the build subdirectory.
+the ``build/js`` subdirectory.
+
+To generate both minified and un-minified output in the ``build/js``
+subdirectory, execute the command::
+
+    $ grunt deploy

@@ -60,6 +60,7 @@ module.exports = (grunt) ->
             src : ['*.css']
             dest : 'release/css'
         ]
+
     clean: ['build']
 
     less:
@@ -110,14 +111,11 @@ module.exports = (grunt) ->
         }
 
     symlink:
-      # The "build/target.txt" symlink will be created and linked to
-      # "source/target.txt". It should appear like this in a file listing:
-      # build/target.txt -> ../source/target.txt
-      spectrogram: {
-        src: 'build/js/bokeh.js',
-        dest: 'build/demo/spectrogram/static/bokeh.js'
-      }
-
+      spectrogram:
+        target: 'build/js/bokeh.js',
+        link: 'build/demo/spectrogram/static/bokeh.js'
+        options:
+          overwrite: true
 
     requirejs:
       options:
@@ -236,15 +234,16 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-copy")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
-  grunt.loadNpmTasks('grunt-contrib-symlink')
+  grunt.loadNpmTasks('grunt-symbolic-link')
   grunt.loadNpmTasks("grunt-eco")
   grunt.loadNpmTasks('grunt-groc')
 
   grunt.registerTask("default",     ["build", "qunit"])
-  grunt.registerTask("build",       ["coffee", "less", "copy", "eco", "config"])
-  grunt.registerTask("deploy",      ["build",  "requirejs:production", "concat:css", "cssmin"])
+  grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
+  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config"])
+  grunt.registerTask("mindeploy",   ["build",  "requirejs:production", "concat:css", "cssmin"])
   grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css", "symlink"])
-  grunt.registerTask("deploy-both", ["deploy", "devdeploy"])
+  grunt.registerTask("deploy",      ["mindeploy", "devdeploy"])
   grunt.registerTask("config", "Write config.js", () ->
     config = {
       paths: grunt.config.get("requirejs.options.paths")
@@ -253,4 +252,4 @@ module.exports = (grunt) ->
     content = "require.config(#{JSON.stringify(config)});"
     grunt.file.write('build/js/config.js', content)
   )
-  grunt.registerTask("release", ["deploy-both", "copy:release"])
+  grunt.registerTask("release", ["deploy", "copy:release"])
