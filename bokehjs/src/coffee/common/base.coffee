@@ -72,6 +72,7 @@ define [
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'
     ColumnSelectTool:       'tool/column_select_tool'
+
     EmbedTool:              'tool/embed_tool'
     ResetTool:              'tool/reset_tool'
 
@@ -83,7 +84,9 @@ define [
   mod_cache = {}
 
   Collections = (typename) ->
+    
 
+    console.log("Collections Typename", typename)
     if not locations[typename]
       throw "./base: Unknown Collection #{typename}"
 
