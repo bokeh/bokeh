@@ -72,32 +72,37 @@ define [
       pmodel.add_renderers(g.ref() for g in glyphs)
 
     _add_renderer: (renderer_name) ->
-        xs = ((x/50) for x in _.range(630))
-        ys1 = (Math.sin(x) for x in xs)
-        ys2 = (Math.cos(x) for x in xs)
-        ys3 = (Math.tan(x) for x in xs)
-
+        
         Bokeh = require('main')
-        source2 = Bokeh.Collections('ColumnDataSource').create(
-          data:
-            x: xs
-            y2: ys2)
-      
-        scatter2 = {
-          type: 'rect'
-          x: 'x'
-          y: 'y2'
-          width: 5
-          width_units: 'screen'
-          height: 5
-          height_units: 'screen'
-          fill_color: 'blue'}
-
-
         pmodel = @plot_view.model
         Plotting = require("common/plotting")
-        glyphs = Plotting.create_glyphs(pmodel, scatter2, [source2])
-        pmodel.add_renderers(g.ref() for g in glyphs)
+
+        $.getJSON(  
+          "http://localhost:5006/static/datasource_endpoint.json",
+          {},
+          (json )->
+            
+            source2 = Bokeh.Collections('ColumnDataSource').create(
+              data:
+                x: json.x,
+                y2: json.y)
+          
+            scatter2 = {
+              type: 'rect'
+              x: 'x'
+              y: 'y2'
+              width: 5
+              width_units: 'screen'
+              height: 5
+              height_units: 'screen'
+              fill_color: 'blue'}
+
+
+            glyphs = Plotting.create_glyphs(pmodel, scatter2, [source2])
+            pmodel.add_renderers(g.ref() for g in glyphs)
+
+        );
+        
       
 
     renderer_specs : ->
