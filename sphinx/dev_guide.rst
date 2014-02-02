@@ -48,6 +48,47 @@ future this may be extended to include WebGL.  We are keeping a very
 close watch over high-performance Javascript technologies, including
 web workers, asm.js, SIMD, and parallel JS (e.g. River Trail).
 
+Interface
+---------
+BokehJS accepts
+
+The full BokehJS interface is described in :doc:`bokehjs`
+
+Examples
+--------
+
+Several live examples that demonstrate the BokehJS interface are available as JSFiddles.
+Click on "Coffeescript" to see the code that generates these plots, or on "Edit in
+JSFiddle" to fork and create your own examples.
+
+Scatter
+*******
+
+This example shows a scatter plot where every circle has its own radius and color.
+
+.. raw:: html
+
+    <iframe width="100%" height="700" src="http://jsfiddle.net/bokeh/Tw5Sm/embedded/result,js/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+Lorenz
+******
+
+This exanple shows a 2D projection of the Lorenz attractor. Sections of the line are color-coded
+by time.
+
+.. raw:: html
+
+    <iframe width="100%" height="700" src="http://jsfiddle.net/bokeh/s2k59/embedded/result,js" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
+Animated
+********
+
+This example shows how it it possible to animate BokehJS plots by updating the data source.
+
+.. raw:: html
+
+    <iframe width="100%" height="700" src="http://jsfiddle.net/bokeh/K8P4P/embedded/result,js/" allowfullscreen="allowfullscreen" frameborder="0"></iframe>
+
 
 .. _pythoninterface:
 
