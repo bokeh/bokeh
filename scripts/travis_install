@@ -4,7 +4,7 @@ python -V
 
 conda install --yes pip
 conda install --yes --file conda.txt
-pip install mock websocket wsgiref git+https://github.com/ipython/ipython.git@master
+pip install mock websocket git+https://github.com/ipython/ipython.git@master
 
 cd bokehjs
 npm install
