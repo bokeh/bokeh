@@ -5,7 +5,7 @@ import pandas as pd
 from bokeh.plotting import *
 
 N = 20
-categories = ['y' + str(x) for x in xrange(10)]
+categories = ['y' + str(x) for x in range(10)]
 data = {}
 data['x'] = np.arange(N)
 for cat in categories:
@@ -30,7 +30,7 @@ areas = stacked(df, categories)
 colors = brewer["Spectral"][len(areas)]
 
 x2 = np.hstack((data['x'][::-1], data['x']))
-patches([x2 for a in areas], areas.values(), color=colors, alpha=0.8, line_color=None)
+patches([x2 for a in areas], list(areas.values()), color=colors, alpha=0.8, line_color=None)
 
 show()
 
