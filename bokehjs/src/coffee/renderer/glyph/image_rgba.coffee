@@ -9,29 +9,53 @@ define [
 
   class ImageRGBAView extends Glyph.View
 
-    _fields: ['image:array', 'width', 'height', 'x', 'y', 'dw', 'dh']
     _properties: []
 
-    _set_data: (@data) ->
+    initialize: (options) ->
+      # the point of this is to support both efficient ArrayBuffers as well as dumb
+      # arrays of arrays that the python interface currently uses. If the glyphspec
+      # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
+      # provided number of rows/cols, otherwise treat as a "list of lists".
+      spec = @mget('glyphspec')
+      if spec.rows?
+        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh']
+      else
+        @_fields = ['image:array', 'x', 'y', 'dw', 'dh']
+      super(options)
+
+    _set_data: () ->
       for i in [0...@y.length]
         @y[i] += @dh[i]
 
-      if not @image_data? or @image_data.length != data.length
+      if not @image_data? or @image_data.length != @image.length
         @image_data = new Array(@image.length)
 
-      if not @image_canvas? or @image_canvas.length != data.length
-        @image_canvas = new Array(@image.length)
+      if not @width? or @width.length != @image.length
+        @width = new Array(@image.length)
+
+      if not @height? or @height.length != @image.length
+        @height = new Array(@image.length)
 
       for i in [0...@image.length]
-        if not @image_canvas[i]? or (@image_canvas[i].width != @width[i] or @image_canvas[i].height != @height[i])
-          @image_canvas[i] = document.createElement('canvas')
-          @image_canvas[i].width = @width[i];
-          @image_canvas[i].height = @height[i];
-          ctx = @image_canvas[i].getContext('2d');
-          @image_data[i] = ctx.createImageData(width[i], height[i])
-        ctx = @image_canvas[i].getContext('2d');
-        @image_data[i].data.set(new Uint8ClampedArray(@image[i]))
-        ctx.putImageData(@image_data[i], 0, 0);
+        @height[i] = @rows[i] ? @image[i].length
+        @width[i] = @cols[i] ? @image[i][0].length
+        canvas = document.createElement('canvas');
+        canvas.width = @width[i];
+        canvas.height = @height[i];
+        ctx = canvas.getContext('2d');
+        image_data = ctx.getImageData(0, 0, @width[i], @height[i]);
+        if @row?
+          flat = _.flatten(@image[i])
+          buf = new ArrayBuffer(flat.length * 4);
+          color = new Uint32Array(buf);
+          for j in [0...flat.length]
+            color[j] = flat[j]
+          buf8 = new Uint8ClampedArray(buf);
+          image_data.data.set(buf8)
+        else
+          image_data.data.set(new Uint8ClampedArray(@image[i]))
+        ctx.putImageData(image_data, 0, 0);
+        @image_data[i] = canvas
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
@@ -52,13 +76,12 @@ define [
         ctx.translate(0, y_offset)
         ctx.scale(1, -1)
         ctx.translate(0, -y_offset)
-        ctx.drawImage(@image_canvas[i], @sx[i]|0, @sy[i]|0, @sw[i], @sh[i])
+        ctx.drawImage(@image_data[i], @sx[i]|0, @sy[i]|0, @sw[i], @sh[i])
         ctx.translate(0, y_offset)
         ctx.scale(1, -1)
         ctx.translate(0, -y_offset)
 
       ctx.setImageSmoothingEnabled(old_smoothing)
-      ctx.restore()
 
   # name Image conflicts with js Image
   class ImageRGBAGlyph extends Glyph.Model

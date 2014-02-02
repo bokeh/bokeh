@@ -19,18 +19,22 @@ define [
 
     eventGeneratorClass: TwoPointEventGenerator
     toolType: "CrosshairTool"
-    evgen_options: {keyName:"", buttonText:"Crosshair"}
-    tool_events: {
-      activated: "_activate",
-      deactivated: "_deactivate",
-      UpdatingMouseMove: "_drag",
+
+    evgen_options:
+      keyName: ""
+      buttonText: "Crosshair"
+      cursor: "crosshair"
+
+    tool_events:
+      activated: "_activate"
+      deactivated: "_deactivate"
+      UpdatingMouseMove: "_drag"
       SetBasepoint: "_set_base_point"
-    }
 
     render: () ->
       if not @active
         return
-    
+
       ctx = @plot_view.ctx
 
       cw = @plot_view.view_state.get('canvas_width')

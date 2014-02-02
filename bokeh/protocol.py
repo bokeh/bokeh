@@ -28,7 +28,11 @@ list data which can be serialized and deserialized
 millifactor = 10 ** 6.
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, (np.ndarray, pd.Series)):
+        if isinstance(obj, pd.Series):
+            return obj.tolist()
+        elif isinstance(obj, np.ndarray):
+            if obj.dtype.kind == 'M':
+                return obj.astype('datetime64[ms]').astype('int').tolist() 
             return obj.tolist()
         elif isinstance(obj, np.number):
             if isinstance(obj, np.integer):

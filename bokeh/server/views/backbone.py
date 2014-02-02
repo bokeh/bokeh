@@ -51,7 +51,7 @@ def callbacks(docid):
     sess.load_all()
     sess.load_all_callbacks()    
     if request.method == 'POST':
-        jsondata = protocol.deserialize_json(request.data)
+        jsondata = protocol.deserialize_json(request.data.decode('utf-8'))
         sess.store_callbacks(jsondata)
     else:
         jsondata = sess.load_all_callbacks(get_json=True)
@@ -67,7 +67,7 @@ def bulk_upsert(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)    
     sess.load_all()
-    data = protocol.deserialize_json(request.data)
+    data = protocol.deserialize_json(request.data.decode('utf-8'))
     if client == 'python':
         sess.load_broadcast_attrs(data, events=None)
     else:
@@ -107,7 +107,7 @@ def create(docid, typename):
     sess = bokeh_app.backbone_storage.get_session(docid)    
     sess.load_all()
     
-    modeldata = protocol.deserialize_json(request.data)
+    modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     modeldata = [{'type' : typename,
                   'attributes' : modeldata}]
     sess.store_broadcast_attrs(modeldata)
@@ -167,7 +167,7 @@ def update(docid, typename, id):
     sess = bokeh_app.backbone_storage.get_session(docid)    
     sess.load_all()
     
-    modeldata = protocol.deserialize_json(request.data)
+    modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     #patch id is not passed...
     modeldata['id'] = id
     sess.load_all_callbacks()
@@ -206,7 +206,7 @@ def rpc(docid, typename, id, funcname):
     sess = bokeh_app.backbone_storage.get_session(docid)
     sess.load_all()
     model = sess._models[id]
-    data = protocol.deserialize_json(request.data)
+    data = protocol.deserialize_json(request.data.decode('utf-8'))
     args = data.get('args', [])
     kwargs = data.get('kwargs', {})
     result = getattr(model, funcname)(*args, **kwargs)

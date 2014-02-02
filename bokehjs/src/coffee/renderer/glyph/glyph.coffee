@@ -282,7 +282,7 @@ define [
     display_defaults: () ->
       return {
         level: 'glyph'
-        radius_units: 'screen'
+        radius_units: 'data'
         length_units: 'screen'
         angle_units: 'deg'
         start_angle_units: 'deg'

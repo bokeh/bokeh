@@ -6,7 +6,7 @@ from bokeh.plotting import *
 output_server("markers")
 
 def myscatter(x, y, typestr):
-    scatter(x, y, type=typestr,
+    scatter(x, y, marker=typestr,
         line_color="#6666ee", fill_color="#ee6666", fill_alpha=0.5, size=12, tools="pan,wheel_zoom")
 
 def mytext(x, y, textstr):

@@ -115,7 +115,7 @@ def versions_from_vcs(tag_prefix, versionfile_source, verbose=False):
     # string, meaning we're inside a checked out source tree.
 
     try:
-        here = os.path.abspath(__file__)
+        here = os.path.realpath(__file__)
     except NameError:
         # some py2exe/bbfreeze/non-CPython implementations don't do __file__
         return {} # not always correct

@@ -1,4 +1,3 @@
-
 import numpy as np
 from bokeh.plotting import *
 import bokeh
@@ -13,7 +12,7 @@ l = scatter(x,y, color="red", tools="pan,wheel_zoom,resize, select", title="sele
 select_tool = [t for t in l.tools if isinstance(t, bokeh.objects.BoxSelectTool)][0]
 select_tool.select_every_mousemove = False
 
-l = scatter(x,y, type="square", color="green", tools="pan,wheel_zoom,resize, select",
+l = scatter(x,y, marker="square", color="green", tools="pan,wheel_zoom,resize, select",
             title='select on mousemove')
 select_tool = [t for t in l.tools if isinstance(t, bokeh.objects.BoxSelectTool)][0]
 
@@ -22,7 +21,7 @@ scatter(x,y, color="#FF00FF", tools="pan,wheel_zoom,resize, select",
 
 select_tool.select_every_mousemove = True
 
-scatter(x,y, type="square", color="blue", tools="pan,wheel_zoom,resize",
+scatter(x,y, marker="square", color="blue", tools="pan,wheel_zoom,resize",
         name="scatter_selection_example")
 
 show()  # open a browser

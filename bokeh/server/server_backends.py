@@ -1,8 +1,8 @@
 import json
 import uuid
-import models.user as user
-from models import UnauthorizedException
-from app import bokeh_app
+from .models import user
+from .models import UnauthorizedException
+from .app import bokeh_app
 from ..exceptions import DataIntegrityException
 import logging
 logger = logging.getLogger(__name__)
@@ -24,7 +24,7 @@ class RedisBackboneStorage(object):
         self.redisconn = redisconn
 
     def get_session(self, docid, doc=None):
-        from serverbb import RedisSession
+        from .serverbb import RedisSession
         return RedisSession(self.redisconn, docid, doc=doc)
 
 class AbstractServerModelStorage(object):
@@ -54,7 +54,7 @@ class RedisServerModelStorage(object):
         data = self.redisconn.get(key)
         if data is None:
             return None
-        attrs = json.loads(data)
+        attrs = json.loads(data.decode('utf-8'))
         return attrs
     
     def set(self, key, val):
@@ -65,7 +65,7 @@ class RedisServerModelStorage(object):
             pipe.watch(key)
             pipe.multi()
             if self.redisconn.exists(key):
-                raise DataIntegrityException, "%s already exists" % key
+                raise DataIntegrityException("%s already exists" % key)
             else:
                 pipe.set(key, json.dumps(val))
             pipe.execute()
@@ -176,10 +176,10 @@ class MultiUserAuthentication(AbstractAuthentication):
                 return bokehuser.username
     
     def register_get(self):
-        return render_template("register.html")
+        return render_template("register.html", title="Register")
     
     def login_get(self):
-        return render_template("login.html")
+        return render_template("login.html", title="Login")
     
     def register_post_api(self):
         username = request.values['username']
@@ -263,3 +263,6 @@ class MultiUserAuthentication(AbstractAuthentication):
             flash("incorrect login")
             return redirect(url_for('bokeh.server.login_get'))
         return redirect("/bokeh")
+    def logout(self):
+        session.pop('username', None)
+        return redirect("/")

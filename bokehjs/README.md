@@ -25,18 +25,15 @@ client side.  Install grunt by executing
 
 `$ npm install -g grunt-cli`
 
-3. We're using bower to manage client dependencies. Install bower by
-executing:
-
-`$ npm install -g bower`
-
 Building
 ========
+
+.. note:: The following commands should be executed in the ``bokejs`` subdirectory of the top level checkout.
 
 In order to build the javascript files that comprise bokeh.js, first install
 necessary dependencies:
 
-`$ npm install && bower install`
+`$ npm install`
 
 These command will install compile and runtime dependencies into node_modules
 and build subdirectories, respectively.
@@ -52,14 +49,14 @@ To build a single bokeh.js that may be included as a script, see the section
 Deploying
 =========
 
-Grunt can concatenate the javascript files into a single bokeh.js, either
-minified or unminified. To generate a minified script, execute the
+Grunt can concatenate the javascript files into a single javascript file,
+either minified or unminified. To generate a minified script, execute the
 command:
 
-`$ grunt deploy`
+`$ grunt mindeploy`
 
 The resulting script will have the filename bokeh.min.js and be located in
-the build subdirectory.
+the ``build/js`` subdirectory.
 
 To generate an un-minified script, (useful for debugging or developing
 bokehjs), execute the command:
@@ -67,7 +64,12 @@ bokehjs), execute the command:
 `$ grunt devdeploy`
 
 The resulting script will have the filename bokeh.js and be located in
-the build subdirectory.
+the ``build/js`` subdirectory.
+
+To generate both minified and un-minified output in the ``build/js``
+subdirectory, execute the command::
+
+    $ grunt deploy
 
 In both cases, the script creates a top level module "Bokeh" that exposes
 the full API.
@@ -79,7 +81,7 @@ Executing "grunt build" will also cause the demo files to be built and copied
 the build/demo subdirectory. To view the demos, simply open any of the html
 files located there in a browser.
 
-running `$ ./bokeh-server -j ` and navigating to 
+running `$ ./bokeh-server -j ` and navigating to
 [Glyphs Demo](http://localhost:5006/bokehjs/static/demo/glyphs.html) also works.
 
 Testing

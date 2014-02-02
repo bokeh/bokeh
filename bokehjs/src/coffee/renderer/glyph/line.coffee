@@ -16,7 +16,7 @@ define [
     _render: (ctx, indices, glyph_props) ->
 
       drawing = false
-      glyph_props.line_properties.set_vectorize(ctx, 0)
+      glyph_props.line_properties.set(ctx, glyph_props)
 
       for i in indices
 

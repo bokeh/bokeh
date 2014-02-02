@@ -11,15 +11,25 @@ define [
 
   class ImageView extends Glyph.View
 
-    _fields: ['image:array', 'width', 'height', 'x', 'y', 'dw', 'dh', 'palette:string']
+    _fields: ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string']
     _properties: []
 
     _set_data: (@data) ->
       for i in [0...@y.length]
         @y[i] += @dh[i]
 
-      @image_data = new Array(@image.length)
+      if not @image_data? or @image_data.length != @image.length
+        @image_data = new Array(@image.length)
+
+      if not @width? or @width.length != @image.length
+        @width = new Array(@image.length)
+
+      if not @height? or @height.length != @image.length
+        @height = new Array(@image.length)
+
       for i in [0...@image.length]
+        @height[i] = @image[i].length
+        @width[i] = @image[i][0].length
         canvas = document.createElement('canvas');
         canvas.width = @width[i];
         canvas.height = @height[i];
@@ -28,7 +38,8 @@ define [
         cmap = new LinearColorMapper({}, {
           palette: all_palettes[@palette[i]]
         })
-        buf = cmap.v_map_screen(@image[i])
+        img = _.flatten(@image[i])
+        buf = cmap.v_map_screen(img)
         buf8 = new Uint8ClampedArray(buf);
         image_data.data.set(buf8)
         ctx.putImageData(image_data, 0, 0);
@@ -59,7 +70,6 @@ define [
         ctx.translate(0, -y_offset)
 
       ctx.setImageSmoothingEnabled(old_smoothing)
-      ctx.restore()
 
   # name Image conflicts with js Image
   class ImageGlyph extends Glyph.Model

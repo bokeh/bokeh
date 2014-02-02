@@ -3,24 +3,17 @@ import flask
 import os
 from os.path import join
 import sys
-import hemlib
 
 try:
     import simplejson as json
 except:
     import json
 
-app = flask.Flask(__name__)
-
-
 import pyaudio
 from numpy import zeros, linspace, short, fromstring, hstack, transpose
 from scipy import fft
 
-
-HOST = "localhost"
-PORT = 9294
-
+app = flask.Flask(__name__)
 
 NUM_SAMPLES = 1024
 SAMPLING_RATE = 44100
@@ -56,49 +49,12 @@ def get_audio_data():
             with mutex:
                 adata = 0
 
-# def onTimer(self, *args):
-#     spectrum, time = get_audio_data()
-#     self.spectrum_data.set_data('amplitude', spectrum)
-#     self.time_data.set_data('amplitude', time)
-#     spectrogram_data = self.spectrogram_plotdata.get_data('imagedata')
-#     spectrogram_data = hstack((spectrogram_data[:,1:],
-#                                transpose([spectrum])))
-
-#SRCDIR = "../../static/coffee"
-SRCDIR = "static/bokehjs_static/coffee"
-EXAMPLE_SRCDIR = "static/coffee"
-EXCLUDES = [join(SRCDIR,"demo"), join(SRCDIR,"unittest"),
-            join(SRCDIR,"unittest/primitives")]
 
 @app.route("/")
 def root():
     """ Returns the spectrogram of audio data served from /data
     """
-    app.debug = True
-    if app.debug:
-        with open("slug.json") as f:
-            slug = json.load(f)
-        jslibs = hemlib.slug_libs(app, slug['libs'])
-        hemfiles = hemlib.coffee_assets(SRCDIR, HOST, PORT,
-                                        excludes=EXCLUDES)
-
-    else:
-        jslibs = ['/static/js/demo/application.js']
-        hemfiles = []
-    print("soundserver hemfiles", hemfiles)
-    #demofiles = [os.path.join(EXAMPLE_SRCDIR,".coffee") for name in demos]
-    demofiles = ["static/coffee/spectrogram.coffee"]
-
-    for demo in demofiles:
-        if not os.path.isfile(demo):
-            raise RuntimeError("Cannot find demo named '%s'"%demo)
-
-    hemfiles.extend(hemlib.make_urls(demofiles, HOST, PORT))
-
-    return flask.render_template("spectrogram.html", jslibs = jslibs,
-                                 hemfiles=hemfiles, demos="basdf")
-
-    #return flask.render_template("spectrogram.html")
+    return flask.render_template("spectrogram.html")
 
 @app.route("/data")
 def data():

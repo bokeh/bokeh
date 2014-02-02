@@ -76,8 +76,7 @@ require(['main'], (Bokeh) ->
     y: 'y'
     line_width: 'lw'
     line_color: 'colors'
-    radius: 0.5            # for some reason, radius is in pixels.
-    radius_units: 'data'            # for some reason, radius is in pixels.
+    radius: 0.5
     start_angle: 0
     end_angle: 2
   }

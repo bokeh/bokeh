@@ -49,8 +49,6 @@ define [
         ctx.closePath()
         ctx.stroke()
 
-      ctx.restore()
-
     draw_legend: (ctx, x0, x1, y0, y1) ->
       @_generic_area_legend(ctx, x0, x1, y0, y1)
 

@@ -37,7 +37,7 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: 'demo'
-          src: ['**/*.html', '**/*.js']
+          src: ['**/*.html', '**/*.js', '**/*.css', '**/*.png', '**/*.py']
           dest: 'build/demo'
           filter: ['isFile'], #, hasChanged("copy.demo")]
         ]
@@ -47,6 +47,18 @@ module.exports = (grunt) ->
           cwd : 'src/vendor'
           src: ['**/*']
           dest : 'build/js/vendor'
+        ]
+      release:
+        files: [
+            expand : true
+            cwd : 'build/js'
+            src : ['*.js']
+            dest : 'release/js'
+          ,
+            expand : true
+            cwd : 'build/css'
+            src : ['*.css']
+            dest : 'release/css'
         ]
 
     clean: ['build']
@@ -93,6 +105,10 @@ module.exports = (grunt) ->
         filter: hasChanged("coffee.demo")
         options:
           sourceMap : true
+      spectrogram:
+        files: {
+          'build/demo/spectrogram/static/spectrogram.js': 'demo/spectrogram/coffee/spectrogram.coffee'
+        }
 
     requirejs:
       options:
@@ -112,7 +128,7 @@ module.exports = (grunt) ->
         shim:
           sprintf:
             exports: 'sprintf'
-        include: ['main', 'underscore']
+        include: ['underscore', 'main']
         fileExclusionRegExp: /^test/
         wrap: {
           startFile: 'src/js/_start.js.frag',
@@ -215,7 +231,17 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-groc')
 
   grunt.registerTask("default",     ["build", "qunit"])
-  grunt.registerTask("build",       ["coffee", "less", "copy", "eco"])
-  grunt.registerTask("deploy",      ["build",  "requirejs:production", "concat:css", "cssmin"])
+  grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
+  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config"])
+  grunt.registerTask("mindeploy",   ["build",  "requirejs:production", "concat:css", "cssmin"])
   grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css"])
-  grunt.registerTask("deploy-both", ["deploy", "devdeploy"])
+  grunt.registerTask("deploy",      ["mindeploy", "devdeploy"])
+  grunt.registerTask("config", "Write config.js", () ->
+    config = {
+      paths: grunt.config.get("requirejs.options.paths")
+      shim: grunt.config.get("requirejs.options.shim")
+    }
+    content = "require.config(#{JSON.stringify(config)});"
+    grunt.file.write('build/js/config.js', content)
+  )
+  grunt.registerTask("release", ["deploy", "copy:release"])

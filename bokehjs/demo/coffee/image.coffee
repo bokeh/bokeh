@@ -11,11 +11,13 @@ linspace = (d1,d2,n) ->
 
 N = 600
 
-d = new Float32Array(N*N)
+d = new Array(N)
 xs = linspace(0,10,N)
-for j in [0..(N-1)]
-  for i in [0..(N-1)]
-    d[j*N+i] = Math.sin(xs[i])*Math.cos(xs[j])
+for i in [0..(N-1)]
+  for j in [0..(N-1)]
+    if j == 0
+      d[i] = new Array(N)
+    d[i][j] = Math.sin(xs[i])*Math.cos(xs[j])
 
 data = {
   image: [d]
@@ -30,8 +32,6 @@ image = {
   dh: 10
   dh_units: 'data'
   image: 'image'
-  width: N
-  height: N
   palette: 'Spectral-10'
 }
 

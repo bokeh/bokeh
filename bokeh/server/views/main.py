@@ -35,7 +35,9 @@ def index(*unused_all, **kwargs):
     if not bokehuser:
         return redirect("/bokeh/login")
     return render_template('bokeh.html',
-                           splitjs=bokeh_app.splitjs
+                           splitjs=bokeh_app.splitjs,
+                           username=bokehuser.username,
+                           title="Bokeh Documents for %s" % bokehuser.username
                            )
 
 @bokeh_app.route('/')

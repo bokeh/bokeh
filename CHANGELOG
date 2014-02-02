@@ -1,3 +1,36 @@
+2014-02-03      0.4:
+--------------------
+  * enhancements:
+    - # 254 Restored Python 3 compatibility
+    - # 256 More tests and a fix
+    - # 257 Feature/selection
+    - # 259 Remove ObjectArrayDatasource and replace them with column data sources
+    - # 261 Improved sessions, bug fixes and headless testing of examples
+    - # 262 Adding link to actual webpage for tutorial information
+    - # 272 Circles should default to size/screen units like other markers
+    - # 273 scatter() should not special-case circle radii anymore
+    - # 274 Use "marker" for scatter(...) argument
+    - # 276 Update examples to use simpler specification for 'size'
+    - # 277 Replace deprecated 'type' parameter with 'marker' in examples
+    - # 278 remove bower dependecy
+    - # 279 Use [0...a.length] instead of [0..a.length-1]
+    - # 280 Add eco task to watch list in Gruntfile.coffee
+    - # 285 Start of some tests for bokeh.protocol
+    - # 291 Better ticking for datetime data (and regular data)
+    - # 292 Fixes to make CDX work with bokeh@master
+    - # 293 More Tests
+    - # 296 Add support for color mapped and rgba images from python
+  * bugfixes:
+    - # 265 Problem with Pattern property
+    - # 266 Legend text color changing unexpectedly
+    - # 269 text_color should not use get_default_color() as-is?
+    - # 270 hold(1) does not work with patches and circle
+    - # 271 Alpha not treated correctly as a data spec
+    - # 281 Text baseline not being respected
+    - # 282 Bokeh server tests error
+    - # 295 Fix issues with require.config()
+    - # 297 Datarange1d computes start/end incorrectly when single points are negative
+
 2013-11-18      0.3:
 --------------------
   * merge bokehjs into bokeh repository

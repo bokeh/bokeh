@@ -358,6 +358,8 @@ define [
 
       @register_property('padding_request', @_padding_request, false)
 
+      @scale = new ticking.BasicScale()
+
     dinitialize: (attrs, options)->
       @add_dependencies('computed_bounds', @get_obj('plot'), ['x_range', 'y_range'])
 
@@ -426,8 +428,7 @@ define [
 
       [start, end] = @get('computed_bounds')
 
-      interval = ticking.auto_interval(start, end)
-      ticks = ticking.auto_ticks(null, null, start, end, interval)
+      ticks = @scale.get_ticks(start, end)
 
       loc = @get('location') ? 'min'
       if _.isString(loc)

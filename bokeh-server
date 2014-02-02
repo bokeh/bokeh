@@ -35,7 +35,7 @@ def build_parser():
                         )
     parser.add_argument("-r", "--start-redis",
                         help="start redis",
-                        action="store_true",
+                        action="store_false",
                         default=True
                         )
     parser.add_argument("-m", "--multi-user",
