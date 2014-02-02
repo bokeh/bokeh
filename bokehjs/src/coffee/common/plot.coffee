@@ -220,8 +220,11 @@ define [
       return [x, y]
 
     update_range: (range_info) ->
+      console.log "FOO", @initial_range_info
       if not range_info?
         range_info = @initial_range_info
+        console.log "BAR", @initial_range_info
+      console.log range_info
       @pause()
       @x_range.set(range_info.xr)
       @y_range.set(range_info.yr)
@@ -328,11 +331,13 @@ define [
       #   console.log(newtime - @last_render)
       # @last_render = newtime
 
-      if not @initial_range_info?
+      if not @initial_range_info? and @x_range.get('start')?
         @initial_range_info = {
           xr: { start: @x_range.get('start'), end: @x_range.get('end') }
           yr: { start: @y_range.get('start'), end: @y_range.get('end') }
         }
+        console.log "INIT", @initial_range_info
+      console.log "RENDER", @initial_range_info
 
       @requested_padding = {
         top: 0

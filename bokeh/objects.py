@@ -817,6 +817,9 @@ class EmbedTool(PlotObject):
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
 
+class ResetTool(PlotObject):
+    plot = Instance(Plot)
+
 class ResizeTool(PlotObject):
     plot = Instance(Plot)
 
