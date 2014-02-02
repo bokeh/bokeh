@@ -8,7 +8,7 @@ pip install mock websocket wsgiref git+https://github.com/ipython/ipython.git@ma
 
 cd bokehjs
 npm install
-node_modules/.bin/grunt deploy-both || exit 1
+node_modules/.bin/grunt deploy || exit 1
 cd ..
 
 ln -s $(readlink -f bokehjs/build/js) bokeh/server/static/js
