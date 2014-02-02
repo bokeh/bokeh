@@ -147,6 +147,10 @@ the given coordinates.
 * ``size``
 * :ref:`bokehjs_line_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/NH6rv/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_bezier:
 
 ``bezier``
@@ -184,6 +188,10 @@ together with a crossbar (+) at the given coordinates.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/KsLtL/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_circle_x:
 
 ``circle_x``
@@ -196,6 +204,10 @@ together with an X at the given coordinates.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/YxLQm/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_cross:
 
 ``cross``
@@ -206,6 +218,10 @@ at the given coordinates.
 * ``x``, ``y`` - center point coordinates
 * ``size``
 * :ref:`bokehjs_line_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/86NLR/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_diamond:
 
@@ -219,7 +235,11 @@ at the given coordinates.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
-.. _bokehjs_diamond:
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/EVAjb/embedded/result,js" frameborder="0"></iframe>
+
+.. _bokehjs_diamond_cross:
 
 ``diamond_cross``
 -----------------
@@ -230,6 +250,10 @@ together with a crossbar (+) at the given coordinates.
 * ``size``
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/tx3Z4/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_image:
 
