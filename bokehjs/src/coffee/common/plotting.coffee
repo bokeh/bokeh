@@ -16,8 +16,9 @@ define [
   "tool/preview_save_tool",
   "tool/resize_tool",
   "tool/wheel_zoom_tool",
+  "tool/reset_tool",
   "renderer/guide/datetime_axis",
-], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, DatetimeAxis) ->
+], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -139,7 +140,7 @@ define [
       return
 
     if tools == true
-      tools = "pan,wheel_zoom,select,resize,preview"
+      tools = "pan,wheel_zoom,select,resize,preview,reset"
     added_tools = []
 
     if tools.indexOf("pan") > -1
@@ -173,6 +174,10 @@ define [
     if tools.indexOf("preview") > -1
       preview_tool = PreviewSaveTool.Collection.create()
       added_tools.push(preview_tool)
+
+    if tools.indexOf("reset") > -1
+      reset_tool = ResetTool.Collection.create()
+      added_tools.push(reset_tool)
 
     plot.set_obj('tools', added_tools)
 

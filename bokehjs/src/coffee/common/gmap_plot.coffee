@@ -163,6 +163,8 @@ define [
       return [x, y]
 
     update_range: (range_info) ->
+      if not range_info?
+        range_info = @initial_range_info
       @pause()
       if range_info.sdx?
         @map.panBy(range_info.sdx, range_info.sdy)
@@ -173,7 +175,11 @@ define [
         ne_lat = Math.max(range_info.yr.start, range_info.yr.end)
 
         center = new google.maps.LatLng((ne_lat+sw_lat)/2, (ne_lng+sw_lng)/2)
-        if range_info.factor > 0
+
+        if not range_info.factor?
+          @map.setCenter(center)
+          @map.setZoom(@initial_zoom)
+        else if range_info.factor > 0
           @zoom_count += 1
           if @zoom_count == 10
             @map.setZoom(@map.getZoom()+1)
@@ -181,9 +187,9 @@ define [
         else
           @zoom_count -= 1
           if @zoom_count == -10
-            @map.setCenter(center);
+            @map.setCenter(center)
             @map.setZoom(@map.getZoom()-1)
-            @map.setCenter(center);
+            @map.setCenter(center)
             @zoom_count = 0
 
       @unpause()
@@ -276,11 +282,12 @@ define [
       top = @view_state.get('border_top')
       left = @view_state.get('border_left')
 
-      console.log @gmap_div
       @gmap_div.attr("style", "top: #{top}px; left: #{left}px; position: absolute")
       @gmap_div.attr('style', "width:#{iw}px;")
       @gmap_div.attr('style', "height:#{ih}px;")
       @gmap_div.width("#{iw}px").height("#{ih}px")
+      @initial_zoom = @mget('map_options').zoom
+
       build_map = () =>
         mo = @mget('map_options')
         map_options =
@@ -290,9 +297,6 @@ define [
           mapTypeId: google.maps.MapTypeId.SATELLITE
 
         # Create the map with above options in div
-        console.log "FOO", @
-        console.log "FOO", @gmap_div
-        console.log "FOO", @gmap_div[0]
         @map = new google.maps.Map(@gmap_div[0], map_options)
         google.maps.event.addListener(@map, 'bounds_changed', @bounds_change)
       _.defer(build_map)
@@ -305,6 +309,11 @@ define [
       sw = bds.getSouthWest()
       @x_range.set({start: sw.lng(), end: ne.lng(), silent:true})
       @y_range.set({start: sw.lat(), end: ne.lat()})
+      if not @initial_range_info?
+        @initial_range_info = {
+          xr: { start: @x_range.get('start'), end: @x_range.get('end') }
+          yr: { start: @y_range.get('start'), end: @y_range.get('end') }
+        }
 
     save_png: () ->
       @render()
@@ -319,6 +328,7 @@ define [
         left: 0
         right: 0
       }
+
       for level in ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
         renderers = @levels[level]
         for k, v of renderers
