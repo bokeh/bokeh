@@ -1,195 +1,145 @@
 
 define [
   "underscore",
+  "rbush",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
-
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  fill_properties  = Properties.fill_properties
+], (_, rbush, Properties, Glyph) ->
 
   class CircleView extends Glyph.View
 
+    _properties: ['line', 'fill']
+
+    # we need a custom initializer because circles may either take glyph-style radius (defaults
+    # to data units) or a marker-style size (defaults to screen units)
     initialize: (options) ->
+      spec = @mget('glyphspec')
+      if spec.radius?
+        @_fields = ['x', 'y', 'radius']
+      else if spec.size?
+        @_fields = ['x', 'y', 'size']
       super(options)
-      ##duped in many classes
-      @glyph_props = @init_glyph(@mget('glyphspec'))
-      if @mget('selection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
-        @selection_glyphprops = @init_glyph(spec)
-      if @mget('nonselection_glyphspec')
-        spec = _.extend({}, @mget('glyphspec'), @mget('nonselection_glyphspec'))
-        @nonselection_glyphprops = @init_glyph(spec)
-      @have_new_data = false
 
-    init_glyph: (glyphspec) ->
-      glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['x', 'y', 'radius']
-        {
-          fill_properties: new fill_properties(@, glyphspec),
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
-      return glyph_props
-
-    _set_data: (@data) ->
-      @x = @glyph_props.v_select('x', data)
-      @y = @glyph_props.v_select('y', data)
-      @mask = new Uint8Array(data.length)
-      @selected_mask = new Uint8Array(data.length)
-      for i in [0..@mask.length-1]
-        @mask[i] = true
-        @selected_mask[i] = false
-      @have_new_data = true
-
-    _render: (plot_view, have_new_mapper_state=true) ->
-      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-
-      ow = @plot_view.view_state.get('outer_width')
-      oh = @plot_view.view_state.get('outer_height')
-
-      if @have_new_data or have_new_mapper_state
-        @radius = @distance(@data, 'x', 'radius', 'edge')
-        @have_new_data = false
-
-      ow = @plot_view.view_state.get('outer_width')
-      oh = @plot_view.view_state.get('outer_height')
-      for i in [0..@mask.length-1]
-        if (@sx[i]+@radius[i]) < 0 or (@sx[i]-@radius[i]) > ow or (@sy[i]+@radius[i]) < 0 or (@sy[i]-@radius[i]) > oh
-          @mask[i] = false
-        else
-          @mask[i] = true
-
-      ds = @mget_obj('data_source')
-      selected = ds.get('selected')
-      for idx in selected
-        @selected_mask[idx] = true
-      ctx = @plot_view.ctx
-
-      ctx.save()
-      if @glyph_props.fast_path
-        if selected and selected.length and @nonselection_glyphprops
-          if @selection_glyphprops
-            props =  @selection_glyphprops
-          else
-            props = @glyph_props
-          @_fast_path(ctx, props, true)
-          @_fast_path(ctx, @nonselection_glyphprops, false)
-        else
-          @_fast_path(ctx)
+    _set_data: () ->
+      if @size
+        @max_radius = _.max(@size)/2
       else
-        if selected and selected.length and @nonselection_glyphprops
-          if @selection_glyphprops
-            props =  @selection_glyphprops
-          else
-            props = @glyph_props
-          @_full_path(ctx, props, true)
-          @_full_path(ctx, @nonselection_glyphprops, false)
-        else
-          @_full_path(ctx)
-      ctx.restore()
+        @max_radius = _.max(@radius)
+      @index = rbush()
+      @index.load(
+        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0...@x.length])
+      )
 
-    _fast_path: (ctx, glyph_props, use_selection) ->
-      if not glyph_props
-        glyph_props = @glyph_props
-      if glyph_props.fill_properties.do_fill
-        glyph_props.fill_properties.set(ctx, @glyph_props)
+    _map_data: () ->
+      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
+      if @size
+        @radius = (s/2 for s in @distance_vector('x', 'size', 'edge'))
+        @radius_units = @size_units
+      else
+        @radius = @distance_vector('x', 'radius', 'edge')
+
+    _mask_data: () ->
+      hr = @plot_view.view_state.get('inner_range_horizontal')
+      vr = @plot_view.view_state.get('inner_range_vertical')
+
+      if @radius_units == "screen"
+        sx0 = hr.get('start') - @max_radius
+        sx1 = hr.get('end') - @max_radius
+        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+
+        sy0 = vr.get('start') - @max_radius
+        sy1 = vr.get('end') - @max_radius
+        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+
+      else
+        sx0 = hr.get('start')
+        sx1 = hr.get('end')
+        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+        x0 -= @max_radius
+        x1 += @max_radius
+
+        sy0 = vr.get('start')
+        sy1 = vr.get('end')
+        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+        y0 -= @max_radius
+        y1 += @max_radius
+
+      @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
+    _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->
+      for i in indices
+
+        if isNaN(sx[i] + sy[i] + radius[i])
+            continue
+
         ctx.beginPath()
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
-            continue
-          if use_selection and not @selected_mask[i]
-            continue
-          if use_selection == false and @selected_mask[i]
-            continue
-          ctx.moveTo(@sx[i], @sy[i])
-          ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
-        ctx.fill()
-
-      if glyph_props.line_properties.do_stroke
-        glyph_props.line_properties.set(ctx, @glyph_props)
-        for i in [0..@sx.length-1]
-          if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
-            continue
-          if use_selection and not @selected_mask[i]
-            continue
-          if use_selection == false and  @selected_mask[i]
-            continue
-          ctx.moveTo(@sx[i], @sy[i])
-          ctx.beginPath()
-          ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
-          ctx.stroke()
-
-    _full_path: (ctx, glyph_props, use_selection) ->
-      if not glyph_props
-        glyph_props = @glyph_props
-      for i in [0..@sx.length-1]
-        if isNaN(@sx[i] + @sy[i] + @radius[i]) or not @mask[i]
-          continue
-        if use_selection and not @selected_mask[i]
-          continue
-        if use_selection == false and @selected_mask[i]
-          continue
-        ctx.beginPath()
-        ctx.arc(@sx[i], @sy[i], @radius[i], 0, 2*Math.PI, false)
+        ctx.arc(sx[i], sy[i], radius[i], 0, 2*Math.PI, false)
 
         if glyph_props.fill_properties.do_fill
-          glyph_props.fill_properties.set(ctx, @data[i])
+          glyph_props.fill_properties.set_vectorize(ctx,i)
           ctx.fill()
 
         if glyph_props.line_properties.do_stroke
-          glyph_props.line_properties.set(ctx, @data[i])
+          glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
 
-    select: (xscreenbounds, yscreenbounds) ->
-      xscreenbounds = [@plot_view.view_state.sx_to_device(xscreenbounds[0]),
-        @plot_view.view_state.sx_to_device(xscreenbounds[1])]
-      yscreenbounds = [@plot_view.view_state.sy_to_device(yscreenbounds[0]),
-        @plot_view.view_state.sy_to_device(yscreenbounds[1])]
-      xscreenbounds = [_.min(xscreenbounds), _.max(xscreenbounds)]
-      yscreenbounds = [_.min(yscreenbounds), _.max(yscreenbounds)]
-      selected = []
-      for i in [0..@sx.length-1]
-        if xscreenbounds
-          if @sx[i] < xscreenbounds[0] or @sx[i] > xscreenbounds[1]
-            continue
-        if yscreenbounds
-          if @sy[i] < yscreenbounds[0] or @sy[i] > yscreenbounds[1]
-            continue
-        selected.push(i)
-      return selected
+    _hit_point: (geometry) ->
+      [sx, sy] = [geometry.sx, geometry.sy]
+      [x, y] = @plot_view.xmapper.v_map_from_target([sx, sy])
 
-    draw_legend: (ctx, x1, x2, y1, y2) ->
-      glyph_props = @glyph_props
-      line_props = glyph_props.line_properties
-      fill_props = glyph_props.fill_properties
-      ctx.save()
-      reference_point = @get_reference_point()
-      if reference_point?
-        glyph_settings = reference_point
-        data_r = @distance([reference_point], 'x', 'radius', 'edge')[0]
+      if @radius_units == "screen"
+        sx0 = sx - @max_radius
+        sx1 = sx - @max_radius
+        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+
+        sy0 = sy - @max_radius
+        sy1 = sy - @max_radius
+        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+
       else
-        glyph_settings = glyph_props
-        data_r = glyph_props.select('radius', glyph_props).default
-      border = line_props.select(line_props.line_width_name, glyph_settings)
-      ctx.beginPath()
-      d = _.min([Math.abs(x2-x1), Math.abs(y2-y1)])
-      d = d - 2 * border
-      r = d / 2
-      if data_r?
-        r = if data_r > r then r else data_r
-      ctx.arc((x1 + x2) / 2.0, (y1 + y2) / 2.0, r, 2*Math.PI,false)
-      if fill_props.do_fill
-        fill_props.set(ctx, glyph_settings)
-        ctx.fill()
-      if line_props.do_stroke
-        line_props.set(ctx, glyph_settings)
-        ctx.stroke()
+        x0 = x - @max_radius
+        x1 = x + @max_radius
 
-      ctx.restore()
+        y0 = y - @max_radius
+        y1 = y + @max_radius
+
+      candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
+      hits = []
+      if @radius_units == "screen"
+        for i in [0...candidates.length]
+          r2 = @radius[i]^2
+          if (@sx[i]-sx)^2 + (@sy[i]-sy)^2 <= r2
+            hits.push(i)
+      else
+        for i in [0...candidates.length]
+          r2 = @radius[i]^2
+          if (@x[i]-x)^2 + (@y[i]-y)^2 <= r2
+            hits.push(i)
+      return hits
+
+    _hit_rect: (geometry) ->
+      [x0, x1] = @plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1])
+      [y0, y1] = @plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1])
+
+      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
+
+    # circle does not inherit from marker (since it also accepts radius) so we
+    # must supply a draw_legend for it  here
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      reference_point = @get_reference_point() ? 0
+
+      # using objects like this seems a little wonky, since the keys are coerced to
+      # stings, but it works
+      indices = [reference_point]
+      sx = { }
+      sx[reference_point] = (x0+x1)/2
+      sy = { }
+      sy[reference_point] = (y0+y1)/2
+      radius = { }
+      radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
+
+      @_render(ctx, indices, @glyph_props, sx, sy, radius)
 
   class Circle extends Glyph.Model
     default_view: CircleView
@@ -197,8 +147,12 @@ define [
 
     display_defaults: () ->
       return _.extend(super(), {
+        radius_units: 'data'
+        size_units: 'screen'
+
         fill_color: 'gray'
         fill_alpha: 1.0
+
         line_color: 'red'
         line_width: 1
         line_alpha: 1.0

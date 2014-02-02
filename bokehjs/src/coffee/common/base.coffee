@@ -20,7 +20,7 @@ define [
   "source/object_array_data_source",
   "source/column_data_source",
   "tool/pan_tool",
-  "tool/zoom_tool",
+  "tool/wheel_zoom_tool",
   "tool/resize_tool",
   "tool/crosshair_tool",
   "tool/box_select_tool",
@@ -64,7 +64,7 @@ define [
     ColumnDataSource:       'source/column_data_source'
 
     PanTool:                'tool/pan_tool'
-    ZoomTool:               'tool/zoom_tool'
+    WheelZoomTool:          'tool/wheel_zoom_tool'
     ResizeTool:             'tool/resize_tool'
     CrosshairTool:          'tool/crosshair_tool'
     BoxSelectTool:          'tool/box_select_tool'

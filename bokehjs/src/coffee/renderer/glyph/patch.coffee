@@ -5,73 +5,52 @@ define [
   "./glyph",
 ], (_, Properties, Glyph) ->
 
-  glyph_properties = Properties.glyph_properties
-  line_properties  = Properties.line_properties
-  fill_properties  = Properties.fill_properties
-
   class PatchView extends Glyph.View
 
-    initialize: (options) ->
-      glyphspec = @mget('glyphspec')
-      @glyph_props = new glyph_properties(
-        @,
-        glyphspec,
-        ['x:number', 'y:number']
-        {
-          fill_properties: new fill_properties(@, glyphspec),
-          line_properties: new line_properties(@, glyphspec)
-        }
-      )
+    _fields: ['x', 'y']
+    _properties: ['line', 'fill']
 
-      @do_fill = @glyph_props.fill_properties.do_fill
-      @do_stroke = @glyph_props.line_properties.do_stroke
-      super(options)
+    _map_data: () ->
+      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
-    _set_data: (@data) ->
-      @x = @glyph_props.v_select('x', data)
-      @y = @glyph_props.v_select('y', data)
+    _render: (ctx, indices, glyph_props) ->
 
-    _render: () ->
-      ctx = @plot_view.ctx
-
-      ctx.save()
-
-      [sx, sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      if @do_fill
-        @glyph_props.fill_properties.set(ctx, @glyph_props)
-        for i in [0..sx.length-1]
+      if glyph_props.fill_properties.do_fill
+        glyph_props.fill_properties.set(ctx, glyph_props)
+        for i in indices
           if i == 0
             ctx.beginPath()
-            ctx.moveTo(sx[i], sy[i])
+            ctx.moveTo(@sx[i], @sy[i])
             continue
-          else if isNaN(sx[i] + sy[i])
+          else if isNaN(@sx[i] + @sy[i])
             ctx.closePath()
             ctx.fill()
             ctx.beginPath()
             continue
           else
-            ctx.lineTo(sx[i], sy[i])
+            ctx.lineTo(@sx[i], @sy[i])
         ctx.closePath()
         ctx.fill()
 
-      if @do_stroke
-        @glyph_props.line_properties.set(ctx, @glyph_props)
-        for i in [0..sx.length-1]
+      if glyph_props.line_properties.do_stroke
+        glyph_props.line_properties.set(ctx, glyph_props)
+        for i in indices
           if i == 0
             ctx.beginPath()
-            ctx.moveTo(sx[i], sy[i])
+            ctx.moveTo(@sx[i], @sy[i])
             continue
-          else if isNaN(sx[i] + sy[i])
+          else if isNaN(@sx[i] + @sy[i])
             ctx.closePath()
             ctx.stroke()
             ctx.beginPath()
             continue
           else
-            ctx.lineTo(sx[i], sy[i])
+            ctx.lineTo(@sx[i], @sy[i])
         ctx.closePath()
         ctx.stroke()
 
-      ctx.restore()
+    draw_legend: (ctx, x0, x1, y0, y1) ->
+      @_generic_area_legend(ctx, x0, x1, y0, y1)
 
   class Patch extends Glyph.Model
     default_view: PatchView

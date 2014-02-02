@@ -1,41 +1,40 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-	<!-- Vendor Styles -->
-<!--
-    <link href="{{ url_for('static', filename='vendor/bokehjs/css/bokeh.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='vendor/bokehjs/css/continuum.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='vendor/bokehjs/vendor/bootstrap/css/bootstrap.css') }}" rel="stylesheet">    
--->
-{% if include_js %}
-    {% for jsfile in jsfiles %}
-    <script type="text/javascript" src="{{jsfile}}"></script>
-    {% endfor %}
-    {% for jsfile in hemfiles %}
-    <script type="text/javascript" src="{{jsfile}}"></script>
-    {% endfor %}
-{% endif %}
-  
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <!-- Vendor Styles -->
+    <!--
+    <link href="{{ url_for('static', filename='css/bokeh.css') }}" rel="stylesheet">
+    -->
 </head>
 <body>
   <p>content</p>
 
+  <h1>  other injection types </h1>
+  <ul>
+    <li><a href="/bokeh/generate_embed/onload">Onload</a></li>
+    <li><a href="/bokeh/generate_embed/delay">delay</a></li>
+    <li><a href="/bokeh/generate_embed/double_delay">double_delay</a></li>
+    <li><a href="/bokeh/generate_embed/direct">direct</a></li>
+    <li><a href="/bokeh/generate_embed/static">static</a></li>
+    <li><a href="/bokeh/generate_embed/static_double">static_double</a></li>
+  </ul>
+
 {% if not plot_scr %}
   <script type="text/javascript">
-    
+
     (function () {
       window.injectF = function() {
       injectFGeneral("{{docid}}", "{{docapikey}}", "{{modelid}}");
     };
         window.injectFGeneral = function(docid, docapi_key, modelid) {
             var scr = document.createElement("script");
-    
+
             var sa = function(name,val){
                 console.log(name,val);
                 scr.setAttribute(name, val);};
             sa('src',"http://localhost:5006/bokeh/embed.js");
-    
+
             sa('bokeh_plottype',"serverconn");
             sa('bokeh_docid', docid);
             sa('bokeh_ws_conn_string',"ws://localhost:5006/bokeh/sub" );
@@ -43,7 +42,7 @@
             sa('bokeh_root_url',"http://localhost:5006" );
             sa('bokeh_modelid', modelid);
             sa('bokeh_modeltype',"Plot" );
-    
+
             document.body.appendChild(scr);};
         console.log("end of script tag injection");
     }())

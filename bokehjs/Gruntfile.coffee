@@ -37,7 +37,7 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: 'demo'
-          src: ['**/*.html', '**/*.js']
+          src: ['**/*.html', '**/*.js', '**/*.css', '**/*.png', '**/*.py']
           dest: 'build/demo'
           filter: ['isFile'], #, hasChanged("copy.demo")]
         ]
@@ -47,6 +47,18 @@ module.exports = (grunt) ->
           cwd : 'src/vendor'
           src: ['**/*']
           dest : 'build/js/vendor'
+        ]
+      release:
+        files: [
+            expand : true
+            cwd : 'build/js'
+            src : ['*.js']
+            dest : 'release/js'
+          ,
+            expand : true
+            cwd : 'build/css'
+            src : ['*.css']
+            dest : 'release/css'
         ]
 
     clean: ['build']
@@ -93,9 +105,21 @@ module.exports = (grunt) ->
         filter: hasChanged("coffee.demo")
         options:
           sourceMap : true
+      spectrogram:
+        files: {
+          'build/demo/spectrogram/static/spectrogram.js': 'demo/spectrogram/coffee/spectrogram.coffee'
+        }
+
+    symlink:
+      spectrogram:
+        target: 'build/js/bokeh.js',
+        link: 'build/demo/spectrogram/static/bokeh.js'
+        options:
+          overwrite: true
 
     requirejs:
       options:
+        logLevel: 2
         baseUrl: 'build/js'
         name: 'vendor/almond/almond'
         paths:
@@ -107,24 +131,43 @@ module.exports = (grunt) ->
           bootstrap: "vendor/bootstrap/bootstrap-2.0.4"
           timezone: "vendor/timezone/src/timezone"
           sprintf: "vendor/sprintf/src/sprintf"
+          rbush: "vendor/rbush/rbush"
         shim:
           sprintf:
             exports: 'sprintf'
-        include: ['main', 'underscore']
+        include: ['underscore', 'main']
         fileExclusionRegExp: /^test/
         wrap: {
           startFile: 'src/js/_start.js.frag',
           endFile: 'src/js/_end.js.frag'
         }
-      dist:
+      production:
         options:
           optimize: "uglify2"
-          out: 'build/bokeh.min.js'
-      dev:
+          out: 'build/js/bokeh.min.js'
+      development:
         options:
           optimize: "none"
-          out: 'build/bokeh.js'
+          out: 'build/js/bokeh.js'
 
+    concat:
+      options:
+        separator: ""
+      css:
+        src: [
+          "build/js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css",
+          "build/css/continuum.css"
+          "build/css/main.css"
+        ]
+        dest: 'build/css/bokeh.css'
+
+    cssmin:
+      minify:
+        expand: true
+        cwd: "build/css"
+        src: "bokeh.css"
+        dest: "build/css"
+        ext: '.min.css'
 
     watch:
       coffee:
@@ -141,7 +184,7 @@ module.exports = (grunt) ->
         files: ["demo/**/*.html", "demo/**/*.js"]
         tasks: ['copy:demo']
         options:
-          spawn: false          
+          spawn: false
       test:
         files: ["<%= coffee.test.cwd %>/<%= coffee.test.src %>"]
         tasks: ['coffee:test']
@@ -152,12 +195,23 @@ module.exports = (grunt) ->
         tasks: ['less']
         options:
           spawn: false
+      eco:
+        files: ["<%= eco.app.files[0].cwd %>/<%= eco.app.files[0].src %>"]
+        tasks: ['eco']
+        options:
+          spawn: false
 
     qunit:
       all:
         options:
           urls:[
             'http://localhost:8000/build/test/common_test.html']
+
+    groc:
+      coffee: [ "docs/*.coffee", "docs/*.md", "README.md" ]
+      options:
+        out: "docs/html/"
+
     eco:
       app:
         options:
@@ -175,12 +229,27 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-watch")
   grunt.loadNpmTasks("grunt-contrib-less")
   grunt.loadNpmTasks("grunt-contrib-requirejs")
+  grunt.loadNpmTasks("grunt-contrib-cssmin")
+  grunt.loadNpmTasks("grunt-contrib-concat")
   grunt.loadNpmTasks("grunt-contrib-copy")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
+  grunt.loadNpmTasks('grunt-symbolic-link')
   grunt.loadNpmTasks("grunt-eco")
+  grunt.loadNpmTasks('grunt-groc')
 
-  grunt.registerTask("default",    ["build", "qunit"])
-  grunt.registerTask("build",      ["coffee", "less", "copy", "eco"])
-  grunt.registerTask("deploy",     ["build",  "requirejs:dist"])
-  grunt.registerTask("devdeploy",  ["build",  "requirejs:dev"])
+  grunt.registerTask("default",     ["build", "qunit"])
+  grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
+  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config"])
+  grunt.registerTask("mindeploy",   ["build",  "requirejs:production", "concat:css", "cssmin"])
+  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css", "symlink"])
+  grunt.registerTask("deploy",      ["mindeploy", "devdeploy"])
+  grunt.registerTask("config", "Write config.js", () ->
+    config = {
+      paths: grunt.config.get("requirejs.options.paths")
+      shim: grunt.config.get("requirejs.options.shim")
+    }
+    content = "require.config(#{JSON.stringify(config)});"
+    grunt.file.write('build/js/config.js', content)
+  )
+  grunt.registerTask("release", ["deploy", "copy:release"])

@@ -1,12 +1,15 @@
+from __future__ import print_function
 
+import sys
 import os.path
+import requests
+
 import numpy as np
-import requests, sys
 
 from bokeh.objects import (
     Plot, Range1d, LinearAxis, Grid,
     Glyph, ColumnDataSource,
-    PanTool, ZoomTool)
+    PanTool, WheelZoomTool)
 from bokeh.glyphs import *
 from bokeh import session
 
@@ -29,7 +32,7 @@ def make_plot(name, glyph):
     )
 
     pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-    zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+    wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
     plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], border=80)
     xaxis = LinearAxis(plot=plot, dimension=0)
@@ -38,20 +41,19 @@ def make_plot(name, glyph):
     ygrid = Grid(plot=plot, dimension=1)
 
     plot.renderers.append(glyph_renderer)
-    plot.tools = [pantool,zoomtool]
+    plot.tools = [pantool,wheelzoomtool]
 
     try:
         sess = session.PlotServerSession(
-            username="defaultuser",
             serverloc="http://localhost:5006",
-            userapikey="nokey"
-        )
-    except requests.exceptions.ConnectionError as e:
-        print e
-        print "\nThis example requires the plot server.  Please make sure plot server is running, by executing 'bokeh-server'\n"
-        sys.exit()
-    sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+            username="defaultuser",
+            userapikey="nokey")
+    except requests.exceptions.ConnectionError:
+        print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
+        sys.exit(1)
+
     sess.use_doc(name)
+    sess.add(plot, recursive=True)
     sess.plotcontext.children.append(plot)
     sess.plotcontext._dirty = True
     sess.store_all()
@@ -59,15 +61,11 @@ def make_plot(name, glyph):
 make_plot('annular_wedge', AnnularWedge(x="x", y="y", inner_radius=0.2, outer_radius=0.5, start_angle=0.8, end_angle=3.8))
 make_plot('annulus', Annulus(x="x", y="y", inner_radius=0.2, outer_radius=0.5))
 make_plot('arc', Arc(x="x", y="y", radius=0.4, start_angle=0.8, end_angle=3.8))
-make_plot('circle', Circle(x="x", y="y", radius=5))
+make_plot('circle', Circle(x="x", y="y", radius=1))
 make_plot('oval', Oval(x="x", y="y", width=0.5, height=0.8, angle=-0.6))
 make_plot('ray', Ray(x="x", y="y", length=25, angle=0.6))
 make_plot('rect', Rect(x="x", y="y", width=0.5, height=0.8, angle=-0.6))
 make_plot('text', Text(x="x", y="y", text="foo", angle=0.6))
 make_plot('wedge', Wedge(x="x", y="y", radius=0.5, start_angle=0.9, end_angle=3.2))
 
-print "\nPlease visit http://localhost:5006/bokeh to see the plots\n"
-
-
-
-
+print("\nPlease visit http://localhost:5006/bokeh to see the plots\n")

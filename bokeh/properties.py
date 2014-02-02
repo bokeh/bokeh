@@ -1,6 +1,10 @@
+from __future__ import print_function
+
 """ A set of descriptors that document intended types for attributes on
 classes and implement convenience behaviors like default values, etc.
 """
+
+from six import string_types, add_metaclass
 
 from copy import copy
 import inspect
@@ -153,7 +157,7 @@ class DataSpec(BaseProperty):
         attrname = "_" + self.name
         if hasattr(obj, attrname):
             setval = getattr(obj, attrname)
-            if isinstance(setval, basestring) and self.default is None:
+            if isinstance(setval, string_types) and self.default is None:
                 # A string representing the field
                 return setval
             elif not isinstance(setval, dict):
@@ -176,7 +180,7 @@ class DataSpec(BaseProperty):
             # other (longer) tuples might be color, e.g.
             if len(arg) == 2:
                 field, default = arg
-                if not isinstance(field, basestring):
+                if not isinstance(field, string_types):
                     raise RuntimeError("String is required for field name when assigning tuple to a DataSpec")
                 arg = {"field": field, "default": default}
         super(DataSpec, self).__set__(obj, arg)
@@ -189,7 +193,7 @@ class DataSpec(BaseProperty):
     def to_dict(self, obj):
         # Build the complete dict
         setval = getattr(obj, "_"+self.name, None)
-        if isinstance(setval, basestring):
+        if isinstance(setval, string_types):
             d = {"field": setval, "units": self.units}
             if self.default is not None:
                 d["default"] = self.default
@@ -323,7 +327,7 @@ class ColorSpec(DataSpec):
         """ Returns True if the argument is a literal color.  Check for a
         well-formed hexadecimal color value.
         """
-        return isinstance(arg, basestring) and \
+        return isinstance(arg, string_types) and \
                ((len(arg) == 7 and arg[0] == "#") or arg in cls.NAMEDCOLORS)
 
     def _formattuple(self, colortuple):
@@ -346,7 +350,7 @@ class ColorSpec(DataSpec):
             if self.isconst(setval) or isinstance(setval, tuple):
                 # Fixed color value
                 return setval
-            elif isinstance(setval, basestring):
+            elif isinstance(setval, string_types):
                 if self.default is None:
                     # Field name
                     return setval
@@ -371,7 +375,7 @@ class ColorSpec(DataSpec):
         self._isset = True
         if isinstance(arg, tuple):
             if len(arg) == 2:
-                if not isinstance(arg[0], basestring):
+                if not isinstance(arg[0], string_types):
                     raise RuntimeError("String is required for field name when assigning 2-tuple to ColorSpec")
                 arg = {"field": arg[0], "default": arg[1]}
             elif len(arg) in (3, 4):
@@ -391,7 +395,7 @@ class ColorSpec(DataSpec):
                 # RGB or RGBa
                 # TODO: Should we validate that alpha is between 0..1?
                 return {"value": self._formattuple(setval)}
-            elif isinstance(setval, basestring):
+            elif isinstance(setval, string_types):
                 d = {"field": setval}
                 if self.default is not None:
                     d["default"] = self._formattuple(self.default)
@@ -429,7 +433,7 @@ class MetaHasProps(type):
         # First pre-process to handle all the Includes
         includes = {}
         removes = set()
-        for name, prop in class_dict.iteritems():
+        for name, prop in class_dict.items():
             if not isinstance(prop, Include):
                 continue
 
@@ -455,14 +459,14 @@ class MetaHasProps(type):
 
         # Update the class dictionary, taking care not to overwrite values
         # from the delegates that the subclass may have explicitly defined
-        for key, val in includes.iteritems():
+        for key, val in includes.items():
             if key not in class_dict:
                 class_dict[key] = val
         for tmp in removes:
             del class_dict[tmp]
 
         dataspecs = {}
-        for name, prop in class_dict.iteritems():
+        for name, prop in class_dict.items():
             if isinstance(prop, BaseProperty):
                 prop.name = name
                 if hasattr(prop, 'has_ref') and prop.has_ref:
@@ -506,9 +510,8 @@ def lookup_descriptor(cls, propname):
             return c.__dict__[propname]
     raise KeyError("Property '%s' not found on class '%s'" % (propname, cls))
 
+@add_metaclass(MetaHasProps)
 class HasProps(object):
-    __metaclass__ = MetaHasProps
-
     def __init__(self, *args, **kwargs):
         """ Set up a default initializer handler which assigns all kwargs
         that have the same names as Properties on the class
@@ -518,7 +521,7 @@ class HasProps(object):
 
         newkwargs = {}
         props = self.properties()
-        for kw, val in kwargs.iteritems():
+        for kw, val in kwargs.items():
             if kw in props:
                 setattr(self, kw, val)
             else:
@@ -526,6 +529,7 @@ class HasProps(object):
         # Dump the rest of the kwargs in self.dict
         self.__dict__.update(newkwargs)
         self._changed_vars.update(newkwargs.keys())
+
         super(HasProps, self).__init__(*args)
 
     def clone(self):
@@ -614,7 +618,7 @@ class HasProps(object):
     def pprint_props(self, indent=0):
         """ Prints the properties of this object, nicely formatted """
         for p in self.__properties__:
-            print "  "*indent + p + ":", getattr(self, p)
+            print("  "*indent + p + ":", getattr(self, p))
 
 # Python scalar types
 class Int(BaseProperty): pass
@@ -775,17 +779,52 @@ class Color(BaseProperty):
 
 class Align(BaseProperty): pass
 
-class Pattern(BaseProperty):
+class DashPattern(BaseProperty):
+    """
+    This is a property that expresses line dashes.  It can be specified in
+    a variety of forms:
+       * "solid", "dashed", "dotted", "dotdash", "dashdot"
+       * A tuple or list of integers in the HTML5 Canvas dash specification
+         style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
+         Note that if the list of integers has an odd number of elements, then
+         it is duplicated, and that duplicated list becomes the new dash list.
+       * A string of integers with spaces separating them. This is broken up into
+         a list and then treated like the above.
+
+    If dash is turned off, then the dash pattern is the empty list [].
+    """
+
+    dashmap = {
+        "solid": [],
+        "dashed": [6],
+        "dotted": [2,4],
+        "dotdash": [2,4,6,4],
+        "dashdot": [6,4,2,4],
+    }
+
     def __init__(self, default=[]):
         BaseProperty.__init__(self, default)
 
     def __set__(self, obj, arg):
         if isinstance(arg, str):
-            try:
-                arg = [float(x) for x in arg.split()]
-            except TypeError:
-                raise RuntimeError("Invalid string being assigned to Pattern; must be space delimited numbers, e.g. '2 4 3 2'")
-        super(Pattern, self).__set__(obj, arg)
+            if arg in self.dashmap:
+                arg = self.dashmap[arg]
+            else:
+                try:
+                    arg = [int(x) for x in arg.split()]
+                except:
+                    raise ValueError("Invalid string value for dash pattern: '%s'" % arg)
+        elif isinstance(arg, tuple) or isinstance(arg, list):
+            for x in arg:
+                if not isinstance(x, int):
+                    raise ValueError("list/tuple values for dash patterns must contain only integers")
+        else:
+            raise ValueError("Invalid value assigned to Pattern; "
+                             "must be list or tuple of integers, or string; "
+                             "strings must be space delimited integers, e.g. '2 4 3 2' "
+                             "or one of the names: 'solid','dashed','dotted','dotdash','dashdot'.")
+
+        super(DashPattern, self).__set__(obj, arg)
 
 class Size(Float):
     """ Equivalent to an unsigned int """
@@ -802,25 +841,25 @@ class Percent(Float):
 class FillProps(HasProps):
     """ Mirrors the BokehJS properties.fill_properties class """
     fill_color = ColorSpec("gray")
-    fill_alpha = Percent(1.0)
+    fill_alpha = DataSpec(1.0)
 
 class LineProps(HasProps):
     """ Mirrors the BokehJS properties.line_properties class """
     line_color = ColorSpec("black")
-    line_width = Size(1)
-    line_alpha = Percent(1.0)
-    line_join = String("miter")
-    line_cap = String("butt")
-    line_dash = Pattern
+    line_width = DataSpec #
+    line_alpha = DataSpec(1.0)
+    line_join = Enum("miter", "round", "bevel")
+    line_cap = Enum("butt", "round", "square")
+    line_dash = DashPattern  # This is a list of ints, or a dash pattern name
     line_dash_offset = Int(0)
 
 class TextProps(HasProps):
     """ Mirrors the BokehJS properties.text_properties class """
-    text_font = String
+    text_font = String("Helvetica")
     text_font_size = String("10pt")
     text_font_style = Enum("normal", "italic", "bold")
-    text_color = Color("black")
-    text_alpha = Percent(1.0)
+    text_color = ColorSpec("black")
+    text_alpha = DataSpec(1.0)
     text_align = Enum("left", "right", "center")
     text_baseline = Enum("top", "middle", "bottom")
 

@@ -1,0 +1,8 @@
+.project
+*~
+*.diff
+*.patch
+.DS_Store
+.settings
+node_modules
+dist/

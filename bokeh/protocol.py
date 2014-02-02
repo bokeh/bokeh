@@ -3,7 +3,7 @@ import json
 import threading
 import logging
 import time
-import cPickle as pickle
+from six.moves import cPickle as pickle
 import numpy as np
 import pandas as pd
 
@@ -28,7 +28,11 @@ list data which can be serialized and deserialized
 millifactor = 10 ** 6.
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, np.ndarray):
+        if isinstance(obj, pd.Series):
+            return obj.tolist()
+        elif isinstance(obj, np.ndarray):
+            if obj.dtype.kind == 'M':
+                return obj.astype('datetime64[ms]').astype('int').tolist() 
             return obj.tolist()
         elif isinstance(obj, np.number):
             if isinstance(obj, np.integer):
@@ -80,7 +84,7 @@ def default_serialize_data(data):
             d = np.ascontiguousarray(d)
             try:
                 temp = np.frombuffer(d, dtype=d.dtype)
-            except ValueError, TypeError:
+            except (ValueError, TypeError):
                 add_pickle(d)
                 continue
             add_numpy(d)
@@ -125,125 +129,3 @@ def error_obj(error_msg):
     return {
         'msgtype' : 'error',
         'error_msg' : error_msg}
-
-
-class ProtocolHelper(object):
-    """
-    collections of functions to assist in working with protocols
-    """
-    def __init__(self,
-                 serialize_msg=serialize_json,
-                 deserialize_msg=deserialize_json,
-                 serialize_data=default_serialize_data,
-                 deserialize_data=default_deserialize_data,
-                 serialize_web=serialize_json,
-                 deserialize_web=deserialize_json):
-
-        self.serialize_msg = serialize_msg
-        self.deserialize_msg = deserialize_msg
-        self.serialize_data = serialize_data
-        self.deserialize_data = deserialize_data
-        self.serialize_web = serialize_web
-        self.deserialize_web = deserialize_web
-
-
-
-    def working_obj(self, request_id):
-        return {
-            'msgtype' : 'rcpstatus',
-            'status' : 'working',
-            'request_id' : request_id}
-
-    def unpack_rpc(self, responseobj):
-        """see package_rpc_response from BaseRPCServer
-        """
-        return responseobj['rpcresponse']
-
-    def pack_rpc(self, responseobj):
-        """our rpc functions return arbitrary json objects,
-        and a list of numpy arrays.  this packages them up in the protocol.
-        right now all we do is wrap the arbitrary responesobj in
-        {'rpcresponse' : responseobj}, so we know where it came from
-        """
-        return {'msgtype' : 'rpcresponse',
-                'rpcresponse' : responseobj}
-
-    def unpack_arrayserver(self, messages, deserialize_data=True):
-        clientid = messages[0]
-        messageid = messages[1]
-        msgstr = messages[2]
-        datastrs = messages[3:]
-        msgobj = self.deserialize_msg(msgstr)
-        if deserialize_data:
-            return [clientid, messageid, msgobj, self.deserialize_data(datastrs)]
-        else:
-            return [clientid, messageid, msgobj, datastrs]
-
-    def pack_arrayserver(self, client_id, message_id, msgobj, dataobjs,
-                   serialize_data=True):
-        try:
-            msgstr = self.serialize_msg(msgobj)
-        except:
-            import pdb;pdb.set_trace()
-        if serialize_data:
-            datastrs = self.serialize_data(dataobjs)
-        else:
-            datastrs = dataobjs
-        return [client_id, message_id, msgstr] + datastrs
-
-    #handling zeromq req rep enveloping
-    #these messages look like
-    #[identity1, identy2, ..., '', content1, content2]
-    #http://www.zeromq.org/tutorials:xreq-and-xrep
-
-    def unpack_envelope(self, messages):
-        try:
-            nullindex = messages.index('')
-            envelope = messages[:nullindex]
-            payload = messages[nullindex+1:]
-        except ValueError as e:
-            envelope = [],
-            payload = messages
-        return envelope, payload
-
-    def pack_envelope(self, envelope, payload):
-        return envelope + [''] + payload
-
-    def pack_envelope_arrayserver(self, envelope=None, clientid=None, reqid=None,
-                            msgobj=None, dataobjs=None, datastrs=None):
-        if envelope is None : envelope = []
-        if msgobj is None : msgobj = {}
-        if dataobjs is None:
-            if datastrs is None: datastrs = []
-            msg = self.pack_arrayserver(clientid, reqid, msgobj,
-                                  datastrs, serialize_data=False)
-        else:
-            msg = self.pack_arrayserver(clientid, reqid, msgobj,
-                                  dataobjs, serialize_data=True)
-        msg = self.pack_envelope(envelope, msg)
-        return msg
-
-    def unpack_envelope_arrayserver(self, messages, deserialize_data=True):
-        envelope, messages = self.unpack_envelope(messages)
-        (clientid,
-         reqid,
-         msgobj,
-         data) = self.unpack_arrayserver(messages, deserialize_data)
-        if deserialize_data:
-            unpackedmsg = dict(envelope=envelope, clientid=clientid, reqid=reqid,
-                               msgobj=msgobj, dataobjs=data)
-        else:
-            unpackedmsg = dict(envelope=envelope, clientid=clientid, reqid=reqid,
-                               msgobj=msgobj, datastrs=data)
-        return unpackedmsg
-
-    def send_envelope_arrayserver(self, socket, **kwargs):
-        msg = self.pack_envelope_arrayserver(**kwargs)
-        socket.send_multipart(msg)
-
-    def recv_envelope_arrayserver(self, socket, deserialize_data=True):
-        msgs = socket.recv_multipart()
-        return self.unpack_envelope_arrayserver(
-            msgs,
-            deserialize_data=deserialize_data)
-

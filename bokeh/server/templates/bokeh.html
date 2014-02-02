@@ -1,20 +1,26 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>Bokeh Plot Server</title>
-	<!-- Vendor Styles -->
-    <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <link href="{{ url_for('static', filename='css/bokeh.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='css/continuum.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css') }}" rel="stylesheet">
-    <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap-orig-2.2.2.css') }}" rel="stylesheet">
-    <script src="{{ url_for('static', filename='js/bokeh.js') }}"> </script>
-    <script>
-      window.Bokeh.server_page();
-    </script>
-  </head>
-  <body>
-    <div id="PlotPane">Plots</div>
-  </body>
-</html>
+{% extends "_base.html" %}
+
+{% block title %}
+Bokeh Plot Server
+{% endblock %}
+
+{% block script %}
+Bokeh.server_page();
+{% endblock %}
+
+{% block content %}
+<div class="span12">
+  The first time you want to use bokehplots.com, you need to do the following:
+  <pre>
+    import bokeh
+    cloud = bokeh.Cloud()
+    
+    cloud.register("myusername", "mypassword")
+    # or
+    cloud.login("myusername", "mypassword")
+    
+    cloud.browser_login()
+  </pre>
+  <div id="PlotPane">Plots</div>
+</div>
+{% endblock %}

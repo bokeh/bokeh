@@ -1,4 +1,3 @@
-
 from bokeh.sampledata import us_counties, unemployment
 from bokeh.plotting import *
 
@@ -24,7 +23,7 @@ for county_id in us_counties.data:
     except KeyError:
         county_colors.append("black")
 
-output_server("texas.py example")
+output_server("texas")
 
 patches(county_xs, county_ys, fill_color=county_colors, fill_alpha=0.7,
         line_color="white", line_width=0.5, title="Texas Unemployment 2009")

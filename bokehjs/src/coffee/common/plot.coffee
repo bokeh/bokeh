@@ -173,39 +173,43 @@ define [
       @bind_bokeh_events()
       return this
 
-    map_to_screen: (x, x_units, y, y_units, units) ->
+    # TODO (bev) why is this ignoring y units? why does it also take units as last arg?
+    map_to_screen: (x, x_units, y, y_units) ->
       if x_units == 'screen'
         if _.isArray(x)
           sx = x[..]
         else
-          sx = new Float32Array(x.length)
+          sx = new Float64Array(x.length)
           sx.set(x)
+      else
+        sx = @xmapper.v_map_to_target(x)
+      if y_units == 'screen'
         if _.isArray(y)
           sy = y[..]
         else
-          sy = new Float32Array(y.length)
+          sy = new Float64Array(y.length)
           sy.set(y)
       else
-        [sx, sy] = @mapper.v_map_to_target(x, y)
+        sy = @ymapper.v_map_to_target(y)
 
-      sx = @view_state.v_sx_to_device(sx)
-      sy = @view_state.v_sy_to_device(sy)
+      sx = @view_state.v_vx_to_sx(sx)
+      sy = @view_state.v_vy_to_sy(sy)
 
       return [sx, sy]
 
     map_from_screen: (sx, sy, units) ->
       if _.isArray(sx)
-        dx = x[..]
+        dx = sx[..]
       else
-        dx = new Float32Array(sx.length)
-        sd.set(x)
+        dx = new Float64Array(sx.length)
+        dx.set(x)
       if _.isArray(sy)
-        dy = y[..]
+        dy = sy[..]
       else
-        dy = new Float32Array(sy.length)
+        dy = new Float64Array(sy.length)
         dy.set(y)
-      sx = @view_state.v_device_to_sx(dx)
-      sy = @view_state.v_device_to_sy(dy)
+      sx = @view_state.v_sx_to_vx(dx)
+      sy = @view_state.v_sy_to_vy(dy)
 
       if units == 'screen'
         x = sx
@@ -395,16 +399,19 @@ define [
 
       @ctx.restore()
 
-      for level in ['overlay', 'annotation', 'tool']
-        renderers = @levels[level]
-        for k, v of renderers
-          v.render(have_new_mapper_state)
+      @render_overlays(have_new_mapper_state)
 
       if title
         sx = @view_state.get('outer_width')/2
         sy = th
         @title_props.set(@ctx, {})
         @ctx.fillText(title, sx, sy)
+
+    render_overlays: (have_new_mapper_state) ->
+      for level in ['overlay', 'annotation', 'tool']
+        renderers = @levels[level]
+        for k, v of renderers
+          v.render(have_new_mapper_state)
 
   class Plot extends HasParent
     type: 'Plot'

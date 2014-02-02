@@ -2,10 +2,10 @@
 import inspect
 
 from .properties import (BaseProperty, HasProps, Instance, Enum, Float, Int,
-        Color, Percent, Size, Bool, Pattern, Align, Angle, String, FillProps,
+        Color, Percent, Size, Bool, DashPattern, Align, Angle, String, FillProps,
         LineProps, TextProps, DataSpec, ColorSpec)
 
-from .objects import PlotObject, Viewable
+from .objects import PlotObject
 
 # Size is a way to preserve a data-space-related metric all the way until
 #   render time, when the screen dimensions are known
@@ -41,7 +41,7 @@ class BaseGlyph(PlotObject):
 
         # Iterate over all the DataSpec properties and convert them, using the
         # fact that DataSpecs store the dict-ified version on the object.
-        for attrname, dspec in self.dataspecs_with_refs().iteritems():
+        for attrname, dspec in self.dataspecs_with_refs().items():
             d[attrname] = dspec.to_dict(self)
         return d
 
@@ -55,13 +55,28 @@ class Marker(BaseGlyph, FillProps, LineProps):
     y = DataSpec
     size = DataSpec(units="screen", default=4, min_value=0)
 
-    #fill_pattern = Pattern
-    #shape = Enum("circle", "dot", "square", "tri", "diamond", "x", "+", "char")
-    #char_value = String
-
 class Circle(Marker):
     __view_model__ = "circle"
-    radius = DataSpec(units="screen", default=4, min_value=0)
+    radius = DataSpec(units="data", default=4, min_value=0)
+
+    def to_glyphspec(self):
+        """ Returns a dict mapping attributes to values, that is amenable for
+        inclusion in a Glyph definition.
+        """
+        d = self.vm_props(withvalues=True)
+        d["type"] = self.__view_model__
+
+        # Here is the special case for circle, we only want one of "size" or "radius",
+        # but not both.
+        for attrname, dspec in self.dataspecs_with_refs().items():
+            d[attrname] = dspec.to_dict(self)
+        if "size" not in self._changed_vars and "radius" not in self._changed_vars:
+            del d["radius"]
+        elif "size" in self._changed_vars:
+            del d["radius"]
+        elif "radius" in self._changed_vars:
+            del d["size"]
+        return d
 
 
 # Other kinds of Markers, to match what GGplot provides
@@ -143,8 +158,14 @@ class Bezier(BaseGlyph, LineProps):
     cx1 = DataSpec
     cy1 = DataSpec
 
-# TODO
-# class image
+class Image(BaseGlyph):
+    __view_model__ = 'image'
+    image = DataSpec
+    x = DataSpec
+    y = DataSpec
+    dw = DataSpec
+    dh = DataSpec
+    palette = DataSpec
 
 class ImageURI(BaseGlyph):
     __view_model__ = 'image_uri'
@@ -155,8 +176,6 @@ class ImageURI(BaseGlyph):
 class ImageRGBA(BaseGlyph):
     __view_model__ = 'image_rgba'
     image = DataSpec
-    width = DataSpec
-    height = DataSpec
     x = DataSpec
     y = DataSpec
     dw = DataSpec
@@ -197,7 +216,7 @@ class Quad(BaseGlyph, FillProps, LineProps):
     bottom = DataSpec
     top = DataSpec
 
-class Quadratic(BaseGlyph, FillProps, LineProps):
+class Quadratic(BaseGlyph, LineProps):
     __view_model__ = 'quadratic'
     x0 = DataSpec
     y0 = DataSpec
@@ -232,7 +251,7 @@ class Text(BaseGlyph, TextProps):
     __view_model__ = "text"
     x = DataSpec
     y = DataSpec
-    text = String
+    text = DataSpec
     angle = DataSpec
 
 class Wedge(BaseGlyph, FillProps, LineProps):

@@ -17,18 +17,21 @@ define [
     bind_bokeh_events: () ->
       super()
 
-    toolType:"PanTool"
     eventGeneratorClass: TwoPointEventGenerator
+    toolType: "PanTool"
+
     evgen_options:
-      keyName:"shiftKey"
-      buttonText:"Pan"
+      keyName: "shiftKey"
+      buttonText: "Pan"
+      cursor: "move"
       restrict_to_innercanvas: true
-    tool_events: {
+
+    tool_events:
       UpdatingMouseMove: "_drag",
-      SetBasepoint: "_set_base_point"}
+      SetBasepoint: "_set_base_point"
 
     mouse_coords: (e, x, y) ->
-      [x_, y_] = [@plot_view.view_state.device_to_sx(x), @plot_view.view_state.device_to_sy(y)]
+      [x_, y_] = [@plot_view.view_state.sx_to_vx(x), @plot_view.view_state.sy_to_vy(y)]
       return [x_, y_]
 
     _set_base_point: (e) ->

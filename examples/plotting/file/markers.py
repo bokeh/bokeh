@@ -4,12 +4,12 @@ from bokeh.plotting import *
 
 
 def myscatter(x, y, typestr):
-    scatter(x, y, type=typestr,
-        line_color="#6666ee", fill_color="#ee6666", fill_alpha=0.5, size=12, tools="")
+    scatter(x, y, marker=typestr,
+        line_color="#6666ee", fill_color="#ee6666", fill_alpha=0.5, size=12) #, tools="")
 
 def mytext(x, y, textstr):
     text(x, y, text=textstr, angle=0,
-        text_color="#449944", text_align="center", text_font_size="10pt", tools="")
+        text_color="#449944", text_align="center", text_font_size="10pt") #, tools="")
 
 
 output_file("markers.html", title="markers.py example")

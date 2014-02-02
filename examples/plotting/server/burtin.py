@@ -2,8 +2,9 @@ import numpy as np
 import pandas as pd
 from bokeh.plotting import *
 from bokeh.objects import Range1d
-from StringIO import StringIO
+from six.moves import cStringIO as StringIO
 from math import log, sqrt
+from collections import OrderedDict
 
 antibiotics = """
 bacteria,                        penicillin, streptomycin, neomycin, gram
@@ -25,11 +26,11 @@ Streptococcus viridans,          0.005,      10,           40,       positive
 Diplococcus pneumoniae,          0.005,      11,           10,       positive
 """
 
-drug_color = {
-    "Penicillin"   : "#0d3362",
-    "Streptomycin" : "#c64737",
-    "Neomycin"     : "black",
-}
+drug_color = OrderedDict([
+    ("Penicillin",   "#0d3362"),
+    ("Streptomycin", "#c64737"),
+    ("Neomycin",     "black"  ),
+])
 
 gram_color = {
     "positive" : "#aeaeb8",
@@ -54,7 +55,7 @@ def rad(mic):
 big_angle = 2.0 * np.pi / (len(df) + 1)
 small_angle = big_angle / 7
 
-output_server("burtin.py example")
+output_server("burtin")
 
 hold()
 
@@ -69,7 +70,7 @@ plot.y_range = Range1d(start=-420, end=420)
 plot.min_border = 0
 plot.background_fill = "#f0e1d2"
 plot.border_fill = "#f0e1d2"
-plot.outline_line_color = None 
+plot.outline_line_color = None
 
 # annular wedges
 angles = np.pi/2 - big_angle/2 - df.index*big_angle
@@ -108,11 +109,11 @@ label_angle[label_angle < -np.pi/2] += np.pi # easier to read labels on the left
 text(xr, yr, df.bacteria, angle=label_angle, text_font_size="9pt", text_align="center", text_baseline="middle")
 
 # OK, these hand drawn legends are pretty clunky, will be improved in future release
-circle([-40, -40], [-370, -390], color=gram_color.values(), radius=5)
+circle([-40, -40], [-370, -390], color=list(gram_color.values()), radius=5)
 text([-30, -30], [-370, -390], text=["Gram-" + x for x in gram_color.keys()], angle=0, text_font_size="7pt", text_align="left", text_baseline="middle")
 
-rect([-40, -40, -40], [18, 0, -18], width=30, height=13, color=drug_color.values())
-text([-15, -15, -15], [18, 0, -18], text=drug_color.keys(), angle=0, text_font_size="9pt", text_align="left", text_baseline="middle")
+rect([-40, -40, -40], [18, 0, -18], width=30, height=13, color=list(drug_color.values()))
+text([-15, -15, -15], [18, 0, -18], text=list(drug_color.keys()), angle=0, text_font_size="9pt", text_align="left", text_baseline="middle")
 
 xgrid().grid_line_color = None
 ygrid().grid_line_color = None

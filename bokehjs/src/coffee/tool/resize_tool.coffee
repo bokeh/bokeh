@@ -18,13 +18,17 @@ define [
 
     eventGeneratorClass: TwoPointEventGenerator
     toolType: "ResizeTool"
-    evgen_options: {keyName:"", buttonText:"Resize"}
-    tool_events: {
-      activated: "_activate",
-      deactivated: "_deactivate",
-      UpdatingMouseMove: "_drag",
+
+    evgen_options:
+      keyName: ""
+      buttonText: "Resize"
+      cursor: "move"
+
+    tool_events:
+      activated: "_activate"
+      deactivated: "_deactivate"
+      UpdatingMouseMove: "_drag"
       SetBasepoint: "_set_base_point"
-    }
 
     render: () ->
       if not @active

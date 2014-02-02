@@ -19,18 +19,22 @@ define [
 
     eventGeneratorClass: TwoPointEventGenerator
     toolType: "CrosshairTool"
-    evgen_options: {keyName:"", buttonText:"Crosshair"}
-    tool_events: {
-      activated: "_activate",
-      deactivated: "_deactivate",
-      UpdatingMouseMove: "_drag",
+
+    evgen_options:
+      keyName: ""
+      buttonText: "Crosshair"
+      cursor: "crosshair"
+
+    tool_events:
+      activated: "_activate"
+      deactivated: "_deactivate"
+      UpdatingMouseMove: "_drag"
       SetBasepoint: "_set_base_point"
-    }
 
     render: () ->
       if not @active
         return
-    
+
       ctx = @plot_view.ctx
 
       cw = @plot_view.view_state.get('canvas_width')
@@ -71,10 +75,7 @@ define [
       ch = @plot_view.view_state.get('outer_height')
       cw = @plot_view.view_state.get('outer_width')
       @popup.text("x: 0 y:0")
-
-      #@request_render()
-      #@plot_view.$el.css("cursor", "crosshair")
-      #@plot_view.request_render()
+      @plot_view.$el.css("cursor", "crosshair")
       return null
 
     _deactivate: (e) ->
@@ -92,12 +93,7 @@ define [
     _drag: (e) ->
       @plot_view.pause()
 
-      [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
-      xdiff = x - @x
-      ydiff = y - @y
-      [@x, @y] = [x, y]
-
-
+      [@x, @y] = @mouse_coords(e, e.bokehX, e.bokehY)
       data_x = sprintf("%.4f", @plot_view.xmapper.map_from_target(x))
       data_y = sprintf("%.4f", @plot_view.ymapper.map_from_target(y))
       @popup.text("x: #{data_x} y: #{data_y}")

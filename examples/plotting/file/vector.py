@@ -1,3 +1,4 @@
+from __future__ import division
 
 import numpy as np
 from scipy.integrate import odeint
@@ -158,7 +159,7 @@ def streamlines(x, y, u, v, density=1):
 
     ## Now we build up the trajectory set. I've found it best to look
     ## for blank==0 along the edges first, and work inwards.
-    for indent in range((max(NBX,NBY))/2):
+    for indent in range((max(NBX,NBY))//2):
         for xi in range(max(NBX,NBY)-2*indent):
             traj(xi+indent, indent)
             traj(xi+indent, NBY-1-indent)

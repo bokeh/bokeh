@@ -1,9 +1,10 @@
+from __future__ import print_function
 
 import os
 
 from bokeh.sampledata.iris import flowers
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, ZoomTool
+    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, WheelZoomTool
 )
 from bokeh.glyphs import Circle
 from bokeh import session
@@ -25,7 +26,7 @@ source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length")])
 ydr = DataRange1d(sources=[source.columns("petal_width")])
 
-circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, radius=5, line_color="color")
+circle = Circle(x="petal_length", y="petal_width", fill_color="color", fill_alpha=0.2, size=10, line_color="color")
 
 glyph_renderer = Glyph(
         data_source = source,
@@ -43,18 +44,16 @@ xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-zoomtool = ZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool,zoomtool]
+plot.tools = [pantool,wheelzoomtool]
 
 sess = session.HTMLFileSession("iris.html")
-sess.add(plot, glyph_renderer, xaxis, yaxis, xgrid, ygrid, source, xdr, ydr, pantool, zoomtool)
+sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
-sess.save(js="relative", css="relative", rootdir=os.path.abspath("."))
-print "Wrote iris.html"
-try:
-    import webbrowser
-    webbrowser.open("file://" + os.path.abspath("iris.html"))
-except:
-    pass
+sess.save(js="absolute", css="absolute")
+print("Wrote %s" % sess.filename)
+
+if __name__ == "__main__":
+    sess.view()

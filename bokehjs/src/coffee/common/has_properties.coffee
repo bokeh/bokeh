@@ -31,6 +31,9 @@ define [
       if not options
         options = {}
       super(attrs, options)
+
+      #cheap memoization, requirejs doesn't seem to do it
+      @_base = false 
       @properties = {}
       @property_cache = {}
       if not _.has(attrs, @idAttribute)
@@ -224,8 +227,7 @@ define [
       if ref['type'] == this.type and ref['id'] == this.id
         return this
       else
-        base = require('./base')
-        return base.Collections(ref['type']).get(ref['id'])
+        return @base().Collections(ref['type']).get(ref['id'])
 
     get_obj: (ref_name) =>
       # ### method: HasProperties::get_obj
@@ -236,12 +238,16 @@ define [
       if ref
         return @resolve_ref(ref)
 
+    base: ()->
+      if not @_base
+        @_base = require('./base')
+      return @_base
+      
     url: () ->
       # ### method HasProperties::url
       #model where our API processes this model
 
-      base = require('./base')
-      url = base.Config.prefix + "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
+      url = @base().Config.prefix + "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
       if (@isNew())
         return url
       return url + @get('id') + "/"

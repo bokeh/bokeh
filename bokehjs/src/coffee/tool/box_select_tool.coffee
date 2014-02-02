@@ -11,95 +11,94 @@ define [
   class BoxSelectToolView extends Tool.View
     initialize: (options) ->
       super(options)
-      @select_callback = _.debounce((() => @_select_data()), 50)
-      @listenTo(@model, 'change', @select_callback)
+      @select_every_mousemove = @mget('select_every_mousemove')
 
     bind_bokeh_events: () ->
       super()
       for renderer in @mget_obj('renderers')
         rendererview = @plot_view.renderers[renderer.id]
-        @listenTo(rendererview.xrange(), 'change',
-          @select_callback)
-        @listenTo(rendererview.yrange(), 'change',
-          @select_callback)
-        @listenTo(renderer, 'change', @select_callback)
-        # @listenTo(renderer.get_obj('data_source'), 'change',
-        #   @select_callback)
+        @listenTo(rendererview.xrange(), 'change', @select_callback)
+        @listenTo(rendererview.yrange(), 'change', @select_callback)
         @listenTo(renderer, 'change', @select_callback)
 
     eventGeneratorClass: TwoPointEventGenerator
-    evgen_options:
-      keyName:"ctrlKey",
-      buttonText:"Select",
-      restrict_to_innercanvas: true
-    tool_events: {
-      SetBasepoint: "_start_selecting",
-      #UpdatingMouseMove: "box_selecting",
-      UpdatingMouseMove: "_selecting",
+    toolType: "BoxSelectTool"
 
-      #DragEnd: "_selecting",
-      deactivated: "_stop_selecting"}
+    evgen_options:
+      keyName: "ctrlKey"
+      buttonText: "Select"
+      cursor: "crosshair"
+      restrict_to_innercanvas: true
+
+    tool_events:
+      SetBasepoint: "_start_selecting"
+      UpdatingMouseMove: "_selecting"
+      deactivated: "_stop_selecting"
+      DragEnd: "_dragend"
 
     pause:()->
-      ""
+      return null
 
-    mouse_coords: (e, x, y) ->
-      [x, y] = [@plot_view.view_state.device_to_sx(x),
-        @plot_view.view_state.device_to_sy(y)]
-      return [x, y]
+    view_coords: (sx, sy) ->
+      [vx, vy] = [
+        @plot_view.view_state.sx_to_vx(sx),
+        @plot_view.view_state.sy_to_vy(sy)
+      ]
+      return [vx, vy]
 
     _stop_selecting: () ->
       @trigger('stopselect')
       @basepoint_set = false
+      @plot_view.unpause()
 
     _start_selecting: (e) ->
+      @plot_view.pause()
       @trigger('startselect')
-      [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
-      @mset({'start_x': x, 'start_y': y, 'current_x': null, 'current_y': null})
+      [vx, vy] = @view_coords(e.bokehX, e.bokehY)
+      @mset({'start_vx': vx, 'start_vy': vy, 'current_vx': null, 'current_vy': null})
       @basepoint_set = true
 
     _get_selection_range: ->
-      xrange = [@mget('start_x'), @mget('current_x')]
-      yrange = [@mget('start_y'), @mget('current_y')]
       if @mget('select_x')
+        xrange = [@mget('start_vx'), @mget('current_vx')]
         xrange = [_.min(xrange), _.max(xrange)]
       else
         xrange = null
       if @mget('select_y')
-        yrange = [_.min(yrange), _.max(yrange)]
-      else
-        yrange = null
-      return [xrange, yrange]
-
-    _get_selection_range_fast: (current_x, current_y)->
-      xrange = [@mget('start_x'), current_x]
-      yrange = [@mget('start_y'), current_y]
-      if @mget('select_x')
-        xrange = [_.min(xrange), _.max(xrange)]
-      else
-        xrange = null
-      if @mget('select_y')
+        yrange = [@mget('start_vy'), @mget('current_vy')]
         yrange = [_.min(yrange), _.max(yrange)]
       else
         yrange = null
       return [xrange, yrange]
 
     _selecting: (e, x_, y_) ->
-      [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
-      @mset({'current_x': x, 'current_y': y})
-      [@xrange, @yrange] = @_get_selection_range(x, y)
+      [vx, vy] = @view_coords(e.bokehX, e.bokehY)
+      @mset({'current_vx': vx, 'current_vy': vy})
+
+      [@xrange, @yrange] = @_get_selection_range()
       @trigger('boxselect', @xrange, @yrange)
+
+      if @select_every_mousemove
+        @_select_data()
+
+      @plot_view.render_overlays(true)
       return null
 
-    box_selecting: (e, x_, y_) ->
-      [x, y] = @mouse_coords(e, e.bokehX, e.bokehY)
-      [@xrange, @yrange] = @_get_selection_range_fast(x, y)
-      @trigger('boxselect', @xrange, @yrange)
-      return null
+    _dragend : () ->
+      @_select_data()
 
     _select_data: () ->
       if not @basepoint_set
         return
+
+      geometry = {
+        type: 'rect'
+        vx0: @xrange[0]
+        vx1: @xrange[1]
+        vy0: @yrange[0]
+        vy1: @yrange[1]
+      }
+
       datasources = {}
       datasource_selections = {}
       for renderer in @mget_obj('renderers')
@@ -111,7 +110,7 @@ define [
         _.setdefault(datasource_selections, datasource_id, [])
         #the select call of the render converts the screen coordinates
         #of @xrange and @yrange into data space coordinates
-        selected = @plot_view.renderers[renderer.id].select(@xrange, @yrange)
+        selected = @plot_view.renderers[renderer.id].hit_test(geometry)
         datasource_selections[datasource_id].push(selected)
 
       for own k,v of datasource_selections
@@ -130,6 +129,7 @@ define [
         ,
           {patch: true}
         )
+        @plot_view.unpause()
       return null
 
   class BoxSelectTool extends Tool.Model
@@ -137,12 +137,13 @@ define [
     type: "BoxSelectTool"
 
     defaults: () ->
-      return {
+      return _.extend(super(), {
         renderers: []
         select_x: true
         select_y: true
-        data_source_options: {} #backbone options for save on datasource
-      }
+        select_every_mousemove: false
+        data_source_options: {} # backbone options for save on datasource
+      })
 
     display_defaults: () ->
       super()

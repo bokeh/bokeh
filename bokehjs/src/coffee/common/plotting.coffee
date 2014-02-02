@@ -16,8 +16,9 @@ define [
   "tool/preview_save_tool",
   "tool/column_select_tool",
   "tool/resize_tool",
-  "tool/zoom_tool",
-], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ColumnSelectTool, ResizeTool, ZoomTool) ->
+  "tool/wheel_zoom_tool",
+  "renderer/guide/datetime_axis",
+], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ColumnSelectTool, ResizeTool, WheelZoomTool, DatetimeAxis) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -40,31 +41,32 @@ define [
     else
       return Range1d.Collection.create({start: range[0], end: range[1]})
 
-  create_glyphs = (plot, glyphspecs, sources) ->
+  create_glyphs = (plot, glyphspecs, sources, nonselection_glyphspecs) ->
     glyphs = []
     if not _.isArray(glyphspecs)
       glyphspecs = [glyphspecs]
+
     if sources.length == 1
-      for spec in glyphspecs
-        glyph = GlyphFactory.Collection.create({
-          data_source: sources[0].ref()
-          parent: plot.ref()
-          glyphspec: spec
-          nonselection_glyphspec:
-            fill_alpha: 0.1
-            line_alpha: 0.1
-          #reference_point: reference_point
-        })
-        glyphs.push(glyph)
-    else
-      for val in _.zip(glyphspecs, sources)
-        [spec, source] = val
-        glyph = GlyphFactory.Collection.create({
-          parent: plot.ref()
-          data_source: source.ref()
-          glyphspec: spec
-        })
-        glyphs.push(glyph)
+      sources = (sources[0] for x in glyphspecs)
+
+    if not nonselection_glyphspecs?
+      nonselection_glyphspecs = {
+        fill_alpha: 0.1
+        line_alpha: 0.1
+      }
+    if not _.isArray(nonselection_glyphspecs)
+      nonselection_glyphspecs = (nonselection_glyphspecs for x in glyphspecs)
+
+    for val in _.zip(glyphspecs, nonselection_glyphspecs, sources)
+      [spec, non_spec, source] = val
+      glyph = GlyphFactory.Collection.create({
+        parent: plot.ref()
+        data_source: source.ref()
+        glyphspec: spec
+        nonselection_glyphspec: non_spec
+      })
+      glyphs.push(glyph)
+
     return glyphs
 
   add_axes = (plot, xaxes, yaxes) ->
@@ -74,15 +76,26 @@ define [
         xaxes = ['min', 'max']
       if not _.isArray(xaxes)
         xaxes = [xaxes]
-      for loc in xaxes
-        axis = LinearAxis.Collection.create(
-          dimension: 0
-          axis_label: 'x'
-          location: loc
-          parent: plot.ref()
-          plot: plot.ref()
-        )
-        axes.push(axis)
+      if xaxes[0]=="datetime"
+
+        for loc in ['min','max']
+          axis = DatetimeAxis.Collection.create(
+          #axis = LinearAxis.Collection.create(
+            dimension: 0
+            axis_label: 'x'
+            location: loc
+            parent: plot.ref()
+            plot: plot.ref())
+          axes.push(axis)
+      else
+        for loc in xaxes
+          axis = LinearAxis.Collection.create(
+            dimension: 0
+            axis_label: 'x'
+            location: loc
+            parent: plot.ref()
+            plot: plot.ref())
+          axes.push(axis)
     if yaxes
       if yaxes == true
         yaxes = ['min', 'max']
@@ -99,13 +112,17 @@ define [
         axes.push(axis)
     plot.add_renderers(a.ref() for a in axes)
 
-  add_grids = (plot, xgrid, ygrid) ->
+  # FIXME The xaxis_is_datetime argument is a huge hack, but for now I want to
+  # make as small a change as possible.  Doing it right will require a larger
+  # refactoring.
+  add_grids = (plot, xgrid, ygrid, xaxis_is_datetime=False) ->
     grids = []
     if xgrid
       grid = Grid.Collection.create(
         dimension: 0
         parent: plot.ref()
         plot: plot.ref()
+        is_datetime: xaxis_is_datetime
       )
       grids.push(grid)
     if ygrid
@@ -113,6 +130,7 @@ define [
         dimension: 1
         parent: plot.ref()
         plot: plot.ref()
+        is_datetime: false
       )
       grids.push(grid)
       plot.add_renderers(g.ref() for g in grids)
@@ -122,7 +140,7 @@ define [
       return
 
     if tools == true
-      tools = "pan,zoom,select,resize,preview"
+      tools = "pan,wheel_zoom,select,resize,preview"
     added_tools = []
 
     if tools.indexOf("pan") > -1
@@ -132,12 +150,12 @@ define [
       )
       added_tools.push(pan_tool)
 
-    if tools.indexOf("zoom") > -1
-      zoom_tool = ZoomTool.Collection.create(
+    if tools.indexOf("wheel_zoom") > -1
+      wheel_zoom_tool = WheelZoomTool.Collection.create(
         dataranges: [xdr.ref(), ydr.ref()]
         dimensions: ['width', 'height']
       )
-      added_tools.push(zoom_tool)
+      added_tools.push(wheel_zoom_tool)
 
     if tools.indexOf("select") > -1
       select_tool = BoxSelectTool.Collection.create(
@@ -178,7 +196,8 @@ define [
       })
       plot.add_renderers([legend_renderer.ref()])
 
-  make_plot = (glyphspecs, data, {title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend}) ->
+  make_plot = (glyphspecs, data, {nonselected, title, dims, xrange, yrange, xaxes, yaxes, xgrid, ygrid, xdr, ydr, tools, legend}) ->
+    nonselected ?= null
     title  ?= ""
     dims   ?= [400, 400]
     xrange ?= 'auto'
@@ -205,20 +224,24 @@ define [
       title: title
     )
 
-    glyphs = create_glyphs(plot, glyphspecs, sources)
+    glyphs = create_glyphs(plot, glyphspecs, sources, nonselected)
     plot.add_renderers(g.ref() for g in glyphs)
 
     add_axes(plot, xaxes, yaxes)
-    add_grids(plot, xgrid, ygrid)
+    add_grids(plot, xgrid, ygrid, xaxes == 'datetime')
     add_tools(plot, tools, glyphs, xdr, ydr)
     add_legend(plot, legend, glyphs)
 
     return plot
 
 
-  show = (plot) ->
+  show = (plot, target_div=false) ->
     div = $('<div class="plotdiv"></div>')
-    $('body').append(div)
+    if target_div
+      target_div = $(target_div)
+    else
+      target_div = $('body')
+    target_div.append(div)
     myrender  =  ->
       view = new plot.default_view(model: plot)
       window.pview = view

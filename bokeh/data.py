@@ -6,8 +6,8 @@ def make_source(**kwargs):
         if isinstance(kwargs[k], pandas.Series):
             kwargs[k] = kwargs[k].view(np.ndarray)
     output = []
-    flds = kwargs.keys()
-    for idx in range(len(kwargs.values()[0])):
+    flds = list(kwargs.keys())
+    for idx, _ in enumerate(next(i for i in kwargs.values())):
         point = {}
         for f in flds:
             val = kwargs[f][idx]

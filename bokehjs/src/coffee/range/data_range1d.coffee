@@ -14,24 +14,15 @@ define [
         sourceobj = @resolve_ref(source['ref'])
         for colname in source['columns']
           columns.push(sourceobj.getcolumn(colname))
-      columns = _.reduce(columns, ((x, y) -> return x.concat(y)), [])
+      columns = _.flatten(columns)
       columns = _.filter(columns, (x) -> typeof(x) != "string")
-      if not _.isArray(columns[0])
-        columns = _.reject(columns, (x) -> isNaN(x))
-        [min, max] = [_.min(columns), _.max(columns)]
-      else
-        maxs = Array(columns.length)
-        mins = Array(columns.length)
-        for i in [0..columns.length-1]
-          columns[i] = _.reject(columns[i], (x) -> isNaN(x))
-          maxs[i] = _.max(columns[i])
-          mins[i] = _.min(columns[i])
-        [min, max] = [_.min(mins), _.max(maxs)]
+      columns = _.reject(columns, (x) -> isNaN(x))
+      [min, max] = [_.min(columns), _.max(columns)]
       if max != min
         span = (max - min) * (1 + @get('rangepadding'))
       else
         if max != 0
-          span = max * (1 + @get('rangepadding'))
+          span = Math.abs(max) * (1 + @get('rangepadding'))
         else
           span = 2
       center = (max + min) / 2.0

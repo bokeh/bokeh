@@ -21,7 +21,7 @@ define [], () ->
     v_apply: (xs, ys) ->
       xres = new Float32Array(xs.length)
       yres = new Float32Array(ys.length)
-      for i in [0..xs.length-1]
+      for i in [0...xs.length]
         xres[i] = @a * xs[i] + @b * ys[i] + @tx
         yres[i] = @c * xs[i] + @d * ys[i] + @ty
       return [xres, yres]

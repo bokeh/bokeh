@@ -11,10 +11,9 @@ N = 100
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
-output_file("relative.html", title="Relative path example",
-        js="relative", css="relative")
+output_file("relative_paths.html", title="Relative path example", js="relative", css="relative")
 
-scatter(x,y, color="#FF00FF", tools="pan,zoom,resize,save")
+scatter(x,y, color="#FF00FF", tools="pan,wheel_zoom,resize,save")
 
 show()
 

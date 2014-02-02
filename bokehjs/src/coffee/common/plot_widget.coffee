@@ -41,6 +41,8 @@ define [
         ctx.lineDashOffset = dash_offset
         ctx.mozDashOffset = dash_offset
         ctx.webkitLineDashOffset = dash_offset
+      ctx.getLineDashOffset = () ->
+        return ctx.mozDashOffset
 
     _fixup_image_smoothing: (ctx) ->
       ctx.setImageSmoothingEnabled = (value) ->

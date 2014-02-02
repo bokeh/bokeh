@@ -13,6 +13,6 @@ flowers['color'] = flowers['species'].map(lambda x: colormap[x])
 #too
 
 scatter(flowers["petal_length"], flowers["petal_width"],
-        color=flowers["color"], fill_alpha=0.2, radius=5, name="iris")
+        color=flowers["color"], fill_alpha=0.2, size=10, name="iris")
 
 show()

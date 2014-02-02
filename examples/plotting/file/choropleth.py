@@ -1,23 +1,28 @@
 
 from bokeh.sampledata import us_states, us_counties, unemployment
 from bokeh.plotting import *
-del us_states.data['HI']
-del us_states.data['AK']
 
-state_xs = [us_states.data[code]['lons'] for code in us_states.data]
-state_ys = [us_states.data[code]['lats'] for code in us_states.data]
+us_states = us_states.data.copy()
+us_counties = us_counties.data.copy()
+unemployment = unemployment.data
 
-county_xs=[us_counties.data[code]['lons'] for code in us_counties.data if us_counties.data[code]['state'] not in ['ak', 'hi', 'pr', 'gu', 'vi', 'mp', 'as']]
-county_ys=[us_counties.data[code]['lats'] for code in us_counties.data if us_counties.data[code]['state'] not in ['ak', 'hi', 'pr', 'gu', 'vi', 'mp', 'as']]
+del us_states['HI']
+del us_states['AK']
+
+state_xs = [us_states[code]['lons'] for code in us_states]
+state_ys = [us_states[code]['lats'] for code in us_states]
+
+county_xs=[us_counties[code]['lons'] for code in us_counties if us_counties[code]['state'] not in ['ak', 'hi', 'pr', 'gu', 'vi', 'mp', 'as']]
+county_ys=[us_counties[code]['lats'] for code in us_counties if us_counties[code]['state'] not in ['ak', 'hi', 'pr', 'gu', 'vi', 'mp', 'as']]
 
 colors = ["#F1EEF6", "#D4B9DA", "#C994C7", "#DF65B0", "#DD1C77", "#980043"]
 
 county_colors = []
-for county_id in us_counties.data:
-    if us_counties.data[county_id]['state'] in ['ak', 'hi', 'pr', 'gu', 'vi', 'mp', 'as']:
+for county_id in us_counties:
+    if us_counties[county_id]['state'] in ['ak', 'hi', 'pr', 'gu', 'vi', 'mp', 'as']:
         continue
     try:
-        rate = unemployment.data[county_id]
+        rate = unemployment[county_id]
         idx = min(int(rate/2), 5)
         county_colors.append(colors[idx])
     except KeyError:

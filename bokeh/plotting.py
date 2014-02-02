@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 """ Command-line driven plotting functions, a la Matplotlib  / Matlab / etc.
 """
 import copy
@@ -7,23 +9,28 @@ import itertools
 from numbers import Number
 import numpy as np
 import os
+import re
 import requests
 import time
 import warnings
 import webbrowser
 
+from six import string_types
+
 from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataRange1d,
-        Plot, Glyph, LinearAxis, Grid, PanTool, ZoomTool,
-        PreviewSaveTool, ResizeTool, CrosshairTool, BoxSelectTool, 
+        Plot, Glyph, LinearAxis, Grid, PanTool, WheelZoomTool,
+        PreviewSaveTool, ResizeTool, CrosshairTool, BoxSelectTool,
         EmbedTool, BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
-from . import glyphs
+from . import glyphs, browserlib, serverconfig
 from .palettes import brewer
 
-instrument = None
-"""instrument is used to collect plots it is particularly helpful for gallery   """
+# This is used to accumulate plots generated via the plotting methods in this
+# module.  It is used by build_gallery.py.  To activate this feature, simply
+# set _PLOTLIST to an empty list; to turn it off, set it back to None.
+_PLOTLIST = None
 
 
 def plothelp():
@@ -102,7 +109,7 @@ def plothelp():
         Updates the output HTML file or forces an upload of plot data
         to the server
     """
-    print helpstr
+    print(helpstr)
 
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
@@ -145,7 +152,8 @@ def session():
     """
     return _config["session"]
 
-def output_notebook(url=None, docname=None):
+###NEEDS A BOKEH CLOUD VERSION AS WELL
+def output_notebook(server=None, name=None, url=None, docname=None):
     """ Sets the output mode to emit HTML objects suitable for embedding in
     IPython notebook.  If URL is "default", then uses the default plot
     server URLs etc. for Bokeh.  If URL is explicitly set to None, then data,
@@ -164,7 +172,7 @@ def output_notebook(url=None, docname=None):
     if not notebook:
         raise RuntimeError('output_notebook() called outside of IPython notebook 1.x. When not running inside an IPython notebook 1.x, please use output_file() or output_server()')
 
-    if url is None:
+    if url is None and name is None and server is None:
         session = NotebookSession()
         session.notebooksources()
     else:
@@ -172,9 +180,21 @@ def output_notebook(url=None, docname=None):
             real_url = _config["plotserver_url"]
         else:
             real_url = url
-        _config["output_url"] = real_url
-        session = NotebookServerSession(serverloc = real_url,
-                    username = "defauluser", userapikey = "nokey")
+        if not server:
+            if name:
+                server = serverconfig.Server(name=name)
+            else:
+                server = serverconfig.Server(name=real_url)
+        _config["output_url"] = server.root_url
+        _config["output_type"] = "server"
+        _config["output_file"] = None
+        try:
+            session = NotebookServerSession(server_config=server)
+        except requests.exceptions.ConnectionError:
+            print("Cannot connect to Bokeh server. (Not running?) To start the "
+                  "Bokeh server execute 'bokeh-server'")
+            import sys
+            sys.exit(1)
         if docname is None:
             docname = "IPython Session at %s" % time.ctime()
         session.use_doc(docname)
@@ -183,7 +203,10 @@ def output_notebook(url=None, docname=None):
     _config["output_file"] = None
     _config["session"] = session
 
-def output_server(docname, url="default", **kwargs):
+def output_cloud(docname):
+    output_server(docname, server=serverconfig.Cloud())
+
+def output_server(docname, server=None, name=None, url="default", **kwargs):
     """ Sets the output mode to upload to a Bokeh plot server.
 
     Default bokeh server address is defined in DEFAULT_SERVER_URL.  Docname is
@@ -194,26 +217,33 @@ def output_server(docname, url="default", **kwargs):
     and **base_url** can be supplied.
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
+
+    if server is provided, use server
+    otherwise use name
+    finally fallback on url
     """
     if url == "default":
         real_url = _config["plotserver_url"]
     else:
         real_url = url
-    _config["output_url"] = real_url
+    if not server:
+        if name:
+            server = serverconfig.Server(name=name)
+        else:
+            server = serverconfig.Server(name=real_url)
+    _config["output_url"] = server.root_url
     _config["output_type"] = "server"
     _config["output_file"] = None
-    kwargs.setdefault("username", "defaultuser")
-    kwargs.setdefault("serverloc", real_url)
-    kwargs.setdefault("userapikey", "nokey")
     try:
-        _config["session"] = PlotServerSession(**kwargs)
+        _config["session"] = PlotServerSession(server_config=server)
     except requests.exceptions.ConnectionError:
-        print "Cannot connect to Bokeh server. (Not running?) To start the Bokeh server execute 'bokeh-server'"
+        print("Cannot connect to Bokeh server. (Not running?) To start the "
+              "Bokeh server execute 'bokeh-server'")
         import sys
         sys.exit(1)
     _config["session"].use_doc(docname)
-
-    print "Using plot server at", real_url + "bokeh;", "Docname:", docname
+    real_url = _config["output_url"]
+    print("Using plot server at", real_url + "bokeh;", "Docname:", docname)
 
 def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
                 css="inline", rootdir="."):
@@ -233,7 +263,8 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
     """
     set_config()
     if os.path.isfile(filename):
-        print "Session output file '%s' already exists, will be overwritten." % filename
+        print("Session output file '%s' already exists, will be overwritten." %
+                filename)
     session = HTMLFileSession(filename, title=title)
     if js == "relative":
         session.inline_js = False
@@ -280,20 +311,16 @@ def show(browser=None, new="tab"):
     """
     output_type = _config["output_type"]
     session = _config["session"]
+
     # Map our string argument to the webbrowser.open argument
     new_param = {'tab': 2, 'window': 1}[new]
-    if browser is not None:
-        controller = webbrowser.get(browser)
-    else:
-        controller = webbrowser
+    controller = browserlib.get_browser_controller(browser=browser)
     if output_type == "file":
         session.save()
-        controller.open("file://" + os.path.abspath(_config["output_file"]),
-                            new=new_param)
+        controller.open("file://" + os.path.abspath(_config["output_file"]), new=new_param)
     elif output_type == "server":
         session.store_all()
         controller.open(_config["output_url"] + "/bokeh", new=new_param)
-
     elif output_type == "notebook":
         session.show(curplot())
 
@@ -346,9 +373,9 @@ def visual(func):
         if plot is not None:
             session.add(plot)
             _config["curplot"] = plot
-            # if type(instrument) == type([]):
-            #     instrument.append(plot)
-                
+            # if _PLOTLIST is not None:
+            #     _PLOTLIST.append(plot)
+
         if session_objs:
             session.add(*session_objs)
 
@@ -362,8 +389,6 @@ def visual(func):
                 (output_type == "notebook" and output_url is not None):
             # push the plot data to a plot server
             session.store_all()
-            if output_type == "notebook":
-                session.show(plot, *session_objs)
 
         else: # File output mode
             # Store plot into HTML file
@@ -445,7 +470,7 @@ class GlyphFunction(object):
                     # ColorSpecs do not have units.  However, if there are other kinds of
                     # DataSpecs that do have string constants, then we will need to fix
                     # this up to have smarter detection of field names.
-                    if isinstance(curval, basestring):
+                    if isinstance(curval, string_types):
                         glyph_params[dspec] = {"field": curval, "units": val}
                     else:
                         glyph_params[dspec] = {"value": curval, "units": val}
@@ -459,21 +484,24 @@ class GlyphFunction(object):
                 # This check for color constants needs to happen relatively early on because
                 # both strings and certain iterables are valid colors.
                 glyph_val = val
-            elif isinstance(val, basestring):
+            elif isinstance(val, string_types):
                 if self.glyphclass == glyphs.Text:
                     glyph_val = val
                 else:
                     if val not in datasource.column_names:
                         raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
-                    glyph_val = {'field' : val, 'units' : 'data'}
+                    units = getattr(dataspecs[var], 'units', 'data')
+                    glyph_val = {'field' : val, 'units' : units}
             elif isinstance(val, np.ndarray):
                 if val.ndim != 1:
                     raise RuntimeError("Columns need to be 1D (%s is not)" % var)
                 datasource.add(val, name=var)
-                glyph_val = {'field' : var, 'units' : 'data'}
+                units = getattr(dataspecs[var], 'units', 'data')
+                glyph_val = {'field' : var, 'units' : units}
             elif isinstance(val, Iterable):
                 datasource.add(val, name=var)
-                glyph_val = {'field' : var, 'units' : 'data'}
+                units = getattr(dataspecs[var], 'units', 'data')
+                glyph_val = {'field' : var, 'units' : units}
             else:
                 raise RuntimeError("Unexpected column type: %s" % type(val))
             glyph_params[var] = glyph_val
@@ -481,8 +509,8 @@ class GlyphFunction(object):
 
     def _update_plot_data_ranges(self, plot, datasource, xcols, ycols):
         """
-        Parmeters
-        ---------
+        Parameters
+        ----------
         plot : plot
         datasource : datasource
         xcols : names of columns that are in the X axis
@@ -510,33 +538,35 @@ class GlyphFunction(object):
                 plot.y_range.sources.append(datasource.columns(*ycols))
             plot.y_range._dirty = True
 
+    def _materialize_colors_and_alpha(self, kwargs, prefix="", default_alpha=1.0):
+        """
+        Given a kwargs dict, a prefix, and a default value, looks for different
+        color and alpha fields of the given prefix, and fills in the default value
+        if it doesn't exist.
+        """
+        # TODO: The need to do this and the complexity of managing this kind of
+        # thing throughout the codebase really suggests that we need to have
+        # a real stylesheet class, where defaults and Types can declaratively
+        # substitute for this kind of imperative logic.
+        color = kwargs.pop(prefix+"color", get_default_color())
+        for argname in ("fill_color", "line_color"):
+            kwargs[argname] = kwargs.get(prefix + argname, color)
+
+        # NOTE: text fill color should really always default to black, hard coding
+        # this here now untils the stylesheet solution exists
+        kwargs["text_color"] = kwargs.get(prefix + "text_color", "black")
+
+        alpha = kwargs.pop(prefix+"alpha", default_alpha)
+        for argname in ("fill_alpha", "line_alpha", "text_alpha"):
+            kwargs[argname] = kwargs.get(prefix + argname, alpha)
+
+        return kwargs
 
     @visual
     def __call__(self, *args, **kwargs):
-
         # Process the keyword arguments that are not glyph-specific
         datasource = kwargs.pop("source", ColumnDataSource())
         session_objs = [datasource]
-        if "color" in kwargs:
-            color = kwargs.pop("color")
-            if "fill_color" not in kwargs:
-                kwargs["fill_color"] = color
-            if "line_color" not in kwargs:
-                kwargs["line_color"] = color
-        elif not len(color_fields.intersection(set(kwargs.keys()))):
-            kwargs["fill_color"] = get_default_color()
-            kwargs["line_color"] = kwargs["fill_color"]
-
-        if "alpha" in kwargs:
-            alpha = kwargs.pop("alpha")
-            if "fill_alpha" not in kwargs:
-                kwargs["fill_alpha"] = alpha
-            if "line_alpha" not in kwargs:
-                kwargs["line_alpha"] = alpha
-        elif not len(alpha_fields.intersection(set(kwargs.keys()))):
-            kwargs["fill_alpha"] = get_default_alpha()
-            kwargs["line_alpha"] = kwargs["fill_alpha"]
-
         legend_name = kwargs.pop("legend", None)
         plot = self._get_plot(kwargs)
         if 'name' in kwargs:
@@ -545,21 +575,25 @@ class GlyphFunction(object):
         select_tool = self._get_select_tool(plot)
 
         # Process the glyph dataspec parameters
-        glyph_params = self._match_data_params(datasource, args, kwargs)
+        glyph_params = self._match_data_params(
+            datasource, args, self._materialize_colors_and_alpha(kwargs))
 
         x_data_fields = [
-            glyph_params[xx]['field'] for xx in self.xfields if glyph_params[xx]['units'] == 'data'
-        ]
+            glyph_params[xx]['field'] for xx in self.xfields if glyph_params[xx]['units'] == 'data']
         y_data_fields = [
-            glyph_params[yy]['field'] for yy in self.yfields if glyph_params[yy]['units'] == 'data'
-        ]
+            glyph_params[yy]['field'] for yy in self.yfields if glyph_params[yy]['units'] == 'data']
         self._update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
-
         kwargs.update(glyph_params)
         glyph = self.glyphclass(**kwargs)
+        nonselection_glyph_params = self._materialize_colors_and_alpha(
+            kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
-        nonselection_glyph.fill_alpha = 0.1
-        nonselection_glyph.line_alpha = 0.1
+
+        nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
+        nonselection_glyph.line_color = nonselection_glyph_params['line_color']
+
+        nonselection_glyph.fill_alpha = nonselection_glyph_params['fill_alpha']
+        nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
 
         glyph_renderer = Glyph(
             data_source = datasource,
@@ -685,6 +719,9 @@ text = GlyphFunction(glyphs.Text, ("x", "y", "text", "angle"))
 
 wedge = GlyphFunction(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"))
 
+image = GlyphFunction(glyphs.Image, ("image", "x", "y", "dw", "dh", "palette"))
+
+image_rgba = GlyphFunction(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"))
 
 marker_types = {
         "circle": glyphs.Circle,
@@ -712,14 +749,14 @@ marker_types = {
 def markers():
     """ Prints a list of valid marker types for scatter()
     """
-    print sorted(marker_types.keys())
+    print(list(sorted(marker_types.keys())))
 
 
 for _marker_name, _glyph_class in marker_types.items():
     if len(_marker_name) <= 2:
         continue
     _func = GlyphFunction(_glyph_class, ("x", "y"))
-    exec "%s = _func" % _marker_name
+    exec("%s = _func" % _marker_name)
 
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x & y items
@@ -741,7 +778,7 @@ def scatter(*args, **kwargs):
 
     Style Parameters (specified by keyword)::
 
-        type : a valid marker_type; defaults to "circle"
+        marker : a valid marker_type; defaults to "circle"
         fill_color : color
         fill_alpha : 0.0 - 1.0
         line_color : color
@@ -767,6 +804,10 @@ def scatter(*args, **kwargs):
     """
     session_objs = []   # The list of objects that need to be added
 
+    if "type" in kwargs:
+        warnings.warn("Keyword argument 'type' of scatter(...) is deprecated; use 'marker' instead.")
+        kwargs.setdefault("marker", kwargs.pop("type"))
+
     ds = kwargs.get("source", None)
     names, datasource = _handle_1d_data_args(args, datasource=ds)
     if datasource != ds:
@@ -774,13 +815,8 @@ def scatter(*args, **kwargs):
 
     # If hold is on, then we will reuse the ranges of the current plot
     #plot = get_plot(kwargs)
-    markertype = kwargs.get("type", "circle")
+    markertype = kwargs.get("marker", "circle")
     x_name = names[0]
-
-    # TODO this won't be necessary when markers are made uniform
-    if markertype == "circle":
-        if "radius" not in kwargs:
-            kwargs["radius"] = kwargs.get("size",8)/2
 
     # TODO: How to handle this? Just call curplot()?
     if not len(color_fields.intersection(set(kwargs.keys()))):
@@ -818,12 +854,12 @@ def gridplot(plot_arrangement, name=False):
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="linear", y_axis_type="linear",
-                 tools="pan,zoom,save,resize,select", **kw):
+                 tools="pan,wheel_zoom,save,resize,select", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
-    if type(instrument) == type([]):
-        instrument.append(p)
+    if _PLOTLIST is not None:
+        _PLOTLIST.append(p)
 
     p.title = kw.pop("title", "Plot")
     if plot_width is not None:
@@ -858,31 +894,39 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if axiscls:
         yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
 
-    xgrid = Grid(plot=p, dimension=0)
-    ygrid = Grid(plot=p, dimension=1)
+    xgrid = Grid(plot=p, dimension=0, is_datetime=(x_axis_type == "datetime"))
+    ygrid = Grid(plot=p, dimension=1, is_datetime=(y_axis_type == "datetime"))
 
     tool_objs = []
-    if "pan" in tools:
-        tool_objs.append(PanTool(dataranges=[p.x_range, p.y_range], dimensions=["width","height"]))
-    if "zoom" in tools:
-        tool_objs.append(ZoomTool(dataranges=[p.x_range, p.y_range], dimensions=["width","height"]))
-    if "save" in tools:
-        tool_objs.append(PreviewSaveTool(plot=p))
-    if "resize" in tools:
-        tool_objs.append(ResizeTool(plot=p))
-    if "crosshair" in tools:
-        tool_objs.append(CrosshairTool(plot=p))
-    if "select" in tools:
-        select_tool = BoxSelectTool()
-        tool_objs.append(select_tool)
-        overlay = BoxSelectionOverlay(tool=select_tool)
-        p.renderers.append(overlay)
-    if "previewsave" in tools:
-        previewsave_tool = PreviewSaveTool(plot=p)
-        tool_objs.append(previewsave_tool)
-    if "embed" in tools:
-        embed_tool = EmbedTool(plot=p)
-        tool_objs.append(embed_tool)
+
+    for tool in re.split(r"\s*,\s*", tools.strip()):
+        # re.split will return empty strings; ignore them.
+        if tool == "": 
+            continue
+        if tool == "pan":
+            tool_obj = PanTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
+        elif tool == "wheel_zoom":
+            tool_obj = WheelZoomTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
+        elif tool == "save":
+            tool_obj = PreviewSaveTool(plot=p)
+        elif tool == "resize":
+            tool_obj = ResizeTool(plot=p)
+        elif tool == "crosshair":
+            tool_obj = CrosshairTool(plot=p)
+        elif tool == "select":
+            tool_obj = BoxSelectTool()
+            overlay = BoxSelectionOverlay(tool=tool_obj)
+            p.renderers.append(overlay)
+        elif tool == "previewsave":
+            tool_obj = PreviewSaveTool(plot=p)
+        elif tool == "embed":
+            tool_obj = EmbedTool(plot=p)
+        else:
+            known_tools = "pan, wheel_zoom, save, resize, crosshair, select, previewsave or embed"
+            raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
+
+        tool_objs.append(tool_obj)
+
     p.tools.extend(tool_objs)
     return p
 
@@ -900,7 +944,7 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
     # process, "arrays" should contain a uniform list of string/ndarray/iterable
     # corresponding to the inputs.
     for arg in args:
-        if isinstance(arg, basestring):
+        if isinstance(arg, string_types):
             # This has to be handled before our check for Iterable
             arrays.append(arg)
 
@@ -925,7 +969,7 @@ def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
     # Now put all the data into a DataSource, or insert into existing one
     names = []
     for i, ary in enumerate(arrays):
-        if isinstance(ary, basestring):
+        if isinstance(ary, string_types):
             name = ary
         else:
             if i < len(suggested_names):

@@ -1,6 +1,2 @@
-import main
-import backbone
-import websocket
-
-
+from . import main, backbone, websocket, statics
 

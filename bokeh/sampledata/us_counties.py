@@ -19,7 +19,7 @@ nan = float('NaN')
 
 data = {}
 with open(join(data_dir, 'US_Counties.csv')) as f:
-    f.next()
+    next(f)
     reader = csv.reader(f, delimiter=',', quotechar='"')
     for row in reader:
         name, dummy, state, dummy, geometry, dummy, dummy, dummy, dummy, state_id, county_id, dummy, dummy = row
@@ -31,7 +31,8 @@ with open(join(data_dir, 'US_Counties.csv')) as f:
                 lats.append(nan)
                 lons.append(nan)
             coords = (c.split(',')[:2] for c in poly.text.split())
-            lat, lon = zip(*[(float(lat), float(lon)) for lon, lat in coords])
+            lat, lon = list(zip(*[(float(lat), float(lon)) for lon, lat in
+                coords]))
             lats.extend(lat)
             lons.extend(lon)
         data[(int(state_id), int(county_id))] = {

@@ -84,8 +84,8 @@ define [
         y = v_range.get('start') + legend_padding + @legend_height
       else if orientation == "absolute"
         [x,y] = @absolute_coords
-      x = @plot_view.view_state.sx_to_device(x)
-      y = @plot_view.view_state.sy_to_device(y)
+      x = @plot_view.view_state.vx_to_sx(x)
+      y = @plot_view.view_state.vy_to_sy(y)
       @box_coords = [x,y]
 
     render: () ->
@@ -100,7 +100,6 @@ define [
       )
       ctx.fill()
       ctx.stroke()
-      @label_props.set(ctx, @)
       legend_spacing = @mget('legend_spacing')
       for legend_name, idx in @legend_names
         yoffset = idx * @label_height
@@ -111,6 +110,7 @@ define [
         x2 = x1 + @glyph_width
         y1 = @box_coords[1] + yoffset + yspacing
         y2 = y1 + @glyph_height
+        @label_props.set(ctx, @)
         ctx.fillText(legend_name, x, y)
         for renderer in @model.resolve_ref(@legends[legend_name])
           view = @plot_view.renderers[renderer.id]
@@ -140,7 +140,7 @@ define [
         label_text_font_style: "normal"
         label_text_color: "#444444"
         label_text_alpha: 1.0
-        label_text_align: "center"
+        label_text_align: "left"
         label_text_baseline: "middle"
 
         glyph_height: 20
@@ -150,8 +150,6 @@ define [
         legend_padding: 10
         legend_spacing: 3
         orientation: "top_right"
-        label_text_align: "left"
-        label_text_baseline: "middle"
         datapoint: null
       }
 

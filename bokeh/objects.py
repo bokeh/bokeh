@@ -1,3 +1,5 @@
+from __future__ import absolute_import
+
 """ Collection of core plotting objects, which can be represented in the
 Javascript layer.  The object graph formed by composing the objects in
 this module can be stored as a backbone.js model graph, and stored in a
@@ -7,14 +9,17 @@ notebook.
 import os
 from uuid import uuid4
 from functools import wraps
-import urlparse
+
+from six import add_metaclass
+from six.moves.urllib.parse import urlsplit
+
 import warnings
 import logging
 logger = logging.getLogger(__file__)
 
-from bokeh.properties import (HasProps, MetaHasProps, Any, Dict, Enum,
-        Either, Float, Instance, Int, List, String, Color, Pattern, Percent,
-        Size, LineProps, FillProps, TextProps, Include)
+from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
+        Either, Float, Instance, Int, List, String, Color, DashPattern, Percent,
+        Size, LineProps, FillProps, TextProps, Include, Bool)
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -100,7 +105,7 @@ def json_apply(fragment, check_func, func):
         return output
     elif isinstance(fragment, dict):
         output = {}
-        for k, val in fragment.iteritems():
+        for k, val in fragment.items():
             output[k] = json_apply(val, check_func, func)
         return output
     else:
@@ -152,10 +157,9 @@ def recursively_traverse_plot_object(plot_object,
                     children=children)
         return children
 
+@add_metaclass(Viewable)
 class PlotObject(HasProps):
     """ Base class for all plot-related objects """
-
-    __metaclass__ = Viewable
 
     session = Instance   # bokeh.session.Session
 
@@ -177,6 +181,12 @@ class PlotObject(HasProps):
         else:
             self._block_callbacks = True
             super(PlotObject, self).__init__(*args, **kwargs)
+
+    def get_ref(self):
+        return {
+            'type': self.__view_model__,
+            'id': self._id,
+        }
 
     def setup_events(self):
         pass
@@ -259,7 +269,7 @@ class PlotObject(HasProps):
         return attrs
 
     def update(self, **kwargs):
-        for k,v in kwargs.iteritems():
+        for k,v in kwargs.items():
             setattr(self, k, v)
 
     @usesession
@@ -269,17 +279,16 @@ class PlotObject(HasProps):
         If no ref is given, uses self._id.
         """
         # Read session values into a new dict, and fill those into self
-        newattrs = session.load(ref, asdict=True)
-        # Loop over attributes and call setattr() instead of doing a bulk
-        # self.__dict__.update because some attributes may be properties.
-        self.update(newattrs["attributes"])
+        if ref is None:
+            ref = session.get_ref(self)
+        newattrs = session.load_obj(ref)
 
     @usesession
     def push(self, session=None):
         """ Pushes the update values from this object into the given
         session (or self.session, if none is provided).
         """
-        session.store(self)
+        session.store_obj(self)
 
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
@@ -350,7 +359,7 @@ class PlotObject(HasProps):
         typename = self.__view_model__
         if not base_url:
             base_url = sess.root_url
-        split = urlparse.urlsplit(base_url)
+        split = urlsplit(base_url)
         if split.scheme == 'http':
             ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
         else:
@@ -425,7 +434,15 @@ class ColumnDataSource(DataSource):
         """
         if len(args) == 1 and "data" not in kw:
             kw["data"] = args[0]
-        for name, data in kw.get("data", {}).items():
+        raw_data = kw.get("data", {})
+        if not isinstance(raw_data, dict):
+            import pandas as pd
+            if isinstance(raw_data, pd.DataFrame):
+                new_data = {}
+                for colname in raw_data:
+                    new_data[colname] = raw_data[colname].tolist()
+                raw_data = new_data
+        for name, data in raw_data.items():
             self.add(data, name)
         super(ColumnDataSource, self).__init__(**kw)
 
@@ -448,16 +465,6 @@ class ColumnDataSource(DataSource):
             del self.data[name]
         except (ValueError, KeyError):
             warnings.warn("Unable to find column '%s' in datasource" % name)
-
-
-class ObjectArrayDataSource(DataSource):
-    # List of tuples of values
-    data = List()
-
-    # Maps field/column name to a DataRange or FactorRange object. If the
-    # field is not in the dict, then a range is created automatically.
-    cont_ranges = Dict()
-    discrete_ranges = Dict()
 
 class PandasDataSource(DataSource):
     """ Represents serverside data.  This gets stored into the plot server's
@@ -616,7 +623,7 @@ class Plot(PlotObject):
 
 
     def _get_script_inject_snippet(self):
-        from session import HTMLFileSession
+        from .session import HTMLFileSession
         if isinstance(self._session, HTMLFileSession):
             self.script_inject_snippet
             return ""
@@ -785,6 +792,8 @@ class Grid(GuideRenderer):
     dimension = Int(0)
     bounds = String('auto')
 
+    is_datetime = Bool(False)
+
     # Line props
     grid_props = Include(LineProps, prefix="grid")
 
@@ -793,7 +802,7 @@ class PanTool(PlotObject):
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
 
-class ZoomTool(PlotObject):
+class WheelZoomTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
@@ -816,6 +825,7 @@ class CrosshairTool(PlotObject):
 
 class BoxSelectTool(PlotObject):
     renderers = List(has_ref=True)
+    select_every_mousemove = Bool(True)
 
 class BoxSelectionOverlay(PlotObject):
     __view_model__ = 'BoxSelection'
@@ -847,3 +857,10 @@ class DataRangeBoxSelectTool(PlotObject):
     xselect = List()
     yselect = List()
 
+class PlotContext(PlotObject):
+    children = List(has_ref=True)
+
+class PlotList(PlotContext):
+    # just like plot context, except plot context has special meaning
+    # everywhere, so plotlist is the generic one
+    pass

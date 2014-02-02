@@ -1,3 +1,5 @@
+from __future__ import absolute_import, print_function
+
 """
 An implementation of GGPlot in Python.
 
@@ -13,7 +15,7 @@ from traits.api import HasTraits, Any, Enum, Float, Function, Int, List, Str, Tr
 from chaco import api as chaco
 from chaco.tools.api import PanTool, ZoomTool, RegressionLasso, RegressionOverlay
 
-from pandas_plot_data import PandasPlotData
+from .pandas_plot_data import PandasPlotData
 
 DefaultStyle = dict(
     color = "black",
@@ -189,12 +191,12 @@ class GGPlot(HasTraits):
         """
         # Check to see if a facet or a geom is being passed in
         if isinstance(obj, Geom):
-            print "added geom:", obj
+            print("added geom:", obj)
             self.geoms.append(obj)
             if self.window is not None:
                 self._update_plot()
         elif isinstance(obj, Facet):
-            print "setting facet:", obj
+            print("setting facet:", obj)
             self.facet_layout = obj
         elif isinstance(obj, Aesthetic):
             if self.aes is None:
@@ -242,9 +244,9 @@ class GGPlot(HasTraits):
                 # of a better interface for PandasPlotData.
                 levels = facet_pds[0]._groupby.grouper.levels
                 grid_shape = (len(levels[0]), len(levels[1]))
-                print "Factors:", self.facet_layout.factors
-                print "Grid of shape:", grid_shape
-                print "Levels:", levels[0], levels[1]
+                print("Factors:", self.facet_layout.factors)
+                print("Grid of shape:", grid_shape)
+                print("Levels:", levels[0], levels[1])
 
                 container = chaco.GridContainer(padding=20, fill_padding=True,
                         bgcolor="lightgray", use_backbuffer=False,
@@ -280,7 +282,7 @@ class GGPlot(HasTraits):
         # don't have a renderer, then plot them.
         for g in self.geoms:
             if g._renderer is None:
-                print "Updating plot with geom", g
+                print("Updating plot with geom", g)
                 g.plot(self.window.get_container(), self.aes)
         self._redraw()
 
@@ -299,7 +301,8 @@ class GGPlot(HasTraits):
                                         lasso_selection=tool))
                     break
             else:
-                print "Unable to find a suitable scatterplot for regression tool"
+                print("Unable to find a suitable scatterplot for "
+                      "regression tool")
 
         elif toolspec.type == "pan":
             cont = self.window.get_container()

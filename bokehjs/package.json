@@ -3,15 +3,18 @@
   "version": "0.3.0",
   "dependencies": {
     "requirejs": "~2.1",
-    "bower": "~1.1",
     "grunt": "~0.4",
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-contrib-watch": "~0.5.1",
     "grunt-contrib-less": "~0.6.4",
     "grunt-contrib-requirejs": "~0.4.1",
+    "grunt-contrib-cssmin": "~0.6.2",
+    "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-qunit": ">=0.2.1",
-    "grunt-eco" : "~0.1.0"
+    "grunt-symbolic-link": ">=0.3",
+    "grunt-eco": "~0.1.0",
+    "grunt-groc": ""
   }
 }
