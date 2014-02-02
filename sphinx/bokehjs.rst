@@ -91,6 +91,10 @@ corresponding ``start_radius``, ``end_radius``,  ``start_angle`` and ``end_angle
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/BShaA/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_annulus:
 
 ``annulus``
@@ -103,6 +107,10 @@ corresponding ``start_radius`` and ``end_radius``.
 * ``end_radius``
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/d6ya8/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_arc:
 
@@ -123,6 +131,10 @@ corresponding ``radius``, ``start_angle`` and ``end_angle``.
   * default: ``'anticlock'``
 
 * :ref:`bokehjs_line_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/2hg4W/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_asterisk:
 
