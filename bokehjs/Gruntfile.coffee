@@ -244,6 +244,7 @@ module.exports = (grunt) ->
   grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css"])
   grunt.registerTask("deploy",      ["mindeploy", "devdeploy"])
   grunt.registerTask("test",        ["connect", "qunit"])
+  grunt.registerTask("serve",       ["connect:server:keepalive"])
   grunt.registerTask("config", "Write config.js", () ->
     config = {
       paths: grunt.config.get("requirejs.options.paths")
