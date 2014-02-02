@@ -4,12 +4,25 @@
 Release Notes
 #############
 
+v0.4 (Feb 2014)
+===============
+
+* Basic MPL interface
+* Free public beta of Bokeh plot hosting service at `bokehplots.com <http://bokehplots.com>`_.
+* Tool enhancements: "always on" pan tool
+* Much enhanced datetime axis, with better performance and "nice" number picking
+* Improved testing, including TravisCI integrations and static image output using PhantomJS
+* RGBA and color mapped image plots exposed from python
+* renderer performance improvements
+* python 3 support for bokeh-server
+* Source maps & incremental compilation
+
 v0.3 (Nov 2013)
 ===============
 
-* refactor bokehjs to use grunt for coffee build
-* merge bokeh and bokehjs repositories
-* various bug fixes
+* Refactor bokehjs to use grunt for coffee build
+* Merge bokeh and bokehjs repositories
+* Various bug fixes
 * additional and improved examples and docs
 
 v0.2 (Oct 2013)
@@ -33,7 +46,7 @@ v0.1 (Apr 2013)
 * IPython notebook embedding capability
 * Table widget
 * Pan, Zoom, Select, Resize tools
-* initial Python implementation of Abstract Rendering
+* Initial Python implementation of Abstract Rendering
 
 .. _roadmap:
 
@@ -41,35 +54,12 @@ v0.1 (Apr 2013)
 Roadmap & TODO List
 ###################
 
-v0.4 (Goal: December 2013)
-==========================
+v0.5 (Goal: March 2014)
+=======================
 
-Big Items:
-
-* Integrate Abstract Rendering into bokeh server
-* Better grid-based layout system; use Cassowary.js for layout solver, and initially just directly implement schematized layouts
-* Unit tests (including visual)
-* Cheesy publishing
-
-Smaller Items:
-
-* Improve tools
-
-  - turn on pan by default
-  - easier interactions with zoom: zoom box or buttons for zoom in/out
-  - Reset view
-  - Hot corner for resize tool
-
-* Expose image plot in Python interface; use efficient binary representation of data, e.g. via dynamically generated images
 * StreamDataSource which automatically, periodically polls a datasource (need to some way highlight data APIs which support CORS; consider using JSONP?)
-* More streaming & updating data examples
-* Theming support
-* Basic mpl interface (enough to make ggplot.py or seaborn work)
-* Source maps & incremental compilation
-
-v0.5
-====
-
+* Better grid-based layout system; use Cassowary.js for layout solver, and initially just directly implement schematized layouts
+* Integrate Abstract Rendering into bokeh server
 * New event and interactor architecture
 * Data selection architecture, add various inspectors and data selectors (accessible from Python interface)
 * Improve rendering loop performance in BokehJS
@@ -81,8 +71,15 @@ v0.5
 * Improve ggplot interface / integrate with ggplot python lib
 * Touch events
 * Animation framework
-* CSS styling mechanism
+* CSS styling/theming mechanism
+* Improve tools
 
+  - easier interactions with zoom: zoom box or buttons for zoom in/out
+  - Reset view
+  - Hot corner for resize tool
+
+v0.6 (Goal: May 2014)
+=====================
 
 Long-term TODO List
 ===================
