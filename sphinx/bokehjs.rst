@@ -163,6 +163,10 @@ The bezier glyph displays Bezier curves with the given starting, ending, and con
 * ``cx1``, ``cy1`` - second control point coordinates
 * :ref:`bokehjs_line_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/U3q3g/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_circle:
 
 ``circle``
@@ -176,6 +180,11 @@ field or a non-marker form that takes a ``radius`` field.
 |* :ref:`bokehjs_line_properties`          |* :ref:`bokehjs_line_properties`          |
 |* :ref:`bokehjs_fill_properties`          |* :ref:`bokehjs_fill_properties`          |
 +------------------------------------------+------------------------------------------+
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/9GhAp/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_circle_cross:
 
 ``circle_cross``
@@ -324,6 +333,10 @@ upsided-down triangles at the given coordinates.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/EMEJw/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_line:
 
 ``line``
@@ -333,6 +346,10 @@ of coordinates ``x`` and ``y``.
 
 * ``x``, ``y`` - line coordinates
 * :ref:`bokehjs_line_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/t2SCs/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_multi_line:
 
@@ -345,6 +362,10 @@ coordinates that are the elements of ``xs`` and ``ys``.
 
 * ``xs``, ``ys`` - lists of line coordinates
 * :ref:`bokehjs_line_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/dRv2s/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_oval:
 
@@ -363,6 +384,10 @@ and angle.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/h6eXz/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_patch:
 
 ``patch``
@@ -373,6 +398,10 @@ of coordinates ``x`` and ``y``.
 * ``x``, ``y`` - coordinates
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/SuzwP/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_patches:
 
@@ -387,6 +416,10 @@ coordinates that are the elements of ``xs`` and ``ys``.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/aFAXq/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_quad:
 
 ``quad``
@@ -400,6 +433,10 @@ The quad glyph displays axis-aligned rectangles with the given dimensions.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/72g3B/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_quadratic:
 
 ``quadratic``
@@ -410,6 +447,10 @@ The quadratic glyph displays quadratic curves with the given starting, ending, a
 * ``x1``, ``y1`` - ending point coordinates
 * ``cx``, ``cy`` - control point coordinates
 * :ref:`bokehjs_line_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/M7J2Y/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_ray:
 
@@ -425,6 +466,10 @@ The ray glyph displays line segments starting at the given coordinate and extend
   * default: 0
 
 * :ref:`bokehjs_line_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/Eq3Lf/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_rect:
 
@@ -443,6 +488,10 @@ and angle.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/3VNuN/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_segment:
 
 ``segment``
@@ -453,6 +502,10 @@ The segment glyph displays line segments with the given starting and ending coor
 * ``x0``, ``y0`` - starting point coordinates
 * ``x1``, ``y1`` - ending point coordinates
 * :ref:`bokehjs_line_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/eT45s/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_square:
 
@@ -466,6 +519,10 @@ at the given coordinates.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/k4LZ3/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_square_cross:
 
 ``square_cross``
@@ -478,6 +535,10 @@ together with a crossbar (+) at the given coordinates.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/MZE9V/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_square_x:
 
 ``square_x``
@@ -489,6 +550,10 @@ together with an X at the given coordinates.
 * ``size``
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/TpdP8/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_text:
 
@@ -505,6 +570,10 @@ location of the coordinates relative to the text is indicated by the text proper
 
 * :ref:`bokehjs_text_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/7EvYJ/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_triangle:
 
 ``triangle``
@@ -516,6 +585,10 @@ at the given coordinates.
 * ``size``
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/ZEhfy/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_wedge:
 
@@ -538,6 +611,10 @@ corresponding ``radius``,  ``start_angle`` and ``end_angle``.
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/4H7R6/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_x:
 
 ``x``
@@ -549,5 +626,9 @@ the given coordinates.
 * ``size``
 * :ref:`bokehjs_line_properties`
 * :ref:`bokehjs_fill_properties`
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/3hXa8/embedded/result,js" frameborder="0"></iframe>
 
 
