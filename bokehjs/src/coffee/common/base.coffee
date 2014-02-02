@@ -72,6 +72,7 @@ define [
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'
     ColumnSelectTool:       'tool/column_select_tool'
+    RemoteDataSelectTool:   'tool/remote_data_select_tool'
 
     EmbedTool:              'tool/embed_tool'
     ResetTool:              'tool/reset_tool'

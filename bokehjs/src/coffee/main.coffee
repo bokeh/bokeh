@@ -108,6 +108,7 @@ define (require, exports, module) ->
   Bokeh.ResizeTool             = require("tool/resize_tool")
   Bokeh.CrosshairTool          = require("tool/crosshair_tool")
   Bokeh.ColumnSelectTool       = require("tool/column_select_tool")
+  Bokeh.RemoteDataSelectTool       = require("tool/remote_data_select_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
 
 
