@@ -17,7 +17,6 @@ define [
   "renderer/guide/grid",
   "renderer/annotation/legend",
   "renderer/overlay/box_selection",
-  "source/object_array_data_source",
   "source/column_data_source",
   "tool/pan_tool",
   "tool/wheel_zoom_tool",
@@ -60,7 +59,6 @@ define [
     Legend:                 'renderer/annotation/legend'
     BoxSelection:           'renderer/overlay/box_selection'
 
-    ObjectArrayDataSource:  'source/object_array_data_source'
     ColumnDataSource:       'source/column_data_source'
 
     PanTool:                'tool/pan_tool'
