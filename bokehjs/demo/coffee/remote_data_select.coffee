@@ -65,7 +65,7 @@ require(['main'], (Bokeh) ->
     xrange: xdr
     xaxes: "min"
     yaxes: "min"
-    #tools: ['cselect']
+    tools: ['cselect']
     legend: false
     
   }
@@ -77,6 +77,10 @@ require(['main'], (Bokeh) ->
   glyphs2 = Bokeh.Plotting.create_glyphs(
     plot1, [scatter2], [source2], null)
   plot1.add_renderers(g.ref() for g in glyphs2)
+  remote_data_select_tool = Bokeh.Collections('RemoteDataSelectTool').create(
+    data_source: source.ref())
+  plot1.set_obj('tools', [remote_data_select_tool])
+
 
 
 

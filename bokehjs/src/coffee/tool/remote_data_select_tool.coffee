@@ -91,6 +91,8 @@ define [
       add = $(e.currentTarget).is(":checked")
       selected_columns = @model.get('selected_columns')
       if add
+
+        
         selected_columns.push(column)
         @model.set('selected_columns', _.uniq(selected_columns))
       else
@@ -105,8 +107,8 @@ define [
       super(options)
 
     eventGeneratorClass: ButtonEventGenerator
-    evgen_options: { buttonText:"ColumnSelect" }
-    toolType: "ColumnSelectTool"
+    evgen_options: { buttonText:"Remote Data Select" }
+    toolType: "RemoteDataSelectTool"
     tool_events: {
        activated: "_activated"
        deactivated: "_close_modal"
