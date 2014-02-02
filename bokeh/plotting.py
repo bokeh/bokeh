@@ -897,6 +897,16 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     xgrid = Grid(plot=p, dimension=0, is_datetime=(x_axis_type == "datetime"))
     ygrid = Grid(plot=p, dimension=1, is_datetime=(y_axis_type == "datetime"))
 
+    border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
+    for arg in border_args:
+        if arg in kw:
+            setattr(p, arg, kw.pop(arg))
+
+    fill_args = ["background_fill", "border_fill"]
+    for arg in fill_args:
+        if arg in kw:
+            setattr(p, arg, kw.pop(arg))
+
     tool_objs = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
