@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from bokeh.plotting import *
 from bokeh.objects import Range1d
-from StringIO import StringIO
+from six.moves import cStringIO as StringIO
 from math import log, sqrt
 from collections import OrderedDict
 
@@ -109,11 +109,11 @@ label_angle[label_angle < -np.pi/2] += np.pi # easier to read labels on the left
 text(xr, yr, df.bacteria, angle=label_angle, text_font_size="9pt", text_align="center", text_baseline="middle")
 
 # OK, these hand drawn legends are pretty clunky, will be improved in future release
-circle([-40, -40], [-370, -390], color=gram_color.values(), radius=5)
+circle([-40, -40], [-370, -390], color=list(gram_color.values()), radius=5)
 text([-30, -30], [-370, -390], text=["Gram-" + x for x in gram_color.keys()], angle=0, text_font_size="7pt", text_align="left", text_baseline="middle")
 
-rect([-40, -40, -40], [18, 0, -18], width=30, height=13, color=drug_color.values())
-text([-15, -15, -15], [18, 0, -18], text=drug_color.keys(), angle=0, text_font_size="9pt", text_align="left", text_baseline="middle")
+rect([-40, -40, -40], [18, 0, -18], width=30, height=13, color=list(drug_color.values()))
+text([-15, -15, -15], [18, 0, -18], text=list(drug_color.keys()), angle=0, text_font_size="9pt", text_align="left", text_baseline="middle")
 
 xgrid().grid_line_color = None
 ygrid().grid_line_color = None
