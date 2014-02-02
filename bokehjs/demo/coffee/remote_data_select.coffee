@@ -74,11 +74,11 @@ require(['main'], (Bokeh) ->
     source, _.extend({title: "Plot 1", yrange: ydr1}, options))
 
 
-  glyphs2 = Bokeh.Plotting.create_glyphs(
-    plot1, [scatter2], [source2], null)
-  plot1.add_renderers(g.ref() for g in glyphs2)
+  # glyphs2 = Bokeh.Plotting.create_glyphs(
+  #   plot1, [scatter2], [source2], null)
+  # plot1.add_renderers(g.ref() for g in glyphs2)
   remote_data_select_tool = Bokeh.Collections('RemoteDataSelectTool').create(
-    data_source: source.ref())
+    data_source_names: ['ys1', 'ys2', 'ys3'], selected_columns:['ys1'])
   plot1.set_obj('tools', [remote_data_select_tool])
 
 

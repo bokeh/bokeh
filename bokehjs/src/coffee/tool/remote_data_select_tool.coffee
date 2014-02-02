@@ -45,7 +45,7 @@ define [
             <h3 id="dataConfirmLabel">Data Sources </h3></div><div class="modal-body">
           <div class="modal-body">
             <ul>
-              <% _.each(columns, function(column_data){ %>
+              <% _.each(data_source_names, function(column_data){ %>
                 <li> <%= column_data[0] %> </li>
                 <input name='<%= column_data[0] %>' <%= column_data[1] %> type='checkbox' />
               <% }) %>
@@ -71,6 +71,35 @@ define [
       glyphs = Plotting.create_glyphs(pmodel, @renderer_specs(), [@model.get_obj('data_source')])
       pmodel.add_renderers(g.ref() for g in glyphs)
 
+    _add_renderer: (renderer_name) ->
+        xs = ((x/50) for x in _.range(630))
+        ys1 = (Math.sin(x) for x in xs)
+        ys2 = (Math.cos(x) for x in xs)
+        ys3 = (Math.tan(x) for x in xs)
+
+        Bokeh = require('main')
+        source2 = Bokeh.Collections('ColumnDataSource').create(
+          data:
+            x: xs
+            y2: ys2)
+      
+        scatter2 = {
+          type: 'rect'
+          x: 'x'
+          y: 'y2'
+          width: 5
+          width_units: 'screen'
+          height: 5
+          height_units: 'screen'
+          fill_color: 'blue'}
+
+
+        pmodel = @plot_view.model
+        Plotting = require("common/plotting")
+        glyphs = Plotting.create_glyphs(pmodel, scatter2, [source2])
+        pmodel.add_renderers(g.ref() for g in glyphs)
+      
+
     renderer_specs : ->
       specs = []
       for col_name in @model.get('selected_columns')
@@ -87,17 +116,17 @@ define [
       specs
 
     update_selected_columns: (e) ->
-      column =  $(e.currentTarget).attr('name')
+      rname =  $(e.currentTarget).attr('name')
       add = $(e.currentTarget).is(":checked")
       selected_columns = @model.get('selected_columns')
       if add
-
-        
-        selected_columns.push(column)
-        @model.set('selected_columns', _.uniq(selected_columns))
+        @_add_renderer(rname)
+        selected_columns.push(rname)
       else
-        @model.set('selected_columns', _.without(selected_columns, column))
-      @_build_renderers()
+        #not implemented for now
+        
+        #@model.set('selected_columns', _.without(selected_columns, column))
+      #@_build_renderers()
     
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -114,10 +143,10 @@ define [
        deactivated: "_close_modal"
     }
     _datasource_columns: ->
-      source = @mget_obj('data_source')
       col_data = []
+      console.log("@mget('data_source_names')", @mget('data_source_names'))
       selected_columns = @mget('selected_columns')
-      for k in _.keys(source.get('data'))
+      for k in @mget('data_source_names')
         if _.contains(selected_columns, k)
           col_data.push([k, "checked"])
         else
@@ -125,7 +154,6 @@ define [
       return col_data
       
     _activated: (e) ->
-      @mset('data_sources', @_datasource_columns())
       @modal_view = new RemoteDataSelectModal(model:@model, plot_view:@plot_view)
       @modal_view.show()
 
@@ -138,7 +166,7 @@ define [
 
     defaults: () ->
       return {
-        data_source: null
+        data_source_names: []
         selected_columns: []
       }
 

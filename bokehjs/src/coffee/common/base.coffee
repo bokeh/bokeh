@@ -85,9 +85,6 @@ define [
   mod_cache = {}
 
   Collections = (typename) ->
-    
-
-    console.log("Collections Typename", typename)
     if not locations[typename]
       throw "./base: Unknown Collection #{typename}"
 
