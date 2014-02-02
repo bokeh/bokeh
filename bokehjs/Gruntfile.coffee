@@ -110,13 +110,6 @@ module.exports = (grunt) ->
           'build/demo/spectrogram/static/spectrogram.js': 'demo/spectrogram/coffee/spectrogram.coffee'
         }
 
-    symlink:
-      spectrogram:
-        target: 'build/js/bokeh.js',
-        link: 'build/demo/spectrogram/static/bokeh.js'
-        options:
-          overwrite: true
-
     requirejs:
       options:
         logLevel: 2
@@ -234,7 +227,6 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-copy")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
-  grunt.loadNpmTasks('grunt-symbolic-link')
   grunt.loadNpmTasks("grunt-eco")
   grunt.loadNpmTasks('grunt-groc')
 
@@ -242,7 +234,7 @@ module.exports = (grunt) ->
   grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
   grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config"])
   grunt.registerTask("mindeploy",   ["build",  "requirejs:production", "concat:css", "cssmin"])
-  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css", "symlink"])
+  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css"])
   grunt.registerTask("deploy",      ["mindeploy", "devdeploy"])
   grunt.registerTask("config", "Write config.js", () ->
     config = {
