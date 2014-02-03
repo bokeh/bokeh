@@ -1,6 +1,11 @@
 2014-02-03      0.4:
 --------------------
   * enhancements:
+    - # 241 Bollinger band examples
+    - # 244 css paths were missing "http://"
+    - # 248 BaseGlyph testing and refactoring test_properties
+    - # 252 Adding mpg dataset
+    - # 253 Feature/embed issues
     - # 254 Restored Python 3 compatibility
     - # 256 More tests and a fix
     - # 257 Feature/selection
@@ -21,6 +26,12 @@
     - # 293 More Tests
     - # 296 Add support for color mapped and rgba images from python
   * bugfixes:
+    - # 239 Error when executing burtin.ipynb
+    - # 243 Output .html file breaks if directory changes
+    - # 246 Pull function is broken - it calls session.load, which doesn't exist...
+    - # 247 Running the bokehserver with splitjs False and devjs True does not work.
+    - # 250 Bugfix/build error
+    - # 251 Semi-fixing hold behavior for notebook
     - # 265 Problem with Pattern property
     - # 266 Legend text color changing unexpectedly
     - # 269 text_color should not use get_default_color() as-is?
