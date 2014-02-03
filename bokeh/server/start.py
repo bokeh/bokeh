@@ -30,7 +30,7 @@ from os.path import join, dirname
 
 import time
 import sys
-from .server_backends import (RedisBackboneStorage, 
+from .server_backends import (RedisBackboneStorage,
                               RedisServerModelStorage,
                               SingleUserAuthentication,
                               MultiUserAuthentication
@@ -42,9 +42,7 @@ REDIS_PORT = 6379
 
 app = Flask("bokeh.server")
 
-def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True,
-                single_user_mode=True
-                ):
+def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True, single_user_mode=True):
     #must import views before running apps
     import redis
 
@@ -65,7 +63,7 @@ def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True,
                     )
 
     app.register_blueprint(bokeh_app)
-    
+
     #where should we be setting the secret key....?
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
@@ -92,7 +90,7 @@ def start_services():
         stderr = getattr(bokeh_app, 'stdout', sys.stderr)
         redis_save = getattr(bokeh_app, 'redis_save', True)
         mproc = services.start_redis("bokehpids.json",
-                                     bokeh_app.redis_port, 
+                                     bokeh_app.redis_port,
                                      os.getcwd(),
                                      data_file=data_file,
                                      stdout=stdout,
@@ -106,15 +104,13 @@ def service_exit():
     if hasattr(bokeh_app, 'redis_proc'):
         bokeh_app.redis_proc.close()
 
-def start_app(verbose=False):
+def start_app(port=PORT, verbose=False):
     global http_server
-    http_server = make_server('', PORT, app)
+    http_server = make_server('', port, app)
     start_services()
-    print("\nStarting Bokeh plot server on port %d..." % PORT)
-    print("View http://localhost:%d/bokeh to see plots\n" % PORT)
+    print("Starting Bokeh plot server on port %d..." % port)
+    print("View http://localhost:%d/bokeh to see plots\n" % port)
     http_server.serve_forever()
-
-
 
 #database
 

@@ -1,0 +1,17 @@
+language: python
+
+python:
+    - 2.7
+    - 3.3
+
+before_install:
+    - export PATH="$HOME/miniconda/bin:$PATH"
+    - scripts/travis_before_install
+
+install: scripts/travis_install
+
+before_script: scripts/travis_before_script
+
+script: scripts/travis_test
+
+after_script: scripts/travis_after_script

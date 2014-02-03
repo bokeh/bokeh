@@ -1,0 +1,17 @@
+#!/bin/bash
+
+python -V
+
+conda install --yes pip
+conda install --yes --file conda.txt
+pip install mock websocket git+https://github.com/ipython/ipython.git@master
+
+cd bokehjs
+npm install
+node_modules/.bin/grunt deploy || exit 1
+cd ..
+
+ln -s $(readlink -f bokehjs/build/js) bokeh/server/static/js
+ln -s $(readlink -f bokehjs/build/css) bokeh/server/static/css
+
+python -c 'import bokeh; bokeh.sampledata.download()'

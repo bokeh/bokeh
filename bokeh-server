@@ -7,26 +7,31 @@ import logging
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Start the Bokeh plot server")
-    parser.add_argument("-d", "--debug", 
-                        action="store_true", 
+    parser.add_argument("-d", "--debug",
+                        action="store_true",
                         default=False,
                         help="debug mode for flask"
                         )
-    parser.add_argument("-j", "--debugjs", 
-                        action="store_true", 
+    parser.add_argument("-j", "--debugjs",
+                        action="store_true",
                         default=False,
                         help="Whether to use bokehjs from the bokehjs build directory in the source tree or not"
                         )
-    parser.add_argument("-s", "--splitjs", 
-                        action="store_true", 
+    parser.add_argument("-s", "--splitjs",
+                        action="store_true",
                         default=False,
                         help="don't serve compiled bokeh.js file.  This can only be True if debugjs is True"
                         )
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
-    parser.add_argument("--redis-port",
-                        help="port for redis",
+    parser.add_argument("--port",
                         type=int,
-                        default=7001
+                        default=5006,
+                        help="port for bokeh",
+                        )
+    parser.add_argument("--redis-port",
+                        type=int,
+                        default=6371,
+                        help="port for redis",
                         )
     parser.add_argument("-r", "--start-redis",
                         help="start redis",
@@ -38,7 +43,7 @@ def build_parser():
                         action="store_true",
                         default=False
                         )
-    
+
     return parser
 
 def main():
@@ -50,7 +55,7 @@ def main():
     start.app.debug = False
     start.bokeh_app.splitjs = args.splitjs
     start.bokeh_app.debugjs = args.debugjs
-    
+
     start.prepare_app(rport=args.redis_port, start_redis=args.start_redis,
                       single_user_mode=not args.multi_user
                       )
@@ -64,11 +69,11 @@ def main():
         @werkzeug.serving.run_with_reloader
         def helper():
             # Always set to verbose if in debug mode
-            start.start_app(verbose=True)
+            start.start_app(port=args.port, verbose=True)
 
     else:
         logging.basicConfig(level=logging.INFO)
-        start.start_app(verbose=args.verbose)
+        start.start_app(port=args.port, verbose=args.verbose)
 
 if __name__ == "__main__":
     main()

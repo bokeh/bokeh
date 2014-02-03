@@ -128,7 +128,7 @@ def set_config():
         "output_type": None,
         "output_url": None,
         "output_file": None,
-        "plotserver_url": DEFAULT_SERVER_URL,
+        "plotserver_url": os.environ.get("BOKEH_SERVER_URL", DEFAULT_SERVER_URL),
 
         # Configuration options for "file" output mode
         "autosave": False,
@@ -182,9 +182,9 @@ def output_notebook(server=None, name=None, url=None, docname=None):
             real_url = url
         if not server:
             if name:
-                server = serverconfig.Server(name=name)
+                server = serverconfig.Server(name=name, root_url=real_url)
             else:
-                server = serverconfig.Server(name=real_url)
+                server = serverconfig.Server(name=real_url, root_url=real_url)
         _config["output_url"] = server.root_url
         _config["output_type"] = "server"
         _config["output_file"] = None
@@ -228,9 +228,9 @@ def output_server(docname, server=None, name=None, url="default", **kwargs):
         real_url = url
     if not server:
         if name:
-            server = serverconfig.Server(name=name)
+            server = serverconfig.Server(name=name, root_url=real_url)
         else:
-            server = serverconfig.Server(name=real_url)
+            server = serverconfig.Server(name=real_url, root_url=real_url)
     _config["output_url"] = server.root_url
     _config["output_type"] = "server"
     _config["output_file"] = None

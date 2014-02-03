@@ -1,0 +1,11 @@
+#!/bin/bash
+
+BOKEH_PORT=10001
+./bokeh-server --port=$BOKEH_PORT &> bokeh.log &
+echo $! > bokeh.pid
+echo $BOKEH_PORT > bokeh.port
+
+IPYTHON_PORT=10002
+ipython notebook --port=$IPYTHON_PORT examples/plotting/notebook/ &> ipython.log &
+echo $! > ipython.pid
+echo $IPYTHON_PORT > ipython.port
