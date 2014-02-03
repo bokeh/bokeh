@@ -25,7 +25,7 @@ define [
     toolType: "BoxSelectTool"
 
     evgen_options:
-      keyName: "ctrlKey"
+      keyName: "shiftKey"
       buttonText: "Select"
       cursor: "crosshair"
       restrict_to_innercanvas: true
