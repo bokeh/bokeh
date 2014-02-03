@@ -21,6 +21,6 @@ six
 pygments
 markdown
 PyYAML
-tornado
 colorama
+tornado
 nose
