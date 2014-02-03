@@ -1,5 +1,7 @@
 #!/bin/bash
 
+sudo sysctl vm.overcommit_memory=1
+
 sudo apt-get install -qq -y --force-yes nodejs npm
 
 case "$TRAVIS_PYTHON_VERSION" in
