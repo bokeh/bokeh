@@ -328,7 +328,7 @@ define [
       #   console.log(newtime - @last_render)
       # @last_render = newtime
 
-      if not @initial_range_info?
+      if not @initial_range_info? and @x_range.get('start')?
         @initial_range_info = {
           xr: { start: @x_range.get('start'), end: @x_range.get('end') }
           yr: { start: @y_range.get('start'), end: @y_range.get('end') }
