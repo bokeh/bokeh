@@ -826,6 +826,9 @@ class ResizeTool(PlotObject):
 class CrosshairTool(PlotObject):
     plot = Instance(Plot)
 
+class BoxZoomTool(PlotObject):
+    plot = Instance(Plot)
+
 class BoxSelectTool(PlotObject):
     renderers = List(has_ref=True)
     select_every_mousemove = Bool(True)

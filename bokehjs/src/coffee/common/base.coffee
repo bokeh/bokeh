@@ -69,6 +69,7 @@ define [
     ResizeTool:             'tool/resize_tool'
     CrosshairTool:          'tool/crosshair_tool'
     BoxSelectTool:          'tool/box_select_tool'
+    BoxZoomTool:            'tool/box_zoom_tool'
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'
     EmbedTool:              'tool/embed_tool'
