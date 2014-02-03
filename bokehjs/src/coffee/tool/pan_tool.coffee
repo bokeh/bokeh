@@ -23,8 +23,8 @@ define [
     evgen_options:
       keyName: null
       buttonText: "Pan"
-      auto_deactivate: true
       cursor: "move"
+      auto_deactivate: true
       restrict_to_innercanvas: true
 
     tool_events:
