@@ -2,10 +2,10 @@
 define [
   "underscore",
   "backbone",
-  "./object_array_data_source"
-], (_, Backbone, ObjectArrayDataSource) ->
+  "./common/has_properties",
+], (_, Backbone, HasProperties) ->
 
-  class ColumnDataSource extends ObjectArrayDataSource.Model
+  class ColumnDataSource extends HasProperties
     # Datasource where the data is defined column-wise, i.e. each key in the
     # the data attribute is a column name, and its value is an array of scalars.
     # Each column should be the same length.
