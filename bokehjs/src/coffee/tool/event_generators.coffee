@@ -168,13 +168,12 @@ define [], () ->
       @eventSink = eventSink
       @plotview.canvas_wrapper.bind("mousewheel",
         (e, delta, dX, dY) =>
-          if not @tool_active
-            return
-          set_bokehXY(e)
-          e.delta = delta
-          eventSink.trigger("#{toolName}:zoom", e)
-          e.preventDefault()
-          e.stopPropagation())
+          if @tool_active or not @eventSink.active
+            set_bokehXY(e)
+            e.delta = delta
+            eventSink.trigger("#{toolName}:zoom", e)
+            e.preventDefault()
+            e.stopPropagation())
 
       $(document).bind('keydown', (e) =>
         #disable the tool when ESC is pressed
