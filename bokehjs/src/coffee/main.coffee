@@ -105,9 +105,11 @@ define (require, exports, module) ->
   Bokeh.EmbedTool              = require("tool/embed_tool")
   Bokeh.PanTool                = require("tool/pan_tool")
   Bokeh.PreviewSaveTool        = require("tool/preview_save_tool")
+  Bokeh.ResetTool              = require("tool/reset_tool")
   Bokeh.ResizeTool             = require("tool/resize_tool")
   Bokeh.CrosshairTool          = require("tool/crosshair_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
+  Bokeh.BoxZoomTool            = require("tool/box_zoom_tool")
 
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")

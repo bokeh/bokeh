@@ -288,6 +288,10 @@ palette, currently) must also be supplied to use for color-mapping the scalar im
 |* ``palette``                           |                                        |
 +----------------------------------------+----------------------------------------+
 
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/n84H9/embedded/result,js" frameborder="0"></iframe>
+
 .. _bokehjs_image_rgba:
 
 ``image_rgba``
@@ -309,6 +313,10 @@ that describe the two-dimensional shape of the array. The second form takes each
 |* ``dw`` - width on screen              |                                        |
 |* ``dh``- height on screen              |                                        |
 +----------------------------------------+----------------------------------------+
+
+.. raw:: html
+
+    <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/q6eH6/embedded/result,js" frameborder="0"></iframe>
 
 .. _bokehjs_image_uri:
 

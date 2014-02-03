@@ -33,7 +33,7 @@ define [
       super(attrs, options)
 
       #cheap memoization, requirejs doesn't seem to do it
-      @_base = false 
+      @_base = false
       @properties = {}
       @property_cache = {}
       if not _.has(attrs, @idAttribute)
@@ -82,8 +82,10 @@ define [
            @properties[key]['setter']
           @properties[key]['setter'].call(this, val)
           toremove.push(key)
-      for key in toremove
-        delete attrs[key]
+      if not _.isEmpty(toremove)
+        attrs = _.clone(attrs)
+        for key in toremove
+          delete attrs[key]
       if not _.isEmpty(attrs)
         super(attrs, options)
 
@@ -242,7 +244,7 @@ define [
       if not @_base
         @_base = require('./base')
       return @_base
-      
+
     url: () ->
       # ### method HasProperties::url
       #model where our API processes this model
