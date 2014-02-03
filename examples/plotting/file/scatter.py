@@ -9,11 +9,15 @@ y = np.sin(x)
 
 output_file("scatter.html", title="scatter.py example")
 
-scatter(x,y, color="#FF00FF", tools="pan,wheel_zoom,resize, select", 
+scatter(x,y, color="#FF00FF", tools="pan,wheel_zoom,box_zoom,reset,previewsave,select", 
         nonselection_fill_color="#FFFF00", nonselection_fill_alpha=1)
-scatter(x,y, color="red", tools="pan,wheel_zoom,resize, select")
-scatter(x,y, marker="square", color="green", tools="pan,wheel_zoom,resize")
-scatter(x,y, marker="square", color="blue", tools="pan,wheel_zoom,resize",
-        name="scatter_example")
+scatter(x,y, color="red", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+scatter(x,y, marker="square", color="green", 
+    tools="pan,wheel_zoom,box_zoom,reset,previewsave"
+)
+scatter(x,y, marker="square", color="blue", 
+    tools="pan,wheel_zoom,box_zoom,reset,previewsave",
+    name="scatter_example"
+)
 
 show()  # open a browser

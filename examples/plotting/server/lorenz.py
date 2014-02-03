@@ -32,6 +32,6 @@ output_server("lorenz")
 
 multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
            line_color=colors, line_alpha=0.8, line_width=1.5,
-           tools="pan,wheel_zoom,resize", title="lorenz example")
+           tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="lorenz example")
 
 show()  # open a browser
