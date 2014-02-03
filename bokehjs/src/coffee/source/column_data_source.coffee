@@ -2,7 +2,7 @@
 define [
   "underscore",
   "backbone",
-  "./common/has_properties",
+  "common/has_properties",
 ], (_, Backbone, HasProperties) ->
 
   class ColumnDataSource extends HasProperties
