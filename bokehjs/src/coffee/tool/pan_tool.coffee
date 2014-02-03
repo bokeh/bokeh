@@ -21,8 +21,9 @@ define [
     toolType: "PanTool"
 
     evgen_options:
-      keyName: "shiftKey"
+      keyName: null
       buttonText: "Pan"
+      auto_deactivate: true
       cursor: "move"
       restrict_to_innercanvas: true
 
