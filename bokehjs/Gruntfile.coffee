@@ -194,6 +194,12 @@ module.exports = (grunt) ->
         options:
           spawn: false
 
+    connect: 
+      server:
+        options:
+          port: 8000,
+          base: '.'
+
     qunit:
       all:
         options:
@@ -227,6 +233,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-copy")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
+  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks("grunt-eco")
   grunt.loadNpmTasks('grunt-groc')
 
@@ -236,6 +243,8 @@ module.exports = (grunt) ->
   grunt.registerTask("mindeploy",   ["build",  "requirejs:production", "concat:css", "cssmin"])
   grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css"])
   grunt.registerTask("deploy",      ["mindeploy", "devdeploy"])
+  grunt.registerTask("test",        ["connect", "qunit"])
+  grunt.registerTask("serve",       ["connect:server:keepalive"])
   grunt.registerTask("config", "Write config.js", () ->
     config = {
       paths: grunt.config.get("requirejs.options.paths")

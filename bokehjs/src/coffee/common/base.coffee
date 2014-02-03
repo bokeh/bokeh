@@ -27,6 +27,7 @@ define [
   "tool/data_range_box_select_tool",
   "tool/preview_save_tool",
   "tool/embed_tool",
+  "tool/reset_tool",
   "widget/data_slider",
   "widget/pandas/ipython_remote_data",
   "widget/pandas/pandas_pivot_table",
@@ -68,9 +69,11 @@ define [
     ResizeTool:             'tool/resize_tool'
     CrosshairTool:          'tool/crosshair_tool'
     BoxSelectTool:          'tool/box_select_tool'
+    BoxZoomTool:            'tool/box_zoom_tool'
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'
     EmbedTool:              'tool/embed_tool'
+    ResetTool:              'tool/reset_tool'
 
     DataSlider:             'widget/data_slider'
     IPythonRemoteData:      'widget/pandas/ipython_remote_data'

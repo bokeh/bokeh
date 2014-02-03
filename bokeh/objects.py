@@ -817,10 +817,16 @@ class EmbedTool(PlotObject):
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
 
+class ResetTool(PlotObject):
+    plot = Instance(Plot)
+
 class ResizeTool(PlotObject):
     plot = Instance(Plot)
 
 class CrosshairTool(PlotObject):
+    plot = Instance(Plot)
+
+class BoxZoomTool(PlotObject):
     plot = Instance(Plot)
 
 class BoxSelectTool(PlotObject):

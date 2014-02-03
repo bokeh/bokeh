@@ -14,6 +14,7 @@
     "grunt-contrib-copy": "~0.4.1",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-qunit": ">=0.2.1",
+    "grunt-contrib-connect": "0.6.0",
     "grunt-eco": "~0.1.0",
     "grunt-groc": ""
   }

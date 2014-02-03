@@ -12,12 +12,14 @@ define [
   "renderer/overlay/box_selection",
   "source/column_data_source",
   "tool/box_select_tool",
+  "tool/box_zoom_tool",
   "tool/pan_tool",
   "tool/preview_save_tool",
   "tool/resize_tool",
   "tool/wheel_zoom_tool",
+  "tool/reset_tool",
   "renderer/guide/datetime_axis",
-], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, DatetimeAxis) ->
+], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, BoxZoomTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -139,7 +141,7 @@ define [
       return
 
     if tools == true
-      tools = "pan,wheel_zoom,select,resize,preview"
+      tools = "pan,wheel_zoom,select,resize,preview,reset,box_zoom"
     added_tools = []
 
     if tools.indexOf("pan") > -1
@@ -173,6 +175,18 @@ define [
     if tools.indexOf("preview") > -1
       preview_tool = PreviewSaveTool.Collection.create()
       added_tools.push(preview_tool)
+
+    if tools.indexOf("reset") > -1
+      reset_tool = ResetTool.Collection.create()
+      added_tools.push(reset_tool)
+
+    if tools.indexOf("box_zoom") > -1
+      box_zoom_tool = BoxZoomTool.Collection.create()
+      box_zoom_overlay = BoxSelection.Collection.create(
+        tool: box_zoom_tool.ref()
+      )
+      added_tools.push(box_zoom_tool)
+      plot.add_renderers([box_zoom_overlay.ref()])
 
     plot.set_obj('tools', added_tools)
 

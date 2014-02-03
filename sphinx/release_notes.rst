@@ -10,6 +10,11 @@ v0.4 (Feb 2014)
 * Basic MPL interface
 * Free public beta of Bokeh plot hosting service at `bokehplots.com <http://bokehplots.com>`_.
 * Tool enhancements: "always on" pan tool
+
+  - "always" on pan tool
+  - range reset tool
+  - box zoom tool
+
 * Much enhanced datetime axis, with better performance and "nice" number picking
 * Improved testing, including TravisCI integrations and static image output using PhantomJS
 * RGBA and color mapped image plots exposed from python
@@ -72,11 +77,7 @@ v0.5 (Goal: March 2014)
 * Touch events
 * Animation framework
 * CSS styling/theming mechanism
-* Improve tools
-
-  - easier interactions with zoom: zoom box or buttons for zoom in/out
-  - Reset view
-  - Hot corner for resize tool
+* Hot corner for resize tool
 
 v0.6 (Goal: May 2014)
 =====================

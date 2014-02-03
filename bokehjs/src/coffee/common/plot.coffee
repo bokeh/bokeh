@@ -220,6 +220,8 @@ define [
       return [x, y]
 
     update_range: (range_info) ->
+      if not range_info?
+        range_info = @initial_range_info
       @pause()
       @x_range.set(range_info.xr)
       @y_range.set(range_info.yr)
@@ -325,6 +327,13 @@ define [
       # if @last_render
       #   console.log(newtime - @last_render)
       # @last_render = newtime
+
+      if not @initial_range_info? and @x_range.get('start')?
+        @initial_range_info = {
+          xr: { start: @x_range.get('start'), end: @x_range.get('end') }
+          yr: { start: @y_range.get('start'), end: @y_range.get('end') }
+        }
+
       @requested_padding = {
         top: 0
         bottom: 0
