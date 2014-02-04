@@ -153,7 +153,7 @@ def session():
     return _config["session"]
 
 ###NEEDS A BOKEH CLOUD VERSION AS WELL
-def output_notebook(server=None, name=None, url=None, docname=None):
+def output_notebook(url=None, server=None, name=None, docname=None):
     """ Sets the output mode to emit HTML objects suitable for embedding in
     IPython notebook.  If URL is "default", then uses the default plot
     server URLs etc. for Bokeh.  If URL is explicitly set to None, then data,

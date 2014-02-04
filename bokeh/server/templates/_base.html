@@ -7,6 +7,8 @@
     <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <link href="{{ url_for('static', filename='css/bokeh.css') }}" rel="stylesheet">
     <link href="{{ url_for('static', filename='vendor/bootstrap/css/bootstrap-orig-2.2.2.css') }}" rel="stylesheet">
+    <script src="{{ url_for('static', filename='js/vendor/jquery/jquery.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/vendor/bootstrap/bootstrap-2.0.4.js') }}"></script>
     {% if splitjs %}
     <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/vendor/requirejs/require.js') }}"></script>
     <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/config.js') }}"></script>

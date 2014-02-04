@@ -182,10 +182,7 @@ define [
 
       source = @mget_obj('data_source')
       local_select = (prop_name) =>
-        if source.type == 'ColumnDataSource'
-          return @glyph_props.source_v_select(prop_name, source)
-        else
-          return @glyph_props.v_select(prop_name, @data2)
+        return @glyph_props.source_v_select(prop_name, source)
       span = local_select(span_prop_name)
       if span_units == 'screen'
         return span

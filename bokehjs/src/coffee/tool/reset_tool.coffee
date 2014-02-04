@@ -21,7 +21,7 @@ define [
 
     _activated: (e) ->
       @plot_view.update_range()
-      @plot_view.trigger("clear_active_tool")
+      _.delay((() => @plot_view.eventSink.trigger("clear_active_tool")), 100)
 
   class ResetTool extends Tool.Model
      default_view: ResetToolView
