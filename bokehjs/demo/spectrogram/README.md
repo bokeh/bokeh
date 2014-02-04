@@ -10,9 +10,13 @@ You will also need PyAudio and Flask installed.  (These come with Anaconda.)
 
 Build the coffeescript:
 
-`$ grunt `deploy-both`
+`$ grunt devdeploy`
 
-This should create spectrogram.js under the build directory and copy all the supporting files there as well.
+or
+
+`$ grunt deploy`
+
+This should create spectrogram.js under the build/demo/spectrogram directory and copy all the supporting files there as well.
 
 Running the Demo
 ================

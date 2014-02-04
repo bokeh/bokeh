@@ -597,8 +597,7 @@ class GlyphFunction(object):
 
         glyph_renderer = Glyph(
             data_source = datasource,
-            xdata_range = plot.x_range,
-            ydata_range = plot.y_range,
+            plot = plot,
             glyph=glyph,
             nonselection_glyph=nonselection_glyph,
             )
@@ -914,9 +913,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if tool == "": 
             continue
         if tool == "pan":
-            tool_obj = PanTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
+            tool_obj = PanTool(plot=p, dimensions=["width", "height"])
         elif tool == "wheel_zoom":
-            tool_obj = WheelZoomTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
+            tool_obj = WheelZoomTool(plot=p, dimensions=["width", "height"])
         elif tool == "save":
             tool_obj = PreviewSaveTool(plot=p)
         elif tool == "resize":

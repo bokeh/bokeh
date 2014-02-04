@@ -75,7 +75,6 @@ define [
     defaults: () ->
       return {
         dimensions: [] #height/width
-        dataranges: [] #references of datarange objects
       }
 
     display_defaults: () ->
