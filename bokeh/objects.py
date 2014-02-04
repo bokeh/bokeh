@@ -518,17 +518,9 @@ class Glyph(PlotObject):
     # glyph used when data is selected.  optional
     selection_glyph = Instance()
 
-    def __setattr__(self, key, value):
-        if key == "plot":
-            import pdb; pdb.set_trace()
-        object.__setattr__(self, key, value)
-
     def vm_serialize(self):
         # Glyphs need to serialize their state a little differently,
         # because the internal glyph instance is turned into a glyphspec
-        import pdb; pdb.set_trace()
-        self.xdata_range = self.plot.x_range
-        self.ydata_range = self.plot.y_range
         data =  {"id" : self._id,
                  "data_source": self.data_source,
                  "xdata_range": self.xdata_range,
@@ -796,26 +788,10 @@ class Grid(GuideRenderer):
 class PanTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
     dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
-
-    def vm_props(self, *args, **kw):
-        self.dataranges = [self.plot.x_range, self.plot.y_range]
-        return super(PanTool, self).vm_props(*args, **kw)
 
 class WheelZoomTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
-
-    def __setattr__(self, key, value):
-        if key == "plot":
-            import pdb; pdb.set_trace()
-        object.__setattr__(self, key, value)
-
-    def vm_props(self, *args, **kw):
-        import pdb; pdb.set_trace()
-        self.dataranges = [self.plot.x_range, self.plot.y_range]
-        return super(WheelZoomTool, self).vm_props(*args, **kw)
 
 class PreviewSaveTool(PlotObject):
     plot = Instance(Plot)
