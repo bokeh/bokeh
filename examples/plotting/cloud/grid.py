@@ -9,7 +9,7 @@ def grid_example():
 
 
     output_cloud("grid")
-    l = line(x,y, color="#0000FF", tools="pan,wheel_zoom,resize",
+    l = line(x,y, color="#0000FF", tools="pan,wheel_zoom,box_zoom,reset,previewsave",
          title="line")
 
     N = 9
@@ -22,12 +22,12 @@ def grid_example():
     aw = annular_wedge(
         x, y, 10, 20, 0.6, 4.1,
         inner_radius_units="screen", outer_radius_units = "screen",
-        color="#8888ee", tools="pan,wheel_zoom,resize", title="annular_wedge",
+        color="#8888ee", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="annular_wedge",
         name="glyphs_example")
     bez = bezier(x, y, x+0.2, y, x+0.1, y+0.1, x-0.1, y-0.1,
-           color="#8888ee", tools="pan,wheel_zoom,resize", title="bezier")
+           color="#8888ee", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="bezier")
     q = quad(x, x-0.5, y, y-0.5,
-         color="#8888ee", tools="pan,wheel_zoom,resize", title="quad")
+         color="#8888ee", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="quad")
     gridplot([[l,aw],[bez,q]])
     return curplot()
 
