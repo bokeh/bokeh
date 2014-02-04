@@ -13,6 +13,7 @@ class ManagedProcess(object):
         self.pidfilename = pidfilename
         data = self.read_pidfile()
         pid = data.get(name)
+
         if pid and kill_old:
             try:
                 os.kill(pid, signal.SIGINT)
@@ -21,10 +22,12 @@ class ManagedProcess(object):
                 pass
         elif pid and not kill_old:
             raise Exception("process %s is running on PID %s" % (name, pid))
-        self.proc = subprocess.Popen(args,
-                                     stdout=stdout,
-                                     stderr=stderr,
-                                     stdin=stdin)
+
+        try:
+            self.proc = subprocess.Popen(args, stdout=stdout, stderr=stderr, stdin=stdin)
+        except OSError as error:
+            raise OSError(error.errno, "unable to execute: %s" % " ".join(args))
+
         self.add_to_pidfile()
         self.closed = False
 
@@ -59,7 +62,7 @@ class ManagedProcess(object):
 
 
 def start_redis(pidfilename, port, data_dir, loglevel="warning",
-                data_file='redis.db', save=True, 
+                data_file='redis.db', save=True,
                 stdout=sys.stdout,
                 stderr=sys.stderr
                 # stdout=None,
