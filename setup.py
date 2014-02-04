@@ -35,7 +35,7 @@ if 'devjs' in sys.argv:
     # trying to do something that requires it.
     APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
            join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
-    CSS = join(BOKEHJSBUILD, 'css')    
+    CSS = join(BOKEHJSBUILD, 'css')
     sys.argv[sys.argv.index("devjs")] = "develop"
     import setuptools
 
@@ -71,6 +71,29 @@ scripts = []
 if sys.platform != 'win32':
     scripts.extend(['bokeh-server'])
 
+REQUIRES = [
+        'Flask==0.10.1',
+        'Jinja2==2.7',
+        'MarkupSafe==0.18',
+        'Werkzeug==0.9.1',
+        'greenlet==0.4.1',
+        'itsdangerous==0.21',
+        'numpy',
+        'pandas',
+        'python-dateutil',
+        'pytz',
+        'requests',
+        'six',
+        'wsgiref',
+    ]
+if sys.version_info[0] != 3:
+    REQUIRES.extend([
+        'gevent',
+        'gevent-websocket',
+    ])
+if sys.platform != "win32":
+    REQUIRES.append('redis')
+
 setup(
     name = 'bokeh',
     version=versioneer.get_version(),
@@ -93,12 +116,5 @@ setup(
     zip_safe=False,
     license = 'New BSD',
     scripts = scripts,
-    install_requires = [
-        'markdown',
-        'pygments',
-        'smartypants',
-        'sphinx',
-        'colorama',
-        'sphinx_bootstrap_theme',
-    ]
+    install_requires = REQUIRES,
 )
