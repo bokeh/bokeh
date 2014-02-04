@@ -20,7 +20,7 @@ w = 12*60*60*1000 # half day in ms
 
 segment(df.date, df.high, df.date, df.low,
         x_axis_type = "datetime",
-        color='#000000', tools="pan,wheel_zoom,resize", width=1000,
+        color='#000000', tools="pan,wheel_zoom,box_zoom,reset,previewsave", width=1000,
         name="candlestick")
 rect(df.date[inc], mids[inc], w, spans[inc],
      fill_color="#D5E1DD", line_color="#000000" )

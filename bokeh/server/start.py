@@ -3,8 +3,6 @@ import logging
 log = logging.getLogger(__name__)
 
 try:
-    import gevent.monkey
-    gevent.monkey.patch_all()
     from geventwebsocket.handler import WebSocketHandler
     from gevent.pywsgi import WSGIServer
     def make_server(host, port, app):
@@ -30,7 +28,7 @@ from os.path import join, dirname
 
 import time
 import sys
-from .server_backends import (RedisBackboneStorage, 
+from .server_backends import (RedisBackboneStorage,
                               RedisServerModelStorage,
                               SingleUserAuthentication,
                               MultiUserAuthentication
@@ -65,7 +63,7 @@ def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True,
                     )
 
     app.register_blueprint(bokeh_app)
-    
+
     #where should we be setting the secret key....?
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
@@ -92,7 +90,7 @@ def start_services():
         stderr = getattr(bokeh_app, 'stdout', sys.stderr)
         redis_save = getattr(bokeh_app, 'redis_save', True)
         mproc = services.start_redis("bokehpids.json",
-                                     bokeh_app.redis_port, 
+                                     bokeh_app.redis_port,
                                      os.getcwd(),
                                      data_file=data_file,
                                      stdout=stdout,

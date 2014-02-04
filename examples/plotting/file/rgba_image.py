@@ -20,6 +20,6 @@ output_file("rgba_image.html", title="rgba_image.py example")
 
 image_rgba(
     image=[img], x=[0], y=[0], dw=[10], dh=[10],
-    tools="pan,wheel_zoom,resize", name="image_example")
+    tools="pan,wheel_zoom,box_zoom,reset,previewsave", name="image_example")
 
 show()  # open a browser

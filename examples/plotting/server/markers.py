@@ -7,11 +7,11 @@ output_server("markers")
 
 def myscatter(x, y, typestr):
     scatter(x, y, marker=typestr,
-        line_color="#6666ee", fill_color="#ee6666", fill_alpha=0.5, size=12, tools="pan,wheel_zoom")
+        line_color="#6666ee", fill_color="#ee6666", fill_alpha=0.5, size=12, tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
 def mytext(x, y, textstr):
     text(x, y, text=textstr, angle=0,
-        text_color="#449944", text_align="center", text_font_size="10pt", tools="pan,wheel_zoom")
+        text_color="#449944", text_align="center", text_font_size="10pt", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
 N = 10
 
