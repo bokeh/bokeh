@@ -247,19 +247,6 @@ class PlotObject(HasProps):
         else:
             return props
 
-    def old_vm_props(self, withvalues=False):
-        """ Returns the ViewModel-related properties of this object.  If
-        **withvalues** is True, then returns attributes with values as a
-        dict.  Otherwise, returns a list of attribute names.
-        """
-        props = set(self.properties())
-        if "session" in props:
-            props.remove("session")
-        if withvalues:
-            return dict((k,getattr(self,k)) for k in props)
-        else:
-            return props
-
     def vm_serialize(self):
         """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
@@ -514,6 +501,7 @@ class FactorRange(DataRange):
 
 class Glyph(PlotObject):
 
+    plot = Instance(has_ref=True)
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(DataRange1d, has_ref=True)
     ydata_range = Instance(DataRange1d, has_ref=True)
@@ -530,9 +518,17 @@ class Glyph(PlotObject):
     # glyph used when data is selected.  optional
     selection_glyph = Instance()
 
+    def __setattr__(self, key, value):
+        if key == "plot":
+            import pdb; pdb.set_trace()
+        object.__setattr__(self, key, value)
+
     def vm_serialize(self):
         # Glyphs need to serialize their state a little differently,
         # because the internal glyph instance is turned into a glyphspec
+        import pdb; pdb.set_trace()
+        self.xdata_range = self.plot.x_range
+        self.ydata_range = self.plot.y_range
         data =  {"id" : self._id,
                  "data_source": self.data_source,
                  "xdata_range": self.xdata_range,
@@ -802,10 +798,24 @@ class PanTool(PlotObject):
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
 
+    def vm_props(self, *args, **kw):
+        self.dataranges = [self.plot.x_range, self.plot.y_range]
+        return super(PanTool, self).vm_props(*args, **kw)
+
 class WheelZoomTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
+
+    def __setattr__(self, key, value):
+        if key == "plot":
+            import pdb; pdb.set_trace()
+        object.__setattr__(self, key, value)
+
+    def vm_props(self, *args, **kw):
+        import pdb; pdb.set_trace()
+        self.dataranges = [self.plot.x_range, self.plot.y_range]
+        return super(WheelZoomTool, self).vm_props(*args, **kw)
 
 class PreviewSaveTool(PlotObject):
     plot = Instance(Plot)

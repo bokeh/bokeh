@@ -15,7 +15,7 @@ from six import string_types
 from six.moves.urllib.parse import urljoin, urlencode
 
 from . import protocol, utils
-from .objects import PlotObject, Plot, PlotContext
+from .objects import PlotObject, Plot, PlotContext, recursively_traverse_plot_object
 from .properties import HasProps, List
 from .exceptions import DataIntegrityException
 from . import serverconfig
@@ -163,9 +163,14 @@ class BaseJSONSession(Session):
         if to_convert is None:
             to_convert = self._models.values()
 
+        all = set(to_convert)
+        for model in to_convert:
+            children = recursively_traverse_plot_object(model)
+            all.update(children)
+
         models = []
 
-        for model in to_convert:
+        for model in all:
             ref = self.get_ref(model)
             ref["attributes"] = model.vm_serialize()
             ref["attributes"].update({"id": ref["id"], "doc": None})
