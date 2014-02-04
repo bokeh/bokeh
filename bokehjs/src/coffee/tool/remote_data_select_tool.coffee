@@ -45,7 +45,7 @@ define [
             <h3 id="dataConfirmLabel">Data Sources </h3></div><div class="modal-body">
           <div class="modal-body">
             <ul>
-              <% _.each(data_source_names, function(column_data){ %>
+              <% _.each(columns, function(column_data){ %>
                 <li> <%= column_data[0] %> </li>
                 <input name='<%= column_data[0] %>' <%= column_data[1] %> type='checkbox' />
               <% }) %>
@@ -65,45 +65,40 @@ define [
       this.remove();
       
     _build_renderers: ->
+      '''
       pmodel = @plot_view.model
       pmodel.set('renderers', [])
       Plotting = require("common/plotting")
       glyphs = Plotting.create_glyphs(pmodel, @renderer_specs(), [@model.get_obj('data_source')])
       pmodel.add_renderers(g.ref() for g in glyphs)
-
+      '''
     _add_renderer: (renderer_name) ->
-        
-        Bokeh = require('main')
         pmodel = @plot_view.model
         Plotting = require("common/plotting")
 
+        #glyphs = Plotting.create_glyphs(pmodel, @renderer_specs(), [@model.get_obj('data_source')])
+        data_source = @model.get_obj('data_source')
+
         $.getJSON(  
-          "http://localhost:5006/static/datasource_endpoint.json",
+          @model.get('api_endpoint')+'values/' + renderer_name,
           {},
-          (json )->
-            
-            source2 = Bokeh.Collections('ColumnDataSource').create(
-              data:
-                x: json.x,
-                y2: json.y)
+          (json) ->
+            data = data_source.get('data')
+            data[renderer_name] = json[renderer_name]
           
             scatter2 = {
               type: 'rect'
-              x: 'x'
-              y: 'y2'
+              x: 'index'
+              y: renderer_name
               width: 5
               width_units: 'screen'
               height: 5
               height_units: 'screen'
               fill_color: 'blue'}
-
-
-            glyphs = Plotting.create_glyphs(pmodel, scatter2, [source2])
+            glyphs = Plotting.create_glyphs(pmodel, scatter2, [data_source])
             pmodel.add_renderers(g.ref() for g in glyphs)
 
-        );
-        
-      
+            )
 
     renderer_specs : ->
       specs = []
@@ -124,10 +119,12 @@ define [
       rname =  $(e.currentTarget).attr('name')
       add = $(e.currentTarget).is(":checked")
       selected_columns = @model.get('selected_columns')
+
       if add
         @_add_renderer(rname)
         selected_columns.push(rname)
       else
+        ""
         #not implemented for now
         
         #@model.set('selected_columns', _.without(selected_columns, column))
@@ -139,6 +136,7 @@ define [
     initialize: (options) ->
       @counter = 0
       super(options)
+      @_datasource_columns()
 
     eventGeneratorClass: ButtonEventGenerator
     evgen_options: { buttonText:"Remote Data Select" }
@@ -148,15 +146,17 @@ define [
        deactivated: "_close_modal"
     }
     _datasource_columns: ->
-      col_data = []
-      console.log("@mget('data_source_names')", @mget('data_source_names'))
-      selected_columns = @mget('selected_columns')
-      for k in @mget('data_source_names')
-        if _.contains(selected_columns, k)
-          col_data.push([k, "checked"])
-        else
-          col_data.push([k, ""])
-      return col_data
+      pmodel = @plot_view.model
+      data_source = this.mget_obj('data_source')
+      $.getJSON(@mget('api_endpoint')+'columns',
+        {},
+        (json) =>
+          @mset('columns', json.columns))
+      $.getJSON(@mget('api_endpoint')+'index',
+        {},
+        (json) ->
+          data = data_source.get('data')
+          data['index'] = json.index)
       
     _activated: (e) ->
       @modal_view = new RemoteDataSelectModal(model:@model, plot_view:@plot_view)
@@ -171,8 +171,10 @@ define [
 
     defaults: () ->
       return {
-        data_source_names: []
-        selected_columns: []
+        columns: [],
+        selected_columns: [],
+        api_endpoint: "",
+        data_source: null
       }
 
     display_defaults: () ->
