@@ -37,7 +37,7 @@ window_size = 30
 window = np.ones(window_size)/float(window_size)
 aapl_avg = np.convolve(aapl, window, 'same')
 
-scatter(aapl_dates, aapl,
+scatter(aapl_dates, aapl, size=4,
         x_axis_type = "datetime",
         color='#A6CEE3', radius=1, tools="pan,wheel_zoom,box_zoom,reset,previewsave", legend='close',
         name="stocks")

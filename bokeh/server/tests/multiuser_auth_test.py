@@ -4,8 +4,11 @@ from . import test_utils
 import requests
 import tempfile
 from ...serverconfig import Server
+from unittest import skipIf
+import sys
 class TestRegister(test_utils.BokehServerTestCase):
     options = {'single_user_mode' : False}
+    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")
     def test_register(self):
         url = "http://localhost:5006/bokeh/register"
         session = requests.session()
@@ -21,7 +24,7 @@ class TestRegister(test_utils.BokehServerTestCase):
         url = "http://localhost:5006/bokeh/userinfo"
         userinfo = session.get(url).json()
         assert userinfo['username'] == 'testuser1'
-
+    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")
     def test_register_twice_should_fail(self):
         url = "http://localhost:5006/bokeh/register"
         session = requests.session()
@@ -49,6 +52,7 @@ class TestRegister(test_utils.BokehServerTestCase):
 
 class TestLogin(test_utils.BokehServerTestCase):
     options = {'single_user_mode' : False}
+    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")    
     def test_login(self):
         username = "testuser2"
         password = "fluffy"
@@ -84,7 +88,8 @@ class TestLogin(test_utils.BokehServerTestCase):
         assert result['username'] == 'testuser2'
 
 class ServerConfigTestCase(test_utils.BokehServerTestCase):
-    options = {'single_user_mode' : False}    
+    options = {'single_user_mode' : False}
+    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")    
     def test_register(self):
         #create a dummy config file
         config = tempfile.NamedTemporaryFile(mode="w+").name
@@ -103,7 +108,7 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
                          )
         assert server2.userapikey == server.userapikey
         assert server2.root_url == server.root_url
-
+    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")
     def test_login(self):
         #create a server config, register a user
         config1 = tempfile.NamedTemporaryFile(mode="w+").name

@@ -1,8 +1,6 @@
 import time
 import unittest
 import mock
-import websocket
-import gevent
 from ..serverbb import RedisSession
 from .. import wsmanager
 from . import test_utils
@@ -11,7 +9,11 @@ from .. import start
 from ..models import docs
 from ... import protocol
 
+from unittest import skipIf
+import sys
+
 class WSmanagerTestCase(unittest.TestCase):
+    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")    
     def test_some_topics(self):
         manager = wsmanager.WebSocketManager()
         s1 = mock.Mock()
@@ -38,11 +40,12 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         doc2 = docs.new_doc(app, "defaultdoc2",
                             'main', sess, rw_users=["defaultuser"],
                             apikey='nokey')
-        
+    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")    
     def test_basic_subscribe(self):
         #connect sock to defaultdoc
         #connect sock2 to defaultdoc
         #connect sock3 to defaultdoc2
+        import websocket
         sock = websocket.WebSocket()
         connect(sock, ws_address, 'bokehplot:defaultdoc', 'nokey')
         sock2 = websocket.WebSocket()
