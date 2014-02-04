@@ -204,6 +204,12 @@ define [
       if @[attrname].value?
         return @[attrname].value
 
+      if obj.get and obj.get(attrname)
+        return obj.get(attrname)
+
+      if obj.mget and obj.mget(attrname)
+        return obj.mget(attrname)
+
       # otherwise, if the attribute exists on the object, return that value.
       # (This is a convenience case for when the object passed in has a member
       # that has the same name as the glyphspec name, e.g. an actual field
