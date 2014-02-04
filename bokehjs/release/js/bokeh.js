@@ -12522,9 +12522,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             toremove.push(key);
           }
         }
-        for (_i = 0, _len = toremove.length; _i < _len; _i++) {
-          key = toremove[_i];
-          delete attrs[key];
+        if (!_.isEmpty(toremove)) {
+          attrs = _.clone(attrs);
+          for (_i = 0, _len = toremove.length; _i < _len; _i++) {
+            key = toremove[_i];
+            delete attrs[key];
+          }
         }
         if (!_.isEmpty(attrs)) {
           return HasProperties.__super__.set.call(this, attrs, options);
@@ -13510,14 +13513,19 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         if (this[attrname].value != null) {
           return this[attrname].value;
         }
+        if (obj.get && obj.get(attrname)) {
+          return obj.get(attrname);
+        }
+        if (obj.mget && obj.mget(attrname)) {
+          return obj.mget(attrname);
+        }
         if (obj[attrname] != null) {
           return obj[attrname];
         }
         if (this[attrname]["default"] != null) {
           return this[attrname]["default"];
-        } else {
-          return console.log("selection for attribute '" + attrname + "' failed on object: " + obj);
         }
+        return console.log("selection for attribute '" + attrname + "' failed on object: " + obj);
       };
 
       properties.prototype.v_select = function(attrname, objs) {
@@ -14056,8 +14064,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         return this;
       };
 
-      PlotView.prototype.map_to_screen = function(x, x_units, y, y_units, units) {
-        var sx, sy, _ref1;
+      PlotView.prototype.map_to_screen = function(x, x_units, y, y_units) {
+        var sx, sy;
         if (x_units === 'screen') {
           if (_.isArray(x)) {
             sx = x.slice(0);
@@ -14065,6 +14073,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             sx = new Float64Array(x.length);
             sx.set(x);
           }
+        } else {
+          sx = this.xmapper.v_map_to_target(x);
+        }
+        if (y_units === 'screen') {
           if (_.isArray(y)) {
             sy = y.slice(0);
           } else {
@@ -14072,7 +14084,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             sy.set(y);
           }
         } else {
-          _ref1 = this.mapper.v_map_to_target(x, y), sx = _ref1[0], sy = _ref1[1];
+          sy = this.ymapper.v_map_to_target(y);
         }
         sx = this.view_state.v_vx_to_sx(sx);
         sy = this.view_state.v_vy_to_sy(sy);
@@ -14105,6 +14117,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotView.prototype.update_range = function(range_info) {
+        if (range_info == null) {
+          range_info = this.initial_range_info;
+        }
         this.pause();
         this.x_range.set(range_info.xr);
         this.y_range.set(range_info.yr);
@@ -14209,6 +14224,18 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       PlotView.prototype.render = function(force) {
         var have_new_mapper_state, hpadding, k, level, pr, renderers, sx, sy, sym, th, title, v, xms, yms, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
         PlotView.__super__.render.call(this);
+        if ((this.initial_range_info == null) && (this.x_range.get('start') != null)) {
+          this.initial_range_info = {
+            xr: {
+              start: this.x_range.get('start'),
+              end: this.x_range.get('end')
+            },
+            yr: {
+              start: this.y_range.get('start'),
+              end: this.y_range.get('end')
+            }
+          };
+        }
         this.requested_padding = {
           top: 0,
           bottom: 0,
@@ -14596,6 +14623,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
       GMapPlotView.prototype.update_range = function(range_info) {
         var center, ne_lat, ne_lng, sw_lat, sw_lng;
+        if (range_info == null) {
+          range_info = this.initial_range_info;
+        }
         this.pause();
         if (range_info.sdx != null) {
           this.map.panBy(range_info.sdx, range_info.sdy);
@@ -14605,7 +14635,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           sw_lat = Math.min(range_info.yr.start, range_info.yr.end);
           ne_lat = Math.max(range_info.yr.start, range_info.yr.end);
           center = new google.maps.LatLng((ne_lat + sw_lat) / 2, (ne_lng + sw_lng) / 2);
-          if (range_info.factor > 0) {
+          if (range_info.factor == null) {
+            this.map.setCenter(center);
+            this.map.setZoom(this.initial_zoom);
+          } else if (range_info.factor > 0) {
             this.zoom_count += 1;
             if (this.zoom_count === 10) {
               this.map.setZoom(this.map.getZoom() + 1);
@@ -14705,11 +14738,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         ih = this.view_state.get('inner_height');
         top = this.view_state.get('border_top');
         left = this.view_state.get('border_left');
-        console.log(this.gmap_div);
         this.gmap_div.attr("style", "top: " + top + "px; left: " + left + "px; position: absolute");
         this.gmap_div.attr('style', "width:" + iw + "px;");
         this.gmap_div.attr('style', "height:" + ih + "px;");
         this.gmap_div.width("" + iw + "px").height("" + ih + "px");
+        this.initial_zoom = this.mget('map_options').zoom;
         build_map = function() {
           var map_options, mo;
           mo = _this.mget('map_options');
@@ -14719,9 +14752,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             disableDefaultUI: true,
             mapTypeId: google.maps.MapTypeId.SATELLITE
           };
-          console.log("FOO", _this);
-          console.log("FOO", _this.gmap_div);
-          console.log("FOO", _this.gmap_div[0]);
           _this.map = new google.maps.Map(_this.gmap_div[0], map_options);
           return google.maps.event.addListener(_this.map, 'bounds_changed', _this.bounds_change);
         };
@@ -14741,10 +14771,22 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           end: ne.lng(),
           silent: true
         });
-        return this.y_range.set({
+        this.y_range.set({
           start: sw.lat(),
           end: ne.lat()
         });
+        if (this.initial_range_info == null) {
+          return this.initial_range_info = {
+            xr: {
+              start: this.x_range.get('start'),
+              end: this.x_range.get('end')
+            },
+            yr: {
+              start: this.y_range.get('start'),
+              end: this.y_range.get('end')
+            }
+          };
+        }
       };
 
       GMapPlotView.prototype.save_png = function() {
@@ -16159,11 +16201,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
         source = this.mget_obj('data_source');
         local_select = function(prop_name) {
-          if (source.type === 'ColumnDataSource') {
-            return _this.glyph_props.source_v_select(prop_name, source);
-          } else {
-            return _this.glyph_props.v_select(prop_name, _this.data2);
-          }
+          return _this.glyph_props.source_v_select(prop_name, source);
         };
         span = local_select(span_prop_name);
         if (span_units === 'screen') {
@@ -16315,7 +16353,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       Glyph.prototype.display_defaults = function() {
         return {
           level: 'glyph',
-          radius_units: 'screen',
+          radius_units: 'data',
           length_units: 'screen',
           angle_units: 'deg',
           start_angle_units: 'deg',
@@ -18637,9 +18675,18 @@ if (typeof define === 'function' && define.amd) {
         return _ref;
       }
 
-      ImageView.prototype._fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string'];
-
       ImageView.prototype._properties = [];
+
+      ImageView.prototype.initialize = function(options) {
+        var spec;
+        spec = this.mget('glyphspec');
+        if (spec.rows != null) {
+          this._fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'palette:string'];
+        } else {
+          this._fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string'];
+        }
+        return ImageView.__super__.initialize.call(this, options);
+      };
 
       ImageView.prototype._set_data = function(data) {
         var buf, buf8, canvas, cmap, ctx, i, image_data, img, _i, _j, _ref1, _ref2, _results;
@@ -18658,17 +18705,27 @@ if (typeof define === 'function' && define.amd) {
         }
         _results = [];
         for (i = _j = 0, _ref2 = this.image.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
-          this.height[i] = this.image[i].length;
-          this.width[i] = this.image[i][0].length;
+          if (this.rows != null) {
+            this.height[i] = this.rows[i];
+            this.width[i] = this.cols[i];
+          } else {
+            this.height[i] = this.image[i].length;
+            this.width[i] = this.image[i][0].length;
+          }
           canvas = document.createElement('canvas');
           canvas.width = this.width[i];
           canvas.height = this.height[i];
           ctx = canvas.getContext('2d');
+          console.log(this.width[i], this.height[i]);
           image_data = ctx.getImageData(0, 0, this.width[i], this.height[i]);
           cmap = new LinearColorMapper({}, {
             palette: all_palettes[this.palette[i]]
           });
-          img = _.flatten(this.image[i]);
+          if (this.rows != null) {
+            img = this.image[i];
+          } else {
+            img = _.flatten(this.image[i]);
+          }
           buf = cmap.v_map_screen(img);
           buf8 = new Uint8ClampedArray(buf);
           image_data.data.set(buf8);
@@ -18703,8 +18760,7 @@ if (typeof define === 'function' && define.amd) {
           ctx.scale(1, -1);
           ctx.translate(0, -y_offset);
         }
-        ctx.setImageSmoothingEnabled(old_smoothing);
-        return ctx.restore();
+        return ctx.setImageSmoothingEnabled(old_smoothing);
       };
 
       return ImageView;
@@ -18757,12 +18813,21 @@ if (typeof define === 'function' && define.amd) {
         return _ref;
       }
 
-      ImageRGBAView.prototype._fields = ['image:array', 'x', 'y', 'dw', 'dh'];
-
       ImageRGBAView.prototype._properties = [];
 
+      ImageRGBAView.prototype.initialize = function(options) {
+        var spec;
+        spec = this.mget('glyphspec');
+        if (spec.rows != null) {
+          this._fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh'];
+        } else {
+          this._fields = ['image:array', 'x', 'y', 'dw', 'dh'];
+        }
+        return ImageRGBAView.__super__.initialize.call(this, options);
+      };
+
       ImageRGBAView.prototype._set_data = function() {
-        var buf, buf8, canvas, color, ctx, flat, i, image_data, j, _i, _j, _k, _ref1, _ref2, _ref3, _results;
+        var buf, buf8, canvas, color, ctx, flat, i, image_data, j, _i, _j, _k, _ref1, _ref2, _ref3, _ref4, _ref5, _results;
         for (i = _i = 0, _ref1 = this.y.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           this.y[i] += this.dh[i];
         }
@@ -18777,21 +18842,25 @@ if (typeof define === 'function' && define.amd) {
         }
         _results = [];
         for (i = _j = 0, _ref2 = this.image.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
-          this.height[i] = this.image[i].length;
-          this.width[i] = this.image[i][0].length;
+          this.height[i] = (_ref3 = this.rows[i]) != null ? _ref3 : this.image[i].length;
+          this.width[i] = (_ref4 = this.cols[i]) != null ? _ref4 : this.image[i][0].length;
           canvas = document.createElement('canvas');
           canvas.width = this.width[i];
           canvas.height = this.height[i];
           ctx = canvas.getContext('2d');
           image_data = ctx.getImageData(0, 0, this.width[i], this.height[i]);
-          flat = _.flatten(this.image[i]);
-          buf = new ArrayBuffer(flat.length * 4);
-          color = new Uint32Array(buf);
-          for (j = _k = 0, _ref3 = flat.length; 0 <= _ref3 ? _k < _ref3 : _k > _ref3; j = 0 <= _ref3 ? ++_k : --_k) {
-            color[j] = flat[j];
+          if (this.row != null) {
+            flat = _.flatten(this.image[i]);
+            buf = new ArrayBuffer(flat.length * 4);
+            color = new Uint32Array(buf);
+            for (j = _k = 0, _ref5 = flat.length; 0 <= _ref5 ? _k < _ref5 : _k > _ref5; j = 0 <= _ref5 ? ++_k : --_k) {
+              color[j] = flat[j];
+            }
+            buf8 = new Uint8ClampedArray(buf);
+            image_data.data.set(buf8);
+          } else {
+            image_data.data.set(new Uint8ClampedArray(this.image[i]));
           }
-          buf8 = new Uint8ClampedArray(buf);
-          image_data.data.set(buf8);
           ctx.putImageData(image_data, 0, 0);
           _results.push(this.image_data[i] = canvas);
         }
@@ -18823,8 +18892,7 @@ if (typeof define === 'function' && define.amd) {
           ctx.scale(1, -1);
           ctx.translate(0, -y_offset);
         }
-        ctx.setImageSmoothingEnabled(old_smoothing);
-        return ctx.restore();
+        return ctx.setImageSmoothingEnabled(old_smoothing);
       };
 
       return ImageRGBAView;
@@ -18922,8 +18990,9 @@ if (typeof define === 'function' && define.amd) {
       };
 
       ImageURIView.prototype._render = function(ctx, indices, glyph_props) {
-        var i, img, _i, _len,
+        var i, img, _i, _len, _results,
           _this = this;
+        _results = [];
         for (_i = 0, _len = indices.length; _i < _len; _i++) {
           i = indices[_i];
           if (isNaN(this.sx[i] + this.sy[i] + this.angle[i])) {
@@ -18944,12 +19013,14 @@ if (typeof define === 'function' && define.amd) {
               };
             })(img, i);
             img.src = this.url[i];
-            this.need_load[i] = false;
+            _results.push(this.need_load[i] = false);
           } else if (this.loaded[i]) {
-            this._render_image(ctx, vs, i, this.image[i]);
+            _results.push(this._render_image(ctx, vs, i, this.image[i]));
+          } else {
+            _results.push(void 0);
           }
         }
-        return ctx.restore();
+        return _results;
       };
 
       ImageURIView.prototype._render_image = function(ctx, vs, i, img) {
@@ -19125,7 +19196,7 @@ if (typeof define === 'function' && define.amd) {
       LineView.prototype._render = function(ctx, indices, glyph_props) {
         var drawing, i, _i, _len;
         drawing = false;
-        glyph_props.line_properties.set_vectorize(ctx, 0);
+        glyph_props.line_properties.set(ctx, glyph_props);
         for (_i = 0, _len = indices.length; _i < _len; _i++) {
           i = indices[_i];
           if (isNaN(this.sx[i] + this.sy[i]) && drawing) {
@@ -19481,9 +19552,8 @@ if (typeof define === 'function' && define.amd) {
             }
           }
           ctx.closePath();
-          ctx.stroke();
+          return ctx.stroke();
         }
-        return ctx.restore();
       };
 
       PatchView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
@@ -19556,9 +19626,9 @@ if (typeof define === 'function' && define.amd) {
       };
 
       PatchesView.prototype._render = function(ctx, indices, glyph_props) {
-        var i, j, sx, sy, _i, _j, _k, _len, _ref1, _ref2, _ref3;
+        var i, j, sx, sy, _i, _j, _k, _len, _ref1, _ref2, _ref3, _results;
         ctx = this.plot_view.ctx;
-        ctx.save();
+        _results = [];
         for (_i = 0, _len = indices.length; _i < _len; _i++) {
           i = indices[_i];
           _ref1 = this.plot_view.map_to_screen(this.xs[i], glyph_props.xs.units, this.ys[i], glyph_props.ys.units), sx = _ref1[0], sy = _ref1[1];
@@ -19598,10 +19668,12 @@ if (typeof define === 'function' && define.amd) {
               }
             }
             ctx.closePath();
-            ctx.stroke();
+            _results.push(ctx.stroke());
+          } else {
+            _results.push(void 0);
           }
         }
-        return ctx.restore();
+        return _results;
       };
 
       PatchesView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
@@ -23591,163 +23663,7 @@ define("sprintf", (function (global) {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('source/object_array_data_source',["underscore", "backbone", "common/has_properties", "range/range1d", "range/factor_range"], function(_, Backbone, HasProperties, Range1d, FactorRange) {
-    var ObjectArrayDataSource, ObjectArrayDataSources, _ref, _ref1;
-    ObjectArrayDataSource = (function(_super) {
-      __extends(ObjectArrayDataSource, _super);
-
-      function ObjectArrayDataSource() {
-        _ref = ObjectArrayDataSource.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ObjectArrayDataSource.prototype.type = 'ObjectArrayDataSource';
-
-      ObjectArrayDataSource.prototype.initialize = function(attrs, options) {
-        ObjectArrayDataSource.__super__.initialize.call(this, attrs, options);
-        this.cont_ranges = {};
-        return this.discrete_ranges = {};
-      };
-
-      ObjectArrayDataSource.prototype.getcolumn = function(colname) {
-        var x;
-        return (function() {
-          var _i, _len, _ref1, _results;
-          _ref1 = this.get('data');
-          _results = [];
-          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-            x = _ref1[_i];
-            _results.push(x[colname]);
-          }
-          return _results;
-        }).call(this);
-      };
-
-      ObjectArrayDataSource.prototype.compute_cont_range = function(field) {
-        var data;
-        data = this.getcolumn(field);
-        return [_.max(data), _.min(data)];
-      };
-
-      ObjectArrayDataSource.prototype.compute_discrete_factor = function(field) {
-        var temp, uniques, val, _i, _len, _ref1;
-        temp = {};
-        _ref1 = this.getcolumn(field);
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          val = _ref1[_i];
-          temp[val] = true;
-        }
-        uniques = _.keys(temp);
-        return uniques = _.sortBy(uniques, (function(x) {
-          return x;
-        }));
-      };
-
-      ObjectArrayDataSource.prototype.get_cont_range = function(field, padding) {
-        var center, max, min, span, _ref1, _ref2,
-          _this = this;
-        if (_.isUndefined(padding)) {
-          padding = 1.0;
-        }
-        if (!_.exists(this.cont_ranges, field)) {
-          _ref1 = this.compute_cont_range(field), min = _ref1[0], max = _ref1[1];
-          span = (max - min) * (1 + padding);
-          center = (max + min) / 2.0;
-          _ref2 = [center - span / 2.0, center + span / 2.0], min = _ref2[0], max = _ref2[1];
-          this.cont_ranges[field] = Range1d.Collection.create({
-            start: min,
-            end: max
-          });
-          this.on('change:data', function() {
-            var _ref3;
-            _ref3 = _this.compute_cont_range(field), max = _ref3[0], min = _ref3[1];
-            _this.cont_ranges[field].set('start', min);
-            return _this.cont_ranges[field].set('end', max);
-          });
-        }
-        return this.cont_ranges[field];
-      };
-
-      ObjectArrayDataSource.prototype.get_discrete_range = function(field) {
-        var factors,
-          _this = this;
-        if (!_.exists(this.discrete_ranges, field)) {
-          factors = this.compute_discrete_factor(field);
-          this.discrete_ranges[field] = FactorRange.Collection.create({
-            values: factors
-          });
-          this.on('change:data', function() {
-            factors = _this.compute_discrete_factor(field);
-            return _this.discrete_ranges[field] = FactorRange.Collection.set('values', factors);
-          });
-        }
-        return this.discrete_ranges[field];
-      };
-
-      ObjectArrayDataSource.prototype.select = function(fields, func) {
-        var args, idx, selected, val, x, _i, _len, _ref1;
-        selected = [];
-        _ref1 = this.get('data');
-        for (idx = _i = 0, _len = _ref1.length; _i < _len; idx = ++_i) {
-          val = _ref1[idx];
-          args = (function() {
-            var _j, _len1, _results;
-            _results = [];
-            for (_j = 0, _len1 = fields.length; _j < _len1; _j++) {
-              x = fields[_j];
-              _results.push(val[x]);
-            }
-            return _results;
-          })();
-          if (func.apply(func, args)) {
-            selected.push(idx);
-          }
-        }
-        selected.sort();
-        return selected;
-      };
-
-      ObjectArrayDataSource.prototype.defaults = function() {
-        return {
-          data: [{}],
-          name: 'data',
-          selected: [],
-          selecting: false
-        };
-      };
-
-      return ObjectArrayDataSource;
-
-    })(HasProperties);
-    ObjectArrayDataSources = (function(_super) {
-      __extends(ObjectArrayDataSources, _super);
-
-      function ObjectArrayDataSources() {
-        _ref1 = ObjectArrayDataSources.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      ObjectArrayDataSources.prototype.model = ObjectArrayDataSource;
-
-      return ObjectArrayDataSources;
-
-    })(Backbone.Collection);
-    return {
-      "Model": ObjectArrayDataSource,
-      "Collection": new ObjectArrayDataSources()
-    };
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=object_array_data_source.js.map
-*/;
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  define('source/column_data_source',["underscore", "backbone", "./object_array_data_source"], function(_, Backbone, ObjectArrayDataSource) {
+  define('source/column_data_source',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
     var ColumnDataSource, ColumnDataSources, _ref, _ref1;
     ColumnDataSource = (function(_super) {
       __extends(ColumnDataSource, _super);
@@ -23802,7 +23718,7 @@ define("sprintf", (function (global) {
 
       return ColumnDataSource;
 
-    })(ObjectArrayDataSource.Model);
+    })(HasProperties);
     ColumnDataSources = (function(_super) {
       __extends(ColumnDataSources, _super);
 
@@ -23986,7 +23902,18 @@ define("sprintf", (function (global) {
           }
         });
         this.plotview.canvas_wrapper.bind('mousedown', function(e) {
-          if (_this.button_activated || e[_this.options.keyName]) {
+          var start;
+          start = false;
+          if (_this.button_activated || _this.eventSink.active === _this.toolName) {
+            start = true;
+          } else if (!_this.eventSink.active) {
+            if (_this.options.keyName === null && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
+              start = true;
+            } else if (e[_this.options.keyName] === true) {
+              start = true;
+            }
+          }
+          if (start) {
             _this._start_drag();
             return false;
           }
@@ -24031,6 +23958,7 @@ define("sprintf", (function (global) {
       };
 
       TwoPointEventGenerator.prototype._start_drag = function() {
+        this._activated_with_button = this.button_activated;
         this.eventSink.trigger("active_tool", this.toolName);
         if (!this.dragging) {
           this.dragging = true;
@@ -24047,6 +23975,9 @@ define("sprintf", (function (global) {
         this.basepoint_set = false;
         if (this.dragging) {
           this.dragging = false;
+          if (this._activated_with_button === false && this.options.auto_deactivate === true) {
+            this.eventSink.trigger("clear_active_tool");
+          }
           if (!this.button_activated) {
             this.$tool_button.removeClass('active');
           }
@@ -24054,8 +23985,9 @@ define("sprintf", (function (global) {
             this.plotview.canvas_wrapper.css('cursor', '');
           }
           set_bokehXY(e);
-          return this.eventSink.trigger("" + this.options.eventBasename + ":DragEnd", e);
+          this.eventSink.trigger("" + this.options.eventBasename + ":DragEnd", e);
         }
+        return this._activated_with_button = null;
       };
 
       return TwoPointEventGenerator;
@@ -24078,14 +24010,13 @@ define("sprintf", (function (global) {
         this.plotview = plotview;
         this.eventSink = eventSink;
         this.plotview.canvas_wrapper.bind("mousewheel", function(e, delta, dX, dY) {
-          if (!_this.tool_active) {
-            return;
+          if (_this.tool_active || (!_this.eventSink.active && e.shiftKey)) {
+            set_bokehXY(e);
+            e.delta = delta;
+            eventSink.trigger("" + toolName + ":zoom", e);
+            e.preventDefault();
+            return e.stopPropagation();
           }
-          set_bokehXY(e);
-          e.delta = delta;
-          eventSink.trigger("" + toolName + ":zoom", e);
-          e.preventDefault();
-          return e.stopPropagation();
         });
         $(document).bind('keydown', function(e) {
           if (e.keyCode === 27) {
@@ -24255,9 +24186,10 @@ define("sprintf", (function (global) {
       PanToolView.prototype.toolType = "PanTool";
 
       PanToolView.prototype.evgen_options = {
-        keyName: "shiftKey",
+        keyName: null,
         buttonText: "Pan",
         cursor: "move",
+        auto_deactivate: true,
         restrict_to_innercanvas: true
       };
 
@@ -24327,8 +24259,7 @@ define("sprintf", (function (global) {
 
       PanTool.prototype.defaults = function() {
         return {
-          dimensions: [],
-          dataranges: []
+          dimensions: []
         };
       };
 
@@ -24453,7 +24384,6 @@ define("sprintf", (function (global) {
       WheelZoomTool.prototype.defaults = function() {
         return {
           dimensions: [],
-          dataranges: [],
           speed: 1 / 600
         };
       };
@@ -24868,7 +24798,7 @@ define("sprintf", (function (global) {
       BoxSelectToolView.prototype.toolType = "BoxSelectTool";
 
       BoxSelectToolView.prototype.evgen_options = {
-        keyName: "ctrlKey",
+        keyName: "shiftKey",
         buttonText: "Select",
         cursor: "crosshair",
         restrict_to_innercanvas: true
@@ -25122,67 +25052,6 @@ define("sprintf", (function (global) {
 /*
 //@ sourceMappingURL=data_range_box_select_tool.js.map
 */;
-/* ===================================================
- * bootstrap-transition.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#transitions
- * ===================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================== */
-
-
-!function ($) {
-
-  $(function () {
-
-     // jshint ;_;
-
-
-    /* CSS TRANSITION SUPPORT (http://www.modernizr.com/)
-     * ======================================================= */
-
-    $.support.transition = (function () {
-
-      var transitionEnd = (function () {
-
-        var el = document.createElement('bootstrap')
-          , transEndEventNames = {
-               'WebkitTransition' : 'webkitTransitionEnd'
-            ,  'MozTransition'    : 'transitionend'
-            ,  'OTransition'      : 'oTransitionEnd'
-            ,  'msTransition'     : 'MSTransitionEnd'
-            ,  'transition'       : 'transitionend'
-            }
-          , name
-
-        for (name in transEndEventNames){
-          if (el.style[name] !== undefined) {
-            return transEndEventNames[name]
-          }
-        }
-
-      }())
-
-      return transitionEnd && {
-        end: transitionEnd
-      }
-
-    })()
-
-  })
-
-}(window.jQuery);
 /* =========================================================
  * bootstrap-modal.js v2.0.4
  * http://twitter.github.com/bootstrap/javascript.html#modals
@@ -25202,11 +25071,8 @@ define("sprintf", (function (global) {
  * limitations under the License.
  * ========================================================= */
 
-
-!function ($) {
-
+define('modal',["jquery"], function($) {
    // jshint ;_;
-
 
  /* MODAL CLASS DEFINITION
   * ====================== */
@@ -25384,1588 +25250,13 @@ define("sprintf", (function (global) {
   }
 
   $.fn.modal.Constructor = Modal
-
-
- /* MODAL DATA-API
-  * ============== */
-
-  $(function () {
-    $('body').on('click.modal.data-api', '[data-toggle="modal"]', function ( e ) {
-      var $this = $(this), href
-        , $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) //strip for ie7
-        , option = $target.data('modal') ? 'toggle' : $.extend({}, $target.data(), $this.data())
-
-      e.preventDefault()
-      $target.modal(option)
-    })
-  })
-
-}(window.jQuery);
-/* ============================================================
- * bootstrap-dropdown.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#dropdowns
- * ============================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================ */
-
-
-!function ($) {
-
-   // jshint ;_;
-
-
- /* DROPDOWN CLASS DEFINITION
-  * ========================= */
-
-  var toggle = '[data-toggle="dropdown"]'
-    , Dropdown = function (element) {
-        var $el = $(element).on('click.dropdown.data-api', this.toggle)
-        $('html').on('click.dropdown.data-api', function () {
-          $el.parent().removeClass('open')
-        })
-      }
-
-  Dropdown.prototype = {
-
-    constructor: Dropdown
-
-  , toggle: function (e) {
-      var $this = $(this)
-        , $parent
-        , selector
-        , isActive
-
-      if ($this.is('.disabled, :disabled')) return
-
-      selector = $this.attr('data-target')
-
-      if (!selector) {
-        selector = $this.attr('href')
-        selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
-      }
-
-      $parent = $(selector)
-      $parent.length || ($parent = $this.parent())
-
-      isActive = $parent.hasClass('open')
-
-      clearMenus()
-
-      if (!isActive) $parent.toggleClass('open')
-
-      return false
-    }
-
-  }
-
-  function clearMenus() {
-    $(toggle).parent().removeClass('open')
-  }
-
-
-  /* DROPDOWN PLUGIN DEFINITION
-   * ========================== */
-
-  $.fn.dropdown = function (option) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('dropdown')
-      if (!data) $this.data('dropdown', (data = new Dropdown(this)))
-      if (typeof option == 'string') data[option].call($this)
-    })
-  }
-
-  $.fn.dropdown.Constructor = Dropdown
-
-
-  /* APPLY TO STANDARD DROPDOWN ELEMENTS
-   * =================================== */
-
-  $(function () {
-    $('html').on('click.dropdown.data-api', clearMenus)
-    $('body')
-      .on('click.dropdown', '.dropdown form', function (e) { e.stopPropagation() })
-      .on('click.dropdown.data-api', toggle, Dropdown.prototype.toggle)
-  })
-
-}(window.jQuery);
-/* =============================================================
- * bootstrap-scrollspy.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#scrollspy
- * =============================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================== */
-
-
-!function ($) {
-
-   // jshint ;_;
-
-
-  /* SCROLLSPY CLASS DEFINITION
-   * ========================== */
-
-  function ScrollSpy( element, options) {
-    var process = $.proxy(this.process, this)
-      , $element = $(element).is('body') ? $(window) : $(element)
-      , href
-    this.options = $.extend({}, $.fn.scrollspy.defaults, options)
-    this.$scrollElement = $element.on('scroll.scroll.data-api', process)
-    this.selector = (this.options.target
-      || ((href = $(element).attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) //strip for ie7
-      || '') + ' .nav li > a'
-    this.$body = $('body')
-    this.refresh()
-    this.process()
-  }
-
-  ScrollSpy.prototype = {
-
-      constructor: ScrollSpy
-
-    , refresh: function () {
-        var self = this
-          , $targets
-
-        this.offsets = $([])
-        this.targets = $([])
-
-        $targets = this.$body
-          .find(this.selector)
-          .map(function () {
-            var $el = $(this)
-              , href = $el.data('target') || $el.attr('href')
-              , $href = /^#\w/.test(href) && $(href)
-            return ( $href
-              && href.length
-              && [[ $href.position().top, href ]] ) || null
-          })
-          .sort(function (a, b) { return a[0] - b[0] })
-          .each(function () {
-            self.offsets.push(this[0])
-            self.targets.push(this[1])
-          })
-      }
-
-    , process: function () {
-        var scrollTop = this.$scrollElement.scrollTop() + this.options.offset
-          , scrollHeight = this.$scrollElement[0].scrollHeight || this.$body[0].scrollHeight
-          , maxScroll = scrollHeight - this.$scrollElement.height()
-          , offsets = this.offsets
-          , targets = this.targets
-          , activeTarget = this.activeTarget
-          , i
-
-        if (scrollTop >= maxScroll) {
-          return activeTarget != (i = targets.last()[0])
-            && this.activate ( i )
-        }
-
-        for (i = offsets.length; i--;) {
-          activeTarget != targets[i]
-            && scrollTop >= offsets[i]
-            && (!offsets[i + 1] || scrollTop <= offsets[i + 1])
-            && this.activate( targets[i] )
-        }
-      }
-
-    , activate: function (target) {
-        var active
-          , selector
-
-        this.activeTarget = target
-
-        $(this.selector)
-          .parent('.active')
-          .removeClass('active')
-
-        selector = this.selector
-          + '[data-target="' + target + '"],'
-          + this.selector + '[href="' + target + '"]'
-
-        active = $(selector)
-          .parent('li')
-          .addClass('active')
-
-        if (active.parent('.dropdown-menu'))  {
-          active = active.closest('li.dropdown').addClass('active')
-        }
-
-        active.trigger('activate')
-      }
-
-  }
-
-
- /* SCROLLSPY PLUGIN DEFINITION
-  * =========================== */
-
-  $.fn.scrollspy = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('scrollspy')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('scrollspy', (data = new ScrollSpy(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.scrollspy.Constructor = ScrollSpy
-
-  $.fn.scrollspy.defaults = {
-    offset: 10
-  }
-
-
- /* SCROLLSPY DATA-API
-  * ================== */
-
-  $(function () {
-    $('[data-spy="scroll"]').each(function () {
-      var $spy = $(this)
-      $spy.scrollspy($spy.data())
-    })
-  })
-
-}(window.jQuery);
-/* ========================================================
- * bootstrap-tab.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#tabs
- * ========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ======================================================== */
-
-
-!function ($) {
-
-   // jshint ;_;
-
-
- /* TAB CLASS DEFINITION
-  * ==================== */
-
-  var Tab = function ( element ) {
-    this.element = $(element)
-  }
-
-  Tab.prototype = {
-
-    constructor: Tab
-
-  , show: function () {
-      var $this = this.element
-      , $ul = $this.closest('ul:not(.dropdown-menu)')
-        , selector = $this.attr('data-target')
-        , previous
-        , $target
-        , e
-
-      if (!selector) {
-        selector = $this.attr('href')
-        selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
-      }
-
-      if ( $this.parent('li').hasClass('active') ) return
-
-      previous = $ul.find('.active a').last()[0]
-
-      e = $.Event('show', {
-        relatedTarget: previous
-      })
-
-      $this.trigger(e)
-
-      if (e.isDefaultPrevented()) return
-
-      $target = $(selector)
-
-      this.activate($this.parent('li'), $ul)
-      this.activate($target, $target.parent(), function () {
-        $this.trigger({
-          type: 'shown'
-        , relatedTarget: previous
-        })
-      })
-    }
-
-  , activate: function ( element, container, callback) {
-      var $active = container.find('> .active')
-        , transition = callback
-            && $.support.transition
-            && $active.hasClass('fade')
-
-      function next() {
-        $active
-          .removeClass('active')
-          .find('> .dropdown-menu > .active')
-          .removeClass('active')
-
-        element.addClass('active')
-
-        if (transition) {
-          element[0].offsetWidth // reflow for transition
-          element.addClass('in')
-        } else {
-          element.removeClass('fade')
-        }
-
-        if ( element.parent('.dropdown-menu') ) {
-          element.closest('li.dropdown').addClass('active')
-        }
-
-        callback && callback()
-      }
-
-      transition ?
-        $active.one($.support.transition.end, next) :
-        next()
-
-      $active.removeClass('in')
-    }
-  }
-
-
- /* TAB PLUGIN DEFINITION
-  * ===================== */
-
-  $.fn.tab = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('tab')
-      if (!data) $this.data('tab', (data = new Tab(this)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.tab.Constructor = Tab
-
-
- /* TAB DATA-API
-  * ============ */
-
-  $(function () {
-    $('body').on('click.tab.data-api', '[data-toggle="tab"], [data-toggle="pill"]', function (e) {
-      e.preventDefault()
-      $(this).tab('show')
-    })
-  })
-
-}(window.jQuery);
-/* ===========================================================
- * bootstrap-tooltip.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#tooltips
- * Inspired by the original jQuery.tipsy by Jason Frame
- * ===========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================== */
-
-
-!function ($) {
-
-   // jshint ;_;
-
-
- /* TOOLTIP PUBLIC CLASS DEFINITION
-  * =============================== */
-
-  var Tooltip = function (element, options) {
-    this.init('tooltip', element, options)
-  }
-
-  Tooltip.prototype = {
-
-    constructor: Tooltip
-
-  , init: function (type, element, options) {
-      var eventIn
-        , eventOut
-
-      this.type = type
-      this.$element = $(element)
-      this.options = this.getOptions(options)
-      this.enabled = true
-
-      if (this.options.trigger != 'manual') {
-        eventIn  = this.options.trigger == 'hover' ? 'mouseenter' : 'focus'
-        eventOut = this.options.trigger == 'hover' ? 'mouseleave' : 'blur'
-        this.$element.on(eventIn, this.options.selector, $.proxy(this.enter, this))
-        this.$element.on(eventOut, this.options.selector, $.proxy(this.leave, this))
-      }
-
-      this.options.selector ?
-        (this._options = $.extend({}, this.options, { trigger: 'manual', selector: '' })) :
-        this.fixTitle()
-    }
-
-  , getOptions: function (options) {
-      options = $.extend({}, $.fn[this.type].defaults, options, this.$element.data())
-
-      if (options.delay && typeof options.delay == 'number') {
-        options.delay = {
-          show: options.delay
-        , hide: options.delay
-        }
-      }
-
-      return options
-    }
-
-  , enter: function (e) {
-      var self = $(e.currentTarget)[this.type](this._options).data(this.type)
-
-      if (!self.options.delay || !self.options.delay.show) return self.show()
-
-      clearTimeout(this.timeout)
-      self.hoverState = 'in'
-      this.timeout = setTimeout(function() {
-        if (self.hoverState == 'in') self.show()
-      }, self.options.delay.show)
-    }
-
-  , leave: function (e) {
-      var self = $(e.currentTarget)[this.type](this._options).data(this.type)
-
-      if (this.timeout) clearTimeout(this.timeout)
-      if (!self.options.delay || !self.options.delay.hide) return self.hide()
-
-      self.hoverState = 'out'
-      this.timeout = setTimeout(function() {
-        if (self.hoverState == 'out') self.hide()
-      }, self.options.delay.hide)
-    }
-
-  , show: function () {
-      var $tip
-        , inside
-        , pos
-        , actualWidth
-        , actualHeight
-        , placement
-        , tp
-
-      if (this.hasContent() && this.enabled) {
-        $tip = this.tip()
-        this.setContent()
-
-        if (this.options.animation) {
-          $tip.addClass('fade')
-        }
-
-        placement = typeof this.options.placement == 'function' ?
-          this.options.placement.call(this, $tip[0], this.$element[0]) :
-          this.options.placement
-
-        inside = /in/.test(placement)
-
-        $tip
-          .remove()
-          .css({ top: 0, left: 0, display: 'block' })
-          .appendTo(inside ? this.$element : document.body)
-
-        pos = this.getPosition(inside)
-
-        actualWidth = $tip[0].offsetWidth
-        actualHeight = $tip[0].offsetHeight
-
-        switch (inside ? placement.split(' ')[1] : placement) {
-          case 'bottom':
-            tp = {top: pos.top + pos.height, left: pos.left + pos.width / 2 - actualWidth / 2}
-            break
-          case 'top':
-            tp = {top: pos.top - actualHeight, left: pos.left + pos.width / 2 - actualWidth / 2}
-            break
-          case 'left':
-            tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left - actualWidth}
-            break
-          case 'right':
-            tp = {top: pos.top + pos.height / 2 - actualHeight / 2, left: pos.left + pos.width}
-            break
-        }
-
-        $tip
-          .css(tp)
-          .addClass(placement)
-          .addClass('in')
-      }
-    }
-
-  , isHTML: function(text) {
-      // html string detection logic adapted from jQuery
-      return typeof text != 'string'
-        || ( text.charAt(0) === "<"
-          && text.charAt( text.length - 1 ) === ">"
-          && text.length >= 3
-        ) || /^(?:[^<]*<[\w\W]+>[^>]*$)/.exec(text)
-    }
-
-  , setContent: function () {
-      var $tip = this.tip()
-        , title = this.getTitle()
-
-      $tip.find('.tooltip-inner')[this.isHTML(title) ? 'html' : 'text'](title)
-      $tip.removeClass('fade in top bottom left right')
-    }
-
-  , hide: function () {
-      var that = this
-        , $tip = this.tip()
-
-      $tip.removeClass('in')
-
-      function removeWithAnimation() {
-        var timeout = setTimeout(function () {
-          $tip.off($.support.transition.end).remove()
-        }, 500)
-
-        $tip.one($.support.transition.end, function () {
-          clearTimeout(timeout)
-          $tip.remove()
-        })
-      }
-
-      $.support.transition && this.$tip.hasClass('fade') ?
-        removeWithAnimation() :
-        $tip.remove()
-    }
-
-  , fixTitle: function () {
-      var $e = this.$element
-      if ($e.attr('title') || typeof($e.attr('data-original-title')) != 'string') {
-        $e.attr('data-original-title', $e.attr('title') || '').removeAttr('title')
-      }
-    }
-
-  , hasContent: function () {
-      return this.getTitle()
-    }
-
-  , getPosition: function (inside) {
-      return $.extend({}, (inside ? {top: 0, left: 0} : this.$element.offset()), {
-        width: this.$element[0].offsetWidth
-      , height: this.$element[0].offsetHeight
-      })
-    }
-
-  , getTitle: function () {
-      var title
-        , $e = this.$element
-        , o = this.options
-
-      title = $e.attr('data-original-title')
-        || (typeof o.title == 'function' ? o.title.call($e[0]) :  o.title)
-
-      return title
-    }
-
-  , tip: function () {
-      return this.$tip = this.$tip || $(this.options.template)
-    }
-
-  , validate: function () {
-      if (!this.$element[0].parentNode) {
-        this.hide()
-        this.$element = null
-        this.options = null
-      }
-    }
-
-  , enable: function () {
-      this.enabled = true
-    }
-
-  , disable: function () {
-      this.enabled = false
-    }
-
-  , toggleEnabled: function () {
-      this.enabled = !this.enabled
-    }
-
-  , toggle: function () {
-      this[this.tip().hasClass('in') ? 'hide' : 'show']()
-    }
-
-  }
-
-
- /* TOOLTIP PLUGIN DEFINITION
-  * ========================= */
-
-  $.fn.tooltip = function ( option ) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('tooltip')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('tooltip', (data = new Tooltip(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.tooltip.Constructor = Tooltip
-
-  $.fn.tooltip.defaults = {
-    animation: true
-  , placement: 'top'
-  , selector: false
-  , template: '<div class="tooltip"><div class="tooltip-arrow"></div><div class="tooltip-inner"></div></div>'
-  , trigger: 'hover'
-  , title: ''
-  , delay: 0
-  }
-
-}(window.jQuery);
-
-/* ===========================================================
- * bootstrap-popover.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#popovers
- * ===========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * =========================================================== */
-
-
-!function ($) {
-
-   // jshint ;_;
-
-
- /* POPOVER PUBLIC CLASS DEFINITION
-  * =============================== */
-
-  var Popover = function ( element, options ) {
-    this.init('popover', element, options)
-  }
-
-
-  /* NOTE: POPOVER EXTENDS BOOTSTRAP-TOOLTIP.js
-     ========================================== */
-
-  Popover.prototype = $.extend({}, $.fn.tooltip.Constructor.prototype, {
-
-    constructor: Popover
-
-  , setContent: function () {
-      var $tip = this.tip()
-        , title = this.getTitle()
-        , content = this.getContent()
-
-      $tip.find('.popover-title')[this.isHTML(title) ? 'html' : 'text'](title)
-      $tip.find('.popover-content > *')[this.isHTML(content) ? 'html' : 'text'](content)
-
-      $tip.removeClass('fade top bottom left right in')
-    }
-
-  , hasContent: function () {
-      return this.getTitle() || this.getContent()
-    }
-
-  , getContent: function () {
-      var content
-        , $e = this.$element
-        , o = this.options
-
-      content = $e.attr('data-content')
-        || (typeof o.content == 'function' ? o.content.call($e[0]) :  o.content)
-
-      return content
-    }
-
-  , tip: function () {
-      if (!this.$tip) {
-        this.$tip = $(this.options.template)
-      }
-      return this.$tip
-    }
-
-  })
-
-
- /* POPOVER PLUGIN DEFINITION
-  * ======================= */
-
-  $.fn.popover = function (option) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('popover')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('popover', (data = new Popover(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.popover.Constructor = Popover
-
-  $.fn.popover.defaults = $.extend({} , $.fn.tooltip.defaults, {
-    placement: 'right'
-  , content: ''
-  , template: '<div class="popover"><div class="arrow"></div><div class="popover-inner"><h3 class="popover-title"></h3><div class="popover-content"><p></p></div></div></div>'
-  })
-
-}(window.jQuery);
-/* ==========================================================
- * bootstrap-alert.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#alerts
- * ==========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================== */
-
-
-!function ($) {
-
-   // jshint ;_;
-
-
- /* ALERT CLASS DEFINITION
-  * ====================== */
-
-  var dismiss = '[data-dismiss="alert"]'
-    , Alert = function (el) {
-        $(el).on('click', dismiss, this.close)
-      }
-
-  Alert.prototype.close = function (e) {
-    var $this = $(this)
-      , selector = $this.attr('data-target')
-      , $parent
-
-    if (!selector) {
-      selector = $this.attr('href')
-      selector = selector && selector.replace(/.*(?=#[^\s]*$)/, '') //strip for ie7
-    }
-
-    $parent = $(selector)
-
-    e && e.preventDefault()
-
-    $parent.length || ($parent = $this.hasClass('alert') ? $this : $this.parent())
-
-    $parent.trigger(e = $.Event('close'))
-
-    if (e.isDefaultPrevented()) return
-
-    $parent.removeClass('in')
-
-    function removeElement() {
-      $parent
-        .trigger('closed')
-        .remove()
-    }
-
-    $.support.transition && $parent.hasClass('fade') ?
-      $parent.on($.support.transition.end, removeElement) :
-      removeElement()
-  }
-
-
- /* ALERT PLUGIN DEFINITION
-  * ======================= */
-
-  $.fn.alert = function (option) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('alert')
-      if (!data) $this.data('alert', (data = new Alert(this)))
-      if (typeof option == 'string') data[option].call($this)
-    })
-  }
-
-  $.fn.alert.Constructor = Alert
-
-
- /* ALERT DATA-API
-  * ============== */
-
-  $(function () {
-    $('body').on('click.alert.data-api', dismiss, Alert.prototype.close)
-  })
-
-}(window.jQuery);
-/* ============================================================
- * bootstrap-button.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#buttons
- * ============================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================ */
-
-
-!function ($) {
-
-   // jshint ;_;
-
-
- /* BUTTON PUBLIC CLASS DEFINITION
-  * ============================== */
-
-  var Button = function (element, options) {
-    this.$element = $(element)
-    this.options = $.extend({}, $.fn.button.defaults, options)
-  }
-
-  Button.prototype.setState = function (state) {
-    var d = 'disabled'
-      , $el = this.$element
-      , data = $el.data()
-      , val = $el.is('input') ? 'val' : 'html'
-
-    state = state + 'Text'
-    data.resetText || $el.data('resetText', $el[val]())
-
-    $el[val](data[state] || this.options[state])
-
-    // push to event loop to allow forms to submit
-    setTimeout(function () {
-      state == 'loadingText' ?
-        $el.addClass(d).attr(d, d) :
-        $el.removeClass(d).removeAttr(d)
-    }, 0)
-  }
-
-  Button.prototype.toggle = function () {
-    var $parent = this.$element.parent('[data-toggle="buttons-radio"]')
-
-    $parent && $parent
-      .find('.active')
-      .removeClass('active')
-
-    this.$element.toggleClass('active')
-  }
-
-
- /* BUTTON PLUGIN DEFINITION
-  * ======================== */
-
-  $.fn.button = function (option) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('button')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('button', (data = new Button(this, options)))
-      if (option == 'toggle') data.toggle()
-      else if (option) data.setState(option)
-    })
-  }
-
-  $.fn.button.defaults = {
-    loadingText: 'loading...'
-  }
-
-  $.fn.button.Constructor = Button
-
-
- /* BUTTON DATA-API
-  * =============== */
-
-  $(function () {
-    $('body').on('click.button.data-api', '[data-toggle^=button]', function ( e ) {
-      var $btn = $(e.target)
-      if (!$btn.hasClass('btn')) $btn = $btn.closest('.btn')
-      $btn.button('toggle')
-    })
-  })
-
-}(window.jQuery);
-/* =============================================================
- * bootstrap-collapse.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#collapse
- * =============================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================ */
-
-
-!function ($) {
-
-   // jshint ;_;
-
-
- /* COLLAPSE PUBLIC CLASS DEFINITION
-  * ================================ */
-
-  var Collapse = function (element, options) {
-    this.$element = $(element)
-    this.options = $.extend({}, $.fn.collapse.defaults, options)
-
-    if (this.options.parent) {
-      this.$parent = $(this.options.parent)
-    }
-
-    this.options.toggle && this.toggle()
-  }
-
-  Collapse.prototype = {
-
-    constructor: Collapse
-
-  , dimension: function () {
-      var hasWidth = this.$element.hasClass('width')
-      return hasWidth ? 'width' : 'height'
-    }
-
-  , show: function () {
-      var dimension
-        , scroll
-        , actives
-        , hasData
-
-      if (this.transitioning) return
-
-      dimension = this.dimension()
-      scroll = $.camelCase(['scroll', dimension].join('-'))
-      actives = this.$parent && this.$parent.find('> .accordion-group > .in')
-
-      if (actives && actives.length) {
-        hasData = actives.data('collapse')
-        if (hasData && hasData.transitioning) return
-        actives.collapse('hide')
-        hasData || actives.data('collapse', null)
-      }
-
-      this.$element[dimension](0)
-      this.transition('addClass', $.Event('show'), 'shown')
-      this.$element[dimension](this.$element[0][scroll])
-    }
-
-  , hide: function () {
-      var dimension
-      if (this.transitioning) return
-      dimension = this.dimension()
-      this.reset(this.$element[dimension]())
-      this.transition('removeClass', $.Event('hide'), 'hidden')
-      this.$element[dimension](0)
-    }
-
-  , reset: function (size) {
-      var dimension = this.dimension()
-
-      this.$element
-        .removeClass('collapse')
-        [dimension](size || 'auto')
-        [0].offsetWidth
-
-      this.$element[size !== null ? 'addClass' : 'removeClass']('collapse')
-
-      return this
-    }
-
-  , transition: function (method, startEvent, completeEvent) {
-      var that = this
-        , complete = function () {
-            if (startEvent.type == 'show') that.reset()
-            that.transitioning = 0
-            that.$element.trigger(completeEvent)
-          }
-
-      this.$element.trigger(startEvent)
-
-      if (startEvent.isDefaultPrevented()) return
-
-      this.transitioning = 1
-
-      this.$element[method]('in')
-
-      $.support.transition && this.$element.hasClass('collapse') ?
-        this.$element.one($.support.transition.end, complete) :
-        complete()
-    }
-
-  , toggle: function () {
-      this[this.$element.hasClass('in') ? 'hide' : 'show']()
-    }
-
-  }
-
-
- /* COLLAPSIBLE PLUGIN DEFINITION
-  * ============================== */
-
-  $.fn.collapse = function (option) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('collapse')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('collapse', (data = new Collapse(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.collapse.defaults = {
-    toggle: true
-  }
-
-  $.fn.collapse.Constructor = Collapse
-
-
- /* COLLAPSIBLE DATA-API
-  * ==================== */
-
-  $(function () {
-    $('body').on('click.collapse.data-api', '[data-toggle=collapse]', function ( e ) {
-      var $this = $(this), href
-        , target = $this.attr('data-target')
-          || e.preventDefault()
-          || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '') //strip for ie7
-        , option = $(target).data('collapse') ? 'toggle' : $this.data()
-      $(target).collapse(option)
-    })
-  })
-
-}(window.jQuery);
-/* ==========================================================
- * bootstrap-carousel.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#carousel
- * ==========================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ========================================================== */
-
-
-!function ($) {
-
-   // jshint ;_;
-
-
- /* CAROUSEL CLASS DEFINITION
-  * ========================= */
-
-  var Carousel = function (element, options) {
-    this.$element = $(element)
-    this.options = options
-    this.options.slide && this.slide(this.options.slide)
-    this.options.pause == 'hover' && this.$element
-      .on('mouseenter', $.proxy(this.pause, this))
-      .on('mouseleave', $.proxy(this.cycle, this))
-  }
-
-  Carousel.prototype = {
-
-    cycle: function (e) {
-      if (!e) this.paused = false
-      this.options.interval
-        && !this.paused
-        && (this.interval = setInterval($.proxy(this.next, this), this.options.interval))
-      return this
-    }
-
-  , to: function (pos) {
-      var $active = this.$element.find('.active')
-        , children = $active.parent().children()
-        , activePos = children.index($active)
-        , that = this
-
-      if (pos > (children.length - 1) || pos < 0) return
-
-      if (this.sliding) {
-        return this.$element.one('slid', function () {
-          that.to(pos)
-        })
-      }
-
-      if (activePos == pos) {
-        return this.pause().cycle()
-      }
-
-      return this.slide(pos > activePos ? 'next' : 'prev', $(children[pos]))
-    }
-
-  , pause: function (e) {
-      if (!e) this.paused = true
-      clearInterval(this.interval)
-      this.interval = null
-      return this
-    }
-
-  , next: function () {
-      if (this.sliding) return
-      return this.slide('next')
-    }
-
-  , prev: function () {
-      if (this.sliding) return
-      return this.slide('prev')
-    }
-
-  , slide: function (type, next) {
-      var $active = this.$element.find('.active')
-        , $next = next || $active[type]()
-        , isCycling = this.interval
-        , direction = type == 'next' ? 'left' : 'right'
-        , fallback  = type == 'next' ? 'first' : 'last'
-        , that = this
-        , e = $.Event('slide')
-
-      this.sliding = true
-
-      isCycling && this.pause()
-
-      $next = $next.length ? $next : this.$element.find('.item')[fallback]()
-
-      if ($next.hasClass('active')) return
-
-      if ($.support.transition && this.$element.hasClass('slide')) {
-        this.$element.trigger(e)
-        if (e.isDefaultPrevented()) return
-        $next.addClass(type)
-        $next[0].offsetWidth // force reflow
-        $active.addClass(direction)
-        $next.addClass(direction)
-        this.$element.one($.support.transition.end, function () {
-          $next.removeClass([type, direction].join(' ')).addClass('active')
-          $active.removeClass(['active', direction].join(' '))
-          that.sliding = false
-          setTimeout(function () { that.$element.trigger('slid') }, 0)
-        })
-      } else {
-        this.$element.trigger(e)
-        if (e.isDefaultPrevented()) return
-        $active.removeClass('active')
-        $next.addClass('active')
-        this.sliding = false
-        this.$element.trigger('slid')
-      }
-
-      isCycling && this.cycle()
-
-      return this
-    }
-
-  }
-
-
- /* CAROUSEL PLUGIN DEFINITION
-  * ========================== */
-
-  $.fn.carousel = function (option) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('carousel')
-        , options = $.extend({}, $.fn.carousel.defaults, typeof option == 'object' && option)
-      if (!data) $this.data('carousel', (data = new Carousel(this, options)))
-      if (typeof option == 'number') data.to(option)
-      else if (typeof option == 'string' || (option = options.slide)) data[option]()
-      else if (options.interval) data.cycle()
-    })
-  }
-
-  $.fn.carousel.defaults = {
-    interval: 5000
-  , pause: 'hover'
-  }
-
-  $.fn.carousel.Constructor = Carousel
-
-
- /* CAROUSEL DATA-API
-  * ================= */
-
-  $(function () {
-    $('body').on('click.carousel.data-api', '[data-slide]', function ( e ) {
-      var $this = $(this), href
-        , $target = $($this.attr('data-target') || (href = $this.attr('href')) && href.replace(/.*(?=#[^\s]+$)/, '')) //strip for ie7
-        , options = !$target.data('modal') && $.extend({}, $target.data(), $this.data())
-      $target.carousel(options)
-      e.preventDefault()
-    })
-  })
-
-}(window.jQuery);
-/* =============================================================
- * bootstrap-typeahead.js v2.0.4
- * http://twitter.github.com/bootstrap/javascript.html#typeahead
- * =============================================================
- * Copyright 2012 Twitter, Inc.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- * ============================================================ */
-
-
-!function($){
-
-   // jshint ;_;
-
-
- /* TYPEAHEAD PUBLIC CLASS DEFINITION
-  * ================================= */
-
-  var Typeahead = function (element, options) {
-    this.$element = $(element)
-    this.options = $.extend({}, $.fn.typeahead.defaults, options)
-    this.matcher = this.options.matcher || this.matcher
-    this.sorter = this.options.sorter || this.sorter
-    this.highlighter = this.options.highlighter || this.highlighter
-    this.updater = this.options.updater || this.updater
-    this.$menu = $(this.options.menu).appendTo('body')
-    this.source = this.options.source
-    this.shown = false
-    this.listen()
-  }
-
-  Typeahead.prototype = {
-
-    constructor: Typeahead
-
-  , select: function () {
-      var val = this.$menu.find('.active').attr('data-value')
-      this.$element
-        .val(this.updater(val))
-        .change()
-      return this.hide()
-    }
-
-  , updater: function (item) {
-      return item
-    }
-
-  , show: function () {
-      var pos = $.extend({}, this.$element.offset(), {
-        height: this.$element[0].offsetHeight
-      })
-
-      this.$menu.css({
-        top: pos.top + pos.height
-      , left: pos.left
-      })
-
-      this.$menu.show()
-      this.shown = true
-      return this
-    }
-
-  , hide: function () {
-      this.$menu.hide()
-      this.shown = false
-      return this
-    }
-
-  , lookup: function (event) {
-      var that = this
-        , items
-        , q
-
-      this.query = this.$element.val()
-
-      if (!this.query) {
-        return this.shown ? this.hide() : this
-      }
-
-      items = $.grep(this.source, function (item) {
-        return that.matcher(item)
-      })
-
-      items = this.sorter(items)
-
-      if (!items.length) {
-        return this.shown ? this.hide() : this
-      }
-
-      return this.render(items.slice(0, this.options.items)).show()
-    }
-
-  , matcher: function (item) {
-      return ~item.toLowerCase().indexOf(this.query.toLowerCase())
-    }
-
-  , sorter: function (items) {
-      var beginswith = []
-        , caseSensitive = []
-        , caseInsensitive = []
-        , item
-
-      while (item = items.shift()) {
-        if (!item.toLowerCase().indexOf(this.query.toLowerCase())) beginswith.push(item)
-        else if (~item.indexOf(this.query)) caseSensitive.push(item)
-        else caseInsensitive.push(item)
-      }
-
-      return beginswith.concat(caseSensitive, caseInsensitive)
-    }
-
-  , highlighter: function (item) {
-      var query = this.query.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, '\\$&')
-      return item.replace(new RegExp('(' + query + ')', 'ig'), function ($1, match) {
-        return '<strong>' + match + '</strong>'
-      })
-    }
-
-  , render: function (items) {
-      var that = this
-
-      items = $(items).map(function (i, item) {
-        i = $(that.options.item).attr('data-value', item)
-        i.find('a').html(that.highlighter(item))
-        return i[0]
-      })
-
-      items.first().addClass('active')
-      this.$menu.html(items)
-      return this
-    }
-
-  , next: function (event) {
-      var active = this.$menu.find('.active').removeClass('active')
-        , next = active.next()
-
-      if (!next.length) {
-        next = $(this.$menu.find('li')[0])
-      }
-
-      next.addClass('active')
-    }
-
-  , prev: function (event) {
-      var active = this.$menu.find('.active').removeClass('active')
-        , prev = active.prev()
-
-      if (!prev.length) {
-        prev = this.$menu.find('li').last()
-      }
-
-      prev.addClass('active')
-    }
-
-  , listen: function () {
-      this.$element
-        .on('blur',     $.proxy(this.blur, this))
-        .on('keypress', $.proxy(this.keypress, this))
-        .on('keyup',    $.proxy(this.keyup, this))
-
-      if ($.browser.webkit || $.browser.msie) {
-        this.$element.on('keydown', $.proxy(this.keypress, this))
-      }
-
-      this.$menu
-        .on('click', $.proxy(this.click, this))
-        .on('mouseenter', 'li', $.proxy(this.mouseenter, this))
-    }
-
-  , keyup: function (e) {
-      switch(e.keyCode) {
-        case 40: // down arrow
-        case 38: // up arrow
-          break
-
-        case 9: // tab
-        case 13: // enter
-          if (!this.shown) return
-          this.select()
-          break
-
-        case 27: // escape
-          if (!this.shown) return
-          this.hide()
-          break
-
-        default:
-          this.lookup()
-      }
-
-      e.stopPropagation()
-      e.preventDefault()
-  }
-
-  , keypress: function (e) {
-      if (!this.shown) return
-
-      switch(e.keyCode) {
-        case 9: // tab
-        case 13: // enter
-        case 27: // escape
-          e.preventDefault()
-          break
-
-        case 38: // up arrow
-          if (e.type != 'keydown') break
-          e.preventDefault()
-          this.prev()
-          break
-
-        case 40: // down arrow
-          if (e.type != 'keydown') break
-          e.preventDefault()
-          this.next()
-          break
-      }
-
-      e.stopPropagation()
-    }
-
-  , blur: function (e) {
-      var that = this
-      setTimeout(function () { that.hide() }, 150)
-    }
-
-  , click: function (e) {
-      e.stopPropagation()
-      e.preventDefault()
-      this.select()
-    }
-
-  , mouseenter: function (e) {
-      this.$menu.find('.active').removeClass('active')
-      $(e.currentTarget).addClass('active')
-    }
-
-  }
-
-
-  /* TYPEAHEAD PLUGIN DEFINITION
-   * =========================== */
-
-  $.fn.typeahead = function (option) {
-    return this.each(function () {
-      var $this = $(this)
-        , data = $this.data('typeahead')
-        , options = typeof option == 'object' && option
-      if (!data) $this.data('typeahead', (data = new Typeahead(this, options)))
-      if (typeof option == 'string') data[option]()
-    })
-  }
-
-  $.fn.typeahead.defaults = {
-    source: []
-  , items: 8
-  , menu: '<ul class="typeahead dropdown-menu"></ul>'
-  , item: '<li><a href="#"></a></li>'
-  }
-
-  $.fn.typeahead.Constructor = Typeahead
-
-
- /* TYPEAHEAD DATA-API
-  * ================== */
-
-  $(function () {
-    $('body').on('focus.typeahead.data-api', '[data-provide="typeahead"]', function (e) {
-      var $this = $(this)
-      if ($this.data('typeahead')) return
-      e.preventDefault()
-      $this.typeahead($this.data())
-    })
-  })
-
-}(window.jQuery);
-
-define("bootstrap", function(){});
+});
 
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('tool/preview_save_tool',["underscore", "jquery", "backbone", "common/bulk_save", "./tool", "./event_generators", "bootstrap"], function(_, $, Backbone, bulk_save, Tool, EventGenerators) {
+  define('tool/preview_save_tool',["underscore", "jquery", "modal", "backbone", "common/bulk_save", "./tool", "./event_generators"], function(_, $, $$1, Backbone, bulk_save, Tool, EventGenerators) {
     var ButtonEventGenerator, PreviewSaveTool, PreviewSaveToolView, PreviewSaveTools, _ref, _ref1, _ref2;
     ButtonEventGenerator = EventGenerators.ButtonEventGenerator;
     PreviewSaveToolView = (function(_super) {
@@ -27166,6 +25457,92 @@ define("bootstrap", function(){});
 
 /*
 //@ sourceMappingURL=embed_tool.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('tool/reset_tool',["underscore", "backbone", "./tool", "./event_generators"], function(_, Backbone, Tool, EventGenerators) {
+    var ButtonEventGenerator, ResetTool, ResetToolView, ResetTools, _ref, _ref1, _ref2;
+    ButtonEventGenerator = EventGenerators.ButtonEventGenerator;
+    ResetToolView = (function(_super) {
+      __extends(ResetToolView, _super);
+
+      function ResetToolView() {
+        _ref = ResetToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ResetToolView.prototype.initialize = function(options) {
+        return ResetToolView.__super__.initialize.call(this, options);
+      };
+
+      ResetToolView.prototype.eventGeneratorClass = ButtonEventGenerator;
+
+      ResetToolView.prototype.evgen_options = {
+        buttonText: "Reset View"
+      };
+
+      ResetToolView.prototype.toolType = "ResetTool";
+
+      ResetToolView.prototype.tool_events = {
+        activated: "_activated"
+      };
+
+      ResetToolView.prototype._activated = function(e) {
+        var _this = this;
+        this.plot_view.update_range();
+        return _.delay((function() {
+          return _this.plot_view.eventSink.trigger("clear_active_tool");
+        }), 100);
+      };
+
+      return ResetToolView;
+
+    })(Tool.View);
+    ResetTool = (function(_super) {
+      __extends(ResetTool, _super);
+
+      function ResetTool() {
+        _ref1 = ResetTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      ResetTool.prototype.default_view = ResetToolView;
+
+      ResetTool.prototype.type = "ResetTool";
+
+      return ResetTool;
+
+    })(Tool.Model);
+    ResetTools = (function(_super) {
+      __extends(ResetTools, _super);
+
+      function ResetTools() {
+        _ref2 = ResetTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      ResetTools.prototype.model = ResetTool;
+
+      ResetTools.prototype.display_defaults = function() {
+        return ResetTools.__super__.display_defaults.call(this);
+      };
+
+      return ResetTools;
+
+    })(Backbone.Collection);
+    return {
+      "Model": ResetTool,
+      "Collection": new ResetTools(),
+      "View": ResetToolView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=reset_tool.js.map
 */;
 (function() {
   var __hasProp = {}.hasOwnProperty,
@@ -28064,7 +26441,7 @@ define('widget/pandas/pandas_pivot_template',[],function(){
 //@ sourceMappingURL=pandas_plot_source.js.map
 */;
 (function() {
-  define('common/base',["underscore", "require", "common/custom", "common/plot", "common/gmap_plot", "common/grid_plot", "common/plot_context", "range/range1d", "range/data_range1d", "range/factor_range", "range/data_factor_range", "renderer/glyph/glyph_factory", "renderer/guide/linear_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/annotation/legend", "renderer/overlay/box_selection", "source/object_array_data_source", "source/column_data_source", "tool/pan_tool", "tool/wheel_zoom_tool", "tool/resize_tool", "tool/crosshair_tool", "tool/box_select_tool", "tool/data_range_box_select_tool", "tool/preview_save_tool", "tool/embed_tool", "widget/data_slider", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source"], function(_, require) {
+  define('common/base',["underscore", "require", "common/custom", "common/plot", "common/gmap_plot", "common/grid_plot", "common/plot_context", "range/range1d", "range/data_range1d", "range/factor_range", "range/data_factor_range", "renderer/glyph/glyph_factory", "renderer/guide/linear_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/annotation/legend", "renderer/overlay/box_selection", "source/column_data_source", "tool/pan_tool", "tool/wheel_zoom_tool", "tool/resize_tool", "tool/crosshair_tool", "tool/box_select_tool", "tool/data_range_box_select_tool", "tool/preview_save_tool", "tool/embed_tool", "tool/reset_tool", "widget/data_slider", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source"], function(_, require) {
     var Collections, Config, locations, mod_cache;
     require("common/custom").monkey_patch();
     Config = {
@@ -28087,16 +26464,17 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       Grid: 'renderer/guide/grid',
       Legend: 'renderer/annotation/legend',
       BoxSelection: 'renderer/overlay/box_selection',
-      ObjectArrayDataSource: 'source/object_array_data_source',
       ColumnDataSource: 'source/column_data_source',
       PanTool: 'tool/pan_tool',
       WheelZoomTool: 'tool/wheel_zoom_tool',
       ResizeTool: 'tool/resize_tool',
       CrosshairTool: 'tool/crosshair_tool',
       BoxSelectTool: 'tool/box_select_tool',
+      BoxZoomTool: 'tool/box_zoom_tool',
       DataRangeBoxSelectTool: 'tool/data_range_box_select_tool',
       PreviewSaveTool: 'tool/preview_save_tool',
       EmbedTool: 'tool/embed_tool',
+      ResetTool: 'tool/reset_tool',
       DataSlider: 'widget/data_slider',
       IPythonRemoteData: 'widget/pandas/ipython_remote_data',
       PandasPivotTable: 'widget/pandas/pandas_pivot_table',
@@ -28129,7 +26507,186 @@ define('widget/pandas/pandas_pivot_template',[],function(){
 //@ sourceMappingURL=base.js.map
 */;
 (function() {
-  define('common/plotting',["underscore", "jquery", "./plot", "range/data_range1d", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/linear_axis", "renderer/guide/grid", "renderer/overlay/box_selection", "source/column_data_source", "tool/box_select_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "renderer/guide/datetime_axis"], function(_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, DatetimeAxis) {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('tool/box_zoom_tool',["underscore", "backbone", "./tool", "./event_generators"], function(_, Backbone, Tool, EventGenerators) {
+    var BoxZoomTool, BoxZoomToolView, BoxZoomTools, TwoPointEventGenerator, _ref, _ref1, _ref2;
+    TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator;
+    BoxZoomToolView = (function(_super) {
+      __extends(BoxZoomToolView, _super);
+
+      function BoxZoomToolView() {
+        _ref = BoxZoomToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      BoxZoomToolView.prototype.initialize = function(options) {
+        return BoxZoomToolView.__super__.initialize.call(this, options);
+      };
+
+      BoxZoomToolView.prototype.bind_bokeh_events = function() {
+        return BoxZoomToolView.__super__.bind_bokeh_events.call(this);
+      };
+
+      BoxZoomToolView.prototype.eventGeneratorClass = TwoPointEventGenerator;
+
+      BoxZoomToolView.prototype.toolType = "BoxZoomTool";
+
+      BoxZoomToolView.prototype.evgen_options = {
+        keyName: "ctrlKey",
+        buttonText: "Box Zoom",
+        cursor: "crosshair",
+        auto_deactivate: true,
+        restrict_to_innercanvas: true
+      };
+
+      BoxZoomToolView.prototype.tool_events = {
+        SetBasepoint: "_start_selecting",
+        UpdatingMouseMove: "_selecting",
+        DragEnd: "_dragend"
+      };
+
+      BoxZoomToolView.prototype.pause = function() {
+        return null;
+      };
+
+      BoxZoomToolView.prototype.view_coords = function(sx, sy) {
+        var vx, vy, _ref1;
+        _ref1 = [this.plot_view.view_state.sx_to_vx(sx), this.plot_view.view_state.sy_to_vy(sy)], vx = _ref1[0], vy = _ref1[1];
+        return [vx, vy];
+      };
+
+      BoxZoomToolView.prototype._start_selecting = function(e) {
+        var vx, vy, _ref1;
+        this.plot_view.pause();
+        this.trigger('startselect');
+        _ref1 = this.view_coords(e.bokehX, e.bokehY), vx = _ref1[0], vy = _ref1[1];
+        this.mset({
+          'start_vx': vx,
+          'start_vy': vy,
+          'current_vx': null,
+          'current_vy': null
+        });
+        return this.basepoint_set = true;
+      };
+
+      BoxZoomToolView.prototype._get_selection_range = function() {
+        var xrange, yrange;
+        if (this.mget('select_x')) {
+          xrange = [this.mget('start_vx'), this.mget('current_vx')];
+          xrange = [_.min(xrange), _.max(xrange)];
+        } else {
+          xrange = null;
+        }
+        if (this.mget('select_y')) {
+          yrange = [this.mget('start_vy'), this.mget('current_vy')];
+          yrange = [_.min(yrange), _.max(yrange)];
+        } else {
+          yrange = null;
+        }
+        return [xrange, yrange];
+      };
+
+      BoxZoomToolView.prototype._selecting = function(e, x_, y_) {
+        var vx, vy, _ref1, _ref2;
+        _ref1 = this.view_coords(e.bokehX, e.bokehY), vx = _ref1[0], vy = _ref1[1];
+        this.mset({
+          'current_vx': vx,
+          'current_vy': vy
+        });
+        _ref2 = this._get_selection_range(), this.xrange = _ref2[0], this.yrange = _ref2[1];
+        this.trigger('boxselect', this.xrange, this.yrange);
+        this.plot_view.render_overlays(true);
+        return null;
+      };
+
+      BoxZoomToolView.prototype._dragend = function() {
+        this._select_data();
+        this.basepoint_set = false;
+        this.plot_view.unpause();
+        return this.trigger('stopselect');
+      };
+
+      BoxZoomToolView.prototype._select_data = function() {
+        var xend, xstart, yend, ystart, zoom_info, _ref1, _ref2;
+        if (!this.basepoint_set) {
+          return;
+        }
+        _ref1 = this.plot_view.xmapper.v_map_from_target([this.xrange[0], this.xrange[1]]), xstart = _ref1[0], xend = _ref1[1];
+        _ref2 = this.plot_view.ymapper.v_map_from_target([this.yrange[0], this.yrange[1]]), ystart = _ref2[0], yend = _ref2[1];
+        zoom_info = {
+          xr: {
+            start: xstart,
+            end: xend
+          },
+          yr: {
+            start: ystart,
+            end: yend
+          }
+        };
+        return this.plot_view.update_range(zoom_info);
+      };
+
+      return BoxZoomToolView;
+
+    })(Tool.View);
+    BoxZoomTool = (function(_super) {
+      __extends(BoxZoomTool, _super);
+
+      function BoxZoomTool() {
+        _ref1 = BoxZoomTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      BoxZoomTool.prototype.default_view = BoxZoomToolView;
+
+      BoxZoomTool.prototype.type = "BoxZoomTool";
+
+      BoxZoomTool.prototype.defaults = function() {
+        return _.extend(BoxZoomTool.__super__.defaults.call(this), {
+          renderers: [],
+          select_x: true,
+          select_y: true,
+          select_every_mousemove: false,
+          data_source_options: {}
+        });
+      };
+
+      BoxZoomTool.prototype.display_defaults = function() {
+        return BoxZoomTool.__super__.display_defaults.call(this);
+      };
+
+      return BoxZoomTool;
+
+    })(Tool.Model);
+    BoxZoomTools = (function(_super) {
+      __extends(BoxZoomTools, _super);
+
+      function BoxZoomTools() {
+        _ref2 = BoxZoomTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      BoxZoomTools.prototype.model = BoxZoomTool;
+
+      return BoxZoomTools;
+
+    })(Backbone.Collection);
+    return {
+      "Model": BoxZoomTool,
+      "Collection": new BoxZoomTools(),
+      "View": BoxZoomToolView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=box_zoom_tool.js.map
+*/;
+(function() {
+  define('common/plotting',["underscore", "jquery", "./plot", "range/data_range1d", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/linear_axis", "renderer/guide/grid", "renderer/overlay/box_selection", "source/column_data_source", "tool/box_select_tool", "tool/box_zoom_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/reset_tool", "renderer/guide/datetime_axis"], function(_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, BoxZoomTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) {
     var add_axes, add_grids, add_legend, add_tools, create_glyphs, create_range, create_sources, make_plot, show;
     create_sources = function(data) {
       var d, sources, _i, _len;
@@ -28324,12 +26881,12 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       }
     };
     add_tools = function(plot, tools, glyphs, xdr, ydr) {
-      var added_tools, g, pan_tool, preview_tool, resize_tool, select_overlay, select_tool, wheel_zoom_tool;
+      var added_tools, box_zoom_overlay, box_zoom_tool, g, pan_tool, preview_tool, reset_tool, resize_tool, select_overlay, select_tool, wheel_zoom_tool;
       if (tools === false) {
         return;
       }
       if (tools === true) {
-        tools = "pan,wheel_zoom,select,resize,preview";
+        tools = "pan,wheel_zoom,select,resize,preview,reset,box_zoom";
       }
       added_tools = [];
       if (tools.indexOf("pan") > -1) {
@@ -28371,6 +26928,18 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       if (tools.indexOf("preview") > -1) {
         preview_tool = PreviewSaveTool.Collection.create();
         added_tools.push(preview_tool);
+      }
+      if (tools.indexOf("reset") > -1) {
+        reset_tool = ResetTool.Collection.create();
+        added_tools.push(reset_tool);
+      }
+      if (tools.indexOf("box_zoom") > -1) {
+        box_zoom_tool = BoxZoomTool.Collection.create();
+        box_zoom_overlay = BoxSelection.Collection.create({
+          tool: box_zoom_tool.ref()
+        });
+        added_tools.push(box_zoom_tool);
+        plot.add_renderers([box_zoom_overlay.ref()]);
       }
       return plot.set_obj('tools', added_tools);
     };
@@ -29553,7 +28122,7 @@ define('server/usercontext/wrappertemplate',[],function(){
 //@ sourceMappingURL=serverrun.js.map
 */;
 (function() {
-  define('main',['require','exports','module','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/ticking','common/view_state','mapper/1d/linear_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','source/object_array_data_source','tool/box_select_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/pan_tool','tool/preview_save_tool','tool/resize_tool','tool/crosshair_tool','tool/wheel_zoom_tool','widget/data_slider','server/serverrun'],function(require, exports, module) {
+  define('main',['require','exports','module','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/ticking','common/view_state','mapper/1d/linear_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','tool/box_select_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/crosshair_tool','tool/wheel_zoom_tool','tool/box_zoom_tool','widget/data_slider','server/serverrun'],function(require, exports, module) {
     var Bokeh, glyph_factory;
     if (!window.Float64Array) {
       console.warn("Float64Array is not supported. Using generic Array instead.");
@@ -29631,15 +28200,16 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.serverrun = require("server/serverrun");
     Bokeh.serverutils = require("server/serverutils");
     Bokeh.ColumnDataSource = require("source/column_data_source");
-    Bokeh.ObjectArrayDataSource = require("source/object_array_data_source");
     Bokeh.BoxSelectTool = require("tool/box_select_tool");
     Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool");
     Bokeh.EmbedTool = require("tool/embed_tool");
     Bokeh.PanTool = require("tool/pan_tool");
     Bokeh.PreviewSaveTool = require("tool/preview_save_tool");
+    Bokeh.ResetTool = require("tool/reset_tool");
     Bokeh.ResizeTool = require("tool/resize_tool");
     Bokeh.CrosshairTool = require("tool/crosshair_tool");
     Bokeh.WheelZoomTool = require("tool/wheel_zoom_tool");
+    Bokeh.BoxZoomTool = require("tool/box_zoom_tool");
     Bokeh.DataSlider = require("widget/data_slider");
     Bokeh.server_page = require("server/serverrun").load;
     exports.Bokeh = Bokeh;
