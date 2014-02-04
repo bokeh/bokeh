@@ -50,7 +50,8 @@ add_examples(glyphs_dir, excludes=glyphs_excludes|glyphs_server, etype='file')
 add_examples(glyphs_dir, includes=glyphs_server, etype='server')
 
 plotting_file_dir = os.path.join("plotting", "file")
-add_examples(plotting_file_dir, etype='file')
+glyphs_excludes = set(["image.py", "rgba_image.py"])
+add_examples(plotting_file_dir, etype='file', excludes=glyphs_excludes)
 
 plotting_server_dir = os.path.join("plotting", "server")
 plotting_server_excludes = set(["animated.py", "line_animate.py"])
@@ -112,7 +113,7 @@ try:
             proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
             code = proc.wait()
 
-            result = json.loads(proc.stdout.read())
+            result = json.loads(proc.stdout.read().decode('utf-8'))
 
             status = result['status']
             errors = result['errors']
