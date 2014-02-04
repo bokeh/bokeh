@@ -1,5 +1,12 @@
 from __future__ import absolute_import, print_function
 
+try:
+    import gevent.monkey
+except ImportError:
+    pass
+else:
+    gevent.monkey.patch_all()
+
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
