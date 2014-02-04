@@ -18827,7 +18827,7 @@ if (typeof define === 'function' && define.amd) {
       };
 
       ImageRGBAView.prototype._set_data = function() {
-        var buf, buf8, canvas, color, ctx, flat, i, image_data, j, _i, _j, _k, _ref1, _ref2, _ref3, _ref4, _ref5, _results;
+        var buf, buf8, canvas, color, ctx, flat, i, image_data, j, _i, _j, _k, _ref1, _ref2, _ref3, _results;
         for (i = _i = 0, _ref1 = this.y.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           this.y[i] += this.dh[i];
         }
@@ -18842,24 +18842,29 @@ if (typeof define === 'function' && define.amd) {
         }
         _results = [];
         for (i = _j = 0, _ref2 = this.image.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
-          this.height[i] = (_ref3 = this.rows[i]) != null ? _ref3 : this.image[i].length;
-          this.width[i] = (_ref4 = this.cols[i]) != null ? _ref4 : this.image[i][0].length;
+          if (this.rows != null) {
+            this.height[i] = this.rows[i];
+            this.width[i] = this.cols[i];
+          } else {
+            this.height[i] = this.image[i].length;
+            this.width[i] = this.image[i][0].length;
+          }
           canvas = document.createElement('canvas');
           canvas.width = this.width[i];
           canvas.height = this.height[i];
           ctx = canvas.getContext('2d');
           image_data = ctx.getImageData(0, 0, this.width[i], this.height[i]);
-          if (this.row != null) {
+          if (this.rows != null) {
+            image_data.data.set(new Uint8ClampedArray(this.image[i]));
+          } else {
             flat = _.flatten(this.image[i]);
             buf = new ArrayBuffer(flat.length * 4);
             color = new Uint32Array(buf);
-            for (j = _k = 0, _ref5 = flat.length; 0 <= _ref5 ? _k < _ref5 : _k > _ref5; j = 0 <= _ref5 ? ++_k : --_k) {
+            for (j = _k = 0, _ref3 = flat.length; 0 <= _ref3 ? _k < _ref3 : _k > _ref3; j = 0 <= _ref3 ? ++_k : --_k) {
               color[j] = flat[j];
             }
             buf8 = new Uint8ClampedArray(buf);
             image_data.data.set(buf8);
-          } else {
-            image_data.data.set(new Uint8ClampedArray(this.image[i]));
           }
           ctx.putImageData(image_data, 0, 0);
           _results.push(this.image_data[i] = canvas);
