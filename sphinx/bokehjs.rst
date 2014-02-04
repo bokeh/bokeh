@@ -1,7 +1,7 @@
 
 
-BokehJS Interface
-=================
+BokehJS Interface Reference
+===========================
 
 .. contents::
     :local:
@@ -11,6 +11,11 @@ BokehJS Interface
 
 Line Properties
 ***************
+BokehJS exposes all the standard HTML5 canvas path stroking properties. All of these
+properties may take single values, or references to vectors of data. For instance, it
+is possible to draw multiple rectangles at once using the ``rect`` glyph. They may
+all be given the same ``line_width`` or each rectangle may be given its own ``line_width``.
+
 * ``line_color``
 * ``line_width``
 * ``line_alpha``
@@ -29,6 +34,11 @@ Line Properties
 
 Fill Properties
 ***************
+BokehJS exposes all the standard HTML5 path filling properties. All of these properties
+may take single values, or references to vectors of data. For instance, it is possible to
+draw multiple rectangles at once using the ``rect`` glyph. They may all be given the same
+``fill_width``, or each rectangle may be given its own ``fill_width``.
+
 * ``fill_color``
 * ``fill_alpha``
 
@@ -36,6 +46,13 @@ Fill Properties
 
 Text Properties
 ***************
+BokehJS exposes most of the standard HTML5 text properties. All of these properties
+may take single values, or references to vectors of data. For instance, it is possible to
+draw multiple text items at once using the ``text`` glyph. They may all be given the same
+``font_size`` or each line of text may be given its own ``font_size``.
+
+.. note:: There is currently only support for filling text. An interface to stroke the outlines of text have not yet been exposed.
+
 * ``text_font``
 * ``text_font_size``
 * ``text_font_style``
@@ -44,11 +61,11 @@ Text Properties
 
 * ``text_color``
 * ``text_alpha``
-* ``text_align``
+* ``text_align`` - where the `x`, `y` reference point aligns horizontally
 
   * values: ``'left'``, ``'right'``, ``'center'``
 
-* ``text_baseline``
+* ``text_baseline`` - where the `x`, `y` reference point aligns vertically
 
   * values: ``'top'``, ``'middle'``, ``'bottom'``, ``'alphabetic'``, ``'hanging'``
 
@@ -276,7 +293,7 @@ palette, currently) must also be supplied to use for color-mapping the scalar im
 
 .. note:: The image glyph is vectorized like other glyphs, i.e. it may be used to display several images at once.
 
-.. warning:: The second form is significantly less efficient. It is currently used by the python interface to send data to the browser, but may be deprecated in the future.
+.. warning:: The second (2D) form is significantly less efficient. It is currently used by the python interface to send data to the browser, but may be deprecated in the future.
 
 +----------------------------------------+----------------------------------------+
 |* ``image`` - 1D array of data          |* ``image`` - 2D array of data          |
@@ -303,7 +320,7 @@ that describe the two-dimensional shape of the array. The second form takes each
 
 .. note:: The image_rgba glyph is vectorized like other glyphs, i.e. it may be used to display several images at once.
 
-.. warning:: The second form is significantly less efficient. It is currently used by the python interface to send data to the browser, but may be deprecated in the future.
+.. warning:: The second (2D) form is significantly less efficient. It is currently used by the python interface to send data to the browser, but may be deprecated in the future.
 
 +----------------------------------------+----------------------------------------+
 |* ``image`` - 1D array of RGBA          |* ``image`` - 2D array of RGBA          |
@@ -364,7 +381,8 @@ of coordinates ``x`` and ``y``.
 ``multi_line``
 --------------
 The multi_line glyphs displays several lines, each with points given by the arrays of
-coordinates that are the elements of ``xs`` and ``ys``.
+coordinates that are the elements of ``xs`` and ``ys``. This glyph is especially useful for
+implementing parallel coordinates plots, or plotting several aligned series simultaneously.
 
 .. note:: For this glyph, the vector data is not simply an array of scalars, it is really an "array of arrays".
 
@@ -416,7 +434,8 @@ of coordinates ``x`` and ``y``.
 ``patches``
 -----------
 The patches glyphs displays several patches, each with points given by the arrays of
-coordinates that are the elements of ``xs`` and ``ys``.
+coordinates that are the elements of ``xs`` and ``ys``. This glyph is especially useful for
+implementing stacked area charts and cartograms.
 
 .. note:: For this glyph, the vector data is not simply an array of scalars, it is really an "array of arrays".
 

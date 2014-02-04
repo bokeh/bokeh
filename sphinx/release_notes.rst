@@ -9,16 +9,15 @@ v0.4 (Feb 2014)
 
 * Basic MPL interface
 * Free public beta of Bokeh plot hosting service at `bokehplots.com <http://bokehplots.com>`_.
-* Tool enhancements: "always on" pan tool
+* Tool improvements
 
-  - "always" on pan tool
+  - "always" on pan tool and scroll zoom tool
   - range reset tool
   - box zoom tool
 
-* Much enhanced datetime axis, with better performance and "nice" number picking
-* Improved testing, including TravisCI integrations and static image output using PhantomJS
+* Enhanced datetime axis, with better performance and "nice" number picking
+* Expanded tests, including TravisCI integrations and static image output using PhantomJS
 * RGBA and color mapped image plots exposed from python
-* renderer performance improvements
 * python 3 support for bokeh-server
 * Source maps & incremental compilation
 
