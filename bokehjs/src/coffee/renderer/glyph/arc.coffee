@@ -22,7 +22,7 @@ define [
             continue
 
           ctx.beginPath()
-          ctx.arc(sx[i], sy[i], radius[i], -@start_angle[i], -@end_angle[i], @direction[i])
+          ctx.arc(sx[i], sy[i], radius[i], @start_angle[i], @end_angle[i], @direction[i])
 
           glyph_props.line_properties.set_vectorize(ctx, i)
           ctx.stroke()
