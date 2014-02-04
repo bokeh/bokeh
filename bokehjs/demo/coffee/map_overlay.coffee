@@ -87,6 +87,7 @@ wedge = {
   x: 'wx'
   y: 'wy'
   radius: 'rs'
+  radius_units: 'screen'
   start_angle: 'starts'
   end_angle: 'ends'
   line_color: 'white'
