@@ -16676,7 +16676,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
               continue;
             }
             ctx.beginPath();
-            ctx.arc(sx[i], sy[i], radius[i], -this.start_angle[i], -this.end_angle[i], this.direction[i]);
+            ctx.arc(sx[i], sy[i], radius[i], this.start_angle[i], this.end_angle[i], this.direction[i]);
             glyph_props.line_properties.set_vectorize(ctx, i);
             _results.push(ctx.stroke());
           }
@@ -28129,7 +28129,7 @@ define('server/usercontext/wrappertemplate',[],function(){
       window.Float64Array = Array;
     }
     Bokeh = {};
-    Bokeh.version = '0.3.0';
+    Bokeh.version = '0.4.0';
     Bokeh.Collections = require("common/base").Collections;
     Bokeh.Config = require("common/base").Collections;
     Bokeh.GMapPlot = require("common/gmap_plot");
