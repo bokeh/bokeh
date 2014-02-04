@@ -13,7 +13,7 @@ output_cloud("color scatter")
 
 scatter(x,y, radius=radii, radius_units="data",
         fill_color=colors, fill_alpha=0.6,
-        line_color=None, tools="pan,wheel_zoom,resize,select", name="color_scatter_example")
+        line_color=None, tools="pan,wheel_zoom,box_zoom,reset,previewsave", name="color_scatter_example")
 
 show()  # open a browser
 

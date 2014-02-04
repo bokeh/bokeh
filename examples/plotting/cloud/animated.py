@@ -27,7 +27,7 @@ annular_wedge(
     outer_radius_units="data",
     fill_color = colors,
     line_color="black",
-    tools="pan,wheel_zoom,resize"
+    tools="pan,wheel_zoom,box_zoom,reset,previewsave"
 )
 
 renderer = [r for r in curplot().renderers if isinstance(r, Glyph)][0]
