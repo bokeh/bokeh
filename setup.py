@@ -84,7 +84,6 @@ REQUIRES = [
         'pytz',
         'requests',
         'six',
-        'wsgiref',
     ]
 if sys.version_info[0] != 3:
     REQUIRES.extend([
