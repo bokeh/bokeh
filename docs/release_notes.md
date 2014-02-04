@@ -2,6 +2,22 @@ Bokeh Release Notes
 ===================
 
 
+v0.4 (Feb 2014)
+===============
+
+* Preliminary work on Matplotlib support: convert MPL figures to Bokeh plots
+* Free public beta of Bokeh plot hosting at http://bokehplots.com
+* Tool improvements:
+ - "always on" pan tool and wheel zoom tool
+ - box zoom tool
+ - viewport reset tool
+* Enhanced datetime axis, with better performance and nicer ticking
+* Expanded testing, including TravisCI integrations and static image output using PhantomJS
+* RGBA and color mapped image plots now available from Python
+* Python 3 support!
+* Vastly improved documentation for glyphs, with inline examples and JSFiddle integration
+
+
 v0.3 (Nov 2013)
 ===============
 
