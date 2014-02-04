@@ -21,6 +21,8 @@ BokehJS is the in-browser client-side runtime library that users of Bokeh
 ultimately interact with.  This library is written primarily in Coffeescript
 and is one of the very unique things about the Bokeh plotting system.
 
+.. _bokehjs_motivations:
+
 BokehJS Motivations
 -------------------
 
@@ -38,6 +40,8 @@ This, in turn, has caused the developers of Python plotting libraries to
 only treat the browser as a "backend target" environment, for which they
 will generate static images or a bunch of Javascript.
 
+.. _bokehjs_goals:
+
 Goals
 -----
 
@@ -48,11 +52,34 @@ future this may be extended to include WebGL.  We are keeping a very
 close watch over high-performance Javascript technologies, including
 web workers, asm.js, SIMD, and parallel JS (e.g. River Trail).
 
+.. _bokehjs_interface:
+
 Interface
 ---------
-BokehJS accepts
 
-The full BokehJS interface is described in :doc:`bokehjs`
+BokehJS is a standalone Javascript library for dynamic and interactive visualization
+in the browser. It is built on top of HTML5 canvas, and designed for high-performance
+rendering of larger data sets. Its interface is declarative, in the style of
+`Protovis <http://mbostock.github.io/protovis/>`_, but its implementation consists of
+a reactive scene graph (similar to `Chaco <http://code.enthought.com/chaco/>`_). Some
+examples for different types of plots are show below in `bokehjs_examples`_.
+
+The full BokehJS interface is described detail in :doc:`bokehjs`
+
+.. _bokehjs_location:
+
+Location
+--------
+
+The BokehJS files are available via CDN at `http://cdn.pydata.org/ <http://cdn.pydata.org/>`_.
+For instance, for version 0.4:
+
+* http://cdn.pydata.org/bokeh-0.4.js
+* http://cdn.pydata.org/bokeh-0.4.css
+* http://cdn.pydata.org/bokeh-0.4.min.js
+* http://cdn.pydata.org/bokeh-0.4.min.css
+
+.. _bokehjs_examples:
 
 Examples
 --------

@@ -463,7 +463,7 @@ require(['main'], (Bokeh) ->
     fill_color: 'colors'
     line_color: 'colors'
     fill_alpha: 'alpha'
-    radius: 'pixel_size'
+    radius: 'data_size'
     start_angle: 0
     end_angle: 'angle'
   }

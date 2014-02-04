@@ -68,7 +68,6 @@ define [
     defaults: () ->
       return {
         dimensions: []
-        dataranges: []
         speed: 1/600
       }
 
