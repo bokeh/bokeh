@@ -73,19 +73,24 @@ define [
       pmodel.add_renderers(g.ref() for g in glyphs)
       '''
     _add_renderer: (renderer_name) ->
+        pview = @plot_view
         pmodel = @plot_view.model
         Plotting = require("common/plotting")
 
         #glyphs = Plotting.create_glyphs(pmodel, @renderer_specs(), [@model.get_obj('data_source')])
         data_source = @model.get_obj('data_source')
 
+        x_range = pmodel.get_obj("x_range")
+        y_range = pmodel.get_obj("y_range")
         $.getJSON(  
           @model.get('api_endpoint')+'values/' + renderer_name,
           {},
           (json) ->
             data = data_source.get('data')
             data[renderer_name] = json[renderer_name]
-          
+
+            
+            #debugger
             scatter2 = {
               type: 'rect'
               x: 'index'
@@ -98,6 +103,22 @@ define [
             glyphs = Plotting.create_glyphs(pmodel, scatter2, [data_source])
             pmodel.add_renderers(g.ref() for g in glyphs)
 
+            x_min = Math.min.apply(data.index, data.index)
+            x_max = Math.max.apply(data.index, data.index)
+
+            x_min2 =  Math.min(x_range.get('min'), x_min))
+            x_max2 = Math.max(x_range.get('max'), x_max))
+
+            y_min = Math.min.apply(json[renderer_name], json[renderer_name])
+            y_max = Math.max.apply(json[renderer_name], json[renderer_name])
+
+            y_min2 = Math.min(y_range.get('min'), y_min))
+            y_max2 = Math.max(y_range.get('max'), y_max))
+
+            pview.update_range({
+              xr: {start: xmin2, end: xmax2 },
+              yr: {start: ymin2, end: ymax2 }
+              })
             )
 
     renderer_specs : ->
