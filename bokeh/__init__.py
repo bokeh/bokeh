@@ -1,21 +1,10 @@
 from __future__ import absolute_import, print_function
 
-# NOTE: Execute patch_all() before everything else, especially before
-# importing threading module. Otherwise, annoying KeyError exception
-# will be thrown. gevent is optional, so don't fail if not installed.
-try:
-    import gevent.monkey
-except ImportError:
-    pass
-else:
-    gevent.monkey.patch_all()
-
 from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
 from . import sampledata
-from .serverconfig import Server, Cloud
 
 def print_versions():
     """Print all the versions of software that Bokeh relies on."""
