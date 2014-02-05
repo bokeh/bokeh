@@ -13,6 +13,7 @@ IN_LONG_VERSION_PY = True
 git_refnames = "$Format:%d$"
 git_full = "$Format:%H$"
 
+GIT = "git"
 
 import subprocess
 import sys

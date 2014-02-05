@@ -113,6 +113,7 @@ IN_LONG_VERSION_PY = True
 git_refnames = "%(DOLLAR)sFormat:%%d%(DOLLAR)s"
 git_full = "%(DOLLAR)sFormat:%%H%(DOLLAR)s"
 
+GIT = "git"
 
 import subprocess
 import sys
