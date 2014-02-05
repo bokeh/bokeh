@@ -1,4 +1,6 @@
 import json
+import os
+from os.path import basename
 import uuid
 from .models import user
 from .models import UnauthorizedException
@@ -136,6 +138,8 @@ from flask import (request, session, abort,
                    jsonify
                    )
 
+### FIXME: we should pull request parameters into the API.
+
 class SingleUserAuthentication(AbstractAuthentication):
     def current_user_name(self):
         return "defaultuser"
@@ -266,3 +270,54 @@ class MultiUserAuthentication(AbstractAuthentication):
     def logout(self):
         session.pop('username', None)
         return redirect("/")
+
+class AbstractDataBackend(object):
+    """These functions take a request_username parameter,
+    which is the identify of the requester.
+    
+    Some also take request_docid, which is the docid of the 
+    requester.  You only need one or the other.  pass None for the
+    one you don't want to set
+    
+    IT is up to the implementation to handle permissions
+
+    many functions take a data_url.  It is assumed that
+    the implementation can retrieve the dataset owner from
+    the dataset_url 
+    """
+    def list_data_sources(self, request_username, username):
+        """
+        request_username is the identity of the requester
+
+        list data sources for username
+        
+        should probably return an error if request_username and username
+        don't match, but that is delegated to the backend, which can
+        do something else if it chooses
+
+        return data_source urls as list, 
+        ["/foo/bar", "foo/bar/baz"]
+        """
+        raise NotImplementedError
+    
+    def get_permissons(self, request_username, data_url):
+        """return permissions as JSON
+        rw_users : [list of users], or 'all'
+        r_users: [list of users], or 'all'
+        rw_docs : [list of doc_ids], or 'all'
+        r_docs: [list of doc_ids], or 'all'
+        """
+        raise NotImplementedError
+
+    def modify_permissions(self, request_username, data_url, permissions_json):
+        """permissions_json is a json object like that which is 
+        returned by get_permissions
+        """
+        
+    #parameters for this are undefined at the moment
+    def get_data(self, request_username, request_docid, data_url, 
+                 downsample_function, downsample_parameters):
+        raise NotImplementedError        
+    
+    def append_data(self, request_username, request_docid, data_url, datafile):
+        raise NotImplementedError
