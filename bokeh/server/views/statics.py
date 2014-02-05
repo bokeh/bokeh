@@ -12,6 +12,7 @@ def bokehjs_file(filename):
 
 @bokeh_app.route('/bokehjs/src/<path:filename>')
 def bokehjssrc_file(filename):
-    print '/bokehjs/src/<path:filename>', bokeh_app.bokehjssrcdir, filename
-    bokehjs_dir = os.path.join(bokeh_app.bokehjssrcdir, "../../../bokehjs")
-    return flask.send_from_directory(bokehjs_dir, filename)
+    return flask.send_from_directory(bokeh_app.bokehjssrcdir, filename)
+    # print '/bokehjs/src/<path:filename>', bokeh_app.bokehjssrcdir, filename
+    # bokehjs_dir = os.path.join(bokeh_app.bokehjssrcdir, "../../../bokehjs")
+    # return flask.send_from_directory(bokehjs_dir, filename)

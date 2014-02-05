@@ -5,8 +5,7 @@ define [
   "backbone",
   "./tool",
   "./event_generators",
-  "bootstrap"
-], (_, $, Backbone, Tool, EventGenerators, Plotting) ->
+], (_, $, Backbone, Tool, EventGenerators) ->
 
 
   class ModalView extends  Backbone.View
@@ -76,6 +75,7 @@ define [
         x_range = pmodel.get_obj("x_range")
         y_range = pmodel.get_obj("y_range")
         data_source.remote_add_column(renderer_name, ->
+            data = data_source.get('data')
             scatter2 = {
               type: 'rect'
               x: 'index'
@@ -95,8 +95,8 @@ define [
             x_min2 = Math.min(x_range.get('min'), x_min)
             x_max2 = Math.max(x_range.get('max'), x_max)
 
-            y_min = Math.min.apply(json[renderer_name], json[renderer_name])
-            y_max = Math.max.apply(json[renderer_name], json[renderer_name])
+            y_min = Math.min.apply(data[renderer_name], data[renderer_name])
+            y_max = Math.max.apply(data[renderer_name], data[renderer_name])
 
             y_min2 = Math.min(y_range.get('min'), y_min)
             y_max2 = Math.max(y_range.get('max'), y_max)

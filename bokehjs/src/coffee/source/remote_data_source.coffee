@@ -15,11 +15,10 @@ define [
       @cont_ranges = {}
       @discrete_ranges = {}
       data_source = @
-      debugger
+      api_endpoint = @get('api_endpoint')
       $.getJSON(@get('api_endpoint')+'columns',
         {},
         (json) =>
-          debugger
           @set('columns', json.columns)
           console.log("columns", json.columns))
       $.getJSON(@get('api_endpoint')+'index',

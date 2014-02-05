@@ -4,9 +4,8 @@ define [
   "jquery",
   "backbone",
   "./tool",
-  "./event_generators",
-  "bootstrap"
-], (_, $, Backbone, Tool, EventGenerators, Plotting) ->
+  "./event_generators"
+], (_, $, Backbone, Tool, EventGenerators) ->
 
 
   class ModalView extends  Backbone.View

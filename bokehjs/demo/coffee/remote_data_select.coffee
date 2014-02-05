@@ -5,6 +5,7 @@ require(['main'], (Bokeh) ->
   ys3 = (Math.tan(x) for x in xs)
 
   source = Bokeh.Collections('RemoteDataSource').create(
+    api_endpoint: "http://localhost:5000/"
     data:
       x: xs
       y1: ys1
