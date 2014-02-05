@@ -64,53 +64,6 @@ define [
     close: ->
       this.remove();
       
-    _add_renderer_orig: (renderer_name) ->
-        Plotting = require("common/plotting")
-        pview = @plot_view
-        pmodel = @plot_view.model
-
-        data_source = @model.get_obj('data_source')
-
-        x_range = pmodel.get_obj("x_range")
-        y_range = pmodel.get_obj("y_range")
-        $.getJSON(  
-          @model.get('api_endpoint')+'values/' + renderer_name,
-          {},
-          (json) ->
-            data = data_source.get('data')
-            data[renderer_name] = json[renderer_name]
-
-            scatter2 = {
-              type: 'rect'
-              x: 'index'
-              y: renderer_name
-              width: 5
-              width_units: 'screen'
-              height: 5
-              height_units: 'screen'
-              fill_color: 'blue'}
-
-            glyphs = Plotting.create_glyphs(pmodel, scatter2, [data_source])
-            pmodel.add_renderers(g.ref() for g in glyphs)
-
-            x_min = Math.min.apply(data.index, data.index)
-            x_max = Math.max.apply(data.index, data.index)
-
-            x_min2 = Math.min(x_range.get('min'), x_min)
-            x_max2 = Math.max(x_range.get('max'), x_max)
-
-            y_min = Math.min.apply(json[renderer_name], json[renderer_name])
-            y_max = Math.max.apply(json[renderer_name], json[renderer_name])
-
-            y_min2 = Math.min(y_range.get('min'), y_min)
-            y_max2 = Math.max(y_range.get('max'), y_max)
-
-            pview.update_range({
-              xr: {start: x_min2, end: x_max2 },
-              yr: {start: y_min2, end: y_max2 }
-              })
-            
-            pview.request_render())
 
       
     _add_renderer: (renderer_name) ->
@@ -194,21 +147,7 @@ define [
        activated: "_activated"
        deactivated: "_close_modal"
     }
-    _datasource_columns_orig: ->
 
-      pmodel = @plot_view.model
-      data_source = this.mget_obj('data_source')
-      $.getJSON(@mget('api_endpoint')+'columns',
-        {},
-        (json) =>
-          @mset('columns', json.columns)
-          console.log("columns", json.columns))
-      $.getJSON(@mget('api_endpoint')+'index',
-        {},
-        (json) ->
-          data = data_source.get('data')
-          data['index'] = json.index)
-      
     _datasource_columns: ->
       return null
       
