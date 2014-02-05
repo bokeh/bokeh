@@ -25,9 +25,9 @@ class Server(object):
         from config.  if False, then we may overwrite the users
         config with this data
         """
+        self.http_session = requests.session()
         self.name = name
         self.root_url = root_url
-        #single user mode case
         self.userapikey = userapikey
         self.username = username
         self._configdir = None        
@@ -35,7 +35,23 @@ class Server(object):
             self.configdir = configdir
         if load_from_config:
             self.load()
-
+            
+    @property
+    def username(self):
+        return self.http_session.headers.get('BOKEHUSER')
+    
+    @username.setter
+    def username(self, val):
+        self.http_session.headers.update({'BOKEHUSER' : val})
+                
+    @property 
+    def userapikey(self):
+        return self.http_session.headers.get('BOKEHUSER-API-KEY')
+    
+    @userapikey.setter
+    def userapikey(self, val):
+        self.http_session.headers.update({'BOKEHUSER-API-KEY' : val})
+    
     @property
     def configdir(self):
         """filename where our config are stored"""
@@ -86,7 +102,7 @@ class Server(object):
 
     def register(self, username, password):
         url = urljoin(self.root_url, "bokeh/register")
-        result = requests.post(url, data={
+        result = self.http_session.post(url, data={
                 'username' : username,
                 'password' : password,
                 'api' : 'true'
@@ -103,7 +119,7 @@ class Server(object):
 
     def login(self, username, password):
         url = urljoin(self.root_url, "bokeh/login")
-        result = requests.post(url, data={
+        result = self.http_session.post(url, data={
                 'username' : username,
                 'password' : password,
                 'api' : 'true'
@@ -134,7 +150,14 @@ class Server(object):
         store.put(name, dataframe)
         store.flush()
         store.close()
-
+        
+    def list_data(self):
+        url = urljoin(self.root_url, "bokeh/data/" + self.username)
+        result = self.http_session.get(url)
+        result = utils.get_json(result)
+        sources = result['sources']
+        return sources
+        
 class Cloud(Server):
     def __init__(self):
         super(Cloud, self).__init__(name="cloud",

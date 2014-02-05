@@ -11,11 +11,11 @@ datadir = join(dirname(dirname(dirname(dirname(__file__)))), 'remotedata')
 class RemoteDataTestCase(test_utils.BokehServerTestCase):
     options = {'data_directory' : datadir}
     def test_list(self):
-        url = "http://localhost:5006/bokeh/data/defaultuser"
-        session = requests.session()
-        sources = requests.get(url).json()
+        config = tempfile.mkdtemp()
+        s = Server(configdir=config)
+        sources = s.list_data()
         result = set(['/defaultuser/GOOG.hdf5', 
                       '/defaultuser/FB.hdf5', 
                       '/defaultuser/MSFT.hdf5', 
                       '/defaultuser/AAPL.hdf5'])
-        assert result == set(sources['sources'])
+        assert result == set(sources)
