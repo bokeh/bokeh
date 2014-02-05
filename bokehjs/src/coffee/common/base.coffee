@@ -17,7 +17,6 @@ define [
   "renderer/guide/grid",
   "renderer/annotation/legend",
   "renderer/overlay/box_selection",
-  "source/object_array_data_source",
   "source/remote_data_source",
   "source/column_data_source",
   "tool/pan_tool",
@@ -62,7 +61,6 @@ define [
     Legend:                 'renderer/annotation/legend'
     BoxSelection:           'renderer/overlay/box_selection'
 
-    ObjectArrayDataSource:  'source/object_array_data_source'
     ColumnDataSource:       'source/column_data_source'
     RemoteDataSource:       'source/remote_data_source'
 
@@ -71,6 +69,7 @@ define [
     ResizeTool:             'tool/resize_tool'
     CrosshairTool:          'tool/crosshair_tool'
     BoxSelectTool:          'tool/box_select_tool'
+    BoxZoomTool:            'tool/box_zoom_tool'
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'
     ColumnSelectTool:       'tool/column_select_tool'

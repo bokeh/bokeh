@@ -1,9 +1,7 @@
 import unittest
 import tempfile
-import gevent
 import redis
 import time
-from gevent_zeromq import zmq
 import redis
 from requests.exceptions import ConnectionError
 import requests
@@ -59,6 +57,7 @@ def recv_timeout(socket, timeout):
 class BokehServerTestCase(unittest.TestCase):
     options = {}
     def setUp(self):
+        import gevent
         start.prepare_app(rport=6899, **self.options)
         fname = tempfile.NamedTemporaryFile().name
         bokeh_app.data_file = fname

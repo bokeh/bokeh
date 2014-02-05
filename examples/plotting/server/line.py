@@ -11,6 +11,6 @@ y = np.sin(x)
 
 output_server("line")
 
-line(x,y, color="#0000FF", tools="pan,wheel_zoom,resize,embed")
+line(x,y, color="#0000FF", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
 show()

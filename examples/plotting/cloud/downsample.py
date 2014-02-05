@@ -13,7 +13,7 @@ close = np.array(AAPL['adj_close'])
 
 line(dates, close,
      x_axis_type = "datetime",
-     color='#A6CEE3', tools="pan,wheel_zoom,resize",
+     color='#A6CEE3', tools="pan,wheel_zoom,box_zoom,reset,previewsave",
      legend='AAPL')
 result = downsample(dates, close.reshape(-1,1), 
                     [dates.min(), dates.max()],
@@ -23,6 +23,6 @@ result = downsample(dates, close.reshape(-1,1),
 dates, close = result[0]
 line(dates, close,
      x_axis_type = "datetime",
-     color='#A6CEE3', tools="pan,wheel_zoom,resize",
+     color='#A6CEE3', tools="pan,wheel_zoom,box_zoom,reset,previewsave",
      legend='AAPL')
 

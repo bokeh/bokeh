@@ -204,6 +204,15 @@ define [
       if @[attrname].value?
         return @[attrname].value
 
+      # Note about the following two checks. They are to accomodate the case where properties 
+	  # are not used to map over data sources, but are used for one-off properties like a Plot
+	  # object might have. There is no corresponding check in v_select
+      if obj.get and obj.get(attrname)
+        return obj.get(attrname)
+
+      if obj.mget and obj.mget(attrname)
+        return obj.mget(attrname)
+
       # otherwise, if the attribute exists on the object, return that value.
       # (This is a convenience case for when the object passed in has a member
       # that has the same name as the glyphspec name, e.g. an actual field
@@ -216,8 +225,7 @@ define [
         return @[attrname].default
 
       # failing that, just log a problem
-      else
-        console.log "selection for attribute '#{ attrname }' failed on object: #{ obj }"
+      console.log "selection for attribute '#{ attrname }' failed on object: #{ obj }"
 
     v_select: (attrname, objs) ->
 

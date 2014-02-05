@@ -57,6 +57,8 @@ MANIFEST
 *.egg-info
 # The shelf plugin uses this dir
 ./.shelf
+# coverage reports
+.coverage
 
 # Logs and databases #
 ######################

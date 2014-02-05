@@ -19,8 +19,8 @@ from six import string_types
 
 from .properties import ColorSpec
 from .objects import (ColumnDataSource, DataRange1d,
-        Plot, Glyph, LinearAxis, Grid, PanTool, WheelZoomTool,
-        PreviewSaveTool, ResizeTool, CrosshairTool, BoxSelectTool,
+        Plot, Glyph, LinearAxis, Grid, PanTool, WheelZoomTool, ResetTool,
+        PreviewSaveTool, ResizeTool, CrosshairTool, BoxSelectTool, BoxZoomTool,
         EmbedTool, BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
@@ -153,7 +153,7 @@ def session():
     return _config["session"]
 
 ###NEEDS A BOKEH CLOUD VERSION AS WELL
-def output_notebook(server=None, name=None, url=None, docname=None):
+def output_notebook(url=None, server=None, name=None, docname=None):
     """ Sets the output mode to emit HTML objects suitable for embedding in
     IPython notebook.  If URL is "default", then uses the default plot
     server URLs etc. for Bokeh.  If URL is explicitly set to None, then data,
@@ -597,8 +597,7 @@ class GlyphFunction(object):
 
         glyph_renderer = Glyph(
             data_source = datasource,
-            xdata_range = plot.x_range,
-            ydata_range = plot.y_range,
+            plot = plot,
             glyph=glyph,
             nonselection_glyph=nonselection_glyph,
             )
@@ -854,7 +853,7 @@ def gridplot(plot_arrangement, name=False):
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="linear", y_axis_type="linear",
-                 tools="pan,wheel_zoom,save,resize,select", **kw):
+                 tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
@@ -914,9 +913,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if tool == "": 
             continue
         if tool == "pan":
-            tool_obj = PanTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
+            tool_obj = PanTool(plot=p, dimensions=["width", "height"])
         elif tool == "wheel_zoom":
-            tool_obj = WheelZoomTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
+            tool_obj = WheelZoomTool(plot=p, dimensions=["width", "height"])
         elif tool == "save":
             tool_obj = PreviewSaveTool(plot=p)
         elif tool == "resize":
@@ -927,12 +926,18 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             tool_obj = BoxSelectTool()
             overlay = BoxSelectionOverlay(tool=tool_obj)
             p.renderers.append(overlay)
+        elif tool == "box_zoom":
+            tool_obj = BoxZoomTool(plot=p)
+            overlay = BoxSelectionOverlay(tool=tool_obj)
+            p.renderers.append(overlay)
         elif tool == "previewsave":
             tool_obj = PreviewSaveTool(plot=p)
         elif tool == "embed":
             tool_obj = EmbedTool(plot=p)
+        elif tool == "reset":
+            tool_obj = ResetTool(plot=p)
         else:
-            known_tools = "pan, wheel_zoom, save, resize, crosshair, select, previewsave or embed"
+            known_tools = "pan, wheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, or embed"
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
 
         tool_objs.append(tool_obj)

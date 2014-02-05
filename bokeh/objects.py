@@ -247,19 +247,6 @@ class PlotObject(HasProps):
         else:
             return props
 
-    def old_vm_props(self, withvalues=False):
-        """ Returns the ViewModel-related properties of this object.  If
-        **withvalues** is True, then returns attributes with values as a
-        dict.  Otherwise, returns a list of attribute names.
-        """
-        props = set(self.properties())
-        if "session" in props:
-            props.remove("session")
-        if withvalues:
-            return dict((k,getattr(self,k)) for k in props)
-        else:
-            return props
-
     def vm_serialize(self):
         """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
@@ -514,6 +501,7 @@ class FactorRange(DataRange):
 
 class Glyph(PlotObject):
 
+    plot = Instance(has_ref=True)
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(DataRange1d, has_ref=True)
     ydata_range = Instance(DataRange1d, has_ref=True)
@@ -800,12 +788,10 @@ class Grid(GuideRenderer):
 class PanTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
     dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
 
 class WheelZoomTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
 
 class PreviewSaveTool(PlotObject):
     plot = Instance(Plot)
@@ -817,10 +803,16 @@ class EmbedTool(PlotObject):
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
 
+class ResetTool(PlotObject):
+    plot = Instance(Plot)
+
 class ResizeTool(PlotObject):
     plot = Instance(Plot)
 
 class CrosshairTool(PlotObject):
+    plot = Instance(Plot)
+
+class BoxZoomTool(PlotObject):
     plot = Instance(Plot)
 
 class BoxSelectTool(PlotObject):

@@ -42,24 +42,27 @@ module.exports = (grunt) ->
           filter: ['isFile'], #, hasChanged("copy.demo")]
         ]
       vendor:
-        files : [
-          expand : true
-          cwd : 'src/vendor'
+        files: [
+          expand: true
+          cwd: 'src/vendor'
           src: ['**/*']
           dest : 'build/js/vendor'
         ]
       release:
         files: [
-            expand : true
-            cwd : 'build/js'
-            src : ['*.js']
-            dest : 'release/js'
+            expand: true
+            cwd: 'build/js'
+            src: ['*.js']
+            dest: 'release/js'
           ,
-            expand : true
-            cwd : 'build/css'
-            src : ['*.css']
-            dest : 'release/css'
+            expand: true
+            cwd: 'build/css'
+            src: ['*.css']
+            dest: 'release/css'
         ]
+      spectrogram:
+        src: 'build/js/bokeh.js'
+        dest: 'build/demo/spectrogram/static/bokeh.js'
 
     clean: ['build']
 
@@ -121,7 +124,7 @@ module.exports = (grunt) ->
           jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel"
           underscore: "vendor/underscore-amd/underscore"
           backbone: "vendor/backbone-amd/backbone"
-          bootstrap: "vendor/bootstrap/bootstrap-2.0.4"
+          modal: "vendor/bootstrap/modal"
           timezone: "vendor/timezone/src/timezone"
           sprintf: "vendor/sprintf/src/sprintf"
           rbush: "vendor/rbush/rbush"
@@ -194,7 +197,7 @@ module.exports = (grunt) ->
         options:
           spawn: false
 
-    connect: 
+    connect:
       server:
         options:
           port: 8000,
@@ -241,7 +244,7 @@ module.exports = (grunt) ->
   grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
   grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config"])
   grunt.registerTask("mindeploy",   ["build",  "requirejs:production", "concat:css", "cssmin"])
-  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css"])
+  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css", "copy:spectrogram"])
   grunt.registerTask("deploy",      ["mindeploy", "devdeploy"])
   grunt.registerTask("test",        ["connect", "qunit"])
   grunt.registerTask("serve",       ["connect:server:keepalive"])

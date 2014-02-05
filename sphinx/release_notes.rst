@@ -7,22 +7,27 @@ Release Notes
 v0.4 (Feb 2014)
 ===============
 
-* Basic MPL interface
-* Free public beta of Bokeh plot hosting service at `bokehplots.com <http://bokehplots.com>`_.
-* Tool enhancements: "always on" pan tool
-* Much enhanced datetime axis, with better performance and "nice" number picking
-* Improved testing, including TravisCI integrations and static image output using PhantomJS
-* RGBA and color mapped image plots exposed from python
-* renderer performance improvements
-* python 3 support for bokeh-server
-* Source maps & incremental compilation
+* Preliminary work on Matplotlib support: convert MPL figures to Bokeh plots
+* Free public beta of Bokeh plot hosting at http://bokehplots.com
+* Tool improvements:
+
+  - "always on" pan tool and wheel zoom tool
+  - box zoom tool
+  - viewport reset tool
+
+* Enhanced datetime axis, with better performance and nicer ticking
+* Expanded testing, including TravisCI integrations and static image output using PhantomJS
+* RGBA and color mapped image plots now available from Python
+* Python 3 support!
+* Vastly improved documentation for glyphs, with inline examples and JSFiddle integration
+
 
 v0.3 (Nov 2013)
 ===============
 
-* Refactor bokehjs to use grunt for coffee build
-* Merge bokeh and bokehjs repositories
-* Various bug fixes
+* refactor bokehjs to use grunt for coffee build
+* merge bokeh and bokehjs repositories
+* various bug fixes
 * additional and improved examples and docs
 
 v0.2 (Oct 2013)
@@ -46,7 +51,8 @@ v0.1 (Apr 2013)
 * IPython notebook embedding capability
 * Table widget
 * Pan, Zoom, Select, Resize tools
-* Initial Python implementation of Abstract Rendering
+* initial Python implementation of Abstract Rendering
+
 
 .. _roadmap:
 
@@ -72,11 +78,7 @@ v0.5 (Goal: March 2014)
 * Touch events
 * Animation framework
 * CSS styling/theming mechanism
-* Improve tools
-
-  - easier interactions with zoom: zoom box or buttons for zoom in/out
-  - Reset view
-  - Hot corner for resize tool
+* Hot corner for resize tool
 
 v0.6 (Goal: May 2014)
 =====================

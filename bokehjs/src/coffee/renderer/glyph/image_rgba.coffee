@@ -37,14 +37,20 @@ define [
         @height = new Array(@image.length)
 
       for i in [0...@image.length]
-        @height[i] = @rows[i] ? @image[i].length
-        @width[i] = @cols[i] ? @image[i][0].length
+        if @rows?
+          @height[i] = @rows[i]
+          @width[i] = @cols[i]
+        else
+          @height[i] = @image[i].length
+          @width[i] = @image[i][0].length
         canvas = document.createElement('canvas');
         canvas.width = @width[i];
         canvas.height = @height[i];
         ctx = canvas.getContext('2d');
         image_data = ctx.getImageData(0, 0, @width[i], @height[i]);
-        if @row?
+        if @rows?
+          image_data.data.set(new Uint8ClampedArray(@image[i]))
+        else
           flat = _.flatten(@image[i])
           buf = new ArrayBuffer(flat.length * 4);
           color = new Uint32Array(buf);
@@ -52,8 +58,6 @@ define [
             color[j] = flat[j]
           buf8 = new Uint8ClampedArray(buf);
           image_data.data.set(buf8)
-        else
-          image_data.data.set(new Uint8ClampedArray(@image[i]))
         ctx.putImageData(image_data, 0, 0);
         @image_data[i] = canvas
 

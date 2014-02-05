@@ -31,6 +31,6 @@ output_file("lorenz.html", title="lorenz.py example")
 
 multi_line(np.array_split(xprime, 7), np.array_split(z, 7),
            line_color=colors, line_alpha=0.8, line_width=1.5,
-           tools="pan,wheel_zoom,resize", title="lorenz example", name="lorenz_example")
+           tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="lorenz example", name="lorenz_example")
 
 show()  # open a browser

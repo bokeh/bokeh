@@ -1,6 +1,5 @@
 import uuid
 import json
-import threading
 import logging
 import time
 from six.moves import cPickle as pickle
@@ -32,7 +31,7 @@ class NumpyJSONEncoder(json.JSONEncoder):
             return obj.tolist()
         elif isinstance(obj, np.ndarray):
             if obj.dtype.kind == 'M':
-                return obj.astype('datetime64[ms]').astype('int').tolist() 
+                return obj.astype('datetime64[ms]').astype('int64').tolist()
             return obj.tolist()
         elif isinstance(obj, np.number):
             if isinstance(obj, np.integer):

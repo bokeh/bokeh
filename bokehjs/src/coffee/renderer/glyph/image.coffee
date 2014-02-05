@@ -11,8 +11,19 @@ define [
 
   class ImageView extends Glyph.View
 
-    _fields: ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string']
     _properties: []
+
+    initialize: (options) ->
+      # the point of this is to support both efficient ArrayBuffers as well as dumb
+      # arrays of arrays that the python interface currently uses. If the glyphspec
+      # contains "rows" then it is assumed to be an ArrayBuffer with explicitly
+      # provided number of rows/cols, otherwise treat as a "list of lists".
+      spec = @mget('glyphspec')
+      if spec.rows?
+        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'palette:string']
+      else
+        @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'palette:string']
+      super(options)
 
     _set_data: (@data) ->
       for i in [0...@y.length]
@@ -28,17 +39,25 @@ define [
         @height = new Array(@image.length)
 
       for i in [0...@image.length]
-        @height[i] = @image[i].length
-        @width[i] = @image[i][0].length
+        if @rows?
+          @height[i] = @rows[i]
+          @width[i] = @cols[i]
+        else
+          @height[i] = @image[i].length
+          @width[i] = @image[i][0].length
         canvas = document.createElement('canvas');
         canvas.width = @width[i];
         canvas.height = @height[i];
-        ctx = canvas.getContext('2d');
-        image_data = ctx.getImageData(0, 0, @width[i], @height[i]);
+        ctx = canvas.getContext('2d')
+        console.log @width[i], @height[i]
+        image_data = ctx.getImageData(0, 0, @width[i], @height[i])
         cmap = new LinearColorMapper({}, {
           palette: all_palettes[@palette[i]]
         })
-        img = _.flatten(@image[i])
+        if @rows?
+          img = @image[i]
+        else
+          img = _.flatten(@image[i])
         buf = cmap.v_map_screen(img)
         buf8 = new Uint8ClampedArray(buf);
         image_data.data.set(buf8)
