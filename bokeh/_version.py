@@ -1,4 +1,3 @@
-from __future__ import absolute_import, print_function
 
 IN_LONG_VERSION_PY = True
 # This file helps to compute a version number in source trees obtained from
@@ -115,14 +114,15 @@ def versions_from_vcs(tag_prefix, versionfile_source, verbose=False):
     # string, meaning we're inside a checked out source tree.
 
     try:
-        here = os.path.realpath(__file__)
+        here = os.path.abspath(__file__)
     except NameError:
         # some py2exe/bbfreeze/non-CPython implementations don't do __file__
         return {} # not always correct
 
     GIT = "git"
-    if sys.platform == "win32":
-        GIT = "git.cmd"
+    # we use cygwin on windows, just use "git"
+    # if sys.platform == "win32":
+    #     GIT = "git.cmd"
 
     # versionfile_source is the relative path from the top of the source tree
     # (where the .git directory might live) to this file. Invert this to find
