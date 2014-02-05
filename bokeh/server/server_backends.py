@@ -357,8 +357,8 @@ class HDF5DataBackend(AbstractDataBackend):
             logger.info("or procede without remote data capabilities")
 
     def list_data_sources(self, request_username, username):
-        bokehuser = bokeh_app.authentication.current_user()
-        username = bokehuser.username
         return self.client[username].descendant_urls(ignore_groups=True)
         
-        
+    def get_data(self, request_username, request_docid, data_url, 
+                 downsample_function, downsample_parameters):
+        pass
