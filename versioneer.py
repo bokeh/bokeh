@@ -216,8 +216,9 @@ def versions_from_vcs(tag_prefix, versionfile_source, verbose=False):
         return {} # not always correct
 
     GIT = "git"
-    if sys.platform == "win32":
-        GIT = "git.cmd"
+    # we use cygwin on windows, just use "git"
+    # if sys.platform == "win32":
+    #     GIT = "git.cmd"
 
     # versionfile_source is the relative path from the top of the source tree
     # (where the .git directory might live) to this file. Invert this to find
@@ -410,8 +411,9 @@ def versions_from_vcs(tag_prefix, versionfile_source, verbose=False):
         return {} # not always correct
 
     GIT = "git"
-    if sys.platform == "win32":
-        GIT = "git.cmd"
+    # we use cygwin on windows, so just use "git"
+    # if sys.platform == "win32":
+    #     GIT = "git.cmd"
 
     # versionfile_source is the relative path from the top of the source tree
     # (where the .git directory might live) to this file. Invert this to find
@@ -501,8 +503,9 @@ def os_path_relpath(path, start=os.path.curdir):
 
 def do_vcs_install(versionfile_source, ipy):
     GIT = "git"
-    if sys.platform == "win32":
-        GIT = "git.cmd"
+    # we use cygwin on windows, just use "git"
+    # if sys.platform == "win32":
+    #     GIT = "git.cmd"
     files = [versionfile_source, ipy]
     try:
         me = __file__
@@ -521,7 +524,7 @@ def do_vcs_install(versionfile_source, ipy):
                     present = True
         f.close()
     except EnvironmentError:
-        pass    
+        pass
     if not present:
         f = open(".gitattributes", "a+")
         f.write("%s export-subst\n" % versionfile_source)
@@ -699,3 +702,4 @@ def get_cmdclass():
             'build': cmd_build,
             'sdist': cmd_sdist,
             }
+T
