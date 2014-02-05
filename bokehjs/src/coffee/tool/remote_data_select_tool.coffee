@@ -46,8 +46,8 @@ define [
           <div class="modal-body">
             <ul>
               <% _.each(columns, function(column_data){ %>
-                <li> <%= column_data[0] %> </li>
-                <input name='<%= column_data[0] %>' <%= column_data[1] %> type='checkbox' />
+                <li> <%= column_data %> </li>
+                <input name='<%= column_data %>' <%= column_data %> type='checkbox' />
               <% }) %>
             </ul>
           </div>
@@ -64,20 +64,11 @@ define [
     close: ->
       this.remove();
       
-    _build_renderers: ->
-      '''
-      pmodel = @plot_view.model
-      pmodel.set('renderers', [])
-      Plotting = require("common/plotting")
-      glyphs = Plotting.create_glyphs(pmodel, @renderer_specs(), [@model.get_obj('data_source')])
-      pmodel.add_renderers(g.ref() for g in glyphs)
-      '''
-    _add_renderer: (renderer_name) ->
+    _add_renderer_orig: (renderer_name) ->
+        Plotting = require("common/plotting")
         pview = @plot_view
         pmodel = @plot_view.model
-        Plotting = require("common/plotting")
 
-        #glyphs = Plotting.create_glyphs(pmodel, @renderer_specs(), [@model.get_obj('data_source')])
         data_source = @model.get_obj('data_source')
 
         x_range = pmodel.get_obj("x_range")
@@ -89,8 +80,6 @@ define [
             data = data_source.get('data')
             data[renderer_name] = json[renderer_name]
 
-            
-            #debugger
             scatter2 = {
               type: 'rect'
               x: 'index'
@@ -100,6 +89,50 @@ define [
               height: 5
               height_units: 'screen'
               fill_color: 'blue'}
+
+            glyphs = Plotting.create_glyphs(pmodel, scatter2, [data_source])
+            pmodel.add_renderers(g.ref() for g in glyphs)
+
+            x_min = Math.min.apply(data.index, data.index)
+            x_max = Math.max.apply(data.index, data.index)
+
+            x_min2 = Math.min(x_range.get('min'), x_min)
+            x_max2 = Math.max(x_range.get('max'), x_max)
+
+            y_min = Math.min.apply(json[renderer_name], json[renderer_name])
+            y_max = Math.max.apply(json[renderer_name], json[renderer_name])
+
+            y_min2 = Math.min(y_range.get('min'), y_min)
+            y_max2 = Math.max(y_range.get('max'), y_max)
+
+            pview.update_range({
+              xr: {start: x_min2, end: x_max2 },
+              yr: {start: y_min2, end: y_max2 }
+              })
+            
+            pview.request_render())
+
+      
+    _add_renderer: (renderer_name) ->
+        Plotting = require("common/plotting")
+        pview = @plot_view
+        pmodel = @plot_view.model
+
+        data_source = @model.get_obj('data_source')
+
+        x_range = pmodel.get_obj("x_range")
+        y_range = pmodel.get_obj("y_range")
+        data_source.remote_add_column(renderer_name, ->
+            scatter2 = {
+              type: 'rect'
+              x: 'index'
+              y: renderer_name
+              width: 5
+              width_units: 'screen'
+              height: 5
+              height_units: 'screen'
+              fill_color: 'blue'}
+
             glyphs = Plotting.create_glyphs(pmodel, scatter2, [data_source])
             pmodel.add_renderers(g.ref() for g in glyphs)
 
@@ -145,13 +178,7 @@ define [
       if add
         @_add_renderer(rname)
         selected_columns.push(rname)
-      else
-        ""
-        #not implemented for now
-        
-        #@model.set('selected_columns', _.without(selected_columns, column))
-      #@_build_renderers()
-    
+      
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
   class RemoteDataSelectToolView extends Tool.View
@@ -173,7 +200,8 @@ define [
       $.getJSON(@mget('api_endpoint')+'columns',
         {},
         (json) =>
-          @mset('columns', json.columns))
+          @mset('columns', json.columns)
+          console.log("columns", json.columns))
       $.getJSON(@mget('api_endpoint')+'index',
         {},
         (json) ->

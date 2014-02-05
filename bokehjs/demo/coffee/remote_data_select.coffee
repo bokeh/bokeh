@@ -63,9 +63,10 @@ require(['main'], (Bokeh) ->
     title: "Scatter Demo"
     dims: [600, 600]
     xrange: xdr
-    xaxes: "min"
+    xaxes: "datetime"
     yaxes: "min"
-    tools: ['cselect']
+#    tools: ['zoom,pan']
+
     legend: false
     
   }
@@ -79,7 +80,12 @@ require(['main'], (Bokeh) ->
   # plot1.add_renderers(g.ref() for g in glyphs2)
   remote_data_select_tool = Bokeh.Collections('RemoteDataSelectTool').create(
     api_endpoint: "http://localhost:5000/", glyph_specs: [scatter1, scatter2, scatter3],
-    data_source:source)
+    selector_div:$("selector_div"),
+    tools: ['zoom,pan'],  data_source:source)
 
-  plot1.set_obj('tools', [remote_data_select_tool])
+  console.log("remote_data_select.coffee *************")
+  existing_tools =   plot1.get_obj('tools')
+  existing_tools.push(remote_data_select_tool)
+  plot1.set_obj('tools', existing_tools)
+  #plot1.set_obj('tools', [remote_data_select_tool])
   Bokeh.Plotting.show(plot1))
