@@ -194,7 +194,8 @@ define [
        activated: "_activated"
        deactivated: "_close_modal"
     }
-    _datasource_columns: ->
+    _datasource_columns_orig: ->
+
       pmodel = @plot_view.model
       data_source = this.mget_obj('data_source')
       $.getJSON(@mget('api_endpoint')+'columns',
@@ -208,7 +209,11 @@ define [
           data = data_source.get('data')
           data['index'] = json.index)
       
+    _datasource_columns: ->
+      return null
+      
     _activated: (e) ->
+      @mset('columns', @mget_obj('data_source').get('columns'))
       @modal_view = new RemoteDataSelectModal(model:@model, plot_view:@plot_view)
       @modal_view.show()
 

@@ -97,6 +97,7 @@ define (require, exports, module) ->
 
   # data sources
   Bokeh.ColumnDataSource      = require("source/column_data_source")
+  Bokeh.RemoteDataSource      = require("source/remote_data_source")
   Bokeh.ObjectArrayDataSource = require("source/object_array_data_source")
 
   # tools

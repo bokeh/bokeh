@@ -4,16 +4,11 @@ require(['main'], (Bokeh) ->
   ys2 = (Math.cos(x) for x in xs)
   ys3 = (Math.tan(x) for x in xs)
 
-  source = Bokeh.Collections('ColumnDataSource').create(
+  source = Bokeh.Collections('RemoteDataSource').create(
     data:
       x: xs
       y1: ys1
       y3: ys3
-  )
-  source2 = Bokeh.Collections('ColumnDataSource').create(
-    data:
-      x: xs
-      y2: ys2
   )
 
   xdr = Bokeh.Collections('DataRange1d').create(
@@ -22,10 +17,6 @@ require(['main'], (Bokeh) ->
 
   ydr1 = Bokeh.Collections('DataRange1d').create(
     sources: [{ref: source.ref(), columns: ['y1']}]
-  )
-
-  ydr2 = Bokeh.Collections('DataRange1d').create(
-    sources: [{ref: source2.ref(), columns: ['y2']}]
   )
 
   scatter1 = {
@@ -83,7 +74,6 @@ require(['main'], (Bokeh) ->
     selector_div:$("selector_div"),
     tools: ['zoom,pan'],  data_source:source)
 
-  console.log("remote_data_select.coffee *************")
   existing_tools =   plot1.get_obj('tools')
   existing_tools.push(remote_data_select_tool)
   plot1.set_obj('tools', existing_tools)
