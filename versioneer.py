@@ -702,4 +702,3 @@ def get_cmdclass():
             'build': cmd_build,
             'sdist': cmd_sdist,
             }
-T
