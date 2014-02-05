@@ -40,6 +40,10 @@ class TestPrintVersions(unittest.TestCase):
         self.assertIn(sys.version, self.out.value)
         self.assertIn(bokeh.__version__, self.out.value)
 
+    def test_version_defined(self):
+        import bokeh
+        self.assertTrue(bokeh.__version__ != 'unknown')
+
 
 class MetaTest(unittest.TestCase):
 
