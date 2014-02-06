@@ -17,7 +17,8 @@ define [
       super(options)
 
     events:
-      "click input": "update_selected_columns"
+      "click input.column_check": "update_selected_columns"
+      "click input.category_check": "update_selected_category"
 
     eventGeneratorClass: ButtonEventGenerator
     evgen_options: { buttonText:"Remote Data Select" }
@@ -32,6 +33,7 @@ define [
 
     render: ->
       @template_context = _.template(@template)
+      console.log(@model.toJSON())
       @$el.html(@template_context(@model.toJSON()));
       return this;
 
@@ -41,10 +43,21 @@ define [
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             <h3 id="dataConfirmLabel">Data Sources </h3></div><div class="modal-body">
           <div class="body">
-            <ul>
-              <% _.each(columns, function(column_data){ %>
-                <li> <%= column_data %> </li>
-                <input name='<%= column_data %>' <%= (!(_.has(renderer_map,column_data, true)) || 'checked') %> type='checkbox' />
+
+            <ul class='category_list'>
+              <% _.each(column_tree, function(columns, category){ %>
+                <li class='category_item'> <%= category %> </li>
+                  <input class='category_check' name='<%= category %>'
+                      <%= (!(_.contains(selected_categories, category, true)) || 'checked') %>
+                  type='checkbox' />
+                  <ul class='column_item'>
+                    <% _.each(columns, function(column_data){ %>
+                      <li class='column_item' > <%= column_data %> 
+                        <input class='column_check' name='<%= column_data %>' <%= (!(_.has(renderer_map,column_data, true)) || 'checked') %> type='checkbox' />
+                       </li>
+                    <% }) %>
+                  </ul> 
+                </li>
               <% }) %>
             </ul>
           </div>
@@ -52,7 +65,48 @@ define [
             <button class="btn" aria-hidden="true">Close</button>
           </div>
       </div>
-      """ 
+      """
+    update_selected_category: (e) ->
+      category_name =  $(e.currentTarget).attr('name')
+      category_columns = @model.get('column_tree')[category_name]
+      add = $(e.currentTarget).is(":checked")
+      if add
+        for column in category_columns
+          @_add_renderer(column)
+        @model.get('selected_categories').push(category_name)
+      else
+        for column in category_columns
+          @unreder_column(column)
+        @model.set('selected_categories',
+          _.without(@model.get('selected_categories'), category_name))
+      @render()      
+
+    update_selected_columns: (e) ->
+      rname =  $(e.currentTarget).attr('name')
+      add = $(e.currentTarget).is(":checked")
+      if add
+        @_add_renderer(rname)
+      else
+        @unreder_column(rname)
+      @render()
+
+
+    unreder_column: (rname) ->
+      renderer = @model.get('renderer_map')[rname]
+      pview = @plot_view
+      pmodel = @plot_view.model
+
+      existing_renderers = pmodel.get('renderers')
+      modified_renderers = []
+      for r in existing_renderers
+        if not (r.id == renderer.id)
+          modified_renderers.push(r)
+      pmodel.set('renderers', modified_renderers)
+      pview.request_render()
+      rmap = @model.get('renderer_map')
+      delete rmap[rname]
+      console.log(rname)
+
 
           
     _add_renderer: (renderer_name) ->
@@ -101,28 +155,6 @@ define [
       else
         @model.set('glyph_spec_pointer', @model.get('glyph_spec_pointer') + 1)
         
-    update_selected_columns: (e) ->
-      rname =  $(e.currentTarget).attr('name')
-      add = $(e.currentTarget).is(":checked")
-      selected_columns = @model.get('selected_columns')
-
-      if add
-        @_add_renderer(rname)
-        selected_columns.push(rname)
-      else
-        renderer = @model.get('renderer_map')[rname]
-        pview = @plot_view
-        pmodel = @plot_view.model
-        
-        existing_renderers = pmodel.get('renderers')
-        modified_renderers = []
-        for r in existing_renderers
-          if not (r.id == renderer.id)
-            modified_renderers.push(r)
-        pmodel.set('renderers', modified_renderers)
-        pview.request_render()
-        console.log(rname)
-      
 
 
             
@@ -135,15 +167,17 @@ define [
         width: 5, type: 'rect', width_units: 'screen', height: 5,
         height_units: 'screen', fill_color: 'blue', line_color: 'blue'}
       circle_base = {
-        type:'circle', radius:5, radius_units:'screen',
+        type:'line', radius:5, radius_units:'screen',
         fill_color: 'blue', line_color: 'blue'}
 
 
       return {
         columns: [],
         selected_columns: [],
+        selected_categories: [],
         renderer_map: {},
         api_endpoint: "",
+        column_tree: {'a':['ab']}
         glyph_specs: [
           _.defaults({fill_color: 'orange', line_color: 'orange'}, circle_base),
           _.defaults({fill_color: 'blue', line_color: 'blue'}, rect_base),
