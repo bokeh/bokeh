@@ -1,4 +1,5 @@
 import json
+import numpy as np
 import os
 from os.path import basename
 import uuid
@@ -340,6 +341,8 @@ def safe_user_url_join(data_directory, username, path):
     user_path = user_url_root(data_directory, username)
     return safe_url_join(user_path, path)
 
+from ..transforms import line_downsample
+
 class HDF5DataBackend(AbstractDataBackend):
     """Everything here is world readable, but only writeable by the user
     """
@@ -361,4 +364,32 @@ class HDF5DataBackend(AbstractDataBackend):
         
     def get_data(self, request_username, request_docid, data_url, 
                  downsample_function, downsample_parameters):
-        pass
+        dataset = self.client[data_url]
+        if downsample_function == 'line1d':
+            (primary_column, domain_name, columns, 
+             domain_limit, domain_resolution) = downsample_parameters
+            all_columns = columns[:]
+            if domain_name not in columns:
+                all_columns.append(domain_name)
+            #some type coercion
+            sample = dataset.select(start=0, stop=1)
+            if sample[domain_name].dtype.kind == 'M':
+                #FIXME we need a conversion that won't truncate to ms
+                domain_limit = np.array(domain_limit).astype('datetime64[ms]')
+            result = dataset.select(where=[(domain_name, ">=", domain_limit[0]),
+                                           (domain_name, "<=", domain_limit[1])],
+                                    columns=all_columns)
+            result = line_downsample.downsample(result.to_records(),
+                                                domain_name,
+                                                primary_column,
+                                                domain_limit,
+                                                domain_resolution)
+            result = dict([(k, result[k]) for k in result.dtype.names])
+            return result
+
+"""
+downsampling methods:
+
+line1d:
+domain_name, domain_limit, domain_resolution, columns, primary_column
+"""
