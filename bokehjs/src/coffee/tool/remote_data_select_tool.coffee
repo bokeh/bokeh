@@ -81,6 +81,7 @@ define [
             gspec_pointer = @model.get('glyph_spec_pointer')
 
             scatter2 = gspecs[gspec_pointer]
+            scatter2.x = 'index'
             scatter2.y = renderer_name
             @inc_glyph_spec_pointer()
             glyphs = Plotting.create_glyphs(pmodel, scatter2, [data_source])
@@ -164,43 +165,26 @@ define [
       @modal_view = new RemoteDataSelectModal(model:@model, plot_view:@plot_view, el:el)
       @modal_view.render()
 
+
+            
   class RemoteDataSelectTool extends Tool.Model
     default_view: RemoteDataSelectToolView
     type: "RemoteDataSelectTool"
 
     defaults: () ->
+      rect_base = {
+        width: 5, type: 'rect', width_units: 'screen', height: 5,
+        height_units: 'screen', fill_color: 'blue', line_color: 'blue'}
+
       return {
         columns: [],
         selected_columns: [],
         api_endpoint: "",
-        glyph_specs: [ {
-              type: 'rect'
-              x: 'index'
-              width: 5
-              width_units: 'screen'
-              height: 5
-              height_units: 'screen'
-              fill_color: 'blue',
-              stroke_color: 'blue'
-              },
-           {
-              type: 'rect'
-              x: 'index'
-              width: 10
-              width_units: 'screen'
-              height: 10
-              height_units: 'screen'
-              fill_color: 'green',
-              stroke_style: null
-              },
-          {
-              type: 'circle'
-              x: 'index'
-              width: 5
-              width_units: 'screen'
-              height: 5
-              height_units: 'screen'
-              fill_color: 'orange'}],
+        glyph_specs: [
+          _.defaults({fill_color: 'blue', line_color: 'blue'}, rect_base),
+          _.defaults({fill_color: 'red', line_color: 'red'}, rect_base),
+          _.defaults({fill_color: 'green', line_color: 'green'}, rect_base),
+          _.defaults({fill_color: 'pink', line_color: 'pink'}, rect_base)],
         glyph_spec_pointer: 0,
         data_source: null
       }
