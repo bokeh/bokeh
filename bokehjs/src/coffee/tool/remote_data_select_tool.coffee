@@ -175,12 +175,17 @@ define [
       rect_base = {
         width: 5, type: 'rect', width_units: 'screen', height: 5,
         height_units: 'screen', fill_color: 'blue', line_color: 'blue'}
+      circle_base = {
+        type:'circle', radius:5, radius_units:'screen',
+        fill_color: 'blue', line_color: 'blue'}
+
 
       return {
         columns: [],
         selected_columns: [],
         api_endpoint: "",
         glyph_specs: [
+          _.defaults({fill_color: 'orange', line_color: 'orange'}, circle_base),
           _.defaults({fill_color: 'blue', line_color: 'blue'}, rect_base),
           _.defaults({fill_color: 'red', line_color: 'red'}, rect_base),
           _.defaults({fill_color: 'green', line_color: 'green'}, rect_base),
