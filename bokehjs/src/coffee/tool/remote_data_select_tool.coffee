@@ -32,6 +32,7 @@ define [
     initialize: (options) ->
       @plot_view = options.plot_view
       super(options)
+      @renderer_map = {}
     events:
       "click input": "update_selected_columns"
       "hidden .modal" : -> "signal_closed"
@@ -74,19 +75,16 @@ define [
 
         x_range = pmodel.get_obj("x_range")
         y_range = pmodel.get_obj("y_range")
-        data_source.remote_add_column(renderer_name, ->
+        data_source.remote_add_column(renderer_name, =>
             data = data_source.get('data')
-            scatter2 = {
-              type: 'rect'
-              x: 'index'
-              y: renderer_name
-              width: 5
-              width_units: 'screen'
-              height: 5
-              height_units: 'screen'
-              fill_color: 'blue'}
+            gspecs =  @model.get('glyph_specs')
+            gspec_pointer = @model.get('glyph_spec_pointer')
 
+            scatter2 = gspecs[gspec_pointer]
+            scatter2.y = renderer_name
+            @inc_glyph_spec_pointer()
             glyphs = Plotting.create_glyphs(pmodel, scatter2, [data_source])
+            console.log(glyphs)
             pmodel.add_renderers(g.ref() for g in glyphs)
 
             x_min = Math.min.apply(data.index, data.index)
@@ -106,9 +104,16 @@ define [
               yr: {start: y_min2, end: y_max2 }
               })
             
-            pview.request_render())
+            pview.request_render()
+            @renderer_map[renderer_name] = glyphs[0]
+            )
 
-
+    inc_glyph_spec_pointer: () ->
+      if @model.get('glyph_spec_pointer') == ((@model.get('glyph_specs').length) - 1)
+         @model.set('glyph_spec_pointer', 0)
+      else
+        @model.set('glyph_spec_pointer', @model.get('glyph_spec_pointer') + 1)
+        
     update_selected_columns: (e) ->
       rname =  $(e.currentTarget).attr('name')
       add = $(e.currentTarget).is(":checked")
@@ -117,6 +122,21 @@ define [
       if add
         @_add_renderer(rname)
         selected_columns.push(rname)
+      else
+        renderer = @renderer_map[rname]
+        pview = @plot_view
+        pmodel = @plot_view.model
+        
+        existing_renderers = pmodel.get('renderers')
+        modified_renderers = []
+        for r in existing_renderers
+          if not r.id == renderer.id
+            modified_renderers.push(r)
+        pmodel.set('renderers', modified_renderers)
+        console.log("length before/after of renderers", existing_renderers.length, modified_renderers.length)
+        renderer.remove()
+        pview.request_render()
+        console.log(renderer_name)
       
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -153,6 +173,35 @@ define [
         columns: [],
         selected_columns: [],
         api_endpoint: "",
+        glyph_specs: [ {
+              type: 'rect'
+              x: 'index'
+              width: 5
+              width_units: 'screen'
+              height: 5
+              height_units: 'screen'
+              fill_color: 'blue',
+              stroke_color: 'blue'
+              },
+           {
+              type: 'rect'
+              x: 'index'
+              width: 10
+              width_units: 'screen'
+              height: 10
+              height_units: 'screen'
+              fill_color: 'green',
+              stroke_style: null
+              },
+          {
+              type: 'circle'
+              x: 'index'
+              width: 5
+              width_units: 'screen'
+              height: 5
+              height_units: 'screen'
+              fill_color: 'orange'}],
+        glyph_spec_pointer: 0,
         data_source: null
       }
 

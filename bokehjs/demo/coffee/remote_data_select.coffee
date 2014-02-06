@@ -71,7 +71,7 @@ require(['main'], (Bokeh) ->
   #   plot1, [scatter2], [source2], null)
   # plot1.add_renderers(g.ref() for g in glyphs2)
   remote_data_select_tool = Bokeh.Collections('RemoteDataSelectTool').create(
-    api_endpoint: "http://localhost:5000/", glyph_specs: [scatter1, scatter2, scatter3],
+    api_endpoint: "http://localhost:5000/", #glyph_specs: [scatter1, scatter2, scatter3],
     control_el:"#selector_div",
     tools: ['zoom,pan'],  data_source:source)
 
