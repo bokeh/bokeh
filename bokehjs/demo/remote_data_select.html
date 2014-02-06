@@ -10,12 +10,14 @@
       <script data-main="../js/main" src='../js/vendor/requirejs/require.js'></script>
       <script src="../js/config.js"></script>
       <style>
-        .column_select { float:right;  height:500px;  width:400px;  overflow:scroll; border:3px solid blue;}
-        .plotdiv {float:left; width:500px}
+        #selector_div { float:right;  height:500px;  width:400px;  overflow:scroll; border:3px solid blue;}
+        #plot_target {float:left; height:500px; width:500px; border:2px solid red;}
+        
       </style>
   </head>
   <body>
-      <script src='js/remote_data_select.js'></script>
+      <div id="plot_target"></div>
       <div id="selector_div"></div>
+      <script src='http://localhost:5006/bokehjs/static/demo/js/remote_data_select.js'></script>
   </body>
 </html>

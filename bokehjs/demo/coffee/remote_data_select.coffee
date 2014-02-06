@@ -79,4 +79,4 @@ require(['main'], (Bokeh) ->
   existing_tools.push(remote_data_select_tool)
   plot1.set_obj('tools', existing_tools)
   #plot1.set_obj('tools', [remote_data_select_tool])
-  Bokeh.Plotting.show(plot1))
+  Bokeh.Plotting.show(plot1, $("#plot_target")))

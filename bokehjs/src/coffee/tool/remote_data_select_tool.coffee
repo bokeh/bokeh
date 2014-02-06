@@ -91,9 +91,6 @@ define [
             x_min = Math.min.apply(data.index, data.index)
             x_max = Math.max.apply(data.index, data.index)
 
-            x_min2 = Math.min(x_range.get('min'), x_min)
-            x_max2 = Math.max(x_range.get('max'), x_max)
-
             y_min = Math.min.apply(data[renderer_name], data[renderer_name])
             y_max = Math.max.apply(data[renderer_name], data[renderer_name])
 
@@ -101,7 +98,7 @@ define [
             y_max2 = Math.max(y_range.get('max'), y_max)
 
             pview.update_range({
-              xr: {start: x_min2, end: x_max2 },
+              xr: {start: x_min, end: x_max },
               yr: {start: y_min2, end: y_max2 }
               })
             
@@ -131,13 +128,11 @@ define [
         existing_renderers = pmodel.get('renderers')
         modified_renderers = []
         for r in existing_renderers
-          if not r.id == renderer.id
+          if not (r.id == renderer.id)
             modified_renderers.push(r)
         pmodel.set('renderers', modified_renderers)
-        console.log("length before/after of renderers", existing_renderers.length, modified_renderers.length)
-        renderer.remove()
         pview.request_render()
-        console.log(renderer_name)
+        console.log(rname)
       
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
