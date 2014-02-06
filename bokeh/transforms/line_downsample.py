@@ -40,10 +40,14 @@ def downsample(data,
                                           side='left').tolist()
     ending_boundaries = starting_boundaries[1:]
     ending_boundaries.append(None)
+    if len(starting_boundaries) * 3 > len(data):
+        return data
+
     downsampled_data = []
     for st, ed in zip(starting_boundaries, ending_boundaries):
         subdata = data[st:ed]
-        
+        if subdata.shape[0] == 0:
+            continue
         #downsample
         primary_column = subdata[primary_data_column]
         idx = np.argsort(primary_column)
