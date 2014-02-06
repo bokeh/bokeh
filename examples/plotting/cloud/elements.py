@@ -27,5 +27,5 @@ text(elements['Atomic Mass'], elements['Density'] +0.3 ,text=elements['Symbol'],
 xaxis().axis_label='atomic weight (amu)'
 yaxis().axis_label='density (g/cm^3)'
 grid().grid_line_color='white'
-output_file("elements.html", title="elements.py example")
+output_cloud("elements")
 show()
