@@ -80,7 +80,7 @@ and Linux.
 
 Now you are ready to plot:
 
-    $ cd examples/plotting/file
+    $ cd examples/plotting/server
     $ python iris.py
     $ python burtin.py
 
@@ -121,7 +121,7 @@ it in the top level directory:
 
 Now you are ready to plot:
 
-    $ cd examples/plotting/file
+    $ cd examples/plotting/server
     $ python iris.py
     $ python burtin.py
 
