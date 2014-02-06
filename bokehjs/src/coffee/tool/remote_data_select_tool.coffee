@@ -28,7 +28,7 @@ define [
     close: ->
         this.remove();
 
-  class RemoteDataSelectModal extends ModalView
+  class RemoteDataSelectModal extends Backbone.View
     initialize: (options) ->
       @plot_view = options.plot_view
       super(options)
@@ -37,12 +37,11 @@ define [
       "hidden .modal" : -> "signal_closed"
       
     template: """
-      <div id='previewModal' class='bokeh'>
-        <div class="modal" role="dialog" aria-labelledby="previewLabel" aria-hidden="true">
-          <div class="modal-header">
+      <div class='column_select'>
+          <div class="header">
             <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
             <h3 id="dataConfirmLabel">Data Sources </h3></div><div class="modal-body">
-          <div class="modal-body">
+          <div class="body">
             <ul>
               <% _.each(columns, function(column_data){ %>
                 <li> <%= column_data %> </li>
@@ -50,20 +49,21 @@ define [
               <% }) %>
             </ul>
           </div>
-          </div><div class="modal-footer">
-            <button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+          </div><div class="footer">
+            <button class="btn" aria-hidden="true">Close</button>
           </div>
-        </div>
       </div>
       """ 
 
+    render: ->
+      @$el = $(@$el)
+      @template_context = _.template(@template)
+      @$el.html(@template_context(@model.toJSON()));
+
+      return this;
+
     signal_closed : ->
       @plot_view.eventSink.trigger("clear_active_tool")
-
-    close: ->
-      this.remove();
-      
-
       
     _add_renderer: (renderer_name) ->
         Plotting = require("common/plotting")
@@ -108,20 +108,6 @@ define [
             
             pview.request_render())
 
-    renderer_specs : ->
-      specs = []
-      for col_name in @model.get('selected_columns')
-        spec = {
-          type: 'rect'
-          x: 'x'
-          y: col_name
-          width: 5
-          width_units: 'screen'
-          height: 5
-          height_units: 'screen'
-          fill_color: 'blue'}
-        specs.push(spec)
-      specs
 
     update_selected_columns: (e) ->
       rname =  $(e.currentTarget).attr('name')
@@ -153,11 +139,10 @@ define [
       
     _activated: (e) ->
       @mset('columns', @mget_obj('data_source').get('columns'))
-      @modal_view = new RemoteDataSelectModal(model:@model, plot_view:@plot_view)
-      @modal_view.show()
+      el = @mget('control_el')
 
-    _close_modal : () ->
-      @modal_view.close()
+      @modal_view = new RemoteDataSelectModal(model:@model, plot_view:@plot_view, el:el)
+      @modal_view.render()
 
   class RemoteDataSelectTool extends Tool.Model
     default_view: RemoteDataSelectToolView
