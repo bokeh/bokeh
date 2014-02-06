@@ -15,6 +15,10 @@ Dependencies
 Python dependencies are listed in requirements.txt at the top level
 directory.
 
+**Note**: In some systems you will probably need to install some low level
+dependencies, ie. `libevent-dev` is a dependency for `gevent` in some
+Debian-based distributions.
+
 If you plan to do javascript development on BokehJS, please consult
 bokehjs/README.md for more details.
 
