@@ -15,8 +15,23 @@ Dependencies
 Python dependencies are listed in requirements.txt at the top level
 directory.
 
+**Note**: In some systems you will probably need to install some low level
+dependencies, ie. `libevent-dev` is a dependency for `gevent` in some
+Debian-based distributions.
+
 If you plan to do javascript development on BokehJS, please consult
 bokehjs/README.md for more details.
+
+Getting the source
+==================
+
+You can clone the Bokeh Github repository executing:
+
+    $ git clone https://github.com/ContinuumIO/bokeh
+
+Now you are ready to access to the top-level Bokeh directory:
+
+    $ cd bokeh
 
 Simple Install
 ==============
@@ -80,7 +95,7 @@ and Linux.
 
 Now you are ready to plot:
 
-    $ cd examples/plotting/file
+    $ cd examples/plotting/server
     $ python iris.py
     $ python burtin.py
 
@@ -121,7 +136,7 @@ it in the top level directory:
 
 Now you are ready to plot:
 
-    $ cd examples/plotting/file
+    $ cd examples/plotting/server
     $ python iris.py
     $ python burtin.py
 
