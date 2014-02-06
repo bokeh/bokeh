@@ -18,6 +18,17 @@ directory.
 If you plan to do javascript development on BokehJS, please consult
 bokehjs/README.md for more details.
 
+Getting the source
+==================
+
+You can clone the Bokeh Github repository executing:
+
+    $ git clone https://github.com/ContinuumIO/bokeh
+
+Now you are ready to access to the top-level Bokeh directory:
+
+    $ cd bokeh
+
 Simple Install
 ==============
 
