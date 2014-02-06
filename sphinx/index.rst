@@ -151,7 +151,7 @@ To donate funds to support the development of Bokeh, please contact
 Thanks
 ------
 
-Bokeh is developed with funding from `DARPA <http://darpa.mil>`_'s
+Bokeh is developed with funding from `DARPA <http://www.darpa.mil>`_'s
 `XDATA <http://www.darpa.mil/Our_Work/I2O/Programs/XDATA.aspx>`_ program.
 
 

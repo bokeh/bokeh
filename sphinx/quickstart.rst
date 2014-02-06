@@ -1,4 +1,3 @@
-
 .. _quickstart:
 
 ##########
@@ -93,7 +92,7 @@ then you should go into the checked-out source directory and run:
 Once the plot server is started, you can run any of the examples in
 ``examples/plotting/server/``.  When those examples run, they will not
 necessarily open a new browser window.  Instead, you should navigate to
-`<http://localhost:5006/bokeh>`_ and you will see a list of all plot "documents"
+**http://localhost:5006/bokeh** and you will see a list of all plot "documents"
 which have been created.  Clicking on a document name will display its
 plots.
 

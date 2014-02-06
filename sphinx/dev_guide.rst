@@ -1,4 +1,3 @@
-
 .. _devguide:
 
 ###############
@@ -71,7 +70,7 @@ The full BokehJS interface is described detail in :doc:`bokehjs`
 Location
 --------
 
-The BokehJS files are available via CDN at `http://cdn.pydata.org/ <http://cdn.pydata.org/>`_.
+The BokehJS files are available via CDN at pydata.org.
 For instance, for version 0.4:
 
 * http://cdn.pydata.org/bokeh-0.4.js
