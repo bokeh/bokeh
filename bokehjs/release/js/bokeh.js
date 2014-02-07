@@ -13619,31 +13619,31 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       line_properties.prototype.set_vectorize = function(ctx, i) {
         var did_change;
         did_change = false;
-        if (ctx.strokeStyle !== this.cache.strokeStyle[i]) {
+        if ((this.cache.strokeStyle[i] != null) && ctx.strokeStyle !== this.cache.strokeStyle[i]) {
           ctx.strokeStyle = this.cache.strokeStyle[i];
           did_change = true;
         }
-        if (ctx.globalAlpha !== this.cache.globalAlpha[i]) {
+        if ((this.cache.globalAlpha[i] != null) && ctx.globalAlpha !== this.cache.globalAlpha[i]) {
           ctx.globalAlpha = this.cache.globalAlpha[i];
           did_change = true;
         }
-        if (ctx.lineWidth !== this.cache.lineWidth[i]) {
+        if ((this.cache.lineWidth[i] != null) && ctx.lineWidth !== this.cache.lineWidth[i]) {
           ctx.lineWidth = this.cache.lineWidth[i];
           did_change = true;
         }
-        if (ctx.lineJoin !== this.cache.lineJoin[i]) {
+        if ((this.cache.lineJoin[i] != null) && ctx.lineJoin !== this.cache.lineJoin[i]) {
           ctx.lineJoin = this.cache.lineJoin[i];
           did_change = true;
         }
-        if (ctx.lineCap !== this.cache.lineCap[i]) {
+        if ((this.cache.lineCap[i] != null) && ctx.lineCap !== this.cache.lineCap[i]) {
           ctx.lineCap = this.cache.lineCap[i];
           did_change = true;
         }
-        if (ctx.getLineDash() !== this.cache.setLineDash[i]) {
+        if ((this.cache.setLineDash[i] != null) && ctx.getLineDash() !== this.cache.setLineDash[i]) {
           ctx.setLineDash(this.cache.setLineDash[i]);
           did_change = true;
         }
-        if (ctx.getLineDashOffset() !== this.cache.setLineDashOffset[i]) {
+        if ((this.cache.setLineDashOffset[i] != null) && ctx.getLineDashOffset() !== this.cache.setLineDashOffset[i]) {
           ctx.setLineDashOffset(this.cache.setLineDashOffset[i]);
           did_change = true;
         }
@@ -15960,10 +15960,18 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         if (this.mget('nonselection_glyphspec')) {
           spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
           this.nonselection_glyphprops = this.init_glyph(spec);
-          return this.have_selection_props = true;
+          this.have_selection_props = true;
         } else {
-          return this.nonselection_glyphprops = this.glyph_props;
+          this.nonselection_glyphprops = this.glyph_props;
         }
+        if (this.mget('remote_data_source')) {
+          this.setup_remote_data();
+        }
+        return this.listenTo(this, 'change:remote_data_source', this.setup_remote_data);
+      };
+
+      GlyphView.prototype.setup_remote_data = function() {
+        return 'pass';
       };
 
       GlyphView.prototype.init_glyph = function(glyphspec) {
@@ -19189,6 +19197,30 @@ if (typeof define === 'function' && define.amd) {
         return _ref;
       }
 
+      LineView.prototype.initialize = function(options) {
+        var _this = this;
+        LineView.__super__.initialize.call(this, options);
+        if (this.mget_obj('remote_data_source')) {
+          this.setup_remote_data();
+        }
+        return this.listenTo(this, 'change:remote_data_source', function() {
+          if (_this.remote) {
+            _this.remote.stoplistening_for_line1d_updates(_this.mget_obj('data_source'));
+            return _this.setup_remote_data();
+          }
+        });
+      };
+
+      LineView.prototype.setup_remote_data = function() {
+        var domain, remote;
+        remote = this.mget_obj('remote_data_source');
+        this.bound_remote = remote;
+        domain = 'x';
+        if (domain === 'x') {
+          return remote.listen_for_line1d_updates(this.mget_obj('data_source'), this.plot_view.x_range, this.plot_view.view_state.get('inner_range_horizontal'), this.glyph_props.y.field, this.glyph_props.x.field, [this.glyph_props.y.field]);
+        }
+      };
+
       LineView.prototype._fields = ['x', 'y'];
 
       LineView.prototype._properties = ['line'];
@@ -21974,7 +22006,7 @@ define("sprintf", (function (global) {
       }
 
       CompositeScale.prototype.get_best_scale = function(data_low, data_high, desired_n_ticks) {
-        var best_scale, best_scale_ndx, data_range, errors, ideal_interval, intervals, scale_ndxs;
+        var best_index, best_scale, best_scale_ndx, data_range, errors, ideal_interval, intervals, scale_ndxs;
         data_range = data_high - data_low;
         ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks);
         scale_ndxs = [_.sortedIndex(this.min_intervals, ideal_interval) - 1, _.sortedIndex(this.max_intervals, ideal_interval)];
@@ -21982,7 +22014,11 @@ define("sprintf", (function (global) {
         errors = intervals.map(function(interval) {
           return Math.abs(desired_n_ticks - (data_range / interval));
         });
-        best_scale_ndx = scale_ndxs[argmin(errors)];
+        best_index = argmin(errors);
+        if (best_index === Infinity) {
+          return this.scales[0];
+        }
+        best_scale_ndx = scale_ndxs[best_index];
         best_scale = this.scales[best_scale_ndx];
         return best_scale;
       };
@@ -23747,6 +23783,122 @@ define("sprintf", (function (global) {
 
 /*
 //@ sourceMappingURL=column_data_source.js.map
+*/;
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('source/remote_data_source',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
+    var RemoteDataSource, RemoteDataSources, _ref, _ref1;
+    RemoteDataSource = (function(_super) {
+      __extends(RemoteDataSource, _super);
+
+      function RemoteDataSource() {
+        this.initialize = __bind(this.initialize, this);
+        _ref = RemoteDataSource.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      RemoteDataSource.prototype.type = 'RemoteDataSource';
+
+      RemoteDataSource.prototype.initialize = function(attrs, options) {
+        RemoteDataSource.__super__.initialize.call(this, attrs, options);
+        return this.callbacks = {};
+      };
+
+      RemoteDataSource.prototype.stoplistening_for_line1d_updates = function(column_data_source) {
+        var entry, _i, _len, _ref1, _results;
+        if (this.callbacks[column_data_source.get('id')]) {
+          _ref1 = this.callbacks[column_data_source.get('id')];
+          _results = [];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            entry = _ref1[_i];
+            _results.push(this.stopListening.apply(this, entry));
+          }
+          return _results;
+        }
+      };
+
+      RemoteDataSource.prototype.listen_for_line1d_updates = function(column_data_source, domain_range, screen_range, primary_column, domain_name, columns) {
+        var callback,
+          _this = this;
+        this.stoplistening_for_line1d_updates(column_data_source);
+        this.line1d_update(column_data_source, domain_range, screen_range, primary_column, domain_name, columns);
+        callback = function() {
+          return _this.line1d_update(column_data_source, domain_range, screen_range, primary_column, domain_name, columns);
+        };
+        this.listenTo(screen_range, 'change', callback);
+        this.listenTo(domain_range, 'change', callback);
+        return this.callbacks[column_data_source.get('id')] = [[screen_range, 'change', callback], [domain_range, 'change', callback]];
+      };
+
+      RemoteDataSource.prototype.line1d_update = function(column_data_source, domain_range, screen_range, primary_column, domain_name, columns) {
+        var data_url, domain_limit, domain_resolution, owner_username, params, prefix, url;
+        data_url = this.get('data_url');
+        owner_username = this.get('owner_username');
+        prefix = this.base().Config.prefix;
+        url = "" + prefix + "/bokeh/data2/" + owner_username + data_url;
+        domain_resolution = (screen_range.get('end') - screen_range.get('start')) / 2;
+        domain_resolution = Math.floor(domain_resolution);
+        domain_limit = [domain_range.get('start'), domain_range.get('end')];
+        if (_.any(_.map(domain_limit, function(x) {
+          return _.isNaN(x);
+        }))) {
+          domain_limit = 'auto';
+        }
+        params = [primary_column, domain_name, columns, domain_limit, domain_resolution];
+        params = JSON.stringify(params);
+        return $.ajax({
+          dataType: 'json',
+          url: url,
+          xhrField: {
+            withCredentials: true
+          },
+          success: function(data) {
+            if (domain_limit === 'auto') {
+              domain_range.set({
+                start: data.domain_limit[0],
+                end: data.domain_limit[1]
+              });
+              console.log('setting range', data.domain_limit);
+            }
+            column_data_source.set('data', data.data);
+            return console.log('setting data', _.values(data.data)[0].length);
+          },
+          data: {
+            downsample_function: 'line1d',
+            downsample_parameters: params
+          }
+        });
+      };
+
+      return RemoteDataSource;
+
+    })(HasProperties);
+    RemoteDataSources = (function(_super) {
+      __extends(RemoteDataSources, _super);
+
+      function RemoteDataSources() {
+        _ref1 = RemoteDataSources.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      RemoteDataSources.prototype.model = RemoteDataSource;
+
+      return RemoteDataSources;
+
+    })(Backbone.Collection);
+    return {
+      "Model": RemoteDataSource,
+      "Collection": new RemoteDataSources()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=remote_data_source.js.map
 */;
 (function() {
   var __hasProp = {}.hasOwnProperty,
@@ -26446,7 +26598,7 @@ define('widget/pandas/pandas_pivot_template',[],function(){
 //@ sourceMappingURL=pandas_plot_source.js.map
 */;
 (function() {
-  define('common/base',["underscore", "require", "common/custom", "common/plot", "common/gmap_plot", "common/grid_plot", "common/plot_context", "range/range1d", "range/data_range1d", "range/factor_range", "range/data_factor_range", "renderer/glyph/glyph_factory", "renderer/guide/linear_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/annotation/legend", "renderer/overlay/box_selection", "source/column_data_source", "tool/pan_tool", "tool/wheel_zoom_tool", "tool/resize_tool", "tool/crosshair_tool", "tool/box_select_tool", "tool/data_range_box_select_tool", "tool/preview_save_tool", "tool/embed_tool", "tool/reset_tool", "widget/data_slider", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source"], function(_, require) {
+  define('common/base',["underscore", "require", "common/custom", "common/plot", "common/gmap_plot", "common/grid_plot", "common/plot_context", "range/range1d", "range/data_range1d", "range/factor_range", "range/data_factor_range", "renderer/glyph/glyph_factory", "renderer/guide/linear_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/annotation/legend", "renderer/overlay/box_selection", "source/column_data_source", "source/remote_data_source", "tool/pan_tool", "tool/wheel_zoom_tool", "tool/resize_tool", "tool/crosshair_tool", "tool/box_select_tool", "tool/data_range_box_select_tool", "tool/preview_save_tool", "tool/embed_tool", "tool/reset_tool", "widget/data_slider", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source"], function(_, require) {
     var Collections, Config, locations, mod_cache;
     require("common/custom").monkey_patch();
     Config = {
@@ -26470,6 +26622,7 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       Legend: 'renderer/annotation/legend',
       BoxSelection: 'renderer/overlay/box_selection',
       ColumnDataSource: 'source/column_data_source',
+      RemoteDataSource: 'source/remote_data_source',
       PanTool: 'tool/pan_tool',
       WheelZoomTool: 'tool/wheel_zoom_tool',
       ResizeTool: 'tool/resize_tool',
@@ -28127,7 +28280,7 @@ define('server/usercontext/wrappertemplate',[],function(){
 //@ sourceMappingURL=serverrun.js.map
 */;
 (function() {
-  define('main',['require','exports','module','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/ticking','common/view_state','mapper/1d/linear_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','tool/box_select_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/crosshair_tool','tool/wheel_zoom_tool','tool/box_zoom_tool','widget/data_slider','server/serverrun'],function(require, exports, module) {
+  define('main',['require','exports','module','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/ticking','common/view_state','mapper/1d/linear_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','source/remote_data_source','tool/box_select_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/crosshair_tool','tool/wheel_zoom_tool','tool/box_zoom_tool','widget/data_slider','server/serverrun'],function(require, exports, module) {
     var Bokeh, glyph_factory;
     if (!window.Float64Array) {
       console.warn("Float64Array is not supported. Using generic Array instead.");
@@ -28205,6 +28358,7 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.serverrun = require("server/serverrun");
     Bokeh.serverutils = require("server/serverutils");
     Bokeh.ColumnDataSource = require("source/column_data_source");
+    Bokeh.RemoteDataSource = require("source/remote_data_source");
     Bokeh.BoxSelectTool = require("tool/box_select_tool");
     Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool");
     Bokeh.EmbedTool = require("tool/embed_tool");
