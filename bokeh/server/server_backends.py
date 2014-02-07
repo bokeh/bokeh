@@ -368,14 +368,19 @@ class HDF5DataBackend(AbstractDataBackend):
         if downsample_function == 'line1d':
             (primary_column, domain_name, columns, 
              domain_limit, domain_resolution) = downsample_parameters
+            if domain_limit == 'auto':
+                domain = dataset.select(columns=[domain_name])[domain_name]
+                domain_limit = [domain.min(), domain.max()]
+                domain_limit = np.array(domain_limit).astype('datetime64[ns]')
+            else:
+                sample = dataset.select(start=0, stop=1)
+                if sample[domain_name].dtype.kind == 'M':
+                    #FIXME we need a conversion that won't truncate to ms
+                    domain_limit = np.array(domain_limit).astype('datetime64[ms]')
             all_columns = columns[:]
             if domain_name not in columns:
                 all_columns.append(domain_name)
             #some type coercion
-            sample = dataset.select(start=0, stop=1)
-            if sample[domain_name].dtype.kind == 'M':
-                #FIXME we need a conversion that won't truncate to ms
-                domain_limit = np.array(domain_limit).astype('datetime64[ms]')
             result = dataset.select(where=[(domain_name, ">=", domain_limit[0]),
                                            (domain_name, "<=", domain_limit[1])],
                                     columns=all_columns)
@@ -384,7 +389,11 @@ class HDF5DataBackend(AbstractDataBackend):
                                                 primary_column,
                                                 domain_limit,
                                                 domain_resolution)
-            result = dict([(k, result[k]) for k in result.dtype.names])
+            print 'result', result.shape
+            result = {
+                'data' : dict([(k, result[k]) for k in result.dtype.names]),
+                'domain_limit' : domain_limit
+            }
             return result
 
 """

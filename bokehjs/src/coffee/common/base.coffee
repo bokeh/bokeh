@@ -18,6 +18,7 @@ define [
   "renderer/annotation/legend",
   "renderer/overlay/box_selection",
   "source/column_data_source",
+  "source/remote_data_source",
   "tool/pan_tool",
   "tool/wheel_zoom_tool",
   "tool/resize_tool",
@@ -61,7 +62,7 @@ define [
     BoxSelection:           'renderer/overlay/box_selection'
 
     ColumnDataSource:       'source/column_data_source'
-
+    RemoteDataSource:       'source/remote_data_source'
     PanTool:                'tool/pan_tool'
     WheelZoomTool:          'tool/wheel_zoom_tool'
     ResizeTool:             'tool/resize_tool'

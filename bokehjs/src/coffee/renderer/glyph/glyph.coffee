@@ -29,7 +29,11 @@ define [
         @have_selection_props = true
       else
         @nonselection_glyphprops = @glyph_props
-
+      if @mget('remote_data_source')
+        @setup_remote_data()
+      @listenTo(this, 'change:remote_data_source', @setup_remote_data)
+    setup_remote_data:  () ->
+      'pass'
     init_glyph: (glyphspec) ->
       props = {}
       if 'line' in @_properties

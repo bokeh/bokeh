@@ -6,7 +6,29 @@ define [
 ], (_, Properties, Glyph) ->
 
   class LineView extends Glyph.View
+    initialize : (options) ->
+      super(options)
+      if @mget_obj('remote_data_source')
+        @setup_remote_data()
+      @listenTo(this, 'change:remote_data_source', () =>
+        if @remote
+          @remote.stoplistening_for_line1d_updates(@mget_obj('data_source'))
+          @setup_remote_data()
+      )
 
+    setup_remote_data : () ->
+      remote = @mget_obj('remote_data_source')
+      @bound_remote = remote
+      #need to parameterize these some how, assume domain=x for now
+      domain = 'x'
+      if domain == 'x'
+        remote.listen_for_line1d_updates(@mget_obj('data_source'),
+          @plot_view.x_range,
+          @plot_view.view_state.get('inner_range_horizontal'),
+          @glyph_props.y.field,
+          @glyph_props.x.field,
+          [@glyph_props.y.field]
+        )
     _fields: ['x', 'y']
     _properties: ['line']
 
@@ -58,4 +80,3 @@ define [
     "Model": Line,
     "View": LineView,
   }
-
