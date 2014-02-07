@@ -14,7 +14,7 @@ high= max(melting_points)
 melting_point_inds = [int(10*(x-low)/(high-low)) for x in melting_points] #gives items in colors a value from 0-10
 meltingpointcolors = [palette[i] for i in melting_point_inds]
 
-output_file("elements.html")
+output_server("elements")
 
 hold()
 
