@@ -798,7 +798,7 @@ def scatter(*args, **kwargs):
         fill_color : color
         fill_alpha : 0.0 - 1.0
         line_color : color
-        linE_WIDTH : int >= 1
+        linE_width : int >= 1
         line_alpha : 0.0 - 1.0
         line_cap : "butt", "join", "miter"
         color : shorthand to set both fill and line color
