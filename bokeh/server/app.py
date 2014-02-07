@@ -16,8 +16,10 @@ class BokehBlueprint(flask.Blueprint):
     def setup(self, redis_port, start_redis, 
               backbone_storage,
               servermodel_storage,
-              authentication
+              authentication,
+              datamanager
               ):
+        self.datamanager = datamanager
         self.backbone_storage = backbone_storage
         self.servermodel_storage = servermodel_storage
         self.authentication = authentication

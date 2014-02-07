@@ -92,10 +92,10 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
     @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")    
     def test_register(self):
         #create a dummy config file
-        config = tempfile.NamedTemporaryFile(mode="w+").name
+        config = tempfile.mkdtemp()
         #create server
         server = Server(name="foo", root_url="http://localhost:5006/",
-                        configfile=config
+                        configdir=config
                         )
         assert server.userapikey == "nokey"
         #register a user
@@ -104,25 +104,25 @@ class ServerConfigTestCase(test_utils.BokehServerTestCase):
         #create a second server configuration
         #make sure it loads the proper api key
         server2 = Server(name="foo",
-                         configfile=config
+                         configdir=config
                          )
         assert server2.userapikey == server.userapikey
         assert server2.root_url == server.root_url
     @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")
     def test_login(self):
         #create a server config, register a user
-        config1 = tempfile.NamedTemporaryFile(mode="w+").name
+        config1 = tempfile.mkdtemp()
         server = Server(name="foo", root_url="http://localhost:5006/",
-                        configfile=config1
+                        configdir=config1
                         )
         assert server.userapikey == "nokey"
         server.register("testuser", "fluffy")
         assert server.userapikey and server.userapikey != "nokey"
         
         #create a separate server config, login a user
-        config2 = tempfile.NamedTemporaryFile(mode="w+").name
+        config2 = tempfile.mkdtemp()        
         server2 = Server(name="foo", root_url="http://localhost:5006/",
-                         configfile=config2
+                         configdir=config2
                          )
         assert server2.userapikey == "nokey"
         server2.login("testuser", "fluffy")

@@ -404,6 +404,10 @@ class DataSource(PlotObject):
 class ColumnsRef(HasProps):
     source = Instance(DataSource, has_ref=True)
     columns = List(String)
+    
+class RemoteDataSource(DataSource):
+    data_url = String()
+    owner_username = String()
 
 class ColumnDataSource(DataSource):
     # Maps names of columns to sequences or arrays
@@ -503,6 +507,7 @@ class Glyph(PlotObject):
 
     plot = Instance(has_ref=True)
     data_source = Instance(DataSource, has_ref=True)
+    remote_data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(DataRange1d, has_ref=True)
     ydata_range = Instance(DataRange1d, has_ref=True)
 
@@ -523,6 +528,7 @@ class Glyph(PlotObject):
         # because the internal glyph instance is turned into a glyphspec
         data =  {"id" : self._id,
                  "data_source": self.data_source,
+                 "remote_data_source" : self.remote_data_source,
                  "xdata_range": self.xdata_range,
                  "ydata_range": self.ydata_range,
                  "glyphspec": self.glyph.to_glyphspec()

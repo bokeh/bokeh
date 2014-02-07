@@ -77,6 +77,7 @@
     Bokeh.serverrun = require("server/serverrun");
     Bokeh.serverutils = require("server/serverutils");
     Bokeh.ColumnDataSource = require("source/column_data_source");
+    Bokeh.RemoteDataSource = require("source/remote_data_source");
     Bokeh.BoxSelectTool = require("tool/box_select_tool");
     Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool");
     Bokeh.EmbedTool = require("tool/embed_tool");

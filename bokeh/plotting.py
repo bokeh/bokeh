@@ -18,7 +18,7 @@ import webbrowser
 from six import string_types
 
 from .properties import ColorSpec
-from .objects import (ColumnDataSource, DataRange1d,
+from .objects import (RemoteDataSource, ColumnDataSource, DataRange1d,
         Plot, Glyph, LinearAxis, Grid, PanTool, WheelZoomTool, ResetTool,
         PreviewSaveTool, ResizeTool, CrosshairTool, BoxSelectTool, BoxZoomTool,
         EmbedTool, BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
@@ -228,9 +228,9 @@ def output_server(docname, server=None, name=None, url="default", **kwargs):
         real_url = url
     if not server:
         if name:
-            server = serverconfig.Server(name=name)
+            server = serverconfig.Server(name=name, root_url=real_url)
         else:
-            server = serverconfig.Server(name=real_url)
+            server = serverconfig.Server(name=real_url, root_url=real_url)
     _config["output_url"] = server.root_url
     _config["output_type"] = "server"
     _config["output_file"] = None
@@ -431,7 +431,7 @@ class GlyphFunction(object):
         else:
             self.yfields = yfields
 
-    def _match_data_params(self, datasource, args, kwargs):
+    def _match_data_params(self, datasource, remotesource, args, kwargs):
         """ Processes the arguments and kwargs passed in to __call__ to line
         them up with the argnames of the underlying Glyph
 
@@ -487,9 +487,18 @@ class GlyphFunction(object):
             elif isinstance(val, string_types):
                 if self.glyphclass == glyphs.Text:
                     glyph_val = val
+                elif val not in datasource.column_names and remotesource is None:
+                    raise RuntimeError(
+                        "Column name '%s' does not appear in data source %r" \
+                        % (val, datasource)
+                    )
+                # assume if you have a remote source 
+                # that you know what you're doign and the data is
+                # somewhere on the server
                 else:
-                    if val not in datasource.column_names:
-                        raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
+                    if remotesource is not None:
+                        datasource.column_names.append(val)
+                        datasource.data[val] = []
                     units = getattr(dataspecs[var], 'units', 'data')
                     glyph_val = {'field' : val, 'units' : units}
             elif isinstance(val, np.ndarray):
@@ -565,8 +574,16 @@ class GlyphFunction(object):
     @visual
     def __call__(self, *args, **kwargs):
         # Process the keyword arguments that are not glyph-specific
+        session_objs = []
+        source = kwargs.pop("source", None)
+        if isinstance(source, RemoteDataSource):
+            datasource = ColumnDataSource()
+            remotesource = source
+            session_objs.append(remotesource)
+        else:
+            remotesource = None
         datasource = kwargs.pop("source", ColumnDataSource())
-        session_objs = [datasource]
+        session_objs.append(datasource)
         legend_name = kwargs.pop("legend", None)
         plot = self._get_plot(kwargs)
         if 'name' in kwargs:
@@ -576,7 +593,8 @@ class GlyphFunction(object):
 
         # Process the glyph dataspec parameters
         glyph_params = self._match_data_params(
-            datasource, args, self._materialize_colors_and_alpha(kwargs))
+            datasource, remotesource, 
+            args, self._materialize_colors_and_alpha(kwargs))
 
         x_data_fields = [
             glyph_params[xx]['field'] for xx in self.xfields if glyph_params[xx]['units'] == 'data']
@@ -597,11 +615,11 @@ class GlyphFunction(object):
 
         glyph_renderer = Glyph(
             data_source = datasource,
+            remote_data_source = remotesource,
             plot = plot,
             glyph=glyph,
             nonselection_glyph=nonselection_glyph,
             )
-
         if legend_name:
             legend = self._get_legend(plot)
             if not legend:
@@ -615,7 +633,6 @@ class GlyphFunction(object):
             select_tool._dirty = True
 
         plot.renderers.append(glyph_renderer)
-
         session_objs.extend(plot.tools)
         session_objs.extend(plot.renderers)
         session_objs.extend([plot.x_range, plot.y_range])
@@ -781,7 +798,7 @@ def scatter(*args, **kwargs):
         fill_color : color
         fill_alpha : 0.0 - 1.0
         line_color : color
-        line_width : int >= 1
+        linE_width : int >= 1
         line_alpha : 0.0 - 1.0
         line_cap : "butt", "join", "miter"
         color : shorthand to set both fill and line color

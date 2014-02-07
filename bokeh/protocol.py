@@ -31,6 +31,7 @@ class NumpyJSONEncoder(json.JSONEncoder):
             return obj.tolist()
         elif isinstance(obj, np.ndarray):
             if obj.dtype.kind == 'M':
+                #FIXME this truncates to ms.... probably should do something else
                 return obj.astype('datetime64[ms]').astype('int64').tolist()
             return obj.tolist()
         elif isinstance(obj, np.number):

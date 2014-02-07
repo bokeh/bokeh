@@ -7,9 +7,9 @@ from . import protocol, utils, browserlib
 
 import requests
 import json
+import pandas as pd
 
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
-
                                     
 class Server(object):
     def __init__(self, name="http://localhost:5006/", 
@@ -17,7 +17,7 @@ class Server(object):
                  userapikey="nokey",
                  username="defaultuser",
                  load_from_config=True,
-                 configfile=None
+                 configdir=None
                  ):
         """name : name of server
         root_url : root_url of server
@@ -25,32 +25,51 @@ class Server(object):
         from config.  if False, then we may overwrite the users
         config with this data
         """
+        self.http_session = requests.session()
         self.name = name
         self.root_url = root_url
-        #single user mode case
         self.userapikey = userapikey
         self.username = username
-        self._configfile = None        
-        if configfile:
-            self.configfile = configfile
+        self._configdir = None        
+        if configdir:
+            self.configdir = configdir
         if load_from_config:
             self.load()
-
+            
     @property
-    def configfile(self):
+    def username(self):
+        return self.http_session.headers.get('BOKEHUSER')
+    
+    @username.setter
+    def username(self, val):
+        self.http_session.headers.update({'BOKEHUSER' : val})
+                
+    @property 
+    def userapikey(self):
+        return self.http_session.headers.get('BOKEHUSER-API-KEY')
+    
+    @userapikey.setter
+    def userapikey(self, val):
+        self.http_session.headers.update({'BOKEHUSER-API-KEY' : val})
+    
+    @property
+    def configdir(self):
         """filename where our config are stored"""
-        if self._configfile:
-            return self._configfile
+        if self._configdir:
+            return self._configdir
         bokehdir = join(expanduser("~"), ".bokeh")
         if not exists(bokehdir):
             makedirs(bokehdir)
-        fname = join(expanduser("~"), ".bokeh", "config.json")
-        return fname
+        return bokehdir
+    
+    @property
+    def configfile(self):
+        return join(self.configdir, "config.json")
     
     #for testing
-    @configfile.setter
-    def configfile(self, path):
-        self._configfile = path
+    @configdir.setter
+    def configdir(self, path):
+        self._configdir = path
         
     def load_dict(self):
         configfile = self.configfile
@@ -83,7 +102,7 @@ class Server(object):
 
     def register(self, username, password):
         url = urljoin(self.root_url, "bokeh/register")
-        result = requests.post(url, data={
+        result = self.http_session.post(url, data={
                 'username' : username,
                 'password' : password,
                 'api' : 'true'
@@ -100,7 +119,7 @@ class Server(object):
 
     def login(self, username, password):
         url = urljoin(self.root_url, "bokeh/login")
-        result = requests.post(url, data={
+        result = self.http_session.post(url, data={
                 'username' : username,
                 'password' : password,
                 'api' : 'true'
@@ -122,7 +141,23 @@ class Server(object):
         url += "?" + urlencode({'username' : self.username,
                                 'userapikey' : self.userapikey})
         controller.open(url)
-
+    
+    def data_source(self, name, dataframe=None, **kwargs):
+        fname = join(self.configdir, name + ".hdf5")
+        store = pd.HDFStore(fname)
+        if not dataframe:
+            dataframe = pd.DataFrame(kwargs)
+        store.put(name, dataframe)
+        store.flush()
+        store.close()
+        
+    def list_data(self):
+        url = urljoin(self.root_url, "bokeh/data/" + self.username)
+        result = self.http_session.get(url)
+        result = utils.get_json(result)
+        sources = result['sources']
+        return sources
+        
 class Cloud(Server):
     def __init__(self):
         super(Cloud, self).__init__(name="cloud",

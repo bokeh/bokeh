@@ -38,6 +38,10 @@ def build_parser():
                         action="store_true",
                         default=False
                         )
+    parser.add_argument("-D", "--data-directory",
+                        help="data directory",
+                        type=str
+                        )
     
     return parser
 
@@ -52,7 +56,8 @@ def main():
     start.bokeh_app.debugjs = args.debugjs
     
     start.prepare_app(rport=args.redis_port, start_redis=args.start_redis,
-                      single_user_mode=not args.multi_user
+                      single_user_mode=not args.multi_user,
+                      data_directory=args.data_directory
                       )
 
     if args.debug:
