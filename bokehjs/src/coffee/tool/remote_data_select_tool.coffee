@@ -120,13 +120,11 @@ define [
         y_range = pmodel.get_obj("y_range")
         data_source.remote_add_column(renderer_name, =>
             data = data_source.get('data')
-            gspecs =  @model.get('glyph_specs')
-            gspec_pointer = @model.get('glyph_spec_pointer')
 
-            scatter2 = gspecs[gspec_pointer]
+            scatter2 = @get_glyph_spec(renderer_name)
+
             scatter2.x = 'index'
             scatter2.y = renderer_name
-            @inc_glyph_spec_pointer()
             glyphs = Plotting.create_glyphs(pmodel, scatter2, [data_source])
             console.log(glyphs)
             pmodel.add_renderers(g.ref() for g in glyphs)
@@ -148,6 +146,31 @@ define [
             pview.request_render()
             @model.get('renderer_map')[renderer_name] = glyphs[0]
             )
+
+
+    find_category: (renderer_name) ->
+      ctree = @model.get('column_tree')
+      for cat in _.keys(ctree)
+        if renderer_name in ctree[cat]
+          return cat
+    get_glyph_spec : (renderer_name) ->
+      ctree = @model.get('column_tree')
+      c_order = @model.get('column_ordering')
+      g_tree = @model.get('glyph_tree')
+  
+
+      category = @find_category(renderer_name)
+      item_list = ctree[category]
+      category_index = _.indexOf(c_order, category)
+      item_index = _.indexOf(item_list, renderer_name)
+
+      base = g_tree['base']
+      level_0 = _.defaults(g_tree.levels[0][category_index], base)
+      level_1 = _.defaults(g_tree.levels[1][item_index], level_0)
+      console.log("renderer_name", renderer_name, level_1)
+      return level_1
+      
+      
 
     inc_glyph_spec_pointer: () ->
       if @model.get('glyph_spec_pointer') == ((@model.get('glyph_specs').length) - 1)
@@ -199,3 +222,7 @@ define [
     "Collection": new RemoteDataSelectTools(),
     "View": RemoteDataSelectToolView
   }
+
+
+
+

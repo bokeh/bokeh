@@ -106,9 +106,37 @@ require(['main'], (Bokeh) ->
      "trader2____MetalsAvgTradeSizeAnomalySeverity",
      "trader2____MetalsMaxQtyAnomalySeverity",
      "trader2____MetalsRunningNetAnomalySeverity"]}
+
+  make_color = (cname) ->
+    return {fill_color: cname, line_color: cname}
+
+  glyph_tree = {
+    base: {
+      type:'line', radius:5, radius_units:'screen',
+      fill_color: 'blue', line_color: 'blue', width_units:'screen', height:5,
+      width:5, height_units:'screen', size_units:'screen', size:5},
+    levels: [
+      [ make_color('blue'),
+        make_color('red'),
+        make_color('orange'),
+        make_color('green'),
+        make_color('pink')],
+      [ {type:'circle'},
+        {type:'triangle'},
+        {type:'rect'},
+        {type:'cross'}]]}
+        
+  column_ordering = [ 'trader1____Agriculture', 'trader1____Energy', 'trader1____Equities', 'trader1____FX',
+    'trader1____InterestRates', 'trader1____Metals', 'trader2____Agriculture', 
+    'trader2____Energy','trader2____Equities', 'trader2____FX', 'trader2____InterestRates',
+    'trader2____Metals']
+
+
   remote_data_select_tool = Bokeh.Collections('RemoteDataSelectTool').create(
     api_endpoint: "http://localhost:5000/", #glyph_specs: [scatter1, scatter2, scatter3],
     control_el:"#selector_div", column_tree:column_tree,
+    glyph_tree: glyph_tree, column_ordering:column_ordering,
+    
     tools: ['zoom,pan'],  data_source:source)
 
   existing_tools =   plot1.get_obj('tools')
@@ -116,6 +144,8 @@ require(['main'], (Bokeh) ->
   plot1.set_obj('tools', existing_tools)
   #plot1.set_obj('tools', [remote_data_select_tool])
   Bokeh.Plotting.show(plot1, $("#plot_target")))
+
+
 
 
 
