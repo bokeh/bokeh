@@ -51,16 +51,21 @@ define [
       return points
 
     remote_add_column: (column_name, callback) ->
+      
       data_source = @
-      $.getJSON(  
-        @get('api_endpoint')+'values/' + column_name,
-        {},
-        (json) ->
-          data = data_source.get('data')
-          data[column_name] = json[column_name]
-          callback(column_name)
-          )
-
+      data = data_source.get('data')
+      if _.has(data, column_name)
+        callback(column_name)
+      else 
+        $.getJSON(  
+          @get('api_endpoint')+'values/' + column_name,
+          {},
+          (json) ->
+            data = data_source.get('data')
+            data[column_name] = json[column_name]
+            callback(column_name)
+            )
+  
     defaults: () ->
       return {
         data: [{}]

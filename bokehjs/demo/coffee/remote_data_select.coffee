@@ -112,18 +112,34 @@ require(['main'], (Bokeh) ->
 
   glyph_tree = {
     base: {
-      type:'line', radius:5, radius_units:'screen',
+      type:'line', radius:2.5, radius_units:'screen',
       fill_color: 'blue', line_color: 'blue', width_units:'screen', height:5,
+      fill_alpha:0, line_alpha:.3, stroke_alpha:.3,
       width:5, height_units:'screen', size_units:'screen', size:5},
     levels: [
       [ make_color('blue'),
         make_color('red'),
         make_color('orange'),
         make_color('green'),
+        make_color('pink'),
+        make_color('blue'),
+        make_color('red'),
+        make_color('orange'),
+        make_color('green'),
+        make_color('pink'),
+        make_color('blue'),
+        make_color('red'),
+        make_color('orange'),
+        make_color('green'),
+        make_color('pink'),
+        make_color('blue'),
+        make_color('red'),
+        make_color('orange'),
+        make_color('green'),
         make_color('pink')],
       [ {type:'circle'},
         {type:'triangle'},
-        {type:'rect'},
+        {type:'x'},
         {type:'cross'}]]}
         
   column_ordering = [ 'trader1____Agriculture', 'trader1____Energy', 'trader1____Equities', 'trader1____FX',

@@ -33,7 +33,6 @@ define [
 
     render: ->
       @template_context = _.template(@template)
-      console.log(@model.toJSON())
       @$el.html(@template_context(@model.toJSON()));
       return this;
 
@@ -90,7 +89,6 @@ define [
         @unreder_column(rname)
       @render()
 
-
     unreder_column: (rname) ->
       renderer = @model.get('renderer_map')[rname]
       pview = @plot_view
@@ -105,9 +103,6 @@ define [
       pview.request_render()
       rmap = @model.get('renderer_map')
       delete rmap[rname]
-      console.log(rname)
-
-
           
     _add_renderer: (renderer_name) ->
         Plotting = require("common/plotting")
@@ -126,7 +121,6 @@ define [
             scatter2.x = 'index'
             scatter2.y = renderer_name
             glyphs = Plotting.create_glyphs(pmodel, scatter2, [data_source])
-            console.log(glyphs)
             pmodel.add_renderers(g.ref() for g in glyphs)
 
             x_min = Math.min.apply(data.index, data.index)
@@ -144,8 +138,7 @@ define [
               })
             
             pview.request_render()
-            @model.get('renderer_map')[renderer_name] = glyphs[0]
-            )
+            @model.get('renderer_map')[renderer_name] = glyphs[0])
 
 
     find_category: (renderer_name) ->
@@ -153,32 +146,28 @@ define [
       for cat in _.keys(ctree)
         if renderer_name in ctree[cat]
           return cat
+
     get_glyph_spec : (renderer_name) ->
       ctree = @model.get('column_tree')
       c_order = @model.get('column_ordering')
       g_tree = @model.get('glyph_tree')
-  
-
       category = @find_category(renderer_name)
       item_list = ctree[category]
       category_index = _.indexOf(c_order, category)
       item_index = _.indexOf(item_list, renderer_name)
-
+      console.log("category_index", category_index, "item_index", item_index)
       base = g_tree['base']
-      level_0 = _.defaults(g_tree.levels[0][category_index], base)
-      level_1 = _.defaults(g_tree.levels[1][item_index], level_0)
-      console.log("renderer_name", renderer_name, level_1)
+
+      level_0 = _.defaults({}, g_tree.levels[0][category_index], base)
+      level_1 = _.defaults({}, g_tree.levels[1][item_index], level_0)
+      console.log(level_1.line_color)
       return level_1
-      
-      
 
     inc_glyph_spec_pointer: () ->
       if @model.get('glyph_spec_pointer') == ((@model.get('glyph_specs').length) - 1)
          @model.set('glyph_spec_pointer', 0)
       else
         @model.set('glyph_spec_pointer', @model.get('glyph_spec_pointer') + 1)
-        
-
 
             
   class RemoteDataSelectTool extends Tool.Model
@@ -192,7 +181,6 @@ define [
       circle_base = {
         type:'line', radius:5, radius_units:'screen',
         fill_color: 'blue', line_color: 'blue'}
-
 
       return {
         columns: [],
