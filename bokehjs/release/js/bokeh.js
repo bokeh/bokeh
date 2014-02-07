@@ -23795,6 +23795,7 @@ define("sprintf", (function (global) {
       __extends(RemoteDataSource, _super);
 
       function RemoteDataSource() {
+        this.line1d_update = __bind(this.line1d_update, this);
         this.initialize = __bind(this.initialize, this);
         _ref = RemoteDataSource.__super__.constructor.apply(this, arguments);
         return _ref;
@@ -23821,12 +23822,13 @@ define("sprintf", (function (global) {
       };
 
       RemoteDataSource.prototype.listen_for_line1d_updates = function(column_data_source, domain_range, screen_range, primary_column, domain_name, columns) {
-        var callback,
+        var callback, throttle,
           _this = this;
         this.stoplistening_for_line1d_updates(column_data_source);
         this.line1d_update(column_data_source, domain_range, screen_range, primary_column, domain_name, columns);
+        throttle = _.throttle(this.line1d_update, 300);
         callback = function() {
-          return _this.line1d_update(column_data_source, domain_range, screen_range, primary_column, domain_name, columns);
+          return throttle(column_data_source, domain_range, screen_range, primary_column, domain_name, columns);
         };
         this.listenTo(screen_range, 'change', callback);
         this.listenTo(domain_range, 'change', callback);

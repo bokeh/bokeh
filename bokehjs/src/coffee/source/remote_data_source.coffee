@@ -27,9 +27,10 @@ define [
       @line1d_update(column_data_source, domain_range, screen_range
           primary_column, domain_name, columns
         )
-      callback = () => @line1d_update(column_data_source, domain_range, screen_range
-          primary_column, domain_name, columns
-        )
+      throttle = _.throttle(@line1d_update, 300)
+      callback = () => throttle(column_data_source, domain_range, screen_range
+        primary_column, domain_name, columns
+      )
       @listenTo(screen_range, 'change', callback)
       @listenTo(domain_range, 'change', callback)
       @callbacks[column_data_source.get('id')] = [
@@ -38,7 +39,7 @@ define [
       ]
 
     line1d_update : (column_data_source, domain_range, screen_range,
-                     primary_column, domain_name, columns) ->
+                     primary_column, domain_name, columns) =>
       data_url = @get('data_url')
       owner_username = @get('owner_username')
       prefix = @base().Config.prefix

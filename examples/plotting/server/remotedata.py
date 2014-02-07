@@ -7,7 +7,8 @@ from bokeh.plotting import *
 
 import datetime as dt
 
-output_server("remote data")
+#output_server("remotedata", url="http://eff.iciently.com:5006/")
+output_server("remotedata")
 source = RemoteDataSource(data_url="/defaultuser/AAPL.hdf5", 
                           owner_username="defaultuser")
 
