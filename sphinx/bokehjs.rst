@@ -16,19 +16,7 @@ properties may take single values, or references to vectors of data. For instanc
 is possible to draw multiple rectangles at once using the ``rect`` glyph. They may
 all be given the same ``line_width`` or each rectangle may be given its own ``line_width``.
 
-* ``line_color``
-* ``line_width``
-* ``line_alpha``
-* ``line_join``
-
-  * values: ``'miter'``, ``'round'``, ``'bevel'``
-
-* ``line_cap``
-
-  * values: ``'butt'``, ``'round'``, ``'square'``
-
-* ``line_dash`` - array of integers
-* ``line_dash_offset``
+.. include:: includes/line_props.txt
 
 .. _bokehjs_fill_properties:
 
@@ -39,8 +27,7 @@ may take single values, or references to vectors of data. For instance, it is po
 draw multiple rectangles at once using the ``rect`` glyph. They may all be given the same
 ``fill_width``, or each rectangle may be given its own ``fill_width``.
 
-* ``fill_color``
-* ``fill_alpha``
+.. include:: includes/fill_props.txt
 
 .. _bokehjs_text_properties:
 
@@ -51,23 +38,7 @@ may take single values, or references to vectors of data. For instance, it is po
 draw multiple text items at once using the ``text`` glyph. They may all be given the same
 ``font_size`` or each line of text may be given its own ``font_size``.
 
-.. note:: There is currently only support for filling text. An interface to stroke the outlines of text have not yet been exposed.
-
-* ``text_font``
-* ``text_font_size``
-* ``text_font_style``
-
-  * values: ``'normal'``, ``'italic'``, ``'bold'``
-
-* ``text_color``
-* ``text_alpha``
-* ``text_align`` - where the `x`, `y` reference point aligns horizontally
-
-  * values: ``'left'``, ``'right'``, ``'center'``
-
-* ``text_baseline`` - where the `x`, `y` reference point aligns vertically
-
-  * values: ``'top'``, ``'middle'``, ``'bottom'``, ``'alphabetic'``, ``'hanging'``
+.. include:: includes/text_props.txt
 
 .. _bokehjs_markers:
 

@@ -1,0 +1,31 @@
+.. note:: There is currently only support for filling text. An interface to stroke the outlines of text have not yet been exposed.
+
+* ``text_font`` - font name, e.g., ``'times'``, ``'helvetica'``
+* ``text_font_size`` - font size in *px*, *em*, or *pt*, e.g., ``'12pt'``, ``'1.5em'``
+* ``text_font_style``
+
+  - ``'normal'`` normal text
+  - ``'italic'`` *italic text*
+  - ``'bold'`` **bold text**
+
+* ``text_color`` - color to use to render text with
+
+  - any of the `147 named CSS colors <http://www.w3schools.com/cssref/css_colornames.asp>`_, e.g ``'green'``, ``'indigo'``
+  - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
+  - an unsigned 32-bit RGBA value
+
+* ``text_alpha``- floating point between 0 (transparent) and 1 (opaque)
+* ``text_align`` - horizontal anchor point for text
+
+  - ``'left'``
+  - ``'right'``
+  - ``'center'``
+
+* ``text_baseline`` - vertical anchor point for text
+
+  - ``'top'``
+  - ``'middle'``
+  - ``'bottom'``
+  - ``'alphabetic'``
+  - ``'hanging'``
+

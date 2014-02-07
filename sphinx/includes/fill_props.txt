@@ -1,0 +1,7 @@
+* ``fill_color`` - color to use to fill paths with
+
+  - any of the `147 named CSS colors <http://www.w3schools.com/cssref/css_colornames.asp>`_, e.g ``'green'``, ``'indigo'``
+  - an RGB(A) hex value, e.g., ``'#FF0000'``, ``'#44444444'``
+  - an unsigned 32-bit RGBA value
+
+* ``fill_alpha`` - floating point between 0 (transparent) and 1 (opaque)
