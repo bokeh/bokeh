@@ -9,6 +9,8 @@ to see the kinds of parameters that can be passed in to plotting functions in ``
 at the `glyph examples <https://github.com/ContinuumIO/Bokeh/tree/master/examples/glyphs>`_ to see
 the kinds of low-level object attributes that can be set to really customize a plot.
 
+A full reference for Bokeh glyphs can be found at :doc:`glyphs_ref`.
+
 Styling
 -------
 
