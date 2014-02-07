@@ -228,9 +228,9 @@ def output_server(docname, server=None, name=None, url="default", **kwargs):
         real_url = url
     if not server:
         if name:
-            server = serverconfig.Server(name=name)
+            server = serverconfig.Server(name=name, root_url=real_url)
         else:
-            server = serverconfig.Server(name=real_url)
+            server = serverconfig.Server(name=real_url, root_url=real_url)
     _config["output_url"] = server.root_url
     _config["output_type"] = "server"
     _config["output_file"] = None
