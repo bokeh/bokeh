@@ -97,6 +97,7 @@ define (require, exports, module) ->
 
   # data sources
   Bokeh.ColumnDataSource      = require("source/column_data_source")
+  Bokeh.RemoteDataSource      = require("source/remote_data_source")
 
   # tools
   Bokeh.BoxSelectTool          = require("tool/box_select_tool")
@@ -107,8 +108,11 @@ define (require, exports, module) ->
   Bokeh.ResetTool              = require("tool/reset_tool")
   Bokeh.ResizeTool             = require("tool/resize_tool")
   Bokeh.CrosshairTool          = require("tool/crosshair_tool")
+  Bokeh.ColumnSelectTool       = require("tool/column_select_tool")
+  Bokeh.RemoteDataSelectTool       = require("tool/remote_data_select_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
   Bokeh.BoxZoomTool            = require("tool/box_zoom_tool")
+
 
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")

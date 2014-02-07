@@ -61,37 +61,16 @@ require(['main'], (Bokeh) ->
     xrange: xdr
     xaxes: "min"
     yaxes: "min"
-    tools: false
+    tools: ['cselect']
     legend: false
     
   }
-
   plot1 = Bokeh.Plotting.make_plot(
-    scatter1,
+    [scatter1, scatter2],
     source, _.extend({title: "Plot 1", yrange: ydr1}, options))
-  console.log("plot1 created")
-  _.delay((->
-    console.log("adding another renderer scatter2")
-    glyphs = Bokeh.Plotting.create_glyphs(plot1, [scatter2], [source])
-    plot1.add_renderers(g.ref() for g in glyphs)),
-    500)
-  _.delay((->
-    console.log("adding another renderer scatter3")
-    glyphs = Bokeh.Plotting.create_glyphs(plot1, [scatter3], [source])
-    p1 = plot1
-    plot1.add_renderers(g.ref() for g in glyphs)),
-    1000)
-  _.delay((->
-    console.log("clear renderers")
-    plot1.set('renderers', [])), 1500)
+  column_select_tool = Bokeh.Collections('ColumnSelectTool').create(
+    data_source: source.ref())
+  plot1.set_obj('tools', [column_select_tool])
 
-  _.delay((->    
-    glyphs = Bokeh.Plotting.create_glyphs(plot1, [scatter1, scatter3], [source])
-    p1 = plot1
-    plot1.add_renderers(g.ref() for g in glyphs)),
-    3000)
-
-
-   #plot2 = Bokeh.Plotting.make_plot(scatter2, source, _.extend({title: "Plot 2", yrange: ydr2}, options))
 
   Bokeh.Plotting.show(plot1))

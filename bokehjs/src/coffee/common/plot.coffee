@@ -242,7 +242,6 @@ define [
       old_renderers = _.keys(@renderers)
       views = @build_views()
       renderers_to_remove = _.difference(old_renderers, _.pluck(@mget_obj('renderers'), 'id'))
-      console.log('renderers_to_remove', renderers_to_remove)
       for id_ in renderers_to_remove
         delete @levels.glyph[id_]
       tools = @build_tools()

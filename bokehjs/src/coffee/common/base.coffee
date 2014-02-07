@@ -17,6 +17,7 @@ define [
   "renderer/guide/grid",
   "renderer/annotation/legend",
   "renderer/overlay/box_selection",
+  "source/remote_data_source",
   "source/column_data_source",
   "tool/pan_tool",
   "tool/wheel_zoom_tool",
@@ -61,6 +62,7 @@ define [
     BoxSelection:           'renderer/overlay/box_selection'
 
     ColumnDataSource:       'source/column_data_source'
+    RemoteDataSource:       'source/remote_data_source'
 
     PanTool:                'tool/pan_tool'
     WheelZoomTool:          'tool/wheel_zoom_tool'
@@ -70,6 +72,9 @@ define [
     BoxZoomTool:            'tool/box_zoom_tool'
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'
+    ColumnSelectTool:       'tool/column_select_tool'
+    RemoteDataSelectTool:   'tool/remote_data_select_tool'
+
     EmbedTool:              'tool/embed_tool'
     ResetTool:              'tool/reset_tool'
 
@@ -81,7 +86,6 @@ define [
   mod_cache = {}
 
   Collections = (typename) ->
-
     if not locations[typename]
       throw "./base: Unknown Collection #{typename}"
 
