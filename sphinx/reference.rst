@@ -57,8 +57,8 @@ Session Management
 
 .. _bokeh_plotting_plots:
 
-Plot Configuration
-------------------
+Plot Manipulation
+-----------------
 .. autofunction:: bokeh.plotting.curplot
 .. autofunction:: bokeh.plotting.figure
 .. autofunction:: bokeh.plotting.hold
@@ -78,6 +78,16 @@ Styling Accessors
 .. autofunction:: bokeh.plotting.grid
 .. autofunction:: bokeh.plotting.xgrid
 .. autofunction:: bokeh.plotting.ygrid
+
+Advanced Functions
+------------------
+
+.. autofunction:: bokeh.plotting.visual
+
+Compatiblity Layers
+===================
+
+Coming Soon.
 
 Underlying Object System
 ========================

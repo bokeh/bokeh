@@ -146,7 +146,7 @@ def session():
     """ Get the current session.
 
     Returns:
-        session : the current :class:`session <bokeh.session.Session` object
+        session : the current :class:`session <bokeh.session.Session>` object
     """
     return _config["session"]
 
@@ -281,10 +281,17 @@ def figure():
     _config["curplot"] = None
 
 def hold(value=None):
-    """ Turns hold on or off.  When on, then does not create a new figure
-    with each plotting command, but rather adds renderers to the current
-    existing plot.  (If no "current figure" exists, then a new one is
-    created.
+    """ Turns hold on or off, or toggles its current state.
+
+    When on, plotting functions do not create a new figure, but rather
+    add renderers to the current existing plot.  (If no current plot exists,
+    then a new one is created.
+
+    Args:
+        value (bool or None, optional) :  set or toggle the hold state, default is None
+            if `value` is True or False then the hold state is set accordingly. If
+            `value` is None, then the current hold state is toggled.
+
     """
     if value is None:
         value = not _config["hold"]
@@ -293,6 +300,9 @@ def hold(value=None):
 def curplot():
     """ Returns a reference to the current plot, i.e. the most recently
     created plot
+
+    Returns:
+        plot: the current :class:`Plot <bokeh.objects.Plot>`
     """
     return _config["curplot"]
 
@@ -301,14 +311,18 @@ def show(browser=None, new="tab"):
     displaying the current plot (for file/server output modes) or displaying
     it in an output cell (IPython notebook).
 
-    For file-based output, opens or raises the browser window showing the
-    current output file.  If **new** is 'tab', then opens a new tab.
-    If **new** is 'window', then opens a new window.
+    Args:
+        browser (str or None, optional) : browser to show with, defaults to None
 
-    For systems that support it, the **browser** argument allows specifying
-    which browser to display in, e.g. "safari", "firefox", "opera",
-    "windows-default".  (See the webbrowser module documentation in the
-    standard lib for more details.)
+            For systems that support it, the **browser** argument allows specifying
+            which browser to display in, e.g. "safari", "firefox", "opera",
+            "windows-default".  (See the webbrowser module documentation in the
+            standard lib for more details.)
+        new (str, optional) : new file output mode, defaults to "tab"
+
+            For file-based output, opens or raises the browser window
+            showing the current output file.  If **new** is 'tab', then
+            opens a new tab. If **new** is 'window', then opens a new window.
     """
     output_type = _config["output_type"]
     session = _config["session"]
@@ -331,6 +345,11 @@ def save(filename=None):
     For file-based output, this will save the plot to the given filename.
     For plot server-based output, this will upload all the plot objects
     up to the server.
+
+    Args:
+        filename (str or None, optional) : filename to save document under, defaults to None
+            if `filename` is None, the current session filename is used.
+
     """
     session = _config["session"]
     if _config["output_type"] == "file":
@@ -346,12 +365,32 @@ def save(filename=None):
         session.plotcontext._dirty = True
         session.store_all()
     else:
-        warnings.warn("save() does nothing for non-file-based output mode.")
+        warnings.warn("save() only performs on file- and server-based output modes.")
 
 def visual(func):
     """ Decorator to wrap functions that might create visible plot objects
     and need to be displayed or cause a refresh of the output.
     This takes care of updating the output whenever the function is changed.
+
+    Args:
+        func (callable): the plotting function to wrap.
+
+            The plotting function should return either a 1-tuple containing a
+            :class:`Plot <bokeh.objects.Plot>` object::
+
+                (plot,) or a 2-tuple
+
+            Or a 2-tuple containing a :class:`Plot <bokeh.objects.Plot>` object and a list
+            of objects to be stored on the current :class:`Session <bokeh.session.Session>`::
+
+                (plot, session_objects)
+
+    Returns:
+        wrapped: a decorated visual function that returns a :class:`Plot <bokeh.objects.Plot>`
+        object when called.
+
+    The main use of this decorator would be to integrate new visual plotting functions
+    into Bokeh.
     """
     @wraps(func)
     def wrapper(*args, **kw):
@@ -931,9 +970,8 @@ Args:
     y (str or list[float]) : values or field names of center `y` coordinates
     size (str or list[float]) : values or field names of sizes in screen units
 
-In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
-are also accepted as keyword parameters.
+In addition the the parameters specific to this glyph, :ref:`userguide_line_properties` and
+:ref:`userguide_fill_properties` are also accepted as keyword parameters.
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
@@ -943,9 +981,8 @@ Returns:
 square_x = _glyph_function(glyphs.SquareX, ("x", "y"),
 """ The `square_x` glyph is a marker that renders squares together with "X" glyphs at `x`, `y` with size `size`.
 
-In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
-are also accepted as keyword parameters.
+In addition the the parameters specific to this glyph, :ref:`userguide_line_properties` and
+:ref:`userguide_fill_properties` are also accepted as keyword parameters.
 
 Args:
     x (str or list[float]) : values or field names of center `x` coordinates
@@ -966,8 +1003,7 @@ Args:
     text (str or list[text]): values or field names of texts
     angle (str or list[float], optional) : values or field names of text angles, defaults to 0
 
-In addition the the parameters specific to this glyph,
-:ref:`userguide_text_properties`
+In addition the the parameters specific to this glyph, :ref:`userguide_text_properties`
 are also accepted as keyword parameters.
 
 .. note:: The location and angle of the text relative to the `x`, `y` coordinates is indicated by the alignment and baseline text properties.
@@ -1005,9 +1041,8 @@ Args:
     end_angle (str or list[float]) : values or field names of ending angles
     direction ("clock" or "anticlock", optional): direction to turn between starting and ending angles, defaults to "anticlock"
 
-In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
-are also accepted as keyword parameters.
+In addition the the parameters specific to this glyph, :ref:`userguide_line_properties` and
+:ref:`userguide_fill_properties` are also accepted as keyword parameters.
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
@@ -1061,46 +1096,34 @@ _color_fields = set(["color", "fill_color", "line_color"])
 _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
 def scatter(*args, **kwargs):
-    """ Creates a scatter plot of the given x & y items
+    """ Creates a scatter plot of the given x and y items.
 
     Args:
-        *data : The data to plot.  Can be of several forms:
+        *args : The data to plot.  Can be of several forms:
 
-        (X, Y1, Y2, ...)
-            A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
-        [[x1,y1], [x2,y2], .... ]
-            An iterable of tuples
-        NDarray (NxM)
-            The first column is treated as the X, and all other M-1 columns
-            are treated as separate Y series
-        [y1, y2, ... yN]
-            A list/tuple of scalar values; will be treated as Y values and
-            a synthetic X array of integers will be generated.
+            (X, Y1, Y2, ...)
+                A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
+            [[x1,y1], [x2,y2], .... ]
+                An iterable of tuples
+            NDarray (NxM)
+                The first column is treated as the X, and all other M-1 columns
+                are treated as separate Y series
+            [y1, y2, ... yN]
+                A list/tuple of scalar values; will be treated as Y values and
+                a synthetic X array of integers will be generated.
 
-    Style Parameters (specified by keyword)::
+        marker (str, optional): a valid marker_type, defaults to "circle"
+        color (color value, optional): shorthand to set both fill and line color
 
-        marker : a valid marker_type; defaults to "circle"
-        fill_color : color
-        fill_alpha : 0.0 - 1.0
-        line_color : color
-        line_width : int >= 1
-        line_alpha : 0.0 - 1.0
-        line_cap : "butt", "join", "miter"
-        color : shorthand to set both fill and line color
-
-    Colors can be either one of:
-
-    * the 147 named SVG colors
-    * a string representing a Hex color (e.g. "#FF32D0")
-    * a 3-tuple of integers between 0 and 255
-    * a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
+    All the :ref:`userguide_line_properties` and :ref:`userguide_fill_properties` are
+    also accepted as keyword parameters.
 
     Examples:
 
-        scatter([1,2,3,4,5,6])
-        scatter([1,2,3],[4,5,6], fill_color="red")
-        scatter(x_array, y_array, marker="circle")
-        scatter("data1", "data2", source=data_source, ...)
+            >>> scatter([1,2,3,4,5,6])
+            >>> scatter([1,2,3],[4,5,6], fill_color="red")
+            >>> scatter(x_array, y_array, marker="circle")
+            >>> scatter("data1", "data2", source=data_source, ...)
 
     """
     session_objs = []   # The list of objects that need to be added
@@ -1152,7 +1175,7 @@ def gridplot(plot_arrangement, name=False):
     return grid, [grid]
 
 def xaxis():
-    """ Get the current :class:`axis <bokeh.objects.Axis>` objects
+    """ Get the current axis objects
 
     Returns:
         Returns axis object or splattable list of axis objects on the current plot
@@ -1164,7 +1187,7 @@ def xaxis():
     return _list_attr_splat(axis)
 
 def yaxis():
-    """ Get the current `y` :class:`axis <bokeh.objects.Axis>` object(s)
+    """ Get the current `y` axis object(s)
 
     Returns:
         Returns y-axis object or splattable list of y-axis objects on the current plot
@@ -1176,7 +1199,7 @@ def yaxis():
     return _list_attr_splat(axis)
 
 def axis():
-    """ Get the current `x` :class:`axis <bokeh.objects.Axis>` object(s)
+    """ Get the current `x` axis object(s)
 
     Returns:
         Returns x-axis object or splattable list of x-axis objects on the current plot
@@ -1184,11 +1207,10 @@ def axis():
     return _list_attr_splat(xaxis() + yaxis())
 
 def legend():
-    """ Return the legend(s) of the current plot """
     """ Get the current :class:`legend <bokeh.objects.Legend>` object(s)
 
     Returns:
-        Returns x-axis object or splattable list of x-axis objects on the current plot
+        Returns legend object or splattable list of legend objects on the current plot
     """
     p = curplot()
     if p is None:
