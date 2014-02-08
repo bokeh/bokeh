@@ -72,14 +72,14 @@ def plothelp():
 
     Plotting
     --------
-    scatter(data, type="circle", ...)
+    scatter(data, marker="circle", ...)
         scatter plot of some data, with a particular marker type
 
     get_plot()
-        returns the current bokeh.objects.Plot object
+        returns the current :class:`Plot <bokeh.objects.Plot>` object
 
     Other Renderers
-    ---------
+    ---------------
     annular_wedge
     annulus
     arc
@@ -142,6 +142,9 @@ def plothelp():
 
 def session():
     """ Get the current session.
+
+    Returns:
+        session : the current :class:`session <bokeh.session.Session` object
     """
     return _config["session"]
 
@@ -275,15 +278,15 @@ def figure():
     """
     _config["curplot"] = None
 
-def hold(val=None):
+def hold(value=None):
     """ Turns hold on or off.  When on, then does not create a new figure
     with each plotting command, but rather adds renderers to the current
     existing plot.  (If no "current figure" exists, then a new one is
     created.
     """
-    if val is None:
-        val = not _config["hold"]
-    _config["hold"] = val
+    if value is None:
+        value = not _config["hold"]
+    _config["hold"] = value
 
 def curplot():
     """ Returns a reference to the current plot, i.e. the most recently
@@ -460,24 +463,21 @@ annular_wedge = _glyph_function(glyphs.AnnularWedge,
     "x,y,inner_radius,outer_radius,start_angle,end_angle".split(","),
 """ The `annular_wedge` glyph renders annular wedges centered at `x`, `y`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    inner_radius (str or list[float]) : values or field names of inner radii
+    outer_radius (str or list[float]) : values or field names of outer radii
+    start_angle (str or list[float]) : values or field names of starting angles
+    end_angle (str or list[float]) : values or field names of ending angles
+    direction ("clock" or "anticlock"): direction to turn between starting and ending angles
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-inner_radius, outer_radius : str or list[float]
-    values or field names of inner and outer radii
-start_angle, end_angle : str or list[float]
-    values or field names of starting/ending angles
-direction : "clock" or "anticlock"
-    direction to turn between starting and ending angles
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
@@ -485,110 +485,95 @@ annulus = _glyph_function(glyphs.Annulus,
     "x,y,inner_radius,outer_radius".split(","),
 """ The `annulus` glyph renders annuli centered at `x`, `y`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    inner_radius (str or list[float]) : values or field names of inner radii
+    outer_radius (str or list[float]) : values or field names of outer radii
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-inner_radius, outer_radius : str or list[float]
-    values or field names of radii
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 arc = _glyph_function(glyphs.Arc, "x,y,radius,start_angle,end_angle".split(","),
 """ The `arc` glyph renders circular arcs centered at `x`, `y`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    radius (str or list[float]) : values or field names of arc radii
+    start_angle (str or list[float]) : values or field names of starting angles
+    end_angle (str or list[float]) : values or field names of ending angles
+    direction ("clock" or "anticlock"): direction to turn between starting and ending angles
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-radius : str or list[float]
-    values or field names of radii
-start_angle, end_angle : str or list[float]
-    values or field names of starting/ending angles
-direction : "clock" or "anticlock"
-    direction to turn between starting and ending angles
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 asterisk = _glyph_function(glyphs.Asterisk, ("x", "y"),
 """ The `asterisk` glyph is a marker that renders asterisks at `x`, `y` with size `size`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional (default: 0)
-    values or field names of sizes in screen units
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 bezier = _glyph_function(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(","),
 """ The bezier glyph displays Bezier curves with the given starting, ending, and control points.
 
+Args:
+    x0 (str or list[float] : values or field names of starting `x` coordinates
+    y0 (str or list[float] : values or field names of starting `y` coordinates
+    x1 (str or list[float]) : values or field names of ending `x` coordinates
+    y1 (str or list[float]) : values or field names of ending `y` coordinates
+    cx0 (str or list[float]) : values or field names of first control point `x` coordinates
+    cy0 (str or list[float]) : values or field names of first control point `y` coordinates
+    cx1 : (str or list[float]) : values or field names of second control point `x` coordinates
+    cy1 : (str or list[float]) : values or field names of second control point `y` coordinates
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x0, y0 : str or list[float]
-    values or field names of starting coordinates
-x1, y1 : str or list[float]
-    values or field names of ending coordinates
-cx0, cy0 : str or list[float]
-    values or field names of first control point coordinates
-cx1, cy1 : str or list[float]
-    values or field names of second control point coordinates
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """,
     xfields=['x0', 'x1'], yfields=['y0', 'y1'])
 
 circle = _glyph_function(glyphs.Circle, ("x", "y"),
 """ The `circle` glyph is a marker that renders circles at `x`, `y` with size `size`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+    radius (str  or list[float]): values or field names of radii
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
-radius : str  or list[float], optional
-    values or field names of radii
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 
 Notes
 -----
@@ -599,100 +584,85 @@ Only one of `size` or `radius` should be provided. Note that `radius` defaults t
 circle_cross = _glyph_function(glyphs.CircleCross, ("x", "y"),
 """ The `circle_cross` glyph is a marker that renders circles together with a crossbar (+) at `x`, `y` with size `size` or `radius`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 circle_x = _glyph_function(glyphs.CircleX, ("x", "y"),
 """ The `circle_x` glyph is a marker that renders circles together with a "X" glyph at `x`, `y` with size `size`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 cross = _glyph_function(glyphs.Cross, ("x", "y"),
 """ The `cross` glyph is a marker that renders crossbars (+) at `x`, `y` with size `size`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 diamond = _glyph_function(glyphs.Diamond, ("x", "y"),
 """ The `diamond` glyph is a marker that renders diamonds at `x`, `y` with size `size` or `radius`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 diamond_cross = _glyph_function(glyphs.DiamondCross, ("x", "y"),
 """ The `diamond_cross` glyph is a marker that renders diamonds together with a crossbar (+) at `x`, `y` with size `size` or `radius`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
@@ -701,17 +671,17 @@ image = _glyph_function(glyphs.Image, ("image", "x", "y", "dw", "dh", "palette")
 
 A palette (string name of a built-in palette, currently) must also be supplied to use for color-mapping the scalar image.
 
-image : 2D array_like of float
-x, y : str or list[float]
-    values or field names of lower left coordinates
-dw, dh : str or list[float]
-    values or field names of image width and height distances
-palette : str or list[str]
-    values or field names of palettes to use for color-mapping
+Args:
+    image : 2D array_like of float
+    image (str or 2D array_like of uint32) :
+    x (str or list[float]) : values or field names of lower left `x` coordinates
+    y (str or list[float]) : values or field names of lower left `y` coordinates
+    dw (str or list[float]) : values or field names of image width distances
+    dh (str or list[float]) : values or field names of image height distances
+    palette (str or list[str]) : values or field names of palettes to use for color-mapping
 
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
@@ -719,35 +689,32 @@ image_rgba = _glyph_function(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"),
 """ The image_rgba glyph takes each ``image`` as a two-dimensional array of RGBA values (encoded
 as 32-bit integers).
 
-image : 2D array_like of uint32
-x, y : str or list[float]
-    values or field names of lower left coordinates
-dw, dh : str or list[float]
-    values or field names of image width and height distances
+Args:
+    image (str or 2D array_like of uint32) :
+    x (str or list[float]) : values or field names of lower left `x` coordinates
+    y (str or list[float]) : values or field names of lower left `y` coordinates
+    dw (str or list[float]) : values or field names of image width distances
+    dh (str or list[float]) : values or field names of image height distances
 
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 inverted_triangle = _glyph_function(glyphs.InvertedTriangle, ("x", "y"),
 """ The `inverted_triangle` glyph is a marker that renders upside-down triangles at `x`, `y` with size `size` or `radius`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
@@ -758,36 +725,35 @@ In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of line coordinates
+Args:
+    x (str or list[float]) : values or field names of line `x` coordinates
+    y (str or list[float]) : values or field names of line `y` coordinates
 
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 multi_line = _glyph_function(glyphs.MultiLine, ("xs", "ys"),
 """ The multi_line glyph displays lines, each with points given by the arrays of coordinates that are the elements of xs and ys.
 
+Args:
+    xs (str or list[list[float]]): values or field names of lines `x` coordinates
+    ys (str or list[list[float]]): values or field names of lines `y` coordinates
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-xs, ys : str or list[list[float]]
-    values or field names of patch coordinates
+.. note:: For this glyph, the data is not simply an array of scalars, it is really an "array of arrays".
 
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 
-Notes
------
-For this glyph, the vector data is not simply an array of scalars, it is really an "array of arrays".
 """,
     xfields=["xs"], yfields=["ys"],
 )
@@ -795,62 +761,54 @@ For this glyph, the vector data is not simply an array of scalars, it is really 
 oval = _glyph_function(glyphs.Oval, ("x", "y", "width", "height"),
 """ The oval glyph displays ovals centered on the given coordinates with the given dimensions and angle.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    width (str or list[float]) : values or field names of widths
+    height (str or list[float]) : values or field names of heights
+    angle (str or list[float]) : values or field names of rotation angles
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-width, height : str or list[float], optional
-    values or field names of widths and heights
-angle : str or list[float], optional (default: 0)
-    values or field names of rotation angles
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 patch = _glyph_function(glyphs.Patch, ("x", "y"),
 """ The patch glyph displays a single polygonal patch that connects several points given by the arrays of coordinates `x` and `y`.
 
+Args:
+    x (str or list[float]) : values or field names of patch `x` coordinates
+    y (str or list[float]) : values or field names of patch `y` coordinates
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of patch coordinates
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 patches = _glyph_function(glyphs.Patches, ("xs", "ys"),
 """ The patches glyph displays several patches, each with points given by the arrays of coordinates that are the elements of xs and ys.
 
+Args:
+    xs (str or list[list[float]]): values or field names of patches `x` coordinates
+    ys (str or list[list[float]]): values or field names of patches `y` coordinates
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-xs, ys : str or list[list[float]]
-    values or field names of patch coordinates
+.. note:: For this glyph, the data is not simply an array of scalars, it is really an "array of arrays".
 
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 
-Notes
------
-For this glyph, the vector data is not simply an array of scalars, it is really an "array of arrays".
 """,
     xfields=["xs"], yfields=["ys"],
 )
@@ -858,110 +816,92 @@ For this glyph, the vector data is not simply an array of scalars, it is really 
 quad = _glyph_function(glyphs.Quad, ("left", "right", "top", "bottom"),
 """ The quad glyph displays axis-aligned rectangles with the given dimensions.
 
+Args:
+    left (str or list[float]) : values or field names of left edges
+    right (str or list[float]) : values or field names of right edges
+    top (str or list[float]) : values or field names of top edges
+    bottom (str or list[float]) : values or field names of bottom edges
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-left : str or list[float]
-    values or field names of left edges
-right : str or list[float]
-    values or field names of right edges
-top : str or list[float]
-    values or field names of top edges
-bottom : str or list[float]
-    values or field names of bottom edges
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """,
     xfields=["left", "right"], yfields=["top", "bottom"])
 
 quadratic = _glyph_function(glyphs.Quadratic, "x0,y0,x1,y1,cx,cy".split(","),
 """ The quadratic glyph displays quadratic curves with the given starting, ending, and control points.
 
+Args:
+    x0 (str or list[float] : values or field names of starting `x` coordinates
+    y0 (str or list[float] : values or field names of starting `y` coordinates
+    x1 (str or list[float]) : values or field names of ending `x` coordinates
+    y1 (str or list[float]) : values or field names of ending `y` coordinates
+    cx (str or list[float]) : values or field names of control point `x` coordinates
+    cy (str or list[float]) : values or field names of control point `y` coordinates
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x0, y0 : str or list[float]
-    values or field names of starting coordinates
-x1, y1 : str or list[float]
-    values or field names of ending coordinates
-cx, cy : str or list[float]
-    values or field names of first control point coordinates
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """,
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
 ray = _glyph_function(glyphs.Ray, ("x", "y", "length", "angle"),
 """ The ray glyph displays line segments starting at the given coordinate and extending the given length at the given angle.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    length (str or list[float]) : values or field names of ray lengths in screen units
+    angle (str or list[float]) : values or field names of ray angles
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-lengths : str or list[float], optional
-    values or field names of lengths in screen units
-angle : str or list[float]
-    values or field names of angles
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 rect = _glyph_function(glyphs.Rect, ("x", "y", "width", "height"),
 """ The rect glyph displays rectangles centered on the given coordinates with the given dimensions and angle.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    width (str or list[float]) : values or field names of widths
+    height (str or list[float]) : values or field names of heights
+    angle (str or list[float]) : values or field names of rotation angles
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-width, height : str or list[float], optional
-    values or field names of widths and heights
-angle : str or list[float], optional (default: 0)
-    values or field names of rotation angles
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 segment = _glyph_function(glyphs.Segment, ("x0", "y0", "x1", "y1"),
 """ The segment glyph displays line segments with the given starting and ending coordinates.
 
-In addition the the parameters specific to this glyph,
-:ref:`userguide_line_properties`
+Args:
+    x0 (str or list[float]) : values or field names of starting `x` coordinates
+    y0 (str or list[float]) : values or field names of starting `y` coordinates
+    x1 (str or list[float]) : values or field names of ending `x` coordinates
+    y1 (str or list[float]) : values or field names of ending `y` coordinates
+
+In addition the the parameters specific to this glyph, :ref:`userguide_line_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x0, y0 : str or list[float]
-    values or field names of starting coordinates
-x1, y1 : str or list[float]
-    values or field names of ending coordinates
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """,
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
@@ -972,36 +912,30 @@ In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
 
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 square_cross = _glyph_function(glyphs.SquareCross, ("x", "y"),
 """ The `square_cross` glyph is a marker that renders squares together with a crossbar (+) at `x`, `y` with size `size`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
@@ -1012,40 +946,33 @@ In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
 
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 text = _glyph_function(glyphs.Text, ("x", "y", "text", "angle"),
 """ The text glyph displays text at the given coordinates rotated by the given angle.
 
+Args:
+    x (str or list[float]) : values or field names of text `x` coordinates
+    y (str or list[float]) : values or field names of text `y` coordinates
+    text (str or list[text]): values or field names of texts
+    angle (str or list[float]) : values or field names of text angles
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_text_properties`
 are also accepted as keyword parameters.
 
-The location of the text relative to the `x`, `y` coordinates is indicated by the text properties.
+.. note:: The location and angle of the text relative to the `x`, `y` coordinates is indicated by the alignment and baseline text properties.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-test : str of list[str]
-    values or field names of texts to render
-angle : str or list[float], optional (default: 0)
-    values or field names of text angles
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
@@ -1056,40 +983,33 @@ In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
 
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
 wedge = _glyph_function(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"),
 """ The `wedge` glyph renders circular wedges centered at `x`, `y`.
 
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    radius (str or list[float]) : values or field names of wedge radii
+    start_angle (str or list[float]) : values or field names of starting angles
+    end_angle (str or list[float]) : values or field names of ending angles
+    direction ("clock" or "anticlock"): direction to turn between starting and ending angles
+
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-radius : str or list[float]
-    values or field names of radii
-start_angle, end_angle : str or list[float]
-    values or field names of starting/ending angles
-direction : "clock" or "anticlock"
-    direction to turn between starting and ending angles
-
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
@@ -1100,16 +1020,13 @@ In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
 are also accepted as keyword parameters.
 
-Parameters
-----------
-x, y : str or list[float]
-    values or field names of center coordinates
-size : str or list[float], optional
-    values or field names of sizes in screen units
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
 
-Returns
--------
-plot : :py:class:`Plot <bokeh.objects.Plot>`
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
@@ -1145,9 +1062,8 @@ _alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x & y items
 
-    Parameters
-    ----------
-    *data : The data to plot.  Can be of several forms:
+    Args:
+        *data : The data to plot.  Can be of several forms:
 
         (X, Y1, Y2, ...)
             A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
@@ -1160,25 +1076,25 @@ def scatter(*args, **kwargs):
             A list/tuple of scalar values; will be treated as Y values and
             a synthetic X array of integers will be generated.
 
-    Style Parameters (specified by keyword)::
+        Style Parameters (specified by keyword)::
 
-        marker : a valid marker_type; defaults to "circle"
-        fill_color : color
-        fill_alpha : 0.0 - 1.0
-        line_color : color
-        line_width : int >= 1
-        line_alpha : 0.0 - 1.0
-        line_cap : "butt", "join", "miter"
-        color : shorthand to set both fill and line color
+            marker : a valid marker_type; defaults to "circle"
+            fill_color : color
+            fill_alpha : 0.0 - 1.0
+            line_color : color
+            line_width : int >= 1
+            line_alpha : 0.0 - 1.0
+            line_cap : "butt", "join", "miter"
+            color : shorthand to set both fill and line color
 
-    Colors can be either one of:
+        Colors can be either one of:
 
-    * the 147 named SVG colors
-    * a string representing a Hex color (e.g. "#FF32D0")
-    * a 3-tuple of integers between 0 and 255
-    * a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
+        * the 147 named SVG colors
+        * a string representing a Hex color (e.g. "#FF32D0")
+        * a 3-tuple of integers between 0 and 255
+        * a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
 
-    Examples::
+    Examples:
 
         scatter([1,2,3,4,5,6])
         scatter([1,2,3],[4,5,6], fill_color="red")
@@ -1213,7 +1129,17 @@ def scatter(*args, **kwargs):
 
 @visual
 def gridplot(plot_arrangement, name=False):
-    """ Generate a plot that arranges several subplots into a grid. """
+    """ Generate a plot that arranges several subplots into a grid.
+
+    Args:
+        plot_arrangement (list[:class:`Plot <bokeh.objects.Plot>`]) : plots to arrange in a grid
+        name (str) : name for this plot
+
+    .. note:: `plot_arrangement` can be nested
+
+    Returns:
+        grid_plot: the current :class:`GridPlot <bokeh.objects.GridPlot>`
+    """
     grid = GridPlot(children=plot_arrangement)
     if name:
         grid._id = name
@@ -1225,7 +1151,11 @@ def gridplot(plot_arrangement, name=False):
     return grid, [grid]
 
 def xaxis():
-    """ Returns the x-axis or list of x-axes on the current plot """
+    """ Get the current :class:`axis <bokeh.objects.Axis>` objects
+
+    Returns:
+        Returns axis object or splattable list of axis objects on the current plot
+    """
     p = curplot()
     if p is None:
         return None
@@ -1233,7 +1163,11 @@ def xaxis():
     return _list_attr_splat(axis)
 
 def yaxis():
-    """ Returns the y-axis or list of y-axes on the current plot """
+    """ Get the current `y` :class:`axis <bokeh.objects.Axis>` object(s)
+
+    Returns:
+        Returns y-axis object or splattable list of y-axis objects on the current plot
+    """
     p = curplot()
     if p is None:
         return None
@@ -1241,11 +1175,20 @@ def yaxis():
     return _list_attr_splat(axis)
 
 def axis():
-    """ Return the axes on the current plot """
+    """ Get the current `x` :class:`axis <bokeh.objects.Axis>` object(s)
+
+    Returns:
+        Returns x-axis object or splattable list of x-axis objects on the current plot
+    """
     return _list_attr_splat(xaxis() + yaxis())
 
 def legend():
     """ Return the legend(s) of the current plot """
+    """ Get the current :class:`legend <bokeh.objects.Legend>` object(s)
+
+    Returns:
+        Returns x-axis object or splattable list of x-axis objects on the current plot
+    """
     p = curplot()
     if p is None:
         return None
@@ -1253,7 +1196,11 @@ def legend():
     return _list_attr_splat(legends)
 
 def xgrid():
-    """ Returns x-grid object on the current plot """
+    """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
+
+    Returns:
+        Returns legend object or splattable list of legend objects on the current plot
+    """
     p = curplot()
     if p is None:
         return None
@@ -1261,7 +1208,11 @@ def xgrid():
     return _list_attr_splat(grid)
 
 def ygrid():
-    """ Returns y-grid object on the current plot """
+    """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
+
+    Returns:
+        Returns y-grid object or splattable list of y-grid objects on the current plot
+    """
     p = curplot()
     if p is None:
         return None
@@ -1269,6 +1220,11 @@ def ygrid():
     return _list_attr_splat(grid)
 
 def grid():
+    """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)
+
+    Returns:
+        Returns grid object or splattable list of grid objects on the current plot
+    """
     """ Return the grids on the current plot """
     return _list_attr_splat(xgrid() + ygrid())
 
