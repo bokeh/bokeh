@@ -400,192 +400,196 @@ def visual(func):
 color_fields = set(["color", "fill_color", "line_color"])
 alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
-class GlyphFunction(object):
+
+def _match_data_params(argnames, glyphclass, datasource, args, kwargs):
+    """ Processes the arguments and kwargs passed in to __call__ to line
+    them up with the argnames of the underlying Glyph
+
+    Returns
+    ---------
+    glyph_params : dict of params that should be in the glyphspec
     """
-    Wraps a Glyph so that it can be created as a plot::
+    # Go through the list of position and keyword arguments, matching up
+    # the full list of required glyph data attributes
+    attributes = dict(zip(argnames, args))
+    if len(args) < len(argnames):
+        for argname in argnames[len(args):]:
+            if argname in kwargs:
+                attributes[argname] = kwargs.pop(argname)
+            else:
+                raise RuntimeError("Missing required glyph parameter '%s'" % argname)
+    # Go through keys in alpha order, so that *_units are handled after
+    # the dataspec dict is already created
+    dataspecs = glyphclass.dataspecs_with_refs()
+    for kw in kwargs:
+        if (kw.endswith("_units") and kw[:-6] in dataspecs) or kw in dataspecs:
+            attributes[kw] = kwargs[kw]
 
-        annular_wedge = GlyphFunction(glyphs.AnnularWedge,
-            "x,y,inner_radius,outer_radius,start_angle,end_angle".split(","))
-        bezier = GlyphFunction(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(","), ["x0", "x1"], ["y0", "y1"])
+    glyph_params = {}
+    for var in sorted(attributes.keys()):
+        val = attributes[var]
 
-    Then annular_wedge can be called like this::
+        if var.endswith("_units") and var[:-6] in dataspecs:
+            dspec = var[:-6]
+            if dspec not in glyph_params:
+                raise RuntimeError("Cannot set units on undefined field '%s'" % dspec)
+            curval = glyph_params[dspec]
+            if not isinstance(curval, dict):
+                # TODO: This assumes that string values are fields; this is invalid
+                # for ColorSpecs, but all this logic is to handle dataspec units, and
+                # ColorSpecs do not have units.  However, if there are other kinds of
+                # DataSpecs that do have string constants, then we will need to fix
+                # this up to have smarter detection of field names.
+                if isinstance(curval, string_types):
+                    glyph_params[dspec] = {"field": curval, "units": val}
+                else:
+                    glyph_params[dspec] = {"value": curval, "units": val}
+            else:
+                glyph_params[dspec]["units"] = val
+            continue
 
-        annular_wedge([1,2,3,4], [5,3,6,7], 3.0, 8.0, pi/4, 0.75*pi)
+        if isinstance(val, dict) or isinstance(val, Number):
+            glyph_val = val
+        elif isinstance(dataspecs.get(var, None), ColorSpec) and (ColorSpec.isconst(val) or val is None):
+            # This check for color constants needs to happen relatively early on because
+            # both strings and certain iterables are valid colors.
+            glyph_val = val
+        elif isinstance(val, string_types):
+            if glyphclass == glyphs.Text:
+                glyph_val = val
+            else:
+                if val not in datasource.column_names:
+                    raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
+                units = getattr(dataspecs[var], 'units', 'data')
+                glyph_val = {'field' : val, 'units' : units}
+        elif isinstance(val, np.ndarray):
+            if val.ndim != 1:
+                raise RuntimeError("Columns need to be 1D (%s is not)" % var)
+            datasource.add(val, name=var)
+            units = getattr(dataspecs[var], 'units', 'data')
+            glyph_val = {'field' : var, 'units' : units}
+        elif isinstance(val, Iterable):
+            datasource.add(val, name=var)
+            units = getattr(dataspecs[var], 'units', 'data')
+            glyph_val = {'field' : var, 'units' : units}
+        else:
+            raise RuntimeError("Unexpected column type: %s" % type(val))
+        glyph_params[var] = glyph_val
+    return glyph_params
 
+def _update_plot_data_ranges(plot, datasource, xcols, ycols):
     """
-
-    glyphclass = None
-    argnames = None
-    xfields = ["x"]
-    yfields = ["y"]
-
-    def __init__(self, glyphclass, argnames, xfields=None, yfields=None):
-        self.glyphclass = glyphclass
-        self.argnames = argnames
-        if xfields is None:
-            self.xfields = ["x"]
+    Parameters
+    ----------
+    plot : plot
+    datasource : datasource
+    xcols : names of columns that are in the X axis
+    ycols : names of columns that are in the Y axis
+    """
+    if isinstance(plot.x_range, DataRange1d):
+        x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
+        if len(x_column_ref) > 0:
+            x_column_ref = x_column_ref[0]
+            for cname in xcols:
+                if cname not in x_column_ref.columns:
+                    x_column_ref.columns.append(cname)
         else:
-            self.xfields = xfields
-        if yfields is None:
-            self.yfields = ["y"]
+            plot.x_range.sources.append(datasource.columns(*xcols))
+        plot.x_range._dirty = True
+
+    if isinstance(plot.y_range, DataRange1d):
+        y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
+        if len(y_column_ref) > 0:
+            y_column_ref = y_column_ref[0]
+            for cname in ycols:
+                if cname not in y_column_ref.columns:
+                    y_column_ref.columns.append(cname)
         else:
-            self.yfields = yfields
+            plot.y_range.sources.append(datasource.columns(*ycols))
+        plot.y_range._dirty = True
 
-    def _match_data_params(self, datasource, args, kwargs):
-        """ Processes the arguments and kwargs passed in to __call__ to line
-        them up with the argnames of the underlying Glyph
+def _materialize_colors_and_alpha(kwargs, prefix="", default_alpha=1.0):
+    """
+    Given a kwargs dict, a prefix, and a default value, looks for different
+    color and alpha fields of the given prefix, and fills in the default value
+    if it doesn't exist.
+    """
+    # TODO: The need to do this and the complexity of managing this kind of
+    # thing throughout the codebase really suggests that we need to have
+    # a real stylesheet class, where defaults and Types can declaratively
+    # substitute for this kind of imperative logic.
+    color = kwargs.pop(prefix+"color", get_default_color())
+    for argname in ("fill_color", "line_color"):
+        kwargs[argname] = kwargs.get(prefix + argname, color)
 
-        Returns
-        ---------
-        glyph_params : dict of params that should be in the glyphspec
-        """
-        # Go through the list of position and keyword arguments, matching up
-        # the full list of required glyph data attributes
-        attributes = dict(zip(self.argnames, args))
-        if len(args) < len(self.argnames):
-            for argname in self.argnames[len(args):]:
-                if argname in kwargs:
-                    attributes[argname] = kwargs.pop(argname)
-                else:
-                    raise RuntimeError("Missing required glyph parameter '%s'" % argname)
-        # Go through keys in alpha order, so that *_units are handled after
-        # the dataspec dict is already created
-        dataspecs = self.glyphclass.dataspecs_with_refs()
-        for kw in kwargs:
-            if (kw.endswith("_units") and kw[:-6] in dataspecs) or kw in dataspecs:
-                attributes[kw] = kwargs[kw]
+    # NOTE: text fill color should really always default to black, hard coding
+    # this here now untils the stylesheet solution exists
+    kwargs["text_color"] = kwargs.get(prefix + "text_color", "black")
 
-        glyph_params = {}
-        for var in sorted(attributes.keys()):
-            val = attributes[var]
+    alpha = kwargs.pop(prefix+"alpha", default_alpha)
+    for argname in ("fill_alpha", "line_alpha", "text_alpha"):
+        kwargs[argname] = kwargs.get(prefix + argname, alpha)
 
-            if var.endswith("_units") and var[:-6] in dataspecs:
-                dspec = var[:-6]
-                if dspec not in glyph_params:
-                    raise RuntimeError("Cannot set units on undefined field '%s'" % dspec)
-                curval = glyph_params[dspec]
-                if not isinstance(curval, dict):
-                    # TODO: This assumes that string values are fields; this is invalid
-                    # for ColorSpecs, but all this logic is to handle dataspec units, and
-                    # ColorSpecs do not have units.  However, if there are other kinds of
-                    # DataSpecs that do have string constants, then we will need to fix
-                    # this up to have smarter detection of field names.
-                    if isinstance(curval, string_types):
-                        glyph_params[dspec] = {"field": curval, "units": val}
-                    else:
-                        glyph_params[dspec] = {"value": curval, "units": val}
-                else:
-                    glyph_params[dspec]["units"] = val
-                continue
+    return kwargs
 
-            if isinstance(val, dict) or isinstance(val, Number):
-                glyph_val = val
-            elif isinstance(dataspecs.get(var, None), ColorSpec) and (ColorSpec.isconst(val) or val is None):
-                # This check for color constants needs to happen relatively early on because
-                # both strings and certain iterables are valid colors.
-                glyph_val = val
-            elif isinstance(val, string_types):
-                if self.glyphclass == glyphs.Text:
-                    glyph_val = val
-                else:
-                    if val not in datasource.column_names:
-                        raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
-                    units = getattr(dataspecs[var], 'units', 'data')
-                    glyph_val = {'field' : val, 'units' : units}
-            elif isinstance(val, np.ndarray):
-                if val.ndim != 1:
-                    raise RuntimeError("Columns need to be 1D (%s is not)" % var)
-                datasource.add(val, name=var)
-                units = getattr(dataspecs[var], 'units', 'data')
-                glyph_val = {'field' : var, 'units' : units}
-            elif isinstance(val, Iterable):
-                datasource.add(val, name=var)
-                units = getattr(dataspecs[var], 'units', 'data')
-                glyph_val = {'field' : var, 'units' : units}
-            else:
-                raise RuntimeError("Unexpected column type: %s" % type(val))
-            glyph_params[var] = glyph_val
-        return glyph_params
+def _get_plot(kwargs):
+    plot = kwargs.pop("plot", None)
+    if not plot:
+        if _config["hold"] and _config["curplot"]:
+            plot = _config["curplot"]
+        else:
+            plot = _new_xy_plot(**kwargs)
+    return plot
 
-    def _update_plot_data_ranges(self, plot, datasource, xcols, ycols):
-        """
-        Parameters
-        ----------
-        plot : plot
-        datasource : datasource
-        xcols : names of columns that are in the X axis
-        ycols : names of columns that are in the Y axis
-        """
-        if isinstance(plot.x_range, DataRange1d):
-            x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
-            if len(x_column_ref) > 0:
-                x_column_ref = x_column_ref[0]
-                for cname in xcols:
-                    if cname not in x_column_ref.columns:
-                        x_column_ref.columns.append(cname)
-            else:
-                plot.x_range.sources.append(datasource.columns(*xcols))
-            plot.x_range._dirty = True
+def _get_legend(plot):
+    legend = [x for x in plot.renderers if x.__view_model__ == "Legend"]
+    if len(legend) > 0:
+        legend = legend[0]
+    else:
+        legend = None
+    return legend
 
-        if isinstance(plot.y_range, DataRange1d):
-            y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
-            if len(y_column_ref) > 0:
-                y_column_ref = y_column_ref[0]
-                for cname in ycols:
-                    if cname not in y_column_ref.columns:
-                        y_column_ref.columns.append(cname)
-            else:
-                plot.y_range.sources.append(datasource.columns(*ycols))
-            plot.y_range._dirty = True
+def _make_legend(plot):
+    legend = Legend(plot=plot)
+    plot.renderers.append(legend)
+    plot._dirty = True
+    return legend
 
-    def _materialize_colors_and_alpha(self, kwargs, prefix="", default_alpha=1.0):
-        """
-        Given a kwargs dict, a prefix, and a default value, looks for different
-        color and alpha fields of the given prefix, and fills in the default value
-        if it doesn't exist.
-        """
-        # TODO: The need to do this and the complexity of managing this kind of
-        # thing throughout the codebase really suggests that we need to have
-        # a real stylesheet class, where defaults and Types can declaratively
-        # substitute for this kind of imperative logic.
-        color = kwargs.pop(prefix+"color", get_default_color())
-        for argname in ("fill_color", "line_color"):
-            kwargs[argname] = kwargs.get(prefix + argname, color)
+def _get_select_tool(plot):
+    """returns select tool on a plot, if it's there
+    """
+    select_tool = [x for x in plot.tools if x.__view_model__ == "BoxSelectTool"]
+    if len(select_tool) > 0:
+        select_tool = select_tool[0]
+    else:
+        select_tool = None
+    return select_tool
 
-        # NOTE: text fill color should really always default to black, hard coding
-        # this here now untils the stylesheet solution exists
-        kwargs["text_color"] = kwargs.get(prefix + "text_color", "black")
-
-        alpha = kwargs.pop(prefix+"alpha", default_alpha)
-        for argname in ("fill_alpha", "line_alpha", "text_alpha"):
-            kwargs[argname] = kwargs.get(prefix + argname, alpha)
-
-        return kwargs
-
+def GlyphFunction(glyphclass, argnames, xfields=["x"], yfields=["y"]):
     @visual
-    def __call__(self, *args, **kwargs):
-        # Process the keyword arguments that are not glyph-specific
+    def func(*args, **kwargs):
+      # Process the keyword arguments that are not glyph-specific
         datasource = kwargs.pop("source", ColumnDataSource())
         session_objs = [datasource]
         legend_name = kwargs.pop("legend", None)
-        plot = self._get_plot(kwargs)
+        plot = _get_plot(kwargs)
         if 'name' in kwargs:
             plot._id = kwargs['name']
 
-        select_tool = self._get_select_tool(plot)
+        select_tool = _get_select_tool(plot)
 
         # Process the glyph dataspec parameters
-        glyph_params = self._match_data_params(
-            datasource, args, self._materialize_colors_and_alpha(kwargs))
+        glyph_params = _match_data_params(argnames, glyphclass,
+            datasource, args, _materialize_colors_and_alpha(kwargs))
 
         x_data_fields = [
-            glyph_params[xx]['field'] for xx in self.xfields if glyph_params[xx]['units'] == 'data']
+            glyph_params[xx]['field'] for xx in xfields if glyph_params[xx]['units'] == 'data']
         y_data_fields = [
-            glyph_params[yy]['field'] for yy in self.yfields if glyph_params[yy]['units'] == 'data']
-        self._update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
+            glyph_params[yy]['field'] for yy in yfields if glyph_params[yy]['units'] == 'data']
+        _update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)
-        glyph = self.glyphclass(**kwargs)
-        nonselection_glyph_params = self._materialize_colors_and_alpha(
+        glyph = glyphclass(**kwargs)
+        nonselection_glyph_params = _materialize_colors_and_alpha(
             kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
 
@@ -603,9 +607,9 @@ class GlyphFunction(object):
             )
 
         if legend_name:
-            legend = self._get_legend(plot)
+            legend = _get_legend(plot)
             if not legend:
-                legend = self._make_legend(plot)
+                legend = _make_legend(plot)
             mappings = legend.legends
             mappings.setdefault(legend_name, []).append(glyph_renderer)
             legend._dirty = True
@@ -619,41 +623,8 @@ class GlyphFunction(object):
         session_objs.extend(plot.tools)
         session_objs.extend(plot.renderers)
         session_objs.extend([plot.x_range, plot.y_range])
-
         return plot, session_objs
-
-    def _get_plot(self, kwargs):
-        plot = kwargs.pop("plot", None)
-        if not plot:
-            if _config["hold"] and _config["curplot"]:
-                plot = _config["curplot"]
-            else:
-                plot = _new_xy_plot(**kwargs)
-        return plot
-
-    def _get_legend(self, plot):
-        legend = [x for x in plot.renderers if x.__view_model__ == "Legend"]
-        if len(legend) > 0:
-            legend = legend[0]
-        else:
-            legend = None
-        return legend
-
-    def _make_legend(self, plot):
-        legend = Legend(plot=plot)
-        plot.renderers.append(legend)
-        plot._dirty = True
-        return legend
-
-    def _get_select_tool(self, plot):
-        """returns select tool on a plot, if it's there
-        """
-        select_tool = [x for x in plot.tools if x.__view_model__ == "BoxSelectTool"]
-        if len(select_tool) > 0:
-            select_tool = select_tool[0]
-        else:
-            select_tool = None
-        return select_tool
+    return func
 
 
 def get_default_color(plot=None):
@@ -680,7 +651,29 @@ def get_default_color(plot=None):
 def get_default_alpha(plot=None):
     return 1.0
 
+def _glyph_doc(args, props, desc):
+    params_tuple =tuple(itertools.chain.from_iterable(sorted(list(args.items()))))
+    params = "\t%s : %s\n" * len(args) % params_tuple
+
+    return """%s
+
+    Parameters
+    ----------
+    %s
+    Additionally, the following properties are accepted as keyword arguments: %s
+
+    Returns
+    -------
+    plot : :py:class:`Plot <bokeh.objects.Plot>`
+    """ % (desc, params, props)
+
+# _line_args = {
+#     "x": "float or sequence of float",
+#     "y": "float or sequence of float",
+# }
 line = GlyphFunction(glyphs.Line, ("x", "y"))
+# line.__doc__ = _glyph_doc(_line_args, "line", """
+#     The line function renders a sequence of `x` and `y` points as a connected line.""")
 
 multi_line = GlyphFunction(glyphs.MultiLine, ("xs", "ys"), ["xs"], ["ys"])
 
@@ -910,7 +903,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
         # re.split will return empty strings; ignore them.
-        if tool == "": 
+        if tool == "":
             continue
         if tool == "pan":
             tool_obj = PanTool(plot=p, dimensions=["width", "height"])
