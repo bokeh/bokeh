@@ -24,7 +24,7 @@ myscatter(random(N)+8, random(N)+1, "asterisk")
 
 myscatter(random(N)+2, random(N)+4, "circle_x")
 myscatter(random(N)+4, random(N)+4, "square_x")
-myscatter(random(N)+6, random(N)+4, "invtriangle")
+myscatter(random(N)+6, random(N)+4, "inverted_triangle")
 myscatter(random(N)+8, random(N)+4, "x")
 
 myscatter(random(N)+2, random(N)+7, "circle_cross")
@@ -39,7 +39,7 @@ mytext([8.5], [0.5], "asterisk / *")
 
 mytext([2.5], [3.5], "circle_x / ox")
 mytext([4.5], [3.5], "square_x")
-mytext([6.5], [3.5], "invtriangle")
+mytext([6.5], [3.5], "inverted_triangle")
 mytext([8.5], [3.5], "x")
 
 mytext([2.5], [6.5], "circle_cross / o+")

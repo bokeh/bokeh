@@ -562,6 +562,8 @@ class Glyph(PlotObject):
 
 
 class Plot(PlotObject):
+    """ Object representing a plot, containing glyphs, guides, annotations.
+    """
 
     data_sources = List
     title = String("Bokeh Plot")
@@ -572,10 +574,6 @@ class Plot(PlotObject):
     title = String('')
     outline_props = Include(LineProps, prefix="outline")
 
-    # We shouldn't need to create mappers manually on the Python side
-    #xmapper = Instance(LinearMapper)
-    #ymapper = Instance(LinearMapper)
-    #mapper = Instance(GridMapper)
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers

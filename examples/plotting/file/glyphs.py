@@ -77,8 +77,8 @@ scatter(x, y, marker="cross", size=sizes, color="#E6550D", fill_color=None,
 scatter(x, y, marker="diamond", size=sizes, color="#1C9099",
        line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="diamond")
 
-scatter(x, y, marker="invtriangle", size=sizes, color="#DE2D26",
-       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="invtriangle")
+scatter(x, y, marker="inverted_triangle", size=sizes, color="#DE2D26",
+       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="inverted_triangle")
 
 scatter(x, y, marker="square_x", size=sizes, color="#FDAE6B", fill_color=None,
        line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="square_x")

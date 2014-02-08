@@ -162,9 +162,9 @@ together with a crossbar (+) at the given coordinates.
 
 ``image``
 ---------
-The image glyph takes each ``image`` as an "array of arrays" (assumed to be
-non-ragged) and the shape is inferred automatically. A ``palette`` (string name of a built-in
-palette, currently) must also be supplied to use for color-mapping the scalar image.
+The image glyph takes each ``image`` as a two-dimensional array of data. A ``palette`` (string
+name of a built-in palette, currently) must also be supplied to use for color-mapping the scalar
+image.
 
 .. note:: The image glyph is vectorized like other glyphs, i.e. it may be used to display several images at once.
 
@@ -178,10 +178,8 @@ palette, currently) must also be supplied to use for color-mapping the scalar im
 
 ``image_rgba``
 --------------
-The image_rgba glyph has two forms. The first form takes each ``image`` as a one-dimensional
-array of RGBA values (encoded as 32-bit integers) together with ``rows`` and ``cols`` fields
-that describe the two-dimensional shape of the array. The second form takes each ``image`` as a
-"array of arrays" (assumed to be non-ragged) and the shape is inferred automatically.
+The image_rgba glyph takes each ``image`` as a two-dimensional array of RGBA values (encoded
+as 32-bit integers).
 
 .. note:: The image_rgba glyph is vectorized like other glyphs, i.e. it may be used to display several images at once.
 
@@ -217,7 +215,7 @@ upsided-down triangles at the given coordinates.
 
 ``line``
 --------
-The line glyphs displays a single line that connects several points given by the arrays
+The line glyph displays a single line that connects several points given by the arrays
 of coordinates ``x`` and ``y``.
 
 * ``x``, ``y`` - line coordinates
@@ -227,7 +225,7 @@ of coordinates ``x`` and ``y``.
 
 ``multi_line``
 --------------
-The multi_line glyphs displays several lines, each with points given by the arrays of
+The multi_line glyph displays several lines, each with points given by the arrays of
 coordinates that are the elements of ``xs`` and ``ys``. This glyph is especially useful for
 implementing parallel coordinates plots, or plotting several aligned series simultaneously.
 
@@ -257,7 +255,7 @@ and angle.
 
 ``patch``
 ---------
-The line glyphs displays a single polygonal patch that connects several points given by the arrays
+The patch glyph displays a single polygonal patch that connects several points given by the arrays
 of coordinates ``x`` and ``y``.
 
 * ``x``, ``y`` - coordinates
@@ -268,7 +266,7 @@ of coordinates ``x`` and ``y``.
 
 ``patches``
 -----------
-The patches glyphs displays several patches, each with points given by the arrays of
+The patches glyph displays several patches, each with points given by the arrays of
 coordinates that are the elements of ``xs`` and ``ys``. This glyph is especially useful for
 implementing stacked area charts and cartograms.
 
