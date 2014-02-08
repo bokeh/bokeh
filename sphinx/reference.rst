@@ -21,6 +21,8 @@ bokeh.plotting Interface
 Plot Sessions
 =============
 
+.. inheritance-diagram:: bokeh.session
+
 .. autoclass:: bokeh.session.Session
 .. autoclass:: bokeh.session.BaseHTMLSession
 .. autoclass:: bokeh.session.HTMLFileSession
@@ -33,6 +35,8 @@ Plot Sessions
 Underlying Object System
 ========================
 
+.. inheritance-diagram:: bokeh.objects
+
 `bokeh.objects`
 ---------------
 
@@ -41,6 +45,8 @@ Underlying Object System
 
 `bokeh.properties`
 ------------------
+
+.. inheritance-diagram:: bokeh.properties
 
 .. automodule:: bokeh.properties
     :members: BaseProperty, DataSpec, ColorSpec, MetaHasProps, HasProps,
