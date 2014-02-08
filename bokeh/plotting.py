@@ -9,20 +9,20 @@ import requests
 import time
 import warnings
 
+from . import glyphs, browserlib, serverconfig
+from .objects import ColumnDataSource, Glyph, Grid, GridPlot, Legend, LinearAxis
 from .plotting_helpers import (get_default_color, get_default_alpha,
-        _match_data_params, _update_plot_data_ranges,
+        _glyph_doc, _match_data_params, _update_plot_data_ranges,
         _materialize_colors_and_alpha, _get_legend, _make_legend,
         _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
-from .objects import ColumnDataSource, Glyph, Grid, GridPlot, Legend, LinearAxis
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
-from . import glyphs, browserlib, serverconfig
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
 
 _config = {}
 
-def set_config():
+def _set_config():
     global _config
     _config = {
         # The current output mode.  Valid combinations:
@@ -51,7 +51,7 @@ def set_config():
         # hold state
         "hold": False,
         }
-set_config()
+_set_config()
 
 def _get_plot(kwargs):
     plot = kwargs.pop("plot", None)
@@ -139,9 +139,6 @@ def plothelp():
         to the server
     """
     print(helpstr)
-
-
-
 
 def session():
     """ Get the current session.
@@ -257,7 +254,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
     """
-    set_config()
+    _set_config()
     if os.path.isfile(filename):
         print("Session output file '%s' already exists, will be overwritten." %
                 filename)
@@ -273,6 +270,9 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
         session = session))
 
 def figure():
+    """ Creates a new plot. All subsequent plotting commands will affect
+    the new plot.
+    """
     _config["curplot"] = None
 
 def hold(val=None):
@@ -393,9 +393,6 @@ def visual(func):
         return plot
     return wrapper
 
-color_fields = set(["color", "fill_color", "line_color"])
-alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
-
 def _glyph_function(glyphclass, argnames, xfields=["x"], yfields=["y"]):
     @visual
     def func(*args, **kwargs):
@@ -455,33 +452,15 @@ def _glyph_function(glyphclass, argnames, xfields=["x"], yfields=["y"]):
         session_objs.extend(plot.renderers)
         session_objs.extend([plot.x_range, plot.y_range])
         return plot, session_objs
+    func.__name__ = glyphclass.__view_model__
     return func
-
-def _glyph_doc(args, props, desc):
-    params_tuple =tuple(itertools.chain.from_iterable(sorted(list(args.items()))))
-    params = "\t%s : %s\n" * len(args) % params_tuple
-
-    return """%s
-
-    Parameters
-    ----------
-    %s
-    Additionally, the following properties are accepted as keyword arguments: %s
-
-    Returns
-    -------
-    plot : :py:class:`Plot <bokeh.objects.Plot>`
-    """ % (desc, params, props)
 
 # _line_args = {
 #     "x": "float or sequence of float",
 #     "y": "float or sequence of float",
 # }
-line = _glyph_function(glyphs.Line, ("x", "y"))
 # line.__doc__ = _glyph_doc(_line_args, "line", """
 #     The line function renders a sequence of `x` and `y` points as a connected line.""")
-
-multi_line = _glyph_function(glyphs.MultiLine, ("xs", "ys"), ["xs"], ["ys"])
 
 annular_wedge = _glyph_function(glyphs.AnnularWedge,
     "x,y,inner_radius,outer_radius,start_angle,end_angle".split(","))
@@ -491,8 +470,32 @@ annulus = _glyph_function(glyphs.Annulus,
 
 arc = _glyph_function(glyphs.Arc, "x,y,radius,start_angle,end_angle".split(","))
 
+asterisk = _glyph_function(glyphs.Asterisk, ("x", "y", "size"))
+
 bezier = _glyph_function(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(","),
     xfields=['x0', 'x1'], yfields=['y0', 'y1'])
+
+circle = _glyph_function(glyphs.Circle, ("x", "y"))
+
+circle_cross = _glyph_function(glyphs.CircleCross, ("x", "y", "size"))
+
+circle_x = _glyph_function(glyphs.CircleX, ("x", "y", "size"))
+
+cross = _glyph_function(glyphs.Cross, ("x", "y", "size"))
+
+diamond = _glyph_function(glyphs.Diamond, ("x", "y", "size"))
+
+diamond_cross = _glyph_function(glyphs.DiamondCross, ("x", "y", "size"))
+
+image = _glyph_function(glyphs.Image, ("image", "x", "y", "dw", "dh", "palette"))
+
+image_rgba = _glyph_function(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"))
+
+inverted_triangle = _glyph_function(glyphs.InvertedTriangle, ("x", "y", "size"))
+
+line = _glyph_function(glyphs.Line, ("x", "y"))
+
+multi_line = _glyph_function(glyphs.MultiLine, ("xs", "ys"), ["xs"], ["ys"])
 
 oval = _glyph_function(glyphs.Oval, ("x", "y", "width", "height"))
 
@@ -513,48 +516,48 @@ rect = _glyph_function(glyphs.Rect, ("x", "y", "width", "height"))
 segment = _glyph_function(glyphs.Segment, ("x0", "y0", "x1", "y1"),
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
+square = _glyph_function(glyphs.Square, ("x", "y", "size"))
+
+square_cross = _glyph_function(glyphs.SquareCross, ("x", "y", "size"))
+
+square_x = _glyph_function(glyphs.SquareX, ("x", "y", "size"))
+
 text = _glyph_function(glyphs.Text, ("x", "y", "text", "angle"))
+
+triangle = _glyph_function(glyphs.Triangle, ("x", "y", "size"))
 
 wedge = _glyph_function(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"))
 
-image = _glyph_function(glyphs.Image, ("image", "x", "y", "dw", "dh", "palette"))
-
-image_rgba = _glyph_function(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"))
+x = _glyph_function(glyphs.Xmarker, ("x", "y", "size"))
 
 marker_types = {
-        "circle": glyphs.Circle,
-        "square": glyphs.Square,
-        "triangle": glyphs.Triangle,
-        "cross": glyphs.Cross,
-        #"xmarker": glyphs.Xmarker,
-        "diamond": glyphs.Diamond,
-        "invtriangle": glyphs.InvertedTriangle,
-        "square_x": glyphs.SquareX,
-        "circle_x": glyphs.CircleX,
-        "asterisk": glyphs.Asterisk,
-        "diamond_cross": glyphs.DiamondCross,
-        "circle_cross": glyphs.CircleCross,
-        "square_cross": glyphs.SquareCross,
-        #"hexstar": glyphs.HexStar,
-        "+": glyphs.Cross,
-        "*": glyphs.Asterisk,
-        "x": glyphs.Xmarker,
-        "o": glyphs.Circle,
-        "ox": glyphs.CircleX,
-        "o+": glyphs.CircleCross,
-        }
+    "asterisk": asterisk,
+    "circle": circle,
+    "circle_cross": circle_cross,
+    "circle_x": circle_x,
+    "cross": cross,
+    "diamond": diamond,
+    "diamond_cross": diamond_cross,
+    "inverted_triangle": inverted_triangle,
+    "square": square,
+    "square_x": square_x,
+    "square_cross": square_cross,
+    "triangle": triangle,
+    "x": x,
+    "*": asterisk,
+    "+": cross,
+    "o": circle,
+    "ox": circle_x,
+    "o+": circle_cross,
+}
 
 def markers():
     """ Prints a list of valid marker types for scatter()
     """
     print(list(sorted(marker_types.keys())))
 
-
-for _marker_name, _glyph_class in marker_types.items():
-    if len(_marker_name) <= 2:
-        continue
-    _func = _glyph_function(_glyph_class, ("x", "y"))
-    exec("%s = _func" % _marker_name)
+_color_fields = set(["color", "fill_color", "line_color"])
+_alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
 def scatter(*args, **kwargs):
     """ Creates a scatter plot of the given x & y items
@@ -617,21 +620,16 @@ def scatter(*args, **kwargs):
     x_name = names[0]
 
     # TODO: How to handle this? Just call curplot()?
-    if not len(color_fields.intersection(set(kwargs.keys()))):
+    if not len(_color_fields.intersection(set(kwargs.keys()))):
         kwargs['color'] = get_default_color()
-    if not len(alpha_fields.intersection(set(kwargs.keys()))):
+    if not len(_alpha_fields.intersection(set(kwargs.keys()))):
         kwargs['alpha'] = get_default_alpha()
 
     plots = []
     for yname in names[1:]:
         if markertype not in marker_types:
             raise RuntimeError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
-        # TODO: Look up correct glyph function, then call it
-        if markertype in locals():
-            locals()[markertype](*args, **kwargs)
-        else:
-            glyphclass = marker_types[markertype]
-            plots.append(_glyph_function(glyphclass, ("x", "y"))(*args, **kwargs))
+        plots.append(marker_types[markertype](*args, **kwargs))
     if len(plots) == 1:
         return plots[0]
     else:

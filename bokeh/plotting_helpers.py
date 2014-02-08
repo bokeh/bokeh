@@ -41,6 +41,22 @@ def get_default_color(plot=None):
 def get_default_alpha(plot=None):
     return 1.0
 
+def _glyph_doc(args, props, desc):
+    params_tuple =tuple(itertools.chain.from_iterable(sorted(list(args.items()))))
+    params = "\t%s : %s\n" * len(args) % params_tuple
+
+    return """%s
+
+    Parameters
+    ----------
+    %s
+    Additionally, the following properties are accepted as keyword arguments: %s
+
+    Returns
+    -------
+    plot : :py:class:`Plot <bokeh.objects.Plot>`
+    """ % (desc, params, props)
+
 def _match_data_params(argnames, glyphclass, datasource, args, kwargs):
     """ Processes the arguments and kwargs passed in to __call__ to line
     them up with the argnames of the underlying Glyph
