@@ -1076,23 +1076,23 @@ def scatter(*args, **kwargs):
             A list/tuple of scalar values; will be treated as Y values and
             a synthetic X array of integers will be generated.
 
-        Style Parameters (specified by keyword)::
+    Style Parameters (specified by keyword)::
 
-            marker : a valid marker_type; defaults to "circle"
-            fill_color : color
-            fill_alpha : 0.0 - 1.0
-            line_color : color
-            line_width : int >= 1
-            line_alpha : 0.0 - 1.0
-            line_cap : "butt", "join", "miter"
-            color : shorthand to set both fill and line color
+        marker : a valid marker_type; defaults to "circle"
+        fill_color : color
+        fill_alpha : 0.0 - 1.0
+        line_color : color
+        line_width : int >= 1
+        line_alpha : 0.0 - 1.0
+        line_cap : "butt", "join", "miter"
+        color : shorthand to set both fill and line color
 
-        Colors can be either one of:
+    Colors can be either one of:
 
-        * the 147 named SVG colors
-        * a string representing a Hex color (e.g. "#FF32D0")
-        * a 3-tuple of integers between 0 and 255
-        * a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
+    * the 147 named SVG colors
+    * a string representing a Hex color (e.g. "#FF32D0")
+    * a 3-tuple of integers between 0 and 255
+    * a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
 
     Examples:
 
