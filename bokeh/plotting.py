@@ -18,6 +18,8 @@ from .plotting_helpers import (get_default_color, get_default_alpha,
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
 
+from .palettes import brewer
+
 DEFAULT_SERVER_URL = "http://localhost:5006/"
 
 _config = {}
