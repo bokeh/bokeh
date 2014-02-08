@@ -472,7 +472,7 @@ Args:
     outer_radius (str or list[float]) : values or field names of outer radii
     start_angle (str or list[float]) : values or field names of starting angles
     end_angle (str or list[float]) : values or field names of ending angles
-    direction ("clock" or "anticlock"): direction to turn between starting and ending angles
+    direction ("clock" or "anticlock", optional): direction to turn between starting and ending angles, defaults to "anticlock"
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
@@ -511,7 +511,7 @@ Args:
     radius (str or list[float]) : values or field names of arc radii
     start_angle (str or list[float]) : values or field names of starting angles
     end_angle (str or list[float]) : values or field names of ending angles
-    direction ("clock" or "anticlock"): direction to turn between starting and ending angles
+    direction ("clock" or "anticlock", optional): direction to turn between starting and ending angles, defaults to "anticlock"
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
@@ -549,8 +549,8 @@ Args:
     y1 (str or list[float]) : values or field names of ending `y` coordinates
     cx0 (str or list[float]) : values or field names of first control point `x` coordinates
     cy0 (str or list[float]) : values or field names of first control point `y` coordinates
-    cx1 : (str or list[float]) : values or field names of second control point `x` coordinates
-    cy1 : (str or list[float]) : values or field names of second control point `y` coordinates
+    cx1 (str or list[float]) : values or field names of second control point `x` coordinates
+    cy1 (str or list[float]) : values or field names of second control point `y` coordinates
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties`
@@ -567,8 +567,8 @@ circle = _glyph_function(glyphs.Circle, ("x", "y"),
 Args:
     x (str or list[float]) : values or field names of center `x` coordinates
     y (str or list[float]) : values or field names of center `y` coordinates
-    size (str or list[float]) : values or field names of sizes in screen units
-    radius (str  or list[float]): values or field names of radii
+    size (str or list[float], optional) : values or field names of sizes in screen units
+    radius (str  or list[float], optional): values or field names of radii
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
@@ -674,8 +674,7 @@ image = _glyph_function(glyphs.Image, ("image", "x", "y", "dw", "dh", "palette")
 A palette (string name of a built-in palette, currently) must also be supplied to use for color-mapping the scalar image.
 
 Args:
-    image : 2D array_like of float
-    image (str or 2D array_like of uint32) :
+    image (str or 2D array_like of float) : value or field names of scalar image data
     x (str or list[float]) : values or field names of lower left `x` coordinates
     y (str or list[float]) : values or field names of lower left `y` coordinates
     dw (str or list[float]) : values or field names of image width distances
@@ -692,7 +691,7 @@ image_rgba = _glyph_function(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"),
 as 32-bit integers).
 
 Args:
-    image (str or 2D array_like of uint32) :
+    image (str or 2D array_like of uint32) : value or field names of RGBA image data
     x (str or list[float]) : values or field names of lower left `x` coordinates
     y (str or list[float]) : values or field names of lower left `y` coordinates
     dw (str or list[float]) : values or field names of image width distances
@@ -768,7 +767,7 @@ Args:
     y (str or list[float]) : values or field names of center `y` coordinates
     width (str or list[float]) : values or field names of widths
     height (str or list[float]) : values or field names of heights
-    angle (str or list[float]) : values or field names of rotation angles
+    angle (str or list[float], optional) : values or field names of rotation angles, defaults to 0
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
@@ -879,7 +878,7 @@ Args:
     y (str or list[float]) : values or field names of center `y` coordinates
     width (str or list[float]) : values or field names of widths
     height (str or list[float]) : values or field names of heights
-    angle (str or list[float]) : values or field names of rotation angles
+    angle (str or list[float], optional) : values or field names of rotation angles, defaults to 0
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
@@ -965,7 +964,7 @@ Args:
     x (str or list[float]) : values or field names of text `x` coordinates
     y (str or list[float]) : values or field names of text `y` coordinates
     text (str or list[text]): values or field names of texts
-    angle (str or list[float]) : values or field names of text angles
+    angle (str or list[float], optional) : values or field names of text angles, defaults to 0
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_text_properties`
@@ -1004,7 +1003,7 @@ Args:
     radius (str or list[float]) : values or field names of wedge radii
     start_angle (str or list[float]) : values or field names of starting angles
     end_angle (str or list[float]) : values or field names of ending angles
-    direction ("clock" or "anticlock"): direction to turn between starting and ending angles
+    direction ("clock" or "anticlock", optional): direction to turn between starting and ending angles, defaults to "anticlock"
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
