@@ -111,6 +111,7 @@ if __name__ == "__main__":
         dict(file="../examples/plotting/file/markers.py", name= 'scatter_example',),    
         dict(file="../examples/plotting/file/burtin.py", name= 'burtin_example',),    
         dict(file="../examples/plotting/file/brewer.py", name= 'brewer_example',),    
+        dict(file="../examples/plotting/file/elements.py", name= 'elements_example',),    
          ]
     )
     try:
