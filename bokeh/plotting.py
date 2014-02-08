@@ -2,27 +2,21 @@ from __future__ import absolute_import, print_function
 
 """ Command-line driven plotting functions, a la Matplotlib  / Matlab / etc.
 """
-import copy
 from functools import wraps
 import itertools
 import os
-import re
 import requests
 import time
 import warnings
-import webbrowser
-
-from six import string_types
 
 from .plotting_helpers import (get_default_color, get_default_alpha,
         _match_data_params, _update_plot_data_ranges,
         _materialize_colors_and_alpha, _get_legend, _make_legend,
         _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
-from .objects import ColumnDataSource, Glyph, Grid, GridPlot
+from .objects import ColumnDataSource, Glyph, Grid, GridPlot, Legend, LinearAxis
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
 from . import glyphs, browserlib, serverconfig
-from .palettes import brewer
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
 

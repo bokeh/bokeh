@@ -5,10 +5,11 @@ import numpy as np
 import re
 from six import string_types
 
+from . import glyphs
 from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
-        ColumnDataSource, DataRange1d, DatetimeAxis, Grid, Legend,
-        LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool, ResizeTool,
-        WheelZoomTool)
+        ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
+        Grid, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
+        ResizeTool, WheelZoomTool)
 from .properties import ColorSpec
 
 # This is used to accumulate plots generated via the plotting methods in this
