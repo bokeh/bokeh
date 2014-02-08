@@ -599,25 +599,18 @@ def scatter(*args, **kwargs):
 
         scatter([1,2,3,4,5,6])
         scatter([1,2,3],[4,5,6], fill_color="red")
-        scatter(x_array, y_array, type="circle")
+        scatter(x_array, y_array, marker="circle")
         scatter("data1", "data2", source=data_source, ...)
 
     """
     session_objs = []   # The list of objects that need to be added
-
-    if "type" in kwargs:
-        warnings.warn("Keyword argument 'type' of scatter(...) is deprecated; use 'marker' instead.")
-        kwargs.setdefault("marker", kwargs.pop("type"))
 
     ds = kwargs.get("source", None)
     names, datasource = _handle_1d_data_args(args, datasource=ds)
     if datasource != ds:
         session_objs.append(datasource)
 
-    # If hold is on, then we will reuse the ranges of the current plot
-    #plot = get_plot(kwargs)
     markertype = kwargs.get("marker", "circle")
-    x_name = names[0]
 
     # TODO: How to handle this? Just call curplot()?
     if not len(_color_fields.intersection(set(kwargs.keys()))):

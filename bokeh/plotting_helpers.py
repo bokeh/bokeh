@@ -112,7 +112,8 @@ def _match_data_params(argnames, glyphclass, datasource, args, kwargs):
             glyph_val = val
         elif isinstance(val, string_types):
             if glyphclass == glyphs.Text:
-                glyph_val = val
+                # TODO (bev) this is hacky, now that text is a DataSpec, it has to be a sequence
+                glyph_val = [val]
             else:
                 if val not in datasource.column_names:
                     raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
