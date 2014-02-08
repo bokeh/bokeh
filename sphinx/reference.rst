@@ -9,17 +9,17 @@ formatting with the sphinx-bootstrap-theme plugin.*
 
 .. contents::
     :local:
-    :depth: 2
+    :depth: 3
 
 bokeh.plotting Interface
-============================
+========================
 
 .. automodule:: bokeh.plotting
     :members:
 
 
-Sessions
-========
+Plot Sessions
+=============
 
 .. autoclass:: bokeh.session.Session
 .. autoclass:: bokeh.session.BaseHTMLSession
@@ -33,16 +33,18 @@ Sessions
 Underlying Object System
 ========================
 
+`bokeh.objects`
+---------------
+
+.. automodule:: bokeh.objects
+    :members:
+
+`bokeh.properties`
+------------------
+
 .. automodule:: bokeh.properties
     :members: BaseProperty, DataSpec, ColorSpec, MetaHasProps, HasProps,
               Int, Float, Complex, File, Bool, String, List, Dict,
               Tuple, Array, Class, Instance, This, Any, Function, Event,
               Either, Enum, Sequence, Mapping, Iterable, Color, Align,
               Pattern, Size, Angle, Percent, FillProps, LineProps, TextProps
-
-Objects
-=======
-
-.. autoclass:: bokeh.objects.Viewable
-.. autoclass:: bokeh.objects.PlotObject
-
