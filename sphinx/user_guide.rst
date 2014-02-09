@@ -102,9 +102,71 @@ and ``plotting.grid()`` functions available to obtain grids for the current plot
     ygrid()[0].axis_line_color = None # only updates the first y-grid
     axis().bounds = (2, 8) # set bounds for all grids
 
+
+Tools
+-----
+
+Bokeh comes with a number of interactive tools. The are typically activated
+through the toolbar above plots, although some can be activated by keypresses
+or specific mouse movement.
+
+Tools are added to plots with the ``tools`` keyword argument, which has as its
+value a comma separated string listing the tools to add to the plot, for example::
+
+    tools = "pan,wheel_zoom,box_zoom,reset,resize,crosshair,select,previewsave,embed"
+
+PanTool
+'''''''
+The pan tool (``'pan'``) pans the plot on left-click drag. It can be made the active tool
+by clicking its button on the tool bar, however it also automatically activates on left-click
+drag whenever there is no other active tool.
+
+WheelZoomTool
+'''''''''''''
+The wheel zoom tool (``'wheel_zoom'``) will zoom the plot in and out, centered on the current
+mouse location.  It can be made the active tool by clicking its button on the tool bar, however
+it also automatically activates when the ``Shift`` key is depressed.
+
+BoxZoomTool
+'''''''''''
+The box zoom tool (``'box_zoom'``) will zoom the plot in to the box region that a user
+selects with left drag while it is the active tool.
+
+ResetTool
+'''''''''
+The reset tool (``'reset'``) will restore the plot ranges to their original values.
+
+ResizeTool
+''''''''''
+The resize tool (``'resize'``) allows the user to left drag to resize the entire plot while
+it is the active tool.
+
+PreviewSaveTool
+'''''''''''''''
+The preview-save tool (``'previewsave'``) pops up a modal dialog that allows the user to save
+a PNG image if the plot.
+
+EmbedTool
+'''''''''
+The embed tool (``'embed'``) tool pops up a modal dialog containing a javascript ``<script>``
+snippet that can put int HTML pages to display the plot.
+
+CrosshairTool
+'''''''''''''
+Th crosshair tool (``'crosshair'``) draws a crosshair annotation over the plot, centered on
+the current mouse position.
+
+BoxSelectTool
+'''''''''''''
+The box selection tool (``'select'``) allows the user to define a rectangular selection
+region be left-dragging on the plot. The indicies of the data points in the selection
+region are stored on the data source as the current selection. If other plots share this
+datasource, then they will render a linked selection. This selection is also available
+from python when using server-based output.
+
 Embedding
 ---------
-
+Coming soon!
 
 Animated Plots
 --------------
