@@ -1,5 +1,4 @@
 
-
 define [
   "backbone",
   "common/has_properties"
@@ -20,11 +19,11 @@ define [
       @register_property('min',
           () -> @get('start')
         , true)
-      @add_dependencies('min', this, ['start'])
+      @add_dependencies('min', this, ['values'])
       @register_property('max',
           () -> @get('end')
         , true)
-      @add_dependencies('max', this, ['end'])
+      @add_dependencies('max', this, ['values'])
 
     defaults: () ->
       return {
