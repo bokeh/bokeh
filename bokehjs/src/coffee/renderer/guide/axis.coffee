@@ -455,7 +455,7 @@ define [
       [start, end] = @get('computed_bounds')
 
       # TODO, some axes need to pass range
-      ticks = @scale.get_ticks(start, end)
+      ticks = @scale.get_ticks(start, end, range, {})
 
       cstart = cross_range.get('start')
       cend = cross_range.get('end')

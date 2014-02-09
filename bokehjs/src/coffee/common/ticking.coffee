@@ -175,8 +175,8 @@ define [
   # max value and (optionally) a desired number of ticks, and returns an array
   # of approximately that many ticks, evenly spaced, with nice round values,
   # within that range.
-  # 
-  # Different Scales are suited to different types of data or different 
+  #
+  # Different Scales are suited to different types of data or different
   # magnitudes.  To make it possible to select Scales programmatically, they
   # also support some additional methods: get_interval(), get_min_interval(),
   # and get_max_interval().
@@ -186,8 +186,8 @@ define [
     constructor: (@toString_properties=[]) ->
 
     # Generates a nice series of ticks for a given range.
-    get_ticks: (data_low, data_high,
-                desired_n_ticks=DEFAULT_DESIRED_N_TICKS) ->
+    get_ticks: (data_low, data_high, range, {desired_n_ticks}) ->
+      desired_n_ticks ?= DEFAULT_DESIRED_N_TICKS
       return @get_ticks_no_defaults(data_low, data_high, desired_n_ticks)
 
     # The version of get_ticks() that does the work (and the version that
