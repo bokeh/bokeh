@@ -49,7 +49,6 @@ define [
         canvas.width = @width[i];
         canvas.height = @height[i];
         ctx = canvas.getContext('2d')
-        console.log @width[i], @height[i]
         image_data = ctx.getImageData(0, 0, @width[i], @height[i])
         cmap = new LinearColorMapper({}, {
           palette: all_palettes[@palette[i]]
