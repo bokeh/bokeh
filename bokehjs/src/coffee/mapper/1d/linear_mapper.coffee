@@ -10,10 +10,8 @@ define [
 
       @register_property('mapper_state', @_mapper_state, true)
       @add_dependencies('mapper_state', this, ['source_range', 'target_range'])
-      @add_dependencies('mapper_state',
-        @get('source_range'), ['start', 'end'])
-      @add_dependencies('mapper_state',
-        @get('target_range'), ['start', 'end'])
+      @add_dependencies('mapper_state', @get('source_range'), ['start', 'end'])
+      @add_dependencies('mapper_state', @get('target_range'), ['start', 'end'])
 
     map_to_target: (x) ->
       [scale, offset] = @get('mapper_state')

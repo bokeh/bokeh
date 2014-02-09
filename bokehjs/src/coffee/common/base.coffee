@@ -13,6 +13,7 @@ define [
   "range/data_factor_range",
   "renderer/glyph/glyph_factory",
   "renderer/guide/linear_axis",
+  "renderer/guide/categorical_axis",
   "renderer/guide/datetime_axis",
   "renderer/guide/grid",
   "renderer/annotation/legend",
@@ -55,6 +56,7 @@ define [
 
     Glyph:                  'renderer/glyph/glyph_factory'
     LinearAxis:             'renderer/guide/linear_axis'
+    CategoricalAxis:        'renderer/guide/categorical_axis'
     DatetimeAxis:           'renderer/guide/datetime_axis'
     Grid:                   'renderer/guide/grid'
     Legend:                 'renderer/annotation/legend'

@@ -21,15 +21,12 @@
           setTimeout(function() {
             require.config({
               baseUrl: "../js",
-              paths: {
-                "testobject": "../test/common/test_object"
-              }
             });
 
             requirejs([
-              '../test/common/has_parent_test.js',
-              '../test/common/has_property_test.js',
-            ], function(one) {
+              '../test/range/range1d_test.js',
+              '../test/range/factor_range_test.js',
+            ], function(one){
               setTimeout(function () {
                 QUnit.start();
               }, 1500);

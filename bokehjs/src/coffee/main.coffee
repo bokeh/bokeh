@@ -35,6 +35,7 @@ define (require, exports, module) ->
 
   # mappers
   Bokeh.LinearMapper      = require("mapper/1d/linear_mapper")
+  Bokeh.CategoricalMapper = require("mapper/1d/categorical_mapper")
   Bokeh.GridMapper        = require("mapper/2d/grid_mapper")
   Bokeh.LinearColorMapper = require("mapper/color/linear_color_mapper")
 
@@ -81,9 +82,10 @@ define (require, exports, module) ->
   Bokeh.X                = glyph_factory.x
 
   # guides
-  Bokeh.DatetimeAxis = require("renderer/guide/datetime_axis")
-  Bokeh.Grid         = require("renderer/guide/grid")
-  Bokeh.LinearAxis   = require("renderer/guide/linear_axis")
+  Bokeh.DatetimeAxis    = require("renderer/guide/datetime_axis")
+  Bokeh.Grid            = require("renderer/guide/grid")
+  Bokeh.LinearAxis      = require("renderer/guide/linear_axis")
+  Bokeh.CategoricalAxis = require("renderer/guide/categorical_axis")
 
   # overlays
   Bokeh.BoxSelection = require("renderer/overlay/box_selection")
@@ -113,6 +115,7 @@ define (require, exports, module) ->
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")
   Bokeh.server_page = require("server/serverrun").load
+
   exports.Bokeh = Bokeh
 
   return Bokeh

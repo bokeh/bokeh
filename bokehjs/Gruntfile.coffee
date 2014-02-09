@@ -207,7 +207,10 @@ module.exports = (grunt) ->
       all:
         options:
           urls:[
-            'http://localhost:8000/build/test/common_test.html']
+            'http://localhost:8000/build/test/common_test.html',
+            'http://localhost:8000/build/test/mapper_test.html',
+            'http://localhost:8000/build/test/range_test.html',
+          ]
 
     groc:
       coffee: [ "docs/*.coffee", "docs/*.md", "README.md" ]
@@ -246,7 +249,7 @@ module.exports = (grunt) ->
   grunt.registerTask("mindeploy",   ["build",  "requirejs:production", "concat:css", "cssmin"])
   grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css", "copy:spectrogram"])
   grunt.registerTask("deploy",      ["mindeploy", "devdeploy"])
-  grunt.registerTask("test",        ["connect", "qunit"])
+  grunt.registerTask("test",        ["build", "connect", "qunit"])
   grunt.registerTask("serve",       ["connect:server:keepalive"])
   grunt.registerTask("config", "Write config.js", () ->
     config = {

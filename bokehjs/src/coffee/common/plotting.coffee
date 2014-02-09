@@ -4,9 +4,11 @@ define [
   "jquery",
   "./plot",
   "range/data_range1d",
+  "range/factor_range",
   "range/range1d",
   "renderer/annotation/legend",
   "renderer/glyph/glyph_factory",
+  "renderer/guide/categorical_axis",
   "renderer/guide/linear_axis",
   "renderer/guide/grid",
   "renderer/overlay/box_selection",
@@ -19,7 +21,7 @@ define [
   "tool/wheel_zoom_tool",
   "tool/reset_tool",
   "renderer/guide/datetime_axis",
-], (_, $, Plot, DataRange1d, Range1d, Legend, GlyphFactory, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, BoxZoomTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
+], (_, $, Plot, DataRange1d, FactorRange, Range1d, Legend, GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, BoxZoomTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -37,10 +39,13 @@ define [
       return DataRange1d.Collection.create(
         sources: ({ref: s.ref(), columns: columns} for s in sources)
       )
-    else if range instanceof Range1d.Model
+    else if (range instanceof Range1d.Model) or (range instanceof FactorRange.Model)
       return range
     else
-      return Range1d.Collection.create({start: range[0], end: range[1]})
+      if typeof(range[0]) == "string"
+        return FactorRange.Collection.create({factors: range})
+      else
+        return Range1d.Collection.create({start: range[0], end: range[1]})
 
   create_glyphs = (plot, glyphspecs, sources, nonselection_glyphspecs) ->
     glyphs = []
@@ -70,7 +75,7 @@ define [
 
     return glyphs
 
-  add_axes = (plot, xaxes, yaxes) ->
+  add_axes = (plot, xaxes, yaxes, xdr, ydr) ->
     axes = []
     if xaxes
       if xaxes == true
@@ -81,7 +86,15 @@ define [
 
         for loc in ['min','max']
           axis = DatetimeAxis.Collection.create(
-          #axis = LinearAxis.Collection.create(
+            dimension: 0
+            axis_label: 'x'
+            location: loc
+            parent: plot.ref()
+            plot: plot.ref())
+          axes.push(axis)
+      else if xdr.type == "FactorRange"
+        for loc in xaxes
+          axis = CategoricalAxis.Collection.create(
             dimension: 0
             axis_label: 'x'
             location: loc
@@ -102,15 +115,25 @@ define [
         yaxes = ['min', 'max']
       if not _.isArray(yaxes)
         yaxes = [yaxes]
-      for loc in yaxes
-        axis = LinearAxis.Collection.create(
-          dimension: 1
-          axis_label: 'y'
-          location: loc
-          parent: plot.ref()
-          plot: plot.ref()
-        )
-        axes.push(axis)
+      if ydr.type == "FactorRange"
+        for loc in xaxes
+          axis = CategoricalAxis.Collection.create(
+            dimension: 1
+            axis_label: 'y'
+            location: loc
+            parent: plot.ref()
+            plot: plot.ref())
+          axes.push(axis)
+      else
+        for loc in yaxes
+          axis = LinearAxis.Collection.create(
+            dimension: 1
+            axis_label: 'y'
+            location: loc
+            parent: plot.ref()
+            plot: plot.ref()
+          )
+          axes.push(axis)
     plot.add_renderers(a.ref() for a in axes)
 
   # FIXME The xaxis_is_datetime argument is a huge hack, but for now I want to
@@ -234,7 +257,7 @@ define [
     glyphs = create_glyphs(plot, glyphspecs, sources, nonselected)
     plot.add_renderers(g.ref() for g in glyphs)
 
-    add_axes(plot, xaxes, yaxes)
+    add_axes(plot, xaxes, yaxes, xdr, ydr)
     add_grids(plot, xgrid, ygrid, xaxes == 'datetime')
     add_tools(plot, tools, glyphs, xdr, ydr)
     add_legend(plot, legend, glyphs)
