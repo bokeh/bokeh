@@ -398,13 +398,30 @@ define [
       ys = new Float64Array(2)
       coords = [xs, ys]
 
+      cstart = cross_range.get('start')
+      cend = cross_range.get('end')
+
       loc = @get('location') ? 'min'
+      pos = loc
       if _.isString(loc)
         if loc == 'left' or loc == 'bottom'
-          loc = 'start'
+          if cstart < cend
+            loc = 'start'
+            pos = 'min'
+          else
+            loc = 'end'
+            pos = 'max'
         else if loc == 'right' or loc == 'top'
-          loc = 'end'
+          if cstart < cend
+            loc = 'end'
+            pos = 'max'
+          else
+            loc = 'start'
+            pos = 'min'
         loc = cross_range.get(loc)
+
+      if cross_range.type == "FactorRange"
+        loc = mappers[i].map_to_target(loc, pos)
 
       [range_min, range_max] = [range.get('min'), range.get('max')]
 
@@ -430,13 +447,30 @@ define [
 
       ticks = @scale.get_ticks(start, end)
 
+      cstart = cross_range.get('start')
+      cend = cross_range.get('end')
+
       loc = @get('location') ? 'min'
+      pos = loc
       if _.isString(loc)
         if loc == 'left' or loc == 'bottom'
-          loc = 'start'
+          if cstart < cend
+            loc = 'start'
+            pos = 'min'
+          else
+            loc = 'end'
+            pos = 'max'
         else if loc == 'right' or loc == 'top'
-          loc = 'end'
+          if cstart < cend
+            loc = 'end'
+            pos = 'max'
+          else
+            loc = 'start'
+            pos = 'min'
         loc = cross_range.get(loc)
+
+      if cross_range.type == "FactorRange"
+        loc = mappers[i].map_to_target(loc, pos)
 
       xs = []
       ys = []
@@ -462,9 +496,31 @@ define [
 
       [start, end] = @get('computed_bounds')
 
-      loc = @get('location') ? 'min'
       cstart = cross_range.get('start')
       cend = cross_range.get('end')
+
+      loc = @get('location') ? 'min'
+      pos = loc
+      if _.isString(loc)
+        if loc == 'left' or loc == 'bottom'
+          if cstart < cend
+            loc = 'start'
+            pos = 'min'
+          else
+            loc = 'end'
+            pos = 'max'
+        else if loc == 'right' or loc == 'top'
+          if cstart < cend
+            loc = 'end'
+            pos = 'max'
+          else
+            loc = 'start'
+            pos = 'min'
+        loc = cross_range.get(loc)
+
+      if cross_range.type == "FactorRange"
+        cstart = mappers[i].map_to_target(cstart, pos)
+        cend = mappers[i].map_to_target(cend, pos)
 
       normals = [0, 0]
 
