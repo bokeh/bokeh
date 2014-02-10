@@ -4,11 +4,12 @@ from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 from bokeh import plotting
+from bokeh import plotting_helpers
 
 def noop(*args, **kwargs):
     pass
 plotting.show= noop
-import webbrowser 
+import webbrowser
 webbrowser.open = noop
 
 
@@ -25,7 +26,7 @@ def page_desc(prev_infos, module_desc):
     varname = module_desc.get('varname', False)
 
     from bokeh import plotting
-    plotting._PLOTLIST = []
+    plotting_helpers._PLOTLIST = []
     file_namespace = {}
     execfile(module_path, file_namespace)
     embed_snippet = ""
@@ -35,7 +36,7 @@ def page_desc(prev_infos, module_desc):
             embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
             embed_base_url=DETAIL_URL_ROOT)
     else:
-        for p in plotting._PLOTLIST:
+        for p in plotting_helpers._PLOTLIST:
             embed_snippet += p.create_html_snippet(
                 embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
                 embed_base_url=DETAIL_URL_ROOT)
@@ -68,7 +69,7 @@ def make_gallery(module_descs):
     for p, p_next in [[p, page_infos[i+1]] for i, p in enumerate(page_infos[:-1])]:
         p['next_detail_url'] = p_next['detail_page_url']
         p['next_detail_name'] = p_next['name']
-    t = _load_template("_templates/gallery_detail.html")    
+    t = _load_template("_templates/gallery_detail.html")
     gallery_template = '''
     <li>
         <a href="plot_gallery/%(detail_page_url)s">%(name)s
@@ -84,10 +85,10 @@ def make_gallery(module_descs):
         fname = os.path.join(detail_dir, info['name'] + ".html")
         info['HOSTED_STATIC_ROOT']= HOSTED_STATIC_ROOT
         print " writing to ", fname
-    
+
         with open(fname, "w") as f:
             f.write(t.render(info))
-    gallery_snippet += "</ul>"    
+    gallery_snippet += "</ul>"
     print "GALLERY_SNIPPET_PATH", GALLERY_SNIPPET_PATH
     with open(GALLERY_SNIPPET_PATH, "w") as f:
         f.write(gallery_snippet)
@@ -95,23 +96,23 @@ def make_gallery(module_descs):
 if __name__ == "__main__":
     make_gallery(
         [
-        dict(file="../examples/plotting/file/iris.py", name='iris',),    
-        dict(file="../examples/plotting/file/candlestick.py", name='candlestick',),    
-        dict(file="../examples/plotting/file/legend.py", name= 'legend',),    
+        dict(file="../examples/plotting/file/iris.py", name='iris',),
+        dict(file="../examples/plotting/file/candlestick.py", name='candlestick',),
+        dict(file="../examples/plotting/file/legend.py", name= 'legend',),
         dict(file="../examples/plotting/file/correlation.py", name='correlation',),
-        dict(file="../examples/plotting/file/glucose.py", name= 'glucose',),    
-        dict(file="../examples/plotting/file/stocks.py", name= 'stocks',),    
-        dict(file="../examples/plotting/file/vector.py", name= 'vector_example',),    
-        dict(file="../examples/plotting/file/lorenz.py", name= 'lorenz_example',),    
-        dict(file="../examples/plotting/file/color_scatter.py", name= 'color_scatter_example',),    
+        dict(file="../examples/plotting/file/glucose.py", name= 'glucose',),
+        dict(file="../examples/plotting/file/stocks.py", name= 'stocks',),
+        dict(file="../examples/plotting/file/vector.py", name= 'vector_example',),
+        dict(file="../examples/plotting/file/lorenz.py", name= 'lorenz_example',),
+        dict(file="../examples/plotting/file/color_scatter.py", name= 'color_scatter_example',),
         dict(file="../examples/glyphs/iris_splom.py", name='iris_splom', varname="grid"),
         dict(file="../examples/glyphs/anscombe.py", name='anscombe', varname="grid"),
-        dict(file="../examples/plotting/file/choropleth.py", name= 'choropleth_example',),    
-        dict(file="../examples/plotting/file/texas.py", name= 'texas_example',),    
-        dict(file="../examples/plotting/file/markers.py", name= 'scatter_example',),    
-        dict(file="../examples/plotting/file/burtin.py", name= 'burtin_example',),    
-        dict(file="../examples/plotting/file/brewer.py", name= 'brewer_example',),    
-        dict(file="../examples/plotting/file/elements.py", name= 'elements_example',),    
+        dict(file="../examples/plotting/file/choropleth.py", name= 'choropleth_example',),
+        dict(file="../examples/plotting/file/texas.py", name= 'texas_example',),
+        dict(file="../examples/plotting/file/markers.py", name= 'scatter_example',),
+        dict(file="../examples/plotting/file/burtin.py", name= 'burtin_example',),
+        dict(file="../examples/plotting/file/brewer.py", name= 'brewer_example',),
+        dict(file="../examples/plotting/file/elements.py", name= 'elements_example',),
          ]
     )
     try:
