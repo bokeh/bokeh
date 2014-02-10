@@ -83,7 +83,7 @@ define [
 
       @_map_data()
 
-      if @_mask_data?
+      if @_mask_data? and (@plot_view.x_range.type != "FactorRange") and (@plot_view.y_range.type != "FactorRange")
         indices = @_mask_data()
       else
         indices = @all_indices

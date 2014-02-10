@@ -5,22 +5,32 @@ require(['main'], (Bokeh) ->
 
   r = new Bokeh.Random(123456789)
 
-  factors = ["foo", "bar", "baz"]
+  factors = ["a", "b", "c", "d", "e", "f", "g", "h"]
 
   data = {
-    x: [50, 40, 65]
-    y: ["foo", "bar", "baz"]
+    x0: [0,0,0,0,0,0,0,0]
+    x: [50, 40, 65, 10, 25, 37, 80, 60]
+    y: factors
   }
 
-  glyph = {
+  dot = {
     type: 'circle'
     x: 'x'
     y: 'y'
     radius: 6
     radius_units: 'screen'
     fill_color: 'green'
-    fill_alpha: 0.6
     line_color: 'green'
+  }
+
+  line = {
+    type: 'segment'
+    x0: 'x0'
+    y0: 'y'
+    x1: 'x'
+    y1: 'y'
+    line_color: 'green'
+    line_width: 2
   }
 
   options = {
@@ -34,6 +44,6 @@ require(['main'], (Bokeh) ->
     legend: false
   }
 
-  plot = Bokeh.Plotting.make_plot(glyph, data, options)
+  plot = Bokeh.Plotting.make_plot([line, dot], data, options)
   Bokeh.Plotting.show(plot)
   )

@@ -64,7 +64,7 @@ define [
         y0 -= @max_radius
         y1 += @max_radius
 
-      @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->
       for i in indices
