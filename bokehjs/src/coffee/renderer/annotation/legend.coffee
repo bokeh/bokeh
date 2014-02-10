@@ -114,6 +114,7 @@ define [
         ctx.fillText(legend_name, x, y)
         for renderer in @model.resolve_ref(@legends[legend_name])
           view = @plot_view.renderers[renderer.id]
+          console.log("legend", x1,x2,y1,y2)
           view.draw_legend(ctx, x1,x2,y1,y2)
 
       ctx.restore()

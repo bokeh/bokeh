@@ -5,7 +5,8 @@ define [
   "backbone",
   "./tool",
   "./event_generators",
-], (_, $, Backbone, Tool, EventGenerators) ->
+  "renderer/annotation/legend"
+], (_, $, Backbone, Tool, EventGenerators, Legend) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 
@@ -136,10 +137,41 @@ define [
               xr: {start: x_min, end: x_max },
               yr: {start: y_min2, end: y_max2 }
               })
+
+            old_legends = @model.set('legends')
             
             pview.request_render()
             @model.get('renderer_map')[renderer_name] = glyphs[0])
+    unreder_legend:  ->
+      renderer = @model.get('legend_renderer')
+      pview = @plot_view
+      pmodel = @plot_view.model
 
+      existing_renderers = pmodel.get('renderers')
+      modified_renderers = []
+      for r in existing_renderers
+        if not (r.id == renderer.id)
+          modified_renderers.push(r)
+      pmodel.set('renderers', modified_renderers)
+      pview.request_render()
+
+    _reset_legends: ->
+      @unreder_legend()
+      pview = @plot_view
+      pmodel = @plot_view.model
+
+      renderers = @model.get('renderer_map')[renderer_name] = glyphs[0])
+      legends = {}
+      _.each(renderers, (r, rname) ->
+        legends[rname] = [r.ref()]
+      legend_renderer = Legend.Collection.create({
+        parent: pmodel.ref()
+        plot: pmodel.ref()
+        orientation: "top_right"
+        legends: legends
+      })
+      pmodel.add_renderers([legend_renderer.ref()])
+      @model.set('legend_renderer', legend_renderer)
 
     find_category: (renderer_name) ->
       ctree = @model.get('column_tree')
