@@ -38,32 +38,24 @@ define [
       return this;
 
     template: """
-      <div class='column_select'>
-          <div class="header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-            <h3 id="dataConfirmLabel">Data Sources </h3></div><div class="modal-body">
-          <div class="body">
-
-            <ul class='category_list'>
-              <% _.each(column_tree, function(columns, category){ %>
-                <li class='category_item'> <%= category %> </li>
-                  <input class='category_check' name='<%= category %>'
-                      <%= (!(_.contains(selected_categories, category, true)) || 'checked') %>
-                  type='checkbox' />
-                  <ul class='column_list'>
-                    <% _.each(columns, function(column_data){ %>
-                      <li class='column_item' > <%= column_data %> 
-                        <input class='column_check' name='<%= column_data %>' <%= (!(_.has(renderer_map,column_data, true)) || 'checked') %> type='checkbox' />
-                       </li>
-                    <% }) %>
-                  </ul> 
-                </li>
-              <% }) %>
-            </ul>
-          </div>
-          </div><div class="footer">
-            <button class="btn" aria-hidden="true">Close</button>
-          </div>
+      <div>
+        <h1> <%= Selector_title %> </h1> 
+        <ul class='category_list'>
+          <% _.each(column_tree, function(columns, category){ %>
+            <li class='category_item'> <%= category %> </li>
+              <input class='category_check' name='<%= category %>'
+                  <%= (!(_.contains(selected_categories, category, true)) || 'checked') %>
+              type='checkbox' />
+              <ul class='column_list'>
+                <% _.each(columns, function(column_data){ %>
+                  <li class='column_item' > <%= column_data %> 
+                    <input class='column_check' name='<%= column_data %>' <%= (!(_.has(renderer_map,column_data, true)) || 'checked') %> type='checkbox' />
+                   </li>
+                <% }) %>
+              </ul> 
+            </li>
+          <% }) %>
+        </ul>
       </div>
       """
     update_selected_category: (e) ->
