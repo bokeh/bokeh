@@ -1,4 +1,6 @@
-require(['main'], (Bokeh) ->
+
+
+load_func = (Bokeh) ->
   xs = ((x/50) for x in _.range(630))
   source = Bokeh.Collections('RemoteDataSource').create(
     api_endpoint: "http://localhost:5000/"
@@ -135,7 +137,7 @@ require(['main'], (Bokeh) ->
 
 
   remote_data_select_tool = Bokeh.Collections('RemoteDataSelectTool').create(
-    api_endpoint: "http://localhost:5000/", #glyph_specs: [scatter1, scatter2, scatter3],
+    api_endpoint: window.pandasRESTUrl,
     control_el:"#selector_div", column_tree:column_tree,
     glyph_tree: glyph_tree, column_ordering:column_ordering,
     
@@ -144,9 +146,12 @@ require(['main'], (Bokeh) ->
   existing_tools =   plot1.get_obj('tools')
   existing_tools.push(remote_data_select_tool)
   plot1.set_obj('tools', existing_tools)
-  Bokeh.Plotting.show(plot1, $("#plot_target")))
+  Bokeh.Plotting.show(plot1, $("#plot_target"))
 
-
+if require?
+  require(['main'], load_func)
+else
+  load_func(Bokeh)
 
 
 

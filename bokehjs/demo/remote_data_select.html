@@ -7,8 +7,16 @@
       <title>Scatter Demo</title>
 
       <link href="../css/bokeh.css" rel="stylesheet">
+      <!--
+      <script data-main="../js/main" src='../js/bokeh.js'></script>
+      -->
       <script data-main="../js/main" src='../js/vendor/requirejs/require.js'></script>
       <script src="../js/config.js"></script>
+
+
+    
+
+
       <style>
         #selector_div { float:right;  height:500px;  width:400px;  overflow-y:scroll; overflow-x:hidden}
         #plot_target {float:left; height:500px; width:500px}
@@ -30,6 +38,7 @@
   <body>
       <div id="plot_target"></div>
       <div id="selector_div"></div>
+      <script>window.pandasRESTUrl = "http://localhost:5000/";</script>
       <script src='http://localhost:5006/bokehjs/static/demo/js/remote_data_select.js'></script>
   </body>
 </html>
