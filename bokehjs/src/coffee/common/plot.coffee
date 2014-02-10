@@ -10,10 +10,11 @@ define [
   "./has_parent",
   "./view_state",
   "mapper/1d/linear_mapper",
+  "mapper/1d/categorical_mapper",
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -125,12 +126,18 @@ define [
       @x_range = options.x_range ? @mget_obj('x_range')
       @y_range = options.y_range ? @mget_obj('y_range')
 
-      @xmapper = new LinearMapper({
+      xmapper_type = LinearMapper
+      if @x_range.type == "FactorRange"
+        xmapper_type = CategoricalMapper
+      @xmapper = new xmapper_type({
         source_range: @x_range
         target_range: @view_state.get('inner_range_horizontal')
       })
 
-      @ymapper = new LinearMapper({
+      ymapper_type = LinearMapper
+      if @y_range.type == "FactorRange"
+        ymapper_type = CategoricalMapper
+      @ymapper = new ymapper_type({
         source_range: @y_range
         target_range: @view_state.get('inner_range_vertical')
       })

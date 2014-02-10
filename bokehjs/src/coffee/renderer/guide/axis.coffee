@@ -409,8 +409,8 @@ define [
 
       [start, end] = @get('computed_bounds')
 
-      xs = new Float64Array(2)
-      ys = new Float64Array(2)
+      xs = new Array(2)
+      ys = new Array(2)
       coords = [xs, ys]
 
       cstart = cross_range.get('start')

@@ -9,25 +9,25 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       @register_property('start',
-          () -> @get('values')[0]
+          () -> @get('factors')[0]
         , true)
-      @add_dependencies('start', this, ['values'])
+      @add_dependencies('start', this, ['factors'])
       @register_property('end',
-          () -> @get('values')[@get('values').length-1]
+          () -> @get('factors')[@get('factors').length-1]
         , true)
-      @add_dependencies('end', this, ['values'])
+      @add_dependencies('end', this, ['factors'])
       @register_property('min',
           () -> @get('start')
         , true)
-      @add_dependencies('min', this, ['values'])
+      @add_dependencies('min', this, ['factors'])
       @register_property('max',
           () -> @get('end')
         , true)
-      @add_dependencies('max', this, ['values'])
+      @add_dependencies('max', this, ['factors'])
 
     defaults: () ->
       return {
-        values: []
+        factors: []
       }
 
   class FactorRanges extends Backbone.Collection
