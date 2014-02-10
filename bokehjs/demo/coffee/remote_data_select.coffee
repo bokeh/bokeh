@@ -15,8 +15,8 @@ require(['main'], (Bokeh) ->
     xrange: xdr
     yrange: ydr
     xaxes: "datetime"
-    yaxes: "min"
-    legend: true}
+    yaxes: "min", legend:true}
+
 
   plot1 = Bokeh.Plotting.make_plot([], source, options)
 

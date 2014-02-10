@@ -10,9 +10,21 @@
       <script data-main="../js/main" src='../js/vendor/requirejs/require.js'></script>
       <script src="../js/config.js"></script>
       <style>
-        #selector_div { float:right;  height:500px;  width:400px;  overflow:scroll; border:3px solid blue;}
-        #plot_target {float:left; height:500px; width:500px; border:2px solid red;}
-        
+        #selector_div { float:right;  height:500px;  width:400px;  overflow-y:scroll; overflow-x:hidden}
+        #plot_target {float:left; height:500px; width:500px}
+        ul.category_list {list-style:none}
+        ul.category_list li.category_item {border:1px solid red; display:inline;
+            clear:none;}
+        ul.input.category_check {border:1px solid blue; float:left;
+            width:10px;  height:10px;}
+        ul.column_list  {list-style:none}
+        ul.column_list li.column_item {
+            clear:none;
+            clear:left; 
+            b order:1px solid red; display:inline;}
+
+        ul input.column_check {border:1px solid blue; float:left;
+            width:10px;  height:10px;}
       </style>
   </head>
   <body>

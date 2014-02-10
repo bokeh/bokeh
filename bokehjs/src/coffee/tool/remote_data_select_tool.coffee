@@ -50,7 +50,7 @@ define [
                   <input class='category_check' name='<%= category %>'
                       <%= (!(_.contains(selected_categories, category, true)) || 'checked') %>
                   type='checkbox' />
-                  <ul class='column_item'>
+                  <ul class='column_list'>
                     <% _.each(columns, function(column_data){ %>
                       <li class='column_item' > <%= column_data %> 
                         <input class='column_check' name='<%= column_data %>' <%= (!(_.has(renderer_map,column_data, true)) || 'checked') %> type='checkbox' />
@@ -137,33 +137,33 @@ define [
               xr: {start: x_min, end: x_max },
               yr: {start: y_min2, end: y_max2 }
               })
-
             old_legends = @model.set('legends')
-            
+            @_reset_legends()
             pview.request_render()
             @model.get('renderer_map')[renderer_name] = glyphs[0])
-    unreder_legend:  ->
+
+    _unreder_legend:  ->
       renderer = @model.get('legend_renderer')
       pview = @plot_view
       pmodel = @plot_view.model
 
       existing_renderers = pmodel.get('renderers')
       modified_renderers = []
+
       for r in existing_renderers
-        if not (r.id == renderer.id)
+        if renderer and not (r.id == renderer.id)
           modified_renderers.push(r)
       pmodel.set('renderers', modified_renderers)
       pview.request_render()
 
     _reset_legends: ->
-      @unreder_legend()
+      @_unreder_legend()
       pview = @plot_view
       pmodel = @plot_view.model
 
-      renderers = @model.get('renderer_map')[renderer_name] = glyphs[0])
       legends = {}
-      _.each(renderers, (r, rname) ->
-        legends[rname] = [r.ref()]
+      _.each(@model.get('renderer_map'), (r, rname) ->
+        legends[rname] = [r])
       legend_renderer = Legend.Collection.create({
         parent: pmodel.ref()
         plot: pmodel.ref()
