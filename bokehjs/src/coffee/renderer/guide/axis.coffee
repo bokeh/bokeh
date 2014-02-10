@@ -133,6 +133,12 @@ define [
       @formatter = options.formatter
 
     render: () ->
+      i = @mget('dimension')
+      j = (i + 1) % 2
+      mappers = [@plot_view.xmapper, @plot_view.ymapper]
+      @parallel_offset = mappers[i].get('target_offset')
+      @normal_offset = mappers[j].get('target_offset')
+
       ctx = @plot_view.ctx
 
       ctx.save()
@@ -155,6 +161,19 @@ define [
         return
       [x, y] = coords = @mget('rule_coords')
       [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
+      [nx, ny] = @mget('normals')
+
+      if @normal_offset != 0
+        for i in [0...sx.length]
+          sx[i] += nx * @normal_offset
+          sy[i] += ny * @normal_offset
+
+      if @parallel_offset != 0
+          sx[0] -= ny * @parallel_offset
+          sy[0] -= nx * @parallel_offset
+          sx[sx.length-1] += ny * @parallel_offset
+          sy[sx.length-1] += nx * @parallel_offset
+
       @rule_props.set(ctx, @)
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
@@ -168,6 +187,12 @@ define [
       [x, y] = coords = @mget('major_coords')
       [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
       [nx, ny] = @mget('normals')
+
+      if @normal_offset != 0
+        for i in [0...sx.length]
+          sx[i] += nx * @normal_offset
+          sy[i] += ny * @normal_offset
+
       tin = @mget('major_tick_in')
       tout = @mget('major_tick_out')
       @major_tick_props.set(ctx, @)
@@ -184,6 +209,11 @@ define [
       dim = @mget('dimension')
       side = @mget('side')
       orient = @mget('major_label_orientation')
+
+      if @normal_offset != 0
+        for i in [0...sx.length]
+          sx[i] += nx * @normal_offset
+          sy[i] += ny * @normal_offset
 
       if _.isString(orient)
         angle = _angle_lookup[side][orient]
@@ -218,6 +248,11 @@ define [
       [nx, ny] = @mget('normals')
       side = @mget('side')
       orient = 'parallel'
+
+      if @normal_offset != 0
+        for i in [0...sx.length]
+          sx[i] += nx * @normal_offset
+          sy[i] += ny * @normal_offset
 
       angle = _angle_lookup[side][orient]
       standoff = @_tick_extent() + @_tick_label_extent() + @mget('axis_label_standoff')

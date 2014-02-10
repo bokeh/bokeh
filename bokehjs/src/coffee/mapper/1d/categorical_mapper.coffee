@@ -13,6 +13,11 @@ define [
       @add_dependencies('mapper_state', @get('source_range'), ['start', 'end'])
       @add_dependencies('mapper_state', @get('target_range'), ['start', 'end'])
 
+      @register_property('target_offset',
+          () -> return @get('mapper_state')[1]
+        , true)
+      @add_dependencies('target_offset', this, ['mapper_state'])
+
     map_to_target: (x, pos="center") ->
       [scale, offset] = @get('mapper_state')
       factors = @get('source_range').get('factors')

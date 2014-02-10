@@ -19,8 +19,9 @@ require(['main'], (Bokeh) ->
     y: 'y'
     radius: 6
     radius_units: 'screen'
-    fill_color: 'green'
+    fill_color: 'orange'
     line_color: 'green'
+    line_width: 2
   }
 
   line = {
@@ -30,7 +31,7 @@ require(['main'], (Bokeh) ->
     x1: 'x'
     y1: 'y'
     line_color: 'green'
-    line_width: 2
+    line_width: 4
   }
 
   options = {
@@ -40,7 +41,7 @@ require(['main'], (Bokeh) ->
     yrange: factors
     xaxes: "min"
     yaxes: "min"
-    tools: false
+    tools: "resize"
     legend: false
   }
 
