@@ -120,7 +120,7 @@ single bokeh.js file
 First build BokehJS. In the top-level Bokeh directory:
 
     $ cd bokehjs
-    $ grunt devdeploy
+    $ grunt deploy
 
 Next, install Bokeh. In the top-level Bokeh directory:
 
