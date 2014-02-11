@@ -1,30 +1,29 @@
 
 require [
-  "underscore",
   "common/base",
   "range/factor_range",
-], (_, base, FactorRange) ->
+], (base, FactorRange) ->
 
   test('factor_range_default_values', () ->
     r = new FactorRange.Model()
-    ok(_.isEqual(r.get('values'), []))
+    deepEqual(r.get('factors'), [])
   )
 
   test('factor_range_setting', () ->
     r = new FactorRange.Model()
-    r.set('values', ['FOO'])
-    ok(_.isEqual(r.get('values'), ['FOO']))
+    r.set('factors', ['FOO'])
+    deepEqual(r.get('factors'), ['FOO'])
   )
 
   test('factor_range_minmax', () ->
     r = new FactorRange.Model()
-    r.set('values', ['FOO'])
-    ok(r.get('min') == 'FOO')
-    ok(r.get('max') == 'FOO')
-    r.set('values', ['FOO', 'BAR'])
-    ok(r.get('min') == 'FOO')
-    ok(r.get('max') == 'BAR')
-    r.set('values', ['A', 'B', 'C'])
-    ok(r.get('min') == 'A')
-    ok(r.get('max') == 'C')
+    r.set('factors', ['FOO'])
+    equal(r.get('min'), 0.5)
+    equal(r.get('max'), 1.5)
+    r.set('factors', ['FOO', 'BAR'])
+    equal(r.get('min'), 0.5)
+    equal(r.get('max'), 2.5)
+    r.set('factors', ['A', 'B', 'C'])
+    equal(r.get('min'), 0.5)
+    equal(r.get('max'), 3.5)
   )

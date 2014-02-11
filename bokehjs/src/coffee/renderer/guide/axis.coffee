@@ -133,12 +133,6 @@ define [
       @formatter = options.formatter
 
     render: () ->
-      i = @mget('dimension')
-      j = (i + 1) % 2
-      mappers = [@plot_view.xmapper, @plot_view.ymapper]
-      @parallel_offset = mappers[i].get('target_offset')
-      @normal_offset = mappers[j].get('target_offset')
-
       ctx = @plot_view.ctx
 
       ctx.save()
@@ -163,17 +157,6 @@ define [
       [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
       [nx, ny] = @mget('normals')
 
-      if @normal_offset != 0
-        for i in [0...sx.length]
-          sx[i] += nx * @normal_offset
-          sy[i] += ny * @normal_offset
-
-      if @parallel_offset != 0
-          sx[0] -= ny * @parallel_offset
-          sy[0] -= nx * @parallel_offset
-          sx[sx.length-1] += ny * @parallel_offset
-          sy[sx.length-1] += nx * @parallel_offset
-
       @rule_props.set(ctx, @)
       ctx.beginPath()
       ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]))
@@ -187,11 +170,6 @@ define [
       [x, y] = coords = @mget('major_coords')
       [sx, sy] = @plot_view.map_to_screen(x, "data", y, "data")
       [nx, ny] = @mget('normals')
-
-      if @normal_offset != 0
-        for i in [0...sx.length]
-          sx[i] += nx * @normal_offset
-          sy[i] += ny * @normal_offset
 
       tin = @mget('major_tick_in')
       tout = @mget('major_tick_out')
@@ -209,11 +187,6 @@ define [
       dim = @mget('dimension')
       side = @mget('side')
       orient = @mget('major_label_orientation')
-
-      if @normal_offset != 0
-        for i in [0...sx.length]
-          sx[i] += nx * @normal_offset
-          sy[i] += ny * @normal_offset
 
       if _.isString(orient)
         angle = _angle_lookup[side][orient]
@@ -465,14 +438,10 @@ define [
             loc = 'start'
         loc = cross_range.get(loc)
 
-      if range.type == "FactorRange"
-        coords[i][0] = start
-        coords[i][1] = end
-      else
-        coords[i][0] = Math.max(start, range.get('min'))
-        coords[i][1] = Math.min(end, range.get('max'))
-        if coords[i][0] > coords[i][1]
-          coords[i][0] = coords[i][1] = NaN
+      coords[i][0] = Math.max(start, range.get('min'))
+      coords[i][1] = Math.min(end, range.get('max'))
+      if coords[i][0] > coords[i][1]
+        coords[i][0] = coords[i][1] = NaN
 
       coords[j][0] = loc
       coords[j][1] = loc
@@ -546,12 +515,12 @@ define [
       normals = [0, 0]
 
       if _.isString(loc)
-        if range.type != "FactorRange" and start > end
+        if start > end
           idir = "flip"
         else
           idir = "norm"
 
-        if cross_range.type != "FactorRange" and cstart > cend
+        if cstart > cend
           jdir = "flip"
           if loc in ["left", "bottom"]
             loc = "max"

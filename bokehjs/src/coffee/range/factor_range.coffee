@@ -8,12 +8,8 @@ define [
     type: 'FactorRange'
     initialize: (attrs, options) ->
       super(attrs, options)
-      @register_property('start',
-          () -> @get('factors')[0]
-        , true)
-      @add_dependencies('start', this, ['factors'])
       @register_property('end',
-          () -> @get('factors')[@get('factors').length-1]
+          () -> @get('factors').length + 0.5
         , true)
       @add_dependencies('end', this, ['factors'])
       @register_property('min',
@@ -27,6 +23,7 @@ define [
 
     defaults: () ->
       return {
+        start: 0.5
         factors: []
       }
 

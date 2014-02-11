@@ -13,10 +13,6 @@ define [
       @add_dependencies('mapper_state', @get('source_range'), ['start', 'end'])
       @add_dependencies('mapper_state', @get('target_range'), ['start', 'end'])
 
-      @register_property('target_offset',
-            () -> return 0
-          , true)
-
     map_to_target: (x) ->
       [scale, offset] = @get('mapper_state')
       return scale * x + offset
