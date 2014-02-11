@@ -88,14 +88,10 @@ Testing
 =======
 
 In order to run the bokehjs tests, a web server must first be running at the
-top level. One simple way is to use the server built into python:
+top level directory. To start the webserver and run the test suite,
+just execute the command:
 
-`$ python -m SimpleHTTPServer`
-
-Once a webserver is running, the tests may be run explicitly by executing
-the command
-
-`$ grunt qunit`
+`$ grunt test`
 
 or may be run as part of the default grunt target (which also builds), by
 executing the command
