@@ -493,11 +493,9 @@ class DataRange1d(DataRange):
     end = Float
 
 
-class FactorRange(DataRange):
+class FactorRange(PlotObject):
     """ Represents a range in a categorical dimension """
-    sources = List(ColumnsRef, has_ref=True)
-    values = List
-    columns = List
+    factors = List
 
 class Glyph(PlotObject):
 
@@ -740,8 +738,8 @@ class GuideRenderer(PlotObject):
             if self not in self.plot.renderers:
                 self.plot.renderers.append(self)
 
-class LinearAxis(GuideRenderer):
-    type = String("linear_axis")
+class Axis(GuideRenderer):
+    type = String("axis")
 
     dimension = Int(0)
     location = Either(String('min'), Float)
@@ -761,6 +759,12 @@ class LinearAxis(GuideRenderer):
 
     major_tick_in = Int
     major_tick_out = Int
+
+class LinearAxis(Axis):
+    type = String("linear_axis")
+
+class CategoricalAxis(Axis):
+    type = String("categorical_axis")
 
 class DatetimeAxis(LinearAxis):
     type = String("datetime_axis")

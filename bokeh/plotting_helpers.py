@@ -1,5 +1,5 @@
 
-from collections import Iterable
+from collections import Iterable, Sequence
 from numbers import Number
 import numpy as np
 import re
@@ -9,7 +9,7 @@ from . import glyphs
 from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
         ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
         Grid, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
-        ResizeTool, WheelZoomTool)
+        ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange)
 from .properties import ColorSpec
 
 # This is used to accumulate plots generated via the plotting methods in this
@@ -234,13 +234,19 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
 
     if x_range is None:
         x_range = DataRange1d()
+    elif isinstance(x_range, Sequence) and isinstance(x_range[0], string_types):
+        x_range = FactorRange(factors=x_range)
     p.x_range = x_range
     if y_range is None:
         y_range = DataRange1d()
+    elif isinstance(y_range, Sequence) and isinstance(y_range[0], string_types):
+        y_range = FactorRange(factors=y_range)
     p.y_range = y_range
 
     axiscls = None
-    if x_axis_type is "linear":
+    if isinstance(x_range, FactorRange):
+        axiscls = CategoricalAxis
+    elif x_axis_type is "linear":
         axiscls = LinearAxis
     elif x_axis_type == "datetime":
         axiscls = DatetimeAxis
@@ -248,7 +254,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
 
     axiscls = None
-    if y_axis_type is "linear":
+    if isinstance(y_range, FactorRange):
+        axiscls = CategoricalAxis
+    elif y_axis_type is "linear":
         axiscls = LinearAxis
     elif y_axis_type == "datetime":
         axiscls = DatetimeAxis

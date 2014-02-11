@@ -10,7 +10,7 @@ import time
 import warnings
 
 from . import glyphs, browserlib, serverconfig
-from .objects import ColumnDataSource, Glyph, Grid, GridPlot, Legend, LinearAxis
+from .objects import ColumnDataSource, Glyph, Grid, GridPlot, Legend, Axis
 from .plotting_helpers import (get_default_color, get_default_alpha,
         _glyph_doc, _match_data_params, _update_plot_data_ranges,
         _materialize_colors_and_alpha, _get_legend, _make_legend,
@@ -1183,7 +1183,7 @@ def xaxis():
     p = curplot()
     if p is None:
         return None
-    axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==0]
+    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.dimension==0]
     return _list_attr_splat(axis)
 
 def yaxis():
@@ -1195,7 +1195,7 @@ def yaxis():
     p = curplot()
     if p is None:
         return None
-    axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==1]
+    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.dimension==1]
     return _list_attr_splat(axis)
 
 def axis():
