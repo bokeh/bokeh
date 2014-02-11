@@ -77,22 +77,32 @@ REQUIRES = [
         'Jinja2==2.7',
         'MarkupSafe==0.18',
         'Werkzeug==0.9.1',
+        'argparse==1.2.1',
         'greenlet==0.4.1',
         'itsdangerous==0.21',
-        'numpy',
-        'pandas',
-        'python-dateutil',
-        'pytz',
-        'requests',
-        'six',
+        'numpy>=1.7.1',
+        'pandas>=0.11.0',
+        'python-dateutil==2.1',
+        'pytz==2013b',
+        'requests==1.2.3',
+        'six==1.5.2',
+        'wsgiref==0.1.2',
+        'pygments==1.6',
+        'pystache==0.5.3',
+        'markdown==2.3.1',
+        'PyYAML==3.10',
+        # tests
+        'mock==1.0.1',
+        'websocket==0.2.1',
+        'colorama==0.2.7'
     ]
 if sys.version_info[0] != 3:
     REQUIRES.extend([
-        'gevent',
-        'gevent-websocket',
+        'gevent==0.13.8',
+        'gevent-websocket==0.3.6',
     ])
 if sys.platform != "win32":
-    REQUIRES.append('redis')
+    REQUIRES.append('redis==2.7.6')
 
 setup(
     name = 'bokeh',
