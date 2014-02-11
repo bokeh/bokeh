@@ -109,7 +109,8 @@ Python+JS Development
 This setup appropriate when you need to develop on both the client-side python
 parts of Bokeh, and the browser-side javascript parts of BokehJS. It is
 necessary to have a working tool chain to build BokehJS. Please consult
-bokehjs/README.md foradditional details.
+[bokehjs/README.md](https://github.com/ContinuumIO/bokeh/blob/master/bokehjs/README.md)
+for additional details.
 
 There are two ways to use BokehJS as a single. The first is to use a single, built
 bokeh.js file:
