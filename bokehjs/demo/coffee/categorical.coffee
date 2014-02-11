@@ -35,7 +35,7 @@ require(['main'], (Bokeh) ->
   }
 
   options = {
-    title: "Categorical Demo"
+    title: "Dot Plot Demo"
     dims: [600, 600]
     xrange: [0, 100]
     yrange: factors
@@ -47,4 +47,38 @@ require(['main'], (Bokeh) ->
 
   plot = Bokeh.Plotting.make_plot([line, dot], data, options)
   Bokeh.Plotting.show(plot)
-  )
+
+  factors = ["foo", "bar", "baz"]
+
+  data = {
+    x: ["foo", "foo", "foo", "bar", "bar", "bar", "baz", "baz", "baz"]
+    y: ["foo", "bar", "baz", "foo", "bar", "baz", "foo", "bar", "baz"]
+    colors: ["#0B486B", "#79BD9A", "#CFF09E", "#79BD9A", "#0B486B", "#79BD9A", "#CFF09E", "#79BD9A", "#0B486B"]
+  }
+
+  square = {
+    type: 'square'
+    x: 'x'
+    y: 'y'
+    size: 165
+    fill_color: 'colors'
+    line_color: 'colors'
+  }
+
+  options = {
+    title: "Heatmap Demo"
+    dims: [600, 600]
+    xrange: factors
+    yrange: factors
+    xaxes: "min"
+    yaxes: "min"
+    xgrid: false
+    ygrid: false
+    tools: "resize"
+    legend: false
+  }
+
+  plot = Bokeh.Plotting.make_plot(square, data, options)
+  Bokeh.Plotting.show(plot)
+
+)
