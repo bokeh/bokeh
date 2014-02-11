@@ -85,7 +85,7 @@ REQUIRES = [
         'python-dateutil==2.1',
         'pytz==2013b',
         'requests==1.2.3',
-        'six==1.3.0',
+        'six==1.5.2',
         'wsgiref==0.1.2',
         'pygments==1.6',
         'pystache==0.5.3',
