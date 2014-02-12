@@ -50,11 +50,11 @@ Note for Windows Users
 
 If you are using Windows but, for some reason, are not using `Anaconda <http://continuum.io>`_,
 then installing `redis <http://redis.io>`_ may be challenging.
-We recommend grabbing the binaries from here: 
+We recommend grabbing the binaries from here:
 `https://github.com/dmajkic/redis/downloads <https://github.com/dmajkic/redis/downloads>`_.
 
 We would still strongly recommend that Windows users consider installing a
-distribution like `Anaconda <http://continuum.io>`_, since it is the most 
+distribution like `Anaconda <http://continuum.io>`_, since it is the most
 painless way to obtain the Python scientific/analytic stack.
 
 Installing from Source
@@ -66,7 +66,7 @@ You can also clone the
 
     $ git clone https://github.com/ContinuumIO/bokeh
     $ cd bokeh
-    $ python setup.py
+    $ python setup.py install
 
 The setup.py script will automatically install the pre-built Javascript
 for the runtime :ref:`bokehjs` library, so you do not need Coffeescript
