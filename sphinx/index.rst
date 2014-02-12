@@ -154,6 +154,8 @@ Thanks
 Bokeh is developed with funding from `DARPA <http://www.darpa.mil>`_'s
 `XDATA <http://www.darpa.mil/Our_Work/I2O/Programs/XDATA.aspx>`_ program.
 
+Additionally, many thanks to `all of the Bokeh Github contributors <https://github.com/ContinuumIO/bokeh/graphs/contributors>`_.
+
 
 License
 -------
