@@ -6,8 +6,7 @@ from bokeh import plotting
 
 def make_segments(x, y):
     '''
-    Create list of line segments from x and y coordinates, in the correct format for LineCollection:
-    an array of the form   numlines x (points per line) x 2 (x and y) array
+    Create list of line segments from x and y coordinates.
     '''
 
     points = np.array([x, y]).T.reshape(-1, 1, 2)
@@ -23,10 +22,10 @@ def colorline(x, y, z=None, cmap=plt.get_cmap('copper'), norm=plt.Normalize(0.0,
     '''
 
     # Default colors equally spaced on [0,1]:
-    if z is None:
-        z = np.linspace(0.0, 1.0, len(x))
+    #if z is None:
+        #z = np.linspace(0.0, 1.0, len(x))
 
-    z = np.asarray(z)
+    #z = np.asarray(z)
 
     segments = make_segments(x, y)
     lc = LineCollection(segments, array=z, cmap=cmap, norm=norm, linewidth=linewidth, alpha=alpha)

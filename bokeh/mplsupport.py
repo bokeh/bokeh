@@ -3,6 +3,7 @@
 """
 
 import warnings
+import numpy as np
 import matplotlib as mpl
 
 from . import glyphs, objects
@@ -29,8 +30,10 @@ def axes2plot(axes):
     # Break up the lines and markers by filtering on linestyle and marker style
     lines = [line for line in axes.lines if line.get_linestyle() not in ("", " ", "None", "none", None)]
     markers = [m for m in axes.lines if m.get_marker() not in ("", " ", "None", "none", None)]
+    linescols = [col for col in axes.collections if col.get_segments() not in ("", " ", "None", "none", None)]
     renderers = [_make_line(datasource, plot.x_range, plot.y_range, line) for line in lines]
     renderers.extend(_make_marker(datasource, plot.x_range, plot.y_range, marker) for marker in markers)
+    renderers.extend(_make_lines_collection(datasource, plot.x_range, plot.y_range, linescol) for linescol in linescols)
     plot.renderers.extend(renderers)
 
     #plot.renderers.extend(map(MPLText.convert, axes.texts))
@@ -219,6 +222,23 @@ def _make_line(datasource, xdr, ydr, line2d):
     )
     return glyph
 
+def _make_lines_collection(datasource, xdr, ydr, col):
+    newmultiline = glyphs.MultiLine()
+    xydata = col.get_segments()
+    t_xydata = [np.transpose(seg) for seg in xydata]
+    xs = [t_xydata[x][0] for x in range(len(t_xydata))]
+    ys = [t_xydata[x][1] for x in range(len(t_xydata))]
+    newmultiline.x = datasource.add(xs)
+    newmultiline.y = datasource.add(ys)
+    xdr.sources.append(datasource.columns(newmultiline.x))
+    ydr.sources.append(datasource.columns(newmultiline.y))
+    glyph = objects.Glyph(
+        data_source = datasource,
+        xdata_range = xdr,
+        ydata_range = ydr,
+        glyph = newmultiline
+    )
+    return glyph
 
 class MPLMultiLine(glyphs.MultiLine):
 
