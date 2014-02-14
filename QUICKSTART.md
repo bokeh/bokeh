@@ -102,6 +102,16 @@ Now you are ready to plot:
 All the plots you create will reflect any changes you make to the Bokeh python
 library.
 
+To run the test suite you can use one of the following commands:
+
+    $ nosetests
+or
+
+    $ nosetests --with-coverage
+or
+
+    $ python -c 'from bokeh import test; test()'
+
 
 Python+JS Development
 =====================
