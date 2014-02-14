@@ -222,11 +222,6 @@ define [
       side = @mget('side')
       orient = 'parallel'
 
-      if @normal_offset != 0
-        for i in [0...sx.length]
-          sx[i] += nx * @normal_offset
-          sy[i] += ny * @normal_offset
-
       angle = _angle_lookup[side][orient]
       standoff = @_tick_extent() + @_tick_label_extent() + @mget('axis_label_standoff')
 
