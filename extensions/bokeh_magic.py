@@ -36,11 +36,11 @@ class BokehMagics(Magics):
 
             In [1]: %install_ext url_fot_bokeh_extension
 
-            In [2]: %load_ext bokeh
+            In [2]: %load_ext bokeh_magic
 
         To load it each time IPython starts, list it in your configuration file:
 
-            c.InteractiveShellApp.extensions = ['bokeh']
+            c.InteractiveShellApp.extensions = ['bokeh_magic']
 
         To enable bokeh for usage with the IPython Notebook::
 
@@ -57,4 +57,4 @@ class BokehMagics(Magics):
 
 def load_ipython_extension(ip):
     ip.register_magics(BokehMagics)
-    print ("Bokeh interactive support activated.")
+    print ("Bokeh magic loaded.")
