@@ -23,7 +23,7 @@ class BokehMagics(Magics):
 
     @skip_doctest
     @line_magic
-    def bokeh(self):
+    def bokeh(self, line=None):
         """ Set up Bokeh to work interactively.
 
         This function lets you activate bokeh interactive support
@@ -50,11 +50,11 @@ class BokehMagics(Magics):
         get_ipython(), so you need to have a running IPython kernel.
         """
 
-        cell = "from bokeh.plotting import output_notebook; output_notebook()"
+        line = "from bokeh.plotting import output_notebook; output_notebook()"
         ip = get_ipython()
-        ip.run_cell(cell)
+        ip.run_cell(line)
 
 
 def load_ipython_extension(ip):
     ip.register_magics(BokehMagics)
-    print ("'bokeh' magic loaded.")
+    print ("Bokeh interactive support activated.")
