@@ -2,32 +2,40 @@
 define [
   "underscore",
   "require",
+
   "common/custom"
-  "common/plot",
   "common/gmap_plot",
   "common/grid_plot",
+  "common/plot",
   "common/plot_context",
-  "range/range1d",
+
+  "range/data_factor_range",
   "range/data_range1d",
   "range/factor_range",
-  "range/data_factor_range",
+  "range/range1d",
+
+  "renderer/annotation/legend",
   "renderer/glyph/glyph_factory",
-  "renderer/guide/linear_axis",
   "renderer/guide/categorical_axis",
   "renderer/guide/datetime_axis",
   "renderer/guide/grid",
-  "renderer/annotation/legend",
+  "renderer/guide/linear_axis",
   "renderer/overlay/box_selection",
+
   "source/column_data_source",
-  "tool/pan_tool",
-  "tool/wheel_zoom_tool",
-  "tool/resize_tool",
-  "tool/crosshair_tool",
+
   "tool/box_select_tool",
+  "tool/box_zoom_tool",
+  "tool/crosshair_tool",
   "tool/data_range_box_select_tool",
-  "tool/preview_save_tool",
   "tool/embed_tool",
+  "tool/hover_tool",
+  "tool/pan_tool",
+  "tool/preview_save_tool",
   "tool/reset_tool",
+  "tool/resize_tool",
+  "tool/wheel_zoom_tool",
+
   "widget/data_slider",
   "widget/pandas/ipython_remote_data",
   "widget/pandas/pandas_pivot_table",
@@ -49,10 +57,10 @@ define [
     PlotContext:            'common/plot_context'
     PlotList:               'common/plot_context'
 
-    Range1d:                'range/range1d'
+    DataFactorRange:        'range/data_factor_range'
     DataRange1d:            'range/data_range1d'
     FactorRange:            'range/factor_range'
-    DataFactorRange:        'range/data_factor_range'
+    Range1d:                'range/range1d'
 
     Glyph:                  'renderer/glyph/glyph_factory'
     LinearAxis:             'renderer/guide/linear_axis'
@@ -70,6 +78,7 @@ define [
     CrosshairTool:          'tool/crosshair_tool'
     BoxSelectTool:          'tool/box_select_tool'
     BoxZoomTool:            'tool/box_zoom_tool'
+    HoverTool:              'tool/hover_tool'
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'
     EmbedTool:              'tool/embed_tool'
