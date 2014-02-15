@@ -228,10 +228,10 @@ def _make_lines_collection(datasource, xdr, ydr, col):
     t_xydata = [np.transpose(seg) for seg in xydata]
     xs = [t_xydata[x][0] for x in range(len(t_xydata))]
     ys = [t_xydata[x][1] for x in range(len(t_xydata))]
-    newmultiline.x = datasource.add(xs)
-    newmultiline.y = datasource.add(ys)
-    xdr.sources.append(datasource.columns(newmultiline.x))
-    ydr.sources.append(datasource.columns(newmultiline.y))
+    newmultiline.xs = datasource.add(xs)
+    newmultiline.ys = datasource.add(ys)
+    xdr.sources.append(datasource.columns(newmultiline.xs))
+    ydr.sources.append(datasource.columns(newmultiline.ys))
     glyph = objects.Glyph(
         data_source = datasource,
         xdata_range = xdr,
