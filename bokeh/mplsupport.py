@@ -5,6 +5,7 @@
 import warnings
 import numpy as np
 import matplotlib as mpl
+from itertools import (cycle, islice)
 
 from . import glyphs, objects
 
@@ -190,6 +191,22 @@ def _map_line_props(newline, line2d):
     setattr(newline, "line_dash", _convert_dashes(line2d.get_linestyle()))
     # setattr(newline, "line_dash_offset", ...)
 
+
+def _get_colors_recur(col):
+    # We need to cycle the `get.colors` list as matplotlib does.
+    n = len(col.get_segments())
+    colors = [tuple(c) for c in col.get_colors()]
+    sliced = islice(cycle(colors), None, n + 1)
+    return list(sliced)
+
+
+def _map_line_col_props(newmultiline, col):
+#    setattr(newmultiline, "line_color", '#ef1488ff') #this line works OK
+    setattr(newmultiline, "line_color", _get_colors_recur(col))
+    setattr(newmultiline, "line_width", col.get_linewidth())
+    setattr(newmultiline, "line_alpha", col.get_alpha())
+
+
 def _convert_dashes(dash):
     """ Converts a Matplotlib dash specification
 
@@ -224,6 +241,7 @@ def _make_line(datasource, xdr, ydr, line2d):
 
 def _make_lines_collection(datasource, xdr, ydr, col):
     newmultiline = glyphs.MultiLine()
+    _map_line_col_props(newmultiline, col)
     xydata = col.get_segments()
     t_xydata = [np.transpose(seg) for seg in xydata]
     xs = [t_xydata[x][0] for x in range(len(t_xydata))]
