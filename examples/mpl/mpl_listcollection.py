@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
+from matplotlib.colors import colorConverter
 from bokeh import pyplot
 from bokeh import plotting
 
@@ -16,23 +17,18 @@ def make_segments(x, y):
     return segments
 
 
-def colorline(x, y, z=None, cmap=plt.get_cmap('copper'),
-              norm=plt.Normalize(0.0, 1.0), linewidth=3, alpha=1.0):
+def colorline(x, y, colors=None, linewidth=3, alpha=1.0):
     '''
     Plot a colored line with coordinates x and y
-    Optionally specify colors in the array z
-    Optionally specify a colormap, a norm function and a line width
+    Optionally specify a line width and alpha
     '''
 
-     #Default colors equally spaced on [0,1]:
-    if z is None:
-        z = np.linspace(0.0, 1.0, len(x))
-
-    z = np.asarray(z)
+    # Make a list of colors cycling through the rgbcmyk series.
+    colors = [colorConverter.to_rgba(c) for c in ('r','g','b','c','y','m','k')]
 
     segments = make_segments(x, y)
-    lc = LineCollection(segments, array=z, cmap=cmap,
-                        norm=norm, linewidth=linewidth, alpha=alpha)
+    lc = LineCollection(segments, colors=colors,
+                        linewidth=linewidth, alpha=alpha)
 
     ax = plt.gca()
     ax.add_collection(lc)
@@ -43,8 +39,6 @@ def colorline(x, y, z=None, cmap=plt.get_cmap('copper'),
 
 x = np.linspace(0, 4 * np.pi, 1000)
 y = np.sin(x)
-
-fig, axes = plt.subplots()
 
 colorline(x, y)
 
