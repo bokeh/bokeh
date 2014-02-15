@@ -34,7 +34,7 @@ define [
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       if @size
         @radius = (s/2 for s in @distance_vector('x', 'size', 'edge'))
-        @radius_units = @size_units
+        @radius_units = @glyph_props.size.units
       else
         @radius = @distance_vector('x', 'radius', 'edge')
 
@@ -84,17 +84,17 @@ define [
           ctx.stroke()
 
     _hit_point: (geometry) ->
-      [sx, sy] = [geometry.sx, geometry.sy]
-      [x, y] = @plot_view.xmapper.v_map_from_target([sx, sy])
+      [vx, vy] = [geometry.vx, geometry.vy]
+      [x, y] = @plot_view.xmapper.v_map_from_target([vx, vy])
 
       if @radius_units == "screen"
-        sx0 = sx - @max_radius
-        sx1 = sx - @max_radius
-        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+        vx0 = vx - @max_radius
+        vx1 = vx + @max_radius
+        [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
 
-        sy0 = sy - @max_radius
-        sy1 = sy - @max_radius
-        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+        vy0 = vy - @max_radius
+        vy1 = vy + @max_radius
+        [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
 
       else
         x0 = x - @max_radius
@@ -107,12 +107,14 @@ define [
 
       hits = []
       if @radius_units == "screen"
-        for i in [0...candidates.length]
+        sx = @plot_view.view_state.vx_to_sx(vx)
+        sy = @plot_view.view_state.vy_to_sy(vy)
+        for i in candidates
           r2 = @radius[i]^2
           if (@sx[i]-sx)^2 + (@sy[i]-sy)^2 <= r2
             hits.push(i)
       else
-        for i in [0...candidates.length]
+        for i in candidates
           r2 = @radius[i]^2
           if (@x[i]-x)^2 + (@y[i]-y)^2 <= r2
             hits.push(i)

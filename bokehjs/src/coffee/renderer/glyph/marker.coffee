@@ -51,20 +51,22 @@ define [
       return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
     _hit_point: (geometry) ->
-      [sx, sy] = [geometry.sx, geometry.sy]
+      [vx, vy] = [geometry.vx, geometry.vy]
+      sx = @plot_view.view_state.vx_to_sx(vx)
+      sy = @plot_view.view_state.vy_to_sy(vy)
 
-      sx0 = sx - @max_size
-      sx1 = sx - @max_size
-      [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+      vx0 = vx - @max_size
+      vx1 = vx + @max_size
+      [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
 
-      sy0 = sy - @max_size
-      sy1 = sy - @max_size
-      [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+      vy0 = vy - @max_size
+      vy1 = vy + @max_size
+      [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
 
       candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
       hits = []
-      for i in [0...candidates.length]
+      for i in candidates
         s2 = @size[i]/2
         if Math.abs(@sx[i]-sx) <= s2 and Math.abs(@sy[i]-sy) <= s2
           hits.push(i)
