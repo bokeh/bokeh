@@ -9,10 +9,6 @@ define [
 
     _properties: ['line', 'fill']
 
-    _map_data: () ->
-      [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @size = @distance_vector('x', 'size', 'center')
-
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, size=@size) ->
       for i in indices
 
