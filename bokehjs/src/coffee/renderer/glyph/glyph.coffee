@@ -267,7 +267,7 @@ define [
         if @_hit_rect?
           return @_hit_rect(geometry)
         if not @_rect_hit_warned?
-          console.log "'rect' selection not avaliable on renderer"
+          console.log "WARNING: 'rect' selection not avaliable on renderer"
           @_rect_hit_warned = true
         return null
 
