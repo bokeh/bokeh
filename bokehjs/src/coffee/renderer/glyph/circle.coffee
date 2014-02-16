@@ -85,7 +85,8 @@ define [
 
     _hit_point: (geometry) ->
       [vx, vy] = [geometry.vx, geometry.vy]
-      [x, y] = @plot_view.xmapper.v_map_from_target([vx, vy])
+      x = @plot_view.xmapper.map_from_target(vx)
+      y = @plot_view.ymapper.map_from_target(vy)
 
       if @radius_units == "screen"
         vx0 = vx - @max_radius
@@ -103,21 +104,31 @@ define [
         y0 = y - @max_radius
         y1 = y + @max_radius
 
-      candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
 
       hits = []
       if @radius_units == "screen"
         sx = @plot_view.view_state.vx_to_sx(vx)
         sy = @plot_view.view_state.vy_to_sy(vy)
         for i in candidates
-          r2 = @radius[i]^2
-          if (@sx[i]-sx)^2 + (@sy[i]-sy)^2 <= r2
-            hits.push(i)
+          r2 = Math.pow(@radius[i], 2)
+          dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
+          if dist <= r2
+            hits.push([i, dist])
       else
         for i in candidates
-          r2 = @radius[i]^2
-          if (@x[i]-x)^2 + (@y[i]-y)^2 <= r2
-            hits.push(i)
+          r2 = Math.pow(@radius[i], 2)
+          sx0 = @plot_view.xmapper.map_to_target(x)
+          sx1 = @plot_view.xmapper.map_to_target(@x[i])
+          sy0 = @plot_view.ymapper.map_to_target(y)
+          sy1 = @plot_view.ymapper.map_to_target(@y[i])
+          dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+          if dist <= r2
+            hits.push([i, dist])
+      hits = _.chain(hits)
+        .sortBy((elt) -> return elt[1])
+        .map((elt) -> return elt[0])
+        .value()
       return hits
 
     _hit_rect: (geometry) ->

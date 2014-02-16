@@ -68,8 +68,13 @@ define [
       hits = []
       for i in candidates
         s2 = @size[i]/2
+        dist = Math.abs(@sx[i]-sx) + Math.abs(@sy[i]-sy)
         if Math.abs(@sx[i]-sx) <= s2 and Math.abs(@sy[i]-sy) <= s2
-          hits.push(i)
+          hits.push([i, dist])
+      hits = _.chain(hits)
+        .sortBy((elt) -> return elt[1])
+        .map((elt) -> return elt[0])
+        .value()
       return hits
 
     _hit_rect: (geometry) ->
