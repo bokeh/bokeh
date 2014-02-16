@@ -51,6 +51,8 @@ define [
         vx: vx
         vy: vy
       }
+      x = @plot_view.xmapper.map_from_target(vx)
+      y = @plot_view.ymapper.map_from_target(vy)
 
       datasources = {}
       datasource_selections = {}
@@ -68,21 +70,58 @@ define [
         if selected.length > 0
           i = selected[0]
           @div.empty()
-          @div.append($("<div class='bokeh_tooltip_row'>index: #{ i }</div>"))
-          color = colorToHex(ds.getcolumn("color")[i])
-          cblock = $("<div></div>")
-          cblock.css({
-            width: "12px"
-            height: "12px"
-            marginLeft: "5px"
-            marginRight: "5px"
-            outline: "#dddddd solid 1px"
-            backgroundColor: color
-            display: "inline-block"
-          })
-          ctext = $("<div class='bokeh_tooltip_row'>color: #{ color }</div>")
-          ctext.append(cblock)
-          @div.append(ctext)
+          table = $('<table></table>')
+
+          tooltips = {
+            "index": "$index"
+            "color": "$color[hex,swatch]:color"
+            "radius": "@radius"
+            "(dx, dy)": "(@x, @y)"
+            "(x,y)": "($x, $y)"
+            "(vx,vy)": "($vx, $vy)"
+          }
+
+          for label, value of tooltips
+            row = $("<tr></tr>")
+            row.append($("<td class='bokeh_tooltip_row_label'>#{ label }: </td>"))
+            td = $("<td class='bokeh_tooltip_row_value'></td>")
+
+            if value.indexOf("$color") >= 0
+              [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
+              column = ds.getcolumn(colname)
+              if column?
+                hex = opts?.indexOf("hex") >= 0
+                swatch = opts?.indexOf("swatch") >= 0
+                color = column[i]
+                if hex
+                  color = colorToHex(color)
+                span = $("<span>#{ color }</span>")
+                td.append(span)
+                if swatch
+                  span = $("<span class='bokeh_tooltip_color_block'> </span>")
+                  span.css({ backgroundColor: color})
+                td.append(span)
+
+            else
+              value = value.replace("$index", "#{ i }")
+              value = value.replace("$x", "#{ x }")
+              value = value.replace("$y", "#{ y }")
+              value = value.replace("$vx", "#{ vx }")
+              value = value.replace("$vy", "#{ vy }")
+
+              while value.indexOf("@") >= 0
+                [match, unused, column] = value.match(/(@)(\w*)/)
+                column = ds.getcolumn(column)
+                if column?
+                  dsvalue = column[i]
+                  value = value.replace(match, "#{ dsvalue }")
+              span = $("<span>#{ value }</span>")
+              td.append(span)
+
+            row.append(td)
+            table.append(row)
+
+          @div.append(table)
           @div.css({
             top: e.pageY - @div.height()/2,
             left: e.pageX + 18
