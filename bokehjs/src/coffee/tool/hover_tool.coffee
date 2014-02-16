@@ -144,6 +144,8 @@ define [
               value = value.replace("$y", "#{ _format_number(y) }")
               value = value.replace("$vx", "#{ vx }")
               value = value.replace("$vy", "#{ vy }")
+              value = value.replace("$sx", "#{ e.bokehX }")
+              value = value.replace("$sy", "#{ e.bokehY }")
 
               while value.indexOf("@") >= 0
                 [match, unused, column] = value.match(/(@)(\w*)/)
@@ -181,11 +183,8 @@ define [
         renderers: []
         tooltips: {
           "index": "$index"
-          "color": "$color[hex,swatch]:color"
-          "radius": "@radius"
-          "data (x, y)": "(@x, @y)"
-          "cursor (x, y)": "($x, $y)"
-          "(vx, vy)": "($vx, $vy)"
+          "data (x, y)": "($x, $y)"
+          "canvas (x, y)": "($sx, $sy)"
         }
       })
 
