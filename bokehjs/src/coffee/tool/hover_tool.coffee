@@ -110,6 +110,7 @@ define [
         _.setdefault(datasource_selections, datasource_id, [])
         selected = @plot_view.renderers[renderer.id].hit_test(geometry)
         ds = datasources[datasource_id]
+
         if selected == null
           continue
         if selected.length > 0
@@ -177,6 +178,12 @@ define [
   class HoverTool extends Tool.Model
     default_view: HoverToolView
     type: "HoverTool"
+
+    dinitialize: (attrs, options) ->
+      super(attrs, options)
+      @set('renderers',
+        (r for r in @get_obj('plot').get('renderers') when r.type == "Glyph")
+      )
 
     defaults: () ->
       return _.extend(super(), {
