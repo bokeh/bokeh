@@ -825,6 +825,10 @@ class BoxSelectionOverlay(PlotObject):
     __view_model__ = 'BoxSelection'
     tool = Instance(has_ref=True)
 
+class HoverTool(PlotObject):
+    renderers = List(has_ref=True)
+    tooltips = Dict()
+
 class Legend(PlotObject):
     plot = Instance(Plot, has_ref=True)
     orientation = Enum("top_right", "top_left", "bottom_left", "bottom_right")
