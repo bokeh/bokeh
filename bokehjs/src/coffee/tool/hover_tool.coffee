@@ -27,24 +27,61 @@ define [
 
   class HoverToolView extends Tool.View
     initialize: (options) ->
+      super(options)
       @div = $('<div class="bokeh_tooltip" />').appendTo('body')
       @div.hide()
-      super(options)
+
+      @active = false
 
     bind_bokeh_events: () ->
+
+      tool_name = "hover_tool"
+
+      @tool_button = $("<button class='btn btn-small'> Hover </button>")
+      @plot_view.$el.find('.button_bar').append(@tool_button)
+
+      @tool_button.click(=>
+        if @active
+          @plot_view.eventSink.trigger("clear_active_tool")
+        else
+          @plot_view.eventSink.trigger("active_tool", tool_name)
+        )
+
+      @plot_view.eventSink.on("#{tool_name}:deactivated", =>
+        @active=false;
+        @tool_button.removeClass('active')
+        @div.hide()
+      )
+
+      @plot_view.eventSink.on("#{tool_name}:activated", =>
+        @active=true;
+        @tool_button.addClass('active')
+      )
+
       @plot_view.canvas.bind("mousemove", (e) =>
+        if not @active
+          return
         offset = $(e.currentTarget).offset()
         left = if offset? then offset.left else 0
         top = if offset? then offset.top else 0
         e.bokehX = e.pageX - left
         e.bokehY = e.pageY - top
+
         [vx, vy] = @view_coords(e.bokehX, e.bokehY)
+
+        irh = @plot_view.view_state.get( 'inner_range_horizontal')
+        irv = @plot_view.view_state.get( 'inner_range_vertical')
+        xstart = irh.get('start')
+        xend = irh.get('end')
+        ystart = irv.get('start')
+        yend = irv.get('end')
+        if vx < xstart  or vx > xend or vy < ystart or vy > yend
+          @div.hide()
+          return
+
         @_select(vx, vy, e)
       )
       @plot_view.canvas_wrapper.css('cursor', 'crosshair')
-
-    pause:()->
-      return null
 
     view_coords: (sx, sy) ->
       [vx, vy] = [
@@ -147,8 +184,8 @@ define [
           "color": "$color[hex,swatch]:color"
           "radius": "@radius"
           "data (x, y)": "(@x, @y)"
-          "cursor (x,y)": "($x, $y)"
-          "(vx,vy)": "($vx, $vy)"
+          "cursor (x, y)": "($x, $y)"
+          "(vx, vy)": "($vx, $vy)"
         }
       })
 
