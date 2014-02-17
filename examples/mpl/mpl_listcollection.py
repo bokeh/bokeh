@@ -1,7 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
-from matplotlib.colors import colorConverter
 from bokeh import pyplot
 from bokeh import plotting
 
@@ -19,12 +18,19 @@ def make_segments(x, y):
 
 def colorline(x, y, colors=None, linewidth=3, alpha=1.0):
     '''
-    Plot a colored line with coordinates x and y
-    Optionally specify a line width and alpha
+    Plot a line with segments.
+    Optionally, specify segments colors and segments widths.
     '''
 
     # Make a list of colors cycling through the rgbcmyk series.
-    colors = [colorConverter.to_rgba(c) for c in ('r','g','b','c','y','m','k')]
+    # You have several ways to input the colors: 
+    # colors = ['r','g','b','c','y','m','k']
+    # colors = ['red','green','blue','cyan','yellow','magenta','black']
+    # colors = ['#ff0000', '#008000', '#0000ff', '#00bfbf', '#bfbf00', '#bf00bf', '#000000']
+    # colors = [(1.0, 0.0, 0.0, 1.0), (0.0, 0.5, 0.0, 1.0), (0.0, 0.0, 1.0, 1.0), (0.0, 0.75, 0.75, 1.0),
+    #           (0.75, 0.75, 0, 1.0), (0.75, 0, 0.75, 1.0), (0.0, 0.0, 0.0, 1.0)]
+
+    colors = ['r','g','b','c','y','m','k']
     widths = [5, 10, 20, 40, 20, 10, 5]
 
     segments = make_segments(x, y)
@@ -35,7 +41,7 @@ def colorline(x, y, colors=None, linewidth=3, alpha=1.0):
 
     return lc
 
-# Colores sine wave
+# Colored sine wave
 
 x = np.linspace(0, 4 * np.pi, 100)
 y = np.sin(x)
