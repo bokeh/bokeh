@@ -147,8 +147,8 @@ define [
               value = value.replace("$sy", "#{ e.bokehY }")
               while value.indexOf("@") >= 0
                 [match, unused, column_name] = value.match(/(@)(\w*)/)
-                columns = ds.columns()
-                if column not in columns
+                column = ds.getcolumn(column_name)
+                if not column?
                   value = value.replace(column_name, "#{ column_name } unknown")
                   break
                 column = ds.getcolumn(column_name)
