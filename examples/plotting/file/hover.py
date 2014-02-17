@@ -19,7 +19,7 @@ hold()
 
 circle(x, y, radius=radii, radius_units="data",
        fill_color=colors, fill_alpha=0.6,
-       line_color=None, Name="color_scatter_example",
+       line_color=None, title="color_scatter_example",
        tools="pan,wheel_zoom,box_zoom,reset,previewsave,hover")
 
 text(x, y, text=inds, alpha=0.5, text_font_size="5pt", text_baseline="middle", text_align="center", angle=0)
