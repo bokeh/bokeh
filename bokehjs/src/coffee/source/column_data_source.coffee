@@ -16,15 +16,18 @@ define [
       @discrete_ranges = {}
 
     getcolumn: (colname) ->
-      return @get('data')[colname]
+      return @get('data')[colname] ? null
 
     getcolumn_with_default: (colname, default_value) ->
       """ returns the column, with any undefineds replaced with default""" #"
-      return @get('data')[colname]
+      return @get('data')[colname] ? null
 
-    get_length :  ->
+    get_length: () ->
       data = @get('data')
       return data[_.keys(data)[0]].length
+
+    columns: () ->
+      return _.keys(@get('data'))
 
     datapoints: () ->
       data = @get('data')
