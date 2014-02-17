@@ -82,10 +82,10 @@ define (require, exports, module) ->
   Bokeh.X                = glyph_factory.x
 
   # guides
+  Bokeh.CategoricalAxis = require("renderer/guide/categorical_axis")
   Bokeh.DatetimeAxis    = require("renderer/guide/datetime_axis")
   Bokeh.Grid            = require("renderer/guide/grid")
   Bokeh.LinearAxis      = require("renderer/guide/linear_axis")
-  Bokeh.CategoricalAxis = require("renderer/guide/categorical_axis")
 
   # overlays
   Bokeh.BoxSelection = require("renderer/overlay/box_selection")
@@ -102,15 +102,16 @@ define (require, exports, module) ->
 
   # tools
   Bokeh.BoxSelectTool          = require("tool/box_select_tool")
+  Bokeh.BoxZoomTool            = require("tool/box_zoom_tool")
+  Bokeh.CrosshairTool          = require("tool/crosshair_tool")
   Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool")
   Bokeh.EmbedTool              = require("tool/embed_tool")
+  Bokeh.HoverTool              = require("tool/hover_tool")
   Bokeh.PanTool                = require("tool/pan_tool")
   Bokeh.PreviewSaveTool        = require("tool/preview_save_tool")
   Bokeh.ResetTool              = require("tool/reset_tool")
   Bokeh.ResizeTool             = require("tool/resize_tool")
-  Bokeh.CrosshairTool          = require("tool/crosshair_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
-  Bokeh.BoxZoomTool            = require("tool/box_zoom_tool")
 
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")

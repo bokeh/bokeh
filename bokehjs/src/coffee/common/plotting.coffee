@@ -15,13 +15,17 @@ define [
   "source/column_data_source",
   "tool/box_select_tool",
   "tool/box_zoom_tool",
+  "tool/hover_tool",
   "tool/pan_tool",
   "tool/preview_save_tool",
   "tool/resize_tool",
   "tool/wheel_zoom_tool",
   "tool/reset_tool",
   "renderer/guide/datetime_axis",
-], (_, $, Plot, DataRange1d, FactorRange, Range1d, Legend, GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection, ColumnDataSource, BoxSelectTool, BoxZoomTool, PanTool, PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
+], (_, $, Plot, DataRange1d, FactorRange, Range1d, Legend,
+  GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection,
+  ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool,
+  PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -180,6 +184,12 @@ define [
         dimensions: ['width', 'height']
       )
       added_tools.push(wheel_zoom_tool)
+
+    if tools.indexOf("hover") > -1
+      hover_tool = HoverTool.Collection.create(
+        renderers: (g.ref() for g in glyphs)
+      )
+      added_tools.push(hover_tool)
 
     if tools.indexOf("select") > -1
       select_tool = BoxSelectTool.Collection.create(
