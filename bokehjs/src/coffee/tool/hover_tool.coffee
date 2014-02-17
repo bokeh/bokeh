@@ -98,13 +98,11 @@ define [
       }
       x = @plot_view.xmapper.map_from_target(vx)
       y = @plot_view.ymapper.map_from_target(vy)
-
       datasources = {}
       datasource_selections = {}
       for renderer in @mget_obj('renderers')
         datasource = renderer.get_obj('data_source')
         datasources[datasource.id] = datasource
-
       for renderer in @mget_obj('renderers')
         datasource_id = renderer.get_obj('data_source').id
         _.setdefault(datasource_selections, datasource_id, [])
@@ -147,16 +145,18 @@ define [
               value = value.replace("$vy", "#{ vy }")
               value = value.replace("$sx", "#{ e.bokehX }")
               value = value.replace("$sy", "#{ e.bokehY }")
-
               while value.indexOf("@") >= 0
-                [match, unused, column] = value.match(/(@)(\w*)/)
-                column = ds.getcolumn(column)
-                if column?
-                  dsvalue = column[i]
-                  if typeof(dsvalue) == "number"
-                    value = value.replace(match, "#{ _format_number(dsvalue) }")
-                  else
-                    value = value.replace(match, "#{ dsvalue }")
+                [match, unused, column_name] = value.match(/(@)(\w*)/)
+                columns = ds.columns()
+                if column not in columns
+                  value = value.replace(column_name, "#{ column_name } unknown")
+                  break
+                column = ds.getcolumn(column_name)
+                dsvalue = column[i]
+                if typeof(dsvalue) == "number"
+                  value = value.replace(match, "#{ _format_number(dsvalue) }")
+                else
+                  value = value.replace(match, "#{ dsvalue }")
               span = $("<span>#{ value }</span>")
               td.append(span)
 
