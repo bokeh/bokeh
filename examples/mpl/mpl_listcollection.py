@@ -25,10 +25,10 @@ def colorline(x, y, colors=None, linewidth=3, alpha=1.0):
 
     # Make a list of colors cycling through the rgbcmyk series.
     colors = [colorConverter.to_rgba(c) for c in ('r','g','b','c','y','m','k')]
+    widths = [5, 10, 20, 40, 20, 10, 5]
 
     segments = make_segments(x, y)
-    lc = LineCollection(segments, colors=colors,
-                        linewidth=linewidth, alpha=alpha)
+    lc = LineCollection(segments, colors=colors, linewidth=widths, alpha=alpha)
 
     ax = plt.gca()
     ax.add_collection(lc)
@@ -37,7 +37,7 @@ def colorline(x, y, colors=None, linewidth=3, alpha=1.0):
 
 # Colores sine wave
 
-x = np.linspace(0, 4 * np.pi, 1000)
+x = np.linspace(0, 4 * np.pi, 100)
 y = np.sin(x)
 
 colorline(x, y)

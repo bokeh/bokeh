@@ -195,16 +195,16 @@ def _map_line_props(newline, line2d):
 def _get_colors_recur(col):
     # We need to cycle the `get.colors` list as matplotlib does.
     n = len(col.get_segments())
-    colors = [tuple(c) for c in col.get_colors()]
-    sliced = islice(cycle(colors), None, n + 1)
+    colors = [mpl.colors.rgb2hex(c) for c in col.get_colors()]
+    sliced = islice(cycle(colors), None, n)
     return list(sliced)
 
 
-def _map_line_col_props(newmultiline, col):
-#    setattr(newmultiline, "line_color", '#ef1488ff') #this line works OK
-    setattr(newmultiline, "line_color", _get_colors_recur(col))
-    setattr(newmultiline, "line_width", col.get_linewidth())
-    setattr(newmultiline, "line_alpha", col.get_alpha())
+def _get_widths_recur(col):
+    # We need to cycle the `get.colors` list as matplotlib does.
+    n = len(col.get_segments())
+    sliced = islice(cycle(col.get_linewidth()), None, n)
+    return list(sliced)
 
 
 def _convert_dashes(dash):
@@ -241,13 +241,15 @@ def _make_line(datasource, xdr, ydr, line2d):
 
 def _make_lines_collection(datasource, xdr, ydr, col):
     newmultiline = glyphs.MultiLine()
-    _map_line_col_props(newmultiline, col)
     xydata = col.get_segments()
     t_xydata = [np.transpose(seg) for seg in xydata]
     xs = [t_xydata[x][0] for x in range(len(t_xydata))]
     ys = [t_xydata[x][1] for x in range(len(t_xydata))]
     newmultiline.xs = datasource.add(xs)
     newmultiline.ys = datasource.add(ys)
+    newmultiline.line_color = datasource.add(_get_colors_recur(col))
+    newmultiline.line_width = datasource.add(_get_widths_recur(col))
+    newmultiline.line_alpha = col.get_alpha()
     xdr.sources.append(datasource.columns(newmultiline.xs))
     ydr.sources.append(datasource.columns(newmultiline.ys))
     glyph = objects.Glyph(
