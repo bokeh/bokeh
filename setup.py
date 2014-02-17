@@ -1,6 +1,6 @@
 
 import os
-from os.path import abspath, exists, isdir, join
+from os.path import abspath, exists, isdir, join, dirname
 import sys
 import shutil
 from distutils.core import setup
@@ -25,19 +25,12 @@ APP = [join(BOKEHJSREL, 'js', 'bokeh.js'),
 CSS = join(BOKEHJSREL, 'css')
 
 
-if 'develop' in sys.argv:
-    # Don't import setuptools unless the user is actively
-    # trying to do something that requires it.
-    import setuptools
-
-if 'devjs' in sys.argv:
+if 'devjs' in sys.argv or 'develop' in sys.argv:
     # Don't import setuptools unless the user is actively
     # trying to do something that requires it.
     APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
            join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
     CSS = join(BOKEHJSBUILD, 'css')
-    sys.argv[sys.argv.index("devjs")] = "develop"
-    import setuptools
 
 if exists(join(SERVER, 'static', 'js')):
     shutil.rmtree(join(SERVER, 'static', 'js'))
@@ -72,6 +65,24 @@ scripts = []
 if sys.platform != 'win32':
     scripts.extend(['bokeh-server'])
 
+import site
+site_packages = site.getsitepackages()[0]
+path_file = join(site_packages, "bokeh.pth")
+path = abspath(dirname(__file__))
+
+if 'devjs' in sys.argv or 'develop' in sys.argv:
+    with open(path_file, "w+") as f:
+        f.write(path)
+    print("develop mode, wrote path (%s) to (%s)" % (path, path_file))
+    sys.exit()
+
+elif 'install' in sys.argv:
+    if exists(path_file):
+        os.remove(path_file)
+        print("installing bokeh, removing bokeh.pth if it exists")
+    else:
+        print("installing bokeh,  bokeh.pth was not found, so we did not clean it")
+    
 REQUIRES = [
         'Flask==0.10.1',
         'Jinja2==2.7',
