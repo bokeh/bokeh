@@ -19,6 +19,9 @@ define [
     return digits[1] + '#' + rgb.toString(16)
 
   _format_number = (number) ->
+    # will get strings for categorical types, just pass back
+    if typeof(number) == "string"
+      return number
     if Math.floor(number) == number
       return sprintf("%d", number)
     if Math.abs(number) > 0.1 and Math.abs(number) < 1000

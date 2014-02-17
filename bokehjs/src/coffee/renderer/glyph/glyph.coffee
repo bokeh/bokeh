@@ -158,6 +158,8 @@ define [
         ptc = @glyph_props.v_select(pt, data)
         if pt_units == 'screen'
           ptc = mapper.v_map_from_target(ptc)
+        if typeof(ptc) == 'string'
+          ptc = mapper.v_map_to_target(ptc)
         pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
         pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
 
@@ -192,6 +194,8 @@ define [
         ptc = local_select(pt)
         if pt_units == 'screen'
           ptc = mapper.v_map_from_target(ptc)
+        if typeof(ptc[0]) == 'string'
+          ptc = mapper.v_map_to_target(ptc)
         pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
         pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
 

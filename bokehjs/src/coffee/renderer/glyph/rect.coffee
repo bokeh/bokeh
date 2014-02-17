@@ -85,34 +85,48 @@ define [
       x = @plot_view.xmapper.map_from_target(vx)
       y = @plot_view.ymapper.map_from_target(vy)
 
-      # the dilation by a factor of two is a quick and easy way to make
-      # sure we cover cases with rotated
-      if @width_units == "screen"
-        vx0 = vx - 2*@max_width
-        vx1 = vx + 2*@max_width
-        [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
-      else
-        x0 = x - 2*@max_width
-        x1 = x + 2*@max_width
+      # handle categorical cases
+      xcat = (typeof(x) == "string")
+      ycat = (typeof(y) == "string")
 
-      if @height_units == "screen"
-        vy0 = vy - 2*@max_height
-        vy1 = vy + 2*@max_height
-        [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
-      else
-        y0 = y - 2*@max_height
-        y1 = y + 2*@max_height
+      if xcat or ycat
+        candidates = (i for i in [0...@x.length])
 
-      candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+      else
+        # the dilation by a factor of two is a quick and easy way to make
+        # sure we cover cases with rotated
+        if @width_units == "screen" or xcat
+          max_width = @max_width
+          if xcat
+            max_width = @plot_view.xmapper.map_to_target(max_width)
+          vx0 = vx - 2*max_width
+          vx1 = vx + 2*max_width
+          [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+        else
+          x0 = x - 2*@max_width
+          x1 = x + 2*@max_width
+
+        if @height_units == "screen" or ycat
+          max_height = @max_height
+          if ycat
+            max_height = @plot_view.ymapper.map_to_target(max_height)
+          vy0 = vy - 2*max_height
+          vy1 = vy + 2*max_height
+          [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+        else
+          y0 = y - 2*@max_height
+          y1 = y + 2*@max_height
+
+        candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
 
       hits = []
       for i in candidates
-        if @width_units == "screen"
+        if @width_units == "screen" or xcat
           sx = @plot_view.view_state.vx_to_sx(vx)
         else
           sx = @plot_view.view_state.vx_to_sx(@plot_view.xmapper.map_to_target(x))
 
-        if @height_units == "screen"
+        if @height_units == "screen" or ycat
           sy = @plot_view.view_state.vy_to_sy(vy)
         else
           sy = @plot_view.view_state.vy_to_sy(@plot_view.ymapper.map_to_target(y))

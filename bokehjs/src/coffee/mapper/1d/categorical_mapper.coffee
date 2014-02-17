@@ -9,13 +9,26 @@ define [
       if typeof(x) == 'number'
         return super(x)
       factors = @get('source_range').get('factors')
+      if x.indexOf(':') >= 0
+        [factor, percent] = x.split(':')
+        percent = parseFloat(percent)
+        return super(actors.indexOf(factor) + 0.5 + percent)
       return super(factors.indexOf(x) + 1)
 
     v_map_to_target: (xs) ->
       if typeof(xs[0]) == 'number'
         return super(xs)
       factors = @get('source_range').get('factors')
-      return super(factors.indexOf(x) + 1 for x in xs)
+      results = Array(xs.length)
+      for i in [0...xs.length]
+        x = xs[i]
+        if x.indexOf(':') >= 0
+          [factor, percent] = x.split(':')
+          percent = parseFloat(percent)
+          results[i] = factors.indexOf(factor) + 0.5 + percent
+        else
+          results[i] = factors.indexOf(x) + 1
+      return super(results)
 
     map_from_target: (xprime) ->
       xprime = super(xprime) - 0.5
