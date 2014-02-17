@@ -192,18 +192,21 @@ def _map_line_props(newline, line2d):
     # setattr(newline, "line_dash_offset", ...)
 
 
-def _get_colors_recur(col):
-    # We need to cycle the `get.colors` list as matplotlib does.
-    n = len(col.get_segments())
-    colors = [mpl.colors.rgb2hex(c) for c in col.get_colors()]
-    sliced = islice(cycle(colors), None, n)
-    return list(sliced)
+def _get_props_cycled(col, prop, fx=lambda x: x):
+    """ We need to cycle the `get.property` list (where property can be colors,
+    line_width, etc) as matplotlib does. We use itertools tools for do this
+    cycling ans slice manipulation.
 
+    Parameters:
 
-def _get_widths_recur(col):
-    # We need to cycle the `get.colors` list as matplotlib does.
+    col: matplotlib collection object
+    prop: property we want to get from matplotlib collection
+    fx: funtion (optional) to transform the elements from list obtained
+        after the property call. Deafults to identity function.
+    """
     n = len(col.get_segments())
-    sliced = islice(cycle(col.get_linewidth()), None, n)
+    t_prop = [fx(x) for x in prop]
+    sliced = islice(cycle(t_prop), None, n)
     return list(sliced)
 
 
@@ -247,8 +250,10 @@ def _make_lines_collection(datasource, xdr, ydr, col):
     ys = [t_xydata[x][1] for x in range(len(t_xydata))]
     newmultiline.xs = datasource.add(xs)
     newmultiline.ys = datasource.add(ys)
-    newmultiline.line_color = datasource.add(_get_colors_recur(col))
-    newmultiline.line_width = datasource.add(_get_widths_recur(col))
+    colors = _get_props_cycled(col, col.get_colors(), fx=lambda x: mpl.colors.rgb2hex(x))
+    widths = _get_props_cycled(col, col.get_linewidth())
+    newmultiline.line_color = datasource.add(colors)
+    newmultiline.line_width = datasource.add(widths)
     newmultiline.line_alpha = col.get_alpha()
     xdr.sources.append(datasource.columns(newmultiline.xs))
     ydr.sources.append(datasource.columns(newmultiline.ys))
