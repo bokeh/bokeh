@@ -12,7 +12,34 @@ define [
   line_properties  = Properties.line_properties
   text_properties  = Properties.text_properties
 
-  signum = (x) -> x ? x<0 ? -1:1:0
+  # This table lays out the rules for configuring the baseline, alignment, etc. of
+  # axis title text, based on it's location and orientation
+  #
+  # loc     orient        baseline   align     angle   normal-dist
+  # -------------------------------------------------------------------------------
+  # top     parallel      bottom     center    0       height
+  #         normal        middle     left      -90     width
+  #         horizontal    bottom     center    0       height
+  #         [angle > 0]   middle     left              width * sin + height * cos
+  #         [angle < 0]   middle     right             width * sin + height * cos
+  #
+  # bottom  parallel      top        center    0       height
+  #         normal        middle     right     90      width
+  #         horizontal    top        center    0       height
+  #         [angle > 0]   middle     right             width * sin + height * cos
+  #         [angle < 0]   middle     left              width * sin + height * cos
+  #
+  # left    parallel      bottom     center    90      height
+  #         normal        middle     right     0       width
+  #         horizontal    middle     right     0       width
+  #         [angle > 0]   middle     right             width * cos + height * sin
+  #         [angle < 0]   middle     right             width * cos + height + sin
+  #
+  # right   parallel      bottom     center   -90      height
+  #         normal        middle     left     0        width
+  #         horizontal    middle     left     0        width
+  #         [angle > 0]   middle     left              width * cos + height * sin
+  #         [angle < 0]   middle     left              width * cos + height + sin
 
   _angle_lookup = {
     top:
