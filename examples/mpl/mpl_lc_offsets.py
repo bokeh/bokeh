@@ -21,21 +21,16 @@ for i in range(ncurves):
     xxx = xx + 0.02*rs.randn(nverts)
     curve = list(zip(xxx, yy*100))
     segs.append(curve)
-    
-colors = [(1.0, 0.0, 0.0, 1.0), (0.0, 0.5, 0.0, 1.0), (0.0, 0.0, 1.0, 1.0), (0.0, 0.75, 0.75, 1.0),
-          (0.75, 0.75, 0, 1.0), (0.75, 0, 0.75, 1.0), (0.0, 0.0, 0.0, 1.0)]    
 
-col = LineCollection(segs, offsets=offs)
+colors = [(1.0, 0.0, 0.0, 1.0), (0.0, 0.5, 0.0, 1.0), (0.0, 0.0, 1.0, 1.0), (0.0, 0.75, 0.75, 1.0),
+          (0.75, 0.75, 0, 1.0), (0.75, 0, 0.75, 1.0), (0.0, 0.0, 0.0, 1.0)]
+
+col = LineCollection(segs, linewidth=5, offsets=offs)
 
 ax = plt.axes()
 ax.add_collection(col, autolim=True)
 col.set_color(colors)
 ax.set_title('Successive data offsets')
-ax.set_xlabel('Zonal velocity component (m/s)')
-ax.set_ylabel('Depth (m)')
-# Reverse the y-axis so depth increases downward
-ax.set_ylim(ax.get_ylim()[::-1])
-
 
 fig = plt.gcf()
 
