@@ -12,15 +12,12 @@ x = np.arange(N)
 # Here are many sets of y to plot vs x
 ys = [x+i for i in x]
 
-# We need to set the plot limits, they will not autoscale
-ax = plt.axes()
-ax.set_xlim((np.amin(x),np.amax(x)))
-ax.set_ylim((np.amin(np.amin(ys)),np.amax(np.amax(ys))))
-
 colors = ['#ff0000', '#008000', '#0000ff', '#00bfbf', '#bfbf00', '#bf00bf', '#000000']
 
 line_segments = LineCollection([list(zip(x,y)) for y in ys], color=colors,
                                 linewidth=(0.5,1,1.5,2), linestyle='dashed')
+
+ax = plt.axes()
 
 ax.add_collection(line_segments)
 ax.set_title('Line Collection with dashed colors')
