@@ -1,3 +1,22 @@
+2014-02-17    0.4.1:
+--------------------
+  * hover tool
+  * improved MPL
+  * Scala interface
+  * categorical axis
+  * enhancements:
+    - # 368 Offset Line Collection example
+    - # 367 Added line collection dashed example and the linestyle support.
+    - # 365 Removing setuptools
+    - # 362 Change Name="..." to title="..." in plotting/file/hover.py
+    - # 358 Hover tool functionality
+    - # 357 Add IPython notebook example with a random walk
+    - # 356 Added little explanation about running the test suite.
+    - # 355 Note about dependencies to install PyAudio successfully in debian-based systems
+    - # 352 ListCollection mpl-support
+  * bugfixes:
+    - # 354 Axes properties do not seem to update.
+
 2014-02-03      0.4:
 --------------------
   * enhancements:
