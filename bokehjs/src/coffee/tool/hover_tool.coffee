@@ -127,18 +127,25 @@ define [
             if value.indexOf("$color") >= 0
               [match, opts, colname] = value.match(/\$color(\[.*\])?:(\w*)/)
               column = ds.getcolumn(colname)
-              if column?
-                hex = opts?.indexOf("hex") >= 0
-                swatch = opts?.indexOf("swatch") >= 0
-                color = column[i]
-                if hex
-                  color = _color_to_hex(color)
-                span = $("<span>#{ color }</span>")
+              if not column?
+                span = $("<span>#{ colname } unknown</span>")
                 td.append(span)
-                if swatch
-                  span = $("<span class='bokeh_tooltip_color_block'> </span>")
-                  span.css({ backgroundColor: color})
+                continue
+              hex = opts?.indexOf("hex") >= 0
+              swatch = opts?.indexOf("swatch") >= 0
+              color = column[i]
+              if not color?
+                span = $("<span>(null)</span>")
                 td.append(span)
+                continue
+              if hex
+                color = _color_to_hex(color)
+              span = $("<span>#{ color }</span>")
+              td.append(span)
+              if swatch
+                span = $("<span class='bokeh_tooltip_color_block'> </span>")
+                span.css({ backgroundColor: color})
+              td.append(span)
 
             else
               value = value.replace("$index", "#{ i }")
