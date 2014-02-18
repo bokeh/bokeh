@@ -256,7 +256,10 @@ def _make_lines_collection(datasource, xdr, ydr, col):
     newmultiline.line_width = datasource.add(widths)
     newmultiline.line_alpha = col.get_alpha()
     offset = col.get_linestyle()[0][0]
-    on_off = map(int,col.get_linestyle()[0][1])
+    if not col.get_linestyle()[0][1]:
+        on_off = []
+    else:
+        on_off = map(int,col.get_linestyle()[0][1])
     newmultiline.line_dash_offset = _convert_dashes(offset)
     newmultiline.line_dash = _convert_dashes(tuple(on_off))
     xdr.sources.append(datasource.columns(newmultiline.xs))
