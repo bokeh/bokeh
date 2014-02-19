@@ -1,42 +1,22 @@
 2014-02-17    0.4.1:
 --------------------
-  * hover tool
-  * improved MPL
+  * Improved matplotlib interface, including LineCollections and more examples
   * Scala interface
-  * categorical axis
+  * Support for categorical data, axes, and ranges
+  * hover tool
+  * improved interactions with Pan tool so it automatically triggers on
+  mousedown
+  * Added %bokeh magic for IPython Notebook
   * enhancements:
-    - # 368 Offset Line Collection example
-    - # 367 Added line collection dashed example and the linestyle support.
     - # 365 Removing setuptools
     - # 362 Change Name="..." to title="..." in plotting/file/hover.py
-    - # 358 Hover tool functionality
-    - # 357 Add IPython notebook example with a random walk
-    - # 356 Added little explanation about running the test suite.
     - # 355 Note about dependencies to install PyAudio successfully in debian-based systems
-    - # 352 ListCollection mpl-support
-    - # 350 Add a note about some libs underlying pyaudio in debian-based systems
-    - # 349 Deleted docs folder
-    - # 348 Avoid pylab and use the specific imports instead.
-    - # 347 Add a little hint about how to test the python side of bokeh
-    - # 344 Change command from grunt qunit to grunt test to run the test suite.
-    - # 342 Changed to grunt deploy to avoid missing minified scripts
-    - # 324 Added link to bokehjs/README
-    - # 338 Support for categorical ranges
     - # 337 Simplify plotting module and make auto-documentable
     - # 336 Added redis-server to note about low level dependencies.
     - # 344 add elements data and example
-    - # 323 Fixed path to server examples.
-    - # 329 Update of six requirement to version 1.5.2.
     - # 328 Added a note about the need of some low level dependencies.
-    - # 327 Added git clone command to the quickstart.md doc.
-    - # 326 Testing give me warning and force me to --force
     - # 325 Change grunt devdeploy to grunt deploy
-    - # 324 Highlight the link to bokehjs README
-    - # 323 In QUICKSTART.md, we are pointing to the wrong example files.
     - # 321 Add contributors.rst file
-    - # 319 Update six requirement to 1.5.2
-    - # 318 Some systems need to have installed some low level libs...
-    - # 312 Automatically activate pan tool on mousedown
   * bugfixes:
     - # 354 Axes properties do not seem to update.
     - # 320 Unable to execute: redis-server
