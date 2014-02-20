@@ -34,10 +34,10 @@ def axes2plot(axes):
     cols = [col for col in axes.collections if col.get_paths() not in ("", " ", "None", "none", None)]
     renderers = [_make_line(datasource, plot.x_range, plot.y_range, line) for line in lines]
     renderers.extend(_make_marker(datasource, plot.x_range, plot.y_range, marker) for marker in markers)
-    try:
-        renderers.extend(_make_lines_collection(datasource, plot.x_range, plot.y_range, col) for col in cols)
-    except AttributeError:
-        renderers.extend(_make_polys_collection(datasource, plot.x_range, plot.y_range, col) for col in cols)
+    renderers.extend(_make_lines_collection(datasource, plot.x_range, plot.y_range, col) \
+                        for col in cols if isinstance(col, mpl.collections.LineCollection))
+    renderers.extend(_make_polys_collection(datasource, plot.x_range, plot.y_range, col) \
+                        for col in cols if isinstance(col, mpl.collections.PolyCollection))
     plot.renderers.extend(renderers)
 
     #plot.renderers.extend(map(MPLText.convert, axes.texts))
