@@ -12,6 +12,7 @@
 
 from IPython.core.magic import (Magics, magics_class, line_magic)
 from IPython.testing.skipdoctest import skip_doctest
+from bokeh.plotting import (output_notebook, figure, hold, show)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -50,9 +51,9 @@ class BokehMagics(Magics):
         get_ipython(), so you need to have a running IPython kernel.
         """
 
-        line = "from bokeh.plotting import output_notebook; output_notebook()"
-        ip = get_ipython()
-        ip.run_cell(line)
+        output_notebook()
+        #ip = get_ipython()
+        #ip.run_cell(line)
 
 
 def load_ipython_extension(ip):
