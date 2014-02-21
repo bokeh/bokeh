@@ -12,6 +12,8 @@
 
 from IPython.core.magic import (Magics, magics_class, line_magic)
 from IPython.testing.skipdoctest import skip_doctest
+from IPython.core.magic_arguments import (argument, magic_arguments,
+    parse_argstring)
 #from IPython.core.error import UsageError
 from bokeh.plotting import (output_notebook, figure, hold, show)
 
@@ -24,8 +26,15 @@ class BokehMagics(Magics):
     """Magic to embed Bokeh into the IPython notebook."""
 
     @skip_doctest
+    @magic_arguments()
+    @argument('-s', '--show', action="store_true",
+              help='This option enable the execution of the Bokeh show() '
+              'function at the end of each cell.')
+    @argument('-s-off', '--show-off', action="store_true",
+              help='This option disable the execution of the Bokeh show() '
+              'function at the end of each cell.')
     @line_magic
-    def bokeh(self, line=None):
+    def bokeh(self, arg, line=None):
         """ Set up Bokeh to work interactively.
 
         This function lets you activate bokeh interactive support
@@ -58,8 +67,20 @@ class BokehMagics(Magics):
         # Get the current running IPython instance.
         ip = get_ipython()
 
-        # Register a function for calling after code execution.
-        ip.register_post_execute(self.notebook_show)
+        # Parse the arguments.
+        args = parse_argstring(self.bokeh, arg)
+
+        # Activate/deactivate the execution of show accordingly with the args.
+        if args.show:
+            # Register a function for calling after code execution.
+            ip.register_post_execute(self.notebook_show)
+            print "Automatic show() is enable."
+        elif args.show_off:
+            try:
+                del ip._post_execute[self.notebook_show]
+                print "Automatic show() is disable."
+            except KeyError:
+                print "You have to enable the magic before trying to disable."
 
     def notebook_show(self):
         try:
