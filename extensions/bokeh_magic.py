@@ -14,7 +14,7 @@ from IPython.core.magic import (Magics, magics_class, line_magic)
 from IPython.testing.skipdoctest import skip_doctest
 from IPython.core.magic_arguments import (argument, magic_arguments,
     parse_argstring)
-#from IPython.core.error import UsageError
+from IPython.core.error import UsageError
 from bokeh.plotting import (output_notebook, figure, hold, show)
 
 #-----------------------------------------------------------------------------
@@ -80,15 +80,14 @@ class BokehMagics(Magics):
                 del ip._post_execute[self.notebook_show]
                 print "Automatic show() is disable."
             except KeyError:
-                print "You have to enable the magic before trying to disable."
+                raise UsageError("You have to enable the magic before trying to disable.")
 
     def notebook_show(self):
         try:
             show()
         except IndexError:
             # no plot object in the current cell gives us IndexError
-            print "Nothing to show!" + \
-            " Please, create a plot object before executing the cell."
+            pass
 
 
 def load_ipython_extension(ip):
