@@ -32,6 +32,12 @@ class BokehMagics(Magics):
     @argument('-n', '--notebook', action="store_true",
               help='This option enable the execution of the Bokeh '
               'output_notebook() funtion.')
+    @argument('-h', '--hold', action="store_true",
+              help='This option enable the execution of the Bokeh hold() '
+              'function at the end of each cell.')
+    @argument('-h-off', '--hold-off', action="store_true",
+              help='This option disable the execution of the Bokeh hold() '
+              'function at the end of each cell.')
     @argument('-s', '--show', action="store_true",
               help='This option enable the execution of the Bokeh show() '
               'function at the end of each cell.')
@@ -64,9 +70,13 @@ class BokehMagics(Magics):
 
         Then you can use several `modes` listed below::
 
-            In [4]: %bokeh --show [-s] # to enable the autoshow function
+            In [4]: %bokeh --hold [-h] # to enable the autohold function
 
-            In [5]: %bokeh --show-off [-s-off] to disable the autoshow function
+            In [5]: %bokeh --hold-off [-h-off] to disable the autohold function
+
+            In [6]: %bokeh --show [-s] # to enable the autoshow function
+
+            In [7]: %bokeh --show-off [-s-off] to disable the autoshow function
 
         Note: In order to actually use this magic, you need to have
         get_ipython(), so you need to have a running IPython kernel.
@@ -82,6 +92,25 @@ class BokehMagics(Magics):
         if args.notebook:
             # Configuring embedded BokehJS mode.
             self.notebook_output()
+        elif args.hold:
+            if not self.has_run:
+                self.notebook_output()
+            # Register a function for calling after code execution
+            ip.register_post_execute(hold)
+            # Set a prehook for calling a function before code execution.
+            ip.set_hook('pre_run_code_hook', hold)
+            print "Automatic hold() is enable."
+        elif args.hold_off:
+            try:
+                if not self.has_run:
+                    self.notebook_output()
+                # Unregister a function from the _post_execute dict.
+                del ip._post_execute[hold]
+                # Set a dummy prehook for calling a do-nothing function.
+                ip.set_hook('pre_run_code_hook', self.dummy)
+                print "Automatic hold() is disable."
+            except KeyError:
+                raise UsageError("You have to enable the --hold mode before trying to disable it.")
         elif args.show:
             if not self.has_run:
                 self.notebook_output()
@@ -108,6 +137,9 @@ class BokehMagics(Magics):
         except IndexError:
             # no plot object in the current cell gives us IndexError
             pass
+
+    def dummy(self):
+        pass
 
 
 def load_ipython_extension(ip):
