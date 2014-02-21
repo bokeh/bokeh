@@ -51,9 +51,15 @@ class BokehMagics(Magics):
         get_ipython(), so you need to have a running IPython kernel.
         """
 
+        # Configuring embedded BokehJS mode.
         output_notebook()
-        #ip = get_ipython()
-        #ip.run_cell(line)
+
+        # Get the current running IPython instance.
+        ip = get_ipython()
+
+        # Register a function for calling after code execution.
+        ip.register_post_execute(show)
+        # TODO: discuss about cells no cantaining plots objects.
 
 
 def load_ipython_extension(ip):
