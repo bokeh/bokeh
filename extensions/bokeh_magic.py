@@ -12,6 +12,7 @@
 
 from IPython.core.magic import (Magics, magics_class, line_magic)
 from IPython.testing.skipdoctest import skip_doctest
+#from IPython.core.error import UsageError
 from bokeh.plotting import (output_notebook, figure, hold, show)
 
 #-----------------------------------------------------------------------------
@@ -58,8 +59,15 @@ class BokehMagics(Magics):
         ip = get_ipython()
 
         # Register a function for calling after code execution.
-        ip.register_post_execute(show)
-        # TODO: discuss about cells no cantaining plots objects.
+        ip.register_post_execute(self.notebook_show)
+
+    def notebook_show(self):
+        try:
+            show()
+        except IndexError:
+            # no plot object in the current cell gives us IndexError
+            print "Nothing to show!" + \
+            " Please, create a plot object before executing the cell."
 
 
 def load_ipython_extension(ip):
