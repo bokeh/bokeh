@@ -50,7 +50,7 @@ class BokehMagics(Magics):
         --------
 
 
-            In [1]: %install_ext url_fot_bokeh_extension
+            In [1]: %install_ext url_for_bokeh_extension
 
             In [2]: %load_ext bokeh_magic
 
@@ -60,7 +60,13 @@ class BokehMagics(Magics):
 
         To enable bokeh for usage with the IPython Notebook::
 
-            In [3]: %bokeh
+            In [3]: %bokeh --notebook
+
+        Then you can use several `modes` listed below::
+
+            In [4]: %bokeh --show [-s] # to enable the autoshow function
+
+            In [5]: %bokeh --show-off [-s-off] to disable the autoshow function
 
         Note: In order to actually use this magic, you need to have
         get_ipython(), so you need to have a running IPython kernel.
@@ -75,27 +81,26 @@ class BokehMagics(Magics):
         # Activate/deactivate the execution of func accordingly with the args.
         if args.notebook:
             # Configuring embedded BokehJS mode.
-            output_notebook()
-            self.has_run = True
+            self.notebook_output()
         elif args.show:
             if not self.has_run:
-                # Configuring embedded BokehJS mode.
-                output_notebook()
-                self.has_run = True
+                self.notebook_output()
             # Register a function for calling after code execution.
             ip.register_post_execute(self.notebook_show)
             print "Automatic show() is enable."
         elif args.show_off:
             try:
                 if not self.has_run:
-                    # Configuring embedded BokehJS mode.
-                    output_notebook()
-                    self.has_run = True
+                    self.notebook_output()
                 # Unregister a function from the _post_execute dict.
                 del ip._post_execute[self.notebook_show]
                 print "Automatic show() is disable."
             except KeyError:
                 raise UsageError("You have to enable the --show mode before trying to disable it.")
+
+    def notebook_output(self):
+        output_notebook()
+        self.has_run = True
 
     def notebook_show(self):
         try:
