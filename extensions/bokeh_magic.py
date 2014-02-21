@@ -25,8 +25,13 @@ from bokeh.plotting import (output_notebook, figure, hold, show)
 class BokehMagics(Magics):
     """Magic to embed Bokeh into the IPython notebook."""
 
+    has_run = False
+
     @skip_doctest
     @magic_arguments()
+    @argument('-n', '--notebook', action="store_true",
+              help='This option enable the execution of the Bokeh '
+              'output_notebook() funtion.')
     @argument('-s', '--show', action="store_true",
               help='This option enable the execution of the Bokeh show() '
               'function at the end of each cell.')
@@ -61,26 +66,36 @@ class BokehMagics(Magics):
         get_ipython(), so you need to have a running IPython kernel.
         """
 
-        # Configuring embedded BokehJS mode.
-        output_notebook()
-
         # Get the current running IPython instance.
         ip = get_ipython()
 
         # Parse the arguments.
         args = parse_argstring(self.bokeh, arg)
 
-        # Activate/deactivate the execution of show accordingly with the args.
-        if args.show:
+        # Activate/deactivate the execution of func accordingly with the args.
+        if args.notebook:
+            # Configuring embedded BokehJS mode.
+            output_notebook()
+            self.has_run = True
+        elif args.show:
+            if not self.has_run:
+                # Configuring embedded BokehJS mode.
+                output_notebook()
+                self.has_run = True
             # Register a function for calling after code execution.
             ip.register_post_execute(self.notebook_show)
             print "Automatic show() is enable."
         elif args.show_off:
             try:
+                if not self.has_run:
+                    # Configuring embedded BokehJS mode.
+                    output_notebook()
+                    self.has_run = True
+                # Unregister a function from the _post_execute dict.
                 del ip._post_execute[self.notebook_show]
                 print "Automatic show() is disable."
             except KeyError:
-                raise UsageError("You have to enable the magic before trying to disable.")
+                raise UsageError("You have to enable the --show mode before trying to disable it.")
 
     def notebook_show(self):
         try:
