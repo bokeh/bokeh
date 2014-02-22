@@ -1,3 +1,32 @@
+2014-02-17    0.4.1:
+--------------------
+  * Improved matplotlib interface, including LineCollections and more examples
+  * Scala interface
+  * Support for categorical data, axes, and ranges
+  * hover tool
+  * improved interactions with Pan tool so it automatically triggers on
+  mousedown
+  * Added %bokeh magic for IPython Notebook
+  * enhancements:
+    - # 365 Removing setuptools
+    - # 362 Change Name="..." to title="..." in plotting/file/hover.py
+    - # 355 Note about dependencies to install PyAudio successfully in debian-based systems
+    - # 337 Simplify plotting module and make auto-documentable
+    - # 336 Added redis-server to note about low level dependencies.
+    - # 344 add elements data and example
+    - # 328 Added a note about the need of some low level dependencies.
+    - # 325 Change grunt devdeploy to grunt deploy
+    - # 321 Add contributors.rst file
+  * bugfixes:
+    - # 354 Axes properties do not seem to update.
+    - # 320 Unable to execute: redis-server
+    - # 315 Better fix for gevent's KeyError issue
+    - # 314 Properties aren't checking for attrs on backbone views/models
+    - # 313 Better error message from subprocess.Popen() and fix KeyError issue again
+    - # 311 Make Bootstrap's JS not interfere with IPython's notebook (#260)
+    
+    
+
 2014-02-03      0.4:
 --------------------
   * enhancements:
