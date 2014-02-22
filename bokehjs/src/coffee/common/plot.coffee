@@ -10,10 +10,11 @@ define [
   "./has_parent",
   "./view_state",
   "mapper/1d/linear_mapper",
+  "mapper/1d/categorical_mapper",
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -125,12 +126,18 @@ define [
       @x_range = options.x_range ? @mget_obj('x_range')
       @y_range = options.y_range ? @mget_obj('y_range')
 
-      @xmapper = new LinearMapper({
+      xmapper_type = LinearMapper
+      if @x_range.type == "FactorRange"
+        xmapper_type = CategoricalMapper
+      @xmapper = new xmapper_type({
         source_range: @x_range
         target_range: @view_state.get('inner_range_horizontal')
       })
 
-      @ymapper = new LinearMapper({
+      ymapper_type = LinearMapper
+      if @y_range.type == "FactorRange"
+        ymapper_type = CategoricalMapper
+      @ymapper = new ymapper_type({
         source_range: @y_range
         target_range: @view_state.get('inner_range_vertical')
       })
@@ -174,20 +181,23 @@ define [
       return this
 
     # TODO (bev) why is this ignoring y units? why does it also take units as last arg?
-    map_to_screen: (x, x_units, y, y_units, units) ->
+    map_to_screen: (x, x_units, y, y_units) ->
       if x_units == 'screen'
         if _.isArray(x)
           sx = x[..]
         else
           sx = new Float64Array(x.length)
           sx.set(x)
+      else
+        sx = @xmapper.v_map_to_target(x)
+      if y_units == 'screen'
         if _.isArray(y)
           sy = y[..]
         else
           sy = new Float64Array(y.length)
           sy.set(y)
       else
-        [sx, sy] = @mapper.v_map_to_target(x, y)
+        sy = @ymapper.v_map_to_target(y)
 
       sx = @view_state.v_vx_to_sx(sx)
       sy = @view_state.v_vy_to_sy(sy)
@@ -217,6 +227,8 @@ define [
       return [x, y]
 
     update_range: (range_info) ->
+      if not range_info?
+        range_info = @initial_range_info
       @pause()
       @x_range.set(range_info.xr)
       @y_range.set(range_info.yr)
@@ -322,6 +334,13 @@ define [
       # if @last_render
       #   console.log(newtime - @last_render)
       # @last_render = newtime
+
+      if not @initial_range_info? and @x_range.get('start')?
+        @initial_range_info = {
+          xr: { start: @x_range.get('start'), end: @x_range.get('end') }
+          yr: { start: @y_range.get('start'), end: @y_range.get('end') }
+        }
+
       @requested_padding = {
         top: 0
         bottom: 0

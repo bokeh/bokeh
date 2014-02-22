@@ -37,17 +37,32 @@ module.exports = (grunt) ->
         files: [
           expand: true
           cwd: 'demo'
-          src: ['**/*.html', '**/*.js']
+          src: ['**/*.html', '**/*.js', '**/*.css', '**/*.png', '**/*.py']
           dest: 'build/demo'
           filter: ['isFile'], #, hasChanged("copy.demo")]
         ]
       vendor:
-        files : [
-          expand : true
-          cwd : 'src/vendor'
+        files: [
+          expand: true
+          cwd: 'src/vendor'
           src: ['**/*']
           dest : 'build/js/vendor'
         ]
+      release:
+        files: [
+            expand: true
+            cwd: 'build/js'
+            src: ['*.js']
+            dest: 'release/js'
+          ,
+            expand: true
+            cwd: 'build/css'
+            src: ['*.css']
+            dest: 'release/css'
+        ]
+      spectrogram:
+        src: 'build/js/bokeh.js'
+        dest: 'build/demo/spectrogram/static/bokeh.js'
 
     clean: ['build']
 
@@ -93,6 +108,10 @@ module.exports = (grunt) ->
         filter: hasChanged("coffee.demo")
         options:
           sourceMap : true
+      spectrogram:
+        files: {
+          'build/demo/spectrogram/static/spectrogram.js': 'demo/spectrogram/coffee/spectrogram.coffee'
+        }
 
     requirejs:
       options:
@@ -105,7 +124,7 @@ module.exports = (grunt) ->
           jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel"
           underscore: "vendor/underscore-amd/underscore"
           backbone: "vendor/backbone-amd/backbone"
-          bootstrap: "vendor/bootstrap/bootstrap-2.0.4"
+          modal: "vendor/bootstrap/modal"
           timezone: "vendor/timezone/src/timezone"
           sprintf: "vendor/sprintf/src/sprintf"
           rbush: "vendor/rbush/rbush"
@@ -178,11 +197,20 @@ module.exports = (grunt) ->
         options:
           spawn: false
 
+    connect:
+      server:
+        options:
+          port: 8000,
+          base: '.'
+
     qunit:
       all:
         options:
           urls:[
-            'http://localhost:8000/build/test/common_test.html']
+            'http://localhost:8000/build/test/common_test.html',
+            'http://localhost:8000/build/test/mapper_test.html',
+            'http://localhost:8000/build/test/range_test.html',
+          ]
 
     groc:
       coffee: [ "docs/*.coffee", "docs/*.md", "README.md" ]
@@ -211,14 +239,18 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-copy")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
+  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks("grunt-eco")
   grunt.loadNpmTasks('grunt-groc')
 
   grunt.registerTask("default",     ["build", "qunit"])
-  grunt.registerTask("build",       ["coffee", "less", "copy", "eco", "config"])
-  grunt.registerTask("deploy",      ["build",  "requirejs:production", "concat:css", "cssmin"])
-  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css"])
-  grunt.registerTask("deploy-both", ["deploy", "devdeploy"])
+  grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
+  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config"])
+  grunt.registerTask("mindeploy",   ["build",  "requirejs:production", "concat:css", "cssmin"])
+  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css", "copy:spectrogram"])
+  grunt.registerTask("deploy",      ["mindeploy", "devdeploy"])
+  grunt.registerTask("test",        ["build", "connect", "qunit"])
+  grunt.registerTask("serve",       ["connect:server:keepalive"])
   grunt.registerTask("config", "Write config.js", () ->
     config = {
       paths: grunt.config.get("requirejs.options.paths")
@@ -227,3 +259,4 @@ module.exports = (grunt) ->
     content = "require.config(#{JSON.stringify(config)});"
     grunt.file.write('build/js/config.js', content)
   )
+  grunt.registerTask("release", ["deploy", "copy:release"])

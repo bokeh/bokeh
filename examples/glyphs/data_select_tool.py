@@ -19,9 +19,9 @@ source.add(2*y, name='2y')
 source.add(3*y, name='3y')
 
 hold()
-scatter('x','y', source=source, tools="pan,zoom,resize")
-scatter('x','2y', source=source, tools="pan,zoom,resize")
-scatter('x','3y', source=source, color="green", tools="pan,zoom,resize")
+scatter('x','y', source=source, tools="pan,wheel_zoom,resize")
+scatter('x','2y', source=source, tools="pan,wheel_zoom,resize")
+scatter('x','3y', source=source, color="green", tools="pan,wheel_zoom,resize")
 
 plot = curplot()
 

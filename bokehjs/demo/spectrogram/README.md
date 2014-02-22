@@ -1,31 +1,41 @@
 Audio Spectrogram Demo
 ======================
 
-This demo can be built entirely outside of the regular BokehJS build process.
-
 Build & Prereqs
 ===============
 
-You will still need to follow the Coffeescript installation instructions in the top-level README, i.e. you need to have node, npm, coffeescript, and hem installed.
+You will still need to follow the installation instructions in the top-level README.md in the bokehjs directory, i.e. you need to have node, npm, coffeescript, and grunt installed.
 
-You will also need PyAudio and Flask installed.  (These come with Anaconda.)
+You will also need PyAudio and Flask installed (these come with Anaconda).
+
+Note: In some debian-based systems, to install PyAudio, you will need some underlying dependencies, such as libjack-jackd2-dev and portaudio19-dev.
 
 Build the coffeescript:
 
-`$ hem build`
+`$ grunt devdeploy`
 
-This should create a `static/js/application.js` file.
+or
+
+`$ grunt deploy`
+
+This should create spectrogram.js under the build/demo/spectrogram directory and copy all the supporting files there as well.
 
 Running the Demo
 ================
 
-Run the hem server:
-`$ hem server `
+Change to the spectrogram demo build directory (relative to the top-level bokehjs directory):
+
+`$ cd build/demo/spectrogram`
 
 Run the python server:
+
 `$ python soundserver.py`
 
-View the web page by visiting http://localhost:5000/ (or http://.  If you want to just see the raw JSON data dump, visit http://localhost:5000/data.  You can keep refreshing on the latter.
+or
+
+`$ python soundserver_threaded.py`
+
+View the web page by visiting http://localhost:5000/. If you want to just see the raw JSON data dump, visit http://localhost:5000/data.  You can keep refreshing on the latter to see it update.
 
 Helpful Demo Tips
 =================

@@ -7,3 +7,20 @@ Bokeh Plot Server
 {% block script %}
 Bokeh.server_page();
 {% endblock %}
+
+{% block content %}
+<div class="span12">
+  The first time you want to use bokehplots.com, you need to do the following:
+  <pre>
+    import bokeh
+    cloud = bokeh.Cloud()
+    
+    cloud.register("myusername", "mypassword")
+    # or
+    cloud.login("myusername", "mypassword")
+    
+    cloud.browser_login()
+  </pre>
+  <div id="PlotPane">Plots</div>
+</div>
+{% endblock %}

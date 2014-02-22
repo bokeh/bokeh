@@ -15,8 +15,23 @@ Dependencies
 Python dependencies are listed in requirements.txt at the top level
 directory.
 
+**Note**: In some systems you will probably need to install some low level
+dependencies. For instance, `redis-server` and `libevent-dev`, a dependency
+for `gevent`, are low level dependencies for some Debian-based distributions.
+
 If you plan to do javascript development on BokehJS, please consult
 bokehjs/README.md for more details.
+
+Getting the source
+==================
+
+You can clone the Bokeh Github repository executing:
+
+    $ git clone https://github.com/ContinuumIO/bokeh
+
+Now you are ready to access to the top-level Bokeh directory:
+
+    $ cd bokeh
 
 Simple Install
 ==============
@@ -80,12 +95,22 @@ and Linux.
 
 Now you are ready to plot:
 
-    $ cd examples/plotting/file
+    $ cd examples/plotting/server
     $ python iris.py
     $ python burtin.py
 
 All the plots you create will reflect any changes you make to the Bokeh python
 library.
+
+To run the test suite you can use one of the following commands:
+
+    $ nosetests
+or
+
+    $ nosetests --with-coverage
+or
+
+    $ python -c 'from bokeh import test; test()'
 
 
 Python+JS Development
@@ -94,7 +119,8 @@ Python+JS Development
 This setup appropriate when you need to develop on both the client-side python
 parts of Bokeh, and the browser-side javascript parts of BokehJS. It is
 necessary to have a working tool chain to build BokehJS. Please consult
-bokehjs/README.md foradditional details.
+[bokehjs/README.md](https://github.com/ContinuumIO/bokeh/blob/master/bokehjs/README.md)
+for additional details.
 
 There are two ways to use BokehJS as a single. The first is to use a single, built
 bokeh.js file:
@@ -105,7 +131,7 @@ single bokeh.js file
 First build BokehJS. In the top-level Bokeh directory:
 
     $ cd bokehjs
-    $ grunt devdeploy
+    $ grunt deploy
 
 Next, install Bokeh. In the top-level Bokeh directory:
 
@@ -121,7 +147,7 @@ it in the top level directory:
 
 Now you are ready to plot:
 
-    $ cd examples/plotting/file
+    $ cd examples/plotting/server
     $ python iris.py
     $ python burtin.py
 

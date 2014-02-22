@@ -6,7 +6,7 @@ define (require, exports, module) ->
 
   Bokeh = {}
 
-  Bokeh.version = '0.3.0'
+  Bokeh.version = '0.4.1'
 
   # common
   Bokeh.Collections       = require("common/base").Collections
@@ -35,6 +35,7 @@ define (require, exports, module) ->
 
   # mappers
   Bokeh.LinearMapper      = require("mapper/1d/linear_mapper")
+  Bokeh.CategoricalMapper = require("mapper/1d/categorical_mapper")
   Bokeh.GridMapper        = require("mapper/2d/grid_mapper")
   Bokeh.LinearColorMapper = require("mapper/color/linear_color_mapper")
 
@@ -81,9 +82,10 @@ define (require, exports, module) ->
   Bokeh.X                = glyph_factory.x
 
   # guides
-  Bokeh.DatetimeAxis = require("renderer/guide/datetime_axis")
-  Bokeh.Grid         = require("renderer/guide/grid")
-  Bokeh.LinearAxis   = require("renderer/guide/linear_axis")
+  Bokeh.CategoricalAxis = require("renderer/guide/categorical_axis")
+  Bokeh.DatetimeAxis    = require("renderer/guide/datetime_axis")
+  Bokeh.Grid            = require("renderer/guide/grid")
+  Bokeh.LinearAxis      = require("renderer/guide/linear_axis")
 
   # overlays
   Bokeh.BoxSelection = require("renderer/overlay/box_selection")
@@ -97,21 +99,24 @@ define (require, exports, module) ->
 
   # data sources
   Bokeh.ColumnDataSource      = require("source/column_data_source")
-  Bokeh.ObjectArrayDataSource = require("source/object_array_data_source")
 
   # tools
   Bokeh.BoxSelectTool          = require("tool/box_select_tool")
+  Bokeh.BoxZoomTool            = require("tool/box_zoom_tool")
+  Bokeh.CrosshairTool          = require("tool/crosshair_tool")
   Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool")
   Bokeh.EmbedTool              = require("tool/embed_tool")
+  Bokeh.HoverTool              = require("tool/hover_tool")
   Bokeh.PanTool                = require("tool/pan_tool")
   Bokeh.PreviewSaveTool        = require("tool/preview_save_tool")
+  Bokeh.ResetTool              = require("tool/reset_tool")
   Bokeh.ResizeTool             = require("tool/resize_tool")
-  Bokeh.CrosshairTool          = require("tool/crosshair_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
 
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")
   Bokeh.server_page = require("server/serverrun").load
+
   exports.Bokeh = Bokeh
 
   return Bokeh

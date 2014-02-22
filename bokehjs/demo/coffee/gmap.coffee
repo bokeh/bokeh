@@ -48,7 +48,8 @@ make_gmap_plot = (defaults, glyphspecs, {dims, tools, axes, legend, legend_name,
   wheelzoomtool = Collections('WheelZoomTool').create(
     dimensions: ['width', 'height']
   )
-  plot_model.set_obj('tools', [pantool, wheelzoomtool])
+  resettool = Collections('ResetTool').create()
+  plot_model.set_obj('tools', [pantool, wheelzoomtool, resettool])
 
   return plot_model
 

@@ -2,36 +2,67 @@ from __future__ import absolute_import, print_function
 
 """ Command-line driven plotting functions, a la Matplotlib  / Matlab / etc.
 """
-import copy
-from collections import Iterable
 from functools import wraps
 import itertools
-from numbers import Number
-import numpy as np
 import os
-import re
 import requests
 import time
 import warnings
-import webbrowser
 
-from six import string_types
-
-from .properties import ColorSpec
-from .objects import (ColumnDataSource, DataRange1d,
-        Plot, Glyph, LinearAxis, Grid, PanTool, WheelZoomTool,
-        PreviewSaveTool, ResizeTool, CrosshairTool, BoxSelectTool,
-        EmbedTool, BoxSelectionOverlay, GridPlot, Legend, DatetimeAxis)
+from . import glyphs, browserlib, serverconfig
+from .objects import ColumnDataSource, Glyph, Grid, GridPlot, Legend, Axis
+from .plotting_helpers import (get_default_color, get_default_alpha,
+        _glyph_doc, _match_data_params, _update_plot_data_ranges,
+        _materialize_colors_and_alpha, _get_legend, _make_legend,
+        _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
-from . import glyphs, browserlib, serverconfig
+
 from .palettes import brewer
 
-# This is used to accumulate plots generated via the plotting methods in this
-# module.  It is used by build_gallery.py.  To activate this feature, simply
-# set _PLOTLIST to an empty list; to turn it off, set it back to None.
-_PLOTLIST = None
+DEFAULT_SERVER_URL = "http://localhost:5006/"
 
+_config = {}
+
+def _set_config():
+    global _config
+    _config = {
+        # The current output mode.  Valid combinations:
+        #   type       | url
+        #   -----------+--------------
+        #   "file"     | output_file = filename
+        #   "server"   | output_url = server URL
+        #   "notebook" | output_url = (None, server_URL)
+        "output_type": None,
+        "output_url": None,
+        "output_file": None,
+        "plotserver_url": DEFAULT_SERVER_URL,
+
+        # Configuration options for "file" output mode
+        "autosave": False,
+        "file_js": "inline",
+        "file_css": "inline",
+        "file_rootdir": None,
+
+        # The currently active Session object
+        "session": None,
+
+        # Current plot or "figure"
+        "curplot": None,
+
+        # hold state
+        "hold": False,
+        }
+_set_config()
+
+def _get_plot(kwargs):
+    plot = kwargs.pop("plot", None)
+    if not plot:
+        if _config["hold"] and _config["curplot"]:
+            plot = _config["curplot"]
+        else:
+            plot = _new_xy_plot(**kwargs)
+    return plot
 
 def plothelp():
     """ Prints out a list of all plotting functions.  Information on each
@@ -43,14 +74,14 @@ def plothelp():
 
     Plotting
     --------
-    scatter(data, type="circle", ...)
+    scatter(data, marker="circle", ...)
         scatter plot of some data, with a particular marker type
 
     get_plot()
-        returns the current bokeh.objects.Plot object
+        returns the current :class:`Plot <bokeh.objects.Plot>` object
 
     Other Renderers
-    ---------
+    ---------------
     annular_wedge
     annulus
     arc
@@ -111,49 +142,16 @@ def plothelp():
     """
     print(helpstr)
 
-
-DEFAULT_SERVER_URL = "http://localhost:5006/"
-
-
-_config = {}
-def set_config():
-    global _config
-    _config = {
-        # The current output mode.  Valid combinations:
-        #   type       | url
-        #   -----------+--------------
-        #   "file"     | output_file = filename
-        #   "server"   | output_url = server URL
-        #   "notebook" | output_url = (None, server_URL)
-        "output_type": None,
-        "output_url": None,
-        "output_file": None,
-        "plotserver_url": DEFAULT_SERVER_URL,
-
-        # Configuration options for "file" output mode
-        "autosave": False,
-        "file_js": "inline",
-        "file_css": "inline",
-        "file_rootdir": None,
-
-        # The currently active Session object
-        "session": None,
-
-        # Current plot or "figure"
-        "curplot": None,
-
-        # hold state
-        "hold": False,
-        }
-set_config()
-
 def session():
     """ Get the current session.
+
+    Returns:
+        session : the current :class:`session <bokeh.session.Session>` object
     """
     return _config["session"]
 
 ###NEEDS A BOKEH CLOUD VERSION AS WELL
-def output_notebook(server=None, name=None, url=None, docname=None):
+def output_notebook(url=None, server=None, name=None, docname=None):
     """ Sets the output mode to emit HTML objects suitable for embedding in
     IPython notebook.  If URL is "default", then uses the default plot
     server URLs etc. for Bokeh.  If URL is explicitly set to None, then data,
@@ -261,7 +259,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
     """
-    set_config()
+    _set_config()
     if os.path.isfile(filename):
         print("Session output file '%s' already exists, will be overwritten." %
                 filename)
@@ -277,21 +275,34 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
         session = session))
 
 def figure():
+    """ Creates a new plot. All subsequent plotting commands will affect
+    the new plot.
+    """
     _config["curplot"] = None
 
-def hold(val=None):
-    """ Turns hold on or off.  When on, then does not create a new figure
-    with each plotting command, but rather adds renderers to the current
-    existing plot.  (If no "current figure" exists, then a new one is
-    created.
+def hold(value=None):
+    """ Turns hold on or off, or toggles its current state.
+
+    When on, plotting functions do not create a new figure, but rather
+    add renderers to the current existing plot.  (If no current plot exists,
+    then a new one is created.
+
+    Args:
+        value (bool or None, optional) :  set or toggle the hold state, default is None
+            if `value` is True or False then the hold state is set accordingly. If
+            `value` is None, then the current hold state is toggled.
+
     """
-    if val is None:
-        val = not _config["hold"]
-    _config["hold"] = val
+    if value is None:
+        value = not _config["hold"]
+    _config["hold"] = value
 
 def curplot():
     """ Returns a reference to the current plot, i.e. the most recently
     created plot
+
+    Returns:
+        plot: the current :class:`Plot <bokeh.objects.Plot>`
     """
     return _config["curplot"]
 
@@ -300,14 +311,18 @@ def show(browser=None, new="tab"):
     displaying the current plot (for file/server output modes) or displaying
     it in an output cell (IPython notebook).
 
-    For file-based output, opens or raises the browser window showing the
-    current output file.  If **new** is 'tab', then opens a new tab.
-    If **new** is 'window', then opens a new window.
+    Args:
+        browser (str or None, optional) : browser to show with, defaults to None
 
-    For systems that support it, the **browser** argument allows specifying
-    which browser to display in, e.g. "safari", "firefox", "opera",
-    "windows-default".  (See the webbrowser module documentation in the
-    standard lib for more details.)
+            For systems that support it, the **browser** argument allows specifying
+            which browser to display in, e.g. "safari", "firefox", "opera",
+            "windows-default".  (See the webbrowser module documentation in the
+            standard lib for more details.)
+        new (str, optional) : new file output mode, defaults to "tab"
+
+            For file-based output, opens or raises the browser window
+            showing the current output file.  If **new** is 'tab', then
+            opens a new tab. If **new** is 'window', then opens a new window.
     """
     output_type = _config["output_type"]
     session = _config["session"]
@@ -330,6 +345,11 @@ def save(filename=None):
     For file-based output, this will save the plot to the given filename.
     For plot server-based output, this will upload all the plot objects
     up to the server.
+
+    Args:
+        filename (str or None, optional) : filename to save document under, defaults to None
+            if `filename` is None, the current session filename is used.
+
     """
     session = _config["session"]
     if _config["output_type"] == "file":
@@ -345,12 +365,32 @@ def save(filename=None):
         session.plotcontext._dirty = True
         session.store_all()
     else:
-        warnings.warn("save() does nothing for non-file-based output mode.")
+        warnings.warn("save() only performs on file- and server-based output modes.")
 
 def visual(func):
     """ Decorator to wrap functions that might create visible plot objects
     and need to be displayed or cause a refresh of the output.
     This takes care of updating the output whenever the function is changed.
+
+    Args:
+        func (callable): the plotting function to wrap.
+
+            The plotting function should return either a 1-tuple containing a
+            :class:`Plot <bokeh.objects.Plot>` object::
+
+                (plot,) or a 2-tuple
+
+            Or a 2-tuple containing a :class:`Plot <bokeh.objects.Plot>` object and a list
+            of objects to be stored on the current :class:`Session <bokeh.session.Session>`::
+
+                (plot, session_objects)
+
+    Returns:
+        wrapped: a decorated visual function that returns a :class:`Plot <bokeh.objects.Plot>`
+        object when called.
+
+    The main use of this decorator would be to integrate new visual plotting functions
+    into Bokeh.
     """
     @wraps(func)
     def wrapper(*args, **kw):
@@ -397,195 +437,31 @@ def visual(func):
         return plot
     return wrapper
 
-color_fields = set(["color", "fill_color", "line_color"])
-alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
-
-class GlyphFunction(object):
-    """
-    Wraps a Glyph so that it can be created as a plot::
-
-        annular_wedge = GlyphFunction(glyphs.AnnularWedge,
-            "x,y,inner_radius,outer_radius,start_angle,end_angle".split(","))
-        bezier = GlyphFunction(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(","), ["x0", "x1"], ["y0", "y1"])
-
-    Then annular_wedge can be called like this::
-
-        annular_wedge([1,2,3,4], [5,3,6,7], 3.0, 8.0, pi/4, 0.75*pi)
-
-    """
-
-    glyphclass = None
-    argnames = None
-    xfields = ["x"]
-    yfields = ["y"]
-
-    def __init__(self, glyphclass, argnames, xfields=None, yfields=None):
-        self.glyphclass = glyphclass
-        self.argnames = argnames
-        if xfields is None:
-            self.xfields = ["x"]
-        else:
-            self.xfields = xfields
-        if yfields is None:
-            self.yfields = ["y"]
-        else:
-            self.yfields = yfields
-
-    def _match_data_params(self, datasource, args, kwargs):
-        """ Processes the arguments and kwargs passed in to __call__ to line
-        them up with the argnames of the underlying Glyph
-
-        Returns
-        ---------
-        glyph_params : dict of params that should be in the glyphspec
-        """
-        # Go through the list of position and keyword arguments, matching up
-        # the full list of required glyph data attributes
-        attributes = dict(zip(self.argnames, args))
-        if len(args) < len(self.argnames):
-            for argname in self.argnames[len(args):]:
-                if argname in kwargs:
-                    attributes[argname] = kwargs.pop(argname)
-                else:
-                    raise RuntimeError("Missing required glyph parameter '%s'" % argname)
-        # Go through keys in alpha order, so that *_units are handled after
-        # the dataspec dict is already created
-        dataspecs = self.glyphclass.dataspecs_with_refs()
-        for kw in kwargs:
-            if (kw.endswith("_units") and kw[:-6] in dataspecs) or kw in dataspecs:
-                attributes[kw] = kwargs[kw]
-
-        glyph_params = {}
-        for var in sorted(attributes.keys()):
-            val = attributes[var]
-
-            if var.endswith("_units") and var[:-6] in dataspecs:
-                dspec = var[:-6]
-                if dspec not in glyph_params:
-                    raise RuntimeError("Cannot set units on undefined field '%s'" % dspec)
-                curval = glyph_params[dspec]
-                if not isinstance(curval, dict):
-                    # TODO: This assumes that string values are fields; this is invalid
-                    # for ColorSpecs, but all this logic is to handle dataspec units, and
-                    # ColorSpecs do not have units.  However, if there are other kinds of
-                    # DataSpecs that do have string constants, then we will need to fix
-                    # this up to have smarter detection of field names.
-                    if isinstance(curval, string_types):
-                        glyph_params[dspec] = {"field": curval, "units": val}
-                    else:
-                        glyph_params[dspec] = {"value": curval, "units": val}
-                else:
-                    glyph_params[dspec]["units"] = val
-                continue
-
-            if isinstance(val, dict) or isinstance(val, Number):
-                glyph_val = val
-            elif isinstance(dataspecs.get(var, None), ColorSpec) and (ColorSpec.isconst(val) or val is None):
-                # This check for color constants needs to happen relatively early on because
-                # both strings and certain iterables are valid colors.
-                glyph_val = val
-            elif isinstance(val, string_types):
-                if self.glyphclass == glyphs.Text:
-                    glyph_val = val
-                else:
-                    if val not in datasource.column_names:
-                        raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
-                    units = getattr(dataspecs[var], 'units', 'data')
-                    glyph_val = {'field' : val, 'units' : units}
-            elif isinstance(val, np.ndarray):
-                if val.ndim != 1:
-                    raise RuntimeError("Columns need to be 1D (%s is not)" % var)
-                datasource.add(val, name=var)
-                units = getattr(dataspecs[var], 'units', 'data')
-                glyph_val = {'field' : var, 'units' : units}
-            elif isinstance(val, Iterable):
-                datasource.add(val, name=var)
-                units = getattr(dataspecs[var], 'units', 'data')
-                glyph_val = {'field' : var, 'units' : units}
-            else:
-                raise RuntimeError("Unexpected column type: %s" % type(val))
-            glyph_params[var] = glyph_val
-        return glyph_params
-
-    def _update_plot_data_ranges(self, plot, datasource, xcols, ycols):
-        """
-        Parameters
-        ----------
-        plot : plot
-        datasource : datasource
-        xcols : names of columns that are in the X axis
-        ycols : names of columns that are in the Y axis
-        """
-        if isinstance(plot.x_range, DataRange1d):
-            x_column_ref = [x for x in plot.x_range.sources if x.source == datasource]
-            if len(x_column_ref) > 0:
-                x_column_ref = x_column_ref[0]
-                for cname in xcols:
-                    if cname not in x_column_ref.columns:
-                        x_column_ref.columns.append(cname)
-            else:
-                plot.x_range.sources.append(datasource.columns(*xcols))
-            plot.x_range._dirty = True
-
-        if isinstance(plot.y_range, DataRange1d):
-            y_column_ref = [y for y in plot.y_range.sources if y.source == datasource]
-            if len(y_column_ref) > 0:
-                y_column_ref = y_column_ref[0]
-                for cname in ycols:
-                    if cname not in y_column_ref.columns:
-                        y_column_ref.columns.append(cname)
-            else:
-                plot.y_range.sources.append(datasource.columns(*ycols))
-            plot.y_range._dirty = True
-
-    def _materialize_colors_and_alpha(self, kwargs, prefix="", default_alpha=1.0):
-        """
-        Given a kwargs dict, a prefix, and a default value, looks for different
-        color and alpha fields of the given prefix, and fills in the default value
-        if it doesn't exist.
-        """
-        # TODO: The need to do this and the complexity of managing this kind of
-        # thing throughout the codebase really suggests that we need to have
-        # a real stylesheet class, where defaults and Types can declaratively
-        # substitute for this kind of imperative logic.
-        color = kwargs.pop(prefix+"color", get_default_color())
-        for argname in ("fill_color", "line_color"):
-            kwargs[argname] = kwargs.get(prefix + argname, color)
-
-        # NOTE: text fill color should really always default to black, hard coding
-        # this here now untils the stylesheet solution exists
-        kwargs["text_color"] = kwargs.get(prefix + "text_color", "black")
-
-        alpha = kwargs.pop(prefix+"alpha", default_alpha)
-        for argname in ("fill_alpha", "line_alpha", "text_alpha"):
-            kwargs[argname] = kwargs.get(prefix + argname, alpha)
-
-        return kwargs
-
+def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"]):
     @visual
-    def __call__(self, *args, **kwargs):
-        # Process the keyword arguments that are not glyph-specific
+    def func(*args, **kwargs):
+      # Process the keyword arguments that are not glyph-specific
         datasource = kwargs.pop("source", ColumnDataSource())
         session_objs = [datasource]
         legend_name = kwargs.pop("legend", None)
-        plot = self._get_plot(kwargs)
+        plot = _get_plot(kwargs)
         if 'name' in kwargs:
             plot._id = kwargs['name']
 
-        select_tool = self._get_select_tool(plot)
+        select_tool = _get_select_tool(plot)
 
         # Process the glyph dataspec parameters
-        glyph_params = self._match_data_params(
-            datasource, args, self._materialize_colors_and_alpha(kwargs))
+        glyph_params = _match_data_params(argnames, glyphclass,
+            datasource, args, _materialize_colors_and_alpha(kwargs))
 
         x_data_fields = [
-            glyph_params[xx]['field'] for xx in self.xfields if glyph_params[xx]['units'] == 'data']
+            glyph_params[xx]['field'] for xx in xfields if glyph_params[xx]['units'] == 'data']
         y_data_fields = [
-            glyph_params[yy]['field'] for yy in self.yfields if glyph_params[yy]['units'] == 'data']
-        self._update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
+            glyph_params[yy]['field'] for yy in yfields if glyph_params[yy]['units'] == 'data']
+        _update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)
-        glyph = self.glyphclass(**kwargs)
-        nonselection_glyph_params = self._materialize_colors_and_alpha(
+        glyph = glyphclass(**kwargs)
+        nonselection_glyph_params = _materialize_colors_and_alpha(
             kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
 
@@ -597,16 +473,15 @@ class GlyphFunction(object):
 
         glyph_renderer = Glyph(
             data_source = datasource,
-            xdata_range = plot.x_range,
-            ydata_range = plot.y_range,
+            plot = plot,
             glyph=glyph,
             nonselection_glyph=nonselection_glyph,
             )
 
         if legend_name:
-            legend = self._get_legend(plot)
+            legend = _get_legend(plot)
             if not legend:
-                legend = self._make_legend(plot)
+                legend = _make_legend(plot)
             mappings = legend.legends
             mappings.setdefault(legend_name, []).append(glyph_renderer)
             legend._dirty = True
@@ -620,220 +495,657 @@ class GlyphFunction(object):
         session_objs.extend(plot.tools)
         session_objs.extend(plot.renderers)
         session_objs.extend([plot.x_range, plot.y_range])
-
         return plot, session_objs
+    func.__name__ = glyphclass.__view_model__
+    func.__doc__ = docstring
+    return func
 
-    def _get_plot(self, kwargs):
-        plot = kwargs.pop("plot", None)
-        if not plot:
-            if _config["hold"] and _config["curplot"]:
-                plot = _config["curplot"]
-            else:
-                plot = _new_xy_plot(**kwargs)
-        return plot
+annular_wedge = _glyph_function(glyphs.AnnularWedge,
+    "x,y,inner_radius,outer_radius,start_angle,end_angle".split(","),
+""" The `annular_wedge` glyph renders annular wedges centered at `x`, `y`.
 
-    def _get_legend(self, plot):
-        legend = [x for x in plot.renderers if x.__view_model__ == "Legend"]
-        if len(legend) > 0:
-            legend = legend[0]
-        else:
-            legend = None
-        return legend
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    inner_radius (str or list[float]) : values or field names of inner radii
+    outer_radius (str or list[float]) : values or field names of outer radii
+    start_angle (str or list[float]) : values or field names of starting angles
+    end_angle (str or list[float]) : values or field names of ending angles
+    direction ("clock" or "anticlock", optional): direction to turn between starting and ending angles, defaults to "anticlock"
 
-    def _make_legend(self, plot):
-        legend = Legend(plot=plot)
-        plot.renderers.append(legend)
-        plot._dirty = True
-        return legend
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
 
-    def _get_select_tool(self, plot):
-        """returns select tool on a plot, if it's there
-        """
-        select_tool = [x for x in plot.tools if x.__view_model__ == "BoxSelectTool"]
-        if len(select_tool) > 0:
-            select_tool = select_tool[0]
-        else:
-            select_tool = None
-        return select_tool
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
 
+annulus = _glyph_function(glyphs.Annulus,
+    "x,y,inner_radius,outer_radius".split(","),
+""" The `annulus` glyph renders annuli centered at `x`, `y`.
 
-def get_default_color(plot=None):
-    colors = [
-      "#1f77b4",
-      "#ff7f0e", "#ffbb78",
-      "#2ca02c", "#98df8a",
-      "#d62728", "#ff9896",
-      "#9467bd", "#c5b0d5",
-      "#8c564b", "#c49c94",
-      "#e377c2", "#f7b6d2",
-      "#7f7f7f",
-      "#bcbd22", "#dbdb8d",
-      "#17becf", "#9edae5"
-    ]
-    if plot:
-        renderers = plot.renderers
-        renderers = [x for x in renderers if x.__view_model__ == "Glyph"]
-        num_renderers = len(renderers)
-        return colors[num_renderers]
-    else:
-        return colors[0]
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    inner_radius (str or list[float]) : values or field names of inner radii
+    outer_radius (str or list[float]) : values or field names of outer radii
 
-def get_default_alpha(plot=None):
-    return 1.0
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
 
-line = GlyphFunction(glyphs.Line, ("x", "y"))
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
 
-multi_line = GlyphFunction(glyphs.MultiLine, ("xs", "ys"), ["xs"], ["ys"])
+arc = _glyph_function(glyphs.Arc, "x,y,radius,start_angle,end_angle".split(","),
+""" The `arc` glyph renders circular arcs centered at `x`, `y`.
 
-annular_wedge = GlyphFunction(glyphs.AnnularWedge,
-    "x,y,inner_radius,outer_radius,start_angle,end_angle".split(","))
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    radius (str or list[float]) : values or field names of arc radii
+    start_angle (str or list[float]) : values or field names of starting angles
+    end_angle (str or list[float]) : values or field names of ending angles
+    direction ("clock" or "anticlock", optional): direction to turn between starting and ending angles, defaults to "anticlock"
 
-annulus = GlyphFunction(glyphs.Annulus,
-    "x,y,inner_radius,outer_radius".split(","))
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties`
+are also accepted as keyword parameters.
 
-arc = GlyphFunction(glyphs.Arc, "x,y,radius,start_angle,end_angle".split(","))
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
 
-bezier = GlyphFunction(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(","),
+asterisk = _glyph_function(glyphs.Asterisk, ("x", "y"),
+""" The `asterisk` glyph is a marker that renders asterisks at `x`, `y` with size `size`.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+bezier = _glyph_function(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(","),
+""" The bezier glyph displays Bezier curves with the given starting, ending, and control points.
+
+Args:
+    x0 (str or list[float] : values or field names of starting `x` coordinates
+    y0 (str or list[float] : values or field names of starting `y` coordinates
+    x1 (str or list[float]) : values or field names of ending `x` coordinates
+    y1 (str or list[float]) : values or field names of ending `y` coordinates
+    cx0 (str or list[float]) : values or field names of first control point `x` coordinates
+    cy0 (str or list[float]) : values or field names of first control point `y` coordinates
+    cx1 (str or list[float]) : values or field names of second control point `x` coordinates
+    cy1 (str or list[float]) : values or field names of second control point `y` coordinates
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+""",
     xfields=['x0', 'x1'], yfields=['y0', 'y1'])
 
-oval = GlyphFunction(glyphs.Oval, ("x", "y", "width", "height"))
+circle = _glyph_function(glyphs.Circle, ("x", "y"),
+""" The `circle` glyph is a marker that renders circles at `x`, `y` with size `size`.
 
-patch = GlyphFunction(glyphs.Patch, ("x", "y"))
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float], optional) : values or field names of sizes in screen units
+    radius (str  or list[float], optional): values or field names of radii
 
-patches = GlyphFunction(glyphs.Patches, ("xs", "ys"), ["xs"], ["ys"])
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
 
-ray = GlyphFunction(glyphs.Ray, ("x", "y", "length", "angle"))
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 
-quad = GlyphFunction(glyphs.Quad, ("left", "right", "top", "bottom"),
+Notes
+-----
+Only one of `size` or `radius` should be provided. Note that `radius` defaults to data units.
+"""
+)
+
+circle_cross = _glyph_function(glyphs.CircleCross, ("x", "y"),
+""" The `circle_cross` glyph is a marker that renders circles together with a crossbar (+) at `x`, `y` with size `size` or `radius`.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+circle_x = _glyph_function(glyphs.CircleX, ("x", "y"),
+""" The `circle_x` glyph is a marker that renders circles together with a "X" glyph at `x`, `y` with size `size`.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+cross = _glyph_function(glyphs.Cross, ("x", "y"),
+""" The `cross` glyph is a marker that renders crossbars (+) at `x`, `y` with size `size`.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+diamond = _glyph_function(glyphs.Diamond, ("x", "y"),
+""" The `diamond` glyph is a marker that renders diamonds at `x`, `y` with size `size` or `radius`.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+diamond_cross = _glyph_function(glyphs.DiamondCross, ("x", "y"),
+""" The `diamond_cross` glyph is a marker that renders diamonds together with a crossbar (+) at `x`, `y` with size `size` or `radius`.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+image = _glyph_function(glyphs.Image, ("image", "x", "y", "dw", "dh", "palette"),
+""" The image glyph takes each image as a two-dimensional array of scalar data.
+
+A palette (string name of a built-in palette, currently) must also be supplied to use for color-mapping the scalar image.
+
+Args:
+    image (str or 2D array_like of float) : value or field names of scalar image data
+    x (str or list[float]) : values or field names of lower left `x` coordinates
+    y (str or list[float]) : values or field names of lower left `y` coordinates
+    dw (str or list[float]) : values or field names of image width distances
+    dh (str or list[float]) : values or field names of image height distances
+    palette (str or list[str]) : values or field names of palettes to use for color-mapping
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+image_rgba = _glyph_function(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"),
+""" The image_rgba glyph takes each ``image`` as a two-dimensional array of RGBA values (encoded
+as 32-bit integers).
+
+Args:
+    image (str or 2D array_like of uint32) : value or field names of RGBA image data
+    x (str or list[float]) : values or field names of lower left `x` coordinates
+    y (str or list[float]) : values or field names of lower left `y` coordinates
+    dw (str or list[float]) : values or field names of image width distances
+    dh (str or list[float]) : values or field names of image height distances
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+inverted_triangle = _glyph_function(glyphs.InvertedTriangle, ("x", "y"),
+""" The `inverted_triangle` glyph is a marker that renders upside-down triangles at `x`, `y` with size `size` or `radius`.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+line = _glyph_function(glyphs.Line, ("x", "y"),
+""" The line glyph displays a single line that connects several points given by the arrays of coordinates `x` and `y`.
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties`
+are also accepted as keyword parameters.
+
+Args:
+    x (str or list[float]) : values or field names of line `x` coordinates
+    y (str or list[float]) : values or field names of line `y` coordinates
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+multi_line = _glyph_function(glyphs.MultiLine, ("xs", "ys"),
+""" The multi_line glyph displays lines, each with points given by the arrays of coordinates that are the elements of xs and ys.
+
+Args:
+    xs (str or list[list[float]]): values or field names of lines `x` coordinates
+    ys (str or list[list[float]]): values or field names of lines `y` coordinates
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties`
+are also accepted as keyword parameters.
+
+.. note:: For this glyph, the data is not simply an array of scalars, it is really an "array of arrays".
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+""",
+    xfields=["xs"], yfields=["ys"],
+)
+
+oval = _glyph_function(glyphs.Oval, ("x", "y", "width", "height"),
+""" The oval glyph displays ovals centered on the given coordinates with the given dimensions and angle.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    width (str or list[float]) : values or field names of widths
+    height (str or list[float]) : values or field names of heights
+    angle (str or list[float], optional) : values or field names of rotation angles, defaults to 0
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+patch = _glyph_function(glyphs.Patch, ("x", "y"),
+""" The patch glyph displays a single polygonal patch that connects several points given by the arrays of coordinates `x` and `y`.
+
+Args:
+    x (str or list[float]) : values or field names of patch `x` coordinates
+    y (str or list[float]) : values or field names of patch `y` coordinates
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+patches = _glyph_function(glyphs.Patches, ("xs", "ys"),
+""" The patches glyph displays several patches, each with points given by the arrays of coordinates that are the elements of xs and ys.
+
+Args:
+    xs (str or list[list[float]]): values or field names of patches `x` coordinates
+    ys (str or list[list[float]]): values or field names of patches `y` coordinates
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+.. note:: For this glyph, the data is not simply an array of scalars, it is really an "array of arrays".
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+""",
+    xfields=["xs"], yfields=["ys"],
+)
+
+quad = _glyph_function(glyphs.Quad, ("left", "right", "top", "bottom"),
+""" The quad glyph displays axis-aligned rectangles with the given dimensions.
+
+Args:
+    left (str or list[float]) : values or field names of left edges
+    right (str or list[float]) : values or field names of right edges
+    top (str or list[float]) : values or field names of top edges
+    bottom (str or list[float]) : values or field names of bottom edges
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+""",
     xfields=["left", "right"], yfields=["top", "bottom"])
 
-quadratic = GlyphFunction(glyphs.Quadratic, "x0,y0,x1,y1,cx,cy".split(","),
+quadratic = _glyph_function(glyphs.Quadratic, "x0,y0,x1,y1,cx,cy".split(","),
+""" The quadratic glyph displays quadratic curves with the given starting, ending, and control points.
+
+Args:
+    x0 (str or list[float] : values or field names of starting `x` coordinates
+    y0 (str or list[float] : values or field names of starting `y` coordinates
+    x1 (str or list[float]) : values or field names of ending `x` coordinates
+    y1 (str or list[float]) : values or field names of ending `y` coordinates
+    cx (str or list[float]) : values or field names of control point `x` coordinates
+    cy (str or list[float]) : values or field names of control point `y` coordinates
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+""",
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
-rect = GlyphFunction(glyphs.Rect, ("x", "y", "width", "height"))
+ray = _glyph_function(glyphs.Ray, ("x", "y", "length", "angle"),
+""" The ray glyph displays line segments starting at the given coordinate and extending the given length at the given angle.
 
-segment = GlyphFunction(glyphs.Segment, ("x0", "y0", "x1", "y1"),
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    length (str or list[float]) : values or field names of ray lengths in screen units
+    angle (str or list[float]) : values or field names of ray angles
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+rect = _glyph_function(glyphs.Rect, ("x", "y", "width", "height"),
+""" The rect glyph displays rectangles centered on the given coordinates with the given dimensions and angle.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    width (str or list[float]) : values or field names of widths
+    height (str or list[float]) : values or field names of heights
+    angle (str or list[float], optional) : values or field names of rotation angles, defaults to 0
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+segment = _glyph_function(glyphs.Segment, ("x0", "y0", "x1", "y1"),
+""" The segment glyph displays line segments with the given starting and ending coordinates.
+
+Args:
+    x0 (str or list[float]) : values or field names of starting `x` coordinates
+    y0 (str or list[float]) : values or field names of starting `y` coordinates
+    x1 (str or list[float]) : values or field names of ending `x` coordinates
+    y1 (str or list[float]) : values or field names of ending `y` coordinates
+
+In addition the the parameters specific to this glyph, :ref:`userguide_line_properties`
+are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+""",
     xfields=["x0", "x1"], yfields=["y0", "y1"])
 
-text = GlyphFunction(glyphs.Text, ("x", "y", "text", "angle"))
+square = _glyph_function(glyphs.Square, ("x", "y"),
+""" The `square` glyph is a marker that renders squares at `x`, `y` with size `size`.
 
-wedge = GlyphFunction(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"))
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
 
-image = GlyphFunction(glyphs.Image, ("image", "x", "y", "dw", "dh", "palette"))
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
 
-image_rgba = GlyphFunction(glyphs.ImageRGBA, ("image", "x", "y", "dw", "dh"))
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
 
-marker_types = {
-        "circle": glyphs.Circle,
-        "square": glyphs.Square,
-        "triangle": glyphs.Triangle,
-        "cross": glyphs.Cross,
-        #"xmarker": glyphs.Xmarker,
-        "diamond": glyphs.Diamond,
-        "invtriangle": glyphs.InvertedTriangle,
-        "square_x": glyphs.SquareX,
-        "circle_x": glyphs.CircleX,
-        "asterisk": glyphs.Asterisk,
-        "diamond_cross": glyphs.DiamondCross,
-        "circle_cross": glyphs.CircleCross,
-        "square_cross": glyphs.SquareCross,
-        #"hexstar": glyphs.HexStar,
-        "+": glyphs.Cross,
-        "*": glyphs.Asterisk,
-        "x": glyphs.Xmarker,
-        "o": glyphs.Circle,
-        "ox": glyphs.CircleX,
-        "o+": glyphs.CircleCross,
-        }
+square_cross = _glyph_function(glyphs.SquareCross, ("x", "y"),
+""" The `square_cross` glyph is a marker that renders squares together with a crossbar (+) at `x`, `y` with size `size`.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+In addition the the parameters specific to this glyph, :ref:`userguide_line_properties` and
+:ref:`userguide_fill_properties` are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+square_x = _glyph_function(glyphs.SquareX, ("x", "y"),
+""" The `square_x` glyph is a marker that renders squares together with "X" glyphs at `x`, `y` with size `size`.
+
+In addition the the parameters specific to this glyph, :ref:`userguide_line_properties` and
+:ref:`userguide_fill_properties` are also accepted as keyword parameters.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+text = _glyph_function(glyphs.Text, ("x", "y", "text", "angle"),
+""" The text glyph displays text at the given coordinates rotated by the given angle.
+
+Args:
+    x (str or list[float]) : values or field names of text `x` coordinates
+    y (str or list[float]) : values or field names of text `y` coordinates
+    text (str or list[text]): values or field names of texts
+    angle (str or list[float], optional) : values or field names of text angles, defaults to 0
+
+In addition the the parameters specific to this glyph, :ref:`userguide_text_properties`
+are also accepted as keyword parameters.
+
+.. note:: The location and angle of the text relative to the `x`, `y` coordinates is indicated by the alignment and baseline text properties.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+triangle = _glyph_function(glyphs.Triangle, ("x", "y"),
+""" The `triangle` glyph is a marker that renders triangles at `x`, `y` with size `size`.
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
+are also accepted as keyword parameters.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+wedge = _glyph_function(glyphs.Wedge, ("x", "y", "radius", "start_angle", "end_angle"),
+""" The `wedge` glyph renders circular wedges centered at `x`, `y`.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    radius (str or list[float]) : values or field names of wedge radii
+    start_angle (str or list[float]) : values or field names of starting angles
+    end_angle (str or list[float]) : values or field names of ending angles
+    direction ("clock" or "anticlock", optional): direction to turn between starting and ending angles, defaults to "anticlock"
+
+In addition the the parameters specific to this glyph, :ref:`userguide_line_properties` and
+:ref:`userguide_fill_properties` are also accepted as keyword parameters.
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+x = _glyph_function(glyphs.Xmarker, ("x", "y"),
+""" The `x` glyph is a marker that renders "x" glyphs at `x`, `y` with size `size`.
+
+In addition the the parameters specific to this glyph,
+:ref:`userguide_line_properties`
+are also accepted as keyword parameters.
+
+Args:
+    x (str or list[float]) : values or field names of center `x` coordinates
+    y (str or list[float]) : values or field names of center `y` coordinates
+    size (str or list[float]) : values or field names of sizes in screen units
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
+_marker_types = {
+    "asterisk": asterisk,
+    "circle": circle,
+    "circle_cross": circle_cross,
+    "circle_x": circle_x,
+    "cross": cross,
+    "diamond": diamond,
+    "diamond_cross": diamond_cross,
+    "inverted_triangle": inverted_triangle,
+    "square": square,
+    "square_x": square_x,
+    "square_cross": square_cross,
+    "triangle": triangle,
+    "x": x,
+    "*": asterisk,
+    "+": cross,
+    "o": circle,
+    "ox": circle_x,
+    "o+": circle_cross,
+}
 
 def markers():
     """ Prints a list of valid marker types for scatter()
     """
-    print(list(sorted(marker_types.keys())))
+    print(list(sorted(_marker_types.keys())))
 
-
-for _marker_name, _glyph_class in marker_types.items():
-    if len(_marker_name) <= 2:
-        continue
-    _func = GlyphFunction(_glyph_class, ("x", "y"))
-    exec("%s = _func" % _marker_name)
+_color_fields = set(["color", "fill_color", "line_color"])
+_alpha_fields = set(["alpha", "fill_alpha", "line_alpha"])
 
 def scatter(*args, **kwargs):
-    """ Creates a scatter plot of the given x & y items
+    """ Creates a scatter plot of the given x and y items.
 
-    Parameters
-    ----------
-    *data : The data to plot.  Can be of several forms:
+    Args:
+        *args : The data to plot.  Can be of several forms:
 
-        (X, Y1, Y2, ...)
-            A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
-        [[x1,y1], [x2,y2], .... ]
-            An iterable of tuples
-        NDarray (NxM)
-            The first column is treated as the X, and all other M-1 columns
-            are treated as separate Y series
-        [y1, y2, ... yN]
-            A list/tuple of scalar values; will be treated as Y values and
-            a synthetic X array of integers will be generated.
+            (X, Y1, Y2, ...)
+                A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
+            [[x1,y1], [x2,y2], .... ]
+                An iterable of tuples
+            NDarray (NxM)
+                The first column is treated as the X, and all other M-1 columns
+                are treated as separate Y series
+            [y1, y2, ... yN]
+                A list/tuple of scalar values; will be treated as Y values and
+                a synthetic X array of integers will be generated.
 
-    Style Parameters (specified by keyword)::
+        marker (str, optional): a valid marker_type, defaults to "circle"
+        color (color value, optional): shorthand to set both fill and line color
 
-        marker : a valid marker_type; defaults to "circle"
-        fill_color : color
-        fill_alpha : 0.0 - 1.0
-        line_color : color
-        line_width : int >= 1
-        line_alpha : 0.0 - 1.0
-        line_cap : "butt", "join", "miter"
-        color : shorthand to set both fill and line color
+    All the :ref:`userguide_line_properties` and :ref:`userguide_fill_properties` are
+    also accepted as keyword parameters.
 
-    Colors can be either one of:
+    Examples:
 
-    * the 147 named SVG colors
-    * a string representing a Hex color (e.g. "#FF32D0")
-    * a 3-tuple of integers between 0 and 255
-    * a 4-tuple of (r,g,b,a) where r,g,b are 0..255 and a is between 0..1
-
-    Examples::
-
-        scatter([1,2,3,4,5,6])
-        scatter([1,2,3],[4,5,6], fill_color="red")
-        scatter(x_array, y_array, type="circle")
-        scatter("data1", "data2", source=data_source, ...)
+            >>> scatter([1,2,3,4,5,6])
+            >>> scatter([1,2,3],[4,5,6], fill_color="red")
+            >>> scatter(x_array, y_array, marker="circle")
+            >>> scatter("data1", "data2", source=data_source, ...)
 
     """
     session_objs = []   # The list of objects that need to be added
-
-    if "type" in kwargs:
-        warnings.warn("Keyword argument 'type' of scatter(...) is deprecated; use 'marker' instead.")
-        kwargs.setdefault("marker", kwargs.pop("type"))
 
     ds = kwargs.get("source", None)
     names, datasource = _handle_1d_data_args(args, datasource=ds)
     if datasource != ds:
         session_objs.append(datasource)
 
-    # If hold is on, then we will reuse the ranges of the current plot
-    #plot = get_plot(kwargs)
     markertype = kwargs.get("marker", "circle")
-    x_name = names[0]
 
     # TODO: How to handle this? Just call curplot()?
-    if not len(color_fields.intersection(set(kwargs.keys()))):
+    if not len(_color_fields.intersection(set(kwargs.keys()))):
         kwargs['color'] = get_default_color()
-    if not len(alpha_fields.intersection(set(kwargs.keys()))):
+    if not len(_alpha_fields.intersection(set(kwargs.keys()))):
         kwargs['alpha'] = get_default_alpha()
 
     plots = []
     for yname in names[1:]:
-        if markertype not in marker_types:
+        if markertype not in _marker_types:
             raise RuntimeError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
-        # TODO: Look up correct glyph function, then call it
-        if markertype in locals():
-            locals()[markertype](*args, **kwargs)
-        else:
-            glyphclass = marker_types[markertype]
-            plots.append(GlyphFunction(glyphclass, ("x", "y"))(*args, **kwargs))
+        plots.append(_marker_types[markertype](*args, **kwargs))
     if len(plots) == 1:
         return plots[0]
     else:
@@ -841,6 +1153,17 @@ def scatter(*args, **kwargs):
 
 @visual
 def gridplot(plot_arrangement, name=False):
+    """ Generate a plot that arranges several subplots into a grid.
+
+    Args:
+        plot_arrangement (list[:class:`Plot <bokeh.objects.Plot>`]) : plots to arrange in a grid
+        name (str) : name for this plot
+
+    .. note:: `plot_arrangement` can be nested
+
+    Returns:
+        grid_plot: the current :class:`GridPlot <bokeh.objects.GridPlot>`
+    """
     grid = GridPlot(children=plot_arrangement)
     if name:
         grid._id = name
@@ -851,160 +1174,44 @@ def gridplot(plot_arrangement, name=False):
                 set(itertools.chain.from_iterable(plot_arrangement)))
     return grid, [grid]
 
-
-def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
-                 x_axis_type="linear", y_axis_type="linear",
-                 tools="pan,wheel_zoom,save,resize,select", **kw):
-    # Accept **kw to absorb other arguments which the actual factory functions
-    # might pass in, but that we don't care about
-    p = Plot()
-    if _PLOTLIST is not None:
-        _PLOTLIST.append(p)
-
-    p.title = kw.pop("title", "Plot")
-    if plot_width is not None:
-        p.width = plot_width
-    elif "width" in kw:
-        p.width = kw["width"]
-    if plot_height is not None:
-        p.height = plot_height
-    elif "height" in kw:
-        p.height = kw["height"]
-
-    if x_range is None:
-        x_range = DataRange1d()
-    p.x_range = x_range
-    if y_range is None:
-        y_range = DataRange1d()
-    p.y_range = y_range
-
-    axiscls = None
-    if x_axis_type is "linear":
-        axiscls = LinearAxis
-    elif x_axis_type == "datetime":
-        axiscls = DatetimeAxis
-    if axiscls:
-        xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
-
-    axiscls = None
-    if y_axis_type is "linear":
-        axiscls = LinearAxis
-    elif y_axis_type == "datetime":
-        axiscls = DatetimeAxis
-    if axiscls:
-        yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
-
-    xgrid = Grid(plot=p, dimension=0, is_datetime=(x_axis_type == "datetime"))
-    ygrid = Grid(plot=p, dimension=1, is_datetime=(y_axis_type == "datetime"))
-
-    tool_objs = []
-
-    for tool in re.split(r"\s*,\s*", tools.strip()):
-        if tool == "pan":
-            tool_obj = PanTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
-        elif tool == "wheel_zoom":
-            tool_obj = WheelZoomTool(dataranges=[p.x_range, p.y_range], dimensions=["width", "height"])
-        elif tool == "save":
-            tool_obj = PreviewSaveTool(plot=p)
-        elif tool == "resize":
-            tool_obj = ResizeTool(plot=p)
-        elif tool == "crosshair":
-            tool_obj = CrosshairTool(plot=p)
-        elif tool == "select":
-            tool_obj = BoxSelectTool()
-            overlay = BoxSelectionOverlay(tool=tool_obj)
-            p.renderers.append(overlay)
-        elif tool == "previewsave":
-            tool_obj = PreviewSaveTool(plot=p)
-        elif tool == "embed":
-            tool_obj = EmbedTool(plot=p)
-        else:
-            known_tools = "pan, wheel_zoom, save, resize, crosshair, select, previewsave or embed"
-            raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
-
-        tool_objs.append(tool_obj)
-
-    p.tools.extend(tool_objs)
-    return p
-
-
-def _handle_1d_data_args(args, datasource=None, create_autoindex=True,
-        suggested_names=[]):
-    """ Returns a datasource and a list of names corresponding (roughly)
-    to the input data.  If only a single array was given, and an index
-    array was created, then the index's name is returned first.
-    """
-    arrays = []
-    if datasource is None:
-        datasource = ColumnDataSource()
-    # First process all the arguments to homogenize shape.  After this
-    # process, "arrays" should contain a uniform list of string/ndarray/iterable
-    # corresponding to the inputs.
-    for arg in args:
-        if isinstance(arg, string_types):
-            # This has to be handled before our check for Iterable
-            arrays.append(arg)
-
-        elif isinstance(arg, np.ndarray):
-            if arg.ndim == 1:
-                arrays.append(arg)
-            else:
-                arrays.extend(arg)
-
-        elif isinstance(arg, Iterable):
-            arrays.append(arg)
-
-        elif isinstance(arg, Number):
-            arrays.append([arg])
-
-    # Now handle the case when they've only provided a single array of
-    # inputs (i.e. just the values, and no x positions).  Generate a new
-    # dummy array for this.
-    if create_autoindex and len(arrays) == 1:
-        arrays.insert(0, np.arange(len(arrays[0])))
-
-    # Now put all the data into a DataSource, or insert into existing one
-    names = []
-    for i, ary in enumerate(arrays):
-        if isinstance(ary, string_types):
-            name = ary
-        else:
-            if i < len(suggested_names):
-                name = suggested_names[i]
-            elif i == 0 and create_autoindex:
-                name = datasource.add(ary, name="_autoindex")
-            else:
-                name = datasource.add(ary)
-        names.append(name)
-    return names, datasource
-
-class _list_attr_splat(list):
-    def __setattr__(self, attr, value):
-        for x in self:
-            setattr(x, attr, value)
-
 def xaxis():
-    """ Returns the x-axis or list of x-axes on the current plot """
+    """ Get the current axis objects
+
+    Returns:
+        Returns axis object or splattable list of axis objects on the current plot
+    """
     p = curplot()
     if p is None:
         return None
-    axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==0]
+    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.dimension==0]
     return _list_attr_splat(axis)
 
 def yaxis():
-    """ Returns the y-axis or list of y-axes on the current plot """
+    """ Get the current `y` axis object(s)
+
+    Returns:
+        Returns y-axis object or splattable list of y-axis objects on the current plot
+    """
     p = curplot()
     if p is None:
         return None
-    axis = [obj for obj in p.renderers if isinstance(obj, LinearAxis) and obj.dimension==1]
+    axis = [obj for obj in p.renderers if isinstance(obj, Axis) and obj.dimension==1]
     return _list_attr_splat(axis)
 
 def axis():
-    """ Return the axes on the current plot """
+    """ Get the current `x` axis object(s)
+
+    Returns:
+        Returns x-axis object or splattable list of x-axis objects on the current plot
+    """
     return _list_attr_splat(xaxis() + yaxis())
 
 def legend():
-    """ Return the legend(s) of the current plot """
+    """ Get the current :class:`legend <bokeh.objects.Legend>` object(s)
+
+    Returns:
+        Returns legend object or splattable list of legend objects on the current plot
+    """
     p = curplot()
     if p is None:
         return None
@@ -1012,7 +1219,11 @@ def legend():
     return _list_attr_splat(legends)
 
 def xgrid():
-    """ Returns x-grid object on the current plot """
+    """ Get the current `x` :class:`grid <bokeh.objects.Grid>` object(s)
+
+    Returns:
+        Returns legend object or splattable list of legend objects on the current plot
+    """
     p = curplot()
     if p is None:
         return None
@@ -1020,7 +1231,11 @@ def xgrid():
     return _list_attr_splat(grid)
 
 def ygrid():
-    """ Returns y-grid object on the current plot """
+    """ Get the current `y` :class:`grid <bokeh.objects.Grid>` object(s)
+
+    Returns:
+        Returns y-grid object or splattable list of y-grid objects on the current plot
+    """
     p = curplot()
     if p is None:
         return None
@@ -1028,6 +1243,11 @@ def ygrid():
     return _list_attr_splat(grid)
 
 def grid():
+    """ Get the current :class:`grid <bokeh.objects.Grid>` object(s)
+
+    Returns:
+        Returns grid object or splattable list of grid objects on the current plot
+    """
     """ Return the grids on the current plot """
     return _list_attr_splat(xgrid() + ygrid())
 

@@ -1,9 +1,10 @@
 
 define [
   "underscore",
+  "rbush",
   "renderer/properties",
   "./glyph",
-], (_, Properties, Glyph) ->
+], (_, rbush, Properties, Glyph) ->
 
   class RectView extends Glyph.View
 
@@ -25,6 +26,14 @@ define [
           @sy[i] = Math.round(syi[i])
         else
           @sy[i] = syi[i]
+      @max_width = _.max(@width)
+      @max_height = _.max(@height)
+
+    _set_data: () ->
+      @index = rbush()
+      @index.load(
+        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0...@x.length])
+      )
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       if glyph_props.fill_properties.do_fill
@@ -70,6 +79,73 @@ define [
           ctx.beginPath()
 
         ctx.stroke()
+
+    _hit_point: (geometry) ->
+      [vx, vy] = [geometry.vx, geometry.vy]
+      x = @plot_view.xmapper.map_from_target(vx)
+      y = @plot_view.ymapper.map_from_target(vy)
+
+      # handle categorical cases
+      xcat = (typeof(x) == "string")
+      ycat = (typeof(y) == "string")
+
+      if xcat or ycat
+        candidates = (i for i in [0...@x.length])
+
+      else
+        # the dilation by a factor of two is a quick and easy way to make
+        # sure we cover cases with rotated
+        if @width_units == "screen" or xcat
+          max_width = @max_width
+          if xcat
+            max_width = @plot_view.xmapper.map_to_target(max_width)
+          vx0 = vx - 2*max_width
+          vx1 = vx + 2*max_width
+          [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
+        else
+          x0 = x - 2*@max_width
+          x1 = x + 2*@max_width
+
+        if @height_units == "screen" or ycat
+          max_height = @max_height
+          if ycat
+            max_height = @plot_view.ymapper.map_to_target(max_height)
+          vy0 = vy - 2*max_height
+          vy1 = vy + 2*max_height
+          [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
+        else
+          y0 = y - 2*@max_height
+          y1 = y + 2*@max_height
+
+        candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
+
+      hits = []
+      for i in candidates
+        if @width_units == "screen" or xcat
+          sx = @plot_view.view_state.vx_to_sx(vx)
+        else
+          sx = @plot_view.view_state.vx_to_sx(@plot_view.xmapper.map_to_target(x))
+
+        if @height_units == "screen" or ycat
+          sy = @plot_view.view_state.vy_to_sy(vy)
+        else
+          sy = @plot_view.view_state.vy_to_sy(@plot_view.ymapper.map_to_target(y))
+
+        if @angle[i]
+          d = Math.sqrt(Math.pow((sx - @sx[i]), 2) + Math.pow((sy - @sy[i]),2))
+          s = Math.sin(-@angle[i])
+          c = Math.cos(-@angle[i])
+          px = c * (sx-@sx[i]) - s * (sy-@sy[i]) + @sx[i]
+          py = s * (sx-@sx[i]) + c * (sy-@sy[i]) + @sy[i]
+          sx = px
+          sy = py
+        width_in = Math.abs(@sx[i]-sx) <= @sw[i]/2
+        height_in = Math.abs(@sy[i]-sy) <= @sh[i]/2
+
+        if height_in and width_in
+          hits.push(i)
+
+      return hits
 
     draw_legend: (ctx, x0, x1, y0, y1) ->
       reference_point = @get_reference_point() ? 0

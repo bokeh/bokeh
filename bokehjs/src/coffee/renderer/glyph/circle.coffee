@@ -34,7 +34,7 @@ define [
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
       if @size
         @radius = (s/2 for s in @distance_vector('x', 'size', 'edge'))
-        @radius_units = @size_units
+        @radius_units = @glyph_props.size.units
       else
         @radius = @distance_vector('x', 'radius', 'edge')
 
@@ -64,7 +64,7 @@ define [
         y0 -= @max_radius
         y1 += @max_radius
 
-      @mask = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      return (x[4].i for x in @index.search([x0, y0, x1, y1]))
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, radius=@radius) ->
       for i in indices
@@ -84,17 +84,18 @@ define [
           ctx.stroke()
 
     _hit_point: (geometry) ->
-      [sx, sy] = [geometry.sx, geometry.sy]
-      [x, y] = @plot_view.xmapper.v_map_from_target([sx, sy])
+      [vx, vy] = [geometry.vx, geometry.vy]
+      x = @plot_view.xmapper.map_from_target(vx)
+      y = @plot_view.ymapper.map_from_target(vy)
 
       if @radius_units == "screen"
-        sx0 = sx - @max_radius
-        sx1 = sx - @max_radius
-        [x0, x1] = @plot_view.xmapper.v_map_from_target([sx0, sx1])
+        vx0 = vx - @max_radius
+        vx1 = vx + @max_radius
+        [x0, x1] = @plot_view.xmapper.v_map_from_target([vx0, vx1])
 
-        sy0 = sy - @max_radius
-        sy1 = sy - @max_radius
-        [y0, y1] = @plot_view.ymapper.v_map_from_target([sy0, sy1])
+        vy0 = vy - @max_radius
+        vy1 = vy + @max_radius
+        [y0, y1] = @plot_view.ymapper.v_map_from_target([vy0, vy1])
 
       else
         x0 = x - @max_radius
@@ -103,19 +104,31 @@ define [
         y0 = y - @max_radius
         y1 = y + @max_radius
 
-      candidates = (x[4].i for x in @index.search([x0, y0, x1, y1]))
+      candidates = (pt[4].i for pt in @index.search([x0, y0, x1, y1]))
 
       hits = []
       if @radius_units == "screen"
-        for i in [0...candidates.length]
-          r2 = @radius[i]^2
-          if (@sx[i]-sx)^2 + (@sy[i]-sy)^2 <= r2
-            hits.push(i)
+        sx = @plot_view.view_state.vx_to_sx(vx)
+        sy = @plot_view.view_state.vy_to_sy(vy)
+        for i in candidates
+          r2 = Math.pow(@radius[i], 2)
+          dist = Math.pow(@sx[i]-sx, 2) + Math.pow(@sy[i]-sy, 2)
+          if dist <= r2
+            hits.push([i, dist])
       else
-        for i in [0...candidates.length]
-          r2 = @radius[i]^2
-          if (@x[i]-x)^2 + (@y[i]-y)^2 <= r2
-            hits.push(i)
+        for i in candidates
+          r2 = Math.pow(@radius[i], 2)
+          sx0 = @plot_view.xmapper.map_to_target(x)
+          sx1 = @plot_view.xmapper.map_to_target(@x[i])
+          sy0 = @plot_view.ymapper.map_to_target(y)
+          sy1 = @plot_view.ymapper.map_to_target(@y[i])
+          dist = Math.pow(sx0-sx1, 2) + Math.pow(sy0-sy1, 2)
+          if dist <= r2
+            hits.push([i, dist])
+      hits = _.chain(hits)
+        .sortBy((elt) -> return elt[1])
+        .map((elt) -> return elt[0])
+        .value()
       return hits
 
     _hit_rect: (geometry) ->

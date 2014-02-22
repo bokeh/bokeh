@@ -1,0 +1,50 @@
+<!doctype html>
+<html>
+  <head>
+      <meta charset='UTF-8' />
+      <meta http-equiv='content-type' content='text/html; charset=utf-8' />
+
+      <title>jQuery.simpleFAQ QUnit Test Runner</title>
+
+      <link rel='stylesheet' href='../js/vendor/qunit/qunit/qunit.css'>
+
+      <script src="../js/vendor/requirejs/require.js"></script>
+      <script src="../js/config.js"></script>
+
+      <script src="../js/vendor/qunit/qunit/qunit.js"></script>
+      <script>QUnit.config.autostart = false;</script>
+
+      <!-- your tests, any and all to run with the given fixtures below -->
+      <script>
+        myOnload = function () {
+          QUnit.config.autostart = false;
+          setTimeout(function() {
+            require.config({
+              baseUrl: "../js",
+            });
+
+            requirejs([
+              '../test/range/range1d_test.js',
+              '../test/range/factor_range_test.js',
+            ], function(one){
+              setTimeout(function () {
+                QUnit.start();
+              }, 1500);
+            });
+
+          }, 500);
+        };
+        window.addEventListener("load", myOnload, true);
+      </script>
+
+  </head>
+  <body>
+    <div id="qunit"></div> <!-- QUnit fills this with results, etc -->
+    <div id='qunit-fixture'>
+
+      <!-- any HTML you want to be present in each test (will be reset for each test) -->
+
+    </div>
+  </body>
+</html>
+

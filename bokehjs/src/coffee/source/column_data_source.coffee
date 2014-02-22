@@ -2,10 +2,10 @@
 define [
   "underscore",
   "backbone",
-  "./object_array_data_source"
-], (_, Backbone, ObjectArrayDataSource) ->
+  "common/has_properties",
+], (_, Backbone, HasProperties) ->
 
-  class ColumnDataSource extends ObjectArrayDataSource.Model
+  class ColumnDataSource extends HasProperties
     # Datasource where the data is defined column-wise, i.e. each key in the
     # the data attribute is a column name, and its value is an array of scalars.
     # Each column should be the same length.
@@ -16,15 +16,18 @@ define [
       @discrete_ranges = {}
 
     getcolumn: (colname) ->
-      return @get('data')[colname]
+      return @get('data')[colname] ? null
 
     getcolumn_with_default: (colname, default_value) ->
       """ returns the column, with any undefineds replaced with default""" #"
-      return @get('data')[colname]
+      return @get('data')[colname] ? null
 
-    get_length :  ->
+    get_length: () ->
       data = @get('data')
       return data[_.keys(data)[0]].length
+
+    columns: () ->
+      return _.keys(@get('data'))
 
     datapoints: () ->
       data = @get('data')

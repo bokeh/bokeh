@@ -2,12 +2,12 @@
 define [
   "underscore",
   "jquery",
+  "modal",
   "backbone",
   "common/bulk_save",
   "./tool",
   "./event_generators",
-  "bootstrap",
-], (_, $, Backbone, bulk_save, Tool, EventGenerators) ->
+], (_, $, $$1, Backbone, bulk_save, Tool, EventGenerators) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
 

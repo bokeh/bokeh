@@ -1,0 +1,219 @@
+svg {
+  font: 12px sans-serif;
+  margin: 0;
+}
+.ui-dialog-titlebar {
+  height: 16px;
+}
+.button_bar {
+  overflow: hidden;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+.grid_plot .button_bar {
+  display: none;
+}
+.plotview {
+  clear: both;
+}
+.bokeh_canvas_wrapper {
+  position: relative;
+  font-size: 12pt;
+}
+.bokeh_canvas {
+  position: absolute;
+  font-size: 12pt;
+}
+.bokeh_canvas_wrapper .bokeh_gmap {
+  position: absolute !important;
+  z-index: -5;
+}
+.plotview {
+  clear: both;
+}
+.bokeh_canvas_wrapper {
+  position: relative;
+  font-size: 12pt;
+  float: left;
+}
+.bokeh_canvas {
+  position: absolute;
+  font-size: 12pt;
+}
+.bokeh_tooltip:before {
+  position: absolute;
+  top: 40%;
+  width: 0px;
+  height: 0px;
+  left: -9px;
+  border-style: solid;
+  border-width: 7px 10px 7px 0;
+  border-color: transparent #1e4B6c transparent transparent;
+  content: " ";
+  display: block;
+}
+.bokeh_tooltip:after {
+  position: absolute;
+  width: 0px;
+  height: 0px;
+  right: -9px;
+  border-style: solid;
+  border-width: 7px 0px 7px 10;
+  border-color: transparent transparent transparent #1e4B6c;
+  content: " ";
+  display: block;
+}
+.bokeh_tooltip {
+  position: absolute;
+  padding: 5px;
+  background-color: #1e4B6c;
+  -webkit-border-radius: 10px;
+  -moz-border-radius: 10px;
+  border-radius: 10px;
+  pointer-events: none;
+}
+.bokeh_tooltip_row_label {
+  font-family: Helvetica, sans-serif;
+  color: #9ab9b1;
+  text-align: right;
+}
+.bokeh_tooltip_row_value {
+  font-family: Helvetica, sans-serif;
+  color: #e2ddbd;
+}
+.bokeh_tooltip_color_block {
+  width: 12px;
+  height: 12px;
+  margin-left: 5px;
+  margin-right: 5px;
+  outline: #dddddd solid 1px;
+  display: inline-block;
+}
+.bokeh_gmap {
+  border: 0px;
+  position: absolute;
+  z-index: -5;
+}
+.shading {
+  display: block;
+  border: 1px dashed green;
+  position: absolute;
+  z-index: 100;
+}
+.gridplot_container {
+  position: relative;
+}
+.gridplot_container .gp_plotwrapper {
+  position: absolute;
+}
+button.active {
+  border: 1px solid #0000ff;
+}
+.table_wrap table {
+  margin: 5px;
+  height: 300px;
+  display: block;
+  overflow-y: scroll;
+}
+.plot_wrap .button_bar {
+  height: 30px;
+}
+.plot_wrap .button_bar * {
+  display: none;
+}
+.plot_wrap:hover .button_bar * {
+  display: inherit;
+}
+.maximize {
+  display: none;
+  float: right;
+}
+.plotclose {
+  float: right;
+}
+.plotsidebar {
+  overflow-x: auto;
+  width: 350px;
+  float: left;
+}
+.maxplot {
+  float: left;
+}
+/* pandas */
+.bokehtable {
+  overflow: auto;
+}
+.pandassize,
+.pandasoffset {
+  width: 30px !important;
+  height: 20px !important;
+  padding: 1px !important;
+}
+.hide {
+  display: none;
+}
+.pandasicons {
+  position: relative;
+  top: 5px;
+}
+.bokehdocheading {
+  background-color: #ccc;
+}
+.bokehdocheading:hover > .bokehdelete {
+  display: none;
+  float: right;
+}
+.bokehdelete {
+  float: right;
+}
+.pandasgroup {
+  width: auto;
+  height: 20px !important;
+  padding: 1px !important;
+}
+.pandasagg {
+  width: auto;
+  height: 20px !important;
+  padding: 1px !important;
+}
+.tablecontrolstate {
+  width: auto;
+  height: 20px !important;
+  padding: 1px !important;
+}
+.paginatedisplay {
+  overflow: hidden;
+}
+.pagination {
+  margin: 0px !important;
+}
+.tablecontrolform {
+  margin: 0px;
+}
+.computedtxtbox,
+.computedname,
+.search {
+  height: 20px !important;
+  padding: 1px !important;
+}
+.plottitle {
+  padding-left: 50px;
+  padding-bottom: 10px;
+}
+.dataslider {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  margin-left: 5px;
+  margin-right: 5px;
+  width: 20px;
+}
+.maxlabel,
+.minlabel {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+.jsp {
+  overflow: hidden;
+}

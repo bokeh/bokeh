@@ -8,7 +8,7 @@ from . import protocol, utils, browserlib
 import requests
 import json
 
-bokeh_plots_url = "http://eff.iciently.com:5006/"
+bokeh_plots_url = "http://bokehplots.cloudapp.net/"
 
                                     
 class Server(object):

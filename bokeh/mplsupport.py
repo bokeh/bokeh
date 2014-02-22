@@ -3,7 +3,9 @@
 """
 
 import warnings
+import numpy as np
 import matplotlib as mpl
+from itertools import (cycle, islice)
 
 from . import glyphs, objects
 
@@ -29,8 +31,10 @@ def axes2plot(axes):
     # Break up the lines and markers by filtering on linestyle and marker style
     lines = [line for line in axes.lines if line.get_linestyle() not in ("", " ", "None", "none", None)]
     markers = [m for m in axes.lines if m.get_marker() not in ("", " ", "None", "none", None)]
+    linescols = [col for col in axes.collections if col.get_segments() not in ("", " ", "None", "none", None)]
     renderers = [_make_line(datasource, plot.x_range, plot.y_range, line) for line in lines]
     renderers.extend(_make_marker(datasource, plot.x_range, plot.y_range, marker) for marker in markers)
+    renderers.extend(_make_lines_collection(datasource, plot.x_range, plot.y_range, linescol) for linescol in linescols)
     plot.renderers.extend(renderers)
 
     #plot.renderers.extend(map(MPLText.convert, axes.texts))
@@ -187,6 +191,25 @@ def _map_line_props(newline, line2d):
     setattr(newline, "line_dash", _convert_dashes(line2d.get_linestyle()))
     # setattr(newline, "line_dash_offset", ...)
 
+
+def _get_props_cycled(col, prop, fx=lambda x: x):
+    """ We need to cycle the `get.property` list (where property can be colors,
+    line_width, etc) as matplotlib does. We use itertools tools for do this
+    cycling ans slice manipulation.
+
+    Parameters:
+
+    col: matplotlib collection object
+    prop: property we want to get from matplotlib collection
+    fx: funtion (optional) to transform the elements from list obtained
+        after the property call. Deafults to identity function.
+    """
+    n = len(col.get_segments())
+    t_prop = [fx(x) for x in prop]
+    sliced = islice(cycle(t_prop), None, n)
+    return list(sliced)
+
+
 def _convert_dashes(dash):
     """ Converts a Matplotlib dash specification
 
@@ -219,6 +242,35 @@ def _make_line(datasource, xdr, ydr, line2d):
     )
     return glyph
 
+def _make_lines_collection(datasource, xdr, ydr, col):
+    newmultiline = glyphs.MultiLine()
+    xydata = col.get_segments()
+    t_xydata = [np.transpose(seg) for seg in xydata]
+    xs = [t_xydata[x][0] for x in range(len(t_xydata))]
+    ys = [t_xydata[x][1] for x in range(len(t_xydata))]
+    newmultiline.xs = datasource.add(xs)
+    newmultiline.ys = datasource.add(ys)
+    colors = _get_props_cycled(col, col.get_colors(), fx=lambda x: mpl.colors.rgb2hex(x))
+    widths = _get_props_cycled(col, col.get_linewidth())
+    newmultiline.line_color = datasource.add(colors)
+    newmultiline.line_width = datasource.add(widths)
+    newmultiline.line_alpha = col.get_alpha()
+    offset = col.get_linestyle()[0][0]
+    if not col.get_linestyle()[0][1]:
+        on_off = []
+    else:
+        on_off = map(int,col.get_linestyle()[0][1])
+    newmultiline.line_dash_offset = _convert_dashes(offset)
+    newmultiline.line_dash = _convert_dashes(tuple(on_off))
+    xdr.sources.append(datasource.columns(newmultiline.xs))
+    ydr.sources.append(datasource.columns(newmultiline.ys))
+    glyph = objects.Glyph(
+        data_source = datasource,
+        xdata_range = xdr,
+        ydata_range = ydr,
+        glyph = newmultiline
+    )
+    return glyph
 
 class MPLMultiLine(glyphs.MultiLine):
 

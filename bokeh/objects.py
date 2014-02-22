@@ -247,19 +247,6 @@ class PlotObject(HasProps):
         else:
             return props
 
-    def old_vm_props(self, withvalues=False):
-        """ Returns the ViewModel-related properties of this object.  If
-        **withvalues** is True, then returns attributes with values as a
-        dict.  Otherwise, returns a list of attribute names.
-        """
-        props = set(self.properties())
-        if "session" in props:
-            props.remove("session")
-        if withvalues:
-            return dict((k,getattr(self,k)) for k in props)
-        else:
-            return props
-
     def vm_serialize(self):
         """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
@@ -506,14 +493,13 @@ class DataRange1d(DataRange):
     end = Float
 
 
-class FactorRange(DataRange):
+class FactorRange(PlotObject):
     """ Represents a range in a categorical dimension """
-    sources = List(ColumnsRef, has_ref=True)
-    values = List
-    columns = List
+    factors = List
 
 class Glyph(PlotObject):
 
+    plot = Instance(has_ref=True)
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(DataRange1d, has_ref=True)
     ydata_range = Instance(DataRange1d, has_ref=True)
@@ -574,6 +560,8 @@ class Glyph(PlotObject):
 
 
 class Plot(PlotObject):
+    """ Object representing a plot, containing glyphs, guides, annotations.
+    """
 
     data_sources = List
     title = String("Bokeh Plot")
@@ -584,10 +572,6 @@ class Plot(PlotObject):
     title = String('')
     outline_props = Include(LineProps, prefix="outline")
 
-    # We shouldn't need to create mappers manually on the Python side
-    #xmapper = Instance(LinearMapper)
-    #ymapper = Instance(LinearMapper)
-    #mapper = Instance(GridMapper)
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
@@ -754,8 +738,8 @@ class GuideRenderer(PlotObject):
             if self not in self.plot.renderers:
                 self.plot.renderers.append(self)
 
-class LinearAxis(GuideRenderer):
-    type = String("linear_axis")
+class Axis(GuideRenderer):
+    type = String("axis")
 
     dimension = Int(0)
     location = Either(String('min'), Float)
@@ -775,6 +759,12 @@ class LinearAxis(GuideRenderer):
 
     major_tick_in = Int
     major_tick_out = Int
+
+class LinearAxis(Axis):
+    type = String("linear_axis")
+
+class CategoricalAxis(Axis):
+    type = String("categorical_axis")
 
 class DatetimeAxis(LinearAxis):
     type = String("datetime_axis")
@@ -800,12 +790,10 @@ class Grid(GuideRenderer):
 class PanTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
     dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
 
 class WheelZoomTool(PlotObject):
     plot = Instance(Plot)
     dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
 
 class PreviewSaveTool(PlotObject):
     plot = Instance(Plot)
@@ -817,10 +805,16 @@ class EmbedTool(PlotObject):
     dimensions = List   # valid values: "x", "y"
     dataranges = List(has_ref=True)
 
+class ResetTool(PlotObject):
+    plot = Instance(Plot)
+
 class ResizeTool(PlotObject):
     plot = Instance(Plot)
 
 class CrosshairTool(PlotObject):
+    plot = Instance(Plot)
+
+class BoxZoomTool(PlotObject):
     plot = Instance(Plot)
 
 class BoxSelectTool(PlotObject):
@@ -830,6 +824,10 @@ class BoxSelectTool(PlotObject):
 class BoxSelectionOverlay(PlotObject):
     __view_model__ = 'BoxSelection'
     tool = Instance(has_ref=True)
+
+class HoverTool(PlotObject):
+    renderers = List(has_ref=True)
+    tooltips = Dict()
 
 class Legend(PlotObject):
     plot = Instance(Plot, has_ref=True)

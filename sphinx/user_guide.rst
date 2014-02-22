@@ -1,51 +1,66 @@
 .. _userguide:
 
-
 User Guide
 ==========
 
-Coming soon. For now, consult the numerous `examples <https://github.com/ContinuumIO/Bokeh/tree/master/examples>`_
+.. contents::
+    :local:
+    :depth: 2
+
+The User Guide is being continusly updated, but please also consult the numerous
+`examples <https://github.com/ContinuumIO/Bokeh/tree/master/examples>`_
 to see the kinds of parameters that can be passed in to plotting functions in ``bokeh.plotting``, and look
 at the `glyph examples <https://github.com/ContinuumIO/Bokeh/tree/master/examples/glyphs>`_ to see
 the kinds of low-level object attributes that can be set to really customize a plot.
 
+A reference for Bokeh glyphs can be found at :doc:`glyphs_ref`.
+
 Styling
 -------
+
+Properties
+''''''''''
+Many of the styling options are grouped into three categories of properties: :ref:`userguide_line_properties`,
+:ref:`userguide_fill_properties`, and :ref:`userguide_text_properties`.
+
+.. _userguide_line_properties:
+
+Line Properties
+***************
+
+.. include:: includes/line_props.txt
+
+
+.. _userguide_fill_properties:
+
+Fill Properties
+***************
+
+.. include:: includes/fill_props.txt
+
+
+.. _userguide_text_properties:
+
+Text Properties
+***************
+
+.. include:: includes/text_props.txt
+
+
+Plots
+'''''
+
+
 
 Glyphs
 ''''''
 
-Bokeh plots are centered around glyphs, which generally have some combination of line, fill, or text properties,
-depending on what is appropriate for a given glyph. For example, the ``Circle`` glyph has both line and fill properties,
-but the ``Bezier`` glyph only has line properties.  These properties may be specified as keyword arguments
-when calling the glyph functions::
+Bokeh plots are centered around glyphs, which generally have some combination of line, fill, or
+text properties, depending on what is appropriate for a given glyph. For example, the ``Circle``
+glyph has both line and fill properties, but the ``Bezier`` glyph only has line properties.
+These properties may bespecified as keyword arguments when calling the glyph functions::
 
     rect(x, y, radius, fill_color="green", fill_alpha=0.6, line_color=None)
-
-line properties:
-
-* **line_color**: the color of the line used to stroke the glyph
-* **line_alpha**: an alpha value to use for the stroked line
-* **line_width**: the width of the line stroked
-* **line_join**: policy for joining lines ``"bevel", "round", "miter"``
-* **line_cap**: style of endcaps for lines ``"butt", "round", "square"``
-* **line_dash**: an on-off pattern for line dashing pixel lengths, expressed as a string. e.g., ``"4 6"``
-* **line_dash_offset**: where in the dash pattern should the canvas start
-
-fill properties:
-
-* **fill_color**: the color to use when filling the glyph
-* **fill_alpha**: an alpha value to use for filling
-
-text properties:
-
-* **text_font**: the name of the font to use for rendering text, e.g. ``"times", "sans"``
-* **text_font_size**: the size of the font to render, e.g., ``"12pt", "10px", "1.5em"``
-* **text_font_style**: font style to apply ``"normal", "italic", "oblique"``
-* **text_color**: the color to render text with
-* **text_alpha**: an alpha value to use while rendering text
-* **text_align** horizontal alignment with respect to reference coordinates ``"left", "right", "center"``
-* **text_baseline** vertical placement with respect to reference coordinates ``"top", "middle", "bottom"``
 
 Axes
 ''''
@@ -91,9 +106,71 @@ and ``plotting.grid()`` functions available to obtain grids for the current plot
     ygrid()[0].axis_line_color = None # only updates the first y-grid
     axis().bounds = (2, 8) # set bounds for all grids
 
+
+Tools
+-----
+
+Bokeh comes with a number of interactive tools. The are typically activated
+through the toolbar above plots, although some can be activated by keypresses
+or specific mouse movement.
+
+Tools are added to plots with the ``tools`` keyword argument, which has as its
+value a comma separated string listing the tools to add to the plot, for example::
+
+    tools = "pan,wheel_zoom,box_zoom,reset,resize,crosshair,select,previewsave,embed"
+
+PanTool
+'''''''
+The pan tool (``'pan'``) pans the plot on left-click drag. It can be made the active tool
+by clicking its button on the tool bar, however it also automatically activates on left-click
+drag whenever there is no other active tool.
+
+WheelZoomTool
+'''''''''''''
+The wheel zoom tool (``'wheel_zoom'``) will zoom the plot in and out, centered on the current
+mouse location.  It can be made the active tool by clicking its button on the tool bar, however
+it also automatically activates when the ``Shift`` key is depressed.
+
+BoxZoomTool
+'''''''''''
+The box zoom tool (``'box_zoom'``) will zoom the plot in to the box region that a user
+selects with left drag while it is the active tool.
+
+ResetTool
+'''''''''
+The reset tool (``'reset'``) will restore the plot ranges to their original values.
+
+ResizeTool
+''''''''''
+The resize tool (``'resize'``) allows the user to left drag to resize the entire plot while
+it is the active tool.
+
+PreviewSaveTool
+'''''''''''''''
+The preview-save tool (``'previewsave'``) pops up a modal dialog that allows the user to save
+a PNG image if the plot.
+
+EmbedTool
+'''''''''
+The embed tool (``'embed'``) tool pops up a modal dialog containing a javascript ``<script>``
+snippet that can put int HTML pages to display the plot.
+
+CrosshairTool
+'''''''''''''
+Th crosshair tool (``'crosshair'``) draws a crosshair annotation over the plot, centered on
+the current mouse position.
+
+BoxSelectTool
+'''''''''''''
+The box selection tool (``'select'``) allows the user to define a rectangular selection
+region be left-dragging on the plot. The indicies of the data points in the selection
+region are stored on the data source as the current selection. If other plots share this
+datasource, then they will render a linked selection. This selection is also available
+from python when using server-based output.
+
 Embedding
 ---------
-
+Coming soon!
 
 Animated Plots
 --------------

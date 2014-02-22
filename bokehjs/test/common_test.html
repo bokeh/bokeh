@@ -26,20 +26,19 @@
               }
             });
 
-          requirejs([
-            '../test/common/has_parent_test.js',
-            '../test/common/has_property_test.js',
-          ], function(one){
-          setTimeout(function () {
-          QUnit.start();  }, 1500);
-        });
+            requirejs([
+              '../test/common/has_parent_test.js',
+              '../test/common/has_property_test.js',
+            ], function(one) {
+              setTimeout(function () {
+                QUnit.start();
+              }, 1500);
+            });
 
-        }, 500);
-     //window.removeEventListener("load", myOnload, true);
+          }, 500);
         };
         window.addEventListener("load", myOnload, true);
       </script>
-
 
   </head>
   <body>

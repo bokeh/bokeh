@@ -83,7 +83,7 @@ define [
 
       @_map_data()
 
-      if @_mask_data?
+      if @_mask_data? and (@plot_view.x_range.type != "FactorRange") and (@plot_view.y_range.type != "FactorRange")
         indices = @_mask_data()
       else
         indices = @all_indices
@@ -158,6 +158,8 @@ define [
         ptc = @glyph_props.v_select(pt, data)
         if pt_units == 'screen'
           ptc = mapper.v_map_from_target(ptc)
+        if typeof(ptc) == 'string'
+          ptc = mapper.v_map_to_target(ptc)
         pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
         pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
 
@@ -182,10 +184,7 @@ define [
 
       source = @mget_obj('data_source')
       local_select = (prop_name) =>
-        if source.type == 'ColumnDataSource'
-          return @glyph_props.source_v_select(prop_name, source)
-        else
-          return @glyph_props.v_select(prop_name, @data2)
+        return @glyph_props.source_v_select(prop_name, source)
       span = local_select(span_prop_name)
       if span_units == 'screen'
         return span
@@ -195,6 +194,8 @@ define [
         ptc = local_select(pt)
         if pt_units == 'screen'
           ptc = mapper.v_map_from_target(ptc)
+        if typeof(ptc[0]) == 'string'
+          ptc = mapper.v_map_to_target(ptc)
         pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
         pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
 
@@ -261,16 +262,22 @@ define [
       if geometry.type == "point"
         if @_hit_point?
           return @_hit_point(geometry)
-        console.log "'point' selection not available on renderer"
+        if not @_point_hit_warned?
+          console.log "WARNING: 'point' selection not available on renderer"
+          @_point_hit_warned = true
+        return null
 
       else if geometry.type == "rect"
         if @_hit_rect?
           return @_hit_rect(geometry)
-        console.log "'rect' seletion not avaliable on renderer"
+        if not @_rect_hit_warned?
+          console.log "WARNING: 'rect' selection not avaliable on renderer"
+          @_rect_hit_warned = true
+        return null
 
       else
         console.log "unrecognized selection geometry type '#{ geometry.type }'"
-        return []
+        return null
 
   class Glyph extends HasParent
 
@@ -282,7 +289,7 @@ define [
     display_defaults: () ->
       return {
         level: 'glyph'
-        radius_units: 'screen'
+        radius_units: 'data'
         length_units: 'screen'
         angle_units: 'deg'
         start_angle_units: 'deg'

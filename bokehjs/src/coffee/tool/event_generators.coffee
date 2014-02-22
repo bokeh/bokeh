@@ -74,10 +74,20 @@ define [], () ->
         if not e[@options.keyName]
           @_stop_drag(e))
 
-      @plotview.canvas_wrapper.bind('mousedown', (e) =>
-        if @button_activated or e[@options.keyName]
+      @plotview.canvas_wrapper.bind 'mousedown', (e) =>
+        start = false
+
+        if @button_activated or @eventSink.active == @toolName
+          start = true
+        else if not @eventSink.active
+          if @options.keyName is null and not e.ctrlKey and not e.altKey and not e.metaKey and not e.shiftKey
+            start = true
+          else if e[@options.keyName] is true
+            start = true
+
+        if start
           @_start_drag()
-          return false)
+          return false
 
       @plotview.canvas_wrapper.bind('mouseup', (e) =>
         if @button_activated
@@ -119,6 +129,7 @@ define [], () ->
       @$tool_button.hide()
 
     _start_drag: ->
+      @_activated_with_button = @button_activated
       @eventSink.trigger("active_tool", @toolName)
       if not @dragging
         @dragging = true
@@ -131,12 +142,15 @@ define [], () ->
       @basepoint_set = false
       if @dragging
         @dragging = false
+        if @_activated_with_button is false and @options.auto_deactivate is true
+          @eventSink.trigger("clear_active_tool")
         if not @button_activated
           @$tool_button.removeClass('active')
         if @options.cursor?
           @plotview.canvas_wrapper.css('cursor', '')
         set_bokehXY(e)
         @eventSink.trigger("#{@options.eventBasename}:DragEnd", e)
+      @_activated_with_button = null
 
   class OnePointWheelEventGenerator
 
@@ -154,13 +168,13 @@ define [], () ->
       @eventSink = eventSink
       @plotview.canvas_wrapper.bind("mousewheel",
         (e, delta, dX, dY) =>
-          if not @tool_active
-            return
-          set_bokehXY(e)
-          e.delta = delta
-          eventSink.trigger("#{toolName}:zoom", e)
-          e.preventDefault()
-          e.stopPropagation())
+          if @tool_active or (not @eventSink.active and e.shiftKey)
+            set_bokehXY(e)
+            e.delta = delta
+            eventSink.trigger("#{toolName}:zoom", e)
+            e.preventDefault()
+            e.stopPropagation()
+      )
 
       $(document).bind('keydown', (e) =>
         #disable the tool when ESC is pressed

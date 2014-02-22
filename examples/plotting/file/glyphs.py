@@ -19,80 +19,80 @@ output_file("glyphs.html", title="glyphs.py example")
 
 annular_wedge(x, y, 10, 20, 0.6, 4.1,
               inner_radius_units="screen", outer_radius_units = "screen",
-              color="#8888ee", tools="", title="annular_wedge")
+              color="#8888ee", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="annular_wedge")
 
 annulus(x, y, 10, 20, inner_radius_units="screen", outer_radius_units = "screen",
-        color="#7FC97F", tools="", title="annulus")
+        color="#7FC97F", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="annulus")
 
-arc(x, y, 20, 0.6, 4.1, radius_units="screen", color="#BEAED4", tools="", title="arc", line_width=3)
+arc(x, y, 20, 0.6, 4.1, radius_units="screen", color="#BEAED4", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="arc", line_width=3)
 
-bezier(x, y, x+0.2, y, x+0.1, y+0.1, x-0.1, y-0.1,color="#D95F02", tools="", title="bezier", line_width=2)
+bezier(x, y, x+0.2, y, x+0.1, y+0.1, x-0.1, y-0.1,color="#D95F02", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="bezier", line_width=2)
 
-circle(x, y, radius=0.1, radius_units="data", color="#3288BD", tools="", title="circle")
+circle(x, y, radius=0.1, radius_units="data", color="#3288BD", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="circle")
 
-line(x, y, color="#F46D43", tools="", title="line")
+line(x, y, color="#F46D43", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="line")
 
 multi_line([xpts+xx for xx in x], [ypts+yy for yy in y],
-           color="#8073AC", tools="", title="multi_line", line_width=2)
+           color="#8073AC", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="multi_line", line_width=2)
 
 oval(x, y, 15, 25, angle=-0.7,
      width_units="screen", height_units="screen",
-     color="#1D91C0", tools="", title="oval")
+     color="#1D91C0", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="oval")
 
-patch(x, y, color="#A6CEE3", tools="", title="patch")
+patch(x, y, color="#A6CEE3", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="patch")
 
-patches([xpts+xx for xx in x], [ypts+yy for yy in y], color="#FB9A99", tools="", title="patches")
+patches([xpts+xx for xx in x], [ypts+yy for yy in y], color="#FB9A99", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="patches")
 
-quad(x, x-0.1, y, y-0.1, color="#B3DE69", tools="", title="quad")
+quad(x, x-0.1, y, y-0.1, color="#B3DE69", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="quad")
 
-quadratic(x, y, x+0.2, y, x+0.1, y+0.1, color="#4DAF4A", tools="", title="quadratic", line_width=3)
+quadratic(x, y, x+0.2, y, x+0.1, y+0.1, color="#4DAF4A", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="quadratic", line_width=3)
 
-ray(x, y, 45, -0.7, color="#FB8072", tools="", title="ray", line_width=2)
+ray(x, y, 45, -0.7, color="#FB8072", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="ray", line_width=2)
 
 rect(x, y, 10, 20, -0.7,
      width_units="screen", height_units="screen",
-     color="#CAB2D6", tools="", title="rect")
+     color="#CAB2D6", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="rect")
 
-segment(x, y, x-0.1, y-0.1, color="#F4A582", tools="", title="segment", line_width=3)
+segment(x, y, x-0.1, y-0.1, color="#F4A582", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="segment", line_width=3)
 
 square(x, y, size=sizes, color="#74ADD1",
-       tools="", title="square")
+       tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="square")
 
 wedge(x, y, 15, 0.6, 4.1,
       radius_units="screen",
-      color="#B3DE69", tools="", title="wedge",)
+      color="#B3DE69", tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="wedge",)
 
 scatter(x, y, marker="circle_x", size=sizes, color="#DD1C77", fill_color=None,
-       tools="", title="circle_x")
+       tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="circle_x")
 
 scatter(x, y, marker="triangle", size=sizes, color="#99D594",
-       line_width=2, tools="", title="triangle")
+       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="triangle")
 
 scatter(x, y, marker="o", size=sizes, color="#80B1D3",
-       line_width=3, tools="", title="circle")
+       line_width=3, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="circle")
 
 scatter(x, y, marker="cross", size=sizes, color="#E6550D", fill_color=None,
-       line_width=2, tools="", title="cross")
+       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="cross")
 
 scatter(x, y, marker="diamond", size=sizes, color="#1C9099",
-       line_width=2, tools="", title="diamond")
+       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="diamond")
 
-scatter(x, y, marker="invtriangle", size=sizes, color="#DE2D26",
-       line_width=2, tools="", title="invtriangle")
+scatter(x, y, marker="inverted_triangle", size=sizes, color="#DE2D26",
+       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="inverted_triangle")
 
 scatter(x, y, marker="square_x", size=sizes, color="#FDAE6B", fill_color=None,
-       line_width=2, tools="", title="square_x")
+       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="square_x")
 
 scatter(x, y, marker="asterisk", size=sizes, color="#F0027F", fill_color=None,
-       line_width=2, tools="", title="asterisk")
+       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="asterisk")
 
 scatter(x, y, marker="square_cross", size=sizes, color="#7FC97F", fill_color=None,
-       line_width=2, tools="", title="square_cross")
+       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="square_cross")
 
 scatter(x, y, marker="diamond_cross", size=sizes, color="#386CB0", fill_color=None,
-       line_width=2, tools="", title="diamond_cross")
+       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="diamond_cross")
 
 scatter(x, y, marker="circle_cross", size=sizes, color="#FB8072", fill_color=None,
-       line_width=2, tools="", title="circle_cross")
+       line_width=2, tools="pan,wheel_zoom,box_zoom,reset,previewsave", title="circle_cross")
 
 show()  # open a browser
