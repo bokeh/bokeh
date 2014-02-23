@@ -31,7 +31,10 @@ def page_desc(module_desc):
         objects = plotting_helpers._PLOTLIST
 
     embed_snippet = ""
-    for obj in objects:
+    for i, obj in enumerate(objects):
+        # this _id business is just to have nice readable names for
+        # the embed snippet files
+        obj._id = name if len(objects) == 1 else name + "." + str(i)
         embed_snippet += obj.create_html_snippet(
             embed_save_loc= GALLERY_BUILD_DIR,
             static_path=HOSTED_STATIC_ROOT,

@@ -59,7 +59,7 @@ gallery:
 	mkdir -p $(BUILDDIR)/html/static
 	cp -r ../bokeh/server/static $(BUILDDIR)/html
 
-serve: gallery.rst
+serve: html
 	python docserver.py
 
 dirhtml:
