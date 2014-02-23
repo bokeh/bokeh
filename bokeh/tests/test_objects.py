@@ -1,6 +1,6 @@
 import unittest
 from six import add_metaclass
-from mock import patch, Mock
+from mock import patch, Mock, MagicMock
 
 
 class TestViewable(unittest.TestCase):
@@ -128,6 +128,62 @@ class TestTraversePlotObjects(unittest.TestCase):
         self.assertTrue(pobject.test1 in result)
         self.assertTrue(len(result) == 1)
 
+
+class TestRecursivleyTraversePlotObjects(unittest.TestCase):
+
+    def test_r_traverse(self):
+        from bokeh.objects import PlotObject, recursively_traverse_plot_object
+        pobject1 = PlotObject()
+        pobject2 = PlotObject()
+        pobject3 = PlotObject()
+        pobject4 = PlotObject()
+        pobject1.pobject2 = pobject2
+        pobject1.pobject3 = pobject3
+        pobject3.pobject4 = pobject4
+        pobject1.properties_with_refs = Mock(return_value=['pobject2', 'pobject3'])
+        pobject3.properties_with_refs = Mock(return_value=['pobject4'])
+        resultset = recursively_traverse_plot_object(pobject1)
+        expectedset = set([pobject1, pobject2, pobject3, pobject4])
+        self.assertEqual(resultset, expectedset)
+
+
+class TestPlotObject(unittest.TestCase):
+
+    def setUp(self):
+        from bokeh.objects import PlotObject
+        self.pObjectClass = PlotObject
+
+    def test_init(self):
+        oldmethod = self.pObjectClass.setup_events
+        self.pObjectClass.setup_events = Mock()
+        testObject = self.pObjectClass(id='test_id', _block_events=True)
+        self.assertFalse(testObject.setup_events.called)
+        self.assertEqual(testObject._id, 'test_id')
+
+        testObject2 = self.pObjectClass()
+        self.assertTrue(testObject2.setup_events.called)
+        self.assertIsNot(testObject2._id, None)
+
+        self.pObjectClass.setup_events = oldmethod
+
+    def test_get_ref(self):
+        testObject = self.pObjectClass(id='test_id')
+        self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.get_ref())
+
+    def test_load_json(self):
+        created_obj = self.pObjectClass.load_json({'id': 'test_id', 'other_attr': '1'})
+        self.assertEqual(created_obj.other_attr, '1')
+        self.assertEqual(created_obj._id, 'test_id')
+        created_obj.load_json({'id': 'test_id', 'other_other_attr': '2', 'other_attr': '5'}, instance=created_obj)
+        self.assertEqual(created_obj.other_other_attr, '2')
+        self.assertEqual(created_obj.other_attr, '5')
+
+    def test_finalize(self):
+        testobj = self.pObjectClass()
+        testobj._ref_props = {'id': 'foo', 'type': 'atype'}
+        models = {'foo': {'test': 5}}
+        testobj.finalize(models)
+        self.assertEqual(testobj.test, 5)
 
 if __name__ == "__main__":
     unittest.main()
