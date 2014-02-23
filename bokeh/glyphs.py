@@ -166,6 +166,7 @@ class Image(BaseGlyph):
     dw = DataSpec
     dh = DataSpec
     palette = DataSpec
+    distance_dilate = Int(0)
 
 class ImageURI(BaseGlyph):
     __view_model__ = 'image_uri'
@@ -180,6 +181,7 @@ class ImageRGBA(BaseGlyph):
     y = DataSpec
     dw = DataSpec
     dh = DataSpec
+    distance_dilate = Int(0)
 
 class Line(BaseGlyph, LineProps):
     __view_model__ = "line"
@@ -239,6 +241,7 @@ class Rect(BaseGlyph, FillProps, LineProps):
     width = DataSpec
     height = DataSpec
     angle = DataSpec
+    distance_dilate = Int(0)
 
 class Segment(BaseGlyph, LineProps):
     __view_model__ = 'segment'
@@ -262,6 +265,3 @@ class Wedge(BaseGlyph, FillProps, LineProps):
     start_angle = DataSpec
     end_angle = DataSpec
     direction = Enum('clock', 'anticlock')
-
-
-
