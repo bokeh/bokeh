@@ -29,8 +29,6 @@ define [
           @sy[i] = syi[i]
       @max_width = _.max(@width)
       @max_height = _.max(@height)
-      console.log(@sx,@sy)
-      console.log(@sw,@sh)
 
     _set_data: () ->
       @index = rbush()
