@@ -1,122 +1,123 @@
+from __future__ import print_function
+
 import os
 import re
+import webbrowser
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 from bokeh import plotting
 from bokeh import plotting_helpers
 
+# patch open and show to be no-ops
 def noop(*args, **kwargs):
     pass
-plotting.show= noop
-import webbrowser
 webbrowser.open = noop
+plotting.show= noop
 
 
-_basedir = os.path.dirname(__file__)
-demo_dir = os.path.join(_basedir, "_build", "plot_gallery")
-GALLERY_SNIPPET_PATH = os.path.join(_basedir, "_templates/gallery_core.html")
-#These settings work with localhost:5006
-HOSTED_STATIC_ROOT="../static/"
-DETAIL_URL_ROOT="./"
-detail_dir = demo_dir
+def page_desc(module_desc):
+    module_path, name = module_desc['file'], module_desc['name']
+    var_name = module_desc.get('var_name', None)
 
-def page_desc(prev_infos, module_desc):
-    module_path, name_ = module_desc['file'], module_desc['name']
-    varname = module_desc.get('varname', False)
-
-    from bokeh import plotting
     plotting_helpers._PLOTLIST = []
-    file_namespace = {}
-    execfile(module_path, file_namespace)
-    embed_snippet = ""
-    if varname:
-        p = file_namespace[varname]
-        embed_snippet += p.create_html_snippet(
-            embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
-            embed_base_url=DETAIL_URL_ROOT)
-    else:
-        for p in plotting_helpers._PLOTLIST:
-            embed_snippet += p.create_html_snippet(
-                embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
-                embed_base_url=DETAIL_URL_ROOT)
 
-    if len(prev_infos) > 0:
-        prev_info = prev_infos[-1]
+    namespace = {}
+    execfile(module_path, namespace)
+
+    if var_name:
+        objects = [namespace[var_name]]
     else:
-        prev_info = {}
-    detail_snippet = highlight(open(module_path).read(), PythonLexer(), HtmlFormatter())
-    page_info = dict(
-        name=name_, embed_snippet=embed_snippet,
+        objects = plotting_helpers._PLOTLIST
+
+    for obj in objects:
+        embed_snippet = obj.create_html_snippet(
+            embed_save_loc= GALLERY_BUILD_DIR,
+            static_path=HOSTED_STATIC_ROOT,
+            embed_base_url=DETAIL_URL_ROOT
+        )
+
+    detail_snippet = highlight(
+        open(module_path).read(), PythonLexer(), HtmlFormatter()
+    )
+
+    return  dict(
+        name = name,
+        embed_snippet = embed_snippet,
         detail_snippet = detail_snippet,
-        detail_page_url=DETAIL_URL_ROOT + name_ + ".html",
-        prev_detail_url=prev_info.get('detail_page_url', ""),
-        prev_detail_name=prev_info.get('name', ""))
-    if len(prev_infos) == 0:
-        prev_infos = [page_info]
-    else:
-        prev_infos.append(page_info)
+        detail_page_url = DETAIL_URL_ROOT + name + ".html",
+        prev_detail_url = "",
+        prev_detail_name = "",
+        next_detail_url = "",
+        next_detail_name ='',
+    )
 
-    return prev_infos
-
-def _load_template(filename):
+def load_template(filename):
     import jinja2
-    with open(os.path.join(_basedir, filename)) as f:
+    with open(os.path.join(BASE_DIR, filename)) as f:
         return jinja2.Template(f.read())
 
 def make_gallery(module_descs):
-    page_infos = reduce(page_desc, module_descs, [])
-    for p, p_next in [[p, page_infos[i+1]] for i, p in enumerate(page_infos[:-1])]:
-        p['next_detail_url'] = p_next['detail_page_url']
-        p['next_detail_name'] = p_next['name']
-    t = _load_template("_templates/gallery_detail.html")
-    gallery_template = '''
-    <li>
-        <a href="plot_gallery/%(detail_page_url)s">%(name)s
-          <img src="..//static/img/gallery/%(name)s.png"
-               class="gallery" />
-        </a>
-        </li>
-    '''
-    gallery_snippet = '<ul class="gallery clearfix">'
+    page_infos = [page_desc(desc) for desc in module_descs]
+
+    for i, info in enumerate(page_infos[1:1]):
+        info['prev_detail_url']  = page_infos[i-1]['detail_page_url']
+        info['prev_detail_name'] = page_infos[i-1]['name']
+        info['next_detail_url']  = page_infos[i+1]['detail_page_url']
+        info['next_detail_name'] = page_infos[i+1]['name']
+
+    detail_template = load_template("_templates/gallery_detail.html")
+    gallery_template = load_template("_templates/gallery.rst")
+
     for info in page_infos:
-        gallery_snippet +=  gallery_template % info
-
-        fname = os.path.join(detail_dir, info['name'] + ".html")
-        info['HOSTED_STATIC_ROOT']= HOSTED_STATIC_ROOT
-        print " writing to ", fname
-
+        fname = os.path.join(GALLERY_BUILD_DIR, info['name'] + ".html")
         with open(fname, "w") as f:
-            f.write(t.render(info))
-    gallery_snippet += "</ul>"
-    print "GALLERY_SNIPPET_PATH", GALLERY_SNIPPET_PATH
-    with open(GALLERY_SNIPPET_PATH, "w") as f:
-        f.write(gallery_snippet)
+            f.write(detail_template.render(info))
+        print("wrote", fname)
+
+    gallery_rst = gallery_template.render(page_infos=page_infos)
+
+    if GALLERY_RST_PATH:
+        with open(GALLERY_RST_PATH, "w") as f:
+            f.write(gallery_rst)
+            print("wrote", GALLERY_RST_PATH)
 
 if __name__ == "__main__":
-    make_gallery(
-        [
-        dict(file="../examples/plotting/file/iris.py", name='iris',),
-        dict(file="../examples/plotting/file/candlestick.py", name='candlestick',),
-        dict(file="../examples/plotting/file/legend.py", name= 'legend',),
-        dict(file="../examples/plotting/file/correlation.py", name='correlation',),
-        dict(file="../examples/plotting/file/glucose.py", name= 'glucose',),
-        dict(file="../examples/plotting/file/stocks.py", name= 'stocks',),
-        dict(file="../examples/plotting/file/vector.py", name= 'vector_example',),
-        dict(file="../examples/plotting/file/lorenz.py", name= 'lorenz_example',),
-        dict(file="../examples/plotting/file/color_scatter.py", name= 'color_scatter_example',),
-        dict(file="../examples/glyphs/iris_splom.py", name='iris_splom', varname="grid"),
-        dict(file="../examples/glyphs/anscombe.py", name='anscombe', varname="grid"),
-        dict(file="../examples/plotting/file/choropleth.py", name= 'choropleth_example',),
-        dict(file="../examples/plotting/file/texas.py", name= 'texas_example',),
-        dict(file="../examples/plotting/file/markers.py", name= 'scatter_example',),
-        dict(file="../examples/plotting/file/burtin.py", name= 'burtin_example',),
-        dict(file="../examples/plotting/file/brewer.py", name= 'brewer_example',),
-        dict(file="../examples/plotting/file/elements.py", name= 'elements_example',),
-         ]
-    )
+    import sys
+    if len(sys.argv) not in  [2,3]:
+        print("usage: build_gallery.py <gallery build path> [<gallery rst filename>]")
+        sys.exit(1)
+
+    BASE_DIR = os.path.dirname(__file__)
+    GALLERY_BUILD_DIR = sys.argv[1]
+    GALLERY_RST_PATH = None
+    if sys.argv[2]:
+        GALLERY_RST_PATH = os.path.join(BASE_DIR, "gallery.rst")
+    HOSTED_STATIC_ROOT="../static/"
+    DETAIL_URL_ROOT="./"
+
+    make_gallery([
+        dict(file="../examples/plotting/file/iris.py",          name='iris',),
+        dict(file="../examples/plotting/file/candlestick.py",   name='candlestick',),
+        dict(file="../examples/plotting/file/legend.py",        name='legend',),
+        dict(file="../examples/plotting/file/correlation.py",   name='correlation',),
+        dict(file="../examples/plotting/file/glucose.py",       name='glucose',),
+        dict(file="../examples/plotting/file/stocks.py",        name='stocks',),
+        dict(file="../examples/plotting/file/vector.py",        name='vector',),
+        dict(file="../examples/plotting/file/lorenz.py",        name='lorenz',),
+        dict(file="../examples/plotting/file/color_scatter.py", name='color_scatter',),
+        dict(file="../examples/glyphs/iris_splom.py",           name='iris_splom', var_name="grid"),
+        dict(file="../examples/glyphs/anscombe.py",             name='anscombe', var_name="grid"),
+        dict(file="../examples/plotting/file/choropleth.py",    name='choropleth',),
+        dict(file="../examples/plotting/file/texas.py",         name='texas',),
+        dict(file="../examples/plotting/file/markers.py",       name='scatter',),
+        dict(file="../examples/plotting/file/burtin.py",        name='burtin',),
+        dict(file="../examples/plotting/file/brewer.py",        name='brewer',),
+        dict(file="../examples/plotting/file/elements.py",      name='elements',),
+        dict(file="../examples/plotting/file/boxplot.py",       name='boxplot',),
+    ])
+
     try:
-        import webbrowser
         webbrowser.open(HOSTED_STATIC_ROOT + "demos/gallery.html")
     except:
         pass

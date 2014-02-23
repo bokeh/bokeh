@@ -62,6 +62,18 @@ These properties may bespecified as keyword arguments when calling the glyph fun
 
     rect(x, y, radius, fill_color="green", fill_alpha=0.6, line_color=None)
 
+.. _userguide_markers:
+
+Markers
+'''''''
+
+Markers are Bokeh glyphs that have a prescribed interface. Markers all respond to:
+
+* `x`, `y`
+* `size` (screen units)
+* line properties
+* fill properties
+
 Axes
 ''''
 

@@ -14,11 +14,13 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: help clean html gallery dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
 help:
 	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  html       to make standalone HTML files"
+	@echo "  all        to make all standalone HTML files"
+	@echo "  html       to make standalone (non-gallery) HTML files"
+	@echo "  gallery    to make standalone gallery HTML files"
 	@echo "  dirhtml    to make HTML files named index.html in directories"
 	@echo "  singlehtml to make a single large HTML file"
 	@echo "  pickle     to make pickle files"
@@ -38,14 +40,27 @@ help:
 	@echo "  linkcheck  to check all external links for integrity"
 	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
 
+all: gallery html
+
 clean:
 	-rm -rf $(BUILDDIR)/*
+	-rm gallery.rst
 
-html:
+html: gallery.rst
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	cp images/* $(BUILDDIR)/html/_images
+	@cp -r images/* $(BUILDDIR)/html/_images
+	@if [[ -d "$(BUILDDIR)/gallery" && ! -L "$(BUILDDIR)/gallery" ]] ; then  \
+		cp -r $(BUILDDIR)/gallery $(BUILDDIR)/html/gallery; \
+	else \
+		echo "WARNING: no gallery built!"; \
+	fi
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+gallery:
+	rm -rf $(BUILDDIR)/gallery gallery.rst
+	mkdir -p $(BUILDDIR)/gallery
+	python build_gallery.py $(BUILDDIR)/gallery gallery.rst
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
