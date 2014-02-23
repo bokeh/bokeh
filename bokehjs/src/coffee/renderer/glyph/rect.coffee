@@ -8,13 +8,14 @@ define [
 
   class RectView extends Glyph.View
 
-    _fields : ['x', 'y', 'width', 'height', 'angle']
+    _fields: ['x', 'y', 'width', 'height', 'angle', 'distance_dilate']
     _properties: ['line', 'fill']
 
     _map_data: () ->
       [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @sw = @distance_vector('x', 'width', 'center')
-      @sh = @distance_vector('y', 'height', 'center')
+
+      @sw = @distance_vector('x', 'width', 'center', @mget('distance_dilate'))
+      @sh = @distance_vector('y', 'height', 'center', @mget('distance_dilate'))
       @sx = new Array(sxi.length)
       @sy = new Array(sxi.length)
       for i in [0...sxi.length]
@@ -28,6 +29,8 @@ define [
           @sy[i] = syi[i]
       @max_width = _.max(@width)
       @max_height = _.max(@height)
+      console.log(@sx,@sy)
+      console.log(@sw,@sh)
 
     _set_data: () ->
       @index = rbush()
@@ -185,6 +188,7 @@ define [
         line_dash: []
         line_dash_offset: 0
         angle: 0.0
+        distance_dilate: false
       })
 
   return {
