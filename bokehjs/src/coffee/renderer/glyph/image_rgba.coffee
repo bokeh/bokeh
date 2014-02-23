@@ -18,9 +18,9 @@ define [
       # provided number of rows/cols, otherwise treat as a "list of lists".
       spec = @mget('glyphspec')
       if spec.rows?
-        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh']
+        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'distance_dilate']
       else
-        @_fields = ['image:array', 'x', 'y', 'dw', 'dh']
+        @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'distance_dilate']
       super(options)
 
     _set_data: () ->
