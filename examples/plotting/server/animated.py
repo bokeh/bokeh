@@ -1,4 +1,3 @@
-
 import time
 from numpy import pi, cos, sin, linspace, roll, zeros_like
 from bokeh.plotting import *
@@ -13,7 +12,7 @@ rmax = r_base + sin(r_x) + 1
 
 colors = ["FFFFCC", "#C7E9B4", "#7FCDBB", "#41B6C4", "#2C7FB8", "#253494", "#2C7FB8", "#41B6C4", "#7FCDBB", "#C7E9B4"] * 5
 
-cx = cy = np.zeros_like(rmin)
+cx = cy = zeros_like(rmin)
 
 output_server("animated")
 
