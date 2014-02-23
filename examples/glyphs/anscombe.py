@@ -84,8 +84,8 @@ grid = GridPlot(children=[[I, II], [III, IV]], width="800px")
 sess = session.HTMLFileSession("anscombe.html")
 sess.add(grid, recursive=True)
 sess.plotcontext.children.append(grid)
-sess.save(js="absolute", css="absolute")
-print("Wrote %s" % sess.filename)
 
 if __name__ == "__main__":
+    sess.save(js="absolute", css="absolute")
+    print("Wrote %s" % sess.filename)
     sess.view()
