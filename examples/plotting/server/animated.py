@@ -1,5 +1,6 @@
 
 import time
+import numpy as np
 from numpy import pi, cos, sin, linspace, roll, zeros_like
 from bokeh.plotting import *
 from bokeh.objects import Glyph, Range1d
