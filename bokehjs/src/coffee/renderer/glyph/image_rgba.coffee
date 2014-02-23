@@ -18,9 +18,9 @@ define [
       # provided number of rows/cols, otherwise treat as a "list of lists".
       spec = @mget('glyphspec')
       if spec.rows?
-        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh', 'distance_dilate']
+        @_fields = ['image:array', 'rows', 'cols', 'x', 'y', 'dw', 'dh']
       else
-        @_fields = ['image:array', 'x', 'y', 'dw', 'dh', 'distance_dilate']
+        @_fields = ['image:array', 'x', 'y', 'dw', 'dh']
       super(options)
 
     _set_data: () ->
@@ -63,8 +63,8 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @sw = @distance_vector('x', 'dw', 'edge', @mget('distance_dilate'))
-      @sh = @distance_vector('y', 'dh', 'edge', @mget('distance_dilate'))
+      @sw = @distance_vector('x', 'dw', 'edge', @mget('glyphspec')['distance_dilate'])
+      @sh = @distance_vector('y', 'dh', 'edge', @mget('glyphspec')['distance_dilate'])
 
     _render: (ctx, indices, glyph_props) ->
       old_smoothing = ctx.getImageSmoothingEnabled()
@@ -95,7 +95,7 @@ define [
     display_defaults: () ->
       return _.extend(super(), {
         level: 'underlay'
-        distance_dilate: false
+        distance_dilate: 0
       })
 
   return {

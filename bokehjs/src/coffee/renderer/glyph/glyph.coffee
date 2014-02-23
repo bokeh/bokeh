@@ -142,7 +142,7 @@ define [
       @listenTo(@model, 'change', @request_render)
       @listenTo(@mget_obj('data_source'), 'change', @set_data)
 
-    distance_vector: (pt, span_prop_name, position, reduce_gaps=false) ->
+    distance_vector: (pt, span_prop_name, position, dilate_distance=0) ->
       """ returns an array """ #"
       pt_units = @glyph_props[pt].units
       span_units = @glyph_props[span_prop_name].units
@@ -176,7 +176,7 @@ define [
       spt0 = mapper.v_map_to_target(pt0)
       spt1 = mapper.v_map_to_target(pt1)
 
-      if reduce_gaps
+      if dilate_distance == 1
         results = new Array(pt0.length)
         for i in [0...spt0.length]
           minval = Math.min(spt0[i],spt1[i])
