@@ -30,8 +30,9 @@ def page_desc(module_desc):
     else:
         objects = plotting_helpers._PLOTLIST
 
+    embed_snippet = ""
     for obj in objects:
-        embed_snippet = obj.create_html_snippet(
+        embed_snippet += obj.create_html_snippet(
             embed_save_loc= GALLERY_BUILD_DIR,
             static_path=HOSTED_STATIC_ROOT,
             embed_base_url=DETAIL_URL_ROOT

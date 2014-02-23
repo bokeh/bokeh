@@ -14,10 +14,10 @@ ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html gallery dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: help clean html gallery serve dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
 help:
-	@echo "Please use \`make <target>' where <target> is one of"
+	@echo "Please use 'make <target>' where <target> is one of"
 	@echo "  all        to make all standalone HTML files"
 	@echo "  html       to make standalone (non-gallery) HTML files"
 	@echo "  gallery    to make standalone gallery HTML files"
@@ -43,24 +43,24 @@ help:
 all: gallery html
 
 clean:
-	-rm -rf $(BUILDDIR)/*
-	-rm gallery.rst
+	-rm -rf $(BUILDDIR)/* gallery.rst
 
-html: gallery.rst
+html: gallery
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	@cp -r images/* $(BUILDDIR)/html/_images
-	@if [[ -d "$(BUILDDIR)/gallery" && ! -L "$(BUILDDIR)/gallery" ]] ; then  \
-		cp -r $(BUILDDIR)/gallery $(BUILDDIR)/html/gallery; \
-	else \
-		echo "WARNING: no gallery built!"; \
-	fi
+	cp -r images/* $(BUILDDIR)/html/_images
+	cp -r $(BUILDDIR)/gallery $(BUILDDIR)/html/gallery
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 gallery:
-	rm -rf $(BUILDDIR)/gallery gallery.rst
+	rm -rf $(BUILDDIR)/gallery gallery.rst $(BUILDDIR)/html/static
 	mkdir -p $(BUILDDIR)/gallery
 	python build_gallery.py $(BUILDDIR)/gallery gallery.rst
+	mkdir -p $(BUILDDIR)/html/static
+	cp -r ../bokeh/server/static $(BUILDDIR)/html
+
+serve: gallery.rst
+	python docserver.py
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
@@ -115,8 +115,8 @@ latex:
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo
 	@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."
-	@echo "Run \`make' in that directory to run these through (pdf)latex" \
-	      "(use \`make latexpdf' here to do that automatically)."
+	@echo "Run 'make' in that directory to run these through (pdf)latex" \
+	      "(use 'make latexpdf' here to do that automatically)."
 
 latexpdf:
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
@@ -138,8 +138,8 @@ texinfo:
 	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
 	@echo
 	@echo "Build finished. The Texinfo files are in $(BUILDDIR)/texinfo."
-	@echo "Run \`make' in that directory to run these through makeinfo" \
-	      "(use \`make info' here to do that automatically)."
+	@echo "Run 'make' in that directory to run these through makeinfo" \
+	      "(use 'make info' here to do that automatically)."
 
 info:
 	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
