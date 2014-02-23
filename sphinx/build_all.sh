@@ -1,5 +1,4 @@
 #!/bin/sh
 
-make clean
-make all
+make clean all
 
