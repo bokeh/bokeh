@@ -69,6 +69,7 @@ if sys.platform != 'win32':
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
 # Workaround to fix our issue: https://github.com/ContinuumIO/bokeh/issues/378
 
+
 def getsitepackages():
     """Returns a list containing all global site-packages directories
     (and possibly site-python)."""
@@ -155,7 +156,6 @@ def getsitepackages():
     return sitepackages
 
 site_packages = getsitepackages()[0]
-print getsitepackages()
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))
 
