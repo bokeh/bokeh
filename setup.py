@@ -69,47 +69,89 @@ if sys.platform != 'win32':
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
 # Workaround to fix our issue: https://github.com/ContinuumIO/bokeh/issues/378
 
-# Prefixes for site-packages; add additional prefixes like /usr/local here
-PREFIXES = [sys.prefix, sys.exec_prefix]
-
-
 def getsitepackages():
     """Returns a list containing all global site-packages directories
-    (and possibly site-python).
+    (and possibly site-python)."""
 
-    For each directory present in the global ``PREFIXES``, this function
-    will find its `site-packages` subdirectory depending on the system
-    environment, and will return a list of full paths.
-    """
+    _is_64bit = (getattr(sys, 'maxsize', None) or getattr(sys, 'maxint')) > 2**32
+    _is_pypy = hasattr(sys, 'pypy_version_info')
+    _is_jython = sys.platform[:4] == 'java'
+
+    prefixes = [sys.prefix, sys.exec_prefix]
+    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'no-global-site-packages.txt')):
+        prefixes.append(sys.real_prefix)
+
     sitepackages = []
     seen = set()
 
-    for prefix in PREFIXES:
+    for prefix in prefixes:
         if not prefix or prefix in seen:
             continue
         seen.add(prefix)
 
-        if sys.platform in ('os2emx', 'riscos'):
-            sitepackages.append(os.path.join(prefix, "Lib", "site-packages"))
+        if sys.platform in ('os2emx', 'riscos') or _is_jython:
+            sitedirs = [os.path.join(prefix, "Lib", "site-packages")]
+        elif _is_pypy:
+            sitedirs = [os.path.join(prefix, 'site-packages')]
+        elif sys.platform == 'darwin' and prefix == sys.prefix:
+            if prefix.startswith("/System/Library/Frameworks/"): # Apple's Python
+                sitedirs = [os.path.join("/Library/Python", sys.version[:3], "site-packages"),
+                            os.path.join(prefix, "Extras", "lib", "python")]
+
+            else: # any other Python distros on OSX work this way
+                sitedirs = [os.path.join(prefix, "lib",
+                                         "python" + sys.version[:3], "site-packages")]
+
         elif os.sep == '/':
-            sitepackages.append(os.path.join(prefix, "local/lib",
-                                        "python" + sys.version[:3],
-                                        "dist-packages"))
-            sitepackages.append(os.path.join(prefix, "lib",
-                                        "python" + sys.version[:3],
-                                        "dist-packages"))
+            sitedirs = [os.path.join(prefix,
+                                     "lib",
+                                     "python" + sys.version[:3],
+                                     "site-packages"),
+                        os.path.join(prefix, "lib", "site-python"),
+                        os.path.join(prefix, "python" + sys.version[:3], "lib-dynload")]
+            lib64_dir = os.path.join(prefix, "lib64", "python" + sys.version[:3], "site-packages")
+            if (os.path.exists(lib64_dir) and
+                os.path.realpath(lib64_dir) not in [os.path.realpath(p) for p in sitedirs]):
+                if _is_64bit:
+                    sitedirs.insert(0, lib64_dir)
+                else:
+                    sitedirs.append(lib64_dir)
+            try:
+                # sys.getobjects only available in --with-pydebug build
+                sys.getobjects
+                sitedirs.insert(0, os.path.join(sitedirs[0], 'debug'))
+            except AttributeError:
+                pass
+            # Debian-specific dist-packages directories:
+            if sys.version[0] == '2':
+                sitedirs.append(os.path.join(prefix, "lib",
+                                             "python" + sys.version[:3],
+                                             "dist-packages"))
+            else:
+                sitedirs.append(os.path.join(prefix, "lib",
+                                             "python" + sys.version[0],
+                                             "dist-packages"))
+            sitedirs.append(os.path.join(prefix, "local/lib",
+                                         "python" + sys.version[:3],
+                                         "dist-packages"))
+            sitedirs.append(os.path.join(prefix, "lib", "dist-python"))
         else:
-            sitepackages.append(prefix)
-            sitepackages.append(os.path.join(prefix, "lib", "site-packages"))
-        if sys.platform == "darwin":
+            sitedirs = [prefix, os.path.join(prefix, "lib", "site-packages")]
+        if sys.platform == 'darwin':
             # for framework builds *only* we add the standard Apple
-            # locations.
-            from sysconfig import get_config_var
-            framework = get_config_var("PYTHONFRAMEWORK")
-            if framework:
-                sitepackages.append(
-                        os.path.join("/Library", framework,
-                            sys.version[:3], "site-packages"))
+            # locations. Currently only per-user, but /Library and
+            # /Network/Library could be added too
+            if 'Python.framework' in prefix:
+                home = os.environ.get('HOME')
+                if home:
+                    sitedirs.append(
+                        os.path.join(home,
+                                     'Library',
+                                     'Python',
+                                     sys.version[:3],
+                                     'site-packages'))
+        for sitedir in sitedirs:
+            sitepackages.append(os.path.abspath(sitedir))
     return sitepackages
 
 site_packages = getsitepackages()[0]
