@@ -65,8 +65,55 @@ scripts = []
 if sys.platform != 'win32':
     scripts.extend(['bokeh-server'])
 
-import site
-site_packages = site.getsitepackages()[0]
+# You can't install Bokeh in a virtualenv because the lack of getsitepackages()
+# This is an open bug: https://github.com/pypa/virtualenv/issues/355
+# Workaround to fix our issue: https://github.com/ContinuumIO/bokeh/issues/378
+
+# Prefixes for site-packages; add additional prefixes like /usr/local here
+PREFIXES = [sys.prefix, sys.exec_prefix]
+
+
+def getsitepackages():
+    """Returns a list containing all global site-packages directories
+    (and possibly site-python).
+
+    For each directory present in the global ``PREFIXES``, this function
+    will find its `site-packages` subdirectory depending on the system
+    environment, and will return a list of full paths.
+    """
+    sitepackages = []
+    seen = set()
+
+    for prefix in PREFIXES:
+        if not prefix or prefix in seen:
+            continue
+        seen.add(prefix)
+
+        if sys.platform in ('os2emx', 'riscos'):
+            sitepackages.append(os.path.join(prefix, "Lib", "site-packages"))
+        elif os.sep == '/':
+            sitepackages.append(os.path.join(prefix, "local/lib",
+                                        "python" + sys.version[:3],
+                                        "dist-packages"))
+            sitepackages.append(os.path.join(prefix, "lib",
+                                        "python" + sys.version[:3],
+                                        "dist-packages"))
+        else:
+            sitepackages.append(prefix)
+            sitepackages.append(os.path.join(prefix, "lib", "site-packages"))
+        if sys.platform == "darwin":
+            # for framework builds *only* we add the standard Apple
+            # locations.
+            from sysconfig import get_config_var
+            framework = get_config_var("PYTHONFRAMEWORK")
+            if framework:
+                sitepackages.append(
+                        os.path.join("/Library", framework,
+                            sys.version[:3], "site-packages"))
+    return sitepackages
+
+site_packages = getsitepackages()[0]
+print getsitepackages()
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))
 
