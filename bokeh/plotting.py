@@ -582,8 +582,8 @@ bezier = _glyph_function(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(",")
 """ The bezier glyph displays Bezier curves with the given starting, ending, and control points.
 
 Args:
-    x0 (str or list[float] : values or field names of starting `x` coordinates
-    y0 (str or list[float] : values or field names of starting `y` coordinates
+    x0 (str or list[float]) : values or field names of starting `x` coordinates
+    y0 (str or list[float]) : values or field names of starting `y` coordinates
     x1 (str or list[float]) : values or field names of ending `x` coordinates
     y1 (str or list[float]) : values or field names of ending `y` coordinates
     cx0 (str or list[float]) : values or field names of first control point `x` coordinates
@@ -875,8 +875,8 @@ quadratic = _glyph_function(glyphs.Quadratic, "x0,y0,x1,y1,cx,cy".split(","),
 """ The quadratic glyph displays quadratic curves with the given starting, ending, and control points.
 
 Args:
-    x0 (str or list[float] : values or field names of starting `x` coordinates
-    y0 (str or list[float] : values or field names of starting `y` coordinates
+    x0 (str or list[float]) : values or field names of starting `x` coordinates
+    y0 (str or list[float]) : values or field names of starting `y` coordinates
     x1 (str or list[float]) : values or field names of ending `x` coordinates
     y1 (str or list[float]) : values or field names of ending `y` coordinates
     cx (str or list[float]) : values or field names of control point `x` coordinates

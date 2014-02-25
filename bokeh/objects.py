@@ -71,7 +71,7 @@ class Viewable(MetaHasProps):
 
 def usesession(meth):
     """ Checks for 'session' in kwargs and in **self**, and guarantees
-    that **kw always has a valid 'session' parameter.  Wrapped methods
+    that **kw** always has a valid 'session' parameter.  Wrapped methods
     should define 'session' as an optional argument, and in the body of
     the method, should expect an
     """
