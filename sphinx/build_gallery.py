@@ -96,7 +96,7 @@ if __name__ == "__main__":
     GALLERY_BUILD_DIR = sys.argv[1]
     GALLERY_RST_PATH = None
     if sys.argv[2]:
-        GALLERY_RST_PATH = os.path.join(BASE_DIR, "gallery.rst")
+        GALLERY_RST_PATH = os.path.join(BASE_DIR, sys.argv[2])
     HOSTED_STATIC_ROOT="../static/"
     DETAIL_URL_ROOT="./"
 

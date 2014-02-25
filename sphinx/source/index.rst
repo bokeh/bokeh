@@ -24,19 +24,19 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
     <p>
     <table cellspacing="20">
     <tr>
-        <td><a href="http://continuumio.github.io/bokehjs/image.html"><img src="_images/image_plot1.png"/></a></td>
-        <td><a href="plot_gallery/anscombe.html"><img src="_images/anscombe2.png"/></a></td>
-        <td><a href="plot_gallery/correlation.html"><img src="_images/stocks3.png"/></a></td>
-        <td><a href="plot_gallery/lorenz_example.html"><img src="_images/lorenz2.png"/></a></td>
-        <td><a href="plot_gallery/candlestick.html"><img src="_images/candlestick2.png"/></a></td>
-        <td><a href="plot_gallery/color_scatter_example.html"><img src="_images/scatter.png"/></a></td>
+        <td><a href="http://continuumio.github.io/bokehjs/image.html"><img src="_images/thumbs/image_plot1.png"/></a></td>
+        <td><a href="gallery/anscombe.html"><img src="_images/thumbs/anscombe2.png"/></a></td>
+        <td><a href="gallery/correlation.html"><img src="_images/thumbs/stocks3.png"/></a></td>
+        <td><a href="gallery/lorenz_example.html"><img src="_images/thumbs/lorenz2.png"/></a></td>
+        <td><a href="gallery/candlestick.html"><img src="_images/thumbs/candlestick2.png"/></a></td>
+        <td><a href="gallery/color_scatter_example.html"><img src="_images/thumbs/scatter.png"/></a></td>
     </tr><tr>
-        <td><a href="http://continuumio.github.io/bokehjs/map_overlay.html"><img src="_images/map_overlay1.png"/></a></td>
-        <td><a href="plot_gallery/iris.html"><img src="_images/iris2.png"/></a></td>
-        <td><a href="plot_gallery/texas_example.html"><img src="_images/choropleth2.png"/></a></td>
-        <td><a href="plot_gallery/iris_splom.html"><img src="_images/splom2.png"/></a></td>
-        <td><a href="plot_gallery/burtin_example.html"><img src="_images/burtin.png"/></a></td>
-        <td><a href="plot_gallery/vector_example.html"><img src="_images/streamline.png"/></a></td>
+        <td><a href="//continuumio.github.io/bokehjs/map_overlay.html"><img src="_images/thumbs/map_overlay1.png"/></a></td>
+        <td><a href="gallery/iris.html"><img src="_images/thumbs/iris2.png"/></a></td>
+        <td><a href="gallery/texas_example.html"><img src="_images/thumbs/choropleth2.png"/></a></td>
+        <td><a href="gallery/iris_splom.html"><img src="_images/thumbs/splom2.png"/></a></td>
+        <td><a href="gallery/burtin_example.html"><img src="_images/thumbs/burtin.png"/></a></td>
+        <td><a href="gallery/vector_example.html"><img src="_images/thumbs/streamline.png"/></a></td>
 
     </tr>
     </table>

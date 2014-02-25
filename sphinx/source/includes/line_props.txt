@@ -23,16 +23,16 @@
 * ``line_dash`` - array of integer pixel distances that describe the on-off pattern of dashing to use
 * ``line_dash_offset`` - the distance in pixels into the ``line_dash`` that the pattern should start from
 
-.. |miter_join| image:: /images/miter_join.png
+.. |miter_join| image:: /_images/miter_join.png
    :height: 30
-.. |round_join| image:: /images/round_join.png
+.. |round_join| image:: /_images/round_join.png
    :height: 30
-.. |bevel_join| image:: /images/bevel_join.png
+.. |bevel_join| image:: /_images/bevel_join.png
    :height: 30
 
-.. |butt_cap| image:: /images/butt_cap.png
+.. |butt_cap| image:: /_images/butt_cap.png
    :height: 30
-.. |round_cap| image:: /images/round_cap.png
+.. |round_cap| image:: /_images/round_cap.png
    :height: 30
-.. |square_cap| image:: /images/square_cap.png
+.. |square_cap| image:: /_images/square_cap.png
    :height: 30
