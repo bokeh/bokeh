@@ -48,16 +48,16 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   quickstart.rst
-   installation.rst
-   tutorial.rst
-   gallery.rst
-   user_guide.rst
-   dev_guide.rst
-   contributing.rst
-   faq.rst
-   release_notes.rst
-   reference.rst
+   docs/quickstart.rst
+   docs/installation.rst
+   docs/tutorial.rst
+   docs/gallery.rst
+   docs/user_guide.rst
+   docs/dev_guide.rst
+   docs/contributing.rst
+   docs/faq.rst
+   docs/release_notes.rst
+   docs/reference.rst
 
 
 .. _technicalvision:

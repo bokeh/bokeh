@@ -115,7 +115,7 @@ html_theme_options = {
     # Note the "1" or "True" value above as the third argument to indicate
     # an arbitrary url.
     'navbar_links': [
-        ("Gallery", "gallery"),
+        ("Gallery", "docs/gallery"),
     ],
 
     # Render the next and previous page links in navbar. (Default: true)
@@ -177,7 +177,7 @@ html_theme_options = {
 
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = "_static/bokeh-transparent.png"
+html_logo = "/_static/bokeh-transparent.png"
 
 # The name of an image file (within the static path) to use as favicon of the
 # docs.  This file should be a Windows icon file (.ico) being 16x16 or 32x32
@@ -199,7 +199,7 @@ html_static_path = ['_static']
 
 # Custom sidebar templates, maps document names to template names.
 html_sidebars = {'**': ['sidebartoc.html', 'sourcelink.html', 'searchbox.html'],
-                 'gallery': []}
+                 'docs/gallery': []}
 
 # Additional templates that should be rendered to pages, maps page names to
 # template names.

@@ -67,21 +67,21 @@ default web browser::
 
 This should produce the plot shown below:
 
-.. image:: images/tutorial1.png
+.. image:: /../_images/tutorial1.png
 
 
 
 Using IPython Notebook
 ======================
 
-Using Bokeh inside an IPython notebook is almost identical to the usage 
+Using Bokeh inside an IPython notebook is almost identical to the usage
 above, with one small change::
 
     output_notebook()
 
 This configures Bokeh for embedding inside IPython notebook sessions.
 
-.. image:: images/notebook_vector.png
+.. image:: /../_images/notebook_vector.png
 
 Downloading Sample Data
 =======================
