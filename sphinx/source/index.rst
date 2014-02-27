@@ -34,19 +34,19 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 :raw-html:`<td>`  |lorenz|        :raw-html:`</td>`
 :raw-html:`<td>`  |candlestick|   :raw-html:`</td>`
 :raw-html:`<td>`  |scatter|       :raw-html:`</td>`
-:raw-html:`<td>`  |les_mis|       :raw-html:`</td>`
+:raw-html:`<td>`  |splom|         :raw-html:`</td>`
 
 .. raw:: html
 
     </tr><tr>
 
-:raw-html:`<td>`  |map_overlay|   :raw-html:`</td>`
 :raw-html:`<td>`  |iris|          :raw-html:`</td>`
-:raw-html:`<td>`  |splom|         :raw-html:`</td>`
+:raw-html:`<td>`  |map_overlay|   :raw-html:`</td>`
+:raw-html:`<td>`  |periodic|      :raw-html:`</td>`
 :raw-html:`<td>`  |choropleth|    :raw-html:`</td>`
 :raw-html:`<td>`  |burtin|        :raw-html:`</td>`
 :raw-html:`<td>`  |streamline|    :raw-html:`</td>`
-:raw-html:`<td>`  |periodic|      :raw-html:`</td>`
+:raw-html:`<td>`  |image_rgba|    :raw-html:`</td>`
 
 .. raw:: html
 
@@ -57,8 +57,8 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 :raw-html:`<td>`  |elements|      :raw-html:`</td>`
 :raw-html:`<td>`  |boxplot|       :raw-html:`</td>`
 :raw-html:`<td>`  |categorical|   :raw-html:`</td>`
-:raw-html:`<td>`  |image_rgba|    :raw-html:`</td>`
 :raw-html:`<td>`  |unemployment|  :raw-html:`</td>`
+:raw-html:`<td>`  |les_mis|       :raw-html:`</td>`
 
 
 .. raw:: html
