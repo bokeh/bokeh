@@ -5,12 +5,19 @@
 Frequently Asked Questions
 ##########################
 
-..
-    OK this is pretty maddening. If there is a better way to get all the answers, including 
-    multi-paragraph ones, to render in the same font, with the same sidebar, with all of 
-    their text, please make it better. 
+.. contents::
+    :local:
+    :depth: 1
 
-*Q: How do you pronounce "bokeh"?*
+..
+    OK this is pretty maddening. If there is a better way to get all the answers, including
+    multi-paragraph ones, to render in the same font, with the same sidebar, with all of
+    their text, please make it better.
+
+.. _pronounce:
+
+*How do you pronounce "bokeh"?*
+----
 
 .. raw:: html
 
@@ -27,7 +34,8 @@ Frequently Asked Questions
     </blockquote>
 
 
-*Q: Why did you start writing a new plotting library, instead of just extending e.g. Matplotlib?*
+*Why did you start writing a new plotting library, instead of just extending e.g. Matplotlib?*
+-----
 
 .. raw:: html
 
@@ -62,7 +70,8 @@ Frequently Asked Questions
     </blockquote>
 
 
-*Q: Is this using D3.js?*
+*Is this using D3.js?*
+----
 
 .. raw:: html
 
@@ -82,7 +91,8 @@ Frequently Asked Questions
     </blockquote>
 
 
-*Q: What is the relationship between Bokeh and Chaco?*
+*What is the relationship between Bokeh and Chaco?*
+----
 
 .. raw:: html
 
@@ -106,8 +116,8 @@ Frequently Asked Questions
     </blockquote>
 
 
-*Q: I'd like to incorporate Bokeh into my proprietary app or platform. Is
-there any problem with doing this?*
+*I'd like to incorporate Bokeh into my proprietary app or platform. Is there any problem with doing this?*
+----
 
 .. raw:: html
 
@@ -124,8 +134,8 @@ there any problem with doing this?*
     </blockquote>
 
 
-*Q: If Bokeh is merely producing JSON objects for BokehJS to handle, why
-not use something like Vega?*
+*If Bokeh is merely producing JSON objects for BokehJS to handle, why not use something like Vega?*
+----
 
 .. raw:: html
 
