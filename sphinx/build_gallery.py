@@ -102,6 +102,7 @@ if __name__ == "__main__":
 
     make_gallery([
         dict(file="../examples/plotting/file/iris.py",          name='iris',),
+        dict(file="../examples/plotting/file/image_rgba.py",    name='image_rgba',),
         dict(file="../examples/plotting/file/candlestick.py",   name='candlestick',),
         dict(file="../examples/plotting/file/legend.py",        name='legend',),
         dict(file="../examples/plotting/file/correlation.py",   name='correlation',),
