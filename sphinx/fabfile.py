@@ -1,4 +1,4 @@
-from fabric.api import run, env, roles
+from fabric.api import run, env, roles, put
 from fabric.contrib.project import rsync_project
 
 env.roledefs = {
@@ -12,24 +12,31 @@ def deploy(user=False):
     if user:
         env.user = user
 
-    # remove old files and directories
+    # remove and archive old files and directories
     for dir in dirs:
         run("rm -rf /www/bokeh-old/%s" % dir)
+        run("cp -ar /www/bokeh-latest/_images /www/bokeh-old/%s" % dir)
     for file in files:
         run("rm -f /www/bokeh-old/%s" % file)
+        run("cp -a /www/bokeh-latest/index.html /www/bokeh-old/%s" % file)
 
-    run("cp -ar /www/bokeh-latest/_images /www/bokeh-old/_images")
-    run("cp -ar /www/bokeh-latest/_sources /www/bokeh-old/_sources")
-    run("cp -ar /www/bokeh-latest/_static /www/bokeh-old/_static")
-    run("cp -ar /www/bokeh-latest/docs /www/bokeh-old/docs")
-
-    run("cp -a /www/bokeh-latest/index.html /www/bokeh-old/index.html")
+    # switch current symlink to archive docs
     run("rm /www/bokeh")
     run("ln -s /www/bokeh-old /www/bokeh")
-    rsync_project(
-        local_dir="_build/html/docs",
-        remote_dir="/www/bokeh-latest/docs", delete=True)
-    # TODO how to copy up index.html?
+
+    # upload the new files and directories
+    for dir in dirs:
+        rsync_project(
+            local_dir="_build/html/%s/" % dir,
+            remote_dir="/www/bokeh-latest/%s" % dir, delete=True)
+    for file in files:
+        put(
+            local_path="_build/html/%s" % file,
+            remote_path="/www/bokeh-latest/%s" % file)
+
+    # switch the current symlink to new docs
     run("rm /www/bokeh")
     run("ln -s /www/bokeh-latest /www/bokeh")
+
+    # set permissions
     run("chmod -R g+w /www/bokeh-latest")
