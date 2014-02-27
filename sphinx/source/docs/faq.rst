@@ -17,7 +17,7 @@ Frequently Asked Questions
 .. _pronounce:
 
 *How do you pronounce "bokeh"?*
-----
+-------------------------------
 
 .. raw:: html
 
@@ -35,7 +35,7 @@ Frequently Asked Questions
 
 
 *Why did you start writing a new plotting library, instead of just extending e.g. Matplotlib?*
------
+----------------------------------------------------------------------------------------------
 
 .. raw:: html
 
@@ -71,7 +71,7 @@ Frequently Asked Questions
 
 
 *Is this using D3.js?*
-----
+----------------------
 
 .. raw:: html
 
@@ -92,7 +92,7 @@ Frequently Asked Questions
 
 
 *What is the relationship between Bokeh and Chaco?*
-----
+---------------------------------------------------
 
 .. raw:: html
 
@@ -117,7 +117,7 @@ Frequently Asked Questions
 
 
 *I'd like to incorporate Bokeh into my proprietary app or platform. Is there any problem with doing this?*
-----
+----------------------------------------------------------------------------------------------------------
 
 .. raw:: html
 
@@ -135,7 +135,7 @@ Frequently Asked Questions
 
 
 *If Bokeh is merely producing JSON objects for BokehJS to handle, why not use something like Vega?*
-----
+---------------------------------------------------------------------------------------------------
 
 .. raw:: html
 
