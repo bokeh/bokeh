@@ -65,7 +65,6 @@ def make_gallery(module_descs):
     page_infos = [page_desc(desc) for desc in module_descs]
 
     for i, info in enumerate(page_infos[1:-1], 1):
-        print(i, info['name'], page_infos[i-1]['name'], page_infos[i+1]['name'])
         info['prev_detail_url']  = page_infos[i-1]['detail_page_url']
         info['prev_detail_name'] = page_infos[i-1]['name']
         info['next_detail_url']  = page_infos[i+1]['detail_page_url']
