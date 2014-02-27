@@ -76,7 +76,7 @@ def make_gallery(module_descs):
     for info in page_infos:
         fname = os.path.join(GALLERY_BUILD_DIR, info['name'] + ".html")
         with open(fname, "w") as f:
-            f.write(detail_template.render(info))
+            f.write(detail_template.render(info).encode('utf-8'))
         print("wrote", fname)
 
     gallery_rst = gallery_template.render(page_infos=page_infos)
@@ -108,6 +108,7 @@ if __name__ == "__main__":
         dict(file="../examples/plotting/file/glucose.py",       name='glucose',),
         dict(file="../examples/plotting/file/stocks.py",        name='stocks',),
         dict(file="../examples/plotting/file/vector.py",        name='vector',),
+        dict(file="../examples/plotting/file/histogram.py",     name='histogram',),
         dict(file="../examples/plotting/file/image.py",         name='image',),
         dict(file="../examples/plotting/file/lorenz.py",        name='lorenz',),
         dict(file="../examples/plotting/file/color_scatter.py", name='color_scatter',),
