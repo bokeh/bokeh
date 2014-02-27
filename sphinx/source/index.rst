@@ -43,8 +43,8 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 :raw-html:`<td>`  |iris|          :raw-html:`</td>`
 :raw-html:`<td>`  |splom|         :raw-html:`</td>`
 :raw-html:`<td>`  |choropleth|    :raw-html:`</td>`
-:raw-html:`<td>`  |streamline|    :raw-html:`</td>`
 :raw-html:`<td>`  |burtin|        :raw-html:`</td>`
+:raw-html:`<td>`  |streamline|    :raw-html:`</td>`
 
 .. raw:: html
 
@@ -53,8 +53,8 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 :raw-html:`<td>`  |stacked|       :raw-html:`</td>`
 :raw-html:`<td>`  |quiver|        :raw-html:`</td>`
 :raw-html:`<td>`  |elements|      :raw-html:`</td>`
-:raw-html:`<td>`  |categorical|   :raw-html:`</td>`
 :raw-html:`<td>`  |boxplot|       :raw-html:`</td>`
+:raw-html:`<td>`  |categorical|   :raw-html:`</td>`
 :raw-html:`<td>`  |image_rgba|    :raw-html:`</td>`
 
 
