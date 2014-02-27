@@ -8,6 +8,7 @@ Frequently Asked Questions
 .. contents::
     :local:
     :depth: 2
+    :backlinks: none
 
 ..
     OK this is pretty maddening. If there is a better way to get all the answers, including
@@ -16,8 +17,6 @@ Frequently Asked Questions
 
 General Questions
 =================
-
-.. _faq_pronounce:
 
 *How do you pronounce "bokeh"?*
 -------------------------------
