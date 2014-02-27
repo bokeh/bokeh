@@ -29,7 +29,7 @@ source = ColumnDataSource(
 )
 
 text_source = ColumnDataSource(
-    data=dict(xcenter=[125], ycenter=[145])
+    data=dict(xcenter=[125], ycenter=[135])
 )
 
 xdr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
@@ -40,7 +40,7 @@ zoom = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["x","y"])
 
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
-        x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#ffeedd",
+        x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
         width=250, height=250, border_fill='white', title="", border_symmetry="", min_border=2)
     if xax:
         xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
@@ -62,8 +62,8 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         text = Text(
             x={'field':'xcenter', 'units':'screen'},
             y={'field':'ycenter', 'units':'screen'},
-            text=text, angle=pi/4, text_font_style="bold", text_baseline="top",
-            text_color="#ffaaaa", text_alpha=0.5, text_align="center", text_font_size="28pt")
+            text=[text], angle=pi/4, text_font_style="bold", text_baseline="top",
+            text_color="#ffaaaa", text_alpha=0.7, text_align="center", text_font_size="28pt")
         text_renderer = Glyph(
             data_source=text_source,
             xdata_range = xdr,
