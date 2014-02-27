@@ -34,6 +34,7 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 :raw-html:`<td>`  |lorenz|        :raw-html:`</td>`
 :raw-html:`<td>`  |candlestick|   :raw-html:`</td>`
 :raw-html:`<td>`  |scatter|       :raw-html:`</td>`
+:raw-html:`<td>`  |les_mis|       :raw-html:`</td>`
 
 .. raw:: html
 
@@ -45,6 +46,7 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 :raw-html:`<td>`  |choropleth|    :raw-html:`</td>`
 :raw-html:`<td>`  |burtin|        :raw-html:`</td>`
 :raw-html:`<td>`  |streamline|    :raw-html:`</td>`
+:raw-html:`<td>`  |periodic|      :raw-html:`</td>`
 
 .. raw:: html
 
@@ -56,6 +58,7 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 :raw-html:`<td>`  |boxplot|       :raw-html:`</td>`
 :raw-html:`<td>`  |categorical|   :raw-html:`</td>`
 :raw-html:`<td>`  |image_rgba|    :raw-html:`</td>`
+:raw-html:`<td>`  |unemployment|  :raw-html:`</td>`
 
 
 .. raw:: html
@@ -82,6 +85,9 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 .. |scatter| image:: /_images/thumbs/scatter_t.png
     :target: docs/gallery/color_scatter.html
 
+.. |les_mis| image:: /_images/thumbs/les_mis_t.png
+    :target: docs/gallery/les_mis.html
+
 .. |map_overlay| image:: /_images/thumbs/map_overlay_t.png
     :target: //continuumio.github.io/bokehjs/map_overlay.html
 
@@ -100,6 +106,9 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 .. |streamline| image:: /_images/thumbs/streamline_t.png
     :target: docs/gallery/vector.html
 
+.. |periodic| image:: /_images/thumbs/periodic_t.png
+    :target: docs/gallery/periodic.html
+
 .. |quiver| image:: /_images/thumbs/quiver_t.png
     :target: docs/gallery/vector.html
 
@@ -117,6 +126,9 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 
 .. |image_rgba| image:: /_images/thumbs/image_rgba_t.png
     :target: docs/gallery/image_rgba.html
+
+.. |unemployment| image:: /_images/thumbs/unemployment_t.png
+    :target: docs/gallery/unemployment.html
 
 Contents
 --------
