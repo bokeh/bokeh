@@ -104,13 +104,13 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
     :target: docs/gallery/burtin.html
 
 .. |streamline| image:: /_images/thumbs/streamline_t.png
-    :target: docs/gallery/vector.html
+    :target: docs/gallery/streamline.html
 
 .. |periodic| image:: /_images/thumbs/periodic_t.png
     :target: docs/gallery/periodic.html
 
 .. |quiver| image:: /_images/thumbs/quiver_t.png
-    :target: docs/gallery/vector.html
+    :target: docs/gallery/quiver.html
 
 .. |stacked| image:: /_images/thumbs/stacked_t.png
     :target: docs/gallery/brewer.html
