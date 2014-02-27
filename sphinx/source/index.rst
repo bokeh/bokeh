@@ -41,10 +41,22 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 
 :raw-html:`<td>`  |map_overlay|   :raw-html:`</td>`
 :raw-html:`<td>`  |iris|          :raw-html:`</td>`
-:raw-html:`<td>`  |choropleth|    :raw-html:`</td>`
 :raw-html:`<td>`  |splom|         :raw-html:`</td>`
-:raw-html:`<td>`  |burtin|        :raw-html:`</td>`
+:raw-html:`<td>`  |choropleth|    :raw-html:`</td>`
 :raw-html:`<td>`  |streamline|    :raw-html:`</td>`
+:raw-html:`<td>`  |burtin|        :raw-html:`</td>`
+
+.. raw:: html
+
+    </tr><tr>
+
+:raw-html:`<td>`  |stacked|       :raw-html:`</td>`
+:raw-html:`<td>`  |quiver|        :raw-html:`</td>`
+:raw-html:`<td>`  |elements|      :raw-html:`</td>`
+:raw-html:`<td>`  |categorical|   :raw-html:`</td>`
+:raw-html:`<td>`  |boxplot|       :raw-html:`</td>`
+:raw-html:`<td>`  |image_rgba|    :raw-html:`</td>`
+
 
 .. raw:: html
 
@@ -88,6 +100,23 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 .. |streamline| image:: /_images/thumbs/streamline_t.png
     :target: docs/gallery/vector.html
 
+.. |quiver| image:: /_images/thumbs/quiver_t.png
+    :target: docs/gallery/vector.html
+
+.. |stacked| image:: /_images/thumbs/stacked_t.png
+    :target: docs/gallery/brewer.html
+
+.. |categorical| image:: /_images/thumbs/categorical_t.png
+    :target: docs/gallery/categorical.html
+
+.. |elements| image:: /_images/thumbs/elements_t.png
+    :target: docs/gallery/elements.html
+
+.. |boxplot| image:: /_images/thumbs/boxplot_t.png
+    :target: docs/gallery/boxplot.html
+
+.. |image_rgba| image:: /_images/thumbs/image_rgba_t.png
+    :target: docs/gallery/image_rgba.html
 
 Contents
 --------

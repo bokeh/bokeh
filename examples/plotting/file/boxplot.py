@@ -39,7 +39,7 @@ hold()
 
 # stems
 segment(cats, upper.score, cats, q3.score, x_range=cats, line_width=2,
-        tools="", background_fill="#EFE8E2", line_color="black", title="")
+        tools="previewsave", background_fill="#EFE8E2", line_color="black", title="")
 segment(cats, lower.score, cats, q1.score, x_range=cats,
         line_width=2, line_color="black")
 # boxes
