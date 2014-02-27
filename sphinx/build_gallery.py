@@ -111,6 +111,7 @@ if __name__ == "__main__":
         dict(file="../examples/plotting/file/vector.py",        name='streamline',),
         dict(file="../examples/plotting/file/vector.py",        name='quiver',),
         dict(file="../examples/plotting/file/categorical.py",   name='categorical',),
+        dict(file="../examples/plotting/file/periodic.py",      name='periodic',),
         dict(file="../examples/plotting/file/histogram.py",     name='histogram',),
         dict(file="../examples/plotting/file/image.py",         name='image',),
         dict(file="../examples/plotting/file/lorenz.py",        name='lorenz',),
