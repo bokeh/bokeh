@@ -52,40 +52,40 @@ Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
     </table>
     </p>
 
-.. |image| image:: /_images/thumbs/image_plot1.png
+.. |image| image:: /_images/thumbs/image_t.png
     :target: docs/gallery/image.html
 
-.. |anscombe| image:: /_images/thumbs/anscombe2.png
+.. |anscombe| image:: /_images/thumbs/anscombe_t.png
     :target: docs/gallery/anscombe.html
 
-.. |stocks| image:: /_images/thumbs/stocks3.png
-    :target: docs/gallery/correlation.html
+.. |stocks| image:: /_images/thumbs/stocks_t.png
+    :target: docs/gallery/stocks.html
 
-.. |lorenz| image:: /_images/thumbs/lorenz2.png
+.. |lorenz| image:: /_images/thumbs/lorenz_t.png
     :target: docs/gallery/lorenz.html
 
-.. |candlestick| image:: /_images/thumbs/candlestick2.png
+.. |candlestick| image:: /_images/thumbs/candlestick_t.png
     :target: docs/gallery/candlestick.html
 
-.. |scatter| image:: /_images/thumbs/scatter.png
+.. |scatter| image:: /_images/thumbs/scatter_t.png
     :target: docs/gallery/color_scatter.html
 
-.. |map_overlay| image:: /_images/thumbs/map_overlay1.png
+.. |map_overlay| image:: /_images/thumbs/map_overlay_t.png
     :target: //continuumio.github.io/bokehjs/map_overlay.html
 
-.. |iris| image:: /_images/thumbs/iris2.png
+.. |iris| image:: /_images/thumbs/iris_t.png
     :target: docs/gallery/iris.html
 
-.. |choropleth| image:: /_images/thumbs/choropleth2.png
+.. |choropleth| image:: /_images/thumbs/choropleth_t.png
     :target: docs/gallery/texas.html
 
-.. |splom| image:: /_images/thumbs/splom2.png
+.. |splom| image:: /_images/thumbs/splom_t.png
     :target: docs/gallery/iris_splom.html
 
-.. |burtin| image:: /_images/thumbs/burtin.png
+.. |burtin| image:: /_images/thumbs/burtin_t.png
     :target: docs/gallery/burtin.html
 
-.. |streamline| image:: /_images/thumbs/streamline.png
+.. |streamline| image:: /_images/thumbs/streamline_t.png
     :target: docs/gallery/vector.html
 
 
