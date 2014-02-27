@@ -64,11 +64,18 @@ def load_template(filename):
 def make_gallery(module_descs):
     page_infos = [page_desc(desc) for desc in module_descs]
 
-    for i, info in enumerate(page_infos[1:1]):
+    for i, info in enumerate(page_infos[1:-1], 1):
+        print(i, info['name'], page_infos[i-1]['name'], page_infos[i+1]['name'])
         info['prev_detail_url']  = page_infos[i-1]['detail_page_url']
         info['prev_detail_name'] = page_infos[i-1]['name']
         info['next_detail_url']  = page_infos[i+1]['detail_page_url']
         info['next_detail_name'] = page_infos[i+1]['name']
+
+    if len(page_infos) > 1:
+        page_infos[0]['next_detail_url']   = page_infos[1]['detail_page_url']
+        page_infos[0]['next_detail_name']  = page_infos[1]['name']
+        page_infos[-1]['prev_detail_url']  = page_infos[-2]['detail_page_url']
+        page_infos[-1]['prev_detail_name'] = page_infos[-2]['name']
 
     detail_template = load_template("source/_templates/gallery_detail.html")
     gallery_template = load_template("source/_templates/gallery.rst.in")
