@@ -7,14 +7,17 @@ Frequently Asked Questions
 
 .. contents::
     :local:
-    :depth: 1
+    :depth: 2
 
 ..
     OK this is pretty maddening. If there is a better way to get all the answers, including
     multi-paragraph ones, to render in the same font, with the same sidebar, with all of
     their text, please make it better.
 
-.. _pronounce:
+General Questions
+=================
+
+.. _faq_pronounce:
 
 *How do you pronounce "bokeh"?*
 -------------------------------
@@ -32,7 +35,6 @@ Frequently Asked Questions
 .. raw:: html
 
     </blockquote>
-
 
 *Why did you start writing a new plotting library, instead of just extending e.g. Matplotlib?*
 ----------------------------------------------------------------------------------------------
@@ -69,9 +71,8 @@ Frequently Asked Questions
 
     </blockquote>
 
-
-*Is this using D3.js?*
-----------------------
+*I'd like to incorporate Bokeh into my proprietary app or platform. Is there any problem with doing this?*
+----------------------------------------------------------------------------------------------------------
 
 .. raw:: html
 
@@ -79,12 +80,9 @@ Frequently Asked Questions
 
 .. compound::
 
-    No.  D3 is very cool and its predecessor Protovis was one of the
-    inspirations for Bokeh.  However, we understand the goals of D3 to be about
-    providing a Javascript-based data scripting layer for the DOM, and this is
-    somewhat orthogonal (at this point) to the visualization challenges that
-    Bokeh is trying to tackle.  Please see :ref:`technicalvision` for more
-    details about the underlying goals and vision behind our project.
+    We are happy for people to do this.  We do appreciate an attribution, and
+    we also would like to receive feedback about how it's working out for your
+    project.
 
 .. raw:: html
 
@@ -115,9 +113,11 @@ Frequently Asked Questions
 
     </blockquote>
 
+Technical Questions
+===================
 
-*I'd like to incorporate Bokeh into my proprietary app or platform. Is there any problem with doing this?*
-----------------------------------------------------------------------------------------------------------
+*Is this using D3.js?*
+----------------------
 
 .. raw:: html
 
@@ -125,14 +125,16 @@ Frequently Asked Questions
 
 .. compound::
 
-    We are happy for people to do this.  We do appreciate an attribution, and
-    we also would like to receive feedback about how it's working out for your
-    project.
+    No.  D3 is very cool and its predecessor Protovis was one of the
+    inspirations for Bokeh.  However, we understand the goals of D3 to be about
+    providing a Javascript-based data scripting layer for the DOM, and this is
+    somewhat orthogonal (at this point) to the visualization challenges that
+    Bokeh is trying to tackle.  Please see :ref:`technicalvision` for more
+    details about the underlying goals and vision behind our project.
 
 .. raw:: html
 
     </blockquote>
-
 
 *If Bokeh is merely producing JSON objects for BokehJS to handle, why not use something like Vega?*
 ---------------------------------------------------------------------------------------------------
