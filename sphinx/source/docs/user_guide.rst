@@ -192,7 +192,7 @@ plots just by updating a glyph's data source periodically. This requires running
 that plots are notified of the updates to the data. Below is a video capture of an animated
 plot in the ipython notebook (which may be found in ``examples/plotting/notebook``).
 
-.. image:: /../_images/animated.gif
+.. image:: /_images/animated.gif
     :align: center
 
 Note that all the tools, zoom, pan, resize function normally and the plot continues to animate while
@@ -224,7 +224,7 @@ Bokeh is designed to allow you to flexibly compose many different glyph types in
 example, we will step through how to reproduce `Will Burtin's antibiotics chart
 <http://www.americanscientist.org/issues/pub/thats-funny>`_, shown below, using Bokeh.
 
-.. image:: /../_images/burtin_novel.png
+.. image:: /_images/burtin_novel.png
     :align: center
     :scale: 50 %
 

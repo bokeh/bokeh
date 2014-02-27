@@ -6,6 +6,19 @@ Reference Guide
     :local:
     :depth: 3
 
+
+Low Level Glyph Interface
+=========================
+
+Detailed information about the python and javascript glyph interfaces may be found here:
+
+.. toctree::
+   :maxdepth: 1
+
+   bokehjs
+   glyphs_ref
+
+
 High Level Plotting Interface
 =============================
 
@@ -123,4 +136,4 @@ Underlying Object System
               Int, Float, Complex, File, Bool, String, List, Dict,
               Tuple, Array, Class, Instance, This, Any, Function, Event,
               Either, Enum, Sequence, Mapping, Iterable, Color, Align,
-              Pattern, Size, Angle, Percent, FillProps, LineProps, TextProps
+              DashPattern, Size, Angle, Percent, FillProps, LineProps, TextProps

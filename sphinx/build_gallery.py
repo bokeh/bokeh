@@ -70,8 +70,8 @@ def make_gallery(module_descs):
         info['next_detail_url']  = page_infos[i+1]['detail_page_url']
         info['next_detail_name'] = page_infos[i+1]['name']
 
-    detail_template = load_template("_templates/gallery_detail.html")
-    gallery_template = load_template("_templates/gallery.rst")
+    detail_template = load_template("source/_templates/gallery_detail.html")
+    gallery_template = load_template("source/_templates/gallery.rst.in")
 
     for info in page_infos:
         fname = os.path.join(GALLERY_BUILD_DIR, info['name'] + ".html")
@@ -97,7 +97,7 @@ if __name__ == "__main__":
     GALLERY_RST_PATH = None
     if sys.argv[2]:
         GALLERY_RST_PATH = os.path.join(BASE_DIR, sys.argv[2])
-    HOSTED_STATIC_ROOT="../static/"
+    HOSTED_STATIC_ROOT="/docs/bokehjs-static/"
     DETAIL_URL_ROOT="./"
 
     make_gallery([
@@ -108,6 +108,7 @@ if __name__ == "__main__":
         dict(file="../examples/plotting/file/glucose.py",       name='glucose',),
         dict(file="../examples/plotting/file/stocks.py",        name='stocks',),
         dict(file="../examples/plotting/file/vector.py",        name='vector',),
+        dict(file="../examples/plotting/file/image.py",         name='image',),
         dict(file="../examples/plotting/file/lorenz.py",        name='lorenz',),
         dict(file="../examples/plotting/file/color_scatter.py", name='color_scatter',),
         dict(file="../examples/glyphs/iris_splom.py",           name='iris_splom', var_name="grid"),

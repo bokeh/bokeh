@@ -19,28 +19,75 @@ Visit the source repository: `https://github.com/ContinuumIO/bokeh <https://gith
 
 Be sure to follow us on Twitter `@bokehplots <http://twitter.com/BokehPlots>`_!
 
+.. role:: raw-html(raw)
+   :format: html
+
 .. raw:: html
 
     <p>
     <table cellspacing="20">
     <tr>
-        <td><a href="http://continuumio.github.io/bokehjs/image.html"><img src="_images/thumbs/image_plot1.png"/></a></td>
-        <td><a href="gallery/anscombe.html"><img src="_images/thumbs/anscombe2.png"/></a></td>
-        <td><a href="gallery/correlation.html"><img src="_images/thumbs/stocks3.png"/></a></td>
-        <td><a href="gallery/lorenz_example.html"><img src="_images/thumbs/lorenz2.png"/></a></td>
-        <td><a href="gallery/candlestick.html"><img src="_images/thumbs/candlestick2.png"/></a></td>
-        <td><a href="gallery/color_scatter_example.html"><img src="_images/thumbs/scatter.png"/></a></td>
+
+:raw-html:`<td>`  |image|         :raw-html:`</td>`
+:raw-html:`<td>`  |anscombe|      :raw-html:`</td>`
+:raw-html:`<td>`  |stocks|        :raw-html:`</td>`
+:raw-html:`<td>`  |lorenz|        :raw-html:`</td>`
+:raw-html:`<td>`  |candlestick|   :raw-html:`</td>`
+:raw-html:`<td>`  |scatter|       :raw-html:`</td>`
+
+.. raw:: html
+
     </tr><tr>
-        <td><a href="//continuumio.github.io/bokehjs/map_overlay.html"><img src="_images/thumbs/map_overlay1.png"/></a></td>
-        <td><a href="gallery/iris.html"><img src="_images/thumbs/iris2.png"/></a></td>
-        <td><a href="gallery/texas_example.html"><img src="_images/thumbs/choropleth2.png"/></a></td>
-        <td><a href="gallery/iris_splom.html"><img src="_images/thumbs/splom2.png"/></a></td>
-        <td><a href="gallery/burtin_example.html"><img src="_images/thumbs/burtin.png"/></a></td>
-        <td><a href="gallery/vector_example.html"><img src="_images/thumbs/streamline.png"/></a></td>
+
+:raw-html:`<td>`  |map_overlay|   :raw-html:`</td>`
+:raw-html:`<td>`  |iris|          :raw-html:`</td>`
+:raw-html:`<td>`  |choropleth|    :raw-html:`</td>`
+:raw-html:`<td>`  |splom|         :raw-html:`</td>`
+:raw-html:`<td>`  |burtin|        :raw-html:`</td>`
+:raw-html:`<td>`  |streamline|    :raw-html:`</td>`
+
+.. raw:: html
 
     </tr>
     </table>
     </p>
+
+.. |image| image:: /_images/thumbs/image_plot1.png
+    :target: docs/gallery/image.html
+
+.. |anscombe| image:: /_images/thumbs/anscombe2.png
+    :target: docs/gallery/anscombe.html
+
+.. |stocks| image:: /_images/thumbs/stocks3.png
+    :target: docs/gallery/correlation.html
+
+.. |lorenz| image:: /_images/thumbs/lorenz2.png
+    :target: docs/gallery/lorenz.html
+
+.. |candlestick| image:: /_images/thumbs/candlestick2.png
+    :target: docs/gallery/candlestick.html
+
+.. |scatter| image:: /_images/thumbs/scatter.png
+    :target: docs/gallery/color_scatter.html
+
+.. |map_overlay| image:: /_images/thumbs/map_overlay1.png
+    :target: //continuumio.github.io/bokehjs/map_overlay.html
+
+.. |iris| image:: /_images/thumbs/iris2.png
+    :target: docs/gallery/iris.html
+
+.. |choropleth| image:: /_images/thumbs/choropleth2.png
+    :target: docs/gallery/texas.html
+
+.. |splom| image:: /_images/thumbs/splom2.png
+    :target: docs/gallery/iris_splom.html
+
+.. |burtin| image:: /_images/thumbs/burtin.png
+    :target: docs/gallery/burtin.html
+
+.. |streamline| image:: /_images/thumbs/streamline.png
+    :target: docs/gallery/vector.html
+
 
 Contents
 --------

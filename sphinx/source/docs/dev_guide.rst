@@ -137,7 +137,7 @@ Low-level Object Interface
 Here is a notional diagram showing the overall object system in Bokeh. We will discuss each
 of these in turn.
 
-.. image:: /../_images/objects.png
+.. image:: /_images/objects.png
     :align: center
 
 High Level Plotting Interface

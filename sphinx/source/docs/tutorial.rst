@@ -51,8 +51,7 @@ This tells Bokeh to create an HTML file for us.  This file will contain
 all the plots we create, as well as the source for BokehJS and its
 Javascript dependencies.  Consequently, it can be quite large - over
 a megabyte or more.  It is possible to configure the details of HTML
-file generation, so that relative links are used.  Please consult
-the :ref:`output_file` documentation.
+file generation, so that relative links are used.
 
 The next two lines create a line plot and a scatter plot:
 ::
@@ -67,7 +66,7 @@ default web browser::
 
 This should produce the plot shown below:
 
-.. image:: /../_images/tutorial1.png
+.. image:: /_images/tutorial1.png
 
 
 
@@ -81,13 +80,13 @@ above, with one small change::
 
 This configures Bokeh for embedding inside IPython notebook sessions.
 
-.. image:: /../_images/notebook_vector.png
+.. image:: /_images/notebook_vector.png
 
 Downloading Sample Data
 =======================
 
 For more interesting plots than just simple trigonometric curves, Bokeh
-comes with a few datasets built in to the :ref:`bokeh.sampledata` module.
+comes with a few datasets built in to the `bokeh.sampledata` module.
 
 Additional data sets may be obtained by executing the following code::
 

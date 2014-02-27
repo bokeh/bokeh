@@ -2,7 +2,7 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    = -c .
+SPHINXOPTS    = -v
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = _build
@@ -10,7 +10,7 @@ BUILDDIR      = _build
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) sources
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
@@ -45,19 +45,18 @@ all: gallery html
 clean:
 	-rm -rf $(BUILDDIR)/*
 
-html: gallery
+html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	cp -r _images/* $(BUILDDIR)/html/_images
-	cp -r $(BUILDDIR)/gallery $(BUILDDIR)/html/gallery
+	cp -r $(BUILDDIR)/gallery $(BUILDDIR)/html/docs/gallery
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
 
 gallery:
 	rm -rf $(BUILDDIR)/gallery $(BUILDDIR)/gallery.rst $(BUILDDIR)/html/static
 	mkdir -p $(BUILDDIR)/gallery
-	python build_gallery.py $(BUILDDIR)/gallery sources/docs/gallery.rst
-	mkdir -p $(BUILDDIR)/html/static
-	cp -r ../bokeh/server/static $(BUILDDIR)/html
+	python build_gallery.py $(BUILDDIR)/gallery source/docs/gallery.rst
+	mkdir -p $(BUILDDIR)/html/docs/bokehjs-static
+	cp -r ../bokeh/server/static/* $(BUILDDIR)/html/docs/bokehjs-static
 
 serve: html
 	python docserver.py

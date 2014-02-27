@@ -47,7 +47,7 @@ Now you are ready to generate static plots. In ``examples/plotting/file/``, try:
 This will write a static HTML file ``iris.html`` in the current directory and
 open a browser window to display it, and it should look like:
 
-.. image:: /../_images/iris.png
+.. image:: /_images/iris.png
 
 Try running ``line.py`` or ``candlestick.py`` for other static HTML file examples.
 
