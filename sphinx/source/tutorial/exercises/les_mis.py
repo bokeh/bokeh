@@ -7,14 +7,14 @@ from bokeh.sampledata.les_mis import data
 
 from collections import OrderedDict
 
-# EXERCISE: try out different sort orders for the nodes
-nodes = sorted(lesmis['nodes'], key=lambda x: x['group']) # sort by group
-names = [node['name'] for node in nodes]
+# EXERCISE: try out different sort orders for the names
+nodes = data['nodes']
+names = [node['name'] for node in sorted(data['nodes'], key=lambda x: x['group'])]
 
 # store the links information in numpy
 N = len(nodes)
 counts = np.empty((N, N))
-for link in lesmis['links']:
+for link in data['links']:
     counts[link['source'], link['target']] = link['value']
     counts[link['target'], link['source']] = link['value']
 

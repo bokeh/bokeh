@@ -5,8 +5,8 @@ from bokeh.objects import HoverTool, ColumnDataSource
 from bokeh.sampledata.les_mis import data
 from collections import OrderedDict
 
-nodes = sorted(data['nodes'], key=lambda x: x['group']) # sort by group
-names = [node['name'] for node in nodes]
+nodes = data['nodes']
+names = [node['name'] for node in sorted(data['nodes'], key=lambda x: x['group'])]
 
 N = len(nodes)
 counts = np.zeros((N, N))

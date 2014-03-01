@@ -7,9 +7,9 @@ from bokeh.sampledata.les_mis import data
 
 from collections import OrderedDict
 
-# EXERCISE: try out different sort orders for the nodes
-nodes = sorted(data['nodes'], key=lambda x: x['group']) # sort by group
-names = [node['name'] for node in nodes]
+# EXERCISE: try out different sort orders for the names
+nodes = data['nodes']
+names = [node['name'] for node in sorted(data['nodes'], key=lambda x: x['group'])]
 
 # store the links information in numpy
 N = len(nodes)

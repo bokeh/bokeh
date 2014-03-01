@@ -16,5 +16,5 @@
         { "file": "source/tutorial/solutions/stocks.py",       "name": "stocks"       },
         { "file": "source/tutorial/solutions/style.py",        "name": "style"        },
         { "file": "source/tutorial/solutions/unemployment.py", "name": "unemployment" }
-        ]
+    ]
 }
