@@ -67,6 +67,7 @@ if sys.platform != 'win32':
 
 # You can't install Bokeh in a virtualenv because the lack of getsitepackages()
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
+# And this is an intended PR to fix it: https://github.com/pypa/virtualenv/pull/508
 # Workaround to fix our issue: https://github.com/ContinuumIO/bokeh/issues/378
 
 
@@ -79,8 +80,6 @@ def getsitepackages():
     _is_jython = sys.platform[:4] == 'java'
 
     prefixes = [sys.prefix, sys.exec_prefix]
-    if not os.path.exists(os.path.join(os.path.dirname(__file__), 'no-global-site-packages.txt')):
-        prefixes.append(sys.real_prefix)
 
     sitepackages = []
     seen = set()
