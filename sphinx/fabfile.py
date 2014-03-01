@@ -4,7 +4,7 @@ from fabric.contrib.project import rsync_project
 env.roledefs = {
     'web': ['bokeh.pydata.org']}
 
-dirs = ['_images', '_sources', '_static', 'docs']
+dirs = ['_images', '_sources', '_static', 'docs', 'tutorial']
 files = ['genindex.html', 'index.html', 'objects.inv', 'py-modindex.html', 'search.html', 'searchindex.js']
 
 @roles('web')
