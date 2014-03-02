@@ -61,8 +61,7 @@ def main():
     start.bokeh_app.splitjs = args.splitjs
     start.bokeh_app.debugjs = args.debugjs
     
-    start.prepare_app(rhost=args.ip, rport=args.redis_port,
-                      start_redis=args.start_redis,
+    start.prepare_app(rport=args.redis_port, start_redis=args.start_redis,
                       single_user_mode=not args.multi_user
                       )
 
