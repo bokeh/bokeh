@@ -36,7 +36,7 @@ def build_parser():
     parser.add_argument("--redis-port",
                         help="port for redis",
                         type=int,
-                        default=6379
+                        default=7001
                         )
     parser.add_argument("-r", "--start-redis",
                         help="start redis",
