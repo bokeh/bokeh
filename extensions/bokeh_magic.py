@@ -122,8 +122,7 @@ class BokehMagics(Magics):
                 ip.set_hook('pre_run_code_hook', self.dummy)
                 print "Automatic hold() is disable."
             except KeyError:
-                raise UsageError("""You have to enable the --hold mode 
-                                 before trying to disable it.""")
+                raise UsageError("""You have to enable the --hold mode before trying to disable it.""")
         elif args.show:
             if not self.has_run:
                 self.notebook_output()
@@ -138,8 +137,7 @@ class BokehMagics(Magics):
                 del ip._post_execute[self.notebook_show]
                 print "Automatic show() is disable."
             except KeyError:
-                raise UsageError("""You have to enable the --show mode 
-                                 before trying to disable it.""")
+                raise UsageError("""You have to enable the --show mode before trying to disable it.""")
         elif args.figure:
             if not self.has_run:
                 self.notebook_output()
@@ -154,8 +152,7 @@ class BokehMagics(Magics):
                 del ip._post_execute[figure]
                 print "Automatic figure() is disable."
             except KeyError:
-                raise UsageError("""You have to enable the --figure mode 
-                                 before trying to disable it.""")
+                raise UsageError("You have to enable the --figure mode before trying to disable it.")
 
         ip._post_execute = self.ordered_dict(ip._post_execute)
 
