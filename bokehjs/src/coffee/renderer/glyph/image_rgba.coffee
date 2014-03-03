@@ -63,8 +63,8 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @sw = @distance_vector('x', 'dw', 'edge')
-      @sh = @distance_vector('y', 'dh', 'edge')
+      @sw = @distance_vector('x', 'dw', 'edge', @mget('glyphspec')['distance_dilate'])
+      @sh = @distance_vector('y', 'dh', 'edge', @mget('glyphspec')['distance_dilate'])
 
     _render: (ctx, indices, glyph_props) ->
       old_smoothing = ctx.getImageSmoothingEnabled()
@@ -95,6 +95,7 @@ define [
     display_defaults: () ->
       return _.extend(super(), {
         level: 'underlay'
+        distance_dilate: 0
       })
 
   return {
