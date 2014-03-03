@@ -22,6 +22,7 @@ from bokeh.plotting import (output_notebook, figure, hold, show)
 # Classes and functions
 #-----------------------------------------------------------------------------
 
+
 @magics_class
 class BokehMagics(Magics):
     """Magic to embed Bokeh into the IPython notebook."""
@@ -121,7 +122,8 @@ class BokehMagics(Magics):
                 ip.set_hook('pre_run_code_hook', self.dummy)
                 print "Automatic hold() is disable."
             except KeyError:
-                raise UsageError("You have to enable the --hold mode before trying to disable it.")
+                raise UsageError("""You have to enable the --hold mode 
+                                 before trying to disable it.""")
         elif args.show:
             if not self.has_run:
                 self.notebook_output()
@@ -136,14 +138,15 @@ class BokehMagics(Magics):
                 del ip._post_execute[self.notebook_show]
                 print "Automatic show() is disable."
             except KeyError:
-                raise UsageError("You have to enable the --show mode before trying to disable it.")
+                raise UsageError("""You have to enable the --show mode 
+                                 before trying to disable it.""")
         elif args.figure:
             if not self.has_run:
                 self.notebook_output()
             # Register a function for calling after code execution.
             ip.register_post_execute(figure)
             print "Automatic figure() is enable."
-        elif args.show_off:
+        elif args.figure_off:
             try:
                 if not self.has_run:
                     self.notebook_output()
@@ -151,15 +154,19 @@ class BokehMagics(Magics):
                 del ip._post_execute[figure]
                 print "Automatic figure() is disable."
             except KeyError:
-                raise UsageError("You have to enable the --figure mode before trying to disable it.")
+                raise UsageError("""You have to enable the --figure mode 
+                                 before trying to disable it.""")
 
         ip._post_execute = self.ordered_dict(ip._post_execute)
 
     def notebook_output(self):
+        """Wrapper to execute the open notebook function just once to avoid 
+        a javascript annoying bug when it is called multiple times."""
         output_notebook()
         self.has_run = True
 
     def notebook_show(self):
+        "Wrapper to avoid the exception when the cell does not contain a plot."
         try:
             show()
         except IndexError:
@@ -167,12 +174,14 @@ class BokehMagics(Magics):
             pass
 
     def dummy(self):
+        "Just a dummy function to pass an empty function to the pre hook."
         pass
 
     def ordered_dict(self, d):
+        "It takes a dict and order it if is the number of dict items is 3."
         litems = d.items()
-        # I have to only take care when the 3 function are listed because they 
-        # are corectly ordered when we use two in any combination.
+        # We have to only take care when the 3 function are listed because 
+        # they are corectly ordered when we use two in any combination.
         if len(litems) == 3:
             litems[2], litems[1] = litems[1], litems[2]
             od = collections.OrderedDict(litems)
