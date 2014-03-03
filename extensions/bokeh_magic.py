@@ -175,16 +175,21 @@ class BokehMagics(Magics):
         pass
 
     def ordered_dict(self, d):
-        "It takes a dict and order it if is the number of dict items is 3."
+        "It arrange the dict in hold > show > figure order."
         litems = d.items()
-        # We have to only take care when the 3 function are listed because 
-        # they are corectly ordered when we use two in any combination.
-        if len(litems) == 3:
-            litems[2], litems[1] = litems[1], litems[2]
-            od = collections.OrderedDict(litems)
-            return od
-        else:
-            return d
+        n = len(litems)
+        new_litems = []
+        self.looper(litems, new_litems, "hold", n)
+        self.looper(litems, new_litems, "notebook_show", n)
+        self.looper(litems, new_litems, "figure", n)
+        od = collections.OrderedDict(new_litems)
+        return od
+
+    def looper(self, old_list, new_list, fname, n):
+        for x in range(n):
+            name = old_list[x][0].__name__
+            if name == fname:
+                new_list.append(old_list[x])
 
 
 def load_ipython_extension(ip):
