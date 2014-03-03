@@ -10,6 +10,7 @@
 # Imports
 #-----------------------------------------------------------------------------
 
+import collections
 from IPython.core.magic import (Magics, magics_class, line_magic)
 from IPython.testing.skipdoctest import skip_doctest
 from IPython.core.magic_arguments import (argument, magic_arguments,
@@ -34,10 +35,10 @@ class BokehMagics(Magics):
               'output_notebook() funtion.')
     @argument('-h', '--hold', action="store_true",
               help='This option enable the execution of the Bokeh hold() '
-              'function at the end of each cell.')
+              'function at the start of each cell.')
     @argument('-h-off', '--hold-off', action="store_true",
               help='This option disable the execution of the Bokeh hold() '
-              'function at the end of each cell.')
+              'function at the start of each cell.')
     @argument('-s', '--show', action="store_true",
               help='This option enable the execution of the Bokeh show() '
               'function at the end of each cell.')
