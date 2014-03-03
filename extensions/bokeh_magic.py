@@ -33,6 +33,12 @@ class BokehMagics(Magics):
     @argument('-n', '--notebook', action="store_true",
               help='This option enable the execution of the Bokeh '
               'output_notebook() funtion.')
+    @argument('-f', '--figure', action="store_true",
+              help='This option enable the execution of the Bokeh figure() '
+              'function at the end of each cell.')
+    @argument('-f-off', '--figure-off', action="store_true",
+              help='This option disable the execution of the Bokeh figure() '
+              'function at the end of each cell.')
     @argument('-h', '--hold', action="store_true",
               help='This option enable the execution of the Bokeh hold() '
               'function at the start of each cell.')
@@ -71,13 +77,17 @@ class BokehMagics(Magics):
 
         Then you can use several `modes` listed below::
 
-            In [4]: %bokeh --hold [-h] # to enable the autohold function
+            In [4]: %bokeh --figure [-f] # to enable the autofigure function
 
-            In [5]: %bokeh --hold-off [-h-off] to disable the autohold function
+            In [5]: %bokeh --figure-off [-f-off] to disable the autofigure function
 
-            In [6]: %bokeh --show [-s] # to enable the autoshow function
+            In [6]: %bokeh --hold [-h] # to enable the autohold function
 
-            In [7]: %bokeh --show-off [-s-off] to disable the autoshow function
+            In [7]: %bokeh --hold-off [-h-off] to disable the autohold function
+
+            In [8]: %bokeh --show [-s] # to enable the autoshow function
+
+            In [9]: %bokeh --show-off [-s-off] to disable the autoshow function
 
         Note: In order to actually use this magic, you need to have
         get_ipython(), so you need to have a running IPython kernel.
