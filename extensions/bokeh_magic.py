@@ -153,6 +153,8 @@ class BokehMagics(Magics):
             except KeyError:
                 raise UsageError("You have to enable the --figure mode before trying to disable it.")
 
+        ip._post_execute = self.ordered_dict(ip._post_execute)
+
     def notebook_output(self):
         output_notebook()
         self.has_run = True
@@ -166,6 +168,17 @@ class BokehMagics(Magics):
 
     def dummy(self):
         pass
+
+    def ordered_dict(self, d):
+        litems = d.items()
+        # I have to only take care when the 3 function are listed because they 
+        # are corectly ordered when we use two in any combination.
+        if len(litems) == 3:
+            litems[2], litems[1] = litems[1], litems[2]
+            od = collections.OrderedDict(litems)
+            return od
+        else:
+            return d
 
 
 def load_ipython_extension(ip):
