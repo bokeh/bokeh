@@ -137,6 +137,21 @@ class BokehMagics(Magics):
                 print "Automatic show() is disable."
             except KeyError:
                 raise UsageError("You have to enable the --show mode before trying to disable it.")
+        elif args.figure:
+            if not self.has_run:
+                self.notebook_output()
+            # Register a function for calling after code execution.
+            ip.register_post_execute(figure)
+            print "Automatic figure() is enable."
+        elif args.show_off:
+            try:
+                if not self.has_run:
+                    self.notebook_output()
+                # Unregister a function from the _post_execute dict.
+                del ip._post_execute[figure]
+                print "Automatic figure() is disable."
+            except KeyError:
+                raise UsageError("You have to enable the --figure mode before trying to disable it.")
 
     def notebook_output(self):
         output_notebook()
