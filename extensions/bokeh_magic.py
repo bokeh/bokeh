@@ -109,8 +109,6 @@ class BokehMagics(Magics):
                 self.notebook_output()
             # Register a function for calling after code execution
             ip.register_post_execute(hold)
-            # Set a prehook for calling a function before code execution.
-            ip.set_hook('pre_run_code_hook', hold)
             print "Automatic hold() is enable."
         elif args.hold_off:
             try:
@@ -118,8 +116,6 @@ class BokehMagics(Magics):
                     self.notebook_output()
                 # Unregister a function from the _post_execute dict.
                 del ip._post_execute[hold]
-                # Set a dummy prehook for calling a do-nothing function.
-                ip.set_hook('pre_run_code_hook', self.dummy)
                 print "Automatic hold() is disable."
             except KeyError:
                 raise UsageError("""You have to enable the --hold mode before trying to disable it.""")
@@ -169,10 +165,6 @@ class BokehMagics(Magics):
         except IndexError:
             # no plot object in the current cell gives us IndexError
             pass
-
-    def dummy(self):
-        "Just a dummy function to pass an empty function to the pre hook."
-        pass
 
     def ordered_dict(self, d):
         "It arrange the dict in hold > show > figure order."
