@@ -104,13 +104,13 @@ class BokehMagics(Magics):
         if args.notebook:
             # Configuring embedded BokehJS mode.
             self.notebook_output()
-        elif args.hold:
+        if args.hold:
             if not self.has_run:
                 self.notebook_output()
             # Register a function for calling after code execution
             ip.register_post_execute(hold)
             print "Automatic hold() is enable."
-        elif args.hold_off:
+        if args.hold_off:
             try:
                 if not self.has_run:
                     self.notebook_output()
@@ -119,13 +119,13 @@ class BokehMagics(Magics):
                 print "Automatic hold() is disable."
             except KeyError:
                 raise UsageError("""You have to enable the --hold mode before trying to disable it.""")
-        elif args.show:
+        if args.show:
             if not self.has_run:
                 self.notebook_output()
             # Register a function for calling after code execution.
             ip.register_post_execute(self.notebook_show)
             print "Automatic show() is enable."
-        elif args.show_off:
+        if args.show_off:
             try:
                 if not self.has_run:
                     self.notebook_output()
@@ -134,7 +134,7 @@ class BokehMagics(Magics):
                 print "Automatic show() is disable."
             except KeyError:
                 raise UsageError("""You have to enable the --show mode before trying to disable it.""")
-        elif args.figure:
+        if args.figure:
             if not self.has_run:
                 self.notebook_output()
             # Register a function for calling after code execution.
