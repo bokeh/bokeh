@@ -1,24 +1,21 @@
-from __future__ import absolute_import
-
 """ Defines the base PlotSession and some example session types.
 """
+from __future__ import absolute_import
 
 from os.path import abspath, split, join
 import os.path
-import json
 import logging
 import uuid
 import warnings
 import requests
 
 from six import string_types
-from six.moves.urllib.parse import urljoin, urlencode
+from six.moves.urllib.parse import urljoin, urlencode, urlsplit
 
-from . import protocol, utils
-from .objects import PlotObject, Plot, PlotContext, recursively_traverse_plot_object
-from .properties import HasProps, List
-from .exceptions import DataIntegrityException
-from . import serverconfig
+from .. import protocol, serverconfig, utils
+from ..objects import PlotObject, Plot, PlotContext, recursively_traverse_plot_object
+from ..properties import HasProps
+from ..exceptions import DataIntegrityException
 logger = logging.getLogger(__file__)
 
 class Session(object):
