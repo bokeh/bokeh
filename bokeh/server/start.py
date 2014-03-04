@@ -30,6 +30,8 @@ import time
 import sys
 from .server_backends import (RedisBackboneStorage,
                               RedisServerModelStorage,
+                              InMemoryBackboneStorage,
+                              InMemoryServerModelStorage,
                               SingleUserAuthentication,
                               MultiUserAuthentication
                               )
@@ -47,13 +49,16 @@ def prepare_app(rhost='127.0.0.1', rport=REDIS_PORT, start_redis=True,
     import redis
 
     from .views import deps
-    bbstorage = RedisBackboneStorage(
-        redis.Redis(host=rhost, port=rport, db=2)
-        )
+    # bbstorage = RedisBackboneStorage(
+    #     redis.Redis(host=rhost, port=rport, db=2)
+    #     )
+    # #for non-backbone models
+    # servermodel_storage = RedisServerModelStorage(
+    #     redis.Redis(host=rhost, port=rport, db=3)
+    #     )
+    bbstorage = InMemoryBackboneStorage()
     #for non-backbone models
-    servermodel_storage = RedisServerModelStorage(
-        redis.Redis(host=rhost, port=rport, db=3)
-        )
+    servermodel_storage = InMemoryServerModelStorage()
     if single_user_mode:
         authentication = SingleUserAuthentication()
     else:

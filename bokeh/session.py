@@ -67,7 +67,6 @@ class Session(object):
         as well.
         """
         recursive = kwargs.get("recursive", False)
-
         if recursive:
             objects = self._collect_objs(objects)
 
@@ -180,7 +179,7 @@ class BaseJSONSession(Session):
 
     def serialize_models(self, objects=None, **jsonkwargs):
         return self.serialize(self.convert_models(objects), **jsonkwargs)
-    
+
 class BaseHTMLSession(BaseJSONSession):
     """ Common file & HTML-related utility functions which all HTML output
     sessions will need.  Mostly involves JSON serialization.
@@ -449,21 +448,21 @@ class HTMLFragmentSession(BaseHTMLSession):
 
 
 class PersistentBackboneSession(object):
-    
+
     @property
     def plotcontext(self):
         if hasattr(self, "_plotcontext"):
             return self._plotcontext
         else:
             return None
-    
+
     @plotcontext.setter
     def plotcontext(self, val):
         self._plotcontext = val
 
     def get_ref(self, obj):
         return obj.get_ref()
-    
+
     #------------------------------------------------------------------------
     # functions for loading json into models
     # we have 2 types of json data, if all the models are of one type, then
@@ -555,7 +554,7 @@ class PersistentBackboneSession(object):
         self.store_broadcast_attrs(models)
         for m in to_store:
             m._dirty = False
-            
+
     def store_all(self):
         """store all dirty models, by calling store_objs
         """
@@ -573,7 +572,7 @@ class PersistentBackboneSession(object):
     # Loading models
     #------------------------------------------------------------------------
     def load_all(self, asdict=False):
-        """ 
+        """
         normally:
         you get back a list of models, and they are loaded into this session
         usually in self._models
@@ -605,11 +604,11 @@ class PersistentBackboneSession(object):
         you get the json of the model.  json is NOT loaded into
         this session(no python objects are updated with the new data)
         """
-        raise NotImplementedError        
+        raise NotImplementedError
 
     #loading callbacks
     def callbacks_json(self, to_store):
-        """extracts callbacks  that need to be stored from 
+        """extracts callbacks  that need to be stored from
         a list of models
         """
         all_data = []
@@ -620,7 +619,7 @@ class PersistentBackboneSession(object):
         return all_data
 
     def load_callbacks_json(self, callback_json):
-        """given a list of callback specifications, 
+        """given a list of callback specifications,
         binds existing models with those callbacks
         """
         for data in callback_json:
@@ -684,9 +683,9 @@ class PersistentBackboneSession(object):
             for cb in m._callback_queue:
                 m._trigger(*cb)
             del m._callback_queue[:]
-            
+
     #deleting objects
-            
+
     def del_obj(self, obj):
         self.del_objs([obj])
 
@@ -695,7 +694,7 @@ class PersistentBackboneSession(object):
 
 class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
 
-    def __init__(self, server_config=None, server_name=None, username=None, 
+    def __init__(self, server_config=None, server_name=None, username=None,
                  serverloc=None, userapikey="nokey"):
         # This logic is based on ContinuumModelsClient.__init__ and
         # mpl.PlotClient.__init__.  There is some merged functionality here
@@ -715,7 +714,7 @@ class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
             'content-type':'application/json',
             'BOKEHUSER-API-KEY' : self.userapikey,
             'BOKEHUSER' : self.username})
-        
+
         if self.root_url:
             url = urljoin(self.root_url, '/bokeh/userinfo/')
             self.userinfo = utils.get_json(self.http_session.get(url, verify=False))
@@ -731,7 +730,7 @@ class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
         self.base_url = urljoin(self.root_url, "/bokeh/bb/")
         self.raw_js_objs = []
         super(PlotServerSession, self).__init__()
-        
+
     def load_server_config(self, config):
         self.username = config.username
         self.root_url = config.root_url
