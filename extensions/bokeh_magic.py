@@ -167,13 +167,13 @@ class BokehMagics(Magics):
             pass
 
     def ordered_dict(self, d):
-        "It arrange the dict in hold > show > figure order."
+        "It arrange the dict in show > figure > hold order."
         litems = d.items()
         n = len(litems)
         new_litems = []
-        self.looper(litems, new_litems, "hold", n)
         self.looper(litems, new_litems, "notebook_show", n)
         self.looper(litems, new_litems, "figure", n)
+        self.looper(litems, new_litems, "hold", n)
         od = collections.OrderedDict(new_litems)
         return od
 
