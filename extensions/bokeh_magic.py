@@ -104,13 +104,14 @@ class BokehMagics(Magics):
         if args.notebook:
             # Configuring embedded BokehJS mode.
             self.notebook_output()
+
         if args.hold:
             if not self.has_run:
                 self.notebook_output()
             # Register a function for calling after code execution
             ip.register_post_execute(hold)
             print "Automatic hold() is enable."
-        if args.hold_off:
+        elif args.hold_off:
             try:
                 if not self.has_run:
                     self.notebook_output()
@@ -119,13 +120,14 @@ class BokehMagics(Magics):
                 print "Automatic hold() is disable."
             except KeyError:
                 raise UsageError("""You have to enable the --hold mode before trying to disable it.""")
+
         if args.show:
             if not self.has_run:
                 self.notebook_output()
             # Register a function for calling after code execution.
             ip.register_post_execute(self.notebook_show)
             print "Automatic show() is enable."
-        if args.show_off:
+        elif args.show_off:
             try:
                 if not self.has_run:
                     self.notebook_output()
@@ -134,6 +136,7 @@ class BokehMagics(Magics):
                 print "Automatic show() is disable."
             except KeyError:
                 raise UsageError("""You have to enable the --show mode before trying to disable it.""")
+
         if args.figure:
             if not self.has_run:
                 self.notebook_output()
@@ -171,9 +174,9 @@ class BokehMagics(Magics):
         litems = d.items()
         n = len(litems)
         new_litems = []
+        self.looper(litems, new_litems, "hold", n)
         self.looper(litems, new_litems, "notebook_show", n)
         self.looper(litems, new_litems, "figure", n)
-        self.looper(litems, new_litems, "hold", n)
         od = collections.OrderedDict(new_litems)
         return od
 
