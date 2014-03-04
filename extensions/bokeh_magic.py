@@ -10,13 +10,13 @@
 # Imports
 #-----------------------------------------------------------------------------
 
-import collections
+import IPython
 from IPython.core.magic import (Magics, magics_class, line_magic)
 from IPython.testing.skipdoctest import skip_doctest
 from IPython.core.magic_arguments import (argument, magic_arguments,
     parse_argstring)
 from IPython.core.error import UsageError
-from bokeh.plotting import (output_notebook, figure, hold, show)
+from bokeh.plotting import (output_notebook, show, hold, figure)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -26,6 +26,13 @@ from bokeh.plotting import (output_notebook, figure, hold, show)
 @magics_class
 class BokehMagics(Magics):
     """Magic to embed Bokeh into the IPython notebook."""
+
+    if IPython.__version__ in ['1.2.1', '1.2.0', '1.1.2', '1.1.1', '1.0.0']:
+        is_ipytwo = False
+    elif IPython.__version__ in ['2.0.0', '2.0.0-dev']:
+        is_ipytwo = True
+    else:
+        print "This version of IPython is not currently supported."
 
     has_run = False
 
@@ -74,21 +81,17 @@ class BokehMagics(Magics):
 
         To enable bokeh for usage with the IPython Notebook::
 
-            In [3]: %bokeh --notebook
+            In [3]: %bokeh --notebook [-n]
 
-        Then you can use several `modes` listed below::
+        Then you can use a show `modes`::
 
-            In [4]: %bokeh --figure [-f] # to enable the autofigure function
+            In [4]: %bokeh --show [-s] # to enable the autoshow function
 
-            In [5]: %bokeh --figure-off [-f-off] to disable the autofigure function
+            In [5]: %bokeh --show-off [-s-off] to disable the autoshow function
 
-            In [6]: %bokeh --hold [-h] # to enable the autohold function
+        You can use add the show `mode` to the notebook argument::
 
-            In [7]: %bokeh --hold-off [-h-off] to disable the autohold function
-
-            In [8]: %bokeh --show [-s] # to enable the autoshow function
-
-            In [9]: %bokeh --show-off [-s-off] to disable the autoshow function
+            In [6]: %bokeh --notebook [-n] --show-off [-s-off]
 
         Note: In order to actually use this magic, you need to have
         get_ipython(), so you need to have a running IPython kernel.
@@ -103,57 +106,86 @@ class BokehMagics(Magics):
         # Activate/deactivate the execution of func accordingly with the args.
         if args.notebook:
             # Configuring embedded BokehJS mode.
-            self.notebook_output()
+            if not self.has_run:
+                self.notebook_output()
+
+        if args.figure:
+            if not self.has_run:
+                self.notebook_output()
+            # Register the figure function.
+            if self.is_ipytwo:
+                #ip.events.register('post_run_cell', self.notebook_show)
+                print "is_ipytwo figure"
+            else:
+                #ip.set_hook('pre_run_code_hook', figure)
+                print "The --figure mode is not supported with this version of IPython."
+        elif args.figure_off:
+            if not self.has_run:
+                self.notebook_output()
+            if self.is_ipytwo:
+                try:
+                    # Unregister a function from the _post_execute dict.
+                    # We do not need to specify the version here.
+                    #del ip._post_execute[self.notebook_show]
+                    print "is_ipytwo figure disable"
+                    print "Automatic figure() is disable."
+                except KeyError:
+                    raise UsageError("""You have to enable the --figure mode before trying to disable it.""")
+            else:
+                print "The --figure mode is not supported with this version of IPython."
 
         if args.hold:
             if not self.has_run:
                 self.notebook_output()
-            # Register a function for calling after code execution
-            ip.register_post_execute(hold)
-            print "Automatic hold() is enable."
+            # Register the hold function.
+            if self.is_ipytwo:
+                #ip.events.register('post_run_cell', self.notebook_show)
+                print "is_ipytwo hold"
+            else:
+                ip.set_hook('pre_run_code_hook', hold)
+                print "Automatic hold() is irreversible enabled. Just restart your kernel to disable."
         elif args.hold_off:
-            try:
-                if not self.has_run:
-                    self.notebook_output()
-                # Unregister a function from the _post_execute dict.
-                del ip._post_execute[hold]
-                print "Automatic hold() is disable."
-            except KeyError:
-                raise UsageError("""You have to enable the --hold mode before trying to disable it.""")
+            if not self.has_run:
+                self.notebook_output()
+            if self.is_ipytwo:
+                try:
+                    # Unregister a function from the _post_execute dict.
+                    # We do not need to specify the version here.
+                    #del ip._post_execute[self.notebook_show]
+                    print "is_ipytwo hold disable"
+                    print "Automatic hold() is disable."
+                except KeyError:
+                    raise UsageError("""You have to enable the --hold mode before trying to disable it.""")
+            else:
+                print "Automatic hold() can not be disable without restarting your kernel. Did you activate it before?"
 
         if args.show:
             if not self.has_run:
                 self.notebook_output()
             # Register a function for calling after code execution.
-            ip.register_post_execute(self.notebook_show)
+            if self.is_ipytwo:
+                ip.events.register('post_run_cell', self.notebook_show)
+                print "is_ipytwo"
+            else:
+                ip.register_post_execute(self.notebook_show)
             print "Automatic show() is enable."
         elif args.show_off:
-            try:
-                if not self.has_run:
-                    self.notebook_output()
-                # Unregister a function from the _post_execute dict.
-                del ip._post_execute[self.notebook_show]
-                print "Automatic show() is disable."
-            except KeyError:
-                raise UsageError("""You have to enable the --show mode before trying to disable it.""")
-
-        if args.figure:
             if not self.has_run:
                 self.notebook_output()
-            # Register a function for calling after code execution.
-            ip.register_post_execute(figure)
-            print "Automatic figure() is enable."
-        elif args.figure_off:
-            try:
-                if not self.has_run:
-                    self.notebook_output()
-                # Unregister a function from the _post_execute dict.
-                del ip._post_execute[figure]
-                print "Automatic figure() is disable."
-            except KeyError:
-                raise UsageError("You have to enable the --figure mode before trying to disable it.")
-
-        ip._post_execute = self.ordered_dict(ip._post_execute)
+            if self.is_ipytwo:
+                try:
+                    # Unregister a function
+                    ip.events.unregister('post_run_cell', self.notebook_show)
+                    print "Automatic show() is disable."
+                except ValueError:
+                    raise UsageError("""You have to enable the --show mode before trying to disable it.""")
+            else:
+                try:
+                    # Unregister a function from the _post_execute dict.
+                    del ip._post_execute[self.notebook_show]
+                    print "Automatic show() is disable."
+                except KeyError:
+                    raise UsageError("""You have to enable the --show mode before trying to disable it.""")
 
     def notebook_output(self):
         """Wrapper to execute the open notebook function just once to avoid 
@@ -168,23 +200,6 @@ class BokehMagics(Magics):
         except IndexError:
             # no plot object in the current cell gives us IndexError
             pass
-
-    def ordered_dict(self, d):
-        "It arrange the dict in show > figure > hold order."
-        litems = d.items()
-        n = len(litems)
-        new_litems = []
-        self.looper(litems, new_litems, "hold", n)
-        self.looper(litems, new_litems, "notebook_show", n)
-        self.looper(litems, new_litems, "figure", n)
-        od = collections.OrderedDict(new_litems)
-        return od
-
-    def looper(self, old_list, new_list, fname, n):
-        for x in range(n):
-            name = old_list[x][0].__name__
-            if name == fname:
-                new_list.append(old_list[x])
 
 
 def load_ipython_extension(ip):
