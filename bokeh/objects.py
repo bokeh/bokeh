@@ -1,11 +1,11 @@
-from __future__ import absolute_import
-
 """ Collection of core plotting objects, which can be represented in the
 Javascript layer.  The object graph formed by composing the objects in
 this module can be stored as a backbone.js model graph, and stored in a
 plot server or serialized into JS for embedding in HTML or an IPython
 notebook.
 """
+from __future__ import absolute_import
+
 import os
 from uuid import uuid4
 from functools import wraps

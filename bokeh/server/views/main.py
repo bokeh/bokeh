@@ -172,8 +172,7 @@ def doc_by_title():
         docid = doc['docid']
     return get_bokeh_info(docid)
 
-"""need to rethink public publishing
-"""
+# need to rethink public publishing
 # @bokeh_app.route('/bokeh/publicbokehinfo/<docid>')
 # def get_public_bokeh_info(docid):
 #     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)

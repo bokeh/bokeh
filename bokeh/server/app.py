@@ -1,3 +1,6 @@
+"""bokeh_app is actually a flask blueprint
+"""
+
 import flask
 from os.path import join, dirname
 import logging
@@ -6,8 +9,7 @@ import uuid
 from . import wsmanager
 from .models import convenience as mconv
 from .models import docs
-"""bokeh_app is actually a flask blueprint
-"""
+
 class BokehBlueprint(flask.Blueprint):
     def __init__(self, *args, **kwargs):
         super(BokehBlueprint, self).__init__(*args, **kwargs)

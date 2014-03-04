@@ -1,3 +1,9 @@
+"""
+In our python interface to the backbone system, we separate the local collection
+which stores models, from the http client which interacts with a remote store
+In applications, we would use a class that combines both
+"""
+
 import requests
 import uuid
 import logging
@@ -12,11 +18,6 @@ from ..objects import PlotObject, Plot
 from ..session import PersistentBackboneSession, BaseJSONSession
 from . import server_backends
 from .app import bokeh_app
-"""
-In our python interface to the backbone system, we separate the local collection
-which stores models, from the http client which interacts with a remote store
-In applications, we would use a class that combines both
-"""
 
 def dockey(docid):
     return 'doc:' + docid
