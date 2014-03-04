@@ -16,10 +16,10 @@ class BaseHTMLSession(BaseJSONSession):
     bokeh_url = "https://bokeh.pydata.org/"
 
     # The base local directory for all CSS and JS
-    server_static_dir = join(abspath(split(__file__)[0]), "server", "static")
+    server_static_dir = join(abspath(split(__file__)[0]), "..", "server", "static")
 
     # The base dir for all HTML templates
-    template_dir = join(abspath(split(__file__)[0]), "templates")
+    template_dir = join(abspath(split(__file__)[0]), "..", "templates")
 
     # The base URL for all CSS and JS
     static_url = bokeh_url
