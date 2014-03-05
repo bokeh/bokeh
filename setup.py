@@ -61,9 +61,7 @@ package_data_dirs.append('sampledata/elements.csv')
 package_data_dirs.append('sampledata/iris.csv')
 package_data_dirs.append('sampledata/US Regions State Boundaries.csv.gz')
 
-scripts = []
-if sys.platform != 'win32':
-    scripts.extend(['bokeh-server'])
+scripts = ['bokeh-server']
 
 # You can't install Bokeh in a virtualenv because the lack of getsitepackages()
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
@@ -170,7 +168,7 @@ elif 'install' in sys.argv:
         print("installing bokeh, removing bokeh.pth if it exists")
     else:
         print("installing bokeh,  bokeh.pth was not found, so we did not clean it")
-    
+
 REQUIRES = [
         'Flask==0.10.1',
         'Jinja2==2.7',
