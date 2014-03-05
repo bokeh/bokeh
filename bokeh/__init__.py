@@ -4,6 +4,7 @@ __version__ = get_versions()['version']
 del get_versions
 
 from . import sampledata
+from .loader import notebook_magic
 from .serverconfig import Server, Cloud
 
 def print_versions():
