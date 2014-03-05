@@ -63,10 +63,10 @@ def get_sample_data():
     data_files = []
     root = join("bokeh","sampledata")
 
-    for r, ds, fs in os.walk(root):
-        for f in fs:
-            if f.endswith(suffix_list):
-                data_files.append(join(r,f))
+    for path, dirs, files in os.walk(root):
+        for fs in files:
+            if fs.endswith(suffix_list):
+                data_files.append(join(path,fs))
     return data_files
 
 package_data_dirs = package_data_dirs+get_sample_data()
