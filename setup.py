@@ -56,16 +56,16 @@ package_path(join(SERVER, 'static'), package_data_dirs)
 package_path(join(SERVER, 'templates'), package_data_dirs)
 package_path('bokeh/templates', package_data_dirs)
 
-suffix_list = ['*.csv','*.conf','*.gz','*.json']
+suffix_list = ('.csv','.conf','.gz','.json')
 ##scan sampledata for files with the above extensions and add to pkg_data_dirs
 def get_sample_data():
     data_files = []
     root = join("bokeh","sampledata")
 
     for r, ds, fs in os.walk(root):
-        path = r[r.find('sampledata'):]
-        sql_files = [join(path,suf) for suf in suffix_list]
-        data_files = data_files+sql_files
+        for f in fs:
+            if f.endswith(suffix_list):
+                data_files.append(join(r,f))
     return data_files
 
 package_data_dirs = package_data_dirs+get_sample_data()
