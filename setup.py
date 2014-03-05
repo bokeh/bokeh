@@ -55,6 +55,7 @@ package_data_dirs = []
 package_path(join(SERVER, 'static'), package_data_dirs)
 package_path(join(SERVER, 'templates'), package_data_dirs)
 package_path('bokeh/templates', package_data_dirs)
+package_data_dirs.append('server/redis.conf')
 
 suffix_list = ('.csv','.conf','.gz','.json')
 ##scan sampledata for files with the above extensions and add to pkg_data_dirs
