@@ -52,7 +52,7 @@ open a browser window to display it, and it should look like:
 Try running ``line.py`` or ``candlestick.py`` for other static HTML file examples.
 
 If these HTML files are too large (since they embed the source code for
-the BokehJS Javascript library, as well as the various Bokeh CSS), then you
+the BokehJS JavaScript library, as well as the various Bokeh CSS), then you
 can modify any of the example scripts in ``examples/plotting/file/`` and change
 the ``output_file()`` function calls by adding two keyword arguments.  For the
 iris.py example, you would change the call:
