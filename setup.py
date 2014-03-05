@@ -56,11 +56,19 @@ package_path(join(SERVER, 'static'), package_data_dirs)
 package_path(join(SERVER, 'templates'), package_data_dirs)
 package_path('bokeh/templates', package_data_dirs)
 
-package_data_dirs.append('server/redis.conf')
-package_data_dirs.append('sampledata/elements.csv')
-package_data_dirs.append('sampledata/iris.csv')
-package_data_dirs.append('sampledata/olympics2014.json')
-package_data_dirs.append('sampledata/US Regions State Boundaries.csv.gz')
+suffix_list = ['*.csv','*.conf','*.gz','*.json']
+##scan sampledata for files with the above extensions and add to pkg_data_dirs
+def get_sample_data():
+    data_files = []
+    root = join("bokeh","sampledata")
+
+    for r, ds, fs in os.walk(root):
+        path = r[r.find('sampledata'):]
+        sql_files = [join(path,suf) for suf in suffix_list]
+        data_files = data_files+sql_files
+    return data_files
+
+package_data_dirs = package_data_dirs+get_sample_data()
 
 scripts = []
 if sys.platform != 'win32':
