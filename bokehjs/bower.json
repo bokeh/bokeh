@@ -12,6 +12,7 @@
     "text": null,
     "timezone": null,
     "sprintf": null,
-    "qunit": "1.10.0"
+    "qunit": "1.10.0",
+    "jstree": "3.0.0-beta9"
   }
 }

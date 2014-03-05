@@ -128,6 +128,7 @@ module.exports = (grunt) ->
           timezone: "vendor/timezone/src/timezone"
           sprintf: "vendor/sprintf/src/sprintf"
           rbush: "vendor/rbush/rbush"
+          jstree: "vendor/jstree/dist/jstree"
         shim:
           sprintf:
             exports: 'sprintf'
