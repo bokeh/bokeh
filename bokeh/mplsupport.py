@@ -292,17 +292,7 @@ def _make_polys_collection(datasource, xdr, ydr, col):
     newpatches.ys = datasource.add(ys)
     colors = _get_props_cycled(col, col.get_facecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
     newpatches.fill_color = datasource.add(colors)
-    #widths = _get_props_cycled(col, col.get_linewidth())
-    #newmultiline.line_color = datasource.add(colors)
-    #newmultiline.line_width = datasource.add(widths)
-    #newmultiline.line_alpha = col.get_alpha()
-    #offset = col.get_linestyle()[0][0]
-    #if not col.get_linestyle()[0][1]:
-        #on_off = []
-    #else:
-        #on_off = map(int,col.get_linestyle()[0][1])
-    #newmultiline.line_dash_offset = _convert_dashes(offset)
-    #newmultiline.line_dash = _convert_dashes(tuple(on_off))
+    # TODO: Research to get more properties (ie, line-retated).
     xdr.sources.append(datasource.columns(newpatches.xs))
     ydr.sources.append(datasource.columns(newpatches.ys))
     glyph = objects.Glyph(
