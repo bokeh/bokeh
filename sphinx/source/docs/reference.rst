@@ -10,7 +10,7 @@ Reference Guide
 Low Level Glyph Interface
 =========================
 
-Detailed information about the python and javascript glyph interfaces may be found here:
+Detailed information about the Python and JavaScript glyph interfaces may be found here:
 
 .. toctree::
    :maxdepth: 1
@@ -97,8 +97,8 @@ Advanced Functions
 
 .. autofunction:: bokeh.plotting.visual
 
-Compatiblity Layers
-===================
+Compatibility Layers
+====================
 
 Coming Soon.
 

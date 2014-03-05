@@ -99,7 +99,7 @@ This example shows a scatter plot where every circle has its own radius and colo
 Lorenz
 ******
 
-This exanple shows a 2D projection of the Lorenz attractor. Sections of the line are color-coded
+This example shows a 2D projection of the Lorenz attractor. Sections of the line are color-coded
 by time.
 
 .. raw:: html
