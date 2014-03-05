@@ -3,7 +3,7 @@
 
 from . import plotting
 
-from . import mplsupport
+from . import mpl
 
 def show_bokeh(figure=None, filename=None, server=None, notebook=False):
     """ Uses bokeh to display a Matplotlib Figure.
@@ -60,7 +60,7 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False):
     session = plotting.session()
 
     for axes in figure.axes:
-        plot = mplsupport.axes2plot(axes)
+        plot = mpl.axes2plot(axes)
         plotting._config["curplot"] = plot  # need a better way to do this
         session.plotcontext.children.append(plot)
         # TODO: this should be obviated once Mateusz's auto-add PR is merged
