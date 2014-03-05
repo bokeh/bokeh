@@ -7,6 +7,6 @@ from os.path import dirname, join
 try:
     import pandas as pd
 except ImportError as e:
-    raise RuntimeError("elements data requires pandas (http://pandas.pydata.org) to be installed")
+    raise RuntimeError("unemployment1948 data requires pandas (http://pandas.pydata.org) to be installed")
 
 data = pd.read_csv(join(dirname(__file__), 'unemployment1948.csv'))

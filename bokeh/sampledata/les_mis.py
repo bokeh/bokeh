@@ -7,4 +7,3 @@ from os.path import dirname, join
 
 data = json.load(open(join(dirname(__file__), 'les_mis.json')))
 
-from os.path import dirname, join
