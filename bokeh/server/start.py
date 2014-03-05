@@ -93,11 +93,11 @@ def stop_services():
     if hasattr(bokeh_app, 'redis_proc'):
         bokeh_app.redis_proc.close()
 
-def start_app(verbose=False):
+def start_app(host="127.0.0.1", port=PORT, verbose=False):
     global http_server
-    http_server = make_server('', PORT, app)
+    http_server = make_server(host, port, app)
     start_services()
-    print("\nStarting Bokeh plot server on port %d..." % PORT)
-    print("View http://localhost:%d/bokeh to see plots\n" % PORT)
+    print("\nStarting Bokeh plot server on port %d..." % port)
+    print("View http://%s:%d/bokeh to see plots\n" % (host, port))
     http_server.serve_forever()
 

@@ -31,10 +31,13 @@ def axes2plot(axes):
     # Break up the lines and markers by filtering on linestyle and marker style
     lines = [line for line in axes.lines if line.get_linestyle() not in ("", " ", "None", "none", None)]
     markers = [m for m in axes.lines if m.get_marker() not in ("", " ", "None", "none", None)]
-    linescols = [col for col in axes.collections if col.get_segments() not in ("", " ", "None", "none", None)]
+    cols = [col for col in axes.collections if col.get_paths() not in ("", " ", "None", "none", None)]
     renderers = [_make_line(datasource, plot.x_range, plot.y_range, line) for line in lines]
     renderers.extend(_make_marker(datasource, plot.x_range, plot.y_range, marker) for marker in markers)
-    renderers.extend(_make_lines_collection(datasource, plot.x_range, plot.y_range, linescol) for linescol in linescols)
+    renderers.extend(_make_lines_collection(datasource, plot.x_range, plot.y_range, col) \
+                        for col in cols if isinstance(col, mpl.collections.LineCollection))
+    renderers.extend(_make_polys_collection(datasource, plot.x_range, plot.y_range, col) \
+                        for col in cols if isinstance(col, mpl.collections.PolyCollection))
     plot.renderers.extend(renderers)
 
     #plot.renderers.extend(map(MPLText.convert, axes.texts))
@@ -204,10 +207,15 @@ def _get_props_cycled(col, prop, fx=lambda x: x):
     fx: funtion (optional) to transform the elements from list obtained
         after the property call. Deafults to identity function.
     """
-    n = len(col.get_segments())
+    n = len(col.get_paths())
     t_prop = [fx(x) for x in prop]
     sliced = islice(cycle(t_prop), None, n)
     return list(sliced)
+
+
+def _delete_last_col(x):
+    x = np.delete(x, (-1), axis=1)
+    return x
 
 
 def _convert_dashes(dash):
@@ -269,6 +277,29 @@ def _make_lines_collection(datasource, xdr, ydr, col):
         xdata_range = xdr,
         ydata_range = ydr,
         glyph = newmultiline
+    )
+    return glyph
+
+
+def _make_polys_collection(datasource, xdr, ydr, col):
+    newpatches = glyphs.Patches()
+    paths = col.get_paths()
+    polygons = [paths[i].to_polygons() for i in range(len(paths))]
+    polygons = [np.transpose(_delete_last_col(polygon)) for polygon in polygons]
+    xs = [polygons[i][0] for i in range(len(polygons))]
+    ys = [polygons[i][1] for i in range(len(polygons))]
+    newpatches.xs = datasource.add(xs)
+    newpatches.ys = datasource.add(ys)
+    colors = _get_props_cycled(col, col.get_facecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
+    newpatches.fill_color = datasource.add(colors)
+    # TODO: Research to get more properties (ie, line-retated).
+    xdr.sources.append(datasource.columns(newpatches.xs))
+    ydr.sources.append(datasource.columns(newpatches.ys))
+    glyph = objects.Glyph(
+        data_source = datasource,
+        xdata_range = xdr,
+        ydata_range = ydr,
+        glyph = newpatches
     )
     return glyph
 

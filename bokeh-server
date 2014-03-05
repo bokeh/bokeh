@@ -32,6 +32,16 @@ def build_parser():
                         type=str,
                         default=DEFAULT_BACKEND
                         )
+    parser.add_argument("--ip",
+                        help="The IP address the bokeh server will listen on",
+                        type=str,
+                        default="127.0.0.1"
+                        )
+    parser.add_argument("--bokeh-port",
+                        help="port for bokeh server",
+                        type=int,
+                        default=5006
+                        )
     parser.add_argument("--redis-port",
                         help="port for redis",
                         type=int,
@@ -74,11 +84,11 @@ def main():
         import werkzeug.serving
         @werkzeug.serving.run_with_reloader
         def helper():
-            start.start_app(verbose=True)
+            start.start_app(host=args.ip, port=args.bokeh_port, verbose=True)
 
     else:
         logging.basicConfig(level=logging.INFO)
-        start.start_app(verbose=args.verbose)
+        start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)
 
 if __name__ == "__main__":
     main()

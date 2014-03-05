@@ -3,9 +3,9 @@ Bokeh
 
 Bokeh is a Python interactive visualization library for large datasets that natively uses the latest web technologies. Its goal is to provide elegant, concise construction of novel graphics in the style of Protovis/D3, while delivering high-performance interactivity over large data to thin clients.
 
-Please visit the [Bokeh web page](http://bokeh.pydata.org) for more information.
+Please visit the [Bokeh web page](http://bokeh.pydata.org) for more information and full documentation.
 
-To get started quickly, follow the [Quickstart](http://bokeh.pydata.org/quickstart.html) in the online documentation, or the QUICKSTART.md located in the top level of the bokeh repository.
+To get started quickly, follow the [Quickstart](http://bokeh.pydata.org/docs/quickstart.html) in the online documentation, or the QUICKSTART.md located in the top level of the bokeh repository.
 
 Be sure to follow us on Twitter [@bokehplots](http://twitter.com/BokehPlots)!
 
