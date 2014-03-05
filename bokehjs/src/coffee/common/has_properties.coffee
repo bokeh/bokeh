@@ -267,7 +267,7 @@ define [
       return {}
 
     rpc: (funcname, args, kwargs) =>
-      prefix = base.Config.prefix
+      prefix = @base().Config.prefix
       docid = @get('doc')
       id = @get('id')
       type = @type
