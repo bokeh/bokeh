@@ -59,6 +59,7 @@ package_path('bokeh/templates', package_data_dirs)
 package_data_dirs.append('server/redis.conf')
 package_data_dirs.append('sampledata/elements.csv')
 package_data_dirs.append('sampledata/iris.csv')
+package_data_dirs.append('sampledata/olympics2014.json')
 package_data_dirs.append('sampledata/US Regions State Boundaries.csv.gz')
 
 scripts = []
