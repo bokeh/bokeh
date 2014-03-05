@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 """
 An implementation of GGPlot in Python.
 
@@ -8,6 +6,7 @@ there is an underlying object model for the actual graphics pipeline that
 is constructed.
 
 """
+from __future__ import absolute_import, print_function
 
 from traits import api as traits
 from traits.api import HasTraits, Any, Enum, Float, Function, Int, List, Str, Trait
@@ -112,7 +111,7 @@ class GeomPoint(Geom):
     _renderer = Any()
 
     def plot(self, plot, aes):
-        aes = aes + self
+        aes += self
         aes.merge_defaults()
         p = plot.plot((aes.x, aes.y), type="scatter", color=aes.fill,
                 outline_color=aes.color, marker_size=aes.size,
@@ -126,7 +125,7 @@ class GeomLine(Geom):
     _renderer = Any()
 
     def plot(self, plot, aes):
-        aes = aes + self
+        aes += self
         aes.merge_defaults()
         p = plot.plot((aes.x, aes.y), type="line", color=aes.fill,
                 line_width=aes.line_weight, 

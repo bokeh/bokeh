@@ -1,7 +1,7 @@
 import uuid
-from .. import models 
-from ...objects import PlotObject, recursively_traverse_plot_object
-from ...session import PlotContext
+from .. import models
+from ...objects import PlotContext, PlotObject, recursively_traverse_plot_object
+
 import logging
 log = logging.getLogger(__name__)
 
@@ -9,7 +9,7 @@ def prune_and_get_valid_models(session, delete=False):
     """retrieve all models that the plot_context points to.
     if delete is True,
     wipe out any models that are orphaned.  Also call transform_models, which
-    performs any backwards compatability data transformations.  
+    performs any backwards compatability data transformations.
     """
     objs = recursively_traverse_plot_object(session.plotcontext)
     print("num models", len(objs))
@@ -57,7 +57,7 @@ class Doc(models.ServerModel):
                 'apikey' : self.apikey,
                 'readonlyapikey' : self.readonlyapikey
                 }
-    
+
     @classmethod
     def load(cls, client, objid):
         attrs = cls.load_json(client, objid)
@@ -67,7 +67,7 @@ class Doc(models.ServerModel):
         obj = cls.from_json(attrs)
         obj.save(client)
         return obj
-    
+
     @staticmethod
     def from_json(obj):
         return Doc(obj['docid'], obj['title'],

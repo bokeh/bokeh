@@ -1,5 +1,3 @@
-from __future__ import absolute_import, print_function
-
 """
 An implementation of GGPlot in Python.
 
@@ -8,6 +6,8 @@ there is an underlying object model for the actual graphics pipeline that
 is constructed.
 
 """
+from __future__ import absolute_import, print_function
+
 
 #from traits import api as traits
 #from traits.api import HasTraits, Any, Enum, Int, List, Str, Trait

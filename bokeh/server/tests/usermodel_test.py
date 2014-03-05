@@ -5,7 +5,7 @@ import redis
 import requests
 
 from . import test_utils
-from ..app import app
+from ..app import bokeh_app
 from ..models import user
 from .. import models
 
@@ -15,7 +15,7 @@ import sys
 class TestUser(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestUser, self).setUp()
-        self.client = app.servermodel_storage
+        self.client = bokeh_app.servermodel_storage
     @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")
     def test_cant_create_twice(self):
         model = user.new_user(self.client, 'test@test.com', 'mypassword',
@@ -32,5 +32,5 @@ class TestUser(test_utils.BokehServerTestCase):
         model = user.auth_user(self.client, 'test@test.com', 'mypassword')
         self.assertRaises(models.UnauthorizedException, user.auth_user,
                           self.client, 'test@test.com', 'wrongpassword')
-        
-            
+
+

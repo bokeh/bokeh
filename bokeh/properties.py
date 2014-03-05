@@ -1,8 +1,7 @@
-from __future__ import print_function
-
 """ A set of descriptors that document intended types for attributes on
 classes and implement convenience behaviors like default values, etc.
 """
+from __future__ import print_function
 
 from six import string_types, add_metaclass
 

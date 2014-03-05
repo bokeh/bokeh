@@ -1,7 +1,7 @@
-from __future__ import absolute_import, print_function
-
 """ Command-line driven plotting functions, a la Matplotlib  / Matlab / etc.
 """
+from __future__ import absolute_import, print_function
+
 from functools import wraps
 import itertools
 import os
@@ -1248,6 +1248,5 @@ def grid():
     Returns:
         Returns grid object or splattable list of grid objects on the current plot
     """
-    """ Return the grids on the current plot """
     return _list_attr_splat(xgrid() + ygrid())
 
