@@ -1,3 +1,27 @@
+2014-03-07    0.4.2:
+--------------------
+  * Improved MPL interface, PolyCollection plus examples
+  * Extensive tutorial with exercises and solutions
+  * %bokeh magic for IPython notebook
+  * InMemory storage backend for bokeh-server (usable without Redis)
+  * enhancements:
+    - #353 A simple extension to activate interactive support in the IPython notebook
+    - #359 remove setuptools
+    - #371 First basic implementation of PolyCollection.
+    - #383 add ability to use a different ip address and port for bokeh-server
+    - #388 Feature/unredis
+    - #392 generalize packaging data dir
+    - #395 Added script for load and install the extension.
+    - #396 Added a little notebook to explain some ways to use the bokeh extension.
+    - #397 Added script to generate changelog.
+	- #399 let figure() accept keyword arguments for next plot
+  * bugfixs:
+    - #377 np not imported, zeros_like is
+    - #378 bokeh 0.4.1 vs virtualenv
+    - #379 Adding a missing getsitepackage function to install in dev mode
+    - #381 Deleted reference to sys.real_path in setup.py
+    - #389 small typo fixes and adding olympics json file to setup.py
+
 2014-02-17    0.4.1:
 --------------------
   * Improved matplotlib interface, including LineCollections and more examples
@@ -8,101 +32,101 @@
   mousedown
   * Added %bokeh magic for IPython Notebook
   * enhancements:
-    - # 365 Removing setuptools
-    - # 362 Change Name="..." to title="..." in plotting/file/hover.py
-    - # 355 Note about dependencies to install PyAudio successfully in debian-based systems
-    - # 337 Simplify plotting module and make auto-documentable
-    - # 336 Added redis-server to note about low level dependencies.
-    - # 344 add elements data and example
-    - # 328 Added a note about the need of some low level dependencies.
-    - # 325 Change grunt devdeploy to grunt deploy
-    - # 321 Add contributors.rst file
+    - #365 Removing setuptools
+    - #362 Change Name="..." to title="..." in plotting/file/hover.py
+    - #355 Note about dependencies to install PyAudio successfully in debian-based systems
+    - #337 Simplify plotting module and make auto-documentable
+    - #336 Added redis-server to note about low level dependencies.
+    - #344 add elements data and example
+    - #328 Added a note about the need of some low level dependencies.
+    - #325 Change grunt devdeploy to grunt deploy
+    - #321 Add contributors.rst file
   * bugfixes:
-    - # 354 Axes properties do not seem to update.
-    - # 320 Unable to execute: redis-server
-    - # 315 Better fix for gevent's KeyError issue
-    - # 314 Properties aren't checking for attrs on backbone views/models
-    - # 313 Better error message from subprocess.Popen() and fix KeyError issue again
-    - # 311 Make Bootstrap's JS not interfere with IPython's notebook (#260)
+    - #354 Axes properties do not seem to update.
+    - #320 Unable to execute: redis-server
+    - #315 Better fix for gevent's KeyError issue
+    - #314 Properties aren't checking for attrs on backbone views/models
+    - #313 Better error message from subprocess.Popen() and fix KeyError issue again
+    - #311 Make Bootstrap's JS not interfere with IPython's notebook (#260)
     
     
 
 2014-02-03      0.4:
 --------------------
   * enhancements:
-    - # 206 Rename "zoom tool" to "wheel zoom tool"
-    - # 216 Add 'legend' Method to Retrieve Current Legends
-    - # 220 Put bokehjs on a cdn
-    - # 222 bokeh-server ImportError handler just prints the error message
-    - # 223 Resolution on Time Axis in 'datetime' Plot is Very Coarse
-    - # 227 dev setup for bokehjs
-    - # 228 Direct column datasource
-    - # 233 Scroll zoom for XY-Axes and independent X- and Y-Axis
-    - # 234 Python 3 support
-    - # 241 Bollinger band examples
-    - # 244 css paths were missing "http://"
-    - # 248 BaseGlyph testing and refactoring test_properties
-    - # 252 Adding mpg dataset
-    - # 253 Feature/embed issues
-    - # 254 Restored Python 3 compatibility
-    - # 255 Make gevent optional - websockets wont' work, but that's mostly ok
-    - # 256 More tests and a fix
-    - # 257 Feature/selection
-    - # 259 Remove ObjectArrayDatasource and replace them with column data sources
-    - # 260 output_notebook() breaks the file/edit/etc. toolbar in IPython Notebook examples
-    - # 261 Improved sessions, bug fixes and headless testing of examples
-    - # 262 Adding link to actual webpage for tutorial information
-    - # 272 Circles should default to size/screen units like other markers
-    - # 273 scatter() should not special-case circle radii anymore
-    - # 274 Use "marker" for scatter(...) argument
-    - # 276 Update examples to use simpler specification for 'size'
-    - # 277 Replace deprecated 'type' parameter with 'marker' in examples
-    - # 278 remove bower dependecy
-    - # 279 Use [0...a.length] instead of [0..a.length-1]
-    - # 280 Add eco task to watch list in Gruntfile.coffee
-    - # 283 Improve dev docs about how to build bokehjs
-    - # 285 Start of some tests for bokeh.protocol
-    - # 288 Changes to server plots not showing automatically
-    - # 291 Better ticking for datetime data (and regular data)
-    - # 292 Fixes to make CDX work with bokeh@master
-    - # 293 More Tests
-    - # 296 Add support for color mapped and rgba images from python
-    - # 299 Don't special-case ColumnDataSource in glyph.coffee
-    - # 314 Properties aren't checking for attrs on backbone views/models
-    - # 313 Better error message from subprocess.Popen() and fix KeyError issue again
-    - # 312 Automatically activate pan tool on mousedown
-    - # 307 Remove event sinks
-    - # 303 Axes not showing up on line plot in spectrogram
-    - # 301 Set cursor matching active tool during dragging
-    - # 300 Fix tools so that keypress doesn't trigger tool activation
+    - #206 Rename "zoom tool" to "wheel zoom tool"
+    - #216 Add 'legend' Method to Retrieve Current Legends
+    - #220 Put bokehjs on a cdn
+    - #222 bokeh-server ImportError handler just prints the error message
+    - #223 Resolution on Time Axis in 'datetime' Plot is Very Coarse
+    - #227 dev setup for bokehjs
+    - #228 Direct column datasource
+    - #233 Scroll zoom for XY-Axes and independent X- and Y-Axis
+    - #234 Python 3 support
+    - #241 Bollinger band examples
+    - #244 css paths were missing "http://"
+    - #248 BaseGlyph testing and refactoring test_properties
+    - #252 Adding mpg dataset
+    - #253 Feature/embed issues
+    - #254 Restored Python 3 compatibility
+    - #255 Make gevent optional - websockets wont' work, but that's mostly ok
+    - #256 More tests and a fix
+    - #257 Feature/selection
+    - #259 Remove ObjectArrayDatasource and replace them with column data sources
+    - #260 output_notebook() breaks the file/edit/etc. toolbar in IPython Notebook examples
+    - #261 Improved sessions, bug fixes and headless testing of examples
+    - #262 Adding link to actual webpage for tutorial information
+    - #272 Circles should default to size/screen units like other markers
+    - #273 scatter() should not special-case circle radii anymore
+    - #274 Use "marker" for scatter(...) argument
+    - #276 Update examples to use simpler specification for 'size'
+    - #277 Replace deprecated 'type' parameter with 'marker' in examples
+    - #278 remove bower dependecy
+    - #279 Use [0...a.length] instead of [0..a.length-1]
+    - #280 Add eco task to watch list in Gruntfile.coffee
+    - #283 Improve dev docs about how to build bokehjs
+    - #285 Start of some tests for bokeh.protocol
+    - #288 Changes to server plots not showing automatically
+    - #291 Better ticking for datetime data (and regular data)
+    - #292 Fixes to make CDX work with bokeh@master
+    - #293 More Tests
+    - #296 Add support for color mapped and rgba images from python
+    - #299 Don't special-case ColumnDataSource in glyph.coffee
+    - #314 Properties aren't checking for attrs on backbone views/models
+    - #313 Better error message from subprocess.Popen() and fix KeyError issue again
+    - #312 Automatically activate pan tool on mousedown
+    - #307 Remove event sinks
+    - #303 Axes not showing up on line plot in spectrogram
+    - #301 Set cursor matching active tool during dragging
+    - #300 Fix tools so that keypress doesn't trigger tool activation
   * bugfixes:
-    - # 208 SyntaxWarning: import * only allowed at module level
-    - # 211 Fix broken links in README to demos
-    - # 212 Expose legend positioning via Python API
-    - # 214 label_text_align and label_text_baseline duplicated in legend.coffee
-    - # 224 select tool only draws selection bounds when moving the mouse
-    - # 226 tool sometimes switches to pan with no notification for the user
-    - # 235 Select then Zoom out creates rendering errors
-    - # 154 Another issue Json fault
-    - # 229 KeyError with bokeh-server
-    - # 238 'color' Argument of bokeh.plotting.text Ignored
-    - # 239 Error when executing burtin.ipynb
-    - # 240 Setting range requires having a second renderer
-    - # 243 Output .html file breaks if directory changes
-    - # 246 Pull function is broken - it calls session.load, which doesn't exist...
-    - # 247 Running the bokehserver with splitjs False and devjs True does not work.
-    - # 250 Bugfix/build error
-    - # 251 Semi-fixing hold behavior for notebook
-    - # 265 Problem with Pattern property
-    - # 266 Legend text color changing unexpectedly
-    - # 269 text_color should not use get_default_color() as-is?
-    - # 270 hold(1) does not work with patches and circle
-    - # 271 Alpha not treated correctly as a data spec
-    - # 281 Text baseline not being respected
-    - # 282 Bokeh server tests error
-    - # 295 Fix issues with require.config()
-    - # 297 Datarange1d computes start/end incorrectly when single points are negative
-    - # 306 bokehjs demos broken
+    - #208 SyntaxWarning: import * only allowed at module level
+    - #211 Fix broken links in README to demos
+    - #212 Expose legend positioning via Python API
+    - #214 label_text_align and label_text_baseline duplicated in legend.coffee
+    - #224 select tool only draws selection bounds when moving the mouse
+    - #226 tool sometimes switches to pan with no notification for the user
+    - #235 Select then Zoom out creates rendering errors
+    - #154 Another issue Json fault
+    - #229 KeyError with bokeh-server
+    - #238 'color' Argument of bokeh.plotting.text Ignored
+    - #239 Error when executing burtin.ipynb
+    - #240 Setting range requires having a second renderer
+    - #243 Output .html file breaks if directory changes
+    - #246 Pull function is broken - it calls session.load, which doesn't exist...
+    - #247 Running the bokehserver with splitjs False and devjs True does not work.
+    - #250 Bugfix/build error
+    - #251 Semi-fixing hold behavior for notebook
+    - #265 Problem with Pattern property
+    - #266 Legend text color changing unexpectedly
+    - #269 text_color should not use get_default_color() as-is?
+    - #270 hold(1) does not work with patches and circle
+    - #271 Alpha not treated correctly as a data spec
+    - #281 Text baseline not being respected
+    - #282 Bokeh server tests error
+    - #295 Fix issues with require.config()
+    - #297 Datarange1d computes start/end incorrectly when single points are negative
+    - #306 bokehjs demos broken
 
 2013-11-18      0.3:
 --------------------
