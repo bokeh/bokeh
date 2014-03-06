@@ -28,6 +28,7 @@ from . import services
 from .server_backends import (
     RedisBackboneStorage, RedisServerModelStorage,
     InMemoryBackboneStorage, InMemoryServerModelStorage,
+    ShelveBackboneStorage, ShelveServerModelStorage,
     SingleUserAuthentication, MultiUserAuthentication
 )
 
@@ -50,6 +51,10 @@ def prepare_app(backend, single_user_mode=True):
     elif backend['type'] == 'memory':
         bbstorage = InMemoryBackboneStorage()
         servermodel_storage = InMemoryServerModelStorage()
+
+    elif backend['type'] == 'shelve':
+        bbstorage = ShelveBackboneStorage()
+        servermodel_storage = ShelveServerModelStorage()
 
     if single_user_mode:
         authentication = SingleUserAuthentication()

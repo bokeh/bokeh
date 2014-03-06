@@ -29,7 +29,7 @@ def build_parser():
                         )
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
     parser.add_argument("--backend",
-                        help="storage backend: [ redis | memory ], default: %s" % DEFAULT_BACKEND,
+                        help="storage backend: [ redis | memory | shelve ], default: %s" % DEFAULT_BACKEND,
                         type=str,
                         default=DEFAULT_BACKEND
                         )

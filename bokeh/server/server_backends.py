@@ -1,4 +1,5 @@
 import json
+import shelve
 import uuid
 from .models import user
 from .models import UnauthorizedException
@@ -32,6 +33,12 @@ class InMemoryBackboneStorage(object):
     def get_session(self, docid, doc=None):
         from .serverbb import InMemorySession
         return InMemorySession(docid, doc=doc)
+
+class ShelveBackboneStorage(object):
+
+    def get_session(self, docid, doc=None):
+        from .serverbb import ShelveSession
+        return ShelveSession(docid, doc=doc)
 
 class AbstractServerModelStorage(object):
     """Storage class for server side models (non backbone, that would be
@@ -94,6 +101,29 @@ class InMemoryServerModelStorage(object):
         if key in self._data:
             raise DataIntegrityException("%s already exists" % key)
         self._data[key] = json.dumps(val)
+
+class ShelveServerModelStorage(object):
+
+    def get(self, key):
+        _data = shelve.open('bokeh.server')
+        data = _data.get(key, None)
+        if data is None:
+            return None
+        attrs = json.loads(data.decode('utf-8'))
+        _data.close()
+        return attrs
+
+    def set(self, key, val):
+        _data = shelve.open('bokeh.server')
+        _data[key] = json.dumps(val)
+        _data.close()
+
+    def create(self, key, val):
+        _data = shelve.open('bokeh.server')
+        if key in _data:
+            raise DataIntegrityException("%s already exists" % key)
+        _data[key] = json.dumps(val)
+        _data.close()
 
 class AbstractAuthentication(object):
     def current_user_name(self):
