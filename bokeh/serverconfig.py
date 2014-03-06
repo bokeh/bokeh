@@ -1,19 +1,16 @@
 from __future__ import absolute_import, print_function
 
+import json
 from os.path import expanduser, exists, join
 from os import makedirs
 from six.moves.urllib.parse import urljoin, urlencode
-from . import protocol, utils, browserlib
-
-import requests
-import json
+from . import utils, browserlib
 
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
 
-                                    
 class Server(object):
-    def __init__(self, name="http://localhost:5006/", 
-                 root_url="http://localhost:5006/", 
+    def __init__(self, name="http://localhost:5006/",
+                 root_url="http://localhost:5006/",
                  userapikey="nokey",
                  username="defaultuser",
                  load_from_config=True,
@@ -30,7 +27,7 @@ class Server(object):
         #single user mode case
         self.userapikey = userapikey
         self.username = username
-        self._configfile = None        
+        self._configfile = None
         if configfile:
             self.configfile = configfile
         if load_from_config:
@@ -46,12 +43,12 @@ class Server(object):
             makedirs(bokehdir)
         fname = join(expanduser("~"), ".bokeh", "config.json")
         return fname
-    
+
     #for testing
     @configfile.setter
     def configfile(self, path):
         self._configfile = path
-        
+
     def load_dict(self):
         configfile = self.configfile
         if not exists(configfile):
@@ -76,12 +73,13 @@ class Server(object):
         data[self.name] = {'root_url' : self.root_url,
                            'userapikey' : self.userapikey,
                            'username' : self.username}
-        configfile = self.configfile        
+        configfile = self.configfile
         with open(configfile, "w+") as f:
             json.dump(data, f)
         return
 
     def register(self, username, password):
+        import requests # import lazily to prevent threading import before gevent monkeypatch
         url = urljoin(self.root_url, "bokeh/register")
         result = requests.post(url, data={
                 'username' : username,
@@ -99,6 +97,7 @@ class Server(object):
             raise RuntimeError(result['error'])
 
     def login(self, username, password):
+        import requests # import lazily to prevent threading import before gevent monkeypatch
         url = urljoin(self.root_url, "bokeh/login")
         result = requests.post(url, data={
                 'username' : username,
@@ -109,13 +108,13 @@ class Server(object):
             raise RuntimeError("Unknown Error")
         result = utils.get_json(result)
         if result['status']:
-            self.username = username            
+            self.username = username
             self.userapikey = result['userapikey']
             self.save()
         else:
             raise RuntimeError(result['error'])
         self.save()
-        
+
     def browser_login(self):
         controller = browserlib.get_browser_controller()
         url = urljoin(self.root_url, "bokeh/loginfromapikey")
