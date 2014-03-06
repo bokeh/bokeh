@@ -61,7 +61,9 @@ def _get_plot(kwargs):
         if _config["hold"] and _config["curplot"]:
             plot = _config["curplot"]
         else:
-            plot = _new_xy_plot(**kwargs)
+            plot_kwargs = _config.pop('figure_kwargs', {})
+            plot_kwargs.update(kwargs)
+            plot = _new_xy_plot(**plot_kwargs)
     return plot
 
 def plothelp():
@@ -274,11 +276,12 @@ def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
         output_type = "file", output_file = filename, output_url= None,
         session = session))
 
-def figure():
+def figure(**kwargs):
     """ Creates a new plot. All subsequent plotting commands will affect
     the new plot.
     """
     _config["curplot"] = None
+    _config['figure_kwargs'] = kwargs
 
 def hold(value=None):
     """ Turns hold on or off, or toggles its current state.
