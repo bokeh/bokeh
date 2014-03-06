@@ -90,9 +90,9 @@ def dateof(tag_name, tags):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Creates a change log since the given tag using the github API.')
     after_group = parser.add_mutually_exclusive_group(required=True)
-    after_group.add_argument('-d', metavar='DATE', type=str, help='ISO8601 date string (local timezone assumed)')
-    after_group.add_argument('-t', metavar='TAG_NAME', type=str, help='Git tag name')
-    parser.add_argument('-v', metavar='VERSION', type=str, help='Use the current date and given version name in the changelog')
+    after_group.add_argument('-d', metavar='DATE', type=str, help='select changes that occurred after the given ISO8601 date')
+    after_group.add_argument('-t', metavar='TAG', type=str, help='select changes that occurred after the given git tag')
+    parser.add_argument('-v', metavar='VERSION', type=str, help="generate header using today's date and the given version")
     args = parser.parse_args()
 
     if args.t:
