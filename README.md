@@ -26,7 +26,7 @@ Interactive gallery
 <td>  <a href="http://bokeh.pydata.org/docs/gallery/iris_splom.html"><img alt="splom" src="http://bokeh.pydata.org/_images/splom_t.png" /></a>         </td></p>
 </tr><tr>
 <td>  <a href="http://bokeh.pydata.org/docs/gallery/iris.html"><img alt="iris" src="http://bokeh.pydata.org/_images/iris_t.png" /></a>          </td>
-<td>  <a href="http://bokeh.pydata.orgcontinuumio.github.io/bokehjs/map_overlay.html"><img alt="map_overlay" src="http://bokeh.pydata.org/_images/map_overlay_t.png" /></a>   </td>
+<td>  <a href="http://bokeh.pydata.org/docs/gallery/histogram.html"><img alt="histogram" src="http://bokeh.pydata.org/_images/histogram_t.png" /></a>   </td>
 <td>  <a href="http://bokeh.pydata.org/docs/gallery/periodic.html"><img alt="periodic" src="http://bokeh.pydata.org/_images/periodic_t.png" /></a>      </td>
 <td>  <a href="http://bokeh.pydata.org/docs/gallery/texas.html"><img alt="choropleth" src="http://bokeh.pydata.org/_images/choropleth_t.png" /></a>    </td>
 <td>  <a href="http://bokeh.pydata.org/docs/gallery/burtin.html"><img alt="burtin" src="http://bokeh.pydata.org/_images/burtin_t.png" /></a>        </td>
