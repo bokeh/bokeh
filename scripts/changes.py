@@ -2,13 +2,11 @@
 
 from __future__ import print_function
 
-
 import argparse
 import dateutil.parser
 import dateutil.tz
 import json
 import urllib2
-
 
 from datetime import datetime
 from itertools import groupby
@@ -29,22 +27,42 @@ def parse_timestamp(timestamp):
     return dt.astimezone(dateutil.tz.tzutc())
 
 
-def closed(issues, after):
-    """Yields only closed issues (closed after a given datetime) given a list of issues."""
-    for issue in issues:
-        if issue['state'] == 'closed':
-            if parse_timestamp(issue['closed_at']) > after:
-                yield issue
-
-
 def changekind(issue):
-    """Returns change type name as string, otherwise None."""
+    """Returns change type names as string, otherwise None."""
     for label in issue.get('labels', []):
         if label['name'] == 'enhancement':
-            return 'enhancement'
+            return 'enhancements'
         elif label['name'] == 'bug':
-            return 'bugfix'
+            return 'bugfixes'
+        elif label['name'] == 'docs':
+            return 'documentation'
+        elif label['name'] == 'test':
+            return 'tests'
     return None
+
+
+def changekind_sortorder(issue):
+    """Issue sort key: General issues, enhancements, bugfixes, other."""
+    kind = changekind(issue)
+    if not kind:
+        return 0
+    elif kind == 'enhancements':
+        return 1
+    elif kind == 'bugfixes':
+        return 2
+    return 3
+
+
+def relevant_issues(issues, after):
+    """Yields relevant closed issues (closed after a given datetime) given a list of issues."""
+    seen = set()
+    for issue in issues:
+        if (issue['state'] == 'closed' and
+            parse_timestamp(issue['closed_at']) > after and
+            changekind(issue) in [None, 'enhancements', 'bugfixes'] and
+            not issue['title'] in seen):
+                seen.add(issue['title'])
+                yield issue
 
 
 def query_tags():
@@ -74,34 +92,34 @@ if __name__ == '__main__':
     after_group = parser.add_mutually_exclusive_group(required=True)
     after_group.add_argument('-d', metavar='DATE', type=str, help='ISO8601 date string (local timezone assumed)')
     after_group.add_argument('-t', metavar='TAG_NAME', type=str, help='Git tag name')
+    parser.add_argument('-v', metavar='VERSION', type=str, help='Use the current date and given version name in the changelog')
     args = parser.parse_args()
 
     if args.t:
         tags = query_tags()
         after = dateof(args.t, tags)
+        label = 'Since {:>14}:'.format(args.t)
     elif args.d:
         after = dateutil.parser.parse(args.d)
         after = after.replace(tzinfo=dateutil.tz.tzlocal())
+        label = 'Since {:>14}:'.format(after.date())
 
-    by_kind_number = lambda issue: (changekind(issue), int(issue['number']))
+    if args.v:
+        label = '{}{:>9}:'.format(datetime.now().date(), args.v)
+
+    sort_key = lambda issue: (changekind_sortorder(issue), int(issue['number']))
     by_kind = lambda issue: changekind(issue)
 
     issues = query_issues()
-    relevent_issues = closed(issues, after)
-    relevent_issues = sorted(relevent_issues, key=by_kind_number)
+    issues = relevant_issues(issues, after)
+    issues = sorted(issues, key=sort_key)
 
-    header_params = {
-        'since': 'since ' if args.d else '',
-        'date': after.date(),
-        'tag': args.t if args.t else '',
-    }
-    print('{since}{date}{tag:>9}'.format(**header_params).rstrip() + ':\n' + '-' * 20)
-
-    for kind, issue_group in groupby(relevent_issues, key=by_kind):
+    print(label + '\n' + '-' * 20)
+    for kind, issue_group in groupby(issues, key=by_kind):
         if(kind):
-            print('* {}s:'.format(kind))
+            print('  * {}:'.format(kind))
         for issue in issue_group:
             if kind:
-                print('  - #{} {}'.format(issue['number'], issue['title']))
+                print('    - #{} {}'.format(issue['number'], issue['title']))
             else:
-                print('* #{} {}'.format(issue['number'], issue['title']))
+                print('  * #{} {}'.format(issue['number'], issue['title']))
