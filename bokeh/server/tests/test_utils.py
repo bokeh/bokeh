@@ -58,7 +58,7 @@ class BokehServerTestCase(unittest.TestCase):
     options = {}
     def setUp(self):
         import gevent
-        start.prepare_app({"type": "memory"}, **self.options)
+        start.prepare_app({"type": "redis", "redis_port": 6899}, **self.options)
         fname = tempfile.NamedTemporaryFile().name
         bokeh_app.data_file = fname
         bokeh_app.stdout = None
