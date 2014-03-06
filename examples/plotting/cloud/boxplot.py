@@ -33,7 +33,7 @@ for cat in cats:
         outx.append(cat)
         outy.append(value)
 
-output_server('boxplot')
+output_cloud("boxplot")
 
 figure(tools="previewsave", background_fill="#EFE8E2", title="")
 
