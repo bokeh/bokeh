@@ -108,8 +108,6 @@ Underlying Object System
 `bokeh.session`
 ---------------
 
-.. inheritance-diagram:: bokeh.session
-
 .. autoclass:: bokeh.session.Session
 .. autoclass:: bokeh.session.BaseHTMLSession
 .. autoclass:: bokeh.session.HTMLFileSession
@@ -122,6 +120,7 @@ Underlying Object System
 ---------------
 
 .. inheritance-diagram:: bokeh.objects
+  :parts: 1
 
 .. automodule:: bokeh.objects
     :members:
@@ -130,6 +129,7 @@ Underlying Object System
 ------------------
 
 .. inheritance-diagram:: bokeh.properties
+  :parts: 1
 
 .. automodule:: bokeh.properties
     :members: BaseProperty, DataSpec, ColorSpec, MetaHasProps, HasProps,

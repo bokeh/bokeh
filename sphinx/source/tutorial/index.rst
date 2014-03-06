@@ -16,7 +16,7 @@ delivering high-performance interactivity over large data to thin clients.
    :maxdepth: 2
 
    intro.rst
-   ../docs/installation.rst
+   quick_install.rst
    basic.rst
    topical.rst
    advanced.rst
