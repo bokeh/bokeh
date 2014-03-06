@@ -283,21 +283,16 @@ def figure(**kwargs):
     _config["curplot"] = None
     _config['figure_kwargs'] = kwargs
 
-def hold(value=None):
-    """ Turns hold on or off, or toggles its current state.
+def hold(value=True):
+    """ Turns hold on or off
 
     When on, plotting functions do not create a new figure, but rather
     add renderers to the current existing plot.  (If no current plot exists,
     then a new one is created.
 
     Args:
-        value (bool or None, optional) :  set or toggle the hold state, default is None
-            if `value` is True or False then the hold state is set accordingly. If
-            `value` is None, then the current hold state is toggled.
-
+        value (bool, optional) :  set the hold state, default is True
     """
-    if value is None:
-        value = not _config["hold"]
     _config["hold"] = value
 
 def curplot():
