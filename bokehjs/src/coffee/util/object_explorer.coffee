@@ -11,6 +11,7 @@ define [
     initialize: (options) ->
       super(options)
       @onEvent = _.debounce(@onEvent, options.debounce or 200)
+      @showToolbar = options.showToolbar or false
       @render()
 
     delegateEvents: (events) ->
@@ -111,6 +112,8 @@ define [
       $refresh = $('<button type="button" class="btn btn-default">Refresh</button>')
       $refresh.click (event) => @reRender()
       $toolbar.append($refresh)
+      if not @showToolbar
+        $toolbar.hide()
       $toolbar
 
     themeUrl: () ->
