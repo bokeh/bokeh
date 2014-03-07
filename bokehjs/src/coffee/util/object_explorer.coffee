@@ -10,17 +10,16 @@ define [
   class ObjectExplorerView extends ContinuumView.View
     initialize: (options) ->
       super(options)
+      @onEvent = _.debounce(@onEvent, options.debounce or 200)
       @render()
 
     delegateEvents: (events) ->
       super(events)
 
-      onEvent = _.debounce(@onEvent, 200)
       for type in _.keys(Base.locations)
-        Base.Collections(type).on("all", onEvent)
+        Base.Collections(type).on("all", @onEvent)
 
     onEvent: (event) =>
-      console.log(event)
       @reRender()
 
     createTree: (nonempty=true) ->
