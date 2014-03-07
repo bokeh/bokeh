@@ -53,7 +53,6 @@ define [
     Plot:                   'common/plot'
     GMapPlot:               'common/gmap_plot'
     GridPlot:               'common/grid_plot'
-    CDXPlotContext:         'common/plot_context'
     PlotContext:            'common/plot_context'
     PlotList:               'common/plot_context'
 
