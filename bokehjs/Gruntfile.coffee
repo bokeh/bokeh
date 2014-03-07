@@ -152,7 +152,8 @@ module.exports = (grunt) ->
         separator: ""
       css:
         src: [
-          "build/js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css",
+          "build/js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css"
+          "build/js/vendor/jstree/dist/themes/default/style.min.css"
           "build/css/continuum.css"
           "build/css/main.css"
         ]

@@ -124,8 +124,7 @@ define [
         $toolbar.hide()
       $toolbar
 
-    themeUrl: () ->
-      '/static/js/vendor/jstree/dist/themes/default/style.min.css'
+    themeUrl: () -> null
 
     createContextMenu: (node) =>
       data = node.original
