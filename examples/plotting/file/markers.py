@@ -3,7 +3,7 @@ from numpy.random import random
 from bokeh.plotting import *
 
 
-figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+figure(title="markers.py example", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
 def myscatter(x, y, typestr):
     scatter(x, y, marker=typestr,
@@ -14,7 +14,7 @@ def mytext(x, y, textstr):
         text_color="#449944", text_align="center", text_font_size="10pt")
 
 
-output_file("markers.html", title="markers.py example")
+output_file("markers.html")
 
 N = 10
 

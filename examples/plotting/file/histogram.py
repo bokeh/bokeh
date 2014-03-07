@@ -19,11 +19,10 @@ output_file('histogram.html')
 
 hold()
 
+figure(title="Normal Distribution (μ=0, σ=0.5)",tools="previewsave")
 quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649",
      background_fill="#E8DDCB",
-     title="Normal Distribution (μ=0, σ=0.5)",
-     tools="previewsave"
 )
 
 # Use `line` renderers to display the PDF and CDF
@@ -33,7 +32,7 @@ line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 legend().orientation = "top_left"
 
 
-figure(tools="previewsave")
+figure(title="Log Normal Distribution (μ=0, σ=0.5)", tools="previewsave")
 
 mu, sigma = 0, 0.5       # NOTE: you can tinker with these values if you like
 
@@ -46,13 +45,13 @@ cdf = (1+scipy.special.erf((np.log(x)-mu)/(np.sqrt(2)*sigma)))/2
 
 quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649", background_fill="#E8DDCB",
-     title="Log Normal Distribution (μ=0, σ=0.5)")
+    )
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 legend().orientation = "bottom_right"
 
 
-figure(tools="previewsave")
+figure(title="Gamma Distribution (k=1, θ=2)", tools="previewsave")
 
 k, theta = 1.0, 2.0
 
@@ -66,13 +65,13 @@ cdf = scipy.special.gammainc(k, x/theta) / scipy.special.gamma(k)
 
 quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649", background_fill="#E8DDCB",
-     title="Gamma Distribution (k=1, θ=2)")
+     )
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 legend().orientation = "top_left"
 
 
-figure(tools="previewsave")
+figure(title="Beta Distribution (α=2, β=2)", tools="previewsave")
 
 alpha, beta = 2.0, 2.0
 
@@ -85,13 +84,13 @@ cdf = scipy.special.btdtr(alpha, beta, x)
 
 quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649", background_fill="#E8DDCB",
-     title="Beta Distribution (α=2, β=2)")
+     )
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 
 
 
-figure(tools="previewsave")
+figure(title="Weibull Distribution (λ=1, k=1.25)", tools="previewsave")
 
 lam, k = 1, 1.25
 
@@ -104,7 +103,7 @@ cdf = 1 - np.exp(-(x/lam)**k)
 
 quad(top=hist, bottom=np.zeros(len(hist)), left=edges[:-1], right=edges[1:],
      fill_color="#036564", line_color="#033649", background_fill="#E8DDCB",
-     title="Weibull Distribution (λ=1, k=1.25)")
+     )
 line(x, pdf, line_color="#D95B43", line_width=8, alpha=0.7, legend="PDF")
 line(x, cdf, line_color="white", line_width=2, alpha=0.7, legend="CDF")
 legend().orientation = "top_left"
