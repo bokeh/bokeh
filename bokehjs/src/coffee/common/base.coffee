@@ -35,6 +35,7 @@ define [
   "tool/reset_tool",
   "tool/resize_tool",
   "tool/wheel_zoom_tool",
+  "tool/object_explorer_tool",
 
   "widget/data_slider",
   "widget/pandas/ipython_remote_data",
@@ -82,6 +83,7 @@ define [
     PreviewSaveTool:        'tool/preview_save_tool'
     EmbedTool:              'tool/embed_tool'
     ResetTool:              'tool/reset_tool'
+    ObjectExplorerTool:     'tool/object_explorer_tool'
 
     DataSlider:             'widget/data_slider'
     IPythonRemoteData:      'widget/pandas/ipython_remote_data'
