@@ -11,6 +11,7 @@ define [
       super(options)
       @onEvent = _.debounce(@onEvent, options.debounce or 200)
       @showToolbar = options.showToolbar or false
+      @arrayLimit = options.arrayLimit or 100
       @render()
 
     base: () ->
@@ -58,8 +59,10 @@ define [
         value = null
         color = null
       else if _.isArray(obj)
-        children = (@descend(index, value, visited) for value, index in obj)
-        type = "Array[#{obj.length}]"
+        truncate = obj.length > @arrayLimit
+        arrayLimit = @arrayLimit or obj.length
+        children = (@descend(index, value, visited) for value, index in obj[..@arrayLimit])
+        type = "Array[#{obj.length}]" + (if truncate then " (showing first #{@arrayLimit} items)" else "")
         value = null
         color = null
       else if _.isObject(obj)
