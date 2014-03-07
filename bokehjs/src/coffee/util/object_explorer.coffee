@@ -28,7 +28,7 @@ define [
           visited = {}
           visited[obj.id] = 1
           @descend(index, obj, visited)
-        @node(type, children)
+        @node(type, "collection", children)
 
       if nonempty
         node for node in nodes when node.children.length > 0
@@ -91,7 +91,7 @@ define [
           "<span style=\"color:#{color}\">#{value}</span>"
         ])
 
-      @node(html.join(""), children)
+      @node(html.join(""), "", children)
 
     isRef: (obj) ->
       _.isObject(obj) and (_.isEqual(_.keys(obj), ["id", "type"]) or
@@ -100,8 +100,9 @@ define [
     isAttr: (attr) ->
       attr.length > 0 and attr[0] != '_'
 
-    node: (text, children, open) ->
+    node: (text, type, children, open) ->
       text: text
+      type: type
       children: children or []
       state: { open: open or false }
 
@@ -115,16 +116,24 @@ define [
     themeUrl: () ->
       '/static/js/vendor/jstree/dist/themes/default/style.min.css'
 
+    createContextMenu: (node) =>
+      data = node.original
+      menu = {}
+
+      if data.type != "collection"
+        menu["remove"] = {label: "Remove"}
+
+      menu
+
     renderTree: () ->
-      $('<div/>').jstree({
-        core: {
+      $('<div/>').jstree
+        core:
           data: @createTree()
-          themes: {
+          themes:
             url: @themeUrl()
-          }
-        },
-        plugins: ["contextmenu"],
-      })
+        contextmenu:
+          items: @createContextMenu
+        plugins: ["contextmenu"]
 
     render: () ->
       @$toolbar = @renderToolbar()
