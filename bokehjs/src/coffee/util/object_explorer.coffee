@@ -2,10 +2,9 @@ define [
   "underscore"
   "jquery"
   "jstree"
-  "common/base"
   "common/continuum_view"
   "common/has_properties"
-], (_, $, $1, Base, ContinuumView, HasProperties) ->
+], (_, $, $1, ContinuumView, HasProperties) ->
 
   class ObjectExplorerView extends ContinuumView.View
     initialize: (options) ->
@@ -14,18 +13,24 @@ define [
       @showToolbar = options.showToolbar or false
       @render()
 
+    base: () ->
+      if not @_base?
+        @_base = require("common/base")
+
+      @_base
+
     delegateEvents: (events) ->
       super(events)
 
-      for type in _.keys(Base.locations)
-        Base.Collections(type).on("all", @onEvent)
+      for type in _.keys(@base().locations)
+        @base().Collections(type).on("all", @onEvent)
 
     onEvent: (event) =>
       @reRender()
 
     createTree: (nonempty=true) ->
-      nodes = for type in _.keys(Base.locations)
-        children = Base.Collections(type).map (obj, index) =>
+      nodes = for type in _.keys(@base().locations)
+        children = @base().Collections(type).map (obj, index) =>
           visited = {}
           visited[obj.id] = 1
           @descend(index, obj, visited)
@@ -41,7 +46,7 @@ define [
         ref = true
 
         if not visited[obj.id]?
-          obj = Base.Collections(obj.type).get(obj.id)
+          obj = @base().Collections(obj.type).get(obj.id)
         else
           console.log("Cyclic reference to #{obj.type}:#{obj.id}")
 
