@@ -37,6 +37,5 @@ if __name__ == '__main__':
         directory = os.path.join(root, 'sphinx', 'source', 'tutorial', 'exercises')
 
     for path in glob(os.path.join(directory, '*.py')):
-        if path.endswith('.py'):
-            lines = exercise_lines(path)
-            print('{}: {}'.format(path, ', '.join(str(line) for line in lines)))
+        lines = exercise_lines(path)
+        print('{}: {}'.format(path, ', '.join(str(line) for line in lines)))
