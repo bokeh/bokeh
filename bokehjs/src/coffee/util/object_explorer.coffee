@@ -15,75 +15,127 @@ define [
     delegateEvents: (events) ->
       super(events)
 
+      onEvent = _.debounce(@onEvent, 200)
       for type in _.keys(Base.locations)
-        Base.Collections(type).on("all", _.throttle(@onEvent, 200))
+        Base.Collections(type).on("all", onEvent)
 
     onEvent: (event) =>
       console.log(event)
       @reRender()
 
-    createTree: () ->
+    createTree: (nonempty=true) ->
       nodes = for type in _.keys(Base.locations)
-        children = Base.Collections(type).map (obj) =>
-          @node(obj.id, obj.type, @descend(obj))
-        @node("colllection-" + type, type, children, true)
+        children = Base.Collections(type).map (obj, index) =>
+          visited = {}
+          visited[obj.id] = 1
+          @descend(index, obj, visited)
+        @node(type, children)
 
-      node for node in nodes when node.children.length > 0
+      if nonempty
+        node for node in nodes when node.children.length > 0
+      else
+        nodes
 
-    descend: (obj) ->
-      for own attr, value of obj.attributes
-        if @isRef(value) # TODO: use ref icon
-          value = obj.get_obj(attr)
+    descend: (label, obj, visited) ->
+      if @isRef(obj)
+        ref = true
 
-        if value instanceof HasProperties
-          @node(undefined, attr + ": " + value.type, @descend(value))
-        else if _.isArray(value)
-          items =
-          @node(undefined, attr + ": Array[" + value.length + "]", items)
+        if not visited[obj.id]?
+          obj = Base.Collections(obj.type).get(obj.id)
         else
-          @leaf(attr + ": " + value)
+          console.log("Cyclic reference to #{obj.type}:#{obj.id}")
 
-      ###
-      else if _.isUndefined(value)
-      else if _.isNull(value)
-      else if _.isBoolean(value)
-      else if _.isNumber(value)
-      else if _.isString(value)
-      else if _.isFunction(value)
-      else if _.isArray(value)
-      else if _.isObject(value)
-      else if _.isDate(value)
-      else if _.isRegExp(value)
-      else if _.isElement(value)
-      ###
+      if obj instanceof HasProperties
+        visited = _.clone(visited)
+        visited[obj.id] = 1
+        children = (@descend(attr, value, visited) for own attr, value of obj.attributes when @isAttr(attr))
+        type = obj.type
+        value = null
+        color = null
+      else if _.isArray(obj)
+        children = (@descend(index, value, visited) for value, index in obj)
+        type = "Array[#{obj.length}]"
+        value = null
+        color = null
+      else if _.isObject(obj)
+        children = (@descend(key, value, visited) for own key, value of obj)
+        type = "Object[#{_.keys(obj).length}]"
+        value = null
+        color = null
+      else
+        children = []
+        [type, value, color] =
+          if      _.isUndefined(obj) then [null,       null,         'orchid']
+          else if _.isNull(obj)      then [null,       null,         'teal']
+          else if _.isBoolean(obj)   then ["Boolean",  null,         'darkmagenta']
+          else if _.isNumber(obj)    then ["Number",   null,         'green']
+          else if _.isString(obj)    then ["String",   "\"#{obj}\"", 'firebrick']
+          else if _.isFunction(obj)  then ["Function", null,         null]
+          else if _.isDate(obj)      then ["Date",     null,         null]
+          else if _.isRegExp(obj)    then ["RegExp",   null,         null]
+          else if _.isElement(obj)   then ["Element",  null,         null]
+          else                            [typeof obj, null,         null]
+        value = "" + obj if not value?
+        color = "black" if not color?
+
+      html = ["<span style=\"color:gray\">#{label}</span>"]
+
+      if type?
+        html = html.concat([
+          ": "
+          "<span style=\"color:blue\">#{type}#{if ref then "<span style=\"color:red\">*</span>" else ""}</span>"
+        ])
+
+      if value?
+        html = html.concat([
+          " = "
+          "<span style=\"color:#{color}\">#{value}</span>"
+        ])
+
+      @node(html.join(""), children)
 
     isRef: (obj) ->
-      _.isObject(obj) && (_.isEqual(_.keys(obj), ["id", "type"]) ||
-                          _.isEqual(_.keys(obj), ["type", "id"]))
+      _.isObject(obj) and (_.isEqual(_.keys(obj), ["id", "type"]) or
+                           _.isEqual(_.keys(obj), ["type", "id"]))
 
-    node: (id, text, children, open) ->
-      id: id
+    isAttr: (attr) ->
+      attr.length > 0 and attr[0] != '_'
+
+    node: (text, children, open) ->
       text: text
-      children: children || []
-      state: { open: open || false }
+      children: children or []
+      state: { open: open or false }
 
-    leaf: (text) -> text: "" + text
+    renderToolbar: () ->
+      $toolbar = $('<div class="btn-group"></div>')
+      $refresh = $('<button type="button" class="btn btn-default">Refresh</button>')
+      $refresh.click (event) => @reRender()
+      $toolbar.append($refresh)
+      $toolbar
 
-    reRender: () ->
-      @$tree.jstree('destroy')
-      @$tree.remove()
-      @render()
+    themeUrl: () ->
+      '/static/js/vendor/jstree/dist/themes/default/style.min.css'
 
-    render: () ->
-      @$tree = $('<div/>').jstree({
+    renderTree: () ->
+      $('<div/>').jstree({
         core: {
           data: @createTree()
           themes: {
-            url: '/static/vendor/jstree/dist/themes/default/style.min.css'
+            url: @themeUrl()
           }
-        }
+        },
+        plugins: ["contextmenu"],
       })
-      @$el.html(@$tree)
+
+    render: () ->
+      @$toolbar = @renderToolbar()
+      @$tree = @renderTree()
+      @$el.append([@$toolbar, @$tree])
+
+    reRender: () ->
+      @$tree.jstree('destroy')
+      @$el.empty()
+      @render()
 
   return {
     View: ObjectExplorerView
