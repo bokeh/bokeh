@@ -10,16 +10,11 @@ output_file("legend.html", title="legend.py example")
 
 hold()
 
-
 figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
-scatter(x, y, legend="sin(x)"
-)
-scatter(x, 2*y, color="orange", legend="2*sin(x)"
-)
-scatter(x, 3*y,
-    color="green", legend="3*sin(x)"
-)
+scatter(x, y, legend="sin(x)")
+scatter(x, 2*y, color="orange", legend="2*sin(x)")
+scatter(x, 3*y, color="green", legend="3*sin(x)")
 
 figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave,select")
 

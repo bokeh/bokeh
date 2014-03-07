@@ -2,18 +2,17 @@
 from numpy.random import random
 from bokeh.plotting import *
 
-
 output_cloud("markers")
 
 figure(title="markers.py example", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
 def myscatter(x, y, typestr):
     scatter(x, y, marker=typestr,
-        line_color="#6666ee", fill_color="#ee6666", fill_alpha=0.5, size=12)
+            line_color="#6666ee", fill_color="#ee6666", fill_alpha=0.5, size=12)
 
 def mytext(x, y, textstr):
     text(x, y, text=textstr, angle=0,
-        text_color="#449944", text_align="center", text_font_size="10pt")
+         text_color="#449944", text_align="center", text_font_size="10pt")
 
 N = 10
 
