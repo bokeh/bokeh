@@ -176,9 +176,10 @@ define [
           @div.append(table)
           @div.css({
             top: e.pageY - @div.height()/2,
-            left: e.pageX + 18
+            left: e.pageX + 18,
           })
           @div.show()
+          break
         else
           @div.hide()
         datasource_selections[datasource_id].push(selected)
