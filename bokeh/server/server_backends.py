@@ -1,7 +1,6 @@
 import json
 import shelve
 import uuid
-import collections
 from .models import user
 from .models import UnauthorizedException
 from .app import bokeh_app
