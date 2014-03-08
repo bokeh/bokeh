@@ -17,13 +17,17 @@ logger = logging.getLogger(__name__)
 
 from ..objects import PlotObject, Plot
 from ..session import PersistentBackboneSession, BaseJSONSession
+from ..utils import encode_utf8
 from . import server_backends
 from .app import bokeh_app
 
 def dockey(docid):
+    docid = encode_utf8(docid)
     return 'doc:' + docid
 
 def modelkey(typename, docid, modelid):
+    docid = encode_utf8(docid)
+    modelid = encode_utf8(modelid)
     return 'bbmodel:%s:%s:%s' % (typename, docid, modelid)
 
 def callbackskey(typename, docid, modelid):

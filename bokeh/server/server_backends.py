@@ -6,6 +6,7 @@ from .models import user
 from .models import UnauthorizedException
 from .app import bokeh_app
 from ..exceptions import DataIntegrityException
+from ..utils import encode_utf8
 import logging
 logger = logging.getLogger(__name__)
 
@@ -107,6 +108,7 @@ class ShelveServerModelStorage(object):
 
     def get(self, key):
         _data = shelve.open('bokeh.server')
+        key = encode_utf8(key)
         data = _data.get(key, None)
         if data is None:
             return None
@@ -116,7 +118,7 @@ class ShelveServerModelStorage(object):
 
     def set(self, key, val):
         _data = shelve.open('bokeh.server')
-        val = self.transform_dict(val)
+        key = encode_utf8(key)
         _data[key] = json.dumps(val)
         _data.close()
 
@@ -126,15 +128,6 @@ class ShelveServerModelStorage(object):
             raise DataIntegrityException("%s already exists" % key)
         _data[key] = json.dumps(val)
         _data.close()
-
-    def transform_dict(self, d):
-        out_dict = {}
-        for k, v in d.items():
-            k = k.encode('utf-8')
-            if isinstance(v, collections.MutableMapping):
-                v = self.transform_dict(v)
-            out_dict[k] = v
-        return out_dict
 
 class AbstractAuthentication(object):
     def current_user_name(self):
