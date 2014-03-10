@@ -13,7 +13,3 @@ def get_json(request):
     else:
         return request.json
 
-def encode_utf8(u):
-    u = u.encode('utf-8')
-    return u
-
