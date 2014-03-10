@@ -22,4 +22,3 @@ class HTMLFragmentSession(BaseHTMLSession):
         files it depends on.
         """
         pass
-

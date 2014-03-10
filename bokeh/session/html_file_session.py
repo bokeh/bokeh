@@ -197,4 +197,3 @@ class HTMLFileSession(BaseHTMLSession):
                 file.write(s)
         else:
             return s
-

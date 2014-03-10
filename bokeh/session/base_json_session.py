@@ -80,4 +80,3 @@ class BaseJSONSession(Session):
 
     def serialize_models(self, objects=None, **jsonkwargs):
         return self.serialize(self.convert_models(objects), **jsonkwargs)
-
