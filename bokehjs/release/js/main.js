@@ -6,7 +6,7 @@
       window.Float64Array = Array;
     }
     Bokeh = {};
-    Bokeh.version = '0.4.1';
+    Bokeh.version = '0.4.2';
     Bokeh.Collections = require("common/base").Collections;
     Bokeh.Config = require("common/base").Collections;
     Bokeh.GMapPlot = require("common/gmap_plot");
