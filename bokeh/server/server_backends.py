@@ -5,6 +5,7 @@ from .models import user
 from .models import UnauthorizedException
 from .app import bokeh_app
 from ..exceptions import DataIntegrityException
+from ..utils import encode_utf8
 import logging
 logger = logging.getLogger(__name__)
 
@@ -106,6 +107,7 @@ class ShelveServerModelStorage(object):
 
     def get(self, key):
         _data = shelve.open('bokeh.server')
+        key = encode_utf8(key)
         data = _data.get(key, None)
         if data is None:
             return None
@@ -115,6 +117,7 @@ class ShelveServerModelStorage(object):
 
     def set(self, key, val):
         _data = shelve.open('bokeh.server')
+        key = encode_utf8(key)
         _data[key] = json.dumps(val)
         _data.close()
 
