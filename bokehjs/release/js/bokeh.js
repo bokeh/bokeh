@@ -14867,7 +14867,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         if (x.indexOf(':') >= 0) {
           _ref1 = x.split(':'), factor = _ref1[0], percent = _ref1[1];
           percent = parseFloat(percent);
-          return CategoricalMapper.__super__.map_to_target.call(this, actors.indexOf(factor) + 0.5 + percent);
+          return CategoricalMapper.__super__.map_to_target.call(this, factors.indexOf(factor) + 0.5 + percent);
         }
         return CategoricalMapper.__super__.map_to_target.call(this, factors.indexOf(x) + 1);
       };
@@ -16258,830 +16258,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 /*
 //@ sourceMappingURL=legend.js.map
 */;
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
-    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
-
-  define('renderer/glyph/glyph',["underscore", "common/has_parent", "common/plot_widget", "renderer/properties"], function(_, HasParent, PlotWidget, Properties) {
-    var Glyph, GlyphView, _ref, _ref1;
-    GlyphView = (function(_super) {
-      __extends(GlyphView, _super);
-
-      function GlyphView() {
-        _ref = GlyphView.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      GlyphView.prototype.initialize = function(options) {
-        var spec;
-        GlyphView.__super__.initialize.call(this, options);
-        this.need_set_data = true;
-        this.glyph_props = this.init_glyph(this.mget('glyphspec'));
-        this.have_selection_props = false;
-        if (this.mget('selection_glyphspec')) {
-          spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
-          this.selection_glyphprops = this.init_glyph(spec);
-          this.have_selection_props = true;
-        } else {
-          this.selection_glyphprops = this.glyph_props;
-        }
-        if (this.mget('nonselection_glyphspec')) {
-          spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
-          this.nonselection_glyphprops = this.init_glyph(spec);
-          return this.have_selection_props = true;
-        } else {
-          return this.nonselection_glyphprops = this.glyph_props;
-        }
-      };
-
-      GlyphView.prototype.init_glyph = function(glyphspec) {
-        var glyph_props, props;
-        props = {};
-        if (__indexOf.call(this._properties, 'line') >= 0) {
-          props['line_properties'] = new Properties.line_properties(this, glyphspec);
-        }
-        if (__indexOf.call(this._properties, 'fill') >= 0) {
-          props['fill_properties'] = new Properties.fill_properties(this, glyphspec);
-        }
-        if (__indexOf.call(this._properties, 'text') >= 0) {
-          props['text_properties'] = new Properties.text_properties(this, glyphspec);
-        }
-        glyph_props = new Properties.glyph_properties(this, glyphspec, this._fields, props);
-        return glyph_props;
-      };
-
-      GlyphView.prototype.set_data = function(request_render) {
-        var dir, field, i, junk, len, source, values, x, _i, _j, _k, _len, _ref1, _ref2, _ref3, _results;
-        if (request_render == null) {
-          request_render = true;
-        }
-        source = this.mget_obj('data_source');
-        _ref1 = this._fields;
-        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          field = _ref1[_i];
-          if (field.indexOf(":") > -1) {
-            _ref2 = field.split(":"), field = _ref2[0], junk = _ref2[1];
-          }
-          this[field] = this.glyph_props.source_v_select(field, source);
-          if (field === "direction") {
-            values = new Uint8Array(this.direction.length);
-            for (i = _j = 0, _ref3 = this.direction.length; 0 <= _ref3 ? _j < _ref3 : _j > _ref3; i = 0 <= _ref3 ? ++_j : --_j) {
-              dir = this.direction[i];
-              if (dir === 'clock') {
-                values[i] = false;
-              } else if (dir === 'anticlock') {
-                values[i] = true;
-              } else {
-                values = NaN;
-              }
-            }
-            this.direction = values;
-          }
-          if (field.indexOf("angle") > -1) {
-            this[field] = (function() {
-              var _k, _len1, _ref4, _results;
-              _ref4 = this[field];
-              _results = [];
-              for (_k = 0, _len1 = _ref4.length; _k < _len1; _k++) {
-                x = _ref4[_k];
-                _results.push(-x);
-              }
-              return _results;
-            }).call(this);
-          }
-        }
-        if (this._set_data != null) {
-          this._set_data();
-        }
-        len = this[field].length;
-        this.all_indices = (function() {
-          _results = [];
-          for (var _k = 0; 0 <= len ? _k < len : _k > len; 0 <= len ? _k++ : _k--){ _results.push(_k); }
-          return _results;
-        }).apply(this);
-        this.have_new_data = true;
-        if (request_render) {
-          return this.request_render();
-        }
-      };
-
-      GlyphView.prototype.render = function(have_new_mapper_state) {
-        var ctx, do_render, i, idx, indices, nonselected, selected, selected_mask, _i, _j, _len, _len1,
-          _this = this;
-        if (have_new_mapper_state == null) {
-          have_new_mapper_state = true;
-        }
-        if (this.need_set_data) {
-          this.set_data(false);
-          this.need_set_data = false;
-        }
-        this._map_data();
-        if ((this._mask_data != null) && (this.plot_view.x_range.type !== "FactorRange") && (this.plot_view.y_range.type !== "FactorRange")) {
-          indices = this._mask_data();
-        } else {
-          indices = this.all_indices;
-        }
-        ctx = this.plot_view.ctx;
-        ctx.save();
-        do_render = function(ctx, indices, glyph_props) {
-          var source;
-          source = _this.mget_obj('data_source');
-          if (_this.have_new_data) {
-            if ((glyph_props.fill_properties != null) && glyph_props.fill_properties.do_fill) {
-              glyph_props.fill_properties.set_prop_cache(source);
-            }
-            if ((glyph_props.line_properties != null) && glyph_props.line_properties.do_stroke) {
-              glyph_props.line_properties.set_prop_cache(source);
-            }
-            if (glyph_props.text_properties != null) {
-              glyph_props.text_properties.set_prop_cache(source);
-            }
-          }
-          return _this._render(ctx, indices, glyph_props);
-        };
-        selected = this.mget_obj('data_source').get('selected');
-        if (selected && selected.length && this.have_selection_props) {
-          selected_mask = (function() {
-            var _i, _len, _ref1, _results;
-            _ref1 = this.all_indices;
-            _results = [];
-            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-              i = _ref1[_i];
-              _results.push(false);
-            }
-            return _results;
-          }).call(this);
-          for (_i = 0, _len = selected.length; _i < _len; _i++) {
-            idx = selected[_i];
-            selected_mask[idx] = true;
-          }
-          selected = new Array();
-          nonselected = new Array();
-          for (_j = 0, _len1 = indices.length; _j < _len1; _j++) {
-            i = indices[_j];
-            if (selected_mask[i]) {
-              selected.push(i);
-            } else {
-              nonselected.push(i);
-            }
-          }
-          do_render(ctx, selected, this.selection_glyphprops);
-          do_render(ctx, nonselected, this.nonselection_glyphprops);
-        } else {
-          do_render(ctx, indices, this.glyph_props);
-        }
-        this.have_new_data = false;
-        return ctx.restore();
-      };
-
-      GlyphView.prototype.xrange = function() {
-        return this.plot_view.x_range;
-      };
-
-      GlyphView.prototype.yrange = function() {
-        return this.plot_view.y_range;
-      };
-
-      GlyphView.prototype.bind_bokeh_events = function() {
-        this.listenTo(this.model, 'change', this.request_render);
-        return this.listenTo(this.mget_obj('data_source'), 'change', this.set_data);
-      };
-
-      GlyphView.prototype.distance = function(data, pt, span, position) {
-        var d, halfspan, i, mapper, pt0, pt1, pt_units, ptc, span_units, spt0, spt1;
-        pt_units = this.glyph_props[pt].units;
-        span_units = this.glyph_props[span].units;
-        if (pt === 'x') {
-          mapper = this.plot_view.xmapper;
-        } else if (pt === 'y') {
-          mapper = this.plot_view.ymapper;
-        }
-        span = this.glyph_props.v_select(span, data);
-        if (span_units === 'screen') {
-          return span;
-        }
-        if (position === 'center') {
-          halfspan = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = span.length; _i < _len; _i++) {
-              d = span[_i];
-              _results.push(d / 2);
-            }
-            return _results;
-          })();
-          ptc = this.glyph_props.v_select(pt, data);
-          if (pt_units === 'screen') {
-            ptc = mapper.v_map_from_target(ptc);
-          }
-          if (typeof ptc === 'string') {
-            ptc = mapper.v_map_to_target(ptc);
-          }
-          pt0 = (function() {
-            var _i, _ref1, _results;
-            _results = [];
-            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-              _results.push(ptc[i] - halfspan[i]);
-            }
-            return _results;
-          })();
-          pt1 = (function() {
-            var _i, _ref1, _results;
-            _results = [];
-            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-              _results.push(ptc[i] + halfspan[i]);
-            }
-            return _results;
-          })();
-        } else {
-          pt0 = this.glyph_props.v_select(pt, data);
-          if (pt_units === 'screen') {
-            pt0 = mapper.v_map_from_target(pt0);
-          }
-          pt1 = (function() {
-            var _i, _ref1, _results;
-            _results = [];
-            for (i = _i = 0, _ref1 = pt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-              _results.push(pt0[i] + span[i]);
-            }
-            return _results;
-          })();
-        }
-        spt0 = mapper.v_map_to_target(pt0);
-        spt1 = mapper.v_map_to_target(pt1);
-        return (function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = spt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push(Math.abs(spt1[i] - spt0[i]));
-          }
-          return _results;
-        })();
-      };
-
-      GlyphView.prototype.distance_vector = function(pt, span_prop_name, position) {
-        " returns an array ";
-        var d, halfspan, i, local_select, mapper, pt0, pt1, pt_units, ptc, source, span, span_units, spt0, spt1,
-          _this = this;
-        pt_units = this.glyph_props[pt].units;
-        span_units = this.glyph_props[span_prop_name].units;
-        if (pt === 'x') {
-          mapper = this.plot_view.xmapper;
-        } else if (pt === 'y') {
-          mapper = this.plot_view.ymapper;
-        }
-        source = this.mget_obj('data_source');
-        local_select = function(prop_name) {
-          return _this.glyph_props.source_v_select(prop_name, source);
-        };
-        span = local_select(span_prop_name);
-        if (span_units === 'screen') {
-          return span;
-        }
-        if (position === 'center') {
-          halfspan = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = span.length; _i < _len; _i++) {
-              d = span[_i];
-              _results.push(d / 2);
-            }
-            return _results;
-          })();
-          ptc = local_select(pt);
-          if (pt_units === 'screen') {
-            ptc = mapper.v_map_from_target(ptc);
-          }
-          if (typeof ptc[0] === 'string') {
-            ptc = mapper.v_map_to_target(ptc);
-          }
-          pt0 = (function() {
-            var _i, _ref1, _results;
-            _results = [];
-            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-              _results.push(ptc[i] - halfspan[i]);
-            }
-            return _results;
-          })();
-          pt1 = (function() {
-            var _i, _ref1, _results;
-            _results = [];
-            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-              _results.push(ptc[i] + halfspan[i]);
-            }
-            return _results;
-          })();
-        } else {
-          pt0 = local_select(pt);
-          if (pt_units === 'screen') {
-            pt0 = mapper.v_map_from_target(pt0);
-          }
-          pt1 = (function() {
-            var _i, _ref1, _results;
-            _results = [];
-            for (i = _i = 0, _ref1 = pt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-              _results.push(pt0[i] + span[i]);
-            }
-            return _results;
-          })();
-        }
-        spt0 = mapper.v_map_to_target(pt0);
-        spt1 = mapper.v_map_to_target(pt1);
-        return (function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = spt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push(Math.abs(spt1[i] - spt0[i]));
-          }
-          return _results;
-        })();
-      };
-
-      GlyphView.prototype.get_reference_point = function() {
-        var reference_point;
-        reference_point = this.mget('reference_point');
-        if (_.isNumber(reference_point)) {
-          return this.data[reference_point];
-        } else {
-          return reference_point;
-        }
-      };
-
-      GlyphView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        return null;
-      };
-
-      GlyphView.prototype._generic_line_legend = function(ctx, x0, x1, y0, y1) {
-        var line_props, reference_point, _ref1;
-        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
-        line_props = this.glyph_props.line_properties;
-        ctx.save();
-        ctx.beginPath();
-        ctx.moveTo(x0, (y0 + y1) / 2);
-        ctx.lineTo(x1, (y0 + y1) / 2);
-        if (line_props.do_stroke) {
-          line_props.set_vectorize(ctx, reference_point);
-          ctx.stroke();
-        }
-        return ctx.restore();
-      };
-
-      GlyphView.prototype._generic_area_legend = function(ctx, x0, x1, y0, y1) {
-        var dh, dw, h, indices, reference_point, sx0, sx1, sy0, sy1, w, _ref1;
-        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
-        indices = [reference_point];
-        w = Math.abs(x1 - x0);
-        dw = w * 0.1;
-        h = Math.abs(y1 - y0);
-        dh = h * 0.1;
-        sx0 = x0 + dw;
-        sx1 = x1 - dw;
-        sy0 = y0 + dh;
-        sy1 = y1 - dh;
-        if (this.glyph_props.fill_properties.do_fill) {
-          this.glyph_props.fill_properties.set_vectorize(ctx, reference_point);
-          ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0);
-        }
-        if (this.glyph_props.line_properties.do_stroke) {
-          ctx.beginPath();
-          ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0);
-          this.glyph_props.line_properties.set_vectorize(ctx, reference_point);
-          return ctx.stroke();
-        }
-      };
-
-      GlyphView.prototype.hit_test = function(geometry) {
-        if (geometry.type === "point") {
-          if (this._hit_point != null) {
-            return this._hit_point(geometry);
-          }
-          if (this._point_hit_warned == null) {
-            console.log("WARNING: 'point' selection not available on renderer");
-            this._point_hit_warned = true;
-          }
-          return null;
-        } else if (geometry.type === "rect") {
-          if (this._hit_rect != null) {
-            return this._hit_rect(geometry);
-          }
-          if (this._rect_hit_warned == null) {
-            console.log("WARNING: 'rect' selection not avaliable on renderer");
-            this._rect_hit_warned = true;
-          }
-          return null;
-        } else {
-          console.log("unrecognized selection geometry type '" + geometry.type + "'");
-          return null;
-        }
-      };
-
-      return GlyphView;
-
-    })(PlotWidget);
-    Glyph = (function(_super) {
-      __extends(Glyph, _super);
-
-      function Glyph() {
-        _ref1 = Glyph.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      Glyph.prototype.defaults = function() {
-        return {
-          data_source: null
-        };
-      };
-
-      Glyph.prototype.display_defaults = function() {
-        return {
-          level: 'glyph',
-          radius_units: 'data',
-          length_units: 'screen',
-          angle_units: 'deg',
-          start_angle_units: 'deg',
-          end_angle_units: 'deg'
-        };
-      };
-
-      return Glyph;
-
-    })(HasParent);
-    return {
-      "Model": Glyph,
-      "View": GlyphView
-    };
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=glyph.js.map
-*/;
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  define('renderer/glyph/annular_wedge',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var AnnularWedge, AnnularWedgeView, _ref, _ref1;
-    AnnularWedgeView = (function(_super) {
-      __extends(AnnularWedgeView, _super);
-
-      function AnnularWedgeView() {
-        _ref = AnnularWedgeView.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      AnnularWedgeView.prototype._fields = ['x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction:string'];
-
-      AnnularWedgeView.prototype._properties = ['line', 'fill'];
-
-      AnnularWedgeView.prototype._map_data = function() {
-        var i, _i, _ref1, _ref2, _results;
-        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
-        this.inner_radius = this.distance_vector('x', 'inner_radius', 'edge');
-        this.outer_radius = this.distance_vector('x', 'outer_radius', 'edge');
-        this.angle = new Float32Array(this.start_angle.length);
-        _results = [];
-        for (i = _i = 0, _ref2 = this.start_angle.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
-          _results.push(this.angle[i] = this.end_angle[i] - this.start_angle[i]);
-        }
-        return _results;
-      };
-
-      AnnularWedgeView.prototype._render = function(ctx, indices, glyph_props, sx, sy, inner_radius, outer_radius) {
-        var i, _i, _len, _results;
-        if (sx == null) {
-          sx = this.sx;
-        }
-        if (sy == null) {
-          sy = this.sy;
-        }
-        if (inner_radius == null) {
-          inner_radius = this.inner_radius;
-        }
-        if (outer_radius == null) {
-          outer_radius = this.outer_radius;
-        }
-        _results = [];
-        for (_i = 0, _len = indices.length; _i < _len; _i++) {
-          i = indices[_i];
-          if (isNaN(sx[i] + sy[i] + inner_radius[i] + outer_radius[i] + this.start_angle[i] + this.angle[i])) {
-            continue;
-          }
-          ctx.translate(sx[i], sy[i]);
-          ctx.rotate(this.start_angle[i]);
-          ctx.moveTo(outer_radius[i], 0);
-          ctx.beginPath();
-          ctx.arc(0, 0, outer_radius[i], 0, this.angle[i], this.direction[i]);
-          ctx.rotate(this.angle[i]);
-          ctx.lineTo(inner_radius[i], 0);
-          ctx.arc(0, 0, inner_radius[i], 0, -this.angle[i], !this.direction[i]);
-          ctx.closePath();
-          ctx.rotate(-this.angle[i] - this.start_angle[i]);
-          ctx.translate(-sx[i], -sy[i]);
-          if (glyph_props.fill_properties.do_fill) {
-            glyph_props.fill_properties.set_vectorize(ctx, i);
-            ctx.fill();
-          }
-          if (glyph_props.line_properties.do_stroke) {
-            glyph_props.line_properties.set_vectorize(ctx, i);
-            _results.push(ctx.stroke());
-          } else {
-            _results.push(void 0);
-          }
-        }
-        return _results;
-      };
-
-      AnnularWedgeView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var indices, inner_radius, outer_radius, r, reference_point, sx, sy, _ref1;
-        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
-        indices = [reference_point];
-        sx = {};
-        sx[reference_point] = (x0 + x1) / 2;
-        sy = {};
-        sy[reference_point] = (y0 + y1) / 2;
-        r = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 0.5;
-        inner_radius = {};
-        inner_radius[reference_point] = r * 0.25;
-        outer_radius = {};
-        outer_radius[reference_point] = r * 0.8;
-        return this._render(ctx, indices, this.glyph_props, sx, sy, inner_radius, outer_radius);
-      };
-
-      return AnnularWedgeView;
-
-    })(Glyph.View);
-    AnnularWedge = (function(_super) {
-      __extends(AnnularWedge, _super);
-
-      function AnnularWedge() {
-        _ref1 = AnnularWedge.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      AnnularWedge.prototype.default_view = AnnularWedgeView;
-
-      AnnularWedge.prototype.type = 'Glyph';
-
-      AnnularWedge.prototype.display_defaults = function() {
-        return _.extend(AnnularWedge.__super__.display_defaults.call(this), {
-          direction: 'anticlock',
-          fill_color: 'gray',
-          fill_alpha: 1.0,
-          line_color: 'red',
-          line_width: 1,
-          line_alpha: 1.0,
-          line_join: 'miter',
-          line_cap: 'butt',
-          line_dash: [],
-          line_dash_offset: 0
-        });
-      };
-
-      return AnnularWedge;
-
-    })(Glyph.Model);
-    return {
-      "Model": AnnularWedge,
-      "View": AnnularWedgeView
-    };
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=annular_wedge.js.map
-*/;
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  define('renderer/glyph/annulus',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Annulus, AnnulusView, _ref, _ref1;
-    AnnulusView = (function(_super) {
-      __extends(AnnulusView, _super);
-
-      function AnnulusView() {
-        _ref = AnnulusView.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      AnnulusView.prototype._fields = ['x', 'y', 'inner_radius', 'outer_radius'];
-
-      AnnulusView.prototype._properties = ['line', 'fill'];
-
-      AnnulusView.prototype._map_data = function() {
-        var _ref1;
-        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
-        this.inner_radius = this.distance_vector('x', 'inner_radius', 'edge');
-        return this.outer_radius = this.distance_vector('x', 'outer_radius', 'edge');
-      };
-
-      AnnulusView.prototype._render = function(ctx, indices, glyph_props, sx, sy, inner_radius, outer_radius) {
-        var i, _i, _len, _results;
-        if (sx == null) {
-          sx = this.sx;
-        }
-        if (sy == null) {
-          sy = this.sy;
-        }
-        if (inner_radius == null) {
-          inner_radius = this.inner_radius;
-        }
-        if (outer_radius == null) {
-          outer_radius = this.outer_radius;
-        }
-        _results = [];
-        for (_i = 0, _len = indices.length; _i < _len; _i++) {
-          i = indices[_i];
-          if (isNaN(sx[i] + sy[i] + inner_radius[i] + outer_radius[i])) {
-            continue;
-          }
-          ctx.beginPath();
-          ctx.arc(sx[i], sy[i], inner_radius[i], 0, 2 * Math.PI * 2, false);
-          ctx.moveTo(sx[i] + outer_radius[i], sy[i]);
-          ctx.arc(sx[i], sy[i], outer_radius[i], 0, 2 * Math.PI * 2, true);
-          if (glyph_props.fill_properties.do_fill) {
-            glyph_props.fill_properties.set_vectorize(ctx, i);
-            ctx.fill();
-          }
-          if (glyph_props.line_properties.do_stroke) {
-            glyph_props.line_properties.set_vectorize(ctx, i);
-            _results.push(ctx.stroke());
-          } else {
-            _results.push(void 0);
-          }
-        }
-        return _results;
-      };
-
-      AnnulusView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var indices, inner_radius, outer_radius, r, reference_point, sx, sy, _ref1;
-        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
-        indices = [reference_point];
-        sx = {};
-        sx[reference_point] = (x0 + x1) / 2;
-        sy = {};
-        sy[reference_point] = (y0 + y1) / 2;
-        r = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 0.5;
-        inner_radius = {};
-        inner_radius[reference_point] = r * 0.4;
-        outer_radius = {};
-        outer_radius[reference_point] = r * 0.8;
-        return this._render(ctx, indices, this.glyph_props, sx, sy, inner_radius, outer_radius);
-      };
-
-      return AnnulusView;
-
-    })(Glyph.View);
-    Annulus = (function(_super) {
-      __extends(Annulus, _super);
-
-      function Annulus() {
-        _ref1 = Annulus.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      Annulus.prototype.default_view = AnnulusView;
-
-      Annulus.prototype.type = 'Glyph';
-
-      Annulus.prototype.display_defaults = function() {
-        return _.extend(Annulus.__super__.display_defaults.call(this), {
-          fill_color: 'gray',
-          fill_alpha: 1.0,
-          line_color: 'red',
-          line_width: 1,
-          line_alpha: 1.0,
-          line_join: 'miter',
-          line_cap: 'butt',
-          line_dash: [],
-          line_dash_offset: 0
-        });
-      };
-
-      return Annulus;
-
-    })(Glyph.Model);
-    return {
-      "Model": Annulus,
-      "View": AnnulusView
-    };
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=annulus.js.map
-*/;
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  define('renderer/glyph/arc',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Arc, ArcView, _ref, _ref1;
-    ArcView = (function(_super) {
-      __extends(ArcView, _super);
-
-      function ArcView() {
-        _ref = ArcView.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      ArcView.prototype._fields = ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string'];
-
-      ArcView.prototype._properties = ['line'];
-
-      ArcView.prototype._map_data = function() {
-        var _ref1;
-        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
-        return this.radius = this.distance_vector('x', 'radius', 'edge');
-      };
-
-      ArcView.prototype._render = function(ctx, indices, glyph_props, sx, sy, radius) {
-        var i, _i, _len, _results;
-        if (sx == null) {
-          sx = this.sx;
-        }
-        if (sy == null) {
-          sy = this.sy;
-        }
-        if (radius == null) {
-          radius = this.radius;
-        }
-        if (glyph_props.line_properties.do_stroke) {
-          _results = [];
-          for (_i = 0, _len = indices.length; _i < _len; _i++) {
-            i = indices[_i];
-            if (isNaN(sx[i] + sy[i] + radius[i] + this.start_angle[i] + this.end_angle[i] + this.direction[i])) {
-              continue;
-            }
-            ctx.beginPath();
-            ctx.arc(sx[i], sy[i], radius[i], this.start_angle[i], this.end_angle[i], this.direction[i]);
-            glyph_props.line_properties.set_vectorize(ctx, i);
-            _results.push(ctx.stroke());
-          }
-          return _results;
-        }
-      };
-
-      ArcView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var indices, radius, reference_point, sx, sy, _ref1;
-        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
-        indices = [reference_point];
-        sx = {};
-        sx[reference_point] = (x0 + x1) / 2;
-        sy = {};
-        sy[reference_point] = (y0 + y1) / 2;
-        radius = {};
-        radius[reference_point] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 0.4;
-        return this._render(ctx, indices, this.glyph_props, sx, sy, radius);
-      };
-
-      return ArcView;
-
-    })(Glyph.View);
-    Arc = (function(_super) {
-      __extends(Arc, _super);
-
-      function Arc() {
-        _ref1 = Arc.__super__.constructor.apply(this, arguments);
-        return _ref1;
-      }
-
-      Arc.prototype.default_view = ArcView;
-
-      Arc.prototype.type = 'Glyph';
-
-      Arc.prototype.display_defaults = function() {
-        return _.extend(Arc.__super__.display_defaults.call(this), {
-          direction: 'anticlock',
-          line_color: 'red',
-          line_width: 1,
-          line_alpha: 1.0,
-          line_join: 'miter',
-          line_cap: 'butt',
-          line_dash: [],
-          line_dash_offset: 0
-        });
-      };
-
-      return Arc;
-
-    })(Glyph.Model);
-    return {
-      "Model": Arc,
-      "View": ArcView
-    };
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=arc.js.map
-*/;
 /*
  (c) 2013, Vladimir Agafonkin
  RBush, a JavaScript library for high-performance 2D spatial indexing of points and rectangles.
@@ -17619,6 +16795,1086 @@ if (typeof define === 'function' && define.amd) {
 
 })();
 
+(function() {
+  define('common/mathutils',[], function() {
+    var angle_between, angle_dist, angle_norm;
+    angle_norm = function(angle) {
+      while (angle < 0) {
+        angle += 2 * Math.PI;
+      }
+      while (angle > 2 * Math.PI) {
+        ngle -= 2 * Math.PI;
+      }
+      return angle;
+    };
+    angle_dist = function(lhs, rhs) {
+      var a;
+      a = angle_norm(lhs) - angle_norm(rhs);
+      return Math.abs(angle_norm(a + Math.PI) - Math.PI);
+    };
+    angle_between = function(mid, lhs, rhs, direction) {
+      var d;
+      d = angle_dist(lhs, rhs);
+      if (direction === "anticlock") {
+        return angle_dist(lhs, mid) <= d && angle_dist(mid, rhs) <= d;
+      } else {
+        return !(angle_dist(lhs, mid) <= d && angle_dist(mid, rhs) <= d);
+      }
+    };
+    return {
+      "angle_norm": angle_norm,
+      "angle_dist": angle_dist,
+      "angle_between": angle_between
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=mathutils.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
+    __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
+
+  define('renderer/glyph/glyph',["underscore", "common/has_parent", "common/plot_widget", "renderer/properties"], function(_, HasParent, PlotWidget, Properties) {
+    var Glyph, GlyphView, _ref, _ref1;
+    GlyphView = (function(_super) {
+      __extends(GlyphView, _super);
+
+      function GlyphView() {
+        _ref = GlyphView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      GlyphView.prototype.initialize = function(options) {
+        var spec;
+        GlyphView.__super__.initialize.call(this, options);
+        this.need_set_data = true;
+        this.glyph_props = this.init_glyph(this.mget('glyphspec'));
+        this.have_selection_props = false;
+        if (this.mget('selection_glyphspec')) {
+          spec = _.extend({}, this.mget('glyphspec'), this.mget('selection_glyphspec'));
+          this.selection_glyphprops = this.init_glyph(spec);
+          this.have_selection_props = true;
+        } else {
+          this.selection_glyphprops = this.glyph_props;
+        }
+        if (this.mget('nonselection_glyphspec')) {
+          spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
+          this.nonselection_glyphprops = this.init_glyph(spec);
+          return this.have_selection_props = true;
+        } else {
+          return this.nonselection_glyphprops = this.glyph_props;
+        }
+      };
+
+      GlyphView.prototype.init_glyph = function(glyphspec) {
+        var glyph_props, props;
+        props = {};
+        if (__indexOf.call(this._properties, 'line') >= 0) {
+          props['line_properties'] = new Properties.line_properties(this, glyphspec);
+        }
+        if (__indexOf.call(this._properties, 'fill') >= 0) {
+          props['fill_properties'] = new Properties.fill_properties(this, glyphspec);
+        }
+        if (__indexOf.call(this._properties, 'text') >= 0) {
+          props['text_properties'] = new Properties.text_properties(this, glyphspec);
+        }
+        glyph_props = new Properties.glyph_properties(this, glyphspec, this._fields, props);
+        return glyph_props;
+      };
+
+      GlyphView.prototype.set_data = function(request_render) {
+        var dir, field, i, junk, len, source, values, x, _i, _j, _k, _len, _ref1, _ref2, _ref3, _results;
+        if (request_render == null) {
+          request_render = true;
+        }
+        source = this.mget_obj('data_source');
+        _ref1 = this._fields;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          field = _ref1[_i];
+          if (field.indexOf(":") > -1) {
+            _ref2 = field.split(":"), field = _ref2[0], junk = _ref2[1];
+          }
+          this[field] = this.glyph_props.source_v_select(field, source);
+          if (field === "direction") {
+            values = new Uint8Array(this.direction.length);
+            for (i = _j = 0, _ref3 = this.direction.length; 0 <= _ref3 ? _j < _ref3 : _j > _ref3; i = 0 <= _ref3 ? ++_j : --_j) {
+              dir = this.direction[i];
+              if (dir === 'clock') {
+                values[i] = false;
+              } else if (dir === 'anticlock') {
+                values[i] = true;
+              } else {
+                values = NaN;
+              }
+            }
+            this.direction = values;
+          }
+          if (field.indexOf("angle") > -1) {
+            this[field] = (function() {
+              var _k, _len1, _ref4, _results;
+              _ref4 = this[field];
+              _results = [];
+              for (_k = 0, _len1 = _ref4.length; _k < _len1; _k++) {
+                x = _ref4[_k];
+                _results.push(-x);
+              }
+              return _results;
+            }).call(this);
+          }
+        }
+        if (this._set_data != null) {
+          this._set_data();
+        }
+        len = this[field].length;
+        this.all_indices = (function() {
+          _results = [];
+          for (var _k = 0; 0 <= len ? _k < len : _k > len; 0 <= len ? _k++ : _k--){ _results.push(_k); }
+          return _results;
+        }).apply(this);
+        this.have_new_data = true;
+        if (request_render) {
+          return this.request_render();
+        }
+      };
+
+      GlyphView.prototype.render = function(have_new_mapper_state) {
+        var ctx, do_render, i, idx, indices, nonselected, selected, selected_mask, _i, _j, _len, _len1,
+          _this = this;
+        if (have_new_mapper_state == null) {
+          have_new_mapper_state = true;
+        }
+        if (this.need_set_data) {
+          this.set_data(false);
+          this.need_set_data = false;
+        }
+        this._map_data();
+        if ((this._mask_data != null) && (this.plot_view.x_range.type !== "FactorRange") && (this.plot_view.y_range.type !== "FactorRange")) {
+          indices = this._mask_data();
+        } else {
+          indices = this.all_indices;
+        }
+        ctx = this.plot_view.ctx;
+        ctx.save();
+        do_render = function(ctx, indices, glyph_props) {
+          var source;
+          source = _this.mget_obj('data_source');
+          if (_this.have_new_data) {
+            if ((glyph_props.fill_properties != null) && glyph_props.fill_properties.do_fill) {
+              glyph_props.fill_properties.set_prop_cache(source);
+            }
+            if ((glyph_props.line_properties != null) && glyph_props.line_properties.do_stroke) {
+              glyph_props.line_properties.set_prop_cache(source);
+            }
+            if (glyph_props.text_properties != null) {
+              glyph_props.text_properties.set_prop_cache(source);
+            }
+          }
+          return _this._render(ctx, indices, glyph_props);
+        };
+        selected = this.mget_obj('data_source').get('selected');
+        if (selected && selected.length && this.have_selection_props) {
+          selected_mask = (function() {
+            var _i, _len, _ref1, _results;
+            _ref1 = this.all_indices;
+            _results = [];
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              i = _ref1[_i];
+              _results.push(false);
+            }
+            return _results;
+          }).call(this);
+          for (_i = 0, _len = selected.length; _i < _len; _i++) {
+            idx = selected[_i];
+            selected_mask[idx] = true;
+          }
+          selected = new Array();
+          nonselected = new Array();
+          for (_j = 0, _len1 = indices.length; _j < _len1; _j++) {
+            i = indices[_j];
+            if (selected_mask[i]) {
+              selected.push(i);
+            } else {
+              nonselected.push(i);
+            }
+          }
+          do_render(ctx, selected, this.selection_glyphprops);
+          do_render(ctx, nonselected, this.nonselection_glyphprops);
+        } else {
+          do_render(ctx, indices, this.glyph_props);
+        }
+        this.have_new_data = false;
+        return ctx.restore();
+      };
+
+      GlyphView.prototype.xrange = function() {
+        return this.plot_view.x_range;
+      };
+
+      GlyphView.prototype.yrange = function() {
+        return this.plot_view.y_range;
+      };
+
+      GlyphView.prototype.bind_bokeh_events = function() {
+        this.listenTo(this.model, 'change', this.request_render);
+        return this.listenTo(this.mget_obj('data_source'), 'change', this.set_data);
+      };
+
+      GlyphView.prototype.distance = function(data, pt, span, position) {
+        var d, halfspan, i, mapper, pt0, pt1, pt_units, ptc, span_units, spt0, spt1;
+        pt_units = this.glyph_props[pt].units;
+        span_units = this.glyph_props[span].units;
+        if (pt === 'x') {
+          mapper = this.plot_view.xmapper;
+        } else if (pt === 'y') {
+          mapper = this.plot_view.ymapper;
+        }
+        span = this.glyph_props.v_select(span, data);
+        if (span_units === 'screen') {
+          return span;
+        }
+        if (position === 'center') {
+          halfspan = (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = span.length; _i < _len; _i++) {
+              d = span[_i];
+              _results.push(d / 2);
+            }
+            return _results;
+          })();
+          ptc = this.glyph_props.v_select(pt, data);
+          if (pt_units === 'screen') {
+            ptc = mapper.v_map_from_target(ptc);
+          }
+          if (typeof ptc === 'string') {
+            ptc = mapper.v_map_to_target(ptc);
+          }
+          pt0 = (function() {
+            var _i, _ref1, _results;
+            _results = [];
+            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+              _results.push(ptc[i] - halfspan[i]);
+            }
+            return _results;
+          })();
+          pt1 = (function() {
+            var _i, _ref1, _results;
+            _results = [];
+            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+              _results.push(ptc[i] + halfspan[i]);
+            }
+            return _results;
+          })();
+        } else {
+          pt0 = this.glyph_props.v_select(pt, data);
+          if (pt_units === 'screen') {
+            pt0 = mapper.v_map_from_target(pt0);
+          }
+          pt1 = (function() {
+            var _i, _ref1, _results;
+            _results = [];
+            for (i = _i = 0, _ref1 = pt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+              _results.push(pt0[i] + span[i]);
+            }
+            return _results;
+          })();
+        }
+        spt0 = mapper.v_map_to_target(pt0);
+        spt1 = mapper.v_map_to_target(pt1);
+        return (function() {
+          var _i, _ref1, _results;
+          _results = [];
+          for (i = _i = 0, _ref1 = spt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+            _results.push(Math.abs(spt1[i] - spt0[i]));
+          }
+          return _results;
+        })();
+      };
+
+      GlyphView.prototype.distance_vector = function(pt, span_prop_name, position) {
+        " returns an array ";
+        var d, halfspan, i, local_select, mapper, pt0, pt1, pt_units, ptc, source, span, span_units, spt0, spt1,
+          _this = this;
+        pt_units = this.glyph_props[pt].units;
+        span_units = this.glyph_props[span_prop_name].units;
+        if (pt === 'x') {
+          mapper = this.plot_view.xmapper;
+        } else if (pt === 'y') {
+          mapper = this.plot_view.ymapper;
+        }
+        source = this.mget_obj('data_source');
+        local_select = function(prop_name) {
+          return _this.glyph_props.source_v_select(prop_name, source);
+        };
+        span = local_select(span_prop_name);
+        if (span_units === 'screen') {
+          return span;
+        }
+        if (position === 'center') {
+          halfspan = (function() {
+            var _i, _len, _results;
+            _results = [];
+            for (_i = 0, _len = span.length; _i < _len; _i++) {
+              d = span[_i];
+              _results.push(d / 2);
+            }
+            return _results;
+          })();
+          ptc = local_select(pt);
+          if (pt_units === 'screen') {
+            ptc = mapper.v_map_from_target(ptc);
+          }
+          if (typeof ptc[0] === 'string') {
+            ptc = mapper.v_map_to_target(ptc);
+          }
+          pt0 = (function() {
+            var _i, _ref1, _results;
+            _results = [];
+            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+              _results.push(ptc[i] - halfspan[i]);
+            }
+            return _results;
+          })();
+          pt1 = (function() {
+            var _i, _ref1, _results;
+            _results = [];
+            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+              _results.push(ptc[i] + halfspan[i]);
+            }
+            return _results;
+          })();
+        } else {
+          pt0 = local_select(pt);
+          if (pt_units === 'screen') {
+            pt0 = mapper.v_map_from_target(pt0);
+          }
+          pt1 = (function() {
+            var _i, _ref1, _results;
+            _results = [];
+            for (i = _i = 0, _ref1 = pt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+              _results.push(pt0[i] + span[i]);
+            }
+            return _results;
+          })();
+        }
+        spt0 = mapper.v_map_to_target(pt0);
+        spt1 = mapper.v_map_to_target(pt1);
+        return (function() {
+          var _i, _ref1, _results;
+          _results = [];
+          for (i = _i = 0, _ref1 = spt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+            _results.push(Math.abs(spt1[i] - spt0[i]));
+          }
+          return _results;
+        })();
+      };
+
+      GlyphView.prototype.get_reference_point = function() {
+        var reference_point;
+        reference_point = this.mget('reference_point');
+        if (_.isNumber(reference_point)) {
+          return this.data[reference_point];
+        } else {
+          return reference_point;
+        }
+      };
+
+      GlyphView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
+        return null;
+      };
+
+      GlyphView.prototype._generic_line_legend = function(ctx, x0, x1, y0, y1) {
+        var line_props, reference_point, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
+        line_props = this.glyph_props.line_properties;
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(x0, (y0 + y1) / 2);
+        ctx.lineTo(x1, (y0 + y1) / 2);
+        if (line_props.do_stroke) {
+          line_props.set_vectorize(ctx, reference_point);
+          ctx.stroke();
+        }
+        return ctx.restore();
+      };
+
+      GlyphView.prototype._generic_area_legend = function(ctx, x0, x1, y0, y1) {
+        var dh, dw, h, indices, reference_point, sx0, sx1, sy0, sy1, w, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
+        indices = [reference_point];
+        w = Math.abs(x1 - x0);
+        dw = w * 0.1;
+        h = Math.abs(y1 - y0);
+        dh = h * 0.1;
+        sx0 = x0 + dw;
+        sx1 = x1 - dw;
+        sy0 = y0 + dh;
+        sy1 = y1 - dh;
+        if (this.glyph_props.fill_properties.do_fill) {
+          this.glyph_props.fill_properties.set_vectorize(ctx, reference_point);
+          ctx.fillRect(sx0, sy0, sx1 - sx0, sy1 - sy0);
+        }
+        if (this.glyph_props.line_properties.do_stroke) {
+          ctx.beginPath();
+          ctx.rect(sx0, sy0, sx1 - sx0, sy1 - sy0);
+          this.glyph_props.line_properties.set_vectorize(ctx, reference_point);
+          return ctx.stroke();
+        }
+      };
+
+      GlyphView.prototype.hit_test = function(geometry) {
+        if (geometry.type === "point") {
+          if (this._hit_point != null) {
+            return this._hit_point(geometry);
+          }
+          if (this._point_hit_warned == null) {
+            console.log("WARNING: 'point' selection not available on renderer");
+            this._point_hit_warned = true;
+          }
+          return null;
+        } else if (geometry.type === "rect") {
+          if (this._hit_rect != null) {
+            return this._hit_rect(geometry);
+          }
+          if (this._rect_hit_warned == null) {
+            console.log("WARNING: 'rect' selection not avaliable on renderer");
+            this._rect_hit_warned = true;
+          }
+          return null;
+        } else {
+          console.log("unrecognized selection geometry type '" + geometry.type + "'");
+          return null;
+        }
+      };
+
+      return GlyphView;
+
+    })(PlotWidget);
+    Glyph = (function(_super) {
+      __extends(Glyph, _super);
+
+      function Glyph() {
+        _ref1 = Glyph.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Glyph.prototype.defaults = function() {
+        return {
+          data_source: null
+        };
+      };
+
+      Glyph.prototype.display_defaults = function() {
+        return {
+          level: 'glyph',
+          radius_units: 'data',
+          length_units: 'screen',
+          angle_units: 'deg',
+          start_angle_units: 'deg',
+          end_angle_units: 'deg'
+        };
+      };
+
+      return Glyph;
+
+    })(HasParent);
+    return {
+      "Model": Glyph,
+      "View": GlyphView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=glyph.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('renderer/glyph/annular_wedge',["underscore", "rbush", "common/mathutils", "renderer/properties", "./glyph"], function(_, rbush, mathutils, Properties, Glyph) {
+    var AnnularWedge, AnnularWedgeView, _ref, _ref1;
+    AnnularWedgeView = (function(_super) {
+      __extends(AnnularWedgeView, _super);
+
+      function AnnularWedgeView() {
+        _ref = AnnularWedgeView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      AnnularWedgeView.prototype._fields = ['x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction:string'];
+
+      AnnularWedgeView.prototype._properties = ['line', 'fill'];
+
+      AnnularWedgeView.prototype._set_data = function() {
+        var i;
+        this.max_radius = _.max(this.outer_radius);
+        this.index = rbush();
+        return this.index.load((function() {
+          var _i, _ref1, _results;
+          _results = [];
+          for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+            _results.push([
+              this.x[i], this.y[i], this.x[i], this.y[i], {
+                'i': i
+              }
+            ]);
+          }
+          return _results;
+        }).call(this));
+      };
+
+      AnnularWedgeView.prototype._map_data = function() {
+        var i, _i, _ref1, _ref2, _results;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
+        this.inner_radius = this.distance_vector('x', 'inner_radius', 'edge');
+        this.outer_radius = this.distance_vector('x', 'outer_radius', 'edge');
+        this.angle = new Float32Array(this.start_angle.length);
+        _results = [];
+        for (i = _i = 0, _ref2 = this.start_angle.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
+          _results.push(this.angle[i] = this.end_angle[i] - this.start_angle[i]);
+        }
+        return _results;
+      };
+
+      AnnularWedgeView.prototype._render = function(ctx, indices, glyph_props, sx, sy, inner_radius, outer_radius) {
+        var i, _i, _len, _results;
+        if (sx == null) {
+          sx = this.sx;
+        }
+        if (sy == null) {
+          sy = this.sy;
+        }
+        if (inner_radius == null) {
+          inner_radius = this.inner_radius;
+        }
+        if (outer_radius == null) {
+          outer_radius = this.outer_radius;
+        }
+        _results = [];
+        for (_i = 0, _len = indices.length; _i < _len; _i++) {
+          i = indices[_i];
+          if (isNaN(sx[i] + sy[i] + inner_radius[i] + outer_radius[i] + this.start_angle[i] + this.angle[i])) {
+            continue;
+          }
+          ctx.translate(sx[i], sy[i]);
+          ctx.rotate(this.start_angle[i]);
+          ctx.moveTo(outer_radius[i], 0);
+          ctx.beginPath();
+          ctx.arc(0, 0, outer_radius[i], 0, this.angle[i], this.direction[i]);
+          ctx.rotate(this.angle[i]);
+          ctx.lineTo(inner_radius[i], 0);
+          ctx.arc(0, 0, inner_radius[i], 0, -this.angle[i], !this.direction[i]);
+          ctx.closePath();
+          ctx.rotate(-this.angle[i] - this.start_angle[i]);
+          ctx.translate(-sx[i], -sy[i]);
+          if (glyph_props.fill_properties.do_fill) {
+            glyph_props.fill_properties.set_vectorize(ctx, i);
+            ctx.fill();
+          }
+          if (glyph_props.line_properties.do_stroke) {
+            glyph_props.line_properties.set_vectorize(ctx, i);
+            _results.push(ctx.stroke());
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+
+      AnnularWedgeView.prototype._hit_point = function(geometry) {
+        var angle, candidates, candidates2, candidates3, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
+        x = this.plot_view.xmapper.map_from_target(vx);
+        y = this.plot_view.ymapper.map_from_target(vy);
+        if (this.outer_radius_units === "screen") {
+          vx0 = vx - this.max_radius;
+          vx1 = vx + this.max_radius;
+          _ref2 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref2[0], x1 = _ref2[1];
+          vy0 = vy - this.max_radius;
+          vy1 = vy + this.max_radius;
+          _ref3 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref3[0], y1 = _ref3[1];
+        } else {
+          x0 = x - this.max_radius;
+          x1 = x + this.max_radius;
+          y0 = y - this.max_radius;
+          y1 = y + this.max_radius;
+        }
+        candidates = (function() {
+          var _i, _len, _ref4, _results;
+          _ref4 = this.index.search([x0, y0, x1, y1]);
+          _results = [];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            pt = _ref4[_i];
+            _results.push(pt[4].i);
+          }
+          return _results;
+        }).call(this);
+        candidates2 = [];
+        if (this.outer_radius_units === "screen") {
+          sx = this.plot_view.view_state.vx_to_sx(vx);
+          sy = this.plot_view.view_state.vy_to_sy(vy);
+          for (_i = 0, _len = candidates.length; _i < _len; _i++) {
+            i = candidates[_i];
+            r2 = Math.pow(this.outer_radius[i], 2);
+            dist = Math.pow(this.sx[i] - sx, 2) + Math.pow(this.sy[i] - sy, 2);
+            if (dist <= r2) {
+              candidates2.push([i, dist]);
+            }
+          }
+        } else {
+          for (_j = 0, _len1 = candidates.length; _j < _len1; _j++) {
+            i = candidates[_j];
+            r2 = Math.pow(this.outer_radius[i], 2);
+            sx0 = this.plot_view.xmapper.map_to_target(x);
+            sx1 = this.plot_view.xmapper.map_to_target(this.x[i]);
+            sy0 = this.plot_view.ymapper.map_to_target(y);
+            sy1 = this.plot_view.ymapper.map_to_target(this.y[i]);
+            dist = Math.pow(sx0 - sx1, 2) + Math.pow(sy0 - sy1, 2);
+            if (dist <= r2) {
+              candidates2.push([i, dist]);
+            }
+          }
+        }
+        candidates3 = [];
+        if (this.inner_radius_units === "screen") {
+          sx = this.plot_view.view_state.vx_to_sx(vx);
+          sy = this.plot_view.view_state.vy_to_sy(vy);
+          for (_k = 0, _len2 = candidates2.length; _k < _len2; _k++) {
+            _ref4 = candidates2[_k], i = _ref4[0], dist = _ref4[1];
+            r2 = Math.pow(this.inner_radius[i], 2);
+            if (dist >= r2) {
+              candidates3.push([i, dist]);
+            }
+          }
+        } else {
+          for (_l = 0, _len3 = candidates2.length; _l < _len3; _l++) {
+            _ref5 = candidates2[_l], i = _ref5[0], dist = _ref5[1];
+            r2 = Math.pow(this.inner_radius[i], 2);
+            sx0 = this.plot_view.xmapper.map_to_target(x);
+            sx1 = this.plot_view.xmapper.map_to_target(this.x[i]);
+            sy0 = this.plot_view.ymapper.map_to_target(y);
+            sy1 = this.plot_view.ymapper.map_to_target(this.y[i]);
+            if (dist >= r2) {
+              candidates3.push([i, dist]);
+            }
+          }
+        }
+        hits = [];
+        for (_m = 0, _len4 = candidates3.length; _m < _len4; _m++) {
+          _ref6 = candidates3[_m], i = _ref6[0], dist = _ref6[1];
+          sx = this.plot_view.view_state.vx_to_sx(vx);
+          sy = this.plot_view.view_state.vy_to_sy(vy);
+          angle = Math.atan2(sy - this.sy[i], sx - this.sx[i]);
+          if (mathutils.angle_between(-angle, -this.start_angle[i], -this.end_angle[i], this.direction[i])) {
+            hits.push([i, dist]);
+          }
+        }
+        hits = _.chain(hits).sortBy(function(elt) {
+          return elt[1];
+        }).map(function(elt) {
+          return elt[0];
+        }).value();
+        return hits;
+      };
+
+      AnnularWedgeView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
+        var indices, inner_radius, outer_radius, r, reference_point, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
+        indices = [reference_point];
+        sx = {};
+        sx[reference_point] = (x0 + x1) / 2;
+        sy = {};
+        sy[reference_point] = (y0 + y1) / 2;
+        r = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 0.5;
+        inner_radius = {};
+        inner_radius[reference_point] = r * 0.25;
+        outer_radius = {};
+        outer_radius[reference_point] = r * 0.8;
+        return this._render(ctx, indices, this.glyph_props, sx, sy, inner_radius, outer_radius);
+      };
+
+      return AnnularWedgeView;
+
+    })(Glyph.View);
+    AnnularWedge = (function(_super) {
+      __extends(AnnularWedge, _super);
+
+      function AnnularWedge() {
+        _ref1 = AnnularWedge.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      AnnularWedge.prototype.default_view = AnnularWedgeView;
+
+      AnnularWedge.prototype.type = 'Glyph';
+
+      AnnularWedge.prototype.display_defaults = function() {
+        return _.extend(AnnularWedge.__super__.display_defaults.call(this), {
+          direction: 'anticlock',
+          fill_color: 'gray',
+          fill_alpha: 1.0,
+          line_color: 'red',
+          line_width: 1,
+          line_alpha: 1.0,
+          line_join: 'miter',
+          line_cap: 'butt',
+          line_dash: [],
+          line_dash_offset: 0
+        });
+      };
+
+      return AnnularWedge;
+
+    })(Glyph.Model);
+    return {
+      "Model": AnnularWedge,
+      "View": AnnularWedgeView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=annular_wedge.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('renderer/glyph/annulus',["underscore", "rbush", "renderer/properties", "./glyph"], function(_, rbush, Properties, Glyph) {
+    var Annulus, AnnulusView, _ref, _ref1;
+    AnnulusView = (function(_super) {
+      __extends(AnnulusView, _super);
+
+      function AnnulusView() {
+        _ref = AnnulusView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      AnnulusView.prototype._fields = ['x', 'y', 'inner_radius', 'outer_radius'];
+
+      AnnulusView.prototype._properties = ['line', 'fill'];
+
+      AnnulusView.prototype._set_data = function() {
+        var i;
+        this.max_radius = _.max(this.outer_radius);
+        this.index = rbush();
+        return this.index.load((function() {
+          var _i, _ref1, _results;
+          _results = [];
+          for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+            _results.push([
+              this.x[i], this.y[i], this.x[i], this.y[i], {
+                'i': i
+              }
+            ]);
+          }
+          return _results;
+        }).call(this));
+      };
+
+      AnnulusView.prototype._map_data = function() {
+        var _ref1;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
+        this.inner_radius = this.distance_vector('x', 'inner_radius', 'edge');
+        return this.outer_radius = this.distance_vector('x', 'outer_radius', 'edge');
+      };
+
+      AnnulusView.prototype._render = function(ctx, indices, glyph_props, sx, sy, inner_radius, outer_radius) {
+        var i, _i, _len, _results;
+        if (sx == null) {
+          sx = this.sx;
+        }
+        if (sy == null) {
+          sy = this.sy;
+        }
+        if (inner_radius == null) {
+          inner_radius = this.inner_radius;
+        }
+        if (outer_radius == null) {
+          outer_radius = this.outer_radius;
+        }
+        _results = [];
+        for (_i = 0, _len = indices.length; _i < _len; _i++) {
+          i = indices[_i];
+          if (isNaN(sx[i] + sy[i] + inner_radius[i] + outer_radius[i])) {
+            continue;
+          }
+          ctx.beginPath();
+          ctx.arc(sx[i], sy[i], inner_radius[i], 0, 2 * Math.PI * 2, false);
+          ctx.moveTo(sx[i] + outer_radius[i], sy[i]);
+          ctx.arc(sx[i], sy[i], outer_radius[i], 0, 2 * Math.PI * 2, true);
+          if (glyph_props.fill_properties.do_fill) {
+            glyph_props.fill_properties.set_vectorize(ctx, i);
+            ctx.fill();
+          }
+          if (glyph_props.line_properties.do_stroke) {
+            glyph_props.line_properties.set_vectorize(ctx, i);
+            _results.push(ctx.stroke());
+          } else {
+            _results.push(void 0);
+          }
+        }
+        return _results;
+      };
+
+      AnnulusView.prototype._hit_point = function(geometry) {
+        var candidates, candidates2, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3, _ref4, _ref5;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
+        x = this.plot_view.xmapper.map_from_target(vx);
+        y = this.plot_view.ymapper.map_from_target(vy);
+        if (this.outer_radius_units === "screen") {
+          vx0 = vx - this.max_radius;
+          vx1 = vx + this.max_radius;
+          _ref2 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref2[0], x1 = _ref2[1];
+          vy0 = vy - this.max_radius;
+          vy1 = vy + this.max_radius;
+          _ref3 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref3[0], y1 = _ref3[1];
+        } else {
+          x0 = x - this.max_radius;
+          x1 = x + this.max_radius;
+          y0 = y - this.max_radius;
+          y1 = y + this.max_radius;
+        }
+        candidates = (function() {
+          var _i, _len, _ref4, _results;
+          _ref4 = this.index.search([x0, y0, x1, y1]);
+          _results = [];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            pt = _ref4[_i];
+            _results.push(pt[4].i);
+          }
+          return _results;
+        }).call(this);
+        candidates2 = [];
+        if (this.outer_radius_units === "screen") {
+          sx = this.plot_view.view_state.vx_to_sx(vx);
+          sy = this.plot_view.view_state.vy_to_sy(vy);
+          for (_i = 0, _len = candidates.length; _i < _len; _i++) {
+            i = candidates[_i];
+            r2 = Math.pow(this.outer_radius[i], 2);
+            dist = Math.pow(this.sx[i] - sx, 2) + Math.pow(this.sy[i] - sy, 2);
+            if (dist <= r2) {
+              candidates2.push([i, dist]);
+            }
+          }
+        } else {
+          for (_j = 0, _len1 = candidates.length; _j < _len1; _j++) {
+            i = candidates[_j];
+            r2 = Math.pow(this.outer_radius[i], 2);
+            sx0 = this.plot_view.xmapper.map_to_target(x);
+            sx1 = this.plot_view.xmapper.map_to_target(this.x[i]);
+            sy0 = this.plot_view.ymapper.map_to_target(y);
+            sy1 = this.plot_view.ymapper.map_to_target(this.y[i]);
+            dist = Math.pow(sx0 - sx1, 2) + Math.pow(sy0 - sy1, 2);
+            if (dist <= r2) {
+              candidates2.push([i, dist]);
+            }
+          }
+        }
+        hits = [];
+        if (this.inner_radius_units === "screen") {
+          sx = this.plot_view.view_state.vx_to_sx(vx);
+          sy = this.plot_view.view_state.vy_to_sy(vy);
+          for (_k = 0, _len2 = candidates2.length; _k < _len2; _k++) {
+            _ref4 = candidates2[_k], i = _ref4[0], dist = _ref4[1];
+            r2 = Math.pow(this.inner_radius[i], 2);
+            if (dist >= r2) {
+              hits.push([i, dist]);
+            }
+          }
+        } else {
+          for (_l = 0, _len3 = candidates2.length; _l < _len3; _l++) {
+            _ref5 = candidates2[_l], i = _ref5[0], dist = _ref5[1];
+            r2 = Math.pow(this.inner_radius[i], 2);
+            sx0 = this.plot_view.xmapper.map_to_target(x);
+            sx1 = this.plot_view.xmapper.map_to_target(this.x[i]);
+            sy0 = this.plot_view.ymapper.map_to_target(y);
+            sy1 = this.plot_view.ymapper.map_to_target(this.y[i]);
+            if (dist >= r2) {
+              hits.push([i, dist]);
+            }
+          }
+        }
+        hits = _.chain(hits).sortBy(function(elt) {
+          return elt[1];
+        }).map(function(elt) {
+          return elt[0];
+        }).value();
+        return hits;
+      };
+
+      AnnulusView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
+        var indices, inner_radius, outer_radius, r, reference_point, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
+        indices = [reference_point];
+        sx = {};
+        sx[reference_point] = (x0 + x1) / 2;
+        sy = {};
+        sy[reference_point] = (y0 + y1) / 2;
+        r = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 0.5;
+        inner_radius = {};
+        inner_radius[reference_point] = r * 0.4;
+        outer_radius = {};
+        outer_radius[reference_point] = r * 0.8;
+        return this._render(ctx, indices, this.glyph_props, sx, sy, inner_radius, outer_radius);
+      };
+
+      return AnnulusView;
+
+    })(Glyph.View);
+    Annulus = (function(_super) {
+      __extends(Annulus, _super);
+
+      function Annulus() {
+        _ref1 = Annulus.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Annulus.prototype.default_view = AnnulusView;
+
+      Annulus.prototype.type = 'Glyph';
+
+      Annulus.prototype.display_defaults = function() {
+        return _.extend(Annulus.__super__.display_defaults.call(this), {
+          fill_color: 'gray',
+          fill_alpha: 1.0,
+          line_color: 'red',
+          line_width: 1,
+          line_alpha: 1.0,
+          line_join: 'miter',
+          line_cap: 'butt',
+          line_dash: [],
+          line_dash_offset: 0
+        });
+      };
+
+      return Annulus;
+
+    })(Glyph.Model);
+    return {
+      "Model": Annulus,
+      "View": AnnulusView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=annulus.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('renderer/glyph/arc',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
+    var Arc, ArcView, _ref, _ref1;
+    ArcView = (function(_super) {
+      __extends(ArcView, _super);
+
+      function ArcView() {
+        _ref = ArcView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ArcView.prototype._fields = ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string'];
+
+      ArcView.prototype._properties = ['line'];
+
+      ArcView.prototype._map_data = function() {
+        var _ref1;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
+        return this.radius = this.distance_vector('x', 'radius', 'edge');
+      };
+
+      ArcView.prototype._render = function(ctx, indices, glyph_props, sx, sy, radius) {
+        var i, _i, _len, _results;
+        if (sx == null) {
+          sx = this.sx;
+        }
+        if (sy == null) {
+          sy = this.sy;
+        }
+        if (radius == null) {
+          radius = this.radius;
+        }
+        if (glyph_props.line_properties.do_stroke) {
+          _results = [];
+          for (_i = 0, _len = indices.length; _i < _len; _i++) {
+            i = indices[_i];
+            if (isNaN(sx[i] + sy[i] + radius[i] + this.start_angle[i] + this.end_angle[i] + this.direction[i])) {
+              continue;
+            }
+            ctx.beginPath();
+            ctx.arc(sx[i], sy[i], radius[i], this.start_angle[i], this.end_angle[i], this.direction[i]);
+            glyph_props.line_properties.set_vectorize(ctx, i);
+            _results.push(ctx.stroke());
+          }
+          return _results;
+        }
+      };
+
+      ArcView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
+        var indices, radius, reference_point, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
+        indices = [reference_point];
+        sx = {};
+        sx[reference_point] = (x0 + x1) / 2;
+        sy = {};
+        sy[reference_point] = (y0 + y1) / 2;
+        radius = {};
+        radius[reference_point] = Math.min(Math.abs(x1 - x0), Math.abs(y1 - y0)) * 0.4;
+        return this._render(ctx, indices, this.glyph_props, sx, sy, radius);
+      };
+
+      return ArcView;
+
+    })(Glyph.View);
+    Arc = (function(_super) {
+      __extends(Arc, _super);
+
+      function Arc() {
+        _ref1 = Arc.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Arc.prototype.default_view = ArcView;
+
+      Arc.prototype.type = 'Glyph';
+
+      Arc.prototype.display_defaults = function() {
+        return _.extend(Arc.__super__.display_defaults.call(this), {
+          direction: 'anticlock',
+          line_color: 'red',
+          line_width: 1,
+          line_alpha: 1.0,
+          line_join: 'miter',
+          line_cap: 'butt',
+          line_dash: [],
+          line_dash_offset: 0
+        });
+      };
+
+      return Arc;
+
+    })(Glyph.Model);
+    return {
+      "Model": Arc,
+      "View": ArcView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=arc.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -21365,7 +21621,7 @@ if (typeof define === 'function' && define.amd) {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('renderer/glyph/wedge',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
+  define('renderer/glyph/wedge',["underscore", "rbush", "common/mathutils", "renderer/properties", "./glyph"], function(_, rbush, mathutils, Properties, Glyph) {
     var Wedge, WedgeView, _ref, _ref1;
     WedgeView = (function(_super) {
       __extends(WedgeView, _super);
@@ -21378,6 +21634,24 @@ if (typeof define === 'function' && define.amd) {
       WedgeView.prototype._fields = ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string'];
 
       WedgeView.prototype._properties = ['line', 'fill'];
+
+      WedgeView.prototype._set_data = function() {
+        var i;
+        this.max_radius = _.max(this.radius);
+        this.index = rbush();
+        return this.index.load((function() {
+          var _i, _ref1, _results;
+          _results = [];
+          for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+            _results.push([
+              this.x[i], this.y[i], this.x[i], this.y[i], {
+                'i': i
+              }
+            ]);
+          }
+          return _results;
+        }).call(this));
+      };
 
       WedgeView.prototype._map_data = function() {
         var _ref1;
@@ -21418,6 +21692,78 @@ if (typeof define === 'function' && define.amd) {
           }
         }
         return _results;
+      };
+
+      WedgeView.prototype._hit_point = function(geometry) {
+        var angle, candidates, candidates2, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3, _ref4;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
+        x = this.plot_view.xmapper.map_from_target(vx);
+        y = this.plot_view.ymapper.map_from_target(vy);
+        if (this.radius_units === "screen") {
+          vx0 = vx - this.max_radius;
+          vx1 = vx + this.max_radius;
+          _ref2 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref2[0], x1 = _ref2[1];
+          vy0 = vy - this.max_radius;
+          vy1 = vy + this.max_radius;
+          _ref3 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref3[0], y1 = _ref3[1];
+        } else {
+          x0 = x - this.max_radius;
+          x1 = x + this.max_radius;
+          y0 = y - this.max_radius;
+          y1 = y + this.max_radius;
+        }
+        candidates = (function() {
+          var _i, _len, _ref4, _results;
+          _ref4 = this.index.search([x0, y0, x1, y1]);
+          _results = [];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            pt = _ref4[_i];
+            _results.push(pt[4].i);
+          }
+          return _results;
+        }).call(this);
+        candidates2 = [];
+        if (this.radius_units === "screen") {
+          sx = this.plot_view.view_state.vx_to_sx(vx);
+          sy = this.plot_view.view_state.vy_to_sy(vy);
+          for (_i = 0, _len = candidates.length; _i < _len; _i++) {
+            i = candidates[_i];
+            r2 = Math.pow(this.radius[i], 2);
+            dist = Math.pow(this.sx[i] - sx, 2) + Math.pow(this.sy[i] - sy, 2);
+            if (dist <= r2) {
+              candidates2.push([i, dist]);
+            }
+          }
+        } else {
+          for (_j = 0, _len1 = candidates.length; _j < _len1; _j++) {
+            i = candidates[_j];
+            r2 = Math.pow(this.radius[i], 2);
+            sx0 = this.plot_view.xmapper.map_to_target(x);
+            sx1 = this.plot_view.xmapper.map_to_target(this.x[i]);
+            sy0 = this.plot_view.ymapper.map_to_target(y);
+            sy1 = this.plot_view.ymapper.map_to_target(this.y[i]);
+            dist = Math.pow(sx0 - sx1, 2) + Math.pow(sy0 - sy1, 2);
+            if (dist <= r2) {
+              candidates2.push([i, dist]);
+            }
+          }
+        }
+        hits = [];
+        for (_k = 0, _len2 = candidates2.length; _k < _len2; _k++) {
+          _ref4 = candidates2[_k], i = _ref4[0], dist = _ref4[1];
+          sx = this.plot_view.view_state.vx_to_sx(vx);
+          sy = this.plot_view.view_state.vy_to_sy(vy);
+          angle = Math.atan2(sy - this.sy[i], sx - this.sx[i]);
+          if (mathutils.angle_between(-angle, -this.start_angle[i], -this.end_angle[i], this.direction[i])) {
+            hits.push([i, dist]);
+          }
+        }
+        hits = _.chain(hits).sortBy(function(elt) {
+          return elt[1];
+        }).map(function(elt) {
+          return elt[0];
+        }).value();
+        return hits;
       };
 
       WedgeView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
@@ -21683,18 +22029,10 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/guide/axis',["underscore", "backbone", "common/safebind", "common/has_parent", "common/plot_widget", "renderer/properties"], function(_, Backbone, safebind, HasParent, PlotWidget, Properties) {
-    var Axis, AxisView, glyph_properties, line_properties, signum, text_properties, _align_lookup, _align_lookup_negative, _align_lookup_positive, _angle_lookup, _baseline_lookup, _normal_lookup, _ref, _ref1;
+    var Axis, AxisView, glyph_properties, line_properties, text_properties, _align_lookup, _align_lookup_negative, _align_lookup_positive, _angle_lookup, _baseline_lookup, _normal_lookup, _ref, _ref1;
     glyph_properties = Properties.glyph_properties;
     line_properties = Properties.line_properties;
     text_properties = Properties.text_properties;
-    signum = function(x) {
-      var _ref;
-      return (_ref = x != null ? x : x < 0) != null ? _ref : -{
-        1: {
-          1: 0
-        }
-      };
-    };
     _angle_lookup = {
       top: {
         parallel: 0,
@@ -25578,6 +25916,7 @@ define("sprintf", (function (global) {
               left: e.pageX + 18
             });
             this.div.show();
+            break;
           } else {
             this.div.hide();
           }
