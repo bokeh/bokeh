@@ -9,6 +9,12 @@ from itertools import (cycle, islice)
 
 from . import glyphs, objects
 
+
+# This is used to accumulate plots generated via the plotting methods in this
+# module.  It is used by build_gallery.py.  To activate this feature, simply
+# set _PLOTLIST to an empty list; to turn it off, set it back to None.
+_PLOTLIST = None
+
 def axes2plot(axes):
     """ In the matplotlib object model, Axes actually are containers for all
     renderers and basically everything else on a plot.
@@ -18,6 +24,8 @@ def axes2plot(axes):
     """
 
     plot = objects.Plot(title=axes.get_title())
+    if _PLOTLIST is not None:
+        _PLOTLIST.append(plot)
     plot.x_range = objects.DataRange1d()
     plot.y_range = objects.DataRange1d()
     datasource = objects.ColumnDataSource()
@@ -183,7 +191,7 @@ def _map_line_props(newline, line2d):
         "projecting": "square",
     }
     # Note: these are not *just* the line properties, rather they are
-    # the properties to set when a line2d represents a line plot 
+    # the properties to set when a line2d represents a line plot
     setattr(newline, "line_color", line2d.get_color())
     setattr(newline, "line_width", line2d.get_linewidth())
     setattr(newline, "line_alpha", line2d.get_alpha())
