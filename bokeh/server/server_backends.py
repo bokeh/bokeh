@@ -5,7 +5,7 @@ from .models import user
 from .models import UnauthorizedException
 from .app import bokeh_app
 from ..exceptions import DataIntegrityException
-from ..utils import encode_utf8
+from ..utils import encode_utf8, decode_utf8
 import logging
 logger = logging.getLogger(__name__)
 
@@ -92,7 +92,7 @@ class InMemoryServerModelStorage(object):
         data = self._data.get(key, None)
         if data is None:
             return None
-        attrs = json.loads(data.decode('utf-8'))
+        attrs = json.loads(decode_utf8(data))
         return attrs
 
     def set(self, key, val):
@@ -111,7 +111,7 @@ class ShelveServerModelStorage(object):
         data = _data.get(key, None)
         if data is None:
             return None
-        attrs = json.loads(data.decode('utf-8'))
+        attrs = json.loads(decode_utf8(data))
         _data.close()
         return attrs
 
