@@ -23,7 +23,7 @@ def colorline(x, y, colors=None, linewidth=3, alpha=1.0):
     '''
 
     # Make a list of colors cycling through the rgbcmyk series.
-    # You have several ways to input the colors: 
+    # You have several ways to input the colors:
     # colors = ['r','g','b','c','y','m','k']
     # colors = ['red','green','blue','cyan','yellow','magenta','black']
     # colors = ['#ff0000', '#008000', '#0000ff', '#00bfbf', '#bfbf00', '#bf00bf', '#000000']
@@ -52,6 +52,6 @@ plt.title("MPL support for ListCollection in Bokeh")
 plt.xlim(x.min(), x.max())
 plt.ylim(-1.0, 1.0)
 
-pyplot.show_bokeh(plt.gcf(), filename="mpl_listcollection.html")
+pyplot.show_bokeh(plt.gcf(), filename="listcollection.html")
 
-plotting.session().dumpjson(file="mpl_listcollection.json")
+plotting.session().dumpjson(file="listcollection.json")
