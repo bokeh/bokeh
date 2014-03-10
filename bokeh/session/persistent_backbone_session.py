@@ -264,4 +264,3 @@ class PersistentBackboneSession(object):
 
     def del_objs(self, to_del):
         raise NotImplementedError
-

@@ -66,4 +66,3 @@ class BaseHTMLSession(BaseJSONSession):
         import jinja2
         with open(join(self.template_dir, filename)) as f:
             return jinja2.Template(f.read())
-
