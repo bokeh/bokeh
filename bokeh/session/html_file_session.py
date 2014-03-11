@@ -3,7 +3,8 @@
 from __future__ import absolute_import
 
 import os
-from os.path import abspath, normpath, split, join, relpath, splitext
+import sys
+from os.path import abspath, normpath, realpath, split, join, relpath, splitext
 import logging
 from six import string_types
 
@@ -52,7 +53,9 @@ class HTMLFileSession(BaseHTMLSession):
         return [ self.static_path(file) for file in files ]
 
     def static_path(self, path):
-        return normpath(join(self.server_static_dir, path))
+        path = normpath(join(self.server_static_dir, path))
+        if sys.platform == 'cygwin': path = realpath(path)
+        return path
 
     def js_paths(self, minified=True, dev=False):
         files = self.js_files_dev if dev else self.js_files
