@@ -23,14 +23,20 @@ from .palettes import brewer
 DEFAULT_SERVER_URL = "http://localhost:5006/"
 
 class _AttrDict(dict):
+    def _bad_attr(self, name):
+        raise ValueError("'%s' is not a valid configuration option, allowed options are %s" % (name, ", ".join(self.keys())))
+
     def __getattr__(self, name):
-        return os.environ.get("BOKEH_" + name.upper(), self[name])
+        if name in self:
+            return os.environ.get("BOKEH_" + name.upper(), self[name])
+        else:
+            self._bad_attr(name)
 
     def __setattr__(self, name, value):
         if name in self:
             self[name] = value
         else:
-            raise ValueError("'%s' is not a valid configuration option, use %s" % (name, _config.keys()))
+            self._bad_attr(name)
 
 _config = {}
 
