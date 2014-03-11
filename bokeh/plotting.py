@@ -28,7 +28,7 @@ class _AttrDict(dict):
 
     def __getattr__(self, name):
         if name in self:
-            return os.environ.get("BOKEH_" + name.upper(), self[name])
+            return self[name]
         else:
             self._bad_attr(name)
 

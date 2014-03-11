@@ -2,6 +2,7 @@
 """
 from __future__ import absolute_import
 
+import os
 from os.path import abspath, normpath, split, join, relpath, splitext
 import logging
 from six import string_types
@@ -65,6 +66,9 @@ class HTMLFileSession(BaseHTMLSession):
         self.raw_js_objs.append(obj)
 
     def get_resources(self, resources, rootdir):
+        resources = os.environ.get("BOKEH_RESOURCES", resources)
+        rootdir = os.environ.get("BOKEH_ROOTDIR", rootdir)
+
         if resources not in ['inline', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
             raise ValueError("wrong value for 'resources' parameter, expected 'inline', 'relative(-dev)' or 'absolute(-dev)', got %r" % resources)
 
