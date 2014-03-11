@@ -86,6 +86,6 @@ sess.add(grid, recursive=True)
 sess.plotcontext.children.append(grid)
 
 if __name__ == "__main__":
-    sess.save(js="absolute", css="absolute")
+    sess.save()
     print("Wrote %s" % sess.filename)
     sess.view()
