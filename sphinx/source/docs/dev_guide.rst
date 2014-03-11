@@ -130,6 +130,49 @@ Properties
 Sessions
 --------
 
+Bokeh supports three main kinds of sessions: **file**, **server** and **notebook**.
+This allows for creating static files with plots, communicating with a plot server
+and rendering plots in IPython Notebook (:see:`http://ipython.org/notebook`), and
+there are :class:`HTMLFileSession`, :class:`PlotServerSession` and
+:class:`NotebookSession`, respectively, to handle those cases.
+
+File sessions
+*************
+
+::
+
+    >>> from bokeh.session import HTMLFileSession
+    >>> session = HTMLFileSession("myplot.html")
+    >>> session.save()
+
+:func:`HTMLFileSession.save` accepts ``resources`` argument that allows to specify
+how static files (JavaScript and CSS files) will be attached to generated HTML files::
+
+    >>> session.save(resources="inline")
+
+This is equivalent to ``session.save()`` and Bokeh will merge all static resources into
+``myplot.html``. This might be convenient, because we get a single-file bundle that's
+easy to move around and share, but the resulting HTML file is large, e.g. ``anscombe``
+example (``examples/glyphs/anscombe.py``) creates ``anscombe.html`` file that is over
+half a megabyte large (as of Bokeh 0.4.2).
+
+An alternative is to use either ``relative`` or ``absolute`` options, which allow
+for reuse of pre-generated static resources by linking to ``bokeh(.min).{js,css}``
+from generated HTML file, using relative (to the working directory) or absolute
+paths, respectively. In ``relative`` case, one can specify ``rootdir`` to change
+working directory. Using either of those two options allows to reduce ``anscombe.html``
+to under 20 kilobytes. Note that depending on the configuration, moving Bokeh or
+generated ``*.html`` files around may break links and you will have to rerun your
+code for the new setup.
+
+Another option is to use ``relative-dev`` or ``absolute-dev`` which additionally
+allow to use individual development files via ``requirejs`` instead of ``bokeh.*``
+bundles. If developing Bokeh, this allows for very fast turnaround time when used
+together with ``grunt watch`` for compiling ``bokehjs``. Don't use this in production
+environments. When working with examples, it may come handy to use ``BOKEH_RESOURCES``
+and ``BOKEH_ROOTDIR`` environmental variables, which allow to override any values
+passed to :func:`HTMLFileSession.save`. This is useful when working with examples,
+which use user-friendly defaults (user-friendly ``!=`` developer-friendly).
 
 Low-level Object Interface
 --------------------------
