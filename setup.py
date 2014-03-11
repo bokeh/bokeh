@@ -1,6 +1,7 @@
 
 import os
 from os.path import abspath, exists, isdir, join, dirname
+import site
 import sys
 import shutil
 from distutils.core import setup
@@ -164,7 +165,11 @@ def getsitepackages():
             sitepackages.append(os.path.abspath(sitedir))
     return sitepackages
 
-site_packages = getsitepackages()[0]
+if '--user' in sys.argv:
+    site_packages = site.USER_SITE
+else:
+    site_packages = getsitepackages()[0]
+
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))
 
