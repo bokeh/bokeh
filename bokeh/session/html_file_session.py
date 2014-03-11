@@ -65,11 +65,14 @@ class HTMLFileSession(BaseHTMLSession):
         self.raw_js_objs.append(obj)
 
     def get_resources(self, resources, rootdir):
+        if resources not in ['inline', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
+            raise ValueError("wrong value for 'resources' parameter, expected 'inline', 'relative(-dev)' or 'absolute(-dev)', got %r" % resources)
+
+        if not resources.startswith("relative") and rootdir:
+            raise ValueError("setting 'rootdir' makes sense only when 'resources' is set to 'relative'")
+
         raw_js, js_files = [], []
         raw_css, css_files = [], []
-
-        if rootdir is None:
-            rootdir = self.rootdir
 
         dev = resources.endswith('-dev')
         if dev:
@@ -83,14 +86,13 @@ class HTMLFileSession(BaseHTMLSession):
             raw_js = self._inline_files(js_paths)
             raw_css = self._inline_files(css_paths)
         elif resources == "relative":
+            rootdir = rootdir or self.rootdir
             js_files = [ relpath(p, rootdir) for p in js_paths ]
             css_files = [ relpath(p, rootdir) for p in css_paths ]
             base_url = relpath(base_url, rootdir)
         elif resources == "absolute":
             js_files = list(js_paths)
             css_files = list(css_paths)
-        else:
-            raise ValueError("wrong value for 'resources' parameter, expected 'inline', 'relative(-dev)' or 'absolute(-dev)', got %r" % resources)
 
         if dev:
             require = 'require.config({ baseUrl: "%s" });' % base_url
