@@ -24,7 +24,7 @@ DEFAULT_SERVER_URL = "http://localhost:5006/"
 
 class _AttrDict(dict):
     def __getattr__(self, name):
-        return self[name]
+        return os.environ.get("BOKEH_" + name.upper(), self[name])
 
     def __setattr__(self, name, value):
         if name in self:
