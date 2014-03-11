@@ -49,16 +49,15 @@ Try running ``line.py`` or ``candlestick.py`` for other static HTML file example
 
 If these HTML files are too large (since they embed the source code for
 the BokehJS JavaScript library, as well as the various Bokeh CSS), then you
-can modify any of the example scripts in ``examples/plotting/file/`` and change
-the ``output_file()`` function calls by adding two keyword arguments.  For the
-iris.py example, you would change the call::
+can modify any of the example scripts in ``examples/plotting/file`` and change
+the ``output_file()`` function calls by adding ``resources`` keyword argument.
+For the ``iris.py`` example, you would change the call::
 
     output_file("iris.html", title="iris.py example")
 
-To::
+to::
 
     output_file("iris.html", title="iris.py example", resources="relative")
-
 
 Using the Plot Server
 ---------------------
