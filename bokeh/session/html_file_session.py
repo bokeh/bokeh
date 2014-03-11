@@ -33,7 +33,7 @@ class HTMLFileSession(BaseHTMLSession):
 
     # Used to compute the relative paths to JS and CSS if they are not
     # inlined into the output
-    rootdir = abspath(split(__file__)[0])
+    rootdir = '.'
 
     def __init__(self, filename="bokehplot.html", plot=None, title=None):
         self.filename = filename

@@ -244,7 +244,7 @@ def output_server(docname, server=None, name=None, url="default", **kwargs):
     real_url = _config["output_url"]
     print("Using plot server at", real_url + "bokeh;", "Docname:", docname)
 
-def output_file(filename, title="Bokeh Plot", autosave=True, resources="inline", rootdir="."):
+def output_file(filename, title="Bokeh Plot", autosave=True, resources="inline", rootdir=None):
     """ Outputs to a static HTML file. WARNING: This file will be overwritten
     each time show() is invoked.
 
@@ -264,7 +264,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, resources="inline",
         print("Session output file '%s' already exists, will be overwritten." % filename)
     session = HTMLFileSession(filename, title=title)
     _config.update(dict(
-        output_type = "file", output_file = filename, output_url= None,
+        output_type = "file", output_file = filename, output_url = None,
         file_resources = resources, file_rootdir = rootdir, session = session))
 
 def figure(**kwargs):
