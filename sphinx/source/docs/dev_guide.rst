@@ -174,6 +174,9 @@ and ``BOKEH_ROOTDIR`` environmental variables, which allow to override any value
 passed to :func:`HTMLFileSession.save`. This is useful when working with examples,
 which use user-friendly defaults (user-friendly ``!=`` developer-friendly).
 
+You can also link to static files that are available from Bokeh's `CDN <http://cdn.pydata.org>`
+by setting ``resources="cdn"``. This requires an internet connection to make it work.
+
 Low-level Object Interface
 --------------------------
 

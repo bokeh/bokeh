@@ -28,6 +28,20 @@ class HTMLFileSession(BaseHTMLSession):
     js_files_dev = ['js/vendor/requirejs/require.js', 'js/config.js']
     css_files_dev = ['js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css', 'css/continuum.css', 'css/main.css']
 
+    _cdn_host = 'http://cdn.pydata.org'
+    _cdn_version = '0.4.2'              # TODO: use bokeh.__version__
+
+    def _cdn_url(self, ext):
+        return "%s/bokeh-%s.min.%s" % (self._cdn_host, self._cdn_version, ext)
+
+    @property
+    def js_files_cdn(self):
+        return [self._cdn_url("js")]
+
+    @property
+    def css_files_cdn(self):
+        return [self._cdn_url("css")]
+
     # Template files used to generate the HTML
     js_template = "plots.js"
     div_template = "plots.html"     # template for just the plot <div>
@@ -72,8 +86,8 @@ class HTMLFileSession(BaseHTMLSession):
         resources = os.environ.get("BOKEH_RESOURCES", resources)
         rootdir = os.environ.get("BOKEH_ROOTDIR", rootdir)
 
-        if resources not in ['inline', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
-            raise ValueError("wrong value for 'resources' parameter, expected 'inline', 'relative(-dev)' or 'absolute(-dev)', got %r" % resources)
+        if resources not in ['inline', 'cdn', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
+            raise ValueError("wrong value for 'resources' parameter, expected 'inline', 'cdn', 'relative(-dev)' or 'absolute(-dev)', got %r" % resources)
 
         if not resources.startswith("relative") and rootdir:
             raise ValueError("setting 'rootdir' makes sense only when 'resources' is set to 'relative'")
@@ -89,7 +103,7 @@ class HTMLFileSession(BaseHTMLSession):
         css_paths = self.css_paths(dev=dev)
         base_url = self.static_path("js")
 
-        if resources == "inline" and not dev:
+        if resources == "inline":
             raw_js = self._inline_files(js_paths)
             raw_css = self._inline_files(css_paths)
         elif resources == "relative":
@@ -100,6 +114,9 @@ class HTMLFileSession(BaseHTMLSession):
         elif resources == "absolute":
             js_files = list(js_paths)
             css_files = list(css_paths)
+        elif resources == "cdn":
+            js_files = list(self.js_files_cdn)
+            css_files = list(self.css_files_cdn)
 
         if dev:
             require = 'require.config({ baseUrl: "%s" });' % base_url
@@ -120,11 +137,11 @@ class HTMLFileSession(BaseHTMLSession):
     def dumps(self, resources="inline", rootdir=None):
         """ Returns the HTML contents as a string
 
-        **resources** can be `inline`, `relative` or `absolute`.
+        **resources** can be `inline`, `cdn`, `relative(-dev)` or `absolute(-dev)`.
 
-        If **resources** is set to `relative` then **rootdir** can be specified
-        to indicate the base directory from which the path to the various static
-        files should be computed.
+        If **resources** is set to `relative(-dev)` then **rootdir** can be specified
+        to indicate the base directory from which the path to the various static files
+        should be computed.
         """
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
@@ -168,11 +185,11 @@ class HTMLFileSession(BaseHTMLSession):
         """ Saves the file contents. Uses self.filename if **filename** is not
         provided. Overwrites the contents.
 
-        **resources** can be `inline`, `relative` or `absolute`.
+        **resources** can be `inline`, `cdn`, `relative(-dev)` or `absolute(-dev)`.
 
-        If **resources** is set to `relative` then **rootdir** can be specified
-        to indicate the base directory from which the path to the various static
-        files should be computed.
+        If **resources** is set to `relative(-dev)` then **rootdir** can be specified
+        to indicate the base directory from which the path to the various static files
+        should be computed.
         """
         s = self.dumps(resources, rootdir)
         if filename is None:

@@ -267,8 +267,8 @@ def output_file(filename, title="Bokeh Plot", autosave=True, resources="inline",
     visual functions is called, this causes the file to be saved. If it
     is False, then the file is only saved upon calling show().
 
-    **resources** can be 'inline', 'relative(-dev)' or 'absolute(-dev)'. In
-    the 'relative(-dev)' case, **rootdir** can be specified to indicate the
+    **resources** can be 'inline', 'cdn', 'relative(-dev)' or 'absolute(-dev)'.
+    In the 'relative(-dev)' case, **rootdir** can be specified to indicate the
     base directory from which the path to the various static files should be
     computed.
 
