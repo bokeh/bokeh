@@ -63,7 +63,7 @@ iris.py example, you would change the call:
 To:
 ::
 
-    output_file("iris.html", title="iris.py example", js="relative", css="relative")
+    output_file("iris.html", title="iris.py example", resources="relative")
 
 
 Using the Plot Server

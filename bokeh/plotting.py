@@ -264,12 +264,13 @@ def output_file(filename, title="Bokeh Plot", autosave=True, resources="inline",
     each time show() is invoked.
 
     If **autosave** is True, then every time plot() or one of the other
-    visual functions is called, this causes the file to be saved.  If it
+    visual functions is called, this causes the file to be saved. If it
     is False, then the file is only saved upon calling show().
 
-    **js** and **css** can be "inline" or "relative". In the latter case,
-    **rootdir** can be specified to indicate the base directory from which
-    the path to the various static files should be computed.
+    **resources** can be 'inline', 'relative(-dev)' or 'absolute(-dev)'. In
+    the 'relative(-dev)' case, **rootdir** can be specified to indicate the
+    base directory from which the path to the various static files should be
+    computed.
 
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
