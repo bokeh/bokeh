@@ -56,11 +56,11 @@ class BaseHTMLSession(BaseJSONSession):
         strings = []
         for file in files:
             path = abspath(join(self.server_static_dir, file))
-            begin = "\n/* BEGIN %s */\n" % path
+            begin = "/* BEGIN %s */" % path
             middle = open(path, 'rb').read().decode("utf-8")
-            end = "\n/* END %s */\n" % path
-            strings.append(begin + middle + end)
-        return "".join(strings)
+            end = "/* END %s */" % path
+            strings.append(begin + '\n' + middle + '\n' + end)
+        return strings
 
     def _load_template(self, filename):
         import jinja2
