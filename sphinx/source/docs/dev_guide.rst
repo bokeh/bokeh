@@ -132,9 +132,9 @@ Sessions
 
 Bokeh supports three main kinds of sessions: **file**, **server** and **notebook**.
 This allows for creating static files with plots, communicating with a plot server
-and rendering plots in IPython Notebook (:see:`http://ipython.org/notebook`), and
-there are :class:`HTMLFileSession`, :class:`PlotServerSession` and
-:class:`NotebookSession`, respectively, to handle those cases.
+and rendering plots in `IPython Notebook <http://ipython.org/notebook>`, and there
+are :class:`HTMLFileSession`, :class:`PlotServerSession` and :class:`NotebookSession`,
+respectively, to handle those cases.
 
 File sessions
 *************
