@@ -13,8 +13,8 @@ If you have a data API or other web-based tool that you think would be great
 to have available by default in Bokeh, we would be excited to make it available
 as a plug-in in Bokeh.
 
-If you are a Javascript developer and want to help us make Bokeh easier to use
-on the Javascript side, and plug in more nicely with libraries like Angular or
+If you are a JavaScript developer and want to help us make Bokeh easier to use
+on the JavaScript side, and plug in more nicely with libraries like Angular or
 Dart, please get in touch.
 
 If you are a designer and you want to help us build out a great set of default

@@ -8,6 +8,7 @@ from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 from bokeh import plotting
 from bokeh import plotting_helpers
+from bokeh import mpl
 
 # patch open and show to be no-ops
 def noop(*args, **kwargs):
@@ -21,6 +22,7 @@ def page_desc(module_desc):
     var_name = module_desc.get('var_name', None)
 
     plotting_helpers._PLOTLIST = []
+    mpl._PLOTLIST = []
 
     namespace = {}
     execfile(module_path, namespace)
@@ -28,7 +30,10 @@ def page_desc(module_desc):
     if var_name:
         objects = [namespace[var_name]]
     else:
-        objects = plotting_helpers._PLOTLIST
+        if plotting_helpers._PLOTLIST:
+            objects = plotting_helpers._PLOTLIST
+        else:
+            objects = mpl._PLOTLIST
 
     embed_snippet = ""
     for i, obj in enumerate(objects):

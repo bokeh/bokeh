@@ -31,6 +31,6 @@ plt.ylim([-60, 60])
 
 plt.title("MPL-PolyCollection support in Bokeh")
 
-pyplot.show_bokeh(plt.gcf(), filename="mpl_polycollection.html")
+pyplot.show_bokeh(plt.gcf(), filename="polycollection.html")
 
-plotting.session().dumpjson(file="mpl_polycollection.json")
+plotting.session().dumpjson(file="polycollection.json")

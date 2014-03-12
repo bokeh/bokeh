@@ -17,19 +17,27 @@ logger = logging.getLogger(__name__)
 
 from ..objects import PlotObject, Plot
 from ..session import PersistentBackboneSession, BaseJSONSession
+from ..utils import encode_utf8, decode_utf8
 from . import server_backends
 from .app import bokeh_app
 
 def dockey(docid):
-    return 'doc:' + docid
+    docid = encode_utf8('doc:' + docid)
+    return docid
 
 def modelkey(typename, docid, modelid):
+    docid = encode_utf8(docid)
+    modelid = encode_utf8(modelid)
     return 'bbmodel:%s:%s:%s' % (typename, docid, modelid)
 
 def callbackskey(typename, docid, modelid):
     return 'bbcallback:%s:%s:%s' % (typename, docid, modelid)
 
 def parse_modelkey(modelkey):
+    _, typename, docid, modelid = decode_utf8(modelkey).split(":")
+    return (typename, docid, modelid)
+
+def parse_modelkey_redis(modelkey):
     _, typename, docid, modelid = modelkey.decode('utf-8').split(":")
     return (typename, docid, modelid)
 
@@ -65,9 +73,9 @@ class RedisSession(PersistentBackboneSession, BaseJSONSession):
             self, delete=delete
             )
         to_keep = set([x._id for x in all_models])
-        for k in self._models.keys():
-            if k not in to_keep:
-                del self._models[k]
+        to_delete = set(self._models.keys()) - to_keep
+        for k in to_delete:
+            del self._models[k]
         return
 
     def load_all(self, asdict=False):
@@ -77,7 +85,7 @@ class RedisSession(PersistentBackboneSession, BaseJSONSession):
             return attrs
         data = []
         for k, attr in zip(doc_keys, attrs):
-            typename, _, modelid = parse_modelkey(k)
+            typename, _, modelid = parse_modelkey_redis(k)
             attr = protocol.deserialize_json(attr.decode('utf-8'))
             data.append({'type' : typename,
                          'attributes' : attr})
@@ -175,7 +183,7 @@ class InMemorySession(PersistentBackboneSession, BaseJSONSession):
         data = []
         for k, attr in zip(doc_keys, attrs):
             typename, _, modelid = parse_modelkey(k)
-            attr = protocol.deserialize_json(attr.decode('utf-8'))
+            attr = protocol.deserialize_json(decode_utf8(attr))
             data.append({'type' : typename,
                          'attributes' : attr})
         models = self.load_broadcast_attrs(data, events=None)
@@ -255,9 +263,9 @@ class ShelveSession(PersistentBackboneSession, BaseJSONSession):
             self, delete=delete
             )
         to_keep = set([x._id for x in all_models])
-        for k in self._models.keys():
-            if k not in to_keep:
-                del self._models[k]
+        to_delete = set(self._models.keys()) - to_keep
+        for k in to_delete:
+            del self._models[k]
         return
 
     def load_all(self, asdict=False):
@@ -270,7 +278,7 @@ class ShelveSession(PersistentBackboneSession, BaseJSONSession):
         data = []
         for k, attr in zip(doc_keys, attrs):
             typename, _, modelid = parse_modelkey(k)
-            attr = protocol.deserialize_json(attr.decode('utf-8'))
+            attr = protocol.deserialize_json(decode_utf8(attr))
             data.append({'type' : typename,
                          'attributes' : attr})
         models = self.load_broadcast_attrs(data, events=None)
@@ -295,7 +303,8 @@ class ShelveSession(PersistentBackboneSession, BaseJSONSession):
         #logger.debug('storing %s', data)
         for k, v in newdata.items():
             data[k] = v
-        if not sets.has_key(dkey):
+        #if not sets.has_key(dkey):
+        if not dkey in sets:
             temp = set()
         else:
             temp = sets[dkey]

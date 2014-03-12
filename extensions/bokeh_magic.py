@@ -29,7 +29,7 @@ class BokehMagics(Magics):
 
     if IPython.__version__ in ['1.2.1', '1.2.0', '1.1.2', '1.1.1', '1.0.0']:
         is_ipytwo = False
-    elif IPython.__version__ in ['2.0.0', '2.0.0-dev']:
+    elif IPython.__version__ in ['2.0.0', '2.0.0-dev', '2.0.0-b1']:
         is_ipytwo = True
     else:
         print("This version of IPython is not currently supported.")

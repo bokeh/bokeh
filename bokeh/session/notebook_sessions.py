@@ -11,7 +11,6 @@ from .plot_server_session import PlotServerSession
 
 logger = logging.getLogger(__file__)
 
-
 class NotebookSessionMixin(object):
     """ Mix this into ``BaseHTMLSession``. """
 
@@ -38,7 +37,6 @@ class NotebookSessionMixin(object):
         """
         import IPython.core.displaypub as displaypub
         displaypub.publish_display_data('bokeh', {'text/html': self.dumps(*objects)})
-
 
 class NotebookSession(NotebookSessionMixin, HTMLFileSession):
     """ Produces inline HTML suitable for placing into an IPython Notebook. """
@@ -78,7 +76,6 @@ class NotebookSession(NotebookSessionMixin, HTMLFileSession):
             html_snippets=["<p>Configuring embedded BokehJS mode.</p>"])
         displaypub.publish_display_data('bokeh', {'text/html': html})
         return None
-
 
 class NotebookServerSession(NotebookSessionMixin, PlotServerSession):
     """ An IPython Notebook session that is connected to a plot server. """

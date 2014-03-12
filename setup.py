@@ -1,6 +1,7 @@
 
 import os
 from os.path import abspath, exists, isdir, join, dirname
+import site
 import sys
 import shutil
 from distutils.core import setup
@@ -13,6 +14,8 @@ versioneer.parentdir_prefix = 'Bokeh-' # dirname like 'myproject-1.2.0'
 
 # Set up this checkout or source archive with the right BokehJS files.
 
+if sys.version_info[:2] < (2,6):
+    raise RuntimeError("Bokeh requires python >= 2.6")
 
 BOKEHJSROOT = 'bokehjs'
 BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
@@ -66,7 +69,7 @@ def get_sample_data():
     for path, dirs, files in os.walk(root):
         for fs in files:
             if fs.endswith(suffix_list):
-                data_files.append(join(path,fs))
+                data_files.append(join("sampledata",fs))
     return data_files
 
 package_data_dirs = package_data_dirs+get_sample_data()
@@ -162,7 +165,11 @@ def getsitepackages():
             sitepackages.append(os.path.abspath(sitedir))
     return sitepackages
 
-site_packages = getsitepackages()[0]
+if '--user' in sys.argv:
+    site_packages = site.USER_SITE
+else:
+    site_packages = getsitepackages()[0]
+
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))
 
@@ -180,36 +187,40 @@ elif 'install' in sys.argv:
         print("installing bokeh,  bokeh.pth was not found, so we did not clean it")
 
 REQUIRES = [
-        'Flask==0.10.1',
-        'Jinja2==2.7',
-        'MarkupSafe==0.18',
-        'Werkzeug==0.9.1',
-        'argparse==1.2.1',
-        'greenlet==0.4.1',
-        'itsdangerous==0.21',
+        'Flask>=0.10.1',
+        'Jinja2>=2.7',
+        'MarkupSafe>=0.18',
+        'Werkzeug>=0.9.1',
+        'greenlet>=0.4.1',
+        'itsdangerous>=0.21',
         'numpy>=1.7.1',
         'pandas>=0.11.0',
-        'python-dateutil==2.1',
+        'python-dateutil>=2.1',
         'pytz==2013b',
-        'requests==1.2.3',
-        'six==1.5.2',
-        'wsgiref==0.1.2',
-        'pygments==1.6',
-        'pystache==0.5.3',
-        'markdown==2.3.1',
-        'PyYAML==3.10',
+        'requests>=1.2.3',
+        'six>=1.5.2',
+        'pygments>=1.6',
+        'pystache>=0.5.3',
+        'markdown>=2.3.1',
+        'PyYAML>=3.10',
         # tests
-        'mock==1.0.1',
-        'websocket==0.2.1',
-        'colorama==0.2.7'
+        'nose>=1.3.0',
+        'mock>=1.0.1',
+        'colorama>=0.2.7'
     ]
+
+if sys.version_info[:2] == (2,6):
+    REQUIRES.append('argparse>=1.1')
+
 if sys.version_info[0] != 3:
     REQUIRES.extend([
+        'websocket>=0.2.1',
         'gevent==0.13.8',
         'gevent-websocket==0.3.6',
     ])
+
 if sys.platform != "win32":
-    REQUIRES.append('redis==2.7.6')
+    REQUIRES.append('redis>=2.7.6')
 
 setup(
     name = 'bokeh',

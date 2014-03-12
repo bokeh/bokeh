@@ -19,6 +19,8 @@ API_PARAMS = {
 }
 ISSUES_URL = 'https://api.github.com/repos/{owner}/{repo}/issues?state=closed'.format(**API_PARAMS)
 TAGS_URL = 'https://api.github.com/repos/{owner}/{repo}/tags'.format(**API_PARAMS)
+CHANGEKIND_ORDER = [None, 'enhancements', 'bugfixes', 'test', 'docs']
+CHANGEKIND_SHOW = CHANGEKIND_ORDER[:3] # show only these change kinds
 
 
 def parse_timestamp(timestamp):
@@ -28,7 +30,7 @@ def parse_timestamp(timestamp):
 
 
 def changekind(issue):
-    """Returns change type names as string, otherwise None."""
+    """Returns change kind name of given issue, or None if it has no kind."""
     for label in issue.get('labels', []):
         if label['name'] == 'enhancement':
             return 'enhancements'
@@ -41,25 +43,13 @@ def changekind(issue):
     return None
 
 
-def changekind_sortorder(issue):
-    """Issue sort key: General issues, enhancements, bugfixes, other."""
-    kind = changekind(issue)
-    if not kind:
-        return 0
-    elif kind == 'enhancements':
-        return 1
-    elif kind == 'bugfixes':
-        return 2
-    return 3
-
-
 def relevant_issues(issues, after):
     """Yields relevant closed issues (closed after a given datetime) given a list of issues."""
     seen = set()
     for issue in issues:
         if (issue['state'] == 'closed' and
             parse_timestamp(issue['closed_at']) > after and
-            changekind(issue) in [None, 'enhancements', 'bugfixes'] and
+            changekind(issue) in CHANGEKIND_SHOW and
             not issue['title'] in seen):
                 seen.add(issue['title'])
                 yield issue
@@ -107,7 +97,7 @@ if __name__ == '__main__':
     if args.v:
         label = '{}{:>9}:'.format(datetime.now().date(), args.v)
 
-    sort_key = lambda issue: (changekind_sortorder(issue), int(issue['number']))
+    sort_key = lambda issue: (CHANGEKIND_ORDER.index(changekind(issue)), int(issue['number']))
     by_kind = lambda issue: changekind(issue)
 
     issues = query_issues()
@@ -119,7 +109,6 @@ if __name__ == '__main__':
         if(kind):
             print('  * {}:'.format(kind))
         for issue in issue_group:
-            if kind:
-                print('    - #{} {}'.format(issue['number'], issue['title']))
-            else:
-                print('  * #{} {}'.format(issue['number'], issue['title']))
+            prefix = '    - ' if kind else '  * '
+            title = issue['title'].capitalize().rstrip('.')
+            print(prefix + '#{} {}'.format(issue['number'], title))

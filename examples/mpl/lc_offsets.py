@@ -34,6 +34,6 @@ ax.set_title('Successive data offsets')
 
 fig = plt.gcf()
 
-pyplot.show_bokeh(plt.gcf(), filename="mpl_lc_offsets.html")
+pyplot.show_bokeh(plt.gcf(), filename="lc_offsets.html")
 
-plotting.session().dumpjson(file="mpl_lc_offsets.json")
+plotting.session().dumpjson(file="lc_offsets.json")
