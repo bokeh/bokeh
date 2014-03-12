@@ -8,6 +8,7 @@ from os.path import abspath, normpath, realpath, split, join, relpath, splitext
 import logging
 from six import string_types
 
+from .. import __version__
 from ..objects import PlotContext
 from .base_html_session import BaseHTMLSession
 
@@ -29,7 +30,7 @@ class HTMLFileSession(BaseHTMLSession):
     css_files_dev = ['js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css', 'css/continuum.css', 'css/main.css']
 
     _cdn_host = 'http://cdn.pydata.org'
-    _cdn_version = '0.4.2'              # TODO: use bokeh.__version__
+    _cdn_version = __version__.split("-")[0]
 
     def _cdn_url(self, ext):
         return "%s/bokeh-%s.min.%s" % (self._cdn_host, self._cdn_version, ext)

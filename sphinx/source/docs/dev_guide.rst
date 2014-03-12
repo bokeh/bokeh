@@ -175,7 +175,10 @@ passed to :func:`HTMLFileSession.save`. This is useful when working with example
 which use user-friendly defaults (user-friendly ``!=`` developer-friendly).
 
 You can also link to static files that are available from Bokeh's `CDN <http://cdn.pydata.org>`
-by setting ``resources="cdn"``. This requires an internet connection to make it work.
+by setting ``resources="cdn"``. This requires an internet connection to make it work,
+but is very useful for sharing plots. Note that if you are using a development version
+of Bokeh, then linked resources are from latest published version prior to current
+``HEAD``. This may introduce incompatibilities between Bokeh and BokehJS.
 
 Low-level Object Interface
 --------------------------
