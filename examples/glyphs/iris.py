@@ -52,7 +52,7 @@ plot.tools = [pantool,wheelzoomtool]
 sess = session.HTMLFileSession("iris.html")
 sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
-sess.save(js="absolute", css="absolute")
+sess.save()
 print("Wrote %s" % sess.filename)
 
 if __name__ == "__main__":

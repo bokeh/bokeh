@@ -2,10 +2,13 @@
 """
 from __future__ import absolute_import
 
-from os.path import abspath, split, join, relpath, splitext
+import os
+import sys
+from os.path import abspath, normpath, realpath, split, join, relpath, splitext
 import logging
 from six import string_types
 
+from .. import __version__
 from ..objects import PlotContext
 from .base_html_session import BaseHTMLSession
 
@@ -23,16 +26,31 @@ class HTMLFileSession(BaseHTMLSession):
     js_files = ["js/bokeh.js"]
     css_files = ["css/bokeh.css"]
 
+    js_files_dev = ['js/vendor/requirejs/require.js', 'js/config.js']
+    css_files_dev = ['js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css', 'css/continuum.css', 'css/main.css']
+
+    _cdn_host = 'http://cdn.pydata.org'
+    _cdn_version = __version__.split("-")[0]
+
+    def _cdn_url(self, ext):
+        return "%s/bokeh-%s.min.%s" % (self._cdn_host, self._cdn_version, ext)
+
+    @property
+    def js_files_cdn(self):
+        return [self._cdn_url("js")]
+
+    @property
+    def css_files_cdn(self):
+        return [self._cdn_url("css")]
+
     # Template files used to generate the HTML
     js_template = "plots.js"
     div_template = "plots.html"     # template for just the plot <div>
     html_template = "base.html"     # template for the entire HTML file
-    inline_js = True
-    inline_css = True
 
     # Used to compute the relative paths to JS and CSS if they are not
     # inlined into the output
-    rootdir = abspath(split(__file__)[0])
+    rootdir = '.'
 
     def __init__(self, filename="bokehplot.html", plot=None, title=None):
         self.filename = filename
@@ -43,34 +61,88 @@ class HTMLFileSession(BaseHTMLSession):
         self.add(self.plotcontext)
         self.raw_js_objs = []
 
-    def _file_paths(self, files, unified, minified):
-        if not unified:
-            raise NotImplementedError("unified=False is not implemented")
-
+    def _file_paths(self, files, minified):
         if minified:
             files = [ root + ".min" + ext for (root, ext) in map(splitext, files) ]
 
-        return [ join(self.server_static_dir, file) for file in files ]
+        return [ self.static_path(file) for file in files ]
 
-    def js_paths(self, unified=True, minified=True):
-        return self._file_paths(self.js_files, unified, minified)
+    def static_path(self, path):
+        path = normpath(join(self.server_static_dir, path))
+        if sys.platform == 'cygwin': path = realpath(path)
+        return path
 
-    def css_paths(self, unified=True, minified=True):
-        return self._file_paths(self.css_files, unified, minified)
+    def js_paths(self, minified=True, dev=False):
+        files = self.js_files_dev if dev else self.js_files
+        return self._file_paths(files, False if dev else minified)
+
+    def css_paths(self, minified=True, dev=False):
+        files = self.css_files_dev if dev else self.css_files
+        return self._file_paths(files, False if dev else minified)
 
     def raw_js_snippets(self, obj):
         self.raw_js_objs.append(obj)
 
-    def dumps(self, js=None, css=None, rootdir=None):
+    def get_resources(self, resources, rootdir):
+        resources = os.environ.get("BOKEH_RESOURCES", resources)
+        rootdir = os.environ.get("BOKEH_ROOTDIR", rootdir)
+
+        if resources not in ['inline', 'cdn', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
+            raise ValueError("wrong value for 'resources' parameter, expected 'inline', 'cdn', 'relative(-dev)' or 'absolute(-dev)', got %r" % resources)
+
+        if not resources.startswith("relative") and rootdir:
+            raise ValueError("setting 'rootdir' makes sense only when 'resources' is set to 'relative'")
+
+        raw_js, js_files = [], []
+        raw_css, css_files = [], []
+
+        dev = resources.endswith('-dev')
+        if dev:
+            resources = resources[:-4]
+
+        js_paths = self.js_paths(dev=dev)
+        css_paths = self.css_paths(dev=dev)
+        base_url = self.static_path("js")
+
+        if resources == "inline":
+            raw_js = self._inline_files(js_paths)
+            raw_css = self._inline_files(css_paths)
+        elif resources == "relative":
+            rootdir = rootdir or self.rootdir
+            js_files = [ relpath(p, rootdir) for p in js_paths ]
+            css_files = [ relpath(p, rootdir) for p in css_paths ]
+            base_url = relpath(base_url, rootdir)
+        elif resources == "absolute":
+            js_files = list(js_paths)
+            css_files = list(css_paths)
+        elif resources == "cdn":
+            js_files = list(self.js_files_cdn)
+            css_files = list(self.css_files_cdn)
+
+        if dev:
+            require = 'require.config({ baseUrl: "%s" });' % base_url
+            raw_js.append(require)
+
+        def pad(text, n=4):
+            return "\n".join([ " "*n + line for line in text.split("\n") ])
+
+        wrapper = lambda code: '$(function() {\n%s\n});' % pad(code)
+
+        if dev:
+            js_wrapper = lambda code: 'require(["jquery", "main"], function($, Bokeh) {\n%s\n});' % pad(wrapper(code))
+        else:
+            js_wrapper = wrapper
+
+        return (raw_js, js_files), (raw_css, css_files), js_wrapper
+
+    def dumps(self, resources="inline", rootdir=None):
         """ Returns the HTML contents as a string
 
-        **js** and **css** can be "inline" or "relative", and they default
-        to the values of self.inline_js and self.inline_css.
+        **resources** can be `inline`, `cdn`, `relative(-dev)` or `absolute(-dev)`.
 
-        If these are set to be "relative" (or self.inline_js/css are False),
-        **rootdir** can be specified to indicate the base directory from which
-        the path to the various static files should be computed.  **rootdir**
-        defaults to the value of self.rootdir.
+        If **resources** is set to `relative(-dev)` then **rootdir** can be specified
+        to indicate the base directory from which the path to the various static files
+        should be computed.
         """
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
@@ -82,37 +154,14 @@ class HTMLFileSession(BaseHTMLSession):
                     modeltype = pc_ref["type"],
                     all_models = self.serialize_models())
 
-        rawjs, rawcss = None, None
-        jsfiles, cssfiles = [], []
-
-        if rootdir is None:
-            rootdir = self.rootdir
-
-        if js == "inline" or (js is None and self.inline_js):
-            rawjs = self._inline_files(self.js_paths())
-        elif js == "relative" or js is None:
-            jsfiles = [ relpath(p, rootdir) for p in self.js_paths() ]
-        elif js == "absolute":
-            jsfiles = self.js_paths()
-        else:
-            raise ValueError("wrong value for 'js' parameter, expected None, 'inline', 'relative' or 'absolute', got %r" % js)
-
-        if css == "inline" or (css is None and self.inline_css):
-            rawcss = self._inline_files(self.css_paths())
-        elif css == "relative" or css is None:
-            cssfiles = [ relpath(p, rootdir) for p in self.css_paths() ]
-        elif css == "absolute":
-            cssfiles = self.css_paths()
-        else:
-            raise ValueError("wrong value for 'css' parameter, expected None, 'inline', 'relative' or 'absolute', got %r" % css)
-
+        (raw_js, js_files), (raw_css, css_files), js_wrapper = self.get_resources(resources, rootdir)
         plot_div = self._load_template(self.div_template).render(elementid=elementid)
 
         html = self._load_template(self.html_template).render(
-                    js_snippets = [jscode],
+                    js_snippets = [js_wrapper(jscode)],
                     html_snippets = [plot_div] + [o.get_raw_js() for o in self.raw_js_objs],
-                    rawjs = rawjs, rawcss = rawcss,
-                    jsfiles = jsfiles, cssfiles = cssfiles,
+                    rawjs = raw_js, rawcss = raw_css,
+                    jsfiles = js_files, cssfiles = css_files,
                     title = self.title)
 
         return html
@@ -133,19 +182,17 @@ class HTMLFileSession(BaseHTMLSession):
 
         return jscode.encode("utf-8")
 
-    def save(self, filename=None, js=None, css=None, rootdir=None):
-        """ Saves the file contents.  Uses self.filename if **filename**
-        is not provided.  Overwrites the contents.
+    def save(self, filename=None, resources="inline", rootdir=None):
+        """ Saves the file contents. Uses self.filename if **filename** is not
+        provided. Overwrites the contents.
 
-        **js** and **css** can be "inline" or "relative", and they default
-        to the values of self.inline_js and self.inline_css.
+        **resources** can be `inline`, `cdn`, `relative(-dev)` or `absolute(-dev)`.
 
-        If these are set to be "relative" (or self.inline_js/css are False),
-        **rootdir** can be specified to indicate the base directory from which
-        the path to the various static files should be computed.  **rootdir**
-        defaults to the value of self.rootdir.
+        If **resources** is set to `relative(-dev)` then **rootdir** can be specified
+        to indicate the base directory from which the path to the various static files
+        should be computed.
         """
-        s = self.dumps(js, css, rootdir)
+        s = self.dumps(resources, rootdir)
         if filename is None:
             filename = self.filename
         with open(filename, "wb") as f:

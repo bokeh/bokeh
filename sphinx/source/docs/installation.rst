@@ -34,8 +34,7 @@ These are best obtained via the `Anaconda Python Distribution <http://continuum.
 which was designed to include robust versions of popular libraries for
 the Python scientific and data analysis stacks.
 
-If you are already an Anaconda users, you should be able to run the command:
-::
+If you are already an Anaconda users, you should be able to run the command::
 
     $ conda install bokeh
 
@@ -62,26 +61,19 @@ run the Bokeh server as follows::
 
     $ bokeh-server --backend=redis
 
-
 Installing from Source
 ----------------------
 
-You can also clone the
-`Bokeh Github repository <https://github.com/ContinuumIO/bokeh>`_:
-::
+You can also clone the `Bokeh Github repository <https://github.com/ContinuumIO/bokeh>`_::
 
     $ git clone https://github.com/ContinuumIO/bokeh
     $ cd bokeh
     $ python setup.py install
 
-The setup.py script will automatically install the pre-built Javascript
-for the runtime :ref:`bokehjs` library, so you do not need Coffeescript
-or any Javascript development infrastructure to use Bokeh.
+The setup.py script will automatically install the pre-built JavaScript
+for the runtime :ref:`bokehjs` library, so you do not need CoffeeScript
+or any JavaScript development infrastructure to use Bokeh.
 
 If these instructions don't work, or you are not sure how to install the
 various dependencies, please consults the :ref:`developer_install` section
 of the :ref:`devguide`.
-
-
-
-
