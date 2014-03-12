@@ -27,7 +27,7 @@ class HTMLFileSession(BaseHTMLSession):
     css_files = ["css/bokeh.css"]
 
     js_files_dev = ['js/vendor/requirejs/require.js', 'js/config.js']
-    css_files_dev = ['js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css', 'css/continuum.css', 'css/main.css']
+    css_files_dev = ['css/bokeh-vendor.css', 'css/continuum.css', 'css/main.css']
 
     _cdn_host = 'http://cdn.pydata.org'
     _cdn_version = __version__.split("-")[0]
