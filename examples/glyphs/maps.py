@@ -7,7 +7,6 @@ import itertools
 
 import numpy as np
 import pandas as pd
-from scipy import misc
 
 from bokeh.objects import (
     GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
