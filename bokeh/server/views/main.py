@@ -265,8 +265,10 @@ def generate_embed(inject_type):
     """
 
     plot = make_test_plot()
-    delay, double_delay, onload, direct  = [False] * 4
+    delay, double_delay, onload, direct, file_snippet  = [False] * 5
     plot_scr = ""
+    import pdb
+    #pdb.set_trace()
 
     if inject_type == "delay":
         delay = True
@@ -276,6 +278,18 @@ def generate_embed(inject_type):
         onload = True
     elif inject_type == "direct":
         direct = True
+
+    elif inject_type == "file_snippet":
+        #file_snippet = True
+        embed_data_file = os.path.join(
+            os.path.dirname(
+                os.path.abspath(__file__)), "..", "static")
+        #embed_data_url = "http://localhost:5006/static/embed_data.js"
+        plot_scr = plot.create_html_snippet(
+            embed_base_url = "http://localhost:5006/static/",
+            embed_save_loc=embed_data_file)
+
+
     elif inject_type == "static":
         plot_scr = plot.create_html_snippet(server=True)
     elif inject_type == "static_double":
@@ -286,8 +300,9 @@ def generate_embed(inject_type):
 
 
     return dom_embed(
-        plot, delay=delay, onload=onload,
-        direct=direct,  plot_scr=plot_scr, double_delay=double_delay)
+        plot, delay=delay, onload=onload, 
+        direct=direct,  plot_scr=plot_scr, double_delay=double_delay,
+        file_snippet=file_snippet)
 
 @bokeh_app.route("/bokeh/embed.js")
 def embed_js():

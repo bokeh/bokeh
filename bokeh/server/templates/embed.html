@@ -87,6 +87,9 @@
     injectF();
   </script>
 {% endif %}
+{% if file_snippet %}
+  <h1> File Snippet injection </h1>
+{% endif %}
 {% if plot_scr %}
   <h1> static injection </h1>
   {{plot_scr|safe}}
