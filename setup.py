@@ -1,4 +1,3 @@
-
 import os
 from os.path import abspath, exists, isdir, join, dirname
 import site
@@ -231,6 +230,7 @@ setup(
         'bokeh.chaco_gg',
         'bokeh.sampledata',
         'bokeh.server',
+        'bokeh.session',
         'bokeh.server.models',
         'bokeh.server.views',
         'bokeh.server.tests',
