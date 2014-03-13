@@ -79,18 +79,18 @@ http_server = None
 
 def start_services():
     if bokeh_app.backend['type'] == 'redis' and bokeh_app.backend.get('start_redis', True):
+        work_dir = getattr(bokeh_app, 'work_dir', os.getcwd())
         data_file = getattr(bokeh_app, 'data_file', 'redis.db')
         stdout = getattr(bokeh_app, 'stdout', sys.stdout)
         stderr = getattr(bokeh_app, 'stdout', sys.stderr)
         redis_save = getattr(bokeh_app, 'redis_save', True)
-        mproc = services.start_redis("bokehpids.json",
-                                     bokeh_app.backend.get('redis_port', REDIS_PORT),
-                                     os.getcwd(),
+        mproc = services.start_redis(pidfilename=os.path.join(work_dir, "bokehpids.json"),
+                                     port=bokeh_app.backend.get('redis_port', REDIS_PORT),
+                                     data_dir=work_dir,
                                      data_file=data_file,
                                      stdout=stdout,
                                      stderr=stderr,
-                                     save=redis_save
-                                     )
+                                     save=redis_save)
         bokeh_app.redis_proc = mproc
     atexit.register(stop_services)
 
@@ -105,4 +105,3 @@ def start_app(host="127.0.0.1", port=PORT, verbose=False):
     print("\nStarting Bokeh plot server on port %d..." % port)
     print("View http://%s:%d/bokeh to see plots\n" % (host, port))
     http_server.serve_forever()
-

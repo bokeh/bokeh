@@ -112,10 +112,14 @@ define (require, exports, module) ->
   Bokeh.ResetTool              = require("tool/reset_tool")
   Bokeh.ResizeTool             = require("tool/resize_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
+  Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
 
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")
   Bokeh.server_page = require("server/serverrun").load
+
+  # utils
+  Bokeh.ObjectExplorer = require("util/object_explorer")
 
   exports.Bokeh = Bokeh
 

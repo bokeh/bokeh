@@ -822,6 +822,9 @@ class HoverTool(PlotObject):
     renderers = List(has_ref=True)
     tooltips = Dict()
 
+class ObjectExplorerTool(PlotObject):
+    pass
+
 class Legend(PlotObject):
     plot = Instance(Plot, has_ref=True)
     orientation = Enum("top_right", "top_left", "bottom_left", "bottom_right")

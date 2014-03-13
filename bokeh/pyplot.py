@@ -55,7 +55,7 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False):
         plotting.output_server(url=server)
 
     elif filename:
-        plotting.output_file(filename, js="relative", css="relative")
+        plotting.output_file(filename, resources="relative")
 
     session = plotting.session()
 

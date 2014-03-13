@@ -9,7 +9,8 @@ from . import glyphs
 from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
         ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
         Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
-        ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange)
+        ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange,
+        ObjectExplorerTool)
 from .properties import ColorSpec
 
 # This is used to accumulate plots generated via the plotting methods in this
@@ -308,6 +309,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             tool_obj = EmbedTool(plot=p)
         elif tool == "reset":
             tool_obj = ResetTool(plot=p)
+        elif tool == "object_explorer":
+            tool_obj = ObjectExplorerTool()
         else:
             known_tools = "pan, wheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))

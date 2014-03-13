@@ -1,7 +1,7 @@
 from bokeh.plotting import *
 import numpy as np
 
-output_file('bollinger.html', title='Bollinger bands (file)', js='absolute', css='absolute')
+output_file('bollinger.html', title='Bollinger bands (file)')
 
 # Define Bollinger Bands.
 upperband = np.random.random_integers(100, 150, size=100)

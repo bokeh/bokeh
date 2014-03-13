@@ -41,7 +41,13 @@ def parse_modelkey_redis(modelkey):
     _, typename, docid, modelid = modelkey.decode('utf-8').split(":")
     return (typename, docid, modelid)
 
-class RedisSession(PersistentBackboneSession, BaseJSONSession):
+class PersistentSession(PersistentBackboneSession, BaseJSONSession):
+    """Base class for `RedisSession`, `InMemorySession`, etc. """
+
+    def raw_js_snippets(self, obj):
+        self.raw_js_objs.append(obj)
+
+class RedisSession(PersistentSession):
     """session used by the webserver to work with
     a user's documents.  uses redis directly.
     """
@@ -139,7 +145,7 @@ class RedisSession(PersistentBackboneSession, BaseJSONSession):
 _inmem_data = {}
 _inmem_sets = defaultdict(set)
 
-class InMemorySession(PersistentBackboneSession, BaseJSONSession):
+class InMemorySession(PersistentSession):
     """session used by the webserver to work with
     a user's documents.  uses in memory data store directly.
     """
@@ -232,7 +238,7 @@ class InMemorySession(PersistentBackboneSession, BaseJSONSession):
             data = self.serialize(callbacks)
             _inmem_data[key] = data
 
-class ShelveSession(PersistentBackboneSession, BaseJSONSession):
+class ShelveSession(PersistentSession):
     """session used by the webserver to work with
     a user's documents.  uses shelve data store directly.
     """

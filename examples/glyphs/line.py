@@ -5,7 +5,8 @@ import numpy as np
 import os.path
 
 from bokeh.objects import (Plot, DataRange1d, LinearAxis,
-    ColumnDataSource, Glyph, PanTool, WheelZoomTool)
+    ColumnDataSource, Glyph, PanTool, WheelZoomTool,
+    PreviewSaveTool, ObjectExplorerTool)
 from bokeh.glyphs import Line
 from bokeh import session
 
@@ -39,14 +40,16 @@ yaxis = LinearAxis(plot=plot, dimension=1, location="left")
 
 pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
 wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+previewsave = PreviewSaveTool(plot=plot)
+objectexplorer = ObjectExplorerTool()
 
 plot.renderers.append(renderer)
-plot.tools = [pantool, wheelzoomtool]
+plot.tools = [pantool, wheelzoomtool, previewsave, objectexplorer]
 
 sess = session.HTMLFileSession("line.html")
 sess.add(plot, recursive=True)
 sess.plotcontext.children.append(plot)
-sess.save(js="absolute", css="absolute")
+sess.save()
 print("Wrote %s" % sess.filename)
 
 if __name__ == "__main__":
