@@ -229,7 +229,8 @@ setup(
         'bokeh.server.models',
         'bokeh.server.views',
         'bokeh.server.tests',
-        'bokeh.tests'
+        'bokeh.session',
+        'bokeh.tests',
     ],
     package_data = {'bokeh' : package_data_dirs},
     author = 'Continuum Analytics',
