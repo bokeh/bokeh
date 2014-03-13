@@ -326,13 +326,6 @@ class PlotObject(HasProps):
             f.write(js_code)
         return embed_snippet
 
-    def inject_snippet(
-            self, server=False, embed_base_url="", embed_save_loc=".",
-            static_path="http://localhost:5006/bokeh/static/"):
-        warnings.warn("inject_snippet is deprecated, please use create_html_snippet")
-        return self.create_html_snippet(
-            server, embed_base_url, embed_save_loc, static_path)
-
     def _build_server_snippet(self, base_url=False):
         sess = self._session
         modelid = self._id
