@@ -45,14 +45,14 @@
 # Python files #
 ################
 # setup.py working directory
-build
+/build
 # sphinx build directory
-_build
+/_build
 # setup.py dist directory
-dist
-doc/build
-doc/cdoc/build
-MANIFEST
+/dist
+/doc/build
+/doc/cdoc/build
+/MANIFEST
 # Egg metadata
 *.egg-info
 # The shelf plugin uses this dir

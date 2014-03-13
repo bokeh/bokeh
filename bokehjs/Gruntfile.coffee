@@ -128,6 +128,7 @@ module.exports = (grunt) ->
           timezone: "vendor/timezone/src/timezone"
           sprintf: "vendor/sprintf/src/sprintf"
           rbush: "vendor/rbush/rbush"
+          jstree: "vendor/jstree/dist/jstree"
         shim:
           sprintf:
             exports: 'sprintf'
@@ -151,11 +152,18 @@ module.exports = (grunt) ->
         separator: ""
       css:
         src: [
-          "build/js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css",
+          "build/js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css"
+          "build/js/vendor/jstree/dist/themes/default/style.min.css"
           "build/css/continuum.css"
           "build/css/main.css"
         ]
         dest: 'build/css/bokeh.css'
+      vendor:
+        src: [
+          "build/js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css"
+          "build/js/vendor/jstree/dist/themes/default/style.min.css"
+        ]
+        dest: 'build/css/bokeh-vendor.css'
 
     cssmin:
       minify:
@@ -239,15 +247,15 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-contrib-copy")
   grunt.loadNpmTasks("grunt-contrib-clean")
   grunt.loadNpmTasks("grunt-contrib-qunit")
-  grunt.loadNpmTasks('grunt-contrib-connect');
+  grunt.loadNpmTasks('grunt-contrib-connect')
   grunt.loadNpmTasks("grunt-eco")
   grunt.loadNpmTasks('grunt-groc')
 
   grunt.registerTask("default",     ["build", "qunit"])
   grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
-  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config"])
-  grunt.registerTask("mindeploy",   ["build",  "requirejs:production", "concat:css", "cssmin"])
-  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "concat:css", "copy:spectrogram"])
+  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config", "concat"])
+  grunt.registerTask("mindeploy",   ["build",  "requirejs:production", "cssmin"])
+  grunt.registerTask("devdeploy" ,  ["build",  "requirejs:development", "copy:spectrogram"])
   grunt.registerTask("deploy",      ["mindeploy", "devdeploy"])
   grunt.registerTask("test",        ["build", "connect", "qunit"])
   grunt.registerTask("serve",       ["connect:server:keepalive"])

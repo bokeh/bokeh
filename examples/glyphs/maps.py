@@ -7,13 +7,11 @@ import itertools
 
 import numpy as np
 import pandas as pd
-from scipy import misc
 
 from bokeh.objects import (
     GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
-    Glyph, PanTool, WheelZoomTool, ResizeTool,
-    BoxSelectTool, BoxSelectionOverlay
-)
+    Glyph, PanTool, WheelZoomTool, ResizeTool, BoxSelectTool,
+    BoxSelectionOverlay, ObjectExplorerTool)
 from bokeh.glyphs import MultiLine, ImageRGBA, Circle
 from bokeh import session
 
@@ -38,7 +36,8 @@ xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 pantool = PanTool(plot=plot)
 wheelzoomtool = WheelZoomTool(plot=plot)
-plot.tools.extend([pantool, wheelzoomtool])
+objectexplorer = ObjectExplorerTool()
+plot.tools.extend([pantool, wheelzoomtool, objectexplorer])
 
 # Plot some data on top
 source = ColumnDataSource(
