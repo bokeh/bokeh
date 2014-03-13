@@ -90,6 +90,9 @@
 {% if file_snippet %}
   <h1> File Snippet injection </h1>
 {% endif %}
+{% if file_relative_snippet %}
+  <h1> File relative Snippet injection </h1>
+{% endif %}
 {% if plot_scr %}
   <h1> static injection </h1>
   {{plot_scr|safe}}

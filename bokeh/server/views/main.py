@@ -265,7 +265,7 @@ def generate_embed(inject_type):
     """
 
     plot = make_test_plot()
-    delay, double_delay, onload, direct, file_snippet  = [False] * 5
+    delay, double_delay, onload, direct, file_snippet, file_relative_snippet  = [False] * 6
     plot_scr = ""
     import pdb
     #pdb.set_trace()
@@ -280,13 +280,22 @@ def generate_embed(inject_type):
         direct = True
 
     elif inject_type == "file_snippet":
-        #file_snippet = True
+        file_snippet = True
         embed_data_file = os.path.join(
             os.path.dirname(
                 os.path.abspath(__file__)), "..", "static")
         #embed_data_url = "http://localhost:5006/static/embed_data.js"
         plot_scr = plot.create_html_snippet(
             embed_base_url = "http://localhost:5006/static/",
+            embed_save_loc=embed_data_file)
+
+    elif inject_type == "file_relative_snippet":
+        file_relative_snippet = True
+        embed_data_file = os.path.join(
+            os.path.dirname(
+                os.path.abspath(__file__)), "..", "static")
+        plot_scr = plot.create_html_snippet(
+            embed_base_url = "../../static/",
             embed_save_loc=embed_data_file)
 
 
@@ -302,7 +311,7 @@ def generate_embed(inject_type):
     return dom_embed(
         plot, delay=delay, onload=onload, 
         direct=direct,  plot_scr=plot_scr, double_delay=double_delay,
-        file_snippet=file_snippet)
+        file_snippet=file_snippet, file_relative_snippet=file_relative_snippet)
 
 @bokeh_app.route("/bokeh/embed.js")
 def embed_js():
