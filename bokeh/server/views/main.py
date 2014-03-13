@@ -226,7 +226,7 @@ def make_test_plot():
     l = line(
         x,y, color="#0000FF",
         plot_height=300, plot_width=300,
-        tools="pan,zoom,resize")
+        tools="pan,resize")
     return l
     #show()
 
