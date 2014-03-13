@@ -137,25 +137,18 @@ def traverse_plot_object(plot_object):
         json_apply(val, check_func, func)
     return children
 
-def recursively_traverse_plot_object(plot_object,
-                                     traversed_ids=None,
-                                     children=None):
-    if not children: children = set()
-    if not traversed_ids: traversed_ids = set()
-    if plot_object._id in traversed_ids:
-        return children
-    else:
-        immediate_children = plot_object.references()
-        children.add(plot_object)
-        traversed_ids.add(plot_object._id)
-        children.update(immediate_children)
-        for child in list(children):
-            if child not in traversed_ids:
-                recursively_traverse_plot_object(
-                    child,
-                    traversed_ids=traversed_ids,
-                    children=children)
-        return children
+def recursively_traverse_plot_object(plot_object):
+    results = set()
+    ids = set()
+    queue = [plot_object]
+    while queue:
+        node = queue.pop(0)
+        if node._id in ids:
+            continue
+        ids.add(node._id)
+        results.add(node)
+        queue += node.references()
+    return results
 
 @add_metaclass(Viewable)
 class PlotObject(HasProps):
