@@ -267,8 +267,6 @@ def generate_embed(inject_type):
     plot = make_test_plot()
     delay, double_delay, onload, direct, file_snippet, file_relative_snippet  = [False] * 6
     plot_scr = ""
-    import pdb
-    #pdb.set_trace()
 
     if inject_type == "delay":
         delay = True
