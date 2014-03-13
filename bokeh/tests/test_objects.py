@@ -2,6 +2,41 @@ import unittest
 from six import add_metaclass
 from mock import patch, Mock, MagicMock
 
+def large_plot(n):
+    from bokeh.objects import (Plot, PlotContext, LinearAxis, Grid, Glyph,
+        ColumnDataSource, DataRange1d, PanTool, WheelZoomTool, BoxZoomTool,
+        BoxSelectTool, BoxSelectionOverlay, ResizeTool, PreviewSaveTool,
+        ResetTool)
+    from bokeh.glyphs import Line
+
+    context = PlotContext()
+    objects = set([context])
+
+    for i in xrange(n):
+        source = ColumnDataSource(data=dict(x=[0, i+1], y=[0, i+1]))
+        xdr = DataRange1d(sources=[source.columns("x")])
+        ydr = DataRange1d(sources=[source.columns("y")])
+        plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source])
+        xaxis = LinearAxis(plot=plot, dimension=0)
+        yaxis = LinearAxis(plot=plot, dimension=1)
+        xgrid = Grid(plot=plot, dimension=0)
+        ygrid = Grid(plot=plot, dimension=1)
+        renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=Line(x='x', y='y'))
+        plot.renderers.append(renderer)
+        pan = PanTool(plot=plot, dataranges=[xdr, ydr])
+        wheel_zoom = WheelZoomTool(plot=plot, dataranges=[xdr, ydr])
+        box_zoom = BoxZoomTool(plot=plot)
+        box_select = BoxSelectTool(plot=plot)
+        box_selection = BoxSelectionOverlay(tool=box_select)
+        resize = ResizeTool(plot=plot)
+        previewsave = PreviewSaveTool(plot=plot, dataranges=[xdr, ydr])
+        reset = ResetTool(plot=plot)
+        tools = [pan, wheel_zoom, box_zoom, box_select, box_selection, resize, previewsave, reset]
+        plot.tools.append(tools)
+        context.children.append(plot)
+        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer] + tools)
+
+    return context, objects
 
 class TestViewable(unittest.TestCase):
 
@@ -131,7 +166,7 @@ class TestTraversePlotObjects(unittest.TestCase):
 
 class TestRecursivleyTraversePlotObjects(unittest.TestCase):
 
-    def test_r_traverse(self):
+    def test_recursive_traverse(self):
         from bokeh.objects import PlotObject, recursively_traverse_plot_object
         pobject1 = PlotObject()
         pobject2 = PlotObject()
@@ -146,6 +181,17 @@ class TestRecursivleyTraversePlotObjects(unittest.TestCase):
         expectedset = set([pobject1, pobject2, pobject3, pobject4])
         self.assertEqual(resultset, expectedset)
 
+    def test_recursive_traverse_large(self):
+        from bokeh.objects import recursively_traverse_plot_object
+        from bokeh.session.session import Session
+
+        context, objects = large_plot(500)
+
+        objects1 = recursively_traverse_plot_object(context)
+        objects2 = set(Session._collect_objs(context))
+
+        self.assertEqual(objects1, objects)
+        self.assertEqual(objects1, objects)
 
 class TestPlotObject(unittest.TestCase):
 
