@@ -28,11 +28,11 @@ millifactor = 10 ** 6.
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, pd.Series):
-            return self.nan2NaN(obj)
+            return self.transform_list(obj.tolist())
         elif isinstance(obj, np.ndarray):
             if obj.dtype.kind == 'M':
                 obj = obj.astype('datetime64[ms]').astype('int64')
-            return self.nan2NaN(obj)
+            return self.transform_list(obj.tolist())
         elif isinstance(obj, np.number):
             if isinstance(obj, np.integer):
                 return int(obj)
@@ -43,15 +43,17 @@ class NumpyJSONEncoder(json.JSONEncoder):
         else:
             return super(NumpyJSONEncoder, self).default(obj)
 
-    def nan2NaN(self, obj):
-        if np.isnan(obj).any():
-            l = obj.tolist()
-            for i, val in enumerate(l):
-                if np.isnan(val):
-                    l[i] = json.dumps(float('nan'))
-            return l
-        else:
-            return obj.tolist()
+    def transform_list(self, l):
+        for k, v in enumerate(l):
+            if isinstance(v, list):
+                v = self.transform_list(v)
+            elif np.isnan(v):
+                l[k] = "NaN"
+            elif np.isposinf(v):
+                l[k] = "Infinity"
+            elif np.isneginf(v):
+                l[k] = "-Infinity"
+        return l
 
 def serialize_json(obj, encoder=NumpyJSONEncoder, **kwargs):
     return json.dumps(obj, cls=encoder, **kwargs)
