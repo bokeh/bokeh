@@ -194,11 +194,10 @@ def output_notebook(url=None, server=None, name=None, docname=None):
             real_url = _config.plotserver_url
         else:
             real_url = url
+        if name is None:
+            name = real_url
         if not server:
-            if name:
-                server = serverconfig.Server(name=name)
-            else:
-                server = serverconfig.Server(name=real_url)
+            server = serverconfig.Server(name=name, root_url=real_url)
         _config.output_url = server.root_url
         _config.output_type = "server"
         _config.output_file = None
@@ -240,11 +239,10 @@ def output_server(docname, server=None, name=None, url="default", **kwargs):
         real_url = _config.plotserver_url
     else:
         real_url = url
+    if name is None:
+        name = real_url
     if not server:
-        if name:
-            server = serverconfig.Server(name=name)
-        else:
-            server = serverconfig.Server(name=real_url)
+        server = serverconfig.Server(name=name, root_url=real_url)
     _config.output_url = server.root_url
     _config.output_type = "server"
     _config.output_file = None
