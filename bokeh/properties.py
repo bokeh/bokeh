@@ -16,7 +16,7 @@ from .enums import Enumeration, NamedColor
 def _dummy(*args,**kw):
     return None
 
-class BaseProperty(object):
+class Property(object):
     def __init__(self, default=None):
         """ This is how the descriptor is created in the class declaration """
         self.default = default
@@ -64,7 +64,7 @@ class BaseProperty(object):
             delattr(obj, self._name)
 
 
-class Include(BaseProperty):
+class Include(Property):
 
     def __init__(self, delegate, prefix=None):
         self._delegate = delegate
@@ -72,7 +72,7 @@ class Include(BaseProperty):
         super(Include, self).__init__()
 
 
-class DataSpec(BaseProperty):
+class DataSpec(Property):
     """ Because the BokehJS glyphs support a fixed value or a named
     field for most data fields, we capture that in this descriptor.
     Fields can have a fixed value, or be a name that is looked up
@@ -418,7 +418,7 @@ class MetaHasProps(type):
             for subpropname in delegate.class_properties(withbases=False):
                 fullpropname = prefix + subpropname
                 subprop = lookup_descriptor(delegate, subpropname)
-                if isinstance(subprop, BaseProperty):
+                if isinstance(subprop, Property):
                     # If it's an actual instance, then we need to make a copy
                     # so two properties don't write to the same hidden variable
                     # inside the instance.
@@ -437,19 +437,19 @@ class MetaHasProps(type):
 
         dataspecs = {}
         for name, prop in class_dict.items():
-            if isinstance(prop, BaseProperty):
+            if isinstance(prop, Property):
                 prop.name = name
                 if hasattr(prop, 'has_ref') and prop.has_ref:
                     names_with_refs.add(name)
-                elif isinstance(prop, ContainerProp):
+                elif isinstance(prop, ContainerProperty):
                     container_names.add(name)
                 names.add(name)
                 if isinstance(prop, DataSpec):
                     dataspecs[name] = prop
 
-            elif isinstance(prop, type) and issubclass(prop, BaseProperty):
+            elif isinstance(prop, type) and issubclass(prop, Property):
                 # Support the user adding a property without using parens,
-                # i.e. using just the BaseProperty subclass instead of an
+                # i.e. using just the Property subclass instead of an
                 # instance of the subclass
                 newprop = prop.autocreate(name=name)
                 class_dict[name] = newprop
@@ -590,21 +590,29 @@ class HasProps(object):
         for p in self.__properties__:
             print("  "*indent + p + ":", getattr(self, p))
 
-# Python scalar types
-class Int(BaseProperty): pass
-class Float(BaseProperty): pass
-class Complex(BaseProperty): pass
-class File(BaseProperty): pass
-class Bool(BaseProperty): pass
-class String(BaseProperty): pass
+class PrimitiveProperty(Property):
+    pass
 
-class ContainerProp(BaseProperty):
+class Int(PrimitiveProperty):
+    pass
+class Float(PrimitiveProperty):
+    pass
+class Complex(PrimitiveProperty):
+    pass
+class File(PrimitiveProperty):
+    pass
+class Bool(PrimitiveProperty):
+    pass
+class String(PrimitiveProperty):
+    pass
+
+class ContainerProperty(Property):
     # Base class for container-like things; this helps the auto-serialization
     # and attribute change detection code
     pass
 
 # container types
-class List(ContainerProp):
+class List(ContainerProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
 
@@ -617,10 +625,10 @@ class List(ContainerProp):
     """
 
     def __init__(self, default=None, has_ref=False):
-        if isinstance(default, type) or isinstance(default, BaseProperty):
+        if isinstance(default, type) or isinstance(default, Property):
             default = None
         self.has_ref = has_ref
-        BaseProperty.__init__(self, default)
+        Property.__init__(self, default)
 
     def __get__(self, obj, type=None):
         if hasattr(obj, self._name):
@@ -634,7 +642,7 @@ class List(ContainerProp):
         setattr(obj, self._name, val)
         return val
 
-class Dict(ContainerProp):
+class Dict(ContainerProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
 
@@ -643,7 +651,7 @@ class Dict(ContainerProp):
     """
 
     def __init__(self, default={}, has_ref=False):
-        BaseProperty.__init__(self, default)
+        Property.__init__(self, default)
         self.has_ref = has_ref
 
     def __get__(self, obj, type=None):
@@ -653,12 +661,12 @@ class Dict(ContainerProp):
         else:
             return getattr(obj, self._name, self.default)
 
-class Tuple(ContainerProp):
+class Tuple(ContainerProperty):
 
     def __init__(self, default=()):
-        BaseProperty.__init__(self, default)
+        Property.__init__(self, default)
 
-class Array(ContainerProp):
+class Array(ContainerProperty):
     """ Whatever object is passed in as a default value, np.asarray() is
     called on it to create a copy for the default value for each use of
     this property.
@@ -671,8 +679,8 @@ class Array(ContainerProp):
             return getattr(obj, self._name, self.default)
 
 # OOP things
-class Class(BaseProperty): pass
-class Instance(BaseProperty):
+class Class(Property): pass
+class Instance(Property):
     def __init__(self, type_of=None, default=None, has_ref=False):
         """has_ref : whether the json for this is a reference to
         another object or not
@@ -690,17 +698,17 @@ class Instance(BaseProperty):
                 setattr(obj, self._name, self.default())
         return getattr(obj, self._name, None)
 
-class This(BaseProperty):
+class This(Property):
     """ A reference to an instance of the class being defined
     """
     pass
 
 # Fake types, ABCs
-class Any(BaseProperty): pass
-class Function(BaseProperty): pass
-class Event(BaseProperty): pass
+class Any(Property): pass
+class Function(Property): pass
+class Event(Property): pass
 
-class Either(BaseProperty):
+class Either(Property):
     """ Takes a list of valid properties and validates against them in
     succession.
     """
@@ -712,7 +720,7 @@ class Either(BaseProperty):
         self.default = kwargs.get("default", None)
 
 
-class Enum(BaseProperty):
+class Enum(Property):
     """ An Enum with a list of allowed values. The first value in the list is
     the default value, unless a default is provided with the "default" keyword
     argument.
@@ -746,7 +754,7 @@ Mapping = _dummy
 Iterable = _dummy
 
 # Properties useful for defining visual attributes
-class Color(BaseProperty):
+class Color(Property):
     """ Accepts color definition in a variety of ways, and produces an
     appropriate serialization of its value for whatever backend
     """
@@ -755,9 +763,9 @@ class Color(BaseProperty):
     # both float as well as integer.
 
 
-class Align(BaseProperty): pass
+class Align(Property): pass
 
-class DashPattern(BaseProperty):
+class DashPattern(Property):
     """
     This is a property that expresses line dashes.  It can be specified in
     a variety of forms:
@@ -782,7 +790,7 @@ class DashPattern(BaseProperty):
     }
 
     def __init__(self, default=[]):
-        BaseProperty.__init__(self, default)
+        Property.__init__(self, default)
 
     def __set__(self, obj, arg):
         if isinstance(arg, str):
