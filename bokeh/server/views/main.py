@@ -282,7 +282,6 @@ def generate_embed(inject_type):
         embed_data_file = os.path.join(
             os.path.dirname(
                 os.path.abspath(__file__)), "..", "static")
-        #embed_data_url = "http://localhost:5006/static/embed_data.js"
         plot_scr = plot.create_html_snippet(
             embed_base_url = "http://localhost:5006/static/",
             embed_save_loc=embed_data_file)
