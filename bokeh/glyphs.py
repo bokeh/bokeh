@@ -1,10 +1,7 @@
 
-import inspect
-
-from .properties import (BaseProperty, HasProps, Instance, Enum, Float, Int,
-        Color, Percent, Size, Bool, DashPattern, Align, Angle, String, FillProps,
-        LineProps, TextProps, DataSpec, ColorSpec)
-
+from .properties import (BaseProperty, HasProps, Instance, Enum, Float, Int, Color,
+    Percent, Size, Bool, DashPattern, Align, Angle, String, DataSpec, ColorSpec)
+from .mixins import FillProps, LineProps, TextProps
 from .objects import PlotObject
 
 # Size is a way to preserve a data-space-related metric all the way until

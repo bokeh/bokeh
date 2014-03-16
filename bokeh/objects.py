@@ -18,8 +18,9 @@ import logging
 logger = logging.getLogger(__file__)
 
 from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
-        Either, Float, Instance, Int, List, String, Color, DashPattern, Percent,
-        Size, LineProps, FillProps, TextProps, Include, Bool)
+    Either, Float, Instance, Int, List, String, Color, DashPattern,
+    Percent, Size, Include, Bool)
+from .mixins import FillProps, LineProps, TextProps
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
