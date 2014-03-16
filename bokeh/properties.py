@@ -21,6 +21,10 @@ class BaseProperty(object):
         # This gets set by the class decorator at class creation time
         self.name = "unnamed"
 
+    @property
+    def _name(self):
+        return "_" + self.name
+
     @classmethod
     def autocreate(cls, name=None):
         """ Called by the metaclass to create a
@@ -31,22 +35,21 @@ class BaseProperty(object):
         return cls()
 
     def __get__(self, obj, type=None):
-        return getattr(obj, "_"+self.name, self.default)
+        return getattr(obj, self._name, self.default)
 
     def matches(self, new, old):
         try:
             return new == old
         except Exception as e:
-            logger.warning("could not compare %s and %s for property %s",
-                           new, old, self.name)
+            logger.warning("could not compare %s and %s for property %s", new, old, self.name)
         return False
 
     def __set__(self, obj, value):
         old = self.__get__(obj)
         obj._changed_vars.add(self.name)
-        if ("_"+self.name in obj.__dict__) and self.matches(value, old):
+        if self._name in obj.__dict__ and self.matches(value, old):
             return
-        setattr(obj, "_"+self.name, value)
+        setattr(obj, self._name, value)
         obj._dirty = True
         if hasattr(obj, '_trigger'):
             if hasattr(obj, '_block_callbacks') and obj._block_callbacks:
@@ -55,8 +58,8 @@ class BaseProperty(object):
                 obj._trigger(self.name, old, value)
 
     def __delete__(self, obj):
-        if hasattr(obj, "_"+self.name):
-            delattr(obj, "_"+self.name)
+        if hasattr(obj, self._name):
+            delattr(obj, self._name)
 
 
 class Include(BaseProperty):
@@ -153,9 +156,8 @@ class DataSpec(BaseProperty):
         However, if the user has also overridden the "units" or "default"
         settings, then a dictionary is returned.
         """
-        attrname = "_" + self.name
-        if hasattr(obj, attrname):
-            setval = getattr(obj, attrname)
+        if hasattr(obj, self._name):
+            setval = getattr(obj, self._name)
             if isinstance(setval, string_types) and self.default is None:
                 # A string representing the field
                 return setval
@@ -191,7 +193,7 @@ class DataSpec(BaseProperty):
 
     def to_dict(self, obj):
         # Build the complete dict
-        setval = getattr(obj, "_"+self.name, None)
+        setval = getattr(obj, self._name, None)
         if isinstance(setval, string_types):
             d = {"field": setval, "units": self.units}
             if self.default is not None:
@@ -212,7 +214,7 @@ class DataSpec(BaseProperty):
             if self.default is not None:
                 d["default"] = self.default
 
-        if ("value" in d) and self.min_value is not None:
+        if "value" in d and self.min_value is not None:
             if d["value"] < self.min_value:
                 raise ValueError("value must be greater than %s" % str(self.min_value))
         return d
@@ -343,9 +345,8 @@ class ColorSpec(DataSpec):
         # that we do not call self.to_dict() in any circumstance, because
         # this could lead to formatting color tuples as "rgb(R,G,B)" instead
         # of keeping them as tuples.
-        attrname = "_" + self.name
-        if hasattr(obj, attrname):
-            setval = getattr(obj, attrname)
+        if hasattr(obj, self._name):
+            setval = getattr(obj, self._name)
             if self.isconst(setval) or isinstance(setval, tuple):
                 # Fixed color value
                 return setval
@@ -385,7 +386,7 @@ class ColorSpec(DataSpec):
         super(ColorSpec, self).__set__(obj, arg)
 
     def to_dict(self, obj):
-        setval = getattr(obj, "_" + self.name, None)
+        setval = getattr(obj, self._name, None)
         if setval is not None:
             if self.isconst(setval):
                 # Hexadecimal or named color
@@ -652,15 +653,15 @@ class List(ContainerProp):
         BaseProperty.__init__(self, default)
 
     def __get__(self, obj, type=None):
-        if hasattr(obj, "_"+self.name):
-            return getattr(obj, "_"+self.name)
+        if hasattr(obj, self._name):
+            return getattr(obj, self._name)
         if self.default is None:
             val = []
         elif isinstance(self.default, list):
             val = copy(self.default)
         else:
             val = self.default
-        setattr(obj, "_"+self.name, val)
+        setattr(obj, self._name, val)
         return val
 
 class Dict(ContainerProp):
@@ -676,11 +677,11 @@ class Dict(ContainerProp):
         self.has_ref = has_ref
 
     def __get__(self, obj, type=None):
-        if not hasattr(obj, "_"+self.name) and isinstance(self.default, dict):
-            setattr(obj, "_"+self.name, copy(self.default))
-            return getattr(obj, "_"+self.name)
+        if not hasattr(obj, self._name) and isinstance(self.default, dict):
+            setattr(obj, self._name, copy(self.default))
+            return getattr(obj, self._name)
         else:
-            return getattr(obj, "_"+self.name, self.default)
+            return getattr(obj, self._name, self.default)
 
 class Tuple(ContainerProp):
 
@@ -693,30 +694,31 @@ class Array(ContainerProp):
     this property.
     """
     def __get__(self, obj, type=None):
-        if not hasattr(obj, "_"+self.name) and self.default is not None:
-            setattr(obj, "_"+self.name, np.asarray(self.default))
-            return getattr(obj, "_"+self.name)
+        if not hasattr(obj, self._name) and self.default is not None:
+            setattr(obj, self._name, np.asarray(self.default))
+            return getattr(obj, self._name)
         else:
-            return getattr(obj, "_"+self.name, self.default)
+            return getattr(obj, self._name, self.default)
 
 # OOP things
 class Class(BaseProperty): pass
 class Instance(BaseProperty):
-    def __init__(self, default=None, has_ref=False):
+    def __init__(self, type_of=None, default=None, has_ref=False):
         """has_ref : whether the json for this is a reference to
         another object or not
         """
         super(Instance, self).__init__(default=default)
+        self.type_of = type_of
         self.has_ref = has_ref
 
     def __get__(self, obj, type=None):
         # If the constructor for Instance() supplied a class name, we should
         # instantiate that class here, instead of returning the class as the
         # default object
-        if not hasattr(obj, "_"+self.name):
+        if not hasattr(obj, self._name):
              if type and self.default and isinstance(self.default, type):
-                setattr(obj, "_"+self.name, self.default())
-        return getattr(obj, "_"+self.name, None)
+                setattr(obj, self._name, self.default())
+        return getattr(obj, self._name, None)
 
 class This(BaseProperty):
     """ A reference to an instance of the class being defined
@@ -782,7 +784,7 @@ class DashPattern(BaseProperty):
     """
     This is a property that expresses line dashes.  It can be specified in
     a variety of forms:
-    
+
     * "solid", "dashed", "dotted", "dotdash", "dashdot"
     * A tuple or list of integers in the HTML5 Canvas dash specification
       style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
