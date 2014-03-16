@@ -11,6 +11,8 @@ import numpy as np
 import logging
 logger = logging.getLogger(__name__)
 
+from .enums import Enumeration, NamedColor
+
 def _dummy(*args,**kw):
     return None
 
@@ -267,34 +269,7 @@ class ColorSpec(DataSpec):
     For more examples, see tests/test_glyphs.py
     """
 
-    NAMEDCOLORS = set(['indigo', 'gold', 'firebrick', 'indianred', 'yellow',
-    'darkolivegreen', 'darkseagreen', 'darkslategrey', 'mediumvioletred',
-    'mediumorchid', 'chartreuse', 'mediumblue', 'black', 'springgreen',
-    'orange', 'lightsalmon', 'brown', 'turquoise', 'olivedrab', 'cyan',
-    'silver', 'skyblue', 'gray', 'darkturquoise', 'goldenrod', 'darkgreen',
-    'darkviolet', 'darkgray', 'lightpink', 'teal', 'darkmagenta',
-    'lightgoldenrodyellow', 'lavender', 'yellowgreen', 'thistle', 'violet',
-    'navy', 'dimgrey', 'orchid', 'blue', 'ghostwhite', 'honeydew',
-    'cornflowerblue', 'purple', 'darkkhaki', 'mediumpurple', 'cornsilk', 'red',
-    'bisque', 'slategray', 'darkcyan', 'khaki', 'wheat', 'deepskyblue',
-    'darkred', 'steelblue', 'aliceblue', 'lightslategrey', 'gainsboro',
-    'mediumturquoise', 'floralwhite', 'coral', 'aqua', 'burlywood',
-    'darksalmon', 'beige', 'azure', 'lightsteelblue', 'oldlace', 'greenyellow',
-    'royalblue', 'lightseagreen', 'mistyrose', 'sienna', 'lightcoral',
-    'orangered', 'navajowhite', 'lime', 'palegreen', 'lightcyan', 'seashell',
-    'mediumspringgreen', 'fuchsia', 'papayawhip', 'blanchedalmond', 'peru',
-    'aquamarine', 'white', 'darkslategray', 'ivory', 'darkgoldenrod',
-    'lawngreen', 'lightgreen', 'crimson', 'forestgreen', 'maroon', 'olive',
-    'mintcream', 'antiquewhite', 'dimgray', 'hotpink', 'moccasin', 'limegreen',
-    'saddlebrown', 'grey', 'darkslateblue', 'lightskyblue', 'deeppink',
-    'plum', 'lightgrey', 'dodgerblue', 'slateblue', 'sandybrown', 'magenta',
-    'tan', 'rosybrown', 'pink', 'lightblue', 'palevioletred', 'mediumseagreen',
-    'linen', 'darkorange', 'powderblue', 'seagreen', 'snow', 'mediumslateblue',
-    'midnightblue', 'paleturquoise', 'palegoldenrod', 'whitesmoke',
-    'darkorchid', 'salmon', 'lightslategray', 'lemonchiffon', 'chocolate',
-    'tomato', 'cadetblue', 'lightyellow', 'lavenderblush', 'darkblue',
-    'mediumaquamarine', 'green', 'blueviolet', 'peachpuff', 'darkgrey'])
-
+    NAMEDCOLORS = set(NamedColor._values)
 
     def __init__(self, field_or_value=None, field=None, default=None, value=None):
         """ ColorSpec(field_or_value=None, field=None, default=None, value=None)
@@ -743,20 +718,27 @@ class Enum(BaseProperty):
     argument.
     """
     def __init__(self, *values, **kwargs):
-        if "default" not in kwargs:
-            if len(values) > 0:
-                default = values[0]
-            else:
-                default = None
+        if len(values) == 1 and isinstance(values[0], Enumeration):
+            enum_type = values[0]
+            values = enum_type._values
+            default = enum_type._default
         else:
-            default = kwargs.pop("default")
+            if "default" not in kwargs:
+                if len(values) > 0:
+                    default = values[0]
+                else:
+                    default = None
+            else:
+                default = kwargs.pop("default")
+
         self.default = default
         self.allowed_values = values
 
     def __set__(self, obj, value):
         if value not in self.allowed_values:
-            raise ValueError("Invalid value '%r' passed to Enum." % value)
-        super(Enum, self).__set__(obj, value)
+            raise ValueError("invalid value %r passed to Enum property" % value)
+        else:
+            super(Enum, self).__set__(obj, value)
 
 
 Sequence = _dummy

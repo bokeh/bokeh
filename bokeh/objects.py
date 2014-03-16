@@ -21,6 +21,7 @@ from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
     Either, Float, Instance, Int, List, String, Color, DashPattern,
     Percent, Size, Include, Bool)
 from .mixins import FillProps, LineProps, TextProps
+from .enums import Units, Orientation
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -499,7 +500,7 @@ class Glyph(PlotObject):
     ydata_range = Instance(DataRange1d, has_ref=True)
 
     # How to intepret the values in the data_source
-    units = Enum("screen", "data")
+    units = Enum(Units)
 
     # Instance of bokeh.glyphs.Glyph; not declaring it explicitly below
     # because of circular imports. The renderers should get moved out
@@ -828,7 +829,7 @@ class ObjectExplorerTool(PlotObject):
 
 class Legend(PlotObject):
     plot = Instance(Plot, has_ref=True)
-    orientation = Enum("top_right", "top_left", "bottom_left", "bottom_right")
+    orientation = Enum(Orientation)
     border = Include(LineProps, prefix="border")
 
     label_props = Include(TextProps, prefix="label")

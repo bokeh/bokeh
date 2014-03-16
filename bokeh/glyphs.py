@@ -2,6 +2,7 @@
 from .properties import (BaseProperty, HasProps, Instance, Enum, Float, Int, Color,
     Percent, Size, Bool, DashPattern, Align, Angle, String, DataSpec, ColorSpec)
 from .mixins import FillProps, LineProps, TextProps
+from .enums import Units, AngleUnits, Direction
 from .objects import PlotObject
 
 # Size is a way to preserve a data-space-related metric all the way until
@@ -23,11 +24,11 @@ class BaseGlyph(PlotObject):
     halign = Align  # when there is horizontal wiggle room (e.g. categorical)
     valign = Align  # when there is vertical wiggle room
 
-    radius_units = Enum("screen", "data")
-    length_units = Enum("screen", "data")
-    angle_units = Enum("deg", "rad")
-    start_angle_units = Enum("deg", "rad")
-    end_angle_units = Enum("deg", "rad")
+    radius_units = Enum(Units)
+    length_units = Enum(Units)
+    angle_units = Enum(AngleUnits)
+    start_angle_units = Enum(AngleUnits)
+    end_angle_units = Enum(AngleUnits)
 
     def to_glyphspec(self):
         """ Returns a dict mapping attributes to values, that is amenable for
@@ -126,7 +127,7 @@ class AnnularWedge(BaseGlyph, FillProps, LineProps):
     outer_radius = DataSpec(min_value=0)
     start_angle = DataSpec
     end_angle = DataSpec
-    direction = Enum('clock', 'anticlock')
+    direction = Enum(Direction)
 
 class Annulus(BaseGlyph, FillProps, LineProps):
     __view_model__ = 'annulus'
@@ -142,7 +143,7 @@ class Arc(BaseGlyph, LineProps):
     radius = DataSpec(min_value=0)
     start_angle = DataSpec
     end_angle = DataSpec
-    direction = Enum('clock', 'anticlock')
+    direction = Enum(Direction)
 
 class Bezier(BaseGlyph, LineProps):
     __view_model__ = 'bezier'
@@ -258,7 +259,4 @@ class Wedge(BaseGlyph, FillProps, LineProps):
     radius = DataSpec(min_value=0)
     start_angle = DataSpec
     end_angle = DataSpec
-    direction = Enum('clock', 'anticlock')
-
-
-
+    direction = Enum(Direction)
