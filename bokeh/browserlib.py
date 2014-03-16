@@ -1,5 +1,6 @@
 import webbrowser
 import os
+
 def get_browser_controller(browser=None):
     if browser is None:
         browser = os.environ.get("BOKEH_BROWSER", None)
@@ -7,7 +8,7 @@ def get_browser_controller(browser=None):
     if browser is not None:
         if browser == 'dummy':
             class DummyWebBrowser(object):
-                def open(self, url, new):
+                def open(self, url, new=0, autoraise=True):
                     pass
 
             controller = DummyWebBrowser()
@@ -15,6 +16,5 @@ def get_browser_controller(browser=None):
             controller = webbrowser.get(browser)
     else:
         controller = webbrowser
+
     return controller
-    
-    

@@ -199,7 +199,7 @@ class HTMLFileSession(BaseHTMLSession):
             f.write(s.encode("utf-8"))
         return
 
-    def view(self, new=False, autoraise=True):
+    def view(self, browser=None, new=False, autoraise=True):
         """ Opens a browser to view the file pointed to by this sessions.
 
         **new** can be None, "tab", or "window" to view the file in the
@@ -212,8 +212,8 @@ class HTMLFileSession(BaseHTMLSession):
         file_url = "file://" + abspath(self.filename)
 
         try:
-            import webbrowser
-            webbrowser.open(file_url, new=new_map[new], autoraise=autoraise)
+            controller = browserlib.get_browser_controller(browser)
+            controller.open(file_url, new=new_map[new], autoraise=autoraise)
         except (SystemExit, KeyboardInterrupt):
             raise
         except:
