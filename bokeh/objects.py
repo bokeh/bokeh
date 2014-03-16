@@ -19,7 +19,7 @@ logger = logging.getLogger(__file__)
 
 from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
     Either, Float, Instance, Int, List, String, Color, DashPattern,
-    Percent, Size, Include, Bool)
+    Percent, Size, Include, Bool, Tuple)
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, Orientation
 
@@ -456,11 +456,14 @@ class PandasDataSource(DataSource):
 
     data = Dict()
 
-class Range1d(PlotObject):
+class Range(PlotObject):
+    pass
+
+class Range1d(Range):
     start = Float()
     end = Float()
 
-class DataRange(PlotObject):
+class DataRange(Range):
     sources = List(ColumnsRef, has_ref=True)
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
@@ -487,8 +490,7 @@ class DataRange1d(DataRange):
     start = Float
     end = Float
 
-
-class FactorRange(PlotObject):
+class FactorRange(Range):
     """ Represents a range in a categorical dimension """
     factors = List
 
@@ -496,8 +498,8 @@ class Glyph(PlotObject):
 
     plot = Instance(has_ref=True)
     data_source = Instance(DataSource, has_ref=True)
-    xdata_range = Instance(DataRange1d, has_ref=True)
-    ydata_range = Instance(DataRange1d, has_ref=True)
+    xdata_range = Instance(Range, has_ref=True)
+    ydata_range = Instance(Range, has_ref=True)
 
     # How to intepret the values in the data_source
     units = Enum(Units)
@@ -561,8 +563,8 @@ class Plot(PlotObject):
     data_sources = List
     title = String("Bokeh Plot")
 
-    x_range = Instance(DataRange1d, has_ref=True)
-    y_range = Instance(DataRange1d, has_ref=True)
+    x_range = Instance(Range, has_ref=True)
+    y_range = Instance(Range, has_ref=True)
     png = String('')
     title = String('')
     outline_props = Include(LineProps, prefix="outline")
