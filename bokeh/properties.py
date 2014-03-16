@@ -16,6 +16,14 @@ from .enums import Enumeration, NamedColor
 def _dummy(*args,**kw):
     return None
 
+def nice_join(seq, sep=", "):
+    seq = map(str, seq)
+
+    if len(seq) <= 1:
+        return sep.join(seq)
+    else:
+        return "%s or %s" % (sep.join(seq[:-1]), seq[-1])
+
 class Property(object):
     def __init__(self, default=None):
         """ This is how the descriptor is created in the class declaration """
@@ -603,7 +611,7 @@ class PrimitiveProperty(Property):
         super(PrimitiveProperty, self).validate(value)
         if not (value is None or isinstance(value, self._underlying_type)):
             raise ValueError("expected a value of type %s, got %s of type %s" %
-                (", ".join(map(str, self._underlying_type)), value, type(value)))
+                (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__))
 
 class Bool(PrimitiveProperty):
     _underlying_type = (bool,)
@@ -720,7 +728,8 @@ class Instance(Property):
         super(Instance, self).validate(value)
 
         if self.instance_type is not None and value is not None and not isinstance(value, self.instance_type):
-            raise ValueError("expected an instance of type %s, got %s of type %s" % (self.instance_type, value, type(value)))
+            raise ValueError("expected an instance of type %s, got %s of type %s" %
+                (self.instance_type.__name__, value, type(value).__name__))
 
 class This(Property):
     """ A reference to an instance of the class being defined
@@ -770,7 +779,7 @@ class Enum(Property):
         super(Enum, self).validate(value)
 
         if value not in self.allowed_values:
-            raise ValueError("invalid value %r, allowed values are %s" % (value, ", ".join(self.allowed_values)))
+            raise ValueError("invalid value %r, allowed values are %s" % (value, nice_join(self.allowed_values)))
 
 Sequence = _dummy
 Mapping = _dummy
