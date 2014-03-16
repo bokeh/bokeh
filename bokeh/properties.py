@@ -186,11 +186,6 @@ class DataSpec(BaseProperty):
                 arg = {"field": field, "default": default}
         super(DataSpec, self).__set__(obj, arg)
 
-    def __delete__(self, obj):
-        if hasattr(obj, self.name + "_dict"):
-            delattr(obj, self.name + "_dict")
-        super(DataSpec, self).__delete__(self, obj)
-
     def to_dict(self, obj):
         # Build the complete dict
         setval = getattr(obj, self._name, None)
