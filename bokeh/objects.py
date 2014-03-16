@@ -740,7 +740,7 @@ class Axis(GuideRenderer):
 
     dimension = Int(0)
     location = Either(String('min'), Float)
-    bounds = String('auto')
+    bounds = Either(Enum('auto'), Tuple) # XXX: Tuple(Float, Float)
 
     axis_label = String
     axis_label_standoff = Int

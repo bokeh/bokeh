@@ -3,7 +3,7 @@ classes and implement convenience behaviors like default values, etc.
 """
 from __future__ import print_function
 
-from six import string_types, add_metaclass
+from six import integer_types, string_types, add_metaclass
 
 from copy import copy
 import inspect
@@ -19,6 +19,7 @@ def _dummy(*args,**kw):
 class Property(object):
     def __init__(self, default=None):
         """ This is how the descriptor is created in the class declaration """
+        self.validate(default)
         self.default = default
         # This gets set by the class decorator at class creation time
         self.name = "unnamed"
@@ -36,9 +37,6 @@ class Property(object):
         """
         return cls()
 
-    def __get__(self, obj, type=None):
-        return getattr(obj, self._name, self.default)
-
     def matches(self, new, old):
         try:
             return new == old
@@ -46,7 +44,14 @@ class Property(object):
             logger.warning("could not compare %s and %s for property %s", new, old, self.name)
         return False
 
+    def validate(self, value):
+        pass
+
+    def __get__(self, obj, type=None):
+        return getattr(obj, self._name, self.default)
+
     def __set__(self, obj, value):
+        self.validate(value)
         old = self.__get__(obj)
         obj._changed_vars.add(self.name)
         if self._name in obj.__dict__ and self.matches(value, old):
@@ -591,20 +596,29 @@ class HasProps(object):
             print("  "*indent + p + ":", getattr(self, p))
 
 class PrimitiveProperty(Property):
-    pass
+
+    _underlying_type = None
+
+    def validate(self, value):
+        super(PrimitiveProperty, self).validate(value)
+        if not (value is None or isinstance(value, self._underlying_type)):
+            raise ValueError("expected a value of type %s, got %s of type %s" %
+                (", ".join(map(str, self._underlying_type)), value, type(value)))
+
+class Bool(PrimitiveProperty):
+    _underlying_type = (bool,)
 
 class Int(PrimitiveProperty):
-    pass
+    _underlying_type = integer_types
+
 class Float(PrimitiveProperty):
-    pass
+    _underlying_type = (float,) + integer_types
+
 class Complex(PrimitiveProperty):
-    pass
-class File(PrimitiveProperty):
-    pass
-class Bool(PrimitiveProperty):
-    pass
+    _underlying_type = (complex, float) + integer_types
+
 class String(PrimitiveProperty):
-    pass
+    _underlying_type = string_types
 
 class ContainerProperty(Property):
     # Base class for container-like things; this helps the auto-serialization
@@ -681,13 +695,17 @@ class Array(ContainerProperty):
 # OOP things
 class Class(Property): pass
 class Instance(Property):
-    def __init__(self, type_of=None, default=None, has_ref=False):
+    def __init__(self, instance_type=None, default=None, has_ref=False):
         """has_ref : whether the json for this is a reference to
         another object or not
         """
-        super(Instance, self).__init__(default=default)
-        self.type_of = type_of
+        if not (instance_type is None or isinstance(instance_type, type)):
+            raise ValueError("expected a type, got %s" % instance_type)
+
+        self.instance_type = instance_type
         self.has_ref = has_ref
+
+        super(Instance, self).__init__(default=default)
 
     def __get__(self, obj, type=None):
         # If the constructor for Instance() supplied a class name, we should
@@ -697,6 +715,12 @@ class Instance(Property):
              if type and self.default and isinstance(self.default, type):
                 setattr(obj, self._name, self.default())
         return getattr(obj, self._name, None)
+
+    def validate(self, value):
+        super(Instance, self).validate(value)
+
+        if self.instance_type is not None and value is not None and not isinstance(value, self.instance_type):
+            raise ValueError("expected an instance of type %s, got %s of type %s" % (self.instance_type, value, type(value)))
 
 class This(Property):
     """ A reference to an instance of the class being defined
@@ -742,12 +766,11 @@ class Enum(Property):
         self.default = default
         self.allowed_values = values
 
-    def __set__(self, obj, value):
-        if value not in self.allowed_values:
-            raise ValueError("invalid value %r passed to Enum property" % value)
-        else:
-            super(Enum, self).__set__(obj, value)
+    def validate(self, value):
+        super(Enum, self).validate(value)
 
+        if value not in self.allowed_values:
+            raise ValueError("invalid value %r, allowed values are %s" % (value, ", ".join(self.allowed_values)))
 
 Sequence = _dummy
 Mapping = _dummy
