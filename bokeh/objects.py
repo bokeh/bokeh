@@ -21,7 +21,7 @@ from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
     Either, Float, Instance, Int, List, String, Color, DashPattern,
     Percent, Size, Include, Bool, Tuple)
 from .mixins import FillProps, LineProps, TextProps
-from .enums import Units, Orientation
+from .enums import Units, Orientation, Dimension
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -494,7 +494,10 @@ class FactorRange(Range):
     """ Represents a range in a categorical dimension """
     factors = List
 
-class Glyph(PlotObject):
+class Renderer(PlotObject):
+    pass
+
+class Glyph(Renderer):
 
     plot = Instance(has_ref=True)
     data_source = Instance(DataSource, has_ref=True)
@@ -601,7 +604,6 @@ class Plot(PlotObject):
     min_border_right = Int(50)
     min_border = Int(50)
     script_inject_snippet = String("")
-
 
     def _get_script_inject_snippet(self):
         from .session import HTMLFileSession
@@ -726,7 +728,7 @@ class GridPlot(Plot):
     children = List(List(has_ref=True), has_ref=True)
     border_space = Int(0)
 
-class GuideRenderer(PlotObject):
+class GuideRenderer(Renderer):
     plot = Instance
 
     def __init__(self, **kwargs):
@@ -784,49 +786,48 @@ class Grid(GuideRenderer):
     # Line props
     grid_props = Include(LineProps, prefix="grid")
 
-class PanTool(PlotObject):
+class Tool(PlotObject):
     plot = Instance(Plot, has_ref=True)
-    dimensions = List   # valid values: "x", "y"
 
-class WheelZoomTool(PlotObject):
-    plot = Instance(Plot)
-    dimensions = List   # valid values: "x", "y"
+class PanTool(Tool):
+    dimensions = List(Enum(Dimension))
 
-class PreviewSaveTool(PlotObject):
-    plot = Instance(Plot)
-    dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
+class WheelZoomTool(Tool):
+    dimensions = List(Enum(Dimension))
 
-class EmbedTool(PlotObject):
-    plot = Instance(Plot)
-    dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
+class PreviewSaveTool(Tool):
+    dimensions = List(Enum(Dimension))
+    dataranges = List(Instance(DataRange), has_ref=True)
 
-class ResetTool(PlotObject):
-    plot = Instance(Plot)
+class EmbedTool(Tool):
+    dimensions = List(Enum(Dimension))
+    dataranges = List(Instance(DataRange), has_ref=True)
 
-class ResizeTool(PlotObject):
-    plot = Instance(Plot)
+class ResetTool(Tool):
+    pass
 
-class CrosshairTool(PlotObject):
-    plot = Instance(Plot)
+class ResizeTool(Tool):
+    pass
 
-class BoxZoomTool(PlotObject):
-    plot = Instance(Plot)
+class CrosshairTool(Tool):
+    pass
 
-class BoxSelectTool(PlotObject):
-    renderers = List(has_ref=True)
+class BoxZoomTool(Tool):
+    pass
+
+class BoxSelectTool(Tool):
+    renderers = List(Instance(Renderer), has_ref=True)
     select_every_mousemove = Bool(True)
 
-class BoxSelectionOverlay(PlotObject):
+class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'
-    tool = Instance(has_ref=True)
+    tool = Instance(Tool, has_ref=True)
 
-class HoverTool(PlotObject):
-    renderers = List(has_ref=True)
+class HoverTool(Tool):
+    renderers = List(Instance(Renderer), has_ref=True)
     tooltips = Dict()
 
-class ObjectExplorerTool(PlotObject):
+class ObjectExplorerTool(Tool):
     pass
 
 class Legend(PlotObject):
