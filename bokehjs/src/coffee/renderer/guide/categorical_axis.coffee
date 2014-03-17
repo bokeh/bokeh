@@ -9,17 +9,9 @@ define [
 
   class CategoricalAxisView extends Axis.View
 
-    initialize: (attrs, options) ->
-      super(attrs, options)
-      @formatter = new CategoricalTickFormatter.Model()
-
   class CategoricalAxis extends Axis.Model
     default_view: CategoricalAxisView
     type: 'CategoricalAxis'
-
-    initialize: (attrs, options)->
-      options.ticker = new tickers.CategoricalTicker()
-      super(attrs, options)
 
     _bounds: () ->
       i = @get('dimension')
@@ -32,6 +24,12 @@ define [
       range_bounds = [ranges[i].get('min'), ranges[i].get('max')]
 
       return range_bounds
+
+    defaults: () ->
+      return {
+        ticker: new tickers.CategoricalTicker()
+        formatter: new CategoricalTickFormatter.Model()
+      }
 
     display_defaults: () ->
       super()

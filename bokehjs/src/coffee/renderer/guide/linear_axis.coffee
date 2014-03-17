@@ -8,17 +8,16 @@ define [
 ], (_, Backbone, Axis, BasicTickFormatter, tickers) ->
 
   class LinearAxisView extends Axis.View
-    initialize: (options) ->
-      options.formatter = new BasicTickFormatter.Model()
-      super(options)
 
   class LinearAxis extends Axis.Model
     default_view: LinearAxisView
     type: 'LinearAxis'
 
-    initialize: (attrs, options)->
-      options.ticker = new tickers.BasicTicker()
-      super(attrs, options)
+    defaults: () ->
+      return {
+        ticker: new tickers.BasicTicker()
+        formatter: new BasicTickFormatter.Model()
+      }
 
     display_defaults: () ->
       super()

@@ -218,7 +218,7 @@ define [
       return labels
 
     defaults: () ->
-      return {}
+      super()
 
   class DatetimeTickFormatters extends Backbone.Collection
     model: DatetimeTickFormatter

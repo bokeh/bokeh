@@ -8,17 +8,15 @@ define [
 
   class DatetimeAxisView extends Axis.View
 
-    initialize: (options) ->
-      options.formatter = new DatetimeTickFormatter.Model()
-      super(options)
-
   class DatetimeAxis extends Axis.Model
     default_view: DatetimeAxisView
     type: 'DatetimeAxis'
 
-    initialize: (attrs, options) ->
-      options.ticker = new tickers.DatetimeTicker()
-      super(attrs, options)
+    defaults: () ->
+      return {
+        ticker: new tickers.DatetimeTicker()
+        formatter: new DatetimeTickFormatter.Model()
+      }
 
     display_defaults: () ->
       super()
