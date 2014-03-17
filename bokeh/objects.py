@@ -620,7 +620,7 @@ class Plot(PlotObject):
             self.outer_height = self.height
         return super(Plot, self).vm_props(*args, **kw)
 
-class MapOptions(PlotObject):
+class MapOptions(HasProps):
     lat = Float
     lng = Float
     zoom = Int(12)

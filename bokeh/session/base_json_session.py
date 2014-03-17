@@ -28,6 +28,8 @@ class _PlotObjectEncoder(protocol.NumpyJSONEncoder):
     def default(self, obj):
         if isinstance(obj, PlotObject):
             return self.session.get_ref(obj)
+        elif isinstance(obj, HasProps):
+            return obj.to_dict()
         else:
             return super(_PlotObjectEncoder, self).default(obj)
 

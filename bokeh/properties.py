@@ -515,12 +515,14 @@ class HasProps(object):
 
         super(HasProps, self).__init__(*args)
 
+    def to_dict(self):
+        return dict((prop, getattr(self, prop)) for prop in self.properties())
+
     def clone(self):
         """ Returns a duplicate of this object with all its properties
         set appropriately.  Values which are containers are shallow-copied.
         """
-        d = dict((p,getattr(self, p)) for p in self.properties())
-        return self.__class__(**d)
+        return self.__class__(**self.to_dict())
 
     @classmethod
     def properties_with_refs(cls):
