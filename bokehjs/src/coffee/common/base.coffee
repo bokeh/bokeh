@@ -24,8 +24,11 @@ define [
 
   "source/column_data_source",
 
+  "ticking/basic_ticker",
   "ticking/basic_tick_formatter",
+  "ticking/categorical_ticker",
   "ticking/categorical_tick_formatter",
+  "ticking/datetime_ticker",
   "ticking/datetime_tick_formatter",
 
   "tool/box_select_tool",
@@ -76,8 +79,11 @@ define [
 
     ColumnDataSource:         'source/column_data_source'
 
+    BasicTicker:              'ticking/basic_ticker'
     BasicTickFormatter:       'ticking/basic_tick_formatter'
+    CategoricalTicker:        'ticking/categorical_ticker'
     CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
+    DatetimeTicker:           'ticking/datetime_ticker'
     DatetimeTickFormatter:    'ticking/datetime_tick_formatter'
 
     PanTool:                  'tool/pan_tool'
