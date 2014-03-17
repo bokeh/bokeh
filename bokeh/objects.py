@@ -857,7 +857,7 @@ class DataRangeBoxSelectTool(PlotObject):
     yselect = List()
 
 class PlotContext(PlotObject):
-    children = List(has_ref=True)
+    children = List(List(Instance(Plot), has_ref=True), has_ref=True)
 
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning
