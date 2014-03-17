@@ -78,5 +78,6 @@ class BaseJSONSession(Session):
 
         return models
 
-    def serialize_models(self, objects=None, **jsonkwargs):
-        return self.serialize(self.convert_models(objects), **jsonkwargs)
+    def serialize_models(self, objects=None, pretty=False):
+        indent = 4 if settings.pretty(pretty) else None
+        return self.serialize(self.convert_models(objects), indent=indent)
