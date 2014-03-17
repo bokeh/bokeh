@@ -1,8 +1,8 @@
 
 # TODO Clear out debugging code, etc.
 # TODO Organize helper functions.
-# TODO The years scale doesn't always use the roundest numbers; it should
-# probably use a special scale.
+# TODO The years ticker doesn't always use the roundest numbers; it should
+# probably use a special ticker.
 # TODO Add tests.
 # TODO There used to be a TODO: restore memoization.  So.... do that?
 # TODO Instead of a get_ticks() method, there used to be an auto_ticks()
@@ -95,6 +95,7 @@ define [
   log = (x, base=Math.E) ->
     return Math.log(x) / Math.log(base)
 
+
   # ---------------------------------------------------------------------------
   # Date/time utility functions
   # ---------------------------------------------------------------------------
@@ -112,7 +113,6 @@ define [
     date.setUTCSeconds(0)
     date.setUTCMilliseconds(0)
     return date
-
 
   # Rounds a date down to the year.
   last_year_no_later_than = (date) ->
@@ -163,25 +163,25 @@ define [
     return dates
 
   # ---------------------------------------------------------------------------
-  # Scale classes
+  # Ticker classes
   # ---------------------------------------------------------------------------
 
   DEFAULT_DESIRED_N_TICKS = 6
 
-  # The base class for all Scale objects.  It needs to be subclassed before
-  # being used.  The simplest subclass is SingleIntervalScale.
+  # The base class for all Ticker objects.  It needs to be subclassed before
+  # being used.  The simplest subclass is SingleIntervalTicker.
   #
-  # The main value of a Scale is its get_ticks() method, which takes a min and
+  # The main value of a Ticker is its get_ticks() method, which takes a min and
   # max value and (optionally) a desired number of ticks, and returns an array
   # of approximately that many ticks, evenly spaced, with nice round values,
   # within that range.
   #
-  # Different Scales are suited to different types of data or different
-  # magnitudes.  To make it possible to select Scales programmatically, they
+  # Different Tickers are suited to different types of data or different
+  # magnitudes.  To make it possible to select Tickers programmatically, they
   # also support some additional methods: get_interval(), get_min_interval(),
   # and get_max_interval().
-  class AbstractScale
-    # Creates a new AbstractScale.  The toString_properties argument is an
+  class AbstractTicker
+    # Creates a new AbstractTicker.  The toString_properties argument is an
     # optional list of member names which be shown when toString() is called.
     constructor: (@toString_properties=[]) ->
 
@@ -237,10 +237,10 @@ define [
       data_range = data_high - data_low
       return data_range / desired_n_ticks
 
-  # The SingleIntervalScale is a Scale that always uses the same tick spacing,
+  # The SingleIntervalTicker is a Ticker that always uses the same tick spacing,
   # regardless of the input range.  It's not very useful by itself, but can
-  # be used as part of a CompositeScale below.
-  class SingleIntervalScale extends AbstractScale
+  # be used as part of a CompositeTicker below.
+  class SingleIntervalTicker extends AbstractTicker
     constructor: (@interval) ->
       super(['interval'])
       @min_interval = @interval
@@ -249,54 +249,54 @@ define [
     get_interval: (data_low, data_high, n_desired_ticks) ->
       return @interval
 
-  # This Scale takes a collection of Scales and picks the one most appropriate
+  # This Ticker takes a collection of Tickers and picks the one most appropriate
   # for a given range.
-  class CompositeScale extends AbstractScale
-    # The scales should be in order of increasing interval size; specifically,
+  class CompositeTicker extends AbstractTicker
+    # The tickers should be in order of increasing interval size; specifically,
     # if S comes before T, then it should be the case that
     # S.get_max_interval() < T.get_min_interval().
     # FIXME Enforce this automatically.
-    constructor: (@scales) ->
+    constructor: (@tickers) ->
       super()
 
-      @min_intervals = _.invoke(@scales, 'get_min_interval')
-      @max_intervals = _.invoke(@scales, 'get_max_interval')
+      @min_intervals = _.invoke(@tickers, 'get_min_interval')
+      @max_intervals = _.invoke(@tickers, 'get_max_interval')
 
       @min_interval = _.first(@min_intervals)
       @max_interval =  _.last(@max_intervals)
 
-    get_best_scale: (data_low, data_high, desired_n_ticks) ->
+    get_best_ticker: (data_low, data_high, desired_n_ticks) ->
       data_range = data_high - data_low
       ideal_interval = @get_ideal_interval(data_low, data_high,
                                            desired_n_ticks)
-      scale_ndxs = [
+      ticker_ndxs = [
         _.sortedIndex(@min_intervals, ideal_interval) - 1,
         _.sortedIndex(@max_intervals, ideal_interval)
       ]
-      intervals = [@min_intervals[scale_ndxs[0]],
-                   @max_intervals[scale_ndxs[1]]]
+      intervals = [@min_intervals[ticker_ndxs[0]],
+                   @max_intervals[ticker_ndxs[1]]]
       errors = intervals.map((interval) ->
         return Math.abs(desired_n_ticks - (data_range / interval)))
 
-      best_scale_ndx = scale_ndxs[argmin(errors)]
-      best_scale = @scales[best_scale_ndx]
+      best_ticker_ndx = ticker_ndxs[argmin(errors)]
+      best_ticker = @tickers[best_ticker_ndx]
 
-      return best_scale
+      return best_ticker
 
     get_interval: (data_low, data_high, desired_n_ticks) ->
-      best_scale = @get_best_scale(data_low, data_high, desired_n_ticks)
-      return best_scale.get_interval(data_low, data_high, desired_n_ticks)
+      best_ticker = @get_best_ticker(data_low, data_high, desired_n_ticks)
+      return best_ticker.get_interval(data_low, data_high, desired_n_ticks)
 
     get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
-      best_scale = @get_best_scale(data_low, data_high, desired_n_ticks)
-      return best_scale.get_ticks_no_defaults(data_low, data_high,
+      best_ticker = @get_best_ticker(data_low, data_high, desired_n_ticks)
+      return best_ticker.get_ticks_no_defaults(data_low, data_high,
                                               desired_n_ticks)
 
-  # This Scale produces nice round ticks at any magnitude.
-  # AdaptiveScale([1, 2, 5]) will choose the best tick interval from the
+  # This Ticker produces nice round ticks at any magnitude.
+  # AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the
   # following:
   # ..., 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100, ...
-  class AdaptiveScale extends AbstractScale
+  class AdaptiveTicker extends AbstractTicker
     # These arguments control the range of possible intervals.  The interval I
     # returned by get_interval() will be the one that most closely matches the
     # desired number of ticks, subject to the following constraints:
@@ -339,10 +339,10 @@ define [
 
       return clamp(interval, @min_interval, @max_interval)
 
-  # A MonthsScale produces ticks from a fixed subset of months of the year.
-  # E.g., MonthsScale([0, 3, 6, 9]) produces ticks of the 1st of January,
+  # A MonthsTicker produces ticks from a fixed subset of months of the year.
+  # E.g., MonthsTicker([0, 3, 6, 9]) produces ticks of the 1st of January,
   # April, July, and October of each year.
-  class MonthsScale extends SingleIntervalScale
+  class MonthsTicker extends SingleIntervalTicker
     constructor: (@months) ->
       @typical_interval = if @months.length > 1
           (@months[1] - @months[0]) * ONE_MONTH
@@ -370,10 +370,10 @@ define [
 
       return ticks_in_range
 
-  # A DaysScale produces ticks from a fixed subset of calendar days.
-  # E.g., DaysScale([1, 15]) produces ticks on the 1st and 15th days of each
+  # A DaysTicker produces ticks from a fixed subset of calendar days.
+  # E.g., DaysTicker([1, 15]) produces ticks on the 1st and 15th days of each
   # month.
-  class DaysScale extends SingleIntervalScale
+  class DaysTicker extends SingleIntervalTicker
     constructor: (@days) ->
       @typical_interval = if @days.length > 1
           (@days[1] - @days[0]) * ONE_DAY
@@ -421,331 +421,52 @@ define [
   ONE_MONTH = 30 * ONE_DAY # An approximation, obviously.
   ONE_YEAR = 365 * ONE_DAY
 
-  # This is a good default scale for generic numerical data.
-  class BasicScale extends AdaptiveScale
+  # This is a good default ticker for generic numerical data.
+  class BasicTicker extends AdaptiveTicker
     constructor: () ->
       super([1, 2, 5])
 
-  # This is a decent scale for time data (in milliseconds).
+  # This is a decent ticker for time data (in milliseconds).
   # It could certainly be improved:
-  # FIXME There should probably be a special scale for years.
-  # FIXME Some of the adaptive scales probably have too many mantissas, which
+  # FIXME There should probably be a special ticker for years.
+  # FIXME Some of the adaptive tickers probably have too many mantissas, which
   # leads to too-frequent tick transitions.
-  class DatetimeScale extends CompositeScale
+  class DatetimeTicker extends CompositeTicker
     constructor: () ->
       super([
         # Sub-second.
-        new AdaptiveScale([1, 2, 5], 10, 0, 500 * ONE_MILLI),
+        new AdaptiveTicker([1, 2, 5], 10, 0, 500 * ONE_MILLI),
 
         # Seconds, minutes.
-        new AdaptiveScale([1, 2, 5, 10, 15, 20, 30], 60,
+        new AdaptiveTicker([1, 2, 5, 10, 15, 20, 30], 60,
                           ONE_SECOND, 30 * ONE_MINUTE),
 
         # Hours.
-        new AdaptiveScale([1, 2, 4, 6, 8, 12], 24.0, ONE_HOUR, 12 * ONE_HOUR),
+        new AdaptiveTicker([1, 2, 4, 6, 8, 12], 24.0, ONE_HOUR, 12 * ONE_HOUR),
 
         # Days.
-        new DaysScale(arange(1, 32)),
-        new DaysScale(arange(1, 31, 3)),
-        new DaysScale([1, 8, 15, 22]),
-        new DaysScale([1, 15]),
+        new DaysTicker(arange(1, 32)),
+        new DaysTicker(arange(1, 31, 3)),
+        new DaysTicker([1, 8, 15, 22]),
+        new DaysTicker([1, 15]),
 
         # Months.
-        new MonthsScale(arange(0, 12)),
-        new MonthsScale(arange(0, 12, 2)),
-        new MonthsScale(arange(0, 12, 4)),
-        new MonthsScale(arange(0, 12, 6)),
+        new MonthsTicker(arange(0, 12)),
+        new MonthsTicker(arange(0, 12, 2)),
+        new MonthsTicker(arange(0, 12, 4)),
+        new MonthsTicker(arange(0, 12, 6)),
 
-        # Catchall for large timescales.
-        new AdaptiveScale([1, 2, 5], 10, ONE_YEAR, Infinity),
+        # Catchall for large timetickers.
+        new AdaptiveTicker([1, 2, 5], 10, ONE_YEAR, Infinity),
       ])
 
-  # ---------------------------------------------------------------------------
-  # Formatter classes
-  # ---------------------------------------------------------------------------
-
-  class BasicTickFormatter
-    constructor: (@precision='auto', @use_scientific=true, @power_limit_high=5, @power_limit_low=-3) ->
-      @scientific_limit_low  = Math.pow(10.0, power_limit_low)
-      @scientific_limit_high = Math.pow(10.0, power_limit_high)
-      @last_precision = 3
-
-    format: (ticks) ->
-      if ticks.length == 0
-        return []
-
-      zero_eps = 0
-      if ticks.length >= 2
-        zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000;
-
-      need_sci = false;
-      if @use_scientific
-        for tick in ticks
-          tick_abs = Math.abs(tick)
-          if tick_abs > zero_eps and (tick_abs >= @scientific_limit_high or tick_abs <= @scientific_limit_low)
-            need_sci = true
-            break
-
-      if _.isNumber(@precision)
-        labels = new Array(ticks.length)
-        if need_sci
-          for i in [0...ticks.length]
-            labels[i] = ticks[i].toExponential(@precision)
-        else
-          for i in [0...ticks.length]
-            labels[i] = ticks[i].toPrecision(@precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
-        return labels
-
-      else if @precision == 'auto'
-        labels = new Array(ticks.length)
-        for x in [@last_precision..15]
-          is_ok = true
-          if need_sci
-            for i in [0...ticks.length]
-              labels[i] = ticks[i].toExponential(x)
-              if i > 0
-                if labels[i] == labels[i-1]
-                  is_ok = false
-                  break
-            if is_ok
-              break
-          else
-            for i in [0...ticks.length]
-              labels[i] = ticks[i].toPrecision(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
-              if i > 0
-                if labels[i] == labels[i-1]
-                  is_ok = false
-                  break
-            if is_ok
-              break
-
-          if is_ok
-            @last_precision = x
-            return labels
-
-      return labels
-
-  _us = (t) ->
-    return sprintf("%3dus", Math.floor((t % 1) * 1000))
-
-  _ms_dot_us = (t) ->
-    ms = Math.floor(((t / 1000) % 1) * 1000)
-    us = Math.floor((t % 1) * 1000)
-    return sprintf("%3d.%3dms", ms, us)
-
-
-  _two_digit_year = (t) ->
-    # Round to the nearest Jan 1, roughly.
-    dt = new Date(t)
-    year = dt.getFullYear()
-    if dt.getMonth() >= 7
-        year += 1
-    return sprintf("'%02d", (year % 100))
-
-  _four_digit_year = (t) ->
-    # Round to the nearest Jan 1, roughly.
-    dt = new Date(t)
-    year = dt.getFullYear()
-    if dt.getMonth() >= 7
-        year += 1
-    return sprintf("%d", year)
-
-  _array = (t) ->
-    return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map( (e) -> return parseInt(e, 10) );
-
-  _strftime = (t, format) ->
-    if _.isFunction(format)
-      return format(t)
-    else
-      return tz(t, format)
-
-  class DatetimeFormatter
-
-    # Labels of time units, from finest to coarsest.
-    format_order: [
-      'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'
-    ]
-
-    # A dict whose are keys are the strings in **format_order**; each value is
-    # two arrays, (widths, format strings/functions).
-
-    # Whether or not to strip the leading zeros on tick labels.
-    strip_leading_zeros: true
-
-    constructor: () ->
-      # This table of format is convert into the 'formats' dict.  Each tuple of
-      # formats must be ordered from shortest to longest.
-      @_formats = {
-        'microseconds': [_us, _ms_dot_us]
-        'milliseconds': ['%3Nms', '%S.%3Ns']
-        'seconds':      ['%Ss']
-        'minsec':       [':%M:%S']
-        'minutes':      [':%M', '%Mm']
-        'hourmin':      ['%H:%M']
-        'hours':        ['%Hh', '%H:%M']
-        'days':         ['%m/%d', '%a%d']
-        'months':       ['%m/%Y', '%b%y']
-        'years':        ['%Y', _two_digit_year, _four_digit_year]
-      }
-      @formats = {}
-      for fmt_name of @_formats
-        fmt_strings = @_formats[fmt_name]
-        sizes = []
-        tmptime = tz(new Date())
-        for fmt in fmt_strings
-            size = (_strftime(tmptime, fmt)).length
-            sizes.push(size)
-        @formats[fmt_name] = [sizes, fmt_strings]
-      return
-
-    # FIXME There is some unfortunate flicker when panning/zooming near the
-    # span boundaries.
-    # FIXME Rounding is weird at the 20-us scale and below.
-    _get_resolution_str: (resolution_secs, span_secs) ->
-      # Our resolution boundaries should not be round numbers, because we want
-      # them to fall between the possible tick intervals (which *are* round
-      # numbers, as we've worked hard to ensure).  Consequently, we adjust the
-      # resolution upwards a small amount (less than any possible step in
-      # scales) to make the effective boundaries slightly lower.
-      adjusted_resolution_secs = resolution_secs * 1.1
-
-      if adjusted_resolution_secs < 1e-3
-        str = "microseconds"
-      else if adjusted_resolution_secs < 1.0
-        str = "milliseconds"
-      else if adjusted_resolution_secs < 60
-        if span_secs >= 60
-          str = "minsec"
-        else
-          str = "seconds"
-      else if adjusted_resolution_secs < 3600
-        if span_secs >= 3600
-          str = "hourmin"
-        else
-          str = "minutes"
-      else if adjusted_resolution_secs < 24*3600
-        str = "hours"
-      else if adjusted_resolution_secs < 31*24*3600
-        str = "days"
-      else if adjusted_resolution_secs < 365*24*3600
-        str = "months"
-      else
-        str = "years"
-      return str
-
-    format: (ticks, num_labels=null, char_width=null, fill_ratio=0.3, ticker=null) ->
-
-      # In order to pick the right set of labels, we need to determine
-      # the resolution of the ticks.  We can do this using a ticker if
-      # it's provided, or by computing the resolution from the actual
-      # ticks we've been given.
-      if ticks.length == 0
-          return []
-
-      span = Math.abs(ticks[ticks.length-1] - ticks[0])/1000.0
-      if ticker
-        r = ticker.resolution
-      else
-        r = span / (ticks.length - 1)
-      resol = @_get_resolution_str(r, span)
-
-      [widths, formats] = @formats[resol]
-      format = formats[0]
-      # FIXME I'm pretty sure this code won't work; luckily it doesn't seem to
-      # be used.
-      if char_width
-        # If a width is provided, then we pick the most appropriate scale,
-        # otherwise just use the widest format
-        good_formats = []
-        for i in [0...widths.length]
-          if widths[i] * ticks.length < fill_ratio * char_width
-            # FIXME I think "@formats" should be "formats".  (Perhaps they
-            # should have more distinct names.)
-            good_formats.push(@formats[i])
-        if good_formats.length > 0
-          # FIXME I think this should be:
-          #   format = good_formats[good_formats.length - 1]
-          # or better yet:
-          #   format = _.last(good_formats)
-          format = good_formats[ticks.length-1]
-
-      # Apply the format to the tick values
-      labels = []
-      resol_ndx = @format_order.indexOf(resol)
-
-      # This dictionary maps the name of a time resolution (in @format_order)
-      # to its index in a time.localtime() timetuple.  The default is to map
-      # everything to index 0, which is year.  This is not ideal; it might cause
-      # a problem with the tick at midnight, january 1st, 0 a.d. being incorrectly
-      # promoted at certain tick resolutions.
-      time_tuple_ndx_for_resol = {}
-      for fmt in @format_order
-        time_tuple_ndx_for_resol[fmt] = 0
-      time_tuple_ndx_for_resol["seconds"] = 5
-      time_tuple_ndx_for_resol["minsec"] = 4
-      time_tuple_ndx_for_resol["minutes"] = 4
-      time_tuple_ndx_for_resol["hourmin"] = 3
-      time_tuple_ndx_for_resol["hours"] = 3
-
-      # As we format each tick, check to see if we are at a boundary of the
-      # next higher unit of time.  If so, replace the current format with one
-      # from that resolution.  This is not the best heuristic in the world,
-      # but it works!  There is some trickiness here due to having to deal
-      # with hybrid formats in a reasonable manner.
-      for t in ticks
-        try
-          # FIXME This should be:
-          #   dt = new Date(t)
-          # Or rather, if anyone used dt, that's what it should be.
-          dt = Date(t)
-          tm = _array(t)
-          s = _strftime(t, format)
-        catch error
-          console.log error
-          console.log("Unable to convert tick for timestamp " + t)
-          labels.push("ERR")
-          continue
-
-        hybrid_handled = false
-        next_ndx = resol_ndx
-
-        # The way to check that we are at the boundary of the next unit of
-        # time is by checking that we have 0 units of the resolution, i.e.
-        # we are at zero minutes, so display hours, or we are at zero seconds,
-        # so display minutes (and if that is zero as well, then display hours).
-        while tm[ time_tuple_ndx_for_resol[@format_order[next_ndx]] ] == 0
-          next_ndx += 1
-          if next_ndx == @format_order.length
-            break
-          if resol in ["minsec", "hourmin"] and not hybrid_handled
-            if (resol == "minsec" and tm[4] == 0 and tm[5] != 0) or (resol == "hourmin" and tm[3] == 0 and tm[4] != 0)
-              next_format = @formats[@format_order[resol_ndx-1]][1][0]
-              s = _strftime(t, next_format)
-              break
-            else
-              hybrid_handled = true
-
-          next_format = @formats[@format_order[next_ndx]][1][0]
-          s = _strftime(t, next_format)
-
-        if @strip_leading_zeros
-          ss = s.replace(/^0+/g, "")
-          if ss != s and (ss == '' or not isFinite(ss[0]))
-            # A label such as '000ms' should leave one zero.
-            ss = '0' + ss
-          labels.push(ss)
-#           console.log("  #{t} -> #{new Date(t)} : #{tm} : #{s} -> #{ss}")
-        else
-          labels.push(s)
-
-      return labels
+  class CategoricalTicker
+    get_ticks: (start, end, range, {desired_n_ticks}) ->
+      return range.get("factors")
 
   return {
-    "BasicScale": BasicScale,
-    "DatetimeScale": DatetimeScale,
-
-    "BasicTickFormatter": BasicTickFormatter,
-    "DatetimeFormatter": DatetimeFormatter,
+    "BasicTicker":       BasicTicker,
+    "CategoricalTicker": CategoricalTicker,
+    "DatetimeTicker":    DatetimeTicker
   }
-
 

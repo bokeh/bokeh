@@ -24,6 +24,10 @@ define [
 
   "source/column_data_source",
 
+  "ticking/basic_tick_formatter",
+  "ticking/categorical_tick_formatter",
+  "ticking/datetime_tick_formatter",
+
   "tool/box_select_tool",
   "tool/box_zoom_tool",
   "tool/crosshair_tool",
@@ -51,44 +55,48 @@ define [
 
   locations =
 
-    Plot:                   'common/plot'
-    GMapPlot:               'common/gmap_plot'
-    GridPlot:               'common/grid_plot'
-    PlotContext:            'common/plot_context'
-    PlotList:               'common/plot_context'
+    Plot:                     'common/plot'
+    GMapPlot:                 'common/gmap_plot'
+    GridPlot:                 'common/grid_plot'
+    PlotContext:              'common/plot_context'
+    PlotList:                 'common/plot_context'
 
-    DataFactorRange:        'range/data_factor_range'
-    DataRange1d:            'range/data_range1d'
-    FactorRange:            'range/factor_range'
-    Range1d:                'range/range1d'
+    DataFactorRange:          'range/data_factor_range'
+    DataRange1d:              'range/data_range1d'
+    FactorRange:              'range/factor_range'
+    Range1d:                  'range/range1d'
 
-    Glyph:                  'renderer/glyph/glyph_factory'
-    LinearAxis:             'renderer/guide/linear_axis'
-    CategoricalAxis:        'renderer/guide/categorical_axis'
-    DatetimeAxis:           'renderer/guide/datetime_axis'
-    Grid:                   'renderer/guide/grid'
-    Legend:                 'renderer/annotation/legend'
-    BoxSelection:           'renderer/overlay/box_selection'
+    Glyph:                    'renderer/glyph/glyph_factory'
+    LinearAxis:               'renderer/guide/linear_axis'
+    CategoricalAxis:          'renderer/guide/categorical_axis'
+    DatetimeAxis:             'renderer/guide/datetime_axis'
+    Grid:                     'renderer/guide/grid'
+    Legend:                   'renderer/annotation/legend'
+    BoxSelection:             'renderer/overlay/box_selection'
 
-    ColumnDataSource:       'source/column_data_source'
+    ColumnDataSource:         'source/column_data_source'
 
-    PanTool:                'tool/pan_tool'
-    WheelZoomTool:          'tool/wheel_zoom_tool'
-    ResizeTool:             'tool/resize_tool'
-    CrosshairTool:          'tool/crosshair_tool'
-    BoxSelectTool:          'tool/box_select_tool'
-    BoxZoomTool:            'tool/box_zoom_tool'
-    HoverTool:              'tool/hover_tool'
-    DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
-    PreviewSaveTool:        'tool/preview_save_tool'
-    EmbedTool:              'tool/embed_tool'
-    ResetTool:              'tool/reset_tool'
-    ObjectExplorerTool:     'tool/object_explorer_tool'
+    BasicTickFormatter:       'ticking/basic_tick_formatter'
+    CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
+    DatetimeTickFormatter:    'ticking/datetime_tick_formatter'
 
-    DataSlider:             'widget/data_slider'
-    IPythonRemoteData:      'widget/pandas/ipython_remote_data'
-    PandasPivotTable:       'widget/pandas/pandas_pivot_table'
-    PandasPlotSource:       'widget/pandas/pandas_plot_source'
+    PanTool:                  'tool/pan_tool'
+    WheelZoomTool:            'tool/wheel_zoom_tool'
+    ResizeTool:               'tool/resize_tool'
+    CrosshairTool:            'tool/crosshair_tool'
+    BoxSelectTool:            'tool/box_select_tool'
+    BoxZoomTool:              'tool/box_zoom_tool'
+    HoverTool:                'tool/hover_tool'
+    DataRangeBoxSelectTool:   'tool/data_range_box_select_tool'
+    PreviewSaveTool:          'tool/preview_save_tool'
+    EmbedTool:                'tool/embed_tool'
+    ResetTool:                'tool/reset_tool'
+    ObjectExplorerTool:       'tool/object_explorer_tool'
+
+    DataSlider:               'widget/data_slider'
+    IPythonRemoteData:        'widget/pandas/ipython_remote_data'
+    PandasPivotTable:         'widget/pandas/pandas_pivot_table'
+    PandasPlotSource:         'widget/pandas/pandas_plot_source'
 
   mod_cache = {}
 

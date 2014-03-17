@@ -2,13 +2,14 @@
 define [
   "underscore",
   "backbone",
-  "common/ticking",
   "./axis"
-], (_, Backbone, ticking, Axis) ->
+  "ticking/basic_tick_formatter",
+  "ticking/tickers",
+], (_, Backbone, Axis, BasicTickFormatter, tickers) ->
 
   class LinearAxisView extends Axis.View
     initialize: (options) ->
-      options.formatter = new ticking.BasicTickFormatter()
+      options.formatter = new BasicTickFormatter.Model()
       super(options)
 
   class LinearAxis extends Axis.Model
@@ -16,7 +17,7 @@ define [
     type: 'LinearAxis'
 
     initialize: (attrs, options)->
-      options.scale = new ticking.BasicScale()
+      options.scale = new tickers.BasicTicker()
       super(attrs, options)
 
     display_defaults: () ->

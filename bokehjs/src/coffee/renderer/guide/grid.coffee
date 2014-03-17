@@ -3,10 +3,10 @@ define [
   "underscore",
   "common/safebind",
   "common/has_parent",
-  "common/ticking",
+  "ticking/tickers",
   "renderer/properties",
   "common/plot_widget",
-], (_, safebind, HasParent, ticking, Properties, PlotWidget) ->
+], (_, safebind, HasParent, tickers, Properties, PlotWidget) ->
 
   line_properties = Properties.line_properties
 
@@ -60,9 +60,9 @@ define [
 
     _scale: () ->
       if @get('is_datetime')
-        return new ticking.DatetimeScale()
+        return new tickers.DatetimeTicker()
       else
-        return new ticking.BasicScale()
+        return new tickers.BasicTicker()
 
      _bounds: () ->
       i = @get('dimension')
