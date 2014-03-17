@@ -132,8 +132,6 @@ class Renderer(PlotObject):
     pass
 
 class Glyph(Renderer):
-
-    plot = Instance(has_ref=True)
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(Range, has_ref=True)
     ydata_range = Instance(Range, has_ref=True)
