@@ -630,97 +630,21 @@ class Plot(PlotObject):
             self.outer_height = self.height
         return super(Plot, self).vm_props(*args, **kw)
 
-class GMapPlot(PlotObject):
+class MapOptions(PlotObject):
+    lat = Float
+    lng = Float
+    zoom = Int(12)
 
-    center_lat = Float
-    center_lng = Float
-    zoom_level = Int(12)
-
-    data_sources = List
-    title = String("Bokeh Plot")
-
-    png = String('')
-    title = String('')
-
-    # A list of all renderers on this plot; this includes guides as well
-    # as glyph renderers
-    renderers = List(has_ref=True)
-    tools = List(has_ref=True)
-
-    # TODO: These don't appear in the CS source, but are created by mpl.py, so
-    # I'm leaving them here for initial compatibility testing.
-    axes = List(has_ref=True)
-    x_range = Instance(Range1d, has_ref=True)
-    y_range = Instance(Range1d, has_ref=True)
-
-    # TODO: How do we want to handle syncing of the different layers?
-    # image = List
-    # underlay = List
-    # glyph = List
-    #
-    # annotation = List
-
-    height = Int(800)
-    width = Int(800)
-
-    border_fill = Color("white")
-    border_symmetry = String("h")
-    canvas_width = Int(800)
-    canvas_height = Int(800)
-    outer_width = Int(800)
-    outer_height = Int(800)
-    min_border_top = Int(50)
-    min_border_bottom = Int(50)
-    min_border_left = Int(50)
-    min_border_right = Int(50)
-    min_border = Int(50)
+class GMapPlot(Plot):
+    map_options = Instance(MapOptions)
 
     def vm_serialize(self):
-        # Glyphs need to serialize their state a little differently,
-        # because the internal glyph instance is turned into a glyphspec
         data = super(GMapPlot, self).vm_serialize()
-        data.pop('center_lat', None)
-        data.pop('center_lng', None)
-        data.pop('zoom_level', None)
-        data["map_options"] = {
-            'lat': self.center_lat,
-            'lng': self.center_lng,
-            'zoom': self.zoom_level
-        }
         self._session.raw_js_snippets(self)
         return data
 
-    @classmethod
-    def load_json(cls, attrs, instance=None):
-        """Loads all json into a instance of cls, EXCEPT any references
-        which are handled in finalize
-        """
-        inst = super(GMapPlot, cls).load_json(attrs, instance=instance)
-        if hasattr(inst, 'map_options'):
-            mo = inst.map_options
-            del inst.map_options
-            inst.center_lat = mo['lat']
-            inst.center_lng = mo['lng']
-            inst.zoom_level = mo['zoom']
-        return inst
-
     def get_raw_js(self):
         return '<script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>'
-
-    def vm_props(self, *args, **kw):
-        # FIXME: We need to duplicate the height and width into canvas and
-        # outer height/width.  This is a quick fix for the gorpiness, but this
-        # needs to be fixed more structurally on the JS side, and then this
-        # should be revisited on the Python side.
-        if "canvas_width" not in self._changed_vars:
-            self.canvas_width = self.width
-        if "outer_width" not in self._changed_vars:
-            self.outer_width = self.width
-        if "canvas_height" not in self._changed_vars:
-            self.canvas_height = self.height
-        if "outer_height" not in self._changed_vars:
-            self.outer_height = self.height
-        return super(GMapPlot, self).vm_props(*args, **kw)
 
 class GridPlot(Plot):
     """ A 2D grid of plots """

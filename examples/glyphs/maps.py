@@ -11,21 +11,21 @@ import pandas as pd
 from bokeh.objects import (
     GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
     Glyph, PanTool, WheelZoomTool, ResizeTool, BoxSelectTool,
-    BoxSelectionOverlay, ObjectExplorerTool)
+    BoxSelectionOverlay, ObjectExplorerTool, MapOptions)
 from bokeh.glyphs import MultiLine, ImageRGBA, Circle
 from bokeh import session
 
 # The Google Maps plot
 x_range = Range1d()
 y_range = Range1d()
+map_options = MapOptions(lat=30.2861, lng=-97.7394, zoom=15)
 plot = GMapPlot(
     x_range=x_range, y_range=y_range,
-    center_lat=30.2861, center_lng=-97.7394, zoom_level=15,
+    map_options=map_options,
     data_sources=[],
     canvas_width=600, canvas_height=600,
     outer_width=600, outer_height=600,
-    title = "Austin"
-    )
+    title = "Austin")
 
 select_tool = BoxSelectTool()
 overlay = BoxSelectionOverlay(tool=select_tool)
