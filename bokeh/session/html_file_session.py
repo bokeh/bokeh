@@ -9,6 +9,7 @@ import logging
 from six import string_types
 
 from .. import __version__
+from .. import browserlib
 from ..objects import PlotContext
 from .base_html_session import BaseHTMLSession
 
