@@ -15,6 +15,7 @@ from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, Orientation, Dimension
 from .plotobject import PlotObject
+from .glyphs import BaseGlyph
 
 class DataSource(PlotObject):
     """ Base class for data sources """
@@ -97,6 +98,7 @@ class Range1d(Range):
 
 class DataRange(Range):
     sources = List(ColumnsRef, has_ref=True)
+
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
         props['id'] = self._id
@@ -139,14 +141,12 @@ class Glyph(Renderer):
     # How to intepret the values in the data_source
     units = Enum(Units)
 
-    # Instance of bokeh.glyphs.Glyph; not declaring it explicitly below
-    # because of circular imports. The renderers should get moved out
-    # into another module...
-    glyph = Instance()
-    # glyph used when data is unselected.  optional
-    nonselection_glyph = Instance()
-    # glyph used when data is selected.  optional
-    selection_glyph = Instance()
+    glyph = Instance(BaseGlyph)
+
+    # Optional glyph used when data is selected.
+    selection_glyph = Instance(BaseGlyph)
+    # Optional glyph used when data is unselected.
+    nonselection_glyph = Instance(BaseGlyph)
 
     def vm_serialize(self):
         # Glyphs need to serialize their state a little differently,
@@ -273,14 +273,15 @@ class GMapPlot(Plot):
 class GridPlot(Plot):
     """ A 2D grid of plots """
 
-    children = List(List(has_ref=True), has_ref=True)
+    children = List(List(Plot, has_ref=True), has_ref=True)
     border_space = Int(0)
 
 class GuideRenderer(Renderer):
-    plot = Instance
+    plot = Instance(Plot, has_ref=True)
 
     def __init__(self, **kwargs):
         super(GuideRenderer, self).__init__(**kwargs)
+
         if self.plot is not None:
             if self not in self.plot.renderers:
                 self.plot.renderers.append(self)
@@ -396,7 +397,7 @@ class Legend(PlotObject):
 
 class DataSlider(PlotObject):
     plot = Instance(Plot, has_ref=True)
-    data_source = Instance(has_ref=True)
+    data_source = Instance(DataSource, has_ref=True)
     field = String()
 
 class DataRangeBoxSelectTool(PlotObject):

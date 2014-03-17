@@ -2,12 +2,8 @@
 """
 from __future__ import absolute_import
 
-import logging
 import warnings
-
-from ..objects import PlotObject
-from ..properties import HasProps
-
+import logging
 logger = logging.getLogger(__file__)
 
 class Session(object):
