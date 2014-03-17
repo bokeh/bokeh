@@ -529,8 +529,7 @@ class HasProps(object):
         pull together the full list of properties.
         """
         if not hasattr(cls, "__cached_allprops_with_refs"):
-            s = accumulate_from_subclasses(cls,
-                                           "__properties_with_refs__")
+            s = accumulate_from_subclasses(cls, "__properties_with_refs__")
             cls.__cached_allprops_with_refs = s
         return cls.__cached_allprops_with_refs
 
@@ -539,8 +538,7 @@ class HasProps(object):
         """ Returns a list of properties that are containers
         """
         if not hasattr(cls, "__cached_allprops_containers"):
-            s = accumulate_from_subclasses(cls,
-                                           "__container_props__")
+            s = accumulate_from_subclasses(cls, "__container_props__")
             cls.__cached_allprops_containers = s
         return cls.__cached_allprops_containers
 

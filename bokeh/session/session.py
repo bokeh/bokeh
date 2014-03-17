@@ -83,12 +83,12 @@ class Session(object):
                 if obj._id not in ids:
                     ids.add(obj._id)
 
-                    for attr in obj.__properties_with_refs__:
+                    for attr in obj.properties_with_refs():
                         descend(getattr(obj, attr))
 
                     objs.append(obj)
             elif isinstance(obj, HasProps):
-                for attr in obj.__properties_with_refs__:
+                for attr in obj.properties_with_refs():
                     descend(getattr(obj, attr))
 
         descend(input_objs)
