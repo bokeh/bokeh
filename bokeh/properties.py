@@ -609,6 +609,7 @@ class PrimitiveProperty(Property):
 
     def validate(self, value):
         super(PrimitiveProperty, self).validate(value)
+
         if not (value is None or isinstance(value, self._underlying_type)):
             raise ValueError("expected a value of type %s, got %s of type %s" %
                 (nice_join([ cls.__name__ for cls in self._underlying_type ]), value, type(value).__name__))
@@ -701,7 +702,9 @@ class Array(ContainerProperty):
             return getattr(obj, self._name, self.default)
 
 # OOP things
-class Class(Property): pass
+class Class(Property):
+    pass
+
 class Instance(Property):
     def __init__(self, instance_type=None, default=None, has_ref=False):
         """has_ref : whether the json for this is a reference to
@@ -847,10 +850,21 @@ class DashPattern(Property):
 
 class Size(Float):
     """ Equivalent to an unsigned int """
+    def validate(self, value):
+        super(Size, self).validate(value)
 
-class Angle(Float): pass
+        if not (value is None or 0.0 <= value):
+            raise ValueError("expected a non-negative number, got %s" % value)
 
 class Percent(Float):
     """ Percent is useful for alphas and coverage and extents; more
     semantically meaningful than Float(0..1)
     """
+    def validate(self, value):
+        super(Percent, self).validate(value)
+
+        if not (value is None or 0.0 <= value <= 1.0):
+            raise ValueError("expected a value in range [0, 1], got %s" % value)
+
+class Angle(Float):
+    pass
