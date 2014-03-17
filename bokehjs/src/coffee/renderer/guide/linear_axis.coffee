@@ -17,7 +17,7 @@ define [
     type: 'LinearAxis'
 
     initialize: (attrs, options)->
-      options.scale = new tickers.BasicTicker()
+      options.ticker = new tickers.BasicTicker()
       super(attrs, options)
 
     display_defaults: () ->

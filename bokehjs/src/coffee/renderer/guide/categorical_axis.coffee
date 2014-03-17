@@ -18,7 +18,7 @@ define [
     type: 'CategoricalAxis'
 
     initialize: (attrs, options)->
-      options.scale = new tickers.CategoricalTicker()
+      options.ticker = new tickers.CategoricalTicker()
       super(attrs, options)
 
     _bounds: () ->

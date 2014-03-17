@@ -52,13 +52,13 @@ define [
 
       # FIXME Is it better to register a property?  Or just use a member
       # variable?
-      @register_property('scale', @_scale, true)
-      @add_dependencies('scale', this, ['is_datetime'])
+      @register_property('ticker', @_ticker, true)
+      @add_dependencies('ticker', this, ['is_datetime'])
 
       @register_property('grid_coords', @_grid_coords, false)
-      @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'scale'])
+      @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'ticker'])
 
-    _scale: () ->
+    _ticker: () ->
       if @get('is_datetime')
         return new tickers.DatetimeTicker()
       else
@@ -102,7 +102,7 @@ define [
       end = Math.max(start, end)
       start = tmp
 
-      ticks = @get('scale').get_ticks(start, end, range, {})
+      ticks = @get('ticker').get_ticks(start, end, range, {})
 
       min = range.get('min')
       max = range.get('max')

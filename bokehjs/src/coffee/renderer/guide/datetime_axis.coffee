@@ -17,7 +17,7 @@ define [
     type: 'DatetimeAxis'
 
     initialize: (attrs, options) ->
-      options.scale = new tickers.DatetimeTicker()
+      options.ticker = new tickers.DatetimeTicker()
       super(attrs, options)
 
     display_defaults: () ->

@@ -386,7 +386,7 @@ define [
     initialize: (attrs, options)->
       super(attrs, options)
 
-      @scale = options.scale
+      @ticker = options.ticker
 
       @register_property('computed_bounds', @_bounds, false)
       @add_dependencies('computed_bounds', this, ['bounds'])
@@ -481,7 +481,7 @@ define [
       [start, end] = @get('computed_bounds')
 
       # TODO, some axes need to pass range
-      ticks = @scale.get_ticks(start, end, range, {})
+      ticks = @ticker.get_ticks(start, end, range, {})
 
       cstart = cross_range.get('start')
       cend = cross_range.get('end')
