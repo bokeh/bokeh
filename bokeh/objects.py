@@ -603,14 +603,6 @@ class Plot(PlotObject):
     min_border = Int(50)
     script_inject_snippet = String("")
 
-    def _get_script_inject_snippet(self):
-        from .session import HTMLFileSession
-        if isinstance(self._session, HTMLFileSession):
-            self.script_inject_snippet
-            return ""
-        else:
-            return self.create_html_snippet(server=True)
-
     def vm_props(self, *args, **kw):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
