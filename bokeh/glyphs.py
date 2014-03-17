@@ -1,9 +1,8 @@
-
-from .properties import (HasProps, Instance, Enum, Float, Int, Color, Percent,
+from .properties import (Instance, Enum, Float, Int, Color, Percent,
     Size, Bool, DashPattern, Align, Angle, String, DataSpec, ColorSpec)
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, AngleUnits, Direction
-from .objects import PlotObject
+from .plotobject import PlotObject
 
 # Size is a way to preserve a data-space-related metric all the way until
 #   render time, when the screen dimensions are known

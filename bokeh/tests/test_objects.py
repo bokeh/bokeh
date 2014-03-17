@@ -41,7 +41,7 @@ def large_plot(n):
 class TestViewable(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.objects import Viewable
+        from bokeh.plotobject import Viewable
         self.viewable = Viewable
 
     def tearDown(self):
@@ -68,7 +68,7 @@ class TestViewable(unittest.TestCase):
 class Test_UseSession(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.objects import usesession
+        from bokeh.plotobject import usesession
         self.usesession = usesession
 
     def test_transparent(self):
@@ -116,7 +116,7 @@ class Test_UseSession(unittest.TestCase):
 class TestJsonapply(unittest.TestCase):
 
     def test_jsonapply(self):
-        from bokeh.objects import json_apply
+        from bokeh.plotobject import json_apply
 
         def check_func(frag):
             if frag == 'goal':
@@ -137,7 +137,7 @@ class TestResolveJson(unittest.TestCase):
 
     @patch('bokeh.objects.logging')
     def test_resolve_json(self, mock_logging):
-        from bokeh.objects import resolve_json
+        from bokeh.plotobject import resolve_json
 
         models = {'foo': 'success', 'otherfoo': 'othersuccess'}
         fragment = [{'id': 'foo', 'type': 'atype'}, {'id': 'foo', 'type': 'atype'}, {'id': 'otherfoo', 'type': 'othertype'}]
@@ -145,13 +145,13 @@ class TestResolveJson(unittest.TestCase):
         fragment.append({'id': 'notfoo', 'type': 'badtype'})
         self.assertEqual(resolve_json(fragment, models), ['success', 'success', 'othersuccess', None])
         self.assertTrue(mock_logging.error.called)
-        self.assertTrue('badtype' in repr(mock_logging.error.call_args))\
+        self.assertTrue('badtype' in repr(mock_logging.error.call_args))
 
 
 class TestCollectPlotObjects(unittest.TestCase):
 
     def test_references(self):
-        from bokeh.objects import PlotObject
+        from bokeh.plotobject import PlotObject
         pobject1 = PlotObject()
         pobject2 = PlotObject()
         pobject3 = PlotObject()
