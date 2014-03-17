@@ -207,5 +207,39 @@ class TestPlotObject(unittest.TestCase):
         testobj.finalize(models)
         self.assertEqual(testobj.test, 5)
 
+    def test_references_by_ref_by_value(self):
+        from bokeh.objects import PlotObject
+        from bokeh.properties import HasProps, Instance, Int
+
+        class T(PlotObject):
+            t = Int(0)
+
+        class Y(PlotObject):
+            t1 = Instance(T, has_ref=True)
+
+        class Z1(HasProps):
+            t2 = Instance(T, has_ref=True)
+
+        class Z2(PlotObject):
+            t2 = Instance(T, has_ref=True)
+
+        class X1(PlotObject):
+            y = Instance(Y, has_ref=True)
+            z1 = Instance(Z1, has_ref=False)
+
+        class X2(PlotObject):
+            y = Instance(Y, has_ref=True)
+            z2 = Instance(Z2, has_ref=True)
+
+        t1, t2 = T(t=1), T(t=2)
+        y = Y(t1=t1)
+        z1, z2 = Z1(t2=t2), Z2(t2=t2)
+
+        x1 = X1(y=y, z1=z1)
+        x2 = X2(y=y, z2=z2)
+
+        # TODO: self.assertEqual(x1.references(), [t1, y, t2,     x1])
+        self.assertEqual(x2.references(), [t1, y, t2, z2, x2])
+
 if __name__ == "__main__":
     unittest.main()
