@@ -5,9 +5,20 @@ define [
 ], (_, Backbone, HasProperties) ->
 
   class BasicTickFormatter extends HasProperties
-    constructor: (@precision='auto', @use_scientific=true, @power_limit_high=5, @power_limit_low=-3) ->
-      @scientific_limit_low  = Math.pow(10.0, power_limit_low)
-      @scientific_limit_high = Math.pow(10.0, power_limit_high)
+    type: 'BasicTickFormatter'
+
+    initialize: (attrs, options) ->
+      super(attrs, options)
+      @register_property('scientific_limit_low',
+          () -> Math.pow(10.0, @get('power_limit_low'))
+        , true)
+      @add_dependencies('scientific_limit_low', this, ['power_limit_low'])
+
+      @register_property('scientific_limit_high',
+          () -> Math.pow(10.0, @get('power_limit_high'))
+        , true)
+      @add_dependencies('scientific_limit_high', this, ['power_limit_high'])
+
       @last_precision = 3
 
     format: (ticks) ->
@@ -19,24 +30,26 @@ define [
         zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000;
 
       need_sci = false;
-      if @use_scientific
+      if @get('use_scientific')
         for tick in ticks
           tick_abs = Math.abs(tick)
           if tick_abs > zero_eps and (tick_abs >= @scientific_limit_high or tick_abs <= @scientific_limit_low)
             need_sci = true
             break
 
-      if _.isNumber(@precision)
+      precision = @get('precision')
+
+      if _.isNumber(precision)
         labels = new Array(ticks.length)
         if need_sci
           for i in [0...ticks.length]
-            labels[i] = ticks[i].toExponential(@precision)
+            labels[i] = ticks[i].toExponential(precision)
         else
           for i in [0...ticks.length]
-            labels[i] = ticks[i].toPrecision(@precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
+            labels[i] = ticks[i].toPrecision(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "")
         return labels
 
-      else if @precision == 'auto'
+      else if precision == 'auto'
         labels = new Array(ticks.length)
         for x in [@last_precision..15]
           is_ok = true
@@ -64,6 +77,14 @@ define [
             return labels
 
       return labels
+
+    defaults: () ->
+      return {
+        precision: 'auto'
+        use_scientific: true
+        power_limit_high: 5
+        power_limit_low: -3
+      }
 
   class BasicTickFormatters extends Backbone.Collection
     model: BasicTickFormatter

@@ -39,6 +39,7 @@ define [
       return tz(t, format)
 
   class DatetimeTickFormatter extends HasProperties
+    type: 'DatetimeTickFormatter'
 
     # Labels of time units, from finest to coarsest.
     format_order: [
@@ -51,7 +52,8 @@ define [
     # Whether or not to strip the leading zeros on tick labels.
     strip_leading_zeros: true
 
-    constructor: () ->
+    initialize: (attrs, options) ->
+      super(attrs, options)
       # This table of format is convert into the 'formats' dict.  Each tuple of
       # formats must be ordered from shortest to longest.
       @_formats = {
@@ -214,6 +216,9 @@ define [
           labels.push(s)
 
       return labels
+
+    defaults: () ->
+      return {}
 
   class DatetimeTickFormatters extends Backbone.Collection
     model: DatetimeTickFormatter
