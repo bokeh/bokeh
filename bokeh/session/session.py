@@ -31,6 +31,8 @@ class Session(object):
     will be associated with the given session.
     """
 
+    plotcontext = None
+
     def __init__(self, plot=None):
         """ Initializes this session from the given PlotObject. """
         # Has the plot model changed since the last save?
@@ -65,6 +67,16 @@ class Session(object):
             else:
                 obj.session = self
                 self._models[obj._id] = obj
+
+    def add_plot(self, *plots):
+        """ Add a plot to this session. """
+        ### XXX: remove this
+        for plot in plots:
+            plot.session = self
+        ###
+
+        self.plotcontext.children.extend(plots)
+        self.plotcontext._dirty = True
 
     @classmethod
     def _collect_objs(cls, input_objs):

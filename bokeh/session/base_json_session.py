@@ -63,16 +63,11 @@ class BaseJSONSession(Session):
         if to_convert is None:
             to_convert = self._models.values()
 
-        all = set(to_convert)
-        for model in to_convert:
-            children = recursively_traverse_plot_object(model)
-            all.update(children)
-
         models = []
 
-        for model in all:
-            ref = self.get_ref(model)
-            ref["attributes"] = model.vm_serialize()
+        for obj in self._collect_objs(to_convert):
+            ref = self.get_ref(obj)
+            ref["attributes"] = obj.vm_serialize()
             ref["attributes"].update({"id": ref["id"], "doc": None})
             models.append(ref)
 
