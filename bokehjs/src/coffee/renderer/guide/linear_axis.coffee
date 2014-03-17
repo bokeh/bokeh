@@ -3,9 +3,9 @@ define [
   "underscore",
   "backbone",
   "./axis"
+  "ticking/basic_ticker",
   "ticking/basic_tick_formatter",
-  "ticking/tickers",
-], (_, Backbone, Axis, BasicTickFormatter, tickers) ->
+], (_, Backbone, Axis, BasicTicker, BasicTickFormatter) ->
 
   class LinearAxisView extends Axis.View
 
@@ -15,7 +15,7 @@ define [
 
     defaults: () ->
       return {
-        ticker: new tickers.BasicTicker()
+        ticker: new BasicTicker.Model()
         formatter: new BasicTickFormatter.Model()
       }
 

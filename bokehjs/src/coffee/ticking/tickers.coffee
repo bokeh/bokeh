@@ -11,9 +11,20 @@
 
 define [
   "underscore",
+  "backbone",
   "timezone",
   "sprintf",
-], (_, tz, sprintf) ->
+  "common/has_properties"
+], (_, Backbone, tz, sprintf, HasProperties) ->
+
+  # Some time constants, in milliseconds.
+  ONE_MILLI = 1.0
+  ONE_SECOND = 1000.0
+  ONE_MINUTE = 60.0 * ONE_SECOND
+  ONE_HOUR = 60 * ONE_MINUTE
+  ONE_DAY = 24 * ONE_HOUR
+  ONE_MONTH = 30 * ONE_DAY # An approximation, obviously.
+  ONE_YEAR = 365 * ONE_DAY
 
   # ---------------------------------------------------------------------------
   # Utility functions
@@ -180,10 +191,11 @@ define [
   # magnitudes.  To make it possible to select Tickers programmatically, they
   # also support some additional methods: get_interval(), get_min_interval(),
   # and get_max_interval().
-  class AbstractTicker
+  class AbstractTicker extends HasProperties
     # Creates a new AbstractTicker.  The toString_properties argument is an
     # optional list of member names which be shown when toString() is called.
     constructor: (@toString_properties=[]) ->
+      super()
 
     # Generates a nice series of ticks for a given range.
     get_ticks: (data_low, data_high, range, {desired_n_ticks}) ->
@@ -305,8 +317,7 @@ define [
     # B is base,
     # and N is an integer;
     # and min_interval <= I <= max_interval.
-    constructor: (@mantissas, @base=10.0, @min_interval=0.0,
-                  @max_interval=Infinity)->
+    constructor: (@mantissas, @base=10.0, @min_interval=0.0, @max_interval=Infinity)->
       super(['mantissas', 'base', 'min_magnitude', 'max_magnitude'])
 
       prefix_mantissa =  _.last(@mantissas) / @base
@@ -412,61 +423,20 @@ define [
 
       return ticks_in_range
 
-  # Some time constants, in milliseconds.
-  ONE_MILLI = 1.0
-  ONE_SECOND = 1000.0
-  ONE_MINUTE = 60.0 * ONE_SECOND
-  ONE_HOUR = 60 * ONE_MINUTE
-  ONE_DAY = 24 * ONE_HOUR
-  ONE_MONTH = 30 * ONE_DAY # An approximation, obviously.
-  ONE_YEAR = 365 * ONE_DAY
-
-  # This is a good default ticker for generic numerical data.
-  class BasicTicker extends AdaptiveTicker
-    constructor: () ->
-      super([1, 2, 5])
-
-  # This is a decent ticker for time data (in milliseconds).
-  # It could certainly be improved:
-  # FIXME There should probably be a special ticker for years.
-  # FIXME Some of the adaptive tickers probably have too many mantissas, which
-  # leads to too-frequent tick transitions.
-  class DatetimeTicker extends CompositeTicker
-    constructor: () ->
-      super([
-        # Sub-second.
-        new AdaptiveTicker([1, 2, 5], 10, 0, 500 * ONE_MILLI),
-
-        # Seconds, minutes.
-        new AdaptiveTicker([1, 2, 5, 10, 15, 20, 30], 60,
-                          ONE_SECOND, 30 * ONE_MINUTE),
-
-        # Hours.
-        new AdaptiveTicker([1, 2, 4, 6, 8, 12], 24.0, ONE_HOUR, 12 * ONE_HOUR),
-
-        # Days.
-        new DaysTicker(arange(1, 32)),
-        new DaysTicker(arange(1, 31, 3)),
-        new DaysTicker([1, 8, 15, 22]),
-        new DaysTicker([1, 15]),
-
-        # Months.
-        new MonthsTicker(arange(0, 12)),
-        new MonthsTicker(arange(0, 12, 2)),
-        new MonthsTicker(arange(0, 12, 4)),
-        new MonthsTicker(arange(0, 12, 6)),
-
-        # Catchall for large timetickers.
-        new AdaptiveTicker([1, 2, 5], 10, ONE_YEAR, Infinity),
-      ])
-
-  class CategoricalTicker
-    get_ticks: (start, end, range, {desired_n_ticks}) ->
-      return range.get("factors")
-
   return {
-    "BasicTicker":       BasicTicker,
-    "CategoricalTicker": CategoricalTicker,
-    "DatetimeTicker":    DatetimeTicker
+    "arange":               arange,
+    "ONE_MILLI":            ONE_MILLI,
+    "ONE_SECOND":           ONE_SECOND,
+    "ONE_MINUTE":           ONE_MINUTE,
+    "ONE_HOUR":             ONE_HOUR,
+    "ONE_DAY":              ONE_DAY,
+    "ONE_MONTH":            ONE_MONTH,
+    "ONE_YEAR":             ONE_YEAR,
+    "AbstractTicker":       AbstractTicker,
+    "AdaptiveTicker":       AdaptiveTicker,
+    "CompositeTicker":      CompositeTicker,
+    "DaysTicker":           DaysTicker,
+    "MonthsTicker":         MonthsTicker,
+    "SingleIntervalTicker": SingleIntervalTicker
   }
 

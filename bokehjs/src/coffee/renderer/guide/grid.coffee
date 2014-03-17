@@ -3,10 +3,11 @@ define [
   "underscore",
   "common/safebind",
   "common/has_parent",
-  "ticking/tickers",
+  "ticking/basic_ticker",
+  "ticking/datetime_ticker",
   "renderer/properties",
   "common/plot_widget",
-], (_, safebind, HasParent, tickers, Properties, PlotWidget) ->
+], (_, safebind, HasParent, BasicTicker, DatetimeTicker, Properties, PlotWidget) ->
 
   line_properties = Properties.line_properties
 
@@ -60,9 +61,9 @@ define [
 
     _ticker: () ->
       if @get('is_datetime')
-        return new tickers.DatetimeTicker()
+        return new DatetimeTicker.Model()
       else
-        return new tickers.BasicTicker()
+        return new BasicTicker.Model()
 
      _bounds: () ->
       i = @get('dimension')

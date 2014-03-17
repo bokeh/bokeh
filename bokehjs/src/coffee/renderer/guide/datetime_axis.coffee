@@ -2,9 +2,9 @@
 define [
   "backbone",
   "./axis",
+  "ticking/datetime_ticker"
   "ticking/datetime_tick_formatter",
-  "ticking/tickers"
-], (Backbone, Axis, DatetimeTickFormatter, tickers) ->
+], (Backbone, Axis, DatetimeTicker, DatetimeTickFormatter) ->
 
   class DatetimeAxisView extends Axis.View
 
@@ -14,7 +14,7 @@ define [
 
     defaults: () ->
       return {
-        ticker: new tickers.DatetimeTicker()
+        ticker: new DatetimeTicker.Model()
         formatter: new DatetimeTickFormatter.Model()
       }
 

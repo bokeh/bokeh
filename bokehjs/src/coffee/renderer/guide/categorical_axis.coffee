@@ -3,9 +3,9 @@ define [
   "backbone",
   "./axis",
   "range/factor_range"
+  "ticking/categorical_ticker"
   "ticking/categorical_tick_formatter"
-  "ticking/tickers"
-], (Backbone, Axis, FactorRange, CategoricalTickFormatter, tickers) ->
+], (Backbone, Axis, FactorRange, CategoricalTicker, CategoricalTickFormatter) ->
 
   class CategoricalAxisView extends Axis.View
 
@@ -27,7 +27,7 @@ define [
 
     defaults: () ->
       return {
-        ticker: new tickers.CategoricalTicker()
+        ticker: new CategoricalTicker.Model()
         formatter: new CategoricalTickFormatter.Model()
       }
 
