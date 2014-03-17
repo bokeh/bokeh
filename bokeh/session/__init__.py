@@ -1,3 +1,4 @@
+from .session import Session
 from .base_html_session import BaseHTMLSession
 from .base_json_session import BaseJSONSession
 from .html_file_session import HTMLFileSession

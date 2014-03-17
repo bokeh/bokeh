@@ -117,7 +117,7 @@ def resolve_json(fragment, models):
 class PlotObject(HasProps):
     """ Base class for all plot-related objects """
 
-    session = Instance   # bokeh.session.Session
+    session = Instance(".session.Session")
 
     def __init__(self, *args, **kwargs):
         # Eventually should use our own memo instead of storing

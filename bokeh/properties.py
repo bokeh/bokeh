@@ -3,13 +3,14 @@ classes and implement convenience behaviors like default values, etc.
 """
 from __future__ import print_function
 
-from six import integer_types, string_types, add_metaclass
-
+from importlib import import_module
 from copy import copy
 import inspect
-import numpy as np
 import logging
 logger = logging.getLogger(__name__)
+
+from six import integer_types, string_types, add_metaclass
+import numpy as np
 
 from .enums import Enumeration, NamedColor
 
@@ -706,11 +707,11 @@ class Class(Property):
     pass
 
 class Instance(Property):
-    def __init__(self, instance_type=None, default=None, has_ref=False):
+    def __init__(self, instance_type, default=None, has_ref=False):
         """has_ref : whether the json for this is a reference to
         another object or not
         """
-        if not (instance_type is None or isinstance(instance_type, type)):
+        if not isinstance(instance_type, (type, str)):
             raise ValueError("expected a type, got %s" % instance_type)
 
         self.instance_type = instance_type
@@ -730,9 +731,14 @@ class Instance(Property):
     def validate(self, value):
         super(Instance, self).validate(value)
 
-        if self.instance_type is not None and value is not None and not isinstance(value, self.instance_type):
-            raise ValueError("expected an instance of type %s, got %s of type %s" %
-                (self.instance_type.__name__, value, type(value).__name__))
+        if value is not None:
+            if isinstance(self.instance_type, str):
+                module, name = self.instance_type.rsplit(".", 1)
+                self.instance_type = getattr(import_module(module, "bokeh"), name)
+
+            if not isinstance(value, self.instance_type):
+                raise ValueError("expected an instance of type %s, got %s of type %s" %
+                    (self.instance_type.__name__, value, type(value).__name__))
 
 class This(Property):
     """ A reference to an instance of the class being defined
