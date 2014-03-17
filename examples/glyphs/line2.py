@@ -59,14 +59,11 @@ if len(sys.argv) > 1 and sys.argv[1] == "server":
         sys.exit(1)
 
     sess.use_doc(demo_name)
-    sess.add(plot, recursive=True)
-    sess.plotcontext.children.append(plot)
-    sess.plotcontext._dirty = True
+    sess.add_plot(plot)
     sess.store_all()
     print("Stored to document", demo_name)
 else:
     sess = session.HTMLFileSession(demo_name + ".html")
-    sess.add(plot, recursive=True)
-    sess.plotcontext.children.append(plot)
+    sess.add_plot(plot)
     sess.save()
     print("Wrote %s" % sess.filename)

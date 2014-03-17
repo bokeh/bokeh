@@ -82,8 +82,7 @@ IV  = make_plot('IV',  'xiv',  'yiv')
 grid = GridPlot(children=[[I, II], [III, IV]], width=800)
 
 sess = session.HTMLFileSession("anscombe.html")
-sess.add(grid, recursive=True)
-sess.plotcontext.children.append(grid)
+sess.add_plot(grid)
 
 if __name__ == "__main__":
     sess.save()

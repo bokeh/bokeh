@@ -41,11 +41,9 @@ plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,wheelzoomtool]
 
 sess = session.HTMLFileSession("glyph1.html")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.save()
-sess.dumpjson(file="glyph1.json")
-print("Wrote %s" % sess.filename)
+sess.add_plot(plot)
 
 if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
     sess.view()

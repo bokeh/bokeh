@@ -91,8 +91,7 @@ for y in yattrs:
 grid = GridPlot(children=plots, name="iris_splom")
 
 sess = session.HTMLFileSession("iris_splom.html")
-sess.add(grid, recursive=True)
-sess.plotcontext.children.append(grid)
+sess.add_plot(grid)
 
 if __name__ == "__main__":
     sess.save()

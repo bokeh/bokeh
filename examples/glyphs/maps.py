@@ -58,19 +58,10 @@ circle_renderer = Glyph(
 plot.data_sources.append(source)
 plot.renderers.append(circle_renderer)
 
-try:
-    sess = session.PlotServerSession(
-        serverloc="http://localhost:5006",
-        username="defaultuser",
-        userapikey="nokey")
-except requests.exceptions.ConnectionError:
-    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-    sys.exit(1)
+sess = session.HTMLFileSession("maps.html")
+sess.add_plot(plot)
 
-sess.use_doc("maps")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.plotcontext._dirty = True
-sess.store_all()
-
-print("Stored to document maps at http://localhost:5006/bokeh")
+if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
+    sess.view()

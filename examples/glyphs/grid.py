@@ -52,10 +52,9 @@ plot4 = make_plot(source, "x", "y4", "black")
 grid = GridPlot(children=[[plot1, plot2], [plot3, plot4]])
 
 sess = session.HTMLFileSession("grid.html")
-sess.add(grid, recursive=True)
-sess.plotcontext.children.append(grid)
-sess.save()
-print("Wrote %s" % sess.filename)
+sess.add_plot(grid)
 
 if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
     sess.view()

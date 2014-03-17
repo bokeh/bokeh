@@ -47,10 +47,9 @@ plot.renderers.append(renderer)
 plot.tools = [pantool, wheelzoomtool, previewsave, objectexplorer]
 
 sess = session.HTMLFileSession("line.html")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.save()
-print("Wrote %s" % sess.filename)
+sess.add_plot(plot)
 
 if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
     sess.view()

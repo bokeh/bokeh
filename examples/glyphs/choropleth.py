@@ -73,10 +73,9 @@ plot.renderers.append(state_renderer)
 plot.tools = [resizetool]
 
 sess = session.HTMLFileSession("choropleth.html")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.save()
-print("Wrote %s" % sess.filename)
+sess.add_plot(plot)
 
 if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
     sess.view()

@@ -63,9 +63,7 @@ except requests.exceptions.ConnectionError:
     sys.exit(1)
 
 sess.use_doc("glyph2")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.plotcontext._dirty = True
+sess.add_plot(plot)
 # not so nice.. but set the model doens't know
 # that we appended to children
 sess.store_all()
