@@ -4,7 +4,7 @@ from __future__ import absolute_import
 
 import logging
 import uuid
-from .. import protocol
+from .. import protocol, settings
 from ..objects import PlotObject, recursively_traverse_plot_object
 from .session import Session
 
