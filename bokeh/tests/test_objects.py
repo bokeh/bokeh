@@ -148,26 +148,10 @@ class TestResolveJson(unittest.TestCase):
         self.assertTrue('badtype' in repr(mock_logging.error.call_args))\
 
 
+class TestCollectPlotObjects(unittest.TestCase):
 
-class TestTraversePlotObjects(unittest.TestCase):
-
-    def test_traverse(self):
-        from bokeh.objects import PlotObject, traverse_plot_object
-        pobject = PlotObject()
-
-        pobject.properties_with_refs = Mock(return_value=['test1', 'test2'])
-        pobject.test1 = PlotObject()
-        pobject.test2 = 2
-        pobject.test3 = PlotObject()
-        result = traverse_plot_object(pobject)
-        self.assertTrue(pobject.test1 in result)
-        self.assertTrue(len(result) == 1)
-
-
-class TestRecursivleyTraversePlotObjects(unittest.TestCase):
-
-    def test_recursive_traverse(self):
-        from bokeh.objects import PlotObject, recursively_traverse_plot_object
+    def test_references(self):
+        from bokeh.objects import PlotObject
         pobject1 = PlotObject()
         pobject2 = PlotObject()
         pobject3 = PlotObject()
@@ -177,21 +161,13 @@ class TestRecursivleyTraversePlotObjects(unittest.TestCase):
         pobject3.pobject4 = pobject4
         pobject1.properties_with_refs = Mock(return_value=['pobject2', 'pobject3'])
         pobject3.properties_with_refs = Mock(return_value=['pobject4'])
-        resultset = recursively_traverse_plot_object(pobject1)
+        resultset = set(pobject1.references())
         expectedset = set([pobject1, pobject2, pobject3, pobject4])
         self.assertEqual(resultset, expectedset)
 
-    def test_recursive_traverse_large(self):
-        from bokeh.objects import recursively_traverse_plot_object
-        from bokeh.session.session import Session
-
+    def test_references_large(self):
         context, objects = large_plot(500)
-
-        objects1 = recursively_traverse_plot_object(context)
-        objects2 = set(Session._collect_objs(context))
-
-        self.assertEqual(objects1, objects)
-        self.assertEqual(objects1, objects)
+        self.assertEqual(set(context.references()), objects)
 
 class TestPlotObject(unittest.TestCase):
 

@@ -78,34 +78,6 @@ class Session(object):
         self.plotcontext.children.extend(plots)
         self.plotcontext._dirty = True
 
-    @classmethod
-    def _collect_objs(cls, input_objs):
-        """ Iterate over ``input_objs`` and descend through their structure
-        collecting all nested ``PlotObjects`` on the go. The resulting list
-        is duplicate-free based on objects' identifiers.
-        """
-        ids = set([])
-        objs = []
-
-        def descend(obj):
-            if hasattr(obj, '__iter__'):
-                for _obj in obj:
-                    descend(_obj)
-            elif isinstance(obj, PlotObject):
-                if obj._id not in ids:
-                    ids.add(obj._id)
-
-                    for attr in obj.properties_with_refs():
-                        descend(getattr(obj, attr))
-
-                    objs.append(obj)
-            elif isinstance(obj, HasProps):
-                for attr in obj.properties_with_refs():
-                    descend(getattr(obj, attr))
-
-        descend(input_objs)
-        return objs
-
     def view(self):
         """ Triggers the OS to open a web browser pointing to the file
         that is connected to this session.

@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import logging
 import uuid
 from .. import protocol, settings
-from ..objects import PlotObject, recursively_traverse_plot_object
+from ..objects import PlotObject
 from .session import Session
 
 logger = logging.getLogger(__file__)
@@ -65,7 +65,7 @@ class BaseJSONSession(Session):
 
         models = []
 
-        for obj in self._collect_objs(to_convert):
+        for obj in PlotObject.collect_plot_objects(*to_convert):
             ref = self.get_ref(obj)
             ref["attributes"] = obj.vm_serialize()
             ref["attributes"].update({"id": ref["id"], "doc": None})

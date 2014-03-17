@@ -123,35 +123,6 @@ def resolve_json(fragment, models):
             return None
     return json_apply(fragment, check_func, func)
 
-def traverse_plot_object(plot_object):
-    """iterate through an objects properties
-    if it has_ref, json_apply through it and accumulate
-    all PlotObjects into children.  return all objects found
-    """
-    children = set()
-    def check_func(fragment):
-        return isinstance(fragment, PlotObject)
-    def func(obj):
-        children.add(obj)
-        return obj
-    for prop in plot_object.properties_with_refs():
-        val = getattr(plot_object, prop)
-        json_apply(val, check_func, func)
-    return children
-
-def recursively_traverse_plot_object(plot_object):
-    results = set()
-    ids = set()
-    queue = [plot_object]
-    while queue:
-        node = queue.pop(0)
-        if node._id in ids:
-            continue
-        ids.add(node._id)
-        results.add(node)
-        queue += node.references()
-    return results
-
 @add_metaclass(Viewable)
 class PlotObject(HasProps):
     """ Base class for all plot-related objects """
@@ -215,10 +186,37 @@ class PlotObject(HasProps):
             self.update(**props)
         self.setup_events()
 
-    def references(self):
-        """Returns all PlotObjects that this object has references to
+    @classmethod
+    def collect_plot_objects(cls, *input_objs):
+        """ Iterate over ``input_objs`` and descend through their structure
+        collecting all nested ``PlotObjects`` on the go. The resulting list
+        is duplicate-free based on objects' identifiers.
         """
-        return traverse_plot_object(self)
+        ids = set([])
+        objs = []
+
+        def descend(obj):
+            if hasattr(obj, '__iter__'):
+                for _obj in obj:
+                    descend(_obj)
+            elif isinstance(obj, PlotObject):
+                if obj._id not in ids:
+                    ids.add(obj._id)
+
+                    for attr in obj.properties_with_refs():
+                        descend(getattr(obj, attr))
+
+                    objs.append(obj)
+            elif isinstance(obj, HasProps):
+                for attr in obj.properties_with_refs():
+                    descend(getattr(obj, attr))
+
+        descend(input_objs)
+        return objs
+
+    def references(self):
+        """Returns all ``PlotObjects`` that this object has references to. """
+        return self.collect_plot_objects(self)
 
     #---------------------------------------------------------------------
     # View Model connection methods
