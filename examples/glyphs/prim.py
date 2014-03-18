@@ -31,17 +31,17 @@ def make_plot(name, glyph):
         glyph = glyph,
     )
 
-    pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-    wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+    pantool = PanTool(dimensions=["width", "height"])
+    wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 
-    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], border=80)
+    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
     xaxis = LinearAxis(plot=plot, dimension=0)
     yaxis = LinearAxis(plot=plot, dimension=1)
     xgrid = Grid(plot=plot, dimension=0)
     ygrid = Grid(plot=plot, dimension=1)
 
     plot.renderers.append(glyph_renderer)
-    plot.tools = [pantool,wheelzoomtool]
+    plot.tools = [pantool, wheelzoomtool]
 
     try:
         sess = session.PlotServerSession(
@@ -53,9 +53,7 @@ def make_plot(name, glyph):
         sys.exit(1)
 
     sess.use_doc(name)
-    sess.add(plot, recursive=True)
-    sess.plotcontext.children.append(plot)
-    sess.plotcontext._dirty = True
+    sess.add_plot(plot)
     sess.store_all()
 
 make_plot('annular_wedge', AnnularWedge(x="x", y="y", inner_radius=0.2, outer_radius=0.5, start_angle=0.8, end_angle=3.8))

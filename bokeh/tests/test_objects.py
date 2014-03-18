@@ -41,7 +41,7 @@ def large_plot(n):
 class TestViewable(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.objects import Viewable
+        from bokeh.plotobject import Viewable
         self.viewable = Viewable
 
     def tearDown(self):
@@ -68,7 +68,7 @@ class TestViewable(unittest.TestCase):
 class Test_UseSession(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.objects import usesession
+        from bokeh.plotobject import usesession
         self.usesession = usesession
 
     def test_transparent(self):
@@ -116,7 +116,7 @@ class Test_UseSession(unittest.TestCase):
 class TestJsonapply(unittest.TestCase):
 
     def test_jsonapply(self):
-        from bokeh.objects import json_apply
+        from bokeh.plotobject import json_apply
 
         def check_func(frag):
             if frag == 'goal':
@@ -137,7 +137,7 @@ class TestResolveJson(unittest.TestCase):
 
     @patch('bokeh.objects.logging')
     def test_resolve_json(self, mock_logging):
-        from bokeh.objects import resolve_json
+        from bokeh.plotobject import resolve_json
 
         models = {'foo': 'success', 'otherfoo': 'othersuccess'}
         fragment = [{'id': 'foo', 'type': 'atype'}, {'id': 'foo', 'type': 'atype'}, {'id': 'otherfoo', 'type': 'othertype'}]
@@ -145,29 +145,13 @@ class TestResolveJson(unittest.TestCase):
         fragment.append({'id': 'notfoo', 'type': 'badtype'})
         self.assertEqual(resolve_json(fragment, models), ['success', 'success', 'othersuccess', None])
         self.assertTrue(mock_logging.error.called)
-        self.assertTrue('badtype' in repr(mock_logging.error.call_args))\
+        self.assertTrue('badtype' in repr(mock_logging.error.call_args))
 
 
+class TestCollectPlotObjects(unittest.TestCase):
 
-class TestTraversePlotObjects(unittest.TestCase):
-
-    def test_traverse(self):
-        from bokeh.objects import PlotObject, traverse_plot_object
-        pobject = PlotObject()
-
-        pobject.properties_with_refs = Mock(return_value=['test1', 'test2'])
-        pobject.test1 = PlotObject()
-        pobject.test2 = 2
-        pobject.test3 = PlotObject()
-        result = traverse_plot_object(pobject)
-        self.assertTrue(pobject.test1 in result)
-        self.assertTrue(len(result) == 1)
-
-
-class TestRecursivleyTraversePlotObjects(unittest.TestCase):
-
-    def test_recursive_traverse(self):
-        from bokeh.objects import PlotObject, recursively_traverse_plot_object
+    def test_references(self):
+        from bokeh.plotobject import PlotObject
         pobject1 = PlotObject()
         pobject2 = PlotObject()
         pobject3 = PlotObject()
@@ -177,21 +161,13 @@ class TestRecursivleyTraversePlotObjects(unittest.TestCase):
         pobject3.pobject4 = pobject4
         pobject1.properties_with_refs = Mock(return_value=['pobject2', 'pobject3'])
         pobject3.properties_with_refs = Mock(return_value=['pobject4'])
-        resultset = recursively_traverse_plot_object(pobject1)
+        resultset = set(pobject1.references())
         expectedset = set([pobject1, pobject2, pobject3, pobject4])
         self.assertEqual(resultset, expectedset)
 
-    def test_recursive_traverse_large(self):
-        from bokeh.objects import recursively_traverse_plot_object
-        from bokeh.session.session import Session
-
+    def test_references_large(self):
         context, objects = large_plot(500)
-
-        objects1 = recursively_traverse_plot_object(context)
-        objects2 = set(Session._collect_objs(context))
-
-        self.assertEqual(objects1, objects)
-        self.assertEqual(objects1, objects)
+        self.assertEqual(set(context.references()), objects)
 
 class TestPlotObject(unittest.TestCase):
 
@@ -230,6 +206,40 @@ class TestPlotObject(unittest.TestCase):
         models = {'foo': {'test': 5}}
         testobj.finalize(models)
         self.assertEqual(testobj.test, 5)
+
+    def test_references_by_ref_by_value(self):
+        from bokeh.objects import PlotObject
+        from bokeh.properties import HasProps, Instance, Int
+
+        class T(PlotObject):
+            t = Int(0)
+
+        class Y(PlotObject):
+            t1 = Instance(T, has_ref=True)
+
+        class Z1(HasProps):
+            t2 = Instance(T, has_ref=True)
+
+        class Z2(PlotObject):
+            t2 = Instance(T, has_ref=True)
+
+        class X1(PlotObject):
+            y = Instance(Y, has_ref=True)
+            z1 = Instance(Z1, has_ref=False)
+
+        class X2(PlotObject):
+            y = Instance(Y, has_ref=True)
+            z2 = Instance(Z2, has_ref=True)
+
+        t1, t2 = T(t=1), T(t=2)
+        y = Y(t1=t1)
+        z1, z2 = Z1(t2=t2), Z2(t2=t2)
+
+        x1 = X1(y=y, z1=z1)
+        x2 = X2(y=y, z2=z2)
+
+        # TODO: self.assertEqual(x1.references(), [t1, y, t2,     x1])
+        self.assertEqual(x2.references(), [t1, y, t2, z2, x2])
 
 if __name__ == "__main__":
     unittest.main()

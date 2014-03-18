@@ -13,7 +13,7 @@ from six import string_types
 from six.moves.urllib.parse import urljoin, urlencode, urlsplit
 
 from .. import protocol, serverconfig, utils
-from ..objects import PlotObject, Plot, PlotContext, recursively_traverse_plot_object
+from ..objects import PlotObject, Plot, PlotContext
 from ..properties import HasProps
 from ..exceptions import DataIntegrityException
 from .base_html_session import BaseHTMLSession

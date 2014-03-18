@@ -141,7 +141,7 @@ def show_doc_by_title(title):
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
     doc = docs[0] if len(docs) != 0 else abort(404)
     docid = doc['docid']
-    return render_template('show.html', title=title, docid=docid)
+    return render_template('show.html', title=title, docid=docid, splitjs=bokeh_app.splitjs)
 
 @bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
