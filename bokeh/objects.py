@@ -113,7 +113,6 @@ class DataRange(Range):
 
 class DataRange1d(DataRange):
     """ Represents a range in a scalar dimension """
-    sources = List(Instance(ColumnsRef), has_ref=True)
     rangepadding = Float(0.1)
     start = Float
     end = Float
