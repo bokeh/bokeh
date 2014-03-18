@@ -504,25 +504,22 @@ def lookup_descriptor(cls, propname):
 
 @add_metaclass(MetaHasProps)
 class HasProps(object):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         """ Set up a default initializer handler which assigns all kwargs
         that have the same names as Properties on the class
         """
         # Initialize the mutated property handling
         self._changed_vars = set()
 
-        newkwargs = {}
         props = self.properties()
-        for kw, val in kwargs.items():
-            if kw in props:
-                setattr(self, kw, val)
+        for key, value in kwargs.items():
+            if key in props:
+                setattr(self, key, value)
             else:
-                newkwargs[kw] = val
-        # Dump the rest of the kwargs in self.dict
-        self.__dict__.update(newkwargs)
-        self._changed_vars.update(newkwargs.keys())
+                raise AttributeError("unexpected attribute %s to %s, possible attributes are %s" %
+                    (key, self.__class__.__name__, nice_join(props)))
 
-        super(HasProps, self).__init__(*args)
+        super(HasProps, self).__init__()
 
     def to_dict(self):
         return dict((prop, getattr(self, prop)) for prop in self.properties())

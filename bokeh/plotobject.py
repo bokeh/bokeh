@@ -119,7 +119,7 @@ class PlotObject(HasProps):
 
     session = Instance(".session.Session")
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, **kwargs):
         # Eventually should use our own memo instead of storing
         # an attribute on the class
         if "id" in kwargs:
@@ -132,11 +132,11 @@ class PlotObject(HasProps):
         self._callback_queue = []
         self._block_callbacks = False
         if '_block_events'  not in kwargs:
-            super(PlotObject, self).__init__(*args, **kwargs)
+            super(PlotObject, self).__init__(**kwargs)
             self.setup_events()
         else:
             self._block_callbacks = True
-            super(PlotObject, self).__init__(*args, **kwargs)
+            super(PlotObject, self).__init__(**kwargs)
 
     def get_ref(self):
         return {
