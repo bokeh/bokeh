@@ -734,10 +734,18 @@ class Instance(Property):
         if not isinstance(instance_type, (type, str)):
             raise ValueError("expected a type, got %s" % instance_type)
 
-        self.instance_type = instance_type
+        self._instance_type = instance_type
         self.has_ref = has_ref
 
         super(Instance, self).__init__(default=default)
+
+    @property
+    def instance_type(self):
+        if isinstance(self._instance_type, str):
+            module, name = self._instance_type.rsplit(".", 1)
+            self._instance_type = getattr(import_module(module, "bokeh"), name)
+
+        return self._instance_type
 
     def __get__(self, obj, type=None):
         # If the constructor for Instance() supplied a class name, we should
@@ -752,13 +760,12 @@ class Instance(Property):
         super(Instance, self).validate(value)
 
         if value is not None:
-            if isinstance(self.instance_type, str):
-                module, name = self.instance_type.rsplit(".", 1)
-                self.instance_type = getattr(import_module(module, "bokeh"), name)
-
             if not isinstance(value, self.instance_type):
                 raise ValueError("expected an instance of type %s, got %s of type %s" %
                     (self.instance_type.__name__, value, type(value).__name__))
+
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, self.instance_type.__class__.__name__)
 
 class This(Property):
     """ A reference to an instance of the class being defined
