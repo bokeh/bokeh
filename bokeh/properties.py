@@ -56,6 +56,14 @@ class Property(object):
     def validate(self, value):
         pass
 
+    def is_valid(self, value):
+        try:
+            self.validate(value)
+        except ValueError:
+            return False
+        else:
+            return True
+
     def __get__(self, obj, type=None):
         return getattr(obj, self._name, self.default)
 
@@ -648,11 +656,26 @@ class List(ContainerProperty):
     list contains references to other objects
     """
 
-    def __init__(self, default=None, has_ref=False):
-        if isinstance(default, type) or isinstance(default, Property):
-            default = None
+    def __init__(self, item_type, default=None, has_ref=False):
+        if isinstance(item_type, type):
+            if issubclass(item_type, Property):
+                item_type = item_type()
+            else:
+                raise ValueError("expected a property as type parameter, got %s" % item_type.__name__)
+        elif not isinstance(item_type, Property):
+            raise ValueError("expected a property as type parameter, got %s" % item_type)
+
+        self.item_type = item_type
         self.has_ref = has_ref
-        Property.__init__(self, default)
+
+        super(List, self).__init__(default=default)
+
+    def validate(self, value):
+        super(List, self).validate(value)
+
+        if value is not None:
+            if not (isinstance(value, list) and all(self.item_type.is_valid(item) for item in value)):
+                raise ValueError("expected a list of %s, got %s" % (self.item_type, value))
 
     def __get__(self, obj, type=None):
         if hasattr(obj, self._name):

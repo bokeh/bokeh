@@ -21,8 +21,9 @@ class DataSource(PlotObject):
     """ Base class for data sources """
     # List of names of the fields of each tuple in self.data
     # ordering is incoporated here
-    column_names = List()
-    selected = List() #index of selected points
+    column_names = List(String)
+    selected = List(String) # index of selected points
+
     def columns(self, *columns):
         """ Returns a ColumnsRef object that points to a column or set of
         columns on this data source
@@ -97,7 +98,7 @@ class Range1d(Range):
     end = Float()
 
 class DataRange(Range):
-    sources = List(ColumnsRef, has_ref=True)
+    sources = List(Instance(ColumnsRef), has_ref=True)
 
     def vm_serialize(self):
         props = self.vm_props(withvalues=True)
@@ -119,14 +120,14 @@ class DataRange(Range):
 
 class DataRange1d(DataRange):
     """ Represents a range in a scalar dimension """
-    sources = List(ColumnsRef, has_ref=True)
+    sources = List(Instance(ColumnsRef), has_ref=True)
     rangepadding = Float(0.1)
     start = Float
     end = Float
 
 class FactorRange(Range):
     """ Represents a range in a categorical dimension """
-    factors = List
+    #factors = List()
 
 class Renderer(PlotObject):
     pass
@@ -193,7 +194,7 @@ class Plot(PlotObject):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
 
-    data_sources = List
+    data_sources = List(Instance(DataSource), has_ref=True)
     title = String("Bokeh Plot")
 
     x_range = Instance(Range, has_ref=True)
@@ -205,19 +206,19 @@ class Plot(PlotObject):
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
-    renderers = List(has_ref=True)
-    tools = List(has_ref=True)
+    renderers = List(Instance(Renderer), has_ref=True)
+    tools = List(Instance(".objects.Tool"), has_ref=True)
 
     # TODO: These don't appear in the CS source, but are created by mpl.py, so
     # I'm leaving them here for initial compatibility testing.
-    axes = List(has_ref=True)
+    # axes = List(has_ref=True)
 
     # TODO: How do we want to handle syncing of the different layers?
-    # image = List
-    # underlay = List
-    # glyph = List
+    # image = List()
+    # underlay = List()
+    # glyph = List()
     #
-    # annotation = List
+    # annotation = List()
 
     height = Int(600)
     width = Int(600)
@@ -271,7 +272,7 @@ class GMapPlot(Plot):
 class GridPlot(Plot):
     """ A 2D grid of plots """
 
-    children = List(List(Plot, has_ref=True), has_ref=True)
+    children = List(List(Instance(Plot), has_ref=True), has_ref=True)
     border_space = Int(0)
 
 class GuideRenderer(Renderer):
@@ -400,8 +401,8 @@ class DataSlider(PlotObject):
 
 class DataRangeBoxSelectTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
-    xselect = List()
-    yselect = List()
+    #xselect = List()
+    #yselect = List()
 
 class PlotContext(PlotObject):
     children = List(List(Instance(Plot), has_ref=True), has_ref=True)
