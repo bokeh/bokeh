@@ -164,30 +164,35 @@ class Glyph(Renderer):
 
     def finalize(self, models):
         super(Glyph, self).finalize(models)
+
         ## FIXME: we shouldn't have to do this i think..
+
         if hasattr(self, 'glyphspec'):
             glyphspec = self.glyphspec
             del self.glyphspec
-            self.glyph = PlotObject.get_class(glyphspec['type'])(**glyphspec)
+            glyph_type = glyphspec.pop('type')
+            cls = PlotObject.get_class(glyph_type)
+            self.glyph = cls(**glyphspec)
         else:
             self.glyph = None
+
         if hasattr(self, 'selection_glyphspec'):
             selection_glyphspec = self.selection_glyphspec
             del self.selection_glyphspec
-            temp = PlotObject.get_class(selection_glyphspec['type'])
-            self.selection_glyph = temp(**selection_glyphspec)
-
+            glyph_type = selection_glyphspec.pop('type')
+            cls = PlotObject.get_class(glyph_type)
+            self.selection_glyph = cls(**selection_glyphspec)
         else:
             self.selection_glyph = None
+
         if hasattr(self, 'nonselection_glyphspec'):
             nonselection_glyphspec = self.nonselection_glyphspec
             del self.nonselection_glyphspec
-            temp = PlotObject.get_class(nonselection_glyphspec['type'])
-            self.nonselection_glyph = temp(**nonselection_glyphspec)
-
+            glyph_type = nonselection_glyphspec.pop('type')
+            cls = PlotObject.get_class(glyph_type)
+            self.nonselection_glyph = cls(**nonselection_glyphspec)
         else:
             self.nonselection_glyph = None
-
 
 
 class Plot(PlotObject):
