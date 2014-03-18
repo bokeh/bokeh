@@ -1,11 +1,31 @@
 """ Compatilibity layer for matplotlib.pyplot objects
+
+This file defines the `show_bokeh` function used by Bokeh to display Matplotlib
+figures. For more information about how to use it, just check the relevant
+docstring.
 """
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENCE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+import numpy as np
 
 from . import plotting
-
 from . import mpl
-
 from . import objects
+
+#-----------------------------------------------------------------------------
+# Classes and functions
+#-----------------------------------------------------------------------------
+
 
 def show_bokeh(figure=None, filename=None, server=None, notebook=False):
     """ Uses bokeh to display a Matplotlib Figure.
@@ -66,23 +86,18 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False):
     for axes in figure.axes:
         plot = mpl.axes2plot(axes)
         plots.append(plot)
-        #plotting._config["curplot"] = plot  # need a better way to do this
-        #session.plotcontext.children.append(plot)
-        # TODO: this should be obviated once Mateusz's auto-add PR is merged
-        #plot_objects = [plot, plot.x_range, plot.y_range] + plot.data_sources + plot.renderers + \
-                  #plot.renderers + plot.tools + plot.axes
-        #session.add(*plot_objects)
 
-    print plots
-
-    #plotting._config["curplot"] = plots[-1]  # need a better way to do this
-    #session.plotcontext.children.append(plots[-1])
-
-    grid = objects.GridPlot(children=[[plots[0], plots[1]], [plots[2], plots[3]]])
-    session.add(grid, recursive=True)
-    session.plotcontext.children.append(grid)
-
-    plotting._config["curplot"] = grid  # need a better way to do this
+    if len(figure.axes) <= 1:
+        plotting._config["curplot"] = plots[0]
+        session.plotcontext.children.append(plots[0])
+    else:
+        (a, b, c) = figure.axes[0].get_geometry()
+        p = np.array(plots)
+        n = np.resize(p, (a, b))
+        grid = objects.GridPlot(children=n.tolist())
+        session.add(grid, recursive=True)
+        session.plotcontext.children.append(grid)
+        plotting._config["curplot"] = grid
 
     if filename:
         plotting.save()
