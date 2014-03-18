@@ -108,9 +108,6 @@ class DataRange(Range):
                     source=source['ref'],
                     columns=source['columns'])
 
-    def references(self):
-        return [x.source for x in self.sources]
-
 class DataRange1d(DataRange):
     """ Represents a range in a scalar dimension """
     rangepadding = Float(0.1)
