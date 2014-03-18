@@ -176,9 +176,9 @@ class PlotObject(HasProps):
         models is a dict of id->model mappings
         """
         if hasattr(self, "_ref_props"):
-            props = resolve_json(self._ref_props, models)
-            self.update(**props)
-        self.setup_events()
+            return resolve_json(self._ref_props, models)
+        else:
+            return {}
 
     @classmethod
     def collect_plot_objects(cls, *input_objs):

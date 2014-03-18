@@ -101,12 +101,9 @@ class DataRange(Range):
     sources = List(Instance(ColumnsRef), has_ref=True)
 
     def finalize(self, models):
-        super(DataRange, self).finalize(models)
-        for idx, source in enumerate(self.sources):
-            if isinstance(source, dict):
-                self.sources[idx] = ColumnsRef(
-                    source=source['ref'],
-                    columns=source['columns'])
+        props = super(DataRange, self).finalize(models)
+        props['sources'] = [ ColumnsRef(**source) for source in props['sources'] ]
+        return props
 
 class DataRange1d(DataRange):
     """ Represents a range in a scalar dimension """
@@ -152,37 +149,24 @@ class Glyph(Renderer):
         return data
 
     def finalize(self, models):
-        super(Glyph, self).finalize(models)
+        props = super(Glyph, self).finalize(models)
 
-        ## FIXME: we shouldn't have to do this i think..
+        glyphspec = props.pop('glyphspec', None)
+        if glyphspec is not None:
+            cls = PlotObject.get_class(glyphspec.pop('type'))
+            props['glyph'] = cls(**glyphspec)
 
-        if hasattr(self, 'glyphspec'):
-            glyphspec = self.glyphspec
-            del self.glyphspec
-            glyph_type = glyphspec.pop('type')
-            cls = PlotObject.get_class(glyph_type)
-            self.glyph = cls(**glyphspec)
-        else:
-            self.glyph = None
+        selection_glyphspec = props.pop('selection_glyphspec', None)
+        if selection_glyphspec is not None:
+            cls = PlotObject.get_class(selection_glyphspec.pop('type'))
+            props['selection_glyph'] = cls(**selection_glyphspec)
 
-        if hasattr(self, 'selection_glyphspec'):
-            selection_glyphspec = self.selection_glyphspec
-            del self.selection_glyphspec
-            glyph_type = selection_glyphspec.pop('type')
-            cls = PlotObject.get_class(glyph_type)
-            self.selection_glyph = cls(**selection_glyphspec)
-        else:
-            self.selection_glyph = None
+        nonselection_glyphspec = props.pop('nonselection_glyphspec', None)
+        if nonselection_glyphspec is not None:
+            cls = PlotObject.get_class(nonselection_glyphspec.pop('type'))
+            props['nonselection_glyph'] = cls(**nonselection_glyphspec)
 
-        if hasattr(self, 'nonselection_glyphspec'):
-            nonselection_glyphspec = self.nonselection_glyphspec
-            del self.nonselection_glyphspec
-            glyph_type = nonselection_glyphspec.pop('type')
-            cls = PlotObject.get_class(glyph_type)
-            self.nonselection_glyph = cls(**nonselection_glyphspec)
-        else:
-            self.nonselection_glyph = None
-
+        return props
 
 class Plot(PlotObject):
     """ Object representing a plot, containing glyphs, guides, annotations.
