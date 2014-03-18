@@ -592,6 +592,12 @@ class HasProps(object):
     def reset_changed_vars(self):
         self._changed_vars = set()
 
+    def properties_with_values(self):
+        return dict([ (attr, getattr(self, attr)) for attr in self.properties() ])
+
+    def changed_properties_with_values(self):
+        return dict([ (attr, getattr(self, attr)) for attr in self.changed_vars() ])
+
     @classmethod
     def class_properties(cls, withbases=True):
         if withbases:

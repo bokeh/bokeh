@@ -231,7 +231,7 @@ class Plot(PlotObject):
     border_symmetry = Enum(BorderSymmetry)
     script_inject_snippet = String("")
 
-    def vm_props(self, *args, **kw):
+    def vm_props(self):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
         # needs to be fixed more structurally on the JS side, and then this
@@ -246,7 +246,7 @@ class Plot(PlotObject):
             self.canvas_height = self.height
         if "outer_height" not in self._changed_vars:
             self.outer_height = self.height
-        return super(Plot, self).vm_props(*args, **kw)
+        return super(Plot, self).vm_props()
 
 class MapOptions(HasProps):
     lat = Float

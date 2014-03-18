@@ -221,24 +221,17 @@ class PlotObject(HasProps):
     # Many of the calls one would expect in a rich client map instead to
     # batched updates on the M-VM-V approach.
     #---------------------------------------------------------------------
-    def vm_props(self, withvalues=False):
-        """ Returns the ViewModel-related properties of this object.  If
-        **withvalues** is True, then returns attributes with values as a
-        dict.  Otherwise, returns a list of attribute names.
-        """
-        props = self.changed_vars()
-        if "session" in props:
-            props.remove("session")
-        if withvalues:
-            return dict((k,getattr(self,k)) for k in props)
-        else:
-            return props
+    def vm_props(self):
+        """ Returns the ViewModel-related properties of this object. """
+        props = self.changed_properties_with_values()
+        props.pop("session", None)
+        return props
 
     def vm_serialize(self):
         """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
         """
-        attrs = self.vm_props(withvalues=True)
+        attrs = self.vm_props()
         attrs['id'] = self._id
         return attrs
 
