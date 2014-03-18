@@ -11,7 +11,7 @@ import logging
 logger = logging.getLogger(__file__)
 
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
-    List, String, Color, Include, Bool, Tuple)
+    List, String, Color, Include, Bool, Tuple, Any)
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, Orientation, Dimension, BorderSymmetry
 from .plotobject import PlotObject
@@ -127,7 +127,7 @@ class DataRange1d(DataRange):
 
 class FactorRange(Range):
     """ Represents a range in a categorical dimension """
-    #factors = List()
+    factors = List(Any)
 
 class Renderer(PlotObject):
     pass
@@ -400,8 +400,8 @@ class DataSlider(PlotObject):
 
 class DataRangeBoxSelectTool(PlotObject):
     plot = Instance(Plot, has_ref=True)
-    #xselect = List()
-    #yselect = List()
+    xselect = List(Instance(Range), has_ref=True)
+    yselect = List(Instance(Range), has_ref=True)
 
 class PlotContext(PlotObject):
     children = List(List(Instance(Plot), has_ref=True), has_ref=True)
