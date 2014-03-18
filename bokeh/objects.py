@@ -121,6 +121,36 @@ class FactorRange(Range):
 class Renderer(PlotObject):
     pass
 
+class Ticker(PlotObject):
+    pass
+
+class BasicTicker(Ticker):
+    pass
+
+class CategoricalTicker(Ticker):
+    pass
+
+class DatetimeTicker(Ticker):
+    pass
+
+class TickFormatter(PlotObject):
+    pass
+
+class BasicTickFormatter(TickFormatter):
+    """ Represents a basic tick formatter for an axis object """
+    precision = Any('auto')
+    use_scientific = Bool(True)
+    power_limit_high = Int(5)
+    power_limit_low = Int(-3)
+
+class CategoricalTickFormatter(TickFormatter):
+    """ Represents a categorical tick formatter for an axis object """
+    pass
+
+class DatetimeTickFormatter(TickFormatter):
+    """ Represents a categorical tick formatter for an axis object """
+    pass
+
 class Glyph(Renderer):
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(Range, has_ref=True)
@@ -286,6 +316,9 @@ class Axis(GuideRenderer):
     dimension = Int(0)
     location = Either(String('min'), Float)
     bounds = Either(Enum('auto'), Tuple) # XXX: Tuple(Float, Float)
+
+    ticker = Instance(Ticker, has_ref=True)
+    formatter = Instance(TickFormatter, has_ref=True)
 
     axis_label = String
     axis_label_standoff = Int

@@ -10,7 +10,8 @@ from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
         ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
         Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
         ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange,
-        ObjectExplorerTool)
+        ObjectExplorerTool, BasicTicker, BasicTickFormatter, CategoricalTicker,
+        CategoricalTickFormatter, DatetimeTicker, DatetimeTickFormatter)
 from .properties import ColorSpec
 
 # This is used to accumulate plots generated via the plotting methods in this
@@ -243,24 +244,40 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     p.y_range = y_range
 
     axiscls = None
-    if isinstance(x_range, FactorRange):
+    if x_axis_type is None:
+        pass
+    elif isinstance(x_range, FactorRange):
         axiscls = CategoricalAxis
+        ticker = CategoricalTicker()
+        formatter = CategoricalTickFormatter()
     elif x_axis_type is "linear":
         axiscls = LinearAxis
+        ticker = BasicTicker()
+        formatter = BasicTickFormatter()
     elif x_axis_type == "datetime":
         axiscls = DatetimeAxis
+        ticker = DatetimeTicker()
+        formatter = DatetimeTickFormatter()
     if axiscls:
-        xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
+        xaxis = axiscls(plot=p, dimension=0, ticker=ticker, formatter=formatter, location="min", bounds="auto")
 
     axiscls = None
-    if isinstance(y_range, FactorRange):
+    if y_axis_type is None:
+        pass
+    elif isinstance(y_range, FactorRange):
         axiscls = CategoricalAxis
+        ticker = CategoricalTicker()
+        formatter = CategoricalTickFormatter()
     elif y_axis_type is "linear":
         axiscls = LinearAxis
+        ticker = BasicTicker()
+        formatter = BasicTickFormatter()
     elif y_axis_type == "datetime":
         axiscls = DatetimeAxis
+        ticker = DatetimeTicker()
+        formatter = DatetimeTickFormatter()
     if axiscls:
-        yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
+        yaxis = axiscls(plot=p, dimension=1, ticker=ticker, formatter=formatter, location="min", bounds="auto")
 
     xgrid = Grid(plot=p, dimension=0, is_datetime=(x_axis_type == "datetime"))
     ygrid = Grid(plot=p, dimension=1, is_datetime=(y_axis_type == "datetime"))
