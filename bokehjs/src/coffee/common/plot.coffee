@@ -361,7 +361,7 @@ define [
         th = @ctx.measureText(@mget('title')).ascent
         @requested_padding['top'] += (th + @mget('title_standoff'))
 
-      sym = @mget('border_symmetry')
+      sym = @mget('border_symmetry') or ""
       if sym.indexOf('h') >= 0 or sym.indexOf('H') >= 0
         hpadding = Math.max(@requested_padding['left'], @requested_padding['right'])
         @requested_padding['left'] = hpadding
