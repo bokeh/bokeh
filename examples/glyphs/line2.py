@@ -37,8 +37,7 @@ glyph_renderer = Glyph(
 pantool = PanTool(dataranges=[xdr, ydr], dimensions=["width", "height"])
 wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["width", "height"])
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
-        border= 80)
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
 xaxis = LinearAxis(plot=plot, dimension=0)
 yaxis = LinearAxis(plot=plot, dimension=1)
 xgrid = Grid(plot=plot, dimension=0)

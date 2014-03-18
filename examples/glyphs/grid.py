@@ -28,8 +28,7 @@ def make_plot(source, xname, yname, linecolor, xdr=None, ydr=None):
         xdr = DataRange1d(sources=[source.columns(xname)])
     if ydr is None:
         ydr = DataRange1d(sources=[source.columns(yname)])
-    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
-            border=50)
+    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=50)
     xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
     yaxis = LinearAxis(plot=plot, dimension=1, location="left")
     pantool = PanTool(dataranges=[xdr,ydr], dimensions=["width", "height"])

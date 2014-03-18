@@ -35,7 +35,7 @@ glyph_renderer = Glyph(
         glyph = circle,
         )
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], border=80, title="Iris Data")
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80, title="Iris Data")
 xaxis = LinearAxis(plot=plot, dimension=0, location="min",
         axis_label="petal length", bounds=(1,7), major_tick_in=0)
 yaxis = LinearAxis(plot=plot, dimension=1, location="min",
