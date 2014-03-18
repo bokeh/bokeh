@@ -5,6 +5,8 @@ from . import plotting
 
 from . import mpl
 
+from . import objects
+
 def show_bokeh(figure=None, filename=None, server=None, notebook=False):
     """ Uses bokeh to display a Matplotlib Figure.
 
@@ -59,10 +61,28 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False):
 
     session = plotting.session()
 
+    plots = []
+
     for axes in figure.axes:
         plot = mpl.axes2plot(axes)
-        plotting._config["curplot"] = plot
-        session.add_plot(plot)
+        plots.append(plot)
+        #plotting._config["curplot"] = plot  # need a better way to do this
+        #session.plotcontext.children.append(plot)
+        # TODO: this should be obviated once Mateusz's auto-add PR is merged
+        #plot_objects = [plot, plot.x_range, plot.y_range] + plot.data_sources + plot.renderers + \
+                  #plot.renderers + plot.tools + plot.axes
+        #session.add(*plot_objects)
+
+    print plots
+
+    #plotting._config["curplot"] = plots[-1]  # need a better way to do this
+    #session.plotcontext.children.append(plots[-1])
+
+    grid = objects.GridPlot(children=[[plots[0], plots[1]], [plots[2], plots[3]]])
+    session.add(grid, recursive=True)
+    session.plotcontext.children.append(grid)
+
+    plotting._config["curplot"] = grid  # need a better way to do this
 
     if filename:
         plotting.save()
