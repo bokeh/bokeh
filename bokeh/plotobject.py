@@ -126,12 +126,16 @@ class PlotObject(HasProps):
             self._id = kwargs.pop("id")
         else:
             self._id = str(uuid4())
+
         self._dirty = True
         self._callbacks_dirty = False
         self._callbacks = {}
         self._callback_queue = []
         self._block_callbacks = False
-        if '_block_events'  not in kwargs:
+
+        block_events = kwargs.pop('_block_events', False)
+
+        if not block_events:
             super(PlotObject, self).__init__(**kwargs)
             self.setup_events()
         else:
