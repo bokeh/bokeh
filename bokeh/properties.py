@@ -807,7 +807,7 @@ class Enum(Property):
     def validate(self, value):
         super(Enum, self).validate(value)
 
-        if value not in self.allowed_values:
+        if not (value is None or value in self.allowed_values):
             raise ValueError("invalid value %r, allowed values are %s" % (value, nice_join(self.allowed_values)))
 
 Sequence = _dummy

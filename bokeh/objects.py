@@ -13,7 +13,7 @@ logger = logging.getLogger(__file__)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple)
 from .mixins import FillProps, LineProps, TextProps
-from .enums import Units, Orientation, Dimension
+from .enums import Units, Orientation, Dimension, BorderSymmetry
 from .plotobject import PlotObject
 from .glyphs import BaseGlyph
 
@@ -234,6 +234,7 @@ class Plot(PlotObject):
     min_border_left = Int(50)
     min_border_right = Int(50)
     min_border = Int(50)
+    border_symmetry = Enum(BorderSymmetry)
     script_inject_snippet = String("")
 
     def vm_props(self, *args, **kw):

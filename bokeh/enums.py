@@ -6,7 +6,7 @@ class Enumeration(object):
     pass
 
 def enumeration(*values):
-    if not values or any(not isinstance(value, string_types) for value in values):
+    if not values or any(not (isinstance(value, string_types) and value) for value in values):
         raise ValueError("expected a non-empty sequence of strings, got %s" % values)
 
     attrs = dict([ (value, value) for value in values ])
@@ -30,6 +30,7 @@ AngleUnits = enumeration("deg", "rad")
 Dimension = enumeration("width", "height", "x", "y")
 Location = enumeration("top", "bottom", "left", "right", "min")
 Orientation = enumeration("top_right", "top_left", "bottom_left", "bottom_right")
+BorderSymmetry = enumeration("h", "v", "hv", "vh")
 NamedColor = enumeration(
     "indigo", "gold", "firebrick", "indianred", "yellow",
     "darkolivegreen", "darkseagreen", "darkslategrey", "mediumvioletred",

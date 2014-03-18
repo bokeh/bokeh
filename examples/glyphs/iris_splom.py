@@ -41,7 +41,7 @@ zoom = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["x","y"])
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
         x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
-        width=250, height=250, border_fill='white', title="", min_border=2)
+        width=250, height=250, border_fill='white', title="", min_border=2, border_symmetry=None)
     if xax:
         xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
     if yax:
