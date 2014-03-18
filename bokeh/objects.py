@@ -100,13 +100,6 @@ class Range1d(Range):
 class DataRange(Range):
     sources = List(Instance(ColumnsRef), has_ref=True)
 
-    def vm_serialize(self):
-        props = self.vm_props(withvalues=True)
-        props['id'] = self._id
-        sources = props.pop("sources")
-        props["sources"] = [{"ref":cr.source, "columns":cr.columns} for cr in sources]
-        return props
-
     def finalize(self, models):
         super(DataRange, self).finalize(models)
         for idx, source in enumerate(self.sources):
