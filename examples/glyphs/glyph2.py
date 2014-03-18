@@ -40,8 +40,8 @@ glyph_renderer = Glyph(
         )
 
 
-pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width", "height"])
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["width", "height"])
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
         border= 80)

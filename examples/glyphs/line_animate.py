@@ -47,8 +47,8 @@ plot = Plot(x_range=xdr_static, y_range=ydr, data_sources=[source],
 xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
 yaxis = LinearAxis(plot=plot, dimension=1, location="left")
 
-pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width", "height"])
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["width", "height"])
 
 plot.renderers.append(renderer)
 plot.renderers.append(renderer2)

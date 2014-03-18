@@ -43,8 +43,8 @@ yaxis = LinearAxis(plot=plot, dimension=1, location="min",
 xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 
-pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width", "height"])
+wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["width", "height"])
 
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,wheelzoomtool]

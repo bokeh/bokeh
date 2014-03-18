@@ -32,8 +32,8 @@ def make_plot(source, xname, yname, linecolor, xdr=None, ydr=None):
             border=50)
     xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
     yaxis = LinearAxis(plot=plot, dimension=1, location="left")
-    pantool = PanTool(dataranges=[xdr,ydr], dimensions=["width","height"])
-    wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+    pantool = PanTool(dataranges=[xdr,ydr], dimensions=["width", "height"])
+    wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["width", "height"])
     renderer = Glyph(
             data_source = source,
             xdata_range = xdr,
