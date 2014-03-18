@@ -88,7 +88,7 @@ for y in yattrs:
         row.append(plot)
     plots.append(row)
 
-grid = GridPlot(children=plots, name="iris_splom")
+grid = GridPlot(children=plots, title="iris_splom")
 
 sess = session.HTMLFileSession("iris_splom.html")
 sess.add_plot(grid)
