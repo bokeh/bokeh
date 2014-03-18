@@ -1,7 +1,8 @@
 
 define [
+  "backbone",
   "./linear_mapper",
-], (LinearMapper) ->
+], (Backbone, LinearMapper) ->
 
   class CategoricalMapper extends LinearMapper
 
@@ -42,4 +43,10 @@ define [
         result[i] = factors[Math.floor(result[i]-0.5)]
       return result
 
+  class CategoricalMappers extends Backbone.Collection
+    model: CategoricalMapper
 
+  return {
+    "Model": CategoricalMapper,
+    "Collection": new CategoricalMappers()
+  }

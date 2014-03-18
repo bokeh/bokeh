@@ -9,6 +9,11 @@ define [
   "common/plot",
   "common/plot_context",
 
+  "mapper/1d/categorical_mapper",
+  "mapper/1d/linear_mapper",
+  "mapper/2d/grid_mapper",
+  "mapper/color/linear_color_mapper",
+
   "range/data_factor_range",
   "range/data_range1d",
   "range/factor_range",

@@ -7,11 +7,9 @@ define [
   "./continuum_view",
   "./has_parent",
   "./grid_view_state",
-  "mapper/1d/linear_mapper",
-  "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, build_views, safebind, ContinuumView, HasParent, GridViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) ->
+], (_, Backbone, build_views, safebind, ContinuumView, HasParent, GridViewState, Properties, ActiveToolManager) ->
 
   class GridPlotView extends ContinuumView.View
     tagName: 'div'
