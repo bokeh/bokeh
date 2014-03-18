@@ -35,8 +35,8 @@ text_source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 ydr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 
-pan = PanTool(dataranges=[xdr,ydr], dimensions=["x","y"])
-zoom = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["x","y"])
+pan = PanTool(dimensions=["x","y"])
+zoom = WheelZoomTool(dimensions=["x","y"])
 
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(

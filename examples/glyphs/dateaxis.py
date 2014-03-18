@@ -37,8 +37,8 @@ plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
 xaxis = DatetimeAxis(plot=plot, dimension=0, location="min")
 yaxis = LinearAxis(plot=plot, dimension=1, location="min")
 
-pantool = PanTool(dataranges=[xdr, ydr], dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dataranges=[xdr, ydr], dimensions=["width", "height"])
+pantool = PanTool(dimensions=["width", "height"])
+wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool, wheelzoomtool]

@@ -345,12 +345,10 @@ class WheelZoomTool(Tool):
     dimensions = List(Enum(Dimension))
 
 class PreviewSaveTool(Tool):
-    dimensions = List(Enum(Dimension))
-    dataranges = List(Instance(DataRange), has_ref=True)
+    pass
 
 class EmbedTool(Tool):
-    dimensions = List(Enum(Dimension))
-    dataranges = List(Instance(DataRange), has_ref=True)
+    pass
 
 class ResetTool(Tool):
     pass

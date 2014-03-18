@@ -34,8 +34,8 @@ glyph_renderer = Glyph(
         ydata_range = ydr,
         glyph = line)
 
-pantool = PanTool(dataranges=[xdr, ydr], dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["width", "height"])
+pantool = PanTool(dimensions=["width", "height"])
+wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 
 plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
 xaxis = LinearAxis(plot=plot, dimension=0)
@@ -44,7 +44,7 @@ xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool,wheelzoomtool]
+plot.tools = [pantool, wheelzoomtool]
 
 demo_name = "line2"
 if len(sys.argv) > 1 and sys.argv[1] == "server":

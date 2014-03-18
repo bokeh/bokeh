@@ -37,8 +37,8 @@ plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=50)
 xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
 yaxis = LinearAxis(plot=plot, dimension=1, location="left")
 
-pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width", "height"])
-wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["width", "height"])
+pantool = PanTool(dimensions=["width", "height"])
+wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 previewsave = PreviewSaveTool(plot=plot)
 objectexplorer = ObjectExplorerTool()
 
