@@ -1,6 +1,7 @@
 import time
 import unittest
 import mock
+import platform
 import redis
 import requests
 
@@ -12,17 +13,23 @@ from .. import models
 from unittest import skipIf
 import sys
 
+if platform.python_implementation() == "PyPy":
+    is_pypy = True
+
+
 class TestUser(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestUser, self).setUp()
         self.client = bokeh_app.servermodel_storage
     @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")
+    @skipIf(is_pypy, "gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_cant_create_twice(self):
         model = user.new_user(self.client, 'test@test.com', 'mypassword',
                               docs=[1,2,3])
         self.assertRaises(models.UnauthorizedException, user.new_user,
                           self.client, 'test@test.com', 'mypassword')
     @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")
+    @skipIf(is_pypy, "gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_auth_user(self):
         self.assertRaises(models.UnauthorizedException,
                           user.auth_user,

@@ -5,7 +5,12 @@ import time
 from six.moves import cPickle as pickle
 import datetime as dt
 import numpy as np
-import pandas as pd
+
+try:
+    import pandas as pd
+    is_pandas = True
+except ImportError as e:
+    is_pandas = False
 
 log = logging.getLogger(__name__)
 
@@ -28,8 +33,11 @@ list data which can be serialized and deserialized
 millifactor = 10 ** 6.
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
-        if isinstance(obj, pd.Series):
-            return self.transform_list(obj.tolist())
+        if is_pandas:
+            if isinstance(obj, pd.Series):
+                return self.transform_list(obj.tolist())
+            elif isinstance(obj, pd.tslib.Timestamp):
+                return obj.value / millifactor
         elif isinstance(obj, np.ndarray):
             if obj.dtype.kind == 'M':
                 obj = obj.astype('datetime64[ms]').astype('int64')
@@ -39,10 +47,6 @@ class NumpyJSONEncoder(json.JSONEncoder):
                 return int(obj)
             else:
                 return float(obj)
-        elif isinstance(obj, pd.tslib.Timestamp):
-            return obj.value / millifactor
-        elif isinstance(obj, (dt.datetime, dt.date)):
-            return time.mktime(obj.timetuple()) * 1000.
         else:
             return super(NumpyJSONEncoder, self).default(obj)
 

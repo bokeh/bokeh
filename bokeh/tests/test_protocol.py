@@ -1,6 +1,17 @@
+import platform
 import unittest
-import pandas as pd
 import numpy as np
+
+from unittest import skipIf
+
+try:
+    import pandas as pd
+    is_pandas = True
+except ImportError as e:
+    is_pandas = False
+
+if platform.python_implementation() == "PyPy":
+    is_pypy = True
 
 
 class TestNumpyJSONEncoder(unittest.TestCase):
@@ -12,6 +23,7 @@ class TestNumpyJSONEncoder(unittest.TestCase):
     def test_fail(self):
         self.assertRaises(TypeError, self.encoder.default, {'testing': 1})
 
+    @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_panda_series(self):
         s = pd.Series([1, 3, 5, 6, 8])
         self.assertEqual(self.encoder.default(s), [1, 3, 5, 6, 8])
@@ -30,6 +42,7 @@ class TestNumpyJSONEncoder(unittest.TestCase):
         self.assertEqual(self.encoder.default(npfloat), 1.33)
         self.assertIsInstance(self.encoder.default(npfloat), float)
 
+    @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_pd_timestamp(self):
         ts = pd.tslib.Timestamp('April 28, 1948')
         self.assertEqual(self.encoder.default(ts), -684115200000)
@@ -48,10 +61,12 @@ class TestSerializeJson(unittest.TestCase):
         a = np.arange(5)
         self.assertEqual(self.serialize(a), '[0, 1, 2, 3, 4]')
 
+    @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_with_pd_series(self):
         s = pd.Series([0, 1, 2, 3, 4])
         self.assertEqual(self.serialize(s), '[0, 1, 2, 3, 4]')
 
+    @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_with_pd_ts(self):
         ts = pd.tslib.Timestamp('April 28, 1948')
         self.assertEqual(self.serialize(ts), '-684115200000.0')
@@ -67,10 +82,12 @@ class TestDefaultSerializeData(unittest.TestCase):
         pobjs = [{'test': 1}, [1, 2, 3, 4], 'string']
         self.assertEqual(self.serialize_data(pobjs), ["(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02}q\x01U\x04testq\x02K\x01s.', "(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02]q\x01(K\x01K\x02K\x03K\x04e.', "(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02U\x06stringq\x01.'])
 
+    @skipIf(is_pypy, "PyPy does not seem to support pickling yet.")
     def test_with_numpy_arrays(self):
         nparray = np.arange(5)
         self.assertEqual(self.serialize_data([nparray]), ["(dp1\nS'datatype'\np2\nS'numpy'\np3\nsS'dtype'\np4\ncnumpy\ndtype\np5\n(S'i8'\nI0\nI1\ntRp6\n(I3\nS'<'\nNNNI-1\nI-1\nI0\ntbsS'shape'\np7\n(I5\ntp8\ns.", nparray])
 
+    @skipIf(is_pypy, "PyPy does not seem to support pickling yet.")
     def test_with_mixed(self):
         nparray = np.arange(5)
         objs = [{'test': 1}, [1, 2, 3, 4], 'string', nparray]
@@ -90,6 +107,7 @@ class TestDefaultDeserializeData(unittest.TestCase):
         serialized = self.serialize_data(pobjs)
         self.assertEqual(self.deserialize_data(serialized), pobjs)
 
+    @skipIf(is_pypy, "PyPy does not seem to support pickling yet.")
     def test_with_numpy_arrays(self):
         nparray = np.arange(5)
         serialized = self.serialize_data([nparray])
@@ -97,6 +115,7 @@ class TestDefaultDeserializeData(unittest.TestCase):
         self.assertTrue(len(deserialized) == 1)
         self.assertTrue(np.array_equal(deserialized[0], nparray))
 
+    @skipIf(is_pypy, "PyPy does not seem to support pickling yet.")
     def test_with_mixed(self):
         nparray = np.arange(5)
         objs = [{'test': 1}, [1, 2, 3, 4], 'string', nparray]
