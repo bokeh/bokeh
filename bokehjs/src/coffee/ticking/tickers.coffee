@@ -224,10 +224,10 @@ define [
     get_interval: undefined
 
     # Returns the smallest interval that can be returned by get_interval().
-    get_min_interval: () -> @min_interval
+    get_min_interval: () -> @get('min_interval')
 
     # Returns the largest interval that can be returned by get_interval().
-    get_max_interval: () -> @max_interval
+    get_max_interval: () -> @get('max_interval')
 
     # Since min and max intervals generally don't change, subclasses can just
     # set these in the constructor.
@@ -259,8 +259,15 @@ define [
   class SingleIntervalTicker extends AbstractTicker
     initialize: (attrs, options) ->
       super(attrs, options)
-      @min_interval = @get('interval')
-      @max_interval = @get('interval')
+      @register_property('min_interval',
+          () -> @get('interval')
+        , true)
+      @add_dependencies('min_interval', this, ['interval'])
+
+      @register_property('max_interval',
+          () -> @get('interval')
+        , true)
+      @add_dependencies('max_interval', this, ['interval'])
 
     get_interval: (data_low, data_high, n_desired_ticks) ->
       return @get('interval')
@@ -281,22 +288,36 @@ define [
       super(attrs, options)
 
       tickers = @get('tickers')
-      @min_intervals = _.invoke(tickers, 'get_min_interval')
-      @max_intervals = _.invoke(tickers, 'get_max_interval')
+      @register_property('min_intervals',
+          () -> _.invoke(tickers, 'get_min_interval')
+        , true)
+      @add_dependencies('min_intervals', this, ['tickers'])
+
+      @register_property('max_intervals',
+          () -> _.invoke(tickers, 'get_max_interval')
+        , true)
+      @add_dependencies('max_intervals', this, ['tickers'])
+
+      @register_property('min_interval',
+          () -> _.first(@get('min_intervals'))
+        , true)
+      @add_dependencies('min_interval', this, ['min_intervals'])
+
+      @register_property('max_interval',
+          () -> _.first(@get('max_intervals'))
+        , true)
+      @add_dependencies('max_interval', this, ['max_interval'])
 
     get_best_ticker: (data_low, data_high, desired_n_ticks) ->
-      @min_interval = _.first(@min_intervals)
-      @max_interval =  _.last(@max_intervals)
-
       data_range = data_high - data_low
       ideal_interval = @get_ideal_interval(data_low, data_high,
                                            desired_n_ticks)
       ticker_ndxs = [
-        _.sortedIndex(@min_intervals, ideal_interval) - 1,
-        _.sortedIndex(@max_intervals, ideal_interval)
+        _.sortedIndex(@get('min_intervals'), ideal_interval) - 1,
+        _.sortedIndex(@get('max_intervals'), ideal_interval)
       ]
-      intervals = [@min_intervals[ticker_ndxs[0]],
-                   @max_intervals[ticker_ndxs[1]]]
+      intervals = [@get('min_intervals')[ticker_ndxs[0]],
+                   @get('max_intervals')[ticker_ndxs[1]]]
       errors = intervals.map((interval) ->
         return Math.abs(desired_n_ticks - (data_range / interval)))
 
@@ -376,13 +397,11 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       months = @get('months')
-      @typical_interval = if months.length > 1
+      interval = if months.length > 1
           (months[1] - months[0]) * ONE_MONTH
         else
           12 * ONE_MONTH
-      super(@typical_interval)
-
-      @toString_properties = ['months']
+      @set('interval', interval)
 
     get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
       year_dates = date_range_by_year(data_low, data_high)
@@ -403,7 +422,9 @@ define [
       return ticks_in_range
 
     defaults: () ->
-      super()
+      return _.extend(super(), {
+        toString_properties: ['months']
+      })
 
   # A DaysTicker produces ticks from a fixed subset of calendar days.
   # E.g., DaysTicker([1, 15]) produces ticks on the 1st and 15th days of each
@@ -412,20 +433,17 @@ define [
     initialize: (attrs, options) ->
       super(attrs, options)
       days = @get('days')
-      @typical_interval = if days.length > 1
+      interval = if days.length > 1
           (days[1] - days[0]) * ONE_DAY
         else
           31 * ONE_DAY
-      super(@typical_interval)
-
-      @toString_properties = ['days']
+      @set('interval', interval)
 
     get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
       month_dates = date_range_by_month(data_low, data_high)
 
       days = @get('days')
-      typical_interval = @typical_interval
-      days_of_month = (month_date) ->
+      days_of_month = (month_date, interval) =>
         dates = []
         for day in days
           day_date = copy_date(month_date)
@@ -435,12 +453,13 @@ define [
           # and we're marking every third day, we don't want day 28 to show up
           # because it'll be right next to the 1st of the next month.  So we
           # make sure we have a bit of room before we include a day.
-          future_date = new Date(day_date.getTime() + (typical_interval / 2))
+          future_date = new Date(day_date.getTime() + (interval / 2))
           if future_date.getUTCMonth() == month_date.getUTCMonth()
             dates.push(day_date)
         return dates
 
-      day_dates = _.flatten(days_of_month(date) for date in month_dates)
+      interval = @get('interval')
+      day_dates = _.flatten(days_of_month(date, interval) for date in month_dates)
 
       all_ticks = _.invoke(day_dates, 'getTime')
       # FIXME Since the ticks are sorted, this could be done more efficiently.
@@ -450,8 +469,9 @@ define [
       return ticks_in_range
 
     defaults: () ->
-      super()
-
+      return _.extend(super(), {
+        toString_properties: ['days']
+      })
 
   return {
     "arange":               arange,

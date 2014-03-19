@@ -2,6 +2,8 @@ define [
   "ticking/tickers",
 ], (tickers) ->
 
+  arange = tickers.arange
+
   # This is a decent ticker for time data (in milliseconds).
   # It could certainly be improved:
   # FIXME There should probably be a special ticker for years.
@@ -33,23 +35,23 @@ define [
 
           # Hours.
           new tickers.AdaptiveTicker({
-            mantissasL: [1, 2, 4, 6, 8, 12],
+            mantissas: [1, 2, 4, 6, 8, 12],
             base: 24.0,
             min_interval: tickers.ONE_HOUR,
             max_interval: 12 * tickers.ONE_HOUR
           }),
 
           # Days.
-          new tickers.DaysTicker({days: tickers.arange(1, 32)}),
-          new tickers.DaysTicker({days: tickers.arange(1, 31, 3)}),
+          new tickers.DaysTicker({days: arange(1, 32)}),
+          new tickers.DaysTicker({days: arange(1, 31, 3)}),
           new tickers.DaysTicker({days: [1, 8, 15, 22]}),
           new tickers.DaysTicker({days: [1, 15]}),
 
           # Months.
-          new tickers.MonthsTicker({months: tickers.arange(0, 12)}),
-          new tickers.MonthsTicker({months: tickers.arange(0, 12, 2)}),
-          new tickers.MonthsTicker({months: tickers.arange(0, 12, 4)}),
-          new tickers.MonthsTicker({months: tickers.arange(0, 12, 6)}),
+          new tickers.MonthsTicker({months: arange(0, 12)}),
+          new tickers.MonthsTicker({months: arange(0, 12, 2)}),
+          new tickers.MonthsTicker({months: arange(0, 12, 4)}),
+          new tickers.MonthsTicker({months: arange(0, 12, 6)}),
 
           # Catchall for large timetickers.
           new tickers.AdaptiveTicker({
