@@ -10,6 +10,8 @@ define [
 
   window.render_count = 0
 
+  pan_value = {}
+
   class PanToolView extends Tool.View
     initialize: (options) ->
       super(options)
@@ -58,13 +60,50 @@ define [
       ystart = @plot_view.ymapper.map_from_target(sy_low)
       yend   = @plot_view.ymapper.map_from_target(sy_high)
 
+      if typeof @plot_view.view_state['minX'] isnt 'undefined'
+        if (typeof pan_value.xr is 'undefined' or (typeof pan_value.xr isnt 'undefined' and  pan_value.xr.start > @plot_view.view_state['minX']['value']))
+          if xstart < @plot_view.view_state['minX']['value']
+            return null
+            # xstart = @plot_view.view_state['minX']['value']
+        else
+          if pan_value.xr.start > xstart
+            return null
+
+      if typeof @plot_view.view_state['maxX'] isnt 'undefined'
+        if (typeof pan_value.xr is 'undefined' or (typeof pan_value.xr isnt 'undefined' and pan_value.xr.end < @plot_view.view_state['maxX']['value']))
+          if xend > @plot_view.view_state['maxX']['value']
+            return null
+            # xend = @plot_view.view_state['maxX']['value']
+        else
+          if pan_value.xr.end < xend
+            return null
+
+      if typeof @plot_view.view_state['minY'] isnt 'undefined'
+        if (typeof pan_value.yr is 'undefined' or (typeof pan_value.yr isnt 'undefined' and  pan_value.yr.start > @plot_view.view_state['minY']['value']))
+          if ystart < @plot_view.view_state['minY']['value']
+            return null
+            # ystart = @plot_view.view_state['minY']['value']
+        else
+          if pan_value.yr.start > ystart
+            return null
+     
+      if typeof @plot_view.view_state['maxY'] isnt 'undefined'
+        if (typeof pan_value.yr is 'undefined' or (typeof pan_value.yr isnt 'undefined' and pan_value.yr.end < @plot_view.view_state['maxY']['value']))
+          if yend > @plot_view.view_state['maxY']['value']
+            return null
+            # yend = @plot_view.view_state['maxY']['value']
+        else
+          if pan_value.yr.end < yend
+            return null
+     
       pan_info = {
         xr: {start: xstart, end: xend}
         yr: {start: ystart, end: yend}
         sdx: -xdiff
         sdy: ydiff
       }
-
+      pan_value = pan_info
+      
       @plot_view.update_range(pan_info)
       return null
 

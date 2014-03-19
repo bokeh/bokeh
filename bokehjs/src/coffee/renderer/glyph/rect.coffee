@@ -8,7 +8,7 @@ define [
 
   class RectView extends Glyph.View
 
-    _fields : ['x', 'y', 'width', 'height', 'angle']
+    _fields : ['x', 'y', 'width', 'height', 'angle', 'minX', 'maxX', 'minY', 'maxY']
     _properties: ['line', 'fill']
 
     _map_data: () ->

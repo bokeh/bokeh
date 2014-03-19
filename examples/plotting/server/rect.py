@@ -12,8 +12,9 @@ y = np.sin(x)
 
 output_server("rect")
 
+# optional parameters minX, maxX, minY or maxY can be passed to limit the Pan to a specified window
 # fixed width and height
-rect(x, y, 4, 2, width_units="screen", height_units="screen", color="#ff0000", tools="pan,wheel_zoom,box_zoom,reset,previewsave,pinch_zoom,pinch_box_zoom")
+rect(x, y, 4, 2, width_units="screen", height_units="screen", color="#ff0000", tools="pan,wheel_zoom,box_zoom,reset,previewsave,pinch_zoom,pinch_box_zoom", minX=-2, maxX=15, minY=-2, maxY=2)
 
 # variable width and height
 rect(

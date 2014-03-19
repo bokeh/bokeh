@@ -15,6 +15,20 @@ define [
 
       @glyph_props = @init_glyph(@mget('glyphspec'))
 
+      checkNumberValue = /^(0|-?(0\.\d+|[1-9]\d*(\.\d+)?))$/
+      
+      if typeof @glyph_props.minX isnt 'undefined' and typeof @glyph_props.minX.value isnt 'undefined' and @glyph_props.minX.value? and checkNumberValue.test(@glyph_props.minX.value)
+        @plot_view.view_state['minX']= @glyph_props.minX
+        
+      if typeof @glyph_props.maxX isnt 'undefined' and typeof @glyph_props.maxX.value isnt 'undefined' and @glyph_props.maxX.value? and checkNumberValue.test(@glyph_props.maxX.value)
+        @plot_view.view_state['maxX']= @glyph_props.maxX
+        
+      if typeof @glyph_props.minY isnt 'undefined' and typeof @glyph_props.minY.value isnt 'undefined' and @glyph_props.minY.value? and checkNumberValue.test(@glyph_props.minY.value)
+        @plot_view.view_state['minY']= @glyph_props.minY
+        
+      if typeof @glyph_props.maxY isnt 'undefined' and typeof @glyph_props.maxY.value isnt 'undefined' and @glyph_props.maxY.value? and checkNumberValue.test(@glyph_props.maxY.value)
+        @plot_view.view_state['maxY']= @glyph_props.maxY
+
       @have_selection_props = false
       if @mget('selection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
