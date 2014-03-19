@@ -21,6 +21,8 @@ define [], () ->
       @buttonDisabled = ''
 
     bind_bokeh_events: (plotview, eventSink) ->
+      if @options.touchEvent? && not @options.touchEvent
+        return null
       if @options.buttonDisable? && @options.buttonDisable
         @buttonDisabled = "disabled='disabled'"
       toolName = @toolName
@@ -167,6 +169,8 @@ define [], () ->
       @buttonDisabled = ''
 
     bind_bokeh_events: (plotview, eventSink) ->
+      if @options.touchEvent? && not @options.touchEvent
+        return null
       if @options.buttonDisable? && @options.buttonDisable
         @buttonDisabled = "disabled='disabled'"
       toolName = @toolName
@@ -251,6 +255,8 @@ define [], () ->
       @buttonDisabled = ''
 
     bind_bokeh_events: (plotview, eventSink) ->
+      if @options.touchEvent? && not @options.touchEvent
+        return null
       if @options.buttonDisable? && @options.buttonDisable
         buttonDisabled = "disabled='disabled'"
       toolName = @toolName

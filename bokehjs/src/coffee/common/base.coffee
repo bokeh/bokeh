@@ -26,6 +26,8 @@ define [
 
   "tool/box_select_tool",
   "tool/box_zoom_tool",
+  "tool/pinch_zoom_tool",
+  "tool/pinch_box_zoom_tool",
   "tool/crosshair_tool",
   "tool/data_range_box_select_tool",
   "tool/embed_tool",
@@ -35,7 +37,6 @@ define [
   "tool/reset_tool",
   "tool/resize_tool",
   "tool/wheel_zoom_tool",
-  "tool/object_explorer_tool",
 
   "widget/data_slider",
   "widget/pandas/ipython_remote_data",
@@ -54,6 +55,7 @@ define [
     Plot:                   'common/plot'
     GMapPlot:               'common/gmap_plot'
     GridPlot:               'common/grid_plot'
+    CDXPlotContext:         'common/plot_context'
     PlotContext:            'common/plot_context'
     PlotList:               'common/plot_context'
 
@@ -78,12 +80,13 @@ define [
     CrosshairTool:          'tool/crosshair_tool'
     BoxSelectTool:          'tool/box_select_tool'
     BoxZoomTool:            'tool/box_zoom_tool'
+    PinchZoomTool:          'tool/pinch_zoom_tool'
+    PinchBoxZoomTool:       'tool/pinch_box_zoom_tool'
     HoverTool:              'tool/hover_tool'
     DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
     PreviewSaveTool:        'tool/preview_save_tool'
     EmbedTool:              'tool/embed_tool'
     ResetTool:              'tool/reset_tool'
-    ObjectExplorerTool:     'tool/object_explorer_tool'
 
     DataSlider:             'widget/data_slider'
     IPythonRemoteData:      'widget/pandas/ipython_remote_data'
