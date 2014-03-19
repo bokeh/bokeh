@@ -774,7 +774,7 @@ class Instance(Property):
                     (self.instance_type.__name__, value, type(value).__name__))
 
     def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.instance_type.__class__.__name__)
+        return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
 
 class This(Property):
     """ A reference to an instance of the class being defined
