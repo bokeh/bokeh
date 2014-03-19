@@ -44,15 +44,20 @@ class NumpyJSONEncoder(json.JSONEncoder):
             return super(NumpyJSONEncoder, self).default(obj)
 
     def transform_list(self, l):
-        for k, v in enumerate(l):
-            if isinstance(v, list):
-                v = self.transform_list(v)
-            elif np.isnan(v):
-                l[k] = "NaN"
-            elif np.isposinf(v):
-                l[k] = "Infinity"
-            elif np.isneginf(v):
-                l[k] = "-Infinity"
+        try:
+            for k, v in enumerate(l):
+                if isinstance(v, list):
+                    v = self.transform_list(v)
+                elif np.isnan(v):
+                    l[k] = "NaN"
+                elif np.isposinf(v):
+                    l[k] = "Infinity"
+                elif np.isneginf(v):
+                    l[k] = "-Infinity"
+        # If we get a type error, then there are non-numeric types 
+        # in the list, just bail...
+        except TypeError:
+            pass
         return l
 
 def serialize_json(obj, encoder=NumpyJSONEncoder, **kwargs):
