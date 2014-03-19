@@ -33,6 +33,9 @@ class Property(object):
         # This gets set by the class decorator at class creation time
         self.name = "unnamed"
 
+    def __str__(self):
+        return self.__class__.__name__
+
     @property
     def _name(self):
         return "_" + self.name
@@ -641,7 +644,21 @@ class Complex(PrimitiveProperty):
 class String(PrimitiveProperty):
     _underlying_type = string_types
 
-class ContainerProperty(Property):
+class ParameterizedProperty(Property):
+    """Property that has type parameters, e.g. `List(String)`. """
+
+    def _validate_type_param(cls, type_param):
+        if isinstance(type_param, type):
+            if issubclass(type_param, Property):
+                return type_param()
+            else:
+                type_param = type_param.__name__
+        elif isinstance(type_param, Property):
+            return type_param
+
+        raise ValueError("expected a property as type parameter, got %s" % type_param)
+
+class ContainerProperty(ParameterizedProperty):
     # Base class for container-like things; this helps the auto-serialization
     # and attribute change detection code
     pass
@@ -660,15 +677,7 @@ class List(ContainerProperty):
     """
 
     def __init__(self, item_type, default=None, has_ref=False):
-        if isinstance(item_type, type):
-            if issubclass(item_type, Property):
-                item_type = item_type()
-            else:
-                raise ValueError("expected a property as type parameter, got %s" % item_type.__name__)
-        elif not isinstance(item_type, Property):
-            raise ValueError("expected a property as type parameter, got %s" % item_type)
-
-        self.item_type = item_type
+        self.item_type = self._validate_type_param(item_type)
         self.has_ref = has_ref
 
         super(List, self).__init__(default=default)
@@ -678,7 +687,7 @@ class List(ContainerProperty):
 
         if value is not None:
             if not (isinstance(value, list) and all(self.item_type.is_valid(item) for item in value)):
-                raise ValueError("expected an element of %s, got %s" % (self, value))
+                raise ValueError("expected an element of %s, got %r" % (self, value))
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.item_type)
@@ -786,17 +795,27 @@ class Any(Property): pass
 class Function(Property): pass
 class Event(Property): pass
 
-class Either(Property):
-    """ Takes a list of valid properties and validates against them in
-    succession.
-    """
-    # TODO: In order to implement this, we need to change all the properties
-    # to use a .validate() method so they can be called programmatically from
-    # this handler
-    def __init__(self, *props, **kwargs):
-        self._props = props
-        self.default = kwargs.get("default", None)
+class Either(ParameterizedProperty):
+    """ Takes a list of valid properties and validates against them in succession. """
 
+    def __init__(self, *type_params, **kwargs):
+        if len(type_params) < 2:
+            raise ValueError("expected at least two type parameters to Either property")
+
+        type_params = map(self._validate_type_param, type_params)
+        default = kwargs.get("default", type_params[0].default)
+
+        self.type_params = type_params
+        super(Either, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Either, self).validate(value)
+
+        if not (value is None or any(param.is_valid(value) for param in self.type_params)):
+            raise ValueError("expected an element of either %s, got %r" % (nice_join(self.type_params), value))
+
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
 
 class Enum(Property):
     """ An Enum with a list of allowed values. The first value in the list is
@@ -806,9 +825,11 @@ class Enum(Property):
     def __init__(self, *values, **kwargs):
         if len(values) == 1 and isinstance(values[0], Enumeration):
             enum_type = values[0]
-            values = enum_type._values
-            default = enum_type._default
+            values = self.enum_type._values
+            default = self.enum_type._default
         else:
+            enum_type = None
+
             if "default" not in kwargs:
                 if len(values) > 0:
                     default = values[0]
@@ -817,14 +838,19 @@ class Enum(Property):
             else:
                 default = kwargs.pop("default")
 
-        self.default = default
+        self.enum_type = enum_type
         self.allowed_values = values
+
+        super(Enum, self).__init__(default=default)
 
     def validate(self, value):
         super(Enum, self).validate(value)
 
         if not (value is None or value in self.allowed_values):
             raise ValueError("invalid value %r, allowed values are %s" % (value, nice_join(self.allowed_values)))
+
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))
 
 Sequence = _dummy
 Mapping = _dummy
