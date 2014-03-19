@@ -592,6 +592,12 @@ class HasProps(object):
     def reset_changed_vars(self):
         self._changed_vars = set()
 
+    def properties_with_values(self):
+        return dict([ (attr, getattr(self, attr)) for attr in self.properties() ])
+
+    def changed_properties_with_values(self):
+        return dict([ (attr, getattr(self, attr)) for attr in self.changed_vars() ])
+
     @classmethod
     def class_properties(cls, withbases=True):
         if withbases:
@@ -672,7 +678,10 @@ class List(ContainerProperty):
 
         if value is not None:
             if not (isinstance(value, list) and all(self.item_type.is_valid(item) for item in value)):
-                raise ValueError("expected a list of %s, got %s" % (self.item_type, value))
+                raise ValueError("expected an element of %s, got %s" % (self, value))
+
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, self.item_type)
 
     def __get__(self, obj, type=None):
         if hasattr(obj, self._name):

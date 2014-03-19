@@ -163,11 +163,21 @@ class PlotObject(HasProps):
         if not instance:
             instance = cls(id=_id, _block_events=True)
 
+        _doc = attrs.pop("doc", None)
+
         ref_props = {}
         for p in instance.properties_with_refs():
             if p in attrs:
                 ref_props[p] = attrs.pop(p)
+
+        special_props = {}
+        for p in dict(attrs):
+            if p not in instance.properties():
+                special_props[p] = attrs.pop(p)
+
         instance._ref_props = ref_props
+        instance._special_props = special_props
+
         instance.update(**attrs)
         return instance
 
@@ -176,9 +186,9 @@ class PlotObject(HasProps):
         models is a dict of id->model mappings
         """
         if hasattr(self, "_ref_props"):
-            props = resolve_json(self._ref_props, models)
-            self.update(**props)
-        self.setup_events()
+            return resolve_json(self._ref_props, models)
+        else:
+            return {}
 
     @classmethod
     def collect_plot_objects(cls, *input_objs):
@@ -221,24 +231,17 @@ class PlotObject(HasProps):
     # Many of the calls one would expect in a rich client map instead to
     # batched updates on the M-VM-V approach.
     #---------------------------------------------------------------------
-    def vm_props(self, withvalues=False):
-        """ Returns the ViewModel-related properties of this object.  If
-        **withvalues** is True, then returns attributes with values as a
-        dict.  Otherwise, returns a list of attribute names.
-        """
-        props = self.changed_vars()
-        if "session" in props:
-            props.remove("session")
-        if withvalues:
-            return dict((k,getattr(self,k)) for k in props)
-        else:
-            return props
+    def vm_props(self):
+        """ Returns the ViewModel-related properties of this object. """
+        props = self.changed_properties_with_values()
+        props.pop("session", None)
+        return props
 
     def vm_serialize(self):
         """ Returns a dictionary of the attributes of this object, in
         a layout corresponding to what BokehJS expects at unmarshalling time.
         """
-        attrs = self.vm_props(withvalues=True)
+        attrs = self.vm_props()
         attrs['id'] = self._id
         return attrs
 

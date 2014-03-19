@@ -43,20 +43,12 @@ class Session(object):
     def __exit__(self, e_ty, e_val, e_tb):
         pass
 
-    def add(self, *objects, **kwargs):
+    def add(self, *objects):
         """ Associates the given object to this session.  This means
         that changes to the object's internal state will be reflected
         in the persistence layer and trigger event that propagate
         across to the view(s).
-
-        **recursive** flag allows to descend through objects' structure
-        and collect all their dependencies, adding them to the session
-        as well.
         """
-        recursive = kwargs.get("recursive", False)
-        if recursive:
-            objects = self._collect_objs(objects)
-
         for obj in objects:
             if obj is None:
                 warnings.warn("Null object passed to Session.add()")

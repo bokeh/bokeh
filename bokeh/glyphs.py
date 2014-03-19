@@ -33,13 +33,14 @@ class BaseGlyph(PlotObject):
         """ Returns a dict mapping attributes to values, that is amenable for
         inclusion in a Glyph definition.
         """
-        d = self.vm_props(withvalues=True)
+        d = self.vm_props()
         d["type"] = self.__view_model__
 
         # Iterate over all the DataSpec properties and convert them, using the
         # fact that DataSpecs store the dict-ified version on the object.
         for attrname, dspec in self.dataspecs_with_refs().items():
             d[attrname] = dspec.to_dict(self)
+
         return d
 
 
@@ -60,19 +61,15 @@ class Circle(Marker):
         """ Returns a dict mapping attributes to values, that is amenable for
         inclusion in a Glyph definition.
         """
-        d = self.vm_props(withvalues=True)
-        d["type"] = self.__view_model__
+        d = super(Circle, self).to_glyphspec()
 
-        # Here is the special case for circle, we only want one of "size" or "radius",
-        # but not both.
-        for attrname, dspec in self.dataspecs_with_refs().items():
-            d[attrname] = dspec.to_dict(self)
         if "size" not in self._changed_vars and "radius" not in self._changed_vars:
             del d["radius"]
         elif "size" in self._changed_vars:
             del d["radius"]
         elif "radius" in self._changed_vars:
             del d["size"]
+
         return d
 
 

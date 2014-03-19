@@ -65,7 +65,9 @@ class PersistentBackboneSession(object):
                 created.add(m)
             models.append(m)
         for m in models:
-            m.finalize(self._models)
+            props = m.finalize(self._models)
+            m.update(**props)
+            m.setup_events()
         if events is None:
             self.clear_callback_queue(models)
         elif events is 'existing':

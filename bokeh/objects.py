@@ -101,12 +101,9 @@ class DataRange(Range):
     sources = List(Instance(ColumnsRef), has_ref=True)
 
     def finalize(self, models):
-        super(DataRange, self).finalize(models)
-        for idx, source in enumerate(self.sources):
-            if isinstance(source, dict):
-                self.sources[idx] = ColumnsRef(
-                    source=source['ref'],
-                    columns=source['columns'])
+        props = super(DataRange, self).finalize(models)
+        props['sources'] = [ ColumnsRef(**source) for source in props['sources'] ]
+        return props
 
 class DataRange1d(DataRange):
     """ Represents a range in a scalar dimension """
@@ -182,37 +179,25 @@ class Glyph(Renderer):
         return data
 
     def finalize(self, models):
-        super(Glyph, self).finalize(models)
+        props = super(Glyph, self).finalize(models)
 
-        ## FIXME: we shouldn't have to do this i think..
+        if hasattr(self, "_special_props"):
+            glyphspec = self._special_props.pop('glyphspec', None)
+            if glyphspec is not None:
+                cls = PlotObject.get_class(glyphspec.pop('type'))
+                props['glyph'] = cls(**glyphspec)
 
-        if hasattr(self, 'glyphspec'):
-            glyphspec = self.glyphspec
-            del self.glyphspec
-            glyph_type = glyphspec.pop('type')
-            cls = PlotObject.get_class(glyph_type)
-            self.glyph = cls(**glyphspec)
-        else:
-            self.glyph = None
+            selection_glyphspec = self._special_props.pop('selection_glyphspec', None)
+            if selection_glyphspec is not None:
+                cls = PlotObject.get_class(selection_glyphspec.pop('type'))
+                props['selection_glyph'] = cls(**selection_glyphspec)
 
-        if hasattr(self, 'selection_glyphspec'):
-            selection_glyphspec = self.selection_glyphspec
-            del self.selection_glyphspec
-            glyph_type = selection_glyphspec.pop('type')
-            cls = PlotObject.get_class(glyph_type)
-            self.selection_glyph = cls(**selection_glyphspec)
-        else:
-            self.selection_glyph = None
+            nonselection_glyphspec = self._special_props.pop('nonselection_glyphspec', None)
+            if nonselection_glyphspec is not None:
+                cls = PlotObject.get_class(nonselection_glyphspec.pop('type'))
+                props['nonselection_glyph'] = cls(**nonselection_glyphspec)
 
-        if hasattr(self, 'nonselection_glyphspec'):
-            nonselection_glyphspec = self.nonselection_glyphspec
-            del self.nonselection_glyphspec
-            glyph_type = nonselection_glyphspec.pop('type')
-            cls = PlotObject.get_class(glyph_type)
-            self.nonselection_glyph = cls(**nonselection_glyphspec)
-        else:
-            self.nonselection_glyph = None
-
+        return props
 
 class Plot(PlotObject):
     """ Object representing a plot, containing glyphs, guides, annotations.
@@ -261,7 +246,7 @@ class Plot(PlotObject):
     border_symmetry = Enum(BorderSymmetry)
     script_inject_snippet = String("")
 
-    def vm_props(self, *args, **kw):
+    def vm_props(self):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
         # needs to be fixed more structurally on the JS side, and then this
@@ -276,7 +261,7 @@ class Plot(PlotObject):
             self.canvas_height = self.height
         if "outer_height" not in self._changed_vars:
             self.outer_height = self.height
-        return super(Plot, self).vm_props(*args, **kw)
+        return super(Plot, self).vm_props()
 
 class MapOptions(HasProps):
     lat = Float
@@ -404,6 +389,10 @@ class HoverTool(Tool):
 class ObjectExplorerTool(Tool):
     pass
 
+class DataRangeBoxSelectTool(Tool):
+    xselect = List(Instance(Range), has_ref=True)
+    yselect = List(Instance(Range), has_ref=True)
+
 class Legend(PlotObject):
     plot = Instance(Plot, has_ref=True)
     orientation = Enum(Orientation)
@@ -425,13 +414,8 @@ class DataSlider(PlotObject):
     data_source = Instance(DataSource, has_ref=True)
     field = String()
 
-class DataRangeBoxSelectTool(PlotObject):
-    plot = Instance(Plot, has_ref=True)
-    xselect = List(Instance(Range), has_ref=True)
-    yselect = List(Instance(Range), has_ref=True)
-
 class PlotContext(PlotObject):
-    children = List(List(Instance(Plot), has_ref=True), has_ref=True)
+    children = List(Instance(Plot, has_ref=True), has_ref=True)
 
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning
