@@ -4,7 +4,7 @@ define [
   "./linear_mapper",
 ], (Backbone, LinearMapper) ->
 
-  class CategoricalMapper extends LinearMapper
+  class CategoricalMapper extends LinearMapper.Model
 
     map_to_target: (x) ->
       if typeof(x) == 'number'

@@ -279,8 +279,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     if axiscls:
         yaxis = axiscls(plot=p, dimension=1, ticker=ticker, formatter=formatter, location="min", bounds="auto")
 
-    xgrid = Grid(plot=p, dimension=0, is_datetime=(x_axis_type == "datetime"))
-    ygrid = Grid(plot=p, dimension=1, is_datetime=(y_axis_type == "datetime"))
+    xgrid = Grid(plot=p, dimension=0, axis=xaxis)
+    ygrid = Grid(plot=p, dimension=1, axis=yaxis)
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
     for arg in border_args:

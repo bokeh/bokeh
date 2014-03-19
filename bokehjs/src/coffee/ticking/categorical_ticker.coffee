@@ -7,11 +7,11 @@ define [
     get_ticks: (start, end, range, {desired_n_ticks}) ->
       return range.get("factors")
 
-  class CategoricalTickers extends Backbone.Collection
-    model: CategoricalTicker
-
     defaults: () ->
       super()
+
+  class CategoricalTickers extends Backbone.Collection
+    model: CategoricalTicker
 
   return {
     "Model": CategoricalTicker,

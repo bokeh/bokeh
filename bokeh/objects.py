@@ -342,7 +342,7 @@ class Grid(GuideRenderer):
     dimension = Int(0)
     bounds = String('auto')
 
-    is_datetime = Bool(False)
+    axis = Instance(Axis, has_ref=True)
 
     # Line props
     grid_props = Include(LineProps, prefix="grid")

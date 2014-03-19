@@ -3,14 +3,17 @@ define [
 ], (tickers) ->
 
   class BasicTicker extends tickers.AdaptiveTicker
-    constructor: () ->
-      super([1, 2, 5])
+    type: 'BasicTicker'
+    initialize: (attrs, options) ->
+      super(attrs, options)
+
+    defaults: () ->
+      return _.extend(super(), {
+        mantissas: [1,2,5]
+      })
 
   class BasicTickers extends Backbone.Collection
     model: BasicTicker
-
-    defaults: () ->
-      super()
 
   return {
     "Model": BasicTicker,

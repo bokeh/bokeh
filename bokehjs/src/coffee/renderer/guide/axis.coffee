@@ -219,7 +219,7 @@ define [
         angle = -orient
       standoff = @_tick_extent() + @mget('major_label_standoff')
 
-      labels = @mget('formatter').format(coords[dim])
+      labels = @mget_obj('formatter').format(coords[dim])
 
       # override baseline and alignment with heuristics for tick labels
       @major_label_props.set(ctx, @)
@@ -297,7 +297,7 @@ define [
       side = @mget('side')
       orient = @mget('major_label_orientation')
 
-      labels = @mget('formatter').format(coords[dim])
+      labels = @mget_obj('formatter').format(coords[dim])
 
       @major_label_props.set(@plot_view.ctx, @)
 
@@ -476,7 +476,7 @@ define [
 
       [start, end] = @get('computed_bounds')
 
-      ticks = @get('ticker').get_ticks(start, end, range, {})
+      ticks = @get_obj('ticker').get_ticks(start, end, range, {})
 
       cstart = cross_range.get('start')
       cend = cross_range.get('end')

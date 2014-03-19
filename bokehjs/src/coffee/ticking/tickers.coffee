@@ -192,10 +192,10 @@ define [
   # also support some additional methods: get_interval(), get_min_interval(),
   # and get_max_interval().
   class AbstractTicker extends HasProperties
-    # Creates a new AbstractTicker.  The toString_properties argument is an
+    # Initializes a new AbstractTicker.  The toString_properties argument is an
     # optional list of member names which be shown when toString() is called.
-    constructor: (@toString_properties=[]) ->
-      super()
+    initialize: (attrs, options) ->
+      super(attrs, options)
 
     # Generates a nice series of ticks for a given range.
     get_ticks: (data_low, data_high, range, {desired_n_ticks}) ->
@@ -236,9 +236,8 @@ define [
 
     # Returns a string representation of this object.
     toString: () ->
-      # FIXME Should we use typeof() instead of constructor.name?
-      class_name = @constructor.name
-      props = @toString_properties
+      class_name = typeof @
+      props = @get('toString_properties')
       params_str = ("#{key}=#{repr(this[key])}" for key in props).join(", ")
       return "#{class_name}(#{params_str})"
 
@@ -249,17 +248,27 @@ define [
       data_range = data_high - data_low
       return data_range / desired_n_ticks
 
+    defaults: () ->
+      return _.extend(super(), {
+        toString_properties: []
+      })
+
   # The SingleIntervalTicker is a Ticker that always uses the same tick spacing,
   # regardless of the input range.  It's not very useful by itself, but can
   # be used as part of a CompositeTicker below.
   class SingleIntervalTicker extends AbstractTicker
-    constructor: (@interval) ->
-      super(['interval'])
-      @min_interval = @interval
-      @max_interval = @interval
+    initialize: (attrs, options) ->
+      super(attrs, options)
+      @min_interval = @get('interval')
+      @max_interval = @get('interval')
 
     get_interval: (data_low, data_high, n_desired_ticks) ->
-      return @interval
+      return @get('interval')
+
+    defaults: () ->
+      return _.extend(super(), {
+        toString_properties: ['interval']
+      })
 
   # This Ticker takes a collection of Tickers and picks the one most appropriate
   # for a given range.
@@ -268,16 +277,17 @@ define [
     # if S comes before T, then it should be the case that
     # S.get_max_interval() < T.get_min_interval().
     # FIXME Enforce this automatically.
-    constructor: (@tickers) ->
-      super()
+    initialize: (attrs, options) ->
+      super(attrs, options)
 
-      @min_intervals = _.invoke(@tickers, 'get_min_interval')
-      @max_intervals = _.invoke(@tickers, 'get_max_interval')
+      tickers = @get('tickers')
+      @min_intervals = _.invoke(tickers, 'get_min_interval')
+      @max_intervals = _.invoke(tickers, 'get_max_interval')
 
+    get_best_ticker: (data_low, data_high, desired_n_ticks) ->
       @min_interval = _.first(@min_intervals)
       @max_interval =  _.last(@max_intervals)
 
-    get_best_ticker: (data_low, data_high, desired_n_ticks) ->
       data_range = data_high - data_low
       ideal_interval = @get_ideal_interval(data_low, data_high,
                                            desired_n_ticks)
@@ -291,7 +301,7 @@ define [
         return Math.abs(desired_n_ticks - (data_range / interval)))
 
       best_ticker_ndx = ticker_ndxs[argmin(errors)]
-      best_ticker = @tickers[best_ticker_ndx]
+      best_ticker = @get('tickers')[best_ticker_ndx]
 
       return best_ticker
 
@@ -303,6 +313,9 @@ define [
       best_ticker = @get_best_ticker(data_low, data_high, desired_n_ticks)
       return best_ticker.get_ticks_no_defaults(data_low, data_high,
                                               desired_n_ticks)
+
+    defaults: () ->
+      super()
 
   # This Ticker produces nice round ticks at any magnitude.
   # AdaptiveTicker([1, 2, 5]) will choose the best tick interval from the
@@ -317,23 +330,22 @@ define [
     # B is base,
     # and N is an integer;
     # and min_interval <= I <= max_interval.
-    constructor: (@mantissas, @base=10.0, @min_interval=0.0, @max_interval=Infinity)->
-      super(['mantissas', 'base', 'min_magnitude', 'max_magnitude'])
+    initialize: (attrs, options) ->
+      super(attrs, options)
 
-      prefix_mantissa =  _.last(@mantissas) / @base
-      suffix_mantissa = _.first(@mantissas) * @base
-      @extended_mantissas = _.flatten([prefix_mantissa, @mantissas,
-                                       suffix_mantissa])
+      prefix_mantissa =  _.last(@get('mantissas')) / @base
+      suffix_mantissa = _.first(@get('mantissas')) * @base
+      @extended_mantissas = _.flatten([prefix_mantissa, @get('mantissas'), suffix_mantissa])
 
-      @base_factor = if @min_interval == 0.0 then 1.0 else @min_interval
+      @base_factor = if @get('min_interval') == 0.0 then 1.0 else @get('min_interval')
 
     get_interval: (data_low, data_high, desired_n_ticks) ->
       data_range = data_high - data_low
       ideal_interval = @get_ideal_interval(data_low, data_high,
                                            desired_n_ticks)
 
-      interval_exponent = Math.floor(log(ideal_interval / @base_factor, @base))
-      ideal_magnitude = Math.pow(@base, interval_exponent) * @base_factor
+      interval_exponent = Math.floor(log(ideal_interval / @base_factor, @get('base')))
+      ideal_magnitude = Math.pow(@get('base'), interval_exponent) * @base_factor
       ideal_mantissa = ideal_interval / ideal_magnitude
 
       # An untested optimization.
@@ -342,21 +354,30 @@ define [
       candidate_mantissas = @extended_mantissas
 
       errors = candidate_mantissas.map((mantissa) ->
-        Math.abs(desired_n_ticks -
-                 (data_range / (mantissa * ideal_magnitude))))
+        Math.abs(desired_n_ticks - (data_range / (mantissa * ideal_magnitude))))
       best_mantissa = candidate_mantissas[argmin(errors)]
 
       interval = best_mantissa * ideal_magnitude
 
-      return clamp(interval, @min_interval, @max_interval)
+      return clamp(interval, @get('min_interval'), @get('max_interval'))
+
+    defaults: () ->
+      return _.extend(super(), {
+        toString_properties: ['mantissas', 'base', 'min_magnitude', 'max_magnitude'],
+        base: 10.0,
+        min_interval: 0.0,
+        max_interval: Infinity,
+      })
 
   # A MonthsTicker produces ticks from a fixed subset of months of the year.
   # E.g., MonthsTicker([0, 3, 6, 9]) produces ticks of the 1st of January,
   # April, July, and October of each year.
   class MonthsTicker extends SingleIntervalTicker
-    constructor: (@months) ->
-      @typical_interval = if @months.length > 1
-          (@months[1] - @months[0]) * ONE_MONTH
+    initialize: (attrs, options) ->
+      super(attrs, options)
+      months = @get('months')
+      @typical_interval = if months.length > 1
+          (months[1] - months[0]) * ONE_MONTH
         else
           12 * ONE_MONTH
       super(@typical_interval)
@@ -366,7 +387,7 @@ define [
     get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
       year_dates = date_range_by_year(data_low, data_high)
 
-      months = @months
+      months = @get('months')
       months_of_year = (year_date) ->
         return months.map((month) ->
           month_date = copy_date(year_date)
@@ -381,13 +402,18 @@ define [
 
       return ticks_in_range
 
+    defaults: () ->
+      super()
+
   # A DaysTicker produces ticks from a fixed subset of calendar days.
   # E.g., DaysTicker([1, 15]) produces ticks on the 1st and 15th days of each
   # month.
   class DaysTicker extends SingleIntervalTicker
-    constructor: (@days) ->
-      @typical_interval = if @days.length > 1
-          (@days[1] - @days[0]) * ONE_DAY
+    initialize: (attrs, options) ->
+      super(attrs, options)
+      days = @get('days')
+      @typical_interval = if days.length > 1
+          (days[1] - days[0]) * ONE_DAY
         else
           31 * ONE_DAY
       super(@typical_interval)
@@ -397,15 +423,15 @@ define [
     get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
       month_dates = date_range_by_month(data_low, data_high)
 
-      days = @days
+      days = @get('days')
       typical_interval = @typical_interval
       days_of_month = (month_date) ->
         dates = []
         for day in days
           day_date = copy_date(month_date)
           day_date.setUTCDate(day)
-          # We can't use all of the values in @days, because they may not fall
-          # within the current month.  In fact, if, e.g., our month is 28 days
+          # We can't use all of the values in @get('days'), because they may not
+          # fall within the current month.  In fact, if, e.g., our month is 28 days
           # and we're marking every third day, we don't want day 28 to show up
           # because it'll be right next to the 1st of the next month.  So we
           # make sure we have a bit of room before we include a day.
@@ -422,6 +448,10 @@ define [
                                 ((tick) -> data_low <= tick <= data_high))
 
       return ticks_in_range
+
+    defaults: () ->
+      super()
+
 
   return {
     "arange":               arange,
