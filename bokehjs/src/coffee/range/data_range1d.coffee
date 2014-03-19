@@ -11,7 +11,7 @@ define [
     _get_minmax: () ->
       columns = []
       for source in @get('sources')
-        sourceobj = @resolve_ref(source['ref'])
+        sourceobj = @resolve_ref(source['source'])
         for colname in source['columns']
           columns.push(sourceobj.getcolumn(colname))
       columns = _.flatten(columns)
@@ -50,8 +50,8 @@ define [
     dinitialize: (attrs, options) ->
       @register_property('minmax', @_get_minmax, true)
       @add_dependencies('minmax', this, ['sources'], ['rangepadding'])
-      for source in @get('sources')
-        source = @resolve_ref(source.ref)
+      for columns_ref in @get('sources')
+        source = @resolve_ref(columns_ref.source)
         @add_dependencies('minmax', source, 'data')
       @register_property('start', @_get_start, true)
       @register_setter('start', @_set_start)

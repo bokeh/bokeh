@@ -6,388 +6,24 @@ notebook.
 """
 from __future__ import absolute_import
 
-import os
-from uuid import uuid4
-from functools import wraps
-
-from six import add_metaclass
-from six.moves.urllib.parse import urlsplit
-
 import warnings
 import logging
 logger = logging.getLogger(__file__)
 
-from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
-        Either, Float, Instance, Int, List, String, Color, DashPattern, Percent,
-        Size, LineProps, FillProps, TextProps, Include, Bool)
-
-class Viewable(MetaHasProps):
-    """ Any plot object (Data Model) which has its own View Model in the
-    persistence layer.
-
-    Adds handling of a __view_model__ attribute to the class (which is
-    provided by default) which tells the View layer what View class to
-    create.
-
-    One thing to keep in mind is that a Viewable should have a single
-    unique representation in the persistence layer, but it might have
-    multiple concurrent client-side Views looking at it.  Those may
-    be from different machines altogether.
-    """
-
-    # Stores a mapping from subclass __view_model__ names to classes
-    model_class_reverse_map = {}
-
-    # Mmmm.. metaclass inheritance.  On the one hand, it seems a little
-    # overkill. On the other hand, this is exactly the sort of thing
-    # it's meant for.
-    def __new__(cls, class_name, bases, class_dict):
-        if "__view_model__" not in class_dict:
-            class_dict["__view_model__"] = class_name
-        class_dict["get_class"] = Viewable.get_class
-
-        # Create the new class
-        newcls = super(Viewable,cls).__new__(cls, class_name, bases, class_dict)
-        entry = class_dict["__view_model__"]
-        # Add it to the reverse map, but check for duplicates first
-        if entry in Viewable.model_class_reverse_map:
-            raise Warning("Duplicate __view_model__ declaration of '%s' for " \
-                          "class %s.  Previous definition: %s" % \
-                          (entry, class_name,
-                           Viewable.model_class_reverse_map[entry]))
-        Viewable.model_class_reverse_map[entry] = newcls
-        return newcls
-
-    @classmethod
-    def get_class(cls, view_model_name):
-        """ Given a __view_model__ name, returns the corresponding class
-        object
-        """
-        d = Viewable.model_class_reverse_map
-        if view_model_name in d:
-            return d[view_model_name]
-        else:
-            raise KeyError("View model name '%s' not found" % view_model_name)
-
-def usesession(meth):
-    """ Checks for 'session' in kwargs and in **self**, and guarantees
-    that **kw** always has a valid 'session' parameter.  Wrapped methods
-    should define 'session' as an optional argument, and in the body of
-    the method, should expect an
-    """
-    @wraps(meth)
-    def wrapper(self, *args, **kw):
-        session = kw.get("session", None)
-        if session is None:
-            session = getattr(self, "session")
-        if session is None:
-            raise RuntimeError("Call to %s needs a session" % meth.__name__)
-        kw["session"] = session
-        return meth(self, *args, **kw)
-    return wrapper
-
-def is_ref(frag):
-    return isinstance(frag, dict) and \
-           frag.get('type') and \
-           frag.get('id')
-
-def json_apply(fragment, check_func, func):
-    """recursively searches through a nested dict/lists
-    if check_func(fragment) is True, then we return
-    func(fragment)
-    """
-    if check_func(fragment):
-        return func(fragment)
-    elif isinstance(fragment, list):
-        output = []
-        for val in fragment:
-            output.append(json_apply(val, check_func, func))
-        return output
-    elif isinstance(fragment, dict):
-        output = {}
-        for k, val in fragment.items():
-            output[k] = json_apply(val, check_func, func)
-        return output
-    else:
-        return fragment
-
-def resolve_json(fragment, models):
-    check_func = is_ref
-    def func(fragment):
-        if fragment['id'] in models:
-            return models[fragment['id']]
-        else:
-            logging.error("model not found for %s", fragment)
-            return None
-    return json_apply(fragment, check_func, func)
-
-def traverse_plot_object(plot_object):
-    """iterate through an objects properties
-    if it has_ref, json_apply through it and accumulate
-    all PlotObjects into children.  return all objects found
-    """
-    children = set()
-    def check_func(fragment):
-        return isinstance(fragment, PlotObject)
-    def func(obj):
-        children.add(obj)
-        return obj
-    for prop in plot_object.properties_with_refs():
-        val = getattr(plot_object, prop)
-        json_apply(val, check_func, func)
-    return children
-
-def recursively_traverse_plot_object(plot_object):
-    results = set()
-    ids = set()
-    queue = [plot_object]
-    while queue:
-        node = queue.pop(0)
-        if node._id in ids:
-            continue
-        ids.add(node._id)
-        results.add(node)
-        queue += node.references()
-    return results
-
-@add_metaclass(Viewable)
-class PlotObject(HasProps):
-    """ Base class for all plot-related objects """
-
-    session = Instance   # bokeh.session.Session
-
-    def __init__(self, *args, **kwargs):
-        # Eventually should use our own memo instead of storing
-        # an attribute on the class
-        if "id" in kwargs:
-            self._id = kwargs.pop("id")
-        else:
-            self._id = str(uuid4())
-        self._dirty = True
-        self._callbacks_dirty = False
-        self._callbacks = {}
-        self._callback_queue = []
-        self._block_callbacks = False
-        if '_block_events'  not in kwargs:
-            super(PlotObject, self).__init__(*args, **kwargs)
-            self.setup_events()
-        else:
-            self._block_callbacks = True
-            super(PlotObject, self).__init__(*args, **kwargs)
-
-    def get_ref(self):
-        return {
-            'type': self.__view_model__,
-            'id': self._id,
-        }
-
-    def setup_events(self):
-        pass
-
-    @classmethod
-    def load_json(cls, attrs, instance=None):
-        """Loads all json into a instance of cls, EXCEPT any references
-        which are handled in finalize
-        """
-        if 'id' not in attrs:
-            raise RuntimeError("Unable to find 'id' attribute in JSON: %r" % attrs)
-        _id = attrs.pop('id')
-
-        if not instance:
-            instance = cls(id=_id, _block_events=True)
-
-        ref_props = {}
-        for p in instance.properties_with_refs():
-            if p in attrs:
-                ref_props[p] = attrs.pop(p)
-        instance._ref_props = ref_props
-        instance.update(**attrs)
-        return instance
-
-    def finalize(self, models):
-        """Convert any references into instances
-        models is a dict of id->model mappings
-        """
-        if hasattr(self, "_ref_props"):
-            props = resolve_json(self._ref_props, models)
-            self.update(**props)
-        self.setup_events()
-
-    def references(self):
-        """Returns all PlotObjects that this object has references to
-        """
-        return traverse_plot_object(self)
-
-    #---------------------------------------------------------------------
-    # View Model connection methods
-    #
-    # Whereas a rich client rendering framework can maintain view state
-    # alongside model state, we need an explicit send/receive protocol for
-    # communicating with a set of view models that reside on the front end.
-    # Many of the calls one would expect in a rich client map instead to
-    # batched updates on the M-VM-V approach.
-    #---------------------------------------------------------------------
-    def vm_props(self, withvalues=False):
-        """ Returns the ViewModel-related properties of this object.  If
-        **withvalues** is True, then returns attributes with values as a
-        dict.  Otherwise, returns a list of attribute names.
-        """
-        props = self.changed_vars()
-        if "session" in props:
-            props.remove("session")
-        if withvalues:
-            return dict((k,getattr(self,k)) for k in props)
-        else:
-            return props
-
-    def vm_serialize(self):
-        """ Returns a dictionary of the attributes of this object, in
-        a layout corresponding to what BokehJS expects at unmarshalling time.
-        """
-        attrs = self.vm_props(withvalues=True)
-        attrs['id'] = self._id
-        return attrs
-
-    def update(self, **kwargs):
-        for k,v in kwargs.items():
-            setattr(self, k, v)
-
-    @usesession
-    def pull(self, session=None, ref=None):
-        """ Pulls information from the given session and ref id into this
-        object.  If no session is provided, then uses self.session.
-        If no ref is given, uses self._id.
-        """
-        # Read session values into a new dict, and fill those into self
-        if ref is None:
-            ref = session.get_ref(self)
-        newattrs = session.load_obj(ref)
-
-    @usesession
-    def push(self, session=None):
-        """ Pushes the update values from this object into the given
-        session (or self.session, if none is provided).
-        """
-        session.store_obj(self)
-
-    def __str__(self):
-        return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
-                self.__view_model__, getattr(self, "_id", None))
-
-    def on_change(self, attrname, obj, callbackname):
-        """when attrname of self changes, call callbackname
-        on obj
-        """
-        callbacks = self._callbacks.setdefault(attrname, [])
-        callback = dict(obj=obj,
-                        callbackname=callbackname)
-        if callback not in callbacks:
-            callbacks.append(callback)
-        self._callbacks_dirty = True
-
-    def _trigger(self, attrname, old, new):
-        """attrname of self changed.  So call all callbacks
-        """
-        callbacks = self._callbacks.get(attrname)
-        if callbacks:
-            for callback in callbacks:
-                getattr(callback['obj'], callback['callbackname'])(
-                    self, attrname, old, new)
-
-
-    def create_html_snippet(
-            self, server=False, embed_base_url="", embed_save_loc=".",
-            static_path="http://localhost:5006/bokeh/static/"):
-        """create_html_snippet is used to embed a plot in an html page.
-
-        create_html_snippet returns the embed string to be put in html.
-        This will be a <script> tag.
-
-        To embed a plot dependent on the Bokeh Plot Server, set server=True,
-        otherwise a file with the data for the plot will be built.
-
-        embed_base_url is used for non-server embedding.  This is used
-        as the root of the url where the embed.js file will be saved.
-
-        embed_save_loc controls where the embed.js will be actually written to.
-
-        static_path controls where the embed snippet looks to find
-        bokeh.js and the other resources it needs for bokeh.
-        """
-        if server:
-            if embed_base_url == "":
-                embed_base_url = False
-            return self._build_server_snippet(embed_base_url)[1]
-        embed_filename = "%s.embed.js" % self._id
-        full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)
-        js_code, embed_snippet = self._build_static_embed_snippet(
-            static_path, embed_base_url)
-        with open(full_embed_save_loc,"w") as f:
-            f.write(js_code)
-        return embed_snippet
-
-    def inject_snippet(
-            self, server=False, embed_base_url="", embed_save_loc=".",
-            static_path="http://localhost:5006/bokeh/static/"):
-        warnings.warn("inject_snippet is deprecated, please use create_html_snippet")
-        return self.create_html_snippet(
-            server, embed_base_url, embed_save_loc, static_path)
-
-    def _build_server_snippet(self, base_url=False):
-        sess = self._session
-        modelid = self._id
-        typename = self.__view_model__
-        if not base_url:
-            base_url = sess.root_url
-        split = urlsplit(base_url)
-        if split.scheme == 'http':
-            ws_conn_string = "ws://%s/bokeh/sub" % split.netloc
-        else:
-            ws_conn_string = "wss://%s/bokeh/sub" % split.netloc
-
-        f_dict = dict(
-            docid = sess.docid,
-            ws_conn_string = ws_conn_string,
-            docapikey = sess.apikey,
-            root_url = base_url,
-            modelid = modelid,
-            modeltype = typename,
-            script_url = base_url + "/bokeh/embed.js")
-        e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
-        bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
-        bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
-        bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
-        '''
-        return "", e_str % f_dict
-
-    def _build_static_embed_snippet(self, static_path, embed_base_url):
-
-
-        embed_filename = "%s.embed.js" % self._id
-        full_embed_path = embed_base_url + embed_filename
-
-        js_str = self._session.embed_js(self._id, static_path)
-
-
-        sess = self._session
-        modelid = self._id
-        typename = self.__view_model__
-        embed_filename = full_embed_path
-        f_dict = dict(modelid = modelid, modeltype = typename,
-                      embed_filename=embed_filename)
-        e_str = '''<script src="%(embed_filename)s" bokeh_plottype="embeddata"
-        bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
-        '''
-        return js_str, e_str % f_dict
-
-
+from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
+    List, String, Color, Include, Bool, Tuple, Any)
+from .mixins import FillProps, LineProps, TextProps
+from .enums import Units, Orientation, Dimension, BorderSymmetry
+from .plotobject import PlotObject
+from .glyphs import BaseGlyph
 
 class DataSource(PlotObject):
     """ Base class for data sources """
     # List of names of the fields of each tuple in self.data
     # ordering is incoporated here
-    column_names = List()
-    selected = List() #index of selected points
+    column_names = List(String)
+    selected = List(String) # index of selected points
+
     def columns(self, *columns):
         """ Returns a ColumnsRef object that points to a column or set of
         columns on this data source
@@ -454,60 +90,48 @@ class PandasDataSource(DataSource):
 
     data = Dict()
 
-class Range1d(PlotObject):
+class Range(PlotObject):
+    pass
+
+class Range1d(Range):
     start = Float()
     end = Float()
 
-class DataRange(PlotObject):
-    sources = List(ColumnsRef, has_ref=True)
-    def vm_serialize(self):
-        props = self.vm_props(withvalues=True)
-        props['id'] = self._id
-        sources = props.pop("sources")
-        props["sources"] = [{"ref":cr.source, "columns":cr.columns} for cr in sources]
-        return props
+class DataRange(Range):
+    sources = List(Instance(ColumnsRef), has_ref=True)
 
     def finalize(self, models):
-        super(DataRange, self).finalize(models)
-        for idx, source in enumerate(self.sources):
-            if isinstance(source, dict):
-                self.sources[idx] = ColumnsRef(
-                    source=source['ref'],
-                    columns=source['columns'])
-
-    def references(self):
-        return [x.source for x in self.sources]
+        props = super(DataRange, self).finalize(models)
+        props['sources'] = [ ColumnsRef(**source) for source in props['sources'] ]
+        return props
 
 class DataRange1d(DataRange):
     """ Represents a range in a scalar dimension """
-    sources = List(ColumnsRef, has_ref=True)
     rangepadding = Float(0.1)
     start = Float
     end = Float
 
-
-class FactorRange(PlotObject):
+class FactorRange(Range):
     """ Represents a range in a categorical dimension """
-    factors = List
+    factors = List(Any)
 
-class Glyph(PlotObject):
+class Renderer(PlotObject):
+    pass
 
-    plot = Instance(has_ref=True)
+class Glyph(Renderer):
     data_source = Instance(DataSource, has_ref=True)
-    xdata_range = Instance(DataRange1d, has_ref=True)
-    ydata_range = Instance(DataRange1d, has_ref=True)
+    xdata_range = Instance(Range, has_ref=True)
+    ydata_range = Instance(Range, has_ref=True)
 
     # How to intepret the values in the data_source
-    units = Enum("screen", "data")
+    units = Enum(Units)
 
-    # Instance of bokeh.glyphs.Glyph; not declaring it explicitly below
-    # because of circular imports. The renderers should get moved out
-    # into another module...
-    glyph = Instance()
-    # glyph used when data is unselected.  optional
-    nonselection_glyph = Instance()
-    # glyph used when data is selected.  optional
-    selection_glyph = Instance()
+    glyph = Instance(BaseGlyph)
+
+    # Optional glyph used when data is selected.
+    selection_glyph = Instance(BaseGlyph)
+    # Optional glyph used when data is unselected.
+    nonselection_glyph = Instance(BaseGlyph)
 
     def vm_serialize(self):
         # Glyphs need to serialize their state a little differently,
@@ -525,62 +149,53 @@ class Glyph(PlotObject):
         return data
 
     def finalize(self, models):
-        super(Glyph, self).finalize(models)
-        ## FIXME: we shouldn't have to do this i think..
-        if hasattr(self, 'glyphspec'):
-            glyphspec = self.glyphspec
-            del self.glyphspec
-            self.glyph = PlotObject.get_class(glyphspec['type'])(**glyphspec)
-        else:
-            self.glyph = None
-        if hasattr(self, 'selection_glyphspec'):
-            selection_glyphspec = self.selection_glyphspec
-            del self.selection_glyphspec
-            temp = PlotObject.get_class(selection_glyphspec['type'])
-            self.selection_glyph = temp(**selection_glyphspec)
+        props = super(Glyph, self).finalize(models)
 
-        else:
-            self.selection_glyph = None
-        if hasattr(self, 'nonselection_glyphspec'):
-            nonselection_glyphspec = self.nonselection_glyphspec
-            del self.nonselection_glyphspec
-            temp = PlotObject.get_class(nonselection_glyphspec['type'])
-            self.nonselection_glyph = temp(**nonselection_glyphspec)
+        if hasattr(self, "_special_props"):
+            glyphspec = self._special_props.pop('glyphspec', None)
+            if glyphspec is not None:
+                cls = PlotObject.get_class(glyphspec.pop('type'))
+                props['glyph'] = cls(**glyphspec)
 
-        else:
-            self.nonselection_glyph = None
+            selection_glyphspec = self._special_props.pop('selection_glyphspec', None)
+            if selection_glyphspec is not None:
+                cls = PlotObject.get_class(selection_glyphspec.pop('type'))
+                props['selection_glyph'] = cls(**selection_glyphspec)
 
+            nonselection_glyphspec = self._special_props.pop('nonselection_glyphspec', None)
+            if nonselection_glyphspec is not None:
+                cls = PlotObject.get_class(nonselection_glyphspec.pop('type'))
+                props['nonselection_glyph'] = cls(**nonselection_glyphspec)
 
+        return props
 
 class Plot(PlotObject):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
 
-    data_sources = List
-    title = String("Bokeh Plot")
+    data_sources = List(Instance(DataSource), has_ref=True)
 
-    x_range = Instance(DataRange1d, has_ref=True)
-    y_range = Instance(DataRange1d, has_ref=True)
+    x_range = Instance(Range, has_ref=True)
+    y_range = Instance(Range, has_ref=True)
     png = String('')
     title = String('')
     outline_props = Include(LineProps, prefix="outline")
 
-
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
-    renderers = List(has_ref=True)
-    tools = List(has_ref=True)
+    renderers = List(Instance(Renderer), has_ref=True)
+    tools = List(Instance(".objects.Tool"), has_ref=True)
 
     # TODO: These don't appear in the CS source, but are created by mpl.py, so
     # I'm leaving them here for initial compatibility testing.
-    axes = List(has_ref=True)
+    # axes = List(has_ref=True)
 
     # TODO: How do we want to handle syncing of the different layers?
-    # image = List
-    # underlay = List
-    # glyph = List
+    # image = List()
+    # underlay = List()
+    # glyph = List()
     #
-    # annotation = List
+    # annotation = List()
 
     height = Int(600)
     width = Int(600)
@@ -596,18 +211,10 @@ class Plot(PlotObject):
     min_border_left = Int(50)
     min_border_right = Int(50)
     min_border = Int(50)
+    border_symmetry = Enum(BorderSymmetry)
     script_inject_snippet = String("")
 
-
-    def _get_script_inject_snippet(self):
-        from .session import HTMLFileSession
-        if isinstance(self._session, HTMLFileSession):
-            self.script_inject_snippet
-            return ""
-        else:
-            return self.create_html_snippet(server=True)
-
-    def vm_props(self, *args, **kw):
+    def vm_props(self):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
         # needs to be fixed more structurally on the JS side, and then this
@@ -622,111 +229,36 @@ class Plot(PlotObject):
             self.canvas_height = self.height
         if "outer_height" not in self._changed_vars:
             self.outer_height = self.height
-        return super(Plot, self).vm_props(*args, **kw)
+        return super(Plot, self).vm_props()
 
-class GMapPlot(PlotObject):
+class MapOptions(HasProps):
+    lat = Float
+    lng = Float
+    zoom = Int(12)
 
-    center_lat = Float
-    center_lng = Float
-    zoom_level = Int(12)
-
-    data_sources = List
-    title = String("Bokeh Plot")
-
-    png = String('')
-    title = String('')
-
-    # A list of all renderers on this plot; this includes guides as well
-    # as glyph renderers
-    renderers = List(has_ref=True)
-    tools = List(has_ref=True)
-
-    # TODO: These don't appear in the CS source, but are created by mpl.py, so
-    # I'm leaving them here for initial compatibility testing.
-    axes = List(has_ref=True)
-    x_range = Instance(Range1d, has_ref=True)
-    y_range = Instance(Range1d, has_ref=True)
-
-    # TODO: How do we want to handle syncing of the different layers?
-    # image = List
-    # underlay = List
-    # glyph = List
-    #
-    # annotation = List
-
-    height = Int(800)
-    width = Int(800)
-
-    border_fill = Color("white")
-    border_symmetry = String("h")
-    canvas_width = Int(800)
-    canvas_height = Int(800)
-    outer_width = Int(800)
-    outer_height = Int(800)
-    min_border_top = Int(50)
-    min_border_bottom = Int(50)
-    min_border_left = Int(50)
-    min_border_right = Int(50)
-    min_border = Int(50)
+class GMapPlot(Plot):
+    map_options = Instance(MapOptions)
 
     def vm_serialize(self):
-        # Glyphs need to serialize their state a little differently,
-        # because the internal glyph instance is turned into a glyphspec
         data = super(GMapPlot, self).vm_serialize()
-        data.pop('center_lat', None)
-        data.pop('center_lng', None)
-        data.pop('zoom_level', None)
-        data["map_options"] = {
-            'lat': self.center_lat,
-            'lng': self.center_lng,
-            'zoom': self.zoom_level
-        }
         self._session.raw_js_snippets(self)
         return data
-
-    @classmethod
-    def load_json(cls, attrs, instance=None):
-        """Loads all json into a instance of cls, EXCEPT any references
-        which are handled in finalize
-        """
-        inst = super(GMapPlot, cls).load_json(attrs, instance=instance)
-        if hasattr(inst, 'map_options'):
-            mo = inst.map_options
-            del inst.map_options
-            inst.center_lat = mo['lat']
-            inst.center_lng = mo['lng']
-            inst.zoom_level = mo['zoom']
-        return inst
 
     def get_raw_js(self):
         return '<script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>'
 
-    def vm_props(self, *args, **kw):
-        # FIXME: We need to duplicate the height and width into canvas and
-        # outer height/width.  This is a quick fix for the gorpiness, but this
-        # needs to be fixed more structurally on the JS side, and then this
-        # should be revisited on the Python side.
-        if "canvas_width" not in self._changed_vars:
-            self.canvas_width = self.width
-        if "outer_width" not in self._changed_vars:
-            self.outer_width = self.width
-        if "canvas_height" not in self._changed_vars:
-            self.canvas_height = self.height
-        if "outer_height" not in self._changed_vars:
-            self.outer_height = self.height
-        return super(GMapPlot, self).vm_props(*args, **kw)
-
 class GridPlot(Plot):
     """ A 2D grid of plots """
 
-    children = List(List(has_ref=True), has_ref=True)
+    children = List(List(Instance(Plot), has_ref=True), has_ref=True)
     border_space = Int(0)
 
-class GuideRenderer(PlotObject):
-    plot = Instance
+class GuideRenderer(Renderer):
+    plot = Instance(Plot, has_ref=True)
 
     def __init__(self, **kwargs):
         super(GuideRenderer, self).__init__(**kwargs)
+
         if self.plot is not None:
             if self not in self.plot.renderers:
                 self.plot.renderers.append(self)
@@ -736,7 +268,7 @@ class Axis(GuideRenderer):
 
     dimension = Int(0)
     location = Either(String('min'), Float)
-    bounds = String('auto')
+    bounds = Either(Enum('auto'), Tuple) # XXX: Tuple(Float, Float)
 
     axis_label = String
     axis_label_standoff = Int
@@ -780,54 +312,55 @@ class Grid(GuideRenderer):
     # Line props
     grid_props = Include(LineProps, prefix="grid")
 
-class PanTool(PlotObject):
+class Tool(PlotObject):
     plot = Instance(Plot, has_ref=True)
-    dimensions = List   # valid values: "x", "y"
 
-class WheelZoomTool(PlotObject):
-    plot = Instance(Plot)
-    dimensions = List   # valid values: "x", "y"
+class PanTool(Tool):
+    dimensions = List(Enum(Dimension))
 
-class PreviewSaveTool(PlotObject):
-    plot = Instance(Plot)
-    dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
+class WheelZoomTool(Tool):
+    dimensions = List(Enum(Dimension))
 
-class EmbedTool(PlotObject):
-    plot = Instance(Plot)
-    dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
-
-class ResetTool(PlotObject):
-    plot = Instance(Plot)
-
-class ResizeTool(PlotObject):
-    plot = Instance(Plot)
-
-class CrosshairTool(PlotObject):
-    plot = Instance(Plot)
-
-class BoxZoomTool(PlotObject):
-    plot = Instance(Plot)
-
-class BoxSelectTool(PlotObject):
-    renderers = List(has_ref=True)
-    select_every_mousemove = Bool(True)
-
-class BoxSelectionOverlay(PlotObject):
-    __view_model__ = 'BoxSelection'
-    tool = Instance(has_ref=True)
-
-class HoverTool(PlotObject):
-    renderers = List(has_ref=True)
-    tooltips = Dict()
-
-class ObjectExplorerTool(PlotObject):
+class PreviewSaveTool(Tool):
     pass
 
-class Legend(PlotObject):
+class EmbedTool(Tool):
+    pass
+
+class ResetTool(Tool):
+    pass
+
+class ResizeTool(Tool):
+    pass
+
+class CrosshairTool(Tool):
+    pass
+
+class BoxZoomTool(Tool):
+    pass
+
+class BoxSelectTool(Tool):
+    renderers = List(Instance(Renderer), has_ref=True)
+    select_every_mousemove = Bool(True)
+
+class BoxSelectionOverlay(Renderer):
+    __view_model__ = 'BoxSelection'
+    tool = Instance(Tool, has_ref=True)
+
+class HoverTool(Tool):
+    renderers = List(Instance(Renderer), has_ref=True)
+    tooltips = Dict()
+
+class ObjectExplorerTool(Tool):
+    pass
+
+class DataRangeBoxSelectTool(Tool):
+    xselect = List(Instance(Range), has_ref=True)
+    yselect = List(Instance(Range), has_ref=True)
+
+class Legend(Renderer):
     plot = Instance(Plot, has_ref=True)
-    orientation = Enum("top_right", "top_left", "bottom_left", "bottom_right")
+    orientation = Enum(Orientation)
     border = Include(LineProps, prefix="border")
 
     label_props = Include(TextProps, prefix="label")
@@ -841,18 +374,13 @@ class Legend(PlotObject):
     legend_spacing = Int(3)
     legends = Dict()
 
-class DataSlider(PlotObject):
+class DataSlider(Renderer):
     plot = Instance(Plot, has_ref=True)
-    data_source = Instance(has_ref=True)
+    data_source = Instance(DataSource, has_ref=True)
     field = String()
 
-class DataRangeBoxSelectTool(PlotObject):
-    plot = Instance(Plot, has_ref=True)
-    xselect = List()
-    yselect = List()
-
 class PlotContext(PlotObject):
-    children = List(has_ref=True)
+    children = List(Instance(Plot, has_ref=True), has_ref=True)
 
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning
