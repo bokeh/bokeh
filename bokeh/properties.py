@@ -612,8 +612,8 @@ class HasProps(object):
 
     def pprint_props(self, indent=0):
         """ Prints the properties of this object, nicely formatted """
-        for p in self.__properties__:
-            print("  "*indent + p + ":", getattr(self, p))
+        for key, value in self.properties_with_values().items():
+            print("%s%s: %r" % ("  "*indent, key, value))
 
 class PrimitiveProperty(Property):
 
