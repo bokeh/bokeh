@@ -163,11 +163,21 @@ class PlotObject(HasProps):
         if not instance:
             instance = cls(id=_id, _block_events=True)
 
+        _doc = attrs.pop("doc", None)
+
         ref_props = {}
         for p in instance.properties_with_refs():
             if p in attrs:
                 ref_props[p] = attrs.pop(p)
+
+        special_props = {}
+        for p in dict(attrs):
+            if p not in instance.properties():
+                special_props[p] = attrs.pop(p)
+
         instance._ref_props = ref_props
+        instance._special_props = special_props
+
         instance.update(**attrs)
         return instance
 
