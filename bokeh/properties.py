@@ -612,8 +612,8 @@ class HasProps(object):
 
     def pprint_props(self, indent=0):
         """ Prints the properties of this object, nicely formatted """
-        for p in self.__properties__:
-            print("  "*indent + p + ":", getattr(self, p))
+        for key, value in self.properties_with_values().items():
+            print("%s%s: %r" % ("  "*indent, key, value))
 
 class PrimitiveProperty(Property):
 
@@ -774,7 +774,7 @@ class Instance(Property):
                     (self.instance_type.__name__, value, type(value).__name__))
 
     def __str__(self):
-        return "%s(%s)" % (self.__class__.__name__, self.instance_type.__class__.__name__)
+        return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
 
 class This(Property):
     """ A reference to an instance of the class being defined

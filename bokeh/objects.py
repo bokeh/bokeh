@@ -204,14 +204,12 @@ class Plot(PlotObject):
     """
 
     data_sources = List(Instance(DataSource), has_ref=True)
-    title = String("Bokeh Plot")
 
     x_range = Instance(Range, has_ref=True)
     y_range = Instance(Range, has_ref=True)
     png = String('')
     title = String('')
     outline_props = Include(LineProps, prefix="outline")
-
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
@@ -393,7 +391,7 @@ class DataRangeBoxSelectTool(Tool):
     xselect = List(Instance(Range), has_ref=True)
     yselect = List(Instance(Range), has_ref=True)
 
-class Legend(PlotObject):
+class Legend(Renderer):
     plot = Instance(Plot, has_ref=True)
     orientation = Enum(Orientation)
     border = Include(LineProps, prefix="border")
@@ -409,7 +407,7 @@ class Legend(PlotObject):
     legend_spacing = Int(3)
     legends = Dict()
 
-class DataSlider(PlotObject):
+class DataSlider(Renderer):
     plot = Instance(Plot, has_ref=True)
     data_source = Instance(DataSource, has_ref=True)
     field = String()

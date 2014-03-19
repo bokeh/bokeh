@@ -23,13 +23,13 @@ def large_plot(n):
         ygrid = Grid(plot=plot, dimension=1)
         renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=Line(x='x', y='y'))
         plot.renderers.append(renderer)
-        pan = PanTool(plot=plot, dataranges=[xdr, ydr])
-        wheel_zoom = WheelZoomTool(plot=plot, dataranges=[xdr, ydr])
+        pan = PanTool(plot=plot)
+        wheel_zoom = WheelZoomTool(plot=plot)
         box_zoom = BoxZoomTool(plot=plot)
         box_select = BoxSelectTool(plot=plot)
         box_selection = BoxSelectionOverlay(tool=box_select)
         resize = ResizeTool(plot=plot)
-        previewsave = PreviewSaveTool(plot=plot, dataranges=[xdr, ydr])
+        previewsave = PreviewSaveTool(plot=plot)
         reset = ResetTool(plot=plot)
         tools = [pan, wheel_zoom, box_zoom, box_select, box_selection, resize, previewsave, reset]
         plot.tools.append(tools)
@@ -135,7 +135,7 @@ class TestJsonapply(unittest.TestCase):
 
 class TestResolveJson(unittest.TestCase):
 
-    @patch('bokeh.objects.logging')
+    @patch('bokeh.plotobject.logging')
     def test_resolve_json(self, mock_logging):
         from bokeh.plotobject import resolve_json
 
@@ -193,19 +193,18 @@ class TestPlotObject(unittest.TestCase):
         self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.get_ref())
 
     def test_load_json(self):
-        created_obj = self.pObjectClass.load_json({'id': 'test_id', 'other_attr': '1'})
-        self.assertEqual(created_obj.other_attr, '1')
-        self.assertEqual(created_obj._id, 'test_id')
-        created_obj.load_json({'id': 'test_id', 'other_other_attr': '2', 'other_attr': '5'}, instance=created_obj)
-        self.assertEqual(created_obj.other_other_attr, '2')
-        self.assertEqual(created_obj.other_attr, '5')
+        from bokeh.plotobject import PlotObject
 
-    def test_finalize(self):
-        testobj = self.pObjectClass()
-        testobj._ref_props = {'id': 'foo', 'type': 'atype'}
-        models = {'foo': {'test': 5}}
-        testobj.finalize(models)
-        self.assertEqual(testobj.test, 5)
+        cls = PlotObject.get_class("Plot")
+        obj = cls.load_json({'id': 'test_id', 'min_border': 100})
+        self.assertEqual(obj._id, 'test_id')
+        self.assertEqual(obj.title, '')
+        self.assertEqual(obj.min_border, 100)
+
+        obj.load_json({'id': 'test_id', 'title': 'xyz'}, instance=obj)
+        self.assertEqual(obj._id, 'test_id')
+        self.assertEqual(obj.title, 'xyz')
+        self.assertEqual(obj.min_border, 100)
 
     def test_references_by_ref_by_value(self):
         from bokeh.objects import PlotObject

@@ -66,6 +66,11 @@ class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
         self.userapikey = config.userapikey
         self.config = config
 
+    # NOTE: necessary override to make store_all() work
+    def add_plot(self, *plots):
+        super(PlotServerSession, self).add_plot(*plots)
+        self.add(*PlotContext.collect_plot_objects(self.plotcontext))
+
     #------------------------------------------------------------------------
     # Document-related operations
     #------------------------------------------------------------------------
