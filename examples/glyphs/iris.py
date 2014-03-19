@@ -35,7 +35,7 @@ glyph_renderer = Glyph(
         glyph = circle,
         )
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], border=80, title="Iris Data")
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80, title="Iris Data")
 xaxis = LinearAxis(plot=plot, dimension=0, location="min",
         axis_label="petal length", bounds=(1,7), major_tick_in=0)
 yaxis = LinearAxis(plot=plot, dimension=1, location="min",
@@ -43,17 +43,16 @@ yaxis = LinearAxis(plot=plot, dimension=1, location="min",
 xgrid = Grid(plot=plot, dimension=0)
 ygrid = Grid(plot=plot, dimension=1)
 
-pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+pantool = PanTool(dimensions=["width", "height"])
+wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool,wheelzoomtool]
+plot.tools = [pantool, wheelzoomtool]
 
 sess = session.HTMLFileSession("iris.html")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.save()
-print("Wrote %s" % sess.filename)
+sess.add_plot(plot)
 
 if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
     sess.view()

@@ -172,6 +172,8 @@ def _materialize_colors_and_alpha(kwargs, prefix="", default_alpha=1.0):
     color and alpha fields of the given prefix, and fills in the default value
     if it doesn't exist.
     """
+    kwargs = kwargs.copy()
+
     # TODO: The need to do this and the complexity of managing this kind of
     # thing throughout the codebase really suggests that we need to have
     # a real stylesheet class, where defaults and Types can declaratively
