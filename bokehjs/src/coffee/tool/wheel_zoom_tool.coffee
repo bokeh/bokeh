@@ -7,14 +7,17 @@ define [
 ], (_, Backbone, Tool, EventGenerators) ->
 
   OnePointWheelEventGenerator = EventGenerators.OnePointWheelEventGenerator
-
+  
   class WheelZoomToolView extends Tool.View
 
     initialize: (options) ->
       super(options)
 
     eventGeneratorClass: OnePointWheelEventGenerator
-    evgen_options: { buttonText: "WheelZoom" }
+    evgen_options:
+      buttonText: "WheelZoom"
+      buttonDisable: EventGenerators.isTouch
+    
     tool_events: { zoom: "_zoom" }
 
     mouse_coords: (e, x, y) ->

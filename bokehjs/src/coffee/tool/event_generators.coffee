@@ -1,6 +1,6 @@
 
 define [], () ->
-
+  
   set_bokehXY = (event) ->
     offset = $(event.currentTarget).offset()
     left = if offset? then offset.left else 0
@@ -18,8 +18,11 @@ define [], () ->
       @basepoint_set = false
       @button_activated = false
       @tool_active = false
+      @buttonDisabled = ''
 
     bind_bokeh_events: (plotview, eventSink) ->
+      if @options.buttonDisable? && @options.buttonDisable
+        @buttonDisabled = "disabled='disabled'"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -98,7 +101,7 @@ define [], () ->
           @_stop_drag(e)
           return false)
 
-      @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='btn btn-small' #{@buttonDisabled}> #{@options.buttonText} </button>")
       @plotview
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
@@ -161,8 +164,11 @@ define [], () ->
       @basepoint_set = false
       @button_activated = false
       @tool_active = false
+      @buttonDisabled = ''
 
     bind_bokeh_events: (plotview, eventSink) ->
+      if @options.buttonDisable? && @options.buttonDisable
+        @buttonDisabled = "disabled='disabled'"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -197,7 +203,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='btn btn-small' #{@buttonDisabled}> #{@options.buttonText} </button>")
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
       @$tool_button.click(=>
@@ -242,8 +248,11 @@ define [], () ->
       @toolName = @options.eventBasename
       @button_activated = false
       @tool_active = false
+      @buttonDisabled = ''
 
     bind_bokeh_events: (plotview, eventSink) ->
+      if @options.buttonDisable? && @options.buttonDisable
+        buttonDisabled = "disabled='disabled'"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -266,7 +275,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='btn btn-small' #{@buttonDisabled}> #{@options.buttonText} </button>")
 
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
@@ -309,4 +318,5 @@ define [], () ->
     "TwoPointEventGenerator": TwoPointEventGenerator,
     "OnePointWheelEventGenerator": OnePointWheelEventGenerator,
     "ButtonEventGenerator": ButtonEventGenerator,
+    "isTouch": 'ontouchstart' of document.documentElement,
   }
