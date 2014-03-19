@@ -174,14 +174,12 @@ class Plot(PlotObject):
     """
 
     data_sources = List(Instance(DataSource), has_ref=True)
-    title = String("Bokeh Plot")
 
     x_range = Instance(Range, has_ref=True)
     y_range = Instance(Range, has_ref=True)
     png = String('')
     title = String('')
     outline_props = Include(LineProps, prefix="outline")
-
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
