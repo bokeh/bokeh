@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 
 from bokeh.objects import (
-    GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
+    GMapPlot, DataRange1d, Range1d, LinearAxis, ColumnDataSource,
     Glyph, PanTool, WheelZoomTool, ResizeTool, BoxSelectTool,
     BoxSelectionOverlay, ObjectExplorerTool, MapOptions)
 from bokeh.glyphs import MultiLine, ImageRGBA, Circle
@@ -32,8 +32,6 @@ overlay = BoxSelectionOverlay(tool=select_tool)
 plot.renderers.append(overlay)
 plot.tools.append(select_tool)
 
-xgrid = Grid(plot=plot, dimension=0)
-ygrid = Grid(plot=plot, dimension=1)
 pantool = PanTool(plot=plot)
 wheelzoomtool = WheelZoomTool(plot=plot)
 objectexplorer = ObjectExplorerTool()
