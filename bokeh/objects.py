@@ -321,17 +321,39 @@ class Axis(GuideRenderer):
 class LinearAxis(Axis):
     type = String("linear_axis")
 
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = BasicTicker()
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = BasicTickFormatter()
+        super(LinearAxis, self).__init__(**kwargs)
+
 class CategoricalAxis(Axis):
     type = String("categorical_axis")
 
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = CategoricalTicker()
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = CategoricalTickFormatter()
+        super(CategoricalAxis, self).__init__(**kwargs)
+
 class DatetimeAxis(LinearAxis):
     type = String("datetime_axis")
+
     axis_label = String("date")
     scale = String("time")
     num_labels = Int(8)
     char_width = Int(10)
     fill_ratio = Float(0.3)
     formats = Dict({"days": ["%m/%d/%Y"]})
+
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = DatetimeTicker()
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = DatetimeTickFormatter()
+        super(DatetimeAxis, self).__init__(**kwargs)
 
 class Grid(GuideRenderer):
     """ 1D Grid component """

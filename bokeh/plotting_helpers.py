@@ -248,18 +248,12 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         pass
     elif isinstance(x_range, FactorRange):
         axiscls = CategoricalAxis
-        ticker = CategoricalTicker()
-        formatter = CategoricalTickFormatter()
     elif x_axis_type is "linear":
         axiscls = LinearAxis
-        ticker = BasicTicker()
-        formatter = BasicTickFormatter()
     elif x_axis_type == "datetime":
         axiscls = DatetimeAxis
-        ticker = DatetimeTicker()
-        formatter = DatetimeTickFormatter()
     if axiscls:
-        xaxis = axiscls(plot=p, dimension=0, ticker=ticker, formatter=formatter, location="min", bounds="auto")
+        xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
         xgrid = Grid(plot=p, dimension=0, axis=xaxis)
 
     axiscls = None
@@ -267,18 +261,12 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         pass
     elif isinstance(y_range, FactorRange):
         axiscls = CategoricalAxis
-        ticker = CategoricalTicker()
-        formatter = CategoricalTickFormatter()
     elif y_axis_type is "linear":
         axiscls = LinearAxis
-        ticker = BasicTicker()
-        formatter = BasicTickFormatter()
     elif y_axis_type == "datetime":
         axiscls = DatetimeAxis
-        ticker = DatetimeTicker()
-        formatter = DatetimeTickFormatter()
     if axiscls:
-        yaxis = axiscls(plot=p, dimension=1, ticker=ticker, formatter=formatter, location="min", bounds="auto")
+        yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
         ygrid = Grid(plot=p, dimension=1, axis=yaxis)
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
