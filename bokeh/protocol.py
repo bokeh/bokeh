@@ -24,15 +24,22 @@ list data which can be serialized and deserialized
 
 3.  rpc protocol, a layer around the msgobject and a data object
 """
+def catch(exception, code):
+    try:
+        return code()
+    except exception:
+        return None
+
 millifactor = 10 ** 6.
+
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, pd.Series):
-            return self.transform_list(obj.tolist())
+            return self.transform_seq(obj.tolist())
         elif isinstance(obj, np.ndarray):
             if obj.dtype.kind == 'M':
                 obj = obj.astype('datetime64[ms]').astype('int64')
-            return self.transform_list(obj.tolist())
+            return self.transform_seq(obj.tolist())
         elif isinstance(obj, np.number):
             if isinstance(obj, np.integer):
                 return int(obj)
@@ -43,22 +50,18 @@ class NumpyJSONEncoder(json.JSONEncoder):
         else:
             return super(NumpyJSONEncoder, self).default(obj)
 
-    def transform_list(self, l):
-        try:
-            for k, v in enumerate(l):
-                if isinstance(v, list):
-                    v = self.transform_list(v)
-                elif np.isnan(v):
-                    l[k] = "NaN"
-                elif np.isposinf(v):
-                    l[k] = "Infinity"
-                elif np.isneginf(v):
-                    l[k] = "-Infinity"
-        # If we get a type error, then there are non-numeric types 
-        # in the list, just bail...
-        except TypeError:
-            pass
-        return l
+    def transform_seq(self, seq):
+        for i, value in enumerate(seq):
+            if hasattr(value, "__iter__"):
+                self.transform_seq(value)
+            elif catch(TypeError, lambda: np.isnan(value)):
+                seq[i] = "NaN"
+            elif catch(TypeError, lambda: np.isposinf(value)):
+                seq[i] = "Infinity"
+            elif catch(TypeError, lambda: np.isneginf(value)):
+                seq[i] = "-Infinity"
+
+        return seq
 
 def serialize_json(obj, encoder=NumpyJSONEncoder, **kwargs):
     return json.dumps(obj, cls=encoder, **kwargs)

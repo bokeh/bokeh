@@ -34,6 +34,10 @@ class TestNumpyJSONEncoder(unittest.TestCase):
         ts = pd.tslib.Timestamp('April 28, 1948')
         self.assertEqual(self.encoder.default(ts), -684115200000)
 
+    def test_transform_seq(self):
+        array = np.array([[1, float("nan")], [2, float("inf")], ["x", float("-inf")]], dtype=object)
+        self.assertEqual(self.encoder.default(array), [[1, "NaN"], [2, "Infinity"], ["x", "-Infinity"]])
+
 
 class TestSerializeJson(unittest.TestCase):
 
