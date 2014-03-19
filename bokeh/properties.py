@@ -678,7 +678,10 @@ class List(ContainerProperty):
 
         if value is not None:
             if not (isinstance(value, list) and all(self.item_type.is_valid(item) for item in value)):
-                raise ValueError("expected a list of %s, got %s" % (self.item_type, value))
+                raise ValueError("expected an element of %s, got %s" % (self, value))
+
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, self.item_type)
 
     def __get__(self, obj, type=None):
         if hasattr(obj, self._name):
