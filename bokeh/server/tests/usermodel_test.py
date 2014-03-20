@@ -15,6 +15,8 @@ import sys
 
 if platform.python_implementation() == "PyPy":
     is_pypy = True
+else:
+    is_pypy = False
 
 
 class TestUser(test_utils.BokehServerTestCase):

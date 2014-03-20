@@ -12,6 +12,8 @@ except ImportError as e:
 
 if platform.python_implementation() == "PyPy":
     is_pypy = True
+else:
+    is_pypy = False
 
 
 class TestNumpyJSONEncoder(unittest.TestCase):
