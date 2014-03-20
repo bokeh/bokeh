@@ -54,8 +54,8 @@ def make_plot(title, xname, yname):
         title=title, width=400, height=400, border_fill='white', background_fill='#e9e0db')
     xaxis = LinearAxis(plot=plot, dimension=0, location="bottom", axis_line_color=None)
     yaxis = LinearAxis(plot=plot, dimension=1, location="left", axis_line_color=None)
-    xgrid = Grid(plot=plot, dimension=0)
-    ygrid = Grid(plot=plot, dimension=1)
+    xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
+    ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
     line_renderer = Glyph(
         data_source = lines_source,
         xdata_range = xdr,
@@ -79,13 +79,12 @@ II  = make_plot('II',  'xii',  'yii')
 III = make_plot('III', 'xiii', 'yiii')
 IV  = make_plot('IV',  'xiv',  'yiv')
 
-grid = GridPlot(children=[[I, II], [III, IV]], width="800px")
+grid = GridPlot(children=[[I, II], [III, IV]], width=800)
 
 sess = session.HTMLFileSession("anscombe.html")
-sess.add(grid, recursive=True)
-sess.plotcontext.children.append(grid)
-sess.save(js="absolute", css="absolute")
-print("Wrote %s" % sess.filename)
+sess.add_plot(grid)
 
 if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
     sess.view()

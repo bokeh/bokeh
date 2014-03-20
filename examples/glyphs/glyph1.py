@@ -29,23 +29,20 @@ glyph_renderer = Glyph(
         glyph = circle,
         )
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
-        border= 80)
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=80)
 xaxis = LinearAxis(plot=plot, dimension=0, location="min")
 yaxis = LinearAxis(plot=plot, dimension=1, location="min")
 
-pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+pantool = PanTool(dimensions=["width", "height"])
+wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 
 plot.renderers.append(glyph_renderer)
-plot.tools = [pantool,wheelzoomtool]
+plot.tools = [pantool, wheelzoomtool]
 
 sess = session.HTMLFileSession("glyph1.html")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.save(js="absolute", css="absolute")
-sess.dumpjson(file="glyph1.json")
-print("Wrote %s" % sess.filename)
+sess.add_plot(plot)
 
 if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
     sess.view()

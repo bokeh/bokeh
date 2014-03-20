@@ -2,7 +2,7 @@
 #
 
 # You can set these variables from the command line.
-SPHINXOPTS    =
+SPHINXOPTS    = -v
 SPHINXBUILD   = sphinx-build
 PAPER         =
 BUILDDIR      = _build
@@ -10,42 +10,66 @@ BUILDDIR      = _build
 # Internal variables.
 PAPEROPT_a4     = -D latex_paper_size=a4
 PAPEROPT_letter = -D latex_paper_size=letter
-ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
+ALLSPHINXOPTS   = -d $(BUILDDIR)/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) source
 # the i18n builder cannot share the environment and doctrees with the others
 I18NSPHINXOPTS  = $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
-.PHONY: help clean html dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
+.PHONY: help clean html main_gallery tutorial_gallery bokehjs_static serve dirhtml singlehtml pickle json htmlhelp qthelp devhelp epub latex latexpdf text man changes linkcheck doctest gettext
 
 help:
-	@echo "Please use \`make <target>' where <target> is one of"
-	@echo "  html       to make standalone HTML files"
-	@echo "  dirhtml    to make HTML files named index.html in directories"
-	@echo "  singlehtml to make a single large HTML file"
-	@echo "  pickle     to make pickle files"
-	@echo "  json       to make JSON files"
-	@echo "  htmlhelp   to make HTML files and a HTML help project"
-	@echo "  qthelp     to make HTML files and a qthelp project"
-	@echo "  devhelp    to make HTML files and a Devhelp project"
-	@echo "  epub       to make an epub"
-	@echo "  latex      to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
-	@echo "  latexpdf   to make LaTeX files and run them through pdflatex"
-	@echo "  text       to make text files"
-	@echo "  man        to make manual pages"
-	@echo "  texinfo    to make Texinfo files"
-	@echo "  info       to make Texinfo files and run them through makeinfo"
-	@echo "  gettext    to make PO message catalogs"
-	@echo "  changes    to make an overview of all changed/added/deprecated items"
-	@echo "  linkcheck  to check all external links for integrity"
-	@echo "  doctest    to run all doctests embedded in the documentation (if enabled)"
+	@echo "Please use 'make <target>' where <target> is one of"
+	@echo "  all              to make all standalone HTML files"
+	@echo "  html             to make standalone (non-gallery) HTML files"
+	@echo "  main_gallery     to make standalone main gallery HTML files"
+	@echo "  tutorial_gallery to make standalone tutorial gallery HTML files"
+	@echo "  bokehjs_static   to install bokehjs files"
+	@echo "  dirhtml          to make HTML files named index.html in directories"
+	@echo "  singlehtml       to make a single large HTML file"
+	@echo "  pickle           to make pickle files"
+	@echo "  json             to make JSON files"
+	@echo "  htmlhelp         to make HTML files and a HTML help project"
+	@echo "  qthelp           to make HTML files and a qthelp project"
+	@echo "  devhelp          to make HTML files and a Devhelp project"
+	@echo "  epub             to make an epub"
+	@echo "  latex            to make LaTeX files, you can set PAPER=a4 or PAPER=letter"
+	@echo "  latexpdf         to make LaTeX files and run them through pdflatex"
+	@echo "  text             to make text files"
+	@echo "  man              to make manual pages"
+	@echo "  texinfo          to make Texinfo files"
+	@echo "  info             to make Texinfo files and run them through makeinfo"
+	@echo "  gettext          to make PO message catalogs"
+	@echo "  changes          to make an overview of all changed/added/deprecated items"
+	@echo "  linkcheck        to check all external links for integrity"
+	@echo "  doctest          to run all doctests embedded in the documentation (if enabled)"
+
+all: main_gallery tutorial_gallery bokehjs_static html
 
 clean:
 	-rm -rf $(BUILDDIR)/*
 
 html:
 	$(SPHINXBUILD) -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
-	cp images/* $(BUILDDIR)/html/_images
+	cp -r $(BUILDDIR)/gallery $(BUILDDIR)/html/docs/gallery
 	@echo
 	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+main_gallery:
+	rm -rf $(BUILDDIR)/gallery source/docs/gallery.rst
+	mkdir -p $(BUILDDIR)/gallery
+	python build_gallery.py main_gallery.json
+
+tutorial_gallery:
+	rm -rf source/tutorial/solutions/gallery $(BUILDDIR)/html/tutorial/solutions/gallery
+	mkdir -p source/tutorial/solutions/gallery $(BUILDDIR)/html/tutorial/solutions/gallery
+	python build_gallery.py tutorial_gallery.json
+
+bokehjs_static:
+	rm -rf $(BUILDDIR)/html/docs/bokehjs-static
+	mkdir -p $(BUILDDIR)/html/docs/bokehjs-static
+	cp -r ../bokeh/server/static/* $(BUILDDIR)/html/docs/bokehjs-static
+
+serve: html
+	python docserver.py
 
 dirhtml:
 	$(SPHINXBUILD) -b dirhtml $(ALLSPHINXOPTS) $(BUILDDIR)/dirhtml
@@ -100,8 +124,8 @@ latex:
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
 	@echo
 	@echo "Build finished; the LaTeX files are in $(BUILDDIR)/latex."
-	@echo "Run \`make' in that directory to run these through (pdf)latex" \
-	      "(use \`make latexpdf' here to do that automatically)."
+	@echo "Run 'make' in that directory to run these through (pdf)latex" \
+	      "(use 'make latexpdf' here to do that automatically)."
 
 latexpdf:
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) $(BUILDDIR)/latex
@@ -123,8 +147,8 @@ texinfo:
 	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo
 	@echo
 	@echo "Build finished. The Texinfo files are in $(BUILDDIR)/texinfo."
-	@echo "Run \`make' in that directory to run these through makeinfo" \
-	      "(use \`make info' here to do that automatically)."
+	@echo "Run 'make' in that directory to run these through makeinfo" \
+	      "(use 'make info' here to do that automatically)."
 
 info:
 	$(SPHINXBUILD) -b texinfo $(ALLSPHINXOPTS) $(BUILDDIR)/texinfo

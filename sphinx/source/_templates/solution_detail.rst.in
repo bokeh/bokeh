@@ -1,0 +1,19 @@
+
+
+solution
+--------
+
+.. raw:: html
+
+    <table>
+      <tr>
+        <td>
+        {{ embed_snippet }}
+        </td>
+      </tr>
+    </table>
+
+.. literalinclude:: ../{{name}}.py
+   :language: python
+   :linenos:
+

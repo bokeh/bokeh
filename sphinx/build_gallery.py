@@ -1,122 +1,129 @@
+from __future__ import print_function
+
 import os
 import re
+import webbrowser
 from pygments import highlight
 from pygments.lexers import PythonLexer
 from pygments.formatters import HtmlFormatter
 from bokeh import plotting
 from bokeh import plotting_helpers
+from bokeh import mpl
 
+# patch open and show to be no-ops
 def noop(*args, **kwargs):
     pass
-plotting.show= noop
-import webbrowser
 webbrowser.open = noop
+plotting.show= noop
 
 
-_basedir = os.path.dirname(__file__)
-demo_dir = os.path.join(_basedir, "_build", "plot_gallery")
-GALLERY_SNIPPET_PATH = os.path.join(_basedir, "_templates/gallery_core.html")
-#These settings work with localhost:5006
-HOSTED_STATIC_ROOT="../static/"
-DETAIL_URL_ROOT="./"
-detail_dir = demo_dir
+def page_desc(module_desc):
+    module_path, name = module_desc['file'], module_desc['name']
+    var_name = module_desc.get('var_name', None)
 
-def page_desc(prev_infos, module_desc):
-    module_path, name_ = module_desc['file'], module_desc['name']
-    varname = module_desc.get('varname', False)
-
-    from bokeh import plotting
     plotting_helpers._PLOTLIST = []
-    file_namespace = {}
-    execfile(module_path, file_namespace)
+    mpl._PLOTLIST = []
+
+    namespace = {}
+    execfile(module_path, namespace)
+
+    if var_name:
+        objects = [namespace[var_name]]
+    else:
+        if plotting_helpers._PLOTLIST:
+            objects = plotting_helpers._PLOTLIST
+        else:
+            objects = mpl._PLOTLIST
+
     embed_snippet = ""
-    if varname:
-        p = file_namespace[varname]
-        embed_snippet += p.create_html_snippet(
-            embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
-            embed_base_url=DETAIL_URL_ROOT)
-    else:
-        for p in plotting_helpers._PLOTLIST:
-            embed_snippet += p.create_html_snippet(
-                embed_save_loc= detail_dir, static_path=HOSTED_STATIC_ROOT,
-                embed_base_url=DETAIL_URL_ROOT)
+    for i, obj in enumerate(objects):
+        # this _id business is just to have nice readable names for
+        # the embed snippet files
+        obj._id = name if len(objects) == 1 else name + "." + str(i)
+        embed_snippet += obj.create_html_snippet(
+            embed_save_loc= SNIPPET_BUILD_DIR,
+            static_path=HOSTED_STATIC_ROOT,
+            embed_base_url=DETAIL_URL_ROOT
+        )
 
-    if len(prev_infos) > 0:
-        prev_info = prev_infos[-1]
-    else:
-        prev_info = {}
-    detail_snippet = highlight(open(module_path).read(), PythonLexer(), HtmlFormatter())
-    page_info = dict(
-        name=name_, embed_snippet=embed_snippet,
+    detail_snippet = highlight(
+        open(module_path).read(), PythonLexer(), HtmlFormatter()
+    )
+
+    return  dict(
+        name = name,
+        embed_snippet = embed_snippet,
         detail_snippet = detail_snippet,
-        detail_page_url=DETAIL_URL_ROOT + name_ + ".html",
-        prev_detail_url=prev_info.get('detail_page_url', ""),
-        prev_detail_name=prev_info.get('name', ""))
-    if len(prev_infos) == 0:
-        prev_infos = [page_info]
-    else:
-        prev_infos.append(page_info)
+        detail_page_url = DETAIL_URL_ROOT + name + ".html",
+        prev_detail_url = "",
+        prev_detail_name = "",
+        next_detail_url = "",
+        next_detail_name ='',
+    )
 
-    return prev_infos
-
-def _load_template(filename):
+def load_template(filename):
     import jinja2
-    with open(os.path.join(_basedir, filename)) as f:
+    with open(os.path.join(BASE_DIR, filename)) as f:
         return jinja2.Template(f.read())
 
 def make_gallery(module_descs):
-    page_infos = reduce(page_desc, module_descs, [])
-    for p, p_next in [[p, page_infos[i+1]] for i, p in enumerate(page_infos[:-1])]:
-        p['next_detail_url'] = p_next['detail_page_url']
-        p['next_detail_name'] = p_next['name']
-    t = _load_template("_templates/gallery_detail.html")
-    gallery_template = '''
-    <li>
-        <a href="plot_gallery/%(detail_page_url)s">%(name)s
-          <img src="..//static/img/gallery/%(name)s.png"
-               class="gallery" />
-        </a>
-        </li>
-    '''
-    gallery_snippet = '<ul class="gallery clearfix">'
+    page_infos = [page_desc(desc) for desc in module_descs]
+
+    for i, info in enumerate(page_infos[1:-1], 1):
+        info['prev_detail_url']  = page_infos[i-1]['detail_page_url']
+        info['prev_detail_name'] = page_infos[i-1]['name']
+        info['next_detail_url']  = page_infos[i+1]['detail_page_url']
+        info['next_detail_name'] = page_infos[i+1]['name']
+
+    if len(page_infos) > 1:
+        page_infos[0]['next_detail_url']   = page_infos[1]['detail_page_url']
+        page_infos[0]['next_detail_name']  = page_infos[1]['name']
+        page_infos[-1]['prev_detail_url']  = page_infos[-2]['detail_page_url']
+        page_infos[-1]['prev_detail_name'] = page_infos[-2]['name']
+
+    detail_template = load_template(DETAIL_TEMPLATE)
+
     for info in page_infos:
-        gallery_snippet +=  gallery_template % info
-
-        fname = os.path.join(detail_dir, info['name'] + ".html")
-        info['HOSTED_STATIC_ROOT']= HOSTED_STATIC_ROOT
-        print " writing to ", fname
-
+        if DETAIL_TEMPLATE.endswith(".html"):
+            fname = os.path.join(DETAIL_BUILD_DIR, info['name'] + ".html")
+        elif DETAIL_TEMPLATE.endswith("rst.in"):
+            fname = os.path.join(DETAIL_BUILD_DIR, info['name'] + ".rst")
+        else:
+            raise ValueError("unexpected template filename format: '%s'" % DETAIL_TEMPLATE)
         with open(fname, "w") as f:
-            f.write(t.render(info))
-    gallery_snippet += "</ul>"
-    print "GALLERY_SNIPPET_PATH", GALLERY_SNIPPET_PATH
-    with open(GALLERY_SNIPPET_PATH, "w") as f:
-        f.write(gallery_snippet)
+            f.write(detail_template.render(info).encode('utf-8'))
+        print("wrote", fname)
+
+    if GALLERY_RST_PATH:
+        gallery_template = load_template("source/_templates/gallery.rst.in")
+        gallery_rst = gallery_template.render(page_infos=page_infos)
+        with open(GALLERY_RST_PATH, "w") as f:
+            f.write(gallery_rst)
+            print("wrote", GALLERY_RST_PATH)
 
 if __name__ == "__main__":
-    make_gallery(
-        [
-        dict(file="../examples/plotting/file/iris.py", name='iris',),
-        dict(file="../examples/plotting/file/candlestick.py", name='candlestick',),
-        dict(file="../examples/plotting/file/legend.py", name= 'legend',),
-        dict(file="../examples/plotting/file/correlation.py", name='correlation',),
-        dict(file="../examples/plotting/file/glucose.py", name= 'glucose',),
-        dict(file="../examples/plotting/file/stocks.py", name= 'stocks',),
-        dict(file="../examples/plotting/file/vector.py", name= 'vector_example',),
-        dict(file="../examples/plotting/file/lorenz.py", name= 'lorenz_example',),
-        dict(file="../examples/plotting/file/color_scatter.py", name= 'color_scatter_example',),
-        dict(file="../examples/glyphs/iris_splom.py", name='iris_splom', varname="grid"),
-        dict(file="../examples/glyphs/anscombe.py", name='anscombe', varname="grid"),
-        dict(file="../examples/plotting/file/choropleth.py", name= 'choropleth_example',),
-        dict(file="../examples/plotting/file/texas.py", name= 'texas_example',),
-        dict(file="../examples/plotting/file/markers.py", name= 'scatter_example',),
-        dict(file="../examples/plotting/file/burtin.py", name= 'burtin_example',),
-        dict(file="../examples/plotting/file/brewer.py", name= 'brewer_example',),
-        dict(file="../examples/plotting/file/elements.py", name= 'elements_example',),
-         ]
-    )
+    import json
+    import sys
+    if len(sys.argv) != 2:
+        print("usage: build_gallery.py <gallery_file>")
+        sys.exit(1)
+
+    GALLERY_FILE = sys.argv[1]
+    gallery_info = json.load(open(GALLERY_FILE))
+
+    BASE_DIR = os.path.dirname(__file__)
+    SNIPPET_BUILD_DIR = gallery_info['snippet_build_dir']
+    DETAIL_BUILD_DIR = gallery_info['detail_build_dir']
+    DETAIL_TEMPLATE = gallery_info['detail_template']
+    GALLERY_RST_PATH = gallery_info['gallery_rst_path']
+    if len(sys.argv) >= 5:
+        GALLERY_RST_PATH = os.path.join(BASE_DIR, GALLERY_RST_PATH)
+    HOSTED_STATIC_ROOT="/docs/bokehjs-static/"
+    DETAIL_URL_ROOT="./"
+
+    make_gallery(gallery_info['details'])
+
     try:
-        import webbrowser
-        webbrowser.open(HOSTED_STATIC_ROOT + "demos/gallery.html")
+        webbrowser.open(HOSTED_STATIC_ROOT + "index.html")
     except:
         pass

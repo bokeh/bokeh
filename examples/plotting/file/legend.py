@@ -1,4 +1,3 @@
-
 import numpy as np
 from bokeh.plotting import *
 
@@ -11,24 +10,16 @@ output_file("legend.html", title="legend.py example")
 
 hold()
 
-scatter(x, y, 
-    tools="pan,wheel_zoom,box_zoom,reset,previewsave", 
-    legend="sin(x)"
-)
-scatter(x, 2*y, 
-    color="orange", tools="pan,wheel_zoom,box_zoom,reset,previewsave", 
-    legend="2*sin(x)"
-)
-scatter(x, 3*y, 
-    color="green", tools="pan,wheel_zoom,box_zoom,reset,previewsave", 
-    legend="3*sin(x)"
-)
+figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
-figure()
+scatter(x, y, legend="sin(x)")
+scatter(x, 2*y, color="orange", legend="2*sin(x)")
+scatter(x, 3*y, color="green", legend="3*sin(x)")
 
-scatter(x, y, tools="pan,wheel_zoom,box_zoom,reset,previewsave,select", legend="sin(x)",
-        name="legend_example")
-line(x, y, tools="pan,wheel_zoom,box_zoom,reset,previewsave,select", legend="sin(x)")
+figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave,select")
+
+scatter(x, y, legend="sin(x)", name="legend_example")
+line(x, y, legend="sin(x)")
 
 line(x, 2*y, line_dash="4 4", line_color="orange", line_width=2, legend="2*sin(x)")
 

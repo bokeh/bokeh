@@ -46,19 +46,19 @@ def wait_until(func, timeout=1.0, interval=0.01):
         time.sleep(interval)
 
 def recv_timeout(socket, timeout):
-	poll = zmq.Poller()
-	poll.register(socket, zmq.POLLIN)
-	socks = dict(poll.poll(timeout=timeout))
-	if socks.get(socket, None) == zmq.POLLIN:
-		return socket.recv_multipart()
-	else:
-		return None
-	
+    poll = zmq.Poller()
+    poll.register(socket, zmq.POLLIN)
+    socks = dict(poll.poll(timeout=timeout))
+    if socks.get(socket, None) == zmq.POLLIN:
+        return socket.recv_multipart()
+    else:
+        return None
+
 class BokehServerTestCase(unittest.TestCase):
     options = {}
     def setUp(self):
         import gevent
-        start.prepare_app(rport=6899, **self.options)
+        start.prepare_app({"type": "redis", "redis_port": 6899}, **self.options)
         fname = tempfile.NamedTemporaryFile().name
         bokeh_app.data_file = fname
         bokeh_app.stdout = None
@@ -69,9 +69,9 @@ class BokehServerTestCase(unittest.TestCase):
         redis.Redis(port=6899).flushall()
         start.make_default_user(bokeh_app)
         wait_flask()
-        
+
     def tearDown(self):
         self.servert.kill()
         bokeh_app.redis_proc.close()
         wait_redis_gone(6899)
-    
+

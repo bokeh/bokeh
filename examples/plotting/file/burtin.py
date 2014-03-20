@@ -62,7 +62,7 @@ hold()
 x = np.zeros(len(df))
 y = np.zeros(len(df))
 
-line(x+1, y+1, alpha=0, width=width, height=height, title="", tools="pan,wheel_zoom,box_zoom,reset,previewsave", x_axis_type=None, y_axis_type=None)
+line(x+1, y+1, alpha=0, plot_width=width, plot_height=height, title="", tools="pan,wheel_zoom,box_zoom,reset,previewsave", x_axis_type=None, y_axis_type=None)
 
 plot = curplot()
 plot.x_range = Range1d(start=-420, end=420)

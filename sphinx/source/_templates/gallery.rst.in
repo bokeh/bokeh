@@ -1,0 +1,27 @@
+.. _gallery:
+
+=======
+Gallery
+=======
+
+All of these examples are located in the
+`examples <https://github.com/ContinuumIO/Bokeh/tree/master/examples>`_
+subdirectory of your Bokeh checkout.
+
+Click on an image below to see its code and interact with the live
+plot.  You can play with more interactive demos on the
+`BokehJS site <http://continuumio.github.io/bokehjs/>`_.
+
+.. cssclass:: gallery clearfix
+
+{% for info in page_infos %}
+* |{{info.name}}|
+{% endfor %}
+
+{% for info in page_infos %}
+
+.. |{{info.name}}| image:: /_images/gallery/{{info.name}}.png
+    :target: /docs/gallery/{{info.detail_page_url}}
+    :class: gallery
+
+{% endfor %}

@@ -1,9 +1,10 @@
 
 define [
+  "backbone",
   "./linear_mapper",
-], (LinearMapper) ->
+], (Backbone, LinearMapper) ->
 
-  class CategoricalMapper extends LinearMapper
+  class CategoricalMapper extends LinearMapper.Model
 
     map_to_target: (x) ->
       if typeof(x) == 'number'
@@ -12,7 +13,7 @@ define [
       if x.indexOf(':') >= 0
         [factor, percent] = x.split(':')
         percent = parseFloat(percent)
-        return super(actors.indexOf(factor) + 0.5 + percent)
+        return super(factors.indexOf(factor) + 0.5 + percent)
       return super(factors.indexOf(x) + 1)
 
     v_map_to_target: (xs) ->
@@ -42,4 +43,10 @@ define [
         result[i] = factors[Math.floor(result[i]-0.5)]
       return result
 
+  class CategoricalMappers extends Backbone.Collection
+    model: CategoricalMapper
 
+  return {
+    "Model": CategoricalMapper,
+    "Collection": new CategoricalMappers()
+  }

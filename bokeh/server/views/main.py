@@ -1,18 +1,16 @@
-from flask import (
-    render_template, request,
-    send_from_directory, abort,
-    jsonify, Response, redirect)
 
-from ..app import bokeh_app
+from flask import (
+    render_template, request, send_from_directory,
+    abort, jsonify, Response, redirect
+)
+
 import os
-import logging
 import uuid
 from six import string_types
 
-
 from .bbauth import check_read_authentication_and_create_client
 
-
+from ..app import bokeh_app
 from ..models import user
 from ..models import docs
 from ..models import convenience as mconv
@@ -20,9 +18,6 @@ from ... import protocol
 from ...exceptions import DataIntegrityException
 from ..views import make_json
 from ..crossdomain import crossdomain
-from ..serverbb import RedisSession
-from flask import url_for
-#main pages
 
 @bokeh_app.route('/bokeh/ping')
 def ping():
@@ -70,7 +65,7 @@ def makedoc():
         title = request.values['title']
     bokehuser = bokeh_app.current_user()
     try:
-        doc = _makedoc(bokeh_app.servermodel_storage, bokehuser, title)
+        _makedoc(bokeh_app.servermodel_storage, bokehuser, title)
     except DataIntegrityException as e:
         return abort(409, e.message)
     jsonstring = protocol.serialize_web(bokehuser.to_public_json())
@@ -94,7 +89,6 @@ def deletedoc(docid):
 
 @bokeh_app.route('/bokeh/getdocapikey/<docid>')
 def get_doc_api_key(docid):
-    bokehuser = bokeh_app.current_user()
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     if mconv.can_write_from_request(doc, request, bokeh_app):
         return jsonify({'apikey' : doc.apikey})
@@ -107,7 +101,7 @@ def get_doc_api_key(docid):
 def get_user():
     bokehuser = bokeh_app.current_user()
     if not bokehuser:
-        abort(403) 
+        abort(403)
     content = protocol.serialize_web(bokehuser.to_public_json())
     return make_json(content)
 
@@ -125,7 +119,7 @@ def get_bokeh_info(docid):
 
 def _get_bokeh_info(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    sess = bokeh_app.backbone_storage.get_session(docid)    
+    sess = bokeh_app.backbone_storage.get_session(docid)
     sess.load_all()
     sess.prune()
     all_models = sess._models.values()
@@ -147,7 +141,7 @@ def show_doc_by_title(title):
     docs = [ doc for doc in bokehuser.docs if doc['title'] == title ]
     doc = docs[0] if len(docs) != 0 else abort(404)
     docid = doc['docid']
-    return render_template('show.html', title=title, docid=docid)
+    return render_template('show.html', title=title, docid=docid, splitjs=bokeh_app.splitjs)
 
 @bokeh_app.route('/bokeh/doc/', methods=['GET', 'OPTIONS'])
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
@@ -164,7 +158,6 @@ def doc_by_title():
             docid = doc.docid
         except DataIntegrityException as e:
             return abort(409, e.message)
-        jsonstring = protocol.serialize_web(bokehuser.to_public_json())
         msg = protocol.serialize_web({'msgtype' : 'docchange'})
         bokeh_app.wsmanager.send("bokehuser:" + bokehuser.username, msg)
     else:
@@ -172,8 +165,7 @@ def doc_by_title():
         docid = doc['docid']
     return get_bokeh_info(docid)
 
-"""need to rethink public publishing
-"""
+# need to rethink public publishing
 # @bokeh_app.route('/bokeh/publicbokehinfo/<docid>')
 # def get_public_bokeh_info(docid):
 #     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
@@ -234,7 +226,7 @@ def make_test_plot():
     l = line(
         x,y, color="#0000FF",
         plot_height=300, plot_width=300,
-        tools="pan,zoom,resize")
+        tools="pan,resize")
     return l
     #show()
 
@@ -296,9 +288,6 @@ def generate_embed(inject_type):
     return dom_embed(
         plot, delay=delay, onload=onload,
         direct=direct,  plot_scr=plot_scr, double_delay=double_delay)
-
-
-import os
 
 @bokeh_app.route("/bokeh/embed.js")
 def embed_js():

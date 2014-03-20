@@ -1,28 +1,48 @@
 #!/usr/bin/env python
 from __future__ import print_function
-import argparse, sys
 
 from bokeh.server import start
+
+import argparse, sys
 import logging
+
+DEFAULT_BACKEND = 'redis'
+if 'win32' in sys.platform:
+    DEFAULT_BACKEND = 'memory'
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Start the Bokeh plot server")
-    parser.add_argument("-d", "--debug", 
-                        action="store_true", 
+    parser.add_argument("-d", "--debug",
+                        action="store_true",
                         default=False,
                         help="debug mode for flask"
                         )
-    parser.add_argument("-j", "--debugjs", 
-                        action="store_true", 
+    parser.add_argument("-j", "--debugjs",
+                        action="store_true",
                         default=False,
                         help="Whether to use bokehjs from the bokehjs build directory in the source tree or not"
                         )
-    parser.add_argument("-s", "--splitjs", 
-                        action="store_true", 
+    parser.add_argument("-s", "--splitjs",
+                        action="store_true",
                         default=False,
                         help="don't serve compiled bokeh.js file.  This can only be True if debugjs is True"
                         )
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
+    parser.add_argument("--backend",
+                        help="storage backend: [ redis | memory | shelve ], default: %s" % DEFAULT_BACKEND,
+                        type=str,
+                        default=DEFAULT_BACKEND
+                        )
+    parser.add_argument("--ip",
+                        help="The IP address the bokeh server will listen on",
+                        type=str,
+                        default="127.0.0.1"
+                        )
+    parser.add_argument("--bokeh-port",
+                        help="port for bokeh server",
+                        type=int,
+                        default=5006
+                        )
     parser.add_argument("--redis-port",
                         help="port for redis",
                         type=int,
@@ -38,38 +58,42 @@ def build_parser():
                         action="store_true",
                         default=False
                         )
-    
+
     return parser
 
 def main():
     parser = build_parser()
     args = parser.parse_args(sys.argv[1:])
 
-    from bokeh.server.views import main
     start.bokeh_app.debug = False
     start.app.debug = False
     start.bokeh_app.splitjs = args.splitjs
     start.bokeh_app.debugjs = args.debugjs
-    
-    start.prepare_app(rport=args.redis_port, start_redis=args.start_redis,
-                      single_user_mode=not args.multi_user
-                      )
+
+    backend = {
+        "type": args.backend,
+        "redis_port": args.redis_port,
+        "start_redis": args.start_redis,
+    }
+
+    start.prepare_app(backend, single_user_mode=not args.multi_user)
 
     if args.debug:
         print("running with debug")
         start.bokeh_app.debug = True
-        start.app.debug = True
         logging.basicConfig(level=logging.DEBUG)
         import werkzeug.serving
         @werkzeug.serving.run_with_reloader
         def helper():
-            # Always set to verbose if in debug mode
-            start.start_app(verbose=True)
+            start.start_app(host=args.ip, port=args.bokeh_port, verbose=True)
 
     else:
         logging.basicConfig(level=logging.INFO)
-        start.start_app(verbose=args.verbose)
+        start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("Shutting down bokeh-server...")
 

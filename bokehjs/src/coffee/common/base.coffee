@@ -9,6 +9,11 @@ define [
   "common/plot",
   "common/plot_context",
 
+  "mapper/1d/categorical_mapper",
+  "mapper/1d/linear_mapper",
+  "mapper/2d/grid_mapper",
+  "mapper/color/linear_color_mapper",
+
   "range/data_factor_range",
   "range/data_range1d",
   "range/factor_range",
@@ -24,6 +29,13 @@ define [
 
   "source/column_data_source",
 
+  "ticking/basic_ticker",
+  "ticking/basic_tick_formatter",
+  "ticking/categorical_ticker",
+  "ticking/categorical_tick_formatter",
+  "ticking/datetime_ticker",
+  "ticking/datetime_tick_formatter",
+
   "tool/box_select_tool",
   "tool/box_zoom_tool",
   "tool/crosshair_tool",
@@ -35,6 +47,7 @@ define [
   "tool/reset_tool",
   "tool/resize_tool",
   "tool/wheel_zoom_tool",
+  "tool/object_explorer_tool",
 
   "widget/data_slider",
   "widget/pandas/ipython_remote_data",
@@ -50,44 +63,51 @@ define [
 
   locations =
 
-    Plot:                   'common/plot'
-    GMapPlot:               'common/gmap_plot'
-    GridPlot:               'common/grid_plot'
-    CDXPlotContext:         'common/plot_context'
-    PlotContext:            'common/plot_context'
-    PlotList:               'common/plot_context'
+    Plot:                     'common/plot'
+    GMapPlot:                 'common/gmap_plot'
+    GridPlot:                 'common/grid_plot'
+    PlotContext:              'common/plot_context'
+    PlotList:                 'common/plot_context'
 
-    DataFactorRange:        'range/data_factor_range'
-    DataRange1d:            'range/data_range1d'
-    FactorRange:            'range/factor_range'
-    Range1d:                'range/range1d'
+    DataFactorRange:          'range/data_factor_range'
+    DataRange1d:              'range/data_range1d'
+    FactorRange:              'range/factor_range'
+    Range1d:                  'range/range1d'
 
-    Glyph:                  'renderer/glyph/glyph_factory'
-    LinearAxis:             'renderer/guide/linear_axis'
-    CategoricalAxis:        'renderer/guide/categorical_axis'
-    DatetimeAxis:           'renderer/guide/datetime_axis'
-    Grid:                   'renderer/guide/grid'
-    Legend:                 'renderer/annotation/legend'
-    BoxSelection:           'renderer/overlay/box_selection'
+    Glyph:                    'renderer/glyph/glyph_factory'
+    LinearAxis:               'renderer/guide/linear_axis'
+    CategoricalAxis:          'renderer/guide/categorical_axis'
+    DatetimeAxis:             'renderer/guide/datetime_axis'
+    Grid:                     'renderer/guide/grid'
+    Legend:                   'renderer/annotation/legend'
+    BoxSelection:             'renderer/overlay/box_selection'
 
-    ColumnDataSource:       'source/column_data_source'
+    ColumnDataSource:         'source/column_data_source'
 
-    PanTool:                'tool/pan_tool'
-    WheelZoomTool:          'tool/wheel_zoom_tool'
-    ResizeTool:             'tool/resize_tool'
-    CrosshairTool:          'tool/crosshair_tool'
-    BoxSelectTool:          'tool/box_select_tool'
-    BoxZoomTool:            'tool/box_zoom_tool'
-    HoverTool:              'tool/hover_tool'
-    DataRangeBoxSelectTool: 'tool/data_range_box_select_tool'
-    PreviewSaveTool:        'tool/preview_save_tool'
-    EmbedTool:              'tool/embed_tool'
-    ResetTool:              'tool/reset_tool'
+    BasicTicker:              'ticking/basic_ticker'
+    BasicTickFormatter:       'ticking/basic_tick_formatter'
+    CategoricalTicker:        'ticking/categorical_ticker'
+    CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
+    DatetimeTicker:           'ticking/datetime_ticker'
+    DatetimeTickFormatter:    'ticking/datetime_tick_formatter'
 
-    DataSlider:             'widget/data_slider'
-    IPythonRemoteData:      'widget/pandas/ipython_remote_data'
-    PandasPivotTable:       'widget/pandas/pandas_pivot_table'
-    PandasPlotSource:       'widget/pandas/pandas_plot_source'
+    PanTool:                  'tool/pan_tool'
+    WheelZoomTool:            'tool/wheel_zoom_tool'
+    ResizeTool:               'tool/resize_tool'
+    CrosshairTool:            'tool/crosshair_tool'
+    BoxSelectTool:            'tool/box_select_tool'
+    BoxZoomTool:              'tool/box_zoom_tool'
+    HoverTool:                'tool/hover_tool'
+    DataRangeBoxSelectTool:   'tool/data_range_box_select_tool'
+    PreviewSaveTool:          'tool/preview_save_tool'
+    EmbedTool:                'tool/embed_tool'
+    ResetTool:                'tool/reset_tool'
+    ObjectExplorerTool:       'tool/object_explorer_tool'
+
+    DataSlider:               'widget/data_slider'
+    IPythonRemoteData:        'widget/pandas/ipython_remote_data'
+    PandasPivotTable:         'widget/pandas/pandas_pivot_table'
+    PandasPlotSource:         'widget/pandas/pandas_plot_source'
 
   mod_cache = {}
 

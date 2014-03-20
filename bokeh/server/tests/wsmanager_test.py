@@ -4,16 +4,16 @@ import mock
 from ..serverbb import RedisSession
 from .. import wsmanager
 from . import test_utils
-from ..app import app
+from ..app import bokeh_app
 from .. import start
 from ..models import docs
 from ... import protocol
 
-from unittest import skipIf
+from unittest import skip, skipIf
 import sys
 
 class WSmanagerTestCase(unittest.TestCase):
-    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")    
+    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")
     def test_some_topics(self):
         manager = wsmanager.WebSocketManager()
         s1 = mock.Mock()
@@ -27,20 +27,22 @@ class WSmanagerTestCase(unittest.TestCase):
         manager.send('1', 'hello')
         assert s2.send.call_count == 2
         assert s1.send.call_count == 1
-        
+
 ws_address = "ws://localhost:5006/bokeh/sub"
 class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestSubscribeWebSocket, self).setUp()
-        sess = app.backbone_storage.get_session('defaultdoc')
-        doc = docs.new_doc(app, "defaultdoc",
+        sess = bokeh_app.backbone_storage.get_session('defaultdoc')
+        doc = docs.new_doc(bokeh_app, "defaultdoc",
                            'main', sess, rw_users=["defaultuser"],
                            apikey='nokey')
-        sess = app.backbone_storage.get_session('defaultdocs')
-        doc2 = docs.new_doc(app, "defaultdoc2",
+        sess = bokeh_app.backbone_storage.get_session('defaultdocs')
+        doc2 = docs.new_doc(bokeh_app, "defaultdoc2",
                             'main', sess, rw_users=["defaultuser"],
                             apikey='nokey')
-    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")    
+    # TODO (bev) fix or improve this test
+    @skip
+    @skipIf(sys.version_info[0] == 3, "gevent does not work in py3")
     def test_basic_subscribe(self):
         #connect sock to defaultdoc
         #connect sock2 to defaultdoc
@@ -52,25 +54,25 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         connect(sock2, ws_address, 'bokehplot:defaultdoc', 'nokey')
         sock3 = websocket.WebSocket()
         connect(sock3, ws_address, 'bokehplot:defaultdoc2', 'nokey')
-        
+
         #make sure sock and sock2 receive message
-        app.wsmanager.send('bokehplot:defaultdoc', 'hello!')
+        bokeh_app.wsmanager.send('bokehplot:defaultdoc', 'hello!')
         msg = sock.recv()
         assert msg == 'bokehplot:defaultdoc:hello!'
         msg = sock2.recv()
         assert msg == 'bokehplot:defaultdoc:hello!'
-        
+
         # send messages on 2 topics, make sure that sockets receive
         # the right messages
-        app.wsmanager.send('bokehplot:defaultdoc', 'hello2!')        
-        app.wsmanager.send('bokehplot:defaultdoc2', 'hello3!')
+        bokeh_app.wsmanager.send('bokehplot:defaultdoc', 'hello2!')
+        bokeh_app.wsmanager.send('bokehplot:defaultdoc2', 'hello3!')
         msg = sock.recv()
         assert msg == 'bokehplot:defaultdoc:hello2!'
         msg = sock2.recv()
         assert msg == 'bokehplot:defaultdoc:hello2!'
         msg = sock3.recv()
         assert msg == 'bokehplot:defaultdoc2:hello3!'
-        
+
 def connect(sock, addr, topic, auth):
     sock.sock.settimeout(1.0)
     sock.connect(addr)

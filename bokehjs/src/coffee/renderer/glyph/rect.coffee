@@ -14,8 +14,8 @@ define [
     _map_data: () ->
       [sxi, syi] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
-      @sw = @distance_vector('x', 'width', 'center', @mget('glyphspec')['distance_dilate'])
-      @sh = @distance_vector('y', 'height', 'center', @mget('glyphspec')['distance_dilate'])
+      @sw = @distance_vector('x', 'width', 'center', @mget('glyphspec')['dilate'])
+      @sh = @distance_vector('y', 'height', 'center', @mget('glyphspec')['dilate'])
       @sx = new Array(sxi.length)
       @sy = new Array(sxi.length)
       for i in [0...sxi.length]
@@ -186,7 +186,7 @@ define [
         line_dash: []
         line_dash_offset: 0
         angle: 0.0
-        distance_dilate: 0
+        dilate: false
       })
 
   return {

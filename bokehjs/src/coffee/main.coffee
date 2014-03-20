@@ -6,7 +6,7 @@ define (require, exports, module) ->
 
   Bokeh = {}
 
-  Bokeh.version = '0.4.1'
+  Bokeh.version = '0.4.2'
 
   # common
   Bokeh.Collections       = require("common/base").Collections
@@ -100,6 +100,14 @@ define (require, exports, module) ->
   # data sources
   Bokeh.ColumnDataSource      = require("source/column_data_source")
 
+  # tickers and tick formatters
+  Bokeh.BasicTicker              = require("ticking/basic_ticker")
+  Bokeh.BasicTickFormatter       = require("ticking/basic_tick_formatter")
+  Bokeh.CategoricalTicker        = require("ticking/categorical_ticker")
+  Bokeh.CategoricalTickFormatter = require("ticking/categorical_tick_formatter")
+  Bokeh.DatetimeTicker           = require("ticking/datetime_ticker")
+  Bokeh.DatetimeTickFormatter    = require("ticking/datetime_tick_formatter")
+
   # tools
   Bokeh.BoxSelectTool          = require("tool/box_select_tool")
   Bokeh.BoxZoomTool            = require("tool/box_zoom_tool")
@@ -112,10 +120,14 @@ define (require, exports, module) ->
   Bokeh.ResetTool              = require("tool/reset_tool")
   Bokeh.ResizeTool             = require("tool/resize_tool")
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
+  Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
 
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")
   Bokeh.server_page = require("server/serverrun").load
+
+  # utils
+  Bokeh.ObjectExplorer = require("util/object_explorer")
 
   exports.Bokeh = Bokeh
 

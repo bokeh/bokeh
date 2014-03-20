@@ -30,7 +30,7 @@ if __name__ == "__main__":
     #app.run(port=PORT)
     http_server = WSGIServer(('', PORT), app)
     print "\nStarting Bokeh plot server on port %d..." % PORT
-    print "Visit http://localhost:%d/gallery.html to see plots\n" % PORT
+    print "Visit http://localhost:%d/index.html to see plots\n" % PORT
     
     pid = os.fork()
     if pid != 0:
@@ -41,6 +41,6 @@ if __name__ == "__main__":
         import time
         import webbrowser
         time.sleep(0.5)
-        webbrowser.open("http://localhost:%d/gallery.html"%PORT, new="tab")
+        webbrowser.open("http://localhost:%d/index.html"%PORT, new="tab")
 
 
