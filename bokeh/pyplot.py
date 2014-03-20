@@ -61,12 +61,8 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False):
 
     for axes in figure.axes:
         plot = mpl.axes2plot(axes)
-        plotting._config["curplot"] = plot  # need a better way to do this
-        session.plotcontext.children.append(plot)
-        # TODO: this should be obviated once Mateusz's auto-add PR is merged
-        objects = [plot, plot.x_range, plot.y_range] + plot.data_sources + plot.renderers + \
-                  plot.renderers + plot.tools + plot.axes
-        session.add(*objects)
+        plotting._config["curplot"] = plot
+        session.add_plot(plot)
 
     if filename:
         plotting.save()
