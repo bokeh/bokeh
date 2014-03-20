@@ -95,7 +95,7 @@ define [
     display_defaults: () ->
       return _.extend(super(), {
         level: 'underlay'
-        dilate: 0
+        dilate: false
       })
 
   return {
