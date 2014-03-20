@@ -169,6 +169,8 @@ The image glyph takes each ``image`` as a two-dimensional array of data. A ``pal
 name of a built-in palette, currently) must also be supplied to use for color-mapping the scalar
 image.
 
+.. note:: the ``dilate`` field may be used to indicate whether computed pixel distances (e.g. for `dw`, `dh`) should always be rounded up when rendering this glyph.
+
 .. note:: The image glyph is vectorized like other glyphs, i.e. it may be used to display several images at once.
 
 * ``image`` - 2D array of data
@@ -176,6 +178,9 @@ image.
 * ``dw`` - width on screen
 * ``dh``- height on screen
 * ``palette``
+* ``dilate``
+
+  * default: `False`
 
 .. _bokeh_image_rgba:
 
@@ -184,12 +189,17 @@ image.
 The image_rgba glyph takes each ``image`` as a two-dimensional array of RGBA values (encoded
 as 32-bit integers).
 
+.. note:: the ``dilate`` field may be used to indicate whether computed pixel distances (e.g. for `dw`, `dh`) should always be rounded up when rendering this glyph.
+
 .. note:: The image_rgba glyph is vectorized like other glyphs, i.e. it may be used to display several images at once.
 
 * ``image`` - 2D array of RGBA
 * ``x``, ``y`` - lower left
 * ``dw`` - width on screen
 * ``dh``- height on screen
+* ``dilate``
+
+  * default: `False`
 
 .. _bokeh_image_uri:
 
@@ -325,6 +335,8 @@ The ray glyph displays line segments starting at the given coordinate and extend
 The rect glyph displays rectangles centered on the given coordinates with the given dimensions
 and angle.
 
+.. note:: the ``dilate`` field may be used to indicate whether computed pixel distances should always be rounded up when rendering this glyph.
+
 * ``x``, ``y`` - center point coordinates
 * ``width``
 * ``height``
@@ -332,8 +344,13 @@ and angle.
 
   * default: 0
 
+* ``dilate``
+
+  * default: `False`
+
 * :ref:`userguide_line_properties`
 * :ref:`userguide_fill_properties`
+
 
 .. _bokeh_segment:
 
