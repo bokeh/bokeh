@@ -121,6 +121,23 @@ class Renderer(PlotObject):
 class Ticker(PlotObject):
     pass
 
+class AdaptiveTicker(Ticker):
+    base = Float(10.0)
+    min_interval = Float(0.0)
+    max_interval = Float(100.0)
+
+class CompositeTicker(Ticker):
+    tickers = List(Instance(Ticker))
+
+class SingleIntervalTicker(Ticker):
+    interval = Float
+
+class DaysTicker(Ticker):
+    days = List(Int)
+
+class MonthsTicker(Ticker):
+    months = List(Int)
+
 class BasicTicker(Ticker):
     pass
 
