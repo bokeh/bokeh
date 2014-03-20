@@ -8,7 +8,7 @@ define [
 
   TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator
 
-  class BoxZoomToolView extends Tool.View
+  class PinchZoomToolView extends Tool.View
     initialize: (options) ->
       super(options)
 
@@ -16,15 +16,15 @@ define [
       super()
 
     eventGeneratorClass: TwoPointEventGenerator
-    toolType: "BoxZoomTool"
+    toolType: "PinchZoomTool"
 
     evgen_options:
       keyName: "ctrlKey"
-      buttonText: "Box Zoom"
+      buttonText: "Pinch Zoom"
       cursor: "crosshair"
       auto_deactivate: true
       restrict_to_innercanvas: true
-      buttonDisable: EventGenerators.isTouch
+      touchEvent: EventGenerators.isTouch
 
     tool_events:
       SetBasepoint: "_start_selecting"
@@ -90,9 +90,9 @@ define [
       }
       @plot_view.update_range(zoom_info)
 
-  class BoxZoomTool extends Tool.Model
-    default_view: BoxZoomToolView
-    type: "BoxZoomTool"
+  class PinchZoomTool extends Tool.Model
+    default_view: PinchZoomToolView
+    type: "PinchZoomTool"
 
     defaults: () ->
       return _.extend(super(), {
@@ -106,11 +106,12 @@ define [
     display_defaults: () ->
       super()
 
-  class BoxZoomTools extends Backbone.Collection
-    model: BoxZoomTool
+  class PinchZoomTools extends Backbone.Collection
+    model: PinchZoomTool
 
   return {
-    "Model": BoxZoomTool,
-    "Collection": new BoxZoomTools(),
-    "View": BoxZoomToolView,
+    "Model": PinchZoomTool,
+    "Collection": new PinchZoomTools(),
+    "View": PinchZoomToolView,
   }
+

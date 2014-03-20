@@ -15,6 +15,20 @@ define [
 
       @glyph_props = @init_glyph(@mget('glyphspec'))
 
+      check_number_value = /^(0|-?(0\.\d+|[1-9]\d*(\.\d+)?))$/
+      
+      if @glyph_props.minX?.value? and check_number_value.test(@glyph_props.minX.value)
+        @plot_view.view_state['minX']= @glyph_props.minX
+        
+      if @glyph_props.maxX?.value? and check_number_value.test(@glyph_props.maxX.value)
+        @plot_view.view_state['maxX']= @glyph_props.maxX
+        
+      if @glyph_props.minY?.value? and check_number_value.test(@glyph_props.minY.value)
+        @plot_view.view_state['minY']= @glyph_props.minY
+        
+      if @glyph_props.maxY?.value? and check_number_value.test(@glyph_props.maxY.value)
+        @plot_view.view_state['maxY']= @glyph_props.maxY
+
       @have_selection_props = false
       if @mget('selection_glyphspec')
         spec = _.extend({}, @mget('glyphspec'), @mget('selection_glyphspec'))
