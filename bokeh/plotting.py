@@ -618,9 +618,8 @@ are also accepted as keyword parameters.
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
 
-Notes
------
-Only one of `size` or `radius` should be provided. Note that `radius` defaults to data units.
+Notes:
+    Only one of `size` or `radius` should be provided. Note that `radius` defaults to data units.
 """
 )
 
@@ -721,9 +720,14 @@ Args:
     dw (str or list[float]) : values or field names of image width distances
     dh (str or list[float]) : values or field names of image height distances
     palette (str or list[str]) : values or field names of palettes to use for color-mapping
+    dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+Notes:
+    setting `dilate` to True will cause pixel distances (e.g., for `dw` and `dh`) to
+    be rounded up, always.
 """
 )
 
@@ -737,9 +741,14 @@ Args:
     y (str or list[float]) : values or field names of lower left `y` coordinates
     dw (str or list[float]) : values or field names of image width distances
     dh (str or list[float]) : values or field names of image height distances
+    dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+Notes:
+    setting `dilate` to True will cause pixel distances (e.g., for `dw` and `dh`) to
+    be rounded up, always.
 """
 )
 
@@ -920,6 +929,7 @@ Args:
     width (str or list[float]) : values or field names of widths
     height (str or list[float]) : values or field names of heights
     angle (str or list[float], optional) : values or field names of rotation angles, defaults to 0
+    dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
@@ -927,6 +937,11 @@ are also accepted as keyword parameters.
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+Notes:
+    setting `dilate` to True will cause pixel distances (e.g., for `width` and `height`) to
+    be rounded up, always.
+
 """
 )
 

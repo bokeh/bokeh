@@ -160,6 +160,7 @@ class Image(BaseGlyph):
     dw = DataSpec
     dh = DataSpec
     palette = DataSpec
+    dilate = Bool(False)
 
 class ImageURI(BaseGlyph):
     __view_model__ = 'image_uri'
@@ -174,6 +175,7 @@ class ImageRGBA(BaseGlyph):
     y = DataSpec
     dw = DataSpec
     dh = DataSpec
+    dilate = Bool(False)
 
 class Line(BaseGlyph, LineProps):
     __view_model__ = "line"
@@ -233,6 +235,7 @@ class Rect(BaseGlyph, FillProps, LineProps):
     width = DataSpec
     height = DataSpec
     angle = DataSpec
+    dilate = Bool(False)
 
 class Segment(BaseGlyph, LineProps):
     __view_model__ = 'segment'
