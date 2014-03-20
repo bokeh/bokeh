@@ -13,6 +13,13 @@ define [
     default_view: CategoricalAxisView
     type: 'CategoricalAxis'
 
+    initialize: (attrs, objects) ->
+      super(attrs, objects)
+      if not @get_obj('ticker')?
+        @set_obj('ticker', CategoricalTicker.Collection.create())
+      if not @get_obj('formatter')?
+        @set_obj('formatter', CategoricalTickFormatter.Collection.create())
+
     _bounds: () ->
       i = @get('dimension')
       ranges = [@get_obj('plot').get_obj('x_range'), @get_obj('plot').get_obj('y_range')]
@@ -25,18 +32,8 @@ define [
 
       return range_bounds
 
-    defaults: () ->
-      return {
-        ticker: new CategoricalTicker.Model()
-        formatter: new CategoricalTickFormatter.Model()
-      }
-
-    display_defaults: () ->
-      super()
-
   class CategoricalAxes extends Backbone.Collection
     model: CategoricalAxis
-    type: 'CategoricalAxis'
 
   return {
       "Model": CategoricalAxis,

@@ -79,57 +79,69 @@ define [
 
     return glyphs
 
-  add_axes = (plot, xaxes, yaxes, xdr, ydr) ->
-    axes = []
-    if xaxes
-      if xaxes == true
-        xaxes = ['min', 'max']
-      if not _.isArray(xaxes)
-        xaxes = [xaxes]
-      if xaxes[0]=="datetime"
-
-        for loc in ['min','max']
-          axis = DatetimeAxis.Collection.create(
-            dimension: 0
-            axis_label: 'x'
-            location: loc
-            parent: plot.ref()
-            plot: plot.ref())
-          axes.push(axis)
+  add_axes = (plot, xaxes_spec, yaxes_spec, xdr, ydr) ->
+    xaxes = []
+    if xaxes_spec
+      if xaxes_spec == true
+        xaxes_spec = ['min', 'max']
+      if not _.isArray(xaxes_spec)
+        xaxes_spec = [xaxes_spec]
+      if xaxes_spec[0]=="datetime"
+        axis = DatetimeAxis.Collection.create(
+          dimension: 0
+          axis_label: 'x'
+          location: 'min'
+          parent: plot.ref()
+          plot: plot.ref()
+        )
+        xaxes.push(axis)
       else if xdr.type == "FactorRange"
-        for loc in xaxes
+        for loc in xaxes_spec
           axis = CategoricalAxis.Collection.create(
             dimension: 0
             axis_label: 'x'
             location: loc
             parent: plot.ref()
-            plot: plot.ref())
-          axes.push(axis)
+            plot: plot.ref()
+          )
+          xaxes.push(axis)
       else
-        for loc in xaxes
+        for loc in xaxes_spec
           axis = LinearAxis.Collection.create(
             dimension: 0
             axis_label: 'x'
             location: loc
             parent: plot.ref()
-            plot: plot.ref())
-          axes.push(axis)
-    if yaxes
-      if yaxes == true
-        yaxes = ['min', 'max']
-      if not _.isArray(yaxes)
-        yaxes = [yaxes]
-      if ydr.type == "FactorRange"
-        for loc in xaxes
+            plot: plot.ref()
+          )
+          xaxes.push(axis)
+    yaxes = []
+    if yaxes_spec
+      if yaxes_spec == true
+        yaxes_spec = ['min', 'max']
+      if not _.isArray(yaxes_spec)
+        yaxes_spec = [yaxes_spec]
+      if yaxes_spec[0]=="datetime"
+        axis = DatetimeAxis.Collection.create(
+          dimension: 1
+          axis_label: 'y'
+          location: 'min'
+          parent: plot.ref()
+          plot: plot.ref()
+        )
+        yaxes.push(axis)
+      else if ydr.type == "FactorRange"
+        for loc in yaxes_spec
           axis = CategoricalAxis.Collection.create(
             dimension: 1
             axis_label: 'y'
             location: loc
             parent: plot.ref()
-            plot: plot.ref())
-          axes.push(axis)
+            plot: plot.ref()
+          )
+          yaxes.push(axis)
       else
-        for loc in yaxes
+        for loc in yaxes_spec
           axis = LinearAxis.Collection.create(
             dimension: 1
             axis_label: 'y'
@@ -137,28 +149,32 @@ define [
             parent: plot.ref()
             plot: plot.ref()
           )
-          axes.push(axis)
-    plot.add_renderers(a.ref() for a in axes)
+          yaxes.push(axis)
+
+    plot.add_renderers(a.ref() for a in xaxes)
+    plot.add_renderers(a.ref() for a in yaxes)
+
+    return [xaxes, yaxes]
 
   # FIXME The xaxis_is_datetime argument is a huge hack, but for now I want to
   # make as small a change as possible.  Doing it right will require a larger
   # refactoring.
-  add_grids = (plot, xgrid, ygrid, xaxis_is_datetime=False) ->
+  add_grids = (plot, xgrid, ygrid, xaxes, yaxes) ->
     grids = []
-    if xgrid
+    if xgrid and xaxes.length > 0
       grid = Grid.Collection.create(
         dimension: 0
         parent: plot.ref()
         plot: plot.ref()
-        is_datetime: xaxis_is_datetime
+        axis: xaxes[0].ref()
       )
       grids.push(grid)
-    if ygrid
+    if ygrid and yaxes.length > 0
       grid = Grid.Collection.create(
         dimension: 1
         parent: plot.ref()
         plot: plot.ref()
-        is_datetime: false
+        axis: yaxes[0].ref()
       )
       grids.push(grid)
       plot.add_renderers(g.ref() for g in grids)
@@ -267,8 +283,8 @@ define [
     glyphs = create_glyphs(plot, glyphspecs, sources, nonselected)
     plot.add_renderers(g.ref() for g in glyphs)
 
-    add_axes(plot, xaxes, yaxes, xdr, ydr)
-    add_grids(plot, xgrid, ygrid, xaxes == 'datetime')
+    [xaxes, yaxes] = add_axes(plot, xaxes, yaxes, xdr, ydr)
+    add_grids(plot, xgrid, ygrid, xaxes, yaxes)
     add_tools(plot, tools, glyphs, xdr, ydr)
     add_legend(plot, legend, glyphs)
 
