@@ -14,7 +14,9 @@ define [
       super(options)
 
     eventGeneratorClass: OnePointWheelEventGenerator
-    evgen_options: { buttonText: "WheelZoom" }
+    evgen_options:
+      buttonText: "WheelZoom"
+      button_disable: EventGenerators.isTouch
     tool_events: { zoom: "_zoom" }
 
     mouse_coords: (e, x, y) ->

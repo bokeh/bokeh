@@ -24,6 +24,7 @@ define [
       cursor: "crosshair"
       auto_deactivate: true
       restrict_to_innercanvas: true
+      button_disable: EventGenerators.isTouch
 
     tool_events:
       SetBasepoint: "_start_selecting"
