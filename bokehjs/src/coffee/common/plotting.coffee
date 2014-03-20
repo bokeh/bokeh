@@ -24,8 +24,9 @@ define [
   "renderer/guide/datetime_axis",
 ], (_, $, Plot, DataRange1d, FactorRange, Range1d, Legend,
   GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection,
-  ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool,
-  PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
+  ColumnDataSource, BoxSelectTool, BoxZoomTool, PinchZoomTool,
+  PinchBoxZoomTool, HoverTool, PanTool, PreviewSaveTool,
+  ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -221,6 +222,22 @@ define [
       added_tools.push(box_zoom_tool)
       plot.add_renderers([box_zoom_overlay.ref()])
 
+    if tools.indexOf("pinch_zoom") > -1
+      pinch_zoom_tool = PinchZoomTool.Collection.create()
+      pinch_zoom_overlay = BoxSelection.Collection.create(
+        tool: pinch_zoom_tool.ref()
+      )
+      added_tools.push(pinch_zoom_tool)
+      plot.add_renderers([pinch_zoom_overlay.ref()])
+
+    if tools.indexOf("pinch_box_zoom") > -1
+      pinch_box_zoom_tool = PinchBoxZoomTool.Collection.create()
+      pinch_box_zoom_overlay = BoxSelection.Collection.create(
+        tool: pinch_box_zoom_tool.ref()
+      )
+      added_tools.push(pinch_box_zoom_tool)
+      plot.add_renderers([pinch_box_zoom_overlay.ref()])
+      
     plot.set_obj('tools', added_tools)
 
   add_legend = (plot, legend, glyphs) ->

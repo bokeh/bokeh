@@ -6,9 +6,9 @@ import re
 from six import string_types
 
 from . import glyphs
-from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
-        ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
-        Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
+from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, PinchZoomTool,
+        PinchBoxZoomTool, ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis,
+        EmbedTool, Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
         ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange,
         ObjectExplorerTool, BasicTicker, BasicTickFormatter, CategoricalTicker,
         CategoricalTickFormatter, DatetimeTicker, DatetimeTickFormatter)
@@ -219,7 +219,7 @@ def _get_select_tool(plot):
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="linear", y_axis_type="linear",
-                 tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
+                 tools="pan,wheel_zoom,box_zoom,pinch_zoom,pinch_box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
@@ -303,6 +303,14 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             tool_obj = BoxZoomTool(plot=p)
             overlay = BoxSelectionOverlay(tool=tool_obj)
             p.renderers.append(overlay)
+        elif tool == "pinch_zoom":
+            tool_obj = PinchZoomTool(plot=p)
+            overlay = BoxSelectionOverlay(tool=tool_obj)
+            p.renderers.append(overlay)
+        elif tool == "pinch_box_zoom":
+            tool_obj = PinchBoxZoomTool(plot=p)
+            overlay = BoxSelectionOverlay(tool=tool_obj)
+            p.renderers.append(overlay)
         elif tool == "hover":
             tool_obj = HoverTool(plot=p, tooltips={
                 "index": "$index",
@@ -318,7 +326,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         elif tool == "object_explorer":
             tool_obj = ObjectExplorerTool()
         else:
-            known_tools = "pan, wheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
+            known_tools = "pan, wheel_zoom, box_zoom, pinch_zoom, pinch_box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
 
         tool_objs.append(tool_obj)
