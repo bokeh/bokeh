@@ -38,29 +38,17 @@ class NumpyJSONEncoder(json.JSONEncoder):
                 return self.transform_list(obj.tolist())
             elif isinstance(obj, pd.tslib.Timestamp):
                 return obj.value / millifactor
-            elif isinstance(obj, np.ndarray):
-                if obj.dtype.kind == 'M':
-                    obj = obj.astype('datetime64[ms]').astype('int64')
-                return self.transform_list(obj.tolist())
-            elif isinstance(obj, np.number):
-                if isinstance(obj, np.integer):
-                    return int(obj)
-                else:
-                    return float(obj)
+        if isinstance(obj, np.ndarray):
+            if obj.dtype.kind == 'M':
+                obj = obj.astype('datetime64[ms]').astype('int64')
+            return self.transform_list(obj.tolist())
+        elif isinstance(obj, np.number):
+            if isinstance(obj, np.integer):
+                return int(obj)
             else:
-                return super(NumpyJSONEncoder, self).default(obj)
+                return float(obj)
         else:
-            if isinstance(obj, np.ndarray):
-                if obj.dtype.kind == 'M':
-                    obj = obj.astype('datetime64[ms]').astype('int64')
-                return self.transform_list(obj.tolist())
-            elif isinstance(obj, np.number):
-                if isinstance(obj, np.integer):
-                    return int(obj)
-                else:
-                    return float(obj)
-            else:
-                return super(NumpyJSONEncoder, self).default(obj)
+            return super(NumpyJSONEncoder, self).default(obj)
 
     def transform_list(self, l):
         try:
