@@ -43,7 +43,7 @@ define [
   create_range = (range, sources, columns) ->
     if range == 'auto'
       return DataRange1d.Collection.create(
-        sources: ({ref: s.ref(), columns: columns} for s in sources)
+        sources: ({source: s.ref(), columns: columns} for s in sources)
       )
     else if (range instanceof Range1d.Model) or (range instanceof FactorRange.Model)
       return range

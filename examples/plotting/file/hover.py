@@ -32,7 +32,7 @@ source = ColumnDataSource(
     )
 )
 
-output_file("scatter.html")
+output_file("hover.html")
 
 hold()
 

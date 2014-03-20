@@ -1,39 +1,23 @@
 
 define [
+  "underscore",
+  "backbone",
   "common/has_properties",
-], (HasProperties) ->
+], (_, Backbone, HasProperties) ->
 
   class LinearColorMapper extends HasProperties
 
     initialize: (attrs, options) ->
       super(attrs, options)
-      @low           = options.low
-      @high          = options.high
-      @palette       = @_build_palette(options.palette)
+      @palette       = @_build_palette(@mget('palette'))
       @little_endian = @_is_little_endian()
 
     v_map_screen: (data) ->
       buf = new ArrayBuffer(data.length * 4);
       color = new Uint32Array(buf);
 
-      max = -Infinity;
-      min =  Infinity
-      value = 0
-      for i in [0...data.length]
-        value = data[i];
-        if (value > max)
-          max = value;
-        if (value < min)
-          min = value;
-
-      if @low?
-        low = @low
-      else
-        low = min
-      if @high?
-        high = @high
-      else
-        high = max
+      low = @mget('low') ? _.min(data)
+      high = @mget('high') ? _.max(data)
 
       N = @palette.length - 1
       scale = N/(high-low)
@@ -82,3 +66,11 @@ define [
         new_palette[i] = palette[i]
       new_palette[new_palette.length-1] = palette[palette.length-1]
       return new_palette
+
+  class LinearColorMappers extends Backbone.Collection
+    model: LinearColorMapper
+
+  return {
+    "Model": LinearColorMapper,
+    "Collection": new LinearColorMappers()
+  }

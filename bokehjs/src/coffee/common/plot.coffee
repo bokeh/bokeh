@@ -128,23 +128,23 @@ define [
       @x_range = options.x_range ? @mget_obj('x_range')
       @y_range = options.y_range ? @mget_obj('y_range')
 
-      xmapper_type = LinearMapper
+      xmapper_type = LinearMapper.Model
       if @x_range.type == "FactorRange"
-        xmapper_type = CategoricalMapper
+        xmapper_type = CategoricalMapper.Model
       @xmapper = new xmapper_type({
         source_range: @x_range
         target_range: @view_state.get('inner_range_horizontal')
       })
 
-      ymapper_type = LinearMapper
+      ymapper_type = LinearMapper.Model
       if @y_range.type == "FactorRange"
-        ymapper_type = CategoricalMapper
+        ymapper_type = CategoricalMapper.Model
       @ymapper = new ymapper_type({
         source_range: @y_range
         target_range: @view_state.get('inner_range_vertical')
       })
 
-      @mapper = new GridMapper({
+      @mapper = new GridMapper.Model({
         domain_mapper: @xmapper
         codomain_mapper: @ymapper
       })
@@ -363,7 +363,7 @@ define [
         th = @ctx.measureText(@mget('title')).ascent
         @requested_padding['top'] += (th + @mget('title_standoff'))
 
-      sym = @mget('border_symmetry')
+      sym = @mget('border_symmetry') or ""
       if sym.indexOf('h') >= 0 or sym.indexOf('H') >= 0
         hpadding = Math.max(@requested_padding['left'], @requested_padding['right'])
         @requested_padding['left'] = hpadding

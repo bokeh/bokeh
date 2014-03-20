@@ -87,17 +87,17 @@ define [
 
       @x_range = options.x_range ? @mget_obj('x_range')
       @y_range = options.y_range ? @mget_obj('y_range')
-      @xmapper = new LinearMapper({
+      @xmapper = new LinearMapper.Model({
         source_range: @x_range
         target_range: @view_state.get('inner_range_horizontal')
       })
 
-      @ymapper = new LinearMapper({
+      @ymapper = new LinearMapper.Model({
         source_range: @y_range
         target_range: @view_state.get('inner_range_vertical')
       })
 
-      @mapper = new GridMapper({
+      @mapper = new GridMapper.Model({
         domain_mapper: @xmapper
         codomain_mapper: @ymapper
       })
@@ -345,7 +345,7 @@ define [
         th = @ctx.measureText(@mget('title')).ascent
         @requested_padding['top'] += (th + @mget('title_standoff'))
 
-      sym = @mget('border_symmetry')
+      sym = @mget('border_symmetry') or ""
       if sym.indexOf('h') >= 0 or sym.indexOf('H') >= 0
         hpadding = Math.max(@requested_padding['left'], @requested_padding['right'])
         @requested_padding['left'] = hpadding

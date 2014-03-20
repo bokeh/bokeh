@@ -409,11 +409,11 @@ def visual(func):
             )
 
         retvals = func(*args, **kw)
-        if len(retvals) == 1:
-            plot = retvals
-            session_objs = []
-        else:
+
+        if isinstance(retvals, tuple):
             plot, session_objs = retvals
+        else:
+            plot, session_objs = retvals, retvals.references()
 
         if plot is not None:
             session.add(plot)
@@ -447,7 +447,6 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
     def func(*args, **kwargs):
       # Process the keyword arguments that are not glyph-specific
         datasource = kwargs.pop("source", ColumnDataSource())
-        session_objs = [datasource]
         legend_name = kwargs.pop("legend", None)
         plot = _get_plot(kwargs)
         if 'name' in kwargs:
@@ -459,15 +458,18 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         glyph_params = _match_data_params(argnames, glyphclass,
             datasource, args, _materialize_colors_and_alpha(kwargs))
 
-        x_data_fields = [
-            glyph_params[xx]['field'] for xx in xfields if glyph_params[xx]['units'] == 'data']
-        y_data_fields = [
-            glyph_params[yy]['field'] for yy in yfields if glyph_params[yy]['units'] == 'data']
+        x_data_fields = [ glyph_params[xx]['field'] for xx in xfields if glyph_params[xx]['units'] == 'data' ]
+        y_data_fields = [ glyph_params[yy]['field'] for yy in yfields if glyph_params[yy]['units'] == 'data' ]
+
         _update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)
-        glyph = glyphclass(**kwargs)
-        nonselection_glyph_params = _materialize_colors_and_alpha(
-            kwargs, prefix='nonselection_', default_alpha=0.1)
+
+        glyph_props = glyphclass.properties()
+        glyph_kwargs = dict((key, value) for (key, value) in kwargs.iteritems() if key in glyph_props)
+
+        glyph = glyphclass(**glyph_kwargs)
+
+        nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
 
         nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
@@ -478,10 +480,8 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         glyph_renderer = Glyph(
             data_source = datasource,
-            plot = plot,
             glyph=glyph,
-            nonselection_glyph=nonselection_glyph,
-            )
+            nonselection_glyph=nonselection_glyph)
 
         if legend_name:
             legend = _get_legend(plot)
@@ -497,10 +497,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         plot.renderers.append(glyph_renderer)
 
-        session_objs.extend(plot.tools)
-        session_objs.extend(plot.renderers)
-        session_objs.extend([plot.x_range, plot.y_range])
-        return plot, session_objs
+        return plot
     func.__name__ = glyphclass.__view_model__
     func.__doc__ = docstring
     return func

@@ -9,7 +9,13 @@ from . import glyphs
 from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
         ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
         Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
+<<<<<<< HEAD
         ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange, PinchZoomTool, PinchBoxZoomTool)
+=======
+        ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange,
+        ObjectExplorerTool, BasicTicker, BasicTickFormatter, CategoricalTicker,
+        CategoricalTickFormatter, DatetimeTicker, DatetimeTickFormatter)
+>>>>>>> upstream/master
 from .properties import ColorSpec
 
 # This is used to accumulate plots generated via the plotting methods in this
@@ -171,6 +177,8 @@ def _materialize_colors_and_alpha(kwargs, prefix="", default_alpha=1.0):
     color and alpha fields of the given prefix, and fills in the default value
     if it doesn't exist.
     """
+    kwargs = kwargs.copy()
+
     # TODO: The need to do this and the complexity of managing this kind of
     # thing throughout the codebase really suggests that we need to have
     # a real stylesheet class, where defaults and Types can declaratively
@@ -240,7 +248,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     p.y_range = y_range
 
     axiscls = None
-    if isinstance(x_range, FactorRange):
+    if x_axis_type is None:
+        pass
+    elif isinstance(x_range, FactorRange):
         axiscls = CategoricalAxis
     elif x_axis_type is "linear":
         axiscls = LinearAxis
@@ -248,9 +258,12 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axiscls = DatetimeAxis
     if axiscls:
         xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
+        xgrid = Grid(plot=p, dimension=0, axis=xaxis)
 
     axiscls = None
-    if isinstance(y_range, FactorRange):
+    if y_axis_type is None:
+        pass
+    elif isinstance(y_range, FactorRange):
         axiscls = CategoricalAxis
     elif y_axis_type is "linear":
         axiscls = LinearAxis
@@ -258,9 +271,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axiscls = DatetimeAxis
     if axiscls:
         yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
-
-    xgrid = Grid(plot=p, dimension=0, is_datetime=(x_axis_type == "datetime"))
-    ygrid = Grid(plot=p, dimension=1, is_datetime=(y_axis_type == "datetime"))
+        ygrid = Grid(plot=p, dimension=1, axis=yaxis)
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
     for arg in border_args:

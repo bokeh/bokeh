@@ -35,19 +35,19 @@ text_source = ColumnDataSource(
 xdr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 ydr = DataRange1d(sources=[source.columns("petal_length", "petal_width", "sepal_length", "sepal_width")])
 
-pan = PanTool(dataranges=[xdr,ydr], dimensions=["x","y"])
-zoom = WheelZoomTool(dataranges=[xdr,ydr], dimensions=["x","y"])
+pan = PanTool(dimensions=["x","y"])
+zoom = WheelZoomTool(dimensions=["x","y"])
 
 def make_plot(xname, yname, xax=False, yax=False, text=None):
     plot = Plot(
         x_range=xdr, y_range=ydr, data_sources=[source], background_fill="#efe8e2",
-        width=250, height=250, border_fill='white', title="", border_symmetry="", min_border=2)
+        width=250, height=250, border_fill='white', title="", min_border=2, border_symmetry=None)
     if xax:
         xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
+        xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
     if yax:
         yaxis = LinearAxis(plot=plot, dimension=1, location="left")
-    xgrid = Grid(plot=plot, dimension=0)
-    ygrid = Grid(plot=plot, dimension=1)
+        ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
     circle_renderer = Glyph(
         data_source = source,
@@ -88,11 +88,10 @@ for y in yattrs:
         row.append(plot)
     plots.append(row)
 
-grid = GridPlot(children=plots, name="iris_splom")
+grid = GridPlot(children=plots, title="iris_splom")
 
 sess = session.HTMLFileSession("iris_splom.html")
-sess.add(grid, recursive=True)
-sess.plotcontext.children.append(grid)
+sess.add_plot(grid)
 
 if __name__ == "__main__":
     sess.save()

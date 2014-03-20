@@ -50,7 +50,7 @@ define [
         canvas.height = @height[i];
         ctx = canvas.getContext('2d')
         image_data = ctx.getImageData(0, 0, @width[i], @height[i])
-        cmap = new LinearColorMapper({}, {
+        cmap = new LinearColorMapper.Model({
           palette: all_palettes[@palette[i]]
         })
         if @rows?

@@ -6,17 +6,22 @@ this module can be stored as a backbone.js model graph, and stored in a
 plot server or serialized into JS for embedding in HTML or an IPython
 notebook.
 """
+<<<<<<< HEAD
 import os
 from uuid import uuid4
 from functools import wraps
 
 from six import add_metaclass
 from six.moves.urllib.parse import urlsplit
+=======
+from __future__ import absolute_import
+>>>>>>> upstream/master
 
 import warnings
 import logging
 logger = logging.getLogger(__file__)
 
+<<<<<<< HEAD
 from .properties import (HasProps, MetaHasProps, Any, Dict, Enum,
         Either, Float, Instance, Int, List, String, Color, DashPattern, Percent,
         Size, LineProps, FillProps, TextProps, Include, Bool)
@@ -388,13 +393,22 @@ class PlotObject(HasProps):
         return js_str, e_str % f_dict
 
 
+=======
+from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
+    List, String, Color, Include, Bool, Tuple, Any)
+from .mixins import FillProps, LineProps, TextProps
+from .enums import Units, Orientation, Dimension, BorderSymmetry
+from .plotobject import PlotObject
+from .glyphs import BaseGlyph
+>>>>>>> upstream/master
 
 class DataSource(PlotObject):
     """ Base class for data sources """
     # List of names of the fields of each tuple in self.data
     # ordering is incoporated here
-    column_names = List()
-    selected = List() #index of selected points
+    column_names = List(String)
+    selected = List(String) # index of selected points
+
     def columns(self, *columns):
         """ Returns a ColumnsRef object that points to a column or set of
         columns on this data source
@@ -461,60 +475,78 @@ class PandasDataSource(DataSource):
 
     data = Dict()
 
-class Range1d(PlotObject):
+class Range(PlotObject):
+    pass
+
+class Range1d(Range):
     start = Float()
     end = Float()
 
-class DataRange(PlotObject):
-    sources = List(ColumnsRef, has_ref=True)
-    def vm_serialize(self):
-        props = self.vm_props(withvalues=True)
-        props['id'] = self._id
-        sources = props.pop("sources")
-        props["sources"] = [{"ref":cr.source, "columns":cr.columns} for cr in sources]
-        return props
+class DataRange(Range):
+    sources = List(Instance(ColumnsRef), has_ref=True)
 
     def finalize(self, models):
-        super(DataRange, self).finalize(models)
-        for idx, source in enumerate(self.sources):
-            if isinstance(source, dict):
-                self.sources[idx] = ColumnsRef(
-                    source=source['ref'],
-                    columns=source['columns'])
-
-    def references(self):
-        return [x.source for x in self.sources]
+        props = super(DataRange, self).finalize(models)
+        props['sources'] = [ ColumnsRef(**source) for source in props['sources'] ]
+        return props
 
 class DataRange1d(DataRange):
     """ Represents a range in a scalar dimension """
-    sources = List(ColumnsRef, has_ref=True)
     rangepadding = Float(0.1)
     start = Float
     end = Float
 
-
-class FactorRange(PlotObject):
+class FactorRange(Range):
     """ Represents a range in a categorical dimension """
-    factors = List
+    factors = List(Any)
 
-class Glyph(PlotObject):
+class Renderer(PlotObject):
+    pass
 
-    plot = Instance(has_ref=True)
+class Ticker(PlotObject):
+    pass
+
+class BasicTicker(Ticker):
+    pass
+
+class CategoricalTicker(Ticker):
+    pass
+
+class DatetimeTicker(Ticker):
+    pass
+
+class TickFormatter(PlotObject):
+    pass
+
+class BasicTickFormatter(TickFormatter):
+    """ Represents a basic tick formatter for an axis object """
+    precision = Any('auto')
+    use_scientific = Bool(True)
+    power_limit_high = Int(5)
+    power_limit_low = Int(-3)
+
+class CategoricalTickFormatter(TickFormatter):
+    """ Represents a categorical tick formatter for an axis object """
+    pass
+
+class DatetimeTickFormatter(TickFormatter):
+    """ Represents a categorical tick formatter for an axis object """
+    pass
+
+class Glyph(Renderer):
     data_source = Instance(DataSource, has_ref=True)
-    xdata_range = Instance(DataRange1d, has_ref=True)
-    ydata_range = Instance(DataRange1d, has_ref=True)
+    xdata_range = Instance(Range, has_ref=True)
+    ydata_range = Instance(Range, has_ref=True)
 
     # How to intepret the values in the data_source
-    units = Enum("screen", "data")
+    units = Enum(Units)
 
-    # Instance of bokeh.glyphs.Glyph; not declaring it explicitly below
-    # because of circular imports. The renderers should get moved out
-    # into another module...
-    glyph = Instance()
-    # glyph used when data is unselected.  optional
-    nonselection_glyph = Instance()
-    # glyph used when data is selected.  optional
-    selection_glyph = Instance()
+    glyph = Instance(BaseGlyph)
+
+    # Optional glyph used when data is selected.
+    selection_glyph = Instance(BaseGlyph)
+    # Optional glyph used when data is unselected.
+    nonselection_glyph = Instance(BaseGlyph)
 
     def vm_serialize(self):
         # Glyphs need to serialize their state a little differently,
@@ -532,62 +564,53 @@ class Glyph(PlotObject):
         return data
 
     def finalize(self, models):
-        super(Glyph, self).finalize(models)
-        ## FIXME: we shouldn't have to do this i think..
-        if hasattr(self, 'glyphspec'):
-            glyphspec = self.glyphspec
-            del self.glyphspec
-            self.glyph = PlotObject.get_class(glyphspec['type'])(**glyphspec)
-        else:
-            self.glyph = None
-        if hasattr(self, 'selection_glyphspec'):
-            selection_glyphspec = self.selection_glyphspec
-            del self.selection_glyphspec
-            temp = PlotObject.get_class(selection_glyphspec['type'])
-            self.selection_glyph = temp(**selection_glyphspec)
+        props = super(Glyph, self).finalize(models)
 
-        else:
-            self.selection_glyph = None
-        if hasattr(self, 'nonselection_glyphspec'):
-            nonselection_glyphspec = self.nonselection_glyphspec
-            del self.nonselection_glyphspec
-            temp = PlotObject.get_class(nonselection_glyphspec['type'])
-            self.nonselection_glyph = temp(**nonselection_glyphspec)
+        if hasattr(self, "_special_props"):
+            glyphspec = self._special_props.pop('glyphspec', None)
+            if glyphspec is not None:
+                cls = PlotObject.get_class(glyphspec.pop('type'))
+                props['glyph'] = cls(**glyphspec)
 
-        else:
-            self.nonselection_glyph = None
+            selection_glyphspec = self._special_props.pop('selection_glyphspec', None)
+            if selection_glyphspec is not None:
+                cls = PlotObject.get_class(selection_glyphspec.pop('type'))
+                props['selection_glyph'] = cls(**selection_glyphspec)
 
+            nonselection_glyphspec = self._special_props.pop('nonselection_glyphspec', None)
+            if nonselection_glyphspec is not None:
+                cls = PlotObject.get_class(nonselection_glyphspec.pop('type'))
+                props['nonselection_glyph'] = cls(**nonselection_glyphspec)
 
+        return props
 
 class Plot(PlotObject):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
 
-    data_sources = List
-    title = String("Bokeh Plot")
+    data_sources = List(Instance(DataSource), has_ref=True)
 
-    x_range = Instance(DataRange1d, has_ref=True)
-    y_range = Instance(DataRange1d, has_ref=True)
+    x_range = Instance(Range, has_ref=True)
+    y_range = Instance(Range, has_ref=True)
     png = String('')
     title = String('')
     outline_props = Include(LineProps, prefix="outline")
 
-
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
-    renderers = List(has_ref=True)
-    tools = List(has_ref=True)
+    renderers = List(Instance(Renderer), has_ref=True)
+    tools = List(Instance(".objects.Tool"), has_ref=True)
 
     # TODO: These don't appear in the CS source, but are created by mpl.py, so
     # I'm leaving them here for initial compatibility testing.
-    axes = List(has_ref=True)
+    # axes = List(has_ref=True)
 
     # TODO: How do we want to handle syncing of the different layers?
-    # image = List
-    # underlay = List
-    # glyph = List
+    # image = List()
+    # underlay = List()
+    # glyph = List()
     #
-    # annotation = List
+    # annotation = List()
 
     height = Int(600)
     width = Int(600)
@@ -603,18 +626,10 @@ class Plot(PlotObject):
     min_border_left = Int(50)
     min_border_right = Int(50)
     min_border = Int(50)
+    border_symmetry = Enum(BorderSymmetry)
     script_inject_snippet = String("")
 
-
-    def _get_script_inject_snippet(self):
-        from .session import HTMLFileSession
-        if isinstance(self._session, HTMLFileSession):
-            self.script_inject_snippet
-            return ""
-        else:
-            return self.create_html_snippet(server=True)
-
-    def vm_props(self, *args, **kw):
+    def vm_props(self):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
         # needs to be fixed more structurally on the JS side, and then this
@@ -629,111 +644,36 @@ class Plot(PlotObject):
             self.canvas_height = self.height
         if "outer_height" not in self._changed_vars:
             self.outer_height = self.height
-        return super(Plot, self).vm_props(*args, **kw)
+        return super(Plot, self).vm_props()
 
-class GMapPlot(PlotObject):
+class MapOptions(HasProps):
+    lat = Float
+    lng = Float
+    zoom = Int(12)
 
-    center_lat = Float
-    center_lng = Float
-    zoom_level = Int(12)
-
-    data_sources = List
-    title = String("Bokeh Plot")
-
-    png = String('')
-    title = String('')
-
-    # A list of all renderers on this plot; this includes guides as well
-    # as glyph renderers
-    renderers = List(has_ref=True)
-    tools = List(has_ref=True)
-
-    # TODO: These don't appear in the CS source, but are created by mpl.py, so
-    # I'm leaving them here for initial compatibility testing.
-    axes = List(has_ref=True)
-    x_range = Instance(Range1d, has_ref=True)
-    y_range = Instance(Range1d, has_ref=True)
-
-    # TODO: How do we want to handle syncing of the different layers?
-    # image = List
-    # underlay = List
-    # glyph = List
-    #
-    # annotation = List
-
-    height = Int(800)
-    width = Int(800)
-
-    border_fill = Color("white")
-    border_symmetry = String("h")
-    canvas_width = Int(800)
-    canvas_height = Int(800)
-    outer_width = Int(800)
-    outer_height = Int(800)
-    min_border_top = Int(50)
-    min_border_bottom = Int(50)
-    min_border_left = Int(50)
-    min_border_right = Int(50)
-    min_border = Int(50)
+class GMapPlot(Plot):
+    map_options = Instance(MapOptions)
 
     def vm_serialize(self):
-        # Glyphs need to serialize their state a little differently,
-        # because the internal glyph instance is turned into a glyphspec
         data = super(GMapPlot, self).vm_serialize()
-        data.pop('center_lat', None)
-        data.pop('center_lng', None)
-        data.pop('zoom_level', None)
-        data["map_options"] = {
-            'lat': self.center_lat,
-            'lng': self.center_lng,
-            'zoom': self.zoom_level
-        }
         self._session.raw_js_snippets(self)
         return data
-
-    @classmethod
-    def load_json(cls, attrs, instance=None):
-        """Loads all json into a instance of cls, EXCEPT any references
-        which are handled in finalize
-        """
-        inst = super(GMapPlot, cls).load_json(attrs, instance=instance)
-        if hasattr(inst, 'map_options'):
-            mo = inst.map_options
-            del inst.map_options
-            inst.center_lat = mo['lat']
-            inst.center_lng = mo['lng']
-            inst.zoom_level = mo['zoom']
-        return inst
 
     def get_raw_js(self):
         return '<script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>'
 
-    def vm_props(self, *args, **kw):
-        # FIXME: We need to duplicate the height and width into canvas and
-        # outer height/width.  This is a quick fix for the gorpiness, but this
-        # needs to be fixed more structurally on the JS side, and then this
-        # should be revisited on the Python side.
-        if "canvas_width" not in self._changed_vars:
-            self.canvas_width = self.width
-        if "outer_width" not in self._changed_vars:
-            self.outer_width = self.width
-        if "canvas_height" not in self._changed_vars:
-            self.canvas_height = self.height
-        if "outer_height" not in self._changed_vars:
-            self.outer_height = self.height
-        return super(GMapPlot, self).vm_props(*args, **kw)
-
 class GridPlot(Plot):
     """ A 2D grid of plots """
 
-    children = List(List(has_ref=True), has_ref=True)
+    children = List(List(Instance(Plot), has_ref=True), has_ref=True)
     border_space = Int(0)
 
-class GuideRenderer(PlotObject):
-    plot = Instance
+class GuideRenderer(Renderer):
+    plot = Instance(Plot, has_ref=True)
 
     def __init__(self, **kwargs):
         super(GuideRenderer, self).__init__(**kwargs)
+
         if self.plot is not None:
             if self not in self.plot.renderers:
                 self.plot.renderers.append(self)
@@ -743,7 +683,10 @@ class Axis(GuideRenderer):
 
     dimension = Int(0)
     location = Either(String('min'), Float)
-    bounds = String('auto')
+    bounds = Either(Enum('auto'), Tuple) # XXX: Tuple(Float, Float)
+
+    ticker = Instance(Ticker, has_ref=True)
+    formatter = Instance(TickFormatter, has_ref=True)
 
     axis_label = String
     axis_label_standoff = Int
@@ -763,17 +706,39 @@ class Axis(GuideRenderer):
 class LinearAxis(Axis):
     type = String("linear_axis")
 
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = BasicTicker()
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = BasicTickFormatter()
+        super(LinearAxis, self).__init__(**kwargs)
+
 class CategoricalAxis(Axis):
     type = String("categorical_axis")
 
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = CategoricalTicker()
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = CategoricalTickFormatter()
+        super(CategoricalAxis, self).__init__(**kwargs)
+
 class DatetimeAxis(LinearAxis):
     type = String("datetime_axis")
+
     axis_label = String("date")
     scale = String("time")
     num_labels = Int(8)
     char_width = Int(10)
     fill_ratio = Float(0.3)
     formats = Dict({"days": ["%m/%d/%Y"]})
+
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = DatetimeTicker()
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = DatetimeTickFormatter()
+        super(DatetimeAxis, self).__init__(**kwargs)
 
 class Grid(GuideRenderer):
     """ 1D Grid component """
@@ -782,62 +747,68 @@ class Grid(GuideRenderer):
     dimension = Int(0)
     bounds = String('auto')
 
-    is_datetime = Bool(False)
+    axis = Instance(Axis, has_ref=True)
 
     # Line props
     grid_props = Include(LineProps, prefix="grid")
 
-class PanTool(PlotObject):
+class Tool(PlotObject):
     plot = Instance(Plot, has_ref=True)
-    dimensions = List   # valid values: "x", "y"
 
-class WheelZoomTool(PlotObject):
-    plot = Instance(Plot)
-    dimensions = List   # valid values: "x", "y"
+class PanTool(Tool):
+    dimensions = List(Enum(Dimension))
 
-class PreviewSaveTool(PlotObject):
-    plot = Instance(Plot)
-    dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
+class WheelZoomTool(Tool):
+    dimensions = List(Enum(Dimension))
 
-class EmbedTool(PlotObject):
-    plot = Instance(Plot)
-    dimensions = List   # valid values: "x", "y"
-    dataranges = List(has_ref=True)
+class PreviewSaveTool(Tool):
+    pass
 
-class ResetTool(PlotObject):
-    plot = Instance(Plot)
+class EmbedTool(Tool):
+    pass
 
-class ResizeTool(PlotObject):
-    plot = Instance(Plot)
+class ResetTool(Tool):
+    pass
 
-class CrosshairTool(PlotObject):
-    plot = Instance(Plot)
+class ResizeTool(Tool):
+    pass
 
-class BoxZoomTool(PlotObject):
-    plot = Instance(Plot)
+class CrosshairTool(Tool):
+    pass
 
-class BoxSelectTool(PlotObject):
-    renderers = List(has_ref=True)
+class BoxZoomTool(Tool):
+    pass
+
+class BoxSelectTool(Tool):
+    renderers = List(Instance(Renderer), has_ref=True)
     select_every_mousemove = Bool(True)
 
-class BoxSelectionOverlay(PlotObject):
+class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'
-    tool = Instance(has_ref=True)
+    tool = Instance(Tool, has_ref=True)
 
-class HoverTool(PlotObject):
-    renderers = List(has_ref=True)
+class HoverTool(Tool):
+    renderers = List(Instance(Renderer), has_ref=True)
     tooltips = Dict()
 
+<<<<<<< HEAD
 class PinchZoomTool(PlotObject):
     plot = Instance(Plot)
 
 class PinchBoxZoomTool(PlotObject):
     plot = Instance(Plot)
+=======
+class ObjectExplorerTool(Tool):
+    pass
+>>>>>>> upstream/master
 
-class Legend(PlotObject):
+class DataRangeBoxSelectTool(Tool):
+    xselect = List(Instance(Range), has_ref=True)
+    yselect = List(Instance(Range), has_ref=True)
+
+class Legend(Renderer):
     plot = Instance(Plot, has_ref=True)
-    orientation = Enum("top_right", "top_left", "bottom_left", "bottom_right")
+    orientation = Enum(Orientation)
     border = Include(LineProps, prefix="border")
 
     label_props = Include(TextProps, prefix="label")
@@ -851,18 +822,13 @@ class Legend(PlotObject):
     legend_spacing = Int(3)
     legends = Dict()
 
-class DataSlider(PlotObject):
+class DataSlider(Renderer):
     plot = Instance(Plot, has_ref=True)
-    data_source = Instance(has_ref=True)
+    data_source = Instance(DataSource, has_ref=True)
     field = String()
 
-class DataRangeBoxSelectTool(PlotObject):
-    plot = Instance(Plot, has_ref=True)
-    xselect = List()
-    yselect = List()
-
 class PlotContext(PlotObject):
-    children = List(has_ref=True)
+    children = List(Instance(Plot, has_ref=True), has_ref=True)
 
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning
