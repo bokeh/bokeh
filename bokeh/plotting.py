@@ -409,11 +409,11 @@ def visual(func):
             )
 
         retvals = func(*args, **kw)
-        if len(retvals) == 1:
-            plot = retvals
-            session_objs = []
-        else:
+
+        if isinstance(retvals, tuple):
             plot, session_objs = retvals
+        else:
+            plot, session_objs = retvals, retvals.references()
 
         if plot is not None:
             session.add(plot)
@@ -447,7 +447,6 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
     def func(*args, **kwargs):
       # Process the keyword arguments that are not glyph-specific
         datasource = kwargs.pop("source", ColumnDataSource())
-        session_objs = [datasource]
         legend_name = kwargs.pop("legend", None)
         plot = _get_plot(kwargs)
         if 'name' in kwargs:
@@ -498,10 +497,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         plot.renderers.append(glyph_renderer)
 
-        session_objs.extend(plot.tools)
-        session_objs.extend(plot.renderers)
-        session_objs.extend([plot.x_range, plot.y_range])
-        return plot, session_objs
+        return plot
     func.__name__ = glyphclass.__view_model__
     func.__doc__ = docstring
     return func

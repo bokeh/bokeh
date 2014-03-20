@@ -44,10 +44,10 @@ def make_plot(xname, yname, xax=False, yax=False, text=None):
         width=250, height=250, border_fill='white', title="", min_border=2, border_symmetry=None)
     if xax:
         xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
+        xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
     if yax:
         yaxis = LinearAxis(plot=plot, dimension=1, location="left")
-    xgrid = Grid(plot=plot, dimension=0)
-    ygrid = Grid(plot=plot, dimension=1)
+        ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
     circle = Circle(x=xname, y=yname, fill_color="color", fill_alpha=0.2, size=4, line_color="color")
     circle_renderer = Glyph(
         data_source = source,

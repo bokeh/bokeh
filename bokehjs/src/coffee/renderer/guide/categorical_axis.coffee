@@ -2,31 +2,16 @@
 define [
   "backbone",
   "./axis",
-  "common/ticking",
   "range/factor_range"
-], (Backbone, Axis, ticking, FactorRange) ->
-
-  class _CategoricalFormatter
-    format: (ticks) ->
-      return ticks
-
-  class _CategoricalScale
-    get_ticks: (start, end, range, {desired_n_ticks}) ->
-      return range.get("factors")
+  "ticking/categorical_ticker"
+  "ticking/categorical_tick_formatter"
+], (Backbone, Axis, FactorRange, CategoricalTicker, CategoricalTickFormatter) ->
 
   class CategoricalAxisView extends Axis.View
-
-    initialize: (attrs, options) ->
-      super(attrs, options)
-      @formatter = new _CategoricalFormatter()
 
   class CategoricalAxis extends Axis.Model
     default_view: CategoricalAxisView
     type: 'CategoricalAxis'
-
-    initialize: (attrs, options)->
-      options.scale = new _CategoricalScale()
-      super(attrs, options)
 
     _bounds: () ->
       i = @get('dimension')
@@ -40,11 +25,18 @@ define [
 
       return range_bounds
 
+    defaults: () ->
+      return {
+        ticker: new CategoricalTicker.Model()
+        formatter: new CategoricalTickFormatter.Model()
+      }
+
     display_defaults: () ->
       super()
 
   class CategoricalAxes extends Backbone.Collection
     model: CategoricalAxis
+    type: 'CategoricalAxis'
 
   return {
       "Model": CategoricalAxis,

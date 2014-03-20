@@ -40,8 +40,8 @@ xaxis = LinearAxis(plot=plot, dimension=0, location="min",
         axis_label="petal length", bounds=(1,7), major_tick_in=0)
 yaxis = LinearAxis(plot=plot, dimension=1, location="min",
         axis_label="petal width", bounds=(0,2.5), major_tick_in=0)
-xgrid = Grid(plot=plot, dimension=0)
-ygrid = Grid(plot=plot, dimension=1)
+xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
+ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
 
 pantool = PanTool(dimensions=["width", "height"])
 wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])

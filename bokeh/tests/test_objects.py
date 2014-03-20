@@ -21,6 +21,7 @@ def large_plot(n):
         yaxis = LinearAxis(plot=plot, dimension=1)
         xgrid = Grid(plot=plot, dimension=0)
         ygrid = Grid(plot=plot, dimension=1)
+        tickers = [xaxis.ticker, xaxis.formatter, yaxis.ticker, yaxis.formatter]
         renderer = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=Line(x='x', y='y'))
         plot.renderers.append(renderer)
         pan = PanTool(plot=plot)
@@ -34,7 +35,7 @@ def large_plot(n):
         tools = [pan, wheel_zoom, box_zoom, box_select, box_selection, resize, previewsave, reset]
         plot.tools.append(tools)
         context.children.append(plot)
-        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer] + tools)
+        objects |= set([source, xdr, ydr, plot, xaxis, yaxis, xgrid, ygrid, renderer] + tickers + tools)
 
     return context, objects
 

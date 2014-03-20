@@ -85,17 +85,17 @@ define [
 
       @x_range = options.x_range ? @mget_obj('x_range')
       @y_range = options.y_range ? @mget_obj('y_range')
-      @xmapper = new LinearMapper({
+      @xmapper = new LinearMapper.Model({
         source_range: @x_range
         target_range: @view_state.get('inner_range_horizontal')
       })
 
-      @ymapper = new LinearMapper({
+      @ymapper = new LinearMapper.Model({
         source_range: @y_range
         target_range: @view_state.get('inner_range_vertical')
       })
 
-      @mapper = new GridMapper({
+      @mapper = new GridMapper.Model({
         domain_mapper: @xmapper
         codomain_mapper: @ymapper
       })

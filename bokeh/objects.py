@@ -118,6 +118,36 @@ class FactorRange(Range):
 class Renderer(PlotObject):
     pass
 
+class Ticker(PlotObject):
+    pass
+
+class BasicTicker(Ticker):
+    pass
+
+class CategoricalTicker(Ticker):
+    pass
+
+class DatetimeTicker(Ticker):
+    pass
+
+class TickFormatter(PlotObject):
+    pass
+
+class BasicTickFormatter(TickFormatter):
+    """ Represents a basic tick formatter for an axis object """
+    precision = Any('auto')
+    use_scientific = Bool(True)
+    power_limit_high = Int(5)
+    power_limit_low = Int(-3)
+
+class CategoricalTickFormatter(TickFormatter):
+    """ Represents a categorical tick formatter for an axis object """
+    pass
+
+class DatetimeTickFormatter(TickFormatter):
+    """ Represents a categorical tick formatter for an axis object """
+    pass
+
 class Glyph(Renderer):
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(Range, has_ref=True)
@@ -270,6 +300,9 @@ class Axis(GuideRenderer):
     location = Either(String('min'), Float)
     bounds = Either(Enum('auto'), Tuple) # XXX: Tuple(Float, Float)
 
+    ticker = Instance(Ticker, has_ref=True)
+    formatter = Instance(TickFormatter, has_ref=True)
+
     axis_label = String
     axis_label_standoff = Int
     axis_label_props = Include(TextProps, prefix="axis_label")
@@ -288,17 +321,39 @@ class Axis(GuideRenderer):
 class LinearAxis(Axis):
     type = String("linear_axis")
 
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = BasicTicker()
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = BasicTickFormatter()
+        super(LinearAxis, self).__init__(**kwargs)
+
 class CategoricalAxis(Axis):
     type = String("categorical_axis")
 
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = CategoricalTicker()
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = CategoricalTickFormatter()
+        super(CategoricalAxis, self).__init__(**kwargs)
+
 class DatetimeAxis(LinearAxis):
     type = String("datetime_axis")
+
     axis_label = String("date")
     scale = String("time")
     num_labels = Int(8)
     char_width = Int(10)
     fill_ratio = Float(0.3)
     formats = Dict({"days": ["%m/%d/%Y"]})
+
+    def __init__(self, **kwargs):
+        if 'ticker' not in kwargs:
+            kwargs['ticker'] = DatetimeTicker()
+        if 'formatter' not in kwargs:
+            kwargs['formatter'] = DatetimeTickFormatter()
+        super(DatetimeAxis, self).__init__(**kwargs)
 
 class Grid(GuideRenderer):
     """ 1D Grid component """
@@ -307,7 +362,7 @@ class Grid(GuideRenderer):
     dimension = Int(0)
     bounds = String('auto')
 
-    is_datetime = Bool(False)
+    axis = Instance(Axis, has_ref=True)
 
     # Line props
     grid_props = Include(LineProps, prefix="grid")

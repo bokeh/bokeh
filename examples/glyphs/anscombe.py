@@ -54,8 +54,8 @@ def make_plot(title, xname, yname):
         title=title, width=400, height=400, border_fill='white', background_fill='#e9e0db')
     xaxis = LinearAxis(plot=plot, dimension=0, location="bottom", axis_line_color=None)
     yaxis = LinearAxis(plot=plot, dimension=1, location="left", axis_line_color=None)
-    xgrid = Grid(plot=plot, dimension=0)
-    ygrid = Grid(plot=plot, dimension=1)
+    xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
+    ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
     line_renderer = Glyph(
         data_source = lines_source,
         xdata_range = xdr,

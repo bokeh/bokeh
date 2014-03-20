@@ -88,9 +88,10 @@ try:
 
         if etype != 'notebook':
             cwd = os.path.dirname(example)
-            module = os.path.splitext(os.path.basename(example))[0]
+            script = os.path.basename(example)
+            module = os.path.splitext(script)[0]
 
-            proc = subprocess.Popen(["python", "-c", "import %s" % module], cwd=cwd, env=env)
+            proc = subprocess.Popen(["python", "%s" % script], cwd=cwd, env=env)
             code = proc.wait()
 
         if etype == 'notebook' or code == 0:

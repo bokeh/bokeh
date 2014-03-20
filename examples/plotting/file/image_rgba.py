@@ -17,7 +17,7 @@ for i in range(N):
         view[i, j, 2] = int(j/N*255)
         view[i, j, 3] = 255
 
-output_file("rgba_image.html", title="rgba_image.py example")
+output_file("image_rgba.html", title="image_rgba.py example")
 
 image_rgba(
     image=[img], x=[0], y=[0], dw=[10], dh=[10],
