@@ -2,8 +2,9 @@ define [
   "underscore",
   "backbone",
   "common/has_properties"
+  "sprintf",
   "timezone",
-], (_, Backbone, HasProperties, tz) ->
+], (_, Backbone, HasProperties, sprintf, tz) ->
 
   _us = (t) ->
     return sprintf("%3dus", Math.floor((t % 1) * 1000))

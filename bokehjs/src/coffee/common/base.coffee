@@ -29,12 +29,18 @@ define [
 
   "source/column_data_source",
 
-  "ticking/basic_ticker",
+  "ticking/abstract_ticker",
+  "ticking/adaptive_ticker",
   "ticking/basic_tick_formatter",
-  "ticking/categorical_ticker",
+  "ticking/basic_ticker",
   "ticking/categorical_tick_formatter",
-  "ticking/datetime_ticker",
+  "ticking/categorical_ticker",
+  "ticking/composite_ticker",
   "ticking/datetime_tick_formatter",
+  "ticking/datetime_ticker",
+  "ticking/days_ticker",
+  "ticking/months_ticker",
+  "ticking/single_interval_ticker",
 
   "tool/box_select_tool",
   "tool/box_zoom_tool",
@@ -84,12 +90,18 @@ define [
 
     ColumnDataSource:         'source/column_data_source'
 
+    AbstractTicker:           'ticking/abstract_ticker'
+    AdaptiveTicker:           'ticking/adaptive_ticker'
     BasicTicker:              'ticking/basic_ticker'
     BasicTickFormatter:       'ticking/basic_tick_formatter'
     CategoricalTicker:        'ticking/categorical_ticker'
     CategoricalTickFormatter: 'ticking/categorical_tick_formatter'
+    CompositeTicker:          'ticking/composite_ticker'
     DatetimeTicker:           'ticking/datetime_ticker'
     DatetimeTickFormatter:    'ticking/datetime_tick_formatter'
+    DaysTicker:               'ticking/days_ticker'
+    MonthsTicker:             'ticking/months_ticker'
+    SingleIntervalTicker:     'ticking/single_interval_ticker'
 
     PanTool:                  'tool/pan_tool'
     WheelZoomTool:            'tool/wheel_zoom_tool'

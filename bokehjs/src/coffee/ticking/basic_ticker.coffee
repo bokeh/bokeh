@@ -1,9 +1,10 @@
 define [
-  "ticking/tickers",
-], (tickers) ->
+  "ticking/adaptive_ticker",
+], (AdaptiveTicker) ->
 
-  class BasicTicker extends tickers.AdaptiveTicker
+  class BasicTicker extends AdaptiveTicker.Model
     type: 'BasicTicker'
+
     initialize: (attrs, options) ->
       super(attrs, options)
 

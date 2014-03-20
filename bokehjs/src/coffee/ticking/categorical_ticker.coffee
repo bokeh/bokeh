@@ -4,6 +4,8 @@ define [
 ], (Backbone, HasProperties) ->
 
   class CategoricalTicker extends HasProperties
+    type: 'CategoricalTicker'
+
     get_ticks: (start, end, range, {desired_n_ticks}) ->
       return range.get("factors")
 

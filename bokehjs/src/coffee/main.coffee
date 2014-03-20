@@ -101,12 +101,18 @@ define (require, exports, module) ->
   Bokeh.ColumnDataSource      = require("source/column_data_source")
 
   # tickers and tick formatters
+  Bokeh.AbstractTicker           = require("ticking/abstract_ticker")
+  Bokeh.AdaptiveTicker           = require("ticking/adaptive_ticker")
   Bokeh.BasicTicker              = require("ticking/basic_ticker")
   Bokeh.BasicTickFormatter       = require("ticking/basic_tick_formatter")
   Bokeh.CategoricalTicker        = require("ticking/categorical_ticker")
   Bokeh.CategoricalTickFormatter = require("ticking/categorical_tick_formatter")
+  Bokeh.CompositeTicker          = require("ticking/composite_ticker")
   Bokeh.DatetimeTicker           = require("ticking/datetime_ticker")
   Bokeh.DatetimeTickFormatter    = require("ticking/datetime_tick_formatter")
+  Bokeh.DaysTicker               = require("ticking/days_ticker")
+  Bokeh.MonthsTicker             = require("ticking/months_ticker")
+  Bokeh.SingleIntervalTicker     = require("ticking/single_interval_ticker")
 
   # tools
   Bokeh.BoxSelectTool          = require("tool/box_select_tool")

@@ -13,14 +13,12 @@ define [
     default_view: LinearAxisView
     type: 'LinearAxis'
 
-    defaults: () ->
-      return {
-        ticker: new BasicTicker.Model()
-        formatter: new BasicTickFormatter.Model()
-      }
-
-    display_defaults: () ->
-      super()
+    initialize: (attrs, objects) ->
+      super(attrs, objects)
+      if not @get_obj('ticker')?
+        @set_obj('ticker', BasicTicker.Collection.create())
+      if not @get_obj('formatter')?
+        @set_obj('formatter', BasicTickFormatter.Collection.create())
 
   class LinearAxes extends Backbone.Collection
      model: LinearAxis
