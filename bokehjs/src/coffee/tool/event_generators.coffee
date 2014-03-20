@@ -5,6 +5,9 @@ define [], () ->
     offset = $(event.currentTarget).offset()
     left = if offset? then offset.left else 0
     top = if offset? then offset.top else 0
+    touch = 'ontouchstart' of document.documentElement
+    pageX = (if touch then event.originalEvent.touches[0].pageX or event.originalEvent.changedTouches[0].pageX else event.pageX)
+    pageY = (if touch then event.originalEvent.touches[0].pageY or event.originalEvent.changedTouches[0].pageY else event.pageY)
     event.bokehX = event.pageX - left
     event.bokehY = event.pageY - top
 
@@ -78,7 +81,8 @@ define [], () ->
         if not e[@options.keyName]
           @_stop_drag(e))
 
-      @plotview.canvas_wrapper.bind 'mousedown', (e) =>
+      start_click = (if 'ontouchstart' of document.documentElement then 'touchstart' else 'mousedown')
+      @plotview.canvas_wrapper.bind start_click, (e) =>
         start = false
 
         if @button_activated or @eventSink.active == @toolName
@@ -93,11 +97,13 @@ define [], () ->
           @_start_drag()
           return false
 
-      @plotview.canvas_wrapper.bind('mouseup', (e) =>
+      end_click = (if 'ontouchstart' of document.documentElement then 'touchend' else 'mouseup')
+      leave_click = (if 'ontouchstart' of document.documentElement then 'touchend' else 'mouseleave')
+      @plotview.canvas_wrapper.bind(end_click, (e) =>
         if @button_activated
           @_stop_drag(e)
           return false)
-      @plotview.canvas_wrapper.bind('mouseleave', (e) =>
+      @plotview.canvas_wrapper.bind(leave_click, (e) =>
         if @button_activated
           @_stop_drag(e)
           return false)
