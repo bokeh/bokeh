@@ -29,7 +29,8 @@ from .server_backends import (
     RedisBackboneStorage, RedisServerModelStorage,
     InMemoryBackboneStorage, InMemoryServerModelStorage,
     ShelveBackboneStorage, ShelveServerModelStorage,
-    SingleUserAuthentication, MultiUserAuthentication
+    SingleUserAuthentication, MultiUserAuthentication,
+    HDF5DataBackend
 )
 
 PORT = 5006
@@ -37,7 +38,7 @@ REDIS_PORT = 6379
 
 app = Flask("bokeh.server")
 
-def prepare_app(backend, single_user_mode=True):
+def prepare_app(backend, single_user_mode=True, data_directory=None):
     # must import views before running apps
     from .views import deps
 
@@ -60,8 +61,13 @@ def prepare_app(backend, single_user_mode=True):
         authentication = SingleUserAuthentication()
     else:
         authentication = MultiUserAuthentication()
+    if data_directory:
+        datamanager = HDF5DataBackend(data_directory)
+    else:
+        datamanager = None
 
-    bokeh_app.setup(backend, bbstorage, servermodel_storage, authentication)
+    bokeh_app.setup(backend, bbstorage, servermodel_storage, 
+                    authentication, datamanager)
 
     app.register_blueprint(bokeh_app)
 
