@@ -686,7 +686,8 @@ class List(ContainerProperty):
         super(List, self).validate(value)
 
         if value is not None:
-            if not (isinstance(value, list) and all(self.item_type.is_valid(item) for item in value)):
+            if not (isinstance(value, list) and \
+                    all(self.item_type.is_valid(item) for item in value)):
                 raise ValueError("expected an element of %s, got %r" % (self, value))
 
     def __str__(self):
@@ -712,9 +713,11 @@ class Dict(ContainerProperty):
     list contains references to other objects
     """
 
-    def __init__(self, default={}, has_ref=False):
-        Property.__init__(self, default)
+    def __init__(self, keys_type, values_type, default={}, has_ref=False):
+        self.keys_type = self._validate_type_param(keys_type)
+        self.values_type = self._validate_type_param(values_type)
         self.has_ref = has_ref
+        super(Dict, self).__init__(default=default)
 
     def __get__(self, obj, type=None):
         if not hasattr(obj, self._name) and isinstance(self.default, dict):
@@ -722,6 +725,17 @@ class Dict(ContainerProperty):
             return getattr(obj, self._name)
         else:
             return getattr(obj, self._name, self.default)
+
+    def validate(self, value):
+        super(Dict, self).validate(value)
+
+        if value is not None:
+            if not (isinstance(value, dict) and \
+                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in value.iteritems())):
+                raise ValueError("expected an element of %s, got %r" % (self, value))
+
+    def __str__(self):
+        return "%s(%s, %s)" % (self.__class__.__name__, self.keys_type, self.values_type)
 
 class Tuple(ContainerProperty):
 
@@ -733,13 +747,14 @@ class Tuple(ContainerProperty):
         default = kwargs.get("default", None)
 
         self.type_params = type_params
-        super(Tuple, self).__init__(default)
+        super(Tuple, self).__init__(default=default)
 
     def validate(self, value):
         super(Tuple, self).validate(value)
 
         if value is not None:
-            if not (isinstance(value, tuple) and all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
+            if not (isinstance(value, tuple) and \
+                    all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
                 raise ValueError("expected an element of %s, got %r" % (self, value))
 
     def __str__(self):

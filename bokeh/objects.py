@@ -36,12 +36,12 @@ class ColumnsRef(HasProps):
 
 class ColumnDataSource(DataSource):
     # Maps names of columns to sequences or arrays
-    data = Dict()
+    data = Dict(String, Any)
 
     # Maps field/column name to a DataRange or FactorRange object. If the
     # field is not in the dict, then a range is created automatically.
-    cont_ranges = Dict()
-    discrete_ranges = Dict()
+    cont_ranges = Dict(String, Instance(".objects.Range"))
+    discrete_ranges = Dict(String, Instance(".objects.Range"))
 
     def __init__(self, *args, **kw):
         """ Modify the basic DataSource/PlotObj constructor so that if we
@@ -88,7 +88,7 @@ class PandasDataSource(DataSource):
     a PandasPlotSource needs to be created and pointed at it.
     """
 
-    data = Dict()
+    data = Dict(String, Any)
 
 class Range(PlotObject):
     pass
@@ -363,7 +363,7 @@ class DatetimeAxis(LinearAxis):
     num_labels = Int(8)
     char_width = Int(10)
     fill_ratio = Float(0.3)
-    formats = Dict({"days": ["%m/%d/%Y"]})
+    formats = Dict(String, List(String), {"days": ["%m/%d/%Y"]})
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:
@@ -421,7 +421,7 @@ class BoxSelectionOverlay(Renderer):
 
 class HoverTool(Tool):
     renderers = List(Instance(Renderer), has_ref=True)
-    tooltips = Dict()
+    tooltips = Dict(String, String)
 
 class ObjectExplorerTool(Tool):
     pass
@@ -439,12 +439,13 @@ class Legend(Renderer):
     label_standoff = Int(15)
     label_height = Int(20)
     label_width = Int(50)
-    legend_padding = Int(10)
 
     glyph_height = Int(20)
     glyph_width = Int(20)
+
+    legend_padding = Int(10)
     legend_spacing = Int(3)
-    legends = Dict()
+    legends = Dict(String, Any)
 
 class DataSlider(Renderer):
     plot = Instance(Plot, has_ref=True)
