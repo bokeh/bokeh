@@ -31,6 +31,7 @@ Dimension = enumeration("width", "height", "x", "y")
 Location = enumeration("top", "bottom", "left", "right", "min")
 Orientation = enumeration("top_right", "top_left", "bottom_left", "bottom_right")
 BorderSymmetry = enumeration("h", "v", "hv", "vh")
+DashPattern = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 NamedColor = enumeration(
     "indigo", "gold", "firebrick", "indianred", "yellow",
     "darkolivegreen", "darkseagreen", "darkslategrey", "mediumvioletred",

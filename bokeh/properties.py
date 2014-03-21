@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 from six import integer_types, string_types, add_metaclass
 import numpy as np
 
-from .enums import Enumeration, NamedColor
+from . import enums
 
 def _dummy(*args,**kw):
     return None
@@ -56,6 +56,9 @@ class Property(object):
             logger.warning("could not compare %s and %s for property %s", new, old, self.name)
         return False
 
+    def transform(self, value):
+        return value
+
     def validate(self, value):
         pass
 
@@ -72,6 +75,7 @@ class Property(object):
 
     def __set__(self, obj, value):
         self.validate(value)
+        value = self.transform(value)
         old = self.__get__(obj)
         obj._changed_vars.add(self.name)
         if self._name in obj.__dict__ and self.matches(value, old):
@@ -294,7 +298,7 @@ class ColorSpec(DataSpec):
     For more examples, see tests/test_glyphs.py
     """
 
-    NAMEDCOLORS = set(NamedColor._values)
+    NAMEDCOLORS = set(enums.NamedColor._values)
 
     def __init__(self, field_or_value=None, field=None, default=None, value=None):
         """ ColorSpec(field_or_value=None, field=None, default=None, value=None)
@@ -647,7 +651,7 @@ class String(PrimitiveProperty):
 class ParameterizedProperty(Property):
     """Property that has type parameters, e.g. `List(String)`. """
 
-    def _validate_type_param(cls, type_param):
+    def _validate_type_param(self, type_param):
         if isinstance(type_param, type):
             if issubclass(type_param, Property):
                 return type_param()
@@ -663,7 +667,6 @@ class ContainerProperty(ParameterizedProperty):
     # and attribute change detection code
     pass
 
-# container types
 class List(ContainerProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
@@ -855,7 +858,7 @@ class Enum(Property):
     argument.
     """
     def __init__(self, *values, **kwargs):
-        if len(values) == 1 and isinstance(values[0], Enumeration):
+        if len(values) == 1 and isinstance(values[0], enums.Enumeration):
             enum_type = values[0]
             values = enum_type._values
             default = enum_type._default
@@ -900,7 +903,7 @@ class Color(Property):
 
 class Align(Property): pass
 
-class DashPattern(Property):
+class DashPattern(Either):
     """
     This is a property that expresses line dashes.  It can be specified in
     a variety of forms:
@@ -910,13 +913,11 @@ class DashPattern(Property):
       style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
       Note that if the list of integers has an odd number of elements, then
       it is duplicated, and that duplicated list becomes the new dash list.
-    * A string of integers with spaces separating them. This is broken up into
-      a list and then treated like the above.
 
     If dash is turned off, then the dash pattern is the empty list [].
     """
 
-    dashmap = {
+    _dash_patterns = {
         "solid": [],
         "dashed": [6],
         "dotted": [2,4],
@@ -925,28 +926,18 @@ class DashPattern(Property):
     }
 
     def __init__(self, default=[]):
-        Property.__init__(self, default)
+        super(DashPattern, self).__init__(Enum(enums.DashPattern), List(Int), default=default)
 
-    def __set__(self, obj, arg):
-        if isinstance(arg, str):
-            if arg in self.dashmap:
-                arg = self.dashmap[arg]
-            else:
-                try:
-                    arg = [int(x) for x in arg.split()]
-                except:
-                    raise ValueError("Invalid string value for dash pattern: '%s'" % arg)
-        elif isinstance(arg, tuple) or isinstance(arg, list):
-            for x in arg:
-                if not isinstance(x, int):
-                    raise ValueError("list/tuple values for dash patterns must contain only integers")
+    def transform(self, value):
+        value = super(DashPattern, self).transform(value)
+
+        if isinstance(value, string_types):
+            return self._dash_patterns[value]
         else:
-            raise ValueError("Invalid value assigned to Pattern; "
-                             "must be list or tuple of integers, or string; "
-                             "strings must be space delimited integers, e.g. '2 4 3 2' "
-                             "or one of the names: 'solid','dashed','dotted','dotdash','dashdot'.")
+            return value
 
-        super(DashPattern, self).__set__(obj, arg)
+    def __str__(self):
+        return self.__class__.__name__
 
 class Size(Float):
     """ Equivalent to an unsigned int """
@@ -954,7 +945,7 @@ class Size(Float):
         super(Size, self).validate(value)
 
         if not (value is None or 0.0 <= value):
-            raise ValueError("expected a non-negative number, got %s" % value)
+            raise ValueError("expected a non-negative number, got %r" % value)
 
 class Percent(Float):
     """ Percent is useful for alphas and coverage and extents; more
@@ -964,7 +955,7 @@ class Percent(Float):
         super(Percent, self).validate(value)
 
         if not (value is None or 0.0 <= value <= 1.0):
-            raise ValueError("expected a value in range [0, 1], got %s" % value)
+            raise ValueError("expected a value in range [0, 1], got %r" % value)
 
 class Angle(Float):
     pass
