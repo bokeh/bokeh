@@ -26,9 +26,6 @@ define [
       super(options)
 
     _set_data: (@data) ->
-      for i in [0...@y.length]
-        @y[i] += @dh[i]
-
       if not @image_data? or @image_data.length != @image.length
         @image_data = new Array(@image.length)
 
@@ -77,7 +74,7 @@ define [
         if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i])
           continue
 
-        y_offset = @sy[i]+@sh[i]/2
+        y_offset = @sy[i]
 
         ctx.translate(0, y_offset)
         ctx.scale(1, -1)
