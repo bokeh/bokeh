@@ -14,9 +14,6 @@ import numpy as np
 
 from . import enums
 
-def _dummy(*args,**kw):
-    return None
-
 def nice_join(seq, sep=", "):
     seq = map(str, seq)
 
@@ -775,10 +772,6 @@ class Array(ContainerProperty):
         else:
             return getattr(obj, self._name, self.default)
 
-# OOP things
-class Class(Property):
-    pass
-
 class Instance(Property):
     def __init__(self, instance_type, default=None, has_ref=False):
         """has_ref : whether the json for this is a reference to
@@ -821,8 +814,7 @@ class Instance(Property):
         return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
 
 class This(Property):
-    """ A reference to an instance of the class being defined
-    """
+    """ A reference to an instance of the class being defined. """
     pass
 
 # Fake types, ABCs
@@ -886,10 +878,6 @@ class Enum(Property):
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))
-
-Sequence = _dummy
-Mapping = _dummy
-Iterable = _dummy
 
 # Properties useful for defining visual attributes
 class Color(Property):
