@@ -325,7 +325,7 @@ class Axis(GuideRenderer):
     axis_label_props = Include(TextProps, prefix="axis_label")
 
     major_label_standoff = Int
-    major_label_orientation = Either(Enum("horizontal", "vertical"), Int)
+    major_label_orientation = Either(Enum("horizontal", "vertical"), Float)
     major_label_props = Include(TextProps, prefix="major_label")
 
     # Line props
