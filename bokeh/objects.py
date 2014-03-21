@@ -13,7 +13,7 @@ logger = logging.getLogger(__file__)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
 from .mixins import FillProps, LineProps, TextProps
-from .enums import Units, Orientation, Dimension, BorderSymmetry
+from .enums import Units, Orientation, Location, Dimension, BorderSymmetry
 from .plotobject import PlotObject
 from .glyphs import BaseGlyph
 
@@ -314,7 +314,7 @@ class Axis(GuideRenderer):
     type = String("axis")
 
     dimension = Int(0)
-    location = Either(Enum('min'), Float)
+    location = Either(Enum(Location), Float)
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
     ticker = Instance(Ticker, has_ref=True)
