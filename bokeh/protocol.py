@@ -40,6 +40,8 @@ class NumpyJSONEncoder(json.JSONEncoder):
                 return float(obj)
         elif isinstance(obj, pd.tslib.Timestamp):
             return obj.value / millifactor
+        elif isinstance(obj, (dt.datetime, dt.date)):
+            return time.mktime(obj.timetuple()) * 1000.
         else:
             return super(NumpyJSONEncoder, self).default(obj)
 
