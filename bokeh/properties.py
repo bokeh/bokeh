@@ -842,8 +842,8 @@ class Enum(Property):
     def __init__(self, *values, **kwargs):
         if len(values) == 1 and isinstance(values[0], Enumeration):
             enum_type = values[0]
-            values = self.enum_type._values
-            default = self.enum_type._default
+            values = enum_type._values
+            default = enum_type._default
         else:
             enum_type = None
 
