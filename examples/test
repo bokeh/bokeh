@@ -18,8 +18,10 @@ parser.add_argument("patterns", type=str, nargs="*",
                     help="select a subset of examples to test")
 parser.add_argument("-p", "--bokeh-port", type=int, default=5006,
                     help="port on which Bokeh server resides")
-parser.add_argument("-n", "--notebook-port", type=int, default=8888,
+parser.add_argument("-n", "--ipython-port", type=int, default=8888,
                     help="port on which IPython Notebook server resides")
+parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
+                    help="phantomjs executable")
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
 args = parser.parse_args()
@@ -43,21 +45,22 @@ def add_examples(examples_dir, includes=set([]), excludes=set([]), etype='file')
         if not file.startswith('__') and file.endswith(ext) and file not in excludes:
             examples.append((os.path.join(examples_dir, file), etype))
 
-glyphs_dir = os.path.join("glyphs")
+base_dir = os.path.dirname(__file__)
+
+glyphs_dir = os.path.join(base_dir, "glyphs")
 glyphs_server = set(["data_select_tool.py", "glyph2.py", "maps.py", "prim.py"])
 glyphs_excludes = set(["line_animate.py"])
 add_examples(glyphs_dir, excludes=glyphs_excludes|glyphs_server, etype='file')
 add_examples(glyphs_dir, includes=glyphs_server, etype='server')
 
-plotting_file_dir = os.path.join("plotting", "file")
-glyphs_excludes = set(["image.py", "rgba_image.py"])
-add_examples(plotting_file_dir, etype='file', excludes=glyphs_excludes)
+plotting_file_dir = os.path.join(base_dir, "plotting", "file")
+add_examples(plotting_file_dir, etype='file')
 
-plotting_server_dir = os.path.join("plotting", "server")
+plotting_server_dir = os.path.join(base_dir, "plotting", "server")
 plotting_server_excludes = set(["animated.py", "line_animate.py"])
 add_examples(plotting_server_dir, excludes=plotting_server_excludes, etype='server')
 
-plotting_notebook_dir = os.path.join("plotting", "notebook")
+plotting_notebook_dir = os.path.join(base_dir, "plotting", "notebook")
 plotting_notebook_excludes = set(["animated.ipynb"])
 add_examples(plotting_notebook_dir, excludes=plotting_notebook_excludes, etype='notebook')
 
@@ -88,10 +91,7 @@ try:
 
         if etype != 'notebook':
             cwd = os.path.dirname(example)
-            script = os.path.basename(example)
-            module = os.path.splitext(script)[0]
-
-            proc = subprocess.Popen(["python", "%s" % script], cwd=cwd, env=env)
+            proc = subprocess.Popen(["python", os.path.basename(example)], cwd=cwd, env=env)
             code = proc.wait()
 
         if etype == 'notebook' or code == 0:
@@ -106,15 +106,20 @@ try:
             if etype == 'server':
                 url = server_url % (args.bokeh_port, os.path.basename(no_ext))
             elif etype == 'notebook':
-                url = notebook_url % (args.notebook_port, os.path.basename(no_ext))
+                url = notebook_url % (args.ipython_port, os.path.basename(no_ext))
             elif etype == 'file':
                 url = 'file://' + html_file
 
-            cmd = ["phantomjs", "test.js", etype, url, png_file]
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-            code = proc.wait()
+            cmd = [args.phantomjs, os.path.join(base_dir, "test.js"), etype, url, png_file]
 
-            result = json.loads(proc.stdout.read().decode('utf-8'))
+            try:
+                proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+                code = proc.wait()
+            except OSError:
+                print("Failed to run: %s" % " ".join(cmd))
+                sys.exit(1)
+
+            result = json.loads(proc.stdout.read().decode("utf-8"))
 
             status = result['status']
             errors = result['errors']
