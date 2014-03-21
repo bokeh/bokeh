@@ -9,15 +9,15 @@ define [
 
     initialize: (attrs, options) ->
       super(attrs, options)
-      @palette       = @_build_palette(@mget('palette'))
+      @palette       = @_build_palette(@get('palette'))
       @little_endian = @_is_little_endian()
 
     v_map_screen: (data) ->
       buf = new ArrayBuffer(data.length * 4);
       color = new Uint32Array(buf);
 
-      low = @mget('low') ? _.min(data)
-      high = @mget('high') ? _.max(data)
+      low = @get('low') ? _.min(data)
+      high = @get('high') ? _.max(data)
 
       N = @palette.length - 1
       scale = N/(high-low)
