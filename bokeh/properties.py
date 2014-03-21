@@ -725,8 +725,25 @@ class Dict(ContainerProperty):
 
 class Tuple(ContainerProperty):
 
-    def __init__(self, default=()):
-        Property.__init__(self, default)
+    def __init__(self, *type_params, **kwargs):
+        if len(type_params) < 2:
+            raise ValueError("expected at least two type parameters to Tuple property")
+
+        type_params = map(self._validate_type_param, type_params)
+        default = kwargs.get("default", None)
+
+        self.type_params = type_params
+        super(Tuple, self).__init__(default)
+
+    def validate(self, value):
+        super(Tuple, self).validate(value)
+
+        if value is not None:
+            if not (isinstance(value, tuple) and all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
+                raise ValueError("expected an element of %s, got %r" % (self, value))
+
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
 
 class Array(ContainerProperty):
     """ Whatever object is passed in as a default value, np.asarray() is
