@@ -314,7 +314,7 @@ class Axis(GuideRenderer):
     type = String("axis")
 
     dimension = Int(0)
-    location = Either(String('min'), Float)
+    location = Either(Enum('min'), Float)
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
     ticker = Instance(Ticker, has_ref=True)
