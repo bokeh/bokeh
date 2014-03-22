@@ -1,5 +1,5 @@
 import gzip
-import StringIO
+from six.moves import cStringIO as StringIO
 from flask import request
 
 
@@ -21,7 +21,7 @@ class Gzip(object):
             return response
         print 'GZIPPING'
         response.direct_passthrough = False
-        gzip_buffer = StringIO.StringIO()
+        gzip_buffer = StringIO()
         gzip_file = gzip.GzipFile(mode='wb', compresslevel=self.compress_level, fileobj=gzip_buffer)
         gzip_file.write(response.data)
         gzip_file.close()

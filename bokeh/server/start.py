@@ -31,6 +31,7 @@ from .server_backends import (
     ShelveBackboneStorage, ShelveServerModelStorage,
     SingleUserAuthentication, MultiUserAuthentication
 )
+from .flask_gzip import Gzip
 
 PORT = 5006
 REDIS_PORT = 6379
@@ -100,7 +101,6 @@ def stop_services():
 
 def start_app(host="127.0.0.1", port=PORT, verbose=False):
     global http_server
-    from .flask_gzip import Gzip
     Gzip(app)
     http_server = make_server(host, port, app)
     start_services()
