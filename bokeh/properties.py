@@ -915,16 +915,33 @@ class Enum(Property):
         return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))
 
 # Properties useful for defining visual attributes
-class Color(Property):
+class Color(Either):
     """ Accepts color definition in a variety of ways, and produces an
-    appropriate serialization of its value for whatever backend
+    appropriate serialization of its value for whatever backend.
+
+    For colors, because we support named colors and hex values prefaced
+    with a "#", when we are handed a string value, there is a little
+    interpretation: if the value is one of the 147 SVG named colors or
+    it starts with a "#", then it is interpreted as a value.
+
+    If a 3-tuple is provided, then it is treated as an RGB (0..255).
+    If a 4-tuple is provided, then it is treated as an RGBa (0..255), with
+    alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
     """
-    # TODO: Implement this.  Valid inputs: SVG named 147, 3-tuple, 4-tuple with
-    # appropriate options for baking in alpha, hex code.  Tuples should allow
-    # both float as well as integer.
 
+    def __init__(self, default=None):
+        Byte = Range(Int, 0, 255)
+        types = (Enum(enums.NamedColor),
+                 Regex("^#[0-9a-fA-F]{6}$"),
+                 Tuple(Byte, Byte, Byte),
+                 Tuple(Byte, Byte, Byte, Percent))
+        super(Color, self).__init__(*types, default=default)
 
-class Align(Property): pass
+    def __str__(self):
+        return self.__class__.__name__
+
+class Align(Property):
+    pass
 
 class DashPattern(Either):
     """
