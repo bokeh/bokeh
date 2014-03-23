@@ -3,6 +3,7 @@ classes and implement convenience behaviors like default values, etc.
 """
 from __future__ import print_function
 
+import re
 from importlib import import_module
 from copy import copy
 import inspect
@@ -645,6 +646,21 @@ class Complex(PrimitiveProperty):
 class String(PrimitiveProperty):
     _underlying_type = string_types
 
+class Regex(String):
+
+    def __init__(self, regex, default=None):
+        self.regex = re.compile(regex)
+        super(Regex, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Regex, self).validate(value)
+
+        if not (value is None or self.regex.match(value) is not None):
+            raise ValueError("expected a string matching %r pattern, got %r" % (self.regex.pattern, value))
+
+    def __str__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
+
 class ParameterizedProperty(Property):
     """Property that has type parameters, e.g. `List(String)`. """
 
@@ -821,6 +837,25 @@ class This(Property):
 class Any(Property): pass
 class Function(Property): pass
 class Event(Property): pass
+
+class Range(ParameterizedProperty):
+
+    def __init__(self, range_type, start, end, default=None):
+        self.range_type = self._validate_type_param(range_type)
+        self.range_type.validate(start)
+        self.range_type.validate(end)
+        self.start = start
+        self.end = end
+        super(Range, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Range, self).validate(value)
+
+        if not (value is None or self.range_type.is_valid(value) and value >= self.start and value <= self.end):
+            raise ValueError("expected a value of type %s in range [%s, %s], got %r" % (self.range_type, self.start, self.end, value))
+
+    def __str__(self):
+        return "%s(%s, %r, %r)" % (self.__class__.__name__, self.range_type, self.start, self.end)
 
 class Either(ParameterizedProperty):
     """ Takes a list of valid properties and validates against them in succession. """
