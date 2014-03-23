@@ -5,6 +5,7 @@ from os.path import expanduser, exists, join
 from os import makedirs
 from six.moves.urllib.parse import urljoin, urlencode
 from . import utils, browserlib
+import pandas as pd
 
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
 
@@ -149,13 +150,14 @@ class Server(object):
 
     
     def data_source(self, name, dataframe=None, **kwargs):
-        fname = join(self.configdir, name + ".hdf5")
-        store = pd.HDFStore(fname)
-        if not dataframe:
-            dataframe = pd.DataFrame(kwargs)
-        store.put(name, dataframe)
-        store.flush()
-        store.close()
+        raise NotImplementedError
+        # fname = join(self.configdir, name + ".hdf5")
+        # store = pd.HDFStore(fname)
+        # if not dataframe:
+        #     dataframe = pd.DataFrame(kwargs)
+        # store.put(name, dataframe)
+        # store.flush()
+        # store.close()
         
     def list_data(self):
         url = urljoin(self.root_url, "bokeh/data/" + self.username)

@@ -28,7 +28,6 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
         config = tempfile.mkdtemp()
         s = Server(configdir=config)
         url = "http://localhost:5006/bokeh/data2/defaultuser/defaultuser/AAPL.hdf5"
-        #url = "http://localhost:5006/bokeh/data2/defaultuser"
         params = ('close', 'date', ['close', 'open', 'date'], 
                   [1000 * time.mktime(dt.datetime(2012,1,1).timetuple()),
                    1000 * time.mktime(dt.datetime(2013,1,1).timetuple())],

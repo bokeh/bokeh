@@ -16,8 +16,7 @@ def list_sources(username):
     return jsonify(sources=sources)
 
     
-@bokeh_app.route("/bokeh/data2/<username>/<path:data_url>", methods=['GET'])
-#@bokeh_app.route("/bokeh/data2/<username>", methods=['GET'])
+@bokeh_app.route("/bokeh/data/<username>/<path:data_url>", methods=['GET'])
 def get_data(username, data_url):
     bokehuser = bokeh_app.authentication.current_user()
     request_username = bokehuser.username

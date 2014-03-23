@@ -1,11 +1,16 @@
+from __future__ import print_function
 import json
 import shelve
 import uuid
+import posixpath
 from .models import user
 from .models import UnauthorizedException
 from .app import bokeh_app
 from ..exceptions import DataIntegrityException
 from ..utils import encode_utf8, decode_utf8
+from ..transforms import line_downsample
+from ..transforms import image_downsample
+
 import logging
 import numpy as np
 
@@ -377,7 +382,7 @@ class AbstractDataBackend(object):
     def append_data(self, request_username, request_docid, data_url, datafile):
         raise NotImplementedError
 
-import posixpath
+
 def user_url_root(data_directory, username):
     user_directory = safe_url_join(data_directory, username)
     user_directory = posixpath.abspath(user_directory)
@@ -395,9 +400,6 @@ def safe_user_url_join(data_directory, username, path):
     user_path = user_url_root(data_directory, username)
     return safe_url_join(user_path, path)
 
-
-from ..transforms import line_downsample
-from ..transforms import image_downsample
 
 
 class HDF5DataBackend(AbstractDataBackend):
@@ -445,7 +447,7 @@ class HDF5DataBackend(AbstractDataBackend):
                                             primary_column,
                                             domain_limit,
                                             domain_resolution)
-        print 'result', result.shape
+        print ('result', result.shape)
         result = {
             'data' : dict([(k, result[k]) for k in result.dtype.names]),
             'domain_limit' : domain_limit
@@ -468,7 +470,7 @@ class HDF5DataBackend(AbstractDataBackend):
         if transpose:
             dataset = dataset[:].T
             #HACK
-            dataset = dataset[::-1,:]
+            dataset = dataset[::-1]
         image_x_axis = np.linspace(global_x_range[0],
                                    global_x_range[1],
                                    dataset.shape[1])
