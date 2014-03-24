@@ -766,7 +766,7 @@ class Tuple(ContainerProperty):
         super(Tuple, self).validate(value)
 
         if value is not None:
-            if not (isinstance(value, tuple) and \
+            if not (isinstance(value, tuple) and len(self.type_params) == len(value) and \
                     all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
                 raise ValueError("expected an element of %s, got %r" % (self, value))
 
