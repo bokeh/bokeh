@@ -878,25 +878,13 @@ class Enum(Property):
     the default value, unless a default is provided with the "default" keyword
     argument.
     """
-    def __init__(self, *values, **kwargs):
-        if len(values) == 1 and isinstance(values[0], enums.Enumeration):
-            enum_type = values[0]
-            values = enum_type._values
-            default = enum_type._default
-        else:
-            enum_type = None
+    def __init__(self, enum, *values, **kwargs):
+        if not (not values and isinstance(enum, enums.Enumeration)):
+            enum = enums.enumeration(enum, *values)
 
-            if "default" not in kwargs:
-                if len(values) > 0:
-                    default = values[0]
-                else:
-                    default = None
-            else:
-                default = kwargs.pop("default")
+        self.allowed_values = enum._values
 
-        self.enum_type = enum_type
-        self.allowed_values = values
-
+        default = kwargs.get("default", enum._default)
         super(Enum, self).__init__(default=default)
 
     def validate(self, value):
