@@ -12,8 +12,9 @@ class BokehBlueprint(flask.Blueprint):
         super(BokehBlueprint, self).__init__(*args, **kwargs)
         self.debugjs = None
 
-    def setup(self, backend, backbone_storage, servermodel_storage, authentication):
-
+    def setup(self, backend, backbone_storage, servermodel_storage, 
+              authentication, datamanager):
+        self.datamanager = datamanager
         self.backend = backend
         self.backbone_storage = backbone_storage
         self.servermodel_storage = servermodel_storage
