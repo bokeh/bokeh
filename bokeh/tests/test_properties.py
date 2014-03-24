@@ -11,13 +11,13 @@ class Basictest(unittest.TestCase):
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
-            z = Array([1,2,3])
+            z = Array([1, 2, 3])
             s = String(None)
 
         f = Foo()
         self.assertEqual(f.x, 12)
         self.assertEqual(f.y, "hello")
-        self.assert_(np.array_equal(np.array([1,2,3]), f.z))
+        self.assert_(np.array_equal(np.array([1, 2, 3]), f.z))
         self.assertEqual(f.s, None)
 
         f.x = 18
@@ -191,7 +191,7 @@ class TestColorSpec(unittest.TestCase):
 
     def test_default_tuple(self):
         class Foo(HasProps):
-            col = ColorSpec("colorfield", default=(128,255,124))
+            col = ColorSpec("colorfield", default=(128, 255, 124))
         desc = Foo.__dict__["col"]
         f = Foo()
         self.assertDictEqual(f.col, {"field": "colorfield", "default": (128, 255, 124)})
@@ -283,22 +283,24 @@ class TestDashPattern(unittest.TestCase):
         class Foo(HasProps):
             pat = DashPattern
         f = Foo()
+
         self.assertEqual(f.pat, [])
         f.pat = "solid"
         self.assertEqual(f.pat, [])
         f.pat = "dashed"
         self.assertEqual(f.pat, [6])
         f.pat = "dotted"
-        self.assertEqual(f.pat, [2,4])
+        self.assertEqual(f.pat, [2, 4])
         f.pat = "dotdash"
-        self.assertEqual(f.pat, [2,4,6,4])
+        self.assertEqual(f.pat, [2, 4, 6, 4])
         f.pat = "dashdot"
-        self.assertEqual(f.pat, [6,4,2,4])
+        self.assertEqual(f.pat, [6, 4, 2, 4])
 
     def test_string(self):
         class Foo(HasProps):
             pat = DashPattern
         f = Foo()
+
         f.pat = ""
         self.assertEqual(f.pat, [])
         f.pat = "2"
@@ -307,37 +309,40 @@ class TestDashPattern(unittest.TestCase):
         self.assertEqual(f.pat, [2, 4])
         f.pat = "2 4 6"
         self.assertEqual(f.pat, [2, 4, 6])
-        def assign(x, val):
-            x.pat = val
-        self.assertRaises(ValueError, assign, f , "abc 6")
+
+        with self.assertRaises(ValueError):
+            f.pat = "abc 6"
 
     def test_list(self):
         class Foo(HasProps):
             pat = DashPattern
         f = Foo()
+
         f.pat = []
         self.assertEqual(f.pat, [])
         f.pat = [2]
         self.assertEqual(f.pat, [2])
-        f.pat = [2,4]
+        f.pat = [2, 4]
         self.assertEqual(f.pat, [2, 4])
-        f.pat = [2,4,6]
+        f.pat = [2, 4, 6]
         self.assertEqual(f.pat, [2, 4, 6])
-        def assign(x, val):
-            x.pat = val
-        self.assertRaises(ValueError, assign, f , [2, 4.2])
-        self.assertRaises(ValueError, assign, f , [2, "a"])
+
+        with self.assertRaises(ValueError):
+            f.pat = [2, 4.2]
+        with self.assertRaises(ValueError):
+            f.pat = [2, "a"]
 
     def test_invalid(self):
         class Foo(HasProps):
             pat = DashPattern
         f = Foo()
-        def assign(x, val):
-            x.pat = val
-        self.assertRaises(ValueError, assign, f , 10)
-        self.assertRaises(ValueError, assign, f , 10.1)
-        self.assertRaises(ValueError, assign, f , {})
 
+        with self.assertRaises(ValueError):
+            f.pat = 10
+        with self.assertRaises(ValueError):
+            f.pat = 10.1
+        with self.assertRaises(ValueError):
+            f.pat = {}
 
 if __name__ == "__main__":
     unittest.main()
