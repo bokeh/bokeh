@@ -28,20 +28,24 @@ class Basictest(unittest.TestCase):
 
     def test_enum(self):
         class Foo(HasProps):
-            x = Enum("blue", "red", "green")
-            y = Enum("small", "medium", "large", default="tiny")
+            x = Enum("blue", "red", "green")     # the first item is the default
+            y = Enum("small", "medium", "large", default="large")
 
         f = Foo()
         self.assertEqual(f.x, "blue")
-        self.assertEqual(f.y, "tiny")
+        self.assertEqual(f.y, "large")
+
         f.x = "red"
+        self.assertEqual(f.x, "red")
+
         with self.assertRaises(ValueError):
             f.x = "yellow"
+
         f.y = "small"
+        self.assertEqual(f.y, "small")
+
         with self.assertRaises(ValueError):
-            # Even though this is the default, it is not a valid value
-            # for the Enum.
-            f.y = "tiny"
+            f.y = "yellow"
 
     def test_inheritance(self):
         class Base(HasProps):
@@ -306,23 +310,6 @@ class TestDashPattern(unittest.TestCase):
         def assign(x, val):
             x.pat = val
         self.assertRaises(ValueError, assign, f , "abc 6")
-
-    def test_tuple(self):
-        class Foo(HasProps):
-            pat = DashPattern
-        f = Foo()
-        f.pat = ()
-        self.assertEqual(f.pat, ())
-        f.pat = (2,)
-        self.assertEqual(f.pat, (2,))
-        f.pat = (2,4)
-        self.assertEqual(f.pat, (2, 4))
-        f.pat = (2,4,6)
-        self.assertEqual(f.pat, (2, 4, 6))
-        def assign(x, val):
-            x.pat = val
-        self.assertRaises(ValueError, assign, f , (2, 4.2))
-        self.assertRaises(ValueError, assign, f , (2, "a"))
 
     def test_list(self):
         class Foo(HasProps):
