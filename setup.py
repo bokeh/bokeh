@@ -3,6 +3,7 @@ from os.path import abspath, exists, isdir, join, dirname
 import site
 import sys
 import shutil
+import subprocess
 from distutils.core import setup
 import versioneer
 
@@ -26,6 +27,9 @@ APP = [join(BOKEHJSREL, 'js', 'bokeh.js'),
        join(BOKEHJSREL, 'js', 'bokeh.min.js')]
 CSS = join(BOKEHJSREL, 'css')
 
+# TODO (bev) remove 'devjs' in 0.6
+if 'devjs' in sys.argv:
+    print("WARNING: 'devjs' is deprecated and will be removed in Bokeh 0.6, please use 'develop'")
 
 if 'devjs' in sys.argv or 'develop' in sys.argv:
     # Don't import setuptools unless the user is actively
@@ -33,6 +37,16 @@ if 'devjs' in sys.argv or 'develop' in sys.argv:
     APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
            join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
     CSS = join(BOKEHJSBUILD, 'css')
+    if '--deploy' in sys.argv:
+        os.chdir('bokehjs')
+        try:
+            print("deploying bokehjs...")
+            out = subprocess.check_output(['grunt', 'deploy'])
+            sys.argv.remove('--deploy')
+        except CalledProcessError:
+            print("ERROR: could not deploy bokehjs")
+            sys.exit(1)
+        os.chdir('..')
 
 if exists(join(SERVER, 'static', 'js')):
     shutil.rmtree(join(SERVER, 'static', 'js'))
