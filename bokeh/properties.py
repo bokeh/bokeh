@@ -966,13 +966,17 @@ class DashPattern(Either):
     }
 
     def __init__(self, default=[]):
-        super(DashPattern, self).__init__(Enum(enums.DashPattern), List(Int), default=default)
+        types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), List(Int)
+        super(DashPattern, self).__init__(*types, default=default)
 
     def transform(self, value):
         value = super(DashPattern, self).transform(value)
 
         if isinstance(value, string_types):
-            return self._dash_patterns[value]
+            try:
+                return self._dash_patterns[value]
+            except KeyError:
+                return map(int, value.split())
         else:
             return value
 
