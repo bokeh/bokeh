@@ -6,8 +6,11 @@ class Enumeration(object):
     pass
 
 def enumeration(*values):
-    if not values or any(not (isinstance(value, string_types) and value) for value in values):
+    if not (values and all(isinstance(value, string_types) and value for value in values)):
         raise ValueError("expected a non-empty sequence of strings, got %s" % values)
+
+    if len(values) != len(set(values)):
+        raise ValueError("enumeration items must be unique, got %s" % values)
 
     attrs = dict([ (value, value) for value in values ])
     attrs.update({
