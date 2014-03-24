@@ -755,11 +755,8 @@ class Dict(ContainerProperty):
 
 class Tuple(ContainerProperty):
 
-    def __init__(self, *type_params, **kwargs):
-        if len(type_params) < 2:
-            raise ValueError("expected at least two type parameters to Tuple property")
-
-        type_params = map(self._validate_type_param, type_params)
+    def __init__(self, tp1, tp2, *type_params, **kwargs):
+        type_params = map(self._validate_type_param, (tp1, tp2) + type_params)
         default = kwargs.get("default", None)
 
         self.type_params = type_params
@@ -860,11 +857,8 @@ class Range(ParameterizedProperty):
 class Either(ParameterizedProperty):
     """ Takes a list of valid properties and validates against them in succession. """
 
-    def __init__(self, *type_params, **kwargs):
-        if len(type_params) < 2:
-            raise ValueError("expected at least two type parameters to Either property")
-
-        type_params = map(self._validate_type_param, type_params)
+    def __init__(self, tp1, tp2, *type_params, **kwargs):
+        type_params = map(self._validate_type_param, (tp1, tp2) + type_params)
         default = kwargs.get("default", type_params[0].default)
 
         self.type_params = type_params
