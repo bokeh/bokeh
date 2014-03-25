@@ -3,33 +3,6 @@ define [
   "backbone",
   "common/has_properties",
 ], (_, Backbone, HasProperties) ->
-
-  # A hacky analogue to repr() in Python.
-  repr = (obj) ->
-    if obj == null
-      return "null"
-
-    else if obj.constructor == Array
-      elems_str = (repr(elem) for elem in obj).join(", ")
-      return "[#{elems_str}]"
-
-    else if obj.constructor == Object
-      props_str = ("#{key}: #{repr(obj[key])}" for key of obj).join(", ")
-      return "{#{props_str}}"
-
-    else if obj.constructor == String
-      return "\"#{obj}\""
-
-    else if obj.constructor == Function
-      return "<Function: #{obj.name}>"
-
-    else
-      obj_as_string = obj.toString()
-      if obj_as_string == "[object Object]"
-        return "<#{obj.constructor.name}>"
-      else
-        return obj_as_string
-
   # A hacky analogue to repr() in Python.
   repr = (obj) ->
     if obj == null
