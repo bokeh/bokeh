@@ -249,10 +249,10 @@ finally:
         print("Shutting down ipython-notebook ...")
         ipython_notebook.kill()
 
-if ok_examples != num_examples:
+if ok_examples != run_examples:
     fail("FIX FAILURES AND RUN AGAIN")
     sys.exit(1)
-elif run_examples == num_examples:
+elif run_examples != num_examples:
     warn("NOT ALL EXAMPLES WERE RUN")
     sys.exit(0)
 else:
