@@ -1,4 +1,3 @@
-from __future__ import print_function
 """
 Edward Tufte uses this example from Anscombe to show 4 datasets of x
 and y that have the same mean, standard deviation, and regression
@@ -49,7 +48,7 @@ plt.axis([2, 20, 2, 14])
 plt.setp(plt.gca(), yticklabels=[], yticks=(4, 8, 12), xticks=(0, 10, 20))
 plt.text(3, 12, 'IV', fontsize=20)
 
-plt.title("Subplots support in Bokeh")
+# We create the figure in matplotlib and then we "pass it" to Bokeh
 
 pyplot.show_bokeh(plt.gcf(), filename="subplots.html")
 
