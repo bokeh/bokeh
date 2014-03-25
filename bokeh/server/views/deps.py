@@ -1,2 +1,2 @@
-from . import main, backbone, websocket, statics, data
+from . import main, backbone, websocket, data
 

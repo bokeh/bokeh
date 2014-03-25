@@ -10,9 +10,8 @@ class BokehBlueprint(flask.Blueprint):
 
     def __init__(self, *args, **kwargs):
         super(BokehBlueprint, self).__init__(*args, **kwargs)
-        self.debugjs = None
 
-    def setup(self, backend, backbone_storage, servermodel_storage, 
+    def setup(self, backend, backbone_storage, servermodel_storage,
               authentication, datamanager):
         self.datamanager = datamanager
         self.backend = backend
@@ -26,14 +25,6 @@ class BokehBlueprint(flask.Blueprint):
             status = mconv.can_write_doc_api(doc, auth, self)
             return status
         self.wsmanager.register_auth("bokehplot", auth)
-
-        if self.debugjs:
-            basedir = dirname(dirname(dirname(__file__)))
-            self.bokehjsdir = join(basedir, "bokehjs", "build")
-            self.bokehjssrcdir = join(basedir, "bokehjs", "src")
-        else:
-            self.bokehjsdir = join(dirname(__file__), 'static')
-            self.bokehjssrcdir = None
 
     def current_user(self):
         return self.authentication.current_user()
