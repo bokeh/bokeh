@@ -53,7 +53,12 @@ define [
       errors = intervals.map((interval) ->
         return Math.abs(desired_n_ticks - (data_range / interval)))
 
-      best_ticker_ndx = ticker_ndxs[argmin(errors)]
+      # this can happen if the data isn't loaded yet, we just default to
+      # the first scale
+      best_index = argmin(errors)
+      if best_index == Infinity
+        return @get('tickers')[0]
+      best_ticker_ndx = ticker_ndxs[best_index]
       best_ticker = @get('tickers')[best_ticker_ndx]
 
       return best_ticker
@@ -77,4 +82,3 @@ define [
     "Model": CompositeTicker,
     "Collection": new CompositeTickers()
   }
-
