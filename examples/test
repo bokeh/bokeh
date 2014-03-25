@@ -87,10 +87,9 @@ def ok(msg=None):
     msg = " " + msg if msg is not None else ""
     print("%s[OK]%s%s" % (colorama.Fore.GREEN, colorama.Style.RESET_ALL, msg))
 
-env = os.environ.copy()
-env['BOKEH_BROWSER'] = 'dummy'
-
 def run_example(example):
+    env = os.environ.copy()
+    env['BOKEH_BROWSER'] = 'dummy'
     cwd = os.path.dirname(example)
     proc = subprocess.Popen(["python", os.path.basename(example)], cwd=cwd, env=env)
     return proc.wait()
