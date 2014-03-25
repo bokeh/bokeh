@@ -443,7 +443,17 @@ def visual(func):
 def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"]):
     @visual
     def func(*args, **kwargs):
-      # Process the keyword arguments that are not glyph-specific
+        # Process the keyword arguments that are not glyph-specific
+        session_objs = []
+        source = kwargs.pop('source', None)
+        if isinstance(source, ServerDataSource):
+            datasource = ColumnDataSource()
+            serversource = source
+            session_objs.append(serversource)
+        elif source is None:
+            datasource = ColumnDataSource()
+            serversource = None
+        session_objs.append(datasource)
         datasource = kwargs.pop("source", ColumnDataSource())
         legend_name = kwargs.pop("legend", None)
         plot = _get_plot(kwargs)
@@ -454,7 +464,8 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         # Process the glyph dataspec parameters
         glyph_params = _match_data_params(argnames, glyphclass,
-            datasource, args, _materialize_colors_and_alpha(kwargs))
+                                          datasource, serversource,
+                                          args, _materialize_colors_and_alpha(kwargs))
 
         x_data_fields = [ glyph_params[xx]['field'] for xx in xfields if glyph_params[xx]['units'] == 'data' ]
         y_data_fields = [ glyph_params[yy]['field'] for yy in yfields if glyph_params[yy]['units'] == 'data' ]
@@ -477,7 +488,8 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
 
         glyph_renderer = Glyph(
-            data_source = datasource,
+            data_source=datasource,
+            serversource=serversource,
             glyph=glyph,
             nonselection_glyph=nonselection_glyph)
 

@@ -82,6 +82,18 @@ class ColumnDataSource(DataSource):
         except (ValueError, KeyError):
             warnings.warn("Unable to find column '%s' in datasource" % name)
 
+class ServerDataSource(DataSource):
+    data_url = String()
+    owner_username = String()
+    # allow us to add some data that isn't on the remote source
+    # and join it to the remote data
+    data = Dict() 
+    # allow us to specify slicing of data on updates
+    index_slice = List()
+    data_slice = List()
+    # allow us to transpose data on updates (for image data)
+    transpose = Bool(False)
+    
 class PandasDataSource(DataSource):
     """ Represents serverside data.  This gets stored into the plot server's
     database, but it does not have any client side representation.  Instead,
@@ -166,6 +178,7 @@ class DatetimeTickFormatter(TickFormatter):
     pass
 
 class Glyph(Renderer):
+    ServerDataSource = Instance(DataSource, has_ref=True)
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(Range, has_ref=True)
     ydata_range = Instance(Range, has_ref=True)
@@ -185,6 +198,7 @@ class Glyph(Renderer):
         # because the internal glyph instance is turned into a glyphspec
         data =  {"id" : self._id,
                  "data_source": self.data_source,
+                 "remote_data_source" : self.remote_data_source,
                  "xdata_range": self.xdata_range,
                  "ydata_range": self.ydata_range,
                  "glyphspec": self.glyph.to_glyphspec()
