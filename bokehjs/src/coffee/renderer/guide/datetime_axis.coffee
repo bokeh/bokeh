@@ -15,9 +15,9 @@ define [
     initialize: (attrs, objects) ->
       super(attrs, objects)
       if not @get_obj('ticker')?
-        @set_obj('ticker', DatetimeTicker.Collection.create())
+        @set_obj('ticker', DatetimeTicker.Collection.create({doc: @get('doc')}))
       if not @get_obj('formatter')?
-        @set_obj('formatter', DatetimeTickFormatter.Collection.create())
+        @set_obj('formatter', DatetimeTickFormatter.Collection.create({doc: @get('doc')}))
 
   class DatetimeAxes extends Backbone.Collection
     model: DatetimeAxis
