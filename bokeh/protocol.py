@@ -28,11 +28,11 @@ millifactor = 10 ** 6.
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if isinstance(obj, pd.Series):
-            return self.transform_list(obj.tolist())
+            return self.transform_array(obj)
         elif isinstance(obj, np.ndarray):
             if obj.dtype.kind == 'M':
                 obj = obj.astype('datetime64[ms]').astype('int64')
-            return self.transform_list(obj.tolist())
+            return self.transform_array(obj)
         elif isinstance(obj, np.number):
             if isinstance(obj, np.integer):
                 return int(obj)
@@ -45,13 +45,18 @@ class NumpyJSONEncoder(json.JSONEncoder):
         else:
             return super(NumpyJSONEncoder, self).default(obj)
 
-    def transform_list(self, l):
-        if not np.isnan(l).any() and not np.isinf(l).any():
-            return l
+    def transform_array(self, l):
+        if isinstance(l, np.ndarray):
+            print l.dtype.kind
+            if l.dtype.kind in ('u', 'i', 'f') and not np.isnan(l).any() \
+               and not np.isinf(l).any():
+                return l.tolist()
+            else:
+                l = l.tolist()
         try:
             for k, v in enumerate(l):
                 if isinstance(v, list):
-                    v = self.transform_list(v)
+                    v = self.transform_array(v)
                 elif np.isnan(v):
                     l[k] = "NaN"
                 elif np.isposinf(v):
