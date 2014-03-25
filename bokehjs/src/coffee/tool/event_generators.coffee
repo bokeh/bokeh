@@ -5,8 +5,17 @@ define [], () ->
     offset = $(event.currentTarget).offset()
     left = if offset? then offset.left else 0
     top = if offset? then offset.top else 0
-    event.bokehX = event.pageX - left
-    event.bokehY = event.pageY - top
+    touch = 'ontouchstart' of document.documentElement
+    pageX = (if touch then event.originalEvent.touches[0].pageX or event.originalEvent.changedTouches[0].pageX else event.pageX)
+    pageY = (if touch then event.originalEvent.touches[0].pageY or event.originalEvent.changedTouches[0].pageY else event.pageY)
+    event.bokehX = pageX - left
+    event.bokehY = pageY - top
+    # For touch devices second finger
+    if touch and event.originalEvent.touches.length > 1
+      pageX1 = event.originalEvent.touches[1].pageX or event.originalEvent.changedTouches[1].pageX
+      pageY1 = event.originalEvent.touches[1].pageY or event.originalEvent.changedTouches[1].pageY
+      event.bokehX1 = pageX1 - left
+      event.bokehY1 = pageY1 - top
 
   class TwoPointEventGenerator
 
@@ -23,7 +32,7 @@ define [], () ->
       if @options.touch_event? && not @options.touch_event
         return null
       if @options.button_disable? and @options.button_disable
-        button_disabled = "disabled='disabled'"
+        button_disabled = "disabled"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -170,7 +179,7 @@ define [], () ->
       if @options.touch_event? && not @options.touch_event
         return null
       if @options.button_disable? and @options.button_disable
-        button_disabled = "disabled='disabled'"
+        button_disabled = "disabled"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -255,7 +264,7 @@ define [], () ->
       if @options.touch_event? && not @options.touch_event
         return null
       if @options.button_disable? and @options.button_disable
-        button_disabled = "disabled='disabled'"
+        button_disabled = "disabled"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
