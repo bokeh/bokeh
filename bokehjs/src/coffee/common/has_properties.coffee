@@ -13,6 +13,8 @@ define [
     # and notifications of property. We also support weak references
     # to other models using the reference system described above.
 
+    toString: () -> "#{@type}(#{@id})"
+
     destroy: (options)->
       #calls super, also unbinds any events bound by safebind
       super(options)
