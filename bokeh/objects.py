@@ -89,8 +89,8 @@ class ServerDataSource(DataSource):
     # and join it to the remote data
     data = Dict() 
     # allow us to specify slicing of data on updates
-    index_slice = List()
-    data_slice = List()
+    index_slice = List(Any)
+    data_slice = List(Any)
     # allow us to transpose data on updates (for image data)
     transpose = Bool(False)
     
@@ -178,7 +178,7 @@ class DatetimeTickFormatter(TickFormatter):
     pass
 
 class Glyph(Renderer):
-    ServerDataSource = Instance(DataSource, has_ref=True)
+    server_data_source = Instance(ServerDataSource, has_ref=True)
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(Range, has_ref=True)
     ydata_range = Instance(Range, has_ref=True)
@@ -198,7 +198,7 @@ class Glyph(Renderer):
         # because the internal glyph instance is turned into a glyphspec
         data =  {"id" : self._id,
                  "data_source": self.data_source,
-                 "remote_data_source" : self.remote_data_source,
+                 "server_data_source" : self.server_data_source,
                  "xdata_range": self.xdata_range,
                  "ydata_range": self.ydata_range,
                  "glyphspec": self.glyph.to_glyphspec()

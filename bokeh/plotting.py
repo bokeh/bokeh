@@ -10,7 +10,9 @@ import time
 import warnings
 
 from . import glyphs, browserlib, serverconfig
-from .objects import ColumnDataSource, Glyph, Grid, GridPlot, Legend, Axis
+from .objects import (ColumnDataSource, Glyph, Grid, GridPlot, Legend, Axis,
+                      ServerDataSource)
+
 from .plotting_helpers import (get_default_color, get_default_alpha,
         _glyph_doc, _match_data_params, _update_plot_data_ranges,
         _materialize_colors_and_alpha, _get_legend, _make_legend,
@@ -489,7 +491,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         glyph_renderer = Glyph(
             data_source=datasource,
-            serversource=serversource,
+            server_data_source=serversource,
             glyph=glyph,
             nonselection_glyph=nonselection_glyph)
 
