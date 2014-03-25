@@ -9,6 +9,32 @@ define [
     if obj == null
       return "null"
 
+    else if obj.constructor == Array
+      elems_str = (repr(elem) for elem in obj).join(", ")
+      return "[#{elems_str}]"
+
+    else if obj.constructor == Object
+      props_str = ("#{key}: #{repr(obj[key])}" for key of obj).join(", ")
+      return "{#{props_str}}"
+
+    else if obj.constructor == String
+      return "\"#{obj}\""
+
+    else if obj.constructor == Function
+      return "<Function: #{obj.name}>"
+
+    else
+      obj_as_string = obj.toString()
+      if obj_as_string == "[object Object]"
+        return "<#{obj.constructor.name}>"
+      else
+        return obj_as_string
+
+  # A hacky analogue to repr() in Python.
+  repr = (obj) ->
+    if obj == null
+      return "null"
+
     if not obj?
       return "undefined"
 
@@ -66,7 +92,10 @@ define [
       interval = @get_interval(data_low, data_high, desired_n_ticks)
       start_factor = Math.floor(data_low / interval)
       end_factor   = Math.ceil(data_high / interval)
-      factors = _.range(start_factor, end_factor + 1)
+      if _.isNaN(start_factor) or _.isNaN(end_factor)
+        factors = []
+      else
+        factors = _.range(start_factor, end_factor + 1)
       ticks = (factor * interval for factor in factors)
       return ticks
 
