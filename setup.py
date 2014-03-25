@@ -43,7 +43,7 @@ if 'devjs' in sys.argv or 'develop' in sys.argv:
             print("deploying bokehjs...")
             out = subprocess.check_output(['grunt', 'deploy'])
             sys.argv.remove('--deploy')
-        except CalledProcessError:
+        except subprocess.CalledProcessError:
             print("ERROR: could not deploy bokehjs")
             sys.exit(1)
         os.chdir('..')
