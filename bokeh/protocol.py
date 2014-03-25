@@ -46,6 +46,8 @@ class NumpyJSONEncoder(json.JSONEncoder):
             return super(NumpyJSONEncoder, self).default(obj)
 
     def transform_list(self, l):
+        if not np.isnan(l).any() and not np.isinf(l).any():
+            return l
         try:
             for k, v in enumerate(l):
                 if isinstance(v, list):
