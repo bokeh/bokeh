@@ -26,7 +26,7 @@ define [], () ->
       if @options.touch_event? && not @options.touch_event
         return null
       if @options.button_disable? and @options.button_disable
-        button_disabled = "disabled='disabled'"
+        button_disabled = "disabled"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -176,7 +176,7 @@ define [], () ->
       if @options.touch_event? && not @options.touch_event
         return null
       if @options.button_disable? and @options.button_disable
-        button_disabled = "disabled='disabled'"
+        button_disabled = "disabled"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -261,7 +261,7 @@ define [], () ->
       if @options.touch_event? && not @options.touch_event
         return null
       if @options.button_disable? and @options.button_disable
-        button_disabled = "disabled='disabled'"
+        button_disabled = "disabled"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
