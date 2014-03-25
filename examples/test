@@ -14,15 +14,15 @@ import subprocess
 import requests
 import requests.exceptions
 
+import colorama
+colorama.init()
+
 try:
     import gevent
 except ImportError:
     use_server = False
 else:
     use_server = True
-
-import colorama
-colorama.init()
 
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
 parser.add_argument("patterns", type=str, nargs="*",
@@ -75,17 +75,26 @@ plotting_notebook_dir = os.path.join(base_dir, "plotting", "notebook")
 plotting_notebook_excludes = set(["animated.ipynb"])
 add_examples(plotting_notebook_dir, excludes=plotting_notebook_excludes, etype='notebook')
 
-def warn(msg=None):
-    msg = " " + msg if msg is not None else ""
-    print("%s[WARN]%s%s" % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL, msg))
+def red(text):
+    return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
+
+def yellow(text):
+    return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
+
+def green(text):
+    return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
 
 def fail(msg=None):
     msg = " " + msg if msg is not None else ""
-    print("%s[FAIL]%s%s" % (colorama.Fore.RED, colorama.Style.RESET_ALL, msg))
+    print("%s%s" % (red("[FAIL]"), msg))
+
+def warn(msg=None):
+    msg = " " + msg if msg is not None else ""
+    print("%s%s" % (yellow("[WARN]"), msg))
 
 def ok(msg=None):
     msg = " " + msg if msg is not None else ""
-    print("%s[OK]%s%s" % (colorama.Fore.GREEN, colorama.Style.RESET_ALL, msg))
+    print("%s%s" % (green("[OK]"), msg))
 
 def run_example(example):
     env = os.environ.copy()
@@ -210,9 +219,9 @@ ipython_notebook = start_ipython_notebook()
 try:
     for example, etype in sorted(selected_examples):
         if etype == 'server' and not bokeh_server or etype == 'notebook' and not ipython_notebook:
-            print("%s>>>%s Skipping %s ..." % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL, example))
+            print("%s Skipping %s" % (yellow(">>>"), example))
         else:
-            print("%s>>>%s Testing %s ..." % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL, example))
+            print("%s Testing %s ..." % (yellow(">>>"), example))
             result = False
 
             if etype in ['file', 'server']:
@@ -230,7 +239,7 @@ try:
 
         print()
 except KeyboardInterrupt:
-    print("%sINTERRUPTED%s" % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL))
+    print(yellow("INTERRUPTED"))
 finally:
     if bokeh_server is not None:
         print("Shutting down bokeh-server ...")
