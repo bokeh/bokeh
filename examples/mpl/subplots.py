@@ -26,18 +26,18 @@ plt.subplot(221)
 plt.plot(x, y1, 'ks', xfit, fit(xfit), 'r-', lw=2)
 plt.axis([2, 20, 2, 14])
 plt.setp(plt.gca(), xticklabels=[], yticks=(4, 8, 12), xticks=(0, 10, 20))
-plt.text(3, 12, 'I', fontsize=20)
+plt.ylabel('I', fontsize=20)
 
 plt.subplot(222)
 plt.plot(x, y2, 'ks', xfit, fit(xfit), 'r-', lw=2)
 plt.axis([2, 20, 2, 14])
 plt.setp(plt.gca(), xticklabels=[], yticks=(4, 8, 12), yticklabels=[], xticks=(0, 10, 20))
-plt.text(3, 12, 'II', fontsize=20)
+plt.ylabel('II', fontsize=20)
 
 plt.subplot(223)
 plt.plot(x, y3, 'ks', xfit, fit(xfit), 'r-', lw=2)
 plt.axis([2, 20, 2, 14])
-plt.text(3, 12, 'III', fontsize=20)
+plt.ylabel('III', fontsize=20)
 plt.setp(plt.gca(), yticks=(4, 8, 12), xticks=(0, 10, 20))
 
 plt.subplot(224)
@@ -46,7 +46,7 @@ xfit = np.array([np.amin(x4), np.amax(x4)])
 plt.plot(x4, y4, 'ks', xfit, fit(xfit), 'r-', lw=2)
 plt.axis([2, 20, 2, 14])
 plt.setp(plt.gca(), yticklabels=[], yticks=(4, 8, 12), xticks=(0, 10, 20))
-plt.text(3, 12, 'IV', fontsize=20)
+plt.ylabel('IV', fontsize=20)
 
 # We create the figure in matplotlib and then we "pass it" to Bokeh
 
