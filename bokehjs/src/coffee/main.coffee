@@ -30,7 +30,6 @@ define (require, exports, module) ->
   Bokeh.Random = require("common/random")
   Bokeh.safebind = require("common/safebind")
   Bokeh.SVGColors = require("common/svg_colors")
-  Bokeh.ticking = require("common/ticking")
   Bokeh.ViewState = require("common/view_state")
 
   # mappers
