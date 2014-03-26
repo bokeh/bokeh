@@ -184,36 +184,36 @@ class RedisSession(PersistentSession):
     def delete(self, mkey):
         self.redis.delete(mkey)
 
-_inmem_data = {}
-_inmem_sets = defaultdict(set)
-
 class InMemorySession(PersistentSession):
     """session used by the webserver to work with
     a user's documents.  uses in memory data store directly.
     """
 
+    _inmem_data = {}
+    _inmem_sets = defaultdict(set)
+
     def mget(self, doc_keys):
-        return [_inmem_data.get(key, None) for key in doc_keys]
+        return [self._inmem_data.get(key, None) for key in doc_keys]
 
     def mset(self, data):
-        _inmem_data.update(data)
+        self._inmem_data.update(data)
 
     def sadd(self, doc_key, *keys):
-        _inmem_sets[doc_key].update(keys)
+        self._inmem_sets[doc_key].update(keys)
 
     def srem(self, doc_key, member_key):
-        inmem_set = _inmem_sets[doc_key]
+        inmem_set = self._inmem_sets[doc_key]
         try: inmem_set.remove(member_key)
         except KeyError: pass
 
     def smembers(self, doc_key):
-        return list(_inmem_sets[doc_key])
+        return list(self._inmem_sets[doc_key])
 
     def set(self, key, data):
-        _inmem_data[key] = data
+        self._inmem_data[key] = data
 
     def delete(self, key):
-        del _inmem_data[key]
+        del self._inmem_data[key]
 
 class ShelveSession(PersistentSession):
     """session used by the webserver to work with
