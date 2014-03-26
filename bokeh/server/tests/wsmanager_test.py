@@ -13,11 +13,6 @@ from ... import protocol
 from unittest import skip
 import sys
 
-#if platform.python_implementation() == "PyPy":
-    #is_pypy = True
-#else:
-    #is_pypy = False
-
 
 class WSmanagerTestCase(unittest.TestCase):
     @skipIfPy3("gevent does not work in py3.")
