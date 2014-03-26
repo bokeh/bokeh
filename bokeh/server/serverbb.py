@@ -7,6 +7,7 @@ In applications, we would use a class that combines both
 import requests
 import shelve
 import uuid
+import contextlib
 import logging
 from collections import defaultdict
 from six.moves import cPickle as pickle
@@ -219,29 +220,52 @@ class ShelveSession(PersistentSession):
     a user's documents.  uses shelve data store directly.
     """
 
+    @contextlib.contextmanager
+    def shelve_data(self):
+        data = shelve.open('bokeh.data')
+        try:
+            yield data
+        finally:
+            data.close()
+
+    @contextlib.contextmanager
+    def shelve_sets(self):
+        sets = shelve.open('bokeh.sets')
+        try:
+            yield sets
+        finally:
+            sets.close()
+
     def mget(self, doc_keys):
-        return [_shelve_data.get(key, None) for key in doc_keys]
+        with self.shelve_data() as _shelve_data:
+            return [_shelve_data.get(key, None) for key in doc_keys]
 
     def mset(self, data):
-        for k, v in data.items():
-            _shelve_data[k] = v
+        with self.shelve_data() as _shelve_data:
+            for k, v in data.items():
+                _shelve_data[k] = v
 
     def sadd(self, doc_key, *keys):
-        shelve_set = _shelve_sets.get(doc_key, set())
-        shelve_set.update(keys)
-        _shelve_sets[doc_key] = shelve_set
+        with self.shelve_sets() as _shelve_sets:
+            shelve_set = _shelve_sets.get(doc_key, set())
+            shelve_set.update(keys)
+            _shelve_sets[doc_key] = shelve_set
 
     def srem(self, doc_key, member_key):
-        shelve_set = _shelve_sets[doc_key]
-        try: shelve_set.remove(member_key)
-        except KeyError: pass
-        _shelve_sets[doc_key] = shelve_set
+        with self.shelve_sets() as _shelve_sets:
+            shelve_set = _shelve_sets[doc_key]
+            try: shelve_set.remove(member_key)
+            except KeyError: pass
+            _shelve_sets[doc_key] = shelve_set
 
     def smembers(self, doc_key):
-        return list(_shelve_sets[doc_key])
+        with self.shelve_sets() as _shelve_sets:
+            return list(_shelve_sets[doc_key])
 
     def set(self, key, data):
-        _shelve_data[key] = data
+        with self.shelve_data() as _shelve_data:
+            _shelve_data[key] = data
 
     def delete(self, key):
-        del _shelve_data[key]
+        with self.shelve_data() as _shelve_data:
+            del _shelve_data[key]
