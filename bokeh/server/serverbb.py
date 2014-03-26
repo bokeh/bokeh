@@ -30,10 +30,10 @@ class StoreAdapter(object):
     def mset(self, data):
         raise NotImplementedError("abstract method")
 
-    def sadd(self, dkey, *keys):
+    def sadd(self, doc_key, *keys):
         raise NotImplementedError("abstract method")
 
-    def srem(self, doc_key, mkey):
+    def srem(self, doc_key, member_key):
         raise NotImplementedError("abstract method")
 
     def smembers(self, doc_key):
@@ -42,7 +42,7 @@ class StoreAdapter(object):
     def set(self, key, data):
         raise NotImplementedError("abstract method")
 
-    def delete(self, mkey):
+    def delete(self, key):
         raise NotImplementedError("abstract method")
 
 class PersistentSession(PersistentBackboneSession, BaseJSONSession, StoreAdapter):
@@ -168,8 +168,8 @@ class RedisSession(PersistentSession):
     def mset(self, data):
         self.redis.mset(data)
 
-    def sadd(self, dkey, *keys):
-        self.redis.sadd(dkey, *keys)
+    def sadd(self, doc_key, *keys):
+        self.redis.sadd(doc_key, *keys)
 
     def srem(self, doc_key, mkey):
         self.redis.srem(doc_key, mkey)
@@ -192,16 +192,18 @@ class InMemorySession(PersistentSession):
     """
 
     def mget(self, doc_keys):
-        return [_inmem_data[key] for key in doc_keys]
+        return [_inmem_data.get(key, None) for key in doc_keys]
 
     def mset(self, data):
         _inmem_data.update(data)
 
-    def sadd(self, dkey, *keys):
-        _inmem_sets[dkey].update(keys)
+    def sadd(self, doc_key, *keys):
+        _inmem_sets[doc_key].update(keys)
 
-    def srem(self, doc_key, mkey):
-        _inmem_sets[doc_key].remove(mkey)
+    def srem(self, doc_key, member_key):
+        inmem_set = _inmem_sets[doc_key]
+        try: inmem_set.remove(member_key)
+        except KeyError: pass
 
     def smembers(self, doc_key):
         return list(_inmem_sets[doc_key])
@@ -209,8 +211,8 @@ class InMemorySession(PersistentSession):
     def set(self, key, data):
         _inmem_data[key] = data
 
-    def delete(self, mkey):
-        del _inmem_data[mkey]
+    def delete(self, key):
+        del _inmem_data[key]
 
 class ShelveSession(PersistentSession):
     """session used by the webserver to work with
@@ -218,24 +220,22 @@ class ShelveSession(PersistentSession):
     """
 
     def mget(self, doc_keys):
-        return [_shelve_data[key] for key in doc_keys]
+        return [_shelve_data.get(key, None) for key in doc_keys]
 
     def mset(self, data):
         for k, v in data.items():
             _shelve_data[k] = v
 
-    def sadd(self, dkey, *keys):
-        if not dkey in _shelve_sets:
-            temp = set()
-        else:
-            temp = _shelve_sets[dkey]
-        temp.update(keys)
-        _shelve_sets[dkey] = temp
+    def sadd(self, doc_key, *keys):
+        shelve_set = _shelve_sets.get(doc_key, set())
+        shelve_set.update(keys)
+        _shelve_sets[doc_key] = shelve_set
 
-    def srem(self, doc_key, mkey):
-        temp = _shelve_sets[doc_key]
-        temp.remove(mkey)
-        _shelve_sets[doc_key] = temp
+    def srem(self, doc_key, member_key):
+        shelve_set = _shelve_sets[doc_key]
+        try: shelve_set.remove(member_key)
+        except KeyError: pass
+        _shelve_sets[doc_key] = shelve_set
 
     def smembers(self, doc_key):
         return list(_shelve_sets[doc_key])
@@ -243,5 +243,5 @@ class ShelveSession(PersistentSession):
     def set(self, key, data):
         _shelve_data[key] = data
 
-    def delete(self, mkey):
-        del _shelve_data[mkey]
+    def delete(self, key):
+        del _shelve_data[key]
