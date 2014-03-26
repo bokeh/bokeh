@@ -110,7 +110,7 @@ def ok(msg=None):
 def make_env():
     env = os.environ.copy()
     env['BOKEH_RESOURCES'] = 'relative'
-    env['BOKEH_BROWSER'] = 'dummy'
+    env['BOKEH_BROWSER'] = 'none'
     if args.dev:
         env['BOKEH_RESOURCES'] += '-dev'
         env['BOKEH_PRETTY'] = 'yes'
