@@ -37,6 +37,8 @@ parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
                     help="phantomjs executable")
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
+parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=True,
+                    help="don't use development JavaScript and CSS files")
 args = parser.parse_args()
 
 def is_selected(example):
@@ -98,9 +100,17 @@ def ok(msg=None):
     msg = " " + msg if msg is not None else ""
     print("%s%s" % (green("[OK]"), msg))
 
-def run_example(example):
+def make_env():
     env = os.environ.copy()
+    env['BOKEH_RESOURCES'] = 'relative'
     env['BOKEH_BROWSER'] = 'dummy'
+    if args.dev:
+        env['BOKEH_RESOURCES'] += '-dev'
+        env['BOKEH_PRETTY'] = 'yes'
+    return env
+
+def run_example(example):
+    env = make_env()
     cwd = os.path.dirname(example)
     proc = subprocess.Popen(["python", os.path.basename(example)], cwd=cwd, env=env)
     return proc.wait()
@@ -174,6 +184,9 @@ def test_example(example, etype):
 def start_bokeh_server():
     cmd = ["python", "-c", "import bokeh.server; bokeh.server.run()"]
     argv = ["--bokeh-port=%s" % args.bokeh_port, "--backend=memory"]
+
+    if args.dev:
+        argv.append("--splitjs")
 
     try:
         proc = subprocess.Popen(cmd + argv)
