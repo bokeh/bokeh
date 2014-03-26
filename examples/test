@@ -24,6 +24,8 @@ except ImportError:
 else:
     use_server = True
 
+from bokeh import __version__
+
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
 parser.add_argument("patterns", type=str, nargs="*",
                     help="select a subset of examples to test")
@@ -107,7 +109,7 @@ def test_example(example, etype):
     no_ext = os.path.splitext(os.path.abspath(example))[0]
 
     if etype == 'file':
-        html_file = no_ext + '.html'
+        html_file = "%s.html" % no_ext
         url = 'file://' + html_file
     elif etype == 'server':
         server_url = 'http://localhost:%d/bokeh/doc/%s/show'
@@ -118,7 +120,7 @@ def test_example(example, etype):
     else:
         raise ValueError("invalid example type: %s" % etype)
 
-    png_file = no_ext + '.png'
+    png_file = "%s-%s.png" % (no_ext, __version__)
     cmd = [args.phantomjs, os.path.join(base_dir, "test.js"), etype, url, png_file]
 
     try:
