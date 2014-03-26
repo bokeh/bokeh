@@ -5,7 +5,7 @@ from os.path import expanduser, exists, join
 from os import makedirs
 from six.moves.urllib.parse import urljoin, urlencode
 from . import utils, browserlib
-import pandas as pd
+#import pandas as pd
 
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
 
