@@ -47,6 +47,8 @@ class NumpyJSONEncoder(json.JSONEncoder):
                 return int(obj)
             else:
                 return float(obj)
+        elif isinstance(obj, (dt.datetime, dt.date)):
+            return time.mktime(obj.timetuple()) * 1000.
         else:
             return super(NumpyJSONEncoder, self).default(obj)
 
