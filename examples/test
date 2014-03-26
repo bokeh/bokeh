@@ -117,10 +117,17 @@ def make_env():
     return env
 
 def run_example(example):
-    env = make_env()
+    cmd = ["python", os.path.basename(example)]
     cwd = os.path.dirname(example)
-    proc = subprocess.Popen(["python", os.path.basename(example)], cwd=cwd, env=env)
-    return proc.wait()
+    env = make_env()
+
+    proc = subprocess.Popen(cmd, cwd=cwd, env=env)
+
+    try:
+        return proc.wait()
+    except KeyboardInterrupt:
+        proc.kill()
+        raise
 
 def test_example(example, etype):
     no_ext = os.path.splitext(os.path.abspath(example))[0]
