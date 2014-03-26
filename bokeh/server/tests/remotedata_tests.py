@@ -4,16 +4,24 @@ import datetime as dt
 import json
 import requests
 from six.moves.urllib.parse import urljoin, urlencode
+import platform
 import tempfile
 
 from ..app import bokeh_app
 from ..models import user
 from . import test_utils
 from ...serverconfig import Server
+from unittest import skipIf
+
+if platform.python_implementation() == "PyPy":
+    is_pypy = True
+else:
+    is_pypy = False
 
 datadir = join(dirname(dirname(dirname(dirname(__file__)))), 'remotedata')
 class RemoteDataTestCase(test_utils.BokehServerTestCase):
     options = {'data_directory' : datadir}
+    @skipIf(is_pypy, "gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_list(self):
         config = tempfile.mkdtemp()
         s = Server(configdir=config)
@@ -24,6 +32,7 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
                       '/defaultuser/AAPL.hdf5',
                       '/defaultuser/volume.table'])
         assert result == set(sources)
+    @skipIf(is_pypy, "gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_line_downsample(self):
         config = tempfile.mkdtemp()
         s = Server(configdir=config)

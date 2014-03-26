@@ -1,6 +1,11 @@
-import scipy
-import scipy.misc
 import numpy as np
+
+try:
+    import scipy
+    import scipy.misc
+except ImportError as e:
+    print(e)
+
 def downsample(image, image_x_axis, image_y_axis,
                x_bounds, y_bounds, x_resolution, y_resolution):
     x_resolution, y_resolution = int(round(x_resolution)), int(round(y_resolution))
