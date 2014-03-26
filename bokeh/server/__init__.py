@@ -65,10 +65,13 @@ def build_parser():
     return parser
 
 def run():
-    from . import start
-
     parser = build_parser()
     args = parser.parse_args(sys.argv[1:])
+
+    level = logging.DEBUG if args.debug else logging.INFO
+    logging.basicConfig(level=level, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
+
+    from . import start
 
     start.bokeh_app.debug = False
     start.app.debug = False
@@ -85,12 +88,10 @@ def run():
 
     if args.debug:
         start.bokeh_app.debug = True
-        logging.basicConfig(level=logging.DEBUG)
 
         import werkzeug.serving
         @werkzeug.serving.run_with_reloader
         def helper():
             start.start_app(host=args.ip, port=args.bokeh_port, verbose=True)
     else:
-        logging.basicConfig(level=logging.INFO)
         start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)

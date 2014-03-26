@@ -2,7 +2,6 @@ import gzip
 from six.moves import cStringIO as StringIO
 from flask import request
 
-
 class Gzip(object):
     def __init__(self, app, compress_level=6, minimum_size=500):
         self.app = app
@@ -19,7 +18,6 @@ class Gzip(object):
            'gzip' not in accept_encoding.lower() or \
            'Content-Encoding' in response.headers:
             return response
-        print 'GZIPPING'
         response.direct_passthrough = False
         gzip_buffer = StringIO()
         gzip_file = gzip.GzipFile(mode='wb', compresslevel=self.compress_level, fileobj=gzip_buffer)
