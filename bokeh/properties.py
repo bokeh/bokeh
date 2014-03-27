@@ -768,7 +768,7 @@ class Instance(Property):
     def validate(self, value):
         super(Instance, self).validate(value)
 
-        if value is not None:
+        if value is not None and self.instance_type != Any:
             if not isinstance(value, self.instance_type):
                 raise ValueError("expected an instance of type %s, got %s of type %s" %
                     (self.instance_type.__name__, value, type(value).__name__))
