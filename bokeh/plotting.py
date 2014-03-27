@@ -455,6 +455,8 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         elif source is None:
             datasource = ColumnDataSource()
             serversource = None
+        else:
+            datasource = source
         session_objs.append(datasource)
         datasource = kwargs.pop("source", ColumnDataSource())
         legend_name = kwargs.pop("legend", None)
