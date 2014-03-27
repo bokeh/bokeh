@@ -27,6 +27,7 @@ define [], () ->
       @basepoint_set = false
       @button_activated = false
       @tool_active = false
+      @touch = 'ontouchstart' of document.documentElement
 
     bind_bokeh_events: (plotview, eventSink) ->
       if @options.touch_event? && not @options.touch_event
@@ -47,6 +48,8 @@ define [], () ->
         if not @basepoint_set
           @dragging = true
           @basepoint_set = true
+          @touch_count = 0
+          @start_time = 0
           eventSink.trigger("#{toolName}:SetBasepoint", e)
         else
           eventSink.trigger("#{toolName}:UpdatingMouseMove", e)
@@ -87,7 +90,9 @@ define [], () ->
         if not e[@options.keyName]
           @_stop_drag(e))
 
-      @plotview.canvas_wrapper.bind 'mousedown', (e) =>
+      startClick = (if @touch then 'touchstart' else 'mousedown')
+      
+      @plotview.canvas_wrapper.bind startClick, (e) =>
         start = false
 
         if @button_activated or @eventSink.active == @toolName
@@ -102,8 +107,20 @@ define [], () ->
           @_start_drag()
           return false
 
-      @plotview.canvas_wrapper.bind('mouseup', (e) =>
+      endClick = (if @touch then 'touchend' else 'mouseup')
+      
+      @plotview.canvas_wrapper.bind(endClick, (e) =>
+        # To calculate the bokehX and bokehY on touch end event
+        if @dragging and @touch and e.originalEvent.touches.length != 0
+          set_bokehXY(e)
         if @button_activated
+          # To detect the two finger touch end
+          if @touch
+            if @touch_count == 0
+              @start_time = new Date().getTime()
+              @touch_count += 1
+            else if e.originalEvent.touches.length < @touch_count
+              @touch_count += 1
           @_stop_drag(e)
           return false)
       @plotview.canvas_wrapper.bind('mouseleave', (e) =>
@@ -161,8 +178,15 @@ define [], () ->
           @$tool_button.removeClass('active')
         if @options.cursor?
           @plotview.canvas_wrapper.css('cursor', '')
-        set_bokehXY(e)
-        @eventSink.trigger("#{@options.eventBasename}:DragEnd", e)
+        if not @touch
+          set_bokehXY(e)
+        if not @options.gesture?
+          @eventSink.trigger("#{@options.eventBasename}:DragEnd", e)
+      if @options.gesture? and @options.gesture and @touch_count > 1
+        time_taken = new Date().getTime() - @start_time
+        @touch_count = 0
+        @start_time = 0
+        @eventSink.trigger("#{@options.eventBasename}:DragEnd", [e, time_taken])
       @_activated_with_button = null
 
   class OnePointWheelEventGenerator
