@@ -59,7 +59,8 @@ def _glyph_doc(args, props, desc):
     plot : :py:class:`Plot <bokeh.objects.Plot>`
     """ % (desc, params, props)
 
-def _match_data_params(argnames, glyphclass, datasource, args, kwargs):
+def _match_data_params(argnames, glyphclass, datasource, serversource, 
+                       args, kwargs):
     """ Processes the arguments and kwargs passed in to __call__ to line
     them up with the argnames of the underlying Glyph
 
@@ -116,9 +117,12 @@ def _match_data_params(argnames, glyphclass, datasource, args, kwargs):
             if glyphclass == glyphs.Text:
                 # TODO (bev) this is hacky, now that text is a DataSpec, it has to be a sequence
                 glyph_val = [val]
+            elif serversource is None and val not in datasource.column_names:
+                    raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
             else:
                 if val not in datasource.column_names:
-                    raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
+                    datasource.column_names.append(val)
+                    datasource.data[val] = []
                 units = getattr(dataspecs[var], 'units', 'data')
                 glyph_val = {'field' : val, 'units' : units}
         elif isinstance(val, np.ndarray):

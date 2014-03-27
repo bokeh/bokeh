@@ -328,6 +328,18 @@ define [
       @model.set('png', @canvas[0].toDataURL())
       bulk_save([@model])
 
+    set_initial_range : () ->
+      #check for good values for ranges before setting initial range
+      range_vals = [@x_range.get('start'), @x_range.get('end'),
+        @y_range.get('start'), @y_range.get('end')]
+      good_vals = _.map(range_vals, (val) -> val? and not _.isNaN(val))
+      good_vals = _.all(good_vals)
+      if good_vals
+        @initial_range_info = {
+          xr: { start: @x_range.get('start'), end: @x_range.get('end') }
+          yr: { start: @y_range.get('start'), end: @y_range.get('end') }
+        }
+
     render: (force) ->
       super()
       #newtime = new Date()
@@ -335,11 +347,8 @@ define [
       #   console.log(newtime - @last_render)
       # @last_render = newtime
 
-      if not @initial_range_info? and @x_range.get('start')?
-        @initial_range_info = {
-          xr: { start: @x_range.get('start'), end: @x_range.get('end') }
-          yr: { start: @y_range.get('start'), end: @y_range.get('end') }
-        }
+      if not @initial_range_info?
+        @set_initial_range()
 
       @requested_padding = {
         top: 0
@@ -501,4 +510,3 @@ define [
     "Collection": new Plots(),
     "View": PlotView,
   }
-
