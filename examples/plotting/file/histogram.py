@@ -37,7 +37,7 @@ figure(title="Log Normal Distribution (μ=0, σ=0.5)", tools="previewsave",
 
 mu, sigma = 0, 0.5       # NOTE: you can tinker with these values if you like
 
-measured = np.random.lognormal(mu, sigma, 10000)
+measured = np.random.lognormal(mu, sigma, 1000)
 hist, edges = np.histogram(measured, density=True, bins=50)
 
 x = np.linspace(0, 8.0, 1000)
