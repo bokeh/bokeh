@@ -118,7 +118,7 @@ def _match_data_params(argnames, glyphclass, datasource, serversource,
                 # TODO (bev) this is hacky, now that text is a DataSpec, it has to be a sequence
                 glyph_val = [val]
             elif serversource is None and val not in datasource.column_names:
-                    raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
+                raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
             else:
                 if val not in datasource.column_names:
                     datasource.column_names.append(val)

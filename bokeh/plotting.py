@@ -457,8 +457,8 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
             serversource = None
         else:
             datasource = source
+            serversource = None
         session_objs.append(datasource)
-        datasource = kwargs.pop("source", ColumnDataSource())
         legend_name = kwargs.pop("legend", None)
         plot = _get_plot(kwargs)
         if 'name' in kwargs:
