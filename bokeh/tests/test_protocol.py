@@ -1,19 +1,14 @@
-import platform
 import unittest
 import numpy as np
 
 from unittest import skipIf
+from bokeh.server.tests.test_utils import skipIfPyPy
 
 try:
     import pandas as pd
     is_pandas = True
 except ImportError as e:
     is_pandas = False
-
-if platform.python_implementation() == "PyPy":
-    is_pypy = True
-else:
-    is_pypy = False
 
 
 class TestNumpyJSONEncoder(unittest.TestCase):
@@ -84,12 +79,12 @@ class TestDefaultSerializeData(unittest.TestCase):
         pobjs = [{'test': 1}, [1, 2, 3, 4], 'string']
         self.assertEqual(self.serialize_data(pobjs), ["(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02}q\x01U\x04testq\x02K\x01s.', "(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02]q\x01(K\x01K\x02K\x03K\x04e.', "(dp1\nS'datatype'\np2\nS'pickle'\np3\ns.", '\x80\x02U\x06stringq\x01.'])
 
-    @skipIf(is_pypy, "PyPy does not seem to support pickling yet.")
+    @skipIfPyPy("PyPy does not seem to support pickling yet.")
     def test_with_numpy_arrays(self):
         nparray = np.arange(5)
         self.assertEqual(self.serialize_data([nparray]), ["(dp1\nS'datatype'\np2\nS'numpy'\np3\nsS'dtype'\np4\ncnumpy\ndtype\np5\n(S'i8'\nI0\nI1\ntRp6\n(I3\nS'<'\nNNNI-1\nI-1\nI0\ntbsS'shape'\np7\n(I5\ntp8\ns.", nparray])
 
-    @skipIf(is_pypy, "PyPy does not seem to support pickling yet.")
+    @skipIfPyPy("PyPy does not seem to support pickling yet.")
     def test_with_mixed(self):
         nparray = np.arange(5)
         objs = [{'test': 1}, [1, 2, 3, 4], 'string', nparray]
@@ -109,7 +104,7 @@ class TestDefaultDeserializeData(unittest.TestCase):
         serialized = self.serialize_data(pobjs)
         self.assertEqual(self.deserialize_data(serialized), pobjs)
 
-    @skipIf(is_pypy, "PyPy does not seem to support pickling yet.")
+    @skipIfPyPy("PyPy does not seem to support pickling yet.")
     def test_with_numpy_arrays(self):
         nparray = np.arange(5)
         serialized = self.serialize_data([nparray])
@@ -117,7 +112,7 @@ class TestDefaultDeserializeData(unittest.TestCase):
         self.assertTrue(len(deserialized) == 1)
         self.assertTrue(np.array_equal(deserialized[0], nparray))
 
-    @skipIf(is_pypy, "PyPy does not seem to support pickling yet.")
+    @skipIfPyPy("PyPy does not seem to support pickling yet.")
     def test_with_mixed(self):
         nparray = np.arange(5)
         objs = [{'test': 1}, [1, 2, 3, 4], 'string', nparray]
