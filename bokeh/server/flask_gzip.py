@@ -1,6 +1,9 @@
+from __future__ import print_function
+
 import gzip
-from six.moves import cStringIO as StringIO
+
 from flask import request
+from six.moves import cStringIO as StringIO
 
 
 class Gzip(object):
@@ -19,10 +22,11 @@ class Gzip(object):
            'gzip' not in accept_encoding.lower() or \
            'Content-Encoding' in response.headers:
             return response
-        print 'GZIPPING'
+        print('GZIPPING')
         response.direct_passthrough = False
         gzip_buffer = StringIO()
-        gzip_file = gzip.GzipFile(mode='wb', compresslevel=self.compress_level, fileobj=gzip_buffer)
+        gzip_file = gzip.GzipFile(mode='wb', compresslevel=self.compress_level,
+                    fileobj=gzip_buffer)
         gzip_file.write(response.data)
         gzip_file.close()
         response.data = gzip_buffer.getvalue()

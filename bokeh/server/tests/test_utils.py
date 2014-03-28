@@ -6,8 +6,9 @@ import redis
 import requests
 from requests.exceptions import ConnectionError
 
-from ..app import bokeh_app
 from .. import start
+from ..app import bokeh_app
+from ...tests.test_utils import skipIfPy3
 
 
 def wait_flask():
@@ -63,6 +64,7 @@ def recv_timeout(socket, timeout):
 class BokehServerTestCase(unittest.TestCase):
     options = {}
 
+    @skipIfPy3("gevent does not work in py3.")
     def setUp(self):
         import gevent
         start.prepare_app({"type": "redis", "redis_port": 6899}, **self.options)
