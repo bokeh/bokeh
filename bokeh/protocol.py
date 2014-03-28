@@ -1,10 +1,10 @@
-import uuid
 import json
 import logging
 import time
-from six.moves import cPickle as pickle
 import datetime as dt
+
 import numpy as np
+from six.moves import cPickle as pickle
 
 try:
     import pandas as pd
@@ -31,6 +31,8 @@ list data which can be serialized and deserialized
 3.  rpc protocol, a layer around the msgobject and a data object
 """
 millifactor = 10 ** 6.
+
+
 class NumpyJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         if is_pandas:
@@ -63,15 +65,18 @@ class NumpyJSONEncoder(json.JSONEncoder):
                     l[k] = "Infinity"
                 elif np.isneginf(v):
                     l[k] = "-Infinity"
-        # If we get a type error, then there are non-numeric types 
+        # If we get a type error, then there are non-numeric types
         # in the list, just bail...
         except TypeError:
             pass
         return l
 
+
 def serialize_json(obj, encoder=NumpyJSONEncoder, **kwargs):
     return json.dumps(obj, cls=encoder, **kwargs)
+
 deserialize_json = json.loads
+
 
 def default_serialize_data(data):
     """
@@ -93,15 +98,15 @@ def default_serialize_data(data):
     output = []
 
     def add_numpy(d):
-        metadata =  {'dtype' : d.dtype,
-                     'shape' : d.shape,
-                     'datatype' : 'numpy'}
+        metadata = {'dtype': d.dtype,
+                     'shape': d.shape,
+                     'datatype': 'numpy'}
         metadata = pickle.dumps(metadata)
         output.append(metadata)
         output.append(d)
 
     def add_pickle(d):
-        output.append(pickle.dumps({'datatype' : 'pickle'}))
+        output.append(pickle.dumps({'datatype': 'pickle'}))
         output.append(pickle.dumps(d, protocol=-1))
 
     for d in data:
@@ -117,6 +122,7 @@ def default_serialize_data(data):
             add_pickle(d)
 
     return output
+
 
 def default_deserialize_data(input):
     """
@@ -147,10 +153,13 @@ serialize_web = serialize_json
 
 deserialize_web = deserialize_json
 
+
 def status_obj(status):
-    return {'msgtype' : 'status',
-            'status' : status}
+    return {'msgtype': 'status',
+            'status': status}
+
+
 def error_obj(error_msg):
     return {
-        'msgtype' : 'error',
-        'error_msg' : error_msg}
+        'msgtype': 'error',
+        'error_msg': error_msg}

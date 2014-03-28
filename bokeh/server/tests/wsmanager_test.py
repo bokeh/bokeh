@@ -1,17 +1,14 @@
-import time
 import unittest
+from unittest import skip
+
 import mock
-from ..serverbb import RedisSession
-from .. import wsmanager
+
 from . import test_utils
-from ...tests.test_utils import skipIfPy3, skipIfPyPy
+from .. import wsmanager
 from ..app import bokeh_app
-from .. import start
 from ..models import docs
 from ... import protocol
-
-from unittest import skip
-import sys
+from ...tests.test_utils import skipIfPy3, skipIfPyPy
 
 
 class WSmanagerTestCase(unittest.TestCase):
@@ -32,6 +29,8 @@ class WSmanagerTestCase(unittest.TestCase):
         assert s1.send.call_count == 1
 
 ws_address = "ws://localhost:5006/bokeh/sub"
+
+
 class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
     def setUp(self):
         super(TestSubscribeWebSocket, self).setUp()
@@ -43,6 +42,7 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         doc2 = docs.new_doc(bokeh_app, "defaultdoc2",
                             'main', sess, rw_users=["defaultuser"],
                             apikey='nokey')
+
     # TODO (bev) fix or improve this test
     @skip
     @skipIfPy3("gevent does not work in py3.")
@@ -76,6 +76,7 @@ class TestSubscribeWebSocket(test_utils.BokehServerTestCase):
         assert msg == 'bokehplot:defaultdoc:hello2!'
         msg = sock3.recv()
         assert msg == 'bokehplot:defaultdoc2:hello3!'
+
 
 def connect(sock, addr, topic, auth):
     sock.sock.settimeout(1.0)

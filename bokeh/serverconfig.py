@@ -1,13 +1,16 @@
 from __future__ import absolute_import, print_function
 
 import json
-from os.path import expanduser, exists, join
 from os import makedirs
-from six.moves.urllib.parse import urljoin, urlencode
-from . import utils, browserlib
+from os.path import expanduser, exists, join
+
 #import pandas as pd
+from six.moves.urllib.parse import urljoin, urlencode
+
+from . import utils, browserlib
 
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
+
 
 class Server(object):
     def __init__(self, name="http://localhost:5006/",
@@ -28,11 +31,12 @@ class Server(object):
         #single user mode case
         self.userapikey = userapikey
         self.username = username
-        self._configdir = None        
+        self._configdir = None
         if configdir:
             self.configdir = configdir
         if load_from_config:
             self.load()
+
     @property
     def http_session(self):
         if hasattr(self, "_http_session"):
@@ -45,19 +49,19 @@ class Server(object):
     @property
     def username(self):
         return self.http_session.headers.get('BOKEHUSER')
-    
+
     @username.setter
     def username(self, val):
-        self.http_session.headers.update({'BOKEHUSER' : val})
-                
-    @property 
+        self.http_session.headers.update({'BOKEHUSER': val})
+
+    @property
     def userapikey(self):
         return self.http_session.headers.get('BOKEHUSER-API-KEY')
-    
+
     @userapikey.setter
     def userapikey(self, val):
-        self.http_session.headers.update({'BOKEHUSER-API-KEY' : val})
-    
+        self.http_session.headers.update({'BOKEHUSER-API-KEY': val})
+
     @property
     def configdir(self):
         """filename where our config are stored"""
@@ -72,7 +76,7 @@ class Server(object):
     @configdir.setter
     def configdir(self, path):
         self._configdir = path
-    
+
     @property
     def configfile(self):
         return join(self.configdir, "config.json")
@@ -98,9 +102,9 @@ class Server(object):
 
     def save(self):
         data = self.load_dict()
-        data[self.name] = {'root_url' : self.root_url,
-                           'userapikey' : self.userapikey,
-                           'username' : self.username}
+        data[self.name] = {'root_url': self.root_url,
+                           'userapikey': self.userapikey,
+                           'username': self.username}
         configfile = self.configfile
         with open(configfile, "w+") as f:
             json.dump(data, f)
@@ -109,9 +113,9 @@ class Server(object):
     def register(self, username, password):
         url = urljoin(self.root_url, "bokeh/register")
         result = self.http_session.post(url, data={
-                'username' : username,
-                'password' : password,
-                'api' : 'true'
+                'username': username,
+                'password': password,
+                'api': 'true'
                 })
         if result.status_code != 200:
             raise RuntimeError("Unknown Error")
@@ -126,9 +130,9 @@ class Server(object):
     def login(self, username, password):
         url = urljoin(self.root_url, "bokeh/login")
         result = self.http_session.post(url, data={
-                'username' : username,
-                'password' : password,
-                'api' : 'true'
+                'username': username,
+                'password': password,
+                'api': 'true'
                 })
         if result.status_code != 200:
             raise RuntimeError("Unknown Error")
@@ -144,11 +148,10 @@ class Server(object):
     def browser_login(self):
         controller = browserlib.get_browser_controller()
         url = urljoin(self.root_url, "bokeh/loginfromapikey")
-        url += "?" + urlencode({'username' : self.username,
-                                'userapikey' : self.userapikey})
+        url += "?" + urlencode({'username': self.username,
+                                'userapikey': self.userapikey})
         controller.open(url)
 
-    
     def data_source(self, name, dataframe=None, **kwargs):
         raise NotImplementedError
         # fname = join(self.configdir, name + ".hdf5")
@@ -158,13 +161,14 @@ class Server(object):
         # store.put(name, dataframe)
         # store.flush()
         # store.close()
-        
+
     def list_data(self):
         url = urljoin(self.root_url, "bokeh/data/" + self.username)
         result = self.http_session.get(url)
         result = utils.get_json(result)
         sources = result['sources']
         return sources
+
 
 class Cloud(Server):
     def __init__(self):
