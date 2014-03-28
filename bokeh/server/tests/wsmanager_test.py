@@ -4,7 +4,7 @@ import mock
 from ..serverbb import RedisSession
 from .. import wsmanager
 from . import test_utils
-from .test_utils import skipIfPy3, skipIfPyPy
+from ...tests.test_utils import skipIfPy3, skipIfPyPy
 from ..app import bokeh_app
 from .. import start
 from ..models import docs

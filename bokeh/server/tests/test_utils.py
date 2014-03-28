@@ -4,18 +4,10 @@ import redis
 import time
 import redis
 from requests.exceptions import ConnectionError
-from unittest import skipIf
 import requests
 
 from ..app import bokeh_app
 from .. import start
-from ...utils import is_py3, is_pypy
-
-def skipIfPy3(message):
-    return skipIf(is_py3(), message)
-
-def skipIfPyPy(message):
-    return skipIf(is_pypy(), message)
 
 def wait_flask():
     def helper():

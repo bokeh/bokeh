@@ -1,4 +1,12 @@
 import unittest
+from unittest import skipIf
+from ..utils import is_py3, is_pypy
+
+def skipIfPy3(message):
+    return skipIf(is_py3(), message)
+
+def skipIfPyPy(message):
+    return skipIf(is_pypy(), message)
 
 class DummyRequestCallable():
     def json(self):

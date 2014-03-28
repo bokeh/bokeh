@@ -9,7 +9,7 @@ import tempfile
 from ..app import bokeh_app
 from ..models import user
 from . import test_utils
-from .test_utils import skipIfPyPy
+from ...tests.test_utils import skipIfPyPy
 from ...serverconfig import Server
 
 

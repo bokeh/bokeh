@@ -1,7 +1,7 @@
 from ..app import bokeh_app
 from ..models import user
 from . import test_utils
-from .test_utils import skipIfPy3, skipIfPyPy
+from ...tests.test_utils import skipIfPy3, skipIfPyPy
 import requests
 import tempfile
 from ...serverconfig import Server

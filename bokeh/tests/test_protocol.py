@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 
 from unittest import skipIf
-from bokeh.server.tests.test_utils import skipIfPyPy
+from .test_utils import skipIfPyPy
 
 try:
     import pandas as pd
