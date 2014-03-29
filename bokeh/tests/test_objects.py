@@ -2,7 +2,7 @@ import unittest
 
 from mock import patch, Mock
 from six import add_metaclass
-from ..utils import is_py3
+from six.moves import xrange
 
 
 def large_plot(n):
@@ -14,9 +14,6 @@ def large_plot(n):
 
     context = PlotContext()
     objects = set([context])
-
-    if is_py3:
-        xrange = range
 
     for i in xrange(n):
         source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
