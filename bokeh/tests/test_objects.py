@@ -1,6 +1,9 @@
 import unittest
+
+from mock import patch, Mock
 from six import add_metaclass
-from mock import patch, Mock, MagicMock
+from six.moves import xrange
+
 
 def large_plot(n):
     from bokeh.objects import (Plot, PlotContext, LinearAxis, Grid, Glyph,
@@ -13,7 +16,7 @@ def large_plot(n):
     objects = set([context])
 
     for i in xrange(n):
-        source = ColumnDataSource(data=dict(x=[0, i+1], y=[0, i+1]))
+        source = ColumnDataSource(data=dict(x=[0, i + 1], y=[0, i + 1]))
         xdr = DataRange1d(sources=[source.columns("x")])
         ydr = DataRange1d(sources=[source.columns("y")])
         plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source])
