@@ -5,6 +5,9 @@ define [], () ->
     offset = $(event.currentTarget).offset()
     left = if offset? then offset.left else 0
     top = if offset? then offset.top else 0
+    touch = 'ontouchstart' of document.documentElement
+    pageX = (if touch then event.originalEvent.touches[0].pageX or event.originalEvent.changedTouches[0].pageX else event.pageX)
+    pageY = (if touch then event.originalEvent.touches[0].pageY or event.originalEvent.changedTouches[0].pageY else event.pageY)
     event.bokehX = event.pageX - left
     event.bokehY = event.pageY - top
 
@@ -20,6 +23,10 @@ define [], () ->
       @tool_active = false
 
     bind_bokeh_events: (plotview, eventSink) ->
+      if @options.touch_event? && not @options.touch_event
+        return null
+      if @options.button_disable? and @options.button_disable
+        button_disabled = "disabled"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -74,7 +81,8 @@ define [], () ->
         if not e[@options.keyName]
           @_stop_drag(e))
 
-      @plotview.canvas_wrapper.bind 'mousedown', (e) =>
+      startClick = (if 'ontouchstart' of document.documentElement then 'touchstart' else 'mousedown')
+      @plotview.canvas_wrapper.bind startClick, (e) =>
         start = false
 
         if @button_activated or @eventSink.active == @toolName
@@ -89,16 +97,18 @@ define [], () ->
           @_start_drag()
           return false
 
-      @plotview.canvas_wrapper.bind('mouseup', (e) =>
+      endClick = (if 'ontouchstart' of document.documentElement then 'touchend' else 'mouseup')
+      leaveClick = (if 'ontouchstart' of document.documentElement then 'touchend' else 'mouseleave')
+      @plotview.canvas_wrapper.bind(endClick, (e) =>
         if @button_activated
           @_stop_drag(e)
           return false)
-      @plotview.canvas_wrapper.bind('mouseleave', (e) =>
+      @plotview.canvas_wrapper.bind(leaveClick, (e) =>
         if @button_activated
           @_stop_drag(e)
           return false)
 
-      @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
       @plotview
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
@@ -163,6 +173,10 @@ define [], () ->
       @tool_active = false
 
     bind_bokeh_events: (plotview, eventSink) ->
+      if @options.touch_event? && not @options.touch_event
+        return null
+      if @options.button_disable? and @options.button_disable
+        button_disabled = "disabled"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -197,7 +211,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
       @$tool_button.click(=>
@@ -244,6 +258,10 @@ define [], () ->
       @tool_active = false
 
     bind_bokeh_events: (plotview, eventSink) ->
+      if @options.touch_event? && not @options.touch_event
+        return null
+      if @options.button_disable? and @options.button_disable
+        button_disabled = "disabled"
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -266,7 +284,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
-      @$tool_button = $("<button class='btn btn-small'> #{@options.buttonText} </button>")
+      @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
 
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
@@ -309,4 +327,5 @@ define [], () ->
     "TwoPointEventGenerator": TwoPointEventGenerator,
     "OnePointWheelEventGenerator": OnePointWheelEventGenerator,
     "ButtonEventGenerator": ButtonEventGenerator,
+    "isTouch": 'ontouchstart' of document.documentElement,
   }
