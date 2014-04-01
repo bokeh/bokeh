@@ -15,6 +15,8 @@ define [
   "source/column_data_source",
   "tool/box_select_tool",
   "tool/box_zoom_tool",
+  "tool/pinch_zoom_tool",
+  "tool/pinch_box_zoom_tool",
   "tool/hover_tool",
   "tool/pan_tool",
   "tool/preview_save_tool",

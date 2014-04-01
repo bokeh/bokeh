@@ -38,6 +38,8 @@ define [
 
   "tool/box_select_tool",
   "tool/box_zoom_tool",
+  "tool/pinch_zoom_tool",
+  "tool/pinch_box_zoom_tool",
   "tool/crosshair_tool",
   "tool/data_range_box_select_tool",
   "tool/embed_tool",
