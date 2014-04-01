@@ -10,7 +10,7 @@ define (require, exports, module) ->
 
   # common
   Bokeh.Collections       = require("common/base").Collections
-  Bokeh.Config            = require("common/base").Collections
+  Bokeh.Config            = require("common/base").Config
   Bokeh.GMapPlot          = require("common/gmap_plot")
   Bokeh.GridPlot          = require("common/grid_plot")
   Bokeh.HasParent         = require("common/has_parent")
