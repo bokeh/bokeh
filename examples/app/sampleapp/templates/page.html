@@ -5,27 +5,40 @@
     <title>{% block title %}{% endblock %}</title>
     <!-- Vendor Styles -->
     <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <link href="http://localhost:5006/static/css/bokeh.css" rel="stylesheet">
-    <link href="http://localhost:5006/static/vendor/bootstrap/css/bootstrap-orig-2.2.2.css" rel="stylesheet">
+    <link href="http://{{ bokeh_location }}/static/css/bokeh.css" rel="stylesheet">
+    <link href="http://{{ bokeh_location }}/static/vendor/bootstrap/css/bootstrap-orig-2.2.2.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/volumeapp.css') }}" rel="stylesheet">
-    <script src="http://localhost:5006/static/js/vendor/jquery/jquery.js"></script>
-    <script src="http://localhost:5006/static/js/vendor/bootstrap/bootstrap-2.0.4.js"></script>    
-    <script src="http://localhost:5006/bokehjs/static/js/vendor/requirejs/require.js"></script>
-    <script src="http://localhost:5006/bokehjs/static/js/config.js"></script>
+    <script src="http://{{ bokeh_location }}/static/js/vendor/jquery/jquery.js"></script>
+    <script src="http://{{ bokeh_location }}/static/js/vendor/bootstrap/bootstrap-2.0.4.js"></script>    
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    
+    {% if splitjs %}
+    <script src="http://{{ bokeh_location }}/bokehjs/static/js/vendor/requirejs/require.js"></script>
+    <script src="http://{{ bokeh_location }}/bokehjs/static/js/config.js"></script>
     <script>
-      require.config({ baseUrl: "http://localhost:5006/bokehjs/static/js" });
-      require(["main", "backbone", "underscore", "jquery_ui/slider"], function(Bokeh, Backbone, _) {
+      require.config({ baseUrl: "http://{{ bokeh_location }}/bokehjs/static/js" });
+      require(["main", "backbone", "underscore"], function(Bokeh, Backbone, _) {
       window._ = _;
       window.Backbone = Backbone;
       window.Bokeh = Bokeh;
-      Bokeh.Config.prefix = "http://localhost:5006";
-      Bokeh.Config.ws_conn_string = "ws://localhost:5006/bokeh/sub";
+      Bokeh.Config.prefix = "http://{{ bokeh_location }}";
+      Bokeh.Config.ws_conn_string = "ws://{{ bokeh_location }}/bokeh/sub";
       sampleapp.main();      
       Bokeh.server_page("{{ docname }}", false);
       });
     </script>
+    {% else %}
+    <script src="http://{{ bokeh_location}}/bokehjs/static/js/bokeh.js"> </script>
+    <script>
+      $(function(){
+      window.Backbone = Bokeh.Backbone;
+      window._ = Bokeh._;
+      Bokeh.Config.prefix = "http://{{ bokeh_location }}";
+      Bokeh.Config.ws_conn_string = "ws://{{ bokeh_location }}/bokeh/sub";
+      sampleapp.main();      
+      Bokeh.server_page("{{ docname }}", false);
+      })
+    </script>
+    {% endif %}
   </head>
   <body>
     <div class="container">

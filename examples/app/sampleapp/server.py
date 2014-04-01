@@ -12,7 +12,9 @@ from bokeh.objects import Range1d, ColumnDataSource
 
 from sampleapp.objects import App
 import uuid
-
+bokeh_location = "localhost:5006"
+#whether the server is serving separate js files or one combined bokeh.js file
+splitjs = False
 @app_document("sampleapp")
 def make_plot():
     sess = session()
@@ -30,7 +32,10 @@ def make_plot():
 def main():
     app = make_plot()
     docname = session().docname
-    return render_template('page.html', docname=docname)
+    return render_template('page.html', docname=docname, 
+                           bokeh_location=bokeh_location,
+                           splitjs=splitjs
+    )
 
 if __name__ == "__main__":
     import logging
