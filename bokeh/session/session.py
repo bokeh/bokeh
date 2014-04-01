@@ -100,14 +100,15 @@ class Session(object):
         """
         raise NotImplementedError
 
-    def embed_js(self, plot_id, static_root_url):
+    def embed_js(self, plot_id, bokehJS_url, bokehCSS_url):
         # FIXME: Handle this more intelligently
         pc_ref = self.get_ref(self.plotcontext)
         elementid = self.make_id()
 
         jscode = self._load_template('embed_direct.js').render(
             host = "",
-            static_root_url=static_root_url,
+            bokehJS_url=bokehJS_url,
+            bokehCSS_url=bokehCSS_url,
             elementid = elementid,
             modelid = pc_ref["id"],
             modeltype = pc_ref["type"],

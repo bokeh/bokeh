@@ -297,7 +297,8 @@ class PlotObject(HasProps):
 
     def create_html_snippet(
             self, server=False, embed_base_url="", embed_save_loc=".",
-            static_path="http://localhost:5006/bokeh/static/"):
+            bokehJS_url="http://localhost:5006/bokeh/static/js/bokeh.js",
+            bokehCSS_url="http://localhost:5006/bokeh/static/css/bokeh.css"):
         """create_html_snippet is used to embed a plot in an html page.
 
         create_html_snippet returns the embed string to be put in html.
@@ -321,7 +322,7 @@ class PlotObject(HasProps):
         embed_filename = "%s.embed.js" % self._id
         full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)
         js_code, embed_snippet = self._build_static_embed_snippet(
-            static_path, embed_base_url)
+            embed_base_url, bokehJS_url, bokehCSS_url)
         with open(full_embed_save_loc,"w") as f:
             f.write(js_code)
         return embed_snippet
@@ -353,15 +354,13 @@ class PlotObject(HasProps):
         '''
         return "", e_str % f_dict
 
-    def _build_static_embed_snippet(self, static_path, embed_base_url):
+    def _build_static_embed_snippet(self, embed_base_url, bokehJS_url, bokehCSS_url):
 
 
         embed_filename = "%s.embed.js" % self._id
         full_embed_path = embed_base_url + embed_filename
 
-        js_str = self._session.embed_js(self._id, static_path)
-
-
+        js_str = self._session.embed_js(self._id, bokehJS_url, bokehCSS_url)
         sess = self._session
         modelid = self._id
         typename = self.__view_model__
