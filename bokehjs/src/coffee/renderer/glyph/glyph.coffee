@@ -30,6 +30,10 @@ define [
       else
         @nonselection_glyphprops = @glyph_props
 
+      if @mget('server_data_source')
+        @setup_server_data()
+      @listenTo(this, 'change:server_data_source', @setup_server_data)
+
     init_glyph: (glyphspec) ->
       props = {}
       if 'line' in @_properties

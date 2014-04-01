@@ -6,15 +6,6 @@ define [
 ], (_, Properties, Glyph) ->
 
   class LineView extends Glyph.View
-    initialize : (options) ->
-      super(options)
-      if @mget_obj('server_data_source')
-        @setup_server_data()
-      @listenTo(this, 'change:server_data_source', () =>
-        if @server_source
-          @server_source.stoplistening_for_updates(@mget_obj('data_source'))
-          @setup_server_data()
-      )
 
     setup_server_data : () ->
       server_source = @mget_obj('server_data_source')
