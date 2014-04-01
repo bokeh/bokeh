@@ -28,7 +28,7 @@ def make_test_plot():
     import numpy as np
     from bokeh.plotting import output_server, line
 
-    N = 8000
+    N = 80
 
     x = np.linspace(0, 4*np.pi, N)
     y = np.sin(x)
@@ -97,6 +97,10 @@ def generate_embed(inject_type):
         plot_scr = plot.create_html_snippet(
             embed_base_url = "http://localhost:5006/static/",
             embed_save_loc=embed_data_file)
+
+    elif inject_type == "inline_snippet":
+        file_snippet = True
+        plot_scr = plot.create_html_snippet(inline=True)
 
     elif inject_type == "file_relative_snippet":
         file_relative_snippet = True
