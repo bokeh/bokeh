@@ -1,10 +1,10 @@
 from bokeh.plotting import output_server, session
 import uuid
-def app_document(prefix):
+def app_document(prefix, url="default"):
     def decorator(func):
         def wrapper(*args, **kwargs):
             docname = prefix + str(uuid.uuid4())
-            output_server(docname)
+            output_server(docname, url=url)
             app = func(*args, **kwargs)
             session().add(app)
             session().plotcontext.children=[app]

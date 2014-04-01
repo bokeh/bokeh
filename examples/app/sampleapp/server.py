@@ -13,9 +13,10 @@ from bokeh.objects import Range1d, ColumnDataSource
 from sampleapp.objects import App
 import uuid
 bokeh_location = "localhost:5006"
+bokeh_url = "http://" + bokeh_location
 #whether the server is serving separate js files or one combined bokeh.js file
 splitjs = False
-@app_document("sampleapp")
+@app_document("sampleapp", bokeh_url)
 def make_plot():
     sess = session()
     data = pd.DataFrame({'a'  : np.random.randn(100), 'b' : np.random.randn(100)})
