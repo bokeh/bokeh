@@ -128,7 +128,7 @@ class HTMLFileSession(BaseHTMLSession):
         wrapper = lambda code: '$(function() {\n%s\n});' % pad(code)
 
         if dev:
-            js_wrapper = lambda code: 'require(["jquery", "main"], function($, Bokeh) {\n%s\n});' % pad(wrapper(code))
+            js_wrapper = lambda code: 'require(["jquery", "main", "workbench"], function($, Bokeh) {\n%s\n});' % pad(wrapper(code))
         else:
             js_wrapper = wrapper
 

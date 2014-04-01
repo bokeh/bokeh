@@ -14,7 +14,7 @@
     <script src="{{ url_for('bokeh.server.bokehjs_file', filename='js/config.js') }}"></script>
     <script>
       require.config({ baseUrl: "/bokehjs/static/js" });
-      require(["main"], function(Bokeh) {
+      require(["main", "workbench"], function(Bokeh) {
           {% block script %}
           {% endblock %}
       });

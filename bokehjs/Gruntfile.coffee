@@ -118,26 +118,12 @@ module.exports = (grunt) ->
         logLevel: 2
         baseUrl: 'build/js'
         name: 'vendor/almond/almond'
-        paths:
-          jquery: "vendor/jquery/jquery"
-          jquery_ui: "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui"
-          jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel"
-          underscore: "vendor/underscore-amd/underscore"
-          backbone: "vendor/backbone-amd/backbone"
-          modal: "vendor/bootstrap/modal"
-          timezone: "vendor/timezone/src/timezone"
-          sprintf: "vendor/sprintf/src/sprintf"
-          rbush: "vendor/rbush/rbush"
-          jstree: "vendor/jstree/dist/jstree"
-        shim:
-          sprintf:
-            exports: 'sprintf'
+        mainConfigFile: 'build/js/config.js'
         include: ['underscore', 'main']
         fileExclusionRegExp: /^test/
-        wrap: {
-          startFile: 'src/js/_start.js.frag',
+        wrap:
+          startFile: 'src/js/_start.js.frag'
           endFile: 'src/js/_end.js.frag'
-        }
       production:
         options:
           optimize: "uglify2"
