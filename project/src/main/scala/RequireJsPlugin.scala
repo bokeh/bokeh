@@ -7,18 +7,7 @@ import org.mozilla.javascript.{Context,Scriptable,ScriptableObject,Callable,Nati
 
 import ScriptableObject.READONLY
 
-trait Rhino {
-    def withContext[T](fn: Context => T): T = {
-        val ctx = Context.enter()
-        try {
-            ctx.setOptimizationLevel(-1)
-            ctx.setLanguageVersion(Context.VERSION_1_8)
-            fn(ctx)
-        } finally {
-            Context.exit()
-        }
-    }
-}
+import com.google.javascript.jscomp.{Compiler,CompilerOptions,SourceFile,VariableRenamingPolicy}
 
 case class RequireJSWrap(startFile: File, endFile: File) {
     def toJsObject(scope: Scriptable): Scriptable = {
@@ -56,7 +45,7 @@ case class RequireJSConfig(
     }
 }
 
-class RequireJS(jsPath: File) extends Rhino {
+class RequireJS(log: Logger) extends Rhino {
 
     def rjsScope(ctx: Context): Scriptable = {
         val global = new Global()
@@ -68,20 +57,45 @@ class RequireJS(jsPath: File) extends Rhino {
         scope.defineProperty("arguments", arguments, ScriptableObject.DONTENUM)
         scope.defineProperty("requirejsAsLib", true, ScriptableObject.DONTENUM)
 
-        val rjs = new java.io.FileReader(jsPath / "r.js")
-        ctx.evaluateReader(scope, rjs, "r.js", 1, null)
+        val rjs = new java.io.InputStreamReader(
+            getClass.getClassLoader.getResourceAsStream("r.js"))
 
+        ctx.evaluateReader(scope, rjs, "r.js", 1, null)
         scope
     }
 
-    def optimize(config: RequireJSConfig): File = {
+    def optimize(config: RequireJSConfig): (File, File) = {
         withContext { ctx =>
+            log.info(s"Optimizing and minifying sbt-requirejs source ${config.out}")
             val scope = rjsScope(ctx)
             val require = scope.get("require", scope).asInstanceOf[Scriptable]
             val optimize = require.get("optimize", scope).asInstanceOf[Callable]
             val args = Array[AnyRef](config.toJsObject(scope))
             optimize.call(ctx, scope, scope, args)
-            config.out
+            val output = config.out
+            val outputMin = minify(output)
+            (output, outputMin)
+        }
+    }
+
+    def minify(input: File): File = {
+        val output = file(input.getPath.stripSuffix("js") + "min.js")
+        val compiler = new Compiler
+        val externs = Nil: List[SourceFile]
+        val sources = SourceFile.fromFile(input) :: Nil
+        val options = new CompilerOptions
+        options.setLanguageIn(CompilerOptions.LanguageMode.ECMASCRIPT5)
+        options.variableRenaming = VariableRenamingPolicy.ALL
+        options.prettyPrint = false
+        val result = compiler.compile(externs.asJava, sources.asJava, options)
+        if (result.errors.nonEmpty) {
+            result.errors.foreach(error => log.error(error.toString))
+            sys.error(s"${result.errors.length} errors compiling $input")
+        } else {
+            val warnings = result.warnings.filter(_.getType().key != "JSC_BAD_JSDOC_ANNOTATION")
+            warnings.foreach(warning => log.warn(warning.toString))
+            IO.write(output, compiler.toSource)
+            output
         }
     }
 }

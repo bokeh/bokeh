@@ -30,7 +30,7 @@ object ProjectBuild extends Build {
 
     val eco = taskKey[Seq[File]]("Compile ECO templates")
 
-    val requirejs = taskKey[File]("Run RequireJS optimizer")
+    val requirejs = taskKey[(File, File)]("Run RequireJS optimizer")
     val requirejsConfig = settingKey[RequireJSConfig]("RequireJS configuration")
 
     val build = taskKey[Unit]("Build CoffeeScript, LESS, ECO, etc.")
@@ -90,8 +90,9 @@ object ProjectBuild extends Build {
                 out            = jsDir / "bokeh.js")
         },
         requirejs in Compile <<= Def.task {
-            val rjs = new RequireJS(file("project/js"))
-            rjs.optimize(requirejsConfig in Compile value)
+            val config = (requirejsConfig in Compile).value
+            val rjs = new RequireJS(streams.value.log)
+            rjs.optimize(config)
         } dependsOn (resources in Compile))
 
     lazy val pluginSettings = /*workbenchSettings ++*/ jsSettings ++ lessSettings ++ ecoSettings ++ requirejsSettings
@@ -107,8 +108,8 @@ object ProjectBuild extends Build {
             val toCopy = (PathFinder(source) ***) pair Path.rebase(source, target)
             IO.copy(toCopy, overwrite=true).toSeq
         },
-        build <<= Def.task {} dependsOn (resources in Compile),
-        deploy <<= Def.task {} dependsOn (requirejs in Compile))
+        build in Compile <<= Def.task {} dependsOn (resources in Compile),
+        deploy in Compile <<= Def.task {} dependsOn (requirejs in Compile))
 
     lazy val bokeh = project in file(".") aggregate(bokehjs)
     lazy val bokehjs = project in file("bokehjs") settings(bokehjsSettings: _*)
