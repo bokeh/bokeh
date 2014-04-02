@@ -239,16 +239,8 @@ module.exports = (grunt) ->
 
   grunt.registerTask("default",     ["build", "qunit"])
   grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
-  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config", "concat"])
+  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "concat"])
   grunt.registerTask("deploy",      ["build",  "requirejs", "cssmin", "copy:spectrogram"])
   grunt.registerTask("test",        ["build", "connect", "qunit"])
   grunt.registerTask("serve",       ["connect:server:keepalive"])
-  grunt.registerTask("config", "Write config.js", () ->
-    config = {
-      paths: grunt.config.get("requirejs.options.paths")
-      shim: grunt.config.get("requirejs.options.shim")
-    }
-    content = "require.config(#{JSON.stringify(config)});"
-    grunt.file.write('build/js/config.js', content)
-  )
   grunt.registerTask("release", ["deploy", "copy:release"])
