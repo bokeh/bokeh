@@ -20,7 +20,7 @@ source = ColumnDataSource(data = dict(
     )
 )
 
-def make_plot(source, xname, yname, linecolor, xdr=None, ydr=None):
+def make_plot(source, xname, yname, line_color, xdr=None, ydr=None):
     """ Returns a tuple (plot, [obj1...objN]); the former can be added
     to a GridPlot, and the latter is added to the plotcontext.
     """
@@ -28,17 +28,16 @@ def make_plot(source, xname, yname, linecolor, xdr=None, ydr=None):
         xdr = DataRange1d(sources=[source.columns(xname)])
     if ydr is None:
         ydr = DataRange1d(sources=[source.columns(yname)])
-    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
-            border=50)
+    plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=50)
     xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
     yaxis = LinearAxis(plot=plot, dimension=1, location="left")
-    pantool = PanTool(dataranges=[xdr,ydr], dimensions=["width","height"])
-    wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+    pantool = PanTool(dimensions=["width", "height"])
+    wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
     renderer = Glyph(
             data_source = source,
             xdata_range = xdr,
             ydata_range = ydr,
-            glyph = Line(x=xname, y=yname, linecolor=linecolor),
+            glyph = Line(x=xname, y=yname, line_color=line_color),
             )
     plot.renderers.append(renderer)
     plot.tools = [pantool, wheelzoomtool]
@@ -52,10 +51,9 @@ plot4 = make_plot(source, "x", "y4", "black")
 grid = GridPlot(children=[[plot1, plot2], [plot3, plot4]])
 
 sess = session.HTMLFileSession("grid.html")
-sess.add(grid, recursive=True)
-sess.plotcontext.children.append(grid)
-sess.save()
-print("Wrote %s" % sess.filename)
+sess.add_plot(grid)
 
 if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
     sess.view()

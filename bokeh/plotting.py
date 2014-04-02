@@ -10,7 +10,9 @@ import time
 import warnings
 
 from . import glyphs, browserlib, serverconfig
-from .objects import ColumnDataSource, Glyph, Grid, GridPlot, Legend, Axis
+from .objects import (ColumnDataSource, Glyph, Grid, GridPlot, Legend, Axis,
+                      ServerDataSource)
+
 from .plotting_helpers import (get_default_color, get_default_alpha,
         _glyph_doc, _match_data_params, _update_plot_data_ranges,
         _materialize_colors_and_alpha, _get_legend, _make_legend,
@@ -194,11 +196,10 @@ def output_notebook(url=None, server=None, name=None, docname=None):
             real_url = _config.plotserver_url
         else:
             real_url = url
+        if name is None:
+            name = real_url
         if not server:
-            if name:
-                server = serverconfig.Server(name=name)
-            else:
-                server = serverconfig.Server(name=real_url)
+            server = serverconfig.Server(name=name, root_url=real_url)
         _config.output_url = server.root_url
         _config.output_type = "server"
         _config.output_file = None
@@ -240,11 +241,10 @@ def output_server(docname, server=None, name=None, url="default", **kwargs):
         real_url = _config.plotserver_url
     else:
         real_url = url
+    if name is None:
+        name = real_url
     if not server:
-        if name:
-            server = serverconfig.Server(name=name)
-        else:
-            server = serverconfig.Server(name=real_url)
+        server = serverconfig.Server(name=name, root_url=real_url)
     _config.output_url = server.root_url
     _config.output_type = "server"
     _config.output_file = None
@@ -409,11 +409,11 @@ def visual(func):
             )
 
         retvals = func(*args, **kw)
-        if len(retvals) == 1:
-            plot = retvals
-            session_objs = []
-        else:
+
+        if isinstance(retvals, tuple):
             plot, session_objs = retvals
+        else:
+            plot, session_objs = retvals, retvals.references()
 
         if plot is not None:
             session.add(plot)
@@ -445,9 +445,20 @@ def visual(func):
 def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"]):
     @visual
     def func(*args, **kwargs):
-      # Process the keyword arguments that are not glyph-specific
-        datasource = kwargs.pop("source", ColumnDataSource())
-        session_objs = [datasource]
+        # Process the keyword arguments that are not glyph-specific
+        session_objs = []
+        source = kwargs.pop('source', None)
+        if isinstance(source, ServerDataSource):
+            datasource = ColumnDataSource()
+            serversource = source
+            session_objs.append(serversource)
+        elif source is None:
+            datasource = ColumnDataSource()
+            serversource = None
+        else:
+            datasource = source
+            serversource = None
+        session_objs.append(datasource)
         legend_name = kwargs.pop("legend", None)
         plot = _get_plot(kwargs)
         if 'name' in kwargs:
@@ -457,17 +468,21 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         # Process the glyph dataspec parameters
         glyph_params = _match_data_params(argnames, glyphclass,
-            datasource, args, _materialize_colors_and_alpha(kwargs))
+                                          datasource, serversource,
+                                          args, _materialize_colors_and_alpha(kwargs))
 
-        x_data_fields = [
-            glyph_params[xx]['field'] for xx in xfields if glyph_params[xx]['units'] == 'data']
-        y_data_fields = [
-            glyph_params[yy]['field'] for yy in yfields if glyph_params[yy]['units'] == 'data']
+        x_data_fields = [ glyph_params[xx]['field'] for xx in xfields if glyph_params[xx]['units'] == 'data' ]
+        y_data_fields = [ glyph_params[yy]['field'] for yy in yfields if glyph_params[yy]['units'] == 'data' ]
+
         _update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)
-        glyph = glyphclass(**kwargs)
-        nonselection_glyph_params = _materialize_colors_and_alpha(
-            kwargs, prefix='nonselection_', default_alpha=0.1)
+
+        glyph_props = glyphclass.properties()
+        glyph_kwargs = dict((key, value) for (key, value) in kwargs.iteritems() if key in glyph_props)
+
+        glyph = glyphclass(**glyph_kwargs)
+
+        nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
 
         nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
@@ -477,11 +492,10 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
 
         glyph_renderer = Glyph(
-            data_source = datasource,
-            plot = plot,
+            data_source=datasource,
+            server_data_source=serversource,
             glyph=glyph,
-            nonselection_glyph=nonselection_glyph,
-            )
+            nonselection_glyph=nonselection_glyph)
 
         if legend_name:
             legend = _get_legend(plot)
@@ -497,10 +511,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         plot.renderers.append(glyph_renderer)
 
-        session_objs.extend(plot.tools)
-        session_objs.extend(plot.renderers)
-        session_objs.extend([plot.x_range, plot.y_range])
-        return plot, session_objs
+        return plot
     func.__name__ = glyphclass.__view_model__
     func.__doc__ = docstring
     return func
@@ -621,9 +632,8 @@ are also accepted as keyword parameters.
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
 
-Notes
------
-Only one of `size` or `radius` should be provided. Note that `radius` defaults to data units.
+Notes:
+    Only one of `size` or `radius` should be provided. Note that `radius` defaults to data units.
 """
 )
 
@@ -724,9 +734,14 @@ Args:
     dw (str or list[float]) : values or field names of image width distances
     dh (str or list[float]) : values or field names of image height distances
     palette (str or list[str]) : values or field names of palettes to use for color-mapping
+    dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+Notes:
+    setting `dilate` to True will cause pixel distances (e.g., for `dw` and `dh`) to
+    be rounded up, always.
 """
 )
 
@@ -740,9 +755,14 @@ Args:
     y (str or list[float]) : values or field names of lower left `y` coordinates
     dw (str or list[float]) : values or field names of image width distances
     dh (str or list[float]) : values or field names of image height distances
+    dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+Notes:
+    setting `dilate` to True will cause pixel distances (e.g., for `dw` and `dh`) to
+    be rounded up, always.
 """
 )
 
@@ -923,6 +943,7 @@ Args:
     width (str or list[float]) : values or field names of widths
     height (str or list[float]) : values or field names of heights
     angle (str or list[float], optional) : values or field names of rotation angles, defaults to 0
+    dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
@@ -930,6 +951,11 @@ are also accepted as keyword parameters.
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+Notes:
+    setting `dilate` to True will cause pixel distances (e.g., for `width` and `height`) to
+    be rounded up, always.
+
 """
 )
 

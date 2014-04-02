@@ -1,13 +1,15 @@
-import unittest
 import tempfile
-import redis
 import time
-import redis
-from requests.exceptions import ConnectionError
-import requests
+import unittest
 
-from ..app import bokeh_app
+import redis
+import requests
+from requests.exceptions import ConnectionError
+
 from .. import start
+from ..app import bokeh_app
+from ...tests.test_utils import skipIfPy3
+
 
 def wait_flask():
     def helper():
@@ -16,6 +18,7 @@ def wait_flask():
         except ConnectionError as e:
             return False
     return wait_until(helper)
+
 
 def wait_redis_gone(port):
     def helper():
@@ -27,6 +30,7 @@ def wait_redis_gone(port):
             return True
     return wait_until(helper)
 
+
 def wait_redis_start(port):
     def helper():
         client = redis.Redis(port=port)
@@ -35,6 +39,7 @@ def wait_redis_start(port):
         except redis.ConnectionError:
             pass
     return wait_until(helper)
+
 
 def wait_until(func, timeout=1.0, interval=0.01):
     st = time.time()
@@ -45,6 +50,7 @@ def wait_until(func, timeout=1.0, interval=0.01):
             return False
         time.sleep(interval)
 
+
 def recv_timeout(socket, timeout):
     poll = zmq.Poller()
     poll.register(socket, zmq.POLLIN)
@@ -54,8 +60,11 @@ def recv_timeout(socket, timeout):
     else:
         return None
 
+
 class BokehServerTestCase(unittest.TestCase):
     options = {}
+
+    @skipIfPy3("gevent does not work in py3.")
     def setUp(self):
         import gevent
         start.prepare_app({"type": "redis", "redis_port": 6899}, **self.options)

@@ -24,9 +24,6 @@ define [
       super(options)
 
     _set_data: () ->
-      for i in [0...@y.length]
-        @y[i] += @dh[i]
-
       if not @image_data? or @image_data.length != @image.length
         @image_data = new Array(@image.length)
 
@@ -63,8 +60,8 @@ define [
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
-      @sw = @distance_vector('x', 'dw', 'edge')
-      @sh = @distance_vector('y', 'dh', 'edge')
+      @sw = @distance_vector('x', 'dw', 'edge', @mget('glyphspec')['dilate'])
+      @sh = @distance_vector('y', 'dh', 'edge', @mget('glyphspec')['dilate'])
 
     _render: (ctx, indices, glyph_props) ->
       old_smoothing = ctx.getImageSmoothingEnabled()
@@ -75,7 +72,7 @@ define [
         if isNaN(@sx[i] + @sy[i] + @sw[i] + @sh[i])
           continue
 
-        y_offset = @sy[i]+@sh[i]/2
+        y_offset = @sy[i]
 
         ctx.translate(0, y_offset)
         ctx.scale(1, -1)
@@ -95,6 +92,7 @@ define [
     display_defaults: () ->
       return _.extend(super(), {
         level: 'underlay'
+        dilate: false
       })
 
   return {

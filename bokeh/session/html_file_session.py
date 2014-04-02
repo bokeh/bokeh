@@ -2,13 +2,12 @@
 """
 from __future__ import absolute_import
 
-import os
 import sys
 from os.path import abspath, normpath, realpath, split, join, relpath, splitext
 import logging
 from six import string_types
 
-from .. import __version__
+from .. import __version__, browserlib, settings
 from ..objects import PlotContext
 from .base_html_session import BaseHTMLSession
 
@@ -84,8 +83,8 @@ class HTMLFileSession(BaseHTMLSession):
         self.raw_js_objs.append(obj)
 
     def get_resources(self, resources, rootdir):
-        resources = os.environ.get("BOKEH_RESOURCES", resources)
-        rootdir = os.environ.get("BOKEH_ROOTDIR", rootdir)
+        resources = settings.resources(resources)
+        rootdir = settings.rootdir(rootdir)
 
         if resources not in ['inline', 'cdn', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
             raise ValueError("wrong value for 'resources' parameter, expected 'inline', 'cdn', 'relative(-dev)' or 'absolute(-dev)', got %r" % resources)
@@ -183,7 +182,7 @@ class HTMLFileSession(BaseHTMLSession):
             f.write(s.encode("utf-8"))
         return
 
-    def view(self, new=False, autoraise=True):
+    def view(self, browser=None, new=False, autoraise=True):
         """ Opens a browser to view the file pointed to by this sessions.
 
         **new** can be None, "tab", or "window" to view the file in the
@@ -196,8 +195,8 @@ class HTMLFileSession(BaseHTMLSession):
         file_url = "file://" + abspath(self.filename)
 
         try:
-            import webbrowser
-            webbrowser.open(file_url, new=new_map[new], autoraise=autoraise)
+            controller = browserlib.get_browser_controller(browser)
+            controller.open(file_url, new=new_map[new], autoraise=autoraise)
         except (SystemExit, KeyboardInterrupt):
             raise
         except:
@@ -215,11 +214,7 @@ class HTMLFileSession(BaseHTMLSession):
 
         Mostly intended to be used for debugging.
         """
-        if pretty:
-            indent = 4
-        else:
-            indent = None
-        s = self.serialize_models(indent=indent)
+        s = self.serialize_models(pretty=pretty)
         if file is not None:
             if isinstance(file, string_types):
                 with open(file, "w") as f:

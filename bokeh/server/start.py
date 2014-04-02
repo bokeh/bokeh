@@ -29,15 +29,17 @@ from .server_backends import (
     RedisBackboneStorage, RedisServerModelStorage,
     InMemoryBackboneStorage, InMemoryServerModelStorage,
     ShelveBackboneStorage, ShelveServerModelStorage,
-    SingleUserAuthentication, MultiUserAuthentication
+    SingleUserAuthentication, MultiUserAuthentication,
+    HDF5DataBackend
 )
+from .flask_gzip import Gzip
 
 PORT = 5006
 REDIS_PORT = 6379
 
 app = Flask("bokeh.server")
 
-def prepare_app(backend, single_user_mode=True):
+def prepare_app(backend, single_user_mode=True, data_directory=None):
     # must import views before running apps
     from .views import deps
 
@@ -60,8 +62,13 @@ def prepare_app(backend, single_user_mode=True):
         authentication = SingleUserAuthentication()
     else:
         authentication = MultiUserAuthentication()
+    if data_directory:
+        datamanager = HDF5DataBackend(data_directory)
+    else:
+        datamanager = None
 
-    bokeh_app.setup(backend, bbstorage, servermodel_storage, authentication)
+    bokeh_app.setup(backend, bbstorage, servermodel_storage, 
+                    authentication, datamanager)
 
     app.register_blueprint(bokeh_app)
 
@@ -100,6 +107,7 @@ def stop_services():
 
 def start_app(host="127.0.0.1", port=PORT, verbose=False):
     global http_server
+    Gzip(app)
     http_server = make_server(host, port, app)
     start_services()
     print("\nStarting Bokeh plot server on port %d..." % port)

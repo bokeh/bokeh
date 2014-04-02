@@ -2,12 +2,8 @@
 """
 from __future__ import absolute_import
 
-import logging
 import warnings
-
-from ..objects import PlotObject
-from ..properties import HasProps
-
+import logging
 logger = logging.getLogger(__file__)
 
 class Session(object):
@@ -31,6 +27,8 @@ class Session(object):
     will be associated with the given session.
     """
 
+    plotcontext = None
+
     def __init__(self, plot=None):
         """ Initializes this session from the given PlotObject. """
         # Has the plot model changed since the last save?
@@ -45,20 +43,12 @@ class Session(object):
     def __exit__(self, e_ty, e_val, e_tb):
         pass
 
-    def add(self, *objects, **kwargs):
+    def add(self, *objects):
         """ Associates the given object to this session.  This means
         that changes to the object's internal state will be reflected
         in the persistence layer and trigger event that propagate
         across to the view(s).
-
-        **recursive** flag allows to descend through objects' structure
-        and collect all their dependencies, adding them to the session
-        as well.
         """
-        recursive = kwargs.get("recursive", False)
-        if recursive:
-            objects = self._collect_objs(objects)
-
         for obj in objects:
             if obj is None:
                 warnings.warn("Null object passed to Session.add()")
@@ -66,33 +56,15 @@ class Session(object):
                 obj.session = self
                 self._models[obj._id] = obj
 
-    @classmethod
-    def _collect_objs(cls, input_objs):
-        """ Iterate over ``input_objs`` and descend through their structure
-        collecting all nested ``PlotObjects`` on the go. The resulting list
-        is duplicate-free based on objects' identifiers.
-        """
-        ids = set([])
-        objs = []
+    def add_plot(self, *plots):
+        """ Add a plot to this session. """
+        ### XXX: remove this
+        for plot in plots:
+            plot.session = self
+        ###
 
-        def descend(obj):
-            if hasattr(obj, '__iter__'):
-                for _obj in obj:
-                    descend(_obj)
-            elif isinstance(obj, PlotObject):
-                if obj._id not in ids:
-                    ids.add(obj._id)
-
-                    for attr in obj.__properties_with_refs__:
-                        descend(getattr(obj, attr))
-
-                    objs.append(obj)
-            elif isinstance(obj, HasProps):
-                for attr in obj.__properties_with_refs__:
-                    descend(getattr(obj, attr))
-
-        descend(input_objs)
-        return objs
+        self.plotcontext.children.extend(plots)
+        self.plotcontext._dirty = True
 
     def view(self):
         """ Triggers the OS to open a web browser pointing to the file

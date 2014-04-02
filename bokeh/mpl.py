@@ -58,10 +58,8 @@ def axes2plot(axes):
     #        warnings.warn("Not yet implemented: %r" % collection)
 
     # Add tools
-    pantool = objects.PanTool(dataranges = [plot.x_range, plot.y_range],
-                      dimensions=["width", "height"])
-    wheelzoom = objects.WheelZoomTool(dataranges = [plot.x_range, plot.y_range],
-                              dimensions=["width", "height"])
+    pantool = objects.PanTool(dimensions=["width", "height"])
+    wheelzoom = objects.WheelZoomTool(dimensions=["width", "height"])
     plot.tools = [pantool, wheelzoom]
     return plot
 

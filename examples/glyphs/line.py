@@ -33,13 +33,12 @@ renderer = Glyph(
         glyph = line_glyph
         )
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source],
-        border=50)
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[source], min_border=50)
 xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
 yaxis = LinearAxis(plot=plot, dimension=1, location="left")
 
-pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+pantool = PanTool(dimensions=["width", "height"])
+wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 previewsave = PreviewSaveTool(plot=plot)
 objectexplorer = ObjectExplorerTool()
 
@@ -47,10 +46,9 @@ plot.renderers.append(renderer)
 plot.tools = [pantool, wheelzoomtool, previewsave, objectexplorer]
 
 sess = session.HTMLFileSession("line.html")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.save()
-print("Wrote %s" % sess.filename)
+sess.add_plot(plot)
 
 if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
     sess.view()

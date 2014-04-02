@@ -42,13 +42,12 @@ renderer2 = Glyph(
         glyph = line_glyph2
         )
 
-plot = Plot(x_range=xdr_static, y_range=ydr, data_sources=[source],
-        border=50)
+plot = Plot(x_range=xdr_static, y_range=ydr, data_sources=[source], min_border=50)
 xaxis = LinearAxis(plot=plot, dimension=0, location="bottom")
 yaxis = LinearAxis(plot=plot, dimension=1, location="left")
 
-pantool = PanTool(dataranges = [xdr, ydr], dimensions=["width","height"])
-wheelzoomtool = WheelZoomTool(dataranges=[xdr,ydr], dimensions=("width","height"))
+pantool = PanTool(dimensions=["width", "height"])
+wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 
 plot.renderers.append(renderer)
 plot.renderers.append(renderer2)
@@ -64,9 +63,7 @@ except requests.exceptions.ConnectionError:
     sys.exit(1)
 
 sess.use_doc("line_animate")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.plotcontext._dirty = True
+sess.add_plot(plot)
 # not so nice.. but set the model doens't know
 # that we appended to children
 sess.store_all()

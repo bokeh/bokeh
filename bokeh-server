@@ -58,7 +58,10 @@ def build_parser():
                         action="store_true",
                         default=False
                         )
-
+    parser.add_argument("-D", "--data-directory",
+                        help="data directory",
+                        type=str
+                        )
     return parser
 
 def main():
@@ -76,7 +79,8 @@ def main():
         "start_redis": args.start_redis,
     }
 
-    start.prepare_app(backend, single_user_mode=not args.multi_user)
+    start.prepare_app(backend, single_user_mode=not args.multi_user, 
+                      data_directory=args.data_directory)
 
     if args.debug:
         print("running with debug")

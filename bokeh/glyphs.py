@@ -1,11 +1,8 @@
-
-import inspect
-
-from .properties import (BaseProperty, HasProps, Instance, Enum, Float, Int,
-        Color, Percent, Size, Bool, DashPattern, Align, Angle, String, FillProps,
-        LineProps, TextProps, DataSpec, ColorSpec)
-
-from .objects import PlotObject
+from .properties import (Instance, Enum, Float, Int, Color, Percent,
+    Size, Bool, DashPattern, Align, Angle, String, DataSpec, ColorSpec)
+from .mixins import FillProps, LineProps, TextProps
+from .enums import Units, AngleUnits, Direction
+from .plotobject import PlotObject
 
 # Size is a way to preserve a data-space-related metric all the way until
 #   render time, when the screen dimensions are known
@@ -26,23 +23,24 @@ class BaseGlyph(PlotObject):
     halign = Align  # when there is horizontal wiggle room (e.g. categorical)
     valign = Align  # when there is vertical wiggle room
 
-    radius_units = Enum("screen", "data")
-    length_units = Enum("screen", "data")
-    angle_units = Enum("deg", "rad")
-    start_angle_units = Enum("deg", "rad")
-    end_angle_units = Enum("deg", "rad")
+    radius_units = Enum(Units)
+    length_units = Enum(Units)
+    angle_units = Enum(AngleUnits)
+    start_angle_units = Enum(AngleUnits)
+    end_angle_units = Enum(AngleUnits)
 
     def to_glyphspec(self):
         """ Returns a dict mapping attributes to values, that is amenable for
         inclusion in a Glyph definition.
         """
-        d = self.vm_props(withvalues=True)
+        d = self.vm_props()
         d["type"] = self.__view_model__
 
         # Iterate over all the DataSpec properties and convert them, using the
         # fact that DataSpecs store the dict-ified version on the object.
         for attrname, dspec in self.dataspecs_with_refs().items():
             d[attrname] = dspec.to_dict(self)
+
         return d
 
 
@@ -63,19 +61,15 @@ class Circle(Marker):
         """ Returns a dict mapping attributes to values, that is amenable for
         inclusion in a Glyph definition.
         """
-        d = self.vm_props(withvalues=True)
-        d["type"] = self.__view_model__
+        d = super(Circle, self).to_glyphspec()
 
-        # Here is the special case for circle, we only want one of "size" or "radius",
-        # but not both.
-        for attrname, dspec in self.dataspecs_with_refs().items():
-            d[attrname] = dspec.to_dict(self)
         if "size" not in self._changed_vars and "radius" not in self._changed_vars:
             del d["radius"]
         elif "size" in self._changed_vars:
             del d["radius"]
         elif "radius" in self._changed_vars:
             del d["size"]
+
         return d
 
 
@@ -129,7 +123,7 @@ class AnnularWedge(BaseGlyph, FillProps, LineProps):
     outer_radius = DataSpec(min_value=0)
     start_angle = DataSpec
     end_angle = DataSpec
-    direction = Enum('clock', 'anticlock')
+    direction = Enum(Direction)
 
 class Annulus(BaseGlyph, FillProps, LineProps):
     __view_model__ = 'annulus'
@@ -145,7 +139,7 @@ class Arc(BaseGlyph, LineProps):
     radius = DataSpec(min_value=0)
     start_angle = DataSpec
     end_angle = DataSpec
-    direction = Enum('clock', 'anticlock')
+    direction = Enum(Direction)
 
 class Bezier(BaseGlyph, LineProps):
     __view_model__ = 'bezier'
@@ -166,6 +160,7 @@ class Image(BaseGlyph):
     dw = DataSpec
     dh = DataSpec
     palette = DataSpec
+    dilate = Bool(False)
 
 class ImageURI(BaseGlyph):
     __view_model__ = 'image_uri'
@@ -180,6 +175,7 @@ class ImageRGBA(BaseGlyph):
     y = DataSpec
     dw = DataSpec
     dh = DataSpec
+    dilate = Bool(False)
 
 class Line(BaseGlyph, LineProps):
     __view_model__ = "line"
@@ -239,6 +235,7 @@ class Rect(BaseGlyph, FillProps, LineProps):
     width = DataSpec
     height = DataSpec
     angle = DataSpec
+    dilate = Bool(False)
 
 class Segment(BaseGlyph, LineProps):
     __view_model__ = 'segment'
@@ -261,7 +258,4 @@ class Wedge(BaseGlyph, FillProps, LineProps):
     radius = DataSpec(min_value=0)
     start_angle = DataSpec
     end_angle = DataSpec
-    direction = Enum('clock', 'anticlock')
-
-
-
+    direction = Enum(Direction)
