@@ -325,7 +325,7 @@ class PlotObject(HasProps):
             embed_base_url, bokehJS_url, bokehCSS_url, inline)
 
         if not inline:
-            full_embed_save_loc = os.path.join(embed_save_loc, embed_filename, inline=inline)
+            full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)
             with open(full_embed_save_loc,"w") as f:
                 f.write(js_code)
         return embed_snippet
