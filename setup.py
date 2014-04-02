@@ -1,5 +1,6 @@
 import os
 from os.path import abspath, exists, isdir, join, dirname
+import platform
 import site
 import sys
 import shutil
@@ -43,7 +44,7 @@ if 'devjs' in sys.argv or 'develop' in sys.argv:
             print("deploying bokehjs...")
             out = subprocess.check_output(['grunt', 'deploy'])
             sys.argv.remove('--deploy')
-        except CalledProcessError:
+        except subprocess.CalledProcessError:
             print("ERROR: could not deploy bokehjs")
             sys.exit(1)
         os.chdir('..')
@@ -206,8 +207,6 @@ REQUIRES = [
         'Werkzeug>=0.9.1',
         'greenlet>=0.4.1',
         'itsdangerous>=0.21',
-        'numpy>=1.7.1',
-        'pandas>=0.11.0',
         'python-dateutil>=2.1',
         'pytz==2013b',
         'requests>=1.2.3',
@@ -225,7 +224,7 @@ REQUIRES = [
 if sys.version_info[:2] == (2,6):
     REQUIRES.append('argparse>=1.1')
 
-if sys.version_info[0] != 3:
+if sys.version_info[0] != 3 and platform.python_implementation() != "PyPy":
     REQUIRES.extend([
         'websocket>=0.2.1',
         'gevent==0.13.8',
@@ -234,6 +233,15 @@ if sys.version_info[0] != 3:
 
 if sys.platform != "win32":
     REQUIRES.append('redis>=2.7.6')
+
+if platform.python_implementation() != "PyPy":
+    # You need to install the NumPy fork of PyPy to make it work:
+    # pip install git+https://bitbucket.org/pypy/numpy.git
+    # Also pandas is not yet working with PyPy .
+    REQUIRES.extend([
+        'numpy>=1.7.1',
+        'pandas>=0.11.0'
+    ])
 
 setup(
     name = 'bokeh',

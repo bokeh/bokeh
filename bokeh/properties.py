@@ -18,7 +18,7 @@ def _dummy(*args,**kw):
     return None
 
 def nice_join(seq, sep=", "):
-    seq = map(str, seq)
+    seq = [str(x) for x in seq]
 
     if len(seq) <= 1:
         return sep.join(seq)

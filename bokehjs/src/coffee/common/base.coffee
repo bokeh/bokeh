@@ -28,6 +28,7 @@ define [
   "renderer/overlay/box_selection",
 
   "source/column_data_source",
+  "source/server_data_source",
 
   "ticking/abstract_ticker",
   "ticking/adaptive_ticker",
@@ -89,6 +90,7 @@ define [
     BoxSelection:             'renderer/overlay/box_selection'
 
     ColumnDataSource:         'source/column_data_source'
+    ServerDataSource:         'source/server_data_source'
 
     AbstractTicker:           'ticking/abstract_ticker'
     AdaptiveTicker:           'ticking/adaptive_ticker'

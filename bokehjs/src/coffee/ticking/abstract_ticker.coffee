@@ -3,7 +3,6 @@ define [
   "backbone",
   "common/has_properties",
 ], (_, Backbone, HasProperties) ->
-
   # A hacky analogue to repr() in Python.
   repr = (obj) ->
     if obj == null
@@ -66,7 +65,10 @@ define [
       interval = @get_interval(data_low, data_high, desired_n_ticks)
       start_factor = Math.floor(data_low / interval)
       end_factor   = Math.ceil(data_high / interval)
-      factors = _.range(start_factor, end_factor + 1)
+      if _.isNaN(start_factor) or _.isNaN(end_factor)
+        factors = []
+      else
+        factors = _.range(start_factor, end_factor + 1)
       ticks = (factor * interval for factor in factors)
       return ticks
 

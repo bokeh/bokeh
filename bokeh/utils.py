@@ -1,3 +1,4 @@
+import platform
 import sys
 import math
 from six.moves.urllib.parse import urljoin as sys_urljoin
@@ -35,3 +36,9 @@ def scale_delta(time):
         order = 3
 
     return time*_scales[order], _units[order]
+
+def is_py3():
+    return sys.version_info[0] == 3
+
+def is_pypy():
+    return platform.python_implementation() == "PyPy"
