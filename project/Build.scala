@@ -6,6 +6,8 @@ import com.lihaoyi.workbench.{Plugin=>Workbench}
 import com.untyped.sbtjs.Plugin.{JsKeys,jsSettings=>pluginJsSettings,CompilationLevel,VariableRenamingPolicy}
 import com.untyped.sbtless.Plugin.{LessKeys,lessSettings=>pluginLessSettings}
 
+import EcoPlugin.{EcoKeys,ecoSettings=>pluginEcoSettings}
+
 object ProjectBuild extends Build {
     override lazy val settings = super.settings ++ Seq(
         organization := "org.continuumio",
@@ -65,22 +67,10 @@ object ProjectBuild extends Build {
         compile in Compile <<= compile in Compile dependsOn (LessKeys.less in Compile),
         LessKeys.prettyPrint in (Compile, LessKeys.less) := true)
 
-    lazy val ecoSettings = Seq(
-        eco in Compile <<= Def.task {
-            streams.value.log.info("Compiling ECO templates")
-            val srcDir = sourceDirectory in (Compile, JsKeys.js) value
-            val resDir = resourceManaged in (Compile, JsKeys.js) value
-            val toCompile = (PathFinder(srcDir) ** "*.eco") pair Path.rebase(srcDir, resDir)
-            val (inputs, outputs) = toCompile.unzip
-            val eco = new Eco(file("project/js"))
-            val compiled = inputs.map(file => eco.compile(IO.read(file)))
-            outputs.zip(compiled).foreach { case (output, content) =>
-                val outputJs = file(output.getPath.stripSuffix("eco") + "js")
-                IO.write(outputJs, content)
-            }
-            outputs
-        },
-        compile in Compile <<= compile in Compile dependsOn (eco in Compile))
+    lazy val ecoSettings = pluginEcoSettings ++ Seq(
+        sourceDirectory in (Compile, EcoKeys.eco) <<= (sourceDirectory in Compile)(_ / "coffee"),
+        resourceManaged in (Compile, EcoKeys.eco) <<= (resourceManaged in Compile)(_ / "js"),
+        compile in Compile <<= compile in Compile dependsOn (EcoKeys.eco in Compile))
 
     lazy val requirejsSettings = Seq(
         requirejsConfig in Compile := {

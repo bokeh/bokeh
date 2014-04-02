@@ -57,13 +57,6 @@ case class RequireJSConfig(
 }
 
 class RequireJS(jsPath: File) extends Rhino {
-    val optimizeFunction: String = {
-        """
-        |function optimize(config) {
-        |    return require.optimize(config);
-        |}
-        """.trim.stripMargin
-    }
 
     def rjsScope(ctx: Context): Scriptable = {
         val global = new Global()
@@ -77,7 +70,6 @@ class RequireJS(jsPath: File) extends Rhino {
 
         val rjs = new java.io.FileReader(jsPath / "r.js")
         ctx.evaluateReader(scope, rjs, "r.js", 1, null)
-        ctx.evaluateString(scope, optimizeFunction, "<sbt>", 1, null)
 
         scope
     }
@@ -85,32 +77,11 @@ class RequireJS(jsPath: File) extends Rhino {
     def optimize(config: RequireJSConfig): File = {
         withContext { ctx =>
             val scope = rjsScope(ctx)
-            val rjsOptimizer = scope.get("optimize", scope).asInstanceOf[Callable]
-            val args: Array[AnyRef] = Array(config.toJsObject(scope))
-            rjsOptimizer.call(ctx, scope, scope, args)
-        }
-        config.out
-    }
-}
-
-class Eco(jsPath: File) extends Rhino {
-    private val modules = List("eco/compiler", "strscan", "coffee-script")
-
-    def ecoScope(ctx: Context): Scriptable = {
-        val global = new Global()
-        global.init(ctx)
-
-        val modulePaths = modules.map(jsPath / _).map(_.getPath).asJava
-        val require = global.installRequire(ctx, modulePaths, false)
-        require.requireMain(ctx, "compiler")
-    }
-
-    def compile(template: String): String = {
-        withContext { ctx =>
-            val scope = ecoScope(ctx)
-            val precompile = scope.get("precompile", scope).asInstanceOf[Callable]
-            val args: Array[AnyRef] = Array(template)
-            precompile.call(ctx, scope, scope, args).asInstanceOf[String]
+            val require = scope.get("require", scope).asInstanceOf[Scriptable]
+            val optimize = require.get("optimize", scope).asInstanceOf[Callable]
+            val args = Array[AnyRef](config.toJsObject(scope))
+            optimize.call(ctx, scope, scope, args)
+            config.out
         }
     }
 }
