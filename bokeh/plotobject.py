@@ -322,7 +322,7 @@ class PlotObject(HasProps):
             embed_base_url, bokehJS_url, bokehCSS_url, inline)
 
         if not inline:
-            full_embed_save_loc = os.path.join(embed_save_loc, embed_filename, inline=inline)
+            full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)
             with open(full_embed_save_loc,"w") as f:
                 f.write(js_code)
         return embed_snippet
@@ -331,8 +331,6 @@ class PlotObject(HasProps):
         sess = self._session
         modelid = self._id
         typename = self.__view_model__
-        import pdb
-        pdb.set_trace()
         if not base_url:
             base_url = sess.root_url
         split = urlsplit(base_url)

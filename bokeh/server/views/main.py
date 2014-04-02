@@ -206,7 +206,11 @@ def embed_js():
             os.path.abspath(__file__)), "..", "..", "templates", "embed_direct.js")
     with open(t_file) as f:
         template = jinja2.Template(f.read())
-        rendered = template.render(host=request.host)
+        rendered = template.render(
+            host=request.host,
+            bokehJS_url="http://%s/static/js/bokeh.js" % request.host,
+            bokehCSS_url="http://%s/static/css/bokeh.css"  % request.host)
+
 
         return  Response(rendered, "200",
             {'Content-Type':'application/javascript'})
