@@ -10,7 +10,7 @@ import inspect
 import logging
 logger = logging.getLogger(__name__)
 
-from six import integer_types, string_types, add_metaclass
+from six import integer_types, string_types, add_metaclass, iteritems
 import numpy as np
 
 from . import enums
@@ -747,7 +747,7 @@ class Dict(ContainerProperty):
 
         if value is not None:
             if not (isinstance(value, dict) and \
-                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in value.iteritems())):
+                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in iteritems(value))):
                 raise ValueError("expected an element of %s, got %r" % (self, value))
 
     def __str__(self):
