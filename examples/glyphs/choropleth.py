@@ -4,7 +4,7 @@ import os
 
 from bokeh.sampledata import us_states, us_counties, unemployment
 from bokeh.objects import (
-    Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, WheelZoomTool, ResizeTool
+    Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, PanTool, WheelZoomTool, ResizeTool
 )
 from bokeh.glyphs import Patches
 from bokeh import session
@@ -64,7 +64,7 @@ state_renderer = Glyph(
         glyph = state_patches,
         )
 
-plot = Plot(x_range=xdr, y_range=ydr, data_sources=[state_source, county_source], border=0, border_fill="white", title="2009 Unemployment Data", width=1300, height=800)
+plot = Plot(x_range=xdr, y_range=ydr, data_sources=[state_source, county_source], min_border=0, border_fill="white", title="2009 Unemployment Data", width=1300, height=800)
 
 resizetool = ResizeTool(plot=plot)
 
@@ -73,10 +73,9 @@ plot.renderers.append(state_renderer)
 plot.tools = [resizetool]
 
 sess = session.HTMLFileSession("choropleth.html")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.save()
-print("Wrote %s" % sess.filename)
+sess.add_plot(plot)
 
 if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
     sess.view()

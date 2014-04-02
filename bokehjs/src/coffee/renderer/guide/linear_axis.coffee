@@ -2,25 +2,23 @@
 define [
   "underscore",
   "backbone",
-  "common/ticking",
   "./axis"
-], (_, Backbone, ticking, Axis) ->
+  "ticking/basic_ticker",
+  "ticking/basic_tick_formatter",
+], (_, Backbone, Axis, BasicTicker, BasicTickFormatter) ->
 
   class LinearAxisView extends Axis.View
-    initialize: (options) ->
-      options.formatter = new ticking.BasicTickFormatter()
-      super(options)
 
   class LinearAxis extends Axis.Model
     default_view: LinearAxisView
     type: 'LinearAxis'
 
-    initialize: (attrs, options)->
-      options.scale = new ticking.BasicScale()
-      super(attrs, options)
-
-    display_defaults: () ->
-      super()
+    initialize: (attrs, objects) ->
+      super(attrs, objects)
+      if not @get_obj('ticker')?
+        @set_obj('ticker', BasicTicker.Collection.create())
+      if not @get_obj('formatter')?
+        @set_obj('formatter', BasicTickFormatter.Collection.create())
 
   class LinearAxes extends Backbone.Collection
      model: LinearAxis

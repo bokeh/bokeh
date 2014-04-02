@@ -1,3 +1,5 @@
+import pandas as pd
+
 from bokeh.plotting import *
 from bokeh.sampledata import periodic_table
 

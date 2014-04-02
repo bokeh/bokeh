@@ -229,7 +229,7 @@ define [
       if ref['type'] == this.type and ref['id'] == this.id
         return this
       else
-        return @base().Collections(ref['type']).get(ref['id'])
+        return @get_base().Collections(ref['type']).get(ref['id'])
 
     get_obj: (ref_name) =>
       # ### method: HasProperties::get_obj
@@ -240,7 +240,7 @@ define [
       if ref
         return @resolve_ref(ref)
 
-    base: ()->
+    get_base: ()->
       if not @_base
         @_base = require('./base')
       return @_base
@@ -249,7 +249,7 @@ define [
       # ### method HasProperties::url
       #model where our API processes this model
 
-      url = @base().Config.prefix + "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
+      url = @get_base().Config.prefix + "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
       if (@isNew())
         return url
       return url + @get('id') + "/"
@@ -267,7 +267,7 @@ define [
       return {}
 
     rpc: (funcname, args, kwargs) =>
-      prefix = @base().Config.prefix
+      prefix = @get_base().Config.prefix
       docid = @get('doc')
       id = @get('id')
       type = @type

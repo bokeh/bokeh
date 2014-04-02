@@ -3,10 +3,9 @@ define [
   "underscore",
   "common/safebind",
   "common/has_parent",
-  "common/ticking",
   "renderer/properties",
   "common/plot_widget",
-], (_, safebind, HasParent, ticking, Properties, PlotWidget) ->
+], (_, safebind, HasParent, Properties, PlotWidget) ->
 
   line_properties = Properties.line_properties
 
@@ -50,19 +49,8 @@ define [
       @register_property('computed_bounds', @_bounds, false)
       @add_dependencies('computed_bounds', this, ['bounds'])
 
-      # FIXME Is it better to register a property?  Or just use a member
-      # variable?
-      @register_property('scale', @_scale, true)
-      @add_dependencies('scale', this, ['is_datetime'])
-
       @register_property('grid_coords', @_grid_coords, false)
-      @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'scale'])
-
-    _scale: () ->
-      if @get('is_datetime')
-        return new ticking.DatetimeScale()
-      else
-        return new ticking.BasicScale()
+      @add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'ticker'])
 
      _bounds: () ->
       i = @get('dimension')
@@ -102,7 +90,7 @@ define [
       end = Math.max(start, end)
       start = tmp
 
-      ticks = @get('scale').get_ticks(start, end, range, {})
+      ticks = @get_obj('axis').get_obj('ticker').get_ticks(start, end, range, {})
 
       min = range.get('min')
       max = range.get('max')

@@ -1,3 +1,4 @@
+import platform
 import sys
 from six.moves.urllib.parse import urljoin as sys_urljoin
 from functools import reduce
@@ -23,3 +24,9 @@ def decode_utf8(u):
     if sys.version_info[0] == 2:
         u = u.decode('utf-8')
     return u
+
+def is_py3():
+    return sys.version_info[0] == 3
+
+def is_pypy():
+    return platform.python_implementation() == "PyPy"

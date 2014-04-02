@@ -1,6 +1,6 @@
 import uuid
 from .. import models
-from ...objects import PlotContext, PlotObject, recursively_traverse_plot_object
+from ...objects import PlotContext, PlotObject
 
 import logging
 log = logging.getLogger(__name__)
@@ -11,7 +11,7 @@ def prune_and_get_valid_models(session, delete=False):
     wipe out any models that are orphaned.  Also call transform_models, which
     performs any backwards compatability data transformations.
     """
-    objs = recursively_traverse_plot_object(session.plotcontext)
+    objs = session.plotcontext.references()
     print("num models", len(objs))
     if delete:
         for obj in session._models.values():

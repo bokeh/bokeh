@@ -144,7 +144,8 @@ define [
     fetch : (options) ->
       if _.isUndefined(options )
         options = {}
-      resp = response = $.get('/bokeh/userinfo/', {})
+      url = base.Config.prefix + "/bokeh/userinfo/"
+      resp = response = $.get(url, {})
       resp.done((data) =>
         docs = data['docs']
         if options.update
