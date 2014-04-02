@@ -150,6 +150,9 @@ class DaysTicker(Ticker):
 class MonthsTicker(Ticker):
     months = List(Int)
 
+class YearsTicker(Ticker):
+    pass
+
 class BasicTicker(Ticker):
     pass
 
