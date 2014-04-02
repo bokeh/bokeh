@@ -1,11 +1,10 @@
 import sbt._
 import Keys._
 
-import com.lihaoyi.workbench.{Plugin=>Workbench}
-
 import com.untyped.sbtjs.Plugin.{JsKeys,jsSettings=>pluginJsSettings,CompilationLevel,VariableRenamingPolicy}
 import com.untyped.sbtless.Plugin.{LessKeys,lessSettings=>pluginLessSettings}
 
+import WorkbenchPlugin.{WorkbenchKeys,workbenchSettings=>pluginWorkbenchSettings}
 import EcoPlugin.{EcoKeys,ecoSettings=>pluginEcoSettings}
 
 object ProjectBuild extends Build {
@@ -36,19 +35,11 @@ object ProjectBuild extends Build {
     val build = taskKey[Unit]("Build CoffeeScript, LESS, ECO, etc.")
     val deploy = taskKey[Unit]("Generate bokeh(.min).{js,css}")
 
-    lazy val workbenchSettings = Workbench.workbenchSettings ++ Seq(
-        Workbench.refreshBrowsers <<= Workbench.refreshBrowsers triggeredBy (compile in Compile),
-        Workbench.localUrl := "localhost" -> 50060,
-        Workbench.bootSnippet := "",
+    lazy val workbenchSettings = pluginWorkbenchSettings ++ Seq(
+        WorkbenchKeys.reloadBrowsers <<= WorkbenchKeys.reloadBrowsers triggeredBy (compile in Compile),
         resourceGenerators in Compile <+= Def.task {
-            val stream = getClass.getClassLoader.getResourceAsStream("workbench_template.ts")
-            val template = try { IO.readStream(stream) } finally { stream.close() }
-            val script = template
-                  .replace("<host>",        Workbench.localUrl.value._1)
-                  .replace("<port>",        Workbench.localUrl.value._2.toString)
-                  .replace("<bootSnippet>", Workbench.bootSnippet.value)
-            val resDir = resourceManaged in (Compile, JsKeys.js) value
-            val output = resDir / "workbench.js"
+            val output = (resourceManaged in (Compile, JsKeys.js) value) / "workbench.js"
+            val script = WorkbenchKeys.renderScript.value
             IO.write(output, script)
             Seq(output)
         })
@@ -95,7 +86,7 @@ object ProjectBuild extends Build {
             rjs.optimize(config)
         } dependsOn (resources in Compile))
 
-    lazy val pluginSettings = /*workbenchSettings ++*/ jsSettings ++ lessSettings ++ ecoSettings ++ requirejsSettings
+    lazy val pluginSettings = workbenchSettings ++ jsSettings ++ lessSettings ++ ecoSettings ++ requirejsSettings
 
     lazy val bokehjsSettings = Project.defaultSettings ++ pluginSettings ++ Seq(
         sourceDirectory in Compile := baseDirectory.value / "src",

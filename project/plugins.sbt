@@ -4,6 +4,10 @@ resolvers += "spray repo" at "http://repo.spray.io"
 
 resolvers += Resolver.typesafeRepo("releases")
 
-addSbtPlugin("com.lihaoyi" %% "workbench" % "0.1.1")
+libraryDependencies ++= Seq(
+    "io.spray"          %  "spray-can"     % "1.3.0",
+    "io.spray"          %  "spray-routing" % "1.3.0",
+    "com.typesafe.akka" %% "akka-actor"    % "2.3.0",
+    "com.typesafe.play" %% "play-json"     % "2.2.2")
 
 scalacOptions ++= Seq("-Xlint", "-deprecation", "-unchecked", "-feature", "-language:postfixOps")
