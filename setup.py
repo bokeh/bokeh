@@ -226,7 +226,7 @@ path = abspath(dirname(__file__))
 if 'devjs' in sys.argv or 'develop' in sys.argv:
     with open(path_file, "w+") as f:
         f.write(path)
-    print(("develop mode, wrote path (%s) to (%s)" % (path, path_file)))
+    print("develop mode, wrote path (%s) to (%s)" % (path, path_file))
     sys.exit()
 elif 'install' in sys.argv:
     if exists(path_file):
