@@ -32,6 +32,9 @@ object ProjectBuild extends Build {
     val requirejs = taskKey[(File, File)]("Run RequireJS optimizer")
     val requirejsConfig = settingKey[RequireJSConfig]("RequireJS configuration")
 
+    val vendorStyles = settingKey[Seq[String]]("Paths to vendor styles")
+    val bokehStyles = settingKey[Seq[String]]("Paths to Bokeh styles")
+
     val build = taskKey[Unit]("Build CoffeeScript, LESS, ECO, etc.")
     val deploy = taskKey[Unit]("Generate bokeh(.min).{js,css}")
 
@@ -98,6 +101,29 @@ object ProjectBuild extends Build {
             val target = resDir / "vendor"
             val toCopy = (PathFinder(source) ***) pair Path.rebase(source, target)
             IO.copy(toCopy, overwrite=true).toSeq
+        },
+        vendorStyles := List(
+            "bootstrap/bootstrap-bokeh-2.0.4.css",
+            "jstree/dist/themes/default/style.min.css"),
+        bokehStyles := List(
+            "continuum.css",
+            "main.css"),
+        resourceGenerators in Compile <+= Def.task {
+            def concat(files: Seq[File]): String =
+                files.map(file => IO.read(file)).mkString("\n")
+            val jsDir = resourceManaged in (Compile, JsKeys.js) value
+            val cssDir = resourceManaged in (Compile, LessKeys.less) value
+            val vendorDir = jsDir / "vendor"
+            val vendor = vendorStyles.value.map(vendorDir / _)
+            val bokeh = bokehStyles.value.map(cssDir / _)
+            val vendorCss = cssDir / "bokeh-vendor.css"
+            IO.write(vendorCss, concat(vendor))
+            val bokehCss = cssDir / "bokeh.css"
+            val bokehCssMin = cssDir / "bokeh.min.css"
+            val everything = concat(vendor ++ bokeh)
+            IO.write(bokehCss, everything)
+            IO.write(bokehCssMin, everything)
+            Seq(vendorCss, bokehCss, bokehCssMin)
         },
         build in Compile <<= Def.task {} dependsOn (resources in Compile),
         deploy in Compile <<= Def.task {} dependsOn (requirejs in Compile))
