@@ -5,7 +5,7 @@ define [
   "backbone",
   "./tool",
   "./event_generators",
-  "util/object_explorer",
+  "widget/object_explorer",
 ], (_, $, $$1, Backbone, Tool, EventGenerators, ObjectExplorer) ->
 
   ButtonEventGenerator = EventGenerators.ButtonEventGenerator
