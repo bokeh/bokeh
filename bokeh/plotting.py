@@ -1284,4 +1284,5 @@ def grid():
 from . import  appconfig
 config = appconfig.get_config()
 if config.get('python_lib'):
+    print ('IMPORTING')
     __import__(config.get('python_lib'))
