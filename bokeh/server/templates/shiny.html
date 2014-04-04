@@ -15,7 +15,7 @@ window.Bokeh = Bokeh;
 {% for modulename, classname, parentname in extra_generated_classes %}
 window.{{modulename}}.main();
 {% endfor %}
-Bokeh.server_page("{{ title }}");
+Bokeh.server_page("{{ docname }}");
 {% endblock %}
 
 {% block content %}
