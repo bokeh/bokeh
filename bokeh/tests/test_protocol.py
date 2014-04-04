@@ -12,11 +12,11 @@ except ImportError as e:
     is_pandas = False
 
 
-class TestNumpyJSONEncoder(unittest.TestCase):
+class TestBokehJSONEncoder(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.protocol import NumpyJSONEncoder
-        self.encoder = NumpyJSONEncoder()
+        from bokeh.protocol import BokehJSONEncoder
+        self.encoder = BokehJSONEncoder()
 
     def test_fail(self):
         self.assertRaises(TypeError, self.encoder.default, {'testing': 1})
@@ -82,7 +82,7 @@ class TestSerializeJson(unittest.TestCase):
         assert deserialized[1] == 'Infinity'
         assert deserialized[2] == '-Infinity'
         assert deserialized[3] == 0
-    
+
     @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_datetime_types(self):
         """should convert to millis
@@ -92,15 +92,15 @@ class TestSerializeJson(unittest.TestCase):
         serialized = self.serialize({'vals' : df.vals,
                                      'idx' : df.index})
         deserialized = self.deserialize(serialized)
-        baseline = {u'vals': [978307200000, 
-                              978393600000, 
-                              978480000000, 
-                              978566400000, 
-                              978652800000], 
-                    u'idx': [978307200000, 
-                             978393600000, 
-                             978480000000, 
-                             978566400000, 
+        baseline = {u'vals': [978307200000,
+                              978393600000,
+                              978480000000,
+                              978566400000,
+                              978652800000],
+                    u'idx': [978307200000,
+                             978393600000,
+                             978480000000,
+                             978566400000,
                              978652800000]
         }
         assert deserialized == baseline

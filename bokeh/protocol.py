@@ -15,7 +15,7 @@ except ImportError as e:
 log = logging.getLogger(__name__)
 
 millifactor = 10 ** 6.
-class NumpyJSONEncoder(json.JSONEncoder):
+class BokehJSONEncoder(json.JSONEncoder):
     def transform_series(self, obj):
         """transform series
         """
@@ -33,7 +33,7 @@ class NumpyJSONEncoder(json.JSONEncoder):
         elif obj.dtype.kind in ('u', 'i', 'f'):
             return self.transform_numerical_array(obj)
         return obj.tolist()
-            
+
     def transform_numerical_array(self, obj):
         """handles nans/inf conversion
         """
@@ -45,7 +45,7 @@ class NumpyJSONEncoder(json.JSONEncoder):
             transformed[np.isposinf(obj)] = 'Infinity'
             transformed[np.isneginf(obj)] = '-Infinity'
             return transformed.tolist()
-        
+
     def transform_python_types(self, obj):
         """handle special scalars, default to default json encoder
         """
@@ -58,7 +58,7 @@ class NumpyJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, (dt.datetime, dt.date)):
             return time.mktime(obj.timetuple()) * 1000.
         else:
-            return super(NumpyJSONEncoder, self).default(obj)
+            return super(BokehJSONEncoder, self).default(obj)
 
     def default(self, obj):
         ## array types
@@ -69,7 +69,7 @@ class NumpyJSONEncoder(json.JSONEncoder):
         else:
             return self.transform_python_types(obj)
 
-def serialize_json(obj, encoder=NumpyJSONEncoder, **kwargs):
+def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
     return json.dumps(obj, cls=encoder, **kwargs)
 
 deserialize_json = json.loads
