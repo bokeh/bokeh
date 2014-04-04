@@ -60,6 +60,11 @@ define [
   "widget/pandas/ipython_remote_data",
   "widget/pandas/pandas_pivot_table",
   "widget/pandas/pandas_plot_source",
+  'widget/paragraph'
+  'widget/hbox'
+  'widget/vbox'
+  'widget/textinput'
+  'widget/vboxmodelform'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -122,7 +127,11 @@ define [
     IPythonRemoteData:        'widget/pandas/ipython_remote_data'
     PandasPivotTable:         'widget/pandas/pandas_pivot_table'
     PandasPlotSource:         'widget/pandas/pandas_plot_source'
-
+    Paragraph:                'widget/paragraph'
+    HBox:                     'widget/hbox'
+    VBox:                     'widget/vbox'
+    VBoxModelForm:            'widget/vboxmodelform'
+    TextInput:                'widget/textinput'
   mod_cache = {}
   collection_overrides = {}
   Collections = (typename) ->
