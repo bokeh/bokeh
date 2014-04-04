@@ -15,7 +15,7 @@ from . import glyphs, objects
 # set _PLOTLIST to an empty list; to turn it off, set it back to None.
 _PLOTLIST = None
 
-def axes2plot(axes, back_color):
+def axes2plot(axes):
     """ In the matplotlib object model, Axes actually are containers for all
     renderers and basically everything else on a plot.
 
@@ -23,7 +23,8 @@ def axes2plot(axes, back_color):
     corresponding to it.
     """
 
-    background_fill = mpl.colors.rgb2hex(back_color)
+    # Get axis background color
+    background_fill = axes.get_axis_bgcolor()
     plot = objects.Plot(title=axes.get_title(), background_fill=background_fill)
     if _PLOTLIST is not None:
         _PLOTLIST.append(plot)

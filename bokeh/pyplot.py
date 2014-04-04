@@ -83,10 +83,8 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False):
 
     plots = []
 
-    back_color = figure.get_edgecolor()
-
     for axes in figure.axes:
-        plot = mpl.axes2plot(axes, back_color)
+        plot = mpl.axes2plot(axes)
         plots.append(plot)
 
     if len(figure.axes) <= 1:
