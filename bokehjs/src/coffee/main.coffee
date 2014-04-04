@@ -135,7 +135,10 @@ define (require, exports, module) ->
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")
   Bokeh.server_page = require("server/serverrun").load
-
+  Bokeh.HBox = require("widget/hbox")
+  Bokeh.VBox = require("widget/hbox")
+  Bokeh.VBoxModelForm = require("widget/vboxmodelform")
+  Bokeh.TextInput = require("widget/textinput")
   # utils
   Bokeh.ObjectExplorer = require("util/object_explorer")
 
