@@ -172,10 +172,6 @@ define [
       # with hybrid formats in a reasonable manner.
       for t in ticks
         try
-          # FIXME This should be:
-          #   dt = new Date(t)
-          # Or rather, if anyone used dt, that's what it should be.
-          dt = Date(t)
           tm = _array(t)
           s = _strftime(t, format)
         catch error
