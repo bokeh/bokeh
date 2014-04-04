@@ -59,6 +59,19 @@ def axes2plot(axes):
     #    else:
     #        warnings.warn("Not yet implemented: %r" % collection)
 
+    # Grid set up
+    grid = axes.get_xgridlines()[0]
+    grid_line_color = grid.get_color()
+    grid_line_width = grid.get_linewidth()
+    # xgrid
+    objects.Grid(plot=plot, dimension=0, axis=bokehaxes[0],
+                         grid_line_color=grid_line_color,
+                         grid_line_width=grid_line_width)
+    # ygrid
+    objects.Grid(plot=plot, dimension=1, axis=bokehaxes[1],
+                         grid_line_color=grid_line_color,
+                         grid_line_width=grid_line_width)
+
     # Add tools
     pantool = objects.PanTool(dimensions=["width", "height"])
     wheelzoom = objects.WheelZoomTool(dimensions=["width", "height"])
