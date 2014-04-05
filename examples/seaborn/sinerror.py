@@ -26,4 +26,4 @@ plt.plot(xx, np.sin(xx / b) + a, c="#444444")
 
 plt.title("Seaborn tsplot with CI in bokeh.")
 
-pyplot.show_bokeh(plt.gcf(), filename="seaborn_sinerror.html")
+pyplot.show_bokeh(plt.gcf(), filename="sinerror.html")
