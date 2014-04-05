@@ -2,7 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.collections import LineCollection
 from bokeh import pyplot
-from bokeh import plotting
 
 
 def make_segments(x, y):
@@ -30,7 +29,7 @@ def colorline(x, y, colors=None, linewidth=3, alpha=1.0):
     # colors = [(1.0, 0.0, 0.0, 1.0), (0.0, 0.5, 0.0, 1.0), (0.0, 0.0, 1.0, 1.0), (0.0, 0.75, 0.75, 1.0),
     #           (0.75, 0.75, 0, 1.0), (0.75, 0, 0.75, 1.0), (0.0, 0.0, 0.0, 1.0)]
 
-    colors = ['r','g','b','c','y','m','k']
+    colors = ['r', 'g', 'b', 'c', 'y', 'm', 'k']
     widths = [5, 10, 20, 40, 20, 10, 5]
 
     segments = make_segments(x, y)
@@ -53,5 +52,3 @@ plt.xlim(x.min(), x.max())
 plt.ylim(-1.0, 1.0)
 
 pyplot.show_bokeh(plt.gcf(), filename="listcollection.html")
-
-plotting.session().dumpjson(file="listcollection.json")

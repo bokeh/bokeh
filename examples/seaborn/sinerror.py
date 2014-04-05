@@ -3,7 +3,6 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy import optimize
 from bokeh import pyplot
-from bokeh import plotting
 
 # Set the palette colors.
 sns.set(palette="Set2")
@@ -23,10 +22,8 @@ x = np.linspace(xmin, xmax, sines.shape[1])
 out, _ = optimize.leastsq(lambda p: sines.mean(0) - (np.sin(x / p[1]) + p[0]), (0, 2))
 a, b = out
 xx = np.linspace(xmin, xmax, 100)
-plt.plot(xx, np.sin(xx / b) + a, c="#444444");
+plt.plot(xx, np.sin(xx / b) + a, c="#444444")
 
 plt.title("Seaborn tsplot with CI in bokeh.")
 
 pyplot.show_bokeh(plt.gcf(), filename="seaborn_sinerror.html")
-
-plotting.session().dumpjson(file="seaborn_sinerror.json")
