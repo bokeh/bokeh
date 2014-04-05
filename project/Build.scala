@@ -87,7 +87,7 @@ object ProjectBuild extends Build {
             val config = (requirejsConfig in Compile).value
             val rjs = new RequireJS(streams.value.log)
             rjs.optimize(config)
-        } dependsOn (resources in Compile))
+        } dependsOn (build in Compile))
 
     lazy val pluginSettings = /*workbenchSettings ++*/ jsSettings ++ lessSettings ++ ecoSettings ++ requirejsSettings
 
