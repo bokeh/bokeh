@@ -87,13 +87,13 @@ class ServerDataSource(DataSource):
     owner_username = String()
     # allow us to add some data that isn't on the remote source
     # and join it to the remote data
-    data = Dict() 
+    data = Dict(String, Any)
     # allow us to specify slicing of data on updates
     index_slice = List(Any)
     data_slice = List(Any)
     # allow us to transpose data on updates (for image data)
     transpose = Bool(False)
-    
+
 class PandasDataSource(DataSource):
     """ Represents serverside data.  This gets stored into the plot server's
     database, but it does not have any client side representation.  Instead,
