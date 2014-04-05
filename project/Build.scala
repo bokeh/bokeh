@@ -118,26 +118,32 @@ object ProjectBuild extends Build {
                 css.compress(new java.io.FileWriter(out), 80)
             }
 
-            val jsDir = resourceManaged in (Compile, JsKeys.js) value
+            val log = streams.value.log
+
+            val vendorDir = (sourceDirectory in Compile value) / "vendor"
             val cssDir = resourceManaged in (Compile, LessKeys.less) value
-            val vendorDir = jsDir / "vendor"
+
             val vendor = vendorStyles.value.map(vendorDir / _)
             val bokeh = bokehStyles.value.map(cssDir / _)
 
             val vendorCss = cssDir / "bokeh-vendor.css"
-            val vendorCssMin = cssDir / "bokeh-vendor.min.css"
+            val vendorMinCss = cssDir / "bokeh-vendor.min.css"
             val vendorOnly = concat(vendor)
+            log.info(s"Writing $vendorCss")
             IO.write(vendorCss, vendorOnly)
-            minify(vendorCss, vendorCssMin)
+            log.info(s"Minifying $vendorMinCss")
+            minify(vendorCss, vendorMinCss)
 
             val bokehCss = cssDir / "bokeh.css"
-            val bokehCssMin = cssDir / "bokeh.min.css"
+            val bokehMinCss = cssDir / "bokeh.min.css"
             val vendorAndBokeh = concat(vendor ++ bokeh)
+            log.info(s"Writing $bokehCss")
             IO.write(bokehCss, vendorAndBokeh)
-            minify(bokehCss, bokehCssMin)
+            log.info(s"Minifying $bokehMinCss")
+            minify(bokehCss, bokehMinCss)
 
-            Seq(vendorCss, vendorCssMin, bokehCss, bokehCssMin)
-        },
+            Seq(vendorCss, vendorMinCss, bokehCss, bokehMinCss)
+        } dependsOn (LessKeys.less in Compile),
         build in Compile <<= Def.task {} dependsOn (resources in Compile),
         deploy in Compile <<= Def.task {} dependsOn (requirejs in Compile))
 
