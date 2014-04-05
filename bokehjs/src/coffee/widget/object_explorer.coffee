@@ -2,9 +2,16 @@ define [
   "underscore"
   "jquery"
   "jstree"
-  "common/continuum_view"
+  "backbone"
   "common/has_properties"
-], (_, $, $1, ContinuumView, HasProperties) ->
+  "common/continuum_view"
+], (
+  _,
+  $,
+  $1,
+  Backbone,
+  HasProperties,
+  ContinuumView) ->
 
   class ObjectExplorerView extends ContinuumView.View
     initialize: (options) ->
@@ -155,6 +162,18 @@ define [
       @$el.empty()
       @render()
 
+  class ObjectExplorer extends HasProperties
+    type: 'ObjectExplorer'
+    default_view: ObjectExplorerView
+
+    defaults: () ->
+      return {}
+
+  class ObjectExplorers extends Backbone.Collection
+    model: ObjectExplorer
+
   return {
+    Model : ObjectExplorer
+    Collection: new ObjectExplorers()
     View: ObjectExplorerView
   }

@@ -58,6 +58,10 @@ define [
   "tool/object_explorer_tool",
 
   "widget/data_slider",
+  "widget/data_table",
+  "widget/pivot_table",
+  "widget/object_explorer",
+
   "widget/pandas/ipython_remote_data",
   "widget/pandas/pandas_pivot_table",
   "widget/pandas/pandas_plot_source",
@@ -132,6 +136,10 @@ define [
     ObjectExplorerTool:       'tool/object_explorer_tool'
 
     DataSlider:               'widget/data_slider'
+    DataTable:                'widget/data_table'
+    PivotTable:               'widget/pivot_table'
+    ObjectExplorer:           'widget/object_explorer'
+
     IPythonRemoteData:        'widget/pandas/ipython_remote_data'
     PandasPivotTable:         'widget/pandas/pandas_pivot_table'
     PandasPlotSource:         'widget/pandas/pandas_plot_source'
