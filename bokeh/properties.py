@@ -3,19 +3,17 @@ classes and implement convenience behaviors like default values, etc.
 """
 from __future__ import print_function
 
+import re
 from importlib import import_module
 from copy import copy
 import inspect
 import logging
 logger = logging.getLogger(__name__)
 
-from six import integer_types, string_types, add_metaclass
+from six import integer_types, string_types, add_metaclass, iteritems
 import numpy as np
 
-from .enums import Enumeration, NamedColor
-
-def _dummy(*args,**kw):
-    return None
+from . import enums
 
 def nice_join(seq, sep=", "):
     seq = [str(x) for x in seq]
@@ -32,6 +30,9 @@ class Property(object):
         self.default = default
         # This gets set by the class decorator at class creation time
         self.name = "unnamed"
+
+    def __str__(self):
+        return self.__class__.__name__
 
     @property
     def _name(self):
@@ -53,6 +54,9 @@ class Property(object):
             logger.warning("could not compare %s and %s for property %s", new, old, self.name)
         return False
 
+    def transform(self, value):
+        return value
+
     def validate(self, value):
         pass
 
@@ -69,6 +73,7 @@ class Property(object):
 
     def __set__(self, obj, value):
         self.validate(value)
+        value = self.transform(value)
         old = self.__get__(obj)
         obj._changed_vars.add(self.name)
         if self._name in obj.__dict__ and self.matches(value, old):
@@ -291,7 +296,7 @@ class ColorSpec(DataSpec):
     For more examples, see tests/test_glyphs.py
     """
 
-    NAMEDCOLORS = set(NamedColor._values)
+    NAMEDCOLORS = set(enums.NamedColor._values)
 
     def __init__(self, field_or_value=None, field=None, default=None, value=None):
         """ ColorSpec(field_or_value=None, field=None, default=None, value=None)
@@ -641,12 +646,40 @@ class Complex(PrimitiveProperty):
 class String(PrimitiveProperty):
     _underlying_type = string_types
 
-class ContainerProperty(Property):
+class Regex(String):
+
+    def __init__(self, regex, default=None):
+        self.regex = re.compile(regex)
+        super(Regex, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Regex, self).validate(value)
+
+        if not (value is None or self.regex.match(value) is not None):
+            raise ValueError("expected a string matching %r pattern, got %r" % (self.regex.pattern, value))
+
+    def __str__(self):
+        return "%s(%r)" % (self.__class__.__name__, self.regex.pattern)
+
+class ParameterizedProperty(Property):
+    """Property that has type parameters, e.g. `List(String)`. """
+
+    def _validate_type_param(self, type_param):
+        if isinstance(type_param, type):
+            if issubclass(type_param, Property):
+                return type_param()
+            else:
+                type_param = type_param.__name__
+        elif isinstance(type_param, Property):
+            return type_param
+
+        raise ValueError("expected a property as type parameter, got %s" % type_param)
+
+class ContainerProperty(ParameterizedProperty):
     # Base class for container-like things; this helps the auto-serialization
     # and attribute change detection code
     pass
 
-# container types
 class List(ContainerProperty):
     """ If a default value is passed in, then a shallow copy of it will be
     used for each new use of this property.
@@ -660,15 +693,7 @@ class List(ContainerProperty):
     """
 
     def __init__(self, item_type, default=None, has_ref=False):
-        if isinstance(item_type, type):
-            if issubclass(item_type, Property):
-                item_type = item_type()
-            else:
-                raise ValueError("expected a property as type parameter, got %s" % item_type.__name__)
-        elif not isinstance(item_type, Property):
-            raise ValueError("expected a property as type parameter, got %s" % item_type)
-
-        self.item_type = item_type
+        self.item_type = self._validate_type_param(item_type)
         self.has_ref = has_ref
 
         super(List, self).__init__(default=default)
@@ -677,8 +702,9 @@ class List(ContainerProperty):
         super(List, self).validate(value)
 
         if value is not None:
-            if not (isinstance(value, list) and all(self.item_type.is_valid(item) for item in value)):
-                raise ValueError("expected an element of %s, got %s" % (self, value))
+            if not (isinstance(value, list) and \
+                    all(self.item_type.is_valid(item) for item in value)):
+                raise ValueError("expected an element of %s, got %r" % (self, value))
 
     def __str__(self):
         return "%s(%s)" % (self.__class__.__name__, self.item_type)
@@ -703,9 +729,11 @@ class Dict(ContainerProperty):
     list contains references to other objects
     """
 
-    def __init__(self, default={}, has_ref=False):
-        Property.__init__(self, default)
+    def __init__(self, keys_type, values_type, default={}, has_ref=False):
+        self.keys_type = self._validate_type_param(keys_type)
+        self.values_type = self._validate_type_param(values_type)
         self.has_ref = has_ref
+        super(Dict, self).__init__(default=default)
 
     def __get__(self, obj, type=None):
         if not hasattr(obj, self._name) and isinstance(self.default, dict):
@@ -714,10 +742,36 @@ class Dict(ContainerProperty):
         else:
             return getattr(obj, self._name, self.default)
 
+    def validate(self, value):
+        super(Dict, self).validate(value)
+
+        if value is not None:
+            if not (isinstance(value, dict) and \
+                    all(self.keys_type.is_valid(key) and self.values_type.is_valid(val) for key, val in iteritems(value))):
+                raise ValueError("expected an element of %s, got %r" % (self, value))
+
+    def __str__(self):
+        return "%s(%s, %s)" % (self.__class__.__name__, self.keys_type, self.values_type)
+
 class Tuple(ContainerProperty):
 
-    def __init__(self, default=()):
-        Property.__init__(self, default)
+    def __init__(self, tp1, tp2, *type_params, **kwargs):
+        type_params = map(self._validate_type_param, (tp1, tp2) + type_params)
+        default = kwargs.get("default", None)
+
+        self.type_params = type_params
+        super(Tuple, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Tuple, self).validate(value)
+
+        if value is not None:
+            if not (isinstance(value, tuple) and len(self.type_params) == len(value) and \
+                    all(type_param.is_valid(item) for type_param, item in zip(self.type_params, value))):
+                raise ValueError("expected an element of %s, got %r" % (self, value))
+
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
 
 class Array(ContainerProperty):
     """ Whatever object is passed in as a default value, np.asarray() is
@@ -730,10 +784,6 @@ class Array(ContainerProperty):
             return getattr(obj, self._name)
         else:
             return getattr(obj, self._name, self.default)
-
-# OOP things
-class Class(Property):
-    pass
 
 class Instance(Property):
     def __init__(self, instance_type, default=None, has_ref=False):
@@ -777,8 +827,7 @@ class Instance(Property):
         return "%s(%s)" % (self.__class__.__name__, self.instance_type.__name__)
 
 class This(Property):
-    """ A reference to an instance of the class being defined
-    """
+    """ A reference to an instance of the class being defined. """
     pass
 
 # Fake types, ABCs
@@ -786,39 +835,57 @@ class Any(Property): pass
 class Function(Property): pass
 class Event(Property): pass
 
-class Either(Property):
-    """ Takes a list of valid properties and validates against them in
-    succession.
-    """
-    # TODO: In order to implement this, we need to change all the properties
-    # to use a .validate() method so they can be called programmatically from
-    # this handler
-    def __init__(self, *props, **kwargs):
-        self._props = props
-        self.default = kwargs.get("default", None)
+class Range(ParameterizedProperty):
 
+    def __init__(self, range_type, start, end, default=None):
+        self.range_type = self._validate_type_param(range_type)
+        self.range_type.validate(start)
+        self.range_type.validate(end)
+        self.start = start
+        self.end = end
+        super(Range, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Range, self).validate(value)
+
+        if not (value is None or self.range_type.is_valid(value) and value >= self.start and value <= self.end):
+            raise ValueError("expected a value of type %s in range [%s, %s], got %r" % (self.range_type, self.start, self.end, value))
+
+    def __str__(self):
+        return "%s(%s, %r, %r)" % (self.__class__.__name__, self.range_type, self.start, self.end)
+
+class Either(ParameterizedProperty):
+    """ Takes a list of valid properties and validates against them in succession. """
+
+    def __init__(self, tp1, tp2, *type_params, **kwargs):
+        type_params = map(self._validate_type_param, (tp1, tp2) + type_params)
+        default = kwargs.get("default", type_params[0].default)
+
+        self.type_params = type_params
+        super(Either, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Either, self).validate(value)
+
+        if not (value is None or any(param.is_valid(value) for param in self.type_params)):
+            raise ValueError("expected an element of either %s, got %r" % (nice_join(self.type_params), value))
+
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(str, self.type_params)))
 
 class Enum(Property):
     """ An Enum with a list of allowed values. The first value in the list is
     the default value, unless a default is provided with the "default" keyword
     argument.
     """
-    def __init__(self, *values, **kwargs):
-        if len(values) == 1 and isinstance(values[0], Enumeration):
-            enum_type = values[0]
-            values = enum_type._values
-            default = enum_type._default
-        else:
-            if "default" not in kwargs:
-                if len(values) > 0:
-                    default = values[0]
-                else:
-                    default = None
-            else:
-                default = kwargs.pop("default")
+    def __init__(self, enum, *values, **kwargs):
+        if not (not values and isinstance(enum, enums.Enumeration)):
+            enum = enums.enumeration(enum, *values)
 
-        self.default = default
-        self.allowed_values = values
+        self.allowed_values = enum._values
+
+        default = kwargs.get("default", enum._default)
+        super(Enum, self).__init__(default=default)
 
     def validate(self, value):
         super(Enum, self).validate(value)
@@ -826,23 +893,39 @@ class Enum(Property):
         if not (value is None or value in self.allowed_values):
             raise ValueError("invalid value %r, allowed values are %s" % (value, nice_join(self.allowed_values)))
 
-Sequence = _dummy
-Mapping = _dummy
-Iterable = _dummy
+    def __str__(self):
+        return "%s(%s)" % (self.__class__.__name__, ", ".join(map(repr, self.allowed_values)))
 
 # Properties useful for defining visual attributes
-class Color(Property):
+class Color(Either):
     """ Accepts color definition in a variety of ways, and produces an
-    appropriate serialization of its value for whatever backend
+    appropriate serialization of its value for whatever backend.
+
+    For colors, because we support named colors and hex values prefaced
+    with a "#", when we are handed a string value, there is a little
+    interpretation: if the value is one of the 147 SVG named colors or
+    it starts with a "#", then it is interpreted as a value.
+
+    If a 3-tuple is provided, then it is treated as an RGB (0..255).
+    If a 4-tuple is provided, then it is treated as an RGBa (0..255), with
+    alpha as a float between 0 and 1.  (This follows the HTML5 Canvas API.)
     """
-    # TODO: Implement this.  Valid inputs: SVG named 147, 3-tuple, 4-tuple with
-    # appropriate options for baking in alpha, hex code.  Tuples should allow
-    # both float as well as integer.
 
+    def __init__(self, default=None):
+        Byte = Range(Int, 0, 255)
+        types = (Enum(enums.NamedColor),
+                 Regex("^#[0-9a-fA-F]{6}$"),
+                 Tuple(Byte, Byte, Byte),
+                 Tuple(Byte, Byte, Byte, Percent))
+        super(Color, self).__init__(*types, default=default)
 
-class Align(Property): pass
+    def __str__(self):
+        return self.__class__.__name__
 
-class DashPattern(Property):
+class Align(Property):
+    pass
+
+class DashPattern(Either):
     """
     This is a property that expresses line dashes.  It can be specified in
     a variety of forms:
@@ -852,13 +935,11 @@ class DashPattern(Property):
       style: http://www.w3.org/html/wg/drafts/2dcontext/html5_canvas/#dash-list
       Note that if the list of integers has an odd number of elements, then
       it is duplicated, and that duplicated list becomes the new dash list.
-    * A string of integers with spaces separating them. This is broken up into
-      a list and then treated like the above.
 
     If dash is turned off, then the dash pattern is the empty list [].
     """
 
-    dashmap = {
+    _dash_patterns = {
         "solid": [],
         "dashed": [6],
         "dotted": [2,4],
@@ -867,28 +948,22 @@ class DashPattern(Property):
     }
 
     def __init__(self, default=[]):
-        Property.__init__(self, default)
+        types = Enum(enums.DashPattern), Regex(r"^(\d+(\s+\d+)*)?$"), List(Int)
+        super(DashPattern, self).__init__(*types, default=default)
 
-    def __set__(self, obj, arg):
-        if isinstance(arg, str):
-            if arg in self.dashmap:
-                arg = self.dashmap[arg]
-            else:
-                try:
-                    arg = [int(x) for x in arg.split()]
-                except:
-                    raise ValueError("Invalid string value for dash pattern: '%s'" % arg)
-        elif isinstance(arg, tuple) or isinstance(arg, list):
-            for x in arg:
-                if not isinstance(x, int):
-                    raise ValueError("list/tuple values for dash patterns must contain only integers")
+    def transform(self, value):
+        value = super(DashPattern, self).transform(value)
+
+        if isinstance(value, string_types):
+            try:
+                return self._dash_patterns[value]
+            except KeyError:
+                return map(int, value.split())
         else:
-            raise ValueError("Invalid value assigned to Pattern; "
-                             "must be list or tuple of integers, or string; "
-                             "strings must be space delimited integers, e.g. '2 4 3 2' "
-                             "or one of the names: 'solid','dashed','dotted','dotdash','dashdot'.")
+            return value
 
-        super(DashPattern, self).__set__(obj, arg)
+    def __str__(self):
+        return self.__class__.__name__
 
 class Size(Float):
     """ Equivalent to an unsigned int """
@@ -896,7 +971,7 @@ class Size(Float):
         super(Size, self).validate(value)
 
         if not (value is None or 0.0 <= value):
-            raise ValueError("expected a non-negative number, got %s" % value)
+            raise ValueError("expected a non-negative number, got %r" % value)
 
 class Percent(Float):
     """ Percent is useful for alphas and coverage and extents; more
@@ -906,7 +981,7 @@ class Percent(Float):
         super(Percent, self).validate(value)
 
         if not (value is None or 0.0 <= value <= 1.0):
-            raise ValueError("expected a value in range [0, 1], got %s" % value)
+            raise ValueError("expected a value in range [0, 1], got %r" % value)
 
 class Angle(Float):
     pass
