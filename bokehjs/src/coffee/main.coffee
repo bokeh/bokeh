@@ -113,6 +113,7 @@ define (require, exports, module) ->
   Bokeh.DaysTicker               = require("ticking/days_ticker")
   Bokeh.MonthsTicker             = require("ticking/months_ticker")
   Bokeh.SingleIntervalTicker     = require("ticking/single_interval_ticker")
+  Bokeh.YearsTicker              = require("ticking/years_ticker")
 
   # tools
   Bokeh.BoxSelectTool          = require("tool/box_select_tool")
