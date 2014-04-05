@@ -25,6 +25,8 @@ def axes2plot(axes):
 
     # Get axis background color
     background_fill = axes.get_axis_bgcolor()
+    if background_fill == 'w':
+        background_fill = 'white'
     plot = objects.Plot(title=axes.get_title(), background_fill=background_fill)
     if _PLOTLIST is not None:
         _PLOTLIST.append(plot)
