@@ -168,7 +168,12 @@ define [
 
     if not mod_cache[modulename]?
       console.log("calling require", modulename)
-      mod_cache[modulename] = require(modulename)
+      mod = require(modulename)
+
+      if mod?
+          mod_cache[modulename] = mod
+      else
+          throw Error("improperly implemented collection: #{modulename}")
 
     return mod_cache[modulename].Collection
   Collections.register = (name, collection) ->
