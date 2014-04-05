@@ -89,7 +89,7 @@ object ProjectBuild extends Build {
             rjs.optimize(config)
         } dependsOn (resources in Compile))
 
-    lazy val pluginSettings = workbenchSettings ++ jsSettings ++ lessSettings ++ ecoSettings ++ requirejsSettings
+    lazy val pluginSettings = /*workbenchSettings ++*/ jsSettings ++ lessSettings ++ ecoSettings ++ requirejsSettings
 
     lazy val bokehjsSettings = Project.defaultSettings ++ pluginSettings ++ Seq(
         sourceDirectory in Compile := baseDirectory.value / "src",

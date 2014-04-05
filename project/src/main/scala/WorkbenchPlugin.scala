@@ -13,6 +13,9 @@ import spray.http.{AllOrigins, HttpResponse}
 import spray.routing.SimpleRoutingApp
 import spray.http.HttpHeaders.`Access-Control-Allow-Origin`
 
+/**
+ * Based on https://github.com/lihaoyi/workbench
+ */
 object WorkbenchPlugin extends sbt.Plugin with SimpleRoutingApp {
     implicit val system = ActorSystem("Workbench", classLoader=Option(getClass.getClassLoader))
 
