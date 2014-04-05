@@ -111,19 +111,32 @@ object ProjectBuild extends Build {
         resourceGenerators in Compile <+= Def.task {
             def concat(files: Seq[File]): String =
                 files.map(file => IO.read(file)).mkString("\n")
+
+            def minify(in: File, out: File) {
+                import com.yahoo.platform.yui.compressor.CssCompressor
+                val css = new CssCompressor(new java.io.FileReader(in))
+                css.compress(new java.io.FileWriter(out), 80)
+            }
+
             val jsDir = resourceManaged in (Compile, JsKeys.js) value
             val cssDir = resourceManaged in (Compile, LessKeys.less) value
             val vendorDir = jsDir / "vendor"
             val vendor = vendorStyles.value.map(vendorDir / _)
             val bokeh = bokehStyles.value.map(cssDir / _)
+
             val vendorCss = cssDir / "bokeh-vendor.css"
-            IO.write(vendorCss, concat(vendor))
+            val vendorCssMin = cssDir / "bokeh-vendor.min.css"
+            val vendorOnly = concat(vendor)
+            IO.write(vendorCss, vendorOnly)
+            minify(vendorCss, vendorCssMin)
+
             val bokehCss = cssDir / "bokeh.css"
             val bokehCssMin = cssDir / "bokeh.min.css"
-            val everything = concat(vendor ++ bokeh)
-            IO.write(bokehCss, everything)
-            IO.write(bokehCssMin, everything)
-            Seq(vendorCss, bokehCss, bokehCssMin)
+            val vendorAndBokeh = concat(vendor ++ bokeh)
+            IO.write(bokehCss, vendorAndBokeh)
+            minify(bokehCss, bokehCssMin)
+
+            Seq(vendorCss, vendorCssMin, bokehCss, bokehCssMin)
         },
         build in Compile <<= Def.task {} dependsOn (resources in Compile),
         deploy in Compile <<= Def.task {} dependsOn (requirejs in Compile))
