@@ -292,7 +292,7 @@ def _make_lines_collection(datasource, xdr, ydr, col):
     else:
         on_off = map(int,col.get_linestyle()[0][1])
     newmultiline.line_dash_offset = _convert_dashes(offset)
-    newmultiline.line_dash = _convert_dashes(tuple(on_off))
+    newmultiline.line_dash = list(_convert_dashes(tuple(on_off)))
     xdr.sources.append(datasource.columns(newmultiline.xs))
     ydr.sources.append(datasource.columns(newmultiline.ys))
     glyph = objects.Glyph(
@@ -326,7 +326,7 @@ def _make_polys_collection(datasource, xdr, ydr, col):
     else:
         on_off = map(int,col.get_linestyle()[0][1])
     newpatches.line_dash_offset = _convert_dashes(offset)
-    newpatches.line_dash = _convert_dashes(tuple(on_off))
+    newpatches.line_dash = list(_convert_dashes(tuple(on_off)))
     xdr.sources.append(datasource.columns(newpatches.xs))
     ydr.sources.append(datasource.columns(newpatches.ys))
     glyph = objects.Glyph(
