@@ -261,7 +261,7 @@ define [
       # to enable normal beaviour, add this line
       #
       # HasProperties.prototype.sync = Backbone.sync
-      return options.success(model, null, {})
+      return options.success(model.attributes, null, {})
 
     defaults: () ->
       return {}

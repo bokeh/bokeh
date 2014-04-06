@@ -78,10 +78,9 @@ def main():
         "redis_port": args.redis_port,
         "start_redis": args.start_redis,
     }
-
     start.prepare_app(backend, single_user_mode=not args.multi_user, 
                       data_directory=args.data_directory)
-
+    start.register_blueprint()
     if args.debug:
         print("running with debug")
         start.bokeh_app.debug = True

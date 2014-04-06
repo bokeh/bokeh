@@ -61,6 +61,11 @@ define [
   "widget/pandas/ipython_remote_data",
   "widget/pandas/pandas_pivot_table",
   "widget/pandas/pandas_plot_source",
+  'widget/paragraph'
+  'widget/hbox'
+  'widget/vbox'
+  'widget/textinput'
+  'widget/vboxmodelform'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -124,10 +129,16 @@ define [
     IPythonRemoteData:        'widget/pandas/ipython_remote_data'
     PandasPivotTable:         'widget/pandas/pandas_pivot_table'
     PandasPlotSource:         'widget/pandas/pandas_plot_source'
-
+    Paragraph:                'widget/paragraph'
+    HBox:                     'widget/hbox'
+    VBox:                     'widget/vbox'
+    VBoxModelForm:            'widget/vboxmodelform'
+    TextInput:                'widget/textinput'
   mod_cache = {}
-
+  collection_overrides = {}
   Collections = (typename) ->
+   if collection_overrides[typename]
+     return collection_overrides[typename]
 
     if not locations[typename]
       throw "./base: Unknown Collection #{typename}"
@@ -139,8 +150,10 @@ define [
       mod_cache[modulename] = require(modulename)
 
     return mod_cache[modulename].Collection
-
+  Collections.register = (name, collection) ->
+    collection_overrides[name] = collection
   return {
+    "collection_overrides" : collection_overrides, # for testing only
     "mod_cache": mod_cache, # for testing only
     "locations": locations,
     "Collections": Collections,

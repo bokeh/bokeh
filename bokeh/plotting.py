@@ -1273,3 +1273,8 @@ def grid():
     """
     return _list_attr_splat(xgrid() + ygrid())
 
+from . import  appconfig
+config = appconfig.get_config()
+if config.get('python_lib'):
+    print ('IMPORTING')
+    __import__(config.get('python_lib'))
