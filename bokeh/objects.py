@@ -243,6 +243,7 @@ class Plot(PlotObject):
     y_range = Instance(Range, has_ref=True)
     png = String('')
     title = String('')
+    title_props = Include(TextProps, prefix="title")
     outline_props = Include(LineProps, prefix="outline")
 
     # A list of all renderers on this plot; this includes guides as well
