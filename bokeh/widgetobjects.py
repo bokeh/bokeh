@@ -84,7 +84,6 @@ class ShinyApp(PlotObject):
             app.create(session())
             return app
             
-        @bokeh_app.route(route)
         def exampleapp():
             app = make_app()
             docname = session().docname
@@ -106,4 +105,6 @@ class ShinyApp(PlotObject):
                 docname=docname, 
                 docid=docid,
                 splitjs=bokeh_app.splitjs)
+        exampleapp.__name__ = cls.__view_model__
+        bokeh_app.route(route)(exampleapp)
     
