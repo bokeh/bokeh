@@ -13,7 +13,7 @@ define [
     default_view: CategoricalAxisView
     type: 'CategoricalAxis'
 
-    initialize: (attrs, objects) ->
+    dinitialize: (attrs, objects) ->
       super(attrs, objects)
       if not @get_obj('ticker')?
         @set_obj('ticker', CategoricalTicker.Collection.create())
