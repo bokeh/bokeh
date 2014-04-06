@@ -3,12 +3,18 @@ from __future__ import absolute_import, print_function
 import json
 from os import makedirs
 from os.path import expanduser, exists, join
+import tempfile
 
-#import pandas as pd
+try:
+    import pandas as pd
+    import tables
+except ImportError as e:
+    pass
+
 from six.moves.urllib.parse import urljoin, urlencode
 
 from . import utils, browserlib
-
+from bokeh.objects import ServerDataSource
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
 
 
@@ -151,16 +157,35 @@ class Server(object):
         url += "?" + urlencode({'username': self.username,
                                 'userapikey': self.userapikey})
         controller.open(url)
+        
+    def _prep_data_source_df(self, name, dataframe):
+        name = tempfile.NamedTemporaryFile(prefix="bokeh_data", 
+                                           suffix=".pandas").name
+        store = pd.HDFStore(name)
+        store.append("__data__", dataframe, format="table", data_columns=True)
+        store.close()
+        return name
+        
+    def _prep_data_source_numpy(self, name, arr):
+        name = tempfile.NamedTemporaryFile(prefix="bokeh_data", 
+                                           suffix=".table").name
+        store = tables.File(name, 'w')
+        store.createArray("/", "__data__", obj=arr)
+        store.close()
+        return name
 
-    def data_source(self, name, dataframe=None, **kwargs):
-        raise NotImplementedError
-        # fname = join(self.configdir, name + ".hdf5")
-        # store = pd.HDFStore(fname)
-        # if not dataframe:
-        #     dataframe = pd.DataFrame(kwargs)
-        # store.put(name, dataframe)
-        # store.flush()
-        # store.close()
+    def data_source(self, name, dataframe=None, array=None):
+        if dataframe:
+            fname = self._prep_data_source_df(name, dataframe)
+            target_name = name + ".pandas"
+        else:
+            fname = self._prep_data_source_numpy(name, array)
+            target_name = name + ".table"
+        url = urljoin(self.root_url, 
+                      "bokeh/data/upload/%s/%s" % (self.username, target_name))
+        with open(fname) as f:
+            result = self.http_session.post(url, files={'file' : (target_name, f)})
+        return ServerDataSource(owner_username=self.username, data_url=result.content)
 
     def list_data(self):
         url = urljoin(self.root_url, "bokeh/data/" + self.username)
