@@ -50,7 +50,7 @@ class ColumnDataSource(DataSource):
         """
         if len(args) == 1 and "data" not in kw:
             kw["data"] = args[0]
-        raw_data = kw.get("data", {})
+        raw_data = kw.pop("data", {})
         if not isinstance(raw_data, dict):
             import pandas as pd
             if isinstance(raw_data, pd.DataFrame):
