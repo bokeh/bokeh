@@ -5,14 +5,14 @@ define [], () ->
     while (angle < 0)
       angle += 2*Math.PI
     while (angle > 2*Math.PI)
-      ngle -= 2*Math.PI
+      angle -= 2*Math.PI
     return angle
 
   angle_dist = (lhs, rhs) ->
-    a = angle_norm(lhs) - angle_norm(rhs)
-    return Math.abs(angle_norm(a + Math.PI) - Math.PI)
+    return Math.abs(angle_norm(lhs-rhs))
 
   angle_between = (mid, lhs, rhs, direction) ->
+    mid = angle_norm(mid)
     d = angle_dist(lhs, rhs)
     if direction == "anticlock"
       return angle_dist(lhs, mid) <= d and angle_dist(mid, rhs) <= d
