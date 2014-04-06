@@ -6,7 +6,18 @@ define ["common/base",
   Config = base.Config
   Promises = serverutils.Promises
   Config.ws_conn_string = "ws://#{window.location.host}/bokeh/sub"
+  load_one_object = (docid, objid) ->
+    HasProperties.prototype.sync = Backbone.sync
+    $(() ->
+      wswrapper = serverutils.utility.make_websocket()
+      resp = serverutils.utility.load_one_object_chain(docid, objid)
+      resp.done((data) ->
+        model = base.Collections(data.type).get(objid)
+        view = new model.default_view(model : model)
+        _render(view.el)
 
+      )
+    )
   load = (title) ->
     HasProperties.prototype.sync = Backbone.sync
     $(() ->
@@ -45,4 +56,7 @@ define ["common/base",
 
   _render = (html) -> $('#PlotPane').append(html)
 
-  return load: load
+  return {
+    load: load
+    load_one_object : load_one_object
+  }

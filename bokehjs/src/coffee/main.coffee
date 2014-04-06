@@ -132,6 +132,7 @@ define (require, exports, module) ->
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")
   Bokeh.server_page = require("server/serverrun").load
+  Bokeh.one_object_page = require("server/serverrun").load_one_object
 
   # utils
   Bokeh.ObjectExplorer = require("util/object_explorer")
