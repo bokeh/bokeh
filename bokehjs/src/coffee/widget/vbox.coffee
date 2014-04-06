@@ -13,6 +13,7 @@ define [
       super(options)
       @views = {}
       @render()
+      @listenTo(@model, 'change', @render)
     render: () ->
       children = @mget_obj('children')
       build_views(@views, children)

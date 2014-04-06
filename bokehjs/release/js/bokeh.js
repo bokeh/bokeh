@@ -15527,14 +15527,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/plot_context',["underscore", "backbone", "./build_views", "./safebind", "./has_parent", "./continuum_view"], function(_, Backbone, build_views, safebind, HasParent, ContinuumView) {
-    var PlotContext, PlotContextView, PlotContexts;
+    var PlotContext, PlotContextView, PlotContexts, _ref, _ref1, _ref2;
     PlotContextView = (function(_super) {
       __extends(PlotContextView, _super);
 
       function PlotContextView() {
         this.removeplot = __bind(this.removeplot, this);
         this.closeall = __bind(this.closeall, this);
-        return PlotContextView.__super__.constructor.apply(this, arguments);
+        _ref = PlotContextView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       PlotContextView.prototype.initialize = function(options) {
@@ -15582,11 +15583,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         view = this.views[s_pc.get('id')];
         view.remove();
         newchildren = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.mget('children');
+          var _i, _len, _ref1, _results;
+          _ref1 = this.mget('children');
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            x = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            x = _ref1[_i];
             if (x.id !== view.model.id) {
               _results.push(x);
             }
@@ -15599,13 +15600,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotContextView.prototype.render = function() {
-        var index, key, modelref, node, numplots, tab_names, to_render, val, view, _i, _len, _ref, _ref1;
+        var index, key, modelref, node, numplots, tab_names, to_render, val, view, _i, _len, _ref1, _ref2,
+          _this = this;
         PlotContextView.__super__.render.call(this);
         this.build_children();
-        _ref = this.views;
-        for (key in _ref) {
-          if (!__hasProp.call(_ref, key)) continue;
-          val = _ref[key];
+        _ref1 = this.views;
+        for (key in _ref1) {
+          if (!__hasProp.call(_ref1, key)) continue;
+          val = _ref1[key];
           val.$el.detach();
         }
         this.$el.html('');
@@ -15615,27 +15617,25 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.$el.append("<br/>");
         to_render = [];
         tab_names = {};
-        _ref1 = this.mget('children');
-        for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
-          modelref = _ref1[index];
+        _ref2 = this.mget('children');
+        for (index = _i = 0, _len = _ref2.length; _i < _len; index = ++_i) {
+          modelref = _ref2[index];
           view = this.views[modelref.id];
           node = $("<div class='jsp' data-plot_num='" + index + "'></div>");
           this.$el.append(node);
           node.append($("<a class='plotclose'>[close]</a>"));
           node.append(view.el);
         }
-        _.defer((function(_this) {
-          return function() {
-            var textarea, _j, _len1, _ref2, _results;
-            _ref2 = _this.$el.find('.plottitle');
-            _results = [];
-            for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-              textarea = _ref2[_j];
-              _results.push(_this.size_textarea($(textarea)));
-            }
-            return _results;
-          };
-        })(this));
+        _.defer(function() {
+          var textarea, _j, _len1, _ref3, _results;
+          _ref3 = _this.$el.find('.plottitle');
+          _results = [];
+          for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+            textarea = _ref3[_j];
+            _results.push(_this.size_textarea($(textarea)));
+          }
+          return _results;
+        });
         return null;
       };
 
@@ -15646,7 +15646,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(PlotContext, _super);
 
       function PlotContext() {
-        return PlotContext.__super__.constructor.apply(this, arguments);
+        _ref1 = PlotContext.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       PlotContext.prototype.type = 'PlotContext';
@@ -15671,7 +15672,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(PlotContexts, _super);
 
       function PlotContexts() {
-        return PlotContexts.__super__.constructor.apply(this, arguments);
+        _ref2 = PlotContexts.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       PlotContexts.prototype.model = PlotContext;
@@ -15688,8 +15690,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=plot_context.js.map
-;
+/*
+//@ sourceMappingURL=plot_context.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -16961,12 +16964,13 @@ if (typeof define === 'function' && define.amd) {
     __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
   define('renderer/glyph/glyph',["underscore", "common/has_parent", "common/plot_widget", "renderer/properties"], function(_, HasParent, PlotWidget, Properties) {
-    var Glyph, GlyphView;
+    var Glyph, GlyphView, _ref, _ref1;
     GlyphView = (function(_super) {
       __extends(GlyphView, _super);
 
       function GlyphView() {
-        return GlyphView.__super__.constructor.apply(this, arguments);
+        _ref = GlyphView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       GlyphView.prototype.initialize = function(options) {
@@ -17012,21 +17016,21 @@ if (typeof define === 'function' && define.amd) {
       };
 
       GlyphView.prototype.set_data = function(request_render) {
-        var dir, field, i, junk, len, source, values, x, _i, _j, _k, _len, _ref, _ref1, _ref2, _results;
+        var dir, field, i, junk, len, source, values, x, _i, _j, _k, _len, _ref1, _ref2, _ref3, _results;
         if (request_render == null) {
           request_render = true;
         }
         source = this.mget_obj('data_source');
-        _ref = this._fields;
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          field = _ref[_i];
+        _ref1 = this._fields;
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          field = _ref1[_i];
           if (field.indexOf(":") > -1) {
-            _ref1 = field.split(":"), field = _ref1[0], junk = _ref1[1];
+            _ref2 = field.split(":"), field = _ref2[0], junk = _ref2[1];
           }
           this[field] = this.glyph_props.source_v_select(field, source);
           if (field === "direction") {
             values = new Uint8Array(this.direction.length);
-            for (i = _j = 0, _ref2 = this.direction.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
+            for (i = _j = 0, _ref3 = this.direction.length; 0 <= _ref3 ? _j < _ref3 : _j > _ref3; i = 0 <= _ref3 ? ++_j : --_j) {
               dir = this.direction[i];
               if (dir === 'clock') {
                 values[i] = false;
@@ -17040,11 +17044,11 @@ if (typeof define === 'function' && define.amd) {
           }
           if (field.indexOf("angle") > -1) {
             this[field] = (function() {
-              var _k, _len1, _ref3, _results;
-              _ref3 = this[field];
+              var _k, _len1, _ref4, _results;
+              _ref4 = this[field];
               _results = [];
-              for (_k = 0, _len1 = _ref3.length; _k < _len1; _k++) {
-                x = _ref3[_k];
+              for (_k = 0, _len1 = _ref4.length; _k < _len1; _k++) {
+                x = _ref4[_k];
                 _results.push(-x);
               }
               return _results;
@@ -17067,7 +17071,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       GlyphView.prototype.render = function(have_new_mapper_state) {
-        var ctx, do_render, i, idx, indices, nonselected, selected, selected_mask, _i, _j, _len, _len1;
+        var ctx, do_render, i, idx, indices, nonselected, selected, selected_mask, _i, _j, _len, _len1,
+          _this = this;
         if (have_new_mapper_state == null) {
           have_new_mapper_state = true;
         }
@@ -17083,32 +17088,30 @@ if (typeof define === 'function' && define.amd) {
         }
         ctx = this.plot_view.ctx;
         ctx.save();
-        do_render = (function(_this) {
-          return function(ctx, indices, glyph_props) {
-            var source;
-            source = _this.mget_obj('data_source');
-            if (_this.have_new_data) {
-              if ((glyph_props.fill_properties != null) && glyph_props.fill_properties.do_fill) {
-                glyph_props.fill_properties.set_prop_cache(source);
-              }
-              if ((glyph_props.line_properties != null) && glyph_props.line_properties.do_stroke) {
-                glyph_props.line_properties.set_prop_cache(source);
-              }
-              if (glyph_props.text_properties != null) {
-                glyph_props.text_properties.set_prop_cache(source);
-              }
+        do_render = function(ctx, indices, glyph_props) {
+          var source;
+          source = _this.mget_obj('data_source');
+          if (_this.have_new_data) {
+            if ((glyph_props.fill_properties != null) && glyph_props.fill_properties.do_fill) {
+              glyph_props.fill_properties.set_prop_cache(source);
             }
-            return _this._render(ctx, indices, glyph_props);
-          };
-        })(this);
+            if ((glyph_props.line_properties != null) && glyph_props.line_properties.do_stroke) {
+              glyph_props.line_properties.set_prop_cache(source);
+            }
+            if (glyph_props.text_properties != null) {
+              glyph_props.text_properties.set_prop_cache(source);
+            }
+          }
+          return _this._render(ctx, indices, glyph_props);
+        };
         selected = this.mget_obj('data_source').get('selected');
         if (selected && selected.length && this.have_selection_props) {
           selected_mask = (function() {
-            var _i, _len, _ref, _results;
-            _ref = this.all_indices;
+            var _i, _len, _ref1, _results;
+            _ref1 = this.all_indices;
             _results = [];
-            for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-              i = _ref[_i];
+            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+              i = _ref1[_i];
               _results.push(false);
             }
             return _results;
@@ -17150,7 +17153,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       GlyphView.prototype.distance_vector = function(pt, span_prop_name, position, dilate) {
-        var d, halfspan, i, local_select, mapper, pt0, pt1, pt_units, ptc, source, span, span_units, spt0, spt1;
+        var d, halfspan, i, local_select, mapper, pt0, pt1, pt_units, ptc, source, span, span_units, spt0, spt1,
+          _this = this;
         if (dilate == null) {
           dilate = false;
         }
@@ -17163,11 +17167,9 @@ if (typeof define === 'function' && define.amd) {
           mapper = this.plot_view.ymapper;
         }
         source = this.mget_obj('data_source');
-        local_select = (function(_this) {
-          return function(prop_name) {
-            return _this.glyph_props.source_v_select(prop_name, source);
-          };
-        })(this);
+        local_select = function(prop_name) {
+          return _this.glyph_props.source_v_select(prop_name, source);
+        };
         span = local_select(span_prop_name);
         if (span_units === 'screen') {
           return span;
@@ -17190,17 +17192,17 @@ if (typeof define === 'function' && define.amd) {
             ptc = mapper.v_map_to_target(ptc);
           }
           pt0 = (function() {
-            var _i, _ref, _results;
+            var _i, _ref1, _results;
             _results = [];
-            for (i = _i = 0, _ref = ptc.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
               _results.push(ptc[i] - halfspan[i]);
             }
             return _results;
           })();
           pt1 = (function() {
-            var _i, _ref, _results;
+            var _i, _ref1, _results;
             _results = [];
-            for (i = _i = 0, _ref = ptc.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
               _results.push(ptc[i] + halfspan[i]);
             }
             return _results;
@@ -17211,9 +17213,9 @@ if (typeof define === 'function' && define.amd) {
             pt0 = mapper.v_map_from_target(pt0);
           }
           pt1 = (function() {
-            var _i, _ref, _results;
+            var _i, _ref1, _results;
             _results = [];
-            for (i = _i = 0, _ref = pt0.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+            for (i = _i = 0, _ref1 = pt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
               _results.push(pt0[i] + span[i]);
             }
             return _results;
@@ -17223,18 +17225,18 @@ if (typeof define === 'function' && define.amd) {
         spt1 = mapper.v_map_to_target(pt1);
         if (dilate) {
           return (function() {
-            var _i, _ref, _results;
+            var _i, _ref1, _results;
             _results = [];
-            for (i = _i = 0, _ref = spt0.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+            for (i = _i = 0, _ref1 = spt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
               _results.push(Math.ceil(Math.abs(spt1[i] - spt0[i])));
             }
             return _results;
           })();
         } else {
           return (function() {
-            var _i, _ref, _results;
+            var _i, _ref1, _results;
             _results = [];
-            for (i = _i = 0, _ref = spt0.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+            for (i = _i = 0, _ref1 = spt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
               _results.push(Math.abs(spt1[i] - spt0[i]));
             }
             return _results;
@@ -17257,8 +17259,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       GlyphView.prototype._generic_line_legend = function(ctx, x0, x1, y0, y1) {
-        var line_props, reference_point, _ref;
-        reference_point = (_ref = this.get_reference_point()) != null ? _ref : 0;
+        var line_props, reference_point, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
         line_props = this.glyph_props.line_properties;
         ctx.save();
         ctx.beginPath();
@@ -17272,8 +17274,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       GlyphView.prototype._generic_area_legend = function(ctx, x0, x1, y0, y1) {
-        var dh, dw, h, indices, reference_point, sx0, sx1, sy0, sy1, w, _ref;
-        reference_point = (_ref = this.get_reference_point()) != null ? _ref : 0;
+        var dh, dw, h, indices, reference_point, sx0, sx1, sy0, sy1, w, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
         indices = [reference_point];
         w = Math.abs(x1 - x0);
         dw = w * 0.1;
@@ -17327,7 +17329,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Glyph, _super);
 
       function Glyph() {
-        return Glyph.__super__.constructor.apply(this, arguments);
+        _ref1 = Glyph.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Glyph.prototype.defaults = function() {
@@ -17358,8 +17361,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=glyph.js.map
-;
+/*
+//@ sourceMappingURL=glyph.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -19209,13 +19213,14 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/image',["underscore", "renderer/properties", "mapper/color/linear_color_mapper", "palettes/palettes", "./glyph"], function(_, Properties, LinearColorMapper, Palettes, Glyph) {
-    var ImageGlyph, ImageView, all_palettes;
+    var ImageGlyph, ImageView, all_palettes, _ref, _ref1;
     all_palettes = Palettes.all_palettes;
     ImageView = (function(_super) {
       __extends(ImageView, _super);
 
       function ImageView() {
-        return ImageView.__super__.constructor.apply(this, arguments);
+        _ref = ImageView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ImageView.prototype._properties = [];
@@ -19241,7 +19246,7 @@ if (typeof define === 'function' && define.amd) {
       };
 
       ImageView.prototype._set_data = function(data) {
-        var buf, buf8, canvas, cmap, ctx, i, image_data, img, _i, _ref, _results;
+        var buf, buf8, canvas, cmap, ctx, i, image_data, img, _i, _ref1, _results;
         this.data = data;
         if ((this.image_data == null) || this.image_data.length !== this.image.length) {
           this.image_data = new Array(this.image.length);
@@ -19253,7 +19258,7 @@ if (typeof define === 'function' && define.amd) {
           this.height = new Array(this.image.length);
         }
         _results = [];
-        for (i = _i = 0, _ref = this.image.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.image.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (this.rows != null) {
             this.height[i] = this.rows[i];
             this.width[i] = this.cols[i];
@@ -19284,8 +19289,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       ImageView.prototype._map_data = function() {
-        var _ref;
-        _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+        var _ref1;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
         this.sw = this.distance_vector('x', 'dw', 'edge', this.mget('glyphspec')['dilate']);
         return this.sh = this.distance_vector('y', 'dh', 'edge', this.mget('glyphspec')['dilate']);
       };
@@ -19321,7 +19326,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(ImageGlyph, _super);
 
       function ImageGlyph() {
-        return ImageGlyph.__super__.constructor.apply(this, arguments);
+        _ref1 = ImageGlyph.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       ImageGlyph.prototype.default_view = ImageView;
@@ -19346,8 +19352,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=image.js.map
-;
+/*
+//@ sourceMappingURL=image.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -19720,12 +19727,13 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/line',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Line, LineView;
+    var Line, LineView, _ref, _ref1;
     LineView = (function(_super) {
       __extends(LineView, _super);
 
       function LineView() {
-        return LineView.__super__.constructor.apply(this, arguments);
+        _ref = LineView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       LineView.prototype.setup_server_data = function() {
@@ -19743,8 +19751,8 @@ if (typeof define === 'function' && define.amd) {
       LineView.prototype._properties = ['line'];
 
       LineView.prototype._map_data = function() {
-        var _ref;
-        return _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1], _ref;
+        var _ref1;
+        return _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1], _ref1;
       };
 
       LineView.prototype._render = function(ctx, indices, glyph_props) {
@@ -19783,7 +19791,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Line, _super);
 
       function Line() {
-        return Line.__super__.constructor.apply(this, arguments);
+        _ref1 = Line.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Line.prototype.default_view = LineView;
@@ -19813,8 +19822,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=line.js.map
-;
+/*
+//@ sourceMappingURL=line.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -20355,12 +20365,13 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/quad',["underscore", "rbush", "renderer/properties", "./glyph"], function(_, rbush, Properties, Glyph) {
-    var Quad, QuadView;
+    var Quad, QuadView, _ref, _ref1;
     QuadView = (function(_super) {
       __extends(QuadView, _super);
 
       function QuadView() {
-        return QuadView.__super__.constructor.apply(this, arguments);
+        _ref = QuadView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       QuadView.prototype._fields = ['right', 'left', 'bottom', 'top'];
@@ -20371,9 +20382,9 @@ if (typeof define === 'function' && define.amd) {
         var i;
         this.index = rbush();
         return this.index.load((function() {
-          var _i, _ref, _results;
+          var _i, _ref1, _results;
           _results = [];
-          for (i = _i = 0, _ref = this.left.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+          for (i = _i = 0, _ref1 = this.left.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
             _results.push([
               this.left[i], this.bottom[i], this.right[i], this.top[i], {
                 'i': i
@@ -20385,24 +20396,24 @@ if (typeof define === 'function' && define.amd) {
       };
 
       QuadView.prototype._map_data = function() {
-        var _ref, _ref1;
-        _ref = this.plot_view.map_to_screen(this.left, this.glyph_props.left.units, this.top, this.glyph_props.top.units), this.sx0 = _ref[0], this.sy0 = _ref[1];
-        return _ref1 = this.plot_view.map_to_screen(this.right, this.glyph_props.right.units, this.bottom, this.glyph_props.bottom.units), this.sx1 = _ref1[0], this.sy1 = _ref1[1], _ref1;
+        var _ref1, _ref2;
+        _ref1 = this.plot_view.map_to_screen(this.left, this.glyph_props.left.units, this.top, this.glyph_props.top.units), this.sx0 = _ref1[0], this.sy0 = _ref1[1];
+        return _ref2 = this.plot_view.map_to_screen(this.right, this.glyph_props.right.units, this.bottom, this.glyph_props.bottom.units), this.sx1 = _ref2[0], this.sy1 = _ref2[1], _ref2;
       };
 
       QuadView.prototype._mask_data = function() {
-        var oh, ow, vr, x, x0, x1, y0, y1, _ref, _ref1;
+        var oh, ow, vr, x, x0, x1, y0, y1, _ref1, _ref2;
         ow = this.plot_view.view_state.get('outer_width');
         oh = this.plot_view.view_state.get('outer_height');
-        _ref = this.plot_view.xmapper.v_map_from_target([0, ow]), x0 = _ref[0], x1 = _ref[1];
+        _ref1 = this.plot_view.xmapper.v_map_from_target([0, ow]), x0 = _ref1[0], x1 = _ref1[1];
         vr = this.plot_view.view_state.get('inner_range_vertical');
-        _ref1 = this.plot_view.ymapper.v_map_from_target([0, ow]), y0 = _ref1[0], y1 = _ref1[1];
+        _ref2 = this.plot_view.ymapper.v_map_from_target([0, ow]), y0 = _ref2[0], y1 = _ref2[1];
         return (function() {
-          var _i, _len, _ref2, _results;
-          _ref2 = this.index.search([x0, y0, x1, y1]);
+          var _i, _len, _ref3, _results;
+          _ref3 = this.index.search([x0, y0, x1, y1]);
           _results = [];
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            x = _ref2[_i];
+          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+            x = _ref3[_i];
             _results.push(x[4].i);
           }
           return _results;
@@ -20456,7 +20467,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Quad, _super);
 
       function Quad() {
-        return Quad.__super__.constructor.apply(this, arguments);
+        _ref1 = Quad.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Quad.prototype.default_view = QuadView;
@@ -20488,8 +20500,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=quad.js.map
-;
+/*
+//@ sourceMappingURL=quad.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -23021,13 +23034,14 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/composite_ticker',["underscore", "backbone", "ticking/abstract_ticker", "ticking/util"], function(_, Backbone, AbstractTicker, util) {
-    var CompositeTicker, CompositeTickers, argmin;
+    var CompositeTicker, CompositeTickers, argmin, _ref, _ref1;
     argmin = util.argmin;
     CompositeTicker = (function(_super) {
       __extends(CompositeTicker, _super);
 
       function CompositeTicker() {
-        return CompositeTicker.__super__.constructor.apply(this, arguments);
+        _ref = CompositeTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       CompositeTicker.prototype.type = 'CompositeTicker';
@@ -23095,7 +23109,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(CompositeTickers, _super);
 
       function CompositeTickers() {
-        return CompositeTickers.__super__.constructor.apply(this, arguments);
+        _ref1 = CompositeTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       CompositeTickers.prototype.model = CompositeTicker;
@@ -23111,8 +23126,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=composite_ticker.js.map
-;
+/*
+//@ sourceMappingURL=composite_ticker.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -23392,7 +23408,7 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/datetime_ticker',["underscore", "ticking/adaptive_ticker", "ticking/composite_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/util"], function(_, AdaptiveTicker, CompositeTicker, DaysTicker, MonthsTicker, util) {
-    var DatetimeTicker, DatetimeTickers, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR;
+    var DatetimeTicker, DatetimeTickers, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR, _ref, _ref1;
     ONE_MILLI = util.ONE_MILLI;
     ONE_SECOND = util.ONE_SECOND;
     ONE_MINUTE = util.ONE_MINUTE;
@@ -23403,7 +23419,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(DatetimeTicker, _super);
 
       function DatetimeTicker() {
-        return DatetimeTicker.__super__.constructor.apply(this, arguments);
+        _ref = DatetimeTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       DatetimeTicker.prototype.type = 'DatetimeTicker';
@@ -23463,7 +23480,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(DatetimeTickers, _super);
 
       function DatetimeTickers() {
-        return DatetimeTickers.__super__.constructor.apply(this, arguments);
+        _ref1 = DatetimeTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       DatetimeTickers.prototype.model = DatetimeTicker;
@@ -23479,8 +23497,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=datetime_ticker.js.map
-;
+/*
+//@ sourceMappingURL=datetime_ticker.js.map
+*/;
 /*! sprintf.js | Copyright (c) 2007-2013 Alexandru Marasteanu <hello at alexei dot ro> | 3 clause BSD license */
 
 (function(ctx) {
@@ -23977,7 +23996,7 @@ define("sprintf", (function (global) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/datetime_tick_formatter',["underscore", "backbone", "common/has_properties", "sprintf", "timezone"], function(_, Backbone, HasProperties, sprintf, tz) {
-    var DatetimeTickFormatter, DatetimeTickFormatters, _array, _four_digit_year, _ms_dot_us, _strftime, _two_digit_year, _us;
+    var DatetimeTickFormatter, DatetimeTickFormatters, _array, _four_digit_year, _ms_dot_us, _ref, _ref1, _strftime, _two_digit_year, _us;
     _us = function(t) {
       return sprintf("%3dus", Math.floor((t % 1) * 1000));
     };
@@ -24021,7 +24040,8 @@ define("sprintf", (function (global) {
       __extends(DatetimeTickFormatter, _super);
 
       function DatetimeTickFormatter() {
-        return DatetimeTickFormatter.__super__.constructor.apply(this, arguments);
+        _ref = DatetimeTickFormatter.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       DatetimeTickFormatter.prototype.type = 'DatetimeTickFormatter';
@@ -24091,7 +24111,7 @@ define("sprintf", (function (global) {
       };
 
       DatetimeTickFormatter.prototype.format = function(ticks, num_labels, char_width, fill_ratio, ticker) {
-        var dt, error, fmt, format, formats, good_formats, hybrid_handled, i, labels, next_format, next_ndx, r, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
+        var dt, error, fmt, format, formats, good_formats, hybrid_handled, i, labels, next_format, next_ndx, r, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths, _i, _j, _k, _len, _len1, _ref1, _ref2, _ref3;
         if (num_labels == null) {
           num_labels = null;
         }
@@ -24114,11 +24134,11 @@ define("sprintf", (function (global) {
           r = span / (ticks.length - 1);
         }
         resol = this._get_resolution_str(r, span);
-        _ref = this.formats[resol], widths = _ref[0], formats = _ref[1];
+        _ref1 = this.formats[resol], widths = _ref1[0], formats = _ref1[1];
         format = formats[0];
         if (char_width) {
           good_formats = [];
-          for (i = _i = 0, _ref1 = widths.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          for (i = _i = 0, _ref2 = widths.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
             if (widths[i] * ticks.length < fill_ratio * char_width) {
               good_formats.push(this.formats[i]);
             }
@@ -24130,9 +24150,9 @@ define("sprintf", (function (global) {
         labels = [];
         resol_ndx = this.format_order.indexOf(resol);
         time_tuple_ndx_for_resol = {};
-        _ref2 = this.format_order;
-        for (_j = 0, _len = _ref2.length; _j < _len; _j++) {
-          fmt = _ref2[_j];
+        _ref3 = this.format_order;
+        for (_j = 0, _len = _ref3.length; _j < _len; _j++) {
+          fmt = _ref3[_j];
           time_tuple_ndx_for_resol[fmt] = 0;
         }
         time_tuple_ndx_for_resol["seconds"] = 5;
@@ -24196,7 +24216,8 @@ define("sprintf", (function (global) {
       __extends(DatetimeTickFormatters, _super);
 
       function DatetimeTickFormatters() {
-        return DatetimeTickFormatters.__super__.constructor.apply(this, arguments);
+        _ref1 = DatetimeTickFormatters.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       DatetimeTickFormatters.prototype.model = DatetimeTickFormatter;
@@ -24212,8 +24233,9 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=datetime_tick_formatter.js.map
-;
+/*
+//@ sourceMappingURL=datetime_tick_formatter.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -35535,8 +35557,9 @@ define('widget/textinputtemplate',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=plotting.js.map
-;
+/*
+//@ sourceMappingURL=plotting.js.map
+*/;
 (function() {
   define('common/affine',[], function() {
     var Affine;
@@ -36717,8 +36740,9 @@ define('widget/textinputtemplate',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=serverutils.js.map
-;
+/*
+//@ sourceMappingURL=serverutils.js.map
+*/;
 (function() {
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
@@ -37020,7 +37044,7 @@ define('server/usercontext/wrappertemplate',[],function(){
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('server/usercontext/usercontext',["common/base", "../serverutils", "common/continuum_view", "./userdocstemplate", "./documentationtemplate", "./wrappertemplate", "common/has_parent", "common/build_views", "common/load_models"], function(base, serverutils, continuum_view, userdocstemplate, documentationtemplate, wrappertemplate, HasParent, build_views, load_models) {
-    var ContinuumView, Doc, DocView, UserDocs, UserDocsView, exports, utility;
+    var ContinuumView, Doc, DocView, UserDocs, UserDocsView, exports, utility, _ref, _ref1, _ref2, _ref3;
     exports = {};
     ContinuumView = continuum_view.View;
     utility = serverutils.utility;
@@ -37028,7 +37052,8 @@ define('server/usercontext/wrappertemplate',[],function(){
       __extends(DocView, _super);
 
       function DocView() {
-        return DocView.__super__.constructor.apply(this, arguments);
+        _ref = DocView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       DocView.prototype.template = wrappertemplate;
@@ -37089,7 +37114,8 @@ define('server/usercontext/wrappertemplate',[],function(){
       __extends(UserDocsView, _super);
 
       function UserDocsView() {
-        return UserDocsView.__super__.constructor.apply(this, arguments);
+        _ref1 = UserDocsView.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       UserDocsView.prototype.initialize = function(options) {
@@ -37113,23 +37139,20 @@ define('server/usercontext/wrappertemplate',[],function(){
       };
 
       UserDocsView.prototype.delegateEvents = function(events) {
+        var _this = this;
         UserDocsView.__super__.delegateEvents.call(this, events);
         this.listenTo(this.collection, 'add', this.render);
         this.listenTo(this.collection, 'remove', this.render);
-        this.listenTo(this.collection, 'add', (function(_this) {
-          return function(model, collection, options) {
-            return _this.listenTo(model, 'loaded', function() {
-              return _this.listenTo(model.get_obj('plot_context'), 'change', function() {
-                return _this.trigger('show');
-              });
+        this.listenTo(this.collection, 'add', function(model, collection, options) {
+          return _this.listenTo(model, 'loaded', function() {
+            return _this.listenTo(model.get_obj('plot_context'), 'change', function() {
+              return _this.trigger('show');
             });
-          };
-        })(this));
-        return this.listenTo(this.collection, 'remove', (function(_this) {
-          return function(model, collection, options) {
-            return _this.stopListening(model);
-          };
-        })(this));
+          });
+        });
+        return this.listenTo(this.collection, 'remove', function(model, collection, options) {
+          return _this.stopListening(model);
+        });
       };
 
       UserDocsView.prototype.render_docs = function() {
@@ -37163,7 +37186,8 @@ define('server/usercontext/wrappertemplate',[],function(){
       __extends(Doc, _super);
 
       function Doc() {
-        return Doc.__super__.constructor.apply(this, arguments);
+        _ref2 = Doc.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       Doc.prototype.default_view = DocView;
@@ -37188,7 +37212,8 @@ define('server/usercontext/wrappertemplate',[],function(){
       };
 
       Doc.prototype.load = function(use_title) {
-        var docid, resp, title;
+        var docid, resp, title,
+          _this = this;
         if (this.loaded) {
           return;
         }
@@ -37199,15 +37224,13 @@ define('server/usercontext/wrappertemplate',[],function(){
           docid = this.get('docid');
           resp = utility.load_doc(docid);
         }
-        return resp.done((function(_this) {
-          return function(data) {
-            _this.set('docid', data.docid);
-            _this.set('apikey', data['apikey']);
-            _this.set('plot_context', data['plot_context_ref']);
-            _this.trigger('loaded');
-            return _this.loaded = true;
-          };
-        })(this));
+        return resp.done(function(data) {
+          _this.set('docid', data.docid);
+          _this.set('apikey', data['apikey']);
+          _this.set('plot_context', data['plot_context_ref']);
+          _this.trigger('loaded');
+          return _this.loaded = true;
+        });
       };
 
       return Doc;
@@ -37217,7 +37240,8 @@ define('server/usercontext/wrappertemplate',[],function(){
       __extends(UserDocs, _super);
 
       function UserDocs() {
-        return UserDocs.__super__.constructor.apply(this, arguments);
+        _ref3 = UserDocs.__super__.constructor.apply(this, arguments);
+        return _ref3;
       }
 
       UserDocs.prototype.model = Doc;
@@ -37235,23 +37259,22 @@ define('server/usercontext/wrappertemplate',[],function(){
       };
 
       UserDocs.prototype.fetch = function(options) {
-        var resp, response, url;
+        var resp, response, url,
+          _this = this;
         if (_.isUndefined(options)) {
           options = {};
         }
         url = base.Config.prefix + "/bokeh/userinfo/";
         resp = response = $.get(url, {});
-        resp.done((function(_this) {
-          return function(data) {
-            var docs;
-            docs = data['docs'];
-            if (options.update) {
-              return _this.update(docs, options);
-            } else {
-              return _this.reset(docs, options);
-            }
-          };
-        })(this));
+        resp.done(function(data) {
+          var docs;
+          docs = data['docs'];
+          if (options.update) {
+            return _this.update(docs, options);
+          } else {
+            return _this.reset(docs, options);
+          }
+        });
         return resp;
       };
 
@@ -37267,8 +37290,9 @@ define('server/usercontext/wrappertemplate',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=usercontext.js.map
-;
+/*
+//@ sourceMappingURL=usercontext.js.map
+*/;
 (function() {
   define('server/serverrun',["common/base", "./serverutils", "./usercontext/usercontext", "common/has_properties"], function(base, serverutils, usercontext, HasProperties) {
     var Config, Promises, load, _render, _render_all, _render_one;
@@ -37331,8 +37355,9 @@ define('server/usercontext/wrappertemplate',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=serverrun.js.map
-;
+/*
+//@ sourceMappingURL=serverrun.js.map
+*/;
 (function() {
   define('main',['require','exports','module','backbone','underscore','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/ticking','common/view_state','mapper/1d/linear_mapper','mapper/1d/categorical_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/categorical_axis','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','ticking/abstract_ticker','ticking/adaptive_ticker','ticking/basic_ticker','ticking/basic_tick_formatter','ticking/categorical_ticker','ticking/categorical_tick_formatter','ticking/composite_ticker','ticking/datetime_ticker','ticking/datetime_tick_formatter','ticking/days_ticker','ticking/months_ticker','ticking/single_interval_ticker','tool/box_select_tool','tool/box_zoom_tool','tool/crosshair_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/hover_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/wheel_zoom_tool','tool/object_explorer_tool','widget/data_slider','server/serverrun','widget/hbox','widget/hbox','widget/vboxmodelform','widget/textinput','util/object_explorer'],function(require, exports, module) {
     var Bokeh, glyph_factory;

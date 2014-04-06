@@ -142,8 +142,8 @@ class StockApp(ShinyApp):
         ticker2 = self.modelform.ticker2
         self.make_source(ticker1, ticker2)
         self.make_plots(ticker1, ticker2)
-        self.children.append(self.modelform)
-        self.children.append(self.plot)
+        self.set_children()
+
         
     def make_source(self, ticker1, ticker2):
         df = self.get_data(ticker1, ticker2)
@@ -152,11 +152,15 @@ class StockApp(ShinyApp):
     def make_plots(self, ticker1, ticker2):
         self.plot = circle(ticker1 + "_returns", ticker2 + "_returns", 
                            source=self.source,
-                           plot_width=400, plot_height=400)
+                           plot_width=400, plot_height=400,
+                           tools="pan,wheel_zoom,select"
+        )
         session().plotcontext.children=[self]
         session().plotcontext._dirty = True
-    def set_plots(self, ticker1, ticker2):
-        import pdb; pdb.set_trace()
+        
+    def set_children(self):
+        self.children = [self.modelform, self.plot]
+
     def input_change(self, obj, attrname, old, new):
         """
         This function is called whenever the input form changes
@@ -171,8 +175,8 @@ class StockApp(ShinyApp):
             ticker1 = self.modelform.ticker1
             ticker2 = self.modelform.ticker2
             self.make_source(ticker1, ticker2)
-            self.set_plots(ticker1, ticker2)
-
+            self.make_plots(ticker1, ticker2)
+            self.set_children()
 
 # the following addes "/exampleapp" as a url which renders StockApp
         
