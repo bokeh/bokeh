@@ -21,6 +21,7 @@ class HTMLFileSession(BaseHTMLSession):
 
     title = "Bokeh Plot"
 
+    # TODO: Why is this not in bokehjs_dir, but rather outside of it?
     js_files = ["js/bokeh.js"]
     css_files = ["css/bokeh.css"]
 

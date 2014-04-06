@@ -17,7 +17,7 @@ console.log("embed.js");
     var staticRootUrl = "{{static_root_url}}";
     if (host!=""){
 
-        staticRootUrl = "//" + host + "/static/";
+        staticRootUrl = "//" + host + "/bokehjs/static/";
         var bokehJSUrl = staticRootUrl + "js/bokeh.js";
     }
     else {
@@ -30,7 +30,7 @@ console.log("embed.js");
     var plotID = "{{ plotid }}";
     var dd = {};
     dd[plotID] = all_models;
-
+    
 
     var secondPlot =                 function() {
         console.log("Bokeh.js loaded callback");
@@ -60,7 +60,7 @@ console.log("embed.js");
         // bokeh.js isn't loaded and it hasn't been scheduled to be injected
         var s = document.createElement('script');
         s.async = true; s.src = bokehJSUrl; s.id="bokeh_script_tag";
-
+        
     }
     else {
         var s = document.getElementById("bokeh_script_tag");

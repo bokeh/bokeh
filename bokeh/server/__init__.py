@@ -22,10 +22,15 @@ def build_parser():
                         default=False,
                         help="debug mode for flask"
                         )
+    parser.add_argument("-j", "--debugjs",
+                        action="store_true",
+                        default=False,
+                        help="Whether to use bokehjs from the bokehjs build directory in the source tree or not"
+                        )
     parser.add_argument("-s", "--splitjs",
                         action="store_true",
                         default=False,
-                        help="don't serve compiled bokeh.js file."
+                        help="don't serve compiled bokeh.js file.  This can only be True if debugjs is True"
                         )
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
     parser.add_argument("--backend",
@@ -76,6 +81,7 @@ def run():
     start.bokeh_app.debug = False
     start.app.debug = False
     start.bokeh_app.splitjs = args.splitjs
+    start.bokeh_app.debugjs = args.debugjs
 
     backend = {
         "type": args.backend,

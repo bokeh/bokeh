@@ -43,6 +43,15 @@ class BaseHTMLSession(BaseJSONSession):
         """
         raise NotImplementedError
 
+    @property
+    def bokehjs_dir(self):
+        return getattr(self, "_bokehjs_dir",
+                join(self.server_static_dir, "vendor/bokehjs"))
+
+    @bokehjs_dir.setter
+    def bokehjs_dir(self, val):
+        self._bokehjs_dir = val
+
     def _inline_files(self, files):
         strings = []
         for file in files:
