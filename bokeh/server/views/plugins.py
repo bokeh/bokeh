@@ -4,8 +4,8 @@ from flask import (
     abort, jsonify, Response, redirect
 )
 from ..app import bokeh_app
-@bokeh_app.route('/bokeh/jsgenerate/<modulename>/<classname>/<parentname>')
-def generatejs(modulename, classname, parentname):
+@bokeh_app.route('/bokeh/jsgenerate/<parentname>/<modulename>/<classname>')
+def generatejs(parentname, modulename, classname):
     return render_template("app.js", modulename=modulename,
                            classname=classname,
                            parentname=parentname)
