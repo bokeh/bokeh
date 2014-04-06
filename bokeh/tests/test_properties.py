@@ -11,13 +11,13 @@ class Basictest(unittest.TestCase):
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
-            z = Array([1,2,3])
+            z = Array([1, 2, 3])
             s = String(None)
 
         f = Foo()
         self.assertEqual(f.x, 12)
         self.assertEqual(f.y, "hello")
-        self.assert_(np.array_equal(np.array([1,2,3]), f.z))
+        self.assert_(np.array_equal(np.array([1, 2, 3]), f.z))
         self.assertEqual(f.s, None)
 
         f.x = 18
@@ -28,20 +28,24 @@ class Basictest(unittest.TestCase):
 
     def test_enum(self):
         class Foo(HasProps):
-            x = Enum("blue", "red", "green")
-            y = Enum("small", "medium", "large", default="tiny")
+            x = Enum("blue", "red", "green")     # the first item is the default
+            y = Enum("small", "medium", "large", default="large")
 
         f = Foo()
         self.assertEqual(f.x, "blue")
-        self.assertEqual(f.y, "tiny")
+        self.assertEqual(f.y, "large")
+
         f.x = "red"
+        self.assertEqual(f.x, "red")
+
         with self.assertRaises(ValueError):
             f.x = "yellow"
+
         f.y = "small"
+        self.assertEqual(f.y, "small")
+
         with self.assertRaises(ValueError):
-            # Even though this is the default, it is not a valid value
-            # for the Enum.
-            f.y = "tiny"
+            f.y = "yellow"
 
     def test_inheritance(self):
         class Base(HasProps):
@@ -187,7 +191,7 @@ class TestColorSpec(unittest.TestCase):
 
     def test_default_tuple(self):
         class Foo(HasProps):
-            col = ColorSpec("colorfield", default=(128,255,124))
+            col = ColorSpec("colorfield", default=(128, 255, 124))
         desc = Foo.__dict__["col"]
         f = Foo()
         self.assertDictEqual(f.col, {"field": "colorfield", "default": (128, 255, 124)})
@@ -279,22 +283,24 @@ class TestDashPattern(unittest.TestCase):
         class Foo(HasProps):
             pat = DashPattern
         f = Foo()
+
         self.assertEqual(f.pat, [])
         f.pat = "solid"
         self.assertEqual(f.pat, [])
         f.pat = "dashed"
         self.assertEqual(f.pat, [6])
         f.pat = "dotted"
-        self.assertEqual(f.pat, [2,4])
+        self.assertEqual(f.pat, [2, 4])
         f.pat = "dotdash"
-        self.assertEqual(f.pat, [2,4,6,4])
+        self.assertEqual(f.pat, [2, 4, 6, 4])
         f.pat = "dashdot"
-        self.assertEqual(f.pat, [6,4,2,4])
+        self.assertEqual(f.pat, [6, 4, 2, 4])
 
     def test_string(self):
         class Foo(HasProps):
             pat = DashPattern
         f = Foo()
+
         f.pat = ""
         self.assertEqual(f.pat, [])
         f.pat = "2"
@@ -303,54 +309,540 @@ class TestDashPattern(unittest.TestCase):
         self.assertEqual(f.pat, [2, 4])
         f.pat = "2 4 6"
         self.assertEqual(f.pat, [2, 4, 6])
-        def assign(x, val):
-            x.pat = val
-        self.assertRaises(ValueError, assign, f , "abc 6")
 
-    def test_tuple(self):
-        class Foo(HasProps):
-            pat = DashPattern
-        f = Foo()
-        f.pat = ()
-        self.assertEqual(f.pat, ())
-        f.pat = (2,)
-        self.assertEqual(f.pat, (2,))
-        f.pat = (2,4)
-        self.assertEqual(f.pat, (2, 4))
-        f.pat = (2,4,6)
-        self.assertEqual(f.pat, (2, 4, 6))
-        def assign(x, val):
-            x.pat = val
-        self.assertRaises(ValueError, assign, f , (2, 4.2))
-        self.assertRaises(ValueError, assign, f , (2, "a"))
+        with self.assertRaises(ValueError):
+            f.pat = "abc 6"
 
     def test_list(self):
         class Foo(HasProps):
             pat = DashPattern
         f = Foo()
+
         f.pat = []
         self.assertEqual(f.pat, [])
         f.pat = [2]
         self.assertEqual(f.pat, [2])
-        f.pat = [2,4]
+        f.pat = [2, 4]
         self.assertEqual(f.pat, [2, 4])
-        f.pat = [2,4,6]
+        f.pat = [2, 4, 6]
         self.assertEqual(f.pat, [2, 4, 6])
-        def assign(x, val):
-            x.pat = val
-        self.assertRaises(ValueError, assign, f , [2, 4.2])
-        self.assertRaises(ValueError, assign, f , [2, "a"])
+
+        with self.assertRaises(ValueError):
+            f.pat = [2, 4.2]
+        with self.assertRaises(ValueError):
+            f.pat = [2, "a"]
 
     def test_invalid(self):
         class Foo(HasProps):
             pat = DashPattern
         f = Foo()
-        def assign(x, val):
-            x.pat = val
-        self.assertRaises(ValueError, assign, f , 10)
-        self.assertRaises(ValueError, assign, f , 10.1)
-        self.assertRaises(ValueError, assign, f , {})
 
+        with self.assertRaises(ValueError):
+            f.pat = 10
+        with self.assertRaises(ValueError):
+            f.pat = 10.1
+        with self.assertRaises(ValueError):
+            f.pat = {}
+
+from bokeh.properties import (Bool, Int, Float, Complex, String,
+    Regex, List, Dict, Tuple, Array, Instance, Any, Range, Either,
+    Enum, Color, Align, DashPattern, Size, Percent, Angle)
+
+class Foo(object):
+    pass
+
+class Bar(object):
+    pass
+
+class Baz(object):
+    pass
+
+class TestProperties(unittest.TestCase):
+
+    def test_Any(self):
+        prop = Any()
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertTrue(prop.is_valid(False))
+        self.assertTrue(prop.is_valid(True))
+        self.assertTrue(prop.is_valid(0))
+        self.assertTrue(prop.is_valid(1))
+        self.assertTrue(prop.is_valid(0.0))
+        self.assertTrue(prop.is_valid(1.0))
+        self.assertTrue(prop.is_valid(1.0+1.0j))
+        self.assertTrue(prop.is_valid(""))
+        self.assertTrue(prop.is_valid(()))
+        self.assertTrue(prop.is_valid([]))
+        self.assertTrue(prop.is_valid({}))
+        self.assertTrue(prop.is_valid(Foo()))
+
+    def test_Bool(self):
+        prop = Bool()
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertTrue(prop.is_valid(False))
+        self.assertTrue(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+    def test_Int(self):
+        prop = Int()
+
+        self.assertTrue(prop.is_valid(None))
+        # TODO: self.assertFalse(prop.is_valid(False))
+        # TODO: self.assertFalse(prop.is_valid(True))
+        self.assertTrue(prop.is_valid(0))
+        self.assertTrue(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+    def test_Float(self):
+        prop = Float()
+
+        self.assertTrue(prop.is_valid(None))
+        # TODO: self.assertFalse(prop.is_valid(False))
+        # TODO: self.assertFalse(prop.is_valid(True))
+        self.assertTrue(prop.is_valid(0))
+        self.assertTrue(prop.is_valid(1))
+        self.assertTrue(prop.is_valid(0.0))
+        self.assertTrue(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+    def test_Complex(self):
+        prop = Complex()
+
+        self.assertTrue(prop.is_valid(None))
+        # TODO: self.assertFalse(prop.is_valid(False))
+        # TODO: self.assertFalse(prop.is_valid(True))
+        self.assertTrue(prop.is_valid(0))
+        self.assertTrue(prop.is_valid(1))
+        self.assertTrue(prop.is_valid(0.0))
+        self.assertTrue(prop.is_valid(1.0))
+        self.assertTrue(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+    def test_String(self):
+        prop = String()
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertTrue(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+    def test_Regex(self):
+        with self.assertRaises(TypeError):
+            prop = Regex()
+
+        prop = Regex("^x*$")
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertTrue(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+    def test_List(self):
+        with self.assertRaises(TypeError):
+            prop = List()
+
+        prop = List(Int)
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertTrue(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+    def test_Dict(self):
+        with self.assertRaises(TypeError):
+            prop = Dict()
+
+        prop = Dict(String, List(Int))
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertTrue(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+    def test_Tuple(self):
+        with self.assertRaises(TypeError):
+            prop = Tuple()
+
+        with self.assertRaises(TypeError):
+            prop = Tuple(Int)
+
+        prop = Tuple(Int, String, List(Int))
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        self.assertTrue(prop.is_valid((1, "", [1, 2, 3])))
+        self.assertFalse(prop.is_valid((1.0, "", [1, 2, 3])))
+        self.assertFalse(prop.is_valid((1, True, [1, 2, 3])))
+        self.assertFalse(prop.is_valid((1, "", (1, 2, 3))))
+        self.assertFalse(prop.is_valid((1, "", [1, 2, "xyz"])))
+
+    def test_Instance(self):
+        with self.assertRaises(TypeError):
+            prop = Instance()
+
+        prop = Instance(Foo)
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertTrue(prop.is_valid(Foo()))
+
+        self.assertFalse(prop.is_valid(Bar()))
+        self.assertFalse(prop.is_valid(Baz()))
+
+    def test_Range(self):
+        with self.assertRaises(TypeError):
+            prop = Range()
+
+        with self.assertRaises(ValueError):
+            prop = Range(Int, 0.0, 1.0)
+
+        prop = Range(Int, 0, 255)
+
+        self.assertTrue(prop.is_valid(None))
+        # TODO: self.assertFalse(prop.is_valid(False))
+        # TODO: self.assertFalse(prop.is_valid(True))
+        self.assertTrue(prop.is_valid(0))
+        self.assertTrue(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        self.assertTrue(prop.is_valid(127))
+        self.assertFalse(prop.is_valid(-1))
+        self.assertFalse(prop.is_valid(256))
+
+        prop = Range(Float, 0.0, 1.0)
+
+        self.assertTrue(prop.is_valid(None))
+        # TODO: self.assertFalse(prop.is_valid(False))
+        # TODO: self.assertFalse(prop.is_valid(True))
+        self.assertTrue(prop.is_valid(0))
+        self.assertTrue(prop.is_valid(1))
+        self.assertTrue(prop.is_valid(0.0))
+        self.assertTrue(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        self.assertTrue(prop.is_valid(0.5))
+        self.assertFalse(prop.is_valid(-0.001))
+        self.assertFalse(prop.is_valid( 1.001))
+
+    def test_Either(self):
+        with self.assertRaises(TypeError):
+            prop = Either()
+
+        prop = Either(Range(Int, 0, 100), Regex("^x*$"), List(Int))
+
+        self.assertTrue(prop.is_valid(None))
+        # TODO: self.assertFalse(prop.is_valid(False))
+        # TODO: self.assertFalse(prop.is_valid(True))
+        self.assertTrue(prop.is_valid(0))
+        self.assertTrue(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertTrue(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertTrue(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        self.assertTrue(prop.is_valid(100))
+        self.assertFalse(prop.is_valid(-100))
+        self.assertTrue(prop.is_valid("xxx"))
+        self.assertFalse(prop.is_valid("yyy"))
+        self.assertTrue(prop.is_valid([1, 2, 3]))
+        self.assertFalse(prop.is_valid([1, 2, ""]))
+
+    def test_Enum(self):
+        with self.assertRaises(TypeError):
+            prop = Enum()
+
+        with self.assertRaises(TypeError):
+            prop = Enum("red", "green", 1)
+
+        with self.assertRaises(TypeError):
+            prop = Enum("red", "green", "red")
+
+        prop = Enum("red", "green", "blue")
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        self.assertTrue(prop.is_valid("red"))
+        self.assertTrue(prop.is_valid("green"))
+        self.assertTrue(prop.is_valid("blue"))
+
+        self.assertFalse(prop.is_valid("RED"))
+        self.assertFalse(prop.is_valid("GREEN"))
+        self.assertFalse(prop.is_valid("BLUE"))
+
+        self.assertFalse(prop.is_valid(" red"))
+        self.assertFalse(prop.is_valid(" green"))
+        self.assertFalse(prop.is_valid(" blue"))
+
+        from bokeh.enums import LineJoin
+        prop = Enum(LineJoin)
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        self.assertTrue(prop.is_valid("miter"))
+        self.assertTrue(prop.is_valid("round"))
+        self.assertTrue(prop.is_valid("bevel"))
+
+        self.assertFalse(prop.is_valid("MITER"))
+        self.assertFalse(prop.is_valid("ROUND"))
+        self.assertFalse(prop.is_valid("BEVEL"))
+
+        self.assertFalse(prop.is_valid(" miter"))
+        self.assertFalse(prop.is_valid(" round"))
+        self.assertFalse(prop.is_valid(" bevel"))
+
+    def test_Color(self):
+        prop = Color()
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        self.assertTrue(prop.is_valid((0, 127, 255)))
+        self.assertFalse(prop.is_valid((0, -127, 255)))
+        self.assertFalse(prop.is_valid((0, 127)))
+        self.assertFalse(prop.is_valid((0, 127, 1.0)))
+        self.assertFalse(prop.is_valid((0, 127, 255, 255)))
+        self.assertTrue(prop.is_valid((0, 127, 255, 1.0)))
+
+        self.assertTrue(prop.is_valid("#00aaff"))
+        self.assertTrue(prop.is_valid("#00AAFF"))
+        self.assertTrue(prop.is_valid("#00AaFf"))
+        self.assertFalse(prop.is_valid("00aaff"))
+        self.assertFalse(prop.is_valid("00AAFF"))
+        self.assertFalse(prop.is_valid("00AaFf"))
+        self.assertFalse(prop.is_valid("#00AaFg"))
+        self.assertFalse(prop.is_valid("#00AaFff"))
+
+        self.assertTrue(prop.is_valid("blue"))
+        self.assertFalse(prop.is_valid("BLUE"))
+        self.assertFalse(prop.is_valid("foobar"))
+
+    def test_Align(self):
+        prop = Align() # TODO
+
+    def test_DashPattern(self):
+        prop = DashPattern()
+
+        self.assertTrue(prop.is_valid(None))
+        self.assertFalse(prop.is_valid(False))
+        self.assertFalse(prop.is_valid(True))
+        self.assertFalse(prop.is_valid(0))
+        self.assertFalse(prop.is_valid(1))
+        self.assertFalse(prop.is_valid(0.0))
+        self.assertFalse(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertTrue(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertTrue(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        self.assertTrue(prop.is_valid("solid"))
+        self.assertTrue(prop.is_valid("dashed"))
+        self.assertTrue(prop.is_valid("dotted"))
+        self.assertTrue(prop.is_valid("dotdash"))
+        self.assertTrue(prop.is_valid("dashdot"))
+        self.assertFalse(prop.is_valid("DASHDOT"))
+
+        self.assertTrue(prop.is_valid([1, 2, 3]))
+        self.assertFalse(prop.is_valid([1, 2, 3.0]))
+
+        self.assertTrue(prop.is_valid("1 2 3"))
+        self.assertFalse(prop.is_valid("1 2 x"))
+
+    def test_Size(self):
+        prop = Size()
+
+        self.assertTrue(prop.is_valid(None))
+        # TODO: self.assertFalse(prop.is_valid(False))
+        # TODO: self.assertFalse(prop.is_valid(True))
+        self.assertTrue(prop.is_valid(0))
+        self.assertTrue(prop.is_valid(1))
+        self.assertTrue(prop.is_valid(0.0))
+        self.assertTrue(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        self.assertTrue(prop.is_valid(100))
+        self.assertTrue(prop.is_valid(100.1))
+        self.assertFalse(prop.is_valid(-100))
+        self.assertFalse(prop.is_valid(-0.001))
+
+    def test_Percent(self):
+        prop = Percent()
+
+        self.assertTrue(prop.is_valid(None))
+        # TODO: self.assertFalse(prop.is_valid(False))
+        # TODO: self.assertFalse(prop.is_valid(True))
+        self.assertTrue(prop.is_valid(0))
+        self.assertTrue(prop.is_valid(1))
+        self.assertTrue(prop.is_valid(0.0))
+        self.assertTrue(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
+
+        self.assertTrue(prop.is_valid(0.5))
+        self.assertFalse(prop.is_valid(-0.001))
+        self.assertFalse(prop.is_valid( 1.001))
+
+    def test_Angle(self):
+        prop = Angle()
+
+        self.assertTrue(prop.is_valid(None))
+        # TODO: self.assertFalse(prop.is_valid(False))
+        # TODO: self.assertFalse(prop.is_valid(True))
+        self.assertTrue(prop.is_valid(0))
+        self.assertTrue(prop.is_valid(1))
+        self.assertTrue(prop.is_valid(0.0))
+        self.assertTrue(prop.is_valid(1.0))
+        self.assertFalse(prop.is_valid(1.0+1.0j))
+        self.assertFalse(prop.is_valid(""))
+        self.assertFalse(prop.is_valid(()))
+        self.assertFalse(prop.is_valid([]))
+        self.assertFalse(prop.is_valid({}))
+        self.assertFalse(prop.is_valid(Foo()))
 
 if __name__ == "__main__":
     unittest.main()
