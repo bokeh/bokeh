@@ -31,7 +31,7 @@ def axes2plot(axes, xkcd):
         background_fill = 'white'
     title = axes.get_title()
     plot = objects.Plot(title=title, background_fill=background_fill)
-    plot.title_text_font = "cursive"
+    plot.title_text_font = "Comic Sans MS, Textile, cursive"
     plot.title_text_font_style = "bold"
     plot.title_text_color = "black"
     if _PLOTLIST is not None:
@@ -153,10 +153,10 @@ def _make_axis(axis, dimension, xkcd):
 
     if xkcd:
         newaxis.axis_line_width = 3
-        newaxis.axis_label_text_font = "cursive"
+        newaxis.axis_label_text_font = "Comic Sans MS, Textile, cursive"
         newaxis.axis_label_text_font_style = "bold"
         newaxis.axis_label_text_color = "black"
-        newaxis.major_label_text_font = "cursive"
+        newaxis.major_label_text_font = "Comic Sans MS, Textile, cursive"
         newaxis.major_label_text_font_style = "bold"
         newaxis.major_label_text_color = "black"
 
