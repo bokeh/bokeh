@@ -42,6 +42,7 @@ define [
   "ticking/days_ticker",
   "ticking/months_ticker",
   "ticking/single_interval_ticker",
+  "ticking/years_ticker",
 
   "tool/box_select_tool",
   "tool/box_zoom_tool",
@@ -104,6 +105,7 @@ define [
     DaysTicker:               'ticking/days_ticker'
     MonthsTicker:             'ticking/months_ticker'
     SingleIntervalTicker:     'ticking/single_interval_ticker'
+    YearsTicker:              'ticking/years_ticker'
 
     PanTool:                  'tool/pan_tool'
     WheelZoomTool:            'tool/wheel_zoom_tool'

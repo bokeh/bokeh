@@ -23,7 +23,9 @@ def axes2plot(axes):
     corresponding to it.
     """
 
-    plot = objects.Plot(title=axes.get_title())
+    # Get axis background color
+    background_fill = axes.get_axis_bgcolor()
+    plot = objects.Plot(title=axes.get_title(), background_fill=background_fill)
     if _PLOTLIST is not None:
         _PLOTLIST.append(plot)
     plot.x_range = objects.DataRange1d()
@@ -56,6 +58,19 @@ def axes2plot(axes):
     #        plot.renderers.extend(map(MPLMultiLine.convert, collection))
     #    else:
     #        warnings.warn("Not yet implemented: %r" % collection)
+
+    # Grid set up
+    grid = axes.get_xgridlines()[0]
+    grid_line_color = grid.get_color()
+    grid_line_width = grid.get_linewidth()
+    # xgrid
+    objects.Grid(plot=plot, dimension=0, axis=bokehaxes[0],
+                         grid_line_color=grid_line_color,
+                         grid_line_width=grid_line_width)
+    # ygrid
+    objects.Grid(plot=plot, dimension=1, axis=bokehaxes[1],
+                         grid_line_color=grid_line_color,
+                         grid_line_width=grid_line_width)
 
     # Add tools
     pantool = objects.PanTool(dimensions=["width", "height"])
