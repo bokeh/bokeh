@@ -31,9 +31,10 @@ def axes2plot(axes, xkcd):
         background_fill = 'white'
     title = axes.get_title()
     plot = objects.Plot(title=title, background_fill=background_fill)
-    plot.title_text_font = "Comic Sans MS, Textile, cursive"
-    plot.title_text_font_style = "bold"
-    plot.title_text_color = "black"
+    if xkcd:
+        plot.title_text_font = "Comic Sans MS, Textile, cursive"
+        plot.title_text_font_style = "bold"
+        plot.title_text_color = "black"
     if _PLOTLIST is not None:
         _PLOTLIST.append(plot)
     plot.x_range = objects.DataRange1d()
