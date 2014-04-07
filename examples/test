@@ -70,7 +70,7 @@ def add_examples(examples_dir, includes=set([]), excludes=set([]), etype='file')
 base_dir = os.path.dirname(__file__)
 
 glyphs_dir = os.path.join(base_dir, "glyphs")
-glyphs_server = set(["data_select_tool.py", "glyph2.py", "prim.py"])
+glyphs_server = set(["glyph2.py", "prim.py"])
 glyphs_excludes = set(["line_animate.py"])
 add_examples(glyphs_dir, excludes=glyphs_excludes|glyphs_server, etype='file')
 add_examples(glyphs_dir, includes=glyphs_server, etype='server')
