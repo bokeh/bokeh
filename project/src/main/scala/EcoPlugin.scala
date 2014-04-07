@@ -40,7 +40,7 @@ object EcoPlugin extends sbt.Plugin {
                 withContext { ctx =>
                     val scope = ecoScope(ctx)
                     val precompile = scope.get("precompile", scope).asInstanceOf[Callable]
-                    val args = Array[AnyRef](src.getPath)
+                    val args = Array[AnyRef](IO.read(src))
                     val compiled = precompile.call(ctx, scope, scope, args).asInstanceOf[String]
                     IO.write(des, compiled)
                     des
