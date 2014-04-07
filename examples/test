@@ -4,24 +4,48 @@ from __future__ import print_function
 
 import os
 import sys
+import time
 import json
 import fnmatch
 import argparse
 import traceback
 import subprocess
 
+import requests
+import requests.exceptions
+
 import colorama
 colorama.init()
+
+try:
+    import gevent
+except ImportError:
+    use_server = False
+else:
+    use_server = True
+
+try:
+    import IPython
+except ImportError:
+    use_notebook = False
+else:
+    use_notebook = True
+
+from bokeh import __version__
 
 parser = argparse.ArgumentParser(description="Automated testing of Bokeh's examples")
 parser.add_argument("patterns", type=str, nargs="*",
                     help="select a subset of examples to test")
 parser.add_argument("-p", "--bokeh-port", type=int, default=5006,
                     help="port on which Bokeh server resides")
-parser.add_argument("-n", "--notebook-port", type=int, default=8888,
+parser.add_argument("-n", "--ipython-port", type=int, default=8888,
                     help="port on which IPython Notebook server resides")
+parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
+                    help="phantomjs executable")
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
+parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=True,
+                    help="don't use development JavaScript and CSS files")
 args = parser.parse_args()
 
 def is_selected(example):
@@ -43,40 +67,182 @@ def add_examples(examples_dir, includes=set([]), excludes=set([]), etype='file')
         if not file.startswith('__') and file.endswith(ext) and file not in excludes:
             examples.append((os.path.join(examples_dir, file), etype))
 
-glyphs_dir = os.path.join("glyphs")
+base_dir = os.path.dirname(__file__)
+
+glyphs_dir = os.path.join(base_dir, "glyphs")
 glyphs_server = set(["data_select_tool.py", "glyph2.py", "maps.py", "prim.py"])
 glyphs_excludes = set(["line_animate.py"])
 add_examples(glyphs_dir, excludes=glyphs_excludes|glyphs_server, etype='file')
 add_examples(glyphs_dir, includes=glyphs_server, etype='server')
 
-plotting_file_dir = os.path.join("plotting", "file")
-glyphs_excludes = set(["image.py", "rgba_image.py"])
-add_examples(plotting_file_dir, etype='file', excludes=glyphs_excludes)
+plotting_file_dir = os.path.join(base_dir, "plotting", "file")
+add_examples(plotting_file_dir, etype='file')
 
-plotting_server_dir = os.path.join("plotting", "server")
+plotting_server_dir = os.path.join(base_dir, "plotting", "server")
 plotting_server_excludes = set(["animated.py", "line_animate.py"])
 add_examples(plotting_server_dir, excludes=plotting_server_excludes, etype='server')
 
-plotting_notebook_dir = os.path.join("plotting", "notebook")
+plotting_notebook_dir = os.path.join(base_dir, "plotting", "notebook")
 plotting_notebook_excludes = set(["animated.ipynb"])
 add_examples(plotting_notebook_dir, excludes=plotting_notebook_excludes, etype='notebook')
 
-def warn(msg=None):
-    msg = " " + msg if msg is not None else ""
-    print("%s[WARN]%s%s" % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL, msg))
+def red(text):
+    return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
+
+def yellow(text):
+    return "%s%s%s" % (colorama.Fore.YELLOW, text, colorama.Style.RESET_ALL)
+
+def green(text):
+    return "%s%s%s" % (colorama.Fore.GREEN, text, colorama.Style.RESET_ALL)
 
 def fail(msg=None):
     msg = " " + msg if msg is not None else ""
-    print("%s[FAIL]%s%s" % (colorama.Fore.RED, colorama.Style.RESET_ALL, msg))
+    print("%s%s" % (red("[FAIL]"), msg))
+
+def warn(msg=None):
+    msg = " " + msg if msg is not None else ""
+    print("%s%s" % (yellow("[WARN]"), msg))
 
 def ok(msg=None):
     msg = " " + msg if msg is not None else ""
-    print("%s[OK]%s%s" % (colorama.Fore.GREEN, colorama.Style.RESET_ALL, msg))
+    print("%s%s" % (green("[OK]"), msg))
 
-env = os.environ.copy()
-env['BOKEH_BROWSER'] = 'dummy'
+def make_env():
+    env = os.environ.copy()
+    env['BOKEH_RESOURCES'] = 'relative'
+    env['BOKEH_BROWSER'] = 'none'
+    if args.dev:
+        env['BOKEH_RESOURCES'] += '-dev'
+        env['BOKEH_PRETTY'] = 'yes'
+    return env
+
+def run_example(example):
+    cmd = ["python", os.path.basename(example)]
+    cwd = os.path.dirname(example)
+    env = make_env()
+
+    proc = subprocess.Popen(cmd, cwd=cwd, env=env)
+
+    try:
+        return proc.wait()
+    except KeyboardInterrupt:
+        proc.kill()
+        raise
+
+def test_example(example, etype):
+    no_ext = os.path.splitext(os.path.abspath(example))[0]
+
+    if etype == 'file':
+        html_file = "%s.html" % no_ext
+        url = 'file://' + html_file
+    elif etype == 'server':
+        server_url = 'http://localhost:%d/bokeh/doc/%s/show'
+        url = server_url % (args.bokeh_port, os.path.basename(no_ext))
+    elif etype == 'notebook':
+        notebook_url = 'http://localhost:%d/notebooks/%s.ipynb'
+        url = notebook_url % (args.ipython_port, os.path.basename(no_ext))
+    else:
+        raise ValueError("invalid example type: %s" % etype)
+
+    png_file = "%s-%s.png" % (no_ext, __version__)
+    cmd = [args.phantomjs, os.path.join(base_dir, "test.js"), etype, url, png_file]
+
+    try:
+        proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
+        code = proc.wait()
+    except OSError:
+        print("Failed to run: %s" % " ".join(cmd))
+        sys.exit(1)
+
+    result = json.loads(proc.stdout.read().decode("utf-8"))
+
+    status = result['status']
+    errors = result['errors']
+    messages = result['messages']
+    resources = result['resources']
+
+    if status == 'fail':
+        fail("failed to load %s" % url)
+    else:
+        if args.verbose:
+            for message in messages:
+                msg = message['msg']
+                line = message.get('line')
+                source = message.get('source')
+
+                if source is None:
+                    print(msg)
+                elif line is None:
+                    print("%s: %s" % (source, msg))
+                else:
+                    print("%s:%s: %s" % (source, line, msg))
+
+        if resources or errors:
+            for resource in resources:
+                print("%s: %s (%s)" % (
+                    resource['url'], resource['status'], resource['statusText']))
+
+            for error in errors:
+                print(error['msg'])
+
+                for item in error['trace']:
+                    print("    %s: %d" % (item['file'], item['line']))
+            fail()
+        else:
+            global ok_examples
+            ok()
+            return True
+
+    return False
+
+def start_bokeh_server():
+    cmd = ["python", "-c", "import bokeh.server; bokeh.server.run()"]
+    argv = ["--bokeh-port=%s" % args.bokeh_port, "--backend=memory"]
+
+    if args.dev:
+        argv.append("--splitjs")
+
+    try:
+        proc = subprocess.Popen(cmd + argv)
+    except OSError:
+        print("Failed to run: %s" % " ".join(cmd + argv))
+        sys.exit(1)
+    else:
+        def wait_until(func, timeout=1.0, interval=0.01):
+            start = time.time()
+
+            while True:
+                if func():
+                    return True
+                if time.time() - start > timeout:
+                    return False
+                time.sleep(interval)
+
+        def wait_for_bokeh_server():
+            def helper():
+                try:
+                    return requests.get('http://localhost:%s/bokeh/ping' % args.bokeh_port)
+                except requests.exceptions.ConnectionError:
+                    return False
+
+            return wait_until(helper)
+
+        if not wait_for_bokeh_server():
+            print("Timeout when running: %s" % " ".join(cmd + argv))
+            sys.exit(1)
+
+        return proc
+
+def start_ipython_notebook():
+    return None
 
 selected_examples = [ (example, etype) for (example, etype) in examples if is_selected(example) ]
+
+need_server = any(etype == 'server' for _, etype in selected_examples)
+need_notebook = any(etype == 'notebook' for _, etype in selected_examples)
+
+bokeh_server = start_bokeh_server() if use_server and need_server else None
+ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook else None
 
 num_examples = len(selected_examples)
 run_examples = 0
@@ -84,88 +250,43 @@ ok_examples = 0
 
 try:
     for example, etype in sorted(selected_examples):
-        print("%s>>>%s Testing %s ..." % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL, example))
-
-        if etype != 'notebook':
-            cwd = os.path.dirname(example)
-            script = os.path.basename(example)
-            module = os.path.splitext(script)[0]
-
-            proc = subprocess.Popen(["python", "%s" % script], cwd=cwd, env=env)
-            code = proc.wait()
-
-        if etype == 'notebook' or code == 0:
-            no_ext = os.path.splitext(os.path.abspath(example))[0]
-
-            png_file = no_ext + '.png'
-            html_file = no_ext + '.html'
-
-            server_url = 'http://localhost:%d/bokeh/doc/%s/show'
-            notebook_url = 'http://localhost:%d/notebooks/%s.ipynb'
-
-            if etype == 'server':
-                url = server_url % (args.bokeh_port, os.path.basename(no_ext))
-            elif etype == 'notebook':
-                url = notebook_url % (args.notebook_port, os.path.basename(no_ext))
-            elif etype == 'file':
-                url = 'file://' + html_file
-
-            cmd = ["phantomjs", "test.js", etype, url, png_file]
-            proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
-            code = proc.wait()
-
-            result = json.loads(proc.stdout.read().decode('utf-8'))
-
-            status = result['status']
-            errors = result['errors']
-            messages = result['messages']
-            resources = result['resources']
-
-            if status == 'fail':
-                fail("failed to load %s" % url)
-            else:
-                if args.verbose:
-                    for message in messages:
-                        msg = message['msg']
-                        line = message.get('line')
-                        source = message.get('source')
-
-                        if source is None:
-                            print(msg)
-                        elif line is None:
-                            print("%s: %s" % (source, msg))
-                        else:
-                            print("%s:%s: %s" % (source, line, msg))
-
-                if resources or errors:
-                    for resource in resources:
-                        print("%s: %s (%s)" % (
-                            resource['url'], resource['status'], resource['statusText']))
-
-                    for error in errors:
-                        print(error['msg'])
-
-                        for item in error['trace']:
-                            print("    %s: %d" % (item['file'], item['line']))
-                    fail()
-                else:
-                    ok_examples += 1
-                    ok()
+        if etype == 'server' and not bokeh_server or etype == 'notebook' and not ipython_notebook:
+            print("%s Skipping %s" % (yellow(">>>"), example))
         else:
-            fail()
+            print("%s Testing %s ..." % (yellow(">>>"), example))
+            result = False
 
-        run_examples += 1
+            if etype in ['file', 'server']:
+                if run_example(example) == 0:
+                    result = test_example(example, etype)
+                else:
+                    fail()
+            elif etype == 'notebook':
+                result = test_example(example, etype)
+            else:
+                raise ValueError("invalid example type: %s" % etype)
+
+            if result: ok_examples += 1
+            run_examples += 1
+
         print()
 except KeyboardInterrupt:
-    print("%sINTERRUPTED%s" % (colorama.Fore.YELLOW, colorama.Style.RESET_ALL))
+    print(yellow("INTERRUPTED"))
+finally:
+    if bokeh_server is not None:
+        print("Shutting down bokeh-server ...")
+        bokeh_server.kill()
 
-if ok_examples != num_examples:
-    if run_examples == num_examples:
-        fail("FIX FAILURES AND RUN AGAIN")
-    else:
-        warn("NOT ALL EXAMPLES WERE RUN")
+    if ipython_notebook is not None:
+        print("Shutting down ipython-notebook ...")
+        ipython_notebook.kill()
 
+if ok_examples != run_examples:
+    fail("FIX FAILURES AND RUN AGAIN")
     sys.exit(1)
+elif run_examples != num_examples:
+    warn("NOT ALL EXAMPLES WERE RUN")
+    sys.exit(0)
 else:
     ok("ALL TESTS PASS")
     sys.exit(0)

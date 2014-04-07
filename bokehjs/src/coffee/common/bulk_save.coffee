@@ -11,6 +11,8 @@ define [
     ##FIXME:hack
     Config = require("./base").Config
     doc = models[0].get('doc')
+    if not doc?
+      throw new Error("Unset 'doc' in " + models[0])
     jsondata = ({type: m.type, attributes:_.clone(m.attributes)} for m in models)
     jsondata = JSON.stringify(jsondata)
     url = Config.prefix + "/bokeh/bb/" + doc + "/bulkupsert"
