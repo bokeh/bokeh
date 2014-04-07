@@ -8,6 +8,10 @@ define (require, exports, module) ->
 
   Bokeh.version = '0.4.2'
 
+  #binding the libs that bokeh uses so others can reference them
+  Bokeh.Backbone          = require("backbone")
+  Bokeh._                 = require("underscore")
+
   # common
   Bokeh.Collections       = require("common/base").Collections
   Bokeh.Config            = require("common/base").Config
