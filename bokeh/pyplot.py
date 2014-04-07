@@ -63,7 +63,7 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False, xkcd=Fal
         is False, then a new browser tab will be opened to display the
         bokeh-generated plot.
 
-    @type xkcd: bool (default=None)
+    @type xkcd: bool (default=False)
         If this option is True, then the Bokeh figure will be saved with a
         xkcd style.
 
