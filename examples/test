@@ -76,10 +76,11 @@ add_examples(glyphs_dir, excludes=glyphs_excludes|glyphs_server, etype='file')
 add_examples(glyphs_dir, includes=glyphs_server, etype='server')
 
 plotting_file_dir = os.path.join(base_dir, "plotting", "file")
-add_examples(plotting_file_dir, etype='file')
+plotting_file_excludes = set(["image.py", "image_rgba.py"])
+add_examples(plotting_file_dir, excludes=plotting_file_excludes, etype='file')
 
 plotting_server_dir = os.path.join(base_dir, "plotting", "server")
-plotting_server_excludes = set(["animated.py", "line_animate.py"])
+plotting_server_excludes = set(["animated.py", "image.py", "image_rgba.py", "line_animate.py"])
 add_examples(plotting_server_dir, excludes=plotting_server_excludes, etype='server')
 
 plotting_notebook_dir = os.path.join(base_dir, "plotting", "notebook")
