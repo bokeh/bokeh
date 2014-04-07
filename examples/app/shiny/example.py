@@ -1,7 +1,7 @@
 from bokeh.plotting import line, circle, session
 
 from bokeh.widgetobjects import (VBoxModelForm, HBox,
-                                 ShinyApp, TextInput)
+                                 ShinyApp, TextInput, PreText)
 from bokeh.objects import Plot, ColumnDataSource
 from bokeh.plotobject import PlotObject
 from bokeh.properties import (Dict, Float, String, Instance)
@@ -111,6 +111,8 @@ class StockInputModel(VBoxModelForm):
 class StockApp(ShinyApp):
     plot = Instance(Plot, has_ref=True)
     source = Instance(ColumnDataSource, has_ref=True)
+    pretext = Instance(PreText, has_ref=True)
+    
     def get_data(self, ticker1, ticker2):
         fname = join(data_dir, "table_%s.csv" % ticker1.lower())
         data1 = pd.read_csv(fname, 
@@ -140,8 +142,11 @@ class StockApp(ShinyApp):
         self.modelform.create_inputs(session)
         ticker1 = self.modelform.ticker1
         ticker2 = self.modelform.ticker2
+        self.pretext = PreText(text="")
+        session.add(self.pretext)
         self.make_source(ticker1, ticker2)
         self.make_plots(ticker1, ticker2)
+        self.make_stats()
         self.set_children()
 
         
@@ -159,7 +164,7 @@ class StockApp(ShinyApp):
         session().plotcontext._dirty = True
         
     def set_children(self):
-        self.children = [self.modelform, self.plot]
+        self.children = [self.modelform, self.plot, self.pretext]
 
     def input_change(self, obj, attrname, old, new):
         """
@@ -177,7 +182,22 @@ class StockApp(ShinyApp):
             self.make_source(ticker1, ticker2)
             self.make_plots(ticker1, ticker2)
             self.set_children()
-
+            
+    def setup_events(self):
+        super(StockApp, self).setup_events()
+        if self.source:
+            self.source.on_change('selected', self, 'selection_change')
+            
+    def make_stats(self):
+        pandas_df = pd.DataFrame(self.source.data)
+        selected = self.source.selected
+        if selected:
+            pandas_df = pandas_df.iloc[selected, :]
+        stats = pandas_df.describe()
+        self.pretext.text = str(stats)
+        
+    def selection_change(self, obj, attrname, old, new):
+        self.make_stats()
 # the following addes "/exampleapp" as a url which renders StockApp
         
 bokeh_url = "http://localhost:5006"

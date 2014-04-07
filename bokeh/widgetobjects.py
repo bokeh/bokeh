@@ -55,19 +55,23 @@ class ShinyApp(PlotObject):
     children = List(Instance(PlotObject, has_ref=True), has_ref=True)
     jsmodel = "HBox"
     extra_generated_classes = List(Any)
-
+    
     def update(self, **kwargs):
         super(ShinyApp, self).update(**kwargs)
+        self. setup_events()
+        
+    def setup_events(self):
         if self.modelform:
             self.bind_modelform()
+        
     def bind_modelform(self):
         for prop in self.modelform.__properties__:
             if not prop.startswith("_"):
                 self.modelform.on_change(prop, self, 
                                          'input_change')
+
     def input_change(self, obj, attrname, old, new):
         pass
-        
 
     def create(self):
         pass
@@ -108,3 +112,8 @@ class ShinyApp(PlotObject):
         exampleapp.__name__ = cls.__view_model__
         bokeh_app.route(route)(exampleapp)
     
+class Paragraph(PlotObject):
+    text = String()
+    
+class PreText(Paragraph):
+    pass

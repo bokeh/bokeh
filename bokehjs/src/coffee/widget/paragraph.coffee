@@ -9,6 +9,7 @@ define [
     initialize : (options) ->
       super(options)
       @render()
+      @listenTo(@model, 'change', @render)
     render: () ->
       @$el.text(@mget('text'))
   class Paragraph extends HasParent
@@ -22,4 +23,5 @@ define [
   return {
     "Model" : Paragraph
     "Collection" : paragraphs
+    "View" : ParagraphView
   }
