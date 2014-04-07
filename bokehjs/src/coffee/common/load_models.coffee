@@ -40,7 +40,7 @@ define [
     for model in modelspecs
       coll = Collections(model['type'])
       attrs = model['attributes']
-      if coll and  coll.get(attrs['id'])
+      if coll and coll.get(attrs['id'])
         oldspecs.push([coll, attrs])
       else
         newspecs.push([coll, attrs])

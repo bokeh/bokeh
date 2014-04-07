@@ -35,11 +35,13 @@ for cat in cats:
 
 output_file("boxplot.html")
 
+figure(tools="previewsave", background_fill="#EFE8E2", title="")
+
 hold()
 
 # stems
-segment(cats, upper.score, cats, q3.score, x_range=cats, line_width=2,
-        tools="previewsave", background_fill="#EFE8E2", line_color="black", title="")
+segment(cats, upper.score, cats, q3.score, x_range=cats,
+        line_width=2, line_color="black", )
 segment(cats, lower.score, cats, q1.score, x_range=cats,
         line_width=2, line_color="black")
 # boxes

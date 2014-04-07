@@ -63,10 +63,10 @@ directory:
 Now you are ready to generate plots on the plot server. Inside the
 directory examples/plotting/server, try:
 
-    $ python rects.py
+    $ python rect.py
 
 A browser window should open up to http://localhost:5006/bokeh/, with a gray
-header entitled "Document: rects.py example".  Click on the title to view the
+header entitled "Document: rect.py example".  Click on the title to view the
 plots within the document.  Try running glyphs.py for more plot server
 examples.
 

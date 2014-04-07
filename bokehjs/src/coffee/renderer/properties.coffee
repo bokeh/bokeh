@@ -204,7 +204,7 @@ define [
       if @[attrname].value?
         return @[attrname].value
 
-      # Note about the following two checks. They are to accomodate the case where properties 
+      # Note about the following two checks. They are to accomodate the case where properties
 	  # are not used to map over data sources, but are used for one-off properties like a Plot
 	  # object might have. There is no corresponding check in v_select
       if obj.get and obj.get(attrname)
@@ -315,25 +315,26 @@ define [
 
     set_vectorize: (ctx, i) ->
       did_change = false
-      if ctx.strokeStyle != @cache.strokeStyle[i]
+      if @cache.strokeStyle[i]? and ctx.strokeStyle != @cache.strokeStyle[i]
         ctx.strokeStyle = @cache.strokeStyle[i]
         did_change = true
-      if ctx.globalAlpha != @cache.globalAlpha[i]
+      if @cache.globalAlpha[i]? and ctx.globalAlpha != @cache.globalAlpha[i]
         ctx.globalAlpha = @cache.globalAlpha[i]
         did_change = true
-      if ctx.lineWidth != @cache.lineWidth[i]
+      if @cache.lineWidth[i]? and ctx.lineWidth != @cache.lineWidth[i]
         ctx.lineWidth = @cache.lineWidth[i]
         did_change = true
-      if ctx.lineJoin != @cache.lineJoin[i]
+      if @cache.lineJoin[i]? and ctx.lineJoin != @cache.lineJoin[i]
         ctx.lineJoin = @cache.lineJoin[i]
         did_change = true
-      if ctx.lineCap != @cache.lineCap[i]
+      if @cache.lineCap[i]? and ctx.lineCap != @cache.lineCap[i]
         ctx.lineCap = @cache.lineCap[i]
         did_change = true
-      if ctx.getLineDash() != @cache.setLineDash[i]
+      if @cache.setLineDash[i]? and ctx.getLineDash() != @cache.setLineDash[i]
         ctx.setLineDash(@cache.setLineDash[i])
         did_change = true
-      if ctx.getLineDashOffset() != @cache.setLineDashOffset[i]
+      if @cache.setLineDashOffset[i]? and \
+          ctx.getLineDashOffset() != @cache.setLineDashOffset[i]
         ctx.setLineDashOffset(@cache.setLineDashOffset[i])
         did_change = true
 
@@ -463,4 +464,3 @@ define [
     "line_properties": line_properties,
     "text_properties": text_properties,
   }
-

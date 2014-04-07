@@ -157,8 +157,6 @@ define [
       @major_label_props = new text_properties(@, null, 'major_label_')
       @axis_label_props = new text_properties(@, null, 'axis_label_')
 
-      @formatter = options.formatter
-
     render: () ->
       ctx = @plot_view.ctx
 
@@ -221,7 +219,7 @@ define [
         angle = -orient
       standoff = @_tick_extent() + @mget('major_label_standoff')
 
-      labels = @formatter.format(coords[dim])
+      labels = @mget_obj('formatter').format(coords[dim])
 
       # override baseline and alignment with heuristics for tick labels
       @major_label_props.set(ctx, @)
@@ -299,7 +297,7 @@ define [
       side = @mget('side')
       orient = @mget('major_label_orientation')
 
-      labels = @formatter.format(coords[dim])
+      labels = @mget_obj('formatter').format(coords[dim])
 
       @major_label_props.set(@plot_view.ctx, @)
 
@@ -385,8 +383,6 @@ define [
 
     initialize: (attrs, options)->
       super(attrs, options)
-
-      @scale = options.scale
 
       @register_property('computed_bounds', @_bounds, false)
       @add_dependencies('computed_bounds', this, ['bounds'])
@@ -480,8 +476,7 @@ define [
 
       [start, end] = @get('computed_bounds')
 
-      # TODO, some axes need to pass range
-      ticks = @scale.get_ticks(start, end, range, {})
+      ticks = @get_obj('ticker').get_ticks(start, end, range, {})
 
       cstart = cross_range.get('start')
       cend = cross_range.get('end')

@@ -7,38 +7,35 @@ import itertools
 
 import numpy as np
 import pandas as pd
-from scipy import misc
 
 from bokeh.objects import (
-    GMapPlot, DataRange1d, Range1d, LinearAxis, Grid, ColumnDataSource,
-    Glyph, PanTool, WheelZoomTool, ResizeTool,
-    BoxSelectTool, BoxSelectionOverlay
-)
+    GMapPlot, DataRange1d, Range1d, LinearAxis, ColumnDataSource,
+    Glyph, PanTool, WheelZoomTool, ResizeTool, BoxSelectTool,
+    BoxSelectionOverlay, ObjectExplorerTool, MapOptions)
 from bokeh.glyphs import MultiLine, ImageRGBA, Circle
 from bokeh import session
 
 # The Google Maps plot
 x_range = Range1d()
 y_range = Range1d()
+map_options = MapOptions(lat=30.2861, lng=-97.7394, zoom=15)
 plot = GMapPlot(
     x_range=x_range, y_range=y_range,
-    center_lat=30.2861, center_lng=-97.7394, zoom_level=15,
+    map_options=map_options,
     data_sources=[],
     canvas_width=600, canvas_height=600,
     outer_width=600, outer_height=600,
-    title = "Austin"
-    )
+    title = "Austin")
 
 select_tool = BoxSelectTool()
 overlay = BoxSelectionOverlay(tool=select_tool)
 plot.renderers.append(overlay)
 plot.tools.append(select_tool)
 
-xgrid = Grid(plot=plot, dimension=0)
-ygrid = Grid(plot=plot, dimension=1)
 pantool = PanTool(plot=plot)
 wheelzoomtool = WheelZoomTool(plot=plot)
-plot.tools.extend([pantool, wheelzoomtool])
+objectexplorer = ObjectExplorerTool()
+plot.tools.extend([pantool, wheelzoomtool, objectexplorer])
 
 # Plot some data on top
 source = ColumnDataSource(
@@ -59,19 +56,10 @@ circle_renderer = Glyph(
 plot.data_sources.append(source)
 plot.renderers.append(circle_renderer)
 
-try:
-    sess = session.PlotServerSession(
-        serverloc="http://localhost:5006",
-        username="defaultuser",
-        userapikey="nokey")
-except requests.exceptions.ConnectionError:
-    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-    sys.exit(1)
+sess = session.HTMLFileSession("maps.html")
+sess.add_plot(plot)
 
-sess.use_doc("maps")
-sess.add(plot, recursive=True)
-sess.plotcontext.children.append(plot)
-sess.plotcontext._dirty = True
-sess.store_all()
-
-print("Stored to document maps at http://localhost:5006/bokeh")
+if __name__ == "__main__":
+    sess.save()
+    print("Wrote %s" % sess.filename)
+    sess.view()

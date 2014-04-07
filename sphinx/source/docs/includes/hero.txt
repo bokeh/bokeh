@@ -22,7 +22,7 @@
     </tr><tr>
 
 :raw-html:`<td>`  |iris|          :raw-html:`</td>`
-:raw-html:`<td>`  |map_overlay|   :raw-html:`</td>`
+:raw-html:`<td>`  |histogram|     :raw-html:`</td>`
 :raw-html:`<td>`  |periodic|      :raw-html:`</td>`
 :raw-html:`<td>`  |choropleth|    :raw-html:`</td>`
 :raw-html:`<td>`  |burtin|        :raw-html:`</td>`
@@ -69,8 +69,8 @@
 .. |les_mis| image:: /_images/thumbs/les_mis_t.png
     :target: ../docs/gallery/les_mis.html
 
-.. |map_overlay| image:: /_images/thumbs/map_overlay_t.png
-    :target: //continuumio.github.io/bokehjs/map_overlay.html
+.. |histogram| image:: /_images/thumbs/histogram_t.png
+    :target: ../docs/gallery/histogram.html
 
 .. |iris| image:: /_images/thumbs/iris_t.png
     :target: ../docs/gallery/iris.html

@@ -13,6 +13,8 @@ define [
     # and notifications of property. We also support weak references
     # to other models using the reference system described above.
 
+    toString: () -> "#{@type}(#{@id})"
+
     destroy: (options)->
       #calls super, also unbinds any events bound by safebind
       super(options)
@@ -229,7 +231,7 @@ define [
       if ref['type'] == this.type and ref['id'] == this.id
         return this
       else
-        return @base().Collections(ref['type']).get(ref['id'])
+        return @get_base().Collections(ref['type']).get(ref['id'])
 
     get_obj: (ref_name) =>
       # ### method: HasProperties::get_obj
@@ -240,7 +242,7 @@ define [
       if ref
         return @resolve_ref(ref)
 
-    base: ()->
+    get_base: ()->
       if not @_base
         @_base = require('./base')
       return @_base
@@ -248,12 +250,14 @@ define [
     url: () ->
       # ### method HasProperties::url
       #model where our API processes this model
+      doc = @get('doc')
+      if not doc?
+        throw new Error("Unset 'doc' in " + this)
 
-      url = @base().Config.prefix + "/bokeh/bb/" + @get('doc') + "/" + @type + "/"
+      url = @get_base().Config.prefix + "/bokeh/bb/" + doc + "/" + @type + "/"
       if (@isNew())
         return url
       return url + @get('id') + "/"
-
 
     sync: (method, model, options) ->
       # this should be fixed via monkey patching when extended by an
@@ -267,11 +271,13 @@ define [
       return {}
 
     rpc: (funcname, args, kwargs) =>
-      prefix = base.Config.prefix
-      docid = @get('doc')
+      prefix = @get_base().Config.prefix
+      doc = @get('doc')
+      if not doc?
+        throw new Error("Unset 'doc' in " + this)
       id = @get('id')
       type = @type
-      url = "#{prefix}/bokeh/bb/rpc/#{docid}/#{type}/#{id}/#{funcname}/"
+      url = "#{prefix}/bokeh/bb/rpc/#{doc}/#{type}/#{id}/#{funcname}/"
       data =
         args: args
         kwargs: kwargs

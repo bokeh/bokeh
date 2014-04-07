@@ -9,7 +9,9 @@ from . import glyphs
 from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
         ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
         Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
-        ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange)
+        ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange,
+        ObjectExplorerTool, BasicTicker, BasicTickFormatter, CategoricalTicker,
+        CategoricalTickFormatter, DatetimeTicker, DatetimeTickFormatter)
 from .properties import ColorSpec
 
 # This is used to accumulate plots generated via the plotting methods in this
@@ -57,7 +59,8 @@ def _glyph_doc(args, props, desc):
     plot : :py:class:`Plot <bokeh.objects.Plot>`
     """ % (desc, params, props)
 
-def _match_data_params(argnames, glyphclass, datasource, args, kwargs):
+def _match_data_params(argnames, glyphclass, datasource, serversource, 
+                       args, kwargs):
     """ Processes the arguments and kwargs passed in to __call__ to line
     them up with the argnames of the underlying Glyph
 
@@ -114,9 +117,12 @@ def _match_data_params(argnames, glyphclass, datasource, args, kwargs):
             if glyphclass == glyphs.Text:
                 # TODO (bev) this is hacky, now that text is a DataSpec, it has to be a sequence
                 glyph_val = [val]
+            elif serversource is None and val not in datasource.column_names:
+                raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
             else:
                 if val not in datasource.column_names:
-                    raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
+                    datasource.column_names.append(val)
+                    datasource.data[val] = []
                 units = getattr(dataspecs[var], 'units', 'data')
                 glyph_val = {'field' : val, 'units' : units}
         elif isinstance(val, np.ndarray):
@@ -171,6 +177,8 @@ def _materialize_colors_and_alpha(kwargs, prefix="", default_alpha=1.0):
     color and alpha fields of the given prefix, and fills in the default value
     if it doesn't exist.
     """
+    kwargs = kwargs.copy()
+
     # TODO: The need to do this and the complexity of managing this kind of
     # thing throughout the codebase really suggests that we need to have
     # a real stylesheet class, where defaults and Types can declaratively
@@ -240,7 +248,9 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
     p.y_range = y_range
 
     axiscls = None
-    if isinstance(x_range, FactorRange):
+    if x_axis_type is None:
+        pass
+    elif isinstance(x_range, FactorRange):
         axiscls = CategoricalAxis
     elif x_axis_type is "linear":
         axiscls = LinearAxis
@@ -248,9 +258,12 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axiscls = DatetimeAxis
     if axiscls:
         xaxis = axiscls(plot=p, dimension=0, location="min", bounds="auto")
+        xgrid = Grid(plot=p, dimension=0, axis=xaxis)
 
     axiscls = None
-    if isinstance(y_range, FactorRange):
+    if y_axis_type is None:
+        pass
+    elif isinstance(y_range, FactorRange):
         axiscls = CategoricalAxis
     elif y_axis_type is "linear":
         axiscls = LinearAxis
@@ -258,9 +271,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         axiscls = DatetimeAxis
     if axiscls:
         yaxis = axiscls(plot=p, dimension=1, location="min", bounds="auto")
-
-    xgrid = Grid(plot=p, dimension=0, is_datetime=(x_axis_type == "datetime"))
-    ygrid = Grid(plot=p, dimension=1, is_datetime=(y_axis_type == "datetime"))
+        ygrid = Grid(plot=p, dimension=1, axis=yaxis)
 
     border_args = ["min_border", "min_border_top", "min_border_bottom", "min_border_left", "min_border_right"]
     for arg in border_args:
@@ -308,6 +319,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             tool_obj = EmbedTool(plot=p)
         elif tool == "reset":
             tool_obj = ResetTool(plot=p)
+        elif tool == "object_explorer":
+            tool_obj = ObjectExplorerTool()
         else:
             known_tools = "pan, wheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))

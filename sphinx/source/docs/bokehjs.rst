@@ -322,7 +322,7 @@ on the given coordinates and rotated by the given angles.
 ``inverted_triangle``
 ---------------------
 The inverted_triangle glyph is a :ref:`marker <bokehjs_markers>` that displays
-upsided-down triangles at the given coordinates.
+upside-down triangles at the given coordinates.
 
 * ``x``, ``y`` - center point coordinates
 * ``size``

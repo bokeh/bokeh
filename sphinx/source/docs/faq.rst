@@ -112,6 +112,30 @@ General Questions
 
     </blockquote>
 
+
+*How Bokeh compare to mpld3?*
+-----------------------------
+
+.. raw:: html
+
+    <blockquote>
+
+.. compound::
+
+    For a lightweight, python-only library that exposes most of matplotlib
+    to the browser, mpld3 could be a good choice. Bokeh also intends
+    to fully support the MPL interface (and hence Seaborn, pandas, and
+    ggplot.py), however the main goal of Bokeh is to provide approachable
+    capability for novel interactive visualizations in the browser. If you
+    would like to have the benefits of HTML canvas rendering, dynamic
+    downsampling, abstract rendering, server plot hosting, and the possibility
+    of interacting from languages besides python, please consider Bokeh for
+    your project.
+
+.. raw:: html
+
+    </blockquote>
+
 Technical Questions
 ===================
 

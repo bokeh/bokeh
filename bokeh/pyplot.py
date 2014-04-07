@@ -1,9 +1,31 @@
 """ Compatilibity layer for matplotlib.pyplot objects
+
+This file defines the `show_bokeh` function used by Bokeh to display Matplotlib
+figures. For more information about how to use it, just check the relevant
+docstring.
 """
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENCE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+import numpy as np
 
 from . import plotting
+from . import mpl
+from . import objects
 
-from . import mplsupport
+#-----------------------------------------------------------------------------
+# Classes and functions
+#-----------------------------------------------------------------------------
+
 
 def show_bokeh(figure=None, filename=None, server=None, notebook=False):
     """ Uses bokeh to display a Matplotlib Figure.
@@ -55,18 +77,26 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False):
         plotting.output_server(url=server)
 
     elif filename:
-        plotting.output_file(filename, js="relative", css="relative")
+        plotting.output_file(filename, resources="relative")
 
     session = plotting.session()
 
+    plots = []
+
     for axes in figure.axes:
-        plot = mplsupport.axes2plot(axes)
-        plotting._config["curplot"] = plot  # need a better way to do this
-        session.plotcontext.children.append(plot)
-        # TODO: this should be obviated once Mateusz's auto-add PR is merged
-        objects = [plot, plot.x_range, plot.y_range] + plot.data_sources + plot.renderers + \
-                  plot.renderers + plot.tools + plot.axes
-        session.add(*objects)
+        plot = mpl.axes2plot(axes)
+        plots.append(plot)
+
+    if len(figure.axes) <= 1:
+        plotting._config["curplot"] = plots[0]
+        session.add_plot(plots[0])
+    else:
+        (a, b, c) = figure.axes[0].get_geometry()
+        p = np.array(plots)
+        n = np.resize(p, (a, b))
+        grid = objects.GridPlot(children=n.tolist())
+        plotting._config["curplot"] = grid
+        session.add_plot(grid)
 
     if filename:
         plotting.save()

@@ -30,6 +30,10 @@ define [
       else
         @nonselection_glyphprops = @glyph_props
 
+      if @mget('server_data_source')
+        @setup_server_data()
+      @listenTo(this, 'change:server_data_source', @setup_server_data)
+
     init_glyph: (glyphspec) ->
       props = {}
       if 'line' in @_properties
@@ -142,40 +146,8 @@ define [
       @listenTo(@model, 'change', @request_render)
       @listenTo(@mget_obj('data_source'), 'change', @set_data)
 
-    distance: (data, pt, span, position) ->
-      pt_units = @glyph_props[pt].units
-      span_units = @glyph_props[span].units
-
-      if      pt == 'x' then mapper = @plot_view.xmapper
-      else if pt == 'y' then mapper = @plot_view.ymapper
-
-      span = @glyph_props.v_select(span, data)
-      if span_units == 'screen'
-        return span
-
-      if position == 'center'
-        halfspan = (d / 2 for d in span)
-        ptc = @glyph_props.v_select(pt, data)
-        if pt_units == 'screen'
-          ptc = mapper.v_map_from_target(ptc)
-        if typeof(ptc) == 'string'
-          ptc = mapper.v_map_to_target(ptc)
-        pt0 = (ptc[i] - halfspan[i] for i in [0...ptc.length])
-        pt1 = (ptc[i] + halfspan[i] for i in [0...ptc.length])
-
-      else
-        pt0 = @glyph_props.v_select(pt, data)
-        if pt_units == 'screen'
-          pt0 = mapper.v_map_from_target(pt0)
-        pt1 = (pt0[i] + span[i] for i in [0...pt0.length])
-
-      spt0 = mapper.v_map_to_target(pt0)
-      spt1 = mapper.v_map_to_target(pt1)
-
-      return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
-
-    distance_vector: (pt, span_prop_name, position) ->
-      """ returns an array """ #"
+    distance_vector: (pt, span_prop_name, position, dilate=false) ->
+      """ returns an array """
       pt_units = @glyph_props[pt].units
       span_units = @glyph_props[span_prop_name].units
 
@@ -208,7 +180,11 @@ define [
       spt0 = mapper.v_map_to_target(pt0)
       spt1 = mapper.v_map_to_target(pt1)
 
-      return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
+      if dilate
+        return (Math.ceil(Math.abs(spt1[i] - spt0[i])) for i in [0...spt0.length])
+      else
+        return (Math.abs(spt1[i] - spt0[i]) for i in [0...spt0.length])
+
 
     get_reference_point: () ->
       reference_point = @mget('reference_point')

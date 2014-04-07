@@ -10,7 +10,7 @@ Reference Guide
 Low Level Glyph Interface
 =========================
 
-Detailed information about the python and javascript glyph interfaces may be found here:
+Detailed information about the Python and JavaScript glyph interfaces may be found here:
 
 .. toctree::
    :maxdepth: 1
@@ -37,8 +37,8 @@ Glyphs Functions
 .. autofunction:: bokeh.plotting.cross(x, y, size=5, **kwargs)
 .. autofunction:: bokeh.plotting.diamond(x, y, size=5, **kwargs)
 .. autofunction:: bokeh.plotting.diamond_cross(x, y, size=5, **kwargs)
-.. autofunction:: bokeh.plotting.image(image, x, y, dw, dh, palette)
-.. autofunction:: bokeh.plotting.image_rgba(image, x, y, dw, dh)
+.. autofunction:: bokeh.plotting.image(image, x, y, dw, dh, palette, dilate=False)
+.. autofunction:: bokeh.plotting.image_rgba(image, x, y, dw, dh, dilate=False)
 .. autofunction:: bokeh.plotting.inverted_triangle(x, y, size=5, **kwargs)
 .. autofunction:: bokeh.plotting.line(x, y, *kwargs)
 .. autofunction:: bokeh.plotting.multi_line(xs, ys, **kwargs)
@@ -48,7 +48,7 @@ Glyphs Functions
 .. autofunction:: bokeh.plotting.quad(left, right, top, bottom, **kwargs)
 .. autofunction:: bokeh.plotting.quadratic(x0, y0, x1, y1, cx, cy, **kwargs)
 .. autofunction:: bokeh.plotting.ray(x, y, length, angle, **kwargs)
-.. autofunction:: bokeh.plotting.rect(x, y, width, height, angle=0, **kwargs)
+.. autofunction:: bokeh.plotting.rect(x, y, width, height, angle=0, dilate=False, **kwargs)
 .. autofunction:: bokeh.plotting.segment(x0, y0, x1, y1, *kwargs)
 .. autofunction:: bokeh.plotting.square(x, y, size=5, **kwargs)
 .. autofunction:: bokeh.plotting.square_cross(x, y, size=5, **kwargs)
@@ -97,8 +97,8 @@ Advanced Functions
 
 .. autofunction:: bokeh.plotting.visual
 
-Compatiblity Layers
-===================
+Compatibility Layers
+====================
 
 Coming Soon.
 
@@ -107,8 +107,6 @@ Underlying Object System
 
 `bokeh.session`
 ---------------
-
-.. inheritance-diagram:: bokeh.session
 
 .. autoclass:: bokeh.session.Session
 .. autoclass:: bokeh.session.BaseHTMLSession
@@ -122,6 +120,7 @@ Underlying Object System
 ---------------
 
 .. inheritance-diagram:: bokeh.objects
+  :parts: 1
 
 .. automodule:: bokeh.objects
     :members:
@@ -130,6 +129,7 @@ Underlying Object System
 ------------------
 
 .. inheritance-diagram:: bokeh.properties
+  :parts: 1
 
 .. automodule:: bokeh.properties
     :members: BaseProperty, DataSpec, ColorSpec, MetaHasProps, HasProps,

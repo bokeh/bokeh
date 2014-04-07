@@ -7,7 +7,7 @@ User Guide
     :local:
     :depth: 2
 
-The User Guide is being continusly updated, but please also consult the numerous
+The User Guide is being continuously updated, but please also consult the numerous
 `examples <https://github.com/ContinuumIO/Bokeh/tree/master/examples>`_
 to see the kinds of parameters that can be passed in to plotting functions in ``bokeh.plotting``, and look
 at the `glyph examples <https://github.com/ContinuumIO/Bokeh/tree/master/examples/glyphs>`_ to see
@@ -58,7 +58,7 @@ Glyphs
 Bokeh plots are centered around glyphs, which generally have some combination of line, fill, or
 text properties, depending on what is appropriate for a given glyph. For example, the ``Circle``
 glyph has both line and fill properties, but the ``Bezier`` glyph only has line properties.
-These properties may bespecified as keyword arguments when calling the glyph functions::
+These properties may be specified as keyword arguments when calling the glyph functions::
 
     rect(x, y, radius, fill_color="green", fill_alpha=0.6, line_color=None)
 
@@ -123,7 +123,7 @@ Tools
 -----
 
 Bokeh comes with a number of interactive tools. The are typically activated
-through the toolbar above plots, although some can be activated by keypresses
+through the toolbar above plots, although some can be activated by key presses
 or specific mouse movement.
 
 Tools are added to plots with the ``tools`` keyword argument, which has as its

@@ -52,3 +52,26 @@ require [
     equal(mapper.map_from_target(75), 'd')
     deepEqual(mapper.v_map_from_target([25,27.5,30,40,42.5,45,55,57.5,60,70,72.5,75]), ['a','a','a','b','b','b','c','c','c','d','d','d'])
   )
+
+  test('categorical_mapper_percentage_coordinates', () ->
+    mapper = new CategoricalMapper({
+      source_range: new FactorRange.Model({'factors': ['foo', 'bar', 'baz']})
+      target_range: new Range1d.Model({'start': 20, 'end': 80})
+    })
+    equal(mapper.map_to_target('foo:0.1'), 22)
+    equal(mapper.map_to_target('foo:0.5'), 30)
+    equal(mapper.map_to_target('foo:0.9'), 38)
+    equal(mapper.map_to_target('bar:0.2'), 44)
+    equal(mapper.map_to_target('bar:0.4'), 48)
+    equal(mapper.map_to_target('bar:0.6'), 52)
+    equal(mapper.map_to_target('bar:0.8'), 56)
+    equal(mapper.map_to_target('baz:0.3'), 66)
+    equal(mapper.map_to_target('baz:0.7'), 74)
+    deepEqual(mapper.v_map_to_target(['foo:0.1', 'foo:0.5', 'foo:0.9']), [22,30,38])
+    deepEqual(mapper.v_map_to_target(['bar:0.2', 'bar:0.4', 'bar:0.6', 'bar:0.8']), [44,48,52,56])
+    deepEqual(mapper.v_map_to_target(['baz:0.3', 'baz:0.7']), [66,74])
+
+  )
+
+
+

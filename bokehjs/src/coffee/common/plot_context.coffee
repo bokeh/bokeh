@@ -28,8 +28,6 @@ define [
       return null
 
     events:
-      #'click .jsp': 'newtab'
-      'click .plotclose': 'removeplot'
       'click .closeall': 'closeall'
 
     size_textarea: (textarea) ->
@@ -66,7 +64,6 @@ define [
         view = @views[modelref.id]
         node = $("<div class='jsp' data-plot_num='#{index}'></div>"  )
         @$el.append(node)
-        node.append($("<a class='plotclose'>[close]</a>"))
         node.append(view.el)
       _.defer(() =>
         for textarea in @$el.find('.plottitle')

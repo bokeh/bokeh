@@ -63,11 +63,7 @@ class ManagedProcess(object):
 
 def start_redis(pidfilename, port, data_dir, loglevel="warning",
                 data_file='redis.db', save=True,
-                stdout=sys.stdout,
-                stderr=sys.stderr
-                # stdout=None,
-                # stderr=None
-                ):
+                stdout=sys.stdout, stderr=sys.stderr):
     base_config = os.path.join(os.path.dirname(__file__), 'redis.conf')
     with open(base_config) as f:
         redisconf = f.read()

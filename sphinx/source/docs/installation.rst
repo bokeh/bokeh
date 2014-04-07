@@ -34,8 +34,7 @@ These are best obtained via the `Anaconda Python Distribution <http://continuum.
 which was designed to include robust versions of popular libraries for
 the Python scientific and data analysis stacks.
 
-If you are already an Anaconda users, you should be able to run the command:
-::
+If you are already an Anaconda users, you should be able to run the command::
 
     $ conda install bokeh
 
@@ -48,34 +47,33 @@ dependencies.
 Note for Windows Users
 ----------------------
 
-If you are using Windows but, for some reason, are not using `Anaconda <http://continuum.io>`_,
-then installing `redis <http://redis.io>`_ may be challenging.
-We recommend grabbing the binaries from here:
-`https://github.com/dmajkic/redis/downloads <https://github.com/dmajkic/redis/downloads>`_.
+If you are using Windows then installing `redis <http://redis.io>`_ may be challenging.
+On Windows the Bokeh plot server defaults to an in-memory (non-persistent) storage backend.
 
-We would still strongly recommend that Windows users consider installing a
-distribution like `Anaconda <http://continuum.io>`_, since it is the most
-painless way to obtain the Python scientific/analytic stack.
+If you would like to try using the Redis backend, we recommend grabbing the binaries from one
+of these locations:
+
+* `https://github.com/dmajkic/redis/downloads <https://github.com/dmajkic/redis/downloads>`_
+* `http://cloud.github.com/downloads/rgl/redis/redis-2.4.6-setup-64-bit.exe <http://cloud.github.com/downloads/rgl/redis/redis-2.4.6-setup-64-bit.exe>`_
+
+Once installed, you should add ``C:\Program Files\Redis`` to your ``PATH`` variable, and execute
+run the Bokeh server as follows::
+
+    $ bokeh-server --backend=redis
 
 Installing from Source
 ----------------------
 
-You can also clone the
-`Bokeh Github repository <https://github.com/ContinuumIO/bokeh>`_:
-::
+You can also clone the `Bokeh Github repository <https://github.com/ContinuumIO/bokeh>`_::
 
     $ git clone https://github.com/ContinuumIO/bokeh
     $ cd bokeh
     $ python setup.py install
 
-The setup.py script will automatically install the pre-built Javascript
-for the runtime :ref:`bokehjs` library, so you do not need Coffeescript
-or any Javascript development infrastructure to use Bokeh.
+The setup.py script will automatically install the pre-built JavaScript
+for the runtime :ref:`bokehjs` library, so you do not need CoffeeScript
+or any JavaScript development infrastructure to use Bokeh.
 
 If these instructions don't work, or you are not sure how to install the
 various dependencies, please consults the :ref:`developer_install` section
 of the :ref:`devguide`.
-
-
-
-

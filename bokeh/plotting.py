@@ -1,7 +1,7 @@
-from __future__ import absolute_import, print_function
-
 """ Command-line driven plotting functions, a la Matplotlib  / Matlab / etc.
 """
+from __future__ import absolute_import, print_function
+
 from functools import wraps
 import itertools
 import os
@@ -10,7 +10,9 @@ import time
 import warnings
 
 from . import glyphs, browserlib, serverconfig
-from .objects import ColumnDataSource, Glyph, Grid, GridPlot, Legend, Axis
+from .objects import (ColumnDataSource, Glyph, Grid, GridPlot, Legend, Axis,
+                      ServerDataSource)
+
 from .plotting_helpers import (get_default_color, get_default_alpha,
         _glyph_doc, _match_data_params, _update_plot_data_ranges,
         _materialize_colors_and_alpha, _get_legend, _make_legend,
@@ -22,46 +24,62 @@ from .palettes import brewer
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
 
+class _AttrDict(dict):
+    def _bad_attr(self, name):
+        raise ValueError("'%s' is not a valid configuration option, allowed options are %s" % (name, ", ".join(self.keys())))
+
+    def __getattr__(self, name):
+        if name in self:
+            return self[name]
+        else:
+            self._bad_attr(name)
+
+    def __setattr__(self, name, value):
+        if name in self:
+            self[name] = value
+        else:
+            self._bad_attr(name)
+
 _config = {}
 
 def _set_config():
     global _config
-    _config = {
+    _config = _AttrDict(
         # The current output mode.  Valid combinations:
         #   type       | url
         #   -----------+--------------
         #   "file"     | output_file = filename
         #   "server"   | output_url = server URL
         #   "notebook" | output_url = (None, server_URL)
-        "output_type": None,
-        "output_url": None,
-        "output_file": None,
-        "plotserver_url": DEFAULT_SERVER_URL,
+        output_type = None,
+        output_url = None,
+        output_file = None,
+        plotserver_url = DEFAULT_SERVER_URL,
 
         # Configuration options for "file" output mode
-        "autosave": False,
-        "file_js": "inline",
-        "file_css": "inline",
-        "file_rootdir": None,
+        autosave = False,
+        file_resources = "inline",
+        file_rootdir = None,
 
         # The currently active Session object
-        "session": None,
+        session = None,
 
         # Current plot or "figure"
-        "curplot": None,
+        curplot = None,
 
         # hold state
-        "hold": False,
-        }
+        hold = False)
 _set_config()
 
 def _get_plot(kwargs):
     plot = kwargs.pop("plot", None)
     if not plot:
-        if _config["hold"] and _config["curplot"]:
-            plot = _config["curplot"]
+        if _config.hold and _config.curplot:
+            plot = _config.curplot
         else:
-            plot = _new_xy_plot(**kwargs)
+            plot_kwargs = _config.pop('figure_kwargs', {})
+            plot_kwargs.update(kwargs)
+            plot = _new_xy_plot(**plot_kwargs)
     return plot
 
 def plothelp():
@@ -148,7 +166,7 @@ def session():
     Returns:
         session : the current :class:`session <bokeh.session.Session>` object
     """
-    return _config["session"]
+    return _config.session
 
 ###NEEDS A BOKEH CLOUD VERSION AS WELL
 def output_notebook(url=None, server=None, name=None, docname=None):
@@ -175,17 +193,16 @@ def output_notebook(url=None, server=None, name=None, docname=None):
         session.notebooksources()
     else:
         if url == "default":
-            real_url = _config["plotserver_url"]
+            real_url = _config.plotserver_url
         else:
             real_url = url
+        if name is None:
+            name = real_url
         if not server:
-            if name:
-                server = serverconfig.Server(name=name)
-            else:
-                server = serverconfig.Server(name=real_url)
-        _config["output_url"] = server.root_url
-        _config["output_type"] = "server"
-        _config["output_file"] = None
+            server = serverconfig.Server(name=name, root_url=real_url)
+        _config.output_url = server.root_url
+        _config.output_type = "server"
+        _config.output_file = None
         try:
             session = NotebookServerSession(server_config=server)
         except requests.exceptions.ConnectionError:
@@ -197,9 +214,9 @@ def output_notebook(url=None, server=None, name=None, docname=None):
             docname = "IPython Session at %s" % time.ctime()
         session.use_doc(docname)
         session.notebook_connect()
-    _config["output_type"] = "notebook"
-    _config["output_file"] = None
-    _config["session"] = session
+    _config.output_type = "notebook"
+    _config.output_file = None
+    _config.session = session
 
 def output_cloud(docname):
     output_server(docname, server=serverconfig.Cloud())
@@ -221,81 +238,69 @@ def output_server(docname, server=None, name=None, url="default", **kwargs):
     finally fallback on url
     """
     if url == "default":
-        real_url = _config["plotserver_url"]
+        real_url = _config.plotserver_url
     else:
         real_url = url
+    if name is None:
+        name = real_url
     if not server:
-        if name:
-            server = serverconfig.Server(name=name)
-        else:
-            server = serverconfig.Server(name=real_url)
-    _config["output_url"] = server.root_url
-    _config["output_type"] = "server"
-    _config["output_file"] = None
+        server = serverconfig.Server(name=name, root_url=real_url)
+    _config.output_url = server.root_url
+    _config.output_type = "server"
+    _config.output_file = None
     try:
-        _config["session"] = PlotServerSession(server_config=server)
+        _config.session = PlotServerSession(server_config=server)
     except requests.exceptions.ConnectionError:
         print("Cannot connect to Bokeh server. (Not running?) To start the "
               "Bokeh server execute 'bokeh-server'")
         import sys
         sys.exit(1)
-    _config["session"].use_doc(docname)
-    real_url = _config["output_url"]
+    _config.session.use_doc(docname)
+    real_url = _config.output_url
     print("Using plot server at", real_url + "bokeh;", "Docname:", docname)
 
-def output_file(filename, title="Bokeh Plot", autosave=True, js="inline",
-                css="inline", rootdir="."):
+def output_file(filename, title="Bokeh Plot", autosave=True, resources="inline", rootdir=None):
     """ Outputs to a static HTML file. WARNING: This file will be overwritten
     each time show() is invoked.
 
     If **autosave** is True, then every time plot() or one of the other
-    visual functions is called, this causes the file to be saved.  If it
+    visual functions is called, this causes the file to be saved. If it
     is False, then the file is only saved upon calling show().
 
-    **js** and **css** can be "inline" or "relative". In the latter case,
-    **rootdir** can be specified to indicate the base directory from which
-    the path to the various static files should be computed.
+    **resources** can be 'inline', 'cdn', 'relative(-dev)' or 'absolute(-dev)'.
+    In the 'relative(-dev)' case, **rootdir** can be specified to indicate the
+    base directory from which the path to the various static files should be
+    computed.
 
     Generally, this should be called at the beginning of an interactive session
     or the top of a script.
     """
     _set_config()
     if os.path.isfile(filename):
-        print("Session output file '%s' already exists, will be overwritten." %
-                filename)
+        print("Session output file '%s' already exists, will be overwritten." % filename)
     session = HTMLFileSession(filename, title=title)
-    if js == "relative":
-        session.inline_js = False
-    if css == "relative":
-        session.inline_css = False
-    if rootdir:
-        session.rootdir = rootdir
     _config.update(dict(
-        output_type = "file", output_file = filename, output_url= None,
-        session = session))
+        output_type = "file", output_file = filename, output_url = None,
+        file_resources = resources, file_rootdir = rootdir, session = session))
 
-def figure():
+def figure(**kwargs):
     """ Creates a new plot. All subsequent plotting commands will affect
     the new plot.
     """
-    _config["curplot"] = None
+    _config.curplot = None
+    _config["figure_kwargs"] = kwargs
 
-def hold(value=None):
-    """ Turns hold on or off, or toggles its current state.
+def hold(value=True):
+    """ Turns hold on or off
 
     When on, plotting functions do not create a new figure, but rather
     add renderers to the current existing plot.  (If no current plot exists,
     then a new one is created.
 
     Args:
-        value (bool or None, optional) :  set or toggle the hold state, default is None
-            if `value` is True or False then the hold state is set accordingly. If
-            `value` is None, then the current hold state is toggled.
-
+        value (bool, optional) :  set the hold state, default is True
     """
-    if value is None:
-        value = not _config["hold"]
-    _config["hold"] = value
+    _config.hold = value
 
 def curplot():
     """ Returns a reference to the current plot, i.e. the most recently
@@ -304,7 +309,7 @@ def curplot():
     Returns:
         plot: the current :class:`Plot <bokeh.objects.Plot>`
     """
-    return _config["curplot"]
+    return _config.curplot
 
 def show(browser=None, new="tab"):
     """ 'shows' the current plot, by auto-raising the window or tab
@@ -324,18 +329,18 @@ def show(browser=None, new="tab"):
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
     """
-    output_type = _config["output_type"]
-    session = _config["session"]
+    output_type = _config.output_type
+    session = _config.session
 
     # Map our string argument to the webbrowser.open argument
     new_param = {'tab': 2, 'window': 1}[new]
     controller = browserlib.get_browser_controller(browser=browser)
     if output_type == "file":
-        session.save()
-        controller.open("file://" + os.path.abspath(_config["output_file"]), new=new_param)
+        session.save(resources=_config.file_resources, rootdir=_config.file_rootdir)
+        controller.open("file://" + os.path.abspath(_config.output_file), new=new_param)
     elif output_type == "server":
         session.store_all()
-        controller.open(_config["output_url"] + "/bokeh", new=new_param)
+        controller.open(_config.output_url + "/bokeh", new=new_param)
     elif output_type == "notebook":
         session.show(curplot())
 
@@ -351,17 +356,17 @@ def save(filename=None):
             if `filename` is None, the current session filename is used.
 
     """
-    session = _config["session"]
-    if _config["output_type"] == "file":
+    session = _config.session
+    if _config.output_type == "file":
         if filename is not None:
             oldfilename = session.filename
             session.filename = filename
         try:
-            session.save()
+            session.save(resources=_config.file_resources, rootdir=_config.file_rootdir)
         finally:
             if filename is not None:
                 session.filename = oldfilename
-    elif _config["output_type"] == "server":
+    elif _config.output_type == "server":
         session.plotcontext._dirty = True
         session.store_all()
     else:
@@ -394,9 +399,9 @@ def visual(func):
     """
     @wraps(func)
     def wrapper(*args, **kw):
-        output_type = _config["output_type"]
-        output_url = _config["output_url"]
-        session = _config["session"]
+        output_type = _config.output_type
+        output_url = _config.output_url
+        session = _config.session
 
         if not session:
             raise RuntimeError(
@@ -404,15 +409,15 @@ def visual(func):
             )
 
         retvals = func(*args, **kw)
-        if len(retvals) == 1:
-            plot = retvals
-            session_objs = []
-        else:
+
+        if isinstance(retvals, tuple):
             plot, session_objs = retvals
+        else:
+            plot, session_objs = retvals, retvals.references()
 
         if plot is not None:
             session.add(plot)
-            _config["curplot"] = plot
+            _config.curplot = plot
             # if _PLOTLIST is not None:
             #     _PLOTLIST.append(plot)
 
@@ -432,17 +437,28 @@ def visual(func):
 
         else: # File output mode
             # Store plot into HTML file
-            if _config["autosave"]:
-                session.save()
+            if _config.autosave:
+                session.save(resources=_config.file_resources, rootdir=_config.file_rootdir)
         return plot
     return wrapper
 
 def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"]):
     @visual
     def func(*args, **kwargs):
-      # Process the keyword arguments that are not glyph-specific
-        datasource = kwargs.pop("source", ColumnDataSource())
-        session_objs = [datasource]
+        # Process the keyword arguments that are not glyph-specific
+        session_objs = []
+        source = kwargs.pop('source', None)
+        if isinstance(source, ServerDataSource):
+            datasource = ColumnDataSource()
+            serversource = source
+            session_objs.append(serversource)
+        elif source is None:
+            datasource = ColumnDataSource()
+            serversource = None
+        else:
+            datasource = source
+            serversource = None
+        session_objs.append(datasource)
         legend_name = kwargs.pop("legend", None)
         plot = _get_plot(kwargs)
         if 'name' in kwargs:
@@ -452,17 +468,21 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         # Process the glyph dataspec parameters
         glyph_params = _match_data_params(argnames, glyphclass,
-            datasource, args, _materialize_colors_and_alpha(kwargs))
+                                          datasource, serversource,
+                                          args, _materialize_colors_and_alpha(kwargs))
 
-        x_data_fields = [
-            glyph_params[xx]['field'] for xx in xfields if glyph_params[xx]['units'] == 'data']
-        y_data_fields = [
-            glyph_params[yy]['field'] for yy in yfields if glyph_params[yy]['units'] == 'data']
+        x_data_fields = [ glyph_params[xx]['field'] for xx in xfields if glyph_params[xx]['units'] == 'data' ]
+        y_data_fields = [ glyph_params[yy]['field'] for yy in yfields if glyph_params[yy]['units'] == 'data' ]
+
         _update_plot_data_ranges(plot, datasource, x_data_fields, y_data_fields)
         kwargs.update(glyph_params)
-        glyph = glyphclass(**kwargs)
-        nonselection_glyph_params = _materialize_colors_and_alpha(
-            kwargs, prefix='nonselection_', default_alpha=0.1)
+
+        glyph_props = glyphclass.properties()
+        glyph_kwargs = dict((key, value) for (key, value) in kwargs.iteritems() if key in glyph_props)
+
+        glyph = glyphclass(**glyph_kwargs)
+
+        nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
         nonselection_glyph = glyph.clone()
 
         nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
@@ -472,11 +492,10 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
 
         glyph_renderer = Glyph(
-            data_source = datasource,
-            plot = plot,
+            data_source=datasource,
+            server_data_source=serversource,
             glyph=glyph,
-            nonselection_glyph=nonselection_glyph,
-            )
+            nonselection_glyph=nonselection_glyph)
 
         if legend_name:
             legend = _get_legend(plot)
@@ -492,10 +511,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         plot.renderers.append(glyph_renderer)
 
-        session_objs.extend(plot.tools)
-        session_objs.extend(plot.renderers)
-        session_objs.extend([plot.x_range, plot.y_range])
-        return plot, session_objs
+        return plot
     func.__name__ = glyphclass.__view_model__
     func.__doc__ = docstring
     return func
@@ -616,9 +632,8 @@ are also accepted as keyword parameters.
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
 
-Notes
------
-Only one of `size` or `radius` should be provided. Note that `radius` defaults to data units.
+Notes:
+    Only one of `size` or `radius` should be provided. Note that `radius` defaults to data units.
 """
 )
 
@@ -719,9 +734,14 @@ Args:
     dw (str or list[float]) : values or field names of image width distances
     dh (str or list[float]) : values or field names of image height distances
     palette (str or list[str]) : values or field names of palettes to use for color-mapping
+    dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+Notes:
+    setting `dilate` to True will cause pixel distances (e.g., for `dw` and `dh`) to
+    be rounded up, always.
 """
 )
 
@@ -735,9 +755,14 @@ Args:
     y (str or list[float]) : values or field names of lower left `y` coordinates
     dw (str or list[float]) : values or field names of image width distances
     dh (str or list[float]) : values or field names of image height distances
+    dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+Notes:
+    setting `dilate` to True will cause pixel distances (e.g., for `dw` and `dh`) to
+    be rounded up, always.
 """
 )
 
@@ -918,6 +943,7 @@ Args:
     width (str or list[float]) : values or field names of widths
     height (str or list[float]) : values or field names of heights
     angle (str or list[float], optional) : values or field names of rotation angles, defaults to 0
+    dilate (bool, optional) : whether to dilate pixel distance computations when drawing, defaults to False
 
 In addition the the parameters specific to this glyph,
 :ref:`userguide_line_properties` and :ref:`userguide_fill_properties`
@@ -925,6 +951,11 @@ are also accepted as keyword parameters.
 
 Returns:
     plot: the current :class:`Plot <bokeh.objects.Plot>`
+
+Notes:
+    setting `dilate` to True will cause pixel distances (e.g., for `width` and `height`) to
+    be rounded up, always.
+
 """
 )
 
@@ -1101,16 +1132,10 @@ def scatter(*args, **kwargs):
     Args:
         *args : The data to plot.  Can be of several forms:
 
-            (X, Y1, Y2, ...)
-                A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
-            [[x1,y1], [x2,y2], .... ]
-                An iterable of tuples
-            NDarray (NxM)
-                The first column is treated as the X, and all other M-1 columns
-                are treated as separate Y series
-            [y1, y2, ... yN]
-                A list/tuple of scalar values; will be treated as Y values and
-                a synthetic X array of integers will be generated.
+            (X, Y)
+                Two 1D arrays or iterables
+            (XNAME, YNAME)
+                Two bokeh DataSource/ColumnsRef
 
         marker (str, optional): a valid marker_type, defaults to "circle"
         color (color value, optional): shorthand to set both fill and line color
@@ -1120,9 +1145,7 @@ def scatter(*args, **kwargs):
 
     Examples:
 
-            >>> scatter([1,2,3,4,5,6])
             >>> scatter([1,2,3],[4,5,6], fill_color="red")
-            >>> scatter(x_array, y_array, marker="circle")
             >>> scatter("data1", "data2", source=data_source, ...)
 
     """
@@ -1169,7 +1192,7 @@ def gridplot(plot_arrangement, name=False):
         grid._id = name
     # Walk the plot_arrangement and remove them from the plotcontext,
     # so they don't show up twice
-    session = _config["session"]
+    session = _config.session
     session.plotcontext.children = list(set(session.plotcontext.children) - \
                 set(itertools.chain.from_iterable(plot_arrangement)))
     return grid, [grid]
@@ -1248,6 +1271,5 @@ def grid():
     Returns:
         Returns grid object or splattable list of grid objects on the current plot
     """
-    """ Return the grids on the current plot """
     return _list_attr_splat(xgrid() + ygrid())
 

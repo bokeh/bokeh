@@ -4,6 +4,23 @@
 Release Notes
 #############
 
+v0.4.2 (Mar 2014)
+=================
+
+* Improved MPL interface, PolyCollection plus examples
+* Extensive tutorial with exercises and solutions
+* %bokeh magic for IPython notebook
+* InMemory storage backend for bokeh-server (usable without Redis)
+
+v0.4.1 (Feb 2014)
+=================
+
+* Improved MPL interface, LineCollection plus examples
+* Scala interface
+* Categorical axes and ranges
+* Hover tool
+* Improved pan/zoom tool interactions
+
 v0.4 (Feb 2014)
 ===============
 
@@ -20,7 +37,6 @@ v0.4 (Feb 2014)
 * RGBA and color mapped image plots now available from Python
 * Python 3 support!
 * Vastly improved documentation for glyphs, with inline examples and JSFiddle integration
-
 
 v0.3 (Nov 2013)
 ===============

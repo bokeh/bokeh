@@ -108,7 +108,7 @@ def versions_from_vcs(tag_prefix, versionfile_source, verbose=False):
     # string, meaning we're inside a checked out source tree.
 
     try:
-        here = os.path.abspath(__file__)
+        here = os.path.realpath(__file__)
     except NameError:
         # some py2exe/bbfreeze/non-CPython implementations don't do __file__
         return {} # not always correct
@@ -152,7 +152,7 @@ def versions_from_parentdir(parentdir_prefix, versionfile_source, verbose=False)
         # tree, and then check the parent directory for a version string. If
         # it's in an installed application, there's no hope.
         try:
-            here = os.path.abspath(__file__)
+            here = os.path.realpath(__file__)
         except NameError:
             # py2exe/bbfreeze/non-CPython don't have __file__
             return {} # without __file__, we have no hope
@@ -164,7 +164,7 @@ def versions_from_parentdir(parentdir_prefix, versionfile_source, verbose=False)
     else:
         # we're running from versioneer.py, which means we're running from
         # the setup.py in a source tree. sys.argv[0] is setup.py in the root.
-        here = os.path.abspath(sys.argv[0])
+        here = os.path.realpath(sys.argv[0])
         root = os.path.dirname(here)
 
     # Source tarballs conventionally unpack into a directory that includes

@@ -43,7 +43,7 @@ def _data_dir(create=False):
             raise RuntimeError("%s exists but is not a directory" % data_dir)
     return data_dir
 
-def download():
+def download(progress=True):
     '''
     Download larger data sets for various Bokeh examples.
     '''
@@ -63,12 +63,11 @@ def download():
         'IBM.csv',
         'MSFT.csv',
     ]
+
     for file_name in files:
-        _getfile(base_url, file_name, data_dir)
+        _getfile(base_url, file_name, data_dir, progress=progress)
 
-
-def _getfile(base_url, file_name, data_dir):
-
+def _getfile(base_url, file_name, data_dir, progress=True):
     url = join(base_url, file_name)
     u = urlopen(url)
     f = open(join(data_dir, file_name), 'wb')
@@ -78,6 +77,7 @@ def _getfile(base_url, file_name, data_dir):
 
     file_size_dl = 0
     block_sz = 8192
+
     while True:
         buffer = u.read(block_sz)
         if not buffer:
@@ -85,8 +85,10 @@ def _getfile(base_url, file_name, data_dir):
 
         file_size_dl += len(buffer)
         f.write(buffer)
-        status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-        status = status + chr(8)*(len(status)+1)
-        print(status,)
+
+        if progress:
+            status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+            status += chr(8) * (len(status) + 1)
+            print(status,)
 
     f.close()

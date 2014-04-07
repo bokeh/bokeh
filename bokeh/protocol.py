@@ -1,130 +1,89 @@
-import uuid
 import json
 import logging
 import time
-from six.moves import cPickle as pickle
+import datetime as dt
+
 import numpy as np
-import pandas as pd
+from six.moves import cPickle as pickle
+
+try:
+    import pandas as pd
+    is_pandas = True
+except ImportError as e:
+    is_pandas = False
 
 log = logging.getLogger(__name__)
 
-"""
-serialization functions for rpc server, we serialize json messages,
-as well as python data, which are lists of numpy arrays.
-msg serialization one object -> one string
-data serialization list of arrays -> list of buffers/strings
-
-we have 3 protocol levels here
-1.  zeromq, functions exist to separate the envelope from the payload, and
-pack those up as well.
-
-2.  arrayserver protocol, arrayserver messages are the payloads of zeromq messages,
-and are packaged into clientid, reqid, msgobj (json), dataobjects -
-list data which can be serialized and deserialized
-
-3.  rpc protocol, a layer around the msgobject and a data object
-"""
 millifactor = 10 ** 6.
-class NumpyJSONEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, pd.Series):
+class BokehJSONEncoder(json.JSONEncoder):
+    def transform_series(self, obj):
+        """transform series
+        """
+        vals = obj.values
+        return self.transform_array(vals)
+
+    def transform_array(self, obj):
+        """Transform arrays into lists of json safe types
+        also handles pandas series, and replacing
+        nans and infs with strings
+        """
+        ## not quite correct, truncates to ms..
+        if obj.dtype.kind == 'M':
+            return obj.astype('datetime64[ms]').astype('int64').tolist()
+        elif obj.dtype.kind in ('u', 'i', 'f'):
+            return self.transform_numerical_array(obj)
+        return obj.tolist()
+
+    def transform_numerical_array(self, obj):
+        """handles nans/inf conversion
+        """
+        if not np.isnan(obj).any() and not np.isinf(obj).any():
             return obj.tolist()
-        elif isinstance(obj, np.ndarray):
-            if obj.dtype.kind == 'M':
-                return obj.astype('datetime64[ms]').astype('int64').tolist()
-            return obj.tolist()
-        elif isinstance(obj, np.number):
-            if isinstance(obj, np.integer):
-                return int(obj)
-            else:
-                return float(obj)
-        elif isinstance(obj, pd.tslib.Timestamp):
+        else:
+            transformed = obj.astype('object')
+            transformed[np.isnan(obj)] = 'NaN'
+            transformed[np.isposinf(obj)] = 'Infinity'
+            transformed[np.isneginf(obj)] = '-Infinity'
+            return transformed.tolist()
+
+    def transform_python_types(self, obj):
+        """handle special scalars, default to default json encoder
+        """
+        if is_pandas and isinstance(obj, pd.tslib.Timestamp):
             return obj.value / millifactor
+        elif isinstance(obj, np.float):
+            return float(obj)
+        elif isinstance(obj, np.int):
+            return int(obj)
+        elif isinstance(obj, (dt.datetime, dt.date)):
+            return time.mktime(obj.timetuple()) * 1000.
         else:
-            return super(NumpyJSONEncoder, self).default(obj)
+            return super(BokehJSONEncoder, self).default(obj)
 
-def serialize_json(obj, encoder=NumpyJSONEncoder, **kwargs):
+    def default(self, obj):
+        ## array types
+        if is_pandas and isinstance(obj, (pd.Series, pd.Index)):
+            return self.transform_series(obj)
+        elif isinstance(obj, np.ndarray):
+            return self.transform_array(obj)
+        else:
+            return self.transform_python_types(obj)
+
+def serialize_json(obj, encoder=BokehJSONEncoder, **kwargs):
     return json.dumps(obj, cls=encoder, **kwargs)
+
 deserialize_json = json.loads
-
-def default_serialize_data(data):
-    """
-    Parmeters
-    ---------
-    data : list of python objects (mostly numpy arrays)
-
-    Returns
-    ---------
-    output : list of length 2n, where n is the number of objects.
-        first item is pickled metadata, second is the data itself.
-        for numpy arrays
-        metadata : {'datatype' : 'numpy', 'dtype' : 'dtype', 'shape' : [2,2]}
-        data : the array itself
-        for arbitrary python objects
-        metadata : {'datatype' : 'pickle'}
-        data : pickled object
-    """
-    output = []
-
-    def add_numpy(d):
-        metadata =  {'dtype' : d.dtype,
-                     'shape' : d.shape,
-                     'datatype' : 'numpy'}
-        metadata = pickle.dumps(metadata)
-        output.append(metadata)
-        output.append(d)
-
-    def add_pickle(d):
-        output.append(pickle.dumps({'datatype' : 'pickle'}))
-        output.append(pickle.dumps(d, protocol=-1))
-
-    for d in data:
-        if isinstance(d, np.ndarray):
-            d = np.ascontiguousarray(d)
-            try:
-                temp = np.frombuffer(d, dtype=d.dtype)
-            except (ValueError, TypeError):
-                add_pickle(d)
-                continue
-            add_numpy(d)
-        else:
-            add_pickle(d)
-
-    return output
-
-def default_deserialize_data(input):
-    """
-    Parmeters
-    ---------
-    input : list of strings from default_serialize_data
-
-    Returns
-    ---------
-    output : list of python objects, mostly numpy arrays
-    """
-    output = []
-    curr_index = 0
-    while curr_index < len(input):
-        meta = pickle.loads(input[curr_index])
-        if meta['datatype'] == 'numpy':
-            array = np.frombuffer(input[curr_index + 1],
-                                  dtype=meta['dtype'])
-            array = array.reshape(meta['shape'])
-            output.append(array)
-        elif meta['datatype'] == 'pickle':
-            obj = pickle.loads(input[curr_index + 1])
-            output.append(obj)
-        curr_index += 2
-    return output
 
 serialize_web = serialize_json
 
 deserialize_web = deserialize_json
 
+
 def status_obj(status):
-    return {'msgtype' : 'status',
-            'status' : status}
+    return {'msgtype': 'status',
+            'status': status}
+
 def error_obj(error_msg):
     return {
-        'msgtype' : 'error',
-        'error_msg' : error_msg}
+        'msgtype': 'error',
+        'error_msg': error_msg}

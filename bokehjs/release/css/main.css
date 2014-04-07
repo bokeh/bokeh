@@ -54,17 +54,6 @@ svg {
   content: " ";
   display: block;
 }
-.bokeh_tooltip:after {
-  position: absolute;
-  width: 0px;
-  height: 0px;
-  right: -9px;
-  border-style: solid;
-  border-width: 7px 0px 7px 10;
-  border-color: transparent transparent transparent #1e4B6c;
-  content: " ";
-  display: block;
-}
 .bokeh_tooltip {
   position: absolute;
   padding: 5px;
