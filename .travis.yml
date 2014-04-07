@@ -11,3 +11,6 @@ before_install:
 install: scripts/travis_install
 
 script: scripts/travis_test
+
+notifications:
+  flowdock: bd0fcd603797aa02273421678c1268e8
