@@ -73,7 +73,8 @@ class TestSerializeJson(unittest.TestCase):
         assert deserialized[1] == 'Infinity'
         assert deserialized[2] == '-Infinity'
         assert deserialized[3] == 0
-
+        
+    @skipIf(not is_pandas, "pandas does not work in PyPy.")
     def test_nans_and_infs_pandas(self):
         arr = pd.Series(np.array([np.nan, np.inf, -np.inf, 0]))
         serialized = self.serialize(arr)
