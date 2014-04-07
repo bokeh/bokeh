@@ -466,7 +466,7 @@ class DataSlider(Renderer):
     field = String()
 
 class PlotContext(PlotObject):
-    children = List(Any, has_ref=True)
+    children = List(Instance(PlotObject, has_ref=True), has_ref=True)
 
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning
