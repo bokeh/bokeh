@@ -6,8 +6,6 @@ from collections import OrderedDict
 
 # categories need to be strings
 elements = periodic_table.elements[periodic_table.elements['group'] != "-"]
-elements['group'] = [str(x) for x in elements['group']]
-elements['period'] = [str(x) for x in elements['period']]
 
 # The categorical ranges need to be strings, so convert the groups and periods
 group_range = [str(x) for x in range(1,19)]

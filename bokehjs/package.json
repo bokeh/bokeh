@@ -4,6 +4,7 @@
   "dependencies": {
     "requirejs": "~2.1",
     "grunt": "~0.4",
+    "grunt-cli": "~0.1",
     "grunt-contrib-coffee": "~0.7.0",
     "grunt-contrib-watch": "~0.5.1",
     "grunt-contrib-less": "~0.6.4",
