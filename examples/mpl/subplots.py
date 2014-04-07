@@ -8,7 +8,7 @@ matplotlib fun for a rainy day
 
 import matplotlib.pyplot as plt
 import numpy as np
-from bokeh import pyplot, plotting
+from bokeh import pyplot
 
 x = np.array([10, 8, 13, 9, 11, 14, 6, 4, 12, 7, 5])
 y1 = np.array([8.04, 6.95, 7.58, 8.81, 8.33, 9.96, 7.24, 4.26, 10.84, 4.82, 5.68])
@@ -17,10 +17,11 @@ y3 = np.array([7.46, 6.77, 12.74, 7.11, 7.81, 8.84, 6.08, 5.39, 8.15, 6.42, 5.73
 x4 = np.array([8, 8, 8, 8, 8, 8, 8, 19, 8, 8, 8])
 y4 = np.array([6.58, 5.76, 7.71, 8.84, 8.47, 7.04, 5.25, 12.50, 5.56, 7.91, 6.89])
 
+
 def fit(x):
     return 3 + 0.5 * x
 
-xfit = np.array( [np.amin(x), np.amax(x) ] )
+xfit = np.array([np.amin(x), np.amax(x)])
 
 plt.subplot(221)
 plt.plot(x, y1, 'ks', xfit, fit(xfit), 'r-', lw=2)
@@ -51,5 +52,3 @@ plt.ylabel('IV', fontsize=20)
 # We create the figure in matplotlib and then we "pass it" to Bokeh
 
 pyplot.show_bokeh(plt.gcf(), filename="subplots.html")
-
-plotting.session().dumpjson(file="subplots.json")
