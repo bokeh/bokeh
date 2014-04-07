@@ -1,5 +1,8 @@
 from ggplot import *
 from bokeh import pyplot
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 
 df = pd.DataFrame({
     "x": range(100),
