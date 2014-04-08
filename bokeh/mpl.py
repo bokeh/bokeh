@@ -23,7 +23,11 @@ def axes2plot(axes):
     corresponding to it.
     """
 
-    plot = objects.Plot(title=axes.get_title())
+    # Get axis background color
+    background_fill = axes.get_axis_bgcolor()
+    if background_fill == 'w':
+        background_fill = 'white'
+    plot = objects.Plot(title=axes.get_title(), background_fill=background_fill)
     if _PLOTLIST is not None:
         _PLOTLIST.append(plot)
     plot.x_range = objects.DataRange1d()
@@ -56,6 +60,19 @@ def axes2plot(axes):
     #        plot.renderers.extend(map(MPLMultiLine.convert, collection))
     #    else:
     #        warnings.warn("Not yet implemented: %r" % collection)
+
+    # Grid set up
+    grid = axes.get_xgridlines()[0]
+    grid_line_color = grid.get_color()
+    grid_line_width = grid.get_linewidth()
+    # xgrid
+    objects.Grid(plot=plot, dimension=0, axis=bokehaxes[0],
+                         grid_line_color=grid_line_color,
+                         grid_line_width=grid_line_width)
+    # ygrid
+    objects.Grid(plot=plot, dimension=1, axis=bokehaxes[1],
+                         grid_line_color=grid_line_color,
+                         grid_line_width=grid_line_width)
 
     # Add tools
     pantool = objects.PanTool(dimensions=["width", "height"])
@@ -275,7 +292,7 @@ def _make_lines_collection(datasource, xdr, ydr, col):
     else:
         on_off = map(int,col.get_linestyle()[0][1])
     newmultiline.line_dash_offset = _convert_dashes(offset)
-    newmultiline.line_dash = _convert_dashes(tuple(on_off))
+    newmultiline.line_dash = list(_convert_dashes(tuple(on_off)))
     xdr.sources.append(datasource.columns(newmultiline.xs))
     ydr.sources.append(datasource.columns(newmultiline.ys))
     glyph = objects.Glyph(
@@ -296,9 +313,20 @@ def _make_polys_collection(datasource, xdr, ydr, col):
     ys = [polygons[i][1] for i in range(len(polygons))]
     newpatches.xs = datasource.add(xs)
     newpatches.ys = datasource.add(ys)
-    colors = _get_props_cycled(col, col.get_facecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
-    newpatches.fill_color = datasource.add(colors)
-    # TODO: Research to get more properties (ie, line-retated).
+    face_colors = _get_props_cycled(col, col.get_facecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
+    newpatches.fill_color = datasource.add(face_colors)
+    edge_colors = _get_props_cycled(col, col.get_edgecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
+    newpatches.line_color = datasource.add(edge_colors)
+    widths = _get_props_cycled(col, col.get_linewidth())
+    newpatches.line_width = datasource.add(widths)
+    newpatches.line_alpha = col.get_alpha()
+    offset = col.get_linestyle()[0][0]
+    if not col.get_linestyle()[0][1]:
+        on_off = []
+    else:
+        on_off = map(int,col.get_linestyle()[0][1])
+    newpatches.line_dash_offset = _convert_dashes(offset)
+    newpatches.line_dash = list(_convert_dashes(tuple(on_off)))
     xdr.sources.append(datasource.columns(newpatches.xs))
     ydr.sources.append(datasource.columns(newpatches.ys))
     glyph = objects.Glyph(

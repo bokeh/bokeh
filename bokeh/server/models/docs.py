@@ -12,7 +12,7 @@ def prune_and_get_valid_models(session, delete=False):
     performs any backwards compatability data transformations.
     """
     objs = session.plotcontext.references()
-    print("num models", len(objs))
+    log.info("num models: %d", len(objs))
     if delete:
         for obj in session._models.values():
             if obj not in objs:

@@ -149,7 +149,7 @@ define [
       resp.done((data) =>
         docs = data['docs']
         if options.update
-          @update(docs, options)
+          @set(docs, options)
         else
           @reset(docs, options)
       )

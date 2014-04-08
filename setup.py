@@ -1,22 +1,35 @@
+"""Setup script for Bokeh."""
+
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENCE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
+from __future__ import print_function
+
+# Stdlib imports
 import os
-from os.path import abspath, exists, isdir, join, dirname
 import platform
-import site
-import sys
 import shutil
+import site
 import subprocess
+import sys
 from distutils.core import setup
+from os.path import abspath, exists, join, dirname
+
+# Our own imports
 import versioneer
 
-versioneer.versionfile_source = 'bokeh/_version.py'
-versioneer.versionfile_build = 'bokeh/_version.py'
-versioneer.tag_prefix = '' # tags are like 1.2.0
-versioneer.parentdir_prefix = 'Bokeh-' # dirname like 'myproject-1.2.0'
-
-# Set up this checkout or source archive with the right BokehJS files.
-
-if sys.version_info[:2] < (2,6):
-    raise RuntimeError("Bokeh requires python >= 2.6")
+#-----------------------------------------------------------------------------
+# Globals and constants
+#-----------------------------------------------------------------------------
 
 BOKEHJSROOT = 'bokehjs'
 BOKEHJSBUILD = join(BOKEHJSROOT, 'build')
@@ -28,38 +41,19 @@ APP = [join(BOKEHJSREL, 'js', 'bokeh.js'),
        join(BOKEHJSREL, 'js', 'bokeh.min.js')]
 CSS = join(BOKEHJSREL, 'css')
 
-# TODO (bev) remove 'devjs' in 0.6
-if 'devjs' in sys.argv:
-    print("WARNING: 'devjs' is deprecated and will be removed in Bokeh 0.6, please use 'develop'")
+#-----------------------------------------------------------------------------
+# Local utilities
+#-----------------------------------------------------------------------------
 
-if 'devjs' in sys.argv or 'develop' in sys.argv:
-    # Don't import setuptools unless the user is actively
-    # trying to do something that requires it.
-    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
-           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
-    CSS = join(BOKEHJSBUILD, 'css')
-    if '--deploy' in sys.argv:
-        os.chdir('bokehjs')
-        try:
-            print("deploying bokehjs...")
-            out = subprocess.check_output(['grunt', 'deploy'])
-            sys.argv.remove('--deploy')
-        except subprocess.CalledProcessError:
-            print("ERROR: could not deploy bokehjs")
-            sys.exit(1)
-        os.chdir('..')
+versioneer.versionfile_source = 'bokeh/_version.py'
+versioneer.versionfile_build = 'bokeh/_version.py'
+versioneer.tag_prefix = ''  # tags are like 1.2.0
+versioneer.parentdir_prefix = 'Bokeh-'  # dirname like 'myproject-1.2.0'
 
-if exists(join(SERVER, 'static', 'js')):
-    shutil.rmtree(join(SERVER, 'static', 'js'))
-os.mkdir(join(SERVER, 'static', 'js'))
-for app in APP:
-    shutil.copy(app, join(SERVER, 'static', 'js'))
-shutil.copytree(join(BOKEHJSROOT, 'src', 'vendor'),
-                join(SERVER, 'static', 'js', 'vendor'))
+#-----------------------------------------------------------------------------
+# Classes and functions
+#-----------------------------------------------------------------------------
 
-if exists(join(SERVER, 'static', 'css')):
-    shutil.rmtree(join(SERVER, 'static', 'css'))
-shutil.copytree(CSS, join(SERVER, 'static', 'css'))
 
 def package_path(path, package_data_dirs):
     for dirname, _, files in os.walk(path):
@@ -67,28 +61,17 @@ def package_path(path, package_data_dirs):
         for f in files:
             package_data_dirs.append(join(dirname, f))
 
-package_data_dirs = []
 
-package_path(join(SERVER, 'static'), package_data_dirs)
-package_path(join(SERVER, 'templates'), package_data_dirs)
-package_path('bokeh/templates', package_data_dirs)
-package_data_dirs.append('server/redis.conf')
-
-suffix_list = ('.csv','.conf','.gz','.json')
-##scan sampledata for files with the above extensions and add to pkg_data_dirs
 def get_sample_data():
+    """Scan sampledata for files with the above extensions and add to
+    pkg_data_dirs."""
     data_files = []
-    root = join("bokeh","sampledata")
-
+    root = join("bokeh", "sampledata")
     for path, dirs, files in os.walk(root):
         for fs in files:
             if fs.endswith(suffix_list):
-                data_files.append(join("sampledata",fs))
+                data_files.append(join("sampledata", fs))
     return data_files
-
-package_data_dirs = package_data_dirs+get_sample_data()
-
-scripts = ['bokeh-server']
 
 # You can't install Bokeh in a virtualenv because the lack of getsitepackages()
 # This is an open bug: https://github.com/pypa/virtualenv/issues/355
@@ -123,9 +106,9 @@ def getsitepackages():
                 sitedirs = [os.path.join("/Library/Python", sys.version[:3], "site-packages"),
                             os.path.join(prefix, "Extras", "lib", "python")]
 
-            else: # any other Python distros on OSX work this way
+            else:  # any other Python distros on OSX work this way
                 sitedirs = [os.path.join(prefix, "lib",
-                                         "python" + sys.version[:3], "site-packages")]
+                            "python" + sys.version[:3], "site-packages")]
 
         elif os.sep == '/':
             sitedirs = [os.path.join(prefix,
@@ -179,6 +162,59 @@ def getsitepackages():
             sitepackages.append(os.path.abspath(sitedir))
     return sitepackages
 
+#-----------------------------------------------------------------------------
+# Main script
+#-----------------------------------------------------------------------------
+
+# Set up this checkout or source archive with the right BokehJS files.
+
+if sys.version_info[:2] < (2, 6):
+    raise RuntimeError("Bokeh requires python >= 2.6")
+
+# TODO (bev) remove 'devjs' in 0.6
+if 'devjs' in sys.argv:
+    print("WARNING: 'devjs' is deprecated and will be removed in Bokeh 0.6, please use 'develop'")
+
+if 'devjs' in sys.argv or 'develop' in sys.argv:
+    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
+           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
+    CSS = join(BOKEHJSBUILD, 'css')
+    if '--deploy' in sys.argv:
+        os.chdir('bokehjs')
+        try:
+            print("deploying bokehjs...")
+            out = subprocess.check_output(['grunt', 'deploy'])
+            sys.argv.remove('--deploy')
+        except subprocess.CalledProcessError:
+            print("ERROR: could not deploy bokehjs")
+            sys.exit(1)
+        os.chdir('..')
+
+if exists(join(SERVER, 'static', 'js')):
+    shutil.rmtree(join(SERVER, 'static', 'js'))
+os.mkdir(join(SERVER, 'static', 'js'))
+
+for app in APP:
+    shutil.copy(app, join(SERVER, 'static', 'js'))
+shutil.copytree(join(BOKEHJSROOT, 'src', 'vendor'),
+                join(SERVER, 'static', 'js', 'vendor'))
+
+if exists(join(SERVER, 'static', 'css')):
+    shutil.rmtree(join(SERVER, 'static', 'css'))
+shutil.copytree(CSS, join(SERVER, 'static', 'css'))
+
+package_data_dirs = []
+package_path(join(SERVER, 'static'), package_data_dirs)
+package_path(join(SERVER, 'templates'), package_data_dirs)
+package_path('bokeh/templates', package_data_dirs)
+package_data_dirs.append('server/redis.conf')
+
+suffix_list = ('.csv', '.conf', '.gz', '.json')
+
+package_data_dirs = package_data_dirs + get_sample_data()
+
+scripts = ['bokeh-server']
+
 if '--user' in sys.argv:
     site_packages = site.USER_SITE
 else:
@@ -192,13 +228,12 @@ if 'devjs' in sys.argv or 'develop' in sys.argv:
         f.write(path)
     print("develop mode, wrote path (%s) to (%s)" % (path, path_file))
     sys.exit()
-
 elif 'install' in sys.argv:
     if exists(path_file):
         os.remove(path_file)
-        print("installing bokeh, removing bokeh.pth if it exists")
+        print("Installing bokeh, removing bokeh.pth if it exists.")
     else:
-        print("installing bokeh,  bokeh.pth was not found, so we did not clean it")
+        print("Installing bokeh...")
 
 REQUIRES = [
         'Flask>=0.10.1',
@@ -221,21 +256,21 @@ REQUIRES = [
         'colorama>=0.2.7'
     ]
 
-if sys.version_info[:2] == (2,6):
+if sys.version_info[:2] == (2, 6):
     REQUIRES.append('argparse>=1.1')
 
 if sys.version_info[0] != 3 and platform.python_implementation() != "PyPy":
     REQUIRES.extend([
         'websocket>=0.2.1',
-        'gevent==0.13.8',
-        'gevent-websocket==0.3.6',
+        'gevent>=1.0',
+        'gevent-websocket>=0.9.2',
     ])
 
 if sys.platform != "win32":
     REQUIRES.append('redis>=2.7.6')
 
 if platform.python_implementation() != "PyPy":
-    # You need to install the NumPy fork of PyPy to make it work:
+    # You need to install PyPy's fork of NumPy to make it work:
     # pip install git+https://bitbucket.org/pypy/numpy.git
     # Also pandas is not yet working with PyPy .
     REQUIRES.extend([
@@ -244,10 +279,10 @@ if platform.python_implementation() != "PyPy":
     ])
 
 setup(
-    name = 'bokeh',
+    name='bokeh',
     version=versioneer.get_version(),
     cmdclass=versioneer.get_cmdclass(),
-    packages = [
+    packages=[
         'bokeh',
         'bokeh.chaco_gg',
         'bokeh.sampledata',
@@ -259,13 +294,13 @@ setup(
         'bokeh.tests',
         'bokeh.transforms'
     ],
-    package_data = {'bokeh' : package_data_dirs},
-    author = 'Continuum Analytics',
-    author_email = 'info@continuum.io',
-    url = 'http://github.com/ContinuumIO/Bokeh',
-    description = 'Statistical and novel interactive HTML plots for Python',
+    package_data={'bokeh': package_data_dirs},
+    author='Continuum Analytics',
+    author_email='info@continuum.io',
+    url='http://github.com/ContinuumIO/Bokeh',
+    description='Statistical and novel interactive HTML plots for Python',
     zip_safe=False,
-    license = 'New BSD',
-    scripts = scripts,
-    install_requires = REQUIRES,
+    license='New BSD',
+    scripts=scripts,
+    install_requires=REQUIRES,
 )
