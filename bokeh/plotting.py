@@ -9,6 +9,8 @@ import requests
 import time
 import warnings
 
+from six import iteritems
+
 from . import glyphs, browserlib, serverconfig
 from .objects import (ColumnDataSource, Glyph, Grid, GridPlot, Legend, Axis,
                       ServerDataSource)
@@ -478,7 +480,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         kwargs.update(glyph_params)
 
         glyph_props = glyphclass.properties()
-        glyph_kwargs = dict((key, value) for (key, value) in kwargs.iteritems() if key in glyph_props)
+        glyph_kwargs = dict((key, value) for (key, value) in iteritems(kwargs) if key in glyph_props)
 
         glyph = glyphclass(**glyph_kwargs)
 
