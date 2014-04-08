@@ -4880,3 +4880,53 @@ textarea.span1,
 .bokeh .invisible {
   visibility: hidden;
 }
+
+.bokeh .button_icon i {
+  cursor: pointer;
+  padding-right: 9px;
+}
+
+.bokeh .button_icon {
+  min-height: 33px;
+  float: right;
+  padding: 15px 0 0;
+}
+
+.bokeh .logo {
+	background: url("../../../../bokeh/static/img/bokeh-transparent.png") no-repeat scroll center / 40px 40px transparent;
+	width: 60px;
+	height: 60px;
+  display: inline-block;
+}
+
+.bokeh .frame_close {
+  float:right;
+  margin-top:25px;
+  cursor: pointer;
+  margin-right:10px;
+}
+
+.bokeh .bokeh_canvas_header {
+  border:1px solid #D3D3D3; 
+  border-bottom:none;
+}
+
+.bokeh .bokeh_canvas_footer {
+  border:1px solid #D3D3D3;
+  border-top:none; 
+  overflow: hidden; 
+  padding: 0px; 
+  float:left
+}
+
+.bokeh_canvas_footer .button_bar {
+  margin: 0px;
+}
+
+.bokeh_canvas_footer .button_bar button {
+  margin: 5px 0px;
+}
+
+.bokeh .show_popup {
+  display: block;
+}

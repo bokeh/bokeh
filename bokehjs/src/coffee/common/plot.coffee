@@ -62,8 +62,11 @@ define [
     className: "bokeh plotview"
     events:
       "mousemove .bokeh_canvas_wrapper": "_mousemove"
-      "mousedown .bokeh_canvas_wrapper": "_mousedown"
-
+      "touchmove .bokeh_canvas_wrapper": "_mousemove"
+      "click .toggle_menu": "_toggle_menubar"
+      "click .gear-icon": "_open_popup"
+      "touchstart .bokeh_canvas_wrapper": "_mousedown"
+    
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
 
@@ -74,7 +77,19 @@ define [
     _mousemove: (e) =>
       for f in @moveCallbacks
         f(e, e.layerX, e.layerY)
-
+    
+    _toggle_menubar: (e) =>
+      @button_bar.toggleClass("hide")
+      @toggle_icon.toggleClass("icon-list")
+      @toggle_icon.toggleClass("icon-chevron-left")
+    
+    _open_popup: (e) =>
+      position = @gear_menu_icon.position()
+      popup_left = position.left - 74
+      popup_top = position.top - @show_popup.outerHeight() - 17
+      @show_popup.attr('style', "left:#{popup_left}px; top:#{popup_top}px;")
+      @show_popup.toggleClass('show_popup')
+      
     pause: () ->
       @is_paused = true
 
@@ -278,15 +293,38 @@ define [
     render_init: () ->
       # TODO use template
       @$el.append($("""
-        <div class='button_bar btn-group pull-top'/>
-        <div class='plotarea'>
-        <div class='bokeh_canvas_wrapper'>
-          <canvas class='bokeh_canvas'></canvas>
+        
+		<div class='plotarea'>
+			<div class='bokeh_canvas_header'>
+				<a href="http://bokeh.pydata.org/" class="logo"></a>
+				<i  class='icon-remove frame_close'></i>
+      </div>
+      <div class='bokeh_canvas_wrapper'  >
+        <canvas class='bokeh_canvas'></canvas>
+      </div>
+      <div class="bokeh_canvas_footer">
+        <div class='hide button_bar btn-group pull-top'/>
+        <div class="button_icon">
+          <i class='toggle_menu icon-list'></i>
+          <i id="popup_menu" class='gear-icon icon-cog'></i>
+          <i class='resize-icon icon-fullscreen'></i>
         </div>
-        </div>
+      </div>
+      
+      <ul class="popup_menu dropdown-menu">
+        <li><a href="#">Object Inspector</a></li>
+        <li><a href="#">Plot Info</a></li>
+      </ul>
+    </div>
         """))
+        
+      @toggle_icon = @$el.find('.toggle_menu')
       @button_bar = @$el.find('.button_bar')
+      @show_popup = @$el.find('.popup_menu')
+      @gear_menu_icon = @$el.find('#popup_menu')
+      @canvas_header = @$el.find('.bokeh_canvas_header')
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
+      @canvas_footer = @$el.find('.bokeh_canvas_footer')
       @canvas = @$el.find('canvas.bokeh_canvas')
 
     render_canvas: (full_render=true) ->
@@ -308,9 +346,11 @@ define [
 
       @canvas.width = ow * ratio
       @canvas.height = oh * ratio
-
-      @button_bar.attr('style', "width:#{ow}px;")
-      @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
+      
+      @button_bar.attr('style', " width: 85%; padding-left: 12px;")
+      @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px; float:left; border:1px solid #D3D3D3")
+      @canvas_header.attr('style', "width:#{ow}px; float: left;")
+      @canvas_footer.attr('style', "width:#{ow}px;")
       @canvas.attr('style', "width:#{ow}px;")
       @canvas.attr('style', "height:#{oh}px;")
       @canvas.attr('width', ow*ratio).attr('height', oh*ratio)
@@ -366,7 +406,7 @@ define [
 
       title = @mget('title')
       if title
-        @title_props.set(@ctx, {})
+        #@title_props.set(@ctx, {})
         th = @ctx.measureText(@mget('title')).ascent
         @requested_padding['top'] += (th + @mget('title_standoff'))
 
@@ -379,7 +419,6 @@ define [
         hpadding = Math.max(@requested_padding['top'], @requested_padding['bottom'])
         @requested_padding['top'] = hpadding
         @requested_padding['bottom'] = hpadding
-
       @is_paused = true
       for k, v of @requested_padding
         @view_state.set("requested_border_#{k}", v)
@@ -430,7 +469,7 @@ define [
       if title
         sx = @view_state.get('outer_width')/2
         sy = th
-        @title_props.set(@ctx, {})
+        #@title_props.set(@ctx, {})
         @ctx.fillText(title, sx, sy)
 
     render_overlays: (have_new_mapper_state) ->
@@ -490,7 +529,7 @@ define [
         title_text_font_style: "normal",
         title_text_color: "#444444",
         title_text_alpha: 1.0,
-        title_text_align: "center",
+        title_text_align: "left",
         title_text_baseline: "alphabetic"
 
         outline_line_color: '#aaaaaa'
