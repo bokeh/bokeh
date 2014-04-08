@@ -7,7 +7,7 @@ require [
 ], (base, CategoricalMapper, Range1d, FactorRange) ->
 
   test('categorical_mapper_factor_range1d', () ->
-    mapper = new CategoricalMapper({
+    mapper = new CategoricalMapper.Model({
       source_range: new FactorRange.Model({'factors': ['foo', 'bar', 'baz']})
       target_range: new Range1d.Model({'start': 20, 'end': 80})
     })
@@ -28,7 +28,7 @@ require [
   )
 
   test('categorical_mapper_factor_range1d_update_source', () ->
-    mapper = new CategoricalMapper({
+    mapper = new CategoricalMapper.Model({
       source_range: new FactorRange.Model({'factors': ['foo', 'bar', 'baz']})
       target_range: new Range1d.Model({'start': 20, 'end': 80})
     })
@@ -54,7 +54,7 @@ require [
   )
 
   test('categorical_mapper_percentage_coordinates', () ->
-    mapper = new CategoricalMapper({
+    mapper = new CategoricalMapper.Model({
       source_range: new FactorRange.Model({'factors': ['foo', 'bar', 'baz']})
       target_range: new Range1d.Model({'start': 20, 'end': 80})
     })
