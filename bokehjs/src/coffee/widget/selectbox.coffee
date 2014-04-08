@@ -4,7 +4,7 @@ define [
   "backbone"
   "underscore"
   "./selecttemplate"
-], (HasParent, continuum_view, Backbone, _, selecttemplate, foo) ->
+], (HasParent, continuum_view, Backbone, _, selecttemplate) ->
   ContinuumView = continuum_view.View
   class SelectView extends ContinuumView
     events :
@@ -36,12 +36,12 @@ define [
         title : ''
         value : ''
         options : []
-      return
+      return def
   class Selects extends Backbone.Collection
     model : Select
-  pretexts = new Selects()
+  selectboxes = new Selects()
   return {
     "Model" : Select
-    "Collection" : pretexts
+    "Collection" : selectboxes
     "View" : SelectView
   }

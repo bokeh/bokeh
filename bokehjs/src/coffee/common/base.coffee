@@ -67,6 +67,7 @@ define [
   'widget/vboxmodelform'
   'widget/pretext'
   'widget/selectbox'
+  'widget/slider'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -136,6 +137,7 @@ define [
     TextInput:                'widget/textinput'
     PreText:                  'widget/pretext'
     Select:                   'widget/selectbox'
+    Slider:                   'widget/slider'
   mod_cache = {}
   collection_overrides = {}
   Collections = (typename) ->

@@ -1,7 +1,8 @@
 from bokeh.plotting import line, circle, session
 
 from bokeh.widgetobjects import (VBoxModelForm, HBox,
-                                 ShinyApp, TextInput, PreText, Select)
+                                 ShinyApp, TextInput, PreText, 
+                                 Select, Slider)
 from bokeh.objects import Plot, ColumnDataSource
 from bokeh.plotobject import PlotObject
 from bokeh.properties import (Dict, Float, String, Instance)
@@ -20,15 +21,22 @@ class MyModel(VBoxModelForm):
     """
     offset = Float(1.0)
     scale = Float(1.0)
+    title = String(default="my sin wave")
     input_specs = [
         {"widget" : TextInput,
+         "name" : "title",
+         "value" : "my sin wave"},
+        {"widget" : Slider,
          "name" : "offset",
-         "value" : 1.0},
-        {"widget" : TextInput,
+         "value" : 1.0,
+         "start" : 0.0,
+         "end" : 5.0},
+        {"widget" : Slider,
          "name" : "scale",
-         "value" : 1.0}
+         "value" : 1.0,
+         "start" : -5.0,
+         "end" : 5.0},
     ]
-    
 class MyApp(ShinyApp):
     plot = Instance(Plot, has_ref=True)
     source = Instance(ColumnDataSource, has_ref=True)
@@ -44,7 +52,8 @@ class MyApp(ShinyApp):
         self.source = ColumnDataSource(data={'x':[], 'y':[]})
         self.update_data()
         self.plot = line('x', 'y', source=self.source,
-                         plot_width=400, plot_height=400
+                         plot_width=400, plot_height=400,
+                         title=self.modelform.title
         )
         self.children.append(self.modelform)
         self.children.append(self.plot)
@@ -60,11 +69,13 @@ class MyApp(ShinyApp):
         new : new value of attr
         """
         self.update_data()
+        self.plot.title = self.modelform.title
 
     def update_data(self):
         N = 80
         x = np.linspace(0, 4*np.pi, N)
         y = np.sin(x)
+        print ("PARAMS", self.modelform.offset, self.modelform.scale)
         y = self.modelform.offset + y * self.modelform.scale
         self.source.data = {'x' : x, 'y' : y}
 
@@ -98,7 +109,7 @@ class StockInputModel(VBoxModelForm):
     label in the generated form
     """
     ticker1 = String(default="AAPL")
-    ticker2 = String(default="C")
+    ticker2 = String(default="GOOG")
     input_specs = [
         {"widget" : Select,
          "name" : "ticker1",
@@ -160,6 +171,7 @@ class StockApp(ShinyApp):
         
     def make_plots(self, ticker1, ticker2):
         self.plot = circle(ticker1 + "_returns", ticker2 + "_returns", 
+                           title="%s vs %s" %(ticker1, ticker2),
                            source=self.source,
                            plot_width=400, plot_height=400,
                            tools="pan,wheel_zoom,select"

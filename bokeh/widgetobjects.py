@@ -32,12 +32,8 @@ class VBoxModelForm(PlotObject):
             for input_spec in self.input_specs:
                 input_spec = copy.copy(input_spec)
                 widget = input_spec.pop('widget')
-                if input_spec.get('title') is None:
-                    input_spec['title'] = input_spec['name']
-                if input_spec.get('value') is not None:
-                    input_spec['value'] = str(input_spec.get('value'))
                 print (input_spec)
-                widget = widget(**input_spec)
+                widget = widget.create(**input_spec)
                 session.add(widget)
                 self._children.append(widget)
 
@@ -46,9 +42,28 @@ class InputWidget(PlotObject):
     title = String()
     name = String()
     value = String()
-    
+    @classmethod
+    def coerce_value(cls, val):
+        if isinstance(cls.__dict__['value'], Float):
+            return float(val)
+        if isinstance(cls.__dict__['value'], Int):
+            return int(val)
+        if isinstance(cls.__dict__['value'], String):
+            return str(val)
+            
+    @classmethod
+    def create(cls, *args, **kwargs):
+        """Only called the first time we make an object, 
+        whereas __init__ is called every time it's loaded
+        """
+        if kwargs.get('title') is None:
+            kwargs['title'] = kwargs['name']
+        if kwargs.get('value') is not None:
+            kwargs['value'] = cls.coerce_value(kwargs.get('value'))
+        return cls(**kwargs)
+
 class TextInput(InputWidget):
-    pass
+    value = String()    
 
 class ShinyApp(PlotObject):
     modelform = Instance(VBoxModelForm, has_ref=True)
@@ -119,11 +134,11 @@ class PreText(Paragraph):
     pass
 
 class Select(InputWidget):
-    title = String()
-    name = String()
-    value = String()
     options = List(Any)
-    def __init__(self, *args, **kwargs):
+    value = String()
+
+    @classmethod
+    def create(self, *args, **kwargs):
         options = kwargs.pop('options', [])
         new_options = []
         for opt in options:
@@ -131,5 +146,11 @@ class Select(InputWidget):
                 opt = {'name' : opt, 'value' : opt}
             new_options.append(opt)
         kwargs['options'] = new_options
-        super(Select, self).__init__(*args, **kwargs)
+        return super(Select, self).create(*args, **kwargs)
         
+class Slider(InputWidget):
+    value = Float()
+    start = Float()
+    end = Float()
+    steps = Int(default=50)
+    orientation = String(default="horizontal")
