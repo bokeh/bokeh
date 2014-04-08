@@ -429,6 +429,12 @@ class CrosshairTool(Tool):
 class BoxZoomTool(Tool):
     pass
 
+class PinchZoomTool(Tool):
+    pass
+
+class PinchBoxZoomTool(Tool):
+    pass
+
 class BoxSelectTool(Tool):
     renderers = List(Instance(Renderer), has_ref=True)
     select_every_mousemove = Bool(True)
