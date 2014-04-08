@@ -13,7 +13,7 @@ class VBox(PlotObject):
 #parent class only, you need to set the fields you want
 class VBoxModelForm(PlotObject):
     _children  = List(Instance(PlotObject, has_ref=True), has_ref=True)
-    _field_defs = Dict()
+    _field_defs = Dict(String, Any)
     input_specs = None
     jsmodel = "VBoxModelForm"
     def __init__(self, *args, **kwargs):
@@ -129,6 +129,7 @@ class BokehApplet(PlotObject):
                 docid=docid,
                 splitjs=bokeh_app.splitjs)
         exampleapp.__name__ = cls.__view_model__
+        print('ROUTING')
         bokeh_app.route(route)(exampleapp)
     
 class Paragraph(PlotObject):

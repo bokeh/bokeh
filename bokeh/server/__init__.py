@@ -91,7 +91,7 @@ def run():
 
     start.prepare_app(backend, single_user_mode=not args.multi_user,
                       data_directory=args.data_directory)
-
+    start.register_blueprint()
     if args.debug:
         start.bokeh_app.debug = True
 

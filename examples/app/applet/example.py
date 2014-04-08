@@ -1,3 +1,4 @@
+import bokeh.server
 from bokeh.plotting import line, circle, session
 
 from bokeh.widgetobjects import (VBoxModelForm, HBox,
@@ -7,7 +8,6 @@ from bokeh.objects import Plot, ColumnDataSource
 from bokeh.plotobject import PlotObject
 from bokeh.properties import (Dict, Float, String, Instance)
 import numpy as np
-
 class MyModel(VBoxModelForm):
     """Input Widgets, define the fields you want to 
     read from the input here as bokeh properties
@@ -218,5 +218,6 @@ bokeh_url = "http://localhost:5006"
 StockApp.add_route("/stocks", bokeh_url)
 
 
+if __name__ == "__main__":
 
-
+    bokeh.server.run()
