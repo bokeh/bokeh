@@ -11,7 +11,7 @@ y = np.sin(x)
 
 output_server("rect")
 
-figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave")
+figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave,pinch_zoom,pinch_box_zoom")
 
 # fixed width and height
 rect(x, y, 4, 2, width_units="screen", height_units="screen",
