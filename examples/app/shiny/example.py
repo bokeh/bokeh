@@ -1,7 +1,7 @@
 from bokeh.plotting import line, circle, session
 
 from bokeh.widgetobjects import (VBoxModelForm, HBox,
-                                 ShinyApp, TextInput, PreText)
+                                 ShinyApp, TextInput, PreText, Select)
 from bokeh.objects import Plot, ColumnDataSource
 from bokeh.plotobject import PlotObject
 from bokeh.properties import (Dict, Float, String, Instance)
@@ -100,12 +100,16 @@ class StockInputModel(VBoxModelForm):
     ticker1 = String(default="AAPL")
     ticker2 = String(default="C")
     input_specs = [
-        {"widget" : TextInput,
+        {"widget" : Select,
          "name" : "ticker1",
-         "value" : "AAPL"},
-        {"widget" : TextInput,
+         "value" : "AAPL",
+         "options" : ["AAPL","GOOG","INTC","BRCM","YHOO"]
+     },
+        {"widget" : Select,
          "name" : "ticker2",
-         "value" : "C"}
+         "value" : "GOOG",
+         "options" : ["AAPL","GOOG","INTC","BRCM","YHOO"]
+     }
     ]
     
 class StockApp(ShinyApp):

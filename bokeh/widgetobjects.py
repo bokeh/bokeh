@@ -117,3 +117,19 @@ class Paragraph(PlotObject):
     
 class PreText(Paragraph):
     pass
+
+class Select(InputWidget):
+    title = String()
+    name = String()
+    value = String()
+    options = List(Any)
+    def __init__(self, *args, **kwargs):
+        options = kwargs.pop('options', [])
+        new_options = []
+        for opt in options:
+            if isinstance(opt, basestring):
+                opt = {'name' : opt, 'value' : opt}
+            new_options.append(opt)
+        kwargs['options'] = new_options
+        super(Select, self).__init__(*args, **kwargs)
+        
