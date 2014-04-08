@@ -73,7 +73,7 @@ class BokehApplet(PlotObject):
     
     def update(self, **kwargs):
         super(BokehApplet, self).update(**kwargs)
-        self. setup_events()
+        self.setup_events()
         
     def setup_events(self):
         if self.modelform:
@@ -90,7 +90,11 @@ class BokehApplet(PlotObject):
 
     def create(self):
         pass
-        
+    def add_all(self, session):
+        objs = self.references()
+        for obj in objs:
+            session.add(obj)
+
     @classmethod
     def add_route(cls, route, bokeh_url):
         from bokeh.server.app import bokeh_app

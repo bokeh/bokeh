@@ -47,7 +47,6 @@ class MyApp(BokehApplet):
         creating all objects (plots, datasources, etc)
         """
         self.modelform = MyModel()
-        session.add(self.modelform)        
         self.modelform.create_inputs(session)
         self.source = ColumnDataSource(data={'x':[], 'y':[]})
         self.update_data()
@@ -57,6 +56,7 @@ class MyApp(BokehApplet):
         )
         self.children.append(self.modelform)
         self.children.append(self.plot)
+        self.add_all(session)
 
     def input_change(self, obj, attrname, old, new):
         """
@@ -153,17 +153,15 @@ class StockApp(BokehApplet):
         creating all objects (plots, datasources, etc)
         """
         self.modelform = StockInputModel()
-        session.add(self.modelform)        
         self.modelform.create_inputs(session)
         ticker1 = self.modelform.ticker1
         ticker2 = self.modelform.ticker2
         self.pretext = PreText(text="")
-        session.add(self.pretext)
         self.make_source(ticker1, ticker2)
         self.make_plots(ticker1, ticker2)
         self.make_stats()
         self.set_children()
-
+        self.add_all(session)
         
     def make_source(self, ticker1, ticker2):
         df = self.get_data(ticker1, ticker2)
