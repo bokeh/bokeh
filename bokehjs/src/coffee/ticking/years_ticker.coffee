@@ -15,7 +15,7 @@ define [
     dinitialize: (attrs, options) ->
       super(attrs, options)
       @set('interval', ONE_YEAR)
-      @basic_ticker = BasicTicker.Collection.create({doc: @get('doc')})
+      @basic_ticker = new BasicTicker.Model()
 
     get_ticks_no_defaults: (data_low, data_high, desired_n_ticks) ->
       start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear()
