@@ -65,14 +65,14 @@ class InputWidget(PlotObject):
 class TextInput(InputWidget):
     value = String()    
 
-class ShinyApp(PlotObject):
+class BokehApplet(PlotObject):
     modelform = Instance(VBoxModelForm, has_ref=True)
     children = List(Instance(PlotObject, has_ref=True), has_ref=True)
     jsmodel = "HBox"
     extra_generated_classes = List(Any)
     
     def update(self, **kwargs):
-        super(ShinyApp, self).update(**kwargs)
+        super(BokehApplet, self).update(**kwargs)
         self. setup_events()
         
     def setup_events(self):
@@ -118,7 +118,7 @@ class ShinyApp(PlotObject):
                     app.modelform.__view_model__,
                     app.modelform.jsmodel))
             return render_template(
-                'shiny.html', 
+                'applet.html', 
                 extra_generated_classes=extra_generated_classes,
                 title=app.__class__.__view_model__,
                 docname=docname, 

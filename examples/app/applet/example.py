@@ -1,7 +1,7 @@
 from bokeh.plotting import line, circle, session
 
 from bokeh.widgetobjects import (VBoxModelForm, HBox,
-                                 ShinyApp, TextInput, PreText, 
+                                 BokehApplet, TextInput, PreText, 
                                  Select, Slider)
 from bokeh.objects import Plot, ColumnDataSource
 from bokeh.plotobject import PlotObject
@@ -37,7 +37,7 @@ class MyModel(VBoxModelForm):
          "start" : -5.0,
          "end" : 5.0},
     ]
-class MyApp(ShinyApp):
+class MyApp(BokehApplet):
     plot = Instance(Plot, has_ref=True)
     source = Instance(ColumnDataSource, has_ref=True)
     
@@ -123,7 +123,7 @@ class StockInputModel(VBoxModelForm):
      }
     ]
     
-class StockApp(ShinyApp):
+class StockApp(BokehApplet):
     plot = Instance(Plot, has_ref=True)
     source = Instance(ColumnDataSource, has_ref=True)
     pretext = Instance(PreText, has_ref=True)
