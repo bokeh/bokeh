@@ -8,6 +8,9 @@ import os
 import uuid
 from six import string_types
 
+import logging
+log = logging.getLogger(__name__)
+
 from .bbauth import check_read_authentication_and_create_client
 
 
@@ -124,7 +127,7 @@ def _get_bokeh_info(docid):
     sess.load_all()
     sess.prune()
     all_models = sess._models.values()
-    print("num models", len(all_models))
+    log.info("num models: %s", len(all_models))
     all_models = sess.broadcast_attrs(all_models)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,

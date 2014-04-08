@@ -12,7 +12,7 @@ define [
   class YearsTicker extends SingleIntervalTicker.Model
     type: 'YearsTicker'
 
-    initialize: (attrs, options) ->
+    dinitialize: (attrs, options) ->
       super(attrs, options)
       @set('interval', ONE_YEAR)
       @basic_ticker = new BasicTicker.Model()
