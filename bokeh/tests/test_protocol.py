@@ -31,7 +31,7 @@ class TestBokehJSONEncoder(unittest.TestCase):
         self.assertEqual(self.encoder.default(a), [0, 1, 2, 3, 4])
 
     def test_numpyint(self):
-        npint = np.int64(1)
+        npint = np.asscalar(np.int64(1))
         self.assertEqual(self.encoder.default(npint), 1)
         self.assertIsInstance(self.encoder.default(npint), int)
 
