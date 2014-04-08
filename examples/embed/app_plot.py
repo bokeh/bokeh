@@ -49,11 +49,11 @@ def my_plot():
 
     legend().orientation = "top_left"
 
-    #snippet = hosted_file(curplot(),
-                          #bokehJS_url='../static/js/bokeh.js',
-                          #bokehCSS_url='../static/css/bokeh.css')
+    snippet = hosted_file(curplot(),
+                          bokehJS_url='../static/js/bokeh.js',
+                          bokehCSS_url='../static/css/bokeh.css')
 
-    snippet = hosted_CDN(curplot())
+    #snippet = hosted_CDN(curplot())
 
     return snippet
 
