@@ -283,6 +283,12 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if arg in kw:
             setattr(p, arg, kw.pop(arg))
 
+    style_arg_prefix = ["title", "outline"]
+    for prefix in style_arg_prefix:
+        for k in list(kw):
+            if k.startswith(prefix):
+                setattr(p, k, kw.pop(k))
+
     tool_objs = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
