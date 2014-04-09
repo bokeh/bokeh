@@ -22,8 +22,8 @@ Plot Ranges
 
 To control the ranges that Bokeh plots show, there are two keyword parameters `x_range` and
 `y_range`. These may be passed into the :class:`bokeh.plotting.figure` function, or into any
-of the high-level plotting glyph functions in :ref:`bokeh_plotting_glyphs`. They may also be set
-as attributes on a plot object.
+of the high-level plotting :ref:`bokeh_plotting_glyphs`. They may also be set as attributes on
+a plot object.
 
 Numerical Ranges
 ''''''''''''''''
@@ -89,7 +89,24 @@ Text Properties
 Plots
 '''''
 
+Plots can be configured with several keyword arguments that control appearence:
 
+* ``background_fill`` a color to fill the inner plot area with
+
+* ``border_fill`` a color to fill the border region around the plot area with.
+
+* ``min_border`` a minimum size in pixels for the border. This applies to all sides of the plot. May set individual border widths with ``min_border_left``, ``min_border_right``, ``min_border_top``, and ``min_border_bottom``
+
+* ``border_symmetry`` whether to symmetrize plot borders on opposite sides of the plot. Valid values are: ``''``, ``'h'``, ``'v'``, and ``'hv'``, where "h" and "v" are for "horizontal" and "vertical", respectively.
+
+* ``title`` a title to display above the plot.
+  - "title" is also the prefix for a set of :ref:`userguide_text_properties`, so you an set the font for the title with the parameter ``text_font``.
+
+* "outline" is the prefix for a set of :ref:`userguide_line_properties` that control the appearance of an outline around the plot, for instance you can set the color of the outline with ``outline_line_color``.
+
+* ``x_range`` the extent of the plotting area in the x-dimension. See :ref:`userguide_plot_ranges`
+
+* ``y_range`` the extent of the plotting area in the y-dimension. See :ref:`userguide_plot_ranges`
 
 Glyphs
 ''''''
