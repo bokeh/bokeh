@@ -21,7 +21,7 @@ from .plotting_helpers import (get_default_color, get_default_alpha,
         _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
-
+from . import  settings
 from .palettes import brewer
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
@@ -1291,8 +1291,7 @@ def grid():
     """
     return _list_attr_splat(xgrid() + ygrid())
 
-from . import  appconfig
-config = appconfig.get_config()
-if config.get('python_lib'):
-    print ('IMPORTING')
-    __import__(config.get('python_lib'))
+
+if settings.pythonlib():
+    logger.debug("importing %s", settings.pythonlib())
+    __import__(settings.pythonlib())

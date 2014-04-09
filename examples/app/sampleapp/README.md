@@ -5,13 +5,7 @@ selecting on the scatter plot, subsets the data which is used in the describe co
 
 #### steps
 1. add BOKEH_CHECKOUT/examples/app to your pythonpath
-2. create a file called `appconfig.json` inside `~/.bokeh`.  it should be filled with
-
-```
-{
-"python_lib" : "sampleapp.objects"
-}
-```
+2. set BOKEH_PYTHONLIB environment variable to be `sampleapp.objects`
 3.  Execute the bokeh server
 4.  run sampleapp/server.py
 5.  navigate to localhost:5050/app
