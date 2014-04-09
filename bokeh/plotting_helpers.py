@@ -330,7 +330,7 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         elif tool == "object_explorer":
             tool_obj = ObjectExplorerTool()
         else:
-            known_tools = "pan, xpan, ypan, wheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
+            known_tools = "pan, xpan, ypan, wheel_zoom, xwheel_zoom, ywheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
 
         tool_objs.append(tool_obj)
