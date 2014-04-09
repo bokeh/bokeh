@@ -15,6 +15,43 @@ the kinds of low-level object attributes that can be set to really customize a p
 
 A reference for Bokeh glyphs can be found at :doc:`glyphs_ref`.
 
+Plot Ranges
+-----------
+
+To control the ranges that Bokeh plots show, there are two keyword parameters `x_range` and
+`y_range`. These may be passed into the :class:`bokeh.plotting.figure` function, or into any
+of the high-level plotting glyph functions in :ref:`bokeh_plotting_glyphs`. They may also be set
+as attributes on a plot object.
+
+Numerical Ranges
+''''''''''''''''
+
+To set the range on a plot that has numerical range values, use a :class:`bokeh.objects.Range1D` object.
+For example, the following code:
+::
+
+    figure(xrange=Range1d(start=2, end=8))
+
+will prepare a new plot that has an x-axis range that spans the interval `[2, 8]`. Alternatively,
+you can set the range as a property on a Plot object:
+::
+
+    plot = curplot()
+    plot.y_range = Range1d(start=0, end=10)
+
+Categorical Ranges
+''''''''''''''''''
+
+For plots with categorical ranges, it is necessary to specify the range as a sequence of strings
+that give the categories in the desired order. For example:
+::
+
+    figure(y_range=["foo", "bar", "baz"])
+
+will prepare a plot whose y-axis range is categorical, with the categories "foo", "bar", and "baz".
+Please see `this categorical example <http://bokeh.pydata.org/docs/gallery/categorical.html>`_ from
+the gallery for a concrete example.
+
 Styling
 -------
 

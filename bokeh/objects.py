@@ -106,6 +106,7 @@ class Range(PlotObject):
     pass
 
 class Range1d(Range):
+    """ Represents a fixed range [start, end] in a scalar dimension. """
     start = Float()
     end = Float()
 
@@ -118,7 +119,7 @@ class DataRange(Range):
         return props
 
 class DataRange1d(DataRange):
-    """ Represents a range in a scalar dimension """
+    """ Represents an auto-fitting range in a scalar dimension. """
     rangepadding = Float(0.1)
     start = Float
     end = Float
