@@ -295,33 +295,32 @@ define [
       @$el.append($("""
         
 		<div class='plotarea'>
-			<div class='bokeh_canvas_header'>
-				<a href="http://bokeh.pydata.org/" class="logo"></a>
-				<i  class='icon-remove frame_close'></i>
-      </div>
-      <div class='bokeh_canvas_wrapper'  >
-        <canvas class='bokeh_canvas'></canvas>
-      </div>
-      <div class="bokeh_canvas_footer">
-        <div class='hide button_bar btn-group pull-top'/>
-        <div class="button_icon">
-          <i class='toggle_menu icon-list'></i>
-          <i id="popup_menu" class='gear-icon icon-cog'></i>
-          <i class='resize-icon icon-fullscreen'></i>
-        </div>
-      </div>
-      
-      <ul class="popup_menu dropdown-menu">
-        <li><a href="#">Object Inspector</a></li>
-        <li><a href="#">Plot Info</a></li>
-      </ul>
+    <div class='bokeh_canvas_header'>
+      <a href="http://bokeh.pydata.org/" class="logo"></a>
+      <i  class='icon-remove frame_close'></i>
+    </div>
+    <div class='bokeh_canvas_wrapper'  >
+      <canvas class='bokeh_canvas'></canvas>
+    </div>
+    <div class="bokeh_canvas_footer">
+    <div class='hide button_bar btn-group pull-top'/>
+    <div class="button_icon">
+      <i class='toggle_menu icon-list'></i>
+      <i class='gear-icon icon-cog'></i>
+      <i class='resize-icon icon-fullscreen'></i>
+    </div>
+    </div>
+    <ul class="popup_menu dropdown-menu">
+      <li><a href="#">Object Inspector</a></li>
+      <li><a href="#">Plot Info</a></li>
+    </ul>
     </div>
         """))
         
       @toggle_icon = @$el.find('.toggle_menu')
       @button_bar = @$el.find('.button_bar')
       @show_popup = @$el.find('.popup_menu')
-      @gear_menu_icon = @$el.find('#popup_menu')
+      @gear_menu_icon = @$el.find('.gear-icon')
       @canvas_header = @$el.find('.bokeh_canvas_header')
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
       @canvas_footer = @$el.find('.bokeh_canvas_footer')
@@ -406,7 +405,6 @@ define [
 
       title = @mget('title')
       if title
-        #@title_props.set(@ctx, {})
         th = @ctx.measureText(@mget('title')).ascent
         @requested_padding['top'] += (th + @mget('title_standoff'))
 
@@ -469,7 +467,6 @@ define [
       if title
         sx = @view_state.get('outer_width')/2
         sy = th
-        #@title_props.set(@ctx, {})
         @ctx.fillText(title, sx, sy)
 
     render_overlays: (have_new_mapper_state) ->

@@ -90,7 +90,7 @@ define [], () ->
         if not e[@options.keyName]
           @_stop_drag(e))
               
-      startClick = (if @touch then 'touchstart' else 'mousedown')
+      startClick = if @touch then 'touchstart' else 'mousedown'
        
       
       
@@ -112,12 +112,12 @@ define [], () ->
 
 
 
-      endClick = (if @touch then 'touchend' else 'mouseup')
+      endClick = if @touch then 'touchend' else 'mouseup'
       
       $(document).bind(endClick, (e) =>
-        if e.target.id != 'popup_menu'
+        if !e.target.className.match(/gear-icon/)
           @plotview.$el.find('.popup_menu').removeClass('show_popup'))
-      
+          
       @plotview.canvas_wrapper.bind(endClick, (e) =>
         @plotview.$el.find('.popup_menu').removeClass('show_popup')
         # To calculate the bokehX and bokehY on touch end event
