@@ -53,16 +53,31 @@ define [
       sy_low  = yr.get('start') - ydiff
       sy_high = yr.get('end') - ydiff
 
-      xstart = @plot_view.xmapper.map_from_target(sx_low)
-      xend   = @plot_view.xmapper.map_from_target(sx_high)
-      ystart = @plot_view.ymapper.map_from_target(sy_low)
-      yend   = @plot_view.ymapper.map_from_target(sy_high)
+      dims = @mget('dimensions')
+
+      if dims.indexOf('width') > -1
+        xstart = @plot_view.xmapper.map_from_target(sx_low)
+        xend   = @plot_view.xmapper.map_from_target(sx_high)
+        sdx    = -xdiff
+      else
+        xstart = @plot_view.xmapper.map_from_target(xr.get('start'))
+        xend   = @plot_view.xmapper.map_from_target(xr.get('end'))
+        sdx    = 0
+
+      if dims.indexOf('height') > -1
+        ystart = @plot_view.ymapper.map_from_target(sy_low)
+        yend   = @plot_view.ymapper.map_from_target(sy_high)
+        sdy    = ydiff
+      else
+        ystart = @plot_view.ymapper.map_from_target(yr.get('start'))
+        yend   = @plot_view.ymapper.map_from_target(yr.get('end'))
+        sdy    = 0
 
       pan_info = {
         xr: {start: xstart, end: xend}
         yr: {start: ystart, end: yend}
-        sdx: -xdiff
-        sdy: ydiff
+        sdx: sdx
+        sdy: sdy
       }
 
       @plot_view.update_range(pan_info)
