@@ -2,7 +2,7 @@ from .plotobject import PlotObject
 from .properties import (HasProps, Dict, Enum, 
                          Either, Float, Instance, Int,
                          List, String, Color, Include, Bool, 
-                         Tuple, Any)
+                         Tuple, Any, lookup_descriptor)
 import copy
 
 class HBox(PlotObject):
@@ -19,7 +19,7 @@ class VBoxModelForm(PlotObject):
     def __init__(self, *args, **kwargs):
         super(VBoxModelForm, self).__init__(*args, **kwargs)
         for prop in self.__properties__:
-            propobj = self.__class__.__dict__[prop]
+            propobj = lookup_descriptor(self.__class__, prop)
             if isinstance(propobj, Float):
                 self._field_defs[prop] = "Float"
             elif isinstance(propobj, Int):
@@ -44,11 +44,12 @@ class InputWidget(PlotObject):
     value = String()
     @classmethod
     def coerce_value(cls, val):
-        if isinstance(cls.__dict__['value'], Float):
+        prop_obj = lookup_descriptor(cls, 'value')
+        if isinstance(prop_obj, Float):
             return float(val)
-        if isinstance(cls.__dict__['value'], Int):
+        if isinstance(prop_obj, Int):
             return int(val)
-        if isinstance(cls.__dict__['value'], String):
+        if isinstance(prop_obj, String):
             return str(val)
             
     @classmethod
