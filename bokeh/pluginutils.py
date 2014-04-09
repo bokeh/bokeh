@@ -1,5 +1,8 @@
 from bokeh.plotting import output_server, session
 import uuid
+import logging
+logger = logging.getLogger(__name__)
+
 def app_document(prefix, url="default"):
     def decorator(func):
         def wrapper(*args, **kwargs):
@@ -9,7 +12,7 @@ def app_document(prefix, url="default"):
             session().add(app)
             session().plotcontext.children=[app]
             session().plotcontext._dirty = True
-            print (session().store_all())
+            logger.debug("stored: %s", str(session().store_all()))
             app.docname = docname
             return app
         return wrapper

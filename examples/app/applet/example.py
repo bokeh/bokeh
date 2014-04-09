@@ -8,6 +8,9 @@ from bokeh.objects import Plot, ColumnDataSource
 from bokeh.plotobject import PlotObject
 from bokeh.properties import (Dict, Float, String, Instance)
 import numpy as np
+import logging
+logging.basicConfig(level=logging.DEBUG)
+
 class MyModel(VBoxModelForm):
     """Input Widgets, define the fields you want to 
     read from the input here as bokeh properties
@@ -75,7 +78,7 @@ class MyApp(BokehApplet):
         N = 80
         x = np.linspace(0, 4*np.pi, N)
         y = np.sin(x)
-        print ("PARAMS", self.modelform.offset, self.modelform.scale)
+        logging.debug ("PARAMS %s %s", self.modelform.offset, self.modelform.scale)
         y = self.modelform.offset + y * self.modelform.scale
         self.source.data = {'x' : x, 'y' : y}
 

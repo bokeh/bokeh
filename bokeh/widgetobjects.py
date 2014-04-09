@@ -4,6 +4,8 @@ from .properties import (HasProps, Dict, Enum,
                          List, String, Color, Include, Bool, 
                          Tuple, Any, lookup_descriptor)
 import copy
+import logging
+logger = logging.getLogger(__name__)
 
 class HBox(PlotObject):
     children = List(Instance(PlotObject, has_ref=True), has_ref=True)
@@ -32,7 +34,6 @@ class VBoxModelForm(PlotObject):
             for input_spec in self.input_specs:
                 input_spec = copy.copy(input_spec)
                 widget = input_spec.pop('widget')
-                print (input_spec)
                 widget = widget.create(**input_spec)
                 session.add(widget)
                 self._children.append(widget)
@@ -130,7 +131,6 @@ class BokehApplet(PlotObject):
                 docid=docid,
                 splitjs=bokeh_app.splitjs)
         exampleapp.__name__ = cls.__view_model__
-        print('ROUTING')
         bokeh_app.route(route)(exampleapp)
     
 class Paragraph(PlotObject):
