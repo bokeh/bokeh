@@ -16,8 +16,9 @@ from pprint import pprint
 API_PARAMS = {
     'owner': 'ContinuumIO',
     'repo': 'bokeh',
+    'pagination': '100',
 }
-ISSUES_URL = 'https://api.github.com/repos/{owner}/{repo}/issues?state=closed'.format(**API_PARAMS)
+ISSUES_URL = 'https://api.github.com/repos/{owner}/{repo}/issues?state=closed&per_page={pagination}'.format(**API_PARAMS)
 TAGS_URL = 'https://api.github.com/repos/{owner}/{repo}/tags'.format(**API_PARAMS)
 CHANGEKIND_ORDER = [None, 'enhancements', 'bugfixes', 'test', 'docs']
 CHANGEKIND_SHOW = CHANGEKIND_ORDER[:3] # show only these change kinds
