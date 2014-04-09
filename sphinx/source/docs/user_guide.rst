@@ -15,6 +15,8 @@ the kinds of low-level object attributes that can be set to really customize a p
 
 A reference for Bokeh glyphs can be found at :doc:`glyphs_ref`.
 
+.. _userguide_plot_ranges:
+
 Plot Ranges
 -----------
 
@@ -144,6 +146,8 @@ individual axes, or can that have attributes set directly on them to update all 
 
 Typically after updating these attributes, a call to ``plotting.show()`` will be required.
 
+.. note:: The ``bounds`` attribute here controls only the extent of the axis! It does not set the range of the plot. For that, see :ref:`userguide_plot_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the axis to render between 4 and 8, in order to highlight a particular sub-area of the plot.
+
 Grids
 '''''
 
@@ -153,7 +157,11 @@ and ``plotting.grid()`` functions available to obtain grids for the current plot
 
     xgrid().axis_line_dash = "3 3" # update all x-grids
     ygrid()[0].axis_line_color = None # only updates the first y-grid
-    axis().bounds = (2, 8) # set bounds for all grids
+    grid().bounds = (2, 8) # set bounds for all grids
+
+Typically after updating these attributes, a call to ``plotting.show()`` will be required.
+
+.. note:: The ``bounds`` attribute here controls only the extent of the grid! It does not set the range of the plot. For that, see :ref:`userguide_plot_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the grid to render between 4 and 8, in order to highlight a particular sub-area of the plot.
 
 Tools
 -----
