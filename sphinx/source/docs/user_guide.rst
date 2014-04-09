@@ -155,7 +155,6 @@ and ``plotting.grid()`` functions available to obtain grids for the current plot
     ygrid()[0].axis_line_color = None # only updates the first y-grid
     axis().bounds = (2, 8) # set bounds for all grids
 
-
 Tools
 -----
 
@@ -166,7 +165,7 @@ or specific mouse movement.
 Tools are added to plots with the ``tools`` keyword argument, which has as its
 value a comma separated string listing the tools to add to the plot, for example::
 
-    tools = "pan,wheel_zoom,box_zoom,reset,resize,crosshair,select,previewsave,embed"
+    tools = "pan,wheel_zoom,box_zoom,reset,resize"
 
 PanTool
 '''''''
@@ -174,11 +173,17 @@ The pan tool (``'pan'``) pans the plot on left-click drag. It can be made the ac
 by clicking its button on the tool bar, however it also automatically activates on left-click
 drag whenever there is no other active tool.
 
+It is also possible to constraint the pan tool to only act on either just the x-axis or
+just the y-axis. For this, there are tool names ``'xpan'`` and ``'ypan'``, respectively.
+
 WheelZoomTool
 '''''''''''''
 The wheel zoom tool (``'wheel_zoom'``) will zoom the plot in and out, centered on the current
 mouse location.  It can be made the active tool by clicking its button on the tool bar, however
 it also automatically activates when the ``Shift`` key is depressed.
+
+It is also possible to constraint the wheel zoom tool to only act on either just the x-axis or
+just the y-axis. For this, there are tool names ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
 
 BoxZoomTool
 '''''''''''
