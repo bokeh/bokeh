@@ -89,7 +89,7 @@ Text Properties
 Plots
 '''''
 
-Plots can be configured with several keyword arguments that control appearence:
+Plots can be configured with several keyword arguments that control appearance:
 
 * ``background_fill`` a color to fill the inner plot area with
 
@@ -107,6 +107,23 @@ Plots can be configured with several keyword arguments that control appearence:
 * ``x_range`` the extent of the plotting area in the x-dimension. See :ref:`userguide_plot_ranges`
 
 * ``y_range`` the extent of the plotting area in the y-dimension. See :ref:`userguide_plot_ranges`
+
+* ``plot_width``, ``plot_height`` width and height of the entire plot in pixels, including border space
+
+* ``x_axis_type``, ``y_axis_type`` can be set to ``"datetime"`` to create datetime axis
+
+These parameters can be passed to glyph functions such a ``circle`` or ``rect`` but it is often useful
+to pass them to a call to ``figure``:
+::
+
+    figure(
+        title="My Plot",
+        title_font_size="20pt"
+        plot_width=200,
+        plot_height=300,
+        outline_line_color="red"
+        x_axis_type="datetime"
+    )
 
 Glyphs
 ''''''
