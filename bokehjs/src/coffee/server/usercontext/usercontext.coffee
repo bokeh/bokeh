@@ -25,7 +25,6 @@ define [
       "click .bokehdelete" : "deldoc"
 
     deldoc : (e) ->
-      console.log('foo')
       e.preventDefault()
       @model.destroy()
       return false

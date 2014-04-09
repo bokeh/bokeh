@@ -6,6 +6,7 @@ from os.path import dirname, join
 
 import requests
 from six.moves.urllib.parse import urlencode
+from unittest import skip
 
 from . import test_utils
 from ...serverconfig import Server
@@ -17,6 +18,7 @@ datadir = join(dirname(dirname(dirname(dirname(__file__)))), 'remotedata')
 class RemoteDataTestCase(test_utils.BokehServerTestCase):
     options = {'data_directory': datadir}
 
+    @skip
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_list(self):
         config = tempfile.mkdtemp()
@@ -31,6 +33,7 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
                   ])
         assert result == set(sources)
 
+    @skip
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_line_downsample(self):
         config = tempfile.mkdtemp()
