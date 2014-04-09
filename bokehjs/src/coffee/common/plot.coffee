@@ -85,8 +85,8 @@ define [
     
     _open_popup: (e) =>
       position = @gear_menu_icon.position()
-      popup_left = position.left - 74
-      popup_top = position.top - @show_popup.outerHeight() - 17
+      popup_left = position.left - @show_popup.outerWidth() / 2
+      popup_top = position.top - @show_popup.outerHeight() - @gear_menu_icon.outerHeight()
       @show_popup.attr('style', "left:#{popup_left}px; top:#{popup_top}px;")
       @show_popup.toggleClass('show_popup')
       
