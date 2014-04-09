@@ -304,6 +304,7 @@ This first block defines the data and computes some derived quantities used in t
     from bokeh.objects import Range1d
     from StringIO import StringIO
     from math import log, sqrt
+    from collections import OrderedDict
 
     antibiotics = """
     bacteria,                        penicillin, streptomycin, neomycin, gram
@@ -325,11 +326,11 @@ This first block defines the data and computes some derived quantities used in t
     Diplococcus pneumoniae,          0.005,      11,           10,       positive
     """
 
-    drug_color = {
-        "Penicillin"   : "#0d3362",
-        "Streptomycin" : "#c64737",
-        "Neomycin"     : "black",
-    }
+    drug_color = OrderedDict([
+        ("Penicillin",   "#0d3362"),
+        ("Streptomycin", "#c64737"),
+        ("Neomycin",     "black"  ),
+    ])
 
     gram_color = {
         "positive" : "#aeaeb8",
@@ -370,7 +371,7 @@ opportunity toset some of the overall properties of the plot::
     colors = [gram_color[gram] for gram in df.gram]
     annular_wedge(
         x, y, inner_radius, outer_radius, -big_angle+angles, angles, color=colors,
-        width=width, height=height, title="", tools="", x_axis_type=None, y_axis_type=None
+        plot_width=width, plot_height=height, title="", tools="", x_axis_type=None, y_axis_type=None
     )
 
 Next we grab the current plot using ``curplot`` and customize the look of the plot further::
