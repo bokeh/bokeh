@@ -69,7 +69,7 @@ define [
       defaults =
         _children : []
         _field_defs : {}
-      return {'children' : []}
+      return defaults
   class VBoxModelFormes extends Backbone.Collection
     model : VBoxModelForm
   vboxmodelformes = new VBoxModelFormes()
