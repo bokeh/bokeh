@@ -10,18 +10,41 @@ import urllib2
 
 from datetime import datetime
 from itertools import groupby
-from pprint import pprint
+from collections import OrderedDict
 
 
 API_PARAMS = {
+    'url': 'https://api.github.com/repos',
     'owner': 'ContinuumIO',
     'repo': 'bokeh',
     'pagination': '100',
 }
-ISSUES_URL = 'https://api.github.com/repos/{owner}/{repo}/issues?state=closed&per_page={pagination}'.format(**API_PARAMS)
-TAGS_URL = 'https://api.github.com/repos/{owner}/{repo}/tags'.format(**API_PARAMS)
-CHANGEKIND_ORDER = [None, 'enhancements', 'bugfixes', 'test', 'docs']
-CHANGEKIND_SHOW = CHANGEKIND_ORDER[:3] # show only these change kinds
+ISSUES_URL = '{url}/{owner}/{repo}/issues?state=closed&per_page={pagination}'.format(**API_PARAMS)
+TAGS_URL = '{url}/{owner}/{repo}/tags'.format(**API_PARAMS)
+CHANGEKIND_NAME = OrderedDict([  # issue label -> change kind name (or None to ignore)
+    ('', 'unlabeled'),  # special "label" to indicate issue has no labels
+    ('enhancement', 'enhancements'),
+    ('bug', 'bugfixes'),
+    ('tests', 'tests'),
+    ('docs', 'documentation'),
+    ('FailedReview', None),
+    ('HOTFIX', None),
+    ('NeedsReview', None),
+    ('PassedReview', None),
+    ('Superceded', None),
+    ('WIP', None),
+    ('discussion', None),
+    ('duplicate', None),
+    ('invalid', None),
+    ('python3', None),
+    ('question', None),
+    ('upstream', None),
+    ('wontfix', None)
+])
+
+
+def changekind_order(issue):
+    return CHANGEKIND_NAME.values().index(changekind(issue))
 
 
 def parse_timestamp(timestamp):
@@ -31,29 +54,31 @@ def parse_timestamp(timestamp):
 
 
 def changekind(issue):
-    """Returns change kind name of given issue, or None if it has no kind."""
-    for label in issue.get('labels', []):
-        if label['name'] == 'enhancement':
-            return 'enhancements'
-        elif label['name'] == 'bug':
-            return 'bugfixes'
-        elif label['name'] == 'docs':
-            return 'documentation'
-        elif label['name'] == 'test':
-            return 'tests'
+    """Returns change kind name of the given issue, otherwise None."""
+    labels = issue.get('labels', [])
+    if not labels:
+        return 'unlabeled'
+    for label in labels:
+        name = CHANGEKIND_NAME.get(label['name'], None)
+        if name:
+            return name
     return None
+
+
+def relevent_issue(issue, after):
+    """Returns True iff this issue is something we should show in the changelog."""
+    return (issue['state'] == 'closed' and
+            parse_timestamp(issue['closed_at']) > after and
+            changekind(issue))
 
 
 def relevant_issues(issues, after):
     """Yields relevant closed issues (closed after a given datetime) given a list of issues."""
     seen = set()
     for issue in issues:
-        if (issue['state'] == 'closed' and
-            parse_timestamp(issue['closed_at']) > after and
-            changekind(issue) in CHANGEKIND_SHOW and
-            not issue['title'] in seen):
-                seen.add(issue['title'])
-                yield issue
+        if relevent_issue(issue, after) and not issue['title'] in seen:
+            seen.add(issue['title'])
+            yield issue
 
 
 def query_tags():
@@ -79,11 +104,14 @@ def dateof(tag_name, tags):
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Creates a change log since the given tag using the github API.')
+    parser = argparse.ArgumentParser(description='Creates a bokeh changelog using the github API.')
     after_group = parser.add_mutually_exclusive_group(required=True)
-    after_group.add_argument('-d', metavar='DATE', type=str, help='select changes that occurred after the given ISO8601 date')
-    after_group.add_argument('-t', metavar='TAG', type=str, help='select changes that occurred after the given git tag')
-    parser.add_argument('-v', metavar='VERSION', type=str, help="generate header using today's date and the given version")
+    after_group.add_argument('-d', metavar='DATE',
+                             help='select changes that occurred after the given ISO8601 date')
+    after_group.add_argument('-t', metavar='TAG',
+                             help='select changes that occurred after the given git tag')
+    parser.add_argument('-v', metavar='VERSION',
+                        help="generate header using today's date and the given version")
     args = parser.parse_args()
 
     if args.t:
@@ -98,7 +126,7 @@ if __name__ == '__main__':
     if args.v:
         label = '{}{:>9}:'.format(datetime.now().date(), args.v)
 
-    sort_key = lambda issue: (CHANGEKIND_ORDER.index(changekind(issue)), int(issue['number']))
+    sort_key = lambda issue: (changekind_order(issue), int(issue['number']))
     by_kind = lambda issue: changekind(issue)
 
     issues = query_issues()
@@ -107,9 +135,9 @@ if __name__ == '__main__':
 
     print(label + '\n' + '-' * 20)
     for kind, issue_group in groupby(issues, key=by_kind):
-        if(kind):
+        if kind != 'unlabeled':
             print('  * {}:'.format(kind))
         for issue in issue_group:
-            prefix = '    - ' if kind else '  * '
+            prefix = '    - ' if kind != 'unlabeled' else '  * '
             title = issue['title'].capitalize().rstrip('.')
             print(prefix + '#{} {}'.format(issue['number'], title))
