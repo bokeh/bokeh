@@ -159,4 +159,4 @@ class Slider(InputWidget):
     start = Float()
     end = Float()
     steps = Int(default=50)
-    orientation = String(default="horizontal")
+    orientation = Enum("horizontal", "vertical")
