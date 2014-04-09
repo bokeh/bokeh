@@ -70,7 +70,7 @@ class BokehApplet(PlotObject):
     modelform = Instance(VBoxModelForm, has_ref=True)
     children = List(Instance(PlotObject, has_ref=True), has_ref=True)
     jsmodel = "HBox"
-    extra_generated_classes = List(Any)
+    extra_generated_classes = List(Tuple(String, String, String))
     
     def update(self, **kwargs):
         super(BokehApplet, self).update(**kwargs)
