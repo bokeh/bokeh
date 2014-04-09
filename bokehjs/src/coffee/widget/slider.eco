@@ -1,0 +1,3 @@
+<label for="<%= @id %>"> <%= @title %> </label>    
+<div class="slider bk-slider-<%=@orientation%>" id="<%=@id%>">
+

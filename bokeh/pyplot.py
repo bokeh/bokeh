@@ -92,14 +92,14 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False, xkcd=Fal
         plots.append(plot)
 
     if len(figure.axes) <= 1:
-        plotting._config["curplot"] = plots[0]
+        plotting.get_config()["curplot"] = plots[0]
         session.add_plot(plots[0])
     else:
         (a, b, c) = figure.axes[0].get_geometry()
         p = np.array(plots)
         n = np.resize(p, (a, b))
         grid = objects.GridPlot(children=n.tolist())
-        plotting._config["curplot"] = grid
+        plotting.get_config()["curplot"] = grid
         session.add_plot(grid)
 
     if filename:

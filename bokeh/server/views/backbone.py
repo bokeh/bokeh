@@ -1,6 +1,6 @@
 from flask import (
         render_template, request,
-        send_from_directory, make_response)
+        send_from_directory, make_response, g)
 import flask
 import os
 import logging
@@ -15,9 +15,13 @@ from .bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
 from ..crossdomain import crossdomain
 from ..views import make_json
+from ...plotting import _AttrDict, make_config
 log = logging.getLogger(__name__)
 
-
+def init_bokeh(redissession):
+    request.bokeh_config = make_config()
+    request.bokeh_config['session'] = redissession
+    request.bokeh_config['autostore'] = False
 #Management Functions
 
 @bokeh_app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
@@ -163,10 +167,11 @@ def update(docid, typename, id):
     namely in writing, we shouldn't remove unspecified attrs
     (we currently don't handle this correctly)
     """
+    
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     sess = bokeh_app.backbone_storage.get_session(docid)    
     sess.load_all()
-    
+    init_bokeh(sess)
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     #patch id is not passed...
     modeldata['id'] = id
@@ -180,6 +185,9 @@ def update(docid, typename, id):
     except ValueError as e:
         #this is strange but ok, that means the model didn't change
         pass
+    app = [x for x in changed if "App" in x.__view_model__]
+    log.debug("app %s", sess.serialize(sess.attrs(app)))
+    log.debug("changed, %s", str(changed))
     ws_update(sess, changed, exclude_self=False)
     ws_update(sess, [model], exclude_self=True)
     log.debug("update, %s, %s", docid, typename)

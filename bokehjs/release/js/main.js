@@ -7,8 +7,10 @@
     }
     Bokeh = {};
     Bokeh.version = '0.4.2';
+    Bokeh.Backbone = require("backbone");
+    Bokeh._ = require("underscore");
     Bokeh.Collections = require("common/base").Collections;
-    Bokeh.Config = require("common/base").Collections;
+    Bokeh.Config = require("common/base").Config;
     Bokeh.GMapPlot = require("common/gmap_plot");
     Bokeh.GridPlot = require("common/grid_plot");
     Bokeh.HasParent = require("common/has_parent");
@@ -79,6 +81,18 @@
     Bokeh.serverrun = require("server/serverrun");
     Bokeh.serverutils = require("server/serverutils");
     Bokeh.ColumnDataSource = require("source/column_data_source");
+    Bokeh.AbstractTicker = require("ticking/abstract_ticker");
+    Bokeh.AdaptiveTicker = require("ticking/adaptive_ticker");
+    Bokeh.BasicTicker = require("ticking/basic_ticker");
+    Bokeh.BasicTickFormatter = require("ticking/basic_tick_formatter");
+    Bokeh.CategoricalTicker = require("ticking/categorical_ticker");
+    Bokeh.CategoricalTickFormatter = require("ticking/categorical_tick_formatter");
+    Bokeh.CompositeTicker = require("ticking/composite_ticker");
+    Bokeh.DatetimeTicker = require("ticking/datetime_ticker");
+    Bokeh.DatetimeTickFormatter = require("ticking/datetime_tick_formatter");
+    Bokeh.DaysTicker = require("ticking/days_ticker");
+    Bokeh.MonthsTicker = require("ticking/months_ticker");
+    Bokeh.SingleIntervalTicker = require("ticking/single_interval_ticker");
     Bokeh.BoxSelectTool = require("tool/box_select_tool");
     Bokeh.BoxZoomTool = require("tool/box_zoom_tool");
     Bokeh.CrosshairTool = require("tool/crosshair_tool");
@@ -90,8 +104,14 @@
     Bokeh.ResetTool = require("tool/reset_tool");
     Bokeh.ResizeTool = require("tool/resize_tool");
     Bokeh.WheelZoomTool = require("tool/wheel_zoom_tool");
+    Bokeh.ObjectExplorerTool = require("tool/object_explorer_tool");
     Bokeh.DataSlider = require("widget/data_slider");
     Bokeh.server_page = require("server/serverrun").load;
+    Bokeh.HBox = require("widget/hbox");
+    Bokeh.VBox = require("widget/hbox");
+    Bokeh.VBoxModelForm = require("widget/vboxmodelform");
+    Bokeh.TextInput = require("widget/textinput");
+    Bokeh.ObjectExplorer = require("util/object_explorer");
     exports.Bokeh = Bokeh;
     return Bokeh;
   });
