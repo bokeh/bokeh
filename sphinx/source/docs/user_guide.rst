@@ -15,6 +15,45 @@ the kinds of low-level object attributes that can be set to really customize a p
 
 A reference for Bokeh glyphs can be found at :doc:`glyphs_ref`.
 
+.. _userguide_plot_ranges:
+
+Plot Ranges
+-----------
+
+To control the ranges that Bokeh plots show, there are two keyword parameters `x_range` and
+`y_range`. These may be passed into the :class:`bokeh.plotting.figure` function, or into any
+of the high-level plotting :ref:`bokeh_plotting_glyphs`. They may also be set as attributes on
+a plot object.
+
+Numerical Ranges
+''''''''''''''''
+
+To set the range on a plot that has numerical range values, use a :class:`bokeh.objects.Range1D` object.
+For example, the following code:
+::
+
+    figure(xrange=Range1d(start=2, end=8))
+
+will prepare a new plot that has an x-axis range that spans the interval `[2, 8]`. Alternatively,
+you can set the range as a property on a Plot object:
+::
+
+    plot = curplot()
+    plot.y_range = Range1d(start=0, end=10)
+
+Categorical Ranges
+''''''''''''''''''
+
+For plots with categorical ranges, it is necessary to specify the range as a sequence of strings
+that give the categories in the desired order. For example:
+::
+
+    figure(y_range=["foo", "bar", "baz"])
+
+will prepare a plot whose y-axis range is categorical, with the categories "foo", "bar", and "baz".
+Please see `this categorical example <http://bokeh.pydata.org/docs/gallery/categorical.html>`_ from
+the gallery for a concrete example.
+
 Styling
 -------
 
@@ -50,7 +89,41 @@ Text Properties
 Plots
 '''''
 
+Plots can be configured with several keyword arguments that control appearance:
 
+* ``background_fill`` a color to fill the inner plot area with
+
+* ``border_fill`` a color to fill the border region around the plot area with.
+
+* ``min_border`` a minimum size in pixels for the border. This applies to all sides of the plot. May set individual border widths with ``min_border_left``, ``min_border_right``, ``min_border_top``, and ``min_border_bottom``
+
+* ``border_symmetry`` whether to symmetrize plot borders on opposite sides of the plot. Valid values are: ``''``, ``'h'``, ``'v'``, and ``'hv'``, where "h" and "v" are for "horizontal" and "vertical", respectively.
+
+* ``title`` a title to display above the plot.
+  - "title" is also the prefix for a set of :ref:`userguide_text_properties`, so you an set the font for the title with the parameter ``text_font``.
+
+* "outline" is the prefix for a set of :ref:`userguide_line_properties` that control the appearance of an outline around the plot, for instance you can set the color of the outline with ``outline_line_color``.
+
+* ``x_range`` the extent of the plotting area in the x-dimension. See :ref:`userguide_plot_ranges`
+
+* ``y_range`` the extent of the plotting area in the y-dimension. See :ref:`userguide_plot_ranges`
+
+* ``plot_width``, ``plot_height`` width and height of the entire plot in pixels, including border space
+
+* ``x_axis_type``, ``y_axis_type`` can be set to ``"datetime"`` to create datetime axis
+
+These parameters can be passed to glyph functions such a ``circle`` or ``rect`` but it is often useful
+to pass them to a call to ``figure``:
+::
+
+    figure(
+        title="My Plot",
+        title_font_size="20pt"
+        plot_width=200,
+        plot_height=300,
+        outline_line_color="red"
+        x_axis_type="datetime"
+    )
 
 Glyphs
 ''''''
@@ -107,6 +180,8 @@ individual axes, or can that have attributes set directly on them to update all 
 
 Typically after updating these attributes, a call to ``plotting.show()`` will be required.
 
+.. note:: The ``bounds`` attribute here controls only the extent of the axis! It does not set the range of the plot. For that, see :ref:`userguide_plot_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the axis to render between 4 and 8, in order to highlight a particular sub-area of the plot.
+
 Grids
 '''''
 
@@ -116,8 +191,11 @@ and ``plotting.grid()`` functions available to obtain grids for the current plot
 
     xgrid().axis_line_dash = "3 3" # update all x-grids
     ygrid()[0].axis_line_color = None # only updates the first y-grid
-    axis().bounds = (2, 8) # set bounds for all grids
+    grid().bounds = (2, 8) # set bounds for all grids
 
+Typically after updating these attributes, a call to ``plotting.show()`` will be required.
+
+.. note:: The ``bounds`` attribute here controls only the extent of the grid! It does not set the range of the plot. For that, see :ref:`userguide_plot_ranges`. As an example, a plot window may extend from 0 to 10, but you may only want the grid to render between 4 and 8, in order to highlight a particular sub-area of the plot.
 
 Tools
 -----
@@ -129,7 +207,7 @@ or specific mouse movement.
 Tools are added to plots with the ``tools`` keyword argument, which has as its
 value a comma separated string listing the tools to add to the plot, for example::
 
-    tools = "pan,wheel_zoom,box_zoom,reset,resize,crosshair,select,previewsave,embed"
+    tools = "pan,wheel_zoom,box_zoom,reset,resize"
 
 PanTool
 '''''''
@@ -137,11 +215,17 @@ The pan tool (``'pan'``) pans the plot on left-click drag. It can be made the ac
 by clicking its button on the tool bar, however it also automatically activates on left-click
 drag whenever there is no other active tool.
 
+It is also possible to constraint the pan tool to only act on either just the x-axis or
+just the y-axis. For this, there are tool names ``'xpan'`` and ``'ypan'``, respectively.
+
 WheelZoomTool
 '''''''''''''
 The wheel zoom tool (``'wheel_zoom'``) will zoom the plot in and out, centered on the current
 mouse location.  It can be made the active tool by clicking its button on the tool bar, however
 it also automatically activates when the ``Shift`` key is depressed.
+
+It is also possible to constraint the wheel zoom tool to only act on either just the x-axis or
+just the y-axis. For this, there are tool names ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
 
 BoxZoomTool
 '''''''''''
@@ -237,6 +321,7 @@ This first block defines the data and computes some derived quantities used in t
     from bokeh.objects import Range1d
     from StringIO import StringIO
     from math import log, sqrt
+    from collections import OrderedDict
 
     antibiotics = """
     bacteria,                        penicillin, streptomycin, neomycin, gram
@@ -258,11 +343,11 @@ This first block defines the data and computes some derived quantities used in t
     Diplococcus pneumoniae,          0.005,      11,           10,       positive
     """
 
-    drug_color = {
-        "Penicillin"   : "#0d3362",
-        "Streptomycin" : "#c64737",
-        "Neomycin"     : "black",
-    }
+    drug_color = OrderedDict([
+        ("Penicillin",   "#0d3362"),
+        ("Streptomycin", "#c64737"),
+        ("Neomycin",     "black"  ),
+    ])
 
     gram_color = {
         "positive" : "#aeaeb8",
@@ -303,7 +388,7 @@ opportunity toset some of the overall properties of the plot::
     colors = [gram_color[gram] for gram in df.gram]
     annular_wedge(
         x, y, inner_radius, outer_radius, -big_angle+angles, angles, color=colors,
-        width=width, height=height, title="", tools="", x_axis_type=None, y_axis_type=None
+        plot_width=width, plot_height=height, title="", tools="", x_axis_type=None, y_axis_type=None
     )
 
 Next we grab the current plot using ``curplot`` and customize the look of the plot further::
