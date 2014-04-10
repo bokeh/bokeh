@@ -34,4 +34,5 @@ define [
   return {
     "Model" : VBox
     "Collection" : vboxes
+    "View" : VBoxView
   }
