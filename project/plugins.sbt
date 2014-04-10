@@ -1,4 +1,4 @@
-List("sbt-js", "sbt-less").map(name => addSbtPlugin("com.untyped" % name % "0.7"))
+addSbtPlugin("com.untyped" % "sbt-js" % "0.7")
 
 resolvers += "spray repo" at "http://repo.spray.io"
 

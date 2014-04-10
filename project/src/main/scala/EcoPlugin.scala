@@ -3,10 +3,11 @@ import Keys._
 
 import com.untyped.sbtgraph.{Graph,Source,Descendents}
 
-import org.mozilla.javascript.tools.shell.{Global}
-import org.mozilla.javascript.{Context,Scriptable,ScriptableObject,Callable,NativeObject}
+import org.mozilla.javascript.tools.shell.Global
+import org.mozilla.javascript.{Context,Scriptable,Callable}
 
 import scala.collection.JavaConverters._
+import java.nio.charset.Charset
 
 object EcoPlugin extends sbt.Plugin {
     case class EcoSource(graph: EcoGraph, src: File) extends Source with Rhino {
@@ -39,10 +40,10 @@ object EcoPlugin extends sbt.Plugin {
                 graph.log.info(s"Compiling ${graph.pluginName} source $des")
                 withContext { ctx =>
                     val scope = ecoScope(ctx)
-                    val precompile = scope.get("precompile", scope).asInstanceOf[Callable]
+                    val ecoCompiler = scope.get("precompile", scope).asInstanceOf[Callable]
                     val args = Array[AnyRef](IO.read(src))
-                    val compiled = precompile.call(ctx, scope, scope, args).asInstanceOf[String]
-                    IO.write(des, compiled)
+                    val output = ecoCompiler.call(ctx, scope, scope, args).asInstanceOf[String]
+                    IO.write(des, output)
                     des
                 }
             }

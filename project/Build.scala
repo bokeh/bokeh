@@ -2,9 +2,9 @@ import sbt._
 import Keys._
 
 import com.untyped.sbtjs.Plugin.{JsKeys,jsSettings=>pluginJsSettings,CompilationLevel,VariableRenamingPolicy}
-import com.untyped.sbtless.Plugin.{LessKeys,lessSettings=>pluginLessSettings}
 
 import WorkbenchPlugin.{WorkbenchKeys,workbenchSettings=>pluginWorkbenchSettings}
+import LessPlugin.{LessKeys,lessSettings=>pluginLessSettings}
 import EcoPlugin.{EcoKeys,ecoSettings=>pluginEcoSettings}
 
 object ProjectBuild extends Build {
@@ -58,8 +58,7 @@ object ProjectBuild extends Build {
     lazy val lessSettings = pluginLessSettings ++ Seq(
         sourceDirectory in (Compile, LessKeys.less) <<= (sourceDirectory in Compile)(_ / "less"),
         resourceManaged in (Compile, LessKeys.less) <<= (resourceManaged in Compile)(_ / "css"),
-        compile in Compile <<= compile in Compile dependsOn (LessKeys.less in Compile),
-        LessKeys.prettyPrint in (Compile, LessKeys.less) := true)
+        compile in Compile <<= compile in Compile dependsOn (LessKeys.less in Compile))
 
     lazy val ecoSettings = pluginEcoSettings ++ Seq(
         sourceDirectory in (Compile, EcoKeys.eco) <<= (sourceDirectory in Compile)(_ / "coffee"),
