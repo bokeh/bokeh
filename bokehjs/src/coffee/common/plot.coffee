@@ -295,7 +295,7 @@ define [
       # TODO use template
       @$el.append($("""
         
-		<div class='plotarea'>
+    <div class='plotarea'>
     <div class='bokeh_canvas_header hide'>
       <a href="http://bokeh.pydata.org/" class="logo"></a>
       <i  class='icon-remove frame_close'></i>

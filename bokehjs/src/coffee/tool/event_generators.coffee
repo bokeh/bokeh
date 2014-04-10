@@ -123,9 +123,7 @@ define [], () ->
           @plotview.$el.find('.popup_menu').removeClass('show_popup'))
 
       @plotview.frame_close.bind(endClick, (e) =>
-        if @frame_view == "off"
-          return null
-        else if @frame_view == "on"
+        if @frame_view == "on"
           @frame_view = "off"
         @plotview.canvas_header.addClass('hide')
         @plotview.canvas_footer.addClass('hide')
