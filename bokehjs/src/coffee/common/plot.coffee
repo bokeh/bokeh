@@ -130,6 +130,7 @@ define [
         min_border_bottom: (options.min_border_bottom ? @mget('min_border_bottom')) ? @mget('min_border')
         min_border_left:   (options.min_border_left   ? @mget('min_border_left'))   ? @mget('min_border')
         min_border_right:  (options.min_border_right  ? @mget('min_border_right'))  ? @mget('min_border')
+        frame:             options.frame              ? @mget('frame')
         requested_border_top: 0
         requested_border_bottom: 0
         requested_border_left: 0
@@ -295,14 +296,14 @@ define [
       @$el.append($("""
         
 		<div class='plotarea'>
-    <div class='bokeh_canvas_header'>
+    <div class='bokeh_canvas_header hide'>
       <a href="http://bokeh.pydata.org/" class="logo"></a>
       <i  class='icon-remove frame_close'></i>
     </div>
     <div class='bokeh_canvas_wrapper'  >
       <canvas class='bokeh_canvas'></canvas>
     </div>
-    <div class="bokeh_canvas_footer">
+    <div class="bokeh_canvas_footer hide">
     <div class='hide button_bar btn-group pull-top'/>
     <div class="button_icon">
       <i class='toggle_menu icon-list'></i>
@@ -321,6 +322,7 @@ define [
       @button_bar = @$el.find('.button_bar')
       @show_popup = @$el.find('.popup_menu')
       @gear_menu_icon = @$el.find('.gear-icon')
+      @frame_close = @$el.find('.frame_close')
       @canvas_header = @$el.find('.bokeh_canvas_header')
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
       @canvas_footer = @$el.find('.bokeh_canvas_footer')
@@ -346,14 +348,19 @@ define [
       @canvas.width = ow * ratio
       @canvas.height = oh * ratio
       
-      @button_bar.attr('style', " width: 85%; padding-left: 12px;")
-      @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px; float:left; border:1px solid #D3D3D3")
+      @button_bar.attr('style', " width: 85%; padding-left: 12px; float:left;")
+      @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px; float:left;")
       @canvas_header.attr('style', "width:#{ow}px; float: left;")
       @canvas_footer.attr('style', "width:#{ow}px;")
       @canvas.attr('style', "width:#{ow}px;")
       @canvas.attr('style', "height:#{oh}px;")
       @canvas.attr('width', ow*ratio).attr('height', oh*ratio)
       @$el.attr("width", ow).attr('height', oh)
+
+      if @mget('frame') == "on"
+        @canvas_header.removeClass('hide')
+        @canvas_footer.removeClass('hide')
+        @$el.find('.plotarea').addClass('frame')
 
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)

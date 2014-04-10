@@ -28,12 +28,15 @@ define [], () ->
       @button_activated = false
       @tool_active = false
       @touch = 'ontouchstart' of document.documentElement
+      @frame_view = ""
 
     bind_bokeh_events: (plotview, eventSink) ->
       if @options.touch_event? && not @options.touch_event
         return null
       if @options.button_disable? and @options.button_disable
         button_disabled = "disabled"
+      if @frame_view == ""
+        @frame_view = plotview.view_state.get('frame')
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -92,7 +95,11 @@ define [], () ->
               
       startClick = if @touch then 'touchstart' else 'mousedown'
        
-      
+      @plotview.canvas_wrapper.bind 'click touchstart', (e) =>
+        if @frame_view == "onfocus"
+          @plotview.canvas_header.removeClass('hide')
+          @plotview.canvas_footer.removeClass('hide')
+          @plotview.$el.find('.plotarea').addClass('frame')
       
       @plotview.canvas_wrapper.bind startClick, (e) =>
         start = false
@@ -109,15 +116,21 @@ define [], () ->
           @_start_drag()
           return false
 
-
-
-
       endClick = if @touch then 'touchend' else 'mouseup'
       
       $(document).bind(endClick, (e) =>
         if !e.target.className.match(/gear-icon/)
           @plotview.$el.find('.popup_menu').removeClass('show_popup'))
-          
+
+      @plotview.frame_close.bind(endClick, (e) =>
+        if @frame_view == "off"
+          return null
+        else if @frame_view == "on"
+          @frame_view = "off"
+        @plotview.canvas_header.addClass('hide')
+        @plotview.canvas_footer.addClass('hide')
+        @plotview.$el.find('.plotarea').removeClass('frame'))
+      
       @plotview.canvas_wrapper.bind(endClick, (e) =>
         @plotview.$el.find('.popup_menu').removeClass('show_popup')
         # To calculate the bokehX and bokehY on touch end event
