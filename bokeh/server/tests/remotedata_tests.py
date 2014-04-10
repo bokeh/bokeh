@@ -2,7 +2,9 @@ import json
 import tempfile
 import time
 import datetime as dt
-from os.path import dirname, join
+import numpy as np
+import pandas as pd
+from os.path import dirname, join, exists
 
 import requests
 from six.moves.urllib.parse import urlencode
@@ -49,3 +51,28 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
             url,
             )
         result = result.json()
+        
+temp_data_dir = tempfile.mkdtemp(prefix="remote_data_test")
+class RemoteDataTestCase(test_utils.BokehServerTestCase):
+    options = {'data_directory':  temp_data_dir}
+    
+    @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
+    def test_upload(self):
+        f = join(datadir, "defaultuser", "AAPL.hdf5")
+        url = "http://localhost:5006/bokeh/data/upload/defaultuser/myfile.hdf5"
+        with open(f) as myfile:
+            result = requests.post(url, files={'file' : ("myfile.hdf5", myfile)})
+        assert result.content == "/defaultuser/myfile.hdf5"
+        destination = join(temp_data_dir, "defaultuser", "myfile.hdf5")
+        assert exists(destination)
+        
+    def test_client(self):
+        s = Server()
+        fname = s._prep_data_source_numpy("foo", np.array([1,2,3,4,5]))
+        assert exists(fname)
+        data = pd.DataFrame({'a' : [1,2,3,4,5], 'b' :[1,2,3,4,5]})
+        fname = s._prep_data_source_df("foo", data)
+        assert exists(fname)
+        
+        
+        

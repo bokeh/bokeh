@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from werkzeug.utils import secure_filename
 import json
 
 from ..app import bokeh_app
@@ -28,3 +29,12 @@ def get_data(username, data_url):
                                             downsample_function, downsample_parameters)
     result = make_json(protocol.serialize_json(result))
     return result
+
+
+@bokeh_app.route("/bokeh/data/upload/<username>/<name>", methods=['POST'])
+def upload(username, name):
+    bokehuser = bokeh_app.authentication.current_user()
+    request_username = bokehuser.username
+    f = request.files['file']
+    url = bokeh_app.datamanager.write(request_username, name, f)
+    return url
