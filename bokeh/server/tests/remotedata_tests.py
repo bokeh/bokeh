@@ -66,6 +66,7 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
         destination = join(temp_data_dir, "defaultuser", "myfile.hdf5")
         assert exists(destination)
         
+    @skip
     def test_client(self):
         s = Server()
         fname = s._prep_data_source_numpy("foo", np.array([1,2,3,4,5]))
