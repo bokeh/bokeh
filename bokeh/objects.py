@@ -10,12 +10,14 @@ import warnings
 import logging
 logger = logging.getLogger(__file__)
 
+
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, Orientation, Location, Dimension, BorderSymmetry
 from .plotobject import PlotObject
 from .glyphs import BaseGlyph
+
 
 class DataSource(PlotObject):
     """ Base class for data sources """

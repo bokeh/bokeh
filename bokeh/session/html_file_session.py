@@ -165,22 +165,6 @@ class HTMLFileSession(BaseHTMLSession):
 
         return html
 
-    def embed_js(self, plot_id, static_root_url):
-        # FIXME: Handle this more intelligently
-        pc_ref = self.get_ref(self.plotcontext)
-        elementid = self.make_id()
-
-        jscode = self._load_template('embed_direct.js').render(
-            host = "",
-            static_root_url=static_root_url,
-            elementid = elementid,
-            modelid = pc_ref["id"],
-            modeltype = pc_ref["type"],
-            plotid = plot_id,
-            all_models = self.serialize_models())
-
-        return jscode.encode("utf-8")
-
     def save(self, filename=None, resources="inline", rootdir=None):
         """ Saves the file contents. Uses self.filename if **filename** is not
         provided. Overwrites the contents.

@@ -14,15 +14,8 @@ console.log("embed.js");
     }
     var host = "{{host}}";
 
-    var staticRootUrl = "{{static_root_url}}";
-    if (host!=""){
-
-        staticRootUrl = "//" + host + "/bokehjs/static/";
-        var bokehJSUrl = staticRootUrl + "js/bokeh.js";
-    }
-    else {
-        bokehJSUrl = staticRootUrl +"js/bokeh.js";
-    }
+    var bokehJS_url = "{{bokehJS_url}}";
+    var bokehCSS_url = "{{bokehCSS_url}}";
 
     var all_models = {{ all_models|default('{}') }};
     var modeltype = "{{ modeltype }}";
@@ -36,7 +29,7 @@ console.log("embed.js");
         console.log("Bokeh.js loaded callback");
         embed_core = Bokeh.embed_core;
         console.log("embed_core loaded");
-        embed_core.injectCss(staticRootUrl);
+        embed_core.injectCss(bokehCSS_url);
         Bokeh.HasProperties.prototype.sync = Backbone.sync
         embed_core.search_and_plot(dd);
         console.log("search_and_plot called", new Date());}
@@ -59,7 +52,9 @@ console.log("embed.js");
     else if(!script_injected){
         // bokeh.js isn't loaded and it hasn't been scheduled to be injected
         var s = document.createElement('script');
-        s.async = true; s.src = bokehJSUrl; s.id="bokeh_script_tag";
+        s.async = true; 
+        s.src = bokehJS_url; 
+        s.id="bokeh_script_tag";
         
     }
     else {
