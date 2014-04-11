@@ -21,7 +21,7 @@ class VBoxModelForm(PlotObject):
     jsmodel = "VBoxModelForm"
     def __init__(self, *args, **kwargs):
         super(VBoxModelForm, self).__init__(*args, **kwargs)
-        for prop in self.__properties__:
+        for prop in self.properties():
             propobj = lookup_descriptor(self.__class__, prop)
             if isinstance(propobj, Float):
                 self._field_defs[prop] = "Float"
