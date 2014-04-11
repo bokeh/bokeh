@@ -141,7 +141,7 @@ class PreText(Paragraph):
     pass
 
 class Select(InputWidget):
-    options = List(Any)
+    options = List(Either(String(), Dict(String(), String())))
     value = String()
 
     @classmethod
