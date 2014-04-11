@@ -1,0 +1,18 @@
+{% extends "_base.html" %}
+
+{% block title %}
+Bokeh Plot Server &mdash; {{ title }}
+{% endblock %}
+
+{% block script %}
+
+Bokeh.one_object_page("{{docid}}", "{{objid}}")
+
+{% endblock %}
+
+{% block content %}
+<div class="span12">
+  <a href="{{ request.url }}">link to this </a>
+  <div id="PlotPane"></div>
+</div>
+{% endblock %}

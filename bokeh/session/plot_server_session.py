@@ -221,3 +221,7 @@ class PlotServerSession(BaseHTMLSession, PersistentBackboneSession):
         self.http_session.post(url, data=all_data)
         for m in to_store:
             m._callbacks_dirty = False
+            
+    def object_link(self, obj):
+        link = "/bokeh/doc/%s/%s" % (self.docid, obj._id)
+        return utils.urljoin(self.base_url, link)

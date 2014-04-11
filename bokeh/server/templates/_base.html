@@ -31,6 +31,7 @@
   </head>
   <body>
   <div class="container">
+    {% if not hide_navbar %}
     <div class="row">
       <div class="navbar">
         <div class="navbar-inner">
@@ -43,6 +44,7 @@
         </div>
       </div>
     </div>
+    {% endif %}
     <div class="row">
       {% block content %}
       {% endblock %}

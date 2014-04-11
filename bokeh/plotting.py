@@ -330,7 +330,7 @@ def curplot():
     """
     return get_config().curplot
 
-def show(browser=None, new="tab"):
+def show(browser=None, new="tab", url=None):
     """ 'shows' the current plot, by auto-raising the window or tab
     displaying the current plot (for file/server output modes) or displaying
     it in an output cell (IPython notebook).
@@ -359,7 +359,10 @@ def show(browser=None, new="tab"):
         controller.open("file://" + os.path.abspath(get_config().output_file), new=new_param)
     elif output_type == "server":
         session.store_all()
-        controller.open(get_config().output_url + "/bokeh", new=new_param)
+        if url:
+            controller.open(url, new=new_params)
+        else:
+            controller.open(get_config().output_url + "/bokeh", new=new_param)
     elif output_type == "notebook":
         session.show(curplot())
 
