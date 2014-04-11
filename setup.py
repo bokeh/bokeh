@@ -179,16 +179,17 @@ if 'devjs' in sys.argv or 'develop' in sys.argv:
     APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
            join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
     CSS = join(BOKEHJSBUILD, 'css')
-    if '--deploy' in sys.argv:
-        os.chdir('bokehjs')
-        try:
-            print("deploying bokehjs...")
-            out = subprocess.check_output(['grunt', 'deploy'])
-            sys.argv.remove('--deploy')
-        except subprocess.CalledProcessError:
-            print("ERROR: could not deploy bokehjs")
-            sys.exit(1)
-        os.chdir('..')
+
+if '--deploy' in sys.argv:
+    os.chdir('bokehjs')
+    try:
+        print("deploying bokehjs...")
+        out = subprocess.check_output(['grunt', 'deploy'])
+        sys.argv.remove('--deploy')
+    except subprocess.CalledProcessError:
+        print("ERROR: could not deploy bokehjs")
+        sys.exit(1)
+    os.chdir('..')
 
 if exists(join(SERVER, 'static', 'js')):
     shutil.rmtree(join(SERVER, 'static', 'js'))
