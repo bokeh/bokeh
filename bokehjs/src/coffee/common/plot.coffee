@@ -134,7 +134,7 @@ define [
         min_border_left:   (options.min_border_left   ? @mget('min_border_left'))   ? @mget('min_border')
         min_border_right:  (options.min_border_right  ? @mget('min_border_right'))  ? @mget('min_border')
         frame:             options.frame              ? @mget('frame')
-        resize_plot:         options.resize_plot          ? @mget('resize_plot')
+        resize_plot:       options.resize_plot        ? @mget('resize_plot')
         requested_border_top: 0
         requested_border_bottom: 0
         requested_border_left: 0
