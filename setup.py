@@ -174,25 +174,26 @@ if sys.version_info[:2] < (2, 6):
 # TODO (bev) remove 'devjs' in 0.5
 if 'devjs' in sys.argv:
     print("WARNING: 'devjs' is deprecated and will be removed in Bokeh 0.5, please use 'develop'")
+    sys.argv.remove("devjs")
+    sys.argv.append("develop")
 
 # TODO (bev) remove '--deploy' in 0.5
 if '--deploy' in sys.argv:
     print("WARNING: '--deploy' is deprecated and will be removed in Bokeh 0.5, please use 'build_js'")
+    sys.argv.remove("--deploy")
+    sys.argv.append("--build_js")
 
-if 'devjs' in sys.argv or 'develop' in sys.argv:
+if 'develop' in sys.argv:
     APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
            join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
     CSS = join(BOKEHJSBUILD, 'css')
 
-if '--deploy' in sys.argv or '--build_js' in sys.argv:
+if '--build_js' in sys.argv:
     os.chdir('bokehjs')
     try:
         print("deploying bokehjs...")
         out = subprocess.check_output(['grunt', 'deploy'])
-        if '--deploy' in sys.argv:
-            sys.argv.remove('--deploy')
-        else:
-            sys.argv.remove('--build_js')
+        sys.argv.remove('--build_js')
     except subprocess.CalledProcessError:
         print("ERROR: could not deploy bokehjs")
         sys.exit(1)
