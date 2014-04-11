@@ -48,7 +48,7 @@ define [
       build_views(@views, children)
       for own key, val of @views
         val.$el.detach()
-      @$el.html('')
+      @$el.empty()
       for child in children
         @$el.append("<br/")
         @$el.append(@views[child.id].$el)

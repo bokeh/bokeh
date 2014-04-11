@@ -17,7 +17,7 @@ define [
       @render()
 
     render : () ->
-      @$el.html('')
+      @$el.empty()
       html = @template(@model.attributes)
       @$el.html(html)
       max = @mget('end')

@@ -23,7 +23,7 @@ define [
       @listenTo(@model, 'change', @render)
 
     render : () ->
-      @$el.html('')
+      @$el.empty()
       html = @template(@model.attributes)
       @$el.html(html)
       return this
