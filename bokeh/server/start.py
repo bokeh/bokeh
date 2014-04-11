@@ -35,7 +35,7 @@ from flask import Flask
 
 # import objects so that we can resolve them
 from .. import protocol, objects, glyphs
-
+from .. import plotting #imports custom objects for plugin
 from .app import bokeh_app
 from .models import user
 from . import services
@@ -84,11 +84,12 @@ def prepare_app(backend, single_user_mode=True, data_directory=None):
     bokeh_app.setup(backend, bbstorage, servermodel_storage, 
                     authentication, datamanager)
 
-    app.register_blueprint(bokeh_app)
-
     # where should we be setting the secret key....?
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
+        
+def register_blueprint():
+    app.register_blueprint(bokeh_app)
 
 def make_default_user(bokeh_app):
     bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",
