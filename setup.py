@@ -189,7 +189,10 @@ if '--deploy' in sys.argv or '--build_js' in sys.argv:
     try:
         print("deploying bokehjs...")
         out = subprocess.check_output(['grunt', 'deploy'])
-        sys.argv.remove('--deploy')
+        if '--deploy' in sys.argv:
+            sys.argv.remove('--deploy')
+        else:
+            sys.argv.remove('--build_js')
     except subprocess.CalledProcessError:
         print("ERROR: could not deploy bokehjs")
         sys.exit(1)
