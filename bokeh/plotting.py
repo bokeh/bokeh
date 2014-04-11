@@ -9,6 +9,8 @@ import requests
 import time
 import warnings
 
+from six import iteritems
+
 from . import glyphs, browserlib, serverconfig
 from .objects import (ColumnDataSource, Glyph, Grid, GridPlot, Legend, Axis,
                       ServerDataSource)
@@ -481,7 +483,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         kwargs.update(glyph_params)
 
         glyph_props = glyphclass.properties()
-        glyph_kwargs = dict((key, value) for (key, value) in kwargs.iteritems() if key in glyph_props)
+        glyph_kwargs = dict((key, value) for (key, value) in iteritems(kwargs) if key in glyph_props)
 
         glyph = glyphclass(**glyph_kwargs)
 
@@ -1135,16 +1137,10 @@ def scatter(*args, **kwargs):
     Args:
         *args : The data to plot.  Can be of several forms:
 
-            (X, Y1, Y2, ...)
-                A series of 1D arrays, iterables, or bokeh DataSource/ColumnsRef
-            [[x1,y1], [x2,y2], .... ]
-                An iterable of tuples
-            NDarray (NxM)
-                The first column is treated as the X, and all other M-1 columns
-                are treated as separate Y series
-            [y1, y2, ... yN]
-                A list/tuple of scalar values; will be treated as Y values and
-                a synthetic X array of integers will be generated.
+            (X, Y)
+                Two 1D arrays or iterables
+            (XNAME, YNAME)
+                Two bokeh DataSource/ColumnsRef
 
         marker (str, optional): a valid marker_type, defaults to "circle"
         color (color value, optional): shorthand to set both fill and line color
@@ -1154,9 +1150,7 @@ def scatter(*args, **kwargs):
 
     Examples:
 
-            >>> scatter([1,2,3,4,5,6])
             >>> scatter([1,2,3],[4,5,6], fill_color="red")
-            >>> scatter(x_array, y_array, marker="circle")
             >>> scatter("data1", "data2", source=data_source, ...)
 
     """

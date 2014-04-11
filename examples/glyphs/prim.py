@@ -21,8 +21,6 @@ source = ColumnDataSource(data=dict(x=x,y=y))
 xdr = Range1d(start=0, end=10)
 ydr = Range1d(start=0, end=10)
 
-arc = Arc(x="x", y="y", radius=0.4, start_angle=0.8, end_angle=3.8)
-
 def make_plot(name, glyph):
     glyph_renderer = Glyph(
         data_source = source,
@@ -43,18 +41,19 @@ def make_plot(name, glyph):
     plot.renderers.append(glyph_renderer)
     plot.tools = [pantool, wheelzoomtool]
 
-    try:
-        sess = session.PlotServerSession(
-            serverloc="http://localhost:5006",
-            username="defaultuser",
-            userapikey="nokey")
-    except requests.exceptions.ConnectionError:
-        print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-        sys.exit(1)
-
-    sess.use_doc(name)
     sess.add_plot(plot)
     sess.store_all()
+
+try:
+    sess = session.PlotServerSession(
+        serverloc="http://localhost:5006",
+        username="defaultuser",
+        userapikey="nokey")
+except requests.exceptions.ConnectionError:
+    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
+    sys.exit(1)
+
+sess.use_doc('prim')
 
 make_plot('annular_wedge', AnnularWedge(x="x", y="y", inner_radius=0.2, outer_radius=0.5, start_angle=0.8, end_angle=3.8))
 make_plot('annulus', Annulus(x="x", y="y", inner_radius=0.2, outer_radius=0.5))

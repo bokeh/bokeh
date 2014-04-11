@@ -106,6 +106,7 @@ class Range(PlotObject):
     pass
 
 class Range1d(Range):
+    """ Represents a fixed range [start, end] in a scalar dimension. """
     start = Float()
     end = Float()
 
@@ -118,7 +119,7 @@ class DataRange(Range):
         return props
 
 class DataRange1d(DataRange):
-    """ Represents a range in a scalar dimension """
+    """ Represents an auto-fitting range in a scalar dimension. """
     rangepadding = Float(0.1)
     start = Float
     end = Float
@@ -243,6 +244,7 @@ class Plot(PlotObject):
     y_range = Instance(Range, has_ref=True)
     png = String('')
     title = String('')
+    title_props = Include(TextProps, prefix="title")
     outline_props = Include(LineProps, prefix="outline")
 
     # A list of all renderers on this plot; this includes guides as well

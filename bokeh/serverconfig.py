@@ -175,7 +175,7 @@ class Server(object):
         return name
 
     def data_source(self, name, dataframe=None, array=None):
-        if dataframe:
+        if dataframe is not None:
             fname = self._prep_data_source_df(name, dataframe)
             target_name = name + ".pandas"
         else:

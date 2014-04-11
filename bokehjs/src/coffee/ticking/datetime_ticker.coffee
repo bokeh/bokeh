@@ -22,9 +22,6 @@ define [
   class DatetimeTicker extends CompositeTicker.Model
     type: 'DatetimeTicker'
 
-    initialize: (attrs, options) ->
-      super(attrs, options)
-
     defaults: () ->
       return _.extend(super(), {
         tickers: [

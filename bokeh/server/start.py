@@ -3,15 +3,29 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
+from bokeh.utils import scale_delta
+
 try:
-    from geventwebsocket.handler import WebSocketHandler
     from gevent.pywsgi import WSGIServer
-    def make_server(host, port, app):
-        http_server = WSGIServer((host, port), app, handler_class=WebSocketHandler)
-        return http_server
+    from geventwebsocket.handler import WebSocketHandler
 except ImportError:
     log.info("no gevent - your websockets won't work")
     from wsgiref.simple_server import make_server
+else:
+    class BokehWSGIServer(WSGIServer):
+        logger = log
+
+    class BokehWSGIHandler(WebSocketHandler):
+        def format_request(self):
+            request = getattr(self, 'requestline', '-')
+            status = getattr(self, 'status', '-')
+            length = self.response_length or '-'
+            time = "%.1f%s" % scale_delta(self.time_finish - self.time_start) if self.time_finish else '-'
+            return '%s %s %s %s' % (request, status, length, time)
+
+    def make_server(host, port, app):
+        http_server = BokehWSGIServer((host, port), app, handler_class=BokehWSGIHandler, log=log)
+        return http_server
 
 import atexit
 import os

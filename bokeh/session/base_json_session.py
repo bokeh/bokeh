@@ -10,7 +10,7 @@ from .session import Session
 
 logger = logging.getLogger(__file__)
 
-class _PlotObjectEncoder(protocol.NumpyJSONEncoder):
+class _PlotObjectEncoder(protocol.BokehJSONEncoder):
     """ Helper class we'll use to encode PlotObjects
 
     #hugo - I don't think we should use the json encoder anymore to do
