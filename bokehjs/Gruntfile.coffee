@@ -48,6 +48,13 @@ module.exports = (grunt) ->
           src: ['**/*']
           dest : 'build/js/vendor'
         ]
+      image:
+        files: [
+          expand: true
+          cwd: 'src/img'
+          src: ['**/*']
+          dest : 'build/img'
+        ]
       release:
         files: [
             expand: true
@@ -252,7 +259,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks('grunt-groc')
 
   grunt.registerTask("default",     ["build", "qunit"])
-  grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
+  grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor", "copy:image"]) # better way??
   grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config", "concat"])
   grunt.registerTask("deploy",      ["build",  "requirejs", "cssmin", "copy:spectrogram"])
   grunt.registerTask("test",        ["build", "connect", "qunit"])
