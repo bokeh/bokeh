@@ -1,3 +1,4 @@
+import six
 from .plotobject import PlotObject
 from .properties import (HasProps, Dict, Enum, 
                          Either, Float, Instance, Int,
@@ -148,7 +149,7 @@ class Select(InputWidget):
         options = kwargs.pop('options', [])
         new_options = []
         for opt in options:
-            if isinstance(opt, basestring):
+            if isinstance(opt, six.string_types):
                 opt = {'name' : opt, 'value' : opt}
             new_options.append(opt)
         kwargs['options'] = new_options
