@@ -171,16 +171,20 @@ def getsitepackages():
 if sys.version_info[:2] < (2, 6):
     raise RuntimeError("Bokeh requires python >= 2.6")
 
-# TODO (bev) remove 'devjs' in 0.6
+# TODO (bev) remove 'devjs' in 0.5
 if 'devjs' in sys.argv:
-    print("WARNING: 'devjs' is deprecated and will be removed in Bokeh 0.6, please use 'develop'")
+    print("WARNING: 'devjs' is deprecated and will be removed in Bokeh 0.5, please use 'develop'")
+
+# TODO (bev) remove '--deploy' in 0.5
+if '--deploy' in sys.argv:
+    print("WARNING: '--deploy' is deprecated and will be removed in Bokeh 0.5, please use 'build_js'")
 
 if 'devjs' in sys.argv or 'develop' in sys.argv:
     APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
            join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
     CSS = join(BOKEHJSBUILD, 'css')
 
-if '--deploy' in sys.argv:
+if '--deploy' in sys.argv or '--build_js' in sys.argv:
     os.chdir('bokehjs')
     try:
         print("deploying bokehjs...")
