@@ -8,6 +8,8 @@ import os
 import requests
 import time
 import warnings
+import logging
+logger = logging.getLogger(__name__)
 
 from six import iteritems
 
@@ -21,7 +23,7 @@ from .plotting_helpers import (get_default_color, get_default_alpha,
         _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
 from .session import (HTMLFileSession, PlotServerSession, NotebookSession,
         NotebookServerSession)
-
+from . import  settings
 from .palettes import brewer
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
@@ -42,11 +44,19 @@ class _AttrDict(dict):
         else:
             self._bad_attr(name)
 
-_config = {}
+_config = _AttrDict()
 
-def _set_config():
-    global _config
-    _config = _AttrDict(
+def get_config():
+    try:
+        from flask import request
+        config = request.bokeh_config
+        logger.debug("returning config from flask request")
+        return config
+    except (ImportError, RuntimeError, AttributeError):
+        logger.debug("returning global config from bokeh.plotting")
+        return _config
+def make_config():
+    return _AttrDict(
         # The current output mode.  Valid combinations:
         #   type       | url
         #   -----------+--------------
@@ -62,7 +72,10 @@ def _set_config():
         autosave = False,
         file_resources = "inline",
         file_rootdir = None,
-
+        
+        #Configuration options for "server" mode
+        autostore = True,
+        
         # The currently active Session object
         session = None,
 
@@ -71,15 +84,19 @@ def _set_config():
 
         # hold state
         hold = False)
+    
+def _set_config():
+    global _config
+    _config = make_config()
 _set_config()
 
 def _get_plot(kwargs):
     plot = kwargs.pop("plot", None)
     if not plot:
-        if _config.hold and _config.curplot:
-            plot = _config.curplot
+        if get_config().hold and get_config().curplot:
+            plot = get_config().curplot
         else:
-            plot_kwargs = _config.pop('figure_kwargs', {})
+            plot_kwargs = get_config().pop('figure_kwargs', {})
             plot_kwargs.update(kwargs)
             plot = _new_xy_plot(**plot_kwargs)
     return plot
@@ -168,7 +185,7 @@ def session():
     Returns:
         session : the current :class:`session <bokeh.session.Session>` object
     """
-    return _config.session
+    return get_config().session
 
 ###NEEDS A BOKEH CLOUD VERSION AS WELL
 def output_notebook(url=None, server=None, name=None, docname=None):
@@ -195,16 +212,16 @@ def output_notebook(url=None, server=None, name=None, docname=None):
         session.notebooksources()
     else:
         if url == "default":
-            real_url = _config.plotserver_url
+            real_url = get_config().plotserver_url
         else:
             real_url = url
         if name is None:
             name = real_url
         if not server:
             server = serverconfig.Server(name=name, root_url=real_url)
-        _config.output_url = server.root_url
-        _config.output_type = "server"
-        _config.output_file = None
+        get_config().output_url = server.root_url
+        get_config().output_type = "server"
+        get_config().output_file = None
         try:
             session = NotebookServerSession(server_config=server)
         except requests.exceptions.ConnectionError:
@@ -216,9 +233,9 @@ def output_notebook(url=None, server=None, name=None, docname=None):
             docname = "IPython Session at %s" % time.ctime()
         session.use_doc(docname)
         session.notebook_connect()
-    _config.output_type = "notebook"
-    _config.output_file = None
-    _config.session = session
+    get_config().output_type = "notebook"
+    get_config().output_file = None
+    get_config().session = session
 
 def output_cloud(docname):
     output_server(docname, server=serverconfig.Cloud())
@@ -240,25 +257,25 @@ def output_server(docname, server=None, name=None, url="default", **kwargs):
     finally fallback on url
     """
     if url == "default":
-        real_url = _config.plotserver_url
+        real_url = get_config().plotserver_url
     else:
         real_url = url
     if name is None:
         name = real_url
     if not server:
         server = serverconfig.Server(name=name, root_url=real_url)
-    _config.output_url = server.root_url
-    _config.output_type = "server"
-    _config.output_file = None
+    get_config().output_url = server.root_url
+    get_config().output_type = "server"
+    get_config().output_file = None
     try:
-        _config.session = PlotServerSession(server_config=server)
+        get_config().session = PlotServerSession(server_config=server)
     except requests.exceptions.ConnectionError:
         print("Cannot connect to Bokeh server. (Not running?) To start the "
               "Bokeh server execute 'bokeh-server'")
         import sys
         sys.exit(1)
-    _config.session.use_doc(docname)
-    real_url = _config.output_url
+    get_config().session.use_doc(docname)
+    real_url = get_config().output_url
     print("Using plot server at", real_url + "bokeh;", "Docname:", docname)
 
 def output_file(filename, title="Bokeh Plot", autosave=True, resources="inline", rootdir=None):
@@ -281,7 +298,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, resources="inline",
     if os.path.isfile(filename):
         print("Session output file '%s' already exists, will be overwritten." % filename)
     session = HTMLFileSession(filename, title=title)
-    _config.update(dict(
+    get_config().update(dict(
         output_type = "file", output_file = filename, output_url = None,
         file_resources = resources, file_rootdir = rootdir, session = session))
 
@@ -289,8 +306,8 @@ def figure(**kwargs):
     """ Creates a new plot. All subsequent plotting commands will affect
     the new plot.
     """
-    _config.curplot = None
-    _config["figure_kwargs"] = kwargs
+    get_config().curplot = None
+    get_config()["figure_kwargs"] = kwargs
 
 def hold(value=True):
     """ Turns hold on or off
@@ -302,7 +319,7 @@ def hold(value=True):
     Args:
         value (bool, optional) :  set the hold state, default is True
     """
-    _config.hold = value
+    get_config().hold = value
 
 def curplot():
     """ Returns a reference to the current plot, i.e. the most recently
@@ -311,7 +328,7 @@ def curplot():
     Returns:
         plot: the current :class:`Plot <bokeh.objects.Plot>`
     """
-    return _config.curplot
+    return get_config().curplot
 
 def show(browser=None, new="tab"):
     """ 'shows' the current plot, by auto-raising the window or tab
@@ -331,18 +348,18 @@ def show(browser=None, new="tab"):
             showing the current output file.  If **new** is 'tab', then
             opens a new tab. If **new** is 'window', then opens a new window.
     """
-    output_type = _config.output_type
-    session = _config.session
+    output_type = get_config().output_type
+    session = get_config().session
 
     # Map our string argument to the webbrowser.open argument
     new_param = {'tab': 2, 'window': 1}[new]
     controller = browserlib.get_browser_controller(browser=browser)
     if output_type == "file":
-        session.save(resources=_config.file_resources, rootdir=_config.file_rootdir)
-        controller.open("file://" + os.path.abspath(_config.output_file), new=new_param)
+        session.save(resources=get_config().file_resources, rootdir=get_config().file_rootdir)
+        controller.open("file://" + os.path.abspath(get_config().output_file), new=new_param)
     elif output_type == "server":
         session.store_all()
-        controller.open(_config.output_url + "/bokeh", new=new_param)
+        controller.open(get_config().output_url + "/bokeh", new=new_param)
     elif output_type == "notebook":
         session.show(curplot())
 
@@ -358,17 +375,17 @@ def save(filename=None):
             if `filename` is None, the current session filename is used.
 
     """
-    session = _config.session
-    if _config.output_type == "file":
+    session = get_config().session
+    if get_config().output_type == "file":
         if filename is not None:
             oldfilename = session.filename
             session.filename = filename
         try:
-            session.save(resources=_config.file_resources, rootdir=_config.file_rootdir)
+            session.save(resources=get_config().file_resources, rootdir=get_config().file_rootdir)
         finally:
             if filename is not None:
                 session.filename = oldfilename
-    elif _config.output_type == "server":
+    elif get_config().output_type == "server":
         session.plotcontext._dirty = True
         session.store_all()
     else:
@@ -401,9 +418,9 @@ def visual(func):
     """
     @wraps(func)
     def wrapper(*args, **kw):
-        output_type = _config.output_type
-        output_url = _config.output_url
-        session = _config.session
+        output_type = get_config().output_type
+        output_url = get_config().output_url
+        session = get_config().session
 
         if not session:
             raise RuntimeError(
@@ -419,7 +436,7 @@ def visual(func):
 
         if plot is not None:
             session.add(plot)
-            _config.curplot = plot
+            get_config().curplot = plot
             # if _PLOTLIST is not None:
             #     _PLOTLIST.append(plot)
 
@@ -435,12 +452,13 @@ def visual(func):
         if (output_type == "server") or \
                 (output_type == "notebook" and output_url is not None):
             # push the plot data to a plot server
-            session.store_all()
+            if get_config().autostore:
+                session.store_all()
 
         else: # File output mode
             # Store plot into HTML file
-            if _config.autosave:
-                session.save(resources=_config.file_resources, rootdir=_config.file_rootdir)
+            if get_config().autosave:
+                session.save(resources=get_config().file_resources, rootdir=get_config().file_rootdir)
         return plot
     return wrapper
 
@@ -1194,7 +1212,7 @@ def gridplot(plot_arrangement, name=False):
         grid._id = name
     # Walk the plot_arrangement and remove them from the plotcontext,
     # so they don't show up twice
-    session = _config.session
+    session = get_config().session
     session.plotcontext.children = list(set(session.plotcontext.children) - \
                 set(itertools.chain.from_iterable(plot_arrangement)))
     return grid, [grid]
@@ -1275,3 +1293,7 @@ def grid():
     """
     return _list_attr_splat(xgrid() + ygrid())
 
+
+if settings.pythonlib():
+    logger.debug("importing %s", settings.pythonlib())
+    __import__(settings.pythonlib())
