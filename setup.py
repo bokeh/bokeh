@@ -179,7 +179,7 @@ if 'devjs' in sys.argv:
 
 # TODO (bev) remove '--deploy' in 0.5
 if '--deploy' in sys.argv:
-    print("WARNING: '--deploy' is deprecated and will be removed in Bokeh 0.5, please use 'build_js'")
+    print("WARNING: '--deploy' is deprecated and will be removed in Bokeh 0.5, please use '--build_js'")
     sys.argv.remove("--deploy")
     sys.argv.append("--build_js")
 
