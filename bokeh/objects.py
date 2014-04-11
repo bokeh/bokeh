@@ -278,6 +278,8 @@ class Plot(PlotObject):
     # Possible values can be "on", "off" or "onfocus"
     frame = String("on")
 
+    resize_plot = Bool(True)
+
     def vm_props(self):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
@@ -295,6 +297,8 @@ class Plot(PlotObject):
             self.outer_height = self.height
         if "frame" not in self._changed_vars:
             self.frame = self.frame
+        if "resize_plot" not in self._changed_vars:
+            self.resize_plot = self.resize_plot
         return super(Plot, self).vm_props()
 
 class MapOptions(HasProps):

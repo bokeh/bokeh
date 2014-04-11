@@ -37,6 +37,8 @@ define [], () ->
         button_disabled = "disabled"
       if @frame_view == ""
         @frame_view = plotview.view_state.get('frame')
+      if not plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
+        return null
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -149,10 +151,13 @@ define [], () ->
           @_stop_drag(e)
           return false)
 
-      @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
+      if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
+        @$tool_button = $("<i class='resize-icon icon-fullscreen'></i>")
+        @plotview.$el.find('.button_icon').append(@$tool_button)
+      else
+        @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
+        @plotview.$el.find('.button_bar').append(@$tool_button)
       
-      @plotview.$el.find('.button_bar').append(@$tool_button)
-
       # Paddy: I want to remove all this checking for @button_activated,
       # is there some way we can do this in a more declarative way,
       # maybe a state machine?
