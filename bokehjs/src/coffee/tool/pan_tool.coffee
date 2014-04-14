@@ -16,15 +16,18 @@ define [
       dims = @mget('dimensions')
       if dims.length == 0
         console.log ("WARN: pan tool given empty dimensions")
-      if dims.length == 1
+      else if dims.length == 1
         if dims[0] == 'width'
           @evgen_options.buttonText = "Pan (x-axis)"
         else if dims[0] == 'height'
           @evgen_options.buttonText = "Pan (y-axis)"
         else
           console.log ("WARN: pan tool given unrecognized dimensions: #{ dims }")
+      else if dims.length == 2
+        if dims.indexOf('width') < 0 or dims.indexOf('height') < 0
+          console.log ("WARN: pan tool given unrecognized dimensions: #{ dims }")
       else
-        console.log ("WARN: pan tool given more than two dimensions")
+        console.log ("WARN: pan tool given more than two dimensions: #{ dims }")
 
     bind_bokeh_events: () ->
       super()
@@ -101,7 +104,7 @@ define [
 
     defaults: () ->
       return {
-        dimensions: [] #height/width
+        dimensions: ["width", "height"]
       }
 
     display_defaults: () ->

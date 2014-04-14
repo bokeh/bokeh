@@ -15,15 +15,18 @@ define [
       dims = @mget('dimensions')
       if dims.length == 0
         console.log ("WARN: wheel zoom tool given empty dimensions")
-      if dims.length == 1
+      else if dims.length == 1
         if dims[0] == 'width'
           @evgen_options.buttonText = "Wheel Zoom (x-axis)"
         else if dims[0] == 'height'
           @evgen_options.buttonText = "Wheel Zoom (y-axis)"
         else
           console.log ("WARN: wheel tool given unrecognized dimensions: #{ dims }")
+      else if dims.length == 2
+        if dims.indexOf('width') < 0 or dims.indexOf('height') < 0
+          console.log ("WARN: pan tool given unrecognized dimensions: #{ dims }")
       else
-        console.log ("WARN: wheel tool given more than two dimensions")
+        console.log ("WARN: wheel tool given more than two dimensions: #{ dims }")
 
 
     eventGeneratorClass: OnePointWheelEventGenerator
@@ -92,7 +95,7 @@ define [
 
     defaults: () ->
       return {
-        dimensions: []
+        dimensions: ["width", "height"]
         speed: 1/600
       }
 
