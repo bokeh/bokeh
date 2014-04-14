@@ -25,7 +25,6 @@ define [
       "click .bokehdelete" : "deldoc"
 
     deldoc : (e) ->
-      console.log('foo')
       e.preventDefault()
       @model.destroy()
       return false
@@ -149,7 +148,7 @@ define [
       resp.done((data) =>
         docs = data['docs']
         if options.update
-          @update(docs, options)
+          @set(docs, options)
         else
           @reset(docs, options)
       )

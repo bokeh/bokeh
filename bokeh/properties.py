@@ -756,7 +756,7 @@ class Dict(ContainerProperty):
 class Tuple(ContainerProperty):
 
     def __init__(self, tp1, tp2, *type_params, **kwargs):
-        type_params = map(self._validate_type_param, (tp1, tp2) + type_params)
+        type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         default = kwargs.get("default", None)
 
         self.type_params = type_params
@@ -858,7 +858,7 @@ class Either(ParameterizedProperty):
     """ Takes a list of valid properties and validates against them in succession. """
 
     def __init__(self, tp1, tp2, *type_params, **kwargs):
-        type_params = map(self._validate_type_param, (tp1, tp2) + type_params)
+        type_params = list(map(self._validate_type_param, (tp1, tp2) + type_params))
         default = kwargs.get("default", type_params[0].default)
 
         self.type_params = type_params

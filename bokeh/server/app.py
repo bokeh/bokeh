@@ -1,6 +1,6 @@
 
 import flask
-from os.path import join, dirname
+from os.path import join, dirname, abspath
 
 from . import wsmanager
 from .models import convenience as mconv
@@ -12,7 +12,7 @@ class BokehBlueprint(flask.Blueprint):
         super(BokehBlueprint, self).__init__(*args, **kwargs)
         self.debugjs = None
 
-    def setup(self, backend, backbone_storage, servermodel_storage, 
+    def setup(self, backend, backbone_storage, servermodel_storage,
               authentication, datamanager):
         self.datamanager = datamanager
         self.backend = backend
@@ -27,12 +27,13 @@ class BokehBlueprint(flask.Blueprint):
             return status
         self.wsmanager.register_auth("bokehplot", auth)
 
+        server_dir = dirname(abspath(__file__))
         if self.debugjs:
-            basedir = dirname(dirname(dirname(__file__)))
+            basedir = dirname(dirname(server_dir))
             self.bokehjsdir = join(basedir, "bokehjs", "build")
             self.bokehjssrcdir = join(basedir, "bokehjs", "src")
         else:
-            self.bokehjsdir = join(dirname(__file__), 'static')
+            self.bokehjsdir = join(server_dir, 'static')
             self.bokehjssrcdir = None
 
     def current_user(self):

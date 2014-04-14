@@ -8,6 +8,10 @@ define (require, exports, module) ->
 
   Bokeh.version = '0.4.2'
 
+  #binding the libs that bokeh uses so others can reference them
+  Bokeh.Backbone          = require("backbone")
+  Bokeh._                 = require("underscore")
+
   # common
   Bokeh.Collections       = require("common/base").Collections
   Bokeh.Config            = require("common/base").Config
@@ -30,7 +34,6 @@ define (require, exports, module) ->
   Bokeh.Random = require("common/random")
   Bokeh.safebind = require("common/safebind")
   Bokeh.SVGColors = require("common/svg_colors")
-  Bokeh.ticking = require("common/ticking")
   Bokeh.ViewState = require("common/view_state")
 
   # mappers
@@ -129,9 +132,16 @@ define (require, exports, module) ->
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
   Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
 
+  #page functions
+  Bokeh.one_object_page = require("server/serverrun").load_one_object
+  Bokeh.server_page = require("server/serverrun").load
+
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")
-  Bokeh.server_page = require("server/serverrun").load
+  Bokeh.HBox = require("widget/hbox")
+  Bokeh.VBox = require("widget/vbox")
+  Bokeh.VBoxModelForm = require("widget/vboxmodelform")
+  Bokeh.TextInput = require("widget/textinput")
 
   # utils
   Bokeh.ObjectExplorer = require("util/object_explorer")

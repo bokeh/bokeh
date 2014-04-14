@@ -247,23 +247,10 @@ require.js <http://requirejs.org/docs/whyamd.html>`_. To build a single
 ``bokeh.js`` that may be included as a script, see below.
 
 Grunt can concatenate the JavaScript files into a single JavaScript file,
-either minified or unminified. To generate a minified script, execute the
-command::
-
-    $ grunt mindeploy
-
-The resulting script will have the filename ``bokeh.min.js`` and be located in
-the ``build/js`` subdirectory.
-
-To generate an un-minified script, (useful for debugging or developing
-bokehjs), execute the command::
-
-    $ grunt devdeploy
-
-The resulting script will have the filename bokeh.js and be located in
-the ``build/js`` subdirectory.
-
-To generate both minified and un-minified output in the ``build/js``
-subdirectory, execute the command::
+either minified or unminified. To generate both minified and un-minified 
+libraries, execute the command::
 
     $ grunt deploy
+
+The resulting scripts will have the filenames 'bokeh.js' and 'bokeh.min.js' and
+be located in the ``build/js`` subdirectory.

@@ -12,12 +12,12 @@ define [
     default_view: DatetimeAxisView
     type: 'DatetimeAxis'
 
-    initialize: (attrs, objects) ->
+    dinitialize: (attrs, objects) ->
       super(attrs, objects)
       if not @get_obj('ticker')?
-        @set_obj('ticker', DatetimeTicker.Collection.create())
+        @set_obj('ticker', new DatetimeTicker.Model())
       if not @get_obj('formatter')?
-        @set_obj('formatter', DatetimeTickFormatter.Collection.create())
+        @set_obj('formatter', new DatetimeTickFormatter.Model())
 
   class DatetimeAxes extends Backbone.Collection
     model: DatetimeAxis

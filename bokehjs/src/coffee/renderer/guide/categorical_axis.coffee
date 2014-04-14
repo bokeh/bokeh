@@ -13,12 +13,12 @@ define [
     default_view: CategoricalAxisView
     type: 'CategoricalAxis'
 
-    initialize: (attrs, objects) ->
+    dinitialize: (attrs, objects) ->
       super(attrs, objects)
       if not @get_obj('ticker')?
-        @set_obj('ticker', CategoricalTicker.Collection.create())
+        @set_obj('ticker', CategoricalTicker.Collection.create({doc: @get('doc')}))
       if not @get_obj('formatter')?
-        @set_obj('formatter', CategoricalTickFormatter.Collection.create())
+        @set_obj('formatter', CategoricalTickFormatter.Collection.create({doc: @get('doc')}))
 
     _bounds: () ->
       i = @get('dimension')

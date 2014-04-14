@@ -22,7 +22,7 @@ class DataSource(PlotObject):
     # List of names of the fields of each tuple in self.data
     # ordering is incoporated here
     column_names = List(String)
-    selected = List(String) # index of selected points
+    selected = List(Int) # index of selected points
 
     def columns(self, *columns):
         """ Returns a ColumnsRef object that points to a column or set of
@@ -50,7 +50,7 @@ class ColumnDataSource(DataSource):
         """
         if len(args) == 1 and "data" not in kw:
             kw["data"] = args[0]
-        raw_data = kw.get("data", {})
+        raw_data = kw.pop("data", {})
         if not isinstance(raw_data, dict):
             import pandas as pd
             if isinstance(raw_data, pd.DataFrame):
@@ -106,6 +106,7 @@ class Range(PlotObject):
     pass
 
 class Range1d(Range):
+    """ Represents a fixed range [start, end] in a scalar dimension. """
     start = Float()
     end = Float()
 
@@ -118,7 +119,7 @@ class DataRange(Range):
         return props
 
 class DataRange1d(DataRange):
-    """ Represents a range in a scalar dimension """
+    """ Represents an auto-fitting range in a scalar dimension. """
     rangepadding = Float(0.1)
     start = Float
     end = Float
@@ -243,6 +244,7 @@ class Plot(PlotObject):
     y_range = Instance(Range, has_ref=True)
     png = String('')
     title = String('')
+    title_props = Include(TextProps, prefix="title")
     outline_props = Include(LineProps, prefix="outline")
 
     # A list of all renderers on this plot; this includes guides as well
@@ -470,7 +472,7 @@ class DataSlider(Renderer):
     field = String()
 
 class PlotContext(PlotObject):
-    children = List(Instance(Plot, has_ref=True), has_ref=True)
+    children = List(Instance(PlotObject, has_ref=True), has_ref=True)
 
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning

@@ -1,6 +1,15 @@
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import ServerDataSource 
+from bokeh.objects import ServerDataSource
+"""
+In order to run this example, you have to execute
+./bokeh-server -D remotedata
+
+the remote data directory in the bokeh checkout has the sample data for this example
+
+In addition, you must install ArrayManagement from this branch (soon to be master)
+https://github.com/ContinuumIO/ArrayManagement
+"""
 output_server("remotedata")
 source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", 
                           owner_username="defaultuser")
