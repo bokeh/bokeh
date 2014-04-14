@@ -12,9 +12,22 @@ define [
 
     initialize: (options) ->
       super(options)
+      dims = @mget('dimensions')
+      if dims.length == 0
+        console.log ("WARN: wheel zoom tool given empty dimensions")
+      if dims.length == 1
+        if dims[0] == 'width'
+          @evgen_options.buttonText = "Wheel Zoom (x-axis)"
+        else if dims[0] == 'height'
+          @evgen_options.buttonText = "Wheel Zoom (y-axis)"
+        else
+          console.log ("WARN: wheel tool given unrecognized dimensions: #{ dims }")
+      else
+        console.log ("WARN: wheel tool given more than two dimensions")
+
 
     eventGeneratorClass: OnePointWheelEventGenerator
-    evgen_options: { buttonText: "WheelZoom" }
+    evgen_options: { buttonText: "Wheel Zoom" }
     tool_events: { zoom: "_zoom" }
 
     mouse_coords: (e, x, y) ->

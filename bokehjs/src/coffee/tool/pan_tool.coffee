@@ -13,6 +13,18 @@ define [
   class PanToolView extends Tool.View
     initialize: (options) ->
       super(options)
+      dims = @mget('dimensions')
+      if dims.length == 0
+        console.log ("WARN: pan tool given empty dimensions")
+      if dims.length == 1
+        if dims[0] == 'width'
+          @evgen_options.buttonText = "Pan (x-axis)"
+        else if dims[0] == 'height'
+          @evgen_options.buttonText = "Pan (y-axis)"
+        else
+          console.log ("WARN: pan tool given unrecognized dimensions: #{ dims }")
+      else
+        console.log ("WARN: pan tool given more than two dimensions")
 
     bind_bokeh_events: () ->
       super()
