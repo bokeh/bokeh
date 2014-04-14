@@ -1,9 +1,17 @@
 "API to embed snippets into other's apps"
+import warnings
 
+from . import __version__
 
 def _get_CDN_url():
-    bokeh_js = 'http://cdn.pydata.org/bokeh-0.4.2.js'
-    bokeh_css = 'http://cdn.pydata.org/bokeh-0.4.2.css'
+    version = __version__.split('-')
+    if len(version) > 1:
+        warnings.warn(
+            "Requesting CDN bokehjs version '%s' from Bokeh development version '%s'. This configuration is unsupported and may not work!" % (version[0], __version__)
+        )
+    v = version[0]
+    bokeh_js = 'http://cdn.pydata.org/bokeh-%s.js' % v
+    bokeh_css = 'http://cdn.pydata.org/bokeh-%s.css' % v
     return bokeh_js, bokeh_css
 
 
