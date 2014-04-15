@@ -168,7 +168,7 @@ class TickFormatter(PlotObject):
 
 class BasicTickFormatter(TickFormatter):
     """ Represents a basic tick formatter for an axis object """
-    precision = Any('auto')
+    precision = Either(Enum('auto'), Int)
     use_scientific = Bool(True)
     power_limit_high = Int(5)
     power_limit_low = Int(-3)
