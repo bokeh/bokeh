@@ -4,6 +4,8 @@ classes and implement convenience behaviors like default values, etc.
 from __future__ import print_function
 
 import re
+import datetime
+import dateutil.parser
 from importlib import import_module
 from copy import copy
 import inspect
@@ -985,3 +987,26 @@ class Percent(Float):
 
 class Angle(Float):
     pass
+
+class Date(Property):
+    def __init__(self, default=datetime.date.today()):
+        super(Date, self).__init__(default=default)
+
+    def validate(self, value):
+        super(Date, self).validate(value)
+
+        if not (value is None or isinstance(value, (datetime.date,) + string_types + (float,) + integer_types)):
+            raise ValueError("expected a date, string or timestamp, got %r" % value)
+
+    def transform(self, value):
+        value = super(Date, self).transform(value)
+
+        if isinstance(value, (float,) + integer_types):
+            try:
+                value = datetime.date.fromtimestamp(value)
+            except ValueError:
+                value = datetime.date.fromtimestamp(value/1000)
+        elif isinstance(value, string_types):
+            value = dateutil.parser.parse(value).date()
+
+        return value

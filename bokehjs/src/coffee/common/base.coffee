@@ -69,6 +69,7 @@ define [
   'widget/pretext'
   'widget/selectbox'
   'widget/slider'
+  'widget/date_picker'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -140,6 +141,8 @@ define [
     PreText:                  'widget/pretext'
     Select:                   'widget/selectbox'
     Slider:                   'widget/slider'
+    DatePicker:               'widget/date_picker'
+
   mod_cache = {}
   collection_overrides = {}
   Collections = (typename) ->

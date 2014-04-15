@@ -3,7 +3,7 @@ from .plotobject import PlotObject
 from .properties import (HasProps, Dict, Enum,
                          Either, Float, Instance, Int,
                          List, String, Color, Include, Bool,
-                         Tuple, Any, lookup_descriptor)
+                         Tuple, Any, Date, lookup_descriptor)
 import copy
 import logging
 logger = logging.getLogger(__name__)
@@ -49,10 +49,12 @@ class InputWidget(PlotObject):
         prop_obj = lookup_descriptor(cls, 'value')
         if isinstance(prop_obj, Float):
             return float(val)
-        if isinstance(prop_obj, Int):
+        elif isinstance(prop_obj, Int):
             return int(val)
-        if isinstance(prop_obj, String):
+        elif isinstance(prop_obj, String):
             return str(val)
+        else:
+            return val
 
     @classmethod
     def create(cls, *args, **kwargs):
@@ -161,3 +163,8 @@ class Slider(InputWidget):
     end = Float()
     steps = Int(default=50)
     orientation = Enum("horizontal", "vertical")
+
+class DatePicker(InputWidget):
+    value = Date
+    min_date = Date(default=None)
+    max_date = Date(default=None)
