@@ -70,6 +70,8 @@ define [
   'widget/selectbox'
   'widget/slider'
   'widget/date_picker'
+  'widget/panel'
+  'widget/tabs'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -142,6 +144,8 @@ define [
     Select:                   'widget/selectbox'
     Slider:                   'widget/slider'
     DatePicker:               'widget/date_picker'
+    Panel:                    'widget/panel'
+    Tabs:                     'widget/tabs'
 
   mod_cache = {}
   collection_overrides = {}

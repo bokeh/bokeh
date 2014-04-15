@@ -8,6 +8,14 @@ import copy
 import logging
 logger = logging.getLogger(__name__)
 
+class Panel(PlotObject):
+    title = String
+    child = Instance(PlotObject, has_ref=True)
+    closable = Bool(False)
+
+class Tabs(PlotObject):
+    tabs = List(Instance(Panel, has_ref=True), has_ref=True)
+
 class HBox(PlotObject):
     children = List(Instance(PlotObject, has_ref=True), has_ref=True)
 class VBox(PlotObject):
