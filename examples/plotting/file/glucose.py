@@ -24,7 +24,7 @@ lows = day[day['glucose'] < 80]
 figure(x_axis_type="datetime", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
 
 line(day.index.to_series(), day['glucose'],
-    line_color="gray", line_dash="4 4", line_width=1, legend="glucose")
+    line_color="gray", line_dash=[4, 4], line_width=1, legend="glucose")
 scatter(highs.index.to_series(), highs['glucose'], size=6, color='tomato', legend="high")
 scatter(lows.index.to_series(), lows['glucose'], size=6, color='navy', legend="low")
 
