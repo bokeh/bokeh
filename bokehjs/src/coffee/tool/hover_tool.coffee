@@ -51,7 +51,7 @@ define [
         else
           @plot_view.eventSink.trigger("active_tool", tool_name)
           @tool_button.addClass('active')
-        @active=true;
+          @active=true;
         )
 
       @plot_view.eventSink.on("#{tool_name}:deactivated", =>
