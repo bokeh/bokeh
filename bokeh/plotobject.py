@@ -294,7 +294,9 @@ class PlotObject(HasProps):
 
     def create_html_snippet(
             self, server=False, embed_base_url="", embed_save_loc=".",
-            static_path="http://localhost:5006/bokeh/static/"):
+            inline=False,
+            bokehJS_url="http://localhost:5006/bokeh/static/js/bokeh.js",
+            bokehCSS_url="http://localhost:5006/bokeh/static/css/bokeh.css"):
         """create_html_snippet is used to embed a plot in an html page.
 
         create_html_snippet returns the embed string to be put in html.
@@ -316,19 +318,14 @@ class PlotObject(HasProps):
                 embed_base_url = False
             return self._build_server_snippet(embed_base_url)[1]
         embed_filename = "%s.embed.js" % self._id
-        full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)
         js_code, embed_snippet = self._build_static_embed_snippet(
-            static_path, embed_base_url)
-        with open(full_embed_save_loc,"w") as f:
-            f.write(js_code)
-        return embed_snippet
+            embed_base_url, bokehJS_url, bokehCSS_url, inline)
 
-    def inject_snippet(
-            self, server=False, embed_base_url="", embed_save_loc=".",
-            static_path="http://localhost:5006/bokeh/static/"):
-        warnings.warn("inject_snippet is deprecated, please use create_html_snippet")
-        return self.create_html_snippet(
-            server, embed_base_url, embed_save_loc, static_path)
+        if not inline:
+            full_embed_save_loc = os.path.join(embed_save_loc, embed_filename)
+            with open(full_embed_save_loc,"w") as f:
+                f.write(js_code)
+        return embed_snippet
 
     def _build_server_snippet(self, base_url=False):
         sess = self._session
@@ -357,22 +354,27 @@ class PlotObject(HasProps):
         '''
         return "", e_str % f_dict
 
-    def _build_static_embed_snippet(self, static_path, embed_base_url):
+    def _build_static_embed_snippet(
+            self, embed_base_url,bokehJS_url, bokehCSS_url, 
+            inline=False):
 
 
         embed_filename = "%s.embed.js" % self._id
         full_embed_path = embed_base_url + embed_filename
 
-        js_str = self._session.embed_js(self._id, static_path)
-
-
+        js_str = self._session.embed_js(self._id, bokehJS_url, bokehCSS_url)
         sess = self._session
         modelid = self._id
         typename = self.__view_model__
+        inline_js = ""
+        if inline:
+            inline_js = js_str
         embed_filename = full_embed_path
         f_dict = dict(modelid = modelid, modeltype = typename,
-                      embed_filename=embed_filename)
+                      embed_filename=embed_filename, inline_js=inline_js)
         e_str = '''<script src="%(embed_filename)s" bokeh_plottype="embeddata"
-        bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true"></script>
+        bokeh_modelid="%(modelid)s" bokeh_modeltype="%(modeltype)s" async="true">
+        %(inline_js)s</script>
         '''
         return js_str, e_str % f_dict
+

@@ -12,12 +12,13 @@
 
   <h1>  other injection types </h1>
   <ul>
-    <li><a href="/bokeh/generate_embed/onload">Onload</a></li>
-    <li><a href="/bokeh/generate_embed/delay">delay</a></li>
-    <li><a href="/bokeh/generate_embed/double_delay">double_delay</a></li>
-    <li><a href="/bokeh/generate_embed/direct">direct</a></li>
-    <li><a href="/bokeh/generate_embed/static">static</a></li>
-    <li><a href="/bokeh/generate_embed/static_double">static_double</a></li>
+    <li><a href="/bokeh/generate_embed_test/onload">Onload</a></li>
+    <li><a href="/bokeh/generate_embed_test/delay">delay</a></li>
+    <li><a href="/bokeh/generate_embed_test/double_delay">double_delay</a></li>
+    <li><a href="/bokeh/generate_embed_test/direct">direct</a></li>
+    <li><a href="/bokeh/generate_embed_test/static">static</a></li>
+    <li><a href="/bokeh/generate_embed_test/static_double">static_double</a></li>
+    <li><a href="/bokeh/generate_embed_test/file_snippet">file_snippet</a></li>
   </ul>
 
 {% if not plot_scr %}
@@ -86,6 +87,12 @@
   <script type="text/javascript">
     injectF();
   </script>
+{% endif %}
+{% if file_snippet %}
+  <h1> File Snippet injection </h1>
+{% endif %}
+{% if file_relative_snippet %}
+  <h1> File relative Snippet injection </h1>
 {% endif %}
 {% if plot_scr %}
   <h1> static injection </h1>

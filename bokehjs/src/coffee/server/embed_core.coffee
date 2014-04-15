@@ -55,19 +55,12 @@ define [
         #view.render()
         _.delay(-> $(element).replaceWith(view.$el)))
 
-  injectCss = (static_root_url) ->
-    css_urls = ["#{static_root_url}css/bokeh.css",
-                "#{static_root_url}css/continuum.css",
-                "#{static_root_url}js/vendor/bootstrap/bootstrap-bokeh-2.0.4.css"]
-
-
-    load_css = (url) ->
-      link = document.createElement('link');
-      link.href = url; link.rel="stylesheet";
-      link.type = "text/css";
-      document.body.appendChild(link);
-    _.map(css_urls, load_css);
-
+  injectCss = (bokehCSS_url) ->
+    link = document.createElement('link');
+    link.href = bokehCSS_url;
+    link.rel="stylesheet";
+    link.type = "text/css";
+    document.body.appendChild(link);
 
   foundEls = []
   parse_el = (el) ->
@@ -109,6 +102,10 @@ define [
 
 
   search_and_plot = (dd)->
+    """first find all script tags that point to src=embed.js, then
+    figure out which ones have already been replaced by a plot.  plot
+    the script tags that haven't been replace'"""
+
     plot_from_dict = (info_dict, key) ->
       if info_dict.bokeh_plottype == 'embeddata'
         dd_id = _.keys(dd)[0]
