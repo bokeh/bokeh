@@ -209,7 +209,7 @@ def start_bokeh_server():
         print("Failed to run: %s" % " ".join(cmd + argv))
         sys.exit(1)
     else:
-        def wait_until(func, timeout=1.0, interval=0.01):
+        def wait_until(func, timeout=5.0, interval=0.01):
             start = time.time()
 
             while True:
