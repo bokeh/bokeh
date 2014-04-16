@@ -464,7 +464,7 @@ class Legend(Renderer):
 
     legend_padding = Int(10)
     legend_spacing = Int(3)
-    legends = Dict(String, Any)
+    legends = Dict(String, List(Instance(Glyph)))
 
 class DataSlider(Renderer):
     plot = Instance(Plot, has_ref=True)
