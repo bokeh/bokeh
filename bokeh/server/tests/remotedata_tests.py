@@ -14,11 +14,11 @@ from . import test_utils
 from ...serverconfig import Server
 from ...tests.test_utils import skipIfPyPy
 from unittest import skipIf
-has_arraymanagement = True
+arraymanagement_missing = False
 try:
     import arraymanagement
 except:
-    has_arraymanagement = False
+    arraymanagement_missing = True
     
 
 
@@ -29,7 +29,7 @@ datadir = join(dirname(dirname(dirname(dirname(__file__)))), 'remotedata')
 class RemoteDataTestCase(test_utils.BokehServerTestCase):
     options = {'data_directory': datadir}
 
-    @skipIf(has_arraymanagement, "array management not installed")
+    @skipIf(arraymanagement_missing, "array management not installed")
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_list(self):
         config = tempfile.mkdtemp()
@@ -44,7 +44,7 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
                   ])
         assert result == set(sources)
 
-    @skipIf(has_arraymanagement, "array management not installed")
+    @skipIf(arraymanagement_missing, "array management not installed")
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_line_downsample(self):
         config = tempfile.mkdtemp()
@@ -65,7 +65,7 @@ temp_data_dir = tempfile.mkdtemp(prefix="remote_data_test")
 class RemoteDataTestCase(test_utils.BokehServerTestCase):
     options = {'data_directory':  temp_data_dir}
     
-    @skipIf(has_arraymanagement, "array management not installed")    
+    @skipIf(arraymanagement_missing, "array management not installed")    
     @skipIfPyPy("gevent requires pypycore and pypy-hacks branch of gevent.")
     def test_upload(self):
         f = join(datadir, "defaultuser", "AAPL.hdf5")
@@ -76,7 +76,7 @@ class RemoteDataTestCase(test_utils.BokehServerTestCase):
         destination = join(temp_data_dir, "defaultuser", "myfile.hdf5")
         assert exists(destination)
         
-    @skipIf(has_arraymanagement, "array management not installed")
+    @skipIf(arraymanagement_missing, "array management not installed")
     def test_client(self):
         s = Server()
         fname = s._prep_data_source_numpy("foo", np.array([1,2,3,4,5]))
