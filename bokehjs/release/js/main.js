@@ -6,7 +6,7 @@
       window.Float64Array = Array;
     }
     Bokeh = {};
-    Bokeh.version = '0.4.3';
+    Bokeh.version = '0.4.4';
     Bokeh.Backbone = require("backbone");
     Bokeh._ = require("underscore");
     Bokeh.Collections = require("common/base").Collections;

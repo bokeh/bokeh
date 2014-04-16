@@ -12711,7 +12711,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         var doc, url;
         doc = this.get('doc');
         if (doc == null) {
-          throw new Error("Unset 'doc' in " + this);
+          console.log("WARN: Unset 'doc' in " + this);
         }
         url = this.get_base().Config.prefix + "/bokeh/bb/" + doc + "/" + this.type + "/";
         if (this.isNew()) {
@@ -39068,7 +39068,7 @@ define('server/usercontext/wrappertemplate',[],function(){
       window.Float64Array = Array;
     }
     Bokeh = {};
-    Bokeh.version = '0.4.3';
+    Bokeh.version = '0.4.4';
     Bokeh.Backbone = require("backbone");
     Bokeh._ = require("underscore");
     Bokeh.Collections = require("common/base").Collections;
