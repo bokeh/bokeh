@@ -22824,14 +22824,10 @@ if (typeof define === 'function' && define.amd) {
       CategoricalAxis.prototype.dinitialize = function(attrs, objects) {
         CategoricalAxis.__super__.dinitialize.call(this, attrs, objects);
         if (this.get_obj('ticker') == null) {
-          this.set_obj('ticker', CategoricalTicker.Collection.create({
-            doc: this.get('doc')
-          }));
+          this.set_obj('ticker', CategoricalTicker.Collection.create());
         }
         if (this.get_obj('formatter') == null) {
-          return this.set_obj('formatter', CategoricalTickFormatter.Collection.create({
-            doc: this.get('doc')
-          }));
+          return this.set_obj('formatter', CategoricalTickFormatter.Collection.create());
         }
       };
 
@@ -24541,10 +24537,10 @@ define("sprintf", (function (global) {
       DatetimeAxis.prototype.dinitialize = function(attrs, objects) {
         DatetimeAxis.__super__.dinitialize.call(this, attrs, objects);
         if (this.get_obj('ticker') == null) {
-          this.set_obj('ticker', new DatetimeTicker.Model());
+          this.set_obj('ticker', DatetimeTicker.Collection.create());
         }
         if (this.get_obj('formatter') == null) {
-          return this.set_obj('formatter', new DatetimeTickFormatter.Model());
+          return this.set_obj('formatter', DatetimeTickFormatter.Collection.create());
         }
       };
 
@@ -24921,10 +24917,10 @@ define("sprintf", (function (global) {
       LinearAxis.prototype.dinitialize = function(attrs, objects) {
         LinearAxis.__super__.dinitialize.call(this, attrs, objects);
         if (this.get_obj('ticker') == null) {
-          this.set_obj('ticker', BasicTicker.Model());
+          this.set_obj('ticker', BasicTicker.Collection.create());
         }
         if (this.get_obj('formatter') == null) {
-          return this.set_obj('formatter', BasicTickFormatter.Model());
+          return this.set_obj('formatter', BasicTickFormatter.Collection.create());
         }
       };
 
