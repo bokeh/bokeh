@@ -16,9 +16,9 @@ class Gzip(object):
 
     def after_request(self, response):
         accept_encoding = request.headers.get('Accept-Encoding', '')
-
         if response.status_code < 200 or \
            response.status_code >= 300 or \
+           not response.content_length or \
            response.content_length < self.minimum_size or \
            'gzip' not in accept_encoding.lower() or \
            'Content-Encoding' in response.headers:

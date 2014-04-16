@@ -6,7 +6,7 @@ define (require, exports, module) ->
 
   Bokeh = {}
 
-  Bokeh.version = '0.4.2'
+  Bokeh.version = '0.4.3'
 
   #binding the libs that bokeh uses so others can reference them
   Bokeh.Backbone          = require("backbone")
