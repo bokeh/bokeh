@@ -958,7 +958,7 @@ class DashPattern(Either):
             try:
                 return self._dash_patterns[value]
             except KeyError:
-                return map(int, value.split())
+                return [int(x) for x in  value.split()]
         else:
             return value
 
