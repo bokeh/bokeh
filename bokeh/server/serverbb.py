@@ -165,7 +165,7 @@ class RedisSession(PersistentSession):
 
     def mget(self, doc_keys):
         vals = self.redis.mget(doc_keys)
-        return [val.decode('utf-8') for val in vals]
+        return [None if val is None else val.decode('utf-8') for val in vals]
 
     def mset(self, data):
         self.redis.mset(data)
@@ -178,7 +178,7 @@ class RedisSession(PersistentSession):
 
     def smembers(self, doc_key):
         vals = self.redis.smembers(doc_key)
-        return [val.decode('utf-8') for val in vals]
+        return [None if val is None else val.decode('utf-8') for val in vals]
 
     def set(self, key, data):
         self.redis.set(key, data)
