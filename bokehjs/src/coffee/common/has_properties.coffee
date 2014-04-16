@@ -252,7 +252,8 @@ define [
       #model where our API processes this model
       doc = @get('doc')
       if not doc?
-        throw new Error("Unset 'doc' in " + this)
+        console.log("WARN: Unset 'doc' in " + this)
+        # throw new Error("Unset 'doc' in " + this)
 
       url = @get_base().Config.prefix + "/bokeh/bb/" + doc + "/" + @type + "/"
       if (@isNew())
