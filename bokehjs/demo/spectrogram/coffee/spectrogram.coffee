@@ -173,7 +173,7 @@ class SpectrogramApp
 
 class SpectrogramPlot
   constructor: (options) ->
-    @cmap = new LinearColorMapper({}, {
+    @cmap = new LinearColorMapper.Model({
       palette: all_palettes["YlGnBu-9"],
       low: 0,
       high: 10

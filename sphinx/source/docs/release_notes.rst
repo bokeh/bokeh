@@ -4,6 +4,15 @@
 Release Notes
 #############
 
+v0.4.3 (Apr 2014)
+=================
+
+* Improved MPL interface, subplots, styling plus more examples
+* TravisCI testing integration
+* Tool enhancements, constrained pan/zoom, more hover glyphs
+* Server remote data and downsampling examples
+* Initial work for Bokeh "app" concept
+
 v0.4.2 (Mar 2014)
 =================
 
@@ -84,20 +93,21 @@ v0.5 (Goal: March 2014)
 * Integrate Abstract Rendering into bokeh server
 * New event and interactor architecture
 * Data selection architecture, add various inspectors and data selectors (accessible from Python interface)
-* Improve rendering loop performance in BokehJS
 * Improved annotations and legends
 * Frame around plots for consistent look & feel on all Bokeh plots
-* Basic widgets
+* More widgets
 * Better map projections
 * Better integration with Matplotlib pylab plotting functions
 * Improve ggplot interface / integrate with ggplot python lib
 * Touch events
-* Animation framework
 * CSS styling/theming mechanism
 * Hot corner for resize tool
 
 v0.6 (Goal: May 2014)
 =====================
+
+* Improve rendering loop performance in BokehJS
+* Animation framework
 
 Long-term TODO List
 ===================

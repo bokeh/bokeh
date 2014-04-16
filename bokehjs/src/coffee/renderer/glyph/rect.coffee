@@ -32,9 +32,11 @@ define [
 
     _set_data: () ->
       @index = rbush()
-      @index.load(
-        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0...@x.length])
-      )
+      pts = []
+      for i in [0...@x.length]
+        if not isNaN(@x[i] + @y[i])
+          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
+      @index.load(pts)
 
     _render: (ctx, indices, glyph_props, sx=@sx, sy=@sy, sw=@sw, sh=@sh) ->
       if glyph_props.fill_properties.do_fill

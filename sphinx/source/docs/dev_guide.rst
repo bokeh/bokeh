@@ -8,6 +8,32 @@ Developer Guide
     :local:
     :depth: 2
 
+Testing
+=======
+
+There is a TravisCI project configured to execute on every GitHub push, it can
+be viewed at: https://travis-ci.org/ContinuumIO/bokeh
+
+To run the python unit tests manually, you can execute:
+::
+
+    $ python -c "import bokeh; bokeh.test()"
+
+Additionally, there are "examples tests" that check whether all the examples
+produce outputs. This script is in the `examples` directory and can be
+run by executing:
+::
+
+    $ test -D
+
+Currently this script does not support Windows.
+
+There is also a bokehjs unit test suite, it can be run by changing directories
+to the `bokehjs` subdirectory and executing:
+::
+
+    $ grunt test
+
 Architecture Overview
 =====================
 
@@ -247,23 +273,10 @@ require.js <http://requirejs.org/docs/whyamd.html>`_. To build a single
 ``bokeh.js`` that may be included as a script, see below.
 
 Grunt can concatenate the JavaScript files into a single JavaScript file,
-either minified or unminified. To generate a minified script, execute the
-command::
-
-    $ grunt mindeploy
-
-The resulting script will have the filename ``bokeh.min.js`` and be located in
-the ``build/js`` subdirectory.
-
-To generate an un-minified script, (useful for debugging or developing
-bokehjs), execute the command::
-
-    $ grunt devdeploy
-
-The resulting script will have the filename bokeh.js and be located in
-the ``build/js`` subdirectory.
-
-To generate both minified and un-minified output in the ``build/js``
-subdirectory, execute the command::
+either minified or unminified. To generate both minified and un-minified
+libraries, execute the command::
 
     $ grunt deploy
+
+The resulting scripts will have the filenames 'bokeh.js' and 'bokeh.min.js' and
+be located in the ``build/js`` subdirectory.

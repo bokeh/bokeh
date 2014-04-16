@@ -53,7 +53,7 @@ options = {
   xaxes: "min"
   yaxes: "min"
   xgrid: false
-  tools: false
+  tools: 'hover'
   legend: false
 }
 

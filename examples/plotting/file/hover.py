@@ -8,7 +8,7 @@ from bokeh.objects import HoverTool, Range1d
 
 TOOLS="pan,wheel_zoom,box_zoom,reset,hover,previewsave"
 
-xx, yy = np.meshgrid(xrange(0,101,4), xrange(0,101,4))
+xx, yy = np.meshgrid(range(0,101,4), range(0,101,4))
 x = xx.flatten()
 y = yy.flatten()
 N = len(x)

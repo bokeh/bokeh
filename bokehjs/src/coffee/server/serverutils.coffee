@@ -24,6 +24,19 @@ define [
   exports.Promises = Promises
 
   utility =
+    load_one_object_chain : (docid, objid) ->
+      Config = require("common/base").Config
+      url = "#{Config.prefix}/bokeh/objinfo/#{docid}/#{objid}"
+      console.log(url)
+      resp = $.get(url)
+      resp.done((data) ->
+        all_models = data['all_models']
+        load_models(all_models)
+        apikey = data['apikey']
+        submodels(exports.wswrapper, "bokehplot:#{docid}", apikey)
+      )
+      return resp
+
     load_user: () ->
       response = $.get('/bokeh/userinfo/', {})
       return response

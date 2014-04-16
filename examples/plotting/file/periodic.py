@@ -4,8 +4,6 @@ from bokeh.sampledata import periodic_table
 from collections import OrderedDict
 
 elements = periodic_table.elements[periodic_table.elements['group'] != "-"]
-elements['group'] = [str(x) for x in elements['group']]
-elements['period'] = [str(x) for x in elements['period']]
 
 group_range = [str(x) for x in range(1,19)]
 period_range = [str(x) for x in reversed(sorted(set(elements['period'])))]
