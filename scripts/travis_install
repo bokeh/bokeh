@@ -33,16 +33,18 @@ DEPS_DATA="PyYAML"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme
 DEPS_EXAMPLES="scipy"
 DEPS_TESTS="nose mock colorama" # websocket
-DEPS_IPYTHON="tornado pyzmq"
+DEPS_IPYTHON="ipython ipython-notebook"
+DEPS_PIP="sphinx-bootstrap-theme"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
     DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
+    DEPS_PIP="$DEPS_PIP websocket"
 fi
 
 DEPS="$DEPS_BOKEH $DEPS_SERVER $DEPS_DATA $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS $DEPS_IPYTHON"
 
 conda install --yes pip $DEPS
-pip install sphinx-bootstrap-theme websocket git+https://github.com/ipython/ipython.git@master
+pip install $DEPS_PIP
 
 cd bokehjs
 npm install && node_modules/.bin/grunt deploy || exit 1
