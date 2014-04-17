@@ -53,4 +53,6 @@ cd ..
 ln -s $(readlink -f bokehjs/build/js) bokeh/server/static/js
 ln -s $(readlink -f bokehjs/build/css) bokeh/server/static/css
 
+sed -i 's/^backend\s*:.*$/backend: agg/' `python -c "import matplotlib; print(matplotlib.matplotlib_fname())"`
+
 python -c 'import bokeh; bokeh.sampledata.download(progress=False)' || exit 1
