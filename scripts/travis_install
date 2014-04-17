@@ -31,10 +31,10 @@ DEPS_BOKEH="numpy pandas six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DATA="PyYAML"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme
-DEPS_EXAMPLES="scipy" # ggplot
+DEPS_EXAMPLES="scipy matplotlib statsmodels" # ggplot
 DEPS_TESTS="nose mock colorama" # websocket
 DEPS_IPYTHON="ipython ipython-notebook"
-DEPS_PIP="sphinx-bootstrap-theme patsy ggplot"
+DEPS_PIP="sphinx-bootstrap-theme ggplot"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
     DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
@@ -43,8 +43,8 @@ fi
 
 DEPS="$DEPS_BOKEH $DEPS_SERVER $DEPS_DATA $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS $DEPS_IPYTHON"
 
-conda install --yes pip $DEPS
-pip install $DEPS_PIP
+conda install --yes pip $DEPS || exit 1
+pip install $DEPS_PIP || exit 1
 
 cd bokehjs
 npm install && node_modules/.bin/grunt deploy || exit 1
