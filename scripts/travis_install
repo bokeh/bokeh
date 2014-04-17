@@ -31,10 +31,10 @@ DEPS_BOKEH="numpy pandas six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DATA="PyYAML"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme
-DEPS_EXAMPLES="scipy"
+DEPS_EXAMPLES="scipy" # ggplot
 DEPS_TESTS="nose mock colorama" # websocket
 DEPS_IPYTHON="ipython ipython-notebook"
-DEPS_PIP="sphinx-bootstrap-theme"
+DEPS_PIP="sphinx-bootstrap-theme patsy ggplot"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
     DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"

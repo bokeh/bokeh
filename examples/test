@@ -64,7 +64,7 @@ def add_examples(examples_dir, includes=set([]), excludes=set([]), etype='file')
     ext = '.ipynb' if etype == 'notebook' else '.py'
 
     for file in includes or os.listdir(examples_dir):
-        if not file.startswith('__') and file.endswith(ext) and file not in excludes:
+        if not file.startswith(('_', '.')) and file.endswith(ext) and file not in excludes:
             examples.append((os.path.join(examples_dir, file), etype))
 
 base_dir = os.path.dirname(__file__)
@@ -86,6 +86,12 @@ add_examples(plotting_server_dir, excludes=plotting_server_excludes, etype='serv
 plotting_notebook_dir = os.path.join(base_dir, "plotting", "notebook")
 plotting_notebook_excludes = set(["animated.ipynb"])
 add_examples(plotting_notebook_dir, excludes=plotting_notebook_excludes, etype='notebook')
+
+mpl_dir = os.path.join(base_dir, "mpl")
+add_examples(mpl_dir, etype='file')
+
+ggplot_dir = os.path.join(base_dir, "ggplot")
+add_examples(ggplot_dir, etype='file')
 
 def red(text):
     return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
