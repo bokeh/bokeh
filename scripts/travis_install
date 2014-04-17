@@ -32,7 +32,7 @@ DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DATA="PyYAML"
 DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme
 DEPS_EXAMPLES="scipy"
-DEPS_TESTS="nose mock colorama" # websocket
+DEPS_TESTS="nose mock colorama coverage" # websocket
 DEPS_IPYTHON="tornado pyzmq"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
