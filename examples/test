@@ -201,7 +201,7 @@ def start_bokeh_server():
     argv = ["--bokeh-port=%s" % args.bokeh_port, "--backend=memory"]
 
     if args.dev:
-        argv.append("--splitjs")
+        argv.extend(["--splitjs", "--debugjs", "--filter-logs"])
 
     try:
         proc = subprocess.Popen(cmd + argv)
@@ -245,14 +245,15 @@ need_notebook = any(etype == 'notebook' for _, etype in selected_examples)
 bokeh_server = start_bokeh_server() if use_server and need_server else None
 ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook else None
 
-num_examples = len(selected_examples)
 run_examples = 0
-ok_examples = 0
+fail_examples = []
+skip_examples = []
 
 try:
     for example, etype in sorted(selected_examples):
         if etype == 'server' and not bokeh_server or etype == 'notebook' and not ipython_notebook:
             print("%s Skipping %s" % (yellow(">>>"), example))
+            skip_examples.append(example)
         else:
             print("%s Testing %s ..." % (yellow(">>>"), example))
             result = False
@@ -267,7 +268,8 @@ try:
             else:
                 raise ValueError("invalid example type: %s" % etype)
 
-            if result: ok_examples += 1
+            if not result:
+                fail_examples.append(example)
             run_examples += 1
 
         print()
@@ -282,11 +284,17 @@ finally:
         print("Shutting down ipython-notebook ...")
         ipython_notebook.kill()
 
-if ok_examples != run_examples:
+num_examples = len(selected_examples)
+
+if len(fail_examples) != 0:
     fail("FIX FAILURES AND RUN AGAIN")
+    for failed in fail_examples:
+        fail(" - %s" % failed)
     sys.exit(1)
 elif run_examples != num_examples:
     warn("NOT ALL EXAMPLES WERE RUN")
+    for skipped in skip_examples:
+        warn(" - %s" % skipped)
     sys.exit(0)
 else:
     ok("ALL TESTS PASS")
