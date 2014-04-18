@@ -61,7 +61,7 @@ except requests.exceptions.ConnectionError:
     print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
     sys.exit(1)
 
-sess.use_doc("glyph2")
+sess.use_doc("glyph2_server")
 sess.add_plot(plot)
 # not so nice.. but set the model doens't know
 # that we appended to children

@@ -30,19 +30,21 @@ ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
 DEPS_BOKEH="numpy pandas six requests dateutil"
 DEPS_SERVER="flask werkzeug greenlet redis redis-py"
 DEPS_DATA="PyYAML"
-DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme
-DEPS_EXAMPLES="scipy"
+DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme sphinxcontrib-napoleon
+DEPS_EXAMPLES="scipy matplotlib statsmodels" # ggplot seaborn
 DEPS_TESTS="nose mock colorama coverage" # websocket
-DEPS_IPYTHON="tornado pyzmq"
+DEPS_IPYTHON="ipython ipython-notebook"
+DEPS_PIP="sphinx-bootstrap-theme sphinxcontrib-napoleon ggplot seaborn"
 
 if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
     DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
+    DEPS_PIP="$DEPS_PIP websocket"
 fi
 
 DEPS="$DEPS_BOKEH $DEPS_SERVER $DEPS_DATA $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS $DEPS_IPYTHON"
 
-conda install --yes pip $DEPS
-pip install sphinx-bootstrap-theme websocket git+https://github.com/ipython/ipython.git@master
+conda install --yes pip $DEPS || exit 1
+pip install $DEPS_PIP || exit 1
 
 cd bokehjs
 npm install && node_modules/.bin/grunt deploy || exit 1
@@ -50,5 +52,7 @@ cd ..
 
 ln -s $(readlink -f bokehjs/build/js) bokeh/server/static/js
 ln -s $(readlink -f bokehjs/build/css) bokeh/server/static/css
+
+sed -i 's/^backend\s*:.*$/backend: agg/' `python -c "import matplotlib; print(matplotlib.matplotlib_fname())"`
 
 python -c 'import bokeh; bokeh.sampledata.download(progress=False)' || exit 1
