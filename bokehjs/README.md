@@ -56,35 +56,16 @@ Deploying
 Grunt can concatenate RequireJS modules into a single javascript file,
 either minified or unminified.
 
-#### Minified
-To generate a minified script, execute the following command:
-
-```bash
-grunt mindeploy
-```
-
-The resulting script will have the filename `bokeh.min.js` located in
-the **build/js** subdirectory.
-
-#### Unminified
-To generate an unminified script, execute the following command:
-
-```bash
-grunt devdeploy
-```
-
-The resulting script will have the filename `bokeh.js` located in
-the **build/js** subdirectory.
-
-#### Minified + Unminified
-To generate both minified and unminified scripts in the **build/js**
-directory, run the following command::
+To generate both minified and minified scripts, run the following command:
 
 ```bash
 grunt deploy
 ```
 
-In all cases the script creates a top level module `Bokeh` that exposes
+The resulting scripts - `bokeh.min.js` and `bokeh.js` will be located in
+the **build/js** subdirectory.
+
+This generated script creates a top-level module `Bokeh` that exposes
 the full API.
 
 Demoing
