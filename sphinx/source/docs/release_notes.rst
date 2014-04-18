@@ -4,7 +4,7 @@
 Release Notes
 #############
 
-v0.4.3 (Apr 2014)
+v0.4.4 (Apr 2014)
 =================
 
 * Improved MPL interface, subplots, styling plus more examples

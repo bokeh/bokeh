@@ -251,7 +251,7 @@ module.exports = (grunt) ->
   grunt.loadNpmTasks("grunt-eco")
   grunt.loadNpmTasks('grunt-groc')
 
-  grunt.registerTask("default",     ["build", "qunit"])
+  grunt.registerTask("default",     ["build", "test"])
   grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
   grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config", "concat"])
   grunt.registerTask("deploy",      ["build",  "requirejs", "cssmin", "copy:spectrogram"])
