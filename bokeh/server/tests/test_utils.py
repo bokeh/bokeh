@@ -63,25 +63,30 @@ def recv_timeout(socket, timeout):
 
 class BokehServerTestCase(unittest.TestCase):
     options = {}
-
+    redis = False
     @skipIfPy3("gevent does not work in py3.")
     def setUp(self):
         import gevent
-        start.prepare_app({"type": "redis", "redis_port": 6899}, **self.options)
+        if self.redis:
+            start.prepare_app({"type": "redis", "redis_port": 6899}, **self.options)
+        else:
+            start.prepare_app({"type": "memory"}, **self.options)
         start.register_blueprint()
         fname = tempfile.NamedTemporaryFile().name
         bokeh_app.data_file = fname
         bokeh_app.stdout = None
         bokeh_app.stderr = None
-        bokeh_app.redis_save = False
+        bokeh_app.redis_save = False        
         self.servert = gevent.spawn(start.start_app)
-        wait_redis_start(6899)
-        redis.Redis(port=6899).flushall()
+        if self.redis:
+            wait_redis_start(6899)
+            redis.Redis(port=6899).flushall()
         start.make_default_user(bokeh_app)
         wait_flask()
 
     def tearDown(self):
         self.servert.kill()
-        bokeh_app.redis_proc.close()
-        wait_redis_gone(6899)
+        if self.redis:
+            bokeh_app.redis_proc.close()
+            wait_redis_gone(6899)
 
