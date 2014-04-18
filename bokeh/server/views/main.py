@@ -35,7 +35,7 @@ def ping():
 def index(*unused_all, **kwargs):
     bokehuser = bokeh_app.current_user()
     if not bokehuser:
-        return redirect("/bokeh/login")
+        return redirect(url_for('.login_get'))
     return render_template('bokeh.html',
                            splitjs=bokeh_app.splitjs,
                            username=bokehuser.username,
@@ -44,7 +44,7 @@ def index(*unused_all, **kwargs):
 
 @bokeh_app.route('/')
 def welcome(*unused_all, **kwargs):
-    return redirect("/bokeh/")
+    redirect(url_for('.index'))
 
 @bokeh_app.route('/bokeh/favicon.ico')
 def favicon():
