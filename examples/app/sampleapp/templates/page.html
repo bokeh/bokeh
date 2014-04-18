@@ -4,11 +4,12 @@
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %}</title>
     <!-- Vendor Styles -->
+    <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <link href="http://{{ bokeh_location }}/static/css/bokeh.css" rel="stylesheet">
     <link href="http://{{ bokeh_location }}/static/vendor/bootstrap/css/bootstrap-orig-2.2.2.css" rel="stylesheet">
     <link href="{{ url_for('static', filename='css/volumeapp.css') }}" rel="stylesheet">
     <script src="http://{{ bokeh_location }}/static/js/vendor/jquery/jquery.js"></script>
-    <script src="http://{{ bokeh_location }}/static/js/vendor/bootstrap/bootstrap-2.0.4.js"></script>
+    <script src="http://{{ bokeh_location }}/static/js/vendor/bootstrap/bootstrap-2.0.4.js"></script>    
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
     {% if splitjs %}
     <script src="http://{{ bokeh_location }}/bokehjs/static/js/vendor/requirejs/require.js"></script>
