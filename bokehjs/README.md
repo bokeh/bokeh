@@ -94,21 +94,21 @@ Running `grunt build` will also cause the demo files to be built and copied
 over to the **build/demo** directory. To run the demos, simply open any of the
 HTML files located there in a browser.
 
-**Note:** rRunning `$ ./bokeh-server -j ` and navigating to
-[Glyphs Demo](http://localhost:5006/bokehjs/static/demo/glyphs.html) also works.
+**Note:** Alternatively, run `$ ./bokeh-server -j ` and navigate to
+[Glyphs Demo](http://localhost:5006/bokehjs/static/demo/glyphs.html).
 
 Testing
 -------
 
 In order to run BokehJS tests a web server must first be running at the
-top level directory. To start the webserver and run the test suite,
+top level directory. To start the web server and run the test suite,
 simply run this command:
 
-```bash
+```
 grunt test
 ```
 
-[BokehJS Testing](http://i.imgur.com/PcTa3ep.png)
+![BokehJS Testing](http://i.imgur.com/PcTa3ep.png)
 
 Contributing
 ------------
