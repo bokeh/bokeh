@@ -11,9 +11,7 @@ else:
 import argparse, sys
 import logging
 
-DEFAULT_BACKEND = 'redis'
-if 'win32' in sys.platform:
-    DEFAULT_BACKEND = 'memory'
+DEFAULT_BACKEND = 'shelve'
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Start the Bokeh plot server")
@@ -67,6 +65,7 @@ def build_parser():
                         help="data directory",
                         type=str
                         )
+    
     return parser
 
 def run():
