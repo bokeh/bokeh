@@ -1,5 +1,5 @@
-bokehjs
-=======
+<img src="http://i.imgur.com/TMKcgIV.png" width="35" height="35"> BokehJS
+=========================================================================
 
 About
 =====
