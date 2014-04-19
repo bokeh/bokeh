@@ -12163,8 +12163,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=custom.js.map
-;
+/*
+//@ sourceMappingURL=custom.js.map
+*/;
 (function() {
   define('common/build_views',["underscore"], function(_) {
     var build_views;
@@ -12215,13 +12216,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=build_views.js.map
-;
+/*
+//@ sourceMappingURL=build_views.js.map
+*/;
 (function() {
   define('common/safebind',["underscore"], function(_) {
     var safebind;
     return safebind = function(binder, target, event, callback) {
-      var error;
+      var error,
+        _this = this;
       if (!_.has(binder, 'eventers')) {
         binder['eventers'] = {};
       }
@@ -12232,11 +12235,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       }
       if (target != null) {
         target.on(event, callback, binder);
-        target.on('destroy remove', (function(_this) {
-          return function() {
-            return delete binder['eventers'][target];
-          };
-        })(this), binder);
+        target.on('destroy remove', function() {
+          return delete binder['eventers'][target];
+        }, binder);
       } else {
         debugger;
         console.log("error with binder", binder, event);
@@ -12247,8 +12248,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=safebind.js.map
-;
+/*
+//@ sourceMappingURL=safebind.js.map
+*/;
 (function() {
   define('common/load_models',["require", "./base"], function(require, base) {
     var load_models;
@@ -12304,8 +12306,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=load_models.js.map
-;
+/*
+//@ sourceMappingURL=load_models.js.map
+*/;
 (function() {
   define('common/bulk_save',["underscore", "jquery", "require", "./base", "./load_models"], function(_, $, require, base, load_models) {
     var bulk_save;
@@ -12313,6 +12316,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       var Config, doc, jsondata, m, url, xhr;
       Config = require("./base").Config;
       doc = models[0].get('doc');
+      if (doc == null) {
+        throw new Error("Unset 'doc' in " + models[0]);
+      }
       jsondata = (function() {
         var _i, _len, _results;
         _results = [];
@@ -12345,19 +12351,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=bulk_save.js.map
-;
+/*
+//@ sourceMappingURL=bulk_save.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/continuum_view',["underscore", "backbone"], function(_, Backbone) {
-    var ContinuumView;
+    var ContinuumView, _ref;
     ContinuumView = (function(_super) {
       __extends(ContinuumView, _super);
 
       function ContinuumView() {
-        return ContinuumView.__super__.constructor.apply(this, arguments);
+        _ref = ContinuumView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ContinuumView.prototype.initialize = function(options) {
@@ -12375,12 +12383,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       ContinuumView.prototype.remove = function() {
-        var target, val, _ref;
+        var target, val, _ref1;
         if (_.has(this, 'eventers')) {
-          _ref = this.eventers;
-          for (target in _ref) {
-            if (!__hasProp.call(_ref, target)) continue;
-            val = _ref[target];
+          _ref1 = this.eventers;
+          for (target in _ref1) {
+            if (!__hasProp.call(_ref1, target)) continue;
+            val = _ref1[target];
             val.off(null, null, this);
           }
         }
@@ -12414,8 +12422,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=continuum_view.js.map
-;
+/*
+//@ sourceMappingURL=continuum_view.js.map
+*/;
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -12434,6 +12443,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         _ref = HasProperties.__super__.constructor.apply(this, arguments);
         return _ref;
       }
+
+      HasProperties.prototype.toString = function() {
+        return "" + this.type + "(" + this.id + ")";
+      };
 
       HasProperties.prototype.destroy = function(options) {
         var target, val, _ref1, _results;
@@ -12695,8 +12708,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       HasProperties.prototype.url = function() {
-        var url;
-        url = this.get_base().Config.prefix + "/bokeh/bb/" + this.get('doc') + "/" + this.type + "/";
+        var doc, url;
+        doc = this.get('doc');
+        if (doc == null) {
+          console.log("WARN: Unset 'doc' in " + this);
+        }
+        url = this.get_base().Config.prefix + "/bokeh/bb/" + doc + "/" + this.type + "/";
         if (this.isNew()) {
           return url;
         }
@@ -12712,12 +12729,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       HasProperties.prototype.rpc = function(funcname, args, kwargs) {
-        var data, docid, id, prefix, resp, type, url;
+        var data, doc, id, prefix, resp, type, url;
         prefix = this.get_base().Config.prefix;
-        docid = this.get('doc');
+        doc = this.get('doc');
+        if (doc == null) {
+          throw new Error("Unset 'doc' in " + this);
+        }
         id = this.get('id');
         type = this.type;
-        url = "" + prefix + "/bokeh/bb/rpc/" + docid + "/" + type + "/" + id + "/" + funcname + "/";
+        url = "" + prefix + "/bokeh/bb/rpc/" + doc + "/" + type + "/" + id + "/" + funcname + "/";
         data = {
           args: args,
           kwargs: kwargs
@@ -12749,12 +12769,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/has_parent',["underscore", "./has_properties"], function(_, HasProperties) {
-    var HasParent;
+    var HasParent, _ref;
     HasParent = (function(_super) {
       __extends(HasParent, _super);
 
       function HasParent() {
-        return HasParent.__super__.constructor.apply(this, arguments);
+        _ref = HasParent.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       HasParent.prototype.get_fallback = function(attr) {
@@ -12788,19 +12809,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=has_parent.js.map
-;
+/*
+//@ sourceMappingURL=has_parent.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('range/range1d',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
-    var Range1d, Range1ds;
+    var Range1d, Range1ds, _ref, _ref1;
     Range1d = (function(_super) {
       __extends(Range1d, _super);
 
       function Range1d() {
-        return Range1d.__super__.constructor.apply(this, arguments);
+        _ref = Range1d.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       Range1d.prototype.type = 'Range1d';
@@ -12831,7 +12854,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(Range1ds, _super);
 
       function Range1ds() {
-        return Range1ds.__super__.constructor.apply(this, arguments);
+        _ref1 = Range1ds.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Range1ds.prototype.model = Range1d;
@@ -12847,19 +12871,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=range1d.js.map
-;
+/*
+//@ sourceMappingURL=range1d.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/view_state',["./has_properties", "range/range1d"], function(HasProperties, Range1d) {
-    var ViewState;
+    var ViewState, _ref;
     return ViewState = (function(_super) {
       __extends(ViewState, _super);
 
       function ViewState() {
-        return ViewState.__super__.constructor.apply(this, arguments);
+        _ref = ViewState.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ViewState.prototype.initialize = function(attrs, options) {
@@ -12984,19 +13010,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=view_state.js.map
-;
+/*
+//@ sourceMappingURL=view_state.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('mapper/1d/linear_mapper',["backbone", "common/has_properties"], function(Backbone, HasProperties) {
-    var LinearMapper, LinearMappers;
+    var LinearMapper, LinearMappers, _ref, _ref1;
     LinearMapper = (function(_super) {
       __extends(LinearMapper, _super);
 
       function LinearMapper() {
-        return LinearMapper.__super__.constructor.apply(this, arguments);
+        _ref = LinearMapper.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       LinearMapper.prototype.initialize = function(attrs, options) {
@@ -13008,14 +13036,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       LinearMapper.prototype.map_to_target = function(x) {
-        var offset, scale, _ref;
-        _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+        var offset, scale, _ref1;
+        _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
         return scale * x + offset;
       };
 
       LinearMapper.prototype.v_map_to_target = function(xs) {
-        var idx, offset, result, scale, x, _i, _len, _ref;
-        _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+        var idx, offset, result, scale, x, _i, _len, _ref1;
+        _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
         result = new Float64Array(xs.length);
         for (idx = _i = 0, _len = xs.length; _i < _len; idx = ++_i) {
           x = xs[idx];
@@ -13025,14 +13053,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       LinearMapper.prototype.map_from_target = function(xprime) {
-        var offset, scale, _ref;
-        _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+        var offset, scale, _ref1;
+        _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
         return (xprime - offset) / scale;
       };
 
       LinearMapper.prototype.v_map_from_target = function(xprimes) {
-        var idx, offset, result, scale, xprime, _i, _len, _ref;
-        _ref = this.get('mapper_state'), scale = _ref[0], offset = _ref[1];
+        var idx, offset, result, scale, xprime, _i, _len, _ref1;
+        _ref1 = this.get('mapper_state'), scale = _ref1[0], offset = _ref1[1];
         result = new Float64Array(xprimes.length);
         for (idx = _i = 0, _len = xprimes.length; _i < _len; idx = ++_i) {
           xprime = xprimes[idx];
@@ -13059,7 +13087,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(LinearMappers, _super);
 
       function LinearMappers() {
-        return LinearMappers.__super__.constructor.apply(this, arguments);
+        _ref1 = LinearMappers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       LinearMappers.prototype.model = LinearMapper;
@@ -13075,19 +13104,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=linear_mapper.js.map
-;
+/*
+//@ sourceMappingURL=linear_mapper.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('mapper/2d/grid_mapper',["backbone", "common/has_properties"], function(Backbone, HasProperties) {
-    var GridMapper, GridMappers;
+    var GridMapper, GridMappers, _ref, _ref1;
     GridMapper = (function(_super) {
       __extends(GridMapper, _super);
 
       function GridMapper() {
-        return GridMapper.__super__.constructor.apply(this, arguments);
+        _ref = GridMapper.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       GridMapper.prototype.map_to_target = function(x, y) {
@@ -13125,7 +13156,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(GridMappers, _super);
 
       function GridMappers() {
-        return GridMappers.__super__.constructor.apply(this, arguments);
+        _ref1 = GridMappers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       GridMappers.prototype.model = GridMapper;
@@ -13141,8 +13173,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=grid_mapper.js.map
-;
+/*
+//@ sourceMappingURL=grid_mapper.js.map
+*/;
 (function() {
   define('common/svg_colors',[], function() {
     var svg_colors;
@@ -13299,8 +13332,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=svg_colors.js.map
-;
+/*
+//@ sourceMappingURL=svg_colors.js.map
+*/;
 (function() {
   var __indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; },
     __hasProp = {}.hasOwnProperty,
@@ -13846,8 +13880,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=properties.js.map
-;
+/*
+//@ sourceMappingURL=properties.js.map
+*/;
 (function() {
   define('tool/active_tool_manager',[], function() {
     var ActiveToolManager;
@@ -13859,30 +13894,25 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       }
 
       ActiveToolManager.prototype.bind_bokeh_events = function() {
-        this.event_sink.on("clear_active_tool", (function(_this) {
-          return function() {
+        var _this = this;
+        this.event_sink.on("clear_active_tool", function() {
+          _this.event_sink.trigger("" + _this.event_sink.active + ":deactivated");
+          return _this.event_sink.active = null;
+        });
+        this.event_sink.on("active_tool", function(toolName) {
+          if (toolName !== _this.event_sink.active) {
+            _this.event_sink.trigger("" + toolName + ":activated");
             _this.event_sink.trigger("" + _this.event_sink.active + ":deactivated");
-            return _this.event_sink.active = null;
-          };
-        })(this));
-        this.event_sink.on("active_tool", (function(_this) {
-          return function(toolName) {
-            if (toolName !== _this.event_sink.active) {
-              _this.event_sink.trigger("" + toolName + ":activated");
-              _this.event_sink.trigger("" + _this.event_sink.active + ":deactivated");
-              return _this.event_sink.active = toolName;
-            }
-          };
-        })(this));
-        return this.event_sink.on("try_active_tool", (function(_this) {
-          return function(toolName) {
-            if (_this.event_sink.active == null) {
-              _this.event_sink.trigger("" + toolName + ":activated");
-              _this.event_sink.trigger("" + _this.event_sink.active + ":deactivated");
-              return _this.event_sink.active = toolName;
-            }
-          };
-        })(this));
+            return _this.event_sink.active = toolName;
+          }
+        });
+        return this.event_sink.on("try_active_tool", function(toolName) {
+          if (_this.event_sink.active == null) {
+            _this.event_sink.trigger("" + toolName + ":activated");
+            _this.event_sink.trigger("" + _this.event_sink.active + ":deactivated");
+            return _this.event_sink.active = toolName;
+          }
+        });
       };
 
       return ActiveToolManager;
@@ -13892,15 +13922,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=active_tool_manager.js.map
-;
+/*
+//@ sourceMappingURL=active_tool_manager.js.map
+*/;
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/gmap_plot',["underscore", "jquery", "backbone", "./build_views", "./safebind", "./bulk_save", "./continuum_view", "./has_parent", "./view_state", "mapper/1d/linear_mapper", "mapper/2d/grid_mapper", "renderer/properties", "tool/active_tool_manager"], function(_, $, Backbone, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) {
-    var GMapPlot, GMapPlotView, GMapPlots, LEVELS;
+    var GMapPlot, GMapPlotView, GMapPlots, LEVELS, _ref, _ref1, _ref2;
     LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
     GMapPlotView = (function(_super) {
       __extends(GMapPlotView, _super);
@@ -13909,7 +13940,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.bounds_change = __bind(this.bounds_change, this);
         this._mousemove = __bind(this._mousemove, this);
         this._mousedown = __bind(this._mousedown, this);
-        return GMapPlotView.__super__.constructor.apply(this, arguments);
+        _ref = GMapPlotView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       GMapPlotView.prototype.events = {
@@ -13927,22 +13959,22 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GMapPlotView.prototype._mousedown = function(e) {
-        var f, _i, _len, _ref, _results;
-        _ref = this.mousedownCallbacks;
+        var f, _i, _len, _ref1, _results;
+        _ref1 = this.mousedownCallbacks;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          f = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          f = _ref1[_i];
           _results.push(f(e, e.layerX, e.layerY));
         }
         return _results;
       };
 
       GMapPlotView.prototype._mousemove = function(e) {
-        var f, _i, _len, _ref, _results;
-        _ref = this.moveCallbacks;
+        var f, _i, _len, _ref1, _results;
+        _ref1 = this.moveCallbacks;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          f = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          f = _ref1[_i];
           _results.push(f(e, e.layerX, e.layerY));
         }
         return _results;
@@ -13977,31 +14009,31 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GMapPlotView.prototype.initialize = function(options) {
-        var level, tool, _i, _j, _len, _len1, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+        var level, tool, _i, _j, _len, _len1, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref18, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
         GMapPlotView.__super__.initialize.call(this, _.defaults(options, this.default_options));
         this.throttled_render = _.throttle(this.render, 100);
         this.throttled_render_canvas = _.throttle(this.render_canvas, 100);
         this.outline_props = new Properties.line_properties(this, {}, 'title_');
         this.title_props = new Properties.text_properties(this, {}, 'title_');
         this.view_state = new ViewState({
-          canvas_width: (_ref = options.canvas_width) != null ? _ref : this.mget('canvas_width'),
-          canvas_height: (_ref1 = options.canvas_height) != null ? _ref1 : this.mget('canvas_height'),
-          x_offset: (_ref2 = options.x_offset) != null ? _ref2 : this.mget('x_offset'),
-          y_offset: (_ref3 = options.y_offset) != null ? _ref3 : this.mget('y_offset'),
-          outer_width: (_ref4 = options.outer_width) != null ? _ref4 : this.mget('outer_width'),
-          outer_height: (_ref5 = options.outer_height) != null ? _ref5 : this.mget('outer_height'),
-          min_border_top: (_ref6 = (_ref7 = options.min_border_top) != null ? _ref7 : this.mget('min_border_top')) != null ? _ref6 : this.mget('min_border'),
-          min_border_bottom: (_ref8 = (_ref9 = options.min_border_bottom) != null ? _ref9 : this.mget('min_border_bottom')) != null ? _ref8 : this.mget('min_border'),
-          min_border_left: (_ref10 = (_ref11 = options.min_border_left) != null ? _ref11 : this.mget('min_border_left')) != null ? _ref10 : this.mget('min_border'),
-          min_border_right: (_ref12 = (_ref13 = options.min_border_right) != null ? _ref13 : this.mget('min_border_right')) != null ? _ref12 : this.mget('min_border'),
+          canvas_width: (_ref1 = options.canvas_width) != null ? _ref1 : this.mget('canvas_width'),
+          canvas_height: (_ref2 = options.canvas_height) != null ? _ref2 : this.mget('canvas_height'),
+          x_offset: (_ref3 = options.x_offset) != null ? _ref3 : this.mget('x_offset'),
+          y_offset: (_ref4 = options.y_offset) != null ? _ref4 : this.mget('y_offset'),
+          outer_width: (_ref5 = options.outer_width) != null ? _ref5 : this.mget('outer_width'),
+          outer_height: (_ref6 = options.outer_height) != null ? _ref6 : this.mget('outer_height'),
+          min_border_top: (_ref7 = (_ref8 = options.min_border_top) != null ? _ref8 : this.mget('min_border_top')) != null ? _ref7 : this.mget('min_border'),
+          min_border_bottom: (_ref9 = (_ref10 = options.min_border_bottom) != null ? _ref10 : this.mget('min_border_bottom')) != null ? _ref9 : this.mget('min_border'),
+          min_border_left: (_ref11 = (_ref12 = options.min_border_left) != null ? _ref12 : this.mget('min_border_left')) != null ? _ref11 : this.mget('min_border'),
+          min_border_right: (_ref13 = (_ref14 = options.min_border_right) != null ? _ref14 : this.mget('min_border_right')) != null ? _ref13 : this.mget('min_border'),
           requested_border_top: 0,
           requested_border_bottom: 0,
           requested_border_left: 0,
           requested_border_right: 0
         });
-        this.hidpi = (_ref14 = options.hidpi) != null ? _ref14 : this.mget('hidpi');
-        this.x_range = (_ref15 = options.x_range) != null ? _ref15 : this.mget_obj('x_range');
-        this.y_range = (_ref16 = options.y_range) != null ? _ref16 : this.mget_obj('y_range');
+        this.hidpi = (_ref15 = options.hidpi) != null ? _ref15 : this.mget('hidpi');
+        this.x_range = (_ref16 = options.x_range) != null ? _ref16 : this.mget_obj('x_range');
+        this.y_range = (_ref17 = options.y_range) != null ? _ref17 : this.mget_obj('y_range');
         this.xmapper = new LinearMapper.Model({
           source_range: this.x_range,
           target_range: this.view_state.get('inner_range_horizontal')
@@ -14014,9 +14046,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           domain_mapper: this.xmapper,
           codomain_mapper: this.ymapper
         });
-        _ref17 = this.mget_obj('tools');
-        for (_i = 0, _len = _ref17.length; _i < _len; _i++) {
-          tool = _ref17[_i];
+        _ref18 = this.mget_obj('tools');
+        for (_i = 0, _len = _ref18.length; _i < _len; _i++) {
+          tool = _ref18[_i];
           if (tool.type === "PanTool" || tool.type === "WheelZoomTool") {
             tool.set_obj('dataranges', [this.x_range, this.y_range]);
             tool.set('dimensions', ['width', 'height']);
@@ -14056,12 +14088,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GMapPlotView.prototype.map_to_screen = function(x, x_units, y, y_units, units) {
-        var sx, sy, _ref;
+        var sx, sy, _ref1;
         if (x_units === 'screen') {
           sx = x.slice(0);
           sy = y.slice(0);
         } else {
-          _ref = this.mapper.v_map_to_target(x, y), sx = _ref[0], sy = _ref[1];
+          _ref1 = this.mapper.v_map_to_target(x, y), sx = _ref1[0], sy = _ref1[1];
         }
         sx = this.view_state.v_vx_to_sx(sx);
         sy = this.view_state.v_vy_to_sy(sy);
@@ -14069,14 +14101,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GMapPlotView.prototype.map_from_screen = function(sx, sy, units) {
-        var x, y, _ref;
+        var x, y, _ref1;
         sx = this.view_state.v_sx_to_vx(sx.slice(0));
         sy = this.view_state.v_sy_to_vy(sy.slice(0));
         if (units === 'screen') {
           x = sx;
           y = sy;
         } else {
-          _ref = this.mapper.v_map_from_target(sx, sy), x = _ref[0], y = _ref[1];
+          _ref1 = this.mapper.v_map_from_target(sx, sy), x = _ref1[0], y = _ref1[1];
         }
         return [x, y];
       };
@@ -14145,22 +14177,19 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GMapPlotView.prototype.bind_bokeh_events = function() {
-        safebind(this, this.view_state, 'change', (function(_this) {
-          return function() {
-            _this.request_render_canvas();
-            return _this.request_render();
-          };
-        })(this));
+        var _this = this;
+        safebind(this, this.view_state, 'change', function() {
+          _this.request_render_canvas();
+          return _this.request_render();
+        });
         safebind(this, this.x_range, 'change', this.request_render);
         safebind(this, this.y_range, 'change', this.request_render);
         safebind(this, this.model, 'change:renderers', this.build_levels);
         safebind(this, this.model, 'change:tool', this.build_levels);
         safebind(this, this.model, 'change', this.request_render);
-        return safebind(this, this.model, 'destroy', (function(_this) {
-          return function() {
-            return _this.remove();
-          };
-        })(this));
+        return safebind(this, this.model, 'destroy', function() {
+          return _this.remove();
+        });
       };
 
       GMapPlotView.prototype.render_init = function() {
@@ -14172,7 +14201,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GMapPlotView.prototype.render_canvas = function(full_render) {
-        var backingStoreRatio, build_map, devicePixelRatio, ih, iw, left, oh, ow, ratio, top;
+        var backingStoreRatio, build_map, devicePixelRatio, ih, iw, left, oh, ow, ratio, top,
+          _this = this;
         if (full_render == null) {
           full_render = true;
         }
@@ -14205,20 +14235,18 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.gmap_div.attr('style', "height:" + ih + "px;");
         this.gmap_div.width("" + iw + "px").height("" + ih + "px");
         this.initial_zoom = this.mget('map_options').zoom;
-        build_map = (function(_this) {
-          return function() {
-            var map_options, mo;
-            mo = _this.mget('map_options');
-            map_options = {
-              center: new google.maps.LatLng(mo.lat, mo.lng),
-              zoom: mo.zoom,
-              disableDefaultUI: true,
-              mapTypeId: google.maps.MapTypeId.SATELLITE
-            };
-            _this.map = new google.maps.Map(_this.gmap_div[0], map_options);
-            return google.maps.event.addListener(_this.map, 'bounds_changed', _this.bounds_change);
+        build_map = function() {
+          var map_options, mo;
+          mo = _this.mget('map_options');
+          map_options = {
+            center: new google.maps.LatLng(mo.lat, mo.lng),
+            zoom: mo.zoom,
+            disableDefaultUI: true,
+            mapTypeId: google.maps.MapTypeId.SATELLITE
           };
-        })(this);
+          _this.map = new google.maps.Map(_this.gmap_div[0], map_options);
+          return google.maps.event.addListener(_this.map, 'bounds_changed', _this.bounds_change);
+        };
         _.defer(build_map);
         if (full_render) {
           return this.render();
@@ -14262,16 +14290,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GMapPlotView.prototype.render = function(force) {
-        var have_new_mapper_state, hpadding, ih, iw, k, left, level, oh, ow, pr, renderers, sx, sy, sym, th, title, top, v, xms, yms, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
+        var have_new_mapper_state, hpadding, ih, iw, k, left, level, oh, ow, pr, renderers, sx, sy, sym, th, title, top, v, xms, yms, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3, _ref4;
         this.requested_padding = {
           top: 0,
           bottom: 0,
           left: 0,
           right: 0
         };
-        _ref = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          level = _ref[_i];
+        _ref1 = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          level = _ref1[_i];
           renderers = this.levels[level];
           for (k in renderers) {
             v = renderers[k];
@@ -14302,9 +14330,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           this.requested_padding['bottom'] = hpadding;
         }
         this.is_paused = true;
-        _ref1 = this.requested_padding;
-        for (k in _ref1) {
-          v = _ref1[k];
+        _ref2 = this.requested_padding;
+        for (k in _ref2) {
+          v = _ref2[k];
           this.view_state.set("requested_border_" + k, v);
         }
         this.is_paused = false;
@@ -14348,9 +14376,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.ctx.rect(this.view_state.get('border_left'), this.view_state.get('border_top'), this.view_state.get('inner_width'), this.view_state.get('inner_height'));
         this.ctx.clip();
         this.ctx.beginPath();
-        _ref2 = ['image', 'underlay', 'glyph'];
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          level = _ref2[_j];
+        _ref3 = ['image', 'underlay', 'glyph'];
+        for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+          level = _ref3[_j];
           renderers = this.levels[level];
           for (k in renderers) {
             v = renderers[k];
@@ -14358,9 +14386,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           }
         }
         this.ctx.restore();
-        _ref3 = ['overlay', 'annotation', 'tool'];
-        for (_k = 0, _len2 = _ref3.length; _k < _len2; _k++) {
-          level = _ref3[_k];
+        _ref4 = ['overlay', 'annotation', 'tool'];
+        for (_k = 0, _len2 = _ref4.length; _k < _len2; _k++) {
+          level = _ref4[_k];
           renderers = this.levels[level];
           for (k in renderers) {
             v = renderers[k];
@@ -14382,7 +14410,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(GMapPlot, _super);
 
       function GMapPlot() {
-        return GMapPlot.__super__.constructor.apply(this, arguments);
+        _ref1 = GMapPlot.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       GMapPlot.prototype.type = 'GMapPlot';
@@ -14444,7 +14473,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(GMapPlots, _super);
 
       function GMapPlots() {
-        return GMapPlots.__super__.constructor.apply(this, arguments);
+        _ref2 = GMapPlots.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       GMapPlots.prototype.model = GMapPlot;
@@ -14461,15 +14491,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=gmap_plot.js.map
-;
+/*
+//@ sourceMappingURL=gmap_plot.js.map
+*/;
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/grid_view_state',["underscore", "./safebind", "./view_state"], function(_, safebind, ViewState) {
-    var GridViewState;
+    var GridViewState, _ref;
     GridViewState = (function(_super) {
       __extends(GridViewState, _super);
 
@@ -14477,17 +14508,18 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.layout_widths = __bind(this.layout_widths, this);
         this.layout_heights = __bind(this.layout_heights, this);
         this.setup_layout_properties = __bind(this.setup_layout_properties, this);
-        return GridViewState.__super__.constructor.apply(this, arguments);
+        _ref = GridViewState.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       GridViewState.prototype.setup_layout_properties = function() {
-        var row, viewstate, _i, _len, _ref, _results;
+        var row, viewstate, _i, _len, _ref1, _results;
         this.register_property('layout_heights', this.layout_heights, true);
         this.register_property('layout_widths', this.layout_widths, true);
-        _ref = this.get('childviewstates');
+        _ref1 = this.get('childviewstates');
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          row = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          row = _ref1[_i];
           _results.push((function() {
             var _j, _len1, _results1;
             _results1 = [];
@@ -14541,11 +14573,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       GridViewState.prototype.layout_heights = function() {
         var row, row_heights;
         row_heights = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.get('childviewstates');
+          var _i, _len, _ref1, _results;
+          _ref1 = this.get('childviewstates');
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            row = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            row = _ref1[_i];
             _results.push(this.maxdim('outer_height', row));
           }
           return _results;
@@ -14557,17 +14589,17 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         var col, col_widths, columns, n, num_cols, row;
         num_cols = this.get('childviewstates')[0].length;
         columns = (function() {
-          var _i, _len, _ref, _results;
-          _ref = _.range(num_cols);
+          var _i, _len, _ref1, _results;
+          _ref1 = _.range(num_cols);
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            n = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            n = _ref1[_i];
             _results.push((function() {
-              var _j, _len1, _ref1, _results1;
-              _ref1 = this.get('childviewstates');
+              var _j, _len1, _ref2, _results1;
+              _ref2 = this.get('childviewstates');
               _results1 = [];
-              for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-                row = _ref1[_j];
+              for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+                row = _ref2[_j];
                 _results1.push(row[n]);
               }
               return _results1;
@@ -14602,19 +14634,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=grid_view_state.js.map
-;
+/*
+//@ sourceMappingURL=grid_view_state.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/grid_plot',["underscore", "backbone", "./build_views", "./safebind", "./continuum_view", "./has_parent", "./grid_view_state", "renderer/properties", "tool/active_tool_manager"], function(_, Backbone, build_views, safebind, ContinuumView, HasParent, GridViewState, Properties, ActiveToolManager) {
-    var GridPlot, GridPlotView, GridPlots;
+    var GridPlot, GridPlotView, GridPlots, _ref, _ref1, _ref2;
     GridPlotView = (function(_super) {
       __extends(GridPlotView, _super);
 
       function GridPlotView() {
-        return GridPlotView.__super__.constructor.apply(this, arguments);
+        _ref = GridPlotView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       GridPlotView.prototype.tagName = 'div';
@@ -14626,11 +14660,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GridPlotView.prototype.set_child_view_states = function() {
-        var row, viewstaterow, viewstates, x, _i, _len, _ref;
+        var row, viewstaterow, viewstates, x, _i, _len, _ref1;
         viewstates = [];
-        _ref = this.mget('children');
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          row = _ref[_i];
+        _ref1 = this.mget('children');
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          row = _ref1[_i];
           viewstaterow = (function() {
             var _j, _len1, _results;
             _results = [];
@@ -14657,14 +14691,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GridPlotView.prototype.bind_bokeh_events = function() {
+        var _this = this;
         safebind(this, this.model, 'change:children', this.build_children);
         safebind(this, this.model, 'change', this.render);
         safebind(this, this.viewstate, 'change', this.render);
-        return safebind(this, this.model, 'destroy', (function(_this) {
-          return function() {
-            return _this.remove();
-          };
-        })(this));
+        return safebind(this, this.model, 'destroy', function() {
+          return _this.remove();
+        });
       };
 
       GridPlotView.prototype.b_events = {
@@ -14675,11 +14708,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GridPlotView.prototype.build_children = function() {
-        var childmodels, plot, row, _i, _j, _len, _len1, _ref;
+        var childmodels, plot, row, _i, _j, _len, _len1, _ref1;
         childmodels = [];
-        _ref = this.mget_obj('children');
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          row = _ref[_i];
+        _ref1 = this.mget_obj('children');
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          row = _ref1[_i];
           for (_j = 0, _len1 = row.length; _j < _len1; _j++) {
             plot = row[_j];
             childmodels.push(plot);
@@ -14727,7 +14760,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       GridPlotView.prototype.addGridToolbar = function() {
-        var all_tool_classes, all_tools, tool_name_dict;
+        var all_tool_classes, all_tools, tool_name_dict,
+          _this = this;
         this.button_bar = $("<div class='grid_button_bar'/>");
         this.button_bar.attr('style', "position:absolute; left:10px; top:0px; ");
         this.toolEventSink = _.extend({}, Backbone.Events);
@@ -14747,22 +14781,20 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           })[0].evgen_options.buttonText;
           return tool_name_dict[btext] = klass;
         });
-        _.map(tool_name_dict, (function(_this) {
-          return function(klass, button_text) {
-            return _this.makeButton(_this.toolEventSink, klass, _this.button_bar, button_text);
-          };
-        })(this));
+        _.map(tool_name_dict, function(klass, button_text) {
+          return _this.makeButton(_this.toolEventSink, klass, _this.button_bar, button_text);
+        });
         return _.map(all_tools, function(t) {
           return t.evgen.hide_button();
         });
       };
 
       GridPlotView.prototype.render = function() {
-        var add, cidx, col_widths, height, last_plot, plot_divs, plot_wrapper, plotspec, ridx, row, row_heights, total_height, view, width, x_coords, xpos, y_coords, ypos, _i, _j, _k, _len, _len1, _len2, _ref, _ref1;
+        var add, cidx, col_widths, height, last_plot, plot_divs, plot_wrapper, plotspec, ridx, row, row_heights, total_height, view, width, x_coords, xpos, y_coords, ypos, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2;
         GridPlotView.__super__.render.call(this);
-        _ref = _.values(this.childviews);
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          view = _ref[_i];
+        _ref1 = _.values(this.childviews);
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          view = _ref1[_i];
           view.$el.detach();
         }
         this.$el.html('');
@@ -14786,9 +14818,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }, 0);
         plot_divs = [];
         last_plot = null;
-        _ref1 = this.mget('children');
-        for (ridx = _j = 0, _len1 = _ref1.length; _j < _len1; ridx = ++_j) {
-          row = _ref1[ridx];
+        _ref2 = this.mget('children');
+        for (ridx = _j = 0, _len1 = _ref2.length; _j < _len1; ridx = ++_j) {
+          row = _ref2[ridx];
           for (cidx = _k = 0, _len2 = row.length; _k < _len2; cidx = ++_k) {
             plotspec = row[cidx];
             view = this.childviews[plotspec.id];
@@ -14817,7 +14849,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(GridPlot, _super);
 
       function GridPlot() {
-        return GridPlot.__super__.constructor.apply(this, arguments);
+        _ref1 = GridPlot.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       GridPlot.prototype.type = 'GridPlot';
@@ -14838,7 +14871,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(GridPlots, _super);
 
       function GridPlots() {
-        return GridPlots.__super__.constructor.apply(this, arguments);
+        _ref2 = GridPlots.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       GridPlots.prototype.model = GridPlot;
@@ -14855,29 +14889,31 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=grid_plot.js.map
-;
+/*
+//@ sourceMappingURL=grid_plot.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('mapper/1d/categorical_mapper',["backbone", "./linear_mapper"], function(Backbone, LinearMapper) {
-    var CategoricalMapper, CategoricalMappers;
+    var CategoricalMapper, CategoricalMappers, _ref, _ref1;
     CategoricalMapper = (function(_super) {
       __extends(CategoricalMapper, _super);
 
       function CategoricalMapper() {
-        return CategoricalMapper.__super__.constructor.apply(this, arguments);
+        _ref = CategoricalMapper.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       CategoricalMapper.prototype.map_to_target = function(x) {
-        var factor, factors, percent, _ref;
+        var factor, factors, percent, _ref1;
         if (typeof x === 'number') {
           return CategoricalMapper.__super__.map_to_target.call(this, x);
         }
         factors = this.get('source_range').get('factors');
         if (x.indexOf(':') >= 0) {
-          _ref = x.split(':'), factor = _ref[0], percent = _ref[1];
+          _ref1 = x.split(':'), factor = _ref1[0], percent = _ref1[1];
           percent = parseFloat(percent);
           return CategoricalMapper.__super__.map_to_target.call(this, factors.indexOf(factor) + 0.5 + percent);
         }
@@ -14885,16 +14921,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       CategoricalMapper.prototype.v_map_to_target = function(xs) {
-        var factor, factors, i, percent, results, x, _i, _ref, _ref1;
+        var factor, factors, i, percent, results, x, _i, _ref1, _ref2;
         if (typeof xs[0] === 'number') {
           return CategoricalMapper.__super__.v_map_to_target.call(this, xs);
         }
         factors = this.get('source_range').get('factors');
         results = Array(xs.length);
-        for (i = _i = 0, _ref = xs.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = xs.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           x = xs[i];
           if (x.indexOf(':') >= 0) {
-            _ref1 = x.split(':'), factor = _ref1[0], percent = _ref1[1];
+            _ref2 = x.split(':'), factor = _ref2[0], percent = _ref2[1];
             percent = parseFloat(percent);
             results[i] = factors.indexOf(factor) + 0.5 + percent;
           } else {
@@ -14912,10 +14948,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       CategoricalMapper.prototype.v_map_from_target = function(xprimes) {
-        var factors, i, result, _i, _ref;
+        var factors, i, result, _i, _ref1;
         result = CategoricalMapper.__super__.v_map_from_target.call(this, xprimes);
         factors = this.get('source_range').get('factors');
-        for (i = _i = 0, _ref = result.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = result.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           result[i] = factors[Math.floor(result[i] - 0.5)];
         }
         return result;
@@ -14928,7 +14964,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(CategoricalMappers, _super);
 
       function CategoricalMappers() {
-        return CategoricalMappers.__super__.constructor.apply(this, arguments);
+        _ref1 = CategoricalMappers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       CategoricalMappers.prototype.model = CategoricalMapper;
@@ -14944,15 +14981,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=categorical_mapper.js.map
-;
+/*
+//@ sourceMappingURL=categorical_mapper.js.map
+*/;
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/plot',["underscore", "backbone", "require", "./build_views", "./safebind", "./bulk_save", "./continuum_view", "./has_parent", "./view_state", "mapper/1d/linear_mapper", "mapper/1d/categorical_mapper", "mapper/2d/grid_mapper", "renderer/properties", "tool/active_tool_manager"], function(_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) {
-    var LEVELS, Plot, PlotView, Plots, delay_animation, line_properties, text_properties, throttle_animation;
+    var LEVELS, Plot, PlotView, Plots, delay_animation, line_properties, text_properties, throttle_animation, _ref, _ref1, _ref2;
     line_properties = Properties.line_properties;
     text_properties = Properties.text_properties;
     LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
@@ -14995,7 +15033,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       function PlotView() {
         this._mousemove = __bind(this._mousemove, this);
         this._mousedown = __bind(this._mousedown, this);
-        return PlotView.__super__.constructor.apply(this, arguments);
+        _ref = PlotView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       PlotView.prototype.className = "bokeh plotview";
@@ -15013,22 +15052,22 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotView.prototype._mousedown = function(e) {
-        var f, _i, _len, _ref, _results;
-        _ref = this.mousedownCallbacks;
+        var f, _i, _len, _ref1, _results;
+        _ref1 = this.mousedownCallbacks;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          f = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          f = _ref1[_i];
           _results.push(f(e, e.layerX, e.layerY));
         }
         return _results;
       };
 
       PlotView.prototype._mousemove = function(e) {
-        var f, _i, _len, _ref, _results;
-        _ref = this.moveCallbacks;
+        var f, _i, _len, _ref1, _results;
+        _ref1 = this.moveCallbacks;
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          f = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          f = _ref1[_i];
           _results.push(f(e, e.layerX, e.layerY));
         }
         return _results;
@@ -15063,31 +15102,31 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotView.prototype.initialize = function(options) {
-        var level, xmapper_type, ymapper_type, _i, _len, _ref, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
+        var level, xmapper_type, ymapper_type, _i, _len, _ref1, _ref10, _ref11, _ref12, _ref13, _ref14, _ref15, _ref16, _ref17, _ref2, _ref3, _ref4, _ref5, _ref6, _ref7, _ref8, _ref9;
         PlotView.__super__.initialize.call(this, _.defaults(options, this.default_options));
         this.throttled_render = throttle_animation(this.render, 15);
         this.throttled_render_canvas = throttle_animation(this.render_canvas, 15);
         this.outline_props = new line_properties(this, {}, 'outline_');
         this.title_props = new text_properties(this, {}, 'title_');
         this.view_state = new ViewState({
-          canvas_width: (_ref = options.canvas_width) != null ? _ref : this.mget('canvas_width'),
-          canvas_height: (_ref1 = options.canvas_height) != null ? _ref1 : this.mget('canvas_height'),
-          x_offset: (_ref2 = options.x_offset) != null ? _ref2 : this.mget('x_offset'),
-          y_offset: (_ref3 = options.y_offset) != null ? _ref3 : this.mget('y_offset'),
-          outer_width: (_ref4 = options.outer_width) != null ? _ref4 : this.mget('outer_width'),
-          outer_height: (_ref5 = options.outer_height) != null ? _ref5 : this.mget('outer_height'),
-          min_border_top: (_ref6 = (_ref7 = options.min_border_top) != null ? _ref7 : this.mget('min_border_top')) != null ? _ref6 : this.mget('min_border'),
-          min_border_bottom: (_ref8 = (_ref9 = options.min_border_bottom) != null ? _ref9 : this.mget('min_border_bottom')) != null ? _ref8 : this.mget('min_border'),
-          min_border_left: (_ref10 = (_ref11 = options.min_border_left) != null ? _ref11 : this.mget('min_border_left')) != null ? _ref10 : this.mget('min_border'),
-          min_border_right: (_ref12 = (_ref13 = options.min_border_right) != null ? _ref13 : this.mget('min_border_right')) != null ? _ref12 : this.mget('min_border'),
+          canvas_width: (_ref1 = options.canvas_width) != null ? _ref1 : this.mget('canvas_width'),
+          canvas_height: (_ref2 = options.canvas_height) != null ? _ref2 : this.mget('canvas_height'),
+          x_offset: (_ref3 = options.x_offset) != null ? _ref3 : this.mget('x_offset'),
+          y_offset: (_ref4 = options.y_offset) != null ? _ref4 : this.mget('y_offset'),
+          outer_width: (_ref5 = options.outer_width) != null ? _ref5 : this.mget('outer_width'),
+          outer_height: (_ref6 = options.outer_height) != null ? _ref6 : this.mget('outer_height'),
+          min_border_top: (_ref7 = (_ref8 = options.min_border_top) != null ? _ref8 : this.mget('min_border_top')) != null ? _ref7 : this.mget('min_border'),
+          min_border_bottom: (_ref9 = (_ref10 = options.min_border_bottom) != null ? _ref10 : this.mget('min_border_bottom')) != null ? _ref9 : this.mget('min_border'),
+          min_border_left: (_ref11 = (_ref12 = options.min_border_left) != null ? _ref12 : this.mget('min_border_left')) != null ? _ref11 : this.mget('min_border'),
+          min_border_right: (_ref13 = (_ref14 = options.min_border_right) != null ? _ref14 : this.mget('min_border_right')) != null ? _ref13 : this.mget('min_border'),
           requested_border_top: 0,
           requested_border_bottom: 0,
           requested_border_left: 0,
           requested_border_right: 0
         });
-        this.hidpi = (_ref14 = options.hidpi) != null ? _ref14 : this.mget('hidpi');
-        this.x_range = (_ref15 = options.x_range) != null ? _ref15 : this.mget_obj('x_range');
-        this.y_range = (_ref16 = options.y_range) != null ? _ref16 : this.mget_obj('y_range');
+        this.hidpi = (_ref15 = options.hidpi) != null ? _ref15 : this.mget('hidpi');
+        this.x_range = (_ref16 = options.x_range) != null ? _ref16 : this.mget_obj('x_range');
+        this.y_range = (_ref17 = options.y_range) != null ? _ref17 : this.mget_obj('y_range');
         xmapper_type = LinearMapper.Model;
         if (this.x_range.type === "FactorRange") {
           xmapper_type = CategoricalMapper.Model;
@@ -15168,7 +15207,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotView.prototype.map_from_screen = function(sx, sy, units) {
-        var dx, dy, x, y, _ref;
+        var dx, dy, x, y, _ref1;
         if (_.isArray(sx)) {
           dx = sx.slice(0);
         } else {
@@ -15187,7 +15226,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           x = sx;
           y = sy;
         } else {
-          _ref = this.mapper.v_map_from_target(sx, sy), x = _ref[0], y = _ref[1];
+          _ref1 = this.mapper.v_map_from_target(sx, sy), x = _ref1[0], y = _ref1[1];
         }
         return [x, y];
       };
@@ -15237,22 +15276,19 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotView.prototype.bind_bokeh_events = function() {
-        safebind(this, this.view_state, 'change', (function(_this) {
-          return function() {
-            _this.request_render_canvas();
-            return _this.request_render();
-          };
-        })(this));
+        var _this = this;
+        safebind(this, this.view_state, 'change', function() {
+          _this.request_render_canvas();
+          return _this.request_render();
+        });
         safebind(this, this.x_range, 'change', this.request_render);
         safebind(this, this.y_range, 'change', this.request_render);
         safebind(this, this.model, 'change:renderers', this.build_levels);
         safebind(this, this.model, 'change:tool', this.build_levels);
         safebind(this, this.model, 'change', this.request_render);
-        return safebind(this, this.model, 'destroy', (function(_this) {
-          return function() {
-            return _this.remove();
-          };
-        })(this));
+        return safebind(this, this.model, 'destroy', function() {
+          return _this.remove();
+        });
       };
 
       PlotView.prototype.render_init = function() {
@@ -15322,7 +15358,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotView.prototype.render = function(force) {
-        var have_new_mapper_state, hpadding, k, level, pr, renderers, sx, sy, sym, th, title, v, xms, yms, _i, _j, _len, _len1, _ref, _ref1, _ref2;
+        var have_new_mapper_state, hpadding, k, level, pr, renderers, sx, sy, sym, th, title, v, xms, yms, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
         PlotView.__super__.render.call(this);
         if (this.initial_range_info == null) {
           this.set_initial_range();
@@ -15333,9 +15369,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           left: 0,
           right: 0
         };
-        _ref = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          level = _ref[_i];
+        _ref1 = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool'];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          level = _ref1[_i];
           renderers = this.levels[level];
           for (k in renderers) {
             v = renderers[k];
@@ -15366,9 +15402,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           this.requested_padding['bottom'] = hpadding;
         }
         this.is_paused = true;
-        _ref1 = this.requested_padding;
-        for (k in _ref1) {
-          v = _ref1[k];
+        _ref2 = this.requested_padding;
+        for (k in _ref2) {
+          v = _ref2[k];
           this.view_state.set("requested_border_" + k, v);
         }
         this.is_paused = false;
@@ -15393,9 +15429,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.ctx.rect(this.view_state.get('border_left'), this.view_state.get('border_top'), this.view_state.get('inner_width'), this.view_state.get('inner_height'));
         this.ctx.clip();
         this.ctx.beginPath();
-        _ref2 = ['image', 'underlay', 'glyph'];
-        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
-          level = _ref2[_j];
+        _ref3 = ['image', 'underlay', 'glyph'];
+        for (_j = 0, _len1 = _ref3.length; _j < _len1; _j++) {
+          level = _ref3[_j];
           renderers = this.levels[level];
           for (k in renderers) {
             v = renderers[k];
@@ -15413,11 +15449,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotView.prototype.render_overlays = function(have_new_mapper_state) {
-        var k, level, renderers, v, _i, _len, _ref, _results;
-        _ref = ['overlay', 'annotation', 'tool'];
+        var k, level, renderers, v, _i, _len, _ref1, _results;
+        _ref1 = ['overlay', 'annotation', 'tool'];
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          level = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          level = _ref1[_i];
           renderers = this.levels[level];
           _results.push((function() {
             var _results1;
@@ -15439,7 +15475,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(Plot, _super);
 
       function Plot() {
-        return Plot.__super__.constructor.apply(this, arguments);
+        _ref1 = Plot.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Plot.prototype.type = 'Plot';
@@ -15502,7 +15539,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(Plots, _super);
 
       function Plots() {
-        return Plots.__super__.constructor.apply(this, arguments);
+        _ref2 = Plots.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       Plots.prototype.model = Plot;
@@ -15519,8 +15557,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=plot.js.map
-;
+/*
+//@ sourceMappingURL=plot.js.map
+*/;
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
@@ -15561,7 +15600,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotContextView.prototype.events = {
-        'click .plotclose': 'removeplot',
         'click .closeall': 'closeall'
       };
 
@@ -15623,7 +15661,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           view = this.views[modelref.id];
           node = $("<div class='jsp' data-plot_num='" + index + "'></div>");
           this.$el.append(node);
-          node.append($("<a class='plotclose'>[close]</a>"));
           node.append(view.el);
         }
         _.defer(function() {
@@ -15698,12 +15735,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('mapper/color/linear_color_mapper',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
-    var LinearColorMapper, LinearColorMappers;
+    var LinearColorMapper, LinearColorMappers, _ref, _ref1;
     LinearColorMapper = (function(_super) {
       __extends(LinearColorMapper, _super);
 
       function LinearColorMapper() {
-        return LinearColorMapper.__super__.constructor.apply(this, arguments);
+        _ref = LinearColorMapper.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       LinearColorMapper.prototype.initialize = function(attrs, options) {
@@ -15713,16 +15751,16 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       LinearColorMapper.prototype.v_map_screen = function(data) {
-        var N, buf, color, d, high, i, low, offset, scale, value, _i, _j, _ref, _ref1, _ref2, _ref3;
+        var N, buf, color, d, high, i, low, offset, scale, value, _i, _j, _ref1, _ref2, _ref3, _ref4;
         buf = new ArrayBuffer(data.length * 4);
         color = new Uint32Array(buf);
-        low = (_ref = this.get('low')) != null ? _ref : _.min(data);
-        high = (_ref1 = this.get('high')) != null ? _ref1 : _.max(data);
+        low = (_ref1 = this.get('low')) != null ? _ref1 : _.min(data);
+        high = (_ref2 = this.get('high')) != null ? _ref2 : _.max(data);
         N = this.palette.length - 1;
         scale = N / (high - low);
         offset = -scale * low;
         if (this.little_endian) {
-          for (i = _i = 0, _ref2 = data.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
+          for (i = _i = 0, _ref3 = data.length; 0 <= _ref3 ? _i < _ref3 : _i > _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
             d = data[i];
             if (d > high) {
               d = high;
@@ -15734,7 +15772,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
             color[i] = (0xff << 24) | ((value & 0xff0000) >> 16) | (value & 0xff00) | ((value & 0xff) << 16);
           }
         } else {
-          for (i = _j = 0, _ref3 = data.length; 0 <= _ref3 ? _j < _ref3 : _j > _ref3; i = 0 <= _ref3 ? ++_j : --_j) {
+          for (i = _j = 0, _ref4 = data.length; 0 <= _ref4 ? _j < _ref4 : _j > _ref4; i = 0 <= _ref4 ? ++_j : --_j) {
             d = data[i];
             if (d > high) {
               d = high;
@@ -15763,9 +15801,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       LinearColorMapper.prototype._build_palette = function(palette) {
-        var i, new_palette, _i, _ref;
+        var i, new_palette, _i, _ref1;
         new_palette = new Uint32Array(palette.length + 1);
-        for (i = _i = 0, _ref = palette.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = palette.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           new_palette[i] = palette[i];
         }
         new_palette[new_palette.length - 1] = palette[palette.length - 1];
@@ -15779,7 +15817,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(LinearColorMappers, _super);
 
       function LinearColorMappers() {
-        return LinearColorMappers.__super__.constructor.apply(this, arguments);
+        _ref1 = LinearColorMappers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       LinearColorMappers.prototype.model = LinearColorMapper;
@@ -15795,19 +15834,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=linear_color_mapper.js.map
-;
+/*
+//@ sourceMappingURL=linear_color_mapper.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('range/factor_range',["backbone", "common/has_properties"], function(Backbone, HasProperties) {
-    var FactorRange, FactorRanges;
+    var FactorRange, FactorRanges, _ref, _ref1;
     FactorRange = (function(_super) {
       __extends(FactorRange, _super);
 
       function FactorRange() {
-        return FactorRange.__super__.constructor.apply(this, arguments);
+        _ref = FactorRange.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       FactorRange.prototype.type = 'FactorRange';
@@ -15842,7 +15883,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(FactorRanges, _super);
 
       function FactorRanges() {
-        return FactorRanges.__super__.constructor.apply(this, arguments);
+        _ref1 = FactorRanges.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       FactorRanges.prototype.model = FactorRange;
@@ -15858,21 +15900,23 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=factor_range.js.map
-;
+/*
+//@ sourceMappingURL=factor_range.js.map
+*/;
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('range/data_factor_range',["underscore", "backbone", "range/factor_range"], function(_, Backbone, FactorRange) {
-    var DataFactorRange, DataFactorRanges;
+    var DataFactorRange, DataFactorRanges, _ref, _ref1;
     DataFactorRange = (function(_super) {
       __extends(DataFactorRange, _super);
 
       function DataFactorRange() {
         this._get_values = __bind(this._get_values, this);
-        return DataFactorRange.__super__.constructor.apply(this, arguments);
+        _ref = DataFactorRange.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       DataFactorRange.prototype.type = 'DataFactorRange';
@@ -15880,11 +15924,11 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       DataFactorRange.prototype._get_values = function() {
         var columns, temp, uniques, val, x, _i, _len;
         columns = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.get('columns');
+          var _i, _len, _ref1, _results;
+          _ref1 = this.get('columns');
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            x = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            x = _ref1[_i];
             _results.push(this.get_obj('data_source').getcolumn(x));
           }
           return _results;
@@ -15927,7 +15971,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(DataFactorRanges, _super);
 
       function DataFactorRanges() {
-        return DataFactorRanges.__super__.constructor.apply(this, arguments);
+        _ref1 = DataFactorRanges.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       DataFactorRanges.prototype.model = DataFactorRange;
@@ -15943,33 +15988,35 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=data_factor_range.js.map
-;
+/*
+//@ sourceMappingURL=data_factor_range.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('range/data_range1d',["underscore", "backbone", "range/range1d"], function(_, Backbone, Range1d) {
-    var DataRange1d, DataRange1ds;
+    var DataRange1d, DataRange1ds, _ref, _ref1;
     DataRange1d = (function(_super) {
       __extends(DataRange1d, _super);
 
       function DataRange1d() {
-        return DataRange1d.__super__.constructor.apply(this, arguments);
+        _ref = DataRange1d.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       DataRange1d.prototype.type = 'DataRange1d';
 
       DataRange1d.prototype._get_minmax = function() {
-        var center, colname, columns, max, min, source, sourceobj, span, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3;
+        var center, colname, columns, max, min, source, sourceobj, span, _i, _j, _len, _len1, _ref1, _ref2, _ref3, _ref4;
         columns = [];
-        _ref = this.get('sources');
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          source = _ref[_i];
+        _ref1 = this.get('sources');
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          source = _ref1[_i];
           sourceobj = this.resolve_ref(source['source']);
-          _ref1 = source['columns'];
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            colname = _ref1[_j];
+          _ref2 = source['columns'];
+          for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+            colname = _ref2[_j];
             columns.push(sourceobj.getcolumn(colname));
           }
         }
@@ -15980,7 +16027,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         columns = _.reject(columns, function(x) {
           return isNaN(x);
         });
-        _ref2 = [_.min(columns), _.max(columns)], min = _ref2[0], max = _ref2[1];
+        _ref3 = [_.min(columns), _.max(columns)], min = _ref3[0], max = _ref3[1];
         if (max !== min) {
           span = (max - min) * (1 + this.get('rangepadding'));
         } else {
@@ -15991,7 +16038,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           }
         }
         center = (max + min) / 2.0;
-        _ref3 = [center - span / 2.0, center + span / 2.0], min = _ref3[0], max = _ref3[1];
+        _ref4 = [center - span / 2.0, center + span / 2.0], min = _ref4[0], max = _ref4[1];
         return [min, max];
       };
 
@@ -16020,12 +16067,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       DataRange1d.prototype.dinitialize = function(attrs, options) {
-        var columns_ref, source, _i, _len, _ref;
+        var columns_ref, source, _i, _len, _ref1;
         this.register_property('minmax', this._get_minmax, true);
         this.add_dependencies('minmax', this, ['sources'], ['rangepadding']);
-        _ref = this.get('sources');
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          columns_ref = _ref[_i];
+        _ref1 = this.get('sources');
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          columns_ref = _ref1[_i];
           source = this.resolve_ref(columns_ref.source);
           this.add_dependencies('minmax', source, 'data');
         }
@@ -16052,7 +16099,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(DataRange1ds, _super);
 
       function DataRange1ds() {
-        return DataRange1ds.__super__.constructor.apply(this, arguments);
+        _ref1 = DataRange1ds.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       DataRange1ds.prototype.model = DataRange1d;
@@ -16068,19 +16116,21 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=data_range1d.js.map
-;
+/*
+//@ sourceMappingURL=data_range1d.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/plot_widget',["./continuum_view", "./safebind"], function(ContinuumView, safebind) {
-    var PlotWidget;
+    var PlotWidget, _ref;
     return PlotWidget = (function(_super) {
       __extends(PlotWidget, _super);
 
       function PlotWidget() {
-        return PlotWidget.__super__.constructor.apply(this, arguments);
+        _ref = PlotWidget.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       PlotWidget.prototype.tagName = 'div';
@@ -16128,8 +16178,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           return ctx.webkitImageSmoothingEnabled = value;
         };
         return ctx.getImageSmoothingEnabled = function() {
-          var _ref;
-          return (_ref = ctx.imageSmoothingEnabled) != null ? _ref : true;
+          var _ref1;
+          return (_ref1 = ctx.imageSmoothingEnabled) != null ? _ref1 : true;
         };
       };
 
@@ -16158,8 +16208,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=plot_widget.js.map
-;
+/*
+//@ sourceMappingURL=plot_widget.js.map
+*/;
 (function() {
   define('common/textutils',[], function() {
     var cache, getTextHeight;
@@ -16201,14 +16252,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=textutils.js.map
-;
+/*
+//@ sourceMappingURL=textutils.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/annotation/legend',["underscore", "common/has_parent", "common/plot_widget", "common/textutils", "renderer/properties"], function(_, HasParent, PlotWidget, textutils, Properties) {
-    var Legend, LegendView, Legends, glyph_properties, line_properties, text_properties;
+    var Legend, LegendView, Legends, glyph_properties, line_properties, text_properties, _ref, _ref1, _ref2;
     glyph_properties = Properties.glyph_properties;
     line_properties = Properties.line_properties;
     text_properties = Properties.text_properties;
@@ -16216,7 +16268,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(LegendView, _super);
 
       function LegendView() {
-        return LegendView.__super__.constructor.apply(this, arguments);
+        _ref = LegendView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       LegendView.prototype.initialize = function(options) {
@@ -16238,7 +16291,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       LegendView.prototype.calc_dims = function(options) {
-        var ctx, h_range, label_height, label_width, legend_padding, legend_spacing, orientation, text_width, text_widths, v_range, x, y, _ref;
+        var ctx, h_range, label_height, label_width, legend_padding, legend_spacing, orientation, text_width, text_widths, v_range, x, y, _ref1;
         label_height = this.mget('label_height');
         this.glyph_height = this.mget('glyph_height');
         label_width = this.mget('label_width');
@@ -16274,7 +16327,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           x = h_range.get('end') - legend_padding - this.legend_width;
           y = v_range.get('start') + legend_padding + this.legend_height;
         } else if (orientation === "absolute") {
-          _ref = this.absolute_coords, x = _ref[0], y = _ref[1];
+          _ref1 = this.absolute_coords, x = _ref1[0], y = _ref1[1];
         }
         x = this.plot_view.view_state.vx_to_sx(x);
         y = this.plot_view.view_state.vy_to_sy(y);
@@ -16282,7 +16335,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       LegendView.prototype.render = function() {
-        var ctx, idx, legend_name, legend_spacing, renderer, view, x, x1, x2, y, y1, y2, yoffset, yspacing, _i, _j, _len, _len1, _ref, _ref1;
+        var ctx, idx, legend_name, legend_spacing, renderer, view, x, x1, x2, y, y1, y2, yoffset, yspacing, _i, _j, _len, _len1, _ref1, _ref2;
         ctx = this.plot_view.ctx;
         ctx.save();
         ctx.fillStyle = this.plot_model.get('background_fill');
@@ -16292,9 +16345,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         ctx.fill();
         ctx.stroke();
         legend_spacing = this.mget('legend_spacing');
-        _ref = this.legend_names;
-        for (idx = _i = 0, _len = _ref.length; _i < _len; idx = ++_i) {
-          legend_name = _ref[idx];
+        _ref1 = this.legend_names;
+        for (idx = _i = 0, _len = _ref1.length; _i < _len; idx = ++_i) {
+          legend_name = _ref1[idx];
           yoffset = idx * this.label_height;
           yspacing = (1 + idx) * legend_spacing;
           y = this.box_coords[1] + this.label_height / 2.0 + yoffset + yspacing;
@@ -16305,9 +16358,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           y2 = y1 + this.glyph_height;
           this.label_props.set(ctx, this);
           ctx.fillText(legend_name, x, y);
-          _ref1 = this.model.resolve_ref(this.legends[legend_name]);
-          for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-            renderer = _ref1[_j];
+          _ref2 = this.model.resolve_ref(this.legends[legend_name]);
+          for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+            renderer = _ref2[_j];
             view = this.plot_view.renderers[renderer.id];
             view.draw_legend(ctx, x1, x2, y1, y2);
           }
@@ -16322,7 +16375,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(Legend, _super);
 
       function Legend() {
-        return Legend.__super__.constructor.apply(this, arguments);
+        _ref1 = Legend.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Legend.prototype.default_view = LegendView;
@@ -16365,7 +16419,8 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       __extends(Legends, _super);
 
       function Legends() {
-        return Legends.__super__.constructor.apply(this, arguments);
+        _ref2 = Legends.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       Legends.prototype.model = Legend;
@@ -16382,8 +16437,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 }).call(this);
 
-//# sourceMappingURL=legend.js.map
-;
+/*
+//@ sourceMappingURL=legend.js.map
+*/;
 /*
  (c) 2013, Vladimir Agafonkin
  RBush, a JavaScript library for high-performance 2D spatial indexing of points and rectangles.
@@ -16929,17 +16985,16 @@ if (typeof define === 'function' && define.amd) {
         angle += 2 * Math.PI;
       }
       while (angle > 2 * Math.PI) {
-        ngle -= 2 * Math.PI;
+        angle -= 2 * Math.PI;
       }
       return angle;
     };
     angle_dist = function(lhs, rhs) {
-      var a;
-      a = angle_norm(lhs) - angle_norm(rhs);
-      return Math.abs(angle_norm(a + Math.PI) - Math.PI);
+      return Math.abs(angle_norm(lhs - rhs));
     };
     angle_between = function(mid, lhs, rhs, direction) {
       var d;
+      mid = angle_norm(mid);
       d = angle_dist(lhs, rhs);
       if (direction === "anticlock") {
         return angle_dist(lhs, mid) <= d && angle_dist(mid, rhs) <= d;
@@ -16956,8 +17011,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=mathutils.js.map
-;
+/*
+//@ sourceMappingURL=mathutils.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; },
@@ -17369,12 +17425,13 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/annular_wedge',["underscore", "rbush", "common/mathutils", "renderer/properties", "./glyph"], function(_, rbush, mathutils, Properties, Glyph) {
-    var AnnularWedge, AnnularWedgeView;
+    var AnnularWedge, AnnularWedgeView, _ref, _ref1;
     AnnularWedgeView = (function(_super) {
       __extends(AnnularWedgeView, _super);
 
       function AnnularWedgeView() {
-        return AnnularWedgeView.__super__.constructor.apply(this, arguments);
+        _ref = AnnularWedgeView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       AnnularWedgeView.prototype._fields = ['x', 'y', 'inner_radius', 'outer_radius', 'start_angle', 'end_angle', 'direction:string'];
@@ -17382,31 +17439,30 @@ if (typeof define === 'function' && define.amd) {
       AnnularWedgeView.prototype._properties = ['line', 'fill'];
 
       AnnularWedgeView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         this.max_radius = _.max(this.outer_radius);
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref, _results;
-          _results = [];
-          for (i = _i = 0, _ref = this.x.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       AnnularWedgeView.prototype._map_data = function() {
-        var i, _i, _ref, _ref1, _results;
-        _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+        var i, _i, _ref1, _ref2, _results;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
         this.inner_radius = this.distance_vector('x', 'inner_radius', 'edge');
         this.outer_radius = this.distance_vector('x', 'outer_radius', 'edge');
         this.angle = new Float32Array(this.start_angle.length);
         _results = [];
-        for (i = _i = 0, _ref1 = this.start_angle.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        for (i = _i = 0, _ref2 = this.start_angle.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
           _results.push(this.angle[i] = this.end_angle[i] - this.start_angle[i]);
         }
         return _results;
@@ -17458,17 +17514,17 @@ if (typeof define === 'function' && define.amd) {
       };
 
       AnnularWedgeView.prototype._hit_point = function(geometry) {
-        var angle, candidates, candidates2, candidates3, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref, _ref1, _ref2, _ref3, _ref4, _ref5;
-        _ref = [geometry.vx, geometry.vy], vx = _ref[0], vy = _ref[1];
+        var angle, candidates, candidates2, candidates3, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref1, _ref2, _ref3, _ref4, _ref5, _ref6;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
         x = this.plot_view.xmapper.map_from_target(vx);
         y = this.plot_view.ymapper.map_from_target(vy);
         if (this.outer_radius_units === "screen") {
           vx0 = vx - this.max_radius;
           vx1 = vx + this.max_radius;
-          _ref1 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref1[0], x1 = _ref1[1];
+          _ref2 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref2[0], x1 = _ref2[1];
           vy0 = vy - this.max_radius;
           vy1 = vy + this.max_radius;
-          _ref2 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref2[0], y1 = _ref2[1];
+          _ref3 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref3[0], y1 = _ref3[1];
         } else {
           x0 = x - this.max_radius;
           x1 = x + this.max_radius;
@@ -17476,11 +17532,11 @@ if (typeof define === 'function' && define.amd) {
           y1 = y + this.max_radius;
         }
         candidates = (function() {
-          var _i, _len, _ref3, _results;
-          _ref3 = this.index.search([x0, y0, x1, y1]);
+          var _i, _len, _ref4, _results;
+          _ref4 = this.index.search([x0, y0, x1, y1]);
           _results = [];
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            pt = _ref3[_i];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            pt = _ref4[_i];
             _results.push(pt[4].i);
           }
           return _results;
@@ -17516,7 +17572,7 @@ if (typeof define === 'function' && define.amd) {
           sx = this.plot_view.view_state.vx_to_sx(vx);
           sy = this.plot_view.view_state.vy_to_sy(vy);
           for (_k = 0, _len2 = candidates2.length; _k < _len2; _k++) {
-            _ref3 = candidates2[_k], i = _ref3[0], dist = _ref3[1];
+            _ref4 = candidates2[_k], i = _ref4[0], dist = _ref4[1];
             r2 = Math.pow(this.inner_radius[i], 2);
             if (dist >= r2) {
               candidates3.push([i, dist]);
@@ -17524,7 +17580,7 @@ if (typeof define === 'function' && define.amd) {
           }
         } else {
           for (_l = 0, _len3 = candidates2.length; _l < _len3; _l++) {
-            _ref4 = candidates2[_l], i = _ref4[0], dist = _ref4[1];
+            _ref5 = candidates2[_l], i = _ref5[0], dist = _ref5[1];
             r2 = Math.pow(this.inner_radius[i], 2);
             sx0 = this.plot_view.xmapper.map_to_target(x);
             sx1 = this.plot_view.xmapper.map_to_target(this.x[i]);
@@ -17537,7 +17593,7 @@ if (typeof define === 'function' && define.amd) {
         }
         hits = [];
         for (_m = 0, _len4 = candidates3.length; _m < _len4; _m++) {
-          _ref5 = candidates3[_m], i = _ref5[0], dist = _ref5[1];
+          _ref6 = candidates3[_m], i = _ref6[0], dist = _ref6[1];
           sx = this.plot_view.view_state.vx_to_sx(vx);
           sy = this.plot_view.view_state.vy_to_sy(vy);
           angle = Math.atan2(sy - this.sy[i], sx - this.sx[i]);
@@ -17554,8 +17610,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       AnnularWedgeView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var indices, inner_radius, outer_radius, r, reference_point, sx, sy, _ref;
-        reference_point = (_ref = this.get_reference_point()) != null ? _ref : 0;
+        var indices, inner_radius, outer_radius, r, reference_point, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
         indices = [reference_point];
         sx = {};
         sx[reference_point] = (x0 + x1) / 2;
@@ -17576,7 +17632,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(AnnularWedge, _super);
 
       function AnnularWedge() {
-        return AnnularWedge.__super__.constructor.apply(this, arguments);
+        _ref1 = AnnularWedge.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       AnnularWedge.prototype.default_view = AnnularWedgeView;
@@ -17609,19 +17666,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=annular_wedge.js.map
-;
+/*
+//@ sourceMappingURL=annular_wedge.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/annulus',["underscore", "rbush", "renderer/properties", "./glyph"], function(_, rbush, Properties, Glyph) {
-    var Annulus, AnnulusView;
+    var Annulus, AnnulusView, _ref, _ref1;
     AnnulusView = (function(_super) {
       __extends(AnnulusView, _super);
 
       function AnnulusView() {
-        return AnnulusView.__super__.constructor.apply(this, arguments);
+        _ref = AnnulusView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       AnnulusView.prototype._fields = ['x', 'y', 'inner_radius', 'outer_radius'];
@@ -17629,26 +17688,25 @@ if (typeof define === 'function' && define.amd) {
       AnnulusView.prototype._properties = ['line', 'fill'];
 
       AnnulusView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         this.max_radius = _.max(this.outer_radius);
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref, _results;
-          _results = [];
-          for (i = _i = 0, _ref = this.x.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       AnnulusView.prototype._map_data = function() {
-        var _ref;
-        _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+        var _ref1;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
         this.inner_radius = this.distance_vector('x', 'inner_radius', 'edge');
         return this.outer_radius = this.distance_vector('x', 'outer_radius', 'edge');
       };
@@ -17692,17 +17750,17 @@ if (typeof define === 'function' && define.amd) {
       };
 
       AnnulusView.prototype._hit_point = function(geometry) {
-        var candidates, candidates2, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref, _ref1, _ref2, _ref3, _ref4;
-        _ref = [geometry.vx, geometry.vy], vx = _ref[0], vy = _ref[1];
+        var candidates, candidates2, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _k, _l, _len, _len1, _len2, _len3, _ref1, _ref2, _ref3, _ref4, _ref5;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
         x = this.plot_view.xmapper.map_from_target(vx);
         y = this.plot_view.ymapper.map_from_target(vy);
         if (this.outer_radius_units === "screen") {
           vx0 = vx - this.max_radius;
           vx1 = vx + this.max_radius;
-          _ref1 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref1[0], x1 = _ref1[1];
+          _ref2 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref2[0], x1 = _ref2[1];
           vy0 = vy - this.max_radius;
           vy1 = vy + this.max_radius;
-          _ref2 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref2[0], y1 = _ref2[1];
+          _ref3 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref3[0], y1 = _ref3[1];
         } else {
           x0 = x - this.max_radius;
           x1 = x + this.max_radius;
@@ -17710,11 +17768,11 @@ if (typeof define === 'function' && define.amd) {
           y1 = y + this.max_radius;
         }
         candidates = (function() {
-          var _i, _len, _ref3, _results;
-          _ref3 = this.index.search([x0, y0, x1, y1]);
+          var _i, _len, _ref4, _results;
+          _ref4 = this.index.search([x0, y0, x1, y1]);
           _results = [];
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            pt = _ref3[_i];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            pt = _ref4[_i];
             _results.push(pt[4].i);
           }
           return _results;
@@ -17750,7 +17808,7 @@ if (typeof define === 'function' && define.amd) {
           sx = this.plot_view.view_state.vx_to_sx(vx);
           sy = this.plot_view.view_state.vy_to_sy(vy);
           for (_k = 0, _len2 = candidates2.length; _k < _len2; _k++) {
-            _ref3 = candidates2[_k], i = _ref3[0], dist = _ref3[1];
+            _ref4 = candidates2[_k], i = _ref4[0], dist = _ref4[1];
             r2 = Math.pow(this.inner_radius[i], 2);
             if (dist >= r2) {
               hits.push([i, dist]);
@@ -17758,7 +17816,7 @@ if (typeof define === 'function' && define.amd) {
           }
         } else {
           for (_l = 0, _len3 = candidates2.length; _l < _len3; _l++) {
-            _ref4 = candidates2[_l], i = _ref4[0], dist = _ref4[1];
+            _ref5 = candidates2[_l], i = _ref5[0], dist = _ref5[1];
             r2 = Math.pow(this.inner_radius[i], 2);
             sx0 = this.plot_view.xmapper.map_to_target(x);
             sx1 = this.plot_view.xmapper.map_to_target(this.x[i]);
@@ -17778,8 +17836,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       AnnulusView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var indices, inner_radius, outer_radius, r, reference_point, sx, sy, _ref;
-        reference_point = (_ref = this.get_reference_point()) != null ? _ref : 0;
+        var indices, inner_radius, outer_radius, r, reference_point, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
         indices = [reference_point];
         sx = {};
         sx[reference_point] = (x0 + x1) / 2;
@@ -17800,7 +17858,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Annulus, _super);
 
       function Annulus() {
-        return Annulus.__super__.constructor.apply(this, arguments);
+        _ref1 = Annulus.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Annulus.prototype.default_view = AnnulusView;
@@ -17832,19 +17891,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=annulus.js.map
-;
+/*
+//@ sourceMappingURL=annulus.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/arc',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Arc, ArcView;
+    var Arc, ArcView, _ref, _ref1;
     ArcView = (function(_super) {
       __extends(ArcView, _super);
 
       function ArcView() {
-        return ArcView.__super__.constructor.apply(this, arguments);
+        _ref = ArcView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ArcView.prototype._fields = ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string'];
@@ -17852,8 +17913,8 @@ if (typeof define === 'function' && define.amd) {
       ArcView.prototype._properties = ['line'];
 
       ArcView.prototype._map_data = function() {
-        var _ref;
-        _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+        var _ref1;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
         return this.radius = this.distance_vector('x', 'radius', 'edge');
       };
 
@@ -17885,8 +17946,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       ArcView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var indices, radius, reference_point, sx, sy, _ref;
-        reference_point = (_ref = this.get_reference_point()) != null ? _ref : 0;
+        var indices, radius, reference_point, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
         indices = [reference_point];
         sx = {};
         sx[reference_point] = (x0 + x1) / 2;
@@ -17904,7 +17965,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Arc, _super);
 
       function Arc() {
-        return Arc.__super__.constructor.apply(this, arguments);
+        _ref1 = Arc.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Arc.prototype.default_view = ArcView;
@@ -17935,26 +17997,28 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=arc.js.map
-;
+/*
+//@ sourceMappingURL=arc.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/marker',["underscore", "rbush", "renderer/properties", "./glyph"], function(_, rbush, Properties, Glyph) {
-    var Marker, MarkerView;
+    var Marker, MarkerView, _ref, _ref1;
     MarkerView = (function(_super) {
       __extends(MarkerView, _super);
 
       function MarkerView() {
-        return MarkerView.__super__.constructor.apply(this, arguments);
+        _ref = MarkerView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       MarkerView.prototype._fields = ['x', 'y', 'size'];
 
       MarkerView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var indices, reference_point, size, sx, sy, _ref;
-        reference_point = (_ref = this.get_reference_point()) != null ? _ref : 0;
+        var indices, reference_point, size, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
         indices = [reference_point];
         sx = {};
         sx[reference_point] = (x0 + x1) / 2;
@@ -17966,44 +18030,43 @@ if (typeof define === 'function' && define.amd) {
       };
 
       MarkerView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         this.max_size = _.max(this.size);
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref, _results;
-          _results = [];
-          for (i = _i = 0, _ref = this.x.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       MarkerView.prototype._map_data = function() {
-        var _ref;
-        return _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1], _ref;
+        var _ref1;
+        return _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1], _ref1;
       };
 
       MarkerView.prototype._mask_data = function() {
-        var hr, vr, vx0, vx1, vy0, vy1, x, x0, x1, y0, y1, _ref, _ref1;
+        var hr, vr, vx0, vx1, vy0, vy1, x, x0, x1, y0, y1, _ref1, _ref2;
         hr = this.plot_view.view_state.get('inner_range_horizontal');
         vx0 = hr.get('start') - this.max_size;
         vx1 = hr.get('end') + this.max_size;
-        _ref = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref[0], x1 = _ref[1];
+        _ref1 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref1[0], x1 = _ref1[1];
         vr = this.plot_view.view_state.get('inner_range_vertical');
         vy0 = vr.get('start') - this.max_size;
         vy1 = vr.get('end') + this.max_size;
-        _ref1 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref1[0], y1 = _ref1[1];
+        _ref2 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref2[0], y1 = _ref2[1];
         return (function() {
-          var _i, _len, _ref2, _results;
-          _ref2 = this.index.search([x0, y0, x1, y1]);
+          var _i, _len, _ref3, _results;
+          _ref3 = this.index.search([x0, y0, x1, y1]);
           _results = [];
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            x = _ref2[_i];
+          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+            x = _ref3[_i];
             _results.push(x[4].i);
           }
           return _results;
@@ -18011,22 +18074,22 @@ if (typeof define === 'function' && define.amd) {
       };
 
       MarkerView.prototype._hit_point = function(geometry) {
-        var candidates, dist, hits, i, s2, sx, sy, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y0, y1, _i, _len, _ref, _ref1, _ref2;
-        _ref = [geometry.vx, geometry.vy], vx = _ref[0], vy = _ref[1];
+        var candidates, dist, hits, i, s2, sx, sy, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y0, y1, _i, _len, _ref1, _ref2, _ref3;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
         sx = this.plot_view.view_state.vx_to_sx(vx);
         sy = this.plot_view.view_state.vy_to_sy(vy);
         vx0 = vx - this.max_size;
         vx1 = vx + this.max_size;
-        _ref1 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref1[0], x1 = _ref1[1];
+        _ref2 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref2[0], x1 = _ref2[1];
         vy0 = vy - this.max_size;
         vy1 = vy + this.max_size;
-        _ref2 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref2[0], y1 = _ref2[1];
+        _ref3 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref3[0], y1 = _ref3[1];
         candidates = (function() {
-          var _i, _len, _ref3, _results;
-          _ref3 = this.index.search([x0, y0, x1, y1]);
+          var _i, _len, _ref4, _results;
+          _ref4 = this.index.search([x0, y0, x1, y1]);
           _results = [];
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            x = _ref3[_i];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            x = _ref4[_i];
             _results.push(x[4].i);
           }
           return _results;
@@ -18049,15 +18112,15 @@ if (typeof define === 'function' && define.amd) {
       };
 
       MarkerView.prototype._hit_rect = function(geometry) {
-        var x, x0, x1, y0, y1, _ref, _ref1;
-        _ref = this.plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1]), x0 = _ref[0], x1 = _ref[1];
-        _ref1 = this.plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1]), y0 = _ref1[0], y1 = _ref1[1];
+        var x, x0, x1, y0, y1, _ref1, _ref2;
+        _ref1 = this.plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1]), x0 = _ref1[0], x1 = _ref1[1];
+        _ref2 = this.plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1]), y0 = _ref2[0], y1 = _ref2[1];
         return (function() {
-          var _i, _len, _ref2, _results;
-          _ref2 = this.index.search([x0, y0, x1, y1]);
+          var _i, _len, _ref3, _results;
+          _ref3 = this.index.search([x0, y0, x1, y1]);
           _results = [];
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            x = _ref2[_i];
+          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+            x = _ref3[_i];
             _results.push(x[4].i);
           }
           return _results;
@@ -18071,7 +18134,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Marker, _super);
 
       function Marker() {
-        return Marker.__super__.constructor.apply(this, arguments);
+        _ref1 = Marker.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       return Marker;
@@ -18085,19 +18149,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=marker.js.map
-;
+/*
+//@ sourceMappingURL=marker.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/asterisk',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var Asterisk, AsteriskView;
+    var Asterisk, AsteriskView, _ref, _ref1;
     AsteriskView = (function(_super) {
       __extends(AsteriskView, _super);
 
       function AsteriskView() {
-        return AsteriskView.__super__.constructor.apply(this, arguments);
+        _ref = AsteriskView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       AsteriskView.prototype._properties = ['line'];
@@ -18147,7 +18213,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Asterisk, _super);
 
       function Asterisk() {
-        return Asterisk.__super__.constructor.apply(this, arguments);
+        _ref1 = Asterisk.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Asterisk.prototype.default_view = AsteriskView;
@@ -18177,19 +18244,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=asterisk.js.map
-;
+/*
+//@ sourceMappingURL=asterisk.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/bezier',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Bezier, BezierView;
+    var Bezier, BezierView, _ref, _ref1;
     BezierView = (function(_super) {
       __extends(BezierView, _super);
 
       function BezierView() {
-        return BezierView.__super__.constructor.apply(this, arguments);
+        _ref = BezierView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       BezierView.prototype._fields = ['x0', 'y0', 'x1', 'y1', 'cx0', 'cy0', 'cx1', 'cy1'];
@@ -18197,11 +18266,11 @@ if (typeof define === 'function' && define.amd) {
       BezierView.prototype._properties = ['line'];
 
       BezierView.prototype._map_data = function() {
-        var _ref, _ref1, _ref2, _ref3;
-        _ref = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref[0], this.sy0 = _ref[1];
-        _ref1 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref1[0], this.sy1 = _ref1[1];
-        _ref2 = this.plot_view.map_to_screen(this.cx0, this.glyph_props.cx0.units, this.cy0, this.glyph_props.cy0.units), this.scx0 = _ref2[0], this.scy0 = _ref2[1];
-        return _ref3 = this.plot_view.map_to_screen(this.cx1, this.glyph_props.cx1.units, this.cy1, this.glyph_props.cy1.units), this.scx1 = _ref3[0], this.scy1 = _ref3[1], _ref3;
+        var _ref1, _ref2, _ref3, _ref4;
+        _ref1 = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref1[0], this.sy0 = _ref1[1];
+        _ref2 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref2[0], this.sy1 = _ref2[1];
+        _ref3 = this.plot_view.map_to_screen(this.cx0, this.glyph_props.cx0.units, this.cy0, this.glyph_props.cy0.units), this.scx0 = _ref3[0], this.scy0 = _ref3[1];
+        return _ref4 = this.plot_view.map_to_screen(this.cx1, this.glyph_props.cx1.units, this.cy1, this.glyph_props.cy1.units), this.scx1 = _ref4[0], this.scy1 = _ref4[1], _ref4;
       };
 
       BezierView.prototype._render = function(ctx, indices, glyph_props) {
@@ -18234,7 +18303,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Bezier, _super);
 
       function Bezier() {
-        return Bezier.__super__.constructor.apply(this, arguments);
+        _ref1 = Bezier.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Bezier.prototype.default_view = BezierView;
@@ -18264,19 +18334,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=bezier.js.map
-;
+/*
+//@ sourceMappingURL=bezier.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/circle',["underscore", "rbush", "renderer/properties", "./glyph"], function(_, rbush, Properties, Glyph) {
-    var Circle, CircleView;
+    var Circle, CircleView, _ref, _ref1;
     CircleView = (function(_super) {
       __extends(CircleView, _super);
 
       function CircleView() {
-        return CircleView.__super__.constructor.apply(this, arguments);
+        _ref = CircleView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       CircleView.prototype._properties = ['line', 'fill'];
@@ -18293,37 +18365,36 @@ if (typeof define === 'function' && define.amd) {
       };
 
       CircleView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         if (this.size) {
           this.max_radius = _.max(this.size) / 2;
         } else {
           this.max_radius = _.max(this.radius);
         }
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref, _results;
-          _results = [];
-          for (i = _i = 0, _ref = this.x.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       CircleView.prototype._map_data = function() {
-        var s, _ref;
-        _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+        var s, _ref1;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
         if (this.size) {
           this.radius = (function() {
-            var _i, _len, _ref1, _results;
-            _ref1 = this.distance_vector('x', 'size', 'edge');
+            var _i, _len, _ref2, _results;
+            _ref2 = this.distance_vector('x', 'size', 'edge');
             _results = [];
-            for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-              s = _ref1[_i];
+            for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+              s = _ref2[_i];
               _results.push(s / 2);
             }
             return _results;
@@ -18335,34 +18406,34 @@ if (typeof define === 'function' && define.amd) {
       };
 
       CircleView.prototype._mask_data = function() {
-        var hr, sx0, sx1, sy0, sy1, vr, x, x0, x1, y0, y1, _ref, _ref1, _ref2, _ref3;
+        var hr, sx0, sx1, sy0, sy1, vr, x, x0, x1, y0, y1, _ref1, _ref2, _ref3, _ref4;
         hr = this.plot_view.view_state.get('inner_range_horizontal');
         vr = this.plot_view.view_state.get('inner_range_vertical');
         if (this.radius_units === "screen") {
           sx0 = hr.get('start') - this.max_radius;
           sx1 = hr.get('end') - this.max_radius;
-          _ref = this.plot_view.xmapper.v_map_from_target([sx0, sx1]), x0 = _ref[0], x1 = _ref[1];
+          _ref1 = this.plot_view.xmapper.v_map_from_target([sx0, sx1]), x0 = _ref1[0], x1 = _ref1[1];
           sy0 = vr.get('start') - this.max_radius;
           sy1 = vr.get('end') - this.max_radius;
-          _ref1 = this.plot_view.ymapper.v_map_from_target([sy0, sy1]), y0 = _ref1[0], y1 = _ref1[1];
+          _ref2 = this.plot_view.ymapper.v_map_from_target([sy0, sy1]), y0 = _ref2[0], y1 = _ref2[1];
         } else {
           sx0 = hr.get('start');
           sx1 = hr.get('end');
-          _ref2 = this.plot_view.xmapper.v_map_from_target([sx0, sx1]), x0 = _ref2[0], x1 = _ref2[1];
+          _ref3 = this.plot_view.xmapper.v_map_from_target([sx0, sx1]), x0 = _ref3[0], x1 = _ref3[1];
           x0 -= this.max_radius;
           x1 += this.max_radius;
           sy0 = vr.get('start');
           sy1 = vr.get('end');
-          _ref3 = this.plot_view.ymapper.v_map_from_target([sy0, sy1]), y0 = _ref3[0], y1 = _ref3[1];
+          _ref4 = this.plot_view.ymapper.v_map_from_target([sy0, sy1]), y0 = _ref4[0], y1 = _ref4[1];
           y0 -= this.max_radius;
           y1 += this.max_radius;
         }
         return (function() {
-          var _i, _len, _ref4, _results;
-          _ref4 = this.index.search([x0, y0, x1, y1]);
+          var _i, _len, _ref5, _results;
+          _ref5 = this.index.search([x0, y0, x1, y1]);
           _results = [];
-          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
-            x = _ref4[_i];
+          for (_i = 0, _len = _ref5.length; _i < _len; _i++) {
+            x = _ref5[_i];
             _results.push(x[4].i);
           }
           return _results;
@@ -18403,17 +18474,17 @@ if (typeof define === 'function' && define.amd) {
       };
 
       CircleView.prototype._hit_point = function(geometry) {
-        var candidates, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _len, _len1, _ref, _ref1, _ref2;
-        _ref = [geometry.vx, geometry.vy], vx = _ref[0], vy = _ref[1];
+        var candidates, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
         x = this.plot_view.xmapper.map_from_target(vx);
         y = this.plot_view.ymapper.map_from_target(vy);
         if (this.radius_units === "screen") {
           vx0 = vx - this.max_radius;
           vx1 = vx + this.max_radius;
-          _ref1 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref1[0], x1 = _ref1[1];
+          _ref2 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref2[0], x1 = _ref2[1];
           vy0 = vy - this.max_radius;
           vy1 = vy + this.max_radius;
-          _ref2 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref2[0], y1 = _ref2[1];
+          _ref3 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref3[0], y1 = _ref3[1];
         } else {
           x0 = x - this.max_radius;
           x1 = x + this.max_radius;
@@ -18421,11 +18492,11 @@ if (typeof define === 'function' && define.amd) {
           y1 = y + this.max_radius;
         }
         candidates = (function() {
-          var _i, _len, _ref3, _results;
-          _ref3 = this.index.search([x0, y0, x1, y1]);
+          var _i, _len, _ref4, _results;
+          _ref4 = this.index.search([x0, y0, x1, y1]);
           _results = [];
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            pt = _ref3[_i];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            pt = _ref4[_i];
             _results.push(pt[4].i);
           }
           return _results;
@@ -18465,15 +18536,15 @@ if (typeof define === 'function' && define.amd) {
       };
 
       CircleView.prototype._hit_rect = function(geometry) {
-        var x, x0, x1, y0, y1, _ref, _ref1;
-        _ref = this.plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1]), x0 = _ref[0], x1 = _ref[1];
-        _ref1 = this.plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1]), y0 = _ref1[0], y1 = _ref1[1];
+        var x, x0, x1, y0, y1, _ref1, _ref2;
+        _ref1 = this.plot_view.xmapper.v_map_from_target([geometry.vx0, geometry.vx1]), x0 = _ref1[0], x1 = _ref1[1];
+        _ref2 = this.plot_view.ymapper.v_map_from_target([geometry.vy0, geometry.vy1]), y0 = _ref2[0], y1 = _ref2[1];
         return (function() {
-          var _i, _len, _ref2, _results;
-          _ref2 = this.index.search([x0, y0, x1, y1]);
+          var _i, _len, _ref3, _results;
+          _ref3 = this.index.search([x0, y0, x1, y1]);
           _results = [];
-          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
-            x = _ref2[_i];
+          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
+            x = _ref3[_i];
             _results.push(x[4].i);
           }
           return _results;
@@ -18481,8 +18552,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       CircleView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var indices, radius, reference_point, sx, sy, _ref;
-        reference_point = (_ref = this.get_reference_point()) != null ? _ref : 0;
+        var indices, radius, reference_point, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
         indices = [reference_point];
         sx = {};
         sx[reference_point] = (x0 + x1) / 2;
@@ -18500,7 +18571,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Circle, _super);
 
       function Circle() {
-        return Circle.__super__.constructor.apply(this, arguments);
+        _ref1 = Circle.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Circle.prototype.default_view = CircleView;
@@ -18534,19 +18606,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=circle.js.map
-;
+/*
+//@ sourceMappingURL=circle.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/circle_x',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var CircleX, CircleXView;
+    var CircleX, CircleXView, _ref, _ref1;
     CircleXView = (function(_super) {
       __extends(CircleXView, _super);
 
       function CircleXView() {
-        return CircleXView.__super__.constructor.apply(this, arguments);
+        _ref = CircleXView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       CircleXView.prototype._properties = ['line', 'fill'];
@@ -18596,7 +18670,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(CircleX, _super);
 
       function CircleX() {
-        return CircleX.__super__.constructor.apply(this, arguments);
+        _ref1 = CircleX.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       CircleX.prototype.default_view = CircleXView;
@@ -18628,19 +18703,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=circle_x.js.map
-;
+/*
+//@ sourceMappingURL=circle_x.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/circle_cross',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var CircleCross, CircleCrossView;
+    var CircleCross, CircleCrossView, _ref, _ref1;
     CircleCrossView = (function(_super) {
       __extends(CircleCrossView, _super);
 
       function CircleCrossView() {
-        return CircleCrossView.__super__.constructor.apply(this, arguments);
+        _ref = CircleCrossView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       CircleCrossView.prototype._properties = ['line', 'fill'];
@@ -18690,7 +18767,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(CircleCross, _super);
 
       function CircleCross() {
-        return CircleCross.__super__.constructor.apply(this, arguments);
+        _ref1 = CircleCross.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       CircleCross.prototype.default_view = CircleCrossView;
@@ -18722,19 +18800,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=circle_cross.js.map
-;
+/*
+//@ sourceMappingURL=circle_cross.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/diamond',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var Diamond, DiamondView;
+    var Diamond, DiamondView, _ref, _ref1;
     DiamondView = (function(_super) {
       __extends(DiamondView, _super);
 
       function DiamondView() {
-        return DiamondView.__super__.constructor.apply(this, arguments);
+        _ref = DiamondView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       DiamondView.prototype._properties = ['line', 'fill'];
@@ -18784,7 +18864,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Diamond, _super);
 
       function Diamond() {
-        return Diamond.__super__.constructor.apply(this, arguments);
+        _ref1 = Diamond.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Diamond.prototype.default_view = DiamondView;
@@ -18816,19 +18897,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=diamond.js.map
-;
+/*
+//@ sourceMappingURL=diamond.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/diamond_cross',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var DiamondCross, DiamondCrossView;
+    var DiamondCross, DiamondCrossView, _ref, _ref1;
     DiamondCrossView = (function(_super) {
       __extends(DiamondCrossView, _super);
 
       function DiamondCrossView() {
-        return DiamondCrossView.__super__.constructor.apply(this, arguments);
+        _ref = DiamondCrossView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       DiamondCrossView.prototype._properties = ['line', 'fill'];
@@ -18882,7 +18965,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(DiamondCross, _super);
 
       function DiamondCross() {
-        return DiamondCross.__super__.constructor.apply(this, arguments);
+        _ref1 = DiamondCross.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       DiamondCross.prototype.default_view = DiamondCrossView;
@@ -18914,8 +18998,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=diamond_cross.js.map
-;
+/*
+//@ sourceMappingURL=diamond_cross.js.map
+*/;
 (function() {
   define('palettes/colorbrewer',[], function() {
     var colorbrewer;
@@ -19186,8 +19271,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=colorbrewer.js.map
-;
+/*
+//@ sourceMappingURL=colorbrewer.js.map
+*/;
 (function() {
   define('palettes/palettes',["./colorbrewer"], function(colorbrewer) {
     var all_palettes, items, name, num, pal;
@@ -19206,8 +19292,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=palettes.js.map
-;
+/*
+//@ sourceMappingURL=palettes.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -19360,13 +19447,14 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/image_rgba',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var ImageRGBAGlyph, ImageRGBAView, glyph_properties;
+    var ImageRGBAGlyph, ImageRGBAView, glyph_properties, _ref, _ref1;
     glyph_properties = Properties.glyph_properties;
     ImageRGBAView = (function(_super) {
       __extends(ImageRGBAView, _super);
 
       function ImageRGBAView() {
-        return ImageRGBAView.__super__.constructor.apply(this, arguments);
+        _ref = ImageRGBAView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ImageRGBAView.prototype._properties = [];
@@ -19383,7 +19471,7 @@ if (typeof define === 'function' && define.amd) {
       };
 
       ImageRGBAView.prototype._set_data = function() {
-        var buf, buf8, canvas, color, ctx, flat, i, image_data, j, _i, _j, _ref, _ref1, _results;
+        var buf, buf8, canvas, color, ctx, flat, i, image_data, j, _i, _j, _ref1, _ref2, _results;
         if ((this.image_data == null) || this.image_data.length !== this.image.length) {
           this.image_data = new Array(this.image.length);
         }
@@ -19394,7 +19482,7 @@ if (typeof define === 'function' && define.amd) {
           this.height = new Array(this.image.length);
         }
         _results = [];
-        for (i = _i = 0, _ref = this.image.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = this.image.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (this.rows != null) {
             this.height[i] = this.rows[i];
             this.width[i] = this.cols[i];
@@ -19413,7 +19501,7 @@ if (typeof define === 'function' && define.amd) {
             flat = _.flatten(this.image[i]);
             buf = new ArrayBuffer(flat.length * 4);
             color = new Uint32Array(buf);
-            for (j = _j = 0, _ref1 = flat.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
+            for (j = _j = 0, _ref2 = flat.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; j = 0 <= _ref2 ? ++_j : --_j) {
               color[j] = flat[j];
             }
             buf8 = new Uint8ClampedArray(buf);
@@ -19426,8 +19514,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       ImageRGBAView.prototype._map_data = function() {
-        var _ref;
-        _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+        var _ref1;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
         this.sw = this.distance_vector('x', 'dw', 'edge', this.mget('glyphspec')['dilate']);
         return this.sh = this.distance_vector('y', 'dh', 'edge', this.mget('glyphspec')['dilate']);
       };
@@ -19460,7 +19548,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(ImageRGBAGlyph, _super);
 
       function ImageRGBAGlyph() {
-        return ImageRGBAGlyph.__super__.constructor.apply(this, arguments);
+        _ref1 = ImageRGBAGlyph.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       ImageRGBAGlyph.prototype.default_view = ImageRGBAView;
@@ -19485,20 +19574,22 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=image_rgba.js.map
-;
+/*
+//@ sourceMappingURL=image_rgba.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/image_uri',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var ImageURIGlyph, ImageURIView, glyph_properties;
+    var ImageURIGlyph, ImageURIView, glyph_properties, _ref, _ref1;
     glyph_properties = Properties.glyph_properties;
     ImageURIView = (function(_super) {
       __extends(ImageURIView, _super);
 
       function ImageURIView() {
-        return ImageURIView.__super__.constructor.apply(this, arguments);
+        _ref = ImageURIView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ImageURIView.prototype._fields = ['url:string', 'x', 'y', 'angle'];
@@ -19509,31 +19600,31 @@ if (typeof define === 'function' && define.amd) {
         var img;
         this.data = data;
         this.image = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.url;
+          var _i, _len, _ref1, _results;
+          _ref1 = this.url;
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            img = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            img = _ref1[_i];
             _results.push(null);
           }
           return _results;
         }).call(this);
         this.need_load = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.url;
+          var _i, _len, _ref1, _results;
+          _ref1 = this.url;
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            img = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            img = _ref1[_i];
             _results.push(true);
           }
           return _results;
         }).call(this);
         return this.loaded = (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.url;
+          var _i, _len, _ref1, _results;
+          _ref1 = this.url;
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            img = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            img = _ref1[_i];
             _results.push(false);
           }
           return _results;
@@ -19541,12 +19632,13 @@ if (typeof define === 'function' && define.amd) {
       };
 
       ImageURIView.prototype._map_data = function() {
-        var _ref;
-        return _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1], _ref;
+        var _ref1;
+        return _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1], _ref1;
       };
 
       ImageURIView.prototype._render = function(ctx, indices, glyph_props) {
-        var i, img, _i, _len, _results;
+        var i, img, _i, _len, _results,
+          _this = this;
         _results = [];
         for (_i = 0, _len = indices.length; _i < _len; _i++) {
           i = indices[_i];
@@ -19555,20 +19647,18 @@ if (typeof define === 'function' && define.amd) {
           }
           if (this.need_load[i]) {
             img = new Image();
-            img.onload = (function(_this) {
-              return function(img, i) {
-                return function() {
-                  _this.loaded[i] = true;
-                  _this.image[i] = img;
-                  ctx.save();
-                  ctx.beginPath();
-                  ctx.rect(vs.get('border_left') + 1, vs.get('border_top') + 1, vs.get('inner_width') - 2, vs.get('inner_height') - 2);
-                  ctx.clip();
-                  _this._render_image(ctx, vs, i, img);
-                  return ctx.restore();
-                };
+            img.onload = (function(img, i) {
+              return function() {
+                _this.loaded[i] = true;
+                _this.image[i] = img;
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(vs.get('border_left') + 1, vs.get('border_top') + 1, vs.get('inner_width') - 2, vs.get('inner_height') - 2);
+                ctx.clip();
+                _this._render_image(ctx, vs, i, img);
+                return ctx.restore();
               };
-            })(this)(img, i);
+            })(img, i);
             img.src = this.url[i];
             _results.push(this.need_load[i] = false);
           } else if (this.loaded[i]) {
@@ -19599,7 +19689,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(ImageURIGlyph, _super);
 
       function ImageURIGlyph() {
-        return ImageURIGlyph.__super__.constructor.apply(this, arguments);
+        _ref1 = ImageURIGlyph.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       ImageURIGlyph.prototype.default_view = ImageURIView;
@@ -19623,19 +19714,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=image_uri.js.map
-;
+/*
+//@ sourceMappingURL=image_uri.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/inverted_triangle',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var InvertedTriangle, InvertedTriangleView;
+    var InvertedTriangle, InvertedTriangleView, _ref, _ref1;
     InvertedTriangleView = (function(_super) {
       __extends(InvertedTriangleView, _super);
 
       function InvertedTriangleView() {
-        return InvertedTriangleView.__super__.constructor.apply(this, arguments);
+        _ref = InvertedTriangleView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       InvertedTriangleView.prototype._fields = ['x', 'y', 'size'];
@@ -19688,7 +19781,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(InvertedTriangle, _super);
 
       function InvertedTriangle() {
-        return InvertedTriangle.__super__.constructor.apply(this, arguments);
+        _ref1 = InvertedTriangle.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       InvertedTriangle.prototype.default_view = InvertedTriangleView;
@@ -19720,8 +19814,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=inverted_triangle.js.map
-;
+/*
+//@ sourceMappingURL=inverted_triangle.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -19830,12 +19925,13 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/multi_line',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var MultiLine, MultiLineView;
+    var MultiLine, MultiLineView, _ref, _ref1;
     MultiLineView = (function(_super) {
       __extends(MultiLineView, _super);
 
       function MultiLineView() {
-        return MultiLineView.__super__.constructor.apply(this, arguments);
+        _ref = MultiLineView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       MultiLineView.prototype._fields = ['xs', 'ys'];
@@ -19847,15 +19943,15 @@ if (typeof define === 'function' && define.amd) {
       };
 
       MultiLineView.prototype._render = function(ctx, indices, glyph_props) {
-        var i, j, sx, sy, x, y, _i, _j, _len, _ref, _ref1, _results;
+        var i, j, sx, sy, x, y, _i, _j, _len, _ref1, _ref2, _results;
         _results = [];
         for (_i = 0, _len = indices.length; _i < _len; _i++) {
           i = indices[_i];
           x = this.xs[i];
           y = this.ys[i];
-          _ref = this.plot_view.map_to_screen(x, this.glyph_props.xs.units, y, this.glyph_props.ys.units), sx = _ref[0], sy = _ref[1];
+          _ref1 = this.plot_view.map_to_screen(x, this.glyph_props.xs.units, y, this.glyph_props.ys.units), sx = _ref1[0], sy = _ref1[1];
           glyph_props.line_properties.set_vectorize(ctx, i);
-          for (j = _j = 0, _ref1 = sx.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
+          for (j = _j = 0, _ref2 = sx.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; j = 0 <= _ref2 ? ++_j : --_j) {
             if (j === 0) {
               ctx.beginPath();
               ctx.moveTo(sx[j], sy[j]);
@@ -19884,7 +19980,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(MultiLine, _super);
 
       function MultiLine() {
-        return MultiLine.__super__.constructor.apply(this, arguments);
+        _ref1 = MultiLine.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       MultiLine.prototype.default_view = MultiLineView;
@@ -19914,19 +20011,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=multi_line.js.map
-;
+/*
+//@ sourceMappingURL=multi_line.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/oval',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Oval, OvalView;
+    var Oval, OvalView, _ref, _ref1;
     OvalView = (function(_super) {
       __extends(OvalView, _super);
 
       function OvalView() {
-        return OvalView.__super__.constructor.apply(this, arguments);
+        _ref = OvalView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       OvalView.prototype._fields = ['x', 'y', 'width', 'height', 'angle'];
@@ -19934,8 +20033,8 @@ if (typeof define === 'function' && define.amd) {
       OvalView.prototype._properties = ['line', 'fill'];
 
       OvalView.prototype._map_data = function() {
-        var _ref;
-        _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+        var _ref1;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
         this.sw = this.distance_vector('x', 'width', 'center');
         return this.sh = this.distance_vector('y', 'height', 'center');
       };
@@ -19982,8 +20081,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       OvalView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var d, indices, reference_point, scale, sh, sw, sx, sy, _ref;
-        reference_point = (_ref = this.get_reference_point()) != null ? _ref : 0;
+        var d, indices, reference_point, scale, sh, sw, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
         indices = [reference_point];
         sx = {};
         sx[reference_point] = (x0 + x1) / 2;
@@ -20010,7 +20109,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Oval, _super);
 
       function Oval() {
-        return Oval.__super__.constructor.apply(this, arguments);
+        _ref1 = Oval.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Oval.prototype.default_view = OvalView;
@@ -20043,19 +20143,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=oval.js.map
-;
+/*
+//@ sourceMappingURL=oval.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/patch',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Patch, PatchView;
+    var Patch, PatchView, _ref, _ref1;
     PatchView = (function(_super) {
       __extends(PatchView, _super);
 
       function PatchView() {
-        return PatchView.__super__.constructor.apply(this, arguments);
+        _ref = PatchView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       PatchView.prototype._fields = ['x', 'y'];
@@ -20063,8 +20165,8 @@ if (typeof define === 'function' && define.amd) {
       PatchView.prototype._properties = ['line', 'fill'];
 
       PatchView.prototype._map_data = function() {
-        var _ref;
-        return _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1], _ref;
+        var _ref1;
+        return _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1], _ref1;
       };
 
       PatchView.prototype._render = function(ctx, indices, glyph_props) {
@@ -20122,7 +20224,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Patch, _super);
 
       function Patch() {
-        return Patch.__super__.constructor.apply(this, arguments);
+        _ref1 = Patch.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Patch.prototype.default_view = PatchView;
@@ -20154,19 +20257,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=patch.js.map
-;
+/*
+//@ sourceMappingURL=patch.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/patches',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Patches, PatchesView;
+    var Patches, PatchesView, _ref, _ref1;
     PatchesView = (function(_super) {
       __extends(PatchesView, _super);
 
       function PatchesView() {
-        return PatchesView.__super__.constructor.apply(this, arguments);
+        _ref = PatchesView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       PatchesView.prototype._fields = ['xs', 'ys'];
@@ -20178,15 +20283,15 @@ if (typeof define === 'function' && define.amd) {
       };
 
       PatchesView.prototype._render = function(ctx, indices, glyph_props) {
-        var i, j, sx, sy, _i, _j, _k, _len, _ref, _ref1, _ref2, _results;
+        var i, j, sx, sy, _i, _j, _k, _len, _ref1, _ref2, _ref3, _results;
         ctx = this.plot_view.ctx;
         _results = [];
         for (_i = 0, _len = indices.length; _i < _len; _i++) {
           i = indices[_i];
-          _ref = this.plot_view.map_to_screen(this.xs[i], glyph_props.xs.units, this.ys[i], glyph_props.ys.units), sx = _ref[0], sy = _ref[1];
+          _ref1 = this.plot_view.map_to_screen(this.xs[i], glyph_props.xs.units, this.ys[i], glyph_props.ys.units), sx = _ref1[0], sy = _ref1[1];
           if (glyph_props.fill_properties.do_fill) {
             glyph_props.fill_properties.set_vectorize(ctx, i);
-            for (j = _j = 0, _ref1 = sx.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; j = 0 <= _ref1 ? ++_j : --_j) {
+            for (j = _j = 0, _ref2 = sx.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; j = 0 <= _ref2 ? ++_j : --_j) {
               if (j === 0) {
                 ctx.beginPath();
                 ctx.moveTo(sx[j], sy[j]);
@@ -20205,7 +20310,7 @@ if (typeof define === 'function' && define.amd) {
           }
           if (glyph_props.line_properties.do_stroke) {
             glyph_props.line_properties.set_vectorize(ctx, i);
-            for (j = _k = 0, _ref2 = sx.length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; j = 0 <= _ref2 ? ++_k : --_k) {
+            for (j = _k = 0, _ref3 = sx.length; 0 <= _ref3 ? _k < _ref3 : _k > _ref3; j = 0 <= _ref3 ? ++_k : --_k) {
               if (j === 0) {
                 ctx.beginPath();
                 ctx.moveTo(sx[j], sy[j]);
@@ -20239,7 +20344,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Patches, _super);
 
       function Patches() {
-        return Patches.__super__.constructor.apply(this, arguments);
+        _ref1 = Patches.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Patches.prototype.default_view = PatchesView;
@@ -20271,19 +20377,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=patches.js.map
-;
+/*
+//@ sourceMappingURL=patches.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/cross',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var Cross, CrossView;
+    var Cross, CrossView, _ref, _ref1;
     CrossView = (function(_super) {
       __extends(CrossView, _super);
 
       function CrossView() {
-        return CrossView.__super__.constructor.apply(this, arguments);
+        _ref = CrossView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       CrossView.prototype._properties = ['line'];
@@ -20328,7 +20436,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Cross, _super);
 
       function Cross() {
-        return Cross.__super__.constructor.apply(this, arguments);
+        _ref1 = Cross.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Cross.prototype.default_view = CrossView;
@@ -20358,8 +20467,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=cross.js.map
-;
+/*
+//@ sourceMappingURL=cross.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -20378,46 +20488,10 @@ if (typeof define === 'function' && define.amd) {
 
       QuadView.prototype._properties = ['line', 'fill'];
 
-      QuadView.prototype._set_data = function() {
-        var i;
-        this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = this.left.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push([
-              this.left[i], this.bottom[i], this.right[i], this.top[i], {
-                'i': i
-              }
-            ]);
-          }
-          return _results;
-        }).call(this));
-      };
-
       QuadView.prototype._map_data = function() {
         var _ref1, _ref2;
         _ref1 = this.plot_view.map_to_screen(this.left, this.glyph_props.left.units, this.top, this.glyph_props.top.units), this.sx0 = _ref1[0], this.sy0 = _ref1[1];
         return _ref2 = this.plot_view.map_to_screen(this.right, this.glyph_props.right.units, this.bottom, this.glyph_props.bottom.units), this.sx1 = _ref2[0], this.sy1 = _ref2[1], _ref2;
-      };
-
-      QuadView.prototype._mask_data = function() {
-        var oh, ow, vr, x, x0, x1, y0, y1, _ref1, _ref2;
-        ow = this.plot_view.view_state.get('outer_width');
-        oh = this.plot_view.view_state.get('outer_height');
-        _ref1 = this.plot_view.xmapper.v_map_from_target([0, ow]), x0 = _ref1[0], x1 = _ref1[1];
-        vr = this.plot_view.view_state.get('inner_range_vertical');
-        _ref2 = this.plot_view.ymapper.v_map_from_target([0, ow]), y0 = _ref2[0], y1 = _ref2[1];
-        return (function() {
-          var _i, _len, _ref3, _results;
-          _ref3 = this.index.search([x0, y0, x1, y1]);
-          _results = [];
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            x = _ref3[_i];
-            _results.push(x[4].i);
-          }
-          return _results;
-        }).call(this);
       };
 
       QuadView.prototype._render = function(ctx, indices, glyph_props, sx0, sx1, sy0, sy1) {
@@ -20454,6 +20528,20 @@ if (typeof define === 'function' && define.amd) {
           }
         }
         return _results;
+      };
+
+      QuadView.prototype._hit_point = function(geometry) {
+        var hits, i, sx, sy, vx, vy, _i, _ref1, _ref2;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
+        sx = this.plot_view.view_state.vx_to_sx(vx);
+        sy = this.plot_view.view_state.vy_to_sy(vy);
+        hits = [];
+        for (i = _i = 0, _ref2 = this.sx0.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
+          if (sx >= this.sx0[i] && sx <= this.sx1[i] && sy >= this.sy0[i] && sy < this.sy1[i]) {
+            hits.push(i);
+          }
+        }
+        return hits;
       };
 
       QuadView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
@@ -20508,12 +20596,13 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/quadratic',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Quadratic, QuadraticView;
+    var Quadratic, QuadraticView, _ref, _ref1;
     QuadraticView = (function(_super) {
       __extends(QuadraticView, _super);
 
       function QuadraticView() {
-        return QuadraticView.__super__.constructor.apply(this, arguments);
+        _ref = QuadraticView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       QuadraticView.prototype._fields = ['x0', 'y0', 'x1', 'y1', 'cx', 'cy'];
@@ -20521,10 +20610,10 @@ if (typeof define === 'function' && define.amd) {
       QuadraticView.prototype._properties = ['line'];
 
       QuadraticView.prototype._map_data = function() {
-        var _ref, _ref1, _ref2;
-        _ref = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref[0], this.sy0 = _ref[1];
-        _ref1 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref1[0], this.sy1 = _ref1[1];
-        return _ref2 = this.plot_view.map_to_screen(this.cx, this.glyph_props.cx.units, this.cy, this.glyph_props.cy.units), this.scx = _ref2[0], this.scy = _ref2[1], _ref2;
+        var _ref1, _ref2, _ref3;
+        _ref1 = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref1[0], this.sy0 = _ref1[1];
+        _ref2 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref2[0], this.sy1 = _ref2[1];
+        return _ref3 = this.plot_view.map_to_screen(this.cx, this.glyph_props.cx.units, this.cy, this.glyph_props.cy.units), this.scx = _ref3[0], this.scy = _ref3[1], _ref3;
       };
 
       QuadraticView.prototype._render = function(ctx, indices, glyph_props) {
@@ -20557,7 +20646,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Quadratic, _super);
 
       function Quadratic() {
-        return Quadratic.__super__.constructor.apply(this, arguments);
+        _ref1 = Quadratic.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Quadratic.prototype.default_view = QuadraticView;
@@ -20587,19 +20677,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=quadratic.js.map
-;
+/*
+//@ sourceMappingURL=quadratic.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/ray',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Ray, RayView;
+    var Ray, RayView, _ref, _ref1;
     RayView = (function(_super) {
       __extends(RayView, _super);
 
       function RayView() {
-        return RayView.__super__.constructor.apply(this, arguments);
+        _ref = RayView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       RayView.prototype._fields = ['x', 'y', 'angle', 'length'];
@@ -20607,13 +20699,13 @@ if (typeof define === 'function' && define.amd) {
       RayView.prototype._properties = ['line'];
 
       RayView.prototype._map_data = function() {
-        var height, i, inf_len, width, _i, _ref, _ref1, _results;
-        _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+        var height, i, inf_len, width, _i, _ref1, _ref2, _results;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
         width = this.plot_view.view_state.get('width');
         height = this.plot_view.view_state.get('height');
         inf_len = 2 * (width + height);
         _results = [];
-        for (i = _i = 0, _ref1 = this.length.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        for (i = _i = 0, _ref2 = this.length.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
           if (this.length[i] === 0) {
             _results.push(this.length[i] = inf_len);
           } else {
@@ -20657,7 +20749,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Ray, _super);
 
       function Ray() {
-        return Ray.__super__.constructor.apply(this, arguments);
+        _ref1 = Ray.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Ray.prototype.default_view = RayView;
@@ -20687,19 +20780,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=ray.js.map
-;
+/*
+//@ sourceMappingURL=ray.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/rect',["underscore", "rbush", "renderer/properties", "./glyph"], function(_, rbush, Properties, Glyph) {
-    var Rect, RectView;
+    var Rect, RectView, _ref, _ref1;
     RectView = (function(_super) {
       __extends(RectView, _super);
 
       function RectView() {
-        return RectView.__super__.constructor.apply(this, arguments);
+        _ref = RectView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       RectView.prototype._fields = ['x', 'y', 'width', 'height', 'angle'];
@@ -20707,13 +20802,13 @@ if (typeof define === 'function' && define.amd) {
       RectView.prototype._properties = ['line', 'fill'];
 
       RectView.prototype._map_data = function() {
-        var i, sxi, syi, _i, _ref, _ref1;
-        _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), sxi = _ref[0], syi = _ref[1];
+        var i, sxi, syi, _i, _ref1, _ref2;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), sxi = _ref1[0], syi = _ref1[1];
         this.sw = this.distance_vector('x', 'width', 'center', this.mget('glyphspec')['dilate']);
         this.sh = this.distance_vector('y', 'height', 'center', this.mget('glyphspec')['dilate']);
         this.sx = new Array(sxi.length);
         this.sy = new Array(sxi.length);
-        for (i = _i = 0, _ref1 = sxi.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+        for (i = _i = 0, _ref2 = sxi.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
           if (Math.abs(sxi[i] - this.sw[i]) < 2) {
             this.sx[i] = Math.round(sxi[i]);
           } else {
@@ -20730,20 +20825,19 @@ if (typeof define === 'function' && define.amd) {
       };
 
       RectView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref, _results;
-          _results = [];
-          for (i = _i = 0, _ref = this.x.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       RectView.prototype._render = function(ctx, indices, glyph_props, sx, sy, sw, sh) {
@@ -20804,17 +20898,17 @@ if (typeof define === 'function' && define.amd) {
       };
 
       RectView.prototype._hit_point = function(geometry) {
-        var c, candidates, d, height_in, hits, i, max_height, max_width, pt, px, py, s, sx, sy, vx, vx0, vx1, vy, vy0, vy1, width_in, x, x0, x1, xcat, y, y0, y1, ycat, _i, _len, _ref, _ref1, _ref2;
-        _ref = [geometry.vx, geometry.vy], vx = _ref[0], vy = _ref[1];
+        var c, candidates, d, height_in, hits, i, max_height, max_width, pt, px, py, s, sx, sy, vx, vx0, vx1, vy, vy0, vy1, width_in, x, x0, x1, xcat, y, y0, y1, ycat, _i, _len, _ref1, _ref2, _ref3;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
         x = this.plot_view.xmapper.map_from_target(vx);
         y = this.plot_view.ymapper.map_from_target(vy);
         xcat = typeof x === "string";
         ycat = typeof y === "string";
         if (xcat || ycat) {
           candidates = (function() {
-            var _i, _ref1, _results;
+            var _i, _ref2, _results;
             _results = [];
-            for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+            for (i = _i = 0, _ref2 = this.x.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
               _results.push(i);
             }
             return _results;
@@ -20827,7 +20921,7 @@ if (typeof define === 'function' && define.amd) {
             }
             vx0 = vx - 2 * max_width;
             vx1 = vx + 2 * max_width;
-            _ref1 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref1[0], x1 = _ref1[1];
+            _ref2 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref2[0], x1 = _ref2[1];
           } else {
             x0 = x - 2 * this.max_width;
             x1 = x + 2 * this.max_width;
@@ -20839,17 +20933,17 @@ if (typeof define === 'function' && define.amd) {
             }
             vy0 = vy - 2 * max_height;
             vy1 = vy + 2 * max_height;
-            _ref2 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref2[0], y1 = _ref2[1];
+            _ref3 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref3[0], y1 = _ref3[1];
           } else {
             y0 = y - 2 * this.max_height;
             y1 = y + 2 * this.max_height;
           }
           candidates = (function() {
-            var _i, _len, _ref3, _results;
-            _ref3 = this.index.search([x0, y0, x1, y1]);
+            var _i, _len, _ref4, _results;
+            _ref4 = this.index.search([x0, y0, x1, y1]);
             _results = [];
-            for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-              pt = _ref3[_i];
+            for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+              pt = _ref4[_i];
               _results.push(pt[4].i);
             }
             return _results;
@@ -20887,8 +20981,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       RectView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var d, indices, reference_point, scale, sh, sw, sx, sy, _ref;
-        reference_point = (_ref = this.get_reference_point()) != null ? _ref : 0;
+        var d, indices, reference_point, scale, sh, sw, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
         indices = [reference_point];
         sx = {};
         sx[reference_point] = (x0 + x1) / 2;
@@ -20915,7 +21009,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Rect, _super);
 
       function Rect() {
-        return Rect.__super__.constructor.apply(this, arguments);
+        _ref1 = Rect.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Rect.prototype.default_view = RectView;
@@ -20949,19 +21044,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=rect.js.map
-;
+/*
+//@ sourceMappingURL=rect.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/square',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var Square, SquareView;
+    var Square, SquareView, _ref, _ref1;
     SquareView = (function(_super) {
       __extends(SquareView, _super);
 
       function SquareView() {
-        return SquareView.__super__.constructor.apply(this, arguments);
+        _ref = SquareView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       SquareView.prototype._properties = ['line', 'fill'];
@@ -21006,7 +21103,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Square, _super);
 
       function Square() {
-        return Square.__super__.constructor.apply(this, arguments);
+        _ref1 = Square.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Square.prototype.default_view = SquareView;
@@ -21039,19 +21137,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=square.js.map
-;
+/*
+//@ sourceMappingURL=square.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/square_x',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var SquareX, SquareXView;
+    var SquareX, SquareXView, _ref, _ref1;
     SquareXView = (function(_super) {
       __extends(SquareXView, _super);
 
       function SquareXView() {
-        return SquareXView.__super__.constructor.apply(this, arguments);
+        _ref = SquareXView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       SquareXView.prototype._properties = ['line', 'fill'];
@@ -21102,7 +21202,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(SquareX, _super);
 
       function SquareX() {
-        return SquareX.__super__.constructor.apply(this, arguments);
+        _ref1 = SquareX.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       SquareX.prototype.default_view = SquareXView;
@@ -21135,19 +21236,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=square_x.js.map
-;
+/*
+//@ sourceMappingURL=square_x.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/square_cross',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var SquareCross, SquareCrossView;
+    var SquareCross, SquareCrossView, _ref, _ref1;
     SquareCrossView = (function(_super) {
       __extends(SquareCrossView, _super);
 
       function SquareCrossView() {
-        return SquareCrossView.__super__.constructor.apply(this, arguments);
+        _ref = SquareCrossView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       SquareCrossView.prototype._properties = ['line', 'fill'];
@@ -21197,7 +21300,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(SquareCross, _super);
 
       function SquareCross() {
-        return SquareCross.__super__.constructor.apply(this, arguments);
+        _ref1 = SquareCross.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       SquareCross.prototype.default_view = SquareCrossView;
@@ -21230,19 +21334,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=square_cross.js.map
-;
+/*
+//@ sourceMappingURL=square_cross.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/segment',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Segment, SegmentView;
+    var Segment, SegmentView, _ref, _ref1;
     SegmentView = (function(_super) {
       __extends(SegmentView, _super);
 
       function SegmentView() {
-        return SegmentView.__super__.constructor.apply(this, arguments);
+        _ref = SegmentView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       SegmentView.prototype._fields = ['x0', 'y0', 'x1', 'y1'];
@@ -21250,9 +21356,9 @@ if (typeof define === 'function' && define.amd) {
       SegmentView.prototype._properties = ['line'];
 
       SegmentView.prototype._map_data = function() {
-        var _ref, _ref1;
-        _ref = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref[0], this.sy0 = _ref[1];
-        return _ref1 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref1[0], this.sy1 = _ref1[1], _ref1;
+        var _ref1, _ref2;
+        _ref1 = this.plot_view.map_to_screen(this.x0, this.glyph_props.x0.units, this.y0, this.glyph_props.y0.units), this.sx0 = _ref1[0], this.sy0 = _ref1[1];
+        return _ref2 = this.plot_view.map_to_screen(this.x1, this.glyph_props.x1.units, this.y1, this.glyph_props.y1.units), this.sx1 = _ref2[0], this.sy1 = _ref2[1], _ref2;
       };
 
       SegmentView.prototype._render = function(ctx, indices, glyph_props) {
@@ -21285,7 +21391,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Segment, _super);
 
       function Segment() {
-        return Segment.__super__.constructor.apply(this, arguments);
+        _ref1 = Segment.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Segment.prototype.default_view = SegmentView;
@@ -21315,19 +21422,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=segment.js.map
-;
+/*
+//@ sourceMappingURL=segment.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/text',["underscore", "renderer/properties", "./glyph"], function(_, Properties, Glyph) {
-    var Text, TextView;
+    var Text, TextView, _ref, _ref1;
     TextView = (function(_super) {
       __extends(TextView, _super);
 
       function TextView() {
-        return TextView.__super__.constructor.apply(this, arguments);
+        _ref = TextView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       TextView.prototype._fields = ['x', 'y', 'angle', 'text:string'];
@@ -21335,8 +21444,8 @@ if (typeof define === 'function' && define.amd) {
       TextView.prototype._properties = ['text'];
 
       TextView.prototype._map_data = function() {
-        var _ref;
-        return _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1], _ref;
+        var _ref1;
+        return _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1], _ref1;
       };
 
       TextView.prototype._render = function(ctx, indices, glyph_props) {
@@ -21383,7 +21492,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Text, _super);
 
       function Text() {
-        return Text.__super__.constructor.apply(this, arguments);
+        _ref1 = Text.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Text.prototype.default_view = TextView;
@@ -21413,19 +21523,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=text.js.map
-;
+/*
+//@ sourceMappingURL=text.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/triangle',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var Triangle, TriangleView;
+    var Triangle, TriangleView, _ref, _ref1;
     TriangleView = (function(_super) {
       __extends(TriangleView, _super);
 
       function TriangleView() {
-        return TriangleView.__super__.constructor.apply(this, arguments);
+        _ref = TriangleView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       TriangleView.prototype._properties = ['line', 'fill'];
@@ -21476,7 +21588,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Triangle, _super);
 
       function Triangle() {
-        return Triangle.__super__.constructor.apply(this, arguments);
+        _ref1 = Triangle.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Triangle.prototype.default_view = TriangleView;
@@ -21508,19 +21621,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=triangle.js.map
-;
+/*
+//@ sourceMappingURL=triangle.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/wedge',["underscore", "rbush", "common/mathutils", "renderer/properties", "./glyph"], function(_, rbush, mathutils, Properties, Glyph) {
-    var Wedge, WedgeView;
+    var Wedge, WedgeView, _ref, _ref1;
     WedgeView = (function(_super) {
       __extends(WedgeView, _super);
 
       function WedgeView() {
-        return WedgeView.__super__.constructor.apply(this, arguments);
+        _ref = WedgeView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       WedgeView.prototype._fields = ['x', 'y', 'radius', 'start_angle', 'end_angle', 'direction:string'];
@@ -21528,26 +21643,25 @@ if (typeof define === 'function' && define.amd) {
       WedgeView.prototype._properties = ['line', 'fill'];
 
       WedgeView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         this.max_radius = _.max(this.radius);
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref, _results;
-          _results = [];
-          for (i = _i = 0, _ref = this.x.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       WedgeView.prototype._map_data = function() {
-        var _ref;
-        _ref = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref[0], this.sy = _ref[1];
+        var _ref1;
+        _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
         return this.radius = this.distance_vector('x', 'radius', 'edge');
       };
 
@@ -21587,17 +21701,17 @@ if (typeof define === 'function' && define.amd) {
       };
 
       WedgeView.prototype._hit_point = function(geometry) {
-        var angle, candidates, candidates2, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _k, _len, _len1, _len2, _ref, _ref1, _ref2, _ref3;
-        _ref = [geometry.vx, geometry.vy], vx = _ref[0], vy = _ref[1];
+        var angle, candidates, candidates2, dist, hits, i, pt, r2, sx, sx0, sx1, sy, sy0, sy1, vx, vx0, vx1, vy, vy0, vy1, x, x0, x1, y, y0, y1, _i, _j, _k, _len, _len1, _len2, _ref1, _ref2, _ref3, _ref4;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
         x = this.plot_view.xmapper.map_from_target(vx);
         y = this.plot_view.ymapper.map_from_target(vy);
         if (this.radius_units === "screen") {
           vx0 = vx - this.max_radius;
           vx1 = vx + this.max_radius;
-          _ref1 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref1[0], x1 = _ref1[1];
+          _ref2 = this.plot_view.xmapper.v_map_from_target([vx0, vx1]), x0 = _ref2[0], x1 = _ref2[1];
           vy0 = vy - this.max_radius;
           vy1 = vy + this.max_radius;
-          _ref2 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref2[0], y1 = _ref2[1];
+          _ref3 = this.plot_view.ymapper.v_map_from_target([vy0, vy1]), y0 = _ref3[0], y1 = _ref3[1];
         } else {
           x0 = x - this.max_radius;
           x1 = x + this.max_radius;
@@ -21605,11 +21719,11 @@ if (typeof define === 'function' && define.amd) {
           y1 = y + this.max_radius;
         }
         candidates = (function() {
-          var _i, _len, _ref3, _results;
-          _ref3 = this.index.search([x0, y0, x1, y1]);
+          var _i, _len, _ref4, _results;
+          _ref4 = this.index.search([x0, y0, x1, y1]);
           _results = [];
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            pt = _ref3[_i];
+          for (_i = 0, _len = _ref4.length; _i < _len; _i++) {
+            pt = _ref4[_i];
             _results.push(pt[4].i);
           }
           return _results;
@@ -21642,7 +21756,7 @@ if (typeof define === 'function' && define.amd) {
         }
         hits = [];
         for (_k = 0, _len2 = candidates2.length; _k < _len2; _k++) {
-          _ref3 = candidates2[_k], i = _ref3[0], dist = _ref3[1];
+          _ref4 = candidates2[_k], i = _ref4[0], dist = _ref4[1];
           sx = this.plot_view.view_state.vx_to_sx(vx);
           sy = this.plot_view.view_state.vy_to_sy(vy);
           angle = Math.atan2(sy - this.sy[i], sx - this.sx[i]);
@@ -21659,8 +21773,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       WedgeView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
-        var indices, radius, reference_point, sx, sy, _ref;
-        reference_point = (_ref = this.get_reference_point()) != null ? _ref : 0;
+        var indices, radius, reference_point, sx, sy, _ref1;
+        reference_point = (_ref1 = this.get_reference_point()) != null ? _ref1 : 0;
         indices = [reference_point];
         sx = {};
         sx[reference_point] = (x0 + x1) / 2;
@@ -21678,7 +21792,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Wedge, _super);
 
       function Wedge() {
-        return Wedge.__super__.constructor.apply(this, arguments);
+        _ref1 = Wedge.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Wedge.prototype.default_view = WedgeView;
@@ -21711,19 +21826,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=wedge.js.map
-;
+/*
+//@ sourceMappingURL=wedge.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/x',["underscore", "renderer/properties", "./marker"], function(_, Properties, Marker) {
-    var X, XView;
+    var X, XView, _ref, _ref1;
     XView = (function(_super) {
       __extends(XView, _super);
 
       function XView() {
-        return XView.__super__.constructor.apply(this, arguments);
+        _ref = XView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       XView.prototype._properties = ['line'];
@@ -21768,7 +21885,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(X, _super);
 
       function X() {
-        return X.__super__.constructor.apply(this, arguments);
+        _ref1 = X.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       X.prototype.default_view = XView;
@@ -21798,14 +21916,15 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=x.js.map
-;
+/*
+//@ sourceMappingURL=x.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/glyph/glyph_factory',['require','exports','module','underscore','common/has_parent','common/plot_widget','./annular_wedge','./annulus','./arc','./asterisk','./bezier','./circle','./circle_x','./circle_cross','./diamond','./diamond_cross','./image','./image_rgba','./image_uri','./inverted_triangle','./line','./multi_line','./oval','./patch','./patches','./cross','./quad','./quadratic','./ray','./rect','./square','./square_x','./square_cross','./segment','./text','./triangle','./wedge','./x'],function(require, exports, module) {
-    var Glyph, HasParent, PlotWidget, annular_wedge, annulus, arc, asterisk, bezier, circle, circle_cross, circle_x, cross, diamond, diamond_cross, glyphs, image, image_rgba, image_uri, inverted_triangle, line, multi_line, oval, patch, patches, quad, quadratic, ray, rect, segment, square, square_cross, square_x, text, triangle, wedge, x, _;
+    var Glyph, HasParent, PlotWidget, annular_wedge, annulus, arc, asterisk, bezier, circle, circle_cross, circle_x, cross, diamond, diamond_cross, glyphs, image, image_rgba, image_uri, inverted_triangle, line, multi_line, oval, patch, patches, quad, quadratic, ray, rect, segment, square, square_cross, square_x, text, triangle, wedge, x, _, _ref;
     _ = require("underscore");
     HasParent = require("common/has_parent");
     PlotWidget = require("common/plot_widget");
@@ -21879,12 +21998,13 @@ if (typeof define === 'function' && define.amd) {
       __extends(Glyph, _super);
 
       function Glyph() {
-        return Glyph.__super__.constructor.apply(this, arguments);
+        _ref = Glyph.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       Glyph.prototype.model = function(attrs, options) {
-        var model, type, _ref;
-        if (((_ref = attrs.glyphspec) != null ? _ref.type : void 0) == null) {
+        var model, type, _ref1;
+        if (((_ref1 = attrs.glyphspec) != null ? _ref1.type : void 0) == null) {
           console.log("missing glyph type");
           return;
         }
@@ -21907,14 +22027,15 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=glyph_factory.js.map
-;
+/*
+//@ sourceMappingURL=glyph_factory.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/guide/axis',["underscore", "backbone", "common/safebind", "common/has_parent", "common/plot_widget", "renderer/properties"], function(_, Backbone, safebind, HasParent, PlotWidget, Properties) {
-    var Axis, AxisView, glyph_properties, line_properties, text_properties, _align_lookup, _align_lookup_negative, _align_lookup_positive, _angle_lookup, _baseline_lookup, _normal_lookup;
+    var Axis, AxisView, glyph_properties, line_properties, text_properties, _align_lookup, _align_lookup_negative, _align_lookup_positive, _angle_lookup, _baseline_lookup, _normal_lookup, _ref, _ref1;
     glyph_properties = Properties.glyph_properties;
     line_properties = Properties.line_properties;
     text_properties = Properties.text_properties;
@@ -22057,7 +22178,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(AxisView, _super);
 
       function AxisView() {
-        return AxisView.__super__.constructor.apply(this, arguments);
+        _ref = AxisView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       AxisView.prototype.initialize = function(options) {
@@ -22088,35 +22210,35 @@ if (typeof define === 'function' && define.amd) {
       };
 
       AxisView.prototype._draw_rule = function(ctx) {
-        var coords, i, nx, ny, sx, sy, x, y, _i, _ref, _ref1, _ref2, _ref3;
+        var coords, i, nx, ny, sx, sy, x, y, _i, _ref1, _ref2, _ref3, _ref4;
         if (!this.rule_props.do_stroke) {
           return;
         }
-        _ref = coords = this.mget('rule_coords'), x = _ref[0], y = _ref[1];
-        _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
-        _ref2 = this.mget('normals'), nx = _ref2[0], ny = _ref2[1];
+        _ref1 = coords = this.mget('rule_coords'), x = _ref1[0], y = _ref1[1];
+        _ref2 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref2[0], sy = _ref2[1];
+        _ref3 = this.mget('normals'), nx = _ref3[0], ny = _ref3[1];
         this.rule_props.set(ctx, this);
         ctx.beginPath();
         ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]));
-        for (i = _i = 1, _ref3 = sx.length; 1 <= _ref3 ? _i < _ref3 : _i > _ref3; i = 1 <= _ref3 ? ++_i : --_i) {
+        for (i = _i = 1, _ref4 = sx.length; 1 <= _ref4 ? _i < _ref4 : _i > _ref4; i = 1 <= _ref4 ? ++_i : --_i) {
           ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]));
         }
         return ctx.stroke();
       };
 
       AxisView.prototype._draw_major_ticks = function(ctx) {
-        var coords, i, nx, ny, sx, sy, tin, tout, x, y, _i, _ref, _ref1, _ref2, _ref3, _results;
+        var coords, i, nx, ny, sx, sy, tin, tout, x, y, _i, _ref1, _ref2, _ref3, _ref4, _results;
         if (!this.major_tick_props.do_stroke) {
           return;
         }
-        _ref = coords = this.mget('major_coords'), x = _ref[0], y = _ref[1];
-        _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
-        _ref2 = this.mget('normals'), nx = _ref2[0], ny = _ref2[1];
+        _ref1 = coords = this.mget('major_coords'), x = _ref1[0], y = _ref1[1];
+        _ref2 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref2[0], sy = _ref2[1];
+        _ref3 = this.mget('normals'), nx = _ref3[0], ny = _ref3[1];
         tin = this.mget('major_tick_in');
         tout = this.mget('major_tick_out');
         this.major_tick_props.set(ctx, this);
         _results = [];
-        for (i = _i = 0, _ref3 = sx.length; 0 <= _ref3 ? _i < _ref3 : _i > _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
+        for (i = _i = 0, _ref4 = sx.length; 0 <= _ref4 ? _i < _ref4 : _i > _ref4; i = 0 <= _ref4 ? ++_i : --_i) {
           ctx.beginPath();
           ctx.moveTo(Math.round(sx[i] + nx * tout), Math.round(sy[i] + ny * tout));
           ctx.lineTo(Math.round(sx[i] - nx * tin), Math.round(sy[i] - ny * tin));
@@ -22126,10 +22248,10 @@ if (typeof define === 'function' && define.amd) {
       };
 
       AxisView.prototype._draw_major_labels = function(ctx) {
-        var angle, coords, dim, i, labels, nx, ny, orient, side, standoff, sx, sy, x, y, _i, _ref, _ref1, _ref2, _ref3, _results;
-        _ref = coords = this.mget('major_coords'), x = _ref[0], y = _ref[1];
-        _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
-        _ref2 = this.mget('normals'), nx = _ref2[0], ny = _ref2[1];
+        var angle, coords, dim, i, labels, nx, ny, orient, side, standoff, sx, sy, x, y, _i, _ref1, _ref2, _ref3, _ref4, _results;
+        _ref1 = coords = this.mget('major_coords'), x = _ref1[0], y = _ref1[1];
+        _ref2 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref2[0], sy = _ref2[1];
+        _ref3 = this.mget('normals'), nx = _ref3[0], ny = _ref3[1];
         dim = this.mget('dimension');
         side = this.mget('side');
         orient = this.mget('major_label_orientation');
@@ -22143,7 +22265,7 @@ if (typeof define === 'function' && define.amd) {
         this.major_label_props.set(ctx, this);
         this._apply_location_heuristics(ctx, side, orient);
         _results = [];
-        for (i = _i = 0, _ref3 = sx.length; 0 <= _ref3 ? _i < _ref3 : _i > _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
+        for (i = _i = 0, _ref4 = sx.length; 0 <= _ref4 ? _i < _ref4 : _i > _ref4; i = 0 <= _ref4 ? ++_i : --_i) {
           if (angle) {
             ctx.translate(sx[i] + nx * standoff, sy[i] + ny * standoff);
             ctx.rotate(angle);
@@ -22158,14 +22280,14 @@ if (typeof define === 'function' && define.amd) {
       };
 
       AxisView.prototype._draw_axis_label = function(ctx) {
-        var angle, label, nx, ny, orient, side, standoff, sx, sy, x, y, _ref, _ref1, _ref2;
+        var angle, label, nx, ny, orient, side, standoff, sx, sy, x, y, _ref1, _ref2, _ref3;
         label = this.mget('axis_label');
         if (label == null) {
           return;
         }
-        _ref = this.mget('rule_coords'), x = _ref[0], y = _ref[1];
-        _ref1 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref1[0], sy = _ref1[1];
-        _ref2 = this.mget('normals'), nx = _ref2[0], ny = _ref2[1];
+        _ref1 = this.mget('rule_coords'), x = _ref1[0], y = _ref1[1];
+        _ref2 = this.plot_view.map_to_screen(x, "data", y, "data"), sx = _ref2[0], sy = _ref2[1];
+        _ref3 = this.mget('normals'), nx = _ref3[0], ny = _ref3[1];
         side = this.mget('side');
         orient = 'parallel';
         angle = _angle_lookup[side][orient];
@@ -22209,7 +22331,7 @@ if (typeof define === 'function' && define.amd) {
       };
 
       AxisView.prototype._tick_label_extent = function() {
-        var angle, c, coords, dim, extent, factor, h, i, labels, orient, s, side, val, w, _i, _j, _ref, _ref1;
+        var angle, c, coords, dim, extent, factor, h, i, labels, orient, s, side, val, w, _i, _j, _ref1, _ref2;
         extent = 0;
         dim = this.mget('dimension');
         coords = this.mget('major_coords');
@@ -22228,7 +22350,7 @@ if (typeof define === 'function' && define.amd) {
         c = Math.cos(angle);
         s = Math.sin(angle);
         if (side === "top" || side === "bottom") {
-          for (i = _i = 0, _ref = labels.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+          for (i = _i = 0, _ref1 = labels.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
             if (labels[i] == null) {
               continue;
             }
@@ -22240,7 +22362,7 @@ if (typeof define === 'function' && define.amd) {
             }
           }
         } else {
-          for (i = _j = 0, _ref1 = labels.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+          for (i = _j = 0, _ref2 = labels.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
             if (labels[i] == null) {
               continue;
             }
@@ -22282,10 +22404,10 @@ if (typeof define === 'function' && define.amd) {
       };
 
       AxisView.prototype._padding_request = function() {
-        var loc, padding, req, side, _ref;
+        var loc, padding, req, side, _ref1;
         req = {};
         side = this.mget('side');
-        loc = (_ref = this.mget('location')) != null ? _ref : 'min';
+        loc = (_ref1 = this.mget('location')) != null ? _ref1 : 'min';
         if (!_.isString(loc)) {
           return req;
         }
@@ -22304,7 +22426,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(Axis, _super);
 
       function Axis() {
-        return Axis.__super__.constructor.apply(this, arguments);
+        _ref1 = Axis.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Axis.prototype.default_view = AxisView;
@@ -22331,11 +22454,11 @@ if (typeof define === 'function' && define.amd) {
       };
 
       Axis.prototype._bounds = function() {
-        var end, i, j, range_bounds, ranges, start, user_bounds, _ref;
+        var end, i, j, range_bounds, ranges, start, user_bounds, _ref2;
         i = this.get('dimension');
         j = (i + 1) % 2;
         ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
-        user_bounds = (_ref = this.get('bounds')) != null ? _ref : 'auto';
+        user_bounds = (_ref2 = this.get('bounds')) != null ? _ref2 : 'auto';
         range_bounds = [ranges[i].get('min'), ranges[i].get('max')];
         if (_.isArray(user_bounds)) {
           if (Math.abs(user_bounds[0] - user_bounds[1]) > Math.abs(range_bounds[0] - range_bounds[1])) {
@@ -22352,19 +22475,19 @@ if (typeof define === 'function' && define.amd) {
       };
 
       Axis.prototype._rule_coords = function() {
-        var cend, coords, cross_range, cstart, end, i, j, loc, range, ranges, start, xs, ys, _ref, _ref1;
+        var cend, coords, cross_range, cstart, end, i, j, loc, range, ranges, start, xs, ys, _ref2, _ref3;
         i = this.get('dimension');
         j = (i + 1) % 2;
         ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
         range = ranges[i];
         cross_range = ranges[j];
-        _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
+        _ref2 = this.get('computed_bounds'), start = _ref2[0], end = _ref2[1];
         xs = new Array(2);
         ys = new Array(2);
         coords = [xs, ys];
         cstart = cross_range.get('start');
         cend = cross_range.get('end');
-        loc = (_ref1 = this.get('location')) != null ? _ref1 : 'min';
+        loc = (_ref3 = this.get('location')) != null ? _ref3 : 'min';
         if (_.isString(loc)) {
           if (loc === 'left' || loc === 'bottom') {
             if (cstart < cend) {
@@ -22392,17 +22515,17 @@ if (typeof define === 'function' && define.amd) {
       };
 
       Axis.prototype._major_coords = function() {
-        var cend, coords, cross_range, cstart, end, i, ii, j, loc, range, range_max, range_min, ranges, start, ticks, xs, ys, _i, _j, _ref, _ref1, _ref2, _ref3, _ref4;
+        var cend, coords, cross_range, cstart, end, i, ii, j, loc, range, range_max, range_min, ranges, start, ticks, xs, ys, _i, _j, _ref2, _ref3, _ref4, _ref5, _ref6;
         i = this.get('dimension');
         j = (i + 1) % 2;
         ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
         range = ranges[i];
         cross_range = ranges[j];
-        _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
+        _ref2 = this.get('computed_bounds'), start = _ref2[0], end = _ref2[1];
         ticks = this.get_obj('ticker').get_ticks(start, end, range, {});
         cstart = cross_range.get('start');
         cend = cross_range.get('end');
-        loc = (_ref1 = this.get('location')) != null ? _ref1 : 'min';
+        loc = (_ref3 = this.get('location')) != null ? _ref3 : 'min';
         if (_.isString(loc)) {
           if (loc === 'left' || loc === 'bottom') {
             if (cstart < cend) {
@@ -22423,13 +22546,13 @@ if (typeof define === 'function' && define.amd) {
         ys = [];
         coords = [xs, ys];
         if (range.type === "FactorRange") {
-          for (ii = _i = 0, _ref2 = ticks.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; ii = 0 <= _ref2 ? ++_i : --_i) {
+          for (ii = _i = 0, _ref4 = ticks.length; 0 <= _ref4 ? _i < _ref4 : _i > _ref4; ii = 0 <= _ref4 ? ++_i : --_i) {
             coords[i].push(ticks[ii]);
             coords[j].push(loc);
           }
         } else {
-          _ref3 = [range.get('min'), range.get('max')], range_min = _ref3[0], range_max = _ref3[1];
-          for (ii = _j = 0, _ref4 = ticks.length; 0 <= _ref4 ? _j < _ref4 : _j > _ref4; ii = 0 <= _ref4 ? ++_j : --_j) {
+          _ref5 = [range.get('min'), range.get('max')], range_min = _ref5[0], range_max = _ref5[1];
+          for (ii = _j = 0, _ref6 = ticks.length; 0 <= _ref6 ? _j < _ref6 : _j > _ref6; ii = 0 <= _ref6 ? ++_j : --_j) {
             if (ticks[ii] < range_min || ticks[ii] > range_max) {
               continue;
             }
@@ -22441,16 +22564,16 @@ if (typeof define === 'function' && define.amd) {
       };
 
       Axis.prototype._normals = function() {
-        var cend, cross_range, cstart, end, i, idir, j, jdir, loc, normals, range, ranges, start, _ref, _ref1;
+        var cend, cross_range, cstart, end, i, idir, j, jdir, loc, normals, range, ranges, start, _ref2, _ref3;
         i = this.get('dimension');
         j = (i + 1) % 2;
         ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
         range = ranges[i];
         cross_range = ranges[j];
-        _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
+        _ref2 = this.get('computed_bounds'), start = _ref2[0], end = _ref2[1];
         cstart = cross_range.get('start');
         cend = cross_range.get('end');
-        loc = (_ref1 = this.get('location')) != null ? _ref1 : 'min';
+        loc = (_ref3 = this.get('location')) != null ? _ref3 : 'min';
         normals = [0, 0];
         if (_.isString(loc)) {
           if (start > end) {
@@ -22558,19 +22681,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=axis.js.map
-;
+/*
+//@ sourceMappingURL=axis.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/categorical_ticker',["backbone", "common/has_properties"], function(Backbone, HasProperties) {
-    var CategoricalTicker, CategoricalTickers;
+    var CategoricalTicker, CategoricalTickers, _ref, _ref1;
     CategoricalTicker = (function(_super) {
       __extends(CategoricalTicker, _super);
 
       function CategoricalTicker() {
-        return CategoricalTicker.__super__.constructor.apply(this, arguments);
+        _ref = CategoricalTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       CategoricalTicker.prototype.type = 'CategoricalTicker';
@@ -22592,7 +22717,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(CategoricalTickers, _super);
 
       function CategoricalTickers() {
-        return CategoricalTickers.__super__.constructor.apply(this, arguments);
+        _ref1 = CategoricalTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       CategoricalTickers.prototype.model = CategoricalTicker;
@@ -22608,19 +22734,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=categorical_ticker.js.map
-;
+/*
+//@ sourceMappingURL=categorical_ticker.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/categorical_tick_formatter',["backbone", "common/has_properties"], function(Backbone, HasProperties) {
-    var CategoricalTickFormatter, CategoricalTickFormatters;
+    var CategoricalTickFormatter, CategoricalTickFormatters, _ref, _ref1;
     CategoricalTickFormatter = (function(_super) {
       __extends(CategoricalTickFormatter, _super);
 
       function CategoricalTickFormatter() {
-        return CategoricalTickFormatter.__super__.constructor.apply(this, arguments);
+        _ref = CategoricalTickFormatter.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       CategoricalTickFormatter.prototype.type = 'CategoricalTickFormatter';
@@ -22640,7 +22768,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(CategoricalTickFormatters, _super);
 
       function CategoricalTickFormatters() {
-        return CategoricalTickFormatters.__super__.constructor.apply(this, arguments);
+        _ref1 = CategoricalTickFormatters.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       CategoricalTickFormatters.prototype.model = CategoricalTickFormatter;
@@ -22660,19 +22789,21 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=categorical_tick_formatter.js.map
-;
+/*
+//@ sourceMappingURL=categorical_tick_formatter.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/guide/categorical_axis',["backbone", "./axis", "range/factor_range", "ticking/categorical_ticker", "ticking/categorical_tick_formatter"], function(Backbone, Axis, FactorRange, CategoricalTicker, CategoricalTickFormatter) {
-    var CategoricalAxes, CategoricalAxis, CategoricalAxisView;
+    var CategoricalAxes, CategoricalAxis, CategoricalAxisView, _ref, _ref1, _ref2;
     CategoricalAxisView = (function(_super) {
       __extends(CategoricalAxisView, _super);
 
       function CategoricalAxisView() {
-        return CategoricalAxisView.__super__.constructor.apply(this, arguments);
+        _ref = CategoricalAxisView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       return CategoricalAxisView;
@@ -22682,15 +22813,16 @@ if (typeof define === 'function' && define.amd) {
       __extends(CategoricalAxis, _super);
 
       function CategoricalAxis() {
-        return CategoricalAxis.__super__.constructor.apply(this, arguments);
+        _ref1 = CategoricalAxis.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       CategoricalAxis.prototype.default_view = CategoricalAxisView;
 
       CategoricalAxis.prototype.type = 'CategoricalAxis';
 
-      CategoricalAxis.prototype.initialize = function(attrs, objects) {
-        CategoricalAxis.__super__.initialize.call(this, attrs, objects);
+      CategoricalAxis.prototype.dinitialize = function(attrs, objects) {
+        CategoricalAxis.__super__.dinitialize.call(this, attrs, objects);
         if (this.get_obj('ticker') == null) {
           this.set_obj('ticker', CategoricalTicker.Collection.create());
         }
@@ -22700,10 +22832,10 @@ if (typeof define === 'function' && define.amd) {
       };
 
       CategoricalAxis.prototype._bounds = function() {
-        var i, range_bounds, ranges, user_bounds, _ref;
+        var i, range_bounds, ranges, user_bounds, _ref2;
         i = this.get('dimension');
         ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
-        user_bounds = (_ref = this.get('bounds')) != null ? _ref : 'auto';
+        user_bounds = (_ref2 = this.get('bounds')) != null ? _ref2 : 'auto';
         if (user_bounds !== 'auto') {
           console.log("Categorical Axes only support user_bounds='auto', ignoring");
         }
@@ -22718,7 +22850,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(CategoricalAxes, _super);
 
       function CategoricalAxes() {
-        return CategoricalAxes.__super__.constructor.apply(this, arguments);
+        _ref2 = CategoricalAxes.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       CategoricalAxes.prototype.model = CategoricalAxis;
@@ -22735,14 +22868,15 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=categorical_axis.js.map
-;
+/*
+//@ sourceMappingURL=categorical_axis.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/abstract_ticker',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
-    var AbstractTicker, AbstractTickers, DEFAULT_DESIRED_N_TICKS, repr;
+    var AbstractTicker, AbstractTickers, DEFAULT_DESIRED_N_TICKS, repr, _ref, _ref1;
     repr = function(obj) {
       var elem, elems_str, key, obj_as_string, props_str;
       if (obj === null) {
@@ -22789,7 +22923,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(AbstractTicker, _super);
 
       function AbstractTicker() {
-        return AbstractTicker.__super__.constructor.apply(this, arguments);
+        _ref = AbstractTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       AbstractTicker.prototype.type = 'AbstractTicker';
@@ -22874,7 +23009,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(AbstractTickers, _super);
 
       function AbstractTickers() {
-        return AbstractTickers.__super__.constructor.apply(this, arguments);
+        _ref1 = AbstractTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       AbstractTickers.prototype.model = AbstractTicker;
@@ -22890,8 +23026,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=abstract_ticker.js.map
-;
+/*
+//@ sourceMappingURL=abstract_ticker.js.map
+*/;
 (function() {
   define('ticking/util',["underscore", "backbone"], function(_, Backbone) {
     var ONE_DAY, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR, argmin, copy_date, last_month_no_later_than, last_year_no_later_than;
@@ -22943,14 +23080,15 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=util.js.map
-;
+/*
+//@ sourceMappingURL=util.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/adaptive_ticker',["underscore", "backbone", "ticking/abstract_ticker", "ticking/util"], function(_, Backbone, AbstractTicker, util) {
-    var AdaptiveTicker, AdaptiveTickers, argmin, clamp, log;
+    var AdaptiveTicker, AdaptiveTickers, argmin, clamp, log, _ref, _ref1;
     argmin = util.argmin;
     clamp = function(x, min_val, max_val) {
       return Math.max(min_val, Math.min(max_val, x));
@@ -22965,7 +23103,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(AdaptiveTicker, _super);
 
       function AdaptiveTicker() {
-        return AdaptiveTicker.__super__.constructor.apply(this, arguments);
+        _ref = AdaptiveTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       AdaptiveTicker.prototype.type = 'AdaptiveTicker';
@@ -23011,7 +23150,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(AdaptiveTickers, _super);
 
       function AdaptiveTickers() {
-        return AdaptiveTickers.__super__.constructor.apply(this, arguments);
+        _ref1 = AdaptiveTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       AdaptiveTickers.prototype.model = AdaptiveTicker;
@@ -23027,8 +23167,9 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=adaptive_ticker.js.map
-;
+/*
+//@ sourceMappingURL=adaptive_ticker.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -23093,9 +23234,10 @@ if (typeof define === 'function' && define.amd) {
       };
 
       CompositeTicker.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
-        var best_ticker;
+        var best_ticker, ticks;
         best_ticker = this.get_best_ticker(data_low, data_high, desired_n_ticks);
-        return best_ticker.get_ticks_no_defaults(data_low, data_high, desired_n_ticks);
+        ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, desired_n_ticks);
+        return ticks;
       };
 
       CompositeTicker.prototype.defaults = function() {
@@ -23134,12 +23276,13 @@ if (typeof define === 'function' && define.amd) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/single_interval_ticker',["underscore", "backbone", "ticking/abstract_ticker"], function(_, Backbone, AbstractTicker) {
-    var SingleIntervalTicker, SingleIntervalTickers;
+    var SingleIntervalTicker, SingleIntervalTickers, _ref, _ref1;
     SingleIntervalTicker = (function(_super) {
       __extends(SingleIntervalTicker, _super);
 
       function SingleIntervalTicker() {
-        return SingleIntervalTicker.__super__.constructor.apply(this, arguments);
+        _ref = SingleIntervalTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       SingleIntervalTicker.prototype.type = 'SingleIntervalTicker';
@@ -23173,7 +23316,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(SingleIntervalTickers, _super);
 
       function SingleIntervalTickers() {
-        return SingleIntervalTickers.__super__.constructor.apply(this, arguments);
+        _ref1 = SingleIntervalTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       SingleIntervalTickers.prototype.model = SingleIntervalTicker;
@@ -23189,14 +23333,15 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=single_interval_ticker.js.map
-;
+/*
+//@ sourceMappingURL=single_interval_ticker.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/days_ticker',["underscore", "backbone", "ticking/single_interval_ticker", "ticking/util"], function(_, Backbone, SingleIntervalTicker, util) {
-    var DaysTicker, DaysTickers, ONE_DAY, copy_date, date_range_by_month, last_month_no_later_than;
+    var DaysTicker, DaysTickers, ONE_DAY, copy_date, date_range_by_month, last_month_no_later_than, _ref, _ref1;
     copy_date = util.copy_date;
     last_month_no_later_than = util.last_month_no_later_than;
     ONE_DAY = util.ONE_DAY;
@@ -23221,7 +23366,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(DaysTicker, _super);
 
       function DaysTicker() {
-        return DaysTicker.__super__.constructor.apply(this, arguments);
+        _ref = DaysTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       DaysTicker.prototype.type = 'DaysTicker';
@@ -23235,25 +23381,24 @@ if (typeof define === 'function' && define.amd) {
       };
 
       DaysTicker.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
-        var all_ticks, date, day_dates, days, days_of_month, interval, month_dates, ticks_in_range;
+        var all_ticks, date, day_dates, days, days_of_month, interval, month_dates, ticks_in_range,
+          _this = this;
         month_dates = date_range_by_month(data_low, data_high);
         days = this.get('days');
-        days_of_month = (function(_this) {
-          return function(month_date, interval) {
-            var dates, day, day_date, future_date, _i, _len;
-            dates = [];
-            for (_i = 0, _len = days.length; _i < _len; _i++) {
-              day = days[_i];
-              day_date = copy_date(month_date);
-              day_date.setUTCDate(day);
-              future_date = new Date(day_date.getTime() + (interval / 2));
-              if (future_date.getUTCMonth() === month_date.getUTCMonth()) {
-                dates.push(day_date);
-              }
+        days_of_month = function(month_date, interval) {
+          var dates, day, day_date, future_date, _i, _len;
+          dates = [];
+          for (_i = 0, _len = days.length; _i < _len; _i++) {
+            day = days[_i];
+            day_date = copy_date(month_date);
+            day_date.setUTCDate(day);
+            future_date = new Date(day_date.getTime() + (interval / 2));
+            if (future_date.getUTCMonth() === month_date.getUTCMonth()) {
+              dates.push(day_date);
             }
-            return dates;
-          };
-        })(this);
+          }
+          return dates;
+        };
         interval = this.get('interval');
         day_dates = _.flatten((function() {
           var _i, _len, _results;
@@ -23284,7 +23429,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(DaysTickers, _super);
 
       function DaysTickers() {
-        return DaysTickers.__super__.constructor.apply(this, arguments);
+        _ref1 = DaysTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       DaysTickers.prototype.model = DaysTicker;
@@ -23300,14 +23446,15 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=days_ticker.js.map
-;
+/*
+//@ sourceMappingURL=days_ticker.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/months_ticker',["underscore", "backbone", "ticking/single_interval_ticker", "ticking/util"], function(_, Backbone, SingleIntervalTicker, util) {
-    var MonthsTicker, MonthsTickers, ONE_MONTH, copy_date, date_range_by_year, last_year_no_later_than;
+    var MonthsTicker, MonthsTickers, ONE_MONTH, copy_date, date_range_by_year, last_year_no_later_than, _ref, _ref1;
     copy_date = util.copy_date;
     last_year_no_later_than = util.last_year_no_later_than;
     ONE_MONTH = util.ONE_MONTH;
@@ -23331,7 +23478,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(MonthsTicker, _super);
 
       function MonthsTicker() {
-        return MonthsTicker.__super__.constructor.apply(this, arguments);
+        _ref = MonthsTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       MonthsTicker.prototype.type = 'MonthsTicker';
@@ -23385,7 +23533,8 @@ if (typeof define === 'function' && define.amd) {
       __extends(MonthsTickers, _super);
 
       function MonthsTickers() {
-        return MonthsTickers.__super__.constructor.apply(this, arguments);
+        _ref1 = MonthsTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       MonthsTickers.prototype.model = MonthsTicker;
@@ -23401,20 +23550,150 @@ if (typeof define === 'function' && define.amd) {
 
 }).call(this);
 
-//# sourceMappingURL=months_ticker.js.map
-;
+/*
+//@ sourceMappingURL=months_ticker.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('ticking/datetime_ticker',["underscore", "ticking/adaptive_ticker", "ticking/composite_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/util"], function(_, AdaptiveTicker, CompositeTicker, DaysTicker, MonthsTicker, util) {
-    var DatetimeTicker, DatetimeTickers, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR, _ref, _ref1;
+  define('ticking/basic_ticker',["ticking/adaptive_ticker"], function(AdaptiveTicker) {
+    var BasicTicker, BasicTickers, _ref, _ref1;
+    BasicTicker = (function(_super) {
+      __extends(BasicTicker, _super);
+
+      function BasicTicker() {
+        _ref = BasicTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      BasicTicker.prototype.type = 'BasicTicker';
+
+      BasicTicker.prototype.initialize = function(attrs, options) {
+        return BasicTicker.__super__.initialize.call(this, attrs, options);
+      };
+
+      BasicTicker.prototype.defaults = function() {
+        return _.extend(BasicTicker.__super__.defaults.call(this), {
+          mantissas: [1, 2, 5]
+        });
+      };
+
+      return BasicTicker;
+
+    })(AdaptiveTicker.Model);
+    BasicTickers = (function(_super) {
+      __extends(BasicTickers, _super);
+
+      function BasicTickers() {
+        _ref1 = BasicTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      BasicTickers.prototype.model = BasicTicker;
+
+      return BasicTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": BasicTicker,
+      "Collection": new BasicTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=basic_ticker.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/years_ticker',["underscore", "backbone", "ticking/basic_ticker", "ticking/single_interval_ticker", "ticking/util"], function(_, Backbone, BasicTicker, SingleIntervalTicker, util) {
+    var ONE_YEAR, YearsTicker, YearsTickers, last_year_no_later_than, _ref, _ref1;
+    last_year_no_later_than = util.last_year_no_later_than;
+    ONE_YEAR = util.ONE_YEAR;
+    YearsTicker = (function(_super) {
+      __extends(YearsTicker, _super);
+
+      function YearsTicker() {
+        _ref = YearsTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      YearsTicker.prototype.type = 'YearsTicker';
+
+      YearsTicker.prototype.initialize = function(attrs, options) {
+        YearsTicker.__super__.initialize.call(this, attrs, options);
+        this.set('interval', ONE_YEAR);
+        return this.basic_ticker = new BasicTicker.Model();
+      };
+
+      YearsTicker.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
+        var all_ticks, end_year, start_year, ticks_in_range, year, years;
+        start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear();
+        end_year = last_year_no_later_than(new Date(data_high)).getUTCFullYear();
+        years = this.basic_ticker.get_ticks_no_defaults(start_year, end_year, desired_n_ticks);
+        all_ticks = (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = years.length; _i < _len; _i++) {
+            year = years[_i];
+            _results.push(Date.UTC(year, 0, 1));
+          }
+          return _results;
+        })();
+        ticks_in_range = _.filter(all_ticks, (function(tick) {
+          return (data_low <= tick && tick <= data_high);
+        }));
+        return ticks_in_range;
+      };
+
+      YearsTicker.prototype.defaults = function() {
+        return _.extend(YearsTicker.__super__.defaults.call(this), {
+          toString_properties: ['years']
+        });
+      };
+
+      return YearsTicker;
+
+    })(SingleIntervalTicker.Model);
+    YearsTickers = (function(_super) {
+      __extends(YearsTickers, _super);
+
+      function YearsTickers() {
+        _ref1 = YearsTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      YearsTickers.prototype.model = YearsTicker;
+
+      return YearsTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": YearsTicker,
+      "Collection": new YearsTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=years_ticker.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/datetime_ticker',["underscore", "ticking/adaptive_ticker", "ticking/composite_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/years_ticker", "ticking/util"], function(_, AdaptiveTicker, CompositeTicker, DaysTicker, MonthsTicker, YearsTicker, util) {
+    var DatetimeTicker, DatetimeTickers, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, _ref, _ref1;
     ONE_MILLI = util.ONE_MILLI;
     ONE_SECOND = util.ONE_SECOND;
     ONE_MINUTE = util.ONE_MINUTE;
     ONE_HOUR = util.ONE_HOUR;
     ONE_MONTH = util.ONE_MONTH;
-    ONE_YEAR = util.ONE_YEAR;
     DatetimeTicker = (function(_super) {
       __extends(DatetimeTicker, _super);
 
@@ -23424,10 +23703,6 @@ if (typeof define === 'function' && define.amd) {
       }
 
       DatetimeTicker.prototype.type = 'DatetimeTicker';
-
-      DatetimeTicker.prototype.initialize = function(attrs, options) {
-        return DatetimeTicker.__super__.initialize.call(this, attrs, options);
-      };
 
       DatetimeTicker.prototype.defaults = function() {
         return _.extend(DatetimeTicker.__super__.defaults.call(this), {
@@ -23456,19 +23731,14 @@ if (typeof define === 'function' && define.amd) {
             }), new DaysTicker.Model({
               days: [1, 15]
             }), new MonthsTicker.Model({
-              months: _.range(0, 12)
+              months: _.range(0, 12, 1)
             }), new MonthsTicker.Model({
               months: _.range(0, 12, 2)
             }), new MonthsTicker.Model({
               months: _.range(0, 12, 4)
             }), new MonthsTicker.Model({
               months: _.range(0, 12, 6)
-            }), new AdaptiveTicker.Model({
-              mantissas: [1, 2, 5],
-              base: 10,
-              min_interval: ONE_YEAR,
-              max_interval: Infinity
-            })
+            }), new YearsTicker.Model({})
           ]
         });
       };
@@ -24111,7 +24381,7 @@ define("sprintf", (function (global) {
       };
 
       DatetimeTickFormatter.prototype.format = function(ticks, num_labels, char_width, fill_ratio, ticker) {
-        var dt, error, fmt, format, formats, good_formats, hybrid_handled, i, labels, next_format, next_ndx, r, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths, _i, _j, _k, _len, _len1, _ref1, _ref2, _ref3;
+        var error, fmt, format, formats, good_formats, hybrid_handled, i, labels, next_format, next_ndx, r, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths, _i, _j, _k, _len, _len1, _ref1, _ref2, _ref3;
         if (num_labels == null) {
           num_labels = null;
         }
@@ -24163,7 +24433,6 @@ define("sprintf", (function (global) {
         for (_k = 0, _len1 = ticks.length; _k < _len1; _k++) {
           t = ticks[_k];
           try {
-            dt = Date(t);
             tm = _array(t);
             s = _strftime(t, format);
           } catch (_error) {
@@ -24241,12 +24510,13 @@ define("sprintf", (function (global) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/guide/datetime_axis',["backbone", "./axis", "ticking/datetime_ticker", "ticking/datetime_tick_formatter"], function(Backbone, Axis, DatetimeTicker, DatetimeTickFormatter) {
-    var DatetimeAxes, DatetimeAxis, DatetimeAxisView;
+    var DatetimeAxes, DatetimeAxis, DatetimeAxisView, _ref, _ref1, _ref2;
     DatetimeAxisView = (function(_super) {
       __extends(DatetimeAxisView, _super);
 
       function DatetimeAxisView() {
-        return DatetimeAxisView.__super__.constructor.apply(this, arguments);
+        _ref = DatetimeAxisView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       return DatetimeAxisView;
@@ -24256,15 +24526,16 @@ define("sprintf", (function (global) {
       __extends(DatetimeAxis, _super);
 
       function DatetimeAxis() {
-        return DatetimeAxis.__super__.constructor.apply(this, arguments);
+        _ref1 = DatetimeAxis.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       DatetimeAxis.prototype.default_view = DatetimeAxisView;
 
       DatetimeAxis.prototype.type = 'DatetimeAxis';
 
-      DatetimeAxis.prototype.initialize = function(attrs, objects) {
-        DatetimeAxis.__super__.initialize.call(this, attrs, objects);
+      DatetimeAxis.prototype.dinitialize = function(attrs, objects) {
+        DatetimeAxis.__super__.dinitialize.call(this, attrs, objects);
         if (this.get_obj('ticker') == null) {
           this.set_obj('ticker', DatetimeTicker.Collection.create());
         }
@@ -24280,7 +24551,8 @@ define("sprintf", (function (global) {
       __extends(DatetimeAxes, _super);
 
       function DatetimeAxes() {
-        return DatetimeAxes.__super__.constructor.apply(this, arguments);
+        _ref2 = DatetimeAxes.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       DatetimeAxes.prototype.model = DatetimeAxis;
@@ -24297,20 +24569,22 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=datetime_axis.js.map
-;
+/*
+//@ sourceMappingURL=datetime_axis.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/guide/grid',["underscore", "common/safebind", "common/has_parent", "renderer/properties", "common/plot_widget"], function(_, safebind, HasParent, Properties, PlotWidget) {
-    var Grid, GridView, Grids, line_properties;
+    var Grid, GridView, Grids, line_properties, _ref, _ref1, _ref2;
     line_properties = Properties.line_properties;
     GridView = (function(_super) {
       __extends(GridView, _super);
 
       function GridView() {
-        return GridView.__super__.constructor.apply(this, arguments);
+        _ref = GridView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       GridView.prototype.initialize = function(attrs, options) {
@@ -24331,17 +24605,17 @@ define("sprintf", (function (global) {
       };
 
       GridView.prototype._draw_grids = function(ctx) {
-        var i, sx, sy, xs, ys, _i, _j, _ref, _ref1, _ref2, _ref3;
+        var i, sx, sy, xs, ys, _i, _j, _ref1, _ref2, _ref3, _ref4;
         if (!this.grid_props.do_stroke) {
           return;
         }
-        _ref = this.mget('grid_coords'), xs = _ref[0], ys = _ref[1];
+        _ref1 = this.mget('grid_coords'), xs = _ref1[0], ys = _ref1[1];
         this.grid_props.set(ctx, this);
-        for (i = _i = 0, _ref1 = xs.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-          _ref2 = this.plot_view.map_to_screen(xs[i], "data", ys[i], "data"), sx = _ref2[0], sy = _ref2[1];
+        for (i = _i = 0, _ref2 = xs.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
+          _ref3 = this.plot_view.map_to_screen(xs[i], "data", ys[i], "data"), sx = _ref3[0], sy = _ref3[1];
           ctx.beginPath();
           ctx.moveTo(Math.round(sx[0]), Math.round(sy[0]));
-          for (i = _j = 1, _ref3 = sx.length; 1 <= _ref3 ? _j < _ref3 : _j > _ref3; i = 1 <= _ref3 ? ++_j : --_j) {
+          for (i = _j = 1, _ref4 = sx.length; 1 <= _ref4 ? _j < _ref4 : _j > _ref4; i = 1 <= _ref4 ? ++_j : --_j) {
             ctx.lineTo(Math.round(sx[i]), Math.round(sy[i]));
           }
           ctx.stroke();
@@ -24355,7 +24629,8 @@ define("sprintf", (function (global) {
       __extends(Grid, _super);
 
       function Grid() {
-        return Grid.__super__.constructor.apply(this, arguments);
+        _ref1 = Grid.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Grid.prototype.default_view = GridView;
@@ -24371,11 +24646,11 @@ define("sprintf", (function (global) {
       };
 
       Grid.prototype._bounds = function() {
-        var end, i, j, range_bounds, ranges, start, user_bounds, _ref;
+        var end, i, j, range_bounds, ranges, start, user_bounds, _ref2;
         i = this.get('dimension');
         j = (i + 1) % 2;
         ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
-        user_bounds = (_ref = this.get('bounds')) != null ? _ref : 'auto';
+        user_bounds = (_ref2 = this.get('bounds')) != null ? _ref2 : 'auto';
         range_bounds = [ranges[i].get('min'), ranges[i].get('max')];
         if (_.isArray(user_bounds)) {
           start = Math.min(user_bounds[0], user_bounds[1]);
@@ -24397,13 +24672,13 @@ define("sprintf", (function (global) {
       };
 
       Grid.prototype._grid_coords = function() {
-        var N, cmax, cmin, coords, cross_range, dim_i, dim_j, end, i, ii, j, loc, max, min, n, range, ranges, start, ticks, tmp, _i, _j, _ref, _ref1;
+        var N, cmax, cmin, coords, cross_range, dim_i, dim_j, end, i, ii, j, loc, max, min, n, range, ranges, start, ticks, tmp, _i, _j, _ref2, _ref3;
         i = this.get('dimension');
         j = (i + 1) % 2;
         ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
         range = ranges[i];
         cross_range = ranges[j];
-        _ref = this.get('computed_bounds'), start = _ref[0], end = _ref[1];
+        _ref2 = this.get('computed_bounds'), start = _ref2[0], end = _ref2[1];
         tmp = Math.min(start, end);
         end = Math.max(start, end);
         start = tmp;
@@ -24413,7 +24688,7 @@ define("sprintf", (function (global) {
         cmin = cross_range.get('min');
         cmax = cross_range.get('max');
         coords = [[], []];
-        for (ii = _i = 0, _ref1 = ticks.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; ii = 0 <= _ref1 ? ++_i : --_i) {
+        for (ii = _i = 0, _ref3 = ticks.length; 0 <= _ref3 ? _i < _ref3 : _i > _ref3; ii = 0 <= _ref3 ? ++_i : --_i) {
           if (ticks[ii] === min || ticks[ii] === max) {
             continue;
           }
@@ -24451,7 +24726,8 @@ define("sprintf", (function (global) {
       __extends(Grids, _super);
 
       function Grids() {
-        return Grids.__super__.constructor.apply(this, arguments);
+        _ref2 = Grids.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       Grids.prototype.model = Grid;
@@ -24468,69 +24744,21 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=grid.js.map
-;
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  define('ticking/basic_ticker',["ticking/adaptive_ticker"], function(AdaptiveTicker) {
-    var BasicTicker, BasicTickers;
-    BasicTicker = (function(_super) {
-      __extends(BasicTicker, _super);
-
-      function BasicTicker() {
-        return BasicTicker.__super__.constructor.apply(this, arguments);
-      }
-
-      BasicTicker.prototype.type = 'BasicTicker';
-
-      BasicTicker.prototype.initialize = function(attrs, options) {
-        return BasicTicker.__super__.initialize.call(this, attrs, options);
-      };
-
-      BasicTicker.prototype.defaults = function() {
-        return _.extend(BasicTicker.__super__.defaults.call(this), {
-          mantissas: [1, 2, 5]
-        });
-      };
-
-      return BasicTicker;
-
-    })(AdaptiveTicker.Model);
-    BasicTickers = (function(_super) {
-      __extends(BasicTickers, _super);
-
-      function BasicTickers() {
-        return BasicTickers.__super__.constructor.apply(this, arguments);
-      }
-
-      BasicTickers.prototype.model = BasicTicker;
-
-      return BasicTickers;
-
-    })(Backbone.Collection);
-    return {
-      "Model": BasicTicker,
-      "Collection": new BasicTickers()
-    };
-  });
-
-}).call(this);
-
-//# sourceMappingURL=basic_ticker.js.map
-;
+/*
+//@ sourceMappingURL=grid.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('ticking/basic_tick_formatter',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
-    var BasicTickFormatter, BasicTickFormatters;
+    var BasicTickFormatter, BasicTickFormatters, _ref, _ref1;
     BasicTickFormatter = (function(_super) {
       __extends(BasicTickFormatter, _super);
 
       function BasicTickFormatter() {
-        return BasicTickFormatter.__super__.constructor.apply(this, arguments);
+        _ref = BasicTickFormatter.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       BasicTickFormatter.prototype.type = 'BasicTickFormatter';
@@ -24549,7 +24777,7 @@ define("sprintf", (function (global) {
       };
 
       BasicTickFormatter.prototype.format = function(ticks) {
-        var i, is_ok, labels, need_sci, precision, tick, tick_abs, x, zero_eps, _i, _j, _k, _l, _len, _m, _n, _ref, _ref1, _ref2, _ref3, _ref4;
+        var i, is_ok, labels, need_sci, precision, tick, tick_abs, x, zero_eps, _i, _j, _k, _l, _len, _m, _n, _ref1, _ref2, _ref3, _ref4, _ref5;
         if (ticks.length === 0) {
           return [];
         }
@@ -24572,21 +24800,21 @@ define("sprintf", (function (global) {
         if (_.isNumber(precision)) {
           labels = new Array(ticks.length);
           if (need_sci) {
-            for (i = _j = 0, _ref = ticks.length; 0 <= _ref ? _j < _ref : _j > _ref; i = 0 <= _ref ? ++_j : --_j) {
+            for (i = _j = 0, _ref1 = ticks.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
               labels[i] = ticks[i].toExponential(precision);
             }
           } else {
-            for (i = _k = 0, _ref1 = ticks.length; 0 <= _ref1 ? _k < _ref1 : _k > _ref1; i = 0 <= _ref1 ? ++_k : --_k) {
+            for (i = _k = 0, _ref2 = ticks.length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; i = 0 <= _ref2 ? ++_k : --_k) {
               labels[i] = ticks[i].toPrecision(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
             }
           }
           return labels;
         } else if (precision === 'auto') {
           labels = new Array(ticks.length);
-          for (x = _l = _ref2 = this.last_precision; _ref2 <= 15 ? _l <= 15 : _l >= 15; x = _ref2 <= 15 ? ++_l : --_l) {
+          for (x = _l = _ref3 = this.last_precision; _ref3 <= 15 ? _l <= 15 : _l >= 15; x = _ref3 <= 15 ? ++_l : --_l) {
             is_ok = true;
             if (need_sci) {
-              for (i = _m = 0, _ref3 = ticks.length; 0 <= _ref3 ? _m < _ref3 : _m > _ref3; i = 0 <= _ref3 ? ++_m : --_m) {
+              for (i = _m = 0, _ref4 = ticks.length; 0 <= _ref4 ? _m < _ref4 : _m > _ref4; i = 0 <= _ref4 ? ++_m : --_m) {
                 labels[i] = ticks[i].toExponential(x);
                 if (i > 0) {
                   if (labels[i] === labels[i - 1]) {
@@ -24599,7 +24827,7 @@ define("sprintf", (function (global) {
                 break;
               }
             } else {
-              for (i = _n = 0, _ref4 = ticks.length; 0 <= _ref4 ? _n < _ref4 : _n > _ref4; i = 0 <= _ref4 ? ++_n : --_n) {
+              for (i = _n = 0, _ref5 = ticks.length; 0 <= _ref5 ? _n < _ref5 : _n > _ref5; i = 0 <= _ref5 ? ++_n : --_n) {
                 labels[i] = ticks[i].toPrecision(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
                 if (i > 0) {
                   if (labels[i] === labels[i - 1]) {
@@ -24637,7 +24865,8 @@ define("sprintf", (function (global) {
       __extends(BasicTickFormatters, _super);
 
       function BasicTickFormatters() {
-        return BasicTickFormatters.__super__.constructor.apply(this, arguments);
+        _ref1 = BasicTickFormatters.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       BasicTickFormatters.prototype.model = BasicTickFormatter;
@@ -24653,19 +24882,21 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=basic_tick_formatter.js.map
-;
+/*
+//@ sourceMappingURL=basic_tick_formatter.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/guide/linear_axis',["underscore", "backbone", "./axis", "ticking/basic_ticker", "ticking/basic_tick_formatter"], function(_, Backbone, Axis, BasicTicker, BasicTickFormatter) {
-    var LinearAxes, LinearAxis, LinearAxisView;
+    var LinearAxes, LinearAxis, LinearAxisView, _ref, _ref1, _ref2;
     LinearAxisView = (function(_super) {
       __extends(LinearAxisView, _super);
 
       function LinearAxisView() {
-        return LinearAxisView.__super__.constructor.apply(this, arguments);
+        _ref = LinearAxisView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       return LinearAxisView;
@@ -24675,15 +24906,16 @@ define("sprintf", (function (global) {
       __extends(LinearAxis, _super);
 
       function LinearAxis() {
-        return LinearAxis.__super__.constructor.apply(this, arguments);
+        _ref1 = LinearAxis.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       LinearAxis.prototype.default_view = LinearAxisView;
 
       LinearAxis.prototype.type = 'LinearAxis';
 
-      LinearAxis.prototype.initialize = function(attrs, objects) {
-        LinearAxis.__super__.initialize.call(this, attrs, objects);
+      LinearAxis.prototype.dinitialize = function(attrs, objects) {
+        LinearAxis.__super__.dinitialize.call(this, attrs, objects);
         if (this.get_obj('ticker') == null) {
           this.set_obj('ticker', BasicTicker.Collection.create());
         }
@@ -24699,7 +24931,8 @@ define("sprintf", (function (global) {
       __extends(LinearAxes, _super);
 
       function LinearAxes() {
-        return LinearAxes.__super__.constructor.apply(this, arguments);
+        _ref2 = LinearAxes.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       LinearAxes.prototype.model = LinearAxis;
@@ -24716,19 +24949,21 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=linear_axis.js.map
-;
+/*
+//@ sourceMappingURL=linear_axis.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('renderer/overlay/box_selection',["underscore", "common/has_parent", "common/plot_widget"], function(_, HasParent, PlotWidget) {
-    var BoxSelection, BoxSelectionView, BoxSelections;
+    var BoxSelection, BoxSelectionView, BoxSelections, _ref, _ref1, _ref2;
     BoxSelectionView = (function(_super) {
       __extends(BoxSelectionView, _super);
 
       function BoxSelectionView() {
-        return BoxSelectionView.__super__.constructor.apply(this, arguments);
+        _ref = BoxSelectionView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       BoxSelectionView.prototype.initialize = function(options) {
@@ -24806,7 +25041,8 @@ define("sprintf", (function (global) {
       __extends(BoxSelection, _super);
 
       function BoxSelection() {
-        return BoxSelection.__super__.constructor.apply(this, arguments);
+        _ref1 = BoxSelection.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       BoxSelection.prototype.default_view = BoxSelectionView;
@@ -24827,7 +25063,8 @@ define("sprintf", (function (global) {
       __extends(BoxSelections, _super);
 
       function BoxSelections() {
-        return BoxSelections.__super__.constructor.apply(this, arguments);
+        _ref2 = BoxSelections.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       BoxSelections.prototype.model = BoxSelection;
@@ -24844,19 +25081,21 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=box_selection.js.map
-;
+/*
+//@ sourceMappingURL=box_selection.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('source/column_data_source',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
-    var ColumnDataSource, ColumnDataSources;
+    var ColumnDataSource, ColumnDataSources, _ref, _ref1;
     ColumnDataSource = (function(_super) {
       __extends(ColumnDataSource, _super);
 
       function ColumnDataSource() {
-        return ColumnDataSource.__super__.constructor.apply(this, arguments);
+        _ref = ColumnDataSource.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ColumnDataSource.prototype.type = 'ColumnDataSource';
@@ -24868,14 +25107,14 @@ define("sprintf", (function (global) {
       };
 
       ColumnDataSource.prototype.getcolumn = function(colname) {
-        var _ref;
-        return (_ref = this.get('data')[colname]) != null ? _ref : null;
+        var _ref1;
+        return (_ref1 = this.get('data')[colname]) != null ? _ref1 : null;
       };
 
       ColumnDataSource.prototype.getcolumn_with_default = function(colname, default_value) {
         " returns the column, with any undefineds replaced with default";
-        var _ref;
-        return (_ref = this.get('data')[colname]) != null ? _ref : null;
+        var _ref1;
+        return (_ref1 = this.get('data')[colname]) != null ? _ref1 : null;
       };
 
       ColumnDataSource.prototype.get_length = function() {
@@ -24889,11 +25128,11 @@ define("sprintf", (function (global) {
       };
 
       ColumnDataSource.prototype.datapoints = function() {
-        var data, field, fields, i, point, points, _i, _j, _len, _ref;
+        var data, field, fields, i, point, points, _i, _j, _len, _ref1;
         data = this.get('data');
         fields = _.keys(data);
         points = [];
-        for (i = _i = 0, _ref = data[fields[0]].length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+        for (i = _i = 0, _ref1 = data[fields[0]].length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           point = {};
           for (_j = 0, _len = fields.length; _j < _len; _j++) {
             field = fields[_j];
@@ -24915,7 +25154,8 @@ define("sprintf", (function (global) {
       __extends(ColumnDataSources, _super);
 
       function ColumnDataSources() {
-        return ColumnDataSources.__super__.constructor.apply(this, arguments);
+        _ref1 = ColumnDataSources.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       ColumnDataSources.prototype.model = ColumnDataSource;
@@ -24931,15 +25171,16 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=column_data_source.js.map
-;
+/*
+//@ sourceMappingURL=column_data_source.js.map
+*/;
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('source/server_data_source',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
-    var ServerDataSource, ServerDataSources, ajax_throttle;
+    var ServerDataSource, ServerDataSources, ajax_throttle, _ref, _ref1;
     ajax_throttle = function(func) {
       var busy, callback, has_callback, resp;
       busy = false;
@@ -24977,7 +25218,8 @@ define("sprintf", (function (global) {
         this.heatmap_update = __bind(this.heatmap_update, this);
         this.line1d_update = __bind(this.line1d_update, this);
         this.initialize = __bind(this.initialize, this);
-        return ServerDataSource.__super__.constructor.apply(this, arguments);
+        _ref = ServerDataSource.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ServerDataSource.prototype.type = 'ServerDataSource';
@@ -24988,12 +25230,12 @@ define("sprintf", (function (global) {
       };
 
       ServerDataSource.prototype.stoplistening_for_updates = function(column_data_source) {
-        var entry, _i, _len, _ref, _results;
+        var entry, _i, _len, _ref1, _results;
         if (this.callbacks[column_data_source.get('id')]) {
-          _ref = this.callbacks[column_data_source.get('id')];
+          _ref1 = this.callbacks[column_data_source.get('id')];
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            entry = _ref[_i];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            entry = _ref1[_i];
             _results.push(this.stopListening.apply(this, entry));
           }
           return _results;
@@ -25001,15 +25243,14 @@ define("sprintf", (function (global) {
       };
 
       ServerDataSource.prototype.listen_for_line1d_updates = function(column_data_source, domain_range, screen_range, primary_column, domain_name, columns) {
-        var callback, throttle;
+        var callback, throttle,
+          _this = this;
         this.stoplistening_for_updates(column_data_source);
         this.line1d_update(column_data_source, domain_range, screen_range, primary_column, domain_name, columns);
         throttle = _.throttle(this.line1d_update, 300);
-        callback = (function(_this) {
-          return function() {
-            return throttle(column_data_source, domain_range, screen_range, primary_column, domain_name, columns);
-          };
-        })(this);
+        callback = function() {
+          return throttle(column_data_source, domain_range, screen_range, primary_column, domain_name, columns);
+        };
         this.listenTo(screen_range, 'change', callback);
         this.listenTo(domain_range, 'change', callback);
         return this.callbacks[column_data_source.get('id')] = [[screen_range, 'change', callback], [domain_range, 'change', callback]];
@@ -25056,18 +25297,17 @@ define("sprintf", (function (global) {
       };
 
       ServerDataSource.prototype.listen_for_heatmap_updates = function(column_data_source, x_data_range, y_data_range, x_screen_range, y_screen_range) {
-        var callback, range, _i, _len, _ref;
+        var callback, range, _i, _len, _ref1,
+          _this = this;
         this.stoplistening_for_updates(column_data_source);
-        callback = ajax_throttle((function(_this) {
-          return function() {
-            return _this.heatmap_update(column_data_source, x_data_range, y_data_range, x_screen_range, y_screen_range);
-          };
-        })(this));
+        callback = ajax_throttle(function() {
+          return _this.heatmap_update(column_data_source, x_data_range, y_data_range, x_screen_range, y_screen_range);
+        });
         callback();
         this.callbacks[column_data_source.get('id')] = [];
-        _ref = [x_data_range, y_data_range, x_screen_range, y_screen_range];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          range = _ref[_i];
+        _ref1 = [x_data_range, y_data_range, x_screen_range, y_screen_range];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          range = _ref1[_i];
           this.listenTo(range, 'change', callback);
           this.callbacks[column_data_source.get('id')].push([range, 'change', callback]);
         }
@@ -25122,7 +25362,8 @@ define("sprintf", (function (global) {
       __extends(ServerDataSources, _super);
 
       function ServerDataSources() {
-        return ServerDataSources.__super__.constructor.apply(this, arguments);
+        _ref1 = ServerDataSources.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       ServerDataSources.prototype.model = ServerDataSource;
@@ -25138,19 +25379,21 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=server_data_source.js.map
-;
+/*
+//@ sourceMappingURL=server_data_source.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/tool',["underscore", "common/plot_widget", "common/has_parent"], function(_, PlotWidget, HasParent) {
-    var Tool, ToolView;
+    var Tool, ToolView, _ref, _ref1;
     ToolView = (function(_super) {
       __extends(ToolView, _super);
 
       function ToolView() {
-        return ToolView.__super__.constructor.apply(this, arguments);
+        _ref = ToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ToolView.prototype.initialize = function(options) {
@@ -25158,7 +25401,8 @@ define("sprintf", (function (global) {
       };
 
       ToolView.prototype.bind_bokeh_events = function() {
-        var eventSink, evgen, evgen_options, evgen_options2;
+        var eventSink, evgen, evgen_options, evgen_options2,
+          _this = this;
         eventSink = this.plot_view.eventSink;
         evgen_options = {
           eventBasename: this.cid
@@ -25166,16 +25410,14 @@ define("sprintf", (function (global) {
         evgen_options2 = _.extend(evgen_options, this.evgen_options);
         evgen = new this.eventGeneratorClass(evgen_options2);
         evgen.bind_bokeh_events(this.plot_view, eventSink);
-        _.each(this.tool_events, (function(_this) {
-          return function(handler_f, event_name) {
-            var full_event_name, wrap;
-            full_event_name = "" + _this.cid + ":" + event_name;
-            wrap = function(e) {
-              return _this[handler_f](e);
-            };
-            return eventSink.on(full_event_name, wrap);
+        _.each(this.tool_events, function(handler_f, event_name) {
+          var full_event_name, wrap;
+          full_event_name = "" + _this.cid + ":" + event_name;
+          wrap = function(e) {
+            return _this[handler_f](e);
           };
-        })(this));
+          return eventSink.on(full_event_name, wrap);
+        });
         this.evgen = evgen;
         return {
           render: function() {}
@@ -25189,7 +25431,8 @@ define("sprintf", (function (global) {
       __extends(Tool, _super);
 
       function Tool() {
-        return Tool.__super__.constructor.apply(this, arguments);
+        _ref1 = Tool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       Tool.prototype.display_defaults = function() {
@@ -25209,8 +25452,9 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=tool.js.map
-;
+/*
+//@ sourceMappingURL=tool.js.map
+*/;
 (function() {
   define('tool/event_generators',[], function() {
     var ButtonEventGenerator, OnePointWheelEventGenerator, TwoPointEventGenerator, set_bokehXY;
@@ -25234,136 +25478,117 @@ define("sprintf", (function (global) {
       }
 
       TwoPointEventGenerator.prototype.bind_bokeh_events = function(plotview, eventSink) {
-        var toolName;
+        var toolName,
+          _this = this;
         toolName = this.toolName;
         this.plotview = plotview;
         this.eventSink = eventSink;
-        this.plotview.moveCallbacks.push((function(_this) {
-          return function(e, x, y) {
-            if (!_this.dragging) {
-              return;
-            }
-            if (!_this.tool_active) {
-              return;
-            }
+        this.plotview.moveCallbacks.push(function(e, x, y) {
+          if (!_this.dragging) {
+            return;
+          }
+          if (!_this.tool_active) {
+            return;
+          }
+          set_bokehXY(e);
+          if (!_this.basepoint_set) {
+            _this.dragging = true;
+            _this.basepoint_set = true;
+            return eventSink.trigger("" + toolName + ":SetBasepoint", e);
+          } else {
+            eventSink.trigger("" + toolName + ":UpdatingMouseMove", e);
+            e.preventDefault();
+            return e.stopPropagation();
+          }
+        });
+        this.plotview.moveCallbacks.push(function(e, x, y) {
+          var inner_range_horizontal, inner_range_vertical, xend, xstart, yend, ystart;
+          if (_this.dragging) {
             set_bokehXY(e);
-            if (!_this.basepoint_set) {
-              _this.dragging = true;
-              _this.basepoint_set = true;
-              return eventSink.trigger("" + toolName + ":SetBasepoint", e);
+            inner_range_horizontal = _this.plotview.view_state.get('inner_range_horizontal');
+            inner_range_vertical = _this.plotview.view_state.get('inner_range_vertical');
+            x = _this.plotview.view_state.sx_to_vx(e.bokehX);
+            y = _this.plotview.view_state.sy_to_vy(e.bokehY);
+            if (_this.restrict_to_innercanvas) {
+              xstart = inner_range_horizontal.get('start');
+              xend = inner_range_horizontal.get('end');
+              ystart = inner_range_vertical.get('start');
+              yend = inner_range_vertical.get('end');
             } else {
-              eventSink.trigger("" + toolName + ":UpdatingMouseMove", e);
-              e.preventDefault();
-              return e.stopPropagation();
+              xstart = 0;
+              xend = _this.plotview.view_state.get('outer_width');
+              ystart = 0;
+              yend = _this.plotview.view_state.get('outer_height');
             }
-          };
-        })(this));
-        this.plotview.moveCallbacks.push((function(_this) {
-          return function(e, x, y) {
-            var inner_range_horizontal, inner_range_vertical, xend, xstart, yend, ystart;
-            if (_this.dragging) {
-              set_bokehXY(e);
-              inner_range_horizontal = _this.plotview.view_state.get('inner_range_horizontal');
-              inner_range_vertical = _this.plotview.view_state.get('inner_range_vertical');
-              x = _this.plotview.view_state.sx_to_vx(e.bokehX);
-              y = _this.plotview.view_state.sy_to_vy(e.bokehY);
-              if (_this.restrict_to_innercanvas) {
-                xstart = inner_range_horizontal.get('start');
-                xend = inner_range_horizontal.get('end');
-                ystart = inner_range_vertical.get('start');
-                yend = inner_range_vertical.get('end');
-              } else {
-                xstart = 0;
-                xend = _this.plotview.view_state.get('outer_width');
-                ystart = 0;
-                yend = _this.plotview.view_state.get('outer_height');
-              }
-              if (x < xstart || x > xend) {
-                _this._stop_drag(e);
-                return false;
-              }
-              if (y < ystart || y > yend) {
-                _this._stop_drag(e);
-                return false;
-              }
+            if (x < xstart || x > xend) {
+              _this._stop_drag(e);
+              return false;
             }
-          };
-        })(this));
-        $(document).bind('keydown', (function(_this) {
-          return function(e) {
-            if (e.keyCode === 27) {
-              return eventSink.trigger("clear_active_tool");
+            if (y < ystart || y > yend) {
+              _this._stop_drag(e);
+              return false;
             }
-          };
-        })(this));
-        $(document).bind('keyup', (function(_this) {
-          return function(e) {
-            if (!e[_this.options.keyName]) {
-              return _this._stop_drag(e);
-            }
-          };
-        })(this));
-        this.plotview.canvas_wrapper.bind('mousedown', (function(_this) {
-          return function(e) {
-            var start;
-            start = false;
-            if (_this.button_activated || _this.eventSink.active === _this.toolName) {
+          }
+        });
+        $(document).bind('keydown', function(e) {
+          if (e.keyCode === 27) {
+            return eventSink.trigger("clear_active_tool");
+          }
+        });
+        $(document).bind('keyup', function(e) {
+          if (!e[_this.options.keyName]) {
+            return _this._stop_drag(e);
+          }
+        });
+        this.plotview.canvas_wrapper.bind('mousedown', function(e) {
+          var start;
+          start = false;
+          if (_this.button_activated || _this.eventSink.active === _this.toolName) {
+            start = true;
+          } else if (!_this.eventSink.active) {
+            if (_this.options.keyName === null && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
               start = true;
-            } else if (!_this.eventSink.active) {
-              if (_this.options.keyName === null && !e.ctrlKey && !e.altKey && !e.metaKey && !e.shiftKey) {
-                start = true;
-              } else if (e[_this.options.keyName] === true) {
-                start = true;
-              }
+            } else if (e[_this.options.keyName] === true) {
+              start = true;
             }
-            if (start) {
-              _this._start_drag();
-              return false;
-            }
-          };
-        })(this));
-        this.plotview.canvas_wrapper.bind('mouseup', (function(_this) {
-          return function(e) {
-            if (_this.button_activated) {
-              _this._stop_drag(e);
-              return false;
-            }
-          };
-        })(this));
-        this.plotview.canvas_wrapper.bind('mouseleave', (function(_this) {
-          return function(e) {
-            if (_this.button_activated) {
-              _this._stop_drag(e);
-              return false;
-            }
-          };
-        })(this));
+          }
+          if (start) {
+            _this._start_drag();
+            return false;
+          }
+        });
+        this.plotview.canvas_wrapper.bind('mouseup', function(e) {
+          if (_this.button_activated) {
+            _this._stop_drag(e);
+            return false;
+          }
+        });
+        this.plotview.canvas_wrapper.bind('mouseleave', function(e) {
+          if (_this.button_activated) {
+            _this._stop_drag(e);
+            return false;
+          }
+        });
         this.$tool_button = $("<button class='btn btn-small'> " + this.options.buttonText + " </button>");
         this.plotview;
         this.plotview.$el.find('.button_bar').append(this.$tool_button);
-        this.$tool_button.click((function(_this) {
-          return function() {
-            if (_this.button_activated) {
-              return eventSink.trigger("clear_active_tool");
-            } else {
-              return eventSink.trigger("active_tool", toolName);
-            }
-          };
-        })(this));
-        eventSink.on("" + toolName + ":deactivated", (function(_this) {
-          return function() {
-            _this.tool_active = false;
-            _this.button_activated = false;
-            return _this.$tool_button.removeClass('active');
-          };
-        })(this));
-        eventSink.on("" + toolName + ":activated", (function(_this) {
-          return function() {
-            _this.tool_active = true;
-            _this.$tool_button.addClass('active');
-            return _this.button_activated = true;
-          };
-        })(this));
+        this.$tool_button.click(function() {
+          if (_this.button_activated) {
+            return eventSink.trigger("clear_active_tool");
+          } else {
+            return eventSink.trigger("active_tool", toolName);
+          }
+        });
+        eventSink.on("" + toolName + ":deactivated", function() {
+          _this.tool_active = false;
+          _this.button_activated = false;
+          return _this.$tool_button.removeClass('active');
+        });
+        eventSink.on("" + toolName + ":activated", function() {
+          _this.tool_active = true;
+          _this.$tool_button.addClass('active');
+          return _this.button_activated = true;
+        });
         return eventSink;
       };
 
@@ -25418,50 +25643,41 @@ define("sprintf", (function (global) {
       }
 
       OnePointWheelEventGenerator.prototype.bind_bokeh_events = function(plotview, eventSink) {
-        var no_scroll, restore_scroll, toolName;
+        var no_scroll, restore_scroll, toolName,
+          _this = this;
         toolName = this.toolName;
         this.plotview = plotview;
         this.eventSink = eventSink;
-        this.plotview.canvas_wrapper.bind("mousewheel", (function(_this) {
-          return function(e, delta, dX, dY) {
-            if (_this.tool_active || (!_this.eventSink.active && e.shiftKey)) {
-              set_bokehXY(e);
-              e.delta = delta;
-              eventSink.trigger("" + toolName + ":zoom", e);
-              e.preventDefault();
-              return e.stopPropagation();
-            }
-          };
-        })(this));
-        $(document).bind('keydown', (function(_this) {
-          return function(e) {
-            if (e.keyCode === 27) {
-              return eventSink.trigger("clear_active_tool");
-            }
-          };
-        })(this));
-        this.plotview.$el.bind("mousein", (function(_this) {
-          return function(e) {
+        this.plotview.canvas_wrapper.bind("mousewheel", function(e, delta, dX, dY) {
+          if (_this.tool_active || (!_this.eventSink.active && e.shiftKey)) {
+            set_bokehXY(e);
+            e.delta = delta;
+            eventSink.trigger("" + toolName + ":zoom", e);
+            e.preventDefault();
+            return e.stopPropagation();
+          }
+        });
+        $(document).bind('keydown', function(e) {
+          if (e.keyCode === 27) {
             return eventSink.trigger("clear_active_tool");
-          };
-        })(this));
-        this.plotview.$el.bind("mouseover", (function(_this) {
-          return function(e) {
-            return _this.mouseover_count += 1;
-          };
-        })(this));
+          }
+        });
+        this.plotview.$el.bind("mousein", function(e) {
+          return eventSink.trigger("clear_active_tool");
+        });
+        this.plotview.$el.bind("mouseover", function(e) {
+          return _this.mouseover_count += 1;
+        });
         this.$tool_button = $("<button class='btn btn-small'> " + this.options.buttonText + " </button>");
         this.plotview.$el.find('.button_bar').append(this.$tool_button);
-        this.$tool_button.click((function(_this) {
-          return function() {
-            if (_this.button_activated) {
-              return eventSink.trigger("clear_active_tool");
-            } else {
-              eventSink.trigger("active_tool", toolName);
-              return _this.button_activated = true;
-            }
-          };
-        })(this));
+        this.$tool_button.click(function() {
+          if (_this.button_activated) {
+            return eventSink.trigger("clear_active_tool");
+          } else {
+            eventSink.trigger("active_tool", toolName);
+            return _this.button_activated = true;
+          }
+        });
         no_scroll = function(el) {
           el.setAttribute("old_overflow", el.style.overflow);
           el.style.overflow = "hidden";
@@ -25479,20 +25695,16 @@ define("sprintf", (function (global) {
             return restore_scroll(el.parentNode);
           }
         };
-        eventSink.on("" + toolName + ":deactivated", (function(_this) {
-          return function() {
-            _this.tool_active = false;
-            _this.button_activated = false;
-            _this.$tool_button.removeClass('active');
-            return document.body.style.overflow = _this.old_overflow;
-          };
-        })(this));
-        eventSink.on("" + toolName + ":activated", (function(_this) {
-          return function() {
-            _this.tool_active = true;
-            return _this.$tool_button.addClass('active');
-          };
-        })(this));
+        eventSink.on("" + toolName + ":deactivated", function() {
+          _this.tool_active = false;
+          _this.button_activated = false;
+          _this.$tool_button.removeClass('active');
+          return document.body.style.overflow = _this.old_overflow;
+        });
+        eventSink.on("" + toolName + ":activated", function() {
+          _this.tool_active = true;
+          return _this.$tool_button.addClass('active');
+        });
         return eventSink;
       };
 
@@ -25512,34 +25724,29 @@ define("sprintf", (function (global) {
       }
 
       ButtonEventGenerator.prototype.bind_bokeh_events = function(plotview, eventSink) {
-        var no_scroll, restore_scroll, toolName;
+        var no_scroll, restore_scroll, toolName,
+          _this = this;
         toolName = this.toolName;
         this.plotview = plotview;
         this.eventSink = eventSink;
-        $(document).bind('keydown', (function(_this) {
-          return function(e) {
-            if (e.keyCode === 27) {
-              return eventSink.trigger("clear_active_tool");
-            }
-          };
-        })(this));
-        this.plotview.$el.bind("mouseover", (function(_this) {
-          return function(e) {
-            return _this.mouseover_count += 1;
-          };
-        })(this));
+        $(document).bind('keydown', function(e) {
+          if (e.keyCode === 27) {
+            return eventSink.trigger("clear_active_tool");
+          }
+        });
+        this.plotview.$el.bind("mouseover", function(e) {
+          return _this.mouseover_count += 1;
+        });
         this.$tool_button = $("<button class='btn btn-small'> " + this.options.buttonText + " </button>");
         this.plotview.$el.find('.button_bar').append(this.$tool_button);
-        this.$tool_button.click((function(_this) {
-          return function() {
-            if (_this.button_activated) {
-              return eventSink.trigger("clear_active_tool");
-            } else {
-              eventSink.trigger("active_tool", toolName);
-              return _this.button_activated = true;
-            }
-          };
-        })(this));
+        this.$tool_button.click(function() {
+          if (_this.button_activated) {
+            return eventSink.trigger("clear_active_tool");
+          } else {
+            eventSink.trigger("active_tool", toolName);
+            return _this.button_activated = true;
+          }
+        });
         no_scroll = function(el) {
           el.setAttribute("old_overflow", el.style.overflow);
           el.style.overflow = "hidden";
@@ -25557,20 +25764,16 @@ define("sprintf", (function (global) {
             return restore_scroll(el.parentNode);
           }
         };
-        eventSink.on("" + toolName + ":deactivated", (function(_this) {
-          return function() {
-            _this.tool_active = false;
-            _this.button_activated = false;
-            _this.$tool_button.removeClass('active');
-            return document.body.style.overflow = _this.old_overflow;
-          };
-        })(this));
-        eventSink.on("" + toolName + ":activated", (function(_this) {
-          return function() {
-            _this.tool_active = true;
-            return _this.$tool_button.addClass('active');
-          };
-        })(this));
+        eventSink.on("" + toolName + ":deactivated", function() {
+          _this.tool_active = false;
+          _this.button_activated = false;
+          _this.$tool_button.removeClass('active');
+          return document.body.style.overflow = _this.old_overflow;
+        });
+        eventSink.on("" + toolName + ":activated", function() {
+          _this.tool_active = true;
+          return _this.$tool_button.addClass('active');
+        });
         return eventSink;
       };
 
@@ -25590,20 +25793,22 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=event_generators.js.map
-;
+/*
+//@ sourceMappingURL=event_generators.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/box_select_tool',["underscore", "backbone", "./tool", "./event_generators"], function(_, Backbone, Tool, EventGenerators) {
-    var BoxSelectTool, BoxSelectToolView, BoxSelectTools, TwoPointEventGenerator;
+    var BoxSelectTool, BoxSelectToolView, BoxSelectTools, TwoPointEventGenerator, _ref, _ref1, _ref2;
     TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator;
     BoxSelectToolView = (function(_super) {
       __extends(BoxSelectToolView, _super);
 
       function BoxSelectToolView() {
-        return BoxSelectToolView.__super__.constructor.apply(this, arguments);
+        _ref = BoxSelectToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       BoxSelectToolView.prototype.initialize = function(options) {
@@ -25612,12 +25817,12 @@ define("sprintf", (function (global) {
       };
 
       BoxSelectToolView.prototype.bind_bokeh_events = function() {
-        var renderer, rendererview, _i, _len, _ref, _results;
+        var renderer, rendererview, _i, _len, _ref1, _results;
         BoxSelectToolView.__super__.bind_bokeh_events.call(this);
-        _ref = this.mget_obj('renderers');
+        _ref1 = this.mget_obj('renderers');
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          renderer = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          renderer = _ref1[_i];
           rendererview = this.plot_view.renderers[renderer.id];
           this.listenTo(rendererview.xrange(), 'change', this.select_callback);
           this.listenTo(rendererview.yrange(), 'change', this.select_callback);
@@ -25649,8 +25854,8 @@ define("sprintf", (function (global) {
       };
 
       BoxSelectToolView.prototype.view_coords = function(sx, sy) {
-        var vx, vy, _ref;
-        _ref = [this.plot_view.view_state.sx_to_vx(sx), this.plot_view.view_state.sy_to_vy(sy)], vx = _ref[0], vy = _ref[1];
+        var vx, vy, _ref1;
+        _ref1 = [this.plot_view.view_state.sx_to_vx(sx), this.plot_view.view_state.sy_to_vy(sy)], vx = _ref1[0], vy = _ref1[1];
         return [vx, vy];
       };
 
@@ -25661,10 +25866,10 @@ define("sprintf", (function (global) {
       };
 
       BoxSelectToolView.prototype._start_selecting = function(e) {
-        var vx, vy, _ref;
+        var vx, vy, _ref1;
         this.plot_view.pause();
         this.trigger('startselect');
-        _ref = this.view_coords(e.bokehX, e.bokehY), vx = _ref[0], vy = _ref[1];
+        _ref1 = this.view_coords(e.bokehX, e.bokehY), vx = _ref1[0], vy = _ref1[1];
         this.mset({
           'start_vx': vx,
           'start_vy': vy,
@@ -25692,13 +25897,13 @@ define("sprintf", (function (global) {
       };
 
       BoxSelectToolView.prototype._selecting = function(e, x_, y_) {
-        var vx, vy, _ref, _ref1;
-        _ref = this.view_coords(e.bokehX, e.bokehY), vx = _ref[0], vy = _ref[1];
+        var vx, vy, _ref1, _ref2;
+        _ref1 = this.view_coords(e.bokehX, e.bokehY), vx = _ref1[0], vy = _ref1[1];
         this.mset({
           'current_vx': vx,
           'current_vy': vy
         });
-        _ref1 = this._get_selection_range(), this.xrange = _ref1[0], this.yrange = _ref1[1];
+        _ref2 = this._get_selection_range(), this.xrange = _ref2[0], this.yrange = _ref2[1];
         this.trigger('boxselect', this.xrange, this.yrange);
         if (this.select_every_mousemove) {
           this._select_data();
@@ -25712,7 +25917,7 @@ define("sprintf", (function (global) {
       };
 
       BoxSelectToolView.prototype._select_data = function() {
-        var datasource, datasource_id, datasource_selections, datasources, ds, geometry, k, renderer, selected, v, _i, _j, _len, _len1, _ref, _ref1;
+        var datasource, datasource_id, datasource_selections, datasources, ds, geometry, k, renderer, selected, v, _i, _j, _len, _len1, _ref1, _ref2;
         if (!this.basepoint_set) {
           return;
         }
@@ -25725,15 +25930,15 @@ define("sprintf", (function (global) {
         };
         datasources = {};
         datasource_selections = {};
-        _ref = this.mget_obj('renderers');
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          renderer = _ref[_i];
+        _ref1 = this.mget_obj('renderers');
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          renderer = _ref1[_i];
           datasource = renderer.get_obj('data_source');
           datasources[datasource.id] = datasource;
         }
-        _ref1 = this.mget_obj('renderers');
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          renderer = _ref1[_j];
+        _ref2 = this.mget_obj('renderers');
+        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+          renderer = _ref2[_j];
           datasource_id = renderer.get_obj('data_source').id;
           _.setdefault(datasource_selections, datasource_id, []);
           selected = this.plot_view.renderers[renderer.id].hit_test(geometry);
@@ -25761,7 +25966,8 @@ define("sprintf", (function (global) {
       __extends(BoxSelectTool, _super);
 
       function BoxSelectTool() {
-        return BoxSelectTool.__super__.constructor.apply(this, arguments);
+        _ref1 = BoxSelectTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       BoxSelectTool.prototype.default_view = BoxSelectToolView;
@@ -25789,7 +25995,8 @@ define("sprintf", (function (global) {
       __extends(BoxSelectTools, _super);
 
       function BoxSelectTools() {
-        return BoxSelectTools.__super__.constructor.apply(this, arguments);
+        _ref2 = BoxSelectTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       BoxSelectTools.prototype.model = BoxSelectTool;
@@ -25806,20 +26013,22 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=box_select_tool.js.map
-;
+/*
+//@ sourceMappingURL=box_select_tool.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/box_zoom_tool',["underscore", "backbone", "./tool", "./event_generators"], function(_, Backbone, Tool, EventGenerators) {
-    var BoxZoomTool, BoxZoomToolView, BoxZoomTools, TwoPointEventGenerator;
+    var BoxZoomTool, BoxZoomToolView, BoxZoomTools, TwoPointEventGenerator, _ref, _ref1, _ref2;
     TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator;
     BoxZoomToolView = (function(_super) {
       __extends(BoxZoomToolView, _super);
 
       function BoxZoomToolView() {
-        return BoxZoomToolView.__super__.constructor.apply(this, arguments);
+        _ref = BoxZoomToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       BoxZoomToolView.prototype.initialize = function(options) {
@@ -25853,16 +26062,16 @@ define("sprintf", (function (global) {
       };
 
       BoxZoomToolView.prototype.view_coords = function(sx, sy) {
-        var vx, vy, _ref;
-        _ref = [this.plot_view.view_state.sx_to_vx(sx), this.plot_view.view_state.sy_to_vy(sy)], vx = _ref[0], vy = _ref[1];
+        var vx, vy, _ref1;
+        _ref1 = [this.plot_view.view_state.sx_to_vx(sx), this.plot_view.view_state.sy_to_vy(sy)], vx = _ref1[0], vy = _ref1[1];
         return [vx, vy];
       };
 
       BoxZoomToolView.prototype._start_selecting = function(e) {
-        var vx, vy, _ref;
+        var vx, vy, _ref1;
         this.plot_view.pause();
         this.trigger('startselect');
-        _ref = this.view_coords(e.bokehX, e.bokehY), vx = _ref[0], vy = _ref[1];
+        _ref1 = this.view_coords(e.bokehX, e.bokehY), vx = _ref1[0], vy = _ref1[1];
         this.mset({
           'start_vx': vx,
           'start_vy': vy,
@@ -25890,13 +26099,13 @@ define("sprintf", (function (global) {
       };
 
       BoxZoomToolView.prototype._selecting = function(e, x_, y_) {
-        var vx, vy, _ref, _ref1;
-        _ref = this.view_coords(e.bokehX, e.bokehY), vx = _ref[0], vy = _ref[1];
+        var vx, vy, _ref1, _ref2;
+        _ref1 = this.view_coords(e.bokehX, e.bokehY), vx = _ref1[0], vy = _ref1[1];
         this.mset({
           'current_vx': vx,
           'current_vy': vy
         });
-        _ref1 = this._get_selection_range(), this.xrange = _ref1[0], this.yrange = _ref1[1];
+        _ref2 = this._get_selection_range(), this.xrange = _ref2[0], this.yrange = _ref2[1];
         this.trigger('boxselect', this.xrange, this.yrange);
         this.plot_view.render_overlays(true);
         return null;
@@ -25910,12 +26119,12 @@ define("sprintf", (function (global) {
       };
 
       BoxZoomToolView.prototype._select_data = function() {
-        var xend, xstart, yend, ystart, zoom_info, _ref, _ref1;
+        var xend, xstart, yend, ystart, zoom_info, _ref1, _ref2;
         if (!this.basepoint_set) {
           return;
         }
-        _ref = this.plot_view.xmapper.v_map_from_target([this.xrange[0], this.xrange[1]]), xstart = _ref[0], xend = _ref[1];
-        _ref1 = this.plot_view.ymapper.v_map_from_target([this.yrange[0], this.yrange[1]]), ystart = _ref1[0], yend = _ref1[1];
+        _ref1 = this.plot_view.xmapper.v_map_from_target([this.xrange[0], this.xrange[1]]), xstart = _ref1[0], xend = _ref1[1];
+        _ref2 = this.plot_view.ymapper.v_map_from_target([this.yrange[0], this.yrange[1]]), ystart = _ref2[0], yend = _ref2[1];
         zoom_info = {
           xr: {
             start: xstart,
@@ -25936,7 +26145,8 @@ define("sprintf", (function (global) {
       __extends(BoxZoomTool, _super);
 
       function BoxZoomTool() {
-        return BoxZoomTool.__super__.constructor.apply(this, arguments);
+        _ref1 = BoxZoomTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       BoxZoomTool.prototype.default_view = BoxZoomToolView;
@@ -25964,7 +26174,8 @@ define("sprintf", (function (global) {
       __extends(BoxZoomTools, _super);
 
       function BoxZoomTools() {
-        return BoxZoomTools.__super__.constructor.apply(this, arguments);
+        _ref2 = BoxZoomTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       BoxZoomTools.prototype.model = BoxZoomTool;
@@ -25981,20 +26192,22 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=box_zoom_tool.js.map
-;
+/*
+//@ sourceMappingURL=box_zoom_tool.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/crosshair_tool',["underscore", "backbone", "./tool", "./event_generators", "sprintf"], function(_, Backbone, Tool, EventGenerators, sprintf) {
-    var CrosshairTool, CrosshairToolView, CrosshairTools, TwoPointEventGenerator;
+    var CrosshairTool, CrosshairToolView, CrosshairTools, TwoPointEventGenerator, _ref, _ref1, _ref2;
     TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator;
     CrosshairToolView = (function(_super) {
       __extends(CrosshairToolView, _super);
 
       function CrosshairToolView() {
-        return CrosshairToolView.__super__.constructor.apply(this, arguments);
+        _ref = CrosshairToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       CrosshairToolView.prototype.initialize = function(options) {
@@ -26077,15 +26290,15 @@ define("sprintf", (function (global) {
       };
 
       CrosshairToolView.prototype._set_base_point = function(e) {
-        var _ref;
-        _ref = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref[0], this.y = _ref[1];
+        var _ref1;
+        _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref1[0], this.y = _ref1[1];
         return null;
       };
 
       CrosshairToolView.prototype._drag = function(e) {
-        var data_x, data_y, _ref;
+        var data_x, data_y, _ref1;
         this.plot_view.pause();
-        _ref = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref[0], this.y = _ref[1];
+        _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref1[0], this.y = _ref1[1];
         data_x = sprintf("%.4f", this.plot_view.xmapper.map_from_target(x));
         data_y = sprintf("%.4f", this.plot_view.ymapper.map_from_target(y));
         this.popup.text("x: " + data_x + " y: " + data_y);
@@ -26102,7 +26315,8 @@ define("sprintf", (function (global) {
       __extends(CrosshairTool, _super);
 
       function CrosshairTool() {
-        return CrosshairTool.__super__.constructor.apply(this, arguments);
+        _ref1 = CrosshairTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       CrosshairTool.prototype.default_view = CrosshairToolView;
@@ -26120,7 +26334,8 @@ define("sprintf", (function (global) {
       __extends(CrosshairTools, _super);
 
       function CrosshairTools() {
-        return CrosshairTools.__super__.constructor.apply(this, arguments);
+        _ref2 = CrosshairTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       CrosshairTools.prototype.model = CrosshairTool;
@@ -26137,19 +26352,21 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=crosshair_tool.js.map
-;
+/*
+//@ sourceMappingURL=crosshair_tool.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/data_range_box_select_tool',["underscore", "backbone", "./box_select_tool"], function(_, Backbone, BoxSelectTool) {
-    var DataRangeBoxSelectTool, DataRangeBoxSelectToolView, DataRangeBoxSelectTools;
+    var DataRangeBoxSelectTool, DataRangeBoxSelectToolView, DataRangeBoxSelectTools, _ref, _ref1, _ref2;
     DataRangeBoxSelectToolView = (function(_super) {
       __extends(DataRangeBoxSelectToolView, _super);
 
       function DataRangeBoxSelectToolView() {
-        return DataRangeBoxSelectToolView.__super__.constructor.apply(this, arguments);
+        _ref = DataRangeBoxSelectToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       DataRangeBoxSelectToolView.prototype.bind_bokeh_events = function() {
@@ -26157,9 +26374,9 @@ define("sprintf", (function (global) {
       };
 
       DataRangeBoxSelectToolView.prototype._select_data = function() {
-        var xend, xstart, yend, ystart, _ref, _ref1;
-        _ref = this.plot_view.mapper.map_from_target(this.xrange[0], this.yrange[0]), xstart = _ref[0], ystart = _ref[1];
-        _ref1 = this.plot_view.mapper.map_from_target(this.xrange[1], this.yrange[1]), xend = _ref1[0], yend = _ref1[1];
+        var xend, xstart, yend, ystart, _ref1, _ref2;
+        _ref1 = this.plot_view.mapper.map_from_target(this.xrange[0], this.yrange[0]), xstart = _ref1[0], ystart = _ref1[1];
+        _ref2 = this.plot_view.mapper.map_from_target(this.xrange[1], this.yrange[1]), xend = _ref2[0], yend = _ref2[1];
         this.mset('xselect', [xstart, xend]);
         this.mset('yselect', [ystart, yend]);
         return this.model.save();
@@ -26172,7 +26389,8 @@ define("sprintf", (function (global) {
       __extends(DataRangeBoxSelectTool, _super);
 
       function DataRangeBoxSelectTool() {
-        return DataRangeBoxSelectTool.__super__.constructor.apply(this, arguments);
+        _ref1 = DataRangeBoxSelectTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       DataRangeBoxSelectTool.prototype.default_view = DataRangeBoxSelectToolView;
@@ -26186,7 +26404,8 @@ define("sprintf", (function (global) {
       __extends(DataRangeBoxSelectTools, _super);
 
       function DataRangeBoxSelectTools() {
-        return DataRangeBoxSelectTools.__super__.constructor.apply(this, arguments);
+        _ref2 = DataRangeBoxSelectTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       DataRangeBoxSelectTools.prototype.model = DataRangeBoxSelectToolView;
@@ -26207,14 +26426,15 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=data_range_box_select_tool.js.map
-;
+/*
+//@ sourceMappingURL=data_range_box_select_tool.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/embed_tool',["underscore", "backbone", "./tool", "./event_generators"], function(_, Backbone, Tool, EventGenerators) {
-    var ButtonEventGenerator, EmbedTool, EmbedToolView, EmbedTools, escapeHTML;
+    var ButtonEventGenerator, EmbedTool, EmbedToolView, EmbedTools, escapeHTML, _ref, _ref1, _ref2;
     ButtonEventGenerator = EventGenerators.ButtonEventGenerator;
     escapeHTML = function(unsafe_str) {
       return unsafe_str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\"/g, '&quot;').replace(/\'/g, '&#39;');
@@ -26223,7 +26443,8 @@ define("sprintf", (function (global) {
       __extends(EmbedToolView, _super);
 
       function EmbedToolView() {
-        return EmbedToolView.__super__.constructor.apply(this, arguments);
+        _ref = EmbedToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       EmbedToolView.prototype.initialize = function(options) {
@@ -26244,7 +26465,8 @@ define("sprintf", (function (global) {
       };
 
       EmbedToolView.prototype._activated = function(e) {
-        var baseurl, doc_apikey, doc_id, modal, model_id, script_inject_escaped;
+        var baseurl, doc_apikey, doc_id, modal, model_id, script_inject_escaped,
+          _this = this;
         console.log("EmbedToolView._activated");
         window.tool_view = this;
         model_id = this.plot_model.get('id');
@@ -26254,11 +26476,9 @@ define("sprintf", (function (global) {
         script_inject_escaped = escapeHTML(this.plot_model.get('script_inject_snippet'));
         modal = "<div id=\"embedModal\" class=\"bokeh\">\n  <div  class=\"modal\" role=\"dialog\" aria-labelledby=\"embedLabel\" aria-hidden=\"true\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h3 id=\"dataConfirmLabel\"> HTML Embed code</h3></div><div class=\"modal-body\">\n      <div class=\"modal-body\">\n        " + script_inject_escaped + "\n      </div>\n    </div>\n    <div class=\"modal-footer\">\n      <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n    </div>\n  </div>\n</div>";
         $('body').append(modal);
-        $('#embedModal > .modal').on('hidden', (function(_this) {
-          return function() {
-            return _this.plot_view.eventSink.trigger("clear_active_tool");
-          };
-        })(this));
+        $('#embedModal > .modal').on('hidden', function() {
+          return _this.plot_view.eventSink.trigger("clear_active_tool");
+        });
         return $('#embedModal > .modal').modal({
           show: true
         });
@@ -26276,7 +26496,8 @@ define("sprintf", (function (global) {
       __extends(EmbedTool, _super);
 
       function EmbedTool() {
-        return EmbedTool.__super__.constructor.apply(this, arguments);
+        _ref1 = EmbedTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       EmbedTool.prototype.default_view = EmbedToolView;
@@ -26290,7 +26511,8 @@ define("sprintf", (function (global) {
       __extends(EmbedTools, _super);
 
       function EmbedTools() {
-        return EmbedTools.__super__.constructor.apply(this, arguments);
+        _ref2 = EmbedTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       EmbedTools.prototype.model = EmbedTool;
@@ -26311,14 +26533,15 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=embed_tool.js.map
-;
+/*
+//@ sourceMappingURL=embed_tool.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/hover_tool',["underscore", "backbone", "sprintf", "./tool"], function(_, Backbone, sprintf, Tool) {
-    var HoverTool, HoverToolView, HoverTools, _color_to_hex, _format_number;
+    var HoverTool, HoverToolView, HoverTools, _color_to_hex, _format_number, _ref, _ref1, _ref2;
     _color_to_hex = function(color) {
       var blue, digits, green, red, rgb;
       if (color.substr(0, 1) === '#') {
@@ -26347,7 +26570,8 @@ define("sprintf", (function (global) {
       __extends(HoverToolView, _super);
 
       function HoverToolView() {
-        return HoverToolView.__super__.constructor.apply(this, arguments);
+        _ref = HoverToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       HoverToolView.prototype.initialize = function(options) {
@@ -26358,68 +26582,61 @@ define("sprintf", (function (global) {
       };
 
       HoverToolView.prototype.bind_bokeh_events = function() {
-        var tool_name;
+        var tool_name,
+          _this = this;
         tool_name = "hover_tool";
         this.tool_button = $("<button class='btn btn-small'> Hover </button>");
         this.plot_view.$el.find('.button_bar').append(this.tool_button);
-        this.tool_button.click((function(_this) {
-          return function() {
-            if (_this.active) {
-              return _this.plot_view.eventSink.trigger("clear_active_tool");
-            } else {
-              return _this.plot_view.eventSink.trigger("active_tool", tool_name);
-            }
-          };
-        })(this));
-        this.plot_view.eventSink.on("" + tool_name + ":deactivated", (function(_this) {
-          return function() {
-            _this.active = false;
-            _this.tool_button.removeClass('active');
-            return _this.div.hide();
-          };
-        })(this));
-        this.plot_view.eventSink.on("" + tool_name + ":activated", (function(_this) {
-          return function() {
-            _this.active = true;
-            return _this.tool_button.addClass('active');
-          };
-        })(this));
-        this.plot_view.canvas.bind("mousemove", (function(_this) {
-          return function(e) {
-            var irh, irv, left, offset, top, vx, vy, xend, xstart, yend, ystart, _ref;
-            if (!_this.active) {
-              return;
-            }
-            offset = $(e.currentTarget).offset();
-            left = offset != null ? offset.left : 0;
-            top = offset != null ? offset.top : 0;
-            e.bokehX = e.pageX - left;
-            e.bokehY = e.pageY - top;
-            _ref = _this.view_coords(e.bokehX, e.bokehY), vx = _ref[0], vy = _ref[1];
-            irh = _this.plot_view.view_state.get('inner_range_horizontal');
-            irv = _this.plot_view.view_state.get('inner_range_vertical');
-            xstart = irh.get('start');
-            xend = irh.get('end');
-            ystart = irv.get('start');
-            yend = irv.get('end');
-            if (vx < xstart || vx > xend || vy < ystart || vy > yend) {
-              _this.div.hide();
-              return;
-            }
-            return _this._select(vx, vy, e);
-          };
-        })(this));
+        this.tool_button.click(function() {
+          if (_this.active) {
+            return _this.plot_view.eventSink.trigger("clear_active_tool");
+          } else {
+            return _this.plot_view.eventSink.trigger("active_tool", tool_name);
+          }
+        });
+        this.plot_view.eventSink.on("" + tool_name + ":deactivated", function() {
+          _this.active = false;
+          _this.tool_button.removeClass('active');
+          return _this.div.hide();
+        });
+        this.plot_view.eventSink.on("" + tool_name + ":activated", function() {
+          _this.active = true;
+          return _this.tool_button.addClass('active');
+        });
+        this.plot_view.canvas.bind("mousemove", function(e) {
+          var irh, irv, left, offset, top, vx, vy, xend, xstart, yend, ystart, _ref1;
+          if (!_this.active) {
+            return;
+          }
+          offset = $(e.currentTarget).offset();
+          left = offset != null ? offset.left : 0;
+          top = offset != null ? offset.top : 0;
+          e.bokehX = e.pageX - left;
+          e.bokehY = e.pageY - top;
+          _ref1 = _this.view_coords(e.bokehX, e.bokehY), vx = _ref1[0], vy = _ref1[1];
+          irh = _this.plot_view.view_state.get('inner_range_horizontal');
+          irv = _this.plot_view.view_state.get('inner_range_vertical');
+          xstart = irh.get('start');
+          xend = irh.get('end');
+          ystart = irv.get('start');
+          yend = irv.get('end');
+          if (vx < xstart || vx > xend || vy < ystart || vy > yend) {
+            _this.div.hide();
+            return;
+          }
+          return _this._select(vx, vy, e);
+        });
         return this.plot_view.canvas_wrapper.css('cursor', 'crosshair');
       };
 
       HoverToolView.prototype.view_coords = function(sx, sy) {
-        var vx, vy, _ref;
-        _ref = [this.plot_view.view_state.sx_to_vx(sx), this.plot_view.view_state.sy_to_vy(sy)], vx = _ref[0], vy = _ref[1];
+        var vx, vy, _ref1;
+        _ref1 = [this.plot_view.view_state.sx_to_vx(sx), this.plot_view.view_state.sy_to_vy(sy)], vx = _ref1[0], vy = _ref1[1];
         return [vx, vy];
       };
 
       HoverToolView.prototype._select = function(vx, vy, e) {
-        var colname, color, column, column_name, datasource, datasource_id, datasource_selections, datasources, ds, dsvalue, geometry, hex, i, label, match, opts, renderer, row, selected, span, swatch, table, td, unused, value, x, y, _i, _j, _len, _len1, _ref, _ref1, _ref2, _ref3, _ref4;
+        var colname, color, column, column_name, datasource, datasource_id, datasource_selections, datasources, ds, dsvalue, geometry, hex, i, label, match, opts, renderer, row, selected, span, swatch, table, td, unused, value, x, y, _i, _j, _len, _len1, _ref1, _ref2, _ref3, _ref4, _ref5;
         geometry = {
           type: 'point',
           vx: vx,
@@ -26429,15 +26646,15 @@ define("sprintf", (function (global) {
         y = this.plot_view.ymapper.map_from_target(vy);
         datasources = {};
         datasource_selections = {};
-        _ref = this.mget_obj('renderers');
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          renderer = _ref[_i];
+        _ref1 = this.mget_obj('renderers');
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          renderer = _ref1[_i];
           datasource = renderer.get_obj('data_source');
           datasources[datasource.id] = datasource;
         }
-        _ref1 = this.mget_obj('renderers');
-        for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-          renderer = _ref1[_j];
+        _ref2 = this.mget_obj('renderers');
+        for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
+          renderer = _ref2[_j];
           datasource_id = renderer.get_obj('data_source').id;
           _.setdefault(datasource_selections, datasource_id, []);
           selected = this.plot_view.renderers[renderer.id].hit_test(geometry);
@@ -26449,14 +26666,14 @@ define("sprintf", (function (global) {
             i = selected[0];
             this.div.empty();
             table = $('<table></table>');
-            _ref2 = this.mget("tooltips");
-            for (label in _ref2) {
-              value = _ref2[label];
+            _ref3 = this.mget("tooltips");
+            for (label in _ref3) {
+              value = _ref3[label];
               row = $("<tr></tr>");
               row.append($("<td class='bokeh_tooltip_row_label'>" + label + ": </td>"));
               td = $("<td class='bokeh_tooltip_row_value'></td>");
               if (value.indexOf("$color") >= 0) {
-                _ref3 = value.match(/\$color(\[.*\])?:(\w*)/), match = _ref3[0], opts = _ref3[1], colname = _ref3[2];
+                _ref4 = value.match(/\$color(\[.*\])?:(\w*)/), match = _ref4[0], opts = _ref4[1], colname = _ref4[2];
                 column = ds.getcolumn(colname);
                 if (column == null) {
                   span = $("<span>" + colname + " unknown</span>");
@@ -26492,7 +26709,7 @@ define("sprintf", (function (global) {
                 value = value.replace("$sx", "" + e.bokehX);
                 value = value.replace("$sy", "" + e.bokehY);
                 while (value.indexOf("@") >= 0) {
-                  _ref4 = value.match(/(@)(\w*)/), match = _ref4[0], unused = _ref4[1], column_name = _ref4[2];
+                  _ref5 = value.match(/(@)(\w*)/), match = _ref5[0], unused = _ref5[1], column_name = _ref5[2];
                   column = ds.getcolumn(column_name);
                   if (column == null) {
                     value = value.replace(column_name, "" + column_name + " unknown");
@@ -26534,7 +26751,8 @@ define("sprintf", (function (global) {
       __extends(HoverTool, _super);
 
       function HoverTool() {
-        return HoverTool.__super__.constructor.apply(this, arguments);
+        _ref1 = HoverTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       HoverTool.prototype.default_view = HoverToolView;
@@ -26545,11 +26763,11 @@ define("sprintf", (function (global) {
         var r;
         HoverTool.__super__.dinitialize.call(this, attrs, options);
         return this.set('renderers', (function() {
-          var _i, _len, _ref, _results;
-          _ref = this.get_obj('plot').get('renderers');
+          var _i, _len, _ref2, _results;
+          _ref2 = this.get_obj('plot').get('renderers');
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            r = _ref[_i];
+          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+            r = _ref2[_i];
             if (r.type === "Glyph") {
               _results.push(r);
             }
@@ -26580,7 +26798,8 @@ define("sprintf", (function (global) {
       __extends(HoverTools, _super);
 
       function HoverTools() {
-        return HoverTools.__super__.constructor.apply(this, arguments);
+        _ref2 = HoverTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       HoverTools.prototype.model = HoverTool;
@@ -26597,25 +26816,46 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=hover_tool.js.map
-;
+/*
+//@ sourceMappingURL=hover_tool.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/pan_tool',["underscore", "backbone", "./tool", "./event_generators"], function(_, Backbone, Tool, EventGenerators) {
-    var PanTool, PanToolView, PanTools, TwoPointEventGenerator;
+    var PanTool, PanToolView, PanTools, TwoPointEventGenerator, _ref, _ref1, _ref2;
     TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator;
     window.render_count = 0;
     PanToolView = (function(_super) {
       __extends(PanToolView, _super);
 
       function PanToolView() {
-        return PanToolView.__super__.constructor.apply(this, arguments);
+        _ref = PanToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       PanToolView.prototype.initialize = function(options) {
-        return PanToolView.__super__.initialize.call(this, options);
+        var dims;
+        PanToolView.__super__.initialize.call(this, options);
+        dims = this.mget('dimensions');
+        if (dims.length === 0) {
+          return console.log("WARN: pan tool given empty dimensions");
+        } else if (dims.length === 1) {
+          if (dims[0] === 'width') {
+            return this.evgen_options.buttonText = "Pan (x-axis)";
+          } else if (dims[0] === 'height') {
+            return this.evgen_options.buttonText = "Pan (y-axis)";
+          } else {
+            return console.log("WARN: pan tool given unrecognized dimensions: " + dims);
+          }
+        } else if (dims.length === 2) {
+          if (dims.indexOf('width') < 0 || dims.indexOf('height') < 0) {
+            return console.log("WARN: pan tool given unrecognized dimensions: " + dims);
+          }
+        } else {
+          return console.log("WARN: pan tool given more than two dimensions: " + dims);
+        }
       };
 
       PanToolView.prototype.bind_bokeh_events = function() {
@@ -26640,33 +26880,48 @@ define("sprintf", (function (global) {
       };
 
       PanToolView.prototype.mouse_coords = function(e, x, y) {
-        var x_, y_, _ref;
-        _ref = [this.plot_view.view_state.sx_to_vx(x), this.plot_view.view_state.sy_to_vy(y)], x_ = _ref[0], y_ = _ref[1];
+        var x_, y_, _ref1;
+        _ref1 = [this.plot_view.view_state.sx_to_vx(x), this.plot_view.view_state.sy_to_vy(y)], x_ = _ref1[0], y_ = _ref1[1];
         return [x_, y_];
       };
 
       PanToolView.prototype._set_base_point = function(e) {
-        var _ref;
-        _ref = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref[0], this.y = _ref[1];
+        var _ref1;
+        _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref1[0], this.y = _ref1[1];
         return null;
       };
 
       PanToolView.prototype._drag = function(e) {
-        var pan_info, sx_high, sx_low, sy_high, sy_low, x, xdiff, xend, xr, xstart, y, ydiff, yend, yr, ystart, _ref, _ref1;
-        _ref = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref[0], y = _ref[1];
+        var dims, pan_info, sdx, sdy, sx_high, sx_low, sy_high, sy_low, x, xdiff, xend, xr, xstart, y, ydiff, yend, yr, ystart, _ref1, _ref2;
+        _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref1[0], y = _ref1[1];
         xdiff = x - this.x;
         ydiff = y - this.y;
-        _ref1 = [x, y], this.x = _ref1[0], this.y = _ref1[1];
+        _ref2 = [x, y], this.x = _ref2[0], this.y = _ref2[1];
         xr = this.plot_view.view_state.get('inner_range_horizontal');
         sx_low = xr.get('start') - xdiff;
         sx_high = xr.get('end') - xdiff;
         yr = this.plot_view.view_state.get('inner_range_vertical');
         sy_low = yr.get('start') - ydiff;
         sy_high = yr.get('end') - ydiff;
-        xstart = this.plot_view.xmapper.map_from_target(sx_low);
-        xend = this.plot_view.xmapper.map_from_target(sx_high);
-        ystart = this.plot_view.ymapper.map_from_target(sy_low);
-        yend = this.plot_view.ymapper.map_from_target(sy_high);
+        dims = this.mget('dimensions');
+        if (dims.indexOf('width') > -1) {
+          xstart = this.plot_view.xmapper.map_from_target(sx_low);
+          xend = this.plot_view.xmapper.map_from_target(sx_high);
+          sdx = -xdiff;
+        } else {
+          xstart = this.plot_view.xmapper.map_from_target(xr.get('start'));
+          xend = this.plot_view.xmapper.map_from_target(xr.get('end'));
+          sdx = 0;
+        }
+        if (dims.indexOf('height') > -1) {
+          ystart = this.plot_view.ymapper.map_from_target(sy_low);
+          yend = this.plot_view.ymapper.map_from_target(sy_high);
+          sdy = ydiff;
+        } else {
+          ystart = this.plot_view.ymapper.map_from_target(yr.get('start'));
+          yend = this.plot_view.ymapper.map_from_target(yr.get('end'));
+          sdy = 0;
+        }
         pan_info = {
           xr: {
             start: xstart,
@@ -26676,8 +26931,8 @@ define("sprintf", (function (global) {
             start: ystart,
             end: yend
           },
-          sdx: -xdiff,
-          sdy: ydiff
+          sdx: sdx,
+          sdy: sdy
         };
         this.plot_view.update_range(pan_info);
         return null;
@@ -26690,7 +26945,8 @@ define("sprintf", (function (global) {
       __extends(PanTool, _super);
 
       function PanTool() {
-        return PanTool.__super__.constructor.apply(this, arguments);
+        _ref1 = PanTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       PanTool.prototype.default_view = PanToolView;
@@ -26699,7 +26955,7 @@ define("sprintf", (function (global) {
 
       PanTool.prototype.defaults = function() {
         return {
-          dimensions: []
+          dimensions: ["width", "height"]
         };
       };
 
@@ -26714,7 +26970,8 @@ define("sprintf", (function (global) {
       __extends(PanTools, _super);
 
       function PanTools() {
-        return PanTools.__super__.constructor.apply(this, arguments);
+        _ref2 = PanTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       PanTools.prototype.model = PanTool;
@@ -26731,8 +26988,9 @@ define("sprintf", (function (global) {
 
 }).call(this);
 
-//# sourceMappingURL=pan_tool.js.map
-;
+/*
+//@ sourceMappingURL=pan_tool.js.map
+*/;
 /* =========================================================
  * bootstrap-modal.js v2.0.4
  * http://twitter.github.com/bootstrap/javascript.html#modals
@@ -26938,13 +27196,14 @@ define('modal',["jquery"], function($) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/preview_save_tool',["underscore", "jquery", "modal", "backbone", "common/bulk_save", "./tool", "./event_generators"], function(_, $, $$1, Backbone, bulk_save, Tool, EventGenerators) {
-    var ButtonEventGenerator, PreviewSaveTool, PreviewSaveToolView, PreviewSaveTools;
+    var ButtonEventGenerator, PreviewSaveTool, PreviewSaveToolView, PreviewSaveTools, _ref, _ref1, _ref2;
     ButtonEventGenerator = EventGenerators.ButtonEventGenerator;
     PreviewSaveToolView = (function(_super) {
       __extends(PreviewSaveToolView, _super);
 
       function PreviewSaveToolView() {
-        return PreviewSaveToolView.__super__.constructor.apply(this, arguments);
+        _ref = PreviewSaveToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       PreviewSaveToolView.prototype.initialize = function(options) {
@@ -26965,16 +27224,15 @@ define('modal',["jquery"], function($) {
       };
 
       PreviewSaveToolView.prototype._activated = function(e) {
-        var data_uri, modal;
+        var data_uri, modal,
+          _this = this;
         data_uri = this.plot_view.canvas[0].toDataURL();
         this.plot_model.set('png', this.plot_view.canvas[0].toDataURL());
         modal = "<div id='previewModal' class='bokeh'>\n  <div class=\"modal\" role=\"dialog\" aria-labelledby=\"previewLabel\" aria-hidden=\"true\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n      <h3 id=\"dataConfirmLabel\">Image Preview (right click to save)</h3>\n    </div>\n    <div class=\"modal-body\">\n      <img src=\"" + data_uri + "\" style=\"max-height: 300px; max-width: 400px\">\n    </div>\n    <div class=\"modal-footer\">\n      <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n    </div>\n  </div>\n</div>";
         $('body').append(modal);
-        $('#previewModal .modal').on('hidden', (function(_this) {
-          return function() {
-            return _this.plot_view.eventSink.trigger("clear_active_tool");
-          };
-        })(this));
+        $('#previewModal .modal').on('hidden', function() {
+          return _this.plot_view.eventSink.trigger("clear_active_tool");
+        });
         return $('#previewModal > .modal').modal({
           show: true
         });
@@ -26992,7 +27250,8 @@ define('modal',["jquery"], function($) {
       __extends(PreviewSaveTool, _super);
 
       function PreviewSaveTool() {
-        return PreviewSaveTool.__super__.constructor.apply(this, arguments);
+        _ref1 = PreviewSaveTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       PreviewSaveTool.prototype.default_view = PreviewSaveToolView;
@@ -27010,7 +27269,8 @@ define('modal',["jquery"], function($) {
       __extends(PreviewSaveTools, _super);
 
       function PreviewSaveTools() {
-        return PreviewSaveTools.__super__.constructor.apply(this, arguments);
+        _ref2 = PreviewSaveTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       PreviewSaveTools.prototype.model = PreviewSaveTool;
@@ -27027,20 +27287,22 @@ define('modal',["jquery"], function($) {
 
 }).call(this);
 
-//# sourceMappingURL=preview_save_tool.js.map
-;
+/*
+//@ sourceMappingURL=preview_save_tool.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/reset_tool',["underscore", "backbone", "./tool", "./event_generators"], function(_, Backbone, Tool, EventGenerators) {
-    var ButtonEventGenerator, ResetTool, ResetToolView, ResetTools;
+    var ButtonEventGenerator, ResetTool, ResetToolView, ResetTools, _ref, _ref1, _ref2;
     ButtonEventGenerator = EventGenerators.ButtonEventGenerator;
     ResetToolView = (function(_super) {
       __extends(ResetToolView, _super);
 
       function ResetToolView() {
-        return ResetToolView.__super__.constructor.apply(this, arguments);
+        _ref = ResetToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ResetToolView.prototype.initialize = function(options) {
@@ -27060,12 +27322,11 @@ define('modal',["jquery"], function($) {
       };
 
       ResetToolView.prototype._activated = function(e) {
+        var _this = this;
         this.plot_view.update_range();
-        return _.delay(((function(_this) {
-          return function() {
-            return _this.plot_view.eventSink.trigger("clear_active_tool");
-          };
-        })(this)), 100);
+        return _.delay((function() {
+          return _this.plot_view.eventSink.trigger("clear_active_tool");
+        }), 100);
       };
 
       return ResetToolView;
@@ -27075,7 +27336,8 @@ define('modal',["jquery"], function($) {
       __extends(ResetTool, _super);
 
       function ResetTool() {
-        return ResetTool.__super__.constructor.apply(this, arguments);
+        _ref1 = ResetTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       ResetTool.prototype.default_view = ResetToolView;
@@ -27089,7 +27351,8 @@ define('modal',["jquery"], function($) {
       __extends(ResetTools, _super);
 
       function ResetTools() {
-        return ResetTools.__super__.constructor.apply(this, arguments);
+        _ref2 = ResetTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       ResetTools.prototype.model = ResetTool;
@@ -27110,20 +27373,22 @@ define('modal',["jquery"], function($) {
 
 }).call(this);
 
-//# sourceMappingURL=reset_tool.js.map
-;
+/*
+//@ sourceMappingURL=reset_tool.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/resize_tool',["underscore", "backbone", "./tool", "./event_generators"], function(_, Backbone, Tool, EventGenerators) {
-    var ResizeTool, ResizeToolView, ResizeTools, TwoPointEventGenerator;
+    var ResizeTool, ResizeToolView, ResizeTools, TwoPointEventGenerator, _ref, _ref1, _ref2;
     TwoPointEventGenerator = EventGenerators.TwoPointEventGenerator;
     ResizeToolView = (function(_super) {
       __extends(ResizeToolView, _super);
 
       function ResizeToolView() {
-        return ResizeToolView.__super__.constructor.apply(this, arguments);
+        _ref = ResizeToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ResizeToolView.prototype.initialize = function(options) {
@@ -27206,18 +27471,18 @@ define('modal',["jquery"], function($) {
       };
 
       ResizeToolView.prototype._set_base_point = function(e) {
-        var _ref;
-        _ref = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref[0], this.y = _ref[1];
+        var _ref1;
+        _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), this.x = _ref1[0], this.y = _ref1[1];
         return null;
       };
 
       ResizeToolView.prototype._drag = function(e) {
-        var ch, cw, x, xdiff, y, ydiff, _ref, _ref1;
+        var ch, cw, x, xdiff, y, ydiff, _ref1, _ref2;
         this.plot_view.pause();
-        _ref = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref[0], y = _ref[1];
+        _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref1[0], y = _ref1[1];
         xdiff = x - this.x;
         ydiff = y - this.y;
-        _ref1 = [x, y], this.x = _ref1[0], this.y = _ref1[1];
+        _ref2 = [x, y], this.x = _ref2[0], this.y = _ref2[1];
         ch = this.plot_view.view_state.get('outer_height');
         cw = this.plot_view.view_state.get('outer_width');
         this.popup.text("width: " + cw + " height: " + ch);
@@ -27249,7 +27514,8 @@ define('modal',["jquery"], function($) {
       __extends(ResizeTool, _super);
 
       function ResizeTool() {
-        return ResizeTool.__super__.constructor.apply(this, arguments);
+        _ref1 = ResizeTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       ResizeTool.prototype.default_view = ResizeToolView;
@@ -27267,7 +27533,8 @@ define('modal',["jquery"], function($) {
       __extends(ResizeTools, _super);
 
       function ResizeTools() {
-        return ResizeTools.__super__.constructor.apply(this, arguments);
+        _ref2 = ResizeTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       ResizeTools.prototype.model = ResizeTool;
@@ -27284,30 +27551,51 @@ define('modal',["jquery"], function($) {
 
 }).call(this);
 
-//# sourceMappingURL=resize_tool.js.map
-;
+/*
+//@ sourceMappingURL=resize_tool.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/wheel_zoom_tool',["underscore", "backbone", "./tool", "./event_generators"], function(_, Backbone, Tool, EventGenerators) {
-    var OnePointWheelEventGenerator, WheelZoomTool, WheelZoomToolView, WheelZoomTools;
+    var OnePointWheelEventGenerator, WheelZoomTool, WheelZoomToolView, WheelZoomTools, _ref, _ref1, _ref2;
     OnePointWheelEventGenerator = EventGenerators.OnePointWheelEventGenerator;
     WheelZoomToolView = (function(_super) {
       __extends(WheelZoomToolView, _super);
 
       function WheelZoomToolView() {
-        return WheelZoomToolView.__super__.constructor.apply(this, arguments);
+        _ref = WheelZoomToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       WheelZoomToolView.prototype.initialize = function(options) {
-        return WheelZoomToolView.__super__.initialize.call(this, options);
+        var dims;
+        WheelZoomToolView.__super__.initialize.call(this, options);
+        dims = this.mget('dimensions');
+        if (dims.length === 0) {
+          return console.log("WARN: wheel zoom tool given empty dimensions");
+        } else if (dims.length === 1) {
+          if (dims[0] === 'width') {
+            return this.evgen_options.buttonText = "Wheel Zoom (x-axis)";
+          } else if (dims[0] === 'height') {
+            return this.evgen_options.buttonText = "Wheel Zoom (y-axis)";
+          } else {
+            return console.log("WARN: wheel tool given unrecognized dimensions: " + dims);
+          }
+        } else if (dims.length === 2) {
+          if (dims.indexOf('width') < 0 || dims.indexOf('height') < 0) {
+            return console.log("WARN: pan tool given unrecognized dimensions: " + dims);
+          }
+        } else {
+          return console.log("WARN: wheel tool given more than two dimensions: " + dims);
+        }
       };
 
       WheelZoomToolView.prototype.eventGeneratorClass = OnePointWheelEventGenerator;
 
       WheelZoomToolView.prototype.evgen_options = {
-        buttonText: "WheelZoom"
+        buttonText: "Wheel Zoom"
       };
 
       WheelZoomToolView.prototype.tool_events = {
@@ -27315,17 +27603,17 @@ define('modal',["jquery"], function($) {
       };
 
       WheelZoomToolView.prototype.mouse_coords = function(e, x, y) {
-        var x_, y_, _ref;
-        _ref = [this.plot_view.view_state.sx_to_vx(x), this.plot_view.view_state.sy_to_vy(y)], x_ = _ref[0], y_ = _ref[1];
+        var x_, y_, _ref1;
+        _ref1 = [this.plot_view.view_state.sx_to_vx(x), this.plot_view.view_state.sy_to_vy(y)], x_ = _ref1[0], y_ = _ref1[1];
         return [x_, y_];
       };
 
       WheelZoomToolView.prototype._zoom = function(e) {
-        var delta, factor, screenX, screenY, speed, sx_high, sx_low, sy_high, sy_low, x, xend, xr, xstart, y, yend, yr, ystart, zoom_info, _ref, _ref1, _ref2;
+        var delta, dims, factor, screenX, screenY, speed, sx_high, sx_low, sy_high, sy_low, x, xend, xr, xstart, y, yend, yr, ystart, zoom_info, _ref1, _ref2, _ref3, _ref4, _ref5;
         delta = e.originalEvent.wheelDelta;
         screenX = e.bokehX;
         screenY = e.bokehY;
-        _ref = this.mouse_coords(e, screenX, screenY), x = _ref[0], y = _ref[1];
+        _ref1 = this.mouse_coords(e, screenX, screenY), x = _ref1[0], y = _ref1[1];
         speed = this.mget('speed');
         factor = speed * delta;
         if (factor > 0.9) {
@@ -27339,8 +27627,17 @@ define('modal',["jquery"], function($) {
         yr = this.plot_view.view_state.get('inner_range_vertical');
         sy_low = yr.get('start');
         sy_high = yr.get('end');
-        _ref1 = this.plot_view.xmapper.v_map_from_target([sx_low - (sx_low - x) * factor, sx_high - (sx_high - x) * factor]), xstart = _ref1[0], xend = _ref1[1];
-        _ref2 = this.plot_view.ymapper.v_map_from_target([sy_low - (sy_low - y) * factor, sy_high - (sy_high - y) * factor]), ystart = _ref2[0], yend = _ref2[1];
+        dims = this.mget('dimensions');
+        if (dims.indexOf('width') > -1) {
+          _ref2 = this.plot_view.xmapper.v_map_from_target([sx_low - (sx_low - x) * factor, sx_high - (sx_high - x) * factor]), xstart = _ref2[0], xend = _ref2[1];
+        } else {
+          _ref3 = this.plot_view.xmapper.v_map_from_target([sx_low, sx_high]), xstart = _ref3[0], xend = _ref3[1];
+        }
+        if (dims.indexOf('height') > -1) {
+          _ref4 = this.plot_view.ymapper.v_map_from_target([sy_low - (sy_low - y) * factor, sy_high - (sy_high - y) * factor]), ystart = _ref4[0], yend = _ref4[1];
+        } else {
+          _ref5 = this.plot_view.ymapper.v_map_from_target([sy_low, sy_high]), ystart = _ref5[0], yend = _ref5[1];
+        }
         zoom_info = {
           xr: {
             start: xstart,
@@ -27363,7 +27660,8 @@ define('modal',["jquery"], function($) {
       __extends(WheelZoomTool, _super);
 
       function WheelZoomTool() {
-        return WheelZoomTool.__super__.constructor.apply(this, arguments);
+        _ref1 = WheelZoomTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       WheelZoomTool.prototype.default_view = WheelZoomToolView;
@@ -27372,7 +27670,7 @@ define('modal',["jquery"], function($) {
 
       WheelZoomTool.prototype.defaults = function() {
         return {
-          dimensions: [],
+          dimensions: ["width", "height"],
           speed: 1 / 600
         };
       };
@@ -27384,7 +27682,8 @@ define('modal',["jquery"], function($) {
       __extends(WheelZoomTools, _super);
 
       function WheelZoomTools() {
-        return WheelZoomTools.__super__.constructor.apply(this, arguments);
+        _ref2 = WheelZoomTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       WheelZoomTools.prototype.model = WheelZoomTool;
@@ -27405,8 +27704,9 @@ define('modal',["jquery"], function($) {
 
 }).call(this);
 
-//# sourceMappingURL=wheel_zoom_tool.js.map
-;
+/*
+//@ sourceMappingURL=wheel_zoom_tool.js.map
+*/;
 /*globals jQuery, define, exports, require, window, document */
 (function (factory) {
 	
@@ -33212,14 +33512,15 @@ define('modal',["jquery"], function($) {
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('util/object_explorer',["underscore", "jquery", "jstree", "common/continuum_view", "common/has_properties"], function(_, $, $1, ContinuumView, HasProperties) {
-    var ObjectExplorerView;
+    var ObjectExplorerView, _ref;
     ObjectExplorerView = (function(_super) {
       __extends(ObjectExplorerView, _super);
 
       function ObjectExplorerView() {
         this.createContextMenu = __bind(this.createContextMenu, this);
         this.onEvent = __bind(this.onEvent, this);
-        return ObjectExplorerView.__super__.constructor.apply(this, arguments);
+        _ref = ObjectExplorerView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ObjectExplorerView.prototype.initialize = function(options) {
@@ -33238,12 +33539,12 @@ define('modal',["jquery"], function($) {
       };
 
       ObjectExplorerView.prototype.delegateEvents = function(events) {
-        var type, _i, _len, _ref, _results;
+        var type, _i, _len, _ref1, _results;
         ObjectExplorerView.__super__.delegateEvents.call(this, events);
-        _ref = _.keys(this.base().locations);
+        _ref1 = _.keys(this.base().locations);
         _results = [];
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          type = _ref[_i];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          type = _ref1[_i];
           _results.push(this.base().Collections(type).on("all", this.onEvent));
         }
         return _results;
@@ -33259,19 +33560,18 @@ define('modal',["jquery"], function($) {
           nonempty = true;
         }
         nodes = (function() {
-          var _i, _len, _ref, _results;
-          _ref = _.keys(this.base().locations);
+          var _i, _len, _ref1, _results,
+            _this = this;
+          _ref1 = _.keys(this.base().locations);
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            type = _ref[_i];
-            children = this.base().Collections(type).map((function(_this) {
-              return function(obj, index) {
-                var visited;
-                visited = {};
-                visited[obj.id] = 1;
-                return _this.descend(index, obj, visited);
-              };
-            })(this));
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            type = _ref1[_i];
+            children = this.base().Collections(type).map(function(obj, index) {
+              var visited;
+              visited = {};
+              visited[obj.id] = 1;
+              return _this.descend(index, obj, visited);
+            });
             _results.push(this.node(type, "collection", children));
           }
           return _results;
@@ -33291,7 +33591,7 @@ define('modal',["jquery"], function($) {
       };
 
       ObjectExplorerView.prototype.descend = function(label, obj, visited) {
-        var arrayLimit, attr, children, color, html, index, key, ref, truncate, type, value, _ref;
+        var arrayLimit, attr, children, color, html, index, key, ref, truncate, type, value, _ref1;
         if (this.isRef(obj)) {
           ref = true;
           if (visited[obj.id] == null) {
@@ -33304,12 +33604,12 @@ define('modal',["jquery"], function($) {
           visited = _.clone(visited);
           visited[obj.id] = 1;
           children = (function() {
-            var _ref, _results;
-            _ref = obj.attributes;
+            var _ref1, _results;
+            _ref1 = obj.attributes;
             _results = [];
-            for (attr in _ref) {
-              if (!__hasProp.call(_ref, attr)) continue;
-              value = _ref[attr];
+            for (attr in _ref1) {
+              if (!__hasProp.call(_ref1, attr)) continue;
+              value = _ref1[attr];
               if (this.isAttr(attr)) {
                 _results.push(this.descend(attr, value, visited));
               }
@@ -33323,11 +33623,11 @@ define('modal',["jquery"], function($) {
           truncate = obj.length > this.arrayLimit;
           arrayLimit = this.arrayLimit || obj.length;
           children = (function() {
-            var _i, _len, _ref, _results;
-            _ref = obj.slice(0, +this.arrayLimit + 1 || 9e9);
+            var _i, _len, _ref1, _results;
+            _ref1 = obj.slice(0, +this.arrayLimit + 1 || 9e9);
             _results = [];
-            for (index = _i = 0, _len = _ref.length; _i < _len; index = ++_i) {
-              value = _ref[index];
+            for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
+              value = _ref1[index];
               _results.push(this.descend(index, value, visited));
             }
             return _results;
@@ -33351,7 +33651,7 @@ define('modal',["jquery"], function($) {
           color = null;
         } else {
           children = [];
-          _ref = _.isUndefined(obj) ? [null, null, 'orchid'] : _.isNull(obj) ? [null, null, 'teal'] : _.isBoolean(obj) ? ["Boolean", null, 'darkmagenta'] : _.isNumber(obj) ? ["Number", null, 'green'] : _.isString(obj) ? ["String", "\"" + obj + "\"", 'firebrick'] : _.isFunction(obj) ? ["Function", null, null] : _.isDate(obj) ? ["Date", null, null] : _.isRegExp(obj) ? ["RegExp", null, null] : _.isElement(obj) ? ["Element", null, null] : [typeof obj, null, null], type = _ref[0], value = _ref[1], color = _ref[2];
+          _ref1 = _.isUndefined(obj) ? [null, null, 'orchid'] : _.isNull(obj) ? [null, null, 'teal'] : _.isBoolean(obj) ? ["Boolean", null, 'darkmagenta'] : _.isNumber(obj) ? ["Number", null, 'green'] : _.isString(obj) ? ["String", "\"" + obj + "\"", 'firebrick'] : _.isFunction(obj) ? ["Function", null, null] : _.isDate(obj) ? ["Date", null, null] : _.isRegExp(obj) ? ["RegExp", null, null] : _.isElement(obj) ? ["Element", null, null] : [typeof obj, null, null], type = _ref1[0], value = _ref1[1], color = _ref1[2];
           if (value == null) {
             value = "" + obj;
           }
@@ -33389,14 +33689,13 @@ define('modal',["jquery"], function($) {
       };
 
       ObjectExplorerView.prototype.renderToolbar = function() {
-        var $refresh, $toolbar;
+        var $refresh, $toolbar,
+          _this = this;
         $toolbar = $('<div class="btn-group"></div>');
         $refresh = $('<button type="button" class="btn btn-default">Refresh</button>');
-        $refresh.click((function(_this) {
-          return function(event) {
-            return _this.reRender();
-          };
-        })(this));
+        $refresh.click(function(event) {
+          return _this.reRender();
+        });
         $toolbar.append($refresh);
         if (!this.showToolbar) {
           $toolbar.hide();
@@ -33457,20 +33756,22 @@ define('modal',["jquery"], function($) {
 
 }).call(this);
 
-//# sourceMappingURL=object_explorer.js.map
-;
+/*
+//@ sourceMappingURL=object_explorer.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('tool/object_explorer_tool',["underscore", "jquery", "modal", "backbone", "./tool", "./event_generators", "util/object_explorer"], function(_, $, $$1, Backbone, Tool, EventGenerators, ObjectExplorer) {
-    var ButtonEventGenerator, ObjectExplorerTool, ObjectExplorerToolView, ObjectExplorerTools;
+    var ButtonEventGenerator, ObjectExplorerTool, ObjectExplorerToolView, ObjectExplorerTools, _ref, _ref1, _ref2;
     ButtonEventGenerator = EventGenerators.ButtonEventGenerator;
     ObjectExplorerToolView = (function(_super) {
       __extends(ObjectExplorerToolView, _super);
 
       function ObjectExplorerToolView() {
-        return ObjectExplorerToolView.__super__.constructor.apply(this, arguments);
+        _ref = ObjectExplorerToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       ObjectExplorerToolView.prototype.initialize = function(options) {
@@ -33491,17 +33792,16 @@ define('modal',["jquery"], function($) {
       };
 
       ObjectExplorerToolView.prototype._activated = function(e) {
-        var modal;
+        var modal,
+          _this = this;
         modal = $("<div id='objectExplorerModal' class='bokeh'>\n  <div class=\"modal\" role=\"dialog\" aria-labelledby=\"objectExplorerLabel\" aria-hidden=\"true\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n      <h3 id=\"dataConfirmLabel\">Object Explorer</h3>\n    </div>\n    <div class=\"modal-body\">\n    </div>\n    <div class=\"modal-footer\">\n      <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n    </div>\n  </div>\n</div>");
         this.$object_explorer_view = new ObjectExplorer.View({
           el: modal.find(".modal-body")
         });
         $('body').append(modal);
-        $('#objectExplorerModal .modal').on('hidden', (function(_this) {
-          return function() {
-            return _this.plot_view.eventSink.trigger("clear_active_tool");
-          };
-        })(this));
+        $('#objectExplorerModal .modal').on('hidden', function() {
+          return _this.plot_view.eventSink.trigger("clear_active_tool");
+        });
         return $('#objectExplorerModal > .modal').modal({
           show: true
         });
@@ -33519,7 +33819,8 @@ define('modal',["jquery"], function($) {
       __extends(ObjectExplorerTool, _super);
 
       function ObjectExplorerTool() {
-        return ObjectExplorerTool.__super__.constructor.apply(this, arguments);
+        _ref1 = ObjectExplorerTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       ObjectExplorerTool.prototype.default_view = ObjectExplorerToolView;
@@ -33537,7 +33838,8 @@ define('modal',["jquery"], function($) {
       __extends(ObjectExplorerTools, _super);
 
       function ObjectExplorerTools() {
-        return ObjectExplorerTools.__super__.constructor.apply(this, arguments);
+        _ref2 = ObjectExplorerTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       ObjectExplorerTools.prototype.model = ObjectExplorerTool;
@@ -33554,19 +33856,21 @@ define('modal',["jquery"], function($) {
 
 }).call(this);
 
-//# sourceMappingURL=object_explorer_tool.js.map
-;
+/*
+//@ sourceMappingURL=object_explorer_tool.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('widget/data_slider',["common/plot_widget", "common/has_parent"], function(PlotWidget, HasParent) {
-    var DataSlider, DataSliderView, DataSliders;
+    var DataSlider, DataSliderView, DataSliders, _ref, _ref1, _ref2;
     DataSliderView = (function(_super) {
       __extends(DataSliderView, _super);
 
       function DataSliderView() {
-        return DataSliderView.__super__.constructor.apply(this, arguments);
+        _ref = DataSliderView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       DataSliderView.prototype.attributes = {
@@ -33590,14 +33894,15 @@ define('modal',["jquery"], function($) {
       };
 
       DataSliderView.prototype.render_init = function() {
-        var column, max, min, _ref;
+        var column, max, min, _ref1,
+          _this = this;
         this.$el.html("");
         this.$el.append("<div class='maxlabel'></div>");
         this.$el.append("<div class='slider'></div>");
         this.$el.append("<div class='minlabel'></div>");
         this.plot_view.$(".plotarea").append(this.$el);
         column = this.mget_obj('data_source').getcolumn(this.mget('field'));
-        _ref = [_.min(column), _.max(column)], min = _ref[0], max = _ref[1];
+        _ref1 = [_.min(column), _.max(column)], min = _ref1[0], max = _ref1[1];
         this.$el.find(".slider").slider({
           orientation: "vertical",
           animate: "fast",
@@ -33605,12 +33910,10 @@ define('modal',["jquery"], function($) {
           min: min,
           max: max,
           values: [min, max],
-          slide: (function(_this) {
-            return function(event, ui) {
-              _this.set_selection_range(event, ui);
-              return _this.select(event, ui);
-            };
-          })(this)
+          slide: function(event, ui) {
+            _this.set_selection_range(event, ui);
+            return _this.select(event, ui);
+          }
         });
         this.label(min, max);
         return this.$el.find(".slider").height(this.plot_view.view_state.get('inner_height'));
@@ -33630,24 +33933,24 @@ define('modal',["jquery"], function($) {
       };
 
       DataSliderView.prototype._select = function() {
-        var colname, columns, data_source, i, max, min, numrows, select, selected, val, value, _i, _ref, _ref1;
+        var colname, columns, data_source, i, max, min, numrows, select, selected, val, value, _i, _ref1, _ref2;
         data_source = this.mget_obj('data_source');
         columns = {};
         numrows = 0;
-        _ref = data_source.range_selections;
-        for (colname in _ref) {
-          if (!__hasProp.call(_ref, colname)) continue;
-          value = _ref[colname];
+        _ref1 = data_source.range_selections;
+        for (colname in _ref1) {
+          if (!__hasProp.call(_ref1, colname)) continue;
+          value = _ref1[colname];
           columns[colname] = data_source.getcolumn(colname);
           numrows = columns[colname].length;
         }
         selected = [];
         for (i = _i = 0; 0 <= numrows ? _i < numrows : _i > numrows; i = 0 <= numrows ? ++_i : --_i) {
           select = true;
-          _ref1 = data_source.range_selections;
-          for (colname in _ref1) {
-            if (!__hasProp.call(_ref1, colname)) continue;
-            value = _ref1[colname];
+          _ref2 = data_source.range_selections;
+          for (colname in _ref2) {
+            if (!__hasProp.call(_ref2, colname)) continue;
+            value = _ref2[colname];
             min = value[0], max = value[1];
             val = columns[colname][i];
             if (val < min || val > max) {
@@ -33673,7 +33976,8 @@ define('modal',["jquery"], function($) {
       __extends(DataSlider, _super);
 
       function DataSlider() {
-        return DataSlider.__super__.constructor.apply(this, arguments);
+        _ref1 = DataSlider.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       DataSlider.prototype.type = "DataSlider";
@@ -33700,7 +34004,8 @@ define('modal',["jquery"], function($) {
       __extends(DataSliders, _super);
 
       function DataSliders() {
-        return DataSliders.__super__.constructor.apply(this, arguments);
+        _ref2 = DataSliders.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       DataSliders.prototype.model = DataSlider;
@@ -33716,19 +34021,21 @@ define('modal',["jquery"], function($) {
 
 }).call(this);
 
-//# sourceMappingURL=data_slider.js.map
-;
+/*
+//@ sourceMappingURL=data_slider.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('widget/pandas/ipython_remote_data',["backbone", "common/has_properties"], function(Backbone, HasProperties) {
-    var IPythonRemoteData, IPythonRemoteDatas;
+    var IPythonRemoteData, IPythonRemoteDatas, _ref, _ref1;
     IPythonRemoteData = (function(_super) {
       __extends(IPythonRemoteData, _super);
 
       function IPythonRemoteData() {
-        return IPythonRemoteData.__super__.constructor.apply(this, arguments);
+        _ref = IPythonRemoteData.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       IPythonRemoteData.prototype.type = 'IPythonRemoteData';
@@ -33744,7 +34051,8 @@ define('modal',["jquery"], function($) {
       __extends(IPythonRemoteDatas, _super);
 
       function IPythonRemoteDatas() {
-        return IPythonRemoteDatas.__super__.constructor.apply(this, arguments);
+        _ref1 = IPythonRemoteDatas.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       IPythonRemoteDatas.prototype.model = IPythonRemoteData;
@@ -33760,8 +34068,9 @@ define('modal',["jquery"], function($) {
 
 }).call(this);
 
-//# sourceMappingURL=ipython_remote_data.js.map
-;
+/*
+//@ sourceMappingURL=ipython_remote_data.js.map
+*/;
 define('widget/pandas/pandas_pivot_template',[],function(){
   var template = function(__obj) {
   var _safe = function(value) {
@@ -33947,7 +34256,7 @@ define('widget/pandas/pandas_pivot_template',[],function(){
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('widget/pandas/pandas_pivot_table',["underscore", "backbone", "common/has_parent", "common/continuum_view", "./pandas_pivot_template"], function(_, Backbone, HasParent, ContinuumView, pandaspivot) {
-    var ENTER, PandasPivotTable, PandasPivotTables, PandasPivotView;
+    var ENTER, PandasPivotTable, PandasPivotTables, PandasPivotView, _ref, _ref1, _ref2;
     ENTER = 13;
     PandasPivotView = (function(_super) {
       __extends(PandasPivotView, _super);
@@ -33966,7 +34275,8 @@ define('widget/pandas/pandas_pivot_template',[],function(){
         this.computedtxtbox = __bind(this.computedtxtbox, this);
         this.column_del = __bind(this.column_del, this);
         this.search = __bind(this.search, this);
-        return PandasPivotView.__super__.constructor.apply(this, arguments);
+        _ref = PandasPivotView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       PandasPivotView.prototype.template = pandaspivot;
@@ -34051,11 +34361,11 @@ define('widget/pandas/pandas_pivot_template',[],function(){
         counts = this.counts();
         selected = this.selected();
         ratios = (function() {
-          var _i, _len, _ref, _ref1, _results;
-          _ref = _.zip(selected, counts);
+          var _i, _len, _ref1, _ref2, _results;
+          _ref1 = _.zip(selected, counts);
           _results = [];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            _ref1 = _ref[_i], select = _ref1[0], count = _ref1[1];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            _ref2 = _ref1[_i], select = _ref2[0], count = _ref2[1];
             _results.push(select / count);
           }
           return _results;
@@ -34201,7 +34511,7 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       };
 
       PandasPivotView.prototype.render = function() {
-        var colors, group, html, obj, sort, sort_ascendings, source, template_data, _i, _len, _ref;
+        var colors, group, html, obj, sort, sort_ascendings, source, template_data, _i, _len, _ref1;
         group = this.mget('group');
         if (_.isArray(group)) {
           group = group.join(",");
@@ -34212,9 +34522,9 @@ define('widget/pandas/pandas_pivot_template',[],function(){
         }
         colors = this.colors();
         sort_ascendings = {};
-        _ref = this.mget('sort');
-        for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-          obj = _ref[_i];
+        _ref1 = this.mget('sort');
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          obj = _ref1[_i];
           sort_ascendings[obj['column']] = obj['ascending'];
         }
         source = this.mget_obj('source');
@@ -34259,18 +34569,18 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       function PandasPivotTable() {
         this.toggle_column_sort = __bind(this.toggle_column_sort, this);
         this.dinitialize = __bind(this.dinitialize, this);
-        return PandasPivotTable.__super__.constructor.apply(this, arguments);
+        _ref1 = PandasPivotTable.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       PandasPivotTable.prototype.type = 'PandasPivotTable';
 
       PandasPivotTable.prototype.initialize = function(attrs, options) {
+        var _this = this;
         PandasPivotTable.__super__.initialize.call(this, attrs, options);
-        return this.throttled_fetch = _.throttle(((function(_this) {
-          return function() {
-            return _this.fetch();
-          };
-        })(this)), 500);
+        return this.throttled_fetch = _.throttle((function() {
+          return _this.fetch();
+        }), 500);
       };
 
       PandasPivotTable.prototype.dinitialize = function(attrs, options) {
@@ -34381,7 +34691,8 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       __extends(PandasPivotTables, _super);
 
       function PandasPivotTables() {
-        return PandasPivotTables.__super__.constructor.apply(this, arguments);
+        _ref2 = PandasPivotTables.__super__.constructor.apply(this, arguments);
+        return _ref2;
       }
 
       PandasPivotTables.prototype.model = PandasPivotTable;
@@ -34398,19 +34709,21 @@ define('widget/pandas/pandas_pivot_template',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=pandas_pivot_table.js.map
-;
+/*
+//@ sourceMappingURL=pandas_pivot_table.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('widget/pandas/pandas_plot_source',["backbone", "source/column_data_source"], function(Backbone, ColumnDataSource) {
-    var PandasPlotSource, PandasPlotSources;
+    var PandasPlotSource, PandasPlotSources, _ref, _ref1;
     PandasPlotSource = (function(_super) {
       __extends(PandasPlotSource, _super);
 
       function PandasPlotSource() {
-        return PandasPlotSource.__super__.constructor.apply(this, arguments);
+        _ref = PandasPlotSource.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       PandasPlotSource.prototype.type = 'PandasPlotSource';
@@ -34422,7 +34735,8 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       __extends(PandasPlotSources, _super);
 
       function PandasPlotSources() {
-        return PandasPlotSources.__super__.constructor.apply(this, arguments);
+        _ref1 = PandasPlotSources.__super__.constructor.apply(this, arguments);
+        return _ref1;
       }
 
       PandasPlotSources.prototype.model = PandasPlotSource;
@@ -34438,8 +34752,9 @@ define('widget/pandas/pandas_pivot_template',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=pandas_plot_source.js.map
-;
+/*
+//@ sourceMappingURL=pandas_plot_source.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
@@ -34459,7 +34774,8 @@ define('widget/pandas/pandas_pivot_template',[],function(){
 
       ParagraphView.prototype.initialize = function(options) {
         ParagraphView.__super__.initialize.call(this, options);
-        return this.render();
+        this.render();
+        return this.listenTo(this.model, 'change', this.render);
       };
 
       ParagraphView.prototype.render = function() {
@@ -34506,7 +34822,8 @@ define('widget/pandas/pandas_pivot_template',[],function(){
     paragraphs = new Paragraphs();
     return {
       "Model": Paragraph,
-      "Collection": paragraphs
+      "Collection": paragraphs,
+      "View": ParagraphView
     };
   });
 
@@ -34539,7 +34856,8 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       HBoxView.prototype.initialize = function(options) {
         HBoxView.__super__.initialize.call(this, options);
         this.views = {};
-        return this.render();
+        this.render();
+        return this.listenTo(this.model, 'change', this.render);
       };
 
       HBoxView.prototype.render = function() {
@@ -34552,7 +34870,7 @@ define('widget/pandas/pandas_pivot_template',[],function(){
           val = _ref1[key];
           val.$el.detach();
         }
-        this.$el.html('');
+        this.$el.empty();
         _results = [];
         for (_i = 0, _len = children.length; _i < _len; _i++) {
           child = children[_i];
@@ -34635,7 +34953,8 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       VBoxView.prototype.initialize = function(options) {
         VBoxView.__super__.initialize.call(this, options);
         this.views = {};
-        return this.render();
+        this.render();
+        return this.listenTo(this.model, 'change', this.render);
       };
 
       VBoxView.prototype.render = function() {
@@ -34648,7 +34967,7 @@ define('widget/pandas/pandas_pivot_template',[],function(){
           val = _ref1[key];
           val.$el.detach();
         }
-        this.$el.html('');
+        this.$el.empty();
         _results = [];
         for (_i = 0, _len = children.length; _i < _len; _i++) {
           child = children[_i];
@@ -34697,7 +35016,8 @@ define('widget/pandas/pandas_pivot_template',[],function(){
     vboxes = new VBoxes();
     return {
       "Model": VBox,
-      "Collection": vboxes
+      "Collection": vboxes,
+      "View": VBoxView
     };
   });
 
@@ -34955,7 +35275,7 @@ define('widget/textinputtemplate',[],function(){
           val = _ref1[key];
           val.$el.detach();
         }
-        this.$el.html('');
+        this.$el.empty();
         _results = [];
         for (_i = 0, _len = children.length; _i < _len; _i++) {
           child = children[_i];
@@ -34999,9 +35319,7 @@ define('widget/textinputtemplate',[],function(){
           _children: [],
           _field_defs: {}
         };
-        return {
-          'children': []
-        };
+        return defaults;
       };
 
       return VBoxModelForm;
@@ -35034,7 +35352,2099 @@ define('widget/textinputtemplate',[],function(){
 //@ sourceMappingURL=vboxmodelform.js.map
 */;
 (function() {
-  define('common/base',["underscore", "require", "common/custom", "common/gmap_plot", "common/grid_plot", "common/plot", "common/plot_context", "mapper/1d/categorical_mapper", "mapper/1d/linear_mapper", "mapper/2d/grid_mapper", "mapper/color/linear_color_mapper", "range/data_factor_range", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/guide/linear_axis", "renderer/overlay/box_selection", "source/column_data_source", "source/server_data_source", "ticking/abstract_ticker", "ticking/adaptive_ticker", "ticking/basic_tick_formatter", "ticking/basic_ticker", "ticking/categorical_tick_formatter", "ticking/categorical_ticker", "ticking/composite_ticker", "ticking/datetime_tick_formatter", "ticking/datetime_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/single_interval_ticker", "tool/box_select_tool", "tool/box_zoom_tool", "tool/crosshair_tool", "tool/data_range_box_select_tool", "tool/embed_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/reset_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/object_explorer_tool", "widget/data_slider", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source", 'widget/paragraph', 'widget/hbox', 'widget/vbox', 'widget/textinput', 'widget/vboxmodelform'], function(_, require) {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/pretext',["backbone", "./paragraph"], function(Backbone, Paragraph) {
+    var PreText, PreTextView, PreTexts, pretexts, _ref, _ref1, _ref2;
+    PreTextView = (function(_super) {
+      __extends(PreTextView, _super);
+
+      function PreTextView() {
+        _ref = PreTextView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      PreTextView.prototype.tagName = "pre";
+
+      return PreTextView;
+
+    })(Paragraph.View);
+    PreText = (function(_super) {
+      __extends(PreText, _super);
+
+      function PreText() {
+        _ref1 = PreText.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      PreText.prototype.type = "PreText";
+
+      PreText.prototype.default_view = PreTextView;
+
+      PreText.prototype.defaults = function() {
+        return {
+          'text': ''
+        };
+      };
+
+      return PreText;
+
+    })(Paragraph.Model);
+    PreTexts = (function(_super) {
+      __extends(PreTexts, _super);
+
+      function PreTexts() {
+        _ref2 = PreTexts.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      PreTexts.prototype.model = PreText;
+
+      return PreTexts;
+
+    })(Backbone.Collection);
+    pretexts = new PreTexts();
+    return {
+      "Model": PreText,
+      "Collection": pretexts,
+      "View": PreTextView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=pretext.js.map
+*/;
+define('widget/selecttemplate',[],function(){
+  var template = function(__obj) {
+  var _safe = function(value) {
+    if (typeof value === 'undefined' && value == null)
+      value = '';
+    var result = new String(value);
+    result.ecoSafe = true;
+    return result;
+  };
+  return (function() {
+    var __out = [], __self = this, _print = function(value) {
+      if (typeof value !== 'undefined' && value != null)
+        __out.push(value.ecoSafe ? value : __self.escape(value));
+    }, _capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return _safe(result);
+    };
+    (function() {
+      var option, _i, _len, _ref;
+    
+      _print(_safe('<label for="'));
+    
+      _print(this.id);
+    
+      _print(_safe('"> '));
+    
+      _print(this.title);
+    
+      _print(_safe(' </label>\n<select class="bk-widget-form-input" id="'));
+    
+      _print(this.id);
+    
+      _print(_safe('" name="'));
+    
+      _print(this.name);
+    
+      _print(_safe('">\n  '));
+    
+      _ref = this.options;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        option = _ref[_i];
+        _print(_safe('\n  '));
+        if (option.value === this.value) {
+          _print(_safe('\n  <option selected="selected" value="'));
+          _print(option.value);
+          _print(_safe('">'));
+          _print(option.name);
+          _print(_safe('</option>\n  '));
+        } else {
+          _print(_safe('\n  <option value="'));
+          _print(option.value);
+          _print(_safe('">'));
+          _print(option.name);
+          _print(_safe('</option> \n  '));
+        }
+        _print(_safe('\n\n  '));
+      }
+    
+      _print(_safe('\n</select>\n'));
+    
+    }).call(this);
+    
+    return __out.join('');
+  }).call((function() {
+    var obj = {
+      escape: function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      },
+      safe: _safe
+    }, key;
+    for (key in __obj) obj[key] = __obj[key];
+    return obj;
+  })());
+};
+  return template;
+});
+
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/selectbox',["common/has_parent", "common/continuum_view", "backbone", "underscore", "./selecttemplate"], function(HasParent, continuum_view, Backbone, _, selecttemplate) {
+    var ContinuumView, Select, SelectView, Selects, selectboxes, _ref, _ref1, _ref2;
+    ContinuumView = continuum_view.View;
+    SelectView = (function(_super) {
+      __extends(SelectView, _super);
+
+      function SelectView() {
+        _ref = SelectView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      SelectView.prototype.events = {
+        "change select": "change_input"
+      };
+
+      SelectView.prototype.change_input = function() {
+        this.mset('value', this.$('select').val());
+        return console.log('set', this.model.attributes);
+      };
+
+      SelectView.prototype.tagName = "div";
+
+      SelectView.prototype.template = selecttemplate;
+
+      SelectView.prototype.initialize = function(options) {
+        SelectView.__super__.initialize.call(this, options);
+        this.render();
+        return this.listenTo(this.model, 'change', this.render);
+      };
+
+      SelectView.prototype.render = function() {
+        var html;
+        this.$el.empty();
+        html = this.template(this.model.attributes);
+        this.$el.html(html);
+        return this;
+      };
+
+      return SelectView;
+
+    })(ContinuumView);
+    Select = (function(_super) {
+      __extends(Select, _super);
+
+      function Select() {
+        _ref1 = Select.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Select.prototype.type = "Select";
+
+      Select.prototype.default_view = SelectView;
+
+      Select.prototype.defaults = function() {
+        var def;
+        def = {
+          title: '',
+          value: '',
+          options: []
+        };
+        return def;
+      };
+
+      return Select;
+
+    })(HasParent);
+    Selects = (function(_super) {
+      __extends(Selects, _super);
+
+      function Selects() {
+        _ref2 = Selects.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      Selects.prototype.model = Select;
+
+      return Selects;
+
+    })(Backbone.Collection);
+    selectboxes = new Selects();
+    return {
+      "Model": Select,
+      "Collection": selectboxes,
+      "View": SelectView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=selectbox.js.map
+*/;
+define('widget/slidertemplate',[],function(){
+  var template = function(__obj) {
+  var _safe = function(value) {
+    if (typeof value === 'undefined' && value == null)
+      value = '';
+    var result = new String(value);
+    result.ecoSafe = true;
+    return result;
+  };
+  return (function() {
+    var __out = [], __self = this, _print = function(value) {
+      if (typeof value !== 'undefined' && value != null)
+        __out.push(value.ecoSafe ? value : __self.escape(value));
+    }, _capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return _safe(result);
+    };
+    (function() {
+      _print(_safe('<label for="'));
+    
+      _print(this.id);
+    
+      _print(_safe('"> '));
+    
+      _print(this.title);
+    
+      _print(_safe(' </label>    \n<div class="bk-slider-'));
+    
+      _print(this.orientation);
+    
+      _print(_safe('">\n  <div class="slider " id="'));
+    
+      _print(this.id);
+    
+      _print(_safe('">\n</div>\n\n'));
+    
+    }).call(this);
+    
+    return __out.join('');
+  }).call((function() {
+    var obj = {
+      escape: function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      },
+      safe: _safe
+    }, key;
+    for (key in __obj) obj[key] = __obj[key];
+    return obj;
+  })());
+};
+  return template;
+});
+
+define('jquery_ui/core',['jquery'], function (jQuery) {
+/*!
+ * jQuery UI Core 1.10.0
+ * http://jqueryui.com
+ *
+ * Copyright 2013 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://api.jqueryui.com/category/ui-core/
+ */
+(function( $, undefined ) {
+
+var uuid = 0,
+	runiqueId = /^ui-id-\d+$/;
+
+// prevent duplicate loading
+// this is only a problem because we proxy existing functions
+// and we don't want to double proxy them
+$.ui = $.ui || {};
+if ( $.ui.version ) {
+	return;
+}
+
+$.extend( $.ui, {
+	version: "1.10.0",
+
+	keyCode: {
+		BACKSPACE: 8,
+		COMMA: 188,
+		DELETE: 46,
+		DOWN: 40,
+		END: 35,
+		ENTER: 13,
+		ESCAPE: 27,
+		HOME: 36,
+		LEFT: 37,
+		NUMPAD_ADD: 107,
+		NUMPAD_DECIMAL: 110,
+		NUMPAD_DIVIDE: 111,
+		NUMPAD_ENTER: 108,
+		NUMPAD_MULTIPLY: 106,
+		NUMPAD_SUBTRACT: 109,
+		PAGE_DOWN: 34,
+		PAGE_UP: 33,
+		PERIOD: 190,
+		RIGHT: 39,
+		SPACE: 32,
+		TAB: 9,
+		UP: 38
+	}
+});
+
+// plugins
+$.fn.extend({
+	_focus: $.fn.focus,
+	focus: function( delay, fn ) {
+		return typeof delay === "number" ?
+			this.each(function() {
+				var elem = this;
+				setTimeout(function() {
+					$( elem ).focus();
+					if ( fn ) {
+						fn.call( elem );
+					}
+				}, delay );
+			}) :
+			this._focus.apply( this, arguments );
+	},
+
+	scrollParent: function() {
+		var scrollParent;
+		if (($.ui.ie && (/(static|relative)/).test(this.css("position"))) || (/absolute/).test(this.css("position"))) {
+			scrollParent = this.parents().filter(function() {
+				return (/(relative|absolute|fixed)/).test($.css(this,"position")) && (/(auto|scroll)/).test($.css(this,"overflow")+$.css(this,"overflow-y")+$.css(this,"overflow-x"));
+			}).eq(0);
+		} else {
+			scrollParent = this.parents().filter(function() {
+				return (/(auto|scroll)/).test($.css(this,"overflow")+$.css(this,"overflow-y")+$.css(this,"overflow-x"));
+			}).eq(0);
+		}
+
+		return (/fixed/).test(this.css("position")) || !scrollParent.length ? $(document) : scrollParent;
+	},
+
+	zIndex: function( zIndex ) {
+		if ( zIndex !== undefined ) {
+			return this.css( "zIndex", zIndex );
+		}
+
+		if ( this.length ) {
+			var elem = $( this[ 0 ] ), position, value;
+			while ( elem.length && elem[ 0 ] !== document ) {
+				// Ignore z-index if position is set to a value where z-index is ignored by the browser
+				// This makes behavior of this function consistent across browsers
+				// WebKit always returns auto if the element is positioned
+				position = elem.css( "position" );
+				if ( position === "absolute" || position === "relative" || position === "fixed" ) {
+					// IE returns 0 when zIndex is not specified
+					// other browsers return a string
+					// we ignore the case of nested elements with an explicit value of 0
+					// <div style="z-index: -10;"><div style="z-index: 0;"></div></div>
+					value = parseInt( elem.css( "zIndex" ), 10 );
+					if ( !isNaN( value ) && value !== 0 ) {
+						return value;
+					}
+				}
+				elem = elem.parent();
+			}
+		}
+
+		return 0;
+	},
+
+	uniqueId: function() {
+		return this.each(function() {
+			if ( !this.id ) {
+				this.id = "ui-id-" + (++uuid);
+			}
+		});
+	},
+
+	removeUniqueId: function() {
+		return this.each(function() {
+			if ( runiqueId.test( this.id ) ) {
+				$( this ).removeAttr( "id" );
+			}
+		});
+	}
+});
+
+// selectors
+function focusable( element, isTabIndexNotNaN ) {
+	var map, mapName, img,
+		nodeName = element.nodeName.toLowerCase();
+	if ( "area" === nodeName ) {
+		map = element.parentNode;
+		mapName = map.name;
+		if ( !element.href || !mapName || map.nodeName.toLowerCase() !== "map" ) {
+			return false;
+		}
+		img = $( "img[usemap=#" + mapName + "]" )[0];
+		return !!img && visible( img );
+	}
+	return ( /input|select|textarea|button|object/.test( nodeName ) ?
+		!element.disabled :
+		"a" === nodeName ?
+			element.href || isTabIndexNotNaN :
+			isTabIndexNotNaN) &&
+		// the element and all of its ancestors must be visible
+		visible( element );
+}
+
+function visible( element ) {
+	return $.expr.filters.visible( element ) &&
+		!$( element ).parents().addBack().filter(function() {
+			return $.css( this, "visibility" ) === "hidden";
+		}).length;
+}
+
+$.extend( $.expr[ ":" ], {
+	data: $.expr.createPseudo ?
+		$.expr.createPseudo(function( dataName ) {
+			return function( elem ) {
+				return !!$.data( elem, dataName );
+			};
+		}) :
+		// support: jQuery <1.8
+		function( elem, i, match ) {
+			return !!$.data( elem, match[ 3 ] );
+		},
+
+	focusable: function( element ) {
+		return focusable( element, !isNaN( $.attr( element, "tabindex" ) ) );
+	},
+
+	tabbable: function( element ) {
+		var tabIndex = $.attr( element, "tabindex" ),
+			isTabIndexNaN = isNaN( tabIndex );
+		return ( isTabIndexNaN || tabIndex >= 0 ) && focusable( element, !isTabIndexNaN );
+	}
+});
+
+// support: jQuery <1.8
+if ( !$( "<a>" ).outerWidth( 1 ).jquery ) {
+	$.each( [ "Width", "Height" ], function( i, name ) {
+		var side = name === "Width" ? [ "Left", "Right" ] : [ "Top", "Bottom" ],
+			type = name.toLowerCase(),
+			orig = {
+				innerWidth: $.fn.innerWidth,
+				innerHeight: $.fn.innerHeight,
+				outerWidth: $.fn.outerWidth,
+				outerHeight: $.fn.outerHeight
+			};
+
+		function reduce( elem, size, border, margin ) {
+			$.each( side, function() {
+				size -= parseFloat( $.css( elem, "padding" + this ) ) || 0;
+				if ( border ) {
+					size -= parseFloat( $.css( elem, "border" + this + "Width" ) ) || 0;
+				}
+				if ( margin ) {
+					size -= parseFloat( $.css( elem, "margin" + this ) ) || 0;
+				}
+			});
+			return size;
+		}
+
+		$.fn[ "inner" + name ] = function( size ) {
+			if ( size === undefined ) {
+				return orig[ "inner" + name ].call( this );
+			}
+
+			return this.each(function() {
+				$( this ).css( type, reduce( this, size ) + "px" );
+			});
+		};
+
+		$.fn[ "outer" + name] = function( size, margin ) {
+			if ( typeof size !== "number" ) {
+				return orig[ "outer" + name ].call( this, size );
+			}
+
+			return this.each(function() {
+				$( this).css( type, reduce( this, size, true, margin ) + "px" );
+			});
+		};
+	});
+}
+
+// support: jQuery <1.8
+if ( !$.fn.addBack ) {
+	$.fn.addBack = function( selector ) {
+		return this.add( selector == null ?
+			this.prevObject : this.prevObject.filter( selector )
+		);
+	};
+}
+
+// support: jQuery 1.6.1, 1.6.2 (http://bugs.jquery.com/ticket/9413)
+if ( $( "<a>" ).data( "a-b", "a" ).removeData( "a-b" ).data( "a-b" ) ) {
+	$.fn.removeData = (function( removeData ) {
+		return function( key ) {
+			if ( arguments.length ) {
+				return removeData.call( this, $.camelCase( key ) );
+			} else {
+				return removeData.call( this );
+			}
+		};
+	})( $.fn.removeData );
+}
+
+
+
+
+
+// deprecated
+$.ui.ie = !!/msie [\w.]+/.exec( navigator.userAgent.toLowerCase() );
+
+$.support.selectstart = "onselectstart" in document.createElement( "div" );
+$.fn.extend({
+	disableSelection: function() {
+		return this.bind( ( $.support.selectstart ? "selectstart" : "mousedown" ) +
+			".ui-disableSelection", function( event ) {
+				event.preventDefault();
+			});
+	},
+
+	enableSelection: function() {
+		return this.unbind( ".ui-disableSelection" );
+	}
+});
+
+$.extend( $.ui, {
+	// $.ui.plugin is deprecated.  Use the proxy pattern instead.
+	plugin: {
+		add: function( module, option, set ) {
+			var i,
+				proto = $.ui[ module ].prototype;
+			for ( i in set ) {
+				proto.plugins[ i ] = proto.plugins[ i ] || [];
+				proto.plugins[ i ].push( [ option, set[ i ] ] );
+			}
+		},
+		call: function( instance, name, args ) {
+			var i,
+				set = instance.plugins[ name ];
+			if ( !set || !instance.element[ 0 ].parentNode || instance.element[ 0 ].parentNode.nodeType === 11 ) {
+				return;
+			}
+
+			for ( i = 0; i < set.length; i++ ) {
+				if ( instance.options[ set[ i ][ 0 ] ] ) {
+					set[ i ][ 1 ].apply( instance.element, args );
+				}
+			}
+		}
+	},
+
+	// only used by resizable
+	hasScroll: function( el, a ) {
+
+		//If overflow is hidden, the element might have extra content, but the user wants to hide it
+		if ( $( el ).css( "overflow" ) === "hidden") {
+			return false;
+		}
+
+		var scroll = ( a && a === "left" ) ? "scrollLeft" : "scrollTop",
+			has = false;
+
+		if ( el[ scroll ] > 0 ) {
+			return true;
+		}
+
+		// TODO: determine which cases actually cause this to happen
+		// if the element doesn't have the scroll set, see if it's possible to
+		// set the scroll
+		el[ scroll ] = 1;
+		has = ( el[ scroll ] > 0 );
+		el[ scroll ] = 0;
+		return has;
+	}
+});
+
+})( jQuery );
+
+});
+define('jquery_ui/widget',['jquery'], function (jQuery) {
+/*!
+ * jQuery UI Widget 1.10.0
+ * http://jqueryui.com
+ *
+ * Copyright 2013 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://api.jqueryui.com/jQuery.widget/
+ */
+(function( $, undefined ) {
+
+var uuid = 0,
+	slice = Array.prototype.slice,
+	_cleanData = $.cleanData;
+$.cleanData = function( elems ) {
+	for ( var i = 0, elem; (elem = elems[i]) != null; i++ ) {
+		try {
+			$( elem ).triggerHandler( "remove" );
+		// http://bugs.jquery.com/ticket/8235
+		} catch( e ) {}
+	}
+	_cleanData( elems );
+};
+
+$.widget = function( name, base, prototype ) {
+	var fullName, existingConstructor, constructor, basePrototype,
+		// proxiedPrototype allows the provided prototype to remain unmodified
+		// so that it can be used as a mixin for multiple widgets (#8876)
+		proxiedPrototype = {},
+		namespace = name.split( "." )[ 0 ];
+
+	name = name.split( "." )[ 1 ];
+	fullName = namespace + "-" + name;
+
+	if ( !prototype ) {
+		prototype = base;
+		base = $.Widget;
+	}
+
+	// create selector for plugin
+	$.expr[ ":" ][ fullName.toLowerCase() ] = function( elem ) {
+		return !!$.data( elem, fullName );
+	};
+
+	$[ namespace ] = $[ namespace ] || {};
+	existingConstructor = $[ namespace ][ name ];
+	constructor = $[ namespace ][ name ] = function( options, element ) {
+		// allow instantiation without "new" keyword
+		if ( !this._createWidget ) {
+			return new constructor( options, element );
+		}
+
+		// allow instantiation without initializing for simple inheritance
+		// must use "new" keyword (the code above always passes args)
+		if ( arguments.length ) {
+			this._createWidget( options, element );
+		}
+	};
+	// extend with the existing constructor to carry over any static properties
+	$.extend( constructor, existingConstructor, {
+		version: prototype.version,
+		// copy the object used to create the prototype in case we need to
+		// redefine the widget later
+		_proto: $.extend( {}, prototype ),
+		// track widgets that inherit from this widget in case this widget is
+		// redefined after a widget inherits from it
+		_childConstructors: []
+	});
+
+	basePrototype = new base();
+	// we need to make the options hash a property directly on the new instance
+	// otherwise we'll modify the options hash on the prototype that we're
+	// inheriting from
+	basePrototype.options = $.widget.extend( {}, basePrototype.options );
+	$.each( prototype, function( prop, value ) {
+		if ( !$.isFunction( value ) ) {
+			proxiedPrototype[ prop ] = value;
+			return;
+		}
+		proxiedPrototype[ prop ] = (function() {
+			var _super = function() {
+					return base.prototype[ prop ].apply( this, arguments );
+				},
+				_superApply = function( args ) {
+					return base.prototype[ prop ].apply( this, args );
+				};
+			return function() {
+				var __super = this._super,
+					__superApply = this._superApply,
+					returnValue;
+
+				this._super = _super;
+				this._superApply = _superApply;
+
+				returnValue = value.apply( this, arguments );
+
+				this._super = __super;
+				this._superApply = __superApply;
+
+				return returnValue;
+			};
+		})();
+	});
+	constructor.prototype = $.widget.extend( basePrototype, {
+		// TODO: remove support for widgetEventPrefix
+		// always use the name + a colon as the prefix, e.g., draggable:start
+		// don't prefix for widgets that aren't DOM-based
+		widgetEventPrefix: existingConstructor ? basePrototype.widgetEventPrefix : name
+	}, proxiedPrototype, {
+		constructor: constructor,
+		namespace: namespace,
+		widgetName: name,
+		widgetFullName: fullName
+	});
+
+	// If this widget is being redefined then we need to find all widgets that
+	// are inheriting from it and redefine all of them so that they inherit from
+	// the new version of this widget. We're essentially trying to replace one
+	// level in the prototype chain.
+	if ( existingConstructor ) {
+		$.each( existingConstructor._childConstructors, function( i, child ) {
+			var childPrototype = child.prototype;
+
+			// redefine the child widget using the same prototype that was
+			// originally used, but inherit from the new version of the base
+			$.widget( childPrototype.namespace + "." + childPrototype.widgetName, constructor, child._proto );
+		});
+		// remove the list of existing child constructors from the old constructor
+		// so the old child constructors can be garbage collected
+		delete existingConstructor._childConstructors;
+	} else {
+		base._childConstructors.push( constructor );
+	}
+
+	$.widget.bridge( name, constructor );
+};
+
+$.widget.extend = function( target ) {
+	var input = slice.call( arguments, 1 ),
+		inputIndex = 0,
+		inputLength = input.length,
+		key,
+		value;
+	for ( ; inputIndex < inputLength; inputIndex++ ) {
+		for ( key in input[ inputIndex ] ) {
+			value = input[ inputIndex ][ key ];
+			if ( input[ inputIndex ].hasOwnProperty( key ) && value !== undefined ) {
+				// Clone objects
+				if ( $.isPlainObject( value ) ) {
+					target[ key ] = $.isPlainObject( target[ key ] ) ?
+						$.widget.extend( {}, target[ key ], value ) :
+						// Don't extend strings, arrays, etc. with objects
+						$.widget.extend( {}, value );
+				// Copy everything else by reference
+				} else {
+					target[ key ] = value;
+				}
+			}
+		}
+	}
+	return target;
+};
+
+$.widget.bridge = function( name, object ) {
+	var fullName = object.prototype.widgetFullName || name;
+	$.fn[ name ] = function( options ) {
+		var isMethodCall = typeof options === "string",
+			args = slice.call( arguments, 1 ),
+			returnValue = this;
+
+		// allow multiple hashes to be passed on init
+		options = !isMethodCall && args.length ?
+			$.widget.extend.apply( null, [ options ].concat(args) ) :
+			options;
+
+		if ( isMethodCall ) {
+			this.each(function() {
+				var methodValue,
+					instance = $.data( this, fullName );
+				if ( !instance ) {
+					return $.error( "cannot call methods on " + name + " prior to initialization; " +
+						"attempted to call method '" + options + "'" );
+				}
+				if ( !$.isFunction( instance[options] ) || options.charAt( 0 ) === "_" ) {
+					return $.error( "no such method '" + options + "' for " + name + " widget instance" );
+				}
+				methodValue = instance[ options ].apply( instance, args );
+				if ( methodValue !== instance && methodValue !== undefined ) {
+					returnValue = methodValue && methodValue.jquery ?
+						returnValue.pushStack( methodValue.get() ) :
+						methodValue;
+					return false;
+				}
+			});
+		} else {
+			this.each(function() {
+				var instance = $.data( this, fullName );
+				if ( instance ) {
+					instance.option( options || {} )._init();
+				} else {
+					$.data( this, fullName, new object( options, this ) );
+				}
+			});
+		}
+
+		return returnValue;
+	};
+};
+
+$.Widget = function( /* options, element */ ) {};
+$.Widget._childConstructors = [];
+
+$.Widget.prototype = {
+	widgetName: "widget",
+	widgetEventPrefix: "",
+	defaultElement: "<div>",
+	options: {
+		disabled: false,
+
+		// callbacks
+		create: null
+	},
+	_createWidget: function( options, element ) {
+		element = $( element || this.defaultElement || this )[ 0 ];
+		this.element = $( element );
+		this.uuid = uuid++;
+		this.eventNamespace = "." + this.widgetName + this.uuid;
+		this.options = $.widget.extend( {},
+			this.options,
+			this._getCreateOptions(),
+			options );
+
+		this.bindings = $();
+		this.hoverable = $();
+		this.focusable = $();
+
+		if ( element !== this ) {
+			$.data( element, this.widgetFullName, this );
+			this._on( true, this.element, {
+				remove: function( event ) {
+					if ( event.target === element ) {
+						this.destroy();
+					}
+				}
+			});
+			this.document = $( element.style ?
+				// element within the document
+				element.ownerDocument :
+				// element is window or document
+				element.document || element );
+			this.window = $( this.document[0].defaultView || this.document[0].parentWindow );
+		}
+
+		this._create();
+		this._trigger( "create", null, this._getCreateEventData() );
+		this._init();
+	},
+	_getCreateOptions: $.noop,
+	_getCreateEventData: $.noop,
+	_create: $.noop,
+	_init: $.noop,
+
+	destroy: function() {
+		this._destroy();
+		// we can probably remove the unbind calls in 2.0
+		// all event bindings should go through this._on()
+		this.element
+			.unbind( this.eventNamespace )
+			// 1.9 BC for #7810
+			// TODO remove dual storage
+			.removeData( this.widgetName )
+			.removeData( this.widgetFullName )
+			// support: jquery <1.6.3
+			// http://bugs.jquery.com/ticket/9413
+			.removeData( $.camelCase( this.widgetFullName ) );
+		this.widget()
+			.unbind( this.eventNamespace )
+			.removeAttr( "aria-disabled" )
+			.removeClass(
+				this.widgetFullName + "-disabled " +
+				"ui-state-disabled" );
+
+		// clean up events and states
+		this.bindings.unbind( this.eventNamespace );
+		this.hoverable.removeClass( "ui-state-hover" );
+		this.focusable.removeClass( "ui-state-focus" );
+	},
+	_destroy: $.noop,
+
+	widget: function() {
+		return this.element;
+	},
+
+	option: function( key, value ) {
+		var options = key,
+			parts,
+			curOption,
+			i;
+
+		if ( arguments.length === 0 ) {
+			// don't return a reference to the internal hash
+			return $.widget.extend( {}, this.options );
+		}
+
+		if ( typeof key === "string" ) {
+			// handle nested keys, e.g., "foo.bar" => { foo: { bar: ___ } }
+			options = {};
+			parts = key.split( "." );
+			key = parts.shift();
+			if ( parts.length ) {
+				curOption = options[ key ] = $.widget.extend( {}, this.options[ key ] );
+				for ( i = 0; i < parts.length - 1; i++ ) {
+					curOption[ parts[ i ] ] = curOption[ parts[ i ] ] || {};
+					curOption = curOption[ parts[ i ] ];
+				}
+				key = parts.pop();
+				if ( value === undefined ) {
+					return curOption[ key ] === undefined ? null : curOption[ key ];
+				}
+				curOption[ key ] = value;
+			} else {
+				if ( value === undefined ) {
+					return this.options[ key ] === undefined ? null : this.options[ key ];
+				}
+				options[ key ] = value;
+			}
+		}
+
+		this._setOptions( options );
+
+		return this;
+	},
+	_setOptions: function( options ) {
+		var key;
+
+		for ( key in options ) {
+			this._setOption( key, options[ key ] );
+		}
+
+		return this;
+	},
+	_setOption: function( key, value ) {
+		this.options[ key ] = value;
+
+		if ( key === "disabled" ) {
+			this.widget()
+				.toggleClass( this.widgetFullName + "-disabled ui-state-disabled", !!value )
+				.attr( "aria-disabled", value );
+			this.hoverable.removeClass( "ui-state-hover" );
+			this.focusable.removeClass( "ui-state-focus" );
+		}
+
+		return this;
+	},
+
+	enable: function() {
+		return this._setOption( "disabled", false );
+	},
+	disable: function() {
+		return this._setOption( "disabled", true );
+	},
+
+	_on: function( suppressDisabledCheck, element, handlers ) {
+		var delegateElement,
+			instance = this;
+
+		// no suppressDisabledCheck flag, shuffle arguments
+		if ( typeof suppressDisabledCheck !== "boolean" ) {
+			handlers = element;
+			element = suppressDisabledCheck;
+			suppressDisabledCheck = false;
+		}
+
+		// no element argument, shuffle and use this.element
+		if ( !handlers ) {
+			handlers = element;
+			element = this.element;
+			delegateElement = this.widget();
+		} else {
+			// accept selectors, DOM elements
+			element = delegateElement = $( element );
+			this.bindings = this.bindings.add( element );
+		}
+
+		$.each( handlers, function( event, handler ) {
+			function handlerProxy() {
+				// allow widgets to customize the disabled handling
+				// - disabled as an array instead of boolean
+				// - disabled class as method for disabling individual parts
+				if ( !suppressDisabledCheck &&
+						( instance.options.disabled === true ||
+							$( this ).hasClass( "ui-state-disabled" ) ) ) {
+					return;
+				}
+				return ( typeof handler === "string" ? instance[ handler ] : handler )
+					.apply( instance, arguments );
+			}
+
+			// copy the guid so direct unbinding works
+			if ( typeof handler !== "string" ) {
+				handlerProxy.guid = handler.guid =
+					handler.guid || handlerProxy.guid || $.guid++;
+			}
+
+			var match = event.match( /^(\w+)\s*(.*)$/ ),
+				eventName = match[1] + instance.eventNamespace,
+				selector = match[2];
+			if ( selector ) {
+				delegateElement.delegate( selector, eventName, handlerProxy );
+			} else {
+				element.bind( eventName, handlerProxy );
+			}
+		});
+	},
+
+	_off: function( element, eventName ) {
+		eventName = (eventName || "").split( " " ).join( this.eventNamespace + " " ) + this.eventNamespace;
+		element.unbind( eventName ).undelegate( eventName );
+	},
+
+	_delay: function( handler, delay ) {
+		function handlerProxy() {
+			return ( typeof handler === "string" ? instance[ handler ] : handler )
+				.apply( instance, arguments );
+		}
+		var instance = this;
+		return setTimeout( handlerProxy, delay || 0 );
+	},
+
+	_hoverable: function( element ) {
+		this.hoverable = this.hoverable.add( element );
+		this._on( element, {
+			mouseenter: function( event ) {
+				$( event.currentTarget ).addClass( "ui-state-hover" );
+			},
+			mouseleave: function( event ) {
+				$( event.currentTarget ).removeClass( "ui-state-hover" );
+			}
+		});
+	},
+
+	_focusable: function( element ) {
+		this.focusable = this.focusable.add( element );
+		this._on( element, {
+			focusin: function( event ) {
+				$( event.currentTarget ).addClass( "ui-state-focus" );
+			},
+			focusout: function( event ) {
+				$( event.currentTarget ).removeClass( "ui-state-focus" );
+			}
+		});
+	},
+
+	_trigger: function( type, event, data ) {
+		var prop, orig,
+			callback = this.options[ type ];
+
+		data = data || {};
+		event = $.Event( event );
+		event.type = ( type === this.widgetEventPrefix ?
+			type :
+			this.widgetEventPrefix + type ).toLowerCase();
+		// the original event may come from any element
+		// so we need to reset the target on the new event
+		event.target = this.element[ 0 ];
+
+		// copy original event properties over to the new event
+		orig = event.originalEvent;
+		if ( orig ) {
+			for ( prop in orig ) {
+				if ( !( prop in event ) ) {
+					event[ prop ] = orig[ prop ];
+				}
+			}
+		}
+
+		this.element.trigger( event, data );
+		return !( $.isFunction( callback ) &&
+			callback.apply( this.element[0], [ event ].concat( data ) ) === false ||
+			event.isDefaultPrevented() );
+	}
+};
+
+$.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
+	$.Widget.prototype[ "_" + method ] = function( element, options, callback ) {
+		if ( typeof options === "string" ) {
+			options = { effect: options };
+		}
+		var hasOptions,
+			effectName = !options ?
+				method :
+				options === true || typeof options === "number" ?
+					defaultEffect :
+					options.effect || defaultEffect;
+		options = options || {};
+		if ( typeof options === "number" ) {
+			options = { duration: options };
+		}
+		hasOptions = !$.isEmptyObject( options );
+		options.complete = callback;
+		if ( options.delay ) {
+			element.delay( options.delay );
+		}
+		if ( hasOptions && $.effects && $.effects.effect[ effectName ] ) {
+			element[ method ]( options );
+		} else if ( effectName !== method && element[ effectName ] ) {
+			element[ effectName ]( options.duration, options.easing, callback );
+		} else {
+			element.queue(function( next ) {
+				$( this )[ method ]();
+				if ( callback ) {
+					callback.call( element[ 0 ] );
+				}
+				next();
+			});
+		}
+	};
+});
+
+})( jQuery );
+
+});
+define('jquery_ui/mouse',['jquery','./widget'], function (jQuery) {
+/*!
+ * jQuery UI Mouse 1.10.0
+ * http://jqueryui.com
+ *
+ * Copyright 2013 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://api.jqueryui.com/mouse/
+ *
+ * Depends:
+ *	jquery.ui.widget.js
+ */
+(function( $, undefined ) {
+
+var mouseHandled = false;
+$( document ).mouseup( function() {
+	mouseHandled = false;
+});
+
+$.widget("ui.mouse", {
+	version: "1.10.0",
+	options: {
+		cancel: "input,textarea,button,select,option",
+		distance: 1,
+		delay: 0
+	},
+	_mouseInit: function() {
+		var that = this;
+
+		this.element
+			.bind("mousedown."+this.widgetName, function(event) {
+				return that._mouseDown(event);
+			})
+			.bind("click."+this.widgetName, function(event) {
+				if (true === $.data(event.target, that.widgetName + ".preventClickEvent")) {
+					$.removeData(event.target, that.widgetName + ".preventClickEvent");
+					event.stopImmediatePropagation();
+					return false;
+				}
+			});
+
+		this.started = false;
+	},
+
+	// TODO: make sure destroying one instance of mouse doesn't mess with
+	// other instances of mouse
+	_mouseDestroy: function() {
+		this.element.unbind("."+this.widgetName);
+		if ( this._mouseMoveDelegate ) {
+			$(document)
+				.unbind("mousemove."+this.widgetName, this._mouseMoveDelegate)
+				.unbind("mouseup."+this.widgetName, this._mouseUpDelegate);
+		}
+	},
+
+	_mouseDown: function(event) {
+		// don't let more than one widget handle mouseStart
+		if( mouseHandled ) { return; }
+
+		// we may have missed mouseup (out of window)
+		(this._mouseStarted && this._mouseUp(event));
+
+		this._mouseDownEvent = event;
+
+		var that = this,
+			btnIsLeft = (event.which === 1),
+			// event.target.nodeName works around a bug in IE 8 with
+			// disabled inputs (#7620)
+			elIsCancel = (typeof this.options.cancel === "string" && event.target.nodeName ? $(event.target).closest(this.options.cancel).length : false);
+		if (!btnIsLeft || elIsCancel || !this._mouseCapture(event)) {
+			return true;
+		}
+
+		this.mouseDelayMet = !this.options.delay;
+		if (!this.mouseDelayMet) {
+			this._mouseDelayTimer = setTimeout(function() {
+				that.mouseDelayMet = true;
+			}, this.options.delay);
+		}
+
+		if (this._mouseDistanceMet(event) && this._mouseDelayMet(event)) {
+			this._mouseStarted = (this._mouseStart(event) !== false);
+			if (!this._mouseStarted) {
+				event.preventDefault();
+				return true;
+			}
+		}
+
+		// Click event may never have fired (Gecko & Opera)
+		if (true === $.data(event.target, this.widgetName + ".preventClickEvent")) {
+			$.removeData(event.target, this.widgetName + ".preventClickEvent");
+		}
+
+		// these delegates are required to keep context
+		this._mouseMoveDelegate = function(event) {
+			return that._mouseMove(event);
+		};
+		this._mouseUpDelegate = function(event) {
+			return that._mouseUp(event);
+		};
+		$(document)
+			.bind("mousemove."+this.widgetName, this._mouseMoveDelegate)
+			.bind("mouseup."+this.widgetName, this._mouseUpDelegate);
+
+		event.preventDefault();
+
+		mouseHandled = true;
+		return true;
+	},
+
+	_mouseMove: function(event) {
+		// IE mouseup check - mouseup happened when mouse was out of window
+		if ($.ui.ie && ( !document.documentMode || document.documentMode < 9 ) && !event.button) {
+			return this._mouseUp(event);
+		}
+
+		if (this._mouseStarted) {
+			this._mouseDrag(event);
+			return event.preventDefault();
+		}
+
+		if (this._mouseDistanceMet(event) && this._mouseDelayMet(event)) {
+			this._mouseStarted =
+				(this._mouseStart(this._mouseDownEvent, event) !== false);
+			(this._mouseStarted ? this._mouseDrag(event) : this._mouseUp(event));
+		}
+
+		return !this._mouseStarted;
+	},
+
+	_mouseUp: function(event) {
+		$(document)
+			.unbind("mousemove."+this.widgetName, this._mouseMoveDelegate)
+			.unbind("mouseup."+this.widgetName, this._mouseUpDelegate);
+
+		if (this._mouseStarted) {
+			this._mouseStarted = false;
+
+			if (event.target === this._mouseDownEvent.target) {
+				$.data(event.target, this.widgetName + ".preventClickEvent", true);
+			}
+
+			this._mouseStop(event);
+		}
+
+		return false;
+	},
+
+	_mouseDistanceMet: function(event) {
+		return (Math.max(
+				Math.abs(this._mouseDownEvent.pageX - event.pageX),
+				Math.abs(this._mouseDownEvent.pageY - event.pageY)
+			) >= this.options.distance
+		);
+	},
+
+	_mouseDelayMet: function(/* event */) {
+		return this.mouseDelayMet;
+	},
+
+	// These are placeholder methods, to be overriden by extending plugin
+	_mouseStart: function(/* event */) {},
+	_mouseDrag: function(/* event */) {},
+	_mouseStop: function(/* event */) {},
+	_mouseCapture: function(/* event */) { return true; }
+});
+
+})(jQuery);
+
+});
+define('jquery_ui/slider',['jquery','./core','./mouse','./widget'], function (jQuery) {
+/*!
+ * jQuery UI Slider 1.10.0
+ * http://jqueryui.com
+ *
+ * Copyright 2013 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://api.jqueryui.com/slider/
+ *
+ * Depends:
+ *	jquery.ui.core.js
+ *	jquery.ui.mouse.js
+ *	jquery.ui.widget.js
+ */
+(function( $, undefined ) {
+
+// number of pages in a slider
+// (how many times can you page up/down to go through the whole range)
+var numPages = 5;
+
+$.widget( "ui.slider", $.ui.mouse, {
+	version: "1.10.0",
+	widgetEventPrefix: "slide",
+
+	options: {
+		animate: false,
+		distance: 0,
+		max: 100,
+		min: 0,
+		orientation: "horizontal",
+		range: false,
+		step: 1,
+		value: 0,
+		values: null,
+
+		// callbacks
+		change: null,
+		slide: null,
+		start: null,
+		stop: null
+	},
+
+	_create: function() {
+		var i, handleCount,
+			o = this.options,
+			existingHandles = this.element.find( ".ui-slider-handle" ).addClass( "ui-state-default ui-corner-all" ),
+			handle = "<a class='ui-slider-handle ui-state-default ui-corner-all' href='#'></a>",
+			handles = [];
+
+		this._keySliding = false;
+		this._mouseSliding = false;
+		this._animateOff = true;
+		this._handleIndex = null;
+		this._detectOrientation();
+		this._mouseInit();
+
+		this.element
+			.addClass( "ui-slider" +
+				" ui-slider-" + this.orientation +
+				" ui-widget" +
+				" ui-widget-content" +
+				" ui-corner-all");
+
+		this.range = $([]);
+
+		if ( o.range ) {
+			if ( o.range === true ) {
+				if ( !o.values ) {
+					o.values = [ this._valueMin(), this._valueMin() ];
+				} else if ( o.values.length && o.values.length !== 2 ) {
+					o.values = [ o.values[0], o.values[0] ];
+				} else if ( $.isArray( o.values ) ) {
+					o.values = o.values.slice(0);
+				}
+			}
+
+			this.range = $( "<div></div>" )
+				.appendTo( this.element )
+				.addClass( "ui-slider-range" +
+				// note: this isn't the most fittingly semantic framework class for this element,
+				// but worked best visually with a variety of themes
+				" ui-widget-header" +
+				( ( o.range === "min" || o.range === "max" ) ? " ui-slider-range-" + o.range : "" ) );
+		}
+
+		handleCount = ( o.values && o.values.length ) || 1;
+
+		for ( i = existingHandles.length; i < handleCount; i++ ) {
+			handles.push( handle );
+		}
+
+		this.handles = existingHandles.add( $( handles.join( "" ) ).appendTo( this.element ) );
+
+		this.handle = this.handles.eq( 0 );
+
+		this.handles.add( this.range ).filter( "a" )
+			.click(function( event ) {
+				event.preventDefault();
+			})
+			.mouseenter(function() {
+				if ( !o.disabled ) {
+					$( this ).addClass( "ui-state-hover" );
+				}
+			})
+			.mouseleave(function() {
+				$( this ).removeClass( "ui-state-hover" );
+			})
+			.focus(function() {
+				if ( !o.disabled ) {
+					$( ".ui-slider .ui-state-focus" ).removeClass( "ui-state-focus" );
+					$( this ).addClass( "ui-state-focus" );
+				} else {
+					$( this ).blur();
+				}
+			})
+			.blur(function() {
+				$( this ).removeClass( "ui-state-focus" );
+			});
+
+		this.handles.each(function( i ) {
+			$( this ).data( "ui-slider-handle-index", i );
+		});
+
+		this._setOption( "disabled", o.disabled );
+
+		this._on( this.handles, this._handleEvents );
+
+		this._refreshValue();
+
+		this._animateOff = false;
+	},
+
+	_destroy: function() {
+		this.handles.remove();
+		this.range.remove();
+
+		this.element
+			.removeClass( "ui-slider" +
+				" ui-slider-horizontal" +
+				" ui-slider-vertical" +
+				" ui-widget" +
+				" ui-widget-content" +
+				" ui-corner-all" );
+
+		this._mouseDestroy();
+	},
+
+	_mouseCapture: function( event ) {
+		var position, normValue, distance, closestHandle, index, allowed, offset, mouseOverHandle,
+			that = this,
+			o = this.options;
+
+		if ( o.disabled ) {
+			return false;
+		}
+
+		this.elementSize = {
+			width: this.element.outerWidth(),
+			height: this.element.outerHeight()
+		};
+		this.elementOffset = this.element.offset();
+
+		position = { x: event.pageX, y: event.pageY };
+		normValue = this._normValueFromMouse( position );
+		distance = this._valueMax() - this._valueMin() + 1;
+		this.handles.each(function( i ) {
+			var thisDistance = Math.abs( normValue - that.values(i) );
+			if (( distance > thisDistance ) ||
+				( distance === thisDistance &&
+					(i === that._lastChangedValue || that.values(i) === o.min ))) {
+				distance = thisDistance;
+				closestHandle = $( this );
+				index = i;
+			}
+		});
+
+		allowed = this._start( event, index );
+		if ( allowed === false ) {
+			return false;
+		}
+		this._mouseSliding = true;
+
+		this._handleIndex = index;
+
+		closestHandle
+			.addClass( "ui-state-active" )
+			.focus();
+
+		offset = closestHandle.offset();
+		mouseOverHandle = !$( event.target ).parents().addBack().is( ".ui-slider-handle" );
+		this._clickOffset = mouseOverHandle ? { left: 0, top: 0 } : {
+			left: event.pageX - offset.left - ( closestHandle.width() / 2 ),
+			top: event.pageY - offset.top -
+				( closestHandle.height() / 2 ) -
+				( parseInt( closestHandle.css("borderTopWidth"), 10 ) || 0 ) -
+				( parseInt( closestHandle.css("borderBottomWidth"), 10 ) || 0) +
+				( parseInt( closestHandle.css("marginTop"), 10 ) || 0)
+		};
+
+		if ( !this.handles.hasClass( "ui-state-hover" ) ) {
+			this._slide( event, index, normValue );
+		}
+		this._animateOff = true;
+		return true;
+	},
+
+	_mouseStart: function() {
+		return true;
+	},
+
+	_mouseDrag: function( event ) {
+		var position = { x: event.pageX, y: event.pageY },
+			normValue = this._normValueFromMouse( position );
+
+		this._slide( event, this._handleIndex, normValue );
+
+		return false;
+	},
+
+	_mouseStop: function( event ) {
+		this.handles.removeClass( "ui-state-active" );
+		this._mouseSliding = false;
+
+		this._stop( event, this._handleIndex );
+		this._change( event, this._handleIndex );
+
+		this._handleIndex = null;
+		this._clickOffset = null;
+		this._animateOff = false;
+
+		return false;
+	},
+
+	_detectOrientation: function() {
+		this.orientation = ( this.options.orientation === "vertical" ) ? "vertical" : "horizontal";
+	},
+
+	_normValueFromMouse: function( position ) {
+		var pixelTotal,
+			pixelMouse,
+			percentMouse,
+			valueTotal,
+			valueMouse;
+
+		if ( this.orientation === "horizontal" ) {
+			pixelTotal = this.elementSize.width;
+			pixelMouse = position.x - this.elementOffset.left - ( this._clickOffset ? this._clickOffset.left : 0 );
+		} else {
+			pixelTotal = this.elementSize.height;
+			pixelMouse = position.y - this.elementOffset.top - ( this._clickOffset ? this._clickOffset.top : 0 );
+		}
+
+		percentMouse = ( pixelMouse / pixelTotal );
+		if ( percentMouse > 1 ) {
+			percentMouse = 1;
+		}
+		if ( percentMouse < 0 ) {
+			percentMouse = 0;
+		}
+		if ( this.orientation === "vertical" ) {
+			percentMouse = 1 - percentMouse;
+		}
+
+		valueTotal = this._valueMax() - this._valueMin();
+		valueMouse = this._valueMin() + percentMouse * valueTotal;
+
+		return this._trimAlignValue( valueMouse );
+	},
+
+	_start: function( event, index ) {
+		var uiHash = {
+			handle: this.handles[ index ],
+			value: this.value()
+		};
+		if ( this.options.values && this.options.values.length ) {
+			uiHash.value = this.values( index );
+			uiHash.values = this.values();
+		}
+		return this._trigger( "start", event, uiHash );
+	},
+
+	_slide: function( event, index, newVal ) {
+		var otherVal,
+			newValues,
+			allowed;
+
+		if ( this.options.values && this.options.values.length ) {
+			otherVal = this.values( index ? 0 : 1 );
+
+			if ( ( this.options.values.length === 2 && this.options.range === true ) &&
+					( ( index === 0 && newVal > otherVal) || ( index === 1 && newVal < otherVal ) )
+				) {
+				newVal = otherVal;
+			}
+
+			if ( newVal !== this.values( index ) ) {
+				newValues = this.values();
+				newValues[ index ] = newVal;
+				// A slide can be canceled by returning false from the slide callback
+				allowed = this._trigger( "slide", event, {
+					handle: this.handles[ index ],
+					value: newVal,
+					values: newValues
+				} );
+				otherVal = this.values( index ? 0 : 1 );
+				if ( allowed !== false ) {
+					this.values( index, newVal, true );
+				}
+			}
+		} else {
+			if ( newVal !== this.value() ) {
+				// A slide can be canceled by returning false from the slide callback
+				allowed = this._trigger( "slide", event, {
+					handle: this.handles[ index ],
+					value: newVal
+				} );
+				if ( allowed !== false ) {
+					this.value( newVal );
+				}
+			}
+		}
+	},
+
+	_stop: function( event, index ) {
+		var uiHash = {
+			handle: this.handles[ index ],
+			value: this.value()
+		};
+		if ( this.options.values && this.options.values.length ) {
+			uiHash.value = this.values( index );
+			uiHash.values = this.values();
+		}
+
+		this._trigger( "stop", event, uiHash );
+	},
+
+	_change: function( event, index ) {
+		if ( !this._keySliding && !this._mouseSliding ) {
+			var uiHash = {
+				handle: this.handles[ index ],
+				value: this.value()
+			};
+			if ( this.options.values && this.options.values.length ) {
+				uiHash.value = this.values( index );
+				uiHash.values = this.values();
+			}
+
+			//store the last changed value index for reference when handles overlap
+			this._lastChangedValue = index;
+
+			this._trigger( "change", event, uiHash );
+		}
+	},
+
+	value: function( newValue ) {
+		if ( arguments.length ) {
+			this.options.value = this._trimAlignValue( newValue );
+			this._refreshValue();
+			this._change( null, 0 );
+			return;
+		}
+
+		return this._value();
+	},
+
+	values: function( index, newValue ) {
+		var vals,
+			newValues,
+			i;
+
+		if ( arguments.length > 1 ) {
+			this.options.values[ index ] = this._trimAlignValue( newValue );
+			this._refreshValue();
+			this._change( null, index );
+			return;
+		}
+
+		if ( arguments.length ) {
+			if ( $.isArray( arguments[ 0 ] ) ) {
+				vals = this.options.values;
+				newValues = arguments[ 0 ];
+				for ( i = 0; i < vals.length; i += 1 ) {
+					vals[ i ] = this._trimAlignValue( newValues[ i ] );
+					this._change( null, i );
+				}
+				this._refreshValue();
+			} else {
+				if ( this.options.values && this.options.values.length ) {
+					return this._values( index );
+				} else {
+					return this.value();
+				}
+			}
+		} else {
+			return this._values();
+		}
+	},
+
+	_setOption: function( key, value ) {
+		var i,
+			valsLength = 0;
+
+		if ( $.isArray( this.options.values ) ) {
+			valsLength = this.options.values.length;
+		}
+
+		$.Widget.prototype._setOption.apply( this, arguments );
+
+		switch ( key ) {
+			case "disabled":
+				if ( value ) {
+					this.handles.filter( ".ui-state-focus" ).blur();
+					this.handles.removeClass( "ui-state-hover" );
+					this.handles.prop( "disabled", true );
+				} else {
+					this.handles.prop( "disabled", false );
+				}
+				break;
+			case "orientation":
+				this._detectOrientation();
+				this.element
+					.removeClass( "ui-slider-horizontal ui-slider-vertical" )
+					.addClass( "ui-slider-" + this.orientation );
+				this._refreshValue();
+				break;
+			case "value":
+				this._animateOff = true;
+				this._refreshValue();
+				this._change( null, 0 );
+				this._animateOff = false;
+				break;
+			case "values":
+				this._animateOff = true;
+				this._refreshValue();
+				for ( i = 0; i < valsLength; i += 1 ) {
+					this._change( null, i );
+				}
+				this._animateOff = false;
+				break;
+			case "min":
+			case "max":
+				this._animateOff = true;
+				this._refreshValue();
+				this._animateOff = false;
+				break;
+		}
+	},
+
+	//internal value getter
+	// _value() returns value trimmed by min and max, aligned by step
+	_value: function() {
+		var val = this.options.value;
+		val = this._trimAlignValue( val );
+
+		return val;
+	},
+
+	//internal values getter
+	// _values() returns array of values trimmed by min and max, aligned by step
+	// _values( index ) returns single value trimmed by min and max, aligned by step
+	_values: function( index ) {
+		var val,
+			vals,
+			i;
+
+		if ( arguments.length ) {
+			val = this.options.values[ index ];
+			val = this._trimAlignValue( val );
+
+			return val;
+		} else {
+			// .slice() creates a copy of the array
+			// this copy gets trimmed by min and max and then returned
+			vals = this.options.values.slice();
+			for ( i = 0; i < vals.length; i+= 1) {
+				vals[ i ] = this._trimAlignValue( vals[ i ] );
+			}
+
+			return vals;
+		}
+	},
+
+	// returns the step-aligned value that val is closest to, between (inclusive) min and max
+	_trimAlignValue: function( val ) {
+		if ( val <= this._valueMin() ) {
+			return this._valueMin();
+		}
+		if ( val >= this._valueMax() ) {
+			return this._valueMax();
+		}
+		var step = ( this.options.step > 0 ) ? this.options.step : 1,
+			valModStep = (val - this._valueMin()) % step,
+			alignValue = val - valModStep;
+
+		if ( Math.abs(valModStep) * 2 >= step ) {
+			alignValue += ( valModStep > 0 ) ? step : ( -step );
+		}
+
+		// Since JavaScript has problems with large floats, round
+		// the final value to 5 digits after the decimal point (see #4124)
+		return parseFloat( alignValue.toFixed(5) );
+	},
+
+	_valueMin: function() {
+		return this.options.min;
+	},
+
+	_valueMax: function() {
+		return this.options.max;
+	},
+
+	_refreshValue: function() {
+		var lastValPercent, valPercent, value, valueMin, valueMax,
+			oRange = this.options.range,
+			o = this.options,
+			that = this,
+			animate = ( !this._animateOff ) ? o.animate : false,
+			_set = {};
+
+		if ( this.options.values && this.options.values.length ) {
+			this.handles.each(function( i ) {
+				valPercent = ( that.values(i) - that._valueMin() ) / ( that._valueMax() - that._valueMin() ) * 100;
+				_set[ that.orientation === "horizontal" ? "left" : "bottom" ] = valPercent + "%";
+				$( this ).stop( 1, 1 )[ animate ? "animate" : "css" ]( _set, o.animate );
+				if ( that.options.range === true ) {
+					if ( that.orientation === "horizontal" ) {
+						if ( i === 0 ) {
+							that.range.stop( 1, 1 )[ animate ? "animate" : "css" ]( { left: valPercent + "%" }, o.animate );
+						}
+						if ( i === 1 ) {
+							that.range[ animate ? "animate" : "css" ]( { width: ( valPercent - lastValPercent ) + "%" }, { queue: false, duration: o.animate } );
+						}
+					} else {
+						if ( i === 0 ) {
+							that.range.stop( 1, 1 )[ animate ? "animate" : "css" ]( { bottom: ( valPercent ) + "%" }, o.animate );
+						}
+						if ( i === 1 ) {
+							that.range[ animate ? "animate" : "css" ]( { height: ( valPercent - lastValPercent ) + "%" }, { queue: false, duration: o.animate } );
+						}
+					}
+				}
+				lastValPercent = valPercent;
+			});
+		} else {
+			value = this.value();
+			valueMin = this._valueMin();
+			valueMax = this._valueMax();
+			valPercent = ( valueMax !== valueMin ) ?
+					( value - valueMin ) / ( valueMax - valueMin ) * 100 :
+					0;
+			_set[ this.orientation === "horizontal" ? "left" : "bottom" ] = valPercent + "%";
+			this.handle.stop( 1, 1 )[ animate ? "animate" : "css" ]( _set, o.animate );
+
+			if ( oRange === "min" && this.orientation === "horizontal" ) {
+				this.range.stop( 1, 1 )[ animate ? "animate" : "css" ]( { width: valPercent + "%" }, o.animate );
+			}
+			if ( oRange === "max" && this.orientation === "horizontal" ) {
+				this.range[ animate ? "animate" : "css" ]( { width: ( 100 - valPercent ) + "%" }, { queue: false, duration: o.animate } );
+			}
+			if ( oRange === "min" && this.orientation === "vertical" ) {
+				this.range.stop( 1, 1 )[ animate ? "animate" : "css" ]( { height: valPercent + "%" }, o.animate );
+			}
+			if ( oRange === "max" && this.orientation === "vertical" ) {
+				this.range[ animate ? "animate" : "css" ]( { height: ( 100 - valPercent ) + "%" }, { queue: false, duration: o.animate } );
+			}
+		}
+	},
+
+	_handleEvents: {
+		keydown: function( event ) {
+			/*jshint maxcomplexity:25*/
+			var allowed, curVal, newVal, step,
+				index = $( event.target ).data( "ui-slider-handle-index" );
+
+			switch ( event.keyCode ) {
+				case $.ui.keyCode.HOME:
+				case $.ui.keyCode.END:
+				case $.ui.keyCode.PAGE_UP:
+				case $.ui.keyCode.PAGE_DOWN:
+				case $.ui.keyCode.UP:
+				case $.ui.keyCode.RIGHT:
+				case $.ui.keyCode.DOWN:
+				case $.ui.keyCode.LEFT:
+					event.preventDefault();
+					if ( !this._keySliding ) {
+						this._keySliding = true;
+						$( event.target ).addClass( "ui-state-active" );
+						allowed = this._start( event, index );
+						if ( allowed === false ) {
+							return;
+						}
+					}
+					break;
+			}
+
+			step = this.options.step;
+			if ( this.options.values && this.options.values.length ) {
+				curVal = newVal = this.values( index );
+			} else {
+				curVal = newVal = this.value();
+			}
+
+			switch ( event.keyCode ) {
+				case $.ui.keyCode.HOME:
+					newVal = this._valueMin();
+					break;
+				case $.ui.keyCode.END:
+					newVal = this._valueMax();
+					break;
+				case $.ui.keyCode.PAGE_UP:
+					newVal = this._trimAlignValue( curVal + ( (this._valueMax() - this._valueMin()) / numPages ) );
+					break;
+				case $.ui.keyCode.PAGE_DOWN:
+					newVal = this._trimAlignValue( curVal - ( (this._valueMax() - this._valueMin()) / numPages ) );
+					break;
+				case $.ui.keyCode.UP:
+				case $.ui.keyCode.RIGHT:
+					if ( curVal === this._valueMax() ) {
+						return;
+					}
+					newVal = this._trimAlignValue( curVal + step );
+					break;
+				case $.ui.keyCode.DOWN:
+				case $.ui.keyCode.LEFT:
+					if ( curVal === this._valueMin() ) {
+						return;
+					}
+					newVal = this._trimAlignValue( curVal - step );
+					break;
+			}
+
+			this._slide( event, index, newVal );
+		},
+		keyup: function( event ) {
+			var index = $( event.target ).data( "ui-slider-handle-index" );
+
+			if ( this._keySliding ) {
+				this._keySliding = false;
+				this._stop( event, index );
+				this._change( event, index );
+				$( event.target ).removeClass( "ui-state-active" );
+			}
+		}
+	}
+
+});
+
+}(jQuery));
+
+});
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/slider',["common/has_parent", "common/continuum_view", "backbone", "underscore", "./slidertemplate", "jquery_ui/slider"], function(HasParent, continuum_view, Backbone, _, slidertemplate) {
+    var ContinuumView, Slider, SliderView, Sliders, sliders, _ref, _ref1, _ref2;
+    ContinuumView = continuum_view.View;
+    SliderView = (function(_super) {
+      __extends(SliderView, _super);
+
+      function SliderView() {
+        this.slide = __bind(this.slide, this);
+        _ref = SliderView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      SliderView.prototype.tagName = "div";
+
+      SliderView.prototype.template = slidertemplate;
+
+      SliderView.prototype.initialize = function(options) {
+        SliderView.__super__.initialize.call(this, options);
+        return this.render();
+      };
+
+      SliderView.prototype.render = function() {
+        var html, max, min, step;
+        this.$el.empty();
+        html = this.template(this.model.attributes);
+        this.$el.html(html);
+        max = this.mget('end');
+        min = this.mget('start');
+        step = (max - min) / 50;
+        console.log('sliderval', min, max, step);
+        return this.$('.slider').slider({
+          orientation: this.mget('orientation'),
+          animate: "fast",
+          slide: _.throttle(this.slide, 200),
+          value: this.mget('value'),
+          min: min,
+          max: max,
+          step: step
+        });
+      };
+
+      SliderView.prototype.slide = function(event, ui) {
+        var value;
+        value = ui.value;
+        console.log('sliding', value);
+        return this.mset('value', value);
+      };
+
+      return SliderView;
+
+    })(ContinuumView);
+    Slider = (function(_super) {
+      __extends(Slider, _super);
+
+      function Slider() {
+        _ref1 = Slider.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Slider.prototype.type = "Slider";
+
+      Slider.prototype.default_view = SliderView;
+
+      Slider.prototype.defaults = function() {
+        var def;
+        def = {
+          title: '',
+          value: 0.5,
+          start: 0,
+          end: 1,
+          orientation: "horizontal"
+        };
+        return def;
+      };
+
+      return Slider;
+
+    })(HasParent);
+    Sliders = (function(_super) {
+      __extends(Sliders, _super);
+
+      function Sliders() {
+        _ref2 = Sliders.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      Sliders.prototype.model = Slider;
+
+      return Sliders;
+
+    })(Backbone.Collection);
+    sliders = new Sliders();
+    return {
+      "Model": Slider,
+      "Collection": sliders,
+      "View": SliderView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=slider.js.map
+*/;
+(function() {
+  define('common/base',["underscore", "require", "common/custom", "common/gmap_plot", "common/grid_plot", "common/plot", "common/plot_context", "mapper/1d/categorical_mapper", "mapper/1d/linear_mapper", "mapper/2d/grid_mapper", "mapper/color/linear_color_mapper", "range/data_factor_range", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/guide/linear_axis", "renderer/overlay/box_selection", "source/column_data_source", "source/server_data_source", "ticking/abstract_ticker", "ticking/adaptive_ticker", "ticking/basic_tick_formatter", "ticking/basic_ticker", "ticking/categorical_tick_formatter", "ticking/categorical_ticker", "ticking/composite_ticker", "ticking/datetime_tick_formatter", "ticking/datetime_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/single_interval_ticker", "ticking/years_ticker", "tool/box_select_tool", "tool/box_zoom_tool", "tool/crosshair_tool", "tool/data_range_box_select_tool", "tool/embed_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/reset_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/object_explorer_tool", "widget/data_slider", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source", 'widget/paragraph', 'widget/hbox', 'widget/vbox', 'widget/textinput', 'widget/vboxmodelform', 'widget/pretext', 'widget/selectbox', 'widget/slider'], function(_, require) {
     var Collections, Config, collection_overrides, locations, mod_cache;
     require("common/custom").monkey_patch();
     Config = {
@@ -35071,6 +37481,7 @@ define('widget/textinputtemplate',[],function(){
       DaysTicker: 'ticking/days_ticker',
       MonthsTicker: 'ticking/months_ticker',
       SingleIntervalTicker: 'ticking/single_interval_ticker',
+      YearsTicker: 'ticking/years_ticker',
       PanTool: 'tool/pan_tool',
       WheelZoomTool: 'tool/wheel_zoom_tool',
       ResizeTool: 'tool/resize_tool',
@@ -35091,7 +37502,10 @@ define('widget/textinputtemplate',[],function(){
       HBox: 'widget/hbox',
       VBox: 'widget/vbox',
       VBoxModelForm: 'widget/vboxmodelform',
-      TextInput: 'widget/textinput'
+      TextInput: 'widget/textinput',
+      PreText: 'widget/pretext',
+      Select: 'widget/selectbox',
+      Slider: 'widget/slider'
     };
     mod_cache = {};
     collection_overrides = {};
@@ -35392,15 +37806,7 @@ define('widget/textinputtemplate',[],function(){
       }
       if (tools.indexOf("hover") > -1) {
         hover_tool = HoverTool.Collection.create({
-          renderers: (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = glyphs.length; _i < _len; _i++) {
-              g = glyphs[_i];
-              _results.push(g.ref());
-            }
-            return _results;
-          })()
+          plot: plot.ref()
         });
         added_tools.push(hover_tool);
       }
@@ -35692,19 +38098,21 @@ define('widget/textinputtemplate',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=affine.js.map
-;
+/*
+//@ sourceMappingURL=affine.js.map
+*/;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
   define('common/png_view',["./continuum_view"], function(ContinuumView) {
-    var PNGView;
+    var PNGView, _ref;
     return PNGView = (function(_super) {
       __extends(PNGView, _super);
 
       function PNGView() {
-        return PNGView.__super__.constructor.apply(this, arguments);
+        _ref = PNGView.__super__.constructor.apply(this, arguments);
+        return _ref;
       }
 
       PNGView.prototype.initialize = function(options) {
@@ -35730,8 +38138,9 @@ define('widget/textinputtemplate',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=png_view.js.map
-;
+/*
+//@ sourceMappingURL=png_view.js.map
+*/;
 (function() {
   define('common/random',[], function() {
     var Random;
@@ -35773,747 +38182,9 @@ define('widget/textinputtemplate',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=random.js.map
-;
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  define('common/ticking',["underscore", "timezone", "sprintf"], function(_, tz, sprintf) {
-    var AbstractScale, AdaptiveScale, BasicScale, BasicTickFormatter, CompositeScale, DEFAULT_DESIRED_N_TICKS, DatetimeFormatter, DatetimeScale, DaysScale, MonthsScale, ONE_DAY, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR, SingleIntervalScale, arange, argmin, clamp, copy_date, date_range_by_month, date_range_by_year, indices, last_month_no_later_than, last_year_no_later_than, log, repr, _array, _four_digit_year, _ms_dot_us, _strftime, _two_digit_year, _us;
-    arange = function(start, end, step) {
-      var i, ret_arr;
-      if (end == null) {
-        end = false;
-      }
-      if (step == null) {
-        step = false;
-      }
-      if (!end) {
-        end = start;
-        start = 0;
-      }
-      if (start > end) {
-        if (step === false) {
-          step = -1;
-        } else if (step > 0) {
-          "the loop will never terminate";
-          1 / 0;
-        }
-      } else if (step < 0) {
-        "the loop will never terminate";
-        1 / 0;
-      }
-      if (!step) {
-        step = 1;
-      }
-      ret_arr = [];
-      i = start;
-      if (start < end) {
-        while (i < end) {
-          ret_arr.push(i);
-          i += step;
-        }
-      } else {
-        while (i > end) {
-          ret_arr.push(i);
-          i += step;
-        }
-      }
-      return ret_arr;
-    };
-    repr = function(obj) {
-      var elem, elems_str, key, obj_as_string, props_str;
-      if (obj === null) {
-        return "null";
-      } else if (obj.constructor === Array) {
-        elems_str = ((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = obj.length; _i < _len; _i++) {
-            elem = obj[_i];
-            _results.push(repr(elem));
-          }
-          return _results;
-        })()).join(", ");
-        return "[" + elems_str + "]";
-      } else if (obj.constructor === Object) {
-        props_str = ((function() {
-          var _results;
-          _results = [];
-          for (key in obj) {
-            _results.push("" + key + ": " + (repr(obj[key])));
-          }
-          return _results;
-        })()).join(", ");
-        return "{" + props_str + "}";
-      } else if (obj.constructor === String) {
-        return "\"" + obj + "\"";
-      } else if (obj.constructor === Function) {
-        return "<Function: " + obj.name + ">";
-      } else {
-        obj_as_string = obj.toString();
-        if (obj_as_string === "[object Object]") {
-          return "<" + obj.constructor.name + ">";
-        } else {
-          return obj_as_string;
-        }
-      }
-    };
-    indices = function(arr) {
-      return _.range(arr.length);
-    };
-    argmin = function(arr) {
-      var ret;
-      ret = _.min(indices(arr), (function(i) {
-        return arr[i];
-      }));
-      return ret;
-    };
-    clamp = function(x, min_val, max_val) {
-      return Math.max(min_val, Math.min(max_val, x));
-    };
-    log = function(x, base) {
-      if (base == null) {
-        base = Math.E;
-      }
-      return Math.log(x) / Math.log(base);
-    };
-    copy_date = function(date) {
-      return new Date(date.getTime());
-    };
-    last_month_no_later_than = function(date) {
-      date = copy_date(date);
-      date.setUTCDate(1);
-      date.setUTCHours(0);
-      date.setUTCMinutes(0);
-      date.setUTCSeconds(0);
-      date.setUTCMilliseconds(0);
-      return date;
-    };
-    last_year_no_later_than = function(date) {
-      date = last_month_no_later_than(date);
-      date.setUTCMonth(0);
-      return date;
-    };
-    date_range_by_year = function(start_time, end_time) {
-      var date, dates, end_date, start_date;
-      start_date = last_year_no_later_than(new Date(start_time));
-      end_date = last_year_no_later_than(new Date(end_time));
-      end_date.setUTCFullYear(end_date.getUTCFullYear() + 1);
-      dates = [];
-      date = start_date;
-      while (true) {
-        dates.push(copy_date(date));
-        date.setUTCFullYear(date.getUTCFullYear() + 1);
-        if (date > end_date) {
-          break;
-        }
-      }
-      return dates;
-    };
-    date_range_by_month = function(start_time, end_time) {
-      var date, dates, end_date, prev_end_date, start_date;
-      start_date = last_month_no_later_than(new Date(start_time));
-      end_date = last_month_no_later_than(new Date(end_time));
-      prev_end_date = copy_date(end_date);
-      end_date.setUTCMonth(end_date.getUTCMonth() + 1);
-      dates = [];
-      date = start_date;
-      while (true) {
-        dates.push(copy_date(date));
-        date.setUTCMonth(date.getUTCMonth() + 1);
-        if (date > end_date) {
-          break;
-        }
-      }
-      return dates;
-    };
-    DEFAULT_DESIRED_N_TICKS = 6;
-    AbstractScale = (function() {
-      function AbstractScale(toString_properties) {
-        this.toString_properties = toString_properties != null ? toString_properties : [];
-      }
-
-      AbstractScale.prototype.get_ticks = function(data_low, data_high, range, _arg) {
-        var desired_n_ticks;
-        desired_n_ticks = _arg.desired_n_ticks;
-        if (desired_n_ticks == null) {
-          desired_n_ticks = DEFAULT_DESIRED_N_TICKS;
-        }
-        return this.get_ticks_no_defaults(data_low, data_high, desired_n_ticks);
-      };
-
-      AbstractScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
-        var end_factor, factor, factors, interval, start_factor, ticks;
-        interval = this.get_interval(data_low, data_high, desired_n_ticks);
-        start_factor = Math.floor(data_low / interval);
-        end_factor = Math.ceil(data_high / interval);
-        factors = arange(start_factor, end_factor + 1);
-        ticks = (function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = factors.length; _i < _len; _i++) {
-            factor = factors[_i];
-            _results.push(factor * interval);
-          }
-          return _results;
-        })();
-        return ticks;
-      };
-
-      AbstractScale.prototype.get_interval = void 0;
-
-      AbstractScale.prototype.get_min_interval = function() {
-        return this.min_interval;
-      };
-
-      AbstractScale.prototype.get_max_interval = function() {
-        return this.max_interval;
-      };
-
-      AbstractScale.prototype.min_interval = void 0;
-
-      AbstractScale.prototype.max_interval = void 0;
-
-      AbstractScale.prototype.toString = function() {
-        var class_name, key, params_str, props;
-        class_name = this.constructor.name;
-        props = this.toString_properties;
-        params_str = ((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = props.length; _i < _len; _i++) {
-            key = props[_i];
-            _results.push("" + key + "=" + (repr(this[key])));
-          }
-          return _results;
-        }).call(this)).join(", ");
-        return "" + class_name + "(" + params_str + ")";
-      };
-
-      AbstractScale.prototype.get_ideal_interval = function(data_low, data_high, desired_n_ticks) {
-        var data_range;
-        data_range = data_high - data_low;
-        return data_range / desired_n_ticks;
-      };
-
-      return AbstractScale;
-
-    })();
-    SingleIntervalScale = (function(_super) {
-      __extends(SingleIntervalScale, _super);
-
-      function SingleIntervalScale(interval) {
-        this.interval = interval;
-        SingleIntervalScale.__super__.constructor.call(this, ['interval']);
-        this.min_interval = this.interval;
-        this.max_interval = this.interval;
-      }
-
-      SingleIntervalScale.prototype.get_interval = function(data_low, data_high, n_desired_ticks) {
-        return this.interval;
-      };
-
-      return SingleIntervalScale;
-
-    })(AbstractScale);
-    CompositeScale = (function(_super) {
-      __extends(CompositeScale, _super);
-
-      function CompositeScale(scales) {
-        this.scales = scales;
-        CompositeScale.__super__.constructor.call(this);
-        this.min_intervals = _.invoke(this.scales, 'get_min_interval');
-        this.max_intervals = _.invoke(this.scales, 'get_max_interval');
-        this.min_interval = _.first(this.min_intervals);
-        this.max_interval = _.last(this.max_intervals);
-      }
-
-      CompositeScale.prototype.get_best_scale = function(data_low, data_high, desired_n_ticks) {
-        var best_index, best_scale, best_scale_ndx, data_range, errors, ideal_interval, intervals, scale_ndxs;
-        data_range = data_high - data_low;
-        ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks);
-        scale_ndxs = [_.sortedIndex(this.min_intervals, ideal_interval) - 1, _.sortedIndex(this.max_intervals, ideal_interval)];
-        intervals = [this.min_intervals[scale_ndxs[0]], this.max_intervals[scale_ndxs[1]]];
-        errors = intervals.map(function(interval) {
-          return Math.abs(desired_n_ticks - (data_range / interval));
-        });
-        best_index = argmin(errors);
-        if (best_index === Infinity) {
-          return this.scales[0];
-        }
-        best_scale_ndx = scale_ndxs[best_index];
-        best_scale = this.scales[best_scale_ndx];
-        return best_scale;
-      };
-
-      CompositeScale.prototype.get_interval = function(data_low, data_high, desired_n_ticks) {
-        var best_scale;
-        best_scale = this.get_best_scale(data_low, data_high, desired_n_ticks);
-        return best_scale.get_interval(data_low, data_high, desired_n_ticks);
-      };
-
-      CompositeScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
-        var best_scale;
-        best_scale = this.get_best_scale(data_low, data_high, desired_n_ticks);
-        return best_scale.get_ticks_no_defaults(data_low, data_high, desired_n_ticks);
-      };
-
-      return CompositeScale;
-
-    })(AbstractScale);
-    AdaptiveScale = (function(_super) {
-      __extends(AdaptiveScale, _super);
-
-      function AdaptiveScale(mantissas, base, min_interval, max_interval) {
-        var prefix_mantissa, suffix_mantissa;
-        this.mantissas = mantissas;
-        this.base = base != null ? base : 10.0;
-        this.min_interval = min_interval != null ? min_interval : 0.0;
-        this.max_interval = max_interval != null ? max_interval : Infinity;
-        AdaptiveScale.__super__.constructor.call(this, ['mantissas', 'base', 'min_magnitude', 'max_magnitude']);
-        prefix_mantissa = _.last(this.mantissas) / this.base;
-        suffix_mantissa = _.first(this.mantissas) * this.base;
-        this.extended_mantissas = _.flatten([prefix_mantissa, this.mantissas, suffix_mantissa]);
-        this.base_factor = this.min_interval === 0.0 ? 1.0 : this.min_interval;
-      }
-
-      AdaptiveScale.prototype.get_interval = function(data_low, data_high, desired_n_ticks) {
-        var best_mantissa, candidate_mantissas, data_range, errors, ideal_interval, ideal_magnitude, ideal_mantissa, interval, interval_exponent;
-        data_range = data_high - data_low;
-        ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks);
-        interval_exponent = Math.floor(log(ideal_interval / this.base_factor, this.base));
-        ideal_magnitude = Math.pow(this.base, interval_exponent) * this.base_factor;
-        ideal_mantissa = ideal_interval / ideal_magnitude;
-        candidate_mantissas = this.extended_mantissas;
-        errors = candidate_mantissas.map(function(mantissa) {
-          return Math.abs(desired_n_ticks - (data_range / (mantissa * ideal_magnitude)));
-        });
-        best_mantissa = candidate_mantissas[argmin(errors)];
-        interval = best_mantissa * ideal_magnitude;
-        return clamp(interval, this.min_interval, this.max_interval);
-      };
-
-      return AdaptiveScale;
-
-    })(AbstractScale);
-    MonthsScale = (function(_super) {
-      __extends(MonthsScale, _super);
-
-      function MonthsScale(months) {
-        this.months = months;
-        this.typical_interval = this.months.length > 1 ? (this.months[1] - this.months[0]) * ONE_MONTH : 12 * ONE_MONTH;
-        MonthsScale.__super__.constructor.call(this, this.typical_interval);
-        this.toString_properties = ['months'];
-      }
-
-      MonthsScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
-        var all_ticks, date, month_dates, months, months_of_year, ticks_in_range, year_dates;
-        year_dates = date_range_by_year(data_low, data_high);
-        months = this.months;
-        months_of_year = function(year_date) {
-          return months.map(function(month) {
-            var month_date;
-            month_date = copy_date(year_date);
-            month_date.setUTCMonth(month);
-            return month_date;
-          });
-        };
-        month_dates = _.flatten((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = year_dates.length; _i < _len; _i++) {
-            date = year_dates[_i];
-            _results.push(months_of_year(date));
-          }
-          return _results;
-        })());
-        all_ticks = _.invoke(month_dates, 'getTime');
-        ticks_in_range = _.filter(all_ticks, (function(tick) {
-          return (data_low <= tick && tick <= data_high);
-        }));
-        return ticks_in_range;
-      };
-
-      return MonthsScale;
-
-    })(SingleIntervalScale);
-    DaysScale = (function(_super) {
-      __extends(DaysScale, _super);
-
-      function DaysScale(days) {
-        this.days = days;
-        this.typical_interval = this.days.length > 1 ? (this.days[1] - this.days[0]) * ONE_DAY : 31 * ONE_DAY;
-        DaysScale.__super__.constructor.call(this, this.typical_interval);
-        this.toString_properties = ['days'];
-      }
-
-      DaysScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
-        var all_ticks, date, day_dates, days, days_of_month, month_dates, ticks_in_range, typical_interval;
-        month_dates = date_range_by_month(data_low, data_high);
-        days = this.days;
-        typical_interval = this.typical_interval;
-        days_of_month = function(month_date) {
-          var dates, day, day_date, future_date, _i, _len;
-          dates = [];
-          for (_i = 0, _len = days.length; _i < _len; _i++) {
-            day = days[_i];
-            day_date = copy_date(month_date);
-            day_date.setUTCDate(day);
-            future_date = new Date(day_date.getTime() + (typical_interval / 2));
-            if (future_date.getUTCMonth() === month_date.getUTCMonth()) {
-              dates.push(day_date);
-            }
-          }
-          return dates;
-        };
-        day_dates = _.flatten((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = month_dates.length; _i < _len; _i++) {
-            date = month_dates[_i];
-            _results.push(days_of_month(date));
-          }
-          return _results;
-        })());
-        all_ticks = _.invoke(day_dates, 'getTime');
-        ticks_in_range = _.filter(all_ticks, (function(tick) {
-          return (data_low <= tick && tick <= data_high);
-        }));
-        return ticks_in_range;
-      };
-
-      return DaysScale;
-
-    })(SingleIntervalScale);
-    ONE_MILLI = 1.0;
-    ONE_SECOND = 1000.0;
-    ONE_MINUTE = 60.0 * ONE_SECOND;
-    ONE_HOUR = 60 * ONE_MINUTE;
-    ONE_DAY = 24 * ONE_HOUR;
-    ONE_MONTH = 30 * ONE_DAY;
-    ONE_YEAR = 365 * ONE_DAY;
-    BasicScale = (function(_super) {
-      __extends(BasicScale, _super);
-
-      function BasicScale() {
-        BasicScale.__super__.constructor.call(this, [1, 2, 5]);
-      }
-
-      return BasicScale;
-
-    })(AdaptiveScale);
-    DatetimeScale = (function(_super) {
-      __extends(DatetimeScale, _super);
-
-      function DatetimeScale() {
-        DatetimeScale.__super__.constructor.call(this, [new AdaptiveScale([1, 2, 5], 10, 0, 500 * ONE_MILLI), new AdaptiveScale([1, 2, 5, 10, 15, 20, 30], 60, ONE_SECOND, 30 * ONE_MINUTE), new AdaptiveScale([1, 2, 4, 6, 8, 12], 24.0, ONE_HOUR, 12 * ONE_HOUR), new DaysScale(arange(1, 32)), new DaysScale(arange(1, 31, 3)), new DaysScale([1, 8, 15, 22]), new DaysScale([1, 15]), new MonthsScale(arange(0, 12)), new MonthsScale(arange(0, 12, 2)), new MonthsScale(arange(0, 12, 4)), new MonthsScale(arange(0, 12, 6)), new AdaptiveScale([1, 2, 5], 10, ONE_YEAR, Infinity)]);
-      }
-
-      return DatetimeScale;
-
-    })(CompositeScale);
-    BasicTickFormatter = (function() {
-      function BasicTickFormatter(precision, use_scientific, power_limit_high, power_limit_low) {
-        this.precision = precision != null ? precision : 'auto';
-        this.use_scientific = use_scientific != null ? use_scientific : true;
-        this.power_limit_high = power_limit_high != null ? power_limit_high : 5;
-        this.power_limit_low = power_limit_low != null ? power_limit_low : -3;
-        this.scientific_limit_low = Math.pow(10.0, power_limit_low);
-        this.scientific_limit_high = Math.pow(10.0, power_limit_high);
-        this.last_precision = 3;
-      }
-
-      BasicTickFormatter.prototype.format = function(ticks) {
-        var i, is_ok, labels, need_sci, tick, tick_abs, x, zero_eps, _i, _j, _k, _l, _len, _m, _n, _ref, _ref1, _ref2, _ref3, _ref4;
-        if (ticks.length === 0) {
-          return [];
-        }
-        zero_eps = 0;
-        if (ticks.length >= 2) {
-          zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000;
-        }
-        need_sci = false;
-        if (this.use_scientific) {
-          for (_i = 0, _len = ticks.length; _i < _len; _i++) {
-            tick = ticks[_i];
-            tick_abs = Math.abs(tick);
-            if (tick_abs > zero_eps && (tick_abs >= this.scientific_limit_high || tick_abs <= this.scientific_limit_low)) {
-              need_sci = true;
-              break;
-            }
-          }
-        }
-        if (_.isNumber(this.precision)) {
-          labels = new Array(ticks.length);
-          if (need_sci) {
-            for (i = _j = 0, _ref = ticks.length; 0 <= _ref ? _j < _ref : _j > _ref; i = 0 <= _ref ? ++_j : --_j) {
-              labels[i] = ticks[i].toExponential(this.precision);
-            }
-          } else {
-            for (i = _k = 0, _ref1 = ticks.length; 0 <= _ref1 ? _k < _ref1 : _k > _ref1; i = 0 <= _ref1 ? ++_k : --_k) {
-              labels[i] = ticks[i].toPrecision(this.precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
-            }
-          }
-          return labels;
-        } else if (this.precision === 'auto') {
-          labels = new Array(ticks.length);
-          for (x = _l = _ref2 = this.last_precision; _ref2 <= 15 ? _l <= 15 : _l >= 15; x = _ref2 <= 15 ? ++_l : --_l) {
-            is_ok = true;
-            if (need_sci) {
-              for (i = _m = 0, _ref3 = ticks.length; 0 <= _ref3 ? _m < _ref3 : _m > _ref3; i = 0 <= _ref3 ? ++_m : --_m) {
-                labels[i] = ticks[i].toExponential(x);
-                if (i > 0) {
-                  if (labels[i] === labels[i - 1]) {
-                    is_ok = false;
-                    break;
-                  }
-                }
-              }
-              if (is_ok) {
-                break;
-              }
-            } else {
-              for (i = _n = 0, _ref4 = ticks.length; 0 <= _ref4 ? _n < _ref4 : _n > _ref4; i = 0 <= _ref4 ? ++_n : --_n) {
-                labels[i] = ticks[i].toPrecision(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
-                if (i > 0) {
-                  if (labels[i] === labels[i - 1]) {
-                    is_ok = false;
-                    break;
-                  }
-                }
-              }
-              if (is_ok) {
-                break;
-              }
-            }
-            if (is_ok) {
-              this.last_precision = x;
-              return labels;
-            }
-          }
-        }
-        return labels;
-      };
-
-      return BasicTickFormatter;
-
-    })();
-    _us = function(t) {
-      return sprintf("%3dus", Math.floor((t % 1) * 1000));
-    };
-    _ms_dot_us = function(t) {
-      var ms, us;
-      ms = Math.floor(((t / 1000) % 1) * 1000);
-      us = Math.floor((t % 1) * 1000);
-      return sprintf("%3d.%3dms", ms, us);
-    };
-    _two_digit_year = function(t) {
-      var dt, year;
-      dt = new Date(t);
-      year = dt.getFullYear();
-      if (dt.getMonth() >= 7) {
-        year += 1;
-      }
-      return sprintf("'%02d", year % 100);
-    };
-    _four_digit_year = function(t) {
-      var dt, year;
-      dt = new Date(t);
-      year = dt.getFullYear();
-      if (dt.getMonth() >= 7) {
-        year += 1;
-      }
-      return sprintf("%d", year);
-    };
-    _array = function(t) {
-      return tz(t, "%Y %m %d %H %M %S").split(/\s+/).map(function(e) {
-        return parseInt(e, 10);
-      });
-    };
-    _strftime = function(t, format) {
-      if (_.isFunction(format)) {
-        return format(t);
-      } else {
-        return tz(t, format);
-      }
-    };
-    DatetimeFormatter = (function() {
-      DatetimeFormatter.prototype.format_order = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'];
-
-      DatetimeFormatter.prototype.strip_leading_zeros = true;
-
-      function DatetimeFormatter() {
-        var fmt, fmt_name, fmt_strings, size, sizes, tmptime, _i, _len;
-        this._formats = {
-          'microseconds': [_us, _ms_dot_us],
-          'milliseconds': ['%3Nms', '%S.%3Ns'],
-          'seconds': ['%Ss'],
-          'minsec': [':%M:%S'],
-          'minutes': [':%M', '%Mm'],
-          'hourmin': ['%H:%M'],
-          'hours': ['%Hh', '%H:%M'],
-          'days': ['%m/%d', '%a%d'],
-          'months': ['%m/%Y', '%b%y'],
-          'years': ['%Y', _two_digit_year, _four_digit_year]
-        };
-        this.formats = {};
-        for (fmt_name in this._formats) {
-          fmt_strings = this._formats[fmt_name];
-          sizes = [];
-          tmptime = tz(new Date());
-          for (_i = 0, _len = fmt_strings.length; _i < _len; _i++) {
-            fmt = fmt_strings[_i];
-            size = (_strftime(tmptime, fmt)).length;
-            sizes.push(size);
-          }
-          this.formats[fmt_name] = [sizes, fmt_strings];
-        }
-        return;
-      }
-
-      DatetimeFormatter.prototype._get_resolution_str = function(resolution_secs, span_secs) {
-        var adjusted_resolution_secs, str;
-        adjusted_resolution_secs = resolution_secs * 1.1;
-        if (adjusted_resolution_secs < 1e-3) {
-          str = "microseconds";
-        } else if (adjusted_resolution_secs < 1.0) {
-          str = "milliseconds";
-        } else if (adjusted_resolution_secs < 60) {
-          if (span_secs >= 60) {
-            str = "minsec";
-          } else {
-            str = "seconds";
-          }
-        } else if (adjusted_resolution_secs < 3600) {
-          if (span_secs >= 3600) {
-            str = "hourmin";
-          } else {
-            str = "minutes";
-          }
-        } else if (adjusted_resolution_secs < 24 * 3600) {
-          str = "hours";
-        } else if (adjusted_resolution_secs < 31 * 24 * 3600) {
-          str = "days";
-        } else if (adjusted_resolution_secs < 365 * 24 * 3600) {
-          str = "months";
-        } else {
-          str = "years";
-        }
-        return str;
-      };
-
-      DatetimeFormatter.prototype.format = function(ticks, num_labels, char_width, fill_ratio, ticker) {
-        var dt, error, fmt, format, formats, good_formats, hybrid_handled, i, labels, next_format, next_ndx, r, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
-        if (num_labels == null) {
-          num_labels = null;
-        }
-        if (char_width == null) {
-          char_width = null;
-        }
-        if (fill_ratio == null) {
-          fill_ratio = 0.3;
-        }
-        if (ticker == null) {
-          ticker = null;
-        }
-        if (ticks.length === 0) {
-          return [];
-        }
-        span = Math.abs(ticks[ticks.length - 1] - ticks[0]) / 1000.0;
-        if (ticker) {
-          r = ticker.resolution;
-        } else {
-          r = span / (ticks.length - 1);
-        }
-        resol = this._get_resolution_str(r, span);
-        _ref = this.formats[resol], widths = _ref[0], formats = _ref[1];
-        format = formats[0];
-        if (char_width) {
-          good_formats = [];
-          for (i = _i = 0, _ref1 = widths.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            if (widths[i] * ticks.length < fill_ratio * char_width) {
-              good_formats.push(this.formats[i]);
-            }
-          }
-          if (good_formats.length > 0) {
-            format = good_formats[ticks.length - 1];
-          }
-        }
-        labels = [];
-        resol_ndx = this.format_order.indexOf(resol);
-        time_tuple_ndx_for_resol = {};
-        _ref2 = this.format_order;
-        for (_j = 0, _len = _ref2.length; _j < _len; _j++) {
-          fmt = _ref2[_j];
-          time_tuple_ndx_for_resol[fmt] = 0;
-        }
-        time_tuple_ndx_for_resol["seconds"] = 5;
-        time_tuple_ndx_for_resol["minsec"] = 4;
-        time_tuple_ndx_for_resol["minutes"] = 4;
-        time_tuple_ndx_for_resol["hourmin"] = 3;
-        time_tuple_ndx_for_resol["hours"] = 3;
-        for (_k = 0, _len1 = ticks.length; _k < _len1; _k++) {
-          t = ticks[_k];
-          try {
-            dt = Date(t);
-            tm = _array(t);
-            s = _strftime(t, format);
-          } catch (_error) {
-            error = _error;
-            console.log(error);
-            console.log("Unable to convert tick for timestamp " + t);
-            labels.push("ERR");
-            continue;
-          }
-          hybrid_handled = false;
-          next_ndx = resol_ndx;
-          while (tm[time_tuple_ndx_for_resol[this.format_order[next_ndx]]] === 0) {
-            next_ndx += 1;
-            if (next_ndx === this.format_order.length) {
-              break;
-            }
-            if ((resol === "minsec" || resol === "hourmin") && !hybrid_handled) {
-              if ((resol === "minsec" && tm[4] === 0 && tm[5] !== 0) || (resol === "hourmin" && tm[3] === 0 && tm[4] !== 0)) {
-                next_format = this.formats[this.format_order[resol_ndx - 1]][1][0];
-                s = _strftime(t, next_format);
-                break;
-              } else {
-                hybrid_handled = true;
-              }
-            }
-            next_format = this.formats[this.format_order[next_ndx]][1][0];
-            s = _strftime(t, next_format);
-          }
-          if (this.strip_leading_zeros) {
-            ss = s.replace(/^0+/g, "");
-            if (ss !== s && (ss === '' || !isFinite(ss[0]))) {
-              ss = '0' + ss;
-            }
-            labels.push(ss);
-          } else {
-            labels.push(s);
-          }
-        }
-        return labels;
-      };
-
-      return DatetimeFormatter;
-
-    })();
-    return {
-      "BasicScale": BasicScale,
-      "DatetimeScale": DatetimeScale,
-      "BasicTickFormatter": BasicTickFormatter,
-      "DatetimeFormatter": DatetimeFormatter
-    };
-  });
-
-}).call(this);
-
-//# sourceMappingURL=ticking.js.map
-;
+/*
+//@ sourceMappingURL=random.js.map
+*/;
 (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
@@ -36525,6 +38196,7 @@ define('widget/textinputtemplate',[],function(){
 
       function WebSocketWrapper(ws_conn_string) {
         this.onmessage = __bind(this.onmessage, this);
+        var _this = this;
         this.auth = {};
         this.ws_conn_string = ws_conn_string;
         this._connected = $.Deferred();
@@ -36534,11 +38206,9 @@ define('widget/textinputtemplate',[],function(){
         } else {
           this.s = new WebSocket(ws_conn_string);
         }
-        this.s.onopen = (function(_this) {
-          return function() {
-            return _this._connected.resolve();
-          };
-        })(this);
+        this.s.onopen = function() {
+          return _this._connected.resolve();
+        };
         this.s.onmessage = this.onmessage;
       }
 
@@ -36554,11 +38224,10 @@ define('widget/textinputtemplate',[],function(){
       };
 
       WebSocketWrapper.prototype.send = function(msg) {
-        return $.when(this.connected).done((function(_this) {
-          return function() {
-            return _this.s.send(msg);
-          };
-        })(this));
+        var _this = this;
+        return $.when(this.connected).done(function() {
+          return _this.s.send(msg);
+        });
       };
 
       WebSocketWrapper.prototype.subscribe = function(topic, auth) {
@@ -36616,8 +38285,9 @@ define('widget/textinputtemplate',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=socket.js.map
-;
+/*
+//@ sourceMappingURL=socket.js.map
+*/;
 (function() {
   define('server/serverutils',["common/base", "server/serverutils", "common/socket", "common/load_models"], function(base, serverutils, socket, load_models) {
     var Deferreds, Promises, WebSocketWrapper, exports, submodels, utility;
@@ -36636,6 +38306,21 @@ define('widget/textinputtemplate',[],function(){
     exports.plotcontextview = null;
     exports.Promises = Promises;
     utility = {
+      load_one_object_chain: function(docid, objid) {
+        var Config, resp, url;
+        Config = require("common/base").Config;
+        url = "" + Config.prefix + "/bokeh/objinfo/" + docid + "/" + objid;
+        console.log(url);
+        resp = $.get(url);
+        resp.done(function(data) {
+          var all_models, apikey;
+          all_models = data['all_models'];
+          load_models(all_models);
+          apikey = data['apikey'];
+          return submodels(exports.wswrapper, "bokehplot:" + docid, apikey);
+        });
+        return resp;
+      },
       load_user: function() {
         var response;
         response = $.get('/bokeh/userinfo/', {});
@@ -36890,8 +38575,9 @@ define('widget/textinputtemplate',[],function(){
 
 }).call(this);
 
-//# sourceMappingURL=embed_core.js.map
-;
+/*
+//@ sourceMappingURL=embed_core.js.map
+*/;
 define('server/usercontext/userdocstemplate',[],function(){
   var template = function(__obj) {
   var _safe = function(value) {
@@ -37068,7 +38754,6 @@ define('server/usercontext/wrappertemplate',[],function(){
       };
 
       DocView.prototype.deldoc = function(e) {
-        console.log('foo');
         e.preventDefault();
         this.model.destroy();
         return false;
@@ -37270,7 +38955,7 @@ define('server/usercontext/wrappertemplate',[],function(){
           var docs;
           docs = data['docs'];
           if (options.update) {
-            return _this.update(docs, options);
+            return _this.set(docs, options);
           } else {
             return _this.reset(docs, options);
           }
@@ -37295,10 +38980,26 @@ define('server/usercontext/wrappertemplate',[],function(){
 */;
 (function() {
   define('server/serverrun',["common/base", "./serverutils", "./usercontext/usercontext", "common/has_properties"], function(base, serverutils, usercontext, HasProperties) {
-    var Config, Promises, load, _render, _render_all, _render_one;
+    var Config, Promises, load, load_one_object, _render, _render_all, _render_one;
     Config = base.Config;
     Promises = serverutils.Promises;
     Config.ws_conn_string = "ws://" + window.location.host + "/bokeh/sub";
+    load_one_object = function(docid, objid) {
+      HasProperties.prototype.sync = Backbone.sync;
+      return $(function() {
+        var resp, wswrapper;
+        wswrapper = serverutils.utility.make_websocket();
+        resp = serverutils.utility.load_one_object_chain(docid, objid);
+        return resp.done(function(data) {
+          var model, view;
+          model = base.Collections(data.type).get(objid);
+          view = new model.default_view({
+            model: model
+          });
+          return _render(view.el);
+        });
+      });
+    };
     load = function(title) {
       HasProperties.prototype.sync = Backbone.sync;
       return $(function() {
@@ -37349,7 +39050,8 @@ define('server/usercontext/wrappertemplate',[],function(){
       return $('#PlotPane').append(html);
     };
     return {
-      load: load
+      load: load,
+      load_one_object: load_one_object
     };
   });
 
@@ -37359,14 +39061,14 @@ define('server/usercontext/wrappertemplate',[],function(){
 //@ sourceMappingURL=serverrun.js.map
 */;
 (function() {
-  define('main',['require','exports','module','backbone','underscore','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/ticking','common/view_state','mapper/1d/linear_mapper','mapper/1d/categorical_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/categorical_axis','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','ticking/abstract_ticker','ticking/adaptive_ticker','ticking/basic_ticker','ticking/basic_tick_formatter','ticking/categorical_ticker','ticking/categorical_tick_formatter','ticking/composite_ticker','ticking/datetime_ticker','ticking/datetime_tick_formatter','ticking/days_ticker','ticking/months_ticker','ticking/single_interval_ticker','tool/box_select_tool','tool/box_zoom_tool','tool/crosshair_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/hover_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/wheel_zoom_tool','tool/object_explorer_tool','widget/data_slider','server/serverrun','widget/hbox','widget/hbox','widget/vboxmodelform','widget/textinput','util/object_explorer'],function(require, exports, module) {
+  define('main',['require','exports','module','backbone','underscore','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/view_state','mapper/1d/linear_mapper','mapper/1d/categorical_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/categorical_axis','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','ticking/abstract_ticker','ticking/adaptive_ticker','ticking/basic_ticker','ticking/basic_tick_formatter','ticking/categorical_ticker','ticking/categorical_tick_formatter','ticking/composite_ticker','ticking/datetime_ticker','ticking/datetime_tick_formatter','ticking/days_ticker','ticking/months_ticker','ticking/single_interval_ticker','ticking/years_ticker','tool/box_select_tool','tool/box_zoom_tool','tool/crosshair_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/hover_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/wheel_zoom_tool','tool/object_explorer_tool','server/serverrun','server/serverrun','widget/data_slider','widget/hbox','widget/vbox','widget/vboxmodelform','widget/textinput','util/object_explorer'],function(require, exports, module) {
     var Bokeh, glyph_factory;
     if (!window.Float64Array) {
       console.warn("Float64Array is not supported. Using generic Array instead.");
       window.Float64Array = Array;
     }
     Bokeh = {};
-    Bokeh.version = '0.4.2';
+    Bokeh.version = '0.4.4';
     Bokeh.Backbone = require("backbone");
     Bokeh._ = require("underscore");
     Bokeh.Collections = require("common/base").Collections;
@@ -37389,7 +39091,6 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.Random = require("common/random");
     Bokeh.safebind = require("common/safebind");
     Bokeh.SVGColors = require("common/svg_colors");
-    Bokeh.ticking = require("common/ticking");
     Bokeh.ViewState = require("common/view_state");
     Bokeh.LinearMapper = require("mapper/1d/linear_mapper");
     Bokeh.CategoricalMapper = require("mapper/1d/categorical_mapper");
@@ -37453,6 +39154,7 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.DaysTicker = require("ticking/days_ticker");
     Bokeh.MonthsTicker = require("ticking/months_ticker");
     Bokeh.SingleIntervalTicker = require("ticking/single_interval_ticker");
+    Bokeh.YearsTicker = require("ticking/years_ticker");
     Bokeh.BoxSelectTool = require("tool/box_select_tool");
     Bokeh.BoxZoomTool = require("tool/box_zoom_tool");
     Bokeh.CrosshairTool = require("tool/crosshair_tool");
@@ -37465,10 +39167,11 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.ResizeTool = require("tool/resize_tool");
     Bokeh.WheelZoomTool = require("tool/wheel_zoom_tool");
     Bokeh.ObjectExplorerTool = require("tool/object_explorer_tool");
-    Bokeh.DataSlider = require("widget/data_slider");
+    Bokeh.one_object_page = require("server/serverrun").load_one_object;
     Bokeh.server_page = require("server/serverrun").load;
+    Bokeh.DataSlider = require("widget/data_slider");
     Bokeh.HBox = require("widget/hbox");
-    Bokeh.VBox = require("widget/hbox");
+    Bokeh.VBox = require("widget/vbox");
     Bokeh.VBoxModelForm = require("widget/vboxmodelform");
     Bokeh.TextInput = require("widget/textinput");
     Bokeh.ObjectExplorer = require("util/object_explorer");

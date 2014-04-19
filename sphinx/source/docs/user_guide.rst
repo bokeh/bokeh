@@ -209,6 +209,62 @@ value a comma separated string listing the tools to add to the plot, for example
 
     tools = "pan,wheel_zoom,box_zoom,reset,resize"
 
+BoxSelectTool
+'''''''''''''
+The box selection tool (``'select'``) allows the user to define a rectangular selection
+region be left-dragging on the plot. The indicies of the data points in the selection
+region are stored on the data source as the current selection. If other plots share this
+datasource, then they will render a linked selection. This selection is also available
+from python when using server-based output.
+
+BoxZoomTool
+'''''''''''
+The box zoom tool (``'box_zoom'``) will zoom the plot in to the box region that a user
+selects with left drag while it is the active tool.
+
+CrosshairTool
+'''''''''''''
+Th crosshair tool (``'crosshair'``) draws a crosshair annotation over the plot, centered on
+the current mouse position.
+
+EmbedTool
+'''''''''
+The embed tool (``'embed'``) tool pops up a modal dialog containing a javascript ``<script>``
+snippet that can put int HTML pages to display the plot.
+
+HoverTool
+'''''''''
+The hover tool (``'hover'``) tool pops up a tooltip div whenever the cursor is over
+a glyph. The information comes from the glyphs data source and is configurable through
+a simple tooltips dictionary that maps displayed names to columns in the data source,
+or to special known variables. Here is an example of how to configure the hover tool:
+::
+
+    # We want to add some fields for the hover tool to interrogate, but first we
+    # have to get ahold of the tool. This will be made easier in future releases.
+    hover = [t for t in curplot().tools if isinstance(t, HoverTool)][0]
+
+    # Add tooltip (name, value) pairs to tooltips. Variables from the data source
+    # are available with a "@" prefix, e.g., "@foo" will display the value for
+    # the 'foo' column value under the cursor. There are also some special known
+    # values that start with "$" symbol:
+    #   - $index     index of selected point in the data source
+    #   - $x, $y     "data" coordinates under cursor
+    #   - $sx, $sy   canvas coordinates under cursor
+    #   - $color     color data from data source, syntax: $color[options]:field_name
+    #                available options for $color are: hex, swatch
+    # NOTE: we use an OrderedDict here to preserve the order in the displayed tooltip
+    hover.tooltips = OrderedDict([
+        ("index", "$index"),
+        ("(x,y)", "($x, $y)"),
+        ("radius", "@radius"),
+        ("fill color", "$color[hex, swatch]:fill_color"),
+        ("foo", "@foo"),
+        ("bar", "@bar"),
+    ])
+
+.. note:: Point hit testing is not currently available on all glyphs. Hover tool currently does not work with lines, images, or patch type glyphs.
+
 PanTool
 '''''''
 The pan tool (``'pan'``) pans the plot on left-click drag. It can be made the active tool
@@ -218,19 +274,10 @@ drag whenever there is no other active tool.
 It is also possible to constraint the pan tool to only act on either just the x-axis or
 just the y-axis. For this, there are tool names ``'xpan'`` and ``'ypan'``, respectively.
 
-WheelZoomTool
-'''''''''''''
-The wheel zoom tool (``'wheel_zoom'``) will zoom the plot in and out, centered on the current
-mouse location.  It can be made the active tool by clicking its button on the tool bar, however
-it also automatically activates when the ``Shift`` key is depressed.
-
-It is also possible to constraint the wheel zoom tool to only act on either just the x-axis or
-just the y-axis. For this, there are tool names ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
-
-BoxZoomTool
-'''''''''''
-The box zoom tool (``'box_zoom'``) will zoom the plot in to the box region that a user
-selects with left drag while it is the active tool.
+PreviewSaveTool
+'''''''''''''''
+The preview-save tool (``'previewsave'``) pops up a modal dialog that allows the user to save
+a PNG image if the plot.
 
 ResetTool
 '''''''''
@@ -241,28 +288,14 @@ ResizeTool
 The resize tool (``'resize'``) allows the user to left drag to resize the entire plot while
 it is the active tool.
 
-PreviewSaveTool
-'''''''''''''''
-The preview-save tool (``'previewsave'``) pops up a modal dialog that allows the user to save
-a PNG image if the plot.
-
-EmbedTool
-'''''''''
-The embed tool (``'embed'``) tool pops up a modal dialog containing a javascript ``<script>``
-snippet that can put int HTML pages to display the plot.
-
-CrosshairTool
+WheelZoomTool
 '''''''''''''
-Th crosshair tool (``'crosshair'``) draws a crosshair annotation over the plot, centered on
-the current mouse position.
+The wheel zoom tool (``'wheel_zoom'``) will zoom the plot in and out, centered on the current
+mouse location.  It can be made the active tool by clicking its button on the tool bar, however
+it also automatically activates when the ``Shift`` key is depressed.
 
-BoxSelectTool
-'''''''''''''
-The box selection tool (``'select'``) allows the user to define a rectangular selection
-region be left-dragging on the plot. The indicies of the data points in the selection
-region are stored on the data source as the current selection. If other plots share this
-datasource, then they will render a linked selection. This selection is also available
-from python when using server-based output.
+It is also possible to constraint the wheel zoom tool to only act on either just the x-axis or
+just the y-axis. For this, there are tool names ``'xwheel_zoom'`` and ``'ywheel_zoom'``, respectively.
 
 Embedding
 ---------

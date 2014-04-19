@@ -15,10 +15,10 @@ def deploy(user=False):
     # remove and archive old files and directories
     for dir in dirs:
         run("rm -rf /www/bokeh-old/%s" % dir)
-        run("cp -ar /www/bokeh-latest/_images /www/bokeh-old/%s" % dir)
+        run("cp -ar /www/bokeh-latest/%s /www/bokeh-old/%s" % (dir, dir))
     for file in files:
         run("rm -f /www/bokeh-old/%s" % file)
-        run("cp -a /www/bokeh-latest/index.html /www/bokeh-old/%s" % file)
+        run("cp -a /www/bokeh-latest/%s /www/bokeh-old/%s" % (file, file))
 
     # switch current symlink to archive docs
     run("rm /www/bokeh")

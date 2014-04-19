@@ -8,6 +8,37 @@ Developer Guide
     :local:
     :depth: 2
 
+Testing
+=======
+
+There is a TravisCI project configured to execute on every GitHub push, it can
+be viewed at: https://travis-ci.org/ContinuumIO/bokeh.
+
+To run the python unit tests manually, you can execute::
+
+    $ python -c "import bokeh; bokeh.test()"
+
+Additionally, there are "examples tests" that check whether all the examples
+produce outputs. This script is in the `examples` directory and can be run by
+executing::
+
+    $ test -D
+
+Currently this script does not support Windows. When adding new examples, make
+sure to place them in appropriate location under `examples/` directory and use
+special keywords (`server`, `animate`) in their names, if required. This will
+help test script to properly classify examples and use correct test runner. If
+new examples are placed under `plotting/` directory, only `animate` keyword is
+required for animated examples. Placing examples elsewhere, e.g. in `glyphs/`,
+may also require `server` keyword for server examples, because otherwise they
+will be classified as `file` (`*.py` extension) or `notebook` examples (`*.ipynb`
+extension).
+
+There is also a bokehjs unit test suite, it can be run by changing directories
+to the `bokehjs` subdirectory and executing::
+
+    $ grunt test
+
 Architecture Overview
 =====================
 
@@ -247,7 +278,7 @@ require.js <http://requirejs.org/docs/whyamd.html>`_. To build a single
 ``bokeh.js`` that may be included as a script, see below.
 
 Grunt can concatenate the JavaScript files into a single JavaScript file,
-either minified or unminified. To generate both minified and un-minified 
+either minified or unminified. To generate both minified and un-minified
 libraries, execute the command::
 
     $ grunt deploy

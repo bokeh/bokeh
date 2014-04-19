@@ -1,5 +1,6 @@
 from __future__ import absolute_import, print_function
 
+import re
 import logging
 log = logging.getLogger(__name__)
 
@@ -16,8 +17,10 @@ else:
         logger = log
 
     class BokehWSGIHandler(WebSocketHandler):
+        _http_suffix = re.compile("\s*HTTP/\d+\.\d+$")
+
         def format_request(self):
-            request = getattr(self, 'requestline', '-')
+            request = self._http_suffix.sub("", getattr(self, 'requestline', '-'))
             status = getattr(self, 'status', '-')
             length = self.response_length or '-'
             time = "%.1f%s" % scale_delta(self.time_finish - self.time_start) if self.time_finish else '-'

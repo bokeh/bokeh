@@ -32,6 +32,10 @@ def build_parser():
                         default=False,
                         help="don't serve compiled bokeh.js file.  This can only be True if debugjs is True"
                         )
+    parser.add_argument("--filter-logs",
+                        action="store_true",
+                        default=False,
+                        help="don't show GET /static/... 200 OK (useful with --splitjs)")
     parser.add_argument("-v", "--verbose", action="store_true", default=False)
     parser.add_argument("--backend",
                         help="storage backend: [ redis | memory | shelve ], default: %s" % DEFAULT_BACKEND,
@@ -75,6 +79,17 @@ def run():
 
     level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(level=level, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
+
+    if args.filter_logs:
+        class StaticFilter(logging.Filter):
+
+            def filter(self, record):
+                msg = record.getMessage()
+                return not (msg.startswith(("GET /static", "GET /bokehjs/static")) and \
+                            any(status in msg for status in ["200 OK", "304 NOT MODIFIED"]))
+
+        for handler in logging.getLogger().handlers:
+            handler.addFilter(StaticFilter())
 
     from . import start
 

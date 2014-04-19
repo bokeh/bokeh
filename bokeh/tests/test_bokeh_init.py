@@ -45,32 +45,5 @@ class TestPrintVersions(unittest.TestCase):
         self.assertTrue(bokeh.__version__ != 'unknown')
 
 
-class MetaTest(unittest.TestCase):
-
-    def setUp(self):
-        # replace stdout with something we can capture
-        self.out = CaptureStdOut()
-
-    def test_testing(self):
-        import nose
-        import bokeh
-        nose.main = mock.MagicMock(return_value=True)
-        bokeh.test(verbosity=100, xunitfile='xunitcapturefiledotxml.xml', exit=False)
-        bokehdir = os.path.dirname(bokeh.__file__)
-        nose.main.assert_called_with(
-            exit=False,
-            argv=[
-                'nosetests',
-                '--verbosity=100',
-                '--with-xunit',
-                '--xunit-file=xunitcapturefiledotxml.xml',
-                '--logging-level=WARN',
-                os.path.join(bokehdir, 'tests'),
-                os.path.join(bokehdir, 'server/tests'),
-                os.path.join(bokehdir, 'server/templates/tests')
-            ]
-        )
-
-
 if __name__ == "__main__":
     unittest.main()

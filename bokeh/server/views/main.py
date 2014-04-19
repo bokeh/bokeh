@@ -304,8 +304,8 @@ def embed_js():
         template = jinja2.Template(f.read())
         rendered = template.render(host=request.host)
 
-        return  Response(rendered, "200",
-            {'Content-Type':'application/javascript'})
+        return  Response(rendered, 200,
+                         {'Content-Type':'application/javascript'})
 
 
 

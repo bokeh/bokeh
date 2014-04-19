@@ -220,7 +220,7 @@ class PlotObject(HasProps):
 
     def references(self):
         """Returns all ``PlotObjects`` that this object has references to. """
-        return self.collect_plot_objects(self)
+        return set(self.collect_plot_objects(self))
 
     #---------------------------------------------------------------------
     # View Model connection methods
