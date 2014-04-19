@@ -1,5 +1,5 @@
 import six
-from .plotobject import PlotObject
+from .plot_object import PlotObject
 from .properties import (HasProps, Dict, Enum, 
                          Either, Float, Instance, Int,
                          List, String, Color, Include, Bool, 

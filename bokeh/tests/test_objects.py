@@ -45,7 +45,7 @@ def large_plot(n):
 class TestViewable(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.plotobject import Viewable
+        from bokeh.plot_object import Viewable
         self.viewable = Viewable
 
     def tearDown(self):
@@ -72,7 +72,7 @@ class TestViewable(unittest.TestCase):
 class Test_UseSession(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.plotobject import usesession
+        from bokeh.plot_object import usesession
         self.usesession = usesession
 
     def test_transparent(self):
@@ -120,7 +120,7 @@ class Test_UseSession(unittest.TestCase):
 class TestJsonapply(unittest.TestCase):
 
     def test_jsonapply(self):
-        from bokeh.plotobject import json_apply
+        from bokeh.plot_object import json_apply
 
         def check_func(frag):
             if frag == 'goal':
@@ -139,9 +139,9 @@ class TestJsonapply(unittest.TestCase):
 
 class TestResolveJson(unittest.TestCase):
 
-    @patch('bokeh.plotobject.logging')
+    @patch('bokeh.plot_object.logging')
     def test_resolve_json(self, mock_logging):
-        from bokeh.plotobject import resolve_json
+        from bokeh.plot_object import resolve_json
 
         models = {'foo': 'success', 'otherfoo': 'othersuccess'}
         fragment = [{'id': 'foo', 'type': 'atype'}, {'id': 'foo', 'type': 'atype'}, {'id': 'otherfoo', 'type': 'othertype'}]
@@ -155,7 +155,7 @@ class TestResolveJson(unittest.TestCase):
 class TestCollectPlotObjects(unittest.TestCase):
 
     def test_references(self):
-        from bokeh.plotobject import PlotObject
+        from bokeh.plot_object import PlotObject
         pobject1 = PlotObject()
         pobject2 = PlotObject()
         pobject3 = PlotObject()
@@ -197,7 +197,7 @@ class TestPlotObject(unittest.TestCase):
         self.assertEqual({'type': 'PlotObject', 'id': 'test_id'}, testObject.get_ref())
 
     def test_load_json(self):
-        from bokeh.plotobject import PlotObject
+        from bokeh.plot_object import PlotObject
 
         cls = PlotObject.get_class("Plot")
         obj = cls.load_json({'id': 'test_id', 'min_border': 100})
