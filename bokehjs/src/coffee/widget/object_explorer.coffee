@@ -5,13 +5,15 @@ define [
   "backbone"
   "common/has_properties"
   "common/continuum_view"
+  "source/column_data_source"
 ], (
   _,
   $,
   $1,
   Backbone,
   HasProperties,
-  ContinuumView) ->
+  ContinuumView,
+  ColumnDataSource) ->
 
   class ObjectExplorerView extends ContinuumView.View
     initialize: (options) ->
@@ -27,6 +29,9 @@ define [
 
       @_base
 
+    resolve_ref: (ref) ->
+      @base().Collections(ref.type).get(ref.id)
+
     delegateEvents: (events) ->
       super(events)
 
@@ -38,11 +43,12 @@ define [
 
     createTree: (nonempty=true) ->
       nodes = for type in _.keys(@base().locations)
-        children = @base().Collections(type).map (obj, index) =>
+        collection = @base().Collections(type)
+        children = collection.map (obj, index) =>
           visited = {}
           visited[obj.id] = 1
           @descend(index, obj, visited)
-        @node(type, "collection", null, children)
+        @node(type, collection, null, children)
 
       if nonempty
         node for node in nodes when node.children.length > 0
@@ -110,7 +116,7 @@ define [
           "<span style=\"color:#{color}\">#{value}</span>"
         ])
 
-      @node(html.join(""), "", icon, children)
+      @node(html.join(""), obj, icon, children)
 
     isRef: (obj) ->
       _.isObject(obj) and (_.isEqual(_.keys(obj), ["id", "type"]) or
@@ -119,9 +125,9 @@ define [
     isAttr: (attr) ->
       attr.length > 0 and attr[0] != '_'
 
-    node: (text, type, icon, children, open) ->
+    node: (text, obj, icon, children, open) ->
       text: text
-      type: type
+      data: {obj: if obj instanceof HasProperties then {type: obj.type, id: obj.id} else null }
       icon: if icon then "bk-icon-type-#{icon}" else null
       children: children or []
       state: { open: open or false }
@@ -140,14 +146,22 @@ define [
     createContextMenu: (node) =>
       data = node.original
       menu = {}
-
-      if data.type != "collection"
-        menu["remove"] = {label: "Remove"}
-
       menu
 
     renderTree: () ->
-      $('<div/>').jstree
+      tree = $('<div/>')
+
+      tree.on 'changed.jstree', (event, data) =>
+        for i in [0...data.selected.length]
+          ref = data.instance.get_node(data.selected[i]).data.ref
+
+          if ref?
+            obj = @resolve_ref(ref)
+
+            if obj instanceof ColumnDataSource.Model and @mget("data_widget")?
+              @mget_obj("data_widget").set_obj("source", obj)
+
+      tree.jstree
         core:
           data: @createTree()
           themes:
@@ -155,6 +169,8 @@ define [
         contextmenu:
           items: @createContextMenu
         plugins: ["contextmenu"]
+
+      return tree
 
     render: () ->
       @$toolbar = @renderToolbar()
@@ -171,7 +187,9 @@ define [
     default_view: ObjectExplorerView
 
     defaults: () ->
-      return {}
+      return {
+        data_widget: null
+      }
 
   class ObjectExplorers extends Backbone.Collection
     model: ObjectExplorer
