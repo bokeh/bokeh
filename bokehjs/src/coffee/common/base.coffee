@@ -59,6 +59,7 @@ define [
 
   "widget/data_slider",
   "widget/data_table",
+  "widget/handson_table",
   "widget/pivot_table",
   "widget/object_explorer",
 
@@ -137,6 +138,7 @@ define [
 
     DataSlider:               'widget/data_slider'
     DataTable:                'widget/data_table'
+    HandsonTable:             'widget/handson_table'
     PivotTable:               'widget/pivot_table'
     ObjectExplorer:           'widget/object_explorer'
 

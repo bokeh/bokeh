@@ -1,9 +1,8 @@
 import six
 from .plotobject import PlotObject
-from .properties import (HasProps, Dict, Enum,
-                         Either, Float, Instance, Int,
-                         List, String, Color, Include, Bool,
-                         Tuple, Any, Date, lookup_descriptor)
+from .objects import DataSource
+from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
+    String, Color, Include, Bool, Tuple, Any, Date, lookup_descriptor)
 import copy
 import logging
 logger = logging.getLogger(__name__)
@@ -176,3 +175,90 @@ class DatePicker(InputWidget):
     value = Date
     min_date = Date(default=None)
     max_date = Date(default=None)
+
+class ObjectExplorer(PlotObject):
+    data_editor = Instance(PlotObject, has_ref=True)
+
+class HandsonTable(PlotObject):
+    source = Instance(DataSource, has_ref=True)
+
+class DataTable(PlotObject):
+    source = Instance(DataSource, has_ref=True)
+    sort = List(String)
+    group = List(String)
+    offset = Int(default=0)
+    length = Int(default=100)
+    maxlength = Int
+    totallength = Int
+    tabledata = Dict(String, Any)
+    filterselected = Bool(default=False)
+
+    def setup_events(self):
+        self.on_change('sort', self, 'get_data')
+        self.on_change('group', self, 'get_data')
+        self.on_change('length', self, 'get_data')
+        self.on_change('offset', self, 'get_data')
+        self.on_change('filterselected', self, 'get_data')
+        self.source.on_change('selected', self, 'get_data')
+        self.source.on_change('data', self, 'get_data')
+        self.source.on_change('computed_columns', self, 'get_data')
+        if not self.tabledata:
+            self.get_data()
+
+    def transform(self):
+        return dict(sort=self.sort,
+                    group=self.group,
+                    offset=self.offset,
+                    length=self.length,
+                    filterselected=self.filterselected,
+                    )
+
+    def setselect(self, select):
+        self.source.setselect(select, self.transform())
+        self.get_data()
+
+    def select(self, select):
+        self.source.select(select, self.transform())
+        self.get_data()
+
+    def deselect(self, deselect):
+        self.source.deselect(deselect, self.transform())
+        self.get_data()
+
+    def get_data(self, obj=None, attrname=None, old=None, new=None):
+        data = self.source.get_data(self.transform())
+        self.maxlength = data.pop('maxlength')
+        self.totallength = data.pop('totallength')
+        self.tabledata = data
+
+class PivotTable(PlotObject):
+    source = Instance(DataSource, has_ref=True)
+    title = String("Pivot Table")
+    description = String("")
+    data = Dict(String, Any)
+    fields = List(Any) # List[{name: String, dtype: String}]
+    rows = List(Any)
+    columns = List(Any)
+    values = List(Any)
+    filters = List(Any)
+    manual_update = Bool(True)
+
+    def setup_events(self):
+        self.on_change('rows', self, 'get_data')
+        self.on_change('columns', self, 'get_data')
+        self.on_change('values', self, 'get_data')
+        self.on_change('filters', self, 'get_data')
+
+        if not self.fields:
+            self.fields = self.source.fields()
+
+        if not self.data:
+            self.get_data()
+
+    def get_data(self, obj=None, attrname=None, old=None, new=None):
+        self.data = self.source.pivot(dict(
+            rows=self.rows,
+            columns=self.columns,
+            values=self.values,
+            filters=self.filters,
+        ))
