@@ -16,6 +16,7 @@ from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, Orientation, Location, Dimension, BorderSymmetry
 from .plotobject import PlotObject
 from .glyphs import BaseGlyph
+from .widgetobjects import *
 
 class DataSource(PlotObject):
     """ Base class for data sources """

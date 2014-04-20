@@ -1,6 +1,6 @@
 import six
 from .plotobject import PlotObject
-from .objects import DataSource
+#from .objects import DataSource
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
     String, Color, Include, Bool, Tuple, Any, Date, lookup_descriptor)
 import copy
@@ -176,14 +176,19 @@ class DatePicker(InputWidget):
     min_date = Date(default=None)
     max_date = Date(default=None)
 
-class ObjectExplorer(PlotObject):
-    data_editor = Instance(PlotObject, has_ref=True)
+class TableWidget(PlotObject):
+    pass
 
-class HandsonTable(PlotObject):
-    source = Instance(DataSource, has_ref=True)
+class HandsonTable(TableWidget):
+    #source = Instance(DataSource, has_ref=True)
+    source = Instance(".objects.DataSource", has_ref=True)
+
+class ObjectExplorer(PlotObject):
+    data_widget = Instance(TableWidget, has_ref=True)
 
 class DataTable(PlotObject):
-    source = Instance(DataSource, has_ref=True)
+    #source = Instance(DataSource, has_ref=True)
+    source = Instance(".objects.DataSource", has_ref=True)
     sort = List(String)
     group = List(String)
     offset = Int(default=0)
@@ -232,7 +237,8 @@ class DataTable(PlotObject):
         self.tabledata = data
 
 class PivotTable(PlotObject):
-    source = Instance(DataSource, has_ref=True)
+    #source = Instance(DataSource, has_ref=True)
+    source = Instance(".objects.DataSource", has_ref=True)
     title = String("Pivot Table")
     description = String("")
     data = Dict(String, Any)
