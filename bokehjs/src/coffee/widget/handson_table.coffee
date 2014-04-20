@@ -16,21 +16,25 @@ define [
     render: () ->
       source = @mget_obj("source")
       if source?
+        headers = []
+        columns = []
+
+        for column in @mget_obj("columns")
+          headers.push(column.get("header"))
+          columns.push({
+            data: column.get("data")
+            type: column.get("type")
+          })
+
         @$el.handsontable({
           data: source.datapoints()
-          colHeaders: ["Date", "Downloads"]
-          columns: [{
-            data: "dates"
-            type: "date"
-            dateFormat: "mm/dd/yy"
-          }, {
-            data: "downloads"
-            type: "numeric"
-          }]
+          colHeaders: headers
+          columns: columns
           afterChange: (changes, source) =>
             if source == "edit"
               @editData(changes)
         })
+
         ht = @$el.handsontable("getInstance")
         ht.view.wt.draw(true) # XXX: hack to show table, but column sizes are still wrong (until window/node resize)
       else
@@ -63,6 +67,7 @@ define [
     defaults: () ->
       return {
           source: null
+          columns: []
       }
 
   class HandsonTables extends Backbone.Collection

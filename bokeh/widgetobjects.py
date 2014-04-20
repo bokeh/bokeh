@@ -179,9 +179,15 @@ class DatePicker(InputWidget):
 class TableWidget(PlotObject):
     pass
 
+class TableColumn(PlotObject):
+    type = Enum("numeric", "date")
+    data = String
+    header = String
+
 class HandsonTable(TableWidget):
     #source = Instance(DataSource, has_ref=True)
     source = Instance(".objects.DataSource", has_ref=True)
+    columns = List(Instance(TableColumn, has_ref=True), has_ref=True)
 
 class ObjectExplorer(PlotObject):
     data_widget = Instance(TableWidget, has_ref=True)

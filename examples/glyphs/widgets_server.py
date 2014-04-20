@@ -4,7 +4,7 @@ import sys
 import requests
 from datetime import date
 
-from bokeh.widgetobjects import HBox, VBox, HandsonTable, ObjectExplorer
+from bokeh.widgetobjects import HBox, VBox, TableColumn, HandsonTable, ObjectExplorer
 from bokeh.objects import Plot, ColumnDataSource, DataRange1d, Glyph, LinearAxis, DatetimeAxis, Grid, HoverTool
 from bokeh.glyphs import Line, Circle
 from bokeh.session import PlotServerSession
@@ -33,7 +33,11 @@ def make_plot():
 
 def make_ui():
     plot, source = make_plot()
-    data_table = HandsonTable(source=source)
+    columns = [
+        TableColumn(data="dates", type="date", header="Date"),
+        TableColumn(data="downloads", type="numeric", header="Downloads"),
+    ]
+    data_table = HandsonTable(source=source, columns=columns)
     obj_explorer = ObjectExplorer(data_widget=data_table)
     vbox = VBox(children=[plot, data_table])
     hbox = HBox(children=[obj_explorer, vbox])
