@@ -3,6 +3,8 @@ require.config
         jquery:            "vendor/jquery/jquery"
         jquery_ui:         "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui"
         jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel"
+        handsontable:      "vendor/handsontable/jquery.handsontable"
+        numeral:           "vendor/numeral/numeral"
         underscore:        "vendor/underscore-amd/underscore"
         backbone:          "vendor/backbone-amd/backbone"
         modal:             "vendor/bootstrap/modal"
@@ -13,3 +15,6 @@ require.config
     shim:
         sprintf:
             exports: 'sprintf'
+        handsontable:
+            deps: ["numeral"]
+            exports: "$.fn.handsontable"

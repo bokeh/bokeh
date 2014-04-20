@@ -103,7 +103,8 @@ object ProjectBuild extends Build {
         },
         vendorStyles := List(
             "bootstrap/bootstrap-bokeh-2.0.4.css",
-            "jstree/dist/themes/default/style.min.css"),
+            "jstree/dist/themes/default/style.min.css",
+            "handsontable/jquery.handsontable.css"),
         bokehStyles := List(
             "continuum.css",
             "main.css"),
