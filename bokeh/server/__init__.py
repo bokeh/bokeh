@@ -8,12 +8,10 @@ except ImportError:
 else:
     gevent.monkey.patch_all()
 
-import argparse, sys
+import argparse, os, sys
 import logging
 
-DEFAULT_BACKEND = 'redis'
-if 'win32' in sys.platform:
-    DEFAULT_BACKEND = 'memory'
+DEFAULT_BACKEND = os.environ.get('BOKEH_SERVER_DEFAULT_BACKEND', 'shelve')
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Start the Bokeh plot server")
