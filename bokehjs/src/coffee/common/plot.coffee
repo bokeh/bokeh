@@ -63,9 +63,17 @@ define [
     events:
       "mousemove .bokeh_canvas_wrapper": "_mousemove"
       "touchmove .bokeh_canvas_wrapper": "_mousemove"
+      "click .toggle_menu": "_toggle_menubar"
+      "touchend .toggle_menu": "_toggle_menubar"
+      "click .gear-icon": "_open_popup"
+      "touchend .gear-icon": "_open_popup"
       "mousedown .bokeh_canvas_wrapper": "_mousedown"
       "touchstart .bokeh_canvas_wrapper": "_mousedown"
-
+      "mousedown .object_inspector_window, .plot_info_window": "_show_modal_window"
+      "touchstart .object_inspector_window, .plot_info_window": "_show_modal_window"
+      "mousedown .modal_window_close": "_close_modal_window"
+      "touchstart .modal_window_close": "_close_modal_window"
+    
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
 
@@ -76,7 +84,49 @@ define [
     _mousemove: (e) =>
       for f in @moveCallbacks
         f(e, e.layerX, e.layerY)
+    
+    _toggle_menubar: (e) =>
+      @button_bar.toggleClass("hide")
+      @toggle_icon.toggleClass("icon-list")
+      @toggle_icon.toggleClass("icon-chevron-left")
+    
+    _open_popup: (e) =>
+      position = @gear_menu_icon.position()
+      popup_left = position.left - @show_popup.outerWidth() / 2
+      popup_top = position.top - @show_popup.outerHeight() - @gear_menu_icon.outerHeight()
+      @show_popup.attr('style', "left:#{popup_left}px; top:#{popup_top}px;")
+      @show_popup.toggleClass('show_popup')
 
+    _show_modal_window: (e) =>
+      @window_title = ""
+      @embed_modal_content = ""
+      if e.target.className == "object_inspector_window"
+        @window_title = "Object Inspector"
+      else if e.target.className == "plot_info_window"
+        @window_title = "Plot Info"
+        datasource = "Embedded in the HTML file"
+        if window.location.host != ""
+          datasource = "Loaded from the #{window.location.host} server"
+        @embed_modal_content += "<div class='modal_body_head'>Bokeh Version</div>"
+        @embed_modal_content += "<div class='modal_body_content'>#{Bokeh.version}</div>"
+        @embed_modal_content += "<div class='modal_body_head'>Data Source</div>"
+        @embed_modal_content += "<div class='modal_body_content'>#{datasource}</div>"
+      else
+        return null
+      @_modal_window_content(e)
+
+    _modal_window_content: (e) =>
+      @$el.find('.modal_window_title').html(@window_title)
+      @$el.find('.modal_body').html(@embed_modal_content)
+      @$el.find('.bokeh_modal_window').show()
+      height = @$el.find('.modal_window_title').outerHeight(true)
+      @$el.find('.modal_header').attr('style', "height:#{height}px")
+      
+    _close_modal_window: (e) =>
+      @$el.find('.bokeh_modal_window').hide()
+      @$el.find('.modal_window_title').html("")
+      @$el.find('.modal_body').html("")
+    
     pause: () ->
       @is_paused = true
 
@@ -117,6 +167,8 @@ define [
         min_border_bottom: (options.min_border_bottom ? @mget('min_border_bottom')) ? @mget('min_border')
         min_border_left:   (options.min_border_left   ? @mget('min_border_left'))   ? @mget('min_border')
         min_border_right:  (options.min_border_right  ? @mget('min_border_right'))  ? @mget('min_border')
+        frame:             options.frame              ? @mget('frame')
+        resize_plot:       options.resize_plot        ? @mget('resize_plot')
         requested_border_top: 0
         requested_border_bottom: 0
         requested_border_left: 0
@@ -280,16 +332,54 @@ define [
     render_init: () ->
       # TODO use template
       @$el.append($("""
-        <div class='button_bar btn-group pull-top'/>
-        <div class='plotarea'>
-        <div class='bokeh_canvas_wrapper'>
-          <canvas class='bokeh_canvas'></canvas>
-        </div>
-        </div>
+        
+    <div class='plotarea'>
+    <div class='bokeh_canvas_header hide'>
+      <a href="http://bokeh.pydata.org/" class="logo"></a>
+      <i  class='icon-remove frame_close'></i>
+    </div>
+    <div class='bokeh_canvas_wrapper'  >
+      <canvas class='bokeh_canvas'></canvas>
+    </div>
+    <div class="bokeh_canvas_footer hide">
+    <div class='hide button_bar btn-group pull-top'/>
+    <div class="button_icon">
+      <i class='toggle_menu icon-list'></i>
+      <i class='gear-icon icon-cog'></i>
+    </div>
+    </div>
+    <ul class="popup_menu dropdown-menu">
+      <li><a class="object_inspector_window">Object Inspector</a></li>
+      <li><a class="plot_info_window">Plot Info</a></li>
+    </ul>
+    <div class='bokeh_modal_window'>
+    <div class="modal_header">
+      <h3 class="modal_window_title"></h3>
+      <i  class='icon-remove modal_window_close'></i>
+    </div>
+    <div class="modal_body">
+    </div>
+    </div>
+    </div>
+    </div>
         """))
+        
+      @toggle_icon = @$el.find('.toggle_menu')
       @button_bar = @$el.find('.button_bar')
+      @show_popup = @$el.find('.popup_menu')
+      @gear_menu_icon = @$el.find('.gear-icon')
+      @frame_close = @$el.find('.frame_close')
+      @canvas_header = @$el.find('.bokeh_canvas_header')
       @canvas_wrapper = @$el.find('.bokeh_canvas_wrapper')
+      @canvas_footer = @$el.find('.bokeh_canvas_footer')
       @canvas = @$el.find('canvas.bokeh_canvas')
+      @plot_frame = @$el.find('.plotarea')
+      @plot_modal_window = @$el.find('.bokeh_modal_window')
+      
+      if @mget('frame') == "on"
+        @canvas_header.removeClass('hide')
+        @canvas_footer.removeClass('hide')
+        @$el.find('.plotarea').addClass('frame')
 
     render_canvas: (full_render=true) ->
       @ctx = @canvas[0].getContext('2d')
@@ -310,13 +400,17 @@ define [
 
       @canvas.width = ow * ratio
       @canvas.height = oh * ratio
-
-      @button_bar.attr('style', "width:#{ow}px;")
-      @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px")
+      
+      @button_bar.attr('style', " width: 85%; padding-left: 12px; float:left;")
+      @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px; float:left;")
       @canvas.attr('style', "width:#{ow}px;")
       @canvas.attr('style', "height:#{oh}px;")
       @canvas.attr('width', ow*ratio).attr('height', oh*ratio)
       @$el.attr("width", ow).attr('height', oh)
+      @canvas_header.attr('style', "width:#{ow}px;")
+      @canvas_footer.attr('style', "width:#{ow}px;")
+      @plot_frame.attr('style', "width:#{ow}px;")
+      @plot_modal_window.attr('style', "left:#{ow}px;")
 
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)
@@ -330,6 +424,18 @@ define [
       @model.set('png', @canvas[0].toDataURL())
       bulk_save([@model])
 
+    set_initial_range : () ->
+      #check for good values for ranges before setting initial range
+      range_vals = [@x_range.get('start'), @x_range.get('end'),
+        @y_range.get('start'), @y_range.get('end')]
+      good_vals = _.map(range_vals, (val) -> val? and not _.isNaN(val))
+      good_vals = _.all(good_vals)
+      if good_vals
+        @initial_range_info = {
+          xr: { start: @x_range.get('start'), end: @x_range.get('end') }
+          yr: { start: @y_range.get('start'), end: @y_range.get('end') }
+        }
+
     render: (force) ->
       super()
       #newtime = new Date()
@@ -337,11 +443,8 @@ define [
       #   console.log(newtime - @last_render)
       # @last_render = newtime
 
-      if not @initial_range_info? and @x_range.get('start')?
-        @initial_range_info = {
-          xr: { start: @x_range.get('start'), end: @x_range.get('end') }
-          yr: { start: @y_range.get('start'), end: @y_range.get('end') }
-        }
+      if not @initial_range_info?
+        @set_initial_range()
 
       @requested_padding = {
         top: 0
@@ -359,7 +462,6 @@ define [
 
       title = @mget('title')
       if title
-        @title_props.set(@ctx, {})
         th = @ctx.measureText(@mget('title')).ascent
         @requested_padding['top'] += (th + @mget('title_standoff'))
 
@@ -372,7 +474,6 @@ define [
         hpadding = Math.max(@requested_padding['top'], @requested_padding['bottom'])
         @requested_padding['top'] = hpadding
         @requested_padding['bottom'] = hpadding
-
       @is_paused = true
       for k, v of @requested_padding
         @view_state.set("requested_border_#{k}", v)
@@ -423,7 +524,6 @@ define [
       if title
         sx = @view_state.get('outer_width')/2
         sy = th
-        @title_props.set(@ctx, {})
         @ctx.fillText(title, sx, sy)
 
     render_overlays: (have_new_mapper_state) ->
@@ -483,7 +583,7 @@ define [
         title_text_font_style: "normal",
         title_text_color: "#444444",
         title_text_alpha: 1.0,
-        title_text_align: "center",
+        title_text_align: "left",
         title_text_baseline: "alphabetic"
 
         outline_line_color: '#aaaaaa'
@@ -503,4 +603,3 @@ define [
     "Collection": new Plots(),
     "View": PlotView,
   }
-
