@@ -186,6 +186,7 @@ class Glyph(Renderer):
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(Range, has_ref=True)
     ydata_range = Instance(Range, has_ref=True)
+    resample_op = "downsample"
 
     # How to intepret the values in the data_source
     units = Enum(Units)
@@ -205,7 +206,8 @@ class Glyph(Renderer):
                  "server_data_source" : self.server_data_source,
                  "xdata_range": self.xdata_range,
                  "ydata_range": self.ydata_range,
-                 "glyphspec": self.glyph.to_glyphspec()
+                 "glyphspec": self.glyph.to_glyphspec(),
+                 "resample_op" : self.resample_op
                  }
         if self.selection_glyph:
             data['selection_glyphspec'] = self.selection_glyph.to_glyphspec()
