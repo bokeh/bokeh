@@ -552,25 +552,27 @@ class TestImageURL(unittest.TestCase):
 
     def setUp(self):
         from bokeh.glyphs import ImageURL
-        self.test_imageuri = ImageURL()
+        self.test_image_url = ImageURL()
 
     def test_expected_properties(self):
-        expected_properties = set(['x', 'y', 'angle', ])
-        actual_properties = get_prop_set(type(self.test_imageuri))
+        expected_properties = set(['url', 'x', 'y', 'angle', ])
+        actual_properties = get_prop_set(type(self.test_image_url))
         self.assertTrue(expected_properties.issubset(actual_properties))
 
     def test_expected_values(self):
-        self.assertEqual(self.test_imageuri.__view_model__, 'image_uri')
-        self.assertEqual(self.test_imageuri.x, 'x')
-        self.assertEqual(self.test_imageuri.y, 'y')
-        self.assertEqual(self.test_imageuri.angle, 'angle')
+        self.assertEqual(self.test_image_url.__view_model__, 'image_url')
+        self.assertEqual(self.test_image_url.url, 'url')
+        self.assertEqual(self.test_image_url.x, 'x')
+        self.assertEqual(self.test_image_url.y, 'y')
+        self.assertEqual(self.test_image_url.angle, 'angle')
 
     def test_to_glyphspec(self):
-        self.assertEqual(self.test_imageuri.to_glyphspec(), {'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'angle': {'units': 'data', 'field': 'angle'}, 'type': 'image_uri'})
-        self.test_imageuri.x = 50
-        self.test_imageuri.y = 51
-        self.test_imageuri.angle = 90
-        self.assertEqual(self.test_imageuri.to_glyphspec(), {'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'angle': {'units': 'data', 'value': 90}, 'type': 'image_uri'})
+        self.assertEqual(self.test_image_url.to_glyphspec(), {'url': {'units': 'data', 'field': 'url'}, 'y': {'units': 'data', 'field': 'y'}, 'x': {'units': 'data', 'field': 'x'}, 'angle': {'units': 'data', 'field': 'angle'}, 'type': 'image_url'})
+        self.test_image_url.url = ['foo']
+        self.test_image_url.x = 50
+        self.test_image_url.y = 51
+        self.test_image_url.angle = 90
+        self.assertEqual(self.test_image_url.to_glyphspec(), {'url': {'units': 'data', 'value': ['foo']}, 'y': {'units': 'data', 'value': 51}, 'x': {'units': 'data', 'value': 50}, 'angle': {'units': 'data', 'value': 90}, 'type': 'image_url'})
 
 class TestImage(unittest.TestCase):
 
