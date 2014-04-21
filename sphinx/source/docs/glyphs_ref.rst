@@ -201,11 +201,11 @@ as 32-bit integers).
 
   * default: `False`
 
-.. _bokeh_image_uri:
+.. _bokeh_image_url:
 
-``image_uri``
+``image_url``
 -------------
-The image_uri glyph accepts the URLs of an images to display. The images are centered
+The image_url glyph accepts the URLs of an images to display. The images are centered
 on the given coordinates and rotated by the given angles.
 
 * ``x``, ``y`` - center point coordinates

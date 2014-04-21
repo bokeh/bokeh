@@ -39,6 +39,7 @@ Glyphs Functions
 .. autofunction:: bokeh.plotting.diamond_cross(x, y, size=5, **kwargs)
 .. autofunction:: bokeh.plotting.image(image, x, y, dw, dh, palette, dilate=False)
 .. autofunction:: bokeh.plotting.image_rgba(image, x, y, dw, dh, dilate=False)
+.. autofunction:: bokeh.plotting.image_url(url, x, y, angle)
 .. autofunction:: bokeh.plotting.inverted_triangle(x, y, size=5, **kwargs)
 .. autofunction:: bokeh.plotting.line(x, y, *kwargs)
 .. autofunction:: bokeh.plotting.multi_line(xs, ys, **kwargs)
