@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 # NOTE: Execute patch_all() before everything else, especially before
 # importing threading module. Otherwise, annoying KeyError exception
 # will be thrown. gevent is optional, so don't fail if not installed.
@@ -12,6 +14,9 @@ import argparse, os, sys
 import logging
 
 DEFAULT_BACKEND = os.environ.get('BOKEH_SERVER_DEFAULT_BACKEND', 'shelve')
+if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
+    print("Unrecognized default backend: '%s'. Accepted values are: 'redis', 'shelve', 'memory'" % DEFAULT_BACKEND)
+    sys.exit(1)
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Start the Bokeh plot server")
