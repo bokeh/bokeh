@@ -242,7 +242,7 @@ class TestPlotObject(unittest.TestCase):
         x2 = X2(y=y, z2=z2)
 
         # TODO: self.assertEqual(x1.references(), [t1, y, t2,     x1])
-        self.assertEqual(x2.references(), [t1, y, t2, z2, x2])
+        self.assertEqual(x2.references(), set([t1, y, t2, z2, x2]))
 
 if __name__ == "__main__":
     unittest.main()

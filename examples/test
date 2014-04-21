@@ -58,34 +58,64 @@ def is_selected(example):
     else:
         return False
 
+base_dir = os.path.dirname(__file__)
 examples = []
 
-def add_examples(examples_dir, includes=set([]), excludes=set([]), etype='file'):
-    ext = '.ipynb' if etype == 'notebook' else '.py'
+class Flags(object):
+    file     = 1<<1
+    server   = 1<<2
+    notebook = 1<<3
+    animated = 1<<4
+    skip     = 1<<5
 
-    for file in includes or os.listdir(examples_dir):
-        if not file.startswith('__') and file.endswith(ext) and file not in excludes:
-            examples.append((os.path.join(examples_dir, file), etype))
+def example_type(flags):
+    if flags & Flags.file: return "file"
+    elif flags & Flags.server: return "server"
+    elif flags & Flags.notebook: return "notebook"
 
-base_dir = os.path.dirname(__file__)
+def add_examples(examples_dir, example_type=None, skip=None):
+    examples_path = os.path.join(base_dir, examples_dir)
 
-glyphs_dir = os.path.join(base_dir, "glyphs")
-glyphs_server = set(["glyph2.py", "prim.py"])
-glyphs_excludes = set(["line_animate.py"])
-add_examples(glyphs_dir, excludes=glyphs_excludes|glyphs_server, etype='file')
-add_examples(glyphs_dir, includes=glyphs_server, etype='server')
+    if skip is not None:
+        skip = set(skip)
 
-plotting_file_dir = os.path.join(base_dir, "plotting", "file")
-plotting_file_excludes = set(["image.py", "image_rgba.py"])
-add_examples(plotting_file_dir, excludes=plotting_file_excludes, etype='file')
+    for file in os.listdir(examples_path):
+        flags = 0
 
-plotting_server_dir = os.path.join(base_dir, "plotting", "server")
-plotting_server_excludes = set(["animated.py", "image.py", "image_rgba.py", "line_animate.py", "remote_image.py", "serversource.py", "server_source_upload.py"])
-add_examples(plotting_server_dir, excludes=plotting_server_excludes, etype='server')
+        if file.startswith(('_', '.')):
+            continue
+        elif file.endswith(".py"):
+            if example_type is not None:
+                flags |= example_type
+            elif "server" in file or "animate" in file:
+                flags |= Flags.server
+            else:
+                flags |= Flags.file
+        elif file.endswith(".ipynb"):
+            flags |= Flags.notebook
+        else:
+            continue
 
-plotting_notebook_dir = os.path.join(base_dir, "plotting", "notebook")
-plotting_notebook_excludes = set(["animated.ipynb"])
-add_examples(plotting_notebook_dir, excludes=plotting_notebook_excludes, etype='notebook')
+        if "animate" in file:
+            flags |= Flags.animated
+
+            if flags & Flags.file:
+                raise ValueError("file examples can't be animated")
+
+        if skip and file in skip:
+            flags |= Flags.skip
+
+        examples.append((os.path.join(examples_path, file), flags))
+
+add_examples("glyphs")
+
+add_examples("mpl")
+add_examples("ggplot")
+add_examples("seaborn")
+
+add_examples(os.path.join("plotting", "file"), example_type=Flags.file, skip=["image.py", "image_rgba.py"])
+add_examples(os.path.join("plotting", "server"), example_type=Flags.server, skip=["image.py", "image_rgba.py", "remote_image.py", "serversource.py", "server_source_upload.py"])
+add_examples(os.path.join("plotting", "notebook"))
 
 def red(text):
     return "%s%s%s" % (colorama.Fore.RED, text, colorama.Style.RESET_ALL)
@@ -130,23 +160,23 @@ def run_example(example):
         proc.kill()
         raise
 
-def test_example(example, etype):
+def test_example(example, flags):
     no_ext = os.path.splitext(os.path.abspath(example))[0]
 
-    if etype == 'file':
+    if flags & Flags.file:
         html_file = "%s.html" % no_ext
         url = 'file://' + html_file
-    elif etype == 'server':
+    elif flags & Flags.server:
         server_url = 'http://localhost:%d/bokeh/doc/%s/show'
         url = server_url % (args.bokeh_port, os.path.basename(no_ext))
-    elif etype == 'notebook':
+    elif flags & Flags.notebook:
         notebook_url = 'http://localhost:%d/notebooks/%s.ipynb'
         url = notebook_url % (args.ipython_port, os.path.basename(no_ext))
     else:
-        raise ValueError("invalid example type: %s" % etype)
+        raise ValueError("invalid example type: %s" % example_type(flags))
 
     png_file = "%s-%s.png" % (no_ext, __version__)
-    cmd = [args.phantomjs, os.path.join(base_dir, "test.js"), etype, url, png_file]
+    cmd = [args.phantomjs, os.path.join(base_dir, "test.js"), example_type(flags), url, png_file]
 
     try:
         proc = subprocess.Popen(cmd, stdout=subprocess.PIPE)
@@ -201,7 +231,7 @@ def start_bokeh_server():
     argv = ["--bokeh-port=%s" % args.bokeh_port, "--backend=memory"]
 
     if args.dev:
-        argv.append("--splitjs")
+        argv.extend(["--splitjs", "--debugjs", "--filter-logs"])
 
     try:
         proc = subprocess.Popen(cmd + argv)
@@ -237,37 +267,41 @@ def start_bokeh_server():
 def start_ipython_notebook():
     return None
 
-selected_examples = [ (example, etype) for (example, etype) in examples if is_selected(example) ]
+selected_examples = [ (example, flags) for (example, flags) in examples if is_selected(example) ]
 
-need_server = any(etype == 'server' for _, etype in selected_examples)
-need_notebook = any(etype == 'notebook' for _, etype in selected_examples)
+need_server = any(flags & Flags.server for _, flags in selected_examples)
+need_notebook = any(flags & Flags.notebook for _, flags in selected_examples)
 
 bokeh_server = start_bokeh_server() if use_server and need_server else None
 ipython_notebook = start_ipython_notebook() if use_notebook and need_notebook else None
 
-num_examples = len(selected_examples)
 run_examples = 0
-ok_examples = 0
+fail_examples = []
+skip_examples = []
 
 try:
-    for example, etype in sorted(selected_examples):
-        if etype == 'server' and not bokeh_server or etype == 'notebook' and not ipython_notebook:
+    for example, flags in sorted(selected_examples):
+        if (flags & (Flags.skip|Flags.animated) or
+            flags & Flags.server and not bokeh_server or
+            flags & Flags.notebook and not ipython_notebook):
             print("%s Skipping %s" % (yellow(">>>"), example))
+            skip_examples.append(example)
         else:
             print("%s Testing %s ..." % (yellow(">>>"), example))
             result = False
 
-            if etype in ['file', 'server']:
+            if flags & (Flags.file|Flags.server):
                 if run_example(example) == 0:
-                    result = test_example(example, etype)
+                    result = test_example(example, flags)
                 else:
                     fail()
-            elif etype == 'notebook':
-                result = test_example(example, etype)
+            elif flags & Flags.notebook:
+                result = test_example(example, flags)
             else:
-                raise ValueError("invalid example type: %s" % etype)
+                raise ValueError("invalid example type: %s" % example_type(flags))
 
-            if result: ok_examples += 1
+            if not result:
+                fail_examples.append(example)
             run_examples += 1
 
         print()
@@ -282,11 +316,17 @@ finally:
         print("Shutting down ipython-notebook ...")
         ipython_notebook.kill()
 
-if ok_examples != run_examples:
+num_examples = len(selected_examples)
+
+if len(fail_examples) != 0:
     fail("FIX FAILURES AND RUN AGAIN")
+    for failed in fail_examples:
+        fail(" %s" % failed)
     sys.exit(1)
 elif run_examples != num_examples:
     warn("NOT ALL EXAMPLES WERE RUN")
+    for skipped in skip_examples:
+        warn(" %s" % skipped)
     sys.exit(0)
 else:
     ok("ALL TESTS PASS")

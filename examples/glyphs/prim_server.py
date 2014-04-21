@@ -53,7 +53,7 @@ except requests.exceptions.ConnectionError:
     print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
     sys.exit(1)
 
-sess.use_doc('prim')
+sess.use_doc('prim_server')
 
 make_plot('annular_wedge', AnnularWedge(x="x", y="y", inner_radius=0.2, outer_radius=0.5, start_angle=0.8, end_angle=3.8))
 make_plot('annulus', Annulus(x="x", y="y", inner_radius=0.2, outer_radius=0.5))
