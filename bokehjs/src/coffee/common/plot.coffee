@@ -121,6 +121,9 @@ define [
       @$el.find('.bokeh_modal_window').show()
       height = @$el.find('.modal_window_title').outerHeight(true)
       @$el.find('.modal_header').attr('style', "height:#{height}px")
+      position = @canvas_footer.position()
+      top = position.top - @$el.find('.bokeh_modal_window').outerHeight(true)
+      @$el.find('.bokeh_modal_window').css("top", "#{top}px")
       
     _close_modal_window: (e) =>
       @$el.find('.bokeh_modal_window').hide()
