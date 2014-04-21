@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 # NOTE: Execute patch_all() before everything else, especially before
 # importing threading module. Otherwise, annoying KeyError exception
 # will be thrown. gevent is optional, so don't fail if not installed.
@@ -8,12 +10,13 @@ except ImportError:
 else:
     gevent.monkey.patch_all()
 
-import argparse, sys
+import argparse, os, sys
 import logging
 
-DEFAULT_BACKEND = 'redis'
-if 'win32' in sys.platform:
-    DEFAULT_BACKEND = 'memory'
+DEFAULT_BACKEND = os.environ.get('BOKEH_SERVER_DEFAULT_BACKEND', 'shelve')
+if DEFAULT_BACKEND not in ['redis', 'shelve', 'memory']:
+    print("Unrecognized default backend: '%s'. Accepted values are: 'redis', 'shelve', 'memory'" % DEFAULT_BACKEND)
+    sys.exit(1)
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Start the Bokeh plot server")
@@ -57,11 +60,17 @@ def build_parser():
                         type=int,
                         default=7001
                         )
-    parser.add_argument("-r", "--start-redis",
+    parser.add_argument("--start-redis",
                         help="start redis",
-                        action="store_false",
-                        default=True
+                        action="store_true",
+                        dest="start_redis",
                         )
+    parser.add_argument("--no-start-redis",
+                        help="do not start redis",
+                        action="store_false",
+                        dest="start_redis",
+                        )
+    parser.set_defaults(start_redis=True)
     parser.add_argument("-m", "--multi-user",
                         help="multi user",
                         action="store_true",
@@ -79,6 +88,39 @@ def run():
 
     level = logging.DEBUG if args.debug else logging.INFO
     logging.basicConfig(level=level, format="%(asctime)s:%(levelname)s:%(name)s:%(message)s")
+
+    backend_options = args.backend
+    if backend_options == 'redis':
+        if args.start_redis:
+            backend_options += " (start=%s, port=%d)" % (args.start_redis, args.redis_port)
+        else:
+            backend_options += " (start=False)"
+
+    onoff = {True:"ON", False:"OFF"}
+
+    py_options = ", ".join(
+        name.replace('_', '-') + ":" + onoff[vars(args).get(name)] for name in ['debug', 'verbose', 'filter_logs', 'multi_user']
+    )
+    js_options = ", ".join(
+        name + ":" + onoff[vars(args).get(name)]for name in ['splitjs', 'debugjs']
+    )
+
+
+    print("""
+Bokeh Server Configuration
+==========================
+listening      : %s:%d
+backend        : %s
+python options : %s
+js options     : %s
+data-directory : %s
+""" % (
+    args.ip, args.bokeh_port,
+    backend_options,
+    py_options,
+    js_options,
+    None if not args.data_directory else args.data_directory,
+))
 
     if args.filter_logs:
         class StaticFilter(logging.Filter):
