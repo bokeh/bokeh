@@ -1,4 +1,7 @@
+import os
+import gzip
 import datetime
+import argparse
 import pandas as pd
 
 import logging
@@ -10,13 +13,17 @@ from bokeh.objects import (Plot, ColumnDataSource, Range1d, DataRange1d, FactorR
 from bokeh.glyphs import Line, Circle, Rect
 from bokeh.properties import Dict, Float, String, Instance, Enum, Date, lookup_descriptor
 
-def load_csv(filename):
-    df = pd.read_csv(filename)
-    df["date"] = pd.to_datetime(df.timestamp, unit='s')
-    return df
+parser = argparse.ArgumentParser()
+parser.add_argument("-D", "--data-dir", type=str, required=True, help="data directory")
+args = parser.parse_args()
 
-installers = load_csv("data/installers.internalpanel.data.log")
-packages = load_csv("data/pkgs.internalpanel.data.log")
+def load_csv(file_name):
+    with gzip.open(os.path.join(args.data_dir, file_name)) as file:
+        df = pd.read_csv(file)
+        df["date"] = pd.to_datetime(df.timestamp, unit='s')
+        return df
+
+installers = load_csv("installers.internalpanel.data.log.gz")
 
 class InstallersModel(VBoxModelForm):
     installer = Enum("All", *sorted(installers.event.unique()))
