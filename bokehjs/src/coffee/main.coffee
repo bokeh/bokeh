@@ -64,7 +64,7 @@ define (require, exports, module) ->
   Bokeh.DiamondCross     = glyph_factory.diamond_cross
   Bokeh.Image            = glyph_factory.image
   Bokeh.ImageRGBA        = glyph_factory.image_rgba
-  Bokeh.ImageURl         = glyph_factory.image_url
+  Bokeh.ImageURL         = glyph_factory.image_url
   Bokeh.InvertedTriangle = glyph_factory.inverted_triangle
   Bokeh.Line             = glyph_factory.line
   Bokeh.MultiLine        = glyph_factory.multi_line
