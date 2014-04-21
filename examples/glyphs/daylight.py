@@ -28,8 +28,20 @@ patch2_source = ColumnDataSource(dict(
     times = np.concatenate((summer.Sunrise, summer.Sunset[::-1]))
 ))
 
+summer_start = df.Summer.tolist().index(1)
+summer_end = df.Summer.tolist().index(0, summer_start)
+
+calendar_start = df.Date.irow(0)
+summer_start = df.Date.irow(summer_start)
+summer_end = df.Date.irow(summer_end)
+calendar_end = df.Date.irow(-1)
+
+d1 = calendar_start + (summer_start - calendar_start)/2
+d2 = summer_start + (summer_end - summer_start)/2
+d3 = summer_end + (calendar_end - summer_end)/2
+
 text_source = ColumnDataSource(dict(
-    dates = [dt.date(2013, 2, 15), dt.date(2013, 7, 15), dt.date(2013, 12, 1)],
+    dates = [d1, d2, d3],
     times = [dt.time(11, 30)]*3,
     texts = ["CST (UTC+1)", "CEST (UTC+2)", "CST (UTC+1)"],
 ))
