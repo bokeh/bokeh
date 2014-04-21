@@ -1,21 +1,14 @@
 from __future__ import print_function
 
-from os.path import join, abspath, dirname
-
 import numpy as np
-import pandas as pd
 import datetime as dt
 
 from bokeh.objects import Plot, DataRange1d, DatetimeAxis, ColumnDataSource, Glyph, Grid, Legend
 from bokeh.glyphs import Patch, Line, Text
 from bokeh.session import HTMLFileSession
+from bokeh.sampledata import daylight
 
-# http://www.sunrisesunset.com
-file_path = join(dirname(abspath(__file__)), "daylight-hours-warsaw-2013.csv")
-df = pd.read_csv(file_path, parse_dates=["Date", "Sunrise", "Sunset"])
-
-df["Sunrise"] = df.Sunrise.map(lambda x: x.time())
-df["Sunset"] = df.Sunset.map(lambda x: x.time())
+df = daylight.daylight_warsaw_2013
 
 source = ColumnDataSource(dict(
     dates = df.Date,
