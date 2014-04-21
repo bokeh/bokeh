@@ -293,7 +293,6 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     packages=[
         'bokeh',
-        'bokeh.chaco_gg',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.session',
