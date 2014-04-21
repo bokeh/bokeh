@@ -4,6 +4,7 @@ import re
 import datetime
 import requests
 
+from six.moves import xrange
 from os.path import join, abspath, dirname
 
 import pandas as pd
