@@ -183,11 +183,6 @@ if '--deploy' in sys.argv:
     sys.argv.remove("--deploy")
     sys.argv.append("--build_js")
 
-if 'develop' in sys.argv:
-    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
-           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
-    CSS = join(BOKEHJSBUILD, 'css')
-
 if '--build_js' in sys.argv:
     os.chdir('bokehjs')
     try:
@@ -197,6 +192,9 @@ if '--build_js' in sys.argv:
     except subprocess.CalledProcessError:
         print("ERROR: could not deploy bokehjs")
         sys.exit(1)
+    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
+           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
+    CSS = join(BOKEHJSBUILD, 'css')
     os.chdir('..')
 
 if exists(join(SERVER, 'static', 'js')):
