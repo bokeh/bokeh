@@ -13,7 +13,10 @@ define [
       #need to parameterize these some how, assume domain=x for now
       domain = 'x'
       if domain == 'x'
-        server_source.listen_for_line1d_updates(@mget_obj('data_source'),
+        server_source.listen_for_server_updates(
+          "LineView"  #HACK: Don't know how to reliable check object types....
+          @mget('resample_op'), #When object type checking can be done, drop this param and recover it in the callee
+          @mget_obj('data_source'),
           @plot_view.x_range,
           @plot_view.view_state.get('inner_range_horizontal'),
           @glyph_props.y.field,

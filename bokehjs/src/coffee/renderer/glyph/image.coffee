@@ -21,7 +21,10 @@ define [
       @mget_obj('data_source').set('data', data)
       @set_data(false)
 
-      serversource.listen_for_heatmap_updates(@mget_obj('data_source'),
+      serversource.listen_for_server_updates(
+        "ImageView"  #HACK: Don't know how to reliable check object types....
+        @mget('resample_op'), #When object type checking can be done, drop this param and recover it in the callee
+        @mget_obj('data_source'),
         @plot_view.x_range,
         @plot_view.y_range,
         @plot_view.view_state.get('inner_range_horizontal'),

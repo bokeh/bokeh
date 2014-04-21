@@ -45,8 +45,42 @@ define [
         for entry in @callbacks[column_data_source.get('id')]
           @stopListening.apply(this, entry)
 
-    listen_for_line1d_updates : (column_data_source, domain_range, screen_range
-                                  primary_column, domain_name, columns) ->
+
+    listen_for_server_updates : (renderer, resample_op
+                                 column_data_source,
+                                 domain_range, screen_range,
+                                 primary_column, domain_name,
+                                 columns) ->
+
+        console.log "Renderer type: " + renderer
+        console.log "Resample Operator: " + resample_op
+
+        if (renderer == "ImageView")
+          if (resample_op == 'downsample')
+            @listen_for_heatmap_updates(column_data_source,
+                                       domain_range, screen_range,
+                                       primary_column, domain_name,
+                                       columns)
+          else
+            console.log "Unkonwn update operator: " + resample_op
+
+        else if (renderer == "LineView")
+          if (resample_op == 'downsample')
+            @listen_for_line1d_updates(column_data_Source,
+                                      domain_range, screen_range,
+                                      primary_column, domain_name,
+                                      columns)
+          else
+            console.log "Unkonwn update operator: " + resample_op
+
+        else
+          console.log "No udate operators defined for renderer of type " + typeof renderer
+
+
+    listen_for_line1d_updates : (column_data_source,
+                                 domain_range, screen_range,
+                                 primary_column, domain_name,
+                                 columns) ->
       #ensure we only have one set of events bound
       @stoplistening_for_updates(column_data_source)
       @line1d_update(column_data_source, domain_range, screen_range
@@ -63,8 +97,10 @@ define [
         [domain_range, 'change', callback]
       ]
 
-    line1d_update : (column_data_source, domain_range, screen_range,
-                     primary_column, domain_name, columns) =>
+    line1d_update : (column_data_source,
+                     domain_range, screen_range,
+                     primary_column, domain_name,
+                     columns) =>
       #console.log('calling update')
       data_url = @get('data_url')
       owner_username = @get('owner_username')
