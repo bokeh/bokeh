@@ -44,9 +44,13 @@ parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
                     help="phantomjs executable")
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
-parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=True,
-                    help="don't use development JavaScript and CSS files")
+parser.add_argument("-d", "--dev", dest="dev", action="store_true", default=False,
+                    help="use development JavaScript and CSS files")
 args = parser.parse_args()
+
+DEFAULT_DEV_JS_CSS = os.environ.get('BOKEH_DEFAULT_DEV_JS_CSS', False)
+if DEFAULT_DEV_JS_CSS:
+    args.dev = True
 
 def is_selected(example):
     if not args.patterns:
