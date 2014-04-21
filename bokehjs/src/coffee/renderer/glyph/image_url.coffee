@@ -7,7 +7,7 @@ define [
 
   glyph_properties = Properties.glyph_properties
 
-  class ImageURIView extends Glyph.View
+  class ImageURLView extends Glyph.View
 
     _fields: ['url:string', 'x', 'y', 'angle']
     _properties: []
@@ -61,8 +61,8 @@ define [
         ctx.drawImage(img, @sx[i], @sy[i]);
 
   # name Image conflicts with js Image
-  class ImageURIGlyph extends Glyph.Model
-    default_view: ImageURIView
+  class ImageURLGlyph extends Glyph.Model
+    default_view: ImageURLView
     type: 'Glyph'
 
     display_defaults: () ->
@@ -71,6 +71,6 @@ define [
       })
 
   return {
-    "Model": ImageURIGlyph,
-    "View": ImageURIView,
+    "Model": ImageURLGlyph,
+    "View": ImageURLView,
   }

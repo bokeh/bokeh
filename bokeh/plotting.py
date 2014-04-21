@@ -72,10 +72,10 @@ def make_config():
         autosave = False,
         file_resources = "inline",
         file_rootdir = None,
-        
+
         #Configuration options for "server" mode
         autostore = True,
-        
+
         # The currently active Session object
         session = None,
 
@@ -84,7 +84,7 @@ def make_config():
 
         # hold state
         hold = False)
-    
+
 def _set_config():
     global _config
     _config = make_config()
@@ -786,6 +786,20 @@ Returns:
 Notes:
     setting `dilate` to True will cause pixel distances (e.g., for `dw` and `dh`) to
     be rounded up, always.
+"""
+)
+
+image_url = _glyph_function(glyphs.ImageURL, ("url", "x", "y", "angle"),
+"""The image_url glyph takes a urls for images to display.
+
+Args:
+    url (str) : value of RGBA image data
+    x (str or list[float]) : values or field names of upper left `x` coordinates
+    y (str or list[float]) : values or field names of upper left `y` coordinates
+    angle (float) : angle to rotate image by
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
 """
 )
 
