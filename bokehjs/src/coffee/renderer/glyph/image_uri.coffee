@@ -35,6 +35,7 @@ define [
               ctx.save()
               ctx.beginPath()
               # TODO should take the real axis rule width into account, for now shrink region by 1 px
+              vs = @plot_view.view_state
               ctx.rect(
                 vs.get('border_left')+1, vs.get('border_top')+1,
                 vs.get('inner_width')-2, vs.get('inner_height')-2,
@@ -46,6 +47,7 @@ define [
           @need_load[i] = false
 
         else if @loaded[i]
+          vs = @plot_view.view_state
           @_render_image(ctx, vs, i, @image[i])
 
     _render_image: (ctx, vs, i, img) ->
