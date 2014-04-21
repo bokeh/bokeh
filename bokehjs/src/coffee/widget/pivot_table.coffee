@@ -2,7 +2,7 @@ define [
   "underscore"
   "jquery"
   "jquery_ui/sortable"
-  "bootstrap"
+  "bootstrap/dropdown"
   "backbone"
   "common/has_parent"
   "common/has_properties"
@@ -36,11 +36,11 @@ define [
       _.find(@mget("fields"), (field) -> field.name == fieldName).dtype
 
     render: () ->
-      html = $('<table class="cdx-pivot"></table>')
+      html = $('<table class="bk-pivot"></table>')
 
-      @$description = $('<td class="cdx-pivot-description" valign="center"></td>')
-      @$toolbox = $('<td class="cdx-pivot-toolbox" valign="top"></td>')
-      @$pivot = $('<td class="cdx-pivot-table" valign="top"></td>')
+      @$description = $('<td class="bk-pivot-description" valign="center"></td>')
+      @$toolbox = $('<td class="bk-pivot-toolbox" valign="top"></td>')
+      @$pivot = $('<td class="bk-pivot-table" valign="top"></td>')
 
       @$description.html(@renderDescription())
       @$toolbox.html(@renderToolbox())
@@ -55,7 +55,7 @@ define [
       @delayRenderPivotTable()
 
     renderWait: () ->
-      $('<span class="cdx-wait">Rendering ...</span>')
+      $('<span class="bk-wait">Rendering ...</span>')
 
     rerenderPivotTable: () ->
       @$pivot.html(@renderWait())
@@ -78,7 +78,7 @@ define [
 
     renderAdd: (exclude, handler) ->
       dropdown = $('<div class="dropdown pull-right"></div>')
-      button = $('<button class="btn btn-link btn-xs dropdown-toggle" data-toggle="dropdown"><i class="fa fa-plus"></i></button>')
+      button = $('<button class="btn btn-link btn-xs dropdown-toggle" data-toggle="dropdown">Add</button>')
       dropdown.append([button.dropdown(), @renderFields(exclude, handler)])
       dropdown
 
@@ -116,18 +116,18 @@ define [
 
     makeSortable: (attr, $el) ->
       $el.sortable({
-        handle: ".cdx-pivot-box-header",
+        handle: ".bk-pivot-box-header",
         axis: "y",
         distance: 10,
       }).on 'sortstop', (ui) =>
-        fields = ($(child).data('cdx-field') for child in $el.children())
+        fields = ($(child).data('bk-field') for child in $el.children())
         @mset(attr, _.sortBy(@mget(attr), (item) -> fields.indexOf(item.field)))
 
     renderFieldName: (field) ->
-      $('<span class="cdx-field"></span').text(field)
+      $('<span class="bk-field"></span').text(field)
 
     renderDType: (field) ->
-      $('<span class="cdx-dtype"></span').text('(' + @getDType(field) + ')')
+      $('<span class="bk-dtype"></span').text('(' + @getDType(field) + ')')
 
     defaultRowColumn: (field) ->
       {field: field, order: "ascending", sort_by: field, totals: true}
@@ -142,7 +142,7 @@ define [
       header.append(add)
       $rows = $('<ul></ul>')
       _.each @mget("rows"), (row, index) =>
-        groupBy = $('<li class="cdx-pivot-box-header">Group by:</li>')
+        groupBy = $('<li class="bk-pivot-box-header">Group by:</li>')
         $field = @renderFieldName(row.field)
         $dtype = @renderDType(row.field)
         $remove = @renderRemove("rows", row.field)
@@ -156,8 +156,8 @@ define [
         totals = $('<li>Totals:&nbsp;</li>')
         totals.append(@renderOptions(["on", "off"], (if row.totals then 0 else 1),
           (value) => @mupdate("rows", (rows) -> rows[index].totals = if value == "on" then true else false)))
-        $row = $('<ul class="cdx-pivot-box"></ul>')
-        $row.data('cdx-field', row.field)
+        $row = $('<ul class="bk-pivot-box"></ul>')
+        $row.data('bk-field', row.field)
         $row.append([groupBy, order, sortBy, totals])
         $rows.append($row)
       @makeSortable("rows", $rows)
@@ -170,7 +170,7 @@ define [
       header.append(add)
       $columns = $('<ul></ul>')
       _.each @mget("columns"), (column, index) =>
-        groupBy = $('<li class="cdx-pivot-box-header">Group by:</li>')
+        groupBy = $('<li class="bk-pivot-box-header">Group by:</li>')
         $field = @renderFieldName(column.field)
         $dtype = @renderDType(column.field)
         $remove = @renderRemove("columns", column.field)
@@ -184,8 +184,8 @@ define [
         totals = $('<li>Totals:&nbsp;</li>')
         totals.append(@renderOptions(["on", "off"], (if column.totals then 0 else 1),
           (value) => @mupdate("columns", (columns) -> columns[index].totals = if value == "on" then true else false)))
-        $column = $('<ul class="cdx-pivot-box"></ul>')
-        $column.data('cdx-field', column.field)
+        $column = $('<ul class="bk-pivot-box"></ul>')
+        $column.data('bk-field', column.field)
         $column.append([groupBy, order, sortBy, totals])
         $columns.append($column)
       @makeSortable("columns", $columns)
@@ -201,7 +201,7 @@ define [
       header.append(add)
       $values = $('<ul></ul>')
       _.each @mget("values"), (value, index) =>
-        display = $('<li class="cdx-pivot-box-header">Display:</li>')
+        display = $('<li class="bk-pivot-box-header">Display:</li>')
         $field = @renderFieldName(value.field)
         $dtype = @renderDType(value.field)
         $remove = @renderRemove("values", value.field)
@@ -215,8 +215,8 @@ define [
         formatter = $('<li>Formatter:&nbsp;</li>')
         formatter.append(@renderOptions(@model.formatters, value.formatter,
           (formatter) => @mupdate("values", (values) -> values[index].formatter = formatter)))
-        $value = $('<ul class="cdx-pivot-box"></ul>')
-        $value.data('cdx-field', value.field)
+        $value = $('<ul class="bk-pivot-box"></ul>')
+        $value.data('bk-field', value.field)
         $value.append([display, aggregate, renderer, formatter])
         $values.append($value)
       @makeSortable("values", $values)
@@ -232,13 +232,13 @@ define [
       header.append(add)
       $filters = $('<ul></ul>')
       _.each @mget("filters"), (filter) =>
-        display = $('<li class="cdx-pivot-box-header">Filter:</li>')
+        display = $('<li class="bk-pivot-box-header">Filter:</li>')
         $field = @renderFieldName(filter.field)
         $dtype = @renderDType(filter.field)
         $remove = @renderRemove("filters", filter.field)
         display.append(["&nbsp;", $field, "&nbsp;", $dtype, $remove])
-        $filter = $('<ul class="cdx-pivot-box"></ul>')
-        $filter.data('cdx-field', filter.field)
+        $filter = $('<ul class="bk-pivot-box"></ul>')
+        $filter.data('bk-field', filter.field)
         $filter.append([display])
         $filters.append($filter)
       @makeSortable("filters", $filters)
@@ -297,7 +297,7 @@ define [
       colKeys = @mget("data").cols
 
       #now actually build the output
-      result = $("<table class='cdx-pivot-table pvtTable'>")
+      result = $("<table class='bk-pivot-table pvtTable'>")
 
       #the first few rows are for col headers
       for own j, c of colAttrs

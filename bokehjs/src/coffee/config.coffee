@@ -7,6 +7,7 @@ require.config
         numeral:           "vendor/numeral/numeral"
         underscore:        "vendor/underscore-amd/underscore"
         backbone:          "vendor/backbone-amd/backbone"
+        bootstrap:         "vendor/bootstrap-3.1.1/js"
         modal:             "vendor/bootstrap/modal"
         timezone:          "vendor/timezone/src/timezone"
         sprintf:           "vendor/sprintf/src/sprintf"

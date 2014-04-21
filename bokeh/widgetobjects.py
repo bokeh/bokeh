@@ -3,9 +3,12 @@ from .plotobject import PlotObject
 #from .objects import DataSource
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
     String, Color, Include, Bool, Tuple, Any, Date, lookup_descriptor)
+from .pivot_table import pivot_table
 import copy
 import logging
 logger = logging.getLogger(__name__)
+
+import pandas as pd
 
 class Panel(PlotObject):
     title = String
@@ -180,7 +183,7 @@ class TableWidget(PlotObject):
     pass
 
 class TableColumn(PlotObject):
-    type = Enum("numeric", "date")
+    type = Enum("string", "numeric", "date")
     data = String
     header = String
 
@@ -261,16 +264,60 @@ class PivotTable(PlotObject):
         self.on_change('values', self, 'get_data')
         self.on_change('filters', self, 'get_data')
 
-        if not self.fields:
-            self.fields = self.source.fields()
-
         if not self.data:
             self.get_data()
 
     def get_data(self, obj=None, attrname=None, old=None, new=None):
-        self.data = self.source.pivot(dict(
-            rows=self.rows,
-            columns=self.columns,
-            values=self.values,
-            filters=self.filters,
-        ))
+        self.data = self.pivot_table()
+
+    def _pivot_table(self, rows, cols, values, aggfunc=None):
+        dataset = pd.DataFrame(self.source.data)
+
+        try:
+            if not rows and not cols:
+                table = pd.DataFrame()
+            else:
+                table = pivot_table(dataset, rows=rows, cols=cols, values=values, aggfunc=aggfunc)
+        except:
+            table = pd.DataFrame()
+
+        if isinstance(table, pd.DataFrame):
+            if len(rows) == 1:
+                _rows = [ [x] for x in table.index.tolist() ]
+            else:
+                _rows = table.index.tolist()
+            if len(cols) == 1:
+                _cols = [ [x] for x in table.columns.tolist() ]
+            else:
+                _cols = table.columns.tolist()
+            _values = table.values.tolist()
+            _attrs = dataset.columns.tolist()
+        elif isinstance(table, pd.Series):
+            raise ValueError("series")
+        else:
+            raise ValueError("???")
+
+        return table, (_attrs, _rows, _cols, _values)
+
+    def pivot_table(self):
+        def fields(items):
+           return [ item["field"] for item in items ]
+
+        row_fields = fields(self.rows)
+        column_fields = fields(self.columns)
+        value_fields = fields(self.values)
+        filter_fields = fields(self.filters)
+
+        if len(self.values) > 0:
+            aggfunc = values[0]["aggregate"]
+        else:
+            aggfunc = len
+
+        _, (_attrs, _rows, _cols, _values) = self._pivot_table(row_fields, column_fields, value_fields, aggfunc)
+
+        return dict(
+            attrs  = _attrs,
+            rows   = _rows,
+            cols   = _cols,
+            values = _values,
+        )

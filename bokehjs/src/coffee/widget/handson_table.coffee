@@ -21,9 +21,11 @@ define [
 
         for column in @mget_obj("columns")
           headers.push(column.get("header"))
+          data = column.get("data")
+          type = column.get("type")
           columns.push({
-            data: column.get("data")
-            type: column.get("type")
+            data: data
+            type: if type == "string" then undefined else type
           })
 
         @$el.handsontable({
