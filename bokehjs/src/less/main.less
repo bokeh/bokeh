@@ -286,3 +286,64 @@ button.active {border:1px solid blue}
   border: 1px solid #D3D3D3;
   float: left;
 }
+
+.bokeh_modal_window {
+  position: absolute;
+  bottom: 66px;
+  z-index: 900;
+  display: none;
+  float: left;
+  min-width: 270px;
+  padding: 4px 0;
+  margin: 1px 0 0 26px;
+  list-style: none;
+  background-color: #ffffff;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  -webkit-border-radius: 5px;
+     -moz-border-radius: 5px;
+          border-radius: 5px;
+  -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+     -moz-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+  -webkit-background-clip: padding-box;
+     -moz-background-clip: padding;
+          background-clip: padding-box;
+}
+
+.modal_header {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+  margin: 6px 8px 8px;
+  min-height: 28px;
+}
+
+.modal_header h3 {
+  float: left;
+  width: 236px;
+  margin: 0 4px 4px 0;
+  line-height: 22px;
+}
+
+.modal_window_close {
+  float: right;
+  top: 12px;
+  position: absolute;
+  cursor: pointer;
+}
+
+.modal_body {
+  margin: 8px;
+}
+
+.modal_body_head {
+  font-weight: bold;
+  font-style: italic;
+}
+
+.modal_body_content{
+  margin-bottom: 5px;
+}
+
+.object_inspector_window, .plot_info_window {
+  cursor: pointer;
+}

@@ -69,6 +69,10 @@ define [
       "touchend .gear-icon": "_open_popup"
       "mousedown .bokeh_canvas_wrapper": "_mousedown"
       "touchstart .bokeh_canvas_wrapper": "_mousedown"
+      "mousedown .object_inspector_window, .plot_info_window": "_show_modal_window"
+      "touchstart .object_inspector_window, .plot_info_window": "_show_modal_window"
+      "mousedown .modal_window_close": "_close_modal_window"
+      "touchstart .modal_window_close": "_close_modal_window"
     
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
@@ -92,7 +96,37 @@ define [
       popup_top = position.top - @show_popup.outerHeight() - @gear_menu_icon.outerHeight()
       @show_popup.attr('style', "left:#{popup_left}px; top:#{popup_top}px;")
       @show_popup.toggleClass('show_popup')
+
+    _show_modal_window: (e) =>
+      @window_title = ""
+      @embed_modal_content = ""
+      if e.target.className == "object_inspector_window"
+        @window_title = "Object Inspector"
+      else if e.target.className == "plot_info_window"
+        @window_title = "Plot Info"
+        datasource = "Embedded in the HTML file"
+        if window.location.host != ""
+          datasource = "Loaded from the #{window.location.host} server"
+        @embed_modal_content += "<div class='modal_body_head'>Bokeh Version</div>"
+        @embed_modal_content += "<div class='modal_body_content'>#{Bokeh.version}</div>"
+        @embed_modal_content += "<div class='modal_body_head'>Data Source</div>"
+        @embed_modal_content += "<div class='modal_body_content'>#{datasource}</div>"
+      else
+        return null
+      @_modal_window_content(e)
+
+    _modal_window_content: (e) =>
+      @$el.find('.modal_window_title').html(@window_title)
+      @$el.find('.modal_body').html(@embed_modal_content)
+      @$el.find('.bokeh_modal_window').show()
+      height = @$el.find('.modal_window_title').outerHeight(true)
+      @$el.find('.modal_header').attr('style', "height:#{height}px")
       
+    _close_modal_window: (e) =>
+      @$el.find('.bokeh_modal_window').hide()
+      @$el.find('.modal_window_title').html("")
+      @$el.find('.modal_body').html("")
+    
     pause: () ->
       @is_paused = true
 
@@ -315,9 +349,18 @@ define [
     </div>
     </div>
     <ul class="popup_menu dropdown-menu">
-      <li><a href="#">Object Inspector</a></li>
-      <li><a href="#">Plot Info</a></li>
+      <li><a class="object_inspector_window">Object Inspector</a></li>
+      <li><a class="plot_info_window">Plot Info</a></li>
     </ul>
+    <div class='bokeh_modal_window'>
+    <div class="modal_header">
+      <h3 class="modal_window_title"></h3>
+      <i  class='icon-remove modal_window_close'></i>
+    </div>
+    <div class="modal_body">
+    </div>
+    </div>
+    </div>
     </div>
         """))
         
@@ -331,6 +374,7 @@ define [
       @canvas_footer = @$el.find('.bokeh_canvas_footer')
       @canvas = @$el.find('canvas.bokeh_canvas')
       @plot_frame = @$el.find('.plotarea')
+      @plot_modal_window = @$el.find('.bokeh_modal_window')
       
       if @mget('frame') == "on"
         @canvas_header.removeClass('hide')
@@ -366,6 +410,7 @@ define [
       @canvas_header.attr('style', "width:#{ow}px;")
       @canvas_footer.attr('style', "width:#{ow}px;")
       @plot_frame.attr('style', "width:#{ow}px;")
+      @plot_modal_window.attr('style', "left:#{ow}px;")
 
       @ctx.scale(ratio, ratio)
       @ctx.translate(0.5, 0.5)
