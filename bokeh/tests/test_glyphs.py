@@ -548,11 +548,11 @@ class TestBezier(unittest.TestCase):
         self.assertEqual(self.test_bezier.to_glyphspec(), expected)
 
 
-class TestImageURI(unittest.TestCase):
+class TestImageURL(unittest.TestCase):
 
     def setUp(self):
-        from bokeh.glyphs import ImageURI
-        self.test_imageuri = ImageURI()
+        from bokeh.glyphs import ImageURL
+        self.test_imageuri = ImageURL()
 
     def test_expected_properties(self):
         expected_properties = set(['x', 'y', 'angle', ])
