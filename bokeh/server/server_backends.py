@@ -439,7 +439,7 @@ class HDF5DataBackend(AbstractDataBackend):
     def line1d_downsample(self, request_username, request_docid, data_url, 
                           downsample_function, downsample_parameters):
         dataset = self.client[data_url]
-        (primary_column, domain_name, columns, 
+        (method, primary_column, domain_name, columns, 
          domain_limit, domain_resolution) = downsample_parameters
         if domain_limit == 'auto':
             domain = dataset.select(columns=[domain_name])[domain_name]
@@ -462,7 +462,8 @@ class HDF5DataBackend(AbstractDataBackend):
                                             domain_name,
                                             primary_column,
                                             domain_limit,
-                                            domain_resolution)
+                                            domain_resolution,
+                                            method)
         print ('result', result.shape)
         result = {
             'data' : dict([(k, result[k]) for k in result.dtype.names]),

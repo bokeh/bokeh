@@ -14,8 +14,21 @@ output_server("remotedata")
 source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", 
                           owner_username="defaultuser")
 line('date', 'close',
-     resample_op='downsample',
      x_axis_type = "datetime",
-     color='#A6CEE3', tools="pan,wheel_zoom,box_zoom,reset,previewsave",
+     color='#C299FF', tools="pan,wheel_zoom,box_zoom,reset,previewsave",
      source=source,
-     legend='AAPL')
+     legend='AAPL: default')
+
+line('date', 'close',
+     resample_op='mid',
+     x_axis_type = "datetime",
+     color='#C26666', tools="pan,wheel_zoom,box_zoom,reset,previewsave",
+     source=source,
+     legend='AAPL: mid')
+
+line('date', 'close',
+     resample_op='minmax',
+     x_axis_type = "datetime",
+     color='#C26666', tools="pan,wheel_zoom,box_zoom,reset,previewsave",
+     source=source,
+     legend='AAPL: minmax')

@@ -58,36 +58,32 @@ define [
         if (renderer == "ImageView")
           if (resample_op == 'downsample')
             @listen_for_heatmap_updates(column_data_source,
-                                       domain_range, screen_range,
-                                       primary_column, domain_name,
-                                       columns)
+                                        domain_range, screen_range,
+                                        primary_column, domain_name,
+                                        columns)
           else
             console.log "Unkonwn update operator: " + resample_op
 
         else if (renderer == "LineView")
-          if (resample_op == 'downsample')
-            @listen_for_line1d_updates(column_data_source,
-                                      domain_range, screen_range,
-                                      primary_column, domain_name,
-                                      columns)
-          else
-            console.log "Unkonwn update operator: " + resample_op
-
+          @listen_for_line1d_updates(resample_op, column_data_source,
+                                     domain_range, screen_range,
+                                     primary_column, domain_name,
+                                     columns)
         else
           console.log "No udate operators defined for renderer of type " + typeof renderer
 
 
-    listen_for_line1d_updates : (column_data_source,
+    listen_for_line1d_updates : (resample_op, column_data_source,
                                  domain_range, screen_range,
                                  primary_column, domain_name,
                                  columns) ->
       #ensure we only have one set of events bound
       @stoplistening_for_updates(column_data_source)
-      @line1d_update(column_data_source, domain_range, screen_range
-          primary_column, domain_name, columns
-        )
+      @line1d_update(resample_op, column_data_source, domain_range, screen_range
+          primary_column, domain_name, columns)
+
       throttle = _.throttle(@line1d_update, 300)
-      callback = () => throttle(column_data_source, domain_range, screen_range
+      callback = () => throttle(resample_op, column_data_source, domain_range, screen_range
         primary_column, domain_name, columns
       )
       @listenTo(screen_range, 'change', callback)
@@ -97,7 +93,7 @@ define [
         [domain_range, 'change', callback]
       ]
 
-    line1d_update : (column_data_source,
+    line1d_update : (resample_op, column_data_source,
                      domain_range, screen_range,
                      primary_column, domain_name,
                      columns) =>
@@ -111,7 +107,7 @@ define [
       domain_limit = [domain_range.get('start'), domain_range.get('end')]
       if _.any(_.map(domain_limit, (x) -> _.isNaN(x)))
         domain_limit = 'auto'
-      params = [primary_column, domain_name, columns,
+      params = [resample_op, primary_column, domain_name, columns,
           domain_limit
         , domain_resolution]
       params = JSON.stringify(params)

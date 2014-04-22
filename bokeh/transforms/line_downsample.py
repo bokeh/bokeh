@@ -6,7 +6,7 @@ def downsample(data,
                primary_data_column,
                domain_limit, 
                domain_resolution, 
-               method='all'
+               method='minmax'
                ):
     """
     data : record numpy array of values, shape (N,)
@@ -15,8 +15,8 @@ def downsample(data,
     min/max decimation
     domain_limit : bounds of domain (tuple of length 2)
     domain_resolution : # of samples
-    method : 'all' or 'median' encodes the max/min/median point.  'mean' 
-    just encodes the avg
+    method : 'maxmin' or 'downsample' encodes the max/min point. 
+             'mid' encode the midpoint of each bin-range 
     
     output:
     list of (domain,data) pairs, where they are each 1d vectors
@@ -44,18 +44,27 @@ def downsample(data,
         return data
 
     downsampled_data = []
+    if (method == 'downsample') : method = 'minmax'
+
     for st, ed in zip(starting_boundaries, ending_boundaries):
         subdata = data[st:ed]
         if subdata.shape[0] == 0:
             continue
-        #downsample
+        
         primary_column = subdata[primary_data_column]
         idx = np.argsort(primary_column)
-        min_idx = idx[0]
-        max_idx = idx[-1]
-        subdata = subdata[[min_idx, max_idx]]
-        
+        #downsample
+        if (method == 'minmax'):
+          min_idx = idx[0]
+          max_idx = idx[-1]
+          subdata = subdata[[min_idx, max_idx]]
+        elif (method == 'mid'):
+          mid_idx = idx[len(idx)/2]
+          part = subdata[[mid_idx]]
+        else :
+          raise ValueError("Line downsample method not known: " + method)
         downsampled_data.append(subdata)
+
     downsampled_data = np.concatenate(downsampled_data)
     #resort data
     indexes = np.argsort(downsampled_data[domain_column])
