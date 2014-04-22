@@ -1,16 +1,19 @@
 
 from . import glyphs
-from .objects import (
-    BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, ServerDataSource,
-    ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
-    Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
-    ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange,
-    ObjectExplorerTool, BasicTicker, BasicTickFormatter, CategoricalTicker,
-    CategoricalTickFormatter, DatetimeTicker, DatetimeTickFormatter
-)
+
+from six import iteritems
 
 def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"]):
+
     def func(session_or_plot, *args, **kwargs):
+        # Note: We want to reuse the glyph functions by attaching them the Plot
+        # class. Imports are here to prevent circular imports.
+        from .plotting_helpers import (
+            _match_data_params, _update_plot_data_ranges,
+            _materialize_colors_and_alpha, _get_legend,
+            _make_legend, _get_select_tool
+        )
+        from .objects import ColumnDataSource, Glyph, Plot, ServerDataSource
 
         source = kwargs.pop('source', None)
         if isinstance(source, ServerDataSource):
@@ -25,11 +28,14 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         legend_name = kwargs.pop("legend", None)
 
+        from .session import Session
         if isinstance(session_or_plot, Plot):
             plot = session_or_plot
             # TODO (bev) plot.update(kwargs)
         elif isinstance(session_or_plot, Session):
-            plot = session_or_plot._get_plot(kwargs)
+            session = session_or_plot
+            plot = session._get_plot(kwargs)
+            session.add(plot)
         else:
             raise ValueError("expected session or plot object for first argument")
 

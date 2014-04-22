@@ -5,6 +5,10 @@ from __future__ import absolute_import
 from .  import _glyph_functions
 from .objects import Instance, List
 from .plot_object import PlotObject
+from .plotting_helpers import (get_default_color, get_default_alpha,
+        _glyph_doc, _match_data_params, _update_plot_data_ranges,
+        _materialize_colors_and_alpha, _get_legend, _make_legend,
+        _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
 
 import logging
 import warnings
@@ -21,7 +25,7 @@ class Session(object):
         self._hold = False
 
     def __enter__(self):
-        pass
+        return self
 
     def __exit__(self, e_ty, e_val, e_tb):
         pass
@@ -68,12 +72,12 @@ class Session(object):
     wedge             = _glyph_functions.wedge
     x                 = _glyph_functions.x
 
-    def _add(self, *objects):
+    def add(self, *objects):
         for obj in objects:
-            if isinstance(obj, PlotObject):
-                plots.extend(obj)
+            if isinstance(obj, PlotObject) and obj not in self.plots:
+                self.plots.append(obj)
 
-    def _get_plot(kwargs):
+    def _get_plot(self, kwargs):
         plot = kwargs.pop("plot", None)
         if not plot:
             if self._hold and self._current_plot:
@@ -83,4 +87,5 @@ class Session(object):
                 self._next_figure_kwargs = dict()
                 plot_kwargs.update(kwargs)
                 plot = _new_xy_plot(**plot_kwargs)
+        self._current_plot = plot
         return plot

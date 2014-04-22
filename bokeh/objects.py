@@ -10,6 +10,7 @@ import warnings
 import logging
 logger = logging.getLogger(__file__)
 
+from . import _glyph_functions
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
 from .mixins import FillProps, LineProps, TextProps
@@ -296,6 +297,38 @@ class Plot(PlotObject):
         if "outer_height" not in self._changed_vars:
             self.outer_height = self.height
         return super(Plot, self).vm_props()
+
+    annular_wedge     = _glyph_functions.annular_wedge
+    annulus           = _glyph_functions.annulus
+    arc               = _glyph_functions.arc
+    asterisk          = _glyph_functions.asterisk
+    bezier            = _glyph_functions.bezier
+    circle            = _glyph_functions.circle
+    circle_cross      = _glyph_functions.circle_cross
+    circle_x          = _glyph_functions.circle_x
+    cross             = _glyph_functions.cross
+    diamond           = _glyph_functions.diamond
+    diamond_cross     = _glyph_functions.diamond_cross
+    image             = _glyph_functions.image
+    image_rgba        = _glyph_functions.image_rgba
+    inverted_triangle = _glyph_functions.inverted_triangle
+    line              = _glyph_functions.line
+    multi_line        = _glyph_functions.multi_line
+    oval              = _glyph_functions.oval
+    patch             = _glyph_functions.patch
+    patches           = _glyph_functions.patches
+    quad              = _glyph_functions.quad
+    quadratic         = _glyph_functions.quadratic
+    ray               = _glyph_functions.ray
+    rect              = _glyph_functions.rect
+    segment           = _glyph_functions.segment
+    square            = _glyph_functions.square
+    square_cross      = _glyph_functions.square_cross
+    square_x          = _glyph_functions.square_x
+    text              = _glyph_functions.text
+    triangle          = _glyph_functions.triangle
+    wedge             = _glyph_functions.wedge
+    x                 = _glyph_functions.x
 
 class MapOptions(HasProps):
     lat = Float
