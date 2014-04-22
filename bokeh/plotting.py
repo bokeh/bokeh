@@ -482,6 +482,8 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
             datasource = source
             serversource = None
         session_objs.append(datasource)
+        resample_op = kwargs.pop('resample_op', "downsample")
+
         legend_name = kwargs.pop("legend", None)
         plot = _get_plot(kwargs)
         if 'name' in kwargs:
@@ -518,6 +520,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
             data_source=datasource,
             server_data_source=serversource,
             glyph=glyph,
+            resample_op=resample_op,
             nonselection_glyph=nonselection_glyph)
 
         if legend_name:

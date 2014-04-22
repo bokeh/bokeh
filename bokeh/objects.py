@@ -186,7 +186,7 @@ class Glyph(Renderer):
     data_source = Instance(DataSource, has_ref=True)
     xdata_range = Instance(Range, has_ref=True)
     ydata_range = Instance(Range, has_ref=True)
-    resample_op = "downsample"
+    resample_op = String()
 
     # How to intepret the values in the data_source
     units = Enum(Units)
