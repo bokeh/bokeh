@@ -304,21 +304,6 @@ class TestCircleCross(unittest.TestCase):
         self.assertEqual(self.test_circle_cross.to_glyphspec(), expected)
 
 
-class TestHexStar(unittest.TestCase):
-
-    def setUp(self):
-        from bokeh.glyphs import HexStar
-        self.test_hex_star = HexStar()
-
-    def test_expected_values(self):
-        self.assertEqual(self.test_hex_star.__view_model__, 'hexstar')
-
-    def test_to_glyphspec(self):
-        expected = dict(GENERIC_MARKER_DICT)
-        expected['type'] = 'hexstar'
-        self.assertEqual(self.test_hex_star.to_glyphspec(), expected)
-
-
 class TestSquareCross(unittest.TestCase):
 
     def setUp(self):

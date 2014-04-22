@@ -4,13 +4,6 @@ from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, AngleUnits, Direction
 from .plot_object import PlotObject
 
-# Size is a way to preserve a data-space-related metric all the way until
-#   render time, when the screen dimensions are known
-# Align may be "center", "min", "max", or "jitter(func)" where func is name
-#   of a random distribution to draw random samples from. Defaults to uniform
-#   but gaussian could certainly be useful.
-
-
 class BaseGlyph(PlotObject):
     """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
     """
@@ -43,7 +36,6 @@ class BaseGlyph(PlotObject):
 
         return d
 
-
 class Marker(BaseGlyph, FillProps, LineProps):
     """ Base class for glyphs which are just simple markers placed at (x,y)
     locations.
@@ -52,6 +44,11 @@ class Marker(BaseGlyph, FillProps, LineProps):
     x = DataSpec
     y = DataSpec
     size = DataSpec(units="screen", default=4, min_value=0)
+
+
+
+class Asterisk(Marker):
+    __view_model__ = "asterisk"
 
 class Circle(Marker):
     __view_model__ = "circle"
@@ -72,47 +69,40 @@ class Circle(Marker):
 
         return d
 
+class CircleCross(Marker):
+    __view_model__ = "circle_cross"
 
-# Other kinds of Markers, to match what GGplot provides
-class Square(Marker):
-    __view_model__ = "square"
-    angle = DataSpec
-
-class Triangle(Marker):
-    __view_model__ = "triangle"
+class CircleX(Marker):
+    __view_model__ = "circle_x"
 
 class Cross(Marker):
     __view_model__ = "cross"
 
-class Xmarker(Marker):
-    __view_model__ = "x"
-
 class Diamond(Marker):
     __view_model__ = "diamond"
-
-class InvertedTriangle(Marker):
-    __view_model__ = "inverted_triangle"
-
-class SquareX(Marker):
-    __view_model__ = "square_x"
-
-class Asterisk(Marker):
-    __view_model__ = "asterisk"
 
 class DiamondCross(Marker):
     __view_model__ = "diamond_cross"
 
-class CircleCross(Marker):
-    __view_model__ = "circle_cross"
+class InvertedTriangle(Marker):
+    __view_model__ = "inverted_triangle"
 
-class HexStar(Marker):
-    __view_model__ = "hexstar"
+class Square(Marker):
+    __view_model__ = "square"
+    angle = DataSpec
 
 class SquareCross(Marker):
     __view_model__ = "square_cross"
 
-class CircleX(Marker):
-    __view_model__ = "circle_x"
+class SquareX(Marker):
+    __view_model__ = "square_x"
+
+class Triangle(Marker):
+    __view_model__ = "triangle"
+
+class Xmarker(Marker):
+    __view_model__ = "x"
+
 
 
 class AnnularWedge(BaseGlyph, FillProps, LineProps):
