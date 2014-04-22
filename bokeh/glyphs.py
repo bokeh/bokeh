@@ -162,8 +162,9 @@ class Image(BaseGlyph):
     palette = DataSpec
     dilate = Bool(False)
 
-class ImageURI(BaseGlyph):
-    __view_model__ = 'image_uri'
+class ImageURL(BaseGlyph):
+    __view_model__ = 'image_url'
+    url = DataSpec
     x = DataSpec
     y = DataSpec
     angle = DataSpec

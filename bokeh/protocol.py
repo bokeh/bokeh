@@ -57,6 +57,8 @@ class BokehJSONEncoder(json.JSONEncoder):
             return int(obj)
         elif isinstance(obj, (dt.datetime, dt.date)):
             return time.mktime(obj.timetuple()) * 1000.
+        elif isinstance(obj, dt.time):
+            return (obj.hour*3600 + obj.minute*60 + obj.second)*1000 + obj.microsecond
         else:
             return super(BokehJSONEncoder, self).default(obj)
 

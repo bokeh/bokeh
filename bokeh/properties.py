@@ -760,6 +760,8 @@ class Tuple(ContainerProperty):
         default = kwargs.get("default", None)
 
         self.type_params = type_params
+        self.has_ref = kwargs.get("has_ref", False)
+
         super(Tuple, self).__init__(default=default)
 
     def validate(self, value):

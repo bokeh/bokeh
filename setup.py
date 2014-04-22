@@ -185,11 +185,6 @@ if '--deploy' in sys.argv:
     sys.argv.remove("--deploy")
     sys.argv.append("--build_js")
 
-if 'develop' in sys.argv:
-    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
-           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
-    CSS = join(BOKEHJSBUILD, 'css')
-
 if '--build_js' in sys.argv:
     os.chdir('bokehjs')
     build_js = True
@@ -200,6 +195,9 @@ if '--build_js' in sys.argv:
     except subprocess.CalledProcessError:
         print("ERROR: could not build bokehjs")
         sys.exit(1)
+    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
+           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
+    CSS = join(BOKEHJSBUILD, 'css')
     os.chdir('..')
 
 if exists(join(SERVER, 'static', 'js')):
@@ -255,7 +253,7 @@ if 'devjs' in sys.argv or 'develop' in sys.argv:
 elif 'install' in sys.argv:
     if exists(path_file):
         os.remove(path_file)
-        print("Installing bokeh, removing bokeh.pth from site-packages.")
+        print("Installing bokeh, removing %s" % path_file)
     else:
         print("Installing bokeh.")
     if build_js:
@@ -313,7 +311,6 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     packages=[
         'bokeh',
-        'bokeh.chaco_gg',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.session',
