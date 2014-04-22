@@ -36,6 +36,7 @@ source = ServerDataSource(data_url="/defaultuser/array.table/array",
 image(
     source=source,
     image="image",
+    resample_op="downsample",
     x="x",
     y="y",
     dw="dw",
@@ -48,4 +49,3 @@ image(
     tools="pan,wheel_zoom,box_zoom,reset,previewsave"
 )
 
-show()

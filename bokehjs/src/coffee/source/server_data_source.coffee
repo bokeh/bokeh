@@ -66,7 +66,7 @@ define [
 
         else if (renderer == "LineView")
           if (resample_op == 'downsample')
-            @listen_for_line1d_updates(column_data_Source,
+            @listen_for_line1d_updates(column_data_source,
                                       domain_range, screen_range,
                                       primary_column, domain_name,
                                       columns)
