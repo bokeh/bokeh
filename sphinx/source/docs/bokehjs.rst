@@ -306,11 +306,11 @@ that describe the two-dimensional shape of the array. The second form takes each
 
     <iframe width="100%" height="400" src="http://jsfiddle.net/bokeh/q6eH6/embedded/result,js" frameborder="0"></iframe>
 
-.. _bokehjs_image_uri:
+.. _bokehjs_image_url:
 
-``image_uri``
+``image_url``
 -------------
-The image_uri glyph accepts the URLs of an images to display. The images are centered
+The image_url glyph accepts the URLs of an images to display. The images are centered
 on the given coordinates and rotated by the given angles.
 
 * ``x``, ``y`` - center point coordinates
