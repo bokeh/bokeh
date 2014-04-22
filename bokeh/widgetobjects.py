@@ -17,6 +17,7 @@ class Panel(PlotObject):
 
 class Tabs(PlotObject):
     tabs = List(Instance(Panel, has_ref=True), has_ref=True)
+    active = Int(0)
 
 class HBox(PlotObject):
     children = List(Instance(PlotObject, has_ref=True), has_ref=True)
