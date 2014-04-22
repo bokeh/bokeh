@@ -64,15 +64,13 @@ define [
       "mousemove .bokeh_canvas_wrapper": "_mousemove"
       "touchmove .bokeh_canvas_wrapper": "_mousemove"
       "click .toggle_menu": "_toggle_menubar"
-      "touchend .toggle_menu": "_toggle_menubar"
       "click .gear-icon": "_open_popup"
-      "touchend .gear-icon": "_open_popup"
       "mousedown .bokeh_canvas_wrapper": "_mousedown"
       "touchstart .bokeh_canvas_wrapper": "_mousedown"
       "mousedown .object_inspector_window, .plot_info_window": "_show_modal_window"
-      "touchstart .object_inspector_window, .plot_info_window": "_show_modal_window"
+      "touchend .object_inspector_window, .plot_info_window": "_show_modal_window"
       "mousedown .modal_window_close": "_close_modal_window"
-      "touchstart .modal_window_close": "_close_modal_window"
+      "touchend .modal_window_close": "_close_modal_window"
     
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)

@@ -268,7 +268,11 @@ define [], () ->
       
       $(document).bind(endClick, (e) =>
         if !e.target.className.match(/gear-icon/)
-          @plotview.$el.find('.popup_menu').removeClass('show_popup'))
+          @plotview.$el.find('.popup_menu').removeClass('show_popup')
+        if not e.target.className.match(/modal_/)?
+          if e.target.className != "object_inspector_window" and e.target.className != "plot_info_window"
+            if @plotview.$el.find('.bokeh_modal_window').css('display') != "none"
+              @plotview._close_modal_window())
 
       @plotview.frame_close.bind(endClick, (e) =>
         if @frame_view == "on"
@@ -373,7 +377,11 @@ define [], () ->
       
       $(document).bind(endClick, (e) =>
         if !e.target.className.match(/gear-icon/)
-          @plotview.$el.find('.popup_menu').removeClass('show_popup'))
+          @plotview.$el.find('.popup_menu').removeClass('show_popup')
+        if not e.target.className.match(/modal_/)?
+          if e.target.className != "object_inspector_window" and e.target.className != "plot_info_window"
+            if @plotview.$el.find('.bokeh_modal_window').css('display') != "none"
+              @plotview._close_modal_window())
 
       @plotview.frame_close.bind(endClick, (e) =>
         if @frame_view == "on"
