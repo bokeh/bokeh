@@ -11,7 +11,7 @@ class Basictest(unittest.TestCase):
         class Foo(HasProps):
             x = Int(12)
             y = String("hello")
-            z = Array([1, 2, 3])
+            z = Array(Int, [1, 2, 3])
             s = String(None)
 
         f = Foo()
@@ -348,13 +348,13 @@ from bokeh.properties import (Bool, Int, Float, Complex, String,
     Regex, List, Dict, Tuple, Array, Instance, Any, Range, Either,
     Enum, Color, Align, DashPattern, Size, Percent, Angle)
 
-class Foo(object):
+class Foo(HasProps):
     pass
 
-class Bar(object):
+class Bar(HasProps):
     pass
 
-class Baz(object):
+class Baz(HasProps):
     pass
 
 class TestProperties(unittest.TestCase):
