@@ -14,7 +14,8 @@ define [
   "mapper/2d/grid_mapper",
   "renderer/properties",
   "tool/active_tool_manager",
-], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager) ->
+  "util/object_explorer",
+], (_, Backbone, require, build_views, safebind, bulk_save, ContinuumView, HasParent, ViewState, LinearMapper, CategoricalMapper, GridMapper, Properties, ActiveToolManager, ObjectExplorer) ->
 
   line_properties = Properties.line_properties
   text_properties = Properties.text_properties
@@ -100,6 +101,11 @@ define [
       @embed_modal_content = ""
       if e.target.className == "object_inspector_window"
         @window_title = "Object Inspector"
+        @embed_modal_content = $("<div class='modal_body_content'></div>")
+        @$object_explorer_view = new ObjectExplorer.View({
+          el: @embed_modal_content
+        })
+        
       else if e.target.className == "plot_info_window"
         @window_title = "Plot Info"
         datasource = "Embedded in the HTML file"
