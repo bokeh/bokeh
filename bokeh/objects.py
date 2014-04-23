@@ -32,7 +32,7 @@ class DataSource(PlotObject):
         return ColumnsRef(source=self, columns=list(columns))
 
 class ColumnsRef(HasProps):
-    source = Instance(DataSource, has_ref=True)
+    source = Instance(DataSource)
     columns = List(String)
 
 class ColumnDataSource(DataSource):
@@ -112,7 +112,7 @@ class Range1d(Range):
     end = Float()
 
 class DataRange(Range):
-    sources = List(Instance(ColumnsRef), has_ref=True)
+    sources = List(Instance(ColumnsRef))
 
     def finalize(self, models):
         props = super(DataRange, self).finalize(models)
@@ -183,10 +183,10 @@ class DatetimeTickFormatter(TickFormatter):
     pass
 
 class Glyph(Renderer):
-    server_data_source = Instance(ServerDataSource, has_ref=True)
-    data_source = Instance(DataSource, has_ref=True)
-    xdata_range = Instance(Range, has_ref=True)
-    ydata_range = Instance(Range, has_ref=True)
+    server_data_source = Instance(ServerDataSource)
+    data_source = Instance(DataSource)
+    xdata_range = Instance(Range)
+    ydata_range = Instance(Range)
 
     # How to intepret the values in the data_source
     units = Enum(Units)
@@ -239,10 +239,10 @@ class Plot(PlotObject):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
 
-    data_sources = List(Instance(DataSource), has_ref=True)
+    data_sources = List(Instance(DataSource))
 
-    x_range = Instance(Range, has_ref=True)
-    y_range = Instance(Range, has_ref=True)
+    x_range = Instance(Range)
+    y_range = Instance(Range)
     png = String('')
     title = String('')
     title_props = Include(TextProps, prefix="title")
@@ -250,12 +250,12 @@ class Plot(PlotObject):
 
     # A list of all renderers on this plot; this includes guides as well
     # as glyph renderers
-    renderers = List(Instance(Renderer), has_ref=True)
-    tools = List(Instance(".objects.Tool"), has_ref=True)
+    renderers = List(Instance(Renderer))
+    tools = List(Instance(".objects.Tool"))
 
     # TODO: These don't appear in the CS source, but are created by mpl.py, so
     # I'm leaving them here for initial compatibility testing.
-    # axes = List(has_ref=True)
+    # axes = List()
 
     # TODO: How do we want to handle syncing of the different layers?
     # image = List()
@@ -349,11 +349,11 @@ class GMapPlot(Plot):
 class GridPlot(Plot):
     """ A 2D grid of plots """
 
-    children = List(List(Instance(Plot), has_ref=True), has_ref=True)
+    children = List(List(Instance(Plot)))
     border_space = Int(0)
 
 class GuideRenderer(Renderer):
-    plot = Instance(Plot, has_ref=True)
+    plot = Instance(Plot)
 
     def __init__(self, **kwargs):
         super(GuideRenderer, self).__init__(**kwargs)
@@ -369,8 +369,8 @@ class Axis(GuideRenderer):
     location = Either(Enum(Location), Float)
     bounds = Either(Enum('auto'), Tuple(Float, Float))
 
-    ticker = Instance(Ticker, has_ref=True)
-    formatter = Instance(TickFormatter, has_ref=True)
+    ticker = Instance(Ticker)
+    formatter = Instance(TickFormatter)
 
     axis_label = String
     axis_label_standoff = Int
@@ -431,13 +431,13 @@ class Grid(GuideRenderer):
     dimension = Int(0)
     bounds = String('auto')
 
-    axis = Instance(Axis, has_ref=True)
+    axis = Instance(Axis)
 
     # Line props
     grid_props = Include(LineProps, prefix="grid")
 
 class Tool(PlotObject):
-    plot = Instance(Plot, has_ref=True)
+    plot = Instance(Plot)
 
 class PanTool(Tool):
     dimensions = List(Enum(Dimension))
@@ -464,26 +464,26 @@ class BoxZoomTool(Tool):
     pass
 
 class BoxSelectTool(Tool):
-    renderers = List(Instance(Renderer), has_ref=True)
+    renderers = List(Instance(Renderer))
     select_every_mousemove = Bool(True)
 
 class BoxSelectionOverlay(Renderer):
     __view_model__ = 'BoxSelection'
-    tool = Instance(Tool, has_ref=True)
+    tool = Instance(Tool)
 
 class HoverTool(Tool):
-    renderers = List(Instance(Renderer), has_ref=True)
+    renderers = List(Instance(Renderer))
     tooltips = Dict(String, String)
 
 class ObjectExplorerTool(Tool):
     pass
 
 class DataRangeBoxSelectTool(Tool):
-    xselect = List(Instance(Range), has_ref=True)
-    yselect = List(Instance(Range), has_ref=True)
+    xselect = List(Instance(Range))
+    yselect = List(Instance(Range))
 
 class Legend(Renderer):
-    plot = Instance(Plot, has_ref=True)
+    plot = Instance(Plot)
     orientation = Enum(Orientation)
     border = Include(LineProps, prefix="border")
 
@@ -497,15 +497,15 @@ class Legend(Renderer):
 
     legend_padding = Int(10)
     legend_spacing = Int(3)
-    legends = Dict(String, List(Instance(Glyph, has_ref=True), has_ref=True), has_ref=True)
+    legends = Dict(String, List(Instance(Glyph)))
 
 class DataSlider(Renderer):
-    plot = Instance(Plot, has_ref=True)
-    data_source = Instance(DataSource, has_ref=True)
+    plot = Instance(Plot)
+    data_source = Instance(DataSource)
     field = String()
 
 class PlotContext(PlotObject):
-    children = List(Instance(PlotObject, has_ref=True), has_ref=True)
+    children = List(Instance(PlotObject))
 
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning

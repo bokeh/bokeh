@@ -199,18 +199,18 @@ class PlotObject(HasProps):
         ids = set([])
         objs = []
 
+        def descend_props(obj):
+            for attr in obj.properties_with_refs():
+                descend(getattr(obj, attr))
+
         def descend(obj):
             if isinstance(obj, PlotObject):
                 if obj._id not in ids:
                     ids.add(obj._id)
-
-                    for attr in obj.properties_with_refs():
-                        descend(getattr(obj, attr))
-
+                    descend_props(obj)
                     objs.append(obj)
             elif isinstance(obj, HasProps):
-                for attr in obj.properties_with_refs():
-                    descend(getattr(obj, attr))
+                descend_props(obj)
             elif isinstance(obj, (list, tuple)):
                 for item in obj:
                     descend(item)
