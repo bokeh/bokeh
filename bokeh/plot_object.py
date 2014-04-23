@@ -341,7 +341,7 @@ class PlotObject(HasProps):
             root_url = base_url,
             modelid = modelid,
             modeltype = typename,
-            script_url = base_url + "/bokeh/embed.js")
+            script_url = base_url + "bokeh/embed.js")
         e_str = '''<script src="%(script_url)s" bokeh_plottype="serverconn"
         bokeh_docid="%(docid)s" bokeh_ws_conn_string="%(ws_conn_string)s"
         bokeh_docapikey="%(docapikey)s" bokeh_root_url="%(root_url)s"
