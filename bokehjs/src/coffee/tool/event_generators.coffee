@@ -97,7 +97,7 @@ define [], () ->
               
       startClick = if @touch then 'touchstart' else 'mousedown'
        
-      @plotview.canvas_wrapper.bind 'click touchstart', (e) =>
+      @plotview.canvas_wrapper.bind 'click', (e) =>
         if @frame_view == "onfocus"
           @plotview.canvas_header.removeClass('hide')
           @plotview.canvas_footer.removeClass('hide')
@@ -258,7 +258,7 @@ define [], () ->
         if e.keyCode == 27
           eventSink.trigger("clear_active_tool"))
 
-      @plotview.canvas_wrapper.bind 'click touchstart', (e) =>
+      @plotview.canvas_wrapper.bind 'click', (e) =>
         if @frame_view == "onfocus"
           @plotview.canvas_header.removeClass('hide')
           @plotview.canvas_footer.removeClass('hide')
@@ -367,7 +367,7 @@ define [], () ->
         if e.keyCode == 27
           eventSink.trigger("clear_active_tool"))
 
-      @plotview.canvas_wrapper.bind 'click touchstart', (e) =>
+      @plotview.canvas_wrapper.bind 'click', (e) =>
         if @frame_view == "onfocus"
           @plotview.canvas_header.removeClass('hide')
           @plotview.canvas_footer.removeClass('hide')
