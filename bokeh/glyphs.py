@@ -172,6 +172,8 @@ class ImageURL(BaseGlyph):
     h = DataSpec
     angle = DataSpec
     dilate = Bool(False)
+    anchor = Enum("top_left", "top_center", "top_right", "right_center", "bottom_right",
+                  "bottom_center", "bottom_left", "left_center", "center")
 
 class ImageRGBA(BaseGlyph):
     __view_model__ = 'image_rgba'
