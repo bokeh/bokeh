@@ -12,11 +12,11 @@ import pandas as pd
 
 class Panel(PlotObject):
     title = String
-    child = Instance(PlotObject, has_ref=True)
+    child = Instance(PlotObject)
     closable = Bool(False)
 
 class Tabs(PlotObject):
-    tabs = List(Instance(Panel, has_ref=True), has_ref=True)
+    tabs = List(Instance(Panel))
     active = Int(0)
 
 class HBox(PlotObject):
@@ -189,16 +189,16 @@ class TableColumn(PlotObject):
     header = String
 
 class HandsonTable(TableWidget):
-    #source = Instance(DataSource, has_ref=True)
-    source = Instance(".objects.DataSource", has_ref=True)
-    columns = List(Instance(TableColumn, has_ref=True), has_ref=True)
+    #source = Instance(DataSource)
+    source = Instance(".objects.DataSource")
+    columns = List(Instance(TableColumn))
 
 class ObjectExplorer(PlotObject):
-    data_widget = Instance(TableWidget, has_ref=True)
+    data_widget = Instance(TableWidget)
 
 class DataTable(PlotObject):
-    #source = Instance(DataSource, has_ref=True)
-    source = Instance(".objects.DataSource", has_ref=True)
+    #source = Instance(DataSource)
+    source = Instance(".objects.DataSource")
     sort = List(String)
     group = List(String)
     offset = Int(default=0)
@@ -247,8 +247,8 @@ class DataTable(PlotObject):
         self.tabledata = data
 
 class PivotTable(PlotObject):
-    #source = Instance(DataSource, has_ref=True)
-    source = Instance(".objects.DataSource", has_ref=True)
+    #source = Instance(DataSource)
+    source = Instance(".objects.DataSource")
     title = String("Pivot Table")
     description = String("")
     data = Dict(String, Any)

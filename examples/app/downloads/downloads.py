@@ -78,10 +78,10 @@ class InstallersModel(VBoxModelForm):
     }]
 
 class DownloadsApp(BokehApplet):
-    downloads_source = Instance(ColumnDataSource, has_ref=True)
-    punchcard_source = Instance(ColumnDataSource, has_ref=True)
-    downloads_plot = Instance(Plot, has_ref=True)
-    punchcard_plot = Instance(Plot, has_ref=True)
+    downloads_source = Instance(ColumnDataSource)
+    punchcard_source = Instance(ColumnDataSource)
+    downloads_plot = Instance(Plot)
+    punchcard_plot = Instance(Plot)
 
     def create(self, session):
         self.modelform = InstallersModel()
