@@ -21,7 +21,7 @@ define [
       sy = { }
       sy[reference_point] = (y0+y1)/2
       size = { }
-      size[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.8
+      size[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
 
       @_render(ctx, indices, @glyph_props, sx, sy, size)
 
