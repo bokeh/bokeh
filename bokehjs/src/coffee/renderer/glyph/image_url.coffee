@@ -54,7 +54,7 @@ define [
           @_render_image(ctx, vs, i, @image[i])
 
     _final_sx_sy: () ->
-      anchor = @mget('glyphspec')['anchor']
+      anchor = @mget('glyphspec').anchor or "top_left"
 
       switch anchor
         when "top_left"      then (i) => [@sx[i]           , @sy[i]           ]
