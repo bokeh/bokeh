@@ -4,7 +4,7 @@ import json
 from os import makedirs
 from os.path import expanduser, exists, join
 import tempfile
-import protocol
+from . import protocol
 try:
     import pandas as pd
     import tables
@@ -270,7 +270,7 @@ class Session(object):
             attrs = [{
                 'type': typename,
                 'id': objid,
-                'attributes'; attr
+                'attributes': attr
             }]
         return attrs
         
