@@ -1,4 +1,4 @@
-import os
+import sys
 import gzip
 import datetime
 import argparse
@@ -6,6 +6,8 @@ import pandas as pd
 
 import logging
 logging.basicConfig(level=logging.INFO)
+
+from os.path import join, expanduser, abspath
 
 from bokeh.widgetobjects import VBoxModelForm, HBox, VBox, BokehApplet, Select, Slider, DatePicker
 from bokeh.objects import (Plot, ColumnDataSource, Range1d, DataRange1d, FactorRange, Glyph,
@@ -15,10 +17,14 @@ from bokeh.properties import Dict, Float, String, Instance, Enum, Date, lookup_d
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-D", "--data-dir", type=str, required=True, help="data directory")
+parser.add_argument("argv", nargs="*")
 args = parser.parse_args()
+sys.argv[1:] = args.argv
 
 def load_csv(file_name):
-    with gzip.open(os.path.join(args.data_dir, file_name)) as file:
+    file_path = abspath(join(expanduser(args.data_dir), file_name))
+
+    with gzip.open(file_path) as file:
         df = pd.read_csv(file)
         df["date"] = pd.to_datetime(df.timestamp, unit='s')
         return df
