@@ -168,6 +168,8 @@ def getsitepackages():
 
 # Set up this checkout or source archive with the right BokehJS files.
 
+build_js = False
+
 if sys.version_info[:2] < (2, 6):
     raise RuntimeError("Bokeh requires python >= 2.6")
 
@@ -183,20 +185,19 @@ if '--deploy' in sys.argv:
     sys.argv.remove("--deploy")
     sys.argv.append("--build_js")
 
-if 'develop' in sys.argv:
-    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
-           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
-    CSS = join(BOKEHJSBUILD, 'css')
-
 if '--build_js' in sys.argv:
     os.chdir('bokehjs')
+    build_js = True
     try:
-        print("deploying bokehjs...")
+        print("building bokehjs...")
         out = subprocess.check_output(['grunt', 'deploy'])
         sys.argv.remove('--build_js')
     except subprocess.CalledProcessError:
-        print("ERROR: could not deploy bokehjs")
+        print("ERROR: could not build bokehjs")
         sys.exit(1)
+    APP = [join(BOKEHJSBUILD, 'js', 'bokeh.js'),
+           join(BOKEHJSBUILD, 'js', 'bokeh.min.js')]
+    CSS = join(BOKEHJSBUILD, 'css')
     os.chdir('..')
 
 if exists(join(SERVER, 'static', 'js')):
@@ -232,17 +233,34 @@ else:
 path_file = join(site_packages, "bokeh.pth")
 path = abspath(dirname(__file__))
 
+f = open('bokehjs/src/coffee/main.coffee')
+import re
+pat = re.compile("Bokeh.version = '(.*)'")
+v = pat.search(f.read()).group(1)
+
+print()
 if 'devjs' in sys.argv or 'develop' in sys.argv:
     with open(path_file, "w+") as f:
         f.write(path)
-    print("develop mode, wrote path (%s) to (%s)" % (path, path_file))
+    print("Developing bokeh.")
+    print("  - writing path '%s' to %s" % (path, path_file))
+    if build_js:
+        print("  - using BUILT bokehjs from bokehjs/build")
+    else:
+        print("  - using RELEASED bokehjs (version %s) from bokehjs/release" % v)
+    print()
     sys.exit()
 elif 'install' in sys.argv:
     if exists(path_file):
         os.remove(path_file)
-        print("Installing bokeh, removing bokeh.pth if it exists.")
+        print("Installing bokeh, removing %s" % path_file)
     else:
-        print("Installing bokeh...")
+        print("Installing bokeh.")
+    if build_js:
+        print("  - using BUILT bokehjs from bokehjs/build")
+    else:
+        print("  - using RELEASED bokehjs (version %s) from bokehjs/release" % v)
+    print()
 
 REQUIRES = [
         'Flask>=0.10.1',
@@ -293,7 +311,6 @@ setup(
     cmdclass=versioneer.get_cmdclass(),
     packages=[
         'bokeh',
-        'bokeh.chaco_gg',
         'bokeh.sampledata',
         'bokeh.server',
         'bokeh.session',

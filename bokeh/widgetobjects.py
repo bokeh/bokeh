@@ -20,13 +20,13 @@ class Tabs(PlotObject):
     active = Int(0)
 
 class HBox(PlotObject):
-    children = List(Instance(PlotObject, has_ref=True), has_ref=True)
+    children = List(Instance(PlotObject))
 class VBox(PlotObject):
-    children = List(Instance(PlotObject, has_ref=True), has_ref=True)
+    children = List(Instance(PlotObject))
 
 #parent class only, you need to set the fields you want
 class VBoxModelForm(PlotObject):
-    _children  = List(Instance(PlotObject, has_ref=True), has_ref=True)
+    _children  = List(Instance(PlotObject))
     _field_defs = Dict(String, Any)
     input_specs = None
     jsmodel = "VBoxModelForm"
@@ -82,8 +82,8 @@ class TextInput(InputWidget):
     value = String()
 
 class BokehApplet(PlotObject):
-    modelform = Instance(VBoxModelForm, has_ref=True)
-    children = List(Instance(PlotObject, has_ref=True), has_ref=True)
+    modelform = Instance(VBoxModelForm)
+    children = List(Instance(PlotObject))
     jsmodel = "HBox"
     extra_generated_classes = List(Tuple(String, String, String))
 

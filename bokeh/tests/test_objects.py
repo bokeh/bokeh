@@ -218,21 +218,21 @@ class TestPlotObject(unittest.TestCase):
             t = Int(0)
 
         class Y(PlotObject):
-            t1 = Instance(T, has_ref=True)
+            t1 = Instance(T)
 
         class Z1(HasProps):
-            t2 = Instance(T, has_ref=True)
+            t2 = Instance(T)
 
         class Z2(PlotObject):
-            t2 = Instance(T, has_ref=True)
+            t2 = Instance(T)
 
         class X1(PlotObject):
-            y = Instance(Y, has_ref=True)
-            z1 = Instance(Z1, has_ref=False)
+            y = Instance(Y)
+            z1 = Instance(Z1)
 
         class X2(PlotObject):
-            y = Instance(Y, has_ref=True)
-            z2 = Instance(Z2, has_ref=True)
+            y = Instance(Y)
+            z2 = Instance(Z2)
 
         t1, t2 = T(t=1), T(t=2)
         y = Y(t1=t1)
@@ -241,8 +241,32 @@ class TestPlotObject(unittest.TestCase):
         x1 = X1(y=y, z1=z1)
         x2 = X2(y=y, z2=z2)
 
-        # TODO: self.assertEqual(x1.references(), [t1, y, t2,     x1])
-        self.assertEqual(x2.references(), set([t1, y, t2, z2, x2]))
+        self.assertEqual(x1.references(), {t1, y, t2,     x1})
+        self.assertEqual(x2.references(), {t1, y, t2, z2, x2})
+
+    def test_references_in_containers(self):
+        from bokeh.objects import PlotObject
+        from bokeh.properties import Int, String, Instance, List, Tuple, Dict
+
+        # XXX: can't use Y, because of:
+        #
+        # Warning: Duplicate __view_model__ declaration of 'Y' for class Y.
+        #          Previous definition: <class 'bokeh.tests.test_objects.Y'>
+
+        class U(PlotObject):
+            a = Int
+
+        class V(PlotObject):
+            u1 = Instance(U)
+            u2 = List(Instance(U))
+            u3 = Tuple(Int, Instance(U))
+            u4 = Dict(String, Instance(U))
+            u5 = Dict(String, List(Instance(U)))
+
+        u1, u2, u3, u4, u5 = U(a=1), U(a=2), U(a=3), U(a=4), U(a=5)
+        v = V(u1=u1, u2=[u2], u3=(3, u3), u4={"4": u4}, u5={"5": [u5]})
+
+        self.assertEqual(v.references(), set([v, u1, u2, u3, u4, u5]))
 
 if __name__ == "__main__":
     unittest.main()

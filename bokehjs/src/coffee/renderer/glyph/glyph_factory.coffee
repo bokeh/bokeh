@@ -16,7 +16,7 @@ define (require, exports, module) ->
   diamond_cross     = require("./diamond_cross")
   image             = require("./image")
   image_rgba        = require("./image_rgba")
-  image_uri         = require("./image_uri")
+  image_url         = require("./image_url")
   inverted_triangle = require("./inverted_triangle")
   line              = require("./line")
   multi_line        = require("./multi_line")
@@ -50,7 +50,7 @@ define (require, exports, module) ->
     "diamond_cross"     : diamond_cross.Model,
     "image"             : image.Model,
     "image_rgba"        : image_rgba.Model,
-    "image_uri"         : image_uri.Model,
+    "image_url"         : image_url.Model,
     "inverted_triangle" : inverted_triangle.Model,
     "line"              : line.Model,
     "multi_line"        : multi_line.Model,

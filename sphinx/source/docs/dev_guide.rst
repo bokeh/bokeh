@@ -236,12 +236,22 @@ CoffeeScript in Bokeh itself, and there is CoffeeScript in BokehJS.
 It is possible to set up just for development on Bokeh, without having a
 development install of BokehJS.  To do this, just run ``python setup.py install``.
 This will copy the pre-built ``bokeh.js`` from the ``bokehjs/release`` directory
-into the correct place in the source tree.
+into the correct place in the source tree, and then install Bokeh into your
+``site-packages``.
+
+You can also use a "develop" install (one that points at your source checkout) by
+running ``python setup.py develop``. This will place a ``bokeh.pth`` file in
+``site-packages`` that points to your source checkout, and also  copy the pre-built
+``bokeh.js`` from the ``bokehjs/release`` directory into the correct place in the
+source tree. This mode is suitabe fordoing development on just Bokeh (but not BokehJS)
 
 If you want to do development on BokehJS as well, then modify the CoffeeScript
 source in the ``bokehjs/`` directory, and follow the instructions below for
-building/installing CoffeeScript.  Then run ``python setup.py devjs``.
-ONLY DO THIS IF YOU KNOW WHAT YOU ARE DOING!
+building/installing CoffeeScript.  Then run ``python setup.py develop --build_js``.
+
+.. warning:: It is not guaranteed that the previously released BokehJS and the
+             current python Bokeh library in GitHub master will always be compatible.
+             The ``--build_js`` option may be **required** in some circumstances.
 
 If you have any problems with the steps here, please contact the developers
 (see :ref:`contact`).

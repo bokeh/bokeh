@@ -1,4 +1,4 @@
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
 import os.path
 from uuid import uuid4
@@ -8,7 +8,7 @@ import warnings
 import logging
 logger = logging.getLogger(__file__)
 
-from six import add_metaclass
+from six import add_metaclass, iteritems
 from six.moves.urllib.parse import urlsplit
 
 from .properties import HasProps, MetaHasProps, Instance
@@ -199,21 +199,24 @@ class PlotObject(HasProps):
         ids = set([])
         objs = []
 
+        def descend_props(obj):
+            for attr in obj.properties_with_refs():
+                descend(getattr(obj, attr))
+
         def descend(obj):
-            if hasattr(obj, '__iter__'):
-                for _obj in obj:
-                    descend(_obj)
-            elif isinstance(obj, PlotObject):
+            if isinstance(obj, PlotObject):
                 if obj._id not in ids:
                     ids.add(obj._id)
-
-                    for attr in obj.properties_with_refs():
-                        descend(getattr(obj, attr))
-
+                    descend_props(obj)
                     objs.append(obj)
             elif isinstance(obj, HasProps):
-                for attr in obj.properties_with_refs():
-                    descend(getattr(obj, attr))
+                descend_props(obj)
+            elif isinstance(obj, (list, tuple)):
+                for item in obj:
+                    descend(item)
+            elif isinstance(obj, dict):
+                for key, value in iteritems(obj):
+                    descend(key); descend(value)
 
         descend(input_objs)
         return objs
