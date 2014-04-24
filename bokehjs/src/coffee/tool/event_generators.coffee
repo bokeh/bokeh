@@ -131,6 +131,7 @@ define [], () ->
           @frame_view = "off"
         @plotview.canvas_header.addClass('hide')
         @plotview.canvas_footer.addClass('hide')
+        @plotview._close_modal_window()
         @plotview.$el.find('.plotarea').removeClass('frame'))
       
       @plotview.canvas_wrapper.bind(endClick, (e) =>
@@ -275,6 +276,7 @@ define [], () ->
           @frame_view = "off"
         @plotview.canvas_header.addClass('hide')
         @plotview.canvas_footer.addClass('hide')
+        @plotview._close_modal_window()
         @plotview.$el.find('.plotarea').removeClass('frame'))
 
       # @mouseover_count = 0
@@ -382,6 +384,7 @@ define [], () ->
           @frame_view = "off"
         @plotview.canvas_header.addClass('hide')
         @plotview.canvas_footer.addClass('hide')
+        @plotview._close_modal_window()
         @plotview.$el.find('.plotarea').removeClass('frame'))
 
       # @mouseover_count = 0
