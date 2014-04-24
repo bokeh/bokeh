@@ -9,7 +9,7 @@ define [
 
   class ImageURLView extends Glyph.View
 
-    _fields: ['url:string', 'x', 'y', 'angle']
+    _fields: ['url:string', 'x', 'y', 'w', 'h', 'angle']
     _properties: []
 
     _set_data: (@data) ->
@@ -20,10 +20,13 @@ define [
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
+      @sw = @distance_vector('x', 'w', 'edge', @mget('glyphspec')['dilate'])
+      @sh = @distance_vector('y', 'h', 'edge', @mget('glyphspec')['dilate'])
+
     _render: (ctx, indices, glyph_props) ->
       for i in indices
 
-        if isNaN(@sx[i] + @sy[i]+ @angle[i])
+        if isNaN(@sx[i] + @sy[i] + @angle[i])
           continue
 
         if @need_load[i]
@@ -54,11 +57,11 @@ define [
       if @angle[i]
         ctx.translate(@sx[i], @sy[i])
         ctx.rotate(@angle[i])
-        ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0, @sw[i], @sh[i])
         ctx.rotate(-@angle[i])
         ctx.translate(-@sx[i], -@sy[i])
       else
-        ctx.drawImage(img, @sx[i], @sy[i]);
+        ctx.drawImage(img, @sx[i], @sy[i], @sw[i], @sh[i])
 
   # name Image conflicts with js Image
   class ImageURLGlyph extends Glyph.Model

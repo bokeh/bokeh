@@ -168,7 +168,10 @@ class ImageURL(BaseGlyph):
     url = DataSpec
     x = DataSpec
     y = DataSpec
+    w = DataSpec
+    h = DataSpec
     angle = DataSpec
+    dilate = Bool(False)
 
 class ImageRGBA(BaseGlyph):
     __view_model__ = 'image_rgba'
