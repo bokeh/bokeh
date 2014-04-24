@@ -1,91 +1,299 @@
-""" Defines the Session type
-"""
-from __future__ import absolute_import
+from __future__ import absolute_import, print_function
 
-from .  import _glyph_functions
-from .objects import Instance, List
-from .plot_object import PlotObject
-from .plotting_helpers import (get_default_color, get_default_alpha,
-        _glyph_doc, _match_data_params, _update_plot_data_ranges,
-        _materialize_colors_and_alpha, _get_legend, _make_legend,
-        _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
+import json
+from os import makedirs
+from os.path import expanduser, exists, join
+import tempfile
+import protocol
+try:
+    import pandas as pd
+    import tables
+except ImportError as e:
+    pass
 
-import logging
-import warnings
+from six.moves.urllib.parse import urljoin, urlencode
 
-logger = logging.getLogger(__file__)
+from . import utils, browserlib
+from bokeh.objects import ServerDataSource
+bokeh_plots_url = "http://bokehplots.cloudapp.net/"
+
 
 class Session(object):
+    def __init__(self, name="http://localhost:5006/",
+                 root_url="http://localhost:5006/",
+                 userapikey="nokey",
+                 username="defaultuser",
+                 load_from_config=True,
+                 configdir=None
+                 ):
+        """name : name of server
+        root_url : root_url of server
+        load_from_config : whether or not to load login information
+        from config.  if False, then we may overwrite the users
+        config with this data
+        """
+        self.name = name
+        self.root_url = root_url
+        #single user mode case
+        self.userapikey = userapikey
+        self.username = username
+        self._configdir = None
+        if configdir:
+            self.configdir = configdir
+        if load_from_config:
+            self.load()
 
-    plots = List(Instance(PlotObject, has_ref=True), has_ref=True)
+    @property
+    def http_session(self):
+        if hasattr(self, "_http_session"):
+            return self._http_session
+        else:
+            import requests
+            self._http_session = requests.session()
+            return self._http_session
 
+    @property
+    def username(self):
+        return self.http_session.headers.get('BOKEHUSER')
+
+    @username.setter
+    def username(self, val):
+        self.http_session.headers.update({'BOKEHUSER': val})
+
+    @property
+    def userapikey(self):
+        return self.http_session.headers.get('BOKEHUSER-API-KEY')
+
+    @userapikey.setter
+    def userapikey(self, val):
+        self.http_session.headers.update({'BOKEHUSER-API-KEY': val})
+
+    @property
+    def configdir(self):
+        """filename where our config are stored"""
+        if self._configdir:
+            return self._configdir
+        bokehdir = join(expanduser("~"), ".bokeh")
+        if not exists(bokehdir):
+            makedirs(bokehdir)
+        return bokehdir
+
+    #for testing
+    @configdir.setter
+    def configdir(self, path):
+        self._configdir = path
+
+    @property
+    def configfile(self):
+        return join(self.configdir, "config.json")
+
+    def load_dict(self):
+        configfile = self.configfile
+        if not exists(configfile):
+            data = {}
+        else:
+            with open(configfile, "r") as f:
+                data = json.load(f)
+        return data
+
+    def load(self):
+        config_info = self.load_dict().get(self.name, {})
+        print("found config for %s" % self.name)
+        print(str(config_info))
+        print("loading it!")
+        print("if you don't wish to load this config, please pass load_from_config=False")
+        self.root_url = config_info.get('root_url', self.root_url)
+        self.userapikey = config_info.get('userapikey', self.userapikey)
+        self.username = config_info.get('username', self.username)
+
+    def save(self):
+        data = self.load_dict()
+        data[self.name] = {'root_url': self.root_url,
+                           'userapikey': self.userapikey,
+                           'username': self.username}
+        configfile = self.configfile
+        with open(configfile, "w+") as f:
+            json.dump(data, f)
+        return
+
+    def register(self, username, password):
+        url = urljoin(self.root_url, "bokeh/register")
+        result = self.http_session.post(url, data={
+                'username': username,
+                'password': password,
+                'api': 'true'
+                })
+        if result.status_code != 200:
+            raise RuntimeError("Unknown Error")
+        result = utils.get_json(result)
+        if result['status']:
+            self.username = username
+            self.userapikey = result['userapikey']
+            self.save()
+        else:
+            raise RuntimeError(result['error'])
+
+    def login(self, username, password):
+        url = urljoin(self.root_url, "bokeh/login")
+        result = self.http_session.post(url, data={
+                'username': username,
+                'password': password,
+                'api': 'true'
+                })
+        if result.status_code != 200:
+            raise RuntimeError("Unknown Error")
+        result = utils.get_json(result)
+        if result['status']:
+            self.username = username
+            self.userapikey = result['userapikey']
+            self.save()
+        else:
+            raise RuntimeError(result['error'])
+        self.save()
+
+    def browser_login(self):
+        controller = browserlib.get_browser_controller()
+        url = urljoin(self.root_url, "bokeh/loginfromapikey")
+        url += "?" + urlencode({'username': self.username,
+                                'userapikey': self.userapikey})
+        controller.open(url)
+        
+    def _prep_data_source_df(self, name, dataframe):
+        name = tempfile.NamedTemporaryFile(prefix="bokeh_data", 
+                                           suffix=".pandas").name
+        store = pd.HDFStore(name)
+        store.append("__data__", dataframe, format="table", data_columns=True)
+        store.close()
+        return name
+        
+    def _prep_data_source_numpy(self, name, arr):
+        name = tempfile.NamedTemporaryFile(prefix="bokeh_data", 
+                                           suffix=".table").name
+        store = tables.File(name, 'w')
+        store.createArray("/", "__data__", obj=arr)
+        store.close()
+        return name
+
+    def data_source(self, name, dataframe=None, array=None):
+        if dataframe is not None:
+            fname = self._prep_data_source_df(name, dataframe)
+            target_name = name + ".pandas"
+        else:
+            fname = self._prep_data_source_numpy(name, array)
+            target_name = name + ".table"
+        url = urljoin(self.root_url, 
+                      "bokeh/data/upload/%s/%s" % (self.username, target_name))
+        with open(fname) as f:
+            result = self.http_session.post(url, files={'file' : (target_name, f)})
+        return ServerDataSource(owner_username=self.username, data_url=result.content)
+
+    def list_data(self):
+        url = urljoin(self.root_url, "bokeh/data/" + self.username)
+        result = self.http_session.get(url)
+        result = utils.get_json(result)
+        sources = result['sources']
+        return sources
+        
+    def execute_json(self, method, url, headers=None, **kwargs):
+        if headers is None:
+            headers={'content-type':'application/json'}
+        func = getattr(self.http_session, method)
+        resp = func(url, headers=headers, **kwargs)
+        if response.status_code == 409:
+            raise DataIntegrityException
+        if resp.status_code == 401:
+            raise Exception('HTTP Unauthorized accessing')
+        return utils.get_json(resp)
+        
+    def get_json(self, url, headers=None, **kwargs):
+        return execute_json('get', url, headers=headers, **kwargs)
+        
+    def post_json(self, url, headers=None, **kwargs):
+        return execute_json('post', url, headers=headers, **kwargs)
+        
+    @property    
+    def userinfo(self):
+        if not hasattr(self, "_userinfo"):
+            url = urljoin(self.root_url, 'bokeh/userinfo/')
+            self._userinfo = self.get_json(url)
+        return self._userinfo
+        
+    @userinfo.setter
+    def userinfo(self, val):
+        self._userinfo = val
+        
+    @property
+    def base_url(self):
+        return urljoin(self.root_url, "bokeh/bb/")
+        
+    def get_api_key(self, docid):
+        url = urljoin(self.root_url,"bokeh/getdocapikey/%s" % docid)
+        apikey = self.get_json(url)
+        if 'apikey' in apikey:
+            apikey = apikey['apikey']
+            logger.info('got read write apikey')
+        else:
+            apikey = apikey['readonlyapikey']
+            logger.info('got read only apikey')
+        return apikey
+
+    def use_doc(self, name):
+        docs = self.userinfo.get('docs')
+        matching = [x for x in docs if x.get('title') == name]
+        if len(matching) == 0:
+            logger.info("No documents found, creating new document '%s'" % name)
+            self.make_doc(name)
+            return self.use_doc(name)
+        elif len(matching) > 1:
+            logger.warning("Multiple documents with title '%s'" % name)
+        docid = matching[0]['docid']
+        # I don't think we use this now, but we should for embedding
+        self.apikey = self.get_api_key(docid)
+        self.docname = name            
+        
+    def make_doc(self, title):
+        url = urljoin(self.root_url,"bokeh/doc/")
+        data = protocol.serialize_json({'title' : title})
+        self.userinfo = self.post_json(url, data=data)
+        
+    def pull(self, typename=None, objid=None):
+        #load all
+        if session and type is None and objid is None:
+            url = utils.urljoin(self.base_url, self.docid +"/")
+            attrs = self.get_json(url)
+        else:
+            url = utils.urljoin(
+                self.base_url, 
+                self.docid + "/" + typename + "/" + objid + "/"
+            )
+            attr = self.get_json(url)
+            attrs = [{
+                'type': typename,
+                'id': objid,
+                'attributes'; attr
+            }]
+        return attrs
+        
+    def push(self, *jsonobjs):
+        data = self.serialize(jsonobjs)
+        url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
+        self.post_json(url, data=data)
+        
+    # convenience functions to use a session and store/fetch from server
+    # where should this go?
+    
+    def pull_document(self, doc):
+        json_objs = self.pull()
+        new_doc = doc.__class__()
+        new_doc.load(*json_objs)
+        doc.merge(new_doc)
+        
+    def push_document(self, doc):
+        models = [x for x in doc._models.values() if x._dirty]
+        json_objs = doc.dump(*models)
+        self.push(*json_objs)
+
+class Cloud(Session):
     def __init__(self):
-        self._current_plot = None
-        self._next_figure_kwargs = dict()
-        self._hold = False
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, e_ty, e_val, e_tb):
-        pass
-
-    def hold(self, value=True):
-        self._hold = value
-
-    def figure(self, **kwargs):
-        self._current_plot = None
-        self._next_figure_kwargs = kwargs
-
-    def curplot(self):
-        return self._current_plot;
-
-    annular_wedge     = _glyph_functions.annular_wedge
-    annulus           = _glyph_functions.annulus
-    arc               = _glyph_functions.arc
-    asterisk          = _glyph_functions.asterisk
-    bezier            = _glyph_functions.bezier
-    circle            = _glyph_functions.circle
-    circle_cross      = _glyph_functions.circle_cross
-    circle_x          = _glyph_functions.circle_x
-    cross             = _glyph_functions.cross
-    diamond           = _glyph_functions.diamond
-    diamond_cross     = _glyph_functions.diamond_cross
-    image             = _glyph_functions.image
-    image_rgba        = _glyph_functions.image_rgba
-    inverted_triangle = _glyph_functions.inverted_triangle
-    line              = _glyph_functions.line
-    multi_line        = _glyph_functions.multi_line
-    oval              = _glyph_functions.oval
-    patch             = _glyph_functions.patch
-    patches           = _glyph_functions.patches
-    quad              = _glyph_functions.quad
-    quadratic         = _glyph_functions.quadratic
-    ray               = _glyph_functions.ray
-    rect              = _glyph_functions.rect
-    segment           = _glyph_functions.segment
-    square            = _glyph_functions.square
-    square_cross      = _glyph_functions.square_cross
-    square_x          = _glyph_functions.square_x
-    text              = _glyph_functions.text
-    triangle          = _glyph_functions.triangle
-    wedge             = _glyph_functions.wedge
-    x                 = _glyph_functions.x
-
-    def add(self, *objects):
-        for obj in objects:
-            if isinstance(obj, PlotObject) and obj not in self.plots:
-                self.plots.append(obj)
-
-    def _get_plot(self, kwargs):
-        plot = kwargs.pop("plot", None)
-        if not plot:
-            if self._hold and self._current_plot:
-                plot = self._current_plot
-            else:
-                plot_kwargs = self._next_figure_kwargs
-                self._next_figure_kwargs = dict()
-                plot_kwargs.update(kwargs)
-                plot = _new_xy_plot(**plot_kwargs)
-        self._current_plot = plot
-        return plot
+        super(Cloud, self).__init__(name="cloud",
+                                    root_url=bokeh_plots_url)
