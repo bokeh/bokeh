@@ -179,7 +179,7 @@ class CategoricalTickFormatter(TickFormatter):
 
 class DatetimeTickFormatter(TickFormatter):
     """ Represents a categorical tick formatter for an axis object """
-    pass
+    formats = Dict(String, List(String))
 
 class Glyph(Renderer):
     server_data_source = Instance(ServerDataSource)
@@ -382,7 +382,6 @@ class DatetimeAxis(LinearAxis):
     num_labels = Int(8)
     char_width = Int(10)
     fill_ratio = Float(0.3)
-    formats = Dict(String, List(String), {"days": ["%m/%d/%Y"]})
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:

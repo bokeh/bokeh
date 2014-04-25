@@ -47,38 +47,34 @@ define [
       'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'
     ]
 
-    # A dict whose are keys are the strings in **format_order**; each value is
-    # two arrays, (widths, format strings/functions).
+    # This table of format is convert into the 'formats' dict.  Each tuple of
+    # formats must be ordered from shortest to longest.
+    _formats: {
+      'microseconds': [_us, _ms_dot_us]
+      'milliseconds': ['%3Nms', '%S.%3Ns']
+      'seconds':      ['%Ss']
+      'minsec':       [':%M:%S']
+      'minutes':      [':%M', '%Mm']
+      'hourmin':      ['%H:%M']
+      'hours':        ['%Hh', '%H:%M']
+      'days':         ['%m/%d', '%a%d']
+      'months':       ['%m/%Y', '%b%y']
+      'years':        ['%Y', _two_digit_year, _four_digit_year]
+    }
 
     # Whether or not to strip the leading zeros on tick labels.
     strip_leading_zeros: true
 
     initialize: (attrs, options) ->
       super(attrs, options)
-      # This table of format is convert into the 'formats' dict.  Each tuple of
-      # formats must be ordered from shortest to longest.
-      @_formats = {
-        'microseconds': [_us, _ms_dot_us]
-        'milliseconds': ['%3Nms', '%S.%3Ns']
-        'seconds':      ['%Ss']
-        'minsec':       [':%M:%S']
-        'minutes':      [':%M', '%Mm']
-        'hourmin':      ['%H:%M']
-        'hours':        ['%Hh', '%H:%M']
-        'days':         ['%m/%d', '%a%d']
-        'months':       ['%m/%Y', '%b%y']
-        'years':        ['%Y', _two_digit_year, _four_digit_year]
-      }
+
+      fmt = _.extend({}, @_formats, @get("formats"))
+      now = tz(new Date())
       @formats = {}
-      for fmt_name of @_formats
-        fmt_strings = @_formats[fmt_name]
-        sizes = []
-        tmptime = tz(new Date())
-        for fmt in fmt_strings
-            size = (_strftime(tmptime, fmt)).length
-            sizes.push(size)
+
+      for fmt_name, fmt_strings of fmt
+        sizes = (_strftime(now, fmt_string).length for fmt_string in fmt_strings)
         @formats[fmt_name] = [sizes, fmt_strings]
-      return
 
     # FIXME There is some unfortunate flicker when panning/zooming near the
     # span boundaries.
@@ -215,7 +211,9 @@ define [
       return labels
 
     defaults: () ->
-      super()
+      _.extend(super(), {
+        formats: {}
+      })
 
   class DatetimeTickFormatters extends Backbone.Collection
     model: DatetimeTickFormatter
