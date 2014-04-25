@@ -155,8 +155,12 @@ define [], () ->
           return false)
 
       if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
-        @$tool_button = $("<i class='resize-icon icon-fullscreen'></i>")
-        @plotview.$el.find('.button_icon').append(@$tool_button)
+        if @touch
+          @$tool_button = $("<i class='resize-icon icon-fullscreen'></i>")
+          @plotview.$el.find('.button_icon').append(@$tool_button)
+        else
+          @$tool_button = $("<div class='resize_bokeh_plot'></div>")
+          @plotview.canvas_wrapper.append(@$tool_button)
       else
         @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
         @plotview.$el.find('.button_bar').append(@$tool_button)
@@ -167,11 +171,23 @@ define [], () ->
       #
       # What is the difference between tool_active and button_activated?
       # I once knew, but now I forget
-      @$tool_button.click(=>
-        if @button_activated
-          eventSink.trigger("clear_active_tool")
-        else
-          eventSink.trigger("active_tool", toolName))
+      if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize' and not @touch
+        @$tool_button.mousedown(=>
+          if not @button_activated
+            eventSink.trigger("active_tool", toolName))
+        $(document).bind('mouseup', (e) =>
+          if @$tool_button[0].className.match(/resize_bokeh_plot/)
+            if @button_activated
+              eventSink.trigger("clear_active_tool"))
+        @$tool_button.mouseup(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool"))
+      else
+        @$tool_button.click(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool")
+          else
+            eventSink.trigger("active_tool", toolName))
 
       eventSink.on("#{toolName}:deactivated", =>
         @tool_active=false;
@@ -296,18 +312,34 @@ define [], () ->
         @mouseover_count += 1)
 
       if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
-        @$tool_button = $("<i class='resize-icon icon-fullscreen'></i>")
-        @plotview.$el.find('.button_icon').append(@$tool_button)
+        if @touch
+          @$tool_button = $("<i class='resize-icon icon-fullscreen'></i>")
+          @plotview.$el.find('.button_icon').append(@$tool_button)
+        else
+          @$tool_button = $("<div class='resize_bokeh_plot'></div>")
+          @plotview.canvas_wrapper.append(@$tool_button)
       else
         @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
         @plotview.$el.find('.button_bar').append(@$tool_button)
 
-      @$tool_button.click(=>
-        if @button_activated
-          eventSink.trigger("clear_active_tool")
-        else
-          eventSink.trigger("active_tool", toolName)
-          @button_activated = true)
+      if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize' and not @touch
+        @$tool_button.mousedown(=>
+          if not @button_activated
+            eventSink.trigger("active_tool", toolName))
+        $(document).bind('mouseup', (e) =>
+          if @$tool_button[0].className.match(/resize_bokeh_plot/)
+            if @button_activated
+              eventSink.trigger("clear_active_tool"))
+        @$tool_button.mouseup(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool"))
+      else
+        @$tool_button.click(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool")
+          else
+            eventSink.trigger("active_tool", toolName)
+            @button_activated = true)
 
       no_scroll = (el) ->
         el.setAttribute("old_overflow", el.style.overflow)
@@ -401,18 +433,34 @@ define [], () ->
         @mouseover_count += 1)
 
       if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
-        @$tool_button = $("<i class='resize-icon icon-fullscreen'></i>")
-        @plotview.$el.find('.button_icon').append(@$tool_button)
+        if @touch
+          @$tool_button = $("<i class='resize-icon icon-fullscreen'></i>")
+          @plotview.$el.find('.button_icon').append(@$tool_button)
+        else
+          @$tool_button = $("<div class='resize_bokeh_plot'></div>")
+          @plotview.canvas_wrapper.append(@$tool_button)
       else
         @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
         @plotview.$el.find('.button_bar').append(@$tool_button)
 
-      @$tool_button.click(=>
-        if @button_activated
-          eventSink.trigger("clear_active_tool")
-        else
-          eventSink.trigger("active_tool", toolName)
-          @button_activated = true)
+      if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize' and not @touch
+        @$tool_button.mousedown(=>
+          if not @button_activated
+            eventSink.trigger("active_tool", toolName))
+        $(document).bind('mouseup', (e) =>
+          if @$tool_button[0].className.match(/resize_bokeh_plot/)
+            if @button_activated
+              eventSink.trigger("clear_active_tool"))
+        @$tool_button.mouseup(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool"))
+      else
+        @$tool_button.click(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool")
+          else
+            eventSink.trigger("active_tool", toolName)
+            @button_activated = true)
 
       no_scroll = (el) ->
         el.setAttribute("old_overflow", el.style.overflow)
