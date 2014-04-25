@@ -152,7 +152,7 @@ define [
       sy = { }
       sy[reference_point] = (y0+y1)/2
       radius = { }
-      radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.4
+      radius[reference_point] = Math.min(Math.abs(x1-x0), Math.abs(y1-y0))*0.2
 
       @_render(ctx, indices, @glyph_props, sx, sy, radius)
 

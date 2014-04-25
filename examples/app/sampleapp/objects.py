@@ -11,10 +11,10 @@ from arraymanagement.client import ArrayClient
 import tables
 
 class App(PlotObject):
-    data_source = Instance(ColumnDataSource, has_ref=True)
-    scatter_plot = Instance(Plot, has_ref=True)
+    data_source = Instance(ColumnDataSource)
+    scatter_plot = Instance(Plot)
     stats = String()
-    
+
     def update(self, **kwargs):
         super(App, self).update(**kwargs)
         if self.data_source:
@@ -27,4 +27,3 @@ class App(PlotObject):
             pandas_df = pandas_df.iloc[selected, :]
         stats = pandas_df.describe()
         self.stats = str(stats)
-        

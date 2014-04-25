@@ -1,8 +1,10 @@
-from .properties import (Instance, Enum, Float, Int, Color, Percent,
+from .properties import (HasProps, Instance, Enum, Float, Int, Color, Percent,
     Size, Bool, DashPattern, Align, Angle, String, DataSpec, ColorSpec)
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, AngleUnits, Direction
-from .plotobject import PlotObject
+from .plotobject import Viewable
+
+from six import add_metaclass, iteritems
 
 # Size is a way to preserve a data-space-related metric all the way until
 #   render time, when the screen dimensions are known
@@ -10,8 +12,8 @@ from .plotobject import PlotObject
 #   of a random distribution to draw random samples from. Defaults to uniform
 #   but gaussian could certainly be useful.
 
-
-class BaseGlyph(PlotObject):
+@add_metaclass(Viewable)
+class BaseGlyph(HasProps):
     """ Base class for all glyphs/marks/geoms/whatever-you-call-'em in Bokeh.
     """
 
@@ -33,16 +35,15 @@ class BaseGlyph(PlotObject):
         """ Returns a dict mapping attributes to values, that is amenable for
         inclusion in a Glyph definition.
         """
-        d = self.vm_props()
-        d["type"] = self.__view_model__
+        props = self.changed_properties_with_values()
+        props["type"] = self.__view_model__
 
         # Iterate over all the DataSpec properties and convert them, using the
         # fact that DataSpecs store the dict-ified version on the object.
-        for attrname, dspec in self.dataspecs_with_refs().items():
-            d[attrname] = dspec.to_dict(self)
+        for attr, spec in iteritems(self.dataspecs_with_refs()):
+            props[attr] = spec.to_dict(self)
 
-        return d
-
+        return props
 
 class Marker(BaseGlyph, FillProps, LineProps):
     """ Base class for glyphs which are just simple markers placed at (x,y)
