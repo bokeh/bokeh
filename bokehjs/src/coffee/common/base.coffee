@@ -45,6 +45,8 @@ define [
 
   "tool/box_select_tool",
   "tool/box_zoom_tool",
+  'tool/pinch_zoom_tool',
+  'tool/pinch_box_zoom_tool',
   "tool/crosshair_tool",
   "tool/data_range_box_select_tool",
   "tool/embed_tool",
@@ -111,6 +113,8 @@ define [
     CrosshairTool:            'tool/crosshair_tool'
     BoxSelectTool:            'tool/box_select_tool'
     BoxZoomTool:              'tool/box_zoom_tool'
+    PinchZoomTool:            'tool/pinch_zoom_tool'
+    PinchBoxZoomTool:         'tool/pinch_box_zoom_tool'
     HoverTool:                'tool/hover_tool'
     DataRangeBoxSelectTool:   'tool/data_range_box_select_tool'
     PreviewSaveTool:          'tool/preview_save_tool'

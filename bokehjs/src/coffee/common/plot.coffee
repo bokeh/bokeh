@@ -62,7 +62,9 @@ define [
     className: "bokeh plotview"
     events:
       "mousemove .bokeh_canvas_wrapper": "_mousemove"
+      "touchmove .bokeh_canvas_wrapper": "_mousemove"
       "mousedown .bokeh_canvas_wrapper": "_mousedown"
+      "touchstart .bokeh_canvas_wrapper": "_mousedown"
 
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
