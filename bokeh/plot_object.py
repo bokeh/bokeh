@@ -252,24 +252,6 @@ class PlotObject(HasProps):
         for k,v in kwargs.items():
             setattr(self, k, v)
 
-    @usesession
-    def pull(self, session=None, ref=None):
-        """ Pulls information from the given session and ref id into this
-        object.  If no session is provided, then uses self.session.
-        If no ref is given, uses self._id.
-        """
-        # Read session values into a new dict, and fill those into self
-        if ref is None:
-            ref = session.get_ref(self)
-        newattrs = session.load_obj(ref)
-
-    @usesession
-    def push(self, session=None):
-        """ Pushes the update values from this object into the given
-        session (or self.session, if none is provided).
-        """
-        session.store_obj(self)
-
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,
                 self.__view_model__, getattr(self, "_id", None))
