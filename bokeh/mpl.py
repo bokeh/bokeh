@@ -21,7 +21,7 @@ from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
 _PLOTLIST = None
 
 
-def axes2plot(axes, xkcd):
+def axes2plot(ax, xkcd):
     """ In the matplotlib object model, Axes actually are containers for all
     renderers and basically everything else on a plot.
 
@@ -30,10 +30,10 @@ def axes2plot(axes, xkcd):
     """
 
     # Get axis background color
-    background_fill = axes.get_axis_bgcolor()
+    background_fill = ax.get_axis_bgcolor()
     if background_fill == 'w':
         background_fill = 'white'
-    title = axes.get_title()
+    title = ax.get_title()
     plot = Plot(title=title, background_fill=background_fill)
     if xkcd:
         plot.title_text_font = "Comic Sans MS, Textile, cursive"
@@ -46,15 +46,15 @@ def axes2plot(axes, xkcd):
     datasource = ColumnDataSource()
     plot.data_sources = [datasource]
 
-    bokehaxes = _make_axis(axes.xaxis, 0, xkcd), _make_axis(axes.yaxis, 1, xkcd)
+    bokehaxes = _make_axis(ax.xaxis, 0, xkcd), _make_axis(ax.yaxis, 1, xkcd)
     for baxis in bokehaxes:
         baxis.plot = plot
     plot.renderers.extend(bokehaxes) # + extract_grid(axes))
 
     # Break up the lines and markers by filtering on linestyle and marker style
-    lines = [line for line in axes.lines if line.get_linestyle() not in ("", " ", "None", "none", None)]
-    markers = [m for m in axes.lines if m.get_marker() not in ("", " ", "None", "none", None)]
-    cols = [col for col in axes.collections if col.get_paths() not in ("", " ", "None", "none", None)]
+    lines = [line for line in ax.lines if line.get_linestyle() not in ("", " ", "None", "none", None)]
+    markers = [m for m in ax.lines if m.get_marker() not in ("", " ", "None", "none", None)]
+    cols = [col for col in ax.collections if col.get_paths() not in ("", " ", "None", "none", None)]
     renderers = [_make_line(datasource, plot.x_range, plot.y_range, line, xkcd) for line in lines]
     renderers.extend(_make_marker(datasource, plot.x_range, plot.y_range, marker) for marker in markers)
     renderers.extend(_make_lines_collection(datasource, plot.x_range, plot.y_range, col, xkcd) \
@@ -64,7 +64,7 @@ def axes2plot(axes, xkcd):
     plot.renderers.extend(renderers)
 
     # Grid set up
-    grid = axes.get_xgridlines()[0]
+    grid = ax.get_xgridlines()[0]
     grid_line_color = grid.get_color()
     grid_line_width = grid.get_linewidth()
     # xgrid
@@ -224,7 +224,7 @@ def text_props(mplText, obj, prefix=""):
     setattr(obj, prefix+"text_font", mplText.get_fontfamily()[0])
 
 
-def _make_axis(axis, dimension, xkcd):
+def _make_axis(ax, dimension, xkcd):
     """ Given an mpl.Axis instance, returns a bokeh LinearAxis """
     # TODO:
     #  * handle `axis_date`, which treats axis as dates
@@ -233,29 +233,29 @@ def _make_axis(axis, dimension, xkcd):
     #  * deal with minor ticks once BokehJS supports them
     #  * handle custom tick locations once that is added to bokehJS
 
-    newaxis = LinearAxis(dimension=dimension, location="min", axis_label=axis.get_label_text())
+    laxis = LinearAxis(dimension=dimension, location="min", axis_label=ax.get_label_text())
 
     # First get the label properties by getting an mpl.Text object
-    label = axis.get_label()
-    text_props(label, newaxis, prefix="axis_label_")
+    label = ax.get_label()
+    text_props(label, laxis, prefix="axis_label_")
 
     # To get the tick label format, we look at the first of the tick labels
     # and assume the rest are formatted similarly.
-    ticktext = axis.get_ticklabels()[0]
-    text_props(ticktext, newaxis, prefix="major_label_")
+    ticktext = ax.get_ticklabels()[0]
+    text_props(ticktext, laxis, prefix="major_label_")
 
     #newaxis.bounds = axis.get_data_interval()  # I think this is the right func...
 
     if xkcd:
-        newaxis.axis_line_width = 3
-        newaxis.axis_label_text_font = "Comic Sans MS, Textile, cursive"
-        newaxis.axis_label_text_font_style = "bold"
-        newaxis.axis_label_text_color = "black"
-        newaxis.major_label_text_font = "Comic Sans MS, Textile, cursive"
-        newaxis.major_label_text_font_style = "bold"
-        newaxis.major_label_text_color = "black"
+        laxis.axis_line_width = 3
+        laxis.axis_label_text_font = "Comic Sans MS, Textile, cursive"
+        laxis.axis_label_text_font_style = "bold"
+        laxis.axis_label_text_color = "black"
+        laxis.major_label_text_font = "Comic Sans MS, Textile, cursive"
+        laxis.major_label_text_font_style = "bold"
+        laxis.major_label_text_color = "black"
 
-    return newaxis
+    return laxis
 
 
 def _make_line(source, xdr, ydr, line2d, xkcd):
