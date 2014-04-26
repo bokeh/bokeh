@@ -63,15 +63,6 @@ def axes2plot(axes, xkcd):
                         for col in cols if isinstance(col, mpl.collections.PolyCollection))
     plot.renderers.extend(renderers)
 
-    #plot.renderers.extend(map(MPLText.convert, axes.texts))
-    #for collection in axes.collections:
-    #    if isinstance(collection, mpl.collections.PolyCollection):
-    #        plot.renderers.extend(map(MPLPatches.convert, collection))
-    #    elif isinstance(collection, mpl.collections.LineCollection):
-    #        plot.renderers.extend(map(MPLMultiLine.convert, collection))
-    #    else:
-    #        warnings.warn("Not yet implemented: %r" % collection)
-
     # Grid set up
     grid = axes.get_xgridlines()[0]
     grid_line_color = grid.get_color()
@@ -176,11 +167,6 @@ def extract_axis(mplaxes, xkcd):
     it and returns a set of bokeh objects.
     """
     return _make_axis(mplaxes.xaxis, 0, xkcd), _make_axis(mplaxes.yaxis, 1, xkcd)
-
-
-#def extract_grid(mplaxes):
-#    if mplaxis.xaxis._gridOnMajor:
-#        axis = mplaxes.get_xaxis()
 
 
 def _convert_dashes(dash):
@@ -452,21 +438,3 @@ def xkcd_line(x, y, xlim=None, ylim=None, mag=1.0, f1=30, f2=0.001, f3=5):
     y_int = y_int[1:-1] * (ylim[1] - ylim[0]) + ylim[0]
 
     return x_int, y_int
-
-class MPLMultiLine(MultiLine):
-
-    @classmethod
-    def convert(cls, linecollection):
-        pass
-
-class MPLText(Text):
-
-    @classmethod
-    def convert(cls, text):
-        return []
-
-class MPLPatches(Patches):
-
-    @classmethod
-    def convert(cls, patches):
-        pass
