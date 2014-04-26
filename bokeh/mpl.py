@@ -46,11 +46,6 @@ def axes2plot(ax, xkcd):
     datasource = ColumnDataSource()
     plot.data_sources = [datasource]
 
-    bokehaxes = _make_axis(ax.xaxis, 0, xkcd), _make_axis(ax.yaxis, 1, xkcd)
-    for baxis in bokehaxes:
-        baxis.plot = plot
-    plot.renderers.extend(bokehaxes) # + extract_grid(axes))
-
     # Break up the lines and markers by filtering on linestyle and marker style
     lines = [line for line in ax.lines if line.get_linestyle() not in ("", " ", "None", "none", None)]
     markers = [m for m in ax.lines if m.get_marker() not in ("", " ", "None", "none", None)]
@@ -63,11 +58,17 @@ def axes2plot(ax, xkcd):
                         for col in cols if isinstance(col, mpl.collections.PolyCollection))
     plot.renderers.extend(renderers)
 
+    # xaxis
+    xaxis = _make_axis(plot, ax.xaxis, 0, xkcd)
+
+    # yaxis
+    yaxis = _make_axis(plot, ax.yaxis, 1, xkcd)
+
     # xgrid
-    _make_grid(plot, ax.get_xgridlines()[0], bokehaxes[0], 0)
+    _make_grid(plot, ax.get_xgridlines()[0], xaxis, 0)
 
     # ygrid
-    _make_grid(plot, ax.get_xgridlines()[0], bokehaxes[1], 1)
+    _make_grid(plot, ax.get_xgridlines()[0], yaxis, 1)
 
     # Add tools
     pantool = PanTool(dimensions=["width", "height"])
@@ -217,7 +218,7 @@ def text_props(mplText, obj, prefix=""):
     setattr(obj, prefix+"text_font", mplText.get_fontfamily()[0])
 
 
-def _make_axis(ax, dimension, xkcd):
+def _make_axis(plot, ax, dimension, xkcd):
     """ Given an mpl.Axis instance, returns a bokeh LinearAxis """
     # TODO:
     #  * handle `axis_date`, which treats axis as dates
@@ -226,7 +227,8 @@ def _make_axis(ax, dimension, xkcd):
     #  * deal with minor ticks once BokehJS supports them
     #  * handle custom tick locations once that is added to bokehJS
 
-    laxis = LinearAxis(dimension=dimension, location="min", axis_label=ax.get_label_text())
+    laxis = LinearAxis(plot=plot, dimension=dimension, location="min",
+                       axis_label=ax.get_label_text())
 
     # First get the label properties by getting an mpl.Text object
     label = ax.get_label()
