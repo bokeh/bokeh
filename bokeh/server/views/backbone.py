@@ -6,7 +6,6 @@ import os
 import logging
 import uuid
 from ..app import bokeh_app
-from ..serverbb import RedisSession
 from .. import wsmanager
 from ..models import convenience
 from ..models import docs
@@ -15,7 +14,7 @@ from .bbauth import (check_read_authentication_and_create_client,
                     check_write_authentication_and_create_client)
 from ..crossdomain import crossdomain
 from ..views import make_json
-from .serverbb import prune
+from ..serverbb import prune
 log = logging.getLogger(__name__)
 
 def init_bokeh(redissession):
@@ -73,9 +72,9 @@ def bulk_upsert(docid):
     prune(clientdoc)
     data = protocol.deserialize_json(request.data.decode('utf-8'))
     if client == 'python':
-        clientdoc.load(data, events=None)
+        clientdoc.load(*data, events=None, dirty=True)
     else:
-        clientdoc.load(data, events='existing')
+        clientdoc.load(*data, events='existing', dirty=True)
     changed = bokeh_app.backbone_storage.push_dirty(clientdoc)
     msg = ws_update(clientdoc, changed)
     return make_json(msg)
@@ -111,7 +110,7 @@ def create(docid, typename):
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     modeldata = [{'type' : typename,
                   'attributes' : modeldata}]
-    clientdoc.load(modeldata)
+    clientdoc.load(modeldata, dirty=True)
     bokeh_app.backbone_storage.push_dirty(clientdoc)
     ws_update(clientdoc, modeldata)
     return protocol.serialize_json(modeldata[0]['attributes'])
@@ -173,7 +172,7 @@ def update(docid, typename, id):
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     #patch id is not passed...
     modeldata['id'] = id
-    clientdoc.load(modeldata, events='existing')
+    clientdoc.load(modeldata, events='existing', dirty=True)
     changed = bokeh_app.backbone_storage.push_dirty(clientdoc)
     model = clientdoc._models[id]
     try:

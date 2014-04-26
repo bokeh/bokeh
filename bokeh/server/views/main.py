@@ -21,7 +21,7 @@ from ... import protocol
 from ...exceptions import DataIntegrityException
 from ..views import make_json
 from ..crossdomain import crossdomain
-from .serverbb import prune
+from ..serverbb import prune
 @bokeh_app.route('/bokeh/ping')
 def ping():
     #test route, to know if the server is up

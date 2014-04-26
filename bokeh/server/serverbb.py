@@ -82,15 +82,16 @@ class PersistentBackboneStorage(object):
         attrs = self.mget(doc_keys)
         data = []
         for k, attr in zip(doc_keys, attrs):
-            typename, _, mod
-            elid = parse_modelkey(k)
+            typename, _, modelid = parse_modelkey(k)
             attr = protocol.deserialize_json(decode_utf8(attr))
             data.append({'type': typename, 'attributes': attr})
         return data
         
     def get_document(self, docid):
         json_objs = self.pull(docid)
-        return Document(json_objs)
+        doc = Document(json_objs)
+        doc.docid = docid
+        return doc
         
     def push_dirty(self, doc):
         """store all dirty models
@@ -99,6 +100,8 @@ class PersistentBackboneStorage(object):
                     if hasattr(x, '_dirty') and x._dirty]
         json_objs = doc.dump(*to_store)
         self.push(doc.docid, *json_objs)
+        for mod in to_store:
+            mod._dirty = False
         return to_store
         
     def push(self, docid, *jsonobjs):
@@ -107,7 +110,7 @@ class PersistentBackboneStorage(object):
                               attr['attributes']['id']) for attr in jsonobjs]
         for attr in jsonobjs:
             attr['attributes']['doc'] = docid
-        attrs = [protocol.serialize_json(attr['attributes']) for attr in attrs]
+        attrs = [protocol.serialize_json(attr['attributes']) for attr in jsonobjs]
         dkey = dockey(docid)
         data = dict(zip(keys, attrs))
         self.mset(data)

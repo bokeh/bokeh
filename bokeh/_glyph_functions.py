@@ -5,7 +5,7 @@ from six import iteritems
 
 def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"]):
 
-    def func(session_or_plot, *args, **kwargs):
+    def func(document_or_plot, *args, **kwargs):
         # Note: We want to reuse the glyph functions by attaching them the Plot
         # class. Imports are here to prevent circular imports.
         from .plotting_helpers import (
@@ -28,16 +28,16 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
 
         legend_name = kwargs.pop("legend", None)
 
-        from .session import Session
-        if isinstance(session_or_plot, Plot):
-            plot = session_or_plot
+        from .document import Document
+        if isinstance(document_or_plot, Plot):
+            plot = document_or_plot
             # TODO (bev) plot.update(kwargs)
-        elif isinstance(session_or_plot, Session):
-            session = session_or_plot
-            plot = session._get_plot(kwargs)
-            session.add(plot)
+        elif isinstance(document_or_plot, Document):
+            document = document_or_plot
+            plot = document._get_plot(kwargs)
+            document.add(plot)
         else:
-            raise ValueError("expected session or plot object for first argument")
+            raise ValueError("expected document or plot object for first argument")
 
         if 'name' in kwargs:
             plot._id = kwargs['name']
