@@ -17,13 +17,40 @@ logger = logging.getLogger(__file__)
 
 class Document(object):
 
-    def __init__(self):
+    def __init__(self, json_objs=None):
         self._current_plot = None
         self._next_figure_kwargs = dict()
         self._hold = False
         self._models = {}
-        self._plotcontext = PlotContext()
+        self._plotcontext = None
+        if json_objs:
+            self.load(*json_objs)
+        self.set_context()
+
+    def set_context(self, plotcontext=None):
+        """finds the plot context and sets it
+        """
+        pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
+        if plotcontext:
+            assert len(pcs) == 0, "You already have a plot context, must unset it"
+            self._plotcontext = PlotContext()
+            self.add(self._plotcontext)
+        else:
+            if len(pcs) == 1:
+                logger.debug("setting plot context")
+                self._plotcontext = pcs[0]
+            elif len(pcs) == 0:
+                logger.debug("no plot context found, creating one")
+                self._plotcontext = PlotContext()
+                self.add(self._plotcontext)
+            else:
+                logger.debug("too many plot context found, there can be only one")
         
+    def unset_context(self):
+        if self._plotcontext:
+            self.remove(self._plotcontext)
+            self._plotcontext = None
+
     def __enter__(self):
         return self
 
@@ -89,22 +116,26 @@ class Document(object):
     def add(self, *objects):
         for obj in objects:
             self._models[obj._id] = obj
-                
-    def merge(self, document):
-        for m in document._plotcontext.children:
-            if m not in self._plotcontext.children:
-                self._plotcontext.children.append(m)
-        self._plotcontext._dirty = True
-        for k,v in document._models.iteritems():
-            self._models[k] = v
-        
+            
+    def remove(self, obj_or_id):
+        """obj_or_id - can be an object, or an ID of an object
+        """
+        if isinstance(obj_or_id, PlotObject):
+            del self._models[obj_or_id._id]
+        elif isinstance(obj_or_id, basestring):
+            del self._models[obj_or_id]
+        else:
+            raise ValueError, "obj_or_id must be PlotObject or string(id)"
+            
+
     # functions for turning json objects into json models
-    def load(self, *attrs, events='existing'):
+    def load(self, *attrs, **kwargs):
         """loads broadcast attrs into models.
         events can be 'existing', or None. 'existing' means
         trigger events only for existing (not new objects).
         None means don't trigger any events.
         """
+        events = kwargs.pop('events', 'existing')
         models = []
         created = set()
         for attr in attrs:
@@ -186,3 +217,15 @@ class Document(object):
 
 def get_ref(obj):
     return obj.get_ref()
+    
+def merge(basedocument, document):
+    """add objects from document into basedocument
+    includes adding top level objs to plot context children
+    """
+    for m in document._plotcontext.children:
+        if m not in basedocument._plotcontext.children:
+            basedocument._plotcontext.children.append(m)
+    basedocument._plotcontext._dirty = True
+    for k,v in document._models.iteritems():
+        basedocument._models[k] = v
+

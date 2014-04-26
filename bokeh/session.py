@@ -12,7 +12,7 @@ except ImportError as e:
     pass
 
 from six.moves.urllib.parse import urljoin, urlencode
-
+from document import merge
 from . import utils, browserlib
 from bokeh.objects import ServerDataSource
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
@@ -257,8 +257,10 @@ class Session(object):
         self.userinfo = self.post_json(url, data=data)
         
     def pull(self, typename=None, objid=None):
-        #load all
-        if session and type is None and objid is None:
+        """you need to call this with either typename AND objid
+        or leave out both
+        """
+        if typename is None and objid is None:
             url = utils.urljoin(self.base_url, self.docid +"/")
             attrs = self.get_json(url)
         else:
@@ -284,14 +286,25 @@ class Session(object):
     
     def pull_document(self, doc):
         json_objs = self.pull()
-        new_doc = doc.__class__()
-        new_doc.load(*json_objs)
-        doc.merge(new_doc)
+        
+        # hugo : I don't like this
+        new_doc = doc.__class__(json_objs=json_objs)
+        merge(new_doc, doc)
+        doc.__dict__.update(new_doc.__dict__)
         
     def push_document(self, doc):
         models = [x for x in doc._models.values() if x._dirty]
         json_objs = doc.dump(*models)
         self.push(*json_objs)
+    
+    def push_dirty(self, doc):
+        """store all dirty models
+        """
+        to_store = [x for x in doc._models.values() \
+                    if hasattr(x, '_dirty') and x._dirty]
+        json_objs = doc.dump(*to_store)
+        self.push(*json_objs)
+        return to_store
 
 class Cloud(Session):
     def __init__(self):
