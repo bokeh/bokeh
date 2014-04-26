@@ -223,22 +223,36 @@ def _make_marker(datasource, xdr, ydr, line2d):
     return glyph
 
 
-def _map_line_props(newline, line2d):
+def _convert_dashes(dash):
+    """ Converts a Matplotlib dash specification
+
+    bokeh.properties.DashPattern supports the matplotlib named dash styles,
+    but not the little shorthand characters.  This function takes care of
+    mapping those.
+    """
+    mpl_dash_map = {
+        "-": "solid",
+        "--": "dashed",
+        ":": "dotted",
+        "-.": "dashdot",
+    }
+    # If the value doesn't exist in the map, then just return the value back.
+    return mpl_dash_map.get(dash, dash)
+
+
+def line_props(line, line2d):
     cap_style_map = {
         "butt": "butt",
         "round": "round",
         "projecting": "square",
     }
-    # Note: these are not *just* the line properties, rather they are
-    # the properties to set when a line2d represents a line plot
-    setattr(newline, "line_color", line2d.get_color())
-    setattr(newline, "line_width", line2d.get_linewidth())
-    setattr(newline, "line_alpha", line2d.get_alpha())
+    line.line_color = line2d.get_color()
+    line.line_width = line2d.get_linewidth()
+    line.line_alpha = line2d.get_alpha()
     # TODO: how to handle dash_joinstyle?
-    setattr(newline, "line_join", line2d.get_solid_joinstyle())
-    setattr(newline, "line_cap", cap_style_map[line2d.get_solid_capstyle()])
-    # TODO: Handle line dash, translate between Matplotlib and Canvas-style dashes
-    setattr(newline, "line_dash", _convert_dashes(line2d.get_linestyle()))
+    line.line_join = line2d.get_solid_joinstyle()
+    line.line_cap = cap_style_map[line2d.get_solid_capstyle()]
+    line.line_dash = _convert_dashes(line2d.get_linestyle())
     # setattr(newline, "line_dash_offset", ...)
 
 
@@ -280,23 +294,6 @@ def _delete_last_col(x):
     return x
 
 
-def _convert_dashes(dash):
-    """ Converts a Matplotlib dash specification
-
-    bokeh.properties.DashPattern supports the matplotlib named dash styles,
-    but not the little shorthand characters.  This function takes care of
-    mapping those.
-    """
-    mpl_dash_map = {
-        "-": "solid",
-        "--": "dashed",
-        ":": "dotted",
-        "-.": "dashdot",
-    }
-    # If the value doesn't exist in the map, then just return the value back.
-    return mpl_dash_map.get(dash, dash)
-
-
 def _make_line(source, xdr, ydr, line2d, xkcd):
     ""
     xydata = line2d.get_xydata()
@@ -311,7 +308,7 @@ def _make_line(source, xdr, ydr, line2d, xkcd):
     xdr.sources.append(source.columns(line.x))
     ydr.sources.append(source.columns(line.y))
 
-    _map_line_props(line, line2d)
+    line_props(line, line2d)
     if xkcd:
         line.line_width = 3
 
