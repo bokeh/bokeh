@@ -1,12 +1,28 @@
-# -*- coding: utf-8 -*-
 "Helpers function for mpl module."
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENCE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
+
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
+
 import numpy as np
 
 from itertools import cycle, islice
 from scipy import interpolate, signal
 
+#-----------------------------------------------------------------------------
+# Classes and functions
+#-----------------------------------------------------------------------------
+
 
 def convert_color(mplcolor):
+    "Converts mpl color formats to Bokeh color formats."
     charmap = dict(b="blue", g="green", r="red", c="cyan", m="magenta",
                    y="yellow", k="black", w="white")
     if mplcolor in charmap:
@@ -45,6 +61,7 @@ def convert_dashes(dash):
 
 
 def delete_last_col(x):
+    "Just delete the last column of the array."
     x = np.delete(x, (-1), axis=1)
     return x
 

@@ -1,18 +1,31 @@
-""" Supporting objects and functions to convert Matplotlib objects into Bokeh
+"Supporting objects and functions to convert Matplotlib objects into Bokeh."
+#-----------------------------------------------------------------------------
+# Copyright (c) 2012 - 2014, Continuum Analytics, Inc. All rights reserved.
+#
+# Powered by the Bokeh Development Team.
+#
+# The full license is in the file LICENCE.txt, distributed with this software.
+#-----------------------------------------------------------------------------
 
-"""
+#-----------------------------------------------------------------------------
+# Imports
+#-----------------------------------------------------------------------------
 
 import warnings
 import numpy as np
 import matplotlib as mpl
 
-from .mpl_helpers import (convert_color, convert_dashes, delete_last_col, get_props_cycled,
-                          xkcd_line)
+from .mpl_helpers import (convert_color, convert_dashes, delete_last_col,
+                          get_props_cycled, xkcd_line)
 from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
-                      Grid, PanTool, WheelZoomTool, PreviewSaveTool, ObjectExplorerTool)
+                      Grid, PanTool, WheelZoomTool, PreviewSaveTool,
+                      ObjectExplorerTool)
 from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
                      Xmarker, Diamond, Asterisk, MultiLine, Patches)
 
+#-----------------------------------------------------------------------------
+# Classes and functions
+#-----------------------------------------------------------------------------
 
 # This is used to accumulate plots generated via the plotting methods in this
 # module.  It is used by build_gallery.py.  To activate this feature, simply
