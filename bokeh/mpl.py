@@ -242,6 +242,21 @@ def _map_line_props(newline, line2d):
     # setattr(newline, "line_dash_offset", ...)
 
 
+def multiline_props(source, multiline, col):
+    colors = _get_props_cycled(col, col.get_colors(), fx=lambda x: mpl.colors.rgb2hex(x))
+    widths = _get_props_cycled(col, col.get_linewidth())
+    multiline.line_color = source.add(colors)
+    multiline.line_width = source.add(widths)
+    multiline.line_alpha = col.get_alpha()
+    offset = col.get_linestyle()[0][0]
+    if not col.get_linestyle()[0][1]:
+        on_off = []
+    else:
+        on_off = map(int,col.get_linestyle()[0][1])
+    multiline.line_dash_offset = _convert_dashes(offset)
+    multiline.line_dash = list(_convert_dashes(tuple(on_off)))
+
+
 def _get_props_cycled(col, prop, fx=lambda x: x):
     """ We need to cycle the `get.property` list (where property can be colors,
     line_width, etc) as matplotlib does. We use itertools tools for do this
@@ -304,8 +319,8 @@ def _make_line(source, xdr, ydr, line2d, xkcd):
     return line_glyph
 
 
-def _make_lines_collection(datasource, xdr, ydr, col, xkcd):
-    newmultiline = MultiLine()
+def _make_lines_collection(source, xdr, ydr, col, xkcd):
+    ""
     xydata = col.get_segments()
     t_xydata = [np.transpose(seg) for seg in xydata]
     xs = [t_xydata[x][0] for x in range(len(t_xydata))]
@@ -315,29 +330,17 @@ def _make_lines_collection(datasource, xdr, ydr, col, xkcd):
         xkcd_ys = [xkcd_line(xs[i], ys[i])[1] for i in range(len(ys))]
         xs = xkcd_xs
         ys = xkcd_ys
-    newmultiline.xs = datasource.add(xs)
-    newmultiline.ys = datasource.add(ys)
-    colors = _get_props_cycled(col, col.get_colors(), fx=lambda x: mpl.colors.rgb2hex(x))
-    widths = _get_props_cycled(col, col.get_linewidth())
-    newmultiline.line_color = datasource.add(colors)
-    newmultiline.line_width = datasource.add(widths)
-    newmultiline.line_alpha = col.get_alpha()
-    offset = col.get_linestyle()[0][0]
-    if not col.get_linestyle()[0][1]:
-        on_off = []
-    else:
-        on_off = map(int,col.get_linestyle()[0][1])
-    newmultiline.line_dash_offset = _convert_dashes(offset)
-    newmultiline.line_dash = list(_convert_dashes(tuple(on_off)))
-    xdr.sources.append(datasource.columns(newmultiline.xs))
-    ydr.sources.append(datasource.columns(newmultiline.ys))
-    glyph = Glyph(
-        data_source = datasource,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = newmultiline
-    )
-    return glyph
+
+    multiline = MultiLine()
+    multiline.xs = source.add(xs)
+    multiline.ys = source.add(ys)
+    xdr.sources.append(source.columns(multiline.xs))
+    ydr.sources.append(source.columns(multiline.ys))
+
+    multiline_props(source, multiline, col)
+
+    multiline_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=multiline)
+    return multiline_glyph
 
 
 def _make_polys_collection(datasource, xdr, ydr, col):
