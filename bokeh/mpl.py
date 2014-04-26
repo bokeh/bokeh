@@ -183,46 +183,6 @@ def extract_axis(mplaxes, xkcd):
 #        axis = mplaxes.get_xaxis()
 
 
-def _make_marker(datasource, xdr, ydr, line2d):
-    """ Given a matplotlib line2d instance that has non-null marker type,
-    return an appropriate Bokeh Marker glyph.
-    """
-    marker_map = {
-        "o": Circle,
-        "s": Square,
-        "+": Cross,
-        "^": Triangle,
-        "v": InvertedTriangle,
-        "x": Xmarker,
-        "D": Diamond,
-        "*": Asterisk,
-    }
-    if line2d.get_marker() not in marker_map:
-        warnings.warn("Unable to handle marker: %s" % line2d.get_marker())
-    marker = marker_map[line2d.get_marker()]()
-    marker.line_color = line2d.get_markeredgecolor()
-    marker.fill_color = line2d.get_markerfacecolor()
-    marker.line_width = line2d.get_markeredgewidth()
-    marker.size = line2d.get_markersize()
-
-    # Is this the right way to handle alpha? MPL doesn't seem to distinguish
-    marker.fill_alpha = marker.line_alpha = line2d.get_alpha()
-
-    xydata = line2d.get_xydata()
-    marker.x = datasource.add(xydata[:, 0])
-    marker.y = datasource.add(xydata[:, 1])
-    xdr.sources.append(datasource.columns(marker.x))
-    ydr.sources.append(datasource.columns(marker.y))
-
-    glyph = Glyph(
-        data_source = datasource,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = marker
-    )
-    return glyph
-
-
 def _convert_dashes(dash):
     """ Converts a Matplotlib dash specification
 
@@ -254,6 +214,15 @@ def line_props(line, line2d):
     line.line_cap = cap_style_map[line2d.get_solid_capstyle()]
     line.line_dash = _convert_dashes(line2d.get_linestyle())
     # setattr(newline, "line_dash_offset", ...)
+
+
+def marker_props(marker, line2d):
+    marker.line_color = line2d.get_markeredgecolor()
+    marker.fill_color = line2d.get_markerfacecolor()
+    marker.line_width = line2d.get_markeredgewidth()
+    marker.size = line2d.get_markersize()
+    # Is this the right way to handle alpha? MPL doesn't seem to distinguish
+    marker.fill_alpha = marker.line_alpha = line2d.get_alpha()
 
 
 def multiline_props(source, multiline, col):
@@ -331,6 +300,38 @@ def _make_line(source, xdr, ydr, line2d, xkcd):
 
     line_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line)
     return line_glyph
+
+
+def _make_marker(source, xdr, ydr, line2d):
+    """ Given a matplotlib line2d instance that has non-null marker type,
+    return an appropriate Bokeh Marker glyph.
+    """
+    marker_map = {
+        "o": Circle,
+        "s": Square,
+        "+": Cross,
+        "^": Triangle,
+        "v": InvertedTriangle,
+        "x": Xmarker,
+        "D": Diamond,
+        "*": Asterisk,
+    }
+    if line2d.get_marker() not in marker_map:
+        warnings.warn("Unable to handle marker: %s" % line2d.get_marker())
+    marker = marker_map[line2d.get_marker()]()
+
+    xydata = line2d.get_xydata()
+    x = xydata[:, 0]
+    y = xydata[:, 1]
+    marker.x = source.add(x)
+    marker.y = source.add(y)
+    xdr.sources.append(source.columns(marker.x))
+    ydr.sources.append(source.columns(marker.y))
+
+    marker_props(marker, line2d)
+
+    marker_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=marker)
+    return marker_glyph
 
 
 def _make_lines_collection(source, xdr, ydr, col, xkcd):
