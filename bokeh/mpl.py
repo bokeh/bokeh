@@ -271,6 +271,23 @@ def multiline_props(source, multiline, col):
     multiline.line_dash = list(_convert_dashes(tuple(on_off)))
 
 
+def patches_props(source, patches, col):
+    face_colors = _get_props_cycled(col, col.get_facecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
+    patches.fill_color = source.add(face_colors)
+    edge_colors = _get_props_cycled(col, col.get_edgecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
+    patches.line_color = source.add(edge_colors)
+    widths = _get_props_cycled(col, col.get_linewidth())
+    patches.line_width = source.add(widths)
+    patches.line_alpha = col.get_alpha()
+    offset = col.get_linestyle()[0][0]
+    if not col.get_linestyle()[0][1]:
+        on_off = []
+    else:
+        on_off = map(int,col.get_linestyle()[0][1])
+    patches.line_dash_offset = _convert_dashes(offset)
+    patches.line_dash = list(_convert_dashes(tuple(on_off)))
+
+
 def _get_props_cycled(col, prop, fx=lambda x: x):
     """ We need to cycle the `get.property` list (where property can be colors,
     line_width, etc) as matplotlib does. We use itertools tools for do this
@@ -340,38 +357,25 @@ def _make_lines_collection(source, xdr, ydr, col, xkcd):
     return multiline_glyph
 
 
-def _make_polys_collection(datasource, xdr, ydr, col):
-    newpatches = Patches()
+def _make_polys_collection(source, xdr, ydr, col):
+    ""
     paths = col.get_paths()
     polygons = [paths[i].to_polygons() for i in range(len(paths))]
     polygons = [np.transpose(_delete_last_col(polygon)) for polygon in polygons]
     xs = [polygons[i][0] for i in range(len(polygons))]
     ys = [polygons[i][1] for i in range(len(polygons))]
-    newpatches.xs = datasource.add(xs)
-    newpatches.ys = datasource.add(ys)
-    face_colors = _get_props_cycled(col, col.get_facecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
-    newpatches.fill_color = datasource.add(face_colors)
-    edge_colors = _get_props_cycled(col, col.get_edgecolors(), fx=lambda x: mpl.colors.rgb2hex(x))
-    newpatches.line_color = datasource.add(edge_colors)
-    widths = _get_props_cycled(col, col.get_linewidth())
-    newpatches.line_width = datasource.add(widths)
-    newpatches.line_alpha = col.get_alpha()
-    offset = col.get_linestyle()[0][0]
-    if not col.get_linestyle()[0][1]:
-        on_off = []
-    else:
-        on_off = map(int,col.get_linestyle()[0][1])
-    newpatches.line_dash_offset = _convert_dashes(offset)
-    newpatches.line_dash = list(_convert_dashes(tuple(on_off)))
-    xdr.sources.append(datasource.columns(newpatches.xs))
-    ydr.sources.append(datasource.columns(newpatches.ys))
-    glyph = Glyph(
-        data_source = datasource,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = newpatches
-    )
-    return glyph
+
+    patches = Patches()
+    patches.xs = source.add(xs)
+    patches.ys = source.add(ys)
+    xdr.sources.append(source.columns(patches.xs))
+    ydr.sources.append(source.columns(patches.ys))
+
+    patches_props(source, patches, col)
+
+    patches_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=patches)
+    return patches_glyph
+
 
 def xkcd_line(x, y, xlim=None, ylim=None, mag=1.0, f1=30, f2=0.001, f3=5):
     """
