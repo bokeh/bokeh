@@ -63,18 +63,11 @@ def axes2plot(ax, xkcd):
                         for col in cols if isinstance(col, mpl.collections.PolyCollection))
     plot.renderers.extend(renderers)
 
-    # Grid set up
-    grid = ax.get_xgridlines()[0]
-    grid_line_color = grid.get_color()
-    grid_line_width = grid.get_linewidth()
     # xgrid
-    Grid(plot=plot, dimension=0, axis=bokehaxes[0],
-                         grid_line_color=grid_line_color,
-                         grid_line_width=grid_line_width)
+    _make_grid(plot, ax.get_xgridlines()[0], bokehaxes[0], 0)
+
     # ygrid
-    Grid(plot=plot, dimension=1, axis=bokehaxes[1],
-                         grid_line_color=grid_line_color,
-                         grid_line_width=grid_line_width)
+    _make_grid(plot, ax.get_xgridlines()[0], bokehaxes[1], 1)
 
     # Add tools
     pantool = PanTool(dimensions=["width", "height"])
@@ -256,6 +249,12 @@ def _make_axis(ax, dimension, xkcd):
         laxis.major_label_text_color = "black"
 
     return laxis
+
+
+def _make_grid(plot, grid, ax, dimension):
+
+    Grid(plot=plot, dimension=dimension, axis=ax,
+         grid_line_color=grid.get_color(), grid_line_width=grid.get_linewidth())
 
 
 def _make_line(source, xdr, ydr, line2d, xkcd):
