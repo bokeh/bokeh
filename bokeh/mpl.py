@@ -46,7 +46,7 @@ def axes2plot(axes, xkcd):
     datasource = ColumnDataSource()
     plot.data_sources = [datasource]
 
-    bokehaxes = extract_axis(axes, xkcd)
+    bokehaxes = _make_axis(axes.xaxis, 0, xkcd), _make_axis(axes.yaxis, 1, xkcd)
     for baxis in bokehaxes:
         baxis.plot = plot
     plot.renderers.extend(bokehaxes) # + extract_grid(axes))
@@ -160,13 +160,6 @@ def _make_axis(axis, dimension, xkcd):
         newaxis.major_label_text_color = "black"
 
     return newaxis
-
-
-def extract_axis(mplaxes, xkcd):
-    """ Given a matplotlib Axes object, extracts the actual X and Y axes from
-    it and returns a set of bokeh objects.
-    """
-    return _make_axis(mplaxes.xaxis, 0, xkcd), _make_axis(mplaxes.yaxis, 1, xkcd)
 
 
 def _convert_dashes(dash):
