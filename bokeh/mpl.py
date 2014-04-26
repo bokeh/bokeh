@@ -9,13 +9,17 @@ from itertools import (cycle, islice)
 
 from scipy import interpolate, signal
 
-from . import glyphs, objects
+from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
+                      Grid, PanTool, WheelZoomTool)
+from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
+                     Xmarker, Diamond, Asterisk, Text, MultiLine, Patches)
 
 
 # This is used to accumulate plots generated via the plotting methods in this
 # module.  It is used by build_gallery.py.  To activate this feature, simply
 # set _PLOTLIST to an empty list; to turn it off, set it back to None.
 _PLOTLIST = None
+
 
 def axes2plot(axes, xkcd):
     """ In the matplotlib object model, Axes actually are containers for all
@@ -30,16 +34,16 @@ def axes2plot(axes, xkcd):
     if background_fill == 'w':
         background_fill = 'white'
     title = axes.get_title()
-    plot = objects.Plot(title=title, background_fill=background_fill)
+    plot = Plot(title=title, background_fill=background_fill)
     if xkcd:
         plot.title_text_font = "Comic Sans MS, Textile, cursive"
         plot.title_text_font_style = "bold"
         plot.title_text_color = "black"
     if _PLOTLIST is not None:
         _PLOTLIST.append(plot)
-    plot.x_range = objects.DataRange1d()
-    plot.y_range = objects.DataRange1d()
-    datasource = objects.ColumnDataSource()
+    plot.x_range = DataRange1d()
+    plot.y_range = DataRange1d()
+    datasource = ColumnDataSource()
     plot.data_sources = [datasource]
 
     bokehaxes = extract_axis(axes, xkcd)
@@ -73,19 +77,20 @@ def axes2plot(axes, xkcd):
     grid_line_color = grid.get_color()
     grid_line_width = grid.get_linewidth()
     # xgrid
-    objects.Grid(plot=plot, dimension=0, axis=bokehaxes[0],
+    Grid(plot=plot, dimension=0, axis=bokehaxes[0],
                          grid_line_color=grid_line_color,
                          grid_line_width=grid_line_width)
     # ygrid
-    objects.Grid(plot=plot, dimension=1, axis=bokehaxes[1],
+    Grid(plot=plot, dimension=1, axis=bokehaxes[1],
                          grid_line_color=grid_line_color,
                          grid_line_width=grid_line_width)
 
     # Add tools
-    pantool = objects.PanTool(dimensions=["width", "height"])
-    wheelzoom = objects.WheelZoomTool(dimensions=["width", "height"])
+    pantool = PanTool(dimensions=["width", "height"])
+    wheelzoom = WheelZoomTool(dimensions=["width", "height"])
     plot.tools = [pantool, wheelzoom]
     return plot
+
 
 def _convert_color(mplcolor):
     charmap = dict(b="blue", g="green", r="red", c="cyan", m="magenta",
@@ -97,15 +102,16 @@ def _convert_color(mplcolor):
         colorfloat = float(mplcolor)
         if 0 <= colorfloat <= 1.0:
             # This is a grayscale value
-            return tuple([int(255*colorfloat)] * 3)
+            return tuple([int(255 * colorfloat)] * 3)
     except:
         pass
 
     if isinstance(mplcolor, tuple):
         # These will be floats in the range 0..1
-        return int(255*mplcolor[0]), int(255*mplcolor[1]), int(255*mplcolor[2])
+        return int(255 * mplcolor[0]), int(255 * mplcolor[1]), int(255 * mplcolor[2])
 
     return mplcolor
+
 
 def _map_text_props(mplText, obj, prefix=""):
     """ Sets various TextProps on a bokeh object based on values from a
@@ -129,6 +135,7 @@ def _map_text_props(mplText, obj, prefix=""):
     #setattr(obj, prefix+"text_font", mplText.get_fontname())
     setattr(obj, prefix+"text_font", mplText.get_fontfamily()[0])
 
+
 def _make_axis(axis, dimension, xkcd):
     """ Given an mpl.Axis instance, returns a bokeh LinearAxis """
     # TODO:
@@ -138,7 +145,7 @@ def _make_axis(axis, dimension, xkcd):
     #  * deal with minor ticks once BokehJS supports them
     #  * handle custom tick locations once that is added to bokehJS
 
-    newaxis = objects.LinearAxis(dimension=dimension, location="min",
+    newaxis = LinearAxis(dimension=dimension, location="min",
                                  axis_label=axis.get_label_text())
 
     # First get the label properties by getting an mpl.Text object
@@ -181,14 +188,14 @@ def _make_marker(datasource, xdr, ydr, line2d):
     return an appropriate Bokeh Marker glyph.
     """
     marker_map = {
-        "o": glyphs.Circle,
-        "s": glyphs.Square,
-        "+": glyphs.Cross,
-        "^": glyphs.Triangle,
-        "v": glyphs.InvertedTriangle,
-        "x": glyphs.Xmarker,
-        "D": glyphs.Diamond,
-        "*": glyphs.Asterisk,
+        "o": Circle,
+        "s": Square,
+        "+": Cross,
+        "^": Triangle,
+        "v": InvertedTriangle,
+        "x": Xmarker,
+        "D": Diamond,
+        "*": Asterisk,
     }
     if line2d.get_marker() not in marker_map:
         warnings.warn("Unable to handle marker: %s" % line2d.get_marker())
@@ -207,7 +214,7 @@ def _make_marker(datasource, xdr, ydr, line2d):
     xdr.sources.append(datasource.columns(marker.x))
     ydr.sources.append(datasource.columns(marker.y))
 
-    glyph = objects.Glyph(
+    glyph = Glyph(
         data_source = datasource,
         xdata_range = xdr,
         ydata_range = ydr,
@@ -275,7 +282,7 @@ def _convert_dashes(dash):
     return mpl_dash_map.get(dash, dash)
 
 def _make_line(datasource, xdr, ydr, line2d, xkcd):
-    newline = glyphs.Line()
+    newline = Line()
     _map_line_props(newline, line2d)
     xydata = line2d.get_xydata()
     x = xydata[:, 0]
@@ -287,7 +294,7 @@ def _make_line(datasource, xdr, ydr, line2d, xkcd):
     newline.y = datasource.add(y)
     xdr.sources.append(datasource.columns(newline.x))
     ydr.sources.append(datasource.columns(newline.y))
-    glyph = objects.Glyph(
+    glyph = Glyph(
         data_source = datasource,
         xdata_range = xdr,
         ydata_range = ydr,
@@ -296,7 +303,7 @@ def _make_line(datasource, xdr, ydr, line2d, xkcd):
     return glyph
 
 def _make_lines_collection(datasource, xdr, ydr, col, xkcd):
-    newmultiline = glyphs.MultiLine()
+    newmultiline = MultiLine()
     xydata = col.get_segments()
     t_xydata = [np.transpose(seg) for seg in xydata]
     xs = [t_xydata[x][0] for x in range(len(t_xydata))]
@@ -322,7 +329,7 @@ def _make_lines_collection(datasource, xdr, ydr, col, xkcd):
     newmultiline.line_dash = list(_convert_dashes(tuple(on_off)))
     xdr.sources.append(datasource.columns(newmultiline.xs))
     ydr.sources.append(datasource.columns(newmultiline.ys))
-    glyph = objects.Glyph(
+    glyph = Glyph(
         data_source = datasource,
         xdata_range = xdr,
         ydata_range = ydr,
@@ -332,7 +339,7 @@ def _make_lines_collection(datasource, xdr, ydr, col, xkcd):
 
 
 def _make_polys_collection(datasource, xdr, ydr, col):
-    newpatches = glyphs.Patches()
+    newpatches = Patches()
     paths = col.get_paths()
     polygons = [paths[i].to_polygons() for i in range(len(paths))]
     polygons = [np.transpose(_delete_last_col(polygon)) for polygon in polygons]
@@ -356,7 +363,7 @@ def _make_polys_collection(datasource, xdr, ydr, col):
     newpatches.line_dash = list(_convert_dashes(tuple(on_off)))
     xdr.sources.append(datasource.columns(newpatches.xs))
     ydr.sources.append(datasource.columns(newpatches.ys))
-    glyph = objects.Glyph(
+    glyph = Glyph(
         data_source = datasource,
         xdata_range = xdr,
         ydata_range = ydr,
@@ -439,19 +446,19 @@ def xkcd_line(x, y, xlim=None, ylim=None, mag=1.0, f1=30, f2=0.001, f3=5):
 
     return x_int, y_int
 
-class MPLMultiLine(glyphs.MultiLine):
+class MPLMultiLine(MultiLine):
 
     @classmethod
     def convert(cls, linecollection):
         pass
 
-class MPLText(glyphs.Text):
+class MPLText(Text):
 
     @classmethod
     def convert(cls, text):
         return []
 
-class MPLPatches(glyphs.Patches):
+class MPLPatches(Patches):
 
     @classmethod
     def convert(cls, patches):
