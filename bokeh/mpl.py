@@ -281,26 +281,28 @@ def _convert_dashes(dash):
     # If the value doesn't exist in the map, then just return the value back.
     return mpl_dash_map.get(dash, dash)
 
-def _make_line(datasource, xdr, ydr, line2d, xkcd):
-    newline = Line()
-    _map_line_props(newline, line2d)
+
+def _make_line(source, xdr, ydr, line2d, xkcd):
+    ""
     xydata = line2d.get_xydata()
     x = xydata[:, 0]
     y = xydata[:, 1]
     if xkcd:
         x, y = xkcd_line(x, y)
-        newline.line_width = 3
-    newline.x = datasource.add(x)
-    newline.y = datasource.add(y)
-    xdr.sources.append(datasource.columns(newline.x))
-    ydr.sources.append(datasource.columns(newline.y))
-    glyph = Glyph(
-        data_source = datasource,
-        xdata_range = xdr,
-        ydata_range = ydr,
-        glyph = newline
-    )
-    return glyph
+
+    line = Line()
+    line.x = source.add(x)
+    line.y = source.add(y)
+    xdr.sources.append(source.columns(line.x))
+    ydr.sources.append(source.columns(line.y))
+
+    _map_line_props(line, line2d)
+    if xkcd:
+        line.line_width = 3
+
+    line_glyph = Glyph(data_source=source, xdata_range=xdr, ydata_range=ydr, glyph=line)
+    return line_glyph
+
 
 def _make_lines_collection(datasource, xdr, ydr, col, xkcd):
     newmultiline = MultiLine()
