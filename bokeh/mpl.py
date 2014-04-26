@@ -12,7 +12,7 @@ from scipy import interpolate, signal
 from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
                       Grid, PanTool, WheelZoomTool)
 from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
-                     Xmarker, Diamond, Asterisk, Text, MultiLine, Patches)
+                     Xmarker, Diamond, Asterisk, MultiLine, Patches)
 
 
 # This is used to accumulate plots generated via the plotting methods in this
@@ -104,64 +104,6 @@ def _convert_color(mplcolor):
     return mplcolor
 
 
-def _map_text_props(mplText, obj, prefix=""):
-    """ Sets various TextProps on a bokeh object based on values from a
-    matplotlib Text object.  An optional prefix is added to the TextProps
-    field names, to mirror the common use of the TextProps property.
-    """
-    alignment_map = {"center": "middle", "top": "top", "bottom": "bottom"}  # TODO: support "baseline"
-    fontstyle_map = {"oblique": "italic", "normal": "normal", "italic": "italic"}
-
-    setattr(obj, prefix+"text_font_style", fontstyle_map[mplText.get_fontstyle()])
-    # we don't really have the full range of font weights, but at least handle bold
-    if mplText.get_weight() in ("bold", "heavy"):
-        setattr(obj, prefix+"text_font_style", "bold")
-    setattr(obj, prefix+"text_font_size", "%dpx" % mplText.get_fontsize())
-    setattr(obj, prefix+"text_alpha", mplText.get_alpha())
-    setattr(obj, prefix+"text_color", _convert_color(mplText.get_color()))
-    setattr(obj, prefix+"text_baseline", alignment_map[mplText.get_verticalalignment()])
-
-    # Using get_fontname() works, but it's oftentimes not available in the browser,
-    # so it's better to just use the font family here.
-    #setattr(obj, prefix+"text_font", mplText.get_fontname())
-    setattr(obj, prefix+"text_font", mplText.get_fontfamily()[0])
-
-
-def _make_axis(axis, dimension, xkcd):
-    """ Given an mpl.Axis instance, returns a bokeh LinearAxis """
-    # TODO:
-    #  * handle `axis_date`, which treats axis as dates
-    #  * handle log scaling
-    #  * map `labelpad` to `major_label_standoff`
-    #  * deal with minor ticks once BokehJS supports them
-    #  * handle custom tick locations once that is added to bokehJS
-
-    newaxis = LinearAxis(dimension=dimension, location="min",
-                                 axis_label=axis.get_label_text())
-
-    # First get the label properties by getting an mpl.Text object
-    label = axis.get_label()
-    _map_text_props(label, newaxis, prefix="axis_label_")
-
-    # To get the tick label format, we look at the first of the tick labels
-    # and assume the rest are formatted similarly.
-    ticktext = axis.get_ticklabels()[0]
-    _map_text_props(ticktext, newaxis, prefix="major_label_")
-
-    #newaxis.bounds = axis.get_data_interval()  # I think this is the right func...
-
-    if xkcd:
-        newaxis.axis_line_width = 3
-        newaxis.axis_label_text_font = "Comic Sans MS, Textile, cursive"
-        newaxis.axis_label_text_font_style = "bold"
-        newaxis.axis_label_text_color = "black"
-        newaxis.major_label_text_font = "Comic Sans MS, Textile, cursive"
-        newaxis.major_label_text_font_style = "bold"
-        newaxis.major_label_text_color = "black"
-
-    return newaxis
-
-
 def _convert_dashes(dash):
     """ Converts a Matplotlib dash specification
 
@@ -177,6 +119,29 @@ def _convert_dashes(dash):
     }
     # If the value doesn't exist in the map, then just return the value back.
     return mpl_dash_map.get(dash, dash)
+
+
+def _get_props_cycled(col, prop, fx=lambda x: x):
+    """ We need to cycle the `get.property` list (where property can be colors,
+    line_width, etc) as matplotlib does. We use itertools tools for do this
+    cycling ans slice manipulation.
+
+    Parameters:
+
+    col: matplotlib collection object
+    prop: property we want to get from matplotlib collection
+    fx: funtion (optional) to transform the elements from list obtained
+        after the property call. Deafults to identity function.
+    """
+    n = len(col.get_paths())
+    t_prop = [fx(x) for x in prop]
+    sliced = islice(cycle(t_prop), None, n)
+    return list(sliced)
+
+
+def _delete_last_col(x):
+    x = np.delete(x, (-1), axis=1)
+    return x
 
 
 def line_props(line, line2d):
@@ -236,27 +201,61 @@ def patches_props(source, patches, col):
     patches.line_dash = list(_convert_dashes(tuple(on_off)))
 
 
-def _get_props_cycled(col, prop, fx=lambda x: x):
-    """ We need to cycle the `get.property` list (where property can be colors,
-    line_width, etc) as matplotlib does. We use itertools tools for do this
-    cycling ans slice manipulation.
-
-    Parameters:
-
-    col: matplotlib collection object
-    prop: property we want to get from matplotlib collection
-    fx: funtion (optional) to transform the elements from list obtained
-        after the property call. Deafults to identity function.
+def text_props(mplText, obj, prefix=""):
+    """ Sets various TextProps on a bokeh object based on values from a
+    matplotlib Text object.  An optional prefix is added to the TextProps
+    field names, to mirror the common use of the TextProps property.
     """
-    n = len(col.get_paths())
-    t_prop = [fx(x) for x in prop]
-    sliced = islice(cycle(t_prop), None, n)
-    return list(sliced)
+    alignment_map = {"center": "middle", "top": "top", "bottom": "bottom"}  # TODO: support "baseline"
+    fontstyle_map = {"oblique": "italic", "normal": "normal", "italic": "italic"}
+
+    setattr(obj, prefix+"text_font_style", fontstyle_map[mplText.get_fontstyle()])
+    # we don't really have the full range of font weights, but at least handle bold
+    if mplText.get_weight() in ("bold", "heavy"):
+        setattr(obj, prefix+"text_font_style", "bold")
+    setattr(obj, prefix+"text_font_size", "%dpx" % mplText.get_fontsize())
+    setattr(obj, prefix+"text_alpha", mplText.get_alpha())
+    setattr(obj, prefix+"text_color", _convert_color(mplText.get_color()))
+    setattr(obj, prefix+"text_baseline", alignment_map[mplText.get_verticalalignment()])
+
+    # Using get_fontname() works, but it's oftentimes not available in the browser,
+    # so it's better to just use the font family here.
+    #setattr(obj, prefix+"text_font", mplText.get_fontname())
+    setattr(obj, prefix+"text_font", mplText.get_fontfamily()[0])
 
 
-def _delete_last_col(x):
-    x = np.delete(x, (-1), axis=1)
-    return x
+def _make_axis(axis, dimension, xkcd):
+    """ Given an mpl.Axis instance, returns a bokeh LinearAxis """
+    # TODO:
+    #  * handle `axis_date`, which treats axis as dates
+    #  * handle log scaling
+    #  * map `labelpad` to `major_label_standoff`
+    #  * deal with minor ticks once BokehJS supports them
+    #  * handle custom tick locations once that is added to bokehJS
+
+    newaxis = LinearAxis(dimension=dimension, location="min", axis_label=axis.get_label_text())
+
+    # First get the label properties by getting an mpl.Text object
+    label = axis.get_label()
+    text_props(label, newaxis, prefix="axis_label_")
+
+    # To get the tick label format, we look at the first of the tick labels
+    # and assume the rest are formatted similarly.
+    ticktext = axis.get_ticklabels()[0]
+    text_props(ticktext, newaxis, prefix="major_label_")
+
+    #newaxis.bounds = axis.get_data_interval()  # I think this is the right func...
+
+    if xkcd:
+        newaxis.axis_line_width = 3
+        newaxis.axis_label_text_font = "Comic Sans MS, Textile, cursive"
+        newaxis.axis_label_text_font_style = "bold"
+        newaxis.axis_label_text_color = "black"
+        newaxis.major_label_text_font = "Comic Sans MS, Textile, cursive"
+        newaxis.major_label_text_font_style = "bold"
+        newaxis.major_label_text_color = "black"
+
+    return newaxis
 
 
 def _make_line(source, xdr, ydr, line2d, xkcd):
