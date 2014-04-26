@@ -9,7 +9,7 @@ import matplotlib as mpl
 from .mpl_helpers import (convert_color, convert_dashes, delete_last_col, get_props_cycled,
                           xkcd_line)
 from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
-                      Grid, PanTool, WheelZoomTool)
+                      Grid, PanTool, WheelZoomTool, PreviewSaveTool, ObjectExplorerTool)
 from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
                      Xmarker, Diamond, Asterisk, MultiLine, Patches)
 
@@ -64,7 +64,9 @@ def axes2plot(ax, xkcd):
     # Add tools
     pantool = PanTool(dimensions=["width", "height"])
     wheelzoom = WheelZoomTool(dimensions=["width", "height"])
-    plot.tools = [pantool, wheelzoom]
+    previewsave = PreviewSaveTool(plot=plot)
+    objectexplorer = ObjectExplorerTool()
+    plot.tools = [pantool, wheelzoom, previewsave, objectexplorer]
 
     if _PLOTLIST is not None:
         _PLOTLIST.append(plot)
