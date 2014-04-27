@@ -110,6 +110,10 @@ class BokehRenderer(Renderer):
         line.line_color = style['color']
         line.line_width = style['linewidth']
         line.line_alpha = style['alpha']
+        line.line_dash = [int(i) for i in style['dasharray'].split(",")]  # str2list(int)
+        #style['zorder'] # not in Bokeh
+        #line.line_join = line2d.get_solid_joinstyle() # not in mplexporter
+        #line.line_cap = cap_style_map[line2d.get_solid_capstyle()] # not in mplexporter
 
         line_glyph = Glyph(data_source=self.source,
                            xdata_range=self.xdr,
@@ -141,7 +145,12 @@ class BokehRenderer(Renderer):
         self.xdr.sources.append(self.source.columns(marker.x))
         self.ydr.sources.append(self.source.columns(marker.y))
 
-        #self.marker_props(marker, line2d)
+        marker.line_color = style['edgecolor']
+        marker.fill_color = style['facecolor']
+        marker.line_width = style['edgewidth']
+        marker.size = style['markersize']
+        marker.fill_alpha = marker.line_alpha = style['alpha']
+        #style['zorder'] # not in Bokeh
 
         marker_glyph = Glyph(data_source=self.source,
                              xdata_range=self.xdr,
