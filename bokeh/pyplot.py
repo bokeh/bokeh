@@ -18,7 +18,7 @@ docstring.
 
 import numpy as np
 
-from .mpl import axes2plot
+from .mpl import MPLExporter
 from .objects import GridPlot
 from .plotting import (get_config, output_file, output_notebook, output_server,
                        session, show)
@@ -85,8 +85,10 @@ def show_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
 
     plots = []
 
+    mplexporter = MPLExporter()
+
     for axes in fig.axes:
-        plot = axes2plot(axes, xkcd)
+        plot = mplexporter.axes2plot(axes, xkcd)
         plots.append(plot)
 
     if len(fig.axes) <= 1:
