@@ -39,8 +39,9 @@ _PLOTLIST = None
 
 class BokehRenderer(Renderer):
 
-    def __init__(self):
+    def __init__(self, xkcd):
         # Create datasource and datarange objects
+        self.xkcd = xkcd
         self.source = ColumnDataSource()
         self.xdr = DataRange1d()
         self.ydr = DataRange1d()
@@ -59,6 +60,20 @@ class BokehRenderer(Renderer):
 
     def close_figure(self, fig):
         self.sess.add_plot(self.plot)
+
+    def open_axes(self, ax, props):
+        # Get axes and grid
+        self.ax = ax
+        self.grid = ax.get_xgridlines()[0]
+
+        # Add axis and grids
+        mxaxis = self.ax.xaxis
+        myaxis = self.ax.yaxis
+        bxaxis = self.make_axis(mxaxis, 0)
+        byaxis = self.make_axis(myaxis, 1)
+
+        xgrid = self.make_grid(bxaxis, 0)
+        ygrid = self.make_grid(byaxis, 1)
 
     def draw_line(self, data, coordinates, style, label, mplobj=None):
         x = data[:, 0]

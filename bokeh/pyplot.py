@@ -82,7 +82,7 @@ def show_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
     #renderer = BokehRenderer()
     #renderer.export(fig, xkcd)
 
-    renderer = BokehRenderer()
+    renderer = BokehRenderer(xkcd)
     exporter = Exporter(renderer)
     exporter.run(fig)
     renderer.sess
