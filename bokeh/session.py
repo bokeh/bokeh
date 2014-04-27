@@ -12,9 +12,11 @@ except ImportError as e:
     pass
 
 from six.moves.urllib.parse import urljoin, urlencode
-
+from .document import merge
 from . import utils, browserlib
 from bokeh.objects import ServerDataSource
+import logging
+logger = logging.getLogger(__name__)
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
 
 
@@ -199,17 +201,17 @@ class Session(object):
             headers={'content-type':'application/json'}
         func = getattr(self.http_session, method)
         resp = func(url, headers=headers, **kwargs)
-        if response.status_code == 409:
+        if resp.status_code == 409:
             raise DataIntegrityException
         if resp.status_code == 401:
             raise Exception('HTTP Unauthorized accessing')
         return utils.get_json(resp)
         
     def get_json(self, url, headers=None, **kwargs):
-        return execute_json('get', url, headers=headers, **kwargs)
+        return self.execute_json('get', url, headers=headers, **kwargs)
         
     def post_json(self, url, headers=None, **kwargs):
-        return execute_json('post', url, headers=headers, **kwargs)
+        return self.execute_json('post', url, headers=headers, **kwargs)
         
     @property    
     def userinfo(self):
@@ -249,6 +251,7 @@ class Session(object):
         docid = matching[0]['docid']
         # I don't think we use this now, but we should for embedding
         self.apikey = self.get_api_key(docid)
+        self.docid = docid
         self.docname = name            
         
     def make_doc(self, title):
@@ -257,8 +260,10 @@ class Session(object):
         self.userinfo = self.post_json(url, data=data)
         
     def pull(self, typename=None, objid=None):
-        #load all
-        if session and type is None and objid is None:
+        """you need to call this with either typename AND objid
+        or leave out both
+        """
+        if typename is None and objid is None:
             url = utils.urljoin(self.base_url, self.docid +"/")
             attrs = self.get_json(url)
         else:
@@ -275,7 +280,7 @@ class Session(object):
         return attrs
         
     def push(self, *jsonobjs):
-        data = self.serialize(jsonobjs)
+        data = protocol.serialize_json(jsonobjs)
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.post_json(url, data=data)
         
@@ -284,14 +289,26 @@ class Session(object):
     
     def pull_document(self, doc):
         json_objs = self.pull()
-        new_doc = doc.__class__()
-        new_doc.load(*json_objs)
-        doc.merge(new_doc)
         
+        # hugo : I don't like this
+        new_doc = doc.__class__(json_objs=json_objs)
+        merge(new_doc, doc)
+        doc.__dict__.update(new_doc.__dict__)
+        doc.docid = self.docid
+
     def push_document(self, doc):
         models = [x for x in doc._models.values() if x._dirty]
         json_objs = doc.dump(*models)
         self.push(*json_objs)
+    
+    def push_dirty(self, doc):
+        """store all dirty models
+        """
+        to_store = [x for x in doc._models.values() \
+                    if hasattr(x, '_dirty') and x._dirty]
+        json_objs = doc.dump(*to_store)
+        self.push(*json_objs)
+        return to_store
 
 class Cloud(Session):
     def __init__(self):

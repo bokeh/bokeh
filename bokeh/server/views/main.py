@@ -21,7 +21,7 @@ from ... import protocol
 from ...exceptions import DataIntegrityException
 from ..views import make_json
 from ..crossdomain import crossdomain
-
+from ..serverbb import prune
 @bokeh_app.route('/bokeh/ping')
 def ping():
     #test route, to know if the server is up
@@ -51,12 +51,14 @@ def _makedoc(redisconn, u, title):
     docid = str(uuid.uuid4())
     if isinstance(u, string_types):
         u = user.User.load(redisconn, u)
-    sess = bokeh_app.backbone_storage.get_session(docid)
+    clientdoc = bokeh_app.backbone_storage.get_document(docid)
+    prune(clientdoc)
     u.add_doc(docid, title)
     doc = docs.new_doc(bokeh_app, docid,
-                       title, sess,
+                       title, clientdoc,
                        rw_users=[u.username])
     u.save(redisconn)
+    bokeh_app.backbone_storage.push_dirty(clientdoc)
     return doc
 
 @bokeh_app.route('/bokeh/doc', methods=['POST'])
@@ -124,17 +126,17 @@ def get_bokeh_info(docid):
 
 def _get_bokeh_info(docid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    sess = bokeh_app.backbone_storage.get_session(docid)
-    sess.load_all()
-    sess.prune()
-    all_models = sess._models.values()
+    clientdoc = bokeh_app.backbone_storage.get_document(docid)
+    prune(clientdoc)
+    all_models = clientdoc._models.values()
     log.info("num models: %s", len(all_models))
-    all_models = sess.broadcast_attrs(all_models)
+    all_models = clientdoc.dump(all_models)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
                  'apikey' : doc.apikey}
-    returnval = sess.serialize(returnval)
+    returnval = protocol.serialize_json(returnval)
+    #i don't think we need to set the header here...
     result = make_json(returnval,
                        headers={"Access-Control-Allow-Origin": "*"})
     return result
@@ -196,26 +198,6 @@ def doc_by_title():
 @bokeh_app.route('/bokeh/sampleerror')
 def sampleerror():
     return 1 + "sdf"
-
-
-def dom_embed(plot, **kwargs):
-    if bokeh_app.debug:
-        from continuumweb import hemlib
-        slug = hemlib.slug_json()
-        static_js = hemlib.slug_libs(bokeh_app, slug['libs'])
-        hemsource = os.path.join(bokeh_app.static_folder, "coffee")
-        hem_js = hemlib.coffee_assets(hemsource, "localhost", 9294)
-        hemsource = os.path.join(bokeh_app.static_folder, "vendor",
-                                 "bokehjs", "coffee")
-        hem_js += hemlib.coffee_assets(hemsource, "localhost", 9294)
-    else:
-        static_js = ['/bokeh/static/js/bokeh.js']
-        hem_js = []
-    plot2 = make_test_plot()
-    return render_template(
-        "embed.html", jsfiles=static_js, hemfiles=hem_js,
-        docid=plot._session.docid, docapikey=plot._session.apikey, modelid=plot._id,
-        plot2=plot2, **kwargs)
 
 def make_test_plot():
     import numpy as np
@@ -315,18 +297,18 @@ def embed_js():
 @check_read_authentication_and_create_client
 def get_bokeh_info_one_object(docid, objid):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    sess = bokeh_app.backbone_storage.get_session(docid)
-    sess.load_all()
-    obj = sess._models[objid]
+    clientdoc = bokeh_app.backbone_storage.get_document(docid)    
+    prune(clientdoc)
+    obj = clientdoc._models[objid]
     objs = obj.references()
-    all_models = sess.broadcast_attrs(objs)
+    all_models = clientdoc.dump(objs)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
                  'apikey' : doc.apikey,
                  'type' : obj.__view_model__
     }
-    returnval = sess.serialize(returnval)
+    returnval = protocol.serialize_json(returnval)
     result = make_json(returnval,
                        headers={"Access-Control-Allow-Origin": "*"})
     return result
