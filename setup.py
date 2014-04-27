@@ -313,7 +313,6 @@ setup(
         'bokeh',
         'bokeh.sampledata',
         'bokeh.server',
-        'bokeh.session',
         'bokeh.server.models',
         'bokeh.server.views',
         'bokeh.server.tests',
