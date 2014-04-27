@@ -15,6 +15,8 @@ import warnings
 import numpy as np
 import matplotlib as mpl
 
+from mplexporter.renderers import Renderer
+
 from .mpl_helpers import (convert_color, convert_dashes, delete_last_col,
                           get_props_cycled, xkcd_line)
 from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
@@ -23,7 +25,7 @@ from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
 from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
                      Xmarker, Diamond, Asterisk, MultiLine, Patches)
 
-from .plotting import get_config, session, show
+from .plotting import get_config, session
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -35,18 +37,53 @@ from .plotting import get_config, session, show
 _PLOTLIST = None
 
 
-class MPLExporter(object):
+class BokehRenderer(Renderer):
 
     def __init__(self):
         # Create datasource and datarange objects
         self.source = ColumnDataSource()
         self.xdr = DataRange1d()
         self.ydr = DataRange1d()
+        self.sess = session()
+
+    def open_figure(self, fig, props):
+        self.title = "Test"
+        self.width = int(props['figwidth'] * props['dpi'])
+        self.height = int(props['figheight'] * props['dpi'])
+        self.plot = Plot(title=self.title,
+                         data_sources=[self.source],
+                         x_range=self.xdr,
+                         y_range=self.ydr,
+                         width=self.width,
+                         height=self.height)
+
+    def close_figure(self, fig):
+        self.sess.add_plot(self.plot)
+
+    def draw_line(self, data, coordinates, style, label, mplobj=None):
+        x = data[:, 0]
+        y = data[:, 1]
+
+        line = Line()
+        line.x = self.source.add(x)
+        line.y = self.source.add(y)
+        self.xdr.sources.append(self.source.columns(line.x))
+        self.ydr.sources.append(self.source.columns(line.y))
+
+        line.line_color = style['color']
+        line.line_width = style['linewidth']
+        line.line_alpha = style['alpha']
+
+        line_glyph = Glyph(data_source=self.source,
+                           xdata_range=self.xdr,
+                           ydata_range=self.ydr,
+                           glyph=line)
+
+        self.plot.renderers.append(line_glyph)
 
     def export(self, fig, xkcd):
         self.xkcd = xkcd
 
-        sess = session()
         plots = []
 
         for axes in fig.axes:
@@ -55,16 +92,14 @@ class MPLExporter(object):
 
         if len(fig.axes) <= 1:
             get_config()["curplot"] = plots[0]
-            sess.add_plot(plots[0])
+            self.sess.add_plot(plots[0])
         else:
             (a, b, c) = fig.axes[0].get_geometry()
             p = np.array(plots)
             n = np.resize(p, (a, b))
             grid = GridPlot(children=n.tolist())
             get_config()["curplot"] = grid
-            sess.add_plot(grid)
-
-        show()
+            self.sess.add_plot(grid)
 
     def axes2plot(self, axes):
         """ In the matplotlib object model, Axes actually are containers for all

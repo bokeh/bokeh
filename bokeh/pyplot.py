@@ -16,8 +16,10 @@ docstring.
 # Imports
 #-----------------------------------------------------------------------------
 
-from .mpl import MPLExporter
-from .plotting import output_file, output_notebook, output_server
+from mplexporter.exporter import Exporter
+
+from .mpl import BokehRenderer
+from .plotting import output_file, output_notebook, output_server, show
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -77,6 +79,12 @@ def show_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
     else:
         output_file("Unnamed.html")
 
-    mplexporter = MPLExporter()
-    mplexporter.export(fig, xkcd)
+    #renderer = BokehRenderer()
+    #renderer.export(fig, xkcd)
 
+    renderer = BokehRenderer()
+    exporter = Exporter(renderer)
+    exporter.run(fig)
+    renderer.sess
+
+    show()

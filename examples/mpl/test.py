@@ -6,7 +6,7 @@ x = np.linspace(-2 * np.pi, 2 * np.pi, 100)
 y = np.sin(x)
 
 plt.plot(x, y, "r-")
-plt.title("Matplotlib Figure in Bokeh")
+#plt.title("Matplotlib Figure in Bokeh")
 
 # dashed lines work
 #plt.plot(x,y,"r-x", linestyle="-.")
