@@ -37,20 +37,13 @@ def get_cdn_urls(version=None, minified=True):
         })
     return result
 
-def get_server_urls(server_url, server_port, version=None, minified=True):
-    if not version:
-        version = ""
+def get_server_urls(server_url, server_port, minified=True):
     min = ".min" if minified else ""
     result = {
-        'js_files'  : ['%s:%d/%s/static/js/bokeh%s.js' % (server_url, server_port, version, min)],
-        'css_files' : ['%s:%d/%s/static/css/bokeh%s.css' % (server_url, server_port, version, min)],
+        'js_files'  : ['%s:%d/static/js/bokeh%s.js' % (server_url, server_port, min)],
+        'css_files' : ['%s:%d/static/css/bokeh%s.css' % (server_url, server_port, min)],
         'messages'  : [],
     }
-    if len(__version__.split('-')) > 1 and version:
-        result['messages'].append({
-            "type" : "warn",
-            "text" : "Requesting Server BokehJS version '%s' from Bokeh development version '%s'. This configuration is unsupported and may not work!" % (version, __version__)
-        })
     return result
 
 
@@ -140,7 +133,7 @@ class Resources(object):
         elif self.mode == "server":
             server_url = self.server_url or self._default_server_url
             server_port = self.server_port or self._default_server_port
-            server = get_server_urls(server_url, server_port, self.version, self.minified)
+            server = get_server_urls(server_url, server_port, self.minified)
             self.js_files = list(server['js_files'])
             self.css_files = list(server['css_files'])
             self.messages.extend(server['messages'])
