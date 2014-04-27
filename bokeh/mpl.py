@@ -59,6 +59,19 @@ class BokehRenderer(Renderer):
                          height=self.height)
 
     def close_figure(self, fig):
+        ## Add plot props
+        #self.plot_props()
+
+        # Add tools
+        pantool = PanTool(dimensions=["width", "height"])
+        wheelzoom = WheelZoomTool(dimensions=["width", "height"])
+        previewsave = PreviewSaveTool(plot=self.plot)
+        objectexplorer = ObjectExplorerTool()
+        self.plot.tools = [pantool, wheelzoom, previewsave, objectexplorer]
+
+        if _PLOTLIST is not None:
+            _PLOTLIST.append(self.plot)
+
         self.sess.add_plot(self.plot)
 
     def open_axes(self, ax, props):
@@ -74,6 +87,15 @@ class BokehRenderer(Renderer):
 
         xgrid = self.make_grid(bxaxis, 0)
         ygrid = self.make_grid(byaxis, 1)
+
+    def close_axes(self, ax):
+        pass
+
+    def open_legend(self, legend, props):
+        pass
+
+    def close_legend(self, legend):
+        pass
 
     def draw_line(self, data, coordinates, style, label, mplobj=None):
         x = data[:, 0]
