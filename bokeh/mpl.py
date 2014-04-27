@@ -72,14 +72,10 @@ class MPLExporter(object):
         cols = [col for col in self.ax.collections if col.get_paths() not in nones]
 
         # Add renderers
-        rends = []
-        rends.extend(self.make_line(line) for line in lines)
-        rends.extend(self.make_marker(marker) for marker in markers)
-        rends.extend(self.make_line_collection(col) for col in cols
-                     if isinstance(col, mpl.collections.LineCollection))
-        rends.extend(self.make_poly_collection(col) for col in cols
-                     if isinstance(col, mpl.collections.PolyCollection))
-        self.plot.renderers.extend(rends)
+        [self.make_line(line) for line in lines]
+        [self.make_marker(marker) for marker in markers]
+        [self.make_line_collection(col) for col in cols if isinstance(col, mpl.collections.LineCollection)]
+        [self.make_poly_collection(col) for col in cols if isinstance(col, mpl.collections.PolyCollection)]
 
         # Add plot props
         self.plot_props()
@@ -254,7 +250,8 @@ class MPLExporter(object):
                            xdata_range=self.xdr,
                            ydata_range=self.ydr,
                            glyph=line)
-        return line_glyph
+
+        self.plot.renderers.append(line_glyph)
 
     def make_marker(self, line2d):
         "Given a mpl line2d instance returns a Bokeh Marker glyph."
@@ -286,7 +283,8 @@ class MPLExporter(object):
                              xdata_range=self.xdr,
                              ydata_range=self.ydr,
                              glyph=marker)
-        return marker_glyph
+
+        self.plot.renderers.append(marker_glyph)
 
     def make_line_collection(self, col):
         "Given a mpl collection instance returns a Bokeh MultiLine glyph."
@@ -312,7 +310,8 @@ class MPLExporter(object):
                                 xdata_range=self.xdr,
                                 ydata_range=self.ydr,
                                 glyph=multiline)
-        return multiline_glyph
+
+        self.plot.renderers.append(multiline_glyph)
 
     def make_poly_collection(self, col):
         "Given a mpl collection instance returns a Bokeh Patches glyph."
@@ -334,4 +333,5 @@ class MPLExporter(object):
                               xdata_range=self.xdr,
                               ydata_range=self.ydr,
                               glyph=patches)
-        return patches_glyph
+
+        self.plot.renderers.append(patches_glyph)
