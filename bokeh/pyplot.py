@@ -16,12 +16,8 @@ docstring.
 # Imports
 #-----------------------------------------------------------------------------
 
-import numpy as np
-
 from .mpl import MPLExporter
-from .objects import GridPlot
-from .plotting import (get_config, output_file, output_notebook, output_server,
-                       session, show)
+from .plotting import output_file, output_notebook, output_server
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -81,25 +77,6 @@ def show_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
     else:
         output_file("Unnamed.html")
 
-    sess = session()
-
-    plots = []
-
     mplexporter = MPLExporter()
+    mplexporter.export(fig, xkcd)
 
-    for axes in fig.axes:
-        plot = mplexporter.axes2plot(axes, xkcd)
-        plots.append(plot)
-
-    if len(fig.axes) <= 1:
-        get_config()["curplot"] = plots[0]
-        sess.add_plot(plots[0])
-    else:
-        (a, b, c) = fig.axes[0].get_geometry()
-        p = np.array(plots)
-        n = np.resize(p, (a, b))
-        grid = GridPlot(children=n.tolist())
-        get_config()["curplot"] = grid
-        sess.add_plot(grid)
-
-    show()

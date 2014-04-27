@@ -18,10 +18,12 @@ import matplotlib as mpl
 from .mpl_helpers import (convert_color, convert_dashes, delete_last_col,
                           get_props_cycled, xkcd_line)
 from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
-                      Grid, PanTool, WheelZoomTool, PreviewSaveTool,
+                      Grid, PanTool, WheelZoomTool, PreviewSaveTool, GridPlot,
                       ObjectExplorerTool)
 from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
                      Xmarker, Diamond, Asterisk, MultiLine, Patches)
+
+from .plotting import get_config, session, show
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -41,7 +43,30 @@ class MPLExporter(object):
         self.xdr = DataRange1d()
         self.ydr = DataRange1d()
 
-    def axes2plot(self, axes, xkcd):
+    def export(self, fig, xkcd):
+        self.xkcd = xkcd
+
+        sess = session()
+        plots = []
+
+        for axes in fig.axes:
+            plot = self.axes2plot(axes)
+            plots.append(plot)
+
+        if len(fig.axes) <= 1:
+            get_config()["curplot"] = plots[0]
+            sess.add_plot(plots[0])
+        else:
+            (a, b, c) = fig.axes[0].get_geometry()
+            p = np.array(plots)
+            n = np.resize(p, (a, b))
+            grid = GridPlot(children=n.tolist())
+            get_config()["curplot"] = grid
+            sess.add_plot(grid)
+
+        show()
+
+    def axes2plot(self, axes):
         """ In the matplotlib object model, Axes actually are containers for all
         renderers and basically everything else on a plot.
 
@@ -51,10 +76,9 @@ class MPLExporter(object):
         # Initial plot setup
         self.plot = Plot(data_sources=[self.source], x_range=self.xdr, y_range=self.ydr)
 
-        # Get mpl axes and xkcd parameter
+        # Get axes and grid
         self.ax = axes
         self.grid = axes.get_xgridlines()[0]
-        self.xkcd = xkcd
 
         # Add axis and grids
         mxaxis = self.ax.xaxis
