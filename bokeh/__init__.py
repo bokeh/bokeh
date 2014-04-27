@@ -3,6 +3,8 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
+_notebook_loaded = None
+
 def load_notebook(resources=None, verbose=False, force=False):
     ''' Prepare the IPython notebook for displaying Bokeh plots.
 
@@ -11,7 +13,11 @@ def load_notebook(resources=None, verbose=False, force=False):
         verbose (bool, optional) : whether to report detailed settings (default: True)
         force (bool, optional) : whether to skip IPython notebook check (default: False)
 
+    Returns:
+        None
+
     '''
+    global _notebook_loaded
 
     # It's possible the IPython folks will chance things in the future, `force` parameter
     # provides an escape hatch as long as `displaypub` works
@@ -34,20 +40,26 @@ def load_notebook(resources=None, verbose=False, force=False):
 
     data = dict(verbose=verbose)
 
+    data['js_raw']  = resources.js_raw
+    data['css_raw']  = resources.css_raw
+    data['js_files']  = resources.js_files
+    data['css_files']  = resources.css_files
+
     if resources.mode == 'inline':
-        data['js_raw']  = resources.js_raw
         data['js_info'] = 'inline'
-        data['css_raw']  = resources.css_raw
         data['css_info'] = 'inline'
     else:
-        data['js_files']  = resources.js_files
         data['js_info'] = data['js_files'][0] if len(data['js_files']) == 1 else data['js_files']
-        data['css_files']  = resources.css_files
         data['css_info'] = data['css_files'][0] if len(data['css_files']) == 1 else data['css_files']
 
     data['logo_url'] = resources.logo_url
     data['bokeh_version'] = __version__
-    data['warnings'] = [msg['text'] for msg in resources.messages if msg['type'] == 'warn']
+    data['warnings'] = ["Warning: " + msg['text'] for msg in resources.messages if msg['type'] == 'warn']
+
+    if _notebook_loaded:
+        data['warnings'].append('Warning: BokehJS previously loaded')
+
+    _notebook_loaded = resources
 
     html = NOTEBOOK.render(data)
 
