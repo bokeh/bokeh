@@ -118,6 +118,38 @@ class BokehRenderer(Renderer):
 
         self.plot.renderers.append(line_glyph)
 
+    def draw_markers(self, data, coordinates, style, label, mplobj=None):
+        "Given a mpl line2d instance returns a Bokeh Marker glyph."
+        marker_map = {
+            "o": Circle,
+            "s": Square,
+            "+": Cross,
+            "^": Triangle,
+            "v": InvertedTriangle,
+            "x": Xmarker,
+            "D": Diamond,
+            "*": Asterisk,
+        }
+        if style['marker'] not in marker_map:
+            warnings.warn("Unable to handle marker: %s" % style['marker'])
+        marker = marker_map[style['marker']]()
+
+        x = data[:, 0]
+        y = data[:, 1]
+        marker.x = self.source.add(x)
+        marker.y = self.source.add(y)
+        self.xdr.sources.append(self.source.columns(marker.x))
+        self.ydr.sources.append(self.source.columns(marker.y))
+
+        #self.marker_props(marker, line2d)
+
+        marker_glyph = Glyph(data_source=self.source,
+                             xdata_range=self.xdr,
+                             ydata_range=self.ydr,
+                             glyph=marker)
+
+        self.plot.renderers.append(marker_glyph)
+
     def export(self, fig, xkcd):
         self.xkcd = xkcd
 
