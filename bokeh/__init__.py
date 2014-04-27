@@ -30,20 +30,20 @@ def load_notebook(resources=None, verbose=False, force=False):
     from .templates import NOTEBOOK
 
     if resources is None:
-        resources = output._default_notebook_resources
+        resources = output.RESOURCES_INLINE
 
     data = dict(verbose=verbose)
 
     if resources.mode == 'inline':
-        data['js_raw']  = resources.js_inline
+        data['js_raw']  = resources.js_raw
         data['js_info'] = 'inline'
-        data['css_raw']  = resources.css_inline
+        data['css_raw']  = resources.css_raw
         data['css_info'] = 'inline'
     else:
-        data['js_url']  = resources.js_url
-        data['js_info'] = data['js_url']
-        data['css_url']  = resources.css_url
-        data['css_info'] = data['css_url']
+        data['js_files']  = resources.js_files
+        data['js_info'] = data['js_files'][0] if len(data['js_files']) == 1 else data['js_files']
+        data['css_files']  = resources.css_files
+        data['css_info'] = data['css_files'][0] if len(data['css_files']) == 1 else data['css_files']
 
     data['logo_url'] = resources.logo_url
     data['bokeh_version'] = __version__
@@ -87,8 +87,15 @@ class Settings(object):
     def rootdir(self, default=None):
         return self._get_str("ROOTDIR", default)
 
+    def version(self, default=None):
+        return self._get_str("VERSION", default)
+
+    def minified(self, default=None):
+        return self._get_str("MINIFIED", default)
+
     def pretty(self, default=None):
         return self._get_bool("PRETTY", default)
+
     def pythonlib(self, default=None):
         return self._get_str("PYTHONLIB", default)
 

@@ -5,25 +5,25 @@ import jinja2
 # directly including the full BokehJS code and css inline, or by loading
 # from CDN or server.
 NOTEBOOK = jinja2.Template("""
-    {%- if css_url %}
-    <link rel="stylesheet" href="{{ css_url }}" type="text/css" />
-    {%- endif %}
+    {%- for file in css_files %}
+    <link rel="stylesheet" href="{{ file }}" type="text/css" />
+    {%- endfor %}
 
-    {%- if js_url %}
-    <script type="text/javascript" src="{{ js_url }}"></script>
-    {%- endif %}
+    {%- for file in js_files %}
+    <script type="text/javascript" src="{{ file }}"></script>
+    {%- endfor %}
 
-    {%- if css_raw %}
+    {%- for css in css_raw %}
     <style>
-        {{ css_raw|indent(8) }}
+        {{ css|indent(8) }}
     </style>
-    {%- endif %}
+    {%- endfor %}
 
-    {%- if js_raw %}
+    {%- for js in jss_raw %}
     <script type="text/javascript">
-        {{ js_raw|indent(8) }}
+        {{ js|indent(8) }}
     </script>
-    {%- endif %}
+    {%- endfor %}
 
     <div>
         <a href="http://bokeh.pydata.org" target="_blank" style="text-decoration:none;">
@@ -78,6 +78,35 @@ NOTEBOOK = jinja2.Template("""
     <p style="background-color: #f2d7dc;">{{ warning }}</p>
     {%- endfor %}
 """)
+
+
+AUTOLOAD_SERVER = jinja2.Template('''
+<script
+    src="%(script_url)s"
+    data-bokeh-plottype="serverconn"
+    bokeh_docid="%(docid)s"
+    bokeh_ws_conn_string="%(ws_conn_string)s"
+    bokeh_docapikey="%(docapikey)s"
+    bokeh_root_url="%(root_url)s"
+    bokeh_modelid="%(modelid)s"
+    bokeh_modeltype="%(modeltype)s"
+    async="true"
+>
+</script>
+''')
+
+
+AUTOLOAD_STATIC = jinja2.Template('''
+<script
+    src="%(embed_filename)s"
+    bokeh_plottype="embeddata"
+    bokeh_modelid="%(modelid)s"
+    bokeh_modeltype="%(modeltype)s"
+    async="true"
+>
+</script>
+''')
+
 
 
 
