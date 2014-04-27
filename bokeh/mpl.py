@@ -36,12 +36,10 @@ _PLOTLIST = None
 class MPLExporter(object):
 
     def __init__(self):
-        # Initial plot setup
+        # Create datasource and datarange objects
         self.source = ColumnDataSource()
         self.xdr = DataRange1d()
         self.ydr = DataRange1d()
-
-        self.plot = Plot(data_sources=[self.source], x_range=self.xdr, y_range=self.ydr)
 
     def axes2plot(self, axes, xkcd):
         """ In the matplotlib object model, Axes actually are containers for all
@@ -50,6 +48,9 @@ class MPLExporter(object):
         This takes an MPL Axes object and returns a list of Bokeh objects
         corresponding to it.
         """
+        # Initial plot setup
+        self.plot = Plot(data_sources=[self.source], x_range=self.xdr, y_range=self.ydr)
+
         # Get mpl axes and xkcd parameter
         self.ax = axes
         self.grid = axes.get_xgridlines()[0]
@@ -305,7 +306,7 @@ class MPLExporter(object):
         self.xdr.sources.append(self.source.columns(multiline.xs))
         self.ydr.sources.append(self.source.columns(multiline.ys))
 
-        self.multiline_props(self.source, multiline, col)
+        self.multiline_props(multiline, col)
 
         multiline_glyph = Glyph(data_source=self.source,
                                 xdata_range=self.xdr,
@@ -327,7 +328,7 @@ class MPLExporter(object):
         self.xdr.sources.append(self.source.columns(patches.xs))
         self.ydr.sources.append(self.source.columns(patches.ys))
 
-        self.patches_props(self.source, patches, col)
+        self.patches_props(patches, col)
 
         patches_glyph = Glyph(data_source=self.source,
                               xdata_range=self.xdr,
