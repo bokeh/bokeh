@@ -43,38 +43,45 @@ class MPLExporter(object):
 
         self.plot = Plot(data_sources=[self.source], x_range=self.xdr, y_range=self.ydr)
 
-    def axes2plot(self, ax, xkcd):
+    def axes2plot(self, axes, xkcd):
         """ In the matplotlib object model, Axes actually are containers for all
         renderers and basically everything else on a plot.
 
         This takes an MPL Axes object and returns a list of Bokeh objects
         corresponding to it.
         """
-        # Add axis and grids
-        xaxis = self.make_axis(ax.xaxis, 0, xkcd)
-        yaxis = self.make_axis(ax.yaxis, 1, xkcd)
+        # Get mpl axes and xkcd parameter
+        self.ax = axes
+        self.grid = axes.get_xgridlines()[0]
+        self.xkcd = xkcd
 
-        xgrid = self.make_grid(ax.get_xgridlines()[0], xaxis, 0)
-        ygrid = self.make_grid(ax.get_xgridlines()[0], yaxis, 1)
+        # Add axis and grids
+        mxaxis = self.ax.xaxis
+        myaxis = self.ax.yaxis
+        bxaxis = self.make_axis(mxaxis, 0)
+        byaxis = self.make_axis(myaxis, 1)
+
+        xgrid = self.make_grid(bxaxis, 0)
+        ygrid = self.make_grid(byaxis, 1)
 
         # Setup lines, markers and collections
         nones = ("", " ", "None", "none", None)
-        lines = [line for line in ax.lines if line.get_linestyle() not in nones]
-        markers = [marker for marker in ax.lines if marker.get_marker() not in nones]
-        cols = [col for col in ax.collections if col.get_paths() not in nones]
+        lines = [line for line in self.ax.lines if line.get_linestyle() not in nones]
+        markers = [marker for marker in self.ax.lines if marker.get_marker() not in nones]
+        cols = [col for col in self.ax.collections if col.get_paths() not in nones]
 
         # Add renderers
         rends = []
-        rends.extend(self.make_line(line, xkcd) for line in lines)
+        rends.extend(self.make_line(line) for line in lines)
         rends.extend(self.make_marker(marker) for marker in markers)
-        rends.extend(self.make_line_collection(col, xkcd) for col in cols
+        rends.extend(self.make_line_collection(col) for col in cols
                      if isinstance(col, mpl.collections.LineCollection))
         rends.extend(self.make_poly_collection(col) for col in cols
                      if isinstance(col, mpl.collections.PolyCollection))
         self.plot.renderers.extend(rends)
 
         # Add plot props
-        self.plot_props(ax, xkcd)
+        self.plot_props()
 
         # Add tools
         pantool = PanTool(dimensions=["width", "height"])
@@ -145,14 +152,14 @@ class MPLExporter(object):
         patches.line_dash_offset = convert_dashes(offset)
         patches.line_dash = list(convert_dashes(tuple(on_off)))
 
-    def plot_props(self, ax, xkcd):
+    def plot_props(self):
         "Takes a mpl axes object to extract and set up some Bokeh plot properties."
-        self.plot.title = ax.get_title()
-        background_fill = ax.get_axis_bgcolor()
+        self.plot.title = self.ax.get_title()
+        background_fill = self.ax.get_axis_bgcolor()
         if background_fill == 'w':
             background_fill = 'white'
         self.plot.background_fill = background_fill
-        if xkcd:
+        if self.xkcd:
             self.plot.title_text_font = "Comic Sans MS, Textile, cursive"
             self.plot.title_text_font_style = "bold"
             self.plot.title_text_color = "black"
@@ -179,7 +186,7 @@ class MPLExporter(object):
         #setattr(obj, prefix+"text_font", mplText.get_fontname())
         setattr(obj, prefix+"text_font", mplText.get_fontfamily()[0])
 
-    def make_axis(self, ax, dimension, xkcd):
+    def make_axis(self, ax, dimension):
         "Given a mpl axes instance, returns a Bokeh LinearAxis object."
         # TODO:
         #  * handle `axis_date`, which treats axis as dates
@@ -188,7 +195,9 @@ class MPLExporter(object):
         #  * deal with minor ticks once BokehJS supports them
         #  * handle custom tick locations once that is added to bokehJS
 
-        laxis = LinearAxis(plot=self.plot, dimension=dimension, location="min",
+        laxis = LinearAxis(plot=self.plot,
+                           dimension=dimension,
+                           location="min",
                            axis_label=ax.get_label_text())
 
         # First get the label properties by getting an mpl.Text object
@@ -202,7 +211,7 @@ class MPLExporter(object):
 
         #newaxis.bounds = axis.get_data_interval()  # I think this is the right func...
 
-        if xkcd:
+        if self.xkcd:
             laxis.axis_line_width = 3
             laxis.axis_label_text_font = "Comic Sans MS, Textile, cursive"
             laxis.axis_label_text_font_style = "bold"
@@ -213,18 +222,21 @@ class MPLExporter(object):
 
         return laxis
 
-    def make_grid(self, grid, ax, dimension):
+    def make_grid(self, baxis, dimension):
         "Given a mpl axes instance, returns a Bokeh Grid object."
-        lgrid = Grid(plot=self.plot, dimension=dimension, axis=ax,
-             grid_line_color=grid.get_color(), grid_line_width=grid.get_linewidth())
+        lgrid = Grid(plot=self.plot,
+                     dimension=dimension,
+                     axis=baxis,
+                     grid_line_color=self.grid.get_color(),
+                     grid_line_width=self.grid.get_linewidth())
         return lgrid
 
-    def make_line(self, line2d, xkcd):
+    def make_line(self, line2d):
         "Given a mpl line2d instance returns a Bokeh Line glyph."
         xydata = line2d.get_xydata()
         x = xydata[:, 0]
         y = xydata[:, 1]
-        if xkcd:
+        if self.xkcd:
             x, y = xkcd_line(x, y)
 
         line = Line()
@@ -234,7 +246,7 @@ class MPLExporter(object):
         self.ydr.sources.append(self.source.columns(line.y))
 
         self.line_props(line, line2d)
-        if xkcd:
+        if self.xkcd:
             line.line_width = 3
 
         line_glyph = Glyph(data_source=self.source,
@@ -275,13 +287,13 @@ class MPLExporter(object):
                              glyph=marker)
         return marker_glyph
 
-    def make_line_collection(self, col, xkcd):
+    def make_line_collection(self, col):
         "Given a mpl collection instance returns a Bokeh MultiLine glyph."
         xydata = col.get_segments()
         t_xydata = [np.transpose(seg) for seg in xydata]
         xs = [t_xydata[x][0] for x in range(len(t_xydata))]
         ys = [t_xydata[x][1] for x in range(len(t_xydata))]
-        if xkcd:
+        if self.xkcd:
             xkcd_xs = [xkcd_line(xs[i], ys[i])[0] for i in range(len(xs))]
             xkcd_ys = [xkcd_line(xs[i], ys[i])[1] for i in range(len(ys))]
             xs = xkcd_xs
