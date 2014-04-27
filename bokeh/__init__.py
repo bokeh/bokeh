@@ -3,6 +3,56 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
+def load_notebook(resources=None, verbose=False, force=False):
+    ''' Prepare the IPython notebook for displaying Bokeh plots.
+
+    Args:
+        resources (Resource, optional) : a resource object describing how and where to load BokehJS from
+        verbose (bool, optional) : whether to report detailed settings (default: True)
+        force (bool, optional) : whether to skip IPython notebook check (default: False)
+
+    '''
+
+    # It's possible the IPython folks will chance things in the future, `force` parameter
+    # provides an escape hatch as long as `displaypub` works
+    if not force:
+        notebook = False
+        try:
+            from IPython import get_ipython
+            notebook = 'notebook' in get_ipython().config['IPKernelApp']['parent_appname']
+        except:
+            pass
+        if not notebook:
+            raise RuntimeError('load_notebook() only works inside an IPython notebook.')
+
+    import IPython.core.displaypub as displaypub
+    from . import output
+    from .templates import NOTEBOOK
+
+    if resources is None:
+        resources = output._default_notebook_resources
+
+    data = dict(verbose=verbose)
+
+    if resources.mode == 'inline':
+        data['js_raw']  = resources.js_inline
+        data['js_info'] = 'inline'
+        data['css_raw']  = resources.css_inline
+        data['css_info'] = 'inline'
+    else:
+        data['js_url']  = resources.js_url
+        data['js_info'] = data['js_url']
+        data['css_url']  = resources.css_url
+        data['css_info'] = data['css_url']
+
+    data['logo_url'] = resources.logo_url
+    data['bokeh_version'] = __version__
+    data['warnings'] = [msg['text'] for msg in resources.messages if msg['type'] == 'warn']
+
+    html = NOTEBOOK.render(data)
+
+    displaypub.publish_display_data('bokeh', {'text/html': html})
+
 class Settings(object):
     _prefix = "BOKEH_"
 
