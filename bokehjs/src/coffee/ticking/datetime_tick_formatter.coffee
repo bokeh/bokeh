@@ -47,8 +47,7 @@ define [
       'microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'
     ]
 
-    # This table of format is convert into the 'formats' dict.  Each tuple of
-    # formats must be ordered from shortest to longest.
+    # This table of formats is convert into the 'formats' dict.
     _formats: {
       'microseconds': [_us, _ms_dot_us]
       'milliseconds': ['%3Nms', '%S.%3Ns']
@@ -74,7 +73,8 @@ define [
 
       for fmt_name, fmt_strings of fmt
         sizes = (_strftime(now, fmt_string).length for fmt_string in fmt_strings)
-        @formats[fmt_name] = [sizes, fmt_strings]
+        sorted = _.sortBy(_.zip(sizes, fmt_strings), ([size, fmt]) -> size)
+        @formats[fmt_name] = _.zip.apply(_, sorted)
 
     # FIXME There is some unfortunate flicker when panning/zooming near the
     # span boundaries.
