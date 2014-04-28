@@ -30,13 +30,10 @@ define [
 
 
     eventGeneratorClass: OnePointWheelEventGenerator
-<<<<<<< HEAD
+
     evgen_options:
       buttonText: "WheelZoom"
       button_disable: EventGenerators.isTouch
-=======
-    evgen_options: { buttonText: "Wheel Zoom" }
->>>>>>> b080ddd4709ae59199accfd2a30d9fd987eb2b95
     tool_events: { zoom: "_zoom" }
 
     mouse_coords: (e, x, y) ->
