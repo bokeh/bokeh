@@ -256,16 +256,15 @@ building/installing CoffeeScript.  Then run ``python setup.py develop --build_js
 If you have any problems with the steps here, please contact the developers
 (see :ref:`contact`).
 
-CoffeeScript
-------------
+BokehJS
+-------
 
-Building the CoffeeScript BokehJS library has a number of requirements:
+Building the BokehJS library requires you to have `node.js` and `npm` (node
+package manager) installed. We're using Grunt for building BokehJS. Grunt will
+compile CoffeeScript, Less and Eco sources, combine JavaScript files, and
+generate optimized and minified `bokeh.js` and `bokeh.css`.
 
-You need to have node.js and the node package manager (npm) installed.
-
-We're using Grunt for our CoffeeScript build tool.  Grunt will compile
-CoffeeScript, combine js files, and support node.js require syntax on the
-client side.  Install grunt by executing::
+Install Grunt by executing::
 
     $ npm install -g grunt-cli
 
@@ -277,21 +276,44 @@ necessary dependencies::
 
     $ npm install
 
-This command will install build dependencies in the node_modules subdirectory.
+This command will install build dependencies in the `node_modules/` subdirectory.
 
-To compile the CoffeeScript into JavaScript, execute grunt::
+To compile the CoffeeScript, Less and Eco sources, issue::
 
     $ grunt build
 
-At this point bokeh can be be used as an `AMD module together with
-require.js <http://requirejs.org/docs/whyamd.html>`_. To build a single
-``bokeh.js`` that may be included as a script, see below.
+At this point BokehJS can be be used as an `AMD module together with require.js
+<http://requirejs.org/docs/whyamd.html>`_. To build a single ``bokeh.js`` that may
+be included as a script, see below.
 
-Grunt can concatenate the JavaScript files into a single JavaScript file,
-either minified or unminified. To generate both minified and un-minified
-libraries, execute the command::
+Grunt can concatenate the JavaScript files into a single JavaScript file, either
+minified or unminified. To generate both minified and unminified libraries, issue::
 
     $ grunt deploy
 
-The resulting scripts will have the filenames 'bokeh.js' and 'bokeh.min.js' and
+The resulting scripts will have the filenames `bokeh.js` and `bokeh.min.js` and
 be located in the ``build/js`` subdirectory.
+
+Alternative build system
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+Alternatively to `grunt`, you can use `sbt <http://www.scala-sbt.org` to build BokehJS.
+To start, issue `./sbt` in the root directory. This will download `sbt` itself, its
+dependencies and configure the build system. Due to this, the first run will be slow.
+In general you should see (more or less) the following output::
+
+    $ ./sbt
+    [info] Loading project definition from /home/user/continuum/bokeh/project
+    [info] Set current project to bokeh (in build file:/home/user/continuum/bokeh/)
+    continuum (bokeh)>
+
+There are two main commands available: `build` and `deploy`. `build` compiles CoffeeScript,
+Less and Eco sources, and copies other resources to the build directory. `deploy` does the
+same and additionally generates optimized and minified `bokeh.js` and `bokeh.css`. You can
+also run any specific subtask if you want, e.g. `compile` to compile CoffeeScript, Less and
+Eco sources, but not copy resources. You can prefix any command with `~`, which enables
+incremental compilation, so e.g. `~less` will watch `*.less` sources and compile the subset
+of files that changed. To stop watching sources, press ENTER (note that pressing Ctrl+C will
+terminate `sbt`).
+
+Note that `sbt`-based build system is experimental and should be used with caution.
