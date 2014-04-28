@@ -16,23 +16,36 @@ from .document import merge
 from . import utils, browserlib
 from bokeh.objects import ServerDataSource
 import logging
-logger = logging.getLogger(__name__)
-bokeh_plots_url = "http://bokehplots.cloudapp.net/"
 
+logger = logging.getLogger(__name__)
+
+DEFAULT_SERVER_URL = "http://localhost:5006/"
+
+BOKEHPLOTS_URL = "http://bokehplots.cloudapp.net/"
 
 class Session(object):
-    def __init__(self, name="http://localhost:5006/",
-                 root_url="http://localhost:5006/",
-                 userapikey="nokey",
-                 username="defaultuser",
-                 load_from_config=True,
-                 configdir=None
-                 ):
-        """name : name of server
-        root_url : root_url of server
-        load_from_config : whether or not to load login information
-        from config.  if False, then we may overwrite the users
-        config with this data
+    def __init__(
+            self,
+            name             = DEFAULT_SERVER_URL,
+            root_url         = DEFAULT_SERVER_URL,
+            userapikey       = "nokey",
+            username         = "defaultuser",
+            load_from_config = True,
+            configdir        = None,
+        ):
+        """ Initialize a server Session object
+
+        Args:
+            name (str, optional) : name of server
+            root_url (str, optional) : root_url of server
+            userapikey (str, optional) : (default: "nokey")
+                if userapikey is "nokey"
+            username (str, optional) : (default: "defaultuser")
+                if username is "defaultuser"
+            load_from_config (bool, optional) : whether to load login information from config. (default: True)
+                if load_from_config is False, then we may overwrite the
+                users config with this data
+            configdir (str) :
         """
         self.name = name
         self.root_url = root_url
@@ -72,7 +85,7 @@ class Session(object):
 
     @property
     def configdir(self):
-        """filename where our config are stored"""
+        """ filename where our config are stored. """
         if self._configdir:
             return self._configdir
         bokehdir = join(expanduser("~"), ".bokeh")
@@ -159,17 +172,17 @@ class Session(object):
         url += "?" + urlencode({'username': self.username,
                                 'userapikey': self.userapikey})
         controller.open(url)
-        
+
     def _prep_data_source_df(self, name, dataframe):
-        name = tempfile.NamedTemporaryFile(prefix="bokeh_data", 
+        name = tempfile.NamedTemporaryFile(prefix="bokeh_data",
                                            suffix=".pandas").name
         store = pd.HDFStore(name)
         store.append("__data__", dataframe, format="table", data_columns=True)
         store.close()
         return name
-        
+
     def _prep_data_source_numpy(self, name, arr):
-        name = tempfile.NamedTemporaryFile(prefix="bokeh_data", 
+        name = tempfile.NamedTemporaryFile(prefix="bokeh_data",
                                            suffix=".table").name
         store = tables.File(name, 'w')
         store.createArray("/", "__data__", obj=arr)
@@ -183,7 +196,7 @@ class Session(object):
         else:
             fname = self._prep_data_source_numpy(name, array)
             target_name = name + ".table"
-        url = urljoin(self.root_url, 
+        url = urljoin(self.root_url,
                       "bokeh/data/upload/%s/%s" % (self.username, target_name))
         with open(fname) as f:
             result = self.http_session.post(url, files={'file' : (target_name, f)})
@@ -195,7 +208,7 @@ class Session(object):
         result = utils.get_json(result)
         sources = result['sources']
         return sources
-        
+
     def execute_json(self, method, url, headers=None, **kwargs):
         if headers is None:
             headers={'content-type':'application/json'}
@@ -206,28 +219,28 @@ class Session(object):
         if resp.status_code == 401:
             raise Exception('HTTP Unauthorized accessing')
         return utils.get_json(resp)
-        
+
     def get_json(self, url, headers=None, **kwargs):
         return self.execute_json('get', url, headers=headers, **kwargs)
-        
+
     def post_json(self, url, headers=None, **kwargs):
         return self.execute_json('post', url, headers=headers, **kwargs)
-        
-    @property    
+
+    @property
     def userinfo(self):
         if not hasattr(self, "_userinfo"):
             url = urljoin(self.root_url, 'bokeh/userinfo/')
             self._userinfo = self.get_json(url)
         return self._userinfo
-        
+
     @userinfo.setter
     def userinfo(self, val):
         self._userinfo = val
-        
+
     @property
     def base_url(self):
         return urljoin(self.root_url, "bokeh/bb/")
-        
+
     def get_api_key(self, docid):
         url = urljoin(self.root_url,"bokeh/getdocapikey/%s" % docid)
         apikey = self.get_json(url)
@@ -252,13 +265,13 @@ class Session(object):
         # I don't think we use this now, but we should for embedding
         self.apikey = self.get_api_key(docid)
         self.docid = docid
-        self.docname = name            
-        
+        self.docname = name
+
     def make_doc(self, title):
         url = urljoin(self.root_url,"bokeh/doc/")
         data = protocol.serialize_json({'title' : title})
         self.userinfo = self.post_json(url, data=data)
-        
+
     def pull(self, typename=None, objid=None):
         """you need to call this with either typename AND objid
         or leave out both
@@ -266,9 +279,11 @@ class Session(object):
         if typename is None and objid is None:
             url = utils.urljoin(self.base_url, self.docid +"/")
             attrs = self.get_json(url)
+        elif typename is None or objid is None:
+            raise ValueError("typename and objid must both be None, or neither.")
         else:
             url = utils.urljoin(
-                self.base_url, 
+                self.base_url,
                 self.docid + "/" + typename + "/" + objid + "/"
             )
             attr = self.get_json(url)
@@ -278,18 +293,18 @@ class Session(object):
                 'attributes': attr
             }]
         return attrs
-        
+
     def push(self, *jsonobjs):
         data = protocol.serialize_json(jsonobjs)
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.post_json(url, data=data)
-        
+
     # convenience functions to use a session and store/fetch from server
     # where should this go?
-    
+
     def pull_document(self, doc):
         json_objs = self.pull()
-        
+
         # hugo : I don't like this
         new_doc = doc.__class__(json_objs=json_objs)
         merge(new_doc, doc)
@@ -300,7 +315,7 @@ class Session(object):
         models = [x for x in doc._models.values() if x._dirty]
         json_objs = doc.dump(*models)
         self.push(*json_objs)
-    
+
     def push_dirty(self, doc):
         """store all dirty models
         """
@@ -313,4 +328,4 @@ class Session(object):
 class Cloud(Session):
     def __init__(self):
         super(Cloud, self).__init__(name="cloud",
-                                    root_url=bokeh_plots_url)
+                                    root_url=BOKEHPLOTS_URL)

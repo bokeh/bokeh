@@ -1,15 +1,23 @@
 
 from functools import wraps
+import logging
 
+from session import DEFAULT_SERVER_URL, Session
 from . import _glyph_functions
 from .document import Document
-from session import Session
-import logging
+
 logger = logging.getLogger(__name__)
+
 _default_document = Document()
-DEFAULT_SERVER_URL = "http://localhost:5006/"
-_use_session = False
+
+_default_session = None
+
 def document():
+    ''' Return the current document.
+
+    Returns:
+        doc : the current default document object.
+    '''
     try:
         from flask import request
         doc = request.bokeh_server_document
@@ -18,12 +26,26 @@ def document():
     except (ImportError, RuntimeError, AttributeError):
         logger.debug("returning global config from bokeh.plotting")
         return _default_document
-        
-_default_session = Session()
+
 def session():
+    ''' Return the current session.
+
+    Returns:
+        session : the current default session object (or None)
+    '''
     return _default_session
 
 def hold(value=True):
+    ''' Set or clear the plot hold status on the current document.
+
+    This is a convenience function that acts on the current document, and is equivalent to document().hold(...)
+
+    Args:
+        value (bool, optional) : whether hold should be turned on or off (default: True)
+
+    Returns:
+        None
+    '''
     document = document()
     if not isinstance(document, Document):
         # TODO (bev) exception or log?
@@ -31,6 +53,16 @@ def hold(value=True):
     document.hold(value)
 
 def figure(**kwargs):
+    ''' Activate a new figure for plotting.
+
+    All subsequent plotting operations will affect the new figure.
+
+    This function accepts all plot style keyword parameters.
+
+    Returns:
+        None
+
+    '''
     document = document()
     if not isinstance(document, Document):
         # TODO (bev) exception or log?
@@ -38,19 +70,61 @@ def figure(**kwargs):
     document.figure(**kwargs)
 
 def curplot():
+    ''' Return the current default plot object.
+
+    Returns:
+        plot : the current plot (or None)
+    '''
     document = document()
     if not isinstance(document, Document):
         # TODO (bev) log?
         return None
     return document.curplot()
 
+def output_server(docname, session=None, url="default", name=None, **kwargs):
+    """ Cause plotting commands to automatically persist plots to a Bokeh server.
+
+    Can use explicitly provided Session for persistence, or the default
+    session.
+
+    Args:
+        docname (str) : name of document to store on Bokeh server
+            An existing documents with the same name will be overwritten.
+        session (Session, optional) : An explicit session to use (default: None)
+            If session is None, use the default session
+        url (str, optianal) : URL of the Bokeh server  (default: "default")
+            if url is "default" use session.DEFAULT_SERVER_URL
+        name (str, optional) :
+            if name is None, use the server URL as the name
+
+    Additional keyword arguments like **username**, **userapikey**,
+    and **base_url** can also be supplied.
+
+    Returns:
+        None
+
+    .. note:: Generally, this should be called at the beginning of an
+    interactive session or the top of a script.
+
+    """
+    global _default_session
+    if url == "default":
+        url = DEFAULT_SERVER_URL
+    if name is None:
+        name = url
+    if not session:
+        if not _default_session:
+            _default_session = Session(name=name, root_url=url)
+        session = _default_session
+    session.use_doc(docname)
+    session.pull_document(document())
+
 def _document_wrap(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         retval = func(document(), *args, **kwargs)
-        if _use_session:
-            s = session()
-            s.push_dirty(document())
+        if session():
+            session().push_dirty(document())
         return retval
     wrapper.__doc__ += "\nThis is a convenience function that acts on the current document, and is equivalent to document().%s(...)" % func.__name__
     return wrapper
@@ -87,35 +161,4 @@ text              = _document_wrap(_glyph_functions.text)
 triangle          = _document_wrap(_glyph_functions.triangle)
 wedge             = _document_wrap(_glyph_functions.wedge)
 x                 = _document_wrap(_glyph_functions.x)
-
-def output_server(docname, session=None, name=None, url="default", **kwargs):
-    """ Sets the output mode to upload to a Bokeh plot server.
-
-    Default bokeh server address is defined in DEFAULT_SERVER_URL.  Docname is
-    the name of the document to store in the plot server.  If there is an
-    existing document with this name, it will be overwritten.
-
-    Additional keyword arguments like **username**, **userapikey**,
-    and **base_url** can be supplied.
-    Generally, this should be called at the beginning of an interactive session
-    or the top of a script.
-
-    if session is provided, use session
-    otherwise use name
-    finally fallback on url
-    """
-    global _default_session
-    global _use_session
-    if url == "default":
-        real_url = DEFAULT_SERVER_URL
-    else:
-        real_url = url
-    if name is None:
-        name = real_url
-    if not session:
-        _default_session = Session(name=name, root_url=real_url)
-    _use_session = True
-    _default_session.use_doc(docname)
-    _default_session.pull_document(document())
-
 
