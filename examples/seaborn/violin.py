@@ -11,4 +11,4 @@ sns.violinplot(data, color="Set3")
 
 plt.title("Seaborn violin plot in bokeh.")
 
-pyplot.show_bokeh(plt.gcf(), filename="violin.html")
+pyplot.show_bokeh(name="violin")

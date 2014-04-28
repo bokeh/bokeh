@@ -21,4 +21,4 @@ ax = plt.axes()
 ax.add_collection(line_segments)
 ax.set_title('Line Collection with dashed colors')
 
-pyplot.show_bokeh(plt.gcf(), filename="lc_dashed.html")
+pyplot.show_bokeh(name="lc_dashed")

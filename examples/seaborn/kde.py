@@ -15,4 +15,4 @@ sns.kdeplot(data, cmap="BuGn_d")
 
 plt.title("Seaborn kdeplot in bokeh.")
 
-pyplot.show_bokeh(plt.gcf(), filename="kde.html")
+pyplot.show_bokeh(name="kde")
