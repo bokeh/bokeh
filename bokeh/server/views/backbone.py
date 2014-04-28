@@ -17,10 +17,9 @@ from ..views import make_json
 from ..serverbb import prune
 log = logging.getLogger(__name__)
 
-def init_bokeh(redissession):
-    request.bokeh_config = make_config()
-    request.bokeh_config['session'] = redissession
-    request.bokeh_config['autostore'] = False
+def init_bokeh(clientdoc):
+    request.bokeh_server_document = clientdoc
+    clientdoc.autostore(False)
 #Management Functions
 
 @bokeh_app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
@@ -168,7 +167,7 @@ def update(docid, typename, id):
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
-    #init_bokeh(sess)
+    init_bokeh(clientdoc)
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     #patch id is not passed...
     modeldata['id'] = id

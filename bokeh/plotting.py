@@ -3,12 +3,25 @@ from functools import wraps
 
 from . import _glyph_functions
 from .document import Document
-
-
+from session import Session
+import logging
+logger = logging.getLogger(__name__)
 _default_document = Document()
-
+DEFAULT_SERVER_URL = "http://localhost:5006/"
+_use_session = False
 def document():
-    return _default_document
+    try:
+        from flask import request
+        doc = request.bokeh_server_document
+        logger.debug("returning config from flask request")
+        return doc
+    except (ImportError, RuntimeError, AttributeError):
+        logger.debug("returning global config from bokeh.plotting")
+        return _default_document
+        
+_default_session = Session()
+def session():
+    return _default_session
 
 def hold(value=True):
     document = document()
@@ -34,7 +47,11 @@ def curplot():
 def _document_wrap(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
-        return func(document(), *args, **kwargs)
+        retval = func(document(), *args, **kwargs)
+        if _use_session:
+            s = session()
+            s.push_dirty(document())
+        return retval
     wrapper.__doc__ += "\nThis is a convenience function that acts on the current document, and is equivalent to document().%s(...)" % func.__name__
     return wrapper
 
@@ -70,4 +87,35 @@ text              = _document_wrap(_glyph_functions.text)
 triangle          = _document_wrap(_glyph_functions.triangle)
 wedge             = _document_wrap(_glyph_functions.wedge)
 x                 = _document_wrap(_glyph_functions.x)
+
+def output_server(docname, session=None, name=None, url="default", **kwargs):
+    """ Sets the output mode to upload to a Bokeh plot server.
+
+    Default bokeh server address is defined in DEFAULT_SERVER_URL.  Docname is
+    the name of the document to store in the plot server.  If there is an
+    existing document with this name, it will be overwritten.
+
+    Additional keyword arguments like **username**, **userapikey**,
+    and **base_url** can be supplied.
+    Generally, this should be called at the beginning of an interactive session
+    or the top of a script.
+
+    if session is provided, use session
+    otherwise use name
+    finally fallback on url
+    """
+    global _default_session
+    global _use_session
+    if url == "default":
+        real_url = DEFAULT_SERVER_URL
+    else:
+        real_url = url
+    if name is None:
+        name = real_url
+    if not session:
+        _default_session = Session(name=name, root_url=real_url)
+    _use_session = True
+    _default_session.use_doc(docname)
+    _default_session.pull_document(document())
+
 
