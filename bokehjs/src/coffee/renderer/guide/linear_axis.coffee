@@ -13,7 +13,7 @@ define [
     default_view: LinearAxisView
     type: 'LinearAxis'
 
-    initialize: (attrs, objects) ->
+    dinitialize: (attrs, objects) ->
       super(attrs, objects)
       if not @get_obj('ticker')?
         @set_obj('ticker', BasicTicker.Collection.create())

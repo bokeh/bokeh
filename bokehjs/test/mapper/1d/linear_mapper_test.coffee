@@ -9,7 +9,7 @@ require [
   window.Float64Array = Array
 
   test('linear_mapper_range1d_range1d', () ->
-    mapper = new LinearMapper({
+    mapper = new LinearMapper.Model({
       source_range: new Range1d.Model({'start': 0, 'end': 10})
       target_range: new Range1d.Model({'start': 20, 'end': 80})
     })
@@ -29,7 +29,7 @@ require [
   )
 
   test('linear_mapper_range1d_range1d_update_source_start', () ->
-    mapper = new LinearMapper({
+    mapper = new LinearMapper.Model({
       source_range: new Range1d.Model({'start': 0, 'end': 10})
       target_range: new Range1d.Model({'start': 20, 'end': 80})
     })
@@ -50,7 +50,7 @@ require [
   )
 
   test('linear_mapper_range1d_range1d_update_source_end', () ->
-    mapper = new LinearMapper({
+    mapper = new LinearMapper.Model({
       source_range: new Range1d.Model({'start': 0, 'end': 10})
       target_range: new Range1d.Model({'start': 20, 'end': 80})
     })
@@ -71,7 +71,7 @@ require [
   )
 
   test('linear_mapper_range1d_range1d_update_source', () ->
-    mapper = new LinearMapper({
+    mapper = new LinearMapper.Model({
       source_range: new Range1d.Model({'start': 0, 'end': 10})
       target_range: new Range1d.Model({'start': 20, 'end': 80})
     })
@@ -92,7 +92,7 @@ require [
   )
 
   test('linear_mapper_range1d_range1d_update_targer_start', () ->
-    mapper = new LinearMapper({
+    mapper = new LinearMapper.Model({
       source_range: new Range1d.Model({'start': 0, 'end': 10})
       target_range: new Range1d.Model({'start': 20, 'end': 80})
     })
@@ -113,7 +113,7 @@ require [
   )
 
   test('linear_mapper_range1d_range1d_update_target_end', () ->
-    mapper = new LinearMapper({
+    mapper = new LinearMapper.Model({
       source_range: new Range1d.Model({'start': 0, 'end': 10})
       target_range: new Range1d.Model({'start': 20, 'end': 80})
     })
@@ -134,7 +134,7 @@ require [
   )
 
   test('linear_mapper_range1d_range1d_update_target', () ->
-    mapper = new LinearMapper({
+    mapper = new LinearMapper.Model({
       source_range: new Range1d.Model({'start': 0, 'end': 10})
       target_range: new Range1d.Model({'start': 20, 'end': 80})
     })

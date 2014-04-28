@@ -4,15 +4,15 @@ import numpy as np
 from bokeh.plotting import *
 from bokeh.objects import Range1d
 
-# NOTE: if you do not have numba installed, comment out this import,
-# and the 'autojit' lines below (the example will run more slowly).
-from numba import autojit
+# NOTE: if you do have numba installed, uncomment out this import,
+# and the 'autojit' lines below (the example will run more quickly).
+#from numba import autojit
 
 # These functions generate the Mandelbrot set image. Don't worry if
 # you are not familiar with them. The import thing is just to know
 # that they create a 2D array of numbers that we can colormap.
 
-@autojit
+#@autojit
 def mandel(x, y, max_iters):
     """
     Given the real and imaginary parts of a complex number,
@@ -27,7 +27,7 @@ def mandel(x, y, max_iters):
             return i
     return max_iters
 
-@autojit
+#@autojit
 def create_fractal(min_x, max_x, min_y, max_y, image, iters):
     height = image.shape[0]
     width = image.shape[1]

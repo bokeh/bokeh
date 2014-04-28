@@ -27,7 +27,7 @@ from . import objects
 #-----------------------------------------------------------------------------
 
 
-def show_bokeh(figure=None, filename=None, server=None, notebook=False):
+def show_bokeh(figure=None, filename=None, server=None, notebook=False, xkcd=False):
     """ Uses bokeh to display a Matplotlib Figure.
 
     You can store a bokeh plot in a standalone HTML file, as a document in
@@ -63,6 +63,10 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False):
         is False, then a new browser tab will be opened to display the
         bokeh-generated plot.
 
+    @type xkcd: bool (default=False)
+        If this option is True, then the Bokeh figure will be saved with a
+        xkcd style.
+
     @rtype None
     """
 
@@ -84,18 +88,18 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False):
     plots = []
 
     for axes in figure.axes:
-        plot = mpl.axes2plot(axes)
+        plot = mpl.axes2plot(axes, xkcd)
         plots.append(plot)
 
     if len(figure.axes) <= 1:
-        plotting._config["curplot"] = plots[0]
+        plotting.get_config()["curplot"] = plots[0]
         session.add_plot(plots[0])
     else:
         (a, b, c) = figure.axes[0].get_geometry()
         p = np.array(plots)
         n = np.resize(p, (a, b))
         grid = objects.GridPlot(children=n.tolist())
-        plotting._config["curplot"] = grid
+        plotting.get_config()["curplot"] = grid
         session.add_plot(grid)
 
     if filename:

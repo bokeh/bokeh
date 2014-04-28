@@ -1,0 +1,54 @@
+#!/bin/bash
+
+sudo apt-get install -qq -y --force-yes nodejs npm
+
+case "$TRAVIS_PYTHON_VERSION" in
+    2*) MINICONDA="Miniconda"  ;;
+    3*) MINICONDA="Miniconda3" ;;
+     *) exit 1
+esac
+
+MINICONDA="$MINICONDA-$MINICONDA_VERSION-Linux-x86_64"
+PHANTOMJS="phantomjs-$PHANTOMJS_VERSION-linux-x86_64"
+
+MINICONDA_URL="http://repo.continuum.io/miniconda/$MINICONDA.sh"
+PHANTOMJS_URL="https://bitbucket.org/ariya/phantomjs/downloads/$PHANTOMJS.tar.bz2"
+
+wget $MINICONDA_URL
+bash $MINICONDA.sh -b -p $HOME/miniconda
+rm -rf $MINICONDA.sh
+
+mkdir $HOME/phantomjs
+wget -O - $PHANTOMJS_URL | tar xj --strip-components 1 -C $HOME/phantomjs
+
+python -V
+
+INSTALL_DIR="$HOME/.local/lib/python$TRAVIS_PYTHON_VERSION/site-packages"
+mkdir -p $INSTALL_DIR
+ln -s $(readlink -f bokeh) $INSTALL_DIR/bokeh
+
+DEPS_BOKEH="numpy pandas six requests dateutil"
+DEPS_SERVER="flask werkzeug greenlet redis redis-py"
+DEPS_DATA="PyYAML"
+DEPS_DOCS="sphinx pygments" # sphinx-bootstrap-theme
+DEPS_EXAMPLES="scipy"
+DEPS_TESTS="nose mock colorama" # websocket
+DEPS_IPYTHON="tornado pyzmq"
+
+if [[ "$TRAVIS_PYTHON_VERSION" == 2* ]]; then
+    DEPS_SERVER="$DEPS_SERVER gevent gevent-websocket"
+fi
+
+DEPS="$DEPS_BOKEH $DEPS_SERVER $DEPS_DATA $DEPS_DOCS $DEPS_EXAMPLES $DEPS_TESTS $DEPS_IPYTHON"
+
+conda install --yes pip $DEPS
+pip install sphinx-bootstrap-theme websocket git+https://github.com/ipython/ipython.git@master
+
+cd bokehjs
+npm install && node_modules/.bin/grunt deploy || exit 1
+cd ..
+
+ln -s $(readlink -f bokehjs/build/js) bokeh/server/static/js
+ln -s $(readlink -f bokehjs/build/css) bokeh/server/static/css
+
+python -c 'import bokeh; bokeh.sampledata.download(progress=False)' || exit 1

@@ -15,6 +15,8 @@ define [
   "source/column_data_source",
   "tool/box_select_tool",
   "tool/box_zoom_tool",
+  'tool/pinch_zoom_tool',
+  'tool/pinch_box_zoom_tool',
   "tool/hover_tool",
   "tool/pan_tool",
   "tool/preview_save_tool",
@@ -24,8 +26,9 @@ define [
   "renderer/guide/datetime_axis",
 ], (_, $, Plot, DataRange1d, FactorRange, Range1d, Legend,
   GlyphFactory, CategoricalAxis, LinearAxis, Grid, BoxSelection,
-  ColumnDataSource, BoxSelectTool, BoxZoomTool, HoverTool, PanTool,
-  PreviewSaveTool, ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
+  ColumnDataSource, BoxSelectTool, BoxZoomTool, PinchZoomTool,
+  PinchBoxZoomTool, HoverTool, PanTool, PreviewSaveTool,
+  ResizeTool, WheelZoomTool, ResetTool, DatetimeAxis) ->
 
   create_sources = (data) ->
     if not _.isArray(data)
@@ -184,7 +187,7 @@ define [
       return
 
     if tools == true
-      tools = "pan,wheel_zoom,select,resize,preview,reset,box_zoom"
+      tools = "pan,wheel_zoom,select,resize,preview,reset,box_zoom,pinch_zoom,pinch_box_zoom"
     added_tools = []
 
     if tools.indexOf("pan") > -1
@@ -203,7 +206,7 @@ define [
 
     if tools.indexOf("hover") > -1
       hover_tool = HoverTool.Collection.create(
-        renderers: (g.ref() for g in glyphs)
+        plot: plot.ref()
       )
       added_tools.push(hover_tool)
 
@@ -236,6 +239,22 @@ define [
       )
       added_tools.push(box_zoom_tool)
       plot.add_renderers([box_zoom_overlay.ref()])
+    
+     if tools.indexOf("pinch_zoom") > -1
+      pinch_zoom_tool = PinchZoomTool.Collection.create()
+      pinch_zoom_overlay = BoxSelection.Collection.create(
+        tool: pinch_zoom_tool.ref()
+      )
+      added_tools.push(pinch_zoom_tool)
+      plot.add_renderers([pinch_zoom_overlay.ref()])
+
+    if tools.indexOf("pinch_box_zoom") > -1 
+      pinch_box_zoom_tool = PinchBoxZoomTool.Collection.create()
+      pinch_box_zoom_overlay = BoxSelection.Collection.create(
+        tool: pinch_box_zoom_tool.ref()
+      )
+      added_tools.push(pinch_box_zoom_tool)
+      plot.add_renderers([pinch_box_zoom_overlay.ref()])
 
     plot.set_obj('tools', added_tools)
 

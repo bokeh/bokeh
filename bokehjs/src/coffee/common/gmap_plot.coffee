@@ -20,7 +20,9 @@ define [
   class GMapPlotView extends ContinuumView.View
     events:
       "mousemove .bokeh_canvas_wrapper": "_mousemove"
+      "touchmove .bokeh_canvas_wrapper": "_mousemove"
       "mousedown .bokeh_canvas_wrapper": "_mousedown"
+      "touchstart .bokeh_canvas_wrapper": "_mousedown"
     className: "bokeh"
 
     view_options: () ->

@@ -6,9 +6,9 @@ import re
 from six import string_types
 
 from . import glyphs
-from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
-        ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
-        Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
+from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, PinchZoomTool,
+        PinchBoxZoomTool, ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis,
+        EmbedTool, Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
         ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange,
         ObjectExplorerTool, BasicTicker, BasicTickFormatter, CategoricalTicker,
         CategoricalTickFormatter, DatetimeTicker, DatetimeTickFormatter)
@@ -59,7 +59,7 @@ def _glyph_doc(args, props, desc):
     plot : :py:class:`Plot <bokeh.objects.Plot>`
     """ % (desc, params, props)
 
-def _match_data_params(argnames, glyphclass, datasource, serversource, 
+def _match_data_params(argnames, glyphclass, datasource, serversource,
                        args, kwargs):
     """ Processes the arguments and kwargs passed in to __call__ to line
     them up with the argnames of the underlying Glyph
@@ -117,12 +117,9 @@ def _match_data_params(argnames, glyphclass, datasource, serversource,
             if glyphclass == glyphs.Text:
                 # TODO (bev) this is hacky, now that text is a DataSpec, it has to be a sequence
                 glyph_val = [val]
-            elif serversource is None and val not in datasource.column_names:
-                raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
             else:
                 if val not in datasource.column_names:
-                    datasource.column_names.append(val)
-                    datasource.data[val] = []
+                    raise RuntimeError("Column name '%s' does not appear in data source %r" % (val, datasource))
                 units = getattr(dataspecs[var], 'units', 'data')
                 glyph_val = {'field' : val, 'units' : units}
         elif isinstance(val, np.ndarray):
@@ -223,7 +220,7 @@ def _get_select_tool(plot):
 
 def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
                  x_axis_type="linear", y_axis_type="linear",
-                 tools="pan,wheel_zoom,box_zoom,save,resize,select,reset", **kw):
+                 tools="pan,wheel_zoom,box_zoom,pinch_zoom,pinch_box_zoom,save,resize,select,reset", **kw):
     # Accept **kw to absorb other arguments which the actual factory functions
     # might pass in, but that we don't care about
     p = Plot()
@@ -283,6 +280,12 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if arg in kw:
             setattr(p, arg, kw.pop(arg))
 
+    style_arg_prefix = ["title", "outline"]
+    for prefix in style_arg_prefix:
+        for k in list(kw):
+            if k.startswith(prefix):
+                setattr(p, k, kw.pop(k))
+
     tool_objs = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
@@ -291,8 +294,16 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             continue
         if tool == "pan":
             tool_obj = PanTool(plot=p, dimensions=["width", "height"])
+        elif tool == "xpan":
+            tool_obj = PanTool(plot=p, dimensions=["width"])
+        elif tool == "ypan":
+            tool_obj = PanTool(plot=p, dimensions=["height"])
         elif tool == "wheel_zoom":
             tool_obj = WheelZoomTool(plot=p, dimensions=["width", "height"])
+        elif tool == "xwheel_zoom":
+            tool_obj = WheelZoomTool(plot=p, dimensions=["width"])
+        elif tool == "ywheel_zoom":
+            tool_obj = WheelZoomTool(plot=p, dimensions=["height"])
         elif tool == "save":
             tool_obj = PreviewSaveTool(plot=p)
         elif tool == "resize":
@@ -305,6 +316,14 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             p.renderers.append(overlay)
         elif tool == "box_zoom":
             tool_obj = BoxZoomTool(plot=p)
+            overlay = BoxSelectionOverlay(tool=tool_obj)
+            p.renderers.append(overlay)
+        elif tool == "pinch_zoom":
+            tool_obj = PinchZoomTool(plot=p)
+            overlay = BoxSelectionOverlay(tool=tool_obj)
+            p.renderers.append(overlay)
+        elif tool == "pinch_box_zoom":
+            tool_obj = PinchBoxZoomTool(plot=p)
             overlay = BoxSelectionOverlay(tool=tool_obj)
             p.renderers.append(overlay)
         elif tool == "hover":
@@ -322,7 +341,8 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         elif tool == "object_explorer":
             tool_obj = ObjectExplorerTool()
         else:
-            known_tools = "pan, wheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
+            known_tools = "pan, xpan, ypan, wheel_zoom, xwheel_zoom, ywheel_zoom, box_zoom, pinch_zoom, pinch_box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
+
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
 
         tool_objs.append(tool_obj)

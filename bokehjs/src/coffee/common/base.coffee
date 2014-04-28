@@ -42,9 +42,12 @@ define [
   "ticking/days_ticker",
   "ticking/months_ticker",
   "ticking/single_interval_ticker",
+  "ticking/years_ticker",
 
   "tool/box_select_tool",
   "tool/box_zoom_tool",
+  'tool/pinch_zoom_tool',
+  'tool/pinch_box_zoom_tool',
   "tool/crosshair_tool",
   "tool/data_range_box_select_tool",
   "tool/embed_tool",
@@ -60,6 +63,14 @@ define [
   "widget/pandas/ipython_remote_data",
   "widget/pandas/pandas_pivot_table",
   "widget/pandas/pandas_plot_source",
+  'widget/paragraph'
+  'widget/hbox'
+  'widget/vbox'
+  'widget/textinput'
+  'widget/vboxmodelform'
+  'widget/pretext'
+  'widget/selectbox'
+  'widget/slider'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -104,6 +115,7 @@ define [
     DaysTicker:               'ticking/days_ticker'
     MonthsTicker:             'ticking/months_ticker'
     SingleIntervalTicker:     'ticking/single_interval_ticker'
+    YearsTicker:              'ticking/years_ticker'
 
     PanTool:                  'tool/pan_tool'
     WheelZoomTool:            'tool/wheel_zoom_tool'
@@ -111,6 +123,8 @@ define [
     CrosshairTool:            'tool/crosshair_tool'
     BoxSelectTool:            'tool/box_select_tool'
     BoxZoomTool:              'tool/box_zoom_tool'
+    PinchZoomTool:            'tool/pinch_zoom_tool'
+    PinchBoxZoomTool:         'tool/pinch_box_zoom_tool'
     HoverTool:                'tool/hover_tool'
     DataRangeBoxSelectTool:   'tool/data_range_box_select_tool'
     PreviewSaveTool:          'tool/preview_save_tool'
@@ -122,10 +136,19 @@ define [
     IPythonRemoteData:        'widget/pandas/ipython_remote_data'
     PandasPivotTable:         'widget/pandas/pandas_pivot_table'
     PandasPlotSource:         'widget/pandas/pandas_plot_source'
-
+    Paragraph:                'widget/paragraph'
+    HBox:                     'widget/hbox'
+    VBox:                     'widget/vbox'
+    VBoxModelForm:            'widget/vboxmodelform'
+    TextInput:                'widget/textinput'
+    PreText:                  'widget/pretext'
+    Select:                   'widget/selectbox'
+    Slider:                   'widget/slider'
   mod_cache = {}
-
+  collection_overrides = {}
   Collections = (typename) ->
+   if collection_overrides[typename]
+     return collection_overrides[typename]
 
     if not locations[typename]
       throw "./base: Unknown Collection #{typename}"
@@ -137,8 +160,10 @@ define [
       mod_cache[modulename] = require(modulename)
 
     return mod_cache[modulename].Collection
-
+  Collections.register = (name, collection) ->
+    collection_overrides[name] = collection
   return {
+    "collection_overrides" : collection_overrides, # for testing only
     "mod_cache": mod_cache, # for testing only
     "locations": locations,
     "Collections": Collections,

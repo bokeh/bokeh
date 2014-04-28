@@ -6,11 +6,15 @@ define (require, exports, module) ->
 
   Bokeh = {}
 
-  Bokeh.version = '0.4.2'
+  Bokeh.version = '0.4.4'
+
+  #binding the libs that bokeh uses so others can reference them
+  Bokeh.Backbone          = require("backbone")
+  Bokeh._                 = require("underscore")
 
   # common
   Bokeh.Collections       = require("common/base").Collections
-  Bokeh.Config            = require("common/base").Collections
+  Bokeh.Config            = require("common/base").Config
   Bokeh.GMapPlot          = require("common/gmap_plot")
   Bokeh.GridPlot          = require("common/grid_plot")
   Bokeh.HasParent         = require("common/has_parent")
@@ -30,7 +34,6 @@ define (require, exports, module) ->
   Bokeh.Random = require("common/random")
   Bokeh.safebind = require("common/safebind")
   Bokeh.SVGColors = require("common/svg_colors")
-  Bokeh.ticking = require("common/ticking")
   Bokeh.ViewState = require("common/view_state")
 
   # mappers
@@ -113,10 +116,13 @@ define (require, exports, module) ->
   Bokeh.DaysTicker               = require("ticking/days_ticker")
   Bokeh.MonthsTicker             = require("ticking/months_ticker")
   Bokeh.SingleIntervalTicker     = require("ticking/single_interval_ticker")
+  Bokeh.YearsTicker              = require("ticking/years_ticker")
 
   # tools
   Bokeh.BoxSelectTool          = require("tool/box_select_tool")
   Bokeh.BoxZoomTool            = require("tool/box_zoom_tool")
+  Bokeh.PinchZoomTool          = require("tool/pinch_zoom_tool")
+  Bokeh.PinchBoxZoomTool       = require("tool/pinch_box_zoom_tool")
   Bokeh.CrosshairTool          = require("tool/crosshair_tool")
   Bokeh.DataRangeBoxSelectTool = require("tool/data_range_box_select_tool")
   Bokeh.EmbedTool              = require("tool/embed_tool")
@@ -128,9 +134,16 @@ define (require, exports, module) ->
   Bokeh.WheelZoomTool          = require("tool/wheel_zoom_tool")
   Bokeh.ObjectExplorerTool     = require("tool/object_explorer_tool")
 
+  #page functions
+  Bokeh.one_object_page = require("server/serverrun").load_one_object
+  Bokeh.server_page = require("server/serverrun").load
+
   # widgets
   Bokeh.DataSlider = require("widget/data_slider")
-  Bokeh.server_page = require("server/serverrun").load
+  Bokeh.HBox = require("widget/hbox")
+  Bokeh.VBox = require("widget/vbox")
+  Bokeh.VBoxModelForm = require("widget/vboxmodelform")
+  Bokeh.TextInput = require("widget/textinput")
 
   # utils
   Bokeh.ObjectExplorer = require("util/object_explorer")

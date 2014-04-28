@@ -104,8 +104,7 @@ define [
         @embed_modal_content = $("<div class='modal_body_content'></div>")
         @$object_explorer_view = new ObjectExplorer.View({
           el: @embed_modal_content
-        })
-        
+        })  
       else if e.target.className == "plot_info_window"
         @window_title = "Plot Info"
         datasource = "Embedded in the HTML file"

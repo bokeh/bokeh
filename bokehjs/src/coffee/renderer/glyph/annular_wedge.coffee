@@ -15,9 +15,11 @@ define [
     _set_data: () ->
       @max_radius = _.max(@outer_radius)
       @index = rbush()
-      @index.load(
-        ([@x[i], @y[i], @x[i], @y[i], {'i': i}] for i in [0...@x.length])
-      )
+      pts = []
+      for i in [0...@x.length]
+        if not isNaN(@x[i] + @y[i])
+          pts.push([@x[i], @y[i], @x[i], @y[i], {'i': i}])
+      @index.load(pts)
 
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)

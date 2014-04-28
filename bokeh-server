@@ -96,8 +96,9 @@ def main():
         start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)
 
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Shutting down bokeh-server...")
+    import bokeh.server
 
+    try:
+        bokeh.server.run()
+    except KeyboardInterrupt:
+        print("Shutting down bokeh-server ...")
