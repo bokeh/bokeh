@@ -1713,48 +1713,6 @@ define("vendor/almond/almond", function(){});
 
 }).call(this);
 
-(function() {
-  define('common/custom',["underscore"], function(_) {
-    var monkey_patch;
-    monkey_patch = function() {
-      return _.uniqueId = function(prefix) {
-        var hexDigits, i, s, uuid, _i;
-        s = [];
-        hexDigits = "0123456789ABCDEF";
-        for (i = _i = 0; _i <= 31; i = ++_i) {
-          s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
-        }
-        s[12] = "4";
-        s[16] = hexDigits.substr((s[16] & 0x3) | 0x8, 1);
-        uuid = s.join("");
-        if (prefix) {
-          return prefix + "-" + uuid;
-        } else {
-          return uuid;
-        }
-      };
-    };
-    _.isNullOrUndefined = function(x) {
-      return _.isNull(x) || _.isUndefined(x);
-    };
-    _.setdefault = function(obj, key, value) {
-      if (_.has(obj, key)) {
-        return obj[key];
-      } else {
-        obj[key] = value;
-        return value;
-      }
-    };
-    return {
-      "monkey_patch": monkey_patch
-    };
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=custom.js.map
-*/;
 /*!
  * jQuery JavaScript Library v2.0.3
  * http://jquery.com/
@@ -12167,6 +12125,48 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 }));
 
 (function() {
+  define('common/custom',["underscore"], function(_) {
+    var monkey_patch;
+    monkey_patch = function() {
+      return _.uniqueId = function(prefix) {
+        var hexDigits, i, s, uuid, _i;
+        s = [];
+        hexDigits = "0123456789ABCDEF";
+        for (i = _i = 0; _i <= 31; i = ++_i) {
+          s[i] = hexDigits.substr(Math.floor(Math.random() * 0x10), 1);
+        }
+        s[12] = "4";
+        s[16] = hexDigits.substr((s[16] & 0x3) | 0x8, 1);
+        uuid = s.join("");
+        if (prefix) {
+          return prefix + "-" + uuid;
+        } else {
+          return uuid;
+        }
+      };
+    };
+    _.isNullOrUndefined = function(x) {
+      return _.isNull(x) || _.isUndefined(x);
+    };
+    _.setdefault = function(obj, key, value) {
+      if (_.has(obj, key)) {
+        return obj[key];
+      } else {
+        obj[key] = value;
+        return value;
+      }
+    };
+    return {
+      "monkey_patch": monkey_patch
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=custom.js.map
+*/;
+(function() {
   define('common/build_views',["underscore"], function(_) {
     var build_views;
     return build_views = function(view_storage, view_models, options, view_types) {
@@ -12316,6 +12316,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       var Config, doc, jsondata, m, url, xhr;
       Config = require("./base").Config;
       doc = models[0].get('doc');
+      if (doc == null) {
+        throw new Error("Unset 'doc' in " + models[0]);
+      }
       jsondata = (function() {
         var _i, _len, _results;
         _results = [];
@@ -12440,6 +12443,10 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         _ref = HasProperties.__super__.constructor.apply(this, arguments);
         return _ref;
       }
+
+      HasProperties.prototype.toString = function() {
+        return "" + this.type + "(" + this.id + ")";
+      };
 
       HasProperties.prototype.destroy = function(options) {
         var target, val, _ref1, _results;
@@ -12681,7 +12688,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         if (ref['type'] === this.type && ref['id'] === this.id) {
           return this;
         } else {
-          return this.base().Collections(ref['type']).get(ref['id']);
+          return this.get_base().Collections(ref['type']).get(ref['id']);
         }
       };
 
@@ -12693,7 +12700,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         }
       };
 
-      HasProperties.prototype.base = function() {
+      HasProperties.prototype.get_base = function() {
         if (!this._base) {
           this._base = require('./base');
         }
@@ -12701,8 +12708,12 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       HasProperties.prototype.url = function() {
-        var url;
-        url = this.base().Config.prefix + "/bokeh/bb/" + this.get('doc') + "/" + this.type + "/";
+        var doc, url;
+        doc = this.get('doc');
+        if (doc == null) {
+          console.log("WARN: Unset 'doc' in " + this);
+        }
+        url = this.get_base().Config.prefix + "/bokeh/bb/" + doc + "/" + this.type + "/";
         if (this.isNew()) {
           return url;
         }
@@ -12710,7 +12721,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       HasProperties.prototype.sync = function(method, model, options) {
-        return options.success(model, null, {});
+        return options.success(model.attributes, null, {});
       };
 
       HasProperties.prototype.defaults = function() {
@@ -12718,12 +12729,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       HasProperties.prototype.rpc = function(funcname, args, kwargs) {
-        var data, docid, id, prefix, resp, type, url;
-        prefix = base.Config.prefix;
-        docid = this.get('doc');
+        var data, doc, id, prefix, resp, type, url;
+        prefix = this.get_base().Config.prefix;
+        doc = this.get('doc');
+        if (doc == null) {
+          throw new Error("Unset 'doc' in " + this);
+        }
         id = this.get('id');
         type = this.type;
-        url = "" + prefix + "/bokeh/bb/rpc/" + docid + "/" + type + "/" + id + "/" + funcname + "/";
+        url = "" + prefix + "/bokeh/bb/rpc/" + doc + "/" + type + "/" + id + "/" + funcname + "/";
         data = {
           args: args,
           kwargs: kwargs
@@ -13003,9 +13017,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('mapper/1d/linear_mapper',["common/has_properties"], function(HasProperties) {
-    var LinearMapper, _ref;
-    return LinearMapper = (function(_super) {
+  define('mapper/1d/linear_mapper',["backbone", "common/has_properties"], function(Backbone, HasProperties) {
+    var LinearMapper, LinearMappers, _ref, _ref1;
+    LinearMapper = (function(_super) {
       __extends(LinearMapper, _super);
 
       function LinearMapper() {
@@ -13069,6 +13083,23 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       return LinearMapper;
 
     })(HasProperties);
+    LinearMappers = (function(_super) {
+      __extends(LinearMappers, _super);
+
+      function LinearMappers() {
+        _ref1 = LinearMappers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      LinearMappers.prototype.model = LinearMapper;
+
+      return LinearMappers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": LinearMapper,
+      "Collection": new LinearMappers()
+    };
   });
 
 }).call(this);
@@ -13080,9 +13111,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('mapper/2d/grid_mapper',["common/has_properties"], function(HasProperties) {
-    var GridMapper, _ref;
-    return GridMapper = (function(_super) {
+  define('mapper/2d/grid_mapper',["backbone", "common/has_properties"], function(Backbone, HasProperties) {
+    var GridMapper, GridMappers, _ref, _ref1;
+    GridMapper = (function(_super) {
       __extends(GridMapper, _super);
 
       function GridMapper() {
@@ -13121,6 +13152,23 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       return GridMapper;
 
     })(HasProperties);
+    GridMappers = (function(_super) {
+      __extends(GridMappers, _super);
+
+      function GridMappers() {
+        _ref1 = GridMappers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      GridMappers.prototype.model = GridMapper;
+
+      return GridMappers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": GridMapper,
+      "Collection": new GridMappers()
+    };
   });
 
 }).call(this);
@@ -13619,31 +13667,31 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       line_properties.prototype.set_vectorize = function(ctx, i) {
         var did_change;
         did_change = false;
-        if (ctx.strokeStyle !== this.cache.strokeStyle[i]) {
+        if ((this.cache.strokeStyle[i] != null) && ctx.strokeStyle !== this.cache.strokeStyle[i]) {
           ctx.strokeStyle = this.cache.strokeStyle[i];
           did_change = true;
         }
-        if (ctx.globalAlpha !== this.cache.globalAlpha[i]) {
+        if ((this.cache.globalAlpha[i] != null) && ctx.globalAlpha !== this.cache.globalAlpha[i]) {
           ctx.globalAlpha = this.cache.globalAlpha[i];
           did_change = true;
         }
-        if (ctx.lineWidth !== this.cache.lineWidth[i]) {
+        if ((this.cache.lineWidth[i] != null) && ctx.lineWidth !== this.cache.lineWidth[i]) {
           ctx.lineWidth = this.cache.lineWidth[i];
           did_change = true;
         }
-        if (ctx.lineJoin !== this.cache.lineJoin[i]) {
+        if ((this.cache.lineJoin[i] != null) && ctx.lineJoin !== this.cache.lineJoin[i]) {
           ctx.lineJoin = this.cache.lineJoin[i];
           did_change = true;
         }
-        if (ctx.lineCap !== this.cache.lineCap[i]) {
+        if ((this.cache.lineCap[i] != null) && ctx.lineCap !== this.cache.lineCap[i]) {
           ctx.lineCap = this.cache.lineCap[i];
           did_change = true;
         }
-        if (ctx.getLineDash() !== this.cache.setLineDash[i]) {
+        if ((this.cache.setLineDash[i] != null) && ctx.getLineDash() !== this.cache.setLineDash[i]) {
           ctx.setLineDash(this.cache.setLineDash[i]);
           did_change = true;
         }
-        if (ctx.getLineDashOffset() !== this.cache.setLineDashOffset[i]) {
+        if ((this.cache.setLineDashOffset[i] != null) && ctx.getLineDashOffset() !== this.cache.setLineDashOffset[i]) {
           ctx.setLineDashOffset(this.cache.setLineDashOffset[i]);
           did_change = true;
         }
@@ -13986,15 +14034,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.hidpi = (_ref15 = options.hidpi) != null ? _ref15 : this.mget('hidpi');
         this.x_range = (_ref16 = options.x_range) != null ? _ref16 : this.mget_obj('x_range');
         this.y_range = (_ref17 = options.y_range) != null ? _ref17 : this.mget_obj('y_range');
-        this.xmapper = new LinearMapper({
+        this.xmapper = new LinearMapper.Model({
           source_range: this.x_range,
           target_range: this.view_state.get('inner_range_horizontal')
         });
-        this.ymapper = new LinearMapper({
+        this.ymapper = new LinearMapper.Model({
           source_range: this.y_range,
           target_range: this.view_state.get('inner_range_vertical')
         });
-        this.mapper = new GridMapper({
+        this.mapper = new GridMapper.Model({
           domain_mapper: this.xmapper,
           codomain_mapper: this.ymapper
         });
@@ -14270,7 +14318,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           th = this.ctx.measureText(this.mget('title')).ascent;
           this.requested_padding['top'] += th + this.mget('title_standoff');
         }
-        sym = this.mget('border_symmetry');
+        sym = this.mget('border_symmetry') || "";
         if (sym.indexOf('h') >= 0 || sym.indexOf('H') >= 0) {
           hpadding = Math.max(this.requested_padding['left'], this.requested_padding['right']);
           this.requested_padding['left'] = hpadding;
@@ -14593,7 +14641,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('common/grid_plot',["underscore", "backbone", "./build_views", "./safebind", "./continuum_view", "./has_parent", "./grid_view_state", "mapper/1d/linear_mapper", "mapper/2d/grid_mapper", "renderer/properties", "tool/active_tool_manager"], function(_, Backbone, build_views, safebind, ContinuumView, HasParent, GridViewState, LinearMapper, GridMapper, Properties, ActiveToolManager) {
+  define('common/grid_plot',["underscore", "backbone", "./build_views", "./safebind", "./continuum_view", "./has_parent", "./grid_view_state", "renderer/properties", "tool/active_tool_manager"], function(_, Backbone, build_views, safebind, ContinuumView, HasParent, GridViewState, Properties, ActiveToolManager) {
     var GridPlot, GridPlotView, GridPlots, _ref, _ref1, _ref2;
     GridPlotView = (function(_super) {
       __extends(GridPlotView, _super);
@@ -14848,9 +14896,9 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('mapper/1d/categorical_mapper',["./linear_mapper"], function(LinearMapper) {
-    var CategoricalMapper, _ref;
-    return CategoricalMapper = (function(_super) {
+  define('mapper/1d/categorical_mapper',["backbone", "./linear_mapper"], function(Backbone, LinearMapper) {
+    var CategoricalMapper, CategoricalMappers, _ref, _ref1;
+    CategoricalMapper = (function(_super) {
       __extends(CategoricalMapper, _super);
 
       function CategoricalMapper() {
@@ -14911,7 +14959,24 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
       return CategoricalMapper;
 
-    })(LinearMapper);
+    })(LinearMapper.Model);
+    CategoricalMappers = (function(_super) {
+      __extends(CategoricalMappers, _super);
+
+      function CategoricalMappers() {
+        _ref1 = CategoricalMappers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      CategoricalMappers.prototype.model = CategoricalMapper;
+
+      return CategoricalMappers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": CategoricalMapper,
+      "Collection": new CategoricalMappers()
+    };
   });
 
 }).call(this);
@@ -15062,23 +15127,23 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         this.hidpi = (_ref15 = options.hidpi) != null ? _ref15 : this.mget('hidpi');
         this.x_range = (_ref16 = options.x_range) != null ? _ref16 : this.mget_obj('x_range');
         this.y_range = (_ref17 = options.y_range) != null ? _ref17 : this.mget_obj('y_range');
-        xmapper_type = LinearMapper;
+        xmapper_type = LinearMapper.Model;
         if (this.x_range.type === "FactorRange") {
-          xmapper_type = CategoricalMapper;
+          xmapper_type = CategoricalMapper.Model;
         }
         this.xmapper = new xmapper_type({
           source_range: this.x_range,
           target_range: this.view_state.get('inner_range_horizontal')
         });
-        ymapper_type = LinearMapper;
+        ymapper_type = LinearMapper.Model;
         if (this.y_range.type === "FactorRange") {
-          ymapper_type = CategoricalMapper;
+          ymapper_type = CategoricalMapper.Model;
         }
         this.ymapper = new ymapper_type({
           source_range: this.y_range,
           target_range: this.view_state.get('inner_range_vertical')
         });
-        this.mapper = new GridMapper({
+        this.mapper = new GridMapper.Model({
           domain_mapper: this.xmapper,
           codomain_mapper: this.ymapper
         });
@@ -15271,11 +15336,15 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         return bulk_save([this.model]);
       };
 
-      PlotView.prototype.render = function(force) {
-        var have_new_mapper_state, hpadding, k, level, pr, renderers, sx, sy, sym, th, title, v, xms, yms, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
-        PlotView.__super__.render.call(this);
-        if ((this.initial_range_info == null) && (this.x_range.get('start') != null)) {
-          this.initial_range_info = {
+      PlotView.prototype.set_initial_range = function() {
+        var good_vals, range_vals;
+        range_vals = [this.x_range.get('start'), this.x_range.get('end'), this.y_range.get('start'), this.y_range.get('end')];
+        good_vals = _.map(range_vals, function(val) {
+          return (val != null) && !_.isNaN(val);
+        });
+        good_vals = _.all(good_vals);
+        if (good_vals) {
+          return this.initial_range_info = {
             xr: {
               start: this.x_range.get('start'),
               end: this.x_range.get('end')
@@ -15285,6 +15354,14 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
               end: this.y_range.get('end')
             }
           };
+        }
+      };
+
+      PlotView.prototype.render = function(force) {
+        var have_new_mapper_state, hpadding, k, level, pr, renderers, sx, sy, sym, th, title, v, xms, yms, _i, _j, _len, _len1, _ref1, _ref2, _ref3;
+        PlotView.__super__.render.call(this);
+        if (this.initial_range_info == null) {
+          this.set_initial_range();
         }
         this.requested_padding = {
           top: 0,
@@ -15313,7 +15390,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           th = this.ctx.measureText(this.mget('title')).ascent;
           this.requested_padding['top'] += th + this.mget('title_standoff');
         }
-        sym = this.mget('border_symmetry');
+        sym = this.mget('border_symmetry') || "";
         if (sym.indexOf('h') >= 0 || sym.indexOf('H') >= 0) {
           hpadding = Math.max(this.requested_padding['left'], this.requested_padding['right']);
           this.requested_padding['left'] = hpadding;
@@ -15523,7 +15600,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       PlotContextView.prototype.events = {
-        'click .plotclose': 'removeplot',
         'click .closeall': 'closeall'
       };
 
@@ -15585,7 +15661,6 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
           view = this.views[modelref.id];
           node = $("<div class='jsp' data-plot_num='" + index + "'></div>");
           this.$el.append(node);
-          node.append($("<a class='plotclose'>[close]</a>"));
           node.append(view.el);
         }
         _.defer(function() {
@@ -15654,6 +15729,113 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
 
 /*
 //@ sourceMappingURL=plot_context.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('mapper/color/linear_color_mapper',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
+    var LinearColorMapper, LinearColorMappers, _ref, _ref1;
+    LinearColorMapper = (function(_super) {
+      __extends(LinearColorMapper, _super);
+
+      function LinearColorMapper() {
+        _ref = LinearColorMapper.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      LinearColorMapper.prototype.initialize = function(attrs, options) {
+        LinearColorMapper.__super__.initialize.call(this, attrs, options);
+        this.palette = this._build_palette(this.get('palette'));
+        return this.little_endian = this._is_little_endian();
+      };
+
+      LinearColorMapper.prototype.v_map_screen = function(data) {
+        var N, buf, color, d, high, i, low, offset, scale, value, _i, _j, _ref1, _ref2, _ref3, _ref4;
+        buf = new ArrayBuffer(data.length * 4);
+        color = new Uint32Array(buf);
+        low = (_ref1 = this.get('low')) != null ? _ref1 : _.min(data);
+        high = (_ref2 = this.get('high')) != null ? _ref2 : _.max(data);
+        N = this.palette.length - 1;
+        scale = N / (high - low);
+        offset = -scale * low;
+        if (this.little_endian) {
+          for (i = _i = 0, _ref3 = data.length; 0 <= _ref3 ? _i < _ref3 : _i > _ref3; i = 0 <= _ref3 ? ++_i : --_i) {
+            d = data[i];
+            if (d > high) {
+              d = high;
+            }
+            if (d < low) {
+              d = low;
+            }
+            value = this.palette[Math.floor(d * scale + offset)];
+            color[i] = (0xff << 24) | ((value & 0xff0000) >> 16) | (value & 0xff00) | ((value & 0xff) << 16);
+          }
+        } else {
+          for (i = _j = 0, _ref4 = data.length; 0 <= _ref4 ? _j < _ref4 : _j > _ref4; i = 0 <= _ref4 ? ++_j : --_j) {
+            d = data[i];
+            if (d > high) {
+              d = high;
+            }
+            if (d < low) {
+              d = low;
+            }
+            value = this.palette[Math.floor(d * scale + offset)];
+            color[i] = (value << 8) | 0xff;
+          }
+        }
+        return buf;
+      };
+
+      LinearColorMapper.prototype._is_little_endian = function() {
+        var buf, buf32, buf8, little_endian;
+        buf = new ArrayBuffer(4);
+        buf8 = new Uint8ClampedArray(buf);
+        buf32 = new Uint32Array(buf);
+        buf32[1] = 0x0a0b0c0d;
+        little_endian = true;
+        if (buf8[4] === 0x0a && buf8[5] === 0x0b && buf8[6] === 0x0c && buf8[7] === 0x0d) {
+          little_endian = false;
+        }
+        return little_endian;
+      };
+
+      LinearColorMapper.prototype._build_palette = function(palette) {
+        var i, new_palette, _i, _ref1;
+        new_palette = new Uint32Array(palette.length + 1);
+        for (i = _i = 0, _ref1 = palette.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          new_palette[i] = palette[i];
+        }
+        new_palette[new_palette.length - 1] = palette[palette.length - 1];
+        return new_palette;
+      };
+
+      return LinearColorMapper;
+
+    })(HasProperties);
+    LinearColorMappers = (function(_super) {
+      __extends(LinearColorMappers, _super);
+
+      function LinearColorMappers() {
+        _ref1 = LinearColorMappers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      LinearColorMappers.prototype.model = LinearColorMapper;
+
+      return LinearColorMappers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": LinearColorMapper,
+      "Collection": new LinearColorMappers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=linear_color_mapper.js.map
 */;
 (function() {
   var __hasProp = {}.hasOwnProperty,
@@ -15831,7 +16013,7 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
         _ref1 = this.get('sources');
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
           source = _ref1[_i];
-          sourceobj = this.resolve_ref(source['ref']);
+          sourceobj = this.resolve_ref(source['source']);
           _ref2 = source['columns'];
           for (_j = 0, _len1 = _ref2.length; _j < _len1; _j++) {
             colname = _ref2[_j];
@@ -15885,13 +16067,13 @@ if ( typeof window === "object" && typeof window.document === "object" ) {
       };
 
       DataRange1d.prototype.dinitialize = function(attrs, options) {
-        var source, _i, _len, _ref1;
+        var columns_ref, source, _i, _len, _ref1;
         this.register_property('minmax', this._get_minmax, true);
         this.add_dependencies('minmax', this, ['sources'], ['rangepadding']);
         _ref1 = this.get('sources');
         for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
-          source = _ref1[_i];
-          source = this.resolve_ref(source.ref);
+          columns_ref = _ref1[_i];
+          source = this.resolve_ref(columns_ref.source);
           this.add_dependencies('minmax', source, 'data');
         }
         this.register_property('start', this._get_start, true);
@@ -16803,17 +16985,16 @@ if (typeof define === 'function' && define.amd) {
         angle += 2 * Math.PI;
       }
       while (angle > 2 * Math.PI) {
-        ngle -= 2 * Math.PI;
+        angle -= 2 * Math.PI;
       }
       return angle;
     };
     angle_dist = function(lhs, rhs) {
-      var a;
-      a = angle_norm(lhs) - angle_norm(rhs);
-      return Math.abs(angle_norm(a + Math.PI) - Math.PI);
+      return Math.abs(angle_norm(lhs - rhs));
     };
     angle_between = function(mid, lhs, rhs, direction) {
       var d;
+      mid = angle_norm(mid);
       d = angle_dist(lhs, rhs);
       if (direction === "anticlock") {
         return angle_dist(lhs, mid) <= d && angle_dist(mid, rhs) <= d;
@@ -16864,10 +17045,14 @@ if (typeof define === 'function' && define.amd) {
         if (this.mget('nonselection_glyphspec')) {
           spec = _.extend({}, this.mget('glyphspec'), this.mget('nonselection_glyphspec'));
           this.nonselection_glyphprops = this.init_glyph(spec);
-          return this.have_selection_props = true;
+          this.have_selection_props = true;
         } else {
-          return this.nonselection_glyphprops = this.glyph_props;
+          this.nonselection_glyphprops = this.glyph_props;
         }
+        if (this.mget('server_data_source')) {
+          this.setup_server_data();
+        }
+        return this.listenTo(this, 'change:server_data_source', this.setup_server_data);
       };
 
       GlyphView.prototype.init_glyph = function(glyphspec) {
@@ -17023,82 +17208,13 @@ if (typeof define === 'function' && define.amd) {
         return this.listenTo(this.mget_obj('data_source'), 'change', this.set_data);
       };
 
-      GlyphView.prototype.distance = function(data, pt, span, position) {
-        var d, halfspan, i, mapper, pt0, pt1, pt_units, ptc, span_units, spt0, spt1;
-        pt_units = this.glyph_props[pt].units;
-        span_units = this.glyph_props[span].units;
-        if (pt === 'x') {
-          mapper = this.plot_view.xmapper;
-        } else if (pt === 'y') {
-          mapper = this.plot_view.ymapper;
-        }
-        span = this.glyph_props.v_select(span, data);
-        if (span_units === 'screen') {
-          return span;
-        }
-        if (position === 'center') {
-          halfspan = (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = span.length; _i < _len; _i++) {
-              d = span[_i];
-              _results.push(d / 2);
-            }
-            return _results;
-          })();
-          ptc = this.glyph_props.v_select(pt, data);
-          if (pt_units === 'screen') {
-            ptc = mapper.v_map_from_target(ptc);
-          }
-          if (typeof ptc === 'string') {
-            ptc = mapper.v_map_to_target(ptc);
-          }
-          pt0 = (function() {
-            var _i, _ref1, _results;
-            _results = [];
-            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-              _results.push(ptc[i] - halfspan[i]);
-            }
-            return _results;
-          })();
-          pt1 = (function() {
-            var _i, _ref1, _results;
-            _results = [];
-            for (i = _i = 0, _ref1 = ptc.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-              _results.push(ptc[i] + halfspan[i]);
-            }
-            return _results;
-          })();
-        } else {
-          pt0 = this.glyph_props.v_select(pt, data);
-          if (pt_units === 'screen') {
-            pt0 = mapper.v_map_from_target(pt0);
-          }
-          pt1 = (function() {
-            var _i, _ref1, _results;
-            _results = [];
-            for (i = _i = 0, _ref1 = pt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-              _results.push(pt0[i] + span[i]);
-            }
-            return _results;
-          })();
-        }
-        spt0 = mapper.v_map_to_target(pt0);
-        spt1 = mapper.v_map_to_target(pt1);
-        return (function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = spt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push(Math.abs(spt1[i] - spt0[i]));
-          }
-          return _results;
-        })();
-      };
-
-      GlyphView.prototype.distance_vector = function(pt, span_prop_name, position) {
-        " returns an array ";
+      GlyphView.prototype.distance_vector = function(pt, span_prop_name, position, dilate) {
         var d, halfspan, i, local_select, mapper, pt0, pt1, pt_units, ptc, source, span, span_units, spt0, spt1,
           _this = this;
+        if (dilate == null) {
+          dilate = false;
+        }
+        " returns an array ";
         pt_units = this.glyph_props[pt].units;
         span_units = this.glyph_props[span_prop_name].units;
         if (pt === 'x') {
@@ -17163,14 +17279,25 @@ if (typeof define === 'function' && define.amd) {
         }
         spt0 = mapper.v_map_to_target(pt0);
         spt1 = mapper.v_map_to_target(pt1);
-        return (function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = spt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push(Math.abs(spt1[i] - spt0[i]));
-          }
-          return _results;
-        })();
+        if (dilate) {
+          return (function() {
+            var _i, _ref1, _results;
+            _results = [];
+            for (i = _i = 0, _ref1 = spt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+              _results.push(Math.ceil(Math.abs(spt1[i] - spt0[i])));
+            }
+            return _results;
+          })();
+        } else {
+          return (function() {
+            var _i, _ref1, _results;
+            _results = [];
+            for (i = _i = 0, _ref1 = spt0.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+              _results.push(Math.abs(spt1[i] - spt0[i]));
+            }
+            return _results;
+          })();
+        }
       };
 
       GlyphView.prototype.get_reference_point = function() {
@@ -17312,21 +17439,20 @@ if (typeof define === 'function' && define.amd) {
       AnnularWedgeView.prototype._properties = ['line', 'fill'];
 
       AnnularWedgeView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         this.max_radius = _.max(this.outer_radius);
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       AnnularWedgeView.prototype._map_data = function() {
@@ -17562,21 +17688,20 @@ if (typeof define === 'function' && define.amd) {
       AnnulusView.prototype._properties = ['line', 'fill'];
 
       AnnulusView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         this.max_radius = _.max(this.outer_radius);
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       AnnulusView.prototype._map_data = function() {
@@ -17905,21 +18030,20 @@ if (typeof define === 'function' && define.amd) {
       };
 
       MarkerView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         this.max_size = _.max(this.size);
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       MarkerView.prototype._map_data = function() {
@@ -18241,25 +18365,24 @@ if (typeof define === 'function' && define.amd) {
       };
 
       CircleView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         if (this.size) {
           this.max_radius = _.max(this.size) / 2;
         } else {
           this.max_radius = _.max(this.radius);
         }
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       CircleView.prototype._map_data = function() {
@@ -18879,118 +19002,6 @@ if (typeof define === 'function' && define.amd) {
 //@ sourceMappingURL=diamond_cross.js.map
 */;
 (function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  define('mapper/color/linear_color_mapper',["common/has_properties"], function(HasProperties) {
-    var LinearColorMapper, _ref;
-    return LinearColorMapper = (function(_super) {
-      __extends(LinearColorMapper, _super);
-
-      function LinearColorMapper() {
-        _ref = LinearColorMapper.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      LinearColorMapper.prototype.initialize = function(attrs, options) {
-        LinearColorMapper.__super__.initialize.call(this, attrs, options);
-        this.low = options.low;
-        this.high = options.high;
-        this.palette = this._build_palette(options.palette);
-        return this.little_endian = this._is_little_endian();
-      };
-
-      LinearColorMapper.prototype.v_map_screen = function(data) {
-        var N, buf, color, d, high, i, low, max, min, offset, scale, value, _i, _j, _k, _ref1, _ref2, _ref3;
-        buf = new ArrayBuffer(data.length * 4);
-        color = new Uint32Array(buf);
-        max = -Infinity;
-        min = Infinity;
-        value = 0;
-        for (i = _i = 0, _ref1 = data.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-          value = data[i];
-          if (value > max) {
-            max = value;
-          }
-          if (value < min) {
-            min = value;
-          }
-        }
-        if (this.low != null) {
-          low = this.low;
-        } else {
-          low = min;
-        }
-        if (this.high != null) {
-          high = this.high;
-        } else {
-          high = max;
-        }
-        N = this.palette.length - 1;
-        scale = N / (high - low);
-        offset = -scale * low;
-        if (this.little_endian) {
-          for (i = _j = 0, _ref2 = data.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
-            d = data[i];
-            if (d > high) {
-              d = high;
-            }
-            if (d < low) {
-              d = low;
-            }
-            value = this.palette[Math.floor(d * scale + offset)];
-            color[i] = (0xff << 24) | ((value & 0xff0000) >> 16) | (value & 0xff00) | ((value & 0xff) << 16);
-          }
-        } else {
-          for (i = _k = 0, _ref3 = data.length; 0 <= _ref3 ? _k < _ref3 : _k > _ref3; i = 0 <= _ref3 ? ++_k : --_k) {
-            d = data[i];
-            if (d > high) {
-              d = high;
-            }
-            if (d < low) {
-              d = low;
-            }
-            value = this.palette[Math.floor(d * scale + offset)];
-            color[i] = (value << 8) | 0xff;
-          }
-        }
-        return buf;
-      };
-
-      LinearColorMapper.prototype._is_little_endian = function() {
-        var buf, buf32, buf8, little_endian;
-        buf = new ArrayBuffer(4);
-        buf8 = new Uint8ClampedArray(buf);
-        buf32 = new Uint32Array(buf);
-        buf32[1] = 0x0a0b0c0d;
-        little_endian = true;
-        if (buf8[4] === 0x0a && buf8[5] === 0x0b && buf8[6] === 0x0c && buf8[7] === 0x0d) {
-          little_endian = false;
-        }
-        return little_endian;
-      };
-
-      LinearColorMapper.prototype._build_palette = function(palette) {
-        var i, new_palette, _i, _ref1;
-        new_palette = new Uint32Array(palette.length + 1);
-        for (i = _i = 0, _ref1 = palette.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-          new_palette[i] = palette[i];
-        }
-        new_palette[new_palette.length - 1] = palette[palette.length - 1];
-        return new_palette;
-      };
-
-      return LinearColorMapper;
-
-    })(HasProperties);
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=linear_color_mapper.js.map
-*/;
-(function() {
   define('palettes/colorbrewer',[], function() {
     var colorbrewer;
     return colorbrewer = {
@@ -19301,6 +19312,15 @@ if (typeof define === 'function' && define.amd) {
 
       ImageView.prototype._properties = [];
 
+      ImageView.prototype.setup_server_data = function() {
+        var data, serversource;
+        serversource = this.mget_obj('server_data_source');
+        data = _.extend({}, this.mget_obj('data_source').get('data'), serversource.get('data'));
+        this.mget_obj('data_source').set('data', data);
+        this.set_data(false);
+        return serversource.listen_for_heatmap_updates(this.mget_obj('data_source'), this.plot_view.x_range, this.plot_view.y_range, this.plot_view.view_state.get('inner_range_horizontal'), this.plot_view.view_state.get('inner_range_vertical'));
+      };
+
       ImageView.prototype.initialize = function(options) {
         var spec;
         spec = this.mget('glyphspec');
@@ -19313,11 +19333,8 @@ if (typeof define === 'function' && define.amd) {
       };
 
       ImageView.prototype._set_data = function(data) {
-        var buf, buf8, canvas, cmap, ctx, i, image_data, img, _i, _j, _ref1, _ref2, _results;
+        var buf, buf8, canvas, cmap, ctx, i, image_data, img, _i, _ref1, _results;
         this.data = data;
-        for (i = _i = 0, _ref1 = this.y.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-          this.y[i] += this.dh[i];
-        }
         if ((this.image_data == null) || this.image_data.length !== this.image.length) {
           this.image_data = new Array(this.image.length);
         }
@@ -19328,7 +19345,7 @@ if (typeof define === 'function' && define.amd) {
           this.height = new Array(this.image.length);
         }
         _results = [];
-        for (i = _j = 0, _ref2 = this.image.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
+        for (i = _i = 0, _ref1 = this.image.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (this.rows != null) {
             this.height[i] = this.rows[i];
             this.width[i] = this.cols[i];
@@ -19341,7 +19358,7 @@ if (typeof define === 'function' && define.amd) {
           canvas.height = this.height[i];
           ctx = canvas.getContext('2d');
           image_data = ctx.getImageData(0, 0, this.width[i], this.height[i]);
-          cmap = new LinearColorMapper({}, {
+          cmap = new LinearColorMapper.Model({
             palette: all_palettes[this.palette[i]]
           });
           if (this.rows != null) {
@@ -19361,8 +19378,8 @@ if (typeof define === 'function' && define.amd) {
       ImageView.prototype._map_data = function() {
         var _ref1;
         _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
-        this.sw = this.distance_vector('x', 'dw', 'edge');
-        return this.sh = this.distance_vector('y', 'dh', 'edge');
+        this.sw = this.distance_vector('x', 'dw', 'edge', this.mget('glyphspec')['dilate']);
+        return this.sh = this.distance_vector('y', 'dh', 'edge', this.mget('glyphspec')['dilate']);
       };
 
       ImageView.prototype._render = function(ctx, indices, glyph_props) {
@@ -19371,10 +19388,13 @@ if (typeof define === 'function' && define.amd) {
         ctx.setImageSmoothingEnabled(false);
         for (_i = 0, _len = indices.length; _i < _len; _i++) {
           i = indices[_i];
+          if (this.image_data[i] == null) {
+            continue;
+          }
           if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i])) {
             continue;
           }
-          y_offset = this.sy[i] + this.sh[i] / 2;
+          y_offset = this.sy[i];
           ctx.translate(0, y_offset);
           ctx.scale(1, -1);
           ctx.translate(0, -y_offset);
@@ -19403,7 +19423,8 @@ if (typeof define === 'function' && define.amd) {
 
       ImageGlyph.prototype.display_defaults = function() {
         return _.extend(ImageGlyph.__super__.display_defaults.call(this), {
-          level: 'underlay'
+          level: 'underlay',
+          dilate: false
         });
       };
 
@@ -19450,10 +19471,7 @@ if (typeof define === 'function' && define.amd) {
       };
 
       ImageRGBAView.prototype._set_data = function() {
-        var buf, buf8, canvas, color, ctx, flat, i, image_data, j, _i, _j, _k, _ref1, _ref2, _ref3, _results;
-        for (i = _i = 0, _ref1 = this.y.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-          this.y[i] += this.dh[i];
-        }
+        var buf, buf8, canvas, color, ctx, flat, i, image_data, j, _i, _j, _ref1, _ref2, _results;
         if ((this.image_data == null) || this.image_data.length !== this.image.length) {
           this.image_data = new Array(this.image.length);
         }
@@ -19464,7 +19482,7 @@ if (typeof define === 'function' && define.amd) {
           this.height = new Array(this.image.length);
         }
         _results = [];
-        for (i = _j = 0, _ref2 = this.image.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; i = 0 <= _ref2 ? ++_j : --_j) {
+        for (i = _i = 0, _ref1 = this.image.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
           if (this.rows != null) {
             this.height[i] = this.rows[i];
             this.width[i] = this.cols[i];
@@ -19483,7 +19501,7 @@ if (typeof define === 'function' && define.amd) {
             flat = _.flatten(this.image[i]);
             buf = new ArrayBuffer(flat.length * 4);
             color = new Uint32Array(buf);
-            for (j = _k = 0, _ref3 = flat.length; 0 <= _ref3 ? _k < _ref3 : _k > _ref3; j = 0 <= _ref3 ? ++_k : --_k) {
+            for (j = _j = 0, _ref2 = flat.length; 0 <= _ref2 ? _j < _ref2 : _j > _ref2; j = 0 <= _ref2 ? ++_j : --_j) {
               color[j] = flat[j];
             }
             buf8 = new Uint8ClampedArray(buf);
@@ -19498,8 +19516,8 @@ if (typeof define === 'function' && define.amd) {
       ImageRGBAView.prototype._map_data = function() {
         var _ref1;
         _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), this.sx = _ref1[0], this.sy = _ref1[1];
-        this.sw = this.distance_vector('x', 'dw', 'edge');
-        return this.sh = this.distance_vector('y', 'dh', 'edge');
+        this.sw = this.distance_vector('x', 'dw', 'edge', this.mget('glyphspec')['dilate']);
+        return this.sh = this.distance_vector('y', 'dh', 'edge', this.mget('glyphspec')['dilate']);
       };
 
       ImageRGBAView.prototype._render = function(ctx, indices, glyph_props) {
@@ -19511,7 +19529,7 @@ if (typeof define === 'function' && define.amd) {
           if (isNaN(this.sx[i] + this.sy[i] + this.sw[i] + this.sh[i])) {
             continue;
           }
-          y_offset = this.sy[i] + this.sh[i] / 2;
+          y_offset = this.sy[i];
           ctx.translate(0, y_offset);
           ctx.scale(1, -1);
           ctx.translate(0, -y_offset);
@@ -19540,7 +19558,8 @@ if (typeof define === 'function' && define.amd) {
 
       ImageRGBAGlyph.prototype.display_defaults = function() {
         return _.extend(ImageRGBAGlyph.__super__.display_defaults.call(this), {
-          level: 'underlay'
+          level: 'underlay',
+          dilate: false
         });
       };
 
@@ -19811,6 +19830,16 @@ if (typeof define === 'function' && define.amd) {
         _ref = LineView.__super__.constructor.apply(this, arguments);
         return _ref;
       }
+
+      LineView.prototype.setup_server_data = function() {
+        var domain, server_source;
+        server_source = this.mget_obj('server_data_source');
+        this.server_source = server_source;
+        domain = 'x';
+        if (domain === 'x') {
+          return server_source.listen_for_line1d_updates(this.mget_obj('data_source'), this.plot_view.x_range, this.plot_view.view_state.get('inner_range_horizontal'), this.glyph_props.y.field, this.glyph_props.x.field, [this.glyph_props.y.field]);
+        }
+      };
 
       LineView.prototype._fields = ['x', 'y'];
 
@@ -20459,46 +20488,10 @@ if (typeof define === 'function' && define.amd) {
 
       QuadView.prototype._properties = ['line', 'fill'];
 
-      QuadView.prototype._set_data = function() {
-        var i;
-        this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = this.left.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push([
-              this.left[i], this.bottom[i], this.right[i], this.top[i], {
-                'i': i
-              }
-            ]);
-          }
-          return _results;
-        }).call(this));
-      };
-
       QuadView.prototype._map_data = function() {
         var _ref1, _ref2;
         _ref1 = this.plot_view.map_to_screen(this.left, this.glyph_props.left.units, this.top, this.glyph_props.top.units), this.sx0 = _ref1[0], this.sy0 = _ref1[1];
         return _ref2 = this.plot_view.map_to_screen(this.right, this.glyph_props.right.units, this.bottom, this.glyph_props.bottom.units), this.sx1 = _ref2[0], this.sy1 = _ref2[1], _ref2;
-      };
-
-      QuadView.prototype._mask_data = function() {
-        var oh, ow, vr, x, x0, x1, y0, y1, _ref1, _ref2;
-        ow = this.plot_view.view_state.get('outer_width');
-        oh = this.plot_view.view_state.get('outer_height');
-        _ref1 = this.plot_view.xmapper.v_map_from_target([0, ow]), x0 = _ref1[0], x1 = _ref1[1];
-        vr = this.plot_view.view_state.get('inner_range_vertical');
-        _ref2 = this.plot_view.ymapper.v_map_from_target([0, ow]), y0 = _ref2[0], y1 = _ref2[1];
-        return (function() {
-          var _i, _len, _ref3, _results;
-          _ref3 = this.index.search([x0, y0, x1, y1]);
-          _results = [];
-          for (_i = 0, _len = _ref3.length; _i < _len; _i++) {
-            x = _ref3[_i];
-            _results.push(x[4].i);
-          }
-          return _results;
-        }).call(this);
       };
 
       QuadView.prototype._render = function(ctx, indices, glyph_props, sx0, sx1, sy0, sy1) {
@@ -20535,6 +20528,20 @@ if (typeof define === 'function' && define.amd) {
           }
         }
         return _results;
+      };
+
+      QuadView.prototype._hit_point = function(geometry) {
+        var hits, i, sx, sy, vx, vy, _i, _ref1, _ref2;
+        _ref1 = [geometry.vx, geometry.vy], vx = _ref1[0], vy = _ref1[1];
+        sx = this.plot_view.view_state.vx_to_sx(vx);
+        sy = this.plot_view.view_state.vy_to_sy(vy);
+        hits = [];
+        for (i = _i = 0, _ref2 = this.sx0.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
+          if (sx >= this.sx0[i] && sx <= this.sx1[i] && sy >= this.sy0[i] && sy < this.sy1[i]) {
+            hits.push(i);
+          }
+        }
+        return hits;
       };
 
       QuadView.prototype.draw_legend = function(ctx, x0, x1, y0, y1) {
@@ -20797,8 +20804,8 @@ if (typeof define === 'function' && define.amd) {
       RectView.prototype._map_data = function() {
         var i, sxi, syi, _i, _ref1, _ref2;
         _ref1 = this.plot_view.map_to_screen(this.x, this.glyph_props.x.units, this.y, this.glyph_props.y.units), sxi = _ref1[0], syi = _ref1[1];
-        this.sw = this.distance_vector('x', 'width', 'center');
-        this.sh = this.distance_vector('y', 'height', 'center');
+        this.sw = this.distance_vector('x', 'width', 'center', this.mget('glyphspec')['dilate']);
+        this.sh = this.distance_vector('y', 'height', 'center', this.mget('glyphspec')['dilate']);
         this.sx = new Array(sxi.length);
         this.sy = new Array(sxi.length);
         for (i = _i = 0, _ref2 = sxi.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
@@ -20818,20 +20825,19 @@ if (typeof define === 'function' && define.amd) {
       };
 
       RectView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       RectView.prototype._render = function(ctx, indices, glyph_props, sx, sy, sw, sh) {
@@ -21022,7 +21028,8 @@ if (typeof define === 'function' && define.amd) {
           line_cap: 'butt',
           line_dash: [],
           line_dash_offset: 0,
-          angle: 0.0
+          angle: 0.0,
+          dilate: false
         });
       };
 
@@ -21636,21 +21643,20 @@ if (typeof define === 'function' && define.amd) {
       WedgeView.prototype._properties = ['line', 'fill'];
 
       WedgeView.prototype._set_data = function() {
-        var i;
+        var i, pts, _i, _ref1;
         this.max_radius = _.max(this.radius);
         this.index = rbush();
-        return this.index.load((function() {
-          var _i, _ref1, _results;
-          _results = [];
-          for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
-            _results.push([
+        pts = [];
+        for (i = _i = 0, _ref1 = this.x.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          if (!isNaN(this.x[i] + this.y[i])) {
+            pts.push([
               this.x[i], this.y[i], this.x[i], this.y[i], {
                 'i': i
               }
             ]);
           }
-          return _results;
-        }).call(this));
+        }
+        return this.index.load(pts);
       };
 
       WedgeView.prototype._map_data = function() {
@@ -22181,8 +22187,7 @@ if (typeof define === 'function' && define.amd) {
         this.rule_props = new line_properties(this, null, 'axis_');
         this.major_tick_props = new line_properties(this, null, 'major_tick_');
         this.major_label_props = new text_properties(this, null, 'major_label_');
-        this.axis_label_props = new text_properties(this, null, 'axis_label_');
-        return this.formatter = options.formatter;
+        return this.axis_label_props = new text_properties(this, null, 'axis_label_');
       };
 
       AxisView.prototype.render = function() {
@@ -22256,7 +22261,7 @@ if (typeof define === 'function' && define.amd) {
           angle = -orient;
         }
         standoff = this._tick_extent() + this.mget('major_label_standoff');
-        labels = this.formatter.format(coords[dim]);
+        labels = this.mget_obj('formatter').format(coords[dim]);
         this.major_label_props.set(ctx, this);
         this._apply_location_heuristics(ctx, side, orient);
         _results = [];
@@ -22332,7 +22337,7 @@ if (typeof define === 'function' && define.amd) {
         coords = this.mget('major_coords');
         side = this.mget('side');
         orient = this.mget('major_label_orientation');
-        labels = this.formatter.format(coords[dim]);
+        labels = this.mget_obj('formatter').format(coords[dim]);
         this.major_label_props.set(this.plot_view.ctx, this);
         if (_.isString(orient)) {
           factor = 1;
@@ -22431,7 +22436,6 @@ if (typeof define === 'function' && define.amd) {
 
       Axis.prototype.initialize = function(attrs, options) {
         Axis.__super__.initialize.call(this, attrs, options);
-        this.scale = options.scale;
         this.register_property('computed_bounds', this._bounds, false);
         this.add_dependencies('computed_bounds', this, ['bounds']);
         this.register_property('rule_coords', this._rule_coords, false);
@@ -22518,7 +22522,7 @@ if (typeof define === 'function' && define.amd) {
         range = ranges[i];
         cross_range = ranges[j];
         _ref2 = this.get('computed_bounds'), start = _ref2[0], end = _ref2[1];
-        ticks = this.scale.get_ticks(start, end, range, {});
+        ticks = this.get_obj('ticker').get_ticks(start, end, range, {});
         cstart = cross_range.get('start');
         cend = cross_range.get('end');
         loc = (_ref3 = this.get('location')) != null ? _ref3 : 'min';
@@ -22680,6 +22684,1234 @@ if (typeof define === 'function' && define.amd) {
 /*
 //@ sourceMappingURL=axis.js.map
 */;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/categorical_ticker',["backbone", "common/has_properties"], function(Backbone, HasProperties) {
+    var CategoricalTicker, CategoricalTickers, _ref, _ref1;
+    CategoricalTicker = (function(_super) {
+      __extends(CategoricalTicker, _super);
+
+      function CategoricalTicker() {
+        _ref = CategoricalTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      CategoricalTicker.prototype.type = 'CategoricalTicker';
+
+      CategoricalTicker.prototype.get_ticks = function(start, end, range, _arg) {
+        var desired_n_ticks;
+        desired_n_ticks = _arg.desired_n_ticks;
+        return range.get("factors");
+      };
+
+      CategoricalTicker.prototype.defaults = function() {
+        return CategoricalTicker.__super__.defaults.call(this);
+      };
+
+      return CategoricalTicker;
+
+    })(HasProperties);
+    CategoricalTickers = (function(_super) {
+      __extends(CategoricalTickers, _super);
+
+      function CategoricalTickers() {
+        _ref1 = CategoricalTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      CategoricalTickers.prototype.model = CategoricalTicker;
+
+      return CategoricalTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": CategoricalTicker,
+      "Collection": new CategoricalTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=categorical_ticker.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/categorical_tick_formatter',["backbone", "common/has_properties"], function(Backbone, HasProperties) {
+    var CategoricalTickFormatter, CategoricalTickFormatters, _ref, _ref1;
+    CategoricalTickFormatter = (function(_super) {
+      __extends(CategoricalTickFormatter, _super);
+
+      function CategoricalTickFormatter() {
+        _ref = CategoricalTickFormatter.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      CategoricalTickFormatter.prototype.type = 'CategoricalTickFormatter';
+
+      CategoricalTickFormatter.prototype.initialize = function(attrs, options) {
+        return CategoricalTickFormatter.__super__.initialize.call(this, attrs, options);
+      };
+
+      CategoricalTickFormatter.prototype.format = function(ticks) {
+        return ticks;
+      };
+
+      return CategoricalTickFormatter;
+
+    })(HasProperties);
+    CategoricalTickFormatters = (function(_super) {
+      __extends(CategoricalTickFormatters, _super);
+
+      function CategoricalTickFormatters() {
+        _ref1 = CategoricalTickFormatters.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      CategoricalTickFormatters.prototype.model = CategoricalTickFormatter;
+
+      CategoricalTickFormatters.prototype.defaults = function() {
+        return CategoricalTickFormatters.__super__.defaults.call(this);
+      };
+
+      return CategoricalTickFormatters;
+
+    })(Backbone.Collection);
+    return {
+      "Model": CategoricalTickFormatter,
+      "Collection": new CategoricalTickFormatters()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=categorical_tick_formatter.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('renderer/guide/categorical_axis',["backbone", "./axis", "range/factor_range", "ticking/categorical_ticker", "ticking/categorical_tick_formatter"], function(Backbone, Axis, FactorRange, CategoricalTicker, CategoricalTickFormatter) {
+    var CategoricalAxes, CategoricalAxis, CategoricalAxisView, _ref, _ref1, _ref2;
+    CategoricalAxisView = (function(_super) {
+      __extends(CategoricalAxisView, _super);
+
+      function CategoricalAxisView() {
+        _ref = CategoricalAxisView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      return CategoricalAxisView;
+
+    })(Axis.View);
+    CategoricalAxis = (function(_super) {
+      __extends(CategoricalAxis, _super);
+
+      function CategoricalAxis() {
+        _ref1 = CategoricalAxis.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      CategoricalAxis.prototype.default_view = CategoricalAxisView;
+
+      CategoricalAxis.prototype.type = 'CategoricalAxis';
+
+      CategoricalAxis.prototype.dinitialize = function(attrs, objects) {
+        CategoricalAxis.__super__.dinitialize.call(this, attrs, objects);
+        if (this.get_obj('ticker') == null) {
+          this.set_obj('ticker', CategoricalTicker.Collection.create());
+        }
+        if (this.get_obj('formatter') == null) {
+          return this.set_obj('formatter', CategoricalTickFormatter.Collection.create());
+        }
+      };
+
+      CategoricalAxis.prototype._bounds = function() {
+        var i, range_bounds, ranges, user_bounds, _ref2;
+        i = this.get('dimension');
+        ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
+        user_bounds = (_ref2 = this.get('bounds')) != null ? _ref2 : 'auto';
+        if (user_bounds !== 'auto') {
+          console.log("Categorical Axes only support user_bounds='auto', ignoring");
+        }
+        range_bounds = [ranges[i].get('min'), ranges[i].get('max')];
+        return range_bounds;
+      };
+
+      return CategoricalAxis;
+
+    })(Axis.Model);
+    CategoricalAxes = (function(_super) {
+      __extends(CategoricalAxes, _super);
+
+      function CategoricalAxes() {
+        _ref2 = CategoricalAxes.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      CategoricalAxes.prototype.model = CategoricalAxis;
+
+      return CategoricalAxes;
+
+    })(Backbone.Collection);
+    return {
+      "Model": CategoricalAxis,
+      "Collection": new CategoricalAxes(),
+      "View": CategoricalAxisView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=categorical_axis.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/abstract_ticker',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
+    var AbstractTicker, AbstractTickers, DEFAULT_DESIRED_N_TICKS, repr, _ref, _ref1;
+    repr = function(obj) {
+      var elem, elems_str, key, obj_as_string, props_str;
+      if (obj === null) {
+        return "null";
+      }
+      if (obj == null) {
+        return "undefined";
+      } else if (obj.constructor === Array) {
+        elems_str = ((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = obj.length; _i < _len; _i++) {
+            elem = obj[_i];
+            _results.push(repr(elem));
+          }
+          return _results;
+        })()).join(", ");
+        return "[" + elems_str + "]";
+      } else if (obj.constructor === Object) {
+        props_str = ((function() {
+          var _results;
+          _results = [];
+          for (key in obj) {
+            _results.push("" + key + ": " + (repr(obj[key])));
+          }
+          return _results;
+        })()).join(", ");
+        return "{" + props_str + "}";
+      } else if (obj.constructor === String) {
+        return "\"" + obj + "\"";
+      } else if (obj.constructor === Function) {
+        return "<Function: " + obj.name + ">";
+      } else {
+        obj_as_string = obj.toString();
+        if (obj_as_string === "[object Object]") {
+          return "<" + obj.constructor.name + ">";
+        } else {
+          return obj_as_string;
+        }
+      }
+    };
+    DEFAULT_DESIRED_N_TICKS = 6;
+    AbstractTicker = (function(_super) {
+      __extends(AbstractTicker, _super);
+
+      function AbstractTicker() {
+        _ref = AbstractTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      AbstractTicker.prototype.type = 'AbstractTicker';
+
+      AbstractTicker.prototype.initialize = function(attrs, options) {
+        return AbstractTicker.__super__.initialize.call(this, attrs, options);
+      };
+
+      AbstractTicker.prototype.get_ticks = function(data_low, data_high, range, _arg) {
+        var desired_n_ticks;
+        desired_n_ticks = _arg.desired_n_ticks;
+        if (desired_n_ticks == null) {
+          desired_n_ticks = DEFAULT_DESIRED_N_TICKS;
+        }
+        return this.get_ticks_no_defaults(data_low, data_high, desired_n_ticks);
+      };
+
+      AbstractTicker.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
+        var end_factor, factor, factors, interval, start_factor, ticks;
+        interval = this.get_interval(data_low, data_high, desired_n_ticks);
+        start_factor = Math.floor(data_low / interval);
+        end_factor = Math.ceil(data_high / interval);
+        if (_.isNaN(start_factor) || _.isNaN(end_factor)) {
+          factors = [];
+        } else {
+          factors = _.range(start_factor, end_factor + 1);
+        }
+        ticks = (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = factors.length; _i < _len; _i++) {
+            factor = factors[_i];
+            _results.push(factor * interval);
+          }
+          return _results;
+        })();
+        return ticks;
+      };
+
+      AbstractTicker.prototype.get_interval = void 0;
+
+      AbstractTicker.prototype.get_min_interval = function() {
+        return this.get('min_interval');
+      };
+
+      AbstractTicker.prototype.get_max_interval = function() {
+        return this.get('max_interval');
+      };
+
+      AbstractTicker.prototype.toString = function() {
+        var class_name, key, params_str, props;
+        class_name = typeof this;
+        props = this.get('toString_properties');
+        params_str = ((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = props.length; _i < _len; _i++) {
+            key = props[_i];
+            _results.push("" + key + "=" + (repr(this[key])));
+          }
+          return _results;
+        }).call(this)).join(", ");
+        return "" + class_name + "(" + params_str + ")";
+      };
+
+      AbstractTicker.prototype.get_ideal_interval = function(data_low, data_high, desired_n_ticks) {
+        var data_range;
+        data_range = data_high - data_low;
+        return data_range / desired_n_ticks;
+      };
+
+      AbstractTicker.prototype.defaults = function() {
+        return _.extend(AbstractTicker.__super__.defaults.call(this), {
+          toString_properties: []
+        });
+      };
+
+      return AbstractTicker;
+
+    })(HasProperties);
+    AbstractTickers = (function(_super) {
+      __extends(AbstractTickers, _super);
+
+      function AbstractTickers() {
+        _ref1 = AbstractTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      AbstractTickers.prototype.model = AbstractTicker;
+
+      return AbstractTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": AbstractTicker,
+      "Collection": new AbstractTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=abstract_ticker.js.map
+*/;
+(function() {
+  define('ticking/util',["underscore", "backbone"], function(_, Backbone) {
+    var ONE_DAY, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR, argmin, copy_date, last_month_no_later_than, last_year_no_later_than;
+    ONE_MILLI = 1.0;
+    ONE_SECOND = 1000.0;
+    ONE_MINUTE = 60.0 * ONE_SECOND;
+    ONE_HOUR = 60 * ONE_MINUTE;
+    ONE_DAY = 24 * ONE_HOUR;
+    ONE_MONTH = 30 * ONE_DAY;
+    ONE_YEAR = 365 * ONE_DAY;
+    argmin = function(arr) {
+      var ret;
+      ret = _.min(_.range(arr.length), (function(i) {
+        return arr[i];
+      }));
+      return ret;
+    };
+    copy_date = function(date) {
+      return new Date(date.getTime());
+    };
+    last_month_no_later_than = function(date) {
+      date = copy_date(date);
+      date.setUTCDate(1);
+      date.setUTCHours(0);
+      date.setUTCMinutes(0);
+      date.setUTCSeconds(0);
+      date.setUTCMilliseconds(0);
+      return date;
+    };
+    last_year_no_later_than = function(date) {
+      date = last_month_no_later_than(date);
+      date.setUTCMonth(0);
+      return date;
+    };
+    return {
+      "argmin": argmin,
+      "copy_date": copy_date,
+      "last_month_no_later_than": last_month_no_later_than,
+      "last_year_no_later_than": last_year_no_later_than,
+      "ONE_MILLI": ONE_MILLI,
+      "ONE_SECOND": ONE_SECOND,
+      "ONE_MINUTE": ONE_MINUTE,
+      "ONE_HOUR": ONE_HOUR,
+      "ONE_DAY": ONE_DAY,
+      "ONE_MONTH": ONE_MONTH,
+      "ONE_YEAR": ONE_YEAR
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=util.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/adaptive_ticker',["underscore", "backbone", "ticking/abstract_ticker", "ticking/util"], function(_, Backbone, AbstractTicker, util) {
+    var AdaptiveTicker, AdaptiveTickers, argmin, clamp, log, _ref, _ref1;
+    argmin = util.argmin;
+    clamp = function(x, min_val, max_val) {
+      return Math.max(min_val, Math.min(max_val, x));
+    };
+    log = function(x, base) {
+      if (base == null) {
+        base = Math.E;
+      }
+      return Math.log(x) / Math.log(base);
+    };
+    AdaptiveTicker = (function(_super) {
+      __extends(AdaptiveTicker, _super);
+
+      function AdaptiveTicker() {
+        _ref = AdaptiveTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      AdaptiveTicker.prototype.type = 'AdaptiveTicker';
+
+      AdaptiveTicker.prototype.initialize = function(attrs, options) {
+        var prefix_mantissa, suffix_mantissa;
+        AdaptiveTicker.__super__.initialize.call(this, attrs, options);
+        prefix_mantissa = _.last(this.get('mantissas')) / this.get('base');
+        suffix_mantissa = _.first(this.get('mantissas')) * this.get('base');
+        this.extended_mantissas = _.flatten([prefix_mantissa, this.get('mantissas'), suffix_mantissa]);
+        return this.base_factor = this.get('min_interval') === 0.0 ? 1.0 : this.get('min_interval');
+      };
+
+      AdaptiveTicker.prototype.get_interval = function(data_low, data_high, desired_n_ticks) {
+        var best_mantissa, candidate_mantissas, data_range, errors, ideal_interval, ideal_magnitude, ideal_mantissa, interval, interval_exponent;
+        data_range = data_high - data_low;
+        ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks);
+        interval_exponent = Math.floor(log(ideal_interval / this.base_factor, this.get('base')));
+        ideal_magnitude = Math.pow(this.get('base'), interval_exponent) * this.base_factor;
+        ideal_mantissa = ideal_interval / ideal_magnitude;
+        candidate_mantissas = this.extended_mantissas;
+        errors = candidate_mantissas.map(function(mantissa) {
+          return Math.abs(desired_n_ticks - (data_range / (mantissa * ideal_magnitude)));
+        });
+        best_mantissa = candidate_mantissas[argmin(errors)];
+        interval = best_mantissa * ideal_magnitude;
+        return clamp(interval, this.get('min_interval'), this.get('max_interval'));
+      };
+
+      AdaptiveTicker.prototype.defaults = function() {
+        return _.extend(AdaptiveTicker.__super__.defaults.call(this), {
+          toString_properties: ['mantissas', 'base', 'min_magnitude', 'max_magnitude'],
+          base: 10.0,
+          min_interval: 0.0,
+          max_interval: Infinity
+        });
+      };
+
+      return AdaptiveTicker;
+
+    })(AbstractTicker.Model);
+    AdaptiveTickers = (function(_super) {
+      __extends(AdaptiveTickers, _super);
+
+      function AdaptiveTickers() {
+        _ref1 = AdaptiveTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      AdaptiveTickers.prototype.model = AdaptiveTicker;
+
+      return AdaptiveTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": AdaptiveTicker,
+      "Collection": new AdaptiveTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=adaptive_ticker.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/composite_ticker',["underscore", "backbone", "ticking/abstract_ticker", "ticking/util"], function(_, Backbone, AbstractTicker, util) {
+    var CompositeTicker, CompositeTickers, argmin, _ref, _ref1;
+    argmin = util.argmin;
+    CompositeTicker = (function(_super) {
+      __extends(CompositeTicker, _super);
+
+      function CompositeTicker() {
+        _ref = CompositeTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      CompositeTicker.prototype.type = 'CompositeTicker';
+
+      CompositeTicker.prototype.initialize = function(attrs, options) {
+        var tickers;
+        CompositeTicker.__super__.initialize.call(this, attrs, options);
+        tickers = this.get('tickers');
+        this.register_property('min_intervals', function() {
+          return _.invoke(tickers, 'get_min_interval');
+        }, true);
+        this.add_dependencies('min_intervals', this, ['tickers']);
+        this.register_property('max_intervals', function() {
+          return _.invoke(tickers, 'get_max_interval');
+        }, true);
+        this.add_dependencies('max_intervals', this, ['tickers']);
+        this.register_property('min_interval', function() {
+          return _.first(this.get('min_intervals'));
+        }, true);
+        this.add_dependencies('min_interval', this, ['min_intervals']);
+        this.register_property('max_interval', function() {
+          return _.first(this.get('max_intervals'));
+        }, true);
+        return this.add_dependencies('max_interval', this, ['max_interval']);
+      };
+
+      CompositeTicker.prototype.get_best_ticker = function(data_low, data_high, desired_n_ticks) {
+        var best_index, best_ticker, best_ticker_ndx, data_range, errors, ideal_interval, intervals, ticker_ndxs;
+        data_range = data_high - data_low;
+        ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks);
+        ticker_ndxs = [_.sortedIndex(this.get('min_intervals'), ideal_interval) - 1, _.sortedIndex(this.get('max_intervals'), ideal_interval)];
+        intervals = [this.get('min_intervals')[ticker_ndxs[0]], this.get('max_intervals')[ticker_ndxs[1]]];
+        errors = intervals.map(function(interval) {
+          return Math.abs(desired_n_ticks - (data_range / interval));
+        });
+        best_index = argmin(errors);
+        if (best_index === Infinity) {
+          return this.get('tickers')[0];
+        }
+        best_ticker_ndx = ticker_ndxs[best_index];
+        best_ticker = this.get('tickers')[best_ticker_ndx];
+        return best_ticker;
+      };
+
+      CompositeTicker.prototype.get_interval = function(data_low, data_high, desired_n_ticks) {
+        var best_ticker;
+        best_ticker = this.get_best_ticker(data_low, data_high, desired_n_ticks);
+        return best_ticker.get_interval(data_low, data_high, desired_n_ticks);
+      };
+
+      CompositeTicker.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
+        var best_ticker, ticks;
+        best_ticker = this.get_best_ticker(data_low, data_high, desired_n_ticks);
+        ticks = best_ticker.get_ticks_no_defaults(data_low, data_high, desired_n_ticks);
+        return ticks;
+      };
+
+      CompositeTicker.prototype.defaults = function() {
+        return CompositeTicker.__super__.defaults.call(this);
+      };
+
+      return CompositeTicker;
+
+    })(AbstractTicker.Model);
+    CompositeTickers = (function(_super) {
+      __extends(CompositeTickers, _super);
+
+      function CompositeTickers() {
+        _ref1 = CompositeTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      CompositeTickers.prototype.model = CompositeTicker;
+
+      return CompositeTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": CompositeTicker,
+      "Collection": new CompositeTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=composite_ticker.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/single_interval_ticker',["underscore", "backbone", "ticking/abstract_ticker"], function(_, Backbone, AbstractTicker) {
+    var SingleIntervalTicker, SingleIntervalTickers, _ref, _ref1;
+    SingleIntervalTicker = (function(_super) {
+      __extends(SingleIntervalTicker, _super);
+
+      function SingleIntervalTicker() {
+        _ref = SingleIntervalTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      SingleIntervalTicker.prototype.type = 'SingleIntervalTicker';
+
+      SingleIntervalTicker.prototype.initialize = function(attrs, options) {
+        SingleIntervalTicker.__super__.initialize.call(this, attrs, options);
+        this.register_property('min_interval', function() {
+          return this.get('interval');
+        }, true);
+        this.add_dependencies('min_interval', this, ['interval']);
+        this.register_property('max_interval', function() {
+          return this.get('interval');
+        }, true);
+        return this.add_dependencies('max_interval', this, ['interval']);
+      };
+
+      SingleIntervalTicker.prototype.get_interval = function(data_low, data_high, n_desired_ticks) {
+        return this.get('interval');
+      };
+
+      SingleIntervalTicker.prototype.defaults = function() {
+        return _.extend(SingleIntervalTicker.__super__.defaults.call(this), {
+          toString_properties: ['interval']
+        });
+      };
+
+      return SingleIntervalTicker;
+
+    })(AbstractTicker.Model);
+    SingleIntervalTickers = (function(_super) {
+      __extends(SingleIntervalTickers, _super);
+
+      function SingleIntervalTickers() {
+        _ref1 = SingleIntervalTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      SingleIntervalTickers.prototype.model = SingleIntervalTicker;
+
+      return SingleIntervalTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": SingleIntervalTicker,
+      "Collection": new SingleIntervalTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=single_interval_ticker.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/days_ticker',["underscore", "backbone", "ticking/single_interval_ticker", "ticking/util"], function(_, Backbone, SingleIntervalTicker, util) {
+    var DaysTicker, DaysTickers, ONE_DAY, copy_date, date_range_by_month, last_month_no_later_than, _ref, _ref1;
+    copy_date = util.copy_date;
+    last_month_no_later_than = util.last_month_no_later_than;
+    ONE_DAY = util.ONE_DAY;
+    date_range_by_month = function(start_time, end_time) {
+      var date, dates, end_date, prev_end_date, start_date;
+      start_date = last_month_no_later_than(new Date(start_time));
+      end_date = last_month_no_later_than(new Date(end_time));
+      prev_end_date = copy_date(end_date);
+      end_date.setUTCMonth(end_date.getUTCMonth() + 1);
+      dates = [];
+      date = start_date;
+      while (true) {
+        dates.push(copy_date(date));
+        date.setUTCMonth(date.getUTCMonth() + 1);
+        if (date > end_date) {
+          break;
+        }
+      }
+      return dates;
+    };
+    DaysTicker = (function(_super) {
+      __extends(DaysTicker, _super);
+
+      function DaysTicker() {
+        _ref = DaysTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      DaysTicker.prototype.type = 'DaysTicker';
+
+      DaysTicker.prototype.initialize = function(attrs, options) {
+        var days, interval;
+        DaysTicker.__super__.initialize.call(this, attrs, options);
+        days = this.get('days');
+        interval = days.length > 1 ? (days[1] - days[0]) * ONE_DAY : 31 * ONE_DAY;
+        return this.set('interval', interval);
+      };
+
+      DaysTicker.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
+        var all_ticks, date, day_dates, days, days_of_month, interval, month_dates, ticks_in_range,
+          _this = this;
+        month_dates = date_range_by_month(data_low, data_high);
+        days = this.get('days');
+        days_of_month = function(month_date, interval) {
+          var dates, day, day_date, future_date, _i, _len;
+          dates = [];
+          for (_i = 0, _len = days.length; _i < _len; _i++) {
+            day = days[_i];
+            day_date = copy_date(month_date);
+            day_date.setUTCDate(day);
+            future_date = new Date(day_date.getTime() + (interval / 2));
+            if (future_date.getUTCMonth() === month_date.getUTCMonth()) {
+              dates.push(day_date);
+            }
+          }
+          return dates;
+        };
+        interval = this.get('interval');
+        day_dates = _.flatten((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = month_dates.length; _i < _len; _i++) {
+            date = month_dates[_i];
+            _results.push(days_of_month(date, interval));
+          }
+          return _results;
+        })());
+        all_ticks = _.invoke(day_dates, 'getTime');
+        ticks_in_range = _.filter(all_ticks, (function(tick) {
+          return (data_low <= tick && tick <= data_high);
+        }));
+        return ticks_in_range;
+      };
+
+      DaysTicker.prototype.defaults = function() {
+        return _.extend(DaysTicker.__super__.defaults.call(this), {
+          toString_properties: ['days']
+        });
+      };
+
+      return DaysTicker;
+
+    })(SingleIntervalTicker.Model);
+    DaysTickers = (function(_super) {
+      __extends(DaysTickers, _super);
+
+      function DaysTickers() {
+        _ref1 = DaysTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      DaysTickers.prototype.model = DaysTicker;
+
+      return DaysTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": DaysTicker,
+      "Collection": new DaysTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=days_ticker.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/months_ticker',["underscore", "backbone", "ticking/single_interval_ticker", "ticking/util"], function(_, Backbone, SingleIntervalTicker, util) {
+    var MonthsTicker, MonthsTickers, ONE_MONTH, copy_date, date_range_by_year, last_year_no_later_than, _ref, _ref1;
+    copy_date = util.copy_date;
+    last_year_no_later_than = util.last_year_no_later_than;
+    ONE_MONTH = util.ONE_MONTH;
+    date_range_by_year = function(start_time, end_time) {
+      var date, dates, end_date, start_date;
+      start_date = last_year_no_later_than(new Date(start_time));
+      end_date = last_year_no_later_than(new Date(end_time));
+      end_date.setUTCFullYear(end_date.getUTCFullYear() + 1);
+      dates = [];
+      date = start_date;
+      while (true) {
+        dates.push(copy_date(date));
+        date.setUTCFullYear(date.getUTCFullYear() + 1);
+        if (date > end_date) {
+          break;
+        }
+      }
+      return dates;
+    };
+    MonthsTicker = (function(_super) {
+      __extends(MonthsTicker, _super);
+
+      function MonthsTicker() {
+        _ref = MonthsTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      MonthsTicker.prototype.type = 'MonthsTicker';
+
+      MonthsTicker.prototype.initialize = function(attrs, options) {
+        var interval, months;
+        MonthsTicker.__super__.initialize.call(this, attrs, options);
+        months = this.get('months');
+        interval = months.length > 1 ? (months[1] - months[0]) * ONE_MONTH : 12 * ONE_MONTH;
+        return this.set('interval', interval);
+      };
+
+      MonthsTicker.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
+        var all_ticks, date, month_dates, months, months_of_year, ticks_in_range, year_dates;
+        year_dates = date_range_by_year(data_low, data_high);
+        months = this.get('months');
+        months_of_year = function(year_date) {
+          return months.map(function(month) {
+            var month_date;
+            month_date = copy_date(year_date);
+            month_date.setUTCMonth(month);
+            return month_date;
+          });
+        };
+        month_dates = _.flatten((function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = year_dates.length; _i < _len; _i++) {
+            date = year_dates[_i];
+            _results.push(months_of_year(date));
+          }
+          return _results;
+        })());
+        all_ticks = _.invoke(month_dates, 'getTime');
+        ticks_in_range = _.filter(all_ticks, (function(tick) {
+          return (data_low <= tick && tick <= data_high);
+        }));
+        return ticks_in_range;
+      };
+
+      MonthsTicker.prototype.defaults = function() {
+        return _.extend(MonthsTicker.__super__.defaults.call(this), {
+          toString_properties: ['months']
+        });
+      };
+
+      return MonthsTicker;
+
+    })(SingleIntervalTicker.Model);
+    MonthsTickers = (function(_super) {
+      __extends(MonthsTickers, _super);
+
+      function MonthsTickers() {
+        _ref1 = MonthsTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      MonthsTickers.prototype.model = MonthsTicker;
+
+      return MonthsTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": MonthsTicker,
+      "Collection": new MonthsTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=months_ticker.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/basic_ticker',["ticking/adaptive_ticker"], function(AdaptiveTicker) {
+    var BasicTicker, BasicTickers, _ref, _ref1;
+    BasicTicker = (function(_super) {
+      __extends(BasicTicker, _super);
+
+      function BasicTicker() {
+        _ref = BasicTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      BasicTicker.prototype.type = 'BasicTicker';
+
+      BasicTicker.prototype.initialize = function(attrs, options) {
+        return BasicTicker.__super__.initialize.call(this, attrs, options);
+      };
+
+      BasicTicker.prototype.defaults = function() {
+        return _.extend(BasicTicker.__super__.defaults.call(this), {
+          mantissas: [1, 2, 5]
+        });
+      };
+
+      return BasicTicker;
+
+    })(AdaptiveTicker.Model);
+    BasicTickers = (function(_super) {
+      __extends(BasicTickers, _super);
+
+      function BasicTickers() {
+        _ref1 = BasicTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      BasicTickers.prototype.model = BasicTicker;
+
+      return BasicTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": BasicTicker,
+      "Collection": new BasicTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=basic_ticker.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/years_ticker',["underscore", "backbone", "ticking/basic_ticker", "ticking/single_interval_ticker", "ticking/util"], function(_, Backbone, BasicTicker, SingleIntervalTicker, util) {
+    var ONE_YEAR, YearsTicker, YearsTickers, last_year_no_later_than, _ref, _ref1;
+    last_year_no_later_than = util.last_year_no_later_than;
+    ONE_YEAR = util.ONE_YEAR;
+    YearsTicker = (function(_super) {
+      __extends(YearsTicker, _super);
+
+      function YearsTicker() {
+        _ref = YearsTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      YearsTicker.prototype.type = 'YearsTicker';
+
+      YearsTicker.prototype.initialize = function(attrs, options) {
+        YearsTicker.__super__.initialize.call(this, attrs, options);
+        this.set('interval', ONE_YEAR);
+        return this.basic_ticker = new BasicTicker.Model();
+      };
+
+      YearsTicker.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
+        var all_ticks, end_year, start_year, ticks_in_range, year, years;
+        start_year = last_year_no_later_than(new Date(data_low)).getUTCFullYear();
+        end_year = last_year_no_later_than(new Date(data_high)).getUTCFullYear();
+        years = this.basic_ticker.get_ticks_no_defaults(start_year, end_year, desired_n_ticks);
+        all_ticks = (function() {
+          var _i, _len, _results;
+          _results = [];
+          for (_i = 0, _len = years.length; _i < _len; _i++) {
+            year = years[_i];
+            _results.push(Date.UTC(year, 0, 1));
+          }
+          return _results;
+        })();
+        ticks_in_range = _.filter(all_ticks, (function(tick) {
+          return (data_low <= tick && tick <= data_high);
+        }));
+        return ticks_in_range;
+      };
+
+      YearsTicker.prototype.defaults = function() {
+        return _.extend(YearsTicker.__super__.defaults.call(this), {
+          toString_properties: ['years']
+        });
+      };
+
+      return YearsTicker;
+
+    })(SingleIntervalTicker.Model);
+    YearsTickers = (function(_super) {
+      __extends(YearsTickers, _super);
+
+      function YearsTickers() {
+        _ref1 = YearsTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      YearsTickers.prototype.model = YearsTicker;
+
+      return YearsTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": YearsTicker,
+      "Collection": new YearsTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=years_ticker.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('ticking/datetime_ticker',["underscore", "ticking/adaptive_ticker", "ticking/composite_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/years_ticker", "ticking/util"], function(_, AdaptiveTicker, CompositeTicker, DaysTicker, MonthsTicker, YearsTicker, util) {
+    var DatetimeTicker, DatetimeTickers, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, _ref, _ref1;
+    ONE_MILLI = util.ONE_MILLI;
+    ONE_SECOND = util.ONE_SECOND;
+    ONE_MINUTE = util.ONE_MINUTE;
+    ONE_HOUR = util.ONE_HOUR;
+    ONE_MONTH = util.ONE_MONTH;
+    DatetimeTicker = (function(_super) {
+      __extends(DatetimeTicker, _super);
+
+      function DatetimeTicker() {
+        _ref = DatetimeTicker.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      DatetimeTicker.prototype.type = 'DatetimeTicker';
+
+      DatetimeTicker.prototype.defaults = function() {
+        return _.extend(DatetimeTicker.__super__.defaults.call(this), {
+          tickers: [
+            new AdaptiveTicker.Model({
+              mantissas: [1, 2, 5],
+              base: 10,
+              min_interval: 0,
+              max_interval: 500 * ONE_MILLI
+            }), new AdaptiveTicker.Model({
+              mantissas: [1, 2, 5, 10, 15, 20, 30],
+              base: 60,
+              min_interval: ONE_SECOND,
+              max_interval: 30 * ONE_MINUTE
+            }), new AdaptiveTicker.Model({
+              mantissas: [1, 2, 4, 6, 8, 12],
+              base: 24.0,
+              min_interval: ONE_HOUR,
+              max_interval: 12 * ONE_HOUR
+            }), new DaysTicker.Model({
+              days: _.range(1, 32)
+            }), new DaysTicker.Model({
+              days: _.range(1, 31, 3)
+            }), new DaysTicker.Model({
+              days: [1, 8, 15, 22]
+            }), new DaysTicker.Model({
+              days: [1, 15]
+            }), new MonthsTicker.Model({
+              months: _.range(0, 12, 1)
+            }), new MonthsTicker.Model({
+              months: _.range(0, 12, 2)
+            }), new MonthsTicker.Model({
+              months: _.range(0, 12, 4)
+            }), new MonthsTicker.Model({
+              months: _.range(0, 12, 6)
+            }), new YearsTicker.Model({})
+          ]
+        });
+      };
+
+      return DatetimeTicker;
+
+    })(CompositeTicker.Model);
+    DatetimeTickers = (function(_super) {
+      __extends(DatetimeTickers, _super);
+
+      function DatetimeTickers() {
+        _ref1 = DatetimeTickers.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      DatetimeTickers.prototype.model = DatetimeTicker;
+
+      return DatetimeTickers;
+
+    })(Backbone.Collection);
+    return {
+      "Model": DatetimeTicker,
+      "Collection": new DatetimeTickers()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=datetime_ticker.js.map
+*/;
+/*! sprintf.js | Copyright (c) 2007-2013 Alexandru Marasteanu <hello at alexei dot ro> | 3 clause BSD license */
+
+(function(ctx) {
+	var sprintf = function() {
+		if (!sprintf.cache.hasOwnProperty(arguments[0])) {
+			sprintf.cache[arguments[0]] = sprintf.parse(arguments[0]);
+		}
+		return sprintf.format.call(null, sprintf.cache[arguments[0]], arguments);
+	};
+
+	sprintf.format = function(parse_tree, argv) {
+		var cursor = 1, tree_length = parse_tree.length, node_type = '', arg, output = [], i, k, match, pad, pad_character, pad_length;
+		for (i = 0; i < tree_length; i++) {
+			node_type = get_type(parse_tree[i]);
+			if (node_type === 'string') {
+				output.push(parse_tree[i]);
+			}
+			else if (node_type === 'array') {
+				match = parse_tree[i]; // convenience purposes only
+				if (match[2]) { // keyword argument
+					arg = argv[cursor];
+					for (k = 0; k < match[2].length; k++) {
+						if (!arg.hasOwnProperty(match[2][k])) {
+							throw(sprintf('[sprintf] property "%s" does not exist', match[2][k]));
+						}
+						arg = arg[match[2][k]];
+					}
+				}
+				else if (match[1]) { // positional argument (explicit)
+					arg = argv[match[1]];
+				}
+				else { // positional argument (implicit)
+					arg = argv[cursor++];
+				}
+
+				if (/[^s]/.test(match[8]) && (get_type(arg) != 'number')) {
+					throw(sprintf('[sprintf] expecting number but found %s', get_type(arg)));
+				}
+				switch (match[8]) {
+					case 'b': arg = arg.toString(2); break;
+					case 'c': arg = String.fromCharCode(arg); break;
+					case 'd': arg = parseInt(arg, 10); break;
+					case 'e': arg = match[7] ? arg.toExponential(match[7]) : arg.toExponential(); break;
+					case 'f': arg = match[7] ? parseFloat(arg).toFixed(match[7]) : parseFloat(arg); break;
+					case 'o': arg = arg.toString(8); break;
+					case 's': arg = ((arg = String(arg)) && match[7] ? arg.substring(0, match[7]) : arg); break;
+					case 'u': arg = arg >>> 0; break;
+					case 'x': arg = arg.toString(16); break;
+					case 'X': arg = arg.toString(16).toUpperCase(); break;
+				}
+				arg = (/[def]/.test(match[8]) && match[3] && arg >= 0 ? '+'+ arg : arg);
+				pad_character = match[4] ? match[4] == '0' ? '0' : match[4].charAt(1) : ' ';
+				pad_length = match[6] - String(arg).length;
+				pad = match[6] ? str_repeat(pad_character, pad_length) : '';
+				output.push(match[5] ? arg + pad : pad + arg);
+			}
+		}
+		return output.join('');
+	};
+
+	sprintf.cache = {};
+
+	sprintf.parse = function(fmt) {
+		var _fmt = fmt, match = [], parse_tree = [], arg_names = 0;
+		while (_fmt) {
+			if ((match = /^[^\x25]+/.exec(_fmt)) !== null) {
+				parse_tree.push(match[0]);
+			}
+			else if ((match = /^\x25{2}/.exec(_fmt)) !== null) {
+				parse_tree.push('%');
+			}
+			else if ((match = /^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(_fmt)) !== null) {
+				if (match[2]) {
+					arg_names |= 1;
+					var field_list = [], replacement_field = match[2], field_match = [];
+					if ((field_match = /^([a-z_][a-z_\d]*)/i.exec(replacement_field)) !== null) {
+						field_list.push(field_match[1]);
+						while ((replacement_field = replacement_field.substring(field_match[0].length)) !== '') {
+							if ((field_match = /^\.([a-z_][a-z_\d]*)/i.exec(replacement_field)) !== null) {
+								field_list.push(field_match[1]);
+							}
+							else if ((field_match = /^\[(\d+)\]/.exec(replacement_field)) !== null) {
+								field_list.push(field_match[1]);
+							}
+							else {
+								throw('[sprintf] huh?');
+							}
+						}
+					}
+					else {
+						throw('[sprintf] huh?');
+					}
+					match[2] = field_list;
+				}
+				else {
+					arg_names |= 2;
+				}
+				if (arg_names === 3) {
+					throw('[sprintf] mixing positional and named placeholders is not (yet) supported');
+				}
+				parse_tree.push(match);
+			}
+			else {
+				throw('[sprintf] huh?');
+			}
+			_fmt = _fmt.substring(match[0].length);
+		}
+		return parse_tree;
+	};
+
+	var vsprintf = function(fmt, argv, _argv) {
+		_argv = argv.slice(0);
+		_argv.splice(0, 0, fmt);
+		return sprintf.apply(null, _argv);
+	};
+
+	/**
+	 * helpers
+	 */
+	function get_type(variable) {
+		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
+	}
+
+	function str_repeat(input, multiplier) {
+		for (var output = []; multiplier > 0; output[--multiplier] = input) {/* do nothing */}
+		return output.join('');
+	}
+
+	/**
+	 * export to either browser or node.js
+	 */
+	ctx.sprintf = sprintf;
+	ctx.vsprintf = vsprintf;
+})(typeof exports != "undefined" ? exports : window);
+
+define("sprintf", (function (global) {
+    return function () {
+        var ret, fn;
+        return ret || global.sprintf;
+    };
+}(this)));
+
 !function (definition) {
   if (typeof module == "object" && module.exports) module.exports = definition();
   else if (typeof define == "function") define('timezone',definition);
@@ -23029,669 +24261,12 @@ if (typeof define === 'function' && define.amd) {
   return function () { return context.convert(arguments) };
 });
 
-/*! sprintf.js | Copyright (c) 2007-2013 Alexandru Marasteanu <hello at alexei dot ro> | 3 clause BSD license */
-
-(function(ctx) {
-	var sprintf = function() {
-		if (!sprintf.cache.hasOwnProperty(arguments[0])) {
-			sprintf.cache[arguments[0]] = sprintf.parse(arguments[0]);
-		}
-		return sprintf.format.call(null, sprintf.cache[arguments[0]], arguments);
-	};
-
-	sprintf.format = function(parse_tree, argv) {
-		var cursor = 1, tree_length = parse_tree.length, node_type = '', arg, output = [], i, k, match, pad, pad_character, pad_length;
-		for (i = 0; i < tree_length; i++) {
-			node_type = get_type(parse_tree[i]);
-			if (node_type === 'string') {
-				output.push(parse_tree[i]);
-			}
-			else if (node_type === 'array') {
-				match = parse_tree[i]; // convenience purposes only
-				if (match[2]) { // keyword argument
-					arg = argv[cursor];
-					for (k = 0; k < match[2].length; k++) {
-						if (!arg.hasOwnProperty(match[2][k])) {
-							throw(sprintf('[sprintf] property "%s" does not exist', match[2][k]));
-						}
-						arg = arg[match[2][k]];
-					}
-				}
-				else if (match[1]) { // positional argument (explicit)
-					arg = argv[match[1]];
-				}
-				else { // positional argument (implicit)
-					arg = argv[cursor++];
-				}
-
-				if (/[^s]/.test(match[8]) && (get_type(arg) != 'number')) {
-					throw(sprintf('[sprintf] expecting number but found %s', get_type(arg)));
-				}
-				switch (match[8]) {
-					case 'b': arg = arg.toString(2); break;
-					case 'c': arg = String.fromCharCode(arg); break;
-					case 'd': arg = parseInt(arg, 10); break;
-					case 'e': arg = match[7] ? arg.toExponential(match[7]) : arg.toExponential(); break;
-					case 'f': arg = match[7] ? parseFloat(arg).toFixed(match[7]) : parseFloat(arg); break;
-					case 'o': arg = arg.toString(8); break;
-					case 's': arg = ((arg = String(arg)) && match[7] ? arg.substring(0, match[7]) : arg); break;
-					case 'u': arg = arg >>> 0; break;
-					case 'x': arg = arg.toString(16); break;
-					case 'X': arg = arg.toString(16).toUpperCase(); break;
-				}
-				arg = (/[def]/.test(match[8]) && match[3] && arg >= 0 ? '+'+ arg : arg);
-				pad_character = match[4] ? match[4] == '0' ? '0' : match[4].charAt(1) : ' ';
-				pad_length = match[6] - String(arg).length;
-				pad = match[6] ? str_repeat(pad_character, pad_length) : '';
-				output.push(match[5] ? arg + pad : pad + arg);
-			}
-		}
-		return output.join('');
-	};
-
-	sprintf.cache = {};
-
-	sprintf.parse = function(fmt) {
-		var _fmt = fmt, match = [], parse_tree = [], arg_names = 0;
-		while (_fmt) {
-			if ((match = /^[^\x25]+/.exec(_fmt)) !== null) {
-				parse_tree.push(match[0]);
-			}
-			else if ((match = /^\x25{2}/.exec(_fmt)) !== null) {
-				parse_tree.push('%');
-			}
-			else if ((match = /^\x25(?:([1-9]\d*)\$|\(([^\)]+)\))?(\+)?(0|'[^$])?(-)?(\d+)?(?:\.(\d+))?([b-fosuxX])/.exec(_fmt)) !== null) {
-				if (match[2]) {
-					arg_names |= 1;
-					var field_list = [], replacement_field = match[2], field_match = [];
-					if ((field_match = /^([a-z_][a-z_\d]*)/i.exec(replacement_field)) !== null) {
-						field_list.push(field_match[1]);
-						while ((replacement_field = replacement_field.substring(field_match[0].length)) !== '') {
-							if ((field_match = /^\.([a-z_][a-z_\d]*)/i.exec(replacement_field)) !== null) {
-								field_list.push(field_match[1]);
-							}
-							else if ((field_match = /^\[(\d+)\]/.exec(replacement_field)) !== null) {
-								field_list.push(field_match[1]);
-							}
-							else {
-								throw('[sprintf] huh?');
-							}
-						}
-					}
-					else {
-						throw('[sprintf] huh?');
-					}
-					match[2] = field_list;
-				}
-				else {
-					arg_names |= 2;
-				}
-				if (arg_names === 3) {
-					throw('[sprintf] mixing positional and named placeholders is not (yet) supported');
-				}
-				parse_tree.push(match);
-			}
-			else {
-				throw('[sprintf] huh?');
-			}
-			_fmt = _fmt.substring(match[0].length);
-		}
-		return parse_tree;
-	};
-
-	var vsprintf = function(fmt, argv, _argv) {
-		_argv = argv.slice(0);
-		_argv.splice(0, 0, fmt);
-		return sprintf.apply(null, _argv);
-	};
-
-	/**
-	 * helpers
-	 */
-	function get_type(variable) {
-		return Object.prototype.toString.call(variable).slice(8, -1).toLowerCase();
-	}
-
-	function str_repeat(input, multiplier) {
-		for (var output = []; multiplier > 0; output[--multiplier] = input) {/* do nothing */}
-		return output.join('');
-	}
-
-	/**
-	 * export to either browser or node.js
-	 */
-	ctx.sprintf = sprintf;
-	ctx.vsprintf = vsprintf;
-})(typeof exports != "undefined" ? exports : window);
-
-define("sprintf", (function (global) {
-    return function () {
-        var ret, fn;
-        return ret || global.sprintf;
-    };
-}(this)));
-
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('common/ticking',["underscore", "timezone", "sprintf"], function(_, tz, sprintf) {
-    var AbstractScale, AdaptiveScale, BasicScale, BasicTickFormatter, CompositeScale, DEFAULT_DESIRED_N_TICKS, DatetimeFormatter, DatetimeScale, DaysScale, MonthsScale, ONE_DAY, ONE_HOUR, ONE_MILLI, ONE_MINUTE, ONE_MONTH, ONE_SECOND, ONE_YEAR, SingleIntervalScale, arange, argmin, clamp, copy_date, date_range_by_month, date_range_by_year, indices, last_month_no_later_than, last_year_no_later_than, log, repr, _array, _four_digit_year, _ms_dot_us, _strftime, _two_digit_year, _us;
-    arange = function(start, end, step) {
-      var i, ret_arr;
-      if (end == null) {
-        end = false;
-      }
-      if (step == null) {
-        step = false;
-      }
-      if (!end) {
-        end = start;
-        start = 0;
-      }
-      if (start > end) {
-        if (step === false) {
-          step = -1;
-        } else if (step > 0) {
-          "the loop will never terminate";
-          1 / 0;
-        }
-      } else if (step < 0) {
-        "the loop will never terminate";
-        1 / 0;
-      }
-      if (!step) {
-        step = 1;
-      }
-      ret_arr = [];
-      i = start;
-      if (start < end) {
-        while (i < end) {
-          ret_arr.push(i);
-          i += step;
-        }
-      } else {
-        while (i > end) {
-          ret_arr.push(i);
-          i += step;
-        }
-      }
-      return ret_arr;
-    };
-    repr = function(obj) {
-      var elem, elems_str, key, obj_as_string, props_str;
-      if (obj === null) {
-        return "null";
-      } else if (obj.constructor === Array) {
-        elems_str = ((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = obj.length; _i < _len; _i++) {
-            elem = obj[_i];
-            _results.push(repr(elem));
-          }
-          return _results;
-        })()).join(", ");
-        return "[" + elems_str + "]";
-      } else if (obj.constructor === Object) {
-        props_str = ((function() {
-          var _results;
-          _results = [];
-          for (key in obj) {
-            _results.push("" + key + ": " + (repr(obj[key])));
-          }
-          return _results;
-        })()).join(", ");
-        return "{" + props_str + "}";
-      } else if (obj.constructor === String) {
-        return "\"" + obj + "\"";
-      } else if (obj.constructor === Function) {
-        return "<Function: " + obj.name + ">";
-      } else {
-        obj_as_string = obj.toString();
-        if (obj_as_string === "[object Object]") {
-          return "<" + obj.constructor.name + ">";
-        } else {
-          return obj_as_string;
-        }
-      }
-    };
-    indices = function(arr) {
-      return _.range(arr.length);
-    };
-    argmin = function(arr) {
-      var ret;
-      ret = _.min(indices(arr), (function(i) {
-        return arr[i];
-      }));
-      return ret;
-    };
-    clamp = function(x, min_val, max_val) {
-      return Math.max(min_val, Math.min(max_val, x));
-    };
-    log = function(x, base) {
-      if (base == null) {
-        base = Math.E;
-      }
-      return Math.log(x) / Math.log(base);
-    };
-    copy_date = function(date) {
-      return new Date(date.getTime());
-    };
-    last_month_no_later_than = function(date) {
-      date = copy_date(date);
-      date.setUTCDate(1);
-      date.setUTCHours(0);
-      date.setUTCMinutes(0);
-      date.setUTCSeconds(0);
-      date.setUTCMilliseconds(0);
-      return date;
-    };
-    last_year_no_later_than = function(date) {
-      date = last_month_no_later_than(date);
-      date.setUTCMonth(0);
-      return date;
-    };
-    date_range_by_year = function(start_time, end_time) {
-      var date, dates, end_date, start_date;
-      start_date = last_year_no_later_than(new Date(start_time));
-      end_date = last_year_no_later_than(new Date(end_time));
-      end_date.setUTCFullYear(end_date.getUTCFullYear() + 1);
-      dates = [];
-      date = start_date;
-      while (true) {
-        dates.push(copy_date(date));
-        date.setUTCFullYear(date.getUTCFullYear() + 1);
-        if (date > end_date) {
-          break;
-        }
-      }
-      return dates;
-    };
-    date_range_by_month = function(start_time, end_time) {
-      var date, dates, end_date, prev_end_date, start_date;
-      start_date = last_month_no_later_than(new Date(start_time));
-      end_date = last_month_no_later_than(new Date(end_time));
-      prev_end_date = copy_date(end_date);
-      end_date.setUTCMonth(end_date.getUTCMonth() + 1);
-      dates = [];
-      date = start_date;
-      while (true) {
-        dates.push(copy_date(date));
-        date.setUTCMonth(date.getUTCMonth() + 1);
-        if (date > end_date) {
-          break;
-        }
-      }
-      return dates;
-    };
-    DEFAULT_DESIRED_N_TICKS = 6;
-    AbstractScale = (function() {
-      function AbstractScale(toString_properties) {
-        this.toString_properties = toString_properties != null ? toString_properties : [];
-      }
-
-      AbstractScale.prototype.get_ticks = function(data_low, data_high, range, _arg) {
-        var desired_n_ticks;
-        desired_n_ticks = _arg.desired_n_ticks;
-        if (desired_n_ticks == null) {
-          desired_n_ticks = DEFAULT_DESIRED_N_TICKS;
-        }
-        return this.get_ticks_no_defaults(data_low, data_high, desired_n_ticks);
-      };
-
-      AbstractScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
-        var end_factor, factor, factors, interval, start_factor, ticks;
-        interval = this.get_interval(data_low, data_high, desired_n_ticks);
-        start_factor = Math.floor(data_low / interval);
-        end_factor = Math.ceil(data_high / interval);
-        factors = arange(start_factor, end_factor + 1);
-        ticks = (function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = factors.length; _i < _len; _i++) {
-            factor = factors[_i];
-            _results.push(factor * interval);
-          }
-          return _results;
-        })();
-        return ticks;
-      };
-
-      AbstractScale.prototype.get_interval = void 0;
-
-      AbstractScale.prototype.get_min_interval = function() {
-        return this.min_interval;
-      };
-
-      AbstractScale.prototype.get_max_interval = function() {
-        return this.max_interval;
-      };
-
-      AbstractScale.prototype.min_interval = void 0;
-
-      AbstractScale.prototype.max_interval = void 0;
-
-      AbstractScale.prototype.toString = function() {
-        var class_name, key, params_str, props;
-        class_name = this.constructor.name;
-        props = this.toString_properties;
-        params_str = ((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = props.length; _i < _len; _i++) {
-            key = props[_i];
-            _results.push("" + key + "=" + (repr(this[key])));
-          }
-          return _results;
-        }).call(this)).join(", ");
-        return "" + class_name + "(" + params_str + ")";
-      };
-
-      AbstractScale.prototype.get_ideal_interval = function(data_low, data_high, desired_n_ticks) {
-        var data_range;
-        data_range = data_high - data_low;
-        return data_range / desired_n_ticks;
-      };
-
-      return AbstractScale;
-
-    })();
-    SingleIntervalScale = (function(_super) {
-      __extends(SingleIntervalScale, _super);
-
-      function SingleIntervalScale(interval) {
-        this.interval = interval;
-        SingleIntervalScale.__super__.constructor.call(this, ['interval']);
-        this.min_interval = this.interval;
-        this.max_interval = this.interval;
-      }
-
-      SingleIntervalScale.prototype.get_interval = function(data_low, data_high, n_desired_ticks) {
-        return this.interval;
-      };
-
-      return SingleIntervalScale;
-
-    })(AbstractScale);
-    CompositeScale = (function(_super) {
-      __extends(CompositeScale, _super);
-
-      function CompositeScale(scales) {
-        this.scales = scales;
-        CompositeScale.__super__.constructor.call(this);
-        this.min_intervals = _.invoke(this.scales, 'get_min_interval');
-        this.max_intervals = _.invoke(this.scales, 'get_max_interval');
-        this.min_interval = _.first(this.min_intervals);
-        this.max_interval = _.last(this.max_intervals);
-      }
-
-      CompositeScale.prototype.get_best_scale = function(data_low, data_high, desired_n_ticks) {
-        var best_scale, best_scale_ndx, data_range, errors, ideal_interval, intervals, scale_ndxs;
-        data_range = data_high - data_low;
-        ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks);
-        scale_ndxs = [_.sortedIndex(this.min_intervals, ideal_interval) - 1, _.sortedIndex(this.max_intervals, ideal_interval)];
-        intervals = [this.min_intervals[scale_ndxs[0]], this.max_intervals[scale_ndxs[1]]];
-        errors = intervals.map(function(interval) {
-          return Math.abs(desired_n_ticks - (data_range / interval));
-        });
-        best_scale_ndx = scale_ndxs[argmin(errors)];
-        best_scale = this.scales[best_scale_ndx];
-        return best_scale;
-      };
-
-      CompositeScale.prototype.get_interval = function(data_low, data_high, desired_n_ticks) {
-        var best_scale;
-        best_scale = this.get_best_scale(data_low, data_high, desired_n_ticks);
-        return best_scale.get_interval(data_low, data_high, desired_n_ticks);
-      };
-
-      CompositeScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
-        var best_scale;
-        best_scale = this.get_best_scale(data_low, data_high, desired_n_ticks);
-        return best_scale.get_ticks_no_defaults(data_low, data_high, desired_n_ticks);
-      };
-
-      return CompositeScale;
-
-    })(AbstractScale);
-    AdaptiveScale = (function(_super) {
-      __extends(AdaptiveScale, _super);
-
-      function AdaptiveScale(mantissas, base, min_interval, max_interval) {
-        var prefix_mantissa, suffix_mantissa;
-        this.mantissas = mantissas;
-        this.base = base != null ? base : 10.0;
-        this.min_interval = min_interval != null ? min_interval : 0.0;
-        this.max_interval = max_interval != null ? max_interval : Infinity;
-        AdaptiveScale.__super__.constructor.call(this, ['mantissas', 'base', 'min_magnitude', 'max_magnitude']);
-        prefix_mantissa = _.last(this.mantissas) / this.base;
-        suffix_mantissa = _.first(this.mantissas) * this.base;
-        this.extended_mantissas = _.flatten([prefix_mantissa, this.mantissas, suffix_mantissa]);
-        this.base_factor = this.min_interval === 0.0 ? 1.0 : this.min_interval;
-      }
-
-      AdaptiveScale.prototype.get_interval = function(data_low, data_high, desired_n_ticks) {
-        var best_mantissa, candidate_mantissas, data_range, errors, ideal_interval, ideal_magnitude, ideal_mantissa, interval, interval_exponent;
-        data_range = data_high - data_low;
-        ideal_interval = this.get_ideal_interval(data_low, data_high, desired_n_ticks);
-        interval_exponent = Math.floor(log(ideal_interval / this.base_factor, this.base));
-        ideal_magnitude = Math.pow(this.base, interval_exponent) * this.base_factor;
-        ideal_mantissa = ideal_interval / ideal_magnitude;
-        candidate_mantissas = this.extended_mantissas;
-        errors = candidate_mantissas.map(function(mantissa) {
-          return Math.abs(desired_n_ticks - (data_range / (mantissa * ideal_magnitude)));
-        });
-        best_mantissa = candidate_mantissas[argmin(errors)];
-        interval = best_mantissa * ideal_magnitude;
-        return clamp(interval, this.min_interval, this.max_interval);
-      };
-
-      return AdaptiveScale;
-
-    })(AbstractScale);
-    MonthsScale = (function(_super) {
-      __extends(MonthsScale, _super);
-
-      function MonthsScale(months) {
-        this.months = months;
-        this.typical_interval = this.months.length > 1 ? (this.months[1] - this.months[0]) * ONE_MONTH : 12 * ONE_MONTH;
-        MonthsScale.__super__.constructor.call(this, this.typical_interval);
-        this.toString_properties = ['months'];
-      }
-
-      MonthsScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
-        var all_ticks, date, month_dates, months, months_of_year, ticks_in_range, year_dates;
-        year_dates = date_range_by_year(data_low, data_high);
-        months = this.months;
-        months_of_year = function(year_date) {
-          return months.map(function(month) {
-            var month_date;
-            month_date = copy_date(year_date);
-            month_date.setUTCMonth(month);
-            return month_date;
-          });
-        };
-        month_dates = _.flatten((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = year_dates.length; _i < _len; _i++) {
-            date = year_dates[_i];
-            _results.push(months_of_year(date));
-          }
-          return _results;
-        })());
-        all_ticks = _.invoke(month_dates, 'getTime');
-        ticks_in_range = _.filter(all_ticks, (function(tick) {
-          return (data_low <= tick && tick <= data_high);
-        }));
-        return ticks_in_range;
-      };
-
-      return MonthsScale;
-
-    })(SingleIntervalScale);
-    DaysScale = (function(_super) {
-      __extends(DaysScale, _super);
-
-      function DaysScale(days) {
-        this.days = days;
-        this.typical_interval = this.days.length > 1 ? (this.days[1] - this.days[0]) * ONE_DAY : 31 * ONE_DAY;
-        DaysScale.__super__.constructor.call(this, this.typical_interval);
-        this.toString_properties = ['days'];
-      }
-
-      DaysScale.prototype.get_ticks_no_defaults = function(data_low, data_high, desired_n_ticks) {
-        var all_ticks, date, day_dates, days, days_of_month, month_dates, ticks_in_range, typical_interval;
-        month_dates = date_range_by_month(data_low, data_high);
-        days = this.days;
-        typical_interval = this.typical_interval;
-        days_of_month = function(month_date) {
-          var dates, day, day_date, future_date, _i, _len;
-          dates = [];
-          for (_i = 0, _len = days.length; _i < _len; _i++) {
-            day = days[_i];
-            day_date = copy_date(month_date);
-            day_date.setUTCDate(day);
-            future_date = new Date(day_date.getTime() + (typical_interval / 2));
-            if (future_date.getUTCMonth() === month_date.getUTCMonth()) {
-              dates.push(day_date);
-            }
-          }
-          return dates;
-        };
-        day_dates = _.flatten((function() {
-          var _i, _len, _results;
-          _results = [];
-          for (_i = 0, _len = month_dates.length; _i < _len; _i++) {
-            date = month_dates[_i];
-            _results.push(days_of_month(date));
-          }
-          return _results;
-        })());
-        all_ticks = _.invoke(day_dates, 'getTime');
-        ticks_in_range = _.filter(all_ticks, (function(tick) {
-          return (data_low <= tick && tick <= data_high);
-        }));
-        return ticks_in_range;
-      };
-
-      return DaysScale;
-
-    })(SingleIntervalScale);
-    ONE_MILLI = 1.0;
-    ONE_SECOND = 1000.0;
-    ONE_MINUTE = 60.0 * ONE_SECOND;
-    ONE_HOUR = 60 * ONE_MINUTE;
-    ONE_DAY = 24 * ONE_HOUR;
-    ONE_MONTH = 30 * ONE_DAY;
-    ONE_YEAR = 365 * ONE_DAY;
-    BasicScale = (function(_super) {
-      __extends(BasicScale, _super);
-
-      function BasicScale() {
-        BasicScale.__super__.constructor.call(this, [1, 2, 5]);
-      }
-
-      return BasicScale;
-
-    })(AdaptiveScale);
-    DatetimeScale = (function(_super) {
-      __extends(DatetimeScale, _super);
-
-      function DatetimeScale() {
-        DatetimeScale.__super__.constructor.call(this, [new AdaptiveScale([1, 2, 5], 10, 0, 500 * ONE_MILLI), new AdaptiveScale([1, 2, 5, 10, 15, 20, 30], 60, ONE_SECOND, 30 * ONE_MINUTE), new AdaptiveScale([1, 2, 4, 6, 8, 12], 24.0, ONE_HOUR, 12 * ONE_HOUR), new DaysScale(arange(1, 32)), new DaysScale(arange(1, 31, 3)), new DaysScale([1, 8, 15, 22]), new DaysScale([1, 15]), new MonthsScale(arange(0, 12)), new MonthsScale(arange(0, 12, 2)), new MonthsScale(arange(0, 12, 4)), new MonthsScale(arange(0, 12, 6)), new AdaptiveScale([1, 2, 5], 10, ONE_YEAR, Infinity)]);
-      }
-
-      return DatetimeScale;
-
-    })(CompositeScale);
-    BasicTickFormatter = (function() {
-      function BasicTickFormatter(precision, use_scientific, power_limit_high, power_limit_low) {
-        this.precision = precision != null ? precision : 'auto';
-        this.use_scientific = use_scientific != null ? use_scientific : true;
-        this.power_limit_high = power_limit_high != null ? power_limit_high : 5;
-        this.power_limit_low = power_limit_low != null ? power_limit_low : -3;
-        this.scientific_limit_low = Math.pow(10.0, power_limit_low);
-        this.scientific_limit_high = Math.pow(10.0, power_limit_high);
-        this.last_precision = 3;
-      }
-
-      BasicTickFormatter.prototype.format = function(ticks) {
-        var i, is_ok, labels, need_sci, tick, tick_abs, x, zero_eps, _i, _j, _k, _l, _len, _m, _n, _ref, _ref1, _ref2, _ref3, _ref4;
-        if (ticks.length === 0) {
-          return [];
-        }
-        zero_eps = 0;
-        if (ticks.length >= 2) {
-          zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000;
-        }
-        need_sci = false;
-        if (this.use_scientific) {
-          for (_i = 0, _len = ticks.length; _i < _len; _i++) {
-            tick = ticks[_i];
-            tick_abs = Math.abs(tick);
-            if (tick_abs > zero_eps && (tick_abs >= this.scientific_limit_high || tick_abs <= this.scientific_limit_low)) {
-              need_sci = true;
-              break;
-            }
-          }
-        }
-        if (_.isNumber(this.precision)) {
-          labels = new Array(ticks.length);
-          if (need_sci) {
-            for (i = _j = 0, _ref = ticks.length; 0 <= _ref ? _j < _ref : _j > _ref; i = 0 <= _ref ? ++_j : --_j) {
-              labels[i] = ticks[i].toExponential(this.precision);
-            }
-          } else {
-            for (i = _k = 0, _ref1 = ticks.length; 0 <= _ref1 ? _k < _ref1 : _k > _ref1; i = 0 <= _ref1 ? ++_k : --_k) {
-              labels[i] = ticks[i].toPrecision(this.precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
-            }
-          }
-          return labels;
-        } else if (this.precision === 'auto') {
-          labels = new Array(ticks.length);
-          for (x = _l = _ref2 = this.last_precision; _ref2 <= 15 ? _l <= 15 : _l >= 15; x = _ref2 <= 15 ? ++_l : --_l) {
-            is_ok = true;
-            if (need_sci) {
-              for (i = _m = 0, _ref3 = ticks.length; 0 <= _ref3 ? _m < _ref3 : _m > _ref3; i = 0 <= _ref3 ? ++_m : --_m) {
-                labels[i] = ticks[i].toExponential(x);
-                if (i > 0) {
-                  if (labels[i] === labels[i - 1]) {
-                    is_ok = false;
-                    break;
-                  }
-                }
-              }
-              if (is_ok) {
-                break;
-              }
-            } else {
-              for (i = _n = 0, _ref4 = ticks.length; 0 <= _ref4 ? _n < _ref4 : _n > _ref4; i = 0 <= _ref4 ? ++_n : --_n) {
-                labels[i] = ticks[i].toPrecision(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
-                if (i > 0) {
-                  if (labels[i] === labels[i - 1]) {
-                    is_ok = false;
-                    break;
-                  }
-                }
-              }
-              if (is_ok) {
-                break;
-              }
-            }
-            if (is_ok) {
-              this.last_precision = x;
-              return labels;
-            }
-          }
-        }
-        return labels;
-      };
-
-      return BasicTickFormatter;
-
-    })();
+  define('ticking/datetime_tick_formatter',["underscore", "backbone", "common/has_properties", "sprintf", "timezone"], function(_, Backbone, HasProperties, sprintf, tz) {
+    var DatetimeTickFormatter, DatetimeTickFormatters, _array, _four_digit_year, _ms_dot_us, _ref, _ref1, _strftime, _two_digit_year, _us;
     _us = function(t) {
       return sprintf("%3dus", Math.floor((t % 1) * 1000));
     };
@@ -23731,13 +24306,23 @@ define("sprintf", (function (global) {
         return tz(t, format);
       }
     };
-    DatetimeFormatter = (function() {
-      DatetimeFormatter.prototype.format_order = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'];
+    DatetimeTickFormatter = (function(_super) {
+      __extends(DatetimeTickFormatter, _super);
 
-      DatetimeFormatter.prototype.strip_leading_zeros = true;
+      function DatetimeTickFormatter() {
+        _ref = DatetimeTickFormatter.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
 
-      function DatetimeFormatter() {
+      DatetimeTickFormatter.prototype.type = 'DatetimeTickFormatter';
+
+      DatetimeTickFormatter.prototype.format_order = ['microseconds', 'milliseconds', 'seconds', 'minsec', 'minutes', 'hourmin', 'hours', 'days', 'months', 'years'];
+
+      DatetimeTickFormatter.prototype.strip_leading_zeros = true;
+
+      DatetimeTickFormatter.prototype.initialize = function(attrs, options) {
         var fmt, fmt_name, fmt_strings, size, sizes, tmptime, _i, _len;
+        DatetimeTickFormatter.__super__.initialize.call(this, attrs, options);
         this._formats = {
           'microseconds': [_us, _ms_dot_us],
           'milliseconds': ['%3Nms', '%S.%3Ns'],
@@ -23762,10 +24347,9 @@ define("sprintf", (function (global) {
           }
           this.formats[fmt_name] = [sizes, fmt_strings];
         }
-        return;
-      }
+      };
 
-      DatetimeFormatter.prototype._get_resolution_str = function(resolution_secs, span_secs) {
+      DatetimeTickFormatter.prototype._get_resolution_str = function(resolution_secs, span_secs) {
         var adjusted_resolution_secs, str;
         adjusted_resolution_secs = resolution_secs * 1.1;
         if (adjusted_resolution_secs < 1e-3) {
@@ -23796,8 +24380,8 @@ define("sprintf", (function (global) {
         return str;
       };
 
-      DatetimeFormatter.prototype.format = function(ticks, num_labels, char_width, fill_ratio, ticker) {
-        var dt, error, fmt, format, formats, good_formats, hybrid_handled, i, labels, next_format, next_ndx, r, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths, _i, _j, _k, _len, _len1, _ref, _ref1, _ref2;
+      DatetimeTickFormatter.prototype.format = function(ticks, num_labels, char_width, fill_ratio, ticker) {
+        var error, fmt, format, formats, good_formats, hybrid_handled, i, labels, next_format, next_ndx, r, resol, resol_ndx, s, span, ss, t, time_tuple_ndx_for_resol, tm, widths, _i, _j, _k, _len, _len1, _ref1, _ref2, _ref3;
         if (num_labels == null) {
           num_labels = null;
         }
@@ -23820,25 +24404,25 @@ define("sprintf", (function (global) {
           r = span / (ticks.length - 1);
         }
         resol = this._get_resolution_str(r, span);
-        _ref = this.formats[resol], widths = _ref[0], formats = _ref[1];
+        _ref1 = this.formats[resol], widths = _ref1[0], formats = _ref1[1];
         format = formats[0];
         if (char_width) {
           good_formats = [];
-          for (i = _i = 0, _ref1 = widths.length; 0 <= _ref1 ? _i < _ref1 : _i > _ref1; i = 0 <= _ref1 ? ++_i : --_i) {
+          for (i = _i = 0, _ref2 = widths.length; 0 <= _ref2 ? _i < _ref2 : _i > _ref2; i = 0 <= _ref2 ? ++_i : --_i) {
             if (widths[i] * ticks.length < fill_ratio * char_width) {
               good_formats.push(this.formats[i]);
             }
           }
           if (good_formats.length > 0) {
-            format = good_formats[ticks.length - 1];
+            format = _.last(good_formats);
           }
         }
         labels = [];
         resol_ndx = this.format_order.indexOf(resol);
         time_tuple_ndx_for_resol = {};
-        _ref2 = this.format_order;
-        for (_j = 0, _len = _ref2.length; _j < _len; _j++) {
-          fmt = _ref2[_j];
+        _ref3 = this.format_order;
+        for (_j = 0, _len = _ref3.length; _j < _len; _j++) {
+          fmt = _ref3[_j];
           time_tuple_ndx_for_resol[fmt] = 0;
         }
         time_tuple_ndx_for_resol["seconds"] = 5;
@@ -23849,7 +24433,6 @@ define("sprintf", (function (global) {
         for (_k = 0, _len1 = ticks.length; _k < _len1; _k++) {
           t = ticks[_k];
           try {
-            dt = Date(t);
             tm = _array(t);
             s = _strftime(t, format);
           } catch (_error) {
@@ -23891,132 +24474,42 @@ define("sprintf", (function (global) {
         return labels;
       };
 
-      return DatetimeFormatter;
-
-    })();
-    return {
-      "BasicScale": BasicScale,
-      "DatetimeScale": DatetimeScale,
-      "BasicTickFormatter": BasicTickFormatter,
-      "DatetimeFormatter": DatetimeFormatter
-    };
-  });
-
-}).call(this);
-
-/*
-//@ sourceMappingURL=ticking.js.map
-*/;
-(function() {
-  var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
-
-  define('renderer/guide/categorical_axis',["backbone", "./axis", "common/ticking", "range/factor_range"], function(Backbone, Axis, ticking, FactorRange) {
-    var CategoricalAxes, CategoricalAxis, CategoricalAxisView, _CategoricalFormatter, _CategoricalScale, _ref, _ref1, _ref2;
-    _CategoricalFormatter = (function() {
-      function _CategoricalFormatter() {}
-
-      _CategoricalFormatter.prototype.format = function(ticks) {
-        return ticks;
+      DatetimeTickFormatter.prototype.defaults = function() {
+        return DatetimeTickFormatter.__super__.defaults.call(this);
       };
 
-      return _CategoricalFormatter;
+      return DatetimeTickFormatter;
 
-    })();
-    _CategoricalScale = (function() {
-      function _CategoricalScale() {}
+    })(HasProperties);
+    DatetimeTickFormatters = (function(_super) {
+      __extends(DatetimeTickFormatters, _super);
 
-      _CategoricalScale.prototype.get_ticks = function(start, end, range, _arg) {
-        var desired_n_ticks;
-        desired_n_ticks = _arg.desired_n_ticks;
-        return range.get("factors");
-      };
-
-      return _CategoricalScale;
-
-    })();
-    CategoricalAxisView = (function(_super) {
-      __extends(CategoricalAxisView, _super);
-
-      function CategoricalAxisView() {
-        _ref = CategoricalAxisView.__super__.constructor.apply(this, arguments);
-        return _ref;
-      }
-
-      CategoricalAxisView.prototype.initialize = function(attrs, options) {
-        CategoricalAxisView.__super__.initialize.call(this, attrs, options);
-        return this.formatter = new _CategoricalFormatter();
-      };
-
-      return CategoricalAxisView;
-
-    })(Axis.View);
-    CategoricalAxis = (function(_super) {
-      __extends(CategoricalAxis, _super);
-
-      function CategoricalAxis() {
-        _ref1 = CategoricalAxis.__super__.constructor.apply(this, arguments);
+      function DatetimeTickFormatters() {
+        _ref1 = DatetimeTickFormatters.__super__.constructor.apply(this, arguments);
         return _ref1;
       }
 
-      CategoricalAxis.prototype.default_view = CategoricalAxisView;
+      DatetimeTickFormatters.prototype.model = DatetimeTickFormatter;
 
-      CategoricalAxis.prototype.type = 'CategoricalAxis';
-
-      CategoricalAxis.prototype.initialize = function(attrs, options) {
-        options.scale = new _CategoricalScale();
-        return CategoricalAxis.__super__.initialize.call(this, attrs, options);
-      };
-
-      CategoricalAxis.prototype._bounds = function() {
-        var i, range_bounds, ranges, user_bounds, _ref2;
-        i = this.get('dimension');
-        ranges = [this.get_obj('plot').get_obj('x_range'), this.get_obj('plot').get_obj('y_range')];
-        user_bounds = (_ref2 = this.get('bounds')) != null ? _ref2 : 'auto';
-        if (user_bounds !== 'auto') {
-          console.log("Categorical Axes only support user_bounds='auto', ignoring");
-        }
-        range_bounds = [ranges[i].get('min'), ranges[i].get('max')];
-        return range_bounds;
-      };
-
-      CategoricalAxis.prototype.display_defaults = function() {
-        return CategoricalAxis.__super__.display_defaults.call(this);
-      };
-
-      return CategoricalAxis;
-
-    })(Axis.Model);
-    CategoricalAxes = (function(_super) {
-      __extends(CategoricalAxes, _super);
-
-      function CategoricalAxes() {
-        _ref2 = CategoricalAxes.__super__.constructor.apply(this, arguments);
-        return _ref2;
-      }
-
-      CategoricalAxes.prototype.model = CategoricalAxis;
-
-      return CategoricalAxes;
+      return DatetimeTickFormatters;
 
     })(Backbone.Collection);
     return {
-      "Model": CategoricalAxis,
-      "Collection": new CategoricalAxes(),
-      "View": CategoricalAxisView
+      "Model": DatetimeTickFormatter,
+      "Collection": new DatetimeTickFormatters()
     };
   });
 
 }).call(this);
 
 /*
-//@ sourceMappingURL=categorical_axis.js.map
+//@ sourceMappingURL=datetime_tick_formatter.js.map
 */;
 (function() {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('renderer/guide/datetime_axis',["backbone", "./axis", "common/ticking"], function(Backbone, Axis, ticking) {
+  define('renderer/guide/datetime_axis',["backbone", "./axis", "ticking/datetime_ticker", "ticking/datetime_tick_formatter"], function(Backbone, Axis, DatetimeTicker, DatetimeTickFormatter) {
     var DatetimeAxes, DatetimeAxis, DatetimeAxisView, _ref, _ref1, _ref2;
     DatetimeAxisView = (function(_super) {
       __extends(DatetimeAxisView, _super);
@@ -24025,11 +24518,6 @@ define("sprintf", (function (global) {
         _ref = DatetimeAxisView.__super__.constructor.apply(this, arguments);
         return _ref;
       }
-
-      DatetimeAxisView.prototype.initialize = function(options) {
-        options.formatter = new ticking.DatetimeFormatter();
-        return DatetimeAxisView.__super__.initialize.call(this, options);
-      };
 
       return DatetimeAxisView;
 
@@ -24046,13 +24534,14 @@ define("sprintf", (function (global) {
 
       DatetimeAxis.prototype.type = 'DatetimeAxis';
 
-      DatetimeAxis.prototype.initialize = function(attrs, options) {
-        options.scale = new ticking.DatetimeScale();
-        return DatetimeAxis.__super__.initialize.call(this, attrs, options);
-      };
-
-      DatetimeAxis.prototype.display_defaults = function() {
-        return DatetimeAxis.__super__.display_defaults.call(this);
+      DatetimeAxis.prototype.dinitialize = function(attrs, objects) {
+        DatetimeAxis.__super__.dinitialize.call(this, attrs, objects);
+        if (this.get_obj('ticker') == null) {
+          this.set_obj('ticker', DatetimeTicker.Collection.create());
+        }
+        if (this.get_obj('formatter') == null) {
+          return this.set_obj('formatter', DatetimeTickFormatter.Collection.create());
+        }
       };
 
       return DatetimeAxis;
@@ -24067,8 +24556,6 @@ define("sprintf", (function (global) {
       }
 
       DatetimeAxes.prototype.model = DatetimeAxis;
-
-      DatetimeAxes.prototype.type = 'DatetimeAxis';
 
       return DatetimeAxes;
 
@@ -24089,7 +24576,7 @@ define("sprintf", (function (global) {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('renderer/guide/grid',["underscore", "common/safebind", "common/has_parent", "common/ticking", "renderer/properties", "common/plot_widget"], function(_, safebind, HasParent, ticking, Properties, PlotWidget) {
+  define('renderer/guide/grid',["underscore", "common/safebind", "common/has_parent", "renderer/properties", "common/plot_widget"], function(_, safebind, HasParent, Properties, PlotWidget) {
     var Grid, GridView, Grids, line_properties, _ref, _ref1, _ref2;
     line_properties = Properties.line_properties;
     GridView = (function(_super) {
@@ -24154,18 +24641,8 @@ define("sprintf", (function (global) {
         Grid.__super__.initialize.call(this, attrs, options);
         this.register_property('computed_bounds', this._bounds, false);
         this.add_dependencies('computed_bounds', this, ['bounds']);
-        this.register_property('scale', this._scale, true);
-        this.add_dependencies('scale', this, ['is_datetime']);
         this.register_property('grid_coords', this._grid_coords, false);
-        return this.add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'scale']);
-      };
-
-      Grid.prototype._scale = function() {
-        if (this.get('is_datetime')) {
-          return new ticking.DatetimeScale();
-        } else {
-          return new ticking.BasicScale();
-        }
+        return this.add_dependencies('grid_coords', this, ['computed_bounds', 'dimension', 'ticker']);
       };
 
       Grid.prototype._bounds = function() {
@@ -24205,7 +24682,7 @@ define("sprintf", (function (global) {
         tmp = Math.min(start, end);
         end = Math.max(start, end);
         start = tmp;
-        ticks = this.get('scale').get_ticks(start, end, range, {});
+        ticks = this.get_obj('axis').get_obj('ticker').get_ticks(start, end, range, {});
         min = range.get('min');
         max = range.get('max');
         cmin = cross_range.get('min');
@@ -24274,7 +24751,145 @@ define("sprintf", (function (global) {
   var __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
 
-  define('renderer/guide/linear_axis',["underscore", "backbone", "common/ticking", "./axis"], function(_, Backbone, ticking, Axis) {
+  define('ticking/basic_tick_formatter',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
+    var BasicTickFormatter, BasicTickFormatters, _ref, _ref1;
+    BasicTickFormatter = (function(_super) {
+      __extends(BasicTickFormatter, _super);
+
+      function BasicTickFormatter() {
+        _ref = BasicTickFormatter.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      BasicTickFormatter.prototype.type = 'BasicTickFormatter';
+
+      BasicTickFormatter.prototype.initialize = function(attrs, options) {
+        BasicTickFormatter.__super__.initialize.call(this, attrs, options);
+        this.register_property('scientific_limit_low', function() {
+          return Math.pow(10.0, this.get('power_limit_low'));
+        }, true);
+        this.add_dependencies('scientific_limit_low', this, ['power_limit_low']);
+        this.register_property('scientific_limit_high', function() {
+          return Math.pow(10.0, this.get('power_limit_high'));
+        }, true);
+        this.add_dependencies('scientific_limit_high', this, ['power_limit_high']);
+        return this.last_precision = 3;
+      };
+
+      BasicTickFormatter.prototype.format = function(ticks) {
+        var i, is_ok, labels, need_sci, precision, tick, tick_abs, x, zero_eps, _i, _j, _k, _l, _len, _m, _n, _ref1, _ref2, _ref3, _ref4, _ref5;
+        if (ticks.length === 0) {
+          return [];
+        }
+        zero_eps = 0;
+        if (ticks.length >= 2) {
+          zero_eps = Math.abs(ticks[1] - ticks[0]) / 10000;
+        }
+        need_sci = false;
+        if (this.get('use_scientific')) {
+          for (_i = 0, _len = ticks.length; _i < _len; _i++) {
+            tick = ticks[_i];
+            tick_abs = Math.abs(tick);
+            if (tick_abs > zero_eps && (tick_abs >= this.scientific_limit_high || tick_abs <= this.scientific_limit_low)) {
+              need_sci = true;
+              break;
+            }
+          }
+        }
+        precision = this.get('precision');
+        if (_.isNumber(precision)) {
+          labels = new Array(ticks.length);
+          if (need_sci) {
+            for (i = _j = 0, _ref1 = ticks.length; 0 <= _ref1 ? _j < _ref1 : _j > _ref1; i = 0 <= _ref1 ? ++_j : --_j) {
+              labels[i] = ticks[i].toExponential(precision);
+            }
+          } else {
+            for (i = _k = 0, _ref2 = ticks.length; 0 <= _ref2 ? _k < _ref2 : _k > _ref2; i = 0 <= _ref2 ? ++_k : --_k) {
+              labels[i] = ticks[i].toPrecision(precision).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
+            }
+          }
+          return labels;
+        } else if (precision === 'auto') {
+          labels = new Array(ticks.length);
+          for (x = _l = _ref3 = this.last_precision; _ref3 <= 15 ? _l <= 15 : _l >= 15; x = _ref3 <= 15 ? ++_l : --_l) {
+            is_ok = true;
+            if (need_sci) {
+              for (i = _m = 0, _ref4 = ticks.length; 0 <= _ref4 ? _m < _ref4 : _m > _ref4; i = 0 <= _ref4 ? ++_m : --_m) {
+                labels[i] = ticks[i].toExponential(x);
+                if (i > 0) {
+                  if (labels[i] === labels[i - 1]) {
+                    is_ok = false;
+                    break;
+                  }
+                }
+              }
+              if (is_ok) {
+                break;
+              }
+            } else {
+              for (i = _n = 0, _ref5 = ticks.length; 0 <= _ref5 ? _n < _ref5 : _n > _ref5; i = 0 <= _ref5 ? ++_n : --_n) {
+                labels[i] = ticks[i].toPrecision(x).replace(/(\.[0-9]*?)0+$/, "$1").replace(/\.$/, "");
+                if (i > 0) {
+                  if (labels[i] === labels[i - 1]) {
+                    is_ok = false;
+                    break;
+                  }
+                }
+              }
+              if (is_ok) {
+                break;
+              }
+            }
+            if (is_ok) {
+              this.last_precision = x;
+              return labels;
+            }
+          }
+        }
+        return labels;
+      };
+
+      BasicTickFormatter.prototype.defaults = function() {
+        return {
+          precision: 'auto',
+          use_scientific: true,
+          power_limit_high: 5,
+          power_limit_low: -3
+        };
+      };
+
+      return BasicTickFormatter;
+
+    })(HasProperties);
+    BasicTickFormatters = (function(_super) {
+      __extends(BasicTickFormatters, _super);
+
+      function BasicTickFormatters() {
+        _ref1 = BasicTickFormatters.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      BasicTickFormatters.prototype.model = BasicTickFormatter;
+
+      return BasicTickFormatters;
+
+    })(Backbone.Collection);
+    return {
+      "Model": BasicTickFormatter,
+      "Collection": new BasicTickFormatters()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=basic_tick_formatter.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('renderer/guide/linear_axis',["underscore", "backbone", "./axis", "ticking/basic_ticker", "ticking/basic_tick_formatter"], function(_, Backbone, Axis, BasicTicker, BasicTickFormatter) {
     var LinearAxes, LinearAxis, LinearAxisView, _ref, _ref1, _ref2;
     LinearAxisView = (function(_super) {
       __extends(LinearAxisView, _super);
@@ -24283,11 +24898,6 @@ define("sprintf", (function (global) {
         _ref = LinearAxisView.__super__.constructor.apply(this, arguments);
         return _ref;
       }
-
-      LinearAxisView.prototype.initialize = function(options) {
-        options.formatter = new ticking.BasicTickFormatter();
-        return LinearAxisView.__super__.initialize.call(this, options);
-      };
 
       return LinearAxisView;
 
@@ -24304,13 +24914,14 @@ define("sprintf", (function (global) {
 
       LinearAxis.prototype.type = 'LinearAxis';
 
-      LinearAxis.prototype.initialize = function(attrs, options) {
-        options.scale = new ticking.BasicScale();
-        return LinearAxis.__super__.initialize.call(this, attrs, options);
-      };
-
-      LinearAxis.prototype.display_defaults = function() {
-        return LinearAxis.__super__.display_defaults.call(this);
+      LinearAxis.prototype.dinitialize = function(attrs, objects) {
+        LinearAxis.__super__.dinitialize.call(this, attrs, objects);
+        if (this.get_obj('ticker') == null) {
+          this.set_obj('ticker', BasicTicker.Collection.create());
+        }
+        if (this.get_obj('formatter') == null) {
+          return this.set_obj('formatter', BasicTickFormatter.Collection.create());
+        }
       };
 
       return LinearAxis;
@@ -24562,6 +25173,214 @@ define("sprintf", (function (global) {
 
 /*
 //@ sourceMappingURL=column_data_source.js.map
+*/;
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('source/server_data_source',["underscore", "backbone", "common/has_properties"], function(_, Backbone, HasProperties) {
+    var ServerDataSource, ServerDataSources, ajax_throttle, _ref, _ref1;
+    ajax_throttle = function(func) {
+      var busy, callback, has_callback, resp;
+      busy = false;
+      resp = null;
+      has_callback = false;
+      callback = function() {
+        if (busy) {
+          if (has_callback) {
+            return console.log('already bound, ignoreing');
+          } else {
+            console.log('busy, so doing it later');
+            has_callback = true;
+            return resp.done(function() {
+              has_callback = false;
+              return callback();
+            });
+          }
+        } else {
+          console.log('executing');
+          busy = true;
+          resp = func();
+          return resp.done(function() {
+            console.log('done, setting to false');
+            busy = false;
+            return resp = null;
+          });
+        }
+      };
+      return callback;
+    };
+    ServerDataSource = (function(_super) {
+      __extends(ServerDataSource, _super);
+
+      function ServerDataSource() {
+        this.heatmap_update = __bind(this.heatmap_update, this);
+        this.line1d_update = __bind(this.line1d_update, this);
+        this.initialize = __bind(this.initialize, this);
+        _ref = ServerDataSource.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ServerDataSource.prototype.type = 'ServerDataSource';
+
+      ServerDataSource.prototype.initialize = function(attrs, options) {
+        ServerDataSource.__super__.initialize.call(this, attrs, options);
+        return this.callbacks = {};
+      };
+
+      ServerDataSource.prototype.stoplistening_for_updates = function(column_data_source) {
+        var entry, _i, _len, _ref1, _results;
+        if (this.callbacks[column_data_source.get('id')]) {
+          _ref1 = this.callbacks[column_data_source.get('id')];
+          _results = [];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            entry = _ref1[_i];
+            _results.push(this.stopListening.apply(this, entry));
+          }
+          return _results;
+        }
+      };
+
+      ServerDataSource.prototype.listen_for_line1d_updates = function(column_data_source, domain_range, screen_range, primary_column, domain_name, columns) {
+        var callback, throttle,
+          _this = this;
+        this.stoplistening_for_updates(column_data_source);
+        this.line1d_update(column_data_source, domain_range, screen_range, primary_column, domain_name, columns);
+        throttle = _.throttle(this.line1d_update, 300);
+        callback = function() {
+          return throttle(column_data_source, domain_range, screen_range, primary_column, domain_name, columns);
+        };
+        this.listenTo(screen_range, 'change', callback);
+        this.listenTo(domain_range, 'change', callback);
+        return this.callbacks[column_data_source.get('id')] = [[screen_range, 'change', callback], [domain_range, 'change', callback]];
+      };
+
+      ServerDataSource.prototype.line1d_update = function(column_data_source, domain_range, screen_range, primary_column, domain_name, columns) {
+        var data_url, domain_limit, domain_resolution, owner_username, params, prefix, url;
+        data_url = this.get('data_url');
+        owner_username = this.get('owner_username');
+        prefix = this.get_base().Config.prefix;
+        url = "" + prefix + "/bokeh/data/" + owner_username + data_url;
+        domain_resolution = (screen_range.get('end') - screen_range.get('start')) / 2;
+        domain_resolution = Math.floor(domain_resolution);
+        domain_limit = [domain_range.get('start'), domain_range.get('end')];
+        if (_.any(_.map(domain_limit, function(x) {
+          return _.isNaN(x);
+        }))) {
+          domain_limit = 'auto';
+        }
+        params = [primary_column, domain_name, columns, domain_limit, domain_resolution];
+        params = JSON.stringify(params);
+        return $.ajax({
+          dataType: 'json',
+          url: url,
+          xhrField: {
+            withCredentials: true
+          },
+          success: function(data) {
+            if (domain_limit === 'auto') {
+              domain_range.set({
+                start: data.domain_limit[0],
+                end: data.domain_limit[1]
+              }, {
+                silent: true
+              });
+            }
+            return column_data_source.set('data', data.data);
+          },
+          data: {
+            downsample_function: 'line1d',
+            downsample_parameters: params
+          }
+        });
+      };
+
+      ServerDataSource.prototype.listen_for_heatmap_updates = function(column_data_source, x_data_range, y_data_range, x_screen_range, y_screen_range) {
+        var callback, range, _i, _len, _ref1,
+          _this = this;
+        this.stoplistening_for_updates(column_data_source);
+        callback = ajax_throttle(function() {
+          return _this.heatmap_update(column_data_source, x_data_range, y_data_range, x_screen_range, y_screen_range);
+        });
+        callback();
+        this.callbacks[column_data_source.get('id')] = [];
+        _ref1 = [x_data_range, y_data_range, x_screen_range, y_screen_range];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          range = _ref1[_i];
+          this.listenTo(range, 'change', callback);
+          this.callbacks[column_data_source.get('id')].push([range, 'change', callback]);
+        }
+        this.listenTo(this, 'change:index_slice', callback);
+        this.callbacks[column_data_source.get('id')].push([this, 'change:index_slice', callback]);
+        this.listenTo(this, 'change:data_slice', callback);
+        this.callbacks[column_data_source.get('id')].push([this, 'change:data_slice', callback]);
+        return null;
+      };
+
+      ServerDataSource.prototype.heatmap_update = function(column_data_source, x_data_range, y_data_range, x_screen_range, y_screen_range) {
+        var data_slice, data_url, global_offset_x, global_offset_y, global_x_range, global_y_range, index_slice, owner_username, params, prefix, url, x_bounds, x_resolution, y_bounds, y_resolution;
+        data_url = this.get('data_url');
+        owner_username = this.get('owner_username');
+        prefix = this.get_base().Config.prefix;
+        url = "" + prefix + "/bokeh/data/" + owner_username + data_url;
+        x_resolution = x_screen_range.get('end') - x_screen_range.get('start');
+        y_resolution = y_screen_range.get('end') - y_screen_range.get('start');
+        x_bounds = [x_data_range.get('start'), x_data_range.get('end')];
+        y_bounds = [y_data_range.get('start'), y_data_range.get('end')];
+        global_x_range = this.get('data').global_x_range;
+        global_y_range = this.get('data').global_y_range;
+        global_offset_x = this.get('data').global_offset_x[0];
+        global_offset_y = this.get('data').global_offset_y[0];
+        index_slice = this.get('index_slice');
+        data_slice = this.get('data_slice');
+        params = [global_x_range, global_y_range, global_offset_x, global_offset_y, x_bounds, y_bounds, x_resolution, y_resolution, index_slice, data_slice, this.get('transpose')];
+        params = JSON.stringify(params);
+        return $.ajax({
+          dataType: 'json',
+          url: url,
+          xhrField: {
+            withCredentials: true
+          },
+          success: function(data) {
+            var new_data;
+            new_data = _.clone(column_data_source.get('data'));
+            _.extend(new_data, data);
+            return column_data_source.set('data', new_data);
+          },
+          data: {
+            downsample_function: 'heatmap',
+            downsample_parameters: params
+          }
+        });
+      };
+
+      return ServerDataSource;
+
+    })(HasProperties);
+    ServerDataSources = (function(_super) {
+      __extends(ServerDataSources, _super);
+
+      function ServerDataSources() {
+        _ref1 = ServerDataSources.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      ServerDataSources.prototype.model = ServerDataSource;
+
+      return ServerDataSources;
+
+    })(Backbone.Collection);
+    return {
+      "Model": ServerDataSource,
+      "Collection": new ServerDataSources()
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=server_data_source.js.map
 */;
 (function() {
   var __hasProp = {}.hasOwnProperty,
@@ -26017,7 +26836,26 @@ define("sprintf", (function (global) {
       }
 
       PanToolView.prototype.initialize = function(options) {
-        return PanToolView.__super__.initialize.call(this, options);
+        var dims;
+        PanToolView.__super__.initialize.call(this, options);
+        dims = this.mget('dimensions');
+        if (dims.length === 0) {
+          return console.log("WARN: pan tool given empty dimensions");
+        } else if (dims.length === 1) {
+          if (dims[0] === 'width') {
+            return this.evgen_options.buttonText = "Pan (x-axis)";
+          } else if (dims[0] === 'height') {
+            return this.evgen_options.buttonText = "Pan (y-axis)";
+          } else {
+            return console.log("WARN: pan tool given unrecognized dimensions: " + dims);
+          }
+        } else if (dims.length === 2) {
+          if (dims.indexOf('width') < 0 || dims.indexOf('height') < 0) {
+            return console.log("WARN: pan tool given unrecognized dimensions: " + dims);
+          }
+        } else {
+          return console.log("WARN: pan tool given more than two dimensions: " + dims);
+        }
       };
 
       PanToolView.prototype.bind_bokeh_events = function() {
@@ -26054,7 +26892,7 @@ define("sprintf", (function (global) {
       };
 
       PanToolView.prototype._drag = function(e) {
-        var pan_info, sx_high, sx_low, sy_high, sy_low, x, xdiff, xend, xr, xstart, y, ydiff, yend, yr, ystart, _ref1, _ref2;
+        var dims, pan_info, sdx, sdy, sx_high, sx_low, sy_high, sy_low, x, xdiff, xend, xr, xstart, y, ydiff, yend, yr, ystart, _ref1, _ref2;
         _ref1 = this.mouse_coords(e, e.bokehX, e.bokehY), x = _ref1[0], y = _ref1[1];
         xdiff = x - this.x;
         ydiff = y - this.y;
@@ -26065,10 +26903,25 @@ define("sprintf", (function (global) {
         yr = this.plot_view.view_state.get('inner_range_vertical');
         sy_low = yr.get('start') - ydiff;
         sy_high = yr.get('end') - ydiff;
-        xstart = this.plot_view.xmapper.map_from_target(sx_low);
-        xend = this.plot_view.xmapper.map_from_target(sx_high);
-        ystart = this.plot_view.ymapper.map_from_target(sy_low);
-        yend = this.plot_view.ymapper.map_from_target(sy_high);
+        dims = this.mget('dimensions');
+        if (dims.indexOf('width') > -1) {
+          xstart = this.plot_view.xmapper.map_from_target(sx_low);
+          xend = this.plot_view.xmapper.map_from_target(sx_high);
+          sdx = -xdiff;
+        } else {
+          xstart = this.plot_view.xmapper.map_from_target(xr.get('start'));
+          xend = this.plot_view.xmapper.map_from_target(xr.get('end'));
+          sdx = 0;
+        }
+        if (dims.indexOf('height') > -1) {
+          ystart = this.plot_view.ymapper.map_from_target(sy_low);
+          yend = this.plot_view.ymapper.map_from_target(sy_high);
+          sdy = ydiff;
+        } else {
+          ystart = this.plot_view.ymapper.map_from_target(yr.get('start'));
+          yend = this.plot_view.ymapper.map_from_target(yr.get('end'));
+          sdy = 0;
+        }
         pan_info = {
           xr: {
             start: xstart,
@@ -26078,8 +26931,8 @@ define("sprintf", (function (global) {
             start: ystart,
             end: yend
           },
-          sdx: -xdiff,
-          sdy: ydiff
+          sdx: sdx,
+          sdy: sdy
         };
         this.plot_view.update_range(pan_info);
         return null;
@@ -26102,7 +26955,7 @@ define("sprintf", (function (global) {
 
       PanTool.prototype.defaults = function() {
         return {
-          dimensions: []
+          dimensions: ["width", "height"]
         };
       };
 
@@ -26375,7 +27228,7 @@ define('modal',["jquery"], function($) {
           _this = this;
         data_uri = this.plot_view.canvas[0].toDataURL();
         this.plot_model.set('png', this.plot_view.canvas[0].toDataURL());
-        modal = "<div id='previewModal' class='bokeh'>\n  <div class=\"modal\" role=\"dialog\" aria-labelledby=\"previewLabel\" aria-hidden=\"true\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">×</button>\n      <h3 id=\"dataConfirmLabel\">Image Preview (right click to save)</h3></div><div class=\"modal-body\">\n    <div class=\"modal-body\">\n      <img src=\"" + data_uri + "\" style=\"max-height: 300px; max-width: 400px\">\n    </div>\n    </div><div class=\"modal-footer\">\n      <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n    </div>\n  </div>\n</div>";
+        modal = "<div id='previewModal' class='bokeh'>\n  <div class=\"modal\" role=\"dialog\" aria-labelledby=\"previewLabel\" aria-hidden=\"true\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n      <h3 id=\"dataConfirmLabel\">Image Preview (right click to save)</h3>\n    </div>\n    <div class=\"modal-body\">\n      <img src=\"" + data_uri + "\" style=\"max-height: 300px; max-width: 400px\">\n    </div>\n    <div class=\"modal-footer\">\n      <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n    </div>\n  </div>\n</div>";
         $('body').append(modal);
         $('#previewModal .modal').on('hidden', function() {
           return _this.plot_view.eventSink.trigger("clear_active_tool");
@@ -26717,13 +27570,32 @@ define('modal',["jquery"], function($) {
       }
 
       WheelZoomToolView.prototype.initialize = function(options) {
-        return WheelZoomToolView.__super__.initialize.call(this, options);
+        var dims;
+        WheelZoomToolView.__super__.initialize.call(this, options);
+        dims = this.mget('dimensions');
+        if (dims.length === 0) {
+          return console.log("WARN: wheel zoom tool given empty dimensions");
+        } else if (dims.length === 1) {
+          if (dims[0] === 'width') {
+            return this.evgen_options.buttonText = "Wheel Zoom (x-axis)";
+          } else if (dims[0] === 'height') {
+            return this.evgen_options.buttonText = "Wheel Zoom (y-axis)";
+          } else {
+            return console.log("WARN: wheel tool given unrecognized dimensions: " + dims);
+          }
+        } else if (dims.length === 2) {
+          if (dims.indexOf('width') < 0 || dims.indexOf('height') < 0) {
+            return console.log("WARN: pan tool given unrecognized dimensions: " + dims);
+          }
+        } else {
+          return console.log("WARN: wheel tool given more than two dimensions: " + dims);
+        }
       };
 
       WheelZoomToolView.prototype.eventGeneratorClass = OnePointWheelEventGenerator;
 
       WheelZoomToolView.prototype.evgen_options = {
-        buttonText: "WheelZoom"
+        buttonText: "Wheel Zoom"
       };
 
       WheelZoomToolView.prototype.tool_events = {
@@ -26737,7 +27609,7 @@ define('modal',["jquery"], function($) {
       };
 
       WheelZoomToolView.prototype._zoom = function(e) {
-        var delta, factor, screenX, screenY, speed, sx_high, sx_low, sy_high, sy_low, x, xend, xr, xstart, y, yend, yr, ystart, zoom_info, _ref1, _ref2, _ref3;
+        var delta, dims, factor, screenX, screenY, speed, sx_high, sx_low, sy_high, sy_low, x, xend, xr, xstart, y, yend, yr, ystart, zoom_info, _ref1, _ref2, _ref3, _ref4, _ref5;
         delta = e.originalEvent.wheelDelta;
         screenX = e.bokehX;
         screenY = e.bokehY;
@@ -26755,8 +27627,17 @@ define('modal',["jquery"], function($) {
         yr = this.plot_view.view_state.get('inner_range_vertical');
         sy_low = yr.get('start');
         sy_high = yr.get('end');
-        _ref2 = this.plot_view.xmapper.v_map_from_target([sx_low - (sx_low - x) * factor, sx_high - (sx_high - x) * factor]), xstart = _ref2[0], xend = _ref2[1];
-        _ref3 = this.plot_view.ymapper.v_map_from_target([sy_low - (sy_low - y) * factor, sy_high - (sy_high - y) * factor]), ystart = _ref3[0], yend = _ref3[1];
+        dims = this.mget('dimensions');
+        if (dims.indexOf('width') > -1) {
+          _ref2 = this.plot_view.xmapper.v_map_from_target([sx_low - (sx_low - x) * factor, sx_high - (sx_high - x) * factor]), xstart = _ref2[0], xend = _ref2[1];
+        } else {
+          _ref3 = this.plot_view.xmapper.v_map_from_target([sx_low, sx_high]), xstart = _ref3[0], xend = _ref3[1];
+        }
+        if (dims.indexOf('height') > -1) {
+          _ref4 = this.plot_view.ymapper.v_map_from_target([sy_low - (sy_low - y) * factor, sy_high - (sy_high - y) * factor]), ystart = _ref4[0], yend = _ref4[1];
+        } else {
+          _ref5 = this.plot_view.ymapper.v_map_from_target([sy_low, sy_high]), ystart = _ref5[0], yend = _ref5[1];
+        }
         zoom_info = {
           xr: {
             start: xstart,
@@ -26789,7 +27670,7 @@ define('modal',["jquery"], function($) {
 
       WheelZoomTool.prototype.defaults = function() {
         return {
-          dimensions: [],
+          dimensions: ["width", "height"],
           speed: 1 / 600
         };
       };
@@ -26825,6 +27706,6158 @@ define('modal',["jquery"], function($) {
 
 /*
 //@ sourceMappingURL=wheel_zoom_tool.js.map
+*/;
+/*globals jQuery, define, exports, require, window, document */
+(function (factory) {
+	
+	if (typeof define === 'function' && define.amd) {
+		define('jstree',['jquery'], factory);
+	}
+	else if(typeof exports === 'object') {
+		factory(require('jquery'));
+	}
+	else {
+		factory(jQuery);
+	}
+}(function ($, undefined) {
+	
+/*!
+ * jsTree 3.0.0
+ * http://jstree.com/
+ *
+ * Copyright (c) 2013 Ivan Bozhanov (http://vakata.com)
+ *
+ * Licensed same as jquery - under the terms of the MIT License
+ *   http://www.opensource.org/licenses/mit-license.php
+ */
+/*!
+ * if using jslint please allow for the jQuery global and use following options: 
+ * jslint: browser: true, ass: true, bitwise: true, continue: true, nomen: true, plusplus: true, regexp: true, unparam: true, todo: true, white: true
+ */
+
+	// prevent another load? maybe there is a better way?
+	if($.jstree) {
+		return;
+	}
+
+	/**
+	 * ### jsTree core functionality
+	 */
+
+	// internal variables
+	var instance_counter = 0,
+		ccp_node = false,
+		ccp_mode = false,
+		ccp_inst = false,
+		themes_loaded = [],
+		src = $('script:last').attr('src'),
+		_d = document, _node = _d.createElement('LI'), _temp1, _temp2;
+
+	_node.setAttribute('role', 'treeitem');
+	_temp1 = _d.createElement('I');
+	_temp1.className = 'jstree-icon jstree-ocl';
+	_node.appendChild(_temp1);
+	_temp1 = _d.createElement('A');
+	_temp1.className = 'jstree-anchor';
+	_temp1.setAttribute('href','#');
+	_temp2 = _d.createElement('I');
+	_temp2.className = 'jstree-icon jstree-themeicon';
+	_temp1.appendChild(_temp2);
+	_node.appendChild(_temp1);
+	_temp1 = _temp2 = null;
+
+
+	/**
+	 * holds all jstree related functions and variables, including the actual class and methods to create, access and manipulate instances.
+	 * @name $.jstree
+	 */
+	$.jstree = {
+		/** 
+		 * specifies the jstree version in use
+		 * @name $.jstree.version
+		 */
+		version : '3.0.0-beta9',
+		/**
+		 * holds all the default options used when creating new instances
+		 * @name $.jstree.defaults
+		 */
+		defaults : {
+			/**
+			 * configure which plugins will be active on an instance. Should be an array of strings, where each element is a plugin name. The default is `[]`
+			 * @name $.jstree.defaults.plugins
+			 */
+			plugins : []
+		},
+		/**
+		 * stores all loaded jstree plugins (used internally)
+		 * @name $.jstree.plugins
+		 */
+		plugins : {},
+		path : src && src.indexOf('/') !== -1 ? src.replace(/\/[^\/]+$/,'') : ''
+	};
+	/**
+	 * creates a jstree instance
+	 * @name $.jstree.create(el [, options])
+	 * @param {DOMElement|jQuery|String} el the element to create the instance on, can be jQuery extended or a selector
+	 * @param {Object} options options for this instance (extends `$.jstree.defaults`)
+	 * @return {jsTree} the new instance
+	 */
+	$.jstree.create = function (el, options) {
+		var tmp = new $.jstree.core(++instance_counter),
+			opt = options;
+		options = $.extend(true, {}, $.jstree.defaults, options);
+		if(opt && opt.plugins) {
+			options.plugins = opt.plugins;
+		}
+		$.each(options.plugins, function (i, k) {
+			if(i !== 'core') {
+				tmp = tmp.plugin(k, options[k]);
+			}
+		});
+		tmp.init(el, options);
+		return tmp;
+	};
+	/**
+	 * the jstree class constructor, used only internally
+	 * @private
+	 * @name $.jstree.core(id)
+	 * @param {Number} id this instance's index
+	 */
+	$.jstree.core = function (id) {
+		this._id = id;
+		this._cnt = 0;
+		this._data = {
+			core : {
+				themes : {
+					name : false,
+					dots : false,
+					icons : false
+				},
+				selected : [],
+				last_error : {}
+			}
+		};
+	};
+	/**
+	 * get a reference to an existing instance
+	 *
+	 * __Examples__
+	 *
+	 *	// provided a container with an ID of "tree", and a nested node with an ID of "branch"
+	 *	// all of there will return the same instance
+	 *	$.jstree.reference('tree');
+	 *	$.jstree.reference('#tree');
+	 *	$.jstree.reference($('#tree'));
+	 *	$.jstree.reference(document.getElementByID('tree'));
+	 *	$.jstree.reference('branch');
+	 *	$.jstree.reference('#branch');
+	 *	$.jstree.reference($('#branch'));
+	 *	$.jstree.reference(document.getElementByID('branch'));
+	 *
+	 * @name $.jstree.reference(needle)
+	 * @param {DOMElement|jQuery|String} needle
+	 * @return {jsTree|null} the instance or `null` if not found
+	 */
+	$.jstree.reference = function (needle) {
+		if(needle && !$(needle).length) {
+			if(needle.id) {
+				needle = needle.id;
+			}
+			var tmp = null;
+			$('.jstree').each(function () {
+				var inst = $(this).data('jstree');
+				if(inst && inst._model.data[needle]) {
+					tmp = inst;
+					return false;
+				}
+			});
+			return tmp;
+		}
+		return $(needle).closest('.jstree').data('jstree');
+	};
+	/**
+	 * Create an instance, get an instance or invoke a command on a instance. 
+	 * 
+	 * If there is no instance associated with the current node a new one is created and `arg` is used to extend `$.jstree.defaults` for this new instance. There would be no return value (chaining is not broken).
+	 * 
+	 * If there is an existing instance and `arg` is a string the command specified by `arg` is executed on the instance, with any additional arguments passed to the function. If the function returns a value it will be returned (chaining could break depending on function).
+	 * 
+	 * If there is an existing instance and `arg` is not a string the instance itself is returned (similar to `$.jstree.reference`).
+	 * 
+	 * In any other case - nothing is returned and chaining is not broken.
+	 *
+	 * __Examples__
+	 *
+	 *	$('#tree1').jstree(); // creates an instance
+	 *	$('#tree2').jstree({ plugins : [] }); // create an instance with some options
+	 *	$('#tree1').jstree('open_node', '#branch_1'); // call a method on an existing instance, passing additional arguments
+	 *	$('#tree2').jstree(); // get an existing instance (or create an instance)
+	 *	$('#tree2').jstree(true); // get an existing instance (will not create new instance)
+	 *	$('#branch_1').jstree().select_node('#branch_1'); // get an instance (using a nested element and call a method)
+	 *
+	 * @name $().jstree([arg])
+	 * @param {String|Object} arg
+	 * @return {Mixed}
+	 */
+	$.fn.jstree = function (arg) {
+		// check for string argument
+		var is_method	= (typeof arg === 'string'),
+			args		= Array.prototype.slice.call(arguments, 1),
+			result		= null;
+		this.each(function () {
+			// get the instance (if there is one) and method (if it exists)
+			var instance = $.jstree.reference(this),
+				method = is_method && instance ? instance[arg] : null;
+			// if calling a method, and method is available - execute on the instance
+			result = is_method && method ?
+				method.apply(instance, args) :
+				null;
+			// if there is no instance and no method is being called - create one
+			if(!instance && !is_method && (arg === undefined || $.isPlainObject(arg))) {
+				$(this).data('jstree', new $.jstree.create(this, arg));
+			}
+			// if there is an instance and no method is called - return the instance
+			if(instance && !is_method) {
+				result = instance;
+			}
+			// if there was a method call which returned a result - break and return the value
+			if(result !== null && result !== undefined) {
+				return false;
+			}
+		});
+		// if there was a method call with a valid return value - return that, otherwise continue the chain
+		return result !== null && result !== undefined ?
+			result : this;
+	};
+	/**
+	 * used to find elements containing an instance
+	 *
+	 * __Examples__
+	 *
+	 *	$('div:jstree').each(function () {
+	 *		$(this).jstree('destroy');
+	 *	});
+	 *
+	 * @name $(':jstree')
+	 * @return {jQuery}
+	 */
+	$.expr[':'].jstree = $.expr.createPseudo(function(search) {
+		return function(a) {
+			return $(a).hasClass('jstree') &&
+				$(a).data('jstree') !== undefined;
+		};
+	});
+
+	/**
+	 * stores all defaults for the core
+	 * @name $.jstree.defaults.core
+	 */
+	$.jstree.defaults.core = {
+		/**
+		 * data configuration
+		 * 
+		 * If left as `false` the HTML inside the jstree container element is used to populate the tree (that should be an unordered list with list items).
+		 *
+		 * You can also pass in a HTML string or a JSON array here.
+		 * 
+		 * It is possible to pass in a standard jQuery-like AJAX config and jstree will automatically determine if the response is JSON or HTML and use that to populate the tree. 
+		 * In addition to the standard jQuery ajax options here you can suppy functions for `data` and `url`, the functions will be run in the current instance's scope and a param will be passed indicating which node is being loaded, the return value of those functions will be used.
+		 * 
+		 * The last option is to specify a function, that function will receive the node being loaded as argument and a second param which is a function which should be called with the result.
+		 *
+		 * __Examples__
+		 *
+		 *	// AJAX
+		 *	$('#tree').jstree({
+		 *		'core' : {
+		 *			'data' : {
+		 *				'url' : '/get/children/',
+		 *				'data' : function (node) {
+		 *					return { 'id' : node.id };
+		 *				}
+		 *			}
+		 *		});
+		 *
+		 *	// direct data
+		 *	$('#tree').jstree({
+		 *		'core' : {
+		 *			'data' : [
+		 *				'Simple root node',
+		 *				{
+		 *					'id' : 'node_2',
+		 *					'text' : 'Root node with options',
+		 *					'state' : { 'opened' : true, 'selected' : true },
+		 *					'children' : [ { 'text' : 'Child 1' }, 'Child 2']
+		 *				}
+		 *			]
+		 *		});
+		 *	
+		 *	// function
+		 *	$('#tree').jstree({
+		 *		'core' : {
+		 *			'data' : function (obj, callback) {
+		 *				callback.call(this, ['Root 1', 'Root 2']);
+		 *			}
+		 *		});
+		 * 
+		 * @name $.jstree.defaults.core.data
+		 */
+		data			: false,
+		/**
+		 * configure the various strings used throughout the tree
+		 *
+		 * You can use an object where the key is the string you need to replace and the value is your replacement.
+		 * Another option is to specify a function which will be called with an argument of the needed string and should return the replacement.
+		 * If left as `false` no replacement is made.
+		 *
+		 * __Examples__
+		 *
+		 *	$('#tree').jstree({
+		 *		'core' : {
+		 *			'strings' : {
+		 *				'Loading...' : 'Please wait ...'
+		 *			}
+		 *		}
+		 *	});
+		 *
+		 * @name $.jstree.defaults.core.strings
+		 */
+		strings			: false,
+		/**
+		 * determines what happens when a user tries to modify the structure of the tree
+		 * If left as `false` all operations like create, rename, delete, move or copy are prevented.
+		 * You can set this to `true` to allow all interactions or use a function to have better control.
+		 *
+		 * __Examples__
+		 *
+		 *	$('#tree').jstree({
+		 *		'core' : {
+		 *			'check_callback' : function (operation, node, node_parent, node_position) {
+		 *				// operation can be 'create_node', 'rename_node', 'delete_node', 'move_node' or 'copy_node'
+		 *				// in case of 'rename_node' node_position is filled with the new node name
+		 *				return operation === 'rename_node' ? true : false;
+		 *			}
+		 *		}
+		 *	});
+		 * 
+		 * @name $.jstree.defaults.core.check_callback
+		 */
+		check_callback	: false,
+		/**
+		 * a callback called with a single object parameter in the instance's scope when something goes wrong (operation prevented, ajax failed, etc)
+		 * @name $.jstree.defaults.core.error
+		 */
+		error			: $.noop,
+		/**
+		 * the open / close animation duration in milliseconds - set this to `false` to disable the animation (default is `200`)
+		 * @name $.jstree.defaults.core.animation
+		 */
+		animation		: 200,
+		/**
+		 * a boolean indicating if multiple nodes can be selected
+		 * @name $.jstree.defaults.core.multiple
+		 */
+		multiple		: true,
+		/**
+		 * theme configuration object
+		 * @name $.jstree.defaults.core.themes
+		 */
+		themes			: {
+			/**
+			 * the name of the theme to use (if left as `false` the default theme is used)
+			 * @name $.jstree.defaults.core.themes.name
+			 */
+			name			: false,
+			/**
+			 * the URL of the theme's CSS file, leave this as `false` if you have manually included the theme CSS (recommended). You can set this to `true` too which will try to autoload the theme.
+			 * @name $.jstree.defaults.core.themes.url
+			 */
+			url				: false,
+			/**
+			 * the location of all jstree themes - only used if `url` is set to `true`
+			 * @name $.jstree.defaults.core.themes.dir
+			 */
+			dir				: false,
+			/**
+			 * a boolean indicating if connecting dots are shown
+			 * @name $.jstree.defaults.core.themes.dots
+			 */
+			dots			: true,
+			/**
+			 * a boolean indicating if node icons are shown
+			 * @name $.jstree.defaults.core.themes.icons
+			 */
+			icons			: true,
+			/**
+			 * a boolean indicating if the tree background is striped
+			 * @name $.jstree.defaults.core.themes.stripes
+			 */
+			stripes			: false,
+			/**
+			 * a string (or boolean `false`) specifying the theme variant to use (if the theme supports variants)
+			 * @name $.jstree.defaults.core.themes.variant
+			 */
+			variant			: false,
+			/**
+			 * a boolean specifying if a reponsive version of the theme should kick in on smaller screens (if the theme supports it). Defaults to `true`.
+			 * @name $.jstree.defaults.core.themes.responsive
+			 */
+			responsive		: true
+		},
+		/**
+		 * if left as `true` all parents of all selected nodes will be opened once the tree loads (so that all selected nodes are visible to the user)
+		 * @name $.jstree.defaults.core.expand_selected_onload
+		 */
+		expand_selected_onload : true
+	};
+	$.jstree.core.prototype = {
+		/**
+		 * used to decorate an instance with a plugin. Used internally.
+		 * @private
+		 * @name plugin(deco [, opts])
+		 * @param  {String} deco the plugin to decorate with
+		 * @param  {Object} opts options for the plugin
+		 * @return {jsTree}
+		 */
+		plugin : function (deco, opts) {
+			var Child = $.jstree.plugins[deco];
+			if(Child) {
+				this._data[deco] = {};
+				Child.prototype = this;
+				return new Child(opts, this);
+			}
+			return this;
+		},
+		/**
+		 * used to decorate an instance with a plugin. Used internally.
+		 * @private
+		 * @name init(el, optons)
+		 * @param {DOMElement|jQuery|String} el the element we are transforming
+		 * @param {Object} options options for this instance
+		 * @trigger init.jstree, loading.jstree, loaded.jstree, ready.jstree, changed.jstree
+		 */
+		init : function (el, options) {
+			this._model = {
+				data : {
+					'#' : {
+						id : '#',
+						parent : null,
+						parents : [],
+						children : [],
+						children_d : [],
+						state : { loaded : false }
+					}
+				},
+				changed : [],
+				force_full_redraw : false,
+				redraw_timeout : false,
+				default_state : {
+					loaded : true,
+					opened : false,
+					selected : false,
+					disabled : false
+				}
+			};
+
+			this.element = $(el).addClass('jstree jstree-' + this._id);
+			this.settings = options;
+			this.element.bind("destroyed", $.proxy(this.teardown, this));
+
+			this._data.core.ready = false;
+			this._data.core.loaded = false;
+			this._data.core.rtl = (this.element.css("direction") === "rtl");
+			this.element[this._data.core.rtl ? 'addClass' : 'removeClass']("jstree-rtl");
+			this.element.attr('role','tree');
+
+			this.bind();
+			/**
+			 * triggered after all events are bound
+			 * @event
+			 * @name init.jstree
+			 */
+			this.trigger("init");
+
+			this._data.core.original_container_html = this.element.find(" > ul > li").clone(true);
+			this._data.core.original_container_html
+				.find("li").addBack()
+				.contents().filter(function() {
+					return this.nodeType === 3 && (!this.nodeValue || /^\s+$/.test(this.nodeValue));
+				})
+				.remove();
+			this.element.html("<"+"ul class='jstree-container-ul'><"+"li class='jstree-initial-node jstree-loading jstree-leaf jstree-last'><i class='jstree-icon jstree-ocl'></i><"+"a class='jstree-anchor' href='#'><i class='jstree-icon jstree-themeicon-hidden'></i>" + this.get_string("Loading ...") + "</a></li></ul>");
+			this._data.core.li_height = this.get_container_ul().children("li:eq(0)").height() || 18;
+			/**
+			 * triggered after the loading text is shown and before loading starts
+			 * @event
+			 * @name loading.jstree
+			 */
+			this.trigger("loading");
+			this.load_node('#');
+		},
+		/**
+		 * destroy an instance
+		 * @name destroy()
+		 */
+		destroy : function () {
+			this.element.unbind("destroyed", this.teardown);
+			this.teardown();
+		},
+		/**
+		 * part of the destroying of an instance. Used internally.
+		 * @private
+		 * @name teardown()
+		 */
+		teardown : function () {
+			this.unbind();
+			this.element
+				.removeClass('jstree')
+				.removeData('jstree')
+				.find("[class^='jstree']")
+					.addBack()
+					.attr("class", function () { return this.className.replace(/jstree[^ ]*|$/ig,''); });
+			this.element = null;
+		},
+		/**
+		 * bind all events. Used internally.
+		 * @private
+		 * @name bind()
+		 */
+		bind : function () {
+			this.element
+				.on("dblclick.jstree", function () {
+						if(document.selection && document.selection.empty) {
+							document.selection.empty();
+						}
+						else {
+							if(window.getSelection) {
+								var sel = window.getSelection();
+								try {
+									sel.removeAllRanges();
+									sel.collapse();
+								} catch (ignore) { }
+							}
+						}
+					})
+				.on("click.jstree", ".jstree-ocl", $.proxy(function (e) {
+						this.toggle_node(e.target);
+					}, this))
+				.on("click.jstree", ".jstree-anchor", $.proxy(function (e) {
+						e.preventDefault();
+						$(e.currentTarget).focus();
+						this.activate_node(e.currentTarget, e);
+					}, this))
+				.on('keydown.jstree', '.jstree-anchor', $.proxy(function (e) {
+						var o = null;
+						switch(e.which) {
+							case 13:
+							case 32:
+								e.type = "click";
+								$(e.currentTarget).trigger(e);
+								break;
+							case 37:
+								e.preventDefault();
+								if(this.is_open(e.currentTarget)) {
+									this.close_node(e.currentTarget);
+								}
+								else {
+									o = this.get_prev_dom(e.currentTarget);
+									if(o && o.length) { o.children('.jstree-anchor').focus(); }
+								}
+								break;
+							case 38:
+								e.preventDefault();
+								o = this.get_prev_dom(e.currentTarget);
+								if(o && o.length) { o.children('.jstree-anchor').focus(); }
+								break;
+							case 39:
+								e.preventDefault();
+								if(this.is_closed(e.currentTarget)) {
+									this.open_node(e.currentTarget, function (o) { this.get_node(o, true).children('.jstree-anchor').focus(); });
+								}
+								else {
+									o = this.get_next_dom(e.currentTarget);
+									if(o && o.length) { o.children('.jstree-anchor').focus(); }
+								}
+								break;
+							case 40:
+								e.preventDefault();
+								o = this.get_next_dom(e.currentTarget);
+								if(o && o.length) { o.children('.jstree-anchor').focus(); }
+								break;
+							// delete
+							case 46:
+								e.preventDefault();
+								o = this.get_node(e.currentTarget);
+								if(o && o.id && o.id !== '#') {
+									o = this.is_selected(o) ? this.get_selected() : o;
+									// this.delete_node(o);
+								}
+								break;
+							// f2
+							case 113:
+								e.preventDefault();
+								o = this.get_node(e.currentTarget);
+								/*!
+								if(o && o.id && o.id !== '#') {
+									// this.edit(o);
+								}
+								*/
+								break;
+							default:
+								// console.log(e.which);
+								break;
+						}
+					}, this))
+				.on("load_node.jstree", $.proxy(function (e, data) {
+						if(data.status) {
+							if(data.node.id === '#' && !this._data.core.loaded) {
+								this._data.core.loaded = true;
+								/**
+								 * triggered after the root node is loaded for the first time
+								 * @event
+								 * @name loaded.jstree
+								 */
+								this.trigger("loaded");
+							}
+							if(!this._data.core.ready && !this.get_container_ul().find('.jstree-loading:eq(0)').length) {
+								this._data.core.ready = true;
+								if(this._data.core.selected.length) {
+									if(this.settings.core.expand_selected_onload) {
+										var tmp = [], i, j;
+										for(i = 0, j = this._data.core.selected.length; i < j; i++) {
+											tmp = tmp.concat(this._model.data[this._data.core.selected[i]].parents);
+										}
+										tmp = $.vakata.array_unique(tmp);
+										for(i = 0, j = tmp.length; i < j; i++) {
+											this.open_node(tmp[i], false, 0);
+										}
+									}
+									this.trigger('changed', { 'action' : 'ready', 'selected' : this._data.core.selected });
+								}
+								/**
+								 * triggered after all nodes are finished loading
+								 * @event
+								 * @name ready.jstree
+								 */
+								setTimeout($.proxy(function () { this.trigger("ready"); }, this), 0);
+							}
+						}
+					}, this))
+				// THEME RELATED
+				.on("init.jstree", $.proxy(function () {
+						var s = this.settings.core.themes;
+						this._data.core.themes.dots			= s.dots;
+						this._data.core.themes.stripes		= s.stripes;
+						this._data.core.themes.icons		= s.icons;
+						this.set_theme(s.name || "default", s.url);
+						this.set_theme_variant(s.variant);
+					}, this))
+				.on("loading.jstree", $.proxy(function () {
+						this[ this._data.core.themes.dots ? "show_dots" : "hide_dots" ]();
+						this[ this._data.core.themes.icons ? "show_icons" : "hide_icons" ]();
+						this[ this._data.core.themes.stripes ? "show_stripes" : "hide_stripes" ]();
+					}, this))
+				.on('focus.jstree', '.jstree-anchor', $.proxy(function (e) {
+						this.element.find('.jstree-hovered').not(e.currentTarget).mouseleave();
+						$(e.currentTarget).mouseenter();
+					}, this))
+				.on('mouseenter.jstree', '.jstree-anchor', $.proxy(function (e) {
+						this.hover_node(e.currentTarget);
+					}, this))
+				.on('mouseleave.jstree', '.jstree-anchor', $.proxy(function (e) {
+						this.dehover_node(e.currentTarget);
+					}, this));
+		},
+		/**
+		 * part of the destroying of an instance. Used internally.
+		 * @private
+		 * @name unbind()
+		 */
+		unbind : function () {
+			this.element.off('.jstree');
+			$(document).off('.jstree-' + this._id);
+		},
+		/**
+		 * trigger an event. Used internally.
+		 * @private
+		 * @name trigger(ev [, data])
+		 * @param  {String} ev the name of the event to trigger
+		 * @param  {Object} data additional data to pass with the event
+		 */
+		trigger : function (ev, data) {
+			if(!data) {
+				data = {};
+			}
+			data.instance = this;
+			this.element.triggerHandler(ev.replace('.jstree','') + '.jstree', data);
+		},
+		/**
+		 * returns the jQuery extended instance container
+		 * @name get_container()
+		 * @return {jQuery}
+		 */
+		get_container : function () {
+			return this.element;
+		},
+		/**
+		 * returns the jQuery extended main UL node inside the instance container. Used internally.
+		 * @private
+		 * @name get_container_ul()
+		 * @return {jQuery}
+		 */
+		get_container_ul : function () {
+			return this.element.children("ul:eq(0)");
+		},
+		/**
+		 * gets string replacements (localization). Used internally.
+		 * @private
+		 * @name get_string(key)
+		 * @param  {String} key
+		 * @return {String}
+		 */
+		get_string : function (key) {
+			var a = this.settings.core.strings;
+			if($.isFunction(a)) { return a.call(this, key); }
+			if(a && a[key]) { return a[key]; }
+			return key;
+		},
+		/**
+		 * gets the first child of a DOM node. Used internally.
+		 * @private
+		 * @name _firstChild(dom)
+		 * @param  {DOMElement} dom
+		 * @return {DOMElement}
+		 */
+		_firstChild : function (dom) {
+			dom = dom ? dom.firstChild : null;
+			while(dom !== null && dom.nodeType !== 1) {
+				dom = dom.nextSibling;
+			}
+			return dom;
+		},
+		/**
+		 * gets the next sibling of a DOM node. Used internally.
+		 * @private
+		 * @name _nextSibling(dom)
+		 * @param  {DOMElement} dom
+		 * @return {DOMElement}
+		 */
+		_nextSibling : function (dom) {
+			dom = dom ? dom.nextSibling : null;
+			while(dom !== null && dom.nodeType !== 1) {
+				dom = dom.nextSibling;
+			}
+			return dom;
+		},
+		/**
+		 * gets the previous sibling of a DOM node. Used internally.
+		 * @private
+		 * @name _previousSibling(dom)
+		 * @param  {DOMElement} dom
+		 * @return {DOMElement}
+		 */
+		_previousSibling : function (dom) {
+			dom = dom ? dom.previousSibling : null;
+			while(dom !== null && dom.nodeType !== 1) {
+				dom = dom.previousSibling;
+			}
+			return dom;
+		},
+		/**
+		 * get the JSON representation of a node (or the actual jQuery extended DOM node) by using any input (child DOM element, ID string, selector, etc)
+		 * @name get_node(obj [, as_dom])
+		 * @param  {mixed} obj
+		 * @param  {Boolean} as_dom
+		 * @return {Object|jQuery}
+		 */
+		get_node : function (obj, as_dom) {
+			if(obj && obj.id) {
+				obj = obj.id;
+			}
+			var dom;
+			try {
+				if(this._model.data[obj]) {
+					obj = this._model.data[obj];
+				}
+				else if(((dom = $(obj, this.element)).length || (dom = $('#' + obj, this.element)).length) && this._model.data[dom.closest('li').attr('id')]) {
+					obj = this._model.data[dom.closest('li').attr('id')];
+				}
+				else if((dom = $(obj, this.element)).length && dom.hasClass('jstree')) {
+					obj = this._model.data['#'];
+				}
+				else {
+					return false;
+				}
+
+				if(as_dom) {
+					obj = obj.id === '#' ? this.element : $(document.getElementById(obj.id));
+				}
+				return obj;
+			} catch (ex) { return false; }
+		},
+		/**
+		 * get the path to a node, either consisting of node texts, or of node IDs, optionally glued together (otherwise an array)
+		 * @name get_path(obj [, glue, ids])
+		 * @param  {mixed} obj the node
+		 * @param  {String} glue if you want the path as a string - pass the glue here (for example '/'), if a falsy value is supplied here, an array is returned
+		 * @param  {Boolean} ids if set to true build the path using ID, otherwise node text is used
+		 * @return {mixed}
+		 */
+		get_path : function (obj, glue, ids) {
+			obj = obj.parents ? obj : this.get_node(obj);
+			if(!obj || obj.id === '#' || !obj.parents) {
+				return false;
+			}
+			var i, j, p = [];
+			p.push(ids ? obj.id : obj.text);
+			for(i = 0, j = obj.parents.length; i < j; i++) {
+				p.push(ids ? obj.parents[i] : this.get_text(obj.parents[i]));
+			}
+			p = p.reverse().slice(1);
+			return glue ? p.join(glue) : p;
+		},
+		/**
+		 * get the next visible node that is below the `obj` node. If `strict` is set to `true` only sibling nodes are returned.
+		 * @name get_next_dom(obj [, strict])
+		 * @param  {mixed} obj
+		 * @param  {Boolean} strict
+		 * @return {jQuery}
+		 */
+		get_next_dom : function (obj, strict) {
+			var tmp;
+			obj = this.get_node(obj, true);
+			if(obj[0] === this.element[0]) {
+				tmp = this._firstChild(this.get_container_ul()[0]);
+				return tmp ? $(tmp) : false;
+			}
+			if(!obj || !obj.length) {
+				return false;
+			}
+			if(strict) {
+				tmp = this._nextSibling(obj[0]);
+				return tmp ? $(tmp) : false;
+			}
+			if(obj.hasClass("jstree-open")) {
+				tmp = this._firstChild(obj.children('ul')[0]);
+				return tmp ? $(tmp) : false;
+			}
+			if((tmp = this._nextSibling(obj[0])) !== null) {
+				return $(tmp);
+			}
+			return obj.parentsUntil(".jstree","li").next("li").eq(0);
+		},
+		/**
+		 * get the previous visible node that is above the `obj` node. If `strict` is set to `true` only sibling nodes are returned.
+		 * @name get_prev_dom(obj [, strict])
+		 * @param  {mixed} obj
+		 * @param  {Boolean} strict
+		 * @return {jQuery}
+		 */
+		get_prev_dom : function (obj, strict) {
+			var tmp;
+			obj = this.get_node(obj, true);
+			if(obj[0] === this.element[0]) {
+				tmp = this.get_container_ul()[0].lastChild;
+				return tmp ? $(tmp) : false;
+			}
+			if(!obj || !obj.length) {
+				return false;
+			}
+			if(strict) {
+				tmp = this._previousSibling(obj[0]);
+				return tmp ? $(tmp) : false;
+			}
+			if((tmp = this._previousSibling(obj[0])) !== null) {
+				obj = $(tmp);
+				while(obj.hasClass("jstree-open")) {
+					obj = obj.children("ul:eq(0)").children("li:last");
+				}
+				return obj;
+			}
+			tmp = obj[0].parentNode.parentNode;
+			return tmp && tmp.tagName === 'LI' ? $(tmp) : false;
+		},
+		/**
+		 * get the parent ID of a node
+		 * @name get_parent(obj)
+		 * @param  {mixed} obj
+		 * @return {String}
+		 */
+		get_parent : function (obj) {
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') {
+				return false;
+			}
+			return obj.parent;
+		},
+		/**
+		 * get a jQuery collection of all the children of a node (node must be rendered)
+		 * @name get_children_dom(obj)
+		 * @param  {mixed} obj
+		 * @return {jQuery}
+		 */
+		get_children_dom : function (obj) {
+			obj = this.get_node(obj, true);
+			if(obj[0] === this.element[0]) {
+				return this.get_container_ul().children("li");
+			}
+			if(!obj || !obj.length) {
+				return false;
+			}
+			return obj.children("ul").children("li");
+		},
+		/**
+		 * checks if a node has children
+		 * @name is_parent(obj)
+		 * @param  {mixed} obj
+		 * @return {Boolean}
+		 */
+		is_parent : function (obj) {
+			obj = this.get_node(obj);
+			return obj && (obj.state.loaded === false || obj.children.length > 0);
+		},
+		/**
+		 * checks if a node is loaded (its children are available)
+		 * @name is_loaded(obj)
+		 * @param  {mixed} obj
+		 * @return {Boolean}
+		 */
+		is_loaded : function (obj) {
+			obj = this.get_node(obj);
+			return obj && obj.state.loaded;
+		},
+		/**
+		 * check if a node is currently loading (fetching children)
+		 * @name is_loading(obj)
+		 * @param  {mixed} obj
+		 * @return {Boolean}
+		 */
+		is_loading : function (obj) {
+			obj = this.get_node(obj, true);
+			return obj && obj.hasClass("jstree-loading");
+		},
+		/**
+		 * check if a node is opened
+		 * @name is_open(obj)
+		 * @param  {mixed} obj
+		 * @return {Boolean}
+		 */
+		is_open : function (obj) {
+			obj = this.get_node(obj);
+			return obj && obj.state.opened;
+		},
+		/**
+		 * check if a node is in a closed state
+		 * @name is_closed(obj)
+		 * @param  {mixed} obj
+		 * @return {Boolean}
+		 */
+		is_closed : function (obj) {
+			obj = this.get_node(obj);
+			return obj && this.is_parent(obj) && !obj.state.opened;
+		},
+		/**
+		 * check if a node has no children
+		 * @name is_leaf(obj)
+		 * @param  {mixed} obj
+		 * @return {Boolean}
+		 */
+		is_leaf : function (obj) {
+			return !this.is_parent(obj);
+		},
+		/**
+		 * loads a node (fetches its children using the `core.data` setting). Multiple nodes can be passed to by using an array.
+		 * @name load_node(obj [, callback])
+		 * @param  {mixed} obj
+		 * @param  {function} callback a function to be executed once loading is conplete, the function is executed in the instance's scope and receives two arguments - the node and a boolean status
+		 * @return {Boolean}
+		 * @trigger load_node.jstree
+		 */
+		load_node : function (obj, callback) {
+			var t1, t2;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.load_node(obj[t1], callback);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj) {
+				callback.call(this, obj, false);
+				return false;
+			}
+			this.get_node(obj, true).addClass("jstree-loading");
+			this._load_node(obj, $.proxy(function (status) {
+				obj.state.loaded = status;
+				this.get_node(obj, true).removeClass("jstree-loading");
+				/**
+				 * triggered after a node is loaded
+				 * @event
+				 * @name load_node.jstree
+				 * @param {Object} node the node that was loading
+				 * @param {Boolean} status was the node loaded successfully
+				 */
+				this.trigger('load_node', { "node" : obj, "status" : status });
+				if(callback) {
+					callback.call(this, obj, status);
+				}
+			}, this));
+			return true;
+		},
+		/**
+		 * handles the actual loading of a node. Used only internally.
+		 * @private
+		 * @name _load_node(obj [, callback])
+		 * @param  {mixed} obj
+		 * @param  {function} callback a function to be executed once loading is conplete, the function is executed in the instance's scope and receives one argument - a boolean status
+		 * @return {Boolean}
+		 */
+		_load_node : function (obj, callback) {
+			var s = this.settings.core.data, t;
+			// use original HTML
+			if(!s) {
+				return callback.call(this, obj.id === '#' ? this._append_html_data(obj, this._data.core.original_container_html.clone(true)) : false);
+			}
+			if($.isFunction(s)) {
+				return s.call(this, obj, $.proxy(function (d) {
+					return d === false ? callback.call(this, false) : callback.call(this, this[typeof d === 'string' ? '_append_html_data' : '_append_json_data'](obj, typeof d === 'string' ? $(d) : d));
+				}, this));
+			}
+			if(typeof s === 'object') {
+				if(s.url) {
+					s = $.extend(true, {}, s);
+					if($.isFunction(s.url)) {
+						s.url = s.url.call(this, obj);
+					}
+					if($.isFunction(s.data)) {
+						s.data = s.data.call(this, obj);
+					}
+					return $.ajax(s)
+						.done($.proxy(function (d,t,x) {
+								var type = x.getResponseHeader('Content-Type');
+								if(type.indexOf('json') !== -1) {
+									return callback.call(this, this._append_json_data(obj, d));
+								}
+								if(type.indexOf('html') !== -1) {
+									return callback.call(this, this._append_html_data(obj, $(d)));
+								}
+							}, this))
+						.fail($.proxy(function () {
+								callback.call(this, false);
+								this._data.core.last_error = { 'error' : 'ajax', 'plugin' : 'core', 'id' : 'core_04', 'reason' : 'Could not load node', 'data' : JSON.stringify(s) };
+								this.settings.core.error.call(this, this._data.core.last_error);
+							}, this));
+				}
+				t = ($.isArray(s) || $.isPlainObject(s)) ? JSON.parse(JSON.stringify(s)) : s;
+				return callback.call(this, this._append_json_data(obj, t));
+			}
+			if(typeof s === 'string') {
+				return callback.call(this, this._append_html_data(obj, s));
+			}
+			return callback.call(this, false);
+		},
+		/**
+		 * adds a node to the list of nodes to redraw. Used only internally.
+		 * @private
+		 * @name _node_changed(obj [, callback])
+		 * @param  {mixed} obj
+		 */
+		_node_changed : function (obj) {
+			obj = this.get_node(obj);
+			if(obj) {
+				this._model.changed.push(obj.id);
+			}
+		},
+		/**
+		 * appends HTML content to the tree. Used internally.
+		 * @private
+		 * @name _append_html_data(obj, data)
+		 * @param  {mixed} obj the node to append to
+		 * @param  {String} data the HTML string to parse and append
+		 * @return {Boolean}
+		 * @trigger model.jstree, changed.jstree
+		 */
+		_append_html_data : function (dom, data) {
+			dom = this.get_node(dom);
+			dom.children = [];
+			dom.children_d = [];
+			var dat = data.is('ul') ? data.children() : data,
+				par = dom.id,
+				chd = [],
+				dpc = [],
+				m = this._model.data,
+				p = m[par],
+				s = this._data.core.selected.length,
+				tmp, i, j;
+			dat.each($.proxy(function (i, v) {
+				tmp = this._parse_model_from_html($(v), par, p.parents.concat());
+				if(tmp) {
+					chd.push(tmp);
+					dpc.push(tmp);
+					if(m[tmp].children_d.length) {
+						dpc = dpc.concat(m[tmp].children_d);
+					}
+				}
+			}, this));
+			p.children = chd;
+			p.children_d = dpc;
+			for(i = 0, j = p.parents.length; i < j; i++) {
+				m[p.parents[i]].children_d = m[p.parents[i]].children_d.concat(dpc);
+			}
+			/**
+			 * triggered when new data is inserted to the tree model
+			 * @event
+			 * @name model.jstree
+			 * @param {Array} nodes an array of node IDs
+			 * @param {String} parent the parent ID of the nodes
+			 */
+			this.trigger('model', { "nodes" : dpc, 'parent' : par });
+			if(par !== '#') {
+				this._node_changed(par);
+				this.redraw();
+			}
+			else {
+				this.get_container_ul().children('.jstree-initial-node').remove();
+				this.redraw(true);
+			}
+			if(this._data.core.selected.length !== s) {
+				this.trigger('changed', { 'action' : 'model', 'selected' : this._data.core.selected });
+			}
+			return true;
+		},
+		/**
+		 * appends JSON content to the tree. Used internally.
+		 * @private
+		 * @name _append_json_data(obj, data)
+		 * @param  {mixed} obj the node to append to
+		 * @param  {String} data the JSON object to parse and append
+		 * @return {Boolean}
+		 */
+		_append_json_data : function (dom, data) {
+			dom = this.get_node(dom);
+			dom.children = [];
+			dom.children_d = [];
+			var dat = data,
+				par = dom.id,
+				chd = [],
+				dpc = [],
+				m = this._model.data,
+				p = m[par],
+				s = this._data.core.selected.length,
+				tmp, i, j;
+			// *%$@!!!
+			if(dat.d) {
+				dat = dat.d;
+				if(typeof dat === "string") {
+					dat = JSON.parse(dat);
+				}
+			}
+			if(!$.isArray(dat)) { dat = [dat]; }
+			if(dat.length && dat[0].id !== undefined && dat[0].parent !== undefined) {
+				// Flat JSON support (for easy import from DB):
+				// 1) convert to object (foreach)
+				for(i = 0, j = dat.length; i < j; i++) {
+					if(!dat[i].children) {
+						dat[i].children = [];
+					}
+					m[dat[i].id] = dat[i];
+				}
+				// 2) populate children (foreach)
+				for(i = 0, j = dat.length; i < j; i++) {
+					m[dat[i].parent].children.push(dat[i].id);
+					// populate parent.children_d
+					p.children_d.push(dat[i].id);
+				}
+				// 3) normalize && populate parents and children_d with recursion
+				for(i = 0, j = p.children.length; i < j; i++) {
+					tmp = this._parse_model_from_flat_json(m[p.children[i]], par, p.parents.concat());
+					dpc.push(tmp);
+					if(m[tmp].children_d.length) {
+						dpc = dpc.concat(m[tmp].children_d);
+					}
+				}
+				// ?) three_state selection - p.state.selected && t - (if three_state foreach(dat => ch) -> foreach(parents) if(parent.selected) child.selected = true;
+			}
+			else {
+				for(i = 0, j = dat.length; i < j; i++) {
+					tmp = this._parse_model_from_json(dat[i], par, p.parents.concat());
+					if(tmp) {
+						chd.push(tmp);
+						dpc.push(tmp);
+						if(m[tmp].children_d.length) {
+							dpc = dpc.concat(m[tmp].children_d);
+						}
+					}
+				}
+				p.children = chd;
+				p.children_d = dpc;
+				for(i = 0, j = p.parents.length; i < j; i++) {
+					m[p.parents[i]].children_d = m[p.parents[i]].children_d.concat(dpc);
+				}
+			}
+			this.trigger('model', { "nodes" : dpc, 'parent' : par });
+
+			if(par !== '#') {
+				this._node_changed(par);
+				this.redraw();
+			}
+			else {
+				// this.get_container_ul().children('.jstree-initial-node').remove();
+				this.redraw(true);
+			}
+			if(this._data.core.selected.length !== s) {
+				this.trigger('changed', { 'action' : 'model', 'selected' : this._data.core.selected });
+			}
+			return true;
+		},
+		/**
+		 * parses a node from a jQuery object and appends them to the in memory tree model. Used internally.
+		 * @private
+		 * @name _parse_model_from_html(d [, p, ps])
+		 * @param  {jQuery} d the jQuery object to parse
+		 * @param  {String} p the parent ID
+		 * @param  {Array} ps list of all parents
+		 * @return {String} the ID of the object added to the model
+		 */
+		_parse_model_from_html : function (d, p, ps) {
+			if(!ps) { ps = []; }
+			else { ps = [].concat(ps); }
+			if(p) { ps.unshift(p); }
+			var c, e, m = this._model.data,
+				data = {
+					id			: false,
+					text		: false,
+					icon		: true,
+					parent		: p,
+					parents		: ps,
+					children	: [],
+					children_d	: [],
+					data		: null,
+					state		: { },
+					li_attr		: { id : false },
+					a_attr		: { href : '#' },
+					original	: false
+				}, i, tmp, tid;
+			for(i in this._model.default_state) {
+				if(this._model.default_state.hasOwnProperty(i)) {
+					data.state[i] = this._model.default_state[i];
+				}
+			}
+			tmp = $.vakata.attributes(d, true);
+			$.each(tmp, function (i, v) {
+				v = $.trim(v);
+				if(!v.length) { return true; }
+				data.li_attr[i] = v;
+				if(i === 'id') {
+					data.id = v;
+				}
+			});
+			tmp = d.children('a').eq(0);
+			if(tmp.length) {
+				tmp = $.vakata.attributes(tmp, true);
+				$.each(tmp, function (i, v) {
+					v = $.trim(v);
+					if(v.length) {
+						data.a_attr[i] = v;
+					}
+				});
+			}
+			tmp = d.children("a:eq(0)").length ? d.children("a:eq(0)").clone() : d.clone();
+			tmp.children("ins, i, ul").remove();
+			tmp = tmp.html();
+			tmp = $('<div />').html(tmp);
+			data.text = tmp.html();
+			tmp = d.data();
+			data.data = tmp ? $.extend(true, {}, tmp) : null;
+			data.state.opened = d.hasClass('jstree-open');
+			data.state.selected = d.children('a').hasClass('jstree-clicked');
+			data.state.disabled = d.children('a').hasClass('jstree-disabled');
+			if(data.data && data.data.jstree) {
+				for(i in data.data.jstree) {
+					if(data.data.jstree.hasOwnProperty(i)) {
+						data.state[i] = data.data.jstree[i];
+					}
+				}
+			}
+			tmp = d.children("a").children(".jstree-themeicon");
+			if(tmp.length) {
+				data.icon = tmp.hasClass('jstree-themeicon-hidden') ? false : tmp.attr('rel');
+			}
+			if(data.state.icon) {
+				data.icon = data.state.icon;
+			}
+			tmp = d.children("ul").children("li");
+			do {
+				tid = 'j' + this._id + '_' + (++this._cnt);
+			} while(m[tid]);
+			data.id = data.li_attr.id || tid;
+			if(tmp.length) {
+				tmp.each($.proxy(function (i, v) {
+					c = this._parse_model_from_html($(v), data.id, ps);
+					e = this._model.data[c];
+					data.children.push(c);
+					if(e.children_d.length) {
+						data.children_d = data.children_d.concat(e.children_d);
+					}
+				}, this));
+				data.children_d = data.children_d.concat(data.children);
+			}
+			else {
+				if(d.hasClass('jstree-closed')) {
+					data.state.loaded = false;
+				}
+			}
+			if(data.li_attr['class']) {
+				data.li_attr['class'] = data.li_attr['class'].replace('jstree-closed','').replace('jstree-open','');
+			}
+			if(data.a_attr['class']) {
+				data.a_attr['class'] = data.a_attr['class'].replace('jstree-clicked','').replace('jstree-disabled','');
+			}
+			m[data.id] = data;
+			if(data.state.selected) {
+				this._data.core.selected.push(data.id);
+			}
+			return data.id;
+		},
+		/**
+		 * parses a node from a JSON object (used when dealing with flat data, which has no nesting of children, but has id and parent properties) and appends it to the in memory tree model. Used internally.
+		 * @private
+		 * @name _parse_model_from_flat_json(d [, p, ps])
+		 * @param  {Object} d the JSON object to parse
+		 * @param  {String} p the parent ID
+		 * @param  {Array} ps list of all parents
+		 * @return {String} the ID of the object added to the model
+		 */
+		_parse_model_from_flat_json : function (d, p, ps) {
+			if(!ps) { ps = []; }
+			else { ps = ps.concat(); }
+			if(p) { ps.unshift(p); }
+			var tid = d.id,
+				m = this._model.data,
+				df = this._model.default_state,
+				i, j, c, e,
+				tmp = {
+					id			: tid,
+					text		: d.text || '',
+					icon		: d.icon !== undefined ? d.icon : true,
+					parent		: p,
+					parents		: ps,
+					children	: d.children || [],
+					children_d	: d.children_d || [],
+					data		: d.data,
+					state		: { },
+					li_attr		: { id : false },
+					a_attr		: { href : '#' },
+					original	: false
+				};
+			for(i in df) {
+				if(df.hasOwnProperty(i)) {
+					tmp.state[i] = df[i];
+				}
+			}
+			if(d && d.data && d.data.jstree && d.data.jstree.icon) {
+				tmp.icon = d.data.jstree.icon;
+			}
+			if(d && d.data) {
+				tmp.data = d.data;
+				if(d.data.jstree) {
+					for(i in d.data.jstree) {
+						if(d.data.jstree.hasOwnProperty(i)) {
+							tmp.state[i] = d.data.jstree[i];
+						}
+					}
+				}
+			}
+			if(d && typeof d.state === 'object') {
+				for (i in d.state) {
+					if(d.state.hasOwnProperty(i)) {
+						tmp.state[i] = d.state[i];
+					}
+				}
+			}
+			if(d && typeof d.li_attr === 'object') {
+				for (i in d.li_attr) {
+					if(d.li_attr.hasOwnProperty(i)) {
+						tmp.li_attr[i] = d.li_attr[i];
+					}
+				}
+			}
+			if(!tmp.li_attr.id) {
+				tmp.li_attr.id = tid;
+			}
+			if(d && typeof d.a_attr === 'object') {
+				for (i in d.a_attr) {
+					if(d.a_attr.hasOwnProperty(i)) {
+						tmp.a_attr[i] = d.a_attr[i];
+					}
+				}
+			}
+			if(d && d.children && d.children === true) {
+				tmp.state.loaded = false;
+				tmp.children = [];
+				tmp.children_d = [];
+			}
+			m[tmp.id] = tmp;
+			for(i = 0, j = tmp.children.length; i < j; i++) {
+				c = this._parse_model_from_flat_json(m[tmp.children[i]], tmp.id, ps);
+				e = m[c];
+				tmp.children_d.push(c);
+				if(e.children_d.length) {
+					tmp.children_d = tmp.children_d.concat(e.children_d);
+				}
+			}
+			delete d.data;
+			delete d.children;
+			m[tmp.id].original = d;
+			if(tmp.state.selected) {
+				this._data.core.selected.push(tmp.id);
+			}
+			return tmp.id;
+		},
+		/**
+		 * parses a node from a JSON object and appends it to the in memory tree model. Used internally.
+		 * @private
+		 * @name _parse_model_from_json(d [, p, ps])
+		 * @param  {Object} d the JSON object to parse
+		 * @param  {String} p the parent ID
+		 * @param  {Array} ps list of all parents
+		 * @return {String} the ID of the object added to the model
+		 */
+		_parse_model_from_json : function (d, p, ps) {
+			if(!ps) { ps = []; }
+			else { ps = ps.concat(); }
+			if(p) { ps.unshift(p); }
+			var tid = false, i, j, c, e, m = this._model.data, df = this._model.default_state, tmp;
+			do {
+				tid = 'j' + this._id + '_' + (++this._cnt);
+			} while(m[tid]);
+
+			tmp = {
+				id			: false,
+				text		: typeof d === 'string' ? d : '',
+				icon		: typeof d === 'object' && d.icon !== undefined ? d.icon : true,
+				parent		: p,
+				parents		: ps,
+				children	: [],
+				children_d	: [],
+				data		: null,
+				state		: { },
+				li_attr		: { id : false },
+				a_attr		: { href : '#' },
+				original	: false
+			};
+			for(i in df) {
+				if(df.hasOwnProperty(i)) {
+					tmp.state[i] = df[i];
+				}
+			}
+			if(d && d.id) { tmp.id = d.id; }
+			if(d && d.text) { tmp.text = d.text; }
+			if(d && d.data && d.data.jstree && d.data.jstree.icon) {
+				tmp.icon = d.data.jstree.icon;
+			}
+			if(d && d.data) {
+				tmp.data = d.data;
+				if(d.data.jstree) {
+					for(i in d.data.jstree) {
+						if(d.data.jstree.hasOwnProperty(i)) {
+							tmp.state[i] = d.data.jstree[i];
+						}
+					}
+				}
+			}
+			if(d && typeof d.state === 'object') {
+				for (i in d.state) {
+					if(d.state.hasOwnProperty(i)) {
+						tmp.state[i] = d.state[i];
+					}
+				}
+			}
+			if(d && typeof d.li_attr === 'object') {
+				for (i in d.li_attr) {
+					if(d.li_attr.hasOwnProperty(i)) {
+						tmp.li_attr[i] = d.li_attr[i];
+					}
+				}
+			}
+			if(tmp.li_attr.id && !tmp.id) {
+				tmp.id = tmp.li_attr.id;
+			}
+			if(!tmp.id) {
+				tmp.id = tid;
+			}
+			if(!tmp.li_attr.id) {
+				tmp.li_attr.id = tmp.id;
+			}
+			if(d && typeof d.a_attr === 'object') {
+				for (i in d.a_attr) {
+					if(d.a_attr.hasOwnProperty(i)) {
+						tmp.a_attr[i] = d.a_attr[i];
+					}
+				}
+			}
+			if(d && d.children && d.children.length) {
+				for(i = 0, j = d.children.length; i < j; i++) {
+					c = this._parse_model_from_json(d.children[i], tmp.id, ps);
+					e = m[c];
+					tmp.children.push(c);
+					if(e.children_d.length) {
+						tmp.children_d = tmp.children_d.concat(e.children_d);
+					}
+				}
+				tmp.children_d = tmp.children_d.concat(tmp.children);
+			}
+			if(d && d.children && d.children === true) {
+				tmp.state.loaded = false;
+				tmp.children = [];
+				tmp.children_d = [];
+			}
+			delete d.data;
+			delete d.children;
+			tmp.original = d;
+			m[tmp.id] = tmp;
+			if(tmp.state.selected) {
+				this._data.core.selected.push(tmp.id);
+			}
+			return tmp.id;
+		},
+		/**
+		 * redraws all nodes that need to be redrawn. Used internally.
+		 * @private
+		 * @name _redraw()
+		 * @trigger redraw.jstree
+		 */
+		_redraw : function () {
+			var nodes = this._model.force_full_redraw ? this._model.data['#'].children.concat([]) : this._model.changed.concat([]),
+				f = document.createElement('UL'), tmp, i, j;
+			for(i = 0, j = nodes.length; i < j; i++) {
+				tmp = this.redraw_node(nodes[i], true, this._model.force_full_redraw);
+				if(tmp && this._model.force_full_redraw) {
+					f.appendChild(tmp);
+				}
+			}
+			if(this._model.force_full_redraw) {
+				f.className = this.get_container_ul()[0].className;
+				this.element.empty().append(f);
+				//this.get_container_ul()[0].appendChild(f);
+			}
+			this._model.force_full_redraw = false;
+			this._model.changed = [];
+			/**
+			 * triggered after nodes are redrawn
+			 * @event
+			 * @name redraw.jstree
+			 * @param {array} nodes the redrawn nodes
+			 */
+			this.trigger('redraw', { "nodes" : nodes });
+		},
+		/**
+		 * redraws all nodes that need to be redrawn or optionally - the whole tree
+		 * @name redraw([full])
+		 * @param {Boolean} full if set to `true` all nodes are redrawn.
+		 */
+		redraw : function (full) {
+			if(full) {
+				this._model.force_full_redraw = true;
+			}
+			//if(this._model.redraw_timeout) {
+			//	clearTimeout(this._model.redraw_timeout);
+			//}
+			//this._model.redraw_timeout = setTimeout($.proxy(this._redraw, this),0);
+			this._redraw();
+		},
+		/**
+		 * redraws a single node. Used internally.
+		 * @private
+		 * @name redraw_node(node, deep, is_callback)
+		 * @param {mixed} node the node to redraw
+		 * @param {Boolean} deep should child nodes be redrawn too
+		 * @param {Boolean} is_callback is this a recursion call
+		 */
+		redraw_node : function (node, deep, is_callback) {
+			var obj = this.get_node(node),
+				par = false,
+				ind = false,
+				old = false,
+				i = false,
+				j = false,
+				k = false,
+				c = '',
+				d = document,
+				m = this._model.data,
+				f = false,
+				s = false;
+			if(!obj) { return false; }
+			if(obj.id === '#') {  return this.redraw(true); }
+			deep = deep || obj.children.length === 0;
+			node = d.getElementById(obj.id); //, this.element);
+			if(!node) {
+				deep = true;
+				//node = d.createElement('LI');
+				if(!is_callback) {
+					par = obj.parent !== '#' ? $('#' + obj.parent, this.element)[0] : null;
+					if(par !== null && (!par || !m[obj.parent].state.opened)) {
+						return false;
+					}
+					ind = $.inArray(obj.id, par === null ? m['#'].children : m[obj.parent].children);
+				}
+			}
+			else {
+				node = $(node);
+				if(!is_callback) {
+					par = node.parent().parent()[0];
+					if(par === this.element[0]) {
+						par = null;
+					}
+					ind = node.index();
+				}
+				// m[obj.id].data = node.data(); // use only node's data, no need to touch jquery storage
+				if(!deep && obj.children.length && !node.children('ul').length) {
+					deep = true;
+				}
+				if(!deep) {
+					old = node.children('UL')[0];
+				}
+				s = node.attr('aria-selected');
+				f = node.children('.jstree-anchor')[0] === document.activeElement;
+				node.remove();
+				//node = d.createElement('LI');
+				//node = node[0];
+			}
+			node = _node.cloneNode(true);
+			// node is DOM, deep is boolean
+
+			c = 'jstree-node ';
+			for(i in obj.li_attr) {
+				if(obj.li_attr.hasOwnProperty(i)) {
+					if(i === 'id') { continue; }
+					if(i !== 'class') {
+						node.setAttribute(i, obj.li_attr[i]);
+					}
+					else {
+						c += obj.li_attr[i];
+					}
+				}
+			}
+			if(s && s !== "false") {
+				node.setAttribute('aria-selected', true);
+			}
+			if(!obj.children.length && obj.state.loaded) {
+				c += ' jstree-leaf';
+			}
+			else {
+				c += obj.state.opened ? ' jstree-open' : ' jstree-closed';
+				node.setAttribute('aria-expanded', obj.state.opened);
+			}
+			if(obj.parent !== null && m[obj.parent].children[m[obj.parent].children.length - 1] === obj.id) {
+				c += ' jstree-last';
+			}
+			node.id = obj.id;
+			node.className = c;
+			c = ( obj.state.selected ? ' jstree-clicked' : '') + ( obj.state.disabled ? ' jstree-disabled' : '');
+			for(j in obj.a_attr) {
+				if(obj.a_attr.hasOwnProperty(j)) {
+					if(j === 'href' && obj.a_attr[j] === '#') { continue; }
+					if(j !== 'class') {
+						node.childNodes[1].setAttribute(j, obj.a_attr[j]);
+					}
+					else {
+						c += ' ' + obj.a_attr[j];
+					}
+				}
+			}
+			if(c.length) {
+				node.childNodes[1].className = 'jstree-anchor ' + c;
+			}
+			if((obj.icon && obj.icon !== true) || obj.icon === false) {
+				if(obj.icon === false) {
+					node.childNodes[1].childNodes[0].className += ' jstree-themeicon-hidden';
+				}
+				else if(obj.icon.indexOf('/') === -1 && obj.icon.indexOf('.') === -1) {
+					node.childNodes[1].childNodes[0].className += ' ' + obj.icon + ' jstree-themeicon-custom';
+				}
+				else {
+					node.childNodes[1].childNodes[0].style.backgroundImage = 'url('+obj.icon+')';
+					node.childNodes[1].childNodes[0].style.backgroundPosition = 'center center';
+					node.childNodes[1].childNodes[0].style.backgroundSize = 'auto';
+					node.childNodes[1].childNodes[0].className += ' jstree-themeicon-custom';
+				}
+			}
+			//node.childNodes[1].appendChild(d.createTextNode(obj.text));
+			node.childNodes[1].innerHTML += obj.text;
+			// if(obj.data) { $.data(node, obj.data); } // always work with node's data, no need to touch jquery store
+
+			if(deep && obj.children.length && obj.state.opened) {
+				k = d.createElement('UL');
+				k.setAttribute('role', 'group');
+				k.className = 'jstree-children';
+				for(i = 0, j = obj.children.length; i < j; i++) {
+					k.appendChild(this.redraw_node(obj.children[i], deep, true));
+				}
+				node.appendChild(k);
+			}
+			if(old) {
+				node.appendChild(old);
+			}
+			if(!is_callback) {
+				// append back using par / ind
+				if(!par) {
+					par = this.element[0];
+				}
+				if(!par.getElementsByTagName('UL').length) {
+					i = d.createElement('UL');
+					i.setAttribute('role', 'group');
+					i.className = 'jstree-children';
+					par.appendChild(i);
+					par = i;
+				}
+				else {
+					par = par.getElementsByTagName('UL')[0];
+				}
+
+				if(ind < par.childNodes.length) {
+					par.insertBefore(node, par.childNodes[ind]);
+				}
+				else {
+					par.appendChild(node);
+				}
+				if(f) {
+					node.childNodes[1].focus();
+				}
+			}
+			return node;
+		},
+		/**
+		 * opens a node, revaling its children. If the node is not loaded it will be loaded and opened once ready.
+		 * @name open_node(obj [, callback, animation])
+		 * @param {mixed} obj the node to open
+		 * @param {Function} callback a function to execute once the node is opened
+		 * @param {Number} animation the animation duration in milliseconds when opening the node (overrides the `core.animation` setting). Use `false` for no animation.
+		 * @trigger open_node.jstree, after_open.jstree
+		 */
+		open_node : function (obj, callback, animation) {
+			var t1, t2, d, t;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.open_node(obj[t1], callback, animation);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') {
+				return false;
+			}
+			animation = animation === undefined ? this.settings.core.animation : animation;
+			if(!this.is_closed(obj)) {
+				if(callback) {
+					callback.call(this, obj, false);
+				}
+				return false;
+			}
+			if(!this.is_loaded(obj)) {
+				if(this.is_loading(obj)) {
+					return setTimeout($.proxy(function () {
+						this.open_node(obj, callback, animation);
+					}, this), 500);
+				}
+				this.load_node(obj, function (o, ok) {
+					return ok ? this.open_node(o, callback, animation) : (callback ? callback.call(this, o, false) : false);
+				});
+			}
+			else {
+				d = this.get_node(obj, true);
+				t = this;
+				if(d.length) {
+					if(obj.children.length && !this._firstChild(d.children('ul')[0])) {
+						obj.state.opened = true;
+						this.redraw_node(obj, true);
+						d = this.get_node(obj, true);
+					}
+					if(!animation) {
+						d[0].className = d[0].className.replace('jstree-closed', 'jstree-open');
+						d[0].setAttribute("aria-expanded", true);
+					}
+					else {
+						d
+							.children("ul").css("display","none").end()
+							.removeClass("jstree-closed").addClass("jstree-open").attr("aria-expanded", true)
+							.children("ul").stop(true, true)
+								.slideDown(animation, function () {
+									this.style.display = "";
+									t.trigger("after_open", { "node" : obj });
+								});
+					}
+				}
+				obj.state.opened = true;
+				if(callback) {
+					callback.call(this, obj, true);
+				}
+				/**
+				 * triggered when a node is opened (if there is an animation it will not be completed yet)
+				 * @event
+				 * @name open_node.jstree
+				 * @param {Object} node the opened node
+				 */
+				this.trigger('open_node', { "node" : obj });
+				if(!animation || !d.length) {
+					/**
+					 * triggered when a node is opened and the animation is complete
+					 * @event
+					 * @name after_open.jstree
+					 * @param {Object} node the opened node
+					 */
+					this.trigger("after_open", { "node" : obj });
+				}
+			}
+		},
+		/**
+		 * opens every parent of a node (node should be loaded)
+		 * @name _open_to(obj)
+		 * @param {mixed} obj the node to reveal
+		 * @private
+		 */
+		_open_to : function (obj) {
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') {
+				return false;
+			}
+			var i, j, p = obj.parents;
+			for(i = 0, j = p.length; i < j; i+=1) {
+				if(i !== '#') {
+					this.open_node(p[i], false, 0);
+				}
+			}
+			return $(document.getElementById(obj.id));
+		},
+		/**
+		 * closes a node, hiding its children
+		 * @name close_node(obj [, animation])
+		 * @param {mixed} obj the node to close
+		 * @param {Number} animation the animation duration in milliseconds when closing the node (overrides the `core.animation` setting). Use `false` for no animation.
+		 * @trigger close_node.jstree, after_close.jstree
+		 */
+		close_node : function (obj, animation) {
+			var t1, t2, t, d;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.close_node(obj[t1], animation);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') {
+				return false;
+			}
+			animation = animation === undefined ? this.settings.core.animation : animation;
+			t = this;
+			d = this.get_node(obj, true);
+			if(d.length) {
+				if(!animation) {
+					d[0].className = d[0].className.replace('jstree-open', 'jstree-closed');
+					d.attr("aria-expanded", false).children('ul').remove();
+				}
+				else {
+					d
+						.children("ul").attr("style","display:block !important").end()
+						.removeClass("jstree-open").addClass("jstree-closed").attr("aria-expanded", false)
+						.children("ul").stop(true, true).slideUp(animation, function () {
+							this.style.display = "";
+							d.children('ul').remove();
+							t.trigger("after_close", { "node" : obj });
+						});
+				}
+			}
+			obj.state.opened = false;
+			/**
+			 * triggered when a node is closed (if there is an animation it will not be complete yet)
+			 * @event
+			 * @name close_node.jstree
+			 * @param {Object} node the closed node
+			 */
+			this.trigger('close_node',{ "node" : obj });
+			if(!animation || !d.length) {
+				/**
+				 * triggered when a node is closed and the animation is complete
+				 * @event
+				 * @name after_close.jstree
+				 * @param {Object} node the closed node
+				 */
+				this.trigger("after_close", { "node" : obj });
+			}
+		},
+		/**
+		 * toggles a node - closing it if it is open, opening it if it is closed
+		 * @name toggle_node(obj)
+		 * @param {mixed} obj the node to toggle
+		 */
+		toggle_node : function (obj) {
+			var t1, t2;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.toggle_node(obj[t1]);
+				}
+				return true;
+			}
+			if(this.is_closed(obj)) {
+				return this.open_node(obj);
+			}
+			if(this.is_open(obj)) {
+				return this.close_node(obj);
+			}
+		},
+		/**
+		 * opens all nodes within a node (or the tree), revaling their children. If the node is not loaded it will be loaded and opened once ready.
+		 * @name open_all([obj, animation, original_obj])
+		 * @param {mixed} obj the node to open recursively, omit to open all nodes in the tree
+		 * @param {Number} animation the animation duration in milliseconds when opening the nodes, the default is no animation
+		 * @param {jQuery} reference to the node that started the process (internal use)
+		 * @trigger open_all.jstree
+		 */
+		open_all : function (obj, animation, original_obj) {
+			if(!obj) { obj = '#'; }
+			obj = this.get_node(obj);
+			if(!obj) { return false; }
+			var dom = obj.id === '#' ? this.get_container_ul() : this.get_node(obj, true), i, j, _this;
+			if(!dom.length) {
+				for(i = 0, j = obj.children_d.length; i < j; i++) {
+					if(this.is_closed(this._model.data[obj.children_d[i]])) {
+						this._model.data[obj.children_d[i]].state.opened = true;
+					}
+				}
+				return this.trigger('open_all', { "node" : obj });
+			}
+			original_obj = original_obj || dom;
+			_this = this;
+			dom = this.is_closed(obj) ? dom.find('li.jstree-closed').addBack() : dom.find('li.jstree-closed');
+			dom.each(function () {
+				_this.open_node(
+					this,
+					function(node, status) { if(status && this.is_parent(node)) { this.open_all(node, animation, original_obj); } },
+					animation || 0
+				);
+			});
+			if(original_obj.find('li.jstree-closed').length === 0) {
+				/**
+				 * triggered when an `open_all` call completes
+				 * @event
+				 * @name open_all.jstree
+				 * @param {Object} node the opened node
+				 */
+				this.trigger('open_all', { "node" : this.get_node(original_obj) });
+			}
+		},
+		/**
+		 * closes all nodes within a node (or the tree), revaling their children
+		 * @name close_all([obj, animation])
+		 * @param {mixed} obj the node to close recursively, omit to close all nodes in the tree
+		 * @param {Number} animation the animation duration in milliseconds when closing the nodes, the default is no animation
+		 * @trigger close_all.jstree
+		 */
+		close_all : function (obj, animation) {
+			if(!obj) { obj = '#'; }
+			obj = this.get_node(obj);
+			if(!obj) { return false; }
+			var dom = obj.id === '#' ? this.get_container_ul() : this.get_node(obj, true),
+				_this = this, i, j;
+			if(!dom.length) {
+				for(i = 0, j = obj.children_d.length; i < j; i++) {
+					this._model.data[obj.children_d[i]].state.opened = false;
+				}
+				return this.trigger('close_all', { "node" : obj });
+			}
+			dom = this.is_open(obj) ? dom.find('li.jstree-open').addBack() : dom.find('li.jstree-open');
+			dom.vakata_reverse().each(function () { _this.close_node(this, animation || 0); });
+			/**
+			 * triggered when an `close_all` call completes
+			 * @event
+			 * @name close_all.jstree
+			 * @param {Object} node the closed node
+			 */
+			this.trigger('close_all', { "node" : obj });
+		},
+		/**
+		 * checks if a node is disabled (not selectable)
+		 * @name is_disabled(obj)
+		 * @param  {mixed} obj
+		 * @return {Boolean}
+		 */
+		is_disabled : function (obj) {
+			obj = this.get_node(obj);
+			return obj && obj.state && obj.state.disabled;
+		},
+		/**
+		 * enables a node - so that it can be selected
+		 * @name enable_node(obj)
+		 * @param {mixed} obj the node to enable
+		 * @trigger enable_node.jstree
+		 */
+		enable_node : function (obj) {
+			var t1, t2;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.enable_node(obj[t1]);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') {
+				return false;
+			}
+			obj.state.disabled = false;
+			this.get_node(obj,true).children('.jstree-anchor').removeClass('jstree-disabled');
+			/**
+			 * triggered when an node is enabled
+			 * @event
+			 * @name enable_node.jstree
+			 * @param {Object} node the enabled node
+			 */
+			this.trigger('enable_node', { 'node' : obj });
+		},
+		/**
+		 * disables a node - so that it can not be selected
+		 * @name disable_node(obj)
+		 * @param {mixed} obj the node to disable
+		 * @trigger disable_node.jstree
+		 */
+		disable_node : function (obj) {
+			var t1, t2;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.disable_node(obj[t1]);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') {
+				return false;
+			}
+			obj.state.disabled = true;
+			this.get_node(obj,true).children('.jstree-anchor').addClass('jstree-disabled');
+			/**
+			 * triggered when an node is disabled
+			 * @event
+			 * @name disable_node.jstree
+			 * @param {Object} node the disabled node
+			 */
+			this.trigger('disable_node', { 'node' : obj });
+		},
+		/**
+		 * called when a node is selected by the user. Used internally.
+		 * @private
+		 * @name activate_node(obj, e)
+		 * @param {mixed} obj the node
+		 * @param {Object} e the related event
+		 * @trigger activate_node.jstree
+		 */
+		activate_node : function (obj, e) {
+			if(this.is_disabled(obj)) {
+				return false;
+			}
+			if(!this.settings.core.multiple || (!e.metaKey && !e.ctrlKey && !e.shiftKey) || (e.shiftKey && (!this._data.core.last_clicked || !this.get_parent(obj) || this.get_parent(obj) !== this._data.core.last_clicked.parent ) )) {
+				if(!this.settings.core.multiple && (e.metaKey || e.ctrlKey || e.shiftKey) && this.is_selected(obj)) {
+					this.deselect_node(obj, false, false, e);
+				}
+				else {
+					this.deselect_all(true);
+					this.select_node(obj, false, false, e);
+					this._data.core.last_clicked = this.get_node(obj);
+				}
+			}
+			else {
+				if(e.shiftKey) {
+					var o = this.get_node(obj).id,
+						l = this._data.core.last_clicked.id,
+						p = this.get_node(this._data.core.last_clicked.parent).children,
+						c = false,
+						i, j;
+					for(i = 0, j = p.length; i < j; i += 1) {
+						// separate IFs work whem o and l are the same
+						if(p[i] === o) {
+							c = !c;
+						}
+						if(p[i] === l) {
+							c = !c;
+						}
+						if(c || p[i] === o || p[i] === l) {
+							this.select_node(p[i], false, false, e);
+						}
+						else {
+							this.deselect_node(p[i], false, false, e);
+						}
+					}
+				}
+				else {
+					if(!this.is_selected(obj)) {
+						this.select_node(obj, false, false, e);
+					}
+					else {
+						this.deselect_node(obj, false, false, e);
+					}
+				}
+			}
+			/**
+			 * triggered when an node is clicked or intercated with by the user
+			 * @event
+			 * @name activate_node.jstree
+			 * @param {Object} node
+			 */
+			this.trigger('activate_node', { 'node' : this.get_node(obj) });
+		},
+		/**
+		 * applies the hover state on a node, called when a node is hovered by the user. Used internally.
+		 * @private
+		 * @name hover_node(obj)
+		 * @param {mixed} obj
+		 * @trigger hover_node.jstree
+		 */
+		hover_node : function (obj) {
+			obj = this.get_node(obj, true);
+			if(!obj || !obj.length || obj.children('.jstree-hovered').length) {
+				return false;
+			}
+			var o = this.element.find('.jstree-hovered'), t = this.element;
+			if(o && o.length) { this.dehover_node(o); }
+
+			obj.children('.jstree-anchor').addClass('jstree-hovered');
+			/**
+			 * triggered when an node is hovered
+			 * @event
+			 * @name hover_node.jstree
+			 * @param {Object} node
+			 */
+			this.trigger('hover_node', { 'node' : this.get_node(obj) });
+			setTimeout(function () { t.attr('aria-activedescendant', obj[0].id); obj.attr('aria-selected', true); }, 0);
+		},
+		/**
+		 * removes the hover state from a nodecalled when a node is no longer hovered by the user. Used internally.
+		 * @private
+		 * @name dehover_node(obj)
+		 * @param {mixed} obj
+		 * @trigger dehover_node.jstree
+		 */
+		dehover_node : function (obj) {
+			obj = this.get_node(obj, true);
+			if(!obj || !obj.length || !obj.children('.jstree-hovered').length) {
+				return false;
+			}
+			obj.attr('aria-selected', false).children('.jstree-anchor').removeClass('jstree-hovered');
+			/**
+			 * triggered when an node is no longer hovered
+			 * @event
+			 * @name dehover_node.jstree
+			 * @param {Object} node
+			 */
+			this.trigger('dehover_node', { 'node' : this.get_node(obj) });
+		},
+		/**
+		 * select a node
+		 * @name select_node(obj [, supress_event, prevent_open])
+		 * @param {mixed} obj an array can be used to select multiple nodes
+		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
+		 * @param {Boolean} prevent_open if set to `true` parents of the selected node won't be opened
+		 * @trigger select_node.jstree, changed.jstree
+		 */
+		select_node : function (obj, supress_event, prevent_open, e) {
+			var dom, t1, t2, th;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.select_node(obj[t1], supress_event, prevent_open, e);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') {
+				return false;
+			}
+			dom = this.get_node(obj, true);
+			if(!obj.state.selected) {
+				obj.state.selected = true;
+				this._data.core.selected.push(obj.id);
+				if(!prevent_open) {
+					dom = this._open_to(obj);
+				}
+				if(dom && dom.length) {
+					dom.children('.jstree-anchor').addClass('jstree-clicked');
+				}
+				/**
+				 * triggered when an node is selected
+				 * @event
+				 * @name select_node.jstree
+				 * @param {Object} node
+				 * @param {Array} selected the current selection
+				 * @param {Object} event the event (if any) that triggered this select_node
+				 */
+				this.trigger('select_node', { 'node' : obj, 'selected' : this._data.core.selected, 'event' : e });
+				if(!supress_event) {
+					/**
+					 * triggered when selection changes
+					 * @event
+					 * @name changed.jstree
+					 * @param {Object} node
+					 * @param {Object} action the action that caused the selection to change
+					 * @param {Array} selected the current selection
+					 * @param {Object} event the event (if any) that triggered this changed event
+					 */
+					this.trigger('changed', { 'action' : 'select_node', 'node' : obj, 'selected' : this._data.core.selected, 'event' : e });
+				}
+			}
+		},
+		/**
+		 * deselect a node
+		 * @name deselect_node(obj [, supress_event])
+		 * @param {mixed} obj an array can be used to deselect multiple nodes
+		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
+		 * @trigger deselect_node.jstree, changed.jstree
+		 */
+		deselect_node : function (obj, supress_event, e) {
+			var t1, t2, dom;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.deselect_node(obj[t1], supress_event, e);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') {
+				return false;
+			}
+			dom = this.get_node(obj, true);
+			if(obj.state.selected) {
+				obj.state.selected = false;
+				this._data.core.selected = $.vakata.array_remove_item(this._data.core.selected, obj.id);
+				if(dom.length) {
+					dom.children('.jstree-anchor').removeClass('jstree-clicked');
+				}
+				/**
+				 * triggered when an node is deselected
+				 * @event
+				 * @name deselect_node.jstree
+				 * @param {Object} node
+				 * @param {Array} selected the current selection
+				 * @param {Object} event the event (if any) that triggered this deselect_node
+				 */
+				this.trigger('deselect_node', { 'node' : obj, 'selected' : this._data.core.selected, 'event' : e });
+				if(!supress_event) {
+					this.trigger('changed', { 'action' : 'deselect_node', 'node' : obj, 'selected' : this._data.core.selected, 'event' : e });
+				}
+			}
+		},
+		/**
+		 * select all nodes in the tree
+		 * @name select_all([supress_event])
+		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
+		 * @trigger select_all.jstree, changed.jstree
+		 */
+		select_all : function (supress_event) {
+			var tmp = this._data.core.selected.concat([]), i, j;
+			this._data.core.selected = this._model.data['#'].children_d.concat();
+			for(i = 0, j = this._data.core.selected.length; i < j; i++) {
+				if(this._model.data[this._data.core.selected[i]]) {
+					this._model.data[this._data.core.selected[i]].state.selected = true;
+				}
+			}
+			this.redraw(true);
+			/**
+			 * triggered when all nodes are selected
+			 * @event
+			 * @name select_all.jstree
+			 * @param {Array} selected the current selection
+			 */
+			this.trigger('select_all', { 'selected' : this._data.core.selected });
+			if(!supress_event) {
+				this.trigger('changed', { 'action' : 'select_all', 'selected' : this._data.core.selected, 'old_selection' : tmp });
+			}
+		},
+		/**
+		 * deselect all selected nodes
+		 * @name deselect_all([supress_event])
+		 * @param {Boolean} supress_event if set to `true` the `changed.jstree` event won't be triggered
+		 * @trigger deselect_all.jstree, changed.jstree
+		 */
+		deselect_all : function (supress_event) {
+			var tmp = this._data.core.selected.concat([]), i, j;
+			for(i = 0, j = this._data.core.selected.length; i < j; i++) {
+				if(this._model.data[this._data.core.selected[i]]) {
+					this._model.data[this._data.core.selected[i]].state.selected = false;
+				}
+			}
+			this._data.core.selected = [];
+			this.element.find('.jstree-clicked').removeClass('jstree-clicked');
+			/**
+			 * triggered when all nodes are deselected
+			 * @event
+			 * @name deselect_all.jstree
+			 * @param {Object} node the previous selection
+			 * @param {Array} selected the current selection
+			 */
+			this.trigger('deselect_all', { 'selected' : this._data.core.selected, 'node' : tmp });
+			if(!supress_event) {
+				this.trigger('changed', { 'action' : 'deselect_all', 'selected' : this._data.core.selected, 'old_selection' : tmp });
+			}
+		},
+		/**
+		 * checks if a node is selected
+		 * @name is_selected(obj)
+		 * @param  {mixed}  obj
+		 * @return {Boolean}
+		 */
+		is_selected : function (obj) {
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') {
+				return false;
+			}
+			return obj.state.selected;
+		},
+		/**
+		 * get an array of all selected node IDs
+		 * @name get_selected([full])
+		 * @param  {mixed}  full if set to `true` the returned array will consist of the full node objects, otherwise - only IDs will be returned
+		 * @return {Array}
+		 */
+		get_selected : function (full) {
+			return full ? $.map(this._data.core.selected, $.proxy(function (i) { return this.get_node(i); }, this)) : this._data.core.selected;
+		},
+		/**
+		 * gets the current state of the tree so that it can be restored later with `set_state(state)`. Used internally.
+		 * @name get_state()
+		 * @private
+		 * @return {Object}
+		 */
+		get_state : function () {
+			var state	= {
+				'core' : {
+					'open' : [],
+					'scroll' : {
+						'left' : this.element.scrollLeft(),
+						'top' : this.element.scrollTop()
+					},
+					/*!
+					'themes' : {
+						'name' : this.get_theme(),
+						'icons' : this._data.core.themes.icons,
+						'dots' : this._data.core.themes.dots
+					},
+					*/
+					'selected' : []
+				}
+			}, i;
+			for(i in this._model.data) {
+				if(this._model.data.hasOwnProperty(i)) {
+					if(i !== '#') {
+						if(this._model.data[i].state.opened) {
+							state.core.open.push(i);
+						}
+						if(this._model.data[i].state.selected) {
+							state.core.selected.push(i);
+						}
+					}
+				}
+			}
+			return state;
+		},
+		/**
+		 * sets the state of the tree. Used internally.
+		 * @name set_state(state [, callback])
+		 * @private
+		 * @param {Object} state the state to restore
+		 * @param {Function} callback an optional function to execute once the state is restored.
+		 * @trigger set_state.jstree
+		 */
+		set_state : function (state, callback) {
+			if(state) {
+				if(state.core) {
+					var res, n, t, _this;
+					if(state.core.open) {
+						if(!$.isArray(state.core.open)) {
+							delete state.core.open;
+							this.set_state(state, callback);
+							return false;
+						}
+						res = true;
+						n = false;
+						t = this;
+						$.each(state.core.open.concat([]), function (i, v) {
+							n = t.get_node(v);
+							if(n) {
+								if(t.is_loaded(v)) {
+									if(t.is_closed(v)) {
+										t.open_node(v, false, 0);
+									}
+									if(state && state.core && state.core.open) {
+										$.vakata.array_remove_item(state.core.open, v);
+									}
+								}
+								else {
+									if(!t.is_loading(v)) {
+										t.open_node(v, $.proxy(function () { this.set_state(state, callback); }, t), 0);
+									}
+									// there will be some async activity - so wait for it
+									res = false;
+								}
+							}
+						});
+						if(res) {
+							delete state.core.open;
+							this.set_state(state, callback);
+						}
+						return false;
+					}
+					if(state.core.scroll) {
+						if(state.core.scroll && state.core.scroll.left !== undefined) {
+							this.element.scrollLeft(state.core.scroll.left);
+						}
+						if(state.core.scroll && state.core.scroll.top !== undefined) {
+							this.element.scrollTop(state.core.scroll.top);
+						}
+						delete state.core.scroll;
+						this.set_state(state, callback);
+						return false;
+					}
+					/*!
+					if(state.core.themes) {
+						if(state.core.themes.name) {
+							this.set_theme(state.core.themes.name);
+						}
+						if(typeof state.core.themes.dots !== 'undefined') {
+							this[ state.core.themes.dots ? "show_dots" : "hide_dots" ]();
+						}
+						if(typeof state.core.themes.icons !== 'undefined') {
+							this[ state.core.themes.icons ? "show_icons" : "hide_icons" ]();
+						}
+						delete state.core.themes;
+						delete state.core.open;
+						this.set_state(state, callback);
+						return false;
+					}
+					*/
+					if(state.core.selected) {
+						_this = this;
+						this.deselect_all();
+						$.each(state.core.selected, function (i, v) {
+							_this.select_node(v);
+						});
+						delete state.core.selected;
+						this.set_state(state, callback);
+						return false;
+					}
+					if($.isEmptyObject(state.core)) {
+						delete state.core;
+						this.set_state(state, callback);
+						return false;
+					}
+				}
+				if($.isEmptyObject(state)) {
+					state = null;
+					if(callback) { callback.call(this); }
+					/**
+					 * triggered when a `set_state` call completes
+					 * @event
+					 * @name set_state.jstree
+					 */
+					this.trigger('set_state');
+					return false;
+				}
+				return true;
+			}
+			return false;
+		},
+		/**
+		 * refreshes the tree - all nodes are reloaded with calls to `load_node`.
+		 * @name refresh()
+		 * @param {Boolean} skip_loading an option to skip showing the loading indicator
+		 * @trigger refresh.jstree
+		 */
+		refresh : function (skip_loading) {
+			this._data.core.state = this.get_state();
+			this._cnt = 0;
+			this._model.data = {
+				'#' : {
+					id : '#',
+					parent : null,
+					parents : [],
+					children : [],
+					children_d : [],
+					state : { loaded : false }
+				}
+			};
+			var c = this.get_container_ul()[0].className;
+			if(!skip_loading) {
+				this.element.html("<"+"ul class='jstree-container-ul'><"+"li class='jstree-initial-node jstree-loading jstree-leaf jstree-last'><i class='jstree-icon jstree-ocl'></i><"+"a class='jstree-anchor' href='#'><i class='jstree-icon jstree-themeicon-hidden'></i>" + this.get_string("Loading ...") + "</a></li></ul>");
+			}
+			this.load_node('#', function (o, s) {
+				if(s) {
+					this.get_container_ul()[0].className = c;
+					this.set_state($.extend(true, {}, this._data.core.state), function () {
+						/**
+						 * triggered when a `refresh` call completes
+						 * @event
+						 * @name refresh.jstree
+						 */
+						this.trigger('refresh');
+					});
+				}
+				this._data.core.state = null;
+			});
+		},
+		/**
+		 * set (change) the ID of a node
+		 * @name set_id(obj, id)
+		 * @param  {mixed} obj the node
+		 * @param  {String} id the new ID
+		 * @return {Boolean}
+		 */
+		set_id : function (obj, id) {
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') { return false; }
+			var i, j, m = this._model.data;
+			// update parents (replace current ID with new one in children and children_d)
+			m[obj.parent].children[$.inArray(obj.id, m[obj.parent].children)] = id;
+			for(i = 0, j = obj.parents.length; i < j; i++) {
+				m[obj.parents[i]].children_d[$.inArray(obj.id, m[obj.parents[i]].children_d)] = id;
+			}
+			// update children (replace current ID with new one in parent and parents)
+			for(i = 0, j = obj.children.length; i < j; i++) {
+				m[obj.children[i]].parent = id;
+			}
+			for(i = 0, j = obj.children_d.length; i < j; i++) {
+				m[obj.children_d[i]].parents[$.inArray(obj.id, m[obj.children_d[i]].parents)] = id;
+			}
+			i = $.inArray(obj.id, this._data.core.selected);
+			if(i !== -1) { this._data.core.selected[i] = id; }
+			// update model and obj itself (obj.id, this._model.data[KEY])
+			i = this.get_node(obj.id, true);
+			if(i) {
+				i.attr('id', id);
+			}
+			delete m[obj.id];
+			obj.id = id;
+			m[id] = obj;
+			return true;
+		},
+		/**
+		 * get the text value of a node
+		 * @name get_text(obj)
+		 * @param  {mixed} obj the node
+		 * @return {String}
+		 */
+		get_text : function (obj) {
+			obj = this.get_node(obj);
+			return (!obj || obj.id === '#') ? false : obj.text;
+		},
+		/**
+		 * set the text value of a node. Used internally, please use `rename_node(obj, val)`.
+		 * @private
+		 * @name set_text(obj, val)
+		 * @param  {mixed} obj the node, you can pass an array to set the text on multiple nodes
+		 * @param  {String} val the new text value
+		 * @return {Boolean}
+		 * @trigger set_text.jstree
+		 */
+		set_text : function (obj, val) {
+			var t1, t2, dom, tmp;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.set_text(obj[t1], val);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') { return false; }
+			obj.text = val;
+			dom = this.get_node(obj, true);
+			if(dom.length) {
+				dom = dom.children(".jstree-anchor:eq(0)");
+				tmp = dom.children("I").clone();
+				dom.html(val).prepend(tmp);
+				/**
+				 * triggered when a node text value is changed
+				 * @event
+				 * @name set_text.jstree
+				 * @param {Object} obj
+				 * @param {String} text the new value
+				 */
+				this.trigger('set_text',{ "obj" : obj, "text" : val });
+			}
+			return true;
+		},
+		/**
+		 * gets a JSON representation of a node (or the whole tree)
+		 * @name get_json([obj, options])
+		 * @param  {mixed} obj
+		 * @param  {Object} options
+		 * @param  {Boolean} options.no_state do not return state information
+		 * @param  {Boolean} options.no_id do not return ID
+		 * @param  {Boolean} options.no_children do not include children
+		 * @param  {Boolean} options.no_data do not include node data
+		 * @param  {Boolean} options.flat return flat JSON instead of nested
+		 * @return {Object}
+		 */
+		get_json : function (obj, options, flat) {
+			obj = this.get_node(obj || '#');
+			if(!obj) { return false; }
+			if(options && options.flat && !flat) { flat = []; }
+			var tmp = {
+				'id' : obj.id,
+				'text' : obj.text,
+				'icon' : this.get_icon(obj),
+				'li_attr' : obj.li_attr,
+				'a_attr' : obj.a_attr,
+				'state' : {},
+				'data' : options && options.no_data ? false : obj.data
+				//( this.get_node(obj, true).length ? this.get_node(obj, true).data() : obj.data ),
+			}, i, j;
+			if(options && options.flat) {
+				tmp.parent = obj.parent;
+			}
+			else {
+				tmp.children = [];
+			}
+			if(!options || !options.no_state) {
+				for(i in obj.state) {
+					if(obj.state.hasOwnProperty(i)) {
+						tmp.state[i] = obj.state[i];
+					}
+				}
+			}
+			if(options && options.no_id) {
+				delete tmp.id;
+				if(tmp.li_attr && tmp.li_attr.id) {
+					delete tmp.li_attr.id;
+				}
+			}
+			if(options && options.flat && obj.id !== '#') {
+				flat.push(tmp);
+			}
+			if(!options || !options.no_children) {
+				for(i = 0, j = obj.children.length; i < j; i++) {
+					if(options && options.flat) {
+						this.get_json(obj.children[i], options, flat);
+					}
+					else {
+						tmp.children.push(this.get_json(obj.children[i], options));
+					}
+				}
+			}
+			return options && options.flat ? flat : (obj.id === '#' ? tmp.children : tmp);
+		},
+		/**
+		 * create a new node (do not confuse with load_node)
+		 * @name create_node([obj, node, pos, callback, is_loaded])
+		 * @param  {mixed}   par       the parent node
+		 * @param  {mixed}   node      the data for the new node (a valid JSON object, or a simple string with the name)
+		 * @param  {mixed}   pos       the index at which to insert the node, "first" and "last" are also supported, default is "last"
+		 * @param  {Function} callback a function to be called once the node is created
+		 * @param  {Boolean} is_loaded internal argument indicating if the parent node was succesfully loaded
+		 * @return {String}            the ID of the newly create node
+		 * @trigger model.jstree, create_node.jstree
+		 */
+		create_node : function (par, node, pos, callback, is_loaded) {
+			par = this.get_node(par);
+			if(!par) { return false; }
+			pos = pos === undefined ? "last" : pos;
+			if(!pos.toString().match(/^(before|after)$/) && !is_loaded && !this.is_loaded(par)) {
+				return this.load_node(par, function () { this.create_node(par, node, pos, callback, true); });
+			}
+			if(!node) { node = { "text" : this.get_string('New node') }; }
+			if(node.text === undefined) { node.text = this.get_string('New node'); }
+			var tmp, dpc, i, j;
+
+			if(par.id === '#') {
+				if(pos === "before") { pos = "first"; }
+				if(pos === "after") { pos = "last"; }
+			}
+			switch(pos) {
+				case "before":
+					tmp = this.get_node(par.parent);
+					pos = $.inArray(par.id, tmp.children);
+					par = tmp;
+					break;
+				case "after" :
+					tmp = this.get_node(par.parent);
+					pos = $.inArray(par.id, tmp.children) + 1;
+					par = tmp;
+					break;
+				case "inside":
+				case "first":
+					pos = 0;
+					break;
+				case "last":
+					pos = par.children.length;
+					break;
+				default:
+					if(!pos) { pos = 0; }
+					break;
+			}
+			if(pos > par.children.length) { pos = par.children.length; }
+			if(!node.id) { node.id = true; }
+			if(!this.check("create_node", node, par, pos)) {
+				this.settings.core.error.call(this, this._data.core.last_error);
+				return false;
+			}
+			if(node.id === true) { delete node.id; }
+			node = this._parse_model_from_json(node, par.id, par.parents.concat());
+			if(!node) { return false; }
+			tmp = this.get_node(node);
+			dpc = [];
+			dpc.push(node);
+			dpc = dpc.concat(tmp.children_d);
+			this.trigger('model', { "nodes" : dpc, "parent" : par.id });
+
+			par.children_d = par.children_d.concat(dpc);
+			for(i = 0, j = par.parents.length; i < j; i++) {
+				this._model.data[par.parents[i]].children_d = this._model.data[par.parents[i]].children_d.concat(dpc);
+			}
+			node = tmp;
+			tmp = [];
+			for(i = 0, j = par.children.length; i < j; i++) {
+				tmp[i >= pos ? i+1 : i] = par.children[i];
+			}
+			tmp[pos] = node.id;
+			par.children = tmp;
+
+			this.redraw_node(par, true);
+			if(callback) { callback.call(this, this.get_node(node)); }
+			/**
+			 * triggered when a node is created
+			 * @event
+			 * @name create_node.jstree
+			 * @param {Object} node
+			 * @param {String} parent the parent's ID
+			 * @param {Number} position the position of the new node among the parent's children
+			 */
+			this.trigger('create_node', { "node" : this.get_node(node), "parent" : par.id, "position" : pos });
+			return node.id;
+		},
+		/**
+		 * set the text value of a node
+		 * @name rename_node(obj, val)
+		 * @param  {mixed} obj the node, you can pass an array to rename multiple nodes to the same name
+		 * @param  {String} val the new text value
+		 * @return {Boolean}
+		 * @trigger rename_node.jstree
+		 */
+		rename_node : function (obj, val) {
+			var t1, t2, old;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.rename_node(obj[t1], val);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') { return false; }
+			old = obj.text;
+			if(!this.check("rename_node", obj, this.get_parent(obj), val)) {
+				this.settings.core.error.call(this, this._data.core.last_error);
+				return false;
+			}
+			this.set_text(obj, val); // .apply(this, Array.prototype.slice.call(arguments))
+			/**
+			 * triggered when a node is renamed
+			 * @event
+			 * @name rename_node.jstree
+			 * @param {Object} node
+			 * @param {String} text the new value
+			 * @param {String} old the old value
+			 */
+			this.trigger('rename_node', { "node" : obj, "text" : val, "old" : old });
+			return true;
+		},
+		/**
+		 * remove a node
+		 * @name delete_node(obj)
+		 * @param  {mixed} obj the node, you can pass an array to delete multiple nodes
+		 * @return {Boolean}
+		 * @trigger delete_node.jstree, changed.jstree
+		 */
+		delete_node : function (obj) {
+			var t1, t2, par, pos, tmp, i, j, k, l, c;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.delete_node(obj[t1]);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') { return false; }
+			par = this.get_node(obj.parent);
+			pos = $.inArray(obj.id, par.children);
+			c = false;
+			if(!this.check("delete_node", obj, par, pos)) {
+				this.settings.core.error.call(this, this._data.core.last_error);
+				return false;
+			}
+			if(pos !== -1) {
+				par.children = $.vakata.array_remove(par.children, pos);
+			}
+			tmp = obj.children_d.concat([]);
+			tmp.push(obj.id);
+			for(k = 0, l = tmp.length; k < l; k++) {
+				for(i = 0, j = obj.parents.length; i < j; i++) {
+					pos = $.inArray(tmp[k], this._model.data[obj.parents[i]].children_d);
+					if(pos !== -1) {
+						this._model.data[obj.parents[i]].children_d = $.vakata.array_remove(this._model.data[obj.parents[i]].children_d, pos);
+					}
+				}
+				if(this._model.data[tmp[k]].state.selected) {
+					c = true;
+					pos = $.inArray(tmp[k], this._data.core.selected);
+					if(pos !== -1) {
+						this._data.core.selected = $.vakata.array_remove(this._data.core.selected, pos);
+					}
+				}
+			}
+			/**
+			 * triggered when a node is deleted
+			 * @event
+			 * @name delete_node.jstree
+			 * @param {Object} node
+			 * @param {String} parent the parent's ID
+			 */
+			this.trigger('delete_node', { "node" : obj, "parent" : par.id });
+			if(c) {
+				this.trigger('changed', { 'action' : 'delete_node', 'node' : obj, 'selected' : this._data.core.selected, 'parent' : par.id });
+			}
+			for(k = 0, l = tmp.length; k < l; k++) {
+				delete this._model.data[tmp[k]];
+			}
+			this.redraw_node(par, true);
+			return true;
+		},
+		/**
+		 * check if an operation is premitted on the tree. Used internally.
+		 * @private
+		 * @name check(chk, obj, par, pos)
+		 * @param  {String} chk the operation to check, can be "create_node", "rename_node", "delete_node", "copy_node" or "move_node"
+		 * @param  {mixed} obj the node
+		 * @param  {mixed} par the parent
+		 * @param  {mixed} pos the position to insert at, or if "rename_node" - the new name
+		 * @return {Boolean}
+		 */
+		check : function (chk, obj, par, pos) {
+			obj = obj && obj.id ? obj : this.get_node(obj);
+			par = par && par.id ? par : this.get_node(par);
+			var tmp = chk.match(/^move_node|copy_node|create_node$/i) ? par : obj,
+				chc = this.settings.core.check_callback;
+			if(chk === "move_node") {
+				if(obj.id === par.id || $.inArray(obj.id, par.children) === pos || $.inArray(par.id, obj.children_d) !== -1) {
+					this._data.core.last_error = { 'error' : 'check', 'plugin' : 'core', 'id' : 'core_01', 'reason' : 'Moving parent inside child', 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+					return false;
+				}
+			}
+			tmp = this.get_node(tmp, true);
+			if(tmp.length) { tmp = tmp.data('jstree'); }
+			if(tmp && tmp.functions && (tmp.functions[chk] === false || tmp.functions[chk] === true)) {
+				if(tmp.functions[chk] === false) {
+					this._data.core.last_error = { 'error' : 'check', 'plugin' : 'core', 'id' : 'core_02', 'reason' : 'Node data prevents function: ' + chk, 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+				}
+				return tmp.functions[chk];
+			}
+			if(chc === false || ($.isFunction(chc) && chc.call(this, chk, obj, par, pos) === false) || (chc && chc[chk] === false)) {
+				this._data.core.last_error = { 'error' : 'check', 'plugin' : 'core', 'id' : 'core_03', 'reason' : 'User config for core.check_callback prevents function: ' + chk, 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+				return false;
+			}
+			return true;
+		},
+		/**
+		 * get the last error
+		 * @name last_error()
+		 * @return {Object}
+		 */
+		last_error : function () {
+			return this._data.core.last_error;
+		},
+		/**
+		 * move a node to a new parent
+		 * @name move_node(obj, par [, pos, callback, is_loaded])
+		 * @param  {mixed} obj the node to move, pass an array to move multiple nodes
+		 * @param  {mixed} par the new parent
+		 * @param  {mixed} pos the position to insert at ("first" and "last" are supported, as well as "before" and "after"), defaults to `0`
+		 * @param  {function} callback a function to call once the move is completed, receives 3 arguments - the node, the new parent and the position
+		 * @param  {Boolean} internal parameter indicating if the parent node has been loaded
+		 * @trigger move_node.jstree
+		 */
+		move_node : function (obj, par, pos, callback, is_loaded) {
+			var t1, t2, old_par, new_par, old_ins, is_multi, dpc, tmp, i, j, k, l, p;
+			if($.isArray(obj)) {
+				obj = obj.reverse().slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.move_node(obj[t1], par, pos, callback, is_loaded);
+				}
+				return true;
+			}
+			obj = obj && obj.id ? obj : this.get_node(obj);
+			par = this.get_node(par);
+			pos = pos === undefined ? 0 : pos;
+
+			if(!par || !obj || obj.id === '#') { return false; }
+			if(!pos.toString().match(/^(before|after)$/) && !is_loaded && !this.is_loaded(par)) {
+				return this.load_node(par, function () { this.move_node(obj, par, pos, callback, true); });
+			}
+
+			old_par = (obj.parent || '#').toString();
+			new_par = (!pos.toString().match(/^(before|after)$/) || par.id === '#') ? par : this.get_node(par.parent);
+			old_ins = this._model.data[obj.id] ? this : $.jstree.reference(obj.id);
+			is_multi = !old_ins || !old_ins._id || (this._id !== old_ins._id);
+			if(is_multi) {
+				if(this.copy_node(obj, par, pos, callback, is_loaded)) {
+					if(old_ins) { old_ins.delete_node(obj); }
+					return true;
+				}
+				return false;
+			}
+			//var m = this._model.data;
+			if(new_par.id === '#') {
+				if(pos === "before") { pos = "first"; }
+				if(pos === "after") { pos = "last"; }
+			}
+			switch(pos) {
+				case "before":
+					pos = $.inArray(par.id, new_par.children);
+					break;
+				case "after" :
+					pos = $.inArray(par.id, new_par.children) + 1;
+					break;
+				case "inside":
+				case "first":
+					pos = 0;
+					break;
+				case "last":
+					pos = new_par.children.length;
+					break;
+				default:
+					if(!pos) { pos = 0; }
+					break;
+			}
+			if(pos > new_par.children.length) { pos = new_par.children.length; }
+			if(!this.check("move_node", obj, new_par, pos)) {
+				this.settings.core.error.call(this, this._data.core.last_error);
+				return false;
+			}
+			if(obj.parent === new_par.id) {
+				dpc = new_par.children.concat();
+				tmp = $.inArray(obj.id, dpc);
+				if(tmp !== -1) {
+					dpc = $.vakata.array_remove(dpc, tmp);
+					if(pos > tmp) { pos--; }
+				}
+				tmp = [];
+				for(i = 0, j = dpc.length; i < j; i++) {
+					tmp[i >= pos ? i+1 : i] = dpc[i];
+				}
+				tmp[pos] = obj.id;
+				new_par.children = tmp;
+				this._node_changed(new_par.id);
+				this.redraw(new_par.id === '#');
+			}
+			else {
+				// clean old parent and up
+				tmp = obj.children_d.concat();
+				tmp.push(obj.id);
+				for(i = 0, j = obj.parents.length; i < j; i++) {
+					dpc = [];
+					p = old_ins._model.data[obj.parents[i]].children_d;
+					for(k = 0, l = p.length; k < l; k++) {
+						if($.inArray(p[k], tmp) === -1) {
+							dpc.push(p[k]);
+						}
+					}
+					old_ins._model.data[obj.parents[i]].children_d = dpc;
+				}
+				old_ins._model.data[old_par].children = $.vakata.array_remove_item(old_ins._model.data[old_par].children, obj.id);
+
+				// insert into new parent and up
+				for(i = 0, j = new_par.parents.length; i < j; i++) {
+					this._model.data[new_par.parents[i]].children_d = this._model.data[new_par.parents[i]].children_d.concat(tmp);
+				}
+				dpc = [];
+				for(i = 0, j = new_par.children.length; i < j; i++) {
+					dpc[i >= pos ? i+1 : i] = new_par.children[i];
+				}
+				dpc[pos] = obj.id;
+				new_par.children = dpc;
+				new_par.children_d.push(obj.id);
+				new_par.children_d = new_par.children_d.concat(obj.children_d);
+
+				// update object
+				obj.parent = new_par.id;
+				tmp = new_par.parents.concat();
+				tmp.unshift(new_par.id);
+				p = obj.parents.length;
+				obj.parents = tmp;
+
+				// update object children
+				tmp = tmp.concat();
+				for(i = 0, j = obj.children_d.length; i < j; i++) {
+					this._model.data[obj.children_d[i]].parents = this._model.data[obj.children_d[i]].parents.slice(0,p*-1);
+					Array.prototype.push.apply(this._model.data[obj.children_d[i]].parents, tmp);
+				}
+
+				this._node_changed(old_par);
+				this._node_changed(new_par.id);
+				this.redraw(old_par === '#' || new_par.id === '#');
+			}
+			if(callback) { callback.call(this, obj, new_par, pos); }
+			/**
+			 * triggered when a node is moved
+			 * @event
+			 * @name move_node.jstree
+			 * @param {Object} node
+			 * @param {String} parent the parent's ID
+			 * @param {Number} position the position of the node among the parent's children
+			 * @param {String} old_parent the old parent of the node
+			 * @param {Boolean} is_multi do the node and new parent belong to different instances
+			 * @param {jsTree} old_instance the instance the node came from
+			 * @param {jsTree} new_instance the instance of the new parent
+			 */
+			this.trigger('move_node', { "node" : obj, "parent" : new_par.id, "position" : pos, "old_parent" : old_par, "is_multi" : is_multi, 'old_instance' : old_ins, 'new_instance' : this });
+			return true;
+		},
+		/**
+		 * copy a node to a new parent
+		 * @name copy_node(obj, par [, pos, callback, is_loaded])
+		 * @param  {mixed} obj the node to copy, pass an array to copy multiple nodes
+		 * @param  {mixed} par the new parent
+		 * @param  {mixed} pos the position to insert at ("first" and "last" are supported, as well as "before" and "after"), defaults to `0`
+		 * @param  {function} callback a function to call once the move is completed, receives 3 arguments - the node, the new parent and the position
+		 * @param  {Boolean} internal parameter indicating if the parent node has been loaded
+		 * @trigger model.jstree copy_node.jstree
+		 */
+		copy_node : function (obj, par, pos, callback, is_loaded) {
+			var t1, t2, dpc, tmp, i, j, node, old_par, new_par, old_ins, is_multi;
+			if($.isArray(obj)) {
+				obj = obj.reverse().slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.copy_node(obj[t1], par, pos, callback, is_loaded);
+				}
+				return true;
+			}
+			obj = obj && obj.id ? obj : this.get_node(obj);
+			par = this.get_node(par);
+			pos = pos === undefined ? 0 : pos;
+
+			if(!par || !obj || obj.id === '#') { return false; }
+			if(!pos.toString().match(/^(before|after)$/) && !is_loaded && !this.is_loaded(par)) {
+				return this.load_node(par, function () { this.copy_node(obj, par, pos, callback, true); });
+			}
+
+			old_par = (obj.parent || '#').toString();
+			new_par = (!pos.toString().match(/^(before|after)$/) || par.id === '#') ? par : this.get_node(par.parent);
+			old_ins = this._model.data[obj.id] ? this : $.jstree.reference(obj.id);
+			is_multi = !old_ins || !old_ins._id || (this._id !== old_ins._id);
+			if(new_par.id === '#') {
+				if(pos === "before") { pos = "first"; }
+				if(pos === "after") { pos = "last"; }
+			}
+			switch(pos) {
+				case "before":
+					pos = $.inArray(par.id, new_par.children);
+					break;
+				case "after" :
+					pos = $.inArray(par.id, new_par.children) + 1;
+					break;
+				case "inside":
+				case "first":
+					pos = 0;
+					break;
+				case "last":
+					pos = new_par.children.length;
+					break;
+				default:
+					if(!pos) { pos = 0; }
+					break;
+			}
+			if(pos > new_par.children.length) { pos = new_par.children.length; }
+			if(!this.check("copy_node", obj, new_par, pos)) {
+				this.settings.core.error.call(this, this._data.core.last_error);
+				return false;
+			}
+			node = old_ins ? old_ins.get_json(obj, { no_id : true, no_data : true, no_state : true }) : obj;
+			if(!node) { return false; }
+			if(node.id === true) { delete node.id; }
+			node = this._parse_model_from_json(node, new_par.id, new_par.parents.concat());
+			if(!node) { return false; }
+			tmp = this.get_node(node);
+			dpc = [];
+			dpc.push(node);
+			dpc = dpc.concat(tmp.children_d);
+			this.trigger('model', { "nodes" : dpc, "parent" : new_par.id });
+
+			// insert into new parent and up
+			for(i = 0, j = new_par.parents.length; i < j; i++) {
+				this._model.data[new_par.parents[i]].children_d = this._model.data[new_par.parents[i]].children_d.concat(dpc);
+			}
+			dpc = [];
+			for(i = 0, j = new_par.children.length; i < j; i++) {
+				dpc[i >= pos ? i+1 : i] = new_par.children[i];
+			}
+			dpc[pos] = tmp.id;
+			new_par.children = dpc;
+			new_par.children_d.push(tmp.id);
+			new_par.children_d = new_par.children_d.concat(tmp.children_d);
+
+			this._node_changed(new_par.id);
+			this.redraw(new_par.id === '#');
+			if(callback) { callback.call(this, tmp, new_par, pos); }
+			/**
+			 * triggered when a node is copied
+			 * @event
+			 * @name copy_node.jstree
+			 * @param {Object} node the copied node
+			 * @param {Object} original the original node
+			 * @param {String} parent the parent's ID
+			 * @param {Number} position the position of the node among the parent's children
+			 * @param {String} old_parent the old parent of the node
+			 * @param {Boolean} is_multi do the node and new parent belong to different instances
+			 * @param {jsTree} old_instance the instance the node came from
+			 * @param {jsTree} new_instance the instance of the new parent
+			 */
+			this.trigger('copy_node', { "node" : tmp, "original" : obj, "parent" : new_par.id, "position" : pos, "old_parent" : old_par, "is_multi" : is_multi, 'old_instance' : old_ins, 'new_instance' : this });
+			return tmp.id;
+		},
+		/**
+		 * cut a node (a later call to `paste(obj)` would move the node)
+		 * @name cut(obj)
+		 * @param  {mixed} obj multiple objects can be passed using an array
+		 * @trigger cut.jstree
+		 */
+		cut : function (obj) {
+			if(!obj) { obj = this._data.core.selected.concat(); }
+			if(!$.isArray(obj)) { obj = [obj]; }
+			if(!obj.length) { return false; }
+			var tmp = [], o, t1, t2;
+			for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+				o = this.get_node(obj[t1]);
+				if(o && o.id && o.id !== '#') { tmp.push(o); }
+			}
+			if(!tmp.length) { return false; }
+			ccp_node = tmp;
+			ccp_inst = this;
+			ccp_mode = 'move_node';
+			/**
+			 * triggered when nodes are added to the buffer for moving
+			 * @event
+			 * @name cut.jstree
+			 * @param {Array} node
+			 */
+			this.trigger('cut', { "node" : obj });
+		},
+		/**
+		 * copy a node (a later call to `paste(obj)` would copy the node)
+		 * @name copy(obj)
+		 * @param  {mixed} obj multiple objects can be passed using an array
+		 * @trigger copy.jstre
+		 */
+		copy : function (obj) {
+			if(!obj) { obj = this._data.core.selected.concat(); }
+			if(!$.isArray(obj)) { obj = [obj]; }
+			if(!obj.length) { return false; }
+			var tmp = [], o, t1, t2;
+			for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+				o = this.get_node(obj[t1]);
+				if(o && o.id && o.id !== '#') { tmp.push(o); }
+			}
+			if(!tmp.length) { return false; }
+			ccp_node = tmp;
+			ccp_inst = this;
+			ccp_mode = 'copy_node';
+			/**
+			 * triggered when nodes are added to the buffer for copying
+			 * @event
+			 * @name copy.jstree
+			 * @param {Array} node
+			 */
+			this.trigger('copy', { "node" : obj });
+		},
+		/**
+		 * get the current buffer (any nodes that are waiting for a paste operation)
+		 * @name get_buffer()
+		 * @return {Object} an object consisting of `mode` ("copy_node" or "move_node"), `node` (an array of objects) and `inst` (the instance)
+		 */
+		get_buffer : function () {
+			return { 'mode' : ccp_mode, 'node' : ccp_node, 'inst' : ccp_inst };
+		},
+		/**
+		 * check if there is something in the buffer to paste
+		 * @name can_paste()
+		 * @return {Boolean}
+		 */
+		can_paste : function () {
+			return ccp_mode !== false && ccp_node !== false; // && ccp_inst._model.data[ccp_node];
+		},
+		/**
+		 * copy or move the previously cut or copied nodes to a new parent
+		 * @name paste(obj)
+		 * @param  {mixed} obj the new parent
+		 * @trigger paste.jstree
+		 */
+		paste : function (obj) {
+			obj = this.get_node(obj);
+			if(!obj || !ccp_mode || !ccp_mode.match(/^(copy_node|move_node)$/) || !ccp_node) { return false; }
+			if(this[ccp_mode](ccp_node, obj)) {
+				/**
+				 * triggered when paste is invoked
+				 * @event
+				 * @name paste.jstree
+				 * @param {String} parent the ID of the receiving node
+				 * @param {Array} node the nodes in the buffer
+				 * @param {String} mode the performed operation - "copy_node" or "move_node"
+				 */
+				this.trigger('paste', { "parent" : obj.id, "node" : ccp_node, "mode" : ccp_mode });
+			}
+			ccp_node = false;
+			ccp_mode = false;
+			ccp_inst = false;
+		},
+		/**
+		 * put a node in edit mode (input field to rename the node)
+		 * @name edit(obj [, default_text])
+		 * @param  {mixed} obj
+		 * @param  {String} default_text the text to populate the input with (if omitted the node text value is used)
+		 */
+		edit : function (obj, default_text) {
+			obj = this._open_to(obj);
+			if(!obj || !obj.length) { return false; }
+			var rtl = this._data.core.rtl,
+				w  = this.element.width(),
+				a  = obj.children('.jstree-anchor'),
+				s  = $('<span>'),
+				/*!
+				oi = obj.children("i:visible"),
+				ai = a.children("i:visible"),
+				w1 = oi.width() * oi.length,
+				w2 = ai.width() * ai.length,
+				*/
+				t  = typeof default_text === 'string' ? default_text : this.get_text(obj),
+				h1 = $("<"+"div />", { css : { "position" : "absolute", "top" : "-200px", "left" : (rtl ? "0px" : "-1000px"), "visibility" : "hidden" } }).appendTo("body"),
+				h2 = $("<"+"input />", {
+						"value" : t,
+						"class" : "jstree-rename-input",
+						// "size" : t.length,
+						"css" : {
+							"padding" : "0",
+							"border" : "1px solid silver",
+							"box-sizing" : "border-box",
+							"display" : "inline-block",
+							"height" : (this._data.core.li_height) + "px",
+							"lineHeight" : (this._data.core.li_height) + "px",
+							"width" : "150px" // will be set a bit further down
+						},
+						"blur" : $.proxy(function () {
+							var i = s.children(".jstree-rename-input"),
+								v = i.val();
+							if(v === "") { v = t; }
+							h1.remove();
+							s.replaceWith(a);
+							s.remove();
+							this.set_text(obj, t);
+							if(this.rename_node(obj, v) === false) {
+								this.set_text(obj, t); // move this up? and fix #483
+							}
+						}, this),
+						"keydown" : function (event) {
+							var key = event.which;
+							if(key === 27) {
+								this.value = t;
+							}
+							if(key === 27 || key === 13 || key === 37 || key === 38 || key === 39 || key === 40 || key === 32) {
+								event.stopImmediatePropagation();
+							}
+							if(key === 27 || key === 13) {
+								event.preventDefault();
+								this.blur();
+							}
+						},
+						"click" : function (e) { e.stopImmediatePropagation(); },
+						"mousedown" : function (e) { e.stopImmediatePropagation(); },
+						"keyup" : function (event) {
+							h2.width(Math.min(h1.text("pW" + this.value).width(),w));
+						},
+						"keypress" : function(event) {
+							if(event.which === 13) { return false; }
+						}
+					}),
+				fn = {
+						fontFamily		: a.css('fontFamily')		|| '',
+						fontSize		: a.css('fontSize')			|| '',
+						fontWeight		: a.css('fontWeight')		|| '',
+						fontStyle		: a.css('fontStyle')		|| '',
+						fontStretch		: a.css('fontStretch')		|| '',
+						fontVariant		: a.css('fontVariant')		|| '',
+						letterSpacing	: a.css('letterSpacing')	|| '',
+						wordSpacing		: a.css('wordSpacing')		|| ''
+				};
+			this.set_text(obj, "");
+			s.attr('class', a.attr('class')).append(a.contents().clone()).append(h2);
+			a.replaceWith(s);
+			h1.css(fn);
+			h2.css(fn).width(Math.min(h1.text("pW" + h2[0].value).width(),w))[0].select();
+		},
+
+
+		/**
+		 * changes the theme
+		 * @name set_theme(theme_name [, theme_url])
+		 * @param {String} theme_name the name of the new theme to apply
+		 * @param {mixed} theme_url  the location of the CSS file for this theme. Omit or set to `false` if you manually included the file. Set to `true` to autoload from the `core.themes.dir` directory.
+		 * @trigger set_theme.jstree
+		 */
+		set_theme : function (theme_name, theme_url) {
+			if(!theme_name) { return false; }
+			if(theme_url === true) {
+				var dir = this.settings.core.themes.dir;
+				if(!dir) { dir = $.jstree.path + '/themes'; }
+				theme_url = dir + '/' + theme_name + '/style.css';
+			}
+			if(theme_url && $.inArray(theme_url, themes_loaded) === -1) {
+				$('head').append('<'+'link rel="stylesheet" href="' + theme_url + '" type="text/css" />');
+				themes_loaded.push(theme_url);
+			}
+			if(this._data.core.themes.name) {
+				this.element.removeClass('jstree-' + this._data.core.themes.name);
+			}
+			this._data.core.themes.name = theme_name;
+			this.element.addClass('jstree-' + theme_name);
+			this.element[this.settings.core.themes.responsive ? 'addClass' : 'removeClass' ]('jstree-' + theme_name + '-responsive');
+			/**
+			 * triggered when a theme is set
+			 * @event
+			 * @name set_theme.jstree
+			 * @param {String} theme the new theme
+			 */
+			this.trigger('set_theme', { 'theme' : theme_name });
+		},
+		/**
+		 * gets the name of the currently applied theme name
+		 * @name get_theme()
+		 * @return {String}
+		 */
+		get_theme : function () { return this._data.core.themes.name; },
+		/**
+		 * changes the theme variant (if the theme has variants)
+		 * @name set_theme_variant(variant_name)
+		 * @param {String|Boolean} variant_name the variant to apply (if `false` is used the current variant is removed)
+		 */
+		set_theme_variant : function (variant_name) {
+			if(this._data.core.themes.variant) {
+				this.element.removeClass('jstree-' + this._data.core.themes.name + '-' + this._data.core.themes.variant);
+			}
+			this._data.core.themes.variant = variant_name;
+			if(variant_name) {
+				this.element.addClass('jstree-' + this._data.core.themes.name + '-' + this._data.core.themes.variant);
+			}
+		},
+		/**
+		 * gets the name of the currently applied theme variant
+		 * @name get_theme()
+		 * @return {String}
+		 */
+		get_theme_variant : function () { return this._data.core.themes.variant; },
+		/**
+		 * shows a striped background on the container (if the theme supports it)
+		 * @name show_stripes()
+		 */
+		show_stripes : function () { this._data.core.themes.stripes = true; this.get_container_ul().addClass("jstree-striped"); },
+		/**
+		 * hides the striped background on the container
+		 * @name hide_stripes()
+		 */
+		hide_stripes : function () { this._data.core.themes.stripes = false; this.get_container_ul().removeClass("jstree-striped"); },
+		/**
+		 * toggles the striped background on the container
+		 * @name toggle_stripes()
+		 */
+		toggle_stripes : function () { if(this._data.core.themes.stripes) { this.hide_stripes(); } else { this.show_stripes(); } },
+		/**
+		 * shows the connecting dots (if the theme supports it)
+		 * @name show_dots()
+		 */
+		show_dots : function () { this._data.core.themes.dots = true; this.get_container_ul().removeClass("jstree-no-dots"); },
+		/**
+		 * hides the connecting dots
+		 * @name hide_dots()
+		 */
+		hide_dots : function () { this._data.core.themes.dots = false; this.get_container_ul().addClass("jstree-no-dots"); },
+		/**
+		 * toggles the connecting dots
+		 * @name toggle_dots()
+		 */
+		toggle_dots : function () { if(this._data.core.themes.dots) { this.hide_dots(); } else { this.show_dots(); } },
+		/**
+		 * show the node icons
+		 * @name show_icons()
+		 */
+		show_icons : function () { this._data.core.themes.icons = true; this.get_container_ul().removeClass("jstree-no-icons"); },
+		/**
+		 * hide the node icons
+		 * @name hide_icons()
+		 */
+		hide_icons : function () { this._data.core.themes.icons = false; this.get_container_ul().addClass("jstree-no-icons"); },
+		/**
+		 * toggle the node icons
+		 * @name toggle_icons()
+		 */
+		toggle_icons : function () { if(this._data.core.themes.icons) { this.hide_icons(); } else { this.show_icons(); } },
+		/**
+		 * set the node icon for a node
+		 * @name set_icon(obj, icon)
+		 * @param {mixed} obj
+		 * @param {String} icon the new icon - can be a path to an icon or a className, if using an image that is in the current directory use a `./` prefix, otherwise it will be detected as a class
+		 */
+		set_icon : function (obj, icon) {
+			var t1, t2, dom, old;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.set_icon(obj[t1], icon);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') { return false; }
+			old = obj.icon;
+			obj.icon = icon;
+			dom = this.get_node(obj, true).children(".jstree-anchor").children(".jstree-themeicon");
+			if(icon === false) {
+				this.hide_icon(obj);
+			}
+			else if(icon === true) {
+				dom.removeClass('jstree-themeicon-custom ' + old).css("background","").removeAttr("rel");
+			}
+			else if(icon.indexOf("/") === -1 && icon.indexOf(".") === -1) {
+				dom.removeClass(old).css("background","");
+				dom.addClass(icon + ' jstree-themeicon-custom').attr("rel",icon);
+			}
+			else {
+				dom.removeClass(old).css("background","");
+				dom.addClass('jstree-themeicon-custom').css("background", "url('" + icon + "') center center no-repeat").attr("rel",icon);
+			}
+			return true;
+		},
+		/**
+		 * get the node icon for a node
+		 * @name get_icon(obj)
+		 * @param {mixed} obj
+		 * @return {String}
+		 */
+		get_icon : function (obj) {
+			obj = this.get_node(obj);
+			return (!obj || obj.id === '#') ? false : obj.icon;
+		},
+		/**
+		 * hide the icon on an individual node
+		 * @name hide_icon(obj)
+		 * @param {mixed} obj
+		 */
+		hide_icon : function (obj) {
+			var t1, t2;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.hide_icon(obj[t1]);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj === '#') { return false; }
+			obj.icon = false;
+			this.get_node(obj, true).children("a").children(".jstree-themeicon").addClass('jstree-themeicon-hidden');
+			return true;
+		},
+		/**
+		 * show the icon on an individual node
+		 * @name show_icon(obj)
+		 * @param {mixed} obj
+		 */
+		show_icon : function (obj) {
+			var t1, t2, dom;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.show_icon(obj[t1]);
+				}
+				return true;
+			}
+			obj = this.get_node(obj);
+			if(!obj || obj === '#') { return false; }
+			dom = this.get_node(obj, true);
+			obj.icon = dom.length ? dom.children("a").children(".jstree-themeicon").attr('rel') : true;
+			if(!obj.icon) { obj.icon = true; }
+			dom.children("a").children(".jstree-themeicon").removeClass('jstree-themeicon-hidden');
+			return true;
+		}
+	};
+
+	// helpers
+	$.vakata = {};
+	// reverse
+	$.fn.vakata_reverse = [].reverse;
+	// collect attributes
+	$.vakata.attributes = function(node, with_values) {
+		node = $(node)[0];
+		var attr = with_values ? {} : [];
+		if(node && node.attributes) {
+			$.each(node.attributes, function (i, v) {
+				if($.inArray(v.nodeName.toLowerCase(),['style','contenteditable','hasfocus','tabindex']) !== -1) { return; }
+				if(v.nodeValue !== null && $.trim(v.nodeValue) !== '') {
+					if(with_values) { attr[v.nodeName] = v.nodeValue; }
+					else { attr.push(v.nodeName); }
+				}
+			});
+		}
+		return attr;
+	};
+	$.vakata.array_unique = function(array) {
+		var a = [], i, j, l;
+		for(i = 0, l = array.length; i < l; i++) {
+			for(j = 0; j <= i; j++) {
+				if(array[i] === array[j]) {
+					break;
+				}
+			}
+			if(j === i) { a.push(array[i]); }
+		}
+		return a;
+	};
+	// remove item from array
+	$.vakata.array_remove = function(array, from, to) {
+		var rest = array.slice((to || from) + 1 || array.length);
+		array.length = from < 0 ? array.length + from : from;
+		array.push.apply(array, rest);
+		return array;
+	};
+	// remove item from array
+	$.vakata.array_remove_item = function(array, item) {
+		var tmp = $.inArray(item, array);
+		return tmp !== -1 ? $.vakata.array_remove(array, tmp) : array;
+	};
+	// browser sniffing
+	(function () {
+		var browser = {},
+			b_match = function(ua) {
+			ua = ua.toLowerCase();
+
+			var match =	/(chrome)[ \/]([\w.]+)/.exec( ua ) ||
+						/(webkit)[ \/]([\w.]+)/.exec( ua ) ||
+						/(opera)(?:.*version|)[ \/]([\w.]+)/.exec( ua ) ||
+						/(msie) ([\w.]+)/.exec( ua ) ||
+						(ua.indexOf("compatible") < 0 && /(mozilla)(?:.*? rv:([\w.]+)|)/.exec( ua )) ||
+						[];
+				return {
+					browser: match[1] || "",
+					version: match[2] || "0"
+				};
+			},
+			matched = b_match(window.navigator.userAgent);
+		if(matched.browser) {
+			browser[ matched.browser ] = true;
+			browser.version = matched.version;
+		}
+		if(browser.chrome) {
+			browser.webkit = true;
+		}
+		else if(browser.webkit) {
+			browser.safari = true;
+		}
+		$.vakata.browser = browser;
+	}());
+	if($.vakata.browser.msie && $.vakata.browser.version < 8) {
+		$.jstree.defaults.core.animation = 0;
+	}
+
+/**
+ * ### Checkbox plugin
+ *
+ * This plugin renders checkbox icons in front of each node, making multiple selection much easier. 
+ * It also supports tri-state behavior, meaning that if a node has a few of its children checked it will be rendered as undetermined, and state will be propagated up.
+ */
+
+	var _i = document.createElement('I');
+	_i.className = 'jstree-icon jstree-checkbox';
+	/**
+	 * stores all defaults for the checkbox plugin
+	 * @name $.jstree.defaults.checkbox
+	 * @plugin checkbox
+	 */
+	$.jstree.defaults.checkbox = {
+		/**
+		 * a boolean indicating if checkboxes should be visible (can be changed at a later time using `show_checkboxes()` and `hide_checkboxes`). Defaults to `true`.
+		 * @name $.jstree.defaults.checkbox.visible
+		 * @plugin checkbox
+		 */
+		visible				: true,
+		/**
+		 * a boolean indicating if checkboxes should cascade down and have an undetermined state. Defaults to `true`.
+		 * @name $.jstree.defaults.checkbox.three_state
+		 * @plugin checkbox
+		 */
+		three_state			: true,
+		/**
+		 * a boolean indicating if clicking anywhere on the node should act as clicking on the checkbox. Defaults to `true`.
+		 * @name $.jstree.defaults.checkbox.whole_node
+		 * @plugin checkbox
+		 */
+		whole_node			: true,
+		/**
+		 * a boolean indicating if the selected style of a node should be kept, or removed. Defaults to `true`.
+		 * @name $.jstree.defaults.checkbox.keep_selected_style
+		 * @plugin checkbox
+		 */
+		keep_selected_style	: true
+	};
+	$.jstree.plugins.checkbox = function (options, parent) {
+		this.bind = function () {
+			parent.bind.call(this);
+			this._data.checkbox.uto = false;
+			this.element
+				.on("init.jstree", $.proxy(function () {
+						this._data.checkbox.visible = this.settings.checkbox.visible;
+						if(!this.settings.checkbox.keep_selected_style) {
+							this.element.addClass('jstree-checkbox-no-clicked');
+						}
+					}, this))
+				.on("loading.jstree", $.proxy(function () {
+						this[ this._data.checkbox.visible ? 'show_checkboxes' : 'hide_checkboxes' ]();
+					}, this));
+			if(this.settings.checkbox.three_state) {
+				this.element
+					.on('changed.jstree move_node.jstree copy_node.jstree redraw.jstree open_node.jstree', $.proxy(function () {
+							if(this._data.checkbox.uto) { clearTimeout(this._data.checkbox.uto); }
+							this._data.checkbox.uto = setTimeout($.proxy(this._undetermined, this), 50);
+						}, this))
+					.on('model.jstree', $.proxy(function (e, data) {
+							var m = this._model.data,
+								p = m[data.parent],
+								dpc = data.nodes,
+								chd = [],
+								c, i, j, k, l, tmp;
+
+							// apply down
+							if(p.state.selected) {
+								for(i = 0, j = dpc.length; i < j; i++) {
+									m[dpc[i]].state.selected = true;
+								}
+								this._data.core.selected = this._data.core.selected.concat(dpc);
+							}
+							else {
+								for(i = 0, j = dpc.length; i < j; i++) {
+									if(m[dpc[i]].state.selected) {
+										for(k = 0, l = m[dpc[i]].children_d.length; k < l; k++) {
+											m[m[dpc[i]].children_d[k]].state.selected = true;
+										}
+										this._data.core.selected = this._data.core.selected.concat(m[dpc[i]].children_d);
+									}
+								}
+							}
+
+							// apply up
+							for(i = 0, j = p.children_d.length; i < j; i++) {
+								if(!m[p.children_d[i]].children.length) {
+									chd.push(m[p.children_d[i]].parent);
+								}
+							}
+							chd = $.vakata.array_unique(chd);
+							for(k = 0, l = chd.length; k < l; k++) {
+								p = m[chd[k]];
+								while(p && p.id !== '#') {
+									c = 0;
+									for(i = 0, j = p.children.length; i < j; i++) {
+										c += m[p.children[i]].state.selected;
+									}
+									if(c === j) {
+										p.state.selected = true;
+										this._data.core.selected.push(p.id);
+										tmp = this.get_node(p, true);
+										if(tmp && tmp.length) {
+											tmp.children('.jstree-anchor').addClass('jstree-clicked');
+										}
+									}
+									else {
+										break;
+									}
+									p = this.get_node(p.parent);
+								}
+							}
+							this._data.core.selected = $.vakata.array_unique(this._data.core.selected);
+						}, this))
+					.on('select_node.jstree', $.proxy(function (e, data) {
+							var obj = data.node,
+								m = this._model.data,
+								par = this.get_node(obj.parent),
+								dom = this.get_node(obj, true),
+								i, j, c, tmp;
+							this._data.core.selected = $.vakata.array_unique(this._data.core.selected.concat(obj.children_d));
+							for(i = 0, j = obj.children_d.length; i < j; i++) {
+								m[obj.children_d[i]].state.selected = true;
+							}
+							while(par && par.id !== '#') {
+								c = 0;
+								for(i = 0, j = par.children.length; i < j; i++) {
+									c += m[par.children[i]].state.selected;
+								}
+								if(c === j) {
+									par.state.selected = true;
+									this._data.core.selected.push(par.id);
+									tmp = this.get_node(par, true);
+									if(tmp && tmp.length) {
+										tmp.children('.jstree-anchor').addClass('jstree-clicked');
+									}
+								}
+								else {
+									break;
+								}
+								par = this.get_node(par.parent);
+							}
+							if(dom.length) {
+								dom.find('.jstree-anchor').addClass('jstree-clicked');
+							}
+						}, this))
+					.on('deselect_node.jstree', $.proxy(function (e, data) {
+							var obj = data.node,
+								dom = this.get_node(obj, true),
+								i, j, tmp;
+							for(i = 0, j = obj.children_d.length; i < j; i++) {
+								this._model.data[obj.children_d[i]].state.selected = false;
+							}
+							for(i = 0, j = obj.parents.length; i < j; i++) {
+								this._model.data[obj.parents[i]].state.selected = false;
+								tmp = this.get_node(obj.parents[i], true);
+								if(tmp && tmp.length) {
+									tmp.children('.jstree-anchor').removeClass('jstree-clicked');
+								}
+							}
+							tmp = [];
+							for(i = 0, j = this._data.core.selected.length; i < j; i++) {
+								if($.inArray(this._data.core.selected[i], obj.children_d) === -1 && $.inArray(this._data.core.selected[i], obj.parents) === -1) {
+									tmp.push(this._data.core.selected[i]);
+								}
+							}
+							this._data.core.selected = $.vakata.array_unique(tmp);
+							if(dom.length) {
+								dom.find('.jstree-anchor').removeClass('jstree-clicked');
+							}
+						}, this))
+					.on('delete_node.jstree', $.proxy(function (e, data) {
+							var p = this.get_node(data.parent),
+								m = this._model.data,
+								i, j, c, tmp;
+							while(p && p.id !== '#') {
+								c = 0;
+								for(i = 0, j = p.children.length; i < j; i++) {
+									c += m[p.children[i]].state.selected;
+								}
+								if(c === j) {
+									p.state.selected = true;
+									this._data.core.selected.push(p.id);
+									tmp = this.get_node(p, true);
+									if(tmp && tmp.length) {
+										tmp.children('.jstree-anchor').addClass('jstree-clicked');
+									}
+								}
+								else {
+									break;
+								}
+								p = this.get_node(p.parent);
+							}
+						}, this))
+					.on('move_node.jstree', $.proxy(function (e, data) {
+							var is_multi = data.is_multi,
+								old_par = data.old_parent,
+								new_par = this.get_node(data.parent),
+								m = this._model.data,
+								p, c, i, j, tmp;
+							if(!is_multi) {
+								p = this.get_node(old_par);
+								while(p && p.id !== '#') {
+									c = 0;
+									for(i = 0, j = p.children.length; i < j; i++) {
+										c += m[p.children[i]].state.selected;
+									}
+									if(c === j) {
+										p.state.selected = true;
+										this._data.core.selected.push(p.id);
+										tmp = this.get_node(p, true);
+										if(tmp && tmp.length) {
+											tmp.children('.jstree-anchor').addClass('jstree-clicked');
+										}
+									}
+									else {
+										break;
+									}
+									p = this.get_node(p.parent);
+								}
+							}
+							p = new_par;
+							while(p && p.id !== '#') {
+								c = 0;
+								for(i = 0, j = p.children.length; i < j; i++) {
+									c += m[p.children[i]].state.selected;
+								}
+								if(c === j) {
+									if(!p.state.selected) {
+										p.state.selected = true;
+										this._data.core.selected.push(p.id);
+										tmp = this.get_node(p, true);
+										if(tmp && tmp.length) {
+											tmp.children('.jstree-anchor').addClass('jstree-clicked');
+										}
+									}
+								}
+								else {
+									if(p.state.selected) {
+										p.state.selected = false;
+										this._data.core.selected = $.vakata.array_remove_item(this._data.core.selected, p.id);
+										tmp = this.get_node(p, true);
+										if(tmp && tmp.length) {
+											tmp.children('.jstree-anchor').removeClass('jstree-clicked');
+										}
+									}
+									else {
+										break;
+									}
+								}
+								p = this.get_node(p.parent);
+							}
+						}, this));
+			}
+		};
+		/**
+		 * set the undetermined state where and if necessary. Used internally.
+		 * @private
+		 * @name _undetermined()
+		 * @plugin checkbox
+		 */
+		this._undetermined = function () {
+			var i, j, m = this._model.data, s = this._data.core.selected, p = [], t = this;
+			for(i = 0, j = s.length; i < j; i++) {
+				if(m[s[i]] && m[s[i]].parents) {
+					p = p.concat(m[s[i]].parents);
+				}
+			}
+			// attempt for server side undetermined state
+			this.element.find('.jstree-closed').not(':has(ul)')
+				.each(function () {
+					var tmp = t.get_node(this);
+					if(!tmp.state.loaded && tmp.original && tmp.original.state && tmp.original.state.undetermined && tmp.original.state.undetermined === true) {
+						p.push(tmp.id);
+						p = p.concat(tmp.parents);
+					}
+				});
+			p = $.vakata.array_unique(p);
+			i = $.inArray('#', p);
+			if(i !== -1) {
+				p = $.vakata.array_remove(p, i);
+			}
+
+			this.element.find('.jstree-undetermined').removeClass('jstree-undetermined');
+			for(i = 0, j = p.length; i < j; i++) {
+				if(!m[p[i]].state.selected) {
+					s = this.get_node(p[i], true);
+					if(s && s.length) {
+						s.children('a').children('.jstree-checkbox').addClass('jstree-undetermined');
+					}
+				}
+			}
+		};
+		this.redraw_node = function(obj, deep, is_callback) {
+			obj = parent.redraw_node.call(this, obj, deep, is_callback);
+			if(obj) {
+				var tmp = obj.getElementsByTagName('A')[0];
+				tmp.insertBefore(_i.cloneNode(), tmp.childNodes[0]);
+			}
+			if(!is_callback && this.settings.checkbox.three_state) {
+				if(this._data.checkbox.uto) { clearTimeout(this._data.checkbox.uto); }
+				this._data.checkbox.uto = setTimeout($.proxy(this._undetermined, this), 50);
+			}
+			return obj;
+		};
+		this.activate_node = function (obj, e) {
+			if(this.settings.checkbox.whole_node || $(e.target).hasClass('jstree-checkbox')) {
+				e.ctrlKey = true;
+			}
+			return parent.activate_node.call(this, obj, e);
+		};
+		/**
+		 * show the node checkbox icons
+		 * @name show_checkboxes()
+		 * @plugin checkbox
+		 */
+		this.show_checkboxes = function () { this._data.core.themes.checkboxes = true; this.element.children("ul").removeClass("jstree-no-checkboxes"); };
+		/**
+		 * hide the node checkbox icons
+		 * @name hide_checkboxes()
+		 * @plugin checkbox
+		 */
+		this.hide_checkboxes = function () { this._data.core.themes.checkboxes = false; this.element.children("ul").addClass("jstree-no-checkboxes"); };
+		/**
+		 * toggle the node icons
+		 * @name toggle_checkboxes()
+		 * @plugin checkbox
+		 */
+		this.toggle_checkboxes = function () { if(this._data.core.themes.checkboxes) { this.hide_checkboxes(); } else { this.show_checkboxes(); } };
+	};
+
+	// include the checkbox plugin by default
+	// $.jstree.defaults.plugins.push("checkbox");
+
+/**
+ * ### Contextmenu plugin
+ *
+ * Shows a context menu when a node is right-clicked.
+ */
+// TODO: move logic outside of function + check multiple move
+
+	/**
+	 * stores all defaults for the contextmenu plugin
+	 * @name $.jstree.defaults.contextmenu
+	 * @plugin contextmenu
+	 */
+	$.jstree.defaults.contextmenu = {
+		/**
+		 * a boolean indicating if the node should be selected when the context menu is invoked on it. Defaults to `true`.
+		 * @name $.jstree.defaults.contextmenu.select_node
+		 * @plugin contextmenu
+		 */
+		select_node : true,
+		/**
+		 * a boolean indicating if the menu should be shown aligned with the node. Defaults to `true`, otherwise the mouse coordinates are used.
+		 * @name $.jstree.defaults.contextmenu.show_at_node
+		 * @plugin contextmenu
+		 */
+		show_at_node : true,
+		/**
+		 * an object of actions, or a function that accepts a node and a callback function and calls the callback function with an object of actions available for that node (you can also return the items too).
+		 * 
+		 * Each action consists of a key (a unique name) and a value which is an object with the following properties (only label and action are required):
+		 * 
+		 * * `separator_before` - a boolean indicating if there should be a separator before this item
+		 * * `separator_after` - a boolean indicating if there should be a separator after this item
+		 * * `_disabled` - a boolean indicating if this action should be disabled
+		 * * `label` - a string - the name of the action
+		 * * `action` - a function to be executed if this item is chosen
+		 * * `icon` - a string, can be a path to an icon or a className, if using an image that is in the current directory use a `./` prefix, otherwise it will be detected as a class
+		 * * `shortcut` - keyCode which will trigger the action if the menu is open (for example `113` for rename, which equals F2)
+		 * * `shortcut_label` - shortcut label (like for example `F2` for rename)
+		 * 
+		 * @name $.jstree.defaults.contextmenu.items
+		 * @plugin contextmenu
+		 */
+		items : function (o, cb) { // Could be an object directly
+			return {
+				"create" : {
+					"separator_before"	: false,
+					"separator_after"	: true,
+					"_disabled"			: false, //(this.check("create_node", data.reference, {}, "last")),
+					"label"				: "Create",
+					"action"			: function (data) {
+						var inst = $.jstree.reference(data.reference),
+							obj = inst.get_node(data.reference);
+						inst.create_node(obj, {}, "last", function (new_node) {
+							setTimeout(function () { inst.edit(new_node); },0);
+						});
+					}
+				},
+				"rename" : {
+					"separator_before"	: false,
+					"separator_after"	: false,
+					"_disabled"			: false, //(this.check("rename_node", data.reference, this.get_parent(data.reference), "")),
+					"label"				: "Rename",
+					/*
+					"shortcut"			: 113,
+					"shortcut_label"	: 'F2',
+					"icon"				: "glyphicon glyphicon-leaf",
+					*/
+					"action"			: function (data) {
+						var inst = $.jstree.reference(data.reference),
+							obj = inst.get_node(data.reference);
+						inst.edit(obj);
+					}
+				},
+				"remove" : {
+					"separator_before"	: false,
+					"icon"				: false,
+					"separator_after"	: false,
+					"_disabled"			: false, //(this.check("delete_node", data.reference, this.get_parent(data.reference), "")),
+					"label"				: "Delete",
+					"action"			: function (data) {
+						var inst = $.jstree.reference(data.reference),
+							obj = inst.get_node(data.reference);
+						if(inst.is_selected(obj)) {
+							inst.delete_node(inst.get_selected());
+						}
+						else {
+							inst.delete_node(obj);
+						}
+					}
+				},
+				"ccp" : {
+					"separator_before"	: true,
+					"icon"				: false,
+					"separator_after"	: false,
+					"label"				: "Edit",
+					"action"			: false,
+					"submenu" : {
+						"cut" : {
+							"separator_before"	: false,
+							"separator_after"	: false,
+							"label"				: "Cut",
+							"action"			: function (data) {
+								var inst = $.jstree.reference(data.reference),
+									obj = inst.get_node(data.reference);
+								if(inst.is_selected(obj)) {
+									inst.cut(inst.get_selected());
+								}
+								else {
+									inst.cut(obj);
+								}
+							}
+						},
+						"copy" : {
+							"separator_before"	: false,
+							"icon"				: false,
+							"separator_after"	: false,
+							"label"				: "Copy",
+							"action"			: function (data) {
+								var inst = $.jstree.reference(data.reference),
+									obj = inst.get_node(data.reference);
+								if(inst.is_selected(obj)) {
+									inst.copy(inst.get_selected());
+								}
+								else {
+									inst.copy(obj);
+								}
+							}
+						},
+						"paste" : {
+							"separator_before"	: false,
+							"icon"				: false,
+							"_disabled"			: function (data) {
+								return !$.jstree.reference(data.reference).can_paste();
+							},
+							"separator_after"	: false,
+							"label"				: "Paste",
+							"action"			: function (data) {
+								var inst = $.jstree.reference(data.reference),
+									obj = inst.get_node(data.reference);
+								inst.paste(obj);
+							}
+						}
+					}
+				}
+			};
+		}
+	};
+
+	$.jstree.plugins.contextmenu = function (options, parent) {
+		this.bind = function () {
+			parent.bind.call(this);
+
+			this.element
+				.on("contextmenu.jstree", ".jstree-anchor", $.proxy(function (e) {
+						e.preventDefault();
+						if(!this.is_loading(e.currentTarget)) {
+							this.show_contextmenu(e.currentTarget, e.pageX, e.pageY, e);
+						}
+					}, this))
+				.on("click.jstree", ".jstree-anchor", $.proxy(function (e) {
+						if(this._data.contextmenu.visible) {
+							$.vakata.context.hide();
+						}
+					}, this));
+			/*
+			if(!('oncontextmenu' in document.body) && ('ontouchstart' in document.body)) {
+				var el = null, tm = null;
+				this.element
+					.on("touchstart", ".jstree-anchor", function (e) {
+						el = e.currentTarget;
+						tm = +new Date();
+						$(document).one("touchend", function (e) {
+							e.target = document.elementFromPoint(e.originalEvent.targetTouches[0].pageX - window.pageXOffset, e.originalEvent.targetTouches[0].pageY - window.pageYOffset);
+							e.currentTarget = e.target;
+							tm = ((+(new Date())) - tm);
+							if(e.target === el && tm > 600 && tm < 1000) {
+								e.preventDefault();
+								$(el).trigger('contextmenu', e);
+							}
+							el = null;
+							tm = null;
+						});
+					});
+			}
+			*/
+			$(document).on("context_hide.vakata", $.proxy(function () { this._data.contextmenu.visible = false; }, this));
+		};
+		this.teardown = function () {
+			if(this._data.contextmenu.visible) {
+				$.vakata.context.hide();
+			}
+			parent.teardown.call(this);
+		};
+
+		/**
+		 * prepare and show the context menu for a node
+		 * @name show_contextmenu(obj [, x, y])
+		 * @param {mixed} obj the node
+		 * @param {Number} x the x-coordinate relative to the document to show the menu at
+		 * @param {Number} y the y-coordinate relative to the document to show the menu at
+		 * @param {Object} e the event if available that triggered the contextmenu
+		 * @plugin contextmenu
+		 * @trigger show_contextmenu.jstree
+		 */
+		this.show_contextmenu = function (obj, x, y, e) {
+			obj = this.get_node(obj);
+			if(!obj || obj.id === '#') { return false; }
+			var s = this.settings.contextmenu,
+				d = this.get_node(obj, true),
+				a = d.children(".jstree-anchor"),
+				o = false,
+				i = false;
+			if(s.show_at_node || x === undefined || y === undefined) {
+				o = a.offset();
+				x = o.left;
+				y = o.top + this._data.core.li_height;
+			}
+			if(this.settings.contextmenu.select_node && !this.is_selected(obj)) {
+				this.deselect_all();
+				this.select_node(obj, false, false, e);
+			}
+
+			i = s.items;
+			if($.isFunction(i)) {
+				i = i.call(this, obj, $.proxy(function (i) {
+					this._show_contextmenu(obj, x, y, i);
+				}, this));
+			}
+			if($.isPlainObject(i)) {
+				this._show_contextmenu(obj, x, y, i);
+			}
+		};
+		/**
+		 * show the prepared context menu for a node
+		 * @name _show_contextmenu(obj, x, y, i)
+		 * @param {mixed} obj the node
+		 * @param {Number} x the x-coordinate relative to the document to show the menu at
+		 * @param {Number} y the y-coordinate relative to the document to show the menu at
+		 * @param {Number} i the object of items to show
+		 * @plugin contextmenu
+		 * @trigger show_contextmenu.jstree
+		 * @private
+		 */
+		this._show_contextmenu = function (obj, x, y, i) {
+			var d = this.get_node(obj, true),
+				a = d.children(".jstree-anchor");
+			$(document).one("context_show.vakata", $.proxy(function (e, data) {
+				var cls = 'jstree-contextmenu jstree-' + this.get_theme() + '-contextmenu';
+				$(data.element).addClass(cls);
+			}, this));
+			this._data.contextmenu.visible = true;
+			$.vakata.context.show(a, { 'x' : x, 'y' : y }, i);
+			/**
+			 * triggered when the contextmenu is shown for a node
+			 * @event
+			 * @name show_contextmenu.jstree
+			 * @param {Object} node the node
+			 * @param {Number} x the x-coordinate of the menu relative to the document
+			 * @param {Number} y the y-coordinate of the menu relative to the document
+			 * @plugin contextmenu
+			 */
+			this.trigger('show_contextmenu', { "node" : obj, "x" : x, "y" : y });
+		};
+	};
+
+	// contextmenu helper
+	(function ($) {
+		var right_to_left = false,
+			vakata_context = {
+				element		: false,
+				reference	: false,
+				position_x	: 0,
+				position_y	: 0,
+				items		: [],
+				html		: "",
+				is_visible	: false
+			};
+
+		$.vakata.context = {
+			settings : {
+				hide_onmouseleave	: 0,
+				icons				: true
+			},
+			_trigger : function (event_name) {
+				$(document).triggerHandler("context_" + event_name + ".vakata", {
+					"reference"	: vakata_context.reference,
+					"element"	: vakata_context.element,
+					"position"	: {
+						"x" : vakata_context.position_x,
+						"y" : vakata_context.position_y
+					}
+				});
+			},
+			_execute : function (i) {
+				i = vakata_context.items[i];
+				return i && (!i._disabled || ($.isFunction(i._disabled) && !i._disabled({ "item" : i, "reference" : vakata_context.reference, "element" : vakata_context.element }))) && i.action ? i.action.call(null, {
+							"item"		: i,
+							"reference"	: vakata_context.reference,
+							"element"	: vakata_context.element,
+							"position"	: {
+								"x" : vakata_context.position_x,
+								"y" : vakata_context.position_y
+							}
+						}) : false;
+			},
+			_parse : function (o, is_callback) {
+				if(!o) { return false; }
+				if(!is_callback) {
+					vakata_context.html		= "";
+					vakata_context.items	= [];
+				}
+				var str = "",
+					sep = false,
+					tmp;
+
+				if(is_callback) { str += "<"+"ul>"; }
+				$.each(o, function (i, val) {
+					if(!val) { return true; }
+					vakata_context.items.push(val);
+					if(!sep && val.separator_before) {
+						str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + ($.vakata.context.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
+					}
+					sep = false;
+					str += "<"+"li class='" + (val._class || "") + (val._disabled === true || ($.isFunction(val._disabled) && val._disabled({ "item" : val, "reference" : vakata_context.reference, "element" : vakata_context.element })) ? " vakata-contextmenu-disabled " : "") + "' "+(val.shortcut?" data-shortcut='"+val.shortcut+"' ":'')+">";
+					str += "<"+"a href='#' rel='" + (vakata_context.items.length - 1) + "'>";
+					if($.vakata.context.settings.icons) {
+						str += "<"+"i ";
+						if(val.icon) {
+							if(val.icon.indexOf("/") !== -1 || val.icon.indexOf(".") !== -1) { str += " style='background:url(\"" + val.icon + "\") center center no-repeat' "; }
+							else { str += " class='" + val.icon + "' "; }
+						}
+						str += "><"+"/i><"+"span class='vakata-contextmenu-sep'>&#160;<"+"/span>";
+					}
+					str += val.label + (val.shortcut?' <span class="vakata-contextmenu-shortcut vakata-contextmenu-shortcut-'+val.shortcut+'">'+ (val.shortcut_label || '') +'</span>':'') + "<"+"/a>";
+					if(val.submenu) {
+						tmp = $.vakata.context._parse(val.submenu, true);
+						if(tmp) { str += tmp; }
+					}
+					str += "<"+"/li>";
+					if(val.separator_after) {
+						str += "<"+"li class='vakata-context-separator'><"+"a href='#' " + ($.vakata.context.settings.icons ? '' : 'style="margin-left:0px;"') + ">&#160;<"+"/a><"+"/li>";
+						sep = true;
+					}
+				});
+				str  = str.replace(/<li class\='vakata-context-separator'\><\/li\>$/,"");
+				if(is_callback) { str += "</ul>"; }
+				/**
+				 * triggered on the document when the contextmenu is parsed (HTML is built)
+				 * @event
+				 * @plugin contextmenu
+				 * @name context_parse.vakata
+				 * @param {jQuery} reference the element that was right clicked
+				 * @param {jQuery} element the DOM element of the menu itself
+				 * @param {Object} position the x & y coordinates of the menu
+				 */
+				if(!is_callback) { vakata_context.html = str; $.vakata.context._trigger("parse"); }
+				return str.length > 10 ? str : false;
+			},
+			_show_submenu : function (o) {
+				o = $(o);
+				if(!o.length || !o.children("ul").length) { return; }
+				var e = o.children("ul"),
+					x = o.offset().left + o.outerWidth(),
+					y = o.offset().top,
+					w = e.width(),
+					h = e.height(),
+					dw = $(window).width() + $(window).scrollLeft(),
+					dh = $(window).height() + $(window).scrollTop();
+				// може да се спести е една проверка - дали няма някой от класовете вече нагоре
+				if(right_to_left) {
+					o[x - (w + 10 + o.outerWidth()) < 0 ? "addClass" : "removeClass"]("vakata-context-left");
+				}
+				else {
+					o[x + w + 10 > dw ? "addClass" : "removeClass"]("vakata-context-right");
+				}
+				if(y + h + 10 > dh) {
+					e.css("bottom","-1px");
+				}
+				e.show();
+			},
+			show : function (reference, position, data) {
+				var o, e, x, y, w, h, dw, dh, cond = true;
+				if(vakata_context.element && vakata_context.element.length) {
+					vakata_context.element.width('');
+				}
+				switch(cond) {
+					case (!position && !reference):
+						return false;
+					case (!!position && !!reference):
+						vakata_context.reference	= reference;
+						vakata_context.position_x	= position.x;
+						vakata_context.position_y	= position.y;
+						break;
+					case (!position && !!reference):
+						vakata_context.reference	= reference;
+						o = reference.offset();
+						vakata_context.position_x	= o.left + reference.outerHeight();
+						vakata_context.position_y	= o.top;
+						break;
+					case (!!position && !reference):
+						vakata_context.position_x	= position.x;
+						vakata_context.position_y	= position.y;
+						break;
+				}
+				if(!!reference && !data && $(reference).data('vakata_contextmenu')) {
+					data = $(reference).data('vakata_contextmenu');
+				}
+				if($.vakata.context._parse(data)) {
+					vakata_context.element.html(vakata_context.html);
+				}
+				if(vakata_context.items.length) {
+					e = vakata_context.element;
+					x = vakata_context.position_x;
+					y = vakata_context.position_y;
+					w = e.width();
+					h = e.height();
+					dw = $(window).width() + $(window).scrollLeft();
+					dh = $(window).height() + $(window).scrollTop();
+					if(right_to_left) {
+						x -= e.outerWidth();
+						if(x < $(window).scrollLeft() + 20) {
+							x = $(window).scrollLeft() + 20;
+						}
+					}
+					if(x + w + 20 > dw) {
+						x = dw - (w + 20);
+					}
+					if(y + h + 20 > dh) {
+						y = dh - (h + 20);
+					}
+
+					vakata_context.element
+						.css({ "left" : x, "top" : y })
+						.show()
+						.find('a:eq(0)').focus().parent().addClass("vakata-context-hover");
+					vakata_context.is_visible = true;
+					/**
+					 * triggered on the document when the contextmenu is shown
+					 * @event
+					 * @plugin contextmenu
+					 * @name context_show.vakata
+					 * @param {jQuery} reference the element that was right clicked
+					 * @param {jQuery} element the DOM element of the menu itself
+					 * @param {Object} position the x & y coordinates of the menu
+					 */
+					$.vakata.context._trigger("show");
+				}
+			},
+			hide : function () {
+				if(vakata_context.is_visible) {
+					vakata_context.element.hide().find("ul").hide().end().find(':focus').blur();
+					vakata_context.is_visible = false;
+					/**
+					 * triggered on the document when the contextmenu is hidden
+					 * @event
+					 * @plugin contextmenu
+					 * @name context_hide.vakata
+					 * @param {jQuery} reference the element that was right clicked
+					 * @param {jQuery} element the DOM element of the menu itself
+					 * @param {Object} position the x & y coordinates of the menu
+					 */
+					$.vakata.context._trigger("hide");
+				}
+			}
+		};
+		$(function () {
+			right_to_left = $("body").css("direction") === "rtl";
+			var to = false;
+
+			vakata_context.element = $("<ul class='vakata-context'></ul>");
+			vakata_context.element
+				.on("mouseenter", "li", function (e) {
+					e.stopImmediatePropagation();
+
+					if($.contains(this, e.relatedTarget)) {
+						// премахнато заради delegate mouseleave по-долу
+						// $(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
+						return;
+					}
+
+					if(to) { clearTimeout(to); }
+					vakata_context.element.find(".vakata-context-hover").removeClass("vakata-context-hover").end();
+
+					$(this)
+						.siblings().find("ul").hide().end().end()
+						.parentsUntil(".vakata-context", "li").addBack().addClass("vakata-context-hover");
+					$.vakata.context._show_submenu(this);
+				})
+				// тестово - дали не натоварва?
+				.on("mouseleave", "li", function (e) {
+					if($.contains(this, e.relatedTarget)) { return; }
+					$(this).find(".vakata-context-hover").addBack().removeClass("vakata-context-hover");
+				})
+				.on("mouseleave", function (e) {
+					$(this).find(".vakata-context-hover").removeClass("vakata-context-hover");
+					if($.vakata.context.settings.hide_onmouseleave) {
+						to = setTimeout(
+							(function (t) {
+								return function () { $.vakata.context.hide(); };
+							}(this)), $.vakata.context.settings.hide_onmouseleave);
+					}
+				})
+				.on("click", "a", function (e) {
+					e.preventDefault();
+				})
+				.on("mouseup", "a", function (e) {
+					if(!$(this).blur().parent().hasClass("vakata-context-disabled") && $.vakata.context._execute($(this).attr("rel")) !== false) {
+						$.vakata.context.hide();
+					}
+				})
+				.on('keydown', 'a', function (e) {
+						var o = null;
+						switch(e.which) {
+							case 13:
+							case 32:
+								e.type = "mouseup";
+								e.preventDefault();
+								$(e.currentTarget).trigger(e);
+								break;
+							case 37:
+								if(vakata_context.is_visible) {
+									vakata_context.element.find(".vakata-context-hover").last().parents("li:eq(0)").find("ul").hide().find(".vakata-context-hover").removeClass("vakata-context-hover").end().end().children('a').focus();
+									e.stopImmediatePropagation();
+									e.preventDefault();
+								}
+								break;
+							case 38:
+								if(vakata_context.is_visible) {
+									o = vakata_context.element.find("ul:visible").addBack().last().children(".vakata-context-hover").removeClass("vakata-context-hover").prevAll("li:not(.vakata-context-separator)").first();
+									if(!o.length) { o = vakata_context.element.find("ul:visible").addBack().last().children("li:not(.vakata-context-separator)").last(); }
+									o.addClass("vakata-context-hover").children('a').focus();
+									e.stopImmediatePropagation();
+									e.preventDefault();
+								}
+								break;
+							case 39:
+								if(vakata_context.is_visible) {
+									vakata_context.element.find(".vakata-context-hover").last().children("ul").show().children("li:not(.vakata-context-separator)").removeClass("vakata-context-hover").first().addClass("vakata-context-hover").children('a').focus();
+									e.stopImmediatePropagation();
+									e.preventDefault();
+								}
+								break;
+							case 40:
+								if(vakata_context.is_visible) {
+									o = vakata_context.element.find("ul:visible").addBack().last().children(".vakata-context-hover").removeClass("vakata-context-hover").nextAll("li:not(.vakata-context-separator)").first();
+									if(!o.length) { o = vakata_context.element.find("ul:visible").addBack().last().children("li:not(.vakata-context-separator)").first(); }
+									o.addClass("vakata-context-hover").children('a').focus();
+									e.stopImmediatePropagation();
+									e.preventDefault();
+								}
+								break;
+							case 27:
+								$.vakata.context.hide();
+								e.preventDefault();
+								break;
+							default:
+								//console.log(e.which);
+								break;
+						}
+					})
+				.on('keydown', function (e) {
+					e.preventDefault();
+					var a = vakata_context.element.find('.vakata-contextmenu-shortcut-' + e.which).parent();
+					if(a.parent().not('.vakata-context-disabled')) {
+						a.mouseup();
+					}
+				})
+				.appendTo("body");
+
+			$(document)
+				.on("mousedown", function (e) {
+					if(vakata_context.is_visible && !$.contains(vakata_context.element[0], e.target)) { $.vakata.context.hide(); }
+				})
+				.on("context_show.vakata", function (e, data) {
+					vakata_context.element.find("li:has(ul)").children("a").addClass("vakata-context-parent");
+					if(right_to_left) {
+						vakata_context.element.addClass("vakata-context-rtl").css("direction", "rtl");
+					}
+					// also apply a RTL class?
+					vakata_context.element.find("ul").hide().end();
+				});
+		});
+	}($));
+	// $.jstree.defaults.plugins.push("contextmenu");
+
+/**
+ * ### Drag'n'drop plugin
+ *
+ * Enables dragging and dropping of nodes in the tree, resulting in a move or copy operations.
+ */
+
+	/**
+	 * stores all defaults for the drag'n'drop plugin
+	 * @name $.jstree.defaults.dnd
+	 * @plugin dnd
+	 */
+	$.jstree.defaults.dnd = {
+		/**
+		 * a boolean indicating if a copy should be possible while dragging (by pressint the meta key or Ctrl). Defaults to `true`.
+		 * @name $.jstree.defaults.dnd.copy
+		 * @plugin dnd
+		 */
+		copy : true,
+		/**
+		 * a number indicating how long a node should remain hovered while dragging to be opened. Defaults to `500`.
+		 * @name $.jstree.defaults.dnd.open_timeout
+		 * @plugin dnd
+		 */
+		open_timeout : 500,
+		/**
+		 * a function invoked each time a node is about to be dragged, invoked in the tree's scope and receives the node as an argument - return `false` to prevent dragging
+		 * @name $.jstree.defaults.dnd.is_draggable
+		 * @plugin dnd
+		 */
+		is_draggable : true,
+		/**
+		 * a boolean indicating if checks should constantly be made while the user is dragging the node (as opposed to checking only on drop), default is `true`
+		 * @name $.jstree.defaults.dnd.check_while_dragging
+		 * @plugin dnd
+		 */
+		check_while_dragging : true
+	};
+	// TODO: now check works by checking for each node individually, how about max_children, unique, etc?
+	// TODO: drop somewhere else - maybe demo only?
+	$.jstree.plugins.dnd = function (options, parent) {
+		this.bind = function () {
+			parent.bind.call(this);
+
+			this.element
+				.on('mousedown touchstart', '.jstree-anchor', $.proxy(function (e) {
+					var obj = this.get_node(e.target),
+						mlt = this.is_selected(obj) ? this.get_selected().length : 1;
+					if(obj && obj.id && obj.id !== "#" && (e.which === 1 || e.type === "touchstart") &&
+						(this.settings.dnd.is_draggable === true || ($.isFunction(this.settings.dnd.is_draggable) && this.settings.dnd.is_draggable.call(this, obj)))
+					) {
+						this.element.trigger('mousedown.jstree');
+						return $.vakata.dnd.start(e, { 'jstree' : true, 'origin' : this, 'obj' : this.get_node(obj,true), 'nodes' : mlt > 1 ? this.get_selected() : [obj.id] }, '<div id="jstree-dnd" class="jstree-' + this.get_theme() + '"><i class="jstree-icon jstree-er"></i>' + (mlt > 1 ? mlt + ' ' + this.get_string('nodes') : this.get_text(e.currentTarget, true)) + '<ins class="jstree-copy" style="display:none;">+</ins></div>');
+					}
+				}, this));
+		};
+	};
+
+	$(function() {
+		// bind only once for all instances
+		var lastmv = false,
+			laster = false,
+			opento = false,
+			marker = $('<div id="jstree-marker">&#160;</div>').hide().appendTo('body');
+
+		$(document)
+			.bind('dnd_start.vakata', function (e, data) {
+				lastmv = false;
+			})
+			.bind('dnd_move.vakata', function (e, data) {
+				if(opento) { clearTimeout(opento); }
+				if(!data.data.jstree) { return; }
+
+				// if we are hovering the marker image do nothing (can happen on "inside" drags)
+				if(data.event.target.id && data.event.target.id === 'jstree-marker') {
+					return;
+				}
+
+				var ins = $.jstree.reference(data.event.target),
+					ref = false,
+					off = false,
+					rel = false,
+					l, t, h, p, i, o, ok, t1, t2, op, ps, pr;
+				// if we are over an instance
+				if(ins && ins._data && ins._data.dnd) {
+					marker.attr('class', 'jstree-' + ins.get_theme());
+					data.helper
+						.children().attr('class', 'jstree-' + ins.get_theme())
+						.find('.jstree-copy:eq(0)')[ data.data.origin && data.data.origin.settings.dnd.copy && (data.event.metaKey || data.event.ctrlKey) ? 'show' : 'hide' ]();
+
+
+					// if are hovering the container itself add a new root node
+					if( (data.event.target === ins.element[0] || data.event.target === ins.get_container_ul()[0]) && ins.get_container_ul().children().length === 0) {
+						ok = true;
+						for(t1 = 0, t2 = data.data.nodes.length; t1 < t2; t1++) {
+							ok = ok && ins.check( (data.data.origin && data.data.origin.settings.dnd.copy && (data.event.metaKey || data.event.ctrlKey) ? "copy_node" : "move_node"), (data.data.origin && data.data.origin !== ins ? data.data.origin.get_node(data.data.nodes[t1]) : data.data.nodes[t1]), '#', 'last');
+							if(!ok) { break; }
+						}
+						if(ok) {
+							lastmv = { 'ins' : ins, 'par' : '#', 'pos' : 'last' };
+							marker.hide();
+							data.helper.find('.jstree-icon:eq(0)').removeClass('jstree-er').addClass('jstree-ok');
+							return;
+						}
+					}
+					else {
+						// if we are hovering a tree node
+						ref = $(data.event.target).closest('a');
+						if(ref && ref.length && ref.parent().is('.jstree-closed, .jstree-open, .jstree-leaf')) {
+							off = ref.offset();
+							rel = data.event.pageY - off.top;
+							h = ref.height();
+							if(rel < h / 3) {
+								o = ['b', 'i', 'a'];
+							}
+							else if(rel > h - h / 3) {
+								o = ['a', 'i', 'b'];
+							}
+							else {
+								o = rel > h / 2 ? ['i', 'a', 'b'] : ['i', 'b', 'a'];
+							}
+							$.each(o, function (j, v) {
+								switch(v) {
+									case 'b':
+										l = off.left - 6;
+										t = off.top - 5;
+										p = ins.get_parent(ref);
+										i = ref.parent().index();
+										break;
+									case 'i':
+										l = off.left - 2;
+										t = off.top - 5 + h / 2 + 1;
+										p = ref.parent();
+										i = 0;
+										break;
+									case 'a':
+										l = off.left - 6;
+										t = off.top - 5 + h;
+										p = ins.get_parent(ref);
+										i = ref.parent().index() + 1;
+										break;
+								}
+								/*!
+								// TODO: moving inside, but the node is not yet loaded?
+								// the check will work anyway, as when moving the node will be loaded first and checked again
+								if(v === 'i' && !ins.is_loaded(p)) { }
+								*/
+								ok = true;
+								for(t1 = 0, t2 = data.data.nodes.length; t1 < t2; t1++) {
+									op = data.data.origin && data.data.origin.settings.dnd.copy && (data.event.metaKey || data.event.ctrlKey) ? "copy_node" : "move_node";
+									ps = i;
+									if(op === "move_node" && v === 'a' && (data.data.origin && data.data.origin === ins) && p === ins.get_parent(data.data.nodes[t1])) {
+										pr = ins.get_node(p);
+										if(ps > $.inArray(data.data.nodes[t1], pr.children)) {
+											ps -= 1;
+										}
+									}
+									ok = ok && ( (ins && ins.settings && ins.settings.dnd && ins.settings.dnd.check_while_dragging === false) || ins.check(op, (data.data.origin && data.data.origin !== ins ? data.data.origin.get_node(data.data.nodes[t1]) : data.data.nodes[t1]), p, ps) );
+									if(!ok) {
+										if(ins && ins.last_error) { laster = ins.last_error(); }
+										break;
+									}
+								}
+								if(ok) {
+									if(v === 'i' && ref.parent().is('.jstree-closed') && ins.settings.dnd.open_timeout) {
+										opento = setTimeout((function (x, z) { return function () { x.open_node(z); }; }(ins, ref)), ins.settings.dnd.open_timeout);
+									}
+									lastmv = { 'ins' : ins, 'par' : p, 'pos' : i };
+									marker.css({ 'left' : l + 'px', 'top' : t + 'px' }).show();
+									data.helper.find('.jstree-icon:eq(0)').removeClass('jstree-er').addClass('jstree-ok');
+									laster = {};
+									o = true;
+									return false;
+								}
+							});
+							if(o === true) { return; }
+						}
+					}
+				}
+				lastmv = false;
+				data.helper.find('.jstree-icon').removeClass('jstree-ok').addClass('jstree-er');
+				marker.hide();
+			})
+			.bind('dnd_scroll.vakata', function (e, data) {
+				if(!data.data.jstree) { return; }
+				marker.hide();
+				lastmv = false;
+				data.helper.find('.jstree-icon:eq(0)').removeClass('jstree-ok').addClass('jstree-er');
+			})
+			.bind('dnd_stop.vakata', function (e, data) {
+				if(opento) { clearTimeout(opento); }
+				if(!data.data.jstree) { return; }
+				marker.hide();
+				var i, j, nodes = [];
+				if(lastmv) {
+					for(i = 0, j = data.data.nodes.length; i < j; i++) {
+						nodes[i] = data.data.origin ? data.data.origin.get_node(data.data.nodes[i]) : data.data.nodes[i];
+					}
+					lastmv.ins[ data.data.origin && data.data.origin.settings.dnd.copy && (data.event.metaKey || data.event.ctrlKey) ? 'copy_node' : 'move_node' ](nodes, lastmv.par, lastmv.pos);
+				}
+				else {
+					i = $(data.event.target).closest('.jstree');
+					if(i.length && laster && laster.error && laster.error === 'check') {
+						i = i.jstree(true);
+						if(i) {
+							i.settings.core.error.call(this, laster);
+						}
+					}
+				}
+			})
+			.bind('keyup keydown', function (e, data) {
+				data = $.vakata.dnd._get();
+				if(data.data && data.data.jstree) {
+					data.helper.find('.jstree-copy:eq(0)')[ data.data.origin && data.data.origin.settings.dnd.copy && (e.metaKey || e.ctrlKey) ? 'show' : 'hide' ]();
+				}
+			});
+	});
+
+	// helpers
+	(function ($) {
+		$.fn.vakata_reverse = [].reverse;
+		// private variable
+		var vakata_dnd = {
+			element	: false,
+			is_down	: false,
+			is_drag	: false,
+			helper	: false,
+			helper_w: 0,
+			data	: false,
+			init_x	: 0,
+			init_y	: 0,
+			scroll_l: 0,
+			scroll_t: 0,
+			scroll_e: false,
+			scroll_i: false
+		};
+		$.vakata.dnd = {
+			settings : {
+				scroll_speed		: 10,
+				scroll_proximity	: 20,
+				helper_left			: 5,
+				helper_top			: 10,
+				threshold			: 5
+			},
+			_trigger : function (event_name, e) {
+				var data = $.vakata.dnd._get();
+				data.event = e;
+				$(document).triggerHandler("dnd_" + event_name + ".vakata", data);
+			},
+			_get : function () {
+				return {
+					"data"		: vakata_dnd.data,
+					"element"	: vakata_dnd.element,
+					"helper"	: vakata_dnd.helper
+				};
+			},
+			_clean : function () {
+				if(vakata_dnd.helper) { vakata_dnd.helper.remove(); }
+				if(vakata_dnd.scroll_i) { clearInterval(vakata_dnd.scroll_i); vakata_dnd.scroll_i = false; }
+				vakata_dnd = {
+					element	: false,
+					is_down	: false,
+					is_drag	: false,
+					helper	: false,
+					helper_w: 0,
+					data	: false,
+					init_x	: 0,
+					init_y	: 0,
+					scroll_l: 0,
+					scroll_t: 0,
+					scroll_e: false,
+					scroll_i: false
+				};
+				$(document).off("mousemove touchmove", $.vakata.dnd.drag);
+				$(document).off("mouseup touchend", $.vakata.dnd.stop);
+			},
+			_scroll : function (init_only) {
+				if(!vakata_dnd.scroll_e || (!vakata_dnd.scroll_l && !vakata_dnd.scroll_t)) {
+					if(vakata_dnd.scroll_i) { clearInterval(vakata_dnd.scroll_i); vakata_dnd.scroll_i = false; }
+					return false;
+				}
+				if(!vakata_dnd.scroll_i) {
+					vakata_dnd.scroll_i = setInterval($.vakata.dnd._scroll, 100);
+					return false;
+				}
+				if(init_only === true) { return false; }
+
+				var i = vakata_dnd.scroll_e.scrollTop(),
+					j = vakata_dnd.scroll_e.scrollLeft();
+				vakata_dnd.scroll_e.scrollTop(i + vakata_dnd.scroll_t * $.vakata.dnd.settings.scroll_speed);
+				vakata_dnd.scroll_e.scrollLeft(j + vakata_dnd.scroll_l * $.vakata.dnd.settings.scroll_speed);
+				if(i !== vakata_dnd.scroll_e.scrollTop() || j !== vakata_dnd.scroll_e.scrollLeft()) {
+					/**
+					 * triggered on the document when a drag causes an element to scroll
+					 * @event
+					 * @plugin dnd
+					 * @name dnd_scroll.vakata
+					 * @param {Mixed} data any data supplied with the call to $.vakata.dnd.start
+					 * @param {DOM} element the DOM element being dragged
+					 * @param {jQuery} helper the helper shown next to the mouse
+					 * @param {jQuery} event the element that is scrolling
+					 */
+					$.vakata.dnd._trigger("scroll", vakata_dnd.scroll_e);
+				}
+			},
+			start : function (e, data, html) {
+				if(e.type === "touchstart" && e.originalEvent && e.originalEvent.changedTouches && e.originalEvent.changedTouches[0]) {
+					e.pageX = e.originalEvent.changedTouches[0].pageX;
+					e.pageY = e.originalEvent.changedTouches[0].pageY;
+					e.target = document.elementFromPoint(e.originalEvent.changedTouches[0].pageX - window.pageXOffset, e.originalEvent.changedTouches[0].pageY - window.pageYOffset);
+				}
+				if(vakata_dnd.is_drag) { $.vakata.dnd.stop({}); }
+				try {
+					e.currentTarget.unselectable = "on";
+					e.currentTarget.onselectstart = function() { return false; };
+					if(e.currentTarget.style) { e.currentTarget.style.MozUserSelect = "none"; }
+				} catch(ignore) { }
+				vakata_dnd.init_x	= e.pageX;
+				vakata_dnd.init_y	= e.pageY;
+				vakata_dnd.data		= data;
+				vakata_dnd.is_down	= true;
+				vakata_dnd.element	= e.currentTarget;
+				if(html !== false) {
+					vakata_dnd.helper = $("<div id='vakata-dnd'></div>").html(html).css({
+						"display"		: "block",
+						"margin"		: "0",
+						"padding"		: "0",
+						"position"		: "absolute",
+						"top"			: "-2000px",
+						"lineHeight"	: "16px",
+						"zIndex"		: "10000"
+					});
+				}
+				$(document).bind("mousemove touchmove", $.vakata.dnd.drag);
+				$(document).bind("mouseup touchend", $.vakata.dnd.stop);
+				return false;
+			},
+			drag : function (e) {
+				if(e.type === "touchmove" && e.originalEvent && e.originalEvent.changedTouches && e.originalEvent.changedTouches[0]) {
+					e.pageX = e.originalEvent.changedTouches[0].pageX;
+					e.pageY = e.originalEvent.changedTouches[0].pageY;
+					e.target = document.elementFromPoint(e.originalEvent.changedTouches[0].pageX - window.pageXOffset, e.originalEvent.changedTouches[0].pageY - window.pageYOffset);
+				}
+				if(!vakata_dnd.is_down) { return; }
+				if(!vakata_dnd.is_drag) {
+					if(
+						Math.abs(e.pageX - vakata_dnd.init_x) > $.vakata.dnd.settings.threshold ||
+						Math.abs(e.pageY - vakata_dnd.init_y) > $.vakata.dnd.settings.threshold
+					) {
+						if(vakata_dnd.helper) {
+							vakata_dnd.helper.appendTo("body");
+							vakata_dnd.helper_w = vakata_dnd.helper.outerWidth();
+						}
+						vakata_dnd.is_drag = true;
+						/**
+						 * triggered on the document when a drag starts
+						 * @event
+						 * @plugin dnd
+						 * @name dnd_start.vakata
+						 * @param {Mixed} data any data supplied with the call to $.vakata.dnd.start
+						 * @param {DOM} element the DOM element being dragged
+						 * @param {jQuery} helper the helper shown next to the mouse
+						 * @param {Object} event the event that caused the start (probably mousemove)
+						 */
+						$.vakata.dnd._trigger("start", e);
+					}
+					else { return; }
+				}
+
+				var d  = false, w  = false,
+					dh = false, wh = false,
+					dw = false, ww = false,
+					dt = false, dl = false,
+					ht = false, hl = false;
+
+				vakata_dnd.scroll_t = 0;
+				vakata_dnd.scroll_l = 0;
+				vakata_dnd.scroll_e = false;
+				$(e.target)
+					.parentsUntil("body").addBack().vakata_reverse()
+					.filter(function () {
+						return	(/^auto|scroll$/).test($(this).css("overflow")) &&
+								(this.scrollHeight > this.offsetHeight || this.scrollWidth > this.offsetWidth);
+					})
+					.each(function () {
+						var t = $(this), o = t.offset();
+						if(this.scrollHeight > this.offsetHeight) {
+							if(o.top + t.height() - e.pageY < $.vakata.dnd.settings.scroll_proximity)	{ vakata_dnd.scroll_t = 1; }
+							if(e.pageY - o.top < $.vakata.dnd.settings.scroll_proximity)				{ vakata_dnd.scroll_t = -1; }
+						}
+						if(this.scrollWidth > this.offsetWidth) {
+							if(o.left + t.width() - e.pageX < $.vakata.dnd.settings.scroll_proximity)	{ vakata_dnd.scroll_l = 1; }
+							if(e.pageX - o.left < $.vakata.dnd.settings.scroll_proximity)				{ vakata_dnd.scroll_l = -1; }
+						}
+						if(vakata_dnd.scroll_t || vakata_dnd.scroll_l) {
+							vakata_dnd.scroll_e = $(this);
+							return false;
+						}
+					});
+
+				if(!vakata_dnd.scroll_e) {
+					d  = $(document); w = $(window);
+					dh = d.height(); wh = w.height();
+					dw = d.width(); ww = w.width();
+					dt = d.scrollTop(); dl = d.scrollLeft();
+					if(dh > wh && e.pageY - dt < $.vakata.dnd.settings.scroll_proximity)		{ vakata_dnd.scroll_t = -1;  }
+					if(dh > wh && wh - (e.pageY - dt) < $.vakata.dnd.settings.scroll_proximity)	{ vakata_dnd.scroll_t = 1; }
+					if(dw > ww && e.pageX - dl < $.vakata.dnd.settings.scroll_proximity)		{ vakata_dnd.scroll_l = -1; }
+					if(dw > ww && ww - (e.pageX - dl) < $.vakata.dnd.settings.scroll_proximity)	{ vakata_dnd.scroll_l = 1; }
+					if(vakata_dnd.scroll_t || vakata_dnd.scroll_l) {
+						vakata_dnd.scroll_e = d;
+					}
+				}
+				if(vakata_dnd.scroll_e) { $.vakata.dnd._scroll(true); }
+
+				if(vakata_dnd.helper) {
+					ht = parseInt(e.pageY + $.vakata.dnd.settings.helper_top, 10);
+					hl = parseInt(e.pageX + $.vakata.dnd.settings.helper_left, 10);
+					if(dh && ht + 25 > dh) { ht = dh - 50; }
+					if(dw && hl + vakata_dnd.helper_w > dw) { hl = dw - (vakata_dnd.helper_w + 2); }
+					vakata_dnd.helper.css({
+						left	: hl + "px",
+						top		: ht + "px"
+					});
+				}
+				/**
+				 * triggered on the document when a drag is in progress
+				 * @event
+				 * @plugin dnd
+				 * @name dnd_move.vakata
+				 * @param {Mixed} data any data supplied with the call to $.vakata.dnd.start
+				 * @param {DOM} element the DOM element being dragged
+				 * @param {jQuery} helper the helper shown next to the mouse
+				 * @param {Object} event the event that caused this to trigger (most likely mousemove)
+				 */
+				$.vakata.dnd._trigger("move", e);
+			},
+			stop : function (e) {
+				if(e.type === "touchend" && e.originalEvent && e.originalEvent.changedTouches && e.originalEvent.changedTouches[0]) {
+					e.pageX = e.originalEvent.changedTouches[0].pageX;
+					e.pageY = e.originalEvent.changedTouches[0].pageY;
+					e.target = document.elementFromPoint(e.originalEvent.changedTouches[0].pageX - window.pageXOffset, e.originalEvent.changedTouches[0].pageY - window.pageYOffset);
+				}
+				if(vakata_dnd.is_drag) {
+					/**
+					 * triggered on the document when a drag stops (the dragged element is dropped)
+					 * @event
+					 * @plugin dnd
+					 * @name dnd_stop.vakata
+					 * @param {Mixed} data any data supplied with the call to $.vakata.dnd.start
+					 * @param {DOM} element the DOM element being dragged
+					 * @param {jQuery} helper the helper shown next to the mouse
+					 * @param {Object} event the event that caused the stop
+					 */
+					$.vakata.dnd._trigger("stop", e);
+				}
+				$.vakata.dnd._clean();
+			}
+		};
+	}(jQuery));
+
+	// include the dnd plugin by default
+	// $.jstree.defaults.plugins.push("dnd");
+
+
+/**
+ * ### Search plugin
+ *
+ * Adds search functionality to jsTree.
+ */
+
+	/**
+	 * stores all defaults for the search plugin
+	 * @name $.jstree.defaults.search
+	 * @plugin search
+	 */
+	$.jstree.defaults.search = {
+		/**
+		 * a jQuery-like AJAX config, which jstree uses if a server should be queried for results. 
+		 * 
+		 * A `str` (which is the search string) parameter will be added with the request. The expected result is a JSON array with nodes that need to be opened so that matching nodes will be revealed.
+		 * Leave this setting as `false` to not query the server.
+		 * @name $.jstree.defaults.search.ajax
+		 * @plugin search
+		 */
+		ajax : false,
+		/**
+		 * Indicates if the search should be fuzzy or not (should `chnd3` match `child node 3`). Default is `true`.
+		 * @name $.jstree.defaults.search.fuzzy
+		 * @plugin search
+		 */
+		fuzzy : true,
+		/**
+		 * Indicates if the search should be case sensitive. Default is `false`.
+		 * @name $.jstree.defaults.search.case_sensitive
+		 * @plugin search
+		 */
+		case_sensitive : false,
+		/**
+		 * Indicates if the tree should be filtered to show only matching nodes (keep in mind this can be a heavy on large trees in old browsers). Default is `false`.
+		 * @name $.jstree.defaults.search.show_only_matches
+		 * @plugin search
+		 */
+		show_only_matches : false,
+		/**
+		 * Indicates if all nodes opened to reveal the search result, should be closed when the search is cleared or a new search is performed. Default is `true`.
+		 * @name $.jstree.defaults.search.close_opened_onclear
+		 * @plugin search
+		 */
+		close_opened_onclear : true
+	};
+
+	$.jstree.plugins.search = function (options, parent) {
+		this.bind = function () {
+			parent.bind.call(this);
+
+			this._data.search.str = "";
+			this._data.search.dom = $();
+			this._data.search.res = [];
+			this._data.search.opn = [];
+			this._data.search.sln = null;
+
+			if(this.settings.search.show_only_matches) {
+				this.element
+					.on("search.jstree", function (e, data) {
+						if(data.nodes.length) {
+							$(this).find("li").hide().filter('.jstree-last').filter(function() { return this.nextSibling; }).removeClass('jstree-last');
+							data.nodes.parentsUntil(".jstree").addBack().show()
+								.filter("ul").each(function () { $(this).children("li:visible").eq(-1).addClass("jstree-last"); });
+						}
+					})
+					.on("clear_search.jstree", function (e, data) {
+						if(data.nodes.length) {
+							$(this).find("li").css("display","").filter('.jstree-last').filter(function() { return this.nextSibling; }).removeClass('jstree-last');
+						}
+					});
+			}
+		};
+		/**
+		 * used to search the tree nodes for a given string
+		 * @name search(str [, skip_async])
+		 * @param {String} str the search string
+		 * @param {Boolean} skip_async if set to true server will not be queried even if configured
+		 * @plugin search
+		 * @trigger search.jstree
+		 */
+		this.search = function (str, skip_async) {
+			if(str === false || $.trim(str) === "") {
+				return this.clear_search();
+			}
+			var s = this.settings.search,
+				a = s.ajax ? $.extend({}, s.ajax) : false,
+				f = null,
+				r = [],
+				p = [], i, j;
+			if(this._data.search.res.length) {
+				this.clear_search();
+			}
+			if(!skip_async && a !== false) {
+				if(!a.data) { a.data = {}; }
+				a.data.str = str;
+				return $.ajax(a)
+					.fail($.proxy(function () {
+						this._data.core.last_error = { 'error' : 'ajax', 'plugin' : 'search', 'id' : 'search_01', 'reason' : 'Could not load search parents', 'data' : JSON.stringify(a) };
+						this.settings.core.error.call(this, this._data.core.last_error);
+					}, this))
+					.done($.proxy(function (d) {
+						if(d && d.d) { d = d.d; }
+						this._data.search.sln = !$.isArray(d) ? [] : d;
+						this._search_load(str);
+					}, this));
+			}
+			this._data.search.str = str;
+			this._data.search.dom = $();
+			this._data.search.res = [];
+			this._data.search.opn = [];
+
+			f = new $.vakata.search(str, true, { caseSensitive : s.case_sensitive, fuzzy : s.fuzzy });
+
+			$.each(this._model.data, function (i, v) {
+				if(v.text && f.search(v.text).isMatch) {
+					r.push(i);
+					p = p.concat(v.parents);
+				}
+			});
+			if(r.length) {
+				p = $.vakata.array_unique(p);
+				this._search_open(p);
+				for(i = 0, j = r.length; i < j; i++) {
+					f = this.get_node(r[i], true);
+					if(f) {
+						this._data.search.dom = this._data.search.dom.add(f);
+					}
+				}
+				this._data.search.res = r;
+				this._data.search.dom.children(".jstree-anchor").addClass('jstree-search');
+			}
+			/**
+			 * triggered after search is complete
+			 * @event
+			 * @name search.jstree
+			 * @param {jQuery} nodes a jQuery collection of matching nodes
+			 * @param {String} str the search string
+			 * @param {Array} res a collection of objects represeing the matching nodes
+			 * @plugin search
+			 */
+			this.trigger('search', { nodes : this._data.search.dom, str : str, res : this._data.search.res });
+		};
+		/**
+		 * used to clear the last search (removes classes and shows all nodes if filtering is on)
+		 * @name clear_search()
+		 * @plugin search
+		 * @trigger clear_search.jstree
+		 */
+		this.clear_search = function () {
+			this._data.search.dom.children(".jstree-anchor").removeClass("jstree-search");
+			if(this.settings.search.close_opened_onclear) {
+				this.close_node(this._data.search.opn, 0);
+			}
+			/**
+			 * triggered after search is complete
+			 * @event
+			 * @name clear_search.jstree
+			 * @param {jQuery} nodes a jQuery collection of matching nodes (the result from the last search)
+			 * @param {String} str the search string (the last search string)
+			 * @param {Array} res a collection of objects represeing the matching nodes (the result from the last search)
+			 * @plugin search
+			 */
+			this.trigger('clear_search', { 'nodes' : this._data.search.dom, str : this._data.search.str, res : this._data.search.res });
+			this._data.search.str = "";
+			this._data.search.res = [];
+			this._data.search.opn = [];
+			this._data.search.dom = $();
+		};
+		/**
+		 * opens nodes that need to be opened to reveal the search results. Used only internally.
+		 * @private
+		 * @name _search_open(d)
+		 * @param {Array} d an array of node IDs
+		 * @plugin search
+		 */
+		this._search_open = function (d) {
+			var t = this;
+			$.each(d.concat([]), function (i, v) {
+				v = document.getElementById(v);
+				if(v) {
+					if(t.is_closed(v)) {
+						t._data.search.opn.push(v.id);
+						t.open_node(v, function () { t._search_open(d); }, 0);
+					}
+				}
+			});
+		};
+		/**
+		 * loads nodes that need to be opened to reveal the search results. Used only internally.
+		 * @private
+		 * @name _search_load(d, str)
+		 * @param {String} str the search string
+		 * @plugin search
+		 */
+		this._search_load = function (str) {
+			var res = true,
+				t = this,
+				m = t._model.data;
+			if($.isArray(this._data.search.sln)) {
+				if(!this._data.search.sln.length) {
+					this._data.search.sln = null;
+					this.search(str, true);
+				}
+				else {
+					$.each(this._data.search.sln, function (i, v) {
+						if(m[v]) {
+							$.vakata.array_remove_item(t._data.search.sln, v);
+							if(!m[v].state.loaded) {
+								t.load_node(v, function (o, s) { if(s) { t._search_load(str); } });
+								res = false;
+							}
+						}
+					});
+					if(res) {
+						this._data.search.sln = [];
+						this._search_load(str);
+					}
+				}
+			}
+		};
+	};
+
+	// helpers
+	(function ($) {
+		// from http://kiro.me/projects/fuse.html
+		$.vakata.search = function(pattern, txt, options) {
+			options = options || {};
+			if(options.fuzzy !== false) {
+				options.fuzzy = true;
+			}
+			pattern = options.caseSensitive ? pattern : pattern.toLowerCase();
+			var MATCH_LOCATION	= options.location || 0,
+				MATCH_DISTANCE	= options.distance || 100,
+				MATCH_THRESHOLD	= options.threshold || 0.6,
+				patternLen = pattern.length,
+				matchmask, pattern_alphabet, match_bitapScore, search;
+			if(patternLen > 32) {
+				options.fuzzy = false;
+			}
+			if(options.fuzzy) {
+				matchmask = 1 << (patternLen - 1);
+				pattern_alphabet = (function () {
+					var mask = {},
+						i = 0;
+					for (i = 0; i < patternLen; i++) {
+						mask[pattern.charAt(i)] = 0;
+					}
+					for (i = 0; i < patternLen; i++) {
+						mask[pattern.charAt(i)] |= 1 << (patternLen - i - 1);
+					}
+					return mask;
+				}());
+				match_bitapScore = function (e, x) {
+					var accuracy = e / patternLen,
+						proximity = Math.abs(MATCH_LOCATION - x);
+					if(!MATCH_DISTANCE) {
+						return proximity ? 1.0 : accuracy;
+					}
+					return accuracy + (proximity / MATCH_DISTANCE);
+				};
+			}
+			search = function (text) {
+				text = options.caseSensitive ? text : text.toLowerCase();
+				if(pattern === text || text.indexOf(pattern) !== -1) {
+					return {
+						isMatch: true,
+						score: 0
+					};
+				}
+				if(!options.fuzzy) {
+					return {
+						isMatch: false,
+						score: 1
+					};
+				}
+				var i, j,
+					textLen = text.length,
+					scoreThreshold = MATCH_THRESHOLD,
+					bestLoc = text.indexOf(pattern, MATCH_LOCATION),
+					binMin, binMid,
+					binMax = patternLen + textLen,
+					lastRd, start, finish, rd, charMatch,
+					score = 1,
+					locations = [];
+				if (bestLoc !== -1) {
+					scoreThreshold = Math.min(match_bitapScore(0, bestLoc), scoreThreshold);
+					bestLoc = text.lastIndexOf(pattern, MATCH_LOCATION + patternLen);
+					if (bestLoc !== -1) {
+						scoreThreshold = Math.min(match_bitapScore(0, bestLoc), scoreThreshold);
+					}
+				}
+				bestLoc = -1;
+				for (i = 0; i < patternLen; i++) {
+					binMin = 0;
+					binMid = binMax;
+					while (binMin < binMid) {
+						if (match_bitapScore(i, MATCH_LOCATION + binMid) <= scoreThreshold) {
+							binMin = binMid;
+						} else {
+							binMax = binMid;
+						}
+						binMid = Math.floor((binMax - binMin) / 2 + binMin);
+					}
+					binMax = binMid;
+					start = Math.max(1, MATCH_LOCATION - binMid + 1);
+					finish = Math.min(MATCH_LOCATION + binMid, textLen) + patternLen;
+					rd = new Array(finish + 2);
+					rd[finish + 1] = (1 << i) - 1;
+					for (j = finish; j >= start; j--) {
+						charMatch = pattern_alphabet[text.charAt(j - 1)];
+						if (i === 0) {
+							rd[j] = ((rd[j + 1] << 1) | 1) & charMatch;
+						} else {
+							rd[j] = ((rd[j + 1] << 1) | 1) & charMatch | (((lastRd[j + 1] | lastRd[j]) << 1) | 1) | lastRd[j + 1];
+						}
+						if (rd[j] & matchmask) {
+							score = match_bitapScore(i, j - 1);
+							if (score <= scoreThreshold) {
+								scoreThreshold = score;
+								bestLoc = j - 1;
+								locations.push(bestLoc);
+								if (bestLoc > MATCH_LOCATION) {
+									start = Math.max(1, 2 * MATCH_LOCATION - bestLoc);
+								} else {
+									break;
+								}
+							}
+						}
+					}
+					if (match_bitapScore(i + 1, MATCH_LOCATION) > scoreThreshold) {
+						break;
+					}
+					lastRd = rd;
+				}
+				return {
+					isMatch: bestLoc >= 0,
+					score: score
+				};
+			};
+			return txt === true ? { 'search' : search } : search(txt);
+		};
+	}(jQuery));
+
+	// include the search plugin by default
+	// $.jstree.defaults.plugins.push("search");
+
+/**
+ * ### Sort plugin
+ *
+ * Autmatically sorts all siblings in the tree according to a sorting function.
+ */
+
+	/**
+	 * the settings function used to sort the nodes.
+	 * It is executed in the tree's context, accepts two nodes as arguments and should return `1` or `-1`.
+	 * @name $.jstree.defaults.sort
+	 * @plugin sort
+	 */
+	$.jstree.defaults.sort = function (a, b) {
+		//return this.get_type(a) === this.get_type(b) ? (this.get_text(a) > this.get_text(b) ? 1 : -1) : this.get_type(a) >= this.get_type(b);
+		return this.get_text(a) > this.get_text(b) ? 1 : -1;
+	};
+	$.jstree.plugins.sort = function (options, parent) {
+		this.bind = function () {
+			parent.bind.call(this);
+			this.element
+				.on("model.jstree", $.proxy(function (e, data) {
+						this.sort(data.parent, true);
+					}, this))
+				.on("rename_node.jstree create_node.jstree", $.proxy(function (e, data) {
+						this.sort(data.parent || data.node.parent, false);
+						this.redraw_node(data.parent || data.node.parent, true);
+					}, this))
+				.on("move_node.jstree copy_node.jstree", $.proxy(function (e, data) {
+						this.sort(data.parent, false);
+						this.redraw_node(data.parent, true);
+					}, this));
+		};
+		/**
+		 * used to sort a node's children
+		 * @private
+		 * @name sort(obj [, deep])
+		 * @param  {mixed} obj the node
+		 * @param {Boolean} deep if set to `true` nodes are sorted recursively.
+		 * @plugin sort
+		 * @trigger search.jstree
+		 */
+		this.sort = function (obj, deep) {
+			var i, j;
+			obj = this.get_node(obj);
+			if(obj && obj.children && obj.children.length) {
+				obj.children.sort($.proxy(this.settings.sort, this));
+				if(deep) {
+					for(i = 0, j = obj.children_d.length; i < j; i++) {
+						this.sort(obj.children_d[i], false);
+					}
+				}
+			}
+		};
+	};
+
+	// include the sort plugin by default
+	// $.jstree.defaults.plugins.push("sort");
+
+/**
+ * ### State plugin
+ *
+ * Saves the state of the tree (selected nodes, opened nodes) on the user's computer using available options (localStorage, cookies, etc)
+ */
+
+	var to = false;
+	/**
+	 * stores all defaults for the state plugin
+	 * @name $.jstree.defaults.state
+	 * @plugin state
+	 */
+	$.jstree.defaults.state = {
+		/**
+		 * A string for the key to use when saving the current tree (change if using multiple trees in your project). Defaults to `jstree`.
+		 * @name $.jstree.defaults.state.key
+		 * @plugin state
+		 */
+		key		: 'jstree',
+		/**
+		 * A space separated list of events that trigger a state save. Defaults to `changed.jstree open_node.jstree close_node.jstree`.
+		 * @name $.jstree.defaults.state.events
+		 * @plugin state
+		 */
+		events	: 'changed.jstree open_node.jstree close_node.jstree',
+		/**
+		 * Time in milliseconds after which the state will expire. Defaults to 'false' meaning - no expire.
+		 * @name $.jstree.defaults.state.ttl
+		 * @plugin state
+		 */
+		ttl		: false,
+		/**
+		 * A function that will be executed prior to restoring state with one argument - the state object. Can be used to clear unwanted parts of the state.
+		 * @name $.jstree.defaults.state.filter
+		 * @plugin state
+		 */
+		filter	: false
+	};
+	$.jstree.plugins.state = function (options, parent) {
+		this.bind = function () {
+			parent.bind.call(this);
+			var bind = $.proxy(function () {
+				this.element.on(this.settings.state.events, $.proxy(function () {
+					if(to) { clearTimeout(to); }
+					to = setTimeout($.proxy(function () { this.save_state(); }, this), 100);
+				}, this));
+			}, this);
+			this.element
+				.on("ready.jstree", $.proxy(function (e, data) {
+						this.element.one("restore_state.jstree", bind);
+						if(!this.restore_state()) { bind(); }
+					}, this));
+		};
+		/**
+		 * save the state
+		 * @name save_state()
+		 * @plugin state
+		 */
+		this.save_state = function () {
+			var st = { 'state' : this.get_state(), 'ttl' : this.settings.state.ttl, 'sec' : +(new Date()) };
+			$.vakata.storage.set(this.settings.state.key, JSON.stringify(st));
+		};
+		/**
+		 * restore the state from the user's computer
+		 * @name restore_state()
+		 * @plugin state
+		 */
+		this.restore_state = function () {
+			var k = $.vakata.storage.get(this.settings.state.key);
+			if(!!k) { try { k = JSON.parse(k); } catch(ex) { return false; } }
+			if(!!k && k.ttl && k.sec && +(new Date()) - k.sec > k.ttl) { return false; }
+			if(!!k && k.state) { k = k.state; }
+			if(!!k && $.isFunction(this.settings.state.filter)) { k = this.settings.state.filter.call(this, k); }
+			if(!!k) {
+				this.element.one("set_state.jstree", function (e, data) { data.instance.trigger('restore_state', { 'state' : $.extend(true, {}, k) }); });
+				this.set_state(k);
+				return true;
+			}
+			return false;
+		};
+		/**
+		 * clear the state on the user's computer
+		 * @name clear_state()
+		 * @plugin state
+		 */
+		this.clear_state = function () {
+			return $.vakata.storage.del(this.settings.state.key);
+		};
+	};
+
+	(function ($, undefined) {
+		$.vakata.storage = {
+			// simply specifying the functions in FF throws an error
+			set : function (key, val) { return window.localStorage.setItem(key, val); },
+			get : function (key) { return window.localStorage.getItem(key); },
+			del : function (key) { return window.localStorage.removeItem(key); }
+		};
+	}(jQuery));
+
+	// include the state plugin by default
+	// $.jstree.defaults.plugins.push("state");
+
+/**
+ * ### Types plugin
+ *
+ * Makes it possible to add predefined types for groups of nodes, which make it possible to easily control nesting rules and icon for each group.
+ */
+
+	/**
+	 * An object storing all types as key value pairs, where the key is the type name and the value is an object that could contain following keys (all optional).
+	 * 
+	 * * `max_children` the maximum number of immediate children this node type can have. Do not specify or set to `-1` for unlimited.
+	 * * `max_depth` the maximum number of nesting this node type can have. A value of `1` would mean that the node can have children, but no grandchildren. Do not specify or set to `-1` for unlimited.
+	 * * `valid_children` an array of node type strings, that nodes of this type can have as children. Do not specify or set to `-1` for no limits.
+	 * * `icon` a string - can be a path to an icon or a className, if using an image that is in the current directory use a `./` prefix, otherwise it will be detected as a class. Omit to use the default icon from your theme.
+	 *
+	 * There are two predefined types:
+	 * 
+	 * * `#` represents the root of the tree, for example `max_children` would control the maximum number of root nodes.
+	 * * `default` represents the default node - any settings here will be applied to all nodes that do not have a type specified.
+	 * 
+	 * @name $.jstree.defaults.types
+	 * @plugin types
+	 */
+	$.jstree.defaults.types = {
+		'#' : {},
+		'default' : {}
+	};
+
+	$.jstree.plugins.types = function (options, parent) {
+		this.init = function (el, options) {
+			var i, j;
+			if(options && options.types && options.types['default']) {
+				for(i in options.types) {
+					if(i !== "default" && i !== "#" && options.types.hasOwnProperty(i)) {
+						for(j in options.types['default']) {
+							if(options.types['default'].hasOwnProperty(j) && options.types[i][j] === undefined) {
+								options.types[i][j] = options.types['default'][j];
+							}
+						}
+					}
+				}
+			}
+			parent.init.call(this, el, options);
+			this._model.data['#'].type = '#';
+		};
+		this.bind = function () {
+			parent.bind.call(this);
+			this.element
+				.on('model.jstree', $.proxy(function (e, data) {
+						var m = this._model.data,
+							dpc = data.nodes,
+							t = this.settings.types,
+							i, j, c = 'default';
+						for(i = 0, j = dpc.length; i < j; i++) {
+							c = 'default';
+							if(m[dpc[i]].original && m[dpc[i]].original.type && t[m[dpc[i]].original.type]) {
+								c = m[dpc[i]].original.type;
+							}
+							if(m[dpc[i]].data && m[dpc[i]].data.jstree && m[dpc[i]].data.jstree.type && t[m[dpc[i]].data.jstree.type]) {
+								c = m[dpc[i]].data.jstree.type;
+							}
+							m[dpc[i]].type = c;
+							if(m[dpc[i]].icon === true && t[c].icon !== undefined) {
+								m[dpc[i]].icon = t[c].icon;
+							}
+						}
+					}, this));
+		};
+		this.get_json = function (obj, options, flat) {
+			var i, j,
+				m = this._model.data,
+				opt = options ? $.extend(true, {}, options, {no_id:false}) : {},
+				tmp = parent.get_json.call(this, obj, opt, flat);
+			if(tmp === false) { return false; }
+			if($.isArray(tmp)) {
+				for(i = 0, j = tmp.length; i < j; i++) {
+					tmp[i].type = tmp[i].id && m[tmp[i].id] && m[tmp[i].id].type ? m[tmp[i].id].type : "default";
+					if(options && options.no_id) {
+						delete tmp[i].id;
+						if(tmp[i].li_attr && tmp[i].li_attr.id) {
+							delete tmp[i].li_attr.id;
+						}
+					}
+				}
+			}
+			else {
+				tmp.type = tmp.id && m[tmp.id] && m[tmp.id].type ? m[tmp.id].type : "default";
+				if(options && options.no_id) {
+					tmp = this._delete_ids(tmp);
+				}
+			}
+			return tmp;
+		};
+		this._delete_ids = function (tmp) {
+			if($.isArray(tmp)) {
+				for(var i = 0, j = tmp.length; i < j; i++) {
+					tmp[i] = this._delete_ids(tmp[i]);
+				}
+				return tmp;
+			}
+			delete tmp.id;
+			if(tmp.li_attr && tmp.li_attr.id) {
+				delete tmp.li_attr.id;
+			}
+			if(tmp.children && $.isArray(tmp.children)) {
+				tmp.children = this._delete_ids(tmp.children);
+			}
+			return tmp;
+		};
+		this.check = function (chk, obj, par, pos) {
+			if(parent.check.call(this, chk, obj, par, pos) === false) { return false; }
+			obj = obj && obj.id ? obj : this.get_node(obj);
+			par = par && par.id ? par : this.get_node(par);
+			var m = obj && obj.id ? $.jstree.reference(obj.id) : null, tmp, d, i, j;
+			m = m && m._model && m._model.data ? m._model.data : null;
+			switch(chk) {
+				case "create_node":
+				case "move_node":
+				case "copy_node":
+					if(chk !== 'move_node' || $.inArray(obj.id, par.children) === -1) {
+						tmp = this.get_rules(par);
+						if(tmp.max_children !== undefined && tmp.max_children !== -1 && tmp.max_children === par.children.length) {
+							this._data.core.last_error = { 'error' : 'check', 'plugin' : 'types', 'id' : 'types_01', 'reason' : 'max_children prevents function: ' + chk, 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+							return false;
+						}
+						if(tmp.valid_children !== undefined && tmp.valid_children !== -1 && $.inArray(obj.type, tmp.valid_children) === -1) {
+							this._data.core.last_error = { 'error' : 'check', 'plugin' : 'types', 'id' : 'types_02', 'reason' : 'valid_children prevents function: ' + chk, 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+							return false;
+						}
+						if(m && obj.children_d && obj.parents) {
+							d = 0;
+							for(i = 0, j = obj.children_d.length; i < j; i++) {
+								d = Math.max(d, m[obj.children_d[i]].parents.length);
+							}
+							d = d - obj.parents.length + 1;
+						}
+						if(d <= 0 || d === undefined) { d = 1; }
+						do {
+							if(tmp.max_depth !== undefined && tmp.max_depth !== -1 && tmp.max_depth < d) {
+								this._data.core.last_error = { 'error' : 'check', 'plugin' : 'types', 'id' : 'types_03', 'reason' : 'max_depth prevents function: ' + chk, 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+								return false;
+							}
+							par = this.get_node(par.parent);
+							tmp = this.get_rules(par);
+							d++;
+						} while(par);
+					}
+					break;
+			}
+			return true;
+		};
+		/**
+		 * used to retrieve the type settings object for a node
+		 * @name get_rules(obj)
+		 * @param {mixed} obj the node to find the rules for
+		 * @return {Object}
+		 * @plugin types
+		 */
+		this.get_rules = function (obj) {
+			obj = this.get_node(obj);
+			if(!obj) { return false; }
+			var tmp = this.get_type(obj, true);
+			if(tmp.max_depth === undefined) { tmp.max_depth = -1; }
+			if(tmp.max_children === undefined) { tmp.max_children = -1; }
+			if(tmp.valid_children === undefined) { tmp.valid_children = -1; }
+			return tmp;
+		};
+		/**
+		 * used to retrieve the type string or settings object for a node
+		 * @name get_type(obj [, rules])
+		 * @param {mixed} obj the node to find the rules for
+		 * @param {Boolean} rules if set to `true` instead of a string the settings object will be returned
+		 * @return {String|Object}
+		 * @plugin types
+		 */
+		this.get_type = function (obj, rules) {
+			obj = this.get_node(obj);
+			return (!obj) ? false : ( rules ? $.extend({ 'type' : obj.type }, this.settings.types[obj.type]) : obj.type);
+		};
+		/**
+		 * used to change a node's type
+		 * @name set_type(obj, type)
+		 * @param {mixed} obj the node to change
+		 * @param {String} type the new type
+		 * @plugin types
+		 */
+		this.set_type = function (obj, type) {
+			var t, t1, t2, old_type, old_icon;
+			if($.isArray(obj)) {
+				obj = obj.slice();
+				for(t1 = 0, t2 = obj.length; t1 < t2; t1++) {
+					this.set_type(obj[t1], type);
+				}
+				return true;
+			}
+			t = this.settings.types;
+			obj = this.get_node(obj);
+			if(!t[type] || !obj) { return false; }
+			old_type = obj.type;
+			old_icon = this.get_icon(obj);
+			obj.type = type;
+			if(old_icon === true || (t[old_type] && t[old_type].icon && old_icon === t[old_type].icon)) {
+				this.set_icon(obj, t[type].icon !== undefined ? t[type].icon : true);
+			}
+			return true;
+		};
+	};
+	// include the types plugin by default
+	// $.jstree.defaults.plugins.push("types");
+
+/**
+ * ### Unique plugin
+ *
+ * Enforces that no nodes with the same name can coexist as siblings.
+ */
+
+	$.jstree.plugins.unique = function (options, parent) {
+		this.check = function (chk, obj, par, pos) {
+			if(parent.check.call(this, chk, obj, par, pos) === false) { return false; }
+			obj = obj && obj.id ? obj : this.get_node(obj);
+			par = par && par.id ? par : this.get_node(par);
+			if(!par || !par.children) { return true; }
+			var n = chk === "rename_node" ? pos : obj.text,
+				c = [],
+				m = this._model.data, i, j;
+			for(i = 0, j = par.children.length; i < j; i++) {
+				c.push(m[par.children[i]].text);
+			}
+			switch(chk) {
+				case "delete_node":
+					return true;
+				case "rename_node":
+				case "copy_node":
+					i = ($.inArray(n, c) === -1);
+					if(!i) {
+						this._data.core.last_error = { 'error' : 'check', 'plugin' : 'unique', 'id' : 'unique_01', 'reason' : 'Child with name ' + n + ' already exists. Preventing: ' + chk, 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+					}
+					return i;
+				case "move_node":
+					i = (obj.parent === par.id || $.inArray(n, c) === -1);
+					if(!i) {
+						this._data.core.last_error = { 'error' : 'check', 'plugin' : 'unique', 'id' : 'unique_01', 'reason' : 'Child with name ' + n + ' already exists. Preventing: ' + chk, 'data' : JSON.stringify({ 'chk' : chk, 'pos' : pos, 'obj' : obj && obj.id ? obj.id : false, 'par' : par && par.id ? par.id : false }) };
+					}
+					return i;
+			}
+			return true;
+		};
+	};
+
+	// include the unique plugin by default
+	// $.jstree.defaults.plugins.push("unique");
+
+
+/**
+ * ### Wholerow plugin
+ *
+ * Makes each node appear block level. Making selection easier. May cause slow down for large trees in old browsers.
+ */
+
+	var div = document.createElement('DIV');
+	div.setAttribute('unselectable','on');
+	div.className = 'jstree-wholerow';
+	div.innerHTML = '&#160;';
+	$.jstree.plugins.wholerow = function (options, parent) {
+		this.bind = function () {
+			parent.bind.call(this);
+
+			this.element
+				.on('loading', $.proxy(function () {
+						div.style.height = this._data.core.li_height + 'px';
+					}, this))
+				.on('ready.jstree set_state.jstree', $.proxy(function () {
+						this.hide_dots();
+					}, this))
+				.on("ready.jstree", $.proxy(function () {
+						this.get_container_ul().addClass('jstree-wholerow-ul');
+					}, this))
+				.on("deselect_all.jstree", $.proxy(function (e, data) {
+						this.element.find('.jstree-wholerow-clicked').removeClass('jstree-wholerow-clicked');
+					}, this))
+				.on("changed.jstree", $.proxy(function (e, data) {
+						this.element.find('.jstree-wholerow-clicked').removeClass('jstree-wholerow-clicked');
+						var tmp = false, i, j;
+						for(i = 0, j = data.selected.length; i < j; i++) {
+							tmp = this.get_node(data.selected[i], true);
+							if(tmp && tmp.length) {
+								tmp.children('.jstree-wholerow').addClass('jstree-wholerow-clicked');
+							}
+						}
+					}, this))
+				.on("open_node.jstree", $.proxy(function (e, data) {
+						this.get_node(data.node, true).find('.jstree-clicked').parent().children('.jstree-wholerow').addClass('jstree-wholerow-clicked');
+					}, this))
+				.on("hover_node.jstree dehover_node.jstree", $.proxy(function (e, data) {
+						this.get_node(data.node, true).children('.jstree-wholerow')[e.type === "hover_node"?"addClass":"removeClass"]('jstree-wholerow-hovered');
+					}, this))
+				.on("contextmenu.jstree", ".jstree-wholerow", $.proxy(function (e) {
+						e.preventDefault();
+						$(e.currentTarget).closest("li").children("a:eq(0)").trigger('contextmenu',e);
+					}, this))
+				.on("click.jstree", ".jstree-wholerow", function (e) {
+						e.stopImmediatePropagation();
+						var tmp = $.Event('click', { metaKey : e.metaKey, ctrlKey : e.ctrlKey, altKey : e.altKey, shiftKey : e.shiftKey });
+						$(e.currentTarget).closest("li").children("a:eq(0)").trigger(tmp).focus();
+					})
+				.on("click.jstree", ".jstree-leaf > .jstree-ocl", $.proxy(function (e) {
+						e.stopImmediatePropagation();
+						var tmp = $.Event('click', { metaKey : e.metaKey, ctrlKey : e.ctrlKey, altKey : e.altKey, shiftKey : e.shiftKey });
+						$(e.currentTarget).closest("li").children("a:eq(0)").trigger(tmp).focus();
+					}, this))
+				.on("mouseover.jstree", ".jstree-wholerow, .jstree-icon", $.proxy(function (e) {
+						e.stopImmediatePropagation();
+						this.hover_node(e.currentTarget);
+						return false;
+					}, this))
+				.on("mouseleave.jstree", ".jstree-node", $.proxy(function (e) {
+						this.dehover_node(e.currentTarget);
+					}, this));
+		};
+		this.teardown = function () {
+			if(this.settings.wholerow) {
+				this.element.find(".jstree-wholerow").remove();
+			}
+			parent.teardown.call(this);
+		};
+		this.redraw_node = function(obj, deep, callback) {
+			obj = parent.redraw_node.call(this, obj, deep, callback);
+			if(obj) {
+				var tmp = div.cloneNode(true);
+				//tmp.style.height = this._data.core.li_height + 'px';
+				if($.inArray(obj.id, this._data.core.selected) !== -1) { tmp.className += ' jstree-wholerow-clicked'; }
+				obj.insertBefore(tmp, obj.childNodes[0]);
+			}
+			return obj;
+		};
+	};
+	// include the wholerow plugin by default
+	// $.jstree.defaults.plugins.push("wholerow");
+
+}));
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('util/object_explorer',["underscore", "jquery", "jstree", "common/continuum_view", "common/has_properties"], function(_, $, $1, ContinuumView, HasProperties) {
+    var ObjectExplorerView, _ref;
+    ObjectExplorerView = (function(_super) {
+      __extends(ObjectExplorerView, _super);
+
+      function ObjectExplorerView() {
+        this.createContextMenu = __bind(this.createContextMenu, this);
+        this.onEvent = __bind(this.onEvent, this);
+        _ref = ObjectExplorerView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ObjectExplorerView.prototype.initialize = function(options) {
+        ObjectExplorerView.__super__.initialize.call(this, options);
+        this.onEvent = _.debounce(this.onEvent, options.debounce || 200);
+        this.showToolbar = options.showToolbar || false;
+        this.arrayLimit = options.arrayLimit || 100;
+        return this.render();
+      };
+
+      ObjectExplorerView.prototype.base = function() {
+        if (this._base == null) {
+          this._base = require("common/base");
+        }
+        return this._base;
+      };
+
+      ObjectExplorerView.prototype.delegateEvents = function(events) {
+        var type, _i, _len, _ref1, _results;
+        ObjectExplorerView.__super__.delegateEvents.call(this, events);
+        _ref1 = _.keys(this.base().locations);
+        _results = [];
+        for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+          type = _ref1[_i];
+          _results.push(this.base().Collections(type).on("all", this.onEvent));
+        }
+        return _results;
+      };
+
+      ObjectExplorerView.prototype.onEvent = function(event) {
+        return this.reRender();
+      };
+
+      ObjectExplorerView.prototype.createTree = function(nonempty) {
+        var children, node, nodes, type, _i, _len, _results;
+        if (nonempty == null) {
+          nonempty = true;
+        }
+        nodes = (function() {
+          var _i, _len, _ref1, _results,
+            _this = this;
+          _ref1 = _.keys(this.base().locations);
+          _results = [];
+          for (_i = 0, _len = _ref1.length; _i < _len; _i++) {
+            type = _ref1[_i];
+            children = this.base().Collections(type).map(function(obj, index) {
+              var visited;
+              visited = {};
+              visited[obj.id] = 1;
+              return _this.descend(index, obj, visited);
+            });
+            _results.push(this.node(type, "collection", children));
+          }
+          return _results;
+        }).call(this);
+        if (nonempty) {
+          _results = [];
+          for (_i = 0, _len = nodes.length; _i < _len; _i++) {
+            node = nodes[_i];
+            if (node.children.length > 0) {
+              _results.push(node);
+            }
+          }
+          return _results;
+        } else {
+          return nodes;
+        }
+      };
+
+      ObjectExplorerView.prototype.descend = function(label, obj, visited) {
+        var arrayLimit, attr, children, color, html, index, key, ref, truncate, type, value, _ref1;
+        if (this.isRef(obj)) {
+          ref = true;
+          if (visited[obj.id] == null) {
+            obj = this.base().Collections(obj.type).get(obj.id);
+          } else {
+            console.log("Cyclic reference to " + obj.type + ":" + obj.id);
+          }
+        }
+        if (obj instanceof HasProperties) {
+          visited = _.clone(visited);
+          visited[obj.id] = 1;
+          children = (function() {
+            var _ref1, _results;
+            _ref1 = obj.attributes;
+            _results = [];
+            for (attr in _ref1) {
+              if (!__hasProp.call(_ref1, attr)) continue;
+              value = _ref1[attr];
+              if (this.isAttr(attr)) {
+                _results.push(this.descend(attr, value, visited));
+              }
+            }
+            return _results;
+          }).call(this);
+          type = obj.type;
+          value = null;
+          color = null;
+        } else if (_.isArray(obj)) {
+          truncate = obj.length > this.arrayLimit;
+          arrayLimit = this.arrayLimit || obj.length;
+          children = (function() {
+            var _i, _len, _ref1, _results;
+            _ref1 = obj.slice(0, +this.arrayLimit + 1 || 9e9);
+            _results = [];
+            for (index = _i = 0, _len = _ref1.length; _i < _len; index = ++_i) {
+              value = _ref1[index];
+              _results.push(this.descend(index, value, visited));
+            }
+            return _results;
+          }).call(this);
+          type = ("Array[" + obj.length + "]") + (truncate ? " (showing first " + this.arrayLimit + " items)" : "");
+          value = null;
+          color = null;
+        } else if (_.isObject(obj)) {
+          children = (function() {
+            var _results;
+            _results = [];
+            for (key in obj) {
+              if (!__hasProp.call(obj, key)) continue;
+              value = obj[key];
+              _results.push(this.descend(key, value, visited));
+            }
+            return _results;
+          }).call(this);
+          type = "Object[" + (_.keys(obj).length) + "]";
+          value = null;
+          color = null;
+        } else {
+          children = [];
+          _ref1 = _.isUndefined(obj) ? [null, null, 'orchid'] : _.isNull(obj) ? [null, null, 'teal'] : _.isBoolean(obj) ? ["Boolean", null, 'darkmagenta'] : _.isNumber(obj) ? ["Number", null, 'green'] : _.isString(obj) ? ["String", "\"" + obj + "\"", 'firebrick'] : _.isFunction(obj) ? ["Function", null, null] : _.isDate(obj) ? ["Date", null, null] : _.isRegExp(obj) ? ["RegExp", null, null] : _.isElement(obj) ? ["Element", null, null] : [typeof obj, null, null], type = _ref1[0], value = _ref1[1], color = _ref1[2];
+          if (value == null) {
+            value = "" + obj;
+          }
+          if (color == null) {
+            color = "black";
+          }
+        }
+        html = ["<span style=\"color:gray\">" + label + "</span>"];
+        if (type != null) {
+          html = html.concat([": ", "<span style=\"color:blue\">" + type + (ref ? "<span style=\"color:red\">*</span>" : "") + "</span>"]);
+        }
+        if (value != null) {
+          html = html.concat([" = ", "<span style=\"color:" + color + "\">" + value + "</span>"]);
+        }
+        return this.node(html.join(""), "", children);
+      };
+
+      ObjectExplorerView.prototype.isRef = function(obj) {
+        return _.isObject(obj) && (_.isEqual(_.keys(obj), ["id", "type"]) || _.isEqual(_.keys(obj), ["type", "id"]));
+      };
+
+      ObjectExplorerView.prototype.isAttr = function(attr) {
+        return attr.length > 0 && attr[0] !== '_';
+      };
+
+      ObjectExplorerView.prototype.node = function(text, type, children, open) {
+        return {
+          text: text,
+          type: type,
+          children: children || [],
+          state: {
+            open: open || false
+          }
+        };
+      };
+
+      ObjectExplorerView.prototype.renderToolbar = function() {
+        var $refresh, $toolbar,
+          _this = this;
+        $toolbar = $('<div class="btn-group"></div>');
+        $refresh = $('<button type="button" class="btn btn-default">Refresh</button>');
+        $refresh.click(function(event) {
+          return _this.reRender();
+        });
+        $toolbar.append($refresh);
+        if (!this.showToolbar) {
+          $toolbar.hide();
+        }
+        return $toolbar;
+      };
+
+      ObjectExplorerView.prototype.themeUrl = function() {
+        return null;
+      };
+
+      ObjectExplorerView.prototype.createContextMenu = function(node) {
+        var data, menu;
+        data = node.original;
+        menu = {};
+        if (data.type !== "collection") {
+          menu["remove"] = {
+            label: "Remove"
+          };
+        }
+        return menu;
+      };
+
+      ObjectExplorerView.prototype.renderTree = function() {
+        return $('<div/>').jstree({
+          core: {
+            data: this.createTree(),
+            themes: {
+              url: this.themeUrl()
+            }
+          },
+          contextmenu: {
+            items: this.createContextMenu
+          },
+          plugins: ["contextmenu"]
+        });
+      };
+
+      ObjectExplorerView.prototype.render = function() {
+        this.$toolbar = this.renderToolbar();
+        this.$tree = this.renderTree();
+        return this.$el.append([this.$toolbar, this.$tree]);
+      };
+
+      ObjectExplorerView.prototype.reRender = function() {
+        this.$tree.jstree('destroy');
+        this.$el.empty();
+        return this.render();
+      };
+
+      return ObjectExplorerView;
+
+    })(ContinuumView.View);
+    return {
+      View: ObjectExplorerView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=object_explorer.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('tool/object_explorer_tool',["underscore", "jquery", "modal", "backbone", "./tool", "./event_generators", "util/object_explorer"], function(_, $, $$1, Backbone, Tool, EventGenerators, ObjectExplorer) {
+    var ButtonEventGenerator, ObjectExplorerTool, ObjectExplorerToolView, ObjectExplorerTools, _ref, _ref1, _ref2;
+    ButtonEventGenerator = EventGenerators.ButtonEventGenerator;
+    ObjectExplorerToolView = (function(_super) {
+      __extends(ObjectExplorerToolView, _super);
+
+      function ObjectExplorerToolView() {
+        _ref = ObjectExplorerToolView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ObjectExplorerToolView.prototype.initialize = function(options) {
+        return ObjectExplorerToolView.__super__.initialize.call(this, options);
+      };
+
+      ObjectExplorerToolView.prototype.eventGeneratorClass = ButtonEventGenerator;
+
+      ObjectExplorerToolView.prototype.evgen_options = {
+        buttonText: "Object Explorer"
+      };
+
+      ObjectExplorerToolView.prototype.toolType = "ObjectExplorerTool";
+
+      ObjectExplorerToolView.prototype.tool_events = {
+        activated: "_activated",
+        deactivated: "_close_modal"
+      };
+
+      ObjectExplorerToolView.prototype._activated = function(e) {
+        var modal,
+          _this = this;
+        modal = $("<div id='objectExplorerModal' class='bokeh'>\n  <div class=\"modal\" role=\"dialog\" aria-labelledby=\"objectExplorerLabel\" aria-hidden=\"true\">\n    <div class=\"modal-header\">\n      <button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-hidden=\"true\">&times;</button>\n      <h3 id=\"dataConfirmLabel\">Object Explorer</h3>\n    </div>\n    <div class=\"modal-body\">\n    </div>\n    <div class=\"modal-footer\">\n      <button class=\"btn\" data-dismiss=\"modal\" aria-hidden=\"true\">Close</button>\n    </div>\n  </div>\n</div>");
+        this.$object_explorer_view = new ObjectExplorer.View({
+          el: modal.find(".modal-body")
+        });
+        $('body').append(modal);
+        $('#objectExplorerModal .modal').on('hidden', function() {
+          return _this.plot_view.eventSink.trigger("clear_active_tool");
+        });
+        return $('#objectExplorerModal > .modal').modal({
+          show: true
+        });
+      };
+
+      ObjectExplorerToolView.prototype._close_modal = function() {
+        $('#objectExplorerModal').remove();
+        return $('#objectExplorerModal > .modal').remove();
+      };
+
+      return ObjectExplorerToolView;
+
+    })(Tool.View);
+    ObjectExplorerTool = (function(_super) {
+      __extends(ObjectExplorerTool, _super);
+
+      function ObjectExplorerTool() {
+        _ref1 = ObjectExplorerTool.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      ObjectExplorerTool.prototype.default_view = ObjectExplorerToolView;
+
+      ObjectExplorerTool.prototype.type = "ObjectExplorerTool";
+
+      ObjectExplorerTool.prototype.display_defaults = function() {
+        return ObjectExplorerTool.__super__.display_defaults.call(this);
+      };
+
+      return ObjectExplorerTool;
+
+    })(Tool.Model);
+    ObjectExplorerTools = (function(_super) {
+      __extends(ObjectExplorerTools, _super);
+
+      function ObjectExplorerTools() {
+        _ref2 = ObjectExplorerTools.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      ObjectExplorerTools.prototype.model = ObjectExplorerTool;
+
+      return ObjectExplorerTools;
+
+    })(Backbone.Collection);
+    return {
+      "Model": ObjectExplorerTool,
+      "Collection": new ObjectExplorerTools(),
+      "View": ObjectExplorerToolView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=object_explorer_tool.js.map
 */;
 (function() {
   var __hasProp = {}.hasOwnProperty,
@@ -27723,8 +34756,2696 @@ define('widget/pandas/pandas_pivot_template',[],function(){
 //@ sourceMappingURL=pandas_plot_source.js.map
 */;
 (function() {
-  define('common/base',["underscore", "require", "common/custom", "common/gmap_plot", "common/grid_plot", "common/plot", "common/plot_context", "range/data_factor_range", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/guide/linear_axis", "renderer/overlay/box_selection", "source/column_data_source", "tool/box_select_tool", "tool/box_zoom_tool", "tool/crosshair_tool", "tool/data_range_box_select_tool", "tool/embed_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/reset_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "widget/data_slider", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source"], function(_, require) {
-    var Collections, Config, locations, mod_cache;
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/paragraph',["common/has_parent", "common/continuum_view", "backbone"], function(HasParent, continuum_view, Backbone) {
+    var ContinuumView, Paragraph, ParagraphView, Paragraphs, paragraphs, _ref, _ref1, _ref2;
+    ContinuumView = continuum_view.View;
+    ParagraphView = (function(_super) {
+      __extends(ParagraphView, _super);
+
+      function ParagraphView() {
+        _ref = ParagraphView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      ParagraphView.prototype.tagName = "p";
+
+      ParagraphView.prototype.initialize = function(options) {
+        ParagraphView.__super__.initialize.call(this, options);
+        this.render();
+        return this.listenTo(this.model, 'change', this.render);
+      };
+
+      ParagraphView.prototype.render = function() {
+        return this.$el.text(this.mget('text'));
+      };
+
+      return ParagraphView;
+
+    })(ContinuumView);
+    Paragraph = (function(_super) {
+      __extends(Paragraph, _super);
+
+      function Paragraph() {
+        _ref1 = Paragraph.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Paragraph.prototype.type = "Paragraph";
+
+      Paragraph.prototype.default_view = ParagraphView;
+
+      Paragraph.prototype.defaults = function() {
+        return {
+          'text': ''
+        };
+      };
+
+      return Paragraph;
+
+    })(HasParent);
+    Paragraphs = (function(_super) {
+      __extends(Paragraphs, _super);
+
+      function Paragraphs() {
+        _ref2 = Paragraphs.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      Paragraphs.prototype.model = Paragraph;
+
+      return Paragraphs;
+
+    })(Backbone.Collection);
+    paragraphs = new Paragraphs();
+    return {
+      "Model": Paragraph,
+      "Collection": paragraphs,
+      "View": ParagraphView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=paragraph.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/hbox',["common/has_parent", "common/continuum_view", "common/build_views", "backbone"], function(HasParent, continuum_view, build_views, Backbone) {
+    var ContinuumView, HBox, HBoxView, HBoxes, hboxes, _ref, _ref1, _ref2;
+    ContinuumView = continuum_view.View;
+    HBoxView = (function(_super) {
+      __extends(HBoxView, _super);
+
+      function HBoxView() {
+        _ref = HBoxView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      HBoxView.prototype.tag = "div";
+
+      HBoxView.prototype.attributes = {
+        "class": "bk-hbox"
+      };
+
+      HBoxView.prototype.initialize = function(options) {
+        HBoxView.__super__.initialize.call(this, options);
+        this.views = {};
+        this.render();
+        return this.listenTo(this.model, 'change', this.render);
+      };
+
+      HBoxView.prototype.render = function() {
+        var child, children, key, val, _i, _len, _ref1, _results;
+        children = this.mget_obj('children');
+        build_views(this.views, children);
+        _ref1 = this.views;
+        for (key in _ref1) {
+          if (!__hasProp.call(_ref1, key)) continue;
+          val = _ref1[key];
+          val.$el.detach();
+        }
+        this.$el.empty();
+        _results = [];
+        for (_i = 0, _len = children.length; _i < _len; _i++) {
+          child = children[_i];
+          _results.push(this.$el.append(this.views[child.id].$el));
+        }
+        return _results;
+      };
+
+      return HBoxView;
+
+    })(ContinuumView);
+    HBox = (function(_super) {
+      __extends(HBox, _super);
+
+      function HBox() {
+        _ref1 = HBox.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      HBox.prototype.type = "HBox";
+
+      HBox.prototype.default_view = HBoxView;
+
+      HBox.prototype.defaults = function() {
+        return {
+          'children': []
+        };
+      };
+
+      return HBox;
+
+    })(HasParent);
+    HBoxes = (function(_super) {
+      __extends(HBoxes, _super);
+
+      function HBoxes() {
+        _ref2 = HBoxes.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      HBoxes.prototype.model = HBox;
+
+      return HBoxes;
+
+    })(Backbone.Collection);
+    hboxes = new HBoxes();
+    return {
+      "Model": HBox,
+      "Collection": hboxes,
+      "View": HBoxView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=hbox.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/vbox',["common/has_parent", "common/continuum_view", "common/build_views", "backbone"], function(HasParent, continuum_view, build_views, Backbone) {
+    var ContinuumView, VBox, VBoxView, VBoxes, vboxes, _ref, _ref1, _ref2;
+    ContinuumView = continuum_view.View;
+    VBoxView = (function(_super) {
+      __extends(VBoxView, _super);
+
+      function VBoxView() {
+        _ref = VBoxView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      VBoxView.prototype.tag = "div";
+
+      VBoxView.prototype.attributes = {
+        "class": "bk-vbox"
+      };
+
+      VBoxView.prototype.initialize = function(options) {
+        VBoxView.__super__.initialize.call(this, options);
+        this.views = {};
+        this.render();
+        return this.listenTo(this.model, 'change', this.render);
+      };
+
+      VBoxView.prototype.render = function() {
+        var child, children, key, val, _i, _len, _ref1, _results;
+        children = this.mget_obj('children');
+        build_views(this.views, children);
+        _ref1 = this.views;
+        for (key in _ref1) {
+          if (!__hasProp.call(_ref1, key)) continue;
+          val = _ref1[key];
+          val.$el.detach();
+        }
+        this.$el.empty();
+        _results = [];
+        for (_i = 0, _len = children.length; _i < _len; _i++) {
+          child = children[_i];
+          _results.push(this.$el.append(this.views[child.id].$el));
+        }
+        return _results;
+      };
+
+      return VBoxView;
+
+    })(ContinuumView);
+    VBox = (function(_super) {
+      __extends(VBox, _super);
+
+      function VBox() {
+        _ref1 = VBox.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      VBox.prototype.type = "VBox";
+
+      VBox.prototype.default_view = VBoxView;
+
+      VBox.prototype.defaults = function() {
+        return {
+          'children': []
+        };
+      };
+
+      return VBox;
+
+    })(HasParent);
+    VBoxes = (function(_super) {
+      __extends(VBoxes, _super);
+
+      function VBoxes() {
+        _ref2 = VBoxes.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      VBoxes.prototype.model = VBox;
+
+      return VBoxes;
+
+    })(Backbone.Collection);
+    vboxes = new VBoxes();
+    return {
+      "Model": VBox,
+      "Collection": vboxes,
+      "View": VBoxView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=vbox.js.map
+*/;
+define('widget/textinputtemplate',[],function(){
+  var template = function(__obj) {
+  var _safe = function(value) {
+    if (typeof value === 'undefined' && value == null)
+      value = '';
+    var result = new String(value);
+    result.ecoSafe = true;
+    return result;
+  };
+  return (function() {
+    var __out = [], __self = this, _print = function(value) {
+      if (typeof value !== 'undefined' && value != null)
+        __out.push(value.ecoSafe ? value : __self.escape(value));
+    }, _capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return _safe(result);
+    };
+    (function() {
+      _print(_safe('<label for="'));
+    
+      _print(this.id);
+    
+      _print(_safe('"> '));
+    
+      _print(this.title);
+    
+      _print(_safe(' </label>\n<input class="bk-widget-form-input" type="text" id="'));
+    
+      _print(this.id);
+    
+      _print(_safe('" name="'));
+    
+      _print(this.name);
+    
+      _print(_safe('" value="'));
+    
+      _print(this.value);
+    
+      _print(_safe('"/>\n'));
+    
+    }).call(this);
+    
+    return __out.join('');
+  }).call((function() {
+    var obj = {
+      escape: function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      },
+      safe: _safe
+    }, key;
+    for (key in __obj) obj[key] = __obj[key];
+    return obj;
+  })());
+};
+  return template;
+});
+
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/textinput',["common/has_parent", "common/continuum_view", "common/build_views", "backbone", "./textinputtemplate"], function(HasParent, continuum_view, build_views, Backbone, template) {
+    var ContinuumView, TextInput, TextInputView, TextInputs, textinputs, _ref, _ref1, _ref2;
+    ContinuumView = continuum_view.View;
+    TextInputView = (function(_super) {
+      __extends(TextInputView, _super);
+
+      function TextInputView() {
+        _ref = TextInputView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      TextInputView.prototype.tagName = "div";
+
+      TextInputView.prototype.attributes = {
+        "class": "bk-widget-form-group"
+      };
+
+      TextInputView.prototype.template = template;
+
+      TextInputView.prototype.events = {
+        "change input": "change_input"
+      };
+
+      TextInputView.prototype.change_input = function() {
+        this.mset('value', this.$('input').val());
+        return console.log('set', this.model.attributes);
+      };
+
+      TextInputView.prototype.initialize = function(options) {
+        TextInputView.__super__.initialize.call(this, options);
+        this.render();
+        return this.listenTo(this.model, 'change', this.render);
+      };
+
+      TextInputView.prototype.render = function() {
+        this.$el.html(this.template(this.model.attributes));
+        return this;
+      };
+
+      return TextInputView;
+
+    })(ContinuumView);
+    TextInput = (function(_super) {
+      __extends(TextInput, _super);
+
+      function TextInput() {
+        _ref1 = TextInput.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      TextInput.prototype.type = "TextInput";
+
+      TextInput.prototype.default_view = TextInputView;
+
+      TextInput.prototype.defaults = function() {
+        var defaults;
+        defaults = {
+          name: "",
+          value: "",
+          title: ""
+        };
+        return defaults;
+      };
+
+      return TextInput;
+
+    })(HasParent);
+    TextInputs = (function(_super) {
+      __extends(TextInputs, _super);
+
+      function TextInputs() {
+        _ref2 = TextInputs.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      TextInputs.prototype.model = TextInput;
+
+      return TextInputs;
+
+    })(Backbone.Collection);
+    textinputs = new TextInputs();
+    return {
+      Model: TextInput,
+      Collection: textinputs
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=textinput.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/vboxmodelform',["common/has_parent", "common/continuum_view", "common/build_views", "backbone"], function(HasParent, continuum_view, build_views, Backbone) {
+    var ContinuumView, VBoxModelForm, VBoxModelFormView, VBoxModelFormes, vboxmodelformes, _ref, _ref1, _ref2;
+    ContinuumView = continuum_view.View;
+    VBoxModelFormView = (function(_super) {
+      __extends(VBoxModelFormView, _super);
+
+      function VBoxModelFormView() {
+        _ref = VBoxModelFormView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      VBoxModelFormView.prototype.tagName = "form";
+
+      VBoxModelFormView.prototype.attributes = {
+        "class": "bk-widget-form",
+        role: "form"
+      };
+
+      VBoxModelFormView.prototype.initialize = function(options) {
+        VBoxModelFormView.__super__.initialize.call(this, options);
+        this.views = {};
+        this.render();
+        this.listenTo(this.model, 'change:children', this.change_children);
+        return this.bind_children();
+      };
+
+      VBoxModelFormView.prototype.change_children = function() {
+        var model, old_child_spec, old_children, _i, _len;
+        old_children = this.model.previous('children');
+        for (_i = 0, _len = old_children.length; _i < _len; _i++) {
+          old_child_spec = old_children[_i];
+          model = this.resolve_ref(old_child_spec);
+          if (model) {
+            this.stopListening(model, 'change:value');
+          }
+        }
+        return this.bind_children();
+      };
+
+      VBoxModelFormView.prototype.bind_children = function() {
+        var child, children, _i, _len, _results;
+        children = this.mget_obj('_children');
+        _results = [];
+        for (_i = 0, _len = children.length; _i < _len; _i++) {
+          child = children[_i];
+          _results.push(this.listenTo(child, {
+            'change:value': this.set_data
+          }));
+        }
+        return _results;
+      };
+
+      VBoxModelFormView.prototype.set_data = function(model, value, options) {
+        var name, _i, _len, _ref1, _ref2, _ref3;
+        if (model != null) {
+          _ref1 = [model.get('name'), model.get('value')], name = _ref1[0], value = _ref1[1];
+          value = this.model.convert_val(name, value);
+          this.mset(name, value);
+          this.model.save();
+        } else {
+          _ref2 = this.mget_obj('children');
+          for (_i = 0, _len = _ref2.length; _i < _len; _i++) {
+            model = _ref2[_i];
+            _ref3 = [model.get('name'), model.get('value')], name = _ref3[0], value = _ref3[1];
+            if ((name != null) && (value != null)) {
+              value = this.model.convert_val(name, value);
+              this.mset(name, value);
+            }
+          }
+          this.model.save();
+        }
+        return console.log(this.model.attributes);
+      };
+
+      VBoxModelFormView.prototype.render = function() {
+        var child, children, key, val, _i, _len, _ref1, _results;
+        children = this.mget_obj('_children');
+        build_views(this.views, children);
+        _ref1 = this.views;
+        for (key in _ref1) {
+          if (!__hasProp.call(_ref1, key)) continue;
+          val = _ref1[key];
+          val.$el.detach();
+        }
+        this.$el.empty();
+        _results = [];
+        for (_i = 0, _len = children.length; _i < _len; _i++) {
+          child = children[_i];
+          this.$el.append("<br/");
+          _results.push(this.$el.append(this.views[child.id].$el));
+        }
+        return _results;
+      };
+
+      return VBoxModelFormView;
+
+    })(ContinuumView);
+    VBoxModelForm = (function(_super) {
+      __extends(VBoxModelForm, _super);
+
+      function VBoxModelForm() {
+        _ref1 = VBoxModelForm.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      VBoxModelForm.prototype.type = "VBoxModelForm";
+
+      VBoxModelForm.prototype.default_view = VBoxModelFormView;
+
+      VBoxModelForm.prototype.convert_val = function(name, value) {
+        var field_defs;
+        field_defs = this.get('_field_defs');
+        if (field_defs[name] != null) {
+          if (field_defs[name] === "Float") {
+            value = parseFloat(value);
+          } else if (field_defs[name] === "Int") {
+            value = parseInt(value);
+          }
+        }
+        return value;
+      };
+
+      VBoxModelForm.prototype.defaults = function() {
+        var defaults;
+        defaults = {
+          _children: [],
+          _field_defs: {}
+        };
+        return defaults;
+      };
+
+      return VBoxModelForm;
+
+    })(HasParent);
+    VBoxModelFormes = (function(_super) {
+      __extends(VBoxModelFormes, _super);
+
+      function VBoxModelFormes() {
+        _ref2 = VBoxModelFormes.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      VBoxModelFormes.prototype.model = VBoxModelForm;
+
+      return VBoxModelFormes;
+
+    })(Backbone.Collection);
+    vboxmodelformes = new VBoxModelFormes();
+    return {
+      "Model": VBoxModelForm,
+      "Collection": vboxmodelformes,
+      "View": VBoxModelFormView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=vboxmodelform.js.map
+*/;
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/pretext',["backbone", "./paragraph"], function(Backbone, Paragraph) {
+    var PreText, PreTextView, PreTexts, pretexts, _ref, _ref1, _ref2;
+    PreTextView = (function(_super) {
+      __extends(PreTextView, _super);
+
+      function PreTextView() {
+        _ref = PreTextView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      PreTextView.prototype.tagName = "pre";
+
+      return PreTextView;
+
+    })(Paragraph.View);
+    PreText = (function(_super) {
+      __extends(PreText, _super);
+
+      function PreText() {
+        _ref1 = PreText.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      PreText.prototype.type = "PreText";
+
+      PreText.prototype.default_view = PreTextView;
+
+      PreText.prototype.defaults = function() {
+        return {
+          'text': ''
+        };
+      };
+
+      return PreText;
+
+    })(Paragraph.Model);
+    PreTexts = (function(_super) {
+      __extends(PreTexts, _super);
+
+      function PreTexts() {
+        _ref2 = PreTexts.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      PreTexts.prototype.model = PreText;
+
+      return PreTexts;
+
+    })(Backbone.Collection);
+    pretexts = new PreTexts();
+    return {
+      "Model": PreText,
+      "Collection": pretexts,
+      "View": PreTextView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=pretext.js.map
+*/;
+define('widget/selecttemplate',[],function(){
+  var template = function(__obj) {
+  var _safe = function(value) {
+    if (typeof value === 'undefined' && value == null)
+      value = '';
+    var result = new String(value);
+    result.ecoSafe = true;
+    return result;
+  };
+  return (function() {
+    var __out = [], __self = this, _print = function(value) {
+      if (typeof value !== 'undefined' && value != null)
+        __out.push(value.ecoSafe ? value : __self.escape(value));
+    }, _capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return _safe(result);
+    };
+    (function() {
+      var option, _i, _len, _ref;
+    
+      _print(_safe('<label for="'));
+    
+      _print(this.id);
+    
+      _print(_safe('"> '));
+    
+      _print(this.title);
+    
+      _print(_safe(' </label>\n<select class="bk-widget-form-input" id="'));
+    
+      _print(this.id);
+    
+      _print(_safe('" name="'));
+    
+      _print(this.name);
+    
+      _print(_safe('">\n  '));
+    
+      _ref = this.options;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        option = _ref[_i];
+        _print(_safe('\n  '));
+        if (option.value === this.value) {
+          _print(_safe('\n  <option selected="selected" value="'));
+          _print(option.value);
+          _print(_safe('">'));
+          _print(option.name);
+          _print(_safe('</option>\n  '));
+        } else {
+          _print(_safe('\n  <option value="'));
+          _print(option.value);
+          _print(_safe('">'));
+          _print(option.name);
+          _print(_safe('</option> \n  '));
+        }
+        _print(_safe('\n\n  '));
+      }
+    
+      _print(_safe('\n</select>\n'));
+    
+    }).call(this);
+    
+    return __out.join('');
+  }).call((function() {
+    var obj = {
+      escape: function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      },
+      safe: _safe
+    }, key;
+    for (key in __obj) obj[key] = __obj[key];
+    return obj;
+  })());
+};
+  return template;
+});
+
+(function() {
+  var __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/selectbox',["common/has_parent", "common/continuum_view", "backbone", "underscore", "./selecttemplate"], function(HasParent, continuum_view, Backbone, _, selecttemplate) {
+    var ContinuumView, Select, SelectView, Selects, selectboxes, _ref, _ref1, _ref2;
+    ContinuumView = continuum_view.View;
+    SelectView = (function(_super) {
+      __extends(SelectView, _super);
+
+      function SelectView() {
+        _ref = SelectView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      SelectView.prototype.events = {
+        "change select": "change_input"
+      };
+
+      SelectView.prototype.change_input = function() {
+        this.mset('value', this.$('select').val());
+        return console.log('set', this.model.attributes);
+      };
+
+      SelectView.prototype.tagName = "div";
+
+      SelectView.prototype.template = selecttemplate;
+
+      SelectView.prototype.initialize = function(options) {
+        SelectView.__super__.initialize.call(this, options);
+        this.render();
+        return this.listenTo(this.model, 'change', this.render);
+      };
+
+      SelectView.prototype.render = function() {
+        var html;
+        this.$el.empty();
+        html = this.template(this.model.attributes);
+        this.$el.html(html);
+        return this;
+      };
+
+      return SelectView;
+
+    })(ContinuumView);
+    Select = (function(_super) {
+      __extends(Select, _super);
+
+      function Select() {
+        _ref1 = Select.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Select.prototype.type = "Select";
+
+      Select.prototype.default_view = SelectView;
+
+      Select.prototype.defaults = function() {
+        var def;
+        def = {
+          title: '',
+          value: '',
+          options: []
+        };
+        return def;
+      };
+
+      return Select;
+
+    })(HasParent);
+    Selects = (function(_super) {
+      __extends(Selects, _super);
+
+      function Selects() {
+        _ref2 = Selects.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      Selects.prototype.model = Select;
+
+      return Selects;
+
+    })(Backbone.Collection);
+    selectboxes = new Selects();
+    return {
+      "Model": Select,
+      "Collection": selectboxes,
+      "View": SelectView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=selectbox.js.map
+*/;
+define('widget/slidertemplate',[],function(){
+  var template = function(__obj) {
+  var _safe = function(value) {
+    if (typeof value === 'undefined' && value == null)
+      value = '';
+    var result = new String(value);
+    result.ecoSafe = true;
+    return result;
+  };
+  return (function() {
+    var __out = [], __self = this, _print = function(value) {
+      if (typeof value !== 'undefined' && value != null)
+        __out.push(value.ecoSafe ? value : __self.escape(value));
+    }, _capture = function(callback) {
+      var out = __out, result;
+      __out = [];
+      callback.call(this);
+      result = __out.join('');
+      __out = out;
+      return _safe(result);
+    };
+    (function() {
+      _print(_safe('<label for="'));
+    
+      _print(this.id);
+    
+      _print(_safe('"> '));
+    
+      _print(this.title);
+    
+      _print(_safe(' </label>    \n<div class="bk-slider-'));
+    
+      _print(this.orientation);
+    
+      _print(_safe('">\n  <div class="slider " id="'));
+    
+      _print(this.id);
+    
+      _print(_safe('">\n</div>\n\n'));
+    
+    }).call(this);
+    
+    return __out.join('');
+  }).call((function() {
+    var obj = {
+      escape: function(value) {
+        return ('' + value)
+          .replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+      },
+      safe: _safe
+    }, key;
+    for (key in __obj) obj[key] = __obj[key];
+    return obj;
+  })());
+};
+  return template;
+});
+
+define('jquery_ui/core',['jquery'], function (jQuery) {
+/*!
+ * jQuery UI Core 1.10.0
+ * http://jqueryui.com
+ *
+ * Copyright 2013 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://api.jqueryui.com/category/ui-core/
+ */
+(function( $, undefined ) {
+
+var uuid = 0,
+	runiqueId = /^ui-id-\d+$/;
+
+// prevent duplicate loading
+// this is only a problem because we proxy existing functions
+// and we don't want to double proxy them
+$.ui = $.ui || {};
+if ( $.ui.version ) {
+	return;
+}
+
+$.extend( $.ui, {
+	version: "1.10.0",
+
+	keyCode: {
+		BACKSPACE: 8,
+		COMMA: 188,
+		DELETE: 46,
+		DOWN: 40,
+		END: 35,
+		ENTER: 13,
+		ESCAPE: 27,
+		HOME: 36,
+		LEFT: 37,
+		NUMPAD_ADD: 107,
+		NUMPAD_DECIMAL: 110,
+		NUMPAD_DIVIDE: 111,
+		NUMPAD_ENTER: 108,
+		NUMPAD_MULTIPLY: 106,
+		NUMPAD_SUBTRACT: 109,
+		PAGE_DOWN: 34,
+		PAGE_UP: 33,
+		PERIOD: 190,
+		RIGHT: 39,
+		SPACE: 32,
+		TAB: 9,
+		UP: 38
+	}
+});
+
+// plugins
+$.fn.extend({
+	_focus: $.fn.focus,
+	focus: function( delay, fn ) {
+		return typeof delay === "number" ?
+			this.each(function() {
+				var elem = this;
+				setTimeout(function() {
+					$( elem ).focus();
+					if ( fn ) {
+						fn.call( elem );
+					}
+				}, delay );
+			}) :
+			this._focus.apply( this, arguments );
+	},
+
+	scrollParent: function() {
+		var scrollParent;
+		if (($.ui.ie && (/(static|relative)/).test(this.css("position"))) || (/absolute/).test(this.css("position"))) {
+			scrollParent = this.parents().filter(function() {
+				return (/(relative|absolute|fixed)/).test($.css(this,"position")) && (/(auto|scroll)/).test($.css(this,"overflow")+$.css(this,"overflow-y")+$.css(this,"overflow-x"));
+			}).eq(0);
+		} else {
+			scrollParent = this.parents().filter(function() {
+				return (/(auto|scroll)/).test($.css(this,"overflow")+$.css(this,"overflow-y")+$.css(this,"overflow-x"));
+			}).eq(0);
+		}
+
+		return (/fixed/).test(this.css("position")) || !scrollParent.length ? $(document) : scrollParent;
+	},
+
+	zIndex: function( zIndex ) {
+		if ( zIndex !== undefined ) {
+			return this.css( "zIndex", zIndex );
+		}
+
+		if ( this.length ) {
+			var elem = $( this[ 0 ] ), position, value;
+			while ( elem.length && elem[ 0 ] !== document ) {
+				// Ignore z-index if position is set to a value where z-index is ignored by the browser
+				// This makes behavior of this function consistent across browsers
+				// WebKit always returns auto if the element is positioned
+				position = elem.css( "position" );
+				if ( position === "absolute" || position === "relative" || position === "fixed" ) {
+					// IE returns 0 when zIndex is not specified
+					// other browsers return a string
+					// we ignore the case of nested elements with an explicit value of 0
+					// <div style="z-index: -10;"><div style="z-index: 0;"></div></div>
+					value = parseInt( elem.css( "zIndex" ), 10 );
+					if ( !isNaN( value ) && value !== 0 ) {
+						return value;
+					}
+				}
+				elem = elem.parent();
+			}
+		}
+
+		return 0;
+	},
+
+	uniqueId: function() {
+		return this.each(function() {
+			if ( !this.id ) {
+				this.id = "ui-id-" + (++uuid);
+			}
+		});
+	},
+
+	removeUniqueId: function() {
+		return this.each(function() {
+			if ( runiqueId.test( this.id ) ) {
+				$( this ).removeAttr( "id" );
+			}
+		});
+	}
+});
+
+// selectors
+function focusable( element, isTabIndexNotNaN ) {
+	var map, mapName, img,
+		nodeName = element.nodeName.toLowerCase();
+	if ( "area" === nodeName ) {
+		map = element.parentNode;
+		mapName = map.name;
+		if ( !element.href || !mapName || map.nodeName.toLowerCase() !== "map" ) {
+			return false;
+		}
+		img = $( "img[usemap=#" + mapName + "]" )[0];
+		return !!img && visible( img );
+	}
+	return ( /input|select|textarea|button|object/.test( nodeName ) ?
+		!element.disabled :
+		"a" === nodeName ?
+			element.href || isTabIndexNotNaN :
+			isTabIndexNotNaN) &&
+		// the element and all of its ancestors must be visible
+		visible( element );
+}
+
+function visible( element ) {
+	return $.expr.filters.visible( element ) &&
+		!$( element ).parents().addBack().filter(function() {
+			return $.css( this, "visibility" ) === "hidden";
+		}).length;
+}
+
+$.extend( $.expr[ ":" ], {
+	data: $.expr.createPseudo ?
+		$.expr.createPseudo(function( dataName ) {
+			return function( elem ) {
+				return !!$.data( elem, dataName );
+			};
+		}) :
+		// support: jQuery <1.8
+		function( elem, i, match ) {
+			return !!$.data( elem, match[ 3 ] );
+		},
+
+	focusable: function( element ) {
+		return focusable( element, !isNaN( $.attr( element, "tabindex" ) ) );
+	},
+
+	tabbable: function( element ) {
+		var tabIndex = $.attr( element, "tabindex" ),
+			isTabIndexNaN = isNaN( tabIndex );
+		return ( isTabIndexNaN || tabIndex >= 0 ) && focusable( element, !isTabIndexNaN );
+	}
+});
+
+// support: jQuery <1.8
+if ( !$( "<a>" ).outerWidth( 1 ).jquery ) {
+	$.each( [ "Width", "Height" ], function( i, name ) {
+		var side = name === "Width" ? [ "Left", "Right" ] : [ "Top", "Bottom" ],
+			type = name.toLowerCase(),
+			orig = {
+				innerWidth: $.fn.innerWidth,
+				innerHeight: $.fn.innerHeight,
+				outerWidth: $.fn.outerWidth,
+				outerHeight: $.fn.outerHeight
+			};
+
+		function reduce( elem, size, border, margin ) {
+			$.each( side, function() {
+				size -= parseFloat( $.css( elem, "padding" + this ) ) || 0;
+				if ( border ) {
+					size -= parseFloat( $.css( elem, "border" + this + "Width" ) ) || 0;
+				}
+				if ( margin ) {
+					size -= parseFloat( $.css( elem, "margin" + this ) ) || 0;
+				}
+			});
+			return size;
+		}
+
+		$.fn[ "inner" + name ] = function( size ) {
+			if ( size === undefined ) {
+				return orig[ "inner" + name ].call( this );
+			}
+
+			return this.each(function() {
+				$( this ).css( type, reduce( this, size ) + "px" );
+			});
+		};
+
+		$.fn[ "outer" + name] = function( size, margin ) {
+			if ( typeof size !== "number" ) {
+				return orig[ "outer" + name ].call( this, size );
+			}
+
+			return this.each(function() {
+				$( this).css( type, reduce( this, size, true, margin ) + "px" );
+			});
+		};
+	});
+}
+
+// support: jQuery <1.8
+if ( !$.fn.addBack ) {
+	$.fn.addBack = function( selector ) {
+		return this.add( selector == null ?
+			this.prevObject : this.prevObject.filter( selector )
+		);
+	};
+}
+
+// support: jQuery 1.6.1, 1.6.2 (http://bugs.jquery.com/ticket/9413)
+if ( $( "<a>" ).data( "a-b", "a" ).removeData( "a-b" ).data( "a-b" ) ) {
+	$.fn.removeData = (function( removeData ) {
+		return function( key ) {
+			if ( arguments.length ) {
+				return removeData.call( this, $.camelCase( key ) );
+			} else {
+				return removeData.call( this );
+			}
+		};
+	})( $.fn.removeData );
+}
+
+
+
+
+
+// deprecated
+$.ui.ie = !!/msie [\w.]+/.exec( navigator.userAgent.toLowerCase() );
+
+$.support.selectstart = "onselectstart" in document.createElement( "div" );
+$.fn.extend({
+	disableSelection: function() {
+		return this.bind( ( $.support.selectstart ? "selectstart" : "mousedown" ) +
+			".ui-disableSelection", function( event ) {
+				event.preventDefault();
+			});
+	},
+
+	enableSelection: function() {
+		return this.unbind( ".ui-disableSelection" );
+	}
+});
+
+$.extend( $.ui, {
+	// $.ui.plugin is deprecated.  Use the proxy pattern instead.
+	plugin: {
+		add: function( module, option, set ) {
+			var i,
+				proto = $.ui[ module ].prototype;
+			for ( i in set ) {
+				proto.plugins[ i ] = proto.plugins[ i ] || [];
+				proto.plugins[ i ].push( [ option, set[ i ] ] );
+			}
+		},
+		call: function( instance, name, args ) {
+			var i,
+				set = instance.plugins[ name ];
+			if ( !set || !instance.element[ 0 ].parentNode || instance.element[ 0 ].parentNode.nodeType === 11 ) {
+				return;
+			}
+
+			for ( i = 0; i < set.length; i++ ) {
+				if ( instance.options[ set[ i ][ 0 ] ] ) {
+					set[ i ][ 1 ].apply( instance.element, args );
+				}
+			}
+		}
+	},
+
+	// only used by resizable
+	hasScroll: function( el, a ) {
+
+		//If overflow is hidden, the element might have extra content, but the user wants to hide it
+		if ( $( el ).css( "overflow" ) === "hidden") {
+			return false;
+		}
+
+		var scroll = ( a && a === "left" ) ? "scrollLeft" : "scrollTop",
+			has = false;
+
+		if ( el[ scroll ] > 0 ) {
+			return true;
+		}
+
+		// TODO: determine which cases actually cause this to happen
+		// if the element doesn't have the scroll set, see if it's possible to
+		// set the scroll
+		el[ scroll ] = 1;
+		has = ( el[ scroll ] > 0 );
+		el[ scroll ] = 0;
+		return has;
+	}
+});
+
+})( jQuery );
+
+});
+define('jquery_ui/widget',['jquery'], function (jQuery) {
+/*!
+ * jQuery UI Widget 1.10.0
+ * http://jqueryui.com
+ *
+ * Copyright 2013 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://api.jqueryui.com/jQuery.widget/
+ */
+(function( $, undefined ) {
+
+var uuid = 0,
+	slice = Array.prototype.slice,
+	_cleanData = $.cleanData;
+$.cleanData = function( elems ) {
+	for ( var i = 0, elem; (elem = elems[i]) != null; i++ ) {
+		try {
+			$( elem ).triggerHandler( "remove" );
+		// http://bugs.jquery.com/ticket/8235
+		} catch( e ) {}
+	}
+	_cleanData( elems );
+};
+
+$.widget = function( name, base, prototype ) {
+	var fullName, existingConstructor, constructor, basePrototype,
+		// proxiedPrototype allows the provided prototype to remain unmodified
+		// so that it can be used as a mixin for multiple widgets (#8876)
+		proxiedPrototype = {},
+		namespace = name.split( "." )[ 0 ];
+
+	name = name.split( "." )[ 1 ];
+	fullName = namespace + "-" + name;
+
+	if ( !prototype ) {
+		prototype = base;
+		base = $.Widget;
+	}
+
+	// create selector for plugin
+	$.expr[ ":" ][ fullName.toLowerCase() ] = function( elem ) {
+		return !!$.data( elem, fullName );
+	};
+
+	$[ namespace ] = $[ namespace ] || {};
+	existingConstructor = $[ namespace ][ name ];
+	constructor = $[ namespace ][ name ] = function( options, element ) {
+		// allow instantiation without "new" keyword
+		if ( !this._createWidget ) {
+			return new constructor( options, element );
+		}
+
+		// allow instantiation without initializing for simple inheritance
+		// must use "new" keyword (the code above always passes args)
+		if ( arguments.length ) {
+			this._createWidget( options, element );
+		}
+	};
+	// extend with the existing constructor to carry over any static properties
+	$.extend( constructor, existingConstructor, {
+		version: prototype.version,
+		// copy the object used to create the prototype in case we need to
+		// redefine the widget later
+		_proto: $.extend( {}, prototype ),
+		// track widgets that inherit from this widget in case this widget is
+		// redefined after a widget inherits from it
+		_childConstructors: []
+	});
+
+	basePrototype = new base();
+	// we need to make the options hash a property directly on the new instance
+	// otherwise we'll modify the options hash on the prototype that we're
+	// inheriting from
+	basePrototype.options = $.widget.extend( {}, basePrototype.options );
+	$.each( prototype, function( prop, value ) {
+		if ( !$.isFunction( value ) ) {
+			proxiedPrototype[ prop ] = value;
+			return;
+		}
+		proxiedPrototype[ prop ] = (function() {
+			var _super = function() {
+					return base.prototype[ prop ].apply( this, arguments );
+				},
+				_superApply = function( args ) {
+					return base.prototype[ prop ].apply( this, args );
+				};
+			return function() {
+				var __super = this._super,
+					__superApply = this._superApply,
+					returnValue;
+
+				this._super = _super;
+				this._superApply = _superApply;
+
+				returnValue = value.apply( this, arguments );
+
+				this._super = __super;
+				this._superApply = __superApply;
+
+				return returnValue;
+			};
+		})();
+	});
+	constructor.prototype = $.widget.extend( basePrototype, {
+		// TODO: remove support for widgetEventPrefix
+		// always use the name + a colon as the prefix, e.g., draggable:start
+		// don't prefix for widgets that aren't DOM-based
+		widgetEventPrefix: existingConstructor ? basePrototype.widgetEventPrefix : name
+	}, proxiedPrototype, {
+		constructor: constructor,
+		namespace: namespace,
+		widgetName: name,
+		widgetFullName: fullName
+	});
+
+	// If this widget is being redefined then we need to find all widgets that
+	// are inheriting from it and redefine all of them so that they inherit from
+	// the new version of this widget. We're essentially trying to replace one
+	// level in the prototype chain.
+	if ( existingConstructor ) {
+		$.each( existingConstructor._childConstructors, function( i, child ) {
+			var childPrototype = child.prototype;
+
+			// redefine the child widget using the same prototype that was
+			// originally used, but inherit from the new version of the base
+			$.widget( childPrototype.namespace + "." + childPrototype.widgetName, constructor, child._proto );
+		});
+		// remove the list of existing child constructors from the old constructor
+		// so the old child constructors can be garbage collected
+		delete existingConstructor._childConstructors;
+	} else {
+		base._childConstructors.push( constructor );
+	}
+
+	$.widget.bridge( name, constructor );
+};
+
+$.widget.extend = function( target ) {
+	var input = slice.call( arguments, 1 ),
+		inputIndex = 0,
+		inputLength = input.length,
+		key,
+		value;
+	for ( ; inputIndex < inputLength; inputIndex++ ) {
+		for ( key in input[ inputIndex ] ) {
+			value = input[ inputIndex ][ key ];
+			if ( input[ inputIndex ].hasOwnProperty( key ) && value !== undefined ) {
+				// Clone objects
+				if ( $.isPlainObject( value ) ) {
+					target[ key ] = $.isPlainObject( target[ key ] ) ?
+						$.widget.extend( {}, target[ key ], value ) :
+						// Don't extend strings, arrays, etc. with objects
+						$.widget.extend( {}, value );
+				// Copy everything else by reference
+				} else {
+					target[ key ] = value;
+				}
+			}
+		}
+	}
+	return target;
+};
+
+$.widget.bridge = function( name, object ) {
+	var fullName = object.prototype.widgetFullName || name;
+	$.fn[ name ] = function( options ) {
+		var isMethodCall = typeof options === "string",
+			args = slice.call( arguments, 1 ),
+			returnValue = this;
+
+		// allow multiple hashes to be passed on init
+		options = !isMethodCall && args.length ?
+			$.widget.extend.apply( null, [ options ].concat(args) ) :
+			options;
+
+		if ( isMethodCall ) {
+			this.each(function() {
+				var methodValue,
+					instance = $.data( this, fullName );
+				if ( !instance ) {
+					return $.error( "cannot call methods on " + name + " prior to initialization; " +
+						"attempted to call method '" + options + "'" );
+				}
+				if ( !$.isFunction( instance[options] ) || options.charAt( 0 ) === "_" ) {
+					return $.error( "no such method '" + options + "' for " + name + " widget instance" );
+				}
+				methodValue = instance[ options ].apply( instance, args );
+				if ( methodValue !== instance && methodValue !== undefined ) {
+					returnValue = methodValue && methodValue.jquery ?
+						returnValue.pushStack( methodValue.get() ) :
+						methodValue;
+					return false;
+				}
+			});
+		} else {
+			this.each(function() {
+				var instance = $.data( this, fullName );
+				if ( instance ) {
+					instance.option( options || {} )._init();
+				} else {
+					$.data( this, fullName, new object( options, this ) );
+				}
+			});
+		}
+
+		return returnValue;
+	};
+};
+
+$.Widget = function( /* options, element */ ) {};
+$.Widget._childConstructors = [];
+
+$.Widget.prototype = {
+	widgetName: "widget",
+	widgetEventPrefix: "",
+	defaultElement: "<div>",
+	options: {
+		disabled: false,
+
+		// callbacks
+		create: null
+	},
+	_createWidget: function( options, element ) {
+		element = $( element || this.defaultElement || this )[ 0 ];
+		this.element = $( element );
+		this.uuid = uuid++;
+		this.eventNamespace = "." + this.widgetName + this.uuid;
+		this.options = $.widget.extend( {},
+			this.options,
+			this._getCreateOptions(),
+			options );
+
+		this.bindings = $();
+		this.hoverable = $();
+		this.focusable = $();
+
+		if ( element !== this ) {
+			$.data( element, this.widgetFullName, this );
+			this._on( true, this.element, {
+				remove: function( event ) {
+					if ( event.target === element ) {
+						this.destroy();
+					}
+				}
+			});
+			this.document = $( element.style ?
+				// element within the document
+				element.ownerDocument :
+				// element is window or document
+				element.document || element );
+			this.window = $( this.document[0].defaultView || this.document[0].parentWindow );
+		}
+
+		this._create();
+		this._trigger( "create", null, this._getCreateEventData() );
+		this._init();
+	},
+	_getCreateOptions: $.noop,
+	_getCreateEventData: $.noop,
+	_create: $.noop,
+	_init: $.noop,
+
+	destroy: function() {
+		this._destroy();
+		// we can probably remove the unbind calls in 2.0
+		// all event bindings should go through this._on()
+		this.element
+			.unbind( this.eventNamespace )
+			// 1.9 BC for #7810
+			// TODO remove dual storage
+			.removeData( this.widgetName )
+			.removeData( this.widgetFullName )
+			// support: jquery <1.6.3
+			// http://bugs.jquery.com/ticket/9413
+			.removeData( $.camelCase( this.widgetFullName ) );
+		this.widget()
+			.unbind( this.eventNamespace )
+			.removeAttr( "aria-disabled" )
+			.removeClass(
+				this.widgetFullName + "-disabled " +
+				"ui-state-disabled" );
+
+		// clean up events and states
+		this.bindings.unbind( this.eventNamespace );
+		this.hoverable.removeClass( "ui-state-hover" );
+		this.focusable.removeClass( "ui-state-focus" );
+	},
+	_destroy: $.noop,
+
+	widget: function() {
+		return this.element;
+	},
+
+	option: function( key, value ) {
+		var options = key,
+			parts,
+			curOption,
+			i;
+
+		if ( arguments.length === 0 ) {
+			// don't return a reference to the internal hash
+			return $.widget.extend( {}, this.options );
+		}
+
+		if ( typeof key === "string" ) {
+			// handle nested keys, e.g., "foo.bar" => { foo: { bar: ___ } }
+			options = {};
+			parts = key.split( "." );
+			key = parts.shift();
+			if ( parts.length ) {
+				curOption = options[ key ] = $.widget.extend( {}, this.options[ key ] );
+				for ( i = 0; i < parts.length - 1; i++ ) {
+					curOption[ parts[ i ] ] = curOption[ parts[ i ] ] || {};
+					curOption = curOption[ parts[ i ] ];
+				}
+				key = parts.pop();
+				if ( value === undefined ) {
+					return curOption[ key ] === undefined ? null : curOption[ key ];
+				}
+				curOption[ key ] = value;
+			} else {
+				if ( value === undefined ) {
+					return this.options[ key ] === undefined ? null : this.options[ key ];
+				}
+				options[ key ] = value;
+			}
+		}
+
+		this._setOptions( options );
+
+		return this;
+	},
+	_setOptions: function( options ) {
+		var key;
+
+		for ( key in options ) {
+			this._setOption( key, options[ key ] );
+		}
+
+		return this;
+	},
+	_setOption: function( key, value ) {
+		this.options[ key ] = value;
+
+		if ( key === "disabled" ) {
+			this.widget()
+				.toggleClass( this.widgetFullName + "-disabled ui-state-disabled", !!value )
+				.attr( "aria-disabled", value );
+			this.hoverable.removeClass( "ui-state-hover" );
+			this.focusable.removeClass( "ui-state-focus" );
+		}
+
+		return this;
+	},
+
+	enable: function() {
+		return this._setOption( "disabled", false );
+	},
+	disable: function() {
+		return this._setOption( "disabled", true );
+	},
+
+	_on: function( suppressDisabledCheck, element, handlers ) {
+		var delegateElement,
+			instance = this;
+
+		// no suppressDisabledCheck flag, shuffle arguments
+		if ( typeof suppressDisabledCheck !== "boolean" ) {
+			handlers = element;
+			element = suppressDisabledCheck;
+			suppressDisabledCheck = false;
+		}
+
+		// no element argument, shuffle and use this.element
+		if ( !handlers ) {
+			handlers = element;
+			element = this.element;
+			delegateElement = this.widget();
+		} else {
+			// accept selectors, DOM elements
+			element = delegateElement = $( element );
+			this.bindings = this.bindings.add( element );
+		}
+
+		$.each( handlers, function( event, handler ) {
+			function handlerProxy() {
+				// allow widgets to customize the disabled handling
+				// - disabled as an array instead of boolean
+				// - disabled class as method for disabling individual parts
+				if ( !suppressDisabledCheck &&
+						( instance.options.disabled === true ||
+							$( this ).hasClass( "ui-state-disabled" ) ) ) {
+					return;
+				}
+				return ( typeof handler === "string" ? instance[ handler ] : handler )
+					.apply( instance, arguments );
+			}
+
+			// copy the guid so direct unbinding works
+			if ( typeof handler !== "string" ) {
+				handlerProxy.guid = handler.guid =
+					handler.guid || handlerProxy.guid || $.guid++;
+			}
+
+			var match = event.match( /^(\w+)\s*(.*)$/ ),
+				eventName = match[1] + instance.eventNamespace,
+				selector = match[2];
+			if ( selector ) {
+				delegateElement.delegate( selector, eventName, handlerProxy );
+			} else {
+				element.bind( eventName, handlerProxy );
+			}
+		});
+	},
+
+	_off: function( element, eventName ) {
+		eventName = (eventName || "").split( " " ).join( this.eventNamespace + " " ) + this.eventNamespace;
+		element.unbind( eventName ).undelegate( eventName );
+	},
+
+	_delay: function( handler, delay ) {
+		function handlerProxy() {
+			return ( typeof handler === "string" ? instance[ handler ] : handler )
+				.apply( instance, arguments );
+		}
+		var instance = this;
+		return setTimeout( handlerProxy, delay || 0 );
+	},
+
+	_hoverable: function( element ) {
+		this.hoverable = this.hoverable.add( element );
+		this._on( element, {
+			mouseenter: function( event ) {
+				$( event.currentTarget ).addClass( "ui-state-hover" );
+			},
+			mouseleave: function( event ) {
+				$( event.currentTarget ).removeClass( "ui-state-hover" );
+			}
+		});
+	},
+
+	_focusable: function( element ) {
+		this.focusable = this.focusable.add( element );
+		this._on( element, {
+			focusin: function( event ) {
+				$( event.currentTarget ).addClass( "ui-state-focus" );
+			},
+			focusout: function( event ) {
+				$( event.currentTarget ).removeClass( "ui-state-focus" );
+			}
+		});
+	},
+
+	_trigger: function( type, event, data ) {
+		var prop, orig,
+			callback = this.options[ type ];
+
+		data = data || {};
+		event = $.Event( event );
+		event.type = ( type === this.widgetEventPrefix ?
+			type :
+			this.widgetEventPrefix + type ).toLowerCase();
+		// the original event may come from any element
+		// so we need to reset the target on the new event
+		event.target = this.element[ 0 ];
+
+		// copy original event properties over to the new event
+		orig = event.originalEvent;
+		if ( orig ) {
+			for ( prop in orig ) {
+				if ( !( prop in event ) ) {
+					event[ prop ] = orig[ prop ];
+				}
+			}
+		}
+
+		this.element.trigger( event, data );
+		return !( $.isFunction( callback ) &&
+			callback.apply( this.element[0], [ event ].concat( data ) ) === false ||
+			event.isDefaultPrevented() );
+	}
+};
+
+$.each( { show: "fadeIn", hide: "fadeOut" }, function( method, defaultEffect ) {
+	$.Widget.prototype[ "_" + method ] = function( element, options, callback ) {
+		if ( typeof options === "string" ) {
+			options = { effect: options };
+		}
+		var hasOptions,
+			effectName = !options ?
+				method :
+				options === true || typeof options === "number" ?
+					defaultEffect :
+					options.effect || defaultEffect;
+		options = options || {};
+		if ( typeof options === "number" ) {
+			options = { duration: options };
+		}
+		hasOptions = !$.isEmptyObject( options );
+		options.complete = callback;
+		if ( options.delay ) {
+			element.delay( options.delay );
+		}
+		if ( hasOptions && $.effects && $.effects.effect[ effectName ] ) {
+			element[ method ]( options );
+		} else if ( effectName !== method && element[ effectName ] ) {
+			element[ effectName ]( options.duration, options.easing, callback );
+		} else {
+			element.queue(function( next ) {
+				$( this )[ method ]();
+				if ( callback ) {
+					callback.call( element[ 0 ] );
+				}
+				next();
+			});
+		}
+	};
+});
+
+})( jQuery );
+
+});
+define('jquery_ui/mouse',['jquery','./widget'], function (jQuery) {
+/*!
+ * jQuery UI Mouse 1.10.0
+ * http://jqueryui.com
+ *
+ * Copyright 2013 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://api.jqueryui.com/mouse/
+ *
+ * Depends:
+ *	jquery.ui.widget.js
+ */
+(function( $, undefined ) {
+
+var mouseHandled = false;
+$( document ).mouseup( function() {
+	mouseHandled = false;
+});
+
+$.widget("ui.mouse", {
+	version: "1.10.0",
+	options: {
+		cancel: "input,textarea,button,select,option",
+		distance: 1,
+		delay: 0
+	},
+	_mouseInit: function() {
+		var that = this;
+
+		this.element
+			.bind("mousedown."+this.widgetName, function(event) {
+				return that._mouseDown(event);
+			})
+			.bind("click."+this.widgetName, function(event) {
+				if (true === $.data(event.target, that.widgetName + ".preventClickEvent")) {
+					$.removeData(event.target, that.widgetName + ".preventClickEvent");
+					event.stopImmediatePropagation();
+					return false;
+				}
+			});
+
+		this.started = false;
+	},
+
+	// TODO: make sure destroying one instance of mouse doesn't mess with
+	// other instances of mouse
+	_mouseDestroy: function() {
+		this.element.unbind("."+this.widgetName);
+		if ( this._mouseMoveDelegate ) {
+			$(document)
+				.unbind("mousemove."+this.widgetName, this._mouseMoveDelegate)
+				.unbind("mouseup."+this.widgetName, this._mouseUpDelegate);
+		}
+	},
+
+	_mouseDown: function(event) {
+		// don't let more than one widget handle mouseStart
+		if( mouseHandled ) { return; }
+
+		// we may have missed mouseup (out of window)
+		(this._mouseStarted && this._mouseUp(event));
+
+		this._mouseDownEvent = event;
+
+		var that = this,
+			btnIsLeft = (event.which === 1),
+			// event.target.nodeName works around a bug in IE 8 with
+			// disabled inputs (#7620)
+			elIsCancel = (typeof this.options.cancel === "string" && event.target.nodeName ? $(event.target).closest(this.options.cancel).length : false);
+		if (!btnIsLeft || elIsCancel || !this._mouseCapture(event)) {
+			return true;
+		}
+
+		this.mouseDelayMet = !this.options.delay;
+		if (!this.mouseDelayMet) {
+			this._mouseDelayTimer = setTimeout(function() {
+				that.mouseDelayMet = true;
+			}, this.options.delay);
+		}
+
+		if (this._mouseDistanceMet(event) && this._mouseDelayMet(event)) {
+			this._mouseStarted = (this._mouseStart(event) !== false);
+			if (!this._mouseStarted) {
+				event.preventDefault();
+				return true;
+			}
+		}
+
+		// Click event may never have fired (Gecko & Opera)
+		if (true === $.data(event.target, this.widgetName + ".preventClickEvent")) {
+			$.removeData(event.target, this.widgetName + ".preventClickEvent");
+		}
+
+		// these delegates are required to keep context
+		this._mouseMoveDelegate = function(event) {
+			return that._mouseMove(event);
+		};
+		this._mouseUpDelegate = function(event) {
+			return that._mouseUp(event);
+		};
+		$(document)
+			.bind("mousemove."+this.widgetName, this._mouseMoveDelegate)
+			.bind("mouseup."+this.widgetName, this._mouseUpDelegate);
+
+		event.preventDefault();
+
+		mouseHandled = true;
+		return true;
+	},
+
+	_mouseMove: function(event) {
+		// IE mouseup check - mouseup happened when mouse was out of window
+		if ($.ui.ie && ( !document.documentMode || document.documentMode < 9 ) && !event.button) {
+			return this._mouseUp(event);
+		}
+
+		if (this._mouseStarted) {
+			this._mouseDrag(event);
+			return event.preventDefault();
+		}
+
+		if (this._mouseDistanceMet(event) && this._mouseDelayMet(event)) {
+			this._mouseStarted =
+				(this._mouseStart(this._mouseDownEvent, event) !== false);
+			(this._mouseStarted ? this._mouseDrag(event) : this._mouseUp(event));
+		}
+
+		return !this._mouseStarted;
+	},
+
+	_mouseUp: function(event) {
+		$(document)
+			.unbind("mousemove."+this.widgetName, this._mouseMoveDelegate)
+			.unbind("mouseup."+this.widgetName, this._mouseUpDelegate);
+
+		if (this._mouseStarted) {
+			this._mouseStarted = false;
+
+			if (event.target === this._mouseDownEvent.target) {
+				$.data(event.target, this.widgetName + ".preventClickEvent", true);
+			}
+
+			this._mouseStop(event);
+		}
+
+		return false;
+	},
+
+	_mouseDistanceMet: function(event) {
+		return (Math.max(
+				Math.abs(this._mouseDownEvent.pageX - event.pageX),
+				Math.abs(this._mouseDownEvent.pageY - event.pageY)
+			) >= this.options.distance
+		);
+	},
+
+	_mouseDelayMet: function(/* event */) {
+		return this.mouseDelayMet;
+	},
+
+	// These are placeholder methods, to be overriden by extending plugin
+	_mouseStart: function(/* event */) {},
+	_mouseDrag: function(/* event */) {},
+	_mouseStop: function(/* event */) {},
+	_mouseCapture: function(/* event */) { return true; }
+});
+
+})(jQuery);
+
+});
+define('jquery_ui/slider',['jquery','./core','./mouse','./widget'], function (jQuery) {
+/*!
+ * jQuery UI Slider 1.10.0
+ * http://jqueryui.com
+ *
+ * Copyright 2013 jQuery Foundation and other contributors
+ * Released under the MIT license.
+ * http://jquery.org/license
+ *
+ * http://api.jqueryui.com/slider/
+ *
+ * Depends:
+ *	jquery.ui.core.js
+ *	jquery.ui.mouse.js
+ *	jquery.ui.widget.js
+ */
+(function( $, undefined ) {
+
+// number of pages in a slider
+// (how many times can you page up/down to go through the whole range)
+var numPages = 5;
+
+$.widget( "ui.slider", $.ui.mouse, {
+	version: "1.10.0",
+	widgetEventPrefix: "slide",
+
+	options: {
+		animate: false,
+		distance: 0,
+		max: 100,
+		min: 0,
+		orientation: "horizontal",
+		range: false,
+		step: 1,
+		value: 0,
+		values: null,
+
+		// callbacks
+		change: null,
+		slide: null,
+		start: null,
+		stop: null
+	},
+
+	_create: function() {
+		var i, handleCount,
+			o = this.options,
+			existingHandles = this.element.find( ".ui-slider-handle" ).addClass( "ui-state-default ui-corner-all" ),
+			handle = "<a class='ui-slider-handle ui-state-default ui-corner-all' href='#'></a>",
+			handles = [];
+
+		this._keySliding = false;
+		this._mouseSliding = false;
+		this._animateOff = true;
+		this._handleIndex = null;
+		this._detectOrientation();
+		this._mouseInit();
+
+		this.element
+			.addClass( "ui-slider" +
+				" ui-slider-" + this.orientation +
+				" ui-widget" +
+				" ui-widget-content" +
+				" ui-corner-all");
+
+		this.range = $([]);
+
+		if ( o.range ) {
+			if ( o.range === true ) {
+				if ( !o.values ) {
+					o.values = [ this._valueMin(), this._valueMin() ];
+				} else if ( o.values.length && o.values.length !== 2 ) {
+					o.values = [ o.values[0], o.values[0] ];
+				} else if ( $.isArray( o.values ) ) {
+					o.values = o.values.slice(0);
+				}
+			}
+
+			this.range = $( "<div></div>" )
+				.appendTo( this.element )
+				.addClass( "ui-slider-range" +
+				// note: this isn't the most fittingly semantic framework class for this element,
+				// but worked best visually with a variety of themes
+				" ui-widget-header" +
+				( ( o.range === "min" || o.range === "max" ) ? " ui-slider-range-" + o.range : "" ) );
+		}
+
+		handleCount = ( o.values && o.values.length ) || 1;
+
+		for ( i = existingHandles.length; i < handleCount; i++ ) {
+			handles.push( handle );
+		}
+
+		this.handles = existingHandles.add( $( handles.join( "" ) ).appendTo( this.element ) );
+
+		this.handle = this.handles.eq( 0 );
+
+		this.handles.add( this.range ).filter( "a" )
+			.click(function( event ) {
+				event.preventDefault();
+			})
+			.mouseenter(function() {
+				if ( !o.disabled ) {
+					$( this ).addClass( "ui-state-hover" );
+				}
+			})
+			.mouseleave(function() {
+				$( this ).removeClass( "ui-state-hover" );
+			})
+			.focus(function() {
+				if ( !o.disabled ) {
+					$( ".ui-slider .ui-state-focus" ).removeClass( "ui-state-focus" );
+					$( this ).addClass( "ui-state-focus" );
+				} else {
+					$( this ).blur();
+				}
+			})
+			.blur(function() {
+				$( this ).removeClass( "ui-state-focus" );
+			});
+
+		this.handles.each(function( i ) {
+			$( this ).data( "ui-slider-handle-index", i );
+		});
+
+		this._setOption( "disabled", o.disabled );
+
+		this._on( this.handles, this._handleEvents );
+
+		this._refreshValue();
+
+		this._animateOff = false;
+	},
+
+	_destroy: function() {
+		this.handles.remove();
+		this.range.remove();
+
+		this.element
+			.removeClass( "ui-slider" +
+				" ui-slider-horizontal" +
+				" ui-slider-vertical" +
+				" ui-widget" +
+				" ui-widget-content" +
+				" ui-corner-all" );
+
+		this._mouseDestroy();
+	},
+
+	_mouseCapture: function( event ) {
+		var position, normValue, distance, closestHandle, index, allowed, offset, mouseOverHandle,
+			that = this,
+			o = this.options;
+
+		if ( o.disabled ) {
+			return false;
+		}
+
+		this.elementSize = {
+			width: this.element.outerWidth(),
+			height: this.element.outerHeight()
+		};
+		this.elementOffset = this.element.offset();
+
+		position = { x: event.pageX, y: event.pageY };
+		normValue = this._normValueFromMouse( position );
+		distance = this._valueMax() - this._valueMin() + 1;
+		this.handles.each(function( i ) {
+			var thisDistance = Math.abs( normValue - that.values(i) );
+			if (( distance > thisDistance ) ||
+				( distance === thisDistance &&
+					(i === that._lastChangedValue || that.values(i) === o.min ))) {
+				distance = thisDistance;
+				closestHandle = $( this );
+				index = i;
+			}
+		});
+
+		allowed = this._start( event, index );
+		if ( allowed === false ) {
+			return false;
+		}
+		this._mouseSliding = true;
+
+		this._handleIndex = index;
+
+		closestHandle
+			.addClass( "ui-state-active" )
+			.focus();
+
+		offset = closestHandle.offset();
+		mouseOverHandle = !$( event.target ).parents().addBack().is( ".ui-slider-handle" );
+		this._clickOffset = mouseOverHandle ? { left: 0, top: 0 } : {
+			left: event.pageX - offset.left - ( closestHandle.width() / 2 ),
+			top: event.pageY - offset.top -
+				( closestHandle.height() / 2 ) -
+				( parseInt( closestHandle.css("borderTopWidth"), 10 ) || 0 ) -
+				( parseInt( closestHandle.css("borderBottomWidth"), 10 ) || 0) +
+				( parseInt( closestHandle.css("marginTop"), 10 ) || 0)
+		};
+
+		if ( !this.handles.hasClass( "ui-state-hover" ) ) {
+			this._slide( event, index, normValue );
+		}
+		this._animateOff = true;
+		return true;
+	},
+
+	_mouseStart: function() {
+		return true;
+	},
+
+	_mouseDrag: function( event ) {
+		var position = { x: event.pageX, y: event.pageY },
+			normValue = this._normValueFromMouse( position );
+
+		this._slide( event, this._handleIndex, normValue );
+
+		return false;
+	},
+
+	_mouseStop: function( event ) {
+		this.handles.removeClass( "ui-state-active" );
+		this._mouseSliding = false;
+
+		this._stop( event, this._handleIndex );
+		this._change( event, this._handleIndex );
+
+		this._handleIndex = null;
+		this._clickOffset = null;
+		this._animateOff = false;
+
+		return false;
+	},
+
+	_detectOrientation: function() {
+		this.orientation = ( this.options.orientation === "vertical" ) ? "vertical" : "horizontal";
+	},
+
+	_normValueFromMouse: function( position ) {
+		var pixelTotal,
+			pixelMouse,
+			percentMouse,
+			valueTotal,
+			valueMouse;
+
+		if ( this.orientation === "horizontal" ) {
+			pixelTotal = this.elementSize.width;
+			pixelMouse = position.x - this.elementOffset.left - ( this._clickOffset ? this._clickOffset.left : 0 );
+		} else {
+			pixelTotal = this.elementSize.height;
+			pixelMouse = position.y - this.elementOffset.top - ( this._clickOffset ? this._clickOffset.top : 0 );
+		}
+
+		percentMouse = ( pixelMouse / pixelTotal );
+		if ( percentMouse > 1 ) {
+			percentMouse = 1;
+		}
+		if ( percentMouse < 0 ) {
+			percentMouse = 0;
+		}
+		if ( this.orientation === "vertical" ) {
+			percentMouse = 1 - percentMouse;
+		}
+
+		valueTotal = this._valueMax() - this._valueMin();
+		valueMouse = this._valueMin() + percentMouse * valueTotal;
+
+		return this._trimAlignValue( valueMouse );
+	},
+
+	_start: function( event, index ) {
+		var uiHash = {
+			handle: this.handles[ index ],
+			value: this.value()
+		};
+		if ( this.options.values && this.options.values.length ) {
+			uiHash.value = this.values( index );
+			uiHash.values = this.values();
+		}
+		return this._trigger( "start", event, uiHash );
+	},
+
+	_slide: function( event, index, newVal ) {
+		var otherVal,
+			newValues,
+			allowed;
+
+		if ( this.options.values && this.options.values.length ) {
+			otherVal = this.values( index ? 0 : 1 );
+
+			if ( ( this.options.values.length === 2 && this.options.range === true ) &&
+					( ( index === 0 && newVal > otherVal) || ( index === 1 && newVal < otherVal ) )
+				) {
+				newVal = otherVal;
+			}
+
+			if ( newVal !== this.values( index ) ) {
+				newValues = this.values();
+				newValues[ index ] = newVal;
+				// A slide can be canceled by returning false from the slide callback
+				allowed = this._trigger( "slide", event, {
+					handle: this.handles[ index ],
+					value: newVal,
+					values: newValues
+				} );
+				otherVal = this.values( index ? 0 : 1 );
+				if ( allowed !== false ) {
+					this.values( index, newVal, true );
+				}
+			}
+		} else {
+			if ( newVal !== this.value() ) {
+				// A slide can be canceled by returning false from the slide callback
+				allowed = this._trigger( "slide", event, {
+					handle: this.handles[ index ],
+					value: newVal
+				} );
+				if ( allowed !== false ) {
+					this.value( newVal );
+				}
+			}
+		}
+	},
+
+	_stop: function( event, index ) {
+		var uiHash = {
+			handle: this.handles[ index ],
+			value: this.value()
+		};
+		if ( this.options.values && this.options.values.length ) {
+			uiHash.value = this.values( index );
+			uiHash.values = this.values();
+		}
+
+		this._trigger( "stop", event, uiHash );
+	},
+
+	_change: function( event, index ) {
+		if ( !this._keySliding && !this._mouseSliding ) {
+			var uiHash = {
+				handle: this.handles[ index ],
+				value: this.value()
+			};
+			if ( this.options.values && this.options.values.length ) {
+				uiHash.value = this.values( index );
+				uiHash.values = this.values();
+			}
+
+			//store the last changed value index for reference when handles overlap
+			this._lastChangedValue = index;
+
+			this._trigger( "change", event, uiHash );
+		}
+	},
+
+	value: function( newValue ) {
+		if ( arguments.length ) {
+			this.options.value = this._trimAlignValue( newValue );
+			this._refreshValue();
+			this._change( null, 0 );
+			return;
+		}
+
+		return this._value();
+	},
+
+	values: function( index, newValue ) {
+		var vals,
+			newValues,
+			i;
+
+		if ( arguments.length > 1 ) {
+			this.options.values[ index ] = this._trimAlignValue( newValue );
+			this._refreshValue();
+			this._change( null, index );
+			return;
+		}
+
+		if ( arguments.length ) {
+			if ( $.isArray( arguments[ 0 ] ) ) {
+				vals = this.options.values;
+				newValues = arguments[ 0 ];
+				for ( i = 0; i < vals.length; i += 1 ) {
+					vals[ i ] = this._trimAlignValue( newValues[ i ] );
+					this._change( null, i );
+				}
+				this._refreshValue();
+			} else {
+				if ( this.options.values && this.options.values.length ) {
+					return this._values( index );
+				} else {
+					return this.value();
+				}
+			}
+		} else {
+			return this._values();
+		}
+	},
+
+	_setOption: function( key, value ) {
+		var i,
+			valsLength = 0;
+
+		if ( $.isArray( this.options.values ) ) {
+			valsLength = this.options.values.length;
+		}
+
+		$.Widget.prototype._setOption.apply( this, arguments );
+
+		switch ( key ) {
+			case "disabled":
+				if ( value ) {
+					this.handles.filter( ".ui-state-focus" ).blur();
+					this.handles.removeClass( "ui-state-hover" );
+					this.handles.prop( "disabled", true );
+				} else {
+					this.handles.prop( "disabled", false );
+				}
+				break;
+			case "orientation":
+				this._detectOrientation();
+				this.element
+					.removeClass( "ui-slider-horizontal ui-slider-vertical" )
+					.addClass( "ui-slider-" + this.orientation );
+				this._refreshValue();
+				break;
+			case "value":
+				this._animateOff = true;
+				this._refreshValue();
+				this._change( null, 0 );
+				this._animateOff = false;
+				break;
+			case "values":
+				this._animateOff = true;
+				this._refreshValue();
+				for ( i = 0; i < valsLength; i += 1 ) {
+					this._change( null, i );
+				}
+				this._animateOff = false;
+				break;
+			case "min":
+			case "max":
+				this._animateOff = true;
+				this._refreshValue();
+				this._animateOff = false;
+				break;
+		}
+	},
+
+	//internal value getter
+	// _value() returns value trimmed by min and max, aligned by step
+	_value: function() {
+		var val = this.options.value;
+		val = this._trimAlignValue( val );
+
+		return val;
+	},
+
+	//internal values getter
+	// _values() returns array of values trimmed by min and max, aligned by step
+	// _values( index ) returns single value trimmed by min and max, aligned by step
+	_values: function( index ) {
+		var val,
+			vals,
+			i;
+
+		if ( arguments.length ) {
+			val = this.options.values[ index ];
+			val = this._trimAlignValue( val );
+
+			return val;
+		} else {
+			// .slice() creates a copy of the array
+			// this copy gets trimmed by min and max and then returned
+			vals = this.options.values.slice();
+			for ( i = 0; i < vals.length; i+= 1) {
+				vals[ i ] = this._trimAlignValue( vals[ i ] );
+			}
+
+			return vals;
+		}
+	},
+
+	// returns the step-aligned value that val is closest to, between (inclusive) min and max
+	_trimAlignValue: function( val ) {
+		if ( val <= this._valueMin() ) {
+			return this._valueMin();
+		}
+		if ( val >= this._valueMax() ) {
+			return this._valueMax();
+		}
+		var step = ( this.options.step > 0 ) ? this.options.step : 1,
+			valModStep = (val - this._valueMin()) % step,
+			alignValue = val - valModStep;
+
+		if ( Math.abs(valModStep) * 2 >= step ) {
+			alignValue += ( valModStep > 0 ) ? step : ( -step );
+		}
+
+		// Since JavaScript has problems with large floats, round
+		// the final value to 5 digits after the decimal point (see #4124)
+		return parseFloat( alignValue.toFixed(5) );
+	},
+
+	_valueMin: function() {
+		return this.options.min;
+	},
+
+	_valueMax: function() {
+		return this.options.max;
+	},
+
+	_refreshValue: function() {
+		var lastValPercent, valPercent, value, valueMin, valueMax,
+			oRange = this.options.range,
+			o = this.options,
+			that = this,
+			animate = ( !this._animateOff ) ? o.animate : false,
+			_set = {};
+
+		if ( this.options.values && this.options.values.length ) {
+			this.handles.each(function( i ) {
+				valPercent = ( that.values(i) - that._valueMin() ) / ( that._valueMax() - that._valueMin() ) * 100;
+				_set[ that.orientation === "horizontal" ? "left" : "bottom" ] = valPercent + "%";
+				$( this ).stop( 1, 1 )[ animate ? "animate" : "css" ]( _set, o.animate );
+				if ( that.options.range === true ) {
+					if ( that.orientation === "horizontal" ) {
+						if ( i === 0 ) {
+							that.range.stop( 1, 1 )[ animate ? "animate" : "css" ]( { left: valPercent + "%" }, o.animate );
+						}
+						if ( i === 1 ) {
+							that.range[ animate ? "animate" : "css" ]( { width: ( valPercent - lastValPercent ) + "%" }, { queue: false, duration: o.animate } );
+						}
+					} else {
+						if ( i === 0 ) {
+							that.range.stop( 1, 1 )[ animate ? "animate" : "css" ]( { bottom: ( valPercent ) + "%" }, o.animate );
+						}
+						if ( i === 1 ) {
+							that.range[ animate ? "animate" : "css" ]( { height: ( valPercent - lastValPercent ) + "%" }, { queue: false, duration: o.animate } );
+						}
+					}
+				}
+				lastValPercent = valPercent;
+			});
+		} else {
+			value = this.value();
+			valueMin = this._valueMin();
+			valueMax = this._valueMax();
+			valPercent = ( valueMax !== valueMin ) ?
+					( value - valueMin ) / ( valueMax - valueMin ) * 100 :
+					0;
+			_set[ this.orientation === "horizontal" ? "left" : "bottom" ] = valPercent + "%";
+			this.handle.stop( 1, 1 )[ animate ? "animate" : "css" ]( _set, o.animate );
+
+			if ( oRange === "min" && this.orientation === "horizontal" ) {
+				this.range.stop( 1, 1 )[ animate ? "animate" : "css" ]( { width: valPercent + "%" }, o.animate );
+			}
+			if ( oRange === "max" && this.orientation === "horizontal" ) {
+				this.range[ animate ? "animate" : "css" ]( { width: ( 100 - valPercent ) + "%" }, { queue: false, duration: o.animate } );
+			}
+			if ( oRange === "min" && this.orientation === "vertical" ) {
+				this.range.stop( 1, 1 )[ animate ? "animate" : "css" ]( { height: valPercent + "%" }, o.animate );
+			}
+			if ( oRange === "max" && this.orientation === "vertical" ) {
+				this.range[ animate ? "animate" : "css" ]( { height: ( 100 - valPercent ) + "%" }, { queue: false, duration: o.animate } );
+			}
+		}
+	},
+
+	_handleEvents: {
+		keydown: function( event ) {
+			/*jshint maxcomplexity:25*/
+			var allowed, curVal, newVal, step,
+				index = $( event.target ).data( "ui-slider-handle-index" );
+
+			switch ( event.keyCode ) {
+				case $.ui.keyCode.HOME:
+				case $.ui.keyCode.END:
+				case $.ui.keyCode.PAGE_UP:
+				case $.ui.keyCode.PAGE_DOWN:
+				case $.ui.keyCode.UP:
+				case $.ui.keyCode.RIGHT:
+				case $.ui.keyCode.DOWN:
+				case $.ui.keyCode.LEFT:
+					event.preventDefault();
+					if ( !this._keySliding ) {
+						this._keySliding = true;
+						$( event.target ).addClass( "ui-state-active" );
+						allowed = this._start( event, index );
+						if ( allowed === false ) {
+							return;
+						}
+					}
+					break;
+			}
+
+			step = this.options.step;
+			if ( this.options.values && this.options.values.length ) {
+				curVal = newVal = this.values( index );
+			} else {
+				curVal = newVal = this.value();
+			}
+
+			switch ( event.keyCode ) {
+				case $.ui.keyCode.HOME:
+					newVal = this._valueMin();
+					break;
+				case $.ui.keyCode.END:
+					newVal = this._valueMax();
+					break;
+				case $.ui.keyCode.PAGE_UP:
+					newVal = this._trimAlignValue( curVal + ( (this._valueMax() - this._valueMin()) / numPages ) );
+					break;
+				case $.ui.keyCode.PAGE_DOWN:
+					newVal = this._trimAlignValue( curVal - ( (this._valueMax() - this._valueMin()) / numPages ) );
+					break;
+				case $.ui.keyCode.UP:
+				case $.ui.keyCode.RIGHT:
+					if ( curVal === this._valueMax() ) {
+						return;
+					}
+					newVal = this._trimAlignValue( curVal + step );
+					break;
+				case $.ui.keyCode.DOWN:
+				case $.ui.keyCode.LEFT:
+					if ( curVal === this._valueMin() ) {
+						return;
+					}
+					newVal = this._trimAlignValue( curVal - step );
+					break;
+			}
+
+			this._slide( event, index, newVal );
+		},
+		keyup: function( event ) {
+			var index = $( event.target ).data( "ui-slider-handle-index" );
+
+			if ( this._keySliding ) {
+				this._keySliding = false;
+				this._stop( event, index );
+				this._change( event, index );
+				$( event.target ).removeClass( "ui-state-active" );
+			}
+		}
+	}
+
+});
+
+}(jQuery));
+
+});
+(function() {
+  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+
+  define('widget/slider',["common/has_parent", "common/continuum_view", "backbone", "underscore", "./slidertemplate", "jquery_ui/slider"], function(HasParent, continuum_view, Backbone, _, slidertemplate) {
+    var ContinuumView, Slider, SliderView, Sliders, sliders, _ref, _ref1, _ref2;
+    ContinuumView = continuum_view.View;
+    SliderView = (function(_super) {
+      __extends(SliderView, _super);
+
+      function SliderView() {
+        this.slide = __bind(this.slide, this);
+        _ref = SliderView.__super__.constructor.apply(this, arguments);
+        return _ref;
+      }
+
+      SliderView.prototype.tagName = "div";
+
+      SliderView.prototype.template = slidertemplate;
+
+      SliderView.prototype.initialize = function(options) {
+        SliderView.__super__.initialize.call(this, options);
+        return this.render();
+      };
+
+      SliderView.prototype.render = function() {
+        var html, max, min, step;
+        this.$el.empty();
+        html = this.template(this.model.attributes);
+        this.$el.html(html);
+        max = this.mget('end');
+        min = this.mget('start');
+        step = (max - min) / 50;
+        console.log('sliderval', min, max, step);
+        return this.$('.slider').slider({
+          orientation: this.mget('orientation'),
+          animate: "fast",
+          slide: _.throttle(this.slide, 200),
+          value: this.mget('value'),
+          min: min,
+          max: max,
+          step: step
+        });
+      };
+
+      SliderView.prototype.slide = function(event, ui) {
+        var value;
+        value = ui.value;
+        console.log('sliding', value);
+        return this.mset('value', value);
+      };
+
+      return SliderView;
+
+    })(ContinuumView);
+    Slider = (function(_super) {
+      __extends(Slider, _super);
+
+      function Slider() {
+        _ref1 = Slider.__super__.constructor.apply(this, arguments);
+        return _ref1;
+      }
+
+      Slider.prototype.type = "Slider";
+
+      Slider.prototype.default_view = SliderView;
+
+      Slider.prototype.defaults = function() {
+        var def;
+        def = {
+          title: '',
+          value: 0.5,
+          start: 0,
+          end: 1,
+          orientation: "horizontal"
+        };
+        return def;
+      };
+
+      return Slider;
+
+    })(HasParent);
+    Sliders = (function(_super) {
+      __extends(Sliders, _super);
+
+      function Sliders() {
+        _ref2 = Sliders.__super__.constructor.apply(this, arguments);
+        return _ref2;
+      }
+
+      Sliders.prototype.model = Slider;
+
+      return Sliders;
+
+    })(Backbone.Collection);
+    sliders = new Sliders();
+    return {
+      "Model": Slider,
+      "Collection": sliders,
+      "View": SliderView
+    };
+  });
+
+}).call(this);
+
+/*
+//@ sourceMappingURL=slider.js.map
+*/;
+(function() {
+  define('common/base',["underscore", "require", "common/custom", "common/gmap_plot", "common/grid_plot", "common/plot", "common/plot_context", "mapper/1d/categorical_mapper", "mapper/1d/linear_mapper", "mapper/2d/grid_mapper", "mapper/color/linear_color_mapper", "range/data_factor_range", "range/data_range1d", "range/factor_range", "range/range1d", "renderer/annotation/legend", "renderer/glyph/glyph_factory", "renderer/guide/categorical_axis", "renderer/guide/datetime_axis", "renderer/guide/grid", "renderer/guide/linear_axis", "renderer/overlay/box_selection", "source/column_data_source", "source/server_data_source", "ticking/abstract_ticker", "ticking/adaptive_ticker", "ticking/basic_tick_formatter", "ticking/basic_ticker", "ticking/categorical_tick_formatter", "ticking/categorical_ticker", "ticking/composite_ticker", "ticking/datetime_tick_formatter", "ticking/datetime_ticker", "ticking/days_ticker", "ticking/months_ticker", "ticking/single_interval_ticker", "ticking/years_ticker", "tool/box_select_tool", "tool/box_zoom_tool", "tool/crosshair_tool", "tool/data_range_box_select_tool", "tool/embed_tool", "tool/hover_tool", "tool/pan_tool", "tool/preview_save_tool", "tool/reset_tool", "tool/resize_tool", "tool/wheel_zoom_tool", "tool/object_explorer_tool", "widget/data_slider", "widget/pandas/ipython_remote_data", "widget/pandas/pandas_pivot_table", "widget/pandas/pandas_plot_source", 'widget/paragraph', 'widget/hbox', 'widget/vbox', 'widget/textinput', 'widget/vboxmodelform', 'widget/pretext', 'widget/selectbox', 'widget/slider'], function(_, require) {
+    var Collections, Config, collection_overrides, locations, mod_cache;
     require("common/custom").monkey_patch();
     Config = {
       prefix: ''
@@ -27733,7 +37454,6 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       Plot: 'common/plot',
       GMapPlot: 'common/gmap_plot',
       GridPlot: 'common/grid_plot',
-      CDXPlotContext: 'common/plot_context',
       PlotContext: 'common/plot_context',
       PlotList: 'common/plot_context',
       DataFactorRange: 'range/data_factor_range',
@@ -27748,6 +37468,20 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       Legend: 'renderer/annotation/legend',
       BoxSelection: 'renderer/overlay/box_selection',
       ColumnDataSource: 'source/column_data_source',
+      ServerDataSource: 'source/server_data_source',
+      AbstractTicker: 'ticking/abstract_ticker',
+      AdaptiveTicker: 'ticking/adaptive_ticker',
+      BasicTicker: 'ticking/basic_ticker',
+      BasicTickFormatter: 'ticking/basic_tick_formatter',
+      CategoricalTicker: 'ticking/categorical_ticker',
+      CategoricalTickFormatter: 'ticking/categorical_tick_formatter',
+      CompositeTicker: 'ticking/composite_ticker',
+      DatetimeTicker: 'ticking/datetime_ticker',
+      DatetimeTickFormatter: 'ticking/datetime_tick_formatter',
+      DaysTicker: 'ticking/days_ticker',
+      MonthsTicker: 'ticking/months_ticker',
+      SingleIntervalTicker: 'ticking/single_interval_ticker',
+      YearsTicker: 'ticking/years_ticker',
       PanTool: 'tool/pan_tool',
       WheelZoomTool: 'tool/wheel_zoom_tool',
       ResizeTool: 'tool/resize_tool',
@@ -27759,14 +37493,27 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       PreviewSaveTool: 'tool/preview_save_tool',
       EmbedTool: 'tool/embed_tool',
       ResetTool: 'tool/reset_tool',
+      ObjectExplorerTool: 'tool/object_explorer_tool',
       DataSlider: 'widget/data_slider',
       IPythonRemoteData: 'widget/pandas/ipython_remote_data',
       PandasPivotTable: 'widget/pandas/pandas_pivot_table',
-      PandasPlotSource: 'widget/pandas/pandas_plot_source'
+      PandasPlotSource: 'widget/pandas/pandas_plot_source',
+      Paragraph: 'widget/paragraph',
+      HBox: 'widget/hbox',
+      VBox: 'widget/vbox',
+      VBoxModelForm: 'widget/vboxmodelform',
+      TextInput: 'widget/textinput',
+      PreText: 'widget/pretext',
+      Select: 'widget/selectbox',
+      Slider: 'widget/slider'
     };
     mod_cache = {};
+    collection_overrides = {};
     Collections = function(typename) {
       var modulename;
+      if (collection_overrides[typename]) {
+        return collection_overrides[typename];
+      }
       if (!locations[typename]) {
         throw "./base: Unknown Collection " + typename;
       }
@@ -27777,7 +37524,11 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       }
       return mod_cache[modulename].Collection;
     };
+    Collections.register = function(name, collection) {
+      return collection_overrides[name] = collection;
+    };
     return {
+      "collection_overrides": collection_overrides,
       "mod_cache": mod_cache,
       "locations": locations,
       "Collections": Collections,
@@ -27821,7 +37572,7 @@ define('widget/pandas/pandas_pivot_template',[],function(){
             for (_i = 0, _len = sources.length; _i < _len; _i++) {
               s = sources[_i];
               _results.push({
-                ref: s.ref(),
+                source: s.ref(),
                 columns: columns
               });
             }
@@ -27891,32 +37642,28 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       }
       return glyphs;
     };
-    add_axes = function(plot, xaxes, yaxes, xdr, ydr) {
-      var a, axes, axis, loc, _i, _j, _k, _l, _len, _len1, _len2, _len3, _len4, _m, _ref;
-      axes = [];
-      if (xaxes) {
-        if (xaxes === true) {
-          xaxes = ['min', 'max'];
+    add_axes = function(plot, xaxes_spec, yaxes_spec, xdr, ydr) {
+      var a, axis, loc, xaxes, yaxes, _i, _j, _k, _l, _len, _len1, _len2, _len3;
+      xaxes = [];
+      if (xaxes_spec) {
+        if (xaxes_spec === true) {
+          xaxes_spec = ['min', 'max'];
         }
-        if (!_.isArray(xaxes)) {
-          xaxes = [xaxes];
+        if (!_.isArray(xaxes_spec)) {
+          xaxes_spec = [xaxes_spec];
         }
-        if (xaxes[0] === "datetime") {
-          _ref = ['min', 'max'];
-          for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-            loc = _ref[_i];
-            axis = DatetimeAxis.Collection.create({
-              dimension: 0,
-              axis_label: 'x',
-              location: loc,
-              parent: plot.ref(),
-              plot: plot.ref()
-            });
-            axes.push(axis);
-          }
+        if (xaxes_spec[0] === "datetime") {
+          axis = DatetimeAxis.Collection.create({
+            dimension: 0,
+            axis_label: 'x',
+            location: 'min',
+            parent: plot.ref(),
+            plot: plot.ref()
+          });
+          xaxes.push(axis);
         } else if (xdr.type === "FactorRange") {
-          for (_j = 0, _len1 = xaxes.length; _j < _len1; _j++) {
-            loc = xaxes[_j];
+          for (_i = 0, _len = xaxes_spec.length; _i < _len; _i++) {
+            loc = xaxes_spec[_i];
             axis = CategoricalAxis.Collection.create({
               dimension: 0,
               axis_label: 'x',
@@ -27924,11 +37671,11 @@ define('widget/pandas/pandas_pivot_template',[],function(){
               parent: plot.ref(),
               plot: plot.ref()
             });
-            axes.push(axis);
+            xaxes.push(axis);
           }
         } else {
-          for (_k = 0, _len2 = xaxes.length; _k < _len2; _k++) {
-            loc = xaxes[_k];
+          for (_j = 0, _len1 = xaxes_spec.length; _j < _len1; _j++) {
+            loc = xaxes_spec[_j];
             axis = LinearAxis.Collection.create({
               dimension: 0,
               axis_label: 'x',
@@ -27936,20 +37683,30 @@ define('widget/pandas/pandas_pivot_template',[],function(){
               parent: plot.ref(),
               plot: plot.ref()
             });
-            axes.push(axis);
+            xaxes.push(axis);
           }
         }
       }
-      if (yaxes) {
-        if (yaxes === true) {
-          yaxes = ['min', 'max'];
+      yaxes = [];
+      if (yaxes_spec) {
+        if (yaxes_spec === true) {
+          yaxes_spec = ['min', 'max'];
         }
-        if (!_.isArray(yaxes)) {
-          yaxes = [yaxes];
+        if (!_.isArray(yaxes_spec)) {
+          yaxes_spec = [yaxes_spec];
         }
-        if (ydr.type === "FactorRange") {
-          for (_l = 0, _len3 = xaxes.length; _l < _len3; _l++) {
-            loc = xaxes[_l];
+        if (yaxes_spec[0] === "datetime") {
+          axis = DatetimeAxis.Collection.create({
+            dimension: 1,
+            axis_label: 'y',
+            location: 'min',
+            parent: plot.ref(),
+            plot: plot.ref()
+          });
+          yaxes.push(axis);
+        } else if (ydr.type === "FactorRange") {
+          for (_k = 0, _len2 = yaxes_spec.length; _k < _len2; _k++) {
+            loc = yaxes_spec[_k];
             axis = CategoricalAxis.Collection.create({
               dimension: 1,
               axis_label: 'y',
@@ -27957,11 +37714,11 @@ define('widget/pandas/pandas_pivot_template',[],function(){
               parent: plot.ref(),
               plot: plot.ref()
             });
-            axes.push(axis);
+            yaxes.push(axis);
           }
         } else {
-          for (_m = 0, _len4 = yaxes.length; _m < _len4; _m++) {
-            loc = yaxes[_m];
+          for (_l = 0, _len3 = yaxes_spec.length; _l < _len3; _l++) {
+            loc = yaxes_spec[_l];
             axis = LinearAxis.Collection.create({
               dimension: 1,
               axis_label: 'y',
@@ -27969,41 +37726,48 @@ define('widget/pandas/pandas_pivot_template',[],function(){
               parent: plot.ref(),
               plot: plot.ref()
             });
-            axes.push(axis);
+            yaxes.push(axis);
           }
         }
       }
-      return plot.add_renderers((function() {
-        var _len5, _n, _results;
+      plot.add_renderers((function() {
+        var _len4, _m, _results;
         _results = [];
-        for (_n = 0, _len5 = axes.length; _n < _len5; _n++) {
-          a = axes[_n];
+        for (_m = 0, _len4 = xaxes.length; _m < _len4; _m++) {
+          a = xaxes[_m];
           _results.push(a.ref());
         }
         return _results;
       })());
+      plot.add_renderers((function() {
+        var _len4, _m, _results;
+        _results = [];
+        for (_m = 0, _len4 = yaxes.length; _m < _len4; _m++) {
+          a = yaxes[_m];
+          _results.push(a.ref());
+        }
+        return _results;
+      })());
+      return [xaxes, yaxes];
     };
-    add_grids = function(plot, xgrid, ygrid, xaxis_is_datetime) {
+    add_grids = function(plot, xgrid, ygrid, xaxes, yaxes) {
       var g, grid, grids;
-      if (xaxis_is_datetime == null) {
-        xaxis_is_datetime = False;
-      }
       grids = [];
-      if (xgrid) {
+      if (xgrid && xaxes.length > 0) {
         grid = Grid.Collection.create({
           dimension: 0,
           parent: plot.ref(),
           plot: plot.ref(),
-          is_datetime: xaxis_is_datetime
+          axis: xaxes[0].ref()
         });
         grids.push(grid);
       }
-      if (ygrid) {
+      if (ygrid && yaxes.length > 0) {
         grid = Grid.Collection.create({
           dimension: 1,
           parent: plot.ref(),
           plot: plot.ref(),
-          is_datetime: false
+          axis: yaxes[0].ref()
         });
         grids.push(grid);
         return plot.add_renderers((function() {
@@ -28042,15 +37806,7 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       }
       if (tools.indexOf("hover") > -1) {
         hover_tool = HoverTool.Collection.create({
-          renderers: (function() {
-            var _i, _len, _results;
-            _results = [];
-            for (_i = 0, _len = glyphs.length; _i < _len; _i++) {
-              g = glyphs[_i];
-              _results.push(g.ref());
-            }
-            return _results;
-          })()
+          plot: plot.ref()
         });
         added_tools.push(hover_tool);
       }
@@ -28112,7 +37868,7 @@ define('widget/pandas/pandas_pivot_template',[],function(){
       }
     };
     make_plot = function(glyphspecs, data, _arg) {
-      var dims, g, glyphs, legend, nonselected, plot, sources, title, tools, xaxes, xdr, xgrid, xrange, yaxes, ydr, ygrid, yrange;
+      var dims, g, glyphs, legend, nonselected, plot, sources, title, tools, xaxes, xdr, xgrid, xrange, yaxes, ydr, ygrid, yrange, _ref;
       nonselected = _arg.nonselected, title = _arg.title, dims = _arg.dims, xrange = _arg.xrange, yrange = _arg.yrange, xaxes = _arg.xaxes, yaxes = _arg.yaxes, xgrid = _arg.xgrid, ygrid = _arg.ygrid, xdr = _arg.xdr, ydr = _arg.ydr, tools = _arg.tools, legend = _arg.legend;
       if (nonselected == null) {
         nonselected = null;
@@ -28169,8 +37925,8 @@ define('widget/pandas/pandas_pivot_template',[],function(){
         }
         return _results;
       })());
-      add_axes(plot, xaxes, yaxes, xdr, ydr);
-      add_grids(plot, xgrid, ygrid, xaxes === 'datetime');
+      _ref = add_axes(plot, xaxes, yaxes, xdr, ydr), xaxes = _ref[0], yaxes = _ref[1];
+      add_grids(plot, xgrid, ygrid, xaxes, yaxes);
       add_tools(plot, tools, glyphs, xdr, ydr);
       add_legend(plot, legend, glyphs);
       return plot;
@@ -28550,6 +38306,21 @@ define('widget/pandas/pandas_pivot_template',[],function(){
     exports.plotcontextview = null;
     exports.Promises = Promises;
     utility = {
+      load_one_object_chain: function(docid, objid) {
+        var Config, resp, url;
+        Config = require("common/base").Config;
+        url = "" + Config.prefix + "/bokeh/objinfo/" + docid + "/" + objid;
+        console.log(url);
+        resp = $.get(url);
+        resp.done(function(data) {
+          var all_models, apikey;
+          all_models = data['all_models'];
+          load_models(all_models);
+          apikey = data['apikey'];
+          return submodels(exports.wswrapper, "bokehplot:" + docid, apikey);
+        });
+        return resp;
+      },
       load_user: function() {
         var response;
         response = $.get('/bokeh/userinfo/', {});
@@ -28983,7 +38754,6 @@ define('server/usercontext/wrappertemplate',[],function(){
       };
 
       DocView.prototype.deldoc = function(e) {
-        console.log('foo');
         e.preventDefault();
         this.model.destroy();
         return false;
@@ -29174,17 +38944,18 @@ define('server/usercontext/wrappertemplate',[],function(){
       };
 
       UserDocs.prototype.fetch = function(options) {
-        var resp, response,
+        var resp, response, url,
           _this = this;
         if (_.isUndefined(options)) {
           options = {};
         }
-        resp = response = $.get('/bokeh/userinfo/', {});
+        url = base.Config.prefix + "/bokeh/userinfo/";
+        resp = response = $.get(url, {});
         resp.done(function(data) {
           var docs;
           docs = data['docs'];
           if (options.update) {
-            return _this.update(docs, options);
+            return _this.set(docs, options);
           } else {
             return _this.reset(docs, options);
           }
@@ -29209,10 +38980,26 @@ define('server/usercontext/wrappertemplate',[],function(){
 */;
 (function() {
   define('server/serverrun',["common/base", "./serverutils", "./usercontext/usercontext", "common/has_properties"], function(base, serverutils, usercontext, HasProperties) {
-    var Config, Promises, load, _render, _render_all, _render_one;
+    var Config, Promises, load, load_one_object, _render, _render_all, _render_one;
     Config = base.Config;
     Promises = serverutils.Promises;
     Config.ws_conn_string = "ws://" + window.location.host + "/bokeh/sub";
+    load_one_object = function(docid, objid) {
+      HasProperties.prototype.sync = Backbone.sync;
+      return $(function() {
+        var resp, wswrapper;
+        wswrapper = serverutils.utility.make_websocket();
+        resp = serverutils.utility.load_one_object_chain(docid, objid);
+        return resp.done(function(data) {
+          var model, view;
+          model = base.Collections(data.type).get(objid);
+          view = new model.default_view({
+            model: model
+          });
+          return _render(view.el);
+        });
+      });
+    };
     load = function(title) {
       HasProperties.prototype.sync = Backbone.sync;
       return $(function() {
@@ -29263,7 +39050,8 @@ define('server/usercontext/wrappertemplate',[],function(){
       return $('#PlotPane').append(html);
     };
     return {
-      load: load
+      load: load,
+      load_one_object: load_one_object
     };
   });
 
@@ -29273,16 +39061,18 @@ define('server/usercontext/wrappertemplate',[],function(){
 //@ sourceMappingURL=serverrun.js.map
 */;
 (function() {
-  define('main',['require','exports','module','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/ticking','common/view_state','mapper/1d/linear_mapper','mapper/1d/categorical_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/categorical_axis','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','tool/box_select_tool','tool/box_zoom_tool','tool/crosshair_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/hover_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/wheel_zoom_tool','widget/data_slider','server/serverrun'],function(require, exports, module) {
+  define('main',['require','exports','module','backbone','underscore','common/base','common/base','common/gmap_plot','common/grid_plot','common/has_parent','common/has_properties','common/plot','common/plotting','common/affine','common/build_views','common/bulk_save','common/continuum_view','common/grid_view_state','common/load_models','common/plot_context','common/plot_widget','common/png_view','common/random','common/safebind','common/svg_colors','common/view_state','mapper/1d/linear_mapper','mapper/1d/categorical_mapper','mapper/2d/grid_mapper','mapper/color/linear_color_mapper','palettes/palettes','renderer/annotation/legend','renderer/glyph/glyph','renderer/glyph/glyph_factory','renderer/guide/categorical_axis','renderer/guide/datetime_axis','renderer/guide/grid','renderer/guide/linear_axis','renderer/overlay/box_selection','renderer/properties','server/embed_core','server/serverrun','server/serverutils','source/column_data_source','ticking/abstract_ticker','ticking/adaptive_ticker','ticking/basic_ticker','ticking/basic_tick_formatter','ticking/categorical_ticker','ticking/categorical_tick_formatter','ticking/composite_ticker','ticking/datetime_ticker','ticking/datetime_tick_formatter','ticking/days_ticker','ticking/months_ticker','ticking/single_interval_ticker','ticking/years_ticker','tool/box_select_tool','tool/box_zoom_tool','tool/crosshair_tool','tool/data_range_box_select_tool','tool/embed_tool','tool/hover_tool','tool/pan_tool','tool/preview_save_tool','tool/reset_tool','tool/resize_tool','tool/wheel_zoom_tool','tool/object_explorer_tool','server/serverrun','server/serverrun','widget/data_slider','widget/hbox','widget/vbox','widget/vboxmodelform','widget/textinput','util/object_explorer'],function(require, exports, module) {
     var Bokeh, glyph_factory;
     if (!window.Float64Array) {
       console.warn("Float64Array is not supported. Using generic Array instead.");
       window.Float64Array = Array;
     }
     Bokeh = {};
-    Bokeh.version = '0.4.2';
+    Bokeh.version = '0.4.4';
+    Bokeh.Backbone = require("backbone");
+    Bokeh._ = require("underscore");
     Bokeh.Collections = require("common/base").Collections;
-    Bokeh.Config = require("common/base").Collections;
+    Bokeh.Config = require("common/base").Config;
     Bokeh.GMapPlot = require("common/gmap_plot");
     Bokeh.GridPlot = require("common/grid_plot");
     Bokeh.HasParent = require("common/has_parent");
@@ -29301,7 +39091,6 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.Random = require("common/random");
     Bokeh.safebind = require("common/safebind");
     Bokeh.SVGColors = require("common/svg_colors");
-    Bokeh.ticking = require("common/ticking");
     Bokeh.ViewState = require("common/view_state");
     Bokeh.LinearMapper = require("mapper/1d/linear_mapper");
     Bokeh.CategoricalMapper = require("mapper/1d/categorical_mapper");
@@ -29353,6 +39142,19 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.serverrun = require("server/serverrun");
     Bokeh.serverutils = require("server/serverutils");
     Bokeh.ColumnDataSource = require("source/column_data_source");
+    Bokeh.AbstractTicker = require("ticking/abstract_ticker");
+    Bokeh.AdaptiveTicker = require("ticking/adaptive_ticker");
+    Bokeh.BasicTicker = require("ticking/basic_ticker");
+    Bokeh.BasicTickFormatter = require("ticking/basic_tick_formatter");
+    Bokeh.CategoricalTicker = require("ticking/categorical_ticker");
+    Bokeh.CategoricalTickFormatter = require("ticking/categorical_tick_formatter");
+    Bokeh.CompositeTicker = require("ticking/composite_ticker");
+    Bokeh.DatetimeTicker = require("ticking/datetime_ticker");
+    Bokeh.DatetimeTickFormatter = require("ticking/datetime_tick_formatter");
+    Bokeh.DaysTicker = require("ticking/days_ticker");
+    Bokeh.MonthsTicker = require("ticking/months_ticker");
+    Bokeh.SingleIntervalTicker = require("ticking/single_interval_ticker");
+    Bokeh.YearsTicker = require("ticking/years_ticker");
     Bokeh.BoxSelectTool = require("tool/box_select_tool");
     Bokeh.BoxZoomTool = require("tool/box_zoom_tool");
     Bokeh.CrosshairTool = require("tool/crosshair_tool");
@@ -29364,8 +39166,15 @@ define('server/usercontext/wrappertemplate',[],function(){
     Bokeh.ResetTool = require("tool/reset_tool");
     Bokeh.ResizeTool = require("tool/resize_tool");
     Bokeh.WheelZoomTool = require("tool/wheel_zoom_tool");
-    Bokeh.DataSlider = require("widget/data_slider");
+    Bokeh.ObjectExplorerTool = require("tool/object_explorer_tool");
+    Bokeh.one_object_page = require("server/serverrun").load_one_object;
     Bokeh.server_page = require("server/serverrun").load;
+    Bokeh.DataSlider = require("widget/data_slider");
+    Bokeh.HBox = require("widget/hbox");
+    Bokeh.VBox = require("widget/vbox");
+    Bokeh.VBoxModelForm = require("widget/vboxmodelform");
+    Bokeh.TextInput = require("widget/textinput");
+    Bokeh.ObjectExplorer = require("util/object_explorer");
     exports.Bokeh = Bokeh;
     return Bokeh;
   });

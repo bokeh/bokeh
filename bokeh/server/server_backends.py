@@ -1,5 +1,8 @@
 from __future__ import print_function
+from werkzeug.utils import secure_filename
 import json
+from os.path import join, exists
+from os import makedirs, remove
 import shelve
 import uuid
 import posixpath
@@ -417,7 +420,19 @@ class HDF5DataBackend(AbstractDataBackend):
             logger.info("error importing arraymanagement")
             logger.info("install arraymanagement from https://github.com/continuumio/ArrayManagement")
             logger.info("or procede without remote data capabilities")
-
+            
+    def write(self, request_username, request_filename, fileobj):
+        username_path = secure_filename(request_username)
+        fpath = secure_filename(request_filename)
+        target_dir = join(self.data_directory, username_path)
+        if not exists(target_dir):
+            makedirs(target_dir)
+        path = join(self.data_directory, username_path, fpath)
+        if exists(path):
+            remove(path)
+        fileobj.save(path)
+        return posixpath.join("/", username_path, fpath)
+        
     def list_data_sources(self, request_username, username):
         return self.client[username].descendant_urls(ignore_groups=True)
 
@@ -429,7 +444,8 @@ class HDF5DataBackend(AbstractDataBackend):
         if domain_limit == 'auto':
             domain = dataset.select(columns=[domain_name])[domain_name]
             domain_limit = [domain.min(), domain.max()]
-            domain_limit = np.array(domain_limit).astype('datetime64[ns]')
+            if domain.dtype.kind == "M":
+                domain_limit = np.array(domain_limit).astype('datetime64[ns]')
         else:
             sample = dataset.select(start=0, stop=1)
             if sample[domain_name].dtype.kind == 'M':

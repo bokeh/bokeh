@@ -3,15 +3,29 @@ from __future__ import absolute_import, print_function
 import logging
 log = logging.getLogger(__name__)
 
+from bokeh.utils import scale_delta
+
 try:
-    from geventwebsocket.handler import WebSocketHandler
     from gevent.pywsgi import WSGIServer
-    def make_server(host, port, app):
-        http_server = WSGIServer((host, port), app, handler_class=WebSocketHandler)
-        return http_server
+    from geventwebsocket.handler import WebSocketHandler
 except ImportError:
     log.info("no gevent - your websockets won't work")
     from wsgiref.simple_server import make_server
+else:
+    class BokehWSGIServer(WSGIServer):
+        logger = log
+
+    class BokehWSGIHandler(WebSocketHandler):
+        def format_request(self):
+            request = getattr(self, 'requestline', '-')
+            status = getattr(self, 'status', '-')
+            length = self.response_length or '-'
+            time = "%.1f%s" % scale_delta(self.time_finish - self.time_start) if self.time_finish else '-'
+            return '%s %s %s %s' % (request, status, length, time)
+
+    def make_server(host, port, app):
+        http_server = BokehWSGIServer((host, port), app, handler_class=BokehWSGIHandler, log=log)
+        return http_server
 
 import atexit
 import os
@@ -21,7 +35,7 @@ from flask import Flask
 
 # import objects so that we can resolve them
 from .. import protocol, objects, glyphs
-
+from .. import plotting #imports custom objects for plugin
 from .app import bokeh_app
 from .models import user
 from . import services
@@ -70,11 +84,12 @@ def prepare_app(backend, single_user_mode=True, data_directory=None):
     bokeh_app.setup(backend, bbstorage, servermodel_storage, 
                     authentication, datamanager)
 
-    app.register_blueprint(bokeh_app)
-
     # where should we be setting the secret key....?
     if not app.secret_key:
         app.secret_key = str(uuid.uuid4())
+        
+def register_blueprint():
+    app.register_blueprint(bokeh_app)
 
 def make_default_user(bokeh_app):
     bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",

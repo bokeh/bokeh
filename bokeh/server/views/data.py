@@ -1,13 +1,15 @@
 from flask import jsonify, request
+from werkzeug.utils import secure_filename
 import json
 
 from ..app import bokeh_app
 from ..views import make_json
 from ... import protocol
+from ..crossdomain import crossdomain
 
 
-
-@bokeh_app.route("/bokeh/data/<username>", methods=['GET'])
+@bokeh_app.route("/bokeh/data/<username>", methods=['GET', 'OPTIONS'])
+@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def list_sources(username):
     bokehuser = bokeh_app.authentication.current_user()
     request_username = bokehuser.username
@@ -16,7 +18,8 @@ def list_sources(username):
     return jsonify(sources=sources)
 
     
-@bokeh_app.route("/bokeh/data/<username>/<path:data_url>", methods=['GET'])
+@bokeh_app.route("/bokeh/data/<username>/<path:data_url>", methods=['GET', 'OPTIONS'])
+@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def get_data(username, data_url):
     bokehuser = bokeh_app.authentication.current_user()
     request_username = bokehuser.username
@@ -28,3 +31,12 @@ def get_data(username, data_url):
                                             downsample_function, downsample_parameters)
     result = make_json(protocol.serialize_json(result))
     return result
+
+
+@bokeh_app.route("/bokeh/data/upload/<username>/<name>", methods=['POST'])
+def upload(username, name):
+    bokehuser = bokeh_app.authentication.current_user()
+    request_username = bokehuser.username
+    f = request.files['file']
+    url = bokeh_app.datamanager.write(request_username, name, f)
+    return url

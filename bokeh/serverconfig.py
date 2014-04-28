@@ -1,13 +1,22 @@
 from __future__ import absolute_import, print_function
 
 import json
-from os.path import expanduser, exists, join
 from os import makedirs
-from six.moves.urllib.parse import urljoin, urlencode
-from . import utils, browserlib
-import pandas as pd
+from os.path import expanduser, exists, join
+import tempfile
 
+try:
+    import pandas as pd
+    import tables
+except ImportError as e:
+    pass
+
+from six.moves.urllib.parse import urljoin, urlencode
+
+from . import utils, browserlib
+from bokeh.objects import ServerDataSource
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
+
 
 class Server(object):
     def __init__(self, name="http://localhost:5006/",
@@ -28,11 +37,12 @@ class Server(object):
         #single user mode case
         self.userapikey = userapikey
         self.username = username
-        self._configdir = None        
+        self._configdir = None
         if configdir:
             self.configdir = configdir
         if load_from_config:
             self.load()
+
     @property
     def http_session(self):
         if hasattr(self, "_http_session"):
@@ -45,19 +55,19 @@ class Server(object):
     @property
     def username(self):
         return self.http_session.headers.get('BOKEHUSER')
-    
+
     @username.setter
     def username(self, val):
-        self.http_session.headers.update({'BOKEHUSER' : val})
-                
-    @property 
+        self.http_session.headers.update({'BOKEHUSER': val})
+
+    @property
     def userapikey(self):
         return self.http_session.headers.get('BOKEHUSER-API-KEY')
-    
+
     @userapikey.setter
     def userapikey(self, val):
-        self.http_session.headers.update({'BOKEHUSER-API-KEY' : val})
-    
+        self.http_session.headers.update({'BOKEHUSER-API-KEY': val})
+
     @property
     def configdir(self):
         """filename where our config are stored"""
@@ -72,7 +82,7 @@ class Server(object):
     @configdir.setter
     def configdir(self, path):
         self._configdir = path
-    
+
     @property
     def configfile(self):
         return join(self.configdir, "config.json")
@@ -98,9 +108,9 @@ class Server(object):
 
     def save(self):
         data = self.load_dict()
-        data[self.name] = {'root_url' : self.root_url,
-                           'userapikey' : self.userapikey,
-                           'username' : self.username}
+        data[self.name] = {'root_url': self.root_url,
+                           'userapikey': self.userapikey,
+                           'username': self.username}
         configfile = self.configfile
         with open(configfile, "w+") as f:
             json.dump(data, f)
@@ -109,9 +119,9 @@ class Server(object):
     def register(self, username, password):
         url = urljoin(self.root_url, "bokeh/register")
         result = self.http_session.post(url, data={
-                'username' : username,
-                'password' : password,
-                'api' : 'true'
+                'username': username,
+                'password': password,
+                'api': 'true'
                 })
         if result.status_code != 200:
             raise RuntimeError("Unknown Error")
@@ -126,9 +136,9 @@ class Server(object):
     def login(self, username, password):
         url = urljoin(self.root_url, "bokeh/login")
         result = self.http_session.post(url, data={
-                'username' : username,
-                'password' : password,
-                'api' : 'true'
+                'username': username,
+                'password': password,
+                'api': 'true'
                 })
         if result.status_code != 200:
             raise RuntimeError("Unknown Error")
@@ -144,27 +154,46 @@ class Server(object):
     def browser_login(self):
         controller = browserlib.get_browser_controller()
         url = urljoin(self.root_url, "bokeh/loginfromapikey")
-        url += "?" + urlencode({'username' : self.username,
-                                'userapikey' : self.userapikey})
+        url += "?" + urlencode({'username': self.username,
+                                'userapikey': self.userapikey})
         controller.open(url)
-
-    
-    def data_source(self, name, dataframe=None, **kwargs):
-        raise NotImplementedError
-        # fname = join(self.configdir, name + ".hdf5")
-        # store = pd.HDFStore(fname)
-        # if not dataframe:
-        #     dataframe = pd.DataFrame(kwargs)
-        # store.put(name, dataframe)
-        # store.flush()
-        # store.close()
         
+    def _prep_data_source_df(self, name, dataframe):
+        name = tempfile.NamedTemporaryFile(prefix="bokeh_data", 
+                                           suffix=".pandas").name
+        store = pd.HDFStore(name)
+        store.append("__data__", dataframe, format="table", data_columns=True)
+        store.close()
+        return name
+        
+    def _prep_data_source_numpy(self, name, arr):
+        name = tempfile.NamedTemporaryFile(prefix="bokeh_data", 
+                                           suffix=".table").name
+        store = tables.File(name, 'w')
+        store.createArray("/", "__data__", obj=arr)
+        store.close()
+        return name
+
+    def data_source(self, name, dataframe=None, array=None):
+        if dataframe is not None:
+            fname = self._prep_data_source_df(name, dataframe)
+            target_name = name + ".pandas"
+        else:
+            fname = self._prep_data_source_numpy(name, array)
+            target_name = name + ".table"
+        url = urljoin(self.root_url, 
+                      "bokeh/data/upload/%s/%s" % (self.username, target_name))
+        with open(fname) as f:
+            result = self.http_session.post(url, files={'file' : (target_name, f)})
+        return ServerDataSource(owner_username=self.username, data_url=result.content)
+
     def list_data(self):
         url = urljoin(self.root_url, "bokeh/data/" + self.username)
         result = self.http_session.get(url)
         result = utils.get_json(result)
         sources = result['sources']
         return sources
+
 
 class Cloud(Server):
     def __init__(self):

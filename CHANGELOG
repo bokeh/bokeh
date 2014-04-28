@@ -1,3 +1,62 @@
+2014-04-16    0.4.4:
+--------------------
+  * Improved MPL interface, subplots, styling plus more examples
+  * TravisCI testing integration
+  * Tool enhancements, constrained pan/zoom, more hover glyphs
+  * Server remote data and downsampling examples
+  * Initial work for Bokeh "app" concept
+  * enhancements:
+    - #407 Object explorer
+    - #418 Support --user in non-setuptools setup.py develop
+    - #419 Improve handling of static resources in htmlfilesession
+    - #427 Clean up properties and introduce type safety
+    - #429 Explose tick formatters as backbone objects to python
+    - #430 [wip] expose bokehjs objects as backbone objects more consistently
+    - #431 Subplots support in mpl
+    - #434 Pypy compatibility: 
+    - #439 Option to dilate pixel distances on some glyphs
+    - #441 Expose remaing tickers to python
+    - #446 Feature/data directory
+    - #447 Added gzip from flask_gzip, this gzips data before the flask server resp
+    - #448 Second round of improvements to properties
+    - #456 Feature/bigdata lineplots
+    - #459 Feature/bigdata image
+    - #461 Add support for testing on travis ci
+    - #462 Remove [close] button from default plot html template
+    - #469 Hover tool does not work with quad
+    - #477 Feature/new json encoder
+    - #478 Some enhancements to mpl polycollection support
+    - #482 Added ggplot examples
+    - #485 Background and grid support in mpl
+    - #495 Basic xkcd support for mpl
+    - #508 Add tool names for constrained pan and zoom
+    - #514 Fix changes script to properly ignore unwanted issues (incorporates fixed chages to paginate api call. #513)
+  * bugfixes:
+    - #416 `bokeh/session.py` and `bokeh/session/*.py` contain duplicated code
+    - #420 Large object graphs
+    - #424 Recursively_traverse_plot_object() and session._collect_objs() don't collect refs in embedded objects
+    - #425 Fixed nan issue in bokeh-server, closes #231
+    - #428 Nan issue with circles (and presumably other marks
+    - #443 Last big prs are generating errors in the py3 environment
+    - #450 Can't connected to bokeh server if change the server to ip except 127.0.0.1
+    - #454 Fix subprocess error exception call
+    - #457 One histogram example renders badly on chrome
+    - #458 Fixed missing datetime import
+    - #465 Fix server sessions (inmemorysession and shelvesession)
+    - #475 Scatter plot with multiple y-data fails with ipython notebook
+    - #479 Datetime x_axis shows the wrong label at year resolution
+    - #481 Fix years formatting problem
+    - #488 Pr #448 breaks `from bokeh.plotting import *`
+    - #489 Add missing type parameter declaration in serverdatasource (fixes #448)
+    - #490 Server broken in py3 environment
+    - #491 Adding hover tool from js fails
+    - #494 Bokehjs error calling undefined function
+    - #507 Datetime ticking broken
+    - #509 Need new xpan, ypan... button
+    - #511 Outline and title properties not being propagated to plots
+    - #521 Point selection broken for wedge, annular wedge glyphs
+    - #522 Recurrent time out failure in travis
+
 2014-03-07    0.4.2:
 --------------------
   * Improved MPL interface, PolyCollection plus examples

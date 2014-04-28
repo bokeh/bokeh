@@ -112,7 +112,6 @@ Underlying Object System
 .. autoclass:: bokeh.session.BaseHTMLSession
 .. autoclass:: bokeh.session.HTMLFileSession
 .. autoclass:: bokeh.session.PlotServerSession
-.. autoclass:: bokeh.session.NotebookSessionMixin
 .. autoclass:: bokeh.session.NotebookSession
 .. autoclass:: bokeh.session.NotebookServerSession
 

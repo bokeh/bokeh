@@ -25,7 +25,6 @@ define [
       "click .bokehdelete" : "deldoc"
 
     deldoc : (e) ->
-      console.log('foo')
       e.preventDefault()
       @model.destroy()
       return false
@@ -144,11 +143,12 @@ define [
     fetch : (options) ->
       if _.isUndefined(options )
         options = {}
-      resp = response = $.get('/bokeh/userinfo/', {})
+      url = base.Config.prefix + "/bokeh/userinfo/"
+      resp = response = $.get(url, {})
       resp.done((data) =>
         docs = data['docs']
         if options.update
-          @update(docs, options)
+          @set(docs, options)
         else
           @reset(docs, options)
       )

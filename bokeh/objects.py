@@ -13,7 +13,7 @@ logger = logging.getLogger(__file__)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
 from .mixins import FillProps, LineProps, TextProps
-from .enums import Units, Orientation, Dimension, BorderSymmetry
+from .enums import Units, Orientation, Location, Dimension, BorderSymmetry
 from .plotobject import PlotObject
 from .glyphs import BaseGlyph
 
@@ -22,7 +22,7 @@ class DataSource(PlotObject):
     # List of names of the fields of each tuple in self.data
     # ordering is incoporated here
     column_names = List(String)
-    selected = List(String) # index of selected points
+    selected = List(Int) # index of selected points
 
     def columns(self, *columns):
         """ Returns a ColumnsRef object that points to a column or set of
@@ -36,12 +36,12 @@ class ColumnsRef(HasProps):
 
 class ColumnDataSource(DataSource):
     # Maps names of columns to sequences or arrays
-    data = Dict()
+    data = Dict(String, Any)
 
     # Maps field/column name to a DataRange or FactorRange object. If the
     # field is not in the dict, then a range is created automatically.
-    cont_ranges = Dict()
-    discrete_ranges = Dict()
+    cont_ranges = Dict(String, Instance(".objects.Range"))
+    discrete_ranges = Dict(String, Instance(".objects.Range"))
 
     def __init__(self, *args, **kw):
         """ Modify the basic DataSource/PlotObj constructor so that if we
@@ -50,7 +50,7 @@ class ColumnDataSource(DataSource):
         """
         if len(args) == 1 and "data" not in kw:
             kw["data"] = args[0]
-        raw_data = kw.get("data", {})
+        raw_data = kw.pop("data", {})
         if not isinstance(raw_data, dict):
             import pandas as pd
             if isinstance(raw_data, pd.DataFrame):
@@ -87,25 +87,26 @@ class ServerDataSource(DataSource):
     owner_username = String()
     # allow us to add some data that isn't on the remote source
     # and join it to the remote data
-    data = Dict() 
+    data = Dict(String, Any)
     # allow us to specify slicing of data on updates
     index_slice = List(Any)
     data_slice = List(Any)
     # allow us to transpose data on updates (for image data)
     transpose = Bool(False)
-    
+
 class PandasDataSource(DataSource):
     """ Represents serverside data.  This gets stored into the plot server's
     database, but it does not have any client side representation.  Instead,
     a PandasPlotSource needs to be created and pointed at it.
     """
 
-    data = Dict()
+    data = Dict(String, Any)
 
 class Range(PlotObject):
     pass
 
 class Range1d(Range):
+    """ Represents a fixed range [start, end] in a scalar dimension. """
     start = Float()
     end = Float()
 
@@ -118,7 +119,7 @@ class DataRange(Range):
         return props
 
 class DataRange1d(DataRange):
-    """ Represents a range in a scalar dimension """
+    """ Represents an auto-fitting range in a scalar dimension. """
     rangepadding = Float(0.1)
     start = Float
     end = Float
@@ -149,6 +150,9 @@ class DaysTicker(Ticker):
 
 class MonthsTicker(Ticker):
     months = List(Int)
+
+class YearsTicker(Ticker):
+    pass
 
 class BasicTicker(Ticker):
     pass
@@ -240,6 +244,7 @@ class Plot(PlotObject):
     y_range = Instance(Range, has_ref=True)
     png = String('')
     title = String('')
+    title_props = Include(TextProps, prefix="title")
     outline_props = Include(LineProps, prefix="outline")
 
     # A list of all renderers on this plot; this includes guides as well
@@ -328,8 +333,8 @@ class Axis(GuideRenderer):
     type = String("axis")
 
     dimension = Int(0)
-    location = Either(String('min'), Float)
-    bounds = Either(Enum('auto'), Tuple) # XXX: Tuple(Float, Float)
+    location = Either(Enum(Location), Float)
+    bounds = Either(Enum('auto'), Tuple(Float, Float))
 
     ticker = Instance(Ticker, has_ref=True)
     formatter = Instance(TickFormatter, has_ref=True)
@@ -339,7 +344,7 @@ class Axis(GuideRenderer):
     axis_label_props = Include(TextProps, prefix="axis_label")
 
     major_label_standoff = Int
-    major_label_orientation = Either(Enum("horizontal", "vertical"), Int)
+    major_label_orientation = Either(Enum("horizontal", "vertical"), Float)
     major_label_props = Include(TextProps, prefix="major_label")
 
     # Line props
@@ -377,7 +382,7 @@ class DatetimeAxis(LinearAxis):
     num_labels = Int(8)
     char_width = Int(10)
     fill_ratio = Float(0.3)
-    formats = Dict({"days": ["%m/%d/%Y"]})
+    formats = Dict(String, List(String), {"days": ["%m/%d/%Y"]})
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:
@@ -441,7 +446,7 @@ class BoxSelectionOverlay(Renderer):
 
 class HoverTool(Tool):
     renderers = List(Instance(Renderer), has_ref=True)
-    tooltips = Dict()
+    tooltips = Dict(String, String)
 
 class ObjectExplorerTool(Tool):
     pass
@@ -459,12 +464,13 @@ class Legend(Renderer):
     label_standoff = Int(15)
     label_height = Int(20)
     label_width = Int(50)
-    legend_padding = Int(10)
 
     glyph_height = Int(20)
     glyph_width = Int(20)
+
+    legend_padding = Int(10)
     legend_spacing = Int(3)
-    legends = Dict()
+    legends = Dict(String, Any)
 
 class DataSlider(Renderer):
     plot = Instance(Plot, has_ref=True)
@@ -472,7 +478,7 @@ class DataSlider(Renderer):
     field = String()
 
 class PlotContext(PlotObject):
-    children = List(Instance(Plot, has_ref=True), has_ref=True)
+    children = List(Instance(PlotObject, has_ref=True), has_ref=True)
 
 class PlotList(PlotContext):
     # just like plot context, except plot context has special meaning

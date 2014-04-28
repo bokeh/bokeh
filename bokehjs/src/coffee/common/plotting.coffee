@@ -206,7 +206,7 @@ define [
 
     if tools.indexOf("hover") > -1
       hover_tool = HoverTool.Collection.create(
-        renderers: (g.ref() for g in glyphs)
+        plot: plot.ref()
       )
       added_tools.push(hover_tool)
 

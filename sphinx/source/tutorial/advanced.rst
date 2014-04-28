@@ -33,6 +33,6 @@ Periodic Table of Elements
 .. literalinclude:: exercises/periodic.py
    :language: python
    :linenos:
-   :emphasize-lines: 54-56,58-60,74-75,77-78,80-81,86-92
+   :emphasize-lines: 52-54, 56-58, 72-73, 75-76, 78-79, 84-90
 
 See the :doc:`solutions/gallery/periodic`.

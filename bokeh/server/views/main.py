@@ -1,12 +1,15 @@
 
 from flask import (
     render_template, request, send_from_directory,
-    abort, jsonify, Response, redirect
+    abort, jsonify, Response, redirect, url_for
 )
 
 import os
 import uuid
 from six import string_types
+
+import logging
+log = logging.getLogger(__name__)
 
 from .bbauth import check_read_authentication_and_create_client
 
@@ -97,7 +100,9 @@ def get_doc_api_key(docid):
     else:
         return abort(401)
 
-@bokeh_app.route('/bokeh/userinfo/')
+
+@bokeh_app.route('/bokeh/userinfo/', methods=['GET', 'OPTIONS'])
+@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 def get_user():
     bokehuser = bokeh_app.current_user()
     if not bokehuser:
@@ -123,7 +128,7 @@ def _get_bokeh_info(docid):
     sess.load_all()
     sess.prune()
     all_models = sess._models.values()
-    print("num models", len(all_models))
+    log.info("num models: %s", len(all_models))
     all_models = sess.broadcast_attrs(all_models)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
@@ -299,9 +304,43 @@ def embed_js():
         template = jinja2.Template(f.read())
         rendered = template.render(host=request.host)
 
-        return  Response(rendered, "200",
-            {'Content-Type':'application/javascript'})
+        return  Response(rendered, 200,
+                         {'Content-Type':'application/javascript'})
 
 
 
 
+@bokeh_app.route('/bokeh/objinfo/<docid>/<objid>', methods=['GET', 'OPTIONS'])
+@crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
+@check_read_authentication_and_create_client
+def get_bokeh_info_one_object(docid, objid):
+    doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
+    sess = bokeh_app.backbone_storage.get_session(docid)
+    sess.load_all()
+    obj = sess._models[objid]
+    objs = obj.references()
+    all_models = sess.broadcast_attrs(objs)
+    returnval = {'plot_context_ref' : doc.plot_context_ref,
+                 'docid' : docid,
+                 'all_models' : all_models,
+                 'apikey' : doc.apikey,
+                 'type' : obj.__view_model__
+    }
+    returnval = sess.serialize(returnval)
+    result = make_json(returnval,
+                       headers={"Access-Control-Allow-Origin": "*"})
+    return result
+    
+@bokeh_app.route('/bokeh/doc/<docid>/<objid>', methods=['GET'])
+def show_obj(docid, objid):
+    bokehuser = bokeh_app.current_user()
+    if not bokehuser:
+        return redirect(url_for(".login_get", next=request.url))
+    return render_template("oneobj.html", 
+                           docid=docid,
+                           objid=objid,
+                           hide_navbar=True,
+                           splitjs=bokeh_app.splitjs,
+                           username=bokehuser.username)
+
+    

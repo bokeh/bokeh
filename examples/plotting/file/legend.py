@@ -21,7 +21,7 @@ figure(tools="pan,wheel_zoom,box_zoom,reset,previewsave,select")
 scatter(x, y, legend="sin(x)", name="legend_example")
 line(x, y, legend="sin(x)")
 
-line(x, 2*y, line_dash="4 4", line_color="orange", line_width=2, legend="2*sin(x)")
+line(x, 2*y, line_dash=[4, 4], line_color="orange", line_width=2, legend="2*sin(x)")
 
 scatter(x, 3*y, fill_color=None, line_color="green", legend="3*sin(x)")
 line(x, 3*y, fill_color=None, line_color="green", legend="3*sin(x)")

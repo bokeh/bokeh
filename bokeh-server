@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 from __future__ import print_function
 
+<<<<<<< HEAD
 from bokeh.server import start
 
 import argparse, sys
@@ -36,7 +37,7 @@ def build_parser():
     parser.add_argument("--ip",
                         help="The IP address the bokeh server will listen on",
                         type=str,
-                        default=""
+                        default="127.0.0.1"
                         )
     parser.add_argument("--bokeh-port",
                         help="port for bokeh server",
@@ -95,9 +96,12 @@ def main():
         logging.basicConfig(level=logging.INFO)
         start.start_app(host=args.ip, port=args.bokeh_port, verbose=args.verbose)
 
+=======
+>>>>>>> b080ddd4709ae59199accfd2a30d9fd987eb2b95
 if __name__ == "__main__":
-    try:
-        main()
-    except KeyboardInterrupt:
-        print("Shutting down bokeh-server...")
+    import bokeh.server
 
+    try:
+        bokeh.server.run()
+    except KeyboardInterrupt:
+        print("Shutting down bokeh-server ...")

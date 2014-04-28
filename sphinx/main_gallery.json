@@ -30,6 +30,7 @@
         { "file": "../examples/plotting/file/brewer.py",        "name": "brewer"                             },
         { "file": "../examples/plotting/file/elements.py",      "name": "elements"                           },
         { "file": "../examples/plotting/file/boxplot.py",       "name": "boxplot"                            },
-        { "file": "../examples/mpl/seaborn_violin.py",          "name": "violin"                             }
+        { "file": "../examples/ggplot/density.py",              "name": "density"                            },
+        { "file": "../examples/seaborn/violin.py",              "name": "violin"                             }
     ]
 }

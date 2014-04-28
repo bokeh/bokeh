@@ -59,7 +59,12 @@ def _glyph_doc(args, props, desc):
     plot : :py:class:`Plot <bokeh.objects.Plot>`
     """ % (desc, params, props)
 
+<<<<<<< HEAD
 def _match_data_params(argnames, glyphclass, datasource, args, kwargs):
+=======
+def _match_data_params(argnames, glyphclass, datasource, serversource,
+                       args, kwargs):
+>>>>>>> b080ddd4709ae59199accfd2a30d9fd987eb2b95
     """ Processes the arguments and kwargs passed in to __call__ to line
     them up with the argnames of the underlying Glyph
 
@@ -279,6 +284,12 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         if arg in kw:
             setattr(p, arg, kw.pop(arg))
 
+    style_arg_prefix = ["title", "outline"]
+    for prefix in style_arg_prefix:
+        for k in list(kw):
+            if k.startswith(prefix):
+                setattr(p, k, kw.pop(k))
+
     tool_objs = []
 
     for tool in re.split(r"\s*,\s*", tools.strip()):
@@ -287,8 +298,16 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
             continue
         if tool == "pan":
             tool_obj = PanTool(plot=p, dimensions=["width", "height"])
+        elif tool == "xpan":
+            tool_obj = PanTool(plot=p, dimensions=["width"])
+        elif tool == "ypan":
+            tool_obj = PanTool(plot=p, dimensions=["height"])
         elif tool == "wheel_zoom":
             tool_obj = WheelZoomTool(plot=p, dimensions=["width", "height"])
+        elif tool == "xwheel_zoom":
+            tool_obj = WheelZoomTool(plot=p, dimensions=["width"])
+        elif tool == "ywheel_zoom":
+            tool_obj = WheelZoomTool(plot=p, dimensions=["height"])
         elif tool == "save":
             tool_obj = PreviewSaveTool(plot=p)
         elif tool == "resize":
@@ -326,7 +345,11 @@ def _new_xy_plot(x_range=None, y_range=None, plot_width=None, plot_height=None,
         elif tool == "object_explorer":
             tool_obj = ObjectExplorerTool()
         else:
+<<<<<<< HEAD
             known_tools = "pan, wheel_zoom, box_zoom, pinch_zoom, pinch_box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
+=======
+            known_tools = "pan, xpan, ypan, wheel_zoom, xwheel_zoom, ywheel_zoom, box_zoom, save, resize, crosshair, select, previewsave, reset, hover, or embed"
+>>>>>>> b080ddd4709ae59199accfd2a30d9fd987eb2b95
             raise ValueError("invalid tool: %s (expected one of %s)" % (tool, known_tools))
 
         tool_objs.append(tool_obj)

@@ -89,5 +89,6 @@ bokehpids.json
 bokeh.data.*
 bokeh.server.*
 bokeh.sets.*
+remotedata
 
 /.idea/
