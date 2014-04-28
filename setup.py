@@ -216,7 +216,7 @@ shutil.copytree(CSS, join(SERVER, 'static', 'css'))
 package_data_dirs = []
 package_path(join(SERVER, 'static'), package_data_dirs)
 package_path(join(SERVER, 'templates'), package_data_dirs)
-package_path('bokeh/templates', package_data_dirs)
+package_path(join('bokeh', '_templates'), package_data_dirs)
 package_data_dirs.append('server/redis.conf')
 
 suffix_list = ('.csv', '.conf', '.gz', '.json')
