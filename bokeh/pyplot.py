@@ -16,10 +16,14 @@ docstring.
 # Imports
 #-----------------------------------------------------------------------------
 
+import numpy as np
+
 from mplexporter.exporter import Exporter
 
 from .mpl import BokehRenderer
-from .plotting import output_file, output_notebook, output_server, show
+from .objects import GridPlot
+from .plotting import (get_config, output_file, output_notebook, output_server,
+                      session, show)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -79,12 +83,30 @@ def show_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
     else:
         output_file("Unnamed.html")
 
-    #renderer = BokehRenderer()
-    #renderer.export(fig, xkcd)
+    sess = session()
 
     renderer = BokehRenderer(xkcd)
     exporter = Exporter(renderer)
+
+    #if len(fig.axes) <= 1:
+        #exporter.run(fig)
+        #get_config()["curplot"] = renderer.fig
+        #sess.add_plot(renderer.fig)
+    #else:
+        #plots = []
+        #for axes in fig.axes:
+            #temp_fig = plt.figure()
+            #temp_fig.axes.append(axes)
+            #exporter.run(temp_fig)
+            #plots.append(renderer.fig)
+        #(a, b, c) = fig.axes[0].get_geometry()
+        #p = np.array(plots)
+        #n = np.resize(p, (a, b))
+        #grid = GridPlot(children=n.tolist())
+        #get_config()["curplot"] = grid
+        #sess.add_plot(grid)
+
     exporter.run(fig)
-    renderer.sess
+    sess.add_plot(renderer.fig)
 
     show()
