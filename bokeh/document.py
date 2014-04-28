@@ -23,6 +23,7 @@ class Document(object):
         self._current_plot = None
         self._next_figure_kwargs = dict()
         self._hold = False
+        self._autostore = True
         self._models = {}
         self.docid = str(uuid.uuid4())
         self._plotcontext = None
@@ -59,7 +60,8 @@ class Document(object):
 
     def __exit__(self, e_ty, e_val, e_tb):
         pass
-
+    def autostore(self, value=True):
+        self._autostore = value
     def hold(self, value=True):
         self._hold = value
 
