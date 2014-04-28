@@ -7,7 +7,7 @@ y = np.sin(x)
 z = np.cos(x)
 
 plt.plot(x, y, "r-", marker='o')
-#plt.title("Matplotlib Figure in Bokeh")
+plt.title("Matplotlib Figure in Bokeh")
 
 # dashed lines work
 plt.plot(x, z, "g-x", linestyle="-.")

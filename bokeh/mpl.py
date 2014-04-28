@@ -23,7 +23,7 @@ from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
                       Grid, PanTool, WheelZoomTool, PreviewSaveTool, GridPlot,
                       ObjectExplorerTool)
 from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
-                     Xmarker, Diamond, Asterisk, MultiLine, Patches)
+                     Xmarker, Diamond, Asterisk, MultiLine, Patches, Text)
 
 from .plotting import get_config, session
 
@@ -48,11 +48,9 @@ class BokehRenderer(Renderer):
         self.sess = session()
 
     def open_figure(self, fig, props):
-        self.title = "Test"
         self.width = int(props['figwidth'] * props['dpi'])
         self.height = int(props['figheight'] * props['dpi'])
-        self.plot = Plot(title=self.title,
-                         data_sources=[self.source],
+        self.plot = Plot(data_sources=[self.source],
                          x_range=self.xdr,
                          y_range=self.ydr,
                          width=self.width,
@@ -60,7 +58,7 @@ class BokehRenderer(Renderer):
 
     def close_figure(self, fig):
         ## Add plot props
-        #self.plot_props()
+        self.plot_props()
 
         # Add tools
         pantool = PanTool(dimensions=["width", "height"])
@@ -158,6 +156,37 @@ class BokehRenderer(Renderer):
                              glyph=marker)
 
         self.plot.renderers.append(marker_glyph)
+
+    def draw_text(self, text, position, coordinates, style,
+                  text_type=None, mplobj=None):
+        x, y = position
+        text = Text(x=x, y=y, text=text)
+
+        alignment_map = {"center": "middle", "top": "top", "bottom": "bottom", "baseline": "bottom"}
+
+        text.text_alpha = style['alpha']
+        text.text_font_size = "%dpx" % style['fontsize']
+        text.text_color = style['color']
+        text.text_align = style['halign']
+        text.text_baseline = alignment_map[style['valign']]
+        text.text_angle = style['rotation']
+        #style['zorder'] # not in Bokeh
+
+        ## Using get_fontname() works, but it's oftentimes not available in the browser,
+        ## so it's better to just use the font family here.
+        ##setattr(obj, prefix+"text_font", mplText.get_fontname())
+        #text.text_font = mplText.get_fontfamily()[0] # not in mplexporter
+        #text.text_font_style = fontstyle_map[mplText.get_fontstyle()] # not in mplexporter
+        ## we don't really have the full range of font weights, but at least handle bold
+        #if mplText.get_weight() in ("bold", "heavy"):
+            #text.text_font_style = bold
+
+        text_glyph = Glyph(data_source=self.source,
+                           xdata_range=self.xdr,
+                           ydata_range=self.ydr,
+                           glyph=text)
+
+        self.plot.renderers.append(text_glyph)
 
     def export(self, fig, xkcd):
         self.xkcd = xkcd
@@ -337,11 +366,13 @@ class BokehRenderer(Renderer):
         # First get the label properties by getting an mpl.Text object
         label = ax.get_label()
         self.text_props(label, laxis, prefix="axis_label_")
+        #self.draw_text(label, position, coordinates, style, text_type="axis_label_")
 
         # To get the tick label format, we look at the first of the tick labels
         # and assume the rest are formatted similarly.
         ticktext = ax.get_ticklabels()[0]
         self.text_props(ticktext, laxis, prefix="major_label_")
+        #self.draw_text(ticktext, position, coordinates, style, text_type="major_label_")
 
         #newaxis.bounds = axis.get_data_interval()  # I think this is the right func...
 
