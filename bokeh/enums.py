@@ -21,6 +21,7 @@ def enumeration(*values):
 
     return type("Enumeration", (Enumeration,), attrs)()
 
+FrameValue = enumeration("on", "off", "onfocus")
 LineJoin = enumeration("miter", "round", "bevel")
 LineDash = enumeration("solid", "dashed", "dotted", "dotdash", "dashdot")
 LineCap = enumeration("butt", "round", "square")

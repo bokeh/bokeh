@@ -28,12 +28,23 @@ define [], () ->
       @button_activated = false
       @tool_active = false
       @touch = 'ontouchstart' of document.documentElement
+<<<<<<< HEAD
+=======
+      @frame_view = ""
+>>>>>>> frame_ui
 
     bind_bokeh_events: (plotview, eventSink) ->
       if @options.touch_event? && not @options.touch_event
         return null
       if @options.button_disable? and @options.button_disable
         button_disabled = "disabled"
+<<<<<<< HEAD
+=======
+      if @frame_view == ""
+        @frame_view = plotview.view_state.get('frame')
+      if not plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
+        return null
+>>>>>>> frame_ui
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -89,8 +100,19 @@ define [], () ->
       $(document).bind('keyup', (e) =>
         if not e[@options.keyName]
           @_stop_drag(e))
+<<<<<<< HEAD
 
       startClick = (if @touch then 'touchstart' else 'mousedown')
+=======
+              
+      startClick = if @touch then 'touchstart' else 'mousedown'
+       
+      @plotview.canvas_wrapper.bind 'click', (e) =>
+        if @frame_view == "onfocus"
+          @plotview.canvas_header.removeClass('hide')
+          @plotview.canvas_footer.removeClass('hide')
+          @plotview.$el.find('.plotarea').addClass('frame')
+>>>>>>> frame_ui
       
       @plotview.canvas_wrapper.bind startClick, (e) =>
         start = false
@@ -107,9 +129,30 @@ define [], () ->
           @_start_drag()
           return false
 
+<<<<<<< HEAD
       endClick = (if @touch then 'touchend' else 'mouseup')
       
       @plotview.canvas_wrapper.bind(endClick, (e) =>
+=======
+      endClick = if @touch then 'touchend' else 'mouseup'
+      
+      $(document).bind(endClick, (e) =>
+        if !e.target.className.match(/gear-icon/)
+          @plotview.$el.find('.popup_menu').removeClass('show_popup')
+        else
+          @plotview._close_modal_window())
+
+      @plotview.frame_close.bind(endClick, (e) =>
+        if @frame_view == "on"
+          @frame_view = "off"
+        @plotview.canvas_header.addClass('hide')
+        @plotview.canvas_footer.addClass('hide')
+        @plotview._close_modal_window()
+        @plotview.$el.find('.plotarea').removeClass('frame'))
+      
+      @plotview.canvas_wrapper.bind(endClick, (e) =>
+        @plotview.$el.find('.popup_menu').removeClass('show_popup')
+>>>>>>> frame_ui
         # To calculate the bokehX and bokehY on touch end event
         if @dragging and @touch and e.originalEvent.touches.length != 0
           set_bokehXY(e)
@@ -128,21 +171,47 @@ define [], () ->
           @_stop_drag(e)
           return false)
 
+<<<<<<< HEAD
       @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
       @plotview
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
+=======
+      if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
+        if @touch
+          @$tool_button = $("<i class='resize-icon icon-fullscreen'></i>")
+          @plotview.$el.find('.button_icon').append(@$tool_button)
+        else
+          @$tool_button = $("<div class='resize_bokeh_plot'></div>")
+          @plotview.canvas_wrapper.append(@$tool_button)
+      else
+        @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
+        @plotview.$el.find('.button_bar').append(@$tool_button)
+      
+>>>>>>> frame_ui
       # Paddy: I want to remove all this checking for @button_activated,
       # is there some way we can do this in a more declarative way,
       # maybe a state machine?
       #
       # What is the difference between tool_active and button_activated?
       # I once knew, but now I forget
-      @$tool_button.click(=>
-        if @button_activated
-          eventSink.trigger("clear_active_tool")
-        else
-          eventSink.trigger("active_tool", toolName))
+      if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize' and not @touch
+        @$tool_button.mousedown(=>
+          if not @button_activated
+            eventSink.trigger("active_tool", toolName))
+        $(document).bind('mouseup', (e) =>
+          if @$tool_button[0].className.match(/resize_bokeh_plot/)
+            if @button_activated
+              eventSink.trigger("clear_active_tool"))
+        @$tool_button.mouseup(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool"))
+      else
+        @$tool_button.click(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool")
+          else
+            eventSink.trigger("active_tool", toolName))
 
       eventSink.on("#{toolName}:deactivated", =>
         @tool_active=false;
@@ -198,12 +267,21 @@ define [], () ->
       @basepoint_set = false
       @button_activated = false
       @tool_active = false
+      @touch = 'ontouchstart' of document.documentElement
+      @frame_view = ""
 
     bind_bokeh_events: (plotview, eventSink) ->
       if @options.touch_event? && not @options.touch_event
         return null
       if @options.button_disable? and @options.button_disable
         button_disabled = "disabled"
+<<<<<<< HEAD
+=======
+      if @frame_view == ""
+        @frame_view = plotview.view_state.get('frame')
+      if not plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
+        return null
+>>>>>>> frame_ui
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -222,6 +300,28 @@ define [], () ->
         if e.keyCode == 27
           eventSink.trigger("clear_active_tool"))
 
+      @plotview.canvas_wrapper.bind 'click', (e) =>
+        if @frame_view == "onfocus"
+          @plotview.canvas_header.removeClass('hide')
+          @plotview.canvas_footer.removeClass('hide')
+          @plotview.$el.find('.plotarea').addClass('frame')
+
+      endClick = if @touch then 'touchend' else 'mouseup'
+      
+      $(document).bind(endClick, (e) =>
+        if !e.target.className.match(/gear-icon/)
+          @plotview.$el.find('.popup_menu').removeClass('show_popup')
+        else
+          @plotview._close_modal_window())
+
+      @plotview.frame_close.bind(endClick, (e) =>
+        if @frame_view == "on"
+          @frame_view = "off"
+        @plotview.canvas_header.addClass('hide')
+        @plotview.canvas_footer.addClass('hide')
+        @plotview._close_modal_window()
+        @plotview.$el.find('.plotarea').removeClass('frame'))
+
       # @mouseover_count = 0
       #waiting 500 ms and testing mouseover countmakes sure that
       # #mouseouts that occur because of going over element borders don't
@@ -238,15 +338,44 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
+<<<<<<< HEAD
       @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
       @plotview.$el.find('.button_bar').append(@$tool_button)
 
       @$tool_button.click(=>
         if @button_activated
           eventSink.trigger("clear_active_tool")
+=======
+      if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
+        if @touch
+          @$tool_button = $("<i class='resize-icon icon-fullscreen'></i>")
+          @plotview.$el.find('.button_icon').append(@$tool_button)
+>>>>>>> frame_ui
         else
-          eventSink.trigger("active_tool", toolName)
-          @button_activated = true)
+          @$tool_button = $("<div class='resize_bokeh_plot'></div>")
+          @plotview.canvas_wrapper.append(@$tool_button)
+      else
+        @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
+        @plotview.$el.find('.button_bar').append(@$tool_button)
+
+      if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize' and not @touch
+        @$tool_button.mousedown(=>
+          if not @button_activated
+            eventSink.trigger("active_tool", toolName))
+        $(document).bind('mouseup', (e) =>
+          if @$tool_button[0].className.match(/resize_bokeh_plot/)
+            if @button_activated
+              eventSink.trigger("clear_active_tool"))
+        @$tool_button.mouseup(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool"))
+      else
+        @$tool_button.click(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool")
+          else
+            eventSink.trigger("active_tool", toolName)
+            @button_activated = true)
 
       no_scroll = (el) ->
         el.setAttribute("old_overflow", el.style.overflow)
@@ -283,12 +412,21 @@ define [], () ->
       @toolName = @options.eventBasename
       @button_activated = false
       @tool_active = false
+      @touch = 'ontouchstart' of document.documentElement
+      @frame_view = ""
 
     bind_bokeh_events: (plotview, eventSink) ->
       if @options.touch_event? && not @options.touch_event
         return null
       if @options.button_disable? and @options.button_disable
         button_disabled = "disabled"
+<<<<<<< HEAD
+=======
+      if @frame_view == ""
+        @frame_view = plotview.view_state.get('frame')
+      if not plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
+        return null
+>>>>>>> frame_ui
       toolName = @toolName
       @plotview = plotview
       @eventSink = eventSink
@@ -297,6 +435,28 @@ define [], () ->
         #disable the tool when ESC is pressed
         if e.keyCode == 27
           eventSink.trigger("clear_active_tool"))
+
+      @plotview.canvas_wrapper.bind 'click', (e) =>
+        if @frame_view == "onfocus"
+          @plotview.canvas_header.removeClass('hide')
+          @plotview.canvas_footer.removeClass('hide')
+          @plotview.$el.find('.plotarea').addClass('frame')
+
+      endClick = if @touch then 'touchend' else 'mouseup'
+      
+      $(document).bind(endClick, (e) =>
+        if !e.target.className.match(/gear-icon/)
+          @plotview.$el.find('.popup_menu').removeClass('show_popup')
+        else
+          @plotview._close_modal_window())
+
+      @plotview.frame_close.bind(endClick, (e) =>
+        if @frame_view == "on"
+          @frame_view = "off"
+        @plotview.canvas_header.addClass('hide')
+        @plotview.canvas_footer.addClass('hide')
+        @plotview._close_modal_window()
+        @plotview.$el.find('.plotarea').removeClass('frame'))
 
       # @mouseover_count = 0
       # #waiting 500 ms and testing mouseover countmakes sure that
@@ -311,6 +471,7 @@ define [], () ->
       @plotview.$el.bind("mouseover", (e) =>
         @mouseover_count += 1)
 
+<<<<<<< HEAD
       @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
 
       @plotview.$el.find('.button_bar').append(@$tool_button)
@@ -318,9 +479,37 @@ define [], () ->
       @$tool_button.click(=>
         if @button_activated
           eventSink.trigger("clear_active_tool")
+=======
+      if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize'
+        if @touch
+          @$tool_button = $("<i class='resize-icon icon-fullscreen'></i>")
+          @plotview.$el.find('.button_icon').append(@$tool_button)
+>>>>>>> frame_ui
         else
-          eventSink.trigger("active_tool", toolName)
-          @button_activated = true)
+          @$tool_button = $("<div class='resize_bokeh_plot'></div>")
+          @plotview.canvas_wrapper.append(@$tool_button)
+      else
+        @$tool_button = $("<button class='btn btn-small' #{button_disabled}> #{@options.buttonText} </button>")
+        @plotview.$el.find('.button_bar').append(@$tool_button)
+
+      if @plotview.view_state.get('resize_plot') and @options.buttonText.toLowerCase() is 'resize' and not @touch
+        @$tool_button.mousedown(=>
+          if not @button_activated
+            eventSink.trigger("active_tool", toolName))
+        $(document).bind('mouseup', (e) =>
+          if @$tool_button[0].className.match(/resize_bokeh_plot/)
+            if @button_activated
+              eventSink.trigger("clear_active_tool"))
+        @$tool_button.mouseup(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool"))
+      else
+        @$tool_button.click(=>
+          if @button_activated
+            eventSink.trigger("clear_active_tool")
+          else
+            eventSink.trigger("active_tool", toolName)
+            @button_activated = true)
 
       no_scroll = (el) ->
         el.setAttribute("old_overflow", el.style.overflow)

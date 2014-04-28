@@ -34,7 +34,7 @@ define [
       @div = $('<div class="bokeh_tooltip" />').appendTo('body')
       @div.hide()
 
-      @active = false
+      @active = true;
 
     bind_bokeh_events: () ->
 
@@ -44,10 +44,14 @@ define [
       @plot_view.$el.find('.button_bar').append(@tool_button)
 
       @tool_button.click(=>
-        if @active
+        if @tool_button.hasClass('active')
           @plot_view.eventSink.trigger("clear_active_tool")
+          @tool_button.removeClass('active')
+          @div.hide()
         else
           @plot_view.eventSink.trigger("active_tool", tool_name)
+          @tool_button.addClass('active')
+          @active=true;
         )
 
       @plot_view.eventSink.on("#{tool_name}:deactivated", =>
@@ -60,7 +64,7 @@ define [
         @active=true;
         @tool_button.addClass('active')
       )
-
+      
       @plot_view.canvas.bind("mousemove", (e) =>
         if not @active
           return

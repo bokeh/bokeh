@@ -13,7 +13,11 @@ logger = logging.getLogger(__file__)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
 from .mixins import FillProps, LineProps, TextProps
+<<<<<<< HEAD
 from .enums import Units, Orientation, Location, Dimension, BorderSymmetry
+=======
+from .enums import Units, Orientation, Dimension, BorderSymmetry, FrameValue
+>>>>>>> frame_ui
 from .plotobject import PlotObject
 from .glyphs import BaseGlyph
 
@@ -280,6 +284,11 @@ class Plot(PlotObject):
     border_symmetry = Enum(BorderSymmetry)
     script_inject_snippet = String("")
 
+    # Possible values can be "on", "off" or "onfocus"
+    frame = Enum(FrameValue.on)
+
+    resize_plot = Bool(True)
+
     def vm_props(self):
         # FIXME: We need to duplicate the height and width into canvas and
         # outer height/width.  This is a quick fix for the gorpiness, but this
@@ -295,6 +304,16 @@ class Plot(PlotObject):
             self.canvas_height = self.height
         if "outer_height" not in self._changed_vars:
             self.outer_height = self.height
+
+        # The four lines below need to be removed once the self._changed_vars
+        # is sorted out. For now if we do not define the attribute "frame"
+        # and "resize_plot" in the self._changed_vars then it is not
+        # accessible with @mget("resize_plot") in the Plot class in coffee file
+        if "frame" not in self._changed_vars:
+            self.frame = self.frame
+        if "resize_plot" not in self._changed_vars:
+            self.resize_plot = self.resize_plot
+
         return super(Plot, self).vm_props()
 
 class MapOptions(HasProps):
