@@ -118,26 +118,12 @@ module.exports = (grunt) ->
         logLevel: 2
         baseUrl: 'build/js'
         name: 'vendor/almond/almond'
-        paths:
-          jquery: "vendor/jquery/jquery"
-          jquery_ui: "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui"
-          jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel"
-          underscore: "vendor/underscore-amd/underscore"
-          backbone: "vendor/backbone-amd/backbone"
-          modal: "vendor/bootstrap/modal"
-          timezone: "vendor/timezone/src/timezone"
-          sprintf: "vendor/sprintf/src/sprintf"
-          rbush: "vendor/rbush/rbush"
-          jstree: "vendor/jstree/dist/jstree"
-        shim:
-          sprintf:
-            exports: 'sprintf'
+        mainConfigFile: 'build/js/config.js'
         include: ['underscore', 'main']
         fileExclusionRegExp: /^test/
-        wrap: {
-          startFile: 'src/js/_start.js.frag',
+        wrap:
+          startFile: 'src/js/_start.js.frag'
           endFile: 'src/js/_end.js.frag'
-        }
       production:
         options:
           optimize: "uglify2"
@@ -253,16 +239,8 @@ module.exports = (grunt) ->
 
   grunt.registerTask("default",     ["build", "test"])
   grunt.registerTask("buildcopy",   ["copy:template", "copy:test", "copy:demo", "copy:vendor"]) # better way??
-  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "config", "concat"])
+  grunt.registerTask("build",       ["coffee", "less", "buildcopy", "eco", "concat"])
   grunt.registerTask("deploy",      ["build",  "requirejs", "cssmin", "copy:spectrogram"])
   grunt.registerTask("test",        ["build", "connect", "qunit"])
   grunt.registerTask("serve",       ["connect:server:keepalive"])
-  grunt.registerTask("config", "Write config.js", () ->
-    config = {
-      paths: grunt.config.get("requirejs.options.paths")
-      shim: grunt.config.get("requirejs.options.shim")
-    }
-    content = "require.config(#{JSON.stringify(config)});"
-    grunt.file.write('build/js/config.js', content)
-  )
   grunt.registerTask("release", ["deploy", "copy:release"])
