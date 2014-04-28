@@ -64,11 +64,6 @@ define [
     events:
       "mousemove .bokeh_canvas_wrapper": "_mousemove"
       "touchmove .bokeh_canvas_wrapper": "_mousemove"
-<<<<<<< HEAD
-      "mousedown .bokeh_canvas_wrapper": "_mousedown"
-      "touchstart .bokeh_canvas_wrapper": "_mousedown"
-
-=======
       "click .toggle_menu": "_toggle_menubar"
       "click .gear-icon": "_open_popup"
       "mousedown .bokeh_canvas_wrapper": "_mousedown"
@@ -78,7 +73,6 @@ define [
       "mousedown .modal_window_close": "_close_modal_window"
       "touchend .modal_window_close": "_close_modal_window"
     
->>>>>>> frame_ui
     view_options: () ->
       _.extend({plot_model: @model, plot_view: @}, @options)
 
@@ -110,8 +104,7 @@ define [
         @embed_modal_content = $("<div class='modal_body_content'></div>")
         @$object_explorer_view = new ObjectExplorer.View({
           el: @embed_modal_content
-        })
-        
+        })  
       else if e.target.className == "plot_info_window"
         @window_title = "Plot Info"
         datasource = "Embedded in the HTML file"
