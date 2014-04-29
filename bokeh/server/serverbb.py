@@ -250,7 +250,7 @@ class ShelveBackboneStorage(PersistentBackboneStorage):
 
     def smembers(self, doc_key):
         with self.shelve_sets() as _shelve_sets:
-            return list(_shelve_sets[doc_key])
+            return list(_shelve_sets.get(doc_key, []))
 
     def set(self, key, data):
         with self.shelve_data() as _shelve_data:
