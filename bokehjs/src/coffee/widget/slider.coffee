@@ -22,17 +22,17 @@ define [
       @$el.html(html)
       max = @mget('end')
       min = @mget('start')
-      step = (max - min) / 50
+      step = @mget('step') or ((max - min)/50)
       console.log('sliderval', min, max, step)
-      @$('.slider').slider(
+      @$('.slider').slider({
         orientation : @mget('orientation')
         animate : "fast",
         slide : _.throttle(@slide, 200),
         value : @mget('value')
         min : min,
         max : max,
-        step : step
-      )
+        step : step,
+      })
 
     slide : (event, ui) =>
       value = ui.value
@@ -48,6 +48,7 @@ define [
         value : 0.5
         start : 0
         end : 1
+        step : 0
         orientation : "horizontal"
       return def
 
