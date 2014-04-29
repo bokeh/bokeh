@@ -33,35 +33,41 @@ def load_notebook(resources=None, verbose=False, force=False):
 
     import IPython.core.displaypub as displaypub
     from .resources import INLINE
-    from .templates import NOTEBOOK_LOAD
+    from .templates import NOTEBOOK_LOAD, RESOURCES
 
     if resources is None:
         resources = INLINE
 
-    data = dict(verbose=verbose)
-
-    data['js_raw']  = resources.js_raw
-    data['css_raw']  = resources.css_raw
-    data['js_files']  = resources.js_files
-    data['css_files']  = resources.css_files
+    plot_resources = RESOURCES.render(
+        js_raw = resources.js_raw,
+        css_raw = resources.css_raw,
+        js_files = resources.js_files,
+        css_files = resources.css_files,
+    )
 
     if resources.mode == 'inline':
-        data['js_info'] = 'inline'
-        data['css_info'] = 'inline'
+        js_info = 'inline'
+        css_info = 'inline'
     else:
-        data['js_info'] = data['js_files'][0] if len(data['js_files']) == 1 else data['js_files']
-        data['css_info'] = data['css_files'][0] if len(data['css_files']) == 1 else data['css_files']
+        js_info = resources.js_files[0] if len(resources.js_files) == 1 else resources.js_files
+        css_info = resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
 
-    data['logo_url'] = resources.logo_url
-    data['bokeh_version'] = __version__
-    data['warnings'] = ["Warning: " + msg['text'] for msg in resources.messages if msg['type'] == 'warn']
+    warnings = ["Warning: " + msg['text'] for msg in resources.messages if msg['type'] == 'warn']
 
     if _notebook_loaded:
-        data['warnings'].append('Warning: BokehJS previously loaded')
+        warnings.append('Warning: BokehJS previously loaded')
 
     _notebook_loaded = resources
 
-    html = NOTEBOOK_LOAD.render(data)
+    html = NOTEBOOK_LOAD.render(
+        plot_resources = plot_resources,
+        logo_url = resources.logo_url,
+        verbose = verbose,
+        js_info = js_info,
+        css_info = css_info,
+        bokeh_version = __version__,
+        warnings = warnings,
+    )
     displaypub.publish_display_data('bokeh', {'text/html': html})
 
 class Settings(object):

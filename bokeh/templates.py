@@ -22,12 +22,12 @@ PLOT_DIV = jinja2.Template(
 
 # This template has the bare js code for synchronously loading a
 # Bokeh into a specified plotdiv
-PLOTJS = jinja2.Template(
-    open(join(_templates_path, "plot.js")).read()
+PLOT_JS = jinja2.Template(
+    open(join(_templates_path, "plot_js.js")).read()
 )
 
-# This template has the puts the PLOTJS code into script tags, provides
-# an opportunity to put  a wrapper around the code.
+# This template has the puts the PLOT_JS code into script tags, provides
+# an opportunity to put a wrapper around the code.
 PLOT_SCRIPT = jinja2.Template(
     open(join(_templates_path, "plot_script.html")).read()
 )
@@ -51,6 +51,13 @@ NOTEBOOK_LOAD = jinja2.Template(
 # This template is for simple IPython Notebook embedding
 NOTEBOOK_DIV = jinja2.Template(
     open(join(_templates_path, "notebook_div.html")).read()
+)
+
+
+# This template is for the embedding script used by self-contained
+# script tags that autoload Bokeh and render asynchronously
+AUTOLOAD = jinja2.Template(
+    open(join(_templates_path, "autoload.js")).read()
 )
 
 

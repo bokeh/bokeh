@@ -15,7 +15,7 @@ from .plotting_helpers import (
 )
 from .protocol import serialize_json
 from .resources import Resources
-from .templates import FILE, NOTEBOOK_DIV, PLOT_DIV, PLOTJS, PLOT_SCRIPT, RESOURCES
+from .templates import FILE, NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -169,7 +169,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
 def _notebook_div():
     plot_ref = curplot().get_ref()
     elementid = str(uuid.uuid4())
-    plot_js = PLOTJS.render(
+    plot_js = PLOT_JS.render(
         elementid = elementid,
         modelid = plot_ref["id"],
         modeltype = plot_ref["type"],
@@ -239,7 +239,7 @@ def _file_html(resources):
         js_files = resources.js_files,
         css_files = resources.css_files,
     )
-    plot_js = PLOTJS.render(
+    plot_js = PLOT_JS.render(
         elementid = elementid,
         modelid = context_ref["id"],
         modeltype = context_ref["type"],
