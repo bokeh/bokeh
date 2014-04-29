@@ -67,11 +67,7 @@ def hold(value=True):
     Returns:
         None
     '''
-    document = curdoc()
-    if not isinstance(document, Document):
-        # TODO (bev) exception or log?
-        pass
-    document.hold(value)
+    curdoc().hold(value)
 
 def figure(**kwargs):
     ''' Activate a new figure for plotting.
@@ -84,11 +80,7 @@ def figure(**kwargs):
         None
 
     '''
-    document = curdoc()
-    if not isinstance(document, Document):
-        # TODO (bev) exception or log?
-        pass
-    document.figure(**kwargs)
+    curdoc().figure(**kwargs)
 
 def output_server(docname, session=None, url="default", name=None, **kwargs):
     """ Cause plotting commands to automatically persist plots to a Bokeh server.
