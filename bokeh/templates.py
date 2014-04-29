@@ -5,11 +5,18 @@ import jinja2
 
 _templates_path = join(abspath(split(__file__)[0]), "_templates")
 
-# This template is for IPython Notebook embedding, and supports either
+
+# This template is for IPython Notebook loading, and supports either
 # directly including the full BokehJS code and css inline, or by loading
 # from CDN or server.
-NOTEBOOK = jinja2.Template(
-    open(join(_templates_path, "notebook.html")).read()
+NOTEBOOK_LOAD = jinja2.Template(
+    open(join(_templates_path, "notebook_load.html")).read()
+)
+
+
+# This template is for simple IPython Notebook embedding
+NOTEBOOK_DIV = jinja2.Template(
+    open(join(_templates_path, "notebook_div.html")).read()
 )
 
 

@@ -33,7 +33,7 @@ def load_notebook(resources=None, verbose=False, force=False):
 
     import IPython.core.displaypub as displaypub
     from . import output
-    from .templates import NOTEBOOK
+    from .templates import NOTEBOOK_LOAD
 
     if resources is None:
         resources = output.RESOURCES_INLINE
@@ -61,8 +61,7 @@ def load_notebook(resources=None, verbose=False, force=False):
 
     _notebook_loaded = resources
 
-    html = NOTEBOOK.render(data)
-
+    html = NOTEBOOK_LOAD.render(data)
     displaypub.publish_display_data('bokeh', {'text/html': html})
 
 class Settings(object):
