@@ -10,23 +10,29 @@ logger = logging.getLogger(__name__)
 
 import pandas as pd
 
-class Panel(PlotObject):
+class Widget(PlotObject):
+    pass
+
+class Panel(Widget):
     title = String
-    child = Instance(PlotObject)
+    child = Instance(Widget)
     closable = Bool(False)
 
-class Tabs(PlotObject):
+class Tabs(Widget):
     tabs = List(Instance(Panel))
     active = Int(0)
 
-class HBox(PlotObject):
-    children = List(Instance(PlotObject))
-class VBox(PlotObject):
-    children = List(Instance(PlotObject))
+class Layout(Widget):
+    pass
+
+class HBox(Layout):
+    children = List(Instance(Widget))
+class VBox(Layout):
+    children = List(Instance(Widget))
 
 #parent class only, you need to set the fields you want
-class VBoxModelForm(PlotObject):
-    _children  = List(Instance(PlotObject))
+class VBoxModelForm(Widget):
+    _children  = List(Instance(Widget))
     _field_defs = Dict(String, Any)
     input_specs = None
     jsmodel = "VBoxModelForm"
@@ -51,7 +57,7 @@ class VBoxModelForm(PlotObject):
                 self._children.append(widget)
 
 
-class InputWidget(PlotObject):
+class InputWidget(Widget):
     title = String()
     name = String()
     value = String()
@@ -81,9 +87,9 @@ class InputWidget(PlotObject):
 class TextInput(InputWidget):
     value = String()
 
-class BokehApplet(PlotObject):
+class BokehApplet(Widget):
     modelform = Instance(VBoxModelForm)
-    children = List(Instance(PlotObject))
+    children = List(Instance(Widget))
     jsmodel = "HBox"
     extra_generated_classes = List(Tuple(String, String, String))
 
@@ -147,7 +153,7 @@ class BokehApplet(PlotObject):
         exampleapp.__name__ = cls.__view_model__
         bokeh_app.route(route)(exampleapp)
 
-class Paragraph(PlotObject):
+class Paragraph(Widget):
     text = String()
 
 class PreText(Paragraph):
@@ -180,10 +186,10 @@ class DatePicker(InputWidget):
     min_date = Date(default=None)
     max_date = Date(default=None)
 
-class TableWidget(PlotObject):
+class TableWidget(Widget):
     pass
 
-class TableColumn(PlotObject):
+class TableColumn(Widget):
     type = Enum("string", "numeric", "date")
     data = String
     header = String
@@ -193,10 +199,10 @@ class HandsonTable(TableWidget):
     source = Instance(".objects.DataSource")
     columns = List(Instance(TableColumn))
 
-class ObjectExplorer(PlotObject):
+class ObjectExplorer(Widget):
     data_widget = Instance(TableWidget)
 
-class DataTable(PlotObject):
+class DataTable(Widget):
     #source = Instance(DataSource)
     source = Instance(".objects.DataSource")
     sort = List(String)
@@ -246,7 +252,7 @@ class DataTable(PlotObject):
         self.totallength = data.pop('totallength')
         self.tabledata = data
 
-class PivotTable(PlotObject):
+class PivotTable(Widget):
     #source = Instance(DataSource)
     source = Instance(".objects.DataSource")
     title = String("Pivot Table")

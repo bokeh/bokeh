@@ -235,7 +235,7 @@ class Glyph(Renderer):
 
         return props
 
-class Plot(PlotObject):
+class Plot(Widget):
     """ Object representing a plot, containing glyphs, guides, annotations.
     """
 
