@@ -15,8 +15,8 @@ RESOURCES = jinja2.Template(
 
 # This template is for a basic plot div to be used in conjunction
 # with PLOTJS to render the plot into the div
-PLOTDIV = jinja2.Template(
-    open(join(_templates_path, "plotdiv.html")).read()
+PLOT_DIV = jinja2.Template(
+    open(join(_templates_path, "plot_div.html")).read()
 )
 
 
@@ -28,8 +28,8 @@ PLOTJS = jinja2.Template(
 
 # This template has the puts the PLOTJS code into script tags, provides
 # an opportunity to put  a wrapper around the code.
-PLOTSCRIPT = jinja2.Template(
-    open(join(_templates_path, "plotscript.html")).read()
+PLOT_SCRIPT = jinja2.Template(
+    open(join(_templates_path, "plot_script.html")).read()
 )
 
 

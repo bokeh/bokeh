@@ -15,7 +15,7 @@ from .plotting_helpers import (
 )
 from .protocol import serialize_json
 from .resources import Resources
-from .templates import FILE, NOTEBOOK_DIV, PLOTDIV, PLOTJS, PLOTSCRIPT, RESOURCES
+from .templates import FILE, NOTEBOOK_DIV, PLOT_DIV, PLOTJS, PLOT_SCRIPT, RESOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -175,10 +175,10 @@ def _notebook_div():
         modeltype = plot_ref["type"],
         all_models = serialize_json(curdoc().dump())
     )
-    plot_script = PLOTSCRIPT.render(
+    plot_script = PLOT_SCRIPT.render(
         plot_js = plot_js,
     )
-    plot_div = PLOTDIV.render(elementid=elementid)
+    plot_div = PLOT_DIV.render(elementid=elementid)
     html = NOTEBOOK_DIV.render(
         plot_script = plot_script,
         plot_div = plot_div,
@@ -245,10 +245,10 @@ def _file_html(resources):
         modeltype = context_ref["type"],
         all_models = serialize_json(curdoc().dump()),
     )
-    plot_script = PLOTSCRIPT.render(
+    plot_script = PLOT_SCRIPT.render(
         plot_js = resources.js_wrapper(plot_js),
     )
-    plot_div = PLOTDIV.render(elementid=elementid)
+    plot_div = PLOT_DIV.render(elementid=elementid)
     html = FILE.render(
         plot_resources = plot_resources,
         plot_script = plot_script,
