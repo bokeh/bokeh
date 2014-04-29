@@ -130,4 +130,3 @@ define [
     "Collection": new PinchZoomTools(),
     "View": PinchZoomToolView,
   }
-

@@ -165,4 +165,3 @@ define [
     "Collection": new PinchBoxZoomTools(),
     "View": PinchBoxZoomToolView,
   }
-
