@@ -55,8 +55,12 @@ def cursession():
     '''
     return _default_session
 
-def store():
-    cursession().push_dirty(curdoc())
+def store(session=None, document=None):
+    if not session:
+        session = cursession()
+    if not document:
+        document = curdoc()
+    session.push_dirty(document)
 
 def hold(value=True):
     ''' Set or clear the plot hold status on the current document.
@@ -195,7 +199,7 @@ def show(browser=None, new="tab", url=None):
             opens a new tab. If **new** is 'window', then opens a new window.
     """
     filename = _default_file['filename'] if _default_file else None
-    session = _default_session
+    session = cursession()
     notebook = _default_notebook
 
     # Map our string argument to the webbrowser.open argument
@@ -204,7 +208,7 @@ def show(browser=None, new="tab", url=None):
     controller = browserlib.get_browser_controller(browser=browser)
 
     if notebook and session:
-        store(session)
+        store(session=session)
         # show in notebook
 
     elif notebook:
@@ -212,11 +216,11 @@ def show(browser=None, new="tab", url=None):
         displaypub.publish_display_data('bokeh', {'text/html': _notebook_div()})
 
     elif session:
-        store(session)
+        store()
         if url:
             controller.open(url, new=new_params)
         else:
-            controller.open(get_config().output_url + "/bokeh", new=new_param)
+            controller.open(session.object_link(curdoc()._plotcontext))
 
     elif filename:
         save(filename)

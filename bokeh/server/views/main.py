@@ -129,8 +129,9 @@ def _get_bokeh_info(docid):
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
     all_models = clientdoc._models.values()
+    import pdb; pdb.set_trace()
     log.info("num models: %s", len(all_models))
-    all_models = clientdoc.dump(all_models)
+    all_models = clientdoc.dump(*all_models)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,
@@ -296,12 +297,13 @@ def embed_js():
 @crossdomain(origin="*", headers=['BOKEH-API-KEY', 'Continuum-Clientid'])
 @check_read_authentication_and_create_client
 def get_bokeh_info_one_object(docid, objid):
+    import pdb; pdb.set_trace()
     doc = docs.Doc.load(bokeh_app.servermodel_storage, docid)
-    clientdoc = bokeh_app.backbone_storage.get_document(docid)    
+    clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
     obj = clientdoc._models[objid]
     objs = obj.references()
-    all_models = clientdoc.dump(objs)
+    all_models = clientdoc.dump(*objs)
     returnval = {'plot_context_ref' : doc.plot_context_ref,
                  'docid' : docid,
                  'all_models' : all_models,

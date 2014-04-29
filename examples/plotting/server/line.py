@@ -11,4 +11,4 @@ y = np.sin(x)
 
 output_server("line")
 plot = line(x,y, color="#0000FF", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
-
+show()
