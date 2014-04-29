@@ -55,7 +55,7 @@ def cursession():
     '''
     return _default_session
 
-def store(session=None, document=None):
+def push(session=None, document=None):
     if not session:
         session = cursession()
     if not document:
@@ -103,7 +103,7 @@ def output_server(docname, session=None, url="default", name=None, **kwargs):
     session.
 
     Args:
-        docname (str) : name of document to store on Bokeh server
+        docname (str) : name of document to push on Bokeh server
             An existing documents with the same name will be overwritten.
         session (Session, optional) : An explicit session to use (default: None)
             If session is None, use the default session
@@ -208,7 +208,7 @@ def show(browser=None, new="tab", url=None):
     controller = browserlib.get_browser_controller(browser=browser)
 
     if notebook and session:
-        store(session=session)
+        push(session=session)
         # show in notebook
 
     elif notebook:
@@ -216,7 +216,7 @@ def show(browser=None, new="tab", url=None):
         displaypub.publish_display_data('bokeh', {'text/html': _notebook_div()})
 
     elif session:
-        store()
+        push()
         if url:
             controller.open(url, new=new_params)
         else:
@@ -263,7 +263,7 @@ def save(session=None):
     if session:
         session.push_dirty(curdoc())
     else:
-        warnings.warn("store() called but no session was supplied and output_server(...) was never called, nothing stored")
+        warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushd")
 
 
 def _document_wrap(func):
@@ -271,7 +271,7 @@ def _document_wrap(func):
     def wrapper(*args, **kwargs):
         retval = func(curdoc(), *args, **kwargs)
         if _default_session:
-            store()
+            push()
         if _default_file and _default_file['autosave']:
             save()
         return retval
