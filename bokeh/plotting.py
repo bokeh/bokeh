@@ -13,7 +13,7 @@ from .plotting_helpers import (
 )
 from .protocol import serialize_json
 from .resources import Resources
-from .templates import NOTEBOOK_DIV
+from .templates import NOTEBOOK_DIV, PLOTDIV, PLOTJS
 
 logger = logging.getLogger(__name__)
 
@@ -159,11 +159,17 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
 
 def _notebook_div():
     plot_ref = curplot().get_ref()
-    html = NOTEBOOK_DIV.render(
-        elementid = str(uuid.uuid4()),
+    elementid = str(uuid.uuid4())
+    plotjs = PLOTJS.render(
+        elementid = elementid,
         modelid = plot_ref["id"],
         modeltype = plot_ref["type"],
         all_models = serialize_json(curdoc().dump())
+    )
+    plotdiv = PLOTDIV.render(elementid=elementid)
+    html = NOTEBOOK_DIV.render(
+        plotjs = plotjs,
+        plotdiv = plotdiv,
     )
     return html.encode("utf-8")
 

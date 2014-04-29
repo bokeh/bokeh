@@ -6,6 +6,20 @@ import jinja2
 _templates_path = join(abspath(split(__file__)[0]), "_templates")
 
 
+# This template is for a basic plot div to be used in conjunction
+# with PLOTJS to render the plot into the div
+PLOTDIV = jinja2.Template(
+    open(join(_templates_path, "plotdiv.html")).read()
+)
+
+
+# This template has the basic code for synchronously loading a
+# Bokeh into a specified plotdiv
+PLOTJS = jinja2.Template(
+    open(join(_templates_path, "plot.js")).read()
+)
+
+
 # This template is for IPython Notebook loading, and supports either
 # directly including the full BokehJS code and css inline, or by loading
 # from CDN or server.
