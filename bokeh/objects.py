@@ -109,6 +109,8 @@ class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """
     start = Float()
     end = Float()
+    max_bound = Int(-2)
+    min_bound = Int(2)
 
 class DataRange(Range):
     sources = List(Instance(ColumnsRef), has_ref=True)

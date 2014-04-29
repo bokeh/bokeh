@@ -114,26 +114,35 @@ define [
       _inner_range_horizontal = new Range1d.Model({
         start: @get('border_left'),
         end:   @get('border_left') + @get('inner_width')
+        max_bound: @get('max_bound')
+        min_bound: @get('min_bound')
       })
       @register_property('inner_range_horizontal',
           () ->
             _inner_range_horizontal.set('start', @get('border_left'))
             _inner_range_horizontal.set('end', @get('border_left') + @get('inner_width'))
+            _inner_range_horizontal.set('max_bound', @get('max_bound'))
+            _inner_range_horizontal.set('min_bound', @get('min_bound'))
+            
             return _inner_range_horizontal
         , true)
-      @add_dependencies('inner_range_horizontal', this, ['border_left', 'inner_width'])
+      @add_dependencies('inner_range_horizontal', this, ['border_left', 'inner_width', 'max_bound', min_bound ])
 
       _inner_range_vertical = new Range1d.Model({
         start: @get('border_bottom'),
         end:   @get('border_bottom') + @get('inner_height')
+        max_bound: @get('max_bound')
+        min_bound: @get('min_bound')
       })
       @register_property('inner_range_vertical',
           () ->
             _inner_range_vertical.set('start', @get('border_bottom'))
             _inner_range_vertical.set('end', @get('border_bottom') + @get('inner_height'))
+            _inner_range_vertical.set('max_bound', @get('max_bound'))
+            _inner_range_vertical.set('min_bound', @get('min_bound'))
             return _inner_range_vertical
         , true)
-      @add_dependencies('inner_range_vertical', this, ['border_bottom', 'inner_height'])
+      @add_dependencies('inner_range_vertical', this, ['border_bottom', 'inner_height', 'max_bound', min_bound ])
 
     # transform view coordinates to underlying screen coordinates
     vx_to_sx: (x) ->
