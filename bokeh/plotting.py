@@ -55,6 +55,9 @@ def cursession():
     '''
     return _default_session
 
+def store():
+    cursession().push_dirty(curdoc())
+
 def hold(value=True):
     ''' Set or clear the plot hold status on the current document.
 
