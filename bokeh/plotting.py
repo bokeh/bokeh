@@ -2,7 +2,9 @@ from __future__ import print_function
 
 from functools import wraps
 import logging
+import os
 import uuid
+import warnings
 
 from session import DEFAULT_SERVER_URL, Session
 from . import browserlib
@@ -13,7 +15,7 @@ from .plotting_helpers import (
 )
 from .protocol import serialize_json
 from .resources import Resources
-from .templates import NOTEBOOK_DIV, PLOTDIV, PLOTJS
+from .templates import FILE, NOTEBOOK_DIV, PLOTDIV, PLOTJS, PLOTSCRIPT, RESOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -146,10 +148,10 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
     .. note:: Generally, this should be called at the beginning of an
     interactive session or the top of a script.
     """
-
+    global _default_file
     _default_file = {
         'filename'  : filename,
-        'resources' : Resources(mode=mode, rootdir=rootdir),
+        'resources' : Resources(mode='cdn', rootdir=rootdir, minified=False),
         'autosave'  : autosave,
     }
 
@@ -160,16 +162,19 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
 def _notebook_div():
     plot_ref = curplot().get_ref()
     elementid = str(uuid.uuid4())
-    plotjs = PLOTJS.render(
+    plot_js = PLOTJS.render(
         elementid = elementid,
         modelid = plot_ref["id"],
         modeltype = plot_ref["type"],
         all_models = serialize_json(curdoc().dump())
     )
-    plotdiv = PLOTDIV.render(elementid=elementid)
+    plot_script = PLOTSCRIPT.render(
+        plot_js = plot_js,
+    )
+    plot_div = PLOTDIV.render(elementid=elementid)
     html = NOTEBOOK_DIV.render(
-        plotjs = plotjs,
-        plotdiv = plotdiv,
+        plot_script = plot_script,
+        plot_div = plot_div,
     )
     return html.encode("utf-8")
 
@@ -216,9 +221,35 @@ def show(browser=None, new="tab", url=None):
 
     elif filename:
         save(filename)
-        controller.open("file://" + os.path.abspath(get_config().output_file), new=new_param)
+        controller.open("file://" + os.path.abspath(filename), new=new_param)
 
-def save(filename=None):
+def _file_html(resources):
+    plot_ref = curplot().get_ref()
+    elementid = str(uuid.uuid4())
+    plot_resources = RESOURCES.render(
+        js_raw = resources.js_raw,
+        css_raw = resources.css_raw,
+        js_files = resources.js_files,
+        css_files = resources.css_files,
+    )
+    plot_js = PLOTJS.render(
+        elementid = elementid,
+        modelid = plot_ref["id"],
+        modeltype = plot_ref["type"],
+        all_models = serialize_json(curdoc().dump()),
+    )
+    plot_script = PLOTSCRIPT.render(
+        plot_js = resources.js_wrapper(plot_js),
+    )
+    plot_div = PLOTDIV.render(elementid=elementid)
+    html = FILE.render(
+        plot_resources = plot_resources,
+        plot_script = plot_script,
+        plot_div = plot_div,
+    )
+    return html.encode("utf-8")
+
+def save(filename=None, resources=None):
     """ Updates the file with the data for the current document.
 
     If a filename is supplied, or output_file(...) has been called, this will
@@ -227,18 +258,28 @@ def save(filename=None):
     Args:
         filename (str, optional) : filename to save document under (default: None)
             if `filename` is None, the current output_file(...) filename is used if present
+        resources (Resources, optional) : BokehJS resource config to use
+            if `resources` is None, the current default resource config is used
     """
     if filename is None and _default_file:
         filename = _default_file['filename']
 
-    if filename:
-        #session.save(resources=get_config().file_resources, rootdir=get_config().file_rootdir)
-        pass
-    else:
+    if resources is None and _default_file:
+        resources = _default_file['resources']
+
+    if not filename:
         warnings.warn("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
+        return
+    if not resources:
+        warnings.warn("save() called but no resources was supplied and output_file(...) was never called, nothing saved")
+        return
+
+    html = _file_html(resources)
+    with open(filename, "w") as f:
+        f.write(html)
 
 
-def save(session=None):
+def store(session=None):
     """ Updates plot server session with the data for the current document.
 
     If a session is supplied or output_server(...) has been called, this will
