@@ -32,11 +32,11 @@ def load_notebook(resources=None, verbose=False, force=False):
             raise RuntimeError('load_notebook() only works inside an IPython notebook.')
 
     import IPython.core.displaypub as displaypub
-    from . import output
+    from .resources import INLINE
     from .templates import NOTEBOOK_LOAD
 
     if resources is None:
-        resources = output.RESOURCES_INLINE
+        resources = INLINE
 
     data = dict(verbose=verbose)
 

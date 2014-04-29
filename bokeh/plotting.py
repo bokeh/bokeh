@@ -12,6 +12,7 @@ from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
 )
 from .protocol import serialize_json
+from .resources import Resources
 from .templates import NOTEBOOK_DIV
 
 logger = logging.getLogger(__name__)

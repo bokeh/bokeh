@@ -2,12 +2,8 @@
 
 from os.path import abspath, join, normpath, realpath, relpath, split, splitext
 import sys
-import urllib
-import uuid
 
-import jinja2
-
-from . import __version__, browserlib, settings
+from . import __version__, settings
 
 def server_static_dir():
     return join(abspath(split(__file__)[0]), "server", "static")
@@ -166,8 +162,9 @@ class Resources(object):
         return js_wrapper
 
 
-RESOURCES_CDN = Resources(mode="cdn")
-RESOURCES_INLINE = Resources(mode="inline")
+CDN = Resources(mode="cdn")
+
+INLINE = Resources(mode="inline")
 
 
 
