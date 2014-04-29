@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from bokeh import pyplot
 
+# To avoid errors if you don't have ARIAL installed
+sns.set(font="serif")
+
 # We generated random data
 data = 1 + np.random.randn(20, 6)
 
