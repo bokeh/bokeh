@@ -18,7 +18,7 @@ docstring.
 
 import numpy as np
 
-from mplexporter.exporter import Exporter
+from .mplexporter.exporter import Exporter
 
 from .mpl import BokehRenderer
 from .objects import GridPlot

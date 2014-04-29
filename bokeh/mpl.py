@@ -15,7 +15,7 @@ import warnings
 import numpy as np
 import matplotlib as mpl
 
-from mplexporter.renderers import Renderer
+from .mplexporter.renderers import Renderer
 
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
                           xkcd_line)
