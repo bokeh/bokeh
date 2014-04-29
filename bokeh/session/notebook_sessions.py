@@ -5,7 +5,7 @@ from __future__ import absolute_import
 import logging
 from six.moves.urllib.parse import urlsplit
 
-from ..objects import Plot
+from ..objects import Widget
 from .html_file_session import HTMLFileSession
 from .plot_server_session import PlotServerSession
 
@@ -17,11 +17,11 @@ class NotebookSessionMixin(object):
     def _get_plot_and_objects(self, *objects):
         if len(objects) == 0:
             objects = list(self._models.values())
-        if len(objects) == 1 and isinstance(objects[0], Plot):
+        if len(objects) == 1 and isinstance(objects[0], Widget):
             the_plot = objects[0]
             objects = list(self._models.values())
         else:
-            the_plot = [m for m in objects if isinstance(m, Plot)][0]
+            the_plot = [m for m in objects if isinstance(m, Widget)][0]
 
         return the_plot, objects
 
