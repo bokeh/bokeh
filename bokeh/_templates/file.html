@@ -4,9 +4,10 @@
         <meta charset="utf-8">
         <title>{% if title %}{{ title }}{% else %}Bokeh Plot{% endif %}</title>
         {{ plot_resources|indent(8) }}
+
+        {{ plot_script|indent(8) }}
     </head>
     <body>
-        {{ plot_script|indent(8) }}
         {{ plot_div|indent(8) }}
     </body>
 </html>

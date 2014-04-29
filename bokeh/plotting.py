@@ -224,7 +224,7 @@ def show(browser=None, new="tab", url=None):
         controller.open("file://" + os.path.abspath(filename), new=new_param)
 
 def _file_html(resources):
-    plot_ref = curplot().get_ref()
+    context_ref = curdoc().get_context_ref()
     elementid = str(uuid.uuid4())
     plot_resources = RESOURCES.render(
         js_raw = resources.js_raw,
@@ -234,8 +234,8 @@ def _file_html(resources):
     )
     plot_js = PLOTJS.render(
         elementid = elementid,
-        modelid = plot_ref["id"],
-        modeltype = plot_ref["type"],
+        modelid = context_ref["id"],
+        modeltype = context_ref["type"],
         all_models = serialize_json(curdoc().dump()),
     )
     plot_script = PLOTSCRIPT.render(
@@ -402,7 +402,7 @@ def scatter(*args, **kwargs):
     """
     ds = kwargs.get("source", None)
     names, datasource = _handle_1d_data_args(args, datasource=ds)
-    kawrgs["source"] = datasource
+    kwargs["source"] = datasource
 
     markertype = kwargs.get("marker", "circle")
 

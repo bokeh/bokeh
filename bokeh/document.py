@@ -31,6 +31,9 @@ class Document(object):
             self.load(*json_objs)
         self.set_context()
 
+    def get_context_ref(self):
+        return get_ref(self._plotcontext)
+
     def set_context(self, plotcontext=None):
         """finds the plot context and sets it
         """
@@ -49,7 +52,7 @@ class Document(object):
                 self._add(self._plotcontext)
             else:
                 logger.debug("too many plot context found, there can be only one")
-        
+
     def unset_context(self):
         if self._plotcontext:
             self.remove(self._plotcontext)
@@ -117,20 +120,20 @@ class Document(object):
                 plot = _new_xy_plot(**plot_kwargs)
         self._current_plot = plot
         return plot
-        
+
     def _add(self, *objects):
         """adds objects to the document
         """
         for obj in objects:
             self._models[obj._id] = obj
-            
+
     def add(self, *objects):
         """adds top level objects to the document
         """
         for obj in objects:
             self._plotcontext.children.append(obj)
             self._add(*obj.references())
-            
+
     def remove(self, obj_or_id):
         """obj_or_id - can be an object, or an ID of an object
         """
@@ -140,7 +143,7 @@ class Document(object):
             del self._models[obj_or_id]
         else:
             raise ValueError, "obj_or_id must be PlotObject or string(id)"
-            
+
 
     # functions for turning json objects into json models
     def load(self, *attrs, **kwargs):
@@ -208,7 +211,7 @@ class Document(object):
         convert_references(models)
         return models
 
-        
+
     #------------------------------------------------------------------------
     # Managing callbacks
     #------------------------------------------------------------------------
@@ -242,7 +245,7 @@ class Document(object):
 
 def get_ref(obj):
     return obj.get_ref()
-    
+
 def merge(basedocument, document):
     """add objects from document into basedocument
     includes adding top level objs to plot context children
@@ -270,4 +273,4 @@ def convert_references(json_obj):
             for k, x in json_obj.iteritems():
                 json_obj[k] = convert(x)
     json_apply(json_obj, helper)
-            
+
