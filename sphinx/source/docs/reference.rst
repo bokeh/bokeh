@@ -97,11 +97,6 @@ Styling Accessors
 .. autofunction:: bokeh.plotting.xgrid
 .. autofunction:: bokeh.plotting.ygrid
 
-Advanced Functions
-------------------
-
-.. autofunction:: bokeh.plotting.visual
-
 Compatibility Layers
 ====================
 
@@ -131,6 +126,13 @@ Underlying Object System
               Tuple, Array, Class, Instance, This, Any, Function, Event,
               Either, Enum, Sequence, Mapping, Iterable, Color, Align,
               DashPattern, Size, Angle, Percent, FillProps, LineProps, TextProps
+
+`bokeh.resources`
+-----------------
+
+.. automodule:: bokeh.resources
+  :members:
+
 
 `bokeh.templates`
 -----------------

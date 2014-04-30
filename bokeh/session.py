@@ -324,7 +324,7 @@ class Session(object):
         json_objs = doc.dump(*to_store)
         self.push(*json_objs)
         return to_store
-        
+
     def object_link(self, obj):
         link = "/bokeh/doc/%s/%s" % (self.docid, obj._id)
         return utils.urljoin(self.base_url, link)

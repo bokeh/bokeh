@@ -7,7 +7,6 @@ import os
 import uuid
 import warnings
 
-from session import Cloud, DEFAULT_SERVER_URL, Session
 from . import browserlib
 from . import _glyph_functions
 from .document import Document
@@ -18,6 +17,7 @@ from .plotting_helpers import (
 )
 from .protocol import serialize_json
 from .resources import Resources
+from .session import Cloud, DEFAULT_SERVER_URL, Session
 from .templates import FILE, NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
 
 logger = logging.getLogger(__name__)

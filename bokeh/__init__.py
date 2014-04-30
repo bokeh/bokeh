@@ -10,7 +10,7 @@ def load_notebook(resources=None, verbose=False, force=False):
 
     Args:
         resources (Resource, optional) : a resource object describing how and where to load BokehJS from
-        verbose (bool, optional) : whether to report detailed settings (default: True)
+        verbose (bool, optional) : whether to report detailed settings (default: False)
         force (bool, optional) : whether to skip IPython notebook check (default: False)
 
     Returns:
@@ -24,12 +24,11 @@ def load_notebook(resources=None, verbose=False, force=False):
     if not force:
         notebook = False
         try:
-            from IPython import get_ipython
             notebook = 'notebook' in get_ipython().config['IPKernelApp']['parent_appname']
-        except:
+        except Exception:
             pass
         if not notebook:
-            raise RuntimeError('load_notebook() only works inside an IPython notebook.')
+            raise RuntimeError('load_notebook() only works inside an IPython Notebook.')
 
     import IPython.core.displaypub as displaypub
     from .resources import INLINE
