@@ -94,8 +94,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
     func.__doc__ = docstring
     return func
 
-annular_wedge = _glyph_function(glyphs.AnnularWedge,
-    "x,y,inner_radius,outer_radius,start_angle,end_angle".split(","),
+annular_wedge = _glyph_function(glyphs.AnnularWedge, ("x", "y", "inner_radius", "outer_radius", "start_angle", "end_angle"),
 """ The `annular_wedge` glyph renders annular wedges centered at `x`, `y`.
 
 Args:
@@ -116,8 +115,7 @@ Returns:
 """
 )
 
-annulus = _glyph_function(glyphs.Annulus,
-    "x,y,inner_radius,outer_radius".split(","),
+annulus = _glyph_function(glyphs.Annulus, ("x", "y" ,"inner_radius", "outer_radius"),
 """ The `annulus` glyph renders annuli centered at `x`, `y`.
 
 Args:
@@ -135,7 +133,7 @@ Returns:
 """
 )
 
-arc = _glyph_function(glyphs.Arc, "x,y,radius,start_angle,end_angle".split(","),
+arc = _glyph_function(glyphs.Arc, ("x", "y", "radius" ,"start_angle", "end_angle"),
 """ The `arc` glyph renders circular arcs centered at `x`, `y`.
 
 Args:
@@ -172,7 +170,7 @@ Returns:
 """
 )
 
-bezier = _glyph_function(glyphs.Bezier, "x0,y0,x1,y1,cx0,cy0,cx1,cy1".split(","),
+bezier = _glyph_function(glyphs.Bezier, ("x0", "y0", "x1", "y1", "cx0", "cy0", "cx1", "cy1"),
 """ The bezier glyph displays Bezier curves with the given starting, ending, and control points.
 
 Args:
@@ -488,7 +486,7 @@ Returns:
 """,
     xfields=["left", "right"], yfields=["top", "bottom"])
 
-quadratic = _glyph_function(glyphs.Quadratic, "x0,y0,x1,y1,cx,cy".split(","),
+quadratic = _glyph_function(glyphs.Quadratic, ("x0", "y0", "x1", "y1", "cx", "cy"),
 """ The quadratic glyph displays quadratic curves with the given starting, ending, and control points.
 
 Args:
