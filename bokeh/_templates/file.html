@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>{% if title %}{{ title }}{% else %}Bokeh Plot{% endif %}</title>
+        <title>{{ title if title else "Bokeh Plot" }}</title>
         {{ plot_resources|indent(8) }}
 
         {{ plot_script|indent(8) }}

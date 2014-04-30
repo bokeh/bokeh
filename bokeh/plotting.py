@@ -182,6 +182,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
         'filename'  : filename,
         'resources' : Resources(mode='inline', rootdir=rootdir, minified=False),
         'autosave'  : autosave,
+        'title'     : title,
     }
 
     if os.path.isfile(filename):
@@ -252,7 +253,7 @@ def show(browser=None, new="tab", url=None):
         save(filename)
         controller.open("file://" + os.path.abspath(filename), new=new_param)
 
-def _file_html(resources):
+def _file_html(resources, title):
     context_ref = curdoc().get_context_ref()
     elementid = str(uuid.uuid4())
     plot_resources = RESOURCES.render(
@@ -272,6 +273,7 @@ def _file_html(resources):
     )
     plot_div = PLOT_DIV.render(elementid=elementid)
     html = FILE.render(
+        title = title,
         plot_resources = plot_resources,
         plot_script = plot_script,
         plot_div = plot_div,
@@ -303,7 +305,7 @@ def save(filename=None, resources=None):
         warnings.warn("save() called but no resources was supplied and output_file(...) was never called, nothing saved")
         return
 
-    html = _file_html(resources)
+    html = _file_html(resources, _default_file['title'])
     with open(filename, "w") as f:
         f.write(html)
 
