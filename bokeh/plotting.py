@@ -7,7 +7,7 @@ import os
 import uuid
 import warnings
 
-from session import DEFAULT_SERVER_URL, Session
+from session import Cloud, DEFAULT_SERVER_URL, Session
 from . import browserlib
 from . import _glyph_functions
 from .document import Document
@@ -94,7 +94,7 @@ def figure(**kwargs):
     '''
     curdoc().figure(**kwargs)
 
-def output_server(docname, session=None, url="default", name=None, **kwargs):
+def output_server(docname, session=None, url="default", name=None):
     """ Cause plotting commands to automatically persist plots to a Bokeh server.
 
     Can use explicitly provided Session for persistence, or the default
@@ -117,7 +117,9 @@ def output_server(docname, session=None, url="default", name=None, **kwargs):
         None
 
     .. note:: Generally, this should be called at the beginning of an
-    interactive session or the top of a script.
+              interactive session or the top of a script.
+
+    .. note:: Calling this function will replaces any existing default Server session
 
     """
     global _default_session
@@ -131,6 +133,22 @@ def output_server(docname, session=None, url="default", name=None, **kwargs):
         session = _default_session
     session.use_doc(docname)
     session.pull_document(curdoc())
+
+def output_cloud(docname):
+    """ Cause plotting commands to automatically persist plots to the Bokeh
+    cloud server.
+
+    Args:
+        docname (str) : name of document to push on Bokeh server
+            An existing documents with the same name will be overwritten.
+
+    .. note:: Generally, this should be called at the beginning of an
+              interactive session or the top of a script.
+
+    .. note:: Calling this function will replaces any existing default Server session
+
+    """
+    output_server(docname, session=Cloud())
 
 def output_notebook():
     from . import load_notebook
@@ -156,7 +174,8 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
             computed.
 
     .. note:: Generally, this should be called at the beginning of an
-    interactive session or the top of a script.
+              interactive session or the top of a script.
+
     """
     global _default_file
     _default_file = {
