@@ -1,3 +1,80 @@
+''' The templates module contains templates used by Bokeh to
+enable embedding Bokeh plots in various ways.
+
+The RESOURCES template is for loading BokehJS code and css according to
+the configuration in a Resources object. It takes the following template
+parameters:
+
+Args:
+    css_files (list[str]) : a list of URIs for CSS files to include
+    js_files (list[str]) : a list of URIs for JS files to include
+    css_raw (list[str]) : a list of raw CSS snippets to put between `<style>` tags
+    js_raw (list[str]) : a list of raw JS snippets to put between `<style>` tags
+
+This PLOT_DIV template is for creating a basic plot div (to be used in
+conjunction with PLOT_JS). It takes the following template parameters:
+
+Args:
+    elementid (str) : a unique identifier for the div
+        a PLOT_JS template should be configured with the same elementid
+
+The PLOT_JS template is for creating the JavaScript code snippet that can
+render a plot into a corresponding PLOT_DIV. It takes the following
+template parameters:
+
+Args:
+    modelid (str) : The Bokeh model id for the object to render
+        typically for a Plot, PlotContext, etc.
+    modeltype (str) : the type of the model to render
+        used to reference the appropriate Backbone collection
+    elementid (str) : the id of the div to render the plot into
+
+The PLOT_SCRIPT template is for creating a full `<script>` tag for raw JS
+code. Useful with the PLOT_JS template. It takes the following template
+parameters
+
+Args:
+    plot_js (str) : raw JavaScript code to include
+
+The FILE template is for rendering Bokeh plots into a basic .html file.
+It takes the following template parameters:
+
+Args:
+    title (str) : a value for `<title>` tags
+    plot_resources (str) : typically the output of RESOURCES
+    plot_script (str) : typically the output of PLOT_SCRIPT
+    plot_div (str) : typically the output of PLOT_DIV
+
+Users can customize the file output by providing their own template with
+these parameters.
+
+The NOTEBOOK_LOAD template is for loading BokehJS code and css into the
+IPython Notebook according to some resources configuration. It takes
+the following template parameters:
+
+Args:
+    plot_resources (str) : typically the output of RESOURCES
+    log_url (str) : URL to Bokeh logo to dispay
+    verbose (bool) : whether to display verbose info about BokehJS configuration, etc
+    bokeh_version (str) : the current version of Bokeh
+    js_info (str) : information about the location, version, etc. of BokehJS code
+    css_info (str) : information about the location, version, etc. of BokehJS css
+    warnings list[str] : list of warnings to display to user
+
+The NOTEBOOK_DIV template is for rendering a Bokeh plot into the
+IPython Notebook. It takes the following template parameters:
+
+Args:
+    plot_script (str) : typically the output of PLOT_SCRIPT
+    plot_div (str) : typically the output of PLOT_DIV
+
+The AUTOLOAD template is for creating a standalone, drop in `<script>` tag
+that will automatically and asynchronously load BokehJS (if necessary) and
+replace itself with a rendered plot. This script will reference a separate
+JavaScript (.js) file that contains code to render a specific plot and
+possibly data for the plot inline. It
+
+'''
 
 from os.path import abspath, join, split
 
@@ -5,57 +82,40 @@ import jinja2
 
 _templates_path = join(abspath(split(__file__)[0]), "_templates")
 
-
-# This template is for loading BokehJS code and css, either inline
-# or by loading from CDN or server
 RESOURCES = jinja2.Template(
     open(join(_templates_path, "resources.html")).read()
 )
 
 
-# This template is for a basic plot div to be used in conjunction
-# with PLOTJS to render the plot into the div
 PLOT_DIV = jinja2.Template(
     open(join(_templates_path, "plot_div.html")).read()
 )
 
 
-# This template has the bare js code for synchronously loading a
-# Bokeh into a specified plotdiv
 PLOT_JS = jinja2.Template(
     open(join(_templates_path, "plot_js.js")).read()
 )
 
-# This template has the puts the PLOT_JS code into script tags, provides
-# an opportunity to put a wrapper around the code.
 PLOT_SCRIPT = jinja2.Template(
     open(join(_templates_path, "plot_script.html")).read()
 )
 
 
-# This template is for rendering Bokeh documents into a basic
-# HTML file
 FILE = jinja2.Template(
     open(join(_templates_path, "file.html")).read()
 )
 
 
-# This template is for IPython Notebook loading, and supports either
-# directly including the full BokehJS code and css inline, or by loading
-# from CDN or server.
 NOTEBOOK_LOAD = jinja2.Template(
     open(join(_templates_path, "notebook_load.html")).read()
 )
 
 
-# This template is for simple IPython Notebook embedding
 NOTEBOOK_DIV = jinja2.Template(
     open(join(_templates_path, "notebook_div.html")).read()
 )
 
 
-# This template is for the embedding script used by self-contained
-# script tags that autoload Bokeh and render asynchronously
 AUTOLOAD = jinja2.Template(
     open(join(_templates_path, "autoload.js")).read()
 )
