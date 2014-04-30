@@ -8,14 +8,13 @@ import numpy as np
 import sympy as sy
 
 from bokeh.objects import Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, Grid, Legend
-from bokeh.widgetobjects import Slider, HBox, VBox
+from bokeh.widgetobjects import Slider, TextInput, HBox, VBox
 from bokeh.glyphs import Patch, Line, Text
 from bokeh.session import PlotServerSession
 
 xs = sy.Symbol('x')
-fx = sy.exp(-xs)*sy.sin(xs)
-
-initial_order = 1
+expr = sy.exp(-xs)*sy.sin(xs)
+order = 1
 
 def taylor(fx, xs, order, x_range=(0, 1), n=200):
     x0, x1 = x_range
@@ -32,13 +31,18 @@ def taylor(fx, xs, order, x_range=(0, 1), n=200):
 
     return x, fy, ty
 
-def update_data(order):
-    plot.title = "%s vs. taylor(%s, n=%d)" % (fx, fx, order)
-    x, fy, ty = taylor(fx, xs, order, (-2*sy.pi, 2*sy.pi), 200)
-    source.data.update(dict(x=x, fy=fy, ty=ty))
-    source._dirty = True
+def update_data():
+    x, fy, ty = taylor(expr, xs, order, (-2*sy.pi, 2*sy.pi), 200)
+
+    plot.title = "%s vs. taylor(%s, n=%d)" % (expr, expr, order)
+    legend.legends = {
+        "%s"         % expr: [line_f_glyph],
+        "taylor(%s)" % expr: [line_t_glyph],
+    }
+    source.data = dict(x=x, fy=fy, ty=ty)
     slider.value = order
-    slider._dirty = True
+
+    session.store_all()
 
 source = ColumnDataSource(data=dict(
     x  = [],
@@ -65,23 +69,27 @@ yaxis = LinearAxis(plot=plot, dimension=1)
 xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
 ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
 
-legend = Legend(plot=plot, orientation="bottom_left", legends={
-    "%s"         % fx: [line_f_glyph],
-    "taylor(%s)" % fx: [line_t_glyph],
-})
+legend = Legend(plot=plot, orientation="bottom_left")
 plot.renderers.append(legend)
 
 def on_slider_value_change(obj, attr, old, new):
-    update_data(int(new))
-    session.store_all()
+    global order
+    order = int(new)
+    update_data()
 
-slider = Slider(start=1, end=20, value=initial_order, step=1, title="Order:")
+def on_text_value_change(obj, attr, old, new):
+    global expr
+    expr = sy.sympify(new, dict(x=xs))
+    update_data()
+
+slider = Slider(start=1, end=20, value=order, step=1, title="Order:")
 slider.on_change('value', on_slider_value_change)
 
-inputs = HBox(children=[slider])
-layout = VBox(children=[inputs, plot])
+text = TextInput(value=str(expr), title="Expression:")
+text.on_change('value', on_text_value_change)
 
-update_data(initial_order)
+inputs = HBox(children=[slider, text])
+layout = VBox(children=[inputs, plot])
 
 try:
     session = PlotServerSession(serverloc="http://localhost:5006")
@@ -91,11 +99,14 @@ except requests.exceptions.ConnectionError:
 
 session.use_doc('taylor_server')
 session.add_plot(layout)
-session.store_all()
+
+update_data()
 
 try:
+    to_pull = [slider, text]
     while True:
-        slider.pull()
+        for obj in to_pull:
+            obj.pull()
         time.sleep(0.1)
 except KeyboardInterrupt:
     print()
