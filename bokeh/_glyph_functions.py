@@ -344,6 +344,20 @@ Notes:
 """
 )
 
+image_url = _glyph_function(glyphs.ImageURL, ("url", "x", "y", "angle"),
+"""The image_url glyph takes a urls for images to display.
+
+Args:
+    url (str) : value of RGBA image data
+    x (str or list[float]) : values or field names of upper left `x` coordinates
+    y (str or list[float]) : values or field names of upper left `y` coordinates
+    angle (float) : angle to rotate image by
+
+Returns:
+    plot: the current :class:`Plot <bokeh.objects.Plot>`
+"""
+)
+
 inverted_triangle = _glyph_function(glyphs.InvertedTriangle, ("x", "y"),
 """ The `inverted_triangle` glyph is a marker that renders upside-down triangles at `x`, `y` with size `size` or `radius`.
 

@@ -89,6 +89,7 @@ class Document(object):
     diamond_cross     = _glyph_functions.diamond_cross
     image             = _glyph_functions.image
     image_rgba        = _glyph_functions.image_rgba
+    image_url         = _glyph_functions.image_url
     inverted_triangle = _glyph_functions.inverted_triangle
     line              = _glyph_functions.line
     multi_line        = _glyph_functions.multi_line
