@@ -14,6 +14,7 @@ from .plotting_helpers import (get_default_color, get_default_alpha,
 
 import logging
 import warnings
+import copy
 
 logger = logging.getLogger(__file__)
 
@@ -208,7 +209,7 @@ class Document(object):
             ref["attributes"] = obj.vm_serialize()
             ref["attributes"].update({"id": ref["id"], "doc": self.docid})
             models.append(ref)
-        convert_references(models)
+        models = convert_references(models)
         return models
 
 
@@ -272,5 +273,7 @@ def convert_references(json_obj):
         if isinstance(json_obj, dict):
             for k, x in json_obj.iteritems():
                 json_obj[k] = convert(x)
+    json_obj = copy.deepcopy(json_obj)
     json_apply(json_obj, helper)
+    return json_obj
 
