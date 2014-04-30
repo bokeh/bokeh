@@ -11,7 +11,7 @@ from session import DEFAULT_SERVER_URL, Session
 from . import browserlib
 from . import _glyph_functions
 from .document import Document
-from .objects import Axis, ColumnDataSource, Grid, Legend
+from .objects import Axis, ColumnDataSource, Grid, GridPlot, Legend
 from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
@@ -426,6 +426,32 @@ def scatter(*args, **kwargs):
     if markertype not in _marker_types:
         raise ValueError("Invalid marker type '%s'. Use markers() to see a list of valid marker types." % markertype)
     return _marker_types[markertype](*args, **kwargs)
+
+def gridplot(plot_arrangement, name=None):
+    """ Generate a plot that arranges several subplots into a grid.
+
+    Args:
+        plot_arrangement (list[:class:`Plot <bokeh.objects.Plot>`]) : plots to arrange in a grid
+        name (str) : name for this plot
+
+    .. note:: `plot_arrangement` can be nested, e.g [[p1, p2], [p3, p4]]
+
+    Returns:
+        grid_plot: the current :class:`GridPlot <bokeh.objects.GridPlot>`
+    """
+    grid = GridPlot(children=plot_arrangement)
+    if name:
+        grid._id = name
+    # Walk the plot_arrangement and remove them from the plotcontext,
+    # so they don't show up twice
+    subplots = itertools.chain.from_iterable(plot_arrangement)
+    curdoc().get_context().children = list(set(curdoc().get_context().children) - set(subplots))
+    curdoc().add(grid)
+
+    if _default_session:
+        push()
+    if _default_file and _default_file['autosave']:
+        save()
 
 def xaxis():
     """ Get the current axis objects

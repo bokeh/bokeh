@@ -32,6 +32,9 @@ class Document(object):
             self.load(*json_objs)
         self.set_context()
 
+    def get_context(self):
+        return self._plotcontext
+
     def get_context_ref(self):
         return get_ref(self._plotcontext)
 
