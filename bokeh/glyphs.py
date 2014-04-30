@@ -1,5 +1,4 @@
-from .properties import (HasProps, Instance, Enum, Float, Int, Color, Percent,
-    Size, Bool, DashPattern, Align, Angle, String, DataSpec, ColorSpec)
+from .properties import Align, Bool, DataSpec, Enum, HasProps, Size
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, AngleUnits, Direction
 from .plot_object import Viewable

@@ -51,7 +51,7 @@ class Property(object):
         try:
             return new == old
         except Exception as e:
-            logger.warning("could not compare %s and %s for property %s", new, old, self.name)
+            logger.warning("could not compare %s and %s for property %s (Reason: %s)", new, old, self.name, e)
         return False
 
     def transform(self, value):
@@ -282,10 +282,10 @@ class ColorSpec(DataSpec):
     There are two common use cases for ColorSpec: setting a constant value,
     and indicating a field name to look for on the datasource::
 
-        class Bar(HasProps):
-            col = ColorSpec("green")
-            col2 = ColorSpec("colorfield")
-            col3 = ColorSpec("colorfield", default="aqua")
+    >>> class Bar(HasProps):
+    ...     col = ColorSpec("green")
+    ...     col2 = ColorSpec("colorfield")
+    ...     col3 = ColorSpec("colorfield", default="aqua")
 
     >>> b = Bar()
     >>> b.col = "red"  # sets a fixed value of red

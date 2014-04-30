@@ -4,16 +4,12 @@ from __future__ import absolute_import
 import uuid
 from .utils import json_apply
 from .  import _glyph_functions
-from .objects import Instance, List, PlotContext
+from .objects import PlotContext
 from .properties import HasProps
 from .plot_object import PlotObject
-from .plotting_helpers import (get_default_color, get_default_alpha,
-        _glyph_doc, _match_data_params, _update_plot_data_ranges,
-        _materialize_colors_and_alpha, _get_legend, _make_legend,
-        _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
+from .plotting_helpers import _new_xy_plot
 
 import logging
-import warnings
 import copy
 
 logger = logging.getLogger(__file__)

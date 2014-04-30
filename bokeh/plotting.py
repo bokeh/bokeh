@@ -10,7 +10,7 @@ import warnings
 from . import browserlib
 from . import _glyph_functions
 from .document import Document
-from .objects import Axis, ColumnDataSource, Grid, GridPlot, Legend
+from .objects import Axis, Grid, GridPlot, Legend
 from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
@@ -244,7 +244,7 @@ def show(browser=None, new="tab", url=None):
     elif session:
         push()
         if url:
-            controller.open(url, new=new_params)
+            controller.open(url, new=new_param)
         else:
             controller.open(session.object_link(curdoc()._plotcontext))
 

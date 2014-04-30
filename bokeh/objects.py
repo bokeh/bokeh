@@ -13,7 +13,7 @@ logger = logging.getLogger(__file__)
 from . import _glyph_functions
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
-from .mixins import FillProps, LineProps, TextProps
+from .mixins import LineProps, TextProps
 from .enums import Units, Orientation, Location, Dimension, BorderSymmetry
 from .plot_object import PlotObject
 from .glyphs import BaseGlyph

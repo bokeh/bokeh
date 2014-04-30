@@ -1,17 +1,19 @@
 
 from collections import Iterable, Sequence
+import itertools
 from numbers import Number
 import numpy as np
 import re
 from six import string_types
 
 from . import glyphs
-from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
-        ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis, EmbedTool,
-        Grid, HoverTool, Legend, LinearAxis, PanTool, Plot, PreviewSaveTool,
-        ResetTool, ResizeTool, WheelZoomTool, CategoricalAxis, FactorRange,
-        ObjectExplorerTool, BasicTicker, BasicTickFormatter, CategoricalTicker,
-        CategoricalTickFormatter, DatetimeTicker, DatetimeTickFormatter)
+from .objects import (
+    BoxSelectionOverlay, BoxSelectTool, BoxZoomTool, CategoricalAxis,
+    ColumnDataSource, CrosshairTool, DataRange1d, DatetimeAxis,
+    EmbedTool, FactorRange, Grid, HoverTool, Legend, LinearAxis,
+    ObjectExplorerTool, PanTool, Plot, PreviewSaveTool, ResetTool,
+    ResizeTool, WheelZoomTool
+)
 from .properties import ColorSpec
 
 # This is used to accumulate plots generated via the plotting methods in this
