@@ -64,7 +64,7 @@ Args:
     plot_div (str) : typically the output of PLOT_DIV
 
 Attributes:
-    AUTOLOAD: This template is for creating a standalone, drop in ``<script>`` tag that will automatically and asynchronously load BokehJS (if necessary) and replace itself with a rendered plot. This script will reference a separate JavaScript (.js) file that contains code to render a specific plot and possibly data for the plot inline.
+    AUTOLOAD: This template is for creating a sidecar JS file that will automatically and asynchronously load BokehJS (if necessary) and then replaces the ``script`` tag that loads it (with appropriate attributes) with a rendered plot.
 
 '''
 

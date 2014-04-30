@@ -16,15 +16,12 @@
   var all_models = {{ all_models|default('{}') }};
   var elementid = "{{ elementid }}";
   var plotid = "{{ plotid }}";
-
-  var data= { "{{ plotid }}": all_models };
+  var data = { "{{ plotid }}": all_models };
 
   if(typeof(Bokeh) !== "undefined" && Bokeh._is_loaded) {
     // BokehJS is loaded
     console.log("BokehJS loaded, going straight to plotting");
     Bokeh.embed_core.search_and_plot(data);
-  }
-
   } else {
     // BokehJS needs to be loaded loaded
     console.log("BokehJS not loaded, scheduling load and callback at", new Date());
