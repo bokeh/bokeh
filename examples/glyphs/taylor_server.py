@@ -15,6 +15,8 @@ from bokeh.session import PlotServerSession
 xs = sy.Symbol('x')
 fx = sy.exp(-xs)*sy.sin(xs)
 
+initial_order = 1
+
 def taylor(fx, xs, order, x_range=(0, 1), n=200):
     x0, x1 = x_range
     x = np.linspace(float(x0), float(x1), n)
@@ -69,11 +71,17 @@ legend = Legend(plot=plot, orientation="bottom_left", legends={
 })
 plot.renderers.append(legend)
 
-slider = Slider(start=1, end=20, value=1, step=1, title="Order:")
-#slider.on_change('value', taylor, 'update_data')
+def on_slider_value_change(obj, attr, old, new):
+    update_data(int(new))
+    session.store_all()
+
+slider = Slider(start=1, end=20, value=initial_order, step=1, title="Order:")
+slider.on_change('value', on_slider_value_change)
 
 inputs = HBox(children=[slider])
 layout = VBox(children=[inputs, plot])
+
+update_data(initial_order)
 
 try:
     session = PlotServerSession(serverloc="http://localhost:5006")
@@ -85,7 +93,9 @@ session.use_doc('taylor_server')
 session.add_plot(layout)
 session.store_all()
 
-for order in range(1, 20):
-    update_data(order)
-    session.store_all()
-    time.sleep(1)
+try:
+    while True:
+        slider.pull()
+        time.sleep(0.1)
+except KeyboardInterrupt:
+    print()
