@@ -38,6 +38,7 @@ define [
       value = ui.value
       console.log('sliding', value)
       @mset('value', value)
+      @model.save()
 
   class Slider extends HasParent
     type : "Slider"
