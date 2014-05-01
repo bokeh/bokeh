@@ -90,5 +90,4 @@ def dump(objs, docid):
         ref["attributes"] = obj.vm_serialize()
         ref["attributes"].update({"id": ref["id"], "docid" : docid})
         json_objs.append(ref)
-    json_objs = convert_references(json_objs)
     return json_objs

@@ -65,6 +65,7 @@ class BokehJSONEncoder(json.JSONEncoder):
     def default(self, obj):
         #argh! local import!
         from plot_object import PlotObject
+        from .properties import HasProps
         ## array types
         if is_pandas and isinstance(obj, (pd.Series, pd.Index)):
             return self.transform_series(obj)
@@ -72,6 +73,11 @@ class BokehJSONEncoder(json.JSONEncoder):
             return self.transform_array(obj)
         elif isinstance(obj, PlotObject):
             return get_ref(obj)
+        elif isinstance(obj, HasProps):
+            return obj.to_dict()
+        elif isinstance(obj, HasProps):
+            return get_ref(obj)
+            
         else:
             return self.transform_python_types(obj)
 
