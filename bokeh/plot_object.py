@@ -12,6 +12,7 @@ from six import add_metaclass, iteritems
 from six.moves.urllib.parse import urlsplit
 
 from .properties import HasProps, MetaHasProps, Instance
+from .utils import get_ref, convert_references, dump
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -247,7 +248,13 @@ class PlotObject(HasProps):
         attrs = self.vm_props()
         attrs['id'] = self._id
         return attrs
-
+        
+    def dump(self, docid=None):
+        """convert all references to json
+        """
+        models = self.references()
+        return dump(models, docid=docid)
+        
     def update(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
