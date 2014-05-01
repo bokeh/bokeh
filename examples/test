@@ -297,7 +297,7 @@ skip_examples = []
 
 try:
     for example, flags in sorted(selected_examples):
-        if (flags & (Flags.skip|Flags.animated) or
+        if (flags & Flags.skip or
             flags & Flags.server and not bokeh_server or
             flags & Flags.notebook and not ipython_notebook):
             print("%s Skipping %s" % (yellow(">>>"), example))
