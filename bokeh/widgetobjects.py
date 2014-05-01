@@ -22,6 +22,13 @@ class Tabs(Widget):
     tabs = List(Instance(Panel))
     active = Int(0)
 
+class Dialog(Widget):
+    visible = Bool(False)
+    closable = Bool(True)
+    title = String
+    content = String
+    buttons = List(String)
+
 class Layout(Widget):
     pass
 

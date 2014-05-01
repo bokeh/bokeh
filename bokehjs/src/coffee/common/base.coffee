@@ -78,6 +78,7 @@ define [
   'widget/date_picker'
   'widget/panel'
   'widget/tabs'
+  'widget/dialog'
 ], (_, require) ->
 
   # add some useful functions to underscore
@@ -158,6 +159,7 @@ define [
     DatePicker:               'widget/date_picker'
     Panel:                    'widget/panel'
     Tabs:                     'widget/tabs'
+    Dialog:                   'widget/dialog'
 
   mod_cache = {}
   collection_overrides = {}

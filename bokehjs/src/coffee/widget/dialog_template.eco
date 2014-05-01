@@ -1,0 +1,24 @@
+<div class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <% if @closable: %>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <% end %>
+        <h4 class="modal-title"><%= @title %></h4>
+      </div>
+      <div class="modal-body">
+        <%= @content %>
+      </div>
+      <div class="modal-footer">
+        <% for button, i in @buttons: %>
+          <% if i == 0: %>
+            <button type="button" class="btn btn-primary" data-dismiss="modal"><%= button %></button>
+          <% else: %>
+            <button type="button" class="btn btn-default"><%= button %></button>
+          <% end %>
+        <% end %>
+      </div>
+    </div>
+  </div>
+</div>
