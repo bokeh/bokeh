@@ -65,7 +65,7 @@ def push(session=None, document=None):
         session = cursession()
     if not document:
         document = curdoc()
-    session.push_dirty(document)
+    return session.push_dirty(document)
 
 def hold(value=True):
     ''' Set or clear the plot hold status on the current document.
@@ -246,6 +246,10 @@ def save(filename=None, resources=None):
             if `filename` is None, the current output_file(...) filename is used if present
         resources (Resources, optional) : BokehJS resource config to use
             if `resources` is None, the current default resource config is used
+
+    Returns:
+        None
+
     """
     if filename is None and _default_file:
         filename = _default_file['filename']
@@ -264,32 +268,36 @@ def save(filename=None, resources=None):
     with open(filename, "w") as f:
         f.write(html)
 
-
-def store(session=None):
-    """ Updates plot server session with the data for the current document.
-
-    If a session is supplied or output_server(...) has been called, this will
-    upload all the plot objects up to the given server session.
+def push(session=None, document=None):
+    """ Updates the server with the data for the current document.
 
     Args:
-        session (Session, optional) : session to save document under (default: None)
-            if `session` is None, the current output_server(...) session is used if present
+        session (Sesion, optional) : filename to save document under (default: None)
+            if `sessiokn` is None, the current output_server(...) session is used if present
+        document (Document, optional) : BokehJS document to push
+            if `document` is None, the current default document is pushed
+
+    Returns:
+        None
 
     """
-    if session is None:
-        session = _default_session
+    if not session:
+        session = cursession()
+
+    if not document:
+        document = curdoc()
 
     if session:
-        session.push_dirty(curdoc())
+        return session.push_dirty(curdoc())
     else:
-        warnings.warn("store() called but no session was supplied and output_server(...) was never called, nothing pushd")
+        warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushd")
 
 
 def _doc_wrap(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         retval = func(curdoc(), *args, **kwargs)
-        if _default_session:
+        if cursession() and curdoc()._autostore:
             push()
         if _default_file and _default_file['autosave']:
             save()

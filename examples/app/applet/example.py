@@ -1,11 +1,11 @@
 import bokeh.server
-from bokeh.plotting import line, circle, session
+from bokeh.plotting import line, circle, curdoc
 
 from bokeh.widgetobjects import (VBoxModelForm, HBox,
                                  BokehApplet, TextInput, PreText,
                                  Select, Slider)
 from bokeh.objects import Plot, ColumnDataSource
-from bokeh.plotobject import PlotObject
+from bokeh.plot_object import PlotObject
 from bokeh.properties import (Dict, Float, String, Instance)
 import numpy as np
 import logging
@@ -44,13 +44,13 @@ class MyApp(BokehApplet):
     plot = Instance(Plot)
     source = Instance(ColumnDataSource)
 
-    def create(self, session):
+    def create(self, doc):
         """
         This function is called once, and is responsible for
         creating all objects (plots, datasources, etc)
         """
         self.modelform = MyModel()
-        self.modelform.create_inputs(session)
+        self.modelform.create_inputs(doc)
         self.source = ColumnDataSource(data={'x':[], 'y':[]})
         self.update_data()
         self.plot = line('x', 'y', source=self.source,
@@ -59,7 +59,6 @@ class MyApp(BokehApplet):
         )
         self.children.append(self.modelform)
         self.children.append(self.plot)
-        self.add_all(session)
 
     def input_change(self, obj, attrname, old, new):
         """
@@ -150,13 +149,13 @@ class StockApp(BokehApplet):
         data = data.dropna()
         return data
 
-    def create(self, session):
+    def create(self, doc):
         """
         This function is called once, and is responsible for
         creating all objects (plots, datasources, etc)
         """
         self.modelform = StockInputModel()
-        self.modelform.create_inputs(session)
+        self.modelform.create_inputs(doc)
         ticker1 = self.modelform.ticker1
         ticker2 = self.modelform.ticker2
         self.pretext = PreText(text="")
@@ -164,7 +163,6 @@ class StockApp(BokehApplet):
         self.make_plots(ticker1, ticker2)
         self.make_stats()
         self.set_children()
-        self.add_all(session)
 
     def make_source(self, ticker1, ticker2):
         df = self.get_data(ticker1, ticker2)
@@ -177,11 +175,11 @@ class StockApp(BokehApplet):
                            plot_width=400, plot_height=400,
                            tools="pan,wheel_zoom,select"
         )
-        session().plotcontext.children=[self]
-        session().plotcontext._dirty = True
 
     def set_children(self):
         self.children = [self.modelform, self.plot, self.pretext]
+        curdoc()._plotcontext.children = [self]
+        curdoc().add_all()
 
     def input_change(self, obj, attrname, old, new):
         """
