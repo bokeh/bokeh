@@ -8,7 +8,7 @@ import numpy as np
 import sympy as sy
 
 from bokeh.objects import Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, Grid, Legend
-from bokeh.widgetobjects import Slider, TextInput, HBox, VBox
+from bokeh.widgetobjects import Slider, TextInput, HBox, VBox, Dialog
 from bokeh.glyphs import Patch, Line, Text
 from bokeh.session import PlotServerSession
 
@@ -78,9 +78,17 @@ def on_slider_value_change(obj, attr, old, new):
     update_data()
 
 def on_text_value_change(obj, attr, old, new):
-    global expr
-    expr = sy.sympify(new, dict(x=xs))
-    update_data()
+    try:
+        global expr
+        expr = sy.sympify(new, dict(x=xs))
+    except (sy.SympifyError, TypeError, ValueError) as exception:
+        dialog.content = str(exception)
+        dialog.visible = True
+        session.store_obj(dialog)
+    else:
+        update_data()
+
+dialog = Dialog(title="Invalid expression", buttons=["Close"])
 
 slider = Slider(start=1, end=20, value=order, step=1, title="Order:")
 slider.on_change('value', on_slider_value_change)
@@ -89,7 +97,7 @@ text = TextInput(value=str(expr), title="Expression:")
 text.on_change('value', on_text_value_change)
 
 inputs = HBox(children=[slider, text])
-layout = VBox(children=[inputs, plot])
+layout = VBox(children=[inputs, plot, dialog])
 
 try:
     session = PlotServerSession(serverloc="http://localhost:5006")
