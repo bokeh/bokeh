@@ -77,7 +77,7 @@ class Resources(object):
 
             See below for descriptions of available modes
 
-        vesion (str, optional) : what version of BokejJS to load
+        version (str, optional) : what version of BokejJS to load
 
             Only valid with the ``'cdn'`` mode
 

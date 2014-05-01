@@ -10,15 +10,14 @@ import warnings
 from . import browserlib
 from . import _glyph_functions as gf
 from .document import Document
+from .embed import notebook_div, file_html
 from .objects import Axis, Grid, GridPlot, Legend
 from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
 )
-from .protocol import serialize_json
 from .resources import Resources
 from .session import Cloud, DEFAULT_SERVER_URL, Session
-from .templates import FILE, NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
 
 logger = logging.getLogger(__name__)
 
@@ -189,25 +188,6 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
         print("Session output file '%s' already exists, will be overwritten." % filename)
 
 
-def _notebook_div():
-    plot_ref = curplot().get_ref()
-    elementid = str(uuid.uuid4())
-    plot_js = PLOT_JS.render(
-        elementid = elementid,
-        modelid = plot_ref["id"],
-        modeltype = plot_ref["type"],
-        all_models = serialize_json(curdoc().dump())
-    )
-    plot_script = PLOT_SCRIPT.render(
-        plot_js = plot_js,
-    )
-    plot_div = PLOT_DIV.render(elementid=elementid)
-    html = NOTEBOOK_DIV.render(
-        plot_script = plot_script,
-        plot_div = plot_div,
-    )
-    return html.encode("utf-8")
-
 def show(browser=None, new="tab", url=None):
     """ 'shows' the current plot, by auto-raising the window or tab
     displaying the current plot (for file/server output modes) or displaying
@@ -240,7 +220,8 @@ def show(browser=None, new="tab", url=None):
 
     elif notebook:
         import IPython.core.displaypub as displaypub
-        displaypub.publish_display_data('bokeh', {'text/html': _notebook_div()})
+        context = curdoc().get_context()
+        displaypub.publish_display_data('bokeh', {'text/html': notebook_div(context)})
 
     elif session:
         push()
@@ -253,32 +234,6 @@ def show(browser=None, new="tab", url=None):
         save(filename)
         controller.open("file://" + os.path.abspath(filename), new=new_param)
 
-def _file_html(resources, title):
-    context_ref = curdoc().get_context_ref()
-    elementid = str(uuid.uuid4())
-    plot_resources = RESOURCES.render(
-        js_raw = resources.js_raw,
-        css_raw = resources.css_raw,
-        js_files = resources.js_files,
-        css_files = resources.css_files,
-    )
-    plot_js = PLOT_JS.render(
-        elementid = elementid,
-        modelid = context_ref["id"],
-        modeltype = context_ref["type"],
-        all_models = serialize_json(curdoc().dump()),
-    )
-    plot_script = PLOT_SCRIPT.render(
-        plot_js = resources.js_wrapper(plot_js),
-    )
-    plot_div = PLOT_DIV.render(elementid=elementid)
-    html = FILE.render(
-        title = title,
-        plot_resources = plot_resources,
-        plot_script = plot_script,
-        plot_div = plot_div,
-    )
-    return html.encode("utf-8")
 
 def save(filename=None, resources=None):
     """ Updates the file with the data for the current document.
@@ -305,7 +260,7 @@ def save(filename=None, resources=None):
         warnings.warn("save() called but no resources was supplied and output_file(...) was never called, nothing saved")
         return
 
-    html = _file_html(resources, _default_file['title'])
+    html = file_html(curplot(), resources, _default_file['title'])
     with open(filename, "w") as f:
         f.write(html)
 
