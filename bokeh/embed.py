@@ -11,7 +11,7 @@ from .templates import (
     NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
 )
 
-def components(plot_object):
+def components(plot_object, resources):
     ''' Return HTML components to embed a Bokeh plot.
 
     The data for the plot is stored directly in the returned HTML.
@@ -34,7 +34,7 @@ def components(plot_object):
         elementid = elementid,
         modelid = ref["id"],
         modeltype = ref["type"],
-        all_models = serialize_json(curdoc().dump()),
+        all_models = serialize_json(plot_object.dump()),
     )
     script = PLOT_SCRIPT.render(
         plot_js = resources.js_wrapper(js),
@@ -61,7 +61,19 @@ def notebook_div(plot_object):
               already been executed.
 
     '''
-    script, div = components(plot_object)
+    ref = plot_object.get_ref()
+    elementid = str(uuid.uuid4())
+
+    js = PLOT_JS.render(
+        elementid = elementid,
+        modelid = ref["id"],
+        modeltype = ref["type"],
+        all_models = serialize_json(plot_object.dump()),
+    )
+    script = PLOT_SCRIPT.render(
+        plot_js = js,
+    )
+    div = PLOT_DIV.render(elementid=elementid)
     html = NOTEBOOK_DIV.render(
         plot_script = script,
         plot_div = div,
@@ -93,8 +105,8 @@ def file_html(plot_object, resources, title, template=FILE):
         js_files = resources.js_files,
         css_files = resources.css_files,
     )
-    script, div = components(plot_object)
-    html = file_template.render(
+    script, div = components(plot_object, resources)
+    html = template.render(
         title = title,
         plot_resources = plot_resources,
         plot_script = script,

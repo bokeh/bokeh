@@ -21,9 +21,24 @@ logger = logging.getLogger(__name__)
 
 DEFAULT_SERVER_URL = "http://localhost:5006/"
 
-BOKEHPLOTS_URL = "http://bokehplots.cloudapp.net/"
+BOKEHPLOTS_URL = "http://bokehplots.com/"
 
 class Session(object):
+    """ Session objects encapsulate a connection to a document stored on
+    a Bokeh Server
+
+    Args:
+        name (str, optional) : name of server
+        root_url (str, optional) : root_url of server
+        userapikey (str, optional) : (default: "nokey")
+            if userapikey is "nokey"
+        username (str, optional) : (default: "defaultuser")
+            if username is "defaultuser"
+        load_from_config (bool, optional) : whether to load login information from config. (default: True)
+            if load_from_config is False, then we may overwrite the
+            users config with this data
+        configdir (str) :
+    """
     def __init__(
             self,
             name             = DEFAULT_SERVER_URL,
@@ -33,20 +48,7 @@ class Session(object):
             load_from_config = True,
             configdir        = None,
         ):
-        """ Initialize a server Session object
 
-        Args:
-            name (str, optional) : name of server
-            root_url (str, optional) : root_url of server
-            userapikey (str, optional) : (default: "nokey")
-                if userapikey is "nokey"
-            username (str, optional) : (default: "defaultuser")
-                if username is "defaultuser"
-            load_from_config (bool, optional) : whether to load login information from config. (default: True)
-                if load_from_config is False, then we may overwrite the
-                users config with this data
-            configdir (str) :
-        """
         self.name = name
         self.root_url = root_url
         #single user mode case
