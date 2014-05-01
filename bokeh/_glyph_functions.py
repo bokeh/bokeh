@@ -29,14 +29,14 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         legend_name = kwargs.pop("legend", None)
 
         from .document import Document
+        document = None
+        plot = None
         if isinstance(document_or_plot, Plot):
             plot = document_or_plot
             # TODO (bev) plot.update(kwargs)
         elif isinstance(document_or_plot, Document):
             document = document_or_plot
             plot = document._get_plot(kwargs)
-            if document._autoadd:
-                document.add(plot)
         else:
             raise ValueError("expected document or plot object for first argument")
 
@@ -89,7 +89,8 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
             select_tool._dirty = True
 
         plot.renderers.append(glyph_renderer)
-
+        if document and document._autoadd:
+            document.add(plot)
         return plot
     func.__name__ = glyphclass.__view_model__
     func.__doc__ = docstring
