@@ -6,6 +6,7 @@ import os
 import sys
 import time
 import json
+import signal
 import fnmatch
 import argparse
 import traceback
@@ -147,18 +148,33 @@ def make_env():
         env['BOKEH_PRETTY'] = 'yes'
     return env
 
+class Timeout(Exception):
+    pass
+
 def run_example(example):
     cmd = ["python", os.path.basename(example)]
     cwd = os.path.dirname(example)
     env = make_env()
 
-    proc = subprocess.Popen(cmd, cwd=cwd, env=env)
+    def alarm_handler(sig, frame):
+        raise Timeout
+
+    signal.signal(signal.SIGALRM, alarm_handler)
+    signal.alarm(5) # seconds
 
     try:
-        return proc.wait()
-    except KeyboardInterrupt:
+        proc = subprocess.Popen(cmd, cwd=cwd, env=env)
+
+        try:
+            return proc.wait()
+        except KeyboardInterrupt:
+            proc.kill()
+            raise
+    except Timeout:
         proc.kill()
-        raise
+        return 0
+    finally:
+        signal.alarm(0)
 
 def test_example(example, flags):
     no_ext = os.path.splitext(os.path.abspath(example))[0]

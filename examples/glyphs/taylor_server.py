@@ -2,7 +2,9 @@ from __future__ import print_function
 
 import sys
 import time
+
 import requests
+from requests.exceptions import ConnectionError
 
 import numpy as np
 import sympy as sy
@@ -101,7 +103,7 @@ layout = VBox(children=[inputs, plot, dialog])
 
 try:
     session = PlotServerSession(serverloc="http://localhost:5006")
-except requests.exceptions.ConnectionError:
+except ConnectionError:
     print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
     sys.exit(1)
 
@@ -118,3 +120,5 @@ try:
         time.sleep(0.1)
 except KeyboardInterrupt:
     print()
+except ConnectionError:
+    print("Connection to bokeh-server was terminated")
