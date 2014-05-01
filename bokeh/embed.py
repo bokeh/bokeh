@@ -166,13 +166,13 @@ def autoload_server(plot_object, session):
     elementid = str(uuid.uuid4())
 
     tag = AUTOLOAD_SERVER.render(
-        src_path = session.root_url + "/bokeh/autoload.js/%s" % elementid, # ?????
+        src_path = session.root_url + "/bokeh/autoload.js/%s" % elementid,
         elementid = elementid,
         modelid = plot_object._id,
         modeltype = plot_object.__view_model__,
         root_url = session.root_url,
-        #docid =  # WHAT GOES HERE
-        docapikey = session.get_api_key(docid), # IS THIS RIGHT?
+        docid =  session.docid,
+        docapikey = session.api_key,
         conn_string = sess.conn_string,
     )
 

@@ -43,11 +43,11 @@ def _get_cdn_urls(version=None, minified=True):
         })
     return result
 
-def _get_server_urls(server_url, server_port, minified=True):
+def _get_server_urls(host, minified=True):
     min = ".min" if minified else ""
     result = {
-        'js_files'  : ['%s:%d/static/js/bokeh%s.js' % (server_url, server_port, min)],
-        'css_files' : ['%s:%d/static/css/bokeh%s.css' % (server_url, server_port, min)],
+        'js_files'  : ['%s/bokehjs/static/js/bokeh%s.js' % (host, min)],
+        'css_files' : ['%s/bokehjs/static/css/bokeh%s.css' % (host, min)],
         'messages'  : [],
     }
     return result
@@ -87,11 +87,7 @@ class Resources(object):
 
         minified (bool, optional) : whether JavaScript and CSS should be minified or not (default: True)
 
-        server_url (str, optional) : URL of Bokeh Server to load resources from
-
-            Only valid with ``'server'`` and ``'server-dev'`` modes
-
-        server_port (int, optional) : port to use to connect to Bokeh Server
+        host (str, optional) : URL and port of Bokeh Server to load resources from
 
             Only valid with ``'server'`` and ``'server-dev'`` modes
 
@@ -128,18 +124,16 @@ class Resources(object):
     _default_css_files_dev = ['css/bokeh-vendor.css', 'css/continuum.css', 'css/main.css']
 
     _default_rootdir = "."
-    _default_server_url = "http://127.0.0.1"
-    _default_server_port = 5006
+    _default_host = "http://127.0.0.1:5006"
 
     logo_url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
 
-    def __init__(self, mode='inline', version=None, rootdir=None, minified=True, server_url=None, server_port=None):
+    def __init__(self, mode='inline', version=None, rootdir=None, minified=True, host=None):
         self.mode = settings.resources(mode)
         self.rootdir = settings.rootdir(rootdir)
         self.version = settings.version(version)
         self.minified = settings.minified(minified)
-        self.server_url = server_url
-        self.server_port = server_port
+        self.host = host
 
         if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
             raise ValueError("wrong value for 'mode' parameter, expected 'inline', 'cdn', 'server', 'server-dev', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
@@ -150,11 +144,8 @@ class Resources(object):
         if self.version and not mode.startswith('cdn'):
             raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
 
-        if self.server_url and not mode.startswith('server'):
-            raise ValueError("setting 'server_url' makes sense only when 'mode' is set to 'server'")
-
-        if self.server_port and not mode.startswith('server'):
-            raise ValueError("setting 'server_port' makes sense only when 'mode' is set to 'server'")
+        if self.host and not mode.startswith('server'):
+            raise ValueError("setting 'host' makes sense only when 'mode' is set to 'server'")
 
         self.dev = mode.endswith('-dev')
         if self.dev:
@@ -187,9 +178,8 @@ class Resources(object):
             self.css_files = list(cdn['css_files'])
             self.messages.extend(cdn['messages'])
         elif self.mode == "server":
-            server_url = self.server_url or self._default_server_url
-            server_port = self.server_port or self._default_server_port
-            server = _get_server_urls(server_url, server_port, self.minified)
+            host = self.host or self._default_host
+            server = _get_server_urls(host, self.minified)
             self.js_files = list(server['js_files'])
             self.css_files = list(server['css_files'])
             self.messages.extend(server['messages'])

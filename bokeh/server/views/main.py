@@ -13,6 +13,7 @@ log = logging.getLogger(__name__)
 
 from .bbauth import check_read_authentication_and_create_client
 
+from ... import resources
 from ..app import bokeh_app
 from ..models import user
 from ..models import docs
@@ -22,6 +23,10 @@ from ...exceptions import DataIntegrityException
 from ..views import make_json
 from ..crossdomain import crossdomain
 from ..serverbb import prune
+from ...templates import AUTOLOAD
+from ...resources import Resources
+
+
 @bokeh_app.route('/bokeh/ping')
 def ping():
     #test route, to know if the server is up
@@ -290,6 +295,16 @@ def embed_js():
                          {'Content-Type':'application/javascript'})
 
 
+@bokeh_app.route("/bokeh/autoload.js/<elementid>")
+def autoload_js(elementid):
+        resources = Resources(host = request.host, mode = 'server')
+        rendered = AUTOLOAD.render(
+            js_url = resources.js_files[0],
+            css_files = resources.css_files,
+            elementid = elementid,
+        )
+        return Response(rendered, 200,
+                         {'Content-Type':'application/javascript'})
 
 
 @bokeh_app.route('/bokeh/objinfo/<docid>/<objid>', methods=['GET', 'OPTIONS'])
@@ -312,17 +327,17 @@ def get_bokeh_info_one_object(docid, objid):
     result = make_json(returnval,
                        headers={"Access-Control-Allow-Origin": "*"})
     return result
-    
+
 @bokeh_app.route('/bokeh/doc/<docid>/<objid>', methods=['GET'])
 def show_obj(docid, objid):
     bokehuser = bokeh_app.current_user()
     if not bokehuser:
         return redirect(url_for(".login_get", next=request.url))
-    return render_template("oneobj.html", 
+    return render_template("oneobj.html",
                            docid=docid,
                            objid=objid,
                            hide_navbar=True,
                            splitjs=bokeh_app.splitjs,
                            username=bokehuser.username)
 
-    
+
