@@ -22,6 +22,7 @@ def components(plot_object, resources):
     Args:
         plot_object (PlotObject) : Bokeh object to render
             typically a Plot or PlotContext
+        resources (Resources, optional) : BokehJS resources config
 
     Returns:
         (script, div)
