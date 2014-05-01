@@ -20,6 +20,7 @@ log = logging.getLogger(__name__)
 def init_bokeh(clientdoc):
     request.bokeh_server_document = clientdoc
     clientdoc.autostore(False)
+    clientdoc.autoadd(False)
 #Management Functions
 
 @bokeh_app.route("/bokeh/bb/<docid>/reset", methods=['GET'])
@@ -107,8 +108,8 @@ def create(docid, typename):
     clientdoc = bokeh_app.backbone_storage.get_document(docid)
     prune(clientdoc)
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
-    modeldata = [{'type' : typename,
-                  'attributes' : modeldata}]
+    modeldata = {'type' : typename,
+                 'attributes' : modeldata}
     clientdoc.load(modeldata, dirty=True)
     bokeh_app.backbone_storage.push_dirty(clientdoc)
     ws_update(clientdoc, modeldata)
@@ -171,6 +172,8 @@ def update(docid, typename, id):
     modeldata = protocol.deserialize_json(request.data.decode('utf-8'))
     #patch id is not passed...
     modeldata['id'] = id
+    modeldata = {'type' : typename,
+                 'attributes' : modeldata}
     clientdoc.load(modeldata, events='existing', dirty=True)
     changed = bokeh_app.backbone_storage.push_dirty(clientdoc)
     model = clientdoc._models[id]

@@ -66,7 +66,7 @@ def push(session=None, document=None):
         session = cursession()
     if not document:
         document = curdoc()
-    session.push_dirty(document)
+    return session.push_dirty(document)
 
 def hold(value=True):
     ''' Set or clear the plot hold status on the current document.
@@ -309,32 +309,21 @@ def save(filename=None, resources=None):
     with open(filename, "w") as f:
         f.write(html)
 
-
-def store(session=None):
-    """ Updates plot server session with the data for the current document.
-
-    If a session is supplied or output_server(...) has been called, this will
-    upload all the plot objects up to the given server session.
-
-    Args:
-        session (Session, optional) : session to save document under (default: None)
-            if `session` is None, the current output_server(...) session is used if present
-
-    """
-    if session is None:
-        session = _default_session
-
+def push(session=None, document=None):
+    if not session:
+        session = cursession()
+    if not document:
+        document = curdoc()
     if session:
-        session.push_dirty(curdoc())
+        return session.push_dirty(curdoc())
     else:
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushd")
-
-
+        
 def _document_wrap(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         retval = func(curdoc(), *args, **kwargs)
-        if _default_session:
+        if cursession() and curdoc()._autostore:
             push()
         if _default_file and _default_file['autosave']:
             save()

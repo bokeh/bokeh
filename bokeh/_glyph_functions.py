@@ -35,7 +35,8 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
         elif isinstance(document_or_plot, Document):
             document = document_or_plot
             plot = document._get_plot(kwargs)
-            document.add(plot)
+            if document._autoadd:
+                document.add(plot)
         else:
             raise ValueError("expected document or plot object for first argument")
 

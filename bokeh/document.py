@@ -22,11 +22,12 @@ class Document(object):
         self._next_figure_kwargs = dict()
         self._hold = False
         self._autostore = True
+        self._autoadd = True
         self._models = {}
         self.docid = str(uuid.uuid4())
         self._plotcontext = None
         if json_objs:
-            self.load(*json_objs)
+            self.load(*json_objs, dirty=False)
         self.set_context()
 
     def get_context(self):
@@ -64,8 +65,13 @@ class Document(object):
 
     def __exit__(self, e_ty, e_val, e_tb):
         pass
+        
+    def autoadd(self, value=True):
+        self._autoadd = value
+
     def autostore(self, value=True):
         self._autostore = value
+
     def hold(self, value=True):
         self._hold = value
 
@@ -133,8 +139,16 @@ class Document(object):
         """adds top level objects to the document
         """
         for obj in objects:
+            assert obj not in self._plotcontext.children
             self._plotcontext.children.append(obj)
             self._add(*obj.references())
+            
+    def add_all(self):
+        """ensures everything in a plot context is stored and ready to
+        be pushed
+        """
+        objs = self._plotcontext.references()
+        self._add(*objs)
 
     def remove(self, obj_or_id):
         """obj_or_id - can be an object, or an ID of an object
@@ -159,10 +173,7 @@ class Document(object):
         models = []
         created = set()
         for attr in attrs:
-            try:
-                typename = attr['type']
-            except:
-                import pdb;pdb.set_trace()
+            typename = attr['type']
             attr = attr['attributes']
             logger.debug('type: %s', typename)
             #logger.debug('attrs: %s', attr)
@@ -190,9 +201,8 @@ class Document(object):
             self.execute_callback_queue(models=non_created)
             self.clear_callback_queue(models=created)
         self.enable_callbacks(models)
-        if dirty:
-            for x in models:
-                x._dirty = True
+        for x in models:
+            x._dirty = dirty
         return models
 
     def dump(self, *to_store):
@@ -205,7 +215,7 @@ class Document(object):
             to_store = self._models.values()
 
         models = []
-        for obj in PlotObject.collect_plot_objects(*to_store):
+        for obj in to_store:
             ref = get_ref(obj)
             ref["attributes"] = obj.vm_serialize()
             ref["attributes"].update({"id": ref["id"], "doc": self.docid})
