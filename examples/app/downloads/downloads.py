@@ -1,3 +1,4 @@
+import os
 import sys
 import gzip
 import datetime
@@ -21,15 +22,23 @@ parser.add_argument("argv", nargs="*")
 args = parser.parse_args()
 sys.argv[1:] = args.argv
 
-def load_csv(file_name):
-    file_path = abspath(join(expanduser(args.data_dir), file_name))
-
+def load_csv(file_path):
     with gzip.open(file_path) as file:
         df = pd.read_csv(file)
         df["date"] = pd.to_datetime(df.timestamp, unit='s')
         return df
 
-installers = load_csv("installers.internalpanel.data.log.gz")
+def load_dataset(dataset_name):
+    dataset_path = abspath(join(expanduser(args.data_dir), dataset_name))
+    datasets = []
+
+    for file_name in sorted(os.listdir(dataset_path)):
+        if file_name.endswith("%s.internalpanel.data.gz" % dataset_name):
+            datasets.append(load_csv(join(dataset_path, file_name)))
+
+    return pd.concat(datasets)
+
+installers = load_dataset("installers")
 
 class InstallersModel(VBoxModelForm):
     installer = Enum("All", *sorted(installers.event.unique()))
