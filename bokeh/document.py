@@ -187,7 +187,8 @@ class Document(object):
             None
         '''
         for obj in objects:
-            assert obj not in self._plotcontext.children
+            if obj in self._plotcontext.children:
+                continue
             self._plotcontext.children.append(obj)
             self._add(*obj.references())
 
