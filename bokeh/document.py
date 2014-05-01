@@ -6,7 +6,7 @@ import copy
 import logging
 import uuid
 
-from . import _glyph_functions
+from . import _glyph_functions as gf
 from .objects import PlotContext
 from .properties import HasProps
 from .plot_object import PlotObject
@@ -64,50 +64,77 @@ class Document(object):
 
     def __exit__(self, e_ty, e_val, e_tb):
         pass
+
     def autostore(self, value=True):
         self._autostore = value
+
     def hold(self, value=True):
+        ''' Set the hold value for this Document.
+
+        Args:
+            value (bool, optional) : whether hold should be turned on or off (default: True)
+
+        Returns:
+            None
+
+        '''
         self._hold = value
 
     def figure(self, **kwargs):
+        ''' Create a new figure for the next rendering.
+
+        Returns:
+            None
+
+        '''
         self._current_plot = None
         self._next_figure_kwargs = kwargs
 
     def curplot(self):
+        ''' Return the current plot of this Document.
+
+        The "current plot" is the plot that is acted on by all the
+        rendering methods, e.g.``doc.circle(...)`` will render a
+        circle on the current plot.
+
+        Returns:
+            plot : the current plot_kwargs
+
+        '''
         return self._current_plot;
 
-    annular_wedge     = _glyph_functions.annular_wedge
-    annulus           = _glyph_functions.annulus
-    arc               = _glyph_functions.arc
-    asterisk          = _glyph_functions.asterisk
-    bezier            = _glyph_functions.bezier
-    circle            = _glyph_functions.circle
-    circle_cross      = _glyph_functions.circle_cross
-    circle_x          = _glyph_functions.circle_x
-    cross             = _glyph_functions.cross
-    diamond           = _glyph_functions.diamond
-    diamond_cross     = _glyph_functions.diamond_cross
-    image             = _glyph_functions.image
-    image_rgba        = _glyph_functions.image_rgba
-    image_url         = _glyph_functions.image_url
-    inverted_triangle = _glyph_functions.inverted_triangle
-    line              = _glyph_functions.line
-    multi_line        = _glyph_functions.multi_line
-    oval              = _glyph_functions.oval
-    patch             = _glyph_functions.patch
-    patches           = _glyph_functions.patches
-    quad              = _glyph_functions.quad
-    quadratic         = _glyph_functions.quadratic
-    ray               = _glyph_functions.ray
-    rect              = _glyph_functions.rect
-    segment           = _glyph_functions.segment
-    square            = _glyph_functions.square
-    square_cross      = _glyph_functions.square_cross
-    square_x          = _glyph_functions.square_x
-    text              = _glyph_functions.text
-    triangle          = _glyph_functions.triangle
-    wedge             = _glyph_functions.wedge
-    x                 = _glyph_functions.x
+    annular_wedge     = gf.annular_wedge
+    annulus           = gf.annulus
+    arc               = gf.arc
+    asterisk          = gf.asterisk
+    bezier            = gf.bezier
+    circle            = gf.circle
+    circle_cross      = gf.circle_cross
+    circle_x          = gf.circle_x
+    cross             = gf.cross
+    diamond           = gf.diamond
+    diamond_cross     = gf.diamond_cross
+    image             = gf.image
+    image_rgba        = gf.image_rgba
+    image_url         = gf.image_url
+    inverted_triangle = gf.inverted_triangle
+    line              = gf.line
+    multi_line        = gf.multi_line
+    oval              = gf.oval
+    patch             = gf.patch
+    patches           = gf.patches
+    quad              = gf.quad
+    quadratic         = gf.quadratic
+    ray               = gf.ray
+    rect              = gf.rect
+    segment           = gf.segment
+    square            = gf.square
+    square_cross      = gf.square_cross
+    square_x          = gf.square_x
+    text              = gf.text
+    triangle          = gf.triangle
+    wedge             = gf.wedge
+    x                 = gf.x
 
 
     def _get_plot(self, kwargs):
@@ -124,21 +151,34 @@ class Document(object):
         return plot
 
     def _add(self, *objects):
-        """adds objects to the document
-        """
         for obj in objects:
             self._models[obj._id] = obj
 
     def add(self, *objects):
-        """adds top level objects to the document
-        """
+        ''' Add top level objects to this Document
+
+        Args:
+            *objects (PlotObject) : objects to add to the Document
+
+        Returns:
+            None
+        '''
         for obj in objects:
             self._plotcontext.children.append(obj)
             self._add(*obj.references())
 
     def remove(self, obj_or_id):
-        """obj_or_id - can be an object, or an ID of an object
-        """
+        ''' Remove and object from this Document.
+
+        Args:
+            obj_or_id (PlotObject or str) : a PlotObject, or ID of a PlotObject, remove
+
+        Returns:
+            None
+
+        Raises:
+            ValueError
+        '''
         if isinstance(obj_or_id, PlotObject):
             del self._models[obj_or_id._id]
         elif isinstance(obj_or_id, basestring):
@@ -219,12 +259,34 @@ class Document(object):
     #------------------------------------------------------------------------
 
     def disable_callbacks(self, models=None):
+        ''' Disable callbacks on given models.
+
+        Args:
+            models (list, optional) : models to disable callbacks for
+                If models is None, disables callbacks on all models in
+                this Document
+
+        Returns:
+            None
+
+        '''
         if models is None:
             models = self._models.values()
         for m in models:
             m._block_callbacks = True
 
     def enable_callbacks(self, models=None):
+        ''' Enable callbacks on given models.
+
+        Args:
+            models (list, optional) : models to enable callbacks for
+                If models is None, enables callbacks on all models in
+                this Document
+
+        Returns:
+            None
+
+        '''
         if models is None:
             models = self._models.values()
 
@@ -232,12 +294,34 @@ class Document(object):
             m._block_callbacks = False
 
     def clear_callback_queue(self, models=None):
+        ''' Clear the callback queue on given models.
+
+        Args:
+            models (list, optional) : models to clear callbacks for
+                If models is None, clears callback queue on all models
+                in this Document
+
+        Returns:
+            None
+
+        '''
         if models is None:
             models = self._models.values()
         for m in models:
             del m._callback_queue[:]
 
     def execute_callback_queue(self, models=None):
+        ''' Execute all queued callbacks on given models.
+
+        Args:
+            models (list, optional) : models to execute callbacks for
+                If models is None, executes the callback queue on all
+                models in this Document
+
+        Returns:
+            None
+
+        '''
         if models is None:
             models = self._models.values()
         for m in models:
@@ -256,10 +340,12 @@ def merge(basedocument, document):
         if m not in basedocument._plotcontext.children:
             basedocument._plotcontext.children.append(m)
     basedocument._plotcontext._dirty = True
-    for k,v in document._models.iteritems():
+    for k, v in document._models.iteritems():
         basedocument._models[k] = v
     del basedocument._models[document._plotcontext._id]
+
 def convert_references(json_obj):
+
     def convert(obj):
         if isinstance(obj, PlotObject):
             return get_ref(obj)
@@ -267,6 +353,7 @@ def convert_references(json_obj):
             return obj.to_dict()
         else:
             return obj
+
     def helper(json_obj):
         if isinstance(json_obj, list):
             for idx, x in enumerate(json_obj):

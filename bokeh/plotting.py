@@ -8,7 +8,7 @@ import uuid
 import warnings
 
 from . import browserlib
-from . import _glyph_functions
+from . import _glyph_functions as gf
 from .document import Document
 from .objects import Axis, Grid, GridPlot, Legend
 from .palettes import brewer
@@ -327,10 +327,10 @@ def store(session=None):
     if session:
         session.push_dirty(curdoc())
     else:
-        warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushd")
+        warnings.warn("store() called but no session was supplied and output_server(...) was never called, nothing pushd")
 
 
-def _document_wrap(func):
+def _doc_wrap(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         retval = func(curdoc(), *args, **kwargs)
@@ -343,38 +343,38 @@ def _document_wrap(func):
     return wrapper
 
 
-annular_wedge     = _document_wrap(_glyph_functions.annular_wedge)
-annulus           = _document_wrap(_glyph_functions.annulus)
-arc               = _document_wrap(_glyph_functions.arc)
-asterisk          = _document_wrap(_glyph_functions.asterisk)
-bezier            = _document_wrap(_glyph_functions.bezier)
-circle            = _document_wrap(_glyph_functions.circle)
-circle_cross      = _document_wrap(_glyph_functions.circle_cross)
-circle_x          = _document_wrap(_glyph_functions.circle_x)
-cross             = _document_wrap(_glyph_functions.cross)
-diamond           = _document_wrap(_glyph_functions.diamond)
-diamond_cross     = _document_wrap(_glyph_functions.diamond_cross)
-image             = _document_wrap(_glyph_functions.image)
-image_rgba        = _document_wrap(_glyph_functions.image_rgba)
-image_url         = _document_wrap(_glyph_functions.image_url)
-inverted_triangle = _document_wrap(_glyph_functions.inverted_triangle)
-line              = _document_wrap(_glyph_functions.line)
-multi_line        = _document_wrap(_glyph_functions.multi_line)
-oval              = _document_wrap(_glyph_functions.oval)
-patch             = _document_wrap(_glyph_functions.patch)
-patches           = _document_wrap(_glyph_functions.patches)
-quad              = _document_wrap(_glyph_functions.quad)
-quadratic         = _document_wrap(_glyph_functions.quadratic)
-ray               = _document_wrap(_glyph_functions.ray)
-rect              = _document_wrap(_glyph_functions.rect)
-segment           = _document_wrap(_glyph_functions.segment)
-square            = _document_wrap(_glyph_functions.square)
-square_cross      = _document_wrap(_glyph_functions.square_cross)
-square_x          = _document_wrap(_glyph_functions.square_x)
-text              = _document_wrap(_glyph_functions.text)
-triangle          = _document_wrap(_glyph_functions.triangle)
-wedge             = _document_wrap(_glyph_functions.wedge)
-x                 = _document_wrap(_glyph_functions.x)
+annular_wedge     = _doc_wrap(gf.annular_wedge)
+annulus           = _doc_wrap(gf.annulus)
+arc               = _doc_wrap(gf.arc)
+asterisk          = _doc_wrap(gf.asterisk)
+bezier            = _doc_wrap(gf.bezier)
+circle            = _doc_wrap(gf.circle)
+circle_cross      = _doc_wrap(gf.circle_cross)
+circle_x          = _doc_wrap(gf.circle_x)
+cross             = _doc_wrap(gf.cross)
+diamond           = _doc_wrap(gf.diamond)
+diamond_cross     = _doc_wrap(gf.diamond_cross)
+image             = _doc_wrap(gf.image)
+image_rgba        = _doc_wrap(gf.image_rgba)
+image_url         = _doc_wrap(gf.image_url)
+inverted_triangle = _doc_wrap(gf.inverted_triangle)
+line              = _doc_wrap(gf.line)
+multi_line        = _doc_wrap(gf.multi_line)
+oval              = _doc_wrap(gf.oval)
+patch             = _doc_wrap(gf.patch)
+patches           = _doc_wrap(gf.patches)
+quad              = _doc_wrap(gf.quad)
+quadratic         = _doc_wrap(gf.quadratic)
+ray               = _doc_wrap(gf.ray)
+rect              = _doc_wrap(gf.rect)
+segment           = _doc_wrap(gf.segment)
+square            = _doc_wrap(gf.square)
+square_cross      = _doc_wrap(gf.square_cross)
+square_x          = _doc_wrap(gf.square_x)
+text              = _doc_wrap(gf.text)
+triangle          = _doc_wrap(gf.triangle)
+wedge             = _doc_wrap(gf.wedge)
+x                 = _doc_wrap(gf.x)
 
 _marker_types = {
     "asterisk": asterisk,
