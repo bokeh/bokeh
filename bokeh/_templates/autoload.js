@@ -11,26 +11,26 @@
     document.getElementsByTagName("head")[0].appendChild(s);
   }
 
-  bokehjs_url = ""
+  bokehjs_url = "{{ js_url }}"
 
   var all_models = {{ all_models|default('{}') }};
-  var elementid = "{{ elementid }}";
-  var plotid = "{{ plotid }}";
-  var data = { "{{ plotid }}": all_models };
+  var info = { "{{ plotid }}": all_models };
 
   if(typeof(Bokeh) !== "undefined" && Bokeh._is_loaded) {
     // BokehJS is loaded
     console.log("BokehJS loaded, going straight to plotting");
-    Bokeh.embed_core.search_and_plot(data);
+    Bokeh.embed_core.search_and_plot("{{ elementid }}", info);
   } else {
     // BokehJS needs to be loaded loaded
     console.log("BokehJS not loaded, scheduling load and callback at", new Date());
     load_lib(bokehjs_url, function() {
-      console.log("BokehJS load callback run at", new Date())
-      Bokeh.embed_core.injectCss(static_root_url);
+      console.log("BokehJS load callback run at ", new Date(), ", going to plotting")
       // Monkey patch HasProperties sync function
       Bokeh.HasProperties.prototype.sync = Backbone.sync
-      Bokeh.embed_core.search_and_plot(data)
+      {%- for file in css_files %}
+      Bokeh.embed.inject_css("{{ file }}");
+      {%- endfor %}
+      Bokeh.embed.inject_plot("{{ elementid }}, info")
     });
   }
 

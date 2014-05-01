@@ -66,6 +66,32 @@ Args:
 Attributes:
     AUTOLOAD: This template is for creating a sidecar JS file that will automatically and asynchronously load BokehJS (if necessary) and then replaces the ``script`` tag that loads it (with appropriate attributes) with a rendered plot.
 
+Attributes:
+    AUTOLOAD_SERVER: This template is for creating ``<script>`` tags that run AUTOLOAD scripts for plots that connect to a Bokeh Server for their data
+
+Args:
+    src_path (str) : path to AUTOLOAD script
+    elementid (str) : the a unique id for the script tag
+    modelid (str) : The Bokeh model id for the object to render
+        typically for a Plot, PlotContext, etc.
+    modeltype (str) : the type of the model to render
+        used to reference the appropriate Backbone collection
+    root_url (str) : root URL of the Bokeh Server
+    docid (str) : document ID for the document on the server to load
+    docapikey (str) : API key for the document
+    conn_string (str) : a connection string for a websocket connection to the Bokeh Server
+
+Attributes
+    AUTOLOAD_STATIC: This template is for creating ``<script>`` tags that run AUTOLOAD scripts for plots that have their data embedded in the AUTOLOAD script
+
+Args:
+    src_path (str) : path to AUTOLOAD script
+    elementid (str) : the a unique id for the script tag
+    modelid (str) : The Bokeh model id for the object to render
+        typically for a Plot, PlotContext, etc.
+    modeltype (str) : the type of the model to render
+        used to reference the appropriate Backbone collection
+
 '''
 
 from os.path import abspath, join, split
@@ -113,32 +139,15 @@ AUTOLOAD = jinja2.Template(
 )
 
 
-AUTOLOAD_SERVER = jinja2.Template('''
-<script
-    src="%(script_url)s"
-    data-bokeh-plottype="serverconn"
-    bokeh_docid="%(docid)s"
-    bokeh_ws_conn_string="%(ws_conn_string)s"
-    bokeh_docapikey="%(docapikey)s"
-    bokeh_root_url="%(root_url)s"
-    bokeh_modelid="%(modelid)s"
-    bokeh_modeltype="%(modeltype)s"
-    async="true"
->
-</script>
-''')
+AUTOLOAD_SERVER = jinja2.Template(
+    open(join(_templates_path, "autoload_server.html")).read()
+)
 
 
-AUTOLOAD_STATIC = jinja2.Template('''
-<script
-    src="%(embed_filename)s"
-    bokeh_plottype="embeddata"
-    bokeh_modelid="%(modelid)s"
-    bokeh_modeltype="%(modeltype)s"
-    async="true"
->
-</script>
-''')
+AUTOLOAD_STATIC= jinja2.Template(
+    open(join(_templates_path, "autoload_static.html")).read()
+)
+
 
 
 

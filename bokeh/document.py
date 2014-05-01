@@ -1,16 +1,17 @@
 """ Defines the Document type
 """
 from __future__ import absolute_import
+
+import copy
+import logging
 import uuid
-from .utils import json_apply
-from .  import _glyph_functions
+
+from . import _glyph_functions
 from .objects import PlotContext
 from .properties import HasProps
 from .plot_object import PlotObject
 from .plotting_helpers import _new_xy_plot
-
-import logging
-import copy
+from .utils import json_apply
 
 logger = logging.getLogger(__file__)
 
