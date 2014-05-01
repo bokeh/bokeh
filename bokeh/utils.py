@@ -2,6 +2,7 @@ import platform
 import sys
 import math
 from six.moves.urllib.parse import urljoin as sys_urljoin
+import copy
 from functools import reduce
 
 def urljoin(*args):
@@ -59,3 +60,36 @@ def json_apply(json_obj, func):
             for k,v in node.iteritems():
                 queue.append(v)
 
+def get_ref(obj):
+    return obj.get_ref()
+    
+def convert_references(json_obj):
+    from .plot_object import PlotObject
+    from .properties import HasProps
+    def convert(obj):
+        if isinstance(obj, PlotObject):
+            return get_ref(obj)
+        elif isinstance(obj, HasProps):
+            return obj.to_dict()
+        else:
+            return obj
+    def helper(json_obj):
+        if isinstance(json_obj, list):
+            for idx, x in enumerate(json_obj):
+                json_obj[idx] = convert(x)
+        if isinstance(json_obj, dict):
+            for k, x in json_obj.iteritems():
+                json_obj[k] = convert(x)
+    json_obj = copy.deepcopy(json_obj)
+    json_apply(json_obj, helper)
+    return json_obj
+
+def dump(objs, docid):
+    json_objs = []
+    for obj in objs:
+        ref = get_ref(obj)
+        ref["attributes"] = obj.vm_serialize()
+        ref["attributes"].update({"id": ref["id"], "docid" : docid})
+        json_objs.append(ref)
+    json_objs = convert_references(json_objs)
+    return json_objs

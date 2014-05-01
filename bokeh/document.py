@@ -7,11 +7,12 @@ import logging
 import uuid
 
 from . import _glyph_functions as gf
+from .exceptions import DataIntegrityException
 from .objects import PlotContext
 from .properties import HasProps
 from .plot_object import PlotObject
 from .plotting_helpers import _new_xy_plot
-from .utils import json_apply
+from .utils import json_apply, convert_references, get_ref, dump
 
 logger = logging.getLogger(__file__)
 
@@ -35,27 +36,45 @@ class Document(object):
 
     def get_context_ref(self):
         return get_ref(self._plotcontext)
+        
+    def _set_context(self, plotcontext):
+        """sets the plot context.
+        unsets the context first if one is present
+        """
+        self.unset_context()
+        pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
+        if len(pcs) != 0:
+            raise DataIntegrityException("too many plot contexts found")
+        self._add(plotcontext)
+        self._plotcontext = plotcontext
+            
+    def _autoset_context(self):
+        """autosets context from what's already in this document
+        If no plotcontext exists, creates one
+        """
+        pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
+        if len(pcs) == 0:
+            plotcontext = PlotContext()
+            self._plotcontext = plotcontext
+        elif len(pcs) == 1:
+            self._plotcontext = pcs[0]
+        else:
+            raise DataIntegrityException("too many plot contexts found")
+        self._add(self._plotcontext)
 
     def set_context(self, plotcontext=None):
         """finds the plot context and sets it
+        if a plotcontext is passed in, the plot context will
+        be unset
         """
-        pcs = [x for x in self._models.values() if x.__view_model__ == 'PlotContext']
         if plotcontext:
-            assert len(pcs) == 0, "You already have a plot context, must unset it"
-            self._plotcontext = plotcontext
-            self._add(self._plotcontext)
+            self._set_context(plotcontext)
         else:
-            if len(pcs) == 1:
-                logger.debug("setting plot context")
-                self._plotcontext = pcs[0]
-            elif len(pcs) == 0:
-                logger.debug("no plot context found, creating one")
-                self._plotcontext = PlotContext()
-                self._add(self._plotcontext)
-            else:
-                logger.debug("too many plot context found, there can be only one")
+            self._autoset_context()
 
     def unset_context(self):
+        """unset the plot context and remove it from the document
+        """
         if self._plotcontext:
             self.remove(self._plotcontext)
             self._plotcontext = None
@@ -251,16 +270,7 @@ class Document(object):
         """
         if not to_store:
             to_store = self._models.values()
-
-        models = []
-        for obj in to_store:
-            ref = get_ref(obj)
-            ref["attributes"] = obj.vm_serialize()
-            ref["attributes"].update({"id": ref["id"], "doc": self.docid})
-            models.append(ref)
-        models = convert_references(models)
-        return models
-
+        return dump(to_store, docid=self.docid)
 
     #------------------------------------------------------------------------
     # Managing callbacks
@@ -337,8 +347,6 @@ class Document(object):
                 m._trigger(*cb)
             del m._callback_queue[:]
 
-def get_ref(obj):
-    return obj.get_ref()
 
 def merge(basedocument, document):
     """add objects from document into basedocument
@@ -351,25 +359,4 @@ def merge(basedocument, document):
     for k, v in document._models.iteritems():
         basedocument._models[k] = v
     del basedocument._models[document._plotcontext._id]
-
-def convert_references(json_obj):
-
-    def convert(obj):
-        if isinstance(obj, PlotObject):
-            return get_ref(obj)
-        elif isinstance(obj, HasProps):
-            return obj.to_dict()
-        else:
-            return obj
-
-    def helper(json_obj):
-        if isinstance(json_obj, list):
-            for idx, x in enumerate(json_obj):
-                json_obj[idx] = convert(x)
-        if isinstance(json_obj, dict):
-            for k, x in json_obj.iteritems():
-                json_obj[k] = convert(x)
-    json_obj = copy.deepcopy(json_obj)
-    json_apply(json_obj, helper)
-    return json_obj
 
