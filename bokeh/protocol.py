@@ -5,7 +5,7 @@ import datetime as dt
 
 import numpy as np
 from six.moves import cPickle as pickle
-
+from utils import get_ref
 try:
     import pandas as pd
     is_pandas = True
@@ -63,11 +63,15 @@ class BokehJSONEncoder(json.JSONEncoder):
             return super(BokehJSONEncoder, self).default(obj)
 
     def default(self, obj):
+        #argh! local import!
+        from plot_object import PlotObject
         ## array types
         if is_pandas and isinstance(obj, (pd.Series, pd.Index)):
             return self.transform_series(obj)
         elif isinstance(obj, np.ndarray):
             return self.transform_array(obj)
+        elif isinstance(obj, PlotObject):
+            return get_ref(obj)
         else:
             return self.transform_python_types(obj)
 

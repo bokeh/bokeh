@@ -80,7 +80,6 @@ def convert_references(json_obj):
         if isinstance(json_obj, dict):
             for k, x in json_obj.iteritems():
                 json_obj[k] = convert(x)
-    json_obj = copy.deepcopy(json_obj)
     json_apply(json_obj, helper)
     return json_obj
 
