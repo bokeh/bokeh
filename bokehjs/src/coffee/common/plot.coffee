@@ -155,7 +155,8 @@ define [
 
     initialize: (options) ->
       super(_.defaults(options, @default_options))
-
+      console.log "optionsoptions"
+      console.log options
       #@throttled_render = _.throttle(@render, 15)
       @throttled_render = throttle_animation(@render, 15)
       @throttled_render_canvas = throttle_animation(@render_canvas, 15)
@@ -180,12 +181,11 @@ define [
         requested_border_left: 0
         requested_border_right: 0
       })
-
       @hidpi = options.hidpi ? @mget('hidpi')
-
+      
       @x_range = options.x_range ? @mget_obj('x_range')
       @y_range = options.y_range ? @mget_obj('y_range')
-
+      
       xmapper_type = LinearMapper.Model
       if @x_range.type == "FactorRange"
         xmapper_type = CategoricalMapper.Model
@@ -363,7 +363,9 @@ define [
       <h3 class="modal_window_title"></h3>
       <i  class='icon-remove modal_window_close'></i>
     </div>
+    <div class="modal_footer">
     <div class="modal_body">
+    </div>
     </div>
     </div>
     </div>
