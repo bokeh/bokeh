@@ -6,6 +6,8 @@ import copy
 import logging
 import uuid
 
+from six import string_types
+
 from . import _glyph_functions as gf
 from .exceptions import DataIntegrityException
 from .objects import PlotContext
@@ -213,7 +215,7 @@ class Document(object):
         '''
         if isinstance(obj_or_id, PlotObject):
             del self._models[obj_or_id._id]
-        elif isinstance(obj_or_id, basestring):
+        elif isinstance(obj_or_id, string_types):
             del self._models[obj_or_id]
         else:
             raise ValueError("obj_or_id must be PlotObject or string(id)")
