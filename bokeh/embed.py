@@ -10,7 +10,7 @@ from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
     NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
 )
-
+from resources import Resources
 def components(plot_object, resources):
     ''' Return HTML components to embed a Bokeh plot.
 
@@ -160,7 +160,7 @@ def autoload_static(plot_object, resources, script_path):
     return js, tag
 
 
-def autoload_server(plot_object, session):
+def autoload_server(plot_object, session, mode="server"):
     ''' Return a script tag that can be used to embed Bokeh Plots from
     a Bokeh Server.
 
@@ -177,16 +177,16 @@ def autoload_server(plot_object, session):
 
     '''
     elementid = str(uuid.uuid4())
-
+    resources = Resources(root_url=session.root_url, mode=mode)
     tag = AUTOLOAD_SERVER.render(
-        src_path = session.root_url + "/bokeh/autoload.js/%s" % elementid,
+        src_path = resources._autoload_path(elementid),
         elementid = elementid,
         modelid = plot_object._id,
         modeltype = plot_object.__view_model__,
-        root_url = session.root_url,
+        root_url = resources.root_url,
         docid =  session.docid,
-        docapikey = session.api_key,
-        conn_string = sess.conn_string,
+        docapikey = session.apikey,
+        conn_string = resources.conn_string,
     )
 
     return tag

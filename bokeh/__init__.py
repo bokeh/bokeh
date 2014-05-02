@@ -107,7 +107,7 @@ class Settings(object):
         return self._get_str("VERSION", default)
 
     def minified(self, default=None):
-        return self._get_str("MINIFIED", default)
+        return self._get_bool("MINIFIED", default)
 
     def pretty(self, default=None):
         return self._get_bool("PRETTY", default)

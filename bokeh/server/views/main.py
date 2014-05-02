@@ -12,7 +12,6 @@ import logging
 log = logging.getLogger(__name__)
 
 from .bbauth import check_read_authentication_and_create_client
-
 from ... import resources
 from ..app import bokeh_app
 from ..models import user
@@ -297,14 +296,14 @@ def embed_js():
 
 @bokeh_app.route("/bokeh/autoload.js/<elementid>")
 def autoload_js(elementid):
-        resources = Resources(host = request.host, mode = 'server')
-        rendered = AUTOLOAD.render(
-            js_url = resources.js_files[0],
-            css_files = resources.css_files,
-            elementid = elementid,
-        )
-        return Response(rendered, 200,
-                         {'Content-Type':'application/javascript'})
+    resources = Resources(root_url=request.url_root, mode = 'server')
+    rendered = AUTOLOAD.render(
+        js_url = resources.js_files[0],
+        css_files = resources.css_files,
+        elementid = elementid,
+    )
+    return Response(rendered, 200,
+                    {'Content-Type':'application/javascript'})
 
 
 @bokeh_app.route('/bokeh/objinfo/<docid>/<objid>', methods=['GET', 'OPTIONS'])

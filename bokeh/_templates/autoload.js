@@ -1,10 +1,24 @@
 (function(global) {
-
+  if (typeof (window._bokeh_onload_callbacks) === "undefined"){
+    window._bokeh_onload_callbacks = [];
+  }
   function load_lib(url, callback){
+    window._bokeh_onload_callbacks.push(callback);
+    if (window._bokeh_is_loading){
+      console.log("BokehJS is being loaded, scheduling callback at", new Date());
+      return null;
+    }
+    console.log("BokehJS not loaded, scheduling load and callback at", new Date());
+    window._bokeh_is_loading = true;
     var s = document.createElement('script');
     s.src = url;
     s.async = true;
-    s.onreadystatechange = s.onload = callback;
+    s.onreadystatechange = s.onload = function(){
+      {%- for file in css_files %}
+      Bokeh.embed.inject_css("{{ file }}");
+      {%- endfor %}
+      window._bokeh_onload_callbacks.forEach(function(callback){callback()});
+    };
     s.onerror = function(){
       console.warn("failed to load library " + url);
     };
@@ -18,27 +32,21 @@
     console.log("ERROR: Bokeh autoload.js configured with elementid '{{ elementid }}' but no matching script tag was found. ")
     return false;
   }
-  info = elt.data();
 
   // These will be set for the static case
-  {%- if modelid %}
+  {%- if all_models %}
   var all_models = {{ all_models }};
-  info["{{ modelid }}"] = all_models;
+  {%- else %}
+  var all_models = null;
   {%- endif %}
-
+  console.log('bokeh is', window.Bokeh);
   if(typeof(Bokeh) !== "undefined") {
     console.log("BokehJS loaded, going straight to plotting");
-    Bokeh.embed.inject_plot("{{ elementid }}", info);
+    Bokeh.embed.inject_plot("{{ elementid }}", all_models);
   } else {
-    console.log("BokehJS not loaded, scheduling load and callback at", new Date());
     load_lib(bokehjs_url, function() {
       console.log("BokehJS load callback run at ", new Date(), ", going to plotting")
-      // Monkey patch HasProperties sync function
-      Bokeh.HasProperties.prototype.sync = Backbone.sync
-      {%- for file in css_files %}
-      Bokeh.embed.inject_css("{{ file }}");
-      {%- endfor %}
-      Bokeh.embed.inject_plot("{{ elementid }}", info)
+      Bokeh.embed.inject_plot("{{ elementid }}", all_models);
     });
   }
 
