@@ -47,6 +47,7 @@ class Viewable(MetaHasProps):
                           "class %s.  Previous definition: %s" % \
                           (entry, class_name,
                            Viewable.model_class_reverse_map[entry]))
+
         Viewable.model_class_reverse_map[entry] = newcls
         return newcls
 
@@ -55,6 +56,7 @@ class Viewable(MetaHasProps):
         """ Given a __view_model__ name, returns the corresponding class
         object
         """
+        logger.info("Lookup for: " + str(view_model_name))
         d = Viewable.model_class_reverse_map
         if view_model_name in d:
             return d[view_model_name]

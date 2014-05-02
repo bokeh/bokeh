@@ -15,6 +15,8 @@ from six.moves.urllib.parse import urljoin, urlencode
 
 from . import utils, browserlib
 from bokeh.objects import ServerDataSource
+import bokeh.transforms.ar_downsample as ar
+
 bokeh_plots_url = "http://bokehplots.cloudapp.net/"
 
 
