@@ -94,6 +94,7 @@ def prepare_app(backend, single_user_mode=True, data_directory=None):
         
 def register_blueprint(prefix):
     app.register_blueprint(bokeh_app, url_prefix=prefix)
+    bokeh_app.url_prefix = prefix
 
 def make_default_user(bokeh_app):
     bokehuser = user.new_user(bokeh_app.servermodel_storage, "defaultuser",

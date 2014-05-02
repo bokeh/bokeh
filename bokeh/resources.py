@@ -12,6 +12,8 @@ Attributes:
 
 from os.path import abspath, join, normpath, realpath, relpath, split, splitext
 import sys
+import logging
+logger = logging.getLogger(__name__)
 
 from . import __version__, settings
 
@@ -46,8 +48,8 @@ def _get_cdn_urls(version=None, minified=True):
 def _get_server_urls(root_url, minified=True):
     min = ".min" if minified else ""
     result = {
-        'js_files'  : ['%s/bokehjs/static/js/bokeh%s.js' % (root_url, min)],
-        'css_files' : ['%s/bokehjs/static/css/bokeh%s.css' % (root_url, min)],
+        'js_files'  : ['%sbokehjs/static/js/bokeh%s.js' % (root_url,  min)],
+        'css_files' : ['%sbokehjs/static/css/bokeh%s.css' % (root_url,  min)],
         'messages'  : [],
     }
     return result
@@ -124,7 +126,7 @@ class Resources(object):
     _default_css_files_dev = ['css/bokeh-vendor.css', 'css/continuum.css', 'css/main.css']
 
     _default_rootdir = "."
-    _default_url = "http://127.0.0.1:5006"
+    _default_url = "http://127.0.0.1:5006/"
     logo_url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
 
     def __init__(self, mode='inline', version=None, rootdir=None,
@@ -133,6 +135,10 @@ class Resources(object):
         self.rootdir = settings.rootdir(rootdir)
         self.version = settings.version(version)
         self.minified = settings.minified(minified)
+        if root_url and not root_url.endswith("/"):
+            logger.warning("root_url should end with a /, adding one")
+            root_url = root_url + "/"
+                                 
         self._root_url = root_url
 
         if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
@@ -222,7 +228,7 @@ class Resources(object):
         return js_wrapper
 
     def _autoload_path(self, elementid):
-        return self.root_url + "/bokeh/autoload.js/%s" % elementid
+        return self.root_url + "bokeh/autoload.js/%s" % elementid
 
 CDN = Resources(mode="cdn")
 

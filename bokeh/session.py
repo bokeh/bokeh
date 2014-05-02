@@ -51,6 +51,9 @@ class Session(object):
         ):
 
         self.name = name
+        if not root_url.endswith("/"):
+            logger.warning("root_url should end with a /, adding one")
+            root_url = root_url + "/"
         self.root_url = root_url
         #single user mode case
         self.userapikey = userapikey
