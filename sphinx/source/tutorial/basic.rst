@@ -61,6 +61,20 @@ Styling your plots
 
 See the :doc:`solutions/gallery/style`.
 
+.. _brushing:
+
+Linking your Brushing
+---------------------
+
+* exercise location: **exercises/brushing.py**
+
+.. literalinclude:: exercises/brushing.py
+   :language: python
+   :linenos:
+   :emphasize-lines: 25-27,29-31
+
+See the :doc:`solutions/gallery/brushing`.
+
 .. _hover:
 
 Hovering above the Data
