@@ -81,9 +81,9 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False, xkcd=Fal
         plotting.output_server(url=server)
 
     elif filename:
-        plotting.output_file(filename, resources="relative")
+        plotting.output_file(filename, mode="relative")
 
-    session = plotting.session()
+    doc = plotting.curdoc()
 
     plots = []
 
@@ -92,15 +92,15 @@ def show_bokeh(figure=None, filename=None, server=None, notebook=False, xkcd=Fal
         plots.append(plot)
 
     if len(figure.axes) <= 1:
-        plotting.get_config()["curplot"] = plots[0]
-        session.add_plot(plots[0])
+        doc._current_plot = plots[0]  # TODO (bev) do not rely on private attrs
+        doc.add(plots[0])
     else:
         (a, b, c) = figure.axes[0].get_geometry()
         p = np.array(plots)
         n = np.resize(p, (a, b))
         grid = objects.GridPlot(children=n.tolist())
-        plotting.get_config()["curplot"] = grid
-        session.add_plot(grid)
+        doc._current_plot = grid      # TODO (bev) do not rely on private attrs
+        doc.add(grid)
 
     if filename:
         plotting.save()
