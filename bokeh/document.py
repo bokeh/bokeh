@@ -216,7 +216,7 @@ class Document(object):
         elif isinstance(obj_or_id, basestring):
             del self._models[obj_or_id]
         else:
-            raise ValueError, "obj_or_id must be PlotObject or string(id)"
+            raise ValueError("obj_or_id must be PlotObject or string(id)")
 
 
     # functions for turning json objects into json models
@@ -357,7 +357,7 @@ def merge(basedocument, document):
         if m not in basedocument._plotcontext.children:
             basedocument._plotcontext.children.append(m)
     basedocument._plotcontext._dirty = True
-    for k, v in document._models.iteritems():
+    for k, v in document._models.items():
         basedocument._models[k] = v
     del basedocument._models[document._plotcontext._id]
 

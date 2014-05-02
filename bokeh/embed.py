@@ -6,11 +6,12 @@ different ways.
 import uuid
 
 from .protocol import serialize_json
+from .resources import Resources
 from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
     NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
 )
-from resources import Resources
+
 def components(plot_object, resources):
     ''' Return HTML components to embed a Bokeh plot.
 
