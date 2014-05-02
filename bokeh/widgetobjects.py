@@ -197,7 +197,7 @@ class TableWidget(Widget):
     pass
 
 class TableColumn(Widget):
-    type = Enum("string", "numeric", "date")
+    type = Enum("text", "numeric", "date")
     data = String
     header = String
 

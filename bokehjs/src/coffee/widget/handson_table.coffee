@@ -23,10 +23,7 @@ define [
           headers.push(column.get("header"))
           data = column.get("data")
           type = column.get("type")
-          columns.push({
-            data: data
-            type: if type == "string" then undefined else type
-          })
+          columns.push({ data: data, type: type })
 
         @$el.handsontable({
           data: source.datapoints()
