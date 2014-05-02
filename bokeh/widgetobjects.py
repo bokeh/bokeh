@@ -197,9 +197,13 @@ class TableWidget(Widget):
     pass
 
 class TableColumn(Widget):
-    type = Enum("text", "numeric", "date")
+    type = Enum("text", "numeric", "date", "autocomplete")
     data = String
     header = String
+
+    # TODO: splic TableColumn into multiple classes
+    source = List(String) # only 'autocomplete'
+    strict = Bool(True)   # only 'autocomplete'
 
 class HandsonTable(TableWidget):
     #source = Instance(DataSource)
