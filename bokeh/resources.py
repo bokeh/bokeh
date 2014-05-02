@@ -43,11 +43,11 @@ def _get_cdn_urls(version=None, minified=True):
         })
     return result
 
-def _get_server_urls(host, minified=True):
+def _get_server_urls(root_url, minified=True):
     min = ".min" if minified else ""
     result = {
-        'js_files'  : ['%s/bokehjs/static/js/bokeh%s.js' % (host, min)],
-        'css_files' : ['%s/bokehjs/static/css/bokeh%s.css' % (host, min)],
+        'js_files'  : ['%s/bokehjs/static/js/bokeh%s.js' % (root_url, min)],
+        'css_files' : ['%s/bokehjs/static/css/bokeh%s.css' % (root_url, min)],
         'messages'  : [],
     }
     return result
@@ -124,17 +124,17 @@ class Resources(object):
     _default_css_files_dev = ['css/bokeh-vendor.css', 'css/continuum.css', 'css/main.css']
 
     _default_rootdir = "."
-    _default_host = "http://127.0.0.1:5006"
-
+    _default_url = "http://127.0.0.1:5006"
     logo_url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
 
-    def __init__(self, mode='inline', version=None, rootdir=None, minified=True, host=None):
+    def __init__(self, mode='inline', version=None, rootdir=None, 
+                 minified=True, root_url=None):
         self.mode = settings.resources(mode)
         self.rootdir = settings.rootdir(rootdir)
         self.version = settings.version(version)
         self.minified = settings.minified(minified)
-        self.host = host
-
+        self._root_url = root_url
+        
         if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
             raise ValueError("wrong value for 'mode' parameter, expected 'inline', 'cdn', 'server', 'server-dev', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
 
@@ -144,9 +144,9 @@ class Resources(object):
         if self.version and not mode.startswith('cdn'):
             raise ValueError("setting 'version' makes sense only when 'mode' is set to 'cdn'")
 
-        if self.host and not mode.startswith('server'):
-            raise ValueError("setting 'host' makes sense only when 'mode' is set to 'server'")
-
+        if root_url and not mode.startswith('server'):
+            raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
+            
         self.dev = mode.endswith('-dev')
         if self.dev:
             self.mode = self.mode[:-4]
@@ -178,8 +178,7 @@ class Resources(object):
             self.css_files = list(cdn['css_files'])
             self.messages.extend(cdn['messages'])
         elif self.mode == "server":
-            host = self.host or self._default_host
-            server = _get_server_urls(host, self.minified)
+            server = _get_server_urls(self.root_url, self.minified)
             self.js_files = list(server['js_files'])
             self.css_files = list(server['css_files'])
             self.messages.extend(server['messages'])
@@ -187,6 +186,17 @@ class Resources(object):
         if self.dev:
             require = 'require.config({ baseUrl: "%s" });' % base_url
             self.js_raw.append(require)
+            
+    @property
+    def root_url(self):
+        if self._root_url: 
+            return self._root_url
+        else:
+            return self._default_url
+            
+    @property
+    def conn_string(self):
+        return self.root_url.replace("http", "ws", 1) + "bokeh/sub"
 
     def _js_paths(self, minified=True, dev=False):
         files = self._default_js_files_dev if self.dev else self._default_js_files
@@ -210,7 +220,9 @@ class Resources(object):
             js_wrapper = wrapper
 
         return js_wrapper
-
+        
+    def _autoload_path(self, elementid):
+        return self.root_url + "/bokeh/autoload.js/%s" % elementid
 
 CDN = Resources(mode="cdn")
 
