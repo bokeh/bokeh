@@ -91,7 +91,7 @@ define [
       if type?
         html = html.concat([
           ": "
-          "<span style=\"color:blue\">#{type}#{if ref then "<span style=\"color:red\">*</span>" else ""}</span>"
+          "<span style=\"color:#383838 \">#{type}#{if ref then "<span style=\"color:red\">*</span>" else ""}</span>"
         ])
 
       if value?

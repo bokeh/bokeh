@@ -363,7 +363,9 @@ define [
       <h3 class="modal_window_title"></h3>
       <i  class='icon-remove modal_window_close'></i>
     </div>
+    <div class="modal_footer">
     <div class="modal_body">
+    </div>
     </div>
     </div>
     </div>
