@@ -220,8 +220,8 @@ def show(browser=None, new="tab", url=None):
 
     elif notebook:
         import IPython.core.displaypub as displaypub
-        context = curdoc().get_context()
-        displaypub.publish_display_data('bokeh', {'text/html': notebook_div(context)})
+        plot = curplot()
+        displaypub.publish_display_data('bokeh', {'text/html': notebook_div(plot)})
 
     elif session:
         push()
@@ -431,6 +431,7 @@ def gridplot(plot_arrangement, name=None):
     subplots = itertools.chain.from_iterable(plot_arrangement)
     curdoc().get_context().children = list(set(curdoc().get_context().children) - set(subplots))
     curdoc().add(grid)
+    curdoc()._current_plot = grid # TODO (bev) don't use private attrs
 
     if _default_session:
         push()
