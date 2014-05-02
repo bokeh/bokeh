@@ -51,6 +51,6 @@ figure()
 # EXERCISE: create a new figure
 
 # EXERCISE: add x_range and y_range parameters to the first `line`, to set the
-# range to [-10, 10]. NOTE: Range1d are created like: Range1d(start=0, end-10)
+# range to [-10, 10]. NOTE: Range1d are created like: Range1d(start=0, end=-10)
 
 show()      # show the plot
