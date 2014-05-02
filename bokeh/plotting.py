@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from functools import wraps
 import itertools
+import time
 import logging
 import os
 import uuid
@@ -10,7 +11,7 @@ import warnings
 from . import browserlib
 from . import _glyph_functions as gf
 from .document import Document
-from .embed import notebook_div, file_html
+from .embed import notebook_div, file_html, autoload_server
 from .objects import Axis, Grid, GridPlot, Legend
 from .palettes import brewer
 from .plotting_helpers import (
@@ -149,9 +150,14 @@ def output_cloud(docname):
     """
     output_server(docname, session=Cloud())
 
-def output_notebook():
-    from . import load_notebook
-    load_notebook()
+def output_notebook(url=None, docname=None, session=None, name=None):
+    if session or url or name:
+        if docname is None:
+            docname = "IPython Session at %s" % time.ctime()
+        output_server(docname, url=url, session=session, name=name)
+    else:
+        from . import load_notebook
+        load_notebook()
     global _default_notebook
     _default_notebook = True
 
@@ -215,8 +221,10 @@ def show(browser=None, new="tab", url=None):
     controller = browserlib.get_browser_controller(browser=browser)
 
     if notebook and session:
+        import IPython.core.displaypub as displaypub
         push(session=session)
-        # show in notebook
+        snippet = autoload_server(curplot(), cursession())
+        displaypub.publish_display_data('bokeh', {'text/html': snippet})
 
     elif notebook:
         import IPython.core.displaypub as displaypub
