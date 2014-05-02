@@ -445,6 +445,7 @@ def gridplot(plot_arrangement, name=None):
         push()
     if _default_file and _default_file['autosave']:
         save()
+    return grid
 
 def xaxis():
     """ Get the current axis objects
