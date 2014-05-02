@@ -296,10 +296,11 @@ def embed_js():
 
 @bokeh_app.route("/bokeh/autoload.js/<elementid>")
 def autoload_js(elementid):
-
-    root_url  = request.url_root + bokeh_app.url_prefix[1:] # strip of leading slash
+    if bokeh_app.url_prefix:
+        root_url  = request.url_root + bokeh_app.url_prefix[1:] # strip of leading slash
+    else:
+        root_url  = request.url_root
     resources = Resources(root_url=root_url, mode='server')
-    import pdb;pdb.set_trace()
     rendered = AUTOLOAD.render(
         js_url = resources.js_files[0],
         css_files = resources.css_files,
