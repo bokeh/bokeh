@@ -1,16 +1,14 @@
 from __future__ import print_function
 
 import sys
-import os.path
 import requests
 
 import numpy as np
 
-from bokeh.objects import (
-    Plot, Range1d, LinearAxis, Grid,
-    Glyph, ColumnDataSource,
-    PanTool, WheelZoomTool)
 from bokeh.glyphs import *
+from bokeh.objects import (
+    Plot, Range1d, LinearAxis, Grid, Glyph, ColumnDataSource, PanTool, WheelZoomTool
+)
 from bokeh import session
 
 x = np.arange(1,6)

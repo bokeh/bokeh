@@ -36,7 +36,7 @@ class Document(object):
     def get_context(self):
         return self._plotcontext
 
-    def get_context_ref(self):
+    def get_ref(self):
         return get_ref(self._plotcontext)
         
     def _set_context(self, plotcontext):

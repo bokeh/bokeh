@@ -3,9 +3,12 @@ from __future__ import print_function
 import numpy as np
 import datetime as dt
 
-from bokeh.objects import Plot, DataRange1d, DatetimeAxis, ColumnDataSource, Glyph, Grid, Legend
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
 from bokeh.glyphs import Patch, Line, Text
-from bokeh.session import HTMLFileSession
+from bokeh.objects import Plot, DataRange1d, DatetimeAxis, ColumnDataSource, Glyph, Grid, Legend
+from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
 
 df = daylight.daylight_warsaw_2013
@@ -80,10 +83,12 @@ ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
 legend = Legend(plot=plot, legends={"sunrise": [line1_glyph], "sunset": [line2_glyph]})
 plot.renderers.append(legend)
 
-session = HTMLFileSession("daylight.html")
-session.add_plot(plot)
+doc = Document()
+doc.add(plot)
 
 if __name__ == "__main__":
-    session.save()
-    print("Wrote %s" % session.filename)
-    session.view()
+    filename = "daylight.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Daylight Plot"))
+    print("Wrote %s" % filename)
+    view(filename)

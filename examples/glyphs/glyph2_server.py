@@ -1,11 +1,9 @@
 from __future__ import print_function
 
 import sys
-import os.path
 import requests
 
 from numpy import pi, arange, sin, cos
-import numpy as np
 
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, Grid,

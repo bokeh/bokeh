@@ -1,13 +1,14 @@
 from __future__ import print_function
 
-import os
-
-from bokeh.sampledata.iris import flowers
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
+from bokeh.glyphs import Circle
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, Grid, ColumnDataSource, Glyph, PanTool, WheelZoomTool
 )
-from bokeh.glyphs import Circle
-from bokeh import session
+from bokeh.resources import INLINE
+from bokeh.sampledata.iris import flowers
 
 colormap = {'setosa': 'red', 'versicolor': 'green', 'virginica': 'blue'}
 
@@ -49,10 +50,12 @@ wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool, wheelzoomtool]
 
-sess = session.HTMLFileSession("iris.html")
-sess.add_plot(plot)
+doc = Document()
+doc.add(plot)
 
 if __name__ == "__main__":
-    sess.save()
-    print("Wrote %s" % sess.filename)
-    sess.view()
+    filename = "iris.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Iris Data Scatter Example"))
+    print("Wrote %s" % filename)
+    view(filename)
