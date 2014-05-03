@@ -10,6 +10,7 @@ from bokeh.objects import (
 )
 from bokeh.glyphs import Line
 from bokeh import session
+from bokeh.plotting import *
 
 # The Line glyph needs arrays of arrays of X and Y, so use newaxis.
 x = arange(-2*pi, 2*pi, 0.1)
@@ -46,19 +47,11 @@ plot.tools = [pantool, wheelzoomtool]
 
 demo_name = "line2"
 if len(sys.argv) > 1 and sys.argv[1] == "server":
-    try:
-        sess = session.PlotServerSession(
-            serverloc="http://localhost:5006",
-            username="defaultuser",
-            userapikey="nokey")
-    except requests.exceptions.ConnectionError:
-        print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-        sys.exit(1)
-
-    sess.use_doc(demo_name)
-    sess.add_plot(plot)
-    sess.store_all()
+    output_server(demo_name)
+    curdoc().add(plot)
+    cursession().push_dirty(curdoc())
     print("Stored to document", demo_name)
+    show()
 else:
     sess = session.HTMLFileSession(demo_name + ".html")
     sess.add_plot(plot)

@@ -11,6 +11,7 @@ from bokeh.objects import (Plot, DataRange1d, LinearAxis,
     ColumnDataSource, Glyph, PanTool, WheelZoomTool)
 from bokeh.glyphs import Line
 from bokeh import session
+from bokeh.plotting import *
 
 x = np.linspace(-2*pi, 2*pi, 1000)
 x_static = np.linspace(-2*pi, 2*pi, 1000)
@@ -51,27 +52,13 @@ wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 plot.renderers.append(renderer)
 plot.renderers.append(renderer2)
 plot.tools = [pantool, wheelzoomtool]
-
-try:
-    sess = session.PlotServerSession(
-        serverloc="http://localhost:5006",
-        username="defaultuser",
-        userapikey="nokey")
-except requests.exceptions.ConnectionError:
-    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-    sys.exit(1)
-
-sess.use_doc("line_animate")
-sess.add_plot(plot)
-# not so nice.. but set the model doens't know
-# that we appended to children
-sess.store_all()
-
-print("Stored to document line_animate at http://localhost:5006/bokeh")
-
+output_server('line_animate')
+curdoc().add(plot)
+cursession().push_dirty(curdoc())
+show()
 while True:
     for i in  np.linspace(-2*pi, 2*pi, 50):
-        source._data['x'] = x +i
-        source._dirty = True
-        sess.store_all()
+        source.data['x'] = x +i
+        sess = cursession()
+        sess.push(*source.dump(docid=sess.docid))
         time.sleep(0.05)
