@@ -10,6 +10,7 @@ from bokeh.objects import (
     Plot, Range1d, LinearAxis, Grid, Glyph, ColumnDataSource, PanTool, WheelZoomTool
 )
 from bokeh import session
+from bokeh.plotting import *
 
 x = np.arange(1,6)
 y = np.arange(5, 0, -1)
@@ -38,20 +39,12 @@ def make_plot(name, glyph):
 
     plot.renderers.append(glyph_renderer)
     plot.tools = [pantool, wheelzoomtool]
+    doc = curdoc()
+    sess = cursession()
+    doc.add(plot)
+    sess.push_dirty(doc)
 
-    sess.add_plot(plot)
-    sess.store_all()
-
-try:
-    sess = session.PlotServerSession(
-        serverloc="http://localhost:5006",
-        username="defaultuser",
-        userapikey="nokey")
-except requests.exceptions.ConnectionError:
-    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-    sys.exit(1)
-
-sess.use_doc('prim_server')
+output_server('prim_server')
 
 make_plot('annular_wedge', AnnularWedge(x="x", y="y", inner_radius=0.2, outer_radius=0.5, start_angle=0.8, end_angle=3.8))
 make_plot('annulus', Annulus(x="x", y="y", inner_radius=0.2, outer_radius=0.5))
@@ -64,3 +57,5 @@ make_plot('text', Text(x="x", y="y", text="foo", angle=0.6))
 make_plot('wedge', Wedge(x="x", y="y", radius=0.5, start_angle=0.9, end_angle=3.2))
 
 print("\nPlease visit http://localhost:5006/bokeh to see the plots\n")
+
+show()
