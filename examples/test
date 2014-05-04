@@ -45,7 +45,7 @@ parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
 parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=True,
-                     help="don't use development JavaScript and CSS files")
+                    help="don't use development JavaScript and CSS files")
 args = parser.parse_args()
 
 DEFAULT_NO_DEV = os.environ.get('BOKEH_DEFAULT_NO_DEV', False)
