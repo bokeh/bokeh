@@ -9,7 +9,7 @@ define [
 
   class ImageURLView extends Glyph.View
 
-    _fields: ['url:string', 'x', 'y', 'angle']
+    _fields: ['url:string', 'x', 'y', 'w', 'h', 'angle']
     _properties: []
 
     _set_data: (@data) ->
@@ -20,10 +20,13 @@ define [
     _map_data: () ->
       [@sx, @sy] = @plot_view.map_to_screen(@x, @glyph_props.x.units, @y, @glyph_props.y.units)
 
+      @sw = @distance_vector('x', 'w', 'edge', @mget('glyphspec')['dilate'])
+      @sh = @distance_vector('y', 'h', 'edge', @mget('glyphspec')['dilate'])
+
     _render: (ctx, indices, glyph_props) ->
       for i in indices
 
-        if isNaN(@sx[i] + @sy[i]+ @angle[i])
+        if isNaN(@sx[i] + @sy[i] + @angle[i])
           continue
 
         if @need_load[i]
@@ -50,15 +53,34 @@ define [
           vs = @plot_view.view_state
           @_render_image(ctx, vs, i, @image[i])
 
+    _final_sx_sy: () ->
+      anchor = @mget('glyphspec').anchor or "top_left"
+
+      switch anchor
+        when "top_left"      then (i) => [@sx[i]           , @sy[i]           ]
+        when "top_center"    then (i) => [@sx[i] - @sw[i]/2, @sy[i]           ]
+        when "top_right"     then (i) => [@sx[i] - @sw[i]  , @sy[i]           ]
+        when "right_center"  then (i) => [@sx[i] - @sw[i]  , @sy[i] - @sh[i]/2]
+        when "bottom_right"  then (i) => [@sx[i] - @sw[i]  , @sy[i] - @sh[i]  ]
+        when "bottom_center" then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]  ]
+        when "bottom_left"   then (i) => [@sx[i]           , @sy[i] - @sh[i]  ]
+        when "left_center"   then (i) => [@sx[i]           , @sy[i] - @sh[i]/2]
+        when "center"        then (i) => [@sx[i] - @sw[i]/2, @sy[i] - @sh[i]/2]
+
     _render_image: (ctx, vs, i, img) ->
+      if isNaN(@sw[i]) then @sw[i] = img.width
+      if isNaN(@sh[i]) then @sh[i] = img.height
+
+      [sx, sy] = @_final_sx_sy()(i)
+
       if @angle[i]
-        ctx.translate(@sx[i], @sy[i])
+        ctx.translate(sx, sy)
         ctx.rotate(@angle[i])
-        ctx.drawImage(img, 0, 0);
+        ctx.drawImage(img, 0, 0, @sw[i], @sh[i])
         ctx.rotate(-@angle[i])
-        ctx.translate(-@sx[i], -@sy[i])
+        ctx.translate(-sx, -sy)
       else
-        ctx.drawImage(img, @sx[i], @sy[i]);
+        ctx.drawImage(img, sx, sy, @sw[i], @sh[i])
 
   # name Image conflicts with js Image
   class ImageURLGlyph extends Glyph.Model
