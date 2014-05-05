@@ -1,9 +1,12 @@
 import arpy
 
-from bokeh.plotobject import PlotObject
+from bokeh.plotobject import PlotObject 
 from bokeh.objects import ServerDataSource, Plot
 from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
+
+import logging
+logger = logging.getLogger(__file__)
 
 
 #High-level classes
@@ -11,6 +14,7 @@ class Aggregator(PlotObject):
   def __init__(self, **kwargs): super(Aggregator, self).__init__(**kwargs)
 
 class DataShader(PlotObject):
+  out = String("image")
   def __init__(self, **kwargs): super(DataShader, self).__init__(**kwargs)
 
 class Info(PlotObject):
@@ -35,36 +39,30 @@ class Touches(PlotObject):
     super(Touches, self).__init__(**kwargs)
 
 
-class Floor(PlotObject):
+class Floor(DataShader):
   def __init__(self,**kwargs):
     super(Floor, self).__init__(**kwargs)
 
 
-class Interpolate(PlotObject):
+class Interpolate(DataShader):
   top = Int()
   bottom = Int()
-  out = String("image")
 
-  def __init__(self, top, bottom, **kwargs):
+  def __init__(self, **kwargs):
     super(Interpolate, self).__init__(**kwargs)
-    self.top = top
-    self.bottom = bottom
 
 
-class Cuberoot(PlotObject):
+class Cuberoot(DataShader):
   def __init__(self, **kwargs):
     super(Cuberoot, self).__init__(**kwargs)
 
 
-def Contour(PlotObject):
+def Contour(DataShader):
   count = Int()
   def __init__(self, count, **kwargs):
     super(Contour, self).__init__(**kwargs)
     self.count = count
 
-
-def downsample(data):
-  pass
 
 
 class Resample(ServerDataSource):
@@ -76,21 +74,29 @@ class Resample(ServerDataSource):
   glyphs = Instance(Plot)
   agg = Instance(Aggregator)
   info = Instance(Info)
-  select = Instance(Touches)  ###The only one...for now
+  select = Instance(Touches)  ###The only selector...for now
   shader = Instance(DataShader)
 
-  def __init__(self, agg=Count(), info=Const(1), select=Touches(), shader=None, glyphs=None, **kwargs):
-    super(ServerDataSource, self).__init__()
-    self.glyphs = glyphs
-    self.agg = agg
-    self.info = info
-    self.select = select
-    self.shader = shader
+  def __init__(self, **kwargs):
+#    toSuper = dict(kwargs)
+#    toSuper.pop("agg",None)
+#    toSuper.pop("info",None)
+#    toSuper.pop("select",None)
+#    toSuper.pop("shader",None)
+#    toSuper.pop("glyph",None)
+#    
+    super(ServerDataSource, self).__init__(**kwargs)
+#    self.glyphs = glyphs
+#    self.agg = agg
+#    self.info = info
+#    self.select = select
+#    self.shader = shader
 
     #Setup data 'stubs'
-    if (shader is None):
+    if (self.shader is None):
       pass
-    elif (shader.out == "image"):
+    elif (self.shader.out == "image"):  
+      #Placeholder 'data'....fill in the details in the 'downsample' method
       self.data={'x': [0], 
             'y': [0],
             'global_x_range' : [0, 10],
@@ -116,4 +122,11 @@ class Resample(ServerDataSource):
     if (not isinstance(other, Plot)):
         raise TypeError("Can only extend with a plot on the right.  Received a " + str(type(other)))
     return Resample(_agg, _info, _select, _transfer, _glyphs)
+
+
+
+
+def downsample(data):
+  logger.info("Called AR Downsample! ----------------------------------------------------------")
+
 

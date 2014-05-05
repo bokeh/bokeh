@@ -14,7 +14,7 @@ define [
       domain = 'x'
       if domain == 'x'
         server_source.listen_for_server_updates(
-          "LineView"  #HACK: Don't know how to reliable check object types....
+          "GlyphView"  #HACK: Don't know how to reliable check object types....
           @mget('resample_op'), #When object type checking can be done, drop this param and recover it in the callee
           @mget_obj('data_source'),
           @plot_view.x_range,

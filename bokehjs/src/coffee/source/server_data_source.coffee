@@ -53,7 +53,7 @@ define [
                                  columns) ->
 
         console.log "Renderer type: " + renderer
-        console.log "Resample Operator: " + resample_op
+        console.log "Resample Op: " + resample_op
 
         if (renderer == "ImageView")
           if (resample_op == 'downsample')
@@ -70,7 +70,7 @@ define [
                                      primary_column, domain_name,
                                      columns)
         else
-          console.log "No udate operators defined for renderer of type " + typeof renderer
+          console.log "No udate operators defined for renderer of type " + renderer
 
 
     listen_for_line1d_updates : (resample_op, column_data_source,
