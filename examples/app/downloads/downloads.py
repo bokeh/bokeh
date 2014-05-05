@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 import os
 import sys
 import gzip
@@ -203,4 +205,8 @@ DownloadsApp.add_route("/downloads", "http://localhost:5006")
 
 if __name__ == "__main__":
     import bokeh.server
-    bokeh.server.run()
+
+    try:
+        bokeh.server.run()
+    except KeyboardInterrupt:
+        print()
