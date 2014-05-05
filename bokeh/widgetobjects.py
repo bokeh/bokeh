@@ -167,8 +167,8 @@ class PreText(Paragraph):
     pass
 
 class Select(InputWidget):
-    options = List(Either(String(), Dict(String(), String())))
-    value = String()
+    options = List(Either(String, Dict(String, String)))
+    value = String
 
     @classmethod
     def create(self, *args, **kwargs):
