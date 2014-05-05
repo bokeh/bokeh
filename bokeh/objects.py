@@ -13,7 +13,7 @@ logger = logging.getLogger(__file__)
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
 from .mixins import FillProps, LineProps, TextProps
-from .enums import Units, Orientation, Location, Dimension, BorderSymmetry
+from .enums import Units, DatetimeUnits, Orientation, Location, Dimension, BorderSymmetry
 from .plotobject import PlotObject
 from .glyphs import BaseGlyph
 from .widgetobjects import *
@@ -180,7 +180,7 @@ class CategoricalTickFormatter(TickFormatter):
 
 class DatetimeTickFormatter(TickFormatter):
     """ Represents a categorical tick formatter for an axis object """
-    pass
+    formats = Dict(Enum(DatetimeUnits), List(String))
 
 class Glyph(Renderer):
     server_data_source = Instance(ServerDataSource)
@@ -383,7 +383,6 @@ class DatetimeAxis(LinearAxis):
     num_labels = Int(8)
     char_width = Int(10)
     fill_ratio = Float(0.3)
-    formats = Dict(String, List(String), {"days": ["%m/%d/%Y"]})
 
     def __init__(self, **kwargs):
         if 'ticker' not in kwargs:
