@@ -339,14 +339,6 @@ class MapOptions(HasProps):
 class GMapPlot(Plot):
     map_options = Instance(MapOptions)
 
-    def vm_serialize(self):
-        data = super(GMapPlot, self).vm_serialize()
-        self._session.raw_js_snippets(self)
-        return data
-
-    def get_raw_js(self):
-        return '<script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>'
-
 class GridPlot(Plot):
     """ A 2D grid of plots """
 
