@@ -10,18 +10,38 @@ logger = logging.getLogger(__file__)
 
 
 #High-level classes
-class Aggregator(PlotObject): 
+class PropertyProxy(HasProps):
+  reify_class = String()
+
+  def __new__(cls, **kwargs): 
+    newcls = super(PropertyProxy,cls).__new__(cls)
+    refiy_class = cls.__name__ 
+    newcls.__init__(**kwargs)
+    return newcls
+
+  @staticmethod
+  def instance(desc):
+    desc = dict(desc) 
+    type = desc['type']
+    desc.pop('type', None)
+    constructor = globals()[type]
+    instance = constructor()
+    instance.__init__(**desc)
+    return instance
+
+
+class Aggregator(PropertyProxy): 
   def __init__(self, **kwargs): super(Aggregator, self).__init__(**kwargs)
 
-class DataShader(PlotObject):
+class DataShader(PropertyProxy):
   out = String("image")
   def __init__(self, **kwargs): super(DataShader, self).__init__(**kwargs)
 
-class Info(PlotObject):
+class Info(PropertyProxy):
   def __init__(self, **kwargs): super(Info, self).__init__(**kwargs)
 
 
-####Low-level instances
+####Specific instances
 class Count(Aggregator):
   def __init__(self, **kwargs): 
     super(Count, self).__init__(**kwargs)
@@ -47,6 +67,7 @@ class Floor(DataShader):
 class Interpolate(DataShader):
   top = Int()
   bottom = Int()
+  type = String('Interpolate')
 
   def __init__(self, **kwargs):
     super(Interpolate, self).__init__(**kwargs)
@@ -72,27 +93,15 @@ class Resample(ServerDataSource):
   """
 
   glyphs = Instance(Plot)
-  agg = Instance(Aggregator)
+  agg = Instance(Aggregator, Count())
   info = Instance(Info)
   select = Instance(Touches)  ###The only selector...for now
   shader = Instance(DataShader)
 
   def __init__(self, **kwargs):
-#    toSuper = dict(kwargs)
-#    toSuper.pop("agg",None)
-#    toSuper.pop("info",None)
-#    toSuper.pop("select",None)
-#    toSuper.pop("shader",None)
-#    toSuper.pop("glyph",None)
-#    
     super(ServerDataSource, self).__init__(**kwargs)
-#    self.glyphs = glyphs
-#    self.agg = agg
-#    self.info = info
-#    self.select = select
-#    self.shader = shader
 
-    #Setup data 'stubs'
+    #Setup data 'stub'
     if (self.shader is None):
       pass
     elif (self.shader.out == "image"):  
@@ -108,6 +117,16 @@ class Resample(ServerDataSource):
            }
     else:
       raise TypeError("Can only work with transfers that produce 'image' (discrete-grid) output...for now")
+
+
+  def finalize(self, models):
+    props = super(ServerDataSource, self).finalize(models)
+    if props['agg'] is not None: props['agg'] = PropertyProxy.instance(props['agg']) 
+    if props['info'] is not None: props['info'] = PropertyProxy.instance(props['info']) 
+    if props['select'] is not None:  props['select'] = PropertyProxy.instance(props['select']) 
+    if props['shader'] is not None: props['shader'] = PropertyProxy.instance(props['shader'])
+
+    return props
 
 
 
