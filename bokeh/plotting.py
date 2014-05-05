@@ -12,7 +12,7 @@ from . import browserlib
 from . import _glyph_functions as gf
 from .document import Document
 from .embed import notebook_div, file_html, autoload_server
-from .objects import Axis, Grid, GridPlot, Legend
+from .objects import Axis, ColumnDataSource, Glyph, Grid, GridPlot, Legend
 from .palettes import brewer
 from .plotting_helpers import (
     get_default_color, get_default_alpha, _handle_1d_data_args, _list_attr_splat
@@ -185,7 +185,7 @@ def output_file(filename, title="Bokeh Plot", autosave=True, mode="inline", root
     global _default_file
     _default_file = {
         'filename'  : filename,
-        'resources' : Resources(mode='inline', rootdir=rootdir, minified=False),
+        'resources' : Resources(mode=mode, rootdir=rootdir, minified=False),
         'autosave'  : autosave,
         'title'     : title,
     }
