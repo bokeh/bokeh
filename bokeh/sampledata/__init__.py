@@ -19,7 +19,7 @@ def _bokeh_dir(create=False):
             raise RuntimeError("%s exists but is not a directory" % bokeh_dir)
     return bokeh_dir
 
-def _data_dir(create=False):
+def _data_dir(file_name=None, create=False):
     try:
         import yaml
     except ImportError:
@@ -42,7 +42,10 @@ def _data_dir(create=False):
     else:
         if not isdir(data_dir):
             raise RuntimeError("%s exists but is not a directory" % data_dir)
-    return data_dir
+    if file_name is not None:
+        return join(data_dir, file_name)
+    else:
+        return data_dir
 
 def download(progress=True):
     '''
