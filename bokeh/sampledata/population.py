@@ -13,5 +13,3 @@ def load_population():
     df = df.rename(columns={"Time": "Year"})
     df.Value *= 1000
     return df
-
-population = load_population()

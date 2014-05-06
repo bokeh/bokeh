@@ -13,13 +13,9 @@ from bokeh.objects import (Plot, ColumnDataSource, DataRange1d, FactorRange,
 from bokeh.widgetobjects import Select, HBox, VBox
 from bokeh.glyphs import Line, Quad
 from bokeh.session import PlotServerSession
+from bokeh.sampledata.population import load_population
 
-df = pd.read_csv("WPP2012_SA_DB03_POPULATION_QUINQUENNIAL.CSV", encoding="CP1250")
-df = df[df.Sex != "Both"]
-df = df.drop(["VarID", "Variant", "MidPeriod", "SexID", "AgeGrpSpan"], axis=1)
-df = df.rename(columns={"Time": "Year"})
-df.Value *= 1000
-
+df = load_population()
 revision = 2012
 
 year = 2010
