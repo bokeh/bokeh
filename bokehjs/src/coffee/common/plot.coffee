@@ -121,12 +121,19 @@ define [
     _modal_window_content: (e) =>
       @$el.find('.modal_window_title').html(@window_title)
       @$el.find('.modal_body').html(@embed_modal_content)
-      @$el.find('.bokeh_modal_window').show()
-      height = @$el.find('.modal_window_title').outerHeight(true)
-      @$el.find('.modal_header').attr('style', "height:#{height}px")
-      position = @canvas_footer.position()
-      top = position.top - @$el.find('.bokeh_modal_window').outerHeight(true)
-      @$el.find('.bokeh_modal_window').css("top", "#{top}px")
+      if e.target.className == "object_inspector_window"
+        @$el.find('.bokeh_modal_window').attr("style", "top:auto; width:570px; margin:0 14px 14px; position:relative; display:block;")
+        @$el.find('.modal_window_title').css("width", "538px");
+        height = @$el.find('.modal_window_title').outerHeight(true)
+        @$el.find('.modal_header').attr('style', "height:#{height}px;")
+      else
+        position = @canvas_footer.position()
+        top = position.top - @$el.find('.bokeh_modal_window').outerHeight(true)
+        width = @canvas_wrapper.outerWidth(true)
+        @$el.find('.bokeh_modal_window').attr("style", "top:#{top}px; left:#{width}px; display:block;")
+        @$el.find('.modal_window_title').attr("style", "");
+        height = @$el.find('.modal_window_title').outerHeight(true)
+        @$el.find('.modal_header').attr('style', "height:#{height}px")
       
     _close_modal_window: (e) =>
       @$el.find('.bokeh_modal_window').hide()
@@ -409,7 +416,7 @@ define [
       @canvas.width = ow * ratio
       @canvas.height = oh * ratio
       
-      @button_bar.attr('style', " width: 85%; padding-left: 12px; float:left;")
+      @button_bar.attr('style', "width: 85%; padding-left: 12px; float:left;")
       @canvas_wrapper.attr('style', "width:#{ow}px; height:#{oh}px; float:left;")
       @canvas.attr('style', "width:#{ow}px;")
       @canvas.attr('style', "height:#{oh}px;")
