@@ -13,8 +13,9 @@ logging.basicConfig(level=logging.INFO)
 from os.path import join, expanduser, abspath
 
 from bokeh.widgetobjects import VBoxModelForm, HBox, VBox, BokehApplet, Select, Slider, DatePicker
-from bokeh.objects import (Plot, ColumnDataSource, Range1d, DataRange1d, FactorRange, Glyph,
-    LinearAxis, DatetimeAxis, CategoricalAxis, Grid, HoverTool, DaysTicker, BasicTickFormatter)
+from bokeh.objects import (Plot, ColumnDataSource, Range1d, DataRange1d, FactorRange,
+    Glyph, LinearAxis, DatetimeAxis, CategoricalAxis, Grid, HoverTool, DaysTicker,
+    DatetimeTickFormatter, BasicTickFormatter)
 from bokeh.glyphs import Line, Circle, Rect
 from bokeh.properties import Dict, Float, String, Instance, Enum, Date, lookup_descriptor
 
@@ -130,8 +131,9 @@ class DownloadsApp(BokehApplet):
         plot.renderers.append(circle_glyph)
         hover = HoverTool(plot=plot, tooltips=dict(downloads="@downloads"))
         plot.tools.append(hover)
+        xformatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
         yformatter = BasicTickFormatter(precision=None, use_scientific=False)
-        xaxis = DatetimeAxis(plot=plot, dimension=0)
+        xaxis = DatetimeAxis(plot=plot, dimension=0, formatter=xformatter)
         yaxis = LinearAxis(plot=plot, dimension=1, formatter=yformatter)
         xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
         ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
