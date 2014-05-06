@@ -30,6 +30,9 @@ define [
   "source/column_data_source",
   "source/server_data_source",
   "source/resample",
+  "source/cuberoot",
+  "source/const",
+  "source/count",
 
   "ticking/abstract_ticker",
   "ticking/adaptive_ticker",
@@ -102,6 +105,9 @@ define [
     ColumnDataSource:         'source/column_data_source'
     ServerDataSource:         'source/server_data_source'
     Resample:                 'source/resample'
+    Cuberoot:                 'source/cuberoot'
+    Const:                    'source/const'
+    Count:                    'source/count'
 
     AbstractTicker:           'ticking/abstract_ticker'
     AdaptiveTicker:           'ticking/adaptive_ticker'
