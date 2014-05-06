@@ -68,18 +68,20 @@ class Resample(ServerDataSource):
   """
 
   glyphs = Instance(Plot)
-  agg = Instance(Aggregator, Count())
-  info = Instance(Info, Const(val=1))
+  agg = Instance(Aggregator, default=Count())
+  info = Instance(Info, default=Const(val=1))
   #select = Instance(Touches)  ###The only selector...for now
-  shader = Instance(DataShader, Cuberoot())
+  shader = Instance(DataShader, default=Cuberoot())
 
   def __init__(self, **kwargs):
     super(ServerDataSource, self).__init__(**kwargs)
 
+    if self.agg is None : self.agg = Count() 
+    if self.info is None : self.info = Const(val=1) 
+    if self.shader is None : self.shader = Cuberoot() 
+
     #Setup data 'stub'
-    if (self.shader is None):
-      pass
-    elif (self.shader.out == "image"):  
+    if (self.shader.out == "image"):  
       #Placeholder 'data'....fill in the details in the 'downsample' method
       self.data={'x': [0], 
             'y': [0],
