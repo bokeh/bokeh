@@ -9,35 +9,14 @@ import logging
 logger = logging.getLogger(__file__)
 
 
-#High-level classes
-class PropertyProxy(HasProps):
-  reify_class = String()
-
-  def __new__(cls, **kwargs): 
-    newcls = super(PropertyProxy,cls).__new__(cls)
-    refiy_class = cls.__name__ 
-    newcls.__init__(**kwargs)
-    return newcls
-
-  @staticmethod
-  def instance(desc):
-    desc = dict(desc) 
-    type = desc['type']
-    desc.pop('type', None)
-    constructor = globals()[type]
-    instance = constructor()
-    instance.__init__(**desc)
-    return instance
-
-
-class Aggregator(PropertyProxy): 
+class Aggregator(PlotObject): 
   def __init__(self, **kwargs): super(Aggregator, self).__init__(**kwargs)
 
-class DataShader(PropertyProxy):
+class DataShader(PlotObject):
   out = String("image")
   def __init__(self, **kwargs): super(DataShader, self).__init__(**kwargs)
 
-class Info(PropertyProxy):
+class Info(PlotObject):
   def __init__(self, **kwargs): super(Info, self).__init__(**kwargs)
 
 
@@ -48,42 +27,38 @@ class Count(Aggregator):
   def reify(): return arpy.numeric.Count()
 
 class Const(Info):
-  val = Any()
-  def __init__(self, val=1, **kwargs): 
-    super(Const, self).__init__(**kwargs)
-    self.val = val
-
-
-class Touches(PlotObject):
+  val = Any(1)
   def __init__(self, **kwargs): 
-    super(Touches, self).__init__(**kwargs)
-
-
-class Floor(DataShader):
-  def __init__(self,**kwargs):
-    super(Floor, self).__init__(**kwargs)
-
-
-class Interpolate(DataShader):
-  top = Int()
-  bottom = Int()
-  type = String('Interpolate')
-
-  def __init__(self, **kwargs):
-    super(Interpolate, self).__init__(**kwargs)
-
+    super(Const, self).__init__(**kwargs)
 
 class Cuberoot(DataShader):
   def __init__(self, **kwargs):
     super(Cuberoot, self).__init__(**kwargs)
-
-
-def Contour(DataShader):
-  count = Int()
-  def __init__(self, count, **kwargs):
-    super(Contour, self).__init__(**kwargs)
-    self.count = count
-
+#
+#class Floor(DataShader):
+#  def __init__(self,**kwargs):
+#    super(Floor, self).__init__(**kwargs)
+#
+#
+#class Interpolate(DataShader):
+#  top = Int()
+#  bottom = Int()
+#  type = String('Interpolate')
+#
+#  def __init__(self, **kwargs):
+#    super(Interpolate, self).__init__(**kwargs)
+#
+#def Contour(DataShader):
+#  count = Int()
+#  def __init__(self, count, **kwargs):
+#    super(Contour, self).__init__(**kwargs)
+#    self.count = count
+#
+#
+#class Touches(PlotObject):
+#  def __init__(self, **kwargs): 
+#    super(Touches, self).__init__(**kwargs)
+#
 
 
 class Resample(ServerDataSource):
@@ -94,9 +69,9 @@ class Resample(ServerDataSource):
 
   glyphs = Instance(Plot)
   agg = Instance(Aggregator, Count())
-  info = Instance(Info)
-  select = Instance(Touches)  ###The only selector...for now
-  shader = Instance(DataShader)
+  info = Instance(Info, Const(val=1))
+  #select = Instance(Touches)  ###The only selector...for now
+  shader = Instance(DataShader, Cuberoot())
 
   def __init__(self, **kwargs):
     super(ServerDataSource, self).__init__(**kwargs)
@@ -117,18 +92,6 @@ class Resample(ServerDataSource):
            }
     else:
       raise TypeError("Can only work with transfers that produce 'image' (discrete-grid) output...for now")
-
-
-  def finalize(self, models):
-    props = super(ServerDataSource, self).finalize(models)
-    if props['agg'] is not None: props['agg'] = PropertyProxy.instance(props['agg']) 
-    if props['info'] is not None: props['info'] = PropertyProxy.instance(props['info']) 
-    if props['select'] is not None:  props['select'] = PropertyProxy.instance(props['select']) 
-    if props['shader'] is not None: props['shader'] = PropertyProxy.instance(props['shader'])
-
-    return props
-
-
 
   def __add__(self, other):
     if (not isinstance(other, Transfer)): 
