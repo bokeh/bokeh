@@ -51,24 +51,23 @@ def download(progress=True):
     '''
     Download larger data sets for various Bokeh examples.
     '''
-
     data_dir = _data_dir(create=True)
-
     print("Using data directory: %s" % data_dir)
 
-    base_url = 'https://s3.amazonaws.com/bokeh_data/'
+    s3 = 'https://s3.amazonaws.com/bokeh_data/'
     files = [
-        'CGM.csv',
-        'US_Counties.csv',
-        'unemployment09.csv',
-        'AAPL.csv',
-        'FB.csv',
-        'GOOG.csv',
-        'IBM.csv',
-        'MSFT.csv',
+        (s3, 'CGM.csv'),
+        (s3, 'US_Counties.csv'),
+        (s3, 'unemployment09.csv'),
+        (s3, 'AAPL.csv'),
+        (s3, 'FB.csv'),
+        (s3, 'GOOG.csv'),
+        (s3, 'IBM.csv'),
+        (s3, 'MSFT.csv'),
+        ('http://esa.un.org/unpd/wpp/SpecialAggregates/ASCII_FILES', 'WPP2012_SA_DB03_POPULATION_QUINQUENNIAL.CSV'),
     ]
 
-    for file_name in files:
+    for base_url, file_name in files:
         _getfile(base_url, file_name, data_dir, progress=progress)
 
 def _getfile(base_url, file_name, data_dir, progress=True):
