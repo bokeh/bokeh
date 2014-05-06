@@ -1,7 +1,7 @@
 import arpy
 
-from bokeh.plotobject import PlotObject 
-from bokeh.objects import ServerDataSource, Plot
+from bokeh.plotobject import PlotObject
+from bokeh.objects import ServerDataSource, Plot, Renderer, Glyph
 from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
 
@@ -67,21 +67,26 @@ class Resample(ServerDataSource):
       resample is called by the client program to build the arguments that will eventually make their way to downsample.
   """
 
-  glyphs = Instance(Plot)
-  agg = Instance(Aggregator, default=Count())
-  info = Instance(Info, default=Const(val=1))
+  glyphs = Instance(Glyph)
+  agg = Instance(Aggregator)
+  info = Instance(Info)
   #select = Instance(Touches)  ###The only selector...for now
-  shader = Instance(DataShader, default=Cuberoot())
+  shader = Instance(DataShader)
 
   def __init__(self, **kwargs):
+    plot = kwargs.pop('glyphs', None)
     super(ServerDataSource, self).__init__(**kwargs)
 
+    if plot is not None: 
+      self.glyphs = [r for r in plot.renderers if isinstance(r, Glyph)][0]
+
+    #Would like it if Properties set the defaults when not provided....
     if self.agg is None : self.agg = Count() 
     if self.info is None : self.info = Const(val=1) 
     if self.shader is None : self.shader = Cuberoot() 
-
+    
     #Setup data 'stub'
-    if (self.shader.out == "image"):  
+    if (self.shader is not None and self.shader.out == "image"): 
       #Placeholder 'data'....fill in the details in the 'downsample' method
       self.data={'x': [0], 
             'y': [0],
@@ -95,6 +100,20 @@ class Resample(ServerDataSource):
     else:
       raise TypeError("Can only work with transfers that produce 'image' (discrete-grid) output...for now")
 
+
+  def vm_serialize(self):
+    #import pdb; pdb.set_trace()
+    return super(Resample,self).vm_serialize()
+  
+  
+  def finalize(self, models):
+    #import pdb; pdb.set_trace()
+    return super(Resample,self).finalize(models)
+
+  def update(self, **kwargs):
+    #import pdb; pdb.set_trace()
+    super(Resample, self).update(**kwargs)
+    
   def __add__(self, other):
     if (not isinstance(other, Transfer)): 
         raise TypeError("Can only extend with a transfer on the left.  Received a " + str(type(other)))
