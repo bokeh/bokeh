@@ -2,6 +2,7 @@ from __future__ import absolute_import, print_function
 
 from os import mkdir
 from os.path import exists, expanduser, isdir, join
+from sys import stdout
 from six.moves.urllib.request import urlopen
 
 def _bokeh_dir(create=False):
@@ -73,7 +74,7 @@ def _getfile(base_url, file_name, data_dir, progress=True):
     f = open(join(data_dir, file_name), 'wb')
     meta = u.headers
     file_size = int(meta["Content-Length"])
-    print("Downloading: %s Bytes: %s" % (file_name, file_size))
+    print("Downloading: %s (%d bytes)" % (file_name, file_size))
 
     file_size_dl = 0
     block_sz = 8192
@@ -87,8 +88,9 @@ def _getfile(base_url, file_name, data_dir, progress=True):
         f.write(buffer)
 
         if progress:
-            status = r"%10d  [%3.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
-            status += chr(8) * (len(status) + 1)
-            print(status,)
+            status = "\r%10d [%6.2f%%]" % (file_size_dl, file_size_dl * 100. / file_size)
+            stdout.write(status)
+            stdout.flush()
 
     f.close()
+    print()
