@@ -105,7 +105,8 @@ object ProjectBuild extends Build {
             "bootstrap/bootstrap-bokeh-2.0.4.css",
             "bootstrap-3.1.1/dist/css/bootstrap.css",
             "jstree/dist/themes/default/style.min.css",
-            "handsontable/jquery.handsontable.css"),
+            "handsontable/jquery.handsontable.css",
+            "jqrangeslider/classic.css"),
         bokehStyles := List(
             "continuum.css",
             "main.css"),

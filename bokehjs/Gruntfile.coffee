@@ -142,6 +142,7 @@ module.exports = (grunt) ->
           "build/js/vendor/bootstrap-3.1.1/dist/css/bootstrap.css"
           "build/js/vendor/jstree/dist/themes/default/style.min.css"
           "build/js/vendor/handsontable/jquery.handsontable.css"
+          "build/js/vendor/jqrangeslider/classic.css"
           "build/css/continuum.css"
           "build/css/main.css"
         ]
@@ -152,6 +153,7 @@ module.exports = (grunt) ->
           "build/js/vendor/bootstrap-3.1.1/dist/css/bootstrap.css"
           "build/js/vendor/jstree/dist/themes/default/style.min.css"
           "build/js/vendor/handsontable/jquery.handsontable.css"
+          "build/js/vendor/jqrangeslider/classic.css"
         ]
         dest: 'build/css/bokeh-vendor.css'
 

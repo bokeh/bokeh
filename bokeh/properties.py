@@ -1039,3 +1039,12 @@ class Date(Property):
             value = dateutil.parser.parse(value).date()
 
         return value
+
+class RelativeDelta(Dict):
+    def __init__(self, default={}):
+        keys = Enum("years", "months", "days", "hours", "minutes", "seconds", "microseconds")
+        values = Int
+        super(RelativeDelta, self).__init__(keys, values, default=default)
+
+    def __str__(self):
+        return self.__class__.__name__

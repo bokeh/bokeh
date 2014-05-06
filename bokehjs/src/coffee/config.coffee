@@ -3,6 +3,7 @@ require.config
         jquery:            "vendor/jquery/jquery"
         jquery_ui:         "vendor/jquery-ui-amd/jquery-ui-1.10.0/jqueryui"
         jquery_mousewheel: "vendor/jquery-mousewheel/jquery.mousewheel"
+        jqrangeslider:     "vendor/jqrangeslider/jQAllRangeSliders-withRuler-min"
         handsontable:      "vendor/handsontable/jquery.handsontable"
         numeral:           "vendor/numeral/numeral"
         underscore:        "vendor/underscore-amd/underscore"
@@ -19,3 +20,6 @@ require.config
         handsontable:
             deps: ["numeral"]
             exports: "$.fn.handsontable"
+        jqrangeslider:
+            deps: ["jquery_ui/core", "jquery_ui/widget", "jquery_mousewheel"]
+            exports: "$.fn.rangeSlider"

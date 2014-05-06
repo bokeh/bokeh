@@ -2,7 +2,7 @@ import six
 from .plotobject import PlotObject
 #from .objects import DataSource
 from .properties import (HasProps, Dict, Enum, Either, Float, Instance, Int, List,
-    String, Color, Include, Bool, Tuple, Any, Date, lookup_descriptor)
+    String, Color, Include, Bool, Tuple, Any, Date, RelativeDelta, lookup_descriptor)
 from .pivot_table import pivot_table
 import copy
 import logging
@@ -187,6 +187,18 @@ class Slider(InputWidget):
     end = Float()
     step = Int()
     orientation = Enum("horizontal", "vertical")
+
+class DateRangeSlider(InputWidget):
+    value = Tuple(Date, Date)
+    bounds = Tuple(Date, Date)
+    range = Tuple(RelativeDelta, RelativeDelta)
+    step = RelativeDelta
+    # formatter = Either(String, Function(Date))
+    # scales = DateRangeSliderScales ... # first, next, stop, label, format
+    enabled = Bool(True)
+    arrows = Bool(True)
+    value_labels = Enum("show", "hide", "change")
+    wheel_mode = Enum("scroll", "zoom", default=None) # nullable=True
 
 class DatePicker(InputWidget):
     value = Date
