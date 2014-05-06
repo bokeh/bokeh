@@ -7,6 +7,10 @@ define [
   class Resample extends ServerDataSource 
     type: 'Resample'
     
+    initialize : (attrs, options) =>
+      super(attrs, options)
+      @callbacks = {}
+    
   class Resamples extends Backbone.Collection
     model: Resample 
   return {
