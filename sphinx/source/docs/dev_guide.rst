@@ -24,6 +24,19 @@ executing::
 
     $ test -D
 
+You can also run all the available test (unit tests and example tests) from the
+top level directory following the next steps::
+
+    $ export BOKEH_DEFAULT_NO_DEV=True (just do it once!)
+
+and then::
+
+    $ nosetests
+
+or::
+
+    $ nosetests --with-coverage
+
 Currently this script does not support Windows. When adding new examples, make
 sure to place them in appropriate location under `examples/` directory and use
 special keywords (`server`, `animate`) in their names, if required. This will

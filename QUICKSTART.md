@@ -44,7 +44,7 @@ In the top-level Bokeh directory:
 
     $ python setup.py install
 
-Note: this will use and install the latest built, minified bokeh.js checked
+**Note**: this will use and install the latest built, minified bokeh.js checked
 into bokehjs/release.
 
 Now you are ready to generate static plots. In examples/glyphs, try:
@@ -82,7 +82,7 @@ In the top-level Bokeh directory:
 
     $ python setup.py develop
 
-Note: this will use and install the latest built, minified bokeh.js checked
+**Note**: this will use and install the latest built, minified bokeh.js checked
 into bokehjs/release.
 
 If you would like to run any examples that utilize the bokeh plot server, start
@@ -90,7 +90,7 @@ it in the top level directory:
 
     $ python bokeh-server -d
 
-Note: bokeh-server currently requires redis, which is only available on OSX
+**Note**: bokeh-server currently requires redis, which is only available on OSX
 and Linux.
 
 Now you are ready to plot:
@@ -104,13 +104,20 @@ library.
 
 To run the test suite you can use one of the following commands:
 
+    $ python -c "import bokeh; bokeh.test()"
+
+or
+
     $ nosetests
+
 or
 
     $ nosetests --with-coverage
-or
 
-    $ python -c 'from bokeh import test; test()'
+**Note**: To use `nosetests` and run all the available tests, you have to setup
+the following environmental variable::
+
+    $ export BOKEH_DEFAULT_NO_DEV=True
 
 
 Python+JS Development
@@ -137,7 +144,7 @@ Next, install Bokeh. In the top-level Bokeh directory:
 
     $ python setup.py devjs
 
-Note: this will use and install the un-minified bokeh.js that you just built,
+**Note**: this will use and install the un-minified bokeh.js that you just built,
 that is located in bokehjs/build.
 
 If you would like to run any examples that utilize the bokeh plot server, start
