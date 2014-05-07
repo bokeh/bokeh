@@ -9,7 +9,7 @@ from requests.exceptions import ConnectionError
 import pandas as pd
 
 from bokeh.objects import (Plot, ColumnDataSource, DataRange1d, FactorRange,
-    LinearAxis, CategoricalAxis, Grid, Glyph, SingleIntervalTicker, HoverTool)
+    LinearAxis, CategoricalAxis, Grid, Glyph, Legend, SingleIntervalTicker, HoverTool)
 from bokeh.widgetobjects import Select, HBox, VBox
 from bokeh.glyphs import Line, Quad
 from bokeh.session import PlotServerSession
@@ -39,10 +39,15 @@ def pyramid():
     ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
 
     male_quad = Quad(left="male", right=0, bottom="groups", top="shifted", fill_color="blue")
-    plot.renderers.append(Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=male_quad))
+    male_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=male_quad)
+    plot.renderers.append(male_quad_glyph)
 
     female_quad = Quad(left=0, right="female", bottom="groups", top="shifted", fill_color="violet")
-    plot.renderers.append(Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=female_quad))
+    female_quad_glyph = Glyph(data_source=source_pyramid, xdata_range=xdr, ydata_range=ydr, glyph=female_quad)
+    plot.renderers.append(female_quad_glyph)
+
+    legend = Legend(plot=plot, legends=dict(Male=[male_quad_glyph], Female=[female_quad_glyph]))
+    plot.renderers.append(legend)
 
     return plot
 
@@ -59,10 +64,15 @@ def population():
     # yaxis = LinearAxis(plot=plot, dimension=1, ...)
 
     line_known = Line(x="x", y="y", line_color="violet", line_width=2)
-    plot.renderers.append(Glyph(data_source=source_known, xdata_range=xdr, ydata_range=ydr, glyph=line_known))
+    line_known_glyph = Glyph(data_source=source_known, xdata_range=xdr, ydata_range=ydr, glyph=line_known)
+    plot.renderers.append(line_known_glyph)
 
     line_predicted = Line(x="x", y="y", line_color="violet", line_width=2, line_dash="dashed")
-    plot.renderers.append(Glyph(data_source=source_predicted, xdata_range=xdr, ydata_range=ydr, glyph=line_predicted))
+    line_predicted_glyph = Glyph(data_source=source_predicted, xdata_range=xdr, ydata_range=ydr, glyph=line_predicted)
+    plot.renderers.append(line_predicted_glyph)
+
+    legend = Legend(plot=plot, orientation="bottom_right", legends=dict(known=[line_known_glyph], predicted=[line_predicted_glyph]))
+    plot.renderers.append(legend)
 
     return plot
 
