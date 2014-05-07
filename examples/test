@@ -160,7 +160,7 @@ def run_example(example):
         raise Timeout
 
     signal.signal(signal.SIGALRM, alarm_handler)
-    signal.alarm(5) # seconds
+    signal.alarm(10) # seconds
 
     try:
         proc = subprocess.Popen(cmd, cwd=cwd, env=env)
