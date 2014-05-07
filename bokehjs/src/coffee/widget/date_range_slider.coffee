@@ -37,6 +37,10 @@ define [
         wheelMode: @mget("wheel_mode"),
       })
 
+      @$el.on "userValuesChanged", (event, data) =>
+        @mset('value', [data.values.min, data.values.max])
+        @model.save()
+
   class DateRangeSlider extends HasProperties
     type: "DateRangeSlider"
     default_view: DateRangeSliderView
