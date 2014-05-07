@@ -52,11 +52,9 @@ define [
 
     _selecting: (e, x_, y_) ->
       if e.originalEvent.touches.length < 2
-        @touch_move = false
         return null
       @touch_end1 = [e.bokehX, e.bokehY]
       @touch_end2 = [e.bokehX1, e.bokehY1]
-      @touch_move = true
       return null
 
     _dragend : () ->

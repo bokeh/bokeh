@@ -6,16 +6,33 @@ define [], () ->
     left = if offset? then offset.left else 0
     top = if offset? then offset.top else 0
     touch = 'ontouchstart' of document.documentElement
-    pageX = (if touch then event.originalEvent.touches[0].pageX or event.originalEvent.changedTouches[0].pageX else event.pageX)
-    pageY = (if touch then event.originalEvent.touches[0].pageY or event.originalEvent.changedTouches[0].pageY else event.pageY)
+    if touch
+      if event.originalEvent.touches.length != 0
+        X = event.originalEvent.touches[0].pageX
+        Y = event.originalEvent.touches[0].pageY
+      else
+        X = event.originalEvent.changedTouches[0].pageX
+        Y = event.originalEvent.changedTouches[0].pageY
+    pageX = (if touch then X else event.pageX)
+    pageY = (if touch then Y else event.pageY)
     event.bokehX = pageX - left
     event.bokehY = pageY - top
     # For touch devices second finger
-    if touch and event.originalEvent.touches.length > 1
-      pageX1 = event.originalEvent.touches[1].pageX or event.originalEvent.changedTouches[1].pageX
-      pageY1 = event.originalEvent.touches[1].pageY or event.originalEvent.changedTouches[1].pageY
-      event.bokehX1 = pageX1 - left
-      event.bokehY1 = pageY1 - top
+    if touch
+      double_touch = true
+      if event.originalEvent.touches.length > 1
+        X1 = event.originalEvent.touches[1].pageX
+        Y1 = event.originalEvent.touches[1].pageY
+      else if event.originalEvent.changedTouches.length > 1
+        X1 = event.originalEvent.changedTouches[1].pageX
+        Y1 = event.originalEvent.changedTouches[1].pageY
+      else
+        double_touch = false
+      if double_touch
+        pageX1 = X1
+        pageY1 = Y1
+        event.bokehX1 = pageX1 - left
+        event.bokehY1 = pageY1 - top
 
   class TwoPointEventGenerator
 
@@ -104,6 +121,7 @@ define [], () ->
           @plotview.$el.find('.plotarea').addClass('frame')
       
       @plotview.canvas_wrapper.bind startClick, (e) =>
+        @touch_count = 0
         start = false
 
         if @button_activated or @eventSink.active == @toolName
@@ -136,17 +154,14 @@ define [], () ->
       
       @plotview.canvas_wrapper.bind(endClick, (e) =>
         @plotview.$el.find('.popup_menu').removeClass('show_popup')
-        # To calculate the bokehX and bokehY on touch end event
-        if @dragging and @touch and e.originalEvent.touches.length != 0
-          set_bokehXY(e)
         if @button_activated
           # To detect the two finger touch end
           if @touch
             if @touch_count == 0
               @start_time = new Date().getTime()
               @touch_count += 1
-            else if e.originalEvent.touches.length < @touch_count
-              @touch_count += 1
+            if e.originalEvent.touches.length != 0
+              return false
           @_stop_drag(e)
           return false)
       @plotview.canvas_wrapper.bind('mouseleave', (e) =>
@@ -225,13 +240,12 @@ define [], () ->
           @plotview.canvas_wrapper.css('cursor', '')
         if not @touch
           set_bokehXY(e)
-        if not @options.gesture?
+        if not @options.gesture? or (@options.gesture? and not @options.gesture)
           @eventSink.trigger("#{@options.eventBasename}:DragEnd", e)
-      if @options.gesture? and @options.gesture and @touch_count > 1
-        time_taken = new Date().getTime() - @start_time
-        @touch_count = 0
-        @start_time = 0
-        @eventSink.trigger("#{@options.eventBasename}:DragEnd", [e, time_taken])
+        else if @options.gesture
+          time_taken = new Date().getTime() - @start_time
+          @start_time = 0
+          @eventSink.trigger("#{@options.eventBasename}:DragEnd", [e, time_taken])
       @_activated_with_button = null
 
   class OnePointWheelEventGenerator

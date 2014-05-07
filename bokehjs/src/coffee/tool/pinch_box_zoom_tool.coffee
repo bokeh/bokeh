@@ -50,17 +50,17 @@ define [
       @plot_view.pause()
       @trigger('startselect')
 
-      @touch_start1 = [e.bokehX, e.bokehY]
-      @touch_start2 = [e.bokehX1, e.bokehY1]
+      touch_start1 = [e.bokehX, e.bokehY]
+      touch_start2 = [e.bokehX1, e.bokehY1]
 
-      [vx1, vy1] = @view_coords(@touch_start1[0], @touch_start1[1])
-      [vx2, vy2] = @view_coords(@touch_start2[0], @touch_start2[1])
+      [vx1, vy1] = @view_coords(touch_start1[0], touch_start1[1])
+      [vx2, vy2] = @view_coords(touch_start2[0], touch_start2[1])
 
       @mset({'start_vx': vx1, 'start_vy': vy1, 'current_vx': vx2, 'current_vy': vy2})
       @basepoint_set = true
-      [xrange, yrange] = @_get_selection_range()
+      [@xrange, @yrange] = @_get_selection_range()
 
-      @trigger('boxselect', xrange, yrange)
+      @trigger('boxselect', @xrange, @yrange)
       @plot_view.render_overlays(true)
       @touch_move = true
 
@@ -78,15 +78,18 @@ define [
       return [xrange, yrange]
 
     _selecting: (e, x_, y_) ->
-      @touch_end1 = [e.bokehX, e.bokehY]
-      @touch_end2 = [e.bokehX1, e.bokehY1]
+      if e.originalEvent.touches.length < 2
+        return null
+
+      touch_end1 = [e.bokehX, e.bokehY]
+      touch_end2 = [e.bokehX1, e.bokehY1]
       
-      [vx1, vy1] = @view_coords(@touch_end1[0], @touch_end1[1])
-      [vx2, vy2] = @view_coords(@touch_end2[0], @touch_end2[1])
+      [vx1, vy1] = @view_coords(touch_end1[0], touch_end1[1])
+      [vx2, vy2] = @view_coords(touch_end2[0], touch_end2[1])
       @mset({'start_vx': vx1, 'start_vy': vy1, 'current_vx': vx2, 'current_vy': vy2})
 
-      [xrange, yrange] = @_get_selection_range()
-      @trigger('boxselect', xrange, yrange)
+      [@xrange, @yrange] = @_get_selection_range()
+      @trigger('boxselect', @xrange, @yrange)
 
       @plot_view.render_overlays(true)
       return null
@@ -102,37 +105,8 @@ define [
       if not @basepoint_set or not @touch_move
         return
       
-      [vx1, vy1] = @view_coords(@touch_start1[0], @touch_start1[1])
-      [vx2, vy2] = @view_coords(@touch_start2[0], @touch_start2[1])
-      [vx3, vy3] = @view_coords(@touch_end1[0], @touch_end1[1])
-      [vx4, vy4] = @view_coords(@touch_end2[0], @touch_end2[1])
-
-      [d1, d3] = @plot_view.xmapper.v_map_from_target([vx1, vy1])
-      [d2, d4] = @plot_view.xmapper.v_map_from_target([vx2, vy2])
-      
-      if d1 > d2
-        xstart1 = d2
-        xstart2 = d1
-      else
-        xstart1 = d1
-        xstart2 = d2
-      if d3 > d4
-        yend1 = d4
-        yend2 = d3
-      else
-        yend1 = d3
-        yend2 = d4
-      
-      screenW = @plot_view.view_state.get('inner_width')
-      screenH = @plot_view.view_state.get('inner_height')
-      
-      scaleX = Math.abs((xstart2 - xstart1) / (vx4 - vx3))
-      scaleY = Math.abs((yend2 - yend1) / (vy4 - vy3))
-      
-      xstart = xstart1 - (vx3 * scaleX)
-      xend = xstart + (screenW * scaleX)
-      ystart = yend1 - (vy3 * scaleY)
-      yend = ystart + (screenH * scaleY)
+      [xstart, xend] = @plot_view.xmapper.v_map_from_target([@xrange[0], @xrange[1]])
+      [ystart, yend] = @plot_view.ymapper.v_map_from_target([@yrange[0], @yrange[1]])
 
       zoom_info = {
         xr: {start: xstart, end: xend}
