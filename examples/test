@@ -43,6 +43,8 @@ parser.add_argument("-n", "--ipython-port", type=int, default=8888,
                     help="port on which IPython Notebook server resides")
 parser.add_argument("-j", "--phantomjs", type=str, default="phantomjs",
                     help="phantomjs executable")
+parser.add_argument("-t", "--timeout", type=int, default=10,
+                    help="how long can an example run (in seconds)")
 parser.add_argument("-v", "--verbose", action="store_true", default=False,
                     help="show console messages")
 parser.add_argument("-D", "--no-dev", dest="dev", action="store_false", default=True,
@@ -160,7 +162,7 @@ def run_example(example):
         raise Timeout
 
     signal.signal(signal.SIGALRM, alarm_handler)
-    signal.alarm(10) # seconds
+    signal.alarm(args.timeout)
 
     try:
         proc = subprocess.Popen(cmd, cwd=cwd, env=env)
@@ -171,6 +173,7 @@ def run_example(example):
             proc.kill()
             raise
     except Timeout:
+        warn("Timeout")
         proc.kill()
         return 0
     finally:

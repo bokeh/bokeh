@@ -6,5 +6,5 @@ class TestExamples(unittest.TestCase):
 
     def test_examples(self):
         script = os.path.join(os.path.dirname(__file__), "test")
-        proc = subprocess.Popen(["python", script])
+        proc = subprocess.Popen(["python", script, "--timeout=20"])
         self.assertTrue(proc.wait() == 0, "examples do *NOT* work properly")
