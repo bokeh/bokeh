@@ -103,7 +103,15 @@ class PandasDataSource(DataSource):
     data = Dict(String, Any)
 
 class Range(PlotObject):
-    pass
+    max_bounds = Int(18)
+    min_bounds = Int(-6)
+    
+    def vm_props(self):
+      if "max_bounds" not in self._changed_vars:
+        self.max_bounds = self.max_bounds
+      if "min_bounds" not in self._changed_vars:
+        self.min_bounds = self.min_bounds
+      return super(Range, self).vm_props()
 
 class Range1d(Range):
     """ Represents a fixed range [start, end] in a scalar dimension. """

@@ -21,7 +21,7 @@ define [
   text_properties = Properties.text_properties
 
   LEVELS = ['image', 'underlay', 'glyph', 'overlay', 'annotation', 'tool']
-
+	pan_value = {}
   delay_animation = (f) ->
     return f()
 
@@ -290,6 +290,38 @@ define [
       if not range_info?
         range_info = @initial_range_info
       @pause()
+      if typeof @x_range.get('min_bounds') isnt 'undefined'
+        if (typeof pan_value.xr is 'undefined' or (typeof pan_value.xr isnt 'undefined' and  pan_value.xr.start > @x_range.get('min_bounds')))
+          if range_info.xr.start < @x_range.get('min_bounds')
+            return null
+        else
+          if pan_value.xr.start > range_info.xr.start
+            return null
+      if typeof @x_range.get('max_bounds') isnt 'undefined'
+        if (typeof pan_value.xr is 'undefined' or (typeof pan_value.xr isnt 'undefined' and  pan_value.xr.end < @x_range.get('max_bounds')))
+          if range_info.xr.end > @x_range.get('max_bounds')
+            return null
+        else
+          if pan_value.xr.end < range_info.xr.end
+            return null
+            
+      if typeof @y_range.get('min_bounds') isnt 'undefined'
+        if (typeof pan_value.yr is 'undefined' or (typeof pan_value.yr isnt 'undefined' and  pan_value.yr.start > @y_range.get('min_bounds')))
+          if range_info.yr.start < @y_range.get('min_bounds')
+            return null
+        else
+          if pan_value.yr.start > range_info.yr.start
+            return null     
+      
+      if typeof @y_range.get('max_bounds') isnt 'undefined'
+        if (typeof pan_value.yr is 'undefined' or (typeof pan_value.yr isnt 'undefined' and  pan_value.yr.end < @y_range.get('max_bounds')))
+          if range_info.yr.end > @y_range.get('max_bounds')
+            return null
+        else
+          if pan_value.yr.end < range_info.yr.end
+            return null
+            
+      pan_value = range_info
       @x_range.set(range_info.xr)
       @y_range.set(range_info.yr)
       @unpause()
