@@ -12,12 +12,12 @@ logging.basicConfig(level=logging.INFO)
 
 from os.path import join, expanduser, abspath
 
-from bokeh.widgetobjects import VBoxModelForm, HBox, VBox, BokehApplet, Select, Slider, DatePicker
+from bokeh.widgetobjects import VBoxModelForm, HBox, VBox, BokehApplet, Select, Slider, DatePicker, DateRangeSlider
 from bokeh.objects import (Plot, ColumnDataSource, Range1d, DataRange1d, FactorRange,
     Glyph, LinearAxis, DatetimeAxis, CategoricalAxis, Grid, HoverTool, DaysTicker,
     DatetimeTickFormatter, BasicTickFormatter)
 from bokeh.glyphs import Line, Circle, Rect
-from bokeh.properties import Dict, Float, String, Instance, Enum, Date, lookup_descriptor
+from bokeh.properties import Dict, Float, String, Instance, Tuple, Enum, Date, lookup_descriptor
 
 parser = argparse.ArgumentParser()
 parser.add_argument("-D", "--data-dir", type=str, required=True, help="data directory")
@@ -43,15 +43,26 @@ def load_dataset(dataset_name):
 
 installers = load_dataset("installers")
 
+start = installers.date.min().date()
+end = installers.date.max().date()
+
 class InstallersModel(VBoxModelForm):
+    period = Tuple(Date, Date, default=(start, end))
     installer = Enum("All", *sorted(installers.event.unique()))
     resolution = Enum("daily", "monthly", "yearly", default="monthly")
     platform = Enum("All", *sorted(installers.platform.unique()))
     arch = Enum("All", *sorted(installers.arch.unique()))
-    start = Date(installers.date.min().date())
-    end = Date(installers.date.max().date())
+    #start = Date(start)
+    #end = Date(end)
 
     input_specs = [{
+        "widget": DateRangeSlider,
+        "name": "period",
+        "title": "Period:",
+        "value": period.default,
+        "bounds": period.default,
+        "range": (dict(days=1), None),
+    }, {
         "widget": Select,
         "name": "installer",
         "title": "Installer:",
@@ -75,18 +86,19 @@ class InstallersModel(VBoxModelForm):
         "title": "Architecture:",
         "value": arch.default,
         "options": arch.allowed_values,
-    }, {
-        "widget": DatePicker,
-        "name": "start",
-        "title": "Start:",
-        "value": start.default,
-        "min_date": start.default,
-    }, {
-        "widget": DatePicker,
-        "name": "end",
-        "title": "End:",
-        "value": end.default,
-        "max_date": end.default,
+    #}, {
+    #    "widget": DatePicker,
+    #    "name": "start",
+    #    "title": "Start:",
+    #    "value": start.default,
+    #    "min_date": start.default,
+    #}, {
+    #    "widget": DatePicker,
+    #    "name": "end",
+    #    "title": "End:",
+    #    "value": end.default,
+    #    "max_date": end.default,
+    #}]
     }]
 
 class DownloadsApp(BokehApplet):
@@ -161,8 +173,8 @@ class DownloadsApp(BokehApplet):
     def update_data(self):
         selected = installers
 
-        selected = selected[selected.date >= self.modelform.start]
-        selected = selected[selected.date <= self.modelform.end]
+        start, end = self.modelform.period
+        selected = selected[(selected.date >= start) & (selected.date <= end)]
 
         installer = self.modelform.installer
         if installer != "All":
