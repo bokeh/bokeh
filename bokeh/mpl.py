@@ -11,16 +11,20 @@
 # Imports
 #-----------------------------------------------------------------------------
 
+import itertools
 import warnings
-import numpy as np
+
 import matplotlib as mpl
+import numpy as np
 
 from .mplexporter.renderers import Renderer
 
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
-                          xkcd_line)
+                          xkcd_line, is_ax_end)
 from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
-                      Grid, PanTool, WheelZoomTool, PreviewSaveTool)
+                      GridPlot, Grid, PanTool, WheelZoomTool, PreviewSaveTool,
+                      BoxZoomTool, BoxSelectTool, BoxSelectionOverlay,
+                      ResetTool)
 from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
                      Xmarker, Diamond, Asterisk, MultiLine, Patches, Text)
 
@@ -39,7 +43,6 @@ class BokehRenderer(Renderer):
     def __init__(self, xkcd):
         "Initial setup."
         self.fig = None
-        #self.sess = session()
         self.xkcd = xkcd
         self.source = ColumnDataSource()
         self.xdr = DataRange1d()
@@ -61,15 +64,39 @@ class BokehRenderer(Renderer):
         # Add tools
         pantool = PanTool(dimensions=["width", "height"])
         wheelzoom = WheelZoomTool(dimensions=["width", "height"])
+        #boxzoom = BoxZoomTool(plot=self.plot)
+        #boxoverlay = BoxSelectionOverlay(tool=boxzoom)
+        #self.plot.renderers.append(boxoverlay)
+        #select_tool = BoxSelectTool()
+        #selectoverlay = BoxSelectionOverlay(tool=select_tool)
+        #self.plot.renderers.append(selectoverlay)
+        reset = ResetTool(plot=self.plot)
         previewsave = PreviewSaveTool(plot=self.plot)
-        self.plot.tools = [pantool, wheelzoom, previewsave]
+        self.plot.tools = [pantool, wheelzoom,
+                           #boxzoom,
+                           #select_tool,
+                           reset, previewsave]
 
         # Gallery list
         if _PLOTLIST is not None:
             _PLOTLIST.append(self.plot)
 
-        self.fig = self.plot
-        #self.sess.add_plot(self.plot)
+        # Simple or Grid plot setup
+        if len(fig.axes) <= 1:
+            self.fig = self.plot
+        else:
+            subrends = [list(x[1]) for x in itertools.groupby(
+                        self.plot.renderers, lambda x: is_ax_end(x)) if not x[0]]
+            plots = []
+            for i, axes in enumerate(fig.axes):
+                _plot = self.plot.clone()
+                _plot.renderers = subrends[i]
+                plots.append(_plot)
+            (a, b, c) = fig.axes[0].get_geometry()
+            p = np.array(plots)
+            n = np.resize(p, (a, b))
+            grid = GridPlot(children=n.tolist())
+            self.fig = grid
 
     def open_axes(self, ax, props):
         "Get axes data and create the axes and grids"
@@ -104,6 +131,10 @@ class BokehRenderer(Renderer):
             self.plot.title_text_font = "Comic Sans MS, Textile, cursive"
             self.plot.title_text_font_style = "bold"
             self.plot.title_text_color = "black"
+
+        # Add a "marker" Glyph to help the plot.renderers splitting in the GridPlot build
+        dummy_source = ColumnDataSource(data=dict(name="ax_end"))
+        self.plot.renderers.append(Glyph(data_source=dummy_source, glyph=Xmarker()))
 
     def open_legend(self, legend, props):
         pass
