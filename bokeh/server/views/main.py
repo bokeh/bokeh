@@ -62,7 +62,7 @@ def _makedoc(redisconn, u, title):
                        title, clientdoc,
                        rw_users=[u.username])
     u.save(redisconn)
-    bokeh_app.backbone_storage.push_dirty(clientdoc)
+    bokeh_app.backbone_storage.store_document(clientdoc)
     return doc
 
 @bokeh_app.route('/bokeh/doc', methods=['POST'])

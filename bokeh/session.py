@@ -12,7 +12,8 @@ except ImportError as e:
     pass
 
 from six.moves.urllib.parse import urljoin, urlencode
-from .document import merge
+from .exceptions import DataIntegrityException
+from .document import merge, Document
 from . import utils, browserlib
 from bokeh.objects import ServerDataSource
 import logging
@@ -253,21 +254,29 @@ class Session(object):
             apikey = apikey['readonlyapikey']
             logger.info('got read only apikey')
         return apikey
-
-    def use_doc(self, name):
+        
+    def find_doc(self, name):
         docs = self.userinfo.get('docs')
         matching = [x for x in docs if x.get('title') == name]
         if len(matching) == 0:
             logger.info("No documents found, creating new document '%s'" % name)
             self.make_doc(name)
-            return self.use_doc(name)
+            return self.find_doc(name)
         elif len(matching) > 1:
-            logger.warning("Multiple documents with title '%s'" % name)
+            logger.warning("Multiple documents with name '%s'" % name)
         docid = matching[0]['docid']
-        # I don't think we use this now, but we should for embedding
-        self.apikey = self.get_api_key(docid)
-        self.docid = docid
-        self.docname = name
+        return docid
+
+    def use_doc(self, name=None, docid=None):
+        """configures the session to use a document.  you can pass in
+        a title, or a docid, but not both.  Creates a document for 
+        title if one is not present on the server
+        """
+        if docid:
+            self.docid = docid
+        else:
+            self.docid = self.find_doc(name)
+        self.apikey = self.get_api_key(self.docid)
 
     def make_doc(self, title):
         url = urljoin(self.root_url,"bokeh/doc/")
@@ -275,7 +284,7 @@ class Session(object):
         self.userinfo = self.post_json(url, data=data)
 
     def pull(self, typename=None, objid=None):
-        """you need to call this with either typename AND objid
+        """lowever level function for pulling json objects, you need to call this with either typename AND objid
         or leave out both
         """
         if typename is None and objid is None:
@@ -297,6 +306,9 @@ class Session(object):
         return attrs
 
     def push(self, *jsonobjs):
+        """Lower level function for pushing raw json objects 
+        to the server
+        """
         data = protocol.serialize_json(jsonobjs)
         url = utils.urljoin(self.base_url, self.docid + "/", "bulkupsert")
         self.post_json(url, data=data)
@@ -304,7 +316,12 @@ class Session(object):
     # convenience functions to use a session and store/fetch from server
     # where should this go?
 
-    def pull_document(self, doc):
+    def load_document(self, doc):
+        """higher level function for pulling all data for
+        the docid for this session, and then merging it into
+        the doc that was passed in
+        """
+
         json_objs = self.pull()
 
         # hugo : I don't like this
@@ -313,19 +330,33 @@ class Session(object):
         doc.__dict__.update(new_doc.__dict__)
         doc.docid = self.docid
 
-    def push_document(self, doc):
-        models = [x for x in doc._models.values() if x._dirty]
+    def store_document(self, doc, dirty_only=True):
+        """higher level function for storing a doc on the server
+        """
+        models = doc._models.values()
+        if dirty_only:
+            models = [x for x in models if hasattr(x, '_dirty') and x._dirty]
         json_objs = doc.dump(*models)
         self.push(*json_objs)
+        for model in models:
+            model._dirty = False
 
-    def push_dirty(self, doc):
-        """store all dirty models
+    def store_objects(self, *objs, **kwargs):
+        """higher level function for storing a plot objects
+        on the server
         """
-        to_store = [x for x in doc._models.values() \
-                    if hasattr(x, '_dirty') and x._dirty]
-        json_objs = doc.dump(*to_store)
+        dirty_only = kwargs.pop('dirty_only', True)
+        models = set()
+        for obj in objs:
+            models.update(obj.references())
+        if dirty_only:
+            models = list(models)            
+
+        json_objs = utils.dump(models, self.docid)
         self.push(*json_objs)
-        return to_store
+        for model in models:
+            model._dirty = False
+        return models
 
     def object_link(self, obj):
         link = "/bokeh/doc/%s/%s" % (self.docid, obj._id)

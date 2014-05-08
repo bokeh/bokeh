@@ -10,8 +10,15 @@ import numpy as np
 from bokeh.objects import (Plot, DataRange1d, LinearAxis,
     ColumnDataSource, Glyph, PanTool, WheelZoomTool)
 from bokeh.glyphs import Line
+
 from bokeh import session
-from bokeh.plotting import *
+from bokeh import document
+
+document = document.Document()
+session = session.Session()
+session.use_doc('line_animate')
+session.load_document(document)
+
 
 x = np.linspace(-2*pi, 2*pi, 1000)
 x_static = np.linspace(-2*pi, 2*pi, 1000)
@@ -52,13 +59,14 @@ wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 plot.renderers.append(renderer)
 plot.renderers.append(renderer2)
 plot.tools = [pantool, wheelzoomtool]
-output_server('line_animate')
-curdoc().add(plot)
-cursession().push_dirty(curdoc())
-show()
+document.add(plot)
+session.store_document(document)
+link = session.object_link(document._plotcontext)
+print ("please visit %s to see plots" % link)
+print ("animating")
+
 while True:
     for i in  np.linspace(-2*pi, 2*pi, 50):
         source.data['x'] = x +i
-        sess = cursession()
-        sess.push(*source.dump(docid=sess.docid))
+        session.store_objects(source)
         time.sleep(0.05)

@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 from ..objects import PlotObject, Plot
 from ..document import Document
-from ..utils import encode_utf8, decode_utf8
+from ..utils import encode_utf8, decode_utf8, dump
 from . import server_backends
 from .app import bokeh_app
 
@@ -93,16 +93,30 @@ class PersistentBackboneStorage(object):
         doc.docid = docid
         return doc
         
-    def push_dirty(self, doc):
+    def store_objects(self, docid, *objs, **kwargs):
+        dirty_only = kwargs.pop('dirty_only', True)
+        models = set()
+        for obj in objs:
+            models.add(obj.references())
+        if dirty_only:
+            models = list(models)            
+        json_objs = utils.dump(models, docid)
+        self.push(doc.docid, *json_objs)
+        for mod in models:
+            mod._dirty = False
+        return models
+        
+    def store_document(self, doc, dirty_only=True):
         """store all dirty models
         """
-        to_store = [x for x in doc._models.values() \
-                    if hasattr(x, '_dirty') and x._dirty]
-        json_objs = doc.dump(*to_store)
+        models = doc._models.values()
+        if dirty_only:
+            models = [x for x in models if hasattr(x, '_dirty') and x._dirty]
+        json_objs = doc.dump(*models)
         self.push(doc.docid, *json_objs)
-        for mod in to_store:
+        for mod in models:
             mod._dirty = False
-        return to_store
+        return models
         
     def push(self, docid, *jsonobjs):
         keys = [modelkey(attr['type'], 

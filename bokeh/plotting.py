@@ -61,13 +61,6 @@ def cursession():
     '''
     return _default_session
 
-def push(session=None, document=None):
-    if not session:
-        session = cursession()
-    if not document:
-        document = curdoc()
-    return session.push_dirty(document)
-
 def hold(value=True):
     ''' Set or clear the plot hold status on the current document.
 
@@ -132,7 +125,7 @@ def output_server(docname, session=None, url="default", name=None):
             _default_session = Session(name=name, root_url=url)
         session = _default_session
     session.use_doc(docname)
-    session.pull_document(curdoc())
+    session.load_document(curdoc())
 
 def output_cloud(docname):
     """ Cause plotting commands to automatically persist plots to the Bokeh
@@ -296,7 +289,7 @@ def push(session=None, document=None):
         document = curdoc()
 
     if session:
-        return session.push_dirty(curdoc())
+        return session.store_document(curdoc())
     else:
         warnings.warn("push() called but no session was supplied and output_server(...) was never called, nothing pushd")
 

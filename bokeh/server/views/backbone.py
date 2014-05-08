@@ -34,7 +34,7 @@ def reset(docid):
             bokeh_app.backbone_storage.del_obj(docid, m)
         else:
             m.children = []
-            bokeh_app.backbone_storage.push(docid, m)
+            bokeh_app.backbone_storage.store_objects(docid, m)
     return 'success'
 
 @bokeh_app.route("/bokeh/bb/<docid>/rungc", methods=['GET'])
@@ -75,7 +75,7 @@ def bulk_upsert(docid):
         clientdoc.load(*data, events=None, dirty=True)
     else:
         clientdoc.load(*data, events='existing', dirty=True)
-    changed = bokeh_app.backbone_storage.push_dirty(clientdoc)
+    changed = bokeh_app.backbone_storage.store_document(clientdoc)
     msg = ws_update(clientdoc, changed)
     return make_json(msg)
 
@@ -111,7 +111,7 @@ def create(docid, typename):
     modeldata = {'type' : typename,
                  'attributes' : modeldata}
     clientdoc.load(modeldata, dirty=True)
-    bokeh_app.backbone_storage.push_dirty(clientdoc)
+    bokeh_app.backbone_storage.store_document(clientdoc)
     ws_update(clientdoc, modeldata)
     return protocol.serialize_json(modeldata[0]['attributes'])
 
@@ -175,7 +175,7 @@ def update(docid, typename, id):
     modeldata = {'type' : typename,
                  'attributes' : modeldata}
     clientdoc.load(modeldata, events='existing', dirty=True)
-    changed = bokeh_app.backbone_storage.push_dirty(clientdoc)
+    changed = bokeh_app.backbone_storage.store_document(clientdoc)
     model = clientdoc._models[id]
     try:
         idx = changed.index(model)
@@ -216,6 +216,6 @@ def rpc(docid, typename, id, funcname):
     kwargs = data.get('kwargs', {})
     result = getattr(model, funcname)(*args, **kwargs)
     log.debug("rpc, %s, %s", docid, typename)
-    changed = bokeh_app.backbone_storage.push_dirty(clientdoc)
+    changed = bokeh_app.backbone_storage.store_document(clientdoc)
     ws_update(clientdoc, changed, exclude_self=False)
     return make_json(protocol.serialize_json(result))
