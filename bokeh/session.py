@@ -340,6 +340,7 @@ class Session(object):
         self.push(*json_objs)
         for model in models:
             model._dirty = False
+        return models
 
     def store_objects(self, *objs, **kwargs):
         """higher level function for storing a plot objects
