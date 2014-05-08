@@ -15,18 +15,20 @@ import itertools
 import warnings
 
 import matplotlib as mpl
+import matplotlib.pyplot as plt
 import numpy as np
 
-from .mplexporter.renderers import Renderer
-
+from .glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
+                     MultiLine, Patches, Square, Text, Triangle, Xmarker)
+from .mplexporter.renderers import Exporter, Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
-                          xkcd_line, is_ax_end)
-from .objects import (Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph,
-                      GridPlot, Grid, PanTool, WheelZoomTool, PreviewSaveTool,
-                      BoxZoomTool, BoxSelectTool, BoxSelectionOverlay,
-                      ResetTool)
-from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
-                     Xmarker, Diamond, Asterisk, MultiLine, Patches, Text)
+                          is_ax_end, xkcd_line)
+from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
+                      ColumnDataSource, DataRange1d, Glyph, Grid, GridPlot,
+                      LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
+                      WheelZoomTool)
+from .plotting import (output_file, output_notebook, output_server, session,
+                       show)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -85,6 +87,8 @@ class BokehRenderer(Renderer):
         if len(fig.axes) <= 1:
             self.fig = self.plot
         else:
+            # This list comprehension splits the plot.renderers list at the "marker"
+            # points returning small sublists corresponding with each subplot.
             subrends = [list(x[1]) for x in itertools.groupby(
                         self.plot.renderers, lambda x: is_ax_end(x)) if not x[0]]
             plots = []
@@ -382,3 +386,65 @@ class BokehRenderer(Renderer):
             on_off = map(int,col.get_linestyle()[0][1])
         patches.line_dash_offset = convert_dashes(offset)
         patches.line_dash = list(convert_dashes(tuple(on_off)))
+
+
+def show_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
+    """ Uses bokeh to display a Matplotlib Figure.
+
+    You can store a bokeh plot in a standalone HTML file, as a document in
+    a Bokeh plot server, or embedded directly into an IPython Notebook
+    output cell.
+
+    Parameters
+    ----------
+
+    fig: matplotlib.figure.Figure
+        The figure to display. If None or not specified, then the current figure
+        will be used.
+
+    name: str (default=None)
+        If this option is provided, then the Bokeh figure will be saved into
+        this HTML file, and then a web browser will used to display it.
+
+    server: str (default=None)
+        Fully specified URL of bokeh plot server. Default bokeh plot server
+        URL is "http://localhost:5006" or simply "deault"
+
+    notebook: bool (default=False)
+        Return an output value from this function which represents an HTML
+        object that the IPython notebook can display. You can also use it with
+        a bokeh plot server just specifying the URL.
+
+    xkcd: bool (default=False)
+        If this option is True, then the Bokeh figure will be saved with a
+        xkcd style.
+    """
+
+    if fig is None:
+        fig = plt.gcf()
+
+    if any([name, server, notebook]):
+        if name:
+            if not server:
+                filename = name + ".html"
+                output_file(filename)
+            else:
+                output_server(name, url=server)
+        elif server:
+            if not notebook:
+                output_server("unnamed", url=server)
+            else:
+                output_notebook(url=server)
+        elif notebook:
+            output_notebook()
+    else:
+        output_file("Unnamed.html")
+
+    sess = session()
+
+    renderer = BokehRenderer(xkcd)
+    exporter = Exporter(renderer)
+    exporter.run(fig)
+    sess.add_plot(renderer.fig)
+
+    show()
