@@ -11,6 +11,7 @@ from .templates import (
     AUTOLOAD, AUTOLOAD_SERVER, AUTOLOAD_STATIC, FILE,
     NOTEBOOK_DIV, PLOT_DIV, PLOT_JS, PLOT_SCRIPT, RESOURCES
 )
+from .utils import encode_utf8
 
 def components(plot_object, resources):
     ''' Return HTML components to embed a Bokeh plot.
@@ -43,7 +44,7 @@ def components(plot_object, resources):
     )
     div = PLOT_DIV.render(elementid=elementid)
 
-    return script, div
+    return encode_utf8(script), encode_utf8(div)
 
 
 def notebook_div(plot_object):
@@ -80,7 +81,7 @@ def notebook_div(plot_object):
         plot_script = script,
         plot_div = div,
     )
-    return html.encode("utf-8")
+    return encode_utf8(html)
 
 
 def file_html(plot_object, resources, title, template=FILE):
@@ -114,7 +115,7 @@ def file_html(plot_object, resources, title, template=FILE):
         plot_script = script,
         plot_div = div,
     )
-    return html.encode("utf-8")
+    return encode_utf8(html)
 
 
 def autoload_static(plot_object, resources, script_path):
@@ -158,7 +159,7 @@ def autoload_static(plot_object, resources, script_path):
         modeltype = plot_object.__view_model__,
     )
 
-    return js, tag
+    return encode_utf8(js), encode_utf8(tag)
 
 
 def autoload_server(plot_object, session, mode="server"):
@@ -190,6 +191,6 @@ def autoload_server(plot_object, session, mode="server"):
         conn_string = resources.conn_string,
     )
 
-    return tag
+    return encode_utf8(tag)
 
 
