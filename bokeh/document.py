@@ -191,6 +191,7 @@ class Document(object):
         for obj in objects:
             if obj not in self._plotcontext.children:
                 self._plotcontext.children.append(obj)
+                self._plotcontext._dirty = True
             self._add(*obj.references())
 
     def add_all(self):
