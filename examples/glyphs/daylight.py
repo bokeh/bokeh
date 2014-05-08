@@ -7,7 +7,10 @@ from bokeh.browserlib import view
 from bokeh.document import Document
 from bokeh.embed import file_html
 from bokeh.glyphs import Patch, Line, Text
-from bokeh.objects import Plot, DataRange1d, DatetimeAxis, ColumnDataSource, Glyph, Grid, Legend
+from bokeh.objects import (
+    ColumnDataSource, DataRange1d, DatetimeAxis, DatetimeTickFormatter,
+    Glyph, Grid, Legend, Plot
+)
 from bokeh.resources import INLINE
 from bokeh.sampledata import daylight
 
@@ -75,7 +78,8 @@ text = Text(x="dates", y="times", text="texts", angle=0, text_align="center")
 text_glyph = Glyph(data_source=text_source, xdata_range=xdr, ydata_range=ydr, glyph=text)
 plot.renderers.append(text_glyph)
 
-xaxis = DatetimeAxis(plot=plot, dimension=0)
+xformatter = DatetimeTickFormatter(formats=dict(months=["%b %Y"]))
+xaxis = DatetimeAxis(plot=plot, dimension=0, formatter=xformatter)
 yaxis = DatetimeAxis(plot=plot, dimension=1)
 xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
 ygrid = Grid(plot=plot, dimension=1, axis=yaxis)

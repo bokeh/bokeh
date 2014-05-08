@@ -90,5 +90,5 @@ bokeh.data.*
 bokeh.server.*
 bokeh.sets.*
 remotedata
-
+target/
 /.idea/
