@@ -14,7 +14,6 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
             _make_legend, _get_select_tool
         )
         from .objects import ColumnDataSource, Glyph, Plot, ServerDataSource
-
         source = kwargs.pop('source', None)
         if isinstance(source, ServerDataSource):
             datasource = ColumnDataSource()
@@ -89,6 +88,7 @@ def _glyph_function(glyphclass, argnames, docstring, xfields=["x"], yfields=["y"
             select_tool._dirty = True
 
         plot.renderers.append(glyph_renderer)
+        plot._dirty = True
         if document and document._autoadd:
             document.add(plot)
         return plot
