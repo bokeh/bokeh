@@ -176,11 +176,16 @@ class Document(object):
         return plot
 
     def _add(self, *objects):
+        '''Adds objects to the session
+        '''
         for obj in objects:
             self._models[obj._id] = obj
 
     def add(self, *objects):
-        ''' Add top level objects to this Document
+        ''' Add top level objects to this Document.  Also traverses
+        references and adds those as well.  This function should only
+        be called on top level objects.  lower level objects are 
+        added using _add
 
         Args:
             *objects (PlotObject) : objects to add to the Document
@@ -195,8 +200,8 @@ class Document(object):
             self._add(*obj.references())
 
     def add_all(self):
-        """ensures everything in a plot context is stored and ready to
-        be pushed
+        """ensures everything in a plot context is added to the
+        session and ready to be pushed/stored/etc...
         """
         objs = self._plotcontext.references()
         self._add(*objs)
@@ -223,10 +228,18 @@ class Document(object):
 
     # functions for turning json objects into json models
     def load(self, *attrs, **kwargs):
-        """loads broadcast attrs into models.
-        events can be 'existing', or None. 'existing' means
-        trigger events only for existing (not new objects).
-        None means don't trigger any events.
+        """loads json attributes into models.
+        
+        Args:
+        
+            *attrs : any attributes to load
+            **kwargs : the only kwarg here is events, which can be set to
+                'existing' or None. 'existing' means trigger events only 
+                for existing (not new objects). None means don't trigger any events.
+        
+        Returns:
+            models that were loaded, as models, not as json
+        
         """
         events = kwargs.pop('events', 'existing')
         dirty = kwargs.pop('dirty', False)
@@ -266,10 +279,11 @@ class Document(object):
         return models
 
     def dump(self, *to_store):
-        """ Manually convert our top-level models into dicts, before handing
-        them in to the JSON encoder. We don't want to embed the call to
-        ``vm_serialize()`` into the ``PlotObjectEncoder``, because that would
-        cause all the attributes to be duplicated multiple times.
+        """ Manually convert our top-level models into json objects
+        
+        Args:
+            *to_store : models that we want to dump.  If this is empty
+                we dump everything in the document
         """
         if not to_store:
             to_store = self._models.values()
@@ -354,6 +368,11 @@ class Document(object):
 def merge(basedocument, document):
     """add objects from document into basedocument
     includes adding top level objs to plot context children
+
+    Args:
+        basedocument (document) : original document.  Changes will
+            merged into this one
+        document (document) : new document.  Changes come from this document
     """
     for m in document._plotcontext.children:
         if m not in basedocument._plotcontext.children:

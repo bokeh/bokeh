@@ -115,6 +115,8 @@ class Session(object):
         return data
 
     def load(self):
+        """loads server configuration information from disk
+        """
         config_info = self.load_dict().get(self.name, {})
         print("found config for %s" % self.name)
         print(str(config_info))
@@ -125,6 +127,8 @@ class Session(object):
         self.username = config_info.get('username', self.username)
 
     def save(self):
+        """Saves server configuration information to json
+        """
         data = self.load_dict()
         data[self.name] = {'root_url': self.root_url,
                            'userapikey': self.userapikey,
@@ -170,6 +174,9 @@ class Session(object):
         self.save()
 
     def browser_login(self):
+        """Opens a web browser with a token that logs you 
+        in to a bokeh server (for multi-user mode)
+        """
         controller = browserlib.get_browser_controller()
         url = urljoin(self.root_url, "bokeh/loginfromapikey")
         url += "?" + urlencode({'username': self.username,
@@ -193,6 +200,10 @@ class Session(object):
         return name
 
     def data_source(self, name, dataframe=None, array=None):
+        """Makes a server data source and uploads it to the server
+        The server must be configured with a data directory
+        for this to work
+        """
         if dataframe is not None:
             fname = self._prep_data_source_df(name, dataframe)
             target_name = name + ".pandas"
@@ -213,6 +224,15 @@ class Session(object):
         return sources
 
     def execute_json(self, method, url, headers=None, **kwargs):
+        """Executes a http request using the current session, and returns
+        the json response (assuming the endpoint returns json)
+        Args:
+            method (string) : 'get' or 'post'
+            url (string) : url
+            headers (dict, optional) : any extra headers
+            **kwargs : any extra arguments that should be passed into
+                the requests library
+        """
         if headers is None:
             headers={'content-type':'application/json'}
         func = getattr(self.http_session, method)
@@ -245,6 +265,12 @@ class Session(object):
         return urljoin(self.root_url, "bokeh/bb/")
 
     def get_api_key(self, docid):
+        """Retrive the document apikey from the server
+        Args:
+            docid (string) : docid you want the api key for
+        Returns:
+            apikey : string
+        """
         url = urljoin(self.root_url,"bokeh/getdocapikey/%s" % docid)
         apikey = self.get_json(url)
         if 'apikey' in apikey:
@@ -256,6 +282,14 @@ class Session(object):
         return apikey
         
     def find_doc(self, name):
+        """Finds the document with a title matching name and returns the docid
+        Creates a document with the given title if one is not found
+        Args:
+            name (string) : name/title of document
+        Returns:
+            docid (string)
+        """
+        
         docs = self.userinfo.get('docs')
         matching = [x for x in docs if x.get('title') == name]
         if len(matching) == 0:
@@ -279,12 +313,16 @@ class Session(object):
         self.apikey = self.get_api_key(self.docid)
 
     def make_doc(self, title):
+        """makes a document matching title on the server, then
+        reloads user infomation
+        """
         url = urljoin(self.root_url,"bokeh/doc/")
         data = protocol.serialize_json({'title' : title})
         self.userinfo = self.post_json(url, data=data)
 
     def pull(self, typename=None, objid=None):
-        """lowever level function for pulling json objects, you need to call this with either typename AND objid
+        """lowever level function for pulling json objects, 
+        you need to call this with either typename AND objid
         or leave out both
         """
         if typename is None and objid is None:
@@ -360,6 +398,8 @@ class Session(object):
         return models
 
     def object_link(self, obj):
+        """webpage link which should render a given object
+        """
         link = "/bokeh/doc/%s/%s" % (self.docid, obj._id)
         return utils.urljoin(self.base_url, link)
 

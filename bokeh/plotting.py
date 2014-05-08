@@ -37,6 +37,11 @@ def curdoc():
         doc : the current default document object.
     '''
     try:
+        """This is used when we need to call the plotting API from within
+        the server, within a request context.  (Applets do this for example)
+        in this case you still want the API to work but you don't want 
+        to use the global module level document
+        """
         from flask import request
         doc = request.bokeh_server_document
         logger.debug("returning config from flask request")
