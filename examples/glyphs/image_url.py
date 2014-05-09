@@ -1,8 +1,12 @@
-from bokeh.objects import ColumnDataSource, Range1d, Plot, Glyph, LinearAxis, Grid
-from bokeh.glyphs import ImageURL
-from bokeh.session import HTMLFileSession
 
 import numpy as np
+
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
+from bokeh.glyphs import ImageURL
+from bokeh.objects import ColumnDataSource, Range1d, Plot, Glyph, LinearAxis, Grid
+from bokeh.resources import INLINE
 
 url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
 N = 5
@@ -39,10 +43,13 @@ yaxis = LinearAxis(plot=plot, dimension=1)
 xgrid = Grid(plot=plot, dimension=0, axis=xaxis)
 ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
 
-session = HTMLFileSession("image_url.html")
-session.add_plot(plot)
+doc = Document( )
+doc.add(plot)
 
 if __name__ == "__main__":
-    session.save()
-    print("Wrote %s" % session.filename)
-    session.view()
+    filename = "image_url.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Image URL Example"))
+    print("Wrote %s" % filename)
+    view(filename)
+

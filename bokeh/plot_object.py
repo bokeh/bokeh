@@ -12,6 +12,7 @@ from six import add_metaclass, iteritems
 from six.moves.urllib.parse import urlsplit
 
 from .properties import HasProps, MetaHasProps, Instance
+from .utils import get_ref, convert_references, dump
 
 class Viewable(MetaHasProps):
     """ Any plot object (Data Model) which has its own View Model in the
@@ -247,28 +248,16 @@ class PlotObject(HasProps):
         attrs = self.vm_props()
         attrs['id'] = self._id
         return attrs
-
+        
+    def dump(self, docid=None):
+        """convert all references to json
+        """
+        models = self.references()
+        return dump(models, docid=docid)
+        
     def update(self, **kwargs):
         for k,v in kwargs.items():
             setattr(self, k, v)
-
-    @usesession
-    def pull(self, session=None, ref=None):
-        """ Pulls information from the given session and ref id into this
-        object.  If no session is provided, then uses self.session.
-        If no ref is given, uses self._id.
-        """
-        # Read session values into a new dict, and fill those into self
-        if ref is None:
-            ref = session.get_ref(self)
-        newattrs = session.load_obj(ref)
-
-    @usesession
-    def push(self, session=None):
-        """ Pushes the update values from this object into the given
-        session (or self.session, if none is provided).
-        """
-        session.store_obj(self)
 
     def __str__(self):
         return "%s, ViewModel:%s, ref _id: %s" % (self.__class__.__name__,

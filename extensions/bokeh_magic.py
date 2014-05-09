@@ -137,7 +137,11 @@ class BokehMagics(Magics):
                 self.notebook_output()
             # Register the hold function.
             if self.is_ipytwo:
-                ip.events.register('pre_run_cell', self.notebook_hold)
+                try:
+                    ip.events.unregister('pre_run_cell', self._hold_false)
+                    ip.events.register('pre_run_cell', self._hold_true)
+                except ValueError:
+                    ip.events.register('pre_run_cell', self._hold_true)
                 print("Automatic hold() is enabled.")
             else:
                 ip.set_hook('pre_run_code_hook', hold)
@@ -148,7 +152,8 @@ class BokehMagics(Magics):
             if self.is_ipytwo:
                 try:
                     # Unregister a figure function.
-                    ip.events.unregister('pre_run_cell', self.notebook_hold)
+                    ip.events.unregister('pre_run_cell', self._hold_true)
+                    ip.events.register('pre_run_cell', self._hold_false)
                     print("Automatic hold() is disabled.")
                 except ValueError:
                     raise UsageError("""You have to enable the --hold mode before trying to disable it.""")
@@ -192,13 +197,20 @@ class BokehMagics(Magics):
         "Wrapper to avoid the exception when the cell does not contain a plot."
         try:
             show()
-        except IndexError:
-            # no plot object in the current cell gives us IndexError
-            pass
+        except AttributeError as e:
+            # no plot object in the current cell gives us an AttributeError
+            if str(e) != "'NoneType' object has no attribute 'get_ref'":
+                raise
+            else:
+                pass
 
-    def notebook_hold(self):
+    def _hold_true(self):
         "Wrapper to set up the the hold function to True to avoid toggling."
         hold(True)
+
+    def _hold_false(self):
+        "Wrapper to set up the the hold function to True to avoid toggling."
+        hold(False)
 
 
 def load_ipython_extension(ip):

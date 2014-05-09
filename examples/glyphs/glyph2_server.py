@@ -1,11 +1,9 @@
 from __future__ import print_function
 
 import sys
-import os.path
 import requests
 
 from numpy import pi, arange, sin, cos
-import numpy as np
 
 from bokeh.objects import (
     Plot, DataRange1d, LinearAxis, Grid,
@@ -13,6 +11,12 @@ from bokeh.objects import (
     PanTool, WheelZoomTool)
 from bokeh.glyphs import Circle
 from bokeh import session
+from bokeh import document
+
+document = document.Document()
+session = session.Session()
+session.use_doc('glyph2_server')
+session.load_document(document)
 
 x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
@@ -51,18 +55,12 @@ ygrid = Grid(plot=plot, dimension=1, axis=yaxis)
 
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool,wheelzoomtool]
-
-try:
-    sess = session.PlotServerSession(
-        serverloc="http://localhost:5006",
-        username="defaultuser",
-        userapikey="nokey")
-except requests.exceptions.ConnectionError:
-    print("ERROR: This example requires the plot server. Please make sure plot server is running, by executing 'bokeh-server'")
-    sys.exit(1)
-
-sess.use_doc("glyph2_server")
-sess.add_plot(plot)
+document.add(plot)
 # not so nice.. but set the model doens't know
 # that we appended to children
-sess.store_all()
+session.store_document(document)
+
+link = session.object_link(document._plotcontext)
+print ("please visit %s to see plots" % link)
+
+
