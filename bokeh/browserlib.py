@@ -2,9 +2,8 @@
 from os.path import abspath
 import webbrowser
 
-from . import settings
-
 def get_browser_controller(browser=None):
+    from . import settings # removes circular import
     browser = settings.browser(browser)
 
     if browser is not None:
