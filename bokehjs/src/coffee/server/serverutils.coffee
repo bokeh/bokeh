@@ -26,15 +26,6 @@ define [
   exports.Promises = Promises
 
   utility =
-    reload : () ->
-      Config = require("common/base").Config
-      ping_url = "#{Config.prefix}/bokeh/ping"
-      $.get(ping_url)
-        .success(() ->
-          console.log('reloading')
-          window.location.reload())
-        .fail(_.delay((() -> utility.reload()), 1000))
-      return null
     load_one_object_chain : (docid, objid) ->
       if not exports.wswrapper?
         utility.make_websocket();
@@ -48,11 +39,6 @@ define [
         load_models(all_models)
         apikey = data['apikey']
         submodels(exports.wswrapper, "bokehplot:#{docid}", apikey)
-        exports.wswrapper.subscribe("debug:debug", "")
-        exports.wswrapper.on('msg:debug:debug', (msg) ->
-          if msg == 'reload'
-            utility.reload()
-        )
       )
       return resp
 
