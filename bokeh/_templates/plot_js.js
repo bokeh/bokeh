@@ -1,7 +1,6 @@
 var modelid = "{{ modelid }}";
 var modeltype = "{{ modeltype }}";
 var elementid = "{{ elementid }}";
-console.log("Rendering in notebook");
 console.log("  modeltype:", modeltype);
 console.log("  modelid:", modelid);
 console.log("  elementid:", elementid);
