@@ -51,4 +51,4 @@ plt.title("MPL support for ListCollection in Bokeh")
 plt.xlim(x.min(), x.max())
 plt.ylim(-1.0, 1.0)
 
-pyplot.show_bokeh(plt.gcf(), filename="listcollection.html")
+pyplot.show_bokeh(name="listcollection")
