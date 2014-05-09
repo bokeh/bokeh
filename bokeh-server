@@ -1,10 +1,9 @@
 #!/usr/bin/env python
+
 from __future__ import print_function
-
 if __name__ == "__main__":
-    import bokeh.server
-
     try:
+        import bokeh.server
         bokeh.server.run()
     except KeyboardInterrupt:
         print("Shutting down bokeh-server ...")
