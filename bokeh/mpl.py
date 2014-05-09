@@ -20,7 +20,8 @@ import numpy as np
 
 from .glyphs import (Asterisk, Circle, Cross, Diamond, InvertedTriangle, Line,
                      MultiLine, Patches, Square, Text, Triangle, Xmarker)
-from .mplexporter.renderers import Exporter, Renderer
+from .mplexporter.exporter import Exporter
+from .mplexporter.renderers import Renderer
 from .mpl_helpers import (convert_dashes, delete_last_col, get_props_cycled,
                           is_ax_end, xkcd_line)
 from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
@@ -388,7 +389,7 @@ class BokehRenderer(Renderer):
         patches.line_dash = list(convert_dashes(tuple(on_off)))
 
 
-def show_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
+def to_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
     """ Uses bokeh to display a Matplotlib Figure.
 
     You can store a bokeh plot in a standalone HTML file, as a document in
