@@ -127,14 +127,14 @@ class Resources(object):
     _default_url = "http://127.0.0.1:5006"
     logo_url = "http://bokeh.pydata.org/_static/bokeh-transparent.png"
 
-    def __init__(self, mode='inline', version=None, rootdir=None, 
+    def __init__(self, mode='inline', version=None, rootdir=None,
                  minified=True, root_url=None):
         self.mode = settings.resources(mode)
         self.rootdir = settings.rootdir(rootdir)
         self.version = settings.version(version)
         self.minified = settings.minified(minified)
         self._root_url = root_url
-        
+
         if mode not in ['inline', 'cdn', 'server', 'server-dev', 'relative', 'relative-dev', 'absolute', 'absolute-dev']:
             raise ValueError("wrong value for 'mode' parameter, expected 'inline', 'cdn', 'server', 'server-dev', 'relative(-dev)' or 'absolute(-dev)', got %r" % self.mode)
 
@@ -146,8 +146,8 @@ class Resources(object):
 
         if root_url and not mode.startswith('server'):
             raise ValueError("setting 'root_url' makes sense only when 'mode' is set to 'server'")
-            
-        self.dev = mode.endswith('-dev')
+
+        self.dev = self.mode.endswith('-dev')
         if self.dev:
             self.mode = self.mode[:-4]
 
@@ -186,14 +186,14 @@ class Resources(object):
         if self.dev:
             require = 'require.config({ baseUrl: "%s" });' % base_url
             self.js_raw.append(require)
-            
+
     @property
     def root_url(self):
-        if self._root_url: 
+        if self._root_url:
             return self._root_url
         else:
             return self._default_url
-            
+
     @property
     def conn_string(self):
         return self.root_url.replace("http", "ws", 1) + "bokeh/sub"
@@ -220,7 +220,7 @@ class Resources(object):
             js_wrapper = wrapper
 
         return js_wrapper
-        
+
     def _autoload_path(self, elementid):
         return self.root_url + "/bokeh/autoload.js/%s" % elementid
 
