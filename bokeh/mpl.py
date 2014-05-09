@@ -28,8 +28,8 @@ from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
                       ColumnDataSource, DataRange1d, Glyph, Grid, GridPlot,
                       LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
                       WheelZoomTool)
-from .plotting import (output_file, output_notebook, output_server, session,
-                       show)
+from .plotting import (get_config, output_file, output_notebook, output_server,
+                       session, show)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -446,6 +446,8 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
     renderer = BokehRenderer(xkcd)
     exporter = Exporter(renderer)
     exporter.run(fig)
+    # the following line is needed to output notebook properly
+    get_config()["curplot"] = renderer.fig
     sess.add_plot(renderer.fig)
 
     show()
