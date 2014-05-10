@@ -39,7 +39,7 @@ def curdoc():
     try:
         """This is used when we need to call the plotting API from within
         the server, within a request context.  (Applets do this for example)
-        in this case you still want the API to work but you don't want 
+        in this case you still want the API to work but you don't want
         to use the global module level document
         """
         from flask import request
@@ -270,7 +270,7 @@ def save(filename=None, resources=None):
         warnings.warn("save() called but no resources was supplied and output_file(...) was never called, nothing saved")
         return
 
-    html = file_html(curplot(), resources, _default_file['title'])
+    html = file_html(curdoc(), resources, _default_file['title'])
     with open(filename, "w") as f:
         f.write(html)
 
