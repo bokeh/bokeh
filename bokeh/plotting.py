@@ -218,15 +218,20 @@ def show(browser=None, new="tab", url=None):
 
     controller = browserlib.get_browser_controller(browser=browser)
 
+    plot = curplot()
+    if not plot:
+        warnings.warn("No current plot to show. Use renderer functions (circle, rect, etc.) to create a current plot")
+        return
+
     if notebook and session:
         import IPython.core.displaypub as displaypub
         push(session=session)
-        snippet = autoload_server(curplot(), cursession())
+        snippet = autoload_server(plot, cursession())
         displaypub.publish_display_data('bokeh', {'text/html': snippet})
 
     elif notebook:
         import IPython.core.displaypub as displaypub
-        plot = curplot()
+
         displaypub.publish_display_data('bokeh', {'text/html': notebook_div(plot)})
 
     elif session:
@@ -266,8 +271,13 @@ def save(filename=None, resources=None):
     if not filename:
         warnings.warn("save() called but no filename was supplied and output_file(...) was never called, nothing saved")
         return
+
     if not resources:
         warnings.warn("save() called but no resources was supplied and output_file(...) was never called, nothing saved")
+        return
+
+    if not curplot():
+        warnings.warn("No current plot to save. Use renderer functions (circle, rect, etc.) to create a current plot")
         return
 
     html = file_html(curdoc(), resources, _default_file['title'])
