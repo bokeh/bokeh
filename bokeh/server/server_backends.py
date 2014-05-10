@@ -19,37 +19,6 @@ import numpy as np
 
 logger = logging.getLogger(__name__)
 
-class AbstractBackboneStorage(object):
-    """Abstract class, which returns a session object for a given
-    document
-    """
-    def get_session(self, docid, doc=None):
-        """pass in the docid of a document.  If doc is passed
-        (instance of bokeh.models.doc.Doc), then that instance will be used
-        otherwise it will be loaded
-        """
-        raise NotImplementedError
-
-
-class RedisBackboneStorage(object):
-    def __init__(self, redisconn):
-        self.redisconn = redisconn
-
-    def get_session(self, docid, doc=None):
-        from .serverbb import RedisSession
-        return RedisSession(self.redisconn, docid, doc=doc)
-
-class InMemoryBackboneStorage(object):
-
-    def get_session(self, docid, doc=None):
-        from .serverbb import InMemorySession
-        return InMemorySession(docid, doc=doc)
-
-class ShelveBackboneStorage(object):
-
-    def get_session(self, docid, doc=None):
-        from .serverbb import ShelveSession
-        return ShelveSession(docid, doc=doc)
 
 class AbstractServerModelStorage(object):
     """Storage class for server side models (non backbone, that would be

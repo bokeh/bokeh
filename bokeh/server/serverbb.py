@@ -17,8 +17,8 @@ import numpy as np
 logger = logging.getLogger(__name__)
 
 from ..objects import PlotObject, Plot
-from ..session import PersistentBackboneSession, BaseJSONSession
-from ..utils import encode_utf8, decode_utf8
+from ..document import Document
+from ..utils import encode_utf8, decode_utf8, dump
 from . import server_backends
 from .app import bokeh_app
 
@@ -46,94 +46,101 @@ class StoreAdapter(object):
     def delete(self, key):
         raise NotImplementedError("abstract method")
 
-class PersistentSession(PersistentBackboneSession, BaseJSONSession, StoreAdapter):
-    """Base class for `RedisSession`, `InMemorySession`, etc. """
+def dockey(docid):
+    docid = encode_utf8('doc:' + docid)
+    return docid
 
-    def __init__(self, docid, doc=None):
-        super(PersistentSession, self).__init__(plot=None)
-        self.doc = doc
-        self.docid = docid
-        self.raw_js_objs = []
+def modelkey(typename, docid, modelid):
+    docid = encode_utf8(docid)
+    modelid = encode_utf8(modelid)
+    return 'bbmodel:%s:%s:%s' % (typename, docid, modelid)
 
-    @property
-    def plotcontext(self):
-        pc = super(PersistentSession, self).plotcontext
-        if pc:
-            return pc
-        if not self.doc:
-            self.doc = docs.Doc.load(bokeh_app.servermodel_storage, self.docid)
-            self.plotcontext = self._models[self.doc.plot_context_ref['id']]
-            return self.plotcontext
+def callbackskey(typename, docid, modelid):
+    return 'bbcallback:%s:%s:%s' % (typename, docid, modelid)
 
-    @plotcontext.setter
-    def plotcontext(self, val):
-        self._plotcontext = val
+def parse_modelkey(key):
+    _, typename, docid, modelid = decode_utf8(key).split(":")
+    return typename, docid, modelid
+    
+def prune(document, delete=False):
+    all_models = docs.prune_and_get_valid_models(document, delete=delete)
+    to_keep = set([x._id for x in all_models])
+    to_delete = set(document._models.keys()) - to_keep
+    for k in to_delete:
+        document.remove(k)
 
-    def dockey(self, docid):
-        docid = encode_utf8('doc:' + docid)
-        return docid
+class PersistentBackboneStorage(object):
+    """Base class for `RedisBackboneStorage`, `InMemoryBackboneStorage`, etc. """
 
-    def modelkey(self, typename, docid, modelid):
-        docid = encode_utf8(docid)
-        modelid = encode_utf8(modelid)
-        return 'bbmodel:%s:%s:%s' % (typename, docid, modelid)
-
-    def callbackskey(self, typename, docid, modelid):
-        return 'bbcallback:%s:%s:%s' % (typename, docid, modelid)
-
-    def parse_modelkey(self, key):
-        _, typename, docid, modelid = decode_utf8(key).split(":")
-        return typename, docid, modelid
-
-    def set_doc(self, doc):
-        self.doc = doc
-        self.docid = doc.docid
-
-    def prune(self, delete=False):
-        all_models = docs.prune_and_get_valid_models(self, delete=delete)
-        to_keep = set([x._id for x in all_models])
-        to_delete = set(self._models.keys()) - to_keep
-        for k in to_delete:
-            del self._models[k]
-
-    def load_all(self, asdict=False):
-        doc_keys = self.smembers(self.dockey(self.docid))
+        
+    def pull(self, docid, typename=None, objid=None):
+        """you need to call this with either typename AND objid
+        or leave out both.  leaving them out means retrieve all
+        otherwise, retrieves a specific object
+        """
+        doc_keys = self.smembers(dockey(docid))
         attrs = self.mget(doc_keys)
-        if asdict:
-            return attrs
         data = []
         for k, attr in zip(doc_keys, attrs):
-            typename, _, modelid = self.parse_modelkey(k)
+            typename, _, modelid = parse_modelkey(k)
             attr = protocol.deserialize_json(decode_utf8(attr))
             data.append({'type': typename, 'attributes': attr})
-        models = self.load_broadcast_attrs(data, events=None)
-        for m in models:
-            m._dirty = False
+        return data
+        
+    def get_document(self, docid):
+        json_objs = self.pull(docid)
+        doc = Document(json_objs)
+        doc.docid = docid
+        return doc
+        
+    def store_objects(self, docid, *objs, **kwargs):
+        dirty_only = kwargs.pop('dirty_only', True)
+        models = set()
+        for obj in objs:
+            models.add(obj.references())
+        if dirty_only:
+            models = list(models)            
+        json_objs = utils.dump(models, docid)
+        self.push(doc.docid, *json_objs)
+        for mod in models:
+            mod._dirty = False
         return models
-
-    def store_broadcast_attrs(self, attrs):
-        if not attrs:
-            return
-        keys = [self.modelkey(attr['type'], self.docid, attr['attributes']['id']) for attr in attrs]
-        for attr in attrs:
-            attr['attributes']['doc'] = self.docid
-        attrs = [self.serialize(attr['attributes']) for attr in attrs]
-        dkey = self.dockey(self.docid)
+        
+    def store_document(self, doc, dirty_only=True):
+        """store all dirty models
+        """
+        models = doc._models.values()
+        if dirty_only:
+            models = [x for x in models if hasattr(x, '_dirty') and x._dirty]
+        json_objs = doc.dump(*models)
+        self.push(doc.docid, *json_objs)
+        for mod in models:
+            mod._dirty = False
+        return models
+        
+    def push(self, docid, *jsonobjs):
+        keys = [modelkey(attr['type'], 
+                              docid, 
+                              attr['attributes']['id']) for attr in jsonobjs]
+        for attr in jsonobjs:
+            attr['attributes']['doc'] = docid
+        attrs = [protocol.serialize_json(attr['attributes']) for attr in jsonobjs]
+        dkey = dockey(docid)
         data = dict(zip(keys, attrs))
         self.mset(data)
         self.sadd(dkey, *keys)
 
-    def del_objs(self, to_del):
-        for m in to_del:
-            mkey = self.modelkey(m.__view_model__, self.docid, m._id)
-            self.srem(self.dockey(self.docid), mkey)
-            self.delete(mkey)
-
+    def del_obj(self, docid, m):
+        mkey = modelkey(m.__view_model__, docid, m._id)
+        self.srem(dockey(docid), mkey)
+        self.delete(mkey)
+    
+    """unused for now """
     def load_all_callbacks(self, get_json=False):
         """get_json = return json of callbacks, rather than
         loading them into models
         """
-        doc_keys = self.smembers(self.dockey(self.docid))
+        doc_keys = self.smembers(dockey(docid))
         callback_keys = [x.replace("bbmodel", "bbcallback") for x in doc_keys]
         callbacks = self.mget(callback_keys)
         callbacks = [x for x in callbacks if x]
@@ -150,18 +157,13 @@ class PersistentSession(PersistentBackboneSession, BaseJSONSession, StoreAdapter
             data = self.serialize(callbacks)
             self.set(key, data)
 
-    # TODO: move this to appropriate superclass
-    def raw_js_snippets(self, obj):
-        self.raw_js_objs.append(obj)
-
-class RedisSession(PersistentSession):
-    """session used by the webserver to work with
+class RedisBackboneStorage(PersistentBackboneStorage):
+    """storage used by the webserver to work with
     a user's documents.  uses redis directly.
     """
-
-    def __init__(self, redis, docid, doc=None):
+    def __init__(self, redis):
         self.redis = redis
-        super(RedisSession, self).__init__(docid, doc)
+        super(RedisBackboneStorage).__init__()
 
     def mget(self, doc_keys):
         vals = self.redis.mget(doc_keys)
@@ -186,8 +188,8 @@ class RedisSession(PersistentSession):
     def delete(self, mkey):
         self.redis.delete(mkey)
 
-class InMemorySession(PersistentSession):
-    """session used by the webserver to work with
+class InMemoryBackboneStorage(PersistentBackboneStorage):
+    """storage used by the webserver to work with
     a user's documents.  uses in memory data store directly.
     """
 
@@ -217,8 +219,8 @@ class InMemorySession(PersistentSession):
     def delete(self, key):
         del self._inmem_data[key]
 
-class ShelveSession(PersistentSession):
-    """session used by the webserver to work with
+class ShelveBackboneStorage(PersistentBackboneStorage):
+    """storage used by the webserver to work with
     a user's documents.  uses shelve data store directly.
     """
 
@@ -262,7 +264,7 @@ class ShelveSession(PersistentSession):
 
     def smembers(self, doc_key):
         with self.shelve_sets() as _shelve_sets:
-            return list(_shelve_sets[doc_key])
+            return list(_shelve_sets.get(doc_key, []))
 
     def set(self, key, data):
         with self.shelve_data() as _shelve_data:

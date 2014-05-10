@@ -28,8 +28,8 @@ from .objects import (BoxSelectionOverlay, BoxSelectTool, BoxZoomTool,
                       ColumnDataSource, DataRange1d, Glyph, Grid, GridPlot,
                       LinearAxis, PanTool, Plot, PreviewSaveTool, ResetTool,
                       WheelZoomTool)
-from .plotting import (get_config, output_file, output_notebook, output_server,
-                       session, show)
+from .plotting import (curdoc, output_file, output_notebook, output_server,
+                       show)
 
 #-----------------------------------------------------------------------------
 # Classes and functions
@@ -433,7 +433,7 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
                 output_server(name, url=server)
         elif server:
             if not notebook:
-                output_server("unnamed", url=server)
+                output_server("unnameuuuuuuuuuuuuuud", url=server)
             else:
                 output_notebook(url=server)
         elif notebook:
@@ -441,13 +441,14 @@ def to_bokeh(fig=None, name=None, server=None, notebook=False, xkcd=False):
     else:
         output_file("Unnamed.html")
 
-    sess = session()
+    doc = curdoc()
 
     renderer = BokehRenderer(xkcd)
     exporter = Exporter(renderer)
+
     exporter.run(fig)
-    # the following line is needed to output notebook properly
-    get_config()["curplot"] = renderer.fig
-    sess.add_plot(renderer.fig)
+
+    doc._current_plot = renderer.fig  # TODO (bev) do not rely on private attrs
+    doc.add(renderer.fig)
 
     show()

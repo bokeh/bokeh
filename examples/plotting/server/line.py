@@ -3,15 +3,12 @@
 
 import numpy as np
 from bokeh.plotting import *
-
+from bokeh.session import Session
 N = 80
 
 x = np.linspace(0, 4*np.pi, N)
 y = np.sin(x)
 
 output_server("line")
-
 plot = line(x,y, color="#0000FF", tools="pan,wheel_zoom,box_zoom,reset,previewsave")
-print session().object_link(plot)
-show(session().object_link(plot))
-
+show()

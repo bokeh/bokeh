@@ -1,19 +1,14 @@
 from __future__ import print_function
 
-import os
-import sys
-import requests
-import itertools
-
-import numpy as np
-import pandas as pd
-
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
+from bokeh.glyphs import Circle
 from bokeh.objects import (
-    GMapPlot, DataRange1d, Range1d, LinearAxis, ColumnDataSource,
-    Glyph, PanTool, WheelZoomTool, ResizeTool, BoxSelectTool,
+    GMapPlot, Range1d, ColumnDataSource,
+    Glyph, PanTool, WheelZoomTool, BoxSelectTool,
     BoxSelectionOverlay, ObjectExplorerTool, MapOptions)
-from bokeh.glyphs import MultiLine, ImageRGBA, Circle
-from bokeh import session
+from bokeh.resources import INLINE
 
 # The Google Maps plot
 x_range = Range1d()
@@ -56,10 +51,12 @@ circle_renderer = Glyph(
 plot.data_sources.append(source)
 plot.renderers.append(circle_renderer)
 
-sess = session.HTMLFileSession("maps.html")
-sess.add_plot(plot)
+doc = Document()
+doc.add(plot)
 
 if __name__ == "__main__":
-    sess.save()
-    print("Wrote %s" % sess.filename)
-    sess.view()
+    filename = "maps.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Google Maps Example"))
+    print("Wrote %s" % filename)
+    view(filename)

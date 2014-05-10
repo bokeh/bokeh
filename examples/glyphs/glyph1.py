@@ -1,17 +1,18 @@
 from __future__ import print_function
 
-from numpy import pi, arange, sin, cos
-import numpy as np
-import os.path
+from numpy import pi, arange, sin
 
-from bokeh.objects import (Plot, DataRange1d, LinearAxis,
-    ColumnDataSource, Glyph, PanTool, WheelZoomTool)
+from bokeh.browserlib import view
+from bokeh.document import Document
+from bokeh.embed import file_html
 from bokeh.glyphs import Circle
-from bokeh import session
+from bokeh.objects import (
+    Plot, DataRange1d, LinearAxis, ColumnDataSource, Glyph, PanTool, WheelZoomTool
+)
+from bokeh.resources import INLINE
 
 x = arange(-2*pi, 2*pi, 0.1)
 y = sin(x)
-
 
 source = ColumnDataSource(
     data=dict(x=x, y=y)
@@ -39,10 +40,12 @@ wheelzoomtool = WheelZoomTool(dimensions=["width", "height"])
 plot.renderers.append(glyph_renderer)
 plot.tools = [pantool, wheelzoomtool]
 
-sess = session.HTMLFileSession("glyph1.html")
-sess.add_plot(plot)
+doc = Document()
+doc.add(plot)
 
 if __name__ == "__main__":
-    sess.save()
-    print("Wrote %s" % sess.filename)
-    sess.view()
+    filename = "glyph1.html"
+    with open(filename, "w") as f:
+        f.write(file_html(doc, INLINE, "Glyph Plot"))
+    print("Wrote %s" % filename)
+    view(filename)

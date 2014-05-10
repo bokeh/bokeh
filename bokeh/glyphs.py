@@ -1,8 +1,7 @@
-from .properties import (HasProps, Instance, Enum, Float, Int, Color, Percent,
-    Size, Bool, DashPattern, Align, Angle, String, DataSpec, ColorSpec)
+from .properties import Align, Bool, DataSpec, Enum, HasProps, Size
 from .mixins import FillProps, LineProps, TextProps
 from .enums import Units, AngleUnits, Direction
-from .plotobject import Viewable
+from .plot_object import Viewable
 
 from six import add_metaclass, iteritems
 
@@ -54,6 +53,11 @@ class Marker(BaseGlyph, FillProps, LineProps):
     y = DataSpec
     size = DataSpec(units="screen", default=4, min_value=0)
 
+
+
+class Asterisk(Marker):
+    __view_model__ = "asterisk"
+
 class Circle(Marker):
     __view_model__ = "circle"
     radius = DataSpec(units="data", default=4, min_value=0)
@@ -73,47 +77,40 @@ class Circle(Marker):
 
         return d
 
+class CircleCross(Marker):
+    __view_model__ = "circle_cross"
 
-# Other kinds of Markers, to match what GGplot provides
-class Square(Marker):
-    __view_model__ = "square"
-    angle = DataSpec
-
-class Triangle(Marker):
-    __view_model__ = "triangle"
+class CircleX(Marker):
+    __view_model__ = "circle_x"
 
 class Cross(Marker):
     __view_model__ = "cross"
 
-class Xmarker(Marker):
-    __view_model__ = "x"
-
 class Diamond(Marker):
     __view_model__ = "diamond"
-
-class InvertedTriangle(Marker):
-    __view_model__ = "inverted_triangle"
-
-class SquareX(Marker):
-    __view_model__ = "square_x"
-
-class Asterisk(Marker):
-    __view_model__ = "asterisk"
 
 class DiamondCross(Marker):
     __view_model__ = "diamond_cross"
 
-class CircleCross(Marker):
-    __view_model__ = "circle_cross"
+class InvertedTriangle(Marker):
+    __view_model__ = "inverted_triangle"
 
-class HexStar(Marker):
-    __view_model__ = "hexstar"
+class Square(Marker):
+    __view_model__ = "square"
+    angle = DataSpec
 
 class SquareCross(Marker):
     __view_model__ = "square_cross"
 
-class CircleX(Marker):
-    __view_model__ = "circle_x"
+class SquareX(Marker):
+    __view_model__ = "square_x"
+
+class Triangle(Marker):
+    __view_model__ = "triangle"
+
+class Xmarker(Marker):
+    __view_model__ = "x"
+
 
 
 class AnnularWedge(BaseGlyph, FillProps, LineProps):

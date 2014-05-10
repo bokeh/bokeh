@@ -1,5 +1,5 @@
 import six
-from .plotobject import PlotObject
+from .plot_object import PlotObject
 from .properties import (HasProps, Dict, Enum,
                          Either, Float, Instance, Int,
                          List, String, Color, Include, Bool,
@@ -29,14 +29,12 @@ class VBoxModelForm(PlotObject):
                 self._field_defs[prop] = "Int"
             else:
                 self._field_defs[prop] = "String"
-    def create_inputs(self, session):
-        session.add(self)
+    def create_inputs(self, doc):
         if self.input_specs:
             for input_spec in self.input_specs:
                 input_spec = copy.copy(input_spec)
                 widget = input_spec.pop('widget')
                 widget = widget.create(**input_spec)
-                session.add(widget)
                 self._children.append(widget)
 
 
@@ -72,7 +70,8 @@ class BokehApplet(PlotObject):
     modelform = Instance(VBoxModelForm)
     children = List(Instance(PlotObject))
     jsmodel = "HBox"
-    extra_generated_classes = List(Tuple(String, String, String))
+    # Change to List because json unpacks tuples into lists
+    extra_generated_classes = List(List(String))
 
     def update(self, **kwargs):
         super(BokehApplet, self).update(**kwargs)
@@ -93,42 +92,39 @@ class BokehApplet(PlotObject):
 
     def create(self):
         pass
-    def add_all(self, session):
-        objs = self.references()
-        for obj in objs:
-            session.add(obj)
-
+        
     @classmethod
     def add_route(cls, route, bokeh_url):
         from bokeh.server.app import bokeh_app
         from bokeh.pluginutils import app_document
-        from bokeh.plotting import session
+        from bokeh.plotting import curdoc, cursession
         from flask import render_template
         @app_document(cls.__view_model__, bokeh_url)
         def make_app():
             app = cls()
-            app.create(session())
+            curdoc().autostore(False)
+            app.create(curdoc())
             return app
 
         def exampleapp():
             app = make_app()
-            docname = session().docname
-            docid = session().docid
+            docid = curdoc().docid
+            objid = curdoc()._plotcontext._id
             extra_generated_classes = app.extra_generated_classes
             if len(extra_generated_classes) == 0:
-                extra_generated_classes.append((
+                extra_generated_classes.append([
                     app.__view_model__,
                     app.__view_model__,
-                    app.jsmodel))
-                extra_generated_classes.append((
+                    app.jsmodel])
+                extra_generated_classes.append([
                     app.modelform.__view_model__,
                     app.modelform.__view_model__,
-                    app.modelform.jsmodel))
+                    app.modelform.jsmodel])
             return render_template(
                 'applet.html',
                 extra_generated_classes=extra_generated_classes,
                 title=app.__class__.__view_model__,
-                docname=docname,
+                objid=objid,
                 docid=docid,
                 splitjs=bokeh_app.splitjs)
         exampleapp.__name__ = cls.__view_model__

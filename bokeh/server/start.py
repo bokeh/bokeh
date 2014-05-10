@@ -43,12 +43,13 @@ from .app import bokeh_app
 from .models import user
 from . import services
 from .server_backends import (
-    RedisBackboneStorage, RedisServerModelStorage,
-    InMemoryBackboneStorage, InMemoryServerModelStorage,
-    ShelveBackboneStorage, ShelveServerModelStorage,
+    RedisServerModelStorage,
+    InMemoryServerModelStorage,
+    ShelveServerModelStorage,
     SingleUserAuthentication, MultiUserAuthentication,
     HDF5DataBackend
 )
+from .serverbb import RedisBackboneStorage, ShelveBackboneStorage, InMemoryBackboneStorage
 from .flask_gzip import Gzip
 
 PORT = 5006

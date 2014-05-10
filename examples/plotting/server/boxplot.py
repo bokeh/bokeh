@@ -61,5 +61,4 @@ xgrid().grid_line_color = None
 ygrid().grid_line_color = "white"
 ygrid().grid_line_width = 2
 xaxis().major_label_text_font_size="12pt"
-
 show()

@@ -3,6 +3,72 @@ from ._version import get_versions
 __version__ = get_versions()['version']
 del get_versions
 
+_notebook_loaded = None
+
+def load_notebook(resources=None, verbose=False, force=False):
+    ''' Prepare the IPython notebook for displaying Bokeh plots.
+
+    Args:
+        resources (Resource, optional) : a resource object describing how and where to load BokehJS from
+        verbose (bool, optional) : whether to report detailed settings (default: False)
+        force (bool, optional) : whether to skip IPython notebook check (default: False)
+
+    Returns:
+        None
+
+    '''
+    global _notebook_loaded
+
+    # It's possible the IPython folks will chance things in the future, `force` parameter
+    # provides an escape hatch as long as `displaypub` works
+    if not force:
+        notebook = False
+        try:
+            notebook = 'notebook' in get_ipython().config['IPKernelApp']['parent_appname']
+        except Exception:
+            pass
+        if not notebook:
+            raise RuntimeError('load_notebook() only works inside an IPython Notebook.')
+
+    import IPython.core.displaypub as displaypub
+    from .resources import INLINE
+    from .templates import NOTEBOOK_LOAD, RESOURCES
+
+    if resources is None:
+        resources = INLINE
+
+    plot_resources = RESOURCES.render(
+        js_raw = resources.js_raw,
+        css_raw = resources.css_raw,
+        js_files = resources.js_files,
+        css_files = resources.css_files,
+    )
+
+    if resources.mode == 'inline':
+        js_info = 'inline'
+        css_info = 'inline'
+    else:
+        js_info = resources.js_files[0] if len(resources.js_files) == 1 else resources.js_files
+        css_info = resources.css_files[0] if len(resources.css_files) == 1 else resources.css_files
+
+    warnings = ["Warning: " + msg['text'] for msg in resources.messages if msg['type'] == 'warn']
+
+    if _notebook_loaded:
+        warnings.append('Warning: BokehJS previously loaded')
+
+    _notebook_loaded = resources
+
+    html = NOTEBOOK_LOAD.render(
+        plot_resources = plot_resources,
+        logo_url = resources.logo_url,
+        verbose = verbose,
+        js_info = js_info,
+        css_info = css_info,
+        bokeh_version = __version__,
+        warnings = warnings,
+    )
+    displaypub.publish_display_data('bokeh', {'text/html': html})
+
 class Settings(object):
     _prefix = "BOKEH_"
 
@@ -37,8 +103,15 @@ class Settings(object):
     def rootdir(self, default=None):
         return self._get_str("ROOTDIR", default)
 
+    def version(self, default=None):
+        return self._get_str("VERSION", default)
+
+    def minified(self, default=None):
+        return self._get_bool("MINIFIED", default)
+
     def pretty(self, default=None):
         return self._get_bool("PRETTY", default)
+
     def pythonlib(self, default=None):
         return self._get_str("PYTHONLIB", default)
 
