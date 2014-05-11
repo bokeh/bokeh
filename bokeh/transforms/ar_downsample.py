@@ -1,10 +1,16 @@
 import arpy
 
 from bokeh.plotobject import PlotObject
-from bokeh.objects import ServerDataSource, Plot, Renderer, Glyph
+from bokeh.objects import ColumnDataSource, ServerDataSource, Plot, Renderer, Glyph
 from bokeh.properties import (HasProps, Dict, Enum, Either, Float, Instance, Int,
     List, String, Color, Include, Bool, Tuple, Any)
+import bokeh.glyphs as glyphs
+from ..plotting_helpers import (get_default_color, get_default_alpha,
+        _glyph_doc, _match_data_params, _update_plot_data_ranges,
+        _materialize_colors_and_alpha, _get_legend, _make_legend,
+        _get_select_tool, _new_xy_plot, _handle_1d_data_args, _list_attr_splat)
 
+from six import iteritems
 import logging
 logger = logging.getLogger(__file__)
 
@@ -61,6 +67,60 @@ class Cuberoot(DataShader):
 #
 
 
+def glyphspec(*args, **kwargs):
+  import bokeh.plotting_helpers
+
+  #TODO: provide as params
+  glyphclass = glyphs.Square
+  argnames = ('x','y')
+  
+  # Process the keyword arguments that are not glyph-specific
+  session_objs = []
+  source = kwargs.pop('source', None)
+  if isinstance(source, ServerDataSource):
+      datasource = ColumnDataSource()
+      serversource = source
+      session_objs.append(serversource)
+  elif source is None:
+      datasource = ColumnDataSource()
+      serversource = None
+  else:
+      datasource = source
+      serversource = None
+  session_objs.append(datasource)
+  resample_op = kwargs.pop('resample_op', "downsample")
+
+  # Process the glyph dataspec parameters
+  glyph_params = _match_data_params(argnames, glyphclass,
+                                    datasource, serversource,
+                                    args, _materialize_colors_and_alpha(kwargs))
+
+  kwargs.update(glyph_params)
+
+  glyph_props = glyphclass.properties()
+  glyph_kwargs = dict((key, value) for (key, value) in iteritems(kwargs) if key in glyph_props)
+
+  glyph = glyphclass(**glyph_kwargs)
+
+  nonselection_glyph_params = _materialize_colors_and_alpha(kwargs, prefix='nonselection_', default_alpha=0.1)
+  nonselection_glyph = glyph.clone()
+
+  nonselection_glyph.fill_color = nonselection_glyph_params['fill_color']
+  nonselection_glyph.line_color = nonselection_glyph_params['line_color']
+
+  nonselection_glyph.fill_alpha = nonselection_glyph_params['fill_alpha']
+  nonselection_glyph.line_alpha = nonselection_glyph_params['line_alpha']
+
+  glyph_renderer = Glyph(
+      data_source=datasource,
+      server_data_source=serversource,
+      glyph=glyph,
+      resample_op=resample_op,
+      nonselection_glyph=nonselection_glyph)
+  return glyph_renderer
+
+
+
 class Resample(ServerDataSource):
   """ Resample is used to construct the appropriate data strucures to run downsample.
       downsample is called by the server with arguments derived from resample.
@@ -74,11 +134,7 @@ class Resample(ServerDataSource):
   shader = Instance(DataShader)
 
   def __init__(self, **kwargs):
-    plot = kwargs.pop('glyphs', None)
     super(ServerDataSource, self).__init__(**kwargs)
-
-    if plot is not None: 
-      self.glyphs = [r for r in plot.renderers if isinstance(r, Glyph)][0]
 
     #Would like it if Properties set the defaults when not provided....
     if self.agg is None : self.agg = Count() 

@@ -1,6 +1,7 @@
 import numpy as np
 from bokeh.plotting import *
-from bokeh.objects import ServerDataSource
+from bokeh.objects import Range1d, ServerDataSource
+
 import bokeh.transforms.ar_downsample as ar
 
 """
@@ -16,14 +17,17 @@ output_server("Abstract rendering")
 source = ServerDataSource(data_url="/defaultuser/AAPL.hdf5", owner_username="defaultuser")
 
 
-plot = square('date','close',color='#FF00FF',source=source)
+#plot = square('date','close',color='#FF00FF',source=source)
+spec = ar.glyphspec('date','close',color='#FF00FF',source=source)
 
 # Simple heat-map: bin the counts
-heatmap = ar.Resample(glyphs=plot)  #Temporary...until we work out chaining...
+heatmap = ar.Resample(glyphs=spec)  #Temporary...until we work out chaining...
 #heatmap = ar.Resample(glyphs=plot, agg=ar.Count(), info=ar.Const(1), select=ar.Touches(), shader=ar.Interpolate(0,9)+ar.Floor())
 #heatmap = ar.Resample(glyphs=plot, shader=ar.Interpolate(0,9) + ar.Floor())
 #heatmap = ar.Resample(glyphs=plot) + ar.Interpolate(0,9) + ar.Floor()
-image(source=heatmap, image="image", x='x', y='y', dw='dw', dh='dh', palette=["reds-9"])
+image(source=heatmap, image="image", x='x', y='y', dw='dw', dh='dh', palette=["reds-9"],
+    x_range=Range1d(start=0, end=10), 
+    y_range=Range1d(start=0, end=10))
 #
 #
 ###Perceptually corrected heat-map.  Cube-root then bin
