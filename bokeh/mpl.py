@@ -28,18 +28,11 @@ from .glyphs import (Line, Circle, Square, Cross, Triangle, InvertedTriangle,
 # Classes and functions
 #-----------------------------------------------------------------------------
 
-# This is used to accumulate plots generated via the plotting methods in this
-# module.  It is used by build_gallery.py.  To activate this feature, simply
-# set _PLOTLIST to an empty list; to turn it off, set it back to None.
-_PLOTLIST = None
-
-
 class BokehRenderer(Renderer):
 
     def __init__(self, xkcd):
         "Initial setup."
         self.fig = None
-        #self.sess = session()
         self.xkcd = xkcd
         self.source = ColumnDataSource()
         self.xdr = DataRange1d()
@@ -64,12 +57,7 @@ class BokehRenderer(Renderer):
         previewsave = PreviewSaveTool(plot=self.plot)
         self.plot.tools = [pantool, wheelzoom, previewsave]
 
-        # Gallery list
-        if _PLOTLIST is not None:
-            _PLOTLIST.append(self.plot)
-
         self.fig = self.plot
-        #self.sess.add_plot(self.plot)
 
     def open_axes(self, ax, props):
         "Get axes data and create the axes and grids"
