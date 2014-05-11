@@ -147,6 +147,7 @@ def autoload_static(plot_object, resources, script_path):
     elementid = str(uuid.uuid4())
 
     js = AUTOLOAD.render(
+        all_models = serialize_json(plot_object.dump()),
         js_url = resources.js_files[0],
         css_files = resources.css_files,
         elementid = elementid,
@@ -162,7 +163,7 @@ def autoload_static(plot_object, resources, script_path):
     return encode_utf8(js), encode_utf8(tag)
 
 
-def autoload_server(plot_object, session, mode="server"):
+def autoload_server(plot_object, session):
     ''' Return a script tag that can be used to embed Bokeh Plots from
     a Bokeh Server.
 
