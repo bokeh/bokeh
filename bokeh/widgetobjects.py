@@ -157,3 +157,6 @@ class Slider(InputWidget):
     end = Float()
     steps = Int(default=50)
     orientation = Enum("horizontal", "vertical")
+    
+class CrossFilter(PlotObject):
+    pass
