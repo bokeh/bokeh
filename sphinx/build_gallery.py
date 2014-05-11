@@ -10,16 +10,19 @@ from bokeh import plotting
 from bokeh import plotting_helpers
 from bokeh import mpl
 
-# patch open and show to be no-ops
+# patch open and show and save to be no-ops
 def noop(*args, **kwargs):
     pass
 webbrowser.open = noop
-plotting.show= noop
-
+plotting.save = noop
+plotting.show = noop
 
 def page_desc(module_desc):
     module_path, name = module_desc['file'], module_desc['name']
     var_name = module_desc.get('var_name', None)
+
+    from bokeh.document import Document
+    plotting._default_document = Document()
 
     plotting_helpers._PLOTLIST = []
     mpl._PLOTLIST = []
